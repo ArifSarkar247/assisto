@@ -11,6 +11,16 @@
   </form>
   <p class="mut small">{{ T.ws_note }}</p>
 </section>
+<section class="card" id="privacy"><h2>{{ T.ws_pp_title }}</h2>
+  <p><b>{{ T.ws_pp_now }}</b>
+  {% if privacy_live %}<span class="pill ok">{{ T.ws_pp_live_new }}</span>{% else %}<span class="pill off">{{ T.ws_pp_live_old }}</span>{% endif %}
+  · <a href="/preview/privacy" target="_blank" rel="noopener">/preview/privacy</a> · <a href="/preview/privacy?lang=en" target="_blank" rel="noopener">EN</a></p>
+  <form method="post" class="inline">{% include "owner/_csrf.html" %}
+    {% if privacy_live %}<input type="hidden" name="action" value="privacy_rollback"><button class="btn ghost">{{ T.ws_pp_rollback }}</button>
+    {% else %}<input type="hidden" name="action" value="privacy_golive"><button class="btn">{{ T.ws_pp_golive }}</button>{% endif %}
+  </form>
+  <p class="mut small">{{ T.ws_pp_note }}</p>
+</section>
 <section class="card" id="play"><h2>{{ T.ws_play_title }}</h2>
   <p><b>{{ T.ws_play_now }}</b> {% if play_public %}<span class="pill ok">{{ T.ws_play_public }}</span>{% else %}<span class="pill off">{{ T.ws_play_soon }}</span>{% endif %} · {{ T.ws_play_mode }}: <b>{% if play_mode == 'auto' %}{{ T.ws_play_auto }}{% elif play_mode == 'public' %}{{ T.ws_play_force_public }}{% else %}{{ T.ws_play_force_soon }}{% endif %}</b></p>
   <form method="post" class="inline">{% include "owner/_csrf.html" %}

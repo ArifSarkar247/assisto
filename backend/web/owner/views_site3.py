@@ -28,6 +28,18 @@ def website(request):
                 return done("/owner/website", "saved")
             problems = payload.get("problems") or []
             status = 400
+        elif act in ("privacy_golive", "privacy_rollback"):
+            # privacyupd: the updated privacy policy (preview until the owner says OK)
+            from web import views_legal as VL
+            value = act == "privacy_golive"
+            before = VL.privacy_v2_live()
+            ok, payload = VL.privacy_flip(request.owner.id, value)
+            if ok:
+                S.audit(request, request.owner, "flag.flip", "flag:%s" % VL.PRIVACY_V2_FLAG,
+                        before={VL.PRIVACY_V2_FLAG: before}, after={VL.PRIVACY_V2_FLAG: value})
+                return done("/owner/website", "saved")
+            problems = payload.get("problems") or []
+            status = 400
         elif act in ("play_auto", "play_public", "play_hidden"):
             from core.views_build61 import flags_flip
             want = {"play_auto": {"website_play_auto": True},
@@ -47,8 +59,10 @@ def website(request):
             status = 400
         else:
             problems, status = ["bad_value"], 400
+    from web import views_legal as VL
     return page(request, "owner/website.html",
-                {"live": live, "problems": problems, "play_mode": DIST.play_mode(),
+                {"live": live, "privacy_live": VL.privacy_v2_live(), "problems": problems, "play_mode": DIST.play_mode(),
                  "play_public": DIST.play_public(), "apk": DIST.apk_info(), "apk_url": DIST.apk_url(),
-                 "previews": [("/preview/", "/preview/?lang=en"), ("/preview/features/safety", "/preview/features/safety?lang=en")]},
+                 "previews": [("/preview/", "/preview/?lang=en"), ("/preview/features/safety", "/preview/features/safety?lang=en"),
+                              ("/preview/privacy", "/preview/privacy?lang=en")]},
                 status=status, nav="website")
