@@ -47,6 +47,10 @@ SEAM_ALLOW = {
     "core/management/commands/ai_quality_probe.py": (
         "owner-run offline quality probe: a FIXED list of synthetic Bangla "
         "prompts (no user data) sent to each provider for side-by-side review"),
+    # e2eproof
+    "ci_e2e/fakes.py": (
+        "CI-only e2e proof run (settings_e2e): REPLACES the provider seam with a "
+        "deterministic offline fake — nothing is ever sent to a provider"),
 }
 
 # files that talk to an AI provider's API themselves -> what they send and why

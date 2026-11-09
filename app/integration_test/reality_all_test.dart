@@ -15,6 +15,7 @@ import 'flows/business_flow.dart';
 import 'flows/crm100_flow.dart'; // crm100
 import 'flows/circle_real_call_flow.dart';
 import 'flows/docs_voice_settings_flow.dart';
+import 'flows/e2e_proof_flows.dart'; // e2eproof
 import 'flows/family_alerts_flow.dart';
 import 'flows/family_circle_flow.dart';
 import 'flows/home_flow.dart';
@@ -52,4 +53,6 @@ void main() {
   if (on('business')) registerCrm100Flows(); // crm100
   if (on('docs')) registerDocsVoiceSettingsFlows();
   if (on('sweep')) registerSweepFlow();
+  // e2eproof: the 8 proof flows need settings_e2e's fakes -> opt-in only (e2e.yml)
+  if (only.split(',').contains('e2e')) registerE2eProofFlows();
 }

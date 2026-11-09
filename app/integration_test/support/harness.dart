@@ -81,8 +81,12 @@ class StepResult {
   bool ok = false;
   String detail = '';
   final List<String> shots = [];
+  // e2eproof: per-step timing for the JSON proof (start offset in the flow + duration)
+  int atMs = 0;
+  int ms = 0;
   StepResult(this.name);
-  Map<String, dynamic> toJson() => {'name': name, 'ok': ok, 'detail': detail, 'shots': shots};
+  Map<String, dynamic> toJson() =>
+      {'name': name, 'ok': ok, 'detail': detail, 'shots': shots, 'at_ms': atMs, 'ms': ms};
 }
 
 class FlowResult {
@@ -317,6 +321,7 @@ class RFlow {
     final s = StepResult(name);
     r.steps.add(s);
     _cur = s;
+    s.atMs = r.sw.elapsedMilliseconds; // e2eproof
     try {
       await body();
       s.ok = true;
@@ -324,6 +329,7 @@ class RFlow {
       s.detail = '$e'.split('\n').first;
       rethrow;
     } finally {
+      s.ms = r.sw.elapsedMilliseconds - s.atMs; // e2eproof
       _cur = null;
     }
   }
