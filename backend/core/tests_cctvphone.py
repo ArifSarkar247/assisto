@@ -376,8 +376,8 @@ class DaytimeAlertTests(_Base):
         self.assertEqual(ev.camera_id, cam.id)
         self.assertTrue(ev.snapshot)
         for u in (self.owner, self.viewer):
-            self.assertTrue(NotifEvent.objects.filter(user=u).exclude(
-                meta__kind="paired").exists(), u.name)
+            self.assertTrue(NotifEvent.objects.filter(
+                user=u, meta__event_id=ev.id).exists(), u.name)
 
     def test_motion_only_phone_is_an_honest_possible_alert(self):
         import json

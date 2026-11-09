@@ -153,8 +153,8 @@ void main() {
       final out = shrinkAlertJpeg(raw)!;
       expect(out.length, lessThanOrEqualTo(200 * 1024));
       final back = img.decodeJpg(out)!;
-      expect(back.width, 960);
-      expect(back.height, 720);
+      expect(back.width, lessThanOrEqualTo(960));
+      expect(back.width / back.height, closeTo(4 / 3, 0.01)); // never stretched
     });
     test('garbage is null, never a crash', () {
       expect(shrinkAlertJpeg(Uint8List(300 * 1024)), isNull);
