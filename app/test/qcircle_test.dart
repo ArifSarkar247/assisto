@@ -1,8 +1,13 @@
 // qcircle (quality push 9 Nov) — My Circle quiet hours: messages still
 // arrive, silently, inside the user's window; calls / SOS untouched.
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:assisto/l10n/app_localizations.dart';
+import 'package:assisto/messaging/media/album.dart';
+import 'package:assisto/messaging/media/media_descriptor.dart';
+import 'package:assisto/messaging/media/media_store.dart';
+import 'package:assisto/messaging/media/photo_album_view.dart';
 import 'package:assisto/messaging/msg_prefs.dart';
 import 'package:assisto/messaging/msg_settings_section.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +15,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'md1_media_test.dart' show FakeServer;
 
 const _ch = MethodChannel('com.assisto/c3_messaging');
 
@@ -41,6 +48,12 @@ Widget _wrap(Widget child, {String lang = 'en', double scale = 1}) =>
           child: w!),
       home: child,
     );
+
+MediaDescriptor _desc(int i, int n) => MediaDescriptor(
+    kind: 'photo', ref: '$i'.padLeft(32, 'q'), key: Uint8List(32)..[0] = 1,
+    nonce: Uint8List(12), sha256: 'e' * 64, size: 1000, plainSize: 968,
+    mime: 'image/jpeg', width: 400, height: 300, thumb: null, caption: '',
+    album: AlbumRef(id: 'a', index: i, count: n));
 
 DateTime _at(int h, int m) => DateTime(2026, 11, 9, h, m);
 
@@ -141,5 +154,58 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     }
+  });
+
+  group('album: long-press acts on the pressed photo (owner limit fixed)', () {
+    late Directory dir;
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      dir = await Directory.systemTemp.createTemp('qct');
+      MediaDirs.override = dir.path;
+      MediaPrefs.metered = () async => true; // no auto download
+      MediaCache.instance = MediaCache(transport: FakeServer());
+    });
+    tearDown(() async {
+      MediaDirs.override = null;
+      try {
+        await dir.delete(recursive: true);
+      } catch (_) {}
+    });
+
+    testWidgets('each tile reports its own index; single photo has no tile handler',
+        (tester) async {
+      final got = <int>[];
+      final items = [
+        for (var i = 0; i < 4; i++) AlbumItem(id: '$i', desc: _desc(i, 4))
+      ];
+      await tester.pumpWidget(_wrap(Scaffold(
+          body: Center(
+              child: PhotoAlbumView(
+                  items: items,
+                  size: const Size(260, 260),
+                  onLongPressItem: got.add)))));
+      await tester.pump();
+      for (final i in [2, 0, 3]) {
+        await tester.longPress(find.byKey(ValueKey('qc-album-lp-$i')));
+        await tester.pump();
+      }
+      expect(got, [2, 0, 3]);
+
+      await tester.pumpWidget(_wrap(Scaffold(
+          body: Center(
+              child: PhotoAlbumView(
+                  items: [AlbumItem(id: 'x', desc: _desc(0, 1))],
+                  size: const Size(260, 260),
+                  onLongPressItem: got.add)))));
+      await tester.pump();
+      expect(find.byKey(const ValueKey('qc-album-lp-0')), findsNothing);
+    });
+
+    test('both chat screens wire the per-photo long-press', () {
+      expect(File('lib/screens/circle_chat_screen.dart').readAsStringSync(),
+          contains('onLongPressAlbumItem:'));
+      expect(File('lib/screens/circle_group_chat_screen.dart').readAsStringSync(),
+          contains('onLongPressItem:'));
+    });
   });
 }

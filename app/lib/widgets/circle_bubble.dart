@@ -195,9 +195,14 @@ class CircleBubble extends StatelessWidget {
   /// circlea: the decrypted link preview (built on the sender's phone and
   /// carried inside the E2E message); null = none.
   final LinkPreviewData? linkPreview;
+
+  /// qcircle: long-press ONE picture of an album → actions for that item
+  /// (null = the whole bubble's [onLongPress], as before).
+  final void Function(CircleMessage item)? onLongPressAlbumItem;
   const CircleBubble(
       {super.key,
       required this.msg,
+      this.onLongPressAlbumItem,
       this.linkPreview,
       this.continued = false,
       this.waitingName = '',
@@ -343,6 +348,11 @@ class CircleBubble extends StatelessWidget {
                       : LinkifiedText(caption,
                           style: TextStyle(color: fg, height: 1.4), linkColor: fg),
                   meta: PhotoMetaPill(children: _pillMeta(context)),
+                  onLongPressItem: (onLongPress == null ||
+                          onLongPressAlbumItem == null ||
+                          members.length < 2)
+                      ? null
+                      : (i) => onLongPressAlbumItem!(members[i]),
                   onOpen: (i, file) {
                     final open = onOpenAlbum;
                     final single = members.length == 1 ? members.first.media : null;
