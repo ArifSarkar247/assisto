@@ -89,22 +89,24 @@ jobs:
           ${{ steps.py311.outputs.python-path }} -m venv /tmp/vk
           /tmp/vk/bin/pip install -q "numpy==1.26.4" "soundfile==0.12.1"
           /tmp/vk/bin/pip install -q --extra-index-url https://download.pytorch.org/whl/cpu \
-            "torch==2.4.1" "kokoro==0.9.4" "misaki[en]==0.9.4"
+            "torch==2.6.0" "kokoro==0.9.4" "misaki[en]==0.9.4"
       - name: Render GB/US voices (Kokoro)
         run: /tmp/vk/bin/python tools/lp/tts/synth.py --engine kokoro --plan work/plan.json --clips work/clips
       - name: MeloTTS venv (MIT) for the Australian voice
         id: melo
         continue-on-error: true
+        timeout-minutes: 20
         run: |
           ${{ steps.py310.outputs.python-path }} -m venv /tmp/vm
           /tmp/vm/bin/pip install -q "numpy==1.26.4" "setuptools<70" wheel
-          /tmp/vm/bin/pip install -q --extra-index-url https://download.pytorch.org/whl/cpu "torch==2.4.1" "torchaudio==2.4.1"
+          /tmp/vm/bin/pip install -q --extra-index-url https://download.pytorch.org/whl/cpu "torch==2.6.0" "torchaudio==2.6.0"
           /tmp/vm/bin/pip install -q "git+https://github.com/myshell-ai/MeloTTS.git@209145371cff8fc3bd60d7be902ea69cbdb7965a"
           /tmp/vm/bin/python -m unidic download
           /tmp/vm/bin/python -c "import nltk; nltk.download('averaged_perceptron_tagger_eng', quiet=True); nltk.download('averaged_perceptron_tagger', quiet=True); nltk.download('cmudict', quiet=True)"
       - name: Render AU voice (MeloTTS)
         if: steps.melo.outcome == 'success'
         continue-on-error: true
+        timeout-minutes: 30
         run: /tmp/vm/bin/python tools/lp/tts/synth.py --engine melo --plan work/plan.json --clips work/clips
       - name: Assemble mp3 + manifest
         run: /tmp/vk/bin/python tools/lp/tts/assemble.py --plan work/plan.json --clips work/clips --out out/audio

@@ -82,6 +82,10 @@ def main(argv=None):
     print(json.dumps({k: v for k, v in rep.items() if k != "failed"}), f"failed={len(fails)}")
     if fails:
         print("first failure:", next(iter(fails.values())), file=sys.stderr)
+        # Kokoro carries the narrator and GB/US voices: any failure is fatal. MeloTTS (AU) is
+        # optional: assemble.py falls back to a labelled GB voice for missing AU clips.
+        if a.engine == "kokoro":
+            sys.exit(1)
 
 
 if __name__ == "__main__":

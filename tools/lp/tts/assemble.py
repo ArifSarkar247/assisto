@@ -24,7 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 VOICES = json.load(open(os.path.join(HERE, "voices.json"), encoding="utf-8"))
 SR = 24000
 LICENCES = {
-    "kokoro": {"engine": "Kokoro-82M v1.0 (kokoro==0.9.4)", "licence": "Apache-2.0",
+    "kokoro": {"engine": "Kokoro-82M v1.0 (kokoro==0.9.4, torch 2.6.0)", "licence": "Apache-2.0",
                "source": "https://huggingface.co/hexgrad/Kokoro-82M"},
     "melo": {"engine": "MeloTTS English (commit 209145371cff)", "licence": "MIT",
              "source": "https://huggingface.co/myshell-ai/MeloTTS-English"},
