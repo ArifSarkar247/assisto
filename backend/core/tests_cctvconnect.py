@@ -667,6 +667,17 @@ class ImouOAuthE2ETests(E2E._Base):
         link.refresh_from_db()
         self.assertFalse(V.imou_poll_due(link, timezone.now()))        # 100 %: stopped
 
+    def test_card_says_waiting_for_imou_until_oauth_keys(self):
+        _enable("imou", {"app_id": "imid", "app_secret": "ims"})
+        rows = {r["slug"]: r for r in integrations.list_all("en")}
+        self.assertIn("waiting for Imou approval (ticket 483)", rows["imou"]["usage"])
+        _enable("imou", self.sim.cfg("imou"))
+        rows = {r["slug"]: r for r in integrations.list_all("en")}
+        self.assertNotIn("ticket 483", rows["imou"]["usage"])
+        # the callback stays live: an unknown visit gets a clean, no-store page
+        r = APIClient().get("/api/v1/cctv/imou/oauth/callback")
+        self.assertEqual((r.status_code, r["Cache-Control"]), (400, "no-store"))
+
     def test_owner_admin_test_checks_oauth_keys(self):
         ok, detail = integrations.test_imou(self.sim.cfg("imou"), http=self.sim.http)
         self.assertTrue(ok, detail)

@@ -1468,14 +1468,32 @@ def test_ezviz(cfg, http=None):
 
 
 # ---- cctvconnect ----
+# owner 9 Nov 17:15: the Imou OAuth project "Assisto Camera Link" waits for
+# Imou's permission (work ticket 483) — said on the card until keys exist
+IMOU_OAUTH_PENDING = ("OAuth (এক ট্যাপে গ্রাহকের নিজের Imou অ্যাকাউন্ট): Imou-র অনুমোদনের অপেক্ষায় (টিকিট ৪৮৩) — "
+                      "অনুমোদন এলে তিনটি OAuth ঘর পূরণ করে Test চাপুন",
+                      "OAuth (customer's own Imou account in one tap): waiting for Imou approval "
+                      "(ticket 483) — when approved, fill the three OAuth fields and press Test")
+
+
 def _vendor_usage(slug, lang):
     if slug not in ("imou",):
         return ""
+    out = []
+    try:
+        cfg = get(slug) or {}
+        if not all(cfg.get(k) for k in ("oauth_ak", "oauth_sk", "oauth_h5_url")):
+            out.append(IMOU_OAUTH_PENDING[0] if lang == "bn" else IMOU_OAUTH_PENDING[1])
+    except Exception:
+        pass
     try:
         from .logic.cctv_connect import quota as Q
-        return Q.text(slug, lang)
+        t = Q.text(slug, lang)
+        if t:
+            out.append(t)
     except Exception:
-        return ""
+        pass
+    return " · ".join(out)
 
 
 def test_hikconnect(cfg, http=None):
