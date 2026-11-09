@@ -1,12 +1,19 @@
 {
-  "_comment": "qbiz (quality push 9 Nov): khata customer due link. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_qbiz_arb.json",
+  "_comment": "qbiz (quality push 9 Nov): khata customer due link. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_qbiz_arb.json Also the CCTV accuracy no-shop button.",
   "en": {
     "qbizDueLinkButton": "Send due link (web page)",
-    "@qbizDueLinkButton": {"description": "Khata statement: share a read-only web page of this customer's own due"},
-    "qbizDueLinkHint": "The customer sees their own due and entries in any browser — no app needed. The link works for 30 days and never shows your notes."
+    "@qbizDueLinkButton": {
+      "description": "Khata statement: share a read-only web page of this customer's own due"
+    },
+    "qbizDueLinkHint": "The customer sees their own due and entries in any browser — no app needed. The link works for 30 days and never shows your notes.",
+    "qbizCamAddShop": "Back to Shop Box to pick or add a shop",
+    "@qbizCamAddShop": {
+      "description": "CCTV accuracy screen opened without a shop: button back to the Shop Box"
+    }
   },
   "bn": {
     "qbizDueLinkButton": "বাকি-দেখার লিংক পাঠান",
-    "qbizDueLinkHint": "গ্রাহক যেকোনো ব্রাউজারে নিজের বাকি ও লেনদেন দেখবেন — অ্যাপ লাগবে না। লিংক ৩০ দিন চালু থাকে, আপনার নোট কখনো দেখায় না।"
+    "qbizDueLinkHint": "গ্রাহক যেকোনো ব্রাউজারে নিজের বাকি ও লেনদেন দেখবেন — অ্যাপ লাগবে না। লিংক ৩০ দিন চালু থাকে, আপনার নোট কখনো দেখায় না।",
+    "qbizCamAddShop": "দোকান বাছতে বা যোগ করতে শপ বক্সে ফিরুন"
   }
 }
