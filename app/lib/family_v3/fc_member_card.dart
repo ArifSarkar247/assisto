@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import 'fc_manage.dart'; // fcrest
 import 'fc_status.dart';
 import 'fc_text.dart';
 
@@ -78,6 +79,9 @@ class FcMemberCard extends StatelessWidget {
             ? '${t.fc3Battery(fcDigits(context, batt))} · ${t.fc3Charging}'
             : t.fc3Battery(fcDigits(context, batt)),
     ].join(' · ');
+    // fcrest: Probashi both clocks + the 15 % battery last place
+    final clocks = fcrBothClocks(context, member, now);
+    final lastLoc = st.state == 'paused' ? null : fcrLastLocation(brain);
     final showReason = st.state != 'ok' && st.state != 'paused';
     final reason = showReason ? fcReason(context, st.reason, brain) : '';
     final bg = switch (st.state) {
@@ -116,6 +120,10 @@ class FcMemberCard extends StatelessWidget {
                     if (meta.isNotEmpty)
                       Text(meta,
                           style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+                    if (clocks.isNotEmpty)
+                      Text(clocks,
+                          key: ValueKey('fcr-clocks-${member['user_id']}'),
+                          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
                   ],
                 ),
               ),
@@ -135,6 +143,28 @@ class FcMemberCard extends StatelessWidget {
                 child: Text(chip,
                     style: TextStyle(color: ink, fontWeight: FontWeight.w600, fontSize: 13)),
               ),
+            ),
+          ],
+          if (lastLoc != null) ...[
+            const SizedBox(height: Gap.sm),
+            Row(
+              key: ValueKey('fcr-lastloc-${member['user_id']}'),
+              children: [
+                Icon(Icons.battery_alert_rounded, color: fcInk(context, 'check')),
+                const SizedBox(width: Gap.xs),
+                Expanded(
+                  child: Text(
+                      t.fcrLastPlace(fcDigits(context, lastLoc['pct'] ?? brain['battery'] ?? 15),
+                          fcClock(context, lastLoc['at'])),
+                      style: TextStyle(color: scheme.onSurface)),
+                ),
+                TextButton(
+                  key: ValueKey('fcr-map-${member['user_id']}'),
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: () => fcrOpenMap(context, lastLoc),
+                  child: Text(t.fcrOpenMap),
+                ),
+              ],
             ),
           ],
           if (reason.isNotEmpty) ...[
@@ -182,7 +212,7 @@ class FcMemberCard extends StatelessWidget {
       ),
     );
     final a11y = t.fc3CardA11y(name, fcStateWord(t, st.state),
-        [place, meta, reason].where((s) => s.isNotEmpty).join('. '));
+        [place, meta, clocks, reason].where((s) => s.isNotEmpty).join('. '));
     final radius = BorderRadius.circular(16);
     Widget card = Material(
       color: bg,

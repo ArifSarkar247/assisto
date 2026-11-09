@@ -640,7 +640,8 @@ def member_rows(viewer, family_id, now=None):
             "brain": {k: brain.get(k) for k in
                       ("last_seen", "battery", "charging", "net", "bg_restricted",
                        "paused_until", "interval_s", "place_label", "place_kind",
-                       "place_since", "last_event", "brand", "auto_arrive", "watch_on")
+                       "place_since", "last_event", "brand", "auto_arrive", "watch_on",
+                       "last_location")   # fcrest: the 15 % battery share
                       if k in brain},
             "status": status, "chip": _chip(status, brain, cc.get(u.id), now),
             "carecall": cc.get(u.id) or {"done": 0, "missed": 0, "pending": 0},

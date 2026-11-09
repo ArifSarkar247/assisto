@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../family_v3/fc_slots_register.dart'; // fcrest
 import '../state.dart';
 import '../theme.dart';
 import '../train/dest_alarm_sound.dart';
@@ -38,6 +39,7 @@ class ElderHooks {
   }
 
   static Future<void> sos(BuildContext context) async {
+    if (openSos == null) fcRegisterSlots(); // fcrest: the 5-second SOS sender
     final f = openSos;
     if (f != null) return f(context);
     ChatNav.push(context, 'emergency');

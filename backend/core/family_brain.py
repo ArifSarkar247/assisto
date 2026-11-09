@@ -63,6 +63,7 @@ MAX_TIMELINE = 60
 MAX_SEEN_IDS = 80
 MAX_LATENCY = 200
 REMINDER_DAYS = 30
+AREA_TTL_H = 3                   # fcrest: a phone-Geocoder area is shown for 3 h
 LOC_TTL_H = 24                   # a 15 % last location is shown for one day
 
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
@@ -411,6 +412,16 @@ def ping(user, data, now=None):
                 if e["lat"] is not None and e["lng"] is not None:
                     st["_pending_loc"] = {"lat": e["lat"], "lng": e["lng"],
                                           "acc": e["acc"], "at": _iso(e["at"])}
+        # fcrest: the area name from the PHONE's own Geocoder (free; sent only
+        # while the member's own "tell my family" switch is on and they are in
+        # none of their saved places). A name only — never coordinates.
+        area = d.get("area") if isinstance(d.get("area"), dict) else None
+        if paused is None and area is not None and prefs["auto_arrive"]:
+            lbl = re.sub(r"\s+", " ", str(area.get("label") or "")).strip()[:40]
+            if lbl and not st.get("place"):
+                st["area"] = {"label": lbl, "at": _iso(now)}
+        if st.get("place"):
+            st.pop("area", None)          # a saved place wins over the area
         # 15 %: once per discharge, re-armed by charging or > 30 %
         bat, chg = st.get("battery"), st.get("charging") is True
         if chg or (bat is not None and bat >= REARM_BATTERY):
@@ -664,12 +675,17 @@ def member_brain_state(viewer, member, now=None):
         if paused:
             return base
         place = st.get("place") or None
+        if place is None:                 # fcrest: the phone-Geocoder area, fresh only
+            ar = st.get("area") or {}
+            ar_at = _parse(ar.get("at"))
+            if ar.get("label") and ar_at and now - ar_at < timedelta(hours=AREA_TTL_H):
+                place = {"kind": "area", "label": ar["label"], "at": ar.get("at")}
         lb = st.get("low_batt") or {}
         loc = None
         lb_at = _parse(lb.get("at"))
         if lb.get("lat") is not None and lb_at and now - lb_at < timedelta(hours=LOC_TTL_H):
             loc = {"lat": lb["lat"], "lng": lb["lng"], "acc": lb.get("acc"),
-                   "at": lb.get("at"), "why": "battery_low"}
+                   "at": lb.get("at"), "why": "battery_low", "pct": lb.get("pct")}
         base.update({
             "battery": st.get("battery"), "charging": bool(st.get("charging")),
             "net": st.get("net") or "", "bg_restricted": bool(st.get("bg_restricted")),

@@ -86,6 +86,7 @@ String fcPlace(BuildContext context, Map? brain) {
     'home' => t.fc3PlaceHome,
     'school' => t.fc3PlaceSchool,
     'office' => t.fc3PlaceOffice,
+    'area' => label.isEmpty ? '' : t.fcrArea(label), // fcrest: phone Geocoder area
     _ => '',
   };
   return byKind.isNotEmpty ? byKind : label;

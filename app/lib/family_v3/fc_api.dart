@@ -36,4 +36,15 @@ extension FcApi on ApiClient {
   Future<Map<String, dynamic>> fcTaskAction(int taskId, String action) =>
       postJson('/family/v3/tasks/$taskId/$action');
 
+  // fcrest: admin tools + Probashi zone (server: family_v3.rename_family /
+  // update_member / remove_member).
+  Future<Map<String, dynamic>> fcRename(int familyId, String name) =>
+      postJson('/family/v3/families/$familyId/rename', {'name': name});
+
+  /// {label?, relation?, abroad_tz? (self only), role? (admin)}
+  Future<Map<String, dynamic>> fcUpdateMember(int familyId, int userId, Map<String, dynamic> body) =>
+      postJson('/family/v3/families/$familyId/members/$userId', body);
+
+  Future<Map<String, dynamic>> fcRemoveMember(int familyId, int userId) =>
+      postJson('/family/v3/families/$familyId/remove/$userId');
 }
