@@ -1880,6 +1880,7 @@ from . import cctv_connect_views as ccv  # noqa: E402
 urlpatterns += [
     path("cctv/connect/providers", ccv.ProvidersView.as_view()),
     path("cctv/connect/oauth/callback", ccv.OAuthCallbackView.as_view()),
+    path("cctv/connect/oauth/go", ccv.OAuthGoView.as_view()),
     path("cctv/connect/<str:pid>/link", ccv.LinkDeviceView.as_view()),
     path("cctv/connect/<str:pid>/oauth/start", ccv.OAuthStartView.as_view()),
     path("cctv/connect/links/<int:pk>", ccv.LinkRevokeView.as_view()),

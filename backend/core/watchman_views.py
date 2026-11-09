@@ -568,7 +568,9 @@ def imou_callback_url(app_id):
 COMPAT_KEEP = ("cloud_last_alarm_ms", "imou_seen_ids", "imou_pic_host_refused",
                "cloud_checked_at", "cloud_online_at", "siren_at",
                # cctvalerts: alert-type state (seen kinds, loiter, stills, SD)
-               "alert_state")
+               "alert_state",
+               # cctvconnect: Imou people counting (numberstat) per day
+               "people")
 
 
 class ImouCallbackView(APIView):
@@ -597,7 +599,20 @@ class ImouCallbackView(APIView):
         now = timezone.now()
         from . import cctv_alerts as CA
         from .logic import cctv_rules as CR
+        # cctvconnect: messages count toward the free monthly quota; people
+        # counting (numberstat) feeds the daily report, never an alert
+        try:
+            from . import cctv_connect_views as CCV
+            CCV.imou_messages_seen(msgs[:20], now)
+        except Exception:
+            CCV = None
         for m in msgs[:20]:
+            try:
+                if CCV is not None and CCV.imou_people_message(m, now):
+                    out.append({"people": True})
+                    continue
+            except Exception:
+                pass
             # cctvalerts: an SD-card status message is not an alarm, but a
             # broken card is worth one camera-health alert
             try:
@@ -955,6 +970,14 @@ class ImouOAuthCallbackView(APIView):
         code = (request.GET.get("code") or "")[:512]
         state = (request.GET.get("state") or "")[:128]
         ok = bool(code and state and state.replace("-", "").replace("_", "").isalnum())
+        # cctvconnect: an Assisto-started link (one-time state held on the
+        # server, or the state cookie when Imou does not echo it) is finished
+        # HERE — the code is exchanged server-side, tokens sealed per site
+        from . import cctv_connect_views as CCV
+        if code and (CCV.has_oauth_state(state) or
+                     CCV.has_oauth_state(request.COOKIES.get(CCV.OAUTH_COOKIE))):
+            done, _link = CCV.finish_oauth(request, code, state)
+            return CCV.oauth_page(done)
         if ok:
             cache.set("imou_oauth:" + state, code, 600)
         title = "Imou linked — return to Assisto" if ok else "Imou link did not finish"

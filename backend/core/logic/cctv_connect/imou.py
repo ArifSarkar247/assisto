@@ -8,12 +8,40 @@ deviceStorage, queryLocalRecords). DoLynk's method names are assumed to
 match until the owner's DoLynk developer account shows its own docs — the
 adapter is OFF until that key exists and its Test passes (honest).
 NOT yet run against either real platform (keys pending)."""
+import base64
 from datetime import datetime, timedelta
+from urllib.parse import urlencode, urlparse
 
 from . import base as B
 from .. import imou as IM
 
 BD = timedelta(hours=6)
+OAUTH_FIELDS = ("oauth_ak", "oauth_sk", "oauth_h5_url")
+AUTH_DAYS = 90            # Imou: an end-user authorization lasts 90 days
+
+
+class _OauthClient(IM.ImouClient):
+    """Open API calls on behalf of an end user who authorized our OAuth
+    project (Imou docs: system.appId = the project Access Key, signed with the
+    project Secret Key, params.token = the user's Ot_ token). Signed with the
+    current HMAC-SHA256 form; one retry with the legacy md5 form on SN1001."""
+
+    def __init__(self, ak, sk, base, ot_token, http, now):
+        super().__init__(ak, sk, base, http=http, now=now)
+        self.signer = IM.sign_v2
+        self._ot = ot_token
+
+    def token(self):
+        return self._ot
+
+    def call(self, method, params=None):
+        try:
+            return super().call(method, params)
+        except IM.ImouError as e:
+            if e.code != "SN1001" or self.signer is IM.sign:
+                raise
+            self.signer = IM.sign
+            return super().call(method, params)
 
 
 class ImouAdapter(B.Provider):
@@ -25,6 +53,101 @@ class ImouAdapter(B.Provider):
     pic_hosts = IM.SNAPSHOT_HOST_SUFFIXES
     code_label = ("লেবেলের Safety Code", "Safety Code on the label")
     default_base = IM.DEFAULT_API_BASE
+    # registered in the Imou console (owner 9 Nov): never change
+    oauth_redirect_path = "/api/v1/cctv/imou/oauth/callback"
+
+    # ---------------------------------------------------------- OAuth 2.0
+    def oauth_ready(self):
+        return all(str(self.cfg.get(k) or "").strip() for k in OAUTH_FIELDS)
+
+    def oauth_url(self, state, redirect_uri):
+        """The console's "User Authorization H5 Page" + our one-time state
+        (the docs do not say whether Imou echoes it; the views also keep it
+        in a short secure cookie)."""
+        if not self.oauth_ready():
+            raise B.ConnectError("not_configured")
+        u = str(self.cfg["oauth_h5_url"]).strip()
+        if urlparse(u).scheme != "https":
+            raise B.ConnectError("not_configured")
+        return "%s%s%s" % (u, "&" if "?" in u else "?", urlencode({"state": state}))
+
+    def _base(self):
+        return str(self.cfg.get("api_base") or self.default_base).rstrip("/")
+
+    def _token_call(self, form):
+        """POST <base>/oauthTokenV2, form body, Basic base64(AK:SK) (Imou docs)."""
+        ak, sk = str(self.cfg["oauth_ak"]).strip(), str(self.cfg["oauth_sk"]).strip()
+        auth = base64.b64encode(("%s:%s" % (ak, sk)).encode()).decode()
+        try:
+            from . import quota as Q
+            Q.bump(self.id, api=1)
+        except Exception:
+            pass
+        res = B.json_post(self.http, self._base() + "/oauthTokenV2", form,
+                          headers={"Authorization": "Basic " + auth}, form=True,
+                          ok_status=(200, 400, 401))
+        if res.get("error"):
+            raise B.ConnectError("oauth_" + str(res.get("error"))[:30],
+                                 res.get("error_description") or "")
+        tok = str(res.get("access_token") or "")
+        if not tok:
+            raise B.ConnectError("no_token")
+        try:
+            ttl = int(res.get("expires_in") or 7200)
+        except (TypeError, ValueError):
+            ttl = 7200
+        return tok, str(res.get("refresh_token") or ""), ttl
+
+    def oauth_finish(self, code, redirect_uri):
+        if not self.oauth_ready():
+            raise B.ConnectError("not_configured")
+        tok, ref, ttl = self._token_call({"grant_type": "authorization_code", "code": code,
+                                          "redirect_uri": redirect_uri})
+        now = self.now()
+        return {"mode": "oauth", "access_token": tok, "refresh_token": ref,
+                "expires_at": now + ttl, "auth_until": now + AUTH_DAYS * 86400, "serials": []}
+
+    def oauth_refresh(self, grant):
+        if not grant.get("refresh_token") or not self.oauth_ready():
+            raise B.ConnectError("token_expired")
+        if float(grant.get("auth_until") or 0) and float(grant["auth_until"]) < self.now():
+            raise B.ConnectError("token_expired", "authorization older than 90 days")
+        tok, ref, ttl = self._token_call({"grant_type": "refresh_token",
+                                          "refresh_token": grant["refresh_token"]})
+        return dict(grant, access_token=tok, refresh_token=ref or grant["refresh_token"],
+                    expires_at=self.now() + ttl)
+
+    def _client(self, grant):
+        """The app client (device_code) or the end-user client (oauth)."""
+        if (grant or {}).get("mode") == "oauth":
+            if not self.oauth_ready():
+                raise B.ConnectError("not_configured")
+            c = _OauthClient(self.cfg["oauth_ak"], self.cfg["oauth_sk"], self._base(),
+                             grant.get("access_token") or "",
+                             http=lambda url, body, t: self.http(url, body, t, {}), now=self.now)
+            c.quota_provider = self.id
+            return c
+        c = self.client()
+        c.quota_provider = self.id
+        return c
+
+    def after_link(self, grant, callback_url=None):
+        """Ask Imou to PUSH alarms, device status and people counting
+        (numberstat) to our callback — push costs no API polling. Falls back
+        to alarms + status when the account does not offer numberstat."""
+        if not callback_url:
+            return None
+        clients = [self.client()]
+        if (grant or {}).get("mode") == "oauth":
+            clients.append(self._client(grant))
+        for c in clients:
+            for flags in ("alarm,deviceStatus,numberstat", "alarm,deviceStatus"):
+                try:
+                    c.set_callback(callback_url, flags)
+                    break
+                except IM.ImouError:
+                    continue
+        return True
 
     def client(self):
         if not self.configured():
@@ -64,6 +187,10 @@ class ImouAdapter(B.Provider):
         return {"mode": "device_code", "serials": [serial]}
 
     def unlink(self, grant):
+        if (grant or {}).get("mode") == "oauth":
+            # Imou documents no revoke call: we drop the tokens; the device
+            # stays the user's own (he can also remove Assisto in Imou Life)
+            return None
         c = self.client()
         for s in grant.get("serials") or []:
             try:
@@ -72,7 +199,9 @@ class ImouAdapter(B.Provider):
                 pass
 
     def devices(self, grant):
-        c = self.client()
+        c = self._client(grant)
+        if grant.get("mode") == "oauth":
+            return self._oauth_devices(c)
         serials = (grant.get("serials") or [])[:B.MAX_DEVICES]
         if not serials:
             return []
@@ -95,12 +224,79 @@ class ImouAdapter(B.Provider):
                                 True if st == "online" else (False if st else None), chans))
         return out
 
+    def _oauth_devices(self, c):
+        """Every device the end user authorized: v2 device.detail.page (Imou
+        docs), legacy deviceBaseList as a fallback. Shapes parsed tolerantly."""
+        rows = []
+        try:
+            for page in range(1, 4):
+                d = self._call(c.call, "v2/device.detail.page", {
+                    "token": c.token(), "page": page, "pageSize": 50, "source": "bindAndShare"})
+                got = d.get("deviceList") or []
+                rows.extend(got)
+                if len(got) < 50:
+                    break
+        except B.ConnectError as e:
+            if e.hint in ("network", "reauth"):
+                raise
+            d = self._call(c.call, "deviceBaseList", {
+                "token": c.token(), "bindId": -1, "limit": 50, "type": "bindAndShare",
+                "needApInfo": False})
+            rows = d.get("deviceList") or []
+        out = []
+        for d in rows[:B.MAX_DEVICES]:
+            if not isinstance(d, dict):
+                continue
+            s = B.clean_serial(d.get("deviceId"))
+            if not s:
+                continue
+            chans = []
+            for ch in d.get("channelList") or d.get("channels") or []:
+                if not isinstance(ch, dict):
+                    continue
+                st = str(ch.get("channelStatus", ch.get("status", ch.get("channelOnline", ""))) or "").lower()
+                chans.append({"no": ch.get("channelId"), "name": ch.get("channelName"),
+                              "online": True if st in ("online", "1", "true") else
+                              (False if st in ("offline", "0", "false") else None)})
+            st = str(d.get("deviceStatus", d.get("status", d.get("onLine", ""))) or "").lower()
+            out.append(B.device(s, d.get("deviceName") or d.get("name") or s,
+                                d.get("deviceModel") or d.get("productId") or "",
+                                "nvr" if len(chans) > 1 else "camera",
+                                True if st in ("online", "1", "true") else
+                                (False if st in ("offline", "0", "false") else None), chans))
+        return out
+
     def _stream_ok(self, url):
         return B.host_allowed(url, self.pic_hosts)
 
+    def _rtsp_ok(self, url):
+        try:
+            u = urlparse(str(url or ""))
+        except ValueError:
+            return False
+        host = (u.hostname or "").lower()
+        return u.scheme in ("rtsp", "rtsps") and any(
+            host == h.lstrip(".") or host.endswith(h) for h in self.pic_hosts)
+
     def live(self, grant, serial, channel, hd=False):
-        c = self.client()
+        c = self._client(grant)
         want = 0 if hd else 1
+        if grant.get("mode") == "oauth":
+            try:
+                return self._hls(c, serial, channel, want)
+            except B.ConnectError as e:
+                if e.hint in ("offline", "network"):
+                    raise
+            d = self._call(c.call, "getStreamUrl", {"token": c.token(), "deviceId": serial,
+                                                    "channelId": int(channel or 0),
+                                                    "streamId": want})
+            url = str(d.get("url") or "")
+            if url and self._rtsp_ok(url):
+                return {"url": url, "proto": "rtsp", "expires_s": 600, "token": ""}
+            raise B.ConnectError("no_stream")
+        return self._hls(c, serial, channel, want)
+
+    def _hls(self, c, serial, channel, want):
         try:
             data = c.call("bindDeviceLive", {"token": self._tok(c), "deviceId": serial,
                                              "channelId": str(channel or 0), "streamId": want})
@@ -122,7 +318,7 @@ class ImouAdapter(B.Provider):
         """The Open HTTP API lists SD-card / DVR recordings but gives no
         playable URL for them (that needs the vendor's player SDK): we say so
         honestly and hand back the recording list for the timeline."""
-        c = self.client()
+        c = self._client(grant)
         fmt = "%Y-%m-%d %H:%M:%S"
         b = (datetime.utcfromtimestamp(start_epoch) + BD).strftime(fmt)
         e = (datetime.utcfromtimestamp(end_epoch) + BD).strftime(fmt)
@@ -135,7 +331,7 @@ class ImouAdapter(B.Provider):
 
     def events(self, grant, serial, since_epoch, channels=None):
         from .. import cctv_rules as CR
-        c = self.client()
+        c = self._client(grant)
         minutes = max(1, min(60, int((self.now() - float(since_epoch)) // 60) + 1))
         rows = []
         for ch in [str(x) for x in (channels or ["0"])][:16]:
@@ -160,7 +356,7 @@ class ImouAdapter(B.Provider):
         return out
 
     def health(self, grant, serial):
-        c = self.client()
+        c = self._client(grant)
         st = IM.sd_state(self._call(c.sd_status, serial))
         disk = {"id": "1", "state": {"ok": "ok", "error": "error", "none": "none",
                                      "formatting": "formatting"}.get(st, "unknown")}
@@ -193,6 +389,10 @@ class DolynkAdapter(ImouAdapter):
                  ".easy4ipcloud.com", ".dahuasecurity.com", ".imoulife.com")
     code_label = ("লেবেলের Safety Code / ডিভাইস কোড", "Safety Code / device code on the label")
     default_base = ""
+    oauth_redirect_path = ""
+
+    def oauth_ready(self):
+        return False            # DoLynk OAuth: not documented for us yet
 
     def _stream_ok(self, url):
         extra = tuple(h.strip() for h in str(self.cfg.get("media_hosts") or "").split(",")

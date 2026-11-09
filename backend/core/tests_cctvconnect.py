@@ -13,6 +13,7 @@
    HTTP digest and posts to /shop/gateway/dvr-health -> problems + daily card.
 Synthetic data only.
 """
+import json
 import os
 import sys
 import time
@@ -250,6 +251,11 @@ class ConnectApiE2ETests(E2E._Base):
         p.start()
         self.addCleanup(p.stop)
         self.sid = self.site["id"]
+        # owner-away mode: every camera armed whatever the clock says (CI runs
+        # at any hour; the home schedule may be "not armed" right now)
+        from core.models import ShopSite
+        ShopSite.objects.filter(pk=self.sid).update(
+            away={"until": (timezone.now() + timedelta(days=1)).isoformat()})
 
     def providers(self):
         r = self.client.get("/api/v1/cctv/connect/providers?site=%d" % self.sid)
@@ -502,3 +508,170 @@ class GuardBoxHealthE2ETests(E2E._Base):
     def cam_site(self):
         from core.models import ShopSite
         return ShopSite.objects.get(pk=self.site["id"])
+
+
+# ====================================================================== 5
+class ImouSignTests(SimpleTestCase):
+    def test_sign_v2_matches_imou_docs_example(self):
+        from core.logic import imou as IM
+        self.assertEqual(IM.sign_v2(1706511734, "f5a1ae2d-c09c-4d39-a744-83a5c2c653c2",
+                                    "test123456789test123456789"),
+                         "xjhCQBoJ9hRDsCjyDcHjtDNzRZ3ZJezcawsfWeiaoxU=")
+
+
+class ImouOAuthE2ETests(E2E._Base):
+    """Owner 9 Nov 16:50: a shop / home owner links his OWN Imou account in
+    one tap (OAuth 2.0, Imou public docs), then device list, live, alarms and
+    people counting flow in, inside the free monthly quota."""
+
+    def setUp(self):
+        super().setUp()
+        _clear_caches()
+        from core.models import ShopSite
+        self.sim = M.VendorSims()
+        d = self.sim.add_device("imou", "SIMIMOUSER1", "ZZZ999", channels=2)
+        d.oauth_user = True
+        for target, value in (("core.logic.cctv_connect.base.default_http", self.sim.http),
+                              ("core.shop_views._included_cameras", mock.Mock(return_value=10)),
+                              ("core.logic.imou.fetch_snapshot", mock.Mock(return_value=E2E._jpeg()))):
+            p = mock.patch(target, value)
+            p.start()
+            self.addCleanup(p.stop)
+        _enable("imou", self.sim.cfg("imou"))
+        self.sid = self.site["id"]
+        ShopSite.objects.filter(pk=self.sid).update(
+            away={"until": (timezone.now() + timedelta(days=1)).isoformat()})
+
+    def start(self):
+        r = self.client.post("/api/v1/cctv/connect/imou/oauth/start", {"site": self.sid},
+                             format="json")
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertIn("/api/v1/cctv/connect/oauth/go?state=", r.data["url"])
+        return r.data["state"]
+
+    def test_one_tap_link_devices_live_alarm_people_quota(self):
+        from core import cctv_connect_views as V
+        from core.models import CctvCloudLink, CctvVendorUsage, ShopEvent
+        r = self.client.get("/api/v1/cctv/connect/providers?site=%d" % self.sid)
+        imou = [p for p in r.data["providers"] if p["id"] == "imou"][0]
+        self.assertIn("oauth", imou["modes"])
+        state = self.start()
+        browser = APIClient()
+        go = browser.get("/api/v1/cctv/connect/oauth/go", {"state": state})
+        self.assertEqual(go.status_code, 302)
+        self.assertTrue(go["Location"].startswith("https://open.imoulife.com/oauth/h5?project=sim&state="))
+        self.assertIn(V.OAUTH_COOKIE, go.cookies)
+        # Imou sends the browser back to the URL registered in its console
+        cb = browser.get("/api/v1/cctv/imou/oauth/callback", {"code": "good-code", "state": state})
+        self.assertEqual(cb.status_code, 200, cb.content[:300])
+        self.assertEqual(cb["Cache-Control"], "no-store")
+        link = CctvCloudLink.objects.get(site_id=self.sid, provider="imou")
+        self.assertEqual((link.mode, link.serials), ("oauth", ["SIMIMOUSER1"]))
+        self.assertNotIn("Ot_sim", link.grant_blob)
+        g = CC.unseal(self.sid, link.grant_blob)
+        self.assertEqual(g["access_token"], "Ot_sim")
+        self.assertGreater(g["auth_until"], time.time() + 89 * 86400)
+        self.assertIn(("imou", "alarm,deviceStatus,numberstat"), self.sim.callbacks)
+        # the state is one-time: a replay links nothing new
+        browser.get("/api/v1/cctv/imou/oauth/callback", {"code": "good-code", "state": state})
+        self.assertEqual(CctvCloudLink.objects.filter(site_id=self.sid).count(), 1)
+        # device list -> import -> live (RTSP when Imou gives no HLS to OAuth)
+        r = self.client.get("/api/v1/cctv/connect/links/%d/devices" % link.id)
+        self.assertEqual(len(r.data["devices"][0]["channels"]), 2)
+        self.assertEqual(r.data["link"]["auth_days_left"], 89)
+        r = self.client.post("/api/v1/cctv/connect/links/%d/import" % link.id,
+                             {"items": [{"serial": "SIMIMOUSER1", "channel": 0}]}, format="json")
+        cam = r.data["added"][0]
+        r = self.client.post("/api/v1/cctv/connect/cameras/%d/stream" % cam["id"], {}, format="json")
+        self.assertEqual((r.status_code, r.data["proto"]), (200, "rtsp"), r.data)
+        self.assertTrue(r.data["url"].startswith("rtsp://live.lechange.com/"))
+        # an alarm PUSHED by Imou -> alert; marks the link "push works"
+        from core.logic import imou as IM
+        from django.conf import settings
+        path = "/api/v1/shop/imou/callback/%s" % IM.callback_token("imid", settings.SECRET_KEY)
+        alarm = {"msgType": "human", "did": "SIMIMOUSER1", "cid": "0", "alarmId": "a-1",
+                 "time": int(time.time()), "picurlArray": ["https://pic.easy4ip.com/a/1.jpg"]}
+        r = APIClient().post(path, json.dumps(alarm), content_type="application/json")
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertTrue(r.data["events"][0]["raised"], r.data)
+        self.assertEqual(ShopEvent.objects.get(camera_id=cam["id"]).type, "camera_alarm")
+        link.refresh_from_db()
+        self.assertTrue(link.state.get("push_at"))
+        self.assertFalse(V.imou_poll_due(link, timezone.now()))    # push works: no polling
+        # people counting (numberstat) -> the daily-report feed, never an alarm
+        ppl = {"msgType": "numberstat", "did": "SIMIMOUSER1", "cid": "0", "inNum": 3, "outNum": 1}
+        r = APIClient().post(path, json.dumps(ppl), content_type="application/json")
+        self.assertEqual(r.data["events"][0], {"people": True})
+        self.assertEqual(ShopEvent.objects.filter(camera_id=cam["id"]).count(), 1)
+        from core.models import ShopSite
+        pc = V.people_counts(ShopSite.objects.get(pk=self.sid))
+        self.assertEqual((pc["in"], pc["out"]), (3, 1))
+        # the free quota is counted
+        u = CctvVendorUsage.objects.get(provider="imou")
+        self.assertGreater(u.api_calls, 3)
+        self.assertEqual(u.messages, 2)
+        self.assertGreater(u.traffic_mb, 0)
+        rows = {r["slug"]: r for r in integrations.list_all("en")}
+        self.assertIn("Free quota this month", rows["imou"]["usage"])
+
+    def test_cookie_fallback_when_imou_drops_state_and_bad_code(self):
+        from core.models import CctvCloudLink
+        state = self.start()
+        browser = APIClient()
+        browser.get("/api/v1/cctv/connect/oauth/go", {"state": state})
+        self.sim.oauth_codes["code-2"] = "Ot_sim"
+        r = browser.get("/api/v1/cctv/imou/oauth/callback", {"code": "code-2"})
+        self.assertEqual(r.status_code, 200, r.content[:200])
+        self.assertTrue(CctvCloudLink.objects.filter(site_id=self.sid, mode="oauth").exists())
+        state = self.start()
+        browser = APIClient()
+        browser.get("/api/v1/cctv/connect/oauth/go", {"state": state})
+        r = browser.get("/api/v1/cctv/imou/oauth/callback", {"code": "wrong", "state": state})
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(CctvCloudLink.objects.filter(site_id=self.sid).count(), 1)
+
+    def test_poll_fallback_and_quota_warning(self):
+        from core import cctv_connect_views as V
+        from core.models import CctvCloudLink, CctvVendorUsage, ShopEvent
+        from core.logic.cctv_connect import quota as Q
+        state = self.start()
+        b = APIClient()
+        b.get("/api/v1/cctv/connect/oauth/go", {"state": state})
+        b.get("/api/v1/cctv/imou/oauth/callback", {"code": "good-code", "state": state})
+        link = CctvCloudLink.objects.get(site_id=self.sid)
+        r = self.client.post("/api/v1/cctv/connect/links/%d/import" % link.id,
+                             {"items": [{"serial": "SIMIMOUSER1", "channel": 1}]}, format="json")
+        cam = r.data["added"][0]
+        # no push seen -> the poll fallback picks the camera's own alarm up
+        self.sim.push_alarm("imou", "SIMIMOUSER1", 1, "human")
+        tot = V.sync_all()
+        self.assertEqual(tot["events"], 1, tot)
+        self.assertTrue(ShopEvent.objects.filter(camera_id=cam["id"]).exists())
+        link.refresh_from_db()
+        self.assertFalse(V.imou_poll_due(link, timezone.now()))        # 15 min gap
+        # 80 % of the free API calls -> ONE owner warning, polling slows down
+        lim = Q.limits("imou")["api_calls"]
+        CctvVendorUsage.objects.filter(provider="imou").update(api_calls=int(lim * 0.8))
+        with mock.patch("core.push.notify_owner") as n:
+            Q.bump("imou", api=1)
+            Q.bump("imou", api=1)
+        self.assertEqual(n.call_count, 1)
+        self.assertTrue(Q.saving("imou"))
+        st = dict(link.state, poll_at=time.time() - 1000, push_at=0)
+        CctvCloudLink.objects.filter(pk=link.pk).update(state=st)
+        link.refresh_from_db()
+        self.assertFalse(V.imou_poll_due(link, timezone.now()))        # now hourly
+        CctvVendorUsage.objects.filter(provider="imou").update(api_calls=lim)
+        st["poll_at"] = 0
+        CctvCloudLink.objects.filter(pk=link.pk).update(state=st)
+        link.refresh_from_db()
+        self.assertFalse(V.imou_poll_due(link, timezone.now()))        # 100 %: stopped
+
+    def test_owner_admin_test_checks_oauth_keys(self):
+        ok, detail = integrations.test_imou(self.sim.cfg("imou"), http=self.sim.http)
+        self.assertTrue(ok, detail)
+        self.assertIn("OAuth keys accepted", detail)
+        bad = dict(self.sim.cfg("imou"), oauth_sk="wrong")
+        ok, detail = integrations.test_imou(bad, http=self.sim.http)
+        self.assertFalse(ok)
+        self.assertIn("not accepted", detail)

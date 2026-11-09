@@ -510,7 +510,13 @@ REGISTRY = {
                           "Details: owner_actions/CCTV_IMOU_SETUP_BN.md"],
              "fields": [_f("app_id", "appId", "appId", secret=False),
                         _f("app_secret", "appSecret", "appSecret"),
-                        _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False)],
+                        _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False),
+                        # cctvconnect: OAuth 2.0 project (owner 9 Nov) — a shop / home
+                        # owner links his OWN Imou account in one tap
+                        _f("oauth_ak", "OAuth Project Access Key", "OAuth Project Access Key"),
+                        _f("oauth_sk", "OAuth Project Secret Key", "OAuth Project Secret Key"),
+                        _f("oauth_h5_url", "OAuth User Authorization H5 Page (লিংক)",
+                           "OAuth User Authorization H5 Page (link)", secret=False)],
              "test": "test_imou"},
     # cashguard: EZVIZ cameras' OWN alarms (polled every minute until EZVIZ
     # approves real-time push). Without it EZVIZ cameras still work through
@@ -1074,6 +1080,8 @@ def list_all(lang="bn") -> list:
                                   if last else ("কখনো পরীক্ষা হয়নি / never checked"
                                                 if lang == "bn" else "never checked")),
             "doc": _DOC,
+            # cctvconnect: brand-cloud free-quota use this month ("" = none)
+            "usage": _vendor_usage(slug, lang),
             "testable": bool(meta.get("test")),
             # smsotp: entries with a "Send test SMS / email" box
             "test_to_kind": ("email" if meta.get("test") == "test_smtp_email" else
@@ -1438,6 +1446,11 @@ def test_imou(cfg, http=None):
         c.call("accessToken")
     except ImouError as e:
         return False, "Imou: %s %s" % (e.code, e.msg)
+    # cctvconnect: OAuth project keys, when saved, must be accepted too
+    if cfg.get("oauth_ak") or cfg.get("oauth_sk") or cfg.get("oauth_h5_url"):
+        from .logic import cctv_connect as CC
+        ok, detail = CC.imou_oauth_check(cfg, http=http)
+        return ok, "Imou access token OK; " + detail
     return True, "Imou access token OK"
 
 
@@ -1455,6 +1468,16 @@ def test_ezviz(cfg, http=None):
 
 
 # ---- cctvconnect ----
+def _vendor_usage(slug, lang):
+    if slug not in ("imou",):
+        return ""
+    try:
+        from .logic.cctv_connect import quota as Q
+        return Q.text(slug, lang)
+    except Exception:
+        return ""
+
+
 def test_hikconnect(cfg, http=None):
     """cctvconnect: an access token proves AppKey + SecretKey."""
     from .logic import cctv_connect as CC

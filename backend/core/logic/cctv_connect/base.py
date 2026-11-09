@@ -104,7 +104,7 @@ def clean_code(v):
     return s if s and all(c.isalnum() for c in s) else ""
 
 
-def json_post(http, url, payload, headers=None, form=False):
+def json_post(http, url, payload, headers=None, form=False, ok_status=(200,)):
     """-> parsed JSON dict or raises ConnectError(network / http_x / bad_json).
     `http(url, body, timeout, headers)`; body is a JSON string or a form dict."""
     body = payload if form else json.dumps(payload)
@@ -114,9 +114,9 @@ def json_post(http, url, payload, headers=None, form=False):
         raise
     except Exception as e:  # noqa: BLE001 - honest "network" for any socket error
         raise ConnectError("network", str(e)[:120])
-    if status in (401, 403):
-        raise ConnectError("token_expired", "http_%s" % status)
-    if status != 200:
+    if status not in ok_status:
+        if status in (401, 403):
+            raise ConnectError("token_expired", "http_%s" % status)
         raise ConnectError("http_%s" % status)
     try:
         res = json.loads(text) if isinstance(text, (str, bytes)) else text
@@ -183,6 +183,8 @@ class Provider:
     # queue for the whole developer account -> account_events() once per
     # sync, routed to sites by serial (never per device: it would drain it)
     events_scope = "device"
+    # the redirect URI path registered in the vendor console ("" = generic)
+    oauth_redirect_path = ""
 
     def __init__(self, cfg, http=None, now=None):
         self.cfg = dict(cfg or {})
@@ -260,6 +262,10 @@ class Provider:
         if grant.get("mode") == "oauth" and float(grant.get("expires_at") or 0) < self.now() + 120:
             return self.oauth_refresh(grant), True
         return grant, False
+
+    def after_link(self, grant):
+        """Vendor-specific set-up right after a link (e.g. message callback)."""
+        return None
 
     def unlink(self, grant):
         """Revoke: release every device this grant added (best effort)."""

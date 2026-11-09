@@ -38,6 +38,7 @@ class _Dev:
     def __init__(self, serial, code, channels, name):
         self.serial, self.code, self.channels, self.name = serial, code, channels, name
         self.owner = None            # the developer account it is bound to
+        self.oauth_user = False      # in the END USER's own Imou Life account
         self.online = True
         self.offline_channels = set()
         self.disk = "ok"
@@ -52,11 +53,15 @@ class VendorSims:
         self.calls = []
         self.hik_queue = []
         self.fail_network = set()     # vendors that "lose internet"
+        self.oauth_codes = {"good-code": "Ot_sim"}   # Imou OAuth: code -> token
+        self.oauth_refresh = {"rt-sim": "Ot_sim2"}
 
     # ---------------- scenario helpers
     def cfg(self, vendor):
         base = {"ezviz": {"app_key": "ezk", "app_secret": "ezs"},
-                "imou": {"app_id": "imid", "app_secret": "ims"},
+                "imou": {"app_id": "imid", "app_secret": "ims", "oauth_ak": "imak",
+                         "oauth_sk": "imsk",
+                         "oauth_h5_url": "https://open.imoulife.com/oauth/h5?project=sim"},
                 "hikconnect": {"app_key": "hck", "app_secret": "hcs"},
                 "dolynk": {"app_id": "dlid", "app_secret": "dls",
                            "api_base": HOSTS["dolynk"]}}[vendor]
@@ -162,10 +167,18 @@ class VendorSims:
     def _imou(self, path, body, headers, vendor="imou"):
         devs = self.devs[vendor]
         method = path.rsplit("/", 1)[-1]
+        if path.endswith("/v2/device.detail.page"):
+            method = "v2/device.detail.page"
+        if method == "oauthTokenV2":
+            return self._imou_oauth_token(body, headers)
         p = body.get("params") or {}
         sysd = body.get("system") or {}
+        from ..imou import sign, sign_v2
+        if vendor == "imou" and sysd.get("appId") == "imak":       # OAuth project
+            if sysd.get("sign") != sign_v2(sysd.get("time"), sysd.get("nonce"), "imsk"):
+                return {"result": {"code": "SN1001", "msg": "sign error"}}
+            return self._imou_oauth_api(method, p)
         want = {"imou": ("imid", "ims"), "dolynk": ("dlid", "dls")}[vendor]
-        from ..imou import sign
         if sysd.get("appId") != want[0] or sysd.get("sign") != sign(
                 sysd.get("time"), sysd.get("nonce"), want[1]):
             return {"result": {"code": "SN1001", "msg": "sign error"}}
@@ -179,6 +192,9 @@ class VendorSims:
             return ok({"accessToken": "tk.sim", "expireTime": 259200})
         if p.get("token") != "tk.sim":
             return err("TK1002", "token expired")
+        if method == "setMessageCallback":
+            self.callbacks = getattr(self, "callbacks", []) + [(vendor, p.get("callbackFlag"))]
+            return ok()
         did = str(p.get("deviceId") or "")
         d = devs.get(did)
         if method == "bindDevice":
@@ -228,6 +244,59 @@ class VendorSims:
         if method == "queryLocalRecords":
             return ok({"records": [{"beginTime": p.get("beginTime"), "endTime": p.get("endTime")}]})
         return err("OP1000", "unknown method %s" % method)
+
+    def _imou_oauth_token(self, f, headers):
+        import base64
+        if headers.get("Authorization") != "Basic " + base64.b64encode(b"imak:imsk").decode():
+            return {"error": "invalid_client"}
+        if f.get("grant_type") == "authorization_code":
+            tok = self.oauth_codes.pop(f.get("code"), None)
+            if not tok:
+                return {"error": "invalid_grant"}
+            return {"access_token": tok, "token_type": "bearer", "expires_in": 7200,
+                    "refresh_token": "rt-sim", "scope": "all"}
+        if f.get("grant_type") == "refresh_token":
+            tok = self.oauth_refresh.get(f.get("refresh_token"))
+            if not tok:
+                return {"error": "invalid_grant"}
+            return {"access_token": tok, "token_type": "bearer", "expires_in": 7200,
+                    "refresh_token": "rt-sim", "scope": "all"}
+        return {"error": "unsupported_grant_type"}
+
+    def _imou_oauth_api(self, method, p):
+        devs = self.devs["imou"]
+
+        def ok(data=None):
+            return {"result": {"code": "0", "msg": "ok", "data": data or {}}}
+        if p.get("token") not in ("Ot_sim", "Ot_sim2"):
+            return {"result": {"code": "TK1002", "msg": "token expired"}}
+        mine = {k: d for k, d in devs.items() if d.oauth_user}
+        if method == "v2/device.detail.page":
+            return ok({"count": len(mine), "deviceList": [
+                {"deviceId": d.serial, "deviceName": d.name, "productId": "IPC-SIM",
+                 "deviceStatus": "online" if d.online else "offline",
+                 "channelList": [{"channelId": str(i), "channelName": "Cam %d" % (i + 1),
+                                  "channelStatus": "online"} for i in range(d.channels)]}
+                for d in mine.values()]})
+        d = mine.get(str(p.get("deviceId") or ""))
+        if d is None:
+            return {"result": {"code": "OP1009", "msg": "permission denied"}}
+        if method == "bindDeviceLive":
+            return {"result": {"code": "OP1009", "msg": "not for OAuth (simulated)"}}
+        if method == "getStreamUrl":
+            return ok({"url": "rtsp://live.lechange.com/live/%s/%s" % (d.serial, p.get("channelId"))})
+        if method == "getAlarmMessage":
+            ch = str(p.get("channelId") or "0")
+            return ok({"alarms": [{"alarmId": a["id"], "deviceId": d.serial, "channelId": str(a["channel"]),
+                                   "type": a["type"], "msgType": a["type"], "time": int(a["at"]),
+                                   "picurlArray": [a["pic"]]} for a in d.alarms if str(a["channel"]) == ch]})
+        if method == "setMessageCallback":
+            return ok()
+        if method == "deviceSdcardStatus":
+            return ok({"status": {"ok": "normal", "error": "abnormal"}.get(d.disk, "normal")})
+        if method in ("deviceStorage", "deviceOnline"):
+            return ok({"totalBytes": 64e9, "usedBytes": 10e9, "onLine": "1"})
+        return {"result": {"code": "OP1000", "msg": "unknown method %s" % method}}
 
     def _dolynk(self, path, body, headers):
         return self._imou(path, body, headers, vendor="dolynk")
