@@ -66,6 +66,7 @@ const ds2Screens = <String>[
   'school_mode_child_empty', // batch 4
   'medicine_history', // batch 4
   'health_tips', // batch 4
+  'medicine_db', // batch 4
 ];
 
 Future<void> _png(WidgetTester tester, GlobalKey key, String name) async {
