@@ -583,9 +583,9 @@ class CityFieldStop {
 
 /// A bus / leguna that passes near the phone (GET city/field-stops routes).
 class CityNearRoute {
-  final String id, mode, name, nameBn, status, from, fromBn, to, toBn;
-  const CityNearRoute(this.id, this.mode, this.name, this.nameBn, this.status, this.from, this.fromBn, this.to,
-      this.toBn);
+  final String id, mode, name, nameBn, status, fromName, fromBn, toName, toBn;
+  const CityNearRoute(this.id, this.mode, this.name, this.nameBn, this.status, this.fromName, this.fromBn,
+      this.toName, this.toBn);
   static CityNearRoute from(Object? v) {
     final m = _m(v);
     return CityNearRoute(_s(m['id']), _s(m['mode']), _s(m['name']), _s(m['name_bn']), _s(m['status']),
@@ -594,7 +594,7 @@ class CityNearRoute {
 
   String label(bool bn) => bn && nameBn.isNotEmpty ? nameBn : name;
   String ends(bool bn) {
-    final a = bn && fromBn.isNotEmpty ? fromBn : from, z = bn && toBn.isNotEmpty ? toBn : to;
+    final a = bn && fromBn.isNotEmpty ? fromBn : fromName, z = bn && toBn.isNotEmpty ? toBn : toName;
     return a.isEmpty || z.isEmpty ? '' : '$a → $z';
   }
 }
