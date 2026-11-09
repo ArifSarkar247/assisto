@@ -48,6 +48,9 @@ class SosSenderScreen extends StatefulWidget {
     this.retryEvery = const Duration(seconds: 15),
     this.pollEvery = const Duration(seconds: 5),
     this.country,
+    this.debugPhase,
+    this.debugRecipients = 0,
+    this.debugRecState,
   });
 
   final String source;
@@ -67,6 +70,11 @@ class SosSenderScreen extends StatefulWidget {
 
   /// Test seam: ISO country for the emergency number (default: SIM/network).
   final String? country;
+
+  /// Gallery / tests: start in this phase (no countdown, no send, no timers).
+  final SosPhase? debugPhase;
+  final int debugRecipients;
+  final String? debugRecState;
 
   static const route = '/sos_send';
 
@@ -106,6 +114,19 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
   @override
   void initState() {
     super.initState();
+    final dp = widget.debugPhase;
+    if (dp != null) {
+      _phase = dp;
+      _recipients = widget.debugRecipients;
+      _recState = widget.debugRecState ?? 'idle';
+      _recSec = 12;
+      unawaited(_loadSms());
+      unawaited(_loadCountry());
+      if (dp == SosPhase.sent) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _refreshStatus());
+      }
+      return;
+    }
     _posF = _locate();
     unawaited(_posF!.then((p) {
       if (p != null) _pos = p;
