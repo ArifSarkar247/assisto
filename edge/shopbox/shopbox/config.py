@@ -16,6 +16,7 @@ from urllib.parse import quote, unquote, urlsplit, urlunsplit
 
 from . import paths
 from .hours import Hours
+from .thresholds import T as _T
 from .zone import normalize_polygon, normalize_tuning, normalize_zones_v2
 
 DEFAULT_BASE_URL = "https://api.lifeassisto.com/api/v1/"
@@ -34,6 +35,10 @@ class CameraConfig:
     source: Optional[dict] = None         # vendor/host/port/channel/stream (no secret)
     zones_v2: Optional[dict] = None       # server zones v2 (normalised)
     tuning: Optional[dict] = None         # person_conf / motion_mult / cooldown_s
+    # gboxlinux: paired with the owner's camera code (shop/phonecam/claim),
+    # exactly like the phone Guard Box -> the server's guard schedule decides
+    # when it is armed; the shop-hours "after hours" rule is off for it
+    guard: bool = False
 
     @classmethod
     def new(cls, name: str, rtsp_url: str) -> "CameraConfig":
@@ -51,7 +56,8 @@ class CameraConfig:
                    server_id=int(sid) if str(sid).isdigit() else None,
                    source=clean_source(d.get("source")),
                    zones_v2=normalize_zones_v2(d.get("zones_v2")),
-                   tuning=normalize_tuning(d.get("tuning")))
+                   tuning=normalize_tuning(d.get("tuning")),
+                   guard=bool(d.get("guard", False)))
 
     def cash_zone(self) -> List[List[float]]:
         """The cash-drawer polygon: a v2 `cash` zone from the owner's app
@@ -85,11 +91,14 @@ class DetectionConfig:
     frame_width: int = 640            # analysis frames are downscaled to this
     motion_min_area_frac: float = 0.002
     zone_motion_frac: float = 0.03    # >= this share of zone pixels changed
-    person_score: float = 0.45
+    person_score: float = float(_T["person_score"])   # shared with the phone Guard Box
     zone_overlap: float = 0.15        # person box vs zone overlap to count
-    confirm_frames: int = 2           # consecutive sampled frames required
+    confirm_frames: int = int(_T["confirm_frames"])   # consecutive sampled frames required
     linger_s: float = 8.0             # in-zone this long => "lingering"
     detector_threads: int = 2
+    # gboxlinux resource profile (resprofile.apply sets these on a 2 GB Pi)
+    prefer_substream: bool = False
+    low_memory: bool = False
 
 
 @dataclass
@@ -136,12 +145,23 @@ class AppConfig:
         return c
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        d = asdict(self)
+        # gboxlinux: the resource profile tightens settings in memory only;
+        # config.json keeps what the owner set (a bigger PC gets them back)
+        orig = getattr(self, "_unprofiled", None)
+        if orig:
+            d.update(orig)
+        return d
 
     def camera(self, cam_id: str) -> Optional[CameraConfig]:
         return next((c for c in self.cameras if c.id == cam_id), None)
 
     def hours_for(self, cam: CameraConfig) -> Hours:
+        if cam.guard:
+            # open == close: "open all day" -> no after-hours rule; the
+            # server-side guard schedule arms it (same as the phone Guard Box)
+            tz = (self.hours or {}).get("timezone") or Hours().timezone
+            return Hours(open="00:00", close="00:00", timezone=tz)
         try:
             return Hours.from_dict(cam.hours or self.hours)
         except ValueError:

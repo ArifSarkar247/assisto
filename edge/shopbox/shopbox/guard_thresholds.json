@@ -1,0 +1,12 @@
+{
+  "_doc": "gboxlinux: ONE set of Guard Box detection thresholds for the phone Guard Box (Dart: app/lib/cashguard/guard_box_model.dart, app/lib/ipcam/ipcam_logic.dart, app/lib/shop_motion.dart) and the Linux / Raspberry Pi / Windows Guard Box (Python: shopbox.thresholds). tests/test_guardbox_linux.py fails when the two sides drift apart.",
+  "version": 1,
+  "person_score": 0.45,
+  "person_cooldown_s": 60,
+  "motion_cooldown_s": 180,
+  "check_every_s": 5,
+  "cam_lost_s": 120,
+  "confirm_frames": 2,
+  "live_fps": 4,
+  "offline_queue_max": 20
+}

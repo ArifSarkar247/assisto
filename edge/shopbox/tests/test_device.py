@@ -99,7 +99,8 @@ def test_sync_tick_pulls_config_only_on_version_change_and_hands_off_live():
     assert live == [("CAMTOK", 7)]
     hb_call = [c for c in s.calls if c[1].endswith("shop/heartbeat")][0]
     assert hb_call[2]["json"]["caps"] == ["live"]
-    assert hb_call[2]["json"]["platform"] == "windows"
+    from shopbox.sysinfo import platform_name     # gboxlinux: the real OS now
+    assert hb_call[2]["json"]["platform"] == platform_name()
     assert sync.online is True
 
 

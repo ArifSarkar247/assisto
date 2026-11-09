@@ -56,10 +56,14 @@ class YoloxPersonDetector:
     available = True
 
     def __init__(self, model_path: str, score_thr: float = 0.45,
-                 nms_thr: float = 0.45, threads: int = 2):
+                 nms_thr: float = 0.45, threads: int = 2, low_memory: bool = False):
         import onnxruntime as ort  # imported lazily: optional dependency
 
         opts = ort.SessionOptions()
+        if low_memory:
+            # gboxlinux: a 2 GB Raspberry Pi — no pre-grown arena / patterns
+            opts.enable_cpu_mem_arena = False
+            opts.enable_mem_pattern = False
         # Keep the footprint small: a shop PC also runs the till software.
         opts.intra_op_num_threads = max(1, int(threads))
         opts.inter_op_num_threads = 1
@@ -138,7 +142,7 @@ def _decode(out, grids, strides, ratio, w, h, score_thr, nms_thr):
 
 
 def load_detector(model_path: Optional[str] = None, score_thr: float = 0.45,
-                  threads: int = 2):
+                  threads: int = 2, low_memory: bool = False):
     """Return a working YOLOX detector, or a NullDetector (motion_only) with the
     reason logged. Never raises: detection must degrade, not crash."""
     path = model_path or model_fetch.find_model()
@@ -149,7 +153,8 @@ def load_detector(model_path: Optional[str] = None, score_thr: float = 0.45,
         log.warning("person model failed its SHA-256 check; motion_only mode")
         return NullDetector()
     try:
-        det = YoloxPersonDetector(path, score_thr=score_thr, threads=threads)
+        det = YoloxPersonDetector(path, score_thr=score_thr, threads=threads,
+                                  low_memory=low_memory)
     except Exception as exc:  # onnxruntime missing / corrupt model / bad CPU
         log.warning("person model could not be loaded (%s); motion_only mode",
                     type(exc).__name__)

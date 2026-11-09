@@ -266,3 +266,34 @@ downloads the verified model and builds `AssistoShopBox.spec` with PyInstaller.
 The output is an onedir bundle with `AssistoShopBox.exe` (windowed) and
 `AssistoShopBoxCLI.exe` (console). CI smoke-tests the frozen build with
 `--self-test` and uploads `AssistoShopBox-windows-x64.zip`.
+
+## Linux / Raspberry Pi Guard Box (gboxlinux)
+
+The same program runs headless on a Linux mini PC or a Raspberry Pi 4/5
+(64-bit Raspberry Pi OS, Debian 11+, Ubuntu 20.04+; amd64 and arm64). CI
+(`.github/workflows/guardbox-linux.yml`) builds a self-contained PyInstaller
+bundle inside `python:3.11-slim-bullseye` and packages it as a `.deb`; from
+`main` it is published on the `guardbox-linux` release, which is also the
+auto-update channel.
+
+    curl -fsSL https://github.com/ArifSarkar247/assisto/releases/download/guardbox-linux/install.sh | sudo sh
+    sudo assisto-guardbox setup      # find cameras, password (kept on the box), pairing code
+    assisto-guardbox status          # what the running service reports
+    sudo assisto-guardbox logs | update | restart
+
+* Pairing: the owner's app code for a phone camera / Guard Box
+  (`shop/phonecam/claim`) -> a per-camera token, stored encrypted; the server
+  never gets the camera password. The Windows site-token pairing still works.
+* Thresholds: `shopbox/guard_thresholds.json`, shared with the phone Guard Box
+  (a test fails if the Dart constants drift).
+* "play" tasks (siren / the owner's recorded warning) play on the box's own
+  speaker (`aplay`, ALSA); a missing warning clip falls back to the siren.
+* Power cut: a run marker + the kernel boot id -> "power returned after X
+  minutes"; a UPS / battery the OS can read also gives a live "power cut".
+  Internet down: alerts wait in the outbox; on reconnect "offline from-to".
+  Both arrive on the heartbeat (`box_events`) and are pushed once.
+* 2 GB Pi ("lite" profile, automatic on ARM or <= 3.5 GB RAM): sub-stream,
+  1.5 analysed fps per camera, 512 px, 1 inference thread, no ORT memory
+  arena; systemd caps MemoryMax=1G, watchdog restart after 2 min silence.
+* DVR health uses `shopbox.camlink.health_probe` when that library is in the
+  build (off, and reported as off, otherwise).

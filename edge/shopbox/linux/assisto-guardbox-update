@@ -1,0 +1,50 @@
+#!/bin/sh
+# gboxlinux — Guard Box auto-update (daily timer, or `assisto-guardbox update`).
+#  1. read VERSION + SHA256SUMS from the release channel (CHANNEL tag);
+#  2. newer than the installed package? download the .deb for this CPU,
+#     check its SHA-256, keep the current .deb as the fallback, install;
+#  3. the service must come back "active" within 2 minutes, else the previous
+#     version is installed again (rollback) and the failure is logged.
+# Sends nothing about the box anywhere; it only downloads.
+set -eu
+[ -r /etc/default/assisto-guardbox ] && . /etc/default/assisto-guardbox
+AUTO_UPDATE="${AUTO_UPDATE:-1}"
+CHANNEL="${CHANNEL:-guardbox-linux}"
+REPO="${GUARDBOX_REPO:-ArifSarkar247/assisto}"
+BASE="https://github.com/$REPO/releases/download/$CHANNEL"
+DIR=/var/cache/assisto-guardbox   # root-only: the service user can never plant a .deb here
+log() { echo "assisto-guardbox-update: $*"; logger -t assisto-guardbox-update "$*" 2>/dev/null || true; }
+if [ "${1:-}" != "--now" ] && [ "$AUTO_UPDATE" != "1" ]; then log "auto-update off"; exit 0; fi
+case "$(dpkg --print-architecture)" in
+  amd64) ARCH=amd64 ;; arm64) ARCH=arm64 ;;
+  *) log "no build for $(dpkg --print-architecture)"; exit 0 ;;
+esac
+mkdir -p "$DIR"; cd "$DIR"
+curl -fsSL --retry 3 -m 60 -o VERSION.new "$BASE/VERSION" || { log "channel not reachable"; exit 0; }
+NEW="$(tr -d ' \n\r' < VERSION.new)"
+CUR="$(dpkg-query -W -f='${Version}' assisto-guardbox 2>/dev/null || echo 0)"
+if ! dpkg --compare-versions "$NEW" gt "$CUR"; then log "up to date ($CUR)"; exit 0; fi
+DEB="assisto-guardbox_${ARCH}.deb"
+curl -fsSL --retry 3 -m 120 -o SHA256SUMS "$BASE/SHA256SUMS"
+curl -fsSL --retry 3 -m 900 -o "$DEB.part" "$BASE/$DEB"
+WANT="$(awk -v f="$DEB" '$2==f || $2=="*"f {print $1}' SHA256SUMS)"
+GOT="$(sha256sum "$DEB.part" | cut -d' ' -f1)"
+if [ -z "$WANT" ] || [ "$WANT" != "$GOT" ]; then log "SHA-256 mismatch - not installing"; rm -f "$DEB.part"; exit 1; fi
+mv "$DEB.part" "$DEB.new"
+log "installing $NEW (was $CUR)"
+if dpkg -i "$DEB.new" >/dev/null 2>&1 || apt-get -y -f install >/dev/null 2>&1; then
+  ok=0
+  for i in $(seq 1 24); do
+    sleep 5
+    if systemctl is-active --quiet assisto-guardbox; then ok=1; break; fi
+  done
+  if [ "$ok" = "1" ]; then
+    [ -f current.deb ] && mv -f current.deb previous.deb
+    mv -f "$DEB.new" current.deb
+    log "updated to $NEW"; exit 0
+  fi
+fi
+log "new version did not start - rolling back"
+if [ -f current.deb ]; then dpkg -i current.deb >/dev/null 2>&1 || true; fi
+rm -f "$DEB.new"
+exit 1

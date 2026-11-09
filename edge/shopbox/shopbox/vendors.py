@@ -140,3 +140,24 @@ def redact_text(text: str, secrets: Iterable[Optional[str]] = ()) -> str:
             if form:
                 out = out.replace(form, "***")
     return out
+
+
+# gboxlinux: a 2 GB Raspberry Pi decodes every frame the camera sends, so the
+# Guard Box asks for the camera's SUB-stream (640x360-ish) when it can tell
+# how; any other URL is left exactly as the owner typed it.
+_SUB_RULES = (
+    (re.compile(r"(/Streaming/Channels/\d*?)01(\b|$)", re.I), r"\g<1>02\2"),  # Hikvision / HiLook
+    (re.compile(r"([?&]subtype=)0(\b|$)", re.I), r"\g<1>1\2"),                # Dahua / Imou / CP Plus
+    (re.compile(r"/stream1$", re.I), "/stream2"),                            # TP-Link Tapo
+    (re.compile(r"/h264/ch(\d+)/main/av_stream", re.I), r"/h264/ch\1/sub/av_stream"),  # XMeye / generic
+)
+
+
+def sub_stream_url(url: str) -> str:
+    """The sub-stream form of a known vendor RTSP URL (else unchanged)."""
+    u = str(url or "")
+    for rx, rep in _SUB_RULES:
+        new, n = rx.subn(rep, u, count=1)
+        if n:
+            return new
+    return u

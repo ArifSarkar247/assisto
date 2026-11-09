@@ -27,6 +27,7 @@ from .cooldown import Cooldown, RateBudget
 from .outbox import Outbox
 from .person import load_detector
 from .secure_store import SITE_TOKEN, SecretStore, cam_key
+from .thresholds import T as SHARED
 
 log = logging.getLogger(__name__)
 
@@ -98,7 +99,8 @@ class Engine:
         self.events = events or EventLog()
         self.detector = detector if detector is not None else load_detector(
             score_thr=cfg.detection.person_score,
-            threads=cfg.detection.detector_threads)
+            threads=cfg.detection.detector_threads,
+            low_memory=bool(getattr(cfg.detection, "low_memory", False)))
         s = cfg.sending
         self.outbox = Outbox(paths.path("outbox"), max_items=s.queue_max_items,
                              max_bytes=s.queue_max_mb * 1024 * 1024,
@@ -118,6 +120,14 @@ class Engine:
         self.live = None                 # live.LiveAnswerer when aiortc is present
         self.latest: Dict[str, object] = {}   # cam_id -> latest analysis frame
         self.running = False
+        # gboxlinux: power / internet events, the speaker, DVR health
+        self.box = None                  # boxstate.BoxMonitor
+        self.speaker = None              # speaker.Speaker
+        self.dvr = None                  # dvrhealth.DvrHealth
+        self.profile = "full"
+        self.started_at: Optional[float] = None
+        self._url_calls: Dict[str, int] = {}
+        self._sub_ok: Dict[str, bool] = {}
 
     # ------------------------------------------------------------ credentials
     def tokens_for(self, camera_id: Optional[str]):
@@ -126,7 +136,50 @@ class Engine:
         return site, cam
 
     def rtsp_url_for(self, cam_id: str) -> str:
-        return camera_url(self.cfg, self.store, cam_id)
+        url = camera_url(self.cfg, self.store, cam_id)
+        if not getattr(self.cfg.detection, "prefer_substream", False):
+            return url
+        # gboxlinux (2 GB Pi): the sub-stream, unless it never delivered a
+        # frame in 3 tries -> back to the URL the owner gave
+        from .vendors import sub_stream_url
+        n = self._url_calls.get(cam_id, 0) + 1
+        self._url_calls[cam_id] = n
+        w = self.workers.get(cam_id)
+        if w is not None and getattr(w, "last_frame_at", None):
+            self._sub_ok.setdefault(cam_id, True)
+        if n > 3 and not self._sub_ok.get(cam_id):
+            return url
+        return sub_stream_url(url)
+
+    def has_tokens(self) -> bool:
+        return bool(self.store.get(SITE_TOKEN) or any(
+            self.store.get(cam_key(c.id, "token")) for c in self.cfg.cameras))
+
+    def camera_health(self, cam_id: str) -> Optional[dict]:
+        """gboxlinux: the heartbeat health of a code-paired camera — the box
+        has had no picture from it for cam_lost_s (shared with the phone)."""
+        cam = self.cfg.camera(cam_id)
+        if cam is None or not cam.guard or not cam.enabled or not self.running:
+            return None
+        w = self.workers.get(cam_id)
+        last = getattr(w, "last_frame_at", None) if w is not None else None
+        ref = last if last is not None else self.started_at
+        lost = ref is not None and time.time() - ref >= float(SHARED["cam_lost_s"])
+        return {"box_cam_lost": bool(lost)}
+
+    def play_token(self, cam_id: Optional[str]):
+        """(token, server camera id) to fetch the owner's warning clip."""
+        tok = self.store.get(cam_key(cam_id, "token")) if cam_id else None
+        if tok:
+            return tok, None
+        cam = self.cfg.camera(cam_id) if cam_id else None
+        return self.store.get(SITE_TOKEN), (cam.server_id if cam else None)
+
+    def on_play(self, token: str, cam_id: str, tasks: list) -> None:
+        if self.speaker is None:
+            return
+        self._play_cam = cam_id
+        self.speaker.play_async(tasks)
 
     def device_tokens(self) -> Dict[str, str]:
         """Tokens to heartbeat with: each camera's own token (so the owner's
@@ -240,8 +293,9 @@ class Engine:
     def start(self) -> None:
         if self.running:
             return
-        if not self.store.get(SITE_TOKEN):
+        if not self.has_tokens():
             raise RuntimeError("not_paired")
+        self.started_at = time.time()
         client = IngestClient(self.cfg.base_url, timeout=self.cfg.sending.timeout_s)
         self.sender = Sender(self.outbox, client, self.tokens_for,
                              RateBudget(self.cfg.sending.max_per_min, 60.0),
@@ -291,19 +345,65 @@ class Engine:
                 self.live = live.LiveAnswerer(self.cfg.base_url, self.frame_source_for)
                 caps.append("live")
             client = DeviceClient(self.cfg.base_url, timeout=self.cfg.sending.timeout_s)
+            self._start_box_parts()
+            if self.speaker is not None and self.speaker.player:
+                caps.append("speaker")
             self.tasks = GatewayTasks(client, lambda: self.store.get(SITE_TOKEN),
-                                      self.store, on_checked=self.on_camera_checked)
+                                      self.store, on_checked=self.on_camera_checked,
+                                      speaker=self.speaker)
             self.sync = DeviceSync(
                 client, self.device_tokens, caps, self.apply_server_config,
                 on_live=(self.live.handle if self.live else None),
                 tasks=self.tasks, camera_ids=self.server_camera_ids,
-                extra=self.heartbeat_extra)
+                extra=self.heartbeat_extra, health=self.camera_health,
+                box=self.box, on_play=self.on_play)
             self.sync.start()
         except Exception:
             log.exception("device sync could not start (monitoring continues)")
             self.sync = None
 
+    def _start_box_parts(self) -> None:
+        """gboxlinux: power / internet watch, the speaker, DVR health. Each
+        part is optional; none may stop monitoring."""
+        try:
+            from .boxstate import BoxMonitor
+            self.box = BoxMonitor(queued_alerts=lambda: len(self.outbox))
+            self.box.start()
+        except Exception:
+            log.exception("box monitor could not start")
+            self.box = None
+        try:
+            from .speaker import Speaker, device_fetcher
+            self._play_cam = None
+            self.speaker = Speaker(device_fetcher(
+                self.cfg.base_url, lambda: self.play_token(self._play_cam)))
+        except Exception:
+            log.exception("speaker could not start")
+            self.speaker = None
+        try:
+            from .dvrhealth import DvrHealth
+            self.dvr = DvrHealth(self.cfg, self._cam_creds, self.cfg.base_url,
+                                 lambda: self.store.get(SITE_TOKEN) or next(
+                                     iter(self.device_tokens().values()), None))
+            self.dvr.start()
+        except Exception:
+            log.exception("DVR health could not start")
+            self.dvr = None
+
+    def _cam_creds(self, cam):
+        from .tasks import secret_key, user_key
+        user = self.store.get(cam_key(cam.id, "user"))
+        pwd = self.store.get(cam_key(cam.id, "pass"))
+        if cam.server_id is not None and not (user or pwd):
+            user = self.store.get(user_key(cam.server_id))
+            pwd = self.store.get(secret_key(cam.server_id))
+        return user, pwd
+
     def stop(self) -> None:
+        if self.box:
+            self.box.stop()
+        if self.dvr:
+            self.dvr.stop()
         if self.clip_sender:
             self.clip_sender.stop()
         if self.sync:
@@ -379,6 +479,11 @@ class Engine:
         if cam is not None and not cam.enabled:
             return False                     # the owner switched it off
         cool = (cam.tuning or {}).get("cooldown_s") if cam is not None else None
+        if cool is None and cam is not None and cam.guard:
+            # the phone Guard Box's cool-downs (guard_thresholds.json)
+            cool = float(SHARED["person_cooldown_s"] if trig.type in (
+                payload.PERSON_DETECTED, payload.ZONE_INTRUSION, payload.LINE_CROSSING)
+                else SHARED["motion_cooldown_s"])
         if not self.cooldown.allow((cam_id, trig.type), cool):
             return False
         snap = None
@@ -389,7 +494,11 @@ class Engine:
                     zone=cam.cash_zone() if cam else None)
             except ValueError:
                 snap = None
-        event = payload.build_event(trig.type, trig.signals, camera_id=cam_id,
+        signals = trig.signals
+        if cam is not None and cam.guard:
+            from .sysinfo import platform_name
+            signals = dict(signals, source="guard_box_%s" % platform_name())
+        event = payload.build_event(trig.type, signals, camera_id=cam_id,
                                     at=trig.at)
         if cam is not None and cam.server_id is not None:
             event["server_camera_id"] = int(cam.server_id)
@@ -430,6 +539,12 @@ class Engine:
             "online": self.sender.online if self.sender else None,
             "unauthorized": self.sender.unauthorized if self.sender else False,
             "live_view": bool(self.live),
+            "profile": self.profile,
+            "speaker": bool(self.speaker and self.speaker.player),
+            "dvr_health": ("off" if not (self.dvr and self.dvr.available)
+                           else (self.dvr.last or "waiting")),
+            "box_events_waiting": len(self.box.queue) if self.box else 0,
+            "internet_down_since": self.box.net.down_since if self.box else None,
             "heartbeat_online": self.sync.online if self.sync else None,
             "gateway_state": self.tasks.state if self.tasks else "idle",
             "gateway_last": self.tasks.last if self.tasks else None,
