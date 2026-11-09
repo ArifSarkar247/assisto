@@ -106,7 +106,7 @@
   "lib/screens/agent_core/life_graph_screen.dart": 8,
   "lib/screens/agent_studio_screen.dart": 4,
   "lib/screens/agent_thread_screen.dart": 2,
-  "lib/screens/ai_chat_screen.dart": 11,
+  "lib/screens/ai_chat_screen.dart": 6,
   "lib/screens/ai_knowledge_screen.dart": 3,
   "lib/screens/app_drawer.dart": 8,
   "lib/screens/app_update_screen.dart": 2,

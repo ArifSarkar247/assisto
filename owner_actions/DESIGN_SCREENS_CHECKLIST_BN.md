@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৯ / মোট ৪২০**
+**স্ক্রিন শেষ: ১০ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -104,7 +104,7 @@
 - ⬜ — `carecall/carecall_ring_screen.dart`
 - ⬜ — `carecall/carecall_screen.dart`
 - ⬜ — `push/incoming_call_screen.dart`
-- ⬜ — `screens/ai_chat_screen.dart`
+- ✅ batch 3 (শুরু-কার্ড আগে, সাদা উত্তর-কার্ড) — `screens/ai_chat_screen.dart`
 - ⬜ — `screens/business/khata_chat_screen.dart`
 - ⬜ — `screens/circle_call_history_screen.dart`
 - ⬜ — `screens/circle_call_info_screen.dart`

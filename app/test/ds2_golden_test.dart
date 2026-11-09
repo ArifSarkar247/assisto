@@ -43,6 +43,7 @@ const ds2Screens = <String>[
   'settings', // batch 2: grouped V2 cards
   'money', // batch 3
   'biz_khata', // batch 3
+  'ai_chat', // batch 3
 ];
 
 Future<void> _png(WidgetTester tester, GlobalKey key, String name) async {

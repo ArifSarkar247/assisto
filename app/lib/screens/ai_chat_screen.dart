@@ -7,6 +7,7 @@ import '../growth/branded_share.dart'; // p5-growth
 import '../chat_vision/chat_photo.dart';
 import '../api.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
@@ -1081,11 +1082,7 @@ class _AiChatScreenState extends State<AiChatScreen>
         const SizedBox(height: Gap.sm),
         Text(t.aichatWelcomeBody,
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
-        if (_noKey) ...[
-          const SizedBox(height: Gap.lg),
-          _noKeyCard(scheme),
-        ],
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.xl),
         // Premium QA: welcome state offers real starting points (tap = send).
         for (final (icon, text) in [
@@ -1094,28 +1091,34 @@ class _AiChatScreenState extends State<AiChatScreen>
           (Icons.campaign_rounded, t.a1AiSugShop),
           (Icons.receipt_long_rounded, t.a1AiSugBill),
         ])
+          // designv2: the starting points come first (the action), as
+          // "alive" V2 cards; the no-key note follows, calm and flat.
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
-            child: Material(
-              color: scheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(Radii.md),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(Radii.md),
-                onTap: _sending ? null : () => _send(text),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: Gap.md, vertical: Gap.md),
-                  child: Row(children: [
-                    Icon(icon, size: 20, color: scheme.primary),
-                    const SizedBox(width: Gap.md),
-                    Expanded(
-                        child: Text(text,
-                            style: const TextStyle(height: 1.3))),
-                  ]),
+            child: DsSurface(
+              onTap: _sending ? null : () => _send(text),
+              padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.md),
+              child: Row(children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: DsTokens.of(context).primarySoft,
+                    borderRadius: BorderRadius.circular(DsRadius.button),
+                  ),
+                  child: Icon(icon, size: 20, color: scheme.primary),
                 ),
-              ),
+                const SizedBox(width: Gap.md),
+                Expanded(
+                    child: Text(text, style: Theme.of(context).textTheme.bodyLarge)),
+                Icon(Icons.north_east_rounded, size: 18, color: scheme.onSurfaceVariant),
+              ]),
             ),
           ),
+        if (_noKey) ...[
+          const SizedBox(height: Gap.md),
+          _noKeyCard(scheme),
+        ],
       ],
     );
   }
@@ -1137,7 +1140,10 @@ class _AiChatScreenState extends State<AiChatScreen>
           BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.80),
       padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
       decoration: BoxDecoration(
-        color: m.user ? scheme.primary : scheme.surfaceContainerHighest,
+        // designv2: assistant turns sit on a white V2 card with a hairline
+        // border; the user's turns are the primary blue.
+        color: m.user ? scheme.primary : DsTokens.of(context).card,
+        border: m.user ? null : Border.all(color: DsTokens.of(context).border),
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(18),
           topRight: const Radius.circular(18),
@@ -1321,8 +1327,9 @@ class _AiChatScreenState extends State<AiChatScreen>
       key: const ValueKey('aichat_nokey_card'),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(Radii.md),
+        color: DsTokens.of(context).cardAlt,
+        border: Border.all(color: DsTokens.of(context).border),
+        borderRadius: BorderRadius.circular(DsRadius.card),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1334,7 +1341,7 @@ class _AiChatScreenState extends State<AiChatScreen>
               header: true,
               container: true, // TalkBack reads the title alone as a heading
               child: Text(_paused ? t.aivPausedTitle : t.aivNoKeyTitle,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: scheme.onSecondaryContainer)),
             ),
@@ -1342,8 +1349,7 @@ class _AiChatScreenState extends State<AiChatScreen>
         ]),
         const SizedBox(height: Gap.xs),
         Text(_paused ? t.aivPausedBody : t.aivNoKeyBody,
-            style:
-                TextStyle(color: scheme.onSecondaryContainer, height: 1.4)),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSecondaryContainer)),
         const SizedBox(height: Gap.xs),
         for (final line in _freeLines())
           Padding(
@@ -1354,8 +1360,8 @@ class _AiChatScreenState extends State<AiChatScreen>
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(line,
-                      style: TextStyle(
-                          color: scheme.onSecondaryContainer, height: 1.35))),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: scheme.onSecondaryContainer))),
             ]),
           ),
       ]),
@@ -1544,12 +1550,15 @@ class _AiChatScreenState extends State<AiChatScreen>
                 hintText:
                     _voice.listening ? t.aichatListening : t.aichatInputHint,
                 filled: true,
-                fillColor: scheme.surfaceContainerHighest,
+                fillColor: DsTokens.of(context).card,
                 contentPadding: const EdgeInsets.symmetric(
                     horizontal: Gap.lg, vertical: Gap.md),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(Radii.pill),
-                    borderSide: BorderSide.none),
+                    borderSide: BorderSide(color: DsTokens.of(context).border)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(Radii.pill),
+                    borderSide: BorderSide(color: DsTokens.of(context).border)),
               ),
             ),
           ),
