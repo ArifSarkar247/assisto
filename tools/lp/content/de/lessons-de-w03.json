@@ -1,0 +1,1017 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "de",
+ "week": 3,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "de_a1"
+ ],
+ "title": {
+  "en": "Week 3: Daily life, time, appointments, forms",
+  "bn": "সপ্তাহ ৩: দৈনন্দিন জীবন, সময়, অ্যাপয়েন্টমেন্ট, ফর্ম"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not official exam material or result.",
+  "bn": "Assisto-র নিজের লেখা অনুশীলন পাঠ — এটি অফিসিয়াল পরীক্ষার প্রশ্ন বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "public Start Deutsch 1 / A1 exam format description"
+ },
+ "lessons": [
+  {
+   "id": "de-w03-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Verbs with a vowel change",
+    "bn": "স্বর-বদলানো ক্রিয়া (essen, fahren, nehmen …)"
+   },
+   "goal_bn": "du আর er/sie রূপে যে ক্রিয়াগুলোর স্বর বদলায় সেগুলো চিনবেন এবং ঠিকভাবে বলবেন।",
+   "vocab": [
+    {
+     "target": "essen (er isst)",
+     "bn": "খাওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "Mittags isst er meistens Reis mit Gemüse.",
+      "bn": "দুপুরে সে সাধারণত সবজি দিয়ে ভাত খায়।"
+     },
+     "say_bn": "এসেন (এয়ার ইস্ট)"
+    },
+    {
+     "target": "fahren (er fährt)",
+     "bn": "যানবাহনে যাওয়া / চালানো",
+     "pos": "verb",
+     "example": {
+      "target": "Meine Kollegin fährt jeden Tag mit der S-Bahn.",
+      "bn": "আমার সহকর্মী প্রতিদিন এস-বানে যান।"
+     },
+     "say_bn": "ফারেন (ফেয়ার্ট)"
+    },
+    {
+     "target": "nehmen (er nimmt)",
+     "bn": "নেওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "Nimmst du auch eine Suppe?",
+      "bn": "তুমিও একটা স্যুপ নেবে?"
+     },
+     "say_bn": "নেমেন (নিমট)"
+    },
+    {
+     "target": "lesen (er liest)",
+     "bn": "পড়া",
+     "pos": "verb",
+     "example": {
+      "target": "Sie liest jeden Abend die Nachrichten auf Deutsch.",
+      "bn": "তিনি প্রতি সন্ধ্যায় জার্মানে খবর পড়েন।"
+     },
+     "say_bn": "লেজেন (লীস্ট)"
+    },
+    {
+     "target": "sehen (er sieht)",
+     "bn": "দেখা",
+     "pos": "verb",
+     "example": {
+      "target": "Siehst du das Schild dort drüben?",
+      "bn": "ওপাশের সাইনবোর্ডটা দেখতে পাচ্ছ?"
+     },
+     "say_bn": "জেয়েন (জীট)"
+    },
+    {
+     "target": "schlafen (er schläft)",
+     "bn": "ঘুমানো",
+     "pos": "verb",
+     "example": {
+      "target": "Das Baby schläft schon, bitte leise sprechen.",
+      "bn": "বাচ্চাটা ঘুমাচ্ছে, আস্তে কথা বলুন।"
+     },
+     "say_bn": "শ্লাফেন (শ্লেফট)"
+    },
+    {
+     "target": "sprechen (er spricht)",
+     "bn": "বলা",
+     "pos": "verb",
+     "example": {
+      "target": "Spricht Ihr Chef Englisch?",
+      "bn": "আপনার বস কি ইংরেজি বলেন?"
+     },
+     "say_bn": "শপ্রেখেন (শপ্রিখট)"
+    },
+    {
+     "target": "arbeiten (er arbeitet)",
+     "bn": "কাজ করা",
+     "pos": "verb",
+     "example": {
+      "target": "Er arbeitet in der Nachtschicht.",
+      "bn": "সে রাতের শিফটে কাজ করে।"
+     },
+     "say_bn": "আরবাইটেন (আরবাইটেট)"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "e → i/ie · a → ä (nur du + er/sie/es)",
+     "explain_bn": "কিছু ক্রিয়ার স্বর শুধু du আর er/sie/es রূপে বদলায়: ich nehme → du nimmst → er nimmt; ich fahre → du fährst → er fährt। ich, wir, Sie রূপ স্বাভাবিক থাকে। অভিধানে এগুলো সাধারণত 'nimmt' বা 'fährt' লিখে দেখায় — সাথে মুখস্থ করুন।",
+     "examples": [
+      {
+       "target": "Ich fahre mit dem Bus, aber mein Bruder fährt mit dem Rad.",
+       "bn": "আমি বাসে যাই, কিন্তু আমার ভাই সাইকেলে যায়।"
+      },
+      {
+       "target": "Was isst du heute? — Ich esse Fisch.",
+       "bn": "আজ তুমি কী খাবে? — আমি মাছ খাব।"
+      }
+     ]
+    },
+    {
+     "pattern": "arbeiten: du arbeitest, er arbeitet",
+     "explain_bn": "ক্রিয়ার মূল t বা d-তে শেষ হলে du আর er রূপে একটা e যোগ হয় (উচ্চারণ সহজ করতে): arbeiten → er arbeitet, finden → du findest।",
+     "examples": [
+      {
+       "target": "Wo arbeitest du jetzt?",
+       "bn": "তুমি এখন কোথায় কাজ করো?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w03-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "flatmate"
+        },
+        "B": {
+         "gender": "F",
+         "role": "flatmate"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Nimmst du morgen das Auto?"
+        },
+        {
+         "spk": "B",
+         "text": "Nein, ich fahre mit dem Zug nach Köln. Das Auto nimmt Jonas."
+        },
+        {
+         "spk": "A",
+         "text": "Ach so, gut."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কাল গাড়িটা কে নেবে?",
+      "options": [
+       "সে (মহিলা) নিজে",
+       "Jonas",
+       "কেউ না",
+       "প্রথম বক্তা"
+      ],
+      "answer": "B",
+      "explain_bn": "'Das Auto nimmt Jonas' — গাড়ি নেবে ইয়োনাস। মহিলা ট্রেনে কোলোন যাবেন।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w03-l1-r1",
+      "passage": "Herr Uddin arbeitet in einer Bäckerei. Er fängt sehr früh an und schläft deshalb schon um neun Uhr abends. Am Wochenende liest er gern und sieht Fußball.",
+      "prompt_bn": "জনাব উদ্দিন রাত নয়টায় ঘুমান কেন?",
+      "options": [
+       "তিনি খুব ভোরে কাজ শুরু করেন",
+       "তিনি অসুস্থ",
+       "তিনি ফুটবল খেলেন",
+       "তিনি পড়তে ভালোবাসেন"
+      ],
+      "answer": "A",
+      "explain_bn": "'Er fängt sehr früh an und schläft deshalb …' — খুব ভোরে কাজ শুরু করেন, তাই (deshalb) আগে ঘুমান।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w03-l1-w1",
+      "prompt_bn": "er/sie রূপে লিখুন: (১) Ich nehme den Bus. → Sie … (২) Ich esse Brot. → Er … (৩) Ich lese ein Buch. → Sie …",
+      "model": {
+       "target": "Sie nimmt den Bus. Er isst Brot. Sie liest ein Buch.",
+       "bn": "সে বাস নেয়। সে রুটি খায়। সে একটা বই পড়ে।"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w03-l1-s1",
+      "prompt_bn": "জোরে বলুন আপনার এক বন্ধু প্রতিদিন কী করে: কোন যানবাহনে যায়, কী খায়, কখন ঘুমায়।",
+      "model": {
+       "target": "Mein Freund Hasib fährt mit dem Fahrrad zur Arbeit. Er isst mittags in der Kantine und schläft um elf Uhr.",
+       "bn": "আমার বন্ধু হাসিব সাইকেলে কাজে যায়। দুপুরে সে ক্যান্টিনে খায় আর এগারোটায় ঘুমায়।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w03-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Separable verbs: a daily routine",
+    "bn": "আলাদা-হওয়া ক্রিয়া: দৈনন্দিন রুটিন"
+   },
+   "goal_bn": "aufstehen, anrufen, einkaufen-এর মতো ক্রিয়া ভেঙে বাক্যের শেষে উপসর্গ বসাবেন — দিনের রুটিন বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "aufstehen",
+     "bn": "ঘুম থেকে ওঠা",
+     "pos": "verb",
+     "example": {
+      "target": "Ich stehe um halb sechs auf.",
+      "bn": "আমি সাড়ে পাঁচটায় ঘুম থেকে উঠি।"
+     },
+     "say_bn": "আউফশটেয়েন"
+    },
+    {
+     "target": "anrufen",
+     "bn": "ফোন করা",
+     "pos": "verb",
+     "example": {
+      "target": "Rufen Sie mich bitte heute Nachmittag an.",
+      "bn": "দয়া করে আজ বিকেলে আমাকে ফোন করবেন।"
+     },
+     "say_bn": "আনরুফেন"
+    },
+    {
+     "target": "einkaufen",
+     "bn": "বাজার/কেনাকাটা করা",
+     "pos": "verb",
+     "example": {
+      "target": "Am Samstag kaufen wir für die ganze Woche ein.",
+      "bn": "শনিবারে আমরা পুরো সপ্তাহের বাজার করি।"
+     },
+     "say_bn": "আইনকাউফেন"
+    },
+    {
+     "target": "anfangen",
+     "bn": "শুরু হওয়া / শুরু করা",
+     "pos": "verb",
+     "example": {
+      "target": "Die Schicht fängt um vierzehn Uhr an.",
+      "bn": "শিফট দুপুর দুটোয় শুরু হয়।"
+     },
+     "say_bn": "আনফানগেন"
+    },
+    {
+     "target": "ankommen",
+     "bn": "পৌঁছানো",
+     "pos": "verb",
+     "example": {
+      "target": "Der Flug aus Doha kommt um 7:40 Uhr an.",
+      "bn": "দোহা থেকে ফ্লাইট ৭:৪০-এ পৌঁছায়।"
+     },
+     "say_bn": "আনকমেন"
+    },
+    {
+     "target": "abholen",
+     "bn": "কাউকে/কিছু নিতে যাওয়া (পিক-আপ)",
+     "pos": "verb",
+     "example": {
+      "target": "Ich hole dich am Flughafen ab.",
+      "bn": "আমি তোমাকে এয়ারপোর্ট থেকে নিয়ে আসব।"
+     },
+     "say_bn": "আপহোলেন"
+    },
+    {
+     "target": "fernsehen",
+     "bn": "টিভি দেখা",
+     "pos": "verb",
+     "example": {
+      "target": "Nach dem Essen sehen die Kinder fern.",
+      "bn": "খাওয়ার পর বাচ্চারা টিভি দেখে।"
+     },
+     "say_bn": "ফের্নজেয়েন"
+    },
+    {
+     "target": "zurückkommen",
+     "bn": "ফিরে আসা",
+     "pos": "verb",
+     "example": {
+      "target": "Wann kommst du aus dem Urlaub zurück?",
+      "bn": "ছুটি থেকে কবে ফিরবে?"
+     },
+     "say_bn": "ৎসুরুককমেন"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "auf|stehen → Ich stehe … auf.",
+     "explain_bn": "কিছু ক্রিয়ার সামনে উপসর্গ থাকে (auf-, an-, ein-, ab-, zurück-, fern-)। বাক্যে মূল অংশ দ্বিতীয় স্থানে, উপসর্গ একদম শেষে চলে যায়: 'Ich rufe meine Mutter jeden Sonntag an.' শোনার সময় বাক্যের শেষ শব্দটা খেয়াল করুন — অর্থ ওখানেই সম্পূর্ণ হয়।",
+     "examples": [
+      {
+       "target": "Der Zug kommt pünktlich an.",
+       "bn": "ট্রেন সময়মতো পৌঁছায়।"
+      },
+      {
+       "target": "Holst du die Kinder von der Schule ab?",
+       "bn": "তুমি কি বাচ্চাদের স্কুল থেকে আনবে?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w03-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "friend"
+        },
+        "B": {
+         "gender": "M",
+         "role": "warehouse worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Wie sieht dein Tag aus?"
+        },
+        {
+         "spk": "B",
+         "text": "Ich stehe um fünf auf. Die Arbeit fängt um sechs an und hört um halb drei auf."
+        },
+        {
+         "spk": "A",
+         "text": "Und danach?"
+        },
+        {
+         "spk": "B",
+         "text": "Danach kaufe ich ein und rufe meine Familie in Bangladesch an."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কাজ শেষে লোকটি কী করেন?",
+      "options": [
+       "টিভি দেখেন",
+       "বাজার করেন আর পরিবারকে ফোন করেন",
+       "ঘুমিয়ে পড়েন",
+       "বন্ধুকে এয়ারপোর্ট থেকে আনেন"
+      ],
+      "answer": "B",
+      "explain_bn": "'Danach kaufe ich ein und rufe meine Familie … an' — তারপর বাজার করি আর পরিবারকে ফোন করি।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w03-l2-r1",
+      "passage": "Hallo Nadia, mein Zug kommt heute erst um 21:15 Uhr in Frankfurt an. Kannst du mich vom Bahnhof abholen? Danke! Rina",
+      "prompt_bn": "রিনা নাদিয়াকে কী করতে বলছেন?",
+      "options": [
+       "ট্রেনের টিকিট কিনতে",
+       "স্টেশন থেকে তাকে নিয়ে যেতে",
+       "ফোন করতে",
+       "বাজার করতে"
+      ],
+      "answer": "B",
+      "explain_bn": "'Kannst du mich vom Bahnhof abholen?' — স্টেশন থেকে আমাকে নিয়ে যেতে পারবে?",
+      "skill": "message"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w03-l2-w1",
+      "prompt_bn": "নিজের সকালের রুটিন লিখুন — অন্তত তিনটি আলাদা-হওয়া ক্রিয়া ব্যবহার করে।",
+      "model": {
+       "target": "Ich stehe um sechs Uhr auf. Um sieben fängt mein Deutschkurs an. Nachmittags kaufe ich ein und abends rufe ich meine Schwester an.",
+       "bn": "আমি ছয়টায় উঠি। সাতটায় আমার জার্মান কোর্স শুরু হয়। বিকেলে বাজার করি আর সন্ধ্যায় বোনকে ফোন করি।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w03-l2-s1",
+      "prompt_bn": "কেউ জিজ্ঞেস করল 'Wie ist Ihr Tag?' — জোরে আপনার দিনের রুটিন বলুন (ওঠা, কাজ শুরু, বাড়ি ফেরা)।",
+      "model": {
+       "target": "Ich stehe um halb sieben auf. Meine Arbeit fängt um acht an. Um fünf komme ich nach Hause zurück.",
+       "bn": "আমি সাড়ে ছয়টায় উঠি। আটটায় কাজ শুরু হয়। পাঁচটায় বাড়ি ফিরি।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w03-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Telling the time",
+    "bn": "সময় বলা"
+   },
+   "goal_bn": "ঘড়ির সময় জিজ্ঞেস করবেন আর বলবেন — halb, Viertel nach/vor ঠিকভাবে বুঝবেন।",
+   "vocab": [
+    {
+     "target": "die Uhr",
+     "bn": "ঘড়ি / …টা (সময়)",
+     "pos": "noun",
+     "example": {
+      "target": "Es ist jetzt genau zehn Uhr.",
+      "bn": "এখন ঠিক দশটা।"
+     },
+     "say_bn": "ডি উর"
+    },
+    {
+     "target": "Wie spät ist es?",
+     "bn": "কয়টা বাজে?",
+     "pos": "phrase",
+     "example": {
+      "target": "Entschuldigung, wie spät ist es? — Kurz nach drei.",
+      "bn": "মাফ করবেন, কয়টা বাজে? — তিনটা বেজে একটু।"
+     },
+     "say_bn": "ভি শপেট ইস্ট এস"
+    },
+    {
+     "target": "halb",
+     "bn": "আধা (halb acht = সাড়ে সাতটা!)",
+     "pos": "adjective",
+     "example": {
+      "target": "Wir treffen uns um halb acht vor dem Kino.",
+      "bn": "আমরা সাড়ে সাতটায় সিনেমা হলের সামনে দেখা করব।"
+     },
+     "say_bn": "হাল্প"
+    },
+    {
+     "target": "Viertel nach",
+     "bn": "সোয়া (… বেজে ১৫ মিনিট)",
+     "pos": "phrase",
+     "example": {
+      "target": "Der Unterricht beginnt um Viertel nach neun.",
+      "bn": "ক্লাস সোয়া নয়টায় শুরু।"
+     },
+     "say_bn": "ফিয়ার্টেল নাখ"
+    },
+    {
+     "target": "Viertel vor",
+     "bn": "পৌনে (… বাজতে ১৫ মিনিট)",
+     "pos": "phrase",
+     "example": {
+      "target": "Es ist Viertel vor zwölf, gleich ist Mittagspause.",
+      "bn": "পৌনে বারোটা, একটু পরেই দুপুরের বিরতি।"
+     },
+     "say_bn": "ফিয়ার্টেল ফোর"
+    },
+    {
+     "target": "die Minute",
+     "bn": "মিনিট",
+     "pos": "noun",
+     "example": {
+      "target": "Der Bus kommt in fünf Minuten.",
+      "bn": "বাস পাঁচ মিনিটের মধ্যে আসবে।"
+     },
+     "say_bn": "ডি মিনুটে"
+    },
+    {
+     "target": "die Stunde",
+     "bn": "ঘণ্টা",
+     "pos": "noun",
+     "example": {
+      "target": "Der Kurs dauert zwei Stunden.",
+      "bn": "কোর্সটা দুই ঘণ্টা চলে।"
+     },
+     "say_bn": "ডি শটুন্ডে"
+    },
+    {
+     "target": "von … bis",
+     "bn": "… থেকে … পর্যন্ত",
+     "pos": "phrase",
+     "example": {
+      "target": "Die Praxis ist von acht bis zwölf Uhr geöffnet.",
+      "bn": "চেম্বার আটটা থেকে বারোটা পর্যন্ত খোলা।"
+     },
+     "say_bn": "ফন … বিস"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "halb acht = 7:30 · Viertel nach acht = 8:15 · Viertel vor acht = 7:45",
+     "explain_bn": "সবচেয়ে বড় ফাঁদ: 'halb acht' মানে আটটার দিকে অর্ধেক পথ — অর্থাৎ সাড়ে সাতটা, সাড়ে আটটা নয়! বাংলায় 'সাড়ে সাতটা' বলি, জার্মানরা বলে 'আটটার আধা'। অফিসিয়াল (ট্রেন, অফিস) সময়ে ২৪ ঘণ্টা: 19:30 = neunzehn Uhr dreißig।",
+     "examples": [
+      {
+       "target": "Der Zug fährt um 19:30 Uhr. — Also um halb acht abends.",
+       "bn": "ট্রেন ছাড়ে ১৯:৩০-এ। — মানে সন্ধ্যা সাড়ে সাতটায়।"
+      },
+      {
+       "target": "Es ist zehn nach vier.",
+       "bn": "চারটা বেজে দশ মিনিট।"
+      }
+     ]
+    },
+    {
+     "pattern": "um + Uhrzeit",
+     "explain_bn": "নির্দিষ্ট সময়ে কিছু হলে 'um' বসে: 'um 9 Uhr'। সময়সীমা: 'von 9 bis 17 Uhr'।",
+     "examples": [
+      {
+       "target": "Kommen Sie bitte um elf Uhr.",
+       "bn": "দয়া করে এগারোটায় আসুন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w03-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "colleague"
+        },
+        "B": {
+         "gender": "F",
+         "role": "colleague"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Wann ist die Teambesprechung morgen?"
+        },
+        {
+         "spk": "B",
+         "text": "Um halb zehn im Raum drei."
+        },
+        {
+         "spk": "A",
+         "text": "Halb zehn? Gut, ich komme."
+        }
+       ],
+       "repeat": 2
+      },
+      "prompt_bn": "মিটিং কয়টায়?",
+      "options": [
+       "um 10:30 Uhr",
+       "um 9:30 Uhr",
+       "um 9:15 Uhr",
+       "um 10:15 Uhr"
+      ],
+      "answer": "B",
+      "explain_bn": "'halb zehn' = দশটার আধা পথ = ৯:৩০। ১০:৩০ ভাবলে ভুল হবে।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w03-l3-r1",
+      "passage": "Bürgerbüro – Öffnungszeiten\nMontag bis Mittwoch: 8:00–15:30 Uhr\nDonnerstag: 8:00–18:00 Uhr\nFreitag: 8:00–12:00 Uhr",
+      "prompt_bn": "কোন দিন সন্ধ্যা ৫টায় নাগরিক অফিসে যাওয়া যাবে?",
+      "options": [
+       "Montag",
+       "Mittwoch",
+       "Donnerstag",
+       "Freitag"
+      ],
+      "answer": "C",
+      "explain_bn": "শুধু বৃহস্পতিবার (Donnerstag) ১৮:০০ পর্যন্ত খোলা; অন্য দিনে ১৫:৩০ বা ১২:০০-তে বন্ধ।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w03-l3-w1",
+      "prompt_bn": "জার্মান কথ্য রূপে লিখুন: 6:30, 8:15, 11:45, 14:00 (Uhr দিয়ে)।",
+      "model": {
+       "target": "halb sieben, Viertel nach acht, Viertel vor zwölf, vierzehn Uhr",
+       "bn": "সাড়ে ছয়টা, সোয়া আটটা, পৌনে বারোটা, দুপুর দুটো"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w03-l3-s1",
+      "prompt_bn": "কেউ জিজ্ঞেস করল 'Wann beginnt Ihre Arbeit und wann ist Feierabend?' — জোরে উত্তর দিন।",
+      "model": {
+       "target": "Meine Arbeit beginnt um Viertel vor sieben und Feierabend ist um halb vier.",
+       "bn": "আমার কাজ শুরু পৌনে সাতটায় আর ছুটি সাড়ে তিনটায়।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w03-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "Days, dates and appointments",
+    "bn": "দিন, তারিখ আর অ্যাপয়েন্টমেন্ট"
+   },
+   "goal_bn": "সপ্তাহের দিন আর তারিখ বলবেন, অ্যাপয়েন্টমেন্ট নেবেন, বদলাবেন বা বাতিল করবেন।",
+   "vocab": [
+    {
+     "target": "der Montag … der Sonntag",
+     "bn": "সোমবার … রবিবার (Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag)",
+     "pos": "noun",
+     "example": {
+      "target": "Am Dienstag und am Freitag habe ich Deutschkurs.",
+      "bn": "মঙ্গলবার আর শুক্রবার আমার জার্মান ক্লাস।"
+     },
+     "say_bn": "মোনটাক … জনটাক"
+    },
+    {
+     "target": "heute / morgen / übermorgen",
+     "bn": "আজ / আগামীকাল / পরশু",
+     "pos": "adverb",
+     "example": {
+      "target": "Heute geht es nicht, aber morgen habe ich Zeit.",
+      "bn": "আজ হবে না, কিন্তু কাল আমার সময় আছে।"
+     },
+     "say_bn": "হয়টে / মর্গেন"
+    },
+    {
+     "target": "die Woche",
+     "bn": "সপ্তাহ",
+     "pos": "noun",
+     "example": {
+      "target": "Nächste Woche bin ich im Urlaub.",
+      "bn": "আগামী সপ্তাহে আমি ছুটিতে।"
+     },
+     "say_bn": "ডি ভখে"
+    },
+    {
+     "target": "der Monat",
+     "bn": "মাস",
+     "pos": "noun",
+     "example": {
+      "target": "Die Miete bezahle ich am Anfang vom Monat.",
+      "bn": "ভাড়া আমি মাসের শুরুতে দিই।"
+     },
+     "say_bn": "ডের মোনাট"
+    },
+    {
+     "target": "einen Termin machen",
+     "bn": "অ্যাপয়েন্টমেন্ট নেওয়া",
+     "pos": "phrase",
+     "example": {
+      "target": "Ich möchte einen Termin beim Zahnarzt machen.",
+      "bn": "আমি দাঁতের ডাক্তারের কাছে অ্যাপয়েন্টমেন্ট নিতে চাই।"
+     },
+     "say_bn": "আইনেন টেরমিন মাখেন"
+    },
+    {
+     "target": "absagen",
+     "bn": "বাতিল করা",
+     "pos": "verb",
+     "example": {
+      "target": "Leider muss ich den Termin am Montag absagen.",
+      "bn": "দুঃখিত, সোমবারের অ্যাপয়েন্টমেন্টটা বাতিল করতে হবে।"
+     },
+     "say_bn": "আপজাগেন"
+    },
+    {
+     "target": "verschieben",
+     "bn": "পিছিয়ে দেওয়া / অন্য সময়ে নেওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "Können wir das Gespräch auf Donnerstag verschieben?",
+      "bn": "আলোচনাটা কি বৃহস্পতিবারে সরিয়ে নিতে পারি?"
+     },
+     "say_bn": "ফেয়ারশীবেন"
+    },
+    {
+     "target": "frei / besetzt",
+     "bn": "খালি / ব্যস্ত (সময় বা জায়গা)",
+     "pos": "adjective",
+     "example": {
+      "target": "Ist Mittwochvormittag noch frei? — Nein, da ist alles besetzt.",
+      "bn": "বুধবার সকালটা কি খালি আছে? — না, তখন সব বুকড।"
+     },
+     "say_bn": "ফ্রাই / বেজেৎস্ট"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "am + Tag · um + Uhrzeit · im + Monat · am 3. Mai",
+     "explain_bn": "দিনের আগে am (am Montag), ঘড়ির সময়ে um (um 10 Uhr), মাসের আগে im (im Juli)। তারিখ ক্রমবাচক: 'am dritten Mai' (৩ মে), লেখায় 'am 3. Mai' — সংখ্যার পরে বিন্দু মানে ক্রমবাচক।",
+     "examples": [
+      {
+       "target": "Der Termin ist am Mittwoch, dem 12. März, um 9 Uhr.",
+       "bn": "অ্যাপয়েন্টমেন্ট বুধবার, ১২ মার্চ, সকাল ৯টায়।"
+      },
+      {
+       "target": "Im August fliege ich nach Deutschland.",
+       "bn": "আগস্টে আমি জার্মানি উড়ে যাব।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w03-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "practice receptionist"
+        },
+        "B": {
+         "gender": "M",
+         "role": "patient"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Praxis Dr. Neumann, guten Tag."
+        },
+        {
+         "spk": "B",
+         "text": "Guten Tag, hier ist Rashed Karim. Ich habe am Dienstag um zehn einen Termin, aber ich muss arbeiten. Geht auch Donnerstag?"
+        },
+        {
+         "spk": "A",
+         "text": "Donnerstag um zehn ist besetzt. Um Viertel nach elf ist noch frei."
+        },
+        {
+         "spk": "B",
+         "text": "Gut, das nehme ich."
+        }
+       ],
+       "repeat": 2
+      },
+      "prompt_bn": "নতুন অ্যাপয়েন্টমেন্ট কখন?",
+      "options": [
+       "Dienstag, 10 Uhr",
+       "Donnerstag, 10 Uhr",
+       "Donnerstag, 11:15 Uhr",
+       "Dienstag, 11:15 Uhr"
+      ],
+      "answer": "C",
+      "explain_bn": "বৃহস্পতিবার ১০টা বুকড; 'Um Viertel nach elf ist noch frei' — সোয়া এগারোটা (১১:১৫) খালি, সেটাই নিলেন।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w03-l4-r1",
+      "passage": "Liebe Kursteilnehmer,\nam Freitag, 14. November, ist kein Unterricht. Wir holen die Stunde am Samstag, 15. November, von 10 bis 13 Uhr nach.\nIhre Kursleiterin",
+      "prompt_bn": "শুক্রবারের ক্লাস কবে হবে?",
+      "options": [
+       "শনিবার ১৫ নভেম্বর",
+       "শুক্রবার ১৪ নভেম্বর",
+       "সোমবার",
+       "হবে না"
+      ],
+      "answer": "A",
+      "explain_bn": "'Wir holen die Stunde am Samstag, 15. November … nach' — শনিবার ১৫ নভেম্বর ১০–১৩টায় ক্লাসটা পুষিয়ে নেওয়া হবে।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w03-l4-w1",
+      "prompt_bn": "ভাষা স্কুলকে ছোট মেসেজ লিখুন: আপনি সোমবারের অ্যাপয়েন্টমেন্ট পিছিয়ে বুধবারে নিতে চান।",
+      "model": {
+       "target": "Guten Tag, ich habe am Montag um 9 Uhr einen Termin. Leider kann ich nicht kommen. Kann ich den Termin auf Mittwoch verschieben? Viele Grüße, Liza Akter",
+       "bn": "শুভ দিন, সোমবার ৯টায় আমার অ্যাপয়েন্টমেন্ট। দুঃখিত, আসতে পারব না। অ্যাপয়েন্টমেন্টটা কি বুধবারে সরানো যায়? শুভেচ্ছা, লিজা আক্তার"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w03-l4-s1",
+      "prompt_bn": "ফোনে জোরে বলুন: নিজের নাম, কেন ফোন করছেন, কোন দিন আর কোন সময় অ্যাপয়েন্টমেন্ট চান।",
+      "model": {
+       "target": "Guten Tag, mein Name ist Faisal Ahmed. Ich möchte einen Termin machen. Geht es am Freitag um neun Uhr?",
+       "bn": "শুভ দিন, আমার নাম ফয়সাল আহমেদ। আমি একটা অ্যাপয়েন্টমেন্ট নিতে চাই। শুক্রবার নয়টায় কি হবে?"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w03-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "At the office: filling in a form",
+    "bn": "অফিসে: ফর্ম পূরণ"
+   },
+   "goal_bn": "অফিস, দূতাবাস বা ভাষা স্কুলের ফর্মের শব্দগুলো চিনবেন আর নিজের তথ্য দিয়ে ফর্ম পূরণ করবেন — পরীক্ষার Schreiben Teil 1-এর প্রস্তুতি।",
+   "vocab": [
+    {
+     "target": "das Formular",
+     "bn": "ফর্ম",
+     "pos": "noun",
+     "example": {
+      "target": "Bitte füllen Sie dieses Formular mit Kugelschreiber aus.",
+      "bn": "দয়া করে এই ফর্মটা বলপেন দিয়ে পূরণ করুন।"
+     },
+     "say_bn": "দাস ফরমুলার"
+    },
+    {
+     "target": "ausfüllen",
+     "bn": "পূরণ করা",
+     "pos": "verb",
+     "example": {
+      "target": "Ich fülle den Antrag zu Hause aus.",
+      "bn": "আমি আবেদনপত্রটা বাসায় পূরণ করব।"
+     },
+     "say_bn": "আউসফুলেন"
+    },
+    {
+     "target": "das Geburtsdatum",
+     "bn": "জন্মতারিখ",
+     "pos": "noun",
+     "example": {
+      "target": "Mein Geburtsdatum ist der 4. Juni 1999.",
+      "bn": "আমার জন্মতারিখ ৪ জুন ১৯৯৯।"
+     },
+     "say_bn": "দাস গেবুর্টসডাটুম"
+    },
+    {
+     "target": "der Geburtsort",
+     "bn": "জন্মস্থান",
+     "pos": "noun",
+     "example": {
+      "target": "Geburtsort: Barishal, Bangladesch.",
+      "bn": "জন্মস্থান: বরিশাল, বাংলাদেশ।"
+     },
+     "say_bn": "ডের গেবুর্টসঅর্ট"
+    },
+    {
+     "target": "die Staatsangehörigkeit",
+     "bn": "নাগরিকত্ব",
+     "pos": "noun",
+     "example": {
+      "target": "Staatsangehörigkeit: bangladeschisch.",
+      "bn": "নাগরিকত্ব: বাংলাদেশি।"
+     },
+     "say_bn": "ডি শটাটসআনগেহ্যোরিখকাইট"
+    },
+    {
+     "target": "der Familienstand",
+     "bn": "বৈবাহিক অবস্থা",
+     "pos": "noun",
+     "example": {
+      "target": "Familienstand: verheiratet, seit 2022.",
+      "bn": "বৈবাহিক অবস্থা: বিবাহিত, ২০২২ থেকে।"
+     },
+     "say_bn": "ডের ফামিলিয়েনশটান্ট"
+    },
+    {
+     "target": "die Postleitzahl (PLZ)",
+     "bn": "পোস্টকোড",
+     "pos": "noun",
+     "example": {
+      "target": "Die Postleitzahl von meinem Ort ist 53111.",
+      "bn": "আমার এলাকার পোস্টকোড ৫৩১১১।"
+     },
+     "say_bn": "ডি পোস্টলাইটৎসাল"
+    },
+    {
+     "target": "die Unterschrift",
+     "bn": "স্বাক্ষর",
+     "pos": "noun",
+     "example": {
+      "target": "Hier fehlt noch Ihre Unterschrift.",
+      "bn": "এখানে এখনো আপনার স্বাক্ষর বাকি।"
+     },
+     "say_bn": "ডি উন্টারশ্রিফট"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "Imperativ mit Sie: Füllen Sie … aus!",
+     "explain_bn": "অফিসের নির্দেশ সাধারণত Sie-আদেশ রূপে: ক্রিয়া প্রথমে, তারপর Sie: 'Unterschreiben Sie hier.' আলাদা-হওয়া ক্রিয়ায় উপসর্গ শেষে: 'Füllen Sie das Formular aus.' 'bitte' যোগ করলে ভদ্র শোনায়।",
+     "examples": [
+      {
+       "target": "Nehmen Sie bitte eine Nummer und warten Sie.",
+       "bn": "দয়া করে একটা নম্বর নিয়ে অপেক্ষা করুন।"
+      },
+      {
+       "target": "Bringen Sie bitte Ihren Pass mit.",
+       "bn": "দয়া করে আপনার পাসপোর্ট সাথে আনবেন।"
+      }
+     ]
+    },
+    {
+     "pattern": "Formular-Abkürzungen",
+     "explain_bn": "ফর্মে ছোট রূপ: PLZ = পোস্টকোড, Str. = রাস্তা, Nr. = নম্বর, geb. = জন্ম, Tel. = ফোন, z. B. = যেমন। Vorname আর Familienname আলাদা ঘরে, তারিখ লিখুন দিন.মাস.বছর (04.06.1999)।",
+     "examples": [
+      {
+       "target": "Str. und Nr.: Lindenweg 7",
+       "bn": "রাস্তা ও নম্বর: লিন্ডেনভেগ ৭"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w03-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "clerk"
+        },
+        "B": {
+         "gender": "M",
+         "role": "applicant"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Haben Sie das Formular ausgefüllt?"
+        },
+        {
+         "spk": "B",
+         "text": "Ja, aber ich weiß nicht: Was ist Familienstand?"
+        },
+        {
+         "spk": "A",
+         "text": "Sind Sie ledig, verheiratet oder geschieden?"
+        },
+        {
+         "spk": "B",
+         "text": "Ah, verheiratet."
+        },
+        {
+         "spk": "A",
+         "text": "Gut. Dann unterschreiben Sie bitte hier unten."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "শেষে কর্মী লোকটিকে কী করতে বললেন?",
+      "options": [
+       "নিচে স্বাক্ষর করতে",
+       "ছবি আনতে",
+       "নম্বর নিতে",
+       "আবার আসতে"
+      ],
+      "answer": "A",
+      "explain_bn": "'unterschreiben Sie bitte hier unten' — দয়া করে এখানে নিচে স্বাক্ষর করুন।",
+      "skill": "form"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w03-l5-r1",
+      "passage": "Anmeldung zum Deutschkurs\nName: Begum, Salma\ngeb. am: 17.09.1996 in Jessore\nStraße, Nr.: Am Markt 4\nPLZ, Ort: 28195 Bremen",
+      "prompt_bn": "সালমা বেগমের জন্মতারিখ কোনটা?",
+      "options": [
+       "৪ সেপ্টেম্বর",
+       "১৭ সেপ্টেম্বর ১৯৯৬",
+       "২৮ জানুয়ারি ১৯৫৫",
+       "১৯ জুলাই ১৯৯৬"
+      ],
+      "answer": "B",
+      "explain_bn": "'geb. am: 17.09.1996' — জন্ম ১৭.০৯.১৯৯৬ = ১৭ সেপ্টেম্বর ১৯৯৬। 28195 পোস্টকোড, 4 বাড়ির নম্বর।",
+      "skill": "form"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w03-l5-w1",
+      "prompt_bn": "একটা কাল্পনিক মানুষের তথ্য দিয়ে ফর্মের ঘর পূরণ করুন: Vorname, Familienname, Geburtsdatum, Geburtsort, Staatsangehörigkeit, Familienstand।",
+      "model": {
+       "target": "Vorname: Rubel\nFamilienname: Hossain\nGeburtsdatum: 02.01.1998\nGeburtsort: Pabna\nStaatsangehörigkeit: bangladeschisch\nFamilienstand: ledig",
+       "bn": "প্রথম নাম: রুবেল; পদবি: হোসেন; জন্মতারিখ: ০২.০১.১৯৯৮; জন্মস্থান: পাবনা; নাগরিকত্ব: বাংলাদেশি; বৈবাহিক অবস্থা: অবিবাহিত"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w03-l5-s1",
+      "prompt_bn": "অফিসের কর্মী ফর্ম নিয়ে প্রশ্ন করছেন — জোরে আপনার জন্মতারিখ, জন্মস্থান আর বৈবাহিক অবস্থা বলুন।",
+      "model": {
+       "target": "Ich bin am zehnten März neunzehnhundertsiebenundneunzig in Mymensingh geboren. Ich bin ledig.",
+       "bn": "আমি ১০ মার্চ ১৯৯৭ সালে ময়মনসিংহে জন্মেছি। আমি অবিবাহিত।"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

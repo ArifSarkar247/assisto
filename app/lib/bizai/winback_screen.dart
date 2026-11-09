@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../api.dart';
 import '../l10n/app_localizations.dart';
+import '../screens/business/business_plans_screen.dart' show BusinessPlansScreen; // bizai2
 import '../screens/business/bizagent/seller_agent_screen.dart' show baErrorText, bd;
 import '../state.dart';
 import '../theme.dart';
@@ -215,7 +216,9 @@ class _WinbackScreenState extends State<WinbackScreen> {
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: TextButton.icon(
-                  onPressed: _busy || allOn ? null : () => _ai('${s['stage']}'),
+                  onPressed: _busy || allOn || lad['plan_ok'] == false
+                      ? null
+                      : () => _ai('${s['stage']}'),
                   icon: const Icon(Icons.auto_awesome_rounded),
                   label: Text(t.bizaiAiRewrite),
                 ),
@@ -224,13 +227,27 @@ class _WinbackScreenState extends State<WinbackScreen> {
             ],
             BizNote(text: t.bizaiLadderSafety, icon: Icons.verified_user_rounded),
             const SizedBox(height: Gap.sm),
-            FilledButton.icon(
-              key: const ValueKey('bizai-ladder-approve'),
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-              onPressed: _busy ? null : () => _approve(!allOn),
-              icon: Icon(allOn ? Icons.pause_circle_rounded : Icons.check_circle_rounded),
-              label: Text(allOn ? t.bizaiLadderStop : t.bizaiLadderApprove),
-            ),
+            // bizai2: reading is free; switching on needs Business — say so
+            // and open the plans instead of a button that only fails (402).
+            if (lad['plan_ok'] == false) ...[
+              BizNote(text: '${lad['plan_note'] ?? ''}', icon: Icons.workspace_premium_rounded),
+              const SizedBox(height: Gap.sm),
+              FilledButton.icon(
+                key: const ValueKey('bizai2-ladder-plans'),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const BusinessPlansScreen())),
+                icon: const Icon(Icons.workspace_premium_rounded),
+                label: Text(t.bizai2SeeBusinessPlan),
+              ),
+            ] else
+              FilledButton.icon(
+                key: const ValueKey('bizai-ladder-approve'),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                onPressed: _busy ? null : () => _approve(!allOn),
+                icon: Icon(allOn ? Icons.pause_circle_rounded : Icons.check_circle_rounded),
+                label: Text(allOn ? t.bizaiLadderStop : t.bizaiLadderApprove),
+              ),
           ]),
         ),
       ]),

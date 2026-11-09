@@ -13,7 +13,10 @@ abstract class WatchmanSource {
   Future<Map<String, dynamic>> zones(int cameraId);
   Future<Map<String, dynamic>> saveZones(int cameraId, Map<String, dynamic> cfg);
   Future<Map<String, dynamic>> preview(int cameraId);
-  Future<Map<String, dynamic>> linkImou(int cameraId, String serial, String code);
+  /// cctvconnect: `consent` = the camera owner ticked "I own this camera and
+  /// agree to link it to Assisto's account" (the server refuses without it).
+  Future<Map<String, dynamic>> linkImou(int cameraId, String serial, String code,
+      {bool consent = false});
   Future<Map<String, dynamic>> events(int siteId);
   Future<Map<String, dynamic>> mark(int eventId, String verdict);
   Future<Map<String, dynamic>> viewers(int siteId);
@@ -56,9 +59,10 @@ class ApiWatchmanSource implements WatchmanSource {
   Future<Map<String, dynamic>> preview(int cameraId) =>
       api.getJson('/shop/cameras/$cameraId/preview');
   @override
-  Future<Map<String, dynamic>> linkImou(int cameraId, String serial, String code) =>
+  Future<Map<String, dynamic>> linkImou(int cameraId, String serial, String code,
+          {bool consent = false}) =>
       api.postJson('/shop/cameras/$cameraId/imou',
-          {'device_serial': serial, 'safety_code': code});
+          {'device_serial': serial, 'safety_code': code, 'consent': consent});
   @override
   Future<Map<String, dynamic>> events(int siteId) =>
       api.getJson('/shop/events?site=$siteId');

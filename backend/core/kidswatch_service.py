@@ -21,6 +21,7 @@ Rules baked in (each one has a test in core/tests_kidswatch.py):
     chose who are STILL accepted, unblocked Circle peers.
 """
 import base64
+import copy
 import hashlib
 import logging
 import os
@@ -33,6 +34,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from .logic import school_mode as SM
+from .logic import kids_corner as KC   # sjkids: Children Corner rides the same pipeline
 
 log = logging.getLogger(__name__)
 
@@ -261,6 +263,9 @@ def deliver_event(plan, ev, now=None, lat=None, lng=None, voice=None):
     from .models import SchoolEvent
     now = now or timezone.now()
     kind = ev["kind"]
+    if kind.startswith("kc_"):          # sjkids: Children Corner events
+        from . import kids_corner
+        return kids_corner.deliver(plan, ev, now)
     lk = plan.last_known or {}
     if lat is None and kind in ("late_school", "late_home", "left_school_early"):
         lat, lng = lk.get("lat"), lk.get("lng")
@@ -607,7 +612,7 @@ def ingest(batch, now=None):
                             cfg[pname]["wifi"] = macs
                             learned = True
             local = at.astimezone(LOCAL_TZ)
-            day, evs = SM.on_fix(cfg, plan.day, local, lat, lng, f.get("wifi"), src or "lbs")
+            day, evs = KC.step_fix(cfg, plan.day, local, lat, lng, f.get("wifi"), src or "lbs")
             plan.day = day
             if lat is not None:
                 plan.last_known = {"lat": lat, "lng": lng, "at": at.isoformat(),
@@ -655,7 +660,7 @@ def plan_fixes(plan, fixes, now=None):
         if (now - at).total_seconds() > BLIND_MAX_AGE_S or f.get("blind"):
             continue          # late re-sent points are history, not alerts
         lat, lng = f["lat"], f["lng"]
-        day, evs = SM.on_fix(cfg, plan.day, at.astimezone(LOCAL_TZ), lat, lng, None, "gps")
+        day, evs = KC.step_fix(cfg, plan.day, at.astimezone(LOCAL_TZ), lat, lng, None, "gps")
         plan.day = day
         plan.last_known = {"lat": lat, "lng": lng, "at": at.isoformat(), "source": "gps"}
         for ev in evs:
@@ -995,7 +1000,10 @@ def tick(now=None):
         except ValueError:
             continue
         try:
-            day, evs = SM.on_tick(cfg, plan.day, local,
+            # sjkids: on_tick mutates the day in place — compare against a copy,
+            # or a changed day (late alert sent, ask stamped) is never saved
+            # and the same late alert repeats every minute
+            day, evs = SM.on_tick(cfg, copy.deepcopy(plan.day or {}), local,
                                   phone=plan.watch_id is None and plan.chip_id is None)
             if day != plan.day:
                 SchoolPlan.objects.filter(pk=plan.pk).update(day=day)
@@ -1003,6 +1011,8 @@ def tick(now=None):
             for ev in evs:
                 deliver_event(plan, ev, now)
             out["events"] += len(evs)
+            from . import kids_corner     # sjkids: unknown place in school / coaching hours
+            out["events"] += kids_corner.tick(plan, cfg, local, now)
             if plan.watch_id and plan.watch.state == "paired":
                 if apply_phase(plan.watch, now):
                     out["phase_cmds"] += 1

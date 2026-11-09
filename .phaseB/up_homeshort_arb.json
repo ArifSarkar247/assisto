@@ -1,9 +1,16 @@
 {
+  "_comment": "homeshort (owner 9 Nov 11:25): My Business rename, City Service home tile + New badge. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_homeshort_arb.json",
   "en": {
-    "hv2TileBizAccounts": "Business Accounts",
-    "@hv2TileBizAccounts": {"description": "Home shortcut tile for the Business hub (khata, cashbox, reports) — owner 28 Oct 'Business Accounts and Finance'. Optional: wire in home_v2_shortcuts.dart _owner 'business' after merge (today it shows sidebarBusiness)."}
+    "myBusinessTitle": "My Business",
+    "@myBusinessTitle": {"description": "homeshort (owner 9 Nov): the business hub's name everywhere (home tile, All Services, bottom-bar tab, hub title). Replaces 'Business Accounts' / 'Business'."},
+    "hv2TileCityService": "City Service",
+    "@hv2TileCityService": {"description": "homeshort: home shortcut tile for City Service (Dhaka bus/metro routes, fares, around me)."},
+    "hv2NewBadge": "New",
+    "@hv2NewBadge": {"description": "homeshort: small badge on a new home shortcut tile until the user opens it once; also read by TalkBack."}
   },
   "bn": {
-    "hv2TileBizAccounts": "ব্যবসার হিসাব"
+    "myBusinessTitle": "আমার ব্যবসা",
+    "hv2TileCityService": "সিটি সার্ভিস",
+    "hv2NewBadge": "নতুন"
   }
 }

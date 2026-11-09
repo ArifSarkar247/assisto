@@ -196,3 +196,8 @@ def install():
     sms_service.send_sms = fake_send_sms
     push.is_available = lambda: True
     push.push_to_user = fake_push_to_user
+    # camflows: the fake vendor clouds (CCTV brand-cloud E2E only)
+    import os
+    if os.environ.get("E2E_VENDOR_SIM") == "1":
+        from . import vendor_sim
+        vendor_sim.install()

@@ -8,8 +8,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../api.dart';
 import '../../config.dart';
+import '../../maps/address_resolver.dart'; // fcrest
 import '../../services/journey_tracker.dart' show readBatteryLevel;
 import 'fc_brain_api.dart';
+import 'fc_brain_slots.dart' show fcBrainLang; // fcrest
 import 'fc_geofence.dart';
 
 /// fcbrain — the phone side of Family Care v3 BRAIN 2 + 3.
@@ -109,8 +111,9 @@ class FcWatch {
       final body = await pingBody();
       _low.armed = p.getBool(_kLowArmed) ?? true;
       final pct = (body['battery'] as num?)?.toInt();
+      Position? pos;
       if (_low.check(pct, body['charging'] == true)) {
-        final pos = await _locate();
+        pos = await _locate();
         (body['events'] as List).add({
           'id': 'fab-$now',
           'kind': 'battery_low',
@@ -119,6 +122,12 @@ class FcWatch {
         });
       }
       await p.setBool(_kLowArmed, _low.armed);
+      // fcrest: the area name (phone Geocoder) only with the member's own
+      // "tell my family" switch on and outside every saved place
+      if (p.getBool(_kAuto) == true) {
+        final a = await areaNow(p, pos: pos);
+        if (a != null) body['area'] = {'label': a};
+      }
       final r = await api.fcbPing(body);
       // the member left the watch on but Android / an update stopped it
       if (r['paused'] != true && await _isOn() && !await running()) {
@@ -127,6 +136,30 @@ class FcWatch {
       if (p.getBool(_kAuto) == true && !await running()) _startForeground(api);
     } catch (_) {
       // best-effort: offline / logged out — the next open retries
+    }
+  }
+
+  /// fcrest — the AREA ("Dhanmondi, Dhaka") from the phone's own Geocoder
+  /// when this phone is in none of the member's saved places; null otherwise
+  /// (inside a place, no fix, no Geocoder). A name only, never coordinates.
+  static Future<String?> areaNow(SharedPreferences p,
+      {Position? pos, Future<Position?> Function()? locate}) async {
+    try {
+      final inside = p.getString(_kInside);
+      if (inside != null && (jsonDecode(inside) as List).isNotEmpty) return null;
+      pos ??= await (locate ?? _locate)();
+      if (pos == null) return null;
+      final raw = p.getString(_kFences);
+      final fences = raw == null
+          ? <FcFence>[]
+          : (jsonDecode(raw) as List).map(FcFence.fromJson).whereType<FcFence>().toList();
+      for (final f in fences) {
+        if (fcDistanceM(pos.latitude, pos.longitude, f.lat, f.lng) <= f.r) return null;
+      }
+      final a = await AddressResolver.phoneArea(pos.latitude, pos.longitude, fcBrainLang);
+      return (a == null || a.trim().isEmpty) ? null : a.trim();
+    } catch (_) {
+      return null;
     }
   }
 
@@ -215,7 +248,13 @@ class FcWatch {
             'place_label': e.fence.label,
           }
       ];
-      await api.fcbPing(await pingBody(events: out));
+      final body = await pingBody(events: out);
+      // fcrest: just left a place -> the area name instead (phone Geocoder)
+      if (evs.every((e) => e.kind == 'leave')) {
+        final a = await areaNow(p, pos: pos);
+        if (a != null) body['area'] = {'label': a};
+      }
+      await api.fcbPing(body);
       return out;
     } catch (_) {
       return const []; // best-effort: the next minute retries

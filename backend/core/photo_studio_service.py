@@ -640,6 +640,21 @@ def ssv_callback(raw_query, params):
             return 200, {"ok": True, "ignored": "replay"}
         if t.status != "pending" or (uid and uid != str(t.user_id)):
             return 200, {"ok": True, "ignored": "not_pending"}
+        if t.placement in ("lp_sec", "lp_score") and t.job is None:
+            # lpcore (owner 10 Nov PART B): a free learner's rewarded ad that
+            # unlocks one extra Language Partner section / AI score — counted
+            # ONLY here, on Google's signature (lp_service.ad_* reads them)
+            c = _cfg()
+            val = PS.ad_value_bdt(c.get("photo_studio"), c["ad_rewards"])
+            t.status = "verified"
+            t.transaction_id = txn
+            t.ad_unit = (params.get("ad_unit") or "")[:80]
+            t.value_bdt = val
+            t.source = "ssv"
+            t.verified_at = timezone.now()
+            t.save()
+            billing.record_revenue("ads", val)
+            return 200, {"ok": True}
         if t.placement in ("safe_day", "safe_req") and t.job is None:
             # safeplans: a guardian's rewarded ad toward a Child Plan day
             # pass / one request — counted ONLY here, on Google's signature

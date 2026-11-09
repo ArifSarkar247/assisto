@@ -12,6 +12,7 @@ import 'flows/antitheft_snatch_flow.dart'; // at100
 import 'flows/billing_flow.dart';
 import 'flows/budget_remittance_flow.dart';
 import 'flows/business_flow.dart';
+import 'flows/camflows_flow.dart'; // camflows
 import 'flows/bizq_flow.dart'; // qbiz
 import 'flows/crm100_flow.dart'; // crm100
 import 'flows/circle_real_call_flow.dart';
@@ -19,6 +20,7 @@ import 'flows/docs_voice_settings_flow.dart';
 import 'flows/e2e_proof_flows.dart'; // e2eproof
 import 'flows/family_alerts_flow.dart';
 import 'flows/family_circle_flow.dart';
+import 'flows/family_v3_flow.dart'; // fcscreen
 import 'flows/home_flow.dart';
 import 'flows/my_circle_add_flow.dart';
 import 'flows/invite_join_flow.dart'; // invite-join
@@ -45,6 +47,7 @@ void main() {
   if (on('family')) registerFamilyCircleFlows();
   if (on('family')) registerSafeJourneyFlows(); // journey100
   if (on('family')) registerFamilyAlertsFlows(); // family100
+  if (on('family')) registerFamilyV3Flows(); // fcscreen
   if (on('family')) registerSosJourneyFlows(); // qjourney
   if (on('family')) registerJourneyV2Flows(); // qjourney
   if (on('family')) registerAntiTheftSnatchFlows(); // at100: two-phone snatch proof
@@ -61,4 +64,6 @@ void main() {
   if (on('sweep')) registerSweepFlow();
   // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
+  // camflows: CCTV brand clouds need settings_e2eproof + the vendor sim -> opt-in (camflows.yml)
+  if (only.split(',').contains('camflows')) registerCamflowsFlows();
 }

@@ -18,7 +18,9 @@ TXT = {
            "limited": "অনেকবার চেষ্টা হয়েছে। কয়েক মিনিট পরে আবার খুলুন।",
            "wrong": "কোনো লেনদেন ভুল মনে হলে সরাসরি দোকানকে জানান।",
            "private": "এই পাতা শুধু আপনার জন্য — অন্য কাউকে লিংকটি দেবেন না।",
-           "by": "Assisto ডিজিটাল খাতা"},
+           "by": "Assisto ডিজিটাল খাতা",
+           "pay": "কীভাবে পরিশোধ করবেন",
+           "pay_note": "Send Money / Payment-এর রেফারেন্সে আপনার নাম লিখুন। পাঠানোর পর দোকানকে জানান — দোকান খাতায় জমা করলে এই পাতায় দেখা যাবে।"},
     "en": {"title": "Your account", "due": "You owe", "advance": "Your advance with the shop",
            "clear": "Nothing due — all settled.", "date": "Date", "what": "Entry",
            "gave": "Credit", "paid": "Paid", "bal": "Balance", "none": "No entries yet.",
@@ -27,7 +29,9 @@ TXT = {
            "limited": "Too many tries. Please open again in a few minutes.",
            "wrong": "If an entry looks wrong, tell the shop directly.",
            "private": "This page is only for you — please do not forward the link.",
-           "by": "Assisto digital khata"},
+           "by": "Assisto digital khata",
+           "pay": "How to pay",
+           "pay_note": "Put your name as the reference. After paying, tell the shop — once the shop records it, it shows on this page."},
 }
 
 

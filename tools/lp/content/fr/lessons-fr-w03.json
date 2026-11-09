@@ -1,0 +1,1095 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "fr",
+ "week": 3,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "fr_a1"
+ ],
+ "title": {
+  "en": "Week 3: Town, work, health and home",
+  "bn": "সপ্তাহ ৩: শহর, কাজ, স্বাস্থ্য ও বাসা"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not an official DELF material or result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল DELF উপকরণ বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "public CEFR A1 descriptors + public DELF A1 exam description (structure/level only)",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "lessons": [
+  {
+   "id": "fr-w03-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "In town: places and directions",
+    "bn": "শহরে: জায়গা ও পথনির্দেশ"
+   },
+   "goal_bn": "শহরের জরুরি জায়গার নাম, 'il y a' (আছে) আর ডানে-বামে-সোজা — পথ জিজ্ঞেস করা ও বোঝা শিখবেন।",
+   "vocab": [
+    {
+     "target": "la gare",
+     "bn": "রেলস্টেশন",
+     "bn_pron": "লা গার",
+     "pos": "noun",
+     "example": {
+      "target": "La gare est près d'ici.",
+      "bn": "স্টেশন এখান থেকে কাছে।"
+     }
+    },
+    {
+     "target": "la banque",
+     "bn": "ব্যাংক",
+     "bn_pron": "লা বঁক",
+     "pos": "noun",
+     "example": {
+      "target": "Je vais à la banque pour ouvrir un compte.",
+      "bn": "অ্যাকাউন্ট খুলতে আমি ব্যাংকে যাচ্ছি।"
+     }
+    },
+    {
+     "target": "la poste",
+     "bn": "পোস্ট অফিস",
+     "bn_pron": "লা পোস্ত",
+     "pos": "noun",
+     "example": {
+      "target": "La poste ferme à dix-huit heures.",
+      "bn": "পোস্ট অফিস সন্ধ্যা ৬টায় বন্ধ হয়।"
+     }
+    },
+    {
+     "target": "le supermarché",
+     "bn": "সুপারমার্কেট",
+     "bn_pron": "ল্য স্যুপেরমারশে",
+     "pos": "noun",
+     "example": {
+      "target": "Le supermarché est ouvert le dimanche matin.",
+      "bn": "সুপারমার্কেট রবিবার সকালে খোলা।"
+     }
+    },
+    {
+     "target": "la rue",
+     "bn": "রাস্তা",
+     "bn_pron": "লা র‍্যু",
+     "pos": "noun",
+     "example": {
+      "target": "J'habite dans cette rue.",
+      "bn": "আমি এই রাস্তায় থাকি।"
+     }
+    },
+    {
+     "target": "à gauche",
+     "bn": "বামে",
+     "bn_pron": "আ গোশ",
+     "pos": "adverb",
+     "example": {
+      "target": "Tournez à gauche après la banque.",
+      "bn": "ব্যাংকের পরে বামে ঘুরুন।"
+     }
+    },
+    {
+     "target": "à droite",
+     "bn": "ডানে",
+     "bn_pron": "আ দ্রোয়াত",
+     "pos": "adverb",
+     "example": {
+      "target": "La pharmacie est à droite.",
+      "bn": "ফার্মেসি ডানদিকে।"
+     }
+    },
+    {
+     "target": "tout droit",
+     "bn": "সোজা",
+     "bn_pron": "তু দ্রোয়া",
+     "pos": "adverb",
+     "example": {
+      "target": "Allez tout droit jusqu'au feu.",
+      "bn": "সিগন্যাল পর্যন্ত সোজা যান।"
+     }
+    },
+    {
+     "target": "en face de",
+     "bn": "সামনে / উল্টোদিকে",
+     "bn_pron": "অঁ ফাস দ্য",
+     "pos": "preposition",
+     "example": {
+      "target": "Le café est en face de la gare.",
+      "bn": "ক্যাফেটা স্টেশনের উল্টোদিকে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "il y a = আছে (কোথাও কিছু আছে); il n'y a pas de = নেই",
+     "explain_bn": "কোনো জায়গায় কী আছে বলতে 'il y a': Il y a une banque dans la rue (রাস্তায় একটা ব্যাংক আছে)। নেই বললে 'il n'y a pas de': Il n'y a pas de gare (স্টেশন নেই) — 'pas'-এর পরে un/une হয়ে যায় de।",
+     "examples": [
+      {
+       "target": "Il y a un supermarché près d'ici ?",
+       "bn": "এখানে কাছে কোনো সুপারমার্কেট আছে?"
+      },
+      {
+       "target": "Il n'y a pas de banque dans mon quartier.",
+       "bn": "আমার এলাকায় কোনো ব্যাংক নেই।"
+      }
+     ]
+    },
+    {
+     "pattern": "পথ বলার আদেশ: Tournez / Allez / Prenez",
+     "explain_bn": "পথ বলার সময় vous-এর আদেশরূপ ব্যবহার হয় (কর্তা ছাড়া): Tournez à droite (ডানে ঘুরুন), Allez tout droit (সোজা যান), Prenez la deuxième rue (দ্বিতীয় রাস্তাটা ধরুন)।",
+     "examples": [
+      {
+       "target": "Allez tout droit, puis tournez à gauche.",
+       "bn": "সোজা যান, তারপর বামে ঘুরুন।"
+      },
+      {
+       "target": "Prenez la première rue à droite.",
+       "bn": "ডানদিকের প্রথম রাস্তাটা ধরুন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w03-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "passer-by"
+        },
+        "B": {
+         "gender": "F",
+         "role": "newcomer"
+        }
+       },
+       "turns": [
+        {
+         "spk": "B",
+         "text": "Pardon monsieur, la poste, s'il vous plaît ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "A",
+         "text": "Allez tout droit, puis tournez à droite. La poste est en face de la banque."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Merci beaucoup !"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "পোস্ট অফিস কোথায়?",
+      "options": [
+       "ব্যাংকের পাশে",
+       "স্টেশনের পেছনে",
+       "সুপারমার্কেটের ভেতরে",
+       "ব্যাংকের উল্টোদিকে"
+      ],
+      "answer": "D",
+      "explain_bn": "'en face de la banque' = ব্যাংকের উল্টোদিকে (সামনাসামনি)। 'à côté de' হলে পাশে হতো।",
+      "skill": "place"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w03-l1-r1",
+      "passage": "Dans ma rue, il y a un supermarché, une banque et une boulangerie. Il n'y a pas de gare : la gare est à dix minutes à pied.",
+      "prompt_bn": "লেখকের রাস্তায় কোনটা নেই?",
+      "options": [
+       "une gare",
+       "une banque",
+       "un supermarché",
+       "une boulangerie"
+      ],
+      "answer": "A",
+      "explain_bn": "'Il n'y a pas de gare' = স্টেশন নেই; সেটা হেঁটে ১০ মিনিট দূরে।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w03-l1-w1",
+      "prompt_bn": "আপনার বাসার কাছে কী কী আছে আর স্টেশন কোন দিকে, লিখুন।",
+      "model": {
+       "target": "Près de chez moi, il y a une banque et un supermarché. La gare est à droite.",
+       "bn": "আমার বাসার কাছে একটা ব্যাংক আর একটা সুপারমার্কেট আছে। স্টেশন ডানদিকে।"
+      },
+      "check": "ai",
+      "min_words": 8,
+      "max_words": 30
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w03-l1-s1",
+      "prompt_bn": "জোরে বলুন: ভদ্রভাবে জিজ্ঞেস করুন কাছে কোনো ব্যাংক আছে কি না।",
+      "model": {
+       "target": "Excusez-moi, il y a une banque près d'ici ?",
+       "bn": "মাফ করবেন, এখানে কাছে কোনো ব্যাংক আছে?"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w03-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Transport: bus, metro, train",
+    "bn": "যাতায়াত: বাস, মেট্রো, ট্রেন"
+   },
+   "goal_bn": "aller আর prendre দিয়ে কীভাবে কোথায় যান বলতে পারবেন; টিকিট কেনা আর যাত্রীদের নোটিশ বুঝতে পারবেন।",
+   "vocab": [
+    {
+     "target": "le métro",
+     "bn": "মেট্রো রেল",
+     "bn_pron": "ল্য মেত্রো",
+     "pos": "noun",
+     "example": {
+      "target": "Je prends le métro tous les jours.",
+      "bn": "আমি প্রতিদিন মেট্রোতে চড়ি।"
+     }
+    },
+    {
+     "target": "le bus",
+     "bn": "বাস",
+     "bn_pron": "ল্য ব্যুস",
+     "pos": "noun",
+     "example": {
+      "target": "Le bus numéro douze va à la gare.",
+      "bn": "১২ নম্বর বাস স্টেশনে যায়।"
+     }
+    },
+    {
+     "target": "le train",
+     "bn": "ট্রেন",
+     "bn_pron": "ল্য ত্র্যাঁ",
+     "pos": "noun",
+     "example": {
+      "target": "Le train pour Lyon part à huit heures.",
+      "bn": "লিয়োঁর ট্রেন ৮টায় ছাড়ে।"
+     }
+    },
+    {
+     "target": "l'avion (m)",
+     "bn": "উড়োজাহাজ / প্লেন",
+     "bn_pron": "লাভিয়োঁ",
+     "pos": "noun",
+     "example": {
+      "target": "Je vais à Dhaka en avion.",
+      "bn": "আমি প্লেনে ঢাকা যাচ্ছি।"
+     }
+    },
+    {
+     "target": "le vélo",
+     "bn": "সাইকেল",
+     "bn_pron": "ল্য ভেলো",
+     "pos": "noun",
+     "example": {
+      "target": "Mon colocataire va au travail à vélo.",
+      "bn": "আমার রুমমেট সাইকেলে কাজে যায়।"
+     }
+    },
+    {
+     "target": "à pied",
+     "bn": "হেঁটে",
+     "bn_pron": "আ পিয়ে",
+     "pos": "adverb",
+     "example": {
+      "target": "L'école est à cinq minutes à pied.",
+      "bn": "স্কুল হেঁটে পাঁচ মিনিট।"
+     }
+    },
+    {
+     "target": "le ticket",
+     "bn": "টিকিট (বাস/মেট্রো)",
+     "bn_pron": "ল্য তিকে",
+     "pos": "noun",
+     "example": {
+      "target": "Un ticket coûte deux euros.",
+      "bn": "একটা টিকিটের দাম দুই ইউরো।"
+     }
+    },
+    {
+     "target": "l'arrêt (m)",
+     "bn": "স্টপেজ / থামার জায়গা",
+     "bn_pron": "লারে",
+     "pos": "noun",
+     "example": {
+      "target": "Je descends au prochain arrêt.",
+      "bn": "আমি পরের স্টপে নামব।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "aller (যাওয়া): je vais, tu vas, il va, nous allons, vous allez, ils vont + à / en",
+     "explain_bn": "জায়গায় যাওয়া: aller à + শহর/জায়গা (à Paris, à la gare; à + le = au: au marché)। যানবাহনে: ভেতরে বসলে en (en bus, en métro, en train, en avion), উপরে চড়লে বা হাঁটলে à (à vélo, à pied)।",
+     "examples": [
+      {
+       "target": "Je vais au travail en métro.",
+       "bn": "আমি মেট্রোতে কাজে যাই।"
+      },
+      {
+       "target": "Nous allons à la gare à pied.",
+       "bn": "আমরা হেঁটে স্টেশনে যাই।"
+      }
+     ]
+    },
+    {
+     "pattern": "prendre (নেওয়া / চড়া): je prends, tu prends, il prend, nous prenons, vous prenez, ils prennent",
+     "explain_bn": "যানবাহনে চড়া বোঝাতে prendre: Je prends le bus (আমি বাস ধরি)। এটা অনিয়মিত ক্রিয়া — রূপগুলো মুখস্থ করুন।",
+     "examples": [
+      {
+       "target": "Elle prend le train de sept heures.",
+       "bn": "সে ৭টার ট্রেন ধরে।"
+      },
+      {
+       "target": "Vous prenez la ligne quatre.",
+       "bn": "আপনি চার নম্বর লাইন ধরবেন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w03-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "colleague"
+        },
+        "B": {
+         "gender": "M",
+         "role": "colleague"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Comment tu vas au travail ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Je prends le bus jusqu'à la gare, puis je vais à pied."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ছেলেটি কীভাবে কাজে যায়?",
+      "options": [
+       "মেট্রোতে, তারপর বাসে",
+       "বাসে, তারপর হেঁটে",
+       "শুধু সাইকেলে",
+       "ট্রেনে, তারপর বাসে"
+      ],
+      "answer": "B",
+      "explain_bn": "'Je prends le bus jusqu'à la gare' = স্টেশন পর্যন্ত বাসে; 'puis je vais à pied' = তারপর হেঁটে।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w03-l2-r1",
+      "passage": "Avis aux voyageurs : lundi, le métro ligne quatre ne circule pas. Prenez le bus trente-huit à l'arrêt Châtelet.",
+      "prompt_bn": "সোমবার ৪ নম্বর মেট্রো লাইনের বদলে যাত্রীরা কী নেবে?",
+      "options": [
+       "le train",
+       "le métro ligne trente-huit",
+       "le bus trente-huit",
+       "un taxi"
+      ],
+      "answer": "C",
+      "explain_bn": "'ne circule pas' = চলবে না; 'Prenez le bus trente-huit' = ৩৮ নম্বর বাস নিন।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w03-l2-w1",
+      "prompt_bn": "আপনি কীভাবে বিশ্ববিদ্যালয়ে/কাজে যান আর ছুটির দিনে কীভাবে বাজারে যান, লিখুন।",
+      "model": {
+       "target": "Je vais à l'université en métro. Le week-end, je vais au marché à pied.",
+       "bn": "আমি মেট্রোতে বিশ্ববিদ্যালয়ে যাই। ছুটির দিনে হেঁটে বাজারে যাই।"
+      },
+      "check": "ai",
+      "min_words": 8,
+      "max_words": 30
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w03-l2-s1",
+      "prompt_bn": "জোরে বলুন: কাউন্টারে একটা মেট্রো টিকিট চান আর দাম জিজ্ঞেস করুন।",
+      "model": {
+       "target": "Un ticket de métro, s'il vous plaît. C'est combien ?",
+       "bn": "একটা মেট্রো টিকিট, দয়া করে। দাম কত?"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w03-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "At work: schedule and colleagues",
+    "bn": "কাজের জায়গা: সময়সূচি ও সহকর্মী"
+   },
+   "goal_bn": "কাজ শুরু-শেষের সময়, মিটিং, বিরতি আর সহকর্মীদের সাথে সহজ কথা — নতুন চাকরির প্রথম সপ্তাহের ফরাসি।",
+   "vocab": [
+    {
+     "target": "le bureau",
+     "bn": "অফিস / ডেস্ক",
+     "bn_pron": "ল্য ব্যুরো",
+     "pos": "noun",
+     "example": {
+      "target": "Mon bureau est au deuxième étage.",
+      "bn": "আমার অফিস তিনতলায় (দ্বিতীয় তলা)।"
+     }
+    },
+    {
+     "target": "le collègue / la collègue",
+     "bn": "সহকর্মী",
+     "bn_pron": "ল্য কোলেগ",
+     "pos": "noun",
+     "example": {
+      "target": "Ma collègue s'appelle Julie.",
+      "bn": "আমার সহকর্মীর নাম জুলি।"
+     }
+    },
+    {
+     "target": "le patron / la patronne",
+     "bn": "মালিক / বস",
+     "bn_pron": "ল্য পাত্রোঁ / লা পাত্রোন",
+     "pos": "noun",
+     "example": {
+      "target": "Le patron arrive à huit heures.",
+      "bn": "বস ৮টায় আসেন।"
+     }
+    },
+    {
+     "target": "la réunion",
+     "bn": "মিটিং / সভা",
+     "bn_pron": "লা রেউনিয়োঁ",
+     "pos": "noun",
+     "example": {
+      "target": "La réunion est à quatorze heures.",
+      "bn": "মিটিং দুপুর ২টায়।"
+     }
+    },
+    {
+     "target": "commencer",
+     "bn": "শুরু করা",
+     "bn_pron": "কোমঁসে",
+     "pos": "verb",
+     "example": {
+      "target": "Je commence le travail à sept heures.",
+      "bn": "আমি ৭টায় কাজ শুরু করি।"
+     }
+    },
+    {
+     "target": "finir",
+     "bn": "শেষ করা",
+     "bn_pron": "ফিনির",
+     "pos": "verb",
+     "example": {
+      "target": "Nous finissons à dix-sept heures.",
+      "bn": "আমরা বিকেল ৫টায় শেষ করি।"
+     }
+    },
+    {
+     "target": "la pause",
+     "bn": "বিরতি / ব্রেক",
+     "bn_pron": "লা পোজ",
+     "pos": "noun",
+     "example": {
+      "target": "La pause dure trente minutes.",
+      "bn": "বিরতি ত্রিশ মিনিট।"
+     }
+    },
+    {
+     "target": "le salaire",
+     "bn": "বেতন",
+     "bn_pron": "ল্য সালের",
+     "pos": "noun",
+     "example": {
+      "target": "Le salaire arrive le premier du mois.",
+      "bn": "বেতন মাসের এক তারিখে আসে।"
+     }
+    },
+    {
+     "target": "l'usine (f)",
+     "bn": "কারখানা",
+     "bn_pron": "ল্যুজিন",
+     "pos": "noun",
+     "example": {
+      "target": "Il travaille dans une usine de voitures.",
+      "bn": "সে একটা গাড়ির কারখানায় কাজ করে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "de … à … — কখন থেকে কখন পর্যন্ত",
+     "explain_bn": "সময়ের সীমা: de huit heures à seize heures (৮টা থেকে ৪টা)। দিন: du lundi au vendredi (সোমবার থেকে শুক্রবার) — de + le = du, à + le = au।",
+     "examples": [
+      {
+       "target": "Je travaille de neuf heures à dix-sept heures.",
+       "bn": "আমি সকাল ৯টা থেকে বিকেল ৫টা কাজ করি।"
+      },
+      {
+       "target": "Le bureau est ouvert du lundi au vendredi.",
+       "bn": "অফিস সোমবার থেকে শুক্রবার খোলা।"
+      }
+     ]
+    },
+    {
+     "pattern": "-ir ক্রিয়া: finir → je finis, tu finis, il finit, nous finissons, vous finissez, ils finissent",
+     "explain_bn": "finir-এর মতো কিছু -ir ক্রিয়ায় nous/vous/ils রূপে মাঝখানে -iss- আসে। একবচনে তিনটা রূপই 'ফিনি' উচ্চারণ।",
+     "examples": [
+      {
+       "target": "Elle finit à midi le samedi.",
+       "bn": "শনিবার সে দুপুর ১২টায় শেষ করে।"
+      },
+      {
+       "target": "Vous finissez à quelle heure ?",
+       "bn": "আপনি কয়টায় শেষ করেন?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w03-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "team leader"
+        },
+        "B": {
+         "gender": "F",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Attention : demain, la réunion commence à neuf heures, pas à dix heures."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "D'accord, à neuf heures. Merci, monsieur."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কাল মিটিং কখন শুরু হবে?",
+      "options": [
+       "১০টায়",
+       "৮টায়",
+       "৯টায়",
+       "১১টায়"
+      ],
+      "answer": "C",
+      "explain_bn": "'à neuf heures, pas à dix heures' = ৯টায়, ১০টায় নয়। 'pas' দেখে বুঝুন কোনটা বাদ।",
+      "skill": "workplace"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w03-l3-r1",
+      "passage": "Message de Paul, chef d'équipe : Bonjour à tous. Cette semaine, l'usine ferme à quinze heures le vendredi. La pause déjeuner est de midi à treize heures.",
+      "prompt_bn": "এই সপ্তাহে শুক্রবার কারখানা কখন বন্ধ হবে?",
+      "options": [
+       "à midi",
+       "à quinze heures",
+       "à treize heures",
+       "à dix-sept heures"
+      ],
+      "answer": "B",
+      "explain_bn": "'l'usine ferme à quinze heures le vendredi' = শুক্রবার ৩টায় বন্ধ। দুপুর ১২টা–১টা হলো খাবারের বিরতি।",
+      "skill": "workplace"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w03-l3-w1",
+      "prompt_bn": "আপনার কাজের জায়গা আর কাজের সময় (শুরু ও শেষ) লিখুন।",
+      "model": {
+       "target": "Je travaille dans un bureau. Je commence à neuf heures et je finis à dix-sept heures.",
+       "bn": "আমি একটা অফিসে কাজ করি। ৯টায় শুরু করি আর বিকেল ৫টায় শেষ করি।"
+      },
+      "check": "ai",
+      "min_words": 10,
+      "max_words": 30
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w03-l3-s1",
+      "prompt_bn": "জোরে বলুন: নতুন কর্মস্থলে সহকর্মীদের কাছে নিজের পরিচয় দিন।",
+      "model": {
+       "target": "Bonjour à tous ! Je suis le nouveau collègue. Je m'appelle Habib.",
+       "bn": "সবাইকে শুভ দিন! আমি নতুন সহকর্মী। আমার নাম হাবিব।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w03-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "Doctor and pharmacy",
+    "bn": "ডাক্তার ও ফার্মেসি"
+   },
+   "goal_bn": "শরীরের কোথায় ব্যথা বলা, জ্বর বোঝানো, ডাক্তারের অ্যাপয়েন্টমেন্ট নেওয়া আর ওষুধের নির্দেশ বোঝা শিখবেন।",
+   "vocab": [
+    {
+     "target": "le médecin",
+     "bn": "ডাক্তার",
+     "bn_pron": "ল্য মেদস্যাঁ",
+     "pos": "noun",
+     "example": {
+      "target": "Je dois voir un médecin.",
+      "bn": "আমার একজন ডাক্তার দেখানো দরকার।"
+     }
+    },
+    {
+     "target": "la pharmacie",
+     "bn": "ফার্মেসি / ওষুধের দোকান",
+     "bn_pron": "লা ফারমাসি",
+     "pos": "noun",
+     "example": {
+      "target": "La pharmacie est ouverte jusqu'à vingt heures.",
+      "bn": "ফার্মেসি রাত ৮টা পর্যন্ত খোলা।"
+     }
+    },
+    {
+     "target": "le médicament",
+     "bn": "ওষুধ",
+     "bn_pron": "ল্য মেদিকামঁ",
+     "pos": "noun",
+     "example": {
+      "target": "Prenez ce médicament après le repas.",
+      "bn": "খাবারের পরে এই ওষুধ খান।"
+     }
+    },
+    {
+     "target": "la tête",
+     "bn": "মাথা",
+     "bn_pron": "লা তেত",
+     "pos": "noun",
+     "example": {
+      "target": "J'ai mal à la tête.",
+      "bn": "আমার মাথা ব্যথা।"
+     }
+    },
+    {
+     "target": "le ventre",
+     "bn": "পেট",
+     "bn_pron": "ল্য ভঁত্র",
+     "pos": "noun",
+     "example": {
+      "target": "Mon fils a mal au ventre.",
+      "bn": "আমার ছেলের পেট ব্যথা।"
+     }
+    },
+    {
+     "target": "la gorge",
+     "bn": "গলা",
+     "bn_pron": "লা গর্জ",
+     "pos": "noun",
+     "example": {
+      "target": "J'ai mal à la gorge depuis hier.",
+      "bn": "কাল থেকে আমার গলা ব্যথা।"
+     }
+    },
+    {
+     "target": "la fièvre",
+     "bn": "জ্বর",
+     "bn_pron": "লা ফিয়েভ্র",
+     "pos": "noun",
+     "example": {
+      "target": "Elle a de la fièvre.",
+      "bn": "তার জ্বর আছে।"
+     }
+    },
+    {
+     "target": "malade",
+     "bn": "অসুস্থ",
+     "bn_pron": "মালাদ",
+     "pos": "adjective",
+     "example": {
+      "target": "Je suis malade aujourd'hui.",
+      "bn": "আজ আমি অসুস্থ।"
+     }
+    },
+    {
+     "target": "le rendez-vous",
+     "bn": "অ্যাপয়েন্টমেন্ট",
+     "bn_pron": "ল্য রঁদেভু",
+     "pos": "noun",
+     "example": {
+      "target": "J'ai rendez-vous chez le médecin à quinze heures.",
+      "bn": "বিকেল ৩টায় ডাক্তারের কাছে আমার অ্যাপয়েন্টমেন্ট।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "J'ai mal à + la / au / aux — … ব্যথা",
+     "explain_bn": "'আমার … ব্যথা' = J'ai mal à + শরীরের অংশ। নারী শব্দে à la (à la tête), পুরুষ শব্দে au (à + le = au: au ventre), বহুবচনে aux (aux dents = দাঁতে)।",
+     "examples": [
+      {
+       "target": "J'ai mal au dos.",
+       "bn": "আমার পিঠে ব্যথা।"
+      },
+      {
+       "target": "Il a mal aux dents.",
+       "bn": "তার দাঁতে ব্যথা।"
+      },
+      {
+       "target": "Vous avez mal où ?",
+       "bn": "আপনার কোথায় ব্যথা?"
+      }
+     ]
+    },
+    {
+     "pattern": "avoir de la fièvre / être malade",
+     "explain_bn": "জ্বর 'থাকে' (avoir): J'ai de la fièvre। অসুস্থ 'হওয়া' (être): Je suis malade। জরুরি অবস্থায় ফ্রান্সে ১৫ (SAMU) বা ১১২ নম্বরে ফোন করুন।",
+     "examples": [
+      {
+       "target": "J'ai de la fièvre et je tousse.",
+       "bn": "আমার জ্বর আর কাশি আছে।"
+      },
+      {
+       "target": "Ma fille est malade, elle reste à la maison.",
+       "bn": "আমার মেয়ে অসুস্থ, সে বাসায় থাকছে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w03-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "pharmacist"
+        },
+        "B": {
+         "gender": "M",
+         "role": "customer"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Bonjour monsieur, qu'est-ce qui ne va pas ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "J'ai mal à la gorge et j'ai un peu de fièvre."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "লোকটির কোথায় ব্যথা?",
+      "options": [
+       "গলায়",
+       "মাথায়",
+       "পেটে",
+       "পায়ে"
+      ],
+      "answer": "A",
+      "explain_bn": "'J'ai mal à la gorge' = আমার গলা ব্যথা; সাথে একটু জ্বর (un peu de fièvre)।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w03-l4-r1",
+      "passage": "Ordonnance du docteur Morel – Paracétamol : un comprimé trois fois par jour, après le repas, pendant cinq jours.",
+      "prompt_bn": "ওষুধ দিনে কতবার খেতে হবে?",
+      "options": [
+       "৫ বার",
+       "১ বার",
+       "২ বার",
+       "৩ বার"
+      ],
+      "answer": "D",
+      "explain_bn": "'trois fois par jour' = দিনে তিনবার। 'pendant cinq jours' মানে পাঁচ দিন ধরে — এটা দিনের সংখ্যা, বারের নয়।",
+      "skill": "safety"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w03-l4-w1",
+      "prompt_bn": "ডাক্তারের চেম্বারে ছোট মেসেজ লিখুন: আপনি অসুস্থ, কোথায় ব্যথা, আর কাল অ্যাপয়েন্টমেন্ট চান।",
+      "model": {
+       "target": "Bonjour, je suis malade. J'ai mal au ventre. Je voudrais un rendez-vous demain, s'il vous plaît.",
+       "bn": "শুভ দিন, আমি অসুস্থ। আমার পেট ব্যথা। দয়া করে কাল একটা অ্যাপয়েন্টমেন্ট চাই।"
+      },
+      "check": "ai",
+      "min_words": 12,
+      "max_words": 35
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w03-l4-s1",
+      "prompt_bn": "জোরে বলুন: ডাক্তারকে বলুন দুই দিন ধরে মাথা ব্যথা আর জ্বর।",
+      "model": {
+       "target": "Docteur, j'ai mal à la tête depuis deux jours et j'ai de la fièvre.",
+       "bn": "ডাক্তার সাহেব, দুই দিন ধরে আমার মাথা ব্যথা আর জ্বর।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "fr-w03-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Housing: renting a room",
+    "bn": "বাসা: রুম ভাড়া"
+   },
+   "goal_bn": "রুম বা ফ্ল্যাট খোঁজা, ভাড়ার বিজ্ঞাপন পড়া আর বাড়িওয়ালাকে প্রশ্ন করা শিখবেন — ছাত্র ও কর্মীদের প্রথম কাজ।",
+   "vocab": [
+    {
+     "target": "louer",
+     "bn": "ভাড়া নেওয়া / দেওয়া",
+     "bn_pron": "লুয়ে",
+     "pos": "verb",
+     "example": {
+      "target": "Je voudrais louer un studio.",
+      "bn": "আমি একটা স্টুডিও ভাড়া নিতে চাই।"
+     }
+    },
+    {
+     "target": "la chambre",
+     "bn": "শোবার ঘর / রুম",
+     "bn_pron": "লা শঁব্র",
+     "pos": "noun",
+     "example": {
+      "target": "La chambre est petite mais propre.",
+      "bn": "রুমটা ছোট কিন্তু পরিষ্কার।"
+     }
+    },
+    {
+     "target": "l'appartement (m)",
+     "bn": "ফ্ল্যাট / অ্যাপার্টমেন্ট",
+     "bn_pron": "লাপারত্মঁ",
+     "pos": "noun",
+     "example": {
+      "target": "L'appartement a deux chambres.",
+      "bn": "ফ্ল্যাটে দুটো শোবার ঘর।"
+     }
+    },
+    {
+     "target": "la cuisine",
+     "bn": "রান্নাঘর / রান্না",
+     "bn_pron": "লা কুইজিন",
+     "pos": "noun",
+     "example": {
+      "target": "La cuisine est à côté du salon.",
+      "bn": "রান্নাঘর বসার ঘরের পাশে।"
+     }
+    },
+    {
+     "target": "la salle de bains",
+     "bn": "বাথরুম (গোসলখানা)",
+     "bn_pron": "লা সাল দ্য ব্যাঁ",
+     "pos": "noun",
+     "example": {
+      "target": "La salle de bains est commune.",
+      "bn": "বাথরুম সবার জন্য (শেয়ার করা)।"
+     }
+    },
+    {
+     "target": "le loyer",
+     "bn": "বাসাভাড়া",
+     "bn_pron": "ল্য লোয়াইয়ে",
+     "pos": "noun",
+     "example": {
+      "target": "Le loyer est payé le cinq du mois.",
+      "bn": "মাসের ৫ তারিখে ভাড়া দেওয়া হয়।"
+     }
+    },
+    {
+     "target": "meublé / meublée",
+     "bn": "আসবাবসহ (ফার্নিশড)",
+     "bn_pron": "ম্যব্লে",
+     "pos": "adjective",
+     "example": {
+      "target": "Je cherche un studio meublé.",
+      "bn": "আমি একটা ফার্নিশড স্টুডিও খুঁজছি।"
+     }
+    },
+    {
+     "target": "le propriétaire",
+     "bn": "বাড়িওয়ালা / মালিক",
+     "bn_pron": "ল্য প্রোপ্রিয়েতের",
+     "pos": "noun",
+     "example": {
+      "target": "Le propriétaire habite au premier étage.",
+      "bn": "বাড়িওয়ালা দোতলায় থাকেন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "Je cherche + জিনিস — খুঁজছি",
+     "explain_bn": "chercher (খোঁজা) একটা -er ক্রিয়া: Je cherche une chambre (আমি একটা রুম খুঁজছি)। ফরাসিতে 'খুঁজছি'-র পরে 'জন্য' (for) বসে না — সরাসরি জিনিস।",
+     "examples": [
+      {
+       "target": "Je cherche une chambre près de l'université.",
+       "bn": "আমি বিশ্ববিদ্যালয়ের কাছে একটা রুম খুঁজছি।"
+      },
+      {
+       "target": "Nous cherchons un appartement meublé.",
+       "bn": "আমরা একটা ফার্নিশড ফ্ল্যাট খুঁজছি।"
+      }
+     ]
+    },
+    {
+     "pattern": "বিশেষণের লিঙ্গ ও জায়গা",
+     "explain_bn": "বিশেষণ সাধারণত বিশেষ্যের পরে বসে আর লিঙ্গ-বচন মেলায়: un studio meublé, une chambre meublée। কিন্তু কিছু ছোট, খুব প্রচলিত বিশেষণ আগে বসে: petit/petite, grand/grande, beau/belle, nouveau/nouvelle।",
+     "examples": [
+      {
+       "target": "C'est une petite chambre calme.",
+       "bn": "এটা একটা ছোট, শান্ত রুম।"
+      },
+      {
+       "target": "Ils ont un grand appartement.",
+       "bn": "তাদের একটা বড় ফ্ল্যাট আছে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "fr-w03-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "landlord"
+        },
+        "B": {
+         "gender": "F",
+         "role": "student looking for a room"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "La chambre est meublée. Le loyer est de quatre cents euros par mois."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "Et la cuisine ?"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "A",
+         "text": "La cuisine est commune."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "রুমের ভাড়া মাসে কত?",
+      "options": [
+       "quatorze euros",
+       "quatre cents euros",
+       "quarante euros",
+       "trois cents euros"
+      ],
+      "answer": "B",
+      "explain_bn": "'quatre cents' = চার শ (৪০০)। quatorze = ১৪, quarante = ৪০ — শুনতে কাছাকাছি, সাবধান!",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "fr-w03-l5-r1",
+      "passage": "À louer : studio meublé de vingt mètres carrés, près de la gare. Cuisine et salle de bains. Loyer : cinq cent cinquante euros, charges comprises. Contact : madame Leroy.",
+      "prompt_bn": "স্টুডিওটা কোথায়?",
+      "options": [
+       "বাজারের কাছে",
+       "বিশ্ববিদ্যালয়ের পাশে",
+       "স্টেশনের কাছে",
+       "শহরের বাইরে"
+      ],
+      "answer": "C",
+      "explain_bn": "'près de la gare' = স্টেশনের কাছে। 'charges comprises' মানে বিদ্যুৎ-পানি ইত্যাদি খরচ ভাড়ার মধ্যেই।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "fr-w03-l5-w1",
+      "prompt_bn": "বাড়িওয়ালাকে ছোট মেসেজ লিখুন: কেমন রুম খুঁজছেন, কোথায়, আর আপনার বাজেট।",
+      "model": {
+       "target": "Bonjour, je cherche une chambre meublée près de l'université. Mon budget est de quatre cents euros.",
+       "bn": "শুভ দিন, আমি বিশ্ববিদ্যালয়ের কাছে একটা ফার্নিশড রুম খুঁজছি। আমার বাজেট ৪০০ ইউরো।"
+      },
+      "check": "ai",
+      "min_words": 12,
+      "max_words": 35
+     }
+    ],
+    "speaking": [
+     {
+      "id": "fr-w03-l5-s1",
+      "prompt_bn": "জোরে বলুন: ফোনে বলুন আপনি রুম ভাড়া নিতে চান আর ভাড়া কত জিজ্ঞেস করুন।",
+      "model": {
+       "target": "Bonjour, je voudrais louer la chambre. Le loyer, c'est combien ?",
+       "bn": "শুভ দিন, আমি রুমটা ভাড়া নিতে চাই। ভাড়া কত?"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

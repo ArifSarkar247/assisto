@@ -501,6 +501,18 @@ class CameraImouView(_OwnerBase):
             return _err(lang, "Imou ক্লাউড সতর্কতা এখনো চালু হয়নি — ক্যামেরা গেটওয়ে দিয়ে ঠিকই চলবে।",
                         "Imou cloud alarms are not switched on yet — the camera still "
                         "works through your gateway.", status=503, code="imou_not_configured")
+        # cctvconnect (owner 9 Nov 17:20): binding to OUR developer account
+        # needs the camera owner's on-screen consent, and is for owner / admin
+        # test cameras unless the owner switches it on for customers
+        from . import cctv_connect_views as CCV
+        if not CCV.devbind_allowed(request.user, "imou"):
+            return _err(lang, "এভাবে যুক্ত করা এখন শুধু Assisto-র মালিকের পরীক্ষার ক্যামেরার জন্য — ক্যামেরা গেটওয়ে দিয়ে ঠিকই চলবে।",
+                        "This way of linking is only for Assisto's owner test cameras for now — the camera "
+                        "still works through your gateway.", status=403, code="devbind_owner_only")
+        if not SV._coerce_bool(request.data.get("consent")):
+            return _err(lang, "আগে সম্মতির ঘরে টিক দিন: " + CCV.CONSENT_TEXT[0],
+                        "Please tick the consent first: " + CCV.CONSENT_TEXT[1],
+                        status=422, code="consent_required")
         serial = str(request.data.get("device_serial") or "").strip().upper()[:40]
         code = str(request.data.get("safety_code") or "").strip()[:32]
         try:
@@ -541,7 +553,13 @@ class CameraImouView(_OwnerBase):
         cam.vendor_ref = "%s:%d" % (serial, ch)
         src = dict(cam.source or {}, device_serial=serial)
         cam.source = SV.clean_source(src)
-        cam.save(update_fields=["vendor_ref", "source"])
+        compat = dict(cam.compat or {})
+        compat["imou_consent"] = {"by": request.user.pk, "v": CCV.CONSENT_VERSION,
+                                  "at": timezone.now().isoformat()}
+        if request.user.is_superuser or request.user.is_staff:
+            compat["owner_test"] = True
+        cam.compat = compat
+        cam.save(update_fields=["vendor_ref", "source", "compat"])
         return Response({"ok": True, "camera": SV._camera_row(cam)})
 
 
@@ -568,7 +586,10 @@ def imou_callback_url(app_id):
 COMPAT_KEEP = ("cloud_last_alarm_ms", "imou_seen_ids", "imou_pic_host_refused",
                "cloud_checked_at", "cloud_online_at", "siren_at",
                # cctvalerts: alert-type state (seen kinds, loiter, stills, SD)
-               "alert_state")
+               "alert_state",
+               # cctvconnect: Imou people counting (numberstat) per day,
+               # owner test device badge + the camera owner's consent record
+               "people", "owner_test", "imou_consent")
 
 
 class ImouCallbackView(APIView):
@@ -597,7 +618,20 @@ class ImouCallbackView(APIView):
         now = timezone.now()
         from . import cctv_alerts as CA
         from .logic import cctv_rules as CR
+        # cctvconnect: messages count toward the free monthly quota; people
+        # counting (numberstat) feeds the daily report, never an alert
+        try:
+            from . import cctv_connect_views as CCV
+            CCV.imou_messages_seen(msgs[:20], now)
+        except Exception:
+            CCV = None
         for m in msgs[:20]:
+            try:
+                if CCV is not None and CCV.imou_people_message(m, now):
+                    out.append({"people": True})
+                    continue
+            except Exception:
+                pass
             # cctvalerts: an SD-card status message is not an alarm, but a
             # broken card is worth one camera-health alert
             try:
@@ -727,7 +761,13 @@ class SiteViewerDeleteView(APIView):
         if not (qs.filter(site__owner=request.user).exists() or
                 (int(uid) == request.user.pk and qs.exists())):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        # cctvroles (V3 I): removing a person / a person leaving is audited
+        v = qs.select_related("site", "user").first()
         qs.delete()
+        if v is not None:
+            from . import cctv_team_views as CTV
+            CTV.audit(v.site, "change", request.user,
+                      CTV.CT.pack(removed=getattr(v.user, "name", "") or "#%s" % v.user_id))
         return Response({"ok": True})
 
 
@@ -955,6 +995,14 @@ class ImouOAuthCallbackView(APIView):
         code = (request.GET.get("code") or "")[:512]
         state = (request.GET.get("state") or "")[:128]
         ok = bool(code and state and state.replace("-", "").replace("_", "").isalnum())
+        # cctvconnect: an Assisto-started link (one-time state held on the
+        # server, or the state cookie when Imou does not echo it) is finished
+        # HERE — the code is exchanged server-side, tokens sealed per site
+        from . import cctv_connect_views as CCV
+        if code and (CCV.has_oauth_state(state) or
+                     CCV.has_oauth_state(request.COOKIES.get(CCV.OAUTH_COOKIE))):
+            done, _link = CCV.finish_oauth(request, code, state)
+            return CCV.oauth_page(done)
         if ok:
             cache.set("imou_oauth:" + state, code, 600)
         title = "Imou linked — return to Assisto" if ok else "Imou link did not finish"

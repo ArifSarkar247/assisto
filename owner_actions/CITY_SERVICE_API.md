@@ -60,7 +60,7 @@ recharge[]}` — `lat/lon` = the user's destination → `which_gate` (geofence s
 `GET city/route/<id>` → full ordered stop list, company, ref, fare rule, status, sources.
 `GET city/stops/near?lat=&lon=` → nearest stops with their routes.
 `GET city/terminals`, `city/ghats`, `city/offices` → directory items
-`{id,kind,name,name_bn,lat,lon,address,hours,papers[],routes[],status,sources:[{url,date}]}`.
+`{id,kind,name,name_bn,lat,lon,address,hours,papers[],routes[],routes_bn[] (same order/length as routes),status,sources:[{url,date}]}`.
 
 ## 6. Live reports (60-minute expiry, moderated)
 `GET city/reports?lat=&lon=[&km=3]` → `[{id,kind,lat,lon,count,minutes_ago,route_id}]`
@@ -90,5 +90,23 @@ public BRTC list is confirmed (see CITY_DATA_GAPS_BN.md) — show the honest emp
 ## 10. Paid listings (Ad label)
 Reuse `GET nearby/sponsored?lat=&lon=&cat=` (flag `nearby_sponsored`). Ads never appear in route
 results, step lists, live reports or any safety screen; the router never reads listings.
+
+## 11. citydata2 additions (9 Nov, additive)
+- `plan … &modes=women` (alone or with others) also uses BRTC women-only (pink) buses;
+  without it they are never used. Their legs carry `women_only:true`.
+- "Fastest" = the quickest option, except that an option within max(10 min, 20 %) of it
+  with fewer rickshaw legs (then the lower fare) wins; rickshaw access/egress only when
+  the stop is ≥ 900 m away (straight line). Top-50 report: `fastest_with_rickshaw`.
+- Gates (`city/station/<id>`, `exit_gate` on metro legs): + `lift`, `escalator`,
+  `wheelchair` (true / null = unknown), `basis` = `osm` (mapped entrance) | `osm_steps`
+  (mapped stairs/escalator landing) | `side_rule` (one exit per side of the road, position
+  derived; name "East side exit"), `src`. Every one of the 16 stations has ≥ 2 gates.
+- `city/station/<id>` and `city/metro`: + `facilities {stairs, escalator, lift,
+  wheelchair_ramp, text_en, text_bn, status, sources[]}`; `service` + `first_train` /
+  `last_train` per terminal (`sat_thu`, `fri`), `published`, `note_bn`.
+- `complaint`: + `kind` (`national_helpline` | `brta`), `dial` (the number to call),
+  `note_en/bn`. With no confirmed BRTA number: `kind:"national_helpline"`, `dial:"333"`,
+  label "333 national helpline" — never call it a BRTA number.
+- Bus rate object: + `minibus_per_km`, `minibus_min`, `effective`, `sources[]`.
 
 Changes to this contract: additive only; announced in this file.

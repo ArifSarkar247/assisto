@@ -17,6 +17,7 @@ import '../l10n/app_localizations.dart';
 import '../notifications.dart';
 import '../push/push_payload.dart';
 import '../security/secret_store.dart';
+import '../eldercare/silent_watch_client.dart'; // fcelder
 import 'carecall_api.dart';
 import 'carecall_plan.dart';
 
@@ -344,6 +345,11 @@ class CareCallActions {
       ..add({'care_call_id': id, 'slot': slot, 'action': action,
              'at': (now ?? DateTime.now()).millisecondsSinceEpoch});
     await _saveOutbox(q);
+    // fcelder: answering a Care Call is a sign of life for Silent Watch
+    // (an on-phone stamp only; no-op unless the elder opted in)
+    try {
+      await SilentWatchClient.noteActivity();
+    } catch (_) {}
     await CareCallAlarms.cancelSlot(sk, attempt: int.tryParse(data['attempt'] ?? ''), plugin: plugin);
     if (action == 'done') {
       await CareCallAlarms.markHandled(sk);

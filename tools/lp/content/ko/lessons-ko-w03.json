@@ -1,0 +1,1071 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "ko",
+ "week": 3,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "eps_topik"
+ ],
+ "title": {
+  "en": "Korean for EPS-TOPIK — Week 3: verbs, routine, workplace",
+  "bn": "EPS-TOPIK কোরিয়ান — সপ্তাহ ৩: ক্রিয়া, রুটিন, কর্মস্থল"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not official EPS-TOPIK material or result.",
+  "bn": "Assisto-র নিজের লেখা অনুশীলন পাঠ — এটি অফিসিয়াল EPS-TOPIK বই, প্রশ্ন বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "HRD Korea EPS-TOPIK public test overview"
+ },
+ "lessons": [
+  {
+   "id": "ko-w03-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Verbs in the present: -아요/-어요",
+    "bn": "বর্তমান কালের ক্রিয়া: -아요/-어요"
+   },
+   "goal_bn": "ক্রিয়ার মূল (stem) থেকে ভদ্র বর্তমান রূপ বানানো আর 을/를 দিয়ে কর্ম বলা।",
+   "vocab": [
+    {
+     "target": "가다",
+     "roman": "gada",
+     "bn": "যাওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "은행에 가요.",
+      "roman": "eunhaenge gayo.",
+      "bn": "ব্যাংকে যাই।"
+     }
+    },
+    {
+     "target": "오다",
+     "roman": "oda",
+     "bn": "আসা",
+     "pos": "verb",
+     "example": {
+      "target": "버스가 와요.",
+      "roman": "beoseuga wayo.",
+      "bn": "বাস আসছে।"
+     }
+    },
+    {
+     "target": "먹다",
+     "roman": "meokda",
+     "bn": "খাওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "식당에서 밥을 먹어요.",
+      "roman": "sikdangeseo babeul meogeoyo.",
+      "bn": "ক্যান্টিনে ভাত খাই।"
+     }
+    },
+    {
+     "target": "마시다",
+     "roman": "masida",
+     "bn": "পান করা",
+     "pos": "verb",
+     "example": {
+      "target": "커피를 마셔요.",
+      "roman": "keopireul masyeoyo.",
+      "bn": "কফি খাই।"
+     }
+    },
+    {
+     "target": "자다",
+     "roman": "jada",
+     "bn": "ঘুমানো",
+     "pos": "verb",
+     "example": {
+      "target": "열한 시에 자요.",
+      "roman": "yeolhan sie jayo.",
+      "bn": "এগারোটায় ঘুমাই।"
+     }
+    },
+    {
+     "target": "일하다",
+     "roman": "ilhada",
+     "bn": "কাজ করা",
+     "pos": "verb",
+     "example": {
+      "target": "토요일에도 일해요.",
+      "roman": "toyoiredo ilhaeyo.",
+      "bn": "শনিবারেও কাজ করি।"
+     }
+    },
+    {
+     "target": "보다",
+     "roman": "boda",
+     "bn": "দেখা",
+     "pos": "verb",
+     "example": {
+      "target": "휴대폰으로 뉴스를 봐요.",
+      "roman": "hyudaeponeuro nyuseureul bwayo.",
+      "bn": "ফোনে খবর দেখি।"
+     }
+    },
+    {
+     "target": "배우다",
+     "roman": "baeuda",
+     "bn": "শেখা",
+     "pos": "verb",
+     "example": {
+      "target": "한국어를 배워요.",
+      "roman": "hangugeoreul baewoyo.",
+      "bn": "কোরিয়ান শিখি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "V-아요 / V-어요 / 해요",
+     "explain_bn": "ক্রিয়ার মূল = অভিধান রূপ থেকে 다 বাদ। মূলের শেষ স্বর ㅏ বা ㅗ হলে + 아요 (가 → 가요, 보 → 봐요); অন্য স্বর হলে + 어요 (먹 → 먹어요, 마시 → 마셔요); 하다 → 해요 (일하다 → 일해요)। একই রূপ প্রশ্নেও: 밥 먹어요?",
+     "examples": [
+      {
+       "target": "물을 마셔요.",
+       "roman": "mureul masyeoyo.",
+       "bn": "পানি খাই।"
+      },
+      {
+       "target": "지금 와요?",
+       "roman": "jigeum wayo?",
+       "bn": "এখন আসছেন?"
+      }
+     ]
+    },
+    {
+     "pattern": "N을/를",
+     "explain_bn": "কর্ম (যাকে কিছু করা হয়) চিহ্ন: 받침 থাকলে 을, না থাকলে 를: 밥을 먹어요, 커피를 마셔요।",
+     "examples": [
+      {
+       "target": "저는 사과를 좋아해요.",
+       "roman": "jeoneun sagwareul joahaeyo.",
+       "bn": "আমি আপেল পছন্দ করি।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "সহকর্মী"
+        },
+        "B": {
+         "gender": "M",
+         "role": "কর্মী"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "점심에 뭐 먹어요?"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "김밥을 먹어요. 그리고 우유를 마셔요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "লোকটা দুপুরে কী পান করে?",
+      "options": [
+       "우유",
+       "커피",
+       "물",
+       "주스"
+      ],
+      "answer": "A",
+      "explain_bn": "우유를 마셔요 = দুধ খাই। 김밥 = খাবার, পানীয় নয়।",
+      "skill": "detail",
+      "id": "ko-w03-l1-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "저는 주말에 한국어를 배워요. 일요일에는 친구를 만나요.",
+      "prompt_bn": "লেখক রবিবারে কী করে?",
+      "options": [
+       "কোরিয়ান শেখে",
+       "বন্ধুর সাথে দেখা করে",
+       "কাজ করে",
+       "ঘুমায়"
+      ],
+      "answer": "B",
+      "explain_bn": "일요일 = রবিবার; 친구를 만나요 = বন্ধুর সাথে দেখা করি। শেখা হয় সপ্তাহান্তে সাধারণভাবে।",
+      "skill": "detail",
+      "id": "ko-w03-l1-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "বর্তমান রূপ লিখুন: 가다, 먹다, 일하다 (কমা দিয়ে)।",
+      "model": {
+       "target": "가요, 먹어요, 일해요",
+       "roman": "gayo, meogeoyo, ilhaeyo",
+       "bn": "যাই, খাই, কাজ করি"
+      },
+      "check": "self",
+      "id": "ko-w03-l1-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "আজ কী খাবেন আর কী পান করবেন বলুন (২ বাক্য)।",
+      "model": {
+       "target": "점심에 밥을 먹어요. 물을 마셔요.",
+       "roman": "jeomsime babeul meogeoyo. mureul masyeoyo.",
+       "bn": "দুপুরে ভাত খাই। পানি খাই।"
+      },
+      "id": "ko-w03-l1-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w03-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "My daily routine",
+    "bn": "আমার দৈনিক রুটিন"
+   },
+   "goal_bn": "সকাল থেকে রাত পর্যন্ত রুটিন বলা: ঘুম থেকে ওঠা, কাজে যাওয়া, ছুটি।",
+   "vocab": [
+    {
+     "target": "일어나다",
+     "roman": "ireonada",
+     "bn": "ঘুম থেকে ওঠা",
+     "pos": "verb",
+     "example": {
+      "target": "여섯 시에 일어나요.",
+      "roman": "yeoseot sie ireonayo.",
+      "bn": "ছয়টায় উঠি।"
+     }
+    },
+    {
+     "target": "씻다",
+     "roman": "ssitda",
+     "bn": "ধোয়া, গোসল করা",
+     "pos": "verb",
+     "example": {
+      "target": "일 끝나고 씻어요.",
+      "roman": "il kkeunnago ssiseoyo.",
+      "bn": "কাজ শেষে গোসল করি।"
+     }
+    },
+    {
+     "target": "출근하다",
+     "roman": "chulgeunhada",
+     "bn": "কাজে যাওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "걸어서 출근해요.",
+      "roman": "georeoseo chulgeunhaeyo.",
+      "bn": "হেঁটে কাজে যাই।"
+     }
+    },
+    {
+     "target": "퇴근하다",
+     "roman": "toegeunhada",
+     "bn": "কাজ থেকে ফেরা (ছুটি)",
+     "pos": "verb",
+     "example": {
+      "target": "오늘은 일찍 퇴근해요.",
+      "roman": "oneureun iljjik toegeunhaeyo.",
+      "bn": "আজ তাড়াতাড়ি ছুটি।"
+     }
+    },
+    {
+     "target": "쉬다",
+     "roman": "swida",
+     "bn": "বিশ্রাম নেওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "일요일에는 집에서 쉬어요.",
+      "roman": "iryoireneun jibeseo swieoyo.",
+      "bn": "রবিবার ঘরে বিশ্রাম নিই।"
+     }
+    },
+    {
+     "target": "기숙사",
+     "roman": "gisuksa",
+     "bn": "ডরমিটরি, শ্রমিক-হোস্টেল",
+     "pos": "noun",
+     "example": {
+      "target": "기숙사가 공장 뒤에 있어요.",
+      "roman": "gisuksaga gongjang dwie isseoyo.",
+      "bn": "ডরম কারখানার পিছনে।"
+     }
+    },
+    {
+     "target": "매일",
+     "roman": "maeil",
+     "bn": "প্রতিদিন",
+     "pos": "adverb",
+     "example": {
+      "target": "매일 가족과 통화해요.",
+      "roman": "maeil gajokgwa tonghwahaeyo.",
+      "bn": "প্রতিদিন পরিবারের সাথে ফোনে কথা বলি।"
+     }
+    },
+    {
+     "target": "주말",
+     "roman": "jumal",
+     "bn": "সপ্তাহান্ত (শনি-রবি)",
+     "pos": "noun",
+     "example": {
+      "target": "주말에 시장에 가요.",
+      "roman": "jumare sijange gayo.",
+      "bn": "সপ্তাহান্তে বাজারে যাই।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "জায়গা + 에 가요 / 와요",
+     "explain_bn": "কোথাও যাওয়া-আসা: জায়গা + 에 + 가요/와요। 'কোথায় যান?' = 어디에 가요?",
+     "examples": [
+      {
+       "target": "공장에 가요.",
+       "roman": "gongjange gayo.",
+       "bn": "কারখানায় যাই।"
+      }
+     ]
+    },
+    {
+     "pattern": "জায়গা + 에서 + কাজ",
+     "explain_bn": "কোথাও কিছু করা: জায়গা + 에서 + ক্রিয়া: 식당에서 먹어요 = ক্যান্টিনে খাই। মনে রাখুন: যাওয়া/থাকা = 에, কাজ করা = 에서।",
+     "examples": [
+      {
+       "target": "기숙사에서 쉬어요.",
+       "roman": "gisuksaeseo swieoyo.",
+       "bn": "ডরমে বিশ্রাম নিই।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "কর্মী"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "저는 매일 다섯 시 반에 일어나요. 여섯 시에 밥을 먹고 일곱 시에 출근해요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "লোকটা কয়টায় কাজে যায়?",
+      "options": [
+       "다섯 시 반",
+       "여섯 시",
+       "일곱 시",
+       "여덟 시"
+      ],
+      "answer": "C",
+      "explain_bn": "일곱 시에 출근해요 = সাতটায় কাজে যাই।",
+      "skill": "time",
+      "id": "ko-w03-l2-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "민호 씨는 주말에 기숙사에서 빨래를 해요. 그리고 저녁에 친구하고 축구를 해요.",
+      "prompt_bn": "মিনহো সন্ধ্যায় কী করে?",
+      "options": [
+       "কাপড় ধোয়",
+       "ঘুমায়",
+       "কাজ করে",
+       "ফুটবল খেলে"
+      ],
+      "answer": "D",
+      "explain_bn": "저녁에 … 축구를 해요 = সন্ধ্যায় ফুটবল খেলে। 빨래 = কাপড় ধোয়া (দিনে)।",
+      "skill": "detail",
+      "id": "ko-w03-l2-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "আপনার সকালের রুটিন ৩ বাক্যে লিখুন।",
+      "model": {
+       "target": "여섯 시에 일어나요. 씻고 밥을 먹어요. 일곱 시 반에 출근해요.",
+       "roman": "yeoseot sie ireonayo. ssitgo babeul meogeoyo. ilgop si bane chulgeunhaeyo.",
+       "bn": "ছয়টায় উঠি। গোসল করে খাই। সাড়ে সাতটায় কাজে যাই।"
+      },
+      "check": "ai",
+      "id": "ko-w03-l2-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "সপ্তাহান্তে কী করেন বলুন।",
+      "model": {
+       "target": "주말에는 기숙사에서 쉬어요. 그리고 시장에 가요.",
+       "roman": "jumareneun gisuksaeseo swieoyo. geurigo sijange gayo.",
+       "bn": "সপ্তাহান্তে ডরমে বিশ্রাম নিই। আর বাজারে যাই।"
+      },
+      "id": "ko-w03-l2-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w03-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Factory words",
+    "bn": "কারখানার শব্দ"
+   },
+   "goal_bn": "কারখানার যন্ত্র, জিনিস ও কাজের নাম বুঝে নির্দেশ মানা।",
+   "vocab": [
+    {
+     "target": "기계",
+     "roman": "gigye",
+     "bn": "মেশিন, যন্ত্র",
+     "pos": "noun",
+     "example": {
+      "target": "기계가 멈췄어요.",
+      "roman": "gigyega meomchwosseoyo.",
+      "bn": "মেশিন থেমে গেছে।"
+     }
+    },
+    {
+     "target": "상자",
+     "roman": "sangja",
+     "bn": "বাক্স",
+     "pos": "noun",
+     "example": {
+      "target": "상자에 물건을 넣어요.",
+      "roman": "sangjae mulgeoneul neoeoyo.",
+      "bn": "বাক্সে মাল ভরি।"
+     }
+    },
+    {
+     "target": "장갑",
+     "roman": "janggap",
+     "bn": "গ্লাভস, হাতমোজা",
+     "pos": "noun",
+     "example": {
+      "target": "장갑을 끼고 일해요.",
+      "roman": "janggabeul kkigo ilhaeyo.",
+      "bn": "গ্লাভস পরে কাজ করি।"
+     }
+    },
+    {
+     "target": "작업",
+     "roman": "jageop",
+     "bn": "কাজ (কারখানার), অপারেশন",
+     "pos": "noun",
+     "example": {
+      "target": "오늘 작업이 많아요.",
+      "roman": "oneul jageobi manayo.",
+      "bn": "আজ কাজ অনেক।"
+     }
+    },
+    {
+     "target": "물건",
+     "roman": "mulgeon",
+     "bn": "জিনিস, মাল",
+     "pos": "noun",
+     "example": {
+      "target": "물건이 무거워요.",
+      "roman": "mulgeoni mugeowoyo.",
+      "bn": "মালটা ভারী।"
+     }
+    },
+    {
+     "target": "포장하다",
+     "roman": "pojanghada",
+     "bn": "প্যাক করা",
+     "pos": "verb",
+     "example": {
+      "target": "제품을 포장해요.",
+      "roman": "jepumeul pojanghaeyo.",
+      "bn": "পণ্য প্যাক করি।"
+     }
+    },
+    {
+     "target": "옮기다",
+     "roman": "omgida",
+     "bn": "সরানো, বয়ে নেওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "상자를 창고로 옮겨요.",
+      "roman": "sangjareul changgoro omgyeoyo.",
+      "bn": "বাক্স গুদামে নিয়ে যাই।"
+     }
+    },
+    {
+     "target": "불량",
+     "roman": "bullyang",
+     "bn": "ত্রুটিপূর্ণ (খারাপ পণ্য)",
+     "pos": "noun",
+     "example": {
+      "target": "불량품은 빨간 상자에 넣어요.",
+      "roman": "bullyangpumeun ppalgan sangjae neoeoyo.",
+      "bn": "খারাপ পণ্য লাল বাক্সে রাখি।"
+     }
+    },
+    {
+     "target": "창고",
+     "roman": "changgo",
+     "bn": "গুদাম",
+     "pos": "noun",
+     "example": {
+      "target": "창고 문을 닫아요.",
+      "roman": "changgo muneul dadayo.",
+      "bn": "গুদামের দরজা বন্ধ করি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N(으)로 (দিকে / দিয়ে)",
+     "explain_bn": "দিক বোঝাতে: 창고로 가요 = গুদামের দিকে যাই। ㄹ ছাড়া অন্য 받침 থাকলে 으로, না থাকলে বা ㄹ হলে 로।",
+     "examples": [
+      {
+       "target": "이쪽으로 오세요.",
+       "roman": "ijjogeuro oseyo.",
+       "bn": "এদিকে আসুন।"
+      }
+     ]
+    },
+    {
+     "pattern": "A-고 B (আর / তারপর)",
+     "explain_bn": "দুটো কাজ জুড়তে প্রথম ক্রিয়ার মূল + 고: 포장하고 옮겨요 = প্যাক করে সরাই।",
+     "examples": [
+      {
+       "target": "장갑을 끼고 상자를 들어요.",
+       "roman": "janggabeul kkigo sangjareul deureoyo.",
+       "bn": "গ্লাভস পরে বাক্স তুলি।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "লাইন লিডার"
+        },
+        "B": {
+         "gender": "M",
+         "role": "কর্মী"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "이 상자들은 불량이에요. 창고로 옮기지 말고 저기 빨간 데로 가져가세요."
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "네, 알겠습니다."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কর্মী বাক্সগুলো কোথায় নেবে?",
+      "options": [
+       "লাল জায়গায়",
+       "গুদামে",
+       "মেশিনের পাশে",
+       "অফিসে"
+      ],
+      "answer": "A",
+      "explain_bn": "불량 = খারাপ পণ্য; 빨간 데로 가져가세요 = লাল জায়গায় নিয়ে যান; 창고로 옮기지 말고 = গুদামে নয়।",
+      "skill": "workplace",
+      "id": "ko-w03-l3-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "[작업 순서] ① 장갑을 껴요. ② 제품을 검사해요. ③ 포장해요. ④ 창고로 옮겨요.",
+      "prompt_bn": "পণ্য প্যাক করার ঠিক আগে কী করতে হবে?",
+      "options": [
+       "গ্লাভস পরা",
+       "পরীক্ষা করা",
+       "গুদামে নেওয়া",
+       "মেশিন বন্ধ করা"
+      ],
+      "answer": "B",
+      "explain_bn": "② 검사해요 (পরীক্ষা) তারপর ③ 포장해요 (প্যাক)।",
+      "skill": "info_search",
+      "id": "ko-w03-l3-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "লিখুন: 'আমি গ্লাভস পরে বাক্স প্যাক করি।'",
+      "model": {
+       "target": "저는 장갑을 끼고 상자를 포장해요.",
+       "roman": "jeoneun janggabeul kkigo sangjareul pojanghaeyo.",
+       "bn": "আমি গ্লাভস পরে বাক্স প্যাক করি।"
+      },
+      "check": "ai",
+      "id": "ko-w03-l3-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "লিডারকে জানান: মেশিন থেমে গেছে আর এই পণ্যটা খারাপ।",
+      "model": {
+       "target": "반장님, 기계가 멈췄어요. 이건 불량이에요.",
+       "roman": "banjangnim, gigyega meomchwosseoyo. igeon bullyangieyo.",
+       "bn": "লিডার সাহেব, মেশিন থেমে গেছে। এটা খারাপ পণ্য।"
+      },
+      "id": "ko-w03-l3-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w03-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "Farm and construction words",
+    "bn": "খামার ও নির্মাণকাজের শব্দ"
+   },
+   "goal_bn": "খামার (গ্রিনহাউস, পশু) আর নির্মাণ সাইটের যন্ত্রপাতির নাম শেখা।",
+   "vocab": [
+    {
+     "target": "비닐하우스",
+     "roman": "binilhauseu",
+     "bn": "গ্রিনহাউস (প্লাস্টিকের ঘর)",
+     "pos": "noun",
+     "example": {
+      "target": "비닐하우스 안은 더워요.",
+      "roman": "binilhauseu aneun deowoyo.",
+      "bn": "গ্রিনহাউসের ভিতরে গরম।"
+     }
+    },
+    {
+     "target": "밭",
+     "roman": "bat",
+     "bn": "ক্ষেত (শুকনো জমি)",
+     "pos": "noun",
+     "example": {
+      "target": "밭에서 고추를 따요.",
+      "roman": "bateseo gochureul ttayo.",
+      "bn": "ক্ষেতে মরিচ তুলি।"
+     }
+    },
+    {
+     "target": "돼지",
+     "roman": "dwaeji",
+     "bn": "শূকর",
+     "pos": "noun",
+     "example": {
+      "target": "돼지에게 먹이를 줘요.",
+      "roman": "dwaejiege meogireul jwoyo.",
+      "bn": "শূকরকে খাবার দিই।"
+     }
+    },
+    {
+     "target": "소",
+     "roman": "so",
+     "bn": "গরু",
+     "pos": "noun",
+     "example": {
+      "target": "소가 스무 마리 있어요.",
+      "roman": "soga seumu mari isseoyo.",
+      "bn": "বিশটা গরু আছে।"
+     }
+    },
+    {
+     "target": "벽돌",
+     "roman": "byeokdol",
+     "bn": "ইট",
+     "pos": "noun",
+     "example": {
+      "target": "벽돌을 쌓아요.",
+      "roman": "byeokdoreul ssaayo.",
+      "bn": "ইট গাঁথি।"
+     }
+    },
+    {
+     "target": "사다리",
+     "roman": "sadari",
+     "bn": "মই",
+     "pos": "noun",
+     "example": {
+      "target": "사다리를 잡아 주세요.",
+      "roman": "sadarireul jaba juseyo.",
+      "bn": "মইটা ধরে রাখুন।"
+     }
+    },
+    {
+     "target": "삽",
+     "roman": "sap",
+     "bn": "বেলচা",
+     "pos": "noun",
+     "example": {
+      "target": "삽으로 흙을 퍼요.",
+      "roman": "sabeuro heulgeul peoyo.",
+      "bn": "বেলচা দিয়ে মাটি তুলি।"
+     }
+    },
+    {
+     "target": "수확하다",
+     "roman": "suhwakada",
+     "bn": "ফসল তোলা",
+     "pos": "verb",
+     "example": {
+      "target": "가을에 배추를 수확해요.",
+      "roman": "gaeure baechureul suhwakaeyo.",
+      "bn": "শরতে বাঁধাকপি তুলি।"
+     }
+    },
+    {
+     "target": "현장",
+     "roman": "hyeonjang",
+     "bn": "সাইট (নির্মাণস্থল)",
+     "pos": "noun",
+     "example": {
+      "target": "현장에 일곱 시까지 오세요.",
+      "roman": "hyeonjange ilgop sikkaji oseyo.",
+      "bn": "সাতটার মধ্যে সাইটে আসুন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N(으)로 (দিয়ে — যন্ত্র)",
+     "explain_bn": "কোনো যন্ত্র দিয়ে কাজ: 삽으로 파요 = বেলচা দিয়ে খুঁড়ি; 손으로 = হাত দিয়ে। নিয়ম আগের মতো: 받침 থাকলে 으로।",
+     "examples": [
+      {
+       "target": "가위로 잘라요.",
+       "roman": "gawiro jallayo.",
+       "bn": "কাঁচি দিয়ে কাটি।"
+      }
+     ]
+    },
+    {
+     "pattern": "마리 (পশু গোনা)",
+     "explain_bn": "পশু-পাখি গুনতে counter 마리: 소 두 마리, 닭 열 마리।",
+     "examples": [
+      {
+       "target": "돼지가 백 마리 있어요.",
+       "roman": "dwaejiga baek mari isseoyo.",
+       "bn": "একশোটা শূকর আছে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "খামার মালিক"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "오늘은 비닐하우스에서 토마토를 따세요. 오후에는 소에게 물을 주세요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "বিকেলে কী কাজ?",
+      "options": [
+       "টমেটো তোলা",
+       "ক্ষেত খোঁড়া",
+       "গরুকে পানি দেওয়া",
+       "শূকর পরিষ্কার"
+      ],
+      "answer": "C",
+      "explain_bn": "오후에는 소에게 물을 주세요 = বিকেলে গরুকে পানি দিন।",
+      "skill": "workplace",
+      "id": "ko-w03-l4-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "현장 안내: 사다리 작업은 두 명이 함께 해요. 한 명은 사다리를 잡아요.",
+      "prompt_bn": "মইয়ের কাজে নিয়ম কী?",
+      "options": [
+       "একা কাজ করা",
+       "মই ব্যবহার নিষেধ",
+       "শুধু সকালে",
+       "দুজন একসাথে, একজন মই ধরে"
+      ],
+      "answer": "D",
+      "explain_bn": "두 명이 함께 = দুজন একসাথে; 한 명은 사다리를 잡아요 = একজন মই ধরে।",
+      "skill": "safety",
+      "id": "ko-w03-l4-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "লিখুন: 'আমি বেলচা দিয়ে মাটি সরাই।' (흙 = মাটি)",
+      "model": {
+       "target": "저는 삽으로 흙을 옮겨요.",
+       "roman": "jeoneun sabeuro heulgeul omgyeoyo.",
+       "bn": "আমি বেলচা দিয়ে মাটি সরাই।"
+      },
+      "check": "ai",
+      "id": "ko-w03-l4-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "আপনার কাজের জায়গা কী আর কী যন্ত্র ব্যবহার করেন বলুন।",
+      "model": {
+       "target": "저는 농장에서 일해요. 삽하고 가위를 써요.",
+       "roman": "jeoneun nongjangeseo ilhaeyo. saphago gawireul sseoyo.",
+       "bn": "আমি খামারে কাজ করি। বেলচা আর কাঁচি ব্যবহার করি।"
+      },
+      "id": "ko-w03-l4-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w03-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Instructions: -(으)세요 and -지 마세요",
+    "bn": "নির্দেশ: -(으)세요 আর -지 마세요"
+   },
+   "goal_bn": "বসের নির্দেশ বোঝা (করুন / করবেন না) আর ভদ্রভাবে অনুরোধ করা।",
+   "vocab": [
+    {
+     "target": "기다리다",
+     "roman": "gidarida",
+     "bn": "অপেক্ষা করা",
+     "pos": "verb",
+     "example": {
+      "target": "여기서 잠깐 기다리세요.",
+      "roman": "yeogiseo jamkkan gidariseyo.",
+      "bn": "এখানে একটু অপেক্ষা করুন।"
+     }
+    },
+    {
+     "target": "앉다",
+     "roman": "anda",
+     "bn": "বসা",
+     "pos": "verb",
+     "example": {
+      "target": "의자에 앉으세요.",
+      "roman": "uijae anjeuseyo.",
+      "bn": "চেয়ারে বসুন।"
+     }
+    },
+    {
+     "target": "조심하다",
+     "roman": "josimhada",
+     "bn": "সাবধান থাকা",
+     "pos": "verb",
+     "example": {
+      "target": "바닥이 미끄러워요. 조심하세요.",
+      "roman": "badagi mikkeureowoyo. josimhaseyo.",
+      "bn": "মেঝে পিছলা। সাবধান।"
+     }
+    },
+    {
+     "target": "가져오다",
+     "roman": "gajeooda",
+     "bn": "নিয়ে আসা",
+     "pos": "verb",
+     "example": {
+      "target": "테이프 좀 가져오세요.",
+      "roman": "teipeu jom gajeooseyo.",
+      "bn": "একটু টেপ নিয়ে আসুন।"
+     }
+    },
+    {
+     "target": "끄다",
+     "roman": "kkeuda",
+     "bn": "বন্ধ করা (সুইচ)",
+     "pos": "verb",
+     "example": {
+      "target": "불을 끄세요.",
+      "roman": "bureul kkeuseyo.",
+      "bn": "লাইট বন্ধ করুন।"
+     }
+    },
+    {
+     "target": "켜다",
+     "roman": "kyeoda",
+     "bn": "চালু করা (সুইচ)",
+     "pos": "verb",
+     "example": {
+      "target": "에어컨을 켜세요.",
+      "roman": "eeokeoneul kyeoseyo.",
+      "bn": "এসি চালু করুন।"
+     }
+    },
+    {
+     "target": "천천히",
+     "roman": "cheoncheonhi",
+     "bn": "ধীরে",
+     "pos": "adverb",
+     "example": {
+      "target": "천천히 말해 주세요.",
+      "roman": "cheoncheonhi malhae juseyo.",
+      "bn": "ধীরে বলুন।"
+     }
+    },
+    {
+     "target": "빨리",
+     "roman": "ppalli",
+     "bn": "তাড়াতাড়ি",
+     "pos": "adverb",
+     "example": {
+      "target": "빨리 끝내세요.",
+      "roman": "ppalli kkeunnaeseyo.",
+      "bn": "তাড়াতাড়ি শেষ করুন।"
+     }
+    },
+    {
+     "target": "만지다",
+     "roman": "manjida",
+     "bn": "ছোঁয়া",
+     "pos": "verb",
+     "example": {
+      "target": "기계를 만지지 마세요.",
+      "roman": "gigyereul manjiji maseyo.",
+      "bn": "মেশিন ছোঁবেন না।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "V-(으)세요 (করুন)",
+     "explain_bn": "ভদ্র নির্দেশ/অনুরোধ: মূলে 받침 না থাকলে 세요 (가세요, 기다리세요), থাকলে 으세요 (앉으세요)। 하다 → 하세요।",
+     "examples": [
+      {
+       "target": "손을 씻으세요.",
+       "roman": "soneul ssiseuseyo.",
+       "bn": "হাত ধুন।"
+      },
+      {
+       "target": "조심하세요.",
+       "roman": "josimhaseyo.",
+       "bn": "সাবধানে থাকুন।"
+      }
+     ]
+    },
+    {
+     "pattern": "V-지 마세요 (করবেন না)",
+     "explain_bn": "নিষেধ: ক্রিয়ার মূল + 지 마세요। কারখানায় খুব শোনা যায় — মন দিয়ে শুনুন।",
+     "examples": [
+      {
+       "target": "여기서 담배 피우지 마세요.",
+       "roman": "yeogiseo dambae piuji maseyo.",
+       "bn": "এখানে ধূমপান করবেন না।"
+      },
+      {
+       "target": "혼자 들지 마세요.",
+       "roman": "honja deulji maseyo.",
+       "bn": "একা তুলবেন না।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "সুপারভাইজার"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "기계가 뜨거워요. 손으로 만지지 마세요. 장갑을 끼세요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "সুপারভাইজার কী নিষেধ করলেন?",
+      "options": [
+       "হাত দিয়ে মেশিন ছোঁয়া",
+       "গ্লাভস পরা",
+       "মেশিন চালু করা",
+       "কথা বলা"
+      ],
+      "answer": "A",
+      "explain_bn": "손으로 만지지 마세요 = হাত দিয়ে ছোঁবেন না। 장갑을 끼세요 = গ্লাভস পরুন (করতে বলা)।",
+      "skill": "safety",
+      "id": "ko-w03-l5-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "퇴근할 때: 기계를 끄세요. 창문을 닫으세요. 불을 끄고 가세요.",
+      "prompt_bn": "এই নোটিশে কী করতে বলা হয়নি?",
+      "options": [
+       "মেশিন বন্ধ করা",
+       "দরজা খোলা রাখা",
+       "জানালা বন্ধ করা",
+       "লাইট বন্ধ করা"
+      ],
+      "answer": "B",
+      "explain_bn": "নোটিশে মেশিন, জানালা আর লাইট বন্ধের কথা; দরজা খোলা রাখার কথা নেই।",
+      "skill": "detail",
+      "id": "ko-w03-l5-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "ডরমের নিয়ম লিখুন: 'রাতে জোরে কথা বলবেন না। লাইট বন্ধ করুন।' (크게 말하다 = জোরে কথা বলা)",
+      "model": {
+       "target": "밤에 크게 말하지 마세요. 불을 끄세요.",
+       "roman": "bame keuge malhaji maseyo. bureul kkeuseyo.",
+       "bn": "রাতে জোরে কথা বলবেন না। লাইট বন্ধ করুন।"
+      },
+      "check": "ai",
+      "id": "ko-w03-l5-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "কোরিয়ান সহকর্মী খুব দ্রুত বলছে — ধীরে আর আবার বলতে অনুরোধ করুন।",
+      "model": {
+       "target": "죄송합니다. 천천히 다시 말해 주세요.",
+       "roman": "joesonghamnida. cheoncheonhi dasi malhae juseyo.",
+       "bn": "দুঃখিত। ধীরে আবার বলুন।"
+      },
+      "id": "ko-w03-l5-s1"
+     }
+    ]
+   }
+  }
+ ]
+}

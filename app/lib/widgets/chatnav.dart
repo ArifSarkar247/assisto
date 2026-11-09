@@ -1,3 +1,5 @@
+import '../family_v3/family_entry.dart'; // fcscreen
+import '../eldercare/elder_watch_screen.dart'; // fcelder
 import 'package:flutter/material.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
 import '../feature_flags.dart' show FeatureFlags; // feature-flags
@@ -11,7 +13,6 @@ import '../screens/money_tax_screen.dart';
 import '../screens/money_wrapped_screen.dart';
 import '../screens/money_voice_screen.dart';
 import '../screens/vault_screen.dart';
-import '../screens/family_screen.dart';
 import '../screens/family_alerts_screen.dart'; // family100
 import '../screens/emergency_screen.dart';
 import '../screens/emergency_hub_screen.dart'; // emhub
@@ -88,6 +89,7 @@ import '../screens/cv_builder_screen.dart';
 import '../screens/inbox_screen.dart';
 import '../screens/guide_screen.dart';
 import '../screens/nearby_screen.dart';
+import '../screens/city/city_service_screen.dart'; // cityapp
 import '../screens/watch_feed_screen.dart';
 import '../screens/account_standing_screen.dart'; // adminsafe
 import '../screens/business_screen.dart';
@@ -125,6 +127,7 @@ import '../screens/my_dues_screen.dart'; // tagada2
 import '../screens/market/market_screen.dart'; // amarket
 import '../safe_plans/safe_plans_screen.dart'; // safeplans
 import '../carecall/carecall_screen.dart'; // carecall
+import '../bizai/biz_daily_screen.dart' show BizDailyScreen; // bizai2
 
 /// open-from-chat configuration (Phase B).
 ///
@@ -196,9 +199,10 @@ class ChatNav {
   static final Map<String, WidgetBuilder> _allRoutes = {
     'money': (_) => const MoneyScreen(),
     'documents': (_) => const VaultScreen(),
-    'family': (_) => const FamilyScreen(),
+    'family': (_) => const FamilyEntry(), // fcscreen
     'family_alerts': (_) => const FamilyAlertsScreen(), // family100 (push)
     'carecall': (_) => const CareCallScreen(), // carecall (flag care_call, push)
+    'elder_watch': (_) => const ElderWatchScreen(), // fcelder: Silent Watch (family; push)
     'reminders': (_) => const RemindersScreen(),
     'vehicles': (_) => const MyVehiclesScreen(),
     'vehicle_tracking': (_) => const VehicleTrackingScreen(), // v1-vehicle
@@ -266,6 +270,8 @@ class ChatNav {
     'retention_inbox': (_) => const RetentionInboxScreen(),
     // mktengine: Marketing Engine v1 (flag marketing_engine)
     'marketing_engine': (_) => const MktEngineScreen(),
+    // bizai2: the owner's evening shop summary (push 'business/daily')
+    'biz_daily': (_) => const BizDailyScreen(),
     'analytics': (_) => const OwnerAnalyticsScreen(),
     'name_about': (_) => const NameAboutScreen(),
     'ramadan': (_) => const RamadanScreen(),
@@ -320,6 +326,7 @@ class ChatNav {
     'inbox': (_) => const InboxScreen(),
     'guide': (_) => const GuideScreen(),
     'nearby': (_) => const NearbyScreen(),
+    'city': (_) => const CityServiceScreen(), // cityapp: City Service (home tile key 'city')
     'watch_feed': (_) => const WatchFeedScreen(),
     // adminsafe: Account status + appeal (notification centre events of an
     // Owner Admin decision open it; never gated — safety is never hidden).
@@ -464,6 +471,9 @@ class ChatNav {
     'inbox': ['ai inbox', 'inbox', 'mail'],
     'guide': ['government service', 'service guide', 'guide'],
     'nearby': ['nearby', 'around me', 'places nearby'],
+    // cityapp
+    'city': ['city service', 'which bus', 'bus route', 'metro guide', 'metro gate',
+        'how to go', 'city bus'],
     'watch_feed': ['watch feed', 'alerts feed', 'watch alerts'],
     'business': ['business', 'shop', 'store', 'orders'],
     'bargain_rules': ['bargaining rules', 'bargain rules', 'bargaining',

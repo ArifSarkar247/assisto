@@ -1,0 +1,1148 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "ja",
+ "week": 4,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "jlpt_n5",
+  "jft_basic"
+ ],
+ "title": {
+  "en": "Week 4: Adjectives, rules, safety and first kanji",
+  "bn": "সপ্তাহ ৪: বিশেষণ, নিয়ম, নিরাপত্তা ও প্রথম কাঞ্জি"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not an official JLPT/JFT material or result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল JLPT/JFT উপকরণ বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "jlpt.jp public test-section summary; Japan Foundation JFT-Basic public overview",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "lessons": [
+  {
+   "id": "ja-w04-l1",
+   "day": 1,
+   "minutes": 25,
+   "title": {
+    "en": "い-adjectives: weather, food, work",
+    "bn": "い-বিশেষণ: আবহাওয়া, খাবার, কাজ"
+   },
+   "goal_bn": "গরম, ঠান্ডা, ব্যস্ত, সুস্বাদু — অনুভূতি আর অবস্থা বলতে পারবেন; না-বোধক রূপও।",
+   "vocab": [
+    {
+     "target": "暑い",
+     "kana": "あつい",
+     "roman": "atsui",
+     "bn": "গরম (আবহাওয়া)",
+     "pos": "adjective",
+     "example": {
+      "target": "なつの こうじょうは とても あついです。",
+      "roman": "natsu no kōjō wa totemo atsui desu.",
+      "bn": "গ্রীষ্মে কারখানা খুব গরম।"
+     }
+    },
+    {
+     "target": "寒い",
+     "kana": "さむい",
+     "roman": "samui",
+     "bn": "ঠান্ডা (আবহাওয়া)",
+     "pos": "adjective",
+     "example": {
+      "target": "ほっかいどうの ふゆは さむいです。",
+      "roman": "Hokkaidō no fuyu wa samui desu.",
+      "bn": "হোক্কাইদোর শীত খুব ঠান্ডা।"
+     }
+    },
+    {
+     "target": "大きい",
+     "kana": "おおきい",
+     "roman": "ōkii",
+     "bn": "বড়",
+     "pos": "adjective",
+     "example": {
+      "target": "おおきい はこは ふたりで もちます。",
+      "roman": "ōkii hako wa futari de mochimasu.",
+      "bn": "বড় বাক্স দুজনে মিলে ধরি।"
+     }
+    },
+    {
+     "target": "小さい",
+     "kana": "ちいさい",
+     "roman": "chiisai",
+     "bn": "ছোট",
+     "pos": "adjective",
+     "example": {
+      "target": "ちいさい ねじが おちて います。",
+      "roman": "chiisai neji ga ochite imasu.",
+      "bn": "ছোট স্ক্রু পড়ে আছে।"
+     }
+    },
+    {
+     "target": "おいしい",
+     "kana": "おいしい",
+     "roman": "oishii",
+     "bn": "সুস্বাদু",
+     "pos": "adjective",
+     "example": {
+      "target": "この ビリヤニは おいしいです。",
+      "roman": "kono biriyani wa oishii desu.",
+      "bn": "এই বিরিয়ানিটা মজার।"
+     }
+    },
+    {
+     "target": "忙しい",
+     "kana": "いそがしい",
+     "roman": "isogashii",
+     "bn": "ব্যস্ত",
+     "pos": "adjective",
+     "example": {
+      "target": "ねんまつは しごとが いそがしいです。",
+      "roman": "nenmatsu wa shigoto ga isogashii desu.",
+      "bn": "বছরের শেষে কাজের চাপ বেশি।"
+     }
+    },
+    {
+     "target": "新しい",
+     "kana": "あたらしい",
+     "roman": "atarashii",
+     "bn": "নতুন",
+     "pos": "adjective",
+     "example": {
+      "target": "あたらしい ユニフォームを もらいました。",
+      "roman": "atarashii yunifōmu o moraimashita.",
+      "bn": "নতুন ইউনিফর্ম পেয়েছি।"
+     }
+    },
+    {
+     "target": "重い",
+     "kana": "おもい",
+     "roman": "omoi",
+     "bn": "ভারী",
+     "pos": "adjective",
+     "example": {
+      "target": "この ふくろは おもいですから、きを つけて。",
+      "roman": "kono fukuro wa omoi desu kara, ki o tsukete.",
+      "bn": "এই বস্তাটা ভারী, সাবধানে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "い-adj です / い-adj くないです",
+     "explain_bn": "い-বিশেষণ শেষে い থাকে। না-বোধক: শেষের い → くないです: さむい → さむくないです। ব্যতিক্রম: いい (ভালো) → よくないです।",
+     "examples": [
+      {
+       "target": "きょうは さむくないです。",
+       "roman": "kyō wa samuku nai desu.",
+       "bn": "আজ ঠান্ডা নয়।"
+      },
+      {
+       "target": "この カメラは よくないです。",
+       "roman": "kono kamera wa yoku nai desu.",
+       "bn": "এই ক্যামেরাটা ভালো নয়।"
+      }
+     ]
+    },
+    {
+     "pattern": "い-adj + N",
+     "explain_bn": "নামের আগে বিশেষণ সরাসরি বসে: 'おもい にもつ' (ভারী মাল), 'あたらしい くつ' (নতুন জুতা)। 'とても' = খুব, 'あまり + না-বোধক' = তেমন … নয়।",
+     "examples": [
+      {
+       "target": "とても いそがしい ひでした。",
+       "roman": "totemo isogashii hi deshita.",
+       "bn": "খুব ব্যস্ত একটা দিন ছিল।"
+      },
+      {
+       "target": "この りんごは あまり あまくないです。",
+       "roman": "kono ringo wa amari amaku nai desu.",
+       "bn": "এই আপেলটা তেমন মিষ্টি নয়।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w04-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "coworker"
+        },
+        "B": {
+         "gender": "F",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "あたらしい りょうは どうですか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "へやは あたらしいです。でも、あまり おおきくないです。それに ふゆは すこし さむいです。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "নতুন ডরমের রুম নিয়ে মহিলাটি কী বলেছে?",
+      "options": [
+       "নতুন, কিন্তু খুব বড় নয়",
+       "পুরনো আর বড়",
+       "নতুন আর খুব বড়",
+       "ছোট আর গরম"
+      ],
+      "answer": "A",
+      "explain_bn": "'へやは あたらしい' (রুম নতুন), 'あまり おおきくない' (তেমন বড় নয়)।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w04-l1-r1",
+      "passage": "きょうの てんき：ごぜんは はれで あついです。ごごから あめです。よるは すこし さむいです。かさを もって いきましょう。",
+      "prompt_bn": "বিকেল থেকে আবহাওয়া কেমন হবে?",
+      "options": [
+       "রোদ ও গরম",
+       "তুষারপাত",
+       "বাতাস",
+       "বৃষ্টি"
+      ],
+      "answer": "D",
+      "explain_bn": "'ごごから あめです' = বিকেল থেকে বৃষ্টি।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w04-l1-w1",
+      "prompt_bn": "আজকের আবহাওয়া আর আপনার কাজ নিয়ে দুই বাক্য লিখুন (い-বিশেষণ দিয়ে)।",
+      "model": {
+       "target": "きょうは あつくないです。でも、しごとは とても いそがしいです。",
+       "roman": "kyō wa atsuku nai desu. demo, shigoto wa totemo isogashii desu.",
+       "bn": "আজ গরম নয়। কিন্তু কাজ খুব ব্যস্ত।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w04-l1-s1",
+      "prompt_bn": "সহকর্মী জিজ্ঞেস করছে 'にほんの たべものは どうですか' — উত্তর দিন: মজার, কিন্তু একটু দামি।",
+      "model": {
+       "target": "おいしいです。でも、すこし たかいです。",
+       "roman": "oishii desu. demo, sukoshi takai desu.",
+       "bn": "মজার। কিন্তু একটু দামি।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w04-l2",
+   "day": 2,
+   "minutes": 25,
+   "title": {
+    "en": "な-adjectives: describing places and people",
+    "bn": "な-বিশেষণ: জায়গা ও মানুষের বর্ণনা"
+   },
+   "goal_bn": "শান্ত, পরিষ্কার, সুবিধাজনক, দক্ষ — な-বিশেষণ দিয়ে শহর আর মানুষের বর্ণনা দিতে পারবেন।",
+   "vocab": [
+    {
+     "target": "静か",
+     "kana": "しずか",
+     "roman": "shizuka",
+     "bn": "শান্ত / নীরব",
+     "pos": "adjective",
+     "example": {
+      "target": "この まちは よる しずかです。",
+      "roman": "kono machi wa yoru shizuka desu.",
+      "bn": "এই শহর রাতে শান্ত।"
+     }
+    },
+    {
+     "target": "にぎやか",
+     "kana": "にぎやか",
+     "roman": "nigiyaka",
+     "bn": "জমজমাট / ভিড়ভাট্টা",
+     "pos": "adjective",
+     "example": {
+      "target": "しゅうまつの えきまえは にぎやかです。",
+      "roman": "shūmatsu no ekimae wa nigiyaka desu.",
+      "bn": "সপ্তাহান্তে স্টেশনের সামনে জমজমাট থাকে।"
+     }
+    },
+    {
+     "target": "元気",
+     "kana": "げんき",
+     "roman": "genki",
+     "bn": "সুস্থ / প্রাণবন্ত",
+     "pos": "adjective",
+     "example": {
+      "target": "おかあさんは おげんきですか。",
+      "roman": "okāsan wa ogenki desu ka.",
+      "bn": "আপনার মা ভালো আছেন?"
+     }
+    },
+    {
+     "target": "きれい",
+     "kana": "きれい",
+     "roman": "kirei",
+     "bn": "সুন্দর / পরিষ্কার",
+     "pos": "adjective",
+     "example": {
+      "target": "トイレを きれいに つかって ください。",
+      "roman": "toire o kirei ni tsukatte kudasai.",
+      "bn": "টয়লেট পরিষ্কার রেখে ব্যবহার করুন।"
+     }
+    },
+    {
+     "target": "便利",
+     "kana": "べんり",
+     "roman": "benri",
+     "bn": "সুবিধাজনক",
+     "pos": "adjective",
+     "example": {
+      "target": "ICカードは とても べんりです。",
+      "roman": "IC kādo wa totemo benri desu.",
+      "bn": "IC কার্ড খুব সুবিধাজনক।"
+     }
+    },
+    {
+     "target": "大変",
+     "kana": "たいへん",
+     "roman": "taihen",
+     "bn": "কঠিন / কষ্টের",
+     "pos": "adjective",
+     "example": {
+      "target": "よるの しごとは たいへんです。",
+      "roman": "yoru no shigoto wa taihen desu.",
+      "bn": "রাতের কাজ কষ্টের।"
+     }
+    },
+    {
+     "target": "上手",
+     "kana": "じょうず",
+     "roman": "jōzu",
+     "bn": "দক্ষ / ভালো পারা",
+     "pos": "adjective",
+     "example": {
+      "target": "モニルさんは りょうりが じょうずです。",
+      "roman": "Moniru-san wa ryōri ga jōzu desu.",
+      "bn": "মনির রান্নায় দক্ষ।"
+     }
+    },
+    {
+     "target": "親切",
+     "kana": "しんせつ",
+     "roman": "shinsetsu",
+     "bn": "দয়ালু / সাহায্যকারী",
+     "pos": "adjective",
+     "example": {
+      "target": "おおやさんは とても しんせつです。",
+      "roman": "ōya-san wa totemo shinsetsu desu.",
+      "bn": "বাড়িওয়ালা খুব সাহায্যকারী।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "な-adj な + N / な-adj じゃありません",
+     "explain_bn": "নামের আগে な-বিশেষণে な বসে: 'しずかな へや' (শান্ত রুম)। বাক্যের শেষে: 'しずかです'। না-বোধক: 'しずかじゃありません'। সাবধান: きれい দেখতে い-তে শেষ হলেও な-বিশেষণ।",
+     "examples": [
+      {
+       "target": "べんりな ところに すんで います。",
+       "roman": "benri na tokoro ni sunde imasu.",
+       "bn": "সুবিধাজনক জায়গায় থাকি।"
+      },
+      {
+       "target": "この みちは あまり きれいじゃありません。",
+       "roman": "kono michi wa amari kirei ja arimasen.",
+       "bn": "এই রাস্তা তেমন পরিষ্কার নয়।"
+      }
+     ]
+    },
+    {
+     "pattern": "N が じょうずです",
+     "explain_bn": "কেউ কিছুতে দক্ষ বলতে 'N が じょうずです'। নিজের বেলায় বিনয় করে 'まだまだです' (এখনো শিখছি) বলা হয়।",
+     "examples": [
+      {
+       "target": "にほんごが じょうずですね。",
+       "roman": "nihongo ga jōzu desu ne.",
+       "bn": "আপনার জাপানি তো ভালো!"
+      },
+      {
+       "target": "いいえ、まだまだです。",
+       "roman": "iie, madamada desu.",
+       "bn": "না, এখনো অনেক শেখার বাকি।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w04-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "friend"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "いまの まちは どんな ところですか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "ちいさい まちですが、べんりです。スーパーも びょういんも ちかいです。ひとも しんせつです。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "লোকটি তার শহর সম্পর্কে কী বলেছে?",
+      "options": [
+       "বড় আর জমজমাট",
+       "ছোট, কিন্তু সুবিধাজনক",
+       "শান্ত, কিন্তু অসুবিধাজনক",
+       "মানুষ ভালো নয়"
+      ],
+      "answer": "B",
+      "explain_bn": "'ちいさい まちですが、べんりです' = ছোট শহর, কিন্তু সুবিধাজনক।",
+      "skill": "gist"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w04-l2-r1",
+      "passage": "アパートの じょうほう：えきから あるいて ３ふん。まわりは しずかです。へやは ふるいですが きれいです。やちん ４まん２せんえん。",
+      "prompt_bn": "অ্যাপার্টমেন্টটা কেমন?",
+      "options": [
+       "নতুন কিন্তু অপরিষ্কার",
+       "জমজমাট এলাকায়",
+       "পুরনো কিন্তু পরিষ্কার",
+       "স্টেশন থেকে অনেক দূরে"
+      ],
+      "answer": "C",
+      "explain_bn": "'ふるいですが きれいです' = পুরনো, কিন্তু পরিষ্কার; স্টেশন থেকে মাত্র ৩ মিনিট।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w04-l2-w1",
+      "prompt_bn": "আপনার শহর বা গ্রাম নিয়ে দুই বাক্য লিখুন (な-বিশেষণ দিয়ে)।",
+      "model": {
+       "target": "わたしの むらは しずかな ところです。ひとは とても しんせつです。",
+       "roman": "watashi no mura wa shizuka na tokoro desu. hito wa totemo shinsetsu desu.",
+       "bn": "আমার গ্রাম শান্ত জায়গা। মানুষ খুব সাহায্যকারী।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w04-l2-s1",
+      "prompt_bn": "কেউ বলল 'にほんごが じょうずですね'। বিনয়ের সাথে উত্তর দিন।",
+      "model": {
+       "target": "いいえ、まだまだです。まいにち べんきょうして います。",
+       "roman": "iie, madamada desu. mainichi benkyō shite imasu.",
+       "bn": "না, এখনো শিখছি। প্রতিদিন পড়াশোনা করছি।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w04-l3",
+   "day": 3,
+   "minutes": 30,
+   "title": {
+    "en": "Asking permission and rules",
+    "bn": "অনুমতি চাওয়া ও নিয়ম"
+   },
+   "goal_bn": "'…করতে পারি?' জিজ্ঞেস করতে আর 'এটা করা যাবে না' নিয়ম বুঝতে পারবেন।",
+   "vocab": [
+    {
+     "target": "写真",
+     "kana": "しゃしん",
+     "roman": "shashin",
+     "bn": "ছবি (ফটো)",
+     "pos": "noun",
+     "example": {
+      "target": "ここで しゃしんを とっても いいですか。",
+      "roman": "koko de shashin o tottemo ii desu ka.",
+      "bn": "এখানে ছবি তুলতে পারি?"
+     }
+    },
+    {
+     "target": "座ります",
+     "kana": "すわります",
+     "roman": "suwarimasu",
+     "bn": "বসি",
+     "pos": "verb",
+     "example": {
+      "target": "この いすに すわっても いいですか。",
+      "roman": "kono isu ni suwattemo ii desu ka.",
+      "bn": "এই চেয়ারে বসতে পারি?"
+     }
+    },
+    {
+     "target": "入ります",
+     "kana": "はいります",
+     "roman": "hairimasu",
+     "bn": "ঢুকি",
+     "pos": "verb",
+     "example": {
+      "target": "くつで へやに はいっては いけません。",
+      "roman": "kutsu de heya ni haitte wa ikemasen.",
+      "bn": "জুতা পরে রুমে ঢোকা যাবে না।"
+     }
+    },
+    {
+     "target": "吸います",
+     "kana": "すいます",
+     "roman": "suimasu",
+     "bn": "(ধূমপান) টানি / শ্বাস নিই",
+     "pos": "verb",
+     "example": {
+      "target": "たばこは そとで すいます。",
+      "roman": "tabako wa soto de suimasu.",
+      "bn": "সিগারেট বাইরে খাই।"
+     }
+    },
+    {
+     "target": "使います",
+     "kana": "つかいます",
+     "roman": "tsukaimasu",
+     "bn": "ব্যবহার করি",
+     "pos": "verb",
+     "example": {
+      "target": "この パソコンを つかっても いいですか。",
+      "roman": "kono pasokon o tsukattemo ii desu ka.",
+      "bn": "এই কম্পিউটারটা ব্যবহার করতে পারি?"
+     }
+    },
+    {
+     "target": "休みます",
+     "kana": "やすみます",
+     "roman": "yasumimasu",
+     "bn": "বিশ্রাম নিই / ছুটি নিই",
+     "pos": "verb",
+     "example": {
+      "target": "あたまが いたいので、すこし やすみます。",
+      "roman": "atama ga itai node, sukoshi yasumimasu.",
+      "bn": "মাথা ব্যথা করছে, তাই একটু বিশ্রাম নেব।"
+     }
+    },
+    {
+     "target": "窓",
+     "kana": "まど",
+     "roman": "mado",
+     "bn": "জানালা",
+     "pos": "noun",
+     "example": {
+      "target": "まどを あけても いいですか。",
+      "roman": "mado o aketemo ii desu ka.",
+      "bn": "জানালা খুলতে পারি?"
+     }
+    },
+    {
+     "target": "早く",
+     "kana": "はやく",
+     "roman": "hayaku",
+     "bn": "তাড়াতাড়ি / আগে",
+     "pos": "adverb",
+     "example": {
+      "target": "きょうは はやく かえっても いいですよ。",
+      "roman": "kyō wa hayaku kaettemo ii desu yo.",
+      "bn": "আজ আগে চলে যেতে পারেন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "V-ても いいですか",
+     "explain_bn": "অনুমতি চাইতে: て-রূপ + も いいですか (…করতে পারি?)। হ্যাঁ: 'はい、いいですよ' / 'どうぞ'। না: 'すみません、ちょっと……'।",
+     "examples": [
+      {
+       "target": "あした やすんでも いいですか。",
+       "roman": "ashita yasundemo ii desu ka.",
+       "bn": "কাল ছুটি নিতে পারি?"
+      },
+      {
+       "target": "トイレに いっても いいですか。",
+       "roman": "toire ni ittemo ii desu ka.",
+       "bn": "টয়লেটে যেতে পারি?"
+      }
+     ]
+    },
+    {
+     "pattern": "V-ては いけません",
+     "explain_bn": "নিষেধ (নিয়ম): て-রূপ + は いけません (…করা যাবে না)। নোটিশ আর কাজের নিয়মে খুব দেখা যায়।",
+     "examples": [
+      {
+       "target": "ここで たばこを すっては いけません。",
+       "roman": "koko de tabako o sutte wa ikemasen.",
+       "bn": "এখানে ধূমপান করা যাবে না।"
+      },
+      {
+       "target": "きかいに てを いれては いけません。",
+       "roman": "kikai ni te o irete wa ikemasen.",
+       "bn": "মেশিনের ভেতরে হাত ঢোকানো যাবে না।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w04-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "worker"
+        },
+        "B": {
+         "gender": "F",
+         "role": "manager"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "すみません、きょう びょういんへ いきたいです。さんじに かえっても いいですか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "さんじですか。いいですよ。でも、あした あさ ほうこくして くださいね。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ম্যানেজার কী বলেছে?",
+      "options": [
+       "আজ যাওয়া যাবে না",
+       "৩টায় যেতে পারবে, কাল সকালে রিপোর্ট দিতে হবে",
+       "কাল ছুটি নিতে হবে",
+       "হাসপাতালে নিজে নিয়ে যাবে"
+      ],
+      "answer": "B",
+      "explain_bn": "'いいですよ' = অনুমতি দিয়েছে; 'あした あさ ほうこくして' = কাল সকালে রিপোর্ট দিতে বলেছে।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w04-l3-r1",
+      "passage": "りょうの ルール\n・よる 10じから あさ 6じまで、おおきい こえで はなしては いけません。\n・へやで りょうりを しては いけません。だいどころを つかって ください。\n・ともだちは 9じまで へやに はいっても いいです。",
+      "prompt_bn": "ডরমের নিয়ম অনুযায়ী কোনটা করা যাবে?",
+      "options": [
+       "রাত ১১টায় জোরে কথা বলা",
+       "রুমে রান্না করা",
+       "রাত ১০টায় বন্ধুকে রুমে রাখা",
+       "রান্নাঘরে রান্না করা"
+      ],
+      "answer": "D",
+      "explain_bn": "রুমে রান্না নিষেধ, রান্নাঘর ব্যবহার করতে বলা হয়েছে; বন্ধু ৯টা পর্যন্ত, আর রাত ১০টার পর জোরে কথা নিষেধ।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w04-l3-w1",
+      "prompt_bn": "লিখুন: 'জানালা খুলতে পারি?' আর 'এখানে ছবি তোলা যাবে না।'",
+      "model": {
+       "target": "まどを あけても いいですか。ここで しゃしんを とっては いけません。",
+       "roman": "mado o aketemo ii desu ka. koko de shashin o totte wa ikemasen.",
+       "bn": "জানালা খুলতে পারি? এখানে ছবি তোলা যাবে না।"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w04-l3-s1",
+      "prompt_bn": "নামাজের সময় হয়েছে। সুপারভাইজারের কাছে ১০ মিনিট বিরতির অনুমতি চান।",
+      "model": {
+       "target": "すみません、おいのりの じかんです。じゅっぷん やすんでも いいですか。",
+       "roman": "sumimasen, oinori no jikan desu. juppun yasundemo ii desu ka.",
+       "bn": "মাফ করবেন, নামাজের সময় হয়েছে। ১০ মিনিট বিরতি নিতে পারি?"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w04-l4",
+   "day": 4,
+   "minutes": 30,
+   "title": {
+    "en": "Safety signs and warnings",
+    "bn": "নিরাপত্তা সাইন ও সতর্কবার্তা"
+   },
+   "goal_bn": "কারখানা, নির্মাণস্থল আর রাস্তার নিরাপত্তা সাইন পড়তে পারবেন; বিপদে কী বলবেন জানবেন।",
+   "vocab": [
+    {
+     "target": "危険",
+     "kana": "きけん",
+     "roman": "kiken",
+     "bn": "বিপদ / বিপজ্জনক",
+     "pos": "noun",
+     "example": {
+      "target": "きけん！ちかづかないで ください。",
+      "roman": "kiken! chikazukanaide kudasai.",
+      "bn": "বিপদ! কাছে যাবেন না।"
+     }
+    },
+    {
+     "target": "注意",
+     "kana": "ちゅうい",
+     "roman": "chūi",
+     "bn": "সতর্কতা / সাবধান",
+     "pos": "noun",
+     "example": {
+      "target": "あしもとに ちゅういして ください。",
+      "roman": "ashimoto ni chūi shite kudasai.",
+      "bn": "পায়ের নিচে সাবধান।"
+     }
+    },
+    {
+     "target": "立入禁止",
+     "kana": "たちいりきんし",
+     "roman": "tachiiri kinshi",
+     "bn": "প্রবেশ নিষেধ",
+     "pos": "noun",
+     "example": {
+      "target": "この さきは たちいりきんしです。",
+      "roman": "kono saki wa tachiiri kinshi desu.",
+      "bn": "এর পরে প্রবেশ নিষেধ।"
+     }
+    },
+    {
+     "target": "禁煙",
+     "kana": "きんえん",
+     "roman": "kin'en",
+     "bn": "ধূমপান নিষেধ",
+     "pos": "noun",
+     "example": {
+      "target": "こうじょうの なかは ぜんぶ きんえんです。",
+      "roman": "kōjō no naka wa zenbu kin'en desu.",
+      "bn": "কারখানার ভেতরে সব জায়গায় ধূমপান নিষেধ।"
+     }
+    },
+    {
+     "target": "非常口",
+     "kana": "ひじょうぐち",
+     "roman": "hijōguchi",
+     "bn": "জরুরি বের হওয়ার পথ",
+     "pos": "noun",
+     "example": {
+      "target": "ひじょうぐちの まえに ものを おかないで ください。",
+      "roman": "hijōguchi no mae ni mono o okanaide kudasai.",
+      "bn": "জরুরি দরজার সামনে জিনিস রাখবেন না।"
+     }
+    },
+    {
+     "target": "火事",
+     "kana": "かじ",
+     "roman": "kaji",
+     "bn": "আগুন লাগা",
+     "pos": "noun",
+     "example": {
+      "target": "かじの ときは 119ばんに でんわします。",
+      "roman": "kaji no toki wa hyaku-jū-kyū ban ni denwa shimasu.",
+      "bn": "আগুন লাগলে ১১৯-এ ফোন করি।"
+     }
+    },
+    {
+     "target": "ヘルメット",
+     "kana": "ヘルメット",
+     "roman": "herumetto",
+     "bn": "হেলমেট",
+     "pos": "noun",
+     "example": {
+      "target": "げんばでは かならず ヘルメットを かぶります。",
+      "roman": "genba de wa kanarazu herumetto o kaburimasu.",
+      "bn": "সাইটে অবশ্যই হেলমেট পরি।"
+     }
+    },
+    {
+     "target": "けが",
+     "kana": "けが",
+     "roman": "kega",
+     "bn": "আঘাত / চোট",
+     "pos": "noun",
+     "example": {
+      "target": "ゆびに けがを しました。",
+      "roman": "yubi ni kega o shimashita.",
+      "bn": "আঙুলে চোট পেয়েছি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "V-ないで ください",
+     "explain_bn": "'…করবেন না' (অনুরোধে নিষেধ): ক্রিয়ার ない-রূপ + で ください। さわります → さわらない → さわらないで ください। のります → のらないで। みます → みないで। します → しないで।",
+     "examples": [
+      {
+       "target": "ここに ものを おかないで ください。",
+       "roman": "koko ni mono o okanaide kudasai.",
+       "bn": "এখানে জিনিস রাখবেন না।"
+      },
+      {
+       "target": "ひとりで はこばないで ください。",
+       "roman": "hitori de hakobanaide kudasai.",
+       "bn": "একা বহন করবেন না।"
+      }
+     ]
+    },
+    {
+     "pattern": "বিপদে বলার কথা",
+     "explain_bn": "চিৎকার করে সাবধান করতে 'あぶない！' (সাবধান! বিপদ!)। চোট পেলে সাথে সাথে বলুন: 'けがを しました' আর লিডারকে জানান। জরুরি নম্বর: আগুন/অ্যাম্বুলেন্স ১১৯, পুলিশ ১১০।",
+     "examples": [
+      {
+       "target": "あぶない！うえを みて！",
+       "roman": "abunai! ue o mite!",
+       "bn": "সাবধান! ওপরে দেখো!"
+      },
+      {
+       "target": "きゅうきゅうしゃを よんで ください。",
+       "roman": "kyūkyūsha o yonde kudasai.",
+       "bn": "অ্যাম্বুলেন্স ডাকুন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w04-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "site foreman"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "きょうは クレーンの さぎょうが あります。あかい ロープの なかに はいらないで ください。ヘルメットも わすれないで ください。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "はい、わかりました。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ফোরম্যান কোথায় ঢুকতে মানা করেছে?",
+      "options": [
+       "লাল দড়ির ভেতরে",
+       "অফিসে",
+       "ক্রেনের কেবিনে",
+       "গাড়ির ভেতরে"
+      ],
+      "answer": "A",
+      "explain_bn": "'あかい ロープの なかに はいらないで' = লাল দড়ির ভেতরে ঢুকবেন না।",
+      "skill": "safety"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w04-l4-r1",
+      "passage": "【ちゅうい】この きかいは うごいて いる ときに さわらないで ください。そうじの ときは かならず でんげんを きって ください。",
+      "prompt_bn": "মেশিন পরিষ্কার করার সময় কী করতে হবে?",
+      "options": [
+       "মেশিন চালু রাখতে হবে",
+       "গ্লাভস খুলতে হবে",
+       "অবশ্যই বিদ্যুৎ বন্ধ করতে হবে",
+       "লিডারকে ডাকতে হবে"
+      ],
+      "answer": "C",
+      "explain_bn": "'でんげんを きって ください' = পাওয়ার (বিদ্যুৎ) বন্ধ করুন।",
+      "skill": "safety"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w04-l4-w1",
+      "prompt_bn": "নতুন সহকর্মীর জন্য দুটি নিরাপত্তা নির্দেশ লিখুন (…করবেন না রূপে)।",
+      "model": {
+       "target": "ここで たばこを すわないで ください。きかいに さわらないで ください。",
+       "roman": "koko de tabako o suwanaide kudasai. kikai ni sawaranaide kudasai.",
+       "bn": "এখানে ধূমপান করবেন না। মেশিনে হাত দেবেন না।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w04-l4-s1",
+      "prompt_bn": "আপনার আঙুলে চোট লেগেছে। লিডারকে বলুন আর সাহায্য চান।",
+      "model": {
+       "target": "すみません、ゆびに けがを しました。てつだって ください。",
+       "roman": "sumimasen, yubi ni kega o shimashita. tetsudatte kudasai.",
+       "bn": "মাফ করবেন, আঙুলে চোট পেয়েছি। সাহায্য করুন।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w04-l5",
+   "day": 5,
+   "minutes": 30,
+   "title": {
+    "en": "First kanji you will see every day",
+    "bn": "প্রতিদিন দেখা প্রথম কাঞ্জি"
+   },
+   "goal_bn": "সহজ কাঞ্জি — দিন, মানুষ, পাহাড়, নদী, প্রবেশ, বাহির — চিনবেন; এক কাঞ্জির দুই উচ্চারণ বুঝবেন।",
+   "vocab": [
+    {
+     "target": "日本",
+     "kana": "にほん",
+     "roman": "nihon",
+     "bn": "জাপান",
+     "pos": "noun",
+     "example": {
+      "target": "にほんに きて いちねんです。",
+      "roman": "nihon ni kite ichinen desu.",
+      "bn": "জাপানে এসেছি এক বছর হলো।"
+     }
+    },
+    {
+     "target": "人",
+     "kana": "ひと",
+     "roman": "hito",
+     "bn": "মানুষ",
+     "pos": "noun",
+     "example": {
+      "target": "あの ひとは だれですか。",
+      "roman": "ano hito wa dare desu ka.",
+      "bn": "ঐ মানুষটা কে?"
+     }
+    },
+    {
+     "target": "山",
+     "kana": "やま",
+     "roman": "yama",
+     "bn": "পাহাড়",
+     "pos": "noun",
+     "example": {
+      "target": "まどから やまが みえます。",
+      "roman": "mado kara yama ga miemasu.",
+      "bn": "জানালা দিয়ে পাহাড় দেখা যায়।"
+     }
+    },
+    {
+     "target": "川",
+     "kana": "かわ",
+     "roman": "kawa",
+     "bn": "নদী",
+     "pos": "noun",
+     "example": {
+      "target": "かわの ちかくを さんぽします。",
+      "roman": "kawa no chikaku o sanpo shimasu.",
+      "bn": "নদীর কাছে হাঁটি।"
+     }
+    },
+    {
+     "target": "入口",
+     "kana": "いりぐち",
+     "roman": "iriguchi",
+     "bn": "প্রবেশপথ",
+     "pos": "noun",
+     "example": {
+      "target": "いりぐちで くつを ぬいで ください。",
+      "roman": "iriguchi de kutsu o nuide kudasai.",
+      "bn": "প্রবেশপথে জুতা খুলুন।"
+     }
+    },
+    {
+     "target": "出口",
+     "kana": "でぐち",
+     "roman": "deguchi",
+     "bn": "বের হওয়ার পথ",
+     "pos": "noun",
+     "example": {
+      "target": "にしぐちの でぐちで あいましょう。",
+      "roman": "nishiguchi no deguchi de aimashō.",
+      "bn": "পশ্চিম দিকের বের হওয়ার পথে দেখা করি।"
+     }
+    },
+    {
+     "target": "男",
+     "kana": "おとこ",
+     "roman": "otoko",
+     "bn": "পুরুষ",
+     "pos": "noun",
+     "example": {
+      "target": "おとこの ひとの ロッカーは こちらです。",
+      "roman": "otoko no hito no rokkā wa kochira desu.",
+      "bn": "পুরুষদের লকার এদিকে।"
+     }
+    },
+    {
+     "target": "女",
+     "kana": "おんな",
+     "roman": "onna",
+     "bn": "নারী",
+     "pos": "noun",
+     "example": {
+      "target": "おんなの ひとの トイレは にかいです。",
+      "roman": "onna no hito no toire wa nikai desu.",
+      "bn": "মহিলাদের টয়লেট দোতলায়।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "কাঞ্জির দুই পাঠ: 訓 আর 音",
+     "explain_bn": "একটা কাঞ্জির সাধারণত দুই রকম পড়া: জাপানি নিজস্ব পাঠ (কুন) আর চীনা থেকে আসা পাঠ (ওন)। 人 একা = ひと, কিন্তু দেশের পরে = じん (バングラデシュじん)। 日 = ひ / にち (にちようび)। শব্দ ধরে শিখুন, আলাদা অক্ষর মুখস্থ নয়।",
+     "examples": [
+      {
+       "target": "日本人",
+       "roman": "nihonjin",
+       "bn": "জাপানি মানুষ"
+      },
+      {
+       "target": "三人",
+       "roman": "sannin",
+       "bn": "তিনজন মানুষ"
+      }
+     ]
+    },
+    {
+     "pattern": "সাইনবোর্ডের কাঞ্জি",
+     "explain_bn": "দরজা আর টয়লেটে সবচেয়ে জরুরি জোড়া: 入 (ঢোকা) – 出 (বের হওয়া), 男 (পুরুষ) – 女 (নারী)। ভুল টয়লেটে ঢোকা জাপানে বড় বিব্রতকর ব্যাপার — 男 আর 女 আগে মুখস্থ করুন।",
+     "examples": [
+      {
+       "target": "入口は こちら",
+       "roman": "iriguchi wa kochira",
+       "bn": "প্রবেশপথ এদিকে"
+      },
+      {
+       "target": "出口は ひだりです。",
+       "roman": "deguchi wa hidari desu.",
+       "bn": "বের হওয়ার পথ বাঁ দিকে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w04-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "station announcement"
+        },
+        "B": {
+         "gender": "M",
+         "role": "passenger"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "きたぐちの でぐちは こうじちゅうです。みなみぐちを ごりよう ください。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "あ、みなみぐちですね。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কোন বের হওয়ার পথ ব্যবহার করতে বলা হয়েছে?",
+      "options": [
+       "উত্তর দিকেরটা",
+       "পূর্ব দিকেরটা",
+       "পশ্চিম দিকেরটা",
+       "দক্ষিণ দিকেরটা"
+      ],
+      "answer": "D",
+      "explain_bn": "উত্তরের (きたぐち) পথে কাজ চলছে; 'みなみぐちを ごりよう ください' = দক্ষিণের পথ ব্যবহার করুন।",
+      "skill": "place"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w04-l5-r1",
+      "passage": "【女】の トイレは 2かい、【男】の トイレは 1かいの 出口の よこに あります。",
+      "prompt_bn": "পুরুষদের টয়লেট কোথায়?",
+      "options": [
+       "দোতলায়",
+       "নিচতলায় বের হওয়ার পথের পাশে",
+       "প্রবেশপথের ভেতরে",
+       "তিনতলায়"
+      ],
+      "answer": "B",
+      "explain_bn": "男 = পুরুষ; '1かいの 出口の よこ' = নিচতলায় বের হওয়ার পথের পাশে। দোতলায় মহিলাদের (女)।",
+      "skill": "kanji"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w04-l5-w1",
+      "prompt_bn": "কাঞ্জিতে লিখুন: জাপান, মানুষ, পাহাড়, নদী, প্রবেশপথ, বের হওয়ার পথ।",
+      "model": {
+       "target": "日本、人、山、川、入口、出口",
+       "roman": "nihon, hito, yama, kawa, iriguchi, deguchi",
+       "bn": "জাপান, মানুষ, পাহাড়, নদী, প্রবেশপথ, বের হওয়ার পথ"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w04-l5-s1",
+      "prompt_bn": "বন্ধুকে বলুন আপনি কোথায় দেখা করবেন: স্টেশনের পূর্ব দিকের বের হওয়ার পথে, ৫টায়।",
+      "model": {
+       "target": "えきの ひがしぐちの でぐちで ごじに あいましょう。",
+       "roman": "eki no higashiguchi no deguchi de goji ni aimashō.",
+       "bn": "স্টেশনের পূর্ব দিকের বের হওয়ার পথে ৫টায় দেখা করি।"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -202,6 +202,9 @@ class AudioRouteService extends ChangeNotifier {
     'lib/screens/kids_watch/kw_recorder.dart': AudioUse.kidsWatchRecord,
     // train: destination alarm (STREAM_ALARM tone + on-device Bangla TTS)
     'lib/train/dest_alarm_sound.dart': AudioUse.destAlarm,
+    // cctvbox: the owner's Siren / Warning on a Guard Box or phone camera (same
+    // siren-style exception: STREAM_ALARM via the train alarm channel)
+    'lib/ipcam/box_siren.dart': AudioUse.destAlarm,
     'lib/train/dest_voice_recorder.dart': AudioUse.destVoiceRecord,
     'lib/cctvx/warn_recorder.dart': AudioUse.cctvWarnRecord,
     // carecall: the setter's own-voice Care Call recording
