@@ -843,6 +843,7 @@ urlpatterns += [
     path("shop/gateway/tasks/<int:pk>/status", wm.TaskStatusView.as_view()),
     path("shop/gateway/tasks/<int:pk>/result", wm.GatewayTaskResultView.as_view()),
     path("shop/imou/callback/<str:token>", wm.ImouCallbackView.as_view()),
+    path("cctv/imou/oauth/callback", wm.ImouOAuthCallbackView.as_view()),
     # cashguard (Smart Cash Guard, owner 28 Oct)
     path("shop/clips", cg.ShopClipUploadView.as_view()),
     path("shop/events/<int:pk>/clip", cg.EventClipView.as_view()),
