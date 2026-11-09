@@ -20,7 +20,7 @@ class CityOwnerTests(OwnerBase):
         self.ready()
 
     def test_pages_render_bn_en(self):
-        for tab in ("fixes", "live", "data", "coverage", "fares", "learned"):
+        for tab in ("fixes", "live", "data", "coverage", "fares", "learned", "stops"):
             r = self.c.get("/owner/city?tab=%s&lang=en" % tab)
             self.assertEqual(r.status_code, 200, tab)
         r = self.c.get("/owner/city?tab=data&lang=en")

@@ -110,6 +110,9 @@ class FieldStopTests(ApiBase):
         rr = [x for x in doc["net"]["routes"] if x["id"] == "busA-a"][0]
         self.assertIn(uid[0], [rows[i][0] for i in rr["stops"]])
         self.assertEqual(len(rr["km"]), len(rr["stops"]))
+        self.assertNotIn("ins_stops", doc["overrides"])          # applied once, not twice
+        again = E.Network(doc["net"], doc["overrides"])
+        self.assertEqual(_ids(again, "busA-a")[0], ua)
         # live coverage counts users' stops
         cov = CS.live_coverage("dhaka")
         self.assertEqual(cov["user_stops"], 1)

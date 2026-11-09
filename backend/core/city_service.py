@@ -212,7 +212,10 @@ def package(city, have=""):
     if hit and hit[0] == tok:
         return tok, hit[1]
     ov = _overrides(ds)
-    doc = {"v": tok, "city": city, "net": _materialize(nw, raw), "overrides": ov,
+    # citycov: structural overrides are already applied in "net" (sending
+    # them again would add those stops / routes twice)
+    ov_pkg = {k: v for k, v in ov.items() if k not in APPLIED_KEYS}
+    doc = {"v": tok, "city": city, "net": _materialize(nw, raw), "overrides": ov_pkg, "applied": True,
            "rates": F.rates(ov.get("rates")), "complaint": complaint(ov),
            "attribution": ATTRIBUTION, "copyright_url": COPYRIGHT_URL}
     gz = gzip.compress(json.dumps(doc, ensure_ascii=False, separators=(",", ":")).encode(), 6)
@@ -1295,6 +1298,7 @@ def field_routes(lat, lon, limit=12):
 
 STATUS_OF = {"v": "verified", "r": "reported"}
 _COV = {}
+APPLIED_KEYS = ("add_stops", "add_routes", "ins_stops", "user_stops", "user_ins", "add_routes_learned")
 
 
 def live_coverage(city):
