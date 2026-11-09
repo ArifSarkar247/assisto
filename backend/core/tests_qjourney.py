@@ -217,3 +217,21 @@ class PlaceListTests(MapsBase):
         r, names = self.find("Zzqx nowhere")
         self.assertEqual(r["state"], "none")      # never user_cap / global_cap / off
         self.assertEqual(self.c1.get("%s/maps/status" % V).json()["places"], True)
+
+
+class SavedPlaceEditTests(Base):
+    def test_rename_and_kind_home_stays_one(self):
+        a = self.ca.post("%s/journey/places" % V, {"kind": "home", "name": "Flat",
+                                                   "lat": 23.78, "lng": 90.42}, format="json").json()
+        b = self.ca.post("%s/journey/places" % V, {"kind": "other", "name": "Mother's",
+                                                   "lat": 23.75, "lng": 90.38}, format="json").json()
+        r = self.ca.patch("%s/journey/places/%d" % (V, b["id"]),
+                          {"name": "Ammu's house", "kind": "home"}, format="json")
+        self.assertEqual(r.status_code, 200, r.content)
+        self.assertEqual((r.json()["name"], r.json()["kind"]), ("Ammu's house", "home"))
+        rows = self.ca.get("%s/journey/places" % V).json()["places"]
+        self.assertEqual([p["kind"] for p in rows].count("home"), 1)
+        self.assertEqual(rows[0]["id"], b["id"])               # Home pinned first
+        self.assertEqual([p for p in rows if p["id"] == a["id"]][0]["kind"], "other")
+        self.assertEqual(self.cb.patch("%s/journey/places/%d" % (V, b["id"]),
+                                       {"name": "x"}, format="json").status_code, 404)

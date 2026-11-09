@@ -283,6 +283,35 @@ class _PlaceEditSheet extends StatefulWidget {
 class _PlaceEditSheetState extends State<_PlaceEditSheet> {
   late bool _safe = widget.place['theft_safe'] == true;
   bool _busy = false;
+  // qjourney (owner V2): rename + kind (Home / School / Office / other)
+  late final TextEditingController _name =
+      TextEditingController(text: '${widget.place['name'] ?? ''}');
+  late String _kind = jPlaceKind(widget.place);
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveNameKind() async {
+    final id = (widget.place['id'] as num?)?.toInt();
+    final nm = _name.text.trim();
+    if (id == null || nm.isEmpty) return;
+    setState(() => _busy = true);
+    try {
+      final row = await widget.api.updateSavedPlace(id, name: nm, kind: _kind);
+      if (!mounted) return;
+      widget.onChanged?.call({...widget.place, ...row});
+      Navigator.pop(context, false);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).grpActionFailed)));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   Future<void> _set(bool v) async {
     final id = (widget.place['id'] as num?)?.toInt();
@@ -317,6 +346,31 @@ class _PlaceEditSheetState extends State<_PlaceEditSheet> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
           Text(widget.title, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
+          TextField(
+            key: const ValueKey('qj_place_name'),
+            controller: _name,
+            inputFormatters: [LengthLimitingTextInputFormatter(60)],
+            decoration: InputDecoration(labelText: t.qjPlaceName),
+          ),
+          const SizedBox(height: Gap.sm),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            for (final k in const ['home', 'office', 'school', 'other'])
+              ChoiceChip(
+                key: ValueKey('qj_place_kind_$k'),
+                avatar: Icon(jPlaceIcon(k), size: 18),
+                label: Text(jKindLabel(t, k)),
+                selected: _kind == k,
+                onSelected: _busy ? null : (_) => setState(() => _kind = k),
+              ),
+          ]),
+          const SizedBox(height: Gap.sm),
+          FilledButton(
+            key: const ValueKey('qj_place_save'),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: _busy ? null : _saveNameKind,
+            child: Text(t.save),
+          ),
+          const SizedBox(height: Gap.md),
           PlaceTheftSafeSwitch(value: _safe, onChanged: _busy ? null : _set),
           const SizedBox(height: Gap.sm),
           OutlinedButton.icon(

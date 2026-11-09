@@ -1936,11 +1936,36 @@ class SavedPlaceDetailView(APIView):
         p = SavedPlace.objects.filter(user=request.user, pk=pk).first()
         if p is None:
             return _nf()
-        safe = _theft_safe_arg(request.data)
-        if safe is None:
+        d = request.data or {}
+        safe = _theft_safe_arg(d)
+        # qjourney (owner V2): rename + kind (icon) of a saved place. Home /
+        # School / Office stay one each: the old holder becomes "other".
+        name = d.get("name")
+        kind = d.get("kind") if d.get("kind") is not None else d.get("label")
+        if safe is None and name is None and kind is None:
             return Response({"detail": "theft_safe_required"}, status=status.HTTP_400_BAD_REQUEST)
-        p.theft_safe = safe
-        p.save(update_fields=["theft_safe"])
+        fields = []
+        if safe is not None:
+            p.theft_safe = safe
+            fields.append("theft_safe")
+        if name is not None:
+            nm = " ".join(str(name).split())[:160]
+            if not nm:
+                return Response({"detail": "name_required"}, status=status.HTTP_400_BAD_REQUEST)
+            p.name = nm
+            fields.append("name")
+        if kind is not None:
+            k = JD.place_kind(kind)
+            if k in ("home", "school", "office") and (p.lat is None or p.lng is None):
+                return Response({"detail": "pin_required"}, status=status.HTTP_400_BAD_REQUEST)
+            if k in ("home", "school", "office"):
+                for o in SavedPlace.objects.filter(user=request.user).exclude(pk=p.pk):
+                    if JD.place_kind(o.label) == k:
+                        o.label = "other"
+                        o.save(update_fields=["label"])
+            p.label = k
+            fields.append("label")
+        p.save(update_fields=fields)
         return Response({"ok": True, **_place_dict(p)})
 
     def delete(self, request, pk):
