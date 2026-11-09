@@ -47179,5 +47179,18 @@
   "lp2MistakeTypes": "Mistake types",
   "@lp2MistakeTypes": {
     "description": "lpapp: Language Partner V2"
+  },
+  "lp2WatchAdCredits": "Watch a short ad to earn credits",
+  "@lp2WatchAdCredits": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2OpenWithCredits": "Open this section with {count} credits",
+  "@lp2OpenWithCredits": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
   }
 }

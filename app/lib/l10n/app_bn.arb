@@ -24430,5 +24430,7 @@
   "lp2KeyWas": "উত্তর: {key}",
   "lp2RawScore": "{total}টির মধ্যে {raw}টি সঠিক",
   "lp2ScaledNote": "শুধু {count}টি প্রশ্নের উত্তর দেওয়া হয়েছে, তাই ব্যান্ডটা ৪০-এর হিসাবে আনুমানিক।",
-  "lp2MistakeTypes": "ভুলের ধরন"
+  "lp2MistakeTypes": "ভুলের ধরন",
+  "lp2WatchAdCredits": "ছোট একটি বিজ্ঞাপন দেখে ক্রেডিট নিন",
+  "lp2OpenWithCredits": "{count} ক্রেডিট দিয়ে এই সেকশন খুলুন"
 }
