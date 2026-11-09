@@ -59,7 +59,7 @@ class CityRouteCompare extends StatelessWidget {
         if (!seen.add('${o.minutes}|${o.fare.low}|${o.fare.high}|${o.modes.join(',')}|${o.changes}')) continue;
         cards.add(_Card(
           key: ValueKey('city_cmp_ours_${kCityPickKeys[e.key]}'),
-          title: t.cityMapAssistoVerified,
+          title: o.status == 'verified' ? t.cityMapAssistoVerified : t.cityMapAssistoRoutes,
           sub: cityPickName(t, e.key),
           icon: Icons.verified_rounded,
           color: Brand.success,
@@ -103,7 +103,8 @@ class CityRouteCompare extends StatelessWidget {
     if (googleView) {
       if (google.isNotEmpty) {
         for (var i = 0; i < google.length; i++) {
-          cards.add(_GoogleCard(google[i], selected: i == googleSelected, onTap: () => onPickGoogle?.call(i), index: i));
+          // the Google view leads with Google's own routes
+          cards.insert(i, _GoogleCard(google[i], selected: i == googleSelected, onTap: () => onPickGoogle?.call(i), index: i));
         }
       } else if (googleLoading) {
         cards.add(_Card(

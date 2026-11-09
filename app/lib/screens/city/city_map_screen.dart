@@ -292,6 +292,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
                     FilterChip(
                       key: const ValueKey('city_layer_3d'),
                       materialTapTargetSize: MaterialTapTargetSize.padded,
+                      showCheckmark: false,
                       avatar: const Icon(Icons.apartment_rounded, size: 18),
                       label: Text(t.cityMap3d),
                       selected: _3d,
@@ -302,6 +303,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
                     FilterChip(
                       key: const ValueKey('city_gview_satellite'),
                       materialTapTargetSize: MaterialTapTargetSize.padded,
+                      showCheckmark: false,
                       avatar: const Icon(Icons.satellite_alt_rounded, size: 18),
                       label: Text(t.cityMapSatellite),
                       selected: _satellite,
@@ -375,6 +377,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
       child: FilterChip(
         key: ValueKey('city_layer_${k.name}'),
         materialTapTargetSize: MaterialTapTargetSize.padded,
+        showCheckmark: false,
         avatar: Icon(icon, size: 18, color: layerColor(k)),
         label: Text(label),
         selected: _on.contains(k),

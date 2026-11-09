@@ -79,7 +79,8 @@
   "cityMapGoogleOpenNote": "The Google map opens in the Google Maps app. Google's transit routes are below.",
   "cityMapListNote": "The map could not open on this phone, so here is the same information as a list.",
   "cityMapListEmpty": "Turn on a layer above (metro, bus routes …) to see it here.",
-  "cityMapRetry": "Try the map again"
+  "cityMapRetry": "Try the map again",
+  "cityMapAssistoRoutes": "Assisto routes"
  },
  "bn": {
   "cityLearnCardTitle": "কোন বাস? ভাড়া কত?",
@@ -132,6 +133,7 @@
   "cityMapGoogleOpenNote": "Google ম্যাপ Google Maps অ্যাপে খুলবে। Google-এর ট্রানজিট রুট নিচে আছে।",
   "cityMapListNote": "এই ফোনে ম্যাপ খোলা গেল না, তাই একই তথ্য তালিকায় দেখানো হলো।",
   "cityMapListEmpty": "ওপরের একটা লেয়ার (মেট্রো, বাস রুট …) চালু করলে এখানে দেখা যাবে।",
-  "cityMapRetry": "আবার ম্যাপ চেষ্টা করুন"
+  "cityMapRetry": "আবার ম্যাপ চেষ্টা করুন",
+  "cityMapAssistoRoutes": "Assisto-র রুট"
  }
 }

@@ -126,6 +126,7 @@ CityLayerSet buildCityLayers({
   final lines = <Map<String, dynamic>>[];
   final points = <Map<String, dynamic>>[];
   final labels = <MapLabel>[];
+  final metroLabels = <MapLabel>[]; // placed last: the chosen layer's labels win the declutter
   final rows = <({CityLayer kind, String title, String sub})>[];
   String name(Map<String, dynamic> r) =>
       bn && '${r['name_bn'] ?? ''}'.isNotEmpty ? '${r['name_bn']}' : '${r['name'] ?? ''}';
@@ -164,7 +165,7 @@ CityLayerSet buildCityLayers({
       for (final s in (r['stops'] as List).cast<Map>()) {
         final la = (s['lat'] as num).toDouble(), lo = (s['lon'] as num).toDouble();
         point(CityLayer.metro, la, lo, layerColor(CityLayer.metro), 6);
-        labels.add(MapLabel(la, lo, stopName(s), CityLayer.metro, layerColor(CityLayer.metro)));
+        metroLabels.add(MapLabel(la, lo, stopName(s), CityLayer.metro, layerColor(CityLayer.metro)));
       }
     }
   }
@@ -208,7 +209,9 @@ CityLayerSet buildCityLayers({
       rows.add((kind: CityLayer.women, title: name(r), sub: ''));
     }
   }
-  return CityLayerSet(_fc(lines), _fc(points), labels, rows);
+  final order = [CityLayer.waterlogging, CityLayer.women, CityLayer.fares, CityLayer.bus];
+  labels.sort((a, b) => order.indexOf(a.kind).compareTo(order.indexOf(b.kind)));
+  return CityLayerSet(_fc(lines), _fc(points), [...labels, ...metroLabels], rows);
 }
 
 // ------------------------------------------------------------------ Google
