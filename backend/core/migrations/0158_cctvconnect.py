@@ -9,7 +9,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0156_citydata'),
+        ("core", "0157_sjduring"),
     ]
 
     operations = [
