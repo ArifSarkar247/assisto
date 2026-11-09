@@ -49,6 +49,22 @@ Future<bool> _waitFor(WidgetTester tester, Finder f, Duration max) async {
   return false;
 }
 
+/// Tap until [expect] shows (a tap can miss while the list still settles
+/// or the soft keyboard animates away).
+Future<bool> _tapUntil(WidgetTester tester, Finder target, Finder expectAfter) async {
+  for (var i = 0; i < 6; i++) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump(const Duration(milliseconds: 600));
+    if (target.evaluate().isEmpty) continue;
+    await tester.ensureVisible(target);
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(target, warnIfMissed: false);
+    await tester.pump(const Duration(milliseconds: 800));
+    if (expectAfter.evaluate().isNotEmpty) return true;
+  }
+  return expectAfter.evaluate().isNotEmpty;
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -81,13 +97,15 @@ void main() {
     expect(paired, isTrue, reason: 'pairing failed');
 
     // 2. the camera: RTSP link mode (the brand presets are unit-tested)
-    await tester.ensureVisible(find.byKey(const Key('icgBrand_rtsp')));
-    await tester.tap(find.byKey(const Key('icgBrand_rtsp')));
-    await tester.pump(const Duration(milliseconds: 500));
+    final rtspMode =
+        await _tapUntil(tester, find.byKey(const Key('icgBrand_rtsp')), find.byKey(const Key('icgRtsp')));
+    expect(rtspMode, isTrue, reason: 'RTSP link field did not open');
     await tester.enterText(find.byKey(const Key('icgRtsp')), rtsp);
     await tester.pump();
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump(const Duration(milliseconds: 600));
     await tester.ensureVisible(find.byKey(const Key('icgTest')));
-    await tester.tap(find.byKey(const Key('icgTest')));
+    await tester.tap(find.byKey(const Key('icgTest')), warnIfMissed: false);
     final tTest = DateTime.now();
     final works = await _waitFor(tester, find.byKey(const Key('icgPreview')), const Duration(seconds: 60));
     final fail = find.byKey(const Key('icgTestFail'));
@@ -100,8 +118,9 @@ void main() {
     expect(works, isTrue, reason: 'camera test showed no decoded picture');
 
     // 3. guard: the scene's person walks in every ~12 s
-    await tester.ensureVisible(find.byKey(const Key('icgStart')));
-    await tester.tap(find.byKey(const Key('icgStart')));
+    final started =
+        await _tapUntil(tester, find.byKey(const Key('icgStart')), find.byKey(const Key('icgStop')));
+    expect(started, isTrue, reason: 'guarding did not start');
     final tStart = DateTime.now();
     // the person model downloads once (SHA-256 checked) before checks start
     final modelOn = await _waitFor(
