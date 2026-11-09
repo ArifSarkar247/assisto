@@ -298,7 +298,7 @@ class PhotoStudioTests(TestCase):
             self.assertEqual((q["ok"], q["reason"], q["options"]), (False, "coming_soon", []), f)
         cfg = S.client_config(self.u, "bn")
         self.assertTrue(cfg["ai_edit_coming_soon"])
-        self.assertIn("শীঘ্রই আসছে", S.funding_message("coming_soon", "bn"))
+        self.assertIn("আপাতত বন্ধ", S.funding_message("coming_soon", "bn"))
 
     def test_create_job_charges_nothing(self):
         from core import photo_studio_service as S

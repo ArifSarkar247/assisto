@@ -171,7 +171,7 @@ class PsConfig {
   });
 
   /// geminioff: AI create / edit is paused (the image AI is off) — the
-  /// screen shows an honest "Coming soon" card, never a dead prompt box.
+  /// screen shows an honest "paused for now" card, never a dead prompt box.
   final bool aiEditComingSoon;
 
   /// photobar: Bangladesh ID / passport / visa sizes from the server

@@ -395,7 +395,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
             // one users see nothing (never a dead button), the owner a note.
             if (_c.config.providerReady)
               _promptCard(t)
-            // geminioff: honest "Coming soon" + the free on-phone tools
+            // geminioff: honest "paused for now" + the free on-phone tools
             else if (_c.config.aiEditComingSoon)
               _aiEditSoonCard(t)
             else if (_c.config.isOwner)

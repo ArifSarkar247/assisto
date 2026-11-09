@@ -234,7 +234,7 @@ def quote(user, feature, c=None, device_key=""):
     q["feature"] = feature
     if (q.get("reason") == "provider_missing" and feature in PS.CLOUD_FEATURES
             and feature not in PS.RESTORE_FEATURES and gemini_coming_soon()):
-        # geminioff: honest "Coming soon" — never a broken button, never a charge
+        # geminioff: honest "paused for now" — never a broken button, never a charge
         q["reason"] = "coming_soon"
         q["ok"] = False
         q["options"] = []
@@ -294,9 +294,9 @@ def funding_message(reason, lang):
                  "The server is busy — try again in a moment."),
         # aifinal PART 1b: no admin wording for users (the real reason is logged)
         # geminioff: AI edit / generate needs the image AI that is paused
-        "coming_soon": ("AI দিয়ে ছবি বানানো ও এডিট শীঘ্রই আসছে। এখন ফ্রি টুল ব্যবহার করুন: "
+        "coming_soon": ("AI দিয়ে ছবি বানানো ও এডিট আপাতত বন্ধ। এখন ফ্রি টুল ব্যবহার করুন: "
                         "ব্যাকগ্রাউন্ড সরানো, ক্রপ, আলো ঠিক করা, শার্প করা — সব ফোনেই হয়। কোনো ক্রেডিট কাটা হয়নি।",
-                        "AI photo create and edit are coming soon. Use the free tools now: remove "
+                        "AI photo create and edit are paused for now. Use the free tools now: remove "
                         "background, crop, fix light, sharpen — all on your phone. No credits were used."),
         "provider_missing": ("ক্লাউড এডিট এই মুহূর্তে দেওয়া যাচ্ছে না — একটু পরে আবার চেষ্টা করুন।",
                              "Cloud editing isn't available right now — please try again a little later."),

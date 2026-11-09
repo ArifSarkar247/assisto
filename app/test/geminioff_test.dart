@@ -1,5 +1,5 @@
 // geminioff (owner 9 Nov 13:30): while the image AI (Gemini) is off, Photo
-// Studio shows an honest "Coming soon" card — no prompt box, no dead
+// Studio shows an honest "paused for now" card — no prompt box, no dead
 // button — and the free on-phone tools stay; the voice mic shows the
 // server's honest "use your keyboard mic" message instead of recording.
 import 'package:assisto/l10n/app_localizations.dart';
@@ -69,20 +69,20 @@ void main() {
     expect(PsConfig.fromJson(const {}).aiEditComingSoon, isFalse);
   });
 
-  testWidgets('Gemini off: honest Coming soon card, no prompt box or button', (tester) async {
+  testWidgets('Gemini off: honest paused card, no prompt box or button', (tester) async {
     await _pump(tester, SoonBackend());
     expect(find.byKey(const Key('psAiEditSoon')), findsOneWidget);
-    expect(find.textContaining('coming soon'), findsOneWidget);
+    expect(find.textContaining('paused for now'), findsOneWidget);
     expect(find.byKey(const Key('psPrompt')), findsNothing);
     expect(find.byKey(const Key('psRunPrompt')), findsNothing);
   });
 
   testWidgets('Bangla card', (tester) async {
     await _pump(tester, SoonBackend(), lang: 'bn');
-    expect(find.textContaining('শীঘ্রই আসছে'), findsOneWidget);
+    expect(find.textContaining('আপাতত বন্ধ'), findsOneWidget);
   });
 
-  testWidgets('Gemini on: no Coming soon card', (tester) async {
+  testWidgets('Gemini on: no paused card', (tester) async {
     await _pump(tester, SoonBackend(soon: false));
     expect(find.byKey(const Key('psAiEditSoon')), findsNothing);
   });

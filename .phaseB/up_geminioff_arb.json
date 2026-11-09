@@ -1,7 +1,7 @@
 {
-  "_comment": "geminioff (owner 9 Nov 13:30): Photo Studio honest Coming soon card while the image AI (Gemini) is off. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_geminioff_arb.json",
+  "_comment": "geminioff (owner 9 Nov 13:30): Photo Studio honest \"paused for now\" card (NO SHOWPIECES: never a \"coming soon\" promise, no button) while the image AI (Gemini) is off. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_geminioff_arb.json",
   "en": {
-    "psAiEditSoonTitle": "AI photo create & edit — coming soon",
+    "psAiEditSoonTitle": "AI photo create & edit — paused for now",
     "@psAiEditSoonTitle": {
       "description": "Photo Studio card title while AI image create/edit is paused"
     },
@@ -11,7 +11,7 @@
     }
   },
   "bn": {
-    "psAiEditSoonTitle": "AI দিয়ে ছবি বানানো ও এডিট — শীঘ্রই আসছে",
+    "psAiEditSoonTitle": "AI দিয়ে ছবি বানানো ও এডিট — আপাতত বন্ধ",
     "psAiEditSoonBody": "এখনই ফোনে ফ্রি: এক ট্যাপে উন্নত করা (আলো, রং, শার্প), ব্যাকগ্রাউন্ড সরানো, সাদা বা নীল ব্যাকগ্রাউন্ড, ব্যাকগ্রাউন্ড ঝাপসা, ক্রপ, HD বড় করা। কোনো ক্রেডিট লাগবে না।"
   }
 }
