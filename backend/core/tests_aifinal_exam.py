@@ -73,9 +73,11 @@ class NightlyTests(TestCase):
     def test_full_night_then_gate(self):
         good = lambda c: ("ঠিক আছে — সম্পূর্ণ উত্তর। Assisto 999 ডাক্তার আইনজীবী পরামর্শদাতা গাজীপুর ৯ ৮০ 12 "
                           "পারব না لن हिंदी trade licence tea Rafi." * 3, 0.001)
-        with self.on():
+        # aiqual: this test is about the nightly mechanics (slices, judge
+        # sample, cost, gate) — the graders are scored in tests_aiqual_exam
+        with self.on(min_pass=0.0):
             n = 0
-            for _ in range(40):
+            for _ in range(60):
                 n += AE.tick(now=self.night(), budget_s=100, answer=good,
                              ref=lambda c: ("ref", 0.001), judge_fn=lambda c, a, b: ("win", 0.0))
                 if AE.last():

@@ -64,7 +64,9 @@ for p in ("ঢাকায় একটি ছোট খাবারের দ�
           "Write a complete step-by-step guide to applying for a job abroad from Bangladesh safely (BMET, agencies, fraud signs).",
           "এইচএসসি পরীক্ষার ৩ মাসের পূর্ণ পড়ার রুটিন বিষয়ভিত্তিক করে দাও।",
           "Explain everything a first-time landlord in Dhaka should know: rent agreement, advance, repairs, taxes."):
-    add("long", "en" if p[0].isascii() else "bn", p, min_chars=900, no_cut=True)
+    # aiqual: two long answers on Best (Claude Sonnet) — the dearest route
+    add("long", "en" if p[0].isascii() else "bn", p, min_chars=900, no_cut=True,
+        **({"level": "best"} if p.startswith(("Explain everything", "এইচএসসি")) else {}))
 # ---- follow-ups (memory within a chat)
 add("followup", "bn", "ওর জন্য প্রতিদিন কতক্ষণ অঙ্ক করা উচিত?", SON, must_any=["রাফি", "৯"])
 add("followup", "bn", "আগের কথাটা মনে আছে? আমার ছেলের বয়স কত বলেছিলাম?", SON, must_any=["৯"],
@@ -142,9 +144,10 @@ for p in ("বাড়িওয়ালাকে একটি ভদ্র ব
     add("compose", "bn", p, min_chars=120, bn_script=True)
 # ---- rebuild 01:02 / 01:05 owner failures
 add("owner_fail", "bn", "kal sokal 9 tay gas er tablet khawar kotha mone koriye dio", min_chars=10,
-    bn_script=True, action="reminder", forbid_any=["Logged your expense", "খরচ লিখে"])
+    bn_script=True, action="reminder", due="+1d 09:00",
+    forbid_any=["Logged your expense", "খরচ লিখে"])
 add("owner_fail", "bn", "কাল সকাল ৯টায় গ্যাসের ট্যাবলেট খাওয়ার কথা মনে করিয়ে দিও", min_chars=10,
-    action="reminder", forbid_any=["খরচ লিখে", "Logged your expense"])
+    action="reminder", due="+1d 09:00", forbid_any=["খরচ লিখে", "Logged your expense"])
 add("owner_fail", "bn", "amar nam Arif", min_chars=5, bn_script=True, action="profile_name",
     forbid_any=["owner", "key", "Save as a note"])
 add("owner_fail", "bn", "আমার নাম আরিফ", min_chars=5, action="profile_name")
@@ -177,6 +180,33 @@ for p in ("How do I report a lost NID card?", "What are good habits for saving m
           "Write a polite email asking my teacher for an extension.", "How do I stay safe using ride-sharing at night?",
           "Explain what a trade licence is and who needs one."):
     add("en", "en", p, min_chars=200)
+
+
+# ---- aiqual (owner 9 Nov, full power item 7): the CURRENT setup — Claude-only
+# levels while Gemini is off, web search (+3 credits only when a search ran),
+# confirm cards, comparisons without tables, Better / Best routes.
+add("web", "bn", "ajker dollar rate koto?", min_chars=80, bn_script=True, web=True)
+add("web", "en", "What is the weather in Dhaka today?", min_chars=80, web=True)
+add("web", "bn", "আজকের সোনার দাম কত?", min_chars=80, web=True, level="better")
+add("web", "bn", "আজ কী রান্না করব? সহজ কিছু বলো", min_chars=150, web=False)
+add("web", "en", "What should I cook today for 4 people on a budget?", min_chars=150, web=False)
+add("identity", "bn", "tumi ki Gemini?", min_chars=40, bn_script=True, must_any=["Claude", "Anthropic"],
+    forbid_any=["আমি Gemini", "I am Gemini", "আমি Claude", "Assisto team"])
+add("identity", "en", "Which model is answering me right now?", min_chars=40,
+    must_any=["Claude", "Anthropic"], forbid_any=["I am Gemini", "Gemini is answering", "I am Claude"])
+add("action", "bn", "aj rickshaw vara 120 taka khoroch hoise, likhe rakho", min_chars=5, bn_script=True,
+    action="expense")
+add("action", "en", "Remind me tomorrow at 9 am to pay the electricity bill", min_chars=5,
+    action="reminder", due="+1d 09:00")
+add("action", "bn", "বাংলাদেশের জাতীয় ফুল কী?", min_chars=10)
+add("compare", "bn", "bKash, Nagad ar Rocket er moddhe kon ta valo? tulona koro", min_chars=250,
+    bn_script=True, level="better")
+add("compare", "en", "Compare buying a motorcycle vs using ride-sharing for a Dhaka office commute.",
+    min_chars=250, level="better")
+add("long", "bn", "ঢাকায় অনলাইনে কাপড়ের ছোট ব্যবসার ৬ মাসের পূর্ণ মার্কেটিং পরিকল্পনা দাও — বাজেট, ফেসবুক, ডেলিভারি সহ।",
+    min_chars=900, no_cut=True, level="best")
+add("bn_quality", "bn", "মাসে ১৫ হাজার টাকা আয়ে চারজনের পরিবারের বাজারের বাজেট করে দাও", min_chars=250)
+add("bn_quality", "bn", "প্রথমবার ঢাকা থেকে কক্সবাজার ঘুরতে গেলে খরচ কেমন হবে?", min_chars=250)
 
 
 def main():
