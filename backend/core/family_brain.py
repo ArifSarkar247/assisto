@@ -928,6 +928,15 @@ def send_night_news(user, now=None):
     return True
 
 
+def _touch(user, fn):
+    """Locked read-modify-write of one brain row (never a stale overwrite)."""
+    with transaction.atomic():
+        row = _row(user, lock=True)
+        d = dict(row.data or {})
+        fn(d)
+        _save(row, d)
+
+
 def tick(now=None):
     """Per-minute (minute_jobs: family_brain_tick): night news at each
     member's chosen local time; the monthly 'who can see you' card."""
@@ -949,8 +958,7 @@ def tick(now=None):
             last = _parse(st.get("vis_seen_at")) or _parse(st.get("vis_reminded_at"))
             if last is None:
                 # first month: start the clock, no card on day one
-                st["vis_reminded_at"] = _iso(now)
-                _save(row, st)
+                _touch(u, lambda d: d.__setitem__("vis_reminded_at", _iso(now)))
             elif now - last > timedelta(days=REMINDER_DAYS):
                 n = len(peer_ids(u))
                 if n:
@@ -963,9 +971,11 @@ def tick(now=None):
                               else ("পরিবারের %s জন আপনার অবস্থা দেখতে পারেন। দেখুন বা বিরতি দিন।" % bn_num(n))),
                         payload={"route": "family/alerts", "alert_kind": "visibility"})
                     stats["reminders"] += 1
-                st["vis_reminded_at"] = _iso(now)
-                st.pop("vis_seen_at", None)
-                _save(row, st)
+
+                def _mark(d):
+                    d["vis_reminded_at"] = _iso(now)
+                    d.pop("vis_seen_at", None)
+                _touch(u, _mark)
         except Exception as e:  # noqa: BLE001
             log.warning("family_brain: tick row failed %s", type(e).__name__)
     return stats

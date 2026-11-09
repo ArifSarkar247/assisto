@@ -13,6 +13,8 @@ import 'fc_night_news_card.dart';
 ///   FcSlots.askParser = (q, ctx) { final r = fcBrainAskMaps(q, ctx.members);
 ///       return r == null ? null : FcAskAnswer(r.text,
 ///           memberUserId: r.memberUserId, action: r.action); }; // fcbrain
+///   FcSlots.privacyScreen = (ctx, fid) => FcBrainSettingsScreen(
+///       api: ctx.read<AppState>().api, familyId: fid); // fcbrain
 ///
 /// The language the parser answers in follows the app (updated whenever a
 /// Family screen with the night card builds).
@@ -35,7 +37,7 @@ FcAskResult? fcBrainAskMaps(String q, List<Map<String, dynamic>> members,
   final list = <FcAskMember>[];
   for (final m in members) {
     final id = (g(m, 'userId', 'user_id') as num?)?.toInt();
-    if (id == null) continue;
+    if (id == null || m['me'] == true) continue; // never answer about the asker
     list.add(FcAskMember(
       userId: id,
       name: (m['name'] ?? '').toString(),
