@@ -928,6 +928,7 @@ def process_trip(trip):
         else:
             seq[-1][2] = t1
     _note_neighbours(trip.city, trip.anon, seq)
+    _rider_and_hint(trip, seq)
     for a, b in zip(seq, seq[1:]):
         if a[0].startswith("new:") or b[0].startswith("new:"):
             continue
@@ -1059,6 +1060,96 @@ def _note_neighbours(city, anon, seq):
         obj.save(update_fields=["data"])
 
 
+def trip_confirm(user, trip_id, route_id="", fare=None):
+    """citycov / own map A4: the one-tap card after a trip — "which bus,
+    what fare". Stored without a name (keyed hash); the fare becomes a
+    rider-reported fare, the bus a hint that puts the trip's new stops into
+    that route. -> (stats dict, error)."""
+    from .models import CityLearned, CityTrip
+    anon = anon_key(user)
+    t = CityTrip.objects.filter(pk=trip_id, anon=anon).first()
+    if t is None:
+        return None, "not_found"
+    got = network(t.city)
+    route_id = str(route_id or "")[:80]
+    if route_id and (got is None or route_id not in _route_ids(got[0])):
+        return None, "route"
+    if fare not in (None, ""):
+        try:
+            paid = int(fare)
+        except (TypeError, ValueError):
+            return None, "fare"
+        km = (CityLearned.objects.filter(city=t.city, kind="tripconf", key="trip:%d" % t.pk)
+              .values_list("data", flat=True).first() or {}).get("km") or _trace_km(t.points)
+        if km:
+            _r, err = fare_report(user, t.city, t.mode, km, paid)
+            if err:
+                return None, "fare"
+    obj, _ = CityLearned.objects.get_or_create(city=t.city, kind="tripconf", key="trip:%d" % t.pk)
+    d = dict(obj.data or {})
+    if route_id:
+        d["route"] = route_id
+    if fare not in (None, ""):
+        d["fare"] = int(fare)
+    d.setdefault("km", _trace_km(t.points))
+    obj.data, obj.anons, obj.updated_at = d, [anon], timezone.now()
+    obj.save()
+    if t.processed and route_id:        # the card came after the hourly run: apply now
+        for l in CityLearned.objects.filter(city=t.city, kind="stop", key__in=d.get("new") or []):
+            ld = dict(l.data or {})
+            rt = dict(ld.get("routes") or {})
+            rt[route_id] = int(rt.get(route_id, 0)) + 1
+            ld["routes"] = rt
+            l.data = ld
+            l.save(update_fields=["data"])
+    return rider_stats(user), ""
+
+
+def _trace_km(points):
+    pts = points or []
+    m = sum(E.hav(a[1], a[2], b[1], b[2]) for a, b in zip(pts, pts[1:]))
+    return round(m / 1000.0, 2) if m else 0
+
+
+def rider_stats(user):
+    """How many different stops this rider's trips / taps have verified."""
+    from .models import CityLearned
+    r = CityLearned.objects.filter(kind="rider", key=anon_key(user)).first()
+    d = (r.data or {}) if r else {}
+    return {"stops_verified": len(d.get("stops") or []), "trips": int(d.get("trips", 0))}
+
+
+def _rider_and_hint(trip, seq):
+    """Per-rider count of stops verified (keyed hash, no name) + the bus the
+    rider named on the post-trip card -> route hint on new stops."""
+    from .models import CityLearned
+    sids = [x[0] for x in seq]
+    r, _ = CityLearned.objects.get_or_create(city="all", kind="rider", key=trip.anon[:120])
+    d = dict(r.data or {})
+    st = list(dict.fromkeys(list(d.get("stops") or []) + sids))[-2000:]
+    d.update(stops=st, trips=int(d.get("trips", 0)) + 1)
+    r.data = d
+    r.save(update_fields=["data"])
+    conf, _ = CityLearned.objects.get_or_create(city=trip.city, kind="tripconf", key="trip:%d" % trip.pk,
+                                                defaults={"anons": [trip.anon]})
+    new = [x for x in sids if x.startswith("new:")]
+    if conf is not None:
+        cd = dict(conf.data or {})
+        cd["new"] = new[:50]
+        cd.setdefault("km", _trace_km(trip.points))
+        conf.data = cd
+        conf.save(update_fields=["data"])
+        rid = cd.get("route")
+        if rid:
+            for l in CityLearned.objects.filter(city=trip.city, kind="stop", key__in=new):
+                ld = dict(l.data or {})
+                rt = dict(ld.get("routes") or {})
+                rt[rid] = int(rt.get(rid, 0)) + 1
+                ld["routes"] = rt
+                l.data = ld
+                l.save(update_fields=["data"])
+
+
 def _route_ids(nw):
     return {r["id"]: ri for ri, r in enumerate(nw.routes)}
 
@@ -1136,6 +1227,7 @@ def user_stops(city, nw):
                 if ia in r["stops"] and ib in r["stops"] and \
                         0 < r["stops"].index(ib) - r["stops"].index(ia) <= 6:
                     rids.append(r["id"])
+        rids += [x for x in (d.get("routes") or {}) if x in ids]      # named on the post-trip card
         for rid in (rids or _attach(nw, float(d["lat"]), float(d["lon"]))):
             put(sid, rid)
     for l in (CityLearned.objects.filter(city=city, kind="field", status="confirmed")
@@ -1225,6 +1317,11 @@ def field_stop(user, lat, lon, route_id="", report_id=None):
         obj.updated_at = timezone.now()
         obj.save()
     cache.set(ck, cache.get(ck, 0) + 1, 26 * 3600)
+    r, _ = CityLearned.objects.get_or_create(city="all", kind="rider", key=anon[:120])
+    rd = dict(r.data or {})
+    rd["stops"] = list(dict.fromkeys(list(rd.get("stops") or []) + [obj.key]))[-2000:]
+    r.data = rd
+    r.save(update_fields=["data"])
     if just:
         learned_to_overrides(city)
     return obj, ""
@@ -1353,6 +1450,8 @@ def learn_tick(limit=200, now=None):
             CityTrip.objects.filter(pk=t.pk).update(processed=True, points=[])
         n += 1
     CityTrip.objects.filter(created_at__lt=now - timedelta(days=TRIP_KEEP_DAYS)).delete()
+    from .models import CityLearned          # citycov: post-trip card rows live as long as the trip
+    CityLearned.objects.filter(kind="tripconf", updated_at__lt=now - timedelta(days=TRIP_KEEP_DAYS)).delete()
     return n
 
 

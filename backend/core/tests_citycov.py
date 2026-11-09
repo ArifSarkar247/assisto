@@ -241,3 +241,28 @@ class OwnerUserStopsTests(OwnerBase):
         r = self.c.get("/owner/city?tab=data&lang=en")
         self.assertContains(r, "Coverage now (with users")
         self.assertContains(r, "separate measure")
+
+
+class TripCardTests(ApiBase):
+    """Own map A4: after a trip, one tap "which bus / what fare"; stops the
+    rider verified are counted without a name."""
+    def test_post_trip_card_fare_bus_and_stops_verified(self):
+        from core.models import CityFareReport
+        CS.consent(self.user, True)
+        r = self.c.post("/api/v1/city/trips", {"mode": "bus", "points": _trace_via_mid(1762650000)}, format="json")
+        tid = r.json()["id"]
+        r = self.c.post("/api/v1/city/trips/%d/confirm" % tid, {"route_id": "busA-a", "fare": 25}, format="json")
+        self.assertEqual(r.status_code, 200, r.content)
+        self.assertEqual(CityFareReport.objects.filter(mode="bus", paid=25).count(), 1)
+        self.assertEqual(self.as_(self.user2).post("/api/v1/city/trips/%d/confirm" % tid, {"fare": 20},
+                                                   format="json").status_code, 404)   # not their trip
+        self.assertEqual(self.c.post("/api/v1/city/trips/%d/confirm" % tid, {"route_id": "nope"},
+                                     format="json").status_code, 400)
+        CS.learn_tick()
+        st = self.c.get("/api/v1/city/trips/consent").json()
+        self.assertGreaterEqual(st["stops_verified"], 4)
+        self.assertEqual(st["trips"], 1)
+        learned = CityLearned.objects.get(kind="stop")
+        self.assertEqual(learned.data["routes"], {"busA-a": 1})
+        rider = CityLearned.objects.get(kind="rider")
+        self.assertNotIn(self.user.phone, json.dumps([rider.key, rider.data]))

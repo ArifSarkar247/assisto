@@ -115,7 +115,7 @@ def city(request):
         ctx.update(_user_stops(cty, request.GET.get("st") or "reported"))
     else:
         st = request.GET.get("st") or "confirmed"
-        qs = CityLearned.objects.filter(city=cty)
+        qs = CityLearned.objects.filter(city=cty).exclude(kind__in=("rider", "tripconf"))
         if st in ("reported", "confirmed", "rejected"):
             qs = qs.filter(status=st)
         ctx["learned"] = list(qs.order_by("-updated_at")[:200])

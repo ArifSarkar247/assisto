@@ -240,7 +240,8 @@ def city_trip_consent(request):
         on = CS.consent(request.user, bool(d.get("on")))
     else:
         on = CS.consent(request.user)
-    return Response({"on": on, "keep_days": CS.TRIP_KEEP_DAYS, "trim_m": CS.TRIP_TRIM_M})
+    return Response(dict({"on": on, "keep_days": CS.TRIP_KEEP_DAYS, "trim_m": CS.TRIP_TRIM_M},
+                         **CS.rider_stats(request.user)))       # citycov: + stops_verified, trips
 
 
 @api_view(["POST"])
@@ -324,3 +325,16 @@ def city_field_stops(request):
                    "Thanks! The stop is added once a few more people confirm it.")
     return Response({"ok": True, "id": obj.id, "status": st, "people": people,
                      "need": CS.FIELD_CONFIRM, "detail": msg}, status=200 if err else 201)
+
+
+@api_view(["POST"])
+def city_trip_confirm(request, tid):
+    """citycov / own map A4: post-trip card {route_id?, fare?} for the
+    rider's own trip (by its id from POST city/trips). No name kept."""
+    d = request.data if isinstance(request.data, dict) else {}
+    stats, err = CS.trip_confirm(request.user, tid, str(d.get("route_id") or ""), d.get("fare"))
+    if err == "not_found":
+        return _bad(request, "যাত্রাটি পাওয়া যায়নি।", "Trip not found.", 404)
+    if err:
+        return _bad(request, "বাস বা ভাড়া ঠিক নেই।", "Bus or fare is not valid.")
+    return Response(dict({"ok": True}, **stats))

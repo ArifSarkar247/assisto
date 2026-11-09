@@ -90,6 +90,15 @@ extension CityApi on ApiClient {
   Future<Map<String, dynamic>> cityTripUpload(List<List<num>> points, {String mode = 'bus'}) =>
       postJson('/city/trips', {'mode': mode, 'points': points});
 
+  /// citycov / own map A4: the post-trip card "which bus, what fare" for the
+  /// rider's own trip ([tripId] from [cityTripUpload]'s `id`). Returns
+  /// `{ok, stops_verified, trips}`; GET city/trips/consent also carries them.
+  Future<Map<String, dynamic>> cityTripConfirm(int tripId, {String routeId = '', int? fare}) =>
+      postJson('/city/trips/$tripId/confirm', {
+        if (routeId.isNotEmpty) 'route_id': routeId,
+        if (fare != null) 'fare': fare,
+      });
+
   /// citycov: field collection. Waiting "a bus stops here" reports near the
   /// phone + the buses that pass close by.
   Future<Map<String, dynamic>> cityFieldStops(double lat, double lon) =>
