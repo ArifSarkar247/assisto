@@ -9,6 +9,7 @@ import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/screens/circle_call_screen.dart';
 
 import '../support/harness.dart';
+import 'sos_journey_flow.dart' show holdSos; // qjourney
 
 final _tag = DateTime.now().millisecondsSinceEpoch % 100000;
 
@@ -38,8 +39,9 @@ void registerFamilyCircleFlows() {
       await f.shot('emergency');
       f.expectHttp('GET', '/emergency', since: mark);
     });
-    await f.step('tap SOS -> countdown', () async {
-      await f.tap(find.text(f.t.emergencySosBigButton), settleSeconds: 1);
+    await f.step('hold SOS -> countdown', () async {
+      // qjourney: SOS is press-and-hold since sosat (a tap only says "hold")
+      await holdSos(f);
       await f.waitFor(find.text(f.t.sosCancel), seconds: 6, what: 'countdown Cancel');
       await f.shot('countdown');
     });

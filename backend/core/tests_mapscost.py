@@ -67,7 +67,7 @@ class LimitTests(MapsBase):
         pts = [(23.70, 90.40), (23.71, 90.40), (23.72, 90.40)]
         states = [self.c1.get("%s/maps/reverse?lat=%s&lng=%s" % (V, la, ln)).json()
                   for la, ln in pts]
-        self.assertEqual([s["state"] for s in states], ["ok", "ok", "user_cap"])
+        self.assertEqual([s["state"] for s in states], ["ok", "ok", "none"])   # sjp0: never a limit state
         self.assertEqual(len(self.rec.calls), 2)                 # the 3rd never paid
         self.assertEqual(states[2]["address"], "")
         self.assertEqual(states[2]["coords"], "23.72000, 90.40000")
@@ -83,7 +83,7 @@ class LimitTests(MapsBase):
         self.limits("geocode", user_day=50, global_day=1)
         a = self.c1.get("%s/maps/reverse?lat=23.70&lng=90.40" % V).json()
         b = self.c2.get("%s/maps/reverse?lat=23.80&lng=90.41" % V).json()
-        self.assertEqual((a["state"], b["state"]), ("ok", "global_cap"))
+        self.assertEqual((a["state"], b["state"]), ("ok", "none"))
         self.assertEqual(len(self.rec.calls), 1)
         self.assertTrue(b["gmaps_url"].startswith("https://www.google.com/maps/search/"))
         card = MC.usage_card()
@@ -93,10 +93,10 @@ class LimitTests(MapsBase):
     def test_off_without_key_or_with_cost_switch_off(self):
         with mock.patch.object(MC, "server_key", lambda: ""):
             r = self.c1.get("%s/maps/reverse?lat=23.7&lng=90.4" % V).json()
-        self.assertEqual(r["state"], "off")
+        self.assertEqual(r["state"], "none")                  # sjp0: never "off" to the phone
         with mock.patch("core.billing.flag_on", lambda *a, **k: False):
             r = self.c1.get("%s/maps/autocomplete?q=Bashundhara&session=abcdefgh12" % V).json()
-        self.assertEqual(r["state"], "off")
+        self.assertIn(r["state"], ("ok", "none"))            # our own list, never "off"
         self.assertEqual(self.rec.calls, [])
         self.assertFalse(MapsUsage.objects.exists())
 
@@ -104,7 +104,7 @@ class LimitTests(MapsBase):
         noted = []
         with mock.patch.object(MC, "_plan_allowed", lambda u: False):
             r = self.c1.get("%s/maps/reverse?lat=23.70&lng=90.40" % V).json()
-        self.assertEqual(r["state"], "plan_cap")
+        self.assertEqual(r["state"], "none")                  # sjp0: plan_cap never shown
         with mock.patch.object(MC, "_plan_note", lambda u: noted.append(u.id)):
             self.c1.get("%s/maps/reverse?lat=23.71&lng=90.40" % V)
         self.assertEqual(noted, [self.u1.id])
@@ -152,16 +152,19 @@ class SearchTests(MapsBase):
     def test_short_query_and_bad_session_make_no_call(self):
         self.assertEqual(self.c1.get("%s/maps/autocomplete?q=a&session=abcdefgh12" % V)
                          .json()["state"], "short")
-        self.assertEqual(self.c1.get("%s/maps/autocomplete?q=Bashundhara&session=x" % V)
-                         .json()["state"], "bad_session")
+        # sjp0: a bad session only skips Google — our own list still answers
+        self.assertIn(self.c1.get("%s/maps/autocomplete?q=Bashundhara&session=x" % V)
+                      .json()["state"], ("ok", "none"))
         self.assertEqual(self.rec.calls, [])
 
+    @mock.patch("core.bd_places.search", lambda *a, **k: [])   # sjp0: prove the Google leg
     def test_autocomplete_session_token_field_masks_then_one_details(self):
         s = "sess-0001-abcdef"
         r = self.c1.get("%s/maps/autocomplete?q=Bashun&session=%s&lat=23.75&lng=90.39" % (V, s)).json()
         self.assertEqual(r["state"], "ok")
-        self.assertEqual(r["results"], [{"place_id": "ChIJabc123", "name": "Bashundhara City",
-                                         "secondary": "Panthapath, Dhaka"}])
+        # sjp0: the merged list — Google's row is there (on top of our own)
+        self.assertIn({"place_id": "ChIJabc123", "name": "Bashundhara City",
+                       "secondary": "Panthapath, Dhaka", "source": "google"}, r["results"])
         call = self.rec.calls[0]
         self.assertEqual(call["body"]["sessionToken"], s)
         self.assertEqual(call["body"]["includedRegionCodes"], ["bd"])
@@ -184,9 +187,10 @@ class SearchTests(MapsBase):
         rows = [{"name": "X", "address": "", "lat": 23.7, "lng": 90.4}]
         with mock.patch("core.journey_geo.geocoder_ready", lambda: True), \
                 mock.patch("core.journey_geo._places_text", side_effect=lambda *a: list(rows)):
-            a = self.c1.get("%s/journey/geocode?q=Bashundhara" % V).json()
-            b = self.c1.get("%s/journey/geocode?q=Bashundhara" % V).json()
-        self.assertEqual((a["state"], b["state"]), ("ok", "user_cap"))
+            # sjp0: a name our own list does not know, so the paid search runs
+            a = self.c1.get("%s/journey/geocode?q=Zzqx Bashundhara" % V).json()
+            b = self.c1.get("%s/journey/geocode?q=Zzqx Bashundhara" % V).json()
+        self.assertEqual((a["state"], b["state"]), ("ok", "none"))   # sjp0: never user_cap
 
 
 class RouteTests(MapsBase):
@@ -204,7 +208,7 @@ class RouteTests(MapsBase):
     def test_eta_capped_still_gives_the_free_directions_link(self):
         self.limits("routes", user_day=0)
         a = self.c1.get("%s/maps/eta?olat=23.75&olng=90.39&dlat=23.8&dlng=90.42" % V).json()
-        self.assertEqual(a["state"], "user_cap")
+        self.assertEqual(a["state"], "none")                  # sjp0: never user_cap
         self.assertIn("google.com/maps/dir/", a["gmaps_url"])
         self.assertEqual(self.rec.calls, [])
 
@@ -319,6 +323,11 @@ class ChandraSearchTests(MapsBase):
         p = mock.patch.object(MC, "HTTP", rec)
         p.start()
         self.addCleanup(p.stop)
+        # sjp0: these tests prove the GOOGLE leg (request shape, session,
+        # Details) — our own place list is emptied so Google is asked
+        p2 = mock.patch("core.bd_places.search", lambda *a, **k: [])
+        p2.start()
+        self.addCleanup(p2.stop)
 
     def test_two_letters_already_search_with_bias_region_and_distance(self):
         s = "chandra-sess-0001"

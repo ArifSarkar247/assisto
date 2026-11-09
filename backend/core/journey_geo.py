@@ -105,21 +105,32 @@ def _places_text(q, key, lang, near=None):
 
 
 def geocode(q, lang="bn", near=None, search=None, user=None):
-    """{'available', 'results', 'state'} — state: ok | none | failed | off |
-    user_cap | global_cap. mapscost: kept only for app builds older than the
-    Autocomplete search; every call is under the text_search daily caps."""
+    """{'available', 'results', 'state'} — state: ok | none (sjp0: never a
+    limit / off state). Kept only for app builds older than the Autocomplete
+    search: our free BD place list (+ saved / recent) answers first; the paid
+    Text Search runs only when nothing local matched and the text_search
+    daily caps allow."""
     q = " ".join(str(q or "").split())[:120]
-    if not geocoder_ready():
-        return {"available": False, "results": [], "state": "off"}
     if len(q) < 2:
         return {"available": True, "results": [], "state": "none"}
+    from . import place_suggest as PS
+    la, ln = near if near else (None, None)
+    try:
+        local = PS.suggest(user, q, None, lat=la, lng=ln, lang=lang).get("results") or []
+    except Exception:
+        local = []
+    rows = [{"name": r["name"], "address": r.get("secondary") or "",
+             "lat": r["lat"], "lng": r["lng"]} for r in local
+            if r.get("lat") is not None and r.get("lng") is not None]
+    if rows or not geocoder_ready():
+        return {"available": True, "results": rows, "state": "ok" if rows else "none"}
     from . import ext_breaker as XB
     from . import maps_cost as MC
-    ok, why = MC.allow("text_search", user)
+    ok, _why = MC.allow("text_search", user)
     if not ok:
-        return {"available": True, "results": [], "state": why}
+        return {"available": True, "results": [], "state": "none"}
     try:
         rows = XB.call("maps", search or _places_text, q, MC.server_key(), lang, near)
     except Exception:
-        return {"available": True, "results": [], "state": "failed"}
+        return {"available": True, "results": [], "state": "none"}
     return {"available": True, "results": rows, "state": "ok" if rows else "none"}
