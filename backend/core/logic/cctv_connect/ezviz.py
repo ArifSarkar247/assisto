@@ -92,7 +92,7 @@ class EzvizAdapter(B.Provider):
     def events(self, grant, serial, since_epoch, channels=None):
         from .. import cctv_rules as CR
         rows = self._call(self.client().alarms, serial, int(since_epoch * 1000),
-                          int(self.now() * 1000))
+                          int(self.now() * 1000) + 1000)
         out = []
         for row in rows:
             a = EZ.parse_alarm(row)
