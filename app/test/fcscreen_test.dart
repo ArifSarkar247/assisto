@@ -104,6 +104,7 @@ void main() {
     FcSlots.nightNewsCard = null;
     FcSlots.moreRows = null;
     FcSlots.serverAsk = null;
+    FcSlots.journeyTile = null;
     FcSlots.privacyScreen = null;
   });
 

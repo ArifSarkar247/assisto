@@ -45,6 +45,10 @@ class FcSlots {
   /// news, night news, leave). null = the row is not shown.
   static Widget Function(BuildContext context, int familyId)? privacyScreen;
 
+  /// sjduring: the Safe Journey "active journeys" tile shown under the status
+  /// line (SjActiveJourneysTile). null / returns null = no tile.
+  static Widget? Function(BuildContext context, int familyId)? journeyTile;
+
   /// fcelder: extra More rows (Elder easy home, set up an elder phone).
   static List<Widget> Function(BuildContext context, int familyId)? moreRows;
 }

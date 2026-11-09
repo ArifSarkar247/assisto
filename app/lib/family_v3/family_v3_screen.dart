@@ -857,6 +857,7 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
         if (x is Map) x
     ];
     final night = (_fid != null) ? FcSlots.nightNewsCard?.call(context, _fid!) : null;
+    final journey = (_fid != null) ? FcSlots.journeyTile?.call(context, _fid!) : null;
     return Scaffold(
       appBar: AppBar(title: Text(t.fc3Title), actions: [
         IconButton(
@@ -911,6 +912,7 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
                         const SizedBox(height: Gap.md),
                         _askBar(),
                       ],
+                      if (journey != null) ...[const SizedBox(height: Gap.md), journey],
                       if (night != null) ...[const SizedBox(height: Gap.md), night],
                       if (others.isEmpty) _empty(),
                       for (final m in [...others, ...me])
