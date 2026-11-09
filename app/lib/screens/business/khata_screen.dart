@@ -1195,6 +1195,27 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
   }
 
   bool _pdfBusy = false;
+  bool _linkBusy = false; // qbiz
+
+  /// qbiz (board row 8): a read-only web link of this customer's own due +
+  /// entries — the customer needs no app. The server signs it (30 days) and
+  /// never shows notes or the phone; the owner shares it by hand.
+  Future<void> _shareDueLink() async {
+    if (_linkBusy) return;
+    setState(() => _linkBusy = true);
+    try {
+      final r = await context
+          .read<AppState>()
+          .api
+          .khataDueLink(_partyId, businessId: _bizId);
+      final text = (r['text'] ?? r['url'] ?? '').toString();
+      if (text.isEmpty) throw StateError('no due link');
+      await Share.share(text);
+    } catch (e) {
+      if (mounted) showActionFailed(context, 'khata.dueLink', e);
+    }
+    if (mounted) setState(() => _linkBusy = false);
+  }
 
   /// bizbar: the whole statement as a Bangla/English PDF, shared through the
   /// owner's own tap (WhatsApp, email, print…). Built on the phone from the
@@ -1366,7 +1387,9 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
                       onTapLine: _editLine,
                       onDiscard: (o) => KhataOffline.discard(o.cid),
                       onSharePdf: _sharePdf,
-                      pdfBusy: _pdfBusy),
+                      pdfBusy: _pdfBusy,
+                      onShareLink: (!_isTemp && _isCustomer) ? _shareDueLink : null,
+                      linkBusy: _linkBusy),
                 )),
     );
   }
@@ -1382,6 +1405,8 @@ class _StatementBody extends StatelessWidget {
   final void Function(KhataOp) onDiscard;
   final VoidCallback? onSharePdf;
   final bool pdfBusy;
+  final VoidCallback? onShareLink; // qbiz
+  final bool linkBusy;
   const _StatementBody(
       {required this.stmt,
       required this.party,
@@ -1391,7 +1416,9 @@ class _StatementBody extends StatelessWidget {
       required this.onTapLine,
       required this.onDiscard,
       this.onSharePdf,
-      this.pdfBusy = false});
+      this.pdfBusy = false,
+      this.onShareLink,
+      this.linkBusy = false});
 
   @override
   Widget build(BuildContext context) {
@@ -1457,6 +1484,28 @@ class _StatementBody extends StatelessWidget {
                   : const Icon(Icons.picture_as_pdf_rounded),
               label: Text(t.bbPdfButton,
                   maxLines: 2, textAlign: TextAlign.center),
+            ),
+          ],
+          if (onShareLink != null) ...[
+            // qbiz: the customer's own due page (no app needed)
+            const SizedBox(height: Gap.sm),
+            OutlinedButton.icon(
+              key: const ValueKey('qbiz-due-link'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: linkBusy ? null : onShareLink,
+              icon: linkBusy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.link_rounded),
+              label: Text(t.qbizDueLinkButton,
+                  maxLines: 2, textAlign: TextAlign.center),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: Text(t.qbizDueLinkHint,
+                  style: Theme.of(context).textTheme.bodySmall),
             ),
           ],
           if (ops.isNotEmpty) ...[

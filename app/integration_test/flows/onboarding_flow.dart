@@ -42,8 +42,12 @@ void registerOnboardingFlows() {
       await f.tap(find.widgetWithText(FilledButton, f.t.login), settleSeconds: 3);
       await f.shot('wrong-password');
       expect(f.app.loggedIn, isFalse);
-      expect(find.byWidgetPredicate((w) => w is Text && (w.style?.color == Colors.red)),
-          findsWidgets, reason: 'an error line must be visible');
+      // qbiz: the login screen paints its error with colorScheme.error (not
+      // Colors.red) under key 'login-error'; the old colour check failed every
+      // nightly since then, so the correct-password step never ran and every
+      // later flow timed out "waiting for home screen".
+      expect(find.byKey(const Key('login-error')), findsOneWidget,
+          reason: 'an error line must be visible');
     });
     await f.step('correct password logs in (POST /auth/login 200)', () async {
       if (f.app.loggedIn) return;

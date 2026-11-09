@@ -2213,6 +2213,13 @@ class FakeApi extends ApiClient {
           'score': null, 'completed_on': body['completed_on'], 'token': 'lw-quran-token'}};
     }
     if (path == '/career/interview/feedback') return fakeCareerFeedback(ai: body['ai'] == true); // p2career
+    // qbiz: khata customer due link (signed web page; server builds the text)
+    if (RegExp(r'^/business/khata/parties/\d+/due-link').hasMatch(path)) {
+      const u = 'https://lifeassisto.com/kh/p1.abc.def';
+      return {'url': u, 'expires_days': 30,
+              'text': _bn ? 'করিম, রহিম স্টোরে আপনার হিসাব এই লিংকে দেখুন:\n$u'
+                          : 'Karim, see your account at Rahim Store on this link:\n$u'};
+    }
     if (path == '/career/jobs/deadline') return {'reminders': ['2026-11-10T09:00:00+06:00']};
     if (path == '/career/cv/print-link') return {'url': 'https://lifeassisto.com/api/v1/career/cv/print/x', 'path': '/career/cv/print/x', 'expires_in': 1800};
     final p3l = fakeP3LifePost(path); // p3life

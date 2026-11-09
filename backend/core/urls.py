@@ -17,6 +17,7 @@ from . import ledger_entry_views as lev  # acctui
 from . import account_mode as acctmode   # acctmode
 from . import ledger2_views as l2v  # ledger2
 from . import views_tagada2 as tg2   # tagada2
+from . import khata_duelink   # qbiz
 from . import views_messenger as msg
 from . import views_security as secv
 from . import views_registry as reg
@@ -317,6 +318,7 @@ urlpatterns = [
     path("business/khata/tagada/send/<int:pk>", tg2.TagadaSendView.as_view()),
     path("business/khata/parties/<int:pk>/chat", tg2.KhataChatView.as_view()),
     path("business/khata/parties/<int:pk>/invite", tg2.KhataInviteView.as_view()),
+    path("business/khata/parties/<int:pk>/due-link", khata_duelink.KhataDueLinkView.as_view()),   # qbiz
     path("business/sms/balance", tg2.SmsBalanceView.as_view()),
     path("me/dues", tg2.MyDuesView.as_view()),
     path("me/dues/<int:bid>", tg2.MyDuesShopView.as_view()),
