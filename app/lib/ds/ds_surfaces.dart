@@ -362,3 +362,39 @@ class _DsStatusDotState extends State<DsStatusDot>
     );
   }
 }
+
+/// Grouped list card (settings-style): rows inside one V2 card, thin inset
+/// dividers between them; empty children (SizedBox.shrink tiles that render
+/// nothing) still just take no room.
+class DsGroup extends StatelessWidget {
+  const DsGroup({
+    super.key,
+    required this.children,
+    this.margin = const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
+  });
+
+  final List<Widget> children;
+  final EdgeInsetsGeometry margin;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = DsTokens.of(context);
+    return Padding(
+      padding: margin,
+      child: DsSurface(
+        padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0)
+              Divider(
+                  height: 1,
+                  indent: Gap.lg,
+                  endIndent: Gap.lg,
+                  color: t.border.withValues(alpha: 0.6)),
+            children[i],
+          ],
+        ]),
+      ),
+    );
+  }
+}
