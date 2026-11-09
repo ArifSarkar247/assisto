@@ -262,6 +262,12 @@ REGISTRY = (
     # call that rings a loved one full-screen in the setter's own voice; no
     # answer -> retry after 10 min -> the setter is told. LIVE for 8 Nov.
     ('care_call', 'family_safety', 'Care Call (family care reminder call)', 'কেয়ার কল (পরিবারের যত্নের রিমাইন্ডার কল)', True, ('carecall',)),
+    # fcbrain (owner decision 9 Nov 14:20): Family Care auto arrive/leave with
+    # the phone's own BACKGROUND watch (native location service). OFF until
+    # the owner approves the Play declaration + video. While OFF, auto arrive
+    # works only while Assisto is open (or a Safe Journey runs) and the card
+    # turns honestly gray ("No news") otherwise. App switch, owns no route.
+    ('family_auto_arrival', 'family_safety', 'Family arrival news in the background', 'পেছনে চলা পরিবারের পৌঁছানোর খবর', False, ()),
     ('unseen_world', 'upcoming', 'Unseen World (travel discovery)', 'অদেখা দুনিয়া (ভ্রমণ আবিষ্কার)', False, ()),
     # home_v2 (owner final home design, 26 Oct): ON = the new home (header,
     # Discover, 12 shortcuts, Ask Assisto card, bottom bar with Assisto Voice);

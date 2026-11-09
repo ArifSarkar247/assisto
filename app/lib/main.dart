@@ -69,6 +69,7 @@ import 'screens/messenger/communities_home_screen.dart' show SpaceLinkScreen; //
 import 'invite/invite_router.dart'; // invite-join
 import 'services/missing_nearby_sync.dart'; // missing
 import 'cctvx/home_presence_sync.dart'; // cctvarm
+import 'family_v3/brain/fc_watch.dart'; // fcbrain
 import 'calls/kid_audio_child.dart'; // kidaudio
 import 'phonecam/phonecam_link.dart'; // cctvphone
 import 'carecall/carecall_screen.dart' show careCallResume; // carecall
@@ -528,6 +529,15 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // cctvarm: a consenting member's "near Home?" for the camera guard
       // (flag + consent + permission already granted; 10 min; never throws).
       unawaited(HomePresenceSync.maybeSend(app.api));
+      // fcbrain: Family Care heartbeat (battery / network / background
+      // limits so the family card is honest), the 15 % last location once,
+      // and the arrival watch brought back if the member left it on
+      // (throttled 10 min; never throws; nothing at launch).
+      try {
+        final ft = AppLocalizations.of(context);
+        unawaited(FcWatch.onAppOpen(app.api,
+            notif: FcWatch.texts(title: ft.fcbWatchNotifTitle, body: ft.fcbWatchNotifBody)));
+      } catch (_) {}
       // kidaudio: a granted emergency-audio session waiting for this phone
       // (flag + server grant; visible notice first; never throws).
       unawaited(KidAudioChild.maybeStart(app.api));

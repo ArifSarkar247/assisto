@@ -17,6 +17,7 @@ from . import ledger_entry_views as lev  # acctui
 from . import account_mode as acctmode   # acctmode
 from . import ledger2_views as l2v  # ledger2
 from . import views_tagada2 as tg2   # tagada2
+from . import khata_duelink   # qbiz
 from . import views_messenger as msg
 from . import views_security as secv
 from . import views_registry as reg
@@ -27,12 +28,14 @@ from . import shop_views as shop
 from . import views_push as pushv
 from . import views_family100 as fam100
 from . import views_famcare as famc  # famcare
+from . import views_family_brain as fcb  # fcbrain
 from . import views_moneybar  # moneybar
 from . import views_ads as ads_views
 from . import vault_recovery as vaultrec  # vault100
 from . import vault_e2e as vaulte2e  # p3docs
 from . import views_voice as voicev
 from . import views_nearby as nearbyv  # nearby
+from . import views_city as cityv  # citydata
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -221,6 +224,27 @@ urlpatterns = [
     path("nearby/area", nearbyv.nearby_area),            # nearby
     path("nearby/report", nearbyv.nearby_report),        # nearby
     path("nearby/sponsored", nearbyv.nearby_sponsored),  # nearby
+    # citydata: City Service (owner_actions/CITY_SERVICE_API.md)
+    path("city/where", cityv.city_where),
+    path("city/plan", cityv.city_plan),
+    path("city/package", cityv.city_package),
+    path("city/stations", cityv.city_stations),
+    path("city/station/<str:stop_id>", cityv.city_station),
+    path("city/metro", cityv.city_metro),
+    path("city/route/<str:route_id>", cityv.city_route),
+    path("city/search", cityv.city_search),
+    path("city/stops/near", cityv.city_stops_near),
+    path("city/terminals", cityv.city_terminals),
+    path("city/ghats", cityv.city_ghats),
+    path("city/offices", cityv.city_offices),
+    path("city/reports", cityv.city_reports),
+    path("city/reports/<int:rid>/flag", cityv.city_report_flag),
+    path("city/correction", cityv.city_correction),
+    path("city/fare-report", cityv.city_fare_report),
+    path("city/night-rating", cityv.city_night_rating),
+    path("city/trips/consent", cityv.city_trip_consent),
+    path("city/trips", cityv.city_trip),
+    path("city/women", cityv.city_women),
     path("artist/favourite", views.FavouriteArtistView.as_view()),
     path("finance", views.FinanceView.as_view()),
     path("prices/official", views_moneybar.OfficialPricesView.as_view()),  # moneybar
@@ -317,6 +341,7 @@ urlpatterns = [
     path("business/khata/tagada/send/<int:pk>", tg2.TagadaSendView.as_view()),
     path("business/khata/parties/<int:pk>/chat", tg2.KhataChatView.as_view()),
     path("business/khata/parties/<int:pk>/invite", tg2.KhataInviteView.as_view()),
+    path("business/khata/parties/<int:pk>/due-link", khata_duelink.KhataDueLinkView.as_view()),   # qbiz
     path("business/sms/balance", tg2.SmsBalanceView.as_view()),
     path("me/dues", tg2.MyDuesView.as_view()),
     path("me/dues/<int:bid>", tg2.MyDuesShopView.as_view()),
@@ -397,6 +422,17 @@ urlpatterns = [
     path("family/fall/pending", fam100.FallPendingView.as_view()),   # sosat
     path("family/fall/ok", fam100.FallOkView.as_view()),             # sosat
     path("family/alerts", fam100.FamilyAlertsView.as_view()),
+    # fcbrain (Family Care v3 BRAIN 2-7, MUST precede router.urls)
+    path("family/brain/ping", fcb.BrainPingView.as_view()),
+    path("family/brain/prefs", fcb.BrainPrefsView.as_view()),
+    path("family/brain/pause", fcb.BrainPauseView.as_view()),
+    path("family/brain/visibility", fcb.BrainVisibilityView.as_view()),
+    path("family/brain/leave", fcb.BrainLeaveView.as_view()),
+    path("family/brain/night-news", fcb.BrainNightNewsView.as_view()),
+    path("family/brain/ask", fcb.BrainAskView.as_view()),
+    path("family/brain/member/<int:uid>", fcb.BrainMemberView.as_view()),
+    path("family/brain/watch", fcb.BrainWatchTokenView.as_view()),
+    path("family/brain/watch-ping", fcb.BrainWatchPingView.as_view()),
     path("family/alerts/received", fam100.FamilyAlertReceivedView.as_view()),
     path("family/alerts/<int:pk>/seen", fam100.FamilyAlertSeenView.as_view()),
     path("family/sharing/consent/", views.FamilySharingConsentView.as_view()),
@@ -807,6 +843,7 @@ urlpatterns += [
     path("shop/gateway/tasks/<int:pk>/status", wm.TaskStatusView.as_view()),
     path("shop/gateway/tasks/<int:pk>/result", wm.GatewayTaskResultView.as_view()),
     path("shop/imou/callback/<str:token>", wm.ImouCallbackView.as_view()),
+    path("cctv/imou/oauth/callback", wm.ImouOAuthCallbackView.as_view()),
     # cashguard (Smart Cash Guard, owner 28 Oct)
     path("shop/clips", cg.ShopClipUploadView.as_view()),
     path("shop/events/<int:pk>/clip", cg.EventClipView.as_view()),

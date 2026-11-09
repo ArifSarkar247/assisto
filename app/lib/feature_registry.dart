@@ -159,6 +159,8 @@ const Map<String, bool> kFeatureDefaults = {
   'safe_plans': false,
   // carecall (4 Nov): Care Call - family care reminder call, LIVE for 8 Nov.
   'care_call': true,
+  // fcbrain (9 Nov): background arrival watch - OFF until the owner approves Play.
+  'family_auto_arrival': false,
   // amarket (3 Nov): Assisto Market v1 - hidden until a real pilot.
   'assisto_market': false,
   // The REAL Unseen World travel feature (owner 27 Oct) - not built yet.
