@@ -26,55 +26,103 @@ class AdmobAdsBridge implements AdsBridge, InterstitialBridge {
           currency: currency,
           precision: AdTelemetry.precisionName(p.name));
 
-  @override
-  Future<bool> showAppOpen(String unitId) async {
-    if (!AdmobSdk.unitAllowed(unitId) || !await init()) return false;
-    final done = Completer<bool>();
+  // faststart (owner 10 Nov): the app-open ad is shown ONLY when it is
+  // already loaded; otherwise this time is skipped and one is preloaded in
+  // the background for a later resume. Never a load-then-show wait, never a
+  // late surprise ad over a Home the user is already using.
+  AppOpenAd? _appOpen;
+  String? _appOpenUnit;
+  DateTime? _appOpenAt;
+  bool _appOpenLoading = false;
+
+  /// Google: an app-open ad expires 4 h after it loaded.
+  static const appOpenMaxAge = Duration(hours: 4);
+
+  bool _appOpenFresh(String unitId) {
+    final at = _appOpenAt;
+    return _appOpen != null &&
+        _appOpenUnit == unitId &&
+        at != null &&
+        DateTime.now().difference(at) < appOpenMaxAge;
+  }
+
+  void _dropAppOpen() {
     try {
+      _appOpen?.dispose();
+    } catch (_) {}
+    _appOpen = null;
+    _appOpenAt = null;
+  }
+
+  /// Background preload (never awaited by a show; never throws).
+  Future<void> preloadAppOpen(String unitId) async {
+    if (_appOpenLoading || _appOpenFresh(unitId)) return;
+    if (!AdmobSdk.unitAllowed(unitId)) return;
+    _appOpenLoading = true;
+    try {
+      if (!await init()) return;
       await AppOpenAd.load(
         adUnitId: unitId,
         request: AdmobSdk.request(),
         adLoadCallback: AppOpenAdLoadCallback(
           onAdLoaded: (ad) {
-            // loaded after the time box: never show a late surprise ad
-            if (done.isCompleted) {
-              ad.dispose();
-              return;
-            }
-            // one tracker per ad object: 1 impression, <=1 click, 1 paid
-            final tr = AdTelemetry.track('app_open', 'app_open');
-            ad.onPaidEvent = _paid(tr);
-            ad.fullScreenContentCallback = FullScreenContentCallback(
-              onAdShowedFullScreenContent: (_) {
-                tr.impression();
-                if (!done.isCompleted) done.complete(true);
-              },
-              onAdImpression: (_) => tr.impression(),
-              onAdClicked: (_) => tr.click(),
-              onAdDismissedFullScreenContent: (a) => a.dispose(),
-              onAdFailedToShowFullScreenContent: (a, _) {
-                a.dispose();
-                if (!done.isCompleted) done.complete(false);
-              },
-            );
-            try {
-              ad.show();
-            } catch (_) {
-              if (!done.isCompleted) done.complete(false);
-            }
+            _dropAppOpen();
+            _appOpen = ad;
+            _appOpenUnit = unitId;
+            _appOpenAt = DateTime.now();
+            _appOpenLoading = false;
           },
-          onAdFailedToLoad: (_) {
-            if (!done.isCompleted) done.complete(false);
-          },
+          onAdFailedToLoad: (_) => _appOpenLoading = false,
         ),
       );
     } catch (_) {
+      _appOpenLoading = false;
+    } finally {
+      // the load call returns before the callback; a stuck flag must
+      // never block every later preload
+      unawaited(Future<void>.delayed(const Duration(seconds: 30),
+          () => _appOpenLoading = false));
+    }
+  }
+
+  @override
+  Future<bool> showAppOpen(String unitId) async {
+    if (!AdmobSdk.unitAllowed(unitId)) return false;
+    if (!_appOpenFresh(unitId)) {
+      if (_appOpen != null) _dropAppOpen(); // expired / other unit
+      unawaited(preloadAppOpen(unitId)); // for a later resume
+      return false; // not loaded -> skip this time
+    }
+    final ad = _appOpen!;
+    _appOpen = null; // one show per ad object
+    _appOpenAt = null;
+    final done = Completer<bool>();
+    // one tracker per ad object: 1 impression, <=1 click, 1 paid
+    final tr = AdTelemetry.track('app_open', 'app_open');
+    try {
+      ad.onPaidEvent = _paid(tr);
+      ad.fullScreenContentCallback = FullScreenContentCallback(
+        onAdShowedFullScreenContent: (_) {
+          tr.impression();
+          if (!done.isCompleted) done.complete(true);
+        },
+        onAdImpression: (_) => tr.impression(),
+        onAdClicked: (_) => tr.click(),
+        onAdDismissedFullScreenContent: (a) {
+          a.dispose();
+          unawaited(preloadAppOpen(unitId)); // ready for the next resume
+        },
+        onAdFailedToShowFullScreenContent: (a, _) {
+          a.dispose();
+          if (!done.isCompleted) done.complete(false);
+        },
+      );
+      await ad.show();
+    } catch (_) {
       if (!done.isCompleted) done.complete(false);
     }
-    return done.future.timeout(const Duration(seconds: 8), onTimeout: () {
-      if (!done.isCompleted) done.complete(false);
-      return false;
-    });
+    // a preloaded ad shows at once; a short box only for a stuck callback
+    return done.future.timeout(const Duration(seconds: 3), onTimeout: () => false);
   }
 
   @override

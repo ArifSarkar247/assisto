@@ -48,6 +48,7 @@ import '../screens/circle_group_info_screen.dart';
 import '../screens/messenger/contact_info_screen.dart';
 import 'chat_menu_pickers.dart' show showChatReportPicker;
 import 'package:assisto/widgets/app_sheet.dart';
+import '../perf/perf_marks.dart'; // faststart (CI-only define)
 
 /// MY CIRCLE HUB — the Chats tab (SPEC .phaseB/MESSENGER_UI_FULL.md §2).
 ///
@@ -329,6 +330,11 @@ class _MsgrHubChatListState extends State<MsgrHubChatList> {
       _lists = [];
     }
     if (mounted) setState(() => _loading = false);
+    // faststart: My Circle chat list on screen (CI profile APK only)
+    if (PerfMarks.enabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => PerfMarks.mark(
+          _loadFailed ? 'circle_list_failed' : 'circle_list_frame'));
+    }
   }
 
   /// a1-circle: record each peer's CURRENT key (so a later change keeps the

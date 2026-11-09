@@ -1161,6 +1161,38 @@ jobs:
           unzip -l "$REL" | grep -q "lib/arm64-v8a/" || { echo "::error::shipped APK is not arm64"; exit 1; }
           unzip -l emu-x64.apk | grep -q "lib/x86_64/" || { echo "::error::smoke APK is not x86_64"; exit 1; }
 
+      # faststart (owner 10 Nov, item 6): APK size report + ceiling. The
+      # website APK is arm64-only already (one ABI); Play gets per-device
+      # splits from the AAB. Biggest entries go to the run summary so a
+      # size jump is visible on every build; > 100 MB fails.
+      - name: APK size report (faststart)
+        working-directory: app
+        run: |
+          REL=build/app/outputs/flutter-apk/app-release.apk
+          python3 - "$REL" <<'PY'
+          import os, sys, zipfile
+          p = sys.argv[1]
+          mb = os.path.getsize(p) / 1048576
+          z = zipfile.ZipFile(p)
+          groups = {}
+          for i in z.infolist():
+              top = i.filename.split("/")[0]
+              if top == "lib":
+                  key = i.filename
+              elif top == "assets":
+                  key = "/".join(i.filename.split("/")[:4])
+              else:
+                  key = top if "/" in i.filename else ("dex" if i.filename.endswith(".dex") else "other")
+              groups[key] = groups.get(key, 0) + i.compress_size
+          rows = sorted(groups.items(), key=lambda kv: -kv[1])[:25]
+          out = ["### APK size (arm64 release): %.1f MB" % mb, "", "| entry | MB (compressed) |", "|---|---|"]
+          out += ["| %s | %.2f |" % (k, v / 1048576) for k, v in rows]
+          txt = "\n".join(out) + "\n"
+          print(txt)
+          open(os.environ["GITHUB_STEP_SUMMARY"], "a").write(txt)
+          if mb > 100:
+              print("::error::release APK %.1f MB > 100 MB ceiling" % mb); sys.exit(1)
+          PY
       - name: Upload emulator smoke APK
         uses: actions/upload-artifact@v4
         with:
@@ -1453,6 +1485,52 @@ jobs:
             live_logcat.txt
             logcat.txt
           retention-days: 7
+          if-no-files-found: warn
+
+  # ---- faststart ---- CI START-TIME GUARD (owner 10 Nov 00:55): every build,
+  # the release x86_64 APK on a 2 GB / 2-core emulator in AIRPLANE MODE
+  # (offline; no traffic to the live server): cold-start median < 2.5 s
+  # (2 s target + 25 % emulator tolerance) and hot-start median < 1 s, median
+  # of 5 after a warm-up, one re-measure batch before failing
+  # (tools/startspeed/guard.sh). Not named launch-smoke-test: a red guard
+  # shows the regression without blocking the ship (ship_watch).
+  start-time-guard:
+    needs: build-apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/startspeed
+      - uses: actions/download-artifact@v4
+        with:
+          name: assisto-apk-emu
+          path: apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Start-time guard (API 33, 2 GB, offline)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          ram-size: 2048M
+          cores: 2
+          disable-animations: false
+          emulator-boot-timeout: 480
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: bash tools/startspeed/guard.sh apk/emu-x64.apk
+      - name: Upload guard evidence (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: start-time-guard
+          path: start_guard/
+          retention-days: 14
           if-no-files-found: warn
 
   # ---- play-fsi ---- Proof on a real Android 14 (API 34) emulator that the

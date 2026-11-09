@@ -14,6 +14,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'chatnav.dart';
+import '../perf/disk_image.dart'; // faststart
 import '../services/action_feedback.dart'; // db1
 import '../screens/home_v2/home_v2_tokens.dart'; // home_v2
 
@@ -724,8 +725,8 @@ class DiscoverCardTile extends StatelessWidget {
             if (img != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(Radii.sm),
-                child: Image.network(
-                  img,
+                child: Image(
+                  image: DiskCachedImage(img), // faststart: saved on the phone
                   width: 46,
                   height: 46,
                   fit: BoxFit.cover,
@@ -876,7 +877,8 @@ class DiscoverCardV2 extends StatelessWidget {
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: img != null
-                          ? Image.network(img,
+                          ? Image(
+                              image: DiskCachedImage(img), // faststart
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => Center(child: icon))
                           : Center(child: icon),
