@@ -7,6 +7,7 @@ class FakeNotifBridge implements NotifListenBridge {
   NotifLaunch? launch;
   final configs = <Map<String, dynamic>>[];
   final done = <int>[];
+  final smsSwitch = <bool>[]; // privacyupd: every setMoneySms call
   int opened = 0;
 
   FakeNotifBridge({
@@ -40,6 +41,12 @@ class FakeNotifBridge implements NotifListenBridge {
   Future<void> moneyDone(List<int> ids) async {
     done.addAll(ids);
     queue.removeWhere((q) => ids.contains(q.id));
+  }
+
+  @override
+  Future<void> setMoneySms(bool on) async {
+    smsSwitch.add(on);
+    if (!on) queue.removeWhere((q) => q.kind == 'sms');
   }
 
   @override

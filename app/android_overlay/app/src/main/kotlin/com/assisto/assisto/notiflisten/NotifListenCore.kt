@@ -45,6 +45,12 @@ object NotifListenCore {
     fun moneyOn(ctx: Context) = prefs(ctx).getBoolean("money", false)
     fun anyOn(ctx: Context) = callNoteOn(ctx) || moneyOn(ctx)
 
+    /** smsswitch (owner Play decision 5, 9 Nov): the SERVER switch
+     *  money_notif_sms, mirrored here by the app on open / resume / every few
+     *  hours. Default ON (today's behaviour). OFF = a notification from the
+     *  default SMS app is ignored before its sender or text is read. */
+    fun moneySmsOn(ctx: Context) = prefs(ctx).getBoolean("money_sms", true)
+
     private fun s(ctx: Context, key: String, fallback: String): String {
         val v = prefs(ctx).getString("s_$key", null)
         return if (v.isNullOrEmpty()) fallback else v
@@ -102,6 +108,15 @@ object NotifListenCore {
         saveQueue(ctx, q)
         val nm = ctx.getSystemService(NotificationManager::class.java) ?: return
         for (id in ids) try { nm.cancel(moneyNid(id)) } catch (_: Throwable) {}
+    }
+
+    /** smsswitch: drops every waiting item of one kind ("sms"), prompts too. */
+    @Synchronized
+    fun dropKind(ctx: Context, kind: String) {
+        val ids = HashSet<Long>()
+        val q = queue(ctx)
+        for (i in 0 until q.length()) q.optJSONObject(i)?.let { if (it.optString("kind") == kind) ids.add(it.optLong("id")) }
+        if (ids.isNotEmpty()) removeIds(ctx, ids)
     }
 
     @Synchronized

@@ -2034,6 +2034,25 @@ BN.update({
     "ws_apk_note": "উৎস: সেটিং WEBSITE_APK_FILE (খালি = সর্বশেষ প্রকাশিত APK)। আকার ও SHA-256 এই ফাইল থেকেই হিসাব হয়।",
 })
 # ---- /sitev3 ----
+# ---- privacyupd: privacy policy v2 go-live (Owner Admin → Website) ----
+EN.update({
+    "ws_pp_title": "Privacy policy — updated text (9 Nov)",
+    "ws_pp_now": "At /privacy now:",
+    "ws_pp_live_new": "UPDATED policy (9 Nov)",
+    "ws_pp_live_old": "previous policy (update not live)",
+    "ws_pp_golive": "Publish the updated policy",
+    "ws_pp_rollback": "Go back to the previous policy",
+    "ws_pp_note": "Covers AI providers, money from notifications, Care Call recordings, train sharing, City Service trips and Silent Watch. Read the preview first; one tap, audited.",
+})
+BN.update({
+    "ws_pp_title": "গোপনীয়তা নীতি — হালনাগাদ লেখা (৯ নভেম্বর)",
+    "ws_pp_now": "/privacy-তে এখন:",
+    "ws_pp_live_new": "হালনাগাদ নীতি (৯ নভেম্বর)",
+    "ws_pp_live_old": "আগের নীতি (হালনাগাদ লাইভ নয়)",
+    "ws_pp_golive": "হালনাগাদ নীতি প্রকাশ করুন",
+    "ws_pp_rollback": "আগের নীতিতে ফিরে যান",
+    "ws_pp_note": "AI প্রদানকারী, নোটিফিকেশন থেকে টাকার হিসাব, কেয়ার কলের রেকর্ড, ট্রেন শেয়ারিং, সিটি সার্ভিসের যাত্রা ও নীরব পাহারা যোগ হয়েছে। আগে প্রিভিউ পড়ুন; এক চাপেই, অডিট লগে থাকে।",
+})
 # ---- amarket: Owner Admin -> Market ----
 EN.update({
     "nav_market": "Market",

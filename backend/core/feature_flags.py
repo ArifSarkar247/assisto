@@ -274,6 +274,14 @@ REGISTRY = (
     # OFF = the previous home, unchanged (fallback for one week). App shell
     # switch, so it owns no route.
     ('home_v2', 'app_shell', 'New home (v2)', 'নতুন হোম (v2)', True, ()),
+    # smsswitch (owner Play decision 5, 9 Nov): Money from notifications —
+    # the part that reads SMS-app notifications from bank / wallet sender ids.
+    # Wallet-APP notifications (bKash, Nagad ...) are NOT behind this switch.
+    # Default ON (today's behaviour). OFF = the phone ignores those
+    # notifications unread and drops waiting ones (never saved or sent); the
+    # app re-reads it on open / resume and every 3 hours. A KILL switch: an
+    # owner/staff "preview" of OFF counts as OFF in the app. Owns no route.
+    ('money_notif_sms', 'my_account', 'Money from bank/wallet SMS notifications', 'ব্যাংক/ওয়ালেট SMS নোটিফিকেশন থেকে টাকার হিসাব', True, ()),
 )
 
 SECTIONS = (

@@ -166,6 +166,8 @@ const Map<String, bool> kFeatureDefaults = {
   // The REAL Unseen World travel feature (owner 27 Oct) - not built yet.
   'unseen_world': false,
   'home_v2': true,
+  // smsswitch: SMS-app money notifications (server kill switch, no route)
+  'money_notif_sms': true,
 };
 
 /// truth (owner FINAL ORDER 27 Oct): features whose only content is a data
