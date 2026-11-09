@@ -150,6 +150,7 @@ void main() {
 
   testWidgets('DVR check card: green / red with what-to-do, 200% text, dark, target days',
       (tester) async {
+    _tall(tester);
     final red = FakeCctvConnect(healthStatus: 'red');
     await tester.pumpWidget(_app(
         Scaffold(body: ListView(children: [DvrHealthCard(siteId: 1, source: red, initiallyOpen: true)])),
@@ -159,7 +160,11 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Needs attention'), findsWidgets);
     expect(find.textContaining('What to do'), findsNWidgets(2));
+    await tester.ensureVisible(find.byKey(const Key('dvrHealthTarget')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('dvrHealthTarget')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('ccnDays-30')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('ccnDays-30')));
     await tester.pumpAndSettle();
