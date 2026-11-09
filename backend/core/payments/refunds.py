@@ -343,6 +343,7 @@ def refundable(user, now=None, lang="bn"):
                      "purchased_at": o.purchased_at.isoformat(),
                      "window_ends_at": (o.purchased_at + timedelta(hours=w)).isoformat(),
                      "eligible": ok, "reason": why,
+                     "receipt": O.receipt(o, lang),          # plansprep
                      "request": _req_json(req) if req else None})
     return {"window_hours": w, "policy": policy(lang), "purchases": rows,
             "requests": [_req_json(r) for r in RefundRequest.objects.filter(user=user)[:20]]}

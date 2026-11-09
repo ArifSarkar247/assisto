@@ -356,6 +356,10 @@ def _call_anthropic(key, model, system, prompt, max_tokens, history=None):
     body = anthropic_request(model, system, _messages(history, prompt), max_tokens,
                              o.get("effort", "low"), thinking=o.get("thinking"),
                              hard_cap=bool(o.get("hard_cap")), cache=bool(o.get("cache")))
+    if o.get("web"):
+        # plansprep (owner 9 Nov item 9): Claude web search once the free
+        # Gemini grounding quota is used up; at most one search per answer
+        body["tools"] = [{"type": "web_search_20250305", "name": "web_search", "max_uses": 1}]
     try:
         if o.get("server_fallback") and model in C.SERVER_FALLBACK_MODELS:
             try:
@@ -379,6 +383,8 @@ def _call_anthropic(key, model, system, prompt, max_tokens, history=None):
              "model": getattr(resp, "model", "") or model,
              # aifinal round 3: the answer hit max_tokens (cut)
              "truncated": getattr(resp, "stop_reason", "") == "max_tokens"}
+    stu = getattr(u, "server_tool_use", None)
+    extra["web_ran"] = bool(o.get("web") and int(getattr(stu, "web_search_requests", 0) or 0) > 0)
     return text, int(u.input_tokens or 0), int(u.output_tokens or 0), extra
 
 
@@ -489,8 +495,10 @@ def _call_gemini(key, model, system, prompt, max_tokens, history=None):
                 links.append("[%s](%s)" % ((w.get("title") or "source")[:40], w["uri"]))
         if links:
             text = text.rstrip() + "\n\n" + " · ".join(links)
+    web_ran = bool(cands and _opts().get("web") and (
+        (cands[0].get("groundingMetadata") or {}).get("webSearchQueries")))
     return text, itok, otok, {"cache_read": cached, "cache_write": 0, "model": model,
-                              "truncated": trunc}
+                              "truncated": trunc, "web_ran": web_ran}
 
 
 # AF-13 provider retention hygiene: the request options each provider's API
@@ -584,6 +592,13 @@ def mask_for_provider(task, data="", history=None, extra_system="", pii=None):
     vault = pii if isinstance(pii, _T.Vault) else _T.Vault()
     task, data, history, extra_system = vault.mask_request(task, data, history, extra_system)
     return vault, task, data, history, extra_system
+
+
+def _web_search_usd(provider):
+    """The search fee itself (tokens are counted separately): Claude web
+    search $10 / 1,000; a Gemini grounded prompt is free inside the daily
+    quota (web_route keeps us inside it)."""
+    return 0.01 if provider == "anthropic" else 0.0
 
 
 def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
@@ -694,14 +709,18 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             upgraded = False
     charged = 0
     spend_ref = ""
+    web_extra = 0
     if user is not None and lvl is not None:
         from . import billing
-        extra = 0
         if web:
+            # plansprep: the search is paid AFTER the answer and only when a
+            # search really ran; no search for a balance that cannot pay it
             from . import ai_levels_service as ALS
-            extra = ALS.web_credits()
+            web_extra = ALS.web_credits()
+            if int(getattr(user, "ai_credits", 0) or 0) < lvl["credits"] + web_extra:
+                web = False
         res = billing.charge(user, "ai_level_" + lvl["id"], qty=1, note=feature or lvl["id"],
-                             exact=lvl["credits"] + extra, paid_only=not lvl["free_ok"])
+                             exact=lvl["credits"], paid_only=not lvl["free_ok"])
         if not res["ok"]:
             raise AIUnavailable("budget" if res.get("reason") == "guard_over" else "credits")
         charged = res["charged"]
@@ -749,6 +768,17 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     if lvl is not None:
         pairs = [(p, m) for p, m in [(lvl["provider"], lvl["model"])] + lvl["fallbacks"]
                  if p in keys]
+        if web and "gemini" in keys:
+            # plansprep (item 9): the free daily Gemini grounding quota first
+            from . import ai_levels_service as ALS
+            try:
+                gm = ALS.gemini_web_model()
+                if ALS.gemini_web_left() > 0:
+                    pairs = [("gemini", gm)] + [x for x in pairs if x != ("gemini", gm)]
+                else:
+                    pairs = [x for x in pairs if x[0] != "gemini"] or pairs
+            except Exception:  # noqa: BLE001 — routing never breaks the answer
+                pass
         order = [p for p, _ in pairs]
     system = P.system_prompt(extra_system)
     prompt = task + (f"\n\n<data>\n{data}\n</data>" if data else "")
@@ -799,10 +829,16 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             attempts.append(name + ":circuit")
             continue
         fn = globals()["_call_" + name]
+        call_max = max_tokens
+        if lvl is not None and lvl.get("fallback_out_cap") and (name, fixed_model) != (
+                lvl["provider"], lvl["model"]) and name != "gemini":
+            # plansprep (item 13): Better on its Haiku fallback gets the
+            # longer answer budget (still 1 credit by the formula)
+            call_max = int(lvl["fallback_out_cap"])
         token = _CALL_OPTS.set(opts)
         t0 = _time.monotonic()
         try:
-            out = fn(keys[name], model, system, prompt, max_tokens, history=history)
+            out = fn(keys[name], model, system, prompt, call_max, history=history)
             text, itok, otok, cr, cw, used = _unpack(out, model)
             truncated = bool(len(out) > 3 and isinstance(out[3], dict) and out[3].get("truncated"))
             text = P.normalize_output(text, digits)
@@ -827,8 +863,20 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
         latency = int((_time.monotonic() - t0) * 1000)
         R.record(name, True, conf, slow=latency > conf["slow_ms"][klass])
         cost = C.cost_usd(conf, used, itok, otok, cr, cw)
+        web_ran = bool(len(out) > 3 and isinstance(out[3], dict) and out[3].get("web_ran"))
+        if web_ran:
+            cost += _web_search_usd(name)
         hops = len(attempts)
-        attempts.append(name + ":ok")
+        attempts.append(name + (":ok:web" if web_ran else ":ok"))
+        if web_ran and user is not None and lvl is not None and web_extra > 0:
+            try:
+                from . import billing
+                wr = billing.charge(user, "ai_web_search", qty=1, note="web:" + name,
+                                    exact=web_extra, paid_only=False)
+                if wr.get("ok"):
+                    charged += int(wr.get("charged") or 0)
+            except Exception:  # noqa: BLE001 — the answer is already given
+                log.warning("ai: web search charge failed")
         AIUsage.objects.create(
             user=user, feature=(feature or "")[:40], model=used[:40],
             input_tokens=itok, output_tokens=otok, cost_usd=cost,

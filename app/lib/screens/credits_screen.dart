@@ -277,6 +277,9 @@ class _CreditsScreenState extends State<CreditsScreen> {
             key: const Key('credits-purchase-blocked')),
         const SizedBox(height: Gap.md),
       ],
+      // plansprep (owner 9 Nov): bought packs expire after 12 months —
+      // warn 7 days before; and the low-credit warning
+      ..._plansprepWarnings(t, scheme, st),
       _hero(t, st, pool, adWallet, monthTotal),
       if (_updatedAt != null && !offline)
         Padding(
@@ -504,6 +507,34 @@ class _CreditsScreenState extends State<CreditsScreen> {
           ),
         ]),
       );
+
+  // plansprep
+  List<Widget> _plansprepWarnings(AppLocalizations t, ColorScheme scheme, CreditsState st) {
+    final raw = st.raw;
+    final out = <Widget>[];
+    final exp = DateTime.tryParse('${raw['pack_expires_at'] ?? ''}')?.toLocal();
+    final n = (raw['pack_expiring_credits'] as num?)?.toInt() ?? 0;
+    if (raw['pack_expiring'] == true && exp != null && n > 0) {
+      out.addAll([
+        _warn(scheme, t.ppPackExpiringTitle,
+            t.ppPackExpiring(fmtInt(context, n), billDate(context, exp)),
+            key: const Key('credits-pack-expiring')),
+        const SizedBox(height: Gap.md),
+      ]);
+    }
+    final low = (raw['low_credit'] as Map?)?.cast<String, dynamic>();
+    if (low != null && low['low'] == true && st.debt <= 0 && !st.blocked) {
+      out.addAll([
+        _strip(scheme, Icons.battery_alert_rounded,
+            low['empty'] == true
+                ? t.ppCreditsEmpty
+                : t.ppLowCredit(fmtInt(context, st.nowUsable)),
+            key: const Key('credits-low')),
+        const SizedBox(height: Gap.md),
+      ]);
+    }
+    return out;
+  }
 
   Widget _bucketRow(AppLocalizations t, ColorScheme scheme, CreditBucket b) {
     final debt = b.bucket == 'debt';

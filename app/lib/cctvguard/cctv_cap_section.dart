@@ -10,6 +10,11 @@ import '../widgets/app_sheet.dart';
 
 typedef PackBuyer = Future<Map<String, dynamic>> Function(String kind);
 
+/// plansprep (owner 9 Nov item 11): buy one extra pack as a Taka Google Play
+/// product. Returns the fresh usage map, or null when the user cancelled.
+typedef PlayPackBuyer = Future<Map<String, dynamic>?> Function(
+    Map<String, dynamic> pack, String accountId);
+
 /// cctvcap (owner decision 3 Nov 10:40) — the part of "this month's use"
 /// that is about the CAPS: AI photo checks used of the month's allowance,
 /// the 80 % / 100 % Bangla notices for relay and AI, the promise that SOS,
@@ -20,6 +25,7 @@ class CctvCapSection extends StatelessWidget {
   final PackBuyer buy;
   final void Function(Map<String, dynamic> usage) onBought;
   final VoidCallback? onGetCredits;
+  final PlayPackBuyer? playBuy; // plansprep
 
   const CctvCapSection({
     super.key,
@@ -27,6 +33,7 @@ class CctvCapSection extends StatelessWidget {
     required this.buy,
     required this.onBought,
     this.onGetCredits,
+    this.playBuy,
   });
 
   static bool _hot(String level) =>
@@ -101,7 +108,7 @@ class CctvCapSection extends StatelessWidget {
                 context: context,
                 isScrollControlled: true,
                 builder: (_) => ExtraPackSheet(
-                    cap: cap, buy: buy, onGetCredits: onGetCredits),
+                    cap: cap, buy: buy, onGetCredits: onGetCredits, playBuy: playBuy),
               );
               if (out != null) {
                 onBought(out);
@@ -125,7 +132,9 @@ class ExtraPackSheet extends StatefulWidget {
   final Map<String, dynamic> cap;
   final PackBuyer buy;
   final VoidCallback? onGetCredits;
-  const ExtraPackSheet({super.key, required this.cap, required this.buy, this.onGetCredits});
+  final PlayPackBuyer? playBuy; // plansprep
+  const ExtraPackSheet(
+      {super.key, required this.cap, required this.buy, this.onGetCredits, this.playBuy});
 
   @override
   State<ExtraPackSheet> createState() => _ExtraPackSheetState();
@@ -152,6 +161,32 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
         _noCredits = e.status == 402;
         _error = e.message;
       });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _busy = null;
+        _error = AppLocalizations.of(context).capPackFailed;
+      });
+    }
+  }
+
+  // plansprep: pay the pack's Taka price through Google Play
+  Future<void> _goPlay(Map<String, dynamic> p) async {
+    final pb = widget.playBuy;
+    if (pb == null) return;
+    setState(() {
+      _busy = 'play_${p['kind']}';
+      _error = null;
+      _noCredits = false;
+    });
+    try {
+      final out = await pb(p, '${widget.cap['play_account_id'] ?? ''}');
+      if (!mounted) return;
+      if (out != null) {
+        Navigator.of(context).pop(out);
+      } else {
+        setState(() => _busy = null);
+      }
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -226,6 +261,24 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
                         : Text(t.capPackBuy),
                   ),
                 ),
+                if (p['pay_play'] == true &&
+                    widget.playBuy != null &&
+                    '${widget.cap['play_account_id'] ?? ''}'.isNotEmpty) ...[
+                  const SizedBox(height: Gap.xs),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      key: Key('cctvCapPlay_${p['kind']}'),
+                      style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                      icon: const Icon(Icons.shop_rounded),
+                      onPressed: _busy == null ? () => _goPlay(p) : null,
+                      label: _busy == 'play_${p['kind']}'
+                          ? const SizedBox(
+                              width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                          : Text(t.ppCapPackPlay(n(p['price_bdt']))),
+                    ),
+                  ),
+                ],
               ]),
             ),
           ),

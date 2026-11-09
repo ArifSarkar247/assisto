@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../widgets/ladder_common.dart' show fmtInt; // plansprep
 import 'payments_api.dart';
 import 'store_billing.dart';
 
@@ -174,7 +175,14 @@ class PlayStatusCard extends StatelessWidget {
         text = t.payPlayCanceled(date);
         break;
       default:
-        text = date.isEmpty ? t.payManagedByPlay : t.payPlayActive(date);
+        // plansprep: the next renewal date AND the price Google will charge
+        // (the server mirrors Play's own recurring price)
+        final price = (play['price'] as num?)?.round() ?? 0;
+        text = date.isEmpty
+            ? t.payManagedByPlay
+            : (price > 0 && play['auto_renew'] == true)
+                ? t.ppRenewsOnFor(date, fmtInt(context, price))
+                : t.payPlayActive(date);
     }
     final tint = problem ? Brand.warning : scheme.primary;
     return Container(

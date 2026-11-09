@@ -1,0 +1,59 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ L.title }}{% endblock %}
+{% block content %}
+{% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+<p class="mut small">{{ L.intro }}</p>
+<section class="card" id="plans-switch"><h2>{{ L.switch }}: {% if v2 %}<span class="pill ok">{{ L.on }}</span>{% else %}<span class="pill off">{{ L.off }}</span>{% endif %}</h2>
+<form method="post" class="row">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="v2"><input type="hidden" name="value" value="{% if v2 %}off{% else %}on{% endif %}">
+<label>{{ L.reason }} <input name="reason" maxlength="200" required></label>
+<button class="btn">{% if v2 %}{{ L.turn_off }}{% else %}{{ L.turn_on }}{% endif %}</button></form>
+</section>
+<section class="card" id="plans-book"><h2>{{ L.plans }}</h2>
+<div class="tbl"><table><thead><tr><th>{{ L.plan }}</th><th>{{ L.price }}</th><th>{{ L.credits }}</th><th>{{ L.year }}</th><th>{{ L.ycredits }}</th><th>{{ L.product }}</th><th>{{ L.includes }}</th></tr></thead><tbody>
+{% for r in plans %}<tr><td><code>{{ r.id }}</code></td><td>{{ r.price }}</td><td><b>{{ r.credits }}</b></td><td>{{ r.year|default:"—" }}</td><td>{{ r.ycredits }}</td><td><code>{{ r.product }}</code></td><td>{% for b in r.includes %}{{ b }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</td></tr>{% endfor %}
+</tbody></table></div>
+</section>
+<section class="card" id="plans-packs"><h2>{{ L.packs }}</h2>
+<div class="tbl"><table><thead><tr><th>ID</th><th>{{ L.price }}</th><th>{{ L.credits }}</th><th>{{ L.valid }}</th><th>{{ L.sale }}</th><th>{{ L.product }}</th></tr></thead><tbody>
+{% for p in packs %}<tr><td><code>{{ p.id }}</code></td><td>{{ p.price }}</td><td><b>{{ p.credits }}</b></td><td>{{ p.valid_months }}</td><td>{% if p.on_sale %}<span class="pill ok">✓</span>{% else %}<span class="pill off">—</span>{% endif %}</td><td><code>{{ p.product }}</code></td></tr>{% endfor %}
+</tbody></table></div>
+</section>
+<section class="card" id="plans-levels"><h2>{{ L.levels }}</h2>
+{% if levels %}<div class="tbl"><table><thead><tr><th>{{ L.plan }}</th><th>{{ L.model }}</th><th>{{ L.worst }}</th><th>{{ L.credits }}</th><th>{{ L.pct }}</th></tr></thead><tbody>
+{% for r in levels %}<tr><td><code>{{ r.id }}</code></td><td><code>{{ r.model }}</code></td><td>{{ r.worst_bdt }}</td><td><b>{{ r.credits }}</b></td><td>{% if r.profit_pct < 40 %}<span class="pill off">{{ r.profit_pct }}% · {{ L.fail }}</span>{% else %}<span class="pill ok">{{ r.profit_pct }}%</span>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ L.none }}</p>{% endif %}
+</section>
+<section class="card" id="plans-check"><h2>{{ L.check }}</h2>
+<div class="tbl"><table><thead><tr><th>{{ L.plan }}</th><th>{{ L.price }}</th><th>{{ L.credits }}</th><th>{{ L.ai }}</th><th>{{ L.pct }}</th></tr></thead><tbody>
+{% for r in check %}<tr><td><code>{{ r.id }}</code></td><td>{{ r.price }}</td><td>{{ r.credits }}</td><td>{{ r.max_ai_bdt }}</td><td>{% if r.profit_pct < 40 %}<span class="pill off">{{ r.profit_pct }}% · {{ L.fail }}</span>{% else %}<span class="pill ok">{{ r.profit_pct }}%</span>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+</section>
+<section class="card" id="plans-flip"><h2>{{ L.flip }}</h2>
+{% if flip %}<ul class="small">{% for f in flip %}<li><code>{{ f }}</code></li>{% endfor %}</ul>{% else %}<p class="empty">{{ L.nochange }}</p>{% endif %}
+</section>
+<section class="card" id="plans-pnl"><h2>{{ L.pnl }}</h2>
+<p class="mut small">{{ L.pnl_note }}</p>
+{% if pnl %}<div class="tbl"><table><thead><tr><th>{{ L.plan }}</th><th>{{ L.users }}</th><th>{{ L.gross }}</th><th>{{ L.net }}</th><th>{{ L.ai }}</th><th>{{ L.profit }}</th><th>{{ L.margin }}</th></tr></thead><tbody>
+{% for pid, r in pnl %}<tr><td><code>{{ pid }}</code></td><td>{{ r.users }}</td><td>{{ r.gross_bdt }}</td><td>{{ r.net_bdt }}</td><td>{{ r.ai_cost_bdt }}</td><td>{{ r.profit_bdt }}</td><td>{{ r.margin_pct|default:"—" }}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ L.none }}</p>{% endif %}
+</section>
+<section class="card" id="plans-edit"><h2>{{ L.edit }}</h2>
+{% if v2 %}<p class="mut small">{{ L.credits_ro }}</p>{% endif %}
+<form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="plans">
+<div class="tbl"><table><thead><tr><th>{{ L.plan }}</th><th>{{ L.price }}</th><th>{{ L.year }}</th>{% if not v2 %}<th>{{ L.credits }}</th>{% endif %}<th>{{ L.family }}</th><th>{{ L.ads }}</th></tr></thead><tbody>
+{% for r in plans %}<tr><td><code>{{ r.id }}</code></td>
+<td><input name="{{ r.id }}.price" value="{{ r.price }}" inputmode="numeric" size="6" aria-label="{{ r.id }} {{ L.price }}"></td>
+<td><input name="{{ r.id }}.annual_price" value="" placeholder="{{ r.year }}" inputmode="numeric" size="6" aria-label="{{ r.id }} {{ L.year }}"></td>
+{% if not v2 %}<td><input name="{{ r.id }}.credits" value="{{ r.credits }}" inputmode="numeric" size="6" aria-label="{{ r.id }} {{ L.credits }}"></td>{% endif %}
+<td><input name="{{ r.id }}.family" value="{{ r.family }}" inputmode="numeric" size="4" aria-label="{{ r.id }} {{ L.family }}"></td>
+<td><input type="checkbox" name="{{ r.id }}.ads" {% if r.ads %}checked{% endif %} aria-label="{{ r.id }} {{ L.ads }}"></td></tr>{% endfor %}
+</tbody></table></div>
+<label>{{ L.reason }} <input name="reason" maxlength="200" required></label> <button class="btn">{{ L.save }}</button>
+</form>
+</section>
+<section class="card" id="plans-history"><h2>{{ L.history }}</h2>
+{% if history %}<div class="tbl"><table><thead><tr><th>{{ L.when }}</th><th>{{ L.who }}</th><th>{{ L.reason }}</th><th>{{ L.what }}</th></tr></thead><tbody>
+{% for h in history %}<tr><td>{{ h.at }}</td><td>{{ h.actor|default:"—" }}</td><td>{{ h.reason }}</td><td class="small">{% for x in h.changes %}<code>{{ x }}</code><br>{% endfor %}{% if h.more %}+{{ h.more }}{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ L.none }}</p>{% endif %}
+</section>
+{% endblock %}

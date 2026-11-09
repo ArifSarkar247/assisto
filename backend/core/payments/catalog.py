@@ -133,6 +133,13 @@ def price(sku, channel, cfg=None, gate=True):
     base = base_price(sku, cfg)
     if base is None or base <= 0:
         return None
+    if gate and sku.startswith("pack_"):
+        # plansprep (owner 9 Nov item 2): the ৳1-a-credit packs are no longer
+        # sold once pricing_v2 is on; a purchase Google already made still
+        # syncs (gate=False) and bought balances stay
+        from ..logic import plan_book as _BOOK
+        if sku[5:] in _BOOK.packs_off(_cfg(cfg)):
+            return None
     if gate and is_gated(sku):
         from . import play_verify
         if not play_verify.verified(sku):
