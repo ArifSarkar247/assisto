@@ -45076,5 +45076,270 @@
   "fcbSaveFailed": "Could not save. Check the internet and try again.",
   "fcbLoadFailed": "Could not load your family settings.",
   "fcbRetry": "Try again",
-  "fcbArriveForeground": "On while Assisto is open: your family hears when you arrive. When Assisto is closed, they see \"No news\" instead of a guess."
+  "fcbArriveForeground": "On while Assisto is open: your family hears when you arrive. When Assisto is closed, they see \"No news\" instead of a guess.",
+  "qjNearbyFavBrowse": "See places near you",
+  "@qjNearbyFavBrowse": {
+    "description": "qjourney: button on the empty Favourites view of Nearby; goes back to the list of nearby places"
+  },
+  "qjArrivedUnusual": "Arrival saved. It looked unusual (far from the destination or sooner than possible), so your family is asked to check on you.",
+  "@qjArrivedUnusual": {
+    "description": "qjourney: Safe Journey V2 honest manual-arrival message"
+  },
+  "qjArrivedNeedsPin": "This arrival looks unusual. Open Safe Journey and tap “I've arrived safely” to confirm with your safety PIN.",
+  "@qjArrivedNeedsPin": {
+    "description": "qjourney: Safe Journey V2 honest manual-arrival message"
+  },
+  "qjDestNeedsPlace": "Choose the destination from the suggestions or pin it on the map, so we can tell when you really arrive.",
+  "@qjDestNeedsPlace": {
+    "description": "qjourney: start blocked, destination has no map position"
+  },
+  "qjDestIsHere": "You are already at this place. Choose where you are going.",
+  "@qjDestIsHere": {
+    "description": "qjourney: start blocked, destination is within 300 m of the phone"
+  },
+  "qjWindow": "Arrive between {a} and {b}",
+  "@qjWindow": {
+    "description": "qjourney: arrival window card on the Safe Journey start screen",
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "qjEarliest": "Earlier than {c} is not possible",
+  "@qjEarliest": {
+    "description": "qjourney: earliest physically possible arrival under the window",
+    "placeholders": {
+      "c": {
+        "type": "String"
+      }
+    }
+  },
+  "qjPlaceName": "Name",
+  "@qjPlaceName": {
+    "description": "qjourney: rename field in the saved-place sheet"
+  },
+  "sjdStMoving": "Moving",
+  "sjdStSlow": "Slow in traffic",
+  "sjdStStopped": "Stopped {n} min",
+  "@sjdStStopped": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdStOffRoute": "Off route",
+  "sjdStNearly": "Nearly there",
+  "sjdStPhoneOff": "Phone off",
+  "sjdStPhoneOffBatt": "Phone off — last battery {n}%",
+  "@sjdStPhoneOffBatt": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdWhyBattery": "The battery probably ran out.",
+  "sjdWhyKilled": "The phone's battery saver probably paused Assisto.",
+  "sjdWhyUnknown": "The phone is off or has no internet.",
+  "sjdStArrived": "Arrived",
+  "sjdOnlyYourPhone": "Only on your phone — the family does not know yet",
+  "sjdAskRouteTitle": "Changed route?",
+  "sjdAskFromTo": "From {from} to {to}",
+  "@sjdAskFromTo": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdAskStopTitle": "Stopped for a while — all OK?",
+  "sjdAskNearTitle": "Stopped near your destination — all OK?",
+  "sjdAskLateTitle": "All OK?",
+  "sjdAskNightTitle": "Night trip — all OK?",
+  "sjdHere": "here",
+  "sjdThere": "the route",
+  "sjdBtnAddTime": "Yes, add time",
+  "sjdAddTimeNote": "The family sees only “Time extended”",
+  "sjdMinutes": "{n} min",
+  "@sjdMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdBtnShare": "Share the stop place",
+  "sjdBtnOk": "I am OK",
+  "sjdBtnDanger": "Danger",
+  "sjdBottomNote": "If you do not answer in 5 minutes, the family gets “Check on you”.",
+  "sjdBottomNoteNight": "Only you see this. A missed night check-in alone never alerts anyone.",
+  "sjdAnswerSent": "Done. The family knows only what you chose.",
+  "sjdPinTitle": "Enter your PIN to finish",
+  "sjdPinWhyEarly": "Arriving this early is not possible, so your PIN is needed.",
+  "sjdPinWhyRoute": "You changed route or stopped for long, so your PIN is needed.",
+  "sjdPinWhyAlways": "You chose to confirm every arrival with your PIN.",
+  "sjdPinWrong": "Wrong PIN. Try again.",
+  "sjdPinLocked": "Too many tries. Wait 10 minutes.",
+  "sjdPinConfirm": "Confirm",
+  "sjdEarlyNote": "Too early to count as arrived — the trip stays live and finishes by itself.",
+  "sjdPinAlways": "Ask my PIN on every arrival",
+  "sjdPinAlwaysSub": "Watchers then see “Confirmed with PIN”. A wrong-place or too-early arrival always asks it.",
+  "sjdActiveCount": "Active journeys ({n})",
+  "@sjdActiveCount": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdFinished": "Finished journeys",
+  "sjdNearNote": "No alert even if late — they are asked first after 30 minutes.",
+  "sjdWindow": "Arrive between {a} and {b}",
+  "@sjdWindow": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdBadgePin": "Confirmed with PIN",
+  "sjdBadgeFast": "Unusually fast arrival, PIN asked",
+  "sjdLevelAmber": "Check on {name}",
+  "@sjdLevelAmber": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdLevelRed": "Urgent — call now",
+  "sjdCall": "Call",
+  "sjdPlayAudio": "Play the 30-second audio",
+  "sjdAudioFailed": "Could not play the audio.",
+  "sjdAlsoWatching": "You are also watching",
+  "sjdNightOn": "Night trip: Assisto checks in with you more often.",
+  "sjdFamilyNone": "Nobody is travelling now",
+  "sjdFamilyOpen": "See journeys",
+  "sj2PlateTitle": "Number plate photo (optional)",
+  "@sj2PlateTitle": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateAdded": "Plate photo ready",
+  "@sj2PlateAdded": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateHint": "CNG, Uber, Pathao or bus: your watchers get this photo when the trip starts.",
+  "@sj2PlateHint": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateAdd": "Add photo",
+  "@sj2PlateAdd": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateChange": "Change",
+  "@sj2PlateChange": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateRemove": "Remove",
+  "@sj2PlateRemove": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateNotSent": "Journey started. The plate photo did not go; add it again from the live screen.",
+  "@sj2PlateNotSent": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2WatchNone": "Pick at least one person to watch this trip.",
+  "@sj2WatchNone": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2WatchCount": "{n} watching this trip",
+  "@sj2WatchCount": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sj2SuggestTitle": "Going to {place}? Tell family?",
+  "@sj2SuggestTitle": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "sj2SuggestBody": "Your usual trip at this time. One tap starts Safe Journey and lets your family follow.",
+  "@sj2SuggestBody": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2SuggestGo": "Start and tell family",
+  "@sj2SuggestGo": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2SuggestBanner": "Your usual trip to {place} (about {time}). Check and tap Start.",
+  "@sj2SuggestBanner": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sj2SuggestSwitch": "Suggest my usual trips",
+  "@sj2SuggestSwitch": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2SuggestSwitchDesc": "Only while Assisto is open. Learned on this phone only; nothing is sent until you start.",
+  "@sj2SuggestSwitchDesc": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2SuggestForget": "Forget learned trips",
+  "@sj2SuggestForget": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2SuggestForgotten": "Learned trips deleted from this phone.",
+  "@sj2SuggestForgotten": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2From": "From",
+  "@sj2From": {
+    "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
+  },
+  "sj2FromHere": "My current location",
+  "@sj2FromHere": {
+    "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
+  },
+  "sj2FromHereArea": "My current location · {area}",
+  "@sj2FromHereArea": {
+    "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "sj2FromSearch": "Search a place or pick on the map",
+  "@sj2FromSearch": {
+    "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
+  },
+  "sj2FromChange": "Change",
+  "@sj2FromChange": {
+    "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
+  }
 }
