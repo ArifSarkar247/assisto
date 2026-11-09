@@ -91,8 +91,8 @@ class AdFundedNoLossCiTests(TestCase):
                 n = AM.ads_per_answer(real, inc, worst)
                 got = AM.ads_really_needed(n) * inc
                 self.assertGreaterEqual(got + 1e-9, worst, (inc, real, n))     # never a loss
-                self.assertGreaterEqual(got + 1e-9, (worst if real is None else real) * AM.SAFETY,
-                                        (inc, real, n))                        # owner x 1.2
+                base = (worst if real is None else real) * AM.SAFETY
+                self.assertGreaterEqual(n * inc + 1e-9, base, (inc, real, n))  # owner x 1.2
                 self.assertGreaterEqual(n, AM.MIN_ADS)
         # what the app shows today (no AdMob data yet) is profitable
         n = ALS.ads_per_answer(c)

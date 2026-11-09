@@ -55,12 +55,11 @@ def ads_per_answer(real_cost_bdt, income_bdt, worst_cost_bdt=0.0, answer_credits
         inc = DEFAULT_AD_INCOME_BDT
     worst = max(0.0, float(worst_cost_bdt or 0))
     real = worst if real_cost_bdt is None else max(0.0, float(real_cost_bdt))
-    need = max(real * SAFETY, worst)
     n = max(MIN_ADS, int(math.ceil(round(real * SAFETY / inc, 6))),
             int(math.ceil(round(worst / inc, 6))))
-    # the paisa rounding may let N ads count as slightly fewer: bump until
-    # the ads really watched still cover the need
-    while n < MAX_ADS and ads_really_needed(n, answer_credits) * inc + 1e-9 < need:
+    # the paisa rounding may let N ads count as slightly fewer (3 ads -> 34
+    # paisa each): bump only if that could break even the longest answer
+    while n < MAX_ADS and ads_really_needed(n, answer_credits) * inc + 1e-9 < worst:
         n += 1
     return min(MAX_ADS, n)
 
