@@ -532,15 +532,15 @@ class _SalesState extends State<CctvSalesMatchScreen> {
           actions: [
             TextButton(
               style: TextButton.styleFrom(minimumSize: const Size(64, 48)),
-              onPressed: () async {
-                try {
-                  await Clipboard.setData(ClipboardData(
-                      text: 'URL: ${k['url']}\nKey ID: ${k['key_id']}\nSecret: ${k['secret']}'));
-                } catch (_) {
-                  // no clipboard on this device: the text stays selectable above
-                }
-                if (ctx.mounted) Navigator.pop(ctx);
-                if (mounted) _say(context, t.cv3Copied);
+              onPressed: () {
+                Navigator.pop(ctx);
+                Clipboard.setData(ClipboardData(
+                        text: 'URL: ${k['url']}\nKey ID: ${k['key_id']}\nSecret: ${k['secret']}'))
+                    .then((_) {
+                  if (mounted) _say(context, t.cv3Copied);
+                }, onError: (Object _) {
+                  // best-effort: no clipboard on this phone; the key was shown selectable
+                });
               },
               child: Text(t.cv3Copy),
             ),
@@ -582,6 +582,8 @@ class _SalesState extends State<CctvSalesMatchScreen> {
 
   Future<void> _csv() async {
     final t = AppLocalizations.of(context);
+    // dialog-local controller: not disposed here — the dialog route is still
+    // animating out when showDialog returns (disposing it then throws)
     final c = TextEditingController();
     final text = await showDialog<String>(
       context: context,
@@ -614,7 +616,6 @@ class _SalesState extends State<CctvSalesMatchScreen> {
         ],
       ),
     );
-    c.dispose();
     if (text == null || text.trim().isEmpty) return;
     try {
       final r = await widget.source.importCsv(widget.siteId, text);
@@ -836,9 +837,6 @@ class _AutoState extends State<CctvAutomationsScreen> {
         ),
       ),
     );
-    uid.dispose();
-    aid.dispose();
-    sec.dispose();
     if (body == null) return;
     try {
       final d = await widget.source.link(widget.siteId, body);

@@ -39,7 +39,7 @@ no view here; clips stay behind the owner-checked links of cashguard.
 import json
 import logging
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone as dt_timezone
 
 from django.db import IntegrityError, transaction
 from django.utils import timezone
@@ -1033,7 +1033,7 @@ class SalesMatchView(_OwnerBase):
         items = match_items(site, date_str)
         out = []
         for it in items[:100]:
-            hhmm = _local(datetime.fromtimestamp(it["at"], tz=timezone.utc)).strftime("%H:%M")
+            hhmm = _local(datetime.fromtimestamp(it["at"], tz=dt_timezone.utc)).strftime("%H:%M")
             out.append(dict(it, time=hhmm, text=A.review_text(it, lang, hhmm)))
         lo, hi = _day_bounds(date_str)
         feeds = sorted({s or "assisto" for s in site.pos_events.filter(
@@ -1257,7 +1257,7 @@ def ai_parse(q, today, user):
         from . import ai
         text, _cost = ai.generate(A.AI_PARSE_TASK % today.isoformat(), data=q[:300],
                                   tier="cheap", max_tokens=200, feature="cctv_ask",
-                                  user=user, task_class="cheap")
+                                  user=user, task_class="cheap", pii=True)
         return A.parse_ai_json(text)
     except Exception:
         return None
