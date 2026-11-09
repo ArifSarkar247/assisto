@@ -210,7 +210,7 @@ class HomeV2Shortcuts {
     // while the flag is OFF; "Budget and Remittance" opening the new feature
     // once `budget_remittance` is ON (see [openRoute]).
     QuickShortcut('budget', Icons.pie_chart_outline_rounded,
-        (t) => remittanceOn ? t.rmtTileTitle : t.budgetTitle),
+        (t) => remittanceOn ? t.svcTileBudgetRemit : t.budgetTitle), // svcclean: fits
     QuickShortcut('contract', Icons.policy_outlined, (t) => t.hv2TileContract),
   ];
 

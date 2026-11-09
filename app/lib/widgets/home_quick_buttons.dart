@@ -69,12 +69,12 @@ class HomeQuickButtons {
     QuickShortcut('money_voice', Icons.mic_none_outlined, (t) => t.mvoiceTitle),
     QuickShortcut('photo_enhance', Icons.auto_fix_high_outlined,
         (t) => t.b2PhotoStudioTitle), // b2: opens Photo Studio
-    QuickShortcut('birthdays', Icons.cake_outlined, (t) => t.birthdaysTitle),
-    QuickShortcut('meetings', Icons.event_outlined, (t) => t.meetingsTitle),
+    QuickShortcut('birthdays', Icons.cake_outlined, (t) => t.svcTileBirthdays),
+    QuickShortcut('meetings', Icons.event_outlined, (t) => t.svcTileMeetings),
     QuickShortcut('memory', Icons.psychology_outlined, (t) => t.navMemory),
     QuickShortcut('contacts', Icons.contacts_outlined, (t) => t.contactsTitle),
     QuickShortcut(
-        'medicine_db', Icons.medication_outlined, (t) => t.medicineDbTitle),
+        'medicine_db', Icons.medication_outlined, (t) => t.svcTileMedicine),
     QuickShortcut(
         'health_tips', Icons.favorite_outline, (t) => t.healthTipsTitle),
     QuickShortcut('nearby', Icons.place_outlined, (t) => t.sidebarNearby),
