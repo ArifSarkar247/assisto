@@ -178,6 +178,11 @@ void main() {
       await f.tester.enterText(dest, 'Demo Park');
       await f.pumpFor(const Duration(seconds: 1));
       final b = find.widgetWithText(CheckboxListTile, Seed.nameB);
+      // the watcher list is further down the (lazy) form
+      for (var i = 0; i < 5 && b.evaluate().isEmpty; i++) {
+        await f.scrollTo(b, maxDrags: 4);
+        await f.pumpFor(const Duration(seconds: 1));
+      }
       await f.waitFor(b, seconds: 10, what: 'watcher ${Seed.nameB}');
       await f.tester.ensureVisible(b);
       await f.tap(b, settleSeconds: 1);

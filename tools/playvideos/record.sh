@@ -23,7 +23,10 @@ TOTAL="${PV_TOTAL_SECONDS:-1500}"
 mkdir -p "$OUT/a" "$OUT/b" "$OUT/ui" "$OUT/shots"
 LOG="$OUT/live_logcat.txt"
 
-A() { timeout "${T:-60}" adb "$@"; }
+# stdin from /dev/null: an adb (or screenrecord) child must never eat the
+# PLAYVID lines the main loop reads (run 42594996042 lost every line after
+# the first screenrecord started).
+A() { timeout "${T:-60}" adb "$@" < /dev/null; }
 say() { echo "$(date +%T) $*" | tee -a "$OUT/run.log"; }
 now() { date +%s.%N; }
 rel() { awk -v a="$(cat "$OUT/$1/t0" 2>/dev/null || now)" -v b="$(now)" 'BEGIN{printf "%.2f", b-a}'; }
@@ -46,7 +49,7 @@ geo() { T=10 A emu geo fix "$2" "$1" >/dev/null 2>&1 || true; }
 geo "$LAT0" "$LNG0"; sleep 1; geo "$LAT0" "$LNG0"
 A logcat -c || true
 : > "$LOG"
-( timeout "$TOTAL" adb logcat -v time >> "$LOG" 2>&1 ) &
+( timeout "$TOTAL" adb logcat -v time >> "$LOG" 2>&1 < /dev/null ) &
 
 say "install $(basename "$APK") (no -g: nothing pre-granted)"
 T=300 A install -t "$APK" 2>&1 | tail -2 | tee -a "$OUT/run.log"
@@ -183,7 +186,7 @@ handle_mark() {
 
 T=20 A shell am start -n "$LAUNCHER" >/dev/null 2>&1 || true
 say "app launched (lang $LANG_CODE)"
-while read -r kind name; do
+while read -r kind name <&3; do
   case "$kind" in
     PLAYVID_HOST) say "host $name"; handle_host "$name" ;;
     REALITY_SHOT)  # the harness's own screenshots (e.g. on a failed step)
@@ -193,7 +196,7 @@ while read -r kind name; do
       [ "$name" = all_done ] && { say "all done"; break; }
       handle_mark "$name" ;;
   esac
-done < <(timeout "$TOTAL" tail -n +1 -F "$LOG" 2>/dev/null \
+done 3< <(timeout "$TOTAL" tail -n +1 -F "$LOG" 2>/dev/null \
            | grep --line-buffered -oE 'PLAYVID_(MARK|HOST) [A-Za-z0-9_]+|REALITY_SHOT [A-Za-z0-9_.-]+\.png')
 
 route_stop
