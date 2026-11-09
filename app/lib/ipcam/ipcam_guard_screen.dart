@@ -123,6 +123,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
   final _offline = OfflineQueue<({String type, Map<String, dynamic> signals, Uint8List? snap})>();
   Timer? _loop, _hb;
   bool _tickBusy = false;
+  bool _modelLoading = false;
   DateTime _lastGrab = DateTime.fromMillisecondsSinceEpoch(0);
   int _alerts = 0, _frames = 0;
   DateTime _fpsAt = DateTime.now();
@@ -428,7 +429,11 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
     unawaited(_heartbeat());
     // the on-phone person model (downloaded once, SHA-256 checked); motion
     // only until it is ready, or for good when it can't run on this phone
-    unawaited(guardPersonDetector().then((d) {
+    _modelLoading = true;
+    unawaited(guardPersonDetector()
+        .timeout(const Duration(seconds: 90), onTimeout: () => null)
+        .then((d) {
+      _modelLoading = false;
       if (mounted && _running) setState(() => _detect = d);
     }));
   }
@@ -463,7 +468,8 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
       _dark.feed(DarkMonitor.meanOf(grid), now);
       if (wasDark != _dark.dark) unawaited(_heartbeat());
       final r = _motion.feedGrid(grid);
-      if (r.motion && _clock.mayCheck(now, model: _detect != null)) {
+      // while the person model is still loading, no movement-only alerts
+      if (r.motion && !_modelLoading && _clock.mayCheck(now, model: _detect != null)) {
         _clock.lastCheck = now;
         await _onMotion(f);
       }
@@ -504,7 +510,9 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
       // internet down: keep it, send when the server answers again
       _offline.add((type: alert.type, signals: {...signals, 'sent_late': true}, snap: snap));
     }
-    if (mounted && r.ok) setState(() => _alerts++);
+    // the server may log a weak signal without alerting ({raised: false}):
+    // only a real alert is counted on this screen
+    if (mounted && r.ok && r.body['raised'] != false) setState(() => _alerts++);
   }
 
   Future<void> _flushOffline(ShopDeviceClient dev) async {

@@ -103,8 +103,12 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('icgStart')));
     await tester.tap(find.byKey(const Key('icgStart')));
     final tStart = DateTime.now();
+    // the person model downloads once (SHA-256 checked) before checks start
+    final modelOn = await _waitFor(
+        tester, find.text('Person check on this phone: on'), const Duration(seconds: 100));
+    _proof('model', {'person_model': modelOn, 'seconds': DateTime.now().difference(tStart).inSeconds});
     var alerted = false;
-    final end = DateTime.now().add(const Duration(seconds: 150));
+    final end = DateTime.now().add(const Duration(seconds: 180));
     while (DateTime.now().isBefore(end)) {
       await tester.pump(const Duration(seconds: 1));
       final a = find.byKey(const Key('icgAlerts'));

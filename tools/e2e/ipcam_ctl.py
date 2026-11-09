@@ -175,7 +175,7 @@ async def _live_probe(cam_id):
 
 def _live_thread():
     cam_id = None
-    for _ in range(300):
+    for _ in range(1800):  # the APK build + emulator boot come first (up to 60 min)
         try:
             cams, evs = _events()
             if evs and cams:
