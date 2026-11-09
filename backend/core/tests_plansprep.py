@@ -161,7 +161,8 @@ class SwitchEffectTests(TestCase):
 
     def test_no_drip_and_existing_locked_credits_open(self):
         u = _user()
-        CR.grant(u, CR.PLAN, 100, reason="grant", source_type="test", source_id="a",
+        # (a FREE-bucket lot: a plan lot on a free account would just expire)
+        CR.grant(u, CR.FREE, 100, reason="grant", source_type="test", source_id="a",
                  key="a1", staged=True)
         u.refresh_from_db()
         self.assertEqual(u.ai_credits, 20)                 # old rule: 20 % now
@@ -169,7 +170,7 @@ class SwitchEffectTests(TestCase):
         CR.settle(u)
         u.refresh_from_db()
         self.assertEqual(u.ai_credits, 100)                # the rest opens at once
-        CR.grant(u, CR.PLAN, 50, reason="grant", source_type="test", source_id="b",
+        CR.grant(u, CR.FREE, 50, reason="grant", source_type="test", source_id="b",
                  key="b1", staged=True)
         u.refresh_from_db()
         self.assertEqual(u.ai_credits, 150)                # 100 % at purchase

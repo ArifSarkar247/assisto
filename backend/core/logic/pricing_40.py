@@ -293,6 +293,13 @@ def bdt_per_credit_rows(cfg, annual_credit_months=None):
             except Exception:  # noqa: BLE001
                 annual = 0.0
         if annual > 0:
+            if (cfg.get("pricing_v2") or {}).get("on"):
+                # plansprep: a yearly plan's credits come from its own price
+                from . import plan_book as _BOOK
+                yc = _BOOK.annual_credits_total(annual, pid)
+                if yc > 0:
+                    rows.append((pid + "_annual", annual / yc))
+                continue
             rows.append((pid + "_annual", annual / (cr * annual_credit_months)))
     off = set(((cfg.get("pricing_v2") or {}).get("packs_off")) or [])
     for p in cfg.get("topup_packs") or []:
