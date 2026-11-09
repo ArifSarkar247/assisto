@@ -247,6 +247,9 @@ K = {
  "lp2RawScore": ("{raw} of {total} correct", "{total}টির মধ্যে {raw}টি সঠিক"),
  "lp2ScaledNote": ("Only {count} questions had a key, so the band is an estimate scaled to 40.", "শুধু {count}টি প্রশ্নের উত্তর দেওয়া হয়েছে, তাই ব্যান্ডটা ৪০-এর হিসাবে আনুমানিক।"),
  "lp2MistakeTypes": ("Mistake types", "ভুলের ধরন"),
+ # ads (owner 10 Nov PART B)
+ "lp2WatchAdCredits": ("Watch a short ad to earn credits", "ছোট একটি বিজ্ঞাপন দেখে ক্রেডিট নিন"),
+ "lp2OpenWithCredits": ("Open this section with {count} credits", "{count} ক্রেডিট দিয়ে এই সেকশন খুলুন"),
 }
 
 def ph(text):

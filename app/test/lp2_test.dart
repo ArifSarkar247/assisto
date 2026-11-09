@@ -263,7 +263,10 @@ void main() {
     testWidgets('time up submits the section by itself', (t) async {
       const mock = {'id': 'ac-001', 'kind': 'academic', 'title_en': 'Academic mock 1'};
       await t.pumpWidget(_app(const LpMockRunner(mock: mock, sections: ['listening'], full: false), _api()));
-      await t.pumpAndSettle();
+      for (var i = 0; i < 4; i++) {
+        await t.pump(const Duration(milliseconds: 50)); // load (the exam timer keeps ticking: no settle)
+      }
+      expect(find.text('30:00'), findsOneWidget);
       for (var i = 0; i < 1801; i++) {
         await t.pump(const Duration(seconds: 1));
       }

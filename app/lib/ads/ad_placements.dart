@@ -73,6 +73,11 @@ class AdPlacements {
     // train chat (fence: 'chat'), never Safe Journey's train picker, never
     // the destination alarm (fence: 'destination'), no interstitial.
     'train_search', 'train_detail',
+    // lpapp (owner 10 Nov 00:35 PART B): Language Partner home + its lists
+    // (IELTS mock list, Life English list, vocabulary topics). Never the
+    // timed mock, listening audio, speaking recording, role-play, book
+    // companion sheet or a certificate (those screens have no slot).
+    'lp_home', 'lp_hub', 'lp_life', 'lp_vocab',
   };
 
   /// Interstitial: the registered EXIT placements -> the screen they leave.

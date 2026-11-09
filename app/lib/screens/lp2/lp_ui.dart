@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../../widgets/local_digits.dart';
@@ -455,3 +456,31 @@ IconData lpIcon(String? name, IconData fallback) => switch (name) {
       'trending_up' => Icons.trending_up_rounded,
       _ => fallback,
     };
+
+/// A finished result (mock / section): marks the task done when it appears
+/// and lets a Free user see at most one interstitial when he LEAVES it —
+/// never while a timed section, audio or recording runs (global caps:
+/// max 4 a day, >= 800 s apart, never on day one, never on a paid plan).
+class LpAdExit extends StatefulWidget {
+  final Widget child;
+  const LpAdExit({super.key, required this.child});
+  @override
+  State<LpAdExit> createState() => _LpAdExitState();
+}
+
+class _LpAdExitState extends State<LpAdExit> {
+  @override
+  void initState() {
+    super.initState();
+    AdExit.taskDone(AdExitPlacement.lessonAfterFinish);
+  }
+
+  @override
+  void dispose() {
+    AdExit.maybeShow(AdExitPlacement.lessonAfterFinish);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}

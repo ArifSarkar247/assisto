@@ -2,7 +2,10 @@
 /// offline download), the mock run (full mock with the real timer, or one
 /// section as practice), marking + AI scoring, the RESULT (owner-approved
 /// screen 2) and weak-area practice. API: owner_actions/LANGUAGE_PARTNER_API.md.
-/// No ads anywhere in this file (exam screens).
+/// Ads (owner 10 Nov PART B): Free users get one banner on the hub list, a
+/// rewarded ad offer when the weekly slot or credits run out, and at most
+/// one interstitial when LEAVING a result. NEVER an ad in the timed runner,
+/// listening audio or speaking recording (test/lp2_ads_test.dart).
 library;
 
 import 'dart:async';
@@ -11,7 +14,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../ads/ad_banner_slot.dart';
 import '../../api.dart' show ApiException;
+import '../../widgets/rewarded_ad_sheet.dart';
 import '../../audio/audio_route_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/error_kind.dart' show honestFailText;
@@ -34,11 +39,14 @@ import 'lp_vocab.dart';
 const List<String> kLpSections = ['listening', 'reading', 'writing', 'speaking'];
 
 /// Premium / weekly-slot explanation with a way forward (never a dead end).
-Future<void> lpGateSheet(BuildContext context, String reason, {String? nextFreeAt}) {
+/// Returns true when the user chose to open the section with [unlockCredits]
+/// credits (earned e.g. with a rewarded ad — owner 10 Nov PART B).
+Future<bool> lpGateSheet(BuildContext context, String reason, {String? nextFreeAt, int? unlockCredits}) async {
   final tr = AppLocalizations.of(context);
   final date = (nextFreeAt ?? '').length >= 10 ? ld(context, nextFreeAt!.substring(0, 10)) : '';
   final text = reason == 'week_used' ? tr.lp2WeekUsed(date) : tr.lp2FullIsPremium;
-  return showAppSheet<void>(
+  var pay = false;
+  await showAppSheet<void>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => Padding(
@@ -46,6 +54,27 @@ Future<void> lpGateSheet(BuildContext context, String reason, {String? nextFreeA
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(text, style: const TextStyle(height: 1.4)),
         const SizedBox(height: Gap.lg),
+        if (unlockCredits != null && unlockCredits > 0) ...[
+          FilledButton.icon(
+            key: const Key('lp2-pay-credits'),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(kMinTap)),
+            onPressed: () {
+              pay = true;
+              Navigator.of(ctx).pop();
+            },
+            icon: const Icon(Icons.lock_open_rounded),
+            label: Text(tr.lp2OpenWithCredits(ld(context, unlockCredits))),
+          ),
+          const SizedBox(height: Gap.sm),
+        ],
+        OutlinedButton.icon(
+          key: const Key('lp2-rewarded'),
+          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(kMinTap)),
+          onPressed: () => RewardedAdSheet.show(ctx),
+          icon: const Icon(Icons.ondemand_video_rounded),
+          label: Text(tr.lp2WatchAdCredits),
+        ),
+        const SizedBox(height: Gap.sm),
         FilledButton(
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(kMinTap)),
           onPressed: () {
@@ -65,6 +94,7 @@ Future<void> lpGateSheet(BuildContext context, String reason, {String? nextFreeA
       ]),
     ),
   );
+  return pay;
 }
 
 // ============================================================ hub
@@ -157,6 +187,7 @@ class _LpIeltsHubState extends State<LpIeltsHub> {
     final left = (_data?['free_sections_left_week'] as num?)?.toInt();
     final mocks = lpList(_data?['mocks']);
     return Scaffold(
+      bottomNavigationBar: const AdBannerSlot(screen: 'lp_hub'),
       appBar: AppBar(title: Text(tr.lp2IeltsTitle)),
       body: RefreshIndicator(
         onRefresh: _load,
@@ -366,7 +397,7 @@ class _LpMockRunnerState extends State<LpMockRunner> {
     super.dispose();
   }
 
-  Future<void> _load() async {
+  Future<void> _load({bool pay = false}) async {
     setState(() {
       _loading = true;
       _fail = null;
@@ -376,13 +407,18 @@ class _LpMockRunnerState extends State<LpMockRunner> {
       _m = off;
     } else {
       try {
-        _m = await context.read<AppState>().api.getJson(
-            widget.full ? '/lp/mocks/$_id' : '/lp/mocks/$_id?section=${widget.sections.first}');
+        _m = await context.read<AppState>().api.getJson(widget.full
+            ? '/lp/mocks/$_id'
+            : '/lp/mocks/$_id?section=${widget.sections.first}${pay ? '&pay=credits' : ''}');
       } on ApiException catch (e) {
         if (e.reason == 'premium' || e.reason == 'week_used') {
           if (mounted) {
-            await lpGateSheet(context, e.reason!, nextFreeAt: '${e.body?['next_free_at'] ?? ''}');
-            if (mounted) Navigator.of(context).pop();
+            final payNow = await lpGateSheet(context, e.reason!,
+                nextFreeAt: '${e.body?['next_free_at'] ?? ''}',
+                unlockCredits: widget.full || pay ? null : (e.body?['unlock_credits'] as num?)?.toInt());
+            if (!mounted) return;
+            if (payNow) return _load(pay: true);
+            Navigator.of(context).pop();
           }
           return;
         }
@@ -1223,7 +1259,8 @@ class LpMockResultScreen extends StatelessWidget {
     final tags = weakTags.isNotEmpty ? weakTags : [if (weakest != null) weakest];
     final shownBand = overall ?? (sections.length == 1 ? bands[sections.first] : null);
     final label = finish['practice_label'];
-    return Scaffold(
+    return LpAdExit(
+      child: Scaffold(
       appBar: AppBar(title: Text(tr.lp2ResultTitle)),
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
@@ -1322,7 +1359,7 @@ class LpMockResultScreen extends StatelessWidget {
           LpPracticeFooter(text: label is Map ? '${(bn ? label['bn'] : label['en']) ?? ''}' : null),
         ],
       ),
-    );
+    ));
   }
 }
 

@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../ads/ad_banner_slot.dart';
 import '../../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../../l10n/app_localizations.dart';
 import '../../services/error_kind.dart' show honestFailText;
@@ -91,6 +92,7 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
     final byId = {for (final w in all) '${w['id']}': w};
     final shown = _topics.where((t) => t['group'] == _group).toList();
     return Scaffold(
+      bottomNavigationBar: const AdBannerSlot(screen: 'lp_vocab'),
       appBar: AppBar(title: Text(tr.lp2VocabTitle)),
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),

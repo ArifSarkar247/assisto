@@ -18,6 +18,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../ads/ad_banner_slot.dart';
+import '../../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../../l10n/app_localizations.dart';
 import '../plans_screen.dart' show PlansScreen;
 import '../../services/error_kind.dart' show honestFailText;
@@ -97,6 +99,7 @@ class _LpLifeListScreenState extends State<LpLifeListScreen> {
       );
     }
     return Scaffold(
+      bottomNavigationBar: const AdBannerSlot(screen: 'lp_life'),
       appBar: AppBar(title: Text(tr.lp2LifeTitle)),
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
@@ -360,6 +363,9 @@ class _LpRolePlayScreenState extends State<LpRolePlayScreen> {
 
   @override
   void dispose() {
+    // lesson end: a Free user may see one interstitial when LEAVING a
+    // practised scenario (never while speaking; global caps apply)
+    if (_logged) AdExit.maybeShow(AdExitPlacement.lessonAfterFinish);
     _voice.stop();
     _voice.dispose();
     _heard.dispose();
@@ -386,6 +392,7 @@ class _LpRolePlayScreenState extends State<LpRolePlayScreen> {
   void _logOnce() {
     if (_logged || _userTurns < 3) return;
     _logged = true;
+    AdExit.taskDone(AdExitPlacement.lessonAfterFinish);
     unawaited(lpLogPractice(context.read<AppState>().api, 'life:${_s['id']}', 10));
   }
 
