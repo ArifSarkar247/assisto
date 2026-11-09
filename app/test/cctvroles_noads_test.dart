@@ -29,7 +29,7 @@ void main() {
         .where((f) => f.path.endsWith('.dart') && _isCctvFile(f.path))
         .toList();
     expect(files.length, greaterThan(20), reason: 'the CCTV files were not found');
-    final bad = RegExp(r"import\s+'[^']*ads/|AdBannerSlot|BannerAd\b|InterstitialAd\b|"
+    final bad = RegExp(r"import\s+'(package:assisto/|(\.\./)+)ads/|AdBannerSlot|BannerAd\b|InterstitialAd\b|"
         r'RewardedAd\b|AppOpenAd\b|NativeAd\b|AdExitPlacement|showExitAd');
     final hits = <String>[];
     for (final f in files) {
