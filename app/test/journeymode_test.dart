@@ -174,7 +174,7 @@ void main() {
   group('travel mode -> alarm plan', () {
     test('which modes ring, and the bus defaults (local 10 m, long 2 km)', () async {
       expect(kTravelModes,
-          ['local_bus', 'long_bus', 'train', 'metro', 'launch', 'car', 'cng']);
+          ['local_bus', 'long_bus', 'train', 'metro', 'launch', 'car', 'cng', 'bike', 'walk']);
       expect(alarmModeFor('local_bus'), TransportMode.cityBus);
       expect(alarmModeFor('long_bus'), TransportMode.longBus);
       expect(alarmModeFor('train'), TransportMode.train);

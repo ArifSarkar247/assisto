@@ -126,6 +126,12 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   VehMapConfig _map = const VehMapConfig();
   bool _gmaps = false; // mapscost: Google Maps SDK key built in (free map display)
   ({double lat, double lng})? _here; // last known, never prompts on open
+  // sjstart2 (owner V2 "From"): null = My current location (shown as an
+  // area name from OUR list, free); else a picked start (saved/search/map)
+  PlacePick? _fromPick;
+  String? _hereArea;
+  ({double lat, double lng})? get _origin =>
+      _fromPick == null ? _here : (lat: _fromPick!.lat, lng: _fromPick!.lng);
   // journeymode: "How are you going?" + train + destination alarm
   final JourneyModeController _jm = JourneyModeController();
 
@@ -248,6 +254,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       if (p != null && mounted) {
         setState(() => _here = (lat: p.latitude, lng: p.longitude));
         if (_pinned && _eta == null) unawaited(_fetchEta());
+        unawaited(_loadHereArea());
       }
     } catch (_) {
       // best-effort: no distance line, nothing else changes
@@ -283,7 +290,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
 
   /// Road modes Google's Routes answers for (DRIVE / TWO_WHEELER); train
   /// times come from the train, metro / launch have no road time.
-  static const _roadModes = <String?>{null, 'local_bus', 'long_bus', 'car', 'cng'};
+  static const _roadModes = <String?>{null, 'local_bus', 'long_bus', 'car', 'cng', 'bike', 'walk'}; // sjstart2: bike = TWO_WHEELER, walk = WALK
 
   /// jsearch: ONE Routes call (our capped server; cached 10 min there) for
   /// the pinned destination + chosen mode -> the default arrival time.
@@ -299,7 +306,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       }
       return;
     }
-    final here = _here;
+    final here = _origin; // sjstart2: from the chosen start
     if (here == null) return;
     final lat = (_dest!['lat'] as num).toDouble(), lng = (_dest!['lng'] as num).toDouble();
     final mode = _mode;
@@ -484,8 +491,9 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
 
   double? get _distM {
-    if (!_pinned || _here == null) return null;
-    return jDistanceM(_here!.lat, _here!.lng, (_dest!['lat'] as num).toDouble(),
+    final o = _origin; // sjstart2
+    if (!_pinned || o == null) return null;
+    return jDistanceM(o.lat, o.lng, (_dest!['lat'] as num).toDouble(),
         (_dest!['lng'] as num).toDouble());
   }
 
@@ -557,7 +565,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       return;
     }
     // qjourney: a destination where you already are would "arrive" at once
-    final h = _here;
+    final h = _origin;
     if (h != null &&
         jDistanceM(h.lat, h.lng, (_dest!['lat'] as num).toDouble(),
                 (_dest!['lng'] as num).toDouble()) <
@@ -630,6 +638,14 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             destination: dest,
             etaIso: eta.toUtc().toIso8601String(), // sjfix: absolute instant, not phone-local wall time
             watcherIds: _selectedWatchers.toList(),
+            // sjstart2: where the trip starts (picked start, else the phone)
+            origin: _origin == null
+                ? null
+                : {
+                    'lat': _origin!.lat,
+                    'lng': _origin!.lng,
+                    'name': _fromPick?.name ?? _hereArea ?? '',
+                  },
             mode: _mode,
             vehicle: ride.isEmpty ? null : ride,
             overdueGraceMin: _graceMin,
@@ -688,7 +704,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   Widget _modePicker() {
     final lat = (_dest?['lat'] as num?)?.toDouble(), lng = (_dest?['lng'] as num?)?.toDouble();
     if (_jm.travel == 'metro') {
-      _jm.guessMetro(hereLat: _here?.lat, hereLng: _here?.lng, destLat: lat, destLng: lng);
+      _jm.guessMetro(hereLat: _origin?.lat, hereLng: _origin?.lng, destLat: lat, destLng: lng);
     }
     return JourneyModePicker(
       c: _jm,
@@ -723,7 +739,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     final a = now.add(Duration(minutes: m));
     final b = now.add(Duration(minutes: (m * 1.4).round() + 10));
     DateTime? c;
-    final h = _here;
+    final h = _origin; // sjstart2: C from the chosen start
     if (h != null) {
       final km = (jDistanceM(h.lat, h.lng, (d['lat'] as num).toDouble(),
                       (d['lng'] as num).toDouble()) -
@@ -758,6 +774,103 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
               key: const ValueKey('qj_earliest'),
               style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
       ]),
+    );
+  }
+
+  /// sjstart2: the area name of the phone's own point (our free BD list;
+  /// nothing near / offline -> just "My current location").
+  Future<void> _loadHereArea() async {
+    final h = _here;
+    if (h == null) return;
+    try {
+      final r = await context.read<AppState>().api.getJson(
+          '/maps/area?lat=${h.lat.toStringAsFixed(5)}&lng=${h.lng.toStringAsFixed(5)}');
+      final a = r['area'];
+      final name = a is Map ? '${a['name'] ?? ''}'.trim() : '';
+      if (mounted && name.isNotEmpty) setState(() => _hereArea = name);
+    } catch (_) {} // best-effort: the row still says "My current location"
+  }
+
+  void _setFrom(PlacePick? p) {
+    setState(() {
+      _fromPick = p;
+      if (!_etaEdited) {
+        _eta = null;
+        _etaMin = null;
+      }
+    });
+    if (_pinned) unawaited(_fetchEta());
+  }
+
+  /// sjstart2: tap "From" -> My current location / a saved place / search
+  /// (with Pick on map inside the search sheet).
+  Future<void> _pickFrom() async {
+    final t = AppLocalizations.of(context);
+    final saved = _savedPicks(t);
+    final pick = await showAppSheet<Object>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            ListTile(
+                key: const ValueKey('sj2_from_here'),
+                leading: const Icon(Icons.my_location_rounded),
+                title: Text(t.sj2FromHere),
+                subtitle: _hereArea == null ? null : Text(_hereArea!),
+                onTap: () => Navigator.pop(ctx, 'here')),
+            for (var i = 0; i < saved.length && i < 6; i++)
+              ListTile(
+                  key: ValueKey('sj2_from_saved_$i'),
+                  leading: const Icon(Icons.bookmark_rounded),
+                  title: Text(saved[i].name),
+                  subtitle: saved[i].address.isEmpty ? null : Text(saved[i].address, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  onTap: () => Navigator.pop(ctx, saved[i])),
+            ListTile(
+                key: const ValueKey('sj2_from_search'),
+                leading: const Icon(Icons.search_rounded),
+                title: Text(t.sj2FromSearch),
+                onTap: () => Navigator.pop(ctx, 'search')),
+          ]),
+        ),
+      ),
+    );
+    if (!mounted || pick == null) return;
+    if (pick == 'here' || pick is PlacePick) {
+      _setFrom(pick is PlacePick ? pick : null);
+      return;
+    }
+    final got = await showPlaceSearchSheet(context, context.read<AppState>().api,
+        lat: _here?.lat,
+        lng: _here?.lng,
+        mode: _psMode,
+        saved: saved,
+        onMap: (_map.hasTiles || _gmaps) ? _mapPoint : null,
+        fieldKey: const ValueKey('sj2_from_field'));
+    if (got != null && mounted) _setFrom(got);
+  }
+
+  Widget _fromRow(AppLocalizations t, ColorScheme cs) {
+    final p = _fromPick;
+    final here = p == null;
+    final line = here
+        ? (_hereArea == null ? t.sj2FromHere : t.sj2FromHereArea(_hereArea!))
+        : p.name;
+    return Material(
+      color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+      borderRadius: BorderRadius.circular(Radii.md),
+      child: ListTile(
+        key: const ValueKey('sj2_from'),
+        minVerticalPadding: Gap.sm,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.md)),
+        leading: Icon(here ? Icons.my_location_rounded : Icons.trip_origin_rounded, color: cs.primary),
+        title: Text(t.sj2From, style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+        subtitle: Text(line,
+            key: const ValueKey('sj2_from_text'),
+            style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w600, color: cs.onSurface)),
+        trailing: Text(t.sj2FromChange, style: TextStyle(color: cs.primary)),
+        onTap: _pickFrom,
+      ),
     );
   }
 
@@ -902,6 +1015,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             ]),
           ),
         ],
+        const SizedBox(height: Gap.md),
+        _fromRow(t, cs), // sjstart2 (owner V2 START 1)
         const SizedBox(height: Gap.lg),
         _modePicker(),
         const Divider(height: 28),

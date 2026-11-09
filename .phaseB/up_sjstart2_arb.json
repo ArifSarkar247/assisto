@@ -85,6 +85,31 @@
   "sj2SuggestForgotten": "Learned trips deleted from this phone.",
   "@sj2SuggestForgotten": {
    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2From": "From",
+  "@sj2From": {
+   "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
+  },
+  "sj2FromHere": "My current location",
+  "@sj2FromHere": {
+   "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
+  },
+  "sj2FromHereArea": "My current location · {area}",
+  "@sj2FromHereArea": {
+   "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)",
+   "placeholders": {
+    "area": {
+     "type": "String"
+    }
+   }
+  },
+  "sj2FromSearch": "Search a place or pick on the map",
+  "@sj2FromSearch": {
+   "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
+  },
+  "sj2FromChange": "Change",
+  "@sj2FromChange": {
+   "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
   }
  },
  "bn": {
@@ -104,6 +129,11 @@
   "sj2SuggestSwitch": "নিয়মিত যাত্রার পরামর্শ দিন",
   "sj2SuggestSwitchDesc": "শুধু Assisto খোলা থাকলে। শুধু এই ফোনেই শেখে; আপনি শুরু না করা পর্যন্ত কিছু পাঠানো হয় না।",
   "sj2SuggestForget": "শেখা যাত্রাগুলো মুছুন",
-  "sj2SuggestForgotten": "শেখা যাত্রাগুলো এই ফোন থেকে মুছে গেছে।"
+  "sj2SuggestForgotten": "শেখা যাত্রাগুলো এই ফোন থেকে মুছে গেছে।",
+  "sj2From": "কোথা থেকে",
+  "sj2FromHere": "আমার এখনকার জায়গা",
+  "sj2FromHereArea": "আমার এখনকার জায়গা · {area}",
+  "sj2FromSearch": "জায়গা খুঁজুন বা ম্যাপে বেছে নিন",
+  "sj2FromChange": "বদলান"
  }
 }

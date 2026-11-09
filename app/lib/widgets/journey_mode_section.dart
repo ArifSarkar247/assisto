@@ -29,6 +29,8 @@ String jTravelLabel(AppLocalizations t, String m) => switch (m) {
       'launch' => t.trModeLaunch,
       'car' => t.journeyModeCar,
       'cng' => t.journeyModeCng,
+      'bike' => t.j2ModeBike, // sjstart2
+      'walk' => t.journeyModeWalk, // sjstart2
       _ => '',
     };
 
@@ -39,6 +41,8 @@ IconData jTravelIcon(String m) => switch (m) {
       'metro' => Icons.subway_rounded,
       'launch' => Icons.directions_boat_rounded,
       'car' => Icons.directions_car_rounded,
+      'bike' => Icons.two_wheeler_rounded, // sjstart2
+      'walk' => Icons.directions_walk_rounded, // sjstart2
       _ => Icons.local_taxi_rounded,
     };
 

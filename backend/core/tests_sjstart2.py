@@ -37,3 +37,34 @@ class PlaceLayersTests(SimpleTestCase):
         r = BP.search("Dhaka Medical College Hospital", lang="en")
         self.assertEqual(r[0]["kind"], "hospital")
         self.assertAlmostEqual(r[0]["lat"], 23.725, delta=0.03)
+
+
+class NearestAreaTests(SimpleTestCase):
+    """"From: My current location · Badda" — our own list, never Google."""
+
+    def test_badda_point_names_badda(self):
+        a = BP.nearest_area(23.7835, 90.4300, lang="en")
+        self.assertIn("Badda", a["name"])
+        self.assertEqual(a["kind"], "area")
+        self.assertLess(a["distance_m"], 2500)
+        self.assertIn("বাড্ডা", BP.nearest_area(23.7835, 90.4300, lang="bn")["name"])
+
+    def test_far_rural_point_falls_back_to_union_or_upazila(self):
+        a = BP.nearest_area(23.6293, 91.0443, lang="en")     # sample point near Subil
+        self.assertIsNotNone(a)
+        self.assertIn(a["kind"], ("union", "upazila", "town", "area", "city"))
+
+    def test_outside_bangladesh_or_bad_input_is_none(self):
+        self.assertIsNone(BP.nearest_area(51.5, -0.12))
+        self.assertIsNone(BP.nearest_area("x", None))
+
+
+from core.tests_mapscost import MapsBase  # noqa: E402
+from core.tests_journey100 import V  # noqa: E402
+
+
+class AreaViewTests(MapsBase):
+    def test_area_endpoint_is_free(self):
+        r = self.c1.get("%s/maps/area" % V, {"lat": "23.7835", "lng": "90.4300"}).json()
+        self.assertTrue("Badda" in r["area"]["name"] or "বাড্ডা" in r["area"]["name"], r)
+        self.assertEqual(self.rec.calls, [])                  # no Google at all

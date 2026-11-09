@@ -14,6 +14,7 @@ import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 import 'package:assisto/widgets/journey_plate_photo.dart';
 import 'package:assisto/widgets/journey_watcher_chips.dart';
+import 'package:assisto/train/journey_transit.dart' show kTravelModes;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,6 +34,7 @@ class _Api extends ApiClient {
   final hits = <_Hit>[];
   bool startOk = false;
   Map<String, dynamic> active = {};
+  List<Map<String, dynamic>> places = [];
   Map<String, dynamic> circle = {
     'results': [
       {'id': 7, 'name': 'Ammu', 'phone': '01711000002', 'state': 'accepted', 'relation': 'mother'},
@@ -46,7 +48,7 @@ class _Api extends ApiClient {
     hits.add(_Hit('GET', path, const {}));
     if (path == '/journey/active') return active;
     if (path == '/circle/members') return circle;
-    if (path == '/journey/places') return {'places': const []};
+    if (path == '/journey/places') return {'places': places};
     return {};
   }
 
@@ -372,6 +374,52 @@ void main() {
     expect(find.text(en.sj2PlateTitle, skipOffstage: false), findsNothing);
     final chip = tester.getSize(find.byKey(const ValueKey('j100_w_7'), skipOffstage: false));
     expect(chip.height, greaterThanOrEqualTo(48));
+  });
+
+  testWidgets('From: My current location by default; a saved place becomes the start (origin sent)',
+      (tester) async {
+    final api = _Api()
+      ..places = [
+        {'id': 3, 'kind': 'other', 'name': 'Nanu bari', 'lat': 23.8103, 'lng': 90.4125},
+      ];
+    await _open(tester, api, const JourneyStartScreen());
+    expect(find.byKey(const ValueKey('sj2_from')), findsOneWidget);
+    expect(find.text(en.sj2FromHere), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('sj2_from')));
+    await _settle(tester, 6);
+    expect(find.byKey(const ValueKey('sj2_from_here')), findsOneWidget);
+    expect(find.byKey(const ValueKey('sj2_from_search')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('sj2_from_saved_0')));
+    await _settle(tester, 6);
+    expect(tester.widget<Text>(find.byKey(const ValueKey('sj2_from_text'))).data, 'Nanu bari');
+    await tester.ensureVisible(find.byKey(const ValueKey('j100_w_7')));
+    await tester.tap(find.byKey(const ValueKey('j100_w_7')));
+    await _settle(tester, 3);
+    await _pinViaLink(tester);
+    await _tapStartAndTime(tester);
+    final o = _started(tester, api).body['origin'] as Map;
+    expect((o['lat'], o['lng'], o['name']), (23.8103, 90.4125, 'Nanu bari'));
+    // back to the phone's own point
+    await tester.ensureVisible(find.byKey(const ValueKey('sj2_from')));
+    await tester.tap(find.byKey(const ValueKey('sj2_from')));
+    await _settle(tester, 6);
+    await tester.tap(find.byKey(const ValueKey('sj2_from_here')));
+    await _settle(tester, 6);
+    expect(find.text(en.sj2FromHere), findsOneWidget);
+  });
+
+  testWidgets('9 ways to go: Bike and Walk too (owner V2 spec)', (tester) async {
+    await _open(tester, _Api(), const JourneyStartScreen());
+    expect(kTravelModes, hasLength(9));
+    for (final m in ['bike', 'walk']) {
+      expect(find.byKey(ValueKey('jm_mode_$m'), skipOffstage: false), findsOneWidget);
+    }
+    await tester.ensureVisible(find.byKey(const ValueKey('jm_mode_walk')));
+    await tester.tap(find.byKey(const ValueKey('jm_mode_walk')));
+    await _settle(tester, 4);
+    expect(find.text(en.journeyModeWalk), findsOneWidget);
+    // walking: no number plate to photograph
+    expect(find.byKey(const ValueKey('sj2_plate_tile'), skipOffstage: false), findsNothing);
   });
 
   testWidgets('chips widget alone toggles', (tester) async {
