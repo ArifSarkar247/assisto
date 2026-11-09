@@ -166,7 +166,7 @@ def eval_motion(pos, neg, rnd, n):
         bg = cv2.resize(bgs[i], (640, 360))
         patch, mask = cuts[i]
         ph = rnd.randint(110, 220)
-        pw = max(8, int(patch.shape[1] * ph / patch.shape[0]))
+        pw = min(560, max(8, int(patch.shape[1] * ph / patch.shape[0])))
         patch = cv2.resize(patch, (pw, ph))
         mask = cv2.resize(mask, (pw, ph)) > 127
         for positive in (True, False):
@@ -176,7 +176,7 @@ def eval_motion(pos, neg, rnd, n):
             for k in range(6):
                 f = bg.astype(np.float32)
                 if positive and k >= 3:          # walks in after warm-up
-                    x0 = min(640 - pw, 40 + (k - 3) * 90 + i % 50)
+                    x0 = max(0, min(640 - pw, 40 + (k - 3) * 90 + i % 50))
                     roi = f[y0:y0 + ph, x0:x0 + pw]
                     roi[mask] = patch[mask]
                 else:
