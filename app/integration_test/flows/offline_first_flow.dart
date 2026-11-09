@@ -171,7 +171,8 @@ void registerOfflineFirstFlows() {
     await f.step('offline: two messages written -> queued with the clock', () async {
       for (final m in [q1, q2]) {
         await f.enter(m, label: f.t.circleMessageHint);
-        await f.tapSend(settleSeconds: 2);
+        // the "sends when online" snackbar covers the input bar for ~4 s
+        await f.tapSend(settleSeconds: 6);
       }
       await f.waitFor(find.byIcon(Icons.schedule_rounded), seconds: 10, what: 'clock icon');
       final q = await f.net(() => Outbox.instance.all());

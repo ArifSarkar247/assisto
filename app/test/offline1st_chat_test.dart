@@ -145,6 +145,9 @@ void main() {
       for (var i = 0; i < 20; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
+      // the "will send when online" snackbar covers the input bar for 4 s
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 1));
     }
     expect(find.byIcon(Icons.schedule_rounded), findsWidgets); // honest clock
     final q = await Outbox.instance.forChat('member', 5);

@@ -34,6 +34,9 @@ class _Api extends ApiClient {
   _Api(this.answer);
   Future<AppUser> Function() answer;
   int meCalls = 0;
+  // the memory sync that follows a confirmed session (empty server list)
+  @override
+  Future<List<Map<String, dynamic>>> listMemory() async => [];
   @override
   Future<AppUser> me() {
     meCalls++;
