@@ -627,7 +627,7 @@ void main() {
           await _settle(tester);
           await tester.enterText(find.byKey(const ValueKey('all_search')), 'cctv');
           await _settle(tester);
-          expect(find.text(t.wmTitle), findsWidgets);
+          expect(find.text(t.svcCctvWatch), findsWidgets); // svcclean: tile name
           expect(find.text(t.ffPreviewTag), findsNothing);
           await tester.enterText(
               find.byKey(const ValueKey('all_search')), t.jobHunter);
@@ -743,7 +743,7 @@ void main() {
       final t = _t(tester);
       await tester.enterText(find.byKey(const ValueKey('all_search')), 'cctv');
       await _settle(tester);
-      expect(find.text(t.wmTitle), findsWidgets);
+      expect(find.text(t.svcCctvWatch), findsWidgets); // svcclean: tile name
       expect(find.text(t.ffPreviewTag), findsWidgets);
       await _unmount(tester);
     });

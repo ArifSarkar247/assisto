@@ -457,7 +457,8 @@ void main() {
       expect(HomeV2Shortcuts.byRoute('budget')!.label(en), en.budgetTitle);
       FeatureFlags.instance.debugOverride = {'budget_remittance': true};
       expect(HomeV2Shortcuts.openRoute('budget'), 'remittance');
-      expect(HomeV2Shortcuts.byRoute('budget')!.label(en), 'Budget and Remittance');
+      // svcclean: the tile name is short so it fits whole at 360 dp
+      expect(HomeV2Shortcuts.byRoute('budget')!.label(en), 'Budget & remit');
       expect(HomeV2Shortcuts.byRoute('budget')!.label(bn), 'বাজেট ও রেমিট্যান্স');
       expect(HomeV2Shortcuts.openRoute('khata'), 'khata');
     });

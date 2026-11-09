@@ -19,7 +19,7 @@ CATALOG = (
     "reminders", "money", "notes", "ai_chat", "family", "documents",
     "emergency", "safety", "budget", "money_voice", "photo_enhance",
     "birthdays", "meetings", "memory", "contacts", "medicine_db",
-    "health_tips", "nearby", "journey", "scam", "my_lost_phone",
+    "health_tips", "nearby", "journey", "scam", "lost_stolen",  # svcclean: one Lost phone tile
     "phone_safety", "vehicles", "subscriptions", "tax", "wrapped",
     "business", "crm", "shop_box", "inbox", "jobs", "dictionary",
 )
