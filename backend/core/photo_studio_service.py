@@ -94,6 +94,10 @@ _PHOTO_DEFAULT_COST_USD = {"photo_gemini": 0.04, "photo_openai": 0.07}
 def _resolve_photo(slug):
     """(connected, conf) for an image provider: its own entry, else the main key."""
     from . import integrations
+    if slug == "photo_gemini":
+        from . import gemini_breaker as GB
+        if GB.is_open():
+            return False, {}     # geminioff: no Gemini image generation / edits
     try:
         if integrations.is_enabled(slug):
             return True, dict(integrations.get(slug) or {})
@@ -228,7 +232,25 @@ def quote(user, feature, c=None, device_key=""):
         ads_live=bool(_ad_units().get("_configured")) if plan == "free" else True)
     q["provider"] = slug
     q["feature"] = feature
+    if (q.get("reason") == "provider_missing" and feature in PS.CLOUD_FEATURES
+            and feature not in PS.RESTORE_FEATURES and gemini_coming_soon()):
+        # geminioff: honest "Coming soon" — never a broken button, never a charge
+        q["reason"] = "coming_soon"
+        q["ok"] = False
+        q["options"] = []
     return q
+
+
+def gemini_coming_soon():
+    """True when AI edit / generate is missing ONLY because Gemini is off
+    (the breaker is open and no other image provider is ready)."""
+    try:
+        from . import gemini_breaker as GB
+        if not GB.is_open():
+            return False
+        return not providers_state("en")["ready"]
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def _device_gen_gifts(device_key):
@@ -271,6 +293,11 @@ def funding_message(reason, lang):
         "busy": ("সার্ভার এখন ব্যস্ত — একটু পরে আবার চেষ্টা করুন।",
                  "The server is busy — try again in a moment."),
         # aifinal PART 1b: no admin wording for users (the real reason is logged)
+        # geminioff: AI edit / generate needs the image AI that is paused
+        "coming_soon": ("AI দিয়ে ছবি বানানো ও এডিট শীঘ্রই আসছে। এখন ফ্রি টুল ব্যবহার করুন: "
+                        "ব্যাকগ্রাউন্ড সরানো, ক্রপ, আলো ঠিক করা, শার্প করা — সব ফোনেই হয়। কোনো ক্রেডিট কাটা হয়নি।",
+                        "AI photo create and edit are coming soon. Use the free tools now: remove "
+                        "background, crop, fix light, sharpen — all on your phone. No credits were used."),
         "provider_missing": ("ক্লাউড এডিট এই মুহূর্তে দেওয়া যাচ্ছে না — একটু পরে আবার চেষ্টা করুন।",
                              "Cloud editing isn't available right now — please try again a little later."),
         "unpriced": ("এই কাজের খরচ জানা নেই, তাই চালানো হবে না।",
@@ -817,6 +844,16 @@ def run_cloud(user, job, image_b64, lang="bn", face_boxes=None):
                      "job": job_state(job, lang)}
     c = _cfg()
     slug, conf, prov_cost = _active_provider(c)
+    if not slug and gemini_coming_soon():
+        # geminioff: a job funded before Gemini went off -> credits back at
+        # once, honest "Coming soon" (never a charge for work we cannot do)
+        if job.funding in ("credits", "pool") and job.credits_charged:
+            _refund(user, job.credits_charged, "photo:refund:%d" % job.pk)
+        job.status = "failed"
+        job.error = "gemini_off"
+        job.save(update_fields=["status", "error"])
+        return 409, {"ok": False, "reason": "coming_soon",
+                     "message": funding_message("coming_soon", lang), "job": job_state(job, lang)}
     if not slug:
         return 409, {"ok": False, "reason": "provider_missing",
                      "message": funding_message("provider_missing", lang)}
@@ -915,6 +952,9 @@ def client_config(user, lang="bn", request=None):
         "entry_ad": entry_ad_state(user),
         "features": quotes,
         "providers": prov,
+        # geminioff: AI create / edit paused (Gemini off) -> the app shows an
+        # honest "Coming soon" card instead of the prompt box (no button)
+        "ai_edit_coming_soon": gemini_coming_soon(),
         "trials_left_today": max(0, ps["free_prompt_trials_per_day"] - trials_used_today(user))
         if plan == "free" else None,
         "ready_options": list(PS.READY_OPTIONS),

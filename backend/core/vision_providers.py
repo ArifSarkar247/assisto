@@ -59,6 +59,7 @@ def ask(slug, cfg, *, image_bytes, mime="image/jpeg", system="", question="",
         raise VisionError("unknown_provider")
     if not image_bytes:
         raise VisionError("no_image")
+    _check_caps(slug)
     try:
         text = fn(cfg or {}, image_bytes=image_bytes, mime=mime, system=system,
                   question=(question or "").strip() or "What is in this photo?",
@@ -71,6 +72,24 @@ def ask(slug, cfg, *, image_bytes, mime="image/jpeg", system="", question="",
     if not text:
         raise VisionError("empty_reply")
     return text
+
+
+_CAP_PROVIDER = {"vision_claude": "anthropic", "vision_openai": "openai",
+                 "vision_gemini": "gemini"}
+
+
+def _check_caps(slug):
+    """geminioff: the Owner Admin daily AI caps (total + per provider) hold
+    on the photo paths too (chat photo, CCTV check, Business AI) — before,
+    only text answers checked them. Raises VisionError("budget")."""
+    try:
+        from . import ai_router as R
+        conf = R.cfg()
+        capped = R.total_capped(conf) or R.provider_capped(_CAP_PROVIDER.get(slug, ""), conf)
+    except Exception:  # noqa: BLE001 — a config hiccup never blocks a photo
+        return
+    if capped:
+        raise VisionError("budget")
 
 
 def _b64(data):
@@ -146,7 +165,7 @@ def _gemini(cfg, *, image_bytes, mime, system, question, opts=None):
     from . import gemini_models as GM
     model = GM.resolve((cfg.get("model") or GM.get("vision")).strip(), "vision")
     if AH.is_down("gemini", model):
-        raise VisionError("down")          # 404/402/403 seen recently: no doomed call
+        raise VisionError("down")          # 404/402/403 seen recently / geminioff breaker
     url = ("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent"
            % model)
     body = {"systemInstruction": {"parts": [{"text": system}]},
@@ -157,10 +176,13 @@ def _gemini(cfg, *, image_bytes, mime, system, question, opts=None):
     r = rq.post(url, json=body, timeout=opts["timeout"],
                 headers={"x-goog-api-key": cfg.get("api_key", "")})
     if r.status_code != 200:
+        from .ai import _error_message
+        why = _error_message(r)
         if r.status_code in _HARD:
-            from .ai import _error_message
-            AH.mark_down("gemini", model, _HARD[r.status_code], "http_%d" % r.status_code,
-                         _error_message(r))
+            AH.mark_down("gemini", model, _HARD[r.status_code], "http_%d" % r.status_code, why)
+        else:
+            from . import gemini_breaker as GB
+            GB.note_failure(r.status_code, why)       # e.g. 429 "prepaid credit"
         raise VisionError("http_%d" % r.status_code)
     data = r.json()
     u = data.get("usageMetadata") if isinstance(data.get("usageMetadata"), dict) else {}

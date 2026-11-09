@@ -68,6 +68,9 @@ def run(slug, cfg, *, feature, image_bytes=None, prompt="", mime="image/jpeg"):
 
 
 def _gemini(cfg, *, feature, image_bytes, prompt, mime):
+    from . import gemini_breaker as GB
+    if GB.is_open():
+        raise ProviderError("gemini_off")     # geminioff: no doomed call
     rq = _http()
     model = (cfg.get("model") or DEFAULT_MODELS["photo_gemini"]).strip()
     url = ("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent"
@@ -81,6 +84,11 @@ def _gemini(cfg, *, feature, image_bytes, prompt, mime):
     r = rq.post(url, json=body, timeout=TIMEOUT_S,
                 headers={"x-goog-api-key": cfg.get("api_key", "")})
     if r.status_code != 200:
+        try:
+            from .ai import _error_message
+            GB.note_failure(r.status_code, _error_message(r))
+        except Exception:  # noqa: BLE001
+            pass
         raise ProviderError("http_%d" % r.status_code)
     j = r.json()
     for cand in j.get("candidates") or []:

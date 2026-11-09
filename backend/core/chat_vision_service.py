@@ -56,6 +56,10 @@ _ORDER = ("vision_claude", "vision_gemini", "vision_openai")
 def _resolve(slug):
     """(connected, conf) for a vision provider: its own entry, else the main key."""
     from . import integrations
+    if slug == "vision_gemini":
+        from . import gemini_breaker as GB
+        if GB.is_open():
+            return False, {}     # geminioff: image understanding = Claude
     try:
         if integrations.is_enabled(slug):
             conf = dict(integrations.get(slug) or {})

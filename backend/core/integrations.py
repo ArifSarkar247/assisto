@@ -1107,9 +1107,18 @@ def test_gemini(cfg):
         headers={"x-goog-api-key": key})
     try:
         urllib.request.urlopen(req, timeout=15)
-        return (True, "✓ working")
     except urllib.error.HTTPError as e:
         return (False, f"HTTP {e.code}")
+    try:
+        from . import gemini_breaker as GB
+        if GB.is_open():
+            # geminioff: the key is fine but answers need prepaid credit; the
+            # breaker's daily check turns Gemini back on by itself
+            return (True, "✓ key works — answers paused: prepaid credit empty (402); "
+                          "checked once a day")
+    except Exception:  # noqa: BLE001
+        pass
+    return (True, "✓ working")
 
 
 def test_openai(cfg):
