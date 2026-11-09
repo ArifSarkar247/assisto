@@ -181,8 +181,11 @@ def run_phonecam(owner, family):
          r.status_code == 201 and r.json().get("camera_token"), r.text)
     tok, cam_id = r.json()["camera_token"], r.json()["camera"]["id"]
     r = cam_phone.post(API + "/shop/phonecam/claim", json={"code": code}, timeout=10)
+    # cctvplay: a spent code is refused either as "already used" (409) or,
+    # once the next phone's code is live, as an unknown code (400 bad_code)
     check("phonecam: the same code cannot pair a second phone",
-          r.status_code == 409, r.text)
+          r.status_code == 409 or (r.status_code == 400 and
+                                   r.json().get("error") == "bad_code"), r.text)
     dev = requests.Session()
     dev.headers.update({"X-Shop-Token": tok, "X-Shop-Camera": str(cam_id)})
     hb = lambda: dev.post(API + "/shop/heartbeat", json={  # noqa: E731
