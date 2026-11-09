@@ -23,6 +23,9 @@ typedef ZoneOptions = ({String label, Map<String, dynamic>? schedule, Map<String
 const _dwellChoices = [0, 1, 2, 5, 10];
 const _openChoices = [5, 10, 15, 30, 60];
 const _absentChoices = [2, 5, 10, 15, 30];
+const _crowdChoices = [0, 3, 5, 8, 12];
+const _overstayChoices = [15, 30, 60, 120, 240];
+const _wrongChoices = [1, 2, 5, 10];
 
 String _lang(BuildContext c) => Localizations.localeOf(c).languageCode;
 
@@ -55,6 +58,17 @@ Widget? zoneSummary(BuildContext context, String type, Map<String, dynamic> opts
   }
   final dwell = (opts['dwell_s'] as num?)?.toInt() ?? 0;
   if (dwell > 0) parts.add(t.cdetSumLoiter(_min(context, (dwell / 60).round())));
+  final crowd = (opts['crowd_n'] as num?)?.toInt() ?? 0;
+  if (crowd > 0) parts.add(t.cdetSumCrowd(wmDigits(_lang(context), crowd)));
+  if (type == 'parking') {
+    parts.add(t.cdetSumOverstay(_min(context, (opts['overstay_min'] as num?)?.toInt() ?? 60)));
+  }
+  if (type == 'no_parking') {
+    parts.add(t.cdetSumWrong(_min(context, (((opts['wrong_s'] as num?) ?? 120) / 60).round())));
+  }
+  if (type == 'entry_line' && opts['vehicles'] == true) {
+    parts.add(opts['notify'] == true ? t.cdetSumLineNotify : t.cdetSumLineLog);
+  }
   if (parts.isEmpty) return null;
   return Text(parts.join(' · '), maxLines: 3, overflow: TextOverflow.ellipsis);
 }
@@ -89,6 +103,12 @@ class ZoneOptionsBodyState extends State<ZoneOptionsBody> {
   late int _openMin = (widget.opts['open_min'] as num?)?.toInt() ?? 10;
   late double? _closedAt = (widget.opts['closed_at'] as num?)?.toDouble();
   late int _absentMin = (widget.opts['absent_min'] as num?)?.toInt() ?? 5;
+  late int _crowdN = (widget.opts['crowd_n'] as num?)?.toInt() ?? 0;
+  late int _overstayMin = (widget.opts['overstay_min'] as num?)?.toInt() ?? 60;
+  late int _wrongMin = ((((widget.opts['wrong_s'] as num?) ?? 120) / 60).round()).clamp(1, 60).toInt();
+  late bool _vehicles = widget.opts['vehicles'] == true;
+  late bool _notify = widget.opts['notify'] == true;
+  late bool _inRight = widget.opts['in_side'] == 'right';
   late TimeOfDay _start = _tod(widget.schedule?['start'] ?? kPostDefaultSchedule['start']) ??
       const TimeOfDay(hour: 10, minute: 0);
   late TimeOfDay _end =
@@ -115,7 +135,16 @@ class ZoneOptionsBodyState extends State<ZoneOptionsBody> {
 
   void _done() {
     final opts = <String, dynamic>{};
-    if (_dwellMin > 0 && widget.type != 'post') opts['dwell_s'] = _dwellMin * 60;
+    final poly = const {'restricted', 'gate', 'post'}.contains(widget.type);
+    if (_dwellMin > 0 && poly && widget.type != 'post') opts['dwell_s'] = _dwellMin * 60;
+    if (_crowdN > 0 && poly) opts['crowd_n'] = _crowdN;
+    if (widget.type == 'parking') opts['overstay_min'] = _overstayMin;
+    if (widget.type == 'no_parking') opts['wrong_s'] = _wrongMin * 60;
+    if (widget.type == 'entry_line' && _vehicles) {
+      opts['vehicles'] = true;
+      if (_notify) opts['notify'] = true;
+      if (_inRight) opts['in_side'] = 'right';
+    }
     Map<String, dynamic>? schedule = widget.schedule;
     if (widget.type == 'gate') {
       if (_watchOpen) {
@@ -213,12 +242,67 @@ class ZoneOptionsBodyState extends State<ZoneOptionsBody> {
             const SizedBox(height: 4),
             _chips(_absentChoices, _absentMin, (v) => _absentMin = v),
           ],
-          if (widget.type != 'post') ...[
+          if (widget.type == 'restricted' || widget.type == 'gate') ...[
             const Divider(height: 24),
             Text(t.cdetLoiterTitle, style: theme.textTheme.titleSmall),
             const SizedBox(height: 4),
             _chips(_dwellChoices, _dwellMin, (v) => _dwellMin = v, offFirst: true),
           ],
+          // stage 2: crowd / queue count (people only, never who)
+          if (const {'restricted', 'gate', 'post'}.contains(widget.type)) ...[
+            const Divider(height: 24),
+            Text(t.cdetCrowdTitle, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 4),
+            Wrap(spacing: 8, runSpacing: 4, children: [
+              for (final v in _crowdChoices)
+                ChoiceChip(
+                  label: Text(v == 0 ? t.cdetOff : t.cdetPeople(wmDigits(lang, v))),
+                  selected: _crowdN == v,
+                  onSelected: (_) => setState(() => _crowdN = v),
+                ),
+            ]),
+          ],
+          if (widget.type == 'parking') ...[
+            const SizedBox(height: 8),
+            Text(t.cdetOverstayTitle, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 4),
+            _chips(_overstayChoices, _overstayMin, (v) => _overstayMin = v),
+          ],
+          if (widget.type == 'no_parking') ...[
+            const SizedBox(height: 8),
+            Text(t.cdetWrongTitle, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 4),
+            _chips(_wrongChoices, _wrongMin, (v) => _wrongMin = v),
+          ],
+          if (widget.type == 'entry_line') ...[
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t.cdetLineVehicles),
+              subtitle: Text(t.cdetLineVehiclesBody),
+              value: _vehicles,
+              onChanged: (v) => setState(() => _vehicles = v),
+            ),
+            if (_vehicles) ...[
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(t.cdetLineNotify),
+                value: _notify,
+                onChanged: (v) => setState(() => _notify = v),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(t.cdetLineFlip),
+                subtitle: Text(t.cdetLineFlipBody),
+                value: _inRight,
+                onChanged: (v) => setState(() => _inRight = v),
+              ),
+            ],
+          ],
+          if (widget.type == 'parking' || widget.type == 'no_parking' || widget.type == 'entry_line')
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(t.cdetVehicleNote, style: theme.textTheme.bodySmall),
+            ),
           const SizedBox(height: 8),
           Text(t.cdetNeedsAi, style: theme.textTheme.bodySmall),
           const SizedBox(height: 16),

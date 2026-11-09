@@ -41,7 +41,8 @@ SCHEMA_V = 2
 # left open) and "post" (counter / post left empty); every zone may carry its
 # own "schedule" and "opts" (dwell_s, absent_min, open_min, watch_open,
 # closed_at) — see core/logic/cctv_detect.py
-ZONE_TYPES = ("restricted", "cash", "entry_line", "gate", "post")
+ZONE_TYPES = ("restricted", "cash", "entry_line", "gate", "post",
+              "parking", "no_parking")      # cctvdet stage 2: + parking zones
 SENSITIVITY = ("low", "medium", "high")
 MAX_ZONES = 8
 MAX_POINTS = 16

@@ -49,6 +49,10 @@ CAMERA_HEALTH = "camera_health"  # covered / moved / dark / SD-card failure
 GATE_PERSON = "gate_person"      # a person box at the shutter / gate zone
 POST_EMPTY = "post_empty"        # counter / post zone empty for N minutes
 GATE_OPEN = "gate_open"          # gate zone no longer looks "closed" for N min
+CROWD = "crowd"                  # >= N people in a zone for a while
+VEHICLE_IN_OUT = "vehicle_in_out"
+PARKING_OVERSTAY = "parking_overstay"
+WRONG_PARKING = "wrong_parking"
 
 # POS kinds (mirrors ShopPosEvent.KINDS) used for correlation.
 POS_SALE = "sale"
@@ -303,6 +307,14 @@ def combine(camera_event, pos_events, now=None, window_s=DEFAULT_WINDOW_S,
         if not extra.get("gate_open"):
             return _result(False, etype, 0.0, ["no_change"])
         return _result(True, etype, 0.6, ["gate_zone", "not_like_closed_picture"])
+    if etype == CROWD:
+        if not (extra.get("crowd") and int(extra.get("count") or 0) >= 2):
+            return _result(False, etype, 0.0, ["no_crowd"])
+        return _result(True, etype, 0.7, ["people_count", "crowd_zone"])
+    if etype in (VEHICLE_IN_OUT, PARKING_OVERSTAY, WRONG_PARKING):
+        if not extra.get("vehicle"):
+            return _result(False, etype, 0.0, ["no_vehicle"])
+        return _result(True, etype, 0.7, ["vehicle", etype])
 
     # ---- cctvalerts: CAMERA HEALTH (covered / moved / dark / SD card) ----
     # A problem with the camera itself, not a person: raised any time (the

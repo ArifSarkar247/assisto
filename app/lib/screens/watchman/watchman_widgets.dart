@@ -74,6 +74,10 @@ String wmEventWhat(AppLocalizations t, String type) => switch (type) {
       'gate_person' => t.cdetEvGate,
       'post_empty' => t.cdetEvPost,
       'gate_open' => t.cdetEvGateOpen,
+      'crowd' => t.cdetEvCrowd,
+      'vehicle_in_out' => t.cdetEvVehicle,
+      'parking_overstay' => t.cdetEvOverstay,
+      'wrong_parking' => t.cdetEvWrongParking,
       _ => t.wmEvMotion,
     };
 

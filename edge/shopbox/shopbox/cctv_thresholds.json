@@ -55,7 +55,17 @@
     "gate_closed_sim": 0.6,
     "tamper_every_s": 30.0,
     "bad_persist_s": 60,
-    "moved_min_gap_s": 120
+    "moved_min_gap_s": 120,
+    "post_presence_score": 0.25,
+    "crowd_s_default": 60,
+    "veh_gap_s": 30.0,
+    "veh_check_s": 10.0,
+    "veh_still": 0.06,
+    "overstay_min_default": 60,
+    "wrong_s_default": 120,
+    "track_max_jump": 0.25,
+    "moved_shape_sim": 0.35,
+    "moved_shape_keep": 0.6
   },
   "measured": {
     "_run": "42664700860",

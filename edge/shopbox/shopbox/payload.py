@@ -50,8 +50,13 @@ LOITERING = "loitering"
 POST_EMPTY = "post_empty"
 GATE_OPEN = "gate_open"
 CAMERA_HEALTH = "camera_health"
+# stage 2
+CROWD = "crowd"
+VEHICLE_IN_OUT = "vehicle_in_out"
+PARKING_OVERSTAY = "parking_overstay"
+WRONG_PARKING = "wrong_parking"
 # later stages (server types exist already; the edge does not emit them yet)
-LATER_TYPES = ("crowd", "vehicle_in_out", "parking_overstay", "wrong_parking",
+LATER_TYPES = (CROWD, VEHICLE_IN_OUT, PARKING_OVERSTAY, WRONG_PARKING,
                "smoke_fire", "fight", "fall", "weapon_review", "loud_sound")
 EVENT_TYPES = frozenset({
     HAND_IN_CASH_ZONE, "drawer_open", "void_spike", "refund_spike",
@@ -65,9 +70,13 @@ EVENT_TYPES = frozenset({
 EDGE_EMITTED_TYPES = frozenset({HAND_IN_CASH_ZONE, AFTER_HOURS, MOTION,
                                 PERSON_DETECTED, ZONE_INTRUSION, LINE_CROSSING,
                                 GATE_PERSON, LOITERING, POST_EMPTY, GATE_OPEN,
-                                CAMERA_HEALTH})
+                                CAMERA_HEALTH, CROWD, VEHICLE_IN_OUT,
+                                PARKING_OVERSTAY, WRONG_PARKING})
 # cctvdet: the zone detections (one per zone per visit / state change)
-ZONE_DETECTION_TYPES = frozenset({GATE_PERSON, LOITERING, POST_EMPTY, GATE_OPEN})
+ZONE_DETECTION_TYPES = frozenset({GATE_PERSON, LOITERING, POST_EMPTY, GATE_OPEN,
+                                  CROWD, VEHICLE_IN_OUT, PARKING_OVERSTAY,
+                                  WRONG_PARKING})
+VEHICLE_TYPES = frozenset({VEHICLE_IN_OUT, PARKING_OVERSTAY, WRONG_PARKING})
 
 # person_detected / zone_intrusion / line_crossing go multipart (snapshot kept):
 # the server parses the JSON-string `signals` of a multipart upload.
@@ -156,6 +165,21 @@ def detection_signals(etype: str, det: dict) -> Dict[str, object]:
             s["sim"] = round(float(det["sim"]), 3)
     elif etype == CAMERA_HEALTH:
         s.update({"kind": str(det.get("kind") or ""), "health": True})
+    elif etype == CROWD:
+        s.update({"crowd": True, "count": int(det.get("count") or 0)})
+    elif etype in VEHICLE_TYPES:
+        s.update({"vehicle": True, "object": "vehicle",
+                  "cls": str(det.get("cls") or "vehicle")[:12]})
+        if etype == VEHICLE_IN_OUT:
+            s["dir"] = "in" if det.get("dir") == "in" else "out"
+        if det.get("minutes") is not None:
+            s["minutes"] = int(det["minutes"])
+        if det.get("seconds") is not None:
+            s["seconds"] = int(det["seconds"])
+        plate = det.get("plate")
+        if isinstance(plate, dict) and plate.get("number"):
+            # a vehicle's registration number (plates are not faces)
+            s["plate"] = {k: plate.get(k) for k in ("bn", "en", "number", "partial", "source")}
     if det.get("mp") is not None:
         s["mp"] = round(float(det["mp"]), 3)     # measured precision (CI)
     return s

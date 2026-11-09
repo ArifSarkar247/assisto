@@ -50,6 +50,16 @@ void main() {
       'tamper_every_s': kTamperEveryS,
       'bad_persist_s': kBadPersistS,
       'moved_min_gap_s': kMovedMinGapS,
+      'post_presence_score': kPostPresenceScore,
+      'crowd_s_default': kCrowdSDefault,
+      'veh_gap_s': kVehGapS,
+      'veh_check_s': kVehCheckS,
+      'veh_still': kVehStill,
+      'overstay_min_default': kOverstayMinDefault,
+      'wrong_s_default': kWrongSDefault,
+      'track_max_jump': kTrackMaxJump,
+      'moved_shape_sim': kMovedShapeSim,
+      'moved_shape_keep': kMovedShapeKeep,
     };
     expect(mine.keys.toSet(), d.keys.toSet());
     for (final e in mine.entries) {
@@ -59,7 +69,7 @@ void main() {
 
   test('shared zone cases give the same detections as the Shop Box', () {
     final cases = fix['cases'] as List;
-    expect(cases.length, greaterThanOrEqualTo(8));
+    expect(cases.length, greaterThanOrEqualTo(13));
     for (final c in cases) {
       final name = c['name'];
       final rules = ZoneRules();
@@ -77,7 +87,11 @@ void main() {
         }
         final pIn = s['patches'] as Map?;
         final patches = pIn == null ? null : {for (final e in pIn.entries) '${e.key}': _patch(e.value as Map)};
-        final got = rules.step(t, wd, mn, _boxes(s['boxes']), night: s['night'] == true, patches: patches);
+        final got = rules.step(t, wd, mn, _boxes(s['boxes']),
+            night: s['night'] == true,
+            patches: patches,
+            minScore: ((s['min_score'] as num?) ?? 0).toDouble(),
+            vehicles: _boxes(s['vehicles']));
         final want = s['expect'] as List;
         expect(got.length, want.length, reason: '$name t=$t: $got');
         for (var i = 0; i < want.length; i++) {
@@ -104,6 +118,17 @@ void main() {
         final grid = [for (final v in s['grid'] as List) (v as num).toDouble()];
         final (ns, kind) = assessStill(st, grid, (s['mean'] as num).toDouble(),
             (s['std'] as num).toDouble(), s['ir'] == true, (s['ts'] as num).toDouble());
+        st = ns;
+        expect(kind, s['expect'], reason: '${e.key} ts=${s['ts']}');
+      }
+    }
+  });
+
+  test('camera moved by shapes = the Shop Box (stage 2)', () {
+    for (final e in (fix['shape'] as Map).entries) {
+      var st = <String, dynamic>{};
+      for (final s in e.value as List) {
+        final (ns, kind) = assessShape(st, _patch(s['shape'] as Map), s['ir'] == true, (s['ts'] as num).toDouble());
         st = ns;
         expect(kind, s['expect'], reason: '${e.key} ts=${s['ts']}');
       }

@@ -41,6 +41,22 @@ class Detection:
     score: float
 
 
+@dataclass(frozen=True)
+class Vehicle:
+    """cctvdet stage 2: a vehicle box (COCO class id: 1 bicycle / rickshaw,
+    2 car, 3 motorbike, 5 bus, 7 truck) from the SAME model pass."""
+    x1: float
+    y1: float
+    x2: float
+    y2: float
+    score: float
+    cls: int
+
+
+VEHICLE_CLASS_IDS = (1, 2, 3, 5, 7)
+VEHICLE_SCORE = 0.35
+
+
 class NullDetector:
     """Used when no model is available. Finds nothing; says so honestly."""
     name = "motion_only"
@@ -85,6 +101,25 @@ class YoloxPersonDetector:
         return _decode(out, self._grids, self._expanded_strides, ratio, w, h,
                        thr, self.nms_thr)
 
+    def detect_all(self, frame_bgr, score_thr: Optional[float] = None,
+                   vehicle_thr: float = VEHICLE_SCORE):
+        """cctvdet stage 2: (people, vehicles) from ONE forward pass — the
+        80-class COCO head already scores cars, motorbikes, buses, trucks
+        and cycles; no second model on a 2 GB box."""
+        h, w = frame_bgr.shape[:2]
+        blob, ratio = _letterbox(frame_bgr, _INPUT_SIZE)
+        with self._lock:
+            out = self._sess.run(None, {self._input: blob})[0][0]
+        thr = self.score_thr if score_thr is None else float(score_thr)
+        people = _decode(out, self._grids, self._expanded_strides, ratio, w, h,
+                         thr, self.nms_thr)
+        vehicles = []
+        for cid in VEHICLE_CLASS_IDS:
+            for d in _decode(out, self._grids, self._expanded_strides, ratio, w, h,
+                             vehicle_thr, self.nms_thr, cls=cid):
+                vehicles.append(Vehicle(d.x1, d.y1, d.x2, d.y2, d.score, cid))
+        return people, vehicles
+
 
 def _make_grids(size: int):
     grids, strides = [], []
@@ -111,13 +146,13 @@ def _letterbox(img, size: int):
     return np.ascontiguousarray(blob), r
 
 
-def _decode(out, grids, strides, ratio, w, h, score_thr, nms_thr):
+def _decode(out, grids, strides, ratio, w, h, score_thr, nms_thr, cls=PERSON_CLASS):
     import cv2
 
     # out: (N, 85) = cx, cy, w, h (grid-relative), objectness, 80 class scores
     xy = (out[:, :2] + grids) * strides
     wh = np.exp(out[:, 2:4]) * strides
-    scores = out[:, 4] * out[:, 5 + PERSON_CLASS]
+    scores = out[:, 4] * out[:, 5 + int(cls)]
     keep = scores >= score_thr
     if not np.any(keep):
         return []

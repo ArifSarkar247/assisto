@@ -23,7 +23,9 @@ from .analyzer import CameraAnalyzer
 # cctvdet: zone detections + tamper get a 10 s clip and a per-zone cooldown
 DET_CLIP_TYPES = frozenset({payload.GATE_PERSON, payload.LOITERING,
                             payload.POST_EMPTY, payload.GATE_OPEN,
-                            payload.CAMERA_HEALTH})
+                            payload.CAMERA_HEALTH, payload.CROWD,
+                            payload.VEHICLE_IN_OUT, payload.PARKING_OVERSTAY,
+                            payload.WRONG_PARKING})
 from .camera import CameraWorker
 from .client import (CLIP_GIVE_UP_S, DROP, SENT, UNAUTHORIZED, ClipClient,
                      ClipSender, IngestClient, Sender)
@@ -278,6 +280,14 @@ class Engine:
         # cctvdet: a gate's remembered CLOSED picture survives a restart
         an.zrules.load_refs(self._load_refs(cam.id))
         an.on_refs_changed = lambda refs, cid=cam.id: self._save_refs(cid, refs)
+        # cctvdet stage 2: the optional on-box plate reader (one per engine)
+        if getattr(self, "_plates", None) is None:
+            try:
+                from .plates import PlateReader
+                self._plates = PlateReader()
+            except Exception:
+                self._plates = False
+        an.plates = self._plates if self._plates else None
         self.analyzers[cam.id] = an
         w = CameraWorker(cam.id, cam.name,
                          url_provider=lambda cid=cam.id: self.rtsp_url_for(cid),

@@ -136,7 +136,12 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
     if (_draft.length < need) return;
     _zones.add(_Zone(_tool, _draft,
         schedule: _tool == 'post' ? Map<String, dynamic>.from(kPostDefaultSchedule) : null,
-        opts: _tool == 'post' ? {'absent_min': 5} : null));
+        opts: switch (_tool) {
+          'post' => {'absent_min': 5},
+          'parking' => {'overstay_min': 60},
+          'no_parking' => {'wrong_s': 120},
+          _ => null,
+        }));
     _draft = [];
   }
 
@@ -196,6 +201,8 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
         'entry_line' => t.wmZoneLine,
         'gate' => t.cdetZoneGate,
         'post' => t.cdetZonePost,
+        'parking' => t.cdetZoneParking,
+        'no_parking' => t.cdetZoneNoParking,
         _ => t.wmZoneRestricted,
       };
 
@@ -228,7 +235,7 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
               Text(t.wmZonesHowTo),
               const SizedBox(height: 8),
               Wrap(spacing: 8, runSpacing: 4, children: [
-                for (final z in const ['restricted', 'gate', 'post', 'cash', 'entry_line'])
+                for (final z in const ['restricted', 'gate', 'post', 'parking', 'no_parking', 'cash', 'entry_line'])
                   ChoiceChip(
                     label: Text(_zoneName(t, z)),
                     selected: _tool == z,
@@ -296,7 +303,7 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
                   // cctvdet: what this zone will alert about, in one line
                   subtitle: zoneSummary(context, _zones[i].type, _zones[i].opts, _zones[i].schedule),
                   trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                    if (_zones[i].type != 'entry_line' && _zones[i].type != 'cash')
+                    if (_zones[i].type != 'cash')
                       IconButton(
                         tooltip: t.cdetOptionsTooltip,
                         icon: const Icon(Icons.tune_rounded),
@@ -309,7 +316,7 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
                     ),
                   ]),
                 ),
-              if (_zones.any((z) => z.type == 'gate' || z.type == 'post'))
+              if (_zones.any((z) => const {'gate', 'post', 'parking', 'no_parking'}.contains(z.type)))
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(t.cdetZoneHelp, style: Theme.of(context).textTheme.bodySmall),
@@ -466,6 +473,8 @@ class _ZonePainter extends CustomPainter {
         'entry_line' => Brand.cyan,
         'gate' => Brand.purple,
         'post' => Brand.info,
+        'parking' => Brand.success,
+        'no_parking' => Brand.warning,
         _ => Brand.danger,
       };
 

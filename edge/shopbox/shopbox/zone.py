@@ -132,11 +132,13 @@ def box_centroid(box) -> Point:
     return ((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)
 
 
-ZONE_TYPES = ("restricted", "cash", "entry_line", "gate", "post")   # cctvdet: + gate, post
+ZONE_TYPES = ("restricted", "cash", "entry_line", "gate", "post",
+              "parking", "no_parking")   # cctvdet: + gate, post (+ parking: stage 2)
 # cctvdet: per-zone options the box understands (numbers clamped like the
 # server's core/logic/watchman.py; anything else is dropped)
 ZONE_OPTS = {"dwell_s": (0, 3600), "absent_min": (1, 240), "open_min": (1, 720),
-             "closed_at": (0, 4102444800)}
+             "closed_at": (0, 4102444800), "crowd_n": (0, 50), "crowd_s": (10, 1800),
+             "overstay_min": (5, 1440), "wrong_s": (30, 3600)}
 
 
 def _zone_opts(raw) -> dict:
@@ -152,6 +154,11 @@ def _zone_opts(raw) -> dict:
             out[k] = min(max(v, lo), hi)
     if raw.get("watch_open") is True:
         out["watch_open"] = True
+    for k in ("vehicles", "notify"):
+        if raw.get(k) is True:
+            out[k] = True
+    if raw.get("in_side") in ("left", "right"):
+        out["in_side"] = raw["in_side"]
     return out
 SENSITIVITY_MULT = {"low": 1.5, "medium": 1.0, "high": 0.7}
 

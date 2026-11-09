@@ -51,7 +51,14 @@ PERSON_TYPES = ("person_detected", "zone_intrusion", "line_crossing", "loitering
 VISITOR_TYPES = PERSON_TYPES + ("motion", "camera_alarm", "after_hours")
 # cctvdet: alerts that get the Bangla AI description of their photo (the
 # visitor log above + the zone detections: gate, empty post, open gate)
-DESCRIBE_TYPES = VISITOR_TYPES + ("gate_person", "post_empty", "gate_open")
+DESCRIBE_TYPES = VISITOR_TYPES + ("gate_person", "post_empty", "gate_open", "crowd",
+                                  "vehicle_in_out", "parking_overstay", "wrong_parking")
+VEHICLE_DESC_TYPES = ("vehicle_in_out", "parking_overstay", "wrong_parking")
+# stage 2: for a vehicle the AI also copies the NUMBER PLATE exactly as written
+# (Bangla or English) — a vehicle registration, never a person's identity
+PLATE_ADDON = (" If a vehicle number plate is readable, end the Bangla sentence with "
+               "'নম্বর: ' and the plate exactly as written (Bangla or English letters "
+               "and digits). Never guess unreadable characters.")
 
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
 _EN = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
@@ -348,7 +355,9 @@ _KIND_BN = {"person_detected": "একজন মানুষ দেখা গে
             "pose_possible": "সম্ভবত কেউ ঝুঁকে আছে", "drawer_open": "ক্যাশ ড্রয়ার খোলা",
             # cctvdet
             "gate_person": "শাটার / গেটের সামনে কেউ আছেন", "post_empty": "কাউন্টার / পোস্ট ফাঁকা",
-            "gate_open": "গেট / শাটার খোলা রয়ে গেছে", "camera_health": "ক্যামেরা ঢাকা বা সরানো মনে হচ্ছে"}
+            "gate_open": "গেট / শাটার খোলা রয়ে গেছে", "camera_health": "ক্যামেরা ঢাকা বা সরানো মনে হচ্ছে",
+            "crowd": "ভিড় / লম্বা লাইন", "vehicle_in_out": "গাড়ি ঢুকেছে / বের হয়েছে",
+            "parking_overstay": "গাড়ি অনেকক্ষণ পার্ক করা", "wrong_parking": "ভুল জায়গায় গাড়ি রাখা"}
 _KIND_EN = {"person_detected": "A person was seen", "zone_intrusion": "Someone entered a restricted zone",
             "line_crossing": "Someone crossed the entry line", "loitering": "Someone stayed / loitered for a while",
             "motion": "Movement was seen", "camera_alarm": "The camera's own alert",
@@ -356,7 +365,9 @@ _KIND_EN = {"person_detected": "A person was seen", "zone_intrusion": "Someone e
             "pose_possible": "Possibly someone bending", "drawer_open": "Cash drawer open",
             # cctvdet
             "gate_person": "Someone is at the shutter / gate", "post_empty": "The counter / post is empty",
-            "gate_open": "The gate / shutter is left open", "camera_health": "The camera seems covered or moved"}
+            "gate_open": "The gate / shutter is left open", "camera_health": "The camera seems covered or moved",
+            "crowd": "A crowd / long queue", "vehicle_in_out": "A vehicle came in / went out",
+            "parking_overstay": "A vehicle has overstayed", "wrong_parking": "A vehicle is parked in the wrong place"}
 _OBJ = {"vehicle": ("একটি গাড়ি", "A vehicle"), "animal": ("একটি প্রাণী", "An animal")}
 
 

@@ -62,12 +62,29 @@ TAMPER_EVERY_S = 30.0        # the box checks covered / moved this often
 BAD_PERSIST_S = 60
 MOVED_MIN_GAP_S = 120
 
+# --- stage 2 (cctvdet): recall, crowd, vehicles, camera moved by shape ---
+POST_PRESENCE_SCORE = 0.25   # a post counts as manned on a weaker person box
+CROWD_S_DEFAULT = 60         # crowd / queue: N people for a minute
+VEH_GAP_S = 30.0             # a vehicle unseen longer than this has left
+VEH_CHECK_S = 10.0           # the model runs at least this often (parking zones)
+VEH_STILL = 0.06             # a parked vehicle's centre moves less than this
+OVERSTAY_MIN_DEFAULT = 60    # parking overstay after an hour
+WRONG_S_DEFAULT = 120        # wrong parking after 2 minutes
+TRACK_MAX_JUMP = 0.25        # a vehicle centre moves at most this per check
+MOVED_SHAPE_SIM = 0.35       # the scene's SHAPES no longer match ...
+MOVED_SHAPE_KEEP = 0.6       # ... vs still the same scene (slow update)
+VEHICLE_CLASSES = {1: "cycle", 2: "car", 3: "motorbike", 5: "bus", 7: "truck"}
+
 GATE_PERSON = "gate_person"
 LOITERING = "loitering"
 POST_EMPTY = "post_empty"
 GATE_OPEN = "gate_open"
 CAMERA_HEALTH = "camera_health"
-ZONE_KINDS = ("restricted", "cash", "entry_line", "gate", "post")
+CROWD = "crowd"
+VEHICLE_IN_OUT = "vehicle_in_out"
+PARKING_OVERSTAY = "parking_overstay"
+WRONG_PARKING = "wrong_parking"
+ZONE_KINDS = ("restricted", "cash", "entry_line", "gate", "post", "parking", "no_parking")
 
 
 # ------------------------------------------------------------------ geometry
@@ -177,6 +194,22 @@ def similarity(patch, ref, grad_only: bool = False) -> float:
     return round(max(_ncc(patch, ref), g), 4)
 
 
+def _dist(a, b) -> float:
+    return math.hypot(float(a[0]) - float(b[0]), float(a[1]) - float(b[1]))
+
+
+def _orient(a, b, c) -> float:
+    return ((float(b[0]) - float(a[0])) * (float(c[1]) - float(a[1]))
+            - (float(b[1]) - float(a[1])) * (float(c[0]) - float(a[0])))
+
+
+def segments_cross(p1, p2, q1, q2) -> bool:
+    """p1->p2 properly crosses q1-q2 (touching / along it does not count)."""
+    d1, d2 = _orient(q1, q2, p1), _orient(q1, q2, p2)
+    d3, d4 = _orient(p1, p2, q1), _orient(p1, p2, q2)
+    return ((d1 > 0 > d2) or (d1 < 0 < d2)) and ((d3 > 0 > d4) or (d3 < 0 < d4))
+
+
 # ------------------------------------------------------------------ schedule
 def _hhmm(v) -> Optional[int]:
     try:
@@ -229,7 +262,9 @@ def _opt_num(opts, key, default, lo, hi):
 class _ZoneState:
     __slots__ = ("hits", "since", "last_seen", "gate_fired", "dwell_fired",
                  "absent_since", "absent_fired", "open_since", "open_fired",
-                 "ref_day", "ref_night", "ref_at", "ref_for")
+                 "ref_day", "ref_night", "ref_at", "ref_for",
+                 "crowd_since", "crowd_fired", "veh_since", "veh_last",
+                 "veh_anchor", "veh_fired")
 
     def __init__(self):
         self.hits = 0
@@ -245,6 +280,12 @@ class _ZoneState:
         self.ref_night: Optional[List[float]] = None
         self.ref_at: Optional[float] = None
         self.ref_for: Optional[float] = None     # the closed_at it answered
+        self.crowd_since: Optional[float] = None
+        self.crowd_fired = False
+        self.veh_since: Optional[float] = None
+        self.veh_last: Optional[float] = None
+        self.veh_anchor = None
+        self.veh_fired = False
 
 
 class ZoneRules:
@@ -254,6 +295,7 @@ class ZoneRules:
         self.zones: List[dict] = []
         self.cam_schedule = cam_schedule
         self.state: Dict[str, _ZoneState] = {}
+        self.tracks: List[dict] = []         # vehicle centres (entry lines)
         self.configure(zones or [], cam_schedule)
 
     # zones: [{"id", "type", "points", "label"?, "schedule"?, "opts"?}]
@@ -264,10 +306,13 @@ class ZoneRules:
         for z in zones or []:
             if not isinstance(z, dict) or z.get("type") not in ZONE_KINDS:
                 continue
-            if z["type"] in ("entry_line", "cash"):
-                continue                       # analyzer.py's rules
+            if z["type"] == "cash":
+                continue                       # analyzer.py's rule
+            if z["type"] == "entry_line" and not (z.get("opts") or {}).get("vehicles"):
+                continue                       # people on the line: analyzer.py
             zid = str(z.get("id") or "")
-            if not zid or len(z.get("points") or []) < 3:
+            need = 2 if z["type"] == "entry_line" else 3
+            if not zid or len(z.get("points") or []) < need:
                 continue
             self.zones.append(z)
             keep[zid] = self.state.get(zid) or _ZoneState()
@@ -290,6 +335,21 @@ class ZoneRules:
                 if since is None or since >= PRESENCE_CHECK_S:
                     return True
         return False
+
+    @property
+    def has_post(self) -> bool:
+        return any(z["type"] == "post" for z in self.zones)
+
+    @property
+    def wants_vehicles(self) -> bool:
+        return any(z["type"] in ("parking", "no_parking", "entry_line") for z in self.zones)
+
+    def needs_vehicle_check(self, t: float, last_check: Optional[float]) -> bool:
+        """Parking zones: the model runs every VEH_CHECK_S even without motion
+        (a parked car does not move)."""
+        if not any(z["type"] in ("parking", "no_parking") for z in self.zones):
+            return False
+        return last_check is None or t - last_check >= VEH_CHECK_S
 
     def gate_zones(self) -> List[dict]:
         return [z for z in self.zones if z["type"] == "gate"
@@ -351,27 +411,114 @@ class ZoneRules:
         return schedule_armed(sched if isinstance(sched, dict) else self.cam_schedule,
                               weekday, minute)
 
+    def _vehicle_zone(self, z, st, t, weekday, minute, vehicles) -> Optional[dict]:
+        """Parking overstay / wrong parking: ONE vehicle standing still in the
+        zone (its centre moves < VEH_STILL) for the zone's time."""
+        if vehicles is None:
+            return None
+        vin = [v for v in vehicles if box_in_zone(v, z["points"])]
+        if not vin:
+            if st.veh_last is not None and t - st.veh_last > VEH_GAP_S:
+                st.veh_anchor = st.veh_since = st.veh_last = None
+                st.veh_fired = False
+            return None
+        cs = [((float(v[0]) + float(v[2])) / 2.0, (float(v[1]) + float(v[3])) / 2.0)
+              for v in vin]
+        same = (st.veh_anchor is not None and st.veh_last is not None
+                and t - st.veh_last <= VEH_GAP_S
+                and min(_dist(c, st.veh_anchor) for c in cs) <= VEH_STILL)
+        if not same:
+            st.veh_anchor, st.veh_since, st.veh_fired = cs[0], t, False
+        st.veh_last = t
+        if not self._open_armed(z, weekday, minute):
+            return None
+        opts = z.get("opts") or {}
+        cls = VEHICLE_CLASSES.get(int(vin[0][5]) if len(vin[0]) > 5 else 2, "vehicle")
+        if z["type"] == "parking":
+            need = _opt_num(opts, "overstay_min", OVERSTAY_MIN_DEFAULT, 5, 1440) * 60
+            etype = PARKING_OVERSTAY
+        else:
+            need = _opt_num(opts, "wrong_s", WRONG_S_DEFAULT, 30, 3600)
+            etype = WRONG_PARKING
+        if t - st.veh_since >= need and not st.veh_fired:
+            st.veh_fired = True
+            d = {"type": etype, "cls": cls, "seconds": int(t - st.veh_since),
+                 "box": [round(float(x), 4) for x in vin[0][:4]]}
+            if etype == PARKING_OVERSTAY:
+                d["minutes"] = int((t - st.veh_since) // 60)
+            return d
+        return None
+
     def _open_armed(self, z, weekday, minute) -> bool:
         # "gate left open" follows the zone's own schedule only (default: always)
         sched = z.get("schedule")
         return schedule_armed(sched if isinstance(sched, dict) else None, weekday, minute)
 
+    def _track(self, t: float, vehicles) -> List[tuple]:
+        """Nearest-centre tracking of vehicles -> [(prev_xy, cur_xy, cls)]."""
+        moves = []
+        used = set()
+        new = []
+        for v in vehicles:
+            c = ((float(v[0]) + float(v[2])) / 2.0, (float(v[1]) + float(v[3])) / 2.0)
+            cls = int(v[5]) if len(v) > 5 else 2
+            box = [round(float(x), 4) for x in v[:4]]
+            best, bd = None, TRACK_MAX_JUMP
+            for i, tr in enumerate(self.tracks):
+                if i in used or t - tr["t"] > VEH_GAP_S:
+                    continue
+                d = _dist(tr["c"], c)
+                if d <= bd:
+                    best, bd = i, d
+            if best is None:
+                new.append({"c": c, "t": t, "cls": cls})
+            else:
+                used.add(best)
+                moves.append((self.tracks[best]["c"], c, cls, box))
+                self.tracks[best] = {"c": c, "t": t, "cls": cls}
+        self.tracks = ([tr for tr in self.tracks if t - tr["t"] <= VEH_GAP_S] + new)[-32:]
+        return moves
+
     def step(self, t: float, weekday: int, minute: int, boxes=None,
-             night: bool = False, patches: Optional[Dict[str, list]] = None) -> List[dict]:
+             night: bool = False, patches: Optional[Dict[str, list]] = None,
+             min_score: float = 0.0, vehicles=None) -> List[dict]:
         """One analysed frame. boxes: [[x1, y1, x2, y2, score], ...] from the
         person model THIS frame, or None when the model did not run / is not
         available (presence then simply is not updated). patches: zone id ->
         zone_patch() for gate zones watching "open". Returns detections:
         {"type", "zone", "label", ...} (at most one per zone and type)."""
         out: List[dict] = []
+        moves = self._track(t, vehicles) if vehicles is not None else []
         for z in self.zones:
             zid = str(z["id"])
             st = self.state[zid]
             opts = z.get("opts") or {}
             label = str(z.get("label") or "")[:40]
+            if z["type"] == "entry_line":
+                a, b = z["points"][0], z["points"][1]
+                for prev, cur, cls, box in moves:
+                    if segments_cross(prev, cur, a, b):
+                        # crossing to the LEFT of a->b = "in" (opts.in_side flips it)
+                        left = _orient(a, b, cur) > 0
+                        inward = left if opts.get("in_side", "left") == "left" else not left
+                        out.append({"type": VEHICLE_IN_OUT, "zone": zid, "label": label,
+                                    "dir": "in" if inward else "out",
+                                    "cls": VEHICLE_CLASSES.get(cls, "vehicle"),
+                                    "box": box})
+                continue
+            if z["type"] in ("parking", "no_parking"):
+                d = self._vehicle_zone(z, st, t, weekday, minute, vehicles)
+                if d:
+                    d.update({"zone": zid, "label": label})
+                    out.append(d)
+                continue
             in_zone = []
+            strong = []
             if boxes is not None:
-                in_zone = [b for b in boxes if box_in_zone(b, z["points"])]
+                floor = POST_PRESENCE_SCORE if z["type"] == "post" else min_score
+                all_in = [b for b in boxes if box_in_zone(b, z["points"])]
+                strong = [b for b in all_in if len(b) < 5 or float(b[4]) >= min_score]
+                in_zone = [b for b in all_in if len(b) < 5 or float(b[4]) >= floor]
                 present = bool(in_zone)
                 if present:
                     st.hits += 1
@@ -406,6 +553,23 @@ class ZoneRules:
                 if conf is not None:
                     d["conf"] = round(conf, 3)
                 out.append(d)
+
+            # 2b. crowd / queue: >= crowd_n people (strong boxes) for crowd_s
+            crowd_n = int(_opt_num(opts, "crowd_n", 0, 0, 50))
+            if crowd_n > 0 and boxes is not None:
+                if len(strong) >= crowd_n:
+                    if st.crowd_since is None:
+                        st.crowd_since = t
+                    need = _opt_num(opts, "crowd_s", CROWD_S_DEFAULT, 10, 1800)
+                    # a queue matters while the shop is OPEN: the zone's own
+                    # schedule, else always (not the night guard schedule)
+                    if (self._open_armed(z, weekday, minute)
+                            and t - st.crowd_since >= need and not st.crowd_fired):
+                        st.crowd_fired = True
+                        out.append({"type": CROWD, "zone": zid, "label": label,
+                                    "count": len(strong)})
+                else:
+                    st.crowd_since, st.crowd_fired = None, False
 
             # 3. counter / post left empty
             if z["type"] == "post":
@@ -538,17 +702,58 @@ def still_stats(gray: Sequence[int], width: int, height: int):
     return grid, mean, math.sqrt(var)
 
 
+def assess_shape(state, shape, ir, ts):
+    """cctvdet stage 2: CAMERA MOVED by the scene's SHAPES (the gradient
+    picture of a 16 x 12 frame; light / IR / exposure changes keep the
+    shapes). Moved = two checks >= MOVED_MIN_GAP_S apart that match EACH
+    OTHER (>= 0.7) but not the remembered scene (< MOVED_SHAPE_SIM).
+    -> (new_state, "moved" | None)."""
+    st = dict(state) if isinstance(state, dict) else {}
+    key = "shape_ir" if ir else "shape_day"
+    ref = st.get(key)
+    if not ref:
+        st[key] = [round(v, 2) for v in shape]
+        return st, None
+    sim = similarity(shape, ref, grad_only=True)
+    if sim >= MOVED_SHAPE_KEEP:
+        st[key] = [round(0.8 * r + 0.2 * g, 2) for r, g in zip(ref, shape)]
+        st.pop("shape_pending", None)
+        return st, None
+    if sim < MOVED_SHAPE_SIM:
+        p = st.get("shape_pending")
+        if p and p.get("ir") == bool(ir) and ts - float(p.get("ts") or 0) >= MOVED_MIN_GAP_S \
+                and similarity(shape, p.get("shape") or [], grad_only=True) >= 0.7:
+            st[key] = [round(v, 2) for v in shape]
+            st.pop("shape_pending", None)
+            return st, "moved"
+        if not p or p.get("ir") != bool(ir):
+            st["shape_pending"] = {"shape": [round(v, 2) for v in shape], "ts": ts,
+                                   "ir": bool(ir)}
+    return st, None
+
+
 class TamperCheck:
-    """Covered / moved / dark on the box itself, every TAMPER_EVERY_S."""
+    """Covered / moved / dark on the box itself, every TAMPER_EVERY_S.
+    Moved = the server's grid rule OR the shape rule (stage 2)."""
 
     def __init__(self):
         self.state: dict = {}
+        self.shape_state: dict = {}
         self.last: Optional[float] = None
 
     def due(self, t: float) -> bool:
         return self.last is None or t - self.last >= TAMPER_EVERY_S
 
-    def check(self, grid, mean, std, ir, t) -> Optional[str]:
+    def check(self, grid, mean, std, ir, t, shape=None) -> Optional[str]:
         self.last = t
         self.state, kind = assess_still(self.state, grid, mean, std, ir, t)
-        return kind if kind in ("covered", "moved") else None
+        if kind in ("covered", "moved"):
+            if kind == "moved":
+                self.shape_state.pop("shape_pending", None)
+                self.shape_state.pop("shape_ir" if ir else "shape_day", None)
+            return kind
+        if kind is None and shape and still_kind(mean, std) is None:
+            self.shape_state, sk = assess_shape(self.shape_state, shape, ir, t)
+            if sk == "moved":
+                return "moved"
+        return None
