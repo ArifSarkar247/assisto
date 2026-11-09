@@ -40,6 +40,7 @@ ACTIVE_DAYS = 7
 MAX_CHASE = 3
 MAX_STOCK = 5
 BATCH = 2000
+KEEP_DAYS = 60
 
 
 # ===================================================================== helpers
@@ -325,6 +326,10 @@ def run_daily(now=None):
             PaCollectionItem.objects.create(user=owner, collection=COL,
                                             data={"business_id": b.pk, "day": day,
                                                   "bn": bn, "en": en})
+            # keep ~2 months of history per shop, never an ever-growing pile
+            PaCollectionItem.objects.filter(user=owner, collection=COL, data__business_id=b.pk,
+                                            created_at__lt=now - timedelta(days=KEEP_DAYS)
+                                            ).delete()
             body_bn = " ".join(bn["lines"][:2])
             body_en = " ".join(en["lines"][:2])
             NotifEvent.objects.create(user=owner, type="business", title_bn=bn["title"][:200],
