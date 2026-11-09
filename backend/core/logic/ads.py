@@ -138,6 +138,7 @@ BANNER_SCREENS = (
     "photo_gallery", "circle_list", "settings",
     # owner fix 3 Nov 02:55: Train Tracker search + detail (live map) only
     "train_search", "train_detail",
+    "mess",  # messv2: Mess and bachelor V2 screens (never the mess group chat)
 )
 # OWNER ADS FINAL (2 Nov): interstitials ONLY on the EXIT after a finished
 # task — the ONE registry (mirrors AdExitPlacement in ad_placements.dart).

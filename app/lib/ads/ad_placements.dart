@@ -73,6 +73,7 @@ class AdPlacements {
     // train chat (fence: 'chat'), never Safe Journey's train picker, never
     // the destination alarm (fence: 'destination'), no interstitial.
     'train_search', 'train_detail',
+    'mess', // messv2: Mess and bachelor V2 screens (never the mess group chat)
   };
 
   /// Interstitial: the registered EXIT placements -> the screen they leave.

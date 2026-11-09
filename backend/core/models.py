@@ -9045,3 +9045,103 @@ class LpAttempt(models.Model):
     credits = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now, db_index=True)
 # ---- /lpcore ----
+
+
+# ---- messv2 ----
+# MESS AND BACHELOR V2 (owner order 10 Nov 01:20, Part 2 A–L). A SHARED mess:
+# members are real users from the creator's My Circle, each enters own meals
+# from own phone; one My Circle group (E2E like every group) per mess. All
+# money INTEGER POISHA, meals INTEGER MILLI-MEALS. Math: core/logic/mess_v2.py.
+class Mess(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messes_created")
+    name = models.CharField(max_length=80)
+    address = models.CharField(max_length=200, blank=True, default="")
+    month_start_day = models.PositiveSmallIntegerField(default=1)      # 1-28
+    breakfast_milli = models.PositiveSmallIntegerField(default=500)    # 500 | 1000
+    cutoff_hour = models.PositiveSmallIntegerField(default=22)         # day before, Dhaka
+    group = models.ForeignKey("CircleGroup", null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="messes")
+    status = models.CharField(max_length=8, default="active")          # active | closed
+    legacy = models.JSONField(default=dict, blank=True)                # V1 import snapshot
+    created_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class MessMember(models.Model):
+    """user is null only for a V1-imported name the admin has not yet linked
+    to a My Circle person (status 'legacy' members still count in math)."""
+    mess = models.ForeignKey(Mess, on_delete=models.CASCADE, related_name="members")
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="mess_memberships")
+    name = models.CharField(max_length=120, blank=True, default="")
+    role = models.CharField(max_length=8, default="member")            # admin | member
+    is_manager = models.BooleanField(default=False)
+    seat_share = models.PositiveSmallIntegerField(default=1)
+    status = models.CharField(max_length=8, default="active")          # active | left
+    joined_on = models.DateField()
+    left_on = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [models.Index(fields=["user", "status"], name="core_messmem_user_st_idx")]
+
+
+class MessMonth(models.Model):
+    """A CLOSED mess month (open months are computed live). Immutable once
+    written: its summary + carry are the frozen record."""
+    mess = models.ForeignKey(Mess, on_delete=models.CASCADE, related_name="months")
+    key = models.CharField(max_length=7)                                # YYYY-MM of start
+    start = models.DateField()
+    end = models.DateField()
+    counted_until = models.DateField()
+    summary = models.JSONField(default=dict, blank=True)
+    carry = models.JSONField(default=dict, blank=True)                  # {member_id: poisha}
+    closed_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="+")
+    closed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("mess", "key")]
+        ordering = ["-start"]
+
+
+class MessEntry(models.Model):
+    """One row per meal-day / bazar / deposit / service charge / bazar turn.
+    kind: meal | bazar | deposit | charge | turn. `client_id` makes offline
+    re-sends idempotent. Soft delete keeps the trust trail."""
+    mess = models.ForeignKey(Mess, on_delete=models.CASCADE, related_name="entries")
+    kind = models.CharField(max_length=8)
+    member = models.ForeignKey(MessMember, null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="entries")
+    date = models.DateField()
+    amount = models.BigIntegerField(default=0)                          # poisha
+    data = models.JSONField(default=dict, blank=True)
+    photo = models.FileField(upload_to="mess/", null=True, blank=True)  # signed media
+    client_id = models.CharField(max_length=64, blank=True, default="")
+    deleted = models.BooleanField(default=False)
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="+")
+    updated_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["date", "id"]
+        indexes = [models.Index(fields=["mess", "kind", "date"], name="core_messent_kind_dt_idx")]
+
+
+class MessEditLog(models.Model):
+    """Trust trail: who changed what and when (append-only)."""
+    mess = models.ForeignKey(Mess, on_delete=models.CASCADE, related_name="edit_log")
+    actor = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="+")
+    action = models.CharField(max_length=24)
+    entry_id = models.IntegerField(null=True, blank=True)
+    before = models.JSONField(default=dict, blank=True)
+    after = models.JSONField(default=dict, blank=True)
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-at", "-id"]
+# ---- /messv2 ----

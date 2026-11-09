@@ -2047,3 +2047,27 @@ urlpatterns += [
     path("lp/certificate/<int:pk>", lpv.LpCertificateView.as_view()),
 ]
 # ---- /lpcore ----
+
+# ---- messv2 ---- Mess and bachelor V2 (shared mess, owner order 10 Nov)
+from . import views_mess as messv  # noqa: E402
+
+urlpatterns += [
+    path("mess/v2", messv.MessListView.as_view()),
+    path("mess/v2/import-legacy", messv.MessImportLegacyView.as_view()),
+    path("mess/v2/by-group/<int:gid>", messv.MessByGroupView.as_view()),
+    path("mess/v2/<int:pk>", messv.MessDetailView.as_view()),
+    path("mess/v2/<int:pk>/edit", messv.MessEditView.as_view()),
+    path("mess/v2/<int:pk>/circle-pick", messv.MessCirclePickView.as_view()),
+    path("mess/v2/<int:pk>/members", messv.MessMembersView.as_view()),
+    path("mess/v2/<int:pk>/members/<int:mid>", messv.MessMemberActionView.as_view()),
+    path("mess/v2/<int:pk>/meals", messv.MessMealsView.as_view()),
+    path("mess/v2/<int:pk>/meals/off", messv.MessMealsOffView.as_view()),
+    path("mess/v2/<int:pk>/entries", messv.MessEntriesView.as_view()),
+    path("mess/v2/<int:pk>/entries/<int:eid>", messv.MessEntryActionView.as_view()),
+    path("mess/v2/<int:pk>/close", messv.MessCloseMonthView.as_view()),
+    path("mess/v2/<int:pk>/remind", messv.MessRemindView.as_view()),
+    path("mess/v2/<int:pk>/history", messv.MessHistoryView.as_view()),
+    path("mess/v2/<int:pk>/report", messv.MessReportView.as_view()),
+    path("mess/v2/<int:pk>/close-mess", messv.MessCloseMessView.as_view()),
+]
+# ---- /messv2 ----

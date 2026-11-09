@@ -181,6 +181,7 @@ import 'package:assisto/screens/wedding_events_screen.dart';
 import 'package:assisto/screens/task_manager_screen.dart';
 import 'package:assisto/screens/day_planner_screen.dart'; // p2plan
 import 'package:assisto/screens/mess_accounting_screen.dart';
+import 'package:assisto/screens/mess/mess_detail_screen.dart'; // messv2
 import 'package:assisto/screens/expense_split_screen.dart';
 import 'package:assisto/screens/samity_screen.dart';
 import 'package:assisto/screens/landlord_tenant_screen.dart';
@@ -730,6 +731,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'dp_plan': (build: (_) => const DayPlannerScreen(), mode: FakeMode.data, full: true),
     'dp_empty': (build: (_) => const DayPlannerScreen(), mode: FakeMode.empty, full: true),
     'mess_acct': (build: (_) => const MessAccountingScreen(), mode: FakeMode.data, full: true),
+    // messv2: list empty state, the shared mess (meals tab), month-end tab
+    'mess_v2_empty': (build: (_) => const MessAccountingScreen(), mode: FakeMode.empty, full: true),
+    'mess_v2_meals': (build: (_) => const MessDetailScreen(messId: 1), mode: FakeMode.data, full: true),
+    'mess_v2_month': (build: (_) => const MessDetailScreen(messId: 1, initialTab: 3), mode: FakeMode.data, full: true),
     'expense_split': (build: (_) => const ExpenseSplitScreen(), mode: FakeMode.data, full: true),
     'samity': (build: (_) => const SamityScreen(), mode: FakeMode.data, full: true),
     'landlord': (build: (_) => const LandlordTenantScreen(), mode: FakeMode.data, full: true),

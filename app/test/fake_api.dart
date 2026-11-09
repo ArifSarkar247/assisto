@@ -37,6 +37,7 @@ import 'fake_standing.dart'; // adminsafe
 import 'fake_career.dart'; // p2career
 import 'fake_ielts.dart'; // p2lang
 import 'fake_langkoja.dart'; // langkoja
+import 'fake_messv2.dart'; // messv2
 import 'bizai_fakes.dart' show fakeBizaiGet; // bizai
 
 enum FakeMode { data, empty, fail, slow }
@@ -1079,6 +1080,11 @@ class FakeApi extends ApiClient {
     if (cityG != null) {
       if (mode == FakeMode.fail) _fail();
       return cityG;
+    }
+    final mv2 = fakeMessV2Get(path, bn: _bn, empty: mode == FakeMode.empty); // messv2
+    if (mv2 != null) {
+      if (mode == FakeMode.fail) _fail();
+      return mv2;
     }
     final lkG = fakeLangkojaGet(path); // langkoja
     if (lkG != null) {
@@ -2223,6 +2229,8 @@ class FakeApi extends ApiClient {
     if (fc3P != null) return fc3P;
     final cityP = fakeCityPost(path, body); // cityapp
     if (cityP != null) return cityP;
+    final mv2p = fakeMessV2Post(path, body); // messv2
+    if (mv2p != null) return mv2p;
     if (path.endsWith('learn/quran/complete')) { // learnwire
       final c = '${body['course']}';
       return {'ok': true, 'cert': {'course': c, 'level': c == 'quran_nazera' ? 'nazera' : 'qaida',
