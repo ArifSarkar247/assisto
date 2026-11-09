@@ -147,22 +147,29 @@ class FcMemberCard extends StatelessWidget {
           ],
           if (lastLoc != null) ...[
             const SizedBox(height: Gap.sm),
-            Row(
+            Column(
               key: ValueKey('fcr-lastloc-${member['user_id']}'),
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.battery_alert_rounded, color: fcInk(context, 'check')),
-                const SizedBox(width: Gap.xs),
-                Expanded(
-                  child: Text(
-                      t.fcrLastPlace(fcDigits(context, lastLoc['pct'] ?? brain['battery'] ?? 15),
-                          fcClock(context, lastLoc['at'])),
-                      style: TextStyle(color: scheme.onSurface)),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.battery_alert_rounded, color: fcInk(context, 'check')),
+                    const SizedBox(width: Gap.xs),
+                    Expanded(
+                      child: Text(
+                          t.fcrLastPlace(fcDigits(context, lastLoc['pct'] ?? brain['battery'] ?? 15),
+                              fcClock(context, lastLoc['at'])),
+                          style: TextStyle(color: scheme.onSurface)),
+                    ),
+                  ],
                 ),
-                TextButton(
+                TextButton.icon(
                   key: ValueKey('fcr-map-${member['user_id']}'),
                   style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                   onPressed: () => fcrOpenMap(context, lastLoc),
-                  child: Text(t.fcrOpenMap),
+                  icon: const Icon(Icons.map_rounded),
+                  label: Text(t.fcrOpenMap),
                 ),
               ],
             ),
