@@ -159,7 +159,7 @@ def contract(case, calls, now, banned=(), crisis=False):
     if "Length budget" not in sysm:
         fails.append("length_budget")
     photo = next((h.get("photo_text") for h in case.get("history") or [] if h.get("photo_text")), "")
-    if photo and (photo not in prompt or "earlier in this chat" not in sysm):
+    if photo and (photo not in prompt or not any(n in sysm for n in VC.PHOTO_NOTE)):
         fails.append("photo_context")
     rest = calls[1:]
     if rest:
