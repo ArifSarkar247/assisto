@@ -969,12 +969,12 @@ _SILENT_WATCH = S("silent_watch", "বয়স্কদের নীরব প�
         "minutes it has been quiet. If Care Calls go unanswered, the server also asks the elder first. Then, 15 "
         "minutes apart: the child who set it up → all family → the chosen nearby person."),
        ("<b>নিয়ন্ত্রণ ও সংরক্ষণ:</b> \"আমি ঠিক আছি\" বা পরিবারের \"আমি দেখছি\" এক চাপেই থামায়; বয়স্ক মানুষটি বা সন্তান যেকোনো "
-        "সময় বন্ধ করতে পারেন। সতর্কতার রেকর্ড (কখন, কতক্ষণ নীরব, কাকে জানানো হলো, কে সাড়া দিলেন) অ্যাকাউন্ট থাকা পর্যন্ত থাকে, "
-        "যাতে পরিবার ইতিহাস দেখতে পারে; অ্যাকাউন্ট মুছলে মুছে যায়।",
+        "সময় বন্ধ করতে পারেন। সতর্কতার রেকর্ড (কখন, কতক্ষণ নীরব, কাকে জানানো হলো, কে সাড়া দিলেন) ৯০ দিন রাখা হয়, "
+        "যাতে পরিবার ইতিহাস দেখতে পারে; নীরব পাহারা বন্ধ করলে বা পরিবার ছাড়লে সঙ্গে সঙ্গে মুছে যায়।",
         "<b>Control and retention:</b> \"I am OK\" or a family member's \"I am checking\" stops it in one tap; the elder "
         "or the child can turn it off any time. Alert records (when, how long it was quiet, who was told, who "
-        "answered) are kept while the account exists so the family can see the history, and are deleted with the "
-        "account.")))
+        "answered) are kept 90 days so the family can see the history, and are deleted at once when Silent Watch is "
+        "turned off or the setter leaves the family.")))
 
 _SUMMARY_V2 = (
     "Assisto কখনো SMS-এর অনুমতি চায় না। \"নোটিফিকেশন থেকে টাকার হিসাব\" আপনি চালু করলে তবেই শুধু ওয়ালেট/ব্যাংকের বার্তা "
@@ -998,8 +998,8 @@ _RETENTION_V2 = (
     ("সিটি সার্ভিসের যাত্রা: GPS বিন্দু প্রক্রিয়ার পরেই (সাধারণত এক ঘণ্টার মধ্যে) মোছে; যাত্রার রেকর্ড সর্বোচ্চ ৭ দিন।",
      "City Service trips: GPS points erased right after processing (normally within an hour); trip records at most "
      "7 days."),
-    ("নীরব পাহারা: সংকেতের লগ শুধু ফোনে ৮ দিন; সতর্কতার রেকর্ড অ্যাকাউন্ট থাকা পর্যন্ত।",
-     "Silent Watch: the signal log only on the phone, 8 days; alert records while the account exists."),
+    ("নীরব পাহারা: সংকেতের লগ শুধু ফোনে ৮ দিন; সতর্কতার রেকর্ড ৯০ দিন, বন্ধ করলেই সঙ্গে সঙ্গে মোছা।",
+     "Silent Watch: the signal log only on the phone, 8 days; alert records kept 90 days, deleted at once when Silent Watch is turned off."),
 )
 
 
