@@ -44961,5 +44961,597 @@
   "qcQuietUntil": "Quiet until",
   "@qcQuietUntil": {
     "description": "qcircle: time picker title for the end of quiet hours"
+  },
+  "cv3HubEntry": "Report, ask & more",
+  "@cv3HubEntry": {
+    "description": "cctvact CCTV V3: cv3HubEntry"
+  },
+  "cv3HubTitle": "Shop manager",
+  "@cv3HubTitle": {
+    "description": "cctvact CCTV V3: cv3HubTitle"
+  },
+  "cv3HubIntro": "Your cameras as a manager: today's report, ask in your own words, sales match and automations.",
+  "@cv3HubIntro": {
+    "description": "cctvact CCTV V3: cv3HubIntro"
+  },
+  "cv3Privacy": "No face recognition, no identity. Only you see the video.",
+  "@cv3Privacy": {
+    "description": "cctvact CCTV V3: cv3Privacy"
+  },
+  "cv3ReportTitle": "Closing report",
+  "@cv3ReportTitle": {
+    "description": "cctvact CCTV V3: cv3ReportTitle"
+  },
+  "cv3ReportSub": "Opening and closing, people counted, busy hours, cameras' health",
+  "@cv3ReportSub": {
+    "description": "cctvact CCTV V3: cv3ReportSub"
+  },
+  "cv3ReportHourly": "People by hour",
+  "@cv3ReportHourly": {
+    "description": "cctvact CCTV V3: cv3ReportHourly"
+  },
+  "cv3ReportNotMeasured": "Empty counter, vehicles and tables are measured by the Assisto Guard Box. Without a box they show as not measured.",
+  "@cv3ReportNotMeasured": {
+    "description": "cctvact CCTV V3: cv3ReportNotMeasured"
+  },
+  "cv3ReportPlace": "What kind of place is this?",
+  "@cv3ReportPlace": {
+    "description": "cctvact CCTV V3: cv3ReportPlace"
+  },
+  "cv3ReportPush": "Send me the report at closing",
+  "@cv3ReportPush": {
+    "description": "cctvact CCTV V3: cv3ReportPush"
+  },
+  "cv3ReportPushSub": "15 minutes after your closing time (22:00 if not set)",
+  "@cv3ReportPushSub": {
+    "description": "cctvact CCTV V3: cv3ReportPushSub"
+  },
+  "cv3UseShop": "Shop",
+  "@cv3UseShop": {
+    "description": "cctvact CCTV V3: cv3UseShop"
+  },
+  "cv3UseCafe": "Cafe / restaurant",
+  "@cv3UseCafe": {
+    "description": "cctvact CCTV V3: cv3UseCafe"
+  },
+  "cv3UseParking": "Parking",
+  "@cv3UseParking": {
+    "description": "cctvact CCTV V3: cv3UseParking"
+  },
+  "cv3UseOffice": "Office",
+  "@cv3UseOffice": {
+    "description": "cctvact CCTV V3: cv3UseOffice"
+  },
+  "cv3UseWarehouse": "Warehouse",
+  "@cv3UseWarehouse": {
+    "description": "cctvact CCTV V3: cv3UseWarehouse"
+  },
+  "cv3UseHome": "Home",
+  "@cv3UseHome": {
+    "description": "cctvact CCTV V3: cv3UseHome"
+  },
+  "cv3UseGate": "Building gate",
+  "@cv3UseGate": {
+    "description": "cctvact CCTV V3: cv3UseGate"
+  },
+  "cv3AskTitle": "Ask the cameras",
+  "@cv3AskTitle": {
+    "description": "cctvact CCTV V3: cv3AskTitle"
+  },
+  "cv3AskSub": "\"Who went to the cash between 2 and 3?\" — answered with clips",
+  "@cv3AskSub": {
+    "description": "cctvact CCTV V3: cv3AskSub"
+  },
+  "cv3AskHint": "Ask in Bangla or English",
+  "@cv3AskHint": {
+    "description": "cctvact CCTV V3: cv3AskHint"
+  },
+  "cv3AskGo": "Search",
+  "@cv3AskGo": {
+    "description": "cctvact CCTV V3: cv3AskGo"
+  },
+  "cv3AskEmpty": "Find a moment without scrolling through hours of video. Try one of these:",
+  "@cv3AskEmpty": {
+    "description": "cctvact CCTV V3: cv3AskEmpty"
+  },
+  "cv3AskEx1": "Who went to the cash between 2 and 3 pm?",
+  "@cv3AskEx1": {
+    "description": "cctvact CCTV V3: cv3AskEx1"
+  },
+  "cv3AskEx2": "Show the red car at the gate",
+  "@cv3AskEx2": {
+    "description": "cctvact CCTV V3: cv3AskEx2"
+  },
+  "cv3AskEx3": "When did the shutter open today?",
+  "@cv3AskEx3": {
+    "description": "cctvact CCTV V3: cv3AskEx3"
+  },
+  "cv3AskRange": "Searched {from} – {to}",
+  "@cv3AskRange": {
+    "description": "cctvact CCTV V3: cv3AskRange",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3AskMore": "{n} found in all — the newest are shown",
+  "@cv3AskMore": {
+    "description": "cctvact CCTV V3: cv3AskMore",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3HasClip": "Tap to watch the clip",
+  "@cv3HasClip": {
+    "description": "cctvact CCTV V3: cv3HasClip"
+  },
+  "cv3PhotoOnly": "Photo — tap for details",
+  "@cv3PhotoOnly": {
+    "description": "cctvact CCTV V3: cv3PhotoOnly"
+  },
+  "cv3SalesTitle": "Sales match",
+  "@cv3SalesTitle": {
+    "description": "cctvact CCTV V3: cv3SalesTitle"
+  },
+  "cv3SalesSub": "Cash drawer and sales side by side — clips to review, never an accusation",
+  "@cv3SalesSub": {
+    "description": "cctvact CCTV V3: cv3SalesSub"
+  },
+  "cv3SalesNote": "For review only — not an accusation.",
+  "@cv3SalesNote": {
+    "description": "cctvact CCTV V3: cv3SalesNote"
+  },
+  "cv3SalesNone": "Nothing to review today. Every drawer opening had a sale or khata entry nearby.",
+  "@cv3SalesNone": {
+    "description": "cctvact CCTV V3: cv3SalesNone"
+  },
+  "cv3PosTitle": "Your POS",
+  "@cv3PosTitle": {
+    "description": "cctvact CCTV V3: cv3PosTitle"
+  },
+  "cv3PosBenefit": "Link your POS (Asalify POS or any other) so every sale, refund and drawer opening is matched with the camera.",
+  "@cv3PosBenefit": {
+    "description": "cctvact CCTV V3: cv3PosBenefit"
+  },
+  "cv3PosLinked": "Linked: {pos} · {n} events received",
+  "@cv3PosLinked": {
+    "description": "cctvact CCTV V3: cv3PosLinked",
+    "placeholders": {
+      "pos": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3PosLink": "Link a POS",
+  "@cv3PosLink": {
+    "description": "cctvact CCTV V3: cv3PosLink"
+  },
+  "cv3PosRotate": "Make a new key",
+  "@cv3PosRotate": {
+    "description": "cctvact CCTV V3: cv3PosRotate"
+  },
+  "cv3PosRevoke": "Stop the link",
+  "@cv3PosRevoke": {
+    "description": "cctvact CCTV V3: cv3PosRevoke"
+  },
+  "cv3PosRevokeTitle": "Stop the POS link?",
+  "@cv3PosRevokeTitle": {
+    "description": "cctvact CCTV V3: cv3PosRevokeTitle"
+  },
+  "cv3PosRevokeBody": "The POS will not be able to send events any more. Events already received stay.",
+  "@cv3PosRevokeBody": {
+    "description": "cctvact CCTV V3: cv3PosRevokeBody"
+  },
+  "cv3PosWhich": "Which POS?",
+  "@cv3PosWhich": {
+    "description": "cctvact CCTV V3: cv3PosWhich"
+  },
+  "cv3PosAsalify": "Asalify POS",
+  "@cv3PosAsalify": {
+    "description": "cctvact CCTV V3: cv3PosAsalify"
+  },
+  "cv3PosOther": "Another POS",
+  "@cv3PosOther": {
+    "description": "cctvact CCTV V3: cv3PosOther"
+  },
+  "cv3PosKeyTitle": "Give this to your POS company",
+  "@cv3PosKeyTitle": {
+    "description": "cctvact CCTV V3: cv3PosKeyTitle"
+  },
+  "cv3PosKeyOnce": "The secret is shown only now. Copy it and send it to your POS company privately.",
+  "@cv3PosKeyOnce": {
+    "description": "cctvact CCTV V3: cv3PosKeyOnce"
+  },
+  "cv3PosNever": "Assisto never goes into your POS server — the POS sends to Assisto, signed with your shop's key.",
+  "@cv3PosNever": {
+    "description": "cctvact CCTV V3: cv3PosNever"
+  },
+  "cv3Copy": "Copy",
+  "@cv3Copy": {
+    "description": "cctvact CCTV V3: cv3Copy"
+  },
+  "cv3Copied": "Copied",
+  "@cv3Copied": {
+    "description": "cctvact CCTV V3: cv3Copied"
+  },
+  "cv3CsvTitle": "Import sales (CSV)",
+  "@cv3CsvTitle": {
+    "description": "cctvact CCTV V3: cv3CsvTitle"
+  },
+  "cv3CsvHow": "Paste your POS export. First line: time,type,amount,id. Types: sale, refund, void, discount, cash_drawer. Importing the same file twice adds nothing.",
+  "@cv3CsvHow": {
+    "description": "cctvact CCTV V3: cv3CsvHow"
+  },
+  "cv3CsvImport": "Import",
+  "@cv3CsvImport": {
+    "description": "cctvact CCTV V3: cv3CsvImport"
+  },
+  "cv3CsvDone": "{added} added, {dup} already there, {bad} lines skipped",
+  "@cv3CsvDone": {
+    "description": "cctvact CCTV V3: cv3CsvDone",
+    "placeholders": {
+      "added": {
+        "type": "String"
+      },
+      "dup": {
+        "type": "String"
+      },
+      "bad": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3AutoTitle": "Automations",
+  "@cv3AutoTitle": {
+    "description": "cctvact CCTV V3: cv3AutoTitle"
+  },
+  "cv3AutoSub": "Night intrusion turns on lights and the siren; locks only on your Yes",
+  "@cv3AutoSub": {
+    "description": "cctvact CCTV V3: cv3AutoSub"
+  },
+  "cv3AutoEmptyTitle": "Scare them away before they come in",
+  "@cv3AutoEmptyTitle": {
+    "description": "cctvact CCTV V3: cv3AutoEmptyTitle"
+  },
+  "cv3AutoEmptyBody": "Link your Smart Life (Tuya) plugs, lights and sirens. When someone comes at night, the lights go on, the siren sounds and your own voice warns them.",
+  "@cv3AutoEmptyBody": {
+    "description": "cctvact CCTV V3: cv3AutoEmptyBody"
+  },
+  "cv3AutoHow": "How: in the Smart Life app, link your account to Assisto's Tuya project (or your own), then paste your Smart Life UID here. Full steps in Help.",
+  "@cv3AutoHow": {
+    "description": "cctvact CCTV V3: cv3AutoHow"
+  },
+  "cv3AutoLinked": "Smart Life linked · {n} devices",
+  "@cv3AutoLinked": {
+    "description": "cctvact CCTV V3: cv3AutoLinked",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3AutoLog": "What happened",
+  "@cv3AutoLog": {
+    "description": "cctvact CCTV V3: cv3AutoLog"
+  },
+  "cv3AutoRan": "Automations: {list}",
+  "@cv3AutoRan": {
+    "description": "cctvact CCTV V3: cv3AutoRan",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3AutoOn": "turned on",
+  "@cv3AutoOn": {
+    "description": "cctvact CCTV V3: cv3AutoOn"
+  },
+  "cv3AutoAsked": "waiting for your Yes",
+  "@cv3AutoAsked": {
+    "description": "cctvact CCTV V3: cv3AutoAsked"
+  },
+  "cv3AutoQueued": "sent to the box",
+  "@cv3AutoQueued": {
+    "description": "cctvact CCTV V3: cv3AutoQueued"
+  },
+  "cv3AutoLocked": "locked",
+  "@cv3AutoLocked": {
+    "description": "cctvact CCTV V3: cv3AutoLocked"
+  },
+  "cv3AutoNotLinked": "Smart Life not linked",
+  "@cv3AutoNotLinked": {
+    "description": "cctvact CCTV V3: cv3AutoNotLinked"
+  },
+  "cv3AutoError": "did not respond",
+  "@cv3AutoError": {
+    "description": "cctvact CCTV V3: cv3AutoError"
+  },
+  "cv3LinkTitle": "Link Smart Life",
+  "@cv3LinkTitle": {
+    "description": "cctvact CCTV V3: cv3LinkTitle"
+  },
+  "cv3LinkHow": "Find the UID next to your account in the Tuya console (Devices → Link Tuya App Account).",
+  "@cv3LinkHow": {
+    "description": "cctvact CCTV V3: cv3LinkHow"
+  },
+  "cv3LinkUid": "Smart Life UID",
+  "@cv3LinkUid": {
+    "description": "cctvact CCTV V3: cv3LinkUid"
+  },
+  "cv3LinkOwn": "Use my own Tuya project",
+  "@cv3LinkOwn": {
+    "description": "cctvact CCTV V3: cv3LinkOwn"
+  },
+  "cv3LinkGo": "Link",
+  "@cv3LinkGo": {
+    "description": "cctvact CCTV V3: cv3LinkGo"
+  },
+  "cv3Unlink": "Unlink Smart Life",
+  "@cv3Unlink": {
+    "description": "cctvact CCTV V3: cv3Unlink"
+  },
+  "cv3Devices": "Devices",
+  "@cv3Devices": {
+    "description": "cctvact CCTV V3: cv3Devices"
+  },
+  "cv3Test": "Test",
+  "@cv3Test": {
+    "description": "cctvact CCTV V3: cv3Test"
+  },
+  "cv3TestOn": "{name} is on for 10 seconds",
+  "@cv3TestOn": {
+    "description": "cctvact CCTV V3: cv3TestOn",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3KindLight": "Light",
+  "@cv3KindLight": {
+    "description": "cctvact CCTV V3: cv3KindLight"
+  },
+  "cv3KindPlug": "Plug / switch",
+  "@cv3KindPlug": {
+    "description": "cctvact CCTV V3: cv3KindPlug"
+  },
+  "cv3KindSiren": "Siren",
+  "@cv3KindSiren": {
+    "description": "cctvact CCTV V3: cv3KindSiren"
+  },
+  "cv3KindLock": "Door lock",
+  "@cv3KindLock": {
+    "description": "cctvact CCTV V3: cv3KindLock"
+  },
+  "cv3LockAsk": "Door lock — asks you first, every time",
+  "@cv3LockAsk": {
+    "description": "cctvact CCTV V3: cv3LockAsk"
+  },
+  "cv3RuleNight": "Someone comes at night",
+  "@cv3RuleNight": {
+    "description": "cctvact CCTV V3: cv3RuleNight"
+  },
+  "cv3RuleNightSub": "22:00 to 06:00 — animals do not count",
+  "@cv3RuleNightSub": {
+    "description": "cctvact CCTV V3: cv3RuleNightSub"
+  },
+  "cv3RuleFire": "Smoke or fire",
+  "@cv3RuleFire": {
+    "description": "cctvact CCTV V3: cv3RuleFire"
+  },
+  "cv3RuleFireSub": "Any time of day",
+  "@cv3RuleFireSub": {
+    "description": "cctvact CCTV V3: cv3RuleFireSub"
+  },
+  "cv3RuleWarn": "Play my recorded warning on the box",
+  "@cv3RuleWarn": {
+    "description": "cctvact CCTV V3: cv3RuleWarn"
+  },
+  "cv3RuleWarnSub": "Your own voice through the Guard Box or phone camera speaker",
+  "@cv3RuleWarnSub": {
+    "description": "cctvact CCTV V3: cv3RuleWarnSub"
+  },
+  "cv3RuleWarnNeedClip": "Record your warning first (alert → Warning in my voice)",
+  "@cv3RuleWarnNeedClip": {
+    "description": "cctvact CCTV V3: cv3RuleWarnNeedClip"
+  },
+  "cv3RuleBoxSiren": "Sound the siren on the box",
+  "@cv3RuleBoxSiren": {
+    "description": "cctvact CCTV V3: cv3RuleBoxSiren"
+  },
+  "cv3Live": "Watch live",
+  "@cv3Live": {
+    "description": "cctvact CCTV V3: cv3Live"
+  },
+  "cv3LiveSub": "See the camera right now",
+  "@cv3LiveSub": {
+    "description": "cctvact CCTV V3: cv3LiveSub"
+  },
+  "cv3BoxSiren": "Siren at the shop",
+  "@cv3BoxSiren": {
+    "description": "cctvact CCTV V3: cv3BoxSiren"
+  },
+  "cv3BoxSirenSub": "Loud siren from the Guard Box or phone camera",
+  "@cv3BoxSirenSub": {
+    "description": "cctvact CCTV V3: cv3BoxSirenSub"
+  },
+  "cv3BoxWarn": "Warning in my voice",
+  "@cv3BoxWarn": {
+    "description": "cctvact CCTV V3: cv3BoxWarn"
+  },
+  "cv3BoxWarnSub": "Plays your recorded warning at the shop",
+  "@cv3BoxWarnSub": {
+    "description": "cctvact CCTV V3: cv3BoxWarnSub"
+  },
+  "cv3SirenConfirmTitle": "Sound the siren now?",
+  "@cv3SirenConfirmTitle": {
+    "description": "cctvact CCTV V3: cv3SirenConfirmTitle"
+  },
+  "cv3WarnConfirmTitle": "Play your warning now?",
+  "@cv3WarnConfirmTitle": {
+    "description": "cctvact CCTV V3: cv3WarnConfirmTitle"
+  },
+  "cv3PlayConfirmBody": "It will be loud at the shop. People nearby will hear it.",
+  "@cv3PlayConfirmBody": {
+    "description": "cctvact CCTV V3: cv3PlayConfirmBody"
+  },
+  "cv3PlayYes": "Play",
+  "@cv3PlayYes": {
+    "description": "cctvact CCTV V3: cv3PlayYes"
+  },
+  "cv3PlayQueued": "Sent to {n} device(s) — it plays within seconds",
+  "@cv3PlayQueued": {
+    "description": "cctvact CCTV V3: cv3PlayQueued",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3ThanaFind": "Find the nearest thana",
+  "@cv3ThanaFind": {
+    "description": "cctvact CCTV V3: cv3ThanaFind"
+  },
+  "cv3ThanaFindSub": "Stand in the shop and tap once — we save the shop's location",
+  "@cv3ThanaFindSub": {
+    "description": "cctvact CCTV V3: cv3ThanaFindSub"
+  },
+  "cv3ThanaNone": "No police station with a number found nearby — 999 always works",
+  "@cv3ThanaNone": {
+    "description": "cctvact CCTV V3: cv3ThanaNone"
+  },
+  "cv3ThanaSub": "{phone} · {km} km — tap to call",
+  "@cv3ThanaSub": {
+    "description": "cctvact CCTV V3: cv3ThanaSub",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3ThanaNoPhone": "{km} km · number not on the public map — tap for directions",
+  "@cv3ThanaNoPhone": {
+    "description": "cctvact CCTV V3: cv3ThanaNoPhone",
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3ThanaCallTitle": "Call {name}?",
+  "@cv3ThanaCallTitle": {
+    "description": "cctvact CCTV V3: cv3ThanaCallTitle",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3ThanaCallBody": "Your phone's dialer opens. Assisto never calls the police by itself.",
+  "@cv3ThanaCallBody": {
+    "description": "cctvact CCTV V3: cv3ThanaCallBody"
+  },
+  "cv3LocTitle": "Save the shop's location?",
+  "@cv3LocTitle": {
+    "description": "cctvact CCTV V3: cv3LocTitle"
+  },
+  "cv3LocBody": "Do this while you are inside the shop. It is used only to find the nearest thana.",
+  "@cv3LocBody": {
+    "description": "cctvact CCTV V3: cv3LocBody"
+  },
+  "cv3LocYes": "Use this location",
+  "@cv3LocYes": {
+    "description": "cctvact CCTV V3: cv3LocYes"
+  },
+  "cv3Wrong": "Wrong alert",
+  "@cv3Wrong": {
+    "description": "cctvact CCTV V3: cv3Wrong"
+  },
+  "cv3WrongSub": "Tell us why — Assisto sends fewer like this",
+  "@cv3WrongSub": {
+    "description": "cctvact CCTV V3: cv3WrongSub"
+  },
+  "cv3WrongTitle": "What was it really?",
+  "@cv3WrongTitle": {
+    "description": "cctvact CCTV V3: cv3WrongTitle"
+  },
+  "cv3WrongHint": "Only for this shop and this camera at this time of day. Fire, falls and away mode are never muted.",
+  "@cv3WrongHint": {
+    "description": "cctvact CCTV V3: cv3WrongHint"
+  },
+  "cv3WrongAnimal": "An animal",
+  "@cv3WrongAnimal": {
+    "description": "cctvact CCTV V3: cv3WrongAnimal"
+  },
+  "cv3WrongShadow": "Shadow / light",
+  "@cv3WrongShadow": {
+    "description": "cctvact CCTV V3: cv3WrongShadow"
+  },
+  "cv3WrongStaff": "Our staff",
+  "@cv3WrongStaff": {
+    "description": "cctvact CCTV V3: cv3WrongStaff"
+  },
+  "cv3WrongFamily": "Family",
+  "@cv3WrongFamily": {
+    "description": "cctvact CCTV V3: cv3WrongFamily"
+  },
+  "cv3WrongVehicle": "A passing vehicle",
+  "@cv3WrongVehicle": {
+    "description": "cctvact CCTV V3: cv3WrongVehicle"
+  },
+  "cv3WrongWeather": "Rain / wind",
+  "@cv3WrongWeather": {
+    "description": "cctvact CCTV V3: cv3WrongWeather"
+  },
+  "cv3WrongOther": "Something else",
+  "@cv3WrongOther": {
+    "description": "cctvact CCTV V3: cv3WrongOther"
+  },
+  "cv3WrongThanks": "Thanks — Assisto learned this for your shop",
+  "@cv3WrongThanks": {
+    "description": "cctvact CCTV V3: cv3WrongThanks"
+  },
+  "cv3LockTitle": "Lock the door?",
+  "@cv3LockTitle": {
+    "description": "cctvact CCTV V3: cv3LockTitle"
+  },
+  "cv3LockSub": "{name} — only when you say Yes",
+  "@cv3LockSub": {
+    "description": "cctvact CCTV V3: cv3LockSub",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3LockBody": "{name} will lock now. Make sure nobody of yours is inside who needs to get out.",
+  "@cv3LockBody": {
+    "description": "cctvact CCTV V3: cv3LockBody",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cv3LockYes": "Yes, lock",
+  "@cv3LockYes": {
+    "description": "cctvact CCTV V3: cv3LockYes"
+  },
+  "cv3LockDone": "Locked",
+  "@cv3LockDone": {
+    "description": "cctvact CCTV V3: cv3LockDone"
   }
 }
