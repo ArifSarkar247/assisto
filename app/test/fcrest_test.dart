@@ -134,6 +134,7 @@ void main() {
     FcSlots.serverAsk = null;
     FcSlots.privacyScreen = null;
     FcSlots.moreRows = null;
+    FcSlots.journeyTile = null;
     ElderHooks.openSos = null;
     fcResetSlotsForTest();
     fcRegisterSlots();
@@ -143,6 +144,7 @@ void main() {
     expect(FcSlots.serverAsk, isNotNull);
     expect(FcSlots.privacyScreen, isNotNull);
     expect(FcSlots.moreRows, isNotNull);
+    expect(FcSlots.journeyTile, isNotNull);
     expect(ElderHooks.openSos, isNotNull);
     // the phone parser answers from the board members (free, offline)
     final a = FcSlots.askParser!('Is Ammu OK?', const FcAskContext(10, [
@@ -270,6 +272,7 @@ void main() {
     fcRegisterSlots();
     FcSlots.moreRows = null;
     FcSlots.nightNewsCard = null;
+    FcSlots.journeyTile = null;
     final api = _Api();
     await _pump(t, const FamilyV3Screen(), api);
     final row = find.byKey(const ValueKey('fcr-more-rename'));

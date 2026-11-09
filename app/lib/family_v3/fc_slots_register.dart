@@ -8,6 +8,7 @@ import '../api.dart';
 import '../eldercare/elder_common.dart'; // fcrest
 import '../eldercare/elder_more_rows.dart'; // fcelder
 import '../family_sos/sos_sender_screen.dart'; // fcsos
+import '../screens/safe_journey/sj_watch_board.dart'; // sjduring
 import '../state.dart';
 import 'brain/fc_brain_api.dart'; // fcbrain
 import 'brain/fc_brain_settings_screen.dart'; // fcbrain
@@ -42,7 +43,8 @@ void fcRegisterSlots([ApiClient? api]) {
   // fcelder
   FcSlots.moreRows = fcelderMoreRows;
   ElderHooks.openSos = (ctx) => SosSenderScreen.open(ctx, source: 'elder'); // fcelder + fcsos
-  // sjduring (when b309 is on main): FcSlots.journeyTile = (ctx, fid) => const SjActiveJourneysTile();
+  // sjduring
+  FcSlots.journeyTile = (ctx, fid) => const SjActiveJourneysTile();
 }
 
 /// Tests: forget the registration (slots stay as tests set them).
