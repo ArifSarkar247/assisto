@@ -212,8 +212,9 @@ class OwnerAdControlTests(OwnerBase):
         AdPlacementStat.objects.create(date=timezone.localdate(), placement="banner_notes_home",
                                        fmt="banner", impressions=40)
         html = self.c.get("/owner/ad-control?lang=en").content.decode()
+        from django.utils.html import escape
         for _, _, en in AC.GROUPS:
-            self.assertIn(en, html)
+            self.assertIn(escape(en), html)
         for k in AC.BY_KEY:
             self.assertIn('name="seen_%s"' % k, html)
         self.assertIn("estimate", html)
