@@ -32,7 +32,8 @@ _CACHE_TTL = 300
 _LAST_OSM = [0.0]  # polite rate-limit for Overpass
 
 _TYPES = ("restaurant", "pharmacy", "atm", "hospital", "lodging", "police", "fire",
-          "transport", "fuel", "mosque", "govt", "clinic", "ambulance")
+          "transport", "fuel", "mosque", "govt", "clinic", "ambulance",
+          "toilets")  # cityapp: public toilets (City Service -> Around me)
 # types served from Assisto's own list first (core.nearby_list.EMERGENCY)
 _OWN = {"hospital": ("hospital", "clinic"), "pharmacy": ("pharmacy",),
         "police": ("police",), "fire": ("fire",), "clinic": ("clinic",),
@@ -52,7 +53,9 @@ _OSM_FILTER = {"restaurant": ['nwr["amenity"="restaurant"]'],
                              'nwr["amenity"="ferry_terminal"]'],
                "fuel": ['nwr["amenity"="fuel"]'],
                "mosque": ['nwr["amenity"="place_of_worship"]["religion"="muslim"]'],
-               "govt": ['nwr["office"="government"]', 'nwr["amenity"="townhall"]']}
+               "govt": ['nwr["office"="government"]', 'nwr["amenity"="townhall"]'],
+               # cityapp: public toilets (City Service -> Around me)
+               "toilets": ['nwr["amenity"="toilets"]']}
 
 
 def _haversine(a, b, c, d):

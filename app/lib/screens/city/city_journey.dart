@@ -1,0 +1,274 @@
+// cityapp B12: "Start this route as a Safe Journey" — one tap. Safe Journey's
+// own start API (POST /journey/start: the family picked from My Circle sees
+// the trip live) + the destination alarm at the get-off stop (the same
+// DestAlarmController Safe Journey uses, via JourneyAlarmLink so stopping
+// the journey turns it off). Then the trip guide: the steps, and on leaving
+// the metro (an on-phone geofence around the station) "Which gate to take".
+import 'dart:async';
+
+import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
+import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
+
+import '../../city/city_models.dart';
+import '../../city/city_widgets.dart';
+import '../../l10n/app_localizations.dart';
+import '../../maps/place_search.dart' show PlacePick;
+import '../../state.dart';
+import '../../theme.dart';
+import '../../train/dest_alarm_math.dart';
+import '../../train/dest_alarm_service.dart';
+import '../../train/journey_transit.dart';
+import '../../widgets/app_sheet.dart' show showAppSheet, withNavBarInset;
+import '../../widgets/chatnav.dart' show ChatNav;
+import '../../widgets/journey_api.dart';
+import '../../widgets/permission_reason.dart';
+import '../journey_live_screen.dart';
+import '../journey_start_screen.dart' show journeyWatcherRows;
+import '../train/dest_alarm_screen.dart' show destAlarmTexts;
+
+/// Safe Journey's travel mode for a city option.
+String cityJourneyMode(CityOption o) => switch (o.lastRide?.mode) {
+      'metro' => 'metro',
+      'water' => 'launch',
+      _ => 'local_bus',
+    };
+
+/// Metres from the get-off stop at which the alarm rings (city bus / metro).
+const int kCityAlarmM = 400;
+
+/// Arms the get-off alarm for journey [id] (prod: Safe Journey's link to the
+/// destination alarm; tests pass a recorder).
+typedef CityArmFn = Future<void> Function(int id, DestPlan plan, DestAlarmTexts texts);
+
+Future<void> startCityJourney(BuildContext context,
+    {required CityOption option, required PlacePick dest, @visibleForTesting CityArmFn? arm}) async {
+  final api = context.read<AppState>().api;
+  final t = AppLocalizations.of(context);
+  List<Map<String, dynamic>> people = [];
+  try {
+    people = journeyWatcherRows(await api.getJson('/circle/members'));
+  } catch (_) {} // offline: the sheet says so and still offers the alarm
+  if (!context.mounted) return;
+  final ride = option.lastRide;
+  final stop = ride?.alight;
+  final res = await showAppSheet<({Set<int> ids, bool alarm})>(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) => _StartSheet(people: people, stopName: stop?.label(cityBn(context)) ?? ''),
+  );
+  if (res == null || !context.mounted) return;
+  try {
+    final perm = await Geolocator.checkPermission();
+    if (perm == LocationPermission.denied && context.mounted &&
+        await showPermissionReason(context, PermKind.journey)) {
+      await Geolocator.requestPermission();
+    }
+  } catch (_) {} // best-effort: the live screen says "location is off"
+  if (!context.mounted) return;
+  final msg = ScaffoldMessenger.of(context);
+  final nav = Navigator.of(context);
+  final h = DateTime.now().hour;
+  try {
+    final r = await api.journeyStart(
+      destination: {'name': dest.name, 'lat': dest.lat, 'lng': dest.lng},
+      etaIso: DateTime.now().add(Duration(minutes: option.minutes + 10)).toUtc().toIso8601String(),
+      watcherIds: res.ids.toList(),
+      mode: cityJourneyMode(option),
+      night: h >= 20 || h < 6,
+    );
+    final id = (r['id'] as num?)?.toInt() ?? 0;
+    if (res.alarm && stop?.lat != null && stop?.lon != null && context.mounted) {
+      final name = stop!.label(cityBn(context));
+      try {
+        await (arm ?? JourneyAlarmLink.I.arm)(
+            id,
+            DestPlan(
+                mode: TransportMode.cityBus,
+                target: DestTarget(name, stop.lat!, stop.lon!),
+                setM: kCityAlarmM,
+                notifyCircleIds: res.ids.toList()),
+            destAlarmTexts(context, t, name));
+      } catch (_) {
+        msg.showSnackBar(SnackBar(content: Text(t.cityAlarmFailed)));
+      }
+    }
+    await nav.push(MaterialPageRoute(builder: (_) => CityTripScreen(option: option, journeyId: id)));
+  } catch (_) {
+    msg.showSnackBar(SnackBar(content: Text(t.cityStartFailed)));
+  }
+}
+
+class _StartSheet extends StatefulWidget {
+  final List<Map<String, dynamic>> people;
+  final String stopName;
+  const _StartSheet({required this.people, required this.stopName});
+  @override
+  State<_StartSheet> createState() => _StartSheetState();
+}
+
+class _StartSheetState extends State<_StartSheet> {
+  final Set<int> _ids = {};
+  bool _alarm = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(t.cityStartSafeJourney, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: Gap.xs),
+          Text(t.cityWhoWatches),
+          const SizedBox(height: Gap.sm),
+          if (widget.people.isEmpty) ...[
+            Text(t.cityNoCircle),
+            const SizedBox(height: Gap.xs),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: () => ChatNav.push(context, 'circle_add'),
+              icon: const Icon(Icons.person_add_alt_rounded),
+              label: Text(t.cityAddFamily),
+            ),
+          ] else
+            Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+              for (final p in widget.people)
+                if ((p['id'] as num?)?.toInt() case final id?)
+                  FilterChip(
+                    key: ValueKey('city_watch_$id'),
+                    materialTapTargetSize: MaterialTapTargetSize.padded,
+                    selected: _ids.contains(id),
+                    onSelected: (v) => setState(() => v ? _ids.add(id) : _ids.remove(id)),
+                    avatar: const Icon(Icons.person_rounded, size: 18),
+                    label: Text(cityD(context, '${p['name'] ?? p['phone'] ?? ''}')),
+                  ),
+            ]),
+          const SizedBox(height: Gap.sm),
+          if (widget.stopName.isNotEmpty)
+            SwitchListTile(
+              key: const ValueKey('city_alarm_switch'),
+              contentPadding: EdgeInsets.zero,
+              value: _alarm,
+              onChanged: (v) => setState(() => _alarm = v),
+              secondary: const Icon(Icons.alarm_rounded),
+              title: Text(t.cityGetOffAlarm),
+              subtitle: Text(cityD(context, t.cityGetOffAlarmSub(widget.stopName))),
+            ),
+          const SizedBox(height: Gap.sm),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              key: const ValueKey('city_sj_go'),
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+              onPressed: () => Navigator.pop(context, (ids: _ids, alarm: _alarm && widget.stopName.isNotEmpty)),
+              icon: const Icon(Icons.shield_rounded),
+              label: Text(t.cityStartNow),
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+/// The metro station a trip gets off at + the gate to take (from the plan).
+({CityPoint station, CityGate gate})? cityMetroExit(CityOption o) {
+  for (final l in o.legs) {
+    if (l.mode == 'metro' && l.alight?.lat != null && l.exitGate != null) {
+      return (station: l.alight!, gate: l.exitGate!);
+    }
+  }
+  return null;
+}
+
+/// Geofence around the get-off station: inside [radius] metres = "you are
+/// at the station now" (show which gate). Pure, testable.
+bool cityAtStation(CityPoint station, double lat, double lon, {double radius = 150}) =>
+    station.lat != null && station.lon != null && haversineM(lat, lon, station.lat!, station.lon!) <= radius;
+
+/// The trip guide while travelling: steps + the live "Which gate" card.
+class CityTripScreen extends StatefulWidget {
+  final CityOption option;
+  final int journeyId;
+
+  /// Test: a position stream instead of GPS.
+  @visibleForTesting
+  final Stream<({double lat, double lon})>? debugPositions;
+  const CityTripScreen({super.key, required this.option, this.journeyId = 0, this.debugPositions});
+  @override
+  State<CityTripScreen> createState() => _CityTripScreenState();
+}
+
+class _CityTripScreenState extends State<CityTripScreen> {
+  StreamSubscription<({double lat, double lon})>? _sub;
+  bool _atStation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final exit = cityMetroExit(widget.option);
+    if (exit == null) return;
+    final Stream<({double lat, double lon})> s;
+    if (widget.debugPositions != null) {
+      s = widget.debugPositions!;
+    } else {
+      try {
+        s = Geolocator.getPositionStream(
+                locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 25))
+            .map((p) => (lat: p.latitude, lon: p.longitude));
+      } catch (_) {
+        return; // no GPS: the gate is still shown in the steps
+      }
+    }
+    _sub = s.listen((p) {
+      final inside = cityAtStation(exit.station, p.lat, p.lon);
+      if (inside && !_atStation) {
+        HapticFeedback.heavyImpact();
+      }
+      if (inside != _atStation && mounted) setState(() => _atStation = inside);
+    }, onError: (_) {}); // best-effort: GPS off -> the steps still show the gate
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final exit = cityMetroExit(widget.option);
+    return Scaffold(
+      appBar: AppBar(title: Text(t.cityTripTitle)),
+      body: ListView(
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+        children: [
+          if (_atStation && exit != null) ...[
+            Text(cityD(context, t.cityWhichGateNow(exit.station.label(cityBn(context)))),
+                key: const ValueKey('city_which_gate_now'),
+                style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
+            CityGateBox(gate: exit.gate, big: true),
+            const SizedBox(height: Gap.lg),
+          ],
+          if (widget.journeyId > 0)
+            FilledButton.tonalIcon(
+              key: const ValueKey('city_open_live'),
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => JourneyLiveScreen(journeyId: widget.journeyId))),
+              icon: const Icon(Icons.shield_rounded),
+              label: Text(t.cityOpenSafeJourney),
+            ),
+          const SizedBox(height: Gap.md),
+          CityOptionSummary(widget.option),
+          const Divider(height: Gap.xl),
+          CityStepList(widget.option),
+        ],
+      ),
+    );
+  }
+}
