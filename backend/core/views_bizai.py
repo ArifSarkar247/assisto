@@ -326,3 +326,40 @@ class CctvTestView(APIView):
         return Response({"id": r.pk, "started": d.get("started"), "stopped": d.get("stopped"),
                          "marks": len(d.get("truth") or []), "alerts": d.get("alerts"),
                          "result": d.get("result")})
+
+
+# ===================================================================== bizai2: daily summary
+class BizDailyView(APIView):
+    """GET bizai/daily — today's shop summary (sales, khata, who to chase,
+    stock-out forecast, measured outcomes, next step), computed live from the
+    shop's own records, + the on/off state of the 9 pm notification.
+    POST {on: bool} — switch the evening notification. Shop OWNER only (it
+    shows totals owed). Every plan; no AI, no credits."""
+
+    def _biz(self, request):
+        prof, role, bad = _require_business(request)
+        if bad:
+            return None, bad
+        deny = _owner_only(request, role)
+        if deny:
+            return None, deny
+        return prof, None
+
+    def get(self, request):
+        prof, bad = self._biz(request)
+        if bad:
+            return bad
+        from . import bizai_daily as BD
+        return Response(BD.view_payload(prof, request.user, req_lang(request)))
+
+    def post(self, request):
+        prof, bad = self._biz(request)
+        if bad:
+            return bad
+        from . import bizai_daily as BD
+        on = request.data.get("on")
+        if not isinstance(on, bool):
+            return Response({"ok": False, "detail": pick(req_lang(request), "on: true/false দিন।",
+                                                         "Send on: true or false.")}, status=400)
+        BD.set_enabled(request.user, on)
+        return Response({"ok": True, "enabled": BD.enabled_for(request.user)})
