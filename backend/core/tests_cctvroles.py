@@ -227,7 +227,7 @@ class PartnerTests(_Base):
     def _invite(self):
         r = self.c["owner"].post("/api/v1/shop/sites/%d/installer" % self.site.id)
         self.assertEqual(r.status_code, 201, r.data)
-        self.assertTrue(r.data["qr"].endswith(r.data["error"]))
+        self.assertTrue(r.data["qr"].endswith(r.data["code"]))
         return r.data
 
     def test_full_flow_setup_status_only(self):
