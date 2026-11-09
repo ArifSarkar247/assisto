@@ -8,7 +8,7 @@
 | Project description (থাকলে) | `Lets shop and home owners link their own Imou cameras to the Assisto app to see live video, playback and alarms.` |
 | Redirect URI / Callback URL | `https://api.lifeassisto.com/api/v1/cctv/imou/oauth/callback` |
 | Authorized domain / Website (থাকলে) | `https://lifeassisto.com` (ডোমেইন শুধু চাইলে: `api.lifeassisto.com`) |
-| Logo (থাকলে) | Assisto লোগো (রিপোর `logo/` ফোল্ডারের PNG) |
+| Logo (থাকলে) | Assisto লোগো — ফাইল: `app/assets/branding/new_logo.png` (দরকার হলে আমরা পাঠাব) |
 | Privacy policy URL (থাকলে) | `https://lifeassisto.com/privacy` |
 | Terms URL (থাকলে) | `https://lifeassisto.com/terms` |
 
@@ -23,5 +23,7 @@
 **টিক দেবেন না:** ডিভাইস মুছে ফেলা/হস্তান্তর (delete / unbind / transfer), ডিভাইস শেয়ার অন্যকে দেওয়া, পাসওয়ার্ড/নেটওয়ার্ক/ফার্মওয়্যার বদলানো, অ্যাকাউন্টের ব্যক্তিগত তথ্য — Assisto-র এগুলো লাগে না।
 
 **জমা দেওয়ার পর:** OAuth প্রজেক্টের যে নতুন মান আসবে (যেমন Client ID / Client Secret বা project key), সেগুলো এখানে বা চ্যাটে **লিখবেন না** — Owner Admin → Integrations → Imou কার্ডে "OAuth" ঘরে পেস্ট করবেন (ঘরটি পরের বিল্ডে আসছে; ততক্ষণ নিজের কাছে রাখুন)।
+
+**যাচাই:** Redirect URI এখন লাইভ — খুললে "Imou link did not finish" পাতা দেখাবে (কোড ছাড়া এটাই ঠিক)।
 
 **সৎ নোট:** Imou কনসোলের এই ফর্মটি আমরা নিজের চোখে দেখিনি। ফর্মে যদি ওপরের কোনো ঘর না থাকে, বাদ দিন; যদি এমন কোনো ঘর থাকে যা এখানে নেই, তার নাম লিখে দিন — ১০ মিনিটের মধ্যে মান জানাব। Redirect URI ঠিক ওপরেরটাই রাখবেন (শেষে `/` ছাড়া) — পরে বদলালে লিংক করা কাজ করবে না।
