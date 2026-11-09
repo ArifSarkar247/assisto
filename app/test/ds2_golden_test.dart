@@ -71,7 +71,6 @@ const ds2Screens = <String>[
   'push_settings', // batch 5
   'notification_centre', // batch 5
   'circle', // batch 5
-  'credits_reason', // batch 5
 ];
 
 Future<void> _png(WidgetTester tester, GlobalKey key, String name) async {
