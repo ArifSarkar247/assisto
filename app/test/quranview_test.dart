@@ -227,6 +227,8 @@ void main() {
       expect(find.byKey(const Key('qv-shan-none')), findsNothing);
       expect(find.textContaining('version 1.1.1'), findsOneWidget);
       // switching to the Mukhtasar chip: that source states no reason here
+      await tester.scrollUntilVisible(find.byKey(const Key('qv-src-mukhtasar_bn')), -250,
+          scrollable: find.byType(Scrollable).first);
       await tester.tap(find.byKey(const Key('qv-src-mukhtasar_bn')));
       await tester.pump();
       await _see(tester, find.byKey(const Key('qv-tafsir-source')));
