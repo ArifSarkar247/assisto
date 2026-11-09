@@ -89,6 +89,7 @@ import '../widgets/paywall_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'package:assisto/widgets/app_sheet.dart';
 import '../messaging/chat_actions.dart'; // chat-actions
+import '../offline/offline_store.dart'; // offline1st
 
 /// End-to-end-encrypted 1:1 chat with a circle member.
 ///
@@ -461,6 +462,10 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     _poll = null;
   }
 
+  // offline1st: the account + last settings the offline copy is saved under
+  Object? _offUid;
+  Object? _offSettings;
+
   /// A cheap background tick: re-fetch + decrypt messages only (NOT the per-chat
   /// settings), swap them in only when something actually changed, and never
   /// yank the scroll unless the user is already at the bottom. Fully silent on
@@ -491,6 +496,13 @@ class _CircleChatScreenState extends State<CircleChatScreen>
             }).toList();
       final merged = [...older, ...fetched, ...pendingEchoes];
       if (!mounted || !_changed(_messages, merged)) return;
+      // offline1st: what just arrived is readable offline next time too
+      final mid = _memberId;
+      if (mid != null && _offUid != null) {
+        unawaited(OfflineStore.instance.write(_offUid, OfflineStore.chatSlot('member', mid), {
+          'raw': raw, 'edge': r['edge'], 'has_more': _hasMore, 'settings': _offSettings,
+        }));
+      }
       // c3-msg: a new incoming message while the chat is open → seen now
       // (x2-ticks: only if it is really visible; else when uncovered).
       final known = _messages.map((m) => m.id).toSet();
@@ -757,7 +769,9 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   Future<void> _load() async {
     // e2e-recover: key ring + the local plaintext cache load in parallel
     // (never delays the first frame); what they open is re-read after.
-    unawaited(_loadRing(context.read<AppState>().user?.id));
+    final uid = context.read<AppState>().user?.id; // offline1st
+    _offUid = uid;
+    unawaited(_loadRing(uid));
     // e-gaps: this phone's record of opened view-once photos (sync reads in
     // the decrypt below) + any open-acks still owed to the server.
     await ViewOnceStore.instance.warm();
@@ -775,9 +789,37 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     }
     _keyNotes = await PeerKeyBook.instance.notes(_chatKey);
     final peer = _peerPub;
+    // offline1st: the newest page opens AT ONCE from this phone's encrypted
+    // copy (E2E ciphertext envelopes, decrypted here like a server page);
+    // the network page below replaces it. Offline it simply stays.
+    final slot = id == null ? null : OfflineStore.chatSlot('member', id);
+    Map<String, dynamic>? cachedPage;
+    if (slot != null && !_messages.any((m) => int.tryParse(m.id) != null)) {
+      final c = await OfflineStore.instance.read(uid, slot);
+      if (c is Map && c['raw'] is List && mounted) {
+        cachedPage = c.cast<String, dynamic>();
+        final raw = (c['raw'] as List)
+            .whereType<Map>()
+            .map((e) => e.cast<String, dynamic>())
+            .toList();
+        final fetched = raw.map((e) => _decryptEnvelope(e, peer)).toList();
+        final keep = _localEchoes(fetched.map((m) => m.id).toSet(), fetchedClientIds(raw));
+        final st = c['settings'];
+        _applyEdge(c['edge']);
+        setState(() {
+          _messages = [...fetched, ...keep];
+          _hasMore = c['has_more'] == true;
+          if (st is Map) _applyTimer(st.cast<String, dynamic>());
+          _resolveReplyPreviews();
+          _loading = false;
+        });
+      }
+    }
+    Map<String, dynamic>? pageOk;
     try {
       final r = await _api.getJson('/circle/$_memberId/messages?limit=$_pageSize');
       final raw = ((r['results'] ?? r['messages'] ?? []) as List).cast<Map<String, dynamic>>();
+      pageOk = {'raw': raw, 'edge': r['edge'], 'has_more': r['has_more'] == true};
       final fetched = raw.map((e) => _decryptEnvelope(e, peer)).toList();
       // md2: a send that finished before this page was read keeps its bubble
       final cmids = fetchedClientIds(raw);
@@ -799,16 +841,24 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       _maybeExpectTicks();
     } catch (_) {
       // Offline: keep any optimistic local echoes already shown, and SAY so
-      // (seam audit: this used to be silent).
-      if (mounted) _toast(_t.msgLoadFailed);
+      // (seam audit: this used to be silent). offline1st: with the saved
+      // copy on screen the Offline strip already says it — no error toast.
+      if (mounted && cachedPage == null) _toast(_t.msgLoadFailed);
     }
     // Per-chat settings (disappearing is server-authoritative; favourite/theme
     // are opaque prefs). Failures just leave the honest defaults.
+    Object? settingsOk = cachedPage?['settings'];
     try {
       final s = await _api.circleChatSettings(_memberId ?? 0);
       _applyTimer(s);
       _favourite = s['favourite'] == true;
+      settingsOk = s;
     } catch (_) {}
+    _offSettings = settingsOk;
+    if (slot != null && pageOk != null) {
+      // offline1st: keep this page (ciphertext) for the next offline open
+      unawaited(OfflineStore.instance.write(uid, slot, {...pageOk, 'settings': settingsOk}));
+    }
     if (mounted) {
       setState(() => _loading = false);
       if (!_positioned) {

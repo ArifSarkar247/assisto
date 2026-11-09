@@ -2,6 +2,10 @@ import 'dart:async';
 
 import 'package:assisto/ads/ad_rules.dart';
 import 'package:assisto/crypto/plain_cache.dart';
+import 'package:assisto/messaging/outbox.dart'; // offline1st
+import 'package:assisto/messaging/preview_cache.dart'; // offline1st
+import 'package:assisto/offline/offline_store.dart'; // offline1st
+import 'package:assisto/offline/net_status.dart'; // offline1st
 import 'package:assisto/security/secret_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -19,5 +23,12 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   // cover that release path (ads_consent_ump_test flips it off to prove the
   // debug-build guard).
   setUp(() => AdIds.realUnitsAllowed = true);
+  // offline1st: the app's outbox is encrypted in SecretStore; unit tests keep
+  // the per-test-reset SharedPreferences store (secret_outbox_test covers
+  // the encrypted one).
+  Outbox.defaultStore = const PrefsOutboxStore();
+  PreviewCache.encrypted = false;
+  setUp(() => OfflineStore.instance = OfflineStore.memoryOnly());
+  setUp(() => NetStatus.instance.resetForTest());
   await testMain();
 }

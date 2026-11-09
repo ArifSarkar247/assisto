@@ -18,6 +18,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../messenger_hub_api.dart';
 import '../../theme.dart';
+import '../../offline/offline_store.dart'; // offline1st
 import '../../widgets/loading_gate.dart';
 import '../../widgets/m3_circle_widgets.dart';
 import '../../widgets/msgr_hub_chat_list.dart';
@@ -101,6 +102,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   AppLocalizations get _t => AppLocalizations.of(context);
 
   Future<void> _bootstrap() async {
+    final uid = context.read<AppState>().user?.id; // offline1st
     // m3-circle global rule: the hub spinner ALWAYS ends (secure storage or
     // the network hanging used to keep it spinning forever).
     try {
@@ -112,7 +114,16 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
         if (mounted) setState(() => _identity ??= id);
       }, onError: (_) {}));
     }
-    await _loadMembers();
+    // offline1st: My Circle opens at once from this phone's encrypted copy
+    // of the member list; the network refresh below replaces it.
+    final cached = await OfflineStore.instance.read(uid, OfflineStore.members);
+    if (cached is List && cached.isNotEmpty && _members.isEmpty && mounted) {
+      setState(() {
+        _members = cached.whereType<Map>().map((e) => e.cast<String, dynamic>()).toList();
+        _loading = false;
+      });
+    }
+    await _loadMembers(cacheFor: uid);
     if (mounted) setState(() => _loading = false);
     if (widget.startAdd && !_startedAdd && mounted) {
       _startedAdd = true;
@@ -138,15 +149,18 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     }).then((_) {}, onError: (_) {}));
   }
 
-  Future<void> _loadMembers() async {
+  Future<void> _loadMembers({Object? cacheFor}) async {
+    final uid = cacheFor ?? (mounted ? context.read<AppState>().user?.id : null); // offline1st
     try {
       final r = await loadGuard(_api.getJson('/circle/members'));
       _members = ((r['results'] ?? r['members'] ?? []) as List)
           .cast<Map<String, dynamic>>()
           .where((m) => '${m['state'] ?? 'accepted'}' == 'accepted')
           .toList();
+      unawaited(OfflineStore.instance.write(uid, OfflineStore.members, _members));
     } catch (_) {
-      _members = [];
+      // offline1st: offline keeps the list already shown (cached copy)
+      if (_members.isEmpty) _members = [];
     }
   }
 

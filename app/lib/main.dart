@@ -38,6 +38,7 @@ import 'services/security_guard.dart' show SecurityHeartbeat;
 import 'services/startup_guard.dart';
 import 'home_api.dart';
 import 'widgets/a11y_prefs.dart';
+import 'offline/offline_strip.dart'; // offline1st
 import 'screens/login_screen.dart';
 import 'crypto/key_wiring.dart';
 import 'growth/install_ping.dart';
@@ -305,7 +306,9 @@ class AssistoApp extends StatelessWidget {
                 key: AppShot.boundaryKey,
                 // b1-calls: "tap to return to the call" bar while a call is
                 // minimized (nothing extra is drawn otherwise).
-                child: CallMiniBarHost(child: child ?? const SizedBox.shrink()),
+                // offline1st: the small "Offline" strip (nothing while online)
+                child: CallMiniBarHost(
+                    child: OfflineStrip(child: child ?? const SizedBox.shrink())),
               ),
             );
           },
