@@ -175,48 +175,38 @@ class _MyDuesScreenState extends State<MyDuesScreen> {
               style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.md),
           if (shops.isEmpty)
-            Padding(
+            KeyedSubtree(
               key: const ValueKey('tg2-dues-empty'),
-              padding: const EdgeInsets.symmetric(vertical: Gap.xl),
-              child: Column(children: [
-                Icon(Icons.check_circle_outline_rounded,
-                    size: 48, color: scheme.primary),
-                const SizedBox(height: Gap.md),
-                Semantics(
-                  header: true,
-                  child: Text(t.tg2DuesEmptyTitle,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium),
-                ),
-                const SizedBox(height: Gap.sm),
-                Text(t.tg2DuesEmptyBody,
-                    textAlign: TextAlign.center, style: AType.bodyMedium),
-              ]),
+              child: DsEmptyState(
+                icon: Icons.check_circle_outline_rounded,
+                title: t.tg2DuesEmptyTitle,
+                benefit: t.tg2DuesEmptyBody,
+              ),
             )
           else ...[
             if (d['total_display'] != null)
-              Card(
-                margin: EdgeInsets.zero,
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.lg),
+              // designv2: the total is the soft hero, big bold number
+              DsHeroCard(
                   child: Semantics(
                     container: true,
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(t.tg2DuesTotal, style: AType.bodyMedium),
+                          Text(t.tg2DuesTotal,
+                              style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
                           const SizedBox(height: Gap.xs),
                           Text(pair(context, d['total_display']),
                               key: const ValueKey('tg2-dues-total'),
                               style: Theme.of(context)
                                   .textTheme
-                                  .headlineSmall
+                                  .headlineMedium
                                   ?.copyWith(
                                       fontFeatures: AFonts.tabular,
-                                      fontWeight: FontWeight.w700)),
+                                      letterSpacing: -0.8,
+                                      color: DsTokens.of(context).text,
+                                      fontWeight: FontWeight.w800)),
                         ]),
                   ),
-                ),
               ),
             const SizedBox(height: Gap.md),
             for (final s in shops) _tile(t, s),

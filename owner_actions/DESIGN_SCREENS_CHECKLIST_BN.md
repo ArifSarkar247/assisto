@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪৭ / মোট ৪২০**
+**স্ক্রিন শেষ: ৪৮ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -186,7 +186,7 @@
 - ⬜ — `screens/money_trends_screen.dart`
 - ⬜ — `screens/money_voice_screen.dart`
 - ⬜ — `screens/money_wrapped_screen.dart`
-- ⬜ — `screens/my_dues_screen.dart`
+- ✅ batch 6 (মোট বাকি = হিরো কার্ডে বড় সংখ্যা, DS খালি অবস্থা) — `screens/my_dues_screen.dart`
 - ⬜ — `screens/my_dues_shop_screen.dart`
 - ⬜ — `screens/plans_screen.dart`
 - ⬜ — `screens/probashi/probashi_plan_screen.dart`
