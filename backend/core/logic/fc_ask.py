@@ -21,13 +21,13 @@ _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
 
 # relation -> words a family uses (lowercase / Bangla)
 RELATION_WORDS = {
-    "mother": ("ammu", "amma", "ammi", "ma", "maa", "mom", "mum", "mummy", "mother", "mama_",
+    "mother": ("ammu", "amma", "ammi", "ma", "maa", "mom", "mum", "mummy", "mother",
                "আম্মু", "আম্মা", "আম্মি", "মা", "মামণি"),
     "father": ("abbu", "abba", "baba", "bapi", "dad", "daddy", "father", "papa",
                "আব্বু", "আব্বা", "বাবা", "বাপি"),
     "son": ("son", "chele", "chhele", "cheley", "bacha", "ছেলে"),
     "daughter": ("daughter", "meye", "maye", "mey", "মেয়ে", "মেয়ে"),
-    "spouse": ("wife", "husband", "bou", "bow", "swami", "jamai_", "বউ", "বৌ", "স্ত্রী", "স্বামী"),
+    "spouse": ("wife", "husband", "bou", "bow", "swami", "বউ", "বৌ", "স্ত্রী", "স্বামী"),
     "brother": ("brother", "bhai", "bhaiya", "vai", "ভাই", "ভাইয়া"),
     "sister": ("sister", "bon", "apu", "apa", "didi", "বোন", "আপু", "আপা", "দিদি"),
     "grandparent": ("dadu", "nanu", "dadi", "nani", "grandma", "grandpa", "granny",

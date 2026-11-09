@@ -62,11 +62,13 @@ SAFETY_FAMILY_KINDS = frozenset({
 
 
 def is_safety(kind, family_kind=""):
-    """True when `kind` (push kind, or 'family_alert' + family_kind) is never
-    counted against the budget."""
+    """True when this notification is never counted against the budget.
+    A family alert is judged by its family kind (core.family_alerts gates it
+    with family_kind=...); a bare "family_alert" push from another module
+    (vehicle, guardian, school) is exempt here."""
     k = str(kind or "")
-    if k == "family_alert":
-        return str(family_kind or "") in SAFETY_FAMILY_KINDS
+    if family_kind:
+        return str(family_kind) in SAFETY_FAMILY_KINDS
     if k.startswith("family:"):
         return k[7:] in SAFETY_FAMILY_KINDS
     return k in EXEMPT_PUSH_KINDS

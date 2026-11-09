@@ -5,6 +5,7 @@ through family_brain.can_view. Nothing here is mounted under an admin or
 owner page; staff accounts get no extra access (tests_fcbrain).
 """
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -131,3 +132,32 @@ class BrainMemberView(APIView):
         return Response({"brain": FB.member_brain_state(request.user, member),
                          "timeline": FB.member_timeline(request.user, member, lang=lang),
                          "clocks": FB.clocks(request.user, member)})
+
+
+class BrainWatchTokenView(APIView):
+    """POST family/brain/watch — the open app switching the on-phone watch
+    on: -> {token, fences:[{id,kind,label,lat,lng,r}], interval_s}. Only when
+    the member turned auto-arrive on (their own consent)."""
+    def post(self, request):
+        st = FB.state_of(request.user)
+        if not FB.prefs_of(st)["auto_arrive"]:
+            return Response({"error": "auto_arrive_off"}, status=status.HTTP_409_CONFLICT)
+        return Response({"token": FB.watch_token(request.user),
+                         "fences": FB.fences(request.user),
+                         "interval_s": FB.WATCH_INTERVAL_S})
+
+
+class BrainWatchPingView(APIView):
+    """POST family/brain/watch-ping — FamilyWatchService (native, no user
+    session): header X-Fc-Watch = the scoped token. Same body as ping.
+    A revoked / expired token -> 401 and the phone stops its service."""
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        user = FB.user_for_watch_token(request.headers.get("X-Fc-Watch"))
+        if user is None:
+            return Response({"error": "watch_off"}, status=status.HTTP_401_UNAUTHORIZED)
+        out = FB.ping(user, request.data or {})
+        out["fences"] = FB.fences(user)
+        return Response(out)

@@ -744,6 +744,16 @@ jobs:
           if 'antitheft.AntiTheftService' not in s:
               s = s.replace('</application>', antitheft_components + '    </application>', 1)
           # ---- /b6-antitheft ----
+          # ---- fcbrain ---- Family Care v3: the opt-in family arrival watch.
+          # Started ONLY from the open app after the member said yes on their
+          # own phone; type location (while-in-use, NO background location);
+          # a permanent low notification the whole time; no new permission.
+          if 'family.FamilyWatchService' not in s:
+              s = s.replace('</application>',
+                            '\n        <service android:name="com.assisto.assisto.family.FamilyWatchService"'
+                            ' android:foregroundServiceType="location"'
+                            ' android:exported="false"/>\n    </application>', 1)
+          # ---- /fcbrain ----
           open(p, "w").write(s)
           print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed, FCM push, chat bubbles, PiP, b6 anti-theft engine")
           PY

@@ -221,7 +221,11 @@ def receiver_tz(user):
                     return ZoneInfo(tzname)
         except Exception:  # noqa: BLE001
             pass
-    st = state_of(user)
+    return tz_from_state(state_of(user))
+
+
+def tz_from_state(st):
+    """The phone-reported zone in a brain row (no query)."""
     name = str(st.get("tz") or "")
     if name and "/" in name:
         try:
@@ -334,6 +338,11 @@ def ping(user, data, now=None):
     d = data if isinstance(data, dict) else {}
     out = {"ok": True, "paused": False, "alerts": 0, "accepted": 0, "duplicate": 0}
     fan = []                              # alerts sent after the row lock is released
+    if _row(user, create=False) is None and not peer_ids(user):
+        # nobody can see this member yet: keep no row (the per-minute tick
+        # only walks members of a family)
+        out["skipped"] = "no_family"
+        return out
     with transaction.atomic():
         row = _row(user, lock=True)
         st = dict(row.data or {})
@@ -438,6 +447,64 @@ def ping(user, data, now=None):
     return out
 
 
+# ------------------------------------------------------------ watch token
+WATCH_SALT = "fcbrain.watch.v1"
+WATCH_MAX_AGE_S = 120 * 86400
+FENCE_RADIUS_M = 150            # = safety_journey.ARRIVAL_RADIUS_M_DEFAULT
+MAX_FENCES = 10
+
+
+def fences(user):
+    """The on-phone geofences: the member's saved Home / School / Office /
+    other pinned places (the same SavedPlace rows Safe Journey uses), radius
+    150 m like the Safe Journey / school arrival rule. Max MAX_FENCES."""
+    from .models import SavedPlace
+    from .logic import journey_dest as JD
+    out = []
+    for p in SavedPlace.objects.filter(user=user).exclude(lat__isnull=True).exclude(lng__isnull=True):
+        k = JD.place_kind(p.label)
+        out.append({"id": p.pk, "kind": k if k in PLACE_KINDS else "place",
+                    "label": "" if k in ("home", "school", "office") else (p.label or p.name or "")[:40],
+                    "lat": p.lat, "lng": p.lng, "r": FENCE_RADIUS_M})
+    order = {"home": 0, "school": 1, "office": 2}
+    out.sort(key=lambda f: order.get(f["kind"], 9))
+    return out[:MAX_FENCES]
+
+
+def watch_token(user, now=None):
+    """A SCOPED token for the phone's FamilyWatchService: it can only post
+    pings for this user (never read anything). Turning auto-arrive off bumps
+    the revision, so every older token stops at once."""
+    from django.core import signing
+    rev = int(state_of(user).get("watch_rev") or 0)
+    return signing.dumps([user.pk, rev], salt=WATCH_SALT)
+
+
+def user_for_watch_token(tok):
+    from django.core import signing
+    from .models import User
+    try:
+        uid, rev = signing.loads(str(tok or ""), salt=WATCH_SALT, max_age=WATCH_MAX_AGE_S)
+    except Exception:  # noqa: BLE001 — bad / expired / tampered
+        return None
+    u = User.objects.filter(pk=uid, is_active=True).first()
+    if u is None:
+        return None
+    st = state_of(u)
+    if int(st.get("watch_rev") or 0) != int(rev) or not prefs_of(st)["auto_arrive"]:
+        return None
+    return u
+
+
+def revoke_watch(user):
+    with transaction.atomic():
+        row = _row(user, lock=True)
+        st = dict(row.data or {})
+        st["watch_rev"] = int(st.get("watch_rev") or 0) + 1
+        st["watch_on"] = False
+        _save(row, st)
+
+
 # ------------------------------------------------------------------ pause
 def _paused_until(st, now):
     p = _parse(st.get("paused_until"))
@@ -507,6 +574,10 @@ def set_prefs(actor, member, data, now=None):
             if on and not p.get("auto_arrive"):
                 p["auto_arrive_at"] = _iso(now)
                 p["auto_arrive_by"] = "self" if self_ else actor.pk
+            if not on and p.get("auto_arrive"):
+                # every older phone token stops at once
+                st["watch_rev"] = int(st.get("watch_rev") or 0) + 1
+                st["watch_on"] = False
             p["auto_arrive"] = on
         if "leave_news" in d:
             p["leave_news"] = d.get("leave_news") is True
@@ -867,7 +938,7 @@ def tick(now=None):
         u, st = row.user, dict(row.data or {})
         try:
             prefs = prefs_of(st)
-            loc = local(u, now)
+            loc = now.astimezone(tz_from_state(st))
             day = loc.date().isoformat()
             if prefs["night"]["on"] and (st.get("night_last") or {}).get("day") != day:
                 h, m = (int(x) for x in prefs["night"]["time"].split(":"))

@@ -492,3 +492,39 @@ class ProbashiTests(Base):
 class TickCommandTests(Base):
     def test_command_runs(self):
         call_command("family_brain_tick", quiet=True)
+
+
+class WatchTokenTests(Base):
+    """The native FamilyWatchService posts with a SCOPED token, never the
+    user's session; off = revoked at once."""
+    def test_token_only_after_own_consent_and_revoked_when_off(self):
+        from core.models import SavedPlace
+        SavedPlace.objects.create(user=self.kid, label="school", name="Ideal School",
+                                  lat=23.74, lng=90.37)
+        c = cl(self.kid)
+        self.assertEqual(c.post("%s/family/brain/watch" % V, {}, format="json").status_code, 409)
+        c.post("%s/family/brain/prefs" % V, {"auto_arrive": True}, format="json")
+        r = c.post("%s/family/brain/watch" % V, {}, format="json")
+        self.assertEqual(r.status_code, 200)
+        tok = r.json()["token"]
+        self.assertEqual(r.json()["fences"][0]["kind"], "school")
+        self.assertEqual(r.json()["fences"][0]["r"], 150)
+        anon = APIClient()
+        body = {"battery": 66, "watch_on": True, "events": [
+            {"id": "w1", "kind": "arrive", "place_kind": "school", "place_id": 1}]}
+        r = anon.post("%s/family/brain/watch-ping" % V, body, format="json", HTTP_X_FC_WATCH=tok)
+        self.assertEqual(r.status_code, 200, r.content)
+        self.assertEqual(r.json()["accepted"], 1)
+        self.assertEqual(len(self.spy.calls), 2)
+        self.assertEqual(anon.post("%s/family/brain/watch-ping" % V, body, format="json",
+                                   HTTP_X_FC_WATCH="junk").status_code, 401)
+        c.post("%s/family/brain/prefs" % V, {"auto_arrive": False}, format="json")
+        self.assertEqual(anon.post("%s/family/brain/watch-ping" % V, body, format="json",
+                                   HTTP_X_FC_WATCH=tok).status_code, 401)
+        self.assertFalse(FB.state_of(self.kid)["watch_on"])
+
+    def test_token_cannot_read_anything(self):
+        FB.set_prefs(self.kid, self.kid, {"auto_arrive": True})
+        tok = FB.watch_token(self.kid)
+        r = APIClient().get("%s/family/brain/visibility" % V, HTTP_X_FC_WATCH=tok)
+        self.assertIn(r.status_code, (401, 403))

@@ -407,6 +407,8 @@ urlpatterns = [
     path("family/brain/night-news", fcb.BrainNightNewsView.as_view()),
     path("family/brain/ask", fcb.BrainAskView.as_view()),
     path("family/brain/member/<int:uid>", fcb.BrainMemberView.as_view()),
+    path("family/brain/watch", fcb.BrainWatchTokenView.as_view()),
+    path("family/brain/watch-ping", fcb.BrainWatchPingView.as_view()),
     path("family/alerts/received", fam100.FamilyAlertReceivedView.as_view()),
     path("family/alerts/<int:pk>/seen", fam100.FamilyAlertSeenView.as_view()),
     path("family/sharing/consent/", views.FamilySharingConsentView.as_view()),
