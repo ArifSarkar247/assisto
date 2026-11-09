@@ -351,7 +351,7 @@ class E2EOwnerScenarioTests(_Base):
         n = self.post("a", f"/mess/v2/{mid}/remind", {}, 200).json()["sent"]
         self.assertEqual(n, 4)
         # PDF + text report
-        r = self.cl["a"].get(V + f"/mess/v2/{mid}/report?month=2026-11&format=pdf")
+        r = self.cl["a"].get(V + f"/mess/v2/{mid}/report?month=2026-11&pdf=1")
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r.content.startswith(b"%PDF"))
         t = self.get("b", f"/mess/v2/{mid}/report?month=2026-11")

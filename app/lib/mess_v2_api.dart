@@ -18,7 +18,7 @@ extension MessV2Api on ApiClient {
   /// Everything one screen needs: {mess, members, month, months_closed,
   /// summary, entries, my_days, today, premium}.
   Future<Map<String, dynamic>> messDetail(int id, {String? month}) =>
-      getJson('/mess/v2/$id${month == null ? '' : '?month=$month'}');
+      getJson(month == null ? '/mess/v2/$id' : '/mess/v2/$id?month=$month');
 
   Future<Map<String, dynamic>> messEdit(int id, Map<String, dynamic> body) =>
       postJson('/mess/v2/$id/edit', body);
@@ -41,10 +41,11 @@ extension MessV2Api on ApiClient {
           {'action': action, if (value != null) 'value': value});
 
   Future<Map<String, dynamic>> messReport(int id, {String? month}) =>
-      getJson('/mess/v2/$id/report${month == null ? '' : '?month=$month'}');
+      getJson(month == null ? '/mess/v2/$id/report' : '/mess/v2/$id/report?month=$month');
 
-  Future<List<int>> messReportPdf(int id, {String? month}) => getBytes(
-      '/mess/v2/$id/report?format=pdf${month == null ? '' : '&month=$month'}');
+  Future<List<int>> messReportPdf(int id, {String? month}) => getBytes(month == null
+      ? '/mess/v2/$id/report?pdf=1'
+      : '/mess/v2/$id/report?pdf=1&month=$month');
 
   Future<Map<String, dynamic>> messHistory(int id) => getJson('/mess/v2/$id/history');
 

@@ -167,25 +167,34 @@ void main() {
 
   for (final lang in ['bn', 'en']) {
     for (final dark in [false, true]) {
-      testWidgets('meals + month tabs render ($lang, dark=$dark, 200 %)', (tester) async {
+      testWidgets('meals + month tabs: no overflow at 200 % ($lang, dark=$dark)', (tester) async {
         tester.view.physicalSize = const Size(360 * 3, 780 * 3);
         tester.view.devicePixelRatio = 3;
         addTearDown(tester.view.reset);
         final api = _RecApi(lang: lang);
-        await tester.pumpWidget(
-            _app(const MessDetailScreen(messId: 1), api, lang: lang, scale: 2.0, dark: dark));
-        await _settle(tester);
-        expect(tester.takeException(), isNull);
-        expect(find.textContaining(lang == 'bn' ? 'আজ মোট মিল: ১০' : 'Meals today: 10'),
-            findsOneWidget);
-        await tester.pumpWidget(_app(const MessDetailScreen(messId: 1, initialTab: 3), api,
-            lang: lang, scale: 2.0, dark: dark));
-        await _settle(tester);
-        expect(tester.takeException(), isNull);
-        expect(find.textContaining(lang == 'bn' ? 'দেবেন ৳৪,৭৭১.৪৫' : 'Will pay ৳4,771.45'),
-            findsOneWidget);
+        for (final tab in [0, 1, 2, 3, 4]) {
+          await tester.pumpWidget(_app(MessDetailScreen(messId: 1, initialTab: tab), api,
+              lang: lang, scale: 2.0, dark: dark));
+          await _settle(tester);
+          expect(tester.takeException(), isNull, reason: 'tab $tab');
+        }
       });
     }
+    testWidgets('today + month numbers in the right digits ($lang)', (tester) async {
+      tester.view.physicalSize = const Size(360 * 3, 1400 * 3);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final api = _RecApi(lang: lang);
+      await tester.pumpWidget(_app(const MessDetailScreen(messId: 1), api, lang: lang));
+      await _settle(tester);
+      expect(find.textContaining(lang == 'bn' ? 'আজ মোট মিল: ১০' : 'Meals today: 10'),
+          findsOneWidget);
+      await tester.pumpWidget(
+          _app(const MessDetailScreen(messId: 1, initialTab: 3), api, lang: lang));
+      await _settle(tester);
+      expect(find.textContaining(lang == 'bn' ? 'দেবেন ৳৪,৭৭১.৪৫' : 'Will pay ৳4,771.45'),
+          findsOneWidget);
+    });
   }
 
   testWidgets('group card: shows on a mess group, nothing on a normal group', (tester) async {

@@ -136,7 +136,7 @@ int? messTakaToPoisha(String? raw) {
       b.writeCharCode(cu);
     }
   }
-  var s = b.toString().replaceAll(RegExp(r'(?i)bdt|tk|taka'), '');
+  var s = b.toString().replaceAll(RegExp(r'bdt|tk|taka', caseSensitive: false), '');
   s = s.replaceAll(RegExp(r'[৳,\s]'), '');
   if (s.isEmpty || !RegExp(r'^\d+(\.\d{0,2})?$').hasMatch(s)) return null;
   final parts = s.split('.');

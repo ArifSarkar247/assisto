@@ -949,7 +949,7 @@ class MessHistoryView(APIView):
 
 
 class MessReportView(APIView):
-    """GET mess/v2/<id>/report?month=&format=pdf|text — the month report.
+    """GET mess/v2/<id>/report?month=&pdf=1 — the month report (text, or PDF).
     Text is shared into the E2E group by the app; PDF streams here. Free: the
     open month + the last closed month; Premium: every old month."""
 
@@ -974,7 +974,8 @@ class MessReportView(APIView):
             key = M.month_key(start)
             s = compute_month(mess, start, end, until=min(end, today))
         text = M.report_text(mess.name, key, s, lang)
-        if request.query_params.get("format") != "pdf":
+        # NB: not `?format=` — DRF reserves it for renderer negotiation (404)
+        if request.query_params.get("pdf") != "1":
             return Response({"month": key, "text": text})
         pdf = _pdf(mess, key, s, lang)
         resp = HttpResponse(pdf, content_type="application/pdf")

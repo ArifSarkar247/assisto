@@ -30,6 +30,15 @@ class _MessGroupCardState extends State<MessGroupCard> {
     _load();
   }
 
+  @override
+  void didUpdateWidget(covariant MessGroupCard old) {
+    super.didUpdateWidget(old);
+    if (old.groupId != widget.groupId) {
+      _card = null; // another chat: never show the old mess card
+      _load();
+    }
+  }
+
   Future<void> _load() async {
     try {
       final r = await context.read<AppState>().api.messByGroup(widget.groupId);
