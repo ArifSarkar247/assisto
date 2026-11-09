@@ -488,6 +488,20 @@ def fences(user):
     return out
 
 
+WATCH_SWITCH = "family_auto_arrival"
+
+
+def background_watch_on(user=None):
+    """Owner switch (feature flag family_auto_arrival, OFF until Play
+    approves the background-location declaration). OFF -> no native watch
+    token: arrival news only while Assisto is open (fc_watch.dart)."""
+    try:
+        from . import feature_flags as FF
+        return bool(FF.is_on(WATCH_SWITCH, user))
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def watch_token(user, now=None):
     """A SCOPED token for the phone's FamilyWatchService: it can only post
     pings for this user (never read anything). Turning auto-arrive off bumps
@@ -510,6 +524,8 @@ def user_for_watch_token(tok):
     st = state_of(u)
     if int(st.get("watch_rev") or 0) != int(rev) or not prefs_of(st)["auto_arrive"]:
         return None
+    if not background_watch_on(u):
+        return None              # the owner switched the background watch off
     return u
 
 

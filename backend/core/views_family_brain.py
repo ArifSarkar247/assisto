@@ -28,6 +28,7 @@ def _me(request):
     return {"prefs": p,
             "paused_until": FB._iso(FB._paused_until(st, FB._now())) if FB._paused_until(st, FB._now()) else None,
             "watch_on": bool(st.get("watch_on")),
+            "watch_mode": "background" if FB.background_watch_on(request.user) else "foreground",
             "budget": NB.status(request.user),
             "pause_hours": list(FB.PAUSE_HOURS),
             "night_items": list(FB.NIGHT_ITEMS)}
@@ -135,16 +136,21 @@ class BrainMemberView(APIView):
 
 
 class BrainWatchTokenView(APIView):
-    """POST family/brain/watch — the open app switching the on-phone watch
-    on: -> {token, fences:[{id,kind,label,lat,lng,r}], interval_s}. Only when
-    the member turned auto-arrive on (their own consent)."""
+    """POST family/brain/watch — the open app switching arrival news on:
+    -> {mode, fences:[{id,kind,label,lat,lng,r}], interval_s, token?}. Only
+    when the member turned auto-arrive on (their own consent). The scoped
+    token for the native BACKGROUND watch only while the owner switch
+    family_auto_arrival is ON; otherwise mode "foreground" (app open only)."""
     def post(self, request):
         st = FB.state_of(request.user)
         if not FB.prefs_of(st)["auto_arrive"]:
             return Response({"error": "auto_arrive_off"}, status=status.HTTP_409_CONFLICT)
-        return Response({"token": FB.watch_token(request.user),
-                         "fences": FB.fences(request.user),
-                         "interval_s": FB.WATCH_INTERVAL_S})
+        bg = FB.background_watch_on(request.user)
+        out = {"mode": "background" if bg else "foreground",
+               "fences": FB.fences(request.user), "interval_s": FB.WATCH_INTERVAL_S}
+        if bg:
+            out["token"] = FB.watch_token(request.user)
+        return Response(out)
 
 
 class BrainWatchPingView(APIView):

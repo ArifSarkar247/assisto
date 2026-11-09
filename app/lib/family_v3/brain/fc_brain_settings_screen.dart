@@ -321,7 +321,13 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
         value: on,
         onChanged: _busy ? null : _toggleArrive,
         title: Text(t.fcbArriveSwitch),
-        subtitle: Text(on ? (_running ? t.fcbArriveRunning : t.fcbArriveNotRunning) : t.fcbArriveHow),
+        subtitle: Text(!on
+            ? t.fcbArriveHow
+            : _running
+                ? t.fcbArriveRunning
+                : _me?['watch_mode'] == 'foreground'
+                    ? t.fcbArriveForeground
+                    : t.fcbArriveNotRunning),
       ),
       if (on)
         SwitchListTile(

@@ -10,7 +10,7 @@
   "fcbArriveNotRunning": "On, but not running now. Open Assisto once, allow location, and save Home or School.",
   "fcbLeaveNews": "Also tell them when I leave",
   "fcbDiscloseTitle": "Use your location for arrival news?",
-  "fcbDiscloseBody": "Assisto checks this phone's location from time to time, only while this switch is on, to see when you reach a place you saved (Home, School, Office). Your family gets only \"arrived\" or \"left\" with the time, never your route or a map. When your battery is at 15%, your last location is shared once. A notification stays while it is on. Turn it off here any time.",
+  "fcbDiscloseBody": "Assisto checks this phone's location only while this switch is on, to see when you reach a place you saved (Home, School, Office). Your family gets only \"arrived\" or \"left\" with the time, never your route or a map. When your battery is at 15%, your last location is shared once. Turn it off here any time.",
   "fcbDiscloseYes": "Yes, turn on",
   "fcbNotNow": "Not now",
   "fcbWatchNotifTitle": "Family arrival news is on",
@@ -105,7 +105,8 @@
   "fcbLeaveYes": "Leave",
   "fcbSaveFailed": "Could not save. Check the internet and try again.",
   "fcbLoadFailed": "Could not load your family settings.",
-  "fcbRetry": "Try again"
+  "fcbRetry": "Try again",
+  "fcbArriveForeground": "On while Assisto is open: your family hears when you arrive. When Assisto is closed, they see \"No news\" instead of a guess."
  },
  "bn": {
   "fcbSettingsTitle": "পরিবারের গোপনীয়তা ও খবর",
@@ -117,7 +118,7 @@
   "fcbArriveNotRunning": "চালু, কিন্তু এখন চলছে না। একবার Assisto খুলুন, লোকেশনের অনুমতি দিন, আর বাড়ি বা স্কুল সেভ করুন।",
   "fcbLeaveNews": "বের হলেও জানাও",
   "fcbDiscloseTitle": "পৌঁছানোর খবরের জন্য লোকেশন ব্যবহার করবেন?",
-  "fcbDiscloseBody": "এই সুইচ চালু থাকলেই শুধু Assisto মাঝে মাঝে এই ফোনের লোকেশন দেখে, আপনি সেভ করা জায়গায় (বাড়ি, স্কুল, অফিস) পৌঁছালেন কি না বুঝতে। পরিবার পাবে শুধু \"পৌঁছেছেন\" বা \"বের হয়েছেন\" আর সময় — আপনার পথ বা ম্যাপ কখনো নয়। চার্জ ১৫% হলে আপনার শেষ অবস্থান একবার জানানো হবে। চালু থাকা পর্যন্ত একটা নোটিফিকেশন থাকবে। যেকোনো সময় এখান থেকে বন্ধ করতে পারবেন।",
+  "fcbDiscloseBody": "এই সুইচ চালু থাকলেই শুধু Assisto এই ফোনের লোকেশন দেখে, আপনি সেভ করা জায়গায় (বাড়ি, স্কুল, অফিস) পৌঁছালেন কি না বুঝতে। পরিবার পাবে শুধু \"পৌঁছেছেন\" বা \"বের হয়েছেন\" আর সময় — আপনার পথ বা ম্যাপ কখনো নয়। চার্জ ১৫% হলে আপনার শেষ অবস্থান একবার জানানো হবে। যেকোনো সময় এখান থেকে বন্ধ করতে পারবেন।",
   "fcbDiscloseYes": "হ্যাঁ, চালু করুন",
   "fcbNotNow": "এখন না",
   "fcbWatchNotifTitle": "পরিবারকে পৌঁছানোর খবর চালু আছে",
@@ -161,6 +162,7 @@
   "fcbLeaveYes": "ছেড়ে দিন",
   "fcbSaveFailed": "সেভ হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
   "fcbLoadFailed": "পরিবারের সেটিংস লোড হয়নি।",
-  "fcbRetry": "আবার চেষ্টা করুন"
+  "fcbRetry": "আবার চেষ্টা করুন",
+  "fcbArriveForeground": "Assisto খোলা থাকলে চালু: আপনি পৌঁছালে পরিবার জানবে। Assisto বন্ধ থাকলে তারা অনুমান নয়, \"খবর নেই\" দেখবে।"
  }
 }
