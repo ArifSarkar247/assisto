@@ -130,6 +130,9 @@ BANNED = ["©", "all rights reserved", "past paper", "past question", "reproduce
           "دروس اللغة العربية لغير الناطقين",
           "日本語能力試験公式", "official question", "অফিসিয়াল প্রশ্ন"]
 
+# a marker must end at a word end ("studio d" = the German textbook, not French "studio de 20 m²")
+BANNED_RE = {m: re.compile(re.escape(m) + (r"(?![^\W\d_])" if m[-1].isalpha() else "")) for m in BANNED}
+
 # ~100 common N5 kanji (public lists vary slightly; used only for a WARNING on the N5 test).
 N5_KANJI = set("一二三四五六七八九十百千万円日月火水木金土曜年時分半午前後今週毎何人男女子父母友"
                "先生学校大小中上下左右外国語本見行来出入休食飲書読話聞買言名山川田天気雨電車道駅"
@@ -375,7 +378,7 @@ def check_copyright(d: dict, r: Result, known: set[str]):
     for s in texts_of(d):
         low = s.lower()
         for m in BANNED:
-            if m in low:
+            if m in low and BANNED_RE[m].search(low):
                 r.err("copyright", f"banned marker {m!r} in {s[:50]!r}")
         if known:
             for sh in word_shingles(s):

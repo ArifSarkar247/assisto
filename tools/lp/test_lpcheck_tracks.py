@@ -182,6 +182,13 @@ class TrackCheckTests(unittest.TestCase):
         r = self._run("fr", name, d)
         self.assertTrue(any("needs min_words" in e for e in r.errors))
 
+    def test_banned_marker_word_end(self):
+        r = lt.Result("x")
+        lt.check_copyright({"t": "Un studio de 20 m² près de la gare."}, r, set())
+        self.assertEqual(r.errors, [])
+        lt.check_copyright({"t": "Lektion aus Studio d A1"}, r, set())
+        self.assertTrue(any("studio d" in e for e in r.errors))
+
     def test_six_option_bank_letters(self):
         name, d = self._test_doc("zh", "hsk1-")
         q = d["sections"][1]["parts"][3]["questions"][0]
