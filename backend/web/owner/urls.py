@@ -36,6 +36,7 @@ from . import views_missing as MIS   # missing
 from . import views_boards as BRD    # adminboards
 from . import views_blood as BLD     # blood
 from . import views_quranpron as QPR  # quranpron
+from . import views_lp as LPR        # lpcore
 from . import views_nearby as NBY    # nearby
 from . import views_city as CTY      # citydata
 from . import views_site3 as WS3     # sitev3: website go-live switch
@@ -184,4 +185,6 @@ urlpatterns = [
     path("city/live/<int:pk>", CTY.city_live),                     # citydata
     path("city/dataset", CTY.city_dataset),                        # citydata
     path("city/learned/<int:pk>", CTY.city_learned),               # citydata
+    path("lp", LPR.lp_review),                                     # lpcore
+    path("lp/<int:pk>/act", LPR.lp_review_action),                 # lpcore
 ]

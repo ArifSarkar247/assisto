@@ -272,6 +272,9 @@ FREE_EXEMPT = {
     "w1_cv": "public website CV tips, per-IP rate limited, no account",
     "w2_scam": "public website scam check (safety), per-IP rate limited, no account",
     "learn.roleplay": "Learn hub daily free practice quota; beyond it the user pays",
+    # lpcore: Language Partner Writing/Speaking scores are charged BEFORE the call by
+    # lp_service.run_score (exact worst-case credits) and refunded on fail / cut
+    "lp.score": "Language Partner score: credits taken first by lp_service.run_score, refunded on failure",
     "chat.continue": "continues an answer that was CUT at its output limit — already paid once",
     # fcbrain (owner 9 Nov): Family Care is safety — never charged
     "brain.night_news": "Family Care night news card from structured facts, once per member per night",

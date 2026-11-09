@@ -2383,3 +2383,26 @@ BN.update({
     "qpr_reject": "বাতিল", "qpr_rule": "নিয়ম ঠিক করতে বলুন", "qpr_none": "এখানে কিছু নেই।",
 })
 # ---- /quranpron ----
+
+# ---- lpcore: Owner Admin -> Language content (review queue) ----
+EN.update({
+    "nav_lp": "Language content",
+    "lp_intro": "Language Partner content: mocks, sections, questions, life scenarios and vocabulary. Every import runs the automatic checks (format, one right answer, word limits, level, timing, no copyrighted or Cambridge text, no duplicates). Items that pass are shown to learners with a BETA label until a reviewer approves them here. Editing saves a new version; old versions stay for the record.",
+    "lp_queue": "Waiting for review", "lp_kind": "Kind", "lp_key": "Key / version",
+    "lp_checks": "Automatic checks", "lp_checks_ok": "All checks passed", "lp_log": "History",
+    "lp_content": "Content (JSON)", "lp_save_edit": "Save as new version",
+    "lp_beta": "shown as BETA", "lp_note": "Note (optional)", "lp_approve": "Approve",
+    "lp_reject": "Reject", "lp_recheck": "Run checks again",
+    "lp_fix_first": "Fix the failed checks first", "lp_none": "Nothing here.",
+})
+BN.update({
+    "nav_lp": "ভাষা কনটেন্ট",
+    "lp_intro": "Language Partner-এর কনটেন্ট: মক, সেকশন, প্রশ্ন, জীবনের পরিস্থিতি ও শব্দ। প্রতিটি আমদানিতে স্বয়ংক্রিয় যাচাই চলে (গঠন, একটাই সঠিক উত্তর, শব্দসীমা, লেভেল, সময়, কপিরাইট বা Cambridge-এর লেখা নেই, ডুপ্লিকেট নেই)। যেগুলো পাস করে সেগুলো শিক্ষার্থীরা 'বেটা' লেবেলসহ দেখেন, যতক্ষণ না রিভিউয়ার এখানে অনুমোদন দেন। সম্পাদনা নতুন ভার্সন হিসেবে সেভ হয়; পুরোনো ভার্সন রেকর্ডে থাকে।",
+    "lp_queue": "রিভিউয়ের অপেক্ষায়", "lp_kind": "ধরন", "lp_key": "কী / ভার্সন",
+    "lp_checks": "স্বয়ংক্রিয় যাচাই", "lp_checks_ok": "সব যাচাই পাস", "lp_log": "ইতিহাস",
+    "lp_content": "কনটেন্ট (JSON)", "lp_save_edit": "নতুন ভার্সন হিসেবে সেভ",
+    "lp_beta": "বেটা হিসেবে দেখানো হচ্ছে", "lp_note": "নোট (ঐচ্ছিক)", "lp_approve": "অনুমোদন",
+    "lp_reject": "বাতিল", "lp_recheck": "আবার যাচাই",
+    "lp_fix_first": "আগে ব্যর্থ যাচাইগুলো ঠিক করুন", "lp_none": "এখানে কিছু নেই।",
+})
+# ---- /lpcore ----
