@@ -280,12 +280,12 @@ class _CityMapScreenState extends State<CityMapScreen> {
             onSelectionChanged: (v) => _setView(v.first),
           ),
         ),
-        SizedBox(
-          height: 56,
-          child: ListView(
-            key: const ValueKey('city_map_chips'),
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
+        // a Row (not a fixed-height list): grows with 200% font, all chips built
+        SingleChildScrollView(
+          key: const ValueKey('city_map_chips'),
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
+          child: Row(
             children: _view == CityMapView.assisto
                 ? [
                     for (final k in CityLayer.values) _chip(t, k),
