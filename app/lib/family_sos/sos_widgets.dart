@@ -152,7 +152,24 @@ String sosClock(BuildContext context, String iso) {
   final h = l.hour % 12 == 0 ? 12 : l.hour % 12;
   final m = l.minute.toString().padLeft(2, '0');
   final t = AppLocalizations.of(context);
-  return notifLocalizeDigits(context, l.hour < 12 ? t.fcsTimeAm('$h:$m') : t.fcsTimePm('$h:$m'));
+  final v = '$h:$m';
+  final hr = l.hour;
+  // Bangla names the part of the day (রাত / ভোর / সকাল / দুপুর / বিকেল /
+  // সন্ধ্যা); English says am / pm
+  final out = hr < 4
+      ? t.fcsTimeNight(v)
+      : hr < 6
+          ? t.fcsTimeDawn(v)
+          : hr < 12
+              ? t.fcsTimeMorning(v)
+              : hr < 15
+                  ? t.fcsTimeNoon(v)
+                  : hr < 18
+                      ? t.fcsTimeAfternoon(v)
+                      : hr < 20
+                          ? t.fcsTimeEvening(v)
+                          : t.fcsTimeLateNight(v);
+  return notifLocalizeDigits(context, out);
 }
 
 /// "2 min ago" style age, Bangla digits in bn.

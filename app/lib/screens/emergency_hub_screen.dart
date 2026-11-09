@@ -13,6 +13,7 @@ import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/chatnav.dart';
 import '../widgets/emergency_sos_panel.dart';
 import '../widgets/fam_card_section.dart' show FamCardScreen, FamCardStore;
+import '../family_sos/sos_setup_card.dart'; // fcsos
 import 'emergency_screen.dart';
 import 'journey_fake_call_screen.dart';
 import 'nearby_screen.dart';
@@ -360,6 +361,11 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           ),
           const SizedBox(height: Gap.sm),
           ...tiles,
+          // fcsos: get SOS ready (SMS people, info share, DND, full screen)
+          const Padding(
+            padding: EdgeInsets.only(bottom: Gap.md),
+            child: SosSetupCard(),
+          ),
           // 7. Crisis help — owner-verified numbers only.
           _CrisisCard(
             items: _crisis,
