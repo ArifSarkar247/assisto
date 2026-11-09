@@ -28,6 +28,12 @@ class CctvConnectScreen extends StatefulWidget {
   final VoidCallback? onFindOnWifi;
   /// Opens the vendor's own consent page (tests inject a fake).
   final Future<bool> Function(Uri url)? openUrl;
+
+  /// camflows: the emulator E2E stands in for the phone's browser here (the
+  /// screen is opened from the CCTV screen, so no [openUrl] can be passed).
+  /// Never set in the app.
+  @visibleForTesting
+  static Future<bool> Function(Uri url)? debugOpenUrl;
   const CctvConnectScreen(
       {super.key,
       required this.siteId,
@@ -80,6 +86,7 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
       if (url == null) throw StateError('no_url');
       _waitingOauth = true;
       final open = widget.openUrl ??
+          CctvConnectScreen.debugOpenUrl ??
           (Uri u) => launchUrl(u, mode: LaunchMode.externalApplication);
       final ok = await open(url);
       msg.showSnackBar(SnackBar(

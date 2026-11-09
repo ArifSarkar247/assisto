@@ -19,6 +19,17 @@ if d["failed_critical"]:
     print("::error::e2e seed self-check failed: %s" % d["failed_critical"]); sys.exit(1)
 print("seed_e2e OK")
 PY
+# camflows: a feature E2E may add its own seed (+ self-check) here
+if [ -n "${E2E_EXTRA_SEED:-}" ]; then
+  timeout 300 python manage.py "$E2E_EXTRA_SEED" $S --out "$REALITY_OUT/$E2E_EXTRA_SEED.json"
+  python3 - "$REALITY_OUT/$E2E_EXTRA_SEED.json" <<'PY2'
+import json, sys
+d = json.load(open(sys.argv[1]))
+if d["failed_critical"]:
+    print("::error::%s self-check failed: %s" % (sys.argv[1], d["failed_critical"])); sys.exit(1)
+print("extra seed OK")
+PY2
+fi
 nohup python manage.py runserver 0.0.0.0:8700 --noreload $S > "$REALITY_OUT/django.log" 2>&1 &
 echo $! > "$REALITY_OUT/django.pid"
 for i in $(seq 1 60); do
