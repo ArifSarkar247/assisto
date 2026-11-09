@@ -337,3 +337,30 @@ class LiveTests(_Base):
         r = c.get("/api/v1/shop/watchman")
         row = [x for s in r.data["sites"] for x in s["cameras_list"] if x["id"] == cam.id][0]
         self.assertNotIn("live_capable", row)
+
+
+class CctvboxPlayTaskTests(_Base):
+    """cctvbox: a siren / warning task for a phone camera (Guard Box) is
+    handed out once in that camera's heartbeat; other cameras never see it."""
+
+    def test_play_task_in_heartbeat_once(self):
+        from core.models import ShopCamera, ShopGatewayTask
+        d = self.code()
+        r = self.claim(d["code"])
+        self.assertEqual(r.status_code, 201, r.data)
+        tok = r.data["camera_token"]
+        cam = ShopCamera.objects.get(pk=r.data["camera"]["id"])
+        other = ShopCamera.objects.create(site=self.site, name="Other", vendor="phone",
+                                          kind="shopbox")
+        ShopGatewayTask.objects.create(site=self.site, camera=cam, action="play",
+                                       request={"sound": "warn", "seconds": 999})
+        ShopGatewayTask.objects.create(site=self.site, camera=other, action="play",
+                                       request={"sound": "siren"})
+        c = APIClient()
+        hb = c.post("/api/v1/shop/heartbeat", {"camera_token": tok, "caps": ["live", "ipcam"]},
+                    format="json")
+        self.assertEqual(hb.status_code, 200, hb.data)
+        self.assertEqual([(p["sound"], p["seconds"]) for p in hb.data["play"]], [("warn", 60)])
+        hb2 = c.post("/api/v1/shop/heartbeat", {"camera_token": tok}, format="json")
+        self.assertEqual(hb2.data["play"], [])
+        self.assertEqual(ShopGatewayTask.objects.filter(camera=other, status="pending").count(), 1)

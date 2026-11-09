@@ -29,6 +29,7 @@ import 'phonecam_api.dart';
 import 'phonecam_logic.dart';
 import '../feature_flags.dart'; // cctvbox
 import '../ipcam/ipcam_guard_screen.dart'; // cctvbox
+import '../ipcam/box_siren.dart'; // cctvbox
 
 /// cctvphone — THIS phone becomes an Assisto camera (owner CCTV order 3 Nov,
 /// part A). Built on the Shop Box pieces (device client, motion detector,
@@ -127,6 +128,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   bool _online = false;
   List<String> _warnings = const [];
   bool _inLive = false;
+  BoxSiren? _siren; // cctvbox
 
   // clips on this phone
   int _clipCount = 0;
@@ -601,6 +603,12 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       _warnings = localWarnings(health);
     });
     if (!r.ok) return;
+    // cctvbox (cctvact contract): the owner's Siren / Warning plays here
+    final play = PlayTask.fromHeartbeat(r.body['play']);
+    if (play.isNotEmpty && _token != null) {
+      _siren ??= BoxSiren.forDevice(_token!, cameraId: _cameraId);
+      unawaited(_siren!.handle(play));
+    }
     final pending = ((r.body['live_pending'] ?? const []) as List).whereType<Map>().toList();
     if (pending.isNotEmpty && !_inLive && _running) {
       unawaited(_answerLive(pending.first.cast<String, dynamic>()));

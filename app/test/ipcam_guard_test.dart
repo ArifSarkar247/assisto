@@ -7,7 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
+import 'package:assisto/ipcam/box_siren.dart';
 import 'package:assisto/ipcam/ipcam_guard_screen.dart';
+import 'package:assisto/train/dest_alarm_sound.dart';
 import 'package:assisto/ipcam/ipcam_logic.dart';
 import 'package:assisto/ipcam/ipcam_presets.dart';
 import 'package:assisto/ipcam/rtsp_client.dart';
@@ -46,6 +48,28 @@ void _phone(WidgetTester tester, {double height = 800}) {
 
 late AppLocalizations en;
 late AppLocalizations bn;
+
+class _FakeSound implements DestAlarmSound {
+  final log = <String>[];
+  @override
+  Future<bool> start({required bool sound, required bool vibrate}) async {
+    log.add('start');
+    return true;
+  }
+
+  @override
+  Future<bool> speak(String text, String lang) async => true;
+  @override
+  Future<bool> playClip(String path) async {
+    log.add('clip');
+    return true;
+  }
+
+  @override
+  Future<bool> vibrateOnce() async => true;
+  @override
+  Future<void> stop() async => log.add('stop');
+}
 
 void main() {
   setUpAll(() async {
@@ -122,6 +146,41 @@ void main() {
       p.hd = true;
       expect(p.maxW, 1280);
       expect(p.every, const Duration(milliseconds: 250));
+    });
+  });
+
+  group('owner Siren / Warning on the box (cctvact contract)', () {
+    test('heartbeat play list: defaults + clamps; junk ignored', () {
+      final t = PlayTask.fromHeartbeat([
+        {'id': 1, 'sound': 'warn', 'seconds': 999},
+        {'id': 2, 'sound': 'boom'},
+        {'sound': 'siren'},
+        'x',
+      ]);
+      expect(t.map((e) => (e.id, e.sound, e.seconds)), [(1, 'warn', 60), (2, 'siren', 20)]);
+      expect(PlayTask.fromHeartbeat(null), isEmpty);
+    });
+
+    test('siren plays for the asked time then stops; the same task never twice', () async {
+      final s = _FakeSound();
+      final waits = <Duration>[];
+      final b = BoxSiren(s, () async => null, wait: (d) async => waits.add(d));
+      expect(await b.handle(const [PlayTask(7, 'siren', 15)]), ['siren']);
+      expect(s.log, ['start', 'stop']);
+      expect(waits, [const Duration(seconds: 15)]);
+      expect(await b.handle(const [PlayTask(7, 'siren', 15)]), isEmpty);
+    });
+
+    test('warning without a clip falls back to the siren (still deters)', () async {
+      final s = _FakeSound();
+      var fetched = 0;
+      final b = BoxSiren(s, () async {
+        fetched++;
+        return null;
+      }, wait: (_) async {});
+      expect(await b.handle(const [PlayTask(8, 'warn', 10)]), ['siren']);
+      expect(fetched, 1);
+      expect(s.log.first, 'start');
     });
   });
 

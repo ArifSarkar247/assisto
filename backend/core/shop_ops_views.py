@@ -358,7 +358,38 @@ class ShopHeartbeatView(APIView):
                          "tasks_pending": WV.pending_task_count(site, now),
                          "server_time": now.isoformat(),
                          "live_pending": [_live_device_row(s) for s in
-                                          _pending_for(site, cams, now)]})
+                                          _pending_for(site, cams, now)],
+                         # cctvbox: siren / the owner's warning for THIS camera
+                         # (a phone camera or a Guard Box phone holds only a
+                         # camera token, so gateway tasks reach it here)
+                         "play": _take_play_tasks(site, cam, now)})
+
+
+def _take_play_tasks(site, cam, now):
+    """cctvbox: pending gateway "play" tasks (cctvact) addressed to this
+    camera -> handed out once (status done). Only for a camera token; never
+    raises (an empty list on any problem)."""
+    if cam is None:
+        return []
+    try:
+        from .models import ShopGatewayTask
+        out = []
+        rows = list(ShopGatewayTask.objects.filter(site=site, camera=cam, action="play",
+                                                   status="pending").order_by("created")[:3])
+        for t in rows:
+            req = dict(t.request or {})
+            sound = req.get("sound") if req.get("sound") in ("siren", "warn") else "siren"
+            try:
+                secs = max(3, min(60, int(req.get("seconds") or 20)))
+            except (TypeError, ValueError):
+                secs = 20
+            out.append({"id": t.id, "sound": sound, "seconds": secs})
+            t.status = "done"
+            t.picked_at = now
+            t.save(update_fields=["status", "picked_at"])
+        return out
+    except Exception:
+        return []
 
 
 class ShopDeviceConfigView(APIView):

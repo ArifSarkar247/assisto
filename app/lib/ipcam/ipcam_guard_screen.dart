@@ -18,6 +18,7 @@ import '../shop_motion.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/local_digits.dart' show ld;
 import '../screens/shop_live_rtc.dart' deferred as rtc;
+import 'box_siren.dart';
 import 'ipcam_decoder.dart';
 import 'ipcam_logic.dart';
 import 'ipcam_pipeline.dart';
@@ -125,6 +126,8 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
   bool _tickBusy = false;
   bool _modelLoading = false;
   bool _starting = false;
+  BoxSiren? _siren;
+  String _played = ''; // 'siren' | 'warn' — last one the owner asked for
   DateTime _lastGrab = DateTime.fromMillisecondsSinceEpoch(0);
   int _alerts = 0, _frames = 0;
   DateTime _fpsAt = DateTime.now();
@@ -554,6 +557,14 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
     });
     if (!r.ok) return;
     if (!_offline.isEmpty) unawaited(_flushOffline(dev));
+    // cctvact: the owner pressed Siren / Warning on an alert
+    final play = PlayTask.fromHeartbeat(r.body['play']);
+    if (play.isNotEmpty) {
+      _siren ??= BoxSiren.forDevice(_token!, cameraId: _cameraId);
+      unawaited(_siren!.handle(play).then((p) {
+        if (mounted && p.isNotEmpty) setState(() => _played = p.last);
+      }));
+    }
     final pending = ((r.body['live_pending'] ?? const []) as List).whereType<Map>().toList();
     if (pending.isNotEmpty && !_inLive && _running) {
       unawaited(_answerLive(pending.first.cast<String, dynamic>()));
@@ -990,6 +1001,8 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
           ld(context, (_pipe?.kbps ?? 0).round())), null),
       if (_lowPower) (Icons.battery_saver_rounded, t.icgLowPower, null),
       if (_inLive) (Icons.live_tv_rounded, t.pcLiveNow, const Key('icgLive')),
+      if (_played.isNotEmpty)
+        (Icons.campaign_rounded, _played == 'warn' ? t.icgPlayedWarn : t.icgPlayedSiren, null),
       if (_charging == false) (Icons.battery_alert_rounded, t.gbPlugIn, null),
     ];
     return _section(t.icgStepRun, [
