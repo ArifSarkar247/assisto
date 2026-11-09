@@ -326,8 +326,8 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
     }
     if (a == null) {
       try {
-        final r = await _api.fcAsk(_fid!, q);
-        if ('${r['text'] ?? ''}'.isNotEmpty) a = FcAskAnswer.fromServer(r);
+        final r = await FcSlots.serverAsk?.call(_fid!, q);
+        if (r != null && r.text.isNotEmpty) a = r;
       } catch (_) {
         a = null; // fcbrain not deployed / offline -> local names
       }

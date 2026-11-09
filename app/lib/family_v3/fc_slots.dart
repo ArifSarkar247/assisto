@@ -37,6 +37,10 @@ class FcSlots {
   /// POST /family/brain/ask.
   static FcAskAnswer? Function(String question, FcAskContext ctx)? askParser;
 
+  /// fcbrain: server ask (POST /family/brain/ask; rules first, AI only when
+  /// needed). null = only the phone parser + local name match.
+  static Future<FcAskAnswer?> Function(int familyId, String question)? serverAsk;
+
   /// fcbrain: "Privacy & alerts" (who can see me, pause 1/2/8 h, arrival
   /// news, night news, leave). null = the row is not shown.
   static Widget Function(BuildContext context, int familyId)? privacyScreen;

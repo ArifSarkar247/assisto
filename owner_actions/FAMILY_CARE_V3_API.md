@@ -87,10 +87,13 @@ class FcSlots {
   static Future<void> Function(BuildContext context, {int? familyId})? openSosSender;
   // fcbrain: night news card for the Family screen (null / returns null = no card).
   static Widget? Function(BuildContext context, int familyId)? nightNewsCard;
-  // fcbrain: offline ask parser (free, on phone). null or returns null -> POST family/brain/ask.
+  // fcbrain: offline ask parser (free, on phone). null or returns null -> FcSlots.serverAsk (fcbrain) -> local name match.
   static FcAskAnswer? Function(String question, FcAskContext ctx)? askParser;
   // fcelder: extra More rows (Elder easy home, set up an elder phone).
   static List<Widget> Function(BuildContext context, int familyId)? moreRows;
+  // fcbrain: server ask (POST family/brain/ask) and the Privacy & alerts screen.
+  static Future<FcAskAnswer?> Function(int familyId, String question)? serverAsk;
+  static Widget Function(BuildContext context, int familyId)? privacyScreen;
 }
 ```
 `FcAskContext` = `{familyId, members: [{userId, name, label, role, placeLabel, state}]}`;

@@ -36,7 +36,4 @@ extension FcApi on ApiClient {
   Future<Map<String, dynamic>> fcTaskAction(int taskId, String action) =>
       postJson('/family/v3/tasks/$taskId/$action');
 
-  /// fcbrain's server ask (offline rules first, AI only when needed).
-  Future<Map<String, dynamic>> fcAsk(int familyId, String q) =>
-      postJson('/family/brain/ask', {'q': q, 'family_id': familyId});
 }

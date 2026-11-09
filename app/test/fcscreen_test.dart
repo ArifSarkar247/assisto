@@ -103,6 +103,8 @@ void main() {
     FcSlots.askParser = null;
     FcSlots.nightNewsCard = null;
     FcSlots.moreRows = null;
+    FcSlots.serverAsk = null;
+    FcSlots.privacyScreen = null;
   });
 
   testWidgets('E2E: fresh green turns gray dashed with a reason when data gets old',
