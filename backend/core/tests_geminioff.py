@@ -328,3 +328,50 @@ class CapTests(TestCase):
                 VP.ask("vision_claude", {"api_key": "a"}, image_bytes=b"\xff\xd8\xff1")
         self.assertEqual(str(e.exception), "budget")
         claude.assert_not_called()
+
+
+class CctvTests(TestCase):
+    """owner 14:45 (CCTV flagship): the cloud AI check + the Bangla visitor
+    description run on Claude (Haiku vision, inside the per-check budget)
+    while Gemini is off — never "AI check not done" for a Gemini-only key."""
+
+    def setUp(self):
+        GB.trip()
+
+    def _keys(self):
+        return [mock.patch("core.integrations.is_enabled",
+                           side_effect=lambda s: s in ("gemini", "anthropic")),
+                mock.patch("core.integrations.get", return_value={"api_key": "k"})]
+
+    def test_check_and_description_pick_claude_haiku_within_budget(self):
+        from core import cctv_activity as CACT, cctv_ai_check as CAI
+        from core.logic import cctv_ai_check as AC
+        p = self._keys()
+        for x in p:
+            x.start()
+        try:
+            slug, conf, cost = CAI.vision_key()
+            self.assertEqual((slug, conf["model"]), ("vision_claude", "claude-haiku-5-5"))
+            self.assertTrue(AC.check_cost_usd(cost, CAI.plan_check_usd())[1], cost)
+            dslug, dconf = CACT.vision_ready()
+            self.assertEqual((dslug, dconf["model"]), ("vision_claude", "claude-haiku-5-5"))
+        finally:
+            for x in p:
+                x.stop()
+
+    def test_env_only_anthropic_key_still_gives_claude_vision(self):
+        from core import chat_vision_service as CVS
+        with mock.patch("core.integrations.is_enabled", return_value=False), \
+                mock.patch.object(ai, "active_api_key", return_value="env-key"):
+            self.assertEqual(CVS.cctv_vision()[0], "vision_claude")
+
+    def test_cctv_call_goes_to_claude_and_respects_caps(self):
+        claude = mock.Mock(return_value="সব ঠিক আছে")
+        with mock.patch.object(VP, "_claude", claude):
+            self.assertEqual(VP.ask("vision_claude", {"api_key": "k", "model": "claude-haiku-5-5"},
+                                    image_bytes=b"\xff\xd8\xff1"), "সব ঠিক আছে")
+        with mock.patch("core.ai_router.provider_capped", return_value=True), \
+                mock.patch.object(VP, "_claude", claude):
+            with self.assertRaises(VP.VisionError):
+                VP.ask("vision_claude", {"api_key": "k"}, image_bytes=b"\xff\xd8\xff1")
+        self.assertEqual(claude.call_count, 1)
