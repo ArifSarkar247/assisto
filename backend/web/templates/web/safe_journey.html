@@ -62,6 +62,9 @@
     <div id="st" class="state"></div>
     <div id="late" class="late" hidden>{{ T.late }}</div>
     <div id="why" class="late" hidden></div>
+    <div id="dstate" class="live" hidden></div>
+    <div id="nearnote" class="live" hidden></div>
+    <div id="badges" class="muted" hidden></div>
     <div class="row" id="r-name" hidden><span id="name"></span></div>
     <div class="row" id="r-to" hidden><span>{{ T.to }}</span><span id="to"></span></div>
     <div class="row" id="r-eta" hidden><span>{{ T.eta }}</span><span id="eta"></span></div>
@@ -139,6 +142,12 @@
       txt("left", d.distance_m != null ? T.left_v.replace("{d}", num((d.distance_m / 1000).toFixed(1))) : "");
       show("r-rough", d.rough_min != null && running);
       txt("rough", d.rough_min != null ? (d.eta_basis === "speed" ? T.rough_speed : T.rough_v).replace("{m}", num(d.rough_min)) : "");
+      // sjduring: the V2 state, the near-destination note, finished badges
+      var ds = d.dstate && running && st !== "sos" ? T["d_" + d.dstate] : "";
+      show("dstate", !!ds); txt("dstate", ds || "");
+      show("nearnote", !!d.near_note && running); txt("nearnote", T.near_note);
+      var bl = (d.badges || []).map(function (b) { return b === "pin_ok" ? T.badge_pin : b === "fast_pin" ? T.badge_fast : ""; }).filter(Boolean);
+      show("badges", bl.length > 0); txt("badges", bl.join(" · "));
       var why = st === "lost" && d.why ? (d.why === "battery" ? T.why_battery.replace("{b}", num(d.why_battery)) : T.why_killed) : "";
       show("why", !!why); txt("why", why);
       var hasLoc = d.lat != null && d.lng != null;

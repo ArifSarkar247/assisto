@@ -62,6 +62,11 @@ TXT = {
         "bat_last": "{b}% (শেষ জানা)",
         "eta_note": "সময়টা যাত্রী নিজে দিয়েছেন।",
         "driver": "চালক", "call_driver": "চালককে কল করুন",
+        # sjduring: V2 states + badges
+        "d_moving": "চলছেন", "d_slow": "যানজটে ধীরে চলছেন", "d_stopped": "কিছুক্ষণ থেমে আছেন",
+        "d_off_route": "রুটের বাইরে", "d_nearly": "প্রায় পৌঁছে গেছেন",
+        "near_note": "দেরি হলেও কোনো সতর্কতা নেই — ৩০ মিনিট পর আগে তাঁকেই জিজ্ঞেস করা হবে।",
+        "badge_pin": "PIN দিয়ে নিশ্চিত", "badge_fast": "অস্বাভাবিক দ্রুত পৌঁছানো, PIN চাওয়া হয়েছে",
     },
     "en": {
         "title": "Live journey", "brand": "Assisto Safe Journey",
@@ -90,6 +95,11 @@ TXT = {
         "bat_last": "{b}% (last known)",
         "eta_note": "The traveller set this time.",
         "driver": "Driver", "call_driver": "Call the driver",
+        # sjduring: V2 states + badges
+        "d_moving": "Moving", "d_slow": "Slow in traffic", "d_stopped": "Stopped for a while",
+        "d_off_route": "Off route", "d_nearly": "Nearly there",
+        "near_note": "No alert even if late — they are asked first after 30 minutes.",
+        "badge_pin": "Confirmed with PIN", "badge_fast": "Unusually fast arrival, PIN asked",
     },
 }
 
@@ -142,7 +152,8 @@ def public_state(token, now=None):
     if j.sos_active:
         state = "sos"
     elif j.status == "arrived":
-        return {**out, "state": "arrived",
+        from core import journey_during as JDUR   # sjduring: finished badges
+        return {**out, "state": "arrived", "badges": JDUR.badges(j),
                 "at": j.stopped_at.isoformat() if j.stopped_at else None}, 200
     elif j.status != "active":
         return {**out, "state": "ended"}, 200
@@ -173,6 +184,14 @@ def public_state(token, now=None):
                     out["why_battery"] = b
     st, _m = JW.overdue(j, now)
     out["late"] = st in ("ask", "alert")
+    from core import journey_during as JDUR
+    if JDUR.enabled(j) and not j.sos_active:
+        # sjduring: late is not danger — the page shows the V2 state instead
+        ds = JDUR.state_of(j, now)
+        out["late"] = False
+        if ds.get("state") in ("moving", "slow", "stopped", "off_route", "nearly"):
+            out["dstate"] = ds["state"]
+        out["near_note"] = bool(ds.get("near_note"))
     v = JD.clean_vehicle(j.vehicle) or {}
     if v or j.vehicle_photo:
         try:
