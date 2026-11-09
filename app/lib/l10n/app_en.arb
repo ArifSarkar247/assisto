@@ -49469,5 +49469,62 @@
   "qsMicReason": "The microphone turns on only when you tap Start, so the phone can hear your reading. Nothing is recorded or kept by Assisto.",
   "@qsMicReason": {
     "description": "quranshikhi: why the microphone is used in listen-and-repeat"
-  }
+  },
+  "fcrRename": "Rename family",
+  "fcrRenameHint": "Family name",
+  "fcrRenamed": "Family name changed",
+  "fcrLiveTitle": "Where I live",
+  "fcrLiveBd": "Bangladesh",
+  "fcrLiveSub": "Your family sees your local time next to theirs. Care Calls ring at your time.",
+  "fcrLiveSaved": "Saved. Your family now sees your time.",
+  "fcrLabelTitle": "Name shown in this family",
+  "fcrLabelHint": "For example Ammu, Abbu, Bhaiya",
+  "fcrLabelSaved": "Name saved",
+  "fcrRemove": "Remove from this family",
+  "fcrRemoveConfirm": "Remove {name} from this family? They stop seeing this family and this family stops seeing them. You can invite them again later.",
+  "@fcrRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcrRemoved": "Removed from the family",
+  "fcrTheirTime": "Their time {time}",
+  "@fcrTheirTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcrMyTime": "here {time}",
+  "@fcrMyTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcrLastPlace": "Battery was {pct}% at {time}: last place shared",
+  "@fcrLastPlace": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcrOpenMap": "Open map",
+  "fcrArea": "Around {area}",
+  "@fcrArea": {
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "fcrManageTitle": "Settings"
 }
