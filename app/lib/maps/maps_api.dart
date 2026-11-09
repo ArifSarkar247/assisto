@@ -18,6 +18,20 @@ extension MapsCostApi on ApiClient {
           '&session=${Uri.encodeQueryComponent(session)}'
           '${lat != null && lng != null ? '&lat=$lat&lng=$lng' : ''}');
 
+  /// qjourney (owner V2): GET /maps/search — ONE merged list (our free
+  /// Bangladesh place list first, Google only when it has < 5 good matches).
+  /// An older server (404) falls back to /maps/autocomplete.
+  Future<Map<String, dynamic>> mapsSearch(String q, String session,
+      {double? lat, double? lng}) async {
+    try {
+      final r = await getJson('/maps/search?q=${Uri.encodeQueryComponent(q)}'
+          '&session=${Uri.encodeQueryComponent(session)}'
+          '${lat != null && lng != null ? '&lat=$lat&lng=$lng' : ''}');
+      if (r['state'] is String) return r;
+    } catch (_) {} // older server: the Google-only search below
+    return mapsAutocomplete(q, session, lat: lat, lng: lng);
+  }
+
   /// GET /maps/place -> {state, lat, lng, address} (ONE Place Details
   /// Essentials; ends the autocomplete session).
   Future<Map<String, dynamic>> mapsPlace(String placeId, String session) =>

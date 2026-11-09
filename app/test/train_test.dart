@@ -413,7 +413,8 @@ void main() {
       await t.pumpAndSettle();
       expect(find.text(l.trModeEstimate), findsOneWidget);
       expect(find.text(l.trModeLive), findsNothing);
-      expect(find.text(l.trEstimateWhy), findsOneWidget);
+      expect(find.text(l.sjtEstimated), findsOneWidget); // sjtrain header
+      expect(find.text(l.sjtEstimatedWhy), findsOneWidget);
       expect(find.text(l.trSmsButton('TR 701', '16318')), findsOneWidget);
       expect(find.text(l.trSmsCost('4')), findsOneWidget);
       expect(find.text(l.trUnchecked), findsOneWidget);
@@ -425,8 +426,10 @@ void main() {
       final l = await AppLocalizations.delegate.load(const Locale('en'));
       await t.pumpWidget(_app(const TrainLiveScreen(no: '701', date: '2026-11-03'), _Fake()));
       await t.pumpAndSettle();
-      expect(find.text(l.trModeLive), findsOneWidget);
-      expect(find.text(l.trLiveLine('3', l.trLate('18'))), findsOneWidget);
+      // sjtrain header: "3 passengers sharing live" + delay chip
+      expect(find.text(l.sjtSharingMany('3')), findsOneWidget);
+      expect(find.text(l.sjtLateChip('18')), findsOneWidget);
+      expect(find.text(l.trModeEstimate), findsNothing);
     });
 
     testWidgets('chat: nickname only, emergency -> 999 / 131, request accept', (t) async {

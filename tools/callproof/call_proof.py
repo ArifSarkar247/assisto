@@ -62,6 +62,16 @@ from aiortc import (RTCConfiguration, RTCIceServer, RTCPeerConnection,
 from aiortc.mediastreams import AudioStreamTrack, MediaStreamError
 from aiortc.contrib.media import MediaBlackhole
 
+
+def _refuse_owner_phone(phone):
+    """sjp0 (owner 9 Nov): proofs run on dedicated test accounts only — never
+    the owner's phone (ASSISTO_OWNER_PHONES on the server, never in the repo)."""
+    d = "".join(ch for ch in str(phone or "") if ch.isdigit())[-10:]
+    own = {"".join(ch for ch in p if ch.isdigit())[-10:]
+           for p in os.environ.get("ASSISTO_OWNER_PHONES", "").split(",") if p.strip()}
+    if d and d in own:
+        raise SystemExit("refused: %s is the owner's account — use a test account" % phone)
+
 try:
     import av
 except Exception:  # pragma: no cover
@@ -244,6 +254,7 @@ class Client:
         return r.status_code, j
 
     def login(self, phone, pw):
+        _refuse_owner_phone(phone)
         code, j = self.post("/auth/login", {"identifier": phone, "password": pw})
         tok = j.get("token")
         if code != 200 or not tok:

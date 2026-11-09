@@ -2034,6 +2034,25 @@ BN.update({
     "ws_apk_note": "উৎস: সেটিং WEBSITE_APK_FILE (খালি = সর্বশেষ প্রকাশিত APK)। আকার ও SHA-256 এই ফাইল থেকেই হিসাব হয়।",
 })
 # ---- /sitev3 ----
+# ---- privacyupd: privacy policy v2 go-live (Owner Admin → Website) ----
+EN.update({
+    "ws_pp_title": "Privacy policy — updated text (9 Nov)",
+    "ws_pp_now": "At /privacy now:",
+    "ws_pp_live_new": "UPDATED policy (9 Nov)",
+    "ws_pp_live_old": "previous policy (update not live)",
+    "ws_pp_golive": "Publish the updated policy",
+    "ws_pp_rollback": "Go back to the previous policy",
+    "ws_pp_note": "Covers AI providers, money from notifications, Care Call recordings, train sharing, City Service trips and Silent Watch. Read the preview first; one tap, audited.",
+})
+BN.update({
+    "ws_pp_title": "গোপনীয়তা নীতি — হালনাগাদ লেখা (৯ নভেম্বর)",
+    "ws_pp_now": "/privacy-তে এখন:",
+    "ws_pp_live_new": "হালনাগাদ নীতি (৯ নভেম্বর)",
+    "ws_pp_live_old": "আগের নীতি (হালনাগাদ লাইভ নয়)",
+    "ws_pp_golive": "হালনাগাদ নীতি প্রকাশ করুন",
+    "ws_pp_rollback": "আগের নীতিতে ফিরে যান",
+    "ws_pp_note": "AI প্রদানকারী, নোটিফিকেশন থেকে টাকার হিসাব, কেয়ার কলের রেকর্ড, ট্রেন শেয়ারিং, সিটি সার্ভিসের যাত্রা ও নীরব পাহারা যোগ হয়েছে। আগে প্রিভিউ পড়ুন; এক চাপেই, অডিট লগে থাকে।",
+})
 # ---- amarket: Owner Admin -> Market ----
 EN.update({
     "nav_market": "Market",
@@ -2338,3 +2357,52 @@ BN.update({
     "cty_people": "মানুষ / যাত্রা",
 })
 # ---- /citydata ----
+# ---- quranpron ----
+EN.update({
+    "nav_quran_pron": "Quran pronunciation",
+    "qpr_intro": "Bangla pronunciation of every ayah, made by fixed tajweed rules (no AI) from the unchanged Tanzil Uthmani text. The app shows it as 'under review' until an alem or qari approves it here. Approve, reject with a note, or ask for a rule correction. If a rule later changes an ayah's text, its old approval stops counting and it comes back here.",
+    "qpr_unavailable": "The Quran text file could not be read on the server.",
+    "qpr_t_approved": "Approved", "qpr_t_review": "Under review", "qpr_t_rejected": "Rejected",
+    "qpr_t_fix": "Rule fix requested", "qpr_surah": "Surah", "qpr_engine": "Rules version",
+    "qpr_legend": "Signs: '-' = 2 counts, '--' = 4, '---' = 6; 'ঁ' = ghunnah; 'ং' = ikhfa; '্' = no vowel; '।' = stop; ',' = may continue; '—' = sakt.",
+    "qpr_bismillah": "Bismillah (shown separately)", "qpr_ayah": "Ayah", "qpr_text": "Arabic and Bangla pronunciation",
+    "qpr_history": "Review history", "qpr_suggestion": "Correct pronunciation (optional)",
+    "qpr_note": "Note (needed to reject or ask for a fix)", "qpr_approve": "Approve",
+    "qpr_reject": "Reject", "qpr_rule": "Ask for a rule fix", "qpr_none": "Nothing here.",
+})
+BN.update({
+    "nav_quran_pron": "কুরআন উচ্চারণ",
+    "qpr_intro": "প্রতিটি আয়াতের বাংলা উচ্চারণ — অপরিবর্তিত Tanzil উসমানী লেখা থেকে নির্দিষ্ট তাজবীদ নিয়মে তৈরি (AI নয়)। একজন আলেম বা ক্বারি এখানে অনুমোদন না দেওয়া পর্যন্ত অ্যাপে 'যাচাই চলছে' লেখা থাকে। অনুমোদন দিন, নোটসহ বাতিল করুন, অথবা নিয়ম ঠিক করতে বলুন। পরে কোনো নিয়ম বদলে কোনো আয়াতের লেখা বদলালে আগের অনুমোদন আর গণ্য হয় না, আয়াতটি আবার এখানে আসে।",
+    "qpr_unavailable": "সার্ভারে কুরআনের লেখার ফাইল পড়া যায়নি।",
+    "qpr_t_approved": "অনুমোদিত", "qpr_t_review": "যাচাই চলছে", "qpr_t_rejected": "বাতিল",
+    "qpr_t_fix": "নিয়ম ঠিক করতে বলা হয়েছে", "qpr_surah": "সূরা", "qpr_engine": "নিয়মের ভার্সন",
+    "qpr_legend": "চিহ্ন: '-' = ২ হরকত, '--' = ৪, '---' = ৬; 'ঁ' = গুন্নাহ; 'ং' = ইখফা; '্' = স্বরহীন; '।' = থামুন; ',' = না থেমেও পড়া যায়; '—' = সাকতা।",
+    "qpr_bismillah": "বিসমিল্লাহ (আলাদা দেখানো হয়)", "qpr_ayah": "আয়াত", "qpr_text": "আরবি ও বাংলা উচ্চারণ",
+    "qpr_history": "যাচাইয়ের ইতিহাস", "qpr_suggestion": "সঠিক উচ্চারণ (ইচ্ছা হলে)",
+    "qpr_note": "নোট (বাতিল বা নিয়ম ঠিক করতে বললে লাগবে)", "qpr_approve": "অনুমোদন",
+    "qpr_reject": "বাতিল", "qpr_rule": "নিয়ম ঠিক করতে বলুন", "qpr_none": "এখানে কিছু নেই।",
+})
+# ---- /quranpron ----
+
+# ---- lpcore: Owner Admin -> Language content (review queue) ----
+EN.update({
+    "nav_lp": "Language content",
+    "lp_intro": "Language Partner content: mocks, sections, questions, life scenarios and vocabulary. Every import runs the automatic checks (format, one right answer, word limits, level, timing, no copyrighted or Cambridge text, no duplicates). Items that pass are shown to learners with a BETA label until a reviewer approves them here. Editing saves a new version; old versions stay for the record.",
+    "lp_queue": "Waiting for review", "lp_kind": "Kind", "lp_key": "Key / version",
+    "lp_checks": "Automatic checks", "lp_checks_ok": "All checks passed", "lp_log": "History",
+    "lp_content": "Content (JSON)", "lp_save_edit": "Save as new version",
+    "lp_beta": "shown as BETA", "lp_note": "Note (optional)", "lp_approve": "Approve",
+    "lp_reject": "Reject", "lp_recheck": "Run checks again",
+    "lp_fix_first": "Fix the failed checks first", "lp_none": "Nothing here.",
+})
+BN.update({
+    "nav_lp": "ভাষা কনটেন্ট",
+    "lp_intro": "Language Partner-এর কনটেন্ট: মক, সেকশন, প্রশ্ন, জীবনের পরিস্থিতি ও শব্দ। প্রতিটি আমদানিতে স্বয়ংক্রিয় যাচাই চলে (গঠন, একটাই সঠিক উত্তর, শব্দসীমা, লেভেল, সময়, কপিরাইট বা Cambridge-এর লেখা নেই, ডুপ্লিকেট নেই)। যেগুলো পাস করে সেগুলো শিক্ষার্থীরা 'বেটা' লেবেলসহ দেখেন, যতক্ষণ না রিভিউয়ার এখানে অনুমোদন দেন। সম্পাদনা নতুন ভার্সন হিসেবে সেভ হয়; পুরোনো ভার্সন রেকর্ডে থাকে।",
+    "lp_queue": "রিভিউয়ের অপেক্ষায়", "lp_kind": "ধরন", "lp_key": "কী / ভার্সন",
+    "lp_checks": "স্বয়ংক্রিয় যাচাই", "lp_checks_ok": "সব যাচাই পাস", "lp_log": "ইতিহাস",
+    "lp_content": "কনটেন্ট (JSON)", "lp_save_edit": "নতুন ভার্সন হিসেবে সেভ",
+    "lp_beta": "বেটা হিসেবে দেখানো হচ্ছে", "lp_note": "নোট (ঐচ্ছিক)", "lp_approve": "অনুমোদন",
+    "lp_reject": "বাতিল", "lp_recheck": "আবার যাচাই",
+    "lp_fix_first": "আগে ব্যর্থ যাচাইগুলো ঠিক করুন", "lp_none": "এখানে কিছু নেই।",
+})
+# ---- /lpcore ----

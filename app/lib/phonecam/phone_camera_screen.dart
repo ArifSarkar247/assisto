@@ -30,6 +30,9 @@ import 'phonecam_api.dart';
 import 'phonecam_clips.dart';
 import 'phonecam_rec_logic.dart';
 import 'phonecam_logic.dart';
+import '../feature_flags.dart'; // cctvbox
+import '../ipcam/ipcam_guard_screen.dart'; // cctvbox
+import '../ipcam/box_siren.dart'; // cctvbox
 
 /// cctvphone — THIS phone becomes an Assisto camera (owner CCTV order 3 Nov,
 /// part A). Built on the Shop Box pieces (device client, motion detector,
@@ -134,6 +137,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   bool _online = false;
   List<String> _warnings = const [];
   bool _inLive = false;
+  BoxSiren? _siren; // cctvbox
 
   // clips on this phone
   int _clipCount = 0;
@@ -1017,6 +1021,12 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
         if (changed && !_segRec) unawaited(_publishTimeline());
       }
     }
+    // cctvbox (cctvact contract): the owner's Siren / Warning plays here
+    final play = PlayTask.fromHeartbeat(r.body['play']);
+    if (play.isNotEmpty && _token != null) {
+      _siren ??= BoxSiren.forDevice(_token!, cameraId: _cameraId);
+      unawaited(_siren!.handle(play));
+    }
     final pending = ((r.body['live_pending'] ?? const []) as List).whereType<Map>().toList();
     if (pending.isNotEmpty && !_inLive && _running) {
       unawaited(_answerLive(pending.first.cast<String, dynamic>()));
@@ -1212,8 +1222,33 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
               : const Icon(Icons.link_rounded),
           label: Text(t.pcClaim),
         ),
+        ..._ipcamEntry(t), // cctvbox
         const SizedBox(height: 16),
         _card(Icons.privacy_tip_rounded, t.pcTrustTitle, t.pcpTrustBody),
+      ];
+
+  // cctvbox: the same old phone can watch a Wi-Fi IP camera instead of using
+  // its own camera (Guard Box, no PC). Hidden while the flag is off.
+  List<Widget> _ipcamEntry(AppLocalizations t) => [
+        if (FeatureFlags.instance.isOn('guard_box_mode')) ...[
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
+              key: const Key('pcIpcamEntry'),
+              minVerticalPadding: 12,
+              leading: const Icon(Icons.router_rounded),
+              title: Text(t.icgOpen, style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(t.icgOpenBody),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () async {
+                await Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => IpCamGuardScreen(
+                        initialCode: _code.text.trim().isEmpty ? null : _code.text.trim())));
+                if (mounted) await _restore();
+              },
+            ),
+          ),
+        ],
       ];
 
   List<Widget> _readyView(AppLocalizations t) {
@@ -1291,6 +1326,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
             label: Text(t.pcrDelete),
           ),
         ),
+      ..._ipcamEntry(t), // cctvbox
       const SizedBox(height: 12),
       _card(Icons.tips_and_updates_rounded, t.pcGuideTitle, t.pcGuideBody),
       const SizedBox(height: 8),

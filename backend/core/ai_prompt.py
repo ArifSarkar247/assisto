@@ -20,7 +20,7 @@ INJECTION_GUARD = (
     "Do not invent facts, numbers, prices, or reviews."
 )
 
-STYLE = (
+STYLE_HEAD = (
     "Language: ALWAYS reply in the language of the user's latest message — "
     "Bangla (in Bengali script) if they wrote Bangla, in Bengali script or in "
     "romanized Bangla; English if they wrote English. "
@@ -48,15 +48,47 @@ STYLE = (
     "Answer the question directly in the first "
     "sentence; never open by saying you don't have, can't see or can't access "
     "the user's data — only mention their data when the question is about it. "
-    "If you are not sure, say so plainly instead of guessing. "
+    "If you are not sure, say so plainly instead of guessing."
+)
+STYLE_TAIL = (
+    "You are not Claude or Gemini yourself. You may name, describe and compare "
+    "real products, companies and AIs truthfully (e.g. Claude is made by "
+    "Anthropic, Gemini by Google). Be decisive: give a clear recommendation "
+    "with the reasons first, short caveats after."
+)
+
+# Owner identity line (4 Nov 01:12, owner-approved). aiqual (9 Nov): while the
+# Gemini breaker is open (prepaid credit empty, HTTP 402) every answer comes
+# from Claude, so the line stays the owner's words but says honestly which
+# models answer RIGHT NOW — never that a Gemini model is answering.
+IDENTITY_ALL = (
     "Identity (owner-approved): you are Assisto, made by AXON Dynamic; you use AI "
     "models from Anthropic (Claude) and Google (Gemini) — say exactly that when "
-    "asked who you are, who made you or which AI you use. You are not Claude or "
-    "Gemini yourself. You may name, describe and compare real products, companies "
-    "and AIs truthfully (e.g. Claude is made by Anthropic, Gemini by Google). Be "
-    "decisive: give a clear recommendation with the reasons first, short caveats "
-    "after."
-)
+    "asked who you are, who made you or which AI you use.")
+IDENTITY_GEMINI_OFF = (
+    "Identity (owner-approved): you are Assisto, made by AXON Dynamic. When asked "
+    "who you are, who made you or which AI you use, say: you are Assisto, made by "
+    "AXON Dynamic; Assisto uses AI models from Anthropic (Claude) and Google "
+    "(Gemini), and right now your answers come from Anthropic's Claude models "
+    "(Gemini is paused). Never say that this answer comes from Gemini.")
+
+
+def gemini_off():
+    """True while the Gemini breaker is open (one indexed read; never raises)."""
+    try:
+        from . import gemini_breaker as GB
+        return bool(GB.is_open())
+    except Exception:  # noqa: BLE001 — no DB (pure tests) -> the owner's line
+        return False
+
+
+def identity_rule(off=None):
+    off = gemini_off() if off is None else off
+    return IDENTITY_GEMINI_OFF if off else IDENTITY_ALL
+
+
+# kept for callers that read the whole style block (owner's identity line)
+STYLE = STYLE_HEAD + " " + IDENTITY_ALL + " " + STYLE_TAIL
 
 
 # healthfit (owner decision 27 Oct): Health and Fitness only, never medical —
@@ -107,6 +139,13 @@ jabo jao jan jai jete asbo aso ashen ashbo khabo khao khete dao den dite nibo ni
 bhalo valo kharap thik shob sob onek ektu ekhon ajke aj kal kalke porshu
 taka poisa bari basa ghor school office kaj kotha bhai apu vai bon ma baba
 dorkar lagbe lage chai chaai jante bujhi bujhte parbo parben pari parsi
+ta ti ke kon konta jabe jaben ekta ekti jonno jnno upay upai bolen bolben theke
+ajker kalker koto kmn kemne kemone kivabe kibhabe likho likhe likhen deya deoa
+jay jaay takar moddhe modhye ghore boshe barite bari vara barle aine ase ache
+korle korbo korlam hoye gese geche chole vul bhul kharap thakle kora jabe jete
+khulbo banate banabo banai rakhar rakhbo hisab dokan dokaner amr tmr apnr
+porashona chele meye meyer bachar baccha jor shuru suru shikhbo sikhbo valobasha
+dhonnobad obostha ekhane okhane kothai kno keno sathe shathe mone kotha
 """.split())
 
 
@@ -125,7 +164,8 @@ def reply_lang(text, app_lang="bn"):
 
 
 def system_prompt(extra=""):
-    s = INJECTION_GUARD + " " + HEALTH_SAFETY_RULE + "\n" + STYLE + "\n" + SAFETY
+    s = (INJECTION_GUARD + " " + HEALTH_SAFETY_RULE + "\n" + STYLE_HEAD + " "
+         + identity_rule() + " " + STYLE_TAIL + "\n" + SAFETY)
     if extra:
         s += "\n" + extra
     return s

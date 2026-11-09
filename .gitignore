@@ -54,6 +54,10 @@ tools/*
 !tools/ci/
 !tools/reality/
 !tools/wakeword/
+!tools/lp/
+tools/lp/**/*.mp3
+tools/lp/**/*.wav
+tools/lp/out/
 !tools/callproof/
 !tools/train/
 !tools/ticks_proof/

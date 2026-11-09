@@ -178,6 +178,12 @@ def stage(n, course, title, summary, lessons):
 def heavy_note(ch):
     return L[ch][7]
 
+def join_item(iid, ar, letters, note, say=None):
+    chars = letters.split(' ')
+    if say is None:
+        say = (' - '.join(L[c][2] for c in chars), ' - '.join(L[c][3] for c in chars))
+    return item(iid, ar=ar, check=' '.join(L[c][1] for c in chars), say=say, note=note)
+
 # ---------------------------------------------------------------- stage 1
 def letter_items(chars):
     res = []
@@ -209,6 +215,29 @@ s1 = [
   ('শেষ হরফগুলো। হামযা (ء) আলিফের মতো দেখালেও নিজে একটা হরফ।',
    'The last letters. Hamza (ء) is a letter of its own, even when it sits on an alif.'),
   letter_items(order[21:29])),
+ # quranshikhi (owner 9 Nov 21:55): joining letters - our own drills (letter
+ # sequences, no Quran text). Read by the letter NAMES (check = names).
+ lesson('joining', ('হরফ জোড়া লাগানো', 'Joining letters'),
+  ('শব্দের ভেতরে হরফ পাশের হরফের সাথে জোড়া লাগে, তাই আকার বদলায় — শুরুতে, মাঝে আর শেষে আলাদা দেখায়। হরফে ট্যাপ করে চার রূপ দেখুন, তারপর এই জোড়াগুলো ডান থেকে বাঁয়ে নাম ধরে পড়ুন।',
+   'Inside a word a letter joins its neighbours, so its shape changes - it looks different at the start, in the middle and at the end. Tap a letter to see its four forms, then read these joined groups by name, right to left.'),
+  [join_item('j_ba', 'بتث', 'ب ت ث', ('একই আকার, শুধু নুকতা (বিন্দু) আলাদা। জোড়া লাগলে শুরু আর মাঝে ছোট দাঁতের মতো হয়ে যায়।',
+                                     'One shape; only the dots differ. When joined they shrink to a small tooth at the start and in the middle.')),
+   join_item('j_jim', 'جحخ', 'ج ح خ', ('শুরু আর মাঝে নিচের লেজ বাদ যায়, শুধু মাথা থাকে; শেষে আবার লেজ ফিরে আসে।',
+                                      'At the start and in the middle the lower tail drops and only the head stays; at the end the tail comes back.')),
+   join_item('j_sin', 'سشصض', 'س ش ص ض', ('শুরু আর মাঝে লেজ বাদ যায়; শেষে লেজসহ পুরো আকার।',
+                                          'The tail drops at the start and in the middle; the full shape with its tail returns at the end.')),
+   join_item('j_tta', 'طظعغ', 'ط ظ ع غ', ('ط ظ সব জায়গায় প্রায় একই থাকে। ع غ মাঝে বন্ধ ছোট আকার নেয় — ভালো করে দেখে নিন।',
+                                          'ط and ظ keep almost the same shape everywhere. ع and غ become a small closed shape in the middle - look closely.')),
+   join_item('j_fa', 'فقكل', 'ف ق ك ل', ('শুরু আর মাঝে লেজ ছোট হয়ে যায়; ك-এর ভেতরের ছোট চিহ্ন শেষে ও একা থাকলে দেখা যায়।',
+                                         'The tails shrink at the start and in the middle; the small mark inside ك shows at the end and when alone.')),
+   join_item('j_mim', 'منهي', 'م ن ه ي', ('ه সবচেয়ে বেশি বদলায়: শুরুতে هـ, মাঝে ـهـ, শেষে ـه। ن আর ي শুরু-মাঝে ب-এর মতো দাঁত, শুধু নুকতা দিয়ে চেনা যায়।',
+                                         'ه changes the most: هـ at the start, ـهـ in the middle, ـه at the end. ن and ي look like the tooth of ب at the start and in the middle - only the dots tell them apart.')),
+   join_item('j_nonjoin', 'ادذرزو', 'ا د ذ ر ز و', ('এই ছয়টি হরফ আগের হরফের সাথে জোড়া লাগে, কিন্তু পরের হরফের সাথে কখনো লাগে না — তাই এদের পরে ফাঁক থাকে।',
+                                                 'These six letters join the letter before them but never the letter after - so a small gap follows them.')),
+   join_item('j_lamalif', 'لا', 'ل ا', ('লাম আর আলিফ একসাথে বিশেষ আকার নেয় (لا) — পড়া হয় "লা"।',
+                                     'Lam followed by alif takes a special joined shape (لا) - read "la".'),
+             say=('লাম-আলিফ (লা)', 'Lam-alif (la)')),
+  ]),
 ]
 
 # ---------------------------------------------------------------- stage 2
@@ -413,6 +442,13 @@ s8 = [
  lesson('nas', ('সূরা আন-নাস (১১৪)', 'Sura An-Nas (114)'), INTRO_AYAT, ayat(114, 6, 4), grid=False),
  lesson('kawthar', ('সূরা আল-কাওসার (১০৮)', 'Sura Al-Kawthar (108)'), INTRO_AYAT, ayat(108, 3, 4), grid=False),
  lesson('asr', ('সূরা আল-আসর (১০৩)', 'Sura Al-Asr (103)'), INTRO_AYAT, ayat(103, 3, 4), grid=False),
+ # quranshikhi: Al-Fatiha + the last 10 suras (105-114) in full.
+ lesson('fil', ('সূরা আল-ফীল (১০৫)', 'Sura Al-Fil (105)'), INTRO_AYAT, ayat(105, 5, 4), grid=False),
+ lesson('quraysh', ('সূরা কুরাইশ (১০৬)', 'Sura Quraysh (106)'), INTRO_AYAT, ayat(106, 4, 4), grid=False),
+ lesson('maun', ('সূরা আল-মাঊন (১০৭)', "Sura Al-Ma'un (107)"), INTRO_AYAT, ayat(107, 7, 4), grid=False),
+ lesson('kafirun', ('সূরা আল-কাফিরূন (১০৯)', 'Sura Al-Kafirun (109)'), INTRO_AYAT, ayat(109, 6, 4), grid=False),
+ lesson('nasr', ('সূরা আন-নাসর (১১০)', 'Sura An-Nasr (110)'), INTRO_AYAT, ayat(110, 3, 4), grid=False),
+ lesson('masad', ('সূরা আল-মাসাদ (১১১)', 'Sura Al-Masad (111)'), INTRO_AYAT, ayat(111, 5, 4), grid=False),
 ]
 
 # ---------------------------------------------------------------- stage 9 (basic tajweed)

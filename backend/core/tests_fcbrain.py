@@ -278,6 +278,11 @@ class ConsentTests(Base):
         self.assertFalse(FB.prefs_of(FB.state_of(self.dad))["auto_arrive"])
 
     def test_guardian_may_switch_on_for_a_child_but_not_night_choices(self):
+        # fcrest: with Family v3 merged the member must be a CHILD in a family
+        from core.models import FcFamily, FcMembership
+        fam = FcFamily.objects.create(name="Home", created_by=self.mom)
+        FcMembership.objects.create(family=fam, user=self.mom, role="admin", state="active")
+        FcMembership.objects.create(family=fam, user=self.kid, role="child", state="active")
         with mock.patch("core.guardian_links.is_guardian", return_value=True):
             r = cl(self.mom).post("%s/family/brain/prefs" % V,
                                   {"member_id": self.kid.pk, "auto_arrive": True}, format="json")

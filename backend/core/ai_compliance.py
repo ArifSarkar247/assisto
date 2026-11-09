@@ -27,12 +27,20 @@ SAFE_MODE_RULE = (
 _TOPICS = {
     "medical": r"medicine|medication|dose|dosage|tablet|symptom|diagnos|disease|pregnan|doctor|"
                r"blood pressure|diabetes|fever|cancer|ওষুধ|ডোজ|ট্যাবলেট|রোগ|জ্বর|ডাক্তার|"
-               r"গর্ভ|ডায়াবেটিস|প্রেশার|osudh|jor|daktar",
+               r"গর্ভ|ডায়াবেটিস|প্রেশার|osudh|jor|daktar|"
+               # aiqual: romanized Bangla (exam-056 "pressure high hole ki khabo na")
+               r"\bpressure\b|preshar|\boshudh|\bosud|\bousudh|dactar|doktor|\bjvor\b|"
+               r"\bbp\b|sugar (?:high|beshi|kom)|diarrh|dayria|patla paykhana|bomi",
     "legal": r"\blaw\b|legal|lawyer|court|case against|divorce|inheritance|land dispute|police case|"
-             r"contract|আইন|উকিল|আদালত|মামলা|তালাক|উত্তরাধিকার|জমির|দলিল|mamla|ukil",
+             r"contract|আইন|উকিল|আদালত|মামলা|তালাক|উত্তরাধিকার|জমির|দলিল|mamla|ukil|"
+             # aiqual: romanized Bangla (exam-053 "jomir dolil haray gele ki korbo")
+             r"\bjomi|\bdolil|\baine\b|\badalot|\btalak|\bmamla|\bthana(?:y|te)? (?:gd|case)|"
+             r"\bgd\b|sompotti|uttoradhikar|\bwaris|bhara?tiya (?:chukti|agreement)|chukti",
     "financial": r"invest|stock|share market|loan|interest rate|tax|insurance|crypto|mutual fund|"
                  r"savings? certificate|বিনিয়োগ|শেয়ার|ঋণ|লোন|সুদ|কর\b|ট্যাক্স|বীমা|সঞ্চয়পত্র|"
-                 r"biniyog|share bazar",
+                 r"biniyog|share bazar|"
+                 # aiqual: romanized Bangla
+                 r"\bsud\b|\brin\b|\bfdr\b|sonchoypotro|sanchayapatra|\bbima\b|\bdps\b",
 }
 _COMPILED = {k: re.compile(v, re.I) for k, v in _TOPICS.items()}
 

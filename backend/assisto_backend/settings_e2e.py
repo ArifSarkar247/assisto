@@ -27,6 +27,8 @@ DATABASES = {
 MEDIA_ROOT = os.environ.get("E2E_MEDIA") or os.path.join(_E2E, "media")
 ASSISTO_BASE_URL = os.environ.get("E2E_BASE_URL", "http://127.0.0.1:18700")
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "testserver"]
+# cctvbox: the Android emulator reaches the runner as 10.0.2.2 (ipcam-e2e.yml)
+ALLOWED_HOSTS += [h for h in os.environ.get("E2E_EXTRA_HOSTS", "").split(",") if h]
 DEBUG = False
 
 # FCM v1 through the real code path, but to the local mock (tools/e2e/mock_fcm.py)

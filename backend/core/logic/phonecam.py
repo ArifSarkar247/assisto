@@ -24,7 +24,7 @@ LINK_BASE = "https://lifeassisto.com/pc/"
 LOW_BATTERY_PCT = 20
 HOT_C = 45.0
 WARN_REPEAT_S = 1800
-WARN_KINDS = ("unplugged", "low_battery", "hot", "dark")
+WARN_KINDS = ("unplugged", "low_battery", "hot", "dark", "cam_lost")
 
 LIVE_IDLE_S = 300
 LIVE_MAX_PER_ACCOUNT = 2
@@ -120,10 +120,14 @@ def clean_health(d):
 
     lvl = num(d.get("level"), 0, 100)
     ch = d.get("charging")
-    return {"level": int(lvl) if lvl is not None else None,
-            "charging": ch if isinstance(ch, bool) else None,
-            "temp_c": num(d.get("temp_c"), -30, 100),
-            "dark": d.get("dark") is True}
+    out = {"level": int(lvl) if lvl is not None else None,
+           "charging": ch if isinstance(ch, bool) else None,
+           "temp_c": num(d.get("temp_c"), -30, 100),
+           "dark": d.get("dark") is True}
+    # cctvbox: a Guard Box phone that can no longer reach its IP camera
+    if d.get("cam_lost") is True:
+        out["cam_lost"] = True
+    return out
 
 
 def active_conditions(h):
@@ -140,6 +144,8 @@ def active_conditions(h):
         out.add("hot")
     if h.get("dark"):
         out.add("dark")
+    if h.get("cam_lost"):
+        out.add("cam_lost")
     return out
 
 
@@ -181,6 +187,10 @@ WARN_TEXT = {
     "dark": ("ক্যামেরা ঢাকা বা অন্ধকার", "Camera covered or dark",
              "%s — ফোন-ক্যামেরা কিছু দেখছে না (লেন্স ঢাকা বা ঘর অন্ধকার)। একবার দেখে নিন।",
              "%s — the phone camera sees nothing (lens covered or room dark). Please check."),
+    # cctvbox: Guard Box (an old phone watching an IP camera on the Wi-Fi)
+    "cam_lost": ("আইপি ক্যামেরা পাওয়া যাচ্ছে না", "IP camera not reachable",
+                 "%s — পাহারাদার ফোন ২ মিনিট ধরে আইপি ক্যামেরা পাচ্ছে না। ক্যামেরার বিদ্যুৎ বা ওয়াই-ফাই দেখুন।",
+                 "%s — the guard phone has not reached the IP camera for 2 minutes. Check the camera's power or Wi-Fi."),
 }
 
 

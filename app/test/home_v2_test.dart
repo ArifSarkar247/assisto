@@ -319,7 +319,7 @@ void main() {
           final a = tester.getTopLeft(
               find.byKey(const ValueKey('hv2_tile_circle')));
           final d = tester.getTopLeft(
-              find.byKey(const ValueKey('hv2_tile_khata')));
+              find.byKey(const ValueKey('hv2_tile_city'))); // homeshort: 4th tile
           expect(d.dy, greaterThan(a.dy)); // 4th tile starts row 2
           expect(d.dx, a.dx);
           await _unmount(tester);
@@ -365,7 +365,7 @@ void main() {
     testWidgets('normal font: 4 columns', (tester) async {
       await _pump(tester, _home());
       final a = tester.getTopLeft(find.byKey(const ValueKey('hv2_tile_circle')));
-      final d = tester.getTopLeft(find.byKey(const ValueKey('hv2_tile_khata')));
+      final d = tester.getTopLeft(find.byKey(const ValueKey('hv2_tile_city'))); // homeshort: 4th tile
       expect(d.dy, a.dy);
       await _unmount(tester);
     });
@@ -377,8 +377,11 @@ void main() {
       // the owner's 11 exactly, nothing skipped
       // (homeorder: Blood donor sits next to SOS in the owner order but its
       // flag is OFF by default -> skipped honestly)
+      // homeshort (9 Nov): City Service (flag city_service ON) sits in
+      // Digital Ledger's old slot
       expect(HomeV2Shortcuts.defaults(),
           [...HomeV2Shortcuts.ownerOrder]..remove('blood_panel'));
+      expect(HomeV2Shortcuts.defaults()[2], kCityServiceRoute);
       expect(HomeV2Shortcuts.skippedDefaults(), ['blood_panel']);
       for (final r in HomeV2Shortcuts.defaults()) {
         expect(ChatNav.routes.containsKey(r), isTrue, reason: r);
@@ -480,6 +483,7 @@ void main() {
     test('fresh install: default set has CCTV (slot 7) + vehicle tracking',
         () async {
       final d = await HomeV2Shortcuts.load();
+      // homeshort: City Service took Digital Ledger's slot -> same places
       expect(d[6], 'watchman');
       expect(d[7], 'vehicle_tracking');
       expect(d.length, HomeV2Shortcuts.max);

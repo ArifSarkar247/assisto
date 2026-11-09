@@ -1,3 +1,4 @@
+import '../family_v3/family_entry.dart'; // fcscreen
 import 'package:flutter/material.dart';
 import '../account_mode.dart'; // acctmode
 import '../screens/kids_watch/kids_watch_screen.dart'; // kidswatch
@@ -68,7 +69,6 @@ import '../screens/proactive_ai_screen.dart';
 import '../screens/area_community_screen.dart';
 import '../screens/doctor_serial_screen.dart';
 // family & safety (merged per SPEC v2.1 §4)
-import '../screens/family_screen.dart';
 import '../screens/nominee_screen.dart';
 import '../screens/safe_journey/sj_hub_screen.dart'; // sjlive
 import '../screens/emergency_screen.dart';
@@ -86,6 +86,7 @@ import '../screens/health_tips_screen.dart';
 import '../screens/vault_screen.dart';
 import '../screens/guide_screen.dart';
 import '../screens/nearby_screen.dart';
+import '../screens/city/city_service_screen.dart'; // cityapp
 import '../screens/ride_food_screen.dart';
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
@@ -393,7 +394,7 @@ class SidebarSections {
         (t) => t.sidebarFamilySafety, [
       SidebarItem(Icons.diversity_1_rounded, (t) => t.moduleFamily,
           feature: 'family',
-          (_) => const FamilyScreen(),
+          (_) => const FamilyEntry(), // fcscreen
           synonyms: ['family', 'care', 'medicine schedule', 'elderly']),
       // carecall (flag care_call): a family care reminder call in your own voice
       SidebarItem(Icons.phone_callback_rounded, (t) => t.ccTitle,
@@ -621,6 +622,11 @@ class SidebarSections {
           feature: 'nearby',
           (_) => const NearbyScreen(),
           synonyms: ['nearby', 'around me', 'places']),
+      // cityapp (owner 9 Nov 11:45): City Service — which bus, metro gate, fares
+      SidebarItem(Icons.directions_bus_rounded, (t) => t.cityTitle,
+          feature: 'city_service',
+          (_) => const CityServiceScreen(),
+          synonyms: ['city service', 'which bus', 'bus route', 'metro', 'fare']),
       // p4-world: Daily info and services (was "Unseen World", renamed
       // 27 Oct) — Today cards, web answers, jobs, hubs. Flag `daily_info`.
       SidebarItem(Icons.public_rounded, (t) => t.dailyInfoTitle,
@@ -878,8 +884,8 @@ class SidebarSections {
     ]),
     // 8. Business
     SidebarSection('business', Icons.storefront_rounded,
-        (t) => t.sidebarBusiness, [
-      SidebarItem(Icons.storefront_rounded, (t) => t.business,
+        (t) => t.myBusinessTitle, [
+      SidebarItem(Icons.storefront_rounded, (t) => t.myBusinessTitle,
           area: AcctArea.business,
           feature: 'business',
           (_) => const BusinessScreen(),

@@ -113,6 +113,8 @@ REGISTRY = (
     ('documents', 'daily_life', 'Documents', 'ডকুমেন্টস', True, ('documents',)),
     ('service_guide', 'daily_life', 'Service guide', 'সেবা গাইড', True, ('guide',)),
     ('nearby', 'daily_life', 'Nearby', 'কাছেপিঠে', True, ('nearby',)),
+    # cityapp (owner 9 Nov 11:45): City Service — which bus / metro gate / fare, Dhaka first.
+    ('city_service', 'daily_life', 'City Service', 'সিটি সার্ভিস', True, ('city',)),
     # nearby (owner 3 Nov 18:50): Assisto business listings with a clearly
     # labelled Sponsored placement in GENERAL nearby only (never emergency).
     ('nearby_sponsored', 'daily_life', 'Nearby: Sponsored business listings', 'কাছেপিঠে: Sponsored ব্যবসা', False, ()),
@@ -274,6 +276,14 @@ REGISTRY = (
     # OFF = the previous home, unchanged (fallback for one week). App shell
     # switch, so it owns no route.
     ('home_v2', 'app_shell', 'New home (v2)', 'নতুন হোম (v2)', True, ()),
+    # smsswitch (owner Play decision 5, 9 Nov): Money from notifications —
+    # the part that reads SMS-app notifications from bank / wallet sender ids.
+    # Wallet-APP notifications (bKash, Nagad ...) are NOT behind this switch.
+    # Default ON (today's behaviour). OFF = the phone ignores those
+    # notifications unread and drops waiting ones (never saved or sent); the
+    # app re-reads it on open / resume and every 3 hours. A KILL switch: an
+    # owner/staff "preview" of OFF counts as OFF in the app. Owns no route.
+    ('money_notif_sms', 'my_account', 'Money from bank/wallet SMS notifications', 'ব্যাংক/ওয়ালেট SMS নোটিফিকেশন থেকে টাকার হিসাব', True, ()),
 )
 
 SECTIONS = (

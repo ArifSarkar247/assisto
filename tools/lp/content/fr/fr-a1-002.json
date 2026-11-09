@@ -1,0 +1,986 @@
+{
+ "format": "assisto.lp.test/1",
+ "bundle_id": "fr-a1-002",
+ "lang": "fr",
+ "track": "fr_a1",
+ "exam": "French A1 (DELF A1 style)",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "French A1 (DELF A1 style) Practice Test 2",
+  "bn": "ফরাসি A1 (DELF A1 ধাঁচ) প্র্যাকটিস টেস্ট ২"
+ },
+ "practice_label": {
+  "en": "Practice test written by Assisto — not an official DELF result.",
+  "bn": "Assisto-র নিজের লেখা প্র্যাকটিস টেস্ট — এটি অফিসিয়াল DELF পরীক্ষার ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "public DELF A1 exam description (4 skills, 25 points each; structure/timing only)",
+  "notes": "All texts written for Assisto; no textbook, past-paper or official sample text."
+ },
+ "scoring": {
+  "max": 100,
+  "per_section": {
+   "oral": 25,
+   "ecrit": 25,
+   "production_ecrite": 25,
+   "production_orale": 25
+  },
+  "pass_hint_bn": "মোট ৫০/১০০ এবং প্রতিটি অংশে অন্তত ৫/২৫ পেলে পাসের কাছাকাছি ধরা যায় — এটা শুধু প্র্যাকটিস অনুমান। শোনা ও পড়ার সঠিক উত্তর ২৫ নম্বরে রূপান্তর করা হয়।",
+  "note_bn": "প্র্যাকটিস স্কোর — অফিসিয়াল ফল নয়। আসল DELF পরীক্ষার নিয়ম, তারিখ ও ফি পরীক্ষা কেন্দ্রের (Alliance Française) নোটিশে দেখে নিন।"
+ },
+ "sections": [
+  {
+   "id": "oral",
+   "kind": "listening",
+   "title": {
+    "en": "Listening (compréhension de l'oral)",
+    "bn": "শোনা (মৌখিক বোঝা)"
+   },
+   "minutes": 20,
+   "parts": [
+    {
+     "part": "ex1",
+     "type": "ex1",
+     "instructions": {
+      "target": "Vous allez entendre un message. Vous l'entendrez deux fois. Lisez les questions, puis choisissez la bonne réponse.",
+      "bn": "একটি মেসেজ শুনবেন, দুইবার। প্রশ্নগুলো পড়ে নিন, তারপর সঠিক উত্তর (A, B বা C) বাছুন।"
+     },
+     "questions": [
+      {
+       "n": 1,
+       "prompt": "Qui laisse ce message ?",
+       "options": [
+        "Une amie de Rahim",
+        "La directrice d'un restaurant",
+        "Une professeure"
+       ],
+       "answer": "B",
+       "explain_bn": "„ici Madame Dubois, directrice du restaurant“ — একটি রেস্টুরেন্টের পরিচালক ফোন করেছেন; Rahim-এর CV পেয়েছেন।",
+       "skill": "gist",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "restaurant manager leaving a voicemail"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Bonjour monsieur Rahim, ici Madame Dubois, directrice du restaurant Le Petit Jardin. Merci pour votre CV. Je vous propose un entretien jeudi prochain, à quinze heures. Venez avec votre titre de séjour et une photo. Le restaurant est en face du cinéma, place Bellecour. En cas de problème, téléphonez-moi au 04 78 22 31 56. Au revoir !"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 2,
+       "prompt": "Quand est l'entretien ?",
+       "options": [
+        "Jeudi à 15 heures",
+        "Mardi à 15 heures",
+        "Jeudi à 5 heures"
+       ],
+       "answer": "A",
+       "explain_bn": "„jeudi prochain, à quinze heures“ — আগামী বৃহস্পতিবার বিকেল ৩টা (১৫টা)। entretien = চাকরির ইন্টারভিউ।",
+       "skill": "time",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "restaurant manager leaving a voicemail"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Bonjour monsieur Rahim, ici Madame Dubois, directrice du restaurant Le Petit Jardin. Merci pour votre CV. Je vous propose un entretien jeudi prochain, à quinze heures. Venez avec votre titre de séjour et une photo. Le restaurant est en face du cinéma, place Bellecour. En cas de problème, téléphonez-moi au 04 78 22 31 56. Au revoir !"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 3,
+       "prompt": "Qu'est-ce que Rahim doit apporter ?",
+       "options": [
+        "Son diplôme et un stylo",
+        "Son titre de séjour et une photo",
+        "Son passeport et de l'argent"
+       ],
+       "answer": "B",
+       "explain_bn": "„Venez avec votre titre de séjour et une photo“ — রেসিডেন্স পারমিট (থাকার অনুমতিপত্র) আর একটি ছবি আনতে হবে।",
+       "skill": "workplace",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "restaurant manager leaving a voicemail"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Bonjour monsieur Rahim, ici Madame Dubois, directrice du restaurant Le Petit Jardin. Merci pour votre CV. Je vous propose un entretien jeudi prochain, à quinze heures. Venez avec votre titre de séjour et une photo. Le restaurant est en face du cinéma, place Bellecour. En cas de problème, téléphonez-moi au 04 78 22 31 56. Au revoir !"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 4,
+       "prompt": "Où se trouve le restaurant ?",
+       "options": [
+        "À côté de la poste",
+        "Derrière la gare",
+        "En face du cinéma"
+       ],
+       "answer": "C",
+       "explain_bn": "„en face du cinéma“ — সিনেমা হলের ঠিক উল্টো দিকে। en face de = সামনাসামনি।",
+       "skill": "place",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "restaurant manager leaving a voicemail"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Bonjour monsieur Rahim, ici Madame Dubois, directrice du restaurant Le Petit Jardin. Merci pour votre CV. Je vous propose un entretien jeudi prochain, à quinze heures. Venez avec votre titre de séjour et une photo. Le restaurant est en face du cinéma, place Bellecour. En cas de problème, téléphonez-moi au 04 78 22 31 56. Au revoir !"
+         }
+        ],
+        "repeat": 2
+       }
+      }
+     ]
+    },
+    {
+     "part": "ex2",
+     "type": "ex2",
+     "instructions": {
+      "target": "Vous allez entendre quatre annonces. Vous entendrez chaque annonce deux fois. Choisissez la bonne réponse.",
+      "bn": "চারটি ঘোষণা শুনবেন, প্রতিটি দুইবার। প্রতিটির জন্য সঠিক উত্তর বাছুন।"
+     },
+     "questions": [
+      {
+       "n": 5,
+       "prompt": "Que doivent faire les voyageurs ?",
+       "options": [
+        "Attendre le prochain métro",
+        "Prendre un bus de remplacement",
+        "Prendre un taxi"
+       ],
+       "answer": "B",
+       "explain_bn": "লাইন ৪ আংশিক বন্ধ; „Utilisez les bus de remplacement“ — বদলি বাস ব্যবহার করুন, বাস দাঁড়িয়ে আছে ২ নম্বর গেটের সামনে।",
+       "skill": "detail",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "metro announcer"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Suite à un incident technique, la ligne 4 du métro est fermée entre les stations Odéon et Châtelet. Utilisez les bus de remplacement devant la sortie numéro deux."
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 6,
+       "prompt": "Où les patients doivent-ils attendre ?",
+       "options": [
+        "Au deuxième étage",
+        "Au rez-de-chaussée",
+        "Au premier étage"
+       ],
+       "answer": "A",
+       "explain_bn": "„d'attendre au deuxième étage, salle d'attente bleue“ — দোতলার নীল অপেক্ষা-কক্ষে (ফ্রান্সে deuxième étage = মাটির উপর দুই তলা)।",
+       "skill": "place",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "clinic receptionist"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Les patients qui ont rendez-vous avec le docteur Leroy sont priés d'attendre au deuxième étage, dans la salle d'attente bleue. Merci."
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 7,
+       "prompt": "À quelle heure ferme le musée ?",
+       "options": [
+        "À 17 h",
+        "À 18 h",
+        "À 17 h 30"
+       ],
+       "answer": "C",
+       "explain_bn": "„à dix-sept heures trente“ — ৫:৩০ (17 h 30)। ১৮টা পর্যন্ত খোলা থাকবে শুধু দোকানটি (boutique)।",
+       "skill": "time",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "museum announcer"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Le musée fermera ses portes dans trente minutes, à dix-sept heures trente. La boutique reste ouverte jusqu'à dix-huit heures. Merci de votre visite."
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 8,
+       "prompt": "Qu'est-ce qu'il faut apporter à la réunion ?",
+       "options": [
+        "Un cahier",
+        "La carte d'étudiant",
+        "Un passeport"
+       ],
+       "answer": "B",
+       "explain_bn": "„N'oubliez pas votre carte d'étudiant“ — ছাত্র কার্ড আনতে ভুলবেন না। N'oubliez pas = ভুলবেন না।",
+       "skill": "detail",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "university staff"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Bienvenue aux nouveaux étudiants internationaux ! La réunion d'information a lieu aujourd'hui à quatorze heures, dans l'amphithéâtre A. N'oubliez pas votre carte d'étudiant."
+         }
+        ],
+        "repeat": 2
+       }
+      }
+     ]
+    },
+    {
+     "part": "ex3",
+     "type": "ex3",
+     "instructions": {
+      "target": "Vous allez entendre un document de la radio. Vous l'entendrez deux fois. Choisissez la bonne réponse.",
+      "bn": "রেডিওর একটি অংশ শুনবেন, দুইবার। সঠিক উত্তর বাছুন।"
+     },
+     "questions": [
+      {
+       "n": 9,
+       "prompt": "Où a lieu la fête ?",
+       "options": [
+        "Dans un parc",
+        "Dans une école",
+        "Au bord de la mer"
+       ],
+       "answer": "A",
+       "explain_bn": "„au parc de la Tête d'Or“ — লিয়োঁর একটি পার্কে উৎসব। parc = পার্ক।",
+       "skill": "place",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "radio presenter"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Ce week-end, c'est la Fête des cultures du monde au parc de la Tête d'Or ! Samedi, venez goûter les plats de trente pays, du Bangladesh au Sénégal. Dimanche après-midi, il y a des concerts et des danses. L'entrée coûte cinq euros, et c'est gratuit pour les enfants de moins de douze ans. Attention : la météo annonce de la pluie dimanche matin."
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 10,
+       "prompt": "Qu'est-ce qu'on peut faire samedi ?",
+       "options": [
+        "Écouter des concerts",
+        "Goûter des plats du monde",
+        "Faire du sport"
+       ],
+       "answer": "B",
+       "explain_bn": "„Samedi, venez goûter les plats de trente pays“ — শনিবার ৩০ দেশের খাবার চেখে দেখা; কনসার্ট রবিবার বিকেলে।",
+       "skill": "detail",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "radio presenter"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Ce week-end, c'est la Fête des cultures du monde au parc de la Tête d'Or ! Samedi, venez goûter les plats de trente pays, du Bangladesh au Sénégal. Dimanche après-midi, il y a des concerts et des danses. L'entrée coûte cinq euros, et c'est gratuit pour les enfants de moins de douze ans. Attention : la météo annonce de la pluie dimanche matin."
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 11,
+       "prompt": "Qui ne paie pas l'entrée ?",
+       "options": [
+        "Les étudiants",
+        "Les personnes âgées",
+        "Les enfants de moins de 12 ans"
+       ],
+       "answer": "C",
+       "explain_bn": "„gratuit pour les enfants de moins de douze ans“ — ১২ বছরের কম বয়সী শিশুদের জন্য ফ্রি; বাকিদের ৫ ইউরো।",
+       "skill": "detail",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "radio presenter"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Ce week-end, c'est la Fête des cultures du monde au parc de la Tête d'Or ! Samedi, venez goûter les plats de trente pays, du Bangladesh au Sénégal. Dimanche après-midi, il y a des concerts et des danses. L'entrée coûte cinq euros, et c'est gratuit pour les enfants de moins de douze ans. Attention : la météo annonce de la pluie dimanche matin."
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 12,
+       "prompt": "Quel temps fait-il dimanche matin ?",
+       "options": [
+        "Il fait beau",
+        "Il pleut",
+        "Il neige"
+       ],
+       "answer": "B",
+       "explain_bn": "„la météo annonce de la pluie dimanche matin“ — রবিবার সকালে বৃষ্টি। pluie = বৃষ্টি, il pleut = বৃষ্টি হচ্ছে।",
+       "skill": "detail",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "radio presenter"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Ce week-end, c'est la Fête des cultures du monde au parc de la Tête d'Or ! Samedi, venez goûter les plats de trente pays, du Bangladesh au Sénégal. Dimanche après-midi, il y a des concerts et des danses. L'entrée coûte cinq euros, et c'est gratuit pour les enfants de moins de douze ans. Attention : la météo annonce de la pluie dimanche matin."
+         }
+        ],
+        "repeat": 2
+       }
+      }
+     ]
+    },
+    {
+     "part": "ex4",
+     "type": "ex4",
+     "instructions": {
+      "target": "Vous allez entendre cinq petits dialogues, deux fois. Associez chaque dialogue à une situation. Il y a six situations : une situation ne sert pas.",
+      "bn": "পাঁচটি ছোট কথোপকথন শুনবেন, দুইবার। প্রতিটি কথোপকথনের সাথে মিলিয়ে একটি পরিস্থিতি (A–F) বাছুন। ছয়টি পরিস্থিতির একটি বাড়তি — কোনো কথোপকথনের সাথে মিলবে না।"
+     },
+     "questions": [
+      {
+       "n": 13,
+       "prompt": "Dialogue 1",
+       "options": [
+        "Louer un appartement",
+        "Envoyer un colis à la poste",
+        "Acheter des médicaments à la pharmacie",
+        "Demander l'heure dans la rue",
+        "Réserver une table au restaurant",
+        "Ouvrir un compte à la banque"
+       ],
+       "answer": "B",
+       "explain_bn": "„envoyer ce paquet au Bangladesh … Par avion ?“ — পোস্ট অফিসে বিমানে পার্সেল পাঠানো। colis/paquet = পার্সেল।",
+       "skill": "expression",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "customer"
+         },
+         "B": {
+          "gender": "F",
+          "role": "post office clerk"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Bonjour, je voudrais envoyer ce paquet au Bangladesh."
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Par avion ? Mettez-le sur la balance, je vais le peser."
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 14,
+       "prompt": "Dialogue 2",
+       "options": [
+        "Louer un appartement",
+        "Envoyer un colis à la poste",
+        "Acheter des médicaments à la pharmacie",
+        "Demander l'heure dans la rue",
+        "Réserver une table au restaurant",
+        "Ouvrir un compte à la banque"
+       ],
+       "answer": "F",
+       "explain_bn": "„je voudrais un compte courant“ আর „justificatif de domicile“ (ঠিকানার প্রমাণ) — ব্যাংকে অ্যাকাউন্ট খোলা।",
+       "skill": "expression",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "newcomer"
+         },
+         "B": {
+          "gender": "M",
+          "role": "bank adviser"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Bonjour, je viens d'arriver en France et je voudrais un compte courant."
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Bien sûr. Vous avez un justificatif de domicile ?"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 15,
+       "prompt": "Dialogue 3",
+       "options": [
+        "Louer un appartement",
+        "Envoyer un colis à la poste",
+        "Acheter des médicaments à la pharmacie",
+        "Demander l'heure dans la rue",
+        "Réserver une table au restaurant",
+        "Ouvrir un compte à la banque"
+       ],
+       "answer": "C",
+       "explain_bn": "„J'ai de la fièvre et mal à la tête“ আর „Prenez ce paracétamol“ — জ্বর-মাথাব্যথার ওষুধ কেনা, ফার্মেসিতে।",
+       "skill": "expression",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "customer"
+         },
+         "B": {
+          "gender": "F",
+          "role": "pharmacist"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "J'ai de la fièvre et mal à la tête. Vous avez quelque chose ?"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Prenez ce paracétamol, deux comprimés par jour, après le repas."
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 16,
+       "prompt": "Dialogue 4",
+       "options": [
+        "Louer un appartement",
+        "Envoyer un colis à la poste",
+        "Acheter des médicaments à la pharmacie",
+        "Demander l'heure dans la rue",
+        "Réserver une table au restaurant",
+        "Ouvrir un compte à la banque"
+       ],
+       "answer": "A",
+       "explain_bn": "„Le deux-pièces … est encore libre ?“ আর „le loyer est de six cents euros“ — বাসা ভাড়া নেওয়া। loyer = ভাড়া।",
+       "skill": "expression",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "tenant"
+         },
+         "B": {
+          "gender": "M",
+          "role": "landlord"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Le deux-pièces de la rue Molière est encore libre ?"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Oui, le loyer est de six cents euros par mois, charges comprises."
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 17,
+       "prompt": "Dialogue 5",
+       "options": [
+        "Louer un appartement",
+        "Envoyer un colis à la poste",
+        "Acheter des médicaments à la pharmacie",
+        "Demander l'heure dans la rue",
+        "Réserver une table au restaurant",
+        "Ouvrir un compte à la banque"
+       ],
+       "answer": "E",
+       "explain_bn": "„une table pour quatre personnes samedi soir“ — রেস্টুরেন্টে টেবিল বুক করা; „C'est à quel nom ?“ = কার নামে?",
+       "skill": "expression",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "customer on the phone"
+         },
+         "B": {
+          "gender": "F",
+          "role": "restaurant staff"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Bonsoir, une table pour quatre personnes samedi soir, c'est possible ?"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Oui, à vingt heures. C'est à quel nom ?"
+         }
+        ],
+        "repeat": 2
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ecrit",
+   "kind": "reading",
+   "title": {
+    "en": "Reading (compréhension des écrits)",
+    "bn": "পড়া (লিখিত বোঝা)"
+   },
+   "minutes": 30,
+   "parts": [
+    {
+     "part": "ex1",
+     "type": "ex1",
+     "instructions": {
+      "target": "Lisez le message, puis répondez aux questions.",
+      "bn": "মেসেজটি পড়ুন, তারপর প্রশ্নের উত্তর দিন।"
+     },
+     "passage": "Bonjour Rahim,\nCette semaine, le planning change. Lundi et mardi, tu travailles le matin, de 6 heures à 14 heures. Mercredi, c'est ton jour de repos. Jeudi et vendredi, tu travailles l'après-midi, de 14 heures à 22 heures. Samedi, il y a une réunion de l'équipe à 9 heures. Le café et les croissants sont offerts !\nBonne semaine,\nJulie, responsable de l'équipe",
+     "questions": [
+      {
+       "n": 18,
+       "prompt": "Quel jour Rahim ne travaille-t-il pas ?",
+       "options": [
+        "Mercredi",
+        "Lundi",
+        "Jeudi"
+       ],
+       "answer": "A",
+       "explain_bn": "„Mercredi, c'est ton jour de repos“ — বুধবার ছুটির দিন। repos = বিশ্রাম/ছুটি।",
+       "skill": "workplace"
+      },
+      {
+       "n": 19,
+       "prompt": "À quelle heure Rahim commence-t-il le jeudi ?",
+       "options": [
+        "À 6 heures",
+        "À 9 heures",
+        "À 14 heures"
+       ],
+       "answer": "C",
+       "explain_bn": "বৃহস্পতি ও শুক্রবার „l'après-midi, de 14 heures à 22 heures“ — দুপুর ২টায় শুরু। ৬টা হলো সোম-মঙ্গলবার।",
+       "skill": "time"
+      },
+      {
+       "n": 20,
+       "prompt": "Qu'est-ce qu'il y a samedi ?",
+       "options": [
+        "Une fête",
+        "Une réunion de l'équipe",
+        "Une formation"
+       ],
+       "answer": "B",
+       "explain_bn": "„Samedi, il y a une réunion de l'équipe à 9 heures“ — শনিবার সকাল ৯টায় দলের মিটিং (সাথে ফ্রি কফি-ক্রোয়াসাঁ)।",
+       "skill": "detail"
+      },
+      {
+       "n": 21,
+       "prompt": "Qui est Julie ?",
+       "options": [
+        "Une cliente",
+        "La sœur de Rahim",
+        "La responsable de l'équipe"
+       ],
+       "answer": "C",
+       "explain_bn": "শেষে সই: „Julie, responsable de l'équipe“ — দলের দায়িত্বপ্রাপ্ত (টিম লিডার)।",
+       "skill": "workplace"
+      }
+     ]
+    },
+    {
+     "part": "ex2",
+     "type": "ex2",
+     "instructions": {
+      "target": "Lisez ce document, puis répondez aux questions.",
+      "bn": "নোটিশটি পড়ুন, তারপর প্রশ্নের উত্তর দিন।"
+     },
+     "passage": "PHARMACIE DU CENTRE\nHoraires : du lundi au samedi, de 8 h 30 à 19 h 30. Le dimanche : fermé.\nPharmacie de garde le dimanche : Pharmacie de la Gare, 2 avenue Jean Jaurès.\nPour les médicaments sur ordonnance, apportez votre carte Vitale.\nTest de tension gratuit le mercredi matin.\nMasques et gel en vente à l'entrée.",
+     "questions": [
+      {
+       "n": 22,
+       "prompt": "Le dimanche, où pouvez-vous acheter des médicaments ?",
+       "options": [
+        "À la Pharmacie du Centre",
+        "À la Pharmacie de la Gare",
+        "Au supermarché"
+       ],
+       "answer": "B",
+       "explain_bn": "রবিবার এই ফার্মেসি বন্ধ; „Pharmacie de garde le dimanche : Pharmacie de la Gare“ — রবিবারে খোলা থাকে স্টেশনের ফার্মেসি।",
+       "skill": "info_search"
+      },
+      {
+       "n": 23,
+       "prompt": "Que faut-il apporter pour un médicament sur ordonnance ?",
+       "options": [
+        "La carte Vitale",
+        "Le passeport",
+        "Une photo"
+       ],
+       "answer": "A",
+       "explain_bn": "„apportez votre carte Vitale“ — ফ্রান্সের স্বাস্থ্যবিমা কার্ড। ordonnance = ডাক্তারের প্রেসক্রিপশন।",
+       "skill": "detail"
+      },
+      {
+       "n": 24,
+       "prompt": "Quand le test de tension est-il gratuit ?",
+       "options": [
+        "Le samedi",
+        "Le dimanche",
+        "Le mercredi matin"
+       ],
+       "answer": "C",
+       "explain_bn": "„Test de tension gratuit le mercredi matin“ — বুধবার সকালে ফ্রি রক্তচাপ মাপা।",
+       "skill": "time"
+      },
+      {
+       "n": 25,
+       "prompt": "À quelle heure ferme la pharmacie en semaine ?",
+       "options": [
+        "À 8 h 30",
+        "À 19 h 30",
+        "À 21 h"
+       ],
+       "answer": "B",
+       "explain_bn": "„de 8 h 30 à 19 h 30“ — খোলে সাড়ে ৮টায়, বন্ধ হয় সন্ধ্যা সাড়ে ৭টায় (19 h 30)।",
+       "skill": "time"
+      }
+     ]
+    },
+    {
+     "part": "ex3",
+     "type": "ex3",
+     "instructions": {
+      "target": "Lisez ce document, puis répondez aux questions.",
+      "bn": "তালিকা/বিজ্ঞাপনটি পড়ুন, তারপর প্রশ্নের উত্তর দিন।"
+     },
+     "passage": "PETITES ANNONCES — LOGEMENT\nAnnonce 1 : Chambre meublée chez une dame âgée, quartier calme. 350 € par mois. Non-fumeur.\nAnnonce 2 : Studio de 25 m², cuisine équipée, près du métro. 580 € par mois. Libre le 1er décembre.\nAnnonce 3 : Appartement de trois pièces pour une famille, avec balcon et parking. 950 € par mois.\nAnnonce 4 : Colocation. Trois étudiants cherchent une quatrième personne. Grande maison avec jardin. 420 € par mois.",
+     "questions": [
+      {
+       "n": 26,
+       "prompt": "Nusrat veut habiter avec d'autres étudiants. Quelle annonce choisit-elle ?",
+       "options": [
+        "L'annonce 1",
+        "L'annonce 4",
+        "L'annonce 2"
+       ],
+       "answer": "B",
+       "explain_bn": "„Colocation. Trois étudiants cherchent une quatrième personne“ — তিন ছাত্র চতুর্থ একজনকে খুঁজছে; তাই বিজ্ঞাপন ৪।",
+       "skill": "info_search"
+      },
+      {
+       "n": 27,
+       "prompt": "Quel logement est le moins cher ?",
+       "options": [
+        "La chambre meublée",
+        "Le studio",
+        "La colocation"
+       ],
+       "answer": "A",
+       "explain_bn": "দাম: ঘর ৩৫০, কো-লোকেশন ৪২০, স্টুডিও ৫৮০, অ্যাপার্টমেন্ট ৯৫০ ইউরো। সবচেয়ে কম = আসবাবসহ ঘর (chambre meublée)।",
+       "skill": "number"
+      },
+      {
+       "n": 28,
+       "prompt": "Une famille avec une voiture cherche un logement. Quelle annonce est bonne ?",
+       "options": [
+        "L'annonce 2",
+        "L'annonce 1",
+        "L'annonce 3"
+       ],
+       "answer": "C",
+       "explain_bn": "বিজ্ঞাপন ৩: „pour une famille, avec balcon et parking“ — পরিবারের জন্য, গাড়ি রাখার জায়গাসহ।",
+       "skill": "info_search"
+      },
+      {
+       "n": 29,
+       "prompt": "Quand le studio est-il libre ?",
+       "options": [
+        "Le 1er décembre",
+        "Le 1er novembre",
+        "Tout de suite"
+       ],
+       "answer": "A",
+       "explain_bn": "স্টুডিও (বিজ্ঞাপন ২): „Libre le 1er décembre“ — ১ ডিসেম্বর থেকে খালি। 1er = premier (প্রথম)।",
+       "skill": "time"
+      }
+     ]
+    },
+    {
+     "part": "ex4",
+     "type": "ex4",
+     "instructions": {
+      "target": "Lisez cet article, puis répondez aux questions.",
+      "bn": "লেখাটি পড়ুন, তারপর প্রশ্নের উত্তর দিন।"
+     },
+     "passage": "Un restaurant bangladais à Montréal\nKarim Ahmed a quarante ans. Il est arrivé au Canada il y a dix ans. Avant, il a travaillé dans une usine. Aujourd'hui, il a son propre restaurant dans le quartier Côte-des-Neiges. Le plat préféré des clients, c'est le biryani au poulet. Le restaurant est ouvert tous les jours sauf le lundi. Le samedi soir, Karim propose un cours de cuisine pour dix personnes. Il faut réserver une semaine avant.",
+     "questions": [
+      {
+       "n": 30,
+       "prompt": "Depuis combien de temps Karim est-il au Canada ?",
+       "options": [
+        "Deux ans",
+        "Dix ans",
+        "Quarante ans"
+       ],
+       "answer": "B",
+       "explain_bn": "„Il est arrivé au Canada il y a dix ans“ — ১০ বছর আগে এসেছেন। ৪০ হলো তাঁর বয়স। il y a + সময় = „… আগে“।",
+       "skill": "number"
+      },
+      {
+       "n": 31,
+       "prompt": "Quel est le plat préféré des clients ?",
+       "options": [
+        "Le poisson au curry",
+        "Le riz aux légumes",
+        "Le biryani au poulet"
+       ],
+       "answer": "C",
+       "explain_bn": "„Le plat préféré des clients, c'est le biryani au poulet“ — মুরগির বিরিয়ানি।",
+       "skill": "detail"
+      },
+      {
+       "n": 32,
+       "prompt": "Quel jour le restaurant est-il fermé ?",
+       "options": [
+        "Le lundi",
+        "Le samedi",
+        "Le dimanche"
+       ],
+       "answer": "A",
+       "explain_bn": "„ouvert tous les jours sauf le lundi“ — সোমবার ছাড়া প্রতিদিন খোলা। sauf = ছাড়া।",
+       "skill": "time"
+      },
+      {
+       "n": 33,
+       "prompt": "Qu'est-ce que Karim propose le samedi soir ?",
+       "options": [
+        "Un concert",
+        "Un cours de cuisine",
+        "Un repas gratuit"
+       ],
+       "answer": "B",
+       "explain_bn": "„Le samedi soir, Karim propose un cours de cuisine pour dix personnes“ — শনিবার সন্ধ্যায় ১০ জনের রান্নার ক্লাস।",
+       "skill": "detail"
+      },
+      {
+       "n": 34,
+       "prompt": "Pour le cours de cuisine, il faut…",
+       "options": [
+        "payer en espèces",
+        "venir avec un ami",
+        "réserver une semaine avant"
+       ],
+       "answer": "C",
+       "explain_bn": "„Il faut réserver une semaine avant“ — এক সপ্তাহ আগে বুক করতে হবে। Il faut = করতে হবে।",
+       "skill": "detail"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "production_ecrite",
+   "kind": "writing",
+   "title": {
+    "en": "Writing (production écrite)",
+    "bn": "লেখা (লিখিত প্রকাশ)"
+   },
+   "minutes": 30,
+   "tasks": [
+    {
+     "id": "fr-a1-002-w1",
+     "points": 10,
+     "prompt": {
+      "target": "Vous voulez un abonnement de téléphone mobile. Remplissez le formulaire avec ces informations : vous vous appelez Tania Akter, vous êtes née le 3 mars 2000 à Dhaka, vous habitez 18 boulevard de la Liberté, 59000 Lille, et vous choisissez le forfait de 20 Go.",
+      "bn": "মোবাইল ফোনের প্যাকেজ নিতে ফর্ম পূরণ করুন। দেওয়া তথ্য দিয়ে ৬টি ঘর লিখুন: পদবি, নাম, জন্মতারিখ, জন্মস্থান, ঠিকানা, বেছে নেওয়া প্যাকেজ।"
+     },
+     "fields": [
+      {
+       "label": "Nom",
+       "answer": "Akter"
+      },
+      {
+       "label": "Prénom",
+       "answer": "Tania"
+      },
+      {
+       "label": "Date de naissance",
+       "answer": "03/03/2000"
+      },
+      {
+       "label": "Lieu de naissance",
+       "answer": "Dhaka"
+      },
+      {
+       "label": "Adresse",
+       "answer": "18 boulevard de la Liberté, 59000 Lille"
+      },
+      {
+       "label": "Forfait choisi",
+       "answer": "20 Go"
+      }
+     ],
+     "model": {
+      "target": "Nom : Akter – Prénom : Tania – Date de naissance : 03/03/2000 – Lieu de naissance : Dhaka – Adresse : 18 boulevard de la Liberté, 59000 Lille – Forfait choisi : 20 Go",
+      "bn": "নমুনা: ফ্রান্সে তারিখ লেখা হয় দিন/মাস/বছর — ৩ মার্চ ২০০০ = 03/03/2000। পোস্টকোড (59000) শহরের নামের আগে বসে।"
+     }
+    },
+    {
+     "id": "fr-a1-002-w2",
+     "points": 15,
+     "min_words": 40,
+     "max_words": 60,
+     "prompt": {
+      "target": "Vous invitez vos camarades de classe à un dîner bangladais chez vous samedi. Écrivez un message : donnez le jour, l'heure et l'adresse, dites ce que vous allez cuisiner et ce que les invités peuvent apporter. (40 à 60 mots)",
+      "bn": "সহপাঠীদের শনিবার বাসায় বাংলাদেশি রাতের খাবারে দাওয়াত দিন। ৪০–৬০ শব্দে লিখুন: দিন, সময়, ঠিকানা, কী রান্না করবেন, অতিথিরা কী আনতে পারেন।"
+     },
+     "model": {
+      "target": "Bonjour à tous ! Samedi soir, je vous invite à un dîner bangladais chez moi, à dix-neuf heures trente. Mon adresse : 18 boulevard de la Liberté, deuxième étage. Je vais cuisiner du riz, un curry de poulet et des lentilles. Vous pouvez apporter des jus de fruits ou un dessert. Répondez-moi avant jeudi ! Tania",
+      "bn": "নমুনা (৫৩ শব্দ): শনিবার সন্ধ্যা ৭:৩০-এ দাওয়াত, ঠিকানা, ভাত-মুরগির তরকারি-ডাল রান্না হবে, অতিথিরা জুস বা মিষ্টি আনতে পারেন, বৃহস্পতিবারের মধ্যে জানাতে বলা। „Je vais + ক্রিয়া“ = ভবিষ্যৎ পরিকল্পনা।"
+     }
+    }
+   ]
+  },
+  {
+   "id": "production_orale",
+   "kind": "speaking",
+   "title": {
+    "en": "Speaking (production orale)",
+    "bn": "বলা (মৌখিক প্রকাশ)"
+   },
+   "minutes": 17,
+   "tasks": [
+    {
+     "id": "fr-a1-002-o1",
+     "points": 8,
+     "prompt": {
+      "target": "Entretien dirigé : parlez de vous. Questions possibles : D'où venez-vous ? Vous parlez quelles langues ? Vous avez des frères et sœurs ? Pourquoi apprenez-vous le français ? Quel est votre plat préféré ?",
+      "bn": "পরিচালিত সাক্ষাৎকার: নিজের কথা বলুন — কোথা থেকে এসেছেন, কোন ভাষা জানেন, ভাইবোন আছে কি না, কেন ফরাসি শিখছেন, প্রিয় খাবার কী।"
+     },
+     "model": {
+      "target": "Je viens du Bangladesh, de la ville de Sylhet. Je parle bengali, anglais et un peu français. J'ai deux frères et une sœur. J'apprends le français parce que je veux étudier à Montréal. Mon plat préféré, c'est le poisson au curry de ma mère.",
+      "bn": "নমুনা: সিলেট থেকে এসেছি; বাংলা, ইংরেজি আর একটু ফরাসি জানি; দুই ভাই এক বোন; মন্ট্রিয়লে পড়তে চাই বলে ফরাসি শিখছি; প্রিয় খাবার মায়ের মাছের তরকারি। „parce que“ = কারণ।"
+     }
+    },
+    {
+     "id": "fr-a1-002-o2",
+     "points": 8,
+     "prompt": {
+      "target": "Échange d'informations : posez des questions à l'examinateur avec les mots des cartes : Logement ? – Musique ? – Métro ? – Week-end ? – Langues ? – Animaux ?",
+      "bn": "তথ্য বিনিময়: কার্ডের শব্দ (বাসা, গান, মেট্রো, সপ্তাহান্ত, ভাষা, পোষা প্রাণী) দিয়ে পরীক্ষককে একটি করে পূর্ণ প্রশ্ন করুন।"
+     },
+     "model": {
+      "target": "Vous habitez dans une maison ou dans un appartement ? Quelle musique aimez-vous ? Vous prenez souvent le métro ? Qu'est-ce que vous faites le week-end ? Vous parlez combien de langues ? Vous avez un chat ou un chien ?",
+      "bn": "নমুনা প্রশ্ন: বাড়িতে না অ্যাপার্টমেন্টে থাকেন? কোন গান ভালোবাসেন? প্রায়ই মেট্রোতে চড়েন? সপ্তাহান্তে কী করেন? কটা ভাষা জানেন? বিড়াল বা কুকুর আছে?"
+     }
+    },
+    {
+     "id": "fr-a1-002-o3",
+     "points": 9,
+     "prompt": {
+      "target": "Dialogue simulé : vous êtes dans un magasin de vêtements à Lyon. Vous voulez acheter une veste chaude pour l'hiver. Vous demandez la taille, la couleur et le prix, puis vous payez. L'examinateur joue le vendeur.",
+      "bn": "অভিনয় করে কথোপকথন: লিয়োঁর কাপড়ের দোকানে শীতের গরম জ্যাকেট কিনছেন — সাইজ, রং আর দাম জিজ্ঞেস করে টাকা দিন। পরীক্ষক বিক্রেতা।"
+     },
+     "model": {
+      "target": "Bonjour monsieur. Je cherche une veste chaude pour l'hiver. Vous avez cette veste en taille M ? En noir ou en bleu, si possible. Elle coûte combien ? Soixante euros, d'accord. Je peux payer par carte ? Merci beaucoup, au revoir !",
+      "bn": "নমুনা: „Je cherche…“ (খুঁজছি), „en taille M“ (M সাইজে), „Elle coûte combien ?“ (দাম কত?), „Je peux payer par carte ?“ (কার্ডে দেওয়া যাবে?) — ভদ্রভাবে শুরু ও শেষ।"
+     }
+    }
+   ]
+  }
+ ]
+}

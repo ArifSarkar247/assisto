@@ -50,6 +50,14 @@ class PushChannels {
     'carecall': calls,
     'carecall_invite': alerts,
     'carecall_status': alerts,
+    // fcelder: Silent Watch — "Are you OK?" to the elder, the family ladder
+    // (safety: loud), outcomes (normal alerts)
+    'silentwatch_ask': sos,
+    'silentwatch_alert': sos,
+    'silentwatch_ok': alerts,
+    'silentwatch_checking': alerts,
+    'silentwatch_off': alerts,
+    'elder_setup_done': alerts,
   };
 }
 
@@ -243,6 +251,8 @@ class PushRouting {
     'communities': 'communities', // channels: community join request
     'market': 'market', // amarket: Assisto Market (flag-gated route)
     'carecall': 'carecall', // carecall: Care Call home (flag-gated route)
+    'silentwatch_family': 'elder_watch', // fcelder: "Check on Ammu" -> Silent Watch
+    'business/daily': 'biz_daily', // bizai2: the owner's 9 pm shop summary
   };
 
   /// kind -> fallback route when `route` is missing/unknown.
@@ -267,6 +277,11 @@ class PushRouting {
     'market': 'market', // amarket: Assisto Market (flag-gated route)
     'carecall_invite': 'carecall', // carecall
     'carecall_status': 'carecall', // carecall
+    'silentwatch_alert': 'elder_watch', // fcelder
+    'silentwatch_ok': 'elder_watch', // fcelder
+    'silentwatch_checking': 'elder_watch', // fcelder
+    'silentwatch_off': 'elder_watch', // fcelder
+    'elder_setup_done': 'elder_watch', // fcelder
   };
 
   /// tagada2: a shop push {route:'business/khata', open:'chat', business_id,

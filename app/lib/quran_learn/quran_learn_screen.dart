@@ -26,6 +26,8 @@ import 'qaida_audio.dart';
 import 'qaida_model.dart';
 import 'recite_check.dart';
 import 'recite_sheet.dart';
+import 'shikhi_widgets.dart'; // quranshikhi
+import '../l10n/quran_shikhi_text.dart'; // quranshikhi
 import 'uthmani_text.dart';
 
 bool _bn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
@@ -395,8 +397,11 @@ class QuranLessonScreen extends StatefulWidget {
   final QlStage stage;
   final QlLesson lesson;
   final QlProgress? progress;
+
+  /// quranshikhi: open with this item in focus (deep link / gallery).
+  final String? initialItem;
   const QuranLessonScreen(
-      {super.key, required this.stage, required this.lesson, this.progress});
+      {super.key, required this.stage, required this.lesson, this.progress, this.initialItem});
 
   @override
   State<QuranLessonScreen> createState() => _QuranLessonScreenState();
@@ -413,11 +418,14 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
   @override
   void initState() {
     super.initState();
+    final k = widget.lesson.items.indexWhere((i) => i.id == widget.initialItem);
+    if (k > 0) _sel = k;
     _init();
   }
 
   Future<void> _init() async {
     final p = widget.progress ?? await QlProgressStore.load();
+    await QsLinePrefs.load(); // quranshikhi: bn / en line toggles
     p.lastLesson = widget.lesson.id;
     if (!mounted) return;
     setState(() => _p = p);
@@ -529,7 +537,20 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
               style: AType.labelLarge
                   .copyWith(color: Theme.of(context).colorScheme.primary)),
           const SizedBox(height: Gap.xs),
-          Text(l.intro.of(bn), style: AType.bodyLarge),
+          // quranshikhi: Bangla + English together, each line can be hidden.
+          Wrap(
+            spacing: Gap.sm,
+            runSpacing: Gap.xs,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const QsLineToggles(),
+              QsStreakChip(
+                  days: p.streak(DateTime.now()),
+                  label: t.qlStreak(ld(context, p.streak(DateTime.now())))),
+            ],
+          ),
+          const SizedBox(height: Gap.xs),
+          QsBilingual(l.intro, keyPrefix: 'qs-intro', style: AType.bodyLarge),
           const SizedBox(height: Gap.md),
           if (l.grid) ...[
             _focusCard(t, p, l.items[_sel < l.items.length ? _sel : 0]),
@@ -678,7 +699,6 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
   }
 
   Widget _focusCard(AppLocalizations t, QlProgress p, QlItem i) {
-    final bn = _bn(context);
     final cs = Theme.of(context).colorScheme;
     final n = widget.lesson.items.length;
     return Card(
@@ -711,10 +731,17 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
               onPressed: _sel < n - 1 ? () => setState(() => _sel++) : null,
             ),
           ]),
-          if (i.say != null)
-            Text(t.qlSay(i.say!.of(bn)),
-                textAlign: TextAlign.center,
+          // quranshikhi: name / pronunciation hint in Bangla + English.
+          if (i.say != null) ...[
+            QsBilingual(qsIsLetter(i) ? kQsName : kQsPronHint,
+                keyPrefix: 'qs-say-label',
+                align: TextAlign.center,
+                style: AType.labelMedium.copyWith(color: AssistoTokens.of(context).textMuted)),
+            QsBilingual(i.say!,
+                keyPrefix: 'qs-say',
+                align: TextAlign.center,
                 style: AType.titleLarge.copyWith(fontWeight: FontWeight.w600)),
+          ],
           if (i.heavy)
             Center(
               child: Padding(
@@ -725,9 +752,19 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
                 ),
               ),
             ),
+          if (qsIsLetter(i)) ...[
+            const SizedBox(height: Gap.md),
+            QsLetterForms(i.ar!),
+          ],
           if (i.note != null) ...[
-            const SizedBox(height: Gap.sm),
-            Text(i.note!.of(bn), style: AType.bodyLarge),
+            const SizedBox(height: Gap.md),
+            if (qsIsLetter(i))
+              QsBilingual(kQsMakhraj,
+                  keyPrefix: 'qs-makhraj-title',
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
+            QsBilingual(i.note!, keyPrefix: 'qs-note', style: AType.bodyLarge),
+            const SizedBox(height: Gap.xs),
+            const QsUnderReview(),
           ],
           if (i.ref != null) ...[
             const SizedBox(height: Gap.xs),
@@ -741,7 +778,6 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
   }
 
   Widget _itemCard(AppLocalizations t, QlProgress p, QlItem i) {
-    final bn = _bn(context);
     final cs = Theme.of(context).colorScheme;
     return Card(
       key: Key('ql-item-${i.id}'),
@@ -757,11 +793,13 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
             Text(t.qlQuranRef(ld(context, i.ref!.label())), style: AType.bodySmall),
           if (i.say != null) ...[
             const SizedBox(height: Gap.xs),
-            Text(t.qlSay(i.say!.of(bn)), style: AType.titleMedium),
+            QsBilingual(i.say!, keyPrefix: 'qs-say-${i.id}', style: AType.titleMedium),
           ],
           if (i.note != null) ...[
             const SizedBox(height: Gap.xs),
-            Text(i.note!.of(bn), style: AType.bodyMedium),
+            QsBilingual(i.note!, keyPrefix: 'qs-note-${i.id}', style: AType.bodyMedium),
+            const SizedBox(height: Gap.xs),
+            const QsUnderReview(),
           ],
           const SizedBox(height: Gap.md),
           _actions(t, p, i),

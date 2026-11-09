@@ -22,6 +22,15 @@ abstract class CctvTeamSource {
   Future<Map<String, dynamic>> watchReport(int postId, String reason, {bool block = false});
   Future<void> watchBlock(int userId);
 
+  // cctvroles (V3 J): installer partners — the site owner's invites and the
+  // technician's own side (setup status only; backend cctv_partner_views.py)
+  Future<Map<String, dynamic>> installers(int siteId);
+  Future<Map<String, dynamic>> makeInstallerCode(int siteId);
+  Future<Map<String, dynamic>> endInstaller(int linkId);
+  Future<Map<String, dynamic>> partnerMe();
+  Future<Map<String, dynamic>> partnerApply(String name, String area);
+  Future<Map<String, dynamic>> partnerJoin(String code);
+
   /// How a still / post photo is loaded (fakes return a memory image).
   /// Decoded small: a 2 GB phone never holds full-size frames for a grid.
   ImageProvider image(String url, {int width = 360}) =>
@@ -75,6 +84,25 @@ class ApiCctvTeamSource extends CctvTeamSource {
   Future<void> watchBlock(int userId) async {
     await api.postJson('/shop/watch/block', {'user': userId});
   }
+
+  // cctvroles
+  @override
+  Future<Map<String, dynamic>> installers(int siteId) =>
+      api.getJson('/shop/sites/$siteId/installer');
+  @override
+  Future<Map<String, dynamic>> makeInstallerCode(int siteId) =>
+      api.postJson('/shop/sites/$siteId/installer');
+  @override
+  Future<Map<String, dynamic>> endInstaller(int linkId) =>
+      api.postJson('/shop/installer/$linkId/end');
+  @override
+  Future<Map<String, dynamic>> partnerMe() => api.getJson('/shop/partner/me');
+  @override
+  Future<Map<String, dynamic>> partnerApply(String name, String area) =>
+      api.postJson('/shop/partner/apply', {'name': name, 'area': area});
+  @override
+  Future<Map<String, dynamic>> partnerJoin(String code) =>
+      api.postJson('/shop/partner/join', {'code': code});
 }
 
 /// "14:05" today, "3/11 14:05" another day — digits in the UI language.

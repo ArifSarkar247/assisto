@@ -1,0 +1,1027 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "de",
+ "week": 1,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "de_a1"
+ ],
+ "title": {
+  "en": "Week 1: First steps — alphabet, greetings, introductions, numbers",
+  "bn": "সপ্তাহ ১: প্রথম ধাপ — বর্ণমালা, শুভেচ্ছা, পরিচয়, সংখ্যা"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not official exam material or result.",
+  "bn": "Assisto-র নিজের লেখা অনুশীলন পাঠ — এটি অফিসিয়াল পরীক্ষার প্রশ্ন বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "public Start Deutsch 1 / A1 exam format description"
+ },
+ "lessons": [
+  {
+   "id": "de-w01-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "The alphabet and spelling your name",
+    "bn": "বর্ণমালা আর নিজের নাম বানান করা"
+   },
+   "goal_bn": "জার্মান বর্ণমালা চিনবেন, ä ö ü ß উচ্চারণ করবেন, আর অফিসে নিজের নাম বানান করে বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "das Alphabet",
+     "bn": "বর্ণমালা",
+     "pos": "noun",
+     "example": {
+      "target": "Das deutsche Alphabet hat 26 Buchstaben und dazu ä, ö, ü und ß.",
+      "bn": "জার্মান বর্ণমালায় ২৬টি অক্ষর, সাথে ä, ö, ü আর ß।"
+     },
+     "say_bn": "দাস আলফাবেট"
+    },
+    {
+     "target": "der Buchstabe",
+     "bn": "অক্ষর, বর্ণ",
+     "pos": "noun",
+     "example": {
+      "target": "Der erste Buchstabe von meinem Namen ist ein R.",
+      "bn": "আমার নামের প্রথম অক্ষর R।"
+     },
+     "say_bn": "ডের বুখশ্টাবে"
+    },
+    {
+     "target": "der Vorname",
+     "bn": "নামের প্রথম অংশ (ডাকনাম নয়, অফিসিয়াল প্রথম নাম)",
+     "pos": "noun",
+     "example": {
+      "target": "Mein Vorname ist Nusrat.",
+      "bn": "আমার প্রথম নাম নুসরাত।"
+     },
+     "say_bn": "ডের ফোরনামে"
+    },
+    {
+     "target": "der Familienname",
+     "bn": "পারিবারিক নাম / পদবি (Nachname-ও বলে)",
+     "pos": "noun",
+     "example": {
+      "target": "Mein Familienname ist Chowdhury.",
+      "bn": "আমার পদবি চৌধুরী।"
+     },
+     "say_bn": "ডের ফামিলিয়েননামে"
+    },
+    {
+     "target": "buchstabieren",
+     "bn": "বানান করে বলা",
+     "pos": "verb",
+     "example": {
+      "target": "Können Sie Ihren Namen bitte buchstabieren?",
+      "bn": "আপনার নামটা কি দয়া করে বানান করে বলবেন?"
+     },
+     "say_bn": "বুখশ্টাবিরেন"
+    },
+    {
+     "target": "Wie bitte?",
+     "bn": "কী বললেন? (আবার বলুন — ভদ্রভাবে)",
+     "pos": "phrase",
+     "example": {
+      "target": "Wie bitte? Ich habe das nicht verstanden.",
+      "bn": "কী বললেন? আমি বুঝিনি।"
+     },
+     "say_bn": "ভি বিটে"
+    },
+    {
+     "target": "langsam",
+     "bn": "ধীরে",
+     "pos": "adverb",
+     "example": {
+      "target": "Bitte sprechen Sie langsam, ich lerne noch Deutsch.",
+      "bn": "দয়া করে ধীরে বলুন, আমি এখনো জার্মান শিখছি।"
+     },
+     "say_bn": "লাংজাম"
+    },
+    {
+     "target": "noch einmal",
+     "bn": "আরেকবার",
+     "pos": "phrase",
+     "example": {
+      "target": "Noch einmal, bitte: Wie ist Ihre Hausnummer?",
+      "bn": "আরেকবার বলুন তো: আপনার বাড়ির নম্বর কত?"
+     },
+     "say_bn": "নখ আইনমাল"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "ä · ö · ü · ß",
+     "explain_bn": "চারটি বিশেষ অক্ষর: ä = 'এ'-র মতো (Käse), ö = ঠোঁট গোল করে 'এ' বলুন (schön), ü = ঠোঁট গোল করে 'ই' বলুন (müde), ß = দুটো s-এর মতো তীক্ষ্ণ 'স' (Straße)। ফর্মে ä না লিখতে পারলে ae, ö → oe, ü → ue, ß → ss লেখা যায়।",
+     "examples": [
+      {
+       "target": "Herr Müller wohnt in der Goethestraße.",
+       "bn": "জনাব মুলার গ্যোটে-রাস্তায় থাকেন।"
+      },
+      {
+       "target": "Müller kann man auch Mueller schreiben.",
+       "bn": "Müller-কে Mueller লেখাও চলে।"
+      }
+     ]
+    },
+    {
+     "pattern": "ei = আই · ie = ঈ · ch · sch · w = ভ · v = ফ · z = ৎস",
+     "explain_bn": "সবচেয়ে বেশি ভুল হয় এগুলোতে: ei পড়ুন 'আই' (mein = মাইন), ie পড়ুন লম্বা 'ঈ' (Brief = ব্রীফ)। w পড়ুন 'ভ' (Wasser = ভাসার), v সাধারণত 'ফ' (Vater = ফাটার), z পড়ুন 'ৎস' (Zimmer = ৎসিমার), sch = 'শ'।",
+     "examples": [
+      {
+       "target": "Wie heißen Sie? — Ich heiße Mina.",
+       "bn": "আপনার নাম কী? — আমার নাম মিনা।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w01-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "clerk at the foreigners' office"
+        },
+        "B": {
+         "gender": "M",
+         "role": "Bangladeshi applicant"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Wie ist Ihr Familienname, bitte?"
+        },
+        {
+         "spk": "B",
+         "text": "Hossain."
+        },
+        {
+         "spk": "A",
+         "text": "Wie schreibt man das?"
+        },
+        {
+         "spk": "B",
+         "text": "H - O - S - S - A - I - N."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "A",
+         "text": "Mit zwei S. Danke schön."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "অফিসের কর্মী কোন নামটা লিখলেন?",
+      "options": [
+       "Hosain",
+       "Hossein",
+       "Hossain",
+       "Husain"
+      ],
+      "answer": "C",
+      "explain_bn": "লোকটি বানান করলেন H-O-S-S-A-I-N, কর্মীও বললেন 'mit zwei S' (দুটো S)। তাই Hossain।",
+      "skill": "spelling"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w01-l1-r1",
+      "passage": "Anmeldung Sprachkurs\nVorname: Farzana\nFamilienname: Akter\nLand: Bangladesch",
+      "prompt_bn": "এই মহিলার পদবি (Familienname) কী?",
+      "options": [
+       "Farzana",
+       "Akter",
+       "Bangladesch",
+       "Anmeldung"
+      ],
+      "answer": "B",
+      "explain_bn": "Familienname = পদবি; ফর্মে লেখা আছে Akter। Farzana হলো Vorname (প্রথম নাম)।",
+      "skill": "form"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w01-l1-w1",
+      "prompt_bn": "নিজের Vorname আর Familienname জার্মানে লিখুন, তারপর নামটা অক্ষর ধরে বানান লিখুন (যেমন R - A - …)।",
+      "model": {
+       "target": "Mein Vorname ist Tanvir. Mein Familienname ist Islam: I - S - L - A - M.",
+       "bn": "আমার প্রথম নাম তানভীর। আমার পদবি ইসলাম: I - S - L - A - M।"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w01-l1-s1",
+      "prompt_bn": "কেউ বলল 'Buchstabieren Sie bitte.' — জোরে নিজের পুরো নাম জার্মান উচ্চারণে বানান করে বলুন (A = আ, E = এ, I = ই, J = ইয়ট, Y = ইপসিলন)।",
+      "model": {
+       "target": "Gern. Mein Name ist Sabbir Ahmed. S - A - B - B - I - R, A - H - M - E - D.",
+       "bn": "অবশ্যই। আমার নাম সাব্বির আহমেদ। S-A-B-B-I-R, A-H-M-E-D।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w01-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Greetings and polite words",
+    "bn": "শুভেচ্ছা আর ভদ্র শব্দ"
+   },
+   "goal_bn": "দিনের সময় অনুযায়ী ঠিক শুভেচ্ছা দেবেন, আর du আর Sie-র পার্থক্য বুঝবেন।",
+   "vocab": [
+    {
+     "target": "Guten Morgen!",
+     "bn": "শুভ সকাল (সকাল প্রায় ১০টা পর্যন্ত)",
+     "pos": "phrase",
+     "example": {
+      "target": "Guten Morgen, Frau Weber! Wie geht es Ihnen?",
+      "bn": "শুভ সকাল, মিসেস ভেবার! আপনি কেমন আছেন?"
+     },
+     "say_bn": "গুটেন মর্গেন"
+    },
+    {
+     "target": "Guten Tag!",
+     "bn": "শুভ দিন / আসসালামু আলাইকুম-এর মতো সাধারণ শুভেচ্ছা (দিনের বেলায়)",
+     "pos": "phrase",
+     "example": {
+      "target": "Guten Tag, ich habe um zehn Uhr einen Termin.",
+      "bn": "শুভ দিন, দশটায় আমার একটা অ্যাপয়েন্টমেন্ট আছে।"
+     },
+     "say_bn": "গুটেন টাক"
+    },
+    {
+     "target": "Guten Abend!",
+     "bn": "শুভ সন্ধ্যা",
+     "pos": "phrase",
+     "example": {
+      "target": "Guten Abend, ist hier noch ein Platz frei?",
+      "bn": "শুভ সন্ধ্যা, এখানে কি এখনো একটা সিট খালি আছে?"
+     },
+     "say_bn": "গুটেন আবেন্ট"
+    },
+    {
+     "target": "Auf Wiedersehen!",
+     "bn": "আবার দেখা হবে (ভদ্র বিদায়)",
+     "pos": "phrase",
+     "example": {
+      "target": "Vielen Dank für Ihre Hilfe. Auf Wiedersehen!",
+      "bn": "আপনার সাহায্যের জন্য অনেক ধন্যবাদ। আবার দেখা হবে!"
+     },
+     "say_bn": "আউফ ভিডারজেয়েন"
+    },
+    {
+     "target": "Tschüss!",
+     "bn": "বাই (বন্ধু/পরিচিতদের সাথে)",
+     "pos": "phrase",
+     "example": {
+      "target": "Tschüss, Lena, bis morgen!",
+      "bn": "বাই লেনা, কাল দেখা হবে!"
+     },
+     "say_bn": "চুস"
+    },
+    {
+     "target": "danke",
+     "bn": "ধন্যবাদ",
+     "pos": "phrase",
+     "example": {
+      "target": "Danke für den Kaffee, er ist sehr gut.",
+      "bn": "কফির জন্য ধন্যবাদ, খুব ভালো হয়েছে।"
+     },
+     "say_bn": "ডাংকে"
+    },
+    {
+     "target": "bitte",
+     "bn": "দয়া করে / এই নিন / আপনাকেও স্বাগতম",
+     "pos": "phrase",
+     "example": {
+      "target": "Ein Wasser, bitte. — Bitte schön.",
+      "bn": "একটা পানি দিন, প্লিজ। — এই নিন।"
+     },
+     "say_bn": "বিটে"
+    },
+    {
+     "target": "Entschuldigung",
+     "bn": "মাফ করবেন / শুনছেন? (কারো দৃষ্টি আকর্ষণে)",
+     "pos": "phrase",
+     "example": {
+      "target": "Entschuldigung, wo ist hier die Toilette?",
+      "bn": "মাফ করবেন, এখানে টয়লেট কোথায়?"
+     },
+     "say_bn": "এন্টশুলডিগুং"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "du ↔ Sie",
+     "explain_bn": "জার্মানে 'তুমি/তুই' = du, আর 'আপনি' = Sie (সবসময় বড় হাতের S)। অফিস, দূতাবাস, ডাক্তার, বস, অপরিচিত মানুষ — সবার সাথে Sie। বন্ধু, পরিবার, শিশু আর সহপাঠীর সাথে du। সন্দেহ হলে Sie বলুন — এটাই নিরাপদ।",
+     "examples": [
+      {
+       "target": "Wie geht es Ihnen? — Danke, gut. Und Ihnen?",
+       "bn": "আপনি কেমন আছেন? — ধন্যবাদ, ভালো। আর আপনি?"
+      },
+      {
+       "target": "Wie geht's dir, Karim? — Super, und dir?",
+       "bn": "কেমন আছিস, করিম? — দারুণ, তুই?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w01-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "neighbour"
+        },
+        "B": {
+         "gender": "F",
+         "role": "Bangladeshi nurse"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Oh, Sie kommen jetzt erst nach Hause? Es ist ja schon acht Uhr."
+        },
+        {
+         "spk": "B",
+         "text": "Ja, die Schicht war lang. Ich bin sehr müde."
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "Dann schönen Feierabend!"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "এখন রাত আটটা। প্রতিবেশীর সাথে দেখা হলে প্রথমে কোন শুভেচ্ছা ঠিক?",
+      "options": [
+       "Guten Morgen!",
+       "Gute Nacht!",
+       "Tschüss!",
+       "Guten Abend!"
+      ],
+      "answer": "D",
+      "explain_bn": "সন্ধ্যা ৬টার পর থেকে দেখা হলে 'Guten Abend'। 'Gute Nacht' শুধু ঘুমাতে যাওয়ার সময় বিদায় হিসেবে বলে।",
+      "skill": "expression"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w01-l2-r1",
+      "passage": "Hallo Jamal,\nwie geht's dir? Ich bin jetzt in Köln. Die Stadt ist schön, aber es regnet viel.\nTschüss, Rafi",
+      "prompt_bn": "এই ছোট মেসেজটা কেমন সম্পর্কের মানুষের মধ্যে?",
+      "options": [
+       "বন্ধুদের মধ্যে (du, Hallo, Tschüss)",
+       "দূতাবাস আর আবেদনকারীর মধ্যে",
+       "ডাক্তার আর রোগীর মধ্যে",
+       "বস আর কর্মচারীর মধ্যে"
+      ],
+      "answer": "A",
+      "explain_bn": "'Hallo', 'dir' (du-এর রূপ) আর 'Tschüss' — সবই বন্ধুসুলভ। অফিসিয়াল হলে থাকত 'Sehr geehrte…' আর 'Ihnen'।",
+      "skill": "gist"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w01-l2-w1",
+      "prompt_bn": "একজন অপরিচিত মহিলা (Frau Becker)-কে সকালে শুভেচ্ছা জানিয়ে জিজ্ঞেস করুন তিনি কেমন আছেন — জার্মানে দুই লাইন লিখুন।",
+      "model": {
+       "target": "Guten Morgen, Frau Becker! Wie geht es Ihnen?",
+       "bn": "শুভ সকাল, মিসেস বেকার! আপনি কেমন আছেন?"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w01-l2-s1",
+      "prompt_bn": "জোরে বলুন: দোকানে ঢুকে শুভেচ্ছা দিন, পানি চান, ধন্যবাদ দিন, বিদায় নিন।",
+      "model": {
+       "target": "Guten Tag! Ein Wasser, bitte. — Danke schön. Auf Wiedersehen!",
+       "bn": "শুভ দিন! একটা পানি দিন, প্লিজ। — অনেক ধন্যবাদ। আবার দেখা হবে!"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w01-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Introducing yourself: heißen, kommen, wohnen",
+    "bn": "নিজের পরিচয়: নাম, দেশ, শহর"
+   },
+   "goal_bn": "নিজের নাম, কোথা থেকে এসেছেন, কোথায় থাকেন আর কোন ভাষা বলেন — চার বাক্যে বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "heißen",
+     "bn": "নাম হওয়া (Ich heiße … = আমার নাম …)",
+     "pos": "verb",
+     "example": {
+      "target": "Ich heiße Arif und das ist meine Kollegin Tania.",
+      "bn": "আমার নাম আরিফ, আর এ আমার সহকর্মী তানিয়া।"
+     },
+     "say_bn": "হাইসেন"
+    },
+    {
+     "target": "kommen aus",
+     "bn": "… থেকে আসা (দেশ/শহর)",
+     "pos": "verb",
+     "example": {
+      "target": "Ich komme aus Bangladesch, aus Sylhet.",
+      "bn": "আমি বাংলাদেশ থেকে এসেছি, সিলেট থেকে।"
+     },
+     "say_bn": "কমেন আউস"
+    },
+    {
+     "target": "wohnen in",
+     "bn": "… তে থাকা",
+     "pos": "verb",
+     "example": {
+      "target": "Wir wohnen jetzt in Dhaka, aber bald in Hamburg.",
+      "bn": "আমরা এখন ঢাকায় থাকি, কিন্তু শিগগিরই হামবুর্গে।"
+     },
+     "say_bn": "ভোনেন ইন"
+    },
+    {
+     "target": "sprechen",
+     "bn": "কথা বলা (ভাষা)",
+     "pos": "verb",
+     "example": {
+      "target": "Ich spreche Bengalisch, Englisch und ein bisschen Deutsch.",
+      "bn": "আমি বাংলা, ইংরেজি আর একটু জার্মান বলি।"
+     },
+     "say_bn": "শপ্রেখেন"
+    },
+    {
+     "target": "das Land",
+     "bn": "দেশ",
+     "pos": "noun",
+     "example": {
+      "target": "Bangladesch ist ein Land in Südasien.",
+      "bn": "বাংলাদেশ দক্ষিণ এশিয়ার একটি দেশ।"
+     },
+     "say_bn": "দাস লান্ট"
+    },
+    {
+     "target": "die Stadt",
+     "bn": "শহর",
+     "pos": "noun",
+     "example": {
+      "target": "Chattogram ist eine große Stadt am Meer.",
+      "bn": "চট্টগ্রাম সাগরপাড়ের একটি বড় শহর।"
+     },
+     "say_bn": "ডি শটাট"
+    },
+    {
+     "target": "die Sprache",
+     "bn": "ভাষা",
+     "pos": "noun",
+     "example": {
+      "target": "Welche Sprachen sprechen Sie?",
+      "bn": "আপনি কোন কোন ভাষা বলেন?"
+     },
+     "say_bn": "ডি শপ্রাখে"
+    },
+    {
+     "target": "Bengalisch",
+     "bn": "বাংলা ভাষা",
+     "pos": "noun",
+     "example": {
+      "target": "Meine Muttersprache ist Bengalisch.",
+      "bn": "আমার মাতৃভাষা বাংলা।"
+     },
+     "say_bn": "বেংগালিশ"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "ich -e · du -st · er/sie -t · wir -en · ihr -t · sie/Sie -en",
+     "explain_bn": "জার্মান ক্রিয়ার শেষাংশ কর্তা অনুযায়ী বদলায় — বাংলায় যেমন 'আমি থাকি / তুমি থাকো / সে থাকে'। wohnen: ich wohne, du wohnst, er wohnt, wir wohnen, Sie wohnen। heißen-এ du heißt (শুধু t), কারণ মূলে আগেই ß আছে।",
+     "examples": [
+      {
+       "target": "Er kommt aus Indien, sie kommt aus Nepal.",
+       "bn": "সে (ছেলে) ভারত থেকে, সে (মেয়ে) নেপাল থেকে।"
+      },
+      {
+       "target": "Woher kommst du? — Ich komme aus Khulna.",
+       "bn": "তুমি কোথা থেকে এসেছ? — আমি খুলনা থেকে।"
+      }
+     ]
+    },
+    {
+     "pattern": "Verb an Position 2",
+     "explain_bn": "জার্মান বাক্যে মূল ক্রিয়া সবসময় দ্বিতীয় স্থানে বসে। 'Ich wohne in Dhaka' — কিন্তু শুরুতে অন্য কিছু এলে কর্তা ক্রিয়ার পরে যায়: 'Jetzt wohne ich in Dhaka.' প্রশ্নবোধক শব্দের পরেও ক্রিয়া: 'Wo wohnen Sie?'",
+     "examples": [
+      {
+       "target": "In Berlin wohnt mein Onkel.",
+       "bn": "বার্লিনে আমার চাচা থাকেন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w01-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "course teacher"
+        },
+        "B": {
+         "gender": "M",
+         "role": "new student"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Herzlich willkommen im Kurs! Wie heißen Sie und woher kommen Sie?"
+        },
+        {
+         "spk": "B",
+         "text": "Ich heiße Imran Kabir. Ich komme aus Bangladesch, aber ich wohne schon zwei Jahre in Malaysia."
+        },
+        {
+         "spk": "A",
+         "text": "Und welche Sprachen sprechen Sie?"
+        },
+        {
+         "spk": "B",
+         "text": "Bengalisch, Englisch und Malaiisch."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ইমরান এখন কোথায় থাকেন?",
+      "options": [
+       "Bangladesch",
+       "Malaysia",
+       "Deutschland",
+       "Indien"
+      ],
+      "answer": "B",
+      "explain_bn": "তিনি বললেন 'ich wohne schon zwei Jahre in Malaysia' — দুই বছর ধরে মালয়েশিয়ায় থাকেন। Bangladesch হলো যেখান থেকে এসেছেন।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w01-l3-r1",
+      "passage": "Hallo! Ich bin Shirin. Ich komme aus Rajshahi. Jetzt wohne ich in Dhaka und lerne Deutsch. Ich spreche auch Hindi.",
+      "prompt_bn": "শিরিন কোন শহরের মানুষ (কোথা থেকে এসেছেন)?",
+      "options": [
+       "Dhaka",
+       "Rajshahi",
+       "Deutschland",
+       "Delhi"
+      ],
+      "answer": "B",
+      "explain_bn": "'Ich komme aus Rajshahi' — রাজশাহী থেকে এসেছেন। Dhaka-তে এখন থাকেন (wohne)।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w01-l3-w1",
+      "prompt_bn": "একটা ছোট পরিচয় লিখুন (৪ বাক্য): নাম, দেশ/শহর, কোথায় থাকেন, কোন ভাষা বলেন।",
+      "model": {
+       "target": "Ich heiße Mahmud Hasan. Ich komme aus Bangladesch, aus Cumilla. Ich wohne in Dhaka. Ich spreche Bengalisch und Englisch.",
+       "bn": "আমার নাম মাহমুদ হাসান। আমি বাংলাদেশ থেকে, কুমিল্লা থেকে। আমি ঢাকায় থাকি। আমি বাংলা আর ইংরেজি বলি।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w01-l3-s1",
+      "prompt_bn": "পরীক্ষার Sprechen Teil 1-এর মতো জোরে নিজের পরিচয় দিন: Name, Land, Wohnort, Sprachen।",
+      "model": {
+       "target": "Mein Name ist Rupa Das. Ich komme aus Bangladesch. Ich wohne in Gazipur. Ich spreche Bengalisch und ein bisschen Deutsch.",
+       "bn": "আমার নাম রূপা দাস। আমি বাংলাদেশ থেকে। আমি গাজীপুরে থাকি। আমি বাংলা আর একটু জার্মান বলি।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w01-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "sein and jobs",
+    "bn": "sein (হওয়া) আর পেশা"
+   },
+   "goal_bn": "'sein' ক্রিয়ার সব রূপ শিখবেন আর নিজের পেশা ও পারিবারিক অবস্থা বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "sein",
+     "bn": "হওয়া (am/is/are)",
+     "pos": "verb",
+     "example": {
+      "target": "Ich bin müde, aber du bist fit.",
+      "bn": "আমি ক্লান্ত, কিন্তু তুমি চাঙ্গা।"
+     },
+     "say_bn": "জাইন"
+    },
+    {
+     "target": "der Beruf",
+     "bn": "পেশা",
+     "pos": "noun",
+     "example": {
+      "target": "Was sind Sie von Beruf?",
+      "bn": "আপনার পেশা কী?"
+     },
+     "say_bn": "ডের বেরুফ"
+    },
+    {
+     "target": "die Pflegefachkraft",
+     "bn": "প্রশিক্ষিত নার্স / সেবাকর্মী",
+     "pos": "noun",
+     "example": {
+      "target": "Deutschland sucht viele Pflegefachkräfte.",
+      "bn": "জার্মানি অনেক প্রশিক্ষিত নার্স খুঁজছে।"
+     },
+     "say_bn": "ডি প্ফ্লেগেফাখক্রাফট"
+    },
+    {
+     "target": "der Elektriker / die Elektrikerin",
+     "bn": "ইলেকট্রিশিয়ান (পুরুষ / নারী)",
+     "pos": "noun",
+     "example": {
+      "target": "Mein Bruder ist Elektriker in einer Fabrik.",
+      "bn": "আমার ভাই একটা কারখানায় ইলেকট্রিশিয়ান।"
+     },
+     "say_bn": "এলেকট্রিকার"
+    },
+    {
+     "target": "der Koch / die Köchin",
+     "bn": "রাঁধুনি / শেফ (পুরুষ / নারী)",
+     "pos": "noun",
+     "example": {
+      "target": "Sie ist Köchin in einem Hotel.",
+      "bn": "তিনি একটা হোটেলে রাঁধুনি।"
+     },
+     "say_bn": "ডের কখ / ডি ক্যোখিন"
+    },
+    {
+     "target": "arbeiten als",
+     "bn": "… হিসেবে কাজ করা",
+     "pos": "verb",
+     "example": {
+      "target": "Ich arbeite als Fahrer bei einer Firma.",
+      "bn": "আমি একটা কোম্পানিতে ড্রাইভার হিসেবে কাজ করি।"
+     },
+     "say_bn": "আরবাইটেন আলস"
+    },
+    {
+     "target": "ledig",
+     "bn": "অবিবাহিত",
+     "pos": "adjective",
+     "example": {
+      "target": "Ich bin 24 Jahre alt und ledig.",
+      "bn": "আমার বয়স ২৪, অবিবাহিত।"
+     },
+     "say_bn": "লেডিখ"
+    },
+    {
+     "target": "verheiratet",
+     "bn": "বিবাহিত",
+     "pos": "adjective",
+     "example": {
+      "target": "Herr Alam ist verheiratet und hat zwei Kinder.",
+      "bn": "জনাব আলম বিবাহিত, তাঁর দুই সন্তান।"
+     },
+     "say_bn": "ফেয়ারহাইরাটেট"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "ich bin · du bist · er/sie/es ist · wir sind · ihr seid · sie/Sie sind",
+     "explain_bn": "sein অনিয়মিত ক্রিয়া — মুখস্থ করতে হবে। বাংলায় 'আমি ছাত্র' বলতে ক্রিয়া লাগে না, কিন্তু জার্মানে লাগে: 'Ich bin Student.'",
+     "examples": [
+      {
+       "target": "Wir sind aus Bangladesch.",
+       "bn": "আমরা বাংলাদেশ থেকে।"
+      },
+      {
+       "target": "Sind Sie Frau Roy? — Ja, das bin ich.",
+       "bn": "আপনি কি মিসেস রায়? — জি, আমিই।"
+      }
+     ]
+    },
+    {
+     "pattern": "Beruf ohne Artikel; -in = Frau",
+     "explain_bn": "পেশা বলার সময় ein/eine বসে না: 'Ich bin Koch' (Ich bin ein Koch নয়)। নারীর পেশায় সাধারণত -in যোগ হয়: Lehrer → Lehrerin, Fahrer → Fahrerin।",
+     "examples": [
+      {
+       "target": "Sie ist Lehrerin und er ist Lehrer.",
+       "bn": "তিনি (নারী) শিক্ষিকা আর তিনি (পুরুষ) শিক্ষক।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w01-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "interviewer"
+        },
+        "B": {
+         "gender": "F",
+         "role": "applicant"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Was sind Sie von Beruf, Frau Sultana?"
+        },
+        {
+         "spk": "B",
+         "text": "Ich bin Krankenschwester. Ich arbeite seit fünf Jahren in einem Krankenhaus in Dhaka."
+        },
+        {
+         "spk": "A",
+         "text": "Sind Sie verheiratet?"
+        },
+        {
+         "spk": "B",
+         "text": "Nein, ich bin ledig."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "মিসেস সুলতানার পেশা কী?",
+      "options": [
+       "Köchin",
+       "Lehrerin",
+       "Krankenschwester",
+       "Elektrikerin"
+      ],
+      "answer": "C",
+      "explain_bn": "তিনি বললেন 'Ich bin Krankenschwester' — তিনি নার্স, ঢাকার হাসপাতালে ৫ বছর ধরে।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w01-l4-r1",
+      "passage": "Das ist Herr Mollah. Er ist 35 Jahre alt und verheiratet. Er ist Schweißer von Beruf. Seine Frau ist Schneiderin.",
+      "prompt_bn": "জনাব মোল্লার স্ত্রী কী কাজ করেন?",
+      "options": [
+       "দর্জি",
+       "ওয়েল্ডার",
+       "নার্স",
+       "শিক্ষিকা"
+      ],
+      "answer": "A",
+      "explain_bn": "Schneiderin = নারী দর্জি। Schweißer (ওয়েল্ডার) হলো জনাব মোল্লার নিজের পেশা।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w01-l4-w1",
+      "prompt_bn": "sein-এর ঠিক রূপ বসিয়ে তিনটি বাক্য লিখুন: নিজের পেশা, আপনি বিবাহিত/অবিবাহিত, আর আপনার এক বন্ধুর পেশা।",
+      "model": {
+       "target": "Ich bin Mechaniker. Ich bin verheiratet. Mein Freund Sumon ist Koch.",
+       "bn": "আমি মেকানিক। আমি বিবাহিত। আমার বন্ধু সুমন রাঁধুনি।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w01-l4-s1",
+      "prompt_bn": "কেউ জিজ্ঞেস করল 'Was sind Sie von Beruf?' — জোরে উত্তর দিন: পেশা আর কোথায় কাজ করেন।",
+      "model": {
+       "target": "Ich bin Elektriker. Ich arbeite bei einer Baufirma in Narayanganj.",
+       "bn": "আমি ইলেকট্রিশিয়ান। আমি নারায়ণগঞ্জে একটা নির্মাণ কোম্পানিতে কাজ করি।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w01-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Numbers, phone number and age",
+    "bn": "সংখ্যা, ফোন নম্বর আর বয়স"
+   },
+   "goal_bn": "০ থেকে ১০০ পর্যন্ত সংখ্যা শুনে বুঝবেন, ফোন নম্বর আর বয়স বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "null, eins, zwei, drei",
+     "bn": "০, ১, ২, ৩",
+     "pos": "number",
+     "example": {
+      "target": "Zählen Sie bitte laut: null, eins, zwei, drei, vier, fünf.",
+      "bn": "জোরে গুনুন তো: শূন্য, এক, দুই, তিন, চার, পাঁচ।"
+     },
+     "say_bn": "নুল, আইনস, ৎস্‌ভাই, দ্রাই"
+    },
+    {
+     "target": "zwölf",
+     "bn": "১২",
+     "pos": "number",
+     "example": {
+      "target": "Das Baby ist zwölf Monate alt.",
+      "bn": "বাচ্চাটার বয়স বারো মাস।"
+     },
+     "say_bn": "ৎস্‌ভ্যোলফ"
+    },
+    {
+     "target": "siebzehn",
+     "bn": "১৭",
+     "pos": "number",
+     "example": {
+      "target": "Der Bus Nummer siebzehn fährt zum Bahnhof.",
+      "bn": "১৭ নম্বর বাস স্টেশনে যায়।"
+     },
+     "say_bn": "জীবৎসেন"
+    },
+    {
+     "target": "einundzwanzig",
+     "bn": "২১ (এক-আর-বিশ)",
+     "pos": "number",
+     "example": {
+      "target": "Ich bin einundzwanzig Jahre alt.",
+      "bn": "আমার বয়স একুশ বছর।"
+     },
+     "say_bn": "আইনউন্টৎস্‌ভানৎসিখ"
+    },
+    {
+     "target": "hundert",
+     "bn": "১০০",
+     "pos": "number",
+     "example": {
+      "target": "Das Zimmer kostet hundert Euro pro Woche.",
+      "bn": "রুমটার ভাড়া সপ্তাহে একশো ইউরো।"
+     },
+     "say_bn": "হুন্ডার্ট"
+    },
+    {
+     "target": "die Telefonnummer",
+     "bn": "ফোন নম্বর",
+     "pos": "noun",
+     "example": {
+      "target": "Wie ist Ihre Telefonnummer, bitte?",
+      "bn": "আপনার ফোন নম্বর কত, প্লিজ?"
+     },
+     "say_bn": "ডি টেলেফোননুমার"
+    },
+    {
+     "target": "alt",
+     "bn": "বয়সী / পুরনো",
+     "pos": "adjective",
+     "example": {
+      "target": "Mein Vater ist sechzig Jahre alt.",
+      "bn": "আমার বাবার বয়স ষাট বছর।"
+     },
+     "say_bn": "আল্ট"
+    },
+    {
+     "target": "das Jahr",
+     "bn": "বছর",
+     "pos": "noun",
+     "example": {
+      "target": "Ich lerne seit einem Jahr Deutsch.",
+      "bn": "আমি এক বছর ধরে জার্মান শিখছি।"
+     },
+     "say_bn": "দাস ইয়ার"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "21–99: einer + und + zehner",
+     "explain_bn": "২১ থেকে ৯৯ পর্যন্ত জার্মানে আগে একক, পরে দশক বলে: 25 = fünfundzwanzig ('পাঁচ-আর-বিশ'), 68 = achtundsechzig। শোনার সময় প্রথম সংখ্যাটা মনে রাখুন, তারপর দশক — না হলে 52 আর 25 গুলিয়ে যায়। ব্যতিক্রম বানান: sechzehn/sechzig (s বাদ), siebzehn/siebzig (en বাদ), dreißig (ß)।",
+     "examples": [
+      {
+       "target": "Wie alt sind Sie? — Ich bin dreiunddreißig.",
+       "bn": "আপনার বয়স কত? — তেত্রিশ।"
+      },
+      {
+       "target": "Meine Nummer ist 0151 2647 980.",
+       "bn": "আমার নম্বর 0151 2647 980।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w01-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "doctor's receptionist"
+        },
+        "B": {
+         "gender": "M",
+         "role": "patient"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Ihre Telefonnummer, bitte?"
+        },
+        {
+         "spk": "B",
+         "text": "Null-eins-sieben-sechs, dann vierundfünfzig, achtunddreißig, neunzehn."
+        },
+        {
+         "spk": "A",
+         "text": "Also 0176 54 38 19?"
+        },
+        {
+         "spk": "B",
+         "text": "Ja, genau."
+        }
+       ],
+       "repeat": 2
+      },
+      "prompt_bn": "রোগীর ফোন নম্বর কোনটা?",
+      "options": [
+       "Nummer 0176 45 83 91",
+       "Nummer 0167 54 38 19",
+       "Nummer 0176 54 38 19",
+       "Nummer 0176 54 83 19"
+      ],
+      "answer": "C",
+      "explain_bn": "vierundfünfzig = ৫৪ (চার-আর-পঞ্চাশ), achtunddreißig = ৩৮, neunzehn = ১৯। রিসেপশনিস্টও মিলিয়ে বললেন 0176 54 38 19।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w01-l5-r1",
+      "passage": "Sprachschule Linde – Kurs A1\nKursgebühr: 390 Euro\nKursbeginn: 3. Februar\nTelefon: 0228 71 64 50",
+      "prompt_bn": "কোর্সের ফি কত?",
+      "options": [
+       "৩৯০ ইউরো",
+       "৩৯ ইউরো",
+       "৯৩০ ইউরো",
+       "৭১৬ ইউরো"
+      ],
+      "answer": "A",
+      "explain_bn": "Kursgebühr মানে কোর্সের ফি: 390 Euro (dreihundertneunzig)। 71 64 50 হলো ফোন নম্বরের অংশ।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w01-l5-w1",
+      "prompt_bn": "এই সংখ্যাগুলো জার্মান শব্দে লিখুন: 14, 27, 45, 99।",
+      "model": {
+       "target": "vierzehn, siebenundzwanzig, fünfundvierzig, neunundneunzig",
+       "bn": "১৪, ২৭, ৪৫, ৯৯"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w01-l5-s1",
+      "prompt_bn": "জোরে বলুন: আপনার বয়স আর একটা কাল্পনিক ফোন নম্বর (দুই অঙ্ক করে জোড়ায় জোড়ায়)।",
+      "model": {
+       "target": "Ich bin achtundzwanzig Jahre alt. Meine Telefonnummer ist null-eins-sieben-eins, zweiundvierzig, sechzehn, neunzig.",
+       "bn": "আমার বয়স আটাশ বছর। আমার ফোন নম্বর 0171 42 16 90।"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}
