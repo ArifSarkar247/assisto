@@ -52,6 +52,10 @@ The 3 Nov STOP ORDER pause is OVER (owner resumed 4 Nov 02:25 and 9 Nov 10:05) �
 - Round 1 — **DONE (314)**; customer due link — **DONE (320)**.
 - Round 2 (due link in tagada, win-back outcome, stock alerts, daily summary, Prochar scheduler) — **IN PROGRESS (agent bizai2)**.
 
+## RUNNING IN PARALLEL (owner 22:05 MAX PARALLEL replaces the 21:55 backlog order)
+9. Language Partner V2 (owner_actions/OWNER_LANGUAGE_PARTNER_V2_9NOV_2145.md) — **IN PROGRESS again (owner 22:05 MAX PARALLEL: lanes 11–13)** (was parked 21:55) (spec allowed now; 3 agents finished their current small step and stopped; code committed locally on agent/lpcore, agent/lpcontent, agent/lpapp).
+10. Quran bilingual + Quran Shikhi (owner_actions/OWNER_QURAN_BILINGUAL_9NOV_2155.md) — **IN PROGRESS (owner 22:05: lanes 14–16)**; first step = owner_actions/QURAN_BILINGUAL_SPEC_BN.md with each tafsir licence confirmed in writing.
+
 ## Also done today (9 Nov)
 Care Call (314) · account recovery (314) · plans overhaul + pricing v2 (applied 9 Nov) · My Circle quiet hours + second-phone sign-in (318) · deep links fixed (assetlinks, verified by Google) · Play production access applied (14:23, waiting for Google) · disk 66% → 49%.
 
