@@ -49694,5 +49694,94 @@
   "sj2FromChange": "Change",
   "@sj2FromChange": {
     "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
-  }
+  },
+  "cdetZoneGate": "Shutter / gate",
+  "@cdetZoneGate": {
+    "description": "cctvdet zone tool: person at the shutter or gate, gate left open"
+  },
+  "cdetZonePost": "Counter / post",
+  "@cdetZonePost": {
+    "description": "cctvdet zone tool: counter or guard post that must not be left empty"
+  },
+  "cdetZoneHelp": "Shutter / gate: an alert when someone is at it while the camera is on guard, and (if you switch it on) when it is left open. Counter / post: an alert when nobody is there for some minutes during its hours. These need the person check (AI) on the phone camera, Guard Box or Shop Box. Never face recognition.",
+  "cdetOptionsTooltip": "Zone settings",
+  "cdetOptionsTitle": "Settings: {name}",
+  "@cdetOptionsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetLabel": "Name (e.g. Main shutter)",
+  "cdetMinutes": "{n} min",
+  "@cdetMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumGatePerson": "Alerts when someone is at it",
+  "cdetSumGateOpen": "left open over {min}",
+  "@cdetSumGateOpen": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumPost": "Alerts when empty for {min} ({hours})",
+  "@cdetSumPost": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumLoiter": "someone stays over {min}",
+  "@cdetSumLoiter": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetOff": "Off",
+  "cdetGatePersonBody": "While the camera is on guard, you get an alert with a photo and a 10-second clip when someone is at this shutter or gate.",
+  "cdetOpenTitle": "Alert if it is left open",
+  "cdetOpenBody": "The camera remembers how it looks when closed and warns you when it stays different.",
+  "cdetOpenAfter": "Alert when open for longer than",
+  "cdetClosedNow": "It is closed now — remember this",
+  "cdetClosedSaved": "Done. Tap Save, then keep it closed for a minute while the camera takes its picture.",
+  "cdetClosedNeeded": "Close it, then tap the button above once — without this the open check cannot start.",
+  "cdetClosedKnown": "The closed picture is remembered. Tap again if the camera was moved.",
+  "cdetPostHours": "Someone must be here",
+  "cdetPostAbsent": "Alert when empty for",
+  "cdetLoiterTitle": "Alert if someone stays longer than",
+  "cdetNeedsAi": "Uses only a person box on the device — never a face, a name or who it is.",
+  "cdetDone": "Done",
+  "cdetEvGate": "Someone is at the shutter / gate",
+  "cdetEvPost": "The counter / post has been left empty",
+  "cdetEvGateOpen": "The gate / shutter has been left open",
+  "cdetDescAi": "AI: {text}",
+  "@cdetDescAi": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetDescTemplate": "{text} (not AI)",
+  "@cdetDescTemplate": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetReviewOnly": "Review only — never an accusation."
 }
