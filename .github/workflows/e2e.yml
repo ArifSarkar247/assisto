@@ -27,8 +27,7 @@ on:
         default: false
   schedule:
     - cron: "0 21 * * *"   # nightly, 03:00 Asia/Dhaka (after reality.yml)
-  push:
-    branches: ["ci/e2eproof", "ci/e2eproof-*"]   # the agent's own CI branch only
+  # (no push trigger: runners are shared — lead 9 Nov; dispatch by hand or nightly)
 
 concurrency:
   group: e2e-${{ github.ref }}
