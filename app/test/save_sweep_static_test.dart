@@ -75,7 +75,7 @@ void main() {
         final before = s.substring(m.start > 120 ? m.start - 120 : 0, m.start);
         final after = s.substring(m.start, math.min(m.start + 80, s.length));
         if (before.contains('LatinDigitsFormatter()')) continue;
-        if (after.contains(r'০')) continue; // allow-list already has Bangla
+        if (after.contains(r'\u09E6')) continue; // allow-list already has Bangla
         bad.add('${f.path}:${_line(s, m.start)}');
       }
     }

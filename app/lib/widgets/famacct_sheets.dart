@@ -212,7 +212,7 @@ Future<int?> showAmountSheet(BuildContext context, String title) {
           FilledButton(
             key: const ValueKey('fa-amount-save'),
             onPressed: () {
-              // savesweep: "১৫০০০" / "15,000" parse via the shared parser.
+              // savesweep: Bangla digits / "15,000" parse via the shared parser.
               final p = FamAcctLocal.takaToPoisha(ctrl.text);
               if (p <= 0) {
                 setD(() => error = AppLocalizations.of(context).ssAmountInvalid);

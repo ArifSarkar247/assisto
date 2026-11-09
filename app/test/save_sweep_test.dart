@@ -3,7 +3,7 @@
 // expense 10000 bazar, (c) Mess and bachelor Add member. The server log showed
 // NO request at all: the failure was inside the app. These tests reproduce
 // each one exactly and fail on the old code:
-//   (a)(b) Bangla keyboard digits ("১৫০০০") -> int.tryParse null -> 0 ->
+//   (a)(b) Bangla keyboard digits (Bangla digits) -> int.tryParse null -> 0 ->
 //          `if (p <= 0) return;` — dialog stays, no message, no call.
 //   (c)    the sheet padded the keyboard twice (builder ctx outside
 //          AppSheetInsets) -> Column overflow -> Save drawn but not tappable.

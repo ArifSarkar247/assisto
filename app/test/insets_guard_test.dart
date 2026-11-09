@@ -36,7 +36,6 @@ import 'package:assisto/screens/crm/crm100_api.dart';
 import 'package:assisto/screens/crm/crm_log_activity_sheet.dart';
 import 'package:assisto/screens/crm/crm_send_sheet.dart';
 import 'package:assisto/screens/vehicle_tracking_screen.dart';
-import 'package:assisto/screens/mess_accounting_screen.dart'; // savesweep
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -146,9 +145,6 @@ final Map<String, _Sheet> _sheets = {
                           onPressed: () {}, child: const Text('Save'))),
                 ]),
               ))),
-  'mess_add_member': _Sheet( // savesweep: the real owner-reported sheet
-      screen: () => const MessAccountingScreen(),
-      tap: () => find.byIcon(Icons.person_add_alt_1_rounded)),
   // ... and the sticky-button body
   'helper_sticky': _Sheet(
       open: (c) => showAppSheet<void>(

@@ -23,52 +23,52 @@ String _digitOf(int r) {
   return String.fromCharCode(r);
 }
 
-/// Any-script digits -> Latin, separators removed, decimal mark -> '.'.
-/// Returns the cleaned numeric string ('' when nothing numeric).
+/// Any-script digits -> Latin, grouping/currency removed, decimal -> '.'.
+/// STRICT: returns '' when anything else is left (so "12abc" stays invalid
+/// and the form shows its error, exactly like int.tryParse did for Latin).
 String normalizeNumInput(String? input) {
   if (input == null) return '';
   final b = StringBuffer();
   for (final r in input.runes) {
     if (r == 0x066B) {
       b.write('.');
+    } else if (r == 0x2212) {
+      b.write('-'); // unicode minus
     } else {
       b.write(_digitOf(r));
     }
   }
   var s = b.toString().trim();
-  s = s.replaceAll(RegExp(r'(?i)\b(bdt|tk|taka)\b'), '');
-  // drop grouping commas (Latin, Arabic thousands, full-width), spaces, NBSP
-  s = s.replaceAll(RegExp('[,٬，\\s  _]'), '');
-  final neg = s.startsWith('-') || s.startsWith('−');
-  s = s.replaceAll(RegExp(r'[^0-9.]'), '');
-  // keep only the first decimal point
-  final dot = s.indexOf('.');
-  if (dot >= 0) {
-    s = s.substring(0, dot + 1) + s.substring(dot + 1).replaceAll('.', '');
-  }
-  if (s.isEmpty || s == '.') return '';
-  return neg ? '-$s' : s;
+  // currency words / taka sign, grouping commas (Latin, Arabic, full-width),
+  // spaces incl. NBSP / narrow NBSP, underscores
+  s = s.replaceAll(RegExp(r'\b(bdt|tk|taka)\b\.?', caseSensitive: false), '');
+  s = s.replaceAll(RegExp('[,\\u066C\\uFF0C\\u09F3\\s\\u00A0\\u202F_]'), '');
+  if (!RegExp(r'^[+-]?(\d+\.?\d*|\.\d+)$').hasMatch(s)) return '';
+  if (s.startsWith('+')) s = s.substring(1);
+  return s;
 }
 
 /// User-typed number -> double, or null when the field holds no number.
 double? parseNumInput(String? input) {
   final s = normalizeNumInput(input);
-  if (s.isEmpty || s == '-') return null;
+  if (s.isEmpty) return null;
   return double.tryParse(s);
 }
 
-/// User-typed whole number -> int (decimals rounded), or null.
+/// User-typed whole number -> int, or null (also null for "1.5", as
+/// int.tryParse was; "1,200" and Bangla digits are fine).
 int? parseIntInput(String? input) {
-  final v = parseNumInput(input);
-  if (v == null || v.isNaN || v.isInfinite) return null;
-  return v.round();
+  final s = normalizeNumInput(input);
+  if (s.isEmpty) return null;
+  final whole = s.endsWith('.') ? s.substring(0, s.length - 1) : s;
+  return int.tryParse(whole);
 }
 
 /// User-typed taka -> INTEGER poisha (half-up on the paisa, no binary float),
 /// or null when the field holds no number.
 int? takaToPoishaInput(String? input) {
   var s = normalizeNumInput(input);
-  if (s.isEmpty || s == '-') return null;
+  if (s.isEmpty) return null;
   final neg = s.startsWith('-');
   if (neg) s = s.substring(1);
   final dot = s.indexOf('.');
@@ -85,7 +85,7 @@ int? takaToPoishaInput(String? input) {
 }
 
 /// Input formatter: converts Bangla / Arabic-Indic / full-width digits to
-/// Latin AS THE USER TYPES. Put it FIRST, before any digits-only filter —
+/// Latin AS THE USER TYPES. Put it FIRST, before any digits-only filter:
 /// `FilteringTextInputFormatter.digitsOnly` alone silently drops every Bangla
 /// digit (the field stays empty and Save looks dead).
 class LatinDigitsFormatter extends TextInputFormatter {
