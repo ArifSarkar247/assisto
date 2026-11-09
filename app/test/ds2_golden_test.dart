@@ -68,6 +68,7 @@ const ds2Screens = <String>[
   'health_tips', // batch 4
   'medicine_db', // batch 4
   'sjl_hub', // batch 5
+  'push_settings', // batch 5
 ];
 
 Future<void> _png(WidgetTester tester, GlobalKey key, String name) async {
