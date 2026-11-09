@@ -48,7 +48,9 @@ def _clear_caches():
     from django.core.cache import cache
     cache.clear()            # the per-user link-try counter
     from core.logic import ezviz as EZ, imou as IM
-    from core.logic.cctv_connect import hikconnect as HC
+    from core.logic.cctv_connect import dolynk as DL, hikconnect as HC
+    DL._tokens.clear()
+    DL._user_tokens.clear()
     EZ._token_cache.clear()
     IM._token_cache.clear()
     HC._token_cache.clear()
@@ -216,16 +218,6 @@ class AdapterMockTests(SimpleTestCase):
                        cfg=dict(self.sim.cfg("hikconnect"), api_base="https://evil.test"))
         self.assertEqual(a._base(), "https://ieu.hik-connect.com")
 
-    def test_dolynk_sign_and_method_names_from_owner_admin(self):
-        from core.logic import imou as IM
-        a = CC.adapter("dolynk", http=self.sim.http,
-                       cfg=dict(self.sim.cfg("dolynk"), sign_mode="hmac",
-                                methods_json='{"bindDevice": "device.bind", "bad": "x;rm"}'))
-        c = a.client()
-        self.assertIs(c.signer, IM.sign_v2)
-        self.assertEqual(c.method_map, {"bindDevice": "device.bind"})
-        self.assertIs(CC.adapter("dolynk", cfg=self.sim.cfg("dolynk")).client().signer, IM.sign)
-
     def test_off_without_keys(self):
         self.assertFalse(CC.adapter("dolynk", cfg={"app_id": "x", "app_secret": "y"}).configured())
         with self.assertRaises(CC.ConnectError):
@@ -252,7 +244,7 @@ def _enable(slug, cfg):
     Integration.objects.update_or_create(slug=slug, defaults={
         "enc_blob": integrations._encrypt(cfg), "status": "working",
         # DoLynk switches on only after a SIGNED sign-in passed the Test
-        "detail": CC.DOLYNK_OK + " (test)" if slug == "dolynk" else ""})
+        "detail": CC.SIGNED_IN[slug] + " (test)" if slug in CC.SIGNED_IN else ""})
 
 
 class ConnectApiE2ETests(E2E._Base):
@@ -449,7 +441,9 @@ class ConnectApiE2ETests(E2E._Base):
         self.assertEqual([p["id"] for p in r.data["providers"]], ["ezviz"])
         self.assertIn("I own this camera", r.data["providers"][0]["consent_en"])
 
-    def test_dolynk_callback_token_safe_log_and_alarm(self):
+    def test_dolynk_callback_token_signed_push_and_safe_log(self):
+        """dolynkreal: the Open IoT push (Doc Center "Event message format
+        definition") — secret URL token + sign = HMAC-SHA512(id, SK)."""
         from core import cctv_connect_views as V
         from core.models import ShopEvent
         link, serial, ch, cam = self.connect("dolynk")
@@ -457,39 +451,40 @@ class ConnectApiE2ETests(E2E._Base):
         path = url[url.index("/api/v1/"):]
         r = APIClient().post(path.rsplit("/", 1)[0] + "/wrong", "{}", content_type="application/json")
         self.assertEqual(r.status_code, 404)
+        a = {"id": "%s-7" % serial, "channel": int(ch), "type": "smdHuman", "at": time.time(),
+             "pic": "https://cloudreadproxy-online-sg.imoulife.com/x_img/Alarm/0/a.jpg"}
+        msg = self.sim.dl_msg(serial, a)
         with self.assertLogs("assisto.shop", level="INFO") as logs:
-            r = APIClient().post(path, json.dumps({"hello": "secret-value", "msgType": "verify"}),
+            r = APIClient().post(path, json.dumps(dict(msg, sign="0" * 128)),
                                  content_type="application/json")
         self.assertEqual(r.status_code, 200)
-        self.assertIn("hello", "\n".join(logs.output))
-        self.assertNotIn("secret-value", "\n".join(logs.output))     # keys only, never values
-        alarm = {"msgType": "human", "deviceId": serial, "channelId": str(ch), "alarmId": "dl-9",
-                 "picurlArray": ["https://pic.dolynkcloud.com/a/9.jpg"]}
-        r = APIClient().post(path, json.dumps(alarm), content_type="application/json")
+        self.assertEqual(r.data["events"][0], {"ignored": "bad_sign"})
+        out = "\n".join(logs.output)
+        self.assertIn("msgType", out)                        # keys only, never values
+        self.assertNotIn(serial, out)
+        r = APIClient().post(path, json.dumps(msg), content_type="application/json")
         self.assertEqual(r.data["events"][0], {"result": "raised"}, r.data)
+        self.assertEqual((r.data["code"], r.data["msg"]), (200, "success"))
         self.assertTrue(ShopEvent.objects.filter(camera_id=cam["id"]).exists())
         rows = {x["slug"]: x for x in integrations.list_all("en")}
         self.assertIn("/api/v1/cctv/dolynk/callback/", rows["dolynk"]["usage"])
 
     def test_dolynk_on_only_after_signed_signin(self):
         from core.models import Integration
-
-        class _R:
-            status_code = 404
-        get = mock.Mock()
-        get.get.return_value = _R()
         Integration.objects.create(slug="dolynk", status="working",
                                    enc_blob=integrations._encrypt(self.sim.cfg("dolynk")),
                                    detail="DoLynk keys saved; server reachable (HTTP 404).")
-        self.assertNotIn("dolynk", self.providers())          # reachability alone: OFF
+        self.assertNotIn("dolynk", self.providers())          # keys alone: OFF
         bad = dict(self.sim.cfg("dolynk"), secret_key="wrong")
-        ok, detail = integrations.test_dolynk(bad, http=get, signin_http=self.sim.http)
+        ok, detail = integrations.test_dolynk(bad, http=self.sim.http)
+        self.assertFalse(ok)
         self.assertNotIn(CC.DOLYNK_OK, detail)
-        self.assertIn("SN1001", detail)                        # the raw code is shown
-        ok, detail = integrations.test_dolynk(self.sim.cfg("dolynk"), http=get,
-                                              signin_http=self.sim.http)
+        self.assertIn("PRM0016", detail)                       # the raw code is shown
+        self.assertNotIn("wrong", detail)                      # never a key
+        ok, detail = integrations.test_dolynk(self.sim.cfg("dolynk"), http=self.sim.http)
         self.assertTrue(ok)
         self.assertIn(CC.DOLYNK_OK, detail)
+        self.assertNotIn("dlsk", detail)
         Integration.objects.filter(slug="dolynk").update(detail=detail)
         self.assertIn("dolynk", self.providers())
 

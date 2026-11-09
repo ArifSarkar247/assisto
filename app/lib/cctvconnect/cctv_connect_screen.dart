@@ -435,6 +435,10 @@ class CctvLinkSheetState extends State<CctvLinkSheet> {
               TextField(
                 key: const Key('ccnCode'),
                 controller: _code,
+                // dolynkreal: a device password (Dahua) is hidden while typed
+                obscureText: p['code_secret'] == true,
+                autocorrect: p['code_secret'] != true,
+                enableSuggestions: p['code_secret'] != true,
                 maxLength: 32,
                 buildCounter: localCounter,
                 decoration: InputDecoration(

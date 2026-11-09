@@ -72,6 +72,11 @@ HINT_TEXT = {
                 "The camera / DVR is offline — check its power and internet."),
     "reauth": ("অনুমতির মেয়াদ শেষ — একবার আবার যুক্ত করুন।",
                "The permission expired — please connect once more."),
+    # dolynkreal (Dahua DoLynk error codes IDV0011 / IDV0022)
+    "locked": ("অনেকবার ভুল পাসওয়ার্ড দেওয়ায় ডিভাইসটি কিছুক্ষণ লক থাকবে — ৩০ মিনিট পরে সঠিক পাসওয়ার্ড দিয়ে আবার চেষ্টা করুন।",
+               "Too many wrong passwords — the device is locked for a while. Try again in 30 minutes with the right password."),
+    "unsupported": ("এই মডেলটি কোম্পানির ক্লাউড দিয়ে এখনো যুক্ত করা যায় না — একই Wi-Fi দিয়ে (Guard Box) যুক্ত করুন।",
+                    "This model cannot be added through the maker's cloud yet — add it on the same Wi-Fi (Guard Box)."),
     "vendor": ("কোম্পানির সার্ভার অনুরোধটি নেয়নি — একটু পরে আবার চেষ্টা করুন।",
                "The maker's server refused the request — please try again shortly."),
 }
@@ -179,6 +184,7 @@ class Provider:
     caps = ("devices", "live", "playback", "events", "health")
     pic_hosts = ()            # https hosts a picture / stream may come from
     code_label = ("লেবেলের কোড", "Label code")
+    code_secret = False       # dolynkreal: the app hides the typed code (a password)
     # "device": events() is asked per device; "account": the vendor has ONE
     # queue for the whole developer account -> account_events() once per
     # sync, routed to sites by serial (never per device: it would drain it)
@@ -190,6 +196,11 @@ class Provider:
         self.cfg = dict(cfg or {})
         self.http = http or default_http
         self.now = now or time.time
+
+    @staticmethod
+    def clean_code(v):
+        """The typed label code / password, or "" when unusable."""
+        return clean_code(v)
 
     # ---- configuration ----
     def configured(self):

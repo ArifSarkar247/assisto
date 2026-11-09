@@ -1926,5 +1926,6 @@ urlpatterns += [
     path("cctv/health/sites/<int:pk>", ccv.SiteHealthView.as_view()),
     path("shop/gateway/dvr-health", ccv.GatewayHealthView.as_view()),
     path("cctv/dolynk/callback/<str:token>", ccv.DolynkCallbackView.as_view()),
+    path("cctv/dolynk/arc/<str:token>", ccv.DolynkArcCallbackView.as_view()),  # dolynkreal
 ]
 # ---- /cctvconnect ----

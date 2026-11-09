@@ -16,22 +16,22 @@ import time
 from urllib.parse import urlparse
 
 HOSTS = {"ezviz": "https://open.ezvizlife.com", "imou": "https://openapi.easy4ip.com/openapi",
-         "hikconnect": "https://ieu.hik-connect.com", "dolynk": "https://openapi.dolynkcloud.com/openapi"}
+         "hikconnect": "https://ieu.hik-connect.com", "dolynk": "https://open-api-sg.dolynkcloud.com"}
 PIC = {"ezviz": "https://pic.ezvizlife.com/a/%s.jpg", "imou": "https://pic.easy4ip.com/a/%s.jpg",
        "hikconnect": "https://pic.hik-connect.com/a/%s.jpg",
-       "dolynk": "https://pic.dolynkcloud.com/a/%s.jpg"}
+       "dolynk": "https://cloudreadproxy-online-sg.imoulife.com/%s_img/Alarm/0/a.jpg"}
 STREAM = {"ezviz": "https://hls.ezvizlife.com/live/%s/%s.m3u8",
           "imou": "https://hls.easy4ip.com/live/%s/%s.m3u8",
           "hikconnect": "https://hls.hik-connect.com/live/%s/%s.m3u8",
-          "dolynk": "https://hls.dolynkcloud.com/live/%s/%s.m3u8"}
+          "dolynk": "https://cmgw-online-sg.lechange.com/LCO/%s/%s/0/x.m3u8?source=open"}
 ALARM_TYPES = {"ezviz": {"human": "humanDetection", "motion": 10000, "cover": 10011,
                          "vehicle": "vehicleDetection"},
                "imou": {"human": "human", "motion": "videoMotion", "cover": "videoBlind",
                         "vehicle": "vehicle"},
                "hikconnect": {"human": "fielddetection", "motion": "vmd",
                               "cover": "shelteralarm", "vehicle": "linedetection"},
-               "dolynk": {"human": "human", "motion": "videoMotion", "cover": "videoBlind",
-                          "vehicle": "vehicle"}}
+               "dolynk": {"human": "smdHuman", "motion": "videoMotion", "cover": "videoBlind",
+                          "vehicle": "smdVehicle", "face": "rtFaceDetect"}}
 
 
 class _Dev:
@@ -44,6 +44,8 @@ class _Dev:
         self.disk = "ok"
         self.alarms = []
         self.total_gb, self.free_gb = 1000.0, 400.0
+        self.arc_account = ""        # DoLynk ARC: the DMSS account that shared it
+        self.arc_active = None
 
 
 class VendorSims:
@@ -63,8 +65,12 @@ class VendorSims:
                          "oauth_sk": "imsk",
                          "oauth_h5_url": "https://open.imoulife.com/oauth/h5?project=sim"},
                 "hikconnect": {"app_key": "hck", "app_secret": "hcs"},
-                "dolynk": {"access_key": "dlid", "secret_key": "dls",
-                           "api_base": "https://openapi.dolynkcloud.com", "api_path": "/openapi"}}[vendor]
+                "dolynk": {"access_key": "dlak", "secret_key": "dlsk", "product_id": "212808822",
+                           "api_base": "https://open-api-sg.dolynkcloud.com"},
+                "dolynk_arc": {"access_key": "arcak", "secret_key": "arcsk", "product_id": "900000001",
+                               "api_base": "https://open-api-sg.dolynkcloud.com",
+                               "arc_email": "arc@assisto.test", "arc_password": "Arc#Pass1",
+                               "arc_on": "on"}}[vendor]
         return dict(base)
 
     def add_device(self, vendor, serial, code, channels=1, name=None):
@@ -298,8 +304,299 @@ class VendorSims:
             return ok({"totalBytes": 64e9, "usedBytes": 10e9, "onLine": "1"})
         return {"result": {"code": "OP1000", "msg": "unknown method %s" % method}}
 
-    def _dolynk(self, path, body, headers):
-        return self._imou(path, body, headers, vendor="dolynk")
+    # ---------------- Dahua DoLynk (Doc Center shapes: Open IoT + Open ARC)
+    DL_KEYS = {"dlak": ("dlsk", "212808822"), "arcak": ("arcsk", "900000001")}
+
+    @staticmethod
+    def _dl_hmac(key, text):
+        import hashlib
+        import hmac
+        return hmac.new(key.encode(), text.encode(), hashlib.sha512).hexdigest()
+
+    @staticmethod
+    def _dl_decrypt(dev_code, sk):
+        """The SERVER side of "Adding Devices" method 2 (AES-256-CBC/PKCS7,
+        key = UPPER(MD5(UPPER(sk))), iv "86E2DB6D77B5E9CD") — written here
+        independently of the adapter."""
+        import base64
+        import hashlib
+        from cryptography.hazmat.primitives import padding
+        from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+        try:
+            key = hashlib.md5(sk.upper().encode()).hexdigest().upper().encode()
+            dec = Cipher(algorithms.AES(key), modes.CBC(b"86E2DB6D77B5E9CD")).decryptor()
+            raw = dec.update(base64.b64decode(dev_code)) + dec.finalize()
+            u = padding.PKCS7(128).unpadder()
+            return (u.update(raw) + u.finalize()).decode()
+        except Exception:
+            return None
+
+    def dl_msg(self, serial, a, ak="dlak", sk="dlsk"):
+        """One alarm as Open IoT pushes it (Event message format), signed."""
+        mid = 1685822754353311744 + int(str(a["id"]).rsplit("-", 1)[-1])
+        m = {"accessKey": ak, "productId": 212808822, "category": "NVR",
+             "msgType": a["type"], "deviceId": serial, "channelId": int(a["channel"]),
+             "utcTime": int(a["at"] * 1000), "localTime": int(a["at"] * 1000), "id": mid,
+             "picUrls": [a["pic"]]}
+        m["sign"] = self._dl_hmac(sk, str(mid))
+        return m
+
+    def _dolynk(self, path, f, headers):
+        devs = self.devs["dolynk"]
+        self.dl_calls = getattr(self, "dl_calls", []) + [path]
+
+        def ok(data=None):
+            return {"code": "200", "success": True, "data": data, "msg": "Operation is successful."}
+
+        def err(code, msg=""):
+            return {"code": code, "success": False, "data": None, "msg": msg}
+        for h in ("Version", "AccessKey", "Timestamp", "Nonce", "Sign", "X-TraceId-Header",
+                  "ProductId"):
+            if not headers.get(h):
+                return err("PRM006", "%s is required" % h)
+        ak = headers["AccessKey"]
+        if ak not in self.DL_KEYS:
+            return err("PRM032", "AccessKey is not correct or not exist")
+        sk, prod = self.DL_KEYS[ak]
+        if str(headers["ProductId"]) != prod:
+            return err("BIZ010", "AccessKey or productId error")
+        ts, nonce = headers["Timestamp"], headers["Nonce"]
+        if len(ts) != 13 or abs(int(ts) / 1000.0 - self.now()) > 300:
+            return err("AUT003", "Request exceeds validity period")
+        if path == "/open-api/api-base/auth/getAppAccessToken":
+            if headers["Sign"] != self._dl_hmac(sk, ak + ts + nonce).upper():
+                return err("PRM0016", "Sign error")
+            return ok({"appAccessToken": "eyJ.sim." + ak, "validitySeconds": 604800})
+        tok = headers.get("AppAccessToken") or ""
+        if tok != "eyJ.sim." + ak:
+            return err("AUT001", "Authentication failure")
+        ut = headers.get("UserAccessToken") or ""
+        if headers.get("Sign-Type") != "simple" or headers["Sign"] != self._dl_hmac(
+                sk, ak + tok + ut + ts + nonce).upper():
+            return err("PRM0016", "Sign error")
+        if ak == "arcak":
+            return self._dolynk_arc(path, f, ut, ok, err)
+        s = str(f.get("deviceId") or "")
+        d = devs.get(s)
+        cat = lambda dd: "NVR" if dd.channels > 1 else "IPC"   # noqa: E731
+        if path == "/open-api/api-iot/device/addDevice":
+            if d is None:
+                return err("IDV001", "Device not exist")
+            if f.get("categoryCode") != cat(d):
+                return err("IDV0022", "The device model is not supported or the device category is incorrect")
+            if self._dl_decrypt(f.get("devCode") or "", sk) != d.code:
+                return err("IDV006", "The device password is incorrect.")
+            if d.owner and d.owner != "sim":
+                return err("IDV004", "The device has been bound to another account")
+            if d.owner == "sim":
+                return err("IDV005", "The device is bound to the current account.")
+            d.owner = "sim"
+            return ok(None)
+        if path == "/open-api/api-iot/device/listDeviceDetailsByIds":
+            rows = []
+            for x in f.get("deviceList") or []:
+                dd = devs.get(x.get("deviceId"))
+                if dd and dd.owner == "sim":
+                    rows.append({"deviceId": dd.serial, "deviceName": dd.name, "accessType": "PaaS",
+                                 "deviceStatus": "online" if dd.online else "offline",
+                                 "deviceModel": "DHI-NVR-SIM", "catalog": cat(dd), "source": "bind",
+                                 "channels": [{"channelId": str(i), "channelName": "Cam %d" % (i + 1),
+                                               "csStatus": "notExist", "channelStatus": "offline" if (
+                                                   i in dd.offline_channels or not dd.online) else "online"}
+                                              for i in range(dd.channels)]})
+            return ok({"count": len(rows), "deviceList": rows})
+        if path == "/open-api/api-message/getAllCallbackConfigId":
+            cbs = getattr(self, "dl_cbs", {})
+            return ok({"currentPage": 1, "totalPage": 1, "pageSize": 100, "totalRows": len(cbs),
+                       "pageData": [{"callbackConfigId": k, "callbackUrl": v} for k, v in cbs.items()]})
+        if path == "/open-api/api-message/addCallbackConfig":
+            self.dl_cbs = getattr(self, "dl_cbs", {})
+            cid = str(39875492375432451 + len(self.dl_cbs))
+            self.dl_cbs[cid] = f.get("callbackUrl")
+            return ok(cid)
+        if path == "/open-api/api-message/getMessageTypePage":
+            return ok({"totalPage": 1, "pageSize": 50, "pageData": [
+                {"code": c, "memo": c, "type": c} for c in (
+                    "videoMotion", "smdHuman", "smdVehicle", "videoBlind", "CrossLineDetection",
+                    "CrossRegionDetection", "online", "offline", "storageFailure", "rtFaceDetect")]})
+        if path == "/open-api/api-message/messageSubscribeByDeviceIds":
+            self.dl_subs = getattr(self, "dl_subs", []) + [dict(f)]
+            return ok(None)
+        if path == "/open-api/api-message/getMessage":
+            lo, hi = int(f.get("beginTime") or 0), int(f.get("endTime") or 0)
+            rows = []
+            for x in f.get("deviceList") or []:
+                dd = devs.get(x.get("deviceId"))
+                if not dd or dd.owner != "sim":
+                    continue
+                chs = [str(c) for c in x.get("channelIdList") or []]
+                for a in dd.alarms:
+                    if lo <= int(a["at"] * 1000) <= hi and (not chs or str(a["channel"]) in chs):
+                        m = self.dl_msg(dd.serial, a)
+                        row = {k: m[k] for k in ("accessKey", "productId", "category", "msgType",
+                                                 "deviceId", "channelId", "picUrls")}
+                        row.update({"time": m["utcTime"], "thumbUrl": None, "id": str(m["id"])})
+                        rows.append(row)
+            return ok({"pageData": rows[:50], "currentPage": 1, "totalPage": 1, "pageSize": 50,
+                       "totalRows": len(rows)})
+        if path == "/open-api/api-decrypto/image/decrypto":
+            u = str(f.get("imageUrl") or "")
+            return ok({"url": u.replace(".dav", ".jpg")})
+        if path == "/open-api/api-biz/cloudDump/dumpTimeTaskPageList":
+            tid = (f.get("taskIds") or [""])[0]
+            t = getattr(self, "dl_dumps", {}).get(tid)
+            if not t:
+                return ok({"pageData": [], "currentPage": 1, "totalPage": 0, "pageSize": 10, "totalRows": 0})
+            t["polls"] += 1
+            done = t["polls"] >= 2
+            return ok({"pageData": [{"taskId": tid, "deviceId": t["serial"], "channelId": "0",
+                                     "status": 2 if done else 1, "errMsg": None,
+                                     "files": [{"fileId": 1875093833943998465, "seq": 0,
+                                                "fileName": "%s_0_1_20250103034200.mp4" % t["serial"],
+                                                "fileSize": 127394880}] if done else []}],
+                       "currentPage": 1, "totalPage": 1, "pageSize": 10, "totalRows": 1})
+        if path == "/open-api/api-iot/cloudDump/getRecordDumpUrl":
+            return ok([{"fileId": int(x), "fileName": "clip.mp4", "fileSize": 1,
+                        "fileUrl": "https://paas-sim-obs.obs.ap-southeast-1.myhuaweicloud.com/%s.mp4?x=1" % x}
+                       for x in f.get("fileIds") or []])
+        if path == "/open-api/api-iot/device/delDeviceHlsLive":
+            live = getattr(self, "dl_lives", {})
+            for k, v in list(live.items()):
+                if v == f.get("liveToken"):
+                    live.pop(k)
+            return ok(None)
+        if d is None or d.owner != "sim":
+            return err("BIZ004", "No permission to operate the device")
+        if path == "/open-api/api-iot/device/verifyDevCode":
+            if self._dl_decrypt(f.get("devCode") or "", sk) != d.code:
+                return err("IDV006", "The device password is incorrect.")
+            return ok(None)
+        if path == "/open-api/api-iot/device/deleteDevice":
+            d.owner = None
+            return ok(None)
+        if path == "/open-api/api-iot/device/deviceOnline":
+            return ok({"deviceId": s, "onLine": "1" if d.online else "0",
+                       "status": "online" if d.online else "offline",
+                       "channels": [{"channelId": str(i), "onLine": "0" if (
+                           i in d.offline_channels or not d.online) else "1"} for i in range(d.channels)]})
+        if path in ("/open-api/api-iot/device/createDeviceHlsLive", "/open-api/api-iot/device/getHlsLiveList"):
+            ch = str(f.get("channelId") or "0")
+            self.dl_lives = getattr(self, "dl_lives", {})
+            key = (s, ch)
+
+            def row():
+                url = STREAM["dolynk"] % (s, ch)
+                return {"deviceId": s, "channelId": ch, "liveToken": self.dl_lives[key], "liveStatus": 1,
+                        "streamList": [{"streamType": t, "hls": u, "coverUrl": u.replace(".m3u8", ".jpg")}
+                                       for t in (0, 1) for u in (url, url.replace("https://", "http://"))]}
+            if path.endswith("getHlsLiveList"):
+                return ok([row()] if key in self.dl_lives else [])
+            if not d.online:
+                return err("IDV002", "Device is offline.")
+            if key in self.dl_lives:
+                return err("IDV0055", "The live video already exists")
+            self.dl_lives[key] = "%s%s-live-token" % (s, ch)
+            return ok(row())
+        if path == "/open-api/api-iot/device/queryLocalRecords":
+            from datetime import datetime, timedelta
+            b = datetime.strptime(f["beginTime"], "%Y-%m-%d %H:%M:%S")
+            b = b.replace(second=0, minute=b.minute - b.minute % 2)
+            recs = []
+            for k in range(2):
+                x = b + timedelta(minutes=2 * k)
+                y = x + timedelta(minutes=2)
+                recs.append({"recordFileName": "/mnt/sd/x/%s.dav" % x.strftime("%H.%M.%S"),
+                             "fileLength": 5354930, "channelId": str(f.get("channelId")),
+                             "beginTime": x.strftime("%Y-%m-%d %H:%M:%S"),
+                             "endTime": y.strftime("%Y-%m-%d %H:%M:%S"), "streamType": "main"})
+            self.dl_records = {(r["beginTime"], r["endTime"]) for r in recs}
+            return ok({"records": recs})
+        if path == "/open-api/api-iot/device/createDeviceRecordHls":
+            if (f.get("beginTime"), f.get("endTime")) not in getattr(self, "dl_records", set()):
+                return err("IDV0127", "Record video does not exist")
+            return ok({"url": "https://mes502-online-sg.lechange.com:7080/localvod/%s.m3u8?proto=https" % s})
+        if path == "/open-api/api-iot/device/setDeviceSnapEnhanced":
+            return ok({"url": "https://cloudreadproxy-online-sg.imoulife.com/%s_snap.jpg" % s})
+        if path == "/open-api/api-biz/cloudDump/createTaskByTime":
+            self.dl_dumps = getattr(self, "dl_dumps", {})
+            tid = str(1875091690247806977 + len(self.dl_dumps))
+            self.dl_dumps[tid] = {"serial": s, "polls": 0}
+            return ok({"taskId": tid})
+        if path == "/open-api/api-aiot/device/getSDCardStatus":
+            return ok({"status": {"ok": "normal", "error": "abnormal", "none": "Empty"}.get(d.disk, "normal")})
+        if path == "/open-api/api-aiot/device/getSDCardStorage":
+            return ok({"totalBytes": int(d.total_gb * 1e9), "usedBytes": int((d.total_gb - d.free_gb) * 1e9)})
+        if path == "/open-api/api-biz/cloudStorage/getDeviceCloud":
+            return ok({"deviceCloudId": "1", "strategyId": 7, "name": "7-day event", "deviceId": s,
+                       "channelId": "0", "storageType": "1", "recordSaveDays": 7,
+                       "beginTime": "2026-11-01 00:00:00", "endTime": "2026-12-01 00:00:00",
+                       "cloudStatus": 1, "useStatus": 1})
+        if path == "/open-api/api-aiot/device/queryCloudRecords":
+            return ok({"records": [{"recordId": "2181124612393111111", "deviceId": s, "channelId": "0",
+                                    "beginTime": f.get("beginTime"), "endTime": f.get("endTime"),
+                                    "size": "4336368", "encryptMode": 0, "recordPath": "",
+                                    "thumbUrl": "https://lechange-online-record.tos-s3-cn-shanghai.volces.com/t.dav",
+                                    "recordRegionId": "x"}]})
+        return err("UNK001", "unknown path %s" % path)
+
+    def _dolynk_arc(self, path, f, ut, ok, err):
+        devs = self.devs["dolynk"]
+        if path == "/open-api/api-converter/user/getSalt":
+            self.arc_random = "sim-random-%d" % len(self.calls)
+            return ok({"salt": "sim-salt", "random": self.arc_random})
+        if path == "/open-api/api-converter/user/login":
+            want = self._dl_hmac(getattr(self, "arc_random", ""), self._dl_hmac("sim-salt", "Arc#Pass1"))
+            if f.get("accountEmail") != "arc@assisto.test" or f.get("password") != want:
+                return err("BIZ029", "Invalid password")
+            return ok({"userAccessToken": "eyJ.arcuser", "validitySeconds": 1296000,
+                       "userId": "1668099767630202641", "username": "arc@assisto.test"})
+        if ut != "eyJ.arcuser":
+            return err("PRM0022", "UserAccessToken is required")
+        shared = {k: d for k, d in devs.items() if d.arc_account}
+        if path == "/open-api/api-converter/device/getDeviceList":
+            want = set(f.get("deviceIds") or shared)
+            return ok([{"bindTime": "1724836900", "name": d.name, "deviceId": d.serial,
+                        "status": 1 if d.online else 0, "activationStatus": 1 if d.arc_active else 0,
+                        "account": d.arc_account[:2] + "***" + d.arc_account[d.arc_account.index("@"):]}
+                       for k, d in shared.items() if k in want])
+        if path == "/open-api/api-converter/device/setActivationStatus":
+            for x in f.get("deviceIds") or []:
+                if x in shared:
+                    shared[x].arc_active = bool(f.get("activationStatus"))
+            return ok({})
+        if path == "/open-api/api-converter/device/unbindDevices":
+            for x in f.get("deviceIds") or []:
+                if x in shared:
+                    shared[x].arc_account = ""
+            return ok(None)
+        if path == "/open-api/api-converter/message/setCallbackConfig":
+            self.arc_cb = f.get("callbackUrl")
+            return ok(None)
+        if path == "/open-api/api-message/notice/messageAck":
+            self.arc_acks = getattr(self, "arc_acks", []) + [f.get("id")]
+            return ok(None)
+        if path == "/open-api/api-message/converter/getMessage":
+            lo, hi = int(f.get("beginTime") or 0), int(f.get("endTime") or 0)
+            rows = []
+            for d in shared.values():
+                for a in d.alarms:
+                    if lo <= int(a["at"] * 1000) <= hi:
+                        rows.append({"id": str(1910316040315727872 + len(rows)), "msgType": a["type"],
+                                     "deviceId": d.serial, "channelId": a["channel"],
+                                     "utcTime": int(a["at"] * 1000), "localTime": int(a["at"] * 1000),
+                                     "companyId": "1668099767630202276", "accessKey": "arcak",
+                                     "picUrl": a["pic"]})
+            return ok({"pageData": rows[:50], "currentPage": 1, "totalPage": 1, "pageSize": 50,
+                       "totalRows": len(rows)})
+        if path == "/open-api/api-converter/device/listDeviceDetailsByIds":
+            rows = [{"deviceId": d.serial, "deviceName": d.name, "deviceStatus": "online",
+                     "catalog": "IPC", "channels": [{"channelId": "0", "channelName": d.name,
+                                                      "channelStatus": "online"}]}
+                    for x in f.get("deviceList") or [] for d in [shared.get(x.get("deviceId"))] if d]
+            return ok({"count": len(rows), "deviceList": rows})
+        if path == "/open-api/api-converter/device/setDeviceSnapEnhanced":
+            return ok({"url": "https://cloudreadproxy-online-sg.imoulife.com/%s_snap.jpg" % f.get("deviceId")})
+        return err("UNK001", "unknown path %s" % path)
 
     # ---------------- Hik-Connect (hccgw)
     def _hikconnect(self, path, f, headers):
