@@ -152,19 +152,22 @@ void main() {
   group('owner Siren / Warning on the box (cctvact contract)', () {
     test('heartbeat play list: defaults + clamps; junk ignored', () {
       final t = PlayTask.fromHeartbeat([
-        {'id': 1, 'sound': 'warn', 'seconds': 999},
+        {'id': 1, 'sound': 'warn', 'seconds': 999, 'warn_url': '/api/v1/shop/device/warn-clip'},
+        {'id': 3, 'sound': 'warn', 'warn_url': 'https://evil.example/x'},
         {'id': 2, 'sound': 'boom'},
         {'sound': 'siren'},
         'x',
       ]);
-      expect(t.map((e) => (e.id, e.sound, e.seconds)), [(1, 'warn', 60), (2, 'siren', 20)]);
+      expect(t.map((e) => (e.id, e.sound, e.seconds)), [(1, 'warn', 60), (2, 'siren', 20), (3, 'warn', 20)]);
+      expect(t.first.warnUrl, '/api/v1/shop/device/warn-clip');
+      expect(t.last.warnUrl, ''); // only our own device path is ever fetched
       expect(PlayTask.fromHeartbeat(null), isEmpty);
     });
 
     test('siren plays for the asked time then stops; the same task never twice', () async {
       final s = _FakeSound();
       final waits = <Duration>[];
-      final b = BoxSiren(s, () async => null, wait: (d) async => waits.add(d));
+      final b = BoxSiren(s, (_) async => null, wait: (d) async => waits.add(d));
       expect(await b.handle(const [PlayTask(7, 'siren', 15)]), ['siren']);
       expect(s.log, ['start', 'stop']);
       expect(waits, [const Duration(seconds: 15)]);
@@ -174,11 +177,12 @@ void main() {
     test('warning without a clip falls back to the siren (still deters)', () async {
       final s = _FakeSound();
       var fetched = 0;
-      final b = BoxSiren(s, () async {
+      final b = BoxSiren(s, (path) async {
+        expect(path, '/api/v1/shop/device/warn-clip');
         fetched++;
         return null;
       }, wait: (_) async {});
-      expect(await b.handle(const [PlayTask(8, 'warn', 10)]), ['siren']);
+      expect(await b.handle(const [PlayTask(8, 'warn', 10, '/api/v1/shop/device/warn-clip')]), ['siren']);
       expect(fetched, 1);
       expect(s.log.first, 'start');
     });
@@ -293,7 +297,11 @@ void main() {
       await _settle(tester);
       expect(tester.widget<FilledButton>(test).onPressed, isNotNull);
       // no decoder on the test host: an honest message, never a crash
-      tester.widget<FilledButton>(test).onPressed!();
+      // the platform-channel answer (no decoder on the test host) needs real time
+      await tester.runAsync(() async {
+        tester.widget<FilledButton>(test).onPressed!();
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      });
       await _settle(tester, 20);
       expect(find.text(en.icgFailDecoder), findsOneWidget);
     });
@@ -311,7 +319,8 @@ void main() {
       await tester.ensureVisible(find.byKey(const Key('icgStop')));
       await tester.tap(find.byKey(const Key('icgStop')));
       await _settle(tester);
-      await tester.scrollUntilVisible(find.byKey(const Key('icgStart')), 300);
+      await tester.drag(find.byType(ListView), const Offset(0, -3000));
+      await _settle(tester);
       expect(find.byKey(const Key('icgStart')), findsOneWidget);
     });
 

@@ -383,7 +383,12 @@ def _take_play_tasks(site, cam, now):
                 secs = max(3, min(60, int(req.get("seconds") or 20)))
             except (TypeError, ValueError):
                 secs = 20
-            out.append({"id": t.id, "sound": sound, "seconds": secs})
+            row = {"id": t.id, "sound": sound, "seconds": secs}
+            # the owner's warning clip: the device fetches it with ITS token
+            url = str(req.get("warn_url") or "")
+            if sound == "warn" and url.startswith("/api/v1/shop/device/"):
+                row["warn_url"] = url
+            out.append(row)
             t.status = "done"
             t.picked_at = now
             t.save(update_fields=["status", "picked_at"])

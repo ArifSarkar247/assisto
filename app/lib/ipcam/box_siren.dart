@@ -2,7 +2,8 @@
 // the Guard Box / phone camera at the place plays it through its speaker.
 // Delivered in the heartbeat reply as `play: [{id, sound, seconds}]`; the
 // owner's recorded warning is fetched with this device's token from
-// GET shop/device/warn-clip (never kept: a temp file, deleted after).
+// the warn_url the play task names (cctvact: shop/device/warn-clip; never
+// kept: a temp file, deleted after).
 // Sound goes through the documented siren-style exception (STREAM_ALARM,
 // the train alarm's native channel) behind an [AudioRouteService] lease.
 import 'dart:async';
@@ -19,7 +20,8 @@ class PlayTask {
   final int id;
   final String sound; // 'siren' | 'warn'
   final int seconds; // 3..60
-  const PlayTask(this.id, this.sound, this.seconds);
+  final String warnUrl; // server path of the owner's clip ('' = none)
+  const PlayTask(this.id, this.sound, this.seconds, [this.warnUrl = '']);
 
   static List<PlayTask> fromHeartbeat(Object? raw) {
     if (raw is! List) return const [];
@@ -29,13 +31,14 @@ class PlayTask {
       if (id == null) continue;
       final sound = m['sound'] == 'warn' ? 'warn' : 'siren';
       final secs = ((m['seconds'] as num?)?.toInt() ?? 20).clamp(3, 60);
-      out.add(PlayTask(id, sound, secs));
+      final u = (m['warn_url'] ?? '').toString();
+      out.add(PlayTask(id, sound, secs, u.startsWith('/api/v1/shop/device/') ? u : ''));
     }
     return out;
   }
 }
 
-typedef ClipFetch = Future<List<int>?> Function();
+typedef ClipFetch = Future<List<int>?> Function(String path);
 
 class BoxSiren {
   final DestAlarmSound sound;
@@ -48,10 +51,11 @@ class BoxSiren {
 
   /// The app's real player for a device [token].
   factory BoxSiren.forDevice(String token, {int? cameraId, http.Client? client}) {
-    Future<List<int>?> fetch() async {
+    Future<List<int>?> fetch(String path) async {
       final c = client ?? http.Client();
       try {
-        final r = await c.get(AppConfig.api('/shop/device/warn-clip'), headers: {
+        // the path comes from the server's play task (never typed here)
+        final r = await c.get(Uri.parse('${AppConfig.apiBase}$path'), headers: {
           'X-Shop-Token': token,
           if (cameraId != null) 'X-Shop-Camera': '$cameraId',
         }).timeout(const Duration(seconds: 20));
@@ -75,8 +79,8 @@ class BoxSiren {
     try {
       for (final t in tasks) {
         if (!_done.add(t.id)) continue;
-        if (t.sound == 'warn') {
-          final bytes = await fetchClip();
+        if (t.sound == 'warn' && t.warnUrl.isNotEmpty) {
+          final bytes = await fetchClip(t.warnUrl);
           if (bytes != null && await _playClip(bytes, t.seconds)) {
             played.add('warn');
             continue;

@@ -353,7 +353,8 @@ class CctvboxPlayTaskTests(_Base):
         other = ShopCamera.objects.create(site=self.site, name="Other", vendor="phone",
                                           kind="shopbox")
         ShopGatewayTask.objects.create(site=self.site, camera=cam, action="play",
-                                       request={"sound": "warn", "seconds": 999})
+                                       request={"sound": "warn", "seconds": 999,
+                                                "warn_url": "/api/v1/shop/device/warn-clip"})
         ShopGatewayTask.objects.create(site=self.site, camera=other, action="play",
                                        request={"sound": "siren"})
         c = APIClient()
@@ -361,6 +362,7 @@ class CctvboxPlayTaskTests(_Base):
                     format="json")
         self.assertEqual(hb.status_code, 200, hb.data)
         self.assertEqual([(p["sound"], p["seconds"]) for p in hb.data["play"]], [("warn", 60)])
+        self.assertEqual(hb.data["play"][0]["warn_url"], "/api/v1/shop/device/warn-clip")
         hb2 = c.post("/api/v1/shop/heartbeat", {"camera_token": tok}, format="json")
         self.assertEqual(hb2.data["play"], [])
         self.assertEqual(ShopGatewayTask.objects.filter(camera=other, status="pending").count(), 1)
