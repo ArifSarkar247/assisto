@@ -490,15 +490,16 @@ void main() {
         () async {
       final d = await HomeV2Shortcuts.load();
       // homeshort: City Service took Digital Ledger's slot -> same places
-      expect(d[6], 'watchman');
-      expect(d[7], 'vehicle_tracking');
+      // svcclean: My Business left the tiles (bottom-bar tab) -> one slot up
+      expect(d[5], 'watchman');
+      expect(d[6], 'vehicle_tracking');
       expect(d.length, HomeV2Shortcuts.max);
       // same once the server answers ON for everyone (no preview)
       FeatureFlags.instance.applyForTest({
         'features': launchOn,
         'preview': <String>[],
       });
-      expect((await HomeV2Shortcuts.load())[6], 'watchman');
+      expect((await HomeV2Shortcuts.load())[5], 'watchman');
     });
 
     test('a saved custom set is untouched (v2 and old-home six)', () async {

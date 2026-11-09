@@ -329,14 +329,20 @@ void main() {
           (l.emergencySosBigButton, HV2.discoverTitle, 1),
           (l.svcSosCardDesc, HV2.discoverDesc, 2),
         ]) {
+          // inside a Scaffold (Material) so the app font applies, as on Home
           await t.pumpWidget(_app(
-              Center(
-                child: SizedBox(
-                  width: 158,
-                  child: Text(x.$1,
-                      maxLines: x.$3,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: x.$2, height: 1.4)),
+              Scaffold(
+                body: Center(
+                  child: SizedBox(
+                    width: 158,
+                    child: Text(x.$1,
+                        maxLines: x.$3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: x.$2,
+                            height: 1.3,
+                            fontWeight: x.$3 == 1 ? FontWeight.w700 : FontWeight.w400)),
+                  ),
                 ),
               ),
               lang: lang));
