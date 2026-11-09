@@ -213,3 +213,97 @@ mocks ielts-ac-001/002 + gt-001 (forks may have left partial ac-002/gt-001 draft
 rest interpolated = practice estimate), TTS in CI: Kokoro-82M 0.9.4 Apache-2.0 (GB bf_emma/bm_george…, US
 af_heart/am_michael…) + MeloTTS EN-AU (MIT, commit 209145371cff) for Australian (Piper vctk/libritts excluded:
 lessac non-commercial lineage, see .phaseB/MODEL_LICENSES.md), workflow `lp-content.yml`, unit tests.
+
+## 10. Stage 2 — going-abroad tracks (`assisto.lp.track/1`) — owner: **lpstage2**
+
+> বাংলায়: জাপানি (JLPT N5, JFT-Basic), কোরিয়ান (EPS-TOPIK), জার্মান (A1 ভিসা লেভেল) — বাংলা থেকে শেখানো।
+> প্রতি ট্র্যাকে সিলেবাস, সপ্তাহ ১–৪-এর পাঠ, আর আসল পরীক্ষার ফরম্যাটে ২টি প্র্যাকটিস টেস্ট। সব Assisto-র নিজের লেখা।
+> প্রতিটি স্কোর "প্র্যাকটিস স্কোর", অফিসিয়াল ফল নয়।
+
+Validator: `tools/lp/lpcheck_tracks.py` (stdlib; CI `lp-content.yml`). Export to lpcore §6:
+`tools/lp/export_tracks.py <out_dir>` → `bundle.json` (ITEM kinds `syllabus`, `lesson`, `mock`; see 10.6).
+TTS job list: `tools/lp/tts/plan_tracks.py` + voices in `tools/lp/tts/VOICES_TRACKS.json`. No audio in git.
+
+### 10.1 Files (`tools/lp/content/<lang>/`, lang ∈ `ja`, `ko`, `de`)
+| File | `format` | What |
+|---|---|---|
+| `syllabus-<track>.json` | `assisto.lp.syllabus/1` | level syllabus in Bangla + exam format + weekly plan + Probashi link |
+| `lessons-<lang>-w<NN>.json` | `assisto.lp.lessons/1` | one week = 5 lessons (shared by tracks of the same language) |
+| `<track-id>-<NNN>.json` | `assisto.lp.test/1` | one full practice test in the real exam's public format |
+
+Tracks (`track`): `jlpt_n5`, `jft_basic` (lang `ja`), `eps_topik` (`ko`), `de_a1` (`de`).
+Test ids: `jlpt-n5-001`, `jft-basic-001`, `eps-topik-001`, `de-a1-001` (= file name).
+
+### 10.2 Common fields
+* Every top-level file: `format`, `lang`, `version` (int, bump on change), `status` (`"draft"` in git; CI
+  index → `ai-checked`; Owner Admin → `human-approved`; not human-approved = **beta**), `authoring`
+  `{source:"original", author:"assisto-lpstage2", created, format_source}` — `format_source` names the
+  PUBLIC exam-format description that the structure follows (never a textbook or past paper).
+* `title` and `practice_label` = `{en, bn}`. The label says practice / not official in both languages.
+* Target-language text is `target` (Japanese in kanji+kana, Korean in hangul, German).
+  `kana` (ja: full reading in hiragana/katakana), `roman` (ja Hepburn, ko Revised Romanization; de omitted),
+  `bn` = Bangla meaning/explanation (Bangla script), `en` = optional English bridge only where useful.
+* LISTENING SCRIPT (`script`) — read by TTS, never shown before marking:
+  `{"speakers": {"A": {"gender": "F"|"M", "role": "shop clerk"}}, "turns": [{"spk":"A","text":"…"}, {"pause":1.0}], "repeat": 1|2}`
+  `text` is in the target language only (no romanization). `repeat` = times played (exam rule).
+
+### 10.3 Syllabus (`syllabus-<track>.json`)
+```json
+{"format":"assisto.lp.syllabus/1","lang":"ja","track":"jlpt_n5","exam":"JLPT","level":"N5","version":1,"status":"draft",
+ "title":{"en":"Japanese for JLPT N5","bn":"JLPT N5-এর জন্য জাপানি"}, "practice_label":{…}, "authoring":{…},
+ "summary_bn":"…", "who_for_bn":"…", "can_do_bn":["…"],
+ "exam_format":{"total_minutes":90,"sections":[{"id":"vocab","title":{"en","bn"},"minutes":20,"questions":21}],
+                "scoring_bn":"…","official_info_bn":"…"},
+ "weeks":[{"week":1,"goal_bn":"…","lessons":["ja-w01-l1", …]}, {"week":5,"goal_bn":"…","lessons":[],"planned":true}],
+ "probashi":{"country":"JP","work_path_lang":"ja","note_bn":"…"}}
+```
+`weeks` 1–4 must list existing lesson ids; later weeks may be `planned` (goal only).
+`probashi.country` ∈ `JP`, `KR`, `DE`, `ME` (Middle East); `work_path_lang` = the existing
+`backend/core/data/langpacks/<lang>.json` pack whose `work_path` the Probashi tile already opens (null if none).
+
+### 10.4 Lessons (`lessons-<lang>-w<NN>.json`)
+```json
+{"format":"assisto.lp.lessons/1","lang":"ko","week":1,"version":1,"status":"draft","tracks":["eps_topik"],
+ "title":{…},"practice_label":{…},"authoring":{…},
+ "lessons":[{"id":"ko-w01-l1","day":1,"minutes":20,"title":{"en","bn"},"goal_bn":"…",
+   "vocab":[{"target":"사장님","roman":"sajangnim","bn":"মালিক/বস","pos":"noun",
+             "example":{"target":"사장님, 안녕하세요?","roman":"sajangnim, annyeonghaseyo?","bn":"বস, আসসালামু আলাইকুম/শুভ দিন।"}}],
+   "grammar":[{"pattern":"N은/는 N이에요/예요","explain_bn":"…","examples":[{"target","roman","bn"}]}],
+   "practice":{
+     "listening":[{"id":"ko-w01-l1-p1","script":{…},"prompt_bn":"…","options":["…","…","…","…"],"answer":"B","explain_bn":"…","skill":"…"}],
+     "reading":[{"id":"…","passage":"…","prompt_bn":"…","options":[…],"answer":"A","explain_bn":"…","skill":"…"}],
+     "writing":[{"id":"…","prompt_bn":"…","model":{"target","roman","bn"},"check":"ai"|"self"}],
+     "speaking":[{"id":"…","prompt_bn":"…","model":{"target","roman","bn"}}]}}]}
+```
+* ≥6 vocab, ≥1 grammar point, ≥1 item in each of the 4 practice skills per lesson. ja vocab also has `kana`.
+* `options` are target-language (or Bangla when the question tests meaning); `answer` = letter A–D.
+* `skill` ∈ `vocab`, `kanji`, `grammar`, `expression`, `detail`, `gist`, `info_search`, `response`,
+  `number`, `time`, `place`, `safety`, `workplace`, `culture`, `spelling`, `form`, `message`, `speaking`.
+
+### 10.5 Practice test (`<track-id>-<NNN>.json`)
+```json
+{"format":"assisto.lp.test/1","bundle_id":"eps-topik-001","lang":"ko","track":"eps_topik","exam":"EPS-TOPIK",
+ "version":1,"status":"draft","title":{…},"practice_label":{…},"authoring":{…},
+ "scoring":{"max":200,"per_question":4,"pass_hint_bn":"…","note_bn":"প্র্যাকটিস স্কোর — অফিসিয়াল ফল নয়"},
+ "sections":[{"id":"reading","kind":"reading","title":{"en","bn"},"minutes":40,
+   "parts":[{"part":"r1","type":"vocab_choice","instructions":{"target":"…","bn":"…"},
+     "passage":"…",                                    // optional shared text for the part
+     "questions":[{"n":1,"prompt":"…","options":["…","…","…","…"],"answer":"C","explain_bn":"…","skill":"vocab",
+                   "script":{…},"passage":"…"}]}]}]}  // script: listening only (required there)
+```
+* `n` runs 1..N contiguously across the WHOLE test (marking sheet numbering); each section's count,
+  minutes and option count must match the blueprint in `lpcheck_tracks.py` (`BLUEPRINTS`, built from
+  the public format pages: jlpt.jp test-section summary, Japan Foundation JFT-Basic overview, HRD Korea
+  EPS-TOPIK overview, public Start Deutsch 1 format description).
+* Non-auto-marked parts (`kind` `writing`/`speaking`, e.g. German A1 Schreiben/Sprechen): `tasks`
+  `[{"id","prompt":{"target","bn"},"points":…, "model":{"target","bn"}, "fields":[{"label","answer"}]?}]` —
+  `fields` = auto-marked form gaps; free text is scored by the AI scorer (lpcore) or self-checked.
+* Picture questions of the real exams are written as text options (no images in stage 2).
+
+### 10.6 Export (lpcore §6 ITEMs)
+`syllabus` → `{"kind":"syllabus","key":"syl-<track>","track":<track>,"level":<level>,"data":<file>}`;
+each lesson → `{"kind":"lesson","key":<lesson id>,"track":<first track>,"level":<level>,"data":<lesson + lang, week, tracks>}`;
+each test → `{"kind":"mock","key":<bundle_id>,"track":<track>,"level":<level>,"data":{title_en,title_bn,exam,lang,
+scoring, sections}}` (questions keep `answer` + `explain_bn`; lpcore strips them before sending to the phone,
+same rule as IELTS). `status` comes from the CI index. **lpcore TODO**: accept kinds `syllabus`/`lesson` and
+tracks `jlpt_n5|jft_basic|eps_topik|de_a1`; mock marking = letter compare; sections without `questions` are AI/self scored.

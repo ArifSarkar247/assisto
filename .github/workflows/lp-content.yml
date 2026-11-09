@@ -1,0 +1,43 @@
+# Language Partner content checks (tools/lp). Stdlib Python only, no secrets, no AI API.
+# Runs the automatic validators, exports lpcore's import bundle and the TTS job list as an artifact.
+name: lp-content
+
+on:
+  push:
+    branches: ['ci/lp**']
+    paths: ['tools/lp/**', '.github/workflows/lp-content.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: lp-content-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unit tests (validators)
+        run: python -m unittest discover -s tools/lp -p 'test_*.py' -v
+      - name: Stage-2 tracks (ja / ko / de)
+        run: python tools/lp/lpcheck_tracks.py --out out
+      - name: IELTS bundles
+        if: always()
+        run: python tools/lp/lpcheck.py --out out
+      - name: Export bundle + TTS job list
+        if: always()
+        run: |
+          python tools/lp/export_tracks.py out/tracks_bundle --index out/tracks_index.json
+          python tools/lp/tts/plan_tracks.py out/tts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lp-check-${{ github.run_id }}
+          path: out/

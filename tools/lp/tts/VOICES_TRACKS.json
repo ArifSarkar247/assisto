@@ -1,0 +1,22 @@
+{
+ "format": "assisto.lp.voices/1",
+ "rule": "Open-source voices with permissive licences only. No voice cloning, no voice of a real named person imitated. A voice is used only when cleared is true AND .phaseB/MODEL_LICENSES.md has a 'Yes' row for it.",
+ "voices": {
+  "ja": [
+   {"id": "kokoro:jf_alpha", "gender": "F", "engine": "Kokoro-82M v1.0 + misaki[ja] (pyopenjtalk)", "licence": "Apache-2.0 (model card: permissive / non-copyrighted training audio); pyopenjtalk MIT", "cleared": true},
+   {"id": "kokoro:jf_gongitsune", "gender": "F", "engine": "Kokoro-82M v1.0", "licence": "Apache-2.0", "cleared": true},
+   {"id": "kokoro:jm_kumo", "gender": "M", "engine": "Kokoro-82M v1.0", "licence": "Apache-2.0", "cleared": true},
+   {"id": "melo:JP", "gender": "F", "engine": "MeloTTS JP (myshell-ai, commit 209145371cff)", "licence": "MIT", "cleared": true, "fallback": true}
+  ],
+  "ko": [
+   {"id": "melo:KR", "gender": "F", "engine": "MeloTTS KR (myshell-ai, commit 209145371cff)", "licence": "MIT", "cleared": true},
+   {"id": "melo:KR+low", "gender": "M", "engine": "MeloTTS KR, speed 0.92 + pitch -3 semitones (ffmpeg rubberband) — an audio effect on the same synthetic voice, not cloning", "licence": "MIT", "cleared": true}
+  ],
+  "de": [
+   {"id": "piper:de_DE-thorsten-medium", "gender": "M", "engine": "Piper (MIT) + Thorsten-Voice dataset (CC0)", "licence": "dataset CC0; checkpoint lineage must be confirmed NOT fine-tuned from lessac (see MODEL_LICENSES.md Piper rows)", "cleared": false},
+   {"id": "piper:de_DE-kerstin-low", "gender": "F", "engine": "Piper + Thorsten-Voice project 'Kerstin' dataset (CC0)", "licence": "same check as above", "cleared": false}
+  ]
+ },
+ "speech_rate": {"ja": 0.9, "ko": 0.9, "de": 0.9},
+ "notes": "German audio stays blocked until the Piper checkpoint lineage is checked (owner/lead decision recorded in MODEL_LICENSES.md). The app then shows the script-free 'phone voice' practice only for German. Korean has one licence-clean voice: the second speaker is the same voice with a lower pitch, so dialogues stay clear."
+}
