@@ -82,21 +82,28 @@ Future<void> fcrOpenMap(BuildContext context, Map loc) async {
 /// The sheet owns its controller (disposed with the sheet, never while the
 /// closing animation still shows the field).
 Future<String?> fcrTextSheet(BuildContext context,
-        {required String title, required String hint, String initial = '', int max = 40, Key? fieldKey}) =>
+        {required String title, required String hint, String initial = '', int max = 40, Key? fieldKey, String? action}) =>
     showAppSheet<String>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (ctx) => _FcrTextSheet(
-          title: title, hint: hint, initial: initial, max: max, fieldKey: fieldKey ?? const ValueKey('fcr-text')),
+          title: title, hint: hint, initial: initial, max: max, fieldKey: fieldKey ?? const ValueKey('fcr-text'),
+          action: action),
     );
 
 class _FcrTextSheet extends StatefulWidget {
   final String title, hint, initial;
   final int max;
   final Key fieldKey;
+  final String? action;
   const _FcrTextSheet(
-      {required this.title, required this.hint, required this.initial, required this.max, required this.fieldKey});
+      {required this.title,
+      required this.hint,
+      required this.initial,
+      required this.max,
+      required this.fieldKey,
+      this.action});
   @override
   State<_FcrTextSheet> createState() => _FcrTextSheetState();
 }
@@ -136,7 +143,7 @@ class _FcrTextSheetState extends State<_FcrTextSheet> {
             key: const ValueKey('fcr-text-save'),
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
             onPressed: () => Navigator.pop(context, _ctrl.text),
-            child: Text(t.save),
+            child: Text(widget.action ?? t.save),
           ),
         ],
       ),

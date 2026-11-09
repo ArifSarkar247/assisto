@@ -188,43 +188,10 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
 
   Future<void> _newFamily() async {
     final t = AppLocalizations.of(context);
-    final ctrl = TextEditingController();
-    final name = await showAppSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(t.fc3NewFamily,
-                style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: Gap.sm),
-            TextField(
-              key: const ValueKey('fc3-new-family-name'),
-              controller: ctrl,
-              autofocus: true,
-              maxLength: 60,
-              buildCounter: localCounter,
-              decoration: InputDecoration(labelText: t.fc3NewFamilyHint),
-              onSubmitted: (v) => Navigator.pop(ctx, v),
-            ),
-            const SizedBox(height: Gap.sm),
-            FilledButton(
-              key: const ValueKey('fc3-new-family-save'),
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: () => Navigator.pop(ctx, ctrl.text),
-              child: Text(t.fc3Create),
-            ),
-          ],
-        ),
-      ),
-    );
-    // fcrest: dispose only after the sheet's closing animation (a disposed
-    // controller still on screen throws in debug builds)
-    Future.delayed(const Duration(seconds: 1), ctrl.dispose);
+    // fcrest: the shared sheet owns its controller (no disposed-controller assert)
+    final name = await fcrTextSheet(context,
+        title: t.fc3NewFamily, hint: t.fc3NewFamilyHint, max: 60,
+        fieldKey: const ValueKey('fc3-new-family-name'), action: t.fc3Create);
     if (name == null || name.trim().isEmpty || !mounted) return;
     try {
       final r = await _api.fcCreateFamily(name.trim());
