@@ -158,6 +158,11 @@ def revoke_sessions(user):
     from rest_framework.authtoken.models import Token
     from .models import Device, DeviceLinkToken, LinkedDevice, OwnerSession
     n = {"tokens": Token.objects.filter(user=user).delete()[0]}
+    try:   # recovery: per-device sessions too
+        from .device_sessions import revoke_all
+        n["tokens"] += revoke_all(user, reason="admin_signout")
+    except Exception:  # noqa: BLE001
+        pass
     n["linked"] = LinkedDevice.objects.filter(user=user, revoked=False).update(revoked=True)
     n["link_tokens"] = DeviceLinkToken.objects.filter(user=user).delete()[0]
     n["panel"] = OwnerSession.objects.filter(user=user).delete()[0]

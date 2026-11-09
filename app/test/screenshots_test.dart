@@ -29,6 +29,9 @@ import 'package:assisto/screens/messenger/m3_add_to_circle_screen.dart';
 import 'package:assisto/screens/messenger/m3_requests_screen.dart';
 import 'package:assisto/widgets/m3_circle_widgets.dart';
 import 'fake_otp.dart';
+import 'fake_account_security.dart'; // recovery
+import 'package:assisto/screens/account_security_screen.dart'; // recovery
+import 'package:assisto/screens/account_recovery_screens.dart'; // recovery
 import 'fake_train.dart' show trainLive701; // sjalarm
 import 'p2_shots.dart'; // p2-money
 import 'p5_shots.dart'; // p5-growth
@@ -199,6 +202,9 @@ import 'package:assisto/screens/messenger/admin_moderation_screen.dart';
 import 'package:assisto/screens/money_voice_screen.dart';
 import 'package:assisto/screens/voice_assistant_screen.dart';
 import 'package:assisto/screens/voice_assistant_settings_screen.dart';
+import 'package:assisto/screens/wake_disclosure_screen.dart';
+import 'package:assisto/screens/wake_oem_guide_screen.dart';
+import 'package:assisto/voice/va_wake_logic.dart';
 import 'package:assisto/voice/va_actions.dart';
 import 'package:assisto/voice/va_confirm_sheet.dart';
 import 'package:assisto/voice/va_onboarding_step.dart';
@@ -340,6 +346,7 @@ import 'cctvevidence_shots.dart'; // cctvevidence CCTV recording + evidence
 import 'cctvescalate_shots.dart'; // cctvescalate C3-C6
 import 'cctvprice_shots.dart'; // cctvprice CCTV plan
 import 'safeplans_shots.dart'; // safeplans Safety plans
+import 'carecall_shots.dart'; // carecall Care Call SCREEN 1/2/3
 import 'cctvarm_shots.dart'; // cctvarm Auto guard
 import 'cctvteam_shots.dart'; // cctvteam W11 grid / roles / share / watch
 import 'booking1_shots.dart'; // booking1 booking bot
@@ -348,6 +355,7 @@ import 'remhbar_shots.dart'; // remhbar Reminders & Notes launch bar
 import 'remhbud_shots.dart'; // remhbud Budget module + empty remittance month
 import 'retention1_shots.dart'; // retention1 Retention automation
 import 'mktengine_shots.dart'; // mktengine Marketing Engine
+import 'bizai_shots.dart'; // bizai
 import 'p4_world_shots.dart'; // p4-world
 import 'p3farm_shots.dart'; // p3farm
 import 'c2_calls_shots.dart'; // c2-calls
@@ -399,6 +407,9 @@ import 'package:assisto/push/push_settings_screen.dart';
 import 'agent_core_shots.dart'; // agent-core WP-APP
 import 'bizops_shots.dart'; // bizops
 import 'fake_api.dart';
+import 'package:assisto/notiflisten/callmoney_screens.dart'; // callmoney
+import 'package:assisto/notiflisten/notif_listen_channel.dart'; // callmoney
+import 'callmoney_fake.dart'; // callmoney
 import 'fake_kidswatch.dart'; // chipbuy2
 import 'p3guides_fake.dart' show p3gFakeEmutation; // p3guides
 import 'package:assisto/widgets/guide_data.dart' show GuideService; // p3guides
@@ -778,6 +789,12 @@ Map<String, GallerySpec> gallerySpecs() {
     'voice_settings': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true), mode: FakeMode.data, full: true),
     'voice_onboarding': (build: (_) => const Scaffold(body: SafeArea(child: VaOnboardingStep())), mode: FakeMode.data, full: true),
     'voice_settings_bottom': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true), mode: FakeMode.data, full: true),
+    // k1-wake: "Hey Assisto" (openWakeWord) — listening card, paused card,
+    // prominent disclosure, OEM keep-alive guide.
+    'voice_wake_on_bottom': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true, debugWake: WakeStatus(WakeRun.listening, wanted: true)), mode: FakeMode.data, full: true),
+    'voice_wake_paused_bottom': (build: (_) => const VoiceAssistantSettingsScreen(debugStatic: true, debugWake: WakeStatus(WakeRun.paused, reason: 'battery', wanted: true)), mode: FakeMode.data, full: true),
+    'voice_wake_disclosure': (build: (_) => const WakeDisclosureScreen(), mode: FakeMode.data, full: true),
+    'voice_wake_oem': (build: (_) => const WakeOemGuideScreen(debugMaker: 'realme'), mode: FakeMode.data, full: true),
     'action_center': (build: (_) => const ActionCenterScreen(), mode: FakeMode.data, full: true),
     'disaster_alerts': (build: (_) => const DisasterAlertsScreen(), mode: FakeMode.data, full: true),
     'offline_status': (build: (_) => const OfflineStatusScreen(), mode: FakeMode.data, full: true),
@@ -790,6 +807,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'otp_reset': (build: (_) => OtpResetScreen(backend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     'password_reset_sms': (build: (_) => PasswordResetScreen(otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     // ---- /o1-otp ----
+    // recovery (owner Part 8): Account & security, forgot password, support recovery
+    'recov_account': (build: (_) => AccountSecurityScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
+    'recov_account_alerts': (build: (_) => AccountSecurityScreen(backend: FakeAccountSecurity(state: FakeAccountSecurity.sample(alerts: true, email: true)), otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
+    'recov_password': (build: (_) => ChangePasswordScreen(backend: FakeAccountSecurity()), mode: FakeMode.data, full: true),
+    'recov_forgot': (build: (_) => ForgotPasswordScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),
+    'recov_support_form': (build: (_) => SupportRecoveryScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend(), store: MemoryRefStore()), mode: FakeMode.data, full: true),
+    'recov_support_status': (build: (_) => SupportRecoveryScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend(), store: MemoryRefStore({'ref': 'AB12CD34', 'secret': 's', 'contact': '01611000004'})), mode: FakeMode.data, full: true),
+    // ---- /recovery ----
     // framebar: SMS off at launch -> honest email-code sign-in
     'fb_login_email_code': (build: (_) => LoginScreen(otpBackend: FakeOtpBackend(smsEnabled: false, emailEnabled: true)), mode: FakeMode.data, full: true),
     'fb_otp_email_login': (build: (_) => OtpLoginScreen(backend: FakeOtpBackend(smsEnabled: false, emailEnabled: true), emailMode: true), mode: FakeMode.data, full: true),
@@ -1128,6 +1153,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in cctvescalateShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvescalate
     for (final e in cctvpriceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvprice
     for (final e in safeplansShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // safeplans
+    for (final e in carecallShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // carecall
     for (final e in cctvarmShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvarm
     for (final e in cctvteamShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvteam
     for (final e in booking1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // booking1
@@ -1138,6 +1164,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in remhbudShots.entries) e.key: (build: e.value.build, mode: e.value.mode, full: true), // remhbud
     for (final e in retention1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // retention1
     for (final e in mktengineShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // mktengine
+    for (final e in bizaiShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // bizai
     // p1-bizagent: Business AI Agent (home, first run, setup, approvals, inbox, chat)
     for (final e in p1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in g1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // g1-bizagent
@@ -1227,6 +1254,14 @@ Map<String, GallerySpec> gallerySpecs() {
     'crm100_send': (build: (_) => const Scaffold(body: SafeArea(child: CrmSendSheet(target: CustomerTarget(phone: '01712345678'), name: 'Karim Mia', initialText: 'Hello Karim Mia, your saree is ready.'))), mode: FakeMode.data, full: false),
     'biz_order_detail': (build: (_) => const OrderDetailScreen(orderId: 101), mode: FakeMode.data, full: true),
     'money_import': (build: (_) => const MoneyImportScreen(), mode: FakeMode.data, full: true),
+    // callmoney: after-call note + money from notifications (consent, review, sheet)
+    'cmn_settings': (build: (_) { SharedPreferences.setMockInitialValues({'cm_consent_call_v1': 'x', 'cm_consent_money_v1': 'x', 'cm_callnote_on': true, 'cm_money_on': true}); NotifListenChannel.instance = FakeNotifBridge(st: const NotifListenStatus(available: true, granted: true, callNote: true, money: true)); return const CallMoneySettingsScreen(); }, mode: FakeMode.data, full: true),
+    'cmn_settings_off': (build: (_) { SharedPreferences.setMockInitialValues({}); NotifListenChannel.instance = FakeNotifBridge(); return const CallMoneySettingsScreen(); }, mode: FakeMode.data, full: true),
+    'cmn_consent_money': (build: (_) => const NotifConsentScreen(feature: 'money'), mode: FakeMode.data, full: true),
+    'cmn_consent_call': (build: (_) => const NotifConsentScreen(feature: 'call'), mode: FakeMode.data, full: true),
+    'cmn_review': (build: (_) { SharedPreferences.setMockInitialValues({'cm_consent_money_v1': 'x', 'cm_money_on': true}); NotifListenChannel.instance = FakeNotifBridge(queue: fakeMoneyQueue()); return const MoneyNotifReviewScreen(focusId: 1); }, mode: FakeMode.data, full: true),
+    'cmn_review_empty': (build: (_) { SharedPreferences.setMockInitialValues({}); NotifListenChannel.instance = FakeNotifBridge(); return const MoneyNotifReviewScreen(); }, mode: FakeMode.empty, full: true),
+    'cmn_callnote': (build: (_) => const Scaffold(body: CallNoteSheet(launch: NotifLaunch(kind: 'callnote', mode: 'type', source: 'sim'), offline: true)), mode: FakeMode.data, full: true),
     'shop_cameras': (build: (_) => const ShopBoxScreen(initialTab: 1), mode: FakeMode.data, full: true),
     'shop_alerts': (build: (_) => const ShopBoxScreen(initialTab: 2), mode: FakeMode.data, full: true),
     'shop_report': (build: (_) => const ShopBoxScreen(initialTab: 3), mode: FakeMode.data, full: true),

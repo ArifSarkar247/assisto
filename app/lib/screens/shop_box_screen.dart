@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../bizai/cctv_accuracy_screen.dart' show CctvAccuracyScreen; // bizai
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -132,6 +133,16 @@ class _ShopBoxScreenState extends State<ShopBoxScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.shopBoxTitle),
+          // bizai pillar 4: measured accuracy (precision / recall per kind)
+          actions: [
+            IconButton(
+              key: const ValueKey('bizai-cam-accuracy'),
+              tooltip: t.bizaiCamTitle,
+              icon: const Icon(Icons.query_stats_rounded),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => CctvAccuracyScreen(siteId: _siteId))),
+            ),
+          ],
           bottom: TabBar(isScrollable: true, tabs: [
             Tab(text: t.shopBoxTabSites),
             Tab(text: t.shopBoxTabCameras),

@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../otp_api.dart';
 import '../../theme.dart';
 import '../../widgets/otp_code_input.dart';
+import '../../widgets/subs_common.dart' show fmtInt; // recovery
 
 /// smsotp — "Email for sign-in codes" (Settings). The user adds an email and
 /// proves it with a 6-digit code; only a verified email can later receive
@@ -25,6 +28,20 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
   bool _codeSent = false;
   String? _error;
   String? _note;
+  // recovery (owner Part 8): "resend after 45 s" countdown from the server
+  int _resendLeft = 0;
+  Timer? _timer;
+
+  void _startTimer(int seconds) {
+    _timer?.cancel();
+    _resendLeft = seconds;
+    if (seconds <= 0) return;
+    _timer = Timer.periodic(const Duration(seconds: 1), (tm) {
+      if (!mounted) return tm.cancel();
+      setState(() => _resendLeft = _resendLeft - 1);
+      if (_resendLeft <= 0) tm.cancel();
+    });
+  }
 
   @override
   void initState() {
@@ -34,6 +51,7 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
 
   @override
   void dispose() {
+    _timer?.cancel();
     _email.dispose();
     _code.dispose();
     super.dispose();
@@ -73,7 +91,8 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
       case 'network':
         return t.otpErrNetwork;
       default:
-        return t.otpErrGeneric;
+        // recovery: identity_locked / identity_cooldown carry server text
+        return r.message.isNotEmpty ? r.message : t.otpErrGeneric;
     }
   }
 
@@ -99,6 +118,8 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
         _note = t.smsotpEmailSentTo(
             r.emailMasked.isNotEmpty ? r.emailMasked : email);
       }
+      final wait = r.ok ? r.resendIn : (r.reason == 'cooldown' ? r.retryAfter : null);
+      if (wait != null && wait > 0) _startTimer(wait);
       if (!r.ok) _error = _err(t, r);
     });
   }
@@ -210,10 +231,16 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                     const SizedBox(height: Gap.md),
                     FilledButton(
                       key: const Key('email-send'),
-                      onPressed: _busy ? null : _send,
+                      onPressed: (_busy || (_codeSent && _resendLeft > 0)) ? null : _send,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: Gap.md),
-                        child: Text(_codeSent ? t.otpResend : t.smsotpEmailSend),
+                        child: Text(
+                            !_codeSent
+                                ? t.smsotpEmailSend
+                                : (_resendLeft > 0
+                                    ? t.qa1OtpResendIn(fmtInt(context, _resendLeft))
+                                    : t.otpResend),
+                            textAlign: TextAlign.center),
                       ),
                     ),
                     if (_note != null) ...[
@@ -228,6 +255,12 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                       const SizedBox(height: Gap.lg),
                       Text(t.smsotpEmailCodeHint,
                           textAlign: TextAlign.center, style: text.titleSmall),
+                      const SizedBox(height: Gap.xs),
+                      Text(t.acsecCodeRules, // recovery: 10 min, 5 tries
+                          key: const Key('email-code-rules'),
+                          textAlign: TextAlign.center,
+                          style: text.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant)),
                       const SizedBox(height: Gap.md),
                       OtpCodeInput(
                         controller: _code,

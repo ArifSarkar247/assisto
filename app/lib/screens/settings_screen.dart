@@ -38,6 +38,7 @@ import 'admin/owner_pnl_screen.dart';
 import 'admin/discover_manager_screen.dart';
 import 'credits_screen.dart';
 import 'otp/email_verify_screen.dart'; // smsotp
+import 'account_security_screen.dart'; // recovery
 import '../otp_api.dart' show ApiOtpBackend; // smsotp
 import '../push/push_settings_screen.dart';
 import '../widgets/storage_meter.dart';
@@ -63,6 +64,7 @@ import '../theme.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../ads/ad_privacy_tile.dart';
 import 'fall_detect_screen.dart';
+import '../notiflisten/callmoney_screens.dart'; // callmoney
 import '../services/action_feedback.dart'; // db1
 import '../services/data_export.dart'; // framebar
 import '../play_update.dart'; // framebar
@@ -261,6 +263,16 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const VoiceAssistantSettingsScreen())),
           ),
+          // callmoney: after-call note + money from notifications (consent first)
+          if (FeatureFlags.instance.isOn('reminders') || FeatureFlags.instance.isOn('money'))
+          ListTile(
+            key: const ValueKey('cmn_settings_tile'),
+            leading: const Icon(Icons.notifications_active_rounded),
+            title: Text(t.clnSettingsTitle),
+            subtitle: Text(t.clnSettingsTileSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const CallMoneySettingsScreen())),
+          ),
           const Divider(),
           const _SafetySection(),
           // #198 Digital security check-up — a guided self-audit + security
@@ -271,6 +283,16 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(t.secTileSub),
             onTap: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const SecurityCheckupScreen())),
+          ),
+          // recovery (owner Part 8): phone + email, password, signed-in
+          // devices, "this was not me", family confirmations.
+          ListTile(
+            key: const Key('settings-account-security'),
+            leading: const Icon(Icons.manage_accounts_rounded),
+            title: Text(t.acsecTitle),
+            subtitle: Text(t.acsecTileSub),
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const AccountSecurityScreen())),
           ),
           // smsotp: a verified email = backup for sign-in codes when SMS fails
           ListTile(

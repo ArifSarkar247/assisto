@@ -10,6 +10,7 @@ import '../../widgets/local_counter.dart';
 import '../../widgets/local_digits.dart';
 import 'mkt_questionnaire.dart';
 import 'mkt_source.dart';
+import '../../bizai/bizai_source.dart' show bizaiTrackedText; // bizai
 
 /// mktengine — ASSISTO MARKETING ENGINE v1 (owner P3-D; flag
 /// `marketing_engine`). A shop owner answers a short questionnaire; the
@@ -23,7 +24,11 @@ class MktEngineScreen extends StatefulWidget {
 
   /// Tests / gallery: the section shown first.
   final String initialSection;
-  const MktEngineScreen({super.key, this.source, this.initialSection = 'content'});
+
+  /// bizai: item id -> tracked share text (tests inject; default = server).
+  final Future<String?> Function(String itemId)? trackedText;
+  const MktEngineScreen(
+      {super.key, this.source, this.initialSection = 'content', this.trackedText});
 
   @override
   State<MktEngineScreen> createState() => _MktEngineScreenState();
@@ -148,20 +153,37 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
     await _run('${it['id']}', () => _src.editItem('${it['id']}', {'body': saved}));
   }
 
+  /// bizai pillar 5: the post with its TRACKED shop-chat link + code, so the
+  /// orders it brings are counted ("this post brought N orders"). Falls back
+  /// to the plain text when the link cannot be made (offline / no shop chat).
+  Future<String> _textFor(Map<String, dynamic> it) async {
+    final body = '${it['body'] ?? ''}';
+    final kind = '${it['kind'] ?? ''}';
+    if (kind == 'calendar' || kind == 'followup') return body;
+    try {
+      final api = widget.trackedText ?? bizaiTrackedText(context.read<AppState>().api);
+      final r = await api('${it['id']}');
+      if (r != null && r.isNotEmpty) return r;
+    } catch (_) {}
+    return body;
+  }
+
   Future<void> _copy(Map<String, dynamic> it) async {
     final t = AppLocalizations.of(context);
-    await Clipboard.setData(ClipboardData(text: '${it['body'] ?? ''}'));
+    final text = await _textFor(it);
+    await Clipboard.setData(ClipboardData(text: text));
     if (mounted) _snack(t.mktCopied);
   }
 
   Future<void> _share(Map<String, dynamic> it) async {
     final t = AppLocalizations.of(context);
+    final text = await _textFor(it);
     // circlefam: Facebook drops shared text (only links/images arrive), so
     // copy first — the person pastes it in the post box.
-    await Clipboard.setData(ClipboardData(text: '${it['body'] ?? ''}'));
+    await Clipboard.setData(ClipboardData(text: text));
     if (mounted) _snack(t.mktCopied);
     try {
-      await Share.share('${it['body'] ?? ''}', subject: '${it['title'] ?? ''}');
+      await Share.share(text, subject: '${it['title'] ?? ''}');
     } catch (_) {} // best-effort: the text is already on the clipboard (snack shown)
   }
 

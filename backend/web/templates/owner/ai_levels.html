@@ -2,6 +2,7 @@
 {% block heading %}{{ L.title }}{% endblock %}
 {% block content %}
 {% if error %}<div class="flash warn" role="alert">{{ error }}</div>{% endif %}
+{% include "owner/_ai_health.html" %}
 <p class="mut small">{{ L.intro }}</p>
 <section class="card" id="ail-table">
 <p class="small">{{ L.rate }}: <b>{{ t.usd_bdt }}</b> · {{ L.safe }}: <b>{{ t.safe_bdt_per_credit }}</b></p>
@@ -34,6 +35,7 @@
 <td><input name="{{ r.id }}_history_turns" value="{{ r.history_turns }}" size="4" inputmode="numeric" aria-label="{{ r.id }} history_turns"></td>
 <td><input name="{{ r.id }}_credits" value="{{ r.credits }}" size="4" inputmode="numeric" aria-label="{{ r.id }} credits"></td></tr>{% endfor %}
 </tbody></table></div>
+<p id="ail-gemini">{{ L.gemini }}: {% for k, v in gemini_kinds %}<label><code>{{ k }}</code> <input name="gemini_{{ k }}" value="{{ v }}" size="20" aria-label="gemini {{ k }} model"></label> {% endfor %}</p>
 <label>{{ L.reason }} <input name="reason" maxlength="200"></label> <button class="btn">{{ L.save }}</button>
 </form>
 </section>

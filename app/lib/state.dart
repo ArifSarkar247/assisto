@@ -357,6 +357,16 @@ class AppState extends ChangeNotifier {
     await _finishSignIn(res.token, res.user);
   }
 
+  /// recovery: the server rotated THIS phone's session (password change /
+  /// "sign out of all other devices" from an older-build token).
+  Future<void> replaceToken(String token) async {
+    if (token.isEmpty) return;
+    api.token = token;
+    if (!await SecretStore.instance.write('token', token)) {
+      reportNonFatal('auth.token_write', SecretStore.instance.lastError);
+    }
+  }
+
   /// o1-otp: adopt a session issued by a non-password sign-in (OTP login).
   /// [checkGrace] false = the start-fresh flow (dl1), already decided.
   Future<void> adoptSession(String token, AppUser signedIn,

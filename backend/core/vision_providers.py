@@ -28,8 +28,12 @@ MAX_TOKENS = 1500
 DEFAULT_MODELS = {
     "vision_claude": "claude-sonnet-5-5",
     "vision_openai": "gpt-4o-mini",
-    "vision_gemini": "gemini-2.5-flash",
+    # geminifix 4 Nov: one place for Gemini ids (core/gemini_models.py);
+    # gemini-2.5-flash is no longer offered to new keys (HTTP 404 live)
+    "vision_gemini": "gemini-3.5-flash-lite",
 }
+
+_HARD = {401: "auth", 402: "billing", 403: "auth", 404: "not_found"}
 
 
 class VisionError(Exception):
@@ -138,7 +142,11 @@ def _openai(cfg, *, image_bytes, mime, system, question, opts=None):
 def _gemini(cfg, *, image_bytes, mime, system, question, opts=None):
     opts = opts or {"timeout": TIMEOUT_S, "max_tokens": MAX_TOKENS, "usage": {}}
     rq = _http()
-    model = (cfg.get("model") or DEFAULT_MODELS["vision_gemini"]).strip()
+    from . import ai_health as AH
+    from . import gemini_models as GM
+    model = GM.resolve((cfg.get("model") or GM.get("vision")).strip(), "vision")
+    if AH.is_down("gemini", model):
+        raise VisionError("down")          # 404/402/403 seen recently: no doomed call
     url = ("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent"
            % model)
     body = {"systemInstruction": {"parts": [{"text": system}]},
@@ -149,6 +157,10 @@ def _gemini(cfg, *, image_bytes, mime, system, question, opts=None):
     r = rq.post(url, json=body, timeout=opts["timeout"],
                 headers={"x-goog-api-key": cfg.get("api_key", "")})
     if r.status_code != 200:
+        if r.status_code in _HARD:
+            from .ai import _error_message
+            AH.mark_down("gemini", model, _HARD[r.status_code], "http_%d" % r.status_code,
+                         _error_message(r))
         raise VisionError("http_%d" % r.status_code)
     data = r.json()
     u = data.get("usageMetadata") if isinstance(data.get("usageMetadata"), dict) else {}

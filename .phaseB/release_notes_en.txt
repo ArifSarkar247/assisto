@@ -1,1 +1,1 @@
-Build 309: Assisto AI rebuilt — answers in your language (Bangla script or romanized Bangla in, Bangla out), photos remembered in the chat, Bangla voice typing, markdown, Continue for long answers, new chat when you come back, side panel with search, nothing saved without your Yes, AI usage log and answer levels in Owner Admin, Photo Studio chat-style editing.
+Build 316: "Hey Assisto" hands-free wake word (on-device, opt-in, visible listening notice) with confirmed actions: call, My Circle message, WhatsApp prefilled, alarm, reminder, Care Call, Safe Journey, navigation.

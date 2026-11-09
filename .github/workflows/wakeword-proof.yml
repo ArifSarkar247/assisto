@@ -1,0 +1,53 @@
+# wakeword (4 Nov): end-to-end proof of the SHIPPED "Hey Assisto" detector on
+# files — the phone's own Kotlin engine (OwwEngine.kt + WakeDecider) and the
+# model files the server serves (backend/core/wakeword_models), fed with
+# SYNTHETIC eSpeak clips in 80 ms chunks; also measures CPU ms per audio
+# second (an x86 runner, not a phone: see owner_actions/WAKE_WORD_PLAY_BN.md).
+# Light: ~3 min, no emulator, no Android build.
+name: Wake word proof (Hey Assisto)
+on:
+  workflow_dispatch:
+  push:
+    branches: ["ci/wakeword*"]
+    paths:
+      - "app/android_overlay/app/src/main/kotlin/com/assisto/assisto/voice/OwwEngine.kt"
+      - "backend/core/wakeword_models/**"
+      - "tools/wakeword/proof/**"
+      - ".github/workflows/wakeword-proof.yml"
+concurrency:
+  group: wakeword-proof-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - name: Tools (eSpeak NG, Python, kotlinc, ONNX Runtime JVM, org.json)
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq espeak-ng >/dev/null
+          python3 -m pip install -q numpy scipy
+          mkdir -p /tmp/k && cd /tmp/k
+          curl -sSfL -o kc.zip https://github.com/JetBrains/kotlin/releases/download/v2.1.0/kotlin-compiler-2.1.0.zip
+          unzip -q kc.zip
+          curl -sSfL -o ort.jar https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime/1.23.2/onnxruntime-1.23.2.jar
+          curl -sSfL -o json.jar https://repo1.maven.org/maven2/org/json/json/20240303/json-20240303.jar
+      - name: Synthetic clips (no real voices)
+        run: python3 tools/wakeword/proof/make_clips.py /tmp/clips
+      - name: Compile the phone engine + harness
+        run: |
+          /tmp/k/kotlinc/bin/kotlinc -cp /tmp/k/ort.jar:/tmp/k/json.jar \
+            app/android_overlay/app/src/main/kotlin/com/assisto/assisto/voice/OwwEngine.kt \
+            tools/wakeword/proof/ProofMain.kt -include-runtime -d /tmp/k/proof.jar
+      - name: Run + gate
+        run: |
+          set -euo pipefail
+          java -cp /tmp/k/proof.jar:/tmp/k/ort.jar:/tmp/k/json.jar ProofMainKt \
+            backend/core/wakeword_models /tmp/clips /tmp/proof.json > /dev/null
+          python3 tools/wakeword/proof/gate.py /tmp/proof.json | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: wakeword-proof, path: /tmp/proof.json, retention-days: 30 }

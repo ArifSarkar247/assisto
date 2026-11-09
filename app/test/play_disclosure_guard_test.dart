@@ -10,7 +10,7 @@
 //     features that keep location with the app closed.
 //  3. askLocationWithReason: the reason comes first; "Not now" never
 //     prompts Android.
-//  4. The Play bundle never ships the unused wake-word microphone service,
+//  4. The shipped "Hey Assisto" wake-word microphone service stays in the Play bundle and is declared (WAKE_WORD_PLAY_BN.md),
 //     nor background location / SMS / call-log / accessibility & co.
 import 'dart:io';
 
@@ -62,7 +62,7 @@ const _allowed = <String, String>{
   'lib/screens/camera/camera_permission_gate.dart':
       'the camera explain state is shown before request()',
   'lib/screens/voice_assistant_settings_screen.dart':
-      'wake word: hidden (VaWake.shipped=false) + its own confirm dialog first',
+      'wake word: WakeDisclosureScreen (prominent disclosure) before the mic request',
   'lib/voice/va_actions.dart':
       'contacts: VaConfirmSheet.reason; phone: after the user confirmed Call now',
   'lib/cctvx/warn_recorder.dart':
@@ -323,13 +323,22 @@ void main() {
     final ci = File('../.github/workflows/android.yml').readAsStringSync();
     final play = ci.substring(ci.indexOf('Build + sign release AAB (Google Play)'));
 
-    test('the unused wake-word mic service is removed from the Play bundle', () {
-      // the wake word is not shipped in any build...
-      expect(VaWake.shipped, isFalse);
-      expect(ci.contains('ASSISTO_WAKE_WORD=true'), isFalse);
-      // ...so the Play step strips WakeWordService and the gate checks it
-      expect(play, contains('Play manifest: WakeWordService removed'));
-      expect(play, contains('for C in voice.WakeWordService GeolocatorLocationService'));
+    test('the shipped wake-word mic service stays in the Play bundle + is declared', () {
+      // wakeword (4 Nov): "Hey Assisto" ships, so its microphone FGS must be
+      // in the Play manifest AND declared (form text + video script).
+      expect(VaWake.shipped, isTrue);
+      expect(ci.contains('ASSISTO_WAKE_WORD=false'), isFalse);
+      expect(play, isNot(contains('Play manifest: WakeWordService removed')));
+      expect(play, contains('Play manifest: WakeWordService kept'));
+      expect(play, contains('for C in GeolocatorLocationService'));
+      final decl = File('../owner_actions/WAKE_WORD_PLAY_BN.md').readAsStringSync();
+      expect(decl, contains('FOREGROUND_SERVICE_MICROPHONE'));
+      expect(decl, contains('WakeWordService'));
+      // the disclosure comes before the microphone request
+      final s = File('lib/screens/voice_assistant_settings_screen.dart').readAsStringSync();
+      expect(s.indexOf('WakeDisclosureScreen.show'), greaterThan(0));
+      expect(s.indexOf('WakeDisclosureScreen.show'),
+          lessThan(s.indexOf('Permission.microphone.request()')));
     });
 
     test('the Play gate forbids every undeclared sensitive permission', () {

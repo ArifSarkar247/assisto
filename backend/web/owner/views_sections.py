@@ -728,8 +728,18 @@ def integrations(request):
     for r in rows:
         cats.setdefault(r["category"], []).append(r)
     return page(request, "owner/integrations.html",
-                {"cats": sorted(cats.items()), "summary": summ, "err": err},
+                {"cats": sorted(cats.items()), "summary": summ, "err": err,
+                 "ai_alerts": _ai_alerts()},
                 nav="integrations")
+
+
+def _ai_alerts():
+    """geminifix: last real AI provider error (402 / 404 / 403) — red line."""
+    try:
+        from core import ai_health as AH
+        return AH.alerts()
+    except Exception:  # noqa: BLE001
+        return []
 
 
 # ==================================================================== users
@@ -838,6 +848,8 @@ def user_detail(request, pk):
                 if reset:
                     from rest_framework.authtoken.models import Token
                     Token.objects.filter(user=u).delete()
+                    from core.device_sessions import revoke_all   # recovery
+                    revoke_all(u, reason="moderation")
                 ModerationAudit.objects.create(
                     actor=request.owner, action=audit_entry["action"],
                     target_kind=mmod.T_PERSON, target_id=str(u.id),

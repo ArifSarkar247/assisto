@@ -272,6 +272,11 @@ def _product_out(p, role):
               "low_stock_at": int(base.get("low_stock_at") or 3)})
     d["low_stock"] = 0 < d["stock"] <= d["low_stock_at"]
     d["out_of_stock"] = d["stock"] <= 0
+    # aileft: the catalog photo (Photo Studio "Add to catalog"), signed URL
+    try:
+        d["photo"] = p.photo.url if p.photo else ""
+    except Exception:  # noqa: BLE001
+        d["photo"] = ""
     return selling.redact_product(d, role)
 
 

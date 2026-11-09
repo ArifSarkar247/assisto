@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from . import views
 from . import media_sign
+from . import views_aileft_catalog as aileft_cat   # aileft
 from . import invoice_views as invv   # invoices
 from . import views_module5 as m5
 from . import views_build61 as b61
@@ -166,6 +167,8 @@ urlpatterns = [
 
     path("scan", views.LifeScanView.as_view()),
     path("agent", views.AgentView.as_view()),
+    path("agent/stream", views.AgentStreamView.as_view()),         # aileft: home chat streaming
+    path("chat/stop", chatv.ChatStopView.as_view()),                # aileft: Stop = pay only what was shown
     path("agent/confirm", chatv.AgentConfirmView.as_view()),        # AI rebuild 01:02
     path("agent/ai-entries", chatv.AgentEntriesView.as_view()),     # AI rebuild 01:02
 
@@ -237,6 +240,7 @@ urlpatterns = [
     path("business/profiles/select", bz.ProfileSelectView.as_view()),
 
     # SELLING (§3) — catalog, quick-sell cart, checkout, customers, reports
+    path("business/products/photo", aileft_cat.CatalogPhotoView.as_view()),  # aileft
     path("business/products", bz.ProductsView.as_view()),
     path("business/products/<int:pk>", bz.ProductDetailView.as_view()),
     path("business/products/import", bz.ProductImportView.as_view()),
@@ -734,6 +738,9 @@ urlpatterns = [
     path("voice/config", voicev.VoiceConfigView.as_view()),
     path("voice/transcribe", voicev.VoiceTranscribeView.as_view()),  # aifinal round 2
     path("voice/youtube", voicev.VoiceYoutubeView.as_view()),
+    path("voice/route", voicev.VoiceRouteView.as_view()),  # wakeword: AI router -> fixed actions
+    # ---- k1-wake ---- on-device "Hey Assisto" model files (public, manifest-listed)
+    path("voice/wake-model/<str:name>", voicev.WakeModelFileView.as_view()),
 ]
 
 # ---- a2-cctv ---- CCTV Part 4 round 2: camera settings, device heartbeat /
@@ -1676,6 +1683,7 @@ urlpatterns += [
     path("market/group", mkv.GroupFeedView.as_view()),
     path("market/sell", mkv.SellView.as_view()),
     path("market/seller", mkv.SellerApplyView.as_view()),
+    path("market/invites", mkv.SellerInviteView.as_view()),   # bizai
     path("market/deals", mkv.DealsView.as_view()),
     path("market/deals/<int:pk>/act", mkv.DealActView.as_view()),
     path("market/deals/<int:pk>/chat", mkv.DealChatView.as_view()),
@@ -1806,3 +1814,63 @@ urlpatterns += [
     path("safe-plans/school/<str:code>/bus", spv.SchoolBusView.as_view()),
 ]
 # ---- /safeplans ----
+# ---- carecall ---- Care Call (flag care_call): family care reminder call
+from . import views_carecall as ccv  # noqa: E402
+urlpatterns += [
+    path("carecall", ccv.CareCallView.as_view()),
+    path("carecall/people", ccv.CareCallPeopleView.as_view()),
+    path("carecall/consent", ccv.CareCallConsentView.as_view()),
+    path("carecall/quiet", ccv.CareCallQuietView.as_view()),
+    path("carecall/ack", ccv.CareCallAckView.as_view()),
+    path("carecall/acks", ccv.CareCallAcksView.as_view()),
+    path("carecall/<int:pk>", ccv.CareCallItemView.as_view()),
+    path("carecall/<int:pk>/delete", ccv.CareCallDeleteView.as_view()),
+    path("carecall/<int:pk>/voice", ccv.CareCallVoiceView.as_view()),
+]
+# ---- /carecall ----
+
+# ---- callmoney ---- After-call note: words -> draft reminder / note / due (never writes)
+from . import callnote_views as cnv  # noqa: E402
+urlpatterns += [
+    path("callnote/understand", cnv.CallNoteUnderstandView.as_view()),
+]
+# ---- /callmoney ----
+
+# ---- recovery ---- Account & security + account recovery (owner Part 8)
+from . import views_account_security as acsec  # noqa: E402
+urlpatterns += [
+    path("account/security", acsec.AccountSecurityView.as_view()),
+    path("account/security/password", acsec.ChangePasswordView.as_view()),
+    path("account/security/devices/signout-others", acsec.DeviceSignOutOthersView.as_view()),
+    path("account/security/devices/<str:sid>/signout", acsec.DeviceSignOutView.as_view()),
+    path("account/security/nudge", acsec.NudgeView.as_view()),
+    path("account/security/recovery/<int:pk>/cancel", acsec.OwnerCancelRecoveryView.as_view()),
+    path("account/security/recovery/family/<int:pk>", acsec.FamilyDecideView.as_view()),
+    path("auth/recovery/options", acsec.RecoveryOptionsView.as_view()),
+    path("auth/recovery/support/start", acsec.SupportStartView.as_view()),
+    path("auth/recovery/support/status", acsec.SupportStatusView.as_view()),
+    path("auth/recovery/support/complete", acsec.SupportCompleteView.as_view()),
+    path("account/not-me/<str:token>", acsec.NotMeView.as_view()),
+]
+# ---- /recovery ----
+# ---- bizai ---- AI sales agent in the in-app shop chat + outcome card
+from . import views_bizai as bzai  # noqa: E402
+urlpatterns += [
+    path("bizai/shop-link", bzai.ShopLinkView.as_view()),
+    path("bizai/outcomes", bzai.OutcomesView.as_view()),
+    path("shopchat/mine", bzai.ShopChatMineView.as_view()),
+    path("shopchat/<str:code>", bzai.ShopChatView.as_view()),
+    path("shopchat/<str:code>/messages", bzai.ShopChatMessagesView.as_view()),
+    path("shopchat/<str:code>/send", bzai.ShopChatSendView.as_view()),
+    path("shopchat/<str:code>/person", bzai.ShopChatPersonView.as_view()),
+    path("bizai/crm/segments", bzai.CrmSegmentsView.as_view()),
+    path("bizai/crm/ladder", bzai.CrmLadderView.as_view()),
+    path("bizai/crm/draft", bzai.CrmDraftView.as_view()),
+    path("bizai/prochar", bzai.ProcharView.as_view()),
+    path("bizai/prochar/tracked/<str:item_id>", bzai.ProcharTrackedView.as_view()),
+    path("bizai/cctv/accuracy", bzai.CctvAccuracyView.as_view()),
+    path("bizai/cctv/missed", bzai.CctvMissedView.as_view()),
+    path("bizai/cctv/test", bzai.CctvTestView.as_view()),
+    path("bizai/cctv/test/<int:pk>/<str:action>", bzai.CctvTestView.as_view()),
+]
+# ---- /bizai ----

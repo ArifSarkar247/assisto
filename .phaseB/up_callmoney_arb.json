@@ -1,0 +1,551 @@
+{
+ "en": {
+  "clnSettingsTitle": "Call notes & money alerts",
+  "@clnSettingsTitle": {
+   "description": "callmoney"
+  },
+  "clnSettingsTileSub": "After a call: a quick note. bKash/Nagad/bank alerts: saved to your khata",
+  "@clnSettingsTileSub": {
+   "description": "callmoney"
+  },
+  "clnSettingsBenefit": "Never forget what was said on a call, and never type a bKash, Nagad, Rocket or bank transaction by hand again.",
+  "@clnSettingsBenefit": {
+   "description": "callmoney"
+  },
+  "clnNeverRecorded": "Calls are never recorded. Assisto only notices that a call ended; you say or type what to remember.",
+  "@clnNeverRecorded": {
+   "description": "callmoney"
+  },
+  "clnNeverRecordedShort": "This call was not recorded.",
+  "@clnNeverRecordedShort": {
+   "description": "callmoney"
+  },
+  "clnNotAvailable": "This phone or build can't read notifications. You can still write a call note below.",
+  "@clnNotAvailable": {
+   "description": "callmoney"
+  },
+  "clnAccessOn": "Notification access: on",
+  "@clnAccessOn": {
+   "description": "callmoney"
+  },
+  "clnAccessOff": "Notification access: off",
+  "@clnAccessOff": {
+   "description": "callmoney"
+  },
+  "clnAccessOnHelp": "Android lets Assisto see notifications. Assisto ignores everything except call-ended signals and allowed money senders.",
+  "@clnAccessOnHelp": {
+   "description": "callmoney"
+  },
+  "clnAccessOffHelp": "Turn on a switch below, then allow Assisto in Android's Notification access page.",
+  "@clnAccessOffHelp": {
+   "description": "callmoney"
+  },
+  "clnAccessOpen": "Open Notification access",
+  "@clnAccessOpen": {
+   "description": "callmoney"
+  },
+  "clnAccessManage": "Remove access in Android Settings",
+  "@clnAccessManage": {
+   "description": "callmoney"
+  },
+  "clnCallNoteTitle": "After-call note",
+  "@clnCallNoteTitle": {
+   "description": "callmoney"
+  },
+  "clnCallNoteSub": "SIM, WhatsApp and Messenger calls: a small card when the call ends",
+  "@clnCallNoteSub": {
+   "description": "callmoney"
+  },
+  "clnMoneyTitle": "Money from notifications",
+  "@clnMoneyTitle": {
+   "description": "callmoney"
+  },
+  "clnMoneySub": "bKash, Nagad, Rocket, Upay and bank alerts: save to khata in one tap",
+  "@clnMoneySub": {
+   "description": "callmoney"
+  },
+  "clnAutoTitle": "Save automatically",
+  "@clnAutoTitle": {
+   "description": "callmoney"
+  },
+  "clnAutoSub": "Clear transactions are saved when you next open Assisto; unclear ones wait for you",
+  "@clnAutoSub": {
+   "description": "callmoney"
+  },
+  "clnTurnAllOff": "Turn both off now",
+  "@clnTurnAllOff": {
+   "description": "callmoney"
+  },
+  "clnWriteNow": "Write a call note now",
+  "@clnWriteNow": {
+   "description": "callmoney"
+  },
+  "clnMonthTitle": "This month, per wallet",
+  "@clnMonthTitle": {
+   "description": "callmoney"
+  },
+  "clnMonthOff": "Turn on Money from notifications to see each wallet's income and spending here.",
+  "@clnMonthOff": {
+   "description": "callmoney"
+  },
+  "clnMonthEmpty": "No wallet entries yet this month. Confirmed bKash, Nagad, Rocket and bank entries show up here.",
+  "@clnMonthEmpty": {
+   "description": "callmoney"
+  },
+  "clnReviewWaiting": "Check waiting entries",
+  "@clnReviewWaiting": {
+   "description": "callmoney"
+  },
+  "clnPrivacyFoot": "Messages are read and understood only on this phone. Only the entries you confirm (amount, type, wallet, TrxID) are saved to your account. Assisto never reads your SMS inbox.",
+  "@clnPrivacyFoot": {
+   "description": "callmoney"
+  },
+  "clnDiscTitle": "Before you turn this on",
+  "@clnDiscTitle": {
+   "description": "callmoney"
+  },
+  "clnDiscCallLead": "To show 'Call ended — anything to remember?', Assisto needs Android's Notification access.",
+  "@clnDiscCallLead": {
+   "description": "callmoney"
+  },
+  "clnDiscCall1": "Assisto only notices that a phone, WhatsApp or Messenger call ended. It does not read who called or any message text.",
+  "@clnDiscCall1": {
+   "description": "callmoney"
+  },
+  "clnDiscCall2": "Calls are never recorded. No microphone is used during a call.",
+  "@clnDiscCall2": {
+   "description": "callmoney"
+  },
+  "clnDiscCall3": "What you say or type after the call is sent to Assisto AI to make a reminder, note or khata due. It uses AI credits like a chat message.",
+  "@clnDiscCall3": {
+   "description": "callmoney"
+  },
+  "clnDiscCall4": "Nothing is saved until you tap Confirm on each item.",
+  "@clnDiscCall4": {
+   "description": "callmoney"
+  },
+  "clnDiscCall5": "Turn it off any time here, or remove access in Android Settings.",
+  "@clnDiscCall5": {
+   "description": "callmoney"
+  },
+  "clnDiscMoneyLead": "To find your transactions, Assisto needs Android's Notification access. Here is exactly what it reads.",
+  "@clnDiscMoneyLead": {
+   "description": "callmoney"
+  },
+  "clnDiscMoney1": "Only notifications from bKash, Nagad, Rocket, Upay and bank apps, and SMS from those senders in your messages app.",
+  "@clnDiscMoney1": {
+   "description": "callmoney"
+  },
+  "clnDiscMoney2": "Every other notification is ignored without being read. Assisto does not ask for SMS permission.",
+  "@clnDiscMoney2": {
+   "description": "callmoney"
+  },
+  "clnDiscMoney3": "The amount, the other party and income or expense are worked out on this phone.",
+  "@clnDiscMoney3": {
+   "description": "callmoney"
+  },
+  "clnDiscMoney4": "Only entries you confirm (or that auto-save keeps, if you turn it on) go to your Assisto account. The message itself never leaves the phone, and nothing is sold or shared.",
+  "@clnDiscMoney4": {
+   "description": "callmoney"
+  },
+  "clnDiscMoney5": "Turn it off any time here, or remove access in Android Settings.",
+  "@clnDiscMoney5": {
+   "description": "callmoney"
+  },
+  "clnDiscAccessNote": "Next, Android opens its Notification access page. Find Assisto and switch it on.",
+  "@clnDiscAccessNote": {
+   "description": "callmoney"
+  },
+  "clnDiscAgree": "Agree and turn on",
+  "@clnDiscAgree": {
+   "description": "callmoney"
+  },
+  "clnDiscNotNow": "Not now",
+  "@clnDiscNotNow": {
+   "description": "callmoney"
+  },
+  "clnReviewTitle": "Save to khata",
+  "@clnReviewTitle": {
+   "description": "callmoney"
+  },
+  "clnReviewLead": "From your wallet and bank notifications. Save each as income or expense?",
+  "@clnReviewLead": {
+   "description": "callmoney"
+  },
+  "clnReviewEmpty": "Nothing waiting. New bKash, Nagad, Rocket and bank transactions appear here.",
+  "@clnReviewEmpty": {
+   "description": "callmoney"
+  },
+  "clnReviewOff": "Your bKash, Nagad, Rocket and bank transactions can go into your khata by themselves — no typing.",
+  "@clnReviewOff": {
+   "description": "callmoney"
+  },
+  "clnReviewHowTo": "How: turn on Money from notifications, allow Notification access once, then each new transaction asks 'Save to khata as income or expense?'",
+  "@clnReviewHowTo": {
+   "description": "callmoney"
+  },
+  "clnOpenSettings": "Open settings",
+  "@clnOpenSettings": {
+   "description": "callmoney"
+  },
+  "clnTurnOn": "Turn on",
+  "@clnTurnOn": {
+   "description": "callmoney"
+  },
+  "clnSaveAsQ": "Save to khata as income or expense?",
+  "@clnSaveAsQ": {
+   "description": "callmoney"
+  },
+  "clnIncome": "Income",
+  "@clnIncome": {
+   "description": "callmoney"
+  },
+  "clnExpense": "Expense",
+  "@clnExpense": {
+   "description": "callmoney"
+  },
+  "clnSaveToKhata": "Save to khata",
+  "@clnSaveToKhata": {
+   "description": "callmoney"
+  },
+  "clnIgnore": "Ignore",
+  "@clnIgnore": {
+   "description": "callmoney"
+  },
+  "clnSaved": "Saved",
+  "@clnSaved": {
+   "description": "callmoney"
+  },
+  "clnSaveOffline": "Couldn't save now — check the internet. It is still waiting here.",
+  "@clnSaveOffline": {
+   "description": "callmoney"
+  },
+  "clnAmountUnknown": "Amount not found",
+  "@clnAmountUnknown": {
+   "description": "callmoney"
+  },
+  "clnUnclear": "Couldn't tell if this is income or expense — please choose.",
+  "@clnUnclear": {
+   "description": "callmoney"
+  },
+  "clnDuplicate": "Looks already saved (same TrxID).",
+  "@clnDuplicate": {
+   "description": "callmoney"
+  },
+  "clnCallEndedTitle": "Call ended — anything to remember?",
+  "@clnCallEndedTitle": {
+   "description": "callmoney"
+  },
+  "clnCallEndedBody": "%APP% call · speak or type",
+  "@clnCallEndedBody": {
+   "description": "callmoney"
+  },
+  "clnSpeak": "Speak",
+  "@clnSpeak": {
+   "description": "callmoney"
+  },
+  "clnType": "Type",
+  "@clnType": {
+   "description": "callmoney"
+  },
+  "clnSrcSim": "Phone",
+  "@clnSrcSim": {
+   "description": "callmoney"
+  },
+  "clnSrcWhatsapp": "WhatsApp",
+  "@clnSrcWhatsapp": {
+   "description": "callmoney"
+  },
+  "clnSrcMessenger": "Messenger",
+  "@clnSrcMessenger": {
+   "description": "callmoney"
+  },
+  "clnChannelCall": "After-call notes",
+  "@clnChannelCall": {
+   "description": "callmoney"
+  },
+  "clnChannelMoney": "Money from notifications",
+  "@clnChannelMoney": {
+   "description": "callmoney"
+  },
+  "clnMoneyPromptTitle": "%WALLET% %AMOUNT% — save to khata?",
+  "@clnMoneyPromptTitle": {
+   "description": "callmoney"
+  },
+  "clnMoneyPromptBody": "Income or expense? Tap to check and save.",
+  "@clnMoneyPromptBody": {
+   "description": "callmoney"
+  },
+  "clnMoneyPromptBodyAuto": "Saved to khata when you open Assisto.",
+  "@clnMoneyPromptBodyAuto": {
+   "description": "callmoney"
+  },
+  "clnCallNoteHint": "e.g. Rahim will pay 500 taka on Friday",
+  "@clnCallNoteHint": {
+   "description": "callmoney"
+  },
+  "clnCallNoteExamples": "Say or type it your way — a time makes a reminder, money makes a khata due, anything else becomes a note.",
+  "@clnCallNoteExamples": {
+   "description": "callmoney"
+  },
+  "clnCallNoteGo": "Make it",
+  "@clnCallNoteGo": {
+   "description": "callmoney"
+  },
+  "clnPhoneRules": "Sorted with the phone's rules (AI not used).",
+  "@clnPhoneRules": {
+   "description": "callmoney"
+  },
+  "clnConfirmLead": "Check each one. Nothing is saved until you tap Confirm.",
+  "@clnConfirmLead": {
+   "description": "callmoney"
+  },
+  "clnKindReminder": "Reminder",
+  "@clnKindReminder": {
+   "description": "callmoney"
+  },
+  "clnKindNote": "Note",
+  "@clnKindNote": {
+   "description": "callmoney"
+  },
+  "clnKindDue": "Khata due",
+  "@clnKindDue": {
+   "description": "callmoney"
+  },
+  "clnPickTime": "Pick a time",
+  "@clnPickTime": {
+   "description": "callmoney"
+  },
+  "clnTheyOwe": "They will pay me",
+  "@clnTheyOwe": {
+   "description": "callmoney"
+  },
+  "clnIOwe": "I will pay",
+  "@clnIOwe": {
+   "description": "callmoney"
+  },
+  "clnPickPerson": "Pick from My Circle",
+  "@clnPickPerson": {
+   "description": "callmoney"
+  },
+  "clnDueNeedsPerson": "Pick who it is with to save this due.",
+  "@clnDueNeedsPerson": {
+   "description": "callmoney"
+  },
+  "clnConfirm": "Confirm",
+  "@clnConfirm": {
+   "description": "callmoney"
+  },
+  "clnSkip": "Skip",
+  "@clnSkip": {
+   "description": "callmoney"
+  },
+  "clnSkipped": "Skipped",
+  "@clnSkipped": {
+   "description": "callmoney"
+  },
+  "clnDone": "Done",
+  "@clnDone": {
+   "description": "callmoney"
+  },
+  "clnEditWords": "Change what I said",
+  "@clnEditWords": {
+   "description": "callmoney"
+  },
+  "clnWalletBkash": "bKash",
+  "@clnWalletBkash": {
+   "description": "callmoney"
+  },
+  "clnWalletNagad": "Nagad",
+  "@clnWalletNagad": {
+   "description": "callmoney"
+  },
+  "clnWalletRocket": "Rocket",
+  "@clnWalletRocket": {
+   "description": "callmoney"
+  },
+  "clnWalletUpay": "Upay",
+  "@clnWalletUpay": {
+   "description": "callmoney"
+  },
+  "clnWalletBank": "Bank",
+  "@clnWalletBank": {
+   "description": "callmoney"
+  },
+  "clnCallFrom": "{app} call",
+  "@clnCallFrom": {
+   "description": "callmoney",
+   "placeholders": {
+    "app": {
+     "type": "String"
+    }
+   }
+  },
+  "clnFee": "Fee {amount}",
+  "@clnFee": {
+   "description": "callmoney",
+   "placeholders": {
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "clnTrx": "TrxID {id}",
+  "@clnTrx": {
+   "description": "callmoney",
+   "placeholders": {
+    "id": {
+     "type": "String"
+    }
+   }
+  },
+  "clnWith": "With {name}",
+  "@clnWith": {
+   "description": "callmoney",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "clnMonthIncome": "Income {amount}",
+  "@clnMonthIncome": {
+   "description": "callmoney",
+   "placeholders": {
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "clnMonthExpense": "Expense {amount}",
+  "@clnMonthExpense": {
+   "description": "callmoney",
+   "placeholders": {
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "clnMonthNet": "Net {amount}",
+  "@clnMonthNet": {
+   "description": "callmoney",
+   "placeholders": {
+    "amount": {
+     "type": "String"
+    }
+   }
+  },
+  "clnMonthCount": "{count} entries",
+  "@clnMonthCount": {
+   "description": "callmoney",
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  }
+ },
+ "bn": {
+  "clnSettingsTitle": "কলের নোট ও টাকার হিসাব",
+  "clnSettingsTileSub": "কল শেষে ছোট নোট; বিকাশ/নগদ/ব্যাংকের লেনদেন খাতায়",
+  "clnSettingsBenefit": "কলে কী কথা হলো তা আর ভুলবেন না, আর বিকাশ, নগদ, রকেট বা ব্যাংকের লেনদেন হাতে লিখতে হবে না।",
+  "clnNeverRecorded": "কল কখনো রেকর্ড হয় না। Assisto শুধু বোঝে কল শেষ হয়েছে; কী মনে রাখবেন তা আপনি বলেন বা লেখেন।",
+  "clnNeverRecordedShort": "এই কল রেকর্ড করা হয়নি।",
+  "clnNotAvailable": "এই ফোন বা সংস্করণে নোটিফিকেশন পড়া যায় না। নিচে হাতে কলের নোট লিখতে পারবেন।",
+  "clnAccessOn": "নোটিফিকেশন অ্যাক্সেস: চালু",
+  "clnAccessOff": "নোটিফিকেশন অ্যাক্সেস: বন্ধ",
+  "clnAccessOnHelp": "Android অনুমতি দিয়েছে। কল শেষের সংকেত আর অনুমোদিত টাকার প্রেরক ছাড়া Assisto সব উপেক্ষা করে।",
+  "clnAccessOffHelp": "নিচে একটা সুইচ চালু করুন, তারপর Android-এর নোটিফিকেশন অ্যাক্সেস পাতায় Assisto-কে অনুমতি দিন।",
+  "clnAccessOpen": "নোটিফিকেশন অ্যাক্সেস খুলুন",
+  "clnAccessManage": "Android সেটিংসে অনুমতি সরান",
+  "clnCallNoteTitle": "কলের পরে নোট",
+  "clnCallNoteSub": "SIM, WhatsApp ও Messenger কল: কল শেষ হলে ছোট একটা কার্ড",
+  "clnMoneyTitle": "নোটিফিকেশন থেকে টাকার হিসাব",
+  "clnMoneySub": "বিকাশ, নগদ, রকেট, উপায় ও ব্যাংকের বার্তা: এক ট্যাপে খাতায়",
+  "clnAutoTitle": "নিজে থেকে সেভ",
+  "clnAutoSub": "পরিষ্কার লেনদেন পরের বার Assisto খুললে সেভ হয়; অস্পষ্টগুলো আপনার জন্য অপেক্ষা করে",
+  "clnTurnAllOff": "দুটোই এখনই বন্ধ করুন",
+  "clnWriteNow": "এখনই কলের নোট লিখুন",
+  "clnMonthTitle": "এই মাসে, ওয়ালেট ধরে",
+  "clnMonthOff": "প্রতিটি ওয়ালেটের আয়-খরচ এখানে দেখতে নোটিফিকেশন থেকে টাকার হিসাব চালু করুন।",
+  "clnMonthEmpty": "এই মাসে এখনো কোনো ওয়ালেট এন্ট্রি নেই। নিশ্চিত করা বিকাশ, নগদ, রকেট ও ব্যাংকের এন্ট্রি এখানে দেখাবে।",
+  "clnReviewWaiting": "অপেক্ষায় থাকা এন্ট্রি দেখুন",
+  "clnPrivacyFoot": "মেসেজ শুধু এই ফোনেই পড়া ও বোঝা হয়। আপনার নিশ্চিত করা এন্ট্রি (টাকা, ধরন, ওয়ালেট, TrxID) শুধু আপনার অ্যাকাউন্টে যায়। Assisto কখনো আপনার SMS ইনবক্স পড়ে না।",
+  "clnDiscTitle": "চালু করার আগে জেনে নিন",
+  "clnDiscCallLead": "'কল শেষ — কিছু মনে রাখার আছে?' দেখাতে Assisto-র Android নোটিফিকেশন অ্যাক্সেস লাগবে।",
+  "clnDiscCall1": "Assisto শুধু বোঝে ফোন, WhatsApp বা Messenger কল শেষ হয়েছে। কে কল করেছে বা কোনো মেসেজের লেখা পড়ে না।",
+  "clnDiscCall2": "কল কখনো রেকর্ড হয় না। কলের সময় মাইক্রোফোন ব্যবহার হয় না।",
+  "clnDiscCall3": "কলের পরে আপনি যা বলেন বা লেখেন, তা থেকে রিমাইন্ডার, নোট বা খাতার বাকি বানাতে Assisto AI-তে পাঠানো হয়। এতে চ্যাট মেসেজের মতো AI ক্রেডিট লাগে।",
+  "clnDiscCall4": "প্রতিটিতে নিশ্চিত করুন না চাপা পর্যন্ত কিছুই সেভ হয় না।",
+  "clnDiscCall5": "যেকোনো সময় এখানে বন্ধ করুন, বা Android সেটিংসে অনুমতি সরিয়ে দিন।",
+  "clnDiscMoneyLead": "আপনার লেনদেন খুঁজতে Assisto-র Android নোটিফিকেশন অ্যাক্সেস লাগবে। ঠিক কী পড়া হয়, তা এখানে।",
+  "clnDiscMoney1": "শুধু বিকাশ, নগদ, রকেট, উপায় ও ব্যাংক অ্যাপের নোটিফিকেশন, আর আপনার মেসেজ অ্যাপে ওই প্রেরকদের SMS।",
+  "clnDiscMoney2": "অন্য সব নোটিফিকেশন না পড়েই বাদ যায়। Assisto SMS পড়ার অনুমতি চায় না।",
+  "clnDiscMoney3": "টাকার পরিমাণ, অন্য পক্ষ আর আয় না খরচ — এই ফোনেই বের করা হয়।",
+  "clnDiscMoney4": "শুধু আপনার নিশ্চিত করা এন্ট্রি (বা নিজে থেকে সেভ চালু থাকলে সেগুলো) আপনার Assisto অ্যাকাউন্টে যায়। মূল মেসেজ ফোন থেকে কখনো বের হয় না, কিছু বিক্রি বা শেয়ার হয় না।",
+  "clnDiscMoney5": "যেকোনো সময় এখানে বন্ধ করুন, বা Android সেটিংসে অনুমতি সরিয়ে দিন।",
+  "clnDiscAccessNote": "এরপর Android-এর নোটিফিকেশন অ্যাক্সেস পাতা খুলবে। Assisto খুঁজে চালু করুন।",
+  "clnDiscAgree": "রাজি, চালু করুন",
+  "clnDiscNotNow": "এখন না",
+  "clnReviewTitle": "খাতায় রাখুন",
+  "clnReviewLead": "আপনার ওয়ালেট ও ব্যাংকের নোটিফিকেশন থেকে। প্রতিটি আয় হিসেবে রাখবেন, না খরচ?",
+  "clnReviewEmpty": "কিছু অপেক্ষায় নেই। নতুন বিকাশ, নগদ, রকেট ও ব্যাংকের লেনদেন এখানে আসবে।",
+  "clnReviewOff": "আপনার বিকাশ, নগদ, রকেট ও ব্যাংকের লেনদেন নিজে থেকেই খাতায় উঠতে পারে — কিছু লিখতে হবে না।",
+  "clnReviewHowTo": "কীভাবে: নোটিফিকেশন থেকে টাকার হিসাব চালু করুন, একবার নোটিফিকেশন অ্যাক্সেস দিন — এরপর প্রতিটি নতুন লেনদেন জিজ্ঞেস করবে 'খাতায় আয় হিসেবে রাখব, না খরচ?'",
+  "clnOpenSettings": "সেটিংস খুলুন",
+  "clnTurnOn": "চালু করুন",
+  "clnSaveAsQ": "খাতায় আয় হিসেবে রাখবেন, না খরচ?",
+  "clnIncome": "আয়",
+  "clnExpense": "খরচ",
+  "clnSaveToKhata": "খাতায় রাখুন",
+  "clnIgnore": "বাদ দিন",
+  "clnSaved": "সেভ হয়েছে",
+  "clnSaveOffline": "এখন সেভ হলো না — ইন্টারনেট দেখুন। এটা এখানেই অপেক্ষায় আছে।",
+  "clnAmountUnknown": "টাকার পরিমাণ পাওয়া যায়নি",
+  "clnUnclear": "আয় না খরচ বোঝা যায়নি — আপনি বেছে নিন।",
+  "clnDuplicate": "মনে হচ্ছে আগেই সেভ হয়েছে (একই TrxID)।",
+  "clnCallEndedTitle": "কল শেষ — কিছু মনে রাখার আছে?",
+  "clnCallEndedBody": "%APP% কল · বলুন বা লিখুন",
+  "clnSpeak": "বলুন",
+  "clnType": "লিখুন",
+  "clnSrcSim": "ফোন",
+  "clnSrcWhatsapp": "WhatsApp",
+  "clnSrcMessenger": "Messenger",
+  "clnChannelCall": "কলের পরে নোট",
+  "clnChannelMoney": "নোটিফিকেশন থেকে টাকা",
+  "clnMoneyPromptTitle": "%WALLET% %AMOUNT% — খাতায় রাখবেন?",
+  "clnMoneyPromptBody": "আয় না খরচ? দেখে সেভ করতে ট্যাপ করুন।",
+  "clnMoneyPromptBodyAuto": "Assisto খুললেই খাতায় সেভ হবে।",
+  "clnCallNoteHint": "যেমন: রহিম শুক্রবার ৫০০ টাকা দেবে",
+  "clnCallNoteExamples": "নিজের মতো বলুন বা লিখুন — সময় থাকলে রিমাইন্ডার, টাকা থাকলে খাতার বাকি, বাকি সব নোট।",
+  "clnCallNoteGo": "বানিয়ে দিন",
+  "clnPhoneRules": "ফোনের নিয়মে সাজানো হলো (AI ব্যবহার হয়নি)।",
+  "clnConfirmLead": "প্রতিটি দেখে নিন। নিশ্চিত করুন না চাপা পর্যন্ত কিছু সেভ হয় না।",
+  "clnKindReminder": "রিমাইন্ডার",
+  "clnKindNote": "নোট",
+  "clnKindDue": "খাতার বাকি",
+  "clnPickTime": "সময় বেছে নিন",
+  "clnTheyOwe": "উনি আমাকে দেবেন",
+  "clnIOwe": "আমি দেবো",
+  "clnPickPerson": "My Circle থেকে বেছে নিন",
+  "clnDueNeedsPerson": "বাকিটা সেভ করতে কার সাথে, তা বেছে নিন।",
+  "clnConfirm": "নিশ্চিত করুন",
+  "clnSkip": "বাদ দিন",
+  "clnSkipped": "বাদ দেওয়া হয়েছে",
+  "clnDone": "শেষ",
+  "clnEditWords": "আমার কথা বদলাই",
+  "clnWalletBkash": "বিকাশ",
+  "clnWalletNagad": "নগদ",
+  "clnWalletRocket": "রকেট",
+  "clnWalletUpay": "উপায়",
+  "clnWalletBank": "ব্যাংক",
+  "clnCallFrom": "{app} কল",
+  "clnFee": "ফি {amount}",
+  "clnTrx": "TrxID {id}",
+  "clnWith": "{name}",
+  "clnMonthIncome": "আয় {amount}",
+  "clnMonthExpense": "খরচ {amount}",
+  "clnMonthNet": "নিট {amount}",
+  "clnMonthCount": "{count}টি এন্ট্রি"
+ }
+}

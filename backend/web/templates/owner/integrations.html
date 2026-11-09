@@ -2,6 +2,7 @@
 {% block heading %}{{ T.nav_integrations }}{% endblock %}
 {% block content %}
 {% if err %}<div class="flash warn" role="alert">{{ T.m_no_fernet }}</div>{% endif %}
+{% include "owner/_ai_health.html" %}
 {% if summary %}<div class="tiles">
   <div class="tile"><span>{{ T.connected }}</span><b class="pos">{{ summary.counts.connected }}</b></div>
   <div class="tile"><span>{{ T.needs_fix }}</span><b class="neg">{{ summary.counts.not_working }}</b></div>

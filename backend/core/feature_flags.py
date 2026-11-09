@@ -258,6 +258,10 @@ REGISTRY = (
     # guardian-only rewarded unlocks. SOS / danger / school alerts stay free
     # whatever this switch says. Hidden until the Play products exist.
     ('safe_plans', 'family_safety', 'Safety plans (Child / Safe Family / School)', 'নিরাপত্তা প্ল্যান (চাইল্ড / সেফ ফ্যামিলি / স্কুল)', False, ('safe_plans',)),
+    # carecall (owner order 4 Nov 01:50): Care Call — a family care reminder
+    # call that rings a loved one full-screen in the setter's own voice; no
+    # answer -> retry after 10 min -> the setter is told. LIVE for 8 Nov.
+    ('care_call', 'family_safety', 'Care Call (family care reminder call)', 'কেয়ার কল (পরিবারের যত্নের রিমাইন্ডার কল)', True, ('carecall',)),
     ('unseen_world', 'upcoming', 'Unseen World (travel discovery)', 'অদেখা দুনিয়া (ভ্রমণ আবিষ্কার)', False, ()),
     # home_v2 (owner final home design, 26 Oct): ON = the new home (header,
     # Discover, 12 shortcuts, Ask Assisto card, bottom bar with Assisto Voice);

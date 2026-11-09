@@ -1176,6 +1176,14 @@ class PhotoStudioController extends ChangeNotifier {
       if (s != null && hasPeople) {
         final verdict = await deps.guard.check(s.original.bytes, prev);
         if (!verdict.pass) {
+          // aileft: a result whose face changed is never used AND never paid
+          // for — the server refunds it (credits back) and blocks its export
+          try {
+            await deps.backend.report(job.id, 'face_changed',
+                note: verdict.outcome == IdentityOutcome.cannotVerify
+                    ? 'auto:identity_check:cannot_verify'
+                    : 'auto:identity_check');
+          } catch (_) {}
           return _say(verdict.outcome == IdentityOutcome.cannotVerify
               ? PsNotice.identityCheckMissing
               : PsNotice.identityFailed);
@@ -1230,6 +1238,33 @@ class PhotoStudioController extends ChangeNotifier {
   Uint8List? lastExportBytes;
 
   /// THE single exit: save / share / wallpaper / copy / open-in all land here.
+  // aileft: "Send to My Circle" / "Add to business catalog" take the SAME
+  // gated, full-quality file as Save / Share (gate run as a share).
+  void Function(Uint8List file, String name)? _capture;
+
+  /// aileft: the exported file (bytes + name) for an in-app exit, or null
+  /// when the gate / render did not finish (its notice is already set).
+  Future<(Uint8List, String)?> exportFile(GateUi ui) async {
+    (Uint8List, String)? got;
+    _capture = (f, n) => got = (f, n);
+    try {
+      await export(ExportKind.share, ui);
+    } finally {
+      _capture = null;
+    }
+    return got;
+  }
+
+  /// aileft: AI content edits carry a small visible "AI edited" mark on the
+  /// exported file (every plan; never on an ID / passport photo — an office
+  /// would reject it — those keep the metadata note). Enhance / restore
+  /// only sharpen the same photo and keep the normal rule.
+  static const kAiMarkText = 'AI edited · Assisto';
+  static const _noAiMark = {'enhance_hd', 'enhance_cloud', 'enhance_server', 'ultra_hd',
+    'deblur'};
+  bool aiMarkFor(PhotoVersion v) =>
+      v.aiEdited && v.jobId != null && !_noAiMark.contains(v.feature);
+
   Future<void> export(ExportKind kind, GateUi ui) async {
     final s = session;
     if (s == null || !s.edited) return _say(PsNotice.needPhoto);
@@ -1271,9 +1306,11 @@ class PhotoStudioController extends ChangeNotifier {
       final id = idOf[s.index];
       // full quality only now, after the gate
       final sw = Stopwatch()..start();
+      final aiMark = aiMarkFor(v) && id == null;
       final png = await _renderFull(s,
           resultUrl: grant.resultUrl,
-          cornerMark: grant.cornerMark && id == null,
+          cornerMark: (grant.cornerMark && id == null) || aiMark,
+          aiMark: aiMark,
           note: grant.aiNote.isEmpty ? 'Edited with Assisto' : grant.aiNote,
           generated: v.feature == 'generate');
       timings['export_ms'] = sw.elapsedMilliseconds;
@@ -1292,6 +1329,11 @@ class PhotoStudioController extends ChangeNotifier {
         name = 'assisto_${id.id}_$stamp.png';
       }
       lastExportBytes = kDebugMode ? file : null;
+      final cap = _capture;
+      if (cap != null) {
+        cap(file, name); // aileft: handed to My Circle / the catalog
+        return;
+      }
       final d = await deps.sink.deliver(kind, file, name);
       // OWNER ADS FINAL (2 Nov): a saved / shared photo FINISHES the task —
       // no ad now; the exit placement may show one when the user LEAVES the
@@ -1329,7 +1371,14 @@ class PhotoStudioController extends ChangeNotifier {
   /// null = nothing to export (download failed).
   Future<Uint8List?> _renderFull(PhotoSession s,
       {String resultUrl = '', required bool cornerMark, required String note,
-      bool generated = false}) async {
+      bool generated = false, bool aiMark = false}) async {
+    // aileft: the AI mark text replaces the plain corner mark on AI edits
+    final MarkPainter mark = aiMark && deps.mark is UiMarkPainter
+        ? const UiMarkPainter(markText: kAiMarkText)
+        : deps.mark;
+    final ExportRenderer renderer = aiMark && deps.renderer is UiExportRenderer
+        ? const UiExportRenderer(markText: kAiMarkText)
+        : deps.renderer;
     final v = s.current;
     Uint8List? full;
     final rec = _recipeOf[s.index];
@@ -1358,7 +1407,7 @@ class PhotoStudioController extends ChangeNotifier {
         steps = await _drawOverlays(steps, a.w, a.h);
       }
       return pe.renderExport(anchor, steps,
-          mark: cornerMark ? deps.mark : null, note: note, generated: generated);
+          mark: cornerMark ? mark : null, note: note, generated: generated);
     } else {
       final st = _versionStrength[s.index] ?? strength;
       progress = const PsProgress(PsStage.classic);
@@ -1367,7 +1416,7 @@ class PhotoStudioController extends ChangeNotifier {
           EnhanceRequest(strength: st, ai: _versionAi[s.index] ?? false));
     }
     if (full == null) return null;
-    return deps.renderer.render(full, cornerMark: cornerMark, note: note, generated: generated);
+    return renderer.render(full, cornerMark: cornerMark, note: note, generated: generated);
   }
 
   /// perf/diagnostics: the export render of the current version exactly as

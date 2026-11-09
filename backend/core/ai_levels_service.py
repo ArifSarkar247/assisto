@@ -56,19 +56,45 @@ def spec(lid, c=None):
 
 def available(lid, c=None):
     """(ok, why): the level's provider is connected, its circuit allows a
-    call, and it is under its own daily budget cap (Owner Admin -> AI)."""
+    call, and it is under its own daily budget cap (Owner Admin -> AI).
+    geminifix: when the level's own model hit a 404/402/403 hard error
+    (retired model, billing off, key permission) but a SAME-OR-CHEAPER
+    fallback can answer, the level stays available — the user gets a normal answer
+    at the level's own price, never "temporarily unavailable"."""
     from . import ai
+    from . import ai_health as AH
     from . import ai_router as R
+    from .gemini_models import resolve
     lv, c = cfg(c)
-    prov = lv["levels"][lid]["provider"]
-    if prov not in dict(ai._providers()):
-        return False, "not_connected"
+    row = lv["levels"][lid]
     conf = R.cfg()
-    if R.total_capped(conf) or R.provider_capped(prov, conf):
+    if R.total_capped(conf):
         return False, "budget"
-    if not R.allow(prov, conf):
-        return False, "circuit"
-    return True, "ok"
+    connected = dict(ai._providers())
+
+    def why_not(prov, model):
+        if prov not in connected:
+            return "not_connected"
+        if R.provider_capped(prov, conf):
+            return "budget"
+        if prov == "gemini":
+            model = resolve(model, "text", conf["prices"])
+        if AH.is_down(prov, model):
+            return "down"
+        if not R.allow(prov, conf):
+            return "circuit"
+        return ""
+
+    first = why_not(row["provider"], row["model"])
+    if not first:
+        return True, "ok"
+    if first != "down":
+        return False, first     # caps / circuit: the level's own honest state
+    prices = conf["prices"]
+    for prov, model in AL.fallbacks(lv["levels"], lid, prices):
+        if not why_not(prov, model):
+            return True, "fallback"
+    return False, first
 
 
 def table(c=None):

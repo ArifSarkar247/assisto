@@ -1,0 +1,92 @@
+{
+ "datasets": {
+  "fleurs_bn": {
+   "what": "Bengali read speech (FLEURS, bn_in, train split)",
+   "url": "https://huggingface.co/datasets/google/fleurs/resolve/main/data/bn_in/audio/train.tar.gz",
+   "licence": "CC BY 4.0",
+   "commercial_ok": true,
+   "use": "train-negative"
+  },
+  "fleurs_bn_dev": {
+   "what": "Bengali read speech (FLEURS, bn_in, dev split)",
+   "url": "https://huggingface.co/datasets/google/fleurs/resolve/main/data/bn_in/audio/dev.tar.gz",
+   "licence": "CC BY 4.0",
+   "commercial_ok": true,
+   "use": "validation"
+  },
+  "librispeech_dev": {
+   "what": "English read speech (LibriSpeech dev-clean)",
+   "url": "https://www.openslr.org/resources/12/dev-clean.tar.gz",
+   "licence": "CC BY 4.0",
+   "commercial_ok": true,
+   "use": "train-negative"
+  },
+  "librispeech_test": {
+   "what": "English read speech (LibriSpeech test-clean)",
+   "url": "https://www.openslr.org/resources/12/test-clean.tar.gz",
+   "licence": "CC BY 4.0",
+   "commercial_ok": true,
+   "use": "eval"
+  },
+  "musan": {
+   "what": "MUSAN music + noise (per-file NC/ND licences filtered out)",
+   "url": "https://www.openslr.org/resources/17/musan.tar.gz",
+   "licence": "CC BY 4.0 (corpus); per-file licences in LICENSE files",
+   "commercial_ok": true,
+   "use": "train-negative + augmentation noise (85%), eval (15%)"
+  },
+  "fleurs_bn_test": {
+   "what": "Bengali read speech (FLEURS, bn_in, test split) - extra VALIDATION hours",
+   "url": "https://huggingface.co/datasets/google/fleurs/resolve/main/data/bn_in/audio/test.tar.gz",
+   "licence": "CC BY 4.0",
+   "commercial_ok": true,
+   "use": "validation"
+  },
+  "fleurs_hi_dev": {
+   "what": "Hindi read speech (FLEURS, hi_in, dev split) - VALIDATION",
+   "url": "https://huggingface.co/datasets/google/fleurs/resolve/main/data/hi_in/audio/dev.tar.gz",
+   "licence": "CC BY 4.0",
+   "commercial_ok": true,
+   "use": "validation"
+  },
+  "fleurs_hi": {
+   "what": "Hindi read speech (FLEURS, hi_in, train split) - 'Hindi serial on the TV' negatives",
+   "url": "https://huggingface.co/datasets/google/fleurs/resolve/main/data/hi_in/audio/train.tar.gz",
+   "licence": "CC BY 4.0",
+   "commercial_ok": true,
+   "use": "train-negative"
+  },
+  "sim_rir": {
+   "what": "Simulated room impulse responses, 16 kHz (OpenSLR 26; image method, small/medium/large rooms)",
+   "url": "https://www.openslr.org/resources/26/sim_rir_16k.zip",
+   "licence": "Apache-2.0",
+   "commercial_ok": true,
+   "use": "augmentation (rooms split train 80% / validation 10% / eval 10%)"
+  },
+  "slr53_bn": {
+   "what": "Bengali conversational-style ASR speech, ONE shard (~13 h) (OpenSLR 53)",
+   "url": "https://www.openslr.org/resources/53/asr_bengali_0.zip",
+   "licence": "CC BY-SA 4.0",
+   "commercial_ok": true,
+   "use": "eval only (false accepts / hour)"
+  },
+  "slr53_bn_1": {
+   "what": "Bengali ASR speech, a SECOND shard (OpenSLR 53, asr_bengali_1) - speech of the TV-mix test set",
+   "url": "https://www.openslr.org/resources/53/asr_bengali_1.zip",
+   "licence": "CC BY-SA 4.0",
+   "commercial_ok": true,
+   "use": "eval only (TV-like test set)"
+  }
+ },
+ "tts": {
+  "kokoro": true,
+  "espeak": true,
+  "piper": false,
+  "piper_voices": [],
+  "n_pos_train": 6000,
+  "n_pos_test": 1000,
+  "n_neg_tts": 6000,
+  "n_neg_tts_test": 600
+ },
+ "features": "Google speech_embedding (Apache-2.0) rebuilt by rebuild_features.py"
+}

@@ -76,6 +76,11 @@ def decode_data_url(url):
 def fetch_attachment(ch, att, token=""):
     """Bytes of one attachment: Messenger/IG give a CDN url; WhatsApp gives a
     media id (GET /{id} → url, then GET url with the token)."""
+    if ch.kind == "assisto":
+        # bizai: in-app shop chat — the server built this attachment from the
+        # customer's own upload (bytes in memory, never a URL to fetch)
+        data = att.get("_bytes") or b""
+        return (data, att.get("mime", ""), "") if data else (b"", "", "no_upload")
     url = att.get("url") or ""
     if url.startswith("data:"):
         if not ch.test_mode:
@@ -304,6 +309,32 @@ def set_transcriber(fn):
     return prev
 
 
+def _shared_transcribe(user, data, mime, lang, info):
+    """bizai: no sales-only STT key → the app's SHARED voice path
+    (core.voice_transcribe, saved Gemini key, Bangla script, charge → refund
+    on failure). Lazy + guarded: absent module / no key = honest 'no_key'."""
+    try:
+        from . import voice_transcribe as VT
+    except Exception:  # noqa: BLE001 — shared path not on this build yet
+        info["error"] = "no_key"
+        return "", info
+    import base64
+    try:
+        st, body = VT.transcribe(user, {"audio_b64": base64.b64encode(data or b"").decode(),
+                                        "mime": (mime or "audio/ogg").split(";")[0],
+                                        "lang": lang})
+    except Exception as e:  # noqa: BLE001
+        info["error"] = "stt_" + type(e).__name__
+        return "", info
+    if st != 200 or not (body or {}).get("text"):
+        info["error"] = {503: "no_key", 402: "insufficient", 413: "too_large"}.get(
+            st, "stt_failed")
+        return "", info
+    info["charged"] = int(body.get("credits") or 0)
+    info["shared"] = True
+    return body["text"], info
+
+
 def transcribe(user, data, mime, lang="bn"):
     """(text | '', info). Charged `ai_sales_voice` credits first, refunded on
     a provider failure."""
@@ -311,8 +342,7 @@ def transcribe(user, data, mime, lang="bn"):
     conf = stt_config()
     info = {"charged": 0, "cost_bdt": 0.0, "error": ""}
     if not conf:
-        info["error"] = "no_key"
-        return "", info
+        return _shared_transcribe(user, data, mime, lang, info)
     if not data or len(data) > MAX_AUDIO_BYTES:
         info["error"] = "too_large"
         return "", info

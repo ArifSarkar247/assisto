@@ -1,0 +1,207 @@
+{
+ "version": "2026.10.23.0616",
+ "engine": "openwakeword",
+ "feature_backend": "e2e",
+ "window_samples": 12400,
+ "hop_samples": 1280,
+ "frames": 16,
+ "files": [
+  {
+   "role": "wake",
+   "name": "assisto_wake.onnx",
+   "sha256": "53be13f86bd57aaa74a1634f191113136e70b814715d83329871f1ba96cb94d4",
+   "size": 2450107
+  },
+  {
+   "role": "e2e",
+   "name": "assisto_embed_e2e.onnx",
+   "sha256": "10d3304ec6a5d2a18dc513ed46f4bbe0a4b541ef86664105842f74d857965d45",
+   "size": 2432190
+  }
+ ],
+ "thresholds": {
+  "low": 0.978582,
+  "normal": 0.952574,
+  "high": 0.921705
+ },
+ "patience": {
+  "low": 2,
+  "normal": 1,
+  "high": 1
+ },
+ "cooldown_ms": 2000,
+ "classifier": {
+  "candidate": "reg_h128_lowneg_ensemble",
+  "members": 3,
+  "smooth_k": 2,
+  "temperature": 1.2166666666667314
+ },
+ "licence_cleared": true,
+ "ship_ready": false,
+ "licence_notes": {
+  "features": "Google speech_embedding (Apache-2.0) rebuilt by rebuild_features.py",
+  "piper_used": false,
+  "tiny_smoke": false,
+  "real_recordings_speakers": 0
+ },
+ "eval": {
+  "false_accepts": {
+   "eval_bn": {
+    "low": {
+     "false_accepts": 0,
+     "hours": 10.0,
+     "per_hour": 0.0,
+     "per_10h": 0.0,
+     "per_10h_upper95": 2.996
+    },
+    "normal": {
+     "false_accepts": 0,
+     "hours": 10.0,
+     "per_hour": 0.0,
+     "per_10h": 0.0,
+     "per_10h_upper95": 2.996
+    },
+    "high": {
+     "false_accepts": 0,
+     "hours": 10.0,
+     "per_hour": 0.0,
+     "per_10h": 0.0,
+     "per_10h_upper95": 2.996
+    }
+   },
+   "eval_tv": {
+    "low": {
+     "false_accepts": 1,
+     "hours": 10.0,
+     "per_hour": 0.1,
+     "per_10h": 1.0,
+     "per_10h_upper95": 4.744
+    },
+    "normal": {
+     "false_accepts": 3,
+     "hours": 10.0,
+     "per_hour": 0.3,
+     "per_10h": 3.0,
+     "per_10h_upper95": 7.754
+    },
+    "high": {
+     "false_accepts": 3,
+     "hours": 10.0,
+     "per_hour": 0.3,
+     "per_10h": 3.0,
+     "per_10h_upper95": 7.754
+    }
+   },
+   "eval_en": {
+    "low": {
+     "false_accepts": 0,
+     "hours": 2.0,
+     "per_hour": 0.0,
+     "per_10h": 0.0,
+     "per_10h_upper95": 14.979
+    },
+    "normal": {
+     "false_accepts": 0,
+     "hours": 2.0,
+     "per_hour": 0.0,
+     "per_10h": 0.0,
+     "per_10h_upper95": 14.979
+    },
+    "high": {
+     "false_accepts": 0,
+     "hours": 2.0,
+     "per_hour": 0.0,
+     "per_10h": 0.0,
+     "per_10h_upper95": 14.979
+    }
+   },
+   "eval_tv_en": {
+    "low": {
+     "false_accepts": 0,
+     "hours": 1.497,
+     "per_hour": 0.0,
+     "per_10h": 0.0,
+     "per_10h_upper95": 20.012
+    },
+    "normal": {
+     "false_accepts": 0,
+     "hours": 1.497,
+     "per_hour": 0.0,
+     "per_10h": 0.0,
+     "per_10h_upper95": 20.012
+    },
+    "high": {
+     "false_accepts": 0,
+     "hours": 1.497,
+     "per_hour": 0.0,
+     "per_10h": 0.0,
+     "per_10h_upper95": 20.012
+    }
+   }
+  },
+  "false_rejects": {
+   "synthetic_far_field_1_2m": {
+    "low": {
+     "clips": 500,
+     "detected": 436,
+     "false_reject_rate": 0.128
+    },
+    "normal": {
+     "clips": 500,
+     "detected": 461,
+     "false_reject_rate": 0.078
+    },
+    "high": {
+     "clips": 500,
+     "detected": 465,
+     "false_reject_rate": 0.07
+    }
+   },
+   "synthetic_near_0_3_0_8m": {
+    "low": {
+     "clips": 500,
+     "detected": 458,
+     "false_reject_rate": 0.084
+    },
+    "normal": {
+     "clips": 500,
+     "detected": 475,
+     "false_reject_rate": 0.05
+    },
+    "high": {
+     "clips": 500,
+     "detected": 480,
+     "false_reject_rate": 0.04
+    }
+   },
+   "sim_room_tv_on_5_15db": {
+    "low": {
+     "clips": 500,
+     "detected": 397,
+     "false_reject_rate": 0.206
+    },
+    "normal": {
+     "clips": 500,
+     "detected": 432,
+     "false_reject_rate": 0.136
+    },
+    "high": {
+     "clips": 500,
+     "detected": 440,
+     "false_reject_rate": 0.12
+    }
+   }
+  },
+  "targets": {
+   "false_accepts_per_10h_lt": 1.0,
+   "false_reject_lt": 0.1,
+   "test_negative_hours": 23.5,
+   "min_test_hours": 20.0,
+   "met_normal_bangla_fa": true,
+   "met_normal_tv_fa": false,
+   "met_normal_fr_far_field": true,
+   "met_test_hours": true,
+   "note": "False rejects are measured on SYNTHETIC far-field speech; confirm on a real phone (owner_actions/PHONE_TEST_CHECKLIST.md, owner_actions/WAKEWORD_RECORDING_BN.md). 0 false accepts in 10 h still allows a true rate up to ~3 per 10 h (95% bound)."
+  }
+ }
+}

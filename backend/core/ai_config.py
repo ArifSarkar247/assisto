@@ -46,8 +46,10 @@ MODEL_SLOTS = {
     # change them in Owner Admin -> AI if your account has better ones.
     "openai_main": ("openai", "gpt-4o-mini"),
     "openai_cheap": ("openai", "gpt-4o-mini"),
-    "gemini_main": ("gemini", "gemini-2.5-flash"),
-    "gemini_cheap": ("gemini", "gemini-2.5-flash"),
+    # geminifix 4 Nov: gemini-2.5-flash is no longer offered to new keys
+    # (HTTP 404 live) -> Google's named replacement (core/gemini_models.py)
+    "gemini_main": ("gemini", "gemini-3.5-flash-lite"),
+    "gemini_cheap": ("gemini", "gemini-3.5-flash-lite"),
 }
 
 SLOT_LABELS = {
@@ -71,6 +73,12 @@ DEFAULT_PRICES = {
     "gemini-2.5-flash": {"in": 0.30, "out": 2.50, "cache_read": 0.075, "cache_write": 0.0},
     # aifinal PART 3 (Normal level): official Gemini API price, checked 3 Nov 2026
     "gemini-2.5-flash-lite": {"in": 0.10, "out": 0.40, "cache_read": 0.025, "cache_write": 0.0},
+    # geminifix: current stable ids, paid tier, checked 4 Nov 2026 on
+    # https://aistudio.google.com/docs/pricing (3.6-flash: price through
+    # 31 Dec 2026; it doubles on 1 Jan 2027 — update here then)
+    "gemini-3.5-flash-lite": {"in": 0.30, "out": 2.50, "cache_read": 0.03, "cache_write": 0.0},
+    "gemini-3.1-flash-lite": {"in": 0.25, "out": 1.50, "cache_read": 0.025, "cache_write": 0.0},
+    "gemini-3.6-flash": {"in": 0.75, "out": 3.75, "cache_read": 0.075, "cache_write": 0.0},
 }
 FALLBACK_PRICE = {"in": 4.00, "out": 20.00, "cache_read": 0.40, "cache_write": 5.00}
 PRICE_KEYS = ("in", "out", "cache_read", "cache_write")
@@ -94,7 +102,10 @@ _DEFAULTS = {
     # a successful call slower than this counts against the error-rate window
     "slow_ms": {"main": 30000, "cheap": 8000},
     "circuit": {"fail_threshold": 3, "error_rate_pct": 50, "min_calls": 10,
-                "window_s": 300, "cooldown_s": 60},
+                "window_s": 300, "cooldown_s": 60,
+                # geminifix: minutes a provider/model is skipped after a hard
+                # error (404 model retired, 402 billing, 401/403 permission)
+                "down_min": 15},
     "server_fallback": True,
     # cheap-tier (1-credit) features that are really chat / assistant / agent
     # work and so run on the MAIN class (owner order: main model for chat,
@@ -114,6 +125,7 @@ BOUNDS = {
     "min_calls": (2, 1000),
     "window_s": (30, 3600),
     "cooldown_s": (10, 3600),
+    "down_min": (1, 1440),
     "price": (0.0, 1000.0),
 }
 
@@ -132,6 +144,7 @@ LABELS = {
     "min_calls": ("হার মাপতে ন্যূনতম কল", "Minimum calls before the rate counts"),
     "window_s": ("ত্রুটি মাপার উইন্ডো (সেকেন্ড)", "Error window (seconds)"),
     "cooldown_s": ("বন্ধ থাকার পর আবার চেষ্টা (সেকেন্ড)", "Retry a closed-off provider after (seconds)"),
+    "down_min": ("404/402/403 হলে মডেল/প্রোভাইডার বাদ (মিনিট)", "Skip a model/provider after 404/402/403 for (minutes)"),
     "effort_strong": ("Anthropic চিন্তার মাত্রা — এজেন্ট/জটিল", "Anthropic effort — agent / complex"),
     "effort_medium": ("Anthropic চিন্তার মাত্রা — চ্যাট", "Anthropic effort — chat"),
     "effort_cheap": ("Anthropic চিন্তার মাত্রা — সস্তা", "Anthropic effort — cheap"),
@@ -292,6 +305,9 @@ def model_for(cfg, provider, tier, klass=None):
     m = cfg["models"]
     if provider == "anthropic":
         return m["anthropic_" + anthropic_slot(tier, klass)]
+    if provider == "gemini":
+        from .gemini_models import resolve
+        return resolve(m["gemini_" + klass], "text", cfg.get("prices"))
     return m["%s_%s" % (provider, klass)]
 
 

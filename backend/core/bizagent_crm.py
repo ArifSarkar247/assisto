@@ -31,7 +31,8 @@ log = logging.getLogger(__name__)
 
 SOURCE = {"whatsapp_cloud": "whatsapp", "messenger": "messenger"}
 CHANNEL_LABEL = {"whatsapp_cloud": "WhatsApp", "messenger": "Messenger",
-                 "instagram": "Instagram", "website": "Website chat"}
+                 "instagram": "Instagram", "website": "Website chat",
+                 "assisto": "Assisto chat"}
 MARK = "[AI sales]"
 OPEN_STATUSES = ("new", "contacted", "demo", "proposal")
 INTENT_RULES = ("bargain", "last_price")

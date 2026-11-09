@@ -40,6 +40,17 @@ class DeviceFacts {
 
   static DeviceFacts? _cached;
 
+  /// recovery: "Brand Model" of THIS phone once [read] has run ('' before) —
+  /// sent as X-Device-Name at sign-in so Account & security can list it.
+  static String get label {
+    final c = _cached;
+    if (c == null) return '';
+    final b = c.brand.isEmpty ? '' : c.brand[0].toUpperCase() + c.brand.substring(1);
+    final m = c.model;
+    if (m.toLowerCase().startsWith(c.brand.toLowerCase()) && c.brand.isNotEmpty) return m;
+    return [b, m].where((e) => e.isNotEmpty).join(' ');
+  }
+
   /// Read once (lazily, after the first frame), time-boxed, never throws.
   static Future<DeviceFacts> read() async {
     final c = _cached;

@@ -167,7 +167,7 @@ Google-এর রিভিউ সাধারণত ১–৩ দিন লা�
 | `ACCESS_BACKGROUND_LOCATION` | — | **নেই।** CI ফেল করায় (playall)। "Location permissions" ফর্ম লাগবে না। | — |
 | `FOREGROUND_SERVICE_LOCATION` | নিরাপদ যাত্রা, ভয়েস SOS, চুরি-রোধ | **FGS → Location**। লেখা আর ভিডিও `PLAY_FGS_DECLARATION_BN.md` §২-এ। | উপরের মতো |
 | `FOREGROUND_SERVICE_MICROPHONE`, `RECORD_AUDIO` | ভয়েস SOS, কল চালু রাখা। ভয়েস নোট, মুখে বলে লেখা আর কল FGS ছাড়াই চলে। | **FGS → Microphone** (§১) | ভয়েস SOS: `permVoiceSos`। ভয়েস নোট: `md1Perm…` পাতা। মুখে বলে লেখা: `permMic`। কল: ব্যবহারকারী "কল" চাপার পরে Android নিজেই জিজ্ঞেস করে (প্রসঙ্গের ভেতরে)। |
-| "Hey Assisto" ওয়েক-ওয়ার্ড (`WakeWordService`) | **তৈরি হয়নি** (`VaWake.shipped` = false) | **কিছু না।** playall-এ Play AAB থেকে সরানো, CI পাহারা দেয়। | — |
+| "Hey Assisto" ওয়েক-ওয়ার্ড (`WakeWordService`) | **চালু** (wakeword, ৪ Nov; `VaWake.shipped` = true) | **মাইক্রোফোন FGS ঘোষণা + ভিডিও** — `WAKE_WORD_PLAY_BN.md` | মালিক |
 | `CAMERA` | ভিডিও কল, চ্যাট-ক্যামেরা, ডকুমেন্ট স্ক্যান, ভল্ট, শপ বক্স (স্ক্রিন খোলা থাকলে), চোরের ছবি (অ্যাপ খোলা থাকলে, ভুল Security PIN দিলে) | Data safety: Photos। কোনো ফর্ম নেই। Camera FGS **নেই**। | ক্যামেরা-পাতার "explain" অবস্থা, `permCamera`, চোরের ছবিতে `IntruderConsentScreen` |
 | Device admin (`BIND_DEVICE_ADMIN`): শুধু `force-lock` আর `watch-login`। `wipe-data` নেই। | চুরি-রোধ: দূর থেকে লক, ভুল আনলক গোনা | **আলাদা Console ফর্ম নেই।** এটা Android Enterprise/DPC নয়। রিভিউ মেইল এলে `ANTITHEFT_PLAY_DECLARATION_BN.md` §১ আর §৫-এর লেখা পাঠান। | ✅ `at100DiscAdminBody` (Android-এর "Activate" পাতার আগে) |
 | Health Connect: `READ_STEPS`, `READ_HEART_RATE`, `READ_SLEEP`, `READ_ACTIVE_CALORIES_BURNED` (শুধু পড়া) | স্মার্টওয়াচ ও ফিটনেস | **Health apps ফর্ম + Health Connect প্রশ্ন**, প্রতিটি অনুমতির কারণসহ (`PLAY_HEALTH_DECLARATION_BN.md`) | "Connect Health Connect" কার্ড (`swConnectBody`)। Health Connect নিজের rationale পাতা দেখায় (`PrivacyPolicyActivity`)। |
@@ -198,7 +198,7 @@ Google-এর রিভিউ সাধারণত ১–৩ দিন লা�
 
 সরু প্ল্যানে প্রশ্ন ছিল: সুইচ বন্ধ থাকলেও অনুমতি থেকে যায়। সব-চালু প্ল্যানে উত্তর হলো:
 - **Health Connect আর Device admin:** ফিচার চালু, তাই ঘোষণা দিন (ধাপ ৪)।
-- **"Hey Assisto":** ফিচার তৈরি হয়নি, তাই Play AAB থেকে **সরানো হলো** (playall, CI-পাহারা)।
+- **"Hey Assisto":** চালু (wakeword, ৪ Nov) — `WakeWordService` Play AAB-এ থাকে; ঘোষণা: `WAKE_WORD_PLAY_BN.md`।
 - **নিয়ম:** ধাপ ২-এর তালিকায় কোনো ফিচার বন্ধ রাখলে, আর তার নিজস্ব অনুমতি থাকলে, আমাকে বলুন। একইভাবে Play AAB থেকে সরিয়ে দেব। এখনকার "বন্ধ" তালিকার কোনো ফিচারের নিজস্ব সংবেদনশীল অনুমতি নেই:
   - পতন শনাক্ত: অনুমতি লাগে না;
   - বাচ্চাদের ঘড়ি: লোকেশন ইতিমধ্যে অন্য ফিচারে আছে;

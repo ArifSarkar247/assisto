@@ -204,6 +204,8 @@ class AudioRouteService extends ChangeNotifier {
     'lib/train/dest_alarm_sound.dart': AudioUse.destAlarm,
     'lib/train/dest_voice_recorder.dart': AudioUse.destVoiceRecord,
     'lib/cctvx/warn_recorder.dart': AudioUse.cctvWarnRecord,
+    // carecall: the setter's own-voice Care Call recording
+    'lib/carecall/cc_recorder.dart': AudioUse.voiceNoteRecord,
   };
 
 

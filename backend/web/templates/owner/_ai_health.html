@@ -1,0 +1,1 @@
+{% if ai_alerts %}<div class="flash bad" role="alert" id="ai-health-alerts">{% for a in ai_alerts %}<p><b>{{ a.bn }}</b><br><span lang="en">{{ a.en }}</span>{% if a.reason %}<br><span class="small">{{ a.reason }}</span>{% endif %}{% if a.at %} <span class="small mut">· {{ a.at|date:"j M H:i" }}</span>{% endif %}</p>{% endfor %}</div>{% endif %}

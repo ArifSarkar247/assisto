@@ -57,7 +57,10 @@ PURPOSES = ("signup", "login", "password_reset", "delete_account", "section8",
             "email_verify",
             # vault100: prove it is you before a forgotten vault PIN is reset
             # (the PIN itself never leaves the phone — see core/vault_recovery)
-            "vault_reset")
+            "vault_reset",
+            # recovery: prove the NEW number a lost-phone recovery request
+            # will be finished on (support recovery, core/account_recovery)
+            "account_recovery")
 # Purposes that only make sense for a signed-in user.
 AUTHED_PURPOSES = ("delete_account", "section8", "change_number", "email_verify",
                    "vault_reset")
@@ -68,7 +71,7 @@ OWN_ACCOUNT_PURPOSES = ("delete_account", "section8", "vault_reset")
 EMAIL_PURPOSES = ("login", "password_reset", "delete_account", "section8", "email_verify",
                   "vault_reset")
 # smsotp: core/sms_service purpose bucket per OTP purpose
-PHONE_VERIFY_PURPOSES = ("signup", "change_number", "booking")
+PHONE_VERIFY_PURPOSES = ("signup", "change_number", "booking", "account_recovery")
 
 
 def sms_purpose(purpose):
@@ -172,6 +175,19 @@ def limits():
         return P.otp_limits(billing.get_config().data)
     except Exception:  # noqa: BLE001
         return P.otp_limits({})
+
+
+# recovery (owner order Part 8): adding / verifying an email while signed in
+# — the code lives 10 minutes and may be re-sent after 45 seconds (5 tries,
+# then the usual lockout). Every other purpose keeps the admin limits.
+PURPOSE_LIMITS = {"email_verify": {"ttl_seconds": 600, "resend_cooldown_seconds": 45,
+                                   "max_attempts": 5}}
+
+
+def purpose_limits(purpose, lim=None):
+    out = dict(lim if lim is not None else limits())
+    out.update(PURPOSE_LIMITS.get(purpose, {}))
+    return out
 
 
 def sms_available():
@@ -505,7 +521,7 @@ def issue_email(purpose, *, phone=None, email=None, target=None, request=None,
         if not addr:
             raise OtpError("bad_email", 400)
     tgt = email_sender.normalize_email(target or addr) or ""
-    lim = limits()
+    lim = purpose_limits(purpose)   # recovery: email_verify = 10 min / 45 s
     now = timezone.now()
     lang = lang or "bn"
     ip, dev = _check_limits(purpose, now, lim, request, phone=canon, email=addr,
@@ -559,7 +575,7 @@ def verify(phone, purpose, code, email=None):
         if not addr:
             raise OtpError("bad_email", 400)
     now = timezone.now()
-    lim = limits()
+    lim = purpose_limits(purpose)
 
     locked = _active_lock(canon, purpose, now, addr)
     if locked:

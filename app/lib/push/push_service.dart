@@ -1,6 +1,9 @@
 import '../audio/msg_open_tick.dart'; // circlebub
 import '../messaging/in_call_bubbles.dart' show InCallBubbles; // bubbles2
 import '../messaging/msg_push_done.dart'; // notifs
+import '../carecall/carecall_alarms.dart' show CareCallActions, CareCallAlarms; // carecall
+import '../carecall/carecall_api.dart' show HttpCareCallApi; // carecall
+import '../carecall/carecall_ring_screen.dart'; // carecall
 import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
 import '../screens/business/khata_chat_screen.dart' show ChatSide, KhataChatScreen; // tagada2
 import '../crypto/key_wiring.dart';
@@ -580,6 +583,17 @@ class PushService {
       unawaited(_onReminderAlarm(r));
       return;
     }
+    // carecall: Done / Snooze tapped on a Care Call ring (app running)
+    if (CareCallActions.isOurs(r)) {
+      final d = CareCallActions.dataOf(r.payload);
+      final app = _app;
+      if (d != null) {
+        unawaited(CareCallActions.answer(
+            d, r.actionId == CareCallAlarms.actionDone ? 'done' : 'snooze',
+            api: app != null && app.loggedIn ? HttpCareCallApi(app.api) : null));
+      }
+      return;
+    }
     if (r.actionId == kActionReply || r.actionId == kActionRead) {
       unawaited(handleMsgNotificationAction(r));
       return;
@@ -627,6 +641,12 @@ class PushService {
     if (jUri != null) {
       unawaited(launchUrl(jUri, mode: LaunchMode.externalApplication)
           .then((_) {}, onError: (_) {}));
+      return;
+    }
+    // carecall: a Care Call ring tapped / full-screen -> SCREEN 2 at once
+    // (once per slot; the cold-start route may already show it)
+    if (p.kind == 'carecall' && action == null &&
+        CareCallRingScreen.openOnce(_nav?.currentState, Map<String, String>.from(p.data))) {
       return;
     }
     // calls-a: a call's Accept / tap goes straight to its screen (instant, no

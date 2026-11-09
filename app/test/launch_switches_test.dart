@@ -38,6 +38,7 @@ const kLaunchOn = {
   'voice_assistant', // the frozen home's centre voice button
   'referral', // My Circle invite + plans/credits
   'home_v2', // the frozen home
+  'care_call', // carecall: owner order 4 Nov 01:50 — LIVE for 8 Nov
 };
 
 Map<String, bool> launchSet() =>

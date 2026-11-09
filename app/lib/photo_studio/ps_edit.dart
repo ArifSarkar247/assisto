@@ -537,6 +537,9 @@ class PsIdPreset {
     PsIdPreset('passport_bd', wMm: 45, hMm: 55, pxW: 531, pxH: 650,
         verified: 'official_mission',
         source: 'https://www.bhclondon.org.uk/mrp-documents-preparation-fee-for-application'),
+    // aileft: NID applications ask "a recent passport size photo"
+    PsIdPreset('nid_bd', wMm: 45, hMm: 55, pxW: 531, pxH: 650,
+        verified: 'official_mission', source: 'https://bhclondon.org.uk/nid'),
     PsIdPreset('visa_bd', wMm: 35, hMm: 45, pxW: 413, pxH: 531,
         verified: 'official_portal', source: 'https://dip.portal.gov.bd'),
     PsIdPreset('visa_india', wMm: 51, hMm: 51, pxW: 602, pxH: 602, fmt: 'jpg', maxKb: 1000,

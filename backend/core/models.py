@@ -1079,6 +1079,13 @@ class Order(models.Model):
     # screenshot — NEVER treated as paid) | verified | rejected (owner decides)
     payment_status = models.CharField(max_length=24, blank=True, default="")
     via_agent = models.BooleanField(default=False)    # taken by the AI agent in chat
+    # bizai: COD return-risk at order time ('' unchecked | low | medium | high)
+    # from delivered/returned counts of this phone across Assisto shops
+    # (counts only — no other shop's name or order is ever shown).
+    cod_risk = models.CharField(max_length=8, blank=True, default="")
+    # bizai pillar 5 (Prochar attribution): the tracked post/offer code the
+    # customer came from (shop link ?p=<ref> or the code typed in chat)
+    source_ref = models.CharField(max_length=12, blank=True, default="", db_index=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -2267,7 +2274,8 @@ class ChatThread(models.Model):
     last_inbound_at → epoch for business_ai.within_service_window()."""
     CHANNELS = [("whatsapp_cloud", "whatsapp_cloud"), ("messenger", "messenger"),
                 ("instagram", "instagram"),   # p1: Instagram DM
-                ("website", "website")]       # g1: website chat widget
+                ("website", "website"),       # g1: website chat widget
+                ("assisto", "assisto")]       # bizai: in-app shop chat (My Circle)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="chat_threads")
     business = models.ForeignKey(BusinessProfile, null=True, blank=True,
                                  on_delete=models.CASCADE, related_name="chat_threads")
@@ -2298,6 +2306,8 @@ class ChatThread(models.Model):
     # ---- biz-v2 ---- Business inbox read marker + owner takeover idle clock
     owner_read_at = models.DateTimeField(null=True, blank=True)    # owner opened the chat
     takeover_at = models.DateTimeField(null=True, blank=True)      # last owner activity in takeover
+    # bizai pillar 5: first tracked post/offer code seen in this chat
+    source_ref = models.CharField(max_length=12, blank=True, default="")
 
     class Meta:
         ordering = ["-created_at"]
@@ -5472,6 +5482,10 @@ class SellerAgent(models.Model):
     takeover_idle_minutes = models.IntegerField(default=60)   # 0 = until handed back
     daily_ai_cap = models.IntegerField(default=300)           # paid AI calls / business / day
     thread_daily_cap = models.IntegerField(default=50)        # agent replies / chat / day
+    # bizai: in-app shop chat on (customers in Assisto chat with the shop's
+    # agent) + COD return-risk guard (high risk → no auto-courier, owner told)
+    app_chat_enabled = models.BooleanField(default=True)
+    cod_risk_guard = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -5484,7 +5498,8 @@ class SellerChannel(models.Model):
     test_secret_enc signs webhooks and nothing is ever sent to Graph."""
     KINDS = [("messenger", "messenger"), ("instagram", "instagram"),
              ("whatsapp_cloud", "whatsapp_cloud"),
-             ("website", "website")]   # g1: website chat widget
+             ("website", "website"),   # g1: website chat widget
+             ("assisto", "assisto")]   # bizai: in-app shop chat (My Circle)
     business = models.ForeignKey("BusinessProfile", on_delete=models.CASCADE,
                                  related_name="seller_channels")
     kind = models.CharField(max_length=16, choices=KINDS)
@@ -8087,6 +8102,12 @@ class MarketBid(models.Model):
     content_status = models.CharField(max_length=10, default="visible")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # bizai pillar 3: group-buy bulk tier (unlocks when the pool reaches
+    # bulk_min_qty) + the buyer-limit ask sent to this seller (negotiation)
+    bulk_price = models.BigIntegerField(null=True, blank=True)        # poisha per unit
+    bulk_min_qty = models.PositiveIntegerField(default=0)
+    counter_price = models.BigIntegerField(null=True, blank=True)     # poisha per unit
+    counter_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["unit_price"]
@@ -8453,3 +8474,163 @@ class NearbyDataset(models.Model):
     last_check_at = models.DateTimeField(null=True, blank=True)
     last_error = models.CharField(max_length=300, blank=True, default="")
 # ---- /nearby ----
+
+
+# ---- carecall ---- Care Call (owner order 4 Nov 01:50): a family member sets
+# a reminder for a loved one (any text — never filtered — plus an optional
+# recording in their OWN voice); at the time the receiver's phone rings with a
+# full-screen call-style screen. No answer: one retry after 10 min, then the
+# setter is told. Receiver consents once (CareCallLink) and can stop any time;
+# their own quiet hours are respected. Logic: core/carecall.py.
+class CareCallLink(models.Model):
+    """setter -> receiver consent. status: pending | accepted | declined |
+    stopped. quiet_* = the RECEIVER's own Care Call do-not-disturb window
+    ("" = none); a ring due inside it waits until the window ends."""
+    setter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carecall_links_out")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carecall_links_in")
+    status = models.CharField(max_length=10, default="pending")
+    quiet_start = models.CharField(max_length=5, blank=True, default="")
+    quiet_end = models.CharField(max_length=5, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = [("setter", "receiver")]
+
+
+class CareCall(models.Model):
+    """One schedule. repeat: once (once_date) | daily | days (days = [0..6],
+    0 = Monday). time_hhmm in Asia/Dhaka wall time. `next_at` = the next slot
+    the minute tick materialises (None = nothing left / paused)."""
+    setter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carecalls_set")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="carecalls_received")
+    text = models.TextField(blank=True, default="")
+    time_hhmm = models.CharField(max_length=5, default="09:00")
+    repeat = models.CharField(max_length=6, default="daily")
+    days = models.JSONField(default=list, blank=True)
+    once_date = models.DateField(null=True, blank=True)
+    voice = models.FileField(upload_to="carecall/", null=True, blank=True)
+    voice_rev = models.PositiveIntegerField(default=0)
+    voice_sec = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
+    next_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+
+class CareCallRing(models.Model):
+    """One occurrence (slot) of a CareCall and its ring ladder.
+    status: pending (ring at due_at) | ringing (wait for an answer until
+    due_at) | snoozed (ring again at due_at) | done | missed (setter told).
+    slot = 'YYYYMMDDHHMM' Dhaka wall time of the scheduled ring (shared with
+    the phone's own alarm, so a Done from either side lands on the same row)."""
+    care_call = models.ForeignKey(CareCall, on_delete=models.CASCADE, related_name="rings")
+    slot = models.CharField(max_length=12)
+    scheduled_at = models.DateTimeField()
+    status = models.CharField(max_length=8, default="pending", db_index=True)
+    due_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    misses = models.PositiveSmallIntegerField(default=0)
+    snoozes = models.PositiveSmallIntegerField(default=0)
+    last_ring_at = models.DateTimeField(null=True, blank=True)
+    answered_at = models.DateTimeField(null=True, blank=True)
+    escalated_at = models.DateTimeField(null=True, blank=True)
+    late = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("care_call", "slot")]
+        ordering = ["-scheduled_at", "-id"]
+# ---- /carecall ----
+
+
+# ---- recovery ---- Account & security (owner order Part 8, 3 Nov 23:33):
+# per-device sign-in sessions, identity-change log with a "This was not me"
+# undo link, per-account security state (24 h rule, change lock, email
+# nudge), and the support recovery request (lost phone + no email).
+class DeviceSession(models.Model):
+    """One signed-in device. The raw key is given to the app ONCE (it is the
+    `Authorization: Token <key>` value); only its sha256 is stored. The old
+    single rest_framework Token keeps working for older builds."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="device_sessions")
+    key_hash = models.CharField(max_length=64, unique=True)
+    device_id = models.CharField(max_length=64, blank=True, default="")
+    device_name = models.CharField(max_length=80, blank=True, default="")
+    platform = models.CharField(max_length=16, blank=True, default="")
+    app_version = models.CharField(max_length=24, blank=True, default="")
+    ip = models.CharField(max_length=45, blank=True, default="")
+    created_at = models.DateTimeField(default=timezone.now)
+    last_seen_at = models.DateTimeField(default=timezone.now)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    revoke_reason = models.CharField(max_length=24, blank=True, default="")
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "revoked_at"], name="core_devsess_user_rev_idx")]
+
+
+class AccountSecurityState(models.Model):
+    """Per-account security bookkeeping (one row, created lazily)."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="security_state")
+    last_email_change_at = models.DateTimeField(null=True, blank=True)
+    last_phone_change_at = models.DateTimeField(null=True, blank=True)
+    identity_locked_until = models.DateTimeField(null=True, blank=True)
+    email_nudge_count = models.PositiveSmallIntegerField(default=0)
+    email_nudge_last_at = models.DateTimeField(null=True, blank=True)
+    password_changed_at = models.DateTimeField(null=True, blank=True)
+
+
+class IdentityChange(models.Model):
+    """An email or phone change. The OLD address/number got an alert with a
+    single-use "This was not me" link (hash stored) that reverts + locks."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="identity_changes")
+    kind = models.CharField(max_length=8)               # email | phone
+    old_value = models.CharField(max_length=254, blank=True, default="")
+    new_value = models.CharField(max_length=254, blank=True, default="")
+    created_at = models.DateTimeField(default=timezone.now)
+    undo_hash = models.CharField(max_length=64, unique=True)
+    undo_expires_at = models.DateTimeField()
+    undone_at = models.DateTimeField(null=True, blank=True)
+    alert_sent = models.CharField(max_length=40, blank=True, default="")   # "email,sms,push"
+
+    class Meta:
+        ordering = ["-id"]
+
+
+class RecoveryRequest(models.Model):
+    """Lost phone + no verified email: a support recovery request. Never
+    instant: a 48 h hold from creation, a human review in Owner Admin, and
+    (when chosen) a My Circle family member's confirmation. Reviewers see
+    match RESULTS only — never chats, photos, documents or the answers'
+    raw text beyond the typed name."""
+    STATES = ("pending", "approved", "rejected", "cancelled", "completed", "expired")
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE,
+                             related_name="recovery_requests")
+    ref = models.CharField(max_length=12, unique=True)
+    secret_hash = models.CharField(max_length=64)
+    account_phone = models.CharField(max_length=24)
+    contact_phone = models.CharField(max_length=24)
+    typed_name = models.CharField(max_length=120, blank=True, default="")
+    proof = models.JSONField(default=dict, blank=True)     # match results only
+    score = models.PositiveSmallIntegerField(default=0)     # 0..100
+    family_user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                    related_name="+")
+    family_state = models.CharField(max_length=10, default="none")  # none|pending|confirmed|denied
+    family_decided_at = models.DateTimeField(null=True, blank=True)
+    state = models.CharField(max_length=10, default="pending")
+    hold_until = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                    related_name="+")
+    review_note = models.CharField(max_length=300, blank=True, default="")
+    completed_at = models.DateTimeField(null=True, blank=True)
+    ip = models.CharField(max_length=45, blank=True, default="")
+    device_id = models.CharField(max_length=64, blank=True, default="")
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["state", "id"], name="core_recreq_state_idx")]
+# ---- /recovery ----

@@ -43212,5 +43212,1684 @@
         "type": "String"
       }
     }
+  },
+  "ccTitle": "Care Call",
+  "ccNewTitle": "New Care Call",
+  "ccEditTitle": "Edit Care Call",
+  "ccWho": "Who",
+  "ccWhoPick": "Pick from My Circle family",
+  "ccWhat": "What to remind",
+  "ccWhatHint": "e.g. take your gas tablet",
+  "ccChipMedicine": "Medicine time",
+  "ccChipMeal": "Eat your meal",
+  "ccChipWater": "Drink water",
+  "ccChipPrayer": "Prayer time",
+  "ccChipWalk": "Go for a walk",
+  "ccChipBill": "Bill payment day",
+  "ccTime": "Time",
+  "ccRepeat": "Repeat",
+  "ccRepeatOnce": "Once",
+  "ccRepeatDaily": "Daily",
+  "ccRepeatDays": "Chosen days",
+  "ccDaySat": "Sat",
+  "ccDaySun": "Sun",
+  "ccDayMon": "Mon",
+  "ccDayTue": "Tue",
+  "ccDayWed": "Wed",
+  "ccDayThu": "Thu",
+  "ccDayFri": "Fri",
+  "ccOnceToday": "Today",
+  "ccOnceTomorrow": "Tomorrow",
+  "ccOnceChange": "Change date",
+  "ccRecord": "Record in your own voice",
+  "ccRecordHint": "Up to {sec} seconds. Only your own voice — never an AI voice.",
+  "@ccRecordHint": {
+    "placeholders": {
+      "sec": {
+        "type": "String"
+      }
+    }
+  },
+  "ccRecording": "Recording…",
+  "ccRecordStop": "Stop",
+  "ccYourVoice": "Your voice · {len}",
+  "@ccYourVoice": {
+    "placeholders": {
+      "len": {
+        "type": "String"
+      }
+    }
+  },
+  "ccPlay": "Play",
+  "ccPause": "Pause",
+  "ccReRecord": "Record again",
+  "ccDeleteVoice": "Delete recording",
+  "ccMicDenied": "Microphone permission is off. Allow it in Settings to record your voice.",
+  "ccRetryLine": "If not answered, Assisto tries again after 10 minutes, then tells you.",
+  "ccQuietNote": "{name}'s quiet hours are {start} – {end}, so this call will ring at {at}.",
+  "@ccQuietNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      },
+      "at": {
+        "type": "String"
+      }
+    }
+  },
+  "ccConsentNote": "{name} will be asked once to accept your Care Calls.",
+  "@ccConsentNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccTurnOn": "Turn on Care Call",
+  "ccSave": "Save changes",
+  "ccErrWho": "Pick who to remind.",
+  "ccErrWhat": "Write what to remind, or record your voice.",
+  "ccErrDays": "Pick at least one day.",
+  "ccSavedOn": "Care Call is on — {name} will get it at {time}.",
+  "@ccSavedOn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ccSavedPending": "Saved. It starts once {name} accepts.",
+  "@ccSavedPending": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccSavedOffline": "Saved on this phone. It turns on as soon as you are online.",
+  "ccFailed": "Could not save. Please try again.",
+  "ccPickTitle": "Who should get this Care Call?",
+  "ccPickEmpty": "Add your family to My Circle — then one tap here sends them a Care Call.",
+  "ccPickEmptyHow": "My Circle → Add → their phone number. They need Assisto too.",
+  "ccOpenCircle": "Open My Circle",
+  "ccLinkAccepted": "Accepted",
+  "ccLinkPending": "Waiting to accept",
+  "ccLinkStopped": "Turned off by them",
+  "ccLinkNew": "Will be asked once",
+  "ccRingTopLabel": "Care Call · Assisto",
+  "ccRingTitle": "{name} is reminding you",
+  "@ccRingTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccRingVoicePlaying": "{name}'s voice is playing",
+  "@ccRingVoicePlaying": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccRingReadingAloud": "Reading the reminder aloud",
+  "ccRingPlayAgain": "Play again",
+  "ccRingDone": "Done",
+  "ccRingSnooze": "Remind me in 10 minutes",
+  "ccRingDoneToast": "Thank you! {name} will know.",
+  "@ccRingDoneToast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccRingSnoozeToast": "OK — it will ring again in 10 minutes.",
+  "ccRingVoiceOnly": "Tap to hear the voice message",
+  "ccEmptyBenefit": "Remind your loved ones in your own voice — their phone rings like a call at the right time.",
+  "ccEmptyHow": "1. Pick someone from My Circle  2. Write or record the reminder  3. Pick a time",
+  "ccNew": "New Care Call",
+  "ccInviteTitle": "{name} wants to send you Care Calls. Accept?",
+  "@ccInviteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccInviteBody": "They can then remind you at set times with a call, in their own voice. You can stop any time.",
+  "ccAccept": "Accept",
+  "ccNotNow": "Not now",
+  "ccUpdates": "Updates",
+  "ccCardTitle": "Care Call {time}",
+  "@ccCardTitle": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ccConfirmed": "{name} confirmed",
+  "@ccConfirmed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccConfirmedLate": "{name} confirmed late",
+  "@ccConfirmedLate": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccMissedTwice": "{name} did not answer twice",
+  "@ccMissedTwice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccCallNow": "Call now",
+  "ccSeeLocation": "See location",
+  "ccSetByYou": "Care Calls you set",
+  "ccForYou": "Care Calls for you",
+  "ccFrom": "From {name}",
+  "@ccFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccStatusOn": "On",
+  "ccStatusOff": "Off",
+  "ccStopFrom": "Stop Care Calls from {name}",
+  "@ccStopFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccStopConfirm": "No Care Call from {name} will ring until you allow it again.",
+  "@ccStopConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccStopYes": "Stop",
+  "ccAllowAgain": "Allow {name} again",
+  "@ccAllowAgain": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ccQuietTitle": "Quiet hours",
+  "ccQuietValue": "No Care Call rings {start} – {end}",
+  "@ccQuietValue": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "ccQuietOff": "Off — Care Calls can ring any time",
+  "ccQuietFrom": "From",
+  "ccQuietTo": "To",
+  "ccQuietUse": "Use quiet hours",
+  "ccSaveBtn": "Save",
+  "ccEdit": "Edit",
+  "ccDelete": "Delete",
+  "ccDeleteConfirm": "Delete this Care Call?",
+  "ccLimitLine": "{used} of {max} free Care Calls on",
+  "@ccLimitLine": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "ccOfflineBanner": "You are offline — showing what this phone saved. Care Calls still ring.",
+  "ccExactTitle": "Ring exactly on time, even offline",
+  "ccExactBody": "Allow \"Alarms & reminders\" for Assisto so this phone's own Care Call alarm is never late.",
+  "ccExactAllow": "Allow",
+  "clnSettingsTitle": "Call notes & money alerts",
+  "@clnSettingsTitle": {
+    "description": "callmoney"
+  },
+  "clnSettingsTileSub": "After a call: a quick note. bKash/Nagad/bank alerts: saved to your khata",
+  "@clnSettingsTileSub": {
+    "description": "callmoney"
+  },
+  "clnSettingsBenefit": "Never forget what was said on a call, and never type a bKash, Nagad, Rocket or bank transaction by hand again.",
+  "@clnSettingsBenefit": {
+    "description": "callmoney"
+  },
+  "clnNeverRecorded": "Calls are never recorded. Assisto only notices that a call ended; you say or type what to remember.",
+  "@clnNeverRecorded": {
+    "description": "callmoney"
+  },
+  "clnNeverRecordedShort": "This call was not recorded.",
+  "@clnNeverRecordedShort": {
+    "description": "callmoney"
+  },
+  "clnNotAvailable": "This phone or build can't read notifications. You can still write a call note below.",
+  "@clnNotAvailable": {
+    "description": "callmoney"
+  },
+  "clnAccessOn": "Notification access: on",
+  "@clnAccessOn": {
+    "description": "callmoney"
+  },
+  "clnAccessOff": "Notification access: off",
+  "@clnAccessOff": {
+    "description": "callmoney"
+  },
+  "clnAccessOnHelp": "Android lets Assisto see notifications. Assisto ignores everything except call-ended signals and allowed money senders.",
+  "@clnAccessOnHelp": {
+    "description": "callmoney"
+  },
+  "clnAccessOffHelp": "Turn on a switch below, then allow Assisto in Android's Notification access page.",
+  "@clnAccessOffHelp": {
+    "description": "callmoney"
+  },
+  "clnAccessOpen": "Open Notification access",
+  "@clnAccessOpen": {
+    "description": "callmoney"
+  },
+  "clnAccessManage": "Remove access in Android Settings",
+  "@clnAccessManage": {
+    "description": "callmoney"
+  },
+  "clnCallNoteTitle": "After-call note",
+  "@clnCallNoteTitle": {
+    "description": "callmoney"
+  },
+  "clnCallNoteSub": "SIM, WhatsApp and Messenger calls: a small card when the call ends",
+  "@clnCallNoteSub": {
+    "description": "callmoney"
+  },
+  "clnMoneyTitle": "Money from notifications",
+  "@clnMoneyTitle": {
+    "description": "callmoney"
+  },
+  "clnMoneySub": "bKash, Nagad, Rocket, Upay and bank alerts: save to khata in one tap",
+  "@clnMoneySub": {
+    "description": "callmoney"
+  },
+  "clnAutoTitle": "Save automatically",
+  "@clnAutoTitle": {
+    "description": "callmoney"
+  },
+  "clnAutoSub": "Clear transactions are saved when you next open Assisto; unclear ones wait for you",
+  "@clnAutoSub": {
+    "description": "callmoney"
+  },
+  "clnTurnAllOff": "Turn both off now",
+  "@clnTurnAllOff": {
+    "description": "callmoney"
+  },
+  "clnWriteNow": "Write a call note now",
+  "@clnWriteNow": {
+    "description": "callmoney"
+  },
+  "clnMonthTitle": "This month, per wallet",
+  "@clnMonthTitle": {
+    "description": "callmoney"
+  },
+  "clnMonthOff": "Turn on Money from notifications to see each wallet's income and spending here.",
+  "@clnMonthOff": {
+    "description": "callmoney"
+  },
+  "clnMonthEmpty": "No wallet entries yet this month. Confirmed bKash, Nagad, Rocket and bank entries show up here.",
+  "@clnMonthEmpty": {
+    "description": "callmoney"
+  },
+  "clnReviewWaiting": "Check waiting entries",
+  "@clnReviewWaiting": {
+    "description": "callmoney"
+  },
+  "clnPrivacyFoot": "Messages are read and understood only on this phone. Only the entries you confirm (amount, type, wallet, TrxID) are saved to your account. Assisto never reads your SMS inbox.",
+  "@clnPrivacyFoot": {
+    "description": "callmoney"
+  },
+  "clnDiscTitle": "Before you turn this on",
+  "@clnDiscTitle": {
+    "description": "callmoney"
+  },
+  "clnDiscCallLead": "To show 'Call ended — anything to remember?', Assisto needs Android's Notification access.",
+  "@clnDiscCallLead": {
+    "description": "callmoney"
+  },
+  "clnDiscCall1": "Assisto only notices that a phone, WhatsApp or Messenger call ended. It does not read who called or any message text.",
+  "@clnDiscCall1": {
+    "description": "callmoney"
+  },
+  "clnDiscCall2": "Calls are never recorded. No microphone is used during a call.",
+  "@clnDiscCall2": {
+    "description": "callmoney"
+  },
+  "clnDiscCall3": "What you say or type after the call is sent to Assisto AI to make a reminder, note or khata due. It uses AI credits like a chat message.",
+  "@clnDiscCall3": {
+    "description": "callmoney"
+  },
+  "clnDiscCall4": "Nothing is saved until you tap Confirm on each item.",
+  "@clnDiscCall4": {
+    "description": "callmoney"
+  },
+  "clnDiscCall5": "Turn it off any time here, or remove access in Android Settings.",
+  "@clnDiscCall5": {
+    "description": "callmoney"
+  },
+  "clnDiscMoneyLead": "To find your transactions, Assisto needs Android's Notification access. Here is exactly what it reads.",
+  "@clnDiscMoneyLead": {
+    "description": "callmoney"
+  },
+  "clnDiscMoney1": "Only notifications from bKash, Nagad, Rocket, Upay and bank apps, and SMS from those senders in your messages app.",
+  "@clnDiscMoney1": {
+    "description": "callmoney"
+  },
+  "clnDiscMoney2": "Every other notification is ignored without being read. Assisto does not ask for SMS permission.",
+  "@clnDiscMoney2": {
+    "description": "callmoney"
+  },
+  "clnDiscMoney3": "The amount, the other party and income or expense are worked out on this phone.",
+  "@clnDiscMoney3": {
+    "description": "callmoney"
+  },
+  "clnDiscMoney4": "Only entries you confirm (or that auto-save keeps, if you turn it on) go to your Assisto account. The message itself never leaves the phone, and nothing is sold or shared.",
+  "@clnDiscMoney4": {
+    "description": "callmoney"
+  },
+  "clnDiscMoney5": "Turn it off any time here, or remove access in Android Settings.",
+  "@clnDiscMoney5": {
+    "description": "callmoney"
+  },
+  "clnDiscAccessNote": "Next, Android opens its Notification access page. Find Assisto and switch it on.",
+  "@clnDiscAccessNote": {
+    "description": "callmoney"
+  },
+  "clnDiscAgree": "Agree and turn on",
+  "@clnDiscAgree": {
+    "description": "callmoney"
+  },
+  "clnDiscNotNow": "Not now",
+  "@clnDiscNotNow": {
+    "description": "callmoney"
+  },
+  "clnReviewTitle": "Save to khata",
+  "@clnReviewTitle": {
+    "description": "callmoney"
+  },
+  "clnReviewLead": "From your wallet and bank notifications. Save each as income or expense?",
+  "@clnReviewLead": {
+    "description": "callmoney"
+  },
+  "clnReviewEmpty": "Nothing waiting. New bKash, Nagad, Rocket and bank transactions appear here.",
+  "@clnReviewEmpty": {
+    "description": "callmoney"
+  },
+  "clnReviewOff": "Your bKash, Nagad, Rocket and bank transactions can go into your khata by themselves — no typing.",
+  "@clnReviewOff": {
+    "description": "callmoney"
+  },
+  "clnReviewHowTo": "How: turn on Money from notifications, allow Notification access once, then each new transaction asks 'Save to khata as income or expense?'",
+  "@clnReviewHowTo": {
+    "description": "callmoney"
+  },
+  "clnOpenSettings": "Open settings",
+  "@clnOpenSettings": {
+    "description": "callmoney"
+  },
+  "clnTurnOn": "Turn on",
+  "@clnTurnOn": {
+    "description": "callmoney"
+  },
+  "clnSaveAsQ": "Save to khata as income or expense?",
+  "@clnSaveAsQ": {
+    "description": "callmoney"
+  },
+  "clnIncome": "Income",
+  "@clnIncome": {
+    "description": "callmoney"
+  },
+  "clnExpense": "Expense",
+  "@clnExpense": {
+    "description": "callmoney"
+  },
+  "clnSaveToKhata": "Save to khata",
+  "@clnSaveToKhata": {
+    "description": "callmoney"
+  },
+  "clnIgnore": "Ignore",
+  "@clnIgnore": {
+    "description": "callmoney"
+  },
+  "clnSaved": "Saved",
+  "@clnSaved": {
+    "description": "callmoney"
+  },
+  "clnSaveOffline": "Couldn't save now — check the internet. It is still waiting here.",
+  "@clnSaveOffline": {
+    "description": "callmoney"
+  },
+  "clnAmountUnknown": "Amount not found",
+  "@clnAmountUnknown": {
+    "description": "callmoney"
+  },
+  "clnUnclear": "Couldn't tell if this is income or expense — please choose.",
+  "@clnUnclear": {
+    "description": "callmoney"
+  },
+  "clnDuplicate": "Looks already saved (same TrxID).",
+  "@clnDuplicate": {
+    "description": "callmoney"
+  },
+  "clnCallEndedTitle": "Call ended — anything to remember?",
+  "@clnCallEndedTitle": {
+    "description": "callmoney"
+  },
+  "clnCallEndedBody": "%APP% call · speak or type",
+  "@clnCallEndedBody": {
+    "description": "callmoney"
+  },
+  "clnSpeak": "Speak",
+  "@clnSpeak": {
+    "description": "callmoney"
+  },
+  "clnType": "Type",
+  "@clnType": {
+    "description": "callmoney"
+  },
+  "clnSrcSim": "Phone",
+  "@clnSrcSim": {
+    "description": "callmoney"
+  },
+  "clnSrcWhatsapp": "WhatsApp",
+  "@clnSrcWhatsapp": {
+    "description": "callmoney"
+  },
+  "clnSrcMessenger": "Messenger",
+  "@clnSrcMessenger": {
+    "description": "callmoney"
+  },
+  "clnChannelCall": "After-call notes",
+  "@clnChannelCall": {
+    "description": "callmoney"
+  },
+  "clnChannelMoney": "Money from notifications",
+  "@clnChannelMoney": {
+    "description": "callmoney"
+  },
+  "clnMoneyPromptTitle": "%WALLET% %AMOUNT% — save to khata?",
+  "@clnMoneyPromptTitle": {
+    "description": "callmoney"
+  },
+  "clnMoneyPromptBody": "Income or expense? Tap to check and save.",
+  "@clnMoneyPromptBody": {
+    "description": "callmoney"
+  },
+  "clnMoneyPromptBodyAuto": "Saved to khata when you open Assisto.",
+  "@clnMoneyPromptBodyAuto": {
+    "description": "callmoney"
+  },
+  "clnCallNoteHint": "e.g. Rahim will pay 500 taka on Friday",
+  "@clnCallNoteHint": {
+    "description": "callmoney"
+  },
+  "clnCallNoteExamples": "Say or type it your way — a time makes a reminder, money makes a khata due, anything else becomes a note.",
+  "@clnCallNoteExamples": {
+    "description": "callmoney"
+  },
+  "clnCallNoteGo": "Make it",
+  "@clnCallNoteGo": {
+    "description": "callmoney"
+  },
+  "clnPhoneRules": "Sorted with the phone's rules (AI not used).",
+  "@clnPhoneRules": {
+    "description": "callmoney"
+  },
+  "clnConfirmLead": "Check each one. Nothing is saved until you tap Confirm.",
+  "@clnConfirmLead": {
+    "description": "callmoney"
+  },
+  "clnKindReminder": "Reminder",
+  "@clnKindReminder": {
+    "description": "callmoney"
+  },
+  "clnKindNote": "Note",
+  "@clnKindNote": {
+    "description": "callmoney"
+  },
+  "clnKindDue": "Khata due",
+  "@clnKindDue": {
+    "description": "callmoney"
+  },
+  "clnPickTime": "Pick a time",
+  "@clnPickTime": {
+    "description": "callmoney"
+  },
+  "clnTheyOwe": "They will pay me",
+  "@clnTheyOwe": {
+    "description": "callmoney"
+  },
+  "clnIOwe": "I will pay",
+  "@clnIOwe": {
+    "description": "callmoney"
+  },
+  "clnPickPerson": "Pick from My Circle",
+  "@clnPickPerson": {
+    "description": "callmoney"
+  },
+  "clnDueNeedsPerson": "Pick who it is with to save this due.",
+  "@clnDueNeedsPerson": {
+    "description": "callmoney"
+  },
+  "clnConfirm": "Confirm",
+  "@clnConfirm": {
+    "description": "callmoney"
+  },
+  "clnSkip": "Skip",
+  "@clnSkip": {
+    "description": "callmoney"
+  },
+  "clnSkipped": "Skipped",
+  "@clnSkipped": {
+    "description": "callmoney"
+  },
+  "clnDone": "Done",
+  "@clnDone": {
+    "description": "callmoney"
+  },
+  "clnEditWords": "Change what I said",
+  "@clnEditWords": {
+    "description": "callmoney"
+  },
+  "clnWalletBkash": "bKash",
+  "@clnWalletBkash": {
+    "description": "callmoney"
+  },
+  "clnWalletNagad": "Nagad",
+  "@clnWalletNagad": {
+    "description": "callmoney"
+  },
+  "clnWalletRocket": "Rocket",
+  "@clnWalletRocket": {
+    "description": "callmoney"
+  },
+  "clnWalletUpay": "Upay",
+  "@clnWalletUpay": {
+    "description": "callmoney"
+  },
+  "clnWalletBank": "Bank",
+  "@clnWalletBank": {
+    "description": "callmoney"
+  },
+  "clnCallFrom": "{app} call",
+  "@clnCallFrom": {
+    "description": "callmoney",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "clnFee": "Fee {amount}",
+  "@clnFee": {
+    "description": "callmoney",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "clnTrx": "TrxID {id}",
+  "@clnTrx": {
+    "description": "callmoney",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "clnWith": "With {name}",
+  "@clnWith": {
+    "description": "callmoney",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "clnMonthIncome": "Income {amount}",
+  "@clnMonthIncome": {
+    "description": "callmoney",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "clnMonthExpense": "Expense {amount}",
+  "@clnMonthExpense": {
+    "description": "callmoney",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "clnMonthNet": "Net {amount}",
+  "@clnMonthNet": {
+    "description": "callmoney",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "clnMonthCount": "{count} entries",
+  "@clnMonthCount": {
+    "description": "callmoney",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "aileftStoppedPaid": "Stopped. You pay only for the part shown (nothing if you stopped early).",
+  "aileftIdNid": "NID application",
+  "aileftIdNidNote": "NID: inside Bangladesh the photo is taken at the registration office. Use this only when a form asks for a passport-size photo (for example NID from abroad).",
+  "aileftTplCostAi": "AI edit chips",
+  "aileftTplCostHd": "HD portrait",
+  "aileftTplCostRestore": "Old photo restore",
+  "aileftNoChargeOnFail": "If an edit fails or changes the face, you are not charged.",
+  "aileftAiEdited": "AI edited",
+  "aileftSendCircle": "Send to My Circle",
+  "aileftAddCatalog": "Add to catalog",
+  "aileftCircleEmpty": "Nobody in My Circle yet. Add family or friends to send them photos.",
+  "aileftCircleAdd": "Add people",
+  "aileftSentCircle": "Sending to {name}. It goes end-to-end encrypted.",
+  "@aileftSentCircle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "aileftCatalogFailed": "Could not add the photo to your catalog. Check the internet and try again.",
+  "aileftCatalogDone": "Added to your shop catalog.",
+  "aileftCatalogTitle": "Add to your shop catalog",
+  "aileftCatalogBody": "Make it a new product, or set it as the picture of a product you already sell.",
+  "aileftCatalogName": "Product name",
+  "aileftCatalogPrice": "Price (taka)",
+  "aileftCatalogNew": "Add as new product",
+  "aileftCatalogExisting": "Or set as the picture of",
+  "acsecTitle": "Account & security",
+  "acsecTileSub": "Phone, email, password, signed-in devices",
+  "acsecIntro": "Keep your account safe — and get it back if you ever lose your phone.",
+  "acsecSignInSection": "How you sign in",
+  "acsecNoPhone": "No phone number",
+  "acsecVerified": "Verified",
+  "acsecNotVerified": "Not verified yet",
+  "acsecNoEmail": "No email yet",
+  "acsecAddEmailWhy": "Add one so you can get your account back if you lose your phone.",
+  "acsecAddEmail": "Add email",
+  "acsecChangeEmail": "Change email",
+  "acsecGoogleNote": "Sign-in with Google isn't part of Assisto yet. Your phone number and a verified email keep your account safe.",
+  "acsecChangePassword": "Change password",
+  "acsecSetPassword": "Set a password",
+  "acsecPasswordSub": "Every other device will be signed out",
+  "acsecDevicesTitle": "Signed-in devices ({count})",
+  "@acsecDevicesTitle": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecNoDevices": "No other devices.",
+  "acsecOlderApp": "Older app version (one or more phones)",
+  "acsecAndroidPhone": "Android phone",
+  "acsecThisPhone": "This phone",
+  "acsecLastActive": "Last active {when}",
+  "@acsecLastActive": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecSince": "Signed in {when}",
+  "@acsecSince": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecSignOut": "Sign out",
+  "acsecSignOutTitle": "Sign out this device?",
+  "acsecSignOutBody": "That phone will go back to the sign-in screen the next time it is used.",
+  "acsecSignedOut": "Signed out.",
+  "acsecSignOutOthers": "Sign out of all other devices",
+  "acsecSignOutOthersBody": "Every phone except this one will be signed out. Use this if a phone was lost or someone else may know your password.",
+  "acsecSignedOutOthers": "All other devices were signed out.",
+  "acsecLostTitle": "If you lose your phone",
+  "acsecLostBody": "With a verified email you can reset your password from any phone. Without one, ask for support recovery on the sign-in screen: a family member in your My Circle confirms it's you, and after a 48-hour safety wait you get back in on your new number.",
+  "acsecLoadFail": "Couldn't load your account details. Check the internet and try again.",
+  "acsecLocked": "For safety, email and phone changes are paused for a few days (someone tapped \"This was not me\").",
+  "acsecCooldown": "Your phone number and email can't both change within 24 hours.",
+  "acsecOwnerAlertTitle": "Someone asked to recover your account",
+  "acsecOwnerAlertBody": "They gave the new number {masked}. Nothing happens before {when}. If this wasn't you, cancel it now.",
+  "@acsecOwnerAlertBody": {
+    "placeholders": {
+      "masked": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecNotMeCancel": "This was not me — cancel it",
+  "acsecCancelled": "Cancelled. Your account is safe.",
+  "acsecFamilyTitle": "{name} is trying to get back into their account",
+  "@acsecFamilyTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecFamilyBody": "They said they lost their phone and named you as family. Confirm only if you have spoken to them yourself.",
+  "acsecFamilyYes": "Yes, it's them",
+  "acsecFamilyNo": "No, I'm not sure",
+  "acsecFamilyYesTitle": "Are you sure?",
+  "acsecFamilyYesBody": "Say yes only if you called or met them and they really lost their phone.",
+  "acsecFamilyThanks": "Thank you. Your answer went to the review team.",
+  "acsecPwIntro": "Use at least 8 characters with letters and numbers. After saving, every other device is signed out.",
+  "acsecPwCurrent": "Current password",
+  "acsecPwNew": "New password",
+  "acsecPwAgain": "New password again",
+  "acsecPwSave": "Save new password",
+  "acsecPwShort": "Use at least 8 characters.",
+  "acsecPwMismatch": "The two new passwords don't match.",
+  "acsecPwDone": "Password changed. Other devices were signed out.",
+  "acsecNudgeTitle": "Add an email to protect your account",
+  "acsecNudgeBody": "If you ever lose your phone, a verified email lets you get back into Assisto. It takes one minute. We never send ads to it.",
+  "acsecLater": "Later",
+  "acsecCodeRules": "The code works for 10 minutes. You can try 5 times.",
+  "acsecForgotTitle": "Forgot password",
+  "acsecForgotIntro": "Type your phone number. Then choose where we send the code.",
+  "acsecContinue": "Continue",
+  "acsecWhereCode": "Where should the code go?",
+  "acsecViaSms": "By SMS",
+  "acsecViaSmsSub": "To this phone number",
+  "acsecViaEmail": "By email",
+  "acsecViaEmailSub": "To your verified email {masked}",
+  "@acsecViaEmailSub": {
+    "placeholders": {
+      "masked": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecSmsOnlyNote": "No verified email on this account, so the code can only go by SMS.",
+  "acsecNoChannel": "Codes can't be sent right now. Try again later, or ask for support recovery below.",
+  "acsecSendCode": "Send code",
+  "acsecCodeOk": "Code accepted. Now choose a new password.",
+  "acsecForgotDone": "Your password was changed and every device was signed out. Sign in with the new password.",
+  "acsecBackToSignIn": "Back to sign in",
+  "acsecUseEmailInstead": "No phone on the account? Reset with your email address",
+  "acsecLostNoEmail": "Lost your phone and have no email?",
+  "acsecLostNoEmailSub": "Ask for support recovery (takes at least 48 hours)",
+  "acsecSupportTitle": "Recover my account",
+  "acsecSupportIntro": "For your safety this is never instant. We check what you tell us, a family member from your My Circle can confirm it's you, and nothing happens for 48 hours. If your old phone is still signed in somewhere, it gets an alert and can cancel. Our team never sees your chats, photos or documents.",
+  "acsecLostNumber": "Your account's phone number (the lost one)",
+  "acsecNewNumber": "A number you can use now",
+  "acsecNewNumberHelp": "We'll send a code to check it. Your account moves to this number at the end.",
+  "acsecVerifyNew": "Verify this number",
+  "acsecNewVerified": "New number verified",
+  "acsecVerifyNewFirst": "First verify the number you can use now.",
+  "acsecProofTitle": "What you remember about the account",
+  "acsecAccountName": "Name on the account",
+  "acsecNameNeeded": "Type the name on the account.",
+  "acsecSignupYear": "Year you joined (if you remember)",
+  "acsecSignupMonth": "Month you joined (if you remember)",
+  "acsecCircleNames": "Names of up to 3 people in your My Circle",
+  "acsecCircleNameHint": "Name as saved in My Circle",
+  "acsecOldPassword": "A password you used before (optional)",
+  "acsecFamilyConfirmTitle": "Ask a family member to confirm",
+  "acsecFamilyPhone": "Their phone number (optional)",
+  "acsecFamilyPhoneHelp": "Someone marked Family in your My Circle who uses Assisto. They get a request in their app.",
+  "acsecSendRequest": "Send recovery request",
+  "acsecPrivacyNote": "We keep only whether your answers matched — not the answers themselves (except the name).",
+  "acsecRefLine": "Your request number: {ref}. Keep this phone — the request is saved here.",
+  "@acsecRefLine": {
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecStPending": "Under review. The safety wait ends {when}.",
+  "@acsecStPending": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecStApprovedWait": "Approved. You can finish after {when}.",
+  "@acsecStApprovedWait": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "acsecStReady": "Approved — you can get back in now.",
+  "acsecStRejected": "We couldn't confirm it's you, so the request was closed. You can contact Assisto support.",
+  "acsecStCancelled": "The request was cancelled from a phone signed in to the account.",
+  "acsecStCompleted": "Done — your account is back.",
+  "acsecStExpired": "This request expired. You can start a new one.",
+  "acsecStUnknown": "Couldn't check the request right now. Try again.",
+  "acsecFamConfirmed": "Your family member confirmed it's you.",
+  "acsecFamDenied": "Your family member did not confirm.",
+  "acsecFamPending": "Waiting for your family member to confirm in their app.",
+  "acsecCheckAgain": "Check again",
+  "acsecFinish": "Verify my new number and sign in",
+  "acsecStartOver": "Start a new request",
+  "acsecChecked": "Checked just now — we'll keep it moving.",
+  "bizaiChAssisto": "Assisto shop chat",
+  "@bizaiChAssisto": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiChAssisto"
+  },
+  "bizaiShopChatTitle": "Chat with {shop}",
+  "@bizaiShopChatTitle": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShopChatTitle",
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiShopChatTitleNoName": "Shop chat",
+  "@bizaiShopChatTitleNoName": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShopChatTitleNoName"
+  },
+  "bizaiDisclosureTitle": "Before you chat",
+  "@bizaiDisclosureTitle": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiDisclosureTitle"
+  },
+  "bizaiAiLabel": "AI",
+  "@bizaiAiLabel": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiAiLabel"
+  },
+  "bizaiAiLabelA11y": "Reply from the shop's AI assistant",
+  "@bizaiAiLabelA11y": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiAiLabelA11y"
+  },
+  "bizaiTalkToPerson": "Talk to a person",
+  "@bizaiTalkToPerson": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiTalkToPerson"
+  },
+  "bizaiWithPerson": "A person from the shop will reply here.",
+  "@bizaiWithPerson": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiWithPerson"
+  },
+  "bizaiComposerHint": "Ask about a product, price or delivery",
+  "@bizaiComposerHint": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiComposerHint"
+  },
+  "bizaiSend": "Send",
+  "@bizaiSend": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiSend"
+  },
+  "bizaiPhoto": "Send a product photo",
+  "@bizaiPhoto": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiPhoto"
+  },
+  "bizaiVoice": "Send a voice note",
+  "@bizaiVoice": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiVoice"
+  },
+  "bizaiSentPhoto": "Photo sent",
+  "@bizaiSentPhoto": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiSentPhoto"
+  },
+  "bizaiSentVoice": "Voice note sent",
+  "@bizaiSentVoice": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiSentVoice"
+  },
+  "bizaiVoiceHeard": "Voice note — heard as:",
+  "@bizaiVoiceHeard": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiVoiceHeard"
+  },
+  "bizaiEmptyBenefit": "Ask the shop anything — prices and stock come straight from its catalog.",
+  "@bizaiEmptyBenefit": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiEmptyBenefit"
+  },
+  "bizaiEmptyHow": "Type a question, send a product photo or a voice note.",
+  "@bizaiEmptyHow": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiEmptyHow"
+  },
+  "bizaiShopLoadFailed": "Could not open the shop",
+  "@bizaiShopLoadFailed": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShopLoadFailed"
+  },
+  "bizaiChatOffTitle": "This shop is not taking chats now",
+  "@bizaiChatOffTitle": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiChatOffTitle"
+  },
+  "bizaiChatOffBody": "The link is old or the shop turned chats off. Ask the shop for a new link.",
+  "@bizaiChatOffBody": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiChatOffBody"
+  },
+  "bizaiOwnShopTitle": "This is your own shop",
+  "@bizaiOwnShopTitle": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOwnShopTitle"
+  },
+  "bizaiOwnShopBody": "Customer chats are in Business → AI sales agent → Inbox. Share this link with customers.",
+  "@bizaiOwnShopBody": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOwnShopBody"
+  },
+  "bizaiBack": "Go back",
+  "@bizaiBack": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiBack"
+  },
+  "bizaiMyShopsTitle": "Shop chats",
+  "@bizaiMyShopsTitle": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiMyShopsTitle"
+  },
+  "bizaiMyShopsEmpty": "Chat with shops right here — the shop's AI answers in seconds, from its real price list.",
+  "@bizaiMyShopsEmpty": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiMyShopsEmpty"
+  },
+  "bizaiMyShopsHow": "Open a shop's Assisto link, or ask a shop owner in My Circle to turn on shop chat.",
+  "@bizaiMyShopsHow": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiMyShopsHow"
+  },
+  "bizaiOpenLink": "Open a shop link",
+  "@bizaiOpenLink": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOpenLink"
+  },
+  "bizaiPasteLinkHint": "Paste the shop link or code",
+  "@bizaiPasteLinkHint": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiPasteLinkHint"
+  },
+  "bizaiBadLink": "That is not a shop link",
+  "@bizaiBadLink": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiBadLink"
+  },
+  "bizaiOpen": "Open",
+  "@bizaiOpen": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOpen"
+  },
+  "bizaiCancel": "Cancel",
+  "@bizaiCancel": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiCancel"
+  },
+  "bizaiFromCircle": "In your My Circle",
+  "@bizaiFromCircle": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiFromCircle"
+  },
+  "bizaiShopLinkTitle": "Your shop chat link",
+  "@bizaiShopLinkTitle": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShopLinkTitle"
+  },
+  "bizaiShopLinkSub": "Customers chat with your shop inside Assisto — no Facebook setup. Your AI answers from your catalog in seconds.",
+  "@bizaiShopLinkSub": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShopLinkSub"
+  },
+  "bizaiShare": "Share link",
+  "@bizaiShare": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShare"
+  },
+  "bizaiShareText": "Chat with {shop} on Assisto: {url}",
+  "@bizaiShareText": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiShareText",
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiAppChatSwitch": "Take customer chats in Assisto",
+  "@bizaiAppChatSwitch": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiAppChatSwitch"
+  },
+  "bizaiCodGuardSwitch": "Hold risky cash-on-delivery orders",
+  "@bizaiCodGuardSwitch": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiCodGuardSwitch"
+  },
+  "bizaiCodGuardSub": "If a phone number returned many parcels before, the courier is not booked automatically and you are told first.",
+  "@bizaiCodGuardSub": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiCodGuardSub"
+  },
+  "bizaiAiOffNote": "The AI is off: chats still reach you, and you reply yourself. Turn on the AI above to answer in seconds.",
+  "@bizaiAiOffNote": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiAiOffNote"
+  },
+  "bizaiOutcomeTitle": "This week Assisto did for you",
+  "@bizaiOutcomeTitle": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutcomeTitle"
+  },
+  "bizaiOutAiOrders": "Orders the AI took",
+  "@bizaiOutAiOrders": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutAiOrders"
+  },
+  "bizaiOutCustomersBack": "Customers brought back",
+  "@bizaiOutCustomersBack": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutCustomersBack"
+  },
+  "bizaiOutDuesCollected": "Dues collected",
+  "@bizaiOutDuesCollected": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutDuesCollected"
+  },
+  "bizaiOutLossesPrevented": "Losses prevented",
+  "@bizaiOutLossesPrevented": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutLossesPrevented"
+  },
+  "bizaiOutCount": "{count} times",
+  "@bizaiOutCount": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiOutTotal": "{amount} this week",
+  "@bizaiOutTotal": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutTotal",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiOutEmpty": "When your AI takes orders, brings customers back and collects dues, the money it made shows here every week — real numbers only.",
+  "@bizaiOutEmpty": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutEmpty"
+  },
+  "bizaiOutEmptyBtn": "Set up the AI sales agent",
+  "@bizaiOutEmptyBtn": {
+    "description": "bizai (owner 4 Nov BUSINESS AI): bizaiOutEmptyBtn"
+  },
+  "bizaiParamDaysUntil": "Stop after this many days (0 = never)",
+  "@bizaiParamDaysUntil": {
+    "description": "bizai: bizaiParamDaysUntil"
+  },
+  "bizaiWinbackTitle": "Bring customers back",
+  "@bizaiWinbackTitle": {
+    "description": "bizai: bizaiWinbackTitle"
+  },
+  "bizaiWinbackHubSub": "Who stopped buying, and a 30/60/90-day message ladder drafted for you",
+  "@bizaiWinbackHubSub": {
+    "description": "bizai: bizaiWinbackHubSub"
+  },
+  "bizaiSegmentsTitle": "Your customers",
+  "@bizaiSegmentsTitle": {
+    "description": "bizai: bizaiSegmentsTitle"
+  },
+  "bizaiSegmentsSub": "{count} customers bought in the last 12 months",
+  "@bizaiSegmentsSub": {
+    "description": "bizai: bizaiSegmentsSub",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiSegmentsEmpty": "When you record sales with a customer's phone, your customers are grouped here by last purchase, value and favourite product.",
+  "@bizaiSegmentsEmpty": {
+    "description": "bizai: bizaiSegmentsEmpty"
+  },
+  "bizaiSegChampion": "Best customers (bought often, recently)",
+  "@bizaiSegChampion": {
+    "description": "bizai: bizaiSegChampion"
+  },
+  "bizaiSegLoyal": "Regular customers",
+  "@bizaiSegLoyal": {
+    "description": "bizai: bizaiSegLoyal"
+  },
+  "bizaiSegNew": "New customers",
+  "@bizaiSegNew": {
+    "description": "bizai: bizaiSegNew"
+  },
+  "bizaiSegAtRisk30": "Silent 30+ days",
+  "@bizaiSegAtRisk30": {
+    "description": "bizai: bizaiSegAtRisk30"
+  },
+  "bizaiSegAtRisk60": "Silent 60+ days",
+  "@bizaiSegAtRisk60": {
+    "description": "bizai: bizaiSegAtRisk60"
+  },
+  "bizaiSegLost90": "Silent 90+ days",
+  "@bizaiSegLost90": {
+    "description": "bizai: bizaiSegLost90"
+  },
+  "bizaiSegOneTime": "Bought once",
+  "@bizaiSegOneTime": {
+    "description": "bizai: bizaiSegOneTime"
+  },
+  "bizaiMemberLine": "{days} days ago · {amount} · likes {product}",
+  "@bizaiMemberLine": {
+    "description": "bizai: bizaiMemberLine",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiHighValue": "Top 20% by spend",
+  "@bizaiHighValue": {
+    "description": "bizai: bizaiHighValue"
+  },
+  "bizaiLadderTitle": "Win-back messages: 30 / 60 / 90 days",
+  "@bizaiLadderTitle": {
+    "description": "bizai: bizaiLadderTitle"
+  },
+  "bizaiLadderSub": "Each silent customer gets at most one message per step — never all three at once.",
+  "@bizaiLadderSub": {
+    "description": "bizai: bizaiLadderSub"
+  },
+  "bizaiStage30": "After 30 days",
+  "@bizaiStage30": {
+    "description": "bizai: bizaiStage30"
+  },
+  "bizaiStage60": "After 60 days",
+  "@bizaiStage60": {
+    "description": "bizai: bizaiStage60"
+  },
+  "bizaiStage90": "After 90 days",
+  "@bizaiStage90": {
+    "description": "bizai: bizaiStage90"
+  },
+  "bizaiLadderAudience": "{count} would get it now",
+  "@bizaiLadderAudience": {
+    "description": "bizai: bizaiLadderAudience",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiAiRewrite": "Rewrite with AI",
+  "@bizaiAiRewrite": {
+    "description": "bizai: bizaiAiRewrite"
+  },
+  "bizaiLadderSafety": "Sent in Assisto between 9 am and 9 pm, with a STOP option and your daily limit. Results show on the Business home.",
+  "@bizaiLadderSafety": {
+    "description": "bizai: bizaiLadderSafety"
+  },
+  "bizaiLadderApprove": "Approve and turn on",
+  "@bizaiLadderApprove": {
+    "description": "bizai: bizaiLadderApprove"
+  },
+  "bizaiLadderStop": "Pause the win-back messages",
+  "@bizaiLadderStop": {
+    "description": "bizai: bizaiLadderStop"
+  },
+  "bizaiLadderOnDone": "Win-back messages are on",
+  "@bizaiLadderOnDone": {
+    "description": "bizai: bizaiLadderOnDone"
+  },
+  "bizaiLadderOffDone": "Win-back messages are paused",
+  "@bizaiLadderOffDone": {
+    "description": "bizai: bizaiLadderOffDone"
+  },
+  "bizaiPhName": "(customer's name)",
+  "@bizaiPhName": {
+    "description": "bizai: bizaiPhName"
+  },
+  "bizaiPhShop": "(your shop)",
+  "@bizaiPhShop": {
+    "description": "bizai: bizaiPhShop"
+  },
+  "bizaiPhDays": "(days)",
+  "@bizaiPhDays": {
+    "description": "bizai: bizaiPhDays"
+  },
+  "bizaiWeeklyTitle": "Weekly report",
+  "@bizaiWeeklyTitle": {
+    "description": "bizai: bizaiWeeklyTitle"
+  },
+  "bizaiWeeklyHubSub": "Your week in plain words, next week's plan, and which posts brought orders",
+  "@bizaiWeeklyHubSub": {
+    "description": "bizai: bizaiWeeklyHubSub"
+  },
+  "bizaiWeekTitle": "This week",
+  "@bizaiWeekTitle": {
+    "description": "bizai: bizaiWeekTitle"
+  },
+  "bizaiNextWeekTitle": "Plan for next week",
+  "@bizaiNextWeekTitle": {
+    "description": "bizai: bizaiNextWeekTitle"
+  },
+  "bizaiPostsSoldTitle": "Posts that brought customers",
+  "@bizaiPostsSoldTitle": {
+    "description": "bizai: bizaiPostsSoldTitle"
+  },
+  "bizaiPostsSoldEmpty": "Share a post from the Marketing engine — it carries its own link and code, so the chats and orders it brings show here.",
+  "@bizaiPostsSoldEmpty": {
+    "description": "bizai: bizaiPostsSoldEmpty"
+  },
+  "bizaiPostLine": "{chats} chats · {orders} orders",
+  "@bizaiPostLine": {
+    "description": "bizai: bizaiPostLine",
+    "placeholders": {
+      "chats": {
+        "type": "String"
+      },
+      "orders": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiOutBestPost": "Best post: {title} — {count} orders, {amount}",
+  "@bizaiOutBestPost": {
+    "description": "bizai: bizaiOutBestPost",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiCamTitle": "How accurate is my CCTV?",
+  "@bizaiCamTitle": {
+    "description": "bizai: bizaiCamTitle"
+  },
+  "bizaiCamExplain": "Right = when it alerts, something really happened. Catches = when something happens, it alerts. Our goal is 90% for both, measured on at least 20 events.",
+  "@bizaiCamExplain": {
+    "description": "bizai: bizaiCamExplain"
+  },
+  "bizaiCamLine2": "Right {precision} · Catches {recall} · {events} events",
+  "@bizaiCamLine2": {
+    "description": "bizai: bizaiCamLine2",
+    "placeholders": {
+      "precision": {
+        "type": "String"
+      },
+      "recall": {
+        "type": "String"
+      },
+      "events": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiCamMeets": "Meets the 90% goal",
+  "@bizaiCamMeets": {
+    "description": "bizai: bizaiCamMeets"
+  },
+  "bizaiCamBelow": "Below 90%",
+  "@bizaiCamBelow": {
+    "description": "bizai: bizaiCamBelow"
+  },
+  "bizaiCamNotEnough": "Not enough yet",
+  "@bizaiCamNotEnough": {
+    "description": "bizai: bizaiCamNotEnough"
+  },
+  "bizaiCamNoData": "No measurements yet. Mark alerts Correct / Wrong, or run a live test below.",
+  "@bizaiCamNoData": {
+    "description": "bizai: bizaiCamNoData"
+  },
+  "bizaiCamLiveTitle": "Live test with your camera",
+  "@bizaiCamLiveTitle": {
+    "description": "bizai: bizaiCamLiveTitle"
+  },
+  "bizaiCamLiveHow": "Start, then do things in front of the camera and tap what you did at that moment. Stop when done — alerts within 30 seconds of a tap count as caught.",
+  "@bizaiCamLiveHow": {
+    "description": "bizai: bizaiCamLiveHow"
+  },
+  "bizaiCamPickSite": "Pick a shop in the Shops tab first.",
+  "@bizaiCamPickSite": {
+    "description": "bizai: bizaiCamPickSite"
+  },
+  "bizaiCamStart": "Start a test",
+  "@bizaiCamStart": {
+    "description": "bizai: bizaiCamStart"
+  },
+  "bizaiCamStop": "Stop and see the result",
+  "@bizaiCamStop": {
+    "description": "bizai: bizaiCamStop"
+  },
+  "bizaiCamMarks": "{count} things marked",
+  "@bizaiCamMarks": {
+    "description": "bizai: bizaiCamMarks",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiCamSessions": "Results from {count} tests",
+  "@bizaiCamSessions": {
+    "description": "bizai: bizaiCamSessions",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiCamReviewsTitle": "From your reviews",
+  "@bizaiCamReviewsTitle": {
+    "description": "bizai: bizaiCamReviewsTitle"
+  },
+  "bizaiCamUnreviewed": "{count} alerts not reviewed yet",
+  "@bizaiCamUnreviewed": {
+    "description": "bizai: bizaiCamUnreviewed",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bizaiCamMissed": "Something happened but no alert came",
+  "@bizaiCamMissed": {
+    "description": "bizai: bizaiCamMissed"
+  },
+  "bizaiCamMissedDone": "Noted — it counts as a missed event",
+  "@bizaiCamMissedDone": {
+    "description": "bizai: bizaiCamMissedDone"
+  },
+  "bizaiCamPerson": "A person came",
+  "@bizaiCamPerson": {
+    "description": "bizai: bizaiCamPerson"
+  },
+  "bizaiCamLine": "Crossed the door line",
+  "@bizaiCamLine": {
+    "description": "bizai: bizaiCamLine"
+  },
+  "bizaiCamZone": "Entered a no-go area",
+  "@bizaiCamZone": {
+    "description": "bizai: bizaiCamZone"
+  },
+  "bizaiCamLoiter": "Stood around for long",
+  "@bizaiCamLoiter": {
+    "description": "bizai: bizaiCamLoiter"
+  },
+  "bizaiCamCash": "Hand at the cash box",
+  "@bizaiCamCash": {
+    "description": "bizai: bizaiCamCash"
+  },
+  "bizaiCamHealth": "Camera covered or moved",
+  "@bizaiCamHealth": {
+    "description": "bizai: bizaiCamHealth"
+  },
+  "bizaiCopyLink": "Copy link",
+  "@bizaiCopyLink": {
+    "description": "bizai: bizaiCopyLink"
+  },
+  "bizaiLinkCopied": "Link copied",
+  "@bizaiLinkCopied": {
+    "description": "bizai: bizaiLinkCopied"
+  },
+  "vaWkTitle": "“Hey Assisto” — hands-free",
+  "vaWkBody": "Say “Hey Assisto” (or “Hi Assisto” / “Ok Assisto”), then your command — without touching the phone. Off unless you turn it on.",
+  "vaWkStatusPending": "Not available right now: the Assisto server is not offering the “Hey Assisto” model.",
+  "vaWkStatusLicence": "Not available right now: the model's licence check is not finished.",
+  "vaWkStatusOff": "Off",
+  "vaWkStatusListening": "On — listening for “Hey Assisto”",
+  "vaWkStatusPausedUser": "Paused until {time}",
+  "vaWkStatusPausedBattery": "Paused — battery below 15%. Resumes at 20% or when charging.",
+  "vaWkStatusPausedCall": "Paused during the call",
+  "vaWkStatusPausedMic": "Paused — another app is using the microphone",
+  "vaWkStatusPausedWake": "Listening to your command…",
+  "vaWkStatusBlocked": "Android stopped it. Turn the switch on again.",
+  "vaWkStatusEngineMissing": "Needs the latest app update.",
+  "vaWkStatusError": "Couldn't start. Please try again.",
+  "vaWkStatusDownloading": "Downloading the model…",
+  "vaWkDownloadFailed": "Couldn't download the model. Check the internet and try again.",
+  "vaWkSensitivity": "Sensitivity",
+  "vaWkSensLow": "Low",
+  "vaWkSensNormal": "Normal",
+  "vaWkSensHigh": "High",
+  "vaWkSensLowSub": "Fewest mistaken wake-ups — speak clearly and close.",
+  "vaWkSensNormalSub": "Recommended for most rooms.",
+  "vaWkSensHighSub": "Hears you from farther away, but may wake by mistake more often.",
+  "vaWkPause1h": "Pause 1 hour",
+  "vaWkResume": "Resume",
+  "vaWkLockedNote": "Screen off or locked: Assisto can open over the lock screen only when it is your default assistant (see above). Otherwise you get a “Tap to talk” notification.",
+  "vaWkLockRules": "On a locked phone, safe things run straight away (music, time, weather, alarm, timer, torch, SOS). Calls, messages, contacts and your own data ask you to unlock first.",
+  "vaWkRebootNote": "After the phone restarts, Android does not let any app turn the microphone on by itself. You'll get a notification — tap it once to turn “Hey Assisto” on again.",
+  "vaWkAutoPause": "It pauses itself during calls, below 15% battery and while another app uses the microphone.",
+  "vaWkBatteryNote": "Uses extra battery while on; we will publish the measured number after real-phone tests. A notification stays visible the whole time.",
+  "vaWkPrivacy": "Detected on this phone only. Nothing is recorded or uploaded before you say “Hey Assisto”.",
+  "vaWkOemGuide": "Keep it running (Xiaomi, Oppo, Vivo, realme, Samsung)",
+  "vaWkDiscTitle": "Before you turn on “Hey Assisto”",
+  "vaWkDiscLead": "To hear “Hey Assisto”, Assisto keeps using your phone's microphone in the background — also when the app is closed or the screen is off — until you turn it off.",
+  "vaWkDisc1": "Your audio is checked on this phone only, a split second at a time, and thrown away at once. Nothing is recorded, saved or sent anywhere before you say “Hey Assisto”.",
+  "vaWkDisc2": "After “Hey Assisto”, Assisto Voice opens and listens to your command, just like when you tap the mic. That command is handled as our Privacy Policy describes.",
+  "vaWkDisc3": "A notification is always shown while the microphone is on, with “Pause 1 h” and “Turn off”.",
+  "vaWkDisc4": "It pauses itself during calls, on Battery Saver, below 15% battery, while another app uses the microphone, and while the phone is locked (unless you allow that). It uses some extra battery.",
+  "vaWkDisc5": "You can turn it off any time — here or from the notification.",
+  "vaWkDiscAgree": "I agree — turn on",
+  "vaWkDiscNo": "Not now",
+  "vaWkDiscPolicy": "Read the Privacy Policy",
+  "vaWkNotifChannel": "Hey Assisto",
+  "vaWkNotifTitle": "Listening for “Hey Assisto”",
+  "vaWkNotifBody": "Microphone on, checked on this phone only. Nothing is recorded.",
+  "vaWkNotifPausedTitle": "“Hey Assisto” paused",
+  "vaWkNotifPausedUser": "Paused for 1 hour. The microphone is off.",
+  "vaWkNotifPause": "Pause 1 h",
+  "vaWkNotifResume": "Resume",
+  "vaWkNotifOff": "Turn off",
+  "vaWkNotifResumeTitle": "Turn on “Hey Assisto” again",
+  "vaWkNotifResumeBody": "Android stopped it after a restart or an update. Tap once to turn it back on.",
+  "vaOemTitle": "Keep “Hey Assisto” running",
+  "vaOemIntro": "Some phones close background apps to save battery. Allow these two things for Assisto:",
+  "vaOemAutostart": "Allow auto-start",
+  "vaOemBattery": "Battery: no restrictions",
+  "vaOemOpenAutostart": "Open auto-start settings",
+  "vaOemOpenBattery": "Open battery settings",
+  "vaOemYourPhone": "Your phone: {maker}",
+  "vaOemXiaomi": "Xiaomi / Redmi / POCO: Security app > Permissions > Autostart > Assisto on. Then Settings > Apps > Assisto > Battery saver > No restrictions.",
+  "vaOemOppo": "Oppo / realme / OnePlus: Settings > Apps > Assisto > Auto launch on, and Battery usage > Allow background activity.",
+  "vaOemVivo": "Vivo / iQOO: i Manager > App manager > Autostart > Assisto on. Settings > Battery > Background power consumption > Assisto > Allow.",
+  "vaOemSamsung": "Samsung: Settings > Apps > Assisto > Battery > Unrestricted. Also check Battery > Background usage limits: Assisto must not be in “Sleeping apps” or “Deep sleeping apps”.",
+  "vaOemOther": "Other phones: Settings > Apps > Assisto > Battery > Unrestricted (or “Don't optimise”).",
+  "vaOemNotOpened": "Couldn't open that screen automatically on this phone — please follow the steps above.",
+  "vaOemBatteryOk": "Battery optimisation is already off for Assisto.",
+  "vaOemHonest": "Even with these settings some phones may still stop it now and then. Opening Assisto starts it again.",
+  "vaDefPowerKey": "Long-press power button setting",
+  "vaDefSamsungNote": "Samsung: Settings > Advanced features > Side button > Press and hold. If “Digital assistant” is offered, choose it and then pick Assisto as the default digital assistant. If only Bixby or the power-off menu is offered, the side key cannot open Assisto on this phone — use “Hey Assisto” instead.",
+  "vaDefXiaomiNote": "Xiaomi: Settings > Apps > Default apps > Assistant app > Assisto. For the power button: Settings > Additional settings > Gesture shortcuts > Launch assistant.",
+  "vaDefOpenFailed": "Couldn't open that setting automatically — please follow the steps.",
+  "@vaWkStatusPausedUser": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@vaOemYourPhone": {
+    "placeholders": {
+      "maker": {
+        "type": "String"
+      }
+    }
+  },
+  "vaWkStatusPausedSaver": "Paused: Battery Saver is on. Starts again when it is off.",
+  "@vaWkStatusPausedSaver": {
+    "description": "wakeword"
+  },
+  "vaWkStatusPausedLocked": "Paused while the phone is locked (you can allow it below).",
+  "@vaWkStatusPausedLocked": {
+    "description": "wakeword"
+  },
+  "vaWkLockedSwitch": "Also listen when the phone is locked",
+  "@vaWkLockedSwitch": {
+    "description": "wakeword"
+  },
+  "vaWkLockedSwitchSub": "Off: Assisto stops listening while the phone is locked. On: you can say “Hey Assisto” with the screen off; calls and messages still ask you to unlock.",
+  "@vaWkLockedSwitchSub": {
+    "description": "wakeword"
+  },
+  "vaWkBatteryNote2": "Uses some extra battery while on and pauses itself on Battery Saver or below 15% battery. A notification stays visible the whole time.",
+  "@vaWkBatteryNote2": {
+    "description": "wakeword"
+  },
+  "@vaWkStatusPending": {
+    "description": "wakeword"
+  },
+  "@vaWkStatusLicence": {
+    "description": "wakeword"
+  },
+  "vaCircleNoOne": "I couldn't find {name} in your My Circle.",
+  "@vaCircleNoOne": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaCircleOpen": "Open My Circle",
+  "@vaCircleOpen": {
+    "description": "wakeword"
+  },
+  "vaConfirmCircleTitle": "Write to {name} in My Circle?",
+  "@vaConfirmCircleTitle": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmCircleSpoken": "Send this to {name} in My Circle?",
+  "@vaConfirmCircleSpoken": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaCircleLabel": "My Circle",
+  "@vaCircleLabel": {
+    "description": "wakeword"
+  },
+  "vaCircleSend": "Send",
+  "@vaCircleSend": {
+    "description": "wakeword"
+  },
+  "vaCircleOpenChat": "Open chat",
+  "@vaCircleOpenChat": {
+    "description": "wakeword"
+  },
+  "vaCircleSent": "Sending to {name} in My Circle.",
+  "@vaCircleSent": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaCircleOpened": "Chat with {name} is open — type or speak your message.",
+  "@vaCircleOpened": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmCareCallTitle": "Set up a Care Call for {name}?",
+  "@vaConfirmCareCallTitle": {
+    "description": "wakeword",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmCareCallAny": "Set up a Care Call?",
+  "@vaConfirmCareCallAny": {
+    "description": "wakeword"
+  },
+  "vaCareCallDetail": "Care Call opens: choose the person, time and days, then save.",
+  "@vaCareCallDetail": {
+    "description": "wakeword"
+  },
+  "vaCareCallOpen": "Open Care Call",
+  "@vaCareCallOpen": {
+    "description": "wakeword"
+  },
+  "vaCareCallOpened": "Care Call is open.",
+  "@vaCareCallOpened": {
+    "description": "wakeword"
+  },
+  "vaConfirmJourneyTo": "Start Safe Journey to {place}?",
+  "@vaConfirmJourneyTo": {
+    "description": "wakeword",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "vaConfirmJourneyAny": "Start Safe Journey?",
+  "@vaConfirmJourneyAny": {
+    "description": "wakeword"
+  },
+  "vaJourneyDetail": "Safe Journey opens: choose who sees your live location, then tap Start.",
+  "@vaJourneyDetail": {
+    "description": "wakeword"
+  },
+  "vaJourneyOpen": "Open Safe Journey",
+  "@vaJourneyOpen": {
+    "description": "wakeword"
+  },
+  "vaJourneyOpened": "Safe Journey is open.",
+  "@vaJourneyOpened": {
+    "description": "wakeword"
+  },
+  "@vaWkDisc4": {
+    "description": "wakeword"
   }
 }

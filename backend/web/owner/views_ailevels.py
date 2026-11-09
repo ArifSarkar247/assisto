@@ -16,13 +16,26 @@ L = {
            "on": "লেভেল চালু (অ্যাপে পিকার দেখাবে)", "default": "ডিফল্ট লেভেল", "free": "ফ্রি ও বিজ্ঞাপনের ক্রেডিট যে লেভেলে চলে",
            "level": "লেভেল", "provider": "প্রোভাইডার", "model": "মডেল", "worst": "সবচেয়ে খারাপ খরচ", "min": "সর্বনিম্ন ক্রেডিট",
            "charged": "নেওয়া হয়", "profit": "লাভ % (খারাপ অবস্থা)", "caps": "প্রোভাইডারের দৈনিক খরচের সীমা (AI পাতায় বদলান)",
-           "save": "সংরক্ষণ", "reason": "কারণ", "welcome": "নতুন ইউজারকে একবার ফ্রি ক্রেডিট (যাচাই করা ফোন + ডিভাইস প্রতি একবার)", "welcome_n": "কত ক্রেডিট", "ad_n": "একটি বিজ্ঞাপনে কয়টি সাধারণ উত্তর (শুধু প্রাপ্তবয়স্ক)", "ad_profit": "বিজ্ঞাপনের লাভ % (খারাপ অবস্থা, ন্যূনতম eCPM)", "exam": "রাতের AI পরীক্ষা (রাত ২টা–৫টা, খরচের সীমাসহ) — পাস ও জয়ের হার; কম হলে রিলিজ আটকায়", "exam_on": "পরীক্ষা চালু", "actions": "AI উত্তরের নিচে কাজের বোতাম (নির্দিষ্ট তালিকা থেকে, চাপ + নিশ্চিত করার পরেই চলে)", "per_day": "per_day = একজন ইউজার দিনে কয়টি উত্তর (০ = সীমা নেই)", "bad": "ভুল সংখ্যা", "rate": "USD→৳", "safe": "এক ক্রেডিটে সর্বোচ্চ AI খরচ ৳"},
+           "save": "সংরক্ষণ", "reason": "কারণ", "welcome": "নতুন ইউজারকে একবার ফ্রি ক্রেডিট (যাচাই করা ফোন + ডিভাইস প্রতি একবার)", "welcome_n": "কত ক্রেডিট", "ad_n": "একটি বিজ্ঞাপনে কয়টি সাধারণ উত্তর (শুধু প্রাপ্তবয়স্ক)", "ad_profit": "বিজ্ঞাপনের লাভ % (খারাপ অবস্থা, ন্যূনতম eCPM)", "exam": "রাতের AI পরীক্ষা (রাত ২টা–৫টা, খরচের সীমাসহ) — পাস ও জয়ের হার; কম হলে রিলিজ আটকায়", "exam_on": "পরীক্ষা চালু", "actions": "AI উত্তরের নিচে কাজের বোতাম (নির্দিষ্ট তালিকা থেকে, চাপ + নিশ্চিত করার পরেই চলে)", "per_day": "per_day = একজন ইউজার দিনে কয়টি উত্তর (০ = সীমা নেই)", "bad": "ভুল সংখ্যা", "rate": "USD→৳", "safe": "এক ক্রেডিটে সর্বোচ্চ AI খরচ ৳", "gemini": "Gemini মডেল (এক জায়গায়): লেখা = রাউটার + বাতিল মডেলের বদলে, ছবি, ভয়েস"},
     "en": {"title": "AI answer levels", "intro": "The user picks: Normal / Better / Best. Never auto-upgrades to a dearer model; fallback only to the same or a cheaper one. Credits come from the worst-case cost (40 % profit, VAT 15 %, Play fee 15 %) — they cannot be set lower.",
            "on": "Levels on (the app shows the picker)", "default": "Default level", "free": "Levels free + ad credits pay for",
            "level": "Level", "provider": "Provider", "model": "Model", "worst": "Worst-case cost", "min": "Minimum credits",
            "charged": "Charged", "profit": "Profit % (worst case)", "caps": "Provider daily spend caps (edit on the AI page)",
-           "save": "Save", "reason": "Reason", "welcome": "Free credits once for a new user (once per verified phone + device)", "welcome_n": "Credits", "ad_n": "Normal answers per rewarded ad (adults only)", "ad_profit": "Ad profit % (worst case, floor eCPM)", "exam": "Nightly AI exam (02:00-05:00, cost-capped) — pass and win rate; below the minimum blocks a release", "exam_on": "Exam on", "actions": "Action buttons under AI answers (fixed list; run only after tap + confirm)", "per_day": "per_day = answers per user per day (0 = no limit)", "bad": "Invalid number", "rate": "USD→৳", "safe": "Max AI cost per credit ৳"},
+           "save": "Save", "reason": "Reason", "welcome": "Free credits once for a new user (once per verified phone + device)", "welcome_n": "Credits", "ad_n": "Normal answers per rewarded ad (adults only)", "ad_profit": "Ad profit % (worst case, floor eCPM)", "exam": "Nightly AI exam (02:00-05:00, cost-capped) — pass and win rate; below the minimum blocks a release", "exam_on": "Exam on", "actions": "Action buttons under AI answers (fixed list; run only after tap + confirm)", "per_day": "per_day = answers per user per day (0 = no limit)", "bad": "Invalid number", "rate": "USD→৳", "safe": "Max AI cost per credit ৳", "gemini": "Gemini models (one place): text = router + replaces a retired model, vision, voice"},
 }
+
+
+GEMINI_KINDS = ("text", "vision", "voice")
+
+
+def _alerts():
+    """geminifix: the last REAL provider error (402 billing / 404 retired
+    model / 403) as a red Bangla + English line."""
+    try:
+        from core import ai_health as AH
+        return AH.alerts()
+    except Exception:  # noqa: BLE001
+        return []
 
 
 def _exam():
@@ -82,6 +95,16 @@ def ai_levels(request):
                 if raw:
                     row[k] = raw
             new["levels"][lid] = row
+        gm = dict(cur.get("gemini_models") or {})
+        for k in GEMINI_KINDS:
+            raw = request.POST.get("gemini_" + k, "").strip().lower()
+            if not raw:
+                continue
+            if AL._model_ok(raw) and raw.startswith("gemini"):
+                gm[k] = raw
+            else:
+                bad.append("gemini_" + k)
+        new["gemini_models"] = gm
         if bad:
             ctx["error"] = lab["bad"] + ": " + ", ".join(bad)
             status = 400
@@ -97,5 +120,6 @@ def ai_levels(request):
     cur, _c = ALS.cfg()
     ctx.update({"L": lab, "c": cur, "t": ALS.table(), "ids": AL.LEVEL_IDS,
                 "providers": AL.PROVIDERS, "caps": R.cfg()["caps_usd"], "int_keys": INT_KEYS,
-                "ad": ALS.ad_table(), "exam": _exam()})
+                "ad": ALS.ad_table(), "exam": _exam(), "ai_alerts": _alerts(),
+                "gemini_kinds": [(k, cur["gemini_models"][k]) for k in GEMINI_KINDS]})
     return page(request, "owner/ai_levels.html", ctx, status=status, nav="ai_levels")

@@ -9,8 +9,10 @@ import '../screens/journey_sos_screen.dart';
 import '../state.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/reminders_nlp.dart';
+import 'va_assisto_actions.dart'; // wakeword
 import 'va_confirm_sheet.dart';
 import 'va_native.dart';
+import 'va_wake_logic.dart';
 import 'voice_intents.dart';
 
 /// A follow-up button on a result card.
@@ -51,8 +53,9 @@ class VaExecutor {
   final BuildContext context;
   final VaConfirmVoice? confirmVoice;
 
-  /// Opened over the lock screen: everything except the torch and SOS asks
-  /// Android to unlock first (calls, messages, apps, data are private).
+  /// Opened over the lock screen: personal actions (calls, messages,
+  /// contacts, apps, maps, the user's data) ask Android to unlock first;
+  /// harmless ones run ([VaLockPolicy]).
   final bool locked;
   final VoidCallback? onUnlocked;
 
@@ -77,10 +80,9 @@ class VaExecutor {
   static const _agentSessionKey = 'va_agent_session';
 
   Future<VaOutcome> run(VaIntent i) async {
-    if (locked &&
-        i.action != VaAction.torchOn &&
-        i.action != VaAction.torchOff &&
-        i.action != VaAction.sos) {
+    // k1-wake locked-phone rules: harmless actions (music, time, weather,
+    // alarm, timer, torch, SOS) run; personal ones ask to unlock first.
+    if (locked && VaLockPolicy.needsUnlock(i)) {
       final ok = await VaNative.requestUnlock();
       if (!ok) {
         return VaOutcome(t.vaUnlockNeeded, icon: Icons.lock_outline_rounded, ok: false);
@@ -118,7 +120,20 @@ class VaExecutor {
           return await _reminder(i);
         case VaAction.expense:
           return await _expense(i);
+        case VaAction.circleMessage: // wakeword
+          return await circleMessage(i);
+        case VaAction.careCall:
+          return await careCall(i);
+        case VaAction.safeJourney:
+          return await safeJourney(i);
         case VaAction.unknown:
+          // wakeword: the AI router first (fixed actions only), then the agent
+          if (context.mounted) {
+            final routed = await VaRouter.ask(context, i.raw, lang: _lang);
+            if (routed != null && routed.action != VaAction.unknown) {
+              return await run(routed);
+            }
+          }
           return await agent(i.raw);
       }
     } catch (_) {

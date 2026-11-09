@@ -4,6 +4,9 @@ import 'feature_flags.dart' show FeatureFlags; // feature-flags
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'account_security_api.dart'; // recovery
+import 'screens/account_security_screen.dart' show EmailNudge; // recovery
+import 'otp_api.dart' show ApiOtpBackend; // recovery
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -47,6 +50,7 @@ import 'widgets/elderly_mode.dart';
 import 'widgets/chatnav.dart';
 import 'widgets/bn_day_periods.dart';
 import 'voice/va_launch.dart';
+import 'voice/va_wake.dart';
 import 'photo_studio/ps_web_import.dart';
 import 'screens/web_photo_link_screen.dart';
 import 'screens/battery_guidance_screen.dart';
@@ -67,6 +71,10 @@ import 'services/missing_nearby_sync.dart'; // missing
 import 'cctvx/home_presence_sync.dart'; // cctvarm
 import 'calls/kid_audio_child.dart'; // kidaudio
 import 'phonecam/phonecam_link.dart'; // cctvphone
+import 'carecall/carecall_screen.dart' show careCallResume; // carecall
+import 'carecall/carecall_ring_screen.dart'; // carecall
+import 'notiflisten/notif_listen_service.dart'; // callmoney
+import 'bizai/my_shops_screen.dart' show ShopChatLink; // bizai
 
 /// bubbles (owner 2 Nov): the floating chat bubble's own LIGHT entrypoint
 /// (messaging/BubbleActivity.kt getDartEntrypointFunctionName). One chat,
@@ -309,9 +317,11 @@ class AssistoApp extends StatelessWidget {
           // the root decides what to show (InviteRouter).
           onGenerateRoute: (s) =>
               CallLaunchRouter.instance.onGenerateRoute(s) ??
+              CareCallRingScreen.onGenerateRoute(s) ?? // carecall: cold-start ring
               InviteRouter.route(s) ??
               SpaceLink.route(s, (l) => SpaceLinkScreen(link: l)) ??
               PhoneCamLink.route(s) ?? // cctvphone: /pc/<code> pairing link
+              ShopChatLink.route(s) ?? // bizai: /shop/<code> shop chat
               WebPhotoLink.route(
                   s, (token) => WebPhotoLinkScreen(token: token)),
         );
@@ -351,11 +361,19 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       _maybeNotifOpen(); // play-fgs
       // Part 3: opened by the assist gesture / wake word? (lazy, guarded)
       VaLaunch.maybeOpen(context);
+      // callmoney: a tapped after-call / money prompt; auto-save (guarded)
+      unawaited(NotifListenService.maybeOpen(context));
       // invite-join: cold-start /i/<CODE>, saved code, Play install referrer
       InviteRouter.start(PlatformDispatcher.instance.defaultRouteName);
       // cctvphone: cold-start phone-camera pairing link (/pc/<code>)
       PhoneCamLink.maybeOpenColdStart(
           context, PlatformDispatcher.instance.defaultRouteName);
+      // bizai: cold-start shop chat link (/shop/<code>)
+      ShopChatLink.maybeOpenColdStart(
+          context, PlatformDispatcher.instance.defaultRouteName);
+      // k1-wake: "Hey Assisto" was on but Android stopped it -> restart it now
+      // that Assisto is in the foreground (no-op unless the user enabled it).
+      VaWake.maybeRestart(context);
       // w1-webphoto: cold-start App Link (lifeassisto.com/photo/app?t=…)
       WebPhotoLink.maybeOpenColdStart(
           context,
@@ -491,6 +509,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       _resolveElderly();
       // Part 3: assist gesture / wake word while Assisto was in background.
       VaLaunch.maybeOpen(context);
+      unawaited(NotifListenService.maybeOpen(context)); // callmoney
+      VaWake.maybeRestart(context);
     }
   }
 
@@ -511,6 +531,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // kidaudio: a granted emergency-audio session waiting for this phone
       // (flag + server grant; visible notice first; never throws).
       unawaited(KidAudioChild.maybeStart(app.api));
+      // carecall: flush the offline answer queue + keep this phone's own
+      // Care Call alarms in step (flag + throttled 2 min; never throws).
+      unawaited(careCallResume(app, enabled: FeatureFlags.instance.isOn('care_call')));
     }
     _resumeProtection();
   }
@@ -539,6 +562,13 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
           await GrabCheck.maybeShow(nav.context,
               send: (pin) => api.engineFalseAlarm(pin: pin),
               escalate: (r) => api.engineEscalate(reason: r)); // antitheft2
+          // recovery: the gentle "add an email" card (server-decided: at
+          // most twice, never once an email is verified; once per app run)
+          if (nav.mounted && mounted && (route == null || route.isCurrent)) {
+            await EmailNudge.maybeShow(nav.context,
+                backend: ApiAccountSecurityBackend(api),
+                otpBackend: ApiOtpBackend(api));
+          }
         }
         if (!on || !loggedIn || nav == null || !mounted) return;
         await AntiTheftResume.maybeShowBatteryGuide(

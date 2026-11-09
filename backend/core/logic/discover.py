@@ -61,6 +61,7 @@ ROUTE_KEYS = (
     "account_standing",   # adminsafe: Account status + appeal (ChatNav mirror)
     "emergency_hub",   # emhub: the Emergency hub (ChatNav mirror in lock-step)
     "family_alerts",   # family100 route (keeps the ChatNav mirror in lock-step)
+    "carecall",   # carecall: Care Call home (ChatNav mirror in lock-step)
     "day_planner",     # p2plan: AI daily planner (flag ai_daily_planner)
     "task_manager",    # p2plan: Task manager (push "tasks" target)
     "my_dues",         # tagada2: the customer's My Dues (push tap target)

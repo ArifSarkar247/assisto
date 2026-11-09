@@ -469,7 +469,8 @@ def _thread_row(t):
             "pending": t.messages.filter(status="pending_approval").count(),
             # AF-10: thread-header handoff card = the newest open handoff's card
             "handoff_card": (pend.meta or {}).get("card") if pend else None,
-            "in_window": bai.within_service_window(
+            # bizai: the in-app shop chat has no 24 h window (always open)
+            "in_window": t.channel == "assisto" or bai.within_service_window(
                 t.last_inbound_at.timestamp() if t.last_inbound_at else None,
                 timezone.now().timestamp()),
             "order_draft": {k: v for k, v in (t.order_draft or {}).items()

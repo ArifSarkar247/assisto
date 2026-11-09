@@ -1,6 +1,7 @@
 {% extends "owner/base.html" %}
 {% block heading %}{{ T.nav_ai }}{% endblock %}
 {% block content %}
+{% include "owner/_ai_health.html" %}
 {% if problems %}<div class="flash warn" role="alert"><b>{{ T.not_saved }}</b><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
 
 <section class="card"><h2>{{ T.ai_today }}</h2>

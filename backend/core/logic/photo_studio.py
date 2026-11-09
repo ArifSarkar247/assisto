@@ -115,6 +115,17 @@ BD_PHOTO_SIZES = {
                     "note": "MRP / hand-in 'passport size': 55x45 mm, white background "
                             "(Bangladesh High Commission London). The e-passport needs no photo: "
                             "it is taken at the passport office."},
+    # aileft: NID. In Bangladesh the NID photo is taken live at the
+    # registration office (no upload); applications that ask for one (e.g. NID
+    # from abroad, Bangladesh High Commission London) want "a recent passport
+    # size photo" glued to the form -> the passport size above.
+    "nid_bd": {"w_mm": 45, "h_mm": 55, "px_w": 531, "px_h": 650, "dpi": 300,
+               "bg": "#FFFFFF", "fmt": "png", "max_kb": 0,
+               "verified": "official_mission",
+               "source": "https://bhclondon.org.uk/nid",
+               "note": "NID application: 'a recent passport size photo' glued to the form "
+                       "(Bangladesh High Commission London) = 55x45 mm, white background. "
+                       "Inside Bangladesh the NID photo is taken at the registration office."},
     "visa_bd": {"w_mm": 35, "h_mm": 45, "px_w": 413, "px_h": 531, "dpi": 300,
                 "bg": "#FFFFFF", "fmt": "png", "max_kb": 0,
                 "verified": "official_portal",
@@ -609,6 +620,45 @@ _SUGGESTIVE = (
     "বোল্ড", "হট", "রোমান্টিক", "চুমু",
 )
 
+# aileft (owner 3 Nov 23:25 PART 7f): the gaps the audit found
+_SEXUAL = _SEXUAL + (
+    "strip her", "strip him", "strip naked", "strip off", "stripped", "half naked",
+    "semi nude", "semi-nude", "swimsuit", "swim suit", "x-ray", "xray",
+    "transparent clothes", "transparent dress", "wet clothes", "remove her dress",
+    "remove his dress", "remove the dress", "remove her saree", "remove saree",
+    "remove her top", "remove her shirt", "remove her bra", "bra", "panty", "panties",
+    "sex", "sexual", "lewd", "naughty",
+    "saree khulo", "jama sorao", "kapor sorao",
+    "অর্ধনগ্ন", "শাড়ি খুল", "জামা সরা", "কাপড় সরা", "ব্রা", "সেক্স",
+)
+_FAKE_SCENE = _FAKE_SCENE + (
+    "head swap", "swap head", "swap my face", "swap his face", "swap her face",
+    "faceswap", "my face on", "his face on", "her face on", "face onto", "face on his body",
+    "face on her body", "onto his body", "onto her body", "on someone else's body",
+    "on another person", "on another body", "replace his face", "replace her face",
+    "change his face to", "change her face to",
+    "mukh bodlao", "chehara bodlao",
+    "অন্যের শরীরে", "মুখ বসাও", "মুখ বসিয়ে", "মাথা বদল", "চেহারা বদল",
+)
+_DOCUMENT_FRAUD = _DOCUMENT_FRAUD + (
+    "fake id", "fake passport", "fake nid", "fake visa", "fake certificate",
+    "fake document", "fake license", "fake licence", "fake card", "make a passport",
+    "make an id", "create an id", "create a passport", "id card with my photo",
+    "jali passport", "jal passport", "vua passport", "vuya id",
+    "ভুয়া পাসপোর্ট", "নকল পাসপোর্ট", "জাল পাসপোর্ট", "ভুয়া আইডি", "নকল আইডি",
+    "জাল আইডি", "ভুয়া ভিসা", "জাল ভিসা", "জাল সনদ", "ভুয়া কার্ড",
+)
+# harmful edits of a child (any photo with a child in it)
+_CHILD_HARM = (
+    "bruise", "bruises", "bruised", "injured", "injury", "wound", "wounded", "blood",
+    "bloody", "beaten", "beat him", "beat her", "black eye", "hurt", "crying",
+    "tied up", "tie him", "tie her", "chained", "cigarette", "smoking", "alcohol",
+    "beer", "weapon", "knife", "gun", "dead", "corpse", "starving", "beggar",
+    "make her older", "make him older", "adult body", "older body",
+    "মারধর", "রক্ত", "আঘাত", "জখম", "কাঁদছে", "বাঁধা", "সিগারেট", "ছুরি", "বন্দুক",
+    "ভিক্ষুক", "মৃত",
+)
+
 
 def classify(prompt="", options=None, *, beauty_ops=None, photo_kind="",
              child_in_photo=False, others_in_photo=False, own_photo=True,
@@ -672,6 +722,9 @@ def classify(prompt="", options=None, *, beauty_ops=None, photo_kind="",
         m = _hit(text, _SUGGESTIVE)
         if m:
             return no("child_suggestive", m)
+        m = _hit(text, _CHILD_HARM)     # aileft: harmful edits of minors
+        if m:
+            return no("child_harm", m)
     # d1-photo v2: a realistic AI edit of OTHER real people needs their consent
     if others and consent is False and feature in ("prompt_edit", "generate"):
         return no("consent_needed")

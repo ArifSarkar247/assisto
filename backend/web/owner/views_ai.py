@@ -164,5 +164,15 @@ def ai_page(request):
         "main_features": ", ".join(conf["main_features"]),
         "effort_rows": [(t, L["effort_" + t], conf["effort"][t]) for t in C.TIERS],
         "circuit_fields": [(k, L.get(k, k), v) for k, v in conf["circuit"].items()],
+        "ai_alerts": _ai_alerts(),
     })
     return page(request, "owner/ai.html", ctx, status=status, nav="ai")
+
+
+def _ai_alerts():
+    """geminifix: last real provider error (402 / 404 / 403) — red line."""
+    try:
+        from core import ai_health as AH
+        return AH.alerts()
+    except Exception:  # noqa: BLE001
+        return []

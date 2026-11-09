@@ -35,6 +35,7 @@ import 'fake_standing.dart'; // adminsafe
 import 'fake_career.dart'; // p2career
 import 'fake_ielts.dart'; // p2lang
 import 'fake_langkoja.dart'; // langkoja
+import 'bizai_fakes.dart' show fakeBizaiGet; // bizai
 
 enum FakeMode { data, empty, fail, slow }
 
@@ -48,6 +49,19 @@ class FakeApi extends ApiClient {
   }
 
   bool get _bn => lang == 'bn';
+
+  // aileft: no home stream in fakes — the home chat falls back to [agent]
+  // (the same client id), so every fake overriding agent() keeps working.
+  @override
+  Stream<Map<String, dynamic>> agentStream(String text,
+      {String? sessionId, String? clientId}) async* {
+    throw ApiException('no stream in fakes', 404);
+  }
+
+  @override
+  Future<Map<String, dynamic>> chatStop(String clientId, int shownChars) async =>
+      {'stopped': true, 'credits': 0, 'refunded': 0};
+  // /aileft
 
   /// The plan slug [plan] reports. The gallery sets 'business' for the Shop Box
   /// shots (Business-only UI) and resets it to 'premium' for everything else.
@@ -1058,6 +1072,11 @@ class FakeApi extends ApiClient {
     if (lkG != null) {
       if (mode == FakeMode.fail) _fail();
       return lkG;
+    }
+    final bzai = fakeBizaiGet(path, bn: _bn, empty: mode == FakeMode.empty); // bizai
+    if (bzai != null) {
+      if (mode == FakeMode.fail) _fail();
+      return bzai;
     }
     final ielts = fakeIeltsGet(path); // p2lang
     if (ielts != null) {

@@ -1328,6 +1328,11 @@ def daily_report(lang, stats):
         f"{stats.get('orders', 0)} orders, total ৳{_fmt_money(stats.get('revenue', 0))}. "
         f"{stats.get('messages', 0)} messages, {stats.get('ai_replies', 0)} AI replies, "
         f"{stats.get('pending_approvals', 0)} waiting for your approval.")
+    if "ai_orders" in stats:
+        # bizai: the owner's headline — what the AI itself sold today
+        n, v = stats.get("ai_orders") or 0, _fmt_money(stats.get("ai_revenue") or 0)
+        title = pick(lang, f"আজ AI {_bn_num(n)}টি অর্ডার নিয়েছে — ৳{_bn_num(v)}",
+                     f"Today the AI took {n} orders worth ৳{v}")
     if ls:
         names = ", ".join("%s (%d)" % (x["name"], x["stock"]) for x in ls[:5])
         body += pick(lang, f" কম স্টক: {names}।", f" Low stock: {names}.")

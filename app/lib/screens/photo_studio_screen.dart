@@ -13,6 +13,7 @@ import '../photo_studio/ps_edit.dart';
 import '../photo_studio/ps_engines.dart';
 import '../photo_studio/ps_enhance.dart' show AiPlan, StudioEnhanceEngine;
 import '../photo_studio/ps_gate_sheet.dart';
+import '../photo_studio/ps_inapp_exits.dart'; // aileft
 import '../photo_studio/ps_models.dart';
 import '../photo_studio/ps_report.dart';
 import '../photo_studio/ps_tools.dart';
@@ -95,9 +96,22 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
   final List<String> _turns = [];
   late final VoiceDictation _voice = VoiceDictation();
 
+  /// aileft: "Add to business catalog" shows only for a shop owner.
+  bool _hasCatalog = false;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      AppState? app;
+      try {
+        app = context.read<AppState>();
+      } catch (_) {}
+      if (app == null) return;
+      final has = await psHasCatalog(app.api);
+      if (mounted && has != _hasCatalog) setState(() => _hasCatalog = has);
+    });
     _ownsController = widget.controller == null;
     _c = widget.controller ??
         PhotoStudioController(widget.deps ??
@@ -643,6 +657,25 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
                     tp, SheetGateUi(context, forRun: true, onPremium: _c.free ? _openPlans : null)),
           ),
       ]),
+      // aileft: the price of every chip BEFORE the tap (never charged on a
+      // failed edit — the server refunds at once)
+      const SizedBox(height: Gap.sm),
+      for (final f in {for (final tp in _templates) tp.feature})
+        Padding(
+          key: Key('psTplCost_${f.wire}'),
+          padding: const EdgeInsets.only(bottom: Gap.xs),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+                f == PsFeature.enhanceServer
+                    ? t.aileftTplCostHd
+                    : f.isRestore
+                        ? t.aileftTplCostRestore
+                        : t.aileftTplCostAi,
+                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700)),
+            _costLine(t, _c.config.quote(f)),
+          ]),
+        ),
+      _infoLine(Icons.verified_user_rounded, t.aileftNoChargeOnFail),
       if (_c.free) ...[
         const SizedBox(height: Gap.sm),
         // photo-final: free HD enhance counts live in the HD enhance card
@@ -907,7 +940,28 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     final fl = _c.currentFaceLock;
     final canReport = s.current.aiEdited && _c.jobForCurrent() != null;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      img,
+      // aileft: a small "AI edited" mark on every AI result (also burnt
+      // into the exported file — see PhotoStudioController.aiMarkFor)
+      _c.aiMarkFor(cur)
+          ? Stack(children: [
+              img,
+              PositionedDirectional(
+                top: Gap.sm,
+                start: Gap.sm,
+                child: IgnorePointer(
+                  child: Container(
+                    key: const Key('psAiEditedMark'),
+                    padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+                    decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(Radii.pill)),
+                    child: Text(t.aileftAiEdited,
+                        style: AType.labelSmall.copyWith(color: Colors.white)),
+                  ),
+                ),
+              ),
+            ])
+          : img,
       const SizedBox(height: Gap.sm),
       // d1-photo v2: FACE LOCK badge — only when the check really ran
       if (fl != null && fl.locked) ...[
@@ -1425,6 +1479,28 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
               ])
                 if (_c.deps.sink.available(e.$1))
                   SizedBox(width: w, child: tile(e.$1, e.$2, e.$3)),
+              // aileft: in-app exits (same gate + full quality as Share)
+              SizedBox(
+                  width: w,
+                  child: _ExportTile(
+                      key: const Key('psExport_circle'),
+                      icon: Icons.forum_rounded,
+                      label: t.aileftSendCircle,
+                      enabled: enabled,
+                      available: true,
+                      onTap: () => psSendToCircle(context, _c,
+                          SheetGateUi(context, onPremium: _c.free ? _openPlans : null)))),
+              if (_hasCatalog)
+                SizedBox(
+                    width: w,
+                    child: _ExportTile(
+                        key: const Key('psExport_catalog'),
+                        icon: Icons.storefront_rounded,
+                        label: t.aileftAddCatalog,
+                        enabled: enabled,
+                        available: true,
+                        onTap: () => psAddToCatalog(context, _c,
+                            SheetGateUi(context, onPremium: _c.free ? _openPlans : null)))),
             ]);
           }),
           if (_c.currentId case final id?)
@@ -1494,6 +1570,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
 
   String _idName(AppLocalizations t, String id) => switch (id) {
         'passport_bd' => t.psbIdPassport,
+        'nid_bd' => t.aileftIdNid, // aileft
         'visa_bd' => t.psbIdVisaBd,
         'visa_india' => t.psbIdVisaIndia,
         'job_bd' => t.psbIdJob,
@@ -1592,6 +1669,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         ),
       ],
       _infoLine(Icons.info_outline_rounded, t.psbIdEpassport),
+      _infoLine(Icons.badge_outlined, t.aileftIdNidNote), // aileft
       _infoLine(Icons.fact_check_outlined, t.psbIdCheck),
     ]);
   }

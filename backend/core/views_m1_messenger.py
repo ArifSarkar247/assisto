@@ -1081,6 +1081,14 @@ class ChangeNumberRequestView(APIView):
         if _phone_taken(phone, request.user):
             return Response({"ok": False, "detail": "number_in_use"},
                             status=status.HTTP_409_CONFLICT)
+        if phone != (request.user.phone or ""):
+            # recovery: phone + email can't both change within 24 h; locked
+            # after "This was not me"
+            from . import account_recovery as AR
+            blk = AR.identity_block(request.user, "phone")
+            if blk:
+                return Response(AR.block_body(blk[0], blk[1], lang),
+                                status=status.HTTP_409_CONFLICT)
         if not sms_configured():
             return _sms_off(lang)
         row = user_settings(request.user)
@@ -1161,6 +1169,11 @@ class ChangeNumberConfirmView(APIView):
             row.pending_attempts = 0
             row.save()
             return Response({"ok": True, "phone": phone, "verified": True})
+        from . import account_recovery as AR   # recovery
+        blk = AR.identity_block(u, "phone")
+        if blk:
+            return Response(AR.block_body(blk[0], blk[1], req_lang(request)),
+                            status=status.HTTP_409_CONFLICT)
         fields = ["phone"]
         u.phone = phone
         if old and u.username == old and not User.objects.filter(
@@ -1182,6 +1195,12 @@ class ChangeNumberConfirmView(APIView):
         row.pending_expires = None
         row.pending_attempts = 0
         row.save()
+        # recovery: alert the OLD number (+ verified email, push) with a
+        # "This was not me" link; stamps the 24 h rule.
+        try:
+            AR.record_change(u, "phone", old, phone, lang=req_lang(request))
+        except Exception:  # noqa: BLE001
+            pass
         return Response({"ok": True, "phone": phone})
 
 
