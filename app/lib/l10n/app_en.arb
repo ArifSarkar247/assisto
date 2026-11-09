@@ -49450,5 +49450,13 @@
   "cv3LockDone": "Locked",
   "@cv3LockDone": {
     "description": "cctvact CCTV V3: cv3LockDone"
+  },
+  "ssAmountInvalid": "Enter an amount above 0. Bangla or English digits both work.",
+  "@ssAmountInvalid": {
+    "description": "Shown under an amount field when Save is tapped with no valid amount"
+  },
+  "ssNameRequired": "Type a name, or pick someone from My Circle.",
+  "@ssNameRequired": {
+    "description": "Shown when Save is tapped on an empty name field"
   }
 }
