@@ -25,7 +25,8 @@ import 'screenshots_test.dart' as gallery;
 Future<void> _pump(WidgetTester tester, Widget screen,
     {String lang = 'en', Brightness b = Brightness.light}) async {
   final app = gallery.galleryStub(lang: lang, mode: FakeMode.data);
-  await tester.binding.setSurfaceSize(const Size(400, 1400));
+  // tall surface: the lazy ListView builds every block (no scroll needed)
+  await tester.binding.setSurfaceSize(const Size(400, 4000));
   addTearDown(() => tester.binding.setSurfaceSize(null));
   await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
     value: app,
@@ -126,26 +127,27 @@ void main() {
       expect(find.byKey(const Key('qv-meaning-bn')), findsOneWidget);
     });
 
-    testWidgets('QF not connected: honest "coming soon" lines, no dead play button',
+    testWidgets('QF not connected: its blocks are hidden (no showpiece, no dead button)',
         (tester) async {
       await _pump(tester,
           AyahViewScreen(data: realQuranData(), sura: 1, aya: 1, api: _api(qfOn: false)));
-      expect(find.byKey(const Key('qv-translit-pending')), findsOneWidget);
-      expect(find.byKey(const Key('qv-words-pending')), findsOneWidget);
-      expect(find.byKey(const Key('qv-audio-pending')), findsOneWidget);
+      expect(find.byKey(const Key('qv-translit')), findsNothing);
+      expect(find.byKey(const Key('qv-words')), findsNothing);
+      expect(find.byKey(const Key('qv-audio')), findsNothing);
       expect(find.byKey(const Key('qv-play')), findsNothing);
       // QuranEnc meaning still shows
       expect(find.byKey(const Key('qv-meaning-bn-text')), findsOneWidget);
     });
 
-    testWidgets('pronunciation missing (engine not live) -> honest pending line',
+    testWidgets('pronunciation missing (engine not live) -> block hidden',
         (tester) async {
       final api = QuranBilingualApi((p) async {
         if (p.startsWith('/quran/pron')) throw Exception('404');
         return fakeQuranViewGet(p)!;
       });
       await _pump(tester, AyahViewScreen(data: realQuranData(), sura: 1, aya: 1, api: api));
-      expect(find.byKey(const Key('qv-pron-pending')), findsOneWidget);
+      expect(find.byKey(const Key('qv-pron')), findsNothing);
+      expect(find.byKey(const Key('qv-meaning-bn-text')), findsOneWidget);
     });
 
     testWidgets('pronunciation: rejected line hidden, only the fixed note shown',
@@ -224,8 +226,6 @@ void main() {
       expect(find.byKey(const Key('qv-shan-text')), findsOneWidget);
       expect(find.byKey(const Key('qv-shan-none')), findsNothing);
       expect(find.textContaining('version 1.1.1'), findsOneWidget);
-      await tester.drag(find.byType(Scrollable).first, const Offset(0, 3000));
-      await tester.pump();
       // switching to the Mukhtasar chip: that source states no reason here
       await tester.tap(find.byKey(const Key('qv-src-mukhtasar_bn')));
       await tester.pump();

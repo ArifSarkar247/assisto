@@ -203,6 +203,7 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
             const SizedBox(height: Gap.xs),
             Text(t.qvLinesHint, style: AType.bodySmall),
             for (final l in QvLine.values)
+              if (_available(l))
               SwitchListTile(
                 key: Key('qv-line-${l.name}'),
                 contentPadding: EdgeInsets.zero,
@@ -219,6 +220,13 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
       }),
     );
   }
+
+  /// Lines whose source is live right now (others are hidden, not teased).
+  bool _available(QvLine l) => switch (l) {
+        QvLine.pron => _pronShown,
+        QvLine.translit || QvLine.words || QvLine.audio => !_qfOff,
+        _ => true,
+      };
 
   String _lineName(AppLocalizations t, QvLine l) => switch (l) {
         QvLine.arabic => t.qvLineArabic,
@@ -261,12 +269,14 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
                   style: const TextStyle(
                       fontFamily: kQvArabicFont, fontSize: 30, height: 2.0)),
             ),
-          if (_on(QvLine.pron)) _pronBlock(t),
-          if (_on(QvLine.translit)) _translitBlock(t),
+          // NO SHOWPIECES: a source that is not live yet (pronunciation
+          // engine, Quran Foundation key) hides its block (no placeholder promise).
+          if (_on(QvLine.pron) && _pronShown) _pronBlock(t),
+          if (_on(QvLine.translit) && !_qfOff) _translitBlock(t),
           if (_on(QvLine.bn)) _meaningBlock(t, 'bn'),
           if (_on(QvLine.en)) _meaningBlock(t, 'en'),
-          if (_on(QvLine.words)) _wordsBlock(t),
-          if (_on(QvLine.audio)) _audioBlock(t),
+          if (_on(QvLine.words) && !_qfOff) _wordsBlock(t),
+          if (_on(QvLine.audio) && !_qfOff) _audioBlock(t),
           const SizedBox(height: Gap.sm),
           FilledButton.tonalIcon(
             key: const Key('qv-tafsir'),
@@ -328,6 +338,9 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
         ),
       ]);
 
+  bool get _pronShown =>
+      _pronLoading || '${qvItem(_pron, _aya)?['bn'] ?? ''}'.isNotEmpty;
+
   Widget _pronBlock(AppLocalizations t) {
     final it = qvItem(_pron, _aya);
     final bn = (it?['bn'] as String?) ?? '';
@@ -341,8 +354,6 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
     Widget child;
     if (_pronLoading) {
       child = _loading();
-    } else if (bn.isEmpty) {
-      child = Text(t.qvPronPending, key: const Key('qv-pron-pending'));
     } else {
       child = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         if (!approved) _ReviewChip(label: t.qvUnderReview),
@@ -384,9 +395,6 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
 
   Widget _qfState(AppLocalizations t, Widget Function() ok, String name) {
     if (_qfLoading) return _loading();
-    if (_qfOff) {
-      return Text(t.qvQfPending, key: Key('qv-$name-pending'));
-    }
     if (_qf == null) {
       return _retry(t, t.qvLoadFailed, _loadAyah, Key('qv-$name-retry'));
     }

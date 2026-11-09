@@ -33,8 +33,6 @@
    }
   },
   "qvSourceQf": "Source: Quran Foundation (quran.foundation)",
-  "qvQfPending": "Coming soon — this part turns on when the Quran Foundation connection is ready.",
-  "qvPronPending": "Bangla pronunciation is coming soon for this ayah.",
   "qvLoadFailed": "Could not load. Check the internet and try again.",
   "qvRetry": "Try again",
   "qvNotInSource": "The source has nothing for this ayah.",
@@ -93,8 +91,6 @@
   "qvSourcePron": "উৎস: Assisto উচ্চারণ নিয়ম, তাজবীদসহ (AI নয়), Tanzil লেখা থেকে",
   "qvSourceQe": "উৎস: {publisher} · QuranEnc.com · সংস্করণ {version} — হুবহু",
   "qvSourceQf": "উৎস: Quran Foundation (quran.foundation)",
-  "qvQfPending": "শিগগির আসছে — Quran Foundation-এর সংযোগ চালু হলেই এই অংশ দেখা যাবে।",
-  "qvPronPending": "এই আয়াতের বাংলা উচ্চারণ শিগগির আসছে।",
   "qvLoadFailed": "লোড হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
   "qvRetry": "আবার চেষ্টা করুন",
   "qvNotInSource": "এই আয়াতের জন্য উৎসে কিছু নেই।",
