@@ -5,6 +5,7 @@ Badda; on 6 Nov two trips "arrived" while the phone was still at the start.
 Root cause: POST /journey/<id>/arrived accepted an arrival anywhere, any time,
 and a trip could start with a destination without coordinates."""
 from datetime import timedelta
+from unittest import mock
 
 from django.utils import timezone
 
@@ -151,3 +152,68 @@ class ViewTests(Base):
         j.last_location = {"lat": place["lat"], "lng": place["lng"],
                            "at": timezone.now().isoformat()}
         j.save(update_fields=["last_location"])
+
+
+# ---------------------------------------------------------------- place search
+from core import bd_places as BP  # noqa: E402
+from core import maps_cost as MC  # noqa: E402
+from core.tests_mapscost import KEY, MapsBase  # noqa: E402
+
+S = "qjourney-sess-0001"
+
+
+class PlaceListTests(MapsBase):
+    """Owner V2 proof list: Gai, গাইবান্ধা, Badda, Shahjalal airport — with
+    the Google budget on and off. Our own OSM list answers first."""
+
+    def find(self, q, **kw):
+        r = self.c1.get("%s/maps/search" % V, {"q": q, "session": S, **kw}).json()
+        return r, [x["name"] for x in r["results"]]
+
+    def test_the_list_is_real_and_big(self):
+        self.assertTrue(BP.available())
+        self.assertIn("OpenStreetMap", BP.source())
+        kinds = {r[0] for r in BP._rows}
+        for k in ("division", "district", "upazila", "area", "station", "airport"):
+            self.assertIn(k, kinds)
+        self.assertEqual(sum(1 for r in BP._rows if r[0] == "district"), 64)
+
+    def test_gai_and_bangla_script_find_gaibandha_without_google(self):
+        for q in ("Gai", "গাইবান্ধা", "gaibanda"):
+            r, names = self.find(q, lang="en")
+            self.assertEqual(r["state"], "ok", q)
+            self.assertTrue(any("Gaibandha" in n or "গাইবান্ধা" in n for n in names), (q, names))
+            row = r["results"][0]
+            self.assertTrue(row["place_id"].startswith("bd:"))
+            self.assertIsInstance(row["lat"], float)       # no paid Place Details
+        bn = self.c1.get("%s/maps/search" % V, {"q": "গাইবান্ধা", "session": S},
+                         HTTP_ACCEPT_LANGUAGE="bn").json()
+        self.assertIn("গাইবান্ধা", bn["results"][0]["name"])
+
+    def test_badda_and_shahjalal_airport(self):
+        _, names = self.find("Badda")
+        self.assertTrue(any("Badda" in n or "বাড্ডা" in n for n in names), names)
+        r, names = self.find("Shahjalal airport")
+        self.assertTrue(any("Shahjalal" in n or "শাহজালাল" in n for n in names), names)
+        air = [x for x in r["results"] if x["kind"] == "airport"][0]
+        self.assertEqual(air["radius_m"], 400)
+        self.assertAlmostEqual(air["lat"], 23.84, delta=0.05)
+
+    def test_budget_on_google_only_when_fewer_than_5_good(self):
+        _, _ = self.find("Gai")               # many good local rows
+        self.assertEqual(self.rec.calls, [])  # no Google at all
+        r, names = self.find("Bashundhara City")
+        self.assertTrue(r["google"])
+        self.assertIn("Bashundhara City", names)
+        self.assertEqual(len(self.rec.calls), 1)
+        self.assertEqual(self.rec.calls[0]["body"]["sessionToken"], S)
+
+    def test_budget_off_or_used_up_is_silent(self):
+        with mock.patch.object(MC, "server_key", lambda: ""):
+            r, names = self.find("Gaibandha")
+        self.assertEqual(r["state"], "ok")
+        self.assertTrue(names)
+        self.limits("autocomplete", user_day=0, global_day=0)
+        r, names = self.find("Zzqx nowhere")
+        self.assertEqual(r["state"], "none")      # never user_cap / global_cap / off
+        self.assertEqual(self.c1.get("%s/maps/status" % V).json()["places"], True)
