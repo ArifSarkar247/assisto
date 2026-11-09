@@ -2,6 +2,7 @@ import 'p3guides_fake.dart'; // p3guides
 import 'fake_channels.dart'; // channels
 import 'fake_food.dart'; // p2food
 import 'fake_famcare.dart'; // famcare
+import 'fake_fcscreen.dart'; // fcscreen
 import 'fake_psec.dart'; // pssec
 import 'fake_p2plan.dart'; // p2plan
 import 'fake_train.dart'; // train
@@ -1068,6 +1069,11 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    final fc3 = fakeFcGet(path, bn: _bn, empty: mode == FakeMode.empty); // fcscreen
+    if (fc3 != null) {
+      if (mode == FakeMode.fail) _fail();
+      return fc3;
+    }
     final lkG = fakeLangkojaGet(path); // langkoja
     if (lkG != null) {
       if (mode == FakeMode.fail) _fail();
@@ -2207,6 +2213,8 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    final fc3P = fakeFcPost(path, body); // fcscreen
+    if (fc3P != null) return fc3P;
     if (path.endsWith('learn/quran/complete')) { // learnwire
       final c = '${body['course']}';
       return {'ok': true, 'cert': {'course': c, 'level': c == 'quran_nazera' ? 'nazera' : 'qaida',

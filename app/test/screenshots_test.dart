@@ -232,6 +232,11 @@ import 'package:assisto/vault/vault_lock.dart' show MemoryKv, VaultLock; // p3do
 import 'package:assisto/vault/vault_share_sheet.dart' show VaultShareSheet; // p3docs
 import 'p3docs_fakes.dart'; // p3docs
 import 'package:assisto/screens/family_screen.dart';
+import 'package:assisto/family_v3/family_v3_screen.dart'; // fcscreen
+import 'package:assisto/family_v3/fc_member_page.dart'; // fcscreen
+import 'package:assisto/family_v3/fc_fix_guide.dart'; // fcscreen
+import 'package:assisto/family_v3/fc_add_member.dart'; // fcscreen
+import 'fake_fcscreen.dart'; // fcscreen
 import 'package:assisto/screens/medicine_history_screen.dart';
 import 'package:assisto/screens/emergency_screen.dart';
 import 'package:assisto/screens/emergency_hub_screen.dart';
@@ -564,6 +569,8 @@ void galleryPrime(String name) {
     if (name.startsWith('md1_')) md1Prime(); // md1 E2E media gallery stubs
     if (fakeC3On) C3Fake.seedRealtime();
     admobumpPrime(name); // admobump: UMP state per shot
+    FcFake.scene = name.endsWith('_ok') ? 'ok' : name.endsWith('_sos') ? 'sos'
+        : name.endsWith('_abroad') ? 'abroad' : 'mixed'; // fcscreen
 }
 
 Map<String, GallerySpec> gallerySpecs() {
@@ -858,6 +865,20 @@ Map<String, GallerySpec> gallerySpecs() {
     'famcare_card': (build: (_) => const FamilyScreen(initialTab: 'card'), mode: FakeMode.data, full: true),
     'famcare_card_empty': (build: (_) => const FamilyScreen(initialTab: 'card'), mode: FakeMode.empty, full: false),
     'famcare_error': (build: (_) => const FamilyScreen(), mode: FakeMode.fail, full: false),
+    // fcscreen (Family Care v3, 9 Nov): every state, bn/en, light/dark
+    'fc3_board': (build: (_) => const FamilyV3Screen(), mode: FakeMode.data, full: true),
+    'fc3_board_lower': (build: (_) => const FamilyV3Screen(debugScrollOffset: 1400), mode: FakeMode.data, full: true),
+    'fc3_board_more': (build: (_) => const FamilyV3Screen(debugScrollOffset: 2600), mode: FakeMode.data, full: true),
+    'fc3_board_ok': (build: (_) => const FamilyV3Screen(), mode: FakeMode.data, full: true),
+    'fc3_board_sos': (build: (_) => const FamilyV3Screen(), mode: FakeMode.data, full: true),
+    'fc3_board_abroad': (build: (_) => const FamilyV3Screen(debugScrollOffset: 2600), mode: FakeMode.data, full: false),
+    'fc3_board_empty': (build: (_) => const FamilyV3Screen(), mode: FakeMode.empty, full: true),
+    'fc3_board_error': (build: (_) => const FamilyV3Screen(), mode: FakeMode.fail, full: true),
+    'fc3_member': (build: (l) => FcMemberPage(familyId: 10, userId: 2, seed: fcFakeMembers(bn: l == 'bn')[2]), mode: FakeMode.data, full: true),
+    'fc3_member_stale': (build: (l) => FcMemberPage(familyId: 10, userId: 4, seed: fcFakeMembers(bn: l == 'bn')[0]), mode: FakeMode.data, full: true),
+    'fc3_fix': (build: (l) => Scaffold(body: SafeArea(child: FcFixGuide(name: l == 'bn' ? '\u0986\u09ac\u09cd\u09ac\u09c1' : 'Abbu', reason: 'battery_off', brain: const {'battery': 4, 'brand': 'Realme'}))), mode: FakeMode.data, full: true),
+    'fc3_fix_bg': (build: (l) => Scaffold(body: SafeArea(child: FcFixGuide(name: l == 'bn' ? '\u09b8\u09be\u0995\u09bf\u09ac' : 'Sakib', reason: 'background_killed', brain: const {'brand': 'Xiaomi'}))), mode: FakeMode.data, full: true),
+    'fc3_add': (build: (_) => const Scaffold(body: SafeArea(child: FcAddMemberSheet(familyId: 10, inFamily: {}))), mode: FakeMode.data, full: true),
     // kidswatch (owner idea 2): parent hub, empty, error; the child's screen
     // train: tracker list / empty / error, live, estimate, chat, join, alarm setup
     'train_list': (build: (_) => const TrainTrackerScreen(), mode: FakeMode.data, full: true),

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  fcscreen: Family widget metadata. updatePeriodMillis = 0: the widget never
+  wakes the phone on a timer (battery). The app pushes a fresh snapshot after
+  each Family load; the provider re-colours a member gray by itself (one
+  inexact, non-wakeup alarm) when that member's news gets old, so the widget
+  never shows a stale green.
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="250dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/fc_family_widget"
+    android:previewLayout="@layout/fc_family_widget"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen" />
