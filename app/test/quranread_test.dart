@@ -65,6 +65,18 @@ Future<void> _pump(WidgetTester tester, Widget screen,
 Iterable<QlItem> _allItems() =>
     kQlStages.expand((s) => s.lessons).expand((l) => l.items);
 
+/// quranshikhi: bring [k] on screen whether it is built (ensureVisible) or
+/// was dropped above the lazily built list (scroll up to it).
+Future<void> _reveal(WidgetTester tester, Key k) async {
+  final f = find.byKey(k, skipOffstage: false);
+  if (f.evaluate().isNotEmpty) {
+    await tester.ensureVisible(f);
+  } else {
+    await tester.scrollUntilVisible(find.byKey(k), -300,
+        scrollable: find.byType(Scrollable).first);
+  }
+}
+
 final _bnDigitsOnly = RegExp(r'[0-9]');
 
 void main() {
@@ -344,7 +356,7 @@ void main() {
       expect(focus.data, 'ب');
       expect(find.textContaining('lips'), findsWidgets); // makhraj note
       // Listen: no licensed audio -> explains, never a fake sound
-      await tester.ensureVisible(find.byKey(const Key('ql-listen-l_ba'), skipOffstage: false));
+      await _reveal(tester, const Key('ql-listen-l_ba'));
       await tester.pump();
       await tester.tap(find.byKey(const Key('ql-listen-l_ba')));
       await tester.pumpAndSettle();
@@ -352,7 +364,7 @@ void main() {
       await tester.tap(find.text('Got it'));
       await tester.pumpAndSettle();
       // mark learned -> progress + saved
-      await tester.ensureVisible(find.byKey(const Key('ql-learned-l_ba'), skipOffstage: false));
+      await _reveal(tester, const Key('ql-learned-l_ba'));
       await tester.pump();
       await tester.tap(find.byKey(const Key('ql-learned-l_ba')));
       await tester.pump();
