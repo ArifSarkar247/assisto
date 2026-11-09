@@ -3518,7 +3518,8 @@ class ShopSiteViewer(models.Model):
     # `cameras` [] means every camera (family / manager); a guard always has
     # at least one. `live_ok` = the owner lets this person open live view of
     # the cameras they may see (counts toward the owner's 2-live cap).
-    ROLES = [("family", "family"), ("manager", "manager"), ("guard", "guard")]
+    ROLES = [("family", "family"), ("manager", "manager"), ("guard", "guard"),
+             ("staff", "staff")]   # cctvroles: staff = view only, never deletes
     role = models.CharField(max_length=8, choices=ROLES, default="family")
     cameras = models.JSONField(default=list, blank=True)
     live_ok = models.BooleanField(default=False)
@@ -7960,7 +7961,12 @@ class CctvAccessLog(models.Model):
     owner. The owner's own views are not logged. Kept 30 days."""
     ACTIONS = [("alerts", "alert list"), ("alert", "one alert / clip / evidence"),
                ("still", "camera photo"), ("live", "live view"),
-               ("link", "share link opened")]
+               ("link", "share link opened"),
+               # cctvroles (V3 I): every export / share / change / delete /
+               # installer step, the owner's own included (never deduped)
+               ("export", "evidence exported"), ("share", "clip or link shared"),
+               ("change", "setting changed"), ("delete", "something deleted"),
+               ("role", "role changed"), ("installer", "installer step")]
     site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
                              related_name="access_logs")
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
@@ -7969,12 +7975,55 @@ class CctvAccessLog(models.Model):
                              on_delete=models.SET_NULL, related_name="+")
     camera = models.ForeignKey(ShopCamera, null=True, blank=True,
                                on_delete=models.SET_NULL, related_name="+")
-    action = models.CharField(max_length=8, choices=ACTIONS)
+    action = models.CharField(max_length=10, choices=ACTIONS)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
+    # cctvroles: short server-made text ("role: staff", "evidence #12")
+    detail = models.CharField(max_length=120, blank=True, default="")
 
     class Meta:
         ordering = ["-created"]
         indexes = [models.Index(fields=["site", "-created"], name="cctv_access_site_idx")]
+
+
+class CctvPartner(models.Model):
+    """cctvroles (V3 J): a local CCTV technician (installer partner). Applies
+    in the app, the Assisto owner approves in Owner Admin. A partner NEVER
+    sees video, photos or alerts — only the setup status of the sites whose
+    owner invited them (core/cctv_partner_views.py). Commission rules are a
+    PROPOSAL (core/logic/cctv_partner.py) — nothing pays out automatically."""
+    STATUSES = [("pending", "pending"), ("approved", "approved"),
+                ("suspended", "suspended")]
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="cctv_partner")
+    name = models.CharField(max_length=80, blank=True, default="")
+    area = models.CharField(max_length=80, blank=True, default="")
+    status = models.CharField(max_length=10, choices=STATUSES, default="pending")
+    created = models.DateTimeField(auto_now_add=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created"]
+
+
+class CctvInstallerLink(models.Model):
+    """cctvroles (V3 J): the SITE OWNER's invite (QR / code) for one
+    installer, and — once an approved partner used it — the link between
+    them. Only the code's SHA-256 is stored. The owner ends it any time."""
+    STATUSES = [("invited", "invited"), ("active", "active"), ("ended", "ended")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="installer_links")
+    partner = models.ForeignKey(CctvPartner, null=True, blank=True,
+                                on_delete=models.CASCADE, related_name="links")
+    code_hash = models.CharField(max_length=64, unique=True)
+    status = models.CharField(max_length=8, choices=STATUSES, default="invited")
+    created = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["site", "status"], name="cctv_inst_site_idx")]
 
 
 class CctvWatchPost(models.Model):

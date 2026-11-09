@@ -219,7 +219,29 @@ def log_access(site, action, user=None, camera_id=None, link=None, now=None):
                                      link=link)
         if secrets.randbelow(50) == 0:      # bounded: prune old rows now and then
             CctvAccessLog.objects.filter(
-                created__lt=now - timedelta(days=CT.LOG_KEEP_DAYS)).delete()
+                created__lt=now - timedelta(days=CT.LOG_KEEP_DAYS)).exclude(
+                action__in=CT.AUDIT_ACTIONS).delete()
+            # cctvroles: export / change rows are kept longer (AUDIT_KEEP_DAYS)
+            CctvAccessLog.objects.filter(
+                created__lt=now - timedelta(days=CT.AUDIT_KEEP_DAYS),
+                action__in=CT.AUDIT_ACTIONS).delete()
+        return True
+    except Exception:
+        return False
+
+
+def audit(site, action, user=None, detail="", camera_id=None, link=None):
+    """cctvroles (V3 I): one export / share / change / delete / role /
+    installer row in the owner's audit list — the owner's own included,
+    never deduped (a view is log_access). Never raises."""
+    from .models import CctvAccessLog
+    try:
+        if site is None or action not in CT.AUDIT_ACTIONS:
+            return False
+        CctvAccessLog.objects.create(
+            site=site, action=action, camera_id=camera_id, link=link,
+            user=user if getattr(user, "pk", None) else None,
+            detail=CT.clean_detail(detail))
         return True
     except Exception:
         return False
@@ -509,10 +531,16 @@ class ViewerRoleView(_TeamBase):
                                       s.cameras.values_list("id", flat=True))
         except CT.TeamError as e:
             return _team_err(lang, e)
+        before = (v.role, list(v.cameras or []), bool(v.live_ok))
         v.role, v.cameras = role, ids
         if "live_ok" in request.data:
             v.live_ok = SV._coerce_bool(request.data.get("live_ok"))
         v.save(update_fields=["role", "cameras", "live_ok"])
+        if before != (v.role, list(v.cameras or []), bool(v.live_ok)):
+            audit(s, "role", request.user,
+                  "%s: %s%s%s" % ((getattr(v.user, "name", "") or "#%s" % v.user_id)[:40],
+                                  role, "" if not ids else " (%d cam)" % len(ids),
+                                  " +live" if v.live_ok else ""))
         return Response(_role_row(v))
 
     post = put
@@ -526,16 +554,23 @@ class ViewerRolesView(_TeamBase):
             return _nf(lang)
         return Response({"viewers": [_role_row(v) for v in s.viewers.select_related("user")],
                          "cameras": [{"id": c.id, "name": c.name} for c in s.cameras.all()],
-                         "roles": list(CT.ROLES)})
+                         "roles": list(CT.ROLES),
+                         # cctvroles: what each role may do + the first choices
+                         "perms": CT.perm_table(),
+                         "suggested": CT.suggested_roles(getattr(s, "kind", "shop"))})
 
 
 # ===================================================================== access log
-def _log_row(r):
+def _log_row(r, owner_id=None):
     who = None
     if r.user_id:
         who = getattr(r.user, "name", "") or ""
     return {"id": r.id, "at": r.created.isoformat(), "action": r.action,
             "user_id": r.user_id, "name": who,
+            # cctvroles: the owner's own export / change rows say "You"
+            "is_owner": bool(r.user_id and r.user_id == owner_id),
+            "detail": getattr(r, "detail", "") or "",
+            "kind": "change" if r.action in CT.AUDIT_ACTIONS else "view",
             "link_id": r.link_id, "link_label": (r.link.label if r.link_id and r.link else ""),
             "camera": r.camera_id,
             "camera_name": (r.camera.name if r.camera_id and r.camera else "")}
@@ -550,9 +585,16 @@ class AccessLogView(_TeamBase):
         s = SV._owner_site(request, pk)
         if s is None:
             return _nf(lang)
-        rows = s.access_logs.select_related("user", "link", "camera")[:200]
-        return Response({"site": s.id, "rows": [_log_row(r) for r in rows],
+        qs = s.access_logs.select_related("user", "link", "camera")
+        kind = request.query_params.get("kind")
+        if kind == "change":
+            qs = qs.filter(action__in=CT.AUDIT_ACTIONS)
+        elif kind == "view":
+            qs = qs.exclude(action__in=CT.AUDIT_ACTIONS)
+        rows = qs[:200]
+        return Response({"site": s.id, "rows": [_log_row(r, s.owner_id) for r in rows],
                          "keep_days": CT.LOG_KEEP_DAYS,
+                         "audit_keep_days": CT.AUDIT_KEEP_DAYS,
                          "note": pick(lang,
                                       "শুধু আপনি এই তালিকা দেখেন। Assisto-র কোনো কর্মী বা মালিক আপনার ক্যামেরা দেখতে পারেন না।",
                                       "Only you see this list. No Assisto staff member or owner can see your cameras.")})
@@ -617,6 +659,7 @@ class ShareLinksView(_TeamBase):
             site=s, created_by=request.user, token_hash=_hash(token),
             label=" ".join(str(request.data.get("label") or "").split())[:40],
             cameras=ids, expires_at=now + timedelta(hours=hours))
+        audit(s, "share", request.user, "link %dh, %d cam" % (hours, len(ids)), link=link)
         return Response(link_json(link, now, token=token), status=201)
 
 
@@ -630,6 +673,7 @@ class ShareLinkRevokeView(_TeamBase):
         if link.revoked_at is None:
             link.revoked_at = timezone.now()
             link.save(update_fields=["revoked_at"])
+            audit(link.site, "share", request.user, "link off", link=link)
         return Response(link_json(link))
 
 

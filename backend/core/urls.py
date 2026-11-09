@@ -1874,3 +1874,13 @@ urlpatterns += [
     path("bizai/cctv/test/<int:pk>/<str:action>", bzai.CctvTestView.as_view()),
 ]
 # ---- /bizai ----
+# ---- cctvroles ---- CCTV Guard V3 J (installer partners) + K (sticker PDF)
+from . import cctv_partner_views as cpv  # noqa: E402
+urlpatterns += [
+    path("shop/sites/<int:pk>/installer", cpv.SiteInstallerView.as_view()),
+    path("shop/installer/<int:pk>/end", cpv.InstallerEndView.as_view()),
+    path("shop/partner/me", cpv.PartnerMeView.as_view()),
+    path("shop/partner/apply", cpv.PartnerApplyView.as_view()),
+    path("shop/partner/join", cpv.PartnerJoinView.as_view()),
+    path("shop/sites/<int:pk>/privacy-kit/pdf", cpv.StickerPdfView.as_view()),
+]

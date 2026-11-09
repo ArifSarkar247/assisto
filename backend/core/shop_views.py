@@ -1000,6 +1000,9 @@ class ShopSiteDetailView(APIView):
             changed.append("gateway")
         if changed:
             s.save(update_fields=changed)
+            # cctvroles (V3 I): owner setting changes are audited
+            from . import cctv_team_views as CTV
+            CTV.audit(s, "change", request.user, "place: %s" % ", ".join(changed))
         return Response(_site_row(s, reveal_token=True))
 
 
@@ -1172,6 +1175,11 @@ class ShopEventMarkView(APIView):
                 CXV.nosale_feedback(e, "wrong" if status_v == "false_alarm" else "correct")
             except Exception:
                 pass
+            # cctvroles (V3 I): the owner sees what a manager marked
+            if e.site.owner_id != request.user.pk:
+                from . import cctv_team_views as CTV
+                CTV.audit(e.site, "change", request.user,
+                          "alert #%s: %s" % (e.id, status_v), camera_id=e.camera_id)
         tuning = None
         # adapt this camera's thresholds ONCE per verdict change (bounded)
         if e.camera_id and before != status_v:

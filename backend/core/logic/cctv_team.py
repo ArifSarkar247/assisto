@@ -5,6 +5,9 @@ ROLES (per site, chosen by the owner; enforced server-side everywhere):
   manager  every camera (or the chosen ones), may mark alerts checked/false
   family   every camera (or the chosen ones), read-only
   guard    ONLY the chosen cameras (at least one), read-only
+  staff    (cctvroles, V3 I) a shop worker: every camera (or the chosen
+           ones), read-only — never deletes, exports, shares or changes
+           anything. Only the OWNER deletes / exports / changes (PERMS).
 Live view for a viewer only when the owner switched `live_ok` on for them.
 
 SHARE LINKS: view-only stills of chosen cameras for 1 h / 24 h / custom
@@ -14,7 +17,7 @@ NEIGHBOURHOOD WATCH: one user-chosen still to one PRIVATE community group,
 expires after 6 / 24 / 72 h (default 24), hidden after REPORT_HIDE reports.
 """
 
-ROLES = ("family", "manager", "guard")
+ROLES = ("family", "manager", "guard", "staff")
 MAX_VIEWERS = 8                 # people per site (owner excluded)
 SHARE_PRESETS = (1, 24)         # hours offered as one-tap choices
 SHARE_MAX_HOURS = 72            # custom upper bound (3 days)
@@ -96,6 +99,49 @@ def camera_allowed(scope, camera_id):
 
 def can_mark(role):
     return role in ("owner", "manager")
+
+
+# cctvroles (V3 I): the one permission table. Server-side checks use can();
+# the app shows the same table so nobody is surprised. Only the site owner
+# deletes, exports evidence, shares clips/links, changes settings or roles,
+# or invites an installer. An installer partner is NOT a role here: it never
+# reaches any of these (core/cctv_partner_views.py, setup status only).
+ACTIONS = ("view", "mark", "export", "share", "delete", "settings", "roles", "installer")
+PERMS = {
+    "owner": frozenset(ACTIONS),
+    "manager": frozenset(("view", "mark")),
+    "family": frozenset(("view",)),
+    "guard": frozenset(("view",)),
+    "staff": frozenset(("view",)),
+}
+# what the owner is offered first for each kind of place (all roles stay
+# available; a home is for family, a shop for managers / staff / guards)
+SUGGESTED = {"home": ("family", "guard"), "shop": ("manager", "staff", "guard", "family")}
+
+
+def can(role, action):
+    return action in PERMS.get(role or "", frozenset())
+
+
+def perm_table():
+    return {r: [a for a in ACTIONS if a in PERMS[r]] for r in ("owner",) + ROLES}
+
+
+def suggested_roles(kind):
+    return list(SUGGESTED.get(kind or "shop", SUGGESTED["shop"]))
+
+
+# cctvroles (V3 I): the audit list — views (deduped) AND every export /
+# share / change / delete / installer step (never deduped, the owner's own
+# included). Detail text is short, made by the server (never user video).
+AUDIT_ACTIONS = ("export", "share", "change", "delete", "role", "installer")
+DETAIL_MAX = 120
+AUDIT_KEEP_DAYS = 180             # export / change rows (views: LOG_KEEP_DAYS)
+
+
+def clean_detail(v):
+    s = " ".join(str(v or "").split())
+    return s[:DETAIL_MAX]
 
 
 def share_hours(v):
