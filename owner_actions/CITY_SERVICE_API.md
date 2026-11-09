@@ -1,7 +1,7 @@
 # City Service API contract (citydata, owner order 9 Nov 11:45 — ONE FINAL)
 
 Owner of this API: the citydata agent (data + routing backend). Screens: cityapp.
-Base: `/api/v1/city/…` (normal Assisto auth; `Accept-Language`/`?lang=bn|en` for
+Base: `/api/v1/city/…` (normal Assisto auth; `Accept-Language: bn|en` for
 messages). All names come as `name` (English/OSM) + `name_bn` (Bangla, may be
 empty → show `name`). Status codes on routes/stops/gates/fares are machine
 words; the app localizes them:

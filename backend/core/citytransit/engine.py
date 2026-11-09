@@ -91,12 +91,36 @@ class Network:
                         s[k] = e[k]
             s["hidden"] = s["id"] in hidden_s
             self.stops.append(s)
+        # stops / routes added by the owner or confirmed by trip learning
+        for row in ov.get("add_stops") or ():
+            if isinstance(row, dict) and row.get("id") and row.get("lat") is not None:
+                self.stops.append({"id": row["id"], "name": row.get("name", ""),
+                                   "name_bn": row.get("name_bn", ""), "lat": float(row["lat"]),
+                                   "lon": float(row["lon"]), "kind": row.get("kind", "bus"),
+                                   "st": row.get("st", "r"), "code": "", "hidden": False})
         self.by_id = {s["id"]: i for i, s in enumerate(self.stops)}
+        extra = []
+        for r in ov.get("add_routes") or ():
+            try:
+                idx = [self.by_id[x] for x in r["stop_ids"]]
+            except (KeyError, TypeError):
+                continue
+            if len(idx) >= 2:
+                extra.append(dict({k: v for k, v in r.items() if k != "stop_ids"}, stops=idx))
         hidden_r = set(ov.get("hide_routes") or ())
         route_edit = ov.get("routes") or {}
+        speeds = ov.get("route_speed") or {}
         self.routes = []
-        for r in net["routes"]:
+        for r in list(net["routes"]) + extra:
             r = dict(r)
+            if "km" not in r or len(r["km"]) != len(r["stops"]):
+                km, acc = [0.0], 0.0
+                for a, b in zip(r["stops"], r["stops"][1:]):
+                    sa, sb = self.stops[a], self.stops[b]
+                    acc += hav(sa["lat"], sa["lon"], sb["lat"], sb["lon"]) * 1.25 / 1000.0
+                    km.append(round(acc, 3))
+                r["km"] = km
+            r["learned_kmh"] = {int(h): float(v) for h, v in (speeds.get(r["id"]) or {}).items()}
             e = route_edit.get(r["id"])
             if e:
                 for k in ("name", "name_bn", "st", "hw", "spd"):
@@ -219,6 +243,9 @@ class Network:
                 rs, T, K = r["stops"], r["t"], r["km"]
                 wait = r["hw"] * 30.0
                 spd_fac = 1.0 if r["mode"] == "metro" else pf
+                lk = r["learned_kmh"].get(minute // 60)
+                if lk and r["mode"] != "metro":          # real trips, this hour
+                    spd_fac = max(0.3, min(2.0, lk / float(r["spd"])))
                 carried = []      # (dep_time - T[pos], fare_lo, fare_hi, pos, label)
                 for pos in range(start, len(rs)):
                     si = rs[pos]
