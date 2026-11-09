@@ -25,8 +25,8 @@ Sources inside each style:
 | Source id | Type | URL | Content | Zooms |
 |---|---|---|---|---|
 | `assisto_base` | vector | `pmtiles://{base}bd_base.pmtiles` | OSM (Protomaps v4 schema): earth, water, landuse, landcover, roads (incl. rail / metro), pois, places, boundaries | 0–15 (overzoom to 20) |
-| `assisto_buildings` | vector | `pmtiles://{base}bd_buildings.pmtiles` | Overture buildings, layer `buildings`, props `h` (m), `mh` (min height m), `hs` (`data` = real height, `floors` = num_floors × 3 m, `none` = style default) | 13–14 (overzoom) |
-| `assisto_places` | vector | `pmtiles://{base}bd_places.pmtiles` | Overture places (CDLA-P-2.0), layer `places`, props `name`, `pgf_name` (pre-shaped Bangla), `cat`, `conf` | 14–15 |
+| `assisto_buildings` | vector | `pmtiles://{base}bd_buildings.pmtiles` | Overture buildings, layer `buildings`, props `h` (m), `mh` (min height m), `hs` (`data` = real height, `floors` = num_floors × 3 m, `none` = style default) | 14 (overzoom to 20) |
+| `assisto_places` | vector | `pmtiles://{base}bd_places.pmtiles` | Overture places (CDLA-P-2.0), layer `places`, props `name`, `pgf_name` (pre-shaped Bangla), `cat`, `conf` | 15 (overzoom) |
 | `assisto_terrain` | raster-dem | `pmtiles://{base}bd_terrain.pmtiles` | Copernicus DEM GLO-30, terrarium PNG 256 px | 5–12 |
 
 Glyphs: `{base}fonts/{fontstack}/{range}.pbf` — stacks `Noto Sans Regular`, `Noto Sans Medium`,
