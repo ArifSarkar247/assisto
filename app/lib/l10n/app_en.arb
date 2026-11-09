@@ -44977,5 +44977,13 @@
   "qjDestIsHere": "You are already at this place. Choose where you are going.",
   "@qjDestIsHere": {
     "description": "qjourney: start blocked, destination is within 300 m of the phone"
+  },
+  "psAiEditSoonTitle": "AI photo create & edit — paused for now",
+  "@psAiEditSoonTitle": {
+    "description": "Photo Studio card title while AI image create/edit is paused"
+  },
+  "psAiEditSoonBody": "Free now on your phone: one-tap enhance (light, colour, sharpen), remove background, white or blue background, blur background, crop, HD upscale. No credits needed.",
+  "@psAiEditSoonBody": {
+    "description": "Photo Studio card body listing the free on-device tools"
   }
 }
