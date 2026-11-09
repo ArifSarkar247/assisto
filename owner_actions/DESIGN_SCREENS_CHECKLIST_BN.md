@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৩৩ / মোট ৪২০**
+**স্ক্রিন শেষ: ৩৪ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -291,7 +291,7 @@
 
 ## ১৫. সেটিংস
 
-- ⬜ — `push/push_settings_screen.dart`
+- ✅ batch 5 (অনুমতি বন্ধ থাকলে সেটাই সবার ওপরে, রঙিন আইকন-ব্যাজ কার্ড) — `push/push_settings_screen.dart`
 - ✅ batch 2 (গ্রুপ কার্ড) — `screens/settings_screen.dart`
 - ⬜ — `screens/vehicle_tracker_settings_screen.dart`
 
