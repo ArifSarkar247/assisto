@@ -1,0 +1,53 @@
+{
+  "_note": "citydata: MRT Line 6 station order, codes and Bangla names. Coordinates, gates, lifts and nearby places come from OpenStreetMap in the GitHub Actions build; each station is cross-checked automatically there against OSM + the crawled Wikipedia / DMTCL pages (Verified when 2+ independent sources agree, else Reported).",
+  "line": {"id": "mrt6", "name": "MRT Line 6", "name_bn": "এমআরটি লাইন ৬",
+           "operator": "Dhaka Mass Transit Company Limited (DMTCL)",
+           "km_total": 20.1,
+           "sources": [{"url": "https://dmtc.org.bd/", "date": "2026-11-09"},
+                       {"url": "https://en.wikipedia.org/wiki/MRT_Line_6_(Dhaka_Metro_Rail)", "date": "2026-11-09"}]},
+  "stations": [
+    ["UTN", "Uttara North", "উত্তরা উত্তর"],
+    ["UTC", "Uttara Center", "উত্তরা সেন্টার"],
+    ["UTS", "Uttara South", "উত্তরা দক্ষিণ"],
+    ["PLB", "Pallabi", "পল্লবী"],
+    ["M11", "Mirpur 11", "মিরপুর ১১"],
+    ["M10", "Mirpur 10", "মিরপুর ১০"],
+    ["KZP", "Kazipara", "কাজীপাড়া"],
+    ["SWP", "Shewrapara", "শেওড়াপাড়া"],
+    ["AGA", "Agargaon", "আগারগাঁও"],
+    ["BJS", "Bijoy Sarani", "বিজয় সরণি"],
+    ["FAR", "Farmgate", "ফার্মগেট"],
+    ["KWB", "Karwan Bazar", "কারওয়ান বাজার"],
+    ["SHB", "Shahbag", "শাহবাগ"],
+    ["DHU", "Dhaka University", "ঢাকা বিশ্ববিদ্যালয়"],
+    ["BDS", "Bangladesh Secretariat", "বাংলাদেশ সচিবালয়"],
+    ["MOT", "Motijheel", "মতিঝিল"]
+  ],
+  "aliases": {
+    "UTN": ["uttara north", "diabari", "uttara uttar"],
+    "UTC": ["uttara center", "uttara centre"],
+    "UTS": ["uttara south", "uttara dakshin"],
+    "M11": ["mirpur 11", "mirpur-11"],
+    "M10": ["mirpur 10", "mirpur-10"],
+    "KWB": ["karwan bazar", "kawran bazar", "kawran bazaar", "karwan bazaar"],
+    "SHB": ["shahbag", "shahbagh"],
+    "DHU": ["dhaka university", "university of dhaka"],
+    "BDS": ["bangladesh secretariat", "secretariat", "sachibalay"],
+    "BJS": ["bijoy sarani", "bijoy sharani"]
+  },
+  "service": {
+    "status": "reported",
+    "hours_sat_thu": "07:10-21:40",
+    "hours_fri": "15:00-21:40",
+    "headway_peak_min": 10, "headway_offpeak_min": 8, "headway_fri_min": 12,
+    "end_to_end_min": 40,
+    "note": "Hours/headways as published in news and Wikipedia (Jan 2024: 07:00-20:40, +1 h from 27 Mar 2024, Friday from 15:00 since 20 Sep 2024, about +60 min more from Oct 2025). Owner: confirm from the DMTCL notice board; edit in Owner Admin -> City data.",
+    "sources": [{"url": "https://en.wikipedia.org/wiki/MRT_Line_6_(Dhaka_Metro_Rail)", "date": "2026-11-09"}]
+  },
+  "recharge": {
+    "status": "reported",
+    "text_en": "MRT Pass / Rapid Pass: buy and top up at the ticket office or the vending machines inside every station (cash).",
+    "text_bn": "এমআরটি পাস / র‍্যাপিড পাস: প্রতিটি স্টেশনের টিকিট অফিস বা ভেন্ডিং মেশিনে কেনা ও রিচার্জ করা যায় (নগদ)।",
+    "sources": [{"url": "https://dmtc.org.bd/", "date": "2026-11-09"}]
+  }
+}
