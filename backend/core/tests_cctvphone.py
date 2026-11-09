@@ -62,6 +62,17 @@ class PureLogicTests(SimpleTestCase):
         self.assertEqual(PC.active_conditions(
             PC.clean_health({"level": 5, "charging": True})), set())
 
+    def test_cctvbox_cam_lost_warning(self):
+        h = PC.clean_health({"level": 80, "charging": True, "cam_lost": True})
+        self.assertTrue(h["cam_lost"])
+        self.assertEqual(PC.active_conditions(h), {"cam_lost"})
+        kinds, _ = PC.health_warnings(h, {}, 1000)
+        self.assertEqual(kinds, ["cam_lost"])
+        self.assertNotIn("cam_lost", PC.clean_health({"cam_lost": "yes"}))
+        tbn, ten, bbn, ben = PC.warning_text("cam_lost", "Gate", h)
+        self.assertIn("Gate", ben)
+        self.assertIn("Gate", bbn)
+
     def test_warning_texts_bn_en_no_accusation(self):
         for k in PC.WARN_KINDS:
             parts = PC.warning_text(k, "Gate", {"temp_c": 48})

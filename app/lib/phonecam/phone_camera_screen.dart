@@ -27,6 +27,8 @@ import '../widgets/ladder_common.dart' show fmtInt;
 import '../screens/shop_live_rtc.dart' deferred as rtc;
 import 'phonecam_api.dart';
 import 'phonecam_logic.dart';
+import '../feature_flags.dart'; // cctvbox
+import '../ipcam/ipcam_guard_screen.dart'; // cctvbox
 
 /// cctvphone — THIS phone becomes an Assisto camera (owner CCTV order 3 Nov,
 /// part A). Built on the Shop Box pieces (device client, motion detector,
@@ -781,8 +783,33 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
               : const Icon(Icons.link_rounded),
           label: Text(t.pcClaim),
         ),
+        ..._ipcamEntry(t), // cctvbox
         const SizedBox(height: 16),
         _card(Icons.privacy_tip_rounded, t.pcTrustTitle, t.pcTrustBody),
+      ];
+
+  // cctvbox: the same old phone can watch a Wi-Fi IP camera instead of using
+  // its own camera (Guard Box, no PC). Hidden while the flag is off.
+  List<Widget> _ipcamEntry(AppLocalizations t) => [
+        if (FeatureFlags.instance.isOn('guard_box_mode')) ...[
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
+              key: const Key('pcIpcamEntry'),
+              minVerticalPadding: 12,
+              leading: const Icon(Icons.router_rounded),
+              title: Text(t.icgOpen, style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(t.icgOpenBody),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () async {
+                await Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => IpCamGuardScreen(
+                        initialCode: _code.text.trim().isEmpty ? null : _code.text.trim())));
+                if (mounted) await _restore();
+              },
+            ),
+          ),
+        ],
       ];
 
   List<Widget> _readyView(AppLocalizations t) {
@@ -840,6 +867,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
           ),
         ),
       Text(t.pcClipsHelp, style: Theme.of(context).textTheme.bodySmall),
+      ..._ipcamEntry(t), // cctvbox
       const SizedBox(height: 12),
       _card(Icons.tips_and_updates_rounded, t.pcGuideTitle, t.pcGuideBody),
       const SizedBox(height: 8),
