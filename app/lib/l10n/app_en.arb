@@ -44961,5 +44961,13 @@
   "qcQuietUntil": "Quiet until",
   "@qcQuietUntil": {
     "description": "qcircle: time picker title for the end of quiet hours"
+  },
+  "psAiEditSoonTitle": "AI photo create & edit — paused for now",
+  "@psAiEditSoonTitle": {
+    "description": "Photo Studio card title while AI image create/edit is paused"
+  },
+  "psAiEditSoonBody": "Free now on your phone: one-tap enhance (light, colour, sharpen), remove background, white or blue background, blur background, crop, HD upscale. No credits needed.",
+  "@psAiEditSoonBody": {
+    "description": "Photo Studio card body listing the free on-device tools"
   }
 }
