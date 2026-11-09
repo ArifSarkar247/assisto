@@ -291,9 +291,17 @@ void registerE2eProofFlows() {
       await f.tap(find.byTooltip(f.t.circleAttach).hitTestable(), settleSeconds: 2);
       await f.tap(find.byKey(const Key('attach-gallery')), settleSeconds: 4);
       await f.waitFor(find.byKey(const Key('cm-send')), seconds: 20, what: 'album preview');
-      if (viewOnce) await f.tap(find.byKey(const Key('e-vo-toggle')), settleSeconds: 1);
+      if (viewOnce) {
+        await f.tap(find.byKey(const Key('e-vo-toggle')), settleSeconds: 1);
+        // the toggle's "view once on" SnackBar sits over the send row: clear it
+        ScaffoldMessenger.of(f.tester.element(find.byKey(const Key('cm-send')))).clearSnackBars();
+        await f.pumpFor(const Duration(milliseconds: 800));
+      }
       await f.shot(viewOnce ? 'view-once-preview' : 'album-preview');
       await f.tap(find.byKey(const Key('cm-send')), settleSeconds: 6);
+      if (find.byKey(const Key('cm-send')).evaluate().isNotEmpty) {
+        await f.tap(find.byKey(const Key('cm-send')), settleSeconds: 6); // one retry
+      }
     }
 
     await f.step('A sends a 2-photo album -> B has 2 new photo messages', () async {
@@ -372,6 +380,7 @@ void registerE2eProofFlows() {
     });
     await f.step('B as watcher -> Start -> live screen', () async {
       final b = find.widgetWithText(CheckboxListTile, Seed.nameB);
+      await f.scrollTo(b); // the watcher list is below the fold (lazy list)
       if (!await f.appears(b, seconds: 8)) throw TestFailure('watcher ${Seed.nameB} not listed');
       await f.tester.ensureVisible(b);
       await f.tap(b);
