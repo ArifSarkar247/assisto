@@ -140,6 +140,17 @@ def coverage(core, stop_pts, path_pts=(), cells=None):
 INSERT_MAX_DETOUR_M = 400
 
 
+def stop_origin(sid):
+    """Where a stop record comes from when the data has no `src` column:
+    OSM nodes ("n123") / mapped metro stations are OpenStreetMap (ODbL)."""
+    sid = str(sid or "")
+    if sid.startswith("u-"):
+        return "users"
+    if sid[:1] == "n" and sid[1:].isdigit():
+        return "osm"
+    return "public"
+
+
 def insert_stops(r, new_idx, stops, max_detour=INSERT_MAX_DETOUR_M):
     """citycov: put extra stops into a route between the two consecutive
     stops where the detour is smallest; a stop more than `max_detour` metres
@@ -191,7 +202,9 @@ class Network:
             s = {"id": row[ix["id"]], "name": row[ix["name"]] or "",
                  "name_bn": row[ix["name_bn"]] or "", "lat": row[ix["lat"]],
                  "lon": row[ix["lon"]], "kind": row[ix["kind"]], "st": row[ix["st"]],
-                 "code": row[ix["code"]] if "code" in ix else ""}
+                 "code": row[ix["code"]] if "code" in ix else "",
+                 # citycov licence rule: origin of the record (osm = ODbL)
+                 "src": (row[ix["src"]] if "src" in ix else "") or stop_origin(row[ix["id"]])}
             e = stop_edit.get(s["id"])
             if e:
                 for k in ("name", "name_bn", "lat", "lon", "st"):
@@ -205,7 +218,8 @@ class Network:
                 self.stops.append({"id": row["id"], "name": row.get("name", ""),
                                    "name_bn": row.get("name_bn", ""), "lat": float(row["lat"]),
                                    "lon": float(row["lon"]), "kind": row.get("kind", "bus"),
-                                   "st": row.get("st", "r"), "code": "", "hidden": False})
+                                   "st": row.get("st", "r"), "code": "", "hidden": False,
+                                   "src": row.get("src") or "users"})
         self.by_id = {s["id"]: i for i, s in enumerate(self.stops)}
         extra = []
         for r in ov.get("add_routes") or ():

@@ -746,9 +746,13 @@ class Builder:
                            for sj in o["stops"]):
                         shared += 1
                 if shared >= 3:
-                    p["_v"] = o["_v"] = True
-                    p["src"] = p["src"] + [s for s in o["src"] if s not in p["src"]]
-                    o["src"] = o["src"] + [s for s in p["src"] if s not in o["src"]]
+                    # citycov licence rule (CITY_MAP_LICENSE_BN.md): the OSM
+                    # route (ODbL) and our public-page route stay SEPARATE
+                    # records — linked, never merged. Only our own record
+                    # gets the Verified mark (2 independent sources agree).
+                    p["_v"] = True
+                    p["same_as"] = sorted(set(p.get("same_as", [])) | {o["id"]})
+                    o["same_as"] = sorted(set(o.get("same_as", [])) | {p["id"]})
                     self.cross += 1
 
     # ------------------------------------------------------------ metro
@@ -926,7 +930,10 @@ class Builder:
             s = self.stops[old]
             srcs = {x for x in s["src"] if x != "seed"}
             st = "v" if len(srcs) >= 2 else "r"
-            rows.append([s["id"], s["name"], s["name_bn"], s["lat"], s["lon"], s["kind"], st, s["code"]])
+            # citycov licence rule: where the record itself comes from — an
+            # OSM node keeps source=osm (ODbL) even when a public page names it
+            origin = "osm" if "osm" in srcs or str(s["id"]).startswith("n") else (sorted(srcs) or ["seed"])[0]
+            rows.append([s["id"], s["name"], s["name_bn"], s["lat"], s["lon"], s["kind"], st, s["code"], origin])
         routes = []
         for r in self.routes:
             rr = {k: v for k, v in r.items() if not k.startswith("_")}
@@ -955,7 +962,7 @@ class Builder:
                             "url": "https://www.dhakabusroute.com/"},
                            {"s": "news (BRTC pink bus routes)",
                             "url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332"}],
-               "stops": {"cols": ["id", "name", "name_bn", "lat", "lon", "kind", "st", "code"], "rows": rows},
+               "stops": {"cols": ["id", "name", "name_bn", "lat", "lon", "kind", "st", "code", "src"], "rows": rows},
                "routes": routes, "gates": gates}
         if self.seeds.get("metro") and self.city == "dhaka":
             net["metro"] = {k: self.seeds["metro"].get(k) for k in ("line", "service", "recharge", "facilities")}

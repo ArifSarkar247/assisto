@@ -266,3 +266,34 @@ class TripCardTests(ApiBase):
         self.assertEqual(learned.data["routes"], {"busA-a": 1})
         rider = CityLearned.objects.get(kind="rider")
         self.assertNotIn(self.user.phone, json.dumps([rider.key, rider.data]))
+
+
+class LicenceTests(ApiBase):
+    """Riders' stop at an OSM stop: our own record at the riders' own GPS,
+    linked to the OSM stop, never snapped onto it; the OSM record unchanged."""
+    def _add(self, u, lat, lon, **kw):
+        return self.as_(u).post("/api/v1/city/field-stops", dict({"lat": lat, "lon": lon}, **kw), format="json")
+
+    def test_rider_stop_not_snapped_to_osm_stop(self):
+        n2 = CS.network("dhaka")[0]
+        self.assertEqual(n2.stops[n2.by_id["n2"]]["src"], "osm")
+        spots = [(23.75112, 90.39305), (23.75095, 90.39290), (23.75108, 90.39315)]   # within 40 m of n2
+        for u, (la, lo) in zip((self.user, self.user2, self.user3), spots):
+            r = self._add(u, la, lo, route_id="busB-a")
+            self.assertIn(r.status_code, (200, 201), r.content)
+        row = CityLearned.objects.get(kind="field")
+        self.assertEqual((row.data["stop"], row.data["near"], row.status), ("", "n2", "confirmed"))
+        ov = CS._overrides(CS._ds("dhaka"))
+        mine = [x for x in ov["add_stops"] if x["id"].startswith("u-")][0]
+        self.assertAlmostEqual(mine["lat"], sum(p[0] for p in spots) / 3, places=5)  # riders' own GPS
+        self.assertNotEqual((mine["lat"], mine["lon"]), (23.7510, 90.3930))
+        self.assertEqual(mine["near"], "n2")
+        nw = CS.network("dhaka")[0]
+        s2 = nw.stops[nw.by_id["n2"]]
+        self.assertEqual((s2["lat"], s2["lon"], s2["src"]), (23.7510, 90.3930, "osm"))   # OSM record untouched
+        self.assertNotEqual(nw.stops[nw.by_id[mine["id"]]]["src"], "osm")
+        doc = json.loads(gzip.decompress(CS.package("dhaka")[1]))
+        cols = doc["net"]["stops"]["cols"]
+        src = {r[0]: r[cols.index("src")] for r in doc["net"]["stops"]["rows"]}
+        self.assertEqual(src["n2"], "osm")
+        self.assertEqual(src[mine["id"]], "field")

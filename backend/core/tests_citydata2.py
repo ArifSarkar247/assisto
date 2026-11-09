@@ -284,3 +284,33 @@ class SeedTests(SimpleTestCase):
         w = json.load(open(os.path.join(ROOT, "deploy", "transit", "seed", "dhaka_women_buses.json")))
         self.assertGreaterEqual(len(w["routes"]), 8)
         self.assertTrue(all(r["sources"] and r["source_url"].startswith("https://") for r in w["routes"]))
+
+
+class LicenceSeparationTests(SimpleTestCase):
+    """citycov (licence finding, CITY_MAP_LICENSE_BN.md): OSM route / stop
+    records (ODbL) keep source=osm and are never merged with our own
+    public-page records — they are only linked."""
+    def test_osm_and_public_routes_linked_not_merged(self):
+        b = BT.Builder("dhaka", tiny_osm(), {}, {})
+        idx = [b.stop("n%d" % k, nm, "", la, lo, "bus", "osm") for k, nm, la, lo in (
+            (1, "Alpha", 23.7500, 90.3900), (3, "Gamma", 23.7700, 90.3900), (5, "Delta", 23.7801, 90.3903))]
+        b.routes.append({"id": "osm77", "mode": "bus", "name": "Sample Paribahan", "name_bn": "", "ref": "",
+                         "op": "Sample Paribahan", "from": "", "to": "",
+                         "src": [{"s": "osm", "url": "https://www.openstreetmap.org/relation/77"}],
+                         "stops": idx, "km": [0, 2.2, 3.4], "_ck": BT.company_key("Sample Paribahan")})
+        pr = {"company": "Sample Paribahan", "company_bn": "", "stops": [("Alpha", ""), ("Gamma", ""), ("Delta", "")],
+              "source": "site-one", "source_url": "https://one.example/r", "fetched": "2026-11-09"}
+        b.gazetteer()
+        b.add_public(pr)
+        b.cross_match()
+        net = b.network("v", "")
+        osm = [r for r in net["routes"] if r["id"] == "osm77"][0]
+        pub = [r for r in net["routes"] if r["id"].startswith("pub-")][0]
+        self.assertEqual([s["s"] for s in osm["src"]], ["osm"])                 # nothing of ours merged in
+        self.assertNotIn("osm", [s["s"] for s in pub["src"]])                   # nothing of OSM merged in
+        self.assertIn(pub["id"], osm["same_as"])
+        self.assertIn("osm77", pub["same_as"])
+        self.assertEqual((pub["st"], osm["st"]), ("v", "r"))
+        cols = net["stops"]["cols"]
+        src = {r[0]: r[cols.index("src")] for r in net["stops"]["rows"]}
+        self.assertEqual(src["n1"], "osm")

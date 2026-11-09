@@ -1239,6 +1239,9 @@ def user_stops(city, nw):
         sid = d.get("stop") or user_stop_id(lat, lon)
         if sid.startswith("u-"):
             add(sid, lat, lon, "field", len(l.anons or []))
+            for x in stops:
+                if x["id"] == sid and d.get("near"):
+                    x["near"] = d["near"]        # linked to the OSM stop, not merged
         rid = d.get("route") or ""
         rids = [x for x in (rid, _sibling(rid, ids)) if x] if rid else _attach(nw, lat, lon)
         for x in rids:
@@ -1284,6 +1287,12 @@ def field_stop(user, lat, lon, route_id="", report_id=None):
                 return None, "route"
             near = nw.near(lat, lon, FIELD_NEAR_M)
             existing = nw.stops[near[0][0]]["id"] if near else ""
+            link = ""
+            if existing and nw.stops[near[0][0]].get("src") == "osm" and route_id and \
+                    nw.by_id[existing] not in nw.routes[_route_ids(nw)[route_id]]["stops"]:
+                # licence rule: never attach riders' facts to an OSM (ODbL)
+                # record — our own stop at the riders' own GPS, linked to it
+                link, existing = existing, ""
             if existing:
                 if not route_id:
                     return None, "known"
@@ -1297,7 +1306,7 @@ def field_stop(user, lat, lon, route_id="", report_id=None):
             obj, _ = CityLearned.objects.select_for_update().get_or_create(
                 city=city, kind="field", key=key[:120],
                 defaults={"data": {"lat": lat, "lon": lon, "route": route_id, "stop": existing,
-                                   "n": 0}})
+                                   "near": link, "n": 0}})
         if obj.status == "rejected":
             return obj, "rejected"
         an = list(obj.anons or [])
@@ -1431,7 +1440,7 @@ def _materialize(nw, raw):
     edits, users' stops inserted into their routes, learned routes), so the
     phone plans offline with the same data as the server."""
     net = dict(raw)
-    cols = ["id", "name", "name_bn", "lat", "lon", "kind", "st", "code"]
+    cols = ["id", "name", "name_bn", "lat", "lon", "kind", "st", "code", "src"]
     net["stops"] = {"cols": cols, "rows": [[s.get(c, "") for c in cols] for s in nw.stops]}
     keep = ("id", "mode", "name", "name_bn", "ref", "op", "st", "stops", "km", "hw", "spd", "dwell",
             "src", "from", "to", "women_only", "hours", "note", "counters")
