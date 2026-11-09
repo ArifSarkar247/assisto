@@ -44891,5 +44891,111 @@
   },
   "@vaWkDisc4": {
     "description": "wakeword"
-  }
+  },
+  "fcbSettingsTitle": "Family privacy & alerts",
+  "fcbSettingsIntro": "You decide what your family sees about you. Everything here is on your own phone and you can change it any time.",
+  "fcbArriveHead": "Arrival news",
+  "fcbArriveSwitch": "Tell my family when I arrive",
+  "fcbArriveHow": "Off. When on, your family gets \"Reached Home 8:05\" by itself when you reach Home, School or Office. Never your route.",
+  "fcbArriveRunning": "On. A small notification shows while it works.",
+  "fcbArriveNotRunning": "On, but not running now. Open Assisto once, allow location, and save Home or School.",
+  "fcbLeaveNews": "Also tell them when I leave",
+  "fcbDiscloseTitle": "Use your location for arrival news?",
+  "fcbDiscloseBody": "Assisto checks this phone's location only while this switch is on, to see when you reach a place you saved (Home, School, Office). Your family gets only \"arrived\" or \"left\" with the time, never your route or a map. When your battery is at 15%, your last location is shared once. Turn it off here any time.",
+  "fcbDiscloseYes": "Yes, turn on",
+  "fcbNotNow": "Not now",
+  "fcbWatchNotifTitle": "Family arrival news is on",
+  "fcbWatchNotifBody": "Your family is told when you reach a saved place.",
+  "fcbNeedLocation": "Allow location for Assisto to use arrival news.",
+  "fcbNeedPlaces": "Saved. Add Home or School in Safe Journey places to start.",
+  "fcbPauseHead": "Pause sharing",
+  "fcbPauseHint": "Your family will see \"Paused\", never a wrong place. SOS still works.",
+  "fcbPauseHours": "{hours} h",
+  "@fcbPauseHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "fcbPausedUntil": "Paused until {time}. SOS still works.",
+  "@fcbPausedUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcbResume": "Share again now",
+  "fcbNightTitle": "Night news",
+  "fcbNightSwitch": "Send me tonight's family news",
+  "fcbNightHow": "One short card each night, free. Written only from family status, never from your messages.",
+  "fcbNightTime": "Time",
+  "fcbNightVoice": "Read it aloud too",
+  "fcbNightAboutMe": "What about me goes into the family's night news:",
+  "fcbItemPlace": "Where I am",
+  "fcbItemArrivals": "When I arrived or left",
+  "fcbItemBattery": "My phone battery",
+  "fcbItemCarecall": "My Care Calls",
+  "fcbItemTasks": "Family tasks I took",
+  "fcbNightOff": "Off. Turn it on to get one short card each night.",
+  "fcbNightOffline": "Could not load. Check the internet.",
+  "fcbNightPreview": "Tonight's card comes at {time}. So far:",
+  "@fcbNightPreview": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcbListen": "Listen",
+  "fcbChange": "Change",
+  "fcbWhoHead": "Who can see me",
+  "fcbWhoNobody": "Nobody yet. Only family members you accept can see you.",
+  "fcbWhoCount": "{count} family members can see your status:",
+  "@fcbWhoCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "fcbWhoAdminNever": "Assisto staff and admins never see your location.",
+  "fcbBudgetHead": "Fewer notifications",
+  "fcbBudgetBody": "Assisto sends at most {limit} non-safety notifications a day. Today: {used}. Safety alerts always come through.",
+  "@fcbBudgetBody": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "fcbBatteryHead": "Battery use",
+  "fcbBatteryNone": "Arrival news is off, so Assisto takes no location in the background.",
+  "fcbBatteryToday": "Today on this phone: {gps} precise fixes, {net} network fixes, {pings} updates sent.",
+  "@fcbBatteryToday": {
+    "placeholders": {
+      "gps": {
+        "type": "String"
+      },
+      "net": {
+        "type": "String"
+      },
+      "pings": {
+        "type": "String"
+      }
+    }
+  },
+  "fcbBatteryHow": "The real percent is in your phone's Settings > Battery > Assisto. Our target is under 3% a day.",
+  "fcbLeaveTitle": "Leave this family",
+  "fcbLeaveHint": "You can leave any time. They will stop seeing you at once.",
+  "fcbLeaveBody": "Leave this family? Its members will stop seeing your status, place and news right away. You can be invited again later.",
+  "fcbLeaveYes": "Leave",
+  "fcbSaveFailed": "Could not save. Check the internet and try again.",
+  "fcbLoadFailed": "Could not load your family settings.",
+  "fcbRetry": "Try again",
+  "fcbArriveForeground": "On while Assisto is open: your family hears when you arrive. When Assisto is closed, they see \"No news\" instead of a guess."
 }
