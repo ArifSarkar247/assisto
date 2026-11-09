@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import 'elder_common.dart';
@@ -62,28 +63,30 @@ class _AreYouOkScreenState extends State<AreYouOkScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     return Scaffold(
-      backgroundColor: scheme.surface,
+      backgroundColor: ds.bg,
       body: SafeArea(
         child: ListView(
           padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xxl)),
           children: [
             const SizedBox(height: Gap.xl),
-            Icon(_done ? Icons.favorite_rounded : Icons.help_outline_rounded,
-                size: 72, color: _done ? ElderColors.ok : scheme.primary),
+            Center(child: DsIllustration(
+                icon: _done ? Icons.favorite_rounded : Icons.help_outline_rounded,
+                size: 120,
+                color: _done ? ElderColors.ok : ds.primary)),
             const SizedBox(height: Gap.md),
             Semantics(
               header: true,
               child: Text(_done ? t.fceImOkDone : t.fceAskTitle,
                   key: const Key('fce-ask-title'),
                   textAlign: TextAlign.center,
-                  style: AType.displaySmall.copyWith(fontWeight: FontWeight.w800, color: scheme.onSurface)),
+                  style: AType.displaySmall.copyWith(fontWeight: FontWeight.w800, color: ds.text)),
             ),
             if (!_done) ...[
               const SizedBox(height: Gap.sm),
               Text(t.fceAskWhy,
-                  textAlign: TextAlign.center, style: AType.titleLarge.copyWith(color: scheme.onSurface)),
+                  textAlign: TextAlign.center, style: AType.titleLarge.copyWith(color: ds.muted)),
               const SizedBox(height: Gap.xl),
               ElderBigButton(
                 key: const Key('fce-ask-ok'),
@@ -106,14 +109,12 @@ class _AreYouOkScreenState extends State<AreYouOkScreen> {
                 },
               ),
               const SizedBox(height: Gap.lg),
-              SizedBox(
-                height: 56,
-                child: TextButton.icon(
-                  key: const Key('fce-ask-listen'),
-                  onPressed: _speak,
-                  icon: const Icon(Icons.volume_up_rounded, size: 28),
-                  label: Text(t.fceListenAgain, style: AType.titleLarge),
-                ),
+              DsButton.secondary(
+                key: const Key('fce-ask-listen'),
+                expand: true,
+                onPressed: () => unawaited(_speak()),
+                icon: Icons.volume_up_rounded,
+                label: t.fceListenAgain,
               ),
             ],
           ],

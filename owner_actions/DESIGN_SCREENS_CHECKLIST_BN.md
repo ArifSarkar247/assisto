@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ১৮ / মোট ৪২০**
+**স্ক্রিন শেষ: ২০ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -29,10 +29,10 @@
 
 ## ৩. পরিবার (Family)
 
-- ⬜ — `eldercare/are_you_ok_screen.dart`
+- ✅ batch 4 (নরম আঁকা আইকন, বড় সবুজ/লাল বোতামে আভা) — `eldercare/are_you_ok_screen.dart`
 - ⬜ — `eldercare/elder_join_screen.dart`
 - ⬜ — `eldercare/elder_setup_screen.dart`
-- ⬜ — `eldercare/elder_watch_screen.dart`
+- ✅ batch 4 (সতর্কতা = লাল কার্ড, শান্ত কার্ডে সবুজ পালস ডট) — `eldercare/elder_watch_screen.dart`
 - ⬜ — `family_sos/sos_alarm_screen.dart`
 - ⬜ — `family_sos/sos_sender_screen.dart`
 - ⬜ — `family_v3/brain/fc_brain_settings_screen.dart`

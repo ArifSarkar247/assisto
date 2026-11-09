@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart' show ApiException;
 import '../l10n/app_localizations.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import 'elder_common.dart';
@@ -92,29 +93,37 @@ class _ElderWatchScreenState extends State<ElderWatchScreen> {
           padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
           children: [
             if (_s == null && _error == null)
-              const Padding(padding: EdgeInsets.all(Gap.xl), child: Center(child: CircularProgressIndicator())),
+              DsSkeleton.card(lines: 3),
             if (_error != null)
-              Text(_error!, style: AType.titleMedium.copyWith(color: Theme.of(context).colorScheme.error)),
+              Text(_error!, style: AType.titleMedium.copyWith(color: DsTokens.of(context).dangerInk)),
             if (_s != null && watching.isEmpty) _empty(t),
-            for (final w in watching) _card(t, Map<String, dynamic>.from(w)),
+            for (final w in watching)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.md),
+                child: _card(t, Map<String, dynamic>.from(w)),
+              ),
             if (_s != null) ...[
-              const SizedBox(height: Gap.lg),
-              ListTile(
-                key: const Key('fce-watch-setup'),
-                leading: const Icon(Icons.qr_code_2_rounded),
-                title: Text(t.fceMoreSetupParent),
-                subtitle: Text(t.fceSetupBenefit),
-                onTap: () => Navigator.of(context)
-                    .push(MaterialPageRoute<void>(builder: (_) => const ElderSetupScreen()))
-                    .then((_) => _load()),
-              ),
-              ListTile(
-                key: const Key('fce-watch-join'),
-                leading: const Icon(Icons.phone_android_rounded),
-                title: Text(t.fceMoreSetupMine),
-                onTap: () => Navigator.of(context)
-                    .push(MaterialPageRoute<void>(builder: (_) => const ElderJoinScreen())),
-              ),
+              const SizedBox(height: Gap.sm),
+              DsGroup(margin: EdgeInsets.zero, children: [
+                DsListRow(
+                  key: const Key('fce-watch-setup'),
+                  leading: DsAvatar(child: Icon(Icons.qr_code_2_rounded, color: DsTokens.of(context).primaryInk)),
+                  title: t.fceMoreSetupParent,
+                  subtitle: t.fceSetupBenefit,
+                  trailing: Icon(Icons.chevron_right_rounded, color: DsTokens.of(context).muted),
+                  onTap: () => Navigator.of(context)
+                      .push(MaterialPageRoute<void>(builder: (_) => const ElderSetupScreen()))
+                      .then((_) => _load()),
+                ),
+                DsListRow(
+                  key: const Key('fce-watch-join'),
+                  leading: DsAvatar(child: Icon(Icons.phone_android_rounded, color: DsTokens.of(context).primaryInk)),
+                  title: t.fceMoreSetupMine,
+                  trailing: Icon(Icons.chevron_right_rounded, color: DsTokens.of(context).muted),
+                  onTap: () => Navigator.of(context)
+                      .push(MaterialPageRoute<void>(builder: (_) => const ElderJoinScreen())),
+                ),
+              ]),
             ],
           ],
         ),
@@ -123,41 +132,25 @@ class _ElderWatchScreenState extends State<ElderWatchScreen> {
   }
 
   Widget _empty(AppLocalizations t) {
-    final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Icon(Icons.shield_moon_rounded, size: 48, color: scheme.primary),
-          const SizedBox(height: Gap.sm),
-          Text(t.fceWatchEmptyTitle, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: Gap.xs),
-          Text(t.fceWatchEmptyBody, style: AType.bodyLarge),
-          const SizedBox(height: Gap.md),
-          SizedBox(
-            height: 52,
-            child: FilledButton.icon(
-              key: const Key('fce-watch-empty-cta'),
-              onPressed: () => Navigator.of(context)
-                  .push(MaterialPageRoute<void>(builder: (_) => const ElderSetupScreen()))
-                  .then((_) => _load()),
-              icon: const Icon(Icons.qr_code_2_rounded),
-              label: Text(t.fceMoreSetupParent),
-            ),
-          ),
-        ]),
-      ),
+    return DsEmptyState(
+      icon: Icons.shield_moon_rounded,
+      title: t.fceWatchEmptyTitle,
+      benefit: t.fceWatchEmptyBody,
+      actionLabel: t.fceMoreSetupParent,
+      actionKey: const Key('fce-watch-empty-cta'),
+      onAction: () => Navigator.of(context)
+          .push(MaterialPageRoute<void>(builder: (_) => const ElderSetupScreen()))
+          .then((_) => _load()),
     );
   }
 
   Widget _card(AppLocalizations t, Map<String, dynamic> w) {
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final name = '${w['elder_name'] ?? ''}';
     final id = (w['elder_id'] as num?)?.toInt() ?? 0;
     final a = (w['alert'] as Map?)?.cast<String, dynamic>();
     final st = '${a?['status'] ?? ''}';
     final live = st == 'open' || st == 'asking' || st == 'checking';
-    final amber = Brand.warnInk(context);
     String line;
     switch (st) {
       case 'open':
@@ -172,57 +165,54 @@ class _ElderWatchScreenState extends State<ElderWatchScreen> {
         line = t.fceWatchNoAlert;
     }
     final phone = _phoneOf(id);
-    return Card(
+    // designv2: an open alert is the red card with the "I'm checking" action
+    // first; otherwise a calm card with a pulsing green dot.
+    return DsCard(
       key: Key('fce-watch-card-$id'),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: live ? amber : scheme.outlineVariant, width: live ? 2 : 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      tone: live ? DsTone.danger : DsTone.normal,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            Icon(live ? Icons.warning_amber_rounded : Icons.shield_moon_rounded,
-                color: live ? amber : scheme.primary, size: 32),
+            if (live)
+              Icon(Icons.warning_amber_rounded, color: ds.dangerInk, size: 32)
+            else
+              DsAvatar(name: name, size: 44),
             const SizedBox(width: Gap.md),
-            Expanded(child: Text(name, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700))),
+            Expanded(child: Text(name,
+                style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700, color: ds.text))),
+            if (!live) DsStatusDot(color: ds.success),
           ]),
           const SizedBox(height: Gap.sm),
-          Text(line, style: AType.titleMedium.copyWith(color: live ? amber : scheme.onSurface)),
+          Text(line, style: AType.titleMedium.copyWith(color: live ? ds.dangerInk : ds.text)),
           if (!live)
-            Text(t.fceWatchNoAlertWhy, style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+            Text(t.fceWatchNoAlertWhy, style: AType.bodyMedium.copyWith(color: ds.muted)),
           const SizedBox(height: Gap.md),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            if (phone != null)
-              FilledButton.icon(
-                style: live ? Brand.successButton() : null,
-                onPressed: () => launchUrl(Uri(scheme: 'tel', path: phone)),
-                icon: const Icon(Icons.call_rounded),
-                label: Text(t.fceWatchCall),
-              ),
             if (st == 'open' || st == 'asking')
-              FilledButton.icon(
+              DsButton.danger(
                 key: Key('fce-watch-ack-$id'),
-                style: Brand.dangerButton(),
-                onPressed: _busy.contains(id)
-                    ? null
-                    : () => _act(id, () => ElderHooks.api(context)!.ack((a?['id'] as num).toInt()),
-                        t.fceWatchAckDone(name)),
-                icon: const Icon(Icons.directions_run_rounded),
-                label: Text(t.fceWatchIChecking),
+                busy: _busy.contains(id),
+                onPressed: () => _act(id, () => ElderHooks.api(context)!.ack((a?['id'] as num).toInt()),
+                    t.fceWatchAckDone(name)),
+                icon: Icons.directions_run_rounded,
+                label: t.fceWatchIChecking,
+              ),
+            if (phone != null)
+              DsButton(
+                kind: live ? DsButtonKind.secondary : DsButtonKind.primary,
+                onPressed: () => launchUrl(Uri(scheme: 'tel', path: phone)),
+                icon: Icons.call_rounded,
+                label: t.fceWatchCall,
               ),
             if (w['i_set_it_up'] == true && !live)
-              OutlinedButton.icon(
+              DsButton.secondary(
                 key: Key('fce-watch-test-$id'),
-                onPressed: _busy.contains(id)
-                    ? null
-                    : () => _act(id, () => ElderHooks.api(context)!.test(id), t.fceWatchTestSent(name)),
-                icon: const Icon(Icons.science_outlined),
-                label: Text(t.fceWatchTest),
+                busy: _busy.contains(id),
+                onPressed: () => _act(id, () => ElderHooks.api(context)!.test(id), t.fceWatchTestSent(name)),
+                icon: Icons.science_outlined,
+                label: t.fceWatchTest,
               ),
           ]),
-        ]),
-      ),
+      ]),
     );
   }
 }

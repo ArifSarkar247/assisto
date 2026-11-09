@@ -19,10 +19,12 @@ class DsEmptyState extends StatelessWidget {
     this.onAction,
     this.howTo = const [],
     this.danger = false,
+    this.actionKey,
   });
 
   final IconData icon;
   final String title;
+  final Key? actionKey;
   final String? benefit;
   final String? actionLabel;
   final VoidCallback? onAction;
@@ -51,6 +53,7 @@ class DsEmptyState extends StatelessWidget {
         if (actionLabel != null) ...[
           const SizedBox(height: Gap.lg),
           DsButton(
+            key: actionKey,
             label: actionLabel!,
             onPressed: onAction,
             kind: danger ? DsButtonKind.danger : DsButtonKind.primary,

@@ -164,42 +164,51 @@ class ElderBigButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // designv2: card radius, a soft glow in the button's own colour (none in
+    // lite mode), white ink on the fill; big type from the theme scale.
+    final lite = DsPerf.liteOf(context);
+    final tx = Theme.of(context).textTheme;
+    final radius = BorderRadius.circular(DsRadius.card + 4);
     return Semantics(
       button: true,
       label: sublabel == null ? label : '$label. $sublabel',
       excludeSemantics: true,
-      child: Material(
-        color: color,
-        borderRadius: BorderRadius.circular(22),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(22),
-          child: Container(
-            constraints: BoxConstraints(minHeight: minHeight),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.85), width: 2),
-            ),
-            child: Row(
-              children: [
-                Icon(icon, size: 48, color: Colors.white),
-                const SizedBox(width: Gap.lg),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(label,
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 28, fontWeight: FontWeight.w800, height: 1.2)),
-                      if (sublabel != null && sublabel!.isNotEmpty)
-                        Text(sublabel!,
-                            style: const TextStyle(color: Colors.white, fontSize: 19, height: 1.3)),
-                    ],
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          boxShadow: lite
+              ? null
+              : [BoxShadow(color: color.withValues(alpha: 0.32), blurRadius: 18, offset: const Offset(0, 6))],
+        ),
+        child: Material(
+          color: color,
+          borderRadius: radius,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: radius,
+            child: Container(
+              constraints: BoxConstraints(minHeight: minHeight),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              child: Row(
+                children: [
+                  Icon(icon, size: 48, color: Colors.white),
+                  const SizedBox(width: Gap.lg),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(label,
+                            style: tx.headlineMedium?.copyWith(
+                                color: Colors.white, fontSize: 28, fontWeight: FontWeight.w800, height: 1.2)),
+                        if (sublabel != null && sublabel!.isNotEmpty)
+                          Text(sublabel!,
+                              style: tx.titleMedium?.copyWith(color: Colors.white, fontSize: 19, height: 1.3)),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -208,7 +217,6 @@ class ElderBigButton extends StatelessWidget {
   }
 }
 
-/// Solid fills used by the elder screens (white text on each >= 5:1).
 class ElderColors {
   ElderColors._();
   static const ok = Brand.successFill; // 5.3:1
