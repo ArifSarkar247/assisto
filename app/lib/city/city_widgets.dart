@@ -2,12 +2,14 @@
 // checked date), status badge, the step list, an option summary, the CNG
 // "Show this if overcharged" card and the honest "no data" card.
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:url_launcher/url_launcher.dart' show LaunchMode;
 
 import '../l10n/app_localizations.dart';
 import '../services/action_feedback.dart' show openForUser;
 import '../theme.dart';
 import '../widgets/app_sheet.dart' show showAppSheet;
+import '../widgets/bn_day_periods.dart' show appDateLocale;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'city_models.dart';
 
@@ -16,15 +18,16 @@ bool cityBn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
 /// ASCII digits -> Bangla digits when the app is Bangla (owner rule).
 String cityD(BuildContext c, String s) => notifLocalizeDigits(c, s);
 
-const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const _monthsBn = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে'];
 
-/// "2026-11-09" -> "9 Nov 2026" / "৯ নভে ২০২৬". Unknown -> as given.
+/// "2026-11-09" -> "Nov 9, 2026" (Bangla months + digits in Bangla).
 String cityDate(BuildContext c, String iso) {
   final d = DateTime.tryParse(iso);
   if (d == null) return cityD(c, iso);
-  final m = (cityBn(c) ? _monthsBn : _months)[d.month - 1];
-  return cityD(c, '${d.day} $m ${d.year}');
+  try {
+    return cityD(c, DateFormat.yMMMd(appDateLocale(c)).format(d));
+  } catch (_) {
+    return cityD(c, DateFormat.yMMMd().format(d));
+  }
 }
 
 /// "৳20" or "৳20–25".

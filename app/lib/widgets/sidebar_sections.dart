@@ -626,7 +626,7 @@ class SidebarSections {
       SidebarItem(Icons.directions_bus_rounded, (t) => t.cityTitle,
           feature: 'city_service',
           (_) => const CityServiceScreen(),
-          synonyms: ['city service', 'which bus', 'bus route', 'metro', 'fare', 'সিটি সার্ভিস']),
+          synonyms: ['city service', 'which bus', 'bus route', 'metro', 'fare']),
       // p4-world: Daily info and services (was "Unseen World", renamed
       // 27 Oct) — Today cards, web answers, jobs, hubs. Flag `daily_info`.
       SidebarItem(Icons.public_rounded, (t) => t.dailyInfoTitle,

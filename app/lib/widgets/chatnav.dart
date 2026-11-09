@@ -468,7 +468,7 @@ class ChatNav {
     'nearby': ['nearby', 'around me', 'places nearby'],
     // cityapp
     'city': ['city service', 'which bus', 'bus route', 'metro guide', 'metro gate',
-        'how to go', 'city bus', 'সিটি সার্ভিস', 'কোন বাস'],
+        'how to go', 'city bus'],
     'watch_feed': ['watch feed', 'alerts feed', 'watch alerts'],
     'business': ['business', 'shop', 'store', 'orders'],
     'bargain_rules': ['bargaining rules', 'bargain rules', 'bargaining',

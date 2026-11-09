@@ -50,7 +50,10 @@ const int kCityAlarmM = 400;
 typedef CityArmFn = Future<void> Function(int id, DestPlan plan, DestAlarmTexts texts);
 
 Future<void> startCityJourney(BuildContext context,
-    {required CityOption option, required PlacePick dest, @visibleForTesting CityArmFn? arm}) async {
+    {required CityOption option,
+    required PlacePick dest,
+    @visibleForTesting CityArmFn? arm,
+    @visibleForTesting Future<void> Function()? askLocation}) async {
   final api = context.read<AppState>().api;
   final t = AppLocalizations.of(context);
   List<Map<String, dynamic>> people = [];
@@ -67,10 +70,14 @@ Future<void> startCityJourney(BuildContext context,
   );
   if (res == null || !context.mounted) return;
   try {
-    final perm = await Geolocator.checkPermission();
-    if (perm == LocationPermission.denied && context.mounted &&
-        await showPermissionReason(context, PermKind.journey)) {
-      await Geolocator.requestPermission();
+    if (askLocation != null) {
+      await askLocation();
+    } else {
+      final perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied && context.mounted &&
+          await showPermissionReason(context, PermKind.journey)) {
+        await Geolocator.requestPermission();
+      }
     }
   } catch (_) {} // best-effort: the live screen says "location is off"
   if (!context.mounted) return;

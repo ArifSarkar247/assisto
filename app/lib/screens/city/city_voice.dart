@@ -1,5 +1,5 @@
-// cityapp B11: ask by voice ("From here to New Market which bus" /
-// "এখান থেকে নিউ মার্কেট কোন বাস") — the shared voice input (VoiceMicButton,
+// cityapp B11: ask by voice ("From here to New Market which bus", also in
+// Bangla) — the shared voice input (VoiceMicButton,
 // text goes into the box, never auto-sent), answered from OUR route data
 // first: the places are looked up in city/search (stops, stations), and a
 // bus name ("Bikolpo", "Raida") shows that route's stops.
@@ -25,14 +25,14 @@ typedef CityAsk = ({PlacePick? from, PlacePick to});
   if (s.isEmpty) return null;
   // drop the question tail
   final tail = RegExp(
-              r'\s*(which bus|what bus|by bus|how (do i|to) go|how to get( there)?|কোন বাসে?|কি ভাবে|কীভাবে|কিভাবে|কেমনে|যাব|যাবো|যাওয়া যায়|যাওয়ার উপায়|যেতে চাই)\s*$',
+              r'\s*(which bus|what bus|by bus|how (do i|to) go|how to get( there)?|\u0995\u09CB\u09A8 \u09AC\u09BE\u09B8\u09C7?|\u0995\u09BF \u09AD\u09BE\u09AC\u09C7|\u0995\u09C0\u09AD\u09BE\u09AC\u09C7|\u0995\u09BF\u09AD\u09BE\u09AC\u09C7|\u0995\u09C7\u09AE\u09A8\u09C7|\u09AF\u09BE\u09AC|\u09AF\u09BE\u09AC\u09CB|\u09AF\u09BE\u0993\u09AF\u09BC\u09BE \u09AF\u09BE\u09AF\u09BC|\u09AF\u09BE\u0993\u09AF\u09BC\u09BE\u09B0 \u0989\u09AA\u09BE\u09AF\u09BC|\u09AF\u09C7\u09A4\u09C7 \u099A\u09BE\u0987)\s*$',
       caseSensitive: false);
   for (var i = 0; i < 4; i++) {
     final n = s.replaceAll(tail, '').trim();
     if (n == s) break;
     s = n;
   }
-  bool isHere(String x) => RegExp(r'^(here|my location|current location|এখান|এখানে|এখান থেকে|আমার অবস্থান)$',
+  bool isHere(String x) => RegExp(r'^(here|my location|current location|\u098F\u0996\u09BE\u09A8|\u098F\u0996\u09BE\u09A8\u09C7|\u098F\u0996\u09BE\u09A8 \u09A5\u09C7\u0995\u09C7|\u0986\u09AE\u09BE\u09B0 \u0985\u09AC\u09B8\u09CD\u09A5\u09BE\u09A8)$',
           caseSensitive: false)
       .hasMatch(x.trim());
   final en = RegExp(r'^(?:go\s+)?from\s+(.+?)\s+to\s+(.+)$', caseSensitive: false).firstMatch(s);
@@ -42,7 +42,7 @@ typedef CityAsk = ({PlacePick? from, PlacePick to});
   }
   final en2 = RegExp(r'^(?:go\s+|going\s+)?to\s+(.+)$', caseSensitive: false).firstMatch(s);
   if (en2 != null) return (from: null, to: en2.group(1)!.trim());
-  final bn = RegExp(r'^(.+?)\s*(?:থেকে|হতে)\s+(.+?)(?:\s+পর্যন্ত)?$').firstMatch(s);
+  final bn = RegExp(r'^(.+?)\s*(?:\u09A5\u09C7\u0995\u09C7|\u09B9\u09A4\u09C7)\s+(.+?)(?:\s+\u09AA\u09B0\u09CD\u09AF\u09A8\u09CD\u09A4)?$').firstMatch(s);
   if (bn != null) {
     final f = bn.group(1)!.trim(), t = bn.group(2)!.trim();
     return (from: isHere(f) ? null : f, to: t);

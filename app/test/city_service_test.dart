@@ -34,7 +34,7 @@ import 'fake_city.dart';
 class _CityApi extends FakeApi {
   bool offline = false;
   final List<(String, Map<String, dynamic>)> posts = [];
-  _CityApi({super.lang, super.mode});
+  _CityApi({super.mode});
 
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
@@ -291,7 +291,10 @@ void main() {
                       child: FilledButton(
                           key: const ValueKey('go'),
                           onPressed: () => startCityJourney(c,
-                              option: o, dest: _motijheel, arm: (id, p, _) async => armed.add((id, p))),
+                              option: o,
+                              dest: _motijheel,
+                              askLocation: () async {},
+                              arm: (id, p, _) async => armed.add((id, p))),
                           child: const Text('go'))))),
           api);
       await tester.tap(find.byKey(const ValueKey('go')));
