@@ -278,7 +278,8 @@ class ConsentTests(Base):
         self.assertFalse(FB.prefs_of(FB.state_of(self.dad))["auto_arrive"])
 
     def test_guardian_may_switch_on_for_a_child_but_not_night_choices(self):
-        with mock.patch("core.guardian_links.is_guardian", return_value=True):
+        with mock.patch("core.guardian_links.is_guardian", return_value=True), \
+                mock.patch("core.family_brain._is_child", return_value=True):  # v3 role not seeded here
             r = cl(self.mom).post("%s/family/brain/prefs" % V,
                                   {"member_id": self.kid.pk, "auto_arrive": True}, format="json")
             self.assertEqual(r.status_code, 200, r.content)
