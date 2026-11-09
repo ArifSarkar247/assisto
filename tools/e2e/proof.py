@@ -31,7 +31,7 @@ BOARD = {
     "e2e7_khata_expense_confirm": [8, 1],
     "e2e8_care_call": [21],
 }
-ALLOW_SKIP = {"e2e8_care_call"}   # skips only while Care Call is not merged
+ALLOW_SKIP = set()   # Care Call is on main since build 314: a skip is NOT green
 
 
 def expected():
