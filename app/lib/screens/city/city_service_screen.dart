@@ -31,6 +31,7 @@ import 'city_metro_screen.dart';
 import 'city_reports_screen.dart';
 import 'city_voice.dart';
 import 'city_women_screen.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 const String kCitySimpleModeKey = 'city_simple_mode';
 
@@ -724,7 +725,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
             child: FilledButton(
               key: const ValueKey('city_paid_send'),
               style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-              onPressed: () => Navigator.pop(ctx, int.tryParse(_asciiDigits(c.text.trim()))),
+              onPressed: () => Navigator.pop(ctx, parseIntInput(_asciiDigits(c.text.trim()))),
               child: Text(t.citySend),
             ),
           ),
