@@ -227,7 +227,7 @@ class PartnerTests(_Base):
     def _invite(self):
         r = self.c["owner"].post("/api/v1/shop/sites/%d/installer" % self.site.id)
         self.assertEqual(r.status_code, 201, r.data)
-        self.assertTrue(r.data["qr"].endswith(r.data["code"]))
+        self.assertTrue(r.data["qr"].endswith(r.data["error"]))
         return r.data
 
     def test_full_flow_setup_status_only(self):
@@ -236,7 +236,7 @@ class PartnerTests(_Base):
         self.assertEqual((r.status_code, r.data["status"]), (201, "pending"))
         inv = self._invite()
         r = self.t.post("/api/v1/shop/partner/join", {"code": inv["code"]}, format="json")
-        self.assertEqual((r.status_code, r.data["code"]), (403, "not_approved"))
+        self.assertEqual((r.status_code, r.data["error"]), (403, "not_approved"))
         self._approve()
         r = self.t.post("/api/v1/shop/partner/join", {"code": inv["qr"]}, format="json")
         self.assertEqual(r.status_code, 201, r.data)
@@ -275,7 +275,7 @@ class PartnerTests(_Base):
         self.assertEqual(self.t.get("/api/v1/shop/partner/me").data["sites"], [])
         # an ended code can not be reused
         r = self.t.post("/api/v1/shop/partner/join", {"code": inv["code"]}, format="json")
-        self.assertEqual(r.data["code"], "bad_code")
+        self.assertEqual(r.data["error"], "bad_code")
 
     def test_code_rules(self):
         from core.models import CctvInstallerLink
@@ -286,13 +286,13 @@ class PartnerTests(_Base):
         CctvInstallerLink.objects.filter(pk=inv["id"]).update(
             expires_at=timezone.now() - timedelta(minutes=1))
         r = self.t.post("/api/v1/shop/partner/join", {"code": inv["code"]}, format="json")
-        self.assertEqual((r.status_code, r.data["code"]), (410, "expired"))
+        self.assertEqual((r.status_code, r.data["error"]), (410, "expired"))
         r = self.t.post("/api/v1/shop/partner/join", {"code": "nonsense"}, format="json")
-        self.assertEqual(r.data["code"], "bad_code")
+        self.assertEqual(r.data["error"], "bad_code")
         for _ in range(CPT.MAX_OPEN_INVITES):
             self._invite()
         r = self.c["owner"].post("/api/v1/shop/sites/%d/installer" % self.site.id)
-        self.assertEqual((r.status_code, r.data["code"]), (409, "too_many"))
+        self.assertEqual((r.status_code, r.data["error"]), (409, "too_many"))
         # only the site owner makes / ends invites
         self.assertEqual(self.c["manager"].post(
             "/api/v1/shop/sites/%d/installer" % self.site.id).status_code, 404)
@@ -307,7 +307,7 @@ class PartnerTests(_Base):
         inv = self._invite()
         r = self.c["owner"].post("/api/v1/shop/partner/join", {"code": inv["code"]},
                                  format="json")
-        self.assertEqual(r.data["code"], "own_site")
+        self.assertEqual(r.data["error"], "own_site")
 
 
 # ============================================================ K: privacy wall
