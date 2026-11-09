@@ -34,6 +34,8 @@ class Spy:
 
 class Base(TestCase):
     def setUp(self):
+        from django.core.cache import cache
+        cache.clear()  # anon throttle counts from other tests (429 flake in CI)
         self.arif = mk("01711100001", "Arif Hasan")             # son, sets it up
         self.ammu = mk("01711100002", "Rahima", lang="bn")      # elder
         self.bina = mk("01711100003", "Bina")                   # daughter
