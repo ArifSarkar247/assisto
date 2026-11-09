@@ -526,6 +526,111 @@ class CompanionTests(TestCase):
                     self.assertNotIn(marker, low, str(p))
 
 
+# ------------------------------------------- free-tier ads (owner 10 Nov B)
+def _verified_ticket(user, placement, n=1):
+    import secrets
+    from django.utils import timezone
+    from core.models import PhotoAdTicket
+    for _ in range(n):
+        PhotoAdTicket.objects.create(user=user, kind="rewarded", placement=placement,
+                                     nonce=secrets.token_urlsafe(24), status="verified",
+                                     transaction_id=secrets.token_hex(8), value_bdt=1.0,
+                                     source="ssv", verified_at=timezone.now())
+
+
+@override_settings(MEDIA_ROOT=_MEDIA)
+@mock.patch("core.lp_service.flag_on", return_value=True)
+class AdUnlockTests(TestCase):
+    """Rewarded ads (Google-verified only) unlock an extra section / a Normal
+    score for free users; the unlock keeps >= 40 % worst-case profit."""
+
+    def setUp(self):
+        LS.import_bundle(_bundle([sample_mock()]))
+        self.u = _user(7)
+        self.c = _client(self.u)
+
+    def test_profit_with_ad_income(self, _f):
+        for val in (0.03, 0.25, 0.8, 1.5, 4.0):          # eCPM floor .. generous owner value
+            with mock.patch.object(LS, "ad_value_bdt", return_value=val):
+                n = LS.ads_needed("score")
+                cost = LS.score_cost_bdt()
+                if n is None:
+                    continue                                 # ads cannot pay: not offered
+                income = n * val
+                profit = income * (1 - PB.OVERHEAD_PCT) - cost
+                self.assertGreaterEqual(profit, PB.PROFIT_PCT * income - 1e-9, (val, n, cost))
+        with mock.patch.object(LS, "ad_value_bdt", return_value=0.03):
+            self.assertIsNone(LS.ads_needed("score"))       # 25+ ads: never offered
+        self.assertEqual(LS.ads_needed("section"), 1)
+        self.assertLessEqual(LS.AD_COST_SHARE, 1 - PB.OVERHEAD_PCT - PB.PROFIT_PCT + 1e-9)
+
+    def test_verified_ad_unlocks_extra_section(self, _f):
+        self.c.get(V + "/lp/mocks/ielts-ac-t01?section=reading")
+        r = self.c.get(V + "/lp/mocks/ielts-ac-t01?section=listening")
+        self.assertEqual(r.status_code, 402)
+        _verified_ticket(self.u, "lp_sec")
+        self.assertEqual(self.c.get(V + "/lp/mocks/ielts-ac-t01?section=listening").status_code, 200)
+        _verified_ticket(_user(8), "lp_sec")                 # someone else's ad unlocks nothing
+        self.assertEqual(self.c.get(V + "/lp/mocks/ielts-ac-t01?section=writing").status_code, 402)
+
+    def test_ad_unlocked_score_is_free_once(self, _f):
+        with mock.patch.object(LS, "ad_value_bdt", return_value=1.0):
+            n = LS.ads_needed("score")
+            _verified_ticket(self.u, "lp_score", n)
+            with mock.patch.object(ai, "available", return_value=True), \
+                    mock.patch.object(ai, "generate", return_value=(_W2, 0.0)) as g:
+                body = {"task": 2, "prompt": "Should cities ban cars?", "text": _ESSAY, "level": "best"}
+                r = self.c.post(V + "/lp/score/writing", body, format="json").json()
+                self.assertEqual((r["ai_state"], r["credits_used"], r["level"]), ("used", 0, "normal"))
+                r = self.c.post(V + "/lp/score/writing", body, format="json").json()
+                self.assertEqual(r["ai_state"], "premium")
+            self.assertEqual(g.call_count, 1)
+        self.assertTrue(LpAttempt.objects.get(kind="writing").data["ad_unlock"])
+
+    def test_pay_credits_for_extra_section(self, _f):
+        self.c.get(V + "/lp/mocks/ielts-ac-t01?section=reading")
+        r = self.c.get(V + "/lp/mocks/ielts-ac-t01?section=listening&pay=credits")
+        self.assertEqual((r.status_code, r.json()["reason"], r.json()["unlock_credits"]),
+                         (402, "credits", 1))
+        billing.credit(self.u, "rewarded", 1, note="ad credits")
+        r = self.c.get(V + "/lp/mocks/ielts-ac-t01?section=listening&pay=credits")
+        self.assertEqual(r.status_code, 200)
+        r = self.c.get(V + "/lp/mocks/ielts-ac-t01?section=listening")       # re-open: free
+        self.assertEqual(r.status_code, 200)
+        r = self.c.post(V + "/lp/mocks/ielts-ac-t01/mark", {"section": "listening", "answers": {}},
+                        format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(LpAttempt.objects.filter(user=self.u, kind="open_paid").count(), 1)
+
+    def test_free_day_economics_reported(self, _f):
+        """Free Life English AI turns vs. conservative ad income. At the eCPM
+        floor ads do NOT cover the 3 free role-play turns (reported to the
+        owner); the paid unlocks above always keep >= 40 %."""
+        floor = LS.free_day_economics(ad_value=0.03)
+        self.assertGreater(floor["cost_bdt"], 0)
+        self.assertLess(floor["profit_pct"], PB.PROFIT_PCT)                # honest: loss leader
+        rich = LS.free_day_economics(ad_value=5.0, interstitial_value=5.0)
+        self.assertGreaterEqual(rich["profit_pct"], PB.PROFIT_PCT)
+        profit = (LS.SECTION_UNLOCK_CREDITS * PB.MIN_BDT_PER_CREDIT
+                  * (PB.NET_PCT - PB.OVERHEAD_PCT))
+        self.assertGreaterEqual(profit / (LS.SECTION_UNLOCK_CREDITS * PB.MIN_BDT_PER_CREDIT),
+                                PB.PROFIT_PCT)
+
+    def test_ticket_rules_and_no_ads_for_premium(self, _f):
+        r = self.c.post(V + "/lp/ads/ticket", {"unlock": "section"}, format="json")
+        self.assertEqual((r.status_code, r.json()["reason"]), (409, "ads_not_live"))   # CI: no AdMob
+        self.assertEqual(self.c.post(V + "/lp/ads/ticket", {"unlock": "x"},
+                                     format="json").status_code, 400)
+        g = self.c.get(V + "/lp/gates").json()["ads"]
+        self.assertTrue(g["show"])
+        self.assertIn("certificate", g["never_in"])
+        self.assertIn("timed_mock", g["never_in"])
+        with mock.patch.object(LS, "is_premium", return_value=True):
+            self.assertEqual(self.c.get(V + "/lp/gates").json()["ads"], {"show": False})
+            r = self.c.post(V + "/lp/ads/ticket", {"unlock": "section"}, format="json")
+            self.assertEqual(r.json()["reason"], "premium_no_ads")
+
+
 # ------------------------------------------------- stage 2 tracks (§10.6)
 def _tq(n, answer="B", listening=False):
     q = {"n": n, "prompt": "Sample %d" % n, "options": ["ka", "ki", "ku", "ke"], "answer": answer,
@@ -592,6 +697,24 @@ class Stage2TrackTests(TestCase):
                                                           "answers": {"1": "B", "2": "A"}},
                         format="json").json()
         self.assertEqual((r["raw"], r["score"], r["max"], r["band"]), (1, 4, 8, None))
+
+    def test_stage3_tracks_six_letters(self, _f):
+        t = sample_track_items()[0]
+        t["key"], t["track"], t["level"] = "hsk1-901", "hsk1", "HSK1"
+        t["data"]["title_en"] = "HSK1 practice 901"
+        q = t["data"]["sections"][0]["parts"][0]["questions"][0]
+        q.update({"options": ["A1", "B1", "C1", "D1", "E1", "F1"], "answer": "F",
+                  "prompt_roman": "nǐ hǎo", "options_roman": ["", "", "", "", "", ""]})
+        LS.import_bundle(_bundle([t], audio=False))
+        it = LpItem.objects.get(key="hsk1-901")
+        self.assertEqual(it.status, "ai_checked", it.checks)
+        body = self.c.get(V + "/lp/mocks/hsk1-901?section=vocab").json()
+        self.assertEqual(body["sections"][0]["parts"][0]["questions"][0]["prompt_roman"], "nǐ hǎo")
+        self.assertNotIn('"answer"', json.dumps(body))
+        r = self.c.post(V + "/lp/mocks/hsk1-901/mark", {"section": "vocab", "answers": {"1": "F"}},
+                        format="json").json()
+        self.assertEqual(r["raw"], 1)
+        self.assertEqual(LS.TRACKS["ar_work"], "ar_work")
 
     def test_lessons_by_track_and_syllabus(self, _f):
         items = self.c.get(V + "/lp/content/lesson?track=jft_basic").json()["items"]

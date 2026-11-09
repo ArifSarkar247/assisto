@@ -98,10 +98,25 @@ level (reading passage length by level), timing (L 30 min, R 60, W 60, S 11-14 m
 (banned markers + known-text fingerprints), duplicates (same normalized text as another item).
 
 ## 7. Stage 2 tracks (lpstage2, tools/lp/FORMAT.md §10.6)
-- Import accepts kinds `syllabus` and `lesson` and tracks `jlpt_n5`, `jft_basic`, `eps_topik`, `de_a1`.
+- Import accepts kinds `syllabus` and `lesson` and tracks `jlpt_n5`, `jft_basic`, `eps_topik`, `de_a1`,
+  plus stage 3 (§11) `hsk1`, `fr_a1`, `ar_work`. Answer letters A–F (3-6 options); display-only keys
+  (`prompt_roman`, `options_roman`, `tones`, `bn_pron`, `register`, `min_words`/`max_words`/`max_chars`) pass through.
 - A track test is a `mock` whose `sections` is a LIST (kept inline). `GET /lp/mocks?kind=jlpt_n5` lists them;
   `GET /lp/mocks/<id>?section=<section id>` returns `{id, kind, exam, lang, scoring, sections:[...]}` with
   `answer`, `explain_*`, `script` and `skill` removed. `POST /lp/mocks/<id>/mark {section, answers}` compares
   letters -> `{raw, total, score, max, band:null, items}` (score = raw x scoring.per_question).
 - `GET /lp/content/syllabus?track=X` and `GET /lp/content/lesson?track=X` (a lesson matches any of its `tracks`).
+
+## 8. Free-tier ads (owner 10 Nov 00:35, PART B)
+- `GET /lp/gates` -> `ads: {show, rewarded:{section:1, score:N|null}, interstitial:"natural_breaks",
+  banner:["home","lists"], never_in:[timed_mock, listening_audio, speaking, certificate, exam_result_pdf],
+  score_unlocks_left}`; Premium -> `{show:false}`.
+- `POST /lp/ads/ticket {unlock:"section"|"score"}` -> `{nonce, custom_data, user_id, rewarded_unit, ads_needed}`
+  (pass custom_data + user_id to AdMob SSV). ONLY Google's signed SSV callback verifies the ad. 1 verified ad
+  = 1 extra mock section (rolling 7 days); N verified ads = 1 Normal AI score with 0 credits (N keeps >= 40 %
+  profit on the conservative ad value; `score:null` = ads cannot pay for it, so no offer). Errors: `ads_not_live`,
+  `premium_no_ads`, `not_offered`, `daily_cap`.
+- A free `/lp/score/*` without an unlock answers `ai_state:"premium"` + `ads_needed`.
+- lpapp credits path: the 402 `week_used` answer carries `unlock_credits` (1). `GET /lp/mocks/<id>?section=X&pay=credits`
+  charges it and opens the section (402 `credits` when the balance is short). Re-opening it this week is free.
 

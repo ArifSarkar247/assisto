@@ -93,9 +93,13 @@ def _opens(user, now=None):
 
 
 def free_left(user, now=None):
+    """Free sections left in the rolling 7 days: 1 + one per Google-verified
+    rewarded ad (lp_sec) - sections already opened."""
     if is_premium(user):
         return None
-    return max(0, FREE_SECTIONS_PER_WEEK - _opens(user, now).count())
+    since = (now or timezone.now()) - WEEK
+    extra = _verified_ads(user, "section", since)
+    return max(0, FREE_SECTIONS_PER_WEEK + extra - _opens(user, now).count())
 
 
 def next_free_at(user, now=None):
@@ -108,7 +112,8 @@ def use_section_slot(user, mock_key, section, now=None):
     if is_premium(user):
         return True, ""
     from .models import LpAttempt
-    if _opens(user, now).filter(item_key=mock_key, section=section).exists():
+    if _opens(user, now).filter(item_key=mock_key, section=section).exists() or \
+            _paid_opens(user, now).filter(item_key=mock_key, section=section).exists():
         return True, ""
     if free_left(user, now) <= 0:
         return False, "week_used"
@@ -116,12 +121,167 @@ def use_section_slot(user, mock_key, section, now=None):
     return True, ""
 
 
+def _paid_opens(user, now=None):
+    from .models import LpAttempt
+    return LpAttempt.objects.filter(user=user, kind="open_paid",
+                                    created_at__gte=(now or timezone.now()) - WEEK)
+
+
+# A section opened with credits (lpapp: the rewarded ad earns them through the
+# existing RewardedAdSheet + SSV credits flow). Serving a section has no AI
+# cost, so one credit (৳2.80 floor) keeps far above the 40 % rule.
+SECTION_UNLOCK_CREDITS = 1
+
+
+def pay_section(user, mock_key, section):
+    """(ok, reason): open one extra section for SECTION_UNLOCK_CREDITS credits."""
+    from . import billing
+    from .models import LpAttempt
+    res = billing.charge(user, "lp_section", qty=1, note="lp.section", exact=SECTION_UNLOCK_CREDITS)
+    if not res.get("ok"):
+        return False, "credits"
+    LpAttempt.objects.create(user=user, kind="open_paid", item_key=mock_key, section=section,
+                             credits=int(res.get("charged") or 0))
+    return True, ""
+
+
+def free_day_economics(ad_value=None, banners_per_day=20, interstitials_per_day=1,
+                       interstitial_value=None):
+    """Owner Part B (10 Nov): one free learner's worst AI day vs. CONSERVATIVE ad
+    income (eCPM floor for banners; an interstitial counted at the rewarded value).
+    Returns {cost_bdt, income_bdt, profit_pct} — reported, see the test."""
+    from . import ai_config as C
+    from .logic import langpacks as LP
+    from .logic import plan_book as PB
+    try:
+        from . import billing
+        floor = float(billing.cfg()["ad_rewards"]["ecpm_bdt"]) / 1000.0
+    except Exception:  # noqa: BLE001
+        floor = 0.03
+    val = ad_value_bdt() if ad_value is None else ad_value
+    inter = val if interstitial_value is None else interstitial_value
+    prices = C.DEFAULT_PRICES
+    # free Life English role-play turns (cheap class: the dearest reachable model)
+    turn = max(SC.worst_cost_usd([m], 5000, 400 + 1024, prices)
+               for m in ("claude-haiku-5-5", "gemini-3.5-flash-lite", "gpt-4o-mini"))
+    cost = LP.FREE_AI_PER_DAY * turn * PB.SAFETY_USD_BDT
+    income = banners_per_day * floor + interstitials_per_day * inter
+    profit = income * (1 - PB.OVERHEAD_PCT) - cost
+    return {"cost_bdt": round(cost, 4), "income_bdt": round(income, 4),
+            "profit_pct": round(profit / income, 4) if income else None}
+
+
 def gates(user):
     p = is_premium(user)
     return {"premium": p, "free_sections_left_week": free_left(user),
             "next_free_at": None if p else next_free_at(user),
             "full_mocks": p, "ai_scoring": p, "tracks": p, "all_levels": p,
-            "daily_lesson": True, "life_english": True, "vocabulary": True}
+            "daily_lesson": True, "life_english": True, "vocabulary": True,
+            "ads": ad_policy(user)}
+
+
+# ------------------------------------------------- free tier ads (owner 10 Nov)
+# Free learners may watch a REWARDED ad (Google-verified by SSV only) to unlock
+# one extra mock section, or enough ads to pay for one Normal AI score.
+# Interstitials at natural breaks + banners on home/lists are app-side.
+# Never inside a timed mock, audio, speaking or a certificate; Premium: no ads.
+AD_PLACEMENT = {"section": "lp_sec", "score": "lp_score"}
+NO_ADS_IN = ("timed_mock", "listening_audio", "speaking", "certificate", "exam_result_pdf")
+# Share of one ad's income that may pay for the unlock: 1 - overhead (10 %)
+# - the owner's 40 % profit = 50 %. Ad income has no VAT / Play fee.
+AD_COST_SHARE = 0.50
+MAX_ADS_PER_UNLOCK = 5            # more than this is not worth showing: no offer
+AD_UNLOCKS_PER_DAY = {"section": 3, "score": 3}
+
+
+def ad_value_bdt():
+    """BDT one verified rewarded ad earns — the app's existing assumption
+    (owner override in pricing, else the conservative eCPM floor / 1000)."""
+    try:
+        from . import billing
+        from .logic import photo_studio as PS
+        c = billing.cfg()
+        return float(PS.ad_value_bdt(c.get("photo_studio"), c["ad_rewards"]))
+    except Exception:  # noqa: BLE001 — no value known: no ad unlock offered
+        return 0.0
+
+
+def score_cost_bdt(plan=None):
+    """Worst-case BDT of one Normal score (dearest reachable model, caps, >= 125/USD)."""
+    from . import ai_config as C
+    from .logic import plan_book as PB
+    plan = plan or score_plan("normal")
+    usd = SC.worst_cost_usd(plan["models"], plan["in_tokens"], plan["out_tokens"],
+                            C.DEFAULT_PRICES | (_router_prices() or {}))
+    return usd * PB.SAFETY_USD_BDT if usd else 0.0
+
+
+def _router_prices():
+    try:
+        from . import ai_router as R
+        return R.cfg().get("prices") or {}
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def ads_needed(unlock):
+    """Rewarded ads per unlock (None = not offered: ads cannot pay for it)."""
+    if unlock == "section":
+        return 1              # serving a section costs ~nothing; one ad pays it
+    from .logic import photo_studio as PS
+    n = PS.ads_needed(score_cost_bdt(), ad_value_bdt(), AD_COST_SHARE)
+    return n if n is not None and n <= MAX_ADS_PER_UNLOCK else None
+
+
+def ad_policy(user):
+    if is_premium(user):
+        return {"show": False}
+    return {"show": True, "rewarded": {"section": ads_needed("section"),
+                                       "score": ads_needed("score")},
+            "interstitial": "natural_breaks", "banner": ["home", "lists"],
+            "never_in": list(NO_ADS_IN), "score_unlocks_left": ad_scores_left(user)}
+
+
+def _verified_ads(user, unlock, since):
+    from .models import PhotoAdTicket
+    return PhotoAdTicket.objects.filter(user=user, placement=AD_PLACEMENT[unlock],
+                                        status="verified", verified_at__gte=since).count()
+
+
+def ad_scores_left(user, now=None):
+    n = ads_needed("score")
+    if not n:
+        return 0
+    from .models import LpAttempt
+    since = (now or timezone.now()) - WEEK
+    used = LpAttempt.objects.filter(user=user, kind__in=("writing", "speaking"),
+                                    created_at__gte=since, data__ad_unlock=True).count()
+    return max(0, _verified_ads(user, "score", since) // n - used)
+
+
+def issue_ad_ticket(user, unlock):
+    """(status, body): a rewarded-ad ticket whose nonce the app passes to
+    AdMob as SSV custom_data. Only Google's signed callback verifies it."""
+    import secrets
+    from .models import PhotoAdTicket
+    if unlock not in AD_PLACEMENT:
+        return 400, {"ok": False, "reason": "bad_unlock"}
+    if is_premium(user):
+        return 409, {"ok": False, "reason": "premium_no_ads"}
+    if ads_needed(unlock) is None:
+        return 409, {"ok": False, "reason": "not_offered"}
+    from .photo_studio_service import _ad_units
+    units = _ad_units()
+    if not units.get("_configured"):
+        return 409, {"ok": False, "reason": "ads_not_live"}
+    day = timezone.now() - datetime.timedelta(days=1)
+    cap = AD_UNLOCKS_PER_DAY[unlock] * (ads_needed(unlock) or 1)
+    if _verified_ads(user, unlock, day) >= cap:
+        return 429, {"ok": False, "reason": "daily_cap"}
+    t = PhotoAdTicket.objects.create(user=user, kind="rewarded", placement=AD_PLACEMENT[unlock],
+                                     nonce=secrets.token_urlsafe(24))
+    return 201, {"ok": True, "nonce": t.nonce, "custom_data": t.nonce, "user_id": str(user.pk),
+                 "rewarded_unit": units.get("rewarded", ""), "ads_needed": ads_needed(unlock)}
 
 
 # ---------------------------------------------------------------- content
@@ -699,8 +859,12 @@ def run_score(user, kind, system, task, data, keys, level, attempt_meta):
     from . import ai, billing
     from .models import LpAttempt
     base = {"ai_state": "", "credits_used": 0, "practice_label": B.PRACTICE_LABEL}
+    ad_unlock = False
     if not is_premium(user):
-        return dict(base, ai_state="premium")
+        # free learner: only with a rewarded-ad unlock (Normal level, no credits)
+        if ad_scores_left(user) <= 0:
+            return dict(base, ai_state="premium", ads_needed=ads_needed("score"))
+        ad_unlock, level = True, "normal"
     if not ai.available():
         return dict(base, ai_state="no_key")
     since = timezone.now() - datetime.timedelta(days=1)
@@ -708,8 +872,9 @@ def run_score(user, kind, system, task, data, keys, level, attempt_meta):
                                 created_at__gte=since).count() >= SCORES_PER_DAY:
         return dict(base, ai_state="user_limit")
     plan = score_plan(level if level in SC.LEVELS else "normal")
-    res = billing.charge(user, "lp_score_" + plan["level"], qty=1, note="lp." + kind,
-                         exact=plan["credits"], paid_only=plan["level"] == "best")
+    res = {"ok": True, "charged": 0} if ad_unlock else billing.charge(
+        user, "lp_score_" + plan["level"], qty=1, note="lp." + kind,
+        exact=plan["credits"], paid_only=plan["level"] == "best")
     if not res.get("ok"):
         return dict(base, ai_state="busy" if res.get("reason") == "guard_over" else "credits",
                     credits_needed=plan["credits"])
@@ -745,7 +910,8 @@ def run_score(user, kind, system, task, data, keys, level, attempt_meta):
         return dict(base, ai_state=state, refunded=charged, level=plan["level"])
     att = LpAttempt.objects.create(user=user, kind=kind, item_key=attempt_meta.get("mock_id", ""),
                                    section=attempt_meta.get("section", ""), band=parsed["band"],
-                                   credits=charged, data=dict(attempt_meta, result=parsed))
+                                   credits=charged, data=dict(attempt_meta, result=parsed,
+                                                              ad_unlock=ad_unlock))
     return dict(base, ai_state="used", credits_used=charged, level=plan["level"],
                 attempt_id=att.id, **parsed)
 
