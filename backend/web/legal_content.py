@@ -181,15 +181,28 @@ PERMISSIONS = [
     {
         "id": "fullscreen",
         "perm": "USE_FULL_SCREEN_INTENT",
-        "name": ("ফুল-স্ক্রিন নোটিফিকেশন (কল)", "Full-screen notifications (calls)"),
-        "why": ("ফোন লক থাকলেও ইনকামিং ভয়েস/ভিডিও কলের স্ক্রিন দেখানো — শুধু বাজতে থাকা কলের জন্য। এর মাধ্যমে "
-                "লক স্ক্রিনে আপনার চ্যাট বা ভল্ট কখনো দেখানো হয় না।",
-                "Showing the incoming voice/video call screen when the phone is locked — only for a ringing "
-                "call. It never shows your chats or vault on the lock screen."),
+        "name": ("ফুল-স্ক্রিন নোটিফিকেশন (কল ও পরিবারের SOS)", "Full-screen notifications (calls and family SOS)"),
+        "why": ("ফোন লক থাকলেও ইনকামিং ভয়েস/ভিডিও কলের স্ক্রিন বা পরিবারের কারো SOS অ্যালার্ম পাতা দেখানো — শুধু ঐ "
+                "কল বা অ্যালার্মের জন্য। এর মাধ্যমে লক স্ক্রিনে আপনার চ্যাট বা ভল্ট কখনো দেখানো হয় না।",
+                "Showing the incoming voice/video call screen, or a family member's SOS alarm page, when the "
+                "phone is locked — only for that call or alarm. It never shows your chats or vault on the lock screen."),
         "when": ("Android 14+-এ এটি একটি বিশেষ অনুমতি; সেটিংস → নোটিফিকেশন ও কল থেকে আপনি চালু করেন।",
                  "On Android 14+ it is a special permission you turn on from Settings → Notifications & calls."),
         "revoke": ("Android সেটিংস → অ্যাপ → বিশেষ অ্যাপ অ্যাক্সেস → ফুল-স্ক্রিন নোটিফিকেশন → Assisto।",
                    "Android Settings → Apps → Special app access → Full-screen notifications → Assisto."),
+    },
+    {
+        "id": "dnd",
+        "perm": "ACCESS_NOTIFICATION_POLICY",
+        "name": ("\"বিরক্ত করবেন না\" অ্যাক্সেস (পরিবারের SOS)", "Do Not Disturb access (family SOS)"),
+        "why": ("শুধু আপনি অনুমতি দিলে: পরিবারের কেউ SOS পাঠালে আপনার ফোনে \"বিরক্ত করবেন না\" চালু থাকলেও অ্যালার্ম "
+                "বাজানো। Assisto আপনার DND সেটিং বদলায় না, শুধু SOS অ্যালার্ম ওপারে যেতে দেয়।",
+                "Only if you allow it: ringing a family member's SOS alarm on your phone even when Do Not "
+                "Disturb is on. Assisto never changes your Do Not Disturb settings; it only lets SOS alarms through."),
+        "when": ("জরুরি পাতার \"SOS তৈরি রাখুন\" কার্ডে \"অনুমতি দিন\" চাপলে Android-এর তালিকা খোলে; সেখানে আপনি চালু করেন।",
+                 "When you tap Allow on the \"Get SOS ready\" card (Emergency page), Android's list opens and you turn it on."),
+        "revoke": ("Android সেটিংস → অ্যাপ → বিশেষ অ্যাপ অ্যাক্সেস → \"বিরক্ত করবেন না\" অ্যাক্সেস → Assisto।",
+                   "Android Settings → Apps → Special app access → Do Not Disturb access → Assisto."),
     },
     {
         "id": "fgs",

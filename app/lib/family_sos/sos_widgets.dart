@@ -154,8 +154,8 @@ String sosClock(BuildContext context, String iso) {
   final t = AppLocalizations.of(context);
   final v = '$h:$m';
   final hr = l.hour;
-  // Bangla names the part of the day (রাত / ভোর / সকাল / দুপুর / বিকেল /
-  // সন্ধ্যা); English says am / pm
+  // Bangla names the part of the day (night, dawn, morning, noon,
+  // afternoon, evening); English says am or pm
   final out = hr < 4
       ? t.fcsTimeNight(v)
       : hr < 6
