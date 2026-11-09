@@ -116,7 +116,7 @@ void main() {
     await f.step('switch -> disclosure (read slowly) -> I agree', () async {
       await f.tap(find.byKey(const Key('va-wake-switch')), settleSeconds: 1.5);
       _mark('disclosure');
-      await f.pumpFor(const Duration(seconds: 2));
+      await f.pumpFor(const Duration(seconds: 4)); // readable on video
       final agree = find.byType(FilledButton);
       await f.waitFor(agree, what: 'I agree button');
       // slow scroll so every line is readable
