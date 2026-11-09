@@ -13,6 +13,7 @@
 9. Meta App Review, CCTV ক্যামেরা কেনা, বিক্রেতা আনা, আরবি/কোরিয়ান/জাপানি রিভিউয়ার, ক্বারি — ব্যবসা/শেখার ফিচারের জন্য।
 10. Production লঞ্চের তারিখ ঠিক করা।
 11. GitHub secret `GCP_TESTLAB_SA` যোগ করুন (`TESTLAB_SETUP.md` ধাপ ১, ৩, ৪; ফ্রি Spark প্ল্যান) — তাহলে ৮টি মূল কাজ ৩টি আসল ফোনে প্রতি রাতে পরীক্ষা হবে; এমুলেটরে ৮টিই এখন পাস (রান 42557563988)।
+- **Dahua DoLynk Doc Center (লগইন করে) — এই ৬টি পাতার স্ক্রিনশট বা লেখা পাঠান (চাবি নয়):** (১) সাইন-ইন/access-token API — URL, body, সই করার নিয়ম; (২) ডিভাইস তালিকা (+চ্যানেল); (৩) সিরিয়াল + safety code দিয়ে ডিভাইস যোগ, বা DMSS ব্যবহারকারী কীভাবে আমাদের প্রোডাক্টকে অনুমতি দেন; (৪) লাইভ স্ট্রিম ঠিকানা (HLS/FLV/RTMP); (৫) রেকর্ড প্লেব্যাক; (৬) Cloud Message: সাবস্ক্রিপশন সেটআপ + একটি উদাহরণ অ্যালার্ম (মানুষ/গাড়ি/SMD) + callback-এর সই হেডার।
 <!-- OWNER-ONLY END -->
 
 ## ✅ Owner Admin-এ "Dahua DoLynk" কার্ড এখন লাইভ (৯ Nov) — Owner Admin → Integrations → **Dahua DoLynk**: Access Key ও Secret Access Key পেস্ট করুন (Product ID 212808822 আর API ঠিকানা https://open-api-sg.dolynkcloud.com ফাঁকা রাখলেও এগুলোই ধরা হবে) → Save → Test। এখনকার Test সৎভাবে শুধু দেখে: দুটি চাবি আছে আর DoLynk সার্ভার সাড়া দিচ্ছে; আসল সাইন-ইন যাচাই, ডিভাইস তালিকা, লাইভ, প্লেব্যাক ও অ্যালার্ম সংযোগ তৈরি হচ্ছে। Open Application-এর রিভিউতে Dahua কী চাইবে তা CCTV_DEV_ACCOUNTS_BN.md-এ যোগ হচ্ছে।
