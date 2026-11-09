@@ -89,6 +89,9 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   int? _etaMin; // the Routes answer behind _eta ("about 1 h 20 min by car")
   bool _etaEdited = false; // the user picked the time: never overwrite it
   String _destAddress = '';
+  // qjourney: the picked row's kind (district, airport, ...) -> the server's
+  // arrival ring; set only by a pick from the search list
+  String? _destKind, _pendingKind;
   String? _mode;
   String? _app;
   final _plate = TextEditingController();
@@ -219,6 +222,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     setState(() {
       if (name.isNotEmpty) _destName.text = name;
       _dest = {'name': _destName.text.trim(), 'lat': lat, 'lng': lng};
+      _destKind = _pendingKind;
+      _pendingKind = null;
       _destAddress = address;
       if (!_etaEdited) {
         _eta = null;
@@ -230,6 +235,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
 
   void _unpin() => setState(() {
         _dest = null;
+        _destKind = null;
         _destAddress = '';
         if (!_etaEdited) {
           _eta = null;
@@ -546,6 +552,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       'name': name.isEmpty ? (_dest?['name'] ?? '') : name,
       if (_dest?['lat'] != null) 'lat': _dest!['lat'],
       if (_dest?['lng'] != null) 'lng': _dest!['lng'],
+      if (_destKind != null && _destKind!.isNotEmpty) 'kind': _destKind,
     };
     final train = _mode == 'train' && jmTrainOn ? _jm.train?.toLink() : null;
     final ride = <String, dynamic>{
@@ -823,6 +830,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             },
             // qjourney: no "use my location" button on the DESTINATION field
             // (a trip to where you already are "arrives" at once)
+            onRow: (r) => _pendingKind = '${r['kind'] ?? ''}',
             onPicked: (p) => _setDest(p.name, p.lat, p.lng, address: p.address)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [

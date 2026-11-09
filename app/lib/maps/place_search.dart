@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gm;
 
@@ -45,7 +46,9 @@ enum PlaceSearchMode { live, legacy, off }
 /// Never throws (offline = off; saved places / map / link still work).
 Future<PlaceSearchMode> placeSearchMode(ApiClient api) async {
   try {
-    if ((await api.getJson('/maps/status'))['ready'] == true) return PlaceSearchMode.live;
+    final st = await api.getJson('/maps/status');
+    // qjourney: our own place list answers even without a Google key
+    if (st['ready'] == true || st['places'] == true) return PlaceSearchMode.live;
   } catch (_) {} // best-effort: older server or offline
   try {
     if ((await api.journeyGeocode(''))['available'] == true) return PlaceSearchMode.legacy;
@@ -53,41 +56,83 @@ Future<PlaceSearchMode> placeSearchMode(ApiClient api) async {
   return PlaceSearchMode.off;
 }
 
-/// Recent places — on this phone only (last 5 picked).
+/// Recent places — on this phone only.
+///
+/// qjourney (owner V2, 9 Nov): EVERY place is kept (up to 30, the least used
+/// drop off first — a new one never pushes out a favourite), and the list is
+/// sorted by how often you go there and by this time of day (the office at
+/// 9 am, home in the evening).
 class PlaceRecents {
   static const key = 'place_search_recent_v1';
-  static const max = 5;
+  static const max = 30;
+  static const show = 8;
 
-  static Future<List<PlacePick>> load() async {
+  static Future<List<Map<String, dynamic>>> _raw() async {
     try {
       final j = jsonDecode(await Settings.getString(key) ?? '[]');
-      if (j is! List) return const [];
+      if (j is! List) return [];
       return [
         for (final m in j.whereType<Map>())
-          if (m['lat'] is num && m['lng'] is num)
-            (
-              name: '${m['name'] ?? ''}',
-              address: '${m['address'] ?? ''}',
-              lat: (m['lat'] as num).toDouble(),
-              lng: (m['lng'] as num).toDouble()
-            )
+          if (m['lat'] is num && m['lng'] is num) m.cast<String, dynamic>()
       ];
     } catch (_) {
-      return const [];
+      return [];
     }
   }
 
-  static Future<void> add(PlacePick p) async {
-    final old = await load();
-    final list = [
-      p,
-      ...old.where((o) => !(o.name == p.name && (o.lat - p.lat).abs() < 1e-5 && (o.lng - p.lng).abs() < 1e-5)),
-    ].take(max);
-    await Settings.setString(
-        key,
-        jsonEncode([
-          for (final o in list) {'name': o.name, 'address': o.address, 'lat': o.lat, 'lng': o.lng}
-        ]));
+  static PlacePick _pick(Map<String, dynamic> m) => (
+        name: '${m['name'] ?? ''}',
+        address: '${m['address'] ?? ''}',
+        lat: (m['lat'] as num).toDouble(),
+        lng: (m['lng'] as num).toDouble()
+      );
+
+  /// How well [m] fits now: visits + a bonus for visits near this hour.
+  static double rank(Map<String, dynamic> m, DateTime now) {
+    final n = (m['n'] as num?)?.toDouble() ?? 1;
+    final hours = (m['h'] as List?)?.whereType<num>() ?? const <num>[];
+    var near = 0;
+    for (final h in hours) {
+      final d = (h - now.hour).abs();
+      if (d <= 1 || d >= 23) near++;
+    }
+    return n + 2.0 * near;
+  }
+
+  static Future<List<PlacePick>> load({DateTime? now}) async {
+    final rows = await _raw();
+    final at = now ?? DateTime.now();
+    final idx = {for (final (i, m) in rows.indexed) m: i};
+    rows.sort((a, b) {
+      final c = rank(b, at).compareTo(rank(a, at));
+      return c != 0 ? c : idx[a]!.compareTo(idx[b]!); // ties: newest first
+    });
+    return [for (final m in rows) _pick(m)];
+  }
+
+  static bool _same(Map<String, dynamic> o, PlacePick p) =>
+      o['name'] == p.name &&
+      ((o['lat'] as num) - p.lat).abs() < 1e-5 &&
+      ((o['lng'] as num) - p.lng).abs() < 1e-5;
+
+  static Future<void> add(PlacePick p, {DateTime? now}) async {
+    final old = await _raw();
+    final at = now ?? DateTime.now();
+    final prev = old.where((o) => _same(o, p)).firstOrNull;
+    final hours = [...((prev?['h'] as List?)?.whereType<num>() ?? const <num>[]), at.hour];
+    final entry = <String, dynamic>{
+      'name': p.name, 'address': p.address, 'lat': p.lat, 'lng': p.lng,
+      'n': ((prev?['n'] as num?) ?? 0) + 1,
+      'h': hours.length > 20 ? hours.sublist(hours.length - 20) : hours,
+    };
+    var list = [entry, ...old.where((o) => !_same(o, p))];
+    if (list.length > max) {
+      // drop the least used (never the one just picked)
+      final rest = list.sublist(1)
+        ..sort((a, b) => rank(b, at).compareTo(rank(a, at)));
+      list = [entry, ...rest.take(max - 1)];
+    }
+    await Settings.setString(key, jsonEncode(list));
   }
 }
 
@@ -137,6 +182,10 @@ class PlaceSearchBox extends StatefulWidget {
   final ValueChanged<String>? onTyped;
   final Widget? suffixIcon;
 
+  /// qjourney: the raw suggestion row a pick came from (its `kind` sets the
+  /// arrival radius: a district is reached anywhere inside it).
+  final ValueChanged<Map<String, dynamic>>? onRow;
+
   const PlaceSearchBox({
     super.key,
     required this.api,
@@ -154,6 +203,7 @@ class PlaceSearchBox extends StatefulWidget {
     this.listWhenUnfocused = false,
     this.onTyped,
     this.suffixIcon,
+    this.onRow,
   });
 
   @override
@@ -171,7 +221,7 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
   late bool _legacy = widget.mode == PlaceSearchMode.legacy;
   late final PlaceSearchController _ps = PlaceSearchController(
     suggest: (q, session) =>
-        widget.api.mapsAutocomplete(q, session, lat: widget.nearLat, lng: widget.nearLng),
+        widget.api.mapsSearch(q, session, lat: widget.nearLat, lng: widget.nearLng),
     details: (id, session) => widget.api.mapsPlace(id, session),
     onView: _onView,
   );
@@ -198,8 +248,9 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
   String? _stateMsg(AppLocalizations t, String st) => switch (st) {
         'none' => t.j2SearchNone,
         'failed' || 'bad_session' => t.j2SearchFailed,
-        'off' => t.mapscSearchOff,
-        'user_cap' || 'global_cap' || 'plan_cap' => t.mapscSearchCapped,
+        // qjourney (owner V2): never a limit / "search is off" message — the
+        // list just has fewer rows (saved, recent, the phone's Geocoder)
+        'off' || 'user_cap' || 'global_cap' || 'plan_cap' => t.j2SearchNone,
         _ => null,
       };
 
@@ -213,10 +264,11 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
     }
     setState(() {
       _busy = v.state == 'loading';
-      _google = v.rows.isNotEmpty;
+      _google = v.rows.any((r) => r['source'] != 'bd');
       _rows = v.rows;
-      _msg = _stateMsg(t, v.state);
+      _msg = _mine(_ctl.text).isNotEmpty ? null : _stateMsg(t, v.state);
     });
+    if (v.state == 'none' && _mine(_ctl.text).isEmpty) unawaited(_phoneGeocode(_ctl.text));
   }
 
   void _changed(String text) {
@@ -279,7 +331,10 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
   }
 
   void _done(PlacePick p) {
-    unawaited(PlaceRecents.add(p));
+    // qjourney: the list on screen follows at once (it used to keep the old one)
+    unawaited(PlaceRecents.add(p).then((_) => PlaceRecents.load()).then((r) {
+      if (mounted) setState(() => _recent = r);
+    }));
     _ctl.text = p.name;
     _focus.unfocus();
     setState(() {
@@ -292,6 +347,7 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
   }
 
   Future<void> _pick(Map<String, dynamic> r) async {
+    widget.onRow?.call(r); // qjourney: kind / arrival radius of the place
     final name = '${r['name'] ?? ''}';
     if (r['lat'] is num && r['lng'] is num) {
       _done((
@@ -374,6 +430,53 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
     );
   }
 
+  static IconData _kindIcon(String kind) => switch (kind) {
+        'airport' => Icons.flight_rounded,
+        'station' => Icons.train_rounded,
+        'metro' => Icons.subway_rounded,
+        'bus_terminal' => Icons.directions_bus_rounded,
+        'ghat' => Icons.directions_boat_rounded,
+        'hospital' => Icons.local_hospital_rounded,
+        'university' => Icons.school_rounded,
+        'division' || 'district' || 'upazila' || 'union' => Icons.map_rounded,
+        'city' || 'town' || 'area' => Icons.location_city_rounded,
+        _ => Icons.place_rounded,
+      };
+
+  /// qjourney (owner V2): saved + recent places that match what is typed —
+  /// shown FIRST in the one merged list (free, on the phone).
+  List<PlacePick> _mine(String text) {
+    final q = text.trim().toLowerCase();
+    if (q.length < PlaceSearchController.minChars) return const [];
+    final out = <PlacePick>[];
+    for (final p in [...widget.saved, ..._recent]) {
+      final hit = p.name.toLowerCase().contains(q) || p.address.toLowerCase().contains(q);
+      if (hit && !out.any((o) => o.name == p.name && (o.lat - p.lat).abs() < 1e-4)) out.add(p);
+      if (out.length >= 4) break;
+    }
+    return out;
+  }
+
+  /// Nothing in our list or Google: the phone's own (free) Geocoder.
+  Future<void> _phoneGeocode(String text) async {
+    final q = text.trim();
+    if (q.length < 3) return;
+    try {
+      final got = await geo
+          .locationFromAddress('$q, Bangladesh')
+          .timeout(const Duration(seconds: 6));
+      if (!mounted || _ctl.text.trim() != q || got.isEmpty) return;
+      setState(() {
+        _msg = null;
+        _rows = [
+          for (final l in got.take(3))
+            {'name': q, 'secondary': '', 'lat': l.latitude, 'lng': l.longitude,
+             'source': 'phone'}
+        ];
+      });
+    } catch (_) {} // best-effort: no Geocoder on this phone / offline
+  }
+
   List<Widget> _preTyping(AppLocalizations t) {
     final out = <Widget>[];
     if (widget.onCurrent != null) {
@@ -403,7 +506,7 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
         padding: const EdgeInsets.only(top: Gap.sm),
         child: Text(t.psRecent, style: AType.labelLarge),
       ));
-      for (final (i, p) in _recent.indexed) {
+      for (final (i, p) in _recent.take(PlaceRecents.show).indexed) {
         out.add(_tile(
             key: ValueKey('ps_recent_$i'),
             icon: Icons.history_rounded,
@@ -457,10 +560,18 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
         ),
       if (showPre) ..._preTyping(t),
       if (!empty)
+        for (final (i, p) in _mine(_ctl.text).indexed)
+          _tile(
+              key: ValueKey('ps_mine_$i'),
+              icon: Icons.history_rounded,
+              title: p.name,
+              subtitle: p.address,
+              onTap: () => _done(p)),
+      if (!empty)
         for (final (i, r) in _rows.indexed)
           _tile(
               key: ValueKey('ps_row_$i'),
-              icon: Icons.place_rounded,
+              icon: _kindIcon('${r['kind'] ?? ''}'),
               title: '${r['name'] ?? ''}',
               subtitle: '${r['secondary'] ?? r['address'] ?? ''}',
               trailing: _distance(context, t, r),
