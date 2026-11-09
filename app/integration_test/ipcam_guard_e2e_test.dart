@@ -118,8 +118,15 @@ void main() {
     expect(works, isTrue, reason: 'camera test showed no decoded picture');
 
     // 3. guard: the scene's person walks in every ~12 s
-    final started =
-        await _tapUntil(tester, find.byKey(const Key('icgStart')), find.byKey(const Key('icgStop')));
+    await tester.ensureVisible(find.byKey(const Key('icgStart')));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.byKey(const Key('icgStart')), warnIfMissed: false);
+    var started = await _waitFor(tester, find.byKey(const Key('icgStop')), const Duration(seconds: 30));
+    if (!started) {
+      // the tap missed (list still moving): once more; a double tap is ignored by the screen
+      await tester.tap(find.byKey(const Key('icgStart')), warnIfMissed: false);
+      started = await _waitFor(tester, find.byKey(const Key('icgStop')), const Duration(seconds: 30));
+    }
     expect(started, isTrue, reason: 'guarding did not start');
     final tStart = DateTime.now();
     // the person model downloads once (SHA-256 checked) before checks start

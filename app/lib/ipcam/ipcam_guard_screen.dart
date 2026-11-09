@@ -124,6 +124,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
   Timer? _loop, _hb;
   bool _tickBusy = false;
   bool _modelLoading = false;
+  bool _starting = false;
   DateTime _lastGrab = DateTime.fromMillisecondsSinceEpoch(0);
   int _alerts = 0, _frames = 0;
   DateTime _fpsAt = DateTime.now();
@@ -404,7 +405,17 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
   // ------------------------------------------------------------------ run
   Future<void> _start() async {
     final url = _url, dev = _dev;
-    if (url == null || dev == null) return;
+    if (url == null || dev == null || _starting || _running) return; // a double tap starts once
+    _starting = true;
+    try {
+      await _startInner(url);
+    } finally {
+      _starting = false;
+      if (mounted) setState(() {});
+    }
+  }
+
+  Future<void> _startInner(String url) async {
     final t = AppLocalizations.of(context);
     final dec = NativeIpDecoder();
     if (!await dec.available()) {
@@ -957,8 +968,10 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
         FilledButton.icon(
           key: const Key('icgStart'),
           style: FilledButton.styleFrom(minimumSize: const Size(48, 56)),
-          onPressed: _start,
-          icon: const Icon(Icons.shield_rounded),
+          onPressed: _starting ? null : _start,
+          icon: _starting
+              ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+              : const Icon(Icons.shield_rounded),
           label: Text(t.gbStart),
         ),
         const SizedBox(height: 8),
