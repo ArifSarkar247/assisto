@@ -501,6 +501,18 @@ class CameraImouView(_OwnerBase):
             return _err(lang, "Imou ক্লাউড সতর্কতা এখনো চালু হয়নি — ক্যামেরা গেটওয়ে দিয়ে ঠিকই চলবে।",
                         "Imou cloud alarms are not switched on yet — the camera still "
                         "works through your gateway.", status=503, code="imou_not_configured")
+        # cctvconnect (owner 9 Nov 17:20): binding to OUR developer account
+        # needs the camera owner's on-screen consent, and is for owner / admin
+        # test cameras unless the owner switches it on for customers
+        from . import cctv_connect_views as CCV
+        if not CCV.devbind_allowed(request.user, "imou"):
+            return _err(lang, "এভাবে যুক্ত করা এখন শুধু Assisto-র মালিকের পরীক্ষার ক্যামেরার জন্য — ক্যামেরা গেটওয়ে দিয়ে ঠিকই চলবে।",
+                        "This way of linking is only for Assisto's owner test cameras for now — the camera "
+                        "still works through your gateway.", status=403, code="devbind_owner_only")
+        if not SV._coerce_bool(request.data.get("consent")):
+            return _err(lang, "আগে সম্মতির ঘরে টিক দিন: " + CCV.CONSENT_TEXT[0],
+                        "Please tick the consent first: " + CCV.CONSENT_TEXT[1],
+                        status=422, code="consent_required")
         serial = str(request.data.get("device_serial") or "").strip().upper()[:40]
         code = str(request.data.get("safety_code") or "").strip()[:32]
         try:
@@ -541,7 +553,13 @@ class CameraImouView(_OwnerBase):
         cam.vendor_ref = "%s:%d" % (serial, ch)
         src = dict(cam.source or {}, device_serial=serial)
         cam.source = SV.clean_source(src)
-        cam.save(update_fields=["vendor_ref", "source"])
+        compat = dict(cam.compat or {})
+        compat["imou_consent"] = {"by": request.user.pk, "v": CCV.CONSENT_VERSION,
+                                  "at": timezone.now().isoformat()}
+        if request.user.is_superuser or request.user.is_staff:
+            compat["owner_test"] = True
+        cam.compat = compat
+        cam.save(update_fields=["vendor_ref", "source", "compat"])
         return Response({"ok": True, "camera": SV._camera_row(cam)})
 
 
@@ -569,8 +587,9 @@ COMPAT_KEEP = ("cloud_last_alarm_ms", "imou_seen_ids", "imou_pic_host_refused",
                "cloud_checked_at", "cloud_online_at", "siren_at",
                # cctvalerts: alert-type state (seen kinds, loiter, stills, SD)
                "alert_state",
-               # cctvconnect: Imou people counting (numberstat) per day
-               "people")
+               # cctvconnect: Imou people counting (numberstat) per day,
+               # owner test device badge + the camera owner's consent record
+               "people", "owner_test", "imou_consent")
 
 
 class ImouCallbackView(APIView):

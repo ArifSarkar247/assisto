@@ -251,6 +251,9 @@ class ConnectApiE2ETests(E2E._Base):
         p.start()
         self.addCleanup(p.stop)
         self.sid = self.site["id"]
+        # the Assisto owner's own account (developer-account binds = owner test devices)
+        self.owner.is_staff = True
+        self.owner.save(update_fields=["is_staff"])
         # owner-away mode: every camera armed whatever the clock says (CI runs
         # at any hour; the home schedule may be "not armed" right now)
         from core.models import ShopSite
@@ -269,7 +272,7 @@ class ConnectApiE2ETests(E2E._Base):
                                    enc_blob=integrations._encrypt(self.sim.cfg("hikconnect")))
         self.assertEqual(self.providers(), [])
         r = self.client.post("/api/v1/cctv/connect/hikconnect/link",
-                             {"site": self.sid, "serial": "SIMHIDVR1", "code": "ABC123"},
+                             {"site": self.sid, "serial": "SIMHIDVR1", "code": "ABC123", "consent": True},
                              format="json")
         self.assertEqual((r.status_code, r.data["error"]), (503, "not_configured"))
         ok, detail = integrations.test_hikconnect(self.sim.cfg("hikconnect"), http=self.sim.http)
@@ -281,10 +284,10 @@ class ConnectApiE2ETests(E2E._Base):
         serial = "SIM%sDVR1" % v[:2].upper()
         _enable(v, self.sim.cfg(v))
         r = self.client.post("/api/v1/cctv/connect/%s/link" % v,
-                             {"site": self.sid, "serial": serial, "code": "WRONG1"}, format="json")
+                             {"site": self.sid, "serial": serial, "code": "WRONG1", "consent": True}, format="json")
         self.assertEqual((r.status_code, r.data["error"]), (422, "vendor_wrong_code"))
         r = self.client.post("/api/v1/cctv/connect/%s/link" % v,
-                             {"site": self.sid, "serial": serial.lower(), "code": "ABC123"},
+                             {"site": self.sid, "serial": serial.lower(), "code": "ABC123", "consent": True},
                              format="json")
         self.assertEqual(r.status_code, 201, r.data)
         link = r.data["link"]
@@ -370,7 +373,7 @@ class ConnectApiE2ETests(E2E._Base):
         r = c.get("/api/v1/cctv/connect/links/%d/devices" % link["id"])
         self.assertEqual(r.status_code, 404)        # viewers never manage links
         r = c.post("/api/v1/cctv/connect/hikconnect/link",
-                   {"site": self.sid, "serial": serial, "code": "ABC123"}, format="json")
+                   {"site": self.sid, "serial": serial, "code": "ABC123", "consent": True}, format="json")
         self.assertEqual(r.status_code, 404)
 
     def test_same_device_cannot_join_two_sites_and_tries_are_limited(self):
@@ -380,19 +383,42 @@ class ConnectApiE2ETests(E2E._Base):
         c = APIClient()
         c.force_authenticate(self.family)
         r = c.post("/api/v1/cctv/connect/ezviz/link",
-                   {"site": other.id, "serial": "SIMEZDVR1", "code": "ABC123"}, format="json")
+                   {"site": other.id, "serial": "SIMEZDVR1", "code": "ABC123", "consent": True}, format="json")
         self.assertIn(r.status_code, (403, 409))
         from core import cctv_connect_views as V
         with mock.patch.object(V, "LINK_TRIES_PER_HOUR", 0):
             r = self.client.post("/api/v1/cctv/connect/ezviz/link",
-                                 {"site": self.sid, "serial": "SIMEZDVR1", "code": "ABC123"},
+                                 {"site": self.sid, "serial": "SIMEZDVR1", "code": "ABC123", "consent": True},
                                  format="json")
         self.assertEqual(r.status_code, 429)
+
+    def test_devbind_needs_consent_and_is_owner_only_unless_switched_on(self):
+        from core.models import ShopCamera, ShopSite
+        link, serial, ch, cam = self.connect("ezviz")
+        self.assertTrue(ShopCamera.objects.get(pk=cam["id"]).compat.get("owner_test"))
+        r = self.client.post("/api/v1/cctv/connect/ezviz/link",
+                             {"site": self.sid, "serial": serial, "code": "ABC123"}, format="json")
+        self.assertEqual((r.status_code, r.data["error"]), (422, "consent_required"))
+        # a customer: the brand is hidden and a direct call is refused
+        site = ShopSite.objects.create(owner=self.family, name="Customer")
+        c = APIClient()
+        c.force_authenticate(self.family)
+        r = c.get("/api/v1/cctv/connect/providers?site=%d" % site.id)
+        self.assertEqual(r.data["providers"], [])
+        r = c.post("/api/v1/cctv/connect/ezviz/link",
+                   {"site": site.id, "serial": "SIMEZX", "code": "ABC123", "consent": True},
+                   format="json")
+        self.assertEqual((r.status_code, r.data["error"]), (403, "devbind_owner_only"))
+        # the owner switches it on for customers in Owner Admin
+        _enable("ezviz", dict(self.sim.cfg("ezviz"), devbind_customers="on"))
+        r = c.get("/api/v1/cctv/connect/providers?site=%d" % site.id)
+        self.assertEqual([p["id"] for p in r.data["providers"]], ["ezviz"])
+        self.assertIn("I own this camera", r.data["providers"][0]["consent_en"])
 
     def test_import_respects_plan(self):
         _enable("imou", self.sim.cfg("imou"))
         r = self.client.post("/api/v1/cctv/connect/imou/link",
-                             {"site": self.sid, "serial": "SIMIMDVR1", "code": "ABC123"},
+                             {"site": self.sid, "serial": "SIMIMDVR1", "code": "ABC123", "consent": True},
                              format="json")
         lid = r.data["link"]["id"]
         with mock.patch("core.shop_views._included_cameras", return_value=1):

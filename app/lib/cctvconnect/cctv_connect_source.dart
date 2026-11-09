@@ -8,8 +8,10 @@ abstract class CctvConnectSource {
   /// {providers: [{id, name, modes, code_label_bn, code_label_en}], links: [...]}
   Future<Map<String, dynamic>> providers(int siteId);
 
-  /// Authorize one device with the label code (used once, never stored).
-  Future<Map<String, dynamic>> link(String provider, int siteId, String serial, String code);
+  /// Authorize one device with the label code (used once, never stored);
+  /// `consent` = the camera owner ticked the on-screen consent.
+  Future<Map<String, dynamic>> link(String provider, int siteId, String serial, String code,
+      {bool consent = false});
 
   /// One-tap link of the owner's OWN brand account: {url} of our /oauth/go
   /// page, opened in the browser (the vendor's consent page follows).
@@ -38,9 +40,10 @@ class ApiCctvConnectSource implements CctvConnectSource {
       api.getJson('/cctv/connect/providers?site=$siteId');
 
   @override
-  Future<Map<String, dynamic>> link(String provider, int siteId, String serial, String code) =>
+  Future<Map<String, dynamic>> link(String provider, int siteId, String serial, String code,
+          {bool consent = false}) =>
       api.postJson('/cctv/connect/$provider/link',
-          {'site': siteId, 'serial': serial, 'code': code});
+          {'site': siteId, 'serial': serial, 'code': code, 'consent': consent});
 
   @override
   Future<Map<String, dynamic>> oauthStart(String provider, int siteId) =>

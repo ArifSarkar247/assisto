@@ -90,9 +90,11 @@ def link_row(l):
             "created": SV._iso(l.created)}
 
 
-def provider_row(pid):
+def provider_row(pid, user=None):
     a = CC.adapter(pid)
-    return {"id": pid, "name": a.name, "modes": a.modes(),
+    modes = [m for m in a.modes() if m != "device_code" or devbind_allowed(user, pid)]
+    return {"id": pid, "name": a.name, "modes": modes,
+            "consent_bn": CONSENT_TEXT[0], "consent_en": CONSENT_TEXT[1],
             "code_label_bn": a.code_label[0], "code_label_en": a.code_label[1],
             "caps": list(a.caps), "camera_vendor": CC.CAMERA_VENDOR[pid]}
 
@@ -175,77 +177,139 @@ class ProvidersView(WMV._OwnerBase):
         if site is None:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         links = CctvCloudLink.objects.filter(site=site).exclude(status="revoked")
-        return Response({"providers": [provider_row(p) for p in CC.enabled_ids()],
+        rows = [provider_row(p, request.user) for p in CC.enabled_ids()]
+        return Response({"providers": [r for r in rows if r["modes"]],
                          "links": [link_row(l) for l in links],
                          "local_ok": True})
 
 
+class BindRefused(Exception):
+    def __init__(self, status, code, bn, en, **extra):
+        super().__init__(code)
+        self.status, self.code, self.bn, self.en, self.extra = status, code, bn, en, extra
+
+    def response(self, lang):
+        return _err(lang, self.bn, self.en, status=self.status, code=self.code, **self.extra)
+
+
+# The words the owner of the camera agrees to, on screen, before a device is
+# bound to OUR developer account (owner order 9 Nov 17:20). Versioned: the
+# version is stored with the link.
+CONSENT_VERSION = "devbind-1"
+CONSENT_TEXT = ("আমি এই ক্যামেরার মালিক এবং এটি Assisto-র অ্যাকাউন্টে যুক্ত করতে রাজি; যেকোনো সময় সরাতে পারব।",
+                "I own this camera and agree to link it to Assisto's account; I can unlink it any time.")
+
+
+def devbind_allowed(user, pid):
+    """Binding a camera to OUR developer account is for the owner / admin
+    accounts (owner test devices) unless the owner switches it on for
+    customers in Owner Admin (integration field devbind_customers = on)."""
+    if getattr(user, "is_superuser", False) or getattr(user, "is_staff", False):
+        return True
+    a = CC.ADAPTERS.get(pid)
+    try:
+        from . import integrations as I
+        v = str((I.get(a.integration) if a else {}).get("devbind_customers") or "").strip().lower()
+    except Exception:
+        v = ""
+    return v in ("on", "1", "yes", "true")
+
+
+def devbind(user, site, pid, serial, code, consent):
+    """Bind ONE device to our developer account with its label code (used
+    once, never stored) after the camera owner's on-screen consent.
+    -> (link, devices). Raises BindRefused."""
+    from .models import CctvCloudLink
+    if pid not in CC.ADAPTERS or not CC.enabled(pid):
+        raise BindRefused(503, "not_configured", *CC.base.HINT_TEXT["not_configured"])
+    if not devbind_allowed(user, pid):
+        raise BindRefused(403, "devbind_owner_only",
+                          "এভাবে যুক্ত করা এখন শুধু Assisto-র মালিকের পরীক্ষার ক্যামেরার জন্য। "
+                          "আপনার নিজের অ্যাকাউন্ট দিয়ে যুক্ত করার সুবিধা শীঘ্রই আসছে — ততক্ষণ একই Wi-Fi দিয়ে যুক্ত করুন।",
+                          "This way of linking is only for Assisto's owner test cameras for now. "
+                          "Linking with your own account is coming soon — meanwhile add the camera on the same Wi-Fi.")
+    if not SV._coerce_bool(consent):
+        raise BindRefused(422, "consent_required", "আগে সম্মতির ঘরে টিক দিন: " + CONSENT_TEXT[0],
+                          "Please tick the consent first: " + CONSENT_TEXT[1])
+    serial = CC.base.clean_serial(serial)
+    code = CC.base.clean_code(code)
+    if not serial:
+        raise BindRefused(422, "serial_required",
+                          "ক্যামেরা / DVR-এর লেবেলের সিরিয়াল নম্বর (SN) দিন।",
+                          "Enter the serial number (SN) from the camera / DVR label.")
+    if not code:
+        raise BindRefused(422, "code_required", "লেবেলের কোডটি দিন (অক্ষর ও সংখ্যা)।",
+                          "Enter the code from the label (letters and digits).")
+    if serial_taken(pid, serial, except_site=site.id):
+        raise BindRefused(409, "taken", *CC.base.HINT_TEXT["taken"])
+    if not link_attempt_ok(user.pk):
+        raise BindRefused(429, "rate_limited",
+                          "এক ঘণ্টায় অনেকবার চেষ্টা হয়েছে — একটু পরে আবার চেষ্টা করুন।",
+                          "Too many tries this hour — please try again a little later.")
+    a = CC.adapter(pid)
+    try:
+        g = a.link_device(serial, code)
+    except CC.ConnectError as e:
+        bn, en = CC.base.HINT_TEXT.get(e.hint, CC.base.HINT_TEXT["vendor"])
+        raise BindRefused(422 if e.hint in ("wrong_code", "taken") else 502,
+                          "vendor_" + e.hint, bn, en, vendor_code=e.code)
+    owner_test = bool(getattr(user, "is_superuser", False) or getattr(user, "is_staff", False))
+    with transaction.atomic():
+        link = CctvCloudLink.objects.select_for_update().filter(
+            site=site, provider=pid, mode="device_code",
+            status__in=("active", "error")).first()
+        if link is None:
+            if CctvCloudLink.objects.filter(site=site).exclude(
+                    status="revoked").count() >= LINKS_PER_SITE:
+                raise BindRefused(409, "too_many_links", "এই জায়গায় আর সংযোগ যোগ করা যাবে না।",
+                                  "No more links can be added to this place.")
+            link = CctvCloudLink(site=site, provider=pid, mode="device_code",
+                                 label=a.name, state={"since": time.time()})
+            link.save()
+            grant = {"mode": "device_code", "serials": []}
+        else:
+            grant = _grant(link) or {"mode": "device_code", "serials": []}
+        serials = [x for x in grant.get("serials") or [] if x != serial] + [serial]
+        if len(serials) > SERIALS_PER_LINK:
+            raise BindRefused(409, "too_many_devices", "একটি সংযোগে সর্বোচ্চ ১৬টি ডিভাইস।",
+                              "Up to 16 devices per link.")
+        grant["serials"] = serials
+        st = dict(link.state or {})
+        cons = dict(st.get("consent") or {})
+        cons[serial] = {"by": user.pk, "at": time.time(), "v": CONSENT_VERSION}
+        st["consent"] = cons
+        if owner_test:
+            st["owner_test"] = sorted(set(st.get("owner_test") or []) | {serial})
+        link.state = st
+        link.grant_blob = CC.seal(site.id, grant)
+        link.serials = serials
+        link.status, link.last_error = "active", ""
+        link.save(update_fields=["grant_blob", "serials", "status", "last_error", "state"])
+    _after_link(a, grant)
+    devices = []
+    try:
+        devices = [d for d in a.devices({"serials": [serial]})]
+    except CC.ConnectError:
+        pass
+    return link, devices
+
+
 class LinkDeviceView(WMV._OwnerBase):
-    """POST cctv/connect/<pid>/link {site, serial, code} — authorize ONE
-    device with its label code (the code is used once, never stored). A
-    second device of the same brand joins the same link."""
+    """POST cctv/connect/<pid>/link {site, serial, code, consent} — bind ONE
+    device to our developer account with its label code (used once, never
+    stored), only after the camera owner's on-screen consent. A second
+    device of the same brand joins the same link."""
 
     def post(self, request, pid):
-        from .models import CctvCloudLink
         lang = req_lang(request)
         site = SV._owner_site(request, request.data.get("site"))
         if site is None:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
-        if pid not in CC.ADAPTERS or not CC.enabled(pid):
-            return _err(lang, *CC.base.HINT_TEXT["not_configured"], status=503,
-                        code="not_configured")
-        serial = CC.base.clean_serial(request.data.get("serial"))
-        code = CC.base.clean_code(request.data.get("code"))
-        if not serial:
-            return _err(lang, "ক্যামেরা / DVR-এর লেবেলের সিরিয়াল নম্বর (SN) দিন।",
-                        "Enter the serial number (SN) from the camera / DVR label.",
-                        status=422, code="serial_required")
-        if not code:
-            return _err(lang, "লেবেলের কোডটি দিন (অক্ষর ও সংখ্যা)।",
-                        "Enter the code from the label (letters and digits).",
-                        status=422, code="code_required")
-        if serial_taken(pid, serial, except_site=site.id):
-            return _err(lang, *CC.base.HINT_TEXT["taken"], status=409, code="taken")
-        if not link_attempt_ok(request.user.pk):
-            return _err(lang, "এক ঘণ্টায় অনেকবার চেষ্টা হয়েছে — একটু পরে আবার চেষ্টা করুন।",
-                        "Too many tries this hour — please try again a little later.",
-                        status=429, code="rate_limited")
-        a = CC.adapter(pid)
         try:
-            g = a.link_device(serial, code)
-        except CC.ConnectError as e:
-            return _cerr(lang, e, status=422 if e.hint in ("wrong_code", "taken") else 502)
-        with transaction.atomic():
-            link = CctvCloudLink.objects.select_for_update().filter(
-                site=site, provider=pid, mode="device_code",
-                status__in=("active", "error")).first()
-            if link is None:
-                if CctvCloudLink.objects.filter(site=site).exclude(
-                        status="revoked").count() >= LINKS_PER_SITE:
-                    return _err(lang, "এই জায়গায় আর সংযোগ যোগ করা যাবে না।",
-                                "No more links can be added to this place.",
-                                status=409, code="too_many_links")
-                link = CctvCloudLink(site=site, provider=pid, mode="device_code",
-                                     label=a.name, state={"since": time.time()})
-                link.save()
-                grant = {"mode": "device_code", "serials": []}
-            else:
-                grant = _grant(link) or {"mode": "device_code", "serials": []}
-            serials = [s for s in grant.get("serials") or [] if s != serial] + [serial]
-            if len(serials) > SERIALS_PER_LINK:
-                return _err(lang, "একটি সংযোগে সর্বোচ্চ ১৬টি ডিভাইস।",
-                            "Up to 16 devices per link.", status=409, code="too_many_devices")
-            grant["serials"] = serials
-            link.grant_blob = CC.seal(site.id, grant)
-            link.serials = serials
-            link.status, link.last_error = "active", ""
-            link.save(update_fields=["grant_blob", "serials", "status", "last_error"])
-        _after_link(a, grant)
-        devices = []
-        try:
-            devices = [d for d in a.devices({"serials": [serial]})]
-        except CC.ConnectError:
-            pass
+            link, devices = devbind(request.user, site, pid, request.data.get("serial"),
+                                    request.data.get("code"), request.data.get("consent"))
+        except BindRefused as e:
+            return e.response(lang)
         return Response({"link": link_row(link), "devices": devices}, status=201)
 
 
@@ -443,14 +507,59 @@ class LinkDevicesView(WMV._OwnerBase):
         return Response({"link": link_row(link), "devices": devs})
 
 
+def import_items(link, user, items, lang="bn"):
+    """The chosen channels become cameras of the link's site, within the
+    cameras the owner's plan includes (never silently charged). -> (added
+    rows, skipped [{serial, channel, why}], message)."""
+    from .models import ShopCamera
+    from .logic import watchman as WM
+    allowed_serials = set(link.serials or [])
+    free = max(0, SV._included_cameras(user) - SV.owner_enabled_cameras(user).count())
+    added, skipped = [], []
+    for it in items[:CC.base.MAX_CHANNELS]:
+        if not isinstance(it, dict):
+            continue
+        serial = CC.base.clean_serial(it.get("serial"))
+        try:
+            ch = int(it.get("channel"))
+        except (TypeError, ValueError):
+            ch = -1
+        if serial not in allowed_serials or not 0 <= ch < 256:
+            skipped.append({"serial": serial, "channel": ch, "why": "not_in_link"})
+            continue
+        ref = vendor_ref(link.provider, serial, ch)
+        if ShopCamera.objects.filter(vendor_ref=ref).exists():
+            skipped.append({"serial": serial, "channel": ch, "why": "already_added"})
+            continue
+        if free <= 0:
+            skipped.append({"serial": serial, "channel": ch, "why": "plan_full"})
+            continue
+        name = str(it.get("name") or "").strip()[:120] or (
+            ("ক্যামেরা %s" % SV._bn_digits(ch)) if lang == "bn" else "Camera %d" % ch)
+        cam = ShopCamera.objects.create(
+            site=link.site, name=name, kind="edge_webhook",
+            vendor=CC.CAMERA_VENDOR[link.provider],
+            zone_config=WM.default_zone_config(link.site.kind),
+            vendor_ref=ref,
+            source=SV.clean_source({"device_serial": serial, "channel": ch,
+                                    "cloud": link.provider}),
+            # owner 9 Nov 17:20: bound to OUR developer account for the
+            # owner's own test -> a visible "owner test device" badge
+            compat={"owner_test": True} if serial in ((link.state or {}).get("owner_test") or [])
+            else {})
+        free -= 1
+        added.append(SV._camera_row(cam))
+    msg = ""
+    if any(x["why"] == "plan_full" for x in skipped):
+        msg = pick(lang, "প্ল্যানের সব ক্যামেরা ব্যবহার হয়েছে — বাকিগুলো যোগ করতে প্ল্যানে ক্যামেরার সংখ্যা বাড়ান।",
+                   "All cameras in your plan are used — raise the camera count in your plan to add the rest.")
+    return added, skipped, msg
+
+
 class LinkImportView(WMV._OwnerBase):
-    """POST cctv/connect/links/<id>/import {items: [{serial, channel, name?}]}
-    — the chosen channels become cameras of the site, within the cameras
-    the owner's plan includes (never silently charged). Skipped ones say why."""
+    """POST cctv/connect/links/<id>/import {items: [{serial, channel, name?}]}."""
 
     def post(self, request, pk):
-        from .models import ShopCamera
-        from .logic import watchman as WM
         lang = req_lang(request)
         link = _link_for(request, pk)
         if link is None or link.status == "revoked":
@@ -459,75 +568,43 @@ class LinkImportView(WMV._OwnerBase):
         if not isinstance(items, list) or not items:
             return _err(lang, "কোন ক্যামেরা যোগ করবেন বেছে নিন।", "Choose the cameras to add.",
                         status=422, code="items_required")
-        allowed_serials = set(link.serials or [])
-        free = max(0, SV._included_cameras(request.user)
-                   - SV.owner_enabled_cameras(request.user).count())
-        added, skipped = [], []
-        for it in items[:CC.base.MAX_CHANNELS]:
-            if not isinstance(it, dict):
-                continue
-            serial = CC.base.clean_serial(it.get("serial"))
-            try:
-                ch = int(it.get("channel"))
-            except (TypeError, ValueError):
-                ch = -1
-            if serial not in allowed_serials or not 0 <= ch < 256:
-                skipped.append({"serial": serial, "channel": ch, "why": "not_in_link"})
-                continue
-            ref = vendor_ref(link.provider, serial, ch)
-            if ShopCamera.objects.filter(vendor_ref=ref).exists():
-                skipped.append({"serial": serial, "channel": ch, "why": "already_added"})
-                continue
-            if free <= 0:
-                skipped.append({"serial": serial, "channel": ch, "why": "plan_full"})
-                continue
-            name = str(it.get("name") or "").strip()[:120] or (
-                ("ক্যামেরা %s" % SV._bn_digits(ch)) if lang == "bn" else "Camera %d" % ch)
-            cam = ShopCamera.objects.create(
-                site=link.site, name=name, kind="edge_webhook",
-                vendor=CC.CAMERA_VENDOR[link.provider],
-                zone_config=WM.default_zone_config(link.site.kind),
-                vendor_ref=ref,
-                source=SV.clean_source({"device_serial": serial, "channel": ch,
-                                        "cloud": link.provider}))
-            free -= 1
-            added.append(SV._camera_row(cam))
-        msg = ""
-        if any(s["why"] == "plan_full" for s in skipped):
-            msg = pick(lang, "প্ল্যানের সব ক্যামেরা ব্যবহার হয়েছে — বাকিগুলো যোগ করতে প্ল্যানে ক্যামেরার সংখ্যা বাড়ান।",
-                       "All cameras in your plan are used — raise the camera count in your plan to add the rest.")
+        added, skipped, msg = import_items(link, request.user, items, lang)
         return Response({"added": added, "skipped": skipped, "message": msg},
                         status=201 if added else 200)
 
 
+def revoke_link(link):
+    """Release the devices at the vendor (best effort: Imou unBindDevice for
+    developer-account binds), wipe the grant, unlink the imported cameras'
+    cloud reference (cameras and old alerts stay). -> cameras unlinked."""
+    g = _grant(link)
+    if g and CC.enabled(link.provider):
+        try:
+            CC.adapter(link.provider).unlink(g)
+        except CC.ConnectError:
+            pass
+    refs = [vendor_ref(link.provider, s, "") for s in link.serials or []]
+    n = 0
+    for cam in link.site.cameras.exclude(vendor_ref=""):
+        if any(cam.vendor_ref.startswith(r) for r in refs):
+            cam.vendor_ref = ""
+            cam.save(update_fields=["vendor_ref"])
+            n += 1
+    link.grant_blob, link.status, link.revoked_at = "", "revoked", timezone.now()
+    link.serials = []
+    link.save(update_fields=["grant_blob", "status", "revoked_at", "serials"])
+    return n
+
+
 class LinkRevokeView(WMV._OwnerBase):
-    """DELETE cctv/connect/links/<id> — revoke: release the devices at the
-    vendor (best effort), wipe the grant, unlink the imported cameras' cloud
-    reference (the cameras and their old alerts stay; the owner deletes them
-    if wanted)."""
+    """DELETE cctv/connect/links/<id> — revoke (see revoke_link)."""
 
     def delete(self, request, pk):
         lang = req_lang(request)
         link = _link_for(request, pk)
         if link is None or link.status == "revoked":
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
-        g = _grant(link)
-        if g and CC.enabled(link.provider):
-            try:
-                CC.adapter(link.provider).unlink(g)
-            except CC.ConnectError:
-                pass
-        refs = [vendor_ref(link.provider, s, "") for s in link.serials or []]
-        n = 0
-        for cam in link.site.cameras.exclude(vendor_ref=""):
-            if any(cam.vendor_ref.startswith(r) for r in refs):
-                cam.vendor_ref = ""
-                cam.save(update_fields=["vendor_ref"])
-                n += 1
-        link.grant_blob, link.status, link.revoked_at = "", "revoked", timezone.now()
-        link.serials = []
-        link.save(update_fields=["grant_blob", "status", "revoked_at", "serials"])
-        return Response({"ok": True, "cameras_unlinked": n})
+        return Response({"ok": True, "cameras_unlinked": revoke_link(link)})
 
 
 # ---------------------------------------------------------------- streams

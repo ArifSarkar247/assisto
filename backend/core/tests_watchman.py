@@ -653,6 +653,11 @@ class ImouTests(_Base):
         super().setUp()
         self.site = self.setup_home()
         self.cam = self.add_camera(self.site["id"], vendor="imou")
+        # cctvconnect (owner 9 Nov 17:20): developer-account binds are for
+        # the owner's test cameras, with the camera owner's consent
+        p = mock.patch("core.cctv_connect_views.devbind_allowed", return_value=True)
+        p.start()
+        self.addCleanup(p.stop)
 
     def test_sign_matches_imou_formula(self):
         import hashlib
@@ -662,7 +667,7 @@ class ImouTests(_Base):
 
     def test_link_without_keys_is_honest(self):
         r = self.client.post("/api/v1/shop/cameras/%d/imou" % self.cam["id"],
-                             {"device_serial": "8F0ABC", "safety_code": "L1X"},
+                             {"device_serial": "8F0ABC", "safety_code": "L1X", "consent": True},
                              format="json")
         self.assertEqual((r.status_code, r.data["error"]), (503, "imou_not_configured"))
 
@@ -686,7 +691,7 @@ class ImouTests(_Base):
                 mock.patch("core.logic.imou.ImouClient.from_integration",
                            return_value=client):
             r = self.client.post("/api/v1/shop/cameras/%d/imou" % self.cam["id"],
-                                 {"device_serial": "8f0abc", "safety_code": "L1X"},
+                                 {"device_serial": "8f0abc", "safety_code": "L1X", "consent": True},
                                  format="json")
         self.assertEqual(r.status_code, 200, r.data)
         self.assertTrue(r.data["camera"]["cloud_alarms"])
@@ -730,7 +735,7 @@ class ImouTests(_Base):
                 mock.patch.object(IM.ImouClient, "device_online",
                                   side_effect=IM.ImouError("DV1")):
             r = self.client.post("/api/v1/shop/cameras/%d/imou" % self.cam["id"],
-                                 {"device_serial": "8F0ABC", "safety_code": "BAD"},
+                                 {"device_serial": "8F0ABC", "safety_code": "BAD", "consent": True},
                                  format="json")
         self.assertEqual((r.status_code, r.data["error"]), (502, "imou_error"))
         self.assertIn("gateway", r.data["detail"])

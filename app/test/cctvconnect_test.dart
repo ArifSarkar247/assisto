@@ -47,6 +47,10 @@ void main() {
     expect(find.byKey(const Key('ccnWifi')), findsOneWidget); // the Wi-Fi path is always there
     await tester.tap(find.byKey(const ValueKey('ccnBrand-ezviz')));
     await tester.pumpAndSettle();
+    // no consent yet: the Connect button is off
+    expect(tester.widget<ButtonStyleButton>(find.byKey(const Key('ccnConnect'))).onPressed, isNull);
+    await tester.tap(find.byKey(const Key('ccnConsent')));
+    await tester.pumpAndSettle();
     // empty -> asks for both, never calls the server
     await tester.tap(find.byKey(const Key('ccnConnect')));
     await tester.pumpAndSettle();
@@ -56,7 +60,7 @@ void main() {
     await tester.enterText(find.byKey(const Key('ccnCode')), 'ABC123');
     await tester.tap(find.byKey(const Key('ccnConnect')));
     await tester.pumpAndSettle();
-    expect(src.calls, contains('link:ezviz:3:SIMEZDVR1:ABC123'));
+    expect(src.calls, contains('link:ezviz:3:SIMEZDVR1:ABC123:consent'));
     expect(find.byType(CctvLinkDevicesScreen), findsOneWidget);
   });
 
@@ -88,6 +92,8 @@ void main() {
     await tester.pumpWidget(_app(CctvConnectScreen(siteId: 3, source: src, onFindOnWifi: () {})));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('ccnBrand-imou')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('ccnConsent')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('ccnSerial')), 'X1');
     await tester.enterText(find.byKey(const Key('ccnCode')), 'BAD1');

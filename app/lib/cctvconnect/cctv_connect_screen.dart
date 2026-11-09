@@ -336,6 +336,7 @@ class CctvLinkSheetState extends State<CctvLinkSheet> {
   bool _busy = false;
   String _msg = '';
   bool _info = false;
+  bool _consent = false; // the camera owner's on-screen consent (owner 9 Nov)
 
   @override
   void dispose() {
@@ -382,8 +383,9 @@ class CctvLinkSheetState extends State<CctvLinkSheet> {
       _msg = '';
     });
     try {
-      final res = await widget.source
-          .link((widget.provider['id'] ?? '').toString(), widget.siteId, serial, code);
+      final res = await widget.source.link(
+          (widget.provider['id'] ?? '').toString(), widget.siteId, serial, code,
+          consent: _consent);
       if (mounted) Navigator.of(context).pop(res);
       return;
     } catch (e) {
@@ -439,11 +441,21 @@ class CctvLinkSheetState extends State<CctvLinkSheet> {
                     labelText: codeLabel.isEmpty ? t.ccnCodeFallback : codeLabel,
                     border: const OutlineInputBorder()),
               ),
+              CheckboxListTile(
+                key: const Key('ccnConsent'),
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: _consent,
+                onChanged: _busy ? null : (v) => setState(() => _consent = v == true),
+                title: Text(((bn ? p['consent_bn'] : p['consent_en']) ?? '').toString().isEmpty
+                    ? t.ccnConsent
+                    : ((bn ? p['consent_bn'] : p['consent_en']) ?? '').toString()),
+              ),
               const SizedBox(height: Gap.sm),
               FilledButton.icon(
                 key: const Key('ccnConnect'),
                 style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-                onPressed: _busy ? null : _go,
+                onPressed: _busy || !_consent ? null : _go,
                 icon: _busy
                     ? const SizedBox(
                         width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
