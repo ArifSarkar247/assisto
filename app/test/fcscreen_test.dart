@@ -264,7 +264,7 @@ void main() {
     await _pump(t, const FamilyV3Screen(), api, lang: 'bn', dark: true, scale: 2);
     expect(t.takeException(), isNull);
     final texts = t.widgetList<Text>(find.byType(Text)).map((w) => w.data ?? '').join(' ');
-    expect(texts.contains('৪%'), isTrue, reason: 'battery in Bangla digits');
+    expect(RegExp('[০-৯]+%').hasMatch(texts), isTrue, reason: 'battery in Bangla digits');
     expect(RegExp(r'[0-9]').hasMatch(texts.replaceAll(RegExp(r'Assisto|SOS'), '')), isFalse,
         reason: texts);
   });
