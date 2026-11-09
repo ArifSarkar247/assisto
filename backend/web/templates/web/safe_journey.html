@@ -69,6 +69,8 @@
     <div class="row" id="r-to" hidden><span>{{ T.to }}</span><span id="to"></span></div>
     <div class="row" id="r-eta" hidden><span>{{ T.eta }}</span><span id="eta"></span></div>
     <div class="muted" id="r-etanote" hidden>{{ T.eta_note }}</div>
+    <div class="row" id="r-window" hidden><span>{{ T.window }}</span><span id="window"></span></div>
+    <div class="muted" id="r-earliest" hidden><span id="earliest"></span></div>
     <div class="row" id="r-left" hidden><span>{{ T.left }}</span><span id="left"></span></div>
     <div class="row" id="r-rough" hidden><span>{{ T.rough }}</span><span id="rough"></span></div>
     <div class="row" id="r-upd" hidden><span>{{ T.updated }}</span><span id="upd"></span></div>
@@ -138,9 +140,18 @@
       var running = st !== "arrived" && st !== "ended" && st !== "expired" && st !== "revoked";
       show("r-eta", !!d.eta && running); txt("eta", hhmm(d.eta));
       show("r-etanote", !!d.eta && running);
-      show("r-left", d.distance_m != null && running);
+      // sjp0: arrival window first; straight line / typical speed only as
+      // the small fallback when the trip has no window
+      var win = !!(d.window_from && d.window_to) && running;
+      show("r-window", win);
+      txt("window", win ? T.window_v.replace("{a}", hhmm(d.window_from)).replace("{b}", hhmm(d.window_to)) : "");
+      show("r-earliest", win && !!d.earliest_at);
+      txt("earliest", win && d.earliest_at ? T.earliest_v.replace("{c}", hhmm(d.earliest_at)) : "");
+      show("r-eta", !!d.eta && running && !win);
+      show("r-etanote", !!d.eta && running && !win);
+      show("r-left", d.distance_m != null && running && !win);
       txt("left", d.distance_m != null ? T.left_v.replace("{d}", num((d.distance_m / 1000).toFixed(1))) : "");
-      show("r-rough", d.rough_min != null && running);
+      show("r-rough", d.rough_min != null && running && !win);
       txt("rough", d.rough_min != null ? (d.eta_basis === "speed" ? T.rough_speed : T.rough_v).replace("{m}", num(d.rough_min)) : "");
       // sjduring: the V2 state, the near-destination note, finished badges
       var ds = d.dstate && running && st !== "sos" ? T["d_" + d.dstate] : "";

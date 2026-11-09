@@ -163,18 +163,22 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
           if (eta != null && j['status'] == 'active')
             Text(t.journeyEtaBy(TimeOfDay.fromDateTime(eta).format(context)),
                 style: AType.bodyMedium),
-          if (j['distance_m'] is num && j['status'] == 'active')
+          // sjp0 (owner P0 9 Nov): with an arrival window (SjBoardExtras shows
+          // "Arrive between A and B" + the earliest time) there is no
+          // straight-line distance / typical-speed guess; without one they
+          // stay as a small, honestly labelled fallback.
+          if (j['distance_m'] is num && j['status'] == 'active' && !_hasWindow(b))
             Text(t.j2ToGo(jKm(context, j['distance_m'] as num)),
-                style: AType.bodyMedium),
+                style: AType.bodySmall),
           // journey100b: rough time left — from their own recent speed when
           // the server had enough fixes, else a typical speed (never traffic)
-          if (j['rough_min'] is num && j['status'] == 'active')
+          if (j['rough_min'] is num && j['status'] == 'active' && !_hasWindow(b))
             Text(
                 j['eta_basis'] == 'speed'
                     ? t.j100bRoughSpeed(jDigits(context, (j['rough_min'] as num).toInt()))
                     : t.j100bRoughTypical(jDigits(context, (j['rough_min'] as num).toInt())),
                 key: const ValueKey('j100b_rough'),
-                style: AType.bodyMedium),
+                style: AType.bodySmall),
           // journey100b: the honest likely reason when no location comes in
           if (j['why'] == 'killed' || j['why'] == 'battery')
             Text(
@@ -307,3 +311,7 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
     );
   }
 }
+
+/// sjp0: does this watcher-board card carry an arrival window?
+bool _hasWindow(Map? b) =>
+    b != null && '${b['window_from'] ?? ''}'.isNotEmpty && '${b['window_to'] ?? ''}'.isNotEmpty;

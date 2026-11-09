@@ -553,6 +553,12 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       if (_dest?['lat'] != null) 'lat': _dest!['lat'],
       if (_dest?['lng'] != null) 'lng': _dest!['lng'],
       if (_destKind != null && _destKind!.isNotEmpty) 'kind': _destKind,
+      // sjp0: the arrival window travels with the trip (watchers + web page)
+      if (_windowTimes() case final w?) ...{
+        'window_from': w.a.toUtc().toIso8601String(),
+        'window_to': w.b.toUtc().toIso8601String(),
+        if (w.c != null) 'earliest_at': w.c!.toUtc().toIso8601String(),
+      },
     };
     final train = _mode == 'train' && jmTrainOn ? _jm.train?.toLink() : null;
     final ride = <String, dynamic>{
@@ -638,15 +644,21 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   /// B" from the ONE Routes answer (traffic) and, under it, "Earlier than C
   /// is not possible" (straight-line distance at the mode's top speed — the
   /// same rule the server uses to refuse an impossible "Arrived").
-  Widget? _window(BuildContext context, AppLocalizations t) {
-    final m = _etaMin;
+  /// sjp0: the window's three instants (A, B, C) — from the Routes answer
+  /// or, when there is none (no budget / offline), from the distance at a
+  /// typical speed for the mode, so the card and the watchers ALWAYS get a
+  /// window. Sent with the trip (destination.window_from / window_to /
+  /// earliest_at) so "Trips I am following" and the live web page show it.
+  ({DateTime a, DateTime b, DateTime? c})? _windowTimes() {
     final d = _dest;
-    if (m == null || d == null) return null;
+    if (d == null || d['lat'] is! num || d['lng'] is! num) return null;
+    final dm = _distM;
+    final m = _etaMin ?? (dm == null ? null : jRoughMinutes(dm, _mode));
+    if (m == null) return null;
     final now = DateTime.now();
-    String hm(DateTime x) => jDigits(context, TimeOfDay.fromDateTime(x).format(context));
     final a = now.add(Duration(minutes: m));
     final b = now.add(Duration(minutes: (m * 1.4).round() + 10));
-    String? c;
+    DateTime? c;
     final h = _here;
     if (h != null) {
       final km = (jDistanceM(h.lat, h.lng, (d['lat'] as num).toDouble(),
@@ -655,8 +667,17 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
               .clamp(0, double.infinity) /
           1000;
       final c0 = now.add(Duration(minutes: (km / qjTopKmh(_mode) * 60).floor()));
-      if (c0.isBefore(a)) c = hm(c0);
+      if (c0.isBefore(a)) c = c0;
     }
+    return (a: a, b: b, c: c);
+  }
+
+  Widget? _window(BuildContext context, AppLocalizations t) {
+    final w = _windowTimes();
+    if (w == null) return null;
+    String hm(DateTime x) => jDigits(context, TimeOfDay.fromDateTime(x).format(context));
+    final a = w.a, b = w.b;
+    final c = w.c == null ? null : hm(w.c!);
     final cs = Theme.of(context).colorScheme;
     return Container(
       key: const ValueKey('qj_window'),
@@ -742,16 +763,19 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       );
     }
     if (_destName.text.trim().isEmpty) return const SizedBox.shrink();
+    // sjp0 (owner P0 9 Nov): no scary "No pin yet" warning — the honest V2
+    // rule, calmly: pick the place from the list or the map (a trip never
+    // starts without coordinates).
     return Container(
       key: const ValueKey('j2_no_pin'),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: Brand.warnInk(context).withValues(alpha: 0.10),
+          color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.info_outline_rounded, color: Brand.warnInk(context)),
+        Icon(Icons.place_outlined, color: cs.primary),
         const SizedBox(width: Gap.sm),
-        Expanded(child: Text(t.j2NoPin, style: AType.bodyMedium)),
+        Expanded(child: Text(t.qjDestNeedsPlace, style: AType.bodyMedium)),
       ]),
     );
   }

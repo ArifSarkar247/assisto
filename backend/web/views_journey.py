@@ -54,6 +54,8 @@ TXT = {
         "photo": "যানবাহনের ছবি", "limited": "অনেকবার চেষ্টা হয়েছে। এক মিনিট পরে আবার খুলুন।",
         "other": "English",
         "revoked": "যাত্রী এই লিংকটি বন্ধ করে দিয়েছেন। কোনো লোকেশন দেখানো হয় না।",
+        "window": "পৌঁছানোর সময়সীমা", "window_v": "{a} থেকে {b}-এর মধ্যে",
+        "earliest_v": "{c}-এর আগে পৌঁছানো সম্ভব নয়",
         "left": "গন্তব্য থেকে দূরত্ব", "left_v": "সোজা দূরত্বে প্রায় {d} কিমি",
         "rough": "আনুমানিক বাকি সময়", "rough_v": "প্রায় {m} মিনিট (সাধারণ গতিতে, ট্রাফিক নয়)",
         "rough_speed": "প্রায় {m} মিনিট (গত ১০ মিনিটের আসল গতিতে, ট্রাফিক-তথ্য নয়)",
@@ -87,6 +89,8 @@ TXT = {
         "photo": "Ride photo", "limited": "Too many tries. Please open it again in a minute.",
         "other": "বাংলা",
         "revoked": "The traveller turned this link off. No location is shown.",
+        "window": "Arrival window", "window_v": "between {a} and {b}",
+        "earliest_v": "Earliest possible arrival: {c}",
         "left": "Distance to destination", "left_v": "about {d} km in a straight line",
         "rough": "Rough time left", "rough_v": "about {m} min (typical speed, not live traffic)",
         "rough_speed": "about {m} min (from their real speed over the last 10 min, not traffic data)",
@@ -149,6 +153,17 @@ def public_state(token, now=None):
     out = {"name": push.display_name(j.traveller),
            "destination": (j.destination or {}).get("name") or "",
            "eta": j.eta.isoformat() if j.eta else None}
+    # sjp0 (owner P0 9 Nov): the arrival window (Arrive between A and B,
+    # earliest C) replaces straight line + "typical speed" on this page
+    _dd = j.destination or {}
+    if _dd.get("window_from") and _dd.get("window_to"):
+        out["window_from"], out["window_to"] = _dd["window_from"], _dd["window_to"]
+        try:
+            from core import journey_during as JDUR
+            c = JDUR.earliest_for(j)
+            out["earliest_at"] = c.isoformat() if c else None
+        except Exception:
+            out["earliest_at"] = None
     if j.sos_active:
         state = "sos"
     elif j.status == "arrived":

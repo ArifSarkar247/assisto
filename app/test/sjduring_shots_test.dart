@@ -111,6 +111,7 @@ List<Map<String, dynamic>> sjdBoardActive(String l) => [
       {'id': 11, 'name': _n(l, 'রিনা', 'Rina'), 'mode': 'cng', 'status': 'active', 'state': 'moving',
         'distance_m': 5200, 'level': '', 'badges': [], 'near_note': false,
         'window_from': DateTime.now().add(const Duration(minutes: 20)).toIso8601String(),
+        'earliest_at': DateTime.now().add(const Duration(minutes: 12)).toIso8601String(), // sjp0
         'window_to': DateTime.now().add(const Duration(minutes: 45)).toIso8601String()},
       {'id': 12, 'name': _n(l, 'বাবা', 'Baba'), 'mode': 'long_bus', 'status': 'active', 'state': 'nearly',
         'state_minutes': 18, 'distance_m': 700, 'level': '', 'badges': [], 'near_note': true},

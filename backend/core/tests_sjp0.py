@@ -147,3 +147,26 @@ class TestHarnessNeverUsesTheOwnerTests(MapsBase):
         # a live AI e2e run on the owner (superuser) is refused before any spend
         with self.assertRaises(CommandError):
             call_command("ai_live_e2e", "--user", str(self.u1.id))
+
+
+class WebPageShowsTheWindowTests(MapsBase):
+    def test_live_page_has_window_and_earliest_not_only_straight_line(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from core import journey_watch as JW
+        from core.models import Journey
+        from web.views_journey import TXT, public_state
+        now = timezone.now()
+        a, b = now + timedelta(minutes=50), now + timedelta(minutes=80)
+        j = Journey.objects.create(
+            traveller=self.u1, origin={"lat": 23.7806, "lng": 90.4265},
+            destination={"name": "Gaibandha", "lat": 25.33, "lng": 89.54,
+                         "window_from": a.isoformat(), "window_to": b.isoformat()},
+            eta=b, status="active", expires_at=now + timedelta(hours=6))
+        st, code = public_state(JW.web_token(j))
+        self.assertEqual(code, 200)
+        self.assertEqual((st["window_from"], st["window_to"]), (a.isoformat(), b.isoformat()))
+        self.assertIn("earliest_at", st)
+        for lang in ("bn", "en"):
+            self.assertIn("{a}", TXT[lang]["window_v"])
+            self.assertIn("{c}", TXT[lang]["earliest_v"])

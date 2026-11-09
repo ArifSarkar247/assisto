@@ -96,7 +96,14 @@ class _SjBoardExtrasState extends State<SjBoardExtras> {
         _chip(context, Icons.help_rounded, t.sjdLevelAmber('${c['name'] ?? ''}'),
             Brand.warning, const ValueKey('sjd_amber')),
       if (active && from.isNotEmpty && to.isNotEmpty)
-        Text(t.sjdWindow(from, to), style: AType.bodyMedium),
+        Text(t.sjdWindow(from, to),
+            key: const ValueKey('sjd_window'),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+      // sjp0: the earliest possible arrival (C) under the window
+      if (active && from.isNotEmpty && sjClock(context, c['earliest_at'] as String?).isNotEmpty)
+        Text(t.qjEarliest(sjClock(context, c['earliest_at'] as String?)),
+            key: const ValueKey('sjd_earliest'),
+            style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
       if (active && why.isNotEmpty) Text(why, style: AType.bodyMedium),
       if (active && c['near_note'] == true)
         Text(t.sjdNearNote,
