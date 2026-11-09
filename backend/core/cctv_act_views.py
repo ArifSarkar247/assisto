@@ -236,7 +236,11 @@ def act_actions(ev, role):
     try:
         site, cam = ev.site, ev.camera
         lang = "bn"
-        out = {"live": live_path(cam, site)}
+        out = {"site_id": site.id, "role": role, "live": live_path(cam, site)}
+        pend = [{"id": p["id"], "name": p.get("name") or ""}
+                for p in _auto(site).get("pending") or [] if p.get("event_id") == ev.id]
+        if role == "owner" and pend:
+            out["lock_pending"] = pend
         if role == "owner":
             out["wrong"] = learn_state(site, ev, lang)
             loc = guard_get(site, "_loc") or {}
@@ -1146,6 +1150,8 @@ class ClosingReportView(_OwnerBase):
                 st["push"] = push
         guard_update(site, "_act3", f)
         return Response(report_cfg(site))
+
+    post = put
 
 
 def run_closing(site, now):

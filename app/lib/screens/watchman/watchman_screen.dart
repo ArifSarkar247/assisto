@@ -17,6 +17,8 @@ import 'auto_guard_screen.dart'; // cctvarm
 import 'cctvx_inbox.dart';
 import 'activity_screen.dart'; // cctvactivity
 import '../../cctvx/activity_source.dart'; // cctvactivity
+import '../../cctvact/cctvact_source.dart'; // cctvact
+import 'cctv_act_screens.dart'; // cctvact
 import 'watchman_add_camera.dart';
 import 'watchman_alerts.dart';
 import 'watchman_setup.dart';
@@ -574,6 +576,21 @@ class _SiteCard extends StatelessWidget {
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (ctx) => ActivityScreen(
                         source: ApiActivitySource(ctx.read<AppState>().api),
+                        siteId: siteId,
+                        siteName: (site['name'] ?? '').toString(),
+                        owner: _owner))),
+              ),
+            // cctvact (V3 E/G/F/D): closing report, ask, sales match, automations
+            if (cams.isNotEmpty)
+              OutlinedButton.icon(
+                key: const ValueKey('wm-cv3-hub'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.summarize_rounded),
+                label: Text(t.cv3HubEntry),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (ctx) => CctvActHubScreen(
+                        source: ApiCctvActSource(ctx.read<AppState>().api),
+                        events: ApiCctvxSource(ctx.read<AppState>().api),
                         siteId: siteId,
                         siteName: (site['name'] ?? '').toString(),
                         owner: _owner))),

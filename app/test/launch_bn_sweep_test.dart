@@ -60,6 +60,7 @@ const _launchPrefixes = <String>[
   'cev_', // CCTV evidence (SD clip / recording)
   'recov_', // recovery: Account & security + account recovery (owner Part 8)
   'cesc_', // CCTV escalation (alarm call, police card)
+  'cv3_', // cctvact: CCTV V3 act / report / ask / sales / automations
   'cpl_', // CCTV pricing / add-on
   'cg_', // CCTV cost guard
   'lostsim_', // lost phone: intruder-photo notice on the Vault PIN (3 Nov)
