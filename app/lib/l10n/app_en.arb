@@ -49783,5 +49783,52 @@
       }
     }
   },
-  "cdetReviewOnly": "Review only — never an accusation."
+  "cdetReviewOnly": "Review only — never an accusation.",
+  "cityMapStop": "Map a stop",
+  "cityMapStopSub": "Add a bus stop near you",
+  "cityMapTitle": "Map a stop",
+  "cityMapBenefit": "Help everyone find the bus: stand where buses stop and tap once.",
+  "cityMapAddHere": "Add a stop here",
+  "cityMapHow": "Your name is never kept. A stop goes on the map when {n} different people confirm it, and shows as Reported by users. Our team removes wrong ones.",
+  "@cityMapHow": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapWhichBus": "Which bus stops here? (optional)",
+  "cityMapThisBus": "Stops here",
+  "cityMapNoBuses": "No known bus passes near here yet. Just tap Add a stop here.",
+  "cityMapOthers": "Waiting for confirmation near you",
+  "cityMapYes": "Yes, it stops here",
+  "cityMapPeople": "{n} of {need} people confirmed",
+  "@cityMapPeople": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "need": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapAnyBus": "A bus stop",
+  "cityMapOnMap": "On the map now",
+  "cityMapNoneWaiting": "Nothing is waiting near you. Be the first: tap Add a stop here at a real bus stop.",
+  "cityMapThanks": "Thanks! The stop is added once {n} people confirm it.",
+  "@cityMapThanks": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapConfirmed": "Confirmed! The stop now shows in everyone's routes.",
+  "cityMapKnown": "This stop is already on the map. Thank you!",
+  "cityMapAlready": "You have already confirmed this one.",
+  "cityMapRejected": "This was checked before and not added.",
+  "cityMapFar": "Please be at the stop to confirm it.",
+  "cityMapLimit": "Today's limit is reached. Please try tomorrow.",
+  "cityMapFailed": "Could not load. Pull down to try again."
 }
