@@ -194,8 +194,25 @@ class Harness {
     if (!userB && _backendA != null) return _backendA!;
     if (userB && _backendB != null) return _backendB!;
     final c = ApiClient();
-    final res = await c.login(identifier: userB ? Seed.phoneB : Seed.phoneA, password: Seed.password);
-    c.token = res.token;
+    // qjourney: sign in as a SEPARATE device. ApiClient.login sends the app's
+    // own X-Device-Id, and since recovery (3 Nov) a device that signs in
+    // again replaces its older session — so the first backend() call for A
+    // signed the APP out (401 everywhere, every later flow stuck before home).
+    final r = await http.post(AppConfig.api('/auth/login'),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Mode': 'device',
+          'X-Device-Id': userB ? 'reality-backend-b' : 'reality-backend-a',
+          'X-Device-Name': 'reality harness',
+        },
+        body: jsonEncode({
+          'identifier': userB ? Seed.phoneB : Seed.phoneA,
+          'password': Seed.password,
+        }));
+    if (r.statusCode != 200) {
+      throw TestFailure('backend login ${userB ? 'B' : 'A'}: ${r.statusCode} ${r.body}');
+    }
+    c.token = (jsonDecode(r.body) as Map)['token'] as String;
     c.lang = 'en';
     if (userB) {
       _backendB = c;
