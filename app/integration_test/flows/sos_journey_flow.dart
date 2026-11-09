@@ -32,6 +32,13 @@ Future<void> holdSos(RFlow f) async {
   await f.pumpFor(const Duration(milliseconds: 500));
 }
 
+/// Leave [screen] like the system back key (its app bar has its own arrow,
+/// not a BackButton, so the harness' back() cannot find one).
+Future<void> _pop(RFlow f, Finder screen) async {
+  await Navigator.of(f.tester.element(screen)).maybePop();
+  await f.pumpFor(const Duration(milliseconds: 1200));
+}
+
 void registerSosJourneyFlows() {
   realityFlow('14b_sos_send', 'Family & safety',
       'SOS for real: hold -> countdown -> B is alerted -> ladder -> I\'m safe now (two accounts)',
@@ -66,6 +73,7 @@ void registerSosJourneyFlows() {
     });
     await f.step('A: I\'m safe now -> B\'s SOS no longer active', () async {
       final safe = find.byKey(const ValueKey('sosat-safe'));
+      await f.scrollTo(safe); // below the fold under the ladder
       await f.waitFor(safe, what: '"I\'m safe now" button');
       await f.tester.ensureVisible(safe);
       final m2 = f.httpMark;
@@ -94,22 +102,24 @@ void registerSosJourneyFlows() {
       }
       await f.tap(card, settleSeconds: 2);
       final open = find.byKey(const ValueKey('sjl_open_alarm'));
+      await f.scrollTo(open);
       await f.tester.ensureVisible(open);
       await f.tap(open, settleSeconds: 3);
       await f.waitFor(find.byType(DestAlarmScreen), what: 'destination alarm screen');
       await f.shot('dest_alarm');
-      await f.back();
+      await _pop(f, find.byType(DestAlarmScreen));
     });
     await f.step('Train card -> train tracker screen', () async {
       final card = find.byKey(const ValueKey('sjl_card_train'));
       await f.waitFor(card, what: 'train card');
       await f.tap(card, settleSeconds: 2);
       final open = find.byKey(const ValueKey('sjl_open_train'));
+      await f.scrollTo(open);
       await f.tester.ensureVisible(open);
       await f.tap(open, settleSeconds: 3);
       await f.waitFor(find.byType(TrainTrackerScreen), what: 'train tracker screen');
       await f.shot('train');
-      await f.back();
+      await _pop(f, find.byType(TrainTrackerScreen));
     });
     await f.step('Nearby: places or an honest empty state with a button', () async {
       await f.openRoute('nearby', settleSeconds: 5);

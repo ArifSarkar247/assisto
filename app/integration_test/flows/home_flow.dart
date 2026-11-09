@@ -44,14 +44,23 @@ void registerHomeFlows() {
     });
   });
 
-  realityFlow('05_home_restore', 'Home', 'Home chat restored after app restart', (f) async {
+  realityFlow('05_home_restore', 'Home', 'Home chat after app restart: a new chat, the old one kept in history', (f) async {
     // realityFlow booted a FRESH AppState + widget tree = app reopened.
+    // qjourney: aifinal (owner 3 Nov 00:33) — Assisto AI opens a NEW chat on
+    // a cold start; the earlier conversation is kept and reopened from the
+    // chats list (flow 06). This flow used to expect the old chat on screen.
     await f.home();
-    await f.step('the last home conversation is shown again', () async {
+    await f.step('cold start opens a new chat; the old one is still saved', () async {
       await f.openHomeChat();
-      final ok = await f.appears(find.textContaining(_ping), seconds: 12);
       await f.shot('after-restart');
-      if (!ok) throw TestFailure('message "$_ping" not restored after restart');
+      if (await f.appears(find.textContaining(_ping), seconds: 3)) {
+        throw TestFailure('cold start reopened the old chat (owner: a new chat)');
+      }
+      final api = await f.h.backend();
+      await f.eventually('the earlier home chat is still on the server', () async {
+        final r = await api.getJson('/chat/sessions');
+        return '$r'.contains('Reality ping');
+      });
     });
   });
 
@@ -112,6 +121,9 @@ void registerHomeFlows() {
       await f.tap(checked.first, settleSeconds: 0.6);
       final free = find.byWidgetPredicate((w) =>
           w is CheckboxListTile && w.value == false && w.onChanged != null && label(w) != removed);
+      // qjourney: the picker is a lazy list — the free ones can be below the fold
+      await f.scrollTo(free);
+      await f.tester.ensureVisible(free.first);
       await f.tap(free.first, settleSeconds: 0.6);
       await f.shot('changed');
       await f.tapText(f.t.aichatSave, settleSeconds: 2);

@@ -57,6 +57,8 @@ void registerJourneyV2Flows() {
       await f.tap(find.ancestor(
               of: find.textContaining('Shahjalal'), matching: find.byType(ListTile))
           .first, settleSeconds: 3);
+      FocusManager.instance.primaryFocus?.unfocus();
+      await f.scrollTo(find.byKey(const ValueKey('j2_pinned')));
       await f.waitFor(find.byKey(const ValueKey('j2_pinned')), what: 'pinned airport');
       await f.shot('airport_pinned');
       final paid = f.h.recorder.hits.skip(before).where((x) => x.path.startsWith('/maps/place'));
