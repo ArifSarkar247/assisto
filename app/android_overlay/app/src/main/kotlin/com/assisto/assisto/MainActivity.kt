@@ -474,6 +474,14 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // fcelder: Silent Watch ("com.assisto/silent_watch"). Handler only —
+        // alarms exist only after an elder opted in on the consent screen.
+        try {
+            com.assisto.assisto.silentwatch.SilentWatch.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.assisto/lockscreen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "release") {

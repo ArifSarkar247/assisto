@@ -1110,6 +1110,20 @@ urlpatterns += [
 ]
 # ---- /mr1 ----
 
+# ---- fcelder ---- Silent Watch + Elder setup by a child (MUST precede router.urls: family/<pk>)
+from . import views_silent_watch as swv  # noqa: E402
+urlpatterns += [
+    path("family/silent-watch", swv.SilentWatchView.as_view()),
+    path("family/silent-watch/token", swv.SilentWatchTokenView.as_view()),
+    path("family/silent-watch/ok", swv.SilentWatchOkView.as_view()),
+    path("family/silent-watch/alert", swv.SilentWatchAlertView.as_view()),
+    path("family/silent-watch/alerts/<int:pk>/ack", swv.SilentWatchAckView.as_view()),
+    path("family/silent-watch/test", swv.SilentWatchTestView.as_view()),
+    path("family/elder-setup", swv.ElderSetupView.as_view()),
+    path("family/elder-setup/<str:code>", swv.ElderSetupCodeView.as_view()),
+    path("family/elder-setup/<str:code>/accept", swv.ElderSetupAcceptView.as_view()),
+]
+# ---- /fcelder ----
 urlpatterns += router.urls
 
 # ---- ps1-photo ---- Photo Studio: config, safety, entry ad, jobs (funding taken
