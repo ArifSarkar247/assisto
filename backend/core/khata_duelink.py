@@ -71,7 +71,41 @@ def public_statement(party_id, lang):
                    "balance": (r.get("balance_display") or {}).get(L, "")}
                   for r in lines],
         "more": max(0, len(stmt.get("entries") or []) - MAX_LINES),
+        # bizai2: how to pay — the shop's own bKash/Nagad merchant number or
+        # the pay-to number it already put on its reminders (never anything
+        # else); only while something is due.
+        "pay": _pay(p) if bal > 0 else [],
     }
+
+
+PROVIDER_NAME = {"bkash": "bKash", "nagad": "Nagad", "rocket": "Rocket"}
+
+
+def _pay(party):
+    try:
+        from . import tagada_engine as TE
+        return [{"provider": PROVIDER_NAME.get(m["provider"], m["provider"]),
+                 "number": m["number"]}
+                for m in TE._pay_methods(party.business, [party])][:3]
+    except Exception:  # noqa: BLE001 — the page never fails over a pay hint
+        return []
+
+
+def tagada_line(party, lang):
+    """bizai2: the due-link line a tagada carries on the FREE channels
+    (WhatsApp, the phone's own SMS) — the customer taps once and sees the
+    due, every entry and how to pay. Never on the paid gateway SMS (a link
+    costs the owner an extra SMS part). Customer book only."""
+    from .growth import site
+    if party is None or getattr(party, "book", "") != khata.CUSTOMER or party.archived:
+        return ""
+    url = site() + link_path(party.id) + ("?lang=en" if lang == "en" else "")
+    return ("\nSee your account and how to pay: %s" if lang == "en"
+            else "\nহিসাব ও পরিশোধের উপায় দেখুন: %s") % url
+
+
+def with_link(text, party, lang):
+    return (text + tagada_line(party, lang)) if text else text
 
 
 def _share_text(shop, name, url, lang):
