@@ -1,2 +1,21 @@
-{"en": {"qjNearbyFavBrowse": "See places near you", "@qjNearbyFavBrowse": {"description": "qjourney: button on the empty Favourites view of Nearby; goes back to the list of nearby places"}},
- "bn": {"qjNearbyFavBrowse": "কাছের জায়গাগুলো দেখুন"}}
+{
+ "en": {
+  "qjNearbyFavBrowse": "See places near you",
+  "@qjNearbyFavBrowse": {
+   "description": "qjourney: button on the empty Favourites view of Nearby; goes back to the list of nearby places"
+  },
+  "qjArrivedUnusual": "Arrival saved. It looked unusual (far from the destination or sooner than possible), so your family is asked to check on you.",
+  "@qjArrivedUnusual": {
+   "description": "qjourney: Safe Journey V2 honest manual-arrival message"
+  },
+  "qjArrivedNeedsPin": "This arrival looks unusual. Open Safe Journey and tap “I've arrived safely” to confirm with your safety PIN.",
+  "@qjArrivedNeedsPin": {
+   "description": "qjourney: Safe Journey V2 honest manual-arrival message"
+  }
+ },
+ "bn": {
+  "qjNearbyFavBrowse": "কাছের জায়গাগুলো দেখুন",
+  "qjArrivedUnusual": "পৌঁছানো সংরক্ষিত হয়েছে। এটি অস্বাভাবিক মনে হয়েছে (গন্তব্য থেকে দূরে বা সম্ভব সময়ের আগে), তাই পরিবারকে আপনার খোঁজ নিতে বলা হয়েছে।",
+  "qjArrivedNeedsPin": "এই পৌঁছানো অস্বাভাবিক মনে হচ্ছে। নিরাপদ যাত্রা খুলে “আমি নিরাপদে পৌঁছেছি” চাপুন এবং নিরাপত্তা PIN দিয়ে নিশ্চিত করুন।"
+ }
+}
