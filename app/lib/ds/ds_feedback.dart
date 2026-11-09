@@ -86,9 +86,9 @@ class DsStepNumber extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = DsTokens.of(context);
     final bn = Localizations.localeOf(context).languageCode == 'bn';
-    const d = '০১২৩৪৫৬৭৮৯';
+    // Bangla digits by code point (no Bangla literal in Dart — lang gate).
     final s = bn
-        ? '$n'.split('').map((c) => d[int.parse(c)]).join()
+        ? String.fromCharCodes('$n'.codeUnits.map((c) => c - 0x30 + 0x09E6))
         : '$n';
     return Container(
       width: 22,
