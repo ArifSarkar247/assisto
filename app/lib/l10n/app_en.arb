@@ -50255,5 +50255,13 @@
   "ssNameRequired": "Type a name, or pick someone from My Circle.",
   "@ssNameRequired": {
     "description": "Shown when Save is tapped on an empty name field"
+  },
+  "fsLowDataTitle": "Low-data mode",
+  "@fsLowDataTitle": {
+    "description": "faststart: Settings switch that saves mobile data"
+  },
+  "fsLowDataSub": "Home and sponsor pictures show only if already saved on this phone (no new downloads), and calls use less data.",
+  "@fsLowDataSub": {
+    "description": "faststart: subtitle of the Low-data mode switch"
   }
 }
