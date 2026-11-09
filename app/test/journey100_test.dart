@@ -424,7 +424,7 @@ void main() {
     await _settle(tester);
     // journey2: the form is taller (intro + destination picker) — rows can
     // sit below the fold, so look past it and scroll to them
-    final karim = find.widgetWithText(CheckboxListTile, 'Reality Karim', skipOffstage: false);
+    final karim = find.widgetWithText(FilterChip, 'Reality Karim', skipOffstage: false); // sjstart2: chips
     expect(karim, findsOneWidget);
     expect(find.text('Pending Pal'), findsNothing);
     expect(find.byKey(const ValueKey('truth_journey_add_watcher'), skipOffstage: false),
@@ -432,7 +432,7 @@ void main() {
     await tester.ensureVisible(karim);
     await tester.tap(karim);
     await _settle(tester, 3);
-    expect(tester.widget<CheckboxListTile>(karim).value, isTrue);
+    expect(tester.widget<FilterChip>(karim).selected, isTrue);
     // sjfix: the ETA goes out as an absolute UTC instant. A naive local
     // time was read by the server as Asia/Dhaka, so any phone on another
     // timezone started its journey already overdue.
@@ -461,7 +461,7 @@ void main() {
     await tester.pumpWidget(_app(api));
     unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => const JourneyStartScreen())));
     await _settle(tester);
-    expect(find.byType(CheckboxListTile), findsNothing);
+    expect(find.byType(FilterChip), findsNothing); // sjstart2: chips
     expect(find.byKey(const ValueKey('truth_journey_add_watcher'), skipOffstage: false),
         findsOneWidget);
   });

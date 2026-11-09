@@ -82,3 +82,14 @@ class MapsSearchView(APIView):
         return Response(PS.suggest(request.user, _q(request, "q"), _q(request, "session"),
                                    lat=_q(request, "lat"), lng=_q(request, "lng"),
                                    lang=req_lang(request)))
+
+
+class MapsAreaView(APIView):
+    """sjstart2 — GET /maps/area?lat&lng: the nearest area name from our own
+    free Bangladesh list ("From: My current location · Badda"). Never a paid
+    call; {"area": null} when nothing is near (the phone then shows only
+    "My current location")."""
+    def get(self, request):
+        from . import bd_places as BP
+        return Response({"area": BP.nearest_area(_q(request, "lat"), _q(request, "lng"),
+                                                 lang=req_lang(request))})

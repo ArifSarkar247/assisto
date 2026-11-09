@@ -329,6 +329,31 @@ class Notifications {
     }
   }
 
+  // sjstart2: an immediate notification whose tap / buttons come back to
+  // PushService._onLocalResponse with [payload] (Safe Journey suggestion).
+  static Future<void> showPayload(int id, String title, String body, String payload,
+      {List<AndroidNotificationAction> actions = const []}) async {
+    if (!_ready) return;
+    try {
+      await _plugin.show(
+          id,
+          title,
+          body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              'assisto_reminders', 'Reminders',
+              channelDescription: 'Assisto reminders',
+              importance: Importance.high, priority: Priority.high,
+              styleInformation: BigTextStyleInformation(body),
+              actions: actions,
+            ),
+          ),
+          payload: payload);
+    } catch (e) {
+      if (kDebugMode) print('show failed: $e');
+    }
+  }
+
   /// Show a notification immediately (used by the background family poller).
   static Future<void> show(int id, String title, String body) async {
     if (!_ready) return;
