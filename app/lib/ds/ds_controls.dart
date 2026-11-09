@@ -11,6 +11,7 @@ enum DsButtonKind { primary, secondary, danger, ghost }
 class DsButton extends StatelessWidget {
   const DsButton({
     super.key,
+    this.buttonKey,
     required this.label,
     required this.onPressed,
     this.icon,
@@ -21,6 +22,7 @@ class DsButton extends StatelessWidget {
 
   const DsButton.secondary({
     super.key,
+    this.buttonKey,
     required this.label,
     required this.onPressed,
     this.icon,
@@ -30,6 +32,7 @@ class DsButton extends StatelessWidget {
 
   const DsButton.danger({
     super.key,
+    this.buttonKey,
     required this.label,
     required this.onPressed,
     this.icon,
@@ -41,6 +44,9 @@ class DsButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final IconData? icon;
   final DsButtonKind kind;
+
+  /// Key for the inner Material button (tests that read a ButtonStyleButton).
+  final Key? buttonKey;
   final bool expand;
 
   /// Shows a small spinner instead of the icon and disables the button.
@@ -75,8 +81,11 @@ class DsButton extends StatelessWidget {
           textStyle: tx,
         );
         b = lead == null
-            ? FilledButton(onPressed: enabled ? onPressed : null, style: style, child: text)
+            ? FilledButton(
+                key: buttonKey,
+                onPressed: enabled ? onPressed : null, style: style, child: text)
             : FilledButton.icon(
+                key: buttonKey,
                 onPressed: enabled ? onPressed : null,
                 style: style,
                 icon: lead,
@@ -101,8 +110,11 @@ class DsButton extends StatelessWidget {
           textStyle: tx,
         );
         b = lead == null
-            ? OutlinedButton(onPressed: enabled ? onPressed : null, style: style, child: text)
+            ? OutlinedButton(
+                key: buttonKey,
+                onPressed: enabled ? onPressed : null, style: style, child: text)
             : OutlinedButton.icon(
+                key: buttonKey,
                 onPressed: enabled ? onPressed : null,
                 style: style,
                 icon: lead,
@@ -115,8 +127,11 @@ class DsButton extends StatelessWidget {
           textStyle: tx,
         );
         b = lead == null
-            ? TextButton(onPressed: enabled ? onPressed : null, style: style, child: text)
+            ? TextButton(
+                key: buttonKey,
+                onPressed: enabled ? onPressed : null, style: style, child: text)
             : TextButton.icon(
+                key: buttonKey,
                 onPressed: enabled ? onPressed : null,
                 style: style,
                 icon: lead,

@@ -53,7 +53,7 @@ class DsEmptyState extends StatelessWidget {
         if (actionLabel != null) ...[
           const SizedBox(height: Gap.lg),
           DsButton(
-            key: actionKey,
+            buttonKey: actionKey, // on the Material button itself
             label: actionLabel!,
             onPressed: onAction,
             kind: danger ? DsButtonKind.danger : DsButtonKind.primary,
