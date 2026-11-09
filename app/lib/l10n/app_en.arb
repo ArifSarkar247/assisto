@@ -44980,7 +44980,7 @@
   "fcbArriveNotRunning": "On, but not running now. Open Assisto once, allow location, and save Home or School.",
   "fcbLeaveNews": "Also tell them when I leave",
   "fcbDiscloseTitle": "Use your location for arrival news?",
-  "fcbDiscloseBody": "Assisto checks this phone's location from time to time, only while this switch is on, to see when you reach a place you saved (Home, School, Office). Your family gets only \"arrived\" or \"left\" with the time, never your route or a map. When your battery is at 15%, your last location is shared once. A notification stays while it is on. Turn it off here any time.",
+  "fcbDiscloseBody": "Assisto checks this phone's location only while this switch is on, to see when you reach a place you saved (Home, School, Office). Your family gets only \"arrived\" or \"left\" with the time, never your route or a map. When your battery is at 15%, your last location is shared once. Turn it off here any time.",
   "fcbDiscloseYes": "Yes, turn on",
   "fcbNotNow": "Not now",
   "fcbWatchNotifTitle": "Family arrival news is on",
@@ -45075,5 +45075,6 @@
   "fcbLeaveYes": "Leave",
   "fcbSaveFailed": "Could not save. Check the internet and try again.",
   "fcbLoadFailed": "Could not load your family settings.",
-  "fcbRetry": "Try again"
+  "fcbRetry": "Try again",
+  "fcbArriveForeground": "On while Assisto is open: your family hears when you arrive. When Assisto is closed, they see \"No news\" instead of a guess."
 }
