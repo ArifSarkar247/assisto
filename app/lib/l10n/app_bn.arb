@@ -24014,5 +24014,8 @@
   "ccnHealthFix": "কী করবেন",
   "ccnHealthTarget": "কত দিনের রেকর্ড চাই",
   "ccnHealthTargetSaved": "সংরক্ষিত হয়েছে",
-  "ccnHealthDaysOpt": "{days} দিন"
+  "ccnHealthDaysOpt": "{days} দিন",
+  "ccnOauthButton": "আমার {brand} অ্যাকাউন্ট যুক্ত করুন (এক ট্যাপে)",
+  "ccnOauthHint": "{brand}-এর নিজের পাতা খুলেছে — লগইন করে Allow চাপুন, তারপর Assisto-তে ফিরে আসুন।",
+  "ccnOauthDaysLeft": "অনুমতি: আর {days} দিন"
 }

@@ -45191,5 +45191,32 @@
         "type": "String"
       }
     }
+  },
+  "ccnOauthButton": "Link my {brand} account (one tap)",
+  "@ccnOauthButton": {
+    "description": "cctvconnect (CCTV Guard V3): Imou OAuth one-tap link",
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnOauthHint": "{brand}'s own page is open — sign in, tap Allow, then come back to Assisto.",
+  "@ccnOauthHint": {
+    "description": "cctvconnect (CCTV Guard V3): Imou OAuth one-tap link",
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "ccnOauthDaysLeft": "Permission: {days} days left",
+  "@ccnOauthDaysLeft": {
+    "description": "cctvconnect (CCTV Guard V3): Imou OAuth one-tap link",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
   }
 }
