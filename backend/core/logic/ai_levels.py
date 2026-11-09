@@ -61,7 +61,10 @@ assert BOUNDS["in_cap"][1] < 90000
 TOP_BOUNDS = {"welcome_credits": (0, 200), "ad_answers_per_ad": (0, 10),
               # plansprep (owner 9 Nov item 8): verified rewarded ads needed
               # for ad_answers_per_ad Normal answers (2 ads = 1 answer)
-              "ads_per_answer": (1, 10),
+              "ads_per_answer": (1, 50),
+              # aimoney (owner 10 Nov, part G): output tokens of one
+              # AD-FUNDED answer (Normal level, shorter than Normal's own)
+              "ad_out_cap": (200, 4000),
               # item 9: free Gemini grounding prompts a day before web search
               # moves to Claude web search
               "web_free_per_day": (0, 100000)}
@@ -79,6 +82,12 @@ def defaults():
             "free_credit_levels": ["normal"],
             "welcome_on": False, "welcome_credits": 20, "ad_answers_per_ad": 2,
             "ads_per_answer": 1, "web_free_per_day": 1500,
+            # aimoney (owner 10 Nov, part G): ads per answer recomputed DAILY
+            # from real cost / real ad income (core/ad_money_service.py) and
+            # ad-funded answers on Normal with the shorter ad_out_cap. OFF in
+            # code (a fresh / test DB keeps today's rule); ON in the live row
+            # via `manage.py pricing_welcome_off --apply` (and pricing v2).
+            "ad_dynamic": False, "ad_out_cap": 900,
             # PART 5: action buttons under AI answers (fixed allow-list)
             "actions_on": False,
             # round 3 item 7: the nightly AI exam (core/ai_exam.py)
@@ -135,6 +144,7 @@ def normalize(raw):
     fl = [x for x in fl if x in LEVEL_IDS] if isinstance(fl, list) else base["free_credit_levels"]
     out["free_credit_levels"] = fl or ["normal"]
     out["welcome_on"] = raw.get("welcome_on") is True
+    out["ad_dynamic"] = raw.get("ad_dynamic", base["ad_dynamic"]) is not False   # aimoney
     out["actions_on"] = raw.get("actions_on") is True
     out["exam_on"] = raw.get("exam_on") is True
     out["web_on"] = raw.get("web_on") is True

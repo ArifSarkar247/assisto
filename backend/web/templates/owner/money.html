@@ -1,0 +1,17 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ L.title }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ L.intro }}</p>
+<section class="card" id="money-n"><h2>{{ L.n }}: <b id="money-ads-per-answer">{{ t.ads_per_answer }}</b></h2>
+<p class="small">{{ L.how }}: {{ L.cost }} ৳{{ t.today.real_cost_bdt|default:L.none }} ({{ t.today.cost_source }}, {{ t.today.cost_samples }}) ·
+{{ L.income }} ৳{{ t.today.income_bdt }} ({{ t.today.income_source }}, {{ t.today.ad_events }}) ·
+{{ L.worst }} ৳{{ t.today.worst_bdt }} · {{ L.profit }} {{ t.today.profit_pct }}%</p></section>
+<div class="card tbl"><table id="money-table"><thead><tr><th>{{ L.date }}</th><th>{{ L.ads }}</th><th>{{ L.free_ai }}</th><th>{{ L.pnl }}</th><th>{{ L.per_answer }}</th><th>{{ L.packs }}</th><th>{{ L.plans }}</th></tr></thead><tbody>
+{% for r in t.rows %}<tr><td>{{ r.date|date:"Y-m-d" }}</td>
+<td>৳{{ r.ad_total }}{% for k, v in r.ad_by_fmt.items %}<br><span class="small">{{ k }} ৳{{ v }}</span>{% endfor %}{% if r.rewarded_estimate %}<br><span class="small mut">{{ L.estimate }}</span>{% endif %}</td>
+<td>৳{{ r.free_ai_bdt }}</td>
+<td>{% if r.free_pnl < 0 %}<span class="pill off">৳{{ r.free_pnl }}</span>{% else %}<span class="pill ok">৳{{ r.free_pnl }}</span>{% endif %}</td>
+<td>{% for k, v in r.per_answer.items %}<span class="small">{% if k == "ad" %}{{ L.ad_row }}{% else %}{{ k }}{% endif %} ৳{{ v }}</span><br>{% empty %}{{ L.none }}{% endfor %}</td>
+<td>{{ r.packs }}</td><td>{{ r.plans }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

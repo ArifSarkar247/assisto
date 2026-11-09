@@ -177,8 +177,15 @@ def app_payload(user, lang="bn", c=None):
                      "available": ok, "free_credits_ok": lid in lv["free_credit_levels"],
                      **({} if ok else {"why": "temporarily_unavailable"})})
     from . import ai_chat_guard as G
-    return {"enabled": True, "default": lv["default"], "levels": rows,
-            "balance": G.balance(user)}
+    out = {"enabled": True, "default": lv["default"], "levels": rows,
+           "balance": G.balance(user)}
+    try:
+        n = ads_per_answer(c)          # aimoney: "Watch N ads for 1 answer"
+        if n:
+            out["ads_per_answer"] = n
+    except Exception:  # noqa: BLE001
+        pass
+    return out
 
 
 # ---------------------------------------------------------------- PART 4
@@ -246,8 +253,26 @@ def ad_paisa(c=None):
     lv, c = cfg(c)
     if not lv["enabled"]:
         return None
-    per = max(1, int(lv.get("ads_per_answer") or 1))
-    return int(int(lv["ad_answers_per_ad"]) * credits("normal", c) * 100 // per)
+    # aimoney (owner 10 Nov, part G): N is the DAILY dynamic number (or the
+    # fixed config one with ad_dynamic off); paisa rounded UP so N ads always
+    # make the whole answer
+    from . import ad_money_service as AMS
+    from .logic import ad_money as AM
+    answer = int(lv["ad_answers_per_ad"]) * credits("normal", c)
+    if answer <= 0:
+        return 0
+    return AM.paisa_per_ad(AMS.ads_per_answer(c), answer)
+
+
+def ads_per_answer(c=None):
+    """aimoney: ads a user watches for ONE AI answer (None = levels off)."""
+    lv, c = cfg(c)
+    if not lv["enabled"] or int(lv["ad_answers_per_ad"]) <= 0:
+        return None
+    if not lv.get("ad_dynamic") and int(lv["ad_answers_per_ad"]) != 1:
+        return None          # an old "1 ad = N answers" row: no such line
+    from . import ad_money_service as AMS
+    return int(AMS.ads_per_answer(c))
 
 
 def over_daily_limit(user, lid, now=None):
