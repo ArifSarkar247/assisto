@@ -175,3 +175,20 @@ def search(q, lat=None, lng=None, lang="bn", limit=8):
 
 def good_count(rows):
     return sum(1 for r in rows if r.get("score", 0) >= GOOD)
+
+
+def row(i, lang="bn"):
+    """sjp0: one place by its list index ('bd:<i>') -> {name, secondary, lat,
+    lng, kind, radius_m} or None. Lets /maps/place answer a 'bd:' id (old V1
+    apps call Place Details for every pick) with zero Google cost."""
+    _load()
+    try:
+        i = int(i)
+    except (TypeError, ValueError):
+        return None
+    if not _rows or not (0 <= i < len(_rows)):
+        return None
+    kind, en, bn, alt, plat, plng, parent = _rows[i]
+    name = (bn or en) if lang == "bn" else (en or bn)
+    return {"name": name, "secondary": parent, "lat": plat, "lng": plng, "kind": kind,
+            "radius_m": RADIUS.get(kind, 150 if kind in ("area",) else 300)}
