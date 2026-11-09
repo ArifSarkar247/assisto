@@ -152,6 +152,12 @@ Map<String, dynamic> _base(String status, {bool online = true}) => {
       'budget': {'cap_mb': 300, 'used_mb': 120.0, 'left_mb': 180.0, 'enforced': false, 'paused': false},
     };
 
+void _tall(WidgetTester tester) {
+  tester.view.physicalSize = const Size(800, 2400);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+}
+
 void main() {
   final rng = Random(7);
   final e2e = SoftwareE2E(rng);
@@ -336,6 +342,7 @@ void main() {
     });
 
     testWidgets('owner: switch, timeline hours with alert marks, pick a minute -> ask the phone', (tester) async {
+      _tall(tester);
       final now = DateTime(2026, 11, 9, 15, 40);
       final hs = now.millisecondsSinceEpoch ~/ 1000 ~/ 3600 * 3600;
       final src = _Rec(_recData(hs));
@@ -346,7 +353,10 @@ void main() {
       expect(find.text('Continuous recording (optional)'), findsOneWidget);
       // two hour rows with recordings; TalkBack reads a summary per hour
       expect(find.bySemanticsLabel(RegExp('20 minutes recorded, 1 alerts')), findsOneWidget);
-      await tester.tap(find.bySemanticsLabel(RegExp('20 minutes recorded, 1 alerts')));
+      final row = find.bySemanticsLabel(RegExp('20 minutes recorded, 1 alerts'));
+      await tester.ensureVisible(row);
+      await tester.pump();
+      await tester.tap(row);
       await tester.pump();
       expect(find.textContaining('Picked:'), findsOneWidget);
       expect(find.text('This minute from the camera phone'), findsOneWidget);
@@ -355,6 +365,8 @@ void main() {
       await tester.pump();
       expect(src.asked.length, 1);
       expect(src.asked.single, inInclusiveRange(hs + 600, hs + 1800)); // a recorded minute
+      await tester.ensureVisible(find.byKey(const Key('pcrSwitch')));
+      await tester.pump();
       await tester.tap(find.byKey(const Key('pcrSwitch')));
       await tester.pump();
       expect(src.sets.last, {'on': false});
@@ -362,10 +374,13 @@ void main() {
     });
 
     testWidgets('off: benefit + one big button; viewer cannot switch (bn, 200%)', (tester) async {
+      _tall(tester);
       final now = DateTime(2026, 11, 9, 15, 40);
       final hs = now.millisecondsSinceEpoch ~/ 1000 ~/ 3600 * 3600;
       final src = _Rec(_recData(hs, on: false));
       await tester.pumpWidget(_screen(PhoneCamTimelineScreen(cameraId: 3, cameraName: '', source: src, now: now)));
+      await tester.pump();
+      await tester.ensureVisible(find.text('Turn on continuous recording'));
       await tester.pump();
       await tester.tap(find.text('Turn on continuous recording'));
       await tester.pump();

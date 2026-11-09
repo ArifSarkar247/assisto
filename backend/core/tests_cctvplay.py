@@ -150,7 +150,7 @@ class _Base(APITestCase):
         r = self.client.get("/api/v1/shop/phonecam/pair?site=%d" % self.site.id)
         self.assertEqual(r.status_code, 200, r.data)
         r = APIClient().post("/api/v1/shop/phonecam/claim",
-                             {"code": r.data["code"], "model": "Sample 5"}, format="json")
+                             {"code": r.data["error"], "model": "Sample 5"}, format="json")
         self.assertEqual(r.status_code, 201, r.data)
         self.cam = ShopCamera.objects.get(camera_token=r.data["camera_token"])
         self.dev = APIClient()
@@ -245,7 +245,7 @@ class PreviewTests(_Base):
         with mock.patch("core.phonecam_clips_views.previews_day", return_value=0):
             self.assertFalse(self.hb()["phonecam"]["clip"]["enabled"])
             r, _ = self.preview(ref, self.hb()["phonecam"]["clip"]["recipients"])
-        self.assertEqual((r.status_code, r.data["code"]), (429, "clip_cap"))
+        self.assertEqual((r.status_code, r.data["error"]), (429, "clip_cap"))
         s = APIClient()
         s.force_authenticate(self.stranger)
         self.assertEqual(s.get("/api/v1/shop/events/%d/clip" % ev).status_code, 404)
@@ -330,7 +330,7 @@ class FullVideoTests(_Base):
     def test_old_app_alert_without_clip_ref(self):
         ev = self.alert(ref=None)
         r = self.client.post("/api/v1/shop/events/%d/clip/full" % ev)
-        self.assertEqual((r.status_code, r.data["code"]), (404, "no_clip_ref"))
+        self.assertEqual((r.status_code, r.data["error"]), (404, "no_clip_ref"))
         row = self.client.get("/api/v1/shop/events?site=%d" % self.site.id).data["events"][0]
         self.assertEqual(row["clip"], {"status": "none", "phonecam": True, "has_ref": False})
 
@@ -340,7 +340,7 @@ class FullVideoTests(_Base):
                         return_value=P.budget_view({"cap_mb": 300, "used_bytes": 0,
                                                     "level": "paused"}, True)):
             r = self.client.post("/api/v1/shop/events/%d/clip/full" % ev)
-        self.assertEqual((r.status_code, r.data["code"]), (402, "budget_paused"))
+        self.assertEqual((r.status_code, r.data["error"]), (402, "budget_paused"))
 
     def test_unbind_removes_stored_videos(self):
         from core.models import PaCollectionItem
@@ -418,7 +418,7 @@ class RecordingTests(_Base):
         self.assertEqual(tl["alerts"], [now - 3500])
         miss = self.client.post("/api/v1/shop/phonecam/%d/recording/clip" % self.cam.id,
                                 {"t": now - 2000}, format="json")
-        self.assertEqual((miss.status_code, miss.data["code"]), (404, "not_recorded"))
+        self.assertEqual((miss.status_code, miss.data["error"]), (404, "not_recorded"))
         t = now - 3500
         r = self.client.post("/api/v1/shop/phonecam/%d/recording/clip" % self.cam.id,
                              {"t": t}, format="json")

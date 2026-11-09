@@ -590,7 +590,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     for (final c in await _listRec()) {
       try {
         await File(c.path).delete();
-      } catch (_) {}
+      } catch (_) {} // best-effort: the size line below shows what is left
     }
     await _refreshRec();
     unawaited(_publishTimeline());

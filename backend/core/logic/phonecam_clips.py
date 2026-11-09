@@ -142,10 +142,11 @@ def pending_for_device(reqs, now_ts, limit=3):
 
 
 def prune(reqs, now_ts, keep=60):
-    """Drop requests older than 2 days and keep the newest `keep`."""
+    """Drop requests older than the longest keep (30 days + 2) and keep the
+    newest `keep` — a paid owner's 30-day video keeps its row."""
     rows = {k: r for k, r in (reqs or {}).items()
             if clean_key(k) and isinstance(r, dict)
-            and now_ts - _num(r.get("at"), 0) <= 2 * 86400}
+            and now_ts - _num(r.get("at"), 0) <= 32 * 86400}
     if len(rows) > keep:
         for k in sorted(rows, key=lambda x: _num(rows[x].get("at"), 0))[:len(rows) - keep]:
             rows.pop(k, None)
