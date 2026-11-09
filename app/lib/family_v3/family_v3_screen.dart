@@ -15,6 +15,8 @@ import '../screens/emergency_hub_screen.dart';
 import '../screens/family_alerts_screen.dart';
 import '../screens/family_screen.dart';
 import '../screens/guardian_journey_screen.dart';
+import '../screens/nominee_screen.dart'; // svcclean
+import '../screens/probashi/probashi_plan_screen.dart'; // svcclean
 import '../screens/scam_screen.dart';
 import '../services/action_feedback.dart';
 import '../state.dart';
@@ -761,9 +763,24 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
           () => Navigator.of(context)
               .push(MaterialPageRoute(builder: (_) => const FamilyAlertsScreen()))
               .then((_) => _load())),
-      row(const ValueKey('cga-tile'), Icons.supervisor_account_rounded, t.cgaTitle,
-          () => Navigator.of(context)
-              .push(MaterialPageRoute(builder: (_) => const CircleGuardiansScreen()))),
+      // svcclean (owner 10 Nov): Guardians & who sees me, Nominee access and
+      // the Probashi family plan live HERE now (no separate All Services
+      // tiles); their old routes land on Family and open the row's screen.
+      row(const ValueKey('cga-tile'), Icons.supervisor_account_rounded, t.g2SidebarLabel,
+          () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const CircleGuardiansScreen(),
+              settings: const RouteSettings(name: 'guardians')))),
+      if (FeatureFlags.instance.isOn('nominee'))
+        row(const ValueKey('svc-fam-nominee'), Icons.shield_rounded, t.nominee,
+            () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const NomineeScreen(),
+                settings: const RouteSettings(name: 'nominee'))),
+            sub: t.svcFamNomineeSub),
+      if (abroad && FeatureFlags.instance.isOn('probashi_plan'))
+        row(const ValueKey('svc-fam-probashi-plan'), Icons.flight_takeoff_rounded, t.pbsTitle,
+            () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const ProbashiPlanScreen(),
+                settings: const RouteSettings(name: 'probashi_plan')))),
       row(const ValueKey('fc3-more-scam'), Icons.shield_rounded, t.familyScamCheckerTitle,
           () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ScamScreen()))),
       ...extra,
