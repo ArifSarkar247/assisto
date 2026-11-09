@@ -43,9 +43,42 @@ def ai_per_camera():
 def credit_bdt():
     try:
         from . import billing
-        return float(billing.cfg().get("credit_bdt") or 1.0)
+        c = billing.cfg()
+        if (c.get("pricing_v2") or {}).get("on"):
+            # plansprep (owner 9 Nov item 11): a credit is worth ৳2.80 — the
+            # ৳150 / ৳80 packs cost 54 / 29 credits (or Taka on Google Play)
+            from .logic import plan_book as BOOK
+            return BOOK.MIN_BDT_PER_CREDIT
+        return float(c.get("credit_bdt") or 1.0)
     except Exception:
         return 1.0
+
+
+def kind_for_play_product(product_id):
+    """'relay' / 'ai' for a CCTV extra-pack Play product id, else ''."""
+    for k, pid in CP.PACK_PLAY_PRODUCTS.items():
+        if pid == product_id:
+            return k
+    return ""
+
+
+def grant_play_pack(owner, kind, ref, now=None):
+    """plansprep (owner 9 Nov item 11): a Taka Play one-time product
+    (cctv_extra_relay_1gb ৳150 / cctv_extra_ai_100 ৳80) adds its pack to
+    THIS month. Idempotent on `ref` (one Play order = one pack)."""
+    now = now or timezone.now()
+    p = CP.packs(plan_cfg())[kind]
+    size = p["mb"] if kind == "relay" else p["checks"]
+    done = {"v": False}
+
+    def upd(d):
+        buys = ((d or {}).get("extra") or {}).get("buys") or []
+        if any(b.get("ref") == ref for b in buys):
+            done["v"] = True
+            return d
+        return C.add_pack(d, kind, size, 0, ref, int(now.timestamp()))
+    CT._update(owner.pk, now, upd)
+    return {"kind": kind, "size": size, "already": done["v"], "price_bdt": p["price_bdt"]}
 
 
 def _oid(owner):
