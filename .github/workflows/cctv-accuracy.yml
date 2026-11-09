@@ -1,0 +1,47 @@
+name: CCTV AI accuracy (person + motion, labeled COCO subset)
+
+# cctvtoday: precision / recall of the Shop Box / phone person model and the
+# motion detector on a labeled public test set (see tools/eval/cctv_accuracy.py
+# for the licences and the labeling rule). Nothing downloaded is committed.
+on:
+  push:
+    paths:
+      - "tools/eval/cctv_accuracy.py"
+      - ".github/workflows/cctv-accuracy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  accuracy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Shop Box runtime deps
+        working-directory: edge/shopbox
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Person model (SHA-256 verified)
+        working-directory: edge/shopbox
+        run: python -m shopbox.model_fetch models/yolox_nano.onnx
+      - name: COCO val2017 annotations (CC BY 4.0)
+        run: |
+          curl -sSfL -o /tmp/ann.zip http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+          unzip -q -j /tmp/ann.zip annotations/instances_val2017.json -d /tmp/ann
+      - name: Evaluate
+        run: |
+          python tools/eval/cctv_accuracy.py --ann /tmp/ann/instances_val2017.json \
+            --model edge/shopbox/models/yolox_nano.onnx --out cctv_accuracy.json --n 300 \
+            | tee cctv_accuracy.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cctv-accuracy
+          path: |
+            cctv_accuracy.json
+            cctv_accuracy.txt
