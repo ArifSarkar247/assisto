@@ -386,6 +386,16 @@ def ping(user, data, now=None):
             if paused is not None:
                 continue          # PAUSED: nothing is recorded or shared
             if e["kind"] in ("arrive", "leave"):
+                # sjkids seam: a Children Corner fence may belong to the
+                # guardians only (no family fan-out, no timeline entry)
+                role = None
+                try:
+                    from . import kids_corner as KCS
+                    role = KCS.on_brain_event(user, e, now)
+                except Exception:  # noqa: BLE001 — kids_corner not merged yet
+                    role = None
+                if role == "guardians":
+                    continue
                 ak = "auto_arrived" if e["kind"] == "arrive" else "auto_left"
                 st["place"] = ({"kind": e["place_kind"], "label": e["place_label"],
                                 "at": _iso(e["at"])} if e["kind"] == "arrive" else None)
@@ -468,7 +478,14 @@ def fences(user):
                     "lat": p.lat, "lng": p.lng, "r": FENCE_RADIUS_M})
     order = {"home": 0, "school": 1, "office": 2}
     out.sort(key=lambda f: order.get(f["kind"], 9))
-    return out[:MAX_FENCES]
+    out = out[:MAX_FENCES]
+    # sjkids seam: Children Corner fences (ids >= 900_000_000, Bangla labels)
+    try:
+        from . import kids_corner as KCS
+        out += list(KCS.fences_for(user))[:12]
+    except Exception:  # noqa: BLE001 — kids_corner not merged yet
+        pass
+    return out
 
 
 def watch_token(user, now=None):
