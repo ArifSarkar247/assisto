@@ -1,0 +1,37 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_quran_pron }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ T.qpr_intro }}</p>
+{% if err %}<p class="empty">{{ T.qpr_unavailable }} ({{ err }})</p>{% endif %}
+<div class="tiles">
+  <span class="tile"><span>{{ T.qpr_t_approved }}</span><b>{{ tiles.approved|default:0 }} / {{ tiles.total|default:6236 }}</b></span>
+  <span class="tile"><span>{{ T.qpr_t_review }}</span><b>{{ tiles.under_review|default:6236 }}</b></span>
+  <span class="tile"><span>{{ T.qpr_t_rejected }}</span><b>{{ tiles.rejected|default:0 }}</b></span>
+  <span class="tile"><span>{{ T.qpr_t_fix }}</span><b>{{ tiles.needs_fix|default:0 }}</b></span>
+</div>
+<form method="get" class="inline card">
+  <label>{{ T.qpr_surah }}<select name="surah">{% for s in surahs %}<option value="{{ s }}" {% if s == surah %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></label>
+  <label>{{ T.status }}<select name="status">{% for f in filters %}<option value="{{ f }}" {% if f == st %}selected{% endif %}>{% if f == 'under_review' %}{{ T.qpr_t_review }}{% elif f == 'approved' %}{{ T.qpr_t_approved }}{% elif f == 'rejected' %}{{ T.qpr_t_rejected }}{% elif f == 'needs_fix' %}{{ T.qpr_t_fix }}{% else %}{{ T.all }}{% endif %}</option>{% endfor %}</select></label>
+  <button class="btn ghost">{{ T.show }}</button>
+  <span class="mut small">{{ T.qpr_engine }} {{ engine }} · {{ rows|length }}</span>
+</form>
+<p class="mut small">{{ T.qpr_legend }}</p>
+{% if bismillah %}<p class="card small">{{ T.qpr_bismillah }}: <b>{{ bismillah }}</b></p>{% endif %}
+{% if rows %}
+<div class="card tbl"><table><thead><tr><th>{{ T.qpr_ayah }}</th><th>{{ T.qpr_text }}</th><th>{{ T.status }}</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr id="a{{ r.ayah }}"><td>{{ surah }}:{{ r.ayah }}</td>
+<td><p dir="rtl" lang="ar" style="font-size:1.4em;line-height:2">{{ r.ar }}</p>
+<p lang="bn" style="font-size:1.15em;line-height:1.8"><b>{{ r.bn }}</b></p>
+<div class="small mut">{% for x in r.rules %}<span class="pill">{{ x }}</span> {% endfor %}</div>
+{% if r.history %}<details><summary class="small">{{ T.qpr_history }} ({{ r.history|length }})</summary>{% for h in r.history %}<div class="small">{{ h.created_at|date:"Y-m-d H:i" }} · #{{ h.user_id }} {{ h.user.name|default:"" }} · {{ h.data.action }} · v{{ h.data.engine }}{% if h.data.note %} — {{ h.data.note }}{% endif %}{% if h.data.suggestion %}<br>{{ T.qpr_suggestion }}: {{ h.data.suggestion }}{% endif %}</div>{% endfor %}</details>{% endif %}</td>
+<td><span class="pill {% if r.status == 'approved' %}ok{% elif r.status != 'under_review' %}spons{% endif %}">{% if r.status == 'approved' %}{{ T.qpr_t_approved }}{% elif r.status == 'rejected' %}{{ T.qpr_t_rejected }}{% elif r.status == 'needs_fix' %}{{ T.qpr_t_fix }}{% else %}{{ T.qpr_t_review }}{% endif %}</span></td>
+<td><form method="post" action="/owner/quran-pron/act">{% include "owner/_csrf.html" %}
+<input type="hidden" name="surah" value="{{ surah }}"><input type="hidden" name="ayah" value="{{ r.ayah }}"><input type="hidden" name="status" value="{{ st }}">
+<input name="note" maxlength="500" placeholder="{{ T.qpr_note }}">
+<input name="suggestion" maxlength="500" placeholder="{{ T.qpr_suggestion }}">
+<button class="btn primary" name="action" value="approve">{{ T.qpr_approve }}</button>
+<button class="btn ghost" name="action" value="reject">{{ T.qpr_reject }}</button>
+<button class="btn ghost" name="action" value="rule_request">{{ T.qpr_rule }}</button></form></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="empty">{{ T.qpr_none }}</p>{% endif %}
+{% endblock %}

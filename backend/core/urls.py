@@ -2017,3 +2017,9 @@ urlpatterns += [
     path("shop/sites/<int:pk>/ask", cact3.AskView.as_view()),
 ]
 # ---- /cctvact ----
+# ---- quranpron ---- rule-based Bangla pronunciation (no AI), under review
+from . import views_quranpron as qpron  # noqa: E402
+urlpatterns += [
+    path("quran/pron/<int:surah>", qpron.QuranPronView.as_view()),
+]
+# ---- /quranpron ----

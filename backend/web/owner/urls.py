@@ -35,6 +35,7 @@ from . import views_crisis as CRH    # af-crisis
 from . import views_missing as MIS   # missing
 from . import views_boards as BRD    # adminboards
 from . import views_blood as BLD     # blood
+from . import views_quranpron as QPR  # quranpron
 from . import views_nearby as NBY    # nearby
 from . import views_city as CTY      # citydata
 from . import views_site3 as WS3     # sitev3: website go-live switch
@@ -168,6 +169,8 @@ urlpatterns = [
     path("blood", BLD.blood),                                      # blood
     path("blood/<int:pk>/act", BLD.blood_action),                  # blood
     path("blood/slip/<int:pk>", BLD.blood_slip),                   # blood
+    path("quran-pron", QPR.quran_pron),                            # quranpron
+    path("quran-pron/act", QPR.quran_pron_act),                    # quranpron
     path("nearby", NBY.nearby),                                    # nearby
     path("nearby/add", NBY.nearby_add),                            # nearby
     path("nearby/dataset", NBY.nearby_dataset),                    # nearby
