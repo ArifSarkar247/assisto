@@ -107,3 +107,14 @@ level (reading passage length by level), timing (L 30 min, R 60, W 60, S 11-14 m
   letters -> `{raw, total, score, max, band:null, items}` (score = raw x scoring.per_question).
 - `GET /lp/content/syllabus?track=X` and `GET /lp/content/lesson?track=X` (a lesson matches any of its `tracks`).
 
+## 8. Free-tier ads (owner 10 Nov 00:35, PART B)
+- `GET /lp/gates` -> `ads: {show, rewarded:{section:1, score:N|null}, interstitial:"natural_breaks",
+  banner:["home","lists"], never_in:[timed_mock, listening_audio, speaking, certificate, exam_result_pdf],
+  score_unlocks_left}`; Premium -> `{show:false}`.
+- `POST /lp/ads/ticket {unlock:"section"|"score"}` -> `{nonce, custom_data, user_id, rewarded_unit, ads_needed}`
+  (pass custom_data + user_id to AdMob SSV). ONLY Google's signed SSV callback verifies the ad. 1 verified ad
+  = 1 extra mock section (rolling 7 days); N verified ads = 1 Normal AI score with 0 credits (N keeps >= 40 %
+  profit on the conservative ad value; `score:null` = ads cannot pay for it, so no offer). Errors: `ads_not_live`,
+  `premium_no_ads`, `not_offered`, `daily_cap`.
+- A free `/lp/score/*` without an unlock answers `ai_state:"premium"` + `ads_needed`.
+

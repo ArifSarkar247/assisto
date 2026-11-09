@@ -222,6 +222,17 @@ class LpScorePriceView(_LpView):
         return self.handle(lambda: R(LS.score_price()))
 
 
+class LpAdTicketView(_LpView):
+    """POST /lp/ads/ticket {unlock: section|score} -> AdMob SSV nonce (free users)."""
+
+    def post(self, request):
+        return self.handle(self._post, request)
+
+    def _post(self, request):
+        st, body = LS.issue_ad_ticket(request.user, str((request.data or {}).get("unlock") or ""))
+        return R(body, status=st)
+
+
 class LpGatesView(_LpView):
     def get(self, request):
         return self.handle(lambda: R(LS.gates(request.user)))

@@ -1944,6 +1944,7 @@ urlpatterns += [
     path("lp/score/speaking", lpv.LpScoreSpeakingView.as_view()),
     path("lp/score/price", lpv.LpScorePriceView.as_view()),
     path("lp/gates", lpv.LpGatesView.as_view()),
+    path("lp/ads/ticket", lpv.LpAdTicketView.as_view()),
     path("lp/content/version", lpv.LpContentVersionView.as_view()),
     path("lp/content/<str:kind>", lpv.LpContentView.as_view()),
     path("lp/life/roleplay", lpv.LpRoleplayView.as_view()),
