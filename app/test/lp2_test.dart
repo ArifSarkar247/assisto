@@ -380,6 +380,7 @@ void main() {
       await t.scrollUntilVisible(find.byKey(const Key('lp2-mark')), 300, scrollable: find.byType(Scrollable).first);
       await t.tap(find.byKey(const Key('lp2-mark')));
       await t.pumpAndSettle();
+      await t.scrollUntilVisible(find.byKey(const Key('lp2-omr-score')), -300, scrollable: find.byType(Scrollable).first);
       expect(find.text('1 of 4 correct'), findsOneWidget);
       expect(find.byKey(const Key('lp2-omr-score')), findsOneWidget);
       expect(find.text('Mistake types'), findsOneWidget);
