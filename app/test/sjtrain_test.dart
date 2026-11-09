@@ -338,7 +338,7 @@ void main() {
       await pump(t, live: false);
       expect(find.text('সময়সূচি থেকে আনুমানিক'), findsOneWidget);
       expect(find.textContaining('এখন: কুমিল্লা পার হচ্ছে'), findsWidgets);
-      expect(find.textContaining('লাইভ শেয়ার করছেন'), findsNothing);
+      expect(find.textContaining('জন যাত্রী লাইভ শেয়ার করছেন'), findsNothing);
     });
 
     testWidgets('English, dark, 200 % text: no overflow', (t) async {

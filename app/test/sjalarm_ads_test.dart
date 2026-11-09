@@ -172,7 +172,9 @@ void main() {
       final viewport = t.getRect(find.byType(Scrollable).first);
       expect(viewport.bottom, lessThanOrEqualTo(bannerTop));
       // scroll so the hotlines sit at the very bottom of the body
-      await t.scrollUntilVisible(find.byIcon(Icons.train_rounded), 100,
+      // (sjtrain: the hotlines are ABOVE the map now -> scroll back up; the
+      // train icon also marks the train on the station line, so find 999)
+      await t.scrollUntilVisible(find.byIcon(Icons.call_rounded), -100,
           scrollable: find.byType(Scrollable).first);
       await _settle(t);
       for (final icon in [Icons.call_rounded, Icons.train_rounded]) {

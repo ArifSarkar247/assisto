@@ -403,7 +403,7 @@ def ai_moderate(msg_id):
         return "skipped"
     try:
         out, _cost = ai.generate(MOD_TASK, data=m.text, tier="cheap", max_tokens=8,
-                                 feature="train.chat_mod", user=None)
+                                 feature="train.chat_mod", user=None, pii=True)
     except Exception:  # noqa: BLE001 — AIUnavailable or a provider hiccup
         return "skipped"
     if "HIDE" in str(out or "").upper():
