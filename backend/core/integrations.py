@@ -512,6 +512,27 @@ REGISTRY = {
                         _f("app_secret", "appSecret", "appSecret"),
                         _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False)],
              "test": "test_imou"},
+    # dolynkcard (owner 9 Nov 18:12): Dahua DoLynk Open IoT — product
+    # "Assisto CCTV" (Singapore API). First step: keys + an honest test;
+    # the device list / live / playback / alarm adapter comes next.
+    "dolynk": {"name": "Dahua DoLynk (CCTV — Dahua / DMSS cameras)", "category": "Smart home",
+               "unlocks_bn": "Dahua/DMSS ক্যামেরা ও DVR — ডিভাইস তালিকা, লাইভ, প্লেব্যাক ও অ্যালার্ম Assisto-তে (সংযোগ তৈরি হচ্ছে)।",
+               "unlocks_en": "Dahua/DMSS cameras and DVRs — device list, live, playback and alarms in Assisto (integration in progress).",
+               "guide_bn": ["open.dolynkcloud.com → Open IoT → প্রোডাক্ট \"Assisto CCTV\"",
+                            "Access Key ও Secret Access Key কপি করুন",
+                            "নিচে পেস্ট → Save → Test",
+                            "বিস্তারিত: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (DAHUA DOLYNK NOW)"],
+               "guide_en": ["open.dolynkcloud.com → Open IoT → product \"Assisto CCTV\"",
+                            "Copy the Access Key and the Secret Access Key",
+                            "Paste below → Save → Test",
+                            "Details: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (DAHUA DOLYNK NOW)"],
+               "fields": [_f("access_key", "Access Key", "Access Key", secret=False),
+                          _f("secret_key", "Secret Access Key", "Secret Access Key"),
+                          _f("product_id", "Product ID (ঐচ্ছিক, ডিফল্ট 212808822)",
+                             "Product ID (optional, default 212808822)", secret=False),
+                          _f("api_base", "API ঠিকানা (ঐচ্ছিক, ডিফল্ট https://open-api-sg.dolynkcloud.com)",
+                             "API base (optional, default https://open-api-sg.dolynkcloud.com)", secret=False)],
+               "test": "test_dolynk"},
     # cashguard: EZVIZ cameras' OWN alarms (polled every minute until EZVIZ
     # approves real-time push). Without it EZVIZ cameras still work through
     # the local gateway (RTSP/ONVIF).
@@ -1423,6 +1444,28 @@ def test_imou(cfg, http=None):
     except ImouError as e:
         return False, "Imou: %s %s" % (e.code, e.msg)
     return True, "Imou access token OK"
+
+
+DOLYNK_API_BASE = "https://open-api-sg.dolynkcloud.com"
+DOLYNK_PRODUCT_ID = "212808822"
+
+
+def test_dolynk(cfg, http=None):
+    """dolynkcard: honest first check — both keys saved and the DoLynk API
+    host answers over HTTPS. The signed sign-in check arrives with the
+    adapter (the API reference is behind the DoLynk login)."""
+    import requests
+    if not (cfg.get("access_key") or "").strip() or not (cfg.get("secret_key") or "").strip():
+        return False, "DoLynk: Access Key and Secret Access Key are both needed"
+    base = (cfg.get("api_base") or DOLYNK_API_BASE).strip().rstrip("/")
+    if not base.startswith("https://") or not base.split("/")[2].endswith(".dolynkcloud.com"):
+        return False, "DoLynk: API base must be an https://….dolynkcloud.com address"
+    try:
+        r = (http or requests).get(base, timeout=10)
+    except Exception as e:  # noqa: BLE001
+        return False, "DoLynk: server not reachable (%s)" % type(e).__name__
+    return True, ("DoLynk keys saved; server reachable (HTTP %s). Full sign-in "
+                  "check comes with the camera integration." % getattr(r, "status_code", "?"))
 
 
 def test_ezviz(cfg, http=None):
