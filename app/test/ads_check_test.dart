@@ -247,6 +247,9 @@ void main() {
         'lib/photo_studio/ps_export.dart', // Photo Studio unlock
         'lib/chat_vision/cv_controller.dart', // photo question to Assisto AI
         'lib/safe_plans/safe_ad_unlock_screen.dart', // safeplans: owner order 3 Nov PART 4, guardians only
+        // lpapp (owner 10 Nov PART B): opt-in "watch an ad to earn credits" for an extra
+        // mock section / AI score — never inside a timed mock (test/lp2_ads_test.dart)
+        'lib/screens/lp2/lp_mock.dart', 'lib/screens/lp2/lp_score.dart',
       };
       expect(rewarded.difference(allowed), isEmpty,
           reason: 'new rewarded entry point: ${rewarded.difference(allowed)}');

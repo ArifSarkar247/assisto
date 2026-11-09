@@ -163,6 +163,10 @@ Future<Directory> Function()? debugLpDir;
 class LpOffline {
   LpOffline._();
 
+  /// Tests: no app folder (widget tests run without the platform plugin).
+  @visibleForTesting
+  static bool debugDisabled = false;
+
   static Future<Directory> _dir() async {
     final base = await (debugLpDir ?? getApplicationDocumentsDirectory)();
     final d = Directory('${base.path}/lp_offline');
@@ -173,6 +177,7 @@ class LpOffline {
   static String _safe(String id) => id.replaceAll(RegExp(r'[^A-Za-z0-9_-]'), '_');
 
   static Future<bool> has(String id) async {
+    if (debugDisabled) return false;
     try {
       return File('${(await _dir()).path}/${_safe(id)}.json').existsSync();
     } catch (_) {
@@ -181,6 +186,7 @@ class LpOffline {
   }
 
   static Future<Map<String, dynamic>?> read(String id) async {
+    if (debugDisabled) return null;
     try {
       final f = File('${(await _dir()).path}/${_safe(id)}.json');
       if (!f.existsSync()) return null;
