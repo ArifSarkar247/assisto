@@ -806,8 +806,11 @@ class _CameraRow extends StatelessWidget {
             icon: const Icon(Icons.video_library_outlined),
             onPressed: () => onAction('pcrec'),
           ),
-        // cctvguard: one-tap cloud live of a linked Imou / EZVIZ camera
-        if (owner && (vendor == 'imou' || vendor == 'ezviz') && cam['cloud_alarms'] == true)
+        // cctvguard: one-tap cloud live of a linked Imou / EZVIZ camera;
+        // camflows: also a Dahua / Hikvision camera added through its brand cloud
+        if (owner &&
+            const {'imou', 'ezviz', 'dahua', 'hikvision'}.contains(vendor) &&
+            cam['cloud_alarms'] == true)
           IconButton(
             key: ValueKey('wm-vlive-${cam['id']}'),
             tooltip: t.cgVendorLiveTitle,

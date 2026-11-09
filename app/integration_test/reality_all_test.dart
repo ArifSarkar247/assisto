@@ -12,6 +12,7 @@ import 'flows/antitheft_snatch_flow.dart'; // at100
 import 'flows/billing_flow.dart';
 import 'flows/budget_remittance_flow.dart';
 import 'flows/business_flow.dart';
+import 'flows/camflows_flow.dart'; // camflows
 import 'flows/bizq_flow.dart'; // qbiz
 import 'flows/crm100_flow.dart'; // crm100
 import 'flows/circle_real_call_flow.dart';
@@ -57,4 +58,6 @@ void main() {
   if (on('sweep')) registerSweepFlow();
   // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
+  // camflows: CCTV brand clouds need settings_e2eproof + the vendor sim -> opt-in (camflows.yml)
+  if (only.split(',').contains('camflows')) registerCamflowsFlows();
 }
