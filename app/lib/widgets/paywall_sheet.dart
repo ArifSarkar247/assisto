@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../ads/sponsor_api.dart';
 import '../l10n/app_localizations.dart';
+import '../plans_v2/plan_price_button.dart';
 import '../screens/plans_screen.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -179,7 +180,9 @@ class _PaywallSheetState extends State<PaywallSheet> {
               Text(t.p2PayOnlyPremium,
                   style: const TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.sm),
-              for (final b in ((o['benefits'] as List?) ?? const []).whereType<Map>())
+              for (final b in ((o['benefits'] as List?) ?? const [])
+                  .whereType<Map>()
+                  .take(3)) // buyinside: 3 clear benefits
                 Padding(
                   padding: const EdgeInsets.only(bottom: Gap.sm),
                   child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -214,10 +217,24 @@ class _PaywallSheetState extends State<PaywallSheet> {
                     style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
                 const SizedBox(height: Gap.md),
               ],
-              OutlinedButton(
-                onPressed: _plans,
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                child: Text(t.p2PaySeePlans),
+              // buyinside: buy Premium right here (never only "see plans")
+              if (widget.reason != PaywallReason.outOfCredits && !_trialOk) ...[
+                PlanPriceButton(
+                  plan: 'premium',
+                  origin: widget.reason.wire,
+                  primary: o['trial_available'] != true,
+                  onBought: () => Navigator.pop(context, true),
+                ),
+                const SizedBox(height: Gap.sm),
+              ],
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  key: const Key('p2-see-plans'),
+                  onPressed: _plans,
+                  style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  child: Text(t.p2PaySeePlans),
+                ),
               ),
             ],
             const SizedBox(height: Gap.xs),

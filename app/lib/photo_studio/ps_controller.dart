@@ -1044,6 +1044,14 @@ class PhotoStudioController extends ChangeNotifier {
   /// identity check on the result before it is shown.
   Future<void> runRestore(PsFeature f, GateUi ui) async {
     if (!f.isRestore) return;
+    if (!config.restoreReady(f) &&
+        config.quote(f).reason == 'premium_only' &&
+        await ui.needsPremium()) {
+      // buyinside: bought Premium in place -> same step, once
+      try {
+        config = await deps.backend.config();
+      } catch (_) {}
+    }
     if (!config.restoreReady(f)) {
       final q = config.quote(f);
       if (const {'daily_limit', 'fair_use_cap', 'week_free_used', 'premium_only', 'ultra_quota'}

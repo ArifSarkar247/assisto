@@ -6,7 +6,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/business_ui.dart';
 import '../../widgets/skeleton.dart';
-import '../plans_screen.dart';
+import '../../plans_v2/buy_inside.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
 /// Per-product bargaining rules (PAID).
@@ -53,8 +53,11 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
     if (mounted) setState(() => _loading = false);
   }
 
-  void _openPlans() => Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => const PlansScreen()));
+  /// buyinside: buy Business right here; back on this screen, unlocked.
+  Future<void> _openPlans() async {
+    final ok = await BuyInside.open(context, 'business_ai_reply');
+    if (ok && mounted) await _load();
+  }
 
   @override
   Widget build(BuildContext context) {
