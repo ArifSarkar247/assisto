@@ -43,6 +43,7 @@ import 'guardian2_shots.dart'; // guardian2
 import 'bubbles_shots.dart'; // bubbles
 import 'bubbles2_shots.dart'; // bubbles2
 import 'at100_shots.dart'; // at100
+import 'city_shots.dart'; // cityapp
 import 'aivoice_shots.dart'; // aivoice
 import 'aibar_shots.dart'; // aibar
 import 'callsbar_shots.dart'; // callsbar
@@ -1364,6 +1365,9 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in bubbles2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // at100: remote switches (owner / offline / trusted), watched phones, intruder consent
     for (final e in at100Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // cityapp: City Service (route options, steps, metro guide, around me, live, women, offices)
+    for (final e in cityShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    for (final e in cityEmptyShots.entries) e.key: (build: e.value, mode: FakeMode.empty, full: true),
     // aivoice: no-key banner, voice-conversation bar, Bangla voice help
     for (final e in aivoiceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // aibar: credit line under an AI answer + a not-sent turn with Send again

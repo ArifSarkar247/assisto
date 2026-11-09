@@ -38,6 +38,7 @@ const _launchPrefixes = <String>[
   'emergency_hub', // emergency hub
   'fcb_', // fcbrain: Family privacy & alerts + night news
   'fcs_', // fcsos: Family Care v3 SOS sender / receiver / setup
+  'city_', // cityapp: City Service (9 Nov)
   'p3g_', // p3guides: service guide card, Probashi Help, Student timer/official
   'blood_', // blood donor list / profile / request / share
   'missing_', // missing alert

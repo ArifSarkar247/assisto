@@ -86,6 +86,7 @@ import '../screens/health_tips_screen.dart';
 import '../screens/vault_screen.dart';
 import '../screens/guide_screen.dart';
 import '../screens/nearby_screen.dart';
+import '../screens/city/city_service_screen.dart'; // cityapp
 import '../screens/ride_food_screen.dart';
 import '../screens/fall_detect_screen.dart';
 import '../screens/lost_stolen_screen.dart';
@@ -621,6 +622,11 @@ class SidebarSections {
           feature: 'nearby',
           (_) => const NearbyScreen(),
           synonyms: ['nearby', 'around me', 'places']),
+      // cityapp (owner 9 Nov 11:45): City Service — which bus, metro gate, fares
+      SidebarItem(Icons.directions_bus_rounded, (t) => t.cityTitle,
+          feature: 'city_service',
+          (_) => const CityServiceScreen(),
+          synonyms: ['city service', 'which bus', 'bus route', 'metro', 'fare']),
       // p4-world: Daily info and services (was "Unseen World", renamed
       // 27 Oct) — Today cards, web answers, jobs, hubs. Flag `daily_info`.
       SidebarItem(Icons.public_rounded, (t) => t.dailyInfoTitle,
