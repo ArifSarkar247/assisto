@@ -1,0 +1,1169 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "ja",
+ "week": 2,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "jlpt_n5",
+  "jft_basic"
+ ],
+ "title": {
+  "en": "Week 2: Katakana, shopping and places",
+  "bn": "সপ্তাহ ২: কাতাকানা, কেনাকাটা ও জায়গা"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not an official JLPT/JFT material or result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল JLPT/JFT উপকরণ বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "jlpt.jp public test-section summary; Japan Foundation JFT-Basic public overview",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "lessons": [
+  {
+   "id": "ja-w02-l1",
+   "day": 1,
+   "minutes": 25,
+   "title": {
+    "en": "Katakana words around you",
+    "bn": "চারপাশের কাতাকানা শব্দ"
+   },
+   "goal_bn": "বিদেশি শব্দ লেখার কাতাকানা চিনবেন; দোকান আর রাস্তার সাইনবোর্ড পড়তে সুবিধা হবে।",
+   "vocab": [
+    {
+     "target": "コンビニ",
+     "kana": "コンビニ",
+     "roman": "konbini",
+     "bn": "২৪ ঘণ্টার ছোট দোকান (কনভিনিয়েন্স স্টোর)",
+     "pos": "noun",
+     "example": {
+      "target": "コンビニで おにぎりを かいます。",
+      "roman": "konbini de onigiri o kaimasu.",
+      "bn": "কনভিনিয়েন্স স্টোর থেকে ভাতের বল কিনি।"
+     }
+    },
+    {
+     "target": "スーパー",
+     "kana": "スーパー",
+     "roman": "sūpā",
+     "bn": "সুপারমার্কেট",
+     "pos": "noun",
+     "example": {
+      "target": "スーパーは よる くじまでです。",
+      "roman": "sūpā wa yoru kuji made desu.",
+      "bn": "সুপারমার্কেট রাত ৯টা পর্যন্ত খোলা।"
+     }
+    },
+    {
+     "target": "パン",
+     "kana": "パン",
+     "roman": "pan",
+     "bn": "পাউরুটি / রুটি",
+     "pos": "noun",
+     "example": {
+      "target": "あさごはんは パンです。",
+      "roman": "asagohan wa pan desu.",
+      "bn": "নাস্তা পাউরুটি।"
+     }
+    },
+    {
+     "target": "ジュース",
+     "kana": "ジュース",
+     "roman": "jūsu",
+     "bn": "জুস",
+     "pos": "noun",
+     "example": {
+      "target": "オレンジジュースを のみます。",
+      "roman": "orenji jūsu o nomimasu.",
+      "bn": "কমলার জুস খাই।"
+     }
+    },
+    {
+     "target": "バス",
+     "kana": "バス",
+     "roman": "basu",
+     "bn": "বাস",
+     "pos": "noun",
+     "example": {
+      "target": "バスで こうじょうへ いきます。",
+      "roman": "basu de kōjō e ikimasu.",
+      "bn": "বাসে কারখানায় যাই।"
+     }
+    },
+    {
+     "target": "タクシー",
+     "kana": "タクシー",
+     "roman": "takushī",
+     "bn": "ট্যাক্সি",
+     "pos": "noun",
+     "example": {
+      "target": "タクシーは たかいです。",
+      "roman": "takushī wa takai desu.",
+      "bn": "ট্যাক্সির ভাড়া বেশি।"
+     }
+    },
+    {
+     "target": "スマホ",
+     "kana": "スマホ",
+     "roman": "sumaho",
+     "bn": "স্মার্টফোন",
+     "pos": "noun",
+     "example": {
+      "target": "スマホの じゅうでんが ありません。",
+      "roman": "sumaho no jūden ga arimasen.",
+      "bn": "মোবাইলে চার্জ নেই।"
+     }
+    },
+    {
+     "target": "ハラール",
+     "kana": "ハラール",
+     "roman": "harāru",
+     "bn": "হালাল",
+     "pos": "noun",
+     "example": {
+      "target": "これは ハラールの にくですか。",
+      "roman": "kore wa harāru no niku desu ka.",
+      "bn": "এটা কি হালাল মাংস?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "কাতাকানা আর লম্বা স্বর ー",
+     "explain_bn": "কাতাকানা দিয়ে বিদেশি শব্দ লেখা হয়। লম্বা দাগ 'ー' মানে আগের স্বর দ্বিগুণ লম্বা: スーパー = সূ-পা-আ। ছোট ッ মানে পরের ব্যঞ্জনে একটু থামা: ベッド (বেড্-দো)।",
+     "examples": [
+      {
+       "target": "コーヒー",
+       "roman": "kōhī",
+       "bn": "কফি"
+      },
+      {
+       "target": "チケット",
+       "roman": "chiketto",
+       "bn": "টিকিট"
+      }
+     ]
+    },
+    {
+     "pattern": "これ・それ・あれ は N です",
+     "explain_bn": "これ = এটা (আমার কাছে), それ = ওটা (আপনার কাছে), あれ = ঐটা (দুজনের থেকেই দূরে)। জিনিস দেখিয়ে নাম জিজ্ঞেস: 'これは なんですか'।",
+     "examples": [
+      {
+       "target": "これは なんですか。",
+       "roman": "kore wa nan desu ka.",
+       "bn": "এটা কী?"
+      },
+      {
+       "target": "あれは バスていです。",
+       "roman": "are wa basutei desu.",
+       "bn": "ঐটা বাসস্টপ।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w02-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "worker"
+        },
+        "B": {
+         "gender": "F",
+         "role": "shop clerk"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "すみません、それは なんですか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "これですか。これは チキンカレーの おべんとうです。ハラールですよ。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "দোকানির হাতের জিনিসটা কী?",
+      "options": [
+       "পাউরুটি",
+       "মুরগির কারি বক্স",
+       "জুস",
+       "কফি"
+      ],
+      "answer": "B",
+      "explain_bn": "チキンカレーの おべんとう = মুরগির কারির খাবারের বক্স।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w02-l1-r1",
+      "passage": "えきの まえに コンビニと スーパーが あります。コンビニは 24じかん あいて います。",
+      "prompt_bn": "কোনটা ২৪ ঘণ্টা খোলা?",
+      "options": [
+       "スーパー",
+       "えき",
+       "バス",
+       "コンビニ"
+      ],
+      "answer": "D",
+      "explain_bn": "'コンビニは 24じかん あいて います' — কনভিনিয়েন্স স্টোর ২৪ ঘণ্টা খোলা।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w02-l1-w1",
+      "prompt_bn": "কাতাকানায় লিখুন: বাস, ট্যাক্সি, জুস, স্মার্টফোন।",
+      "model": {
+       "target": "バス、タクシー、ジュース、スマホ",
+       "roman": "basu, takushī, jūsu, sumaho",
+       "bn": "বাস, ট্যাক্সি, জুস, স্মার্টফোন"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w02-l1-s1",
+      "prompt_bn": "দোকানে একটা জিনিস দেখিয়ে জিজ্ঞেস করুন এটা কী আর এটা হালাল কিনা।",
+      "model": {
+       "target": "すみません、これは なんですか。ハラールですか。",
+       "roman": "sumimasen, kore wa nan desu ka. harāru desu ka.",
+       "bn": "মাফ করবেন, এটা কী? এটা কি হালাল?"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w02-l2",
+   "day": 2,
+   "minutes": 25,
+   "title": {
+    "en": "Shopping and prices",
+    "bn": "কেনাকাটা ও দাম"
+   },
+   "goal_bn": "দাম জিজ্ঞেস করতে, জিনিস চাইতে আর ইয়েনের দাম বুঝতে পারবেন।",
+   "vocab": [
+    {
+     "target": "いくら",
+     "kana": "いくら",
+     "roman": "ikura",
+     "bn": "কত (দাম)",
+     "pos": "question",
+     "example": {
+      "target": "この ぎゅうにゅうは いくらですか。",
+      "roman": "kono gyūnyū wa ikura desu ka.",
+      "bn": "এই দুধের দাম কত?"
+     }
+    },
+    {
+     "target": "〜円",
+     "kana": "〜えん",
+     "roman": "-en",
+     "bn": "…ইয়েন (জাপানি টাকা)",
+     "pos": "suffix",
+     "example": {
+      "target": "ぜんぶで せんにひゃくえんです。",
+      "roman": "zenbu de sen nihyaku-en desu.",
+      "bn": "সব মিলিয়ে ১২০০ ইয়েন।"
+     }
+    },
+    {
+     "target": "ください",
+     "kana": "ください",
+     "roman": "kudasai",
+     "bn": "দিন (অনুরোধ)",
+     "pos": "expression",
+     "example": {
+      "target": "この たまごを ください。",
+      "roman": "kono tamago o kudasai.",
+      "bn": "এই ডিমগুলো দিন।"
+     }
+    },
+    {
+     "target": "水",
+     "kana": "みず",
+     "roman": "mizu",
+     "bn": "পানি",
+     "pos": "noun",
+     "example": {
+      "target": "みずを いっぽん ください。",
+      "roman": "mizu o ippon kudasai.",
+      "bn": "এক বোতল পানি দিন।"
+     }
+    },
+    {
+     "target": "お茶",
+     "kana": "おちゃ",
+     "roman": "ocha",
+     "bn": "চা (জাপানি সবুজ চা)",
+     "pos": "noun",
+     "example": {
+      "target": "つめたい おちゃが すきです。",
+      "roman": "tsumetai ocha ga suki desu.",
+      "bn": "ঠান্ডা চা ভালো লাগে।"
+     }
+    },
+    {
+     "target": "お弁当",
+     "kana": "おべんとう",
+     "roman": "obentō",
+     "bn": "খাবারের বক্স (লাঞ্চবক্স)",
+     "pos": "noun",
+     "example": {
+      "target": "おべんとうを あたためますか。",
+      "roman": "obentō o atatamemasu ka.",
+      "bn": "লাঞ্চবক্সটা গরম করে দেব?"
+     }
+    },
+    {
+     "target": "袋",
+     "kana": "ふくろ",
+     "roman": "fukuro",
+     "bn": "ব্যাগ / প্যাকেট",
+     "pos": "noun",
+     "example": {
+      "target": "ふくろは いりません。",
+      "roman": "fukuro wa irimasen.",
+      "bn": "ব্যাগ লাগবে না।"
+     }
+    },
+    {
+     "target": "千",
+     "kana": "せん",
+     "roman": "sen",
+     "bn": "হাজার (১০০০)",
+     "pos": "number",
+     "example": {
+      "target": "さんぜんえんの くつです。",
+      "roman": "sanzen-en no kutsu desu.",
+      "bn": "৩০০০ ইয়েনের জুতা।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N を ください",
+     "explain_bn": "কিছু চাইতে: জিনিস + を + ください। সংখ্যা বলতে চাইলে を-এর পরে বসান: 'みずを ふたつ ください' (দুটো পানি দিন)।",
+     "examples": [
+      {
+       "target": "この パンを ください。",
+       "roman": "kono pan o kudasai.",
+       "bn": "এই রুটিটা দিন।"
+      },
+      {
+       "target": "レシートを ください。",
+       "roman": "reshīto o kudasai.",
+       "bn": "রসিদ দিন।"
+      }
+     ]
+    },
+    {
+     "pattern": "いくら ですか / বড় সংখ্যা",
+     "explain_bn": "দাম জানতে 'いくらですか'। ৩০০ = さんびゃく, ৬০০ = ろっぴゃく, ৮০০ = はっぴゃく, ৩০০০ = さんぜん, ৮০০০ = はっせん — এগুলোর উচ্চারণ বদলে যায়। ১০,০০০ = いちまん।",
+     "examples": [
+      {
+       "target": "ろっぴゃく ごじゅうえんです。",
+       "roman": "roppyaku gojū-en desu.",
+       "bn": "৬৫০ ইয়েন।"
+      },
+      {
+       "target": "いちまんえん さつで いいですか。",
+       "roman": "ichiman-en satsu de ii desu ka.",
+       "bn": "১০,০০০ ইয়েনের নোট দিলে চলবে?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w02-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "customer"
+        },
+        "B": {
+         "gender": "F",
+         "role": "cashier"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "すみません、この おべんとうは いくらですか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "ごひゃく よんじゅうえんです。"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "じゃ、これと おちゃを ください。"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "はい。おちゃは ひゃく ろくじゅうえんです。ぜんぶで ななひゃくえんです。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "মোট কত ইয়েন দিতে হবে?",
+      "options": [
+       "৫৪০ ইয়েন",
+       "১৬০ ইয়েন",
+       "৭০০ ইয়েন",
+       "৬০০ ইয়েন"
+      ],
+      "answer": "C",
+      "explain_bn": "লাঞ্চবক্স ৫৪০ + চা ১৬০ = ৭০০; ক্যাশিয়ার বলেছে ななひゃくえん।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w02-l2-r1",
+      "passage": "やさいの ねだん\nたまねぎ　３こ　２５０えん\nじゃがいも　５こ　３８０えん\nトマト　２こ　１９８えん",
+      "prompt_bn": "আলু (じゃがいも) কত?",
+      "options": [
+       "২৫০ ইয়েন",
+       "৩৮০ ইয়েন",
+       "১৯৮ ইয়েন",
+       "৫০০ ইয়েন"
+      ],
+      "answer": "B",
+      "explain_bn": "じゃがいも-র লাইনে ৫টা ৩৮০ ইয়েন।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w02-l2-w1",
+      "prompt_bn": "দোকানে বলার মতো দুটি বাক্য লিখুন: দাম জিজ্ঞেস করুন, তারপর জিনিসটা চান।",
+      "model": {
+       "target": "この みずは いくらですか。これを ふたつ ください。",
+       "roman": "kono mizu wa ikura desu ka. kore o futatsu kudasai.",
+       "bn": "এই পানির দাম কত? এটা দুটো দিন।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w02-l2-s1",
+      "prompt_bn": "ক্যাশিয়ার জিজ্ঞেস করছে 'ふくろは いりますか'। ব্যাগ লাগবে না বলুন আর ধন্যবাদ দিন।",
+      "model": {
+       "target": "いいえ、ふくろは いりません。ありがとうございます。",
+       "roman": "iie, fukuro wa irimasen. arigatō gozaimasu.",
+       "bn": "না, ব্যাগ লাগবে না। ধন্যবাদ।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w02-l3",
+   "day": 3,
+   "minutes": 25,
+   "title": {
+    "en": "Asking where places are",
+    "bn": "জায়গা কোথায় জিজ্ঞেস করা"
+   },
+   "goal_bn": "স্টেশন, হাসপাতাল, ব্যাংক, পুলিশ বক্স কোথায় জিজ্ঞেস করতে আর উত্তর বুঝতে পারবেন।",
+   "vocab": [
+    {
+     "target": "駅",
+     "kana": "えき",
+     "roman": "eki",
+     "bn": "রেলস্টেশন",
+     "pos": "noun",
+     "example": {
+      "target": "えきまで あるいて じゅっぷんです。",
+      "roman": "eki made aruite juppun desu.",
+      "bn": "স্টেশন হেঁটে ১০ মিনিট।"
+     }
+    },
+    {
+     "target": "病院",
+     "kana": "びょういん",
+     "roman": "byōin",
+     "bn": "হাসপাতাল",
+     "pos": "noun",
+     "example": {
+      "target": "ちかくに びょういんが ありますか。",
+      "roman": "chikaku ni byōin ga arimasu ka.",
+      "bn": "কাছে কি হাসপাতাল আছে?"
+     }
+    },
+    {
+     "target": "銀行",
+     "kana": "ぎんこう",
+     "roman": "ginkō",
+     "bn": "ব্যাংক",
+     "pos": "noun",
+     "example": {
+      "target": "ぎんこうで おかねを おくります。",
+      "roman": "ginkō de okane o okurimasu.",
+      "bn": "ব্যাংক থেকে টাকা পাঠাই।"
+     }
+    },
+    {
+     "target": "交番",
+     "kana": "こうばん",
+     "roman": "kōban",
+     "bn": "পুলিশ বক্স (ছোট পুলিশ ফাঁড়ি)",
+     "pos": "noun",
+     "example": {
+      "target": "みちが わからない ときは こうばんで ききます。",
+      "roman": "michi ga wakaranai toki wa kōban de kikimasu.",
+      "bn": "রাস্তা না চিনলে পুলিশ বক্সে জিজ্ঞেস করি।"
+     }
+    },
+    {
+     "target": "トイレ",
+     "kana": "トイレ",
+     "roman": "toire",
+     "bn": "টয়লেট",
+     "pos": "noun",
+     "example": {
+      "target": "トイレは かいだんの よこです。",
+      "roman": "toire wa kaidan no yoko desu.",
+      "bn": "টয়লেট সিঁড়ির পাশে।"
+     }
+    },
+    {
+     "target": "どこ",
+     "kana": "どこ",
+     "roman": "doko",
+     "bn": "কোথায়",
+     "pos": "question",
+     "example": {
+      "target": "あなたの りょうは どこですか。",
+      "roman": "anata no ryō wa doko desu ka.",
+      "bn": "আপনার ডরম কোথায়?"
+     }
+    },
+    {
+     "target": "ここ",
+     "kana": "ここ",
+     "roman": "koko",
+     "bn": "এখানে",
+     "pos": "pronoun",
+     "example": {
+      "target": "ここに なまえを かいて ください。",
+      "roman": "koko ni namae o kaite kudasai.",
+      "bn": "এখানে নাম লিখুন।"
+     }
+    },
+    {
+     "target": "あそこ",
+     "kana": "あそこ",
+     "roman": "asoko",
+     "bn": "ঐখানে (দূরে)",
+     "pos": "pronoun",
+     "example": {
+      "target": "バスていは あそこです。",
+      "roman": "basutei wa asoko desu.",
+      "bn": "বাসস্টপ ঐখানে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N は どこですか",
+     "explain_bn": "কোনো জায়গা খুঁজতে: জায়গা + は + どこですか। শুরুতে 'すみません' বললে বেশি ভদ্র শোনায়।",
+     "examples": [
+      {
+       "target": "すみません、ぎんこうは どこですか。",
+       "roman": "sumimasen, ginkō wa doko desu ka.",
+       "bn": "মাফ করবেন, ব্যাংক কোথায়?"
+      },
+      {
+       "target": "ゆうびんきょくは どこですか。",
+       "roman": "yūbinkyoku wa doko desu ka.",
+       "bn": "ডাকঘর কোথায়?"
+      }
+     ]
+    },
+    {
+     "pattern": "ここ・そこ・あそこ",
+     "explain_bn": "ここ = এখানে (বক্তার কাছে), そこ = সেখানে (শ্রোতার কাছে), あそこ = ঐখানে (দুজনের থেকেই দূরে)। これ/それ/あれ-এর মতোই নিয়ম, শুধু জায়গার জন্য।",
+     "examples": [
+      {
+       "target": "トイレは そこです。",
+       "roman": "toire wa soko desu.",
+       "bn": "টয়লেট আপনার ওখানে।"
+      },
+      {
+       "target": "でぐちは あそこです。",
+       "roman": "deguchi wa asoko desu.",
+       "bn": "বের হওয়ার পথ ঐখানে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w02-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "traveller"
+        },
+        "B": {
+         "gender": "M",
+         "role": "station staff"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "すみません、こうばんは どこですか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "こうばんですか。えきを でて、みぎです。ぎんこうの となりですよ。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "পুলিশ বক্স কোথায়?",
+      "options": [
+       "হাসপাতালের পাশে",
+       "স্টেশনের ভেতরে",
+       "ব্যাংকের পাশে",
+       "বাসস্টপের সামনে"
+      ],
+      "answer": "C",
+      "explain_bn": "'ぎんこうの となり' = ব্যাংকের পাশে।",
+      "skill": "place"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w02-l3-r1",
+      "passage": "りょうの ちかくの みせ\n・びょういん：りょうから あるいて ５ふん\n・ぎんこう：えきの なか\n・スーパー：びょういんの まえ",
+      "prompt_bn": "ব্যাংক কোথায়?",
+      "options": [
+       "স্টেশনের ভেতরে",
+       "হাসপাতালের সামনে",
+       "ডরমের পাশে",
+       "সুপারমার্কেটের ভেতরে"
+      ],
+      "answer": "A",
+      "explain_bn": "'ぎんこう：えきの なか' — স্টেশনের ভেতরে।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w02-l3-w1",
+      "prompt_bn": "লিখুন: 'মাফ করবেন, হাসপাতাল কোথায়?'",
+      "model": {
+       "target": "すみません、びょういんは どこですか。",
+       "roman": "sumimasen, byōin wa doko desu ka.",
+       "bn": "মাফ করবেন, হাসপাতাল কোথায়?"
+      },
+      "check": "self"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w02-l3-s1",
+      "prompt_bn": "কেউ আপনাকে জিজ্ঞেস করছে টয়লেট কোথায়। দূরে আঙুল দেখিয়ে উত্তর দিন।",
+      "model": {
+       "target": "トイレですか。あそこです。",
+       "roman": "toire desu ka. asoko desu.",
+       "bn": "টয়লেট? ঐখানে।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w02-l4",
+   "day": 4,
+   "minutes": 25,
+   "title": {
+    "en": "There is / there are: positions",
+    "bn": "আছে: কোথায় কী আছে"
+   },
+   "goal_bn": "জিনিস বা মানুষ কোথায় আছে বলতে পারবেন: সামনে, পেছনে, পাশে, ভেতরে, ওপরে, নিচে।",
+   "vocab": [
+    {
+     "target": "あります",
+     "kana": "あります",
+     "roman": "arimasu",
+     "bn": "আছে (জিনিসের জন্য)",
+     "pos": "verb",
+     "example": {
+      "target": "れいぞうこに ぎゅうにゅうが あります。",
+      "roman": "reizōko ni gyūnyū ga arimasu.",
+      "bn": "ফ্রিজে দুধ আছে।"
+     }
+    },
+    {
+     "target": "います",
+     "kana": "います",
+     "roman": "imasu",
+     "bn": "আছে (মানুষ/প্রাণীর জন্য)",
+     "pos": "verb",
+     "example": {
+      "target": "じむしょに かかりの ひとが います。",
+      "roman": "jimusho ni kakari no hito ga imasu.",
+      "bn": "অফিসে দায়িত্বপ্রাপ্ত লোক আছে।"
+     }
+    },
+    {
+     "target": "前",
+     "kana": "まえ",
+     "roman": "mae",
+     "bn": "সামনে",
+     "pos": "noun",
+     "example": {
+      "target": "こうじょうの まえに くるまが あります。",
+      "roman": "kōjō no mae ni kuruma ga arimasu.",
+      "bn": "কারখানার সামনে গাড়ি আছে।"
+     }
+    },
+    {
+     "target": "後ろ",
+     "kana": "うしろ",
+     "roman": "ushiro",
+     "bn": "পেছনে",
+     "pos": "noun",
+     "example": {
+      "target": "ドアの うしろに ほうきが あります。",
+      "roman": "doa no ushiro ni hōki ga arimasu.",
+      "bn": "দরজার পেছনে ঝাড়ু আছে।"
+     }
+    },
+    {
+     "target": "隣",
+     "kana": "となり",
+     "roman": "tonari",
+     "bn": "পাশে (ঠিক পাশের)",
+     "pos": "noun",
+     "example": {
+      "target": "となりの へやに タンビルさんが います。",
+      "roman": "tonari no heya ni Tanbiru-san ga imasu.",
+      "bn": "পাশের রুমে তানভীর আছে।"
+     }
+    },
+    {
+     "target": "中",
+     "kana": "なか",
+     "roman": "naka",
+     "bn": "ভেতরে",
+     "pos": "noun",
+     "example": {
+      "target": "はこの なかに てぶくろが あります。",
+      "roman": "hako no naka ni tebukuro ga arimasu.",
+      "bn": "বাক্সের ভেতরে গ্লাভস আছে।"
+     }
+    },
+    {
+     "target": "上",
+     "kana": "うえ",
+     "roman": "ue",
+     "bn": "ওপরে",
+     "pos": "noun",
+     "example": {
+      "target": "つくえの うえに かぎが あります。",
+      "roman": "tsukue no ue ni kagi ga arimasu.",
+      "bn": "টেবিলের ওপর চাবি আছে।"
+     }
+    },
+    {
+     "target": "下",
+     "kana": "した",
+     "roman": "shita",
+     "bn": "নিচে",
+     "pos": "noun",
+     "example": {
+      "target": "いすの したに かばんが あります。",
+      "roman": "isu no shita ni kaban ga arimasu.",
+      "bn": "চেয়ারের নিচে ব্যাগ আছে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "場所 に N が あります／います",
+     "explain_bn": "জায়গা + に + জিনিস + が + あります। জীবিত (মানুষ, প্রাণী) হলে います। বাংলায় দুটোই 'আছে', জাপানিতে আলাদা — এটা খুব গুরুত্বপূর্ণ।",
+     "examples": [
+      {
+       "target": "にわに ねこが います。",
+       "roman": "niwa ni neko ga imasu.",
+       "bn": "উঠানে বিড়াল আছে।"
+      },
+      {
+       "target": "ロッカーの なかに ヘルメットが あります。",
+       "roman": "rokkā no naka ni herumetto ga arimasu.",
+       "bn": "লকারের ভেতরে হেলমেট আছে।"
+      }
+     ]
+    },
+    {
+     "pattern": "N の まえ／うしろ／となり",
+     "explain_bn": "অবস্থান বলতে: জায়গা + の + まえ/うしろ/となり/なか/うえ/した। 'えきの まえ' = স্টেশনের সামনে।",
+     "examples": [
+      {
+       "target": "ぎんこうは ゆうびんきょくの となりです。",
+       "roman": "ginkō wa yūbinkyoku no tonari desu.",
+       "bn": "ব্যাংক ডাকঘরের পাশে।"
+      },
+      {
+       "target": "くつは げんかんの したの たなです。",
+       "roman": "kutsu wa genkan no shita no tana desu.",
+       "bn": "জুতা দরজার নিচের তাকে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w02-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "worker"
+        },
+        "B": {
+         "gender": "F",
+         "role": "senior coworker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "すみません、あたらしい てぶくろは どこに ありますか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "あの たなの うえの はこの なかに ありますよ。"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "たなの うえですね。ありがとうございます。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "নতুন গ্লাভস কোথায়?",
+      "options": [
+       "তাকের নিচে",
+       "লকারের পেছনে",
+       "দরজার পাশে",
+       "তাকের ওপরের বাক্সে"
+      ],
+      "answer": "D",
+      "explain_bn": "'たなの うえの はこの なか' = তাকের ওপরের বাক্সের ভেতরে।",
+      "skill": "place"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w02-l4-r1",
+      "passage": "じむしょには つくえが みっつ あります。まどの まえに ホワイトボードが あります。いま、じむしょに だれも いません。",
+      "prompt_bn": "এখন অফিসে কে আছে?",
+      "options": [
+       "তিনজন",
+       "কেউ নেই",
+       "ম্যানেজার",
+       "একজন"
+      ],
+      "answer": "B",
+      "explain_bn": "'だれも いません' = কেউ নেই। みっつ (তিনটা) হলো টেবিলের সংখ্যা।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w02-l4-w1",
+      "prompt_bn": "নিজের রুম নিয়ে দুই বাক্য লিখুন: কোথায় কী আছে।",
+      "model": {
+       "target": "へやに ベッドが あります。ベッドの となりに つくえが あります。",
+       "roman": "heya ni beddo ga arimasu. beddo no tonari ni tsukue ga arimasu.",
+       "bn": "রুমে একটা খাট আছে। খাটের পাশে একটা টেবিল আছে।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w02-l4-s1",
+      "prompt_bn": "সহকর্মী জিজ্ঞেস করছে 'ほうきは どこですか' (ঝাড়ু কোথায়)। উত্তর দিন: দরজার পেছনে আছে।",
+      "model": {
+       "target": "ほうきは ドアの うしろに あります。",
+       "roman": "hōki wa doa no ushiro ni arimasu.",
+       "bn": "ঝাড়ু দরজার পেছনে আছে।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ja-w02-l5",
+   "day": 5,
+   "minutes": 25,
+   "title": {
+    "en": "Going places and transport",
+    "bn": "যাতায়াত ও যানবাহন"
+   },
+   "goal_bn": "কোথায় যাচ্ছেন, কীসে যাচ্ছেন আর কখন ফিরছেন বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "行きます",
+     "kana": "いきます",
+     "roman": "ikimasu",
+     "bn": "যাই / যাব",
+     "pos": "verb",
+     "example": {
+      "target": "あした しやくしょへ いきます。",
+      "roman": "ashita shiyakusho e ikimasu.",
+      "bn": "কাল সিটি অফিসে যাব।"
+     }
+    },
+    {
+     "target": "来ます",
+     "kana": "きます",
+     "roman": "kimasu",
+     "bn": "আসি / আসব",
+     "pos": "verb",
+     "example": {
+      "target": "らいしゅう ともだちが きます。",
+      "roman": "raishū tomodachi ga kimasu.",
+      "bn": "আগামী সপ্তাহে বন্ধু আসবে।"
+     }
+    },
+    {
+     "target": "帰ります",
+     "kana": "かえります",
+     "roman": "kaerimasu",
+     "bn": "ফিরি / বাড়ি ফিরব",
+     "pos": "verb",
+     "example": {
+      "target": "しごとの あと りょうへ かえります。",
+      "roman": "shigoto no ato ryō e kaerimasu.",
+      "bn": "কাজের পর ডরমে ফিরি।"
+     }
+    },
+    {
+     "target": "電車",
+     "kana": "でんしゃ",
+     "roman": "densha",
+     "bn": "ট্রেন",
+     "pos": "noun",
+     "example": {
+      "target": "でんしゃは ごふんごとに きます。",
+      "roman": "densha wa gofun goto ni kimasu.",
+      "bn": "ট্রেন প্রতি ৫ মিনিটে আসে।"
+     }
+    },
+    {
+     "target": "自転車",
+     "kana": "じてんしゃ",
+     "roman": "jitensha",
+     "bn": "সাইকেল",
+     "pos": "noun",
+     "example": {
+      "target": "じてんしゃで スーパーへ いきます。",
+      "roman": "jitensha de sūpā e ikimasu.",
+      "bn": "সাইকেলে সুপারমার্কেটে যাই।"
+     }
+    },
+    {
+     "target": "歩いて",
+     "kana": "あるいて",
+     "roman": "aruite",
+     "bn": "হেঁটে",
+     "pos": "adverb",
+     "example": {
+      "target": "あるいて じゅうごふん かかります。",
+      "roman": "aruite jūgofun kakarimasu.",
+      "bn": "হেঁটে ১৫ মিনিট লাগে।"
+     }
+    },
+    {
+     "target": "切符",
+     "kana": "きっぷ",
+     "roman": "kippu",
+     "bn": "টিকিট (ট্রেন/বাস)",
+     "pos": "noun",
+     "example": {
+      "target": "きっぷは きかいで かいます。",
+      "roman": "kippu wa kikai de kaimasu.",
+      "bn": "টিকিট মেশিন থেকে কিনি।"
+     }
+    },
+    {
+     "target": "会社",
+     "kana": "かいしゃ",
+     "roman": "kaisha",
+     "bn": "কোম্পানি / অফিস",
+     "pos": "noun",
+     "example": {
+      "target": "かいしゃは えきの ちかくです。",
+      "roman": "kaisha wa eki no chikaku desu.",
+      "bn": "কোম্পানি স্টেশনের কাছে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "場所 へ いきます／きます／かえります",
+     "explain_bn": "গন্তব্যের পরে へ (উচ্চারণ 'এ'), তারপর যাওয়া-আসার ক্রিয়া। প্রশ্ন: 'どこへ いきますか' (কোথায় যাচ্ছেন?)।",
+     "examples": [
+      {
+       "target": "にちようびに おおさかへ いきます。",
+       "roman": "nichiyōbi ni Ōsaka e ikimasu.",
+       "bn": "রবিবার ওসাকা যাব।"
+      },
+      {
+       "target": "なんじに かえりますか。",
+       "roman": "nanji ni kaerimasu ka.",
+       "bn": "কয়টায় ফিরবেন?"
+      }
+     ]
+    },
+    {
+     "pattern": "乗り物 で (যানবাহন দিয়ে)",
+     "explain_bn": "কীসে যাচ্ছেন বলতে যানবাহন + で: 'バスで', 'でんしゃで'। হেঁটে গেলে で লাগে না: 'あるいて いきます'।",
+     "examples": [
+      {
+       "target": "まいあさ でんしゃで かいしゃへ いきます。",
+       "roman": "maiasa densha de kaisha e ikimasu.",
+       "bn": "প্রতি সকালে ট্রেনে অফিসে যাই।"
+      },
+      {
+       "target": "えきから あるいて かえります。",
+       "roman": "eki kara aruite kaerimasu.",
+       "bn": "স্টেশন থেকে হেঁটে ফিরি।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ja-w02-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "coworker"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "ロビンさんは なんで こうじょうへ きますか。"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "いつもは じてんしゃです。でも、あめの ひは バスで きます。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "বৃষ্টির দিনে রবিন কীভাবে কারখানায় আসে?",
+      "options": [
+       "バス",
+       "じてんしゃ",
+       "でんしゃ",
+       "あるいて"
+      ],
+      "answer": "A",
+      "explain_bn": "সাধারণত সাইকেলে, কিন্তু 'あめの ひは バスで' — বৃষ্টির দিনে বাসে।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ja-w02-l5-r1",
+      "passage": "わたしは まいあさ ７じに りょうを でます。えきまで あるいて いきます。それから でんしゃで かいしゃへ いきます。",
+      "prompt_bn": "লেখক স্টেশনে কীভাবে যায়?",
+      "options": [
+       "バスで",
+       "でんしゃで",
+       "あるいて",
+       "タクシーで"
+      ],
+      "answer": "C",
+      "explain_bn": "'えきまで あるいて いきます' = স্টেশন পর্যন্ত হেঁটে যায়; ট্রেন তার পরে।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ja-w02-l5-w1",
+      "prompt_bn": "আপনি রোজ কীভাবে কাজে যান, এক বাক্যে লিখুন।",
+      "model": {
+       "target": "わたしは まいにち バスで こうじょうへ いきます。",
+       "roman": "watashi wa mainichi basu de kōjō e ikimasu.",
+       "bn": "আমি প্রতিদিন বাসে কারখানায় যাই।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ja-w02-l5-s1",
+      "prompt_bn": "বন্ধুকে বলুন: শনিবার ট্রেনে টোকিও যাবেন, রাত ৮টায় ফিরবেন।",
+      "model": {
+       "target": "どようびに でんしゃで とうきょうへ いきます。よる はちじに かえります。",
+       "roman": "doyōbi ni densha de Tōkyō e ikimasu. yoru hachiji ni kaerimasu.",
+       "bn": "শনিবার ট্রেনে টোকিও যাব। রাত ৮টায় ফিরব।"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}
