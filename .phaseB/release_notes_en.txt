@@ -1,1 +1,5 @@
-Build: Language Partner (IELTS mocks, Life English, vocabulary, Japanese/Korean/German/Chinese/French/Arabic practice content), Quran pronunciation and Quran Shikhi lessons, Dahua DoLynk cameras, brand-camera add flows, old phone as IP-camera guard box, Business AI daily summary and due link in reminders, Family Care finishing touches, AI chat quality.
+- Save now works for whole amounts in Family accounting, Mess, wedding and staff accounts (Bangla digits too); Save buttons reachable with the keyboard open.
+- All Services cleaned up: Family & Safety has 8 clear tiles with one red Emergency screen; other services in 16 tidy groups with full names.
+- Buy or start a free trial right inside paid features (CCTV: 7 days free).
+- CCTV: new detections, better phone motion and fewer night false alerts.
+- Safe Journey start screen and City Service coverage improvements.
