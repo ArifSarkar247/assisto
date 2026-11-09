@@ -145,8 +145,17 @@ def local_minute(at=""):
 
 
 def complaint(ov=None):
+    """Overcharge complaint line. Until the owner enters a BRTA number that
+    an official BRTA page confirms, the line is the government's national
+    helpline 333 and is labelled as that — never as a BRTA number."""
     c = dict(F.BRTA_COMPLAINT)
     c.update((ov or {}).get("complaint") or {})
+    if c.get("number"):
+        c.update({"kind": "brta", "dial": c["number"], "label_en": "BRTA complaint line",
+                  "label_bn": "বিআরটিএ অভিযোগ নম্বর"})
+    else:
+        c.update({"kind": "national_helpline", "dial": c.get("fallback") or "333",
+                  "label_en": c.get("fallback_en"), "label_bn": c.get("fallback_bn")})
     return c
 
 
@@ -160,8 +169,10 @@ def plan(olat, olon, dlat, dlon, at="", modes=None):
         return {"ok": False, "reason": "no_data", "city": city,
                 "google_maps": google_maps(olat, olon, dlat, dlon)}
     nw, raw, ds = got
-    allowed = set(E.MODES) | {"rickshaw"}
+    allowed = set(E.MODES) | {"rickshaw", "women"}
     mset = [m for m in (modes or []) if m in allowed] or None
+    if mset == ["women"]:             # women-only buses on top of the usual modes
+        mset = list(E.MODES) + ["rickshaw", "women"]
     ans = nw.plan(olat, olon, dlat, dlon, minute=local_minute(at), modes=mset)
     ans.update({"city": city, "attribution": ATTRIBUTION, "copyright_url": COPYRIGHT_URL,
                 "data_version": token(ds), "complaint": complaint(_overrides(ds)),
@@ -215,6 +226,7 @@ def station(city, stop_id, lat=None, lon=None):
     g["service"] = m.get("service") or {}
     g["recharge"] = m.get("recharge") or {}
     g["line"] = m.get("line") or {}
+    g["facilities"] = m.get("facilities") or {}
     g["attribution"] = ATTRIBUTION
     return g
 
@@ -227,7 +239,8 @@ def metro_info(city="dhaka"):
     m = raw.get("metro") or {}
     r = nw.rates["metro"]
     return {"line": m.get("line") or {}, "service": m.get("service") or {},
-            "recharge": m.get("recharge") or {}, "stations": nw.stations(),
+            "recharge": m.get("recharge") or {}, "facilities": m.get("facilities") or {},
+            "stations": nw.stations(),
             "fare": {"per_km": r["per_km"], "min": r["min"], "max": r["max"],
                      "card_discount_pct": r.get("card_discount_pct", 0), "label": r["label"],
                      "checked": r.get("checked"), "source": r.get("source"),
