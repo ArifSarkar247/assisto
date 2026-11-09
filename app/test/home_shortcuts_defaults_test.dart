@@ -6,6 +6,9 @@
 // Migration: new installs + never-edited users get the new set; a saved set
 // that is EXACTLY an old default counts as never edited; every edited set is
 // kept; the migration runs once per defaults version.
+// homeshort (owner 9 Nov 11:25): Digital Ledger left the default (it is the
+// first tile inside My Business), City Service took its slot (skipped until
+// its screen + flag exist), "Business Accounts" is now "My Business".
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -37,6 +40,21 @@ import 'h1_home_fakes.dart';
 const _newDefault = [
   'family',
   'journey',
+  'crm',
+  'business',
+  'sales_agent',
+  'watchman',
+  'vehicle_tracking',
+  'prepaid_meter',
+  'emergency',
+  'money',
+  'reminders', // fills City Service's slot until its screen ships
+];
+
+/// The 2 Nov (v3) default as builds up to 316 showed it — with Digital Ledger.
+const _v3Default = [
+  'family',
+  'journey',
   'khata',
   'crm',
   'business',
@@ -54,7 +72,7 @@ const _newDefault = [
 const _ownerOrder = [
   'family',
   'journey',
-  'khata',
+  'city',
   'crm',
   'business',
   'sales_agent',
@@ -72,7 +90,6 @@ const _removed = ['jobs', 'lost_stolen', 'budget', 'contract'];
 const _screens = {
   'family': 'FamilyEntry', // fcscreen: v3 Family (old screen behind flag family_v3)
   'journey': 'SafeJourneyHubScreen', // sjlive: three cards, Live Location first
-  'khata': 'KhataEntryScreen',
   'crm': 'CrmHomeScreen',
   'business': 'BusinessScreen',
   'sales_agent': 'SellerAgentScreen',
@@ -81,6 +98,7 @@ const _screens = {
   'prepaid_meter': 'PrepaidMeterScreen',
   'emergency': 'EmergencyHubScreen', // ownerfix: SOS tile -> Emergency hub
   'money': 'MoneyScreen',
+  'reminders': 'RemindersScreen',
 };
 
 Future<void> _prefs(Map<String, Object> v) async {
@@ -175,7 +193,8 @@ void main() {
       expect(HomeV2Shortcuts.ownerOrder, _ownerOrder);
       expect(HomeV2Shortcuts.max, 11);
       expect(HomeV2Shortcuts.defaults(), _newDefault);
-      expect(HomeV2Shortcuts.skippedDefaults(), ['blood_panel']);
+      expect(HomeV2Shortcuts.skippedDefaults(), ['city', 'blood_panel']);
+      expect(HomeV2Shortcuts.defaults(), isNot(contains('khata')));
       for (final r in _removed) {
         expect(HomeV2Shortcuts.defaults(), isNot(contains(r)), reason: r);
       }
@@ -215,8 +234,14 @@ void main() {
       expect(l(bn, 'emergency'), 'জরুরি SOS');
       expect(l(en, 'money'), 'Account & Finance');
       expect(l(bn, 'money'), 'হিসাব ও অর্থ');
-      expect(l(bn, 'business'), 'ব্যবসার হিসাব');   // owner 28 Oct: Business Accounts
-      expect(l(en, 'business'), 'Business Accounts');
+      // homeshort (owner 9 Nov): "Business Accounts" -> "My Business"
+      expect(l(bn, 'business'), 'আমার ব্যবসা');
+      expect(l(en, 'business'), 'My Business');
+      expect(l(en, 'khata'), 'Digital Ledger');
+      expect(en.hv2TileCityService, 'City Service');
+      expect(bn.hv2TileCityService, 'সিটি সার্ভিস');
+      expect(en.hv2NewBadge, 'New');
+      expect(bn.hv2NewBadge, 'নতুন');
     });
 
     test('homeorder: Blood donor ON -> right next to SOS, still 11 slots',
@@ -225,7 +250,7 @@ void main() {
       final d = HomeV2Shortcuts.defaults();
       expect(d.length, 11);
       expect(d.indexOf('blood_panel'), d.indexOf('emergency') + 1);
-      expect(HomeV2Shortcuts.skippedDefaults(), isEmpty);
+      expect(HomeV2Shortcuts.skippedDefaults(), ['city']);
       // My Circle stays pinned outside the 11; money moves to Edit / All
       // services (still pinnable)
       expect(d, isNot(contains('circle')));
@@ -233,13 +258,15 @@ void main() {
           containsAll(['money', 'blood_panel']));
     });
 
-    test('the 4 removed ones stay in Edit shortcuts', () {
+    test('the 4 removed ones + Digital Ledger stay in Edit shortcuts', () {
       final cat = HomeV2Shortcuts.catalog.map((s) => s.route).toList();
-      for (final r in [..._removed, ..._newDefault]) {
+      for (final r in [..._removed, ..._newDefault, 'khata']) {
         expect(cat, contains(r), reason: r);
       }
-      // the new defaults lead the Edit list, in order
-      expect(cat.take(11).toList(), _newDefault);
+      // the owner's defaults lead the Edit list, in order
+      expect(cat.take(10).toList(), _newDefault.take(10).toList());
+      // City Service has no screen in this build -> not offered (no dead tile)
+      expect(cat, isNot(contains('city')));
     });
 
     test('flag OFF for this user -> skipped honestly, next real one fills',
@@ -248,9 +275,10 @@ void main() {
       var d = HomeV2Shortcuts.defaults();
       expect(d, isNot(contains('crm')));
       expect(d.length, 11);
-      expect(d.last, 'reminders');
-      expect(HomeV2Shortcuts.skippedDefaults(), ['crm', 'blood_panel']);
-      // business off hides the ledger too (same flag) -> two fills
+      expect(d.last, 'notes');
+      expect(HomeV2Shortcuts.skippedDefaults(),
+          ['city', 'crm', 'blood_panel']);
+      // business off -> its slot filled too
       FeatureFlags.instance.debugOverride = {'business': false};
       d = HomeV2Shortcuts.defaults();
       expect(d, isNot(contains('khata')));
@@ -269,14 +297,14 @@ void main() {
       // the fill also skips a flag-off pool entry (reminders hidden)
       FeatureFlags.instance.resetForTest();
       FeatureFlags.instance.debugOverride = {'crm': false, 'reminders': false};
-      expect(HomeV2Shortcuts.defaults().last, 'notes');
+      expect(HomeV2Shortcuts.defaults().last, 'documents');
     });
   });
 
   group('migration', () {
     test('new install: new set, version stored', () async {
       expect(await HomeV2Shortcuts.load(), _newDefault);
-      expect(await _get(HomeV2Shortcuts.versionKey), '3');
+      expect(await _get(HomeV2Shortcuts.versionKey), '4');
     });
 
     test('never edited (no saved set) on an old build: new set', () async {
@@ -337,13 +365,13 @@ void main() {
       FeatureFlags.instance.debugOverride = {'blood_donors': true};
       await _prefs({
         HomeV2Shortcuts.versionKey: '2',
-        HomeV2Shortcuts.prefsKey: jsonEncode(_newDefault),
+        HomeV2Shortcuts.prefsKey: jsonEncode(_v3Default),
       });
       final d = await HomeV2Shortcuts.load();
       expect(d.indexOf('blood_panel'), d.indexOf('emergency') + 1);
-      expect(await _get(HomeV2Shortcuts.versionKey), '3');
+      expect(await _get(HomeV2Shortcuts.versionKey), '4');
       // but a user who changed the 28 Oct set keeps theirs
-      final mine = [..._newDefault.reversed];
+      final mine = [..._v3Default.reversed];
       await _prefs({
         HomeV2Shortcuts.versionKey: '2',
         HomeV2Shortcuts.prefsKey: jsonEncode(mine),
@@ -388,7 +416,7 @@ void main() {
     test('runs ONCE: after it, a saved old-default set is the user\'s choice',
         () async {
       expect(await HomeV2Shortcuts.load(), _newDefault);
-      expect(await _get(HomeV2Shortcuts.versionKey), '3');
+      expect(await _get(HomeV2Shortcuts.versionKey), '4');
       // the user later deliberately picks exactly the old 11 and saves
       await HomeV2Shortcuts.save(HomeV2Shortcuts.legacyOwnerOrder);
       expect(await HomeV2Shortcuts.load(), HomeV2Shortcuts.legacyOwnerOrder);
@@ -409,6 +437,148 @@ void main() {
       await HomeV2Shortcuts.save(['contract', 'jobs']);
       expect(await HomeV2Shortcuts.load(), ['contract', 'jobs']);
     });
+  });
+
+  // homeshort (owner 9 Nov 11:25): Digital Ledger -> inside My Business,
+  // City Service in its home slot. Decision (least surprising): never-edited
+  // users get the new set; an EDITED set keeps Digital Ledger exactly where
+  // the user put it (nothing they chose disappears).
+  group('homeshort v4 migration', () {
+    test('2 Nov default saved unchanged -> new set, no ledger', () async {
+      await _prefs({
+        HomeV2Shortcuts.versionKey: '3',
+        HomeV2Shortcuts.prefsKey: jsonEncode(_v3Default),
+      });
+      expect(HomeV2Shortcuts.isLegacyDefault(_v3Default), isTrue);
+      final d = await HomeV2Shortcuts.load();
+      expect(d, _newDefault);
+      expect(d, isNot(contains('khata')));
+      expect(await _get(HomeV2Shortcuts.versionKey), '4');
+    });
+
+    test('2 Nov default with Blood donor ON, saved unchanged -> new set',
+        () async {
+      FeatureFlags.instance.debugOverride = {'blood_donors': true};
+      final v3 = [
+        'family', 'journey', 'khata', 'crm', 'business', 'sales_agent', //
+        'watchman', 'vehicle_tracking', 'prepaid_meter', 'emergency',
+        'blood_panel',
+      ];
+      await _prefs({
+        HomeV2Shortcuts.versionKey: '3',
+        HomeV2Shortcuts.prefsKey: jsonEncode(v3),
+      });
+      final d = await HomeV2Shortcuts.load();
+      expect(d, isNot(contains('khata')));
+      expect(d.indexOf('blood_panel'), d.indexOf('emergency') + 1);
+    });
+
+    test('edited set with Digital Ledger keeps it in place (no loss)',
+        () async {
+      for (final mine in [
+        // ledger moved to the front by the user
+        ['khata', 'family', 'journey', 'crm', 'business', 'money'],
+        // the 2 Nov default with one tile swapped
+        [
+          'family', 'journey', 'khata', 'crm', 'business', 'sales_agent', //
+          'watchman', 'vehicle_tracking', 'prepaid_meter', 'emergency',
+          'nearby',
+        ],
+        // only the ledger
+        ['khata'],
+      ]) {
+        expect(HomeV2Shortcuts.isLegacyDefault(mine), isFalse, reason: '$mine');
+        await _prefs({
+          HomeV2Shortcuts.versionKey: '3',
+          HomeV2Shortcuts.prefsKey: jsonEncode(mine),
+        });
+        expect(await HomeV2Shortcuts.load(), mine, reason: '$mine');
+        expect(await _get(HomeV2Shortcuts.prefsKey), jsonEncode(mine));
+        expect(await _get(HomeV2Shortcuts.versionKey), '4');
+      }
+    });
+
+    test('old-home six with the ledger is kept too', () async {
+      final six = ['khata', 'money', 'notes', 'family', 'tax', 'memory'];
+      await _prefs({
+        HomeV2Shortcuts.versionKey: '3',
+        HomeQuickButtons.prefsKey: jsonEncode(six),
+      });
+      expect(await HomeV2Shortcuts.load(), six);
+    });
+
+    test('a user can still pin Digital Ledger back from Edit', () async {
+      await HomeV2Shortcuts.load();
+      await HomeV2Shortcuts.save([..._newDefault.take(10), 'khata']);
+      expect((await HomeV2Shortcuts.load()).last, 'khata');
+    });
+
+    test('City Service: no screen in this build -> never a dead tile',
+        () async {
+      expect(ChatNav.routes.containsKey(kCityServiceRoute), isFalse);
+      expect(HomeV2Shortcuts.byRoute(kCityServiceRoute), isNull);
+      expect(HomeV2Shortcuts.sanitize([kCityServiceRoute, 'family']),
+          ['family']);
+      // its slot in the owner order is Digital Ledger's old one
+      expect(HomeV2Shortcuts.ownerOrder.indexOf(kCityServiceRoute),
+          HomeV2Shortcuts.v3OwnerOrder.indexOf('khata'));
+    });
+
+    test('"New" badge: shown until opened once, then remembered', () async {
+      expect(HomeV2Shortcuts.newTiles, {kCityServiceRoute});
+      expect(await HomeV2Shortcuts.newSeen(), isEmpty);
+      await HomeV2Shortcuts.markNewSeen('family'); // not a new tile: ignored
+      expect(await HomeV2Shortcuts.newSeen(), isEmpty);
+      await HomeV2Shortcuts.markNewSeen(kCityServiceRoute);
+      Settings.resetForTest();
+      expect(await HomeV2Shortcuts.newSeen(), {kCityServiceRoute});
+    });
+
+    for (final lang in ['en', 'bn']) {
+      for (final dark in [false, true]) {
+        testWidgets('New badge renders + is announced ($lang dark=$dark)',
+            (tester) async {
+          final sh = tester.ensureSemantics();
+          await tester.binding.setSurfaceSize(const Size(360, 400));
+          addTearDown(() => tester.binding.setSurfaceSize(null));
+          await tester.pumpWidget(MaterialApp(
+            locale: Locale(lang),
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            theme: dark ? AssistoTheme.dark : AssistoTheme.light,
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 90,
+                  child: HomeV2Tile(
+                    route: kCityServiceRoute,
+                    icon: Icons.directions_transit_outlined,
+                    label: lang == 'bn' ? 'সিটি সার্ভিস' : 'City Service',
+                    isNew: true,
+                    onTap: () {},
+                  ),
+                ),
+              ),
+            ),
+          ));
+          await tester.pump();
+          expect(find.byKey(const ValueKey('hv2_new_badge')), findsOneWidget);
+          expect(find.text(lang == 'bn' ? 'নতুন' : 'New'), findsOneWidget);
+          expect(
+              find.bySemanticsLabel(RegExp(lang == 'bn'
+                  ? r'সিটি সার্ভিস.*নতুন'
+                  : r'City Service.*New')),
+              findsOneWidget);
+          expect(tester.takeException(), isNull);
+          sh.dispose();
+        });
+      }
+    }
   });
 
   group('home look', () {
