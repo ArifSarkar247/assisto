@@ -381,10 +381,11 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
     await openForUser(context, u, where: where);
   }
 
-  Future<void> _sendSms() async {
+  Future<void> _sendSms({SosSmsContact? only}) async {
     final t = AppLocalizations.of(context);
     final body = sosSmsBody(t.sosShareText, t.emergencySosAlertText, _pos);
-    await _open(sosSmsUri([for (final c in _sms) c.phone], body), 'fcsos.sms');
+    final to = only == null ? [for (final c in _sms) c.phone] : [only.phone];
+    await _open(sosSmsUri(to, body), 'fcsos.sms');
   }
 
   Future<void> _pickSms() async {
@@ -617,14 +618,29 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
         onTap: _pickSms,
       );
     }
-    return SosBigButton(
-      key: const ValueKey('fcs-sms-send'),
-      icon: Icons.sms_rounded,
-      label: t.fcsSmsSendTo(_sms.map((c) => c.name.isEmpty ? c.phone : c.name).join(', ')),
-      color: Brand.danger,
-      fg: Colors.white,
-      onTap: _sendSms,
-    );
+    String nameOf(SosSmsContact c) => c.name.isEmpty ? _d(c.phone) : c.name;
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      SosBigButton(
+        key: const ValueKey('fcs-sms-send'),
+        icon: Icons.sms_rounded,
+        label: t.fcsSmsSendTo(_sms.map(nameOf).join(', ')),
+        color: kSosRed,
+        fg: Colors.white,
+        onTap: _sendSms,
+      ),
+      // some SMS apps take only one number: one message per person
+      if (_sms.length > 1)
+        Wrap(spacing: Gap.sm, children: [
+          for (final c in _sms)
+            TextButton.icon(
+              key: ValueKey('fcs-sms-one-${c.phone}'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: () => _sendSms(only: c),
+              icon: const Icon(Icons.sms_outlined),
+              label: Text(t.fcsSmsOne(nameOf(c))),
+            ),
+        ]),
+    ]);
   }
 
   Widget _offline(BuildContext context) {

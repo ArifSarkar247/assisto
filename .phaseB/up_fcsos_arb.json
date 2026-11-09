@@ -267,6 +267,15 @@
     }
    }
   },
+  "fcsSmsOne": "SMS {name} only",
+  "@fcsSmsOne": {
+   "description": "fcsos: Family Care v3 SOS sender/receiver",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
   "fcsSmsChange": "Change people",
   "@fcsSmsChange": {
    "description": "fcsos: Family Care v3 SOS sender/receiver"
@@ -654,6 +663,7 @@
   "fcsOfflineBody": "এখনই নিজের SIM থেকে SMS পাঠান। Assisto চেষ্টা চালিয়ে যাবে, নেট ফিরলেই SOS চলে যাবে।",
   "fcsSmsPickTwo": "SMS-এর জন্য ২ জন বেছে নিন",
   "fcsSmsSendTo": "{names}-কে SMS পাঠান",
+  "fcsSmsOne": "শুধু {name}-কে SMS",
   "fcsSmsChange": "মানুষ বদলান",
   "fcsSmsHow": "SMS অ্যাপ খুলবে, বার্তা আর লোকেশন লেখা থাকবে। শুধু Send চাপুন। SIM-এর সাধারণ SMS খরচ।",
   "fcsStillTrying": "এখনো ইন্টারনেটে চেষ্টা চলছে…",

@@ -175,9 +175,13 @@ void main() {
       expect(find.byKey(const ValueKey('fcs-offline')), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('fcs-sms-send')));
       await tester.pump();
-      expect(opened.single.scheme, 'sms');
-      expect(opened.single.toString(), contains('01711200002;01711200003'));
+      expect(opened.single.scheme, 'smsto');
+      expect(opened.single.toString(), startsWith('smsto:01711200002;01711200003?body='));
       expect(Uri.decodeComponent(opened.single.query), contains('maps.google.com/?q=23.746100,90.374200'));
+      // one by one (an SMS app that takes a single number)
+      await tester.tap(find.byKey(const ValueKey('fcs-sms-one-01711200003')));
+      await tester.pump();
+      expect(opened.last.toString(), startsWith('smsto:01711200003?body='));
       // the internet is back: the SAME press goes out
       await tester.pump(const Duration(seconds: 3));
       await tester.pump(const Duration(milliseconds: 300));
@@ -200,7 +204,7 @@ void main() {
 
     test('sms uri + body', () {
       final u = sosSmsUri(['+880 1711-200002', '01711200003', 'x'], 'Help me');
-      expect(u.toString(), startsWith('sms:+8801711200002;01711200003?body='));
+      expect(u.toString(), startsWith('smsto:+8801711200002;01711200003?body='));
       expect(sosSmsBody((l) => 'at $l', 'no gps', null), 'no gps');
       expect(cleanPhone('12'), '');
     });

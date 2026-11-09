@@ -65,11 +65,13 @@ class SosSmsStore {
   }
 }
 
-/// `sms:` URI for several numbers with a pre-filled body. Android accepts
-/// ';' between numbers on most SMS apps; Samsung's app also understands it.
+/// `smsto:` URI (owner 9 Nov 14:20: the SMS app opens, the user taps Send —
+/// never SEND_SMS) for one or several numbers with a pre-filled body. Most
+/// Android SMS apps accept ';' between numbers; for an app that takes only
+/// the first, the screen also offers "one by one" (one smsto: per person).
 Uri sosSmsUri(List<String> phones, String body) {
   final nums = phones.map(cleanPhone).where((p) => p.isNotEmpty).join(';');
-  return Uri.parse('sms:$nums?body=${Uri.encodeComponent(body)}');
+  return Uri.parse('smsto:$nums?body=${Uri.encodeComponent(body)}');
 }
 
 /// The SMS text: who, what, where (map link when known), Assisto-free text so
