@@ -84,6 +84,8 @@ void main() {
     // off: an honest "next stage" sheet with a way forward, never a dead chip
     expect(find.text('Korea · EPS-TOPIK opens in the next stage'), findsOneWidget);
     expect(find.text('Practise Life English now'), findsOneWidget);
+    await t.tap(find.text('Close'));
+    await t.pumpAndSettle();
     FeatureFlags.instance.debugOverride = {'language_packs': true};
     await t.pumpWidget(_app(const LanguagePartnerScreen(key: ValueKey(2)), FakeApi(mode: FakeMode.data, lang: 'en')));
     await t.pumpAndSettle();
