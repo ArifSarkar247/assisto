@@ -17,7 +17,7 @@ on:
     - cron: '41 3 5 * *'      # monthly, the 5th, 03:41 UTC
   workflow_dispatch: {}
   push:
-    branches: ['ci/citydata', 'ci/citydata2']
+    branches: ['ci/citydata', 'ci/citydata2', 'ci/citycov', 'ci/citycov-arb']
     paths: ['deploy/transit/**', 'backend/core/citytransit/**', '.github/workflows/transit_data.yml']
 
 concurrency:

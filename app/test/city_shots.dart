@@ -11,6 +11,7 @@ import 'package:assisto/city/city_widgets.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/screens/city/city_around_screen.dart';
 import 'package:assisto/screens/city/city_directory_screen.dart';
+import 'package:assisto/screens/city/city_field_screen.dart'; // citycov
 import 'package:assisto/screens/city/city_journey.dart';
 import 'package:assisto/screens/city/city_metro_screen.dart';
 import 'package:assisto/screens/city/city_reports_screen.dart';
@@ -81,10 +82,12 @@ final Map<String, Widget Function(String)> cityShots = {
   'city_women': (l) => const CityWomenScreen(),
   'city_long': (l) => const CityDirectoryScreen(kinds: ['terminals', 'ghats']),
   'city_offices': (l) => const CityDirectoryScreen(kinds: ['offices']),
+  'city_map_stop': (l) => const CityFieldScreen(debugHere: _here), // citycov
 };
 
 /// The no-data city (FakeMode.empty): honest card + Open in Google Maps.
 final Map<String, Widget Function(String)> cityEmptyShots = {
   'city_no_data': (l) => CityServiceScreen(debugHere: _here, debugSimple: false, store: _store(), debugNow: _now),
   'city_live_empty': (l) => const CityReportsScreen(debugHere: _here),
+  'city_map_stop_empty': (l) => const CityFieldScreen(debugHere: _here), // citycov
 };

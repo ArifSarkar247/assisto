@@ -561,3 +561,40 @@ class CityWomen {
       ],
       available: true);
 }
+
+// citycov: field collection ("Add a stop here" / "This bus stops here").
+/// A waiting users' stop report near the phone (GET city/field-stops items).
+class CityFieldStop {
+  final int id, people, need, meters;
+  final double? lat, lon;
+  final String routeId, route, routeBn;
+  final bool confirmed, mine;
+  const CityFieldStop(this.id, this.lat, this.lon, this.routeId, this.route, this.routeBn, this.people, this.need,
+      this.meters, this.confirmed, this.mine);
+  static CityFieldStop from(Object? v, int need) {
+    final m = _m(v);
+    return CityFieldStop(_i(m['id']), _d(m['lat']), _d(m['lon']), _s(m['route_id']), _s(m['route']),
+        _s(m['route_bn']), _i(m['people']), _i(m['need']) > 0 ? _i(m['need']) : need, _i(m['meters']),
+        m['confirmed'] == true, m['mine'] == true);
+  }
+
+  String routeLabel(bool bn) => bn && routeBn.isNotEmpty ? routeBn : route;
+}
+
+/// A bus / leguna that passes near the phone (GET city/field-stops routes).
+class CityNearRoute {
+  final String id, mode, name, nameBn, status, fromName, fromBn, toName, toBn;
+  const CityNearRoute(this.id, this.mode, this.name, this.nameBn, this.status, this.fromName, this.fromBn,
+      this.toName, this.toBn);
+  static CityNearRoute from(Object? v) {
+    final m = _m(v);
+    return CityNearRoute(_s(m['id']), _s(m['mode']), _s(m['name']), _s(m['name_bn']), _s(m['status']),
+        _s(m['from']), _s(m['from_bn']), _s(m['to']), _s(m['to_bn']));
+  }
+
+  String label(bool bn) => bn && nameBn.isNotEmpty ? nameBn : name;
+  String ends(bool bn) {
+    final a = bn && fromBn.isNotEmpty ? fromBn : fromName, z = bn && toBn.isNotEmpty ? toBn : toName;
+    return a.isEmpty || z.isEmpty ? '' : '$a → $z';
+  }
+}
