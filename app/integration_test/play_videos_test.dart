@@ -175,8 +175,8 @@ void main() {
       await f.tap(trip, settleSeconds: 2);
       final dest = find.byKey(const ValueKey('j100_dest'));
       await f.waitFor(dest, seconds: 25, what: 'destination field');
-      await f.tester.enterText(dest, 'Demo Park');
-      await f.pumpFor(const Duration(seconds: 1));
+      // the form finishes loading first (it may reset the field)
+      await f.pumpFor(const Duration(seconds: 3));
       final b = find.widgetWithText(CheckboxListTile, Seed.nameB);
       // the watcher list is further down the (lazy) form
       for (var i = 0; i < 5 && b.evaluate().isEmpty; i++) {
@@ -186,10 +186,20 @@ void main() {
       await f.waitFor(b, seconds: 10, what: 'watcher ${Seed.nameB}');
       await f.tester.ensureVisible(b);
       await f.tap(b, settleSeconds: 1);
-      _mark('form');
-      await f.pumpFor(const Duration(seconds: 2));
     });
     await f.step('Start -> in-app location disclosure -> Continue', () async {
+      final dest = find.byKey(const ValueKey('j100_dest'));
+      // type the made-up place last, right before Start (run 42605420555:
+      // a name typed first was gone by the time Start was tapped)
+      for (var i = 0; i < 3; i++) {
+        await f.tester.ensureVisible(dest);
+        await f.pumpFor(const Duration(milliseconds: 600));
+        await f.tester.enterText(dest, 'Demo Park');
+        await f.pumpFor(const Duration(seconds: 2));
+        if (f.tester.widget<TextField>(dest).controller?.text == 'Demo Park') break;
+      }
+      _mark('form');
+      await f.pumpFor(const Duration(seconds: 2));
       final start = find.byKey(const ValueKey('j100_start'));
       await f.tester.ensureVisible(start);
       await f.tap(start, settleSeconds: 2);
