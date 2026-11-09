@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../family_sos/sos_sender_screen.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../train/dest_alarm_sound.dart';
@@ -25,7 +26,8 @@ class ElderHooks {
   /// Red Danger -> the SOS sender. fcsos assigns its 5-second sender here
   /// (SosSenderScreen.open(context, source: 'elder')); until then the
   /// existing emergency screen (SOS one tap) opens.
-  static Future<void> Function(BuildContext context)? openSos;
+  static Future<void> Function(BuildContext context)? openSos =
+      (c) => SosSenderScreen.open(c, source: 'elder'); // integration: fcsos sender (Danger button)
 
   static SilentWatchApi? api(BuildContext context) {
     if (apiOverride != null) return apiOverride;
