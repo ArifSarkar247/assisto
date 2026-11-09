@@ -43,8 +43,9 @@ BANNED = (
 )
 SHINGLE = 8
 # stage 2 (lpstage2, tools/lp/FORMAT.md §10): going-abroad tracks
-STAGE2_TRACKS = ("jlpt_n5", "jft_basic", "eps_topik", "de_a1")
-LETTERS = "ABCD"
+# + stage 3 (lpstage3, FORMAT.md §11): Chinese HSK1, French A1, work Arabic
+STAGE2_TRACKS = ("jlpt_n5", "jft_basic", "eps_topik", "de_a1", "hsk1", "fr_a1", "ar_work")
+LETTERS = "ABCDEF"          # shared 6-option banks (HSK / DELF matching)
 
 
 def text_of(obj):
@@ -252,8 +253,8 @@ def track_mock_failures(data):
         w = "%s q%s" % (s.get("id"), q.get("n"))
         ns.append(q.get("n"))
         opts = q.get("options") or []
-        if not 3 <= len(opts) <= 4:
-            f.append(("format", w + ": 3-4 options"))
+        if not 3 <= len(opts) <= 6:
+            f.append(("format", w + ": 3-6 options"))
         elif len(set(map(str, opts))) != len(opts):
             f.append(("uniqueness", w + ": repeated options"))
         a = str(q.get("answer") or "")

@@ -593,6 +593,24 @@ class Stage2TrackTests(TestCase):
                         format="json").json()
         self.assertEqual((r["raw"], r["score"], r["max"], r["band"]), (1, 4, 8, None))
 
+    def test_stage3_tracks_six_letters(self, _f):
+        t = sample_track_items()[0]
+        t["key"], t["track"], t["level"] = "hsk1-901", "hsk1", "HSK1"
+        t["data"]["title_en"] = "HSK1 practice 901"
+        q = t["data"]["sections"][0]["parts"][0]["questions"][0]
+        q.update({"options": ["A1", "B1", "C1", "D1", "E1", "F1"], "answer": "F",
+                  "prompt_roman": "nǐ hǎo", "options_roman": ["", "", "", "", "", ""]})
+        LS.import_bundle(_bundle([t], audio=False))
+        it = LpItem.objects.get(key="hsk1-901")
+        self.assertEqual(it.status, "ai_checked", it.checks)
+        body = self.c.get(V + "/lp/mocks/hsk1-901?section=vocab").json()
+        self.assertEqual(body["sections"][0]["parts"][0]["questions"][0]["prompt_roman"], "nǐ hǎo")
+        self.assertNotIn('"answer"', json.dumps(body))
+        r = self.c.post(V + "/lp/mocks/hsk1-901/mark", {"section": "vocab", "answers": {"1": "F"}},
+                        format="json").json()
+        self.assertEqual(r["raw"], 1)
+        self.assertEqual(LS.TRACKS["ar_work"], "ar_work")
+
     def test_lessons_by_track_and_syllabus(self, _f):
         items = self.c.get(V + "/lp/content/lesson?track=jft_basic").json()["items"]
         self.assertEqual([i["id"] for i in items], ["ja-w901-l1"])

@@ -98,7 +98,9 @@ level (reading passage length by level), timing (L 30 min, R 60, W 60, S 11-14 m
 (banned markers + known-text fingerprints), duplicates (same normalized text as another item).
 
 ## 7. Stage 2 tracks (lpstage2, tools/lp/FORMAT.md §10.6)
-- Import accepts kinds `syllabus` and `lesson` and tracks `jlpt_n5`, `jft_basic`, `eps_topik`, `de_a1`.
+- Import accepts kinds `syllabus` and `lesson` and tracks `jlpt_n5`, `jft_basic`, `eps_topik`, `de_a1`,
+  plus stage 3 (§11) `hsk1`, `fr_a1`, `ar_work`. Answer letters A–F (3-6 options); display-only keys
+  (`prompt_roman`, `options_roman`, `tones`, `bn_pron`, `register`, `min_words`/`max_words`/`max_chars`) pass through.
 - A track test is a `mock` whose `sections` is a LIST (kept inline). `GET /lp/mocks?kind=jlpt_n5` lists them;
   `GET /lp/mocks/<id>?section=<section id>` returns `{id, kind, exam, lang, scoring, sections:[...]}` with
   `answer`, `explain_*`, `script` and `skill` removed. `POST /lp/mocks/<id>/mark {section, answers}` compares
