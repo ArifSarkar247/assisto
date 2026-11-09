@@ -186,12 +186,15 @@ say "app launched (lang $LANG_CODE)"
 while read -r kind name; do
   case "$kind" in
     PLAYVID_HOST) say "host $name"; handle_host "$name" ;;
+    REALITY_SHOT)  # the harness's own screenshots (e.g. on a failed step)
+      T=20 A exec-out screencap -p > "$OUT/shots/$name" 2>/dev/null || true
+      T=10 A shell "mkdir -p $DEV/acks && touch $DEV/acks/$name" >/dev/null 2>&1 || true ;;
     PLAYVID_MARK)
       [ "$name" = all_done ] && { say "all done"; break; }
       handle_mark "$name" ;;
   esac
 done < <(timeout "$TOTAL" tail -n +1 -F "$LOG" 2>/dev/null \
-           | grep --line-buffered -oE 'PLAYVID_(MARK|HOST) [A-Za-z0-9_]+')
+           | grep --line-buffered -oE 'PLAYVID_(MARK|HOST) [A-Za-z0-9_]+|REALITY_SHOT [A-Za-z0-9_.-]+\.png')
 
 route_stop
 for v in a b; do [ -f "$OUT/$v/.rec" ] && { CUR=$v; rec_stop "$v"; }; done

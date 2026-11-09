@@ -57,6 +57,25 @@ Future<String> _lang(RFlow f) async {
   return bn == true ? 'bn' : 'en';
 }
 
+/// Records [body] as video [vid]: rec_start / rec_stop marks even when a
+/// step fails (the host stops screenrecord at once), and on a failure the
+/// visible texts go to the log (what screen were we really on?).
+Future<void> _recorded(RFlow f, String vid, Future<void> Function() body) async {
+  _mark('rec_start_$vid');
+  await f.pumpFor(const Duration(seconds: 1));
+  try {
+    await body();
+  } catch (_) {
+    final texts = find.byType(Text).evaluate().map((e) => (e.widget as Text).data ?? '')
+        .where((x) => x.trim().isNotEmpty).take(40).join(' | ');
+    // ignore: avoid_print
+    print('PLAYVID_DEBUG on screen: $texts');
+    rethrow;
+  } finally {
+    _mark('rec_stop_$vid');
+  }
+}
+
 void main() {
   Harness.I.init();
 
@@ -79,8 +98,7 @@ void main() {
       (f) async {
     await f.home();
     await f.pumpFor(const Duration(seconds: 2));
-    _mark('rec_start_b');
-    await f.pumpFor(const Duration(seconds: 1));
+    await _recorded(f, 'b', () async {
     await f.step('Assisto Voice settings: switch off', () async {
       await f.openRoute('voice_settings', settleSeconds: 2);
       final sw = find.byKey(const Key('va-wake-switch'));
@@ -122,7 +140,7 @@ void main() {
       _mark('back_b');
       await f.pumpFor(const Duration(seconds: 2));
     });
-    _mark('rec_stop_b');
+    });
     await f.step('turn Hey Assisto off again (clean shade for video A)', () async {
       final sw = find.byKey(const Key('va-wake-switch'));
       if (await f.appears(sw, seconds: 5)) {
@@ -142,8 +160,7 @@ void main() {
       if (a['id'] != null) await api.postJson('/journey/${a['id']}/arrived');
     });
     await f.pumpFor(const Duration(seconds: 1));
-    _mark('rec_start_a');
-    await f.pumpFor(const Duration(seconds: 1));
+    await _recorded(f, 'a', () async {
     await f.step('Safe Journey form: made-up place + watcher', () async {
       await f.openRoute('journey');
       final dest = find.byKey(const ValueKey('j100_dest'));
@@ -199,8 +216,9 @@ void main() {
         await _host(f, 'shade_after_a', seconds: 30);
       }
     });
-    _mark('rec_stop_a');
-    await f.pumpFor(const Duration(seconds: 1));
-    _mark('all_done');
+    });
   }, timeout: const Duration(minutes: 6));
+
+  // the host stops waiting as soon as this runs (also after a failed flow)
+  testWidgets('pv_zz_done', (tester) async => _mark('all_done'));
 }
