@@ -1548,12 +1548,12 @@ def _vendor_usage(slug, lang):
             return ""
         return ("DoLynk কনসোলের Cloud Message-এ এই Callback URL দিন: " if lang == "bn"
                 else "Put this Callback URL into the DoLynk console (Cloud Message): ") + url
-    if slug not in ("imou",):
+    if slug not in ("imou", "ezviz"):
         return ""
     out = []
     try:
         cfg = get(slug) or {}
-        if not all(cfg.get(k) for k in ("oauth_ak", "oauth_sk", "oauth_h5_url")):
+        if slug == "imou" and not all(cfg.get(k) for k in ("oauth_ak", "oauth_sk", "oauth_h5_url")):
             out.append(IMOU_OAUTH_PENDING[0] if lang == "bn" else IMOU_OAUTH_PENDING[1])
     except Exception:
         pass
