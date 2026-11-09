@@ -100,7 +100,7 @@ Future<void> _scrollTo(WidgetTester t, Finder f) async {
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    fcSlotsRegistered = true; // integration: keep this test's own slots
+    fcRegisterSlots(); // fcrest: register once, then each test sets its own fakes
     FcSlots.openSosSender = null;
     FcSlots.askParser = null;
     FcSlots.nightNewsCard = null;

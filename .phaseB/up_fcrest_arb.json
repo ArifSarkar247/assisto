@@ -1,0 +1,83 @@
+{
+ "_comment": "fcrest (Family Care V3 rest, 9 Nov). All keys NEW.",
+ "en": {
+  "fcrRename": "Rename family",
+  "fcrRenameHint": "Family name",
+  "fcrRenamed": "Family name changed",
+  "fcrLiveTitle": "Where I live",
+  "fcrLiveBd": "Bangladesh",
+  "fcrLiveSub": "Your family sees your local time next to theirs. Care Calls ring at your time.",
+  "fcrLiveSaved": "Saved. Your family now sees your time.",
+  "fcrLabelTitle": "Name shown in this family",
+  "fcrLabelHint": "For example Ammu, Abbu, Bhaiya",
+  "fcrLabelSaved": "Name saved",
+  "fcrRemove": "Remove from this family",
+  "fcrRemoveConfirm": "Remove {name} from this family? They stop seeing this family and this family stops seeing them. You can invite them again later.",
+  "@fcrRemoveConfirm": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "fcrRemoved": "Removed from the family",
+  "fcrTheirTime": "Their time {time}",
+  "@fcrTheirTime": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "fcrMyTime": "here {time}",
+  "@fcrMyTime": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "fcrLastPlace": "Battery was {pct}% at {time}: last place shared",
+  "@fcrLastPlace": {
+   "placeholders": {
+    "pct": {
+     "type": "String"
+    },
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "fcrOpenMap": "Open map",
+  "fcrArea": "Around {area}",
+  "@fcrArea": {
+   "placeholders": {
+    "area": {
+     "type": "String"
+    }
+   }
+  },
+  "fcrManageTitle": "Settings"
+ },
+ "bn": {
+  "fcrRename": "পরিবারের নাম বদলান",
+  "fcrRenameHint": "পরিবারের নাম",
+  "fcrRenamed": "পরিবারের নাম বদলানো হয়েছে",
+  "fcrLiveTitle": "আমি কোথায় থাকি",
+  "fcrLiveBd": "বাংলাদেশ",
+  "fcrLiveSub": "পরিবার নিজেদের সময়ের পাশে আপনার দেশের সময়ও দেখবে। কেয়ার কল বাজবে আপনার সময়ে।",
+  "fcrLiveSaved": "সেভ হয়েছে। পরিবার এখন আপনার সময় দেখবে।",
+  "fcrLabelTitle": "এই পরিবারে যে নামে দেখাবে",
+  "fcrLabelHint": "যেমন আম্মু, আব্বু, ভাইয়া",
+  "fcrLabelSaved": "নাম সেভ হয়েছে",
+  "fcrRemove": "এই পরিবার থেকে সরান",
+  "fcrRemoveConfirm": "{name}-কে এই পরিবার থেকে সরাবেন? উনি আর এই পরিবারকে দেখবেন না, পরিবারও ওনাকে দেখবে না। পরে আবার আমন্ত্রণ পাঠাতে পারবেন।",
+  "fcrRemoved": "পরিবার থেকে সরানো হয়েছে",
+  "fcrTheirTime": "ওনার সময় {time}",
+  "fcrMyTime": "এখানে {time}",
+  "fcrLastPlace": "{time}-এ ব্যাটারি {pct}% ছিল: শেষ জায়গা পাঠানো হয়েছে",
+  "fcrOpenMap": "ম্যাপে দেখুন",
+  "fcrArea": "{area} এলাকায়",
+  "fcrManageTitle": "সেটিং"
+ }
+}

@@ -889,6 +889,11 @@ Map<String, GallerySpec> gallerySpecs() {
     'fc3_fix': (build: (l) => Scaffold(body: SafeArea(child: FcFixGuide(name: l == 'bn' ? '\u0986\u09ac\u09cd\u09ac\u09c1' : 'Abbu', reason: 'battery_off', brain: const {'battery': 4, 'brand': 'Realme'}))), mode: FakeMode.data, full: true),
     'fc3_fix_bg': (build: (l) => Scaffold(body: SafeArea(child: FcFixGuide(name: l == 'bn' ? '\u09b8\u09be\u0995\u09bf\u09ac' : 'Sakib', reason: 'background_killed', brain: const {'brand': 'Xiaomi'}))), mode: FakeMode.data, full: true),
     'fc3_add': (build: (_) => const Scaffold(body: SafeArea(child: FcAddMemberSheet(familyId: 10, inFamily: {}))), mode: FakeMode.data, full: true),
+    // fcrest: Probashi both clocks (top of the board), member page settings
+    // (Where I live / name / remove), area + 15 % battery last place
+    'fcr_board_top_abroad': (build: (_) => const FamilyV3Screen(), mode: FakeMode.data, full: true), // fcrest
+    'fcr_member_me': (build: (l) => FcMemberPage(familyId: 10, userId: 1, seed: fcFakeMembers(bn: l == 'bn').last, myRole: 'admin'), mode: FakeMode.data, full: true), // fcrest
+    'fcr_member_admin': (build: (l) => FcMemberPage(familyId: 10, userId: 5, seed: fcFakeMembers(bn: l == 'bn')[1], myRole: 'admin'), mode: FakeMode.data, full: true), // fcrest
     // kidswatch (owner idea 2): parent hub, empty, error; the child's screen
     // train: tracker list / empty / error, live, estimate, chat, join, alarm setup
     'train_list': (build: (_) => const TrainTrackerScreen(), mode: FakeMode.data, full: true),

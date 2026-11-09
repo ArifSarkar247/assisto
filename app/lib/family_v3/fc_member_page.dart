@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/skeleton.dart';
 import 'fc_api.dart';
+import 'fc_manage.dart'; // fcrest
 import 'fc_member_card.dart';
 import 'fc_slots.dart';
 import 'fc_status.dart';
@@ -21,13 +22,17 @@ class FcMemberPage extends StatefulWidget {
   final Map<String, dynamic>? seed; // the board row, shown while loading
   final DateTime? debugNow;
   final Widget Function(BuildContext, Map<String, dynamic> member)? cardBuilder;
+
+  /// fcrest: the viewer's role in this family (admin tools on the page).
+  final String myRole;
   const FcMemberPage(
       {super.key,
       required this.familyId,
       required this.userId,
       this.seed,
       this.debugNow,
-      this.cardBuilder});
+      this.cardBuilder,
+      this.myRole = ''});
   @override
   State<FcMemberPage> createState() => _FcMemberPageState();
 }
@@ -172,6 +177,16 @@ class _FcMemberPageState extends State<FcMemberPage> {
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (c) => FcSlots.privacyScreen!(c, widget.familyId))),
                 ),
+              if (member != null) ...[
+                const SizedBox(height: Gap.md),
+                FcrMemberManage(
+                  familyId: widget.familyId,
+                  member: member,
+                  myRole: widget.myRole,
+                  onChanged: _load,
+                  onRemoved: () => Navigator.of(context).maybePop(),
+                ),
+              ],
               const SizedBox(height: Gap.sm),
               Row(children: [
                 Icon(Icons.verified_user_rounded, color: fcInk(context, 'ok')),

@@ -28,6 +28,7 @@ import '../widgets/voice_input.dart';
 import 'fc_add_member.dart';
 import 'fc_api.dart';
 import 'fc_fix_guide.dart';
+import 'fc_manage.dart'; // fcrest
 import 'fc_member_card.dart';
 import 'fc_member_page.dart';
 import 'fc_section_page.dart';
@@ -73,7 +74,13 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
   @override
   void initState() {
     super.initState();
-    fcRegisterSlots();
+    ApiClient? api;
+    try {
+      api = context.read<AppState>().api;
+    } catch (_) {
+      api = null; // a preview without AppState: slots without the server ask
+    }
+    fcRegisterSlots(api); // fcrest: fcsos + fcbrain + fcelder hooks
     _load();
     if (widget.debugNow == null) {
       // re-run the status rules with the phone clock (no network)
@@ -148,7 +155,10 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
               seed: m,
               debugNow: widget.debugNow,
               cardBuilder: (ctx, mm) => _card(mm, inPage: true),
-            )));
+              myRole: '${(_board?['me'] as Map?)?['role'] ?? ''}', // fcrest
+            ))).then((_) {
+      if (mounted) _load();
+    });
   }
 
   void _fix(Map<String, dynamic> m) {
@@ -178,41 +188,10 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
 
   Future<void> _newFamily() async {
     final t = AppLocalizations.of(context);
-    final ctrl = TextEditingController();
-    final name = await showAppSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(t.fc3NewFamily,
-                style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: Gap.sm),
-            TextField(
-              key: const ValueKey('fc3-new-family-name'),
-              controller: ctrl,
-              autofocus: true,
-              maxLength: 60,
-              buildCounter: localCounter,
-              decoration: InputDecoration(labelText: t.fc3NewFamilyHint),
-              onSubmitted: (v) => Navigator.pop(ctx, v),
-            ),
-            const SizedBox(height: Gap.sm),
-            FilledButton(
-              key: const ValueKey('fc3-new-family-save'),
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: () => Navigator.pop(ctx, ctrl.text),
-              child: Text(t.fc3Create),
-            ),
-          ],
-        ),
-      ),
-    );
-    ctrl.dispose();
+    // fcrest: the shared sheet owns its controller (no disposed-controller assert)
+    final name = await fcrTextSheet(context,
+        title: t.fc3NewFamily, hint: t.fc3NewFamilyHint, max: 60,
+        fieldKey: const ValueKey('fc3-new-family-name'), action: t.fc3Create);
     if (name == null || name.trim().isEmpty || !mounted) return;
     try {
       final r = await _api.fcCreateFamily(name.trim());
@@ -764,6 +743,11 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
           () => _openSection(FcSection.card, t.fc3MoreCard)),
       row(const ValueKey('fc3-more-members'), Icons.groups_rounded, t.fc3MoreMembers,
           () => _openSection(FcSection.members, t.fc3MoreMembers)),
+      if ((_board?['me'] as Map?)?['role'] == 'admin' && _fid != null) // fcrest
+        row(const ValueKey('fcr-more-rename'), Icons.edit_rounded, t.fcrRename, () async {
+          final fam = '${(_board?['family'] as Map?)?['name'] ?? ''}';
+          if (await fcrRenameFamily(context, _fid!, fam) && mounted) _load();
+        }, sub: '${(_board?['family'] as Map?)?['name'] ?? ''}'),
       if (kMedicalFeaturesAllowed)
         row(const ValueKey('fc3-more-medical'), Icons.medication_rounded, t.fc3MoreMedical,
             () => Navigator.of(context).push(MaterialPageRoute(

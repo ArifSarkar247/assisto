@@ -534,6 +534,9 @@ def _brain(viewer, member, now):
 
 
 def _sos_ids(viewer, family_id, ids, now):
+    """fcsos v3 SOS events PLUS the older one-tap SOS alerts (Emergency
+    screen, family100) — either one turns the card red (fcrest: union, so an
+    SOS sent from the old path is never hidden once fcsos is installed)."""
     out = set()
     try:
         from . import family_sos_v3   # fcsos
@@ -542,8 +545,6 @@ def _sos_ids(viewer, family_id, ids, now):
         pass
     except Exception:  # noqa: BLE001
         pass
-    # integration: the viewer's own unresolved SOS alerts count too (a
-    # legacy / Circle SOS that never went through the fcsos delivery table)
     try:
         from .models import FamilyAlert
         for p in (FamilyAlert.objects.filter(user=viewer, kind="sos", dismissed=False,
@@ -642,7 +643,8 @@ def member_rows(viewer, family_id, now=None):
             "brain": {k: brain.get(k) for k in
                       ("last_seen", "battery", "charging", "net", "bg_restricted",
                        "paused_until", "interval_s", "place_label", "place_kind",
-                       "place_since", "last_event", "brand", "auto_arrive", "watch_on")
+                       "place_since", "last_event", "brand", "auto_arrive", "watch_on",
+                       "last_location")   # fcrest: the 15 % battery share
                       if k in brain},
             "status": status, "chip": _chip(status, brain, cc.get(u.id), now),
             "carecall": cc.get(u.id) or {"done": 0, "missed": 0, "pending": 0},

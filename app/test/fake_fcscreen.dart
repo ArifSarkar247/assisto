@@ -81,9 +81,15 @@ List<Map<String, dynamic>> fcFakeMembers({bool bn = false, String? scene, DateTi
       state: 'stale', reason: 'battery_off', chip: {'kind': 'no_news'}, now: n);
   final bhai = fcFakeMember(5, bn ? 'সাকিব' : 'Sakib',
       relation: 'brother', ago: const Duration(minutes: 20), battery: 11,
-      placeLabel: bn ? 'মিরপুর ১০' : 'Mirpur 10',
+      placeKind: s == 'abroad' ? '' : 'area', // fcrest: phone Geocoder area
+      placeLabel: s == 'abroad' ? '' : (bn ? 'মিরপুর ১০' : 'Mirpur 10'),
       state: 'check', reason: 'battery_low', now: n,
       abroadTz: s == 'abroad' ? 'Asia/Riyadh' : '');
+  // fcrest: the 15 % battery share (made-up point)
+  (bhai['brain'] as Map)['last_location'] = {
+    'lat': 23.80, 'lng': 90.36, 'acc': 30, 'pct': 15, 'why': 'battery_low',
+    'at': _iso(n.subtract(const Duration(minutes: 25))),
+  };
   if (s == 'sos') {
     bhai['status'] = {'state': 'sos', 'reason': 'sos', 'fresh_until': null};
   }
