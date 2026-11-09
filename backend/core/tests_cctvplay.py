@@ -150,7 +150,7 @@ class _Base(APITestCase):
         r = self.client.get("/api/v1/shop/phonecam/pair?site=%d" % self.site.id)
         self.assertEqual(r.status_code, 200, r.data)
         r = APIClient().post("/api/v1/shop/phonecam/claim",
-                             {"code": r.data["error"], "model": "Sample 5"}, format="json")
+                             {"code": r.data["code"], "model": "Sample 5"}, format="json")
         self.assertEqual(r.status_code, 201, r.data)
         self.cam = ShopCamera.objects.get(camera_token=r.data["camera_token"])
         self.dev = APIClient()
