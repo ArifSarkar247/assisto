@@ -55,6 +55,10 @@ const ds2Screens = <String>[
   'fce_watch_alert', // batch 4
   'fce_watch_none', // batch 4
   'fce_watch_empty', // batch 4
+  'fce_setup_form', // batch 4
+  'fce_setup_qr', // batch 4
+  'fce_setup_empty', // batch 4
+  'fce_consent', // batch 4
 ];
 
 Future<void> _png(WidgetTester tester, GlobalKey key, String name) async {

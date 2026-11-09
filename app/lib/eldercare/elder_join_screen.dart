@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../api.dart' show ApiException;
 import '../l10n/app_localizations.dart';
 import '../screens/battery_guidance_screen.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/elderly_mode.dart';
@@ -248,9 +249,16 @@ class _ElderJoinScreenState extends State<ElderJoinScreen> {
   }
 
   List<Widget> _codeStep(AppLocalizations t) {
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
+    // designv2 (elder type stays big): code in a card, big primary button
     return [
-      Text(t.fceJoinCodeHelp, style: AType.titleLarge),
+      DsCard(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        DsIllustration(icon: Icons.qr_code_2_rounded, size: 56, color: ds.primary),
+        const SizedBox(width: Gap.md),
+        Expanded(child: Text(t.fceJoinCodeHelp, style: AType.titleLarge.copyWith(color: ds.text))),
+      ]),
       const SizedBox(height: Gap.lg),
       TextField(
         key: const Key('fce-join-code'),
@@ -259,8 +267,10 @@ class _ElderJoinScreenState extends State<ElderJoinScreen> {
         buildCounter: localCounter,
         textCapitalization: TextCapitalization.characters,
         style: AType.headlineMedium.copyWith(letterSpacing: 4, fontWeight: FontWeight.w700),
-        decoration: InputDecoration(labelText: t.fceJoinCodeHint, border: const OutlineInputBorder()),
+        decoration: InputDecoration(labelText: t.fceJoinCodeHint),
         onSubmitted: (_) => _check(),
+      ),
+        ]),
       ),
       const SizedBox(height: Gap.md),
       SizedBox(
@@ -274,19 +284,19 @@ class _ElderJoinScreenState extends State<ElderJoinScreen> {
       if (_error != null)
         Padding(
             padding: const EdgeInsets.only(top: Gap.md),
-            child: Text(_error!, style: AType.titleMedium.copyWith(color: scheme.error))),
+            child: Text(_error!, style: AType.titleMedium.copyWith(color: ds.dangerInk))),
     ];
   }
 
   List<Widget> _consentStep(AppLocalizations t) {
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final child = '${_preview?['child_name'] ?? ''}';
     return [
       Text(t.fceJoinConsentTitle(child),
           key: const Key('fce-consent-title'),
-          style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w800)),
+          style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w800, color: ds.text)),
       const SizedBox(height: Gap.md),
-      Text(_consentText(t), style: AType.titleLarge.copyWith(height: 1.5)),
+      DsCard(child: Text(_consentText(t), style: AType.titleLarge.copyWith(height: 1.5, color: ds.text))),
       const SizedBox(height: Gap.md),
       SizedBox(
         height: 56,
@@ -306,19 +316,20 @@ class _ElderJoinScreenState extends State<ElderJoinScreen> {
         ),
       ),
       if (_error != null)
-        Text(_error!, style: AType.titleMedium.copyWith(color: scheme.error)),
+        Text(_error!, style: AType.titleMedium.copyWith(color: ds.dangerInk)),
     ];
   }
 
   List<Widget> _batteryStep(AppLocalizations t) => [
-        const Icon(Icons.verified_rounded, size: 72, color: ElderColors.ok),
+        const Center(child: DsIllustration(icon: Icons.verified_rounded, size: 120, color: ElderColors.ok)),
         const SizedBox(height: Gap.md),
         Text(t.fceJoinDone,
             key: const Key('fce-join-done'),
             textAlign: TextAlign.center,
-            style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w800)),
+            style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w800, color: DsTokens.of(context).text)),
         const SizedBox(height: Gap.lg),
-        Text(t.fceJoinBatteryBody, style: AType.titleLarge),
+        DsCard(child: Text(t.fceJoinBatteryBody,
+            style: AType.titleLarge.copyWith(color: DsTokens.of(context).text))),
         const SizedBox(height: Gap.lg),
         SizedBox(
           height: 64,
