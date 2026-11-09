@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../blood_panel_api.dart' show kBloodGroups;
 import '../../ds/ds.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
@@ -333,5 +334,63 @@ class BpPrivacyCard extends StatelessWidget {
         Text(t.bpPrivacyBody, style: text.bodyMedium?.copyWith(color: ds.muted)),
       ]),
     );
+  }
+}
+
+/// designv2: the blood-group 4 x 2 grid used by the request form and donor
+/// setup (same look as the hub). Cells are keyed '<keyPrefix><group>'.
+class BpGroupGrid extends StatelessWidget {
+  const BpGroupGrid({super.key, required this.selected, required this.onTap, required this.keyPrefix});
+  final String selected;
+  final ValueChanged<String> onTap;
+  final String keyPrefix;
+
+  @override
+  Widget build(BuildContext context) {
+    final ds = DsTokens.of(context);
+    final text = Theme.of(context).textTheme;
+    final t = AppLocalizations.of(context);
+    Widget cell(String g) {
+      final on = selected == g;
+      return Expanded(
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.xs),
+          child: Semantics(
+            selected: on,
+            button: true,
+            label: t.bpGroupLabel(g),
+            child: DsSurface(
+              key: ValueKey('$keyPrefix$g'),
+              padding: const EdgeInsets.symmetric(vertical: Gap.md),
+              color: on ? ds.dangerFill : null,
+              borderColor: on ? ds.dangerFill : null,
+              onTap: () => onTap(g),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: kMinTap - Gap.md),
+                child: Center(
+                  child: ExcludeSemantics(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(g,
+                          maxLines: 1,
+                          style: text.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.4,
+                            color: on ? ds.onDangerFill : ds.dangerInk,
+                          )),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Column(children: [
+      for (var row = 0; row < 2; row++)
+        Row(children: [for (final g in kBloodGroups.skip(row * 4).take(4)) cell(g)]),
+    ]);
   }
 }

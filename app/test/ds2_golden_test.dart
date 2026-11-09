@@ -45,6 +45,9 @@ const ds2Screens = <String>[
   'biz_khata', // batch 3
   'ai_chat', // batch 3
   'blood_request_mine', // batch 3
+  'blood_request_form', // batch 4
+  'blood_setup', // batch 4
+  'blood_verify', // batch 4
 ];
 
 Future<void> _png(WidgetTester tester, GlobalKey key, String name) async {

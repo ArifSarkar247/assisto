@@ -553,12 +553,12 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: kMinTap - Gap.md),
                 child: Center(
-                  child: ExcludeSemantics(child: Text(g,
+                  child: ExcludeSemantics(child: FittedBox(fit: BoxFit.scaleDown, child: Text(g, maxLines: 1,
                       style: text.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.4,
                         color: on ? ds.onDangerFill : ds.dangerInk,
-                      ))),
+                      )))),
                 ),
               ),
             ),

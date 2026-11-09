@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,6 +6,7 @@ import '../../blood_panel_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
 import '../../widgets/local_counter.dart';
@@ -127,163 +129,180 @@ class _BloodRequestFormScreenState extends State<BloodRequestFormScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final text = Theme.of(context).textTheme;
     final districts = bpRows(widget.config, 'districts');
     final radii = ((widget.config['radius_choices'] as List?) ?? const [2, 5, 10, 25]).whereType<int>();
     Widget err(String key, String msg) => _bad.contains(key)
-        ? Padding(padding: const EdgeInsets.only(top: Gap.xs), child: Text(msg, style: TextStyle(color: s.error)))
+        ? Padding(padding: const EdgeInsets.only(top: Gap.xs),
+            child: Text(msg, style: text.bodyMedium?.copyWith(color: ds.dangerInk)))
         : const SizedBox.shrink();
+    Widget title(String s) => Padding(
+          padding: const EdgeInsets.only(bottom: Gap.sm),
+          child: Semantics(header: true, child: Text(s,
+              style: text.titleSmall?.copyWith(color: ds.text, fontWeight: FontWeight.w700))),
+        );
     return Scaffold(
       appBar: AppBar(title: Text(t.bpRequestCta)),
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
-          Text(t.bpReqLead, style: text.bodyMedium),
+          Text(t.bpReqLead, style: text.bodyMedium?.copyWith(color: ds.muted)),
+          const SizedBox(height: Gap.md),
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              title(t.bpGroupNeeded),
+              BpGroupGrid(
+                keyPrefix: 'bp-req-g-',
+                selected: _group,
+                onTap: (g) => setState(() => _group = _group == g ? '' : g),
+              ),
+              err('blood_group', t.bpErrGroup),
+              const SizedBox(height: Gap.sm),
+              Row(children: [
+                Expanded(child: Text(t.bpBags,
+                    style: text.titleSmall?.copyWith(color: ds.text, fontWeight: FontWeight.w700))),
+                IconButton(
+                  key: const ValueKey('bp-units-minus'),
+                  tooltip: t.bpLess,
+                  onPressed: _units > 1 ? () => setState(() => _units--) : null,
+                  icon: const Icon(Icons.remove_circle_outline_rounded),
+                ),
+                DsNumber(bpD(context, '$_units'), small: true),
+                IconButton(
+                  key: const ValueKey('bp-units-plus'),
+                  tooltip: t.bpMore,
+                  onPressed: _units < 10 ? () => setState(() => _units++) : null,
+                  icon: const Icon(Icons.add_circle_outline_rounded),
+                ),
+              ]),
+            ]),
+          ),
+          const SizedBox(height: Gap.md),
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              TextField(
+                key: const ValueKey('bp-req-hospital'),
+                controller: _hospital,
+                maxLength: 120,
+                buildCounter: localCounter,
+                decoration: InputDecoration(labelText: t.bpHospital, helperText: t.bpHospitalHelp,
+                    helperMaxLines: 2),
+              ),
+              err('hospital', t.bpErrHospital),
+              const SizedBox(height: Gap.sm),
+              DropdownButtonFormField<String>(
+                key: const ValueKey('bp-req-district'),
+                initialValue: districts.any((d) => d['code'] == _district) ? _district : null,
+                isExpanded: true,
+                decoration: InputDecoration(labelText: t.bpDistrict),
+                items: [
+                  for (final d in districts)
+                    DropdownMenuItem(value: '${d['code']}', child: Text('${d['name']}')),
+                ],
+                onChanged: (v) => setState(() => _district = v ?? ''),
+              ),
+              const SizedBox(height: Gap.sm),
+              TextField(
+                key: const ValueKey('bp-req-area'),
+                controller: _area,
+                maxLength: 60,
+                buildCounter: localCounter,
+                decoration: InputDecoration(labelText: t.bpAreaLabel),
+              ),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: kMinTap),
+                  child: TextButton.icon(
+                    key: const ValueKey('bp-req-here'),
+                    onPressed: _useHere,
+                    icon: Icon(_point != null ? Icons.check_circle_rounded : Icons.my_location_rounded),
+                    label: Text(_point != null ? t.bpPointSaved : t.bpUsePointReq),
+                  ),
+                ),
+              ),
+              err('area', t.bpErrArea),
+            ]),
+          ),
+          const SizedBox(height: Gap.md),
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              title(t.bpNeededByTitle),
+              DsChipRow(padding: EdgeInsets.zero, children: [
+                for (final h in const [2, 6, 12, 24])
+                  DsChip(
+                    key: ValueKey('bp-req-in-$h'),
+                    label: bpD(context, t.bpInHours(h)),
+                    selected: _quick == h,
+                    onSelected: (_) => setState(() {
+                      _quick = h;
+                      _neededBy = DateTime.now().add(Duration(hours: h));
+                    }),
+                  ),
+                DsChip(
+                  key: const ValueKey('bp-req-pick-time'),
+                  icon: Icons.schedule_rounded,
+                  label: _quick == 0 ? bpWhen(context, _neededBy.toIso8601String()) : t.bpPickTime,
+                  selected: _quick == 0,
+                  onSelected: (_) => unawaited(_pickTime()),
+                ),
+              ]),
+              const SizedBox(height: Gap.lg),
+              title(t.bpReachTitle),
+              DsChipRow(padding: EdgeInsets.zero, children: [
+                for (final r in radii)
+                  DsChip(
+                    key: ValueKey('bp-req-r-$r'),
+                    label: bpD(context, t.bpKm(r)),
+                    selected: _radius == r,
+                    onSelected: (_) => setState(() => _radius = r),
+                  ),
+              ]),
+              const SizedBox(height: Gap.sm),
+              Text(t.bpReachSub, style: text.bodySmall?.copyWith(color: ds.muted)),
+              // finish1 (push-area honesty): matched by the donor's SAVED area
+              Text(t.bpReachHonest,
+                  key: const ValueKey('bp-reach-honest'),
+                  style: text.bodySmall?.copyWith(color: ds.muted)),
+            ]),
+          ),
+          const SizedBox(height: Gap.md),
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              TextField(
+                key: const ValueKey('bp-req-note'),
+                controller: _note,
+                maxLength: 300,
+                buildCounter: localCounter,
+                minLines: 2,
+                maxLines: 4,
+                decoration: InputDecoration(labelText: t.bpNote, helperText: t.bpNoteHelp,
+                    helperMaxLines: 2),
+              ),
+              CheckboxListTile(
+                key: const ValueKey('bp-req-real'),
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(t.bpRealNeed),
+                value: _real,
+                onChanged: (v) => setState(() => _real = v == true),
+              ),
+              err('real', t.bpErrReal),
+            ]),
+          ),
           const SizedBox(height: Gap.lg),
-          Text(t.bpGroupNeeded, style: text.titleSmall),
-          const SizedBox(height: Gap.xs),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            for (final g in kBloodGroups)
-              ChoiceChip(
-                key: ValueKey('bp-req-g-$g'),
-                label: Text(g),
-                selected: _group == g,
-                onSelected: (on) => setState(() => _group = on ? g : ''),
-              ),
-          ]),
-          err('blood_group', t.bpErrGroup),
-          const SizedBox(height: Gap.lg),
-          Row(children: [
-            Expanded(child: Text(t.bpBags, style: text.titleSmall)),
-            IconButton(
-              key: const ValueKey('bp-units-minus'),
-              tooltip: t.bpLess,
-              onPressed: _units > 1 ? () => setState(() => _units--) : null,
-              icon: const Icon(Icons.remove_circle_outline_rounded),
-            ),
-            Text(bpD(context, '$_units'), style: text.titleLarge),
-            IconButton(
-              key: const ValueKey('bp-units-plus'),
-              tooltip: t.bpMore,
-              onPressed: _units < 10 ? () => setState(() => _units++) : null,
-              icon: const Icon(Icons.add_circle_outline_rounded),
-            ),
-          ]),
-          const SizedBox(height: Gap.md),
-          TextField(
-            key: const ValueKey('bp-req-hospital'),
-            controller: _hospital,
-            maxLength: 120,
-            buildCounter: localCounter,
-            decoration: InputDecoration(labelText: t.bpHospital, helperText: t.bpHospitalHelp,
-                helperMaxLines: 2, border: const OutlineInputBorder()),
-          ),
-          err('hospital', t.bpErrHospital),
-          const SizedBox(height: Gap.sm),
-          DropdownButtonFormField<String>(
-            key: const ValueKey('bp-req-district'),
-            initialValue: districts.any((d) => d['code'] == _district) ? _district : null,
-            isExpanded: true,
-            decoration: InputDecoration(labelText: t.bpDistrict, border: const OutlineInputBorder()),
-            items: [
-              for (final d in districts)
-                DropdownMenuItem(value: '${d['code']}', child: Text('${d['name']}')),
-            ],
-            onChanged: (v) => setState(() => _district = v ?? ''),
+          DsButton.danger(
+            key: const ValueKey('bp-req-submit'),
+            label: t.bpReqSubmit,
+            icon: Icons.campaign_rounded,
+            expand: true,
+            busy: _busy,
+            onPressed: _submit,
           ),
           const SizedBox(height: Gap.sm),
-          TextField(
-            key: const ValueKey('bp-req-area'),
-            controller: _area,
-            maxLength: 60,
-            buildCounter: localCounter,
-            decoration: InputDecoration(labelText: t.bpAreaLabel, border: const OutlineInputBorder()),
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: TextButton.icon(
-                key: const ValueKey('bp-req-here'),
-                onPressed: _useHere,
-                icon: const Icon(Icons.my_location_rounded),
-                label: Text(_point != null ? t.bpPointSaved : t.bpUsePointReq),
-              ),
-            ),
-          ),
-          err('area', t.bpErrArea),
-          const SizedBox(height: Gap.md),
-          Text(t.bpNeededByTitle, style: text.titleSmall),
-          const SizedBox(height: Gap.xs),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            for (final h in const [2, 6, 12, 24])
-              ChoiceChip(
-                key: ValueKey('bp-req-in-$h'),
-                label: Text(bpD(context, t.bpInHours(h))),
-                selected: _quick == h,
-                onSelected: (_) => setState(() {
-                  _quick = h;
-                  _neededBy = DateTime.now().add(Duration(hours: h));
-                }),
-              ),
-            ActionChip(
-              key: const ValueKey('bp-req-pick-time'),
-              avatar: const Icon(Icons.schedule_rounded, size: 18),
-              label: Text(_quick == 0 ? bpWhen(context, _neededBy.toIso8601String()) : t.bpPickTime),
-              onPressed: _pickTime,
-            ),
-          ]),
-          const SizedBox(height: Gap.md),
-          Text(t.bpReachTitle, style: text.titleSmall),
-          Text(t.bpReachSub, style: text.bodySmall),
-          // finish1 (push-area honesty): matched by the donor's SAVED area
-          Text(t.bpReachHonest,
-              key: const ValueKey('bp-reach-honest'), style: text.bodySmall),
-          const SizedBox(height: Gap.xs),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            for (final r in radii)
-              ChoiceChip(
-                key: ValueKey('bp-req-r-$r'),
-                label: Text(bpD(context, t.bpKm(r))),
-                selected: _radius == r,
-                onSelected: (_) => setState(() => _radius = r),
-              ),
-          ]),
-          const SizedBox(height: Gap.md),
-          TextField(
-            key: const ValueKey('bp-req-note'),
-            controller: _note,
-            maxLength: 300,
-            buildCounter: localCounter,
-            minLines: 2,
-            maxLines: 4,
-            decoration: InputDecoration(labelText: t.bpNote, helperText: t.bpNoteHelp,
-                helperMaxLines: 2, border: const OutlineInputBorder()),
-          ),
-          CheckboxListTile(
-            key: const ValueKey('bp-req-real'),
-            contentPadding: EdgeInsets.zero,
-            controlAffinity: ListTileControlAffinity.leading,
-            title: Text(t.bpRealNeed),
-            value: _real,
-            onChanged: (v) => setState(() => _real = v == true),
-          ),
-          err('real', t.bpErrReal),
-          const SizedBox(height: Gap.md),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 56),
-            child: FilledButton.icon(
-              key: const ValueKey('bp-req-submit'),
-              onPressed: _busy ? null : _submit,
-              icon: const Icon(Icons.campaign_rounded),
-              label: _busy
-                  ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(t.bpReqSubmit),
-            ),
-          ),
-          const SizedBox(height: Gap.md),
-          Text(t.bpWhoGets, style: text.bodySmall),
+          Text(t.bpWhoGets, textAlign: TextAlign.center,
+              style: text.bodySmall?.copyWith(color: ds.muted)),
         ],
       ),
     );
