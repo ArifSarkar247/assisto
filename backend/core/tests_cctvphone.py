@@ -326,3 +326,67 @@ class LiveTests(_Base):
         r = c.get("/api/v1/shop/watchman")
         row = [x for s in r.data["sites"] for x in s["cameras_list"] if x["id"] == cam.id][0]
         self.assertNotIn("live_capable", row)
+
+
+class DaytimeAlertTests(_Base):
+    """cctvtoday (owner test 9 Nov): the two-phone path end to end on the
+    server — a phone camera on a SHOP site alerts in the DAYTIME (the shop's
+    21:00-09:00 default used to drop it silently as "not armed"), with the
+    snapshot, to the owner AND the family viewer."""
+
+    def _shop_phone(self):
+        from core.models import ShopSite, ShopSiteViewer, ShopCamera
+        shop = ShopSite.objects.create(owner=self.owner, name="Shop", kind="shop")
+        ShopSiteViewer.objects.create(site=shop, user=self.viewer)
+        r = self.client.get("/api/v1/shop/phonecam/pair?site=%d" % shop.id)
+        self.assertEqual(r.status_code, 200, r.data)
+        r = self.claim(r.data["code"])
+        self.assertEqual(r.status_code, 201, r.data)
+        return ShopCamera.objects.get(camera_token=r.data["camera_token"])
+
+    def _jpeg(self):
+        import io
+        from PIL import Image
+        b = io.BytesIO()
+        Image.new("RGB", (640, 360), (40, 90, 120)).save(b, "JPEG")
+        b.seek(0)
+        b.name = "snapshot.jpg"
+        return b
+
+    def test_phone_camera_is_always_on_guard_even_on_a_shop_site(self):
+        from core.logic import watchman as WM
+        cam = self._shop_phone()
+        self.assertIsNone(WM.zone_v2(cam.zone_config).get("schedule"))
+
+    def test_daytime_person_alert_reaches_owner_and_viewer_with_photo(self):
+        import datetime as dt
+        import json
+        from core.models import NotifEvent, ShopEvent
+        cam = self._shop_phone()
+        noon = dt.datetime(2026, 11, 9, 7, 0, tzinfo=dt.timezone.utc)  # 13:00 Dhaka
+        with mock.patch("django.utils.timezone.now", return_value=noon):
+            r = APIClient().post("/api/v1/shop/ingest", {
+                "camera_token": cam.camera_token, "type": "person_detected",
+                "signals": json.dumps({"detector": "yolox_nano_phone", "conf": 0.81,
+                                       "persons": 1, "source": "phone_camera"}),
+                "snapshot": self._jpeg()}, format="multipart")
+        self.assertEqual(r.status_code, 201, r.data)
+        self.assertTrue(r.data["raised"])
+        ev = ShopEvent.objects.get(pk=r.data["event_id"])
+        self.assertEqual(ev.camera_id, cam.id)
+        self.assertTrue(ev.snapshot)
+        for u in (self.owner, self.viewer):
+            self.assertTrue(NotifEvent.objects.filter(user=u).exclude(
+                meta__kind="paired").exists(), u.name)
+
+    def test_motion_only_phone_is_an_honest_possible_alert(self):
+        import json
+        cam = self._shop_phone()
+        r = APIClient().post("/api/v1/shop/ingest", {
+            "camera_token": cam.camera_token, "type": "motion",
+            "signals": json.dumps({"detector": "android_frame_diff",
+                                   "person_check": "unavailable",
+                                   "source": "phone_camera"})}, format="json")
+        self.assertEqual(r.status_code, 201, r.data)
+        self.assertTrue(r.data["raised"])
+        self.assertTrue(r.data["possible"])

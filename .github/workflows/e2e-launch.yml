@@ -16,6 +16,9 @@ on:
       - "backend/core/logic/cctv_extras.py"
       - "backend/core/cashguard_views.py"
       - "backend/core/push.py"
+      - "backend/core/phonecam_views.py"   # cctvtoday: old phone = camera
+      - "backend/core/logic/phonecam.py"
+      - "backend/core/shop_ops_views.py"
       - "backend/tracker/**"
       - "backend/core/vehicle_service.py"
       - "backend/core/views_vehicle.py"
