@@ -311,7 +311,7 @@ import 'package:assisto/screens/circle_search_screen.dart';
 import 'package:assisto/screens/referral_screen.dart';
 import 'package:assisto/screens/journey_start_screen.dart';
 import 'package:assisto/services/journey_habits.dart' show JourneySuggestion; // sjstart2
-import 'package:assisto/widgets/journey_plate_photo.dart' show JourneyPlatePhotoTile; // sjstart2
+import 'package:assisto/widgets/journey_plate_photo.dart' show JourneyPlatePhotoTile, sj2PickPlatePhoto; // sjstart2
 import 'package:assisto/widgets/journey_watcher_chips.dart' show JourneyWatcherChips; // sjstart2
 import 'package:assisto/screens/journey_live_screen.dart';
 import 'package:assisto/screens/journey_sos_screen.dart';
@@ -1187,18 +1187,18 @@ Map<String, GallerySpec> gallerySpecs() {
     'truth_firstwin_business': (build: (_) => Scaffold(body: SafeArea(child: Builder(builder: (c) => OnbFirstWin(role: OnbRole.business, onPick: (w) => ScaffoldMessenger.of(c).showSnackBar(SnackBar(content: Text(w.name))))))), mode: FakeMode.data, full: true),
     'truth_journey_empty_circle': (build: (_) => const JourneyStartScreen(), mode: FakeMode.empty, full: true),
     // sjstart2: "Who watches" chips (family first, more than one) + plate photo; usual-trip suggestion
-    'sjstart2_watchers': (build: (l) => Builder(builder: (c) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).journeyWhoKnows)), body: ListView(padding: const EdgeInsets.all(16), children: [
+    'sjstart2_watchers': (build: (l) { var sel = <int>{1, 2}; return StatefulBuilder(builder: (c, set) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).journeyWhoKnows)), body: ListView(padding: const EdgeInsets.all(16), children: [
           JourneyWatcherChips(rows: [
             {'id': 1, 'name': l == 'bn' ? 'আম্মু' : 'Mum', 'relation': 'mother'},
             {'id': 2, 'name': l == 'bn' ? 'আব্বু' : 'Dad', 'relation': 'father'},
             {'id': 3, 'name': l == 'bn' ? 'রিনা (বোন)' : 'Rina (sister)', 'relation': 'sister'},
             {'id': 4, 'name': l == 'bn' ? 'রাফি (অফিস)' : 'Rafi (office)', 'relation': 'colleague'},
-          ], selected: const {1, 2}, onChanged: (_) {}),
+          ], selected: sel, onChanged: (v) => set(() => sel = v)),
           const SizedBox(height: 8),
-          Text(AppLocalizations.of(c).sj2WatchCount(l == 'bn' ? '২' : '2')),
+          Text(AppLocalizations.of(c).sj2WatchCount(l == 'bn' ? const ['০', '১', '২', '৩', '৪'][sel.length] : '${sel.length}')),
           const SizedBox(height: 16),
-          JourneyPlatePhotoTile(bytes: null, onPick: () {}, onRemove: () {}),
-        ]))), mode: FakeMode.data, full: true),
+          JourneyPlatePhotoTile(bytes: null, onPick: () => sj2PickPlatePhoto(c), onRemove: () {}),
+        ]))); }, mode: FakeMode.data, full: true),
     'sjstart2_suggest': (build: (l) => JourneyStartScreen(suggest: JourneySuggestion(oLat: 23.78, oLng: 90.426, dLat: 23.7925, dLng: 90.4078, name: l == 'bn' ? 'অফিস' : 'Office', kind: 'office', mode: 'cng', usualMin: 510, times: 4)), mode: FakeMode.data, full: true),
     'used_phone_check': (build: (_) => const UsedPhoneCheckScreen(), mode: FakeMode.data, full: true),
     // b6-antitheft: always-on Lost/Stolen engine (status, options, honest limits)

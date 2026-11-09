@@ -86,7 +86,7 @@ class JourneySuggestion {
   final int times; // how many past trips back it
 
   /// One suggestion per usual trip per day.
-  String get key => '${dLat.toStringAsFixed(3)},${dLng.toStringAsFixed(3)}';
+  String get key => '${dLat.toStringAsFixed(3)}_${dLng.toStringAsFixed(3)}';
 
   Map<String, dynamic> toJson() => {
         'o': [oLat, oLng],

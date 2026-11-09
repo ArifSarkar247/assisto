@@ -129,6 +129,20 @@ Future<void> _tapStartAndTime(WidgetTester tester) async {
   await _popTimePicker(tester);
 }
 
+/// The one start POST, or a failure that says what the screen showed.
+_Hit _started(WidgetTester tester, _Api api) {
+  final p = api.posts('/journey/start');
+  if (p.length == 1) return p.single;
+  final shown = [
+    for (final e in find.descendant(of: find.byType(SnackBar), matching: find.byType(Text)).evaluate())
+      (e.widget as Text).data ?? '',
+  ];
+  fail('no /journey/start POST; snackbars=$shown; '
+      'timePicker=${find.byType(TimePickerDialog).evaluate().length}; '
+      'sheets=${find.byType(BottomSheet).evaluate().length}; '
+      'hits=${[for (final h in api.hits) '${h.method} ${h.path}']}');
+}
+
 Future<void> _popTimePicker(WidgetTester tester) async {
   final tp = find.byType(TimePickerDialog);
   if (tp.evaluate().isNotEmpty) {
@@ -286,7 +300,7 @@ void main() {
     expect(find.text(en.sj2WatchCount('2')), findsOneWidget);
     await _pinViaLink(tester);
     await _tapStartAndTime(tester);
-    expect((api.posts('/journey/start').single.body['watcher_ids'] as List).toSet(), {7, 9});
+    expect((_started(tester, api).body['watcher_ids'] as List).toSet(), {7, 9});
     // the start failed here, but the next start screen picks them again
     // only after a successful start — see the next test
   });
@@ -309,6 +323,7 @@ void main() {
     expect(find.byKey(const ValueKey('sj2_plate_remove')), findsOneWidget);
     await _pinViaLink(tester);
     await _tapStartAndTime(tester);
+    _started(tester, api);
     final up = api.posts('/journey/5/vehicle-photo');
     expect(up, hasLength(1));
     expect(up.single.body['image_b64'], isNotEmpty);
@@ -341,7 +356,7 @@ void main() {
     await _open(tester, api, const JourneyStartScreen(suggest: s, autoStart: true));
     await _settle(tester, 90); // the road-time wait (no Routes in the fake)
     await _popTimePicker(tester);
-    final b = api.posts('/journey/start').single.body;
+    final b = _started(tester, api).body;
     expect(b['destination']['name'], 'Office');
     expect(b['destination']['lat'], _oLat);
     expect(b['destination']['kind'], 'office');
