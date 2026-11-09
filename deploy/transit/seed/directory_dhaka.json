@@ -1,0 +1,339 @@
+{
+ "_note": "citydata: curated public facts (terminals, ghats, city offices) with source links and the date checked. Status 'r' = Reported (one source); the GitHub Actions build turns an item 'v' (Verified) when OpenStreetMap independently has the same place. Hours/papers change: every item shows its checked date. Unknown facts stay empty (see owner_actions/CITY_DATA_GAPS_BN.md).",
+ "items": [
+  {
+   "id": "t-gabtoli",
+   "kind": "terminal",
+   "name": "Gabtoli Bus Terminal",
+   "name_bn": "গাবতলী বাস টার্মিনাল",
+   "lat": 23.7837,
+   "lon": 90.3446,
+   "address": "Gabtoli, Mirpur Road, Dhaka",
+   "routes": [
+    "Rajshahi",
+    "Rangpur",
+    "Dinajpur",
+    "Bogura",
+    "Pabna",
+    "Kushtia",
+    "Jashore",
+    "Khulna",
+    "Manikganj",
+    "Aricha"
+   ],
+   "hours": "",
+   "status": "r",
+   "checked": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://bangla.bdnews24.com/bangladesh/2ff82c7883fe",
+     "date": "2026-11-09"
+    }
+   ],
+   "routes_bn": [
+    "রাজশাহী",
+    "রংপুর",
+    "দিনাজপুর",
+    "বগুড়া",
+    "পাবনা",
+    "কুষ্টিয়া",
+    "যশোর",
+    "খুলনা",
+    "মানিকগঞ্জ",
+    "আরিচা"
+   ]
+  },
+  {
+   "id": "t-mohakhali",
+   "kind": "terminal",
+   "name": "Mohakhali Bus Terminal",
+   "name_bn": "মহাখালী বাস টার্মিনাল",
+   "lat": 23.7789,
+   "lon": 90.3986,
+   "address": "Mohakhali, Dhaka",
+   "routes": [
+    "Mymensingh",
+    "Tangail",
+    "Jamalpur",
+    "Sherpur",
+    "Netrokona",
+    "Kishoreganj",
+    "Gazipur"
+   ],
+   "hours": "",
+   "status": "r",
+   "checked": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://bangla.bdnews24.com/bangladesh/2ff82c7883fe",
+     "date": "2026-11-09"
+    }
+   ],
+   "routes_bn": [
+    "ময়মনসিংহ",
+    "টাঙ্গাইল",
+    "জামালপুর",
+    "শেরপুর",
+    "নেত্রকোনা",
+    "কিশোরগঞ্জ",
+    "গাজীপুর"
+   ]
+  },
+  {
+   "id": "t-sayedabad",
+   "kind": "terminal",
+   "name": "Sayedabad Bus Terminal",
+   "name_bn": "সায়েদাবাদ বাস টার্মিনাল",
+   "lat": 23.7205,
+   "lon": 90.4275,
+   "address": "Sayedabad, Jatrabari, Dhaka",
+   "routes": [
+    "Chattogram",
+    "Cox's Bazar",
+    "Cumilla",
+    "Noakhali",
+    "Feni",
+    "Sylhet",
+    "Chandpur",
+    "Barishal (Padma Bridge)",
+    "Khulna (Padma Bridge)"
+   ],
+   "hours": "",
+   "status": "r",
+   "checked": "2026-11-09",
+   "sources": [
+    {
+     "s": "news",
+     "url": "https://bangla.bdnews24.com/bangladesh/2ff82c7883fe",
+     "date": "2026-11-09"
+    }
+   ],
+   "routes_bn": [
+    "চট্টগ্রাম",
+    "কক্সবাজার",
+    "কুমিল্লা",
+    "নোয়াখালী",
+    "ফেনী",
+    "সিলেট",
+    "চাঁদপুর",
+    "বরিশাল (পদ্মা সেতু)",
+    "খুলনা (পদ্মা সেতু)"
+   ]
+  },
+  {
+   "id": "g-sadarghat",
+   "kind": "ghat",
+   "name": "Sadarghat Launch Terminal",
+   "name_bn": "সদরঘাট লঞ্চ টার্মিনাল",
+   "lat": 23.7058,
+   "lon": 90.4077,
+   "address": "Sadarghat, Buriganga river, Dhaka (BIWTA)",
+   "routes": [
+    "Barishal",
+    "Bhola",
+    "Patuakhali",
+    "Chandpur",
+    "Jhalokathi",
+    "Barguna",
+    "Hatiya"
+   ],
+   "hours": "",
+   "status": "r",
+   "checked": "2026-11-09",
+   "sources": [
+    {
+     "s": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Sadarghat",
+     "date": "2026-11-09"
+    }
+   ],
+   "routes_bn": [
+    "বরিশাল",
+    "ভোলা",
+    "পটুয়াখালী",
+    "চাঁদপুর",
+    "ঝালকাঠি",
+    "বরগুনা",
+    "হাতিয়া"
+   ]
+  },
+  {
+   "id": "o-passport-agargaon",
+   "kind": "office",
+   "name": "Department of Immigration and Passports (Head Office)",
+   "name_bn": "ইমিগ্রেশন ও পাসপোর্ট অধিদপ্তর (প্রধান কার্যালয়)",
+   "lat": 23.7787,
+   "lon": 90.378,
+   "address": "E-7, Sher-e-Bangla Nagar, Agargaon, Dhaka",
+   "hours": "Sun-Thu 09:00-17:00 (government office hours)",
+   "papers_en": [
+    "Online e-passport application summary (epassport.gov.bd)",
+    "Fee payment slip / online payment proof",
+    "NID card (18+) or online birth registration certificate (under 18)",
+    "Old passport (renewal)",
+    "Parents' NID copies (under 18)",
+    "GO/NOC (government employees)"
+   ],
+   "papers_bn": [
+    "অনলাইন ই-পাসপোর্ট আবেদনের সারাংশ (epassport.gov.bd)",
+    "ফি জমার রসিদ / অনলাইন পেমেন্টের প্রমাণ",
+    "জাতীয় পরিচয়পত্র (১৮+) বা অনলাইন জন্মনিবন্ধন সনদ (১৮-এর কম)",
+    "পুরনো পাসপোর্ট (নবায়নে)",
+    "বাবা-মায়ের এনআইডি কপি (১৮-এর কম)",
+    "জিও/এনওসি (সরকারি চাকরিজীবী)"
+   ],
+   "status": "r",
+   "checked": "2026-11-09",
+   "sources": [
+    {
+     "s": "dip",
+     "url": "https://www.epassport.gov.bd/instructions/application-form",
+     "date": "2026-11-09"
+    }
+   ]
+  },
+  {
+   "id": "o-dncc",
+   "kind": "office",
+   "name": "Dhaka North City Corporation (Nagar Bhaban)",
+   "name_bn": "ঢাকা উত্তর সিটি কর্পোরেশন (নগর ভবন)",
+   "lat": 23.793,
+   "lon": 90.415,
+   "address": "Gulshan 2, Dhaka",
+   "hours": "Sun-Thu 09:00-17:00 (government office hours)",
+   "papers_en": [
+    "NID",
+    "Holding number / previous receipt (tax, trade licence)"
+   ],
+   "papers_bn": [
+    "জাতীয় পরিচয়পত্র",
+    "হোল্ডিং নম্বর / আগের রসিদ (কর, ট্রেড লাইসেন্স)"
+   ],
+   "status": "r",
+   "checked": "2026-11-09",
+   "sources": [
+    {
+     "s": "dncc",
+     "url": "https://dncc.gov.bd/",
+     "date": "2026-11-09"
+    }
+   ]
+  },
+  {
+   "id": "o-dscc",
+   "kind": "office",
+   "name": "Dhaka South City Corporation (Nagar Bhaban)",
+   "name_bn": "ঢাকা দক্ষিণ সিটি কর্পোরেশন (নগর ভবন)",
+   "lat": 23.723,
+   "lon": 90.409,
+   "address": "Fulbaria, Dhaka",
+   "hours": "Sun-Thu 09:00-17:00 (government office hours)",
+   "papers_en": [
+    "NID",
+    "Holding number / previous receipt (tax, trade licence)"
+   ],
+   "papers_bn": [
+    "জাতীয় পরিচয়পত্র",
+    "হোল্ডিং নম্বর / আগের রসিদ (কর, ট্রেড লাইসেন্স)"
+   ],
+   "status": "r",
+   "checked": "2026-11-09",
+   "sources": [
+    {
+     "s": "dscc",
+     "url": "https://dscc.gov.bd/",
+     "date": "2026-11-09"
+    }
+   ]
+  },
+  {
+   "id": "o-brta",
+   "kind": "office",
+   "name": "BRTA (driving licence, vehicle registration)",
+   "name_bn": "বিআরটিএ (ড্রাইভিং লাইসেন্স, গাড়ির রেজিস্ট্রেশন)",
+   "lat": null,
+   "lon": null,
+   "address": "BRTA circle offices in Dhaka (Mirpur, Ikuria, Uttara and others) — apply online first",
+   "hours": "Sun-Thu 09:00-17:00 (government office hours)",
+   "papers_en": [
+    "Online application (bsp.brta.gov.bd)",
+    "NID",
+    "Medical certificate (licence)",
+    "Photo",
+    "Fee payment proof"
+   ],
+   "papers_bn": [
+    "অনলাইন আবেদন (bsp.brta.gov.bd)",
+    "জাতীয় পরিচয়পত্র",
+    "মেডিকেল সার্টিফিকেট (লাইসেন্স)",
+    "ছবি",
+    "ফি জমার প্রমাণ"
+   ],
+   "status": "r",
+   "checked": "2026-11-09",
+   "sources": [
+    {
+     "s": "brta",
+     "url": "https://bsp.brta.gov.bd/",
+     "date": "2026-11-09"
+    }
+   ]
+  },
+  {
+   "id": "o-land",
+   "kind": "office",
+   "name": "AC Land office (land mutation / khatian)",
+   "name_bn": "এসি ল্যান্ড অফিস (নামজারি / খতিয়ান)",
+   "lat": null,
+   "lon": null,
+   "address": "Each upazila / circle has its own AC Land office — e-mutation is online",
+   "hours": "Sun-Thu 09:00-17:00 (government office hours)",
+   "papers_en": [
+    "Online e-mutation application (mutation.land.gov.bd)",
+    "Deed copy",
+    "Previous khatian / porcha",
+    "Land development tax receipt",
+    "NID"
+   ],
+   "papers_bn": [
+    "অনলাইন ই-নামজারি আবেদন (mutation.land.gov.bd)",
+    "দলিলের কপি",
+    "আগের খতিয়ান / পর্চা",
+    "ভূমি উন্নয়ন কর রসিদ",
+    "জাতীয় পরিচয়পত্র"
+   ],
+   "status": "r",
+   "checked": "2026-11-09",
+   "sources": [
+    {
+     "s": "land",
+     "url": "https://mutation.land.gov.bd/",
+     "date": "2026-11-09"
+    }
+   ]
+  },
+  {
+   "id": "o-dc-dhaka",
+   "kind": "office",
+   "name": "Deputy Commissioner's Office, Dhaka",
+   "name_bn": "জেলা প্রশাসকের কার্যালয়, ঢাকা",
+   "lat": null,
+   "lon": null,
+   "address": "Dhaka Collectorate (see dhaka.gov.bd for the current address)",
+   "hours": "Sun-Thu 09:00-17:00 (government office hours)",
+   "papers_en": [],
+   "papers_bn": [],
+   "status": "r",
+   "checked": "2026-11-09",
+   "sources": [
+    {
+     "s": "dc",
+     "url": "https://www.dhaka.gov.bd/",
+     "date": "2026-11-09"
+    }
+   ]
+  }
+ ]
+}
