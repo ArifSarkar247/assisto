@@ -225,7 +225,7 @@ object SilentWatch {
             val e = s.edit().putString("log", keep.joinToString(","))
             if (t > s.getLong("last_ms", 0L)) e.putLong("last_ms", t)
             // back home (or took the phone along): the going-out pause ends
-            if (t > s.getLong("away_set_ms", 0L) + 60000L) e.putLong("away_until_ms", 0L)
+            if (t > s.getLong("away_set_ms", 0L) + 5 * 60000L) e.putLong("away_until_ms", 0L)
             if (s.getInt("stage", 0) > 0 && explicit) {
                 e.putInt("stage", 0)
                 if (s.getBoolean("told", false)) e.putBoolean("ok_pending", true).putBoolean("told", false)
