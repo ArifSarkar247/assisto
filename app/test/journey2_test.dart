@@ -262,7 +262,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('j2_all')));
     await _settle(tester, 3);
     expect(find.text(en.j2SelectNone), findsOneWidget);
-    await tester.enterText(find.byKey(const ValueKey('j100_dest')), 'Home');
+    await _pinViaLink(tester); // qjourney
     await tester.tap(find.byKey(const ValueKey('j2_ride')));
     await _settle(tester, 6);
     await tester.enterText(find.byKey(const ValueKey('j2_plate')), 'DHA-1');
@@ -312,7 +312,7 @@ void main() {
                 batteryOptIgnored: false, bgRestricted: false))));
     await tester.tap(find.byKey(const ValueKey('j2_all')));
     await _settle(tester, 3);
-    await tester.enterText(find.byKey(const ValueKey('j100_dest')), 'Home');
+    await _pinViaLink(tester); // qjourney
     await tester.ensureVisible(find.byKey(const ValueKey('j100_start'), skipOffstage: false));
     await _settle(tester, 3);
     await tester.tap(find.byKey(const ValueKey('j100_start')));
@@ -490,4 +490,16 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+}
+
+/// qjourney (owner V2): a journey needs a destination WITH coordinates — a
+/// typed name alone no longer starts one. Pin it through "Paste a Maps link".
+Future<void> _pinViaLink(WidgetTester tester) async {
+  await tester.ensureVisible(find.byKey(const ValueKey('j2_paste_link')));
+  await tester.tap(find.byKey(const ValueKey('j2_paste_link')));
+  await _settle(tester, 6);
+  await tester.enterText(
+      find.byKey(const ValueKey('j2_link_field')), 'https://maps.app.goo.gl/x');
+  await tester.tap(find.byKey(const ValueKey('j2_link_use')));
+  await _settle(tester, 8);
 }

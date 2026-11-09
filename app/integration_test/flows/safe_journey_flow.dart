@@ -18,6 +18,7 @@ import 'package:assisto/screens/journey_live_screen.dart';
 import '../support/harness.dart';
 
 const _base = String.fromEnvironment('REALITY_API_BASE');
+const _gzLat = 23.9999, _gzLng = 90.4203; // qjourney: Gazipur Chowrasta
 
 void registerSafeJourneyFlows() {
   realityFlow('16_safe_journey', 'Family & safety',
@@ -34,7 +35,23 @@ void registerSafeJourneyFlows() {
     await f.step('open Safe Journey -> fill the form -> Start', () async {
       await f.openRoute('journey');
       await f.waitFor(find.byKey(const ValueKey('j100_dest')), what: 'destination field');
+      // qjourney (owner V2): a typed name alone has no coordinates and no
+      // longer starts a trip — pin a real place (Gazipur) through a Maps link
       await f.tester.enterText(find.byKey(const ValueKey('j100_dest')), place);
+      FocusManager.instance.primaryFocus?.unfocus(); // close the suggestions
+      await f.pumpFor(const Duration(milliseconds: 800));
+      await f.tester.ensureVisible(find.byKey(const ValueKey('j100_start')));
+      await f.tap(find.byKey(const ValueKey('j100_start')), settleSeconds: 2);
+      await f.waitFor(find.text(f.t.qjDestNeedsPlace), seconds: 5,
+          what: '"pick the place" message for a name without coordinates');
+      f.note('a typed name without a pin is refused (no start)');
+      final paste = find.byKey(const ValueKey('j2_paste_link'));
+      await f.tester.ensureVisible(paste);
+      await f.tap(paste, settleSeconds: 2);
+      await f.tester.enterText(find.byKey(const ValueKey('j2_link_field')),
+          'https://maps.google.com/?q=$_gzLat,$_gzLng');
+      await f.tap(find.byKey(const ValueKey('j2_link_use')), settleSeconds: 4);
+      await f.waitFor(find.byKey(const ValueKey('j2_pinned')), what: 'pinned destination');
       final b = find.widgetWithText(CheckboxListTile, Seed.nameB);
       if (!await f.appears(b, seconds: 6)) {
         throw TestFailure('watcher ${Seed.nameB} not listed (seed edge A->B missing)');
@@ -45,6 +62,12 @@ void registerSafeJourneyFlows() {
       final start = find.byKey(const ValueKey('j100_start'));
       await f.tester.ensureVisible(start);
       await f.tap(start, settleSeconds: 3);
+      // no road time on CI (no Routes key) -> the arrival time is asked once
+      final tp = find.byType(TimePickerDialog);
+      if (await f.appears(tp, seconds: 3)) {
+        final ok = MaterialLocalizations.of(f.tester.element(tp)).okButtonLabel;
+        await f.tap(find.descendant(of: tp, matching: find.text(ok)), settleSeconds: 3);
+      }
       // journey100b: the battery-saver sheet (phones that kill background
       // apps) — on the emulator: "Start anyway"
       final skip = find.byKey(const ValueKey('j100b_bg_skip'));
@@ -66,7 +89,8 @@ void registerSafeJourneyFlows() {
     await f.step('server: A active with B watching; B sees it; public page live', () async {
       await f.eventually('A has the active journey on the server', () async {
         final a = await api.getJson('/journey/active');
-        if ((a['destination'] as Map?)?['name'] != place) return false;
+        final dl = ((a['destination'] as Map?)?['lat'] as num?)?.toDouble();
+        if (dl == null || (dl - _gzLat).abs() > 0.001) return false;
         jid = (a['id'] as num).toInt();
         token = Uri.parse('${a['web_link']}').pathSegments.last;
         return true;
@@ -104,6 +128,17 @@ void registerSafeJourneyFlows() {
       await f.tap(btn, settleSeconds: 3);
       await f.shot('arrived');
       f.expectHttp('POST', '/journey/$jid/arrived');
+      // qjourney (owner V2): the emulator is nowhere near Gazipur and the
+      // trip is seconds old — an impossible arrival is never "arrived safely"
+      if (find.text(f.t.journeyArrivedSafely).evaluate().isNotEmpty) {
+        throw TestFailure('impossible arrival shown as "arrived safely"');
+      }
+      final pin = find.byKey(const ValueKey('j100_pin_field'));
+      if (await f.appears(pin, seconds: 2)) {
+        throw TestFailure('seeded A has no safety PIN; PIN asked unexpectedly');
+      }
+      await f.waitFor(find.text(f.t.qjArrivedUnusual), seconds: 6,
+          what: '"unusual arrival" message');
       await f.eventually('A has no active journey', () async =>
           (await api.getJson('/journey/active'))['id'] == null);
       await f.eventually('B sees arrived', () async {
