@@ -30,15 +30,25 @@ RATES = {
     },
     "bus": {
         "label": "official",
-        # BRTA Dhaka/Chattogram metropolitan city bus & minibus rate.
-        # 24 Apr 2026: Tk 2.42 -> 2.53 per km; gazette 23 Sep 2026: +Tk 0.17
-        # per km for diesel buses (gas-run buses stay at 2.53). Minimum Tk 10
-        # (minibus Tk 8). We show the range gas..diesel.
+        # BRTA Dhaka/Chattogram metropolitan city bus rate. Gazette notification
+        # of 22 Sep 2026 (Road Transport and Highways Division, issued through
+        # BRTA; reported by bdnews24 23 Sep 2026 and Prothom Alo 22 Sep 2026):
+        # diesel bus Tk 2.53 -> 2.70 per km, minibus 2.43 -> 2.60, minimum
+        # Tk 10 (minibus Tk 8); gas-run buses stay at Tk 2.53 (24 Apr 2026
+        # rate). The gazette PDF itself could not be opened on brta.gov.bd
+        # (certificate error, 9 Nov) -> we cite the news reports of it.
+        # We show the range gas..diesel.
         "per_km_low": 2.53, "per_km_high": 2.70, "min": 10,
+        "minibus_per_km": 2.60, "minibus_min": 8,
+        "effective": "2026-09-22",
         "checked": CHECKED,
-        "source": "BRTA city bus fare chart (Dhaka & Chattogram metro area)",
-        "source_url": "https://brta.gov.bd/",
-        "news_url": "https://today.thefinancialexpress.com.bd/print/bus-fares-up-by-11-paisa-per-kilometre-1776966071",
+        "source": "Government gazette 22 Sep 2026 (BRTA city bus rate: Tk 2.70/km diesel, "
+                  "Tk 2.53/km gas, minimum Tk 10) as reported by bdnews24 and Prothom Alo",
+        "source_url": "https://bdnews24.com/bangladesh/vi8979wckd",
+        "news_url": "https://en.prothomalo.com/bangladesh/k3n86iluhg",
+        "sources": ["https://bdnews24.com/bangladesh/vi8979wckd",
+                    "https://en.prothomalo.com/bangladesh/k3n86iluhg",
+                    "https://today.thefinancialexpress.com.bd/print/bus-fares-up-by-11-paisa-per-kilometre-1776966071"],
     },
     "cng": {
         "label": "official",
@@ -85,14 +95,22 @@ RATES = {
 }
 
 # Complaint line for overcharging / meter refusal (one tap in the app).
-# BRTA's own hotline number could not be confirmed from an official page on
-# 9 Nov (brta.gov.bd certificate error) -> "number" stays empty until the
-# owner confirms it in Owner Admin; until then the app offers 333, the
-# government's national info & complaint line.
+# A BRTA hotline could NOT be confirmed on an official BRTA page (9 Nov:
+# brta.gov.bd certificate error; numbers seen only on old news / third-party
+# pages) -> "number" stays empty and the app offers 333, which is the
+# government's National Information and Service Helpline (333.gov.bd: "a
+# single voice access point for all Government Information & Grievance
+# Redressal", 24/7). It is labelled as that, never as a BRTA number. The
+# owner can enter a confirmed BRTA number in Owner Admin -> City data.
 BRTA_COMPLAINT = {"number": "", "fallback": "333", "verified": False,
-                  "label_en": "BRTA complaint", "label_bn": "বিআরটিএ-তে অভিযোগ",
+                  "kind": "national_helpline",
+                  "label_en": "333 national helpline", "label_bn": "৩৩৩ জাতীয় হেল্পলাইন",
                   "fallback_en": "333 national helpline", "fallback_bn": "৩৩৩ জাতীয় হেল্পলাইন",
-                  "checked": CHECKED, "source_url": "https://brta.gov.bd/"}
+                  "note_en": "333 is the government's national information and complaint helpline "
+                             "(not a BRTA number).",
+                  "note_bn": "৩৩৩ সরকারের জাতীয় তথ্য ও অভিযোগ হেল্পলাইন (বিআরটিএ-র নিজস্ব নম্বর নয়)।",
+                  "checked": CHECKED, "source_url": "https://333.gov.bd/",
+                  "brta_number_status": "not confirmed on an official BRTA page (9 Nov 2026)"}
 
 # Published station-pair amounts we could confirm (DTCA chart as reported).
 # Keys are sorted station codes; these win over the per-km computation.

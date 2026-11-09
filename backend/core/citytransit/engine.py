@@ -14,6 +14,11 @@ Model
     and a parent pointer; per stop we keep a small Pareto set (time, fare,
     legs) so one search yields Fastest, Cheapest and Fewest changes.
   * Access / egress: walk (<= WALK_MAX m) or rickshaw (RICK_MIN..RICK_MAX m).
+    citydata2: a rickshaw leg is offered only beyond a normal walk (RICK_MIN
+    = 900 m straight, ~1.2 km on the street), and "Fastest" prefers metro /
+    bus + walking whenever that is within max(10 min, 20 %) of the quickest
+    (FAST_SLACK) — the rickshaw stays only where it is the real last mile.
+  * Women-only routes (BRTC pink buses) are used only when asked ("women").
     Transfers: walking footpaths between stops <= XFER_M apart.
   * Direct ways (CNG, ride share bike / car, rickshaw, walk) are priced from
     fares.py; ride share is only an estimate range — we never call their APIs.
@@ -26,7 +31,9 @@ from . import fares as F
 WALK_SPEED = 1.2          # m/s (Dhaka footpaths)
 DETOUR = 1.3              # straight line -> street distance
 WALK_MAX = 1200           # m, access/egress on foot
-RICK_MIN, RICK_MAX = 700, 2500
+RICK_MIN, RICK_MAX = 900, 2500
+FAST_SLACK = (600, 0.20)  # s, share: "Fastest" may be this much slower to avoid a rickshaw
+FARE_S = 12.0             # s per taka when ranking options inside that slack
 RICK_KMH, CNG_KMH, CAR_KMH, BIKE_KMH = 9.0, 16.0, 15.0, 20.0
 XFER_M = 450
 MAX_ROUNDS = 4            # vehicle legs
@@ -36,6 +43,9 @@ MODES = ("metro", "bus", "leguna", "water")
 DEFAULTS = {"metro": (8, 38.0, 30), "bus": (10, 12.0, 25), "leguna": (10, 14.0, 20),
             "water": (30, 12.0, 60)}
 STATUS = {"v": "verified", "r": "reported"}
+# gate fields the API returns (citydata2: + lift, escalator, wheelchair, basis, src)
+GATE_KEYS = ("ref", "name", "name_bn", "side", "lat", "lon", "near", "status", "lift",
+             "escalator", "wheelchair", "basis", "src")
 
 
 def hav(a, b, c, d):
@@ -192,7 +202,9 @@ class Network:
         """[(stop, seconds, fare_lo, fare_hi, leg)] reachable from a point."""
         out = []
         for i, d in self.near(lat, lon, RICK_MAX):
-            if not any(self.routes[ri]["mode"] in modes for ri, _ in self.stop_routes[i]):
+            if not any(self.routes[ri]["mode"] in modes and (not self.routes[ri].get("women_only")
+                                                            or "women" in modes)
+                       for ri, _ in self.stop_routes[i]):
                 continue
             street = d * DETOUR
             if d <= WALK_MAX:
@@ -232,7 +244,7 @@ class Network:
             for si in marked:
                 for ri, pos in self.stop_routes[si]:
                     r = self.routes[ri]
-                    if r["mode"] not in modes:
+                    if r["mode"] not in modes or (r.get("women_only") and "women" not in modes):
                         continue
                     if pos < len(r["stops"]) - 1 and queue.get(ri, 1 << 30) > pos:
                         queue[ri] = pos
@@ -339,8 +351,7 @@ class Network:
         if not gs:
             return None
         g = min(gs, key=lambda g: hav(g["lat"], g["lon"], lat, lon))
-        return {k: g.get(k) for k in ("ref", "name", "name_bn", "side", "lat", "lon", "near",
-                                      "status")}
+        return {k: g.get(k) for k in GATE_KEYS}
 
     def _legs(self, res, olat, olon, dlat, dlon):
         chain = []
@@ -469,6 +480,15 @@ class Network:
             "legs": legs,
         }
 
+    @staticmethod
+    def _ricks(res):
+        n, lab = 0, res
+        while lab is not None:
+            if lab[5][0] in ("access", "egress") and lab[5][1] == "rickshaw":
+                n += 1
+            lab = lab[4]
+        return n
+
     def _night_cost(self, o):
         cost = o["minutes"] + o["walk_m"] / 40.0
         for l in o["legs"]:
@@ -486,8 +506,13 @@ class Network:
         res = [r for r in results if r[0] > 0]
         options = {}
         if res:
-            fastest = min(res, key=lambda r: (r[0], r[2]))
-            cap = fastest[0] * 1.6 + 20 * 60
+            quick = min(res, key=lambda r: (r[0], r[2]))
+            # realistic fastest: within a few minutes of the quickest, take
+            # the one with the fewest rickshaw legs, then the lower fare
+            slack = quick[0] + max(FAST_SLACK[0], quick[0] * FAST_SLACK[1])
+            fastest = min((r for r in res if r[0] <= slack),
+                          key=lambda r: (self._ricks(r), r[0] + r[2] * FARE_S))
+            cap = quick[0] * 1.6 + 20 * 60
             ok = [r for r in res if r[0] <= cap]
             cheapest = min(ok, key=lambda r: (r[2], r[1], r[0]))
             fewest = min(ok, key=lambda r: (r[3], r[0], r[2]))
@@ -501,8 +526,8 @@ class Network:
         direct = self._direct(crow, minute, pf)
         warn = []
         if any(l["mode"] == "metro" for o in options.values() for l in o["legs"]):
-            h = minute // 60
-            if h < 7 or h >= 21:
+            # first train 06:30 (Uttara North), last 21:50 / 22:30 (DMTCL, Oct 2026)
+            if minute < 6 * 60 + 30 or minute >= 21 * 60 + 50:
                 warn.append("metro_hours")
         return {"ok": bool(options), "options": options, "other_ways": direct,
                 "crow_km": round(crow / 1000.0, 2), "warnings": warn, "ms": ms,
@@ -534,13 +559,12 @@ class Network:
         s["code"] = self.stops[si]["code"]
         gates = []
         for g in self.gates.get(si) or ():
-            gg = {k: g.get(k) for k in ("ref", "name", "name_bn", "side", "lat", "lon", "near",
-                                        "status")}
+            gg = {k: g.get(k) for k in GATE_KEYS}
             gg["stands"] = [self._pt(x) for x in g.get("stands") or ()]
             gg["buses"] = sorted({(self.routes[x].get("name") or self.routes[x].get("ref") or "")
                                   for x in g.get("routes") or () if not self.routes[x]["hidden"]})
             gates.append(gg)
-        gates.sort(key=lambda g: str(g.get("ref") or ""))
+        gates.sort(key=lambda g: (str(g.get("ref") or "~"), str(g.get("name") or "")))
         best = self.best_gate(si, lat, lon) if lat is not None and lon is not None else None
         # connecting buses near the station even when gates are not mapped
         buses = set()
