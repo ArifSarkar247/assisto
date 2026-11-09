@@ -20,7 +20,14 @@ import logging
 
 log = logging.getLogger("assisto.shop")
 
-FREE = {"imou": {"api_calls": 30000, "messages": 30000, "traffic_mb": 2048.0}}
+FREE = {"imou": {"api_calls": 30000, "messages": 30000, "traffic_mb": 2048.0},
+        # EZVIZ free trial (isaopen.ezviz.com/price, 9 Nov): 10 devices, 1 Mbps,
+        # 10 000 API calls A DAY for 120 days, no message subscription -> a
+        # month is counted as 30 x 10 000; alarms are polled (no push)
+        "ezviz": {"api_calls": 300000, "traffic_mb": 1024.0},
+        # DoLynk free tier (public price page, China; international not
+        # confirmed): 10 000 general calls a day
+        "dolynk": {"api_calls": 300000, "messages": 300000, "traffic_mb": 1024.0}}
 WARN_PCT = 80
 COUNTERS = ("api_calls", "messages", "traffic_mb")
 
@@ -129,23 +136,21 @@ def _maybe_warn(provider, row):
 def text(provider, lang="bn"):
     """One line for the Owner Admin integration card ('' = nothing to show)."""
     u = usage(provider)
-    if not u["limits"]:
-        return ""
     lim = u["limits"]
+    if not lim:
+        return ""
 
-    def bn(v):
-        return str(v).translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯"))
-    if lang == "bn":
-        s = "এই মাসের ফ্রি কোটা: API কল %s/%s (%s%%), মেসেজ %s/%s (%s%%), ট্রাফিক %s/%s MB (%s%%)" % (
-            bn(u["api_calls"]), bn(int(lim["api_calls"])), bn(u["pct"]["api_calls"]),
-            bn(u["messages"]), bn(int(lim["messages"])), bn(u["pct"]["messages"]),
-            bn(int(u["traffic_mb"])), bn(int(lim["traffic_mb"])), bn(u["pct"]["traffic_mb"]))
-        if u["warn"]:
-            s += " — ৮০%-এর বেশি: ঐচ্ছিক পোলিং কমানো হয়েছে"
-        return s
-    s = "Free quota this month: API calls %d/%d (%d%%), messages %d/%d (%d%%), traffic %d/%d MB (%d%%)" % (
-        u["api_calls"], lim["api_calls"], u["pct"]["api_calls"], u["messages"], lim["messages"],
-        u["pct"]["messages"], int(u["traffic_mb"]), lim["traffic_mb"], u["pct"]["traffic_mb"])
+    def n(v):
+        v = str(int(v))
+        return v.translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")) if lang == "bn" else v
+    names = {"bn": {"api_calls": "API কল", "messages": "মেসেজ", "traffic_mb": "ট্রাফিক (MB)"},
+             "en": {"api_calls": "API calls", "messages": "messages", "traffic_mb": "traffic MB"}}
+    nm = names["bn" if lang == "bn" else "en"]
+    parts = ["%s %s/%s (%s%%)" % (nm[k], n(u[k]), n(lim[k]), n(u["pct"][k]))
+             for k in COUNTERS if lim.get(k)]
+    head = "এই মাসের ফ্রি কোটা: " if lang == "bn" else "Free quota this month: "
+    s = head + ", ".join(parts)
     if u["warn"]:
-        s += " — over 80%: optional polling reduced"
+        s += (" — ৮০%-এর বেশি: ঐচ্ছিক পোলিং কমানো হয়েছে" if lang == "bn"
+              else " — over 80%: optional polling reduced")
     return s

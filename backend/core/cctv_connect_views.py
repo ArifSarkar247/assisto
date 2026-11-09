@@ -42,7 +42,7 @@ CLOUD_HEALTH_EVERY_S = 3 * 3600
 LINKS_PER_SITE = 12
 SERIALS_PER_LINK = 16
 DAILY_HOUR = 9                     # Dhaka time, the daily green check
-REF_PREFIX = {"hikconnect": "HC:", "dolynk": "DL:", "ezviz": "EZ:", "imou": ""}
+REF_PREFIX = {"hikconnect": "HC:", "dolynk": "DL:", "dolynk_arc": "DA:", "ezviz": "EZ:", "imou": ""}
 
 
 def _err(lang, bn, en, status=400, **extra):
@@ -96,6 +96,7 @@ def provider_row(pid, user=None):
     return {"id": pid, "name": a.name, "modes": modes,
             "consent_bn": CONSENT_TEXT[0], "consent_en": CONSENT_TEXT[1],
             "code_label_bn": a.code_label[0], "code_label_en": a.code_label[1],
+            "code_secret": bool(getattr(a, "code_secret", False)),
             "caps": list(a.caps), "camera_vendor": CC.CAMERA_VENDOR[pid]}
 
 
@@ -215,7 +216,7 @@ def devbind_allowed(user, pid):
     return v in ("on", "1", "yes", "true")
 
 
-def devbind(user, site, pid, serial, code, consent):
+def devbind(user, site, pid, serial, code, consent, category=None):
     """Bind ONE device to our developer account with its label code (used
     once, never stored) after the camera owner's on-screen consent.
     -> (link, devices). Raises BindRefused."""
@@ -232,7 +233,7 @@ def devbind(user, site, pid, serial, code, consent):
         raise BindRefused(422, "consent_required", "আগে সম্মতির ঘরে টিক দিন: " + CONSENT_TEXT[0],
                           "Please tick the consent first: " + CONSENT_TEXT[1])
     serial = CC.base.clean_serial(serial)
-    code = CC.base.clean_code(code)
+    code = CC.ADAPTERS[pid].clean_code(code)     # dolynkreal: a device password may hold symbols
     if not serial:
         raise BindRefused(422, "serial_required",
                           "ক্যামেরা / DVR-এর লেবেলের সিরিয়াল নম্বর (SN) দিন।",
@@ -248,10 +249,13 @@ def devbind(user, site, pid, serial, code, consent):
                           "Too many tries this hour — please try again a little later.")
     a = CC.adapter(pid)
     try:
-        g = a.link_device(serial, code)
+        if pid == "dolynk" and category:
+            g = a.link_device(serial, code, category=str(category)[:8])
+        else:
+            g = a.link_device(serial, code)
     except CC.ConnectError as e:
         bn, en = CC.base.HINT_TEXT.get(e.hint, CC.base.HINT_TEXT["vendor"])
-        raise BindRefused(422 if e.hint in ("wrong_code", "taken") else 502,
+        raise BindRefused(422 if e.hint in ("wrong_code", "taken", "locked", "unsupported") else 502,
                           "vendor_" + e.hint, bn, en, vendor_code=e.code)
     owner_test = bool(getattr(user, "is_superuser", False) or getattr(user, "is_staff", False))
     with transaction.atomic():
@@ -307,7 +311,8 @@ class LinkDeviceView(WMV._OwnerBase):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         try:
             link, devices = devbind(request.user, site, pid, request.data.get("serial"),
-                                    request.data.get("code"), request.data.get("consent"))
+                                    request.data.get("code"), request.data.get("consent"),
+                                    category=request.data.get("category"))
         except BindRefused as e:
             return e.response(lang)
         return Response({"link": link_row(link), "devices": devices}, status=201)
@@ -440,9 +445,15 @@ def finish_oauth(request, code, state=None):
 
 
 def _after_link(a, g):
-    """Imou: ask for PUSHED alarms + device status + people counting."""
+    """Imou: ask for PUSHED alarms + device status + people counting.
+    DoLynk: Message Subscription for the linked devices (dolynkreal)."""
     try:
-        cb = WMV.imou_callback_url(a.cfg.get("app_id")) if a.id == "imou" else None
+        if a.id == "imou":
+            cb = WMV.imou_callback_url(a.cfg.get("app_id"))
+        elif a.id in ("dolynk", "dolynk_arc"):
+            cb = dolynk_callback_url(a.cfg.get("access_key"), arc=a.id == "dolynk_arc") or None
+        else:
+            cb = None
         a.after_link(g, cb)
     except Exception:
         log.info("after_link failed for %s", a.id)
@@ -616,7 +627,10 @@ def link_of_camera(cam):
     return (rows[0] if rows else None), serial, ch
 
 
-def stream_for(cam, kind="live", hd=False, start=None, end=None):
+STREAM_KINDS = ("live", "playback", "clip", "snapshot", "cloud")
+
+
+def stream_for(cam, kind="live", hd=False, start=None, end=None, task=None):
     """THE hook for the player (cctvplay, part H): a vendor live / playback
     URL for an imported cloud camera -> dict (url, proto, expires_s, ...).
     Raises CC.ConnectError (hint "not_configured" / "no_stream" / ...).
@@ -630,11 +644,21 @@ def stream_for(cam, kind="live", hd=False, start=None, end=None):
     g = _fresh(link, a)
     if not a.owns(g, serial):
         raise CC.ConnectError("revoked")
-    if kind == "playback":
+    if kind in ("playback", "clip"):
         now = time.time()
         end = min(float(end or now), now)
         start = max(float(start or end - 60), end - 3600)
+        if kind == "clip":
+            # dolynkreal: an MP4 of the recording (DoLynk cloud dump); the
+            # app asks again with the returned task until it is ready
+            if not hasattr(a, "clip"):
+                raise CC.ConnectError("unsupported")
+            return a.clip(g, serial, ch, start, end, task=str(task or "")[:40] or None)
         return a.playback(g, serial, ch, start, end)
+    if kind in ("snapshot", "cloud"):
+        if not hasattr(a, kind):
+            raise CC.ConnectError("unsupported")
+        return getattr(a, kind)(g, serial, ch)
     return a.live(g, serial, ch, hd)
 
 
@@ -649,10 +673,12 @@ class CameraStreamView(WMV._OwnerBase):
         cam, role, viewer = CTV.camera_access(request, pk)
         if cam is None or (role != "owner" and not CTV.viewer_live_ok(cam, viewer)):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
-        kind = "playback" if request.data.get("kind") == "playback" else "live"
+        kind = request.data.get("kind")
+        kind = kind if kind in STREAM_KINDS else "live"
         try:
             out = stream_for(cam, kind, SV._coerce_bool(request.data.get("hd")),
-                             request.data.get("start"), request.data.get("end"))
+                             request.data.get("start"), request.data.get("end"),
+                             task=request.data.get("task"))
         except CC.ConnectError as e:
             return _cerr(lang, e, status=503 if e.hint == "not_configured" else 502)
         except (TypeError, ValueError):
@@ -707,7 +733,13 @@ def ingest_cloud_event(link, ev, now=None, fetch=None):
     a = CC.ADAPTERS[link.provider]
     snap, raw = None, None
     if ev.get("picture") and link.site.snapshot_retention_days > 0:
-        raw = (fetch or _fetch_picture)(ev["picture"], a.pic_hosts)
+        pic = ev["picture"]
+        if hasattr(a, "picture_url"):           # dolynkreal: encrypted .dav thumbnails
+            try:
+                pic = CC.adapter(link.provider).picture_url(pic, ev["serial"])
+            except CC.ConnectError:
+                pic = ""
+        raw = (fetch or _fetch_picture)(pic, a.pic_hosts) if pic else None
         if raw and not SV.looks_like_video(raw):
             snap = SV._small_jpeg(raw, "%s%d.jpg" % (link.provider, cam.id))
     sig = {"vendor": link.provider, "alarm_type": ev.get("vendor_type") or "",
@@ -767,7 +799,13 @@ def sync_link(link, now=None, account_events=None):
                 if link.site.cameras.filter(              # only imported cameras
                         vendor_ref__startswith=vendor_ref("imou", s, "")).exists():
                     evs.extend(a.events(g, s, since, channels=_channels_of(link, s)))
-        elif a.events_scope == "device" and link.provider in ("dolynk",):
+        elif link.provider == "dolynk" and dolynk_poll_due(link, now):
+            # dolynkreal: alarms are PUSHED (signed); the message list is
+            # polled only while no push arrived in 24 h
+            st0 = dict(link.state or {})
+            st0["poll_at"] = now.timestamp()
+            link.state = st0
+            link.save(update_fields=["state"])
             for s in g.get("serials") or []:
                 evs.extend(a.events(g, s, since, channels=_channels_of(link, s)))
     except CC.ConnectError as e:
@@ -791,6 +829,37 @@ def sync_link(link, now=None, account_events=None):
     link.last_sync = now
     link.save(update_fields=["state", "last_sync"])
     return out
+
+
+DOLYNK_POLL_EVERY_S = 120
+
+
+def dolynk_poll_due(link, now):
+    from .logic.cctv_connect import quota as Q
+    st = link.state or {}
+    ts = now.timestamp()
+    if ts - float(st.get("push_at") or 0) < 24 * 3600 or Q.stop("dolynk"):
+        return False
+    every = 900 if Q.saving("dolynk") else DOLYNK_POLL_EVERY_S
+    return ts - float(st.get("poll_at") or 0) >= every
+
+
+def dolynk_arc_poll_due(now):
+    """Open ARC messages are pushed; poll the company list only while no
+    push arrived in 24 h, every 2 min (15 min from 80 % quota)."""
+    from django.core.cache import cache
+    from .logic.cctv_connect import quota as Q
+    ts = now.timestamp()
+    try:
+        if ts - float(cache.get("dolynk_arc_push_at") or 0) < 24 * 3600 or Q.stop("dolynk"):
+            return False
+        every = 900 if Q.saving("dolynk") else DOLYNK_POLL_EVERY_S
+        if ts - float(cache.get("dolynk_arc_poll_at") or 0) < every:
+            return False
+        cache.set("dolynk_arc_poll_at", ts, 3600)
+    except Exception:
+        return False
+    return True
 
 
 def imou_poll_due(link, now):
@@ -917,7 +986,9 @@ def sync_all(now=None):
             continue
         a = CC.adapter(pid)
         acct = None
-        if a.events_scope == "account":
+        if pid == "dolynk_arc" and not dolynk_arc_poll_due(now):
+            acct = []                    # pushes arrive: no polling
+        elif a.events_scope == "account":
             try:
                 acct = a.account_events(now.timestamp() - EVENT_LOOKBACK_S)
             except CC.ConnectError:
@@ -1128,85 +1199,136 @@ def _push(u, tb, te, bb, be, data):
 
 
 # ===================================================================== DoLynk
-def dolynk_callback_token(app_id):
+def dolynk_callback_token(app_id, arc=False):
     import hashlib
     from django.conf import settings
-    return hashlib.sha256(("dolynk-cb:%s:%s" % (app_id, settings.SECRET_KEY)).encode()
-                          ).hexdigest()[:32]
+    return hashlib.sha256(("dolynk-%s:%s:%s" % ("arc" if arc else "cb", app_id, settings.SECRET_KEY)
+                           ).encode()).hexdigest()[:32]
 
 
-def dolynk_callback_url(app_id):
+def dolynk_callback_url(app_id, arc=False):
     if not app_id:
         return ""
     from django.conf import settings
-    return "%s/api/v1/cctv/dolynk/callback/%s" % (
-        getattr(settings, "ASSISTO_BASE_URL", "").rstrip("/"), dolynk_callback_token(app_id))
+    return "%s/api/v1/cctv/dolynk/%s/%s" % (
+        getattr(settings, "ASSISTO_BASE_URL", "").rstrip("/"), "arc" if arc else "callback",
+        dolynk_callback_token(app_id, arc))
 
 
 DOLYNK_LOG_PER_HOUR = 30
+DOLYNK_MAX_MSGS = 50
+
+
+def _dolynk_log(raw, msgs, tag):
+    """ONLY the top-level keys, message type and size (never values: they
+    carry pictures, device ids, accounts), at most DOLYNK_LOG_PER_HOUR an hour."""
+    from django.core.cache import cache
+    key = "dolynk_cb_log:%d" % int(time.time() // 3600)
+    try:
+        n = cache.get_or_set(key, 0, 3700)
+        if n < DOLYNK_LOG_PER_HOUR:
+            cache.incr(key)
+            first = msgs[0] if msgs and isinstance(msgs[0], dict) else {}
+            log.info("dolynk %s callback: %d bytes, %d msg, keys=%s, type=%s", tag, len(raw),
+                     len(msgs), sorted(list(first.keys()))[:20],
+                     str(first.get("msgType") or "")[:40])
+    except Exception:
+        pass
+
+
+def dolynk_message(pid, m, now, a):
+    """One VERIFIED DoLynk message -> its result. Alerts go into the normal
+    alert path; online / offline / storage messages make the next sync
+    re-read the device health (the daily CCTV card); face events and
+    unknown types are dropped (owner rule: no face recognition)."""
+    from .logic.cctv_connect import dolynk as DL
+    what, _k, _o = DL.classify(m.get("msgType"))
+    if what is None:
+        return {"ignored": "type"}
+    serial = CC.base.clean_serial(m.get("deviceId"))
+    links = links_with(pid, serial, ("active",)) if serial else []
+    if not links:
+        return {"ignored": "unknown_device"}
+    link = links[0]
+    st = dict(link.state or {})
+    st["push_at"] = now.timestamp()
+    if what in ("status", "storage"):
+        st["health_at"] = 0                     # health is due at the next sync
+        link.state = st
+        link.save(update_fields=["state"])
+        return {"result": "health_due"}
+    link.state = st
+    link.save(update_fields=["state"])
+    ev = a.to_event(m)
+    if ev is None:
+        return {"ignored": "type"}
+    return {"result": ingest_cloud_event(link, ev, now)}
+
+
+def _dolynk_body(request):
+    import json
+    raw = request.body[:256 * 1024]
+    try:
+        body = json.loads(raw or b"{}")
+    except ValueError:
+        body = None
+    msgs = body if isinstance(body, list) else [body]
+    return raw, [m for m in msgs if isinstance(m, dict)][:DOLYNK_MAX_MSGS]
 
 
 class DolynkCallbackView(APIView):
-    """POST cctv/dolynk/callback/<token> — DoLynk Cloud Message pushes here.
-    Always 200 for the right token (404 otherwise) so the console can verify
-    it. The payload shape is not public yet: we log ONLY its top-level keys,
-    message type and size (never values: they can carry pictures, device ids,
-    places), at most DOLYNK_LOG_PER_HOUR lines an hour. A message that looks
-    like the Dahua/Imou family alarm ({did|deviceId, msgType, ...}) for a
-    linked DoLynk camera goes into the normal alert path."""
+    """POST cctv/dolynk/callback/<token> — Open IoT Message Subscription
+    pushes here (Doc Center "Message Subscription"). The secret token in the
+    URL AND each message's own sign = HMAC-SHA512(id, secretKey) are checked;
+    accessKey must be ours. Answer per the docs: 200 {"code": 200, "msg":
+    "success"} (a 4xx / 5xx makes DoLynk push again)."""
     permission_classes = [AllowAny]
     authentication_classes = []
     parser_classes = []
+    arc = False
+
+    def _cfg(self):
+        from . import integrations as I
+        pid = "dolynk_arc" if self.arc else "dolynk"
+        if not CC.enabled(pid):
+            return pid, {}
+        return pid, (I.get(CC.ADAPTERS[pid].integration) or {})
 
     def post(self, request, token):
         import hmac
-        import json
-        from django.core.cache import cache
-        from .logic import imou as IM
-        from .models import CctvCloudLink
-        app_id = ""
         try:
-            from . import integrations as I
-            if CC.enabled("dolynk"):
-                app_id = str((I.get("dolynk") or {}).get("access_key") or "")
+            pid, cfg = self._cfg()
         except Exception:
-            app_id = ""
-        if not app_id or not hmac.compare_digest(dolynk_callback_token(app_id), str(token)):
+            pid, cfg = "dolynk", {}
+        ak = str(cfg.get("access_key") or "")
+        if not ak or not hmac.compare_digest(dolynk_callback_token(ak, self.arc), str(token)):
             return Response({"ok": False}, status=404)
-        raw = request.body[:256 * 1024]
-        try:
-            body = json.loads(raw or b"{}")
-        except ValueError:
-            body = None
-        msgs = body if isinstance(body, list) else [body]
-        key = "dolynk_cb_log:%d" % int(time.time() // 3600)
-        try:
-            n = cache.get_or_set(key, 0, 3700)
-            if n < DOLYNK_LOG_PER_HOUR:
-                cache.incr(key)
-                first = msgs[0] if msgs and isinstance(msgs[0], dict) else {}
-                log.info("dolynk callback: %d bytes, %d msg, keys=%s, type=%s", len(raw), len(msgs),
-                         sorted(list(first.keys()))[:20],
-                         str(first.get("msgType") or first.get("type") or "")[:40])
-        except Exception:
-            pass
-        out = []
+        raw, msgs = _dolynk_body(request)
+        _dolynk_log(raw, msgs, "arc" if self.arc else "iot")
+        from .logic.cctv_connect import dolynk as DL, quota as Q
+        Q.bump("dolynk", msg=len(msgs))
+        a = CC.adapter(pid, cfg=cfg)
         now = timezone.now()
-        for m in msgs[:20]:
-            a = IM.parse_alarm(m) if isinstance(m, dict) else None
-            if a is None:
-                out.append({"ignored": "not_alarm"})
+        out = []
+        for m in msgs:
+            if str(m.get("accessKey") or "") != ak:
+                out.append({"ignored": "not_ours"})
                 continue
-            serial = CC.base.clean_serial(a["device_id"])
-            links = links_with("dolynk", serial, ("active",))
-            if not links:
-                out.append({"ignored": "unknown_device"})
+            if not self.arc and not DL.verify_push(m, cfg.get("secret_key")):
+                out.append({"ignored": "bad_sign"})
                 continue
-            from .logic import cctv_rules as CR
-            cls = CR.classify_imou(m)
-            ev = CC.base.event(serial, a["channel"], time.time(),
-                               cls.get("kind") or ("person" if a["human"] else ""),
-                               cls.get("object") or ("person" if a["human"] else None),
-                               m.get("msgType") or "", a["pic"] or "", a["alarm_id"])
-            out.append({"result": ingest_cloud_event(links[0], ev, now)})
-        return Response({"ok": True, "events": out})
+            out.append(dolynk_message(pid, m, now, a))
+            if self.arc and m.get("id") not in (None, ""):
+                a.ack(m.get("id"))              # else DoLynk pushes it again
+        if self.arc and msgs:
+            from django.core.cache import cache
+            cache.set("dolynk_arc_push_at", now.timestamp(), 2 * 86400)
+        return Response({"code": 200, "msg": "success", "ok": True, "events": out})
+
+
+class DolynkArcCallbackView(DolynkCallbackView):
+    """POST cctv/dolynk/arc/<token> — Open ARC pushes (shared DMSS devices).
+    ARC messages carry no sign field (Doc Center "Event Message"): the secret
+    URL token, our accessKey and an ACTIVE claimed link for that serial are
+    required; each message is acknowledged ("Send the Ack message")."""
+    arc = True

@@ -15,12 +15,15 @@ import json
 from .base import ConnectError, Provider, hint_text  # noqa: F401
 from .ezviz import EzvizAdapter
 from .hikconnect import HikConnectAdapter
-from .imou import DolynkAdapter, ImouAdapter
+from .dolynk import ARC_OK, DolynkAdapter, DolynkArcAdapter
+from .imou import ImouAdapter
 
-ADAPTERS = {a.id: a for a in (HikConnectAdapter, DolynkAdapter, EzvizAdapter, ImouAdapter)}
-ORDER = ("hikconnect", "dolynk", "ezviz", "imou")   # BD market share order
-CAMERA_VENDOR = {"hikconnect": "hikvision", "dolynk": "dahua", "ezviz": "ezviz",
-                 "imou": "imou"}
+ADAPTERS = {a.id: a for a in (HikConnectAdapter, DolynkAdapter, DolynkArcAdapter,
+                              EzvizAdapter, ImouAdapter)}
+ORDER = ("hikconnect", "dolynk", "dolynk_arc", "ezviz", "imou")   # BD market share order
+CAMERA_VENDOR = {"hikconnect": "hikvision", "dolynk": "dahua", "dolynk_arc": "dahua",
+                 "ezviz": "ezviz", "imou": "imou"}
+SIGNED_IN = {"dolynk": "DoLynk sign-in OK", "dolynk_arc": ARC_OK}
 
 
 def adapter(pid, http=None, now=None, cfg=None):
@@ -43,37 +46,39 @@ def enabled(pid):
         from ... import integrations as I
         if not I.is_enabled(cls.integration):
             return False
-        if pid == "dolynk" and not _dolynk_signed_in():
-            return False          # keys + reachability alone never switch it on
+        if pid in SIGNED_IN and not _signed_in(pid):
+            return False          # keys alone never switch it on: a signed sign-in did
         return cls(I.get(cls.integration) or {}).configured()
     except Exception:
         return False
 
 
-DOLYNK_OK = "DoLynk sign-in OK"
+DOLYNK_OK = SIGNED_IN["dolynk"]
 
 
-def _dolynk_signed_in():
+def _signed_in(pid):
     from ...models import Integration
-    obj = Integration.objects.filter(slug="dolynk").first()
-    return bool(obj and DOLYNK_OK in (obj.detail or ""))
+    obj = Integration.objects.filter(slug=ADAPTERS[pid].integration).first()
+    return bool(obj and SIGNED_IN[pid] in (obj.detail or ""))
 
 
-def dolynk_signin(cfg, http=None):
-    """Owner Admin Test: a SIGNED sign-in with the Dahua-family accessToken
-    call. -> (ok, detail). Only ok switches the DoLynk camera link on."""
-    from .. import imou as IM
-    a = DolynkAdapter(cfg, http=http)
+def dolynk_signin(cfg, http=None, arc=False):
+    """Owner Admin Test: a SIGNED "Obtaining AppAccessToken" call (and, for
+    Open ARC, the ARC account login). -> (ok, detail); keys are never shown.
+    Only ok switches the camera link on."""
+    cls = DolynkArcAdapter if arc else DolynkAdapter
+    a = cls(cfg, http=http)
     if not a.configured():
+        if arc:
+            return False, ("DoLynk ARC: Access Key, Secret Access Key, Product ID, ARC email, "
+                           "ARC password and the switch (on) are all needed")
         return False, "DoLynk: Access Key and Secret Access Key are both needed"
     try:
-        d = a.client().call("accessToken")
-    except IM.ImouError as e:
-        return False, ("Sign-in answered %s %s — the camera link stays OFF until the DoLynk "
-                       "Doc Center pages confirm the sign-in call." % (e.code, e.msg)).strip()
-    if not (d or {}).get("accessToken"):
-        return False, "Sign-in answered without a token — the camera link stays OFF."
-    return True, DOLYNK_OK + " (signed token received)"
+        a.signin()
+    except ConnectError as e:
+        return False, ("%s: sign-in answered %s %s — stays OFF." % (
+            "DoLynk ARC" if arc else "DoLynk", e.code, e.msg)).strip()
+    return True, SIGNED_IN[cls.id] + " (signed token received)"
 
 
 def enabled_ids():
@@ -115,6 +120,8 @@ def test_integration(pid, cfg, http=None):
             from . import hikconnect as H
             H._token_cache.pop(cfg.get("app_key"), None)
             a.token()
+        elif pid in SIGNED_IN:
+            a.signin()
         else:
             a.client().call("accessToken")
     except ConnectError as e:

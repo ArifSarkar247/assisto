@@ -1,13 +1,9 @@
-"""Imou Open Platform adapter (open.imoulife.com) + DoLynk (Dahua's
-professional cloud, same Open-API protocol family: POST <base>/<method> with
-the md5 "time:,nonce:,appSecret:" signature). Reuses logic/imou.py.
+"""Imou Open Platform adapter (open.imoulife.com). Reuses logic/imou.py.
+(Dahua DoLynk has its own documented API: see dolynk.py — dolynkreal.)
 
 Request shapes follow Imou's public Open API docs (bindDevice,
 listDeviceDetailsByIds, getAlarmMessage, bindDeviceLive, deviceSdcardStatus,
-deviceStorage, queryLocalRecords). DoLynk's method names are assumed to
-match until the owner's DoLynk developer account shows its own docs — the
-adapter is OFF until that key exists and its Test passes (honest).
-NOT yet run against either real platform (keys pending)."""
+deviceStorage, queryLocalRecords)."""
 import base64
 from datetime import datetime, timedelta
 from urllib.parse import urlencode, urlparse
@@ -376,53 +372,3 @@ class ImouAdapter(B.Provider):
         return {"source": self.id, "device": serial, "at": self.now(), "disks": [disk],
                 "channels": [{"no": 0, "online": online}]}
 
-
-class DolynkAdapter(ImouAdapter):
-    id = "dolynk"
-    name = "Dahua DoLynk"
-    integration = "dolynk"
-    # owner 9 Nov 18:12: Open IoT product "Assisto CCTV" (212808822), keys
-    # "Access Key" + "Secret Access Key", API https://open-api-sg.dolynkcloud.com
-    key_fields = ("access_key", "secret_key")
-    auth_modes = ("device_code", "oauth")
-    pic_hosts = (".dolynkcloud.com", ".dolynk.com", ".easy4ip.com",
-                 ".easy4ipcloud.com", ".dahuasecurity.com", ".imoulife.com")
-    code_label = ("লেবেলের Safety Code / ডিভাইস কোড", "Safety Code / device code on the label")
-    default_base = ""
-    oauth_redirect_path = ""
-
-    def oauth_ready(self):
-        return False            # DoLynk OAuth: not documented for us yet
-
-    def _base(self):
-        from ... import integrations as I
-        host = str(self.cfg.get("api_base") or I.DOLYNK_API_BASE).strip().rstrip("/")
-        path = str(self.cfg.get("api_path") or "/openapi").strip()
-        return host + (path if path.startswith("/") else "/" + path).rstrip("/")
-
-    def client(self):
-        """DoLynk's API docs open only after login (agent note 9 Nov): the
-        path, the signature (md5 | hmac) and any method names that differ
-        from the Imou family come from Owner Admin, so the owner's real
-        console values fit without a code change."""
-        import json as _json
-        if not self.configured():
-            raise B.ConnectError("not_configured")
-        c = IM.ImouClient(self.cfg.get("access_key"), self.cfg.get("secret_key"), self._base(),
-                          http=lambda url, body, t: self.http(url, body, t, {}), now=self.now)
-        c.quota_provider = self.id
-        if str(self.cfg.get("sign_mode") or "").strip().lower() in ("hmac", "v2", "sha256"):
-            c.signer = IM.sign_v2
-        try:
-            m = _json.loads(self.cfg.get("methods_json") or "{}")
-            if isinstance(m, dict):
-                c.method_map = {str(k)[:60]: str(v)[:120] for k, v in m.items()
-                                if str(v).replace("/", "").replace(".", "").replace("_", "").isalnum()}
-        except ValueError:
-            pass
-        return c
-
-    def _stream_ok(self, url):
-        extra = tuple(h.strip() for h in str(self.cfg.get("media_hosts") or "").split(",")
-                      if h.strip().startswith("."))
-        return B.host_allowed(url, self.pic_hosts + extra)
