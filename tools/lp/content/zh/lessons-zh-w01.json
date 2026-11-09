@@ -1,0 +1,1466 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "zh",
+ "week": 1,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "hsk1"
+ ],
+ "title": {
+  "en": "Week 1: Tones, greetings and about you",
+  "bn": "সপ্তাহ ১: টোন, শুভেচ্ছা আর নিজের কথা"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not official HSK material and not an official result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল HSK উপকরণ বা অফিসিয়াল ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "Chinese Testing International public HSK 1 description + HSK 1 public word list (structure/level only)",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "lessons": [
+  {
+   "id": "zh-w01-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Tones and first greetings",
+    "bn": "চারটি টোন আর প্রথম শুভেচ্ছা"
+   },
+   "goal_bn": "চাইনিজের চারটি টোন চিনবেন, আর সকাল-সন্ধ্যার শুভেচ্ছা, ধন্যবাদ ও বিদায় বলতে শিখবেন।",
+   "vocab": [
+    {
+     "target": "你好",
+     "roman": "nǐ hǎo",
+     "tones": [
+      3,
+      3
+     ],
+     "bn": "হ্যালো / শুভেচ্ছা (সব সময় বলা যায়)",
+     "pos": "expression",
+     "example": {
+      "target": "你好，我是拉希德。",
+      "roman": "Nǐ hǎo, wǒ shì Lāxīdé.",
+      "bn": "হ্যালো, আমি রাশিদ।"
+     }
+    },
+    {
+     "target": "您好",
+     "roman": "nín hǎo",
+     "tones": [
+      2,
+      3
+     ],
+     "bn": "আপনাকে শুভেচ্ছা (বড়দের/বসকে, বেশি সম্মানের)",
+     "pos": "expression",
+     "example": {
+      "target": "老师，您好！",
+      "roman": "Lǎoshī, nín hǎo!",
+      "bn": "শিক্ষক, আপনাকে শুভেচ্ছা!"
+     }
+    },
+    {
+     "target": "谢谢",
+     "roman": "xièxie",
+     "tones": [
+      4,
+      0
+     ],
+     "bn": "ধন্যবাদ",
+     "pos": "expression",
+     "example": {
+      "target": "谢谢你！",
+      "roman": "Xièxie nǐ!",
+      "bn": "তোমাকে ধন্যবাদ!"
+     }
+    },
+    {
+     "target": "再见",
+     "roman": "zàijiàn",
+     "tones": [
+      4,
+      4
+     ],
+     "bn": "আবার দেখা হবে / বিদায়",
+     "pos": "expression",
+     "example": {
+      "target": "明天见，再见！",
+      "roman": "Míngtiān jiàn, zàijiàn!",
+      "bn": "কাল দেখা হবে, বিদায়!"
+     }
+    },
+    {
+     "target": "早上好",
+     "roman": "zǎoshang hǎo",
+     "tones": [
+      3,
+      0,
+      3
+     ],
+     "bn": "শুভ সকাল",
+     "pos": "expression",
+     "example": {
+      "target": "王老师，早上好！",
+      "roman": "Wáng lǎoshī, zǎoshang hǎo!",
+      "bn": "ওয়াং স্যার, শুভ সকাল!"
+     }
+    },
+    {
+     "target": "晚上好",
+     "roman": "wǎnshang hǎo",
+     "tones": [
+      3,
+      0,
+      3
+     ],
+     "bn": "শুভ সন্ধ্যা",
+     "pos": "expression",
+     "example": {
+      "target": "大家晚上好！",
+      "roman": "Dàjiā wǎnshang hǎo!",
+      "bn": "সবাইকে শুভ সন্ধ্যা!"
+     }
+    },
+    {
+     "target": "大家",
+     "roman": "dàjiā",
+     "tones": [
+      4,
+      1
+     ],
+     "bn": "সবাই",
+     "pos": "pronoun",
+     "example": {
+      "target": "大家好！",
+      "roman": "Dàjiā hǎo!",
+      "bn": "সবাইকে শুভেচ্ছা!"
+     }
+    },
+    {
+     "target": "你们",
+     "roman": "nǐmen",
+     "tones": [
+      3,
+      0
+     ],
+     "bn": "তোমরা / আপনারা",
+     "pos": "pronoun",
+     "example": {
+      "target": "你们好！",
+      "roman": "Nǐmen hǎo!",
+      "bn": "আপনাদের সবাইকে শুভেচ্ছা!"
+     }
+    },
+    {
+     "target": "很",
+     "roman": "hěn",
+     "tones": [
+      3
+     ],
+     "bn": "খুব",
+     "pos": "adverb",
+     "example": {
+      "target": "我很好，谢谢。",
+      "roman": "Wǒ hěn hǎo, xièxie.",
+      "bn": "আমি ভালো আছি, ধন্যবাদ।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "চারটি টোন + হালকা টোন (ā á ǎ à + a)",
+     "explain_bn": "চাইনিজে একই শব্দাংশ চার রকম সুরে বললে মানে বদলে যায়। ১ম টোন (ā) উঁচু ও সমান, ২য় (á) নিচ থেকে উপরে ওঠে — প্রশ্ন করার মতো, ৩য় (ǎ) নেমে আবার একটু ওঠে, ৪র্থ (à) জোরে উপর থেকে নিচে নামে — রাগের 'না!'-র মতো। চিহ্ন ছাড়া (a) হলো হালকা টোন, ছোট আর আলতো। দুটো ৩য় টোন পাশাপাশি এলে প্রথমটি ২য় টোনের মতো বলা হয়: nǐ hǎo শোনায় 'ní hǎo'।",
+     "examples": [
+      {
+       "target": "你好！",
+       "roman": "Nǐ hǎo!",
+       "bn": "হ্যালো! (বলার সময় 'ní hǎo')"
+      },
+      {
+       "target": "很好。",
+       "roman": "Hěn hǎo.",
+       "bn": "খুব ভালো। (বলার সময় 'hén hǎo')"
+      }
+     ]
+    },
+    {
+     "pattern": "মানুষ/দল + 好 = শুভেচ্ছা",
+     "explain_bn": "কারও নাম, পদ বা দলের পরে 好 বসালে শুভেচ্ছা হয়: 老师好 (শিক্ষককে), 大家好 (সবাইকে)। কাজের জায়গায় বস বা বড়দের জন্য 你 না বলে 您 বলুন।",
+     "examples": [
+      {
+       "target": "大家好！",
+       "roman": "Dàjiā hǎo!",
+       "bn": "সবাইকে শুভেচ্ছা!"
+      },
+      {
+       "target": "老师好！",
+       "roman": "Lǎoshī hǎo!",
+       "bn": "শিক্ষক, শুভেচ্ছা!"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w01-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "shop owner"
+        },
+        "B": {
+         "gender": "M",
+         "role": "customer"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "早上好！"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "早上好！"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "দুজন দিনের কোন সময়ে কথা বলছে?",
+      "options": [
+       "সকালে",
+       "দুপুরে",
+       "সন্ধ্যায়",
+       "রাতে"
+      ],
+      "answer": "A",
+      "explain_bn": "早上好 মানে 'শুভ সকাল' — তাই সময়টা সকাল।",
+      "skill": "expression"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w01-l1-r1",
+      "passage": "晚上，拉希德见到王老师。他说：“王老师，晚上好！”",
+      "passage_roman": "Wǎnshang, Lāxīdé jiàndào Wáng lǎoshī. Tā shuō: “Wáng lǎoshī, wǎnshang hǎo!”",
+      "prompt_bn": "রাশিদ কখন শিক্ষকের দেখা পেল?",
+      "options": [
+       "সকালে",
+       "সন্ধ্যায়",
+       "দুপুরে",
+       "কাল"
+      ],
+      "answer": "B",
+      "explain_bn": "লেখাটি শুরু হয়েছে 晚上 (সন্ধ্যা/রাত) দিয়ে, আর রাশিদ বলেছে 晚上好।",
+      "skill": "time"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w01-l1-w1",
+      "prompt_bn": "সকালে শিক্ষককে শুভেচ্ছা দিন আর সম্মান দিয়ে ধন্যবাদ জানান (চাইনিজ অক্ষরে লিখুন)।",
+      "model": {
+       "target": "老师，早上好！谢谢您！",
+       "roman": "Lǎoshī, zǎoshang hǎo! Xièxie nín!",
+       "bn": "শিক্ষক, শুভ সকাল! আপনাকে ধন্যবাদ!"
+      },
+      "check": "ai",
+      "max_chars": 12
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w01-l1-s1",
+      "prompt_bn": "জোরে বলুন: কাজ শেষে সবাইকে বিদায় দিন, আর বলুন কাল দেখা হবে।",
+      "model": {
+       "target": "大家再见！明天见！",
+       "roman": "Dàjiā zàijiàn! Míngtiān jiàn!",
+       "bn": "সবাইকে বিদায়! কাল দেখা হবে!"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w01-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Introduce yourself",
+    "bn": "নিজের পরিচয় দিন"
+   },
+   "goal_bn": "নিজের নাম আর দেশ বলবেন, অন্যের নাম ও দেশ জিজ্ঞেস করবেন।",
+   "vocab": [
+    {
+     "target": "我",
+     "roman": "wǒ",
+     "tones": [
+      3
+     ],
+     "bn": "আমি",
+     "pos": "pronoun",
+     "example": {
+      "target": "我是学生。",
+      "roman": "Wǒ shì xuésheng.",
+      "bn": "আমি ছাত্র।"
+     }
+    },
+    {
+     "target": "你",
+     "roman": "nǐ",
+     "tones": [
+      3
+     ],
+     "bn": "তুমি / আপনি",
+     "pos": "pronoun",
+     "example": {
+      "target": "你好吗？",
+      "roman": "Nǐ hǎo ma?",
+      "bn": "তুমি কেমন আছ?"
+     }
+    },
+    {
+     "target": "叫",
+     "roman": "jiào",
+     "tones": [
+      4
+     ],
+     "bn": "নাম হওয়া / ডাকা",
+     "pos": "verb",
+     "example": {
+      "target": "我叫法蒂玛。",
+      "roman": "Wǒ jiào Fǎdìmǎ.",
+      "bn": "আমার নাম ফাতিমা।"
+     }
+    },
+    {
+     "target": "什么",
+     "roman": "shénme",
+     "tones": [
+      2,
+      0
+     ],
+     "bn": "কী",
+     "pos": "question",
+     "example": {
+      "target": "你叫什么名字？",
+      "roman": "Nǐ jiào shénme míngzi?",
+      "bn": "তোমার নাম কী?"
+     }
+    },
+    {
+     "target": "名字",
+     "roman": "míngzi",
+     "tones": [
+      2,
+      0
+     ],
+     "bn": "নাম",
+     "pos": "noun",
+     "example": {
+      "target": "我的名字是拉希德。",
+      "roman": "Wǒ de míngzi shì Lāxīdé.",
+      "bn": "আমার নাম রাশিদ।"
+     }
+    },
+    {
+     "target": "是",
+     "roman": "shì",
+     "tones": [
+      4
+     ],
+     "bn": "হওয়া (হই / হয় / হন)",
+     "pos": "verb",
+     "example": {
+      "target": "他是我朋友。",
+      "roman": "Tā shì wǒ péngyou.",
+      "bn": "সে আমার বন্ধু।"
+     }
+    },
+    {
+     "target": "人",
+     "roman": "rén",
+     "tones": [
+      2
+     ],
+     "bn": "মানুষ / লোক",
+     "pos": "noun",
+     "example": {
+      "target": "我是孟加拉国人。",
+      "roman": "Wǒ shì Mèngjiālāguó rén.",
+      "bn": "আমি বাংলাদেশি।"
+     }
+    },
+    {
+     "target": "孟加拉国",
+     "roman": "Mèngjiālāguó",
+     "tones": [
+      4,
+      1,
+      1,
+      2
+     ],
+     "bn": "বাংলাদেশ",
+     "pos": "noun",
+     "example": {
+      "target": "我爱孟加拉国。",
+      "roman": "Wǒ ài Mèngjiālāguó.",
+      "bn": "আমি বাংলাদেশকে ভালোবাসি।"
+     }
+    },
+    {
+     "target": "中国",
+     "roman": "Zhōngguó",
+     "tones": [
+      1,
+      2
+     ],
+     "bn": "চীন",
+     "pos": "noun",
+     "example": {
+      "target": "他是中国人。",
+      "roman": "Tā shì Zhōngguó rén.",
+      "bn": "সে চীনা।"
+     }
+    },
+    {
+     "target": "哪",
+     "roman": "nǎ",
+     "tones": [
+      3
+     ],
+     "bn": "কোন",
+     "pos": "question",
+     "example": {
+      "target": "你是哪国人？",
+      "roman": "Nǐ shì nǎ guó rén?",
+      "bn": "আপনি কোন দেশের মানুষ?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "A 是 B (A হলো B)",
+     "explain_bn": "是 দিয়ে দুটো জিনিসকে সমান বলা হয়: 'আমি = বাংলাদেশি'। বাংলায় 'আমি বাংলাদেশি' বললে ক্রিয়া লাগে না, কিন্তু চাইনিজে 是 লাগবেই। না-বোধক: 不是 (bú shì)।",
+     "examples": [
+      {
+       "target": "我是孟加拉国人。",
+       "roman": "Wǒ shì Mèngjiālāguó rén.",
+       "bn": "আমি বাংলাদেশি।"
+      },
+      {
+       "target": "她是老师。",
+       "roman": "Tā shì lǎoshī.",
+       "bn": "তিনি শিক্ষক।"
+      },
+      {
+       "target": "我不是中国人。",
+       "roman": "Wǒ bú shì Zhōngguó rén.",
+       "bn": "আমি চীনা নই।"
+      }
+     ]
+    },
+    {
+     "pattern": "我叫 + নাম / 你叫什么名字？",
+     "explain_bn": "নাম বলতে 我叫 + নাম। নাম জিজ্ঞেস করতে 你叫什么名字？ প্রশ্নবোধক শব্দ (什么) উত্তরের জায়গাতেই বসে — বাক্যের ক্রম বদলায় না। দেশ জিজ্ঞেস করতে: 你是哪国人？",
+     "examples": [
+      {
+       "target": "我叫拉希德。",
+       "roman": "Wǒ jiào Lāxīdé.",
+       "bn": "আমার নাম রাশিদ।"
+      },
+      {
+       "target": "你叫什么名字？",
+       "roman": "Nǐ jiào shénme míngzi?",
+       "bn": "তোমার নাম কী?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w01-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "factory supervisor"
+        },
+        "B": {
+         "gender": "F",
+         "role": "new worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "你好！你叫什么名字？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "我叫法蒂玛，我是孟加拉国人。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "মহিলাটি কোন দেশের মানুষ?",
+      "options": [
+       "中国人",
+       "孟加拉国人",
+       "日本人",
+       "印度人"
+      ],
+      "options_roman": [
+       "Zhōngguó rén",
+       "Mèngjiālāguó rén",
+       "Rìběn rén",
+       "Yìndù rén"
+      ],
+      "answer": "B",
+      "explain_bn": "সে বলেছে 我是孟加拉国人 — আমি বাংলাদেশি।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w01-l2-r1",
+      "passage": "你好！我叫王明，我是中国人。我是老师。",
+      "passage_roman": "Nǐ hǎo! Wǒ jiào Wáng Míng, wǒ shì Zhōngguó rén. Wǒ shì lǎoshī.",
+      "prompt_bn": "ওয়াং মিং-এর পেশা কী?",
+      "options": [
+       "শিক্ষক",
+       "ছাত্র",
+       "ডাক্তার",
+       "ড্রাইভার"
+      ],
+      "answer": "A",
+      "explain_bn": "শেষ বাক্য 我是老师 — আমি শিক্ষক।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w01-l2-w1",
+      "prompt_bn": "নিজের নাম আর দেশ চাইনিজে লিখুন (নিচে নমুনা)।",
+      "model": {
+       "target": "我叫拉希德，我是孟加拉国人。",
+       "roman": "Wǒ jiào Lāxīdé, wǒ shì Mèngjiālāguó rén.",
+       "bn": "আমার নাম রাশিদ, আমি বাংলাদেশি।"
+      },
+      "check": "ai",
+      "max_chars": 16
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w01-l2-s1",
+      "prompt_bn": "জোরে বলুন: নতুন সহকর্মীর নাম আর দেশ জিজ্ঞেস করুন।",
+      "model": {
+       "target": "你叫什么名字？你是哪国人？",
+       "roman": "Nǐ jiào shénme míngzi? Nǐ shì nǎ guó rén?",
+       "bn": "তোমার নাম কী? তুমি কোন দেশের মানুষ?"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w01-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Numbers 0–10 and phone numbers",
+    "bn": "সংখ্যা ০–১০ আর ফোন নম্বর"
+   },
+   "goal_bn": "০ থেকে ১০, তারপর ৯৯ পর্যন্ত সংখ্যা বানানো, আর ফোন নম্বর বলা ও জিজ্ঞেস করা শিখবেন।",
+   "vocab": [
+    {
+     "target": "零",
+     "roman": "líng",
+     "tones": [
+      2
+     ],
+     "bn": "শূন্য (০)",
+     "pos": "number",
+     "example": {
+      "target": "二零二六年",
+      "roman": "èr líng èr liù nián",
+      "bn": "২০২৬ সাল"
+     }
+    },
+    {
+     "target": "一",
+     "roman": "yī",
+     "tones": [
+      1
+     ],
+     "bn": "এক (১)",
+     "pos": "number",
+     "example": {
+      "target": "一个人",
+      "roman": "yí ge rén",
+      "bn": "একজন মানুষ"
+     }
+    },
+    {
+     "target": "二",
+     "roman": "èr",
+     "tones": [
+      4
+     ],
+     "bn": "দুই (২) — গোনার সময়",
+     "pos": "number",
+     "example": {
+      "target": "二月",
+      "roman": "èr yuè",
+      "bn": "ফেব্রুয়ারি (দ্বিতীয় মাস)"
+     }
+    },
+    {
+     "target": "三",
+     "roman": "sān",
+     "tones": [
+      1
+     ],
+     "bn": "তিন (৩)",
+     "pos": "number",
+     "example": {
+      "target": "三个人",
+      "roman": "sān ge rén",
+      "bn": "তিনজন মানুষ"
+     }
+    },
+    {
+     "target": "四",
+     "roman": "sì",
+     "tones": [
+      4
+     ],
+     "bn": "চার (৪)",
+     "pos": "number",
+     "example": {
+      "target": "四十",
+      "roman": "sìshí",
+      "bn": "চল্লিশ"
+     }
+    },
+    {
+     "target": "五",
+     "roman": "wǔ",
+     "tones": [
+      3
+     ],
+     "bn": "পাঁচ (৫)",
+     "pos": "number",
+     "example": {
+      "target": "五块钱",
+      "roman": "wǔ kuài qián",
+      "bn": "পাঁচ ইউয়ান"
+     }
+    },
+    {
+     "target": "六",
+     "roman": "liù",
+     "tones": [
+      4
+     ],
+     "bn": "ছয় (৬)",
+     "pos": "number",
+     "example": {
+      "target": "六点",
+      "roman": "liù diǎn",
+      "bn": "ছয়টা বাজে"
+     }
+    },
+    {
+     "target": "七",
+     "roman": "qī",
+     "tones": [
+      1
+     ],
+     "bn": "সাত (৭)",
+     "pos": "number",
+     "example": {
+      "target": "七天",
+      "roman": "qī tiān",
+      "bn": "সাত দিন"
+     }
+    },
+    {
+     "target": "八",
+     "roman": "bā",
+     "tones": [
+      1
+     ],
+     "bn": "আট (৮)",
+     "pos": "number",
+     "example": {
+      "target": "八十八",
+      "roman": "bāshíbā",
+      "bn": "আটাশি"
+     }
+    },
+    {
+     "target": "九",
+     "roman": "jiǔ",
+     "tones": [
+      3
+     ],
+     "bn": "নয় (৯)",
+     "pos": "number",
+     "example": {
+      "target": "九月",
+      "roman": "jiǔ yuè",
+      "bn": "সেপ্টেম্বর (নবম মাস)"
+     }
+    },
+    {
+     "target": "十",
+     "roman": "shí",
+     "tones": [
+      2
+     ],
+     "bn": "দশ (১০)",
+     "pos": "number",
+     "example": {
+      "target": "十个苹果",
+      "roman": "shí ge píngguǒ",
+      "bn": "দশটা আপেল"
+     }
+    },
+    {
+     "target": "几",
+     "roman": "jǐ",
+     "tones": [
+      3
+     ],
+     "bn": "কয় (ছোট সংখ্যা জিজ্ঞেস করতে)",
+     "pos": "question",
+     "example": {
+      "target": "你几岁？",
+      "roman": "Nǐ jǐ suì?",
+      "bn": "তোমার বয়স কত? (বাচ্চাকে)"
+     }
+    },
+    {
+     "target": "多少",
+     "roman": "duōshao",
+     "tones": [
+      1,
+      0
+     ],
+     "bn": "কত (যেকোনো সংখ্যা)",
+     "pos": "question",
+     "example": {
+      "target": "你的手机号码是多少？",
+      "roman": "Nǐ de shǒujī hàomǎ shì duōshao?",
+      "bn": "তোমার মোবাইল নম্বর কত?"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "সংখ্যা বানানো: 十一 = ১০ + ১, 二十 = ২ × ১০",
+     "explain_bn": "১১ থেকে ৯৯ খুব সহজ: 十 (১০)-এর পরে সংখ্যা বসালে যোগ, আগে বসালে গুণ। 十一 = ১১, 二十 = ২০, 二十五 = ২৫, 九十九 = ৯৯। ফোন নম্বরে 一-কে প্রায়ই yāo বলা হয়, যাতে 七 (qī)-এর সাথে গুলিয়ে না যায়।",
+     "examples": [
+      {
+       "target": "十一",
+       "roman": "shíyī",
+       "bn": "এগারো"
+      },
+      {
+       "target": "二十五",
+       "roman": "èrshíwǔ",
+       "bn": "পঁচিশ"
+      },
+      {
+       "target": "九十九",
+       "roman": "jiǔshíjiǔ",
+       "bn": "নিরানব্বই"
+      }
+     ]
+    },
+    {
+     "pattern": "几 আর 多少 — দুটোই 'কত'",
+     "explain_bn": "উত্তর ১০-এর কম হবে মনে হলে 几 + মাপের শব্দ (几个)। বড় বা অজানা সংখ্যার জন্য 多少 — দাম, ফোন নম্বর, মানুষের সংখ্যা।",
+     "examples": [
+      {
+       "target": "你有几个朋友？",
+       "roman": "Nǐ yǒu jǐ ge péngyou?",
+       "bn": "তোমার কয়জন বন্ধু?"
+      },
+      {
+       "target": "你们公司有多少人？",
+       "roman": "Nǐmen gōngsī yǒu duōshao rén?",
+       "bn": "আপনাদের কোম্পানিতে কতজন মানুষ?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w01-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "receptionist"
+        },
+        "B": {
+         "gender": "M",
+         "role": "new worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "你的手机号码是多少？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "一三八，七六五四，三二一零。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "নম্বরটির শেষ চারটি অঙ্ক কী?",
+      "options": [
+       "৩২১০",
+       "৩২০১",
+       "৭৬৫৪",
+       "২৩১০"
+      ],
+      "answer": "A",
+      "explain_bn": "শেষ অংশ 三二一零 = ৩ ২ ১ ০। ফোনে 一-কে yāo-ও বলা হয়।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w01-l3-r1",
+      "passage": "我有八个中国朋友，三个孟加拉国朋友。",
+      "passage_roman": "Wǒ yǒu bā ge Zhōngguó péngyou, sān ge Mèngjiālāguó péngyou.",
+      "prompt_bn": "লেখকের মোট কতজন বন্ধু?",
+      "options": [
+       "৮ জন",
+       "৩ জন",
+       "১১ জন",
+       "৫ জন"
+      ],
+      "answer": "C",
+      "explain_bn": "八 (৮) চীনা + 三 (৩) বাংলাদেশি = ১১ জন।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w01-l3-w1",
+      "prompt_bn": "এই সংখ্যাগুলো চাইনিজ অক্ষরে লিখুন: ৫, ৮, ১০।",
+      "model": {
+       "target": "五、八、十",
+       "roman": "wǔ, bā, shí",
+       "bn": "পাঁচ, আট, দশ"
+      },
+      "check": "self",
+      "max_chars": 3
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w01-l3-s1",
+      "prompt_bn": "জোরে বলুন: নিজের (বা এই নমুনা) মোবাইল নম্বর বলুন — 一-কে yāo বলুন।",
+      "model": {
+       "target": "我的手机号码是一三九，八八六七，五四二零。",
+       "roman": "Wǒ de shǒujī hàomǎ shì yāo sān jiǔ, bā bā liù qī, wǔ sì èr líng.",
+       "bn": "আমার মোবাইল নম্বর ১৩৯-৮৮৬৭-৫৪২০ (নমুনা নম্বর)।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w01-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "My family",
+    "bn": "আমার পরিবার"
+   },
+   "goal_bn": "পরিবারের মানুষদের নাম বলবেন, 有/没有 দিয়ে কী আছে-নেই বলবেন, আর বয়স বলবেন।",
+   "vocab": [
+    {
+     "target": "家",
+     "roman": "jiā",
+     "tones": [
+      1
+     ],
+     "bn": "পরিবার / বাড়ি",
+     "pos": "noun",
+     "example": {
+      "target": "我家有五个人。",
+      "roman": "Wǒ jiā yǒu wǔ ge rén.",
+      "bn": "আমার পরিবারে পাঁচজন।"
+     }
+    },
+    {
+     "target": "爸爸",
+     "roman": "bàba",
+     "tones": [
+      4,
+      0
+     ],
+     "bn": "বাবা",
+     "pos": "noun",
+     "example": {
+      "target": "我爸爸是医生。",
+      "roman": "Wǒ bàba shì yīshēng.",
+      "bn": "আমার বাবা ডাক্তার।"
+     }
+    },
+    {
+     "target": "妈妈",
+     "roman": "māma",
+     "tones": [
+      1,
+      0
+     ],
+     "bn": "মা",
+     "pos": "noun",
+     "example": {
+      "target": "我妈妈在家。",
+      "roman": "Wǒ māma zài jiā.",
+      "bn": "আমার মা বাড়িতে আছেন।"
+     }
+    },
+    {
+     "target": "儿子",
+     "roman": "érzi",
+     "tones": [
+      2,
+      0
+     ],
+     "bn": "ছেলে (সন্তান)",
+     "pos": "noun",
+     "example": {
+      "target": "他有一个儿子。",
+      "roman": "Tā yǒu yí ge érzi.",
+      "bn": "তার একটি ছেলে আছে।"
+     }
+    },
+    {
+     "target": "女儿",
+     "roman": "nǚ'ér",
+     "tones": [
+      3,
+      2
+     ],
+     "bn": "মেয়ে (সন্তান)",
+     "pos": "noun",
+     "example": {
+      "target": "我女儿七岁。",
+      "roman": "Wǒ nǚ'ér qī suì.",
+      "bn": "আমার মেয়ের বয়স সাত।"
+     }
+    },
+    {
+     "target": "有",
+     "roman": "yǒu",
+     "tones": [
+      3
+     ],
+     "bn": "আছে / থাকা",
+     "pos": "verb",
+     "example": {
+      "target": "你有中国朋友吗？",
+      "roman": "Nǐ yǒu Zhōngguó péngyou ma?",
+      "bn": "তোমার কি চীনা বন্ধু আছে?"
+     }
+    },
+    {
+     "target": "没有",
+     "roman": "méiyǒu",
+     "tones": [
+      2,
+      3
+     ],
+     "bn": "নেই",
+     "pos": "verb",
+     "example": {
+      "target": "我没有儿子。",
+      "roman": "Wǒ méiyǒu érzi.",
+      "bn": "আমার ছেলে নেই।"
+     }
+    },
+    {
+     "target": "他",
+     "roman": "tā",
+     "tones": [
+      1
+     ],
+     "bn": "সে / তিনি (পুরুষ)",
+     "pos": "pronoun",
+     "example": {
+      "target": "他是我爸爸。",
+      "roman": "Tā shì wǒ bàba.",
+      "bn": "উনি আমার বাবা।"
+     }
+    },
+    {
+     "target": "她",
+     "roman": "tā",
+     "tones": [
+      1
+     ],
+     "bn": "সে / তিনি (নারী)",
+     "pos": "pronoun",
+     "example": {
+      "target": "她是我妈妈。",
+      "roman": "Tā shì wǒ māma.",
+      "bn": "উনি আমার মা।"
+     }
+    },
+    {
+     "target": "岁",
+     "roman": "suì",
+     "tones": [
+      4
+     ],
+     "bn": "বছর (বয়স)",
+     "pos": "measure",
+     "example": {
+      "target": "我妈妈五十岁。",
+      "roman": "Wǒ māma wǔshí suì.",
+      "bn": "আমার মায়ের বয়স পঞ্চাশ।"
+     }
+    },
+    {
+     "target": "朋友",
+     "roman": "péngyou",
+     "tones": [
+      2,
+      0
+     ],
+     "bn": "বন্ধু",
+     "pos": "noun",
+     "example": {
+      "target": "他是我的中国朋友。",
+      "roman": "Tā shì wǒ de Zhōngguó péngyou.",
+      "bn": "সে আমার চীনা বন্ধু।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "有 / 没有 (আছে / নেই)",
+     "explain_bn": "কোনো কিছু থাকলে 有, না থাকলে 没有। খেয়াল করুন: 不有 কখনো বলা হয় না — সবসময় 没有। প্রশ্ন: …有…吗？",
+     "examples": [
+      {
+       "target": "我有一个女儿。",
+       "roman": "Wǒ yǒu yí ge nǚ'ér.",
+       "bn": "আমার একটি মেয়ে আছে।"
+      },
+      {
+       "target": "我没有儿子。",
+       "roman": "Wǒ méiyǒu érzi.",
+       "bn": "আমার কোনো ছেলে নেই।"
+      }
+     ]
+    },
+    {
+     "pattern": "的 = '-এর' (আমার, তোমার)",
+     "explain_bn": "我的 = আমার, 你的 = তোমার, 他的 = তার। পরিবারের মানুষ বা খুব কাছের জিনিসে 的 বাদ দেওয়া যায়: 我妈妈 = আমার মা।",
+     "examples": [
+      {
+       "target": "他的名字是王明。",
+       "roman": "Tā de míngzi shì Wáng Míng.",
+       "bn": "তার নাম ওয়াং মিং।"
+      },
+      {
+       "target": "我妈妈很好。",
+       "roman": "Wǒ māma hěn hǎo.",
+       "bn": "আমার মা ভালো আছেন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w01-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "colleague"
+        },
+        "B": {
+         "gender": "F",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "你家有几个人？"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "我家有四个人：爸爸、妈妈、我的女儿和我。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "মহিলার পরিবারে কতজন?",
+      "options": [
+       "三个人",
+       "四个人",
+       "五个人",
+       "六个人"
+      ],
+      "options_roman": [
+       "sān ge rén",
+       "sì ge rén",
+       "wǔ ge rén",
+       "liù ge rén"
+      ],
+      "answer": "B",
+      "explain_bn": "সে বলেছে 我家有四个人 — চারজন: বাবা, মা, মেয়ে আর সে নিজে।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w01-l4-r1",
+      "passage": "我叫法蒂玛。我有一个儿子，没有女儿。我儿子十岁。",
+      "passage_roman": "Wǒ jiào Fǎdìmǎ. Wǒ yǒu yí ge érzi, méiyǒu nǚ'ér. Wǒ érzi shí suì.",
+      "prompt_bn": "ফাতিমার ছেলের বয়স কত?",
+      "options": [
+       "৫ বছর",
+       "৭ বছর",
+       "১ বছর",
+       "১০ বছর"
+      ],
+      "answer": "D",
+      "explain_bn": "শেষ বাক্য 我儿子十岁 — আমার ছেলের বয়স দশ। 一个儿子 মানে ছেলের সংখ্যা, বয়স নয়।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w01-l4-w1",
+      "prompt_bn": "আপনার পরিবারে কতজন আর কারা — চাইনিজে লিখুন।",
+      "model": {
+       "target": "我家有三个人：爸爸、妈妈和我。",
+       "roman": "Wǒ jiā yǒu sān ge rén: bàba, māma hé wǒ.",
+       "bn": "আমার পরিবারে তিনজন: বাবা, মা আর আমি।"
+      },
+      "check": "ai",
+      "max_chars": 14
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w01-l4-s1",
+      "prompt_bn": "জোরে বলুন: আপনার বাবার বয়স আর পেশা বলুন।",
+      "model": {
+       "target": "我爸爸五十五岁，他是老师。",
+       "roman": "Wǒ bàba wǔshíwǔ suì, tā shì lǎoshī.",
+       "bn": "আমার বাবার বয়স পঞ্চান্ন, তিনি শিক্ষক।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zh-w01-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Polite phrases",
+    "bn": "ভদ্রতার কথা"
+   },
+   "goal_bn": "দুঃখিত, কোনো সমস্যা নেই, দয়া করে, স্বাগতম — কাজের জায়গায় প্রতিদিনের ভদ্র কথা শিখবেন।",
+   "vocab": [
+    {
+     "target": "对不起",
+     "roman": "duìbuqǐ",
+     "tones": [
+      4,
+      0,
+      3
+     ],
+     "bn": "দুঃখিত / মাফ করবেন",
+     "pos": "expression",
+     "example": {
+      "target": "对不起，我来晚了。",
+      "roman": "Duìbuqǐ, wǒ lái wǎn le.",
+      "bn": "দুঃখিত, দেরি হয়ে গেল।"
+     }
+    },
+    {
+     "target": "没关系",
+     "roman": "méi guānxi",
+     "tones": [
+      2,
+      1,
+      0
+     ],
+     "bn": "কোনো সমস্যা নেই",
+     "pos": "expression",
+     "example": {
+      "target": "没关系，你坐吧。",
+      "roman": "Méi guānxi, nǐ zuò ba.",
+      "bn": "কোনো সমস্যা নেই, বসো।"
+     }
+    },
+    {
+     "target": "请",
+     "roman": "qǐng",
+     "tones": [
+      3
+     ],
+     "bn": "দয়া করে / অনুগ্রহ করে",
+     "pos": "verb",
+     "example": {
+      "target": "请喝茶。",
+      "roman": "Qǐng hē chá.",
+      "bn": "চা খান, প্লিজ।"
+     }
+    },
+    {
+     "target": "不客气",
+     "roman": "bú kèqi",
+     "tones": [
+      2,
+      4,
+      0
+     ],
+     "bn": "ধন্যবাদের দরকার নেই / স্বাগতম",
+     "pos": "expression",
+     "example": {
+      "target": "不客气，再见！",
+      "roman": "Bú kèqi, zàijiàn!",
+      "bn": "এটা কিছু না, বিদায়!"
+     }
+    },
+    {
+     "target": "不",
+     "roman": "bù",
+     "tones": [
+      4
+     ],
+     "bn": "না (ক্রিয়া/বিশেষণের আগে)",
+     "pos": "adverb",
+     "example": {
+      "target": "我不是老师。",
+      "roman": "Wǒ bú shì lǎoshī.",
+      "bn": "আমি শিক্ষক নই।"
+     }
+    },
+    {
+     "target": "请问",
+     "roman": "qǐngwèn",
+     "tones": [
+      3,
+      4
+     ],
+     "bn": "একটু জিজ্ঞেস করি… (প্রশ্নের শুরুতে)",
+     "pos": "expression",
+     "example": {
+      "target": "请问，厕所在哪儿？",
+      "roman": "Qǐngwèn, cèsuǒ zài nǎr?",
+      "bn": "একটু বলবেন, টয়লেট কোথায়?"
+     }
+    },
+    {
+     "target": "欢迎",
+     "roman": "huānyíng",
+     "tones": [
+      1,
+      2
+     ],
+     "bn": "স্বাগতম",
+     "pos": "verb",
+     "example": {
+      "target": "欢迎你来中国！",
+      "roman": "Huānyíng nǐ lái Zhōngguó!",
+      "bn": "চীনে তোমাকে স্বাগতম!"
+     }
+    },
+    {
+     "target": "认识",
+     "roman": "rènshi",
+     "tones": [
+      4,
+      0
+     ],
+     "bn": "চেনা / পরিচিত হওয়া",
+     "pos": "verb",
+     "example": {
+      "target": "认识你很高兴。",
+      "roman": "Rènshi nǐ hěn gāoxìng.",
+      "bn": "তোমার সাথে পরিচিত হয়ে খুশি হলাম।"
+     }
+    },
+    {
+     "target": "高兴",
+     "roman": "gāoxìng",
+     "tones": [
+      1,
+      4
+     ],
+     "bn": "খুশি",
+     "pos": "adjective",
+     "example": {
+      "target": "我今天很高兴。",
+      "roman": "Wǒ jīntiān hěn gāoxìng.",
+      "bn": "আমি আজ খুব খুশি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "请 + ক্রিয়া (দয়া করে …)",
+     "explain_bn": "অনুরোধ বা আপ্যায়নে ক্রিয়ার আগে 请 বসান: 请坐 (বসুন), 请喝茶 (চা নিন)। মেহমানকে আপ্যায়নে এটা খুব জরুরি।",
+     "examples": [
+      {
+       "target": "请坐。",
+       "roman": "Qǐng zuò.",
+       "bn": "বসুন।"
+      },
+      {
+       "target": "请进。",
+       "roman": "Qǐng jìn.",
+       "bn": "ভেতরে আসুন।"
+      }
+     ]
+    },
+    {
+     "pattern": "不 দিয়ে না-বোধক, আর bù → bú",
+     "explain_bn": "ক্রিয়া বা বিশেষণের আগে 不 বসালে 'না' হয়। 不-এর পরে ৪র্থ টোন এলে 不 নিজে ২য় টোনে (bú) বলা হয়: 不是 bú shì, 不客气 bú kèqi। অন্য সময় bù: 不好 bù hǎo।",
+     "examples": [
+      {
+       "target": "我不是中国人。",
+       "roman": "Wǒ bú shì Zhōngguó rén.",
+       "bn": "আমি চীনা নই।"
+      },
+      {
+       "target": "今天不好。",
+       "roman": "Jīntiān bù hǎo.",
+       "bn": "আজকে ভালো না।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "zh-w01-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "colleague"
+        },
+        "B": {
+         "gender": "F",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "对不起！"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "没关系。"
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "দ্বিতীয় জন কী বলল?",
+      "options": [
+       "ধন্যবাদ",
+       "আবার দেখা হবে",
+       "কোনো সমস্যা নেই",
+       "স্বাগতম"
+      ],
+      "answer": "C",
+      "explain_bn": "对不起 (দুঃখিত)-এর সবচেয়ে স্বাভাবিক উত্তর 没关系 — কোনো সমস্যা নেই।",
+      "skill": "response"
+     }
+    ],
+    "reading": [
+     {
+      "id": "zh-w01-l5-r1",
+      "passage": "法蒂玛说：“谢谢您，王老师！”",
+      "passage_roman": "Fǎdìmǎ shuō: “Xièxie nín, Wáng lǎoshī!”",
+      "prompt_bn": "ওয়াং শিক্ষকের কোন উত্তরটি সবচেয়ে ঠিক?",
+      "options": [
+       "没关系",
+       "不客气",
+       "对不起",
+       "请问"
+      ],
+      "options_roman": [
+       "méi guānxi",
+       "bú kèqi",
+       "duìbuqǐ",
+       "qǐngwèn"
+      ],
+      "answer": "B",
+      "explain_bn": "谢谢 (ধন্যবাদ)-এর উত্তর 不客气 (এটা কিছু না)। 没关系 হলো 对不起-র উত্তর।",
+      "skill": "response"
+     }
+    ],
+    "writing": [
+     {
+      "id": "zh-w01-l5-w1",
+      "prompt_bn": "দেরি হয়ে গেছে — চাইনিজে দুঃখ প্রকাশ করুন।",
+      "model": {
+       "target": "对不起，我来晚了。",
+       "roman": "Duìbuqǐ, wǒ lái wǎn le.",
+       "bn": "দুঃখিত, আমার আসতে দেরি হয়ে গেল।"
+      },
+      "check": "ai",
+      "max_chars": 8
+     }
+    ],
+    "speaking": [
+     {
+      "id": "zh-w01-l5-s1",
+      "prompt_bn": "জোরে বলুন: অফিসে মেহমানকে স্বাগত জানিয়ে বসতে আর চা নিতে বলুন।",
+      "model": {
+       "target": "欢迎！请坐，请喝茶。",
+       "roman": "Huānyíng! Qǐng zuò, qǐng hē chá.",
+       "bn": "স্বাগতম! বসুন, চা নিন।"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}
