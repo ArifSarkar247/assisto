@@ -1,4 +1,5 @@
 import 'api.dart';
+import 'widgets/num_input.dart'; // savesweep
 
 /// FAMILY ACCOUNTING API surface (#61, SPEC v2.1 §21) — shared family money.
 ///
@@ -75,7 +76,8 @@ class FamAcctLocal {
   /// Parse a taka-ish string ("12.50", "1,250") to INTEGER poisha. Mirrors
   /// to_poisha(): decimal-string path, half-up on the paisa, no binary float.
   static int takaToPoisha(String input) {
-    var s = input.trim().replaceAll(',', '');
+    // savesweep: Bangla/Arabic digits, commas, taka sign via the shared parser
+    var s = normalizeNumInput(input);
     if (s.isEmpty) return 0;
     final neg = s.startsWith('-');
     if (neg) s = s.substring(1);

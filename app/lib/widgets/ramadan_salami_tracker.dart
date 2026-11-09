@@ -4,6 +4,7 @@ import 'local_digits.dart'; // lifebar
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// Eid salami (eidi) tracker — a local log of amounts GIVEN / RECEIVED. Every
 /// entry is user-entered; we never move money. Totals mirror
@@ -118,7 +119,7 @@ class _RamadanSalamiTrackerState extends State<RamadanSalamiTracker> {
       ),
     );
     if (added == true) {
-      final amt = double.tryParse(amtC.text.trim().replaceAll(',', ''));
+      final amt = parseNumInput(amtC.text.trim().replaceAll(',', ''));
       if (amt != null && amt > 0) {
         setState(() => _entries.add(_Entry(nameC.text.trim(), amt, dir)));
         await _save();

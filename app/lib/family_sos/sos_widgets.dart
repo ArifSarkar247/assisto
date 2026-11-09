@@ -9,6 +9,7 @@ import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'sos_sms.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// fcsos: the SOS surfaces' red. Darker than Brand.danger so white body text
 /// on it passes WCAG AA (7.0:1); Brand.danger stays for icons / accents.
@@ -303,6 +304,7 @@ class _SmsPickerState extends State<_SmsPicker> {
                 controller: _phone,
                 keyboardType: TextInputType.phone,
                 inputFormatters: [
+                  const LatinDigitsFormatter(),
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9+ \-]')),
                   LengthLimitingTextInputFormatter(18),
                 ],

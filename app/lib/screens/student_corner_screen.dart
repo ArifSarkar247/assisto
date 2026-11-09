@@ -12,6 +12,7 @@ import '../widgets/local_digits.dart'; // lifebar
 import '../feature_flags.dart' show FeatureFlags; // p3guides
 import 'student/study_timer_tab.dart'; // p3guides
 import 'student/student_official_tab.dart'; // p3guides
+import '../widgets/num_input.dart'; // savesweep
 
 /// STUDENT CORNER — ADVANCED (#192, SPEC v2.1 §20).
 ///
@@ -1090,7 +1091,7 @@ class _CourseEditorState extends State<_CourseEditor> {
   Future<void> _save() async {
     final tr = AppLocalizations.of(context);
     final api = context.read<AppState>().api;
-    final credit = double.tryParse(_credit.text.trim());
+    final credit = parseNumInput(_credit.text.trim());
     if (_title.text.trim().isEmpty) {
       _toast(context, tr.studentTitleRequired);
       return;

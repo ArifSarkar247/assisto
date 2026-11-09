@@ -9,6 +9,7 @@ import '../../widgets/subs_common.dart' show fmtInt;
 import '../../l10n/app_localizations.dart';
 import 'selling_common.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// q1-seams: true only once a real xlsx/csv file picker is bundled.
 const bool kProductImportPickerWired = false;
@@ -464,7 +465,7 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
         'barcode': _barcode.text.trim(),
         'description': _desc.text.trim(),
         'price': '$sell',
-        'stock': int.tryParse(_stock.text.trim()) ?? 0,
+        'stock': parseIntInput(_stock.text.trim()) ?? 0,
         if (_showCost) 'cost_price': '${parseTaka(_cost.text) ?? 0}',
         if (_showCost) 'min_price': '${parseTaka(_min.text) ?? 0}',
         'variants': [
@@ -570,7 +571,7 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
                 decoration: InputDecoration(labelText: t.biz_stock),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return null;
-                  final n = int.tryParse(v.trim());
+                  final n = parseIntInput(v.trim());
                   return (n == null || n < 0) ? t.biz_err_bad_stock : null;
                 },
               ),
@@ -743,7 +744,7 @@ class _VariantDraft {
         'size': size.text.trim(),
         'colour': colour.text.trim(),
         'sell_price': '${parseTaka(sell.text) ?? 0}',
-        'stock': int.tryParse(stock.text.trim()) ?? 0,
+        'stock': parseIntInput(stock.text.trim()) ?? 0,
         if (showCost) 'cost_price': '${parseTaka(cost.text) ?? 0}',
         if (showCost) 'min_price': '${parseTaka(min.text) ?? 0}',
       };

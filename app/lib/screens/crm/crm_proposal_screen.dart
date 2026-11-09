@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// Proposal screen (CRM_SPEC): build from requirement sheet + the configured
 /// module price list (NEVER invent prices or tax — show "TO REVIEW BY OWNER"
@@ -255,7 +256,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
   }
 
   double _pct(TextEditingController c) {
-    final v = double.tryParse(c.text.trim());
+    final v = parseNumInput(c.text.trim());
     if (v == null || v < 0) return 0;
     return v;
   }

@@ -52,7 +52,13 @@ Future<T?> showAppSheet<T>({
   // ignore: assisto_raw_sheet — the shared helper itself
   return showModalBottomSheet<T>(
     context: context,
-    builder: (ctx) => AppSheetInsets(child: builder(ctx)),
+    // savesweep (owner 10 Nov, mess "Add member" dead Save): run the
+    // caller's builder BELOW AppSheetInsets so its ctx sees the consumed
+    // insets. Built with the outer ctx, every sheet that pads by
+    // MediaQuery.of(ctx).viewInsets.bottom padded the keyboard TWICE; the
+    // Column overflowed and the bottom Save button was painted outside its
+    // hit-test area (visible but dead) on ~850dp phones.
+    builder: (ctx) => AppSheetInsets(child: Builder(builder: builder)),
     backgroundColor: backgroundColor,
     barrierLabel: barrierLabel,
     elevation: elevation,

@@ -12,6 +12,7 @@ import '../theme.dart' show AType, Gap;
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'vault_e2e.dart';
 import 'vault_lock.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 enum VaultLockMode { set, enter }
 
@@ -239,7 +240,7 @@ class _VaultLockViewState extends State<VaultLockView> {
                 obscureText: true,
                 enabled: locked == null,
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly],
                 maxLength: VaultLock.maxPin,
                 textAlign: TextAlign.center,
                 style: AType.titleLarge.copyWith(letterSpacing: 8),
@@ -255,7 +256,7 @@ class _VaultLockViewState extends State<VaultLockView> {
                   controller: _pin2,
                   obscureText: true,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly],
                   maxLength: VaultLock.maxPin,
                   textAlign: TextAlign.center,
                   style: AType.titleLarge.copyWith(letterSpacing: 8),

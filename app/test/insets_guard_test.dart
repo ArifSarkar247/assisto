@@ -36,6 +36,7 @@ import 'package:assisto/screens/crm/crm100_api.dart';
 import 'package:assisto/screens/crm/crm_log_activity_sheet.dart';
 import 'package:assisto/screens/crm/crm_send_sheet.dart';
 import 'package:assisto/screens/vehicle_tracking_screen.dart';
+import 'package:assisto/screens/mess_accounting_screen.dart'; // savesweep
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -120,6 +121,34 @@ final Map<String, _Sheet> _sheets = {
                   FilledButton(onPressed: () {}, child: const Text('Delete')),
                 ]),
               ))),
+  // savesweep (owner 10 Nov, Mess "Add member" dead Save): the pattern most
+  // sheets use — a short Column that pads by the BUILDER ctx's keyboard
+  // inset (autofocus field). Before the fix the keyboard was padded twice,
+  // the Column overflowed and Save was drawn but not hit-testable.
+  'helper_kb_pad': _Sheet(
+      open: (c) => showAppSheet<void>(
+          context: c,
+          isScrollControlled: true,
+          showDragHandle: true,
+          builder: (ctx) => Padding(
+                padding: EdgeInsets.fromLTRB(
+                    16, 0, 16, 16 + MediaQuery.of(ctx).viewInsets.bottom),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Text('Add member'),
+                  const SizedBox(height: 16),
+                  OutlinedButton(onPressed: () {}, child: const Text('Pick')),
+                  const SizedBox(height: 12),
+                  const TextField(autofocus: true),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                          onPressed: () {}, child: const Text('Save'))),
+                ]),
+              ))),
+  'mess_add_member': _Sheet( // savesweep: the real owner-reported sheet
+      screen: () => const MessAccountingScreen(),
+      tap: () => find.byIcon(Icons.person_add_alt_1_rounded)),
   // ... and the sticky-button body
   'helper_sticky': _Sheet(
       open: (c) => showAppSheet<void>(

@@ -9,6 +9,7 @@ import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import 'life/life_logic.dart' show inSplitScope; // p3life
+import '../widgets/num_input.dart'; // savesweep
 
 /// EXPENSE SPLITTING (Splitwise-style) — ADVANCED (#183, SPEC v2.1 §20).
 ///
@@ -682,7 +683,7 @@ class _ExpenseFormState extends State<_ExpenseForm> {
     }
     if (_mode == _modeShares) {
       final anyWeight =
-          _weights.values.any((c) => (int.tryParse(c.text.trim()) ?? 0) > 0);
+          _weights.values.any((c) => (parseIntInput(c.text.trim()) ?? 0) > 0);
       return _SplitMath.toPoisha(_amount.text) > 0 && anyWeight;
     }
     // exact
@@ -704,10 +705,10 @@ class _ExpenseFormState extends State<_ExpenseForm> {
       base['amount'] = _amount.text.trim();
       base['parts'] = [
         for (final p in widget.people)
-          if ((int.tryParse(_weights[p['id']]!.text.trim()) ?? 0) > 0)
+          if ((parseIntInput(_weights[p['id']]!.text.trim()) ?? 0) > 0)
             {
               'member': p['id'],
-              'weight': int.parse(_weights[p['id']]!.text.trim())
+              'weight': parseIntInput(_weights[p['id']]!.text.trim())!
             }
       ];
     } else {

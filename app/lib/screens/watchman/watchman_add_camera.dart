@@ -10,6 +10,7 @@ import 'watchman_widgets.dart';
 import 'watchman_zones.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../widgets/local_counter.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// cctv1 camera onboarding + COMPATIBILITY CHECK. The phone cannot reach LAN
 /// cameras from the internet, so the GATEWAY runs the check (reachable? auth
@@ -163,7 +164,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
     try {
       var cam = _camera;
       if (cam == null) {
-        final ch = int.tryParse(_channel.text.trim()) ?? 1;
+        final ch = parseIntInput(_channel.text.trim()) ?? 1;
         cam = await widget.source.addCamera((widget.site['id'] as num).toInt(), {
           'name': _name.text.trim().isEmpty ? wmVendorName(t, _vendor) : _name.text.trim(),
           'kind': 'shopbox',
@@ -198,7 +199,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
         'secret': _secret.text.trim(),
         if (!_fixedAdmin) 'username': _user.text.trim(),
         if (_host.text.trim().isNotEmpty) 'host': _host.text.trim(),
-        'channel': int.tryParse(_channel.text.trim()) ?? 1,
+        'channel': parseIntInput(_channel.text.trim()) ?? 1,
         'stream': _stream,
         if (_vendor == 'rtsp') 'rtsp_url': _rtsp.text.trim(),
       });

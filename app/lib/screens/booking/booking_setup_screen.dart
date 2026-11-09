@@ -7,6 +7,7 @@ import '../../theme.dart';
 import '../../widgets/bn_day_periods.dart' show appDateLocale;
 import 'booking_source.dart';
 import 'booking_widgets.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// booking-bot — the 3-step setup wizard: 1 services, 2 weekly hours + days
 /// off, 3 rules (capacity, staff, confirm, cancel window, chat bot, link) and
@@ -102,7 +103,7 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
         'name': _svcName.text.trim(),
         'duration_min': _svcDur,
         'buffer_min': _svcBuf,
-        'price_bdt': int.tryParse(_svcPrice.text.trim()) ?? 0,
+        'price_bdt': parseIntInput(_svcPrice.text.trim()) ?? 0,
       });
       _services = [..._services, s];
       _svcName.clear();

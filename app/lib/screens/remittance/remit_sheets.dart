@@ -6,6 +6,7 @@ import 'remit_source.dart';
 import 'remit_widgets.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../widgets/local_counter.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// budget-remittance bottom sheets: the family budget plan, one spending,
 /// the savings goal, a bill, the expected monthly money, and the My Circle
@@ -358,7 +359,7 @@ class _BillSheetState extends State<_BillSheet> {
         Navigator.pop(context, {
           'name': _name.text.trim(),
           'amount': rmAscii(_amount.text),
-          'due_day': int.tryParse(rmAscii(_day.text)) ?? 1,
+          'due_day': parseIntInput(rmAscii(_day.text)) ?? 1,
           'category': _cat,
         });
       },
@@ -452,7 +453,7 @@ class _ExpectedSheetState extends State<_ExpectedSheet> {
         if (!(_form.currentState?.validate() ?? false)) return;
         Navigator.pop(context, {
           'expected_taka': _taka.text.trim().isEmpty ? '0' : rmAscii(_taka.text),
-          'expected_day': int.tryParse(rmAscii(_day.text)) ?? 0,
+          'expected_day': parseIntInput(rmAscii(_day.text)) ?? 0,
           'expected_sender': _sender.text.trim(),
         });
       },

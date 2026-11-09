@@ -4,6 +4,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'ladder_common.dart';
 import '../services/action_feedback.dart'; // db1
+import '../widgets/num_input.dart'; // savesweep
 
 /// "Leave now" (bn label supplied via l10n) card for an appointment.
 ///
@@ -119,7 +120,7 @@ class _LifeLeaveNowCardState extends State<LifeLeaveNowCard> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: Text(t.cancel)),
           FilledButton(
-            onPressed: () => Navigator.pop(ctx, int.tryParse(ctrl.text.trim())),
+            onPressed: () => Navigator.pop(ctx, parseIntInput(ctrl.text.trim())),
             child: Text(t.save),
           ),
         ],
