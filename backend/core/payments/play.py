@@ -556,6 +556,8 @@ def sub_status(user, now=None):
         return {"status": st, "sku": pp.sku, "product_id": pp.product_id,
                 "base_plan": pp.base_plan_id, "package": pkg,
                 "auto_renew": bool(pp.auto_renewing),
+                # plansprep: Google's own recurring price for the next renewal
+                "price": float(pp.price_bdt or 0),
                 "expires_at": pp.expires_at.isoformat() if pp.expires_at else None}
     return None
 

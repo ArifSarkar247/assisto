@@ -1,0 +1,19 @@
+{"en": {
+  "ppPackExpiringTitle": "Credits expiring soon",
+  "@ppPackExpiringTitle": {"description": "plansprep: bought pack credits expire within 7 days"},
+  "ppPackExpiring": "{credits} bought credits expire on {date}. Use them before then.",
+  "@ppPackExpiring": {"description": "plansprep: pack expiry warning", "placeholders": {"credits": {"type": "String"}, "date": {"type": "String"}}},
+  "ppLowCredit": "Only {credits} credits left. Add a pack or pick a plan so your answers don't stop.",
+  "@ppLowCredit": {"description": "plansprep: low credit warning", "placeholders": {"credits": {"type": "String"}}},
+  "ppCreditsEmpty": "You have no credits left. Safety features stay free. Add a pack, pick a plan or watch an ad.",
+  "@ppCreditsEmpty": {"description": "plansprep: zero credits warning"},
+  "ppRenewsOnFor": "Renews on {date} for ৳{price} through Google Play.",
+  "@ppRenewsOnFor": {"description": "plansprep: next renewal date and Play price", "placeholders": {"date": {"type": "String"}, "price": {"type": "String"}}}
+},
+"bn": {
+  "ppPackExpiringTitle": "ক্রেডিটের মেয়াদ শেষ হচ্ছে",
+  "ppPackExpiring": "কেনা {credits} ক্রেডিটের মেয়াদ {date} তারিখে শেষ। তার আগেই ব্যবহার করুন।",
+  "ppLowCredit": "মাত্র {credits} ক্রেডিট বাকি। উত্তর যেন না থামে — প্যাক নিন বা প্ল্যান বেছে নিন।",
+  "ppCreditsEmpty": "আপনার কোনো ক্রেডিট বাকি নেই। নিরাপত্তা সবসময় ফ্রি। প্যাক নিন, প্ল্যান বেছে নিন বা বিজ্ঞাপন দেখুন।",
+  "ppRenewsOnFor": "{date} তারিখে Google Play থেকে ৳{price}-এ নবায়ন হবে।"
+}}
