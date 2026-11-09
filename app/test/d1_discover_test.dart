@@ -128,14 +128,14 @@ void main() {
         buildSignature: '');
   });
 
-  testWidgets('server cards render with Sponsored label, build sent, '
+  testWidgets('server cards render with the Ad label (discms), build sent, '
       'ADMOB skipped, impression tracked, set cached', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final api = _Api()..response = _server;
     await _pump(tester, api);
     expect(api.gets.single, '/discover/cards?build=148');
     expect(find.text('Fresh market'), findsOneWidget);
-    expect(find.text(_t(tester).discoverSponsoredLabel), findsOneWidget);
+    expect(find.text(_t(tester).discoverAdBadge), findsOneWidget);
     // ADMOB renders nothing: 3 renderable cards -> 3 page dots.
     expect(find.byType(AnimatedContainer), findsNWidgets(3));
     expect(api.tracked, [

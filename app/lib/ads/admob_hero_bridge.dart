@@ -23,6 +23,11 @@ import 'hero_ad.dart';
 class AdmobHeroAdBridge implements HeroAdBridge {
   static const placement = 'home_native';
 
+  /// discms: the telemetry placement this bridge reports under — the home
+  /// hero (default) or the Discover native slot (`home_discover_native`).
+  final String trackAs;
+  AdmobHeroAdBridge({this.trackAs = placement});
+
   @override
   bool get linked => true;
 
@@ -37,7 +42,7 @@ class AdmobHeroAdBridge implements HeroAdBridge {
     final done = Completer<HeroAdHandle?>();
     NativeAd? ad;
     // one tracker per NativeAd object: 1 impression, <=1 click, 1 paid
-    final tr = AdTelemetry.track(placement, 'native');
+    final tr = AdTelemetry.track(trackAs, 'native');
     try {
       ad = NativeAd(
         adUnitId: unitId,

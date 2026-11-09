@@ -45,6 +45,8 @@ String _typeLabel(AppLocalizations t, String type) => switch (type) {
       DiscoverItem.ourProduct => t.discoverMgrTypeProduct,
       DiscoverItem.sponsored => t.discoverMgrTypeSponsored,
       DiscoverItem.admob => t.discoverMgrTypeAdmob,
+      DiscoverItem.whatsNew => t.discmsTypeWhatsNew, // discms
+      DiscoverItem.offer => t.discmsTypeOffer, // discms
       _ => t.discoverMgrTypeFeature,
     };
 
@@ -680,6 +682,8 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
               decoration: InputDecoration(labelText: t.discoverMgrType),
               items: [
                 for (final ty in const [
+                  DiscoverItem.whatsNew, // discms
+                  DiscoverItem.offer, // discms
                   DiscoverItem.feature,
                   DiscoverItem.ourProduct,
                   DiscoverItem.sponsored,

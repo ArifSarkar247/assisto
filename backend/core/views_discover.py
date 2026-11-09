@@ -73,10 +73,37 @@ def _image_url(c):
         return ""
 
 
+# discms: the Discover AdMob native slot is ONE placement in the adcontrol
+# registry (core/logic/ad_control.py, Owner Admin -> Ads) — never a second
+# ad switch here.
+DISCOVER_PLACEMENT = "discover_native"
+
+
+def discover_admob_on(user=None):
+    """Is the Discover AdMob native placement ON for `user`? The owner's live
+    switch comes from `admob_service.placement_on` (adcontrol); Free users
+    only. Default ON (owner 10 Nov 03:45) while the registry is not deployed
+    or fails to answer."""
+    from . import admob_service as AS
+    try:
+        if user is not None and not AS._is_free(user):
+            return False
+    except Exception:
+        pass
+    fn = getattr(AS, "placement_on", None)
+    if fn is None:
+        return True
+    try:
+        return bool(fn(DISCOVER_PLACEMENT))
+    except Exception:
+        return True
+
+
 def app_payload(c):
     """What the app renders for one card. Labels come from the type only."""
     if c.type == D.ADMOB:
-        return {"id": c.id, "key": c.key, "type": c.type, "label": "ad"}
+        return {"id": c.id, "key": c.key, "type": c.type, "label": "ad",
+                "placement": DISCOVER_PLACEMENT}
     return {
         "id": c.id, "key": c.key, "type": c.type, "label": D.label_for(c.type),
         "title": {"bn": c.title_bn, "en": c.title_en},
@@ -112,6 +139,8 @@ def cards_for(segment, build, now=None, hero_ad=False, user=None, play=False):
     from .models import DiscoverCard
     now = now or timezone.now()
     rows = [_rule_row(c) for c in DiscoverCard.objects.all()]
+    if not discover_admob_on(user):   # discms: owner registry switch
+        rows = [r for r in rows if r["type"] != D.ADMOB]
     return [r["obj"] for r in D.visible_cards(rows, segment, build, now,
                                               hero_ad=hero_ad,
                                               route_on=route_checker(user, play))]
@@ -323,8 +352,10 @@ class DiscoverCardsView(APIView):
     def get(self, request):
         seg = _segment(request.user)
         build = _build_param(request.query_params.get("build"))
-        # h1-home: ?hero_ad=1 while the home hero shows an AdMob native ad
-        hero_ad = (request.query_params.get("hero_ad") or "") in ("1", "true")
+        # discms (owner 10 Nov 03:45): "Home native AND AdMob native in
+        # Discover" are BOTH default ON — the old h1-home rule (hero ad showing
+        # -> drop the Discover slot) no longer applies; `hero_ad` is ignored.
+        hero_ad = False
         from .i18n import is_play_flavour
         cards = cards_for(seg, build, hero_ad=hero_ad, user=request.user,
                           play=is_play_flavour(request))
