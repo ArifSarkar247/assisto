@@ -40,6 +40,7 @@ import 'h1_home_fakes.dart';
 const _newDefault = [
   'family',
   'journey',
+  'city', // homeshort: City Service in Digital Ledger's old slot
   'crm',
   'business',
   'sales_agent',
@@ -48,7 +49,22 @@ const _newDefault = [
   'prepaid_meter',
   'emergency',
   'money',
-  'reminders', // fills City Service's slot until its screen ships
+];
+
+/// City Service switched OFF (flag city_service): the next real feature
+/// (Reminders) fills the slot, never a dead tile.
+const _cityOffDefault = [
+  'family',
+  'journey',
+  'crm',
+  'business',
+  'sales_agent',
+  'watchman',
+  'vehicle_tracking',
+  'prepaid_meter',
+  'emergency',
+  'money',
+  'reminders',
 ];
 
 /// The 2 Nov (v3) default as builds up to 316 showed it — with Digital Ledger.
@@ -98,7 +114,7 @@ const _screens = {
   'prepaid_meter': 'PrepaidMeterScreen',
   'emergency': 'EmergencyHubScreen', // ownerfix: SOS tile -> Emergency hub
   'money': 'MoneyScreen',
-  'reminders': 'RemindersScreen',
+  'city': 'CityServiceScreen',
 };
 
 Future<void> _prefs(Map<String, Object> v) async {
@@ -193,7 +209,7 @@ void main() {
       expect(HomeV2Shortcuts.ownerOrder, _ownerOrder);
       expect(HomeV2Shortcuts.max, 11);
       expect(HomeV2Shortcuts.defaults(), _newDefault);
-      expect(HomeV2Shortcuts.skippedDefaults(), ['city', 'blood_panel']);
+      expect(HomeV2Shortcuts.skippedDefaults(), ['blood_panel']);
       expect(HomeV2Shortcuts.defaults(), isNot(contains('khata')));
       for (final r in _removed) {
         expect(HomeV2Shortcuts.defaults(), isNot(contains(r)), reason: r);
@@ -250,7 +266,7 @@ void main() {
       final d = HomeV2Shortcuts.defaults();
       expect(d.length, 11);
       expect(d.indexOf('blood_panel'), d.indexOf('emergency') + 1);
-      expect(HomeV2Shortcuts.skippedDefaults(), ['city']);
+      expect(HomeV2Shortcuts.skippedDefaults(), isEmpty);
       // My Circle stays pinned outside the 11; money moves to Edit / All
       // services (still pinnable)
       expect(d, isNot(contains('circle')));
@@ -264,9 +280,7 @@ void main() {
         expect(cat, contains(r), reason: r);
       }
       // the owner's defaults lead the Edit list, in order
-      expect(cat.take(10).toList(), _newDefault.take(10).toList());
-      // City Service has no screen in this build -> not offered (no dead tile)
-      expect(cat, isNot(contains('city')));
+      expect(cat.take(11).toList(), _newDefault);
     });
 
     test('flag OFF for this user -> skipped honestly, next real one fills',
@@ -275,15 +289,14 @@ void main() {
       var d = HomeV2Shortcuts.defaults();
       expect(d, isNot(contains('crm')));
       expect(d.length, 11);
-      expect(d.last, 'notes');
-      expect(HomeV2Shortcuts.skippedDefaults(),
-          ['city', 'crm', 'blood_panel']);
+      expect(d.last, 'reminders');
+      expect(HomeV2Shortcuts.skippedDefaults(), ['crm', 'blood_panel']);
       // business off -> its slot filled too
       FeatureFlags.instance.debugOverride = {'business': false};
       d = HomeV2Shortcuts.defaults();
       expect(d, isNot(contains('khata')));
       expect(d, isNot(contains('business')));
-      expect(d.sublist(9), ['reminders', 'notes']);
+      expect(d.sublist(9), ['money', 'reminders']);
       for (final r in d) {
         expect(ChatNav.routes.containsKey(r), isTrue, reason: r);
       }
@@ -297,7 +310,7 @@ void main() {
       // the fill also skips a flag-off pool entry (reminders hidden)
       FeatureFlags.instance.resetForTest();
       FeatureFlags.instance.debugOverride = {'crm': false, 'reminders': false};
-      expect(HomeV2Shortcuts.defaults().last, 'documents');
+      expect(HomeV2Shortcuts.defaults().last, 'notes');
     });
   });
 
@@ -513,15 +526,30 @@ void main() {
       expect((await HomeV2Shortcuts.load()).last, 'khata');
     });
 
-    test('City Service: no screen in this build -> never a dead tile',
+    test('City Service ON: in Digital Ledger\'s old slot, opens its screen',
         () async {
+      expect(ChatNav.routes.containsKey(kCityServiceRoute), isTrue);
+      expect(HomeV2Shortcuts.byRoute(kCityServiceRoute), isNotNull);
+      expect(HomeV2Shortcuts.ownerOrder.indexOf(kCityServiceRoute),
+          HomeV2Shortcuts.v3OwnerOrder.indexOf('khata'));
+      expect(HomeV2Shortcuts.defaults()[2], kCityServiceRoute);
+      expect(HomeV2Shortcuts.openRoute(kCityServiceRoute), kCityServiceRoute);
+    });
+
+    test('City Service switched OFF -> skipped, Reminders fills the slot',
+        () async {
+      FeatureFlags.instance.debugOverride = {'city_service': false};
       expect(ChatNav.routes.containsKey(kCityServiceRoute), isFalse);
       expect(HomeV2Shortcuts.byRoute(kCityServiceRoute), isNull);
       expect(HomeV2Shortcuts.sanitize([kCityServiceRoute, 'family']),
           ['family']);
-      // its slot in the owner order is Digital Ledger's old one
-      expect(HomeV2Shortcuts.ownerOrder.indexOf(kCityServiceRoute),
-          HomeV2Shortcuts.v3OwnerOrder.indexOf('khata'));
+      expect(HomeV2Shortcuts.defaults(), _cityOffDefault);
+      expect(HomeV2Shortcuts.skippedDefaults(),
+          [kCityServiceRoute, 'blood_panel']);
+      expect(await HomeV2Shortcuts.load(), _cityOffDefault);
+      // switched back ON: a never-edited home shows it again
+      FeatureFlags.instance.debugOverride = null;
+      expect(await HomeV2Shortcuts.load(), _newDefault);
     });
 
     test('"New" badge: shown until opened once, then remembered', () async {
