@@ -7,6 +7,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'app_sheet.dart';
 import 'fam_empty.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// famcare — the School tab (fees, exams, meetings for a child).
 ///
@@ -211,7 +212,7 @@ class _SchoolFormState extends State<_SchoolForm> {
     if (title.isEmpty) return;
     final api = context.read<AppState>().api;
     final messenger = ScaffoldMessenger.of(context);
-    final amt = num.tryParse(_amount.text.trim());
+    final amt = parseNumInput(_amount.text.trim());
     final body = <String, dynamic>{
       'child_name': _child.text.trim(),
       'kind': _kind,

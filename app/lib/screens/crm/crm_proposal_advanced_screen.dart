@@ -6,6 +6,7 @@ import '../../widgets/crm_aftersale_api.dart';
 import '../../widgets/crm_aftersale_widgets.dart';
 import 'crm_common.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// q1-seams: true only once a customer-facing acceptance PAGE exists (an
 /// absolute https link that renders accept / decline), not a JSON API path.
@@ -89,7 +90,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
       ),
     );
     if (ok != true) return;
-    final days = int.tryParse(ctl.text.trim()) ?? 30;
+    final days = parseIntInput(ctl.text.trim()) ?? 30;
     _run(() => CrmAfterSaleApi.of(context)
         .setValidity((p['id'] as num).toInt(), days));
   }

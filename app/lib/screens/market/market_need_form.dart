@@ -7,6 +7,7 @@ import '../../widgets/app_sheet.dart';
 import '../../widgets/local_counter.dart';
 import 'market_source.dart';
 import 'market_widgets.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// amarket: "Post a need" — category, what, quantity + unit, optional
 /// budget (private unless shown), Dhaka area, deadline, group-buy switch.
@@ -52,7 +53,7 @@ class _MarketNeedFormState extends State<MarketNeedForm> {
 
   Future<void> _submit() async {
     final t = AppLocalizations.of(context);
-    final qty = int.tryParse(_qty.text.trim());
+    final qty = parseIntInput(_qty.text.trim());
     if (_cat == null || _area == null || _title.text.trim().length < 3 || qty == null || qty < 1) {
       setState(() => _error = t.amkFormMissing);
       return;
@@ -70,8 +71,8 @@ class _MarketNeedFormState extends State<MarketNeedForm> {
         'unit': _unit,
         'area': _area,
         'deadline_hours': _hours,
-        if (_bmin.text.trim().isNotEmpty) 'budget_min': int.tryParse(_bmin.text.trim()),
-        if (_bmax.text.trim().isNotEmpty) 'budget_max': int.tryParse(_bmax.text.trim()),
+        if (_bmin.text.trim().isNotEmpty) 'budget_min': parseIntInput(_bmin.text.trim()),
+        if (_bmax.text.trim().isNotEmpty) 'budget_max': parseIntInput(_bmax.text.trim()),
         'show_budget': _showBudget,
         'group_open': _group,
       });
@@ -96,7 +97,7 @@ class _MarketNeedFormState extends State<MarketNeedForm> {
     final cats = mkList(widget.catalogue['categories']);
     final units = mkList(widget.catalogue['units']);
     final areas = mkList(widget.catalogue['areas']);
-    final digits = [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(9)];
+    final digits = [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(9)];
     return Scaffold(
       appBar: AppBar(title: Text(t.amkPostNeed)),
       body: ListView(

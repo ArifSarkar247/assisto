@@ -8,6 +8,7 @@ import '../../widgets/app_sheet.dart';
 import '../../widgets/local_counter.dart';
 import 'market_source.dart';
 import 'market_widgets.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// amarket: one need, role-aware.
 ///  * buyer: every offer ranked by the SERVER (price 50 / delivery 20 /
@@ -301,7 +302,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
     final mine = (n['my_bid'] as Map?)?.cast<String, dynamic>();
     final canBid = n['can_bid'] == true;
     final cs = Theme.of(context).colorScheme;
-    final digits = [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(8)];
+    final digits = [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(8)];
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
@@ -330,7 +331,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
             controller: _hours,
             enabled: canBid,
             keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(3)],
+            inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(3)],
             decoration: InputDecoration(labelText: t.amkDeliveryHours, border: const OutlineInputBorder()),
           ),
           const SizedBox(height: Gap.md),
@@ -341,8 +342,8 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
             maxLength: 300, buildCounter: localCounter,
             decoration: InputDecoration(labelText: t.amkNotes, hintText: t.amkNotesHint, border: const OutlineInputBorder()),
           ),
-          if (_price.text.isNotEmpty && int.tryParse(_price.text) != null)
-            Text(t.amkBidTotal(mkTaka(context, int.parse(_price.text) * 100 * ((n['total_quantity'] as num?) ?? 1)))),
+          if (_price.text.isNotEmpty && parseIntInput(_price.text) != null)
+            Text(t.amkBidTotal(mkTaka(context, parseIntInput(_price.text)! * 100 * ((n['total_quantity'] as num?) ?? 1)))),
           const SizedBox(height: Gap.sm),
           FilledButton(
             key: const Key('amk-b-send'),
@@ -350,8 +351,8 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
             onPressed: !canBid || _busy
                 ? null
                 : () => _act('bid', {
-                      'unit_price': int.tryParse(_price.text.trim()),
-                      'delivery_hours': int.tryParse(_hours.text.trim()),
+                      'unit_price': parseIntInput(_price.text.trim()),
+                      'delivery_hours': parseIntInput(_hours.text.trim()),
                       'notes': _notes.text.trim(),
                     }, t.amkOfferSent),
             child: Text(mine == null ? t.amkSendOffer : t.amkUpdateOffer),
@@ -382,7 +383,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
             key: const Key('amk-j-qty'),
             controller: _joinQty,
             keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
+            inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
             decoration: InputDecoration(
                 labelText: t.amkMyQty('${n['unit_label']}'), border: const OutlineInputBorder()),
           ),
@@ -392,7 +393,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
             onPressed: _busy || n['bidding_open'] != true
                 ? null
-                : () => _act('join', {'quantity': int.tryParse(_joinQty.text.trim())}, t.amkJoined),
+                : () => _act('join', {'quantity': parseIntInput(_joinQty.text.trim())}, t.amkJoined),
             child: Text(joined ? t.amkUpdateQty : t.amkJoin),
           ),
           if (joined)
