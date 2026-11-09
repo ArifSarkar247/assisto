@@ -107,3 +107,50 @@ jobs:
           name: AssistoShopBox-windows-x64
           path: edge/shopbox/dist/AssistoShopBox-windows-x64.zip
           retention-days: 30
+
+  # cctvtoday: a REAL download path for the PC program (owner order 9 Nov).
+  # The zip goes to the fixed pre-release `shopbox-windows` (stable URL, no
+  # GitHub login needed on a public repo) with shopbox-latest.json (version,
+  # SHA-256, size) that lifeassisto.com/get and the app show. Unsigned exe:
+  # the page says Windows SmartScreen may warn. Binaries are never committed.
+  publish:
+    name: Publish AssistoShopBox (GitHub release asset)
+    needs: build-windows
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/ci/cctvtoday-arb'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: AssistoShopBox-windows-x64
+          path: ${{ runner.temp }}/sb
+      - name: Manifest + upload (manifest last)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SB: ${{ runner.temp }}/sb
+        run: |
+          set -e
+          Z="$SB/AssistoShopBox-windows-x64.zip"
+          test -s "$Z"
+          V=$(python3 -c "import re;print(re.search(r'__version__\s*=\s*\"([^\"]+)\"',open('shopbox/__init__.py').read()).group(1))")
+          python3 - "$Z" "$V" "$SB/shopbox-latest.json" <<'PY'
+          import hashlib, json, os, sys, datetime
+          z, v, out = sys.argv[1:4]
+          h = hashlib.sha256(open(z, "rb").read()).hexdigest()
+          repo = os.environ["GITHUB_REPOSITORY"]
+          json.dump({"version": "%s+%s" % (v, os.environ["GITHUB_RUN_NUMBER"]),
+                     "sha256": h, "size_bytes": os.path.getsize(z),
+                     "file": os.path.basename(z), "commit": os.environ["GITHUB_SHA"][:10],
+                     "built_at": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%MZ"),
+                     "signed": False,
+                     "url": "https://github.com/%s/releases/download/shopbox-windows/%s"
+                            % (repo, os.path.basename(z))}, open(out, "w"), indent=1)
+          print(open(out).read())
+          PY
+          gh release view shopbox-windows >/dev/null 2>&1 || gh release create shopbox-windows \
+            --prerelease --title "Assisto Shop Box for Windows PC (CCTV gateway)" \
+            --notes "The Assisto Shop Box PC program (CCTV gateway). Unzip, run AssistoShopBox.exe, paste the pairing code from the Assisto app. Not code-signed yet: Windows SmartScreen may warn — More info -> Run anyway. Check the SHA-256 in shopbox-latest.json."
+          gh release upload shopbox-windows "$Z" --clobber
+          gh release upload shopbox-windows "$SB/shopbox-latest.json" --clobber

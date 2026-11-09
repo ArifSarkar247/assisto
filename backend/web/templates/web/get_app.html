@@ -31,6 +31,13 @@
     <div class="warn">The app link will be added soon.</div>
   {% endif %}
 </div>
+<h2 id="shopbox" style="font-size:19px">CCTV: Assisto Shop Box for a Windows PC</h2>
+<div class="card">
+  <p>The PC program that watches your IP cameras (RTSP / ONVIF) on the same Wi-Fi and sends alerts to the Assisto app. Windows 10 or 11, 64-bit.</p>
+  {% if shopbox.url %}<a class="btn gold" href="{{ shopbox.url }}" rel="noopener">Download for Windows PC{% if shopbox.available %} ({{ shopbox.version }}{% if shopbox.size_mb %}, {{ shopbox.size_mb }} MB{% endif %}){% endif %}</a>{% endif %}
+  {% if shopbox.available %}<p class="muted" style="margin-top:10px;word-break:break-all">SHA-256: <code>{{ shopbox.sha256 }}</code></p>{% endif %}
+  <p class="muted">Unzip → run AssistoShopBox.exe → Pair → paste the code from the app (Watchman → your place). The program is not code-signed yet, so Windows SmartScreen may say "Windows protected your PC": choose More info → Run anyway. Only download it from this page.</p>
+</div>
 <p style="text-align:center"><a href="/{{ qlang }}">← Back to the home page</a></p>
 {% else %}
 <h1>Assisto অ্যাপ নিন</h1>
@@ -47,6 +54,13 @@
   {% else %}
     <div class="warn">অ্যাপের লিংক শিগগিরই যোগ হবে।</div>
   {% endif %}
+</div>
+<h2 id="shopbox" style="font-size:19px">সিসিটিভি: Windows পিসির জন্য Assisto Shop Box</h2>
+<div class="card">
+  <p>পিসির এই প্রোগ্রাম একই Wi-Fi-র IP ক্যামেরা (RTSP / ONVIF) দেখে আর Assisto অ্যাপে সতর্কতা পাঠায়। Windows ১০ বা ১১, ৬৪-বিট।</p>
+  {% if shopbox.url %}<a class="btn gold" href="{{ shopbox.url }}" rel="noopener">Windows পিসির জন্য ডাউনলোড{% if shopbox.available %} (সংস্করণ {{ shopbox.version }}){% endif %}</a>{% endif %}
+  {% if shopbox.available %}<p class="muted" style="margin-top:10px;word-break:break-all">SHA-256: <code>{{ shopbox.sha256 }}</code></p>{% endif %}
+  <p class="muted">জিপ খুলুন → AssistoShopBox.exe চালান → Pair → অ্যাপের কোড পেস্ট করুন (পাহারাদার → আপনার জায়গা)। প্রোগ্রামটিতে এখনো ডিজিটাল সই নেই, তাই Windows SmartScreen "Windows protected your PC" দেখাতে পারে: More info → Run anyway চাপুন। শুধু এই পাতা থেকেই নামাবেন।</p>
 </div>
 <p style="text-align:center"><a href="/{{ qlang }}">← হোম পাতায় ফিরুন</a></p>
 {% endif %}

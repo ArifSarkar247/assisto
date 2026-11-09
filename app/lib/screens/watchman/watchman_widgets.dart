@@ -121,6 +121,10 @@ class WatchmanGuideCard extends StatelessWidget {
   }
 }
 
+/// cctvtoday: lifeassisto.com/get#shopbox — download link, version, SHA-256
+/// and the SmartScreen note for the Windows PC program.
+const kShopBoxDownloadPage = 'https://lifeassisto.com/get#shopbox';
+
 /// Pairing: the site code (+ QR) and what to do on the chosen gateway.
 /// [onNext] (first-run setup): the sheet ends in a big "Next: add a camera"
 /// button that closes it and calls [onNext] — never a dead end.
@@ -167,6 +171,21 @@ class WatchmanPairSheet extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 8),
               child: Text('${wmDigits(wmLang(context), i + 1)}. ${steps[i]}'),
             ),
+          // cctvtoday: the PC program's real download page (version + SHA-256)
+          if (gw != 'phone') ...[
+            Text(t.wmPcDownloadHint, style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 4),
+            const SelectableText(kShopBoxDownloadPage, textAlign: TextAlign.center),
+            Align(
+              child: OutlinedButton.icon(
+                key: const ValueKey('wm-pc-download'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.download_rounded),
+                label: Text(t.wmPcDownloadShare),
+                onPressed: () => Share.share(kShopBoxDownloadPage),
+              ),
+            ),
+          ],
           const SizedBox(height: 8),
           if (token.isNotEmpty) ...[
             Center(

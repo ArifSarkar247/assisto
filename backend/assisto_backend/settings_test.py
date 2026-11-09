@@ -54,3 +54,5 @@ AI_CHAT_RATE_PER_MIN = 0
 AI_CHAT_RATE_PER_HOUR = 0
 AGENT_RATE_PER_MIN = 0
 AGENT_RATE_PER_HOUR = 0
+
+SHOPBOX_RELEASE_FETCH = False   # cctvtoday: tests never fetch the GitHub release manifest

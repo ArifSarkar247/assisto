@@ -333,3 +333,15 @@ def _notify(site, cam, kind, health=None):
                            high_priority=kind in ("unplugged", "dark"))
         except Exception:
             pass
+
+
+class ShopBoxDownloadView(APIView):
+    """GET shop/shopbox/download (no login) — cctvtoday: the PC program's
+    download link + version + SHA-256 (GitHub release `shopbox-windows`) and
+    the page to send to the PC (lifeassisto.com/get#shopbox)."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        from .logic import shopbox_release as SBR
+        return Response(dict(SBR.latest(), page="https://lifeassisto.com/get#shopbox"))
