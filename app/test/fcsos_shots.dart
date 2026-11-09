@@ -24,7 +24,7 @@ final Map<String, Widget Function(String)> fcsosShots = {
       debugPhase: SosPhase.countdown),
   'fcs_sent': (l) => SosSenderScreen(
       api: FakeFcSosApi(lang: l)
-        ..going = [
+        ..goingList = [
           {'name': l == 'bn' ? 'ভাইয়া' : 'Bhai', 'at': '2026-11-09T04:41:00Z', 'me': false}
         ],
       recorder: FakeSosRecorder(),

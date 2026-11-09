@@ -96,7 +96,7 @@ void main() {
     testWidgets('Send now sends at once; sent page; mic allowed -> recording shown, Stop uploads',
         (tester) async {
       final api = FakeFcSosApi()
-        ..going = [
+        ..goingList = [
           {'name': 'Bhai', 'at': '2026-11-09T04:41:00Z', 'me': false}
         ];
       final rec = FakeSosRecorder(allowed: true);

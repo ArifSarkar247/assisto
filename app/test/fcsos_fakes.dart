@@ -13,7 +13,7 @@ class FakeFcSosApi implements FcSosApi {
   final int recipients;
   Map<String, dynamic> ev;
   final List<String> calls = [];
-  List<Map<String, dynamic>> going = [];
+  List<Map<String, dynamic>> goingList = [];
 
   @override
   Future<Map<String, dynamic>> send(
@@ -34,7 +34,7 @@ class FakeFcSosApi implements FcSosApi {
 
   @override
   Future<Map<String, dynamic>> status() async =>
-      {'state': 'active', 'going': going, 'audio': false};
+      {'state': 'active', 'going': goingList, 'audio': false};
 
   @override
   Future<Map<String, dynamic>> ladder() async => {
