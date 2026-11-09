@@ -44,6 +44,7 @@ import 'low_stock_card.dart'; // bizbar
 import '../../bizai/outcome_card.dart' show OutcomeCard; // bizai
 import '../../bizai/winback_screen.dart' show WinbackScreen; // bizai
 import '../../bizai/weekly_report_screen.dart' show WeeklyReportScreen; // bizai
+import '../../bizai/biz_daily_screen.dart' show BizDailyScreen; // bizai2
 import 'staff_screen.dart'; // bizbar
 import 'invoice/invoices_screen.dart'; // invoices
 
@@ -499,6 +500,17 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 title: t.bizaiWeeklyTitle,
                 subtitle: t.bizaiWeeklyHubSub,
                 onTap: () => _go(WeeklyReportScreen(businessId: bizId)),
+              ),
+              const SizedBox(height: Gap.md),
+            ],
+            // bizai2: today's shop summary (owner; every plan, no AI)
+            if (!isStaff) ...[
+              _HubCard(
+                icon: Icons.today_rounded,
+                tint: Brand.blue,
+                title: t.bizai2DailyTitle,
+                subtitle: t.bizai2DailyHubSub,
+                onTap: () => _go(BizDailyScreen(businessId: bizId)),
               ),
               const SizedBox(height: Gap.md),
             ],

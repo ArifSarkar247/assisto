@@ -1662,12 +1662,14 @@ def _reminder_row(p, bal, prof, preset, pay_hint, lang, role=None, wallet=None, 
                                 preset=preset, pay_hint=pay_hint, lang=lang)
     from . import sms_segments
     from . import tagada_engine as TE
+    from . import khata_duelink as KD
     seg = sms_segments.segments(text)
+    linked = KD.with_link(text, p, lang)   # bizai2: free channels carry the due link
     row = {"party_id": p.id, "name": p.name, "phone": p.phone,
            "phone_ok": bool(khata.bd_msisdn(p.phone)),
            "balance_poisha": bal, "balance_display": khata.fmt_amount(bal),
-           "message": text, "wa_url": khata.wa_link(p.phone, text),
-           "sms_uri": khata.sms_uri(p.phone, text),
+           "message": text, "wa_url": khata.wa_link(p.phone, linked),
+           "sms_uri": khata.sms_uri(p.phone, linked), "share_text": linked,
            # tagada2: Assisto SMS is paid in SMS PARTS (1 part = 1 segment)
            "sms_segments": seg, "sms_credits": seg}
     # tagada2: the server-decided send order for this customer

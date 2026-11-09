@@ -370,6 +370,7 @@ import 'remhbud_shots.dart'; // remhbud Budget module + empty remittance month
 import 'retention1_shots.dart'; // retention1 Retention automation
 import 'mktengine_shots.dart'; // mktengine Marketing Engine
 import 'bizai_shots.dart'; // bizai
+import 'bizai2_shots.dart'; // bizai2
 import 'p4_world_shots.dart'; // p4-world
 import 'p3farm_shots.dart'; // p3farm
 import 'c2_calls_shots.dart'; // c2-calls
@@ -1210,6 +1211,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in retention1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // retention1
     for (final e in mktengineShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // mktengine
     for (final e in bizaiShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // bizai
+    for (final e in bizai2Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // bizai2
     // p1-bizagent: Business AI Agent (home, first run, setup, approvals, inbox, chat)
     for (final e in p1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in g1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // g1-bizagent
