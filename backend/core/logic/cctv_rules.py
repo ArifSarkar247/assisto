@@ -112,6 +112,16 @@ WHAT = {
                 "The camera's SD card has a problem — it may not be recording"),
     "sound": ("ক্যামেরার কাছে জোরে শব্দ হয়েছে", "A loud sound near the camera"),
 }
+# cctvconnect (Guard V3 part B): DVR health problems say what they are too
+# (logic/dvr_health.py) — not alert TYPES the owner toggles (not in KINDS)
+WHAT.update({
+    "hdd_fail": ("DVR-এর হার্ডডিস্কে সমস্যা — ভিডিও রেকর্ড না-ও হতে পারে",
+                 "The DVR hard disk has a problem — video may not be recording"),
+    "hdd_full": ("DVR-এর হার্ডডিস্ক ভরা, পুরনো ভিডিও মুছছে না — রেকর্ডিং থেমে যাবে",
+                 "The DVR disk is full and not overwriting — recording will stop"),
+    "rec_stopped": ("রেকর্ডিং বন্ধ আছে", "Recording has stopped"),
+    "cam_offline": ("ক্যামেরা বন্ধ / ভিডিও আসছে না", "Camera is off / no video"),
+})
 DIRECTION = {"a_to_b": ("ক → খ দিকে", "A → B"), "b_to_a": ("খ → ক দিকে", "B → A")}
 SUPPORT_TEXT = {
     YES: ("এই ক্যামেরা নিজে জানায়", "This camera reports it"),

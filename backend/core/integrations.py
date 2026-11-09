@@ -510,7 +510,20 @@ REGISTRY = {
                           "Details: owner_actions/CCTV_IMOU_SETUP_BN.md"],
              "fields": [_f("app_id", "appId", "appId", secret=False),
                         _f("app_secret", "appSecret", "appSecret"),
-                        _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False)],
+                        _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False),
+                        # cctvconnect: OAuth 2.0 project (owner 9 Nov) — a shop / home
+                        # owner links his OWN Imou account in one tap
+                        _f("oauth_ak", "OAuth Project Access Key", "OAuth Project Access Key"),
+                        _f("oauth_sk", "OAuth Project Secret Key", "OAuth Project Secret Key"),
+                        _f("oauth_h5_url", "OAuth User Authorization H5 Page (লিংক)",
+                           "OAuth User Authorization H5 Page (link)", secret=False),
+                        # owner 9 Nov 17:20: serial + Safety Code binds go to OUR
+                        # developer account — owner / admin test cameras only
+                        # unless this says "on"
+                        _f("devbind_customers",
+                           "গ্রাহকরাও সিরিয়াল + কোড দিয়ে যুক্ত করতে পারবেন? (on = হ্যাঁ; খালি = শুধু মালিক/অ্যাডমিন)",
+                           "Customers may also link by serial + code? (on = yes; empty = owner/admin only)",
+                           secret=False)],
              "test": "test_imou"},
     # dolynkcard (owner 9 Nov 18:12): Dahua DoLynk Open IoT — product
     # "Assisto CCTV" (Singapore API). First step: keys + an honest test;
@@ -531,7 +544,20 @@ REGISTRY = {
                           _f("product_id", "Product ID (ঐচ্ছিক, ডিফল্ট 212808822)",
                              "Product ID (optional, default 212808822)", secret=False),
                           _f("api_base", "API ঠিকানা (ঐচ্ছিক, ডিফল্ট https://open-api-sg.dolynkcloud.com)",
-                             "API base (optional, default https://open-api-sg.dolynkcloud.com)", secret=False)],
+                             "API base (optional, default https://open-api-sg.dolynkcloud.com)", secret=False),
+                          # cctvconnect: the login-only Doc Center decides these
+                          _f("api_path", "API পথ (ঐচ্ছিক, ডিফল্ট /openapi)", "API path (optional, default /openapi)",
+                             secret=False),
+                          _f("sign_mode", "সিগনেচার (md5 বা hmac; খালি = md5)", "Signature (md5 or hmac; empty = md5)",
+                             secret=False),
+                          _f("methods_json", "পদ্ধতির নাম আলাদা হলে (JSON, যেমন {\"bindDevice\": \"...\"})",
+                             "Method names if different (JSON, e.g. {\"bindDevice\": \"...\"})", secret=False),
+                          _f("media_hosts", "ভিডিও/ছবির ডোমেইন (ঐচ্ছিক, যেমন .example.com)",
+                             "Video/picture domains (optional, e.g. .example.com)", secret=False),
+                          _f("devbind_customers",
+                             "গ্রাহকরাও সিরিয়াল + কোড দিয়ে যুক্ত করতে পারবেন? (on = হ্যাঁ; খালি = শুধু মালিক/অ্যাডমিন)",
+                             "Customers may also link by serial + code? (on = yes; empty = owner/admin only)",
+                             secret=False)],
                "test": "test_dolynk"},
     # cashguard: EZVIZ cameras' OWN alarms (polled every minute until EZVIZ
     # approves real-time push). Without it EZVIZ cameras still work through
@@ -553,6 +579,19 @@ REGISTRY = {
                          _f("app_secret", "Secret", "Secret"),
                          _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False)],
               "test": "test_ezviz"},
+    # ---- cctvconnect (CCTV Guard V3 A1, 9 Nov) ---- brand clouds; each
+    # connector is OFF until its key is saved here AND Test is green.
+    "hikconnect": {"name": "Hikvision Hik-Connect OpenAPI (CCTV)", "category": "Smart home",
+                   "unlocks_bn": "Hikvision DVR/NVR ও ক্যামেরা ক্লাউড দিয়ে যুক্ত: ডিভাইস তালিকা, লাইভ, প্লেব্যাক, ক্যামেরার নিজের AI সতর্কতা (AcuSense), হার্ডডিস্কের অবস্থা।",
+                   "unlocks_en": "Hikvision DVR/NVR + cameras through the cloud: device list, live, playback, the camera's own AI alerts (AcuSense), disk health.",
+                   "guide_bn": ["বিস্তারিত ধাপ: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (অংশ ৩)",
+                                "AppKey ও SecretKey নিচে পেস্ট → Save → Test (সবুজ হলে চালু)"],
+                   "guide_en": ["Steps: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (part 3)",
+                                "Paste the AppKey and SecretKey below → Save → Test (green = on)"],
+                   "fields": [_f("app_key", "AppKey", "AppKey", secret=False),
+                              _f("app_secret", "SecretKey", "SecretKey"),
+                              _f("api_base", "API ঠিকানা (অঞ্চল, ঐচ্ছিক)", "API base (region, optional)", secret=False)],
+                   "test": "test_hikconnect"},
     "axon_erp": {"name": "Axon ERP (CRM onboarding)", "category": "Business",
                  "unlocks_bn": "AI CRM deal Won → Axon ERP-এ 1-click onboarding।",
                  "unlocks_en": "AI CRM deal Won → 1-click Axon ERP onboarding.",
@@ -1070,6 +1109,8 @@ def list_all(lang="bn") -> list:
                                   if last else ("কখনো পরীক্ষা হয়নি / never checked"
                                                 if lang == "bn" else "never checked")),
             "doc": _DOC,
+            # cctvconnect: brand-cloud free-quota use this month ("" = none)
+            "usage": _vendor_usage(slug, lang),
             "testable": bool(meta.get("test")),
             # smsotp: entries with a "Send test SMS / email" box
             "test_to_kind": ("email" if meta.get("test") == "test_smtp_email" else
@@ -1443,6 +1484,11 @@ def test_imou(cfg, http=None):
         c.call("accessToken")
     except ImouError as e:
         return False, "Imou: %s %s" % (e.code, e.msg)
+    # cctvconnect: OAuth project keys, when saved, must be accepted too
+    if cfg.get("oauth_ak") or cfg.get("oauth_sk") or cfg.get("oauth_h5_url"):
+        from .logic import cctv_connect as CC
+        ok, detail = CC.imou_oauth_check(cfg, http=http)
+        return ok, "Imou access token OK; " + detail
     return True, "Imou access token OK"
 
 
@@ -1450,7 +1496,7 @@ DOLYNK_API_BASE = "https://open-api-sg.dolynkcloud.com"
 DOLYNK_PRODUCT_ID = "212808822"
 
 
-def test_dolynk(cfg, http=None):
+def test_dolynk(cfg, http=None, signin_http=None):
     """dolynkcard: honest first check — both keys saved and the DoLynk API
     host answers over HTTPS. The signed sign-in check arrives with the
     adapter (the API reference is behind the DoLynk login)."""
@@ -1464,8 +1510,17 @@ def test_dolynk(cfg, http=None):
         r = (http or requests).get(base, timeout=10)
     except Exception as e:  # noqa: BLE001
         return False, "DoLynk: server not reachable (%s)" % type(e).__name__
-    return True, ("DoLynk keys saved; server reachable (HTTP %s). Full sign-in "
-                  "check comes with the camera integration." % getattr(r, "status_code", "?"))
+    if http is not None and signin_http is None:
+        return True, ("DoLynk keys saved; server reachable (HTTP %s). Sign-in not "
+                      "tried in this check." % getattr(r, "status_code", "?"))
+    # cctvconnect: a SIGNED sign-in (Dahua-family accessToken) — only a real
+    # token switches the camera link on; any other answer is shown raw
+    from .logic import cctv_connect as CC
+    ok, detail = CC.dolynk_signin(cfg, http=signin_http)
+    if ok:
+        return True, detail
+    return True, ("DoLynk keys saved; server reachable (HTTP %s). %s" % (
+        getattr(r, "status_code", "?"), detail))
 
 
 def test_ezviz(cfg, http=None):
@@ -1479,3 +1534,51 @@ def test_ezviz(cfg, http=None):
     except EzvizError as e:
         return False, "EZVIZ: %s %s" % (e.code, e.msg)
     return True, "EZVIZ access token OK"
+
+
+# ---- cctvconnect ----
+# owner 9 Nov 17:15: the Imou OAuth project "Assisto Camera Link" waits for
+# Imou's permission (work ticket 483) — said on the card until keys exist
+IMOU_OAUTH_PENDING = ("OAuth (এক ট্যাপে গ্রাহকের নিজের Imou অ্যাকাউন্ট): Imou-র অনুমোদনের অপেক্ষায় (টিকিট ৪৮৩) — "
+                      "অনুমোদন এলে তিনটি OAuth ঘর পূরণ করে Test চাপুন",
+                      "OAuth (customer's own Imou account in one tap): waiting for Imou approval "
+                      "(ticket 483) — when approved, fill the three OAuth fields and press Test")
+
+
+def _vendor_usage(slug, lang):
+    if slug == "dolynk":
+        # the message-callback URL to paste into the DoLynk console (Cloud Message)
+        try:
+            from . import cctv_connect_views as CCV
+            url = CCV.dolynk_callback_url((get(slug) or {}).get("access_key"))
+        except Exception:
+            url = ""
+        if not url:
+            return ""
+        return ("DoLynk কনসোলের Cloud Message-এ এই Callback URL দিন: " if lang == "bn"
+                else "Put this Callback URL into the DoLynk console (Cloud Message): ") + url
+    if slug not in ("imou",):
+        return ""
+    out = []
+    try:
+        cfg = get(slug) or {}
+        if not all(cfg.get(k) for k in ("oauth_ak", "oauth_sk", "oauth_h5_url")):
+            out.append(IMOU_OAUTH_PENDING[0] if lang == "bn" else IMOU_OAUTH_PENDING[1])
+    except Exception:
+        pass
+    try:
+        from .logic.cctv_connect import quota as Q
+        t = Q.text(slug, lang)
+        if t:
+            out.append(t)
+    except Exception:
+        pass
+    return " · ".join(out)
+
+
+def test_hikconnect(cfg, http=None):
+    """cctvconnect: an access token proves AppKey + SecretKey."""
+    from .logic import cctv_connect as CC
+    return CC.test_integration("hikconnect", cfg, http=http)
+
+# ---- /cctvconnect ----

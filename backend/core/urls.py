@@ -1940,3 +1940,20 @@ urlpatterns += [
     path("bizai/cctv/test/<int:pk>/<str:action>", bzai.CctvTestView.as_view()),
 ]
 # ---- /bizai ----
+# ---- cctvconnect (CCTV Guard V3 A1 brand clouds + B DVR health) ----
+from . import cctv_connect_views as ccv  # noqa: E402
+urlpatterns += [
+    path("cctv/connect/providers", ccv.ProvidersView.as_view()),
+    path("cctv/connect/oauth/callback", ccv.OAuthCallbackView.as_view()),
+    path("cctv/connect/oauth/go", ccv.OAuthGoView.as_view()),
+    path("cctv/connect/<str:pid>/link", ccv.LinkDeviceView.as_view()),
+    path("cctv/connect/<str:pid>/oauth/start", ccv.OAuthStartView.as_view()),
+    path("cctv/connect/links/<int:pk>", ccv.LinkRevokeView.as_view()),
+    path("cctv/connect/links/<int:pk>/devices", ccv.LinkDevicesView.as_view()),
+    path("cctv/connect/links/<int:pk>/import", ccv.LinkImportView.as_view()),
+    path("cctv/connect/cameras/<int:pk>/stream", ccv.CameraStreamView.as_view()),
+    path("cctv/health/sites/<int:pk>", ccv.SiteHealthView.as_view()),
+    path("shop/gateway/dvr-health", ccv.GatewayHealthView.as_view()),
+    path("cctv/dolynk/callback/<str:token>", ccv.DolynkCallbackView.as_view()),
+]
+# ---- /cctvconnect ----

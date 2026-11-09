@@ -39,6 +39,8 @@ import '../../phonecam/phonecam_pair_sheet.dart'; // cctvphone
 import '../shop_live_screen.dart'; // cctvphone: phone-camera live view
 import '../../cctvguard/cctv_usage_card.dart'; // cctvguard: this month's use
 import '../../cctvguard/vendor_live_screen.dart'; // cctvguard: Imou/EZVIZ live
+import '../../cctvconnect/cctv_connect_screen.dart'; // cctvconnect: brand clouds
+import '../../cctvconnect/dvr_health_card.dart'; // cctvconnect: daily DVR check
 
 /// cctv1 — HOME & SHOP WATCHMAN: the entry for business AND personal users
 /// (not tied to the POS). Behind the server flag `cctv_watchman`; the server
@@ -548,6 +550,8 @@ class _SiteCard extends StatelessWidget {
               child: Text(t.cvvNoCamViewer),
             ),
           for (final c in cams) _CameraRow(cam: c, owner: _owner, onAction: (a) => _cameraAction(context, a, c)),
+          // cctvconnect (Guard V3 B): the daily green check (hidden until a DVR reports)
+          DvrHealthCard(key: ValueKey('dvr-health-$siteId'), siteId: siteId, owner: _owner),
           const Divider(height: 20),
           Wrap(spacing: 8, runSpacing: 8, children: [
             FilledButton.tonalIcon(
@@ -637,6 +641,21 @@ class _SiteCard extends StatelessWidget {
                 icon: const Icon(Icons.link_rounded),
                 label: Text(t.wmConnectGateway),
                 onPressed: () => showWatchmanPairSheet(context, site),
+              ),
+              // cctvconnect (Guard V3 A1): existing DVR / camera through its brand cloud
+              OutlinedButton.icon(
+                key: const ValueKey('wm-brand-cloud'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.cloud_sync_rounded),
+                label: Text(t.ccnEntry),
+                onPressed: () async {
+                  await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => CctvConnectScreen(
+                          siteId: siteId,
+                          siteName: (site['name'] ?? '').toString(),
+                          onFindOnWifi: onAddCamera)));
+                  await onChanged();
+                },
               ),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
@@ -757,6 +776,17 @@ class _CameraRow extends StatelessWidget {
               const SizedBox(height: 4),
               WmPill(label: checkLabel, icon: checkIcon, color: checkColor),
             ],
+            // cctvconnect: bound to Assisto's Imou developer account for the
+            // owner's own test (owner 9 Nov 17:20) — always visible
+            if (wmMap(cam['compat'])['owner_test'] == true)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: WmPill(
+                    key: ValueKey('wm-owner-test-${cam['id']}'),
+                    label: t.ccnOwnerTest,
+                    icon: Icons.science_rounded,
+                    color: wmWarn()),
+              ),
           ]),
         ),
         // cctvphone: one-tap live view of a phone camera
