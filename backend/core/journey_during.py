@@ -535,6 +535,12 @@ def enabled(j):
     return True
 
 
+def calm_overdue(j, state):
+    if state in ("grace", "ask", "alert") and j is not None and enabled(j):
+        return "late_calm"
+    return state
+
+
 def pin_prefs(user):
     """(configured, always)."""
     from .models import DuressPin

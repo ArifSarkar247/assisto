@@ -1101,6 +1101,14 @@ def _journey_pure(j):
     }
 
 
+def JDUR_calm(j, state):
+    """sjduring: under the V2 rules lateness never asks or alarms by
+    itself — the app gets 'late_calm' instead of grace/ask/alert (the
+    private ladder in core/journey_during.py does the asking)."""
+    from . import journey_during as JDUR
+    return JDUR.calm_overdue(j, state)
+
+
 def _pin_configured(user):
     dp = DuressPin.objects.filter(user=user).first()
     return bool(dp and dp.salt and dp.normal_hash)
@@ -1116,6 +1124,7 @@ def _photo_url(j):
 def _journey_dict(j, lang="bn", traveller=True):
     now = timezone.now()
     state, mins = JW.overdue(j, now)
+    state = JDUR_calm(j, state)   # sjduring: late is not an alarm
     out = {
         "id": j.id, "status": j.status, "mode": j.mode,
         "destination": j.destination, "eta": j.eta.isoformat() if j.eta else None,
@@ -1348,6 +1357,7 @@ class JourneyLocationView(APIView):
         if fixes:
             SL.feed_school(request.user, fixes, now)   # sjlive: Child School from the phone
         state, mins = JW.overdue(j, now)
+        state = JDUR_calm(j, state)   # sjduring: late is not an alarm
         b = fixes[-1][3] if fixes else None
         return Response({"ok": True, "status": j.status, "arrived": bool(arrived),
                          "accepted": len(fixes),
@@ -1768,6 +1778,7 @@ class JourneyWatchingView(APIView):
             live = j.status == "active" or j.sos_active
             fx = JW.fix_of(j) if live else None
             st, mins = JW.overdue(j, now)
+            st = JDUR_calm(j, st)   # sjduring: late is not an alarm
             out.append({
                 "id": j.id, "name": PUSH.seen_name(request.user, j.traveller),
                 "status": j.status, "sos": j.sos_active,
