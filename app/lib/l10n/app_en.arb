@@ -44891,5 +44891,125 @@
   },
   "@vaWkDisc4": {
     "description": "wakeword"
+  },
+  "kcTitle": "Children Corner",
+  "kcAddPlace": "Add a place",
+  "kcEditPlace": "Change place",
+  "kcManagePlaces": "Places and times",
+  "kcAnswered": "Thanks — no more questions for this time today",
+  "kcAnyTime": "Safe any time",
+  "kcEveryDay": "Every day",
+  "kcAskOk": "I know, it's OK",
+  "kcAskMap": "Last location",
+  "kcAskBackSafe": "Back at a safe place — closed by itself",
+  "kcBadTime": "The end time must be after the start time",
+  "kcDelete": "Remove this place",
+  "kcEmptyTitle": "Add the places your child goes",
+  "kcEmptyBody": "Know automatically when your child reaches school, coaching or a relative's house — and hear at once if they go near a river, market or highway.",
+  "kcEmptyHow": "Pick a place type, choose the location, set the days and hours. Works with the child's phone or a kids watch.",
+  "kcFrom": "From",
+  "kcTo": "To",
+  "kcHereNow": "Where I am now",
+  "kcKindSchool": "School",
+  "kcKindCoaching": "Coaching",
+  "kcKindTuition": "Private tuition",
+  "kcKindPlayground": "Playground",
+  "kcKindRelative": "Relative's house",
+  "kcKindOther": "Other safe place",
+  "kcKindMarket": "Market",
+  "kcKindRiver": "River",
+  "kcKindHighway": "Highway",
+  "kcKindWatchOther": "Other place to watch",
+  "kcKindHome": "Home",
+  "kcName": "Name (optional)",
+  "kcNeedDays": "Choose at least one day",
+  "kcNeedLocation": "Choose the location first",
+  "kcNoneYet": "None yet",
+  "kcOnlyOwner": "Only the guardian who set this up can add places.",
+  "kcPickLocation": "Choose the location",
+  "kcPrivacy": "Only the child's guardians get this news. The child can see this plan and stop it. Assisto staff never see locations. Works on the phone and the watch — no map cost.",
+  "kcSafeHeader": "Safe places",
+  "kcSave": "Save",
+  "kcSaveFailed": "Could not save. Check the internet and try again.",
+  "kcSaved": "Saved",
+  "kcTimesExplain": "If the child is at no safe place for 10 minutes in these hours, we ask you first — never a loud alarm.",
+  "kcTimesOnSub": "Expected here on these days and hours",
+  "kcTimesToggle": "Set days and hours",
+  "kcWatchExplain": "When the child enters this place, the guardians get one notice (at most every 30 minutes).",
+  "kcWatchHeader": "Places to watch — tell me when they enter",
+  "kcWatchSub": "You hear when the child enters",
+  "kcWhereUnknown": "No position yet today",
+  "kcAskTitle": "Do you know where {name} is?",
+  "@kcAskTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kcAskBody": "{place} time, but not at any safe place since {time}.",
+  "@kcAskBody": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "kcAskAnswered": "{name} said it's OK",
+  "@kcAskAnswered": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kcLocationSet": "Location: {place}",
+  "@kcLocationSet": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "kcPlacesTitle": "{name}'s places",
+  "@kcPlacesTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "kcWhereSafe": "At {place} since {time}",
+  "@kcWhereSafe": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "kcWhereWatch": "Entered {place} at {time} — a place you watch",
+  "@kcWhereWatch": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "kcWhereOutside": "Not at a saved place since {time}",
+  "@kcWhereOutside": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   }
 }
