@@ -190,6 +190,17 @@ class ReportTests(SimpleTestCase):
                       quiet["lines"])
         self.assertFalse(any("Counter" in x for x in quiet["lines"]))
 
+    def test_dvr_card_from_cctvconnect(self):
+        r = A.closing_report({"hours": {}, "visitors": 5, "hourly": [], "alerts": {},
+                              "health": [], "dvr": {"status": "red", "recorded_days": 3,
+                                                    "target_days": 30,
+                                                    "lines": [{"sev": "red", "what": "HDD failed"}]}},
+                             "en")
+        self.assertIn("The DVR holds 3 days of recording (target 30 days)", r["lines"])
+        self.assertIn("HDD failed", r["lines"])
+        self.assertFalse(r["ok"])
+        self.assertEqual(r["sections"]["dvr"]["recorded_days"], 3)
+
     def test_report_due_once_after_closing(self):
         h = {"close": "21:00"}
         self.assertFalse(A.report_due(h, 21 * 60 + 10, None, "d"))

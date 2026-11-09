@@ -629,6 +629,16 @@ def closing_report(inp, lang):
             bn(tb.get("avg_pct", 0)), bn(tb.get("peak_pct", 0)), hour_label(tb.get("peak_hour", 0), lang)),
             "Tables %d%% full on average, peak %d%% (%s)" % (
             tb.get("avg_pct", 0), tb.get("peak_pct", 0), hour_label(tb.get("peak_hour", 0), lang))))
+    dvr = inp.get("dvr") if isinstance(inp.get("dvr"), dict) else None
+    if dvr and dvr.get("recorded_days") is not None:
+        sec["dvr"] = {k: dvr.get(k) for k in ("status", "recorded_days", "target_days")}
+        L.append(pick(lang, "DVR-এ রেকর্ড আছে %s দিনের" % bn(dvr["recorded_days"]),
+                      "The DVR holds %s days of recording" % dvr["recorded_days"]) +
+                 (pick(lang, " (লক্ষ্য %s দিন)" % bn(dvr["target_days"]),
+                       " (target %s days)" % dvr["target_days"]) if dvr.get("target_days") else ""))
+        for ln in (dvr.get("lines") or [])[:2]:
+            if isinstance(ln, dict) and ln.get("sev") in ("red", "amber", "high", "med") and ln.get("what"):
+                L.append(str(ln["what"])[:160])
     health = inp.get("health") or []
     bad = [h for h in health if (h.get("offline_min") or 0) >= 10 or h.get("sd") == "problem"]
     sec["health"] = {"cameras": len(health), "problems": len(bad), "rows": health}
@@ -642,7 +652,8 @@ def closing_report(inp, lang):
         else:
             L.append(pick(lang, "%s: %s বন্ধ ছিল" % (h.get("name"), _mins(lang, h["offline_min"])),
                           "%s: offline for %s" % (h.get("name"), _mins(lang, h["offline_min"]))))
-    return {"sections": sec, "lines": L, "ok": not bad and not rv}
+    dvr_bad = bool(dvr and dvr.get("status") == "red")
+    return {"sections": sec, "lines": L, "ok": not bad and not rv and not dvr_bad}
 
 
 def report_title(lang, site_name, date_label):

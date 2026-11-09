@@ -1084,10 +1084,29 @@ def report_inputs(site, date_str, now, lang):
                        "sd": h.get("sd") or "unknown"})
     tables = box.get("tables") if isinstance(box.get("tables"), dict) else None
     kind = site_use(site)
+    # cctvconnect (when merged): camera-own people counting (Imou passenger
+    # flow) and the DVR health card (recorded days). Absent -> skipped.
+    visitors = view["foot"]["visitors"]
+    dvr = None
+    try:
+        from . import cctv_connect_views as CCV
+        pc = CCV.people_counts(site, day=date_str) or {}
+        if not visitors and int(pc.get("count") or pc.get("in") or 0):
+            visitors = int(pc.get("count") or pc.get("in") or 0)
+            hourly = [0] * 24
+            for c in pc.get("cameras") or []:
+                for hh, n in ((c or {}).get("hours") or {}).items():
+                    try:
+                        hourly[int(hh) % 24] += int(n or 0)
+                    except (TypeError, ValueError):
+                        pass
+        dvr = CCV.site_card(site, lang)
+    except Exception:
+        dvr = None
     return {"site_kind": kind,
             "hours": site.hours if isinstance(site.hours, dict) else {},
             "open_at": view["open_close"].get("open"), "close_at": view["open_close"].get("close"),
-            "visitors": view["foot"]["visitors"], "hourly": hourly,
+            "visitors": visitors, "hourly": hourly, "dvr": dvr,
             "alerts": {"total": sum(by_type.values()), "wrong": wrong, "by_type": by_type},
             "counter_empty_min": (int(box["counter_empty_min"])
                                   if isinstance(box.get("counter_empty_min"), (int, float)) else None),
