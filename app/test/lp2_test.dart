@@ -213,10 +213,12 @@ void main() {
       expect(find.byKey(const Key('lp2-overall')), findsOneWidget);
       expect(find.text('6.5'), findsWidgets);
       expect(find.text('Not taken this time'), findsNWidgets(3));
+      await t.scrollUntilVisible(find.byKey(const Key('lp2-weak')), 200, scrollable: find.byType(Scrollable).first);
       expect(find.byKey(const Key('lp2-weak')), findsOneWidget);
-      expect(find.text('Practice score — not an official IELTS result.'), findsWidgets);
+      await t.scrollUntilVisible(find.text('Practice score — not an official IELTS result.'), 200,
+          scrollable: find.byType(Scrollable).first);
       // practice weak areas -> generated questions -> marked with explanations
-      await t.ensureVisible(find.byKey(const Key('lp2-weak')));
+      await t.scrollUntilVisible(find.byKey(const Key('lp2-weak')), -200, scrollable: find.byType(Scrollable).first);
       await t.tap(find.byKey(const Key('lp2-weak')));
       await t.pumpAndSettle();
       expect(lp2Posts.last['path'], 'lp/weak/practice');
