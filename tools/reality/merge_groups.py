@@ -28,14 +28,34 @@ FILE_GROUP = {
 }
 
 
+def register_groups():
+    """register function -> group, read from reality_all_test.dart
+    (`if (on('business')) registerCrm100Flows();`). e2eproof: before this a
+    flow file missing from FILE_GROUP (crm100, remmeter, qbiz, ...) was put in
+    a group named after the FILE, so its results were dropped and it showed
+    "D — not selected" in the verdict although it ran (run 42567594886)."""
+    import re
+    out = {}
+    src = (summarize.ROOT / "app" / "integration_test" / "reality_all_test.dart").read_text()
+    for line in src.splitlines():
+        fn = re.search(r"\b(register\w+)\(\)", line)
+        g = re.search(r"(?:on|contains)\('([a-z0-9_]+)'\)", line)
+        if fn and g and fn.group(1) not in out:
+            out[fn.group(1)] = g.group(1)
+    return out
+
+
 def owners():
     """flow id -> (group, section, feature), from the flow sources."""
     import re
     rx = re.compile(r"realityFlow\(\s*'([^']+)',\s*'([^']*)',\s*'([^']*)'", re.S)
+    reg = register_groups()
     out = {}
     for f in sorted((summarize.ROOT / "app" / "integration_test" / "flows").glob("*.dart")):
-        g = FILE_GROUP.get(f.stem, f.stem)
-        for m in rx.finditer(f.read_text()):
+        text = f.read_text()
+        fns = re.findall(r"^void (register\w+)\(", text, re.M)
+        g = FILE_GROUP.get(f.stem) or next((reg[n] for n in fns if n in reg), f.stem)
+        for m in rx.finditer(text):
             out[m.group(1)] = (g, m.group(2), m.group(3))
     return out
 

@@ -1,0 +1,31 @@
+{
+  "_doc": "fcbrain: ONE case table for the family ask-bar parser - backend core/logic/fc_ask.py (tests_fcbrain) and app/lib/family_v3/brain/fc_ask_parser.dart (fc_brain_test.dart). now = 2026-11-09T15:00:00Z. expect.member null = nobody; expect.none = the parser must NOT answer (AI fallback); contains = substrings of the answer text.",
+  "now": "2026-11-09T15:00:00Z",
+  "members": [
+    {"user_id": 1, "name": "Rahima", "label": "আম্মু", "relation": "", "state": "ok", "reason": "ok",
+     "place_label": "বাড়ি", "last_seen": "2026-11-09T14:55:00Z", "battery": 80, "paused": false},
+    {"user_id": 2, "name": "Rafi", "label": "", "relation": "son", "state": "stale", "reason": "no_internet",
+     "place_label": "School", "last_seen": "2026-11-09T11:00:00Z", "battery": 40, "paused": false},
+    {"user_id": 3, "name": "Karim", "label": "Abbu", "relation": "father", "state": "paused", "reason": "paused",
+     "place_label": "", "last_seen": "2026-11-09T14:50:00Z", "battery": null, "paused": true}
+  ],
+  "cases": [
+    {"q": "Is Ammu OK", "lang": "en", "member": 1, "action": "open_member", "contains": ["Yes", "5 min ago"]},
+    {"q": "আম্মু ঠিক আছে?", "lang": "bn", "member": 1, "action": "open_member", "contains": ["হ্যাঁ", "৫ মিনিট আগে", "বাড়িতে"]},
+    {"q": "ammu thik ase?", "lang": "bn", "member": 1, "action": "open_member", "contains": ["হ্যাঁ"]},
+    {"q": "amma kemon ache", "lang": "bn", "member": 1, "action": "open_member", "contains": ["হ্যাঁ"]},
+    {"q": "Where is my son", "lang": "en", "member": 2, "action": "call", "contains": ["School", "No fresh news"]},
+    {"q": "ছেলে কোথায়?", "lang": "bn", "member": 2, "action": "call", "contains": ["School-এ", "নতুন খবর নেই"]},
+    {"q": "chele kothay", "lang": "bn", "member": 2, "action": "call", "contains": ["নতুন খবর নেই"]},
+    {"q": "rafir charge koto", "lang": "bn", "member": 2, "action": "open_member", "contains": ["৪০%"]},
+    {"q": "Is Rafi ok?", "lang": "en", "member": 2, "action": "call", "contains": ["No fresh news", "no internet"]},
+    {"q": "abbu kothay", "lang": "bn", "member": 3, "action": "call", "contains": ["বিরতিতে"]},
+    {"q": "Where is Abbu", "lang": "en", "member": 3, "action": "call", "contains": ["paused"]},
+    {"q": "sobai thik?", "lang": "bn", "member": 2, "action": "call", "contains": ["আরও ১ জন"]},
+    {"q": "is everyone ok", "lang": "en", "member": 2, "action": "call", "contains": ["1 more"]},
+    {"q": "meye kothay", "lang": "bn", "member": null, "action": "none", "contains": ["নেই"]},
+    {"q": "what is the weather today", "lang": "en", "none": true},
+    {"q": "", "lang": "en", "none": true},
+    {"q": "rahima last seen", "lang": "en", "member": 1, "action": "open_member", "contains": ["5 min ago"]}
+  ]
+}

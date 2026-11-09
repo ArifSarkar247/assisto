@@ -7,6 +7,7 @@ from . import views_booking   # booking-bot
 from . import views_journey   # journey100
 from . import views_quote   # crm100
 from . import views_invoice   # invoices
+from . import views_khata_due   # qbiz
 from . import views_vehicle_share   # veh100
 from . import views_vault_share   # p3docs
 from . import views_phonecam   # cctvphone
@@ -102,6 +103,7 @@ urlpatterns = [
     # link, no login, noindex, rate-limited, bn/en)
     path("r/<str:token>", views_invoice.verify_page),   # invoices QR check
     path("q/<str:token>", views_quote.quote_page),
+    path("kh/<str:token>", views_khata_due.due_page),   # qbiz: customer due link
     # learncert: Assisto learning certificate QR check (minimal data, noindex)
     path("verify/", views_learncert.verify_form),
     path("verify/<str:code>", views_learncert.verify_page),

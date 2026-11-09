@@ -1,0 +1,37 @@
+{% extends "web/base.html" %}
+{% block title %}{{ B.title }}{% if s.shop %} — {{ s.shop }}{% endif %}{% endblock %}
+{% block og %}{% endblock %}
+{% block head %}<meta name="robots" content="noindex, nofollow">
+<style>
+.big{padding:16px;border-radius:12px;font-size:18px;font-weight:700;margin:12px 0}
+.due{background:#fdecea;color:#8a1c12}.adv,.clear{background:#e7f7ee;color:#0b5e3c}
+.no{background:#fdecea;color:#8a1c12;padding:14px;border-radius:12px;font-size:17px;font-weight:700}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:8px 6px;border-bottom:1px solid #eef1f7;text-align:left;vertical-align:top}
+td.n,th.n{text-align:right;white-space:nowrap}
+.small{font-size:13px;color:#4a556e}
+</style>{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ B.title }}</h1>
+  {% if state == "bad" %}<p class="no" role="alert">{{ B.bad }}</p>
+  {% elif state == "limited" %}<p role="alert">{{ B.limited }}</p>
+  {% else %}
+    <p><b>{{ s.name }}</b>{% if s.shop %} · {{ s.shop }}{% endif %}</p>
+    {% if state == "due" %}<p class="big due" role="status">{{ B.due }}: {{ s.balance_display }}</p>
+    {% elif state == "advance" %}<p class="big adv" role="status">{{ B.advance }}: {{ s.balance_display }}</p>
+    {% else %}<p class="big clear" role="status">{{ B.clear }}</p>{% endif %}
+    {% if s.lines %}
+    <div class="tw"><table>
+      <thead><tr><th>{{ B.date }}</th><th>{{ B.what }}</th><th class="n">{{ B.gave }}</th><th class="n">{{ B.paid }}</th><th class="n">{{ B.bal }}</th></tr></thead>
+      <tbody>{% for r in s.lines %}<tr><td>{{ r.date }}</td><td>{{ r.what }}</td><td class="n">{{ r.gave }}</td><td class="n">{{ r.paid }}</td><td class="n">{{ r.balance }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% if more %}<p class="small">{{ B.more }}</p>{% endif %}
+    {% else %}<p>{{ B.none }}</p>{% endif %}
+    <p class="small">{{ B.wrong }}</p>
+    <p class="small">{{ B.private }}</p>
+    <p class="small"><a href="/kh/{{ token }}?lang={{ other }}">{% if other == "en" %}English{% else %}বাংলা{% endif %}</a></p>
+  {% endif %}
+  <p class="small">{{ B.by }}</p>
+</div>
+{% endblock %}

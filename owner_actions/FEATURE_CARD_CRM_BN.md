@@ -80,3 +80,6 @@
 * সার্ভার: `backend/crm/views.py` (TodayView, LeaderboardView, CommissionConfigView); আগের `crm.tests*` একই চুক্তিতে।
 * অ্যাপ: `crm_today_screen.dart`, `crm_contacts_screen.dart`, `crm_pipeline_screen.dart`, `crm_proposal_screen.dart`, `crm_lead_form_screen.dart`, `crm_company_detail_screen.dart`।
 * CI রান: §৯-এ।
+
+## কোয়ালিটি পুশ ৯ Nov (শাখা qbiz) — সেরা অ্যাপের সাথে ফাঁক
+ফ্লো ২৬ (qbiz): ফিরিয়ে-আনা (৩০/৬০/৯০) পাতা আসল সার্ভার থেকে। বাকি: আসল পাঠানোয় STOP/অপ্ট-আউট প্রমাণ (SMS চাবি — **মালিক**)।
