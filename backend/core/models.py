@@ -8682,4 +8682,21 @@ class CctvDvrHealth(models.Model):
         ordering = ["device"]
         constraints = [models.UniqueConstraint(fields=["site", "device"],
                                                name="uniq_cctv_dvr_health")]
+
+
+class CctvVendorUsage(models.Model):
+    """Monthly use of a brand cloud's FREE quota (Imou: 30K API calls, 30K
+    messages, 2 GB traffic) — counted by us so the owner sees it in Owner
+    Admin and gets ONE warning at 80 % (logic/cctv_connect/quota.py)."""
+    provider = models.CharField(max_length=16)
+    month = models.CharField(max_length=7)               # "YYYY-MM"
+    api_calls = models.PositiveIntegerField(default=0)
+    messages = models.PositiveIntegerField(default=0)
+    traffic_mb = models.FloatField(default=0.0)
+    warned = models.JSONField(default=dict, blank=True)  # {"api_calls": 80, ...}
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["provider", "month"],
+                                               name="uniq_cctv_vendor_usage")]
 # ---- /cctvconnect ----

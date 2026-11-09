@@ -1,5 +1,6 @@
 # cctvconnect (CCTV Guard V3 A1 + B, 9 Nov): brand-cloud links per site
-# (sealed grant) + DVR health reports. Two new tables, nothing else touched.
+# (sealed grant) + DVR health reports + brand-cloud monthly quota use.
+# Three new tables, nothing else touched.
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
@@ -49,6 +50,22 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ['device'],
                 'constraints': [models.UniqueConstraint(fields=('site', 'device'), name='uniq_cctv_dvr_health')],
+            },
+        ),
+        migrations.CreateModel(
+            name='CctvVendorUsage',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('provider', models.CharField(max_length=16)),
+                ('month', models.CharField(max_length=7)),
+                ('api_calls', models.PositiveIntegerField(default=0)),
+                ('messages', models.PositiveIntegerField(default=0)),
+                ('traffic_mb', models.FloatField(default=0.0)),
+                ('warned', models.JSONField(blank=True, default=dict)),
+                ('updated', models.DateTimeField(auto_now=True)),
+            ],
+            options={
+                'constraints': [models.UniqueConstraint(fields=('provider', 'month'), name='uniq_cctv_vendor_usage')],
             },
         ),
     ]
