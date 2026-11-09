@@ -26,6 +26,7 @@ import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
+import 'package:assisto/widgets/sos_ladder_card.dart';
 
 import 'fcsos_fakes.dart';
 
@@ -260,6 +261,46 @@ void main() {
           name: '/sos_alarm?p=${Uri.encodeComponent('{"kind":"sos","delivery_id":"9","alert_kind":"fall"}')}'));
       expect(r, isNotNull);
       expect(SosAlarmScreen.onGenerateRoute(const RouteSettings(name: '/other')), isNull);
+    });
+  });
+
+  group('ladder card (qjourney reality 42576041400)', () {
+    testWidgets('no phone could be rung (noOne) -> "I\'m safe now" still ends the SOS',
+        (tester) async {
+      var resolved = 0;
+      await tester.pumpWidget(_app(Scaffold(
+          body: SingleChildScrollView(
+              child: SosLadderCard(
+        load: () async => {
+          'stage': 'no_one',
+          'total': 1,
+          'seen': 0,
+          'recipients': [
+            {'name': 'B', 'status': 'no_device', 'received': false, 'seen': false}
+          ],
+        },
+        resolve: () async {
+          resolved++;
+          return {'ok': true};
+        },
+      )))));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      final safe = find.byKey(const ValueKey('sosat-safe'));
+      expect(safe, findsOneWidget);
+      await tester.ensureVisible(safe);
+      await tester.tap(safe);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(resolved, 1);
+      await _dispose(tester);
+    });
+
+    testWidgets('offline (never reached the server) -> no "I\'m safe now"', (tester) async {
+      await tester.pumpWidget(_app(const Scaffold(
+          body: SingleChildScrollView(child: SosLadderCard(offline: true)))));
+      await tester.pump();
+      expect(find.byKey(const ValueKey('sosat-safe')), findsNothing);
+      await _dispose(tester);
     });
   });
 
