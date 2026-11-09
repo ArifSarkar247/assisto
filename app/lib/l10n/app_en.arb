@@ -47236,5 +47236,9 @@
   "fceGoingOutFailed": "Could not pause. Silent Watch keeps watching as usual.",
   "@fceGoingOutFailed": {
     "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "clnSmsPaused": "Reading bank and wallet SMS notifications is paused for now. Notifications from the bKash, Nagad and other wallet apps still work.",
+  "@clnSmsPaused": {
+    "description": "privacyupd: money from notifications, shown when the server switch money_notif_sms is off"
   }
 }
