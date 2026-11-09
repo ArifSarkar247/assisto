@@ -246,6 +246,9 @@ urlpatterns = [
     path("city/night-rating", cityv.city_night_rating),
     path("city/trips/consent", cityv.city_trip_consent),
     path("city/trips", cityv.city_trip),
+    path("city/trips/confirm", cityv.city_trip_confirm),  # mapapp
+    path("city/trips/mine", cityv.city_trip_mine),  # mapapp
+    path("city/map", cityv.city_map),  # mapapp
     path("city/women", cityv.city_women),
     path("artist/favourite", views.FavouriteArtistView.as_view()),
     path("finance", views.FinanceView.as_view()),
@@ -619,6 +622,7 @@ urlpatterns = [
     path("maps/search", vmaps.MapsSearchView.as_view()),  # qjourney
     path("maps/place", vmaps.MapsPlaceView.as_view()),
     path("maps/eta", vmaps.MapsEtaView.as_view()),
+    path("maps/transit", vmaps.MapsTransitView.as_view()),  # mapapp
     path("journey/places/<int:pk>", b61.SavedPlaceDetailView.as_view()),
     # owner idea 1: guardian-requested journeys (core/guardian_journey.py)
     path("journey/requests", vg.JourneyRequestsView.as_view()),

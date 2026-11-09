@@ -918,10 +918,123 @@ def process_trip(trip):
         key = "route:" + hashlib.sha1("|".join(known).encode()).hexdigest()[:16]
         _learn(trip.city, "route", key, trip.anon,
                lambda d, known=known, mode=trip.mode: dict(d, stop_ids=known, mode=mode))
+    if known:
+        _rider_add(trip.city, trip.anon, known)   # mapapp: "You verified N stops"
     trip.points = []
     trip.processed = True
     trip.save(update_fields=["points", "processed"])
     return len(seq)
+
+
+# ------------------------------------------------------------------ mapapp
+# Owner order 10 Nov 00:35 item 4 (LEARN FROM TRIPS): after a City Service
+# trip a one-tap card asks "Which bus? What fare?" — no name (anon key only),
+# no free text. The answer feeds our OWN data (ride confirmations per route,
+# crowd fares) and the rider's "You verified N stops" counter.
+RIDER_STOPS_MAX = 2000
+RIDE_DAY_MAX = 20
+MAP_TILES_BASE = "https://api.lifeassisto.com/maps/v1/"   # CITY_MAP_TILES_API.md §1
+
+
+def map_config():
+    """The app's map settings (owner can move tiles to a CDN without a
+    build: settings.MAP_TILES_BASE / env)."""
+    base = str(getattr(settings, "MAP_TILES_BASE", "") or MAP_TILES_BASE).strip()
+    if not base.endswith("/"):
+        base += "/"
+    return {"tiles_base": base,
+            "credits": "© OpenStreetMap contributors · Overture Maps · Copernicus",
+            "offline_city": "dhaka"}
+
+
+def _rider_add(city, anon, stop_ids):
+    from .models import CityLearned
+    ids = [str(x)[:80] for x in stop_ids if x and not str(x).startswith("new:")]
+    with transaction.atomic():
+        obj, _ = CityLearned.objects.select_for_update().get_or_create(city=city, kind="rider", key=anon[:120])
+        have = list((obj.data or {}).get("stops") or [])
+        seen = set(have)
+        for x in ids:
+            if x not in seen and len(have) < RIDER_STOPS_MAX:
+                have.append(x)
+                seen.add(x)
+        obj.data = dict(obj.data or {}, stops=have)
+        obj.updated_at = timezone.now()
+        obj.save(update_fields=["data", "updated_at"])
+    return len(have)
+
+
+def rider_stats(user):
+    from .models import CityLearned
+    anon = anon_key(user)
+    stops, rides = 0, 0
+    for d, n in CityLearned.objects.filter(kind="rider", key=anon).values_list("data", "trips"):
+        stops += len((d or {}).get("stops") or [])
+        rides += int((d or {}).get("rides") or 0)
+    return {"stops_verified": stops, "rides": rides}
+
+
+def confirm_ride(user, d):
+    """-> (stats, err). d = {city, mode, route_id, board_id, alight_id, paid}.
+    route_id "" = "another bus" (the stops still count); paid optional."""
+    from .models import CityLearned
+    city = str(d.get("city") or "dhaka").lower()
+    if city not in CITIES:
+        return None, "city"
+    mode = str(d.get("mode") or "bus")
+    if mode not in ("bus", "leguna", "water"):
+        return None, "mode"
+    got = network(city)
+    if got is None:
+        return None, "no_data"
+    nw = got[0]
+    rid = str(d.get("route_id") or "")[:80]
+    if rid and rid not in {str(r.get("id")) for r in nw.routes}:
+        return None, "route"
+    a, b = str(d.get("board_id") or "")[:80], str(d.get("alight_id") or "")[:80]
+    ia, ib = nw.by_id.get(a), nw.by_id.get(b)
+    if ia is None or ib is None or ia == ib:
+        return None, "stops"
+    paid = d.get("paid")
+    if paid not in (None, ""):
+        try:
+            paid = int(paid)
+        except (TypeError, ValueError):
+            return None, "fare"
+        if not (5 <= paid <= 5000):
+            return None, "fare"
+    else:
+        paid = None
+    anon = anon_key(user)
+    day = timezone.localdate()
+    ck = "cityride:%s:%s" % (anon, day)
+    from django.core.cache import cache
+    n = cache.get(ck, 0)
+    if n >= RIDE_DAY_MAX:
+        return None, "limit"
+    cache.set(ck, n + 1, 36 * 3600)
+    hour = timezone.localtime().hour
+    if rid:
+        def ride(dd, paid=paid, hour=hour, a=a, b=b):
+            f = list(dd.get("fares") or [])
+            if paid:
+                f = (f + [paid])[-50:]
+            h = dict(dd.get("hours") or {})
+            h[str(hour)] = int(h.get(str(hour), 0)) + 1
+            pairs = list(dd.get("pairs") or [])
+            if [a, b] not in pairs and len(pairs) < 200:
+                pairs.append([a, b])
+            return dict(dd, fares=f, hours=h, pairs=pairs)
+        _learn(city, "ride", rid, anon, ride)
+    if paid:
+        sa, sb = nw.stops[ia], nw.stops[ib]
+        km = E.hav(sa["lat"], sa["lon"], sb["lat"], sb["lon"]) * 1.35 / 1000.0
+        fare_report(user, city, mode, max(0.2, km), paid)
+    _rider_add(city, anon, [a, b])
+    obj = CityLearned.objects.get(city=city, kind="rider", key=anon[:120])
+    obj.data = dict(obj.data or {}, rides=int((obj.data or {}).get("rides") or 0) + 1)
+    obj.save(update_fields=["data"])
+    return rider_stats(user), ""
 
 
 def _covered(nw, ids):
