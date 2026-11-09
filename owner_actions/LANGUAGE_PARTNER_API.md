@@ -117,4 +117,6 @@ level (reading passage length by level), timing (L 30 min, R 60, W 60, S 11-14 m
   profit on the conservative ad value; `score:null` = ads cannot pay for it, so no offer). Errors: `ads_not_live`,
   `premium_no_ads`, `not_offered`, `daily_cap`.
 - A free `/lp/score/*` without an unlock answers `ai_state:"premium"` + `ads_needed`.
+- lpapp credits path: the 402 `week_used` answer carries `unlock_credits` (1). `GET /lp/mocks/<id>?section=X&pay=credits`
+  charges it and opens the section (402 `credits` when the balance is short). Re-opening it this week is free.
 

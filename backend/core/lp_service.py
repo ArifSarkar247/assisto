@@ -112,12 +112,63 @@ def use_section_slot(user, mock_key, section, now=None):
     if is_premium(user):
         return True, ""
     from .models import LpAttempt
-    if _opens(user, now).filter(item_key=mock_key, section=section).exists():
+    if _opens(user, now).filter(item_key=mock_key, section=section).exists() or \
+            _paid_opens(user, now).filter(item_key=mock_key, section=section).exists():
         return True, ""
     if free_left(user, now) <= 0:
         return False, "week_used"
     LpAttempt.objects.create(user=user, kind="open", item_key=mock_key, section=section)
     return True, ""
+
+
+def _paid_opens(user, now=None):
+    from .models import LpAttempt
+    return LpAttempt.objects.filter(user=user, kind="open_paid",
+                                    created_at__gte=(now or timezone.now()) - WEEK)
+
+
+# A section opened with credits (lpapp: the rewarded ad earns them through the
+# existing RewardedAdSheet + SSV credits flow). Serving a section has no AI
+# cost, so one credit (৳2.80 floor) keeps far above the 40 % rule.
+SECTION_UNLOCK_CREDITS = 1
+
+
+def pay_section(user, mock_key, section):
+    """(ok, reason): open one extra section for SECTION_UNLOCK_CREDITS credits."""
+    from . import billing
+    from .models import LpAttempt
+    res = billing.charge(user, "lp_section", qty=1, note="lp.section", exact=SECTION_UNLOCK_CREDITS)
+    if not res.get("ok"):
+        return False, "credits"
+    LpAttempt.objects.create(user=user, kind="open_paid", item_key=mock_key, section=section,
+                             credits=int(res.get("charged") or 0))
+    return True, ""
+
+
+def free_day_economics(ad_value=None, banners_per_day=20, interstitials_per_day=1,
+                       interstitial_value=None):
+    """Owner Part B (10 Nov): one free learner's worst AI day vs. CONSERVATIVE ad
+    income (eCPM floor for banners; an interstitial counted at the rewarded value).
+    Returns {cost_bdt, income_bdt, profit_pct} — reported, see the test."""
+    from . import ai_config as C
+    from .logic import langpacks as LP
+    from .logic import plan_book as PB
+    try:
+        from . import billing
+        floor = float(billing.cfg()["ad_rewards"]["ecpm_bdt"]) / 1000.0
+    except Exception:  # noqa: BLE001
+        floor = 0.03
+    val = ad_value_bdt() if ad_value is None else ad_value
+    inter = val if interstitial_value is None else interstitial_value
+    prices = C.DEFAULT_PRICES
+    # free Life English role-play turns (cheap class: the dearest reachable model)
+    turn = max(SC.worst_cost_usd([m], 5000, 400 + 1024, prices)
+               for m in ("claude-haiku-5-5", "gemini-3.5-flash-lite", "gpt-4o-mini"))
+    cost = LP.FREE_AI_PER_DAY * turn * PB.SAFETY_USD_BDT
+    income = banners_per_day * floor + interstitials_per_day * inter
+    profit = income * (1 - PB.OVERHEAD_PCT) - cost
+    return {"cost_bdt": round(cost, 4), "income_bdt": round(income, 4),
+            "profit_pct": round(profit / income, 4) if income else None}
 
 
 def gates(user):

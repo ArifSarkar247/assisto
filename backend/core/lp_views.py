@@ -69,8 +69,11 @@ class LpMockView(_LpView):
             return _bad("premium", 402)
         if section:
             ok, why = LS.use_section_slot(request.user, m.key, section)
+            if not ok and request.query_params.get("pay") == "credits":
+                ok, why = LS.pay_section(request.user, m.key, section)
             if not ok:
-                return _bad(why, 402, next_free_at=LS.next_free_at(request.user))
+                return _bad(why, 402, next_free_at=LS.next_free_at(request.user),
+                            unlock_credits=LS.SECTION_UNLOCK_CREDITS)
         return R(LS.mock_payload(m, section or None))
 
 

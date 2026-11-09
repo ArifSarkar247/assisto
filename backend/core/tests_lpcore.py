@@ -587,6 +587,35 @@ class AdUnlockTests(TestCase):
             self.assertEqual(g.call_count, 1)
         self.assertTrue(LpAttempt.objects.get(kind="writing").data["ad_unlock"])
 
+    def test_pay_credits_for_extra_section(self, _f):
+        self.c.get(V + "/lp/mocks/ielts-ac-t01?section=reading")
+        r = self.c.get(V + "/lp/mocks/ielts-ac-t01?section=listening&pay=credits")
+        self.assertEqual((r.status_code, r.json()["reason"], r.json()["unlock_credits"]),
+                         (402, "credits", 1))
+        billing.credit(self.u, "rewarded", 1, note="ad credits")
+        r = self.c.get(V + "/lp/mocks/ielts-ac-t01?section=listening&pay=credits")
+        self.assertEqual(r.status_code, 200)
+        r = self.c.get(V + "/lp/mocks/ielts-ac-t01?section=listening")       # re-open: free
+        self.assertEqual(r.status_code, 200)
+        r = self.c.post(V + "/lp/mocks/ielts-ac-t01/mark", {"section": "listening", "answers": {}},
+                        format="json")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(LpAttempt.objects.filter(user=self.u, kind="open_paid").count(), 1)
+
+    def test_free_day_economics_reported(self, _f):
+        """Free Life English AI turns vs. conservative ad income. At the eCPM
+        floor ads do NOT cover the 3 free role-play turns (reported to the
+        owner); the paid unlocks above always keep >= 40 %."""
+        floor = LS.free_day_economics(ad_value=0.03)
+        self.assertGreater(floor["cost_bdt"], 0)
+        self.assertLess(floor["profit_pct"], PB.PROFIT_PCT)                # honest: loss leader
+        rich = LS.free_day_economics(ad_value=5.0, interstitial_value=5.0)
+        self.assertGreaterEqual(rich["profit_pct"], PB.PROFIT_PCT)
+        profit = (LS.SECTION_UNLOCK_CREDITS * PB.MIN_BDT_PER_CREDIT
+                  * (PB.NET_PCT - PB.OVERHEAD_PCT))
+        self.assertGreaterEqual(profit / (LS.SECTION_UNLOCK_CREDITS * PB.MIN_BDT_PER_CREDIT),
+                                PB.PROFIT_PCT)
+
     def test_ticket_rules_and_no_ads_for_premium(self, _f):
         r = self.c.post(V + "/lp/ads/ticket", {"unlock": "section"}, format="json")
         self.assertEqual((r.status_code, r.json()["reason"]), (409, "ads_not_live"))   # CI: no AdMob
