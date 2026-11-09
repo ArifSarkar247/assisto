@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config.dart';
 import '../l10n/app_localizations.dart';
+import 'are_you_ok_screen.dart';
 import 'silent_watch_api.dart';
 import 'silent_watch_brain.dart';
 import 'silent_watch_native.dart';
@@ -181,8 +182,8 @@ class SilentWatchClient {
     try {
       if (!await isOn()) return;
       if (await askPending(api)) {
-        final open = openAreYouOk;
-        if (context != null && open != null && context.mounted) await open(context);
+        final open = openAreYouOk ?? AreYouOkScreen.open;
+        if (context != null && context.mounted) await open(context);
         return;
       }
       await noteActivity();

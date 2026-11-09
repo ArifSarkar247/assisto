@@ -29,7 +29,7 @@ import java.util.Calendar
  * explicit receiver (the same approach as the Care Call / reminder alarms),
  * re-armed after a reboot / app update by the receiver itself.
  *
- *   PROBE   every ~30 min inside the elder's day window: is the phone in use
+ *   PROBE   every ~15 min inside the elder's day window: is the phone in use
  *           right now (screen on AND unlocked)? was the charger plugged in or
  *           pulled out since the last check? did Assisto run (the Dart side
  *           writes "flutter.sw_dart_activity_ms")? Any of those = a sign of
@@ -57,7 +57,7 @@ object SilentWatch {
     const val ACTION_RING = "com.assisto.assisto.silentwatch.RING"
     const val ACTION_ESCALATE = "com.assisto.assisto.silentwatch.ESCALATE"
     const val ACTION_OK = "com.assisto.assisto.silentwatch.OK"
-    private const val PROBE_MS = 30 * 60 * 1000L
+    private const val PROBE_MS = 15 * 60 * 1000L
     private const val RING_GAP_MS = 10 * 60 * 1000L
     private const val RETRY_MS = 5 * 60 * 1000L
     private const val LOG_KEEP_MS = 8 * 24 * 3600 * 1000L
@@ -230,10 +230,15 @@ object SilentWatch {
         }
         val plug = pluggedNow(ctx)
         val was = s.getInt("plugged", -1)
+        // The charger changed some time since the previous check: stamp it at
+        // that previous check (the EARLIEST it can have happened), so a
+        // charger plugged in at night never looks like a morning sign of life.
+        val prevProbe = s.getLong("probe_ms", 0L)
+        s.edit().putLong("probe_ms", now).apply()
         if (plug >= 0) {
             s.edit().putInt("plugged", plug).apply()
             if (was >= 0 && plug != was) {
-                record(ctx, now, false); found = true
+                record(ctx, if (prevProbe in 1 until now) prevProbe else now, false); found = true
             }
         }
         if (s.getInt("stage", 0) == 0 && inUseNow(ctx)) {

@@ -25,7 +25,7 @@ class Spy:
 
     def __call__(self, user, kind, tbn, ten, bbn="", ben="", data=None, **kw):
         self.calls.append({"user": user.pk, "kind": kind, "tbn": tbn, "ten": ten,
-                           "data": dict(data or {})})
+                           "bbn": bbn, "ben": ben, "data": dict(data or {})})
         return True
 
     def to(self, u, kind=None):
@@ -212,7 +212,8 @@ class LadderE2E(Base):
         self.assertEqual(self.spy.to(self.arif, "silentwatch_alert"), [])
         CC.tick(now=t0 + timedelta(minutes=14 + SW.ASK_WAIT_MIN, seconds=30))
         self.assertEqual(len(self.spy.to(self.arif, "silentwatch_alert")), 1)
-        self.assertIn("Care Call", self.spy.to(self.arif, "silentwatch_alert")[0]["ten"])
+        self.assertEqual(self.spy.to(self.arif, "silentwatch_alert")[0]["data"]["kind"], "carecall")
+        self.assertIn("Care Call", self.spy.to(self.arif, "silentwatch_alert")[0]["ben"])
 
     def test_elder_ok_while_asking_means_no_family_alert(self):
         self.setup_elder()
@@ -244,3 +245,13 @@ class LandingTests(TestCase):
         self.assertEqual(r["Cache-Control"], "no-store")
         r = APIClient().get("/e/<script>")
         self.assertNotIn("<script>", r.content.decode().split("<body>")[1])
+
+
+class BanglaDigitCodeTests(Base):
+    def test_code_typed_with_bangla_digits_works(self):
+        r = self.a.post(V + "/family/elder-setup", {"elder_user_id": self.ammu.pk}, format="json")
+        code = r.json()["code"]
+        bn = code.translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")).lower()
+        out, err = SW.preview_pair(self.ammu, bn)
+        self.assertIsNone(err)
+        self.assertEqual(out["child_name"], "Arif")

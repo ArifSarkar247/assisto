@@ -348,7 +348,8 @@ def start_pair(child, data, now=None):
 
 def _pair_row(code, now=None):
     from .models import PaCollectionItem
-    code = "".join(ch for ch in (code or "").upper() if ch.isalnum())
+    code = (code or "").translate(str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789"))
+    code = "".join(ch for ch in code.upper() if ch.isascii() and ch.isalnum())
     if len(code) != 8:
         return None, "bad_code"
     r = PaCollectionItem.objects.filter(collection="sw_pair", data__code=code).first()
