@@ -112,7 +112,7 @@ void main() {
       expect(find.text("Your family's phones are ringing (3 people)"), findsOneWidget);
       expect(find.byKey(const ValueKey('fcs-recording')), findsOneWidget);
       expect(rec.calls, contains('start'));
-      expect(find.textContaining('Bhai is coming'), findsOneWidget);
+      expect(find.textContaining('Bhai is on the way'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('fcs-rec-stop')));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
@@ -226,7 +226,7 @@ void main() {
       expect(find.text('Dhanmondi Police Station'), findsOneWidget);
       expect(find.text('Labaid Hospital'), findsOneWidget);
       expect(find.text('Blood group: B+'), findsOneWidget);
-      expect(find.textContaining('Bhai is coming'), findsOneWidget);
+      expect(find.textContaining('Bhai is on the way'), findsOneWidget);
       await tester.scrollUntilVisible(find.byKey(const ValueKey('fcs-going-btn')), -300,
           scrollable: find.byType(Scrollable).first);
       await tester.tap(find.byKey(const ValueKey('fcs-going-btn')));

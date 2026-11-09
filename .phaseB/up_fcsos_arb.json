@@ -144,7 +144,7 @@
   "@fcsGoingTitle": {
    "description": "fcsos: Family Care v3 SOS sender/receiver"
   },
-  "fcsGoingWaiting": "Waiting for someone to say they are coming…",
+  "fcsGoingWaiting": "Waiting for someone to say they are on the way…",
   "@fcsGoingWaiting": {
    "description": "fcsos: Family Care v3 SOS sender/receiver"
   },
@@ -152,7 +152,7 @@
   "@fcsGoingNobody": {
    "description": "fcsos: Family Care v3 SOS sender/receiver"
   },
-  "fcsGoingName": "{name} is coming · {time}",
+  "fcsGoingName": "{name} is on the way · {time}",
   "@fcsGoingName": {
    "description": "fcsos: Family Care v3 SOS sender/receiver",
    "placeholders": {
@@ -589,6 +589,14 @@
   "@fcsAllow": {
    "description": "fcsos: Family Care v3 SOS sender/receiver"
   },
+  "fcsDndManual": "Open Android Settings → Apps → Special app access → Do Not Disturb access → Assisto.",
+  "@fcsDndManual": {
+   "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
+  "fcsFullManual": "Open Android Settings → Apps → Special app access → Full-screen notifications → Assisto.",
+  "@fcsFullManual": {
+   "description": "fcsos: Family Care v3 SOS sender/receiver"
+  },
   "fcsSaveFailed": "Could not save. Check the internet.",
   "@fcsSaveFailed": {
    "description": "fcsos: Family Care v3 SOS sender/receiver"
@@ -705,6 +713,8 @@
   "fcsSetupFullTitle": "লক স্ক্রিনে পুরো পাতায় SOS দেখান",
   "fcsSetupFullOff": "বন্ধ — ফোন শুধু ছোট নোটিফিকেশন দেখাবে।",
   "fcsAllow": "অনুমতি দিন",
+  "fcsDndManual": "Android সেটিংস → অ্যাপ → বিশেষ অ্যাপ অ্যাক্সেস → \"বিরক্ত করবেন না\" অ্যাক্সেস → Assisto চালু করুন।",
+  "fcsFullManual": "Android সেটিংস → অ্যাপ → বিশেষ অ্যাপ অ্যাক্সেস → ফুল-স্ক্রিন নোটিফিকেশন → Assisto চালু করুন।",
   "fcsSaveFailed": "সেভ হয়নি। নেট দেখুন।",
   "fcsDndChannelDesc": "পরিবারের SOS অ্যালার্ম, \"বিরক্ত করবেন না\" চালু থাকলেও বাজে (আপনি অনুমতি দিয়েছেন)।"
  }

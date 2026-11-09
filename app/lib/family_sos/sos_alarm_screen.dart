@@ -129,7 +129,9 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
   Future<void> _stopAlarm() async {
     try {
       await _sound.stop();
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: the alarm may already be silent
+    }
     if (mounted && _alarm) setState(() => _alarm = false);
   }
 

@@ -361,11 +361,6 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           ),
           const SizedBox(height: Gap.sm),
           ...tiles,
-          // fcsos: get SOS ready (SMS people, info share, DND, full screen)
-          const Padding(
-            padding: EdgeInsets.only(bottom: Gap.md),
-            child: SosSetupCard(),
-          ),
           // 7. Crisis help — owner-verified numbers only.
           _CrisisCard(
             items: _crisis,
@@ -374,6 +369,11 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
             onCall: _dial,
           ),
           ...later,
+          // fcsos: get SOS ready (SMS people, info share, DND, full screen)
+          const Padding(
+            padding: EdgeInsets.only(top: Gap.md),
+            child: SosSetupCard(),
+          ),
           const SizedBox(height: Gap.md),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(Icons.offline_bolt_rounded, size: 18, color: scheme.onSurfaceVariant),

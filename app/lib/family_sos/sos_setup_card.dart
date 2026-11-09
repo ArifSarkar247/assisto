@@ -176,7 +176,9 @@ class _SosSetupCardState extends State<SosSetupCard> with WidgetsBindingObserver
             sub: _dnd == true ? t.fcsSetupDndOn : t.fcsSetupDndOff,
             action: _dnd == true ? null : t.fcsAllow,
             onTap: () async {
-              await (widget.dndOpen ?? SosDnd.openSettings)();
+              final m = ScaffoldMessenger.maybeOf(context);
+              final ok = await (widget.dndOpen ?? SosDnd.openSettings)();
+              if (!ok) m?.showSnackBar(SnackBar(content: Text(t.fcsDndManual)));
             },
           ),
           if (_full == false) ...[
@@ -188,7 +190,9 @@ class _SosSetupCardState extends State<SosSetupCard> with WidgetsBindingObserver
               sub: t.fcsSetupFullOff,
               action: t.fcsAllow,
               onTap: () async {
-                await (widget.fixFullScreen ?? CallNative.openFullScreenSettings)();
+                final m = ScaffoldMessenger.maybeOf(context);
+                final ok = await (widget.fixFullScreen ?? CallNative.openFullScreenSettings)();
+                if (!ok) m?.showSnackBar(SnackBar(content: Text(t.fcsFullManual)));
               },
             ),
           ],

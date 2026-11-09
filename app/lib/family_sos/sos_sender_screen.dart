@@ -14,6 +14,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../widgets/permission_reason.dart';
 import '../widgets/sos_ladder_card.dart';
 import 'sos_api.dart';
 import 'sos_recorder.dart';
@@ -198,7 +199,9 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
     if (_pos == null && _posF != null) {
       try {
         _pos = await _posF!.timeout(const Duration(milliseconds: 1500));
-      } catch (_) {}
+      } catch (_) {
+        // best-effort: no GPS yet — the SOS goes now, live updates add it
+      }
     }
     final ok = await _trySend();
     if (!mounted) return;
@@ -267,7 +270,9 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
     _pos = p;
     try {
       await _api.location(p.$1, p.$2);
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: the next 15 s tick sends the newest position
+    }
   }
 
   // ---------------------------------------------------------------- sound
@@ -283,6 +288,13 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
 
   Future<void> _askAndRecord() async {
     setState(() => _recState = 'asking');
+    // the user tapped "Record 30 s for your family": say why, then ask
+    final go = await showPermissionReason(context, PermKind.mic);
+    if (!mounted) return;
+    if (!go) {
+      setState(() => _recState = 'idle');
+      return;
+    }
     if (await _rec.request()) {
       await _startRec();
     } else if (mounted) {
