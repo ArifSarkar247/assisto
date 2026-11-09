@@ -252,11 +252,11 @@ class Network:
                     if carried:
                         for adj, flo, fhi, bpos, blab in carried:
                             arr = adj + T[bpos] + (T[pos] - T[bpos]) / spd_fac
-                            km = K[pos] - K[bpos]
-                            f = F.leg_fare(r["mode"], km, 0, self.stops[rs[bpos]]["code"],
-                                           self.stops[si]["code"], self.rates)
-                            lab = (arr, flo + f["low"], fhi + f["high"], rnd, blab,
-                                   ("ride", ri, bpos, pos, f), ri)
+                            flo2, fhi2 = self._lohi(r["mode"], K[pos] - K[bpos],
+                                                    self.stops[rs[bpos]]["code"],
+                                                    self.stops[si]["code"])
+                            lab = (arr, flo + flo2, fhi + fhi2, rnd, blab,
+                                   ("ride", ri, bpos, pos), ri)
                             if self._insert(bags, si, lab):
                                 new_marked.add(si)
                     if pos < len(rs) - 1 and si in prev:
@@ -287,6 +287,25 @@ class Network:
             marked = new_marked
         return self._answer(results, olat, olon, dlat, dlon, crow, minute, pf,
                             int((_time.time() - t0) * 1000))
+
+    def _lohi(self, mode, km, ca, cb):
+        """Fast (low, high) taka for a ride leg — same rules as fares.py,
+        without building the labelled dict (that happens only for the
+        journeys we return)."""
+        R = self.rates
+        if mode == "metro":
+            tk = F.METRO_CHART.get((ca, cb) if ca < cb else (cb, ca))
+            if tk is None:
+                r = R["metro"]
+                step = r.get("round_to", 10) or 1
+                tk = max(r["min"], min(r["max"], int(round(km * r["per_km"] / step) * step)))
+            return tk, tk
+        if mode == "bus":
+            r = R["bus"]
+            lo = max(r["min"], int(round(km * r["per_km_low"])))
+            return lo, max(lo, r["min"], int(round(km * r["per_km_high"])))
+        f = F.leg_fare(mode, km, 0, ca, cb, R)
+        return (f["low"], f["high"]) if f else (0, 0)
 
     @staticmethod
     def _insert(bags, si, lab):
@@ -355,8 +374,11 @@ class Network:
                 legs.append(self._simple_leg("walk", leg[1], self._pt(prev_si),
                                              self._pt(to_si) if to_si is not None else {}))
             elif kind == "ride":
-                _, ri, bpos, apos, f = leg
+                _, ri, bpos, apos = leg
                 r = self.routes[ri]
+                f = F.leg_fare(r["mode"], r["km"][apos] - r["km"][bpos], 0,
+                               self.stops[r["stops"][bpos]]["code"],
+                               self.stops[r["stops"][apos]]["code"], self.rates)
                 rs = r["stops"]
                 ride_s = (r["t"][apos] - r["t"][bpos])
                 legs.append({
