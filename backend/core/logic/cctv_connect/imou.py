@@ -394,6 +394,25 @@ class DolynkAdapter(ImouAdapter):
     def oauth_ready(self):
         return False            # DoLynk OAuth: not documented for us yet
 
+    def client(self):
+        """DoLynk's API docs open only after login (agent note 9 Nov): the
+        base URL (no default), the signature (md5 | hmac) and any method
+        names that differ from the Imou family all come from Owner Admin, so
+        the owner's real console values fit without a code change."""
+        import json as _json
+        c = super().client()
+        c.quota_provider = self.id
+        if str(self.cfg.get("sign_mode") or "").strip().lower() in ("hmac", "v2", "sha256"):
+            c.signer = IM.sign_v2
+        try:
+            m = _json.loads(self.cfg.get("methods_json") or "{}")
+            if isinstance(m, dict):
+                c.method_map = {str(k)[:60]: str(v)[:120] for k, v in m.items()
+                                if str(v).replace("/", "").replace(".", "").replace("_", "").isalnum()}
+        except ValueError:
+            pass
+        return c
+
     def _stream_ok(self, url):
         extra = tuple(h.strip() for h in str(self.cfg.get("media_hosts") or "").split(",")
                       if h.strip().startswith("."))

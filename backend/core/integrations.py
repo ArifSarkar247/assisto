@@ -568,7 +568,15 @@ REGISTRY = {
                "fields": [_f("app_id", "appId", "appId", secret=False),
                           _f("app_secret", "appSecret", "appSecret"),
                           _f("api_base", "API ঠিকানা (DoLynk কনসোল থেকে)", "API base (from the DoLynk console)", secret=False),
-                          _f("media_hosts", "ভিডিও/ছবির ডোমেইন (ঐচ্ছিক, যেমন .example.com)", "Video/picture domains (optional, e.g. .example.com)", secret=False)],
+                          _f("media_hosts", "ভিডিও/ছবির ডোমেইন (ঐচ্ছিক, যেমন .example.com)", "Video/picture domains (optional, e.g. .example.com)", secret=False),
+                          # the login-only DoLynk docs decide these (agent note 9 Nov):
+                          _f("sign_mode", "সিগনেচার (md5 বা hmac; খালি = md5)", "Signature (md5 or hmac; empty = md5)", secret=False),
+                          _f("methods_json", "পদ্ধতির নাম আলাদা হলে (JSON, যেমন {\"bindDevice\": \"...\"})",
+                             "Method names if different (JSON, e.g. {\"bindDevice\": \"...\"})", secret=False),
+                          _f("devbind_customers",
+                             "গ্রাহকরাও সিরিয়াল + কোড দিয়ে যুক্ত করতে পারবেন? (on = হ্যাঁ; খালি = শুধু মালিক/অ্যাডমিন)",
+                             "Customers may also link by serial + code? (on = yes; empty = owner/admin only)",
+                             secret=False)],
                "test": "test_dolynk"},
     "axon_erp": {"name": "Axon ERP (CRM onboarding)", "category": "Business",
                  "unlocks_bn": "AI CRM deal Won → Axon ERP-এ 1-click onboarding।",
@@ -1484,6 +1492,17 @@ IMOU_OAUTH_PENDING = ("OAuth (এক ট্যাপে গ্রাহকের
 
 
 def _vendor_usage(slug, lang):
+    if slug == "dolynk":
+        # the message-callback URL to paste into the DoLynk console (Cloud Message)
+        try:
+            from . import cctv_connect_views as CCV
+            url = CCV.dolynk_callback_url((get(slug) or {}).get("app_id"))
+        except Exception:
+            url = ""
+        if not url:
+            return ""
+        return ("DoLynk কনসোলের Cloud Message-এ এই Callback URL দিন: " if lang == "bn"
+                else "Put this Callback URL into the DoLynk console (Cloud Message): ") + url
     if slug not in ("imou",):
         return ""
     out = []

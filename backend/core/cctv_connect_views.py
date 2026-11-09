@@ -1125,3 +1125,88 @@ def daily_checks(now=None, push=None):
 def _push(u, tb, te, bb, be, data):
     from . import push
     push.safe_push(u, "shop_alert", tb, te, bb, be, data=data)
+
+
+# ===================================================================== DoLynk
+def dolynk_callback_token(app_id):
+    import hashlib
+    from django.conf import settings
+    return hashlib.sha256(("dolynk-cb:%s:%s" % (app_id, settings.SECRET_KEY)).encode()
+                          ).hexdigest()[:32]
+
+
+def dolynk_callback_url(app_id):
+    if not app_id:
+        return ""
+    from django.conf import settings
+    return "%s/api/v1/cctv/dolynk/callback/%s" % (
+        getattr(settings, "ASSISTO_BASE_URL", "").rstrip("/"), dolynk_callback_token(app_id))
+
+
+DOLYNK_LOG_PER_HOUR = 30
+
+
+class DolynkCallbackView(APIView):
+    """POST cctv/dolynk/callback/<token> — DoLynk Cloud Message pushes here.
+    Always 200 for the right token (404 otherwise) so the console can verify
+    it. The payload shape is not public yet: we log ONLY its top-level keys,
+    message type and size (never values: they can carry pictures, device ids,
+    places), at most DOLYNK_LOG_PER_HOUR lines an hour. A message that looks
+    like the Dahua/Imou family alarm ({did|deviceId, msgType, ...}) for a
+    linked DoLynk camera goes into the normal alert path."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    parser_classes = []
+
+    def post(self, request, token):
+        import hmac
+        import json
+        from django.core.cache import cache
+        from .logic import imou as IM
+        from .models import CctvCloudLink
+        app_id = ""
+        try:
+            from . import integrations as I
+            if CC.enabled("dolynk"):
+                app_id = str((I.get("dolynk") or {}).get("app_id") or "")
+        except Exception:
+            app_id = ""
+        if not app_id or not hmac.compare_digest(dolynk_callback_token(app_id), str(token)):
+            return Response({"ok": False}, status=404)
+        raw = request.body[:256 * 1024]
+        try:
+            body = json.loads(raw or b"{}")
+        except ValueError:
+            body = None
+        msgs = body if isinstance(body, list) else [body]
+        key = "dolynk_cb_log:%d" % int(time.time() // 3600)
+        try:
+            n = cache.get_or_set(key, 0, 3700)
+            if n < DOLYNK_LOG_PER_HOUR:
+                cache.incr(key)
+                first = msgs[0] if msgs and isinstance(msgs[0], dict) else {}
+                log.info("dolynk callback: %d bytes, %d msg, keys=%s, type=%s", len(raw), len(msgs),
+                         sorted(list(first.keys()))[:20],
+                         str(first.get("msgType") or first.get("type") or "")[:40])
+        except Exception:
+            pass
+        out = []
+        now = timezone.now()
+        for m in msgs[:20]:
+            a = IM.parse_alarm(m) if isinstance(m, dict) else None
+            if a is None:
+                out.append({"ignored": "not_alarm"})
+                continue
+            serial = CC.base.clean_serial(a["device_id"])
+            links = links_with("dolynk", serial, ("active",))
+            if not links:
+                out.append({"ignored": "unknown_device"})
+                continue
+            from .logic import cctv_rules as CR
+            cls = CR.classify_imou(m)
+            ev = CC.base.event(serial, a["channel"], time.time(),
+                               cls.get("kind") or ("person" if a["human"] else ""),
+                               cls.get("object") or ("person" if a["human"] else None),
+                               m.get("msgType") or "", a["pic"] or "", a["alarm_id"])
+            out.append({"result": ingest_cloud_event(links[0], ev, now)})
+        return Response({"ok": True, "events": out})
