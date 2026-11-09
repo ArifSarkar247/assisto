@@ -96,3 +96,12 @@ Automatic checks: format (fields per type, 40 L/R questions, 4 L parts, 3 R pass
 (one key per single-answer question, options unique, key in options, T/F/NG valid), word limit vs key,
 level (reading passage length by level), timing (L 30 min, R 60, W 60, S 11-14 min), copyright
 (banned markers + known-text fingerprints), duplicates (same normalized text as another item).
+
+## 7. Stage 2 tracks (lpstage2, tools/lp/FORMAT.md §10.6)
+- Import accepts kinds `syllabus` and `lesson` and tracks `jlpt_n5`, `jft_basic`, `eps_topik`, `de_a1`.
+- A track test is a `mock` whose `sections` is a LIST (kept inline). `GET /lp/mocks?kind=jlpt_n5` lists them;
+  `GET /lp/mocks/<id>?section=<section id>` returns `{id, kind, exam, lang, scoring, sections:[...]}` with
+  `answer`, `explain_*`, `script` and `skill` removed. `POST /lp/mocks/<id>/mark {section, answers}` compares
+  letters -> `{raw, total, score, max, band:null, items}` (score = raw x scoring.per_question).
+- `GET /lp/content/syllabus?track=X` and `GET /lp/content/lesson?track=X` (a lesson matches any of its `tracks`).
+

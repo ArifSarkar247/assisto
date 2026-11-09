@@ -63,7 +63,7 @@ class LpMockView(_LpView):
         if err:
             return err
         section = request.query_params.get("section") or ""
-        if section and section not in LS.SECTIONS:
+        if section and section not in LS.section_ids(m):
             return _bad("bad_section")
         if not section and not LS.is_premium(request.user):
             return _bad("premium", 402)
@@ -84,7 +84,7 @@ class LpMarkView(_LpView):
             return err
         d = request.data or {}
         section = d.get("section")
-        if section not in LS.OBJECTIVE:
+        if section not in (LS.section_ids(m) if LS.is_track(m) else LS.OBJECTIVE):
             return _bad("bad_section")
         answers = d.get("answers")
         if not isinstance(answers, dict) or len(answers) > 60:
@@ -235,7 +235,7 @@ class LpContentVersionView(_LpView):
 
 
 class LpContentView(_LpView):
-    KIND = {"life": "scenario", "vocab": "vocab"}
+    KIND = {"life": "scenario", "vocab": "vocab", "syllabus": "syllabus", "lesson": "lesson"}
 
     def get(self, request, kind):
         return self.handle(self._get, request, kind)
@@ -244,8 +244,12 @@ class LpContentView(_LpView):
         k = self.KIND.get(kind)
         if k is None:
             return _bad("not_found", 404)
+        track = (request.query_params.get("track") or "")[:16] or None
+        rows = LS.live_latest(k, None if k == "lesson" else track)
+        if k == "lesson" and track:      # a lesson is shared by the tracks of one language
+            rows = [it for it in rows if track == it.track or track in (it.data.get("tracks") or [])]
         items = [dict(it.data, id=it.data.get("id") or it.key, beta=it.status != "human_approved")
-                 for it in sorted(LS.live_latest(k), key=lambda x: x.key)]
+                 for it in sorted(rows, key=lambda x: x.key)]
         return R({"version": LS.content_version(k), "items": items})
 
 

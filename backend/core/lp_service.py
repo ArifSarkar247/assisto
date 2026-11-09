@@ -41,7 +41,8 @@ PREMIUM_PLANS = ("premium", "premium_pro", "founder", "business")
 FREE_SECTIONS_PER_WEEK = 1
 SCORES_PER_DAY = 40          # abuse cap on paid AI scores per user per 24 h
 WEEK = datetime.timedelta(days=7)
-TRACKS = {"academic": "ielts_ac", "general": "ielts_gt"}
+TRACKS = {"academic": "ielts_ac", "general": "ielts_gt",
+          **{t: t for t in CK.STAGE2_TRACKS}}        # stage 2 going-abroad tracks
 OBJECTIVE = ("listening", "reading")
 SECTIONS = CK.SECTIONS
 COMPANION_BOOKS = tuple(range(10, 21))       # Cambridge IELTS 10 .. 20 (bump when a new book is out)
@@ -156,7 +157,7 @@ def live_latest(kind, track=None):
 def is_beta(item):
     if item.status != "human_approved":
         return True
-    if item.kind == "mock":
+    if item.kind == "mock" and not is_track(item):
         for k in (item.data.get("sections") or {}).values():
             s = live_item(k, "section")
             if s is None or s.status != "human_approved":
@@ -221,8 +222,10 @@ def public_section(name, body):
 
 
 def mock_sections(mock):
-    """{name: live section item} for a mock item."""
+    """{name: live section item} for an IELTS mock item."""
     out = {}
+    if is_track(mock):
+        return out
     for name, key in (mock.data.get("sections") or {}).items():
         it = live_item(key, "section")
         if it is not None:
@@ -230,7 +233,63 @@ def mock_sections(mock):
     return out
 
 
+def is_track(mock):
+    return isinstance((mock.data or {}).get("sections"), list)
+
+
+_HIDDEN = ("answer", "explain_bn", "explain_en", "script", "skill")
+
+
+def _strip(obj):
+    """A stage-2 test without keys, explanations and TTS scripts."""
+    if isinstance(obj, dict):
+        return {k: _strip(v) for k, v in obj.items() if k not in _HIDDEN}
+    if isinstance(obj, list):
+        return [_strip(x) for x in obj]
+    return obj
+
+
+def track_payload(mock, section=None):
+    d = mock.data or {}
+    secs = [s for s in d.get("sections") or [] if not section or s.get("id") == section]
+    return {"id": mock.key, "kind": mock.track, "beta": is_beta(mock), "version": mock.version,
+            "title_en": d.get("title_en", ""), "title_bn": d.get("title_bn", ""),
+            "exam": d.get("exam", ""), "lang": d.get("lang", ""),
+            "scoring": _strip(d.get("scoring") or {}), "sections": _strip(secs),
+            "practice_label": B.PRACTICE_LABEL}
+
+
+def mark_track(user, mock, section, answers):
+    """Letter compare for a stage-2 test section; score = raw x per_question."""
+    from .models import LpAttempt
+    d = mock.data or {}
+    sec = next((s for s in d.get("sections") or [] if s.get("id") == section), None)
+    if sec is None:
+        return None
+    qs = [dict(q, type="mcq", tag=q.get("skill") or "") for p in sec.get("parts") or []
+          for q in p.get("questions") or []]
+    res = B.mark(qs, answers, "track")
+    per = int((d.get("scoring") or {}).get("per_question") or 1)
+    res.update({"score": res["raw"] * per, "max": res["total"] * per, "band": None})
+    att = LpAttempt.objects.create(user=user, kind="mark", item_key=mock.key, section=section[:12],
+                                   data={"raw": res["raw"], "total": res["total"], "score": res["score"],
+                                         "weak": res["weak"], "version": mock.version})
+    res["attempt_id"] = att.id
+    return res
+
+
+def section_ids(mock):
+    if is_track(mock):
+        return [s.get("id") for s in mock.data.get("sections") or [] if isinstance(s, dict)]
+    return list(SECTIONS)
+
+
 def mock_summary(mock):
+    if is_track(mock):
+        d = mock.data or {}
+        return {"id": mock.key, "title_en": d.get("title_en", ""), "title_bn": d.get("title_bn", ""),
+                "kind": mock.track, "exam": d.get("exam", ""), "beta": is_beta(mock),
+                "version": mock.version, "sections": section_ids(mock)}
     secs = mock_sections(mock)
     return {"id": mock.key, "title_en": mock.data.get("title_en", ""),
             "title_bn": mock.data.get("title_bn", ""),
@@ -240,6 +299,8 @@ def mock_summary(mock):
 
 
 def mock_payload(mock, section=None):
+    if is_track(mock):
+        return track_payload(mock, section)
     out = {"id": mock.key, "kind": "general" if mock.track == "ielts_gt" else "academic",
            "beta": is_beta(mock), "version": mock.version,
            "title_en": mock.data.get("title_en", ""), "title_bn": mock.data.get("title_bn", ""),
@@ -266,7 +327,7 @@ def run_checks(item, known=None):
     """Run the automatic checks + the duplicate check; draft <-> ai_checked."""
     from .models import LpItem
     res = CK.check_item(item.kind, item.data, item.level,
-                        known if known is not None else known_fingerprints())
+                        known if known is not None else known_fingerprints(), item.track)
     dup = (LpItem.objects.filter(content_hash=item.content_hash, kind=item.kind)
            .exclude(key=item.key).exclude(status="rejected").values_list("key", flat=True).first())
     if dup:
@@ -317,7 +378,7 @@ def import_item(raw, source="ai", bundle="", known=None):
     data = dict(raw.get("data") or {})
     track, level = str(raw.get("track") or ""), str(raw.get("level") or "")
     out = []
-    if kind == "mock":
+    if kind == "mock" and not isinstance(data.get("sections"), list):
         refs = dict(data.get("sections") or {})
         for name in SECTIONS:
             if isinstance(data.get(name), dict):
@@ -449,6 +510,8 @@ def review(item, action, actor, note="", data=None):
 
 # ---------------------------------------------------------------- marking
 def mark_section(user, mock, section, answers):
+    if is_track(mock):
+        return mark_track(user, mock, section, answers)
     it = mock_sections(mock).get(section)
     if it is None:
         return None

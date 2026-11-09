@@ -526,6 +526,81 @@ class CompanionTests(TestCase):
                     self.assertNotIn(marker, low, str(p))
 
 
+# ------------------------------------------------- stage 2 tracks (§10.6)
+def _tq(n, answer="B", listening=False):
+    q = {"n": n, "prompt": "Sample %d" % n, "options": ["ka", "ki", "ku", "ke"], "answer": answer,
+         "explain_bn": "নমুনা ব্যাখ্যা।", "skill": "vocab"}
+    if listening:
+        q["script"] = {"speakers": {"A": {"gender": "F", "role": "clerk"}},
+                       "turns": [{"spk": "A", "text": "sample %d" % n}], "repeat": 1}
+    return q
+
+
+def sample_track_items():
+    test = {"kind": "mock", "key": "jlpt-n5-901", "track": "jlpt_n5", "level": "N5", "data": {
+        "title_en": "JLPT N5 practice 901", "title_bn": "জেএলপিটি N5 অনুশীলন ৯০১", "exam": "JLPT",
+        "lang": "ja", "scoring": {"max": 12, "per_question": 4},
+        "sections": [
+            {"id": "vocab", "kind": "reading", "minutes": 20, "parts": [
+                {"part": "v1", "questions": [_tq(1), _tq(2, "C")]}]},
+            {"id": "listening", "kind": "listening", "minutes": 30, "parts": [
+                {"part": "l1", "questions": [_tq(3, "A", True)]}]}]}}
+    lesson = {"kind": "lesson", "key": "ja-w901-l1", "track": "jlpt_n5", "level": "N5", "data": {
+        "id": "ja-w901-l1", "lang": "ja", "week": 1, "tracks": ["jlpt_n5", "jft_basic"],
+        "vocab": [{"target": "w%d" % i, "bn": "শব্দ"} for i in range(6)],
+        "grammar": [{"pattern": "N wa N desu", "explain_bn": "পরিচয়"}],
+        "practice": {"listening": [dict(_tq(1, "A", True), id="p1")],
+                     "reading": [dict(_tq(1, "B"), id="p2")],
+                     "writing": [{"id": "p3", "prompt_bn": "লিখুন"}],
+                     "speaking": [{"id": "p4", "prompt_bn": "বলুন"}]}}}
+    syl = {"kind": "syllabus", "key": "syl-jlpt_n5", "track": "jlpt_n5", "level": "N5", "data": {
+        "title": {"en": "Japanese N5", "bn": "জাপানি N5"},
+        "exam_format": {"sections": [{"id": "vocab", "minutes": 20, "questions": 21}]},
+        "weeks": [{"week": 1, "lessons": ["ja-w901-l1"]}, {"week": 5, "planned": True}]}}
+    return [test, lesson, syl]
+
+
+@override_settings(MEDIA_ROOT=_MEDIA)
+@mock.patch("core.lp_service.flag_on", return_value=True)
+class Stage2TrackTests(TestCase):
+    def setUp(self):
+        out = LS.import_bundle(_bundle(sample_track_items(), audio=False))
+        self.assertEqual(out["errors"], [])
+        self.c = _client(_user(6))
+
+    def test_imported_and_checked(self, _f):
+        for key in ("jlpt-n5-901", "ja-w901-l1", "syl-jlpt_n5"):
+            it = LpItem.objects.get(key=key)
+            self.assertEqual(it.status, "ai_checked", (key, it.checks))
+        bad = sample_track_items()[0]
+        bad["key"], bad["data"]["title_en"] = "jlpt-n5-902", "Bad"
+        bad["data"]["sections"][0]["parts"][0]["questions"][1]["answer"] = "AB"
+        bad["data"]["sections"][1]["parts"][0]["questions"][0].pop("script")
+        LS.import_bundle(_bundle([bad], audio=False))
+        codes = {f["code"] for f in LpItem.objects.get(key="jlpt-n5-902").checks["failures"]}
+        self.assertEqual(codes, {"uniqueness", "format"})
+
+    def test_payload_hides_keys_and_scripts_and_marks_letters(self, _f):
+        mocks = self.c.get(V + "/lp/mocks?kind=jlpt_n5").json()["mocks"]
+        self.assertEqual(mocks[0]["sections"], ["vocab", "listening"])
+        body = self.c.get(V + "/lp/mocks/jlpt-n5-901?section=vocab").json()
+        flat = json.dumps(body)
+        self.assertNotIn('"answer"', flat)
+        self.assertNotIn('"script"', flat)
+        self.assertEqual([s["id"] for s in body["sections"]], ["vocab"])
+        r = self.c.post(V + "/lp/mocks/jlpt-n5-901/mark", {"section": "vocab",
+                                                          "answers": {"1": "B", "2": "A"}},
+                        format="json").json()
+        self.assertEqual((r["raw"], r["score"], r["max"], r["band"]), (1, 4, 8, None))
+
+    def test_lessons_by_track_and_syllabus(self, _f):
+        items = self.c.get(V + "/lp/content/lesson?track=jft_basic").json()["items"]
+        self.assertEqual([i["id"] for i in items], ["ja-w901-l1"])
+        self.assertEqual(self.c.get(V + "/lp/content/lesson?track=eps_topik").json()["items"], [])
+        syl = self.c.get(V + "/lp/content/syllabus?track=jlpt_n5").json()["items"]
+        self.assertTrue(syl[0]["beta"])
+
+
 # ------------------------------------------------------- owner-account guard
 class OwnerAccountGuardTests(SimpleTestCase):
     def test_lp_tests_never_use_the_owner_account(self):

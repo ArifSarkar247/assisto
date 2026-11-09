@@ -42,6 +42,9 @@ BANNED = (
     "british council ielts", "idp ielts", "© british council", "© idp",
 )
 SHINGLE = 8
+# stage 2 (lpstage2, tools/lp/FORMAT.md §10): going-abroad tracks
+STAGE2_TRACKS = ("jlpt_n5", "jft_basic", "eps_topik", "de_a1")
+LETTERS = "ABCD"
 
 
 def text_of(obj):
@@ -224,11 +227,98 @@ def section_failures(name, s, level=""):
     return f
 
 
-def check_item(kind, data, level="", known=frozenset()):
+def track_questions(data):
+    """[(section, part, question)] of a stage-2 track test (sections is a LIST)."""
+    out = []
+    for s in data.get("sections") or []:
+        for p in (s.get("parts") or []) if isinstance(s, dict) else []:
+            for q in p.get("questions") or []:
+                out.append((s, p, q))
+    return out
+
+
+def track_mock_failures(data):
+    """Stage-2 test (§10.5): letter-keyed choice questions numbered 1..N across
+    the whole test; listening questions carry a TTS script; writing/speaking
+    sections carry tasks. The per-exam blueprint is checked in lpstage2's CI."""
+    f = []
+    secs = data.get("sections")
+    if not isinstance(secs, list) or not secs:
+        return [("format", "track test: no sections")]
+    if not (data.get("title_en") and data.get("title_bn")):
+        f.append(("format", "track test: title_en + title_bn"))
+    ns = []
+    for s, p, q in track_questions(data):
+        w = "%s q%s" % (s.get("id"), q.get("n"))
+        ns.append(q.get("n"))
+        opts = q.get("options") or []
+        if not 3 <= len(opts) <= 4:
+            f.append(("format", w + ": 3-4 options"))
+        elif len(set(map(str, opts))) != len(opts):
+            f.append(("uniqueness", w + ": repeated options"))
+        a = str(q.get("answer") or "")
+        if len(a) != 1 or a not in LETTERS[:max(1, len(opts))]:
+            f.append(("uniqueness", w + ": answer must be ONE option letter"))
+        if not q.get("explain_bn"):
+            f.append(("format", w + ": needs explain_bn"))
+        if s.get("kind") == "listening" and not isinstance(q.get("script") or p.get("script"), dict):
+            f.append(("format", w + ": listening needs a script"))
+    if ns != list(range(1, len(ns) + 1)):
+        f.append(("format", "track test: question numbers must run 1..N"))
+    for s in secs:
+        if isinstance(s, dict) and s.get("kind") in ("writing", "speaking") and not s.get("tasks"):
+            f.append(("format", "%s: needs tasks" % s.get("id")))
+        if isinstance(s, dict) and not 1 <= int(s.get("minutes") or 0) <= 180:
+            f.append(("timing", "%s: minutes" % s.get("id")))
+    return f
+
+
+def syllabus_failures(data):
+    f = []
+    if not isinstance(data.get("title"), dict):
+        f.append(("format", "syllabus: title {en, bn}"))
+    weeks = data.get("weeks") or []
+    if not weeks:
+        f.append(("format", "syllabus: no weeks"))
+    for w in weeks:
+        if not w.get("planned") and not w.get("lessons"):
+            f.append(("format", "syllabus week %s: lessons or planned" % w.get("week")))
+    if not (data.get("exam_format") or {}).get("sections"):
+        f.append(("format", "syllabus: exam_format.sections"))
+    return f
+
+
+def lesson_failures(data):
+    f = []
+    if not data.get("id"):
+        f.append(("format", "lesson: no id"))
+    if len(data.get("vocab") or []) < 6:
+        f.append(("format", "lesson: 6+ vocab"))
+    if not data.get("grammar"):
+        f.append(("format", "lesson: 1+ grammar point"))
+    pr = data.get("practice") or {}
+    for sk in ("listening", "reading", "writing", "speaking"):
+        if not pr.get(sk):
+            f.append(("format", "lesson: no %s practice" % sk))
+    for sk in ("listening", "reading"):
+        for q in pr.get(sk) or []:
+            a = str(q.get("answer") or "")
+            if len(a) != 1 or a not in LETTERS[:len(q.get("options") or [])]:
+                f.append(("uniqueness", "lesson %s: answer must be ONE option letter" % q.get("id")))
+    return f
+
+
+def check_item(kind, data, level="", known=frozenset(), track=""):
     f = []
     if not isinstance(data, dict) or not data:
         return {"ok": False, "failures": [{"code": "format", "hint": "empty item"}]}
-    if kind == "mock":
+    if kind == "mock" and (track in STAGE2_TRACKS or isinstance(data.get("sections"), list)):
+        f += track_mock_failures(data)
+    elif kind == "syllabus":
+        f += syllabus_failures(data)
+    elif kind == "lesson":
+        f += lesson_failures(data)
+    elif kind == "mock":
         if not (data.get("title_en") and data.get("title_bn")):
             f.append(("format", "mock: title_en + title_bn"))
         for s in SECTIONS:

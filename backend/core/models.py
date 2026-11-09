@@ -8773,7 +8773,7 @@ class CityLearned(models.Model):
 # companion sheets, finished mocks). Cambridge material is NEVER stored: a
 # companion sheet keeps only the user's own typed answers + own typed key.
 class LpItem(models.Model):
-    KINDS = ("mock", "section", "question", "scenario", "vocab")
+    KINDS = ("mock", "section", "question", "scenario", "vocab", "syllabus", "lesson")
     STATUSES = ("draft", "ai_checked", "human_approved", "rejected")
     LIVE = ("ai_checked", "human_approved")
     kind = models.CharField(max_length=10, db_index=True)
