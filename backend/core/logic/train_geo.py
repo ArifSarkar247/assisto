@@ -413,6 +413,7 @@ def line_view(t, service_date, chainage, now, delay_min=None):
             next_i = i
         out.append({"id": r["id"], "bn": r.get("bn", ""), "en": r.get("en", ""),
                     "km": r["km"], "stop": bool(r.get("stop")),
+                    "lat": r.get("lat"), "lng": r.get("lng"),
                     "sched": sched.isoformat(), "eta": (sched + shift).isoformat(),
                     "passed": passed})
     passing = None

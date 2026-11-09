@@ -868,6 +868,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'train_chat': (build: (_) => const TrainChatScreen(no: '701', date: '2026-11-03', title: 'সুবর্ণ এক্সপ্রেস'), mode: FakeMode.data, full: true),
     'train_chat_join': (build: (_) => const TrainChatScreen(no: '701', date: '2026-11-03', title: 'সুবর্ণ এক্সপ্রেস'), mode: FakeMode.empty, full: false),
     'dest_alarm': (build: (_) => const DestAlarmScreen(), mode: FakeMode.data, full: true),
+    // sjtrain (Safe Journey V2): train screen with a saved seat (seat card
+    // filled), chat closed before departure, alarm "by minutes"
+    'sjt_train_seat': (build: (_) { SharedPreferences.setMockInitialValues({'sjt_seat_701': '{"coach":"ঝ","seat":"32"}'}); return const TrainLiveScreen(no: '701', date: '2026-11-03'); }, mode: FakeMode.data, full: true),
+    'sjt_alarm_minutes': (build: (_) { SharedPreferences.setMockInitialValues({'dest_alarm_by_min_v1': '{"by":true,"min":10}'}); return const DestAlarmScreen(); }, mode: FakeMode.data, full: true),
     // sjlive (owner 3 Nov): Safe Journey three cards (Live Location default),
     // card 1's four buttons, Who is where now, real life; the four screens
     'sjl_hub': (build: (_) => const _SjFlags(child: SafeJourneyHubScreen(oem: _ShotOem())), mode: FakeMode.data, full: true),

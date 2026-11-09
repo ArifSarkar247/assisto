@@ -77,7 +77,7 @@ class MainActivity : FlutterFragmentActivity() {
         // first window frame (not after the engine started).
         try {
             if (!restored && (com.assisto.assisto.calls.CallLaunch.parse(intent) != null ||
-                    careCallPayload(intent) != null)) {
+                    careCallPayload(intent) != null || isDestAlarmLaunch(intent))) {
                 setOverLockScreen(true)
             }
         } catch (e: Throwable) {
@@ -242,7 +242,8 @@ class MainActivity : FlutterFragmentActivity() {
         } catch (e: Throwable) {
             false
         }
-        setOverLockScreen(isCall || isCareCall)
+        // sjtrain: the destination alarm's full-screen ring — same per-launch rule
+        setOverLockScreen(isCall || isCareCall || isDestAlarmLaunch(i))
         // calls-a: ONLY Accept takes over from the native ring (Telecom marked
         // answered + the ring notification cancelled on the tap). A tap /
         // full-screen launch just SHOWS the ringing screen: the native ring
@@ -276,6 +277,19 @@ class MainActivity : FlutterFragmentActivity() {
             if (JSONObject(raw).optString("kind") == "carecall") raw else null
         } catch (e: Throwable) {
             null
+        }
+    }
+
+    /** sjtrain: a destination-alarm ring launch (payload kind "dest_alarm").
+     *  Never throws; Recents re-deliveries never count. */
+    private fun isDestAlarmLaunch(i: Intent?): Boolean {
+        return try {
+            if (i == null) return false
+            if ((i.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return false
+            val raw = i.getStringExtra("payload") ?: return false
+            JSONObject(raw).optString("kind") == "dest_alarm"
+        } catch (e: Throwable) {
+            false
         }
     }
 

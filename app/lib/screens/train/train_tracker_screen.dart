@@ -19,6 +19,8 @@ import '../../widgets/fam_empty.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'dest_alarm_screen.dart';
 import 'train_chat_screen.dart';
+import 'train_line_view.dart'; // sjtrain
+import 'train_seat_card.dart'; // sjtrain
 
 /// train (owner priority C) — find a train, see it live (crowd) or as an
 /// honest timetable ESTIMATE, SMS 16318, train chat, destination alarm.
@@ -382,6 +384,32 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
     );
   }
 
+  /// sjtrain: open the destination alarm, a station filled in (or not).
+  void _openAlarm(List<Map<String, dynamic>> stops, Map<String, dynamic> v, {String? stationId}) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => DestAlarmScreen(
+                suggestedIds: [for (final s in stops) '${s['id']}'],
+                suggested: stops,
+                path: trainPath(v),
+                initialStationId: stationId)));
+  }
+
+  Widget _chip(String text, Color bg, Color fg, IconData icon) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, size: 16, color: fg),
+          const SizedBox(width: Gap.xs),
+          Flexible(
+              child: Text(text, style: AType.labelLarge.copyWith(color: fg, fontWeight: FontWeight.w700))),
+        ]),
+      );
+
+  // sjtrain (Safe Journey V2, TRAIN 6): header (name + number + delay chip),
+  // "N passengers sharing live" or "Estimated from timetable", the vertical
+  // metro-style station line, seat card; chat + get-off alarm one tap away.
   Widget _body(AppLocalizations t, bool bn, Map<String, dynamic> v) {
     final tr = Map<String, dynamic>.from(v['train'] as Map);
     final live = v['live'] as Map?;
@@ -395,70 +423,104 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
     final sms = Map<String, dynamic>.from(v['sms'] as Map? ?? const {});
     final alarmOn = FeatureFlags.instance.isOn('dest_alarm');
     final stops = [for (final s in (v['stops'] as List? ?? const [])) Map<String, dynamic>.from(s as Map)];
-    String status;
-    if (live != null) {
-      final delay = (live['delay_min'] as num?)?.toInt();
-      status = t.trLiveLine('${live['sharers']}',
-          delay == null ? '' : (delay > 0 ? t.trLate('$delay') : t.trOnTime));
+    final line = v['line'] is Map ? Map<String, dynamic>.from(v['line'] as Map) : null;
+    final sharers = (v['sharers'] as num?)?.toInt() ?? (live?['sharers'] as num?)?.toInt() ?? 0;
+    final delay = (v['delay_min'] as num?)?.toInt() ?? (live?['delay_min'] as num?)?.toInt();
+    final chat = v['chat'] is Map ? v['chat'] as Map : null;
+    final chatOpen = chat == null || chat['open'] == true;
+    final myShare = v['my_share'] is Map ? v['my_share'] as Map : null;
+    final estState = '${est?['state'] ?? ''}';
+    final tripOver = estState == 'arrived' ||
+        (myShare != null && (myShare['status'] == 'arrived' || myShare['status'] == 'ended'));
+    final now = trainLineStatus(t, line, bn);
+    String chipText;
+    Color chipBg, chipFg;
+    IconData chipIcon;
+    if (live == null) {
+      chipText = t.trModeEstimate;
+      chipBg = cs.tertiaryContainer;
+      chipFg = cs.onTertiaryContainer;
+      chipIcon = Icons.schedule_rounded;
+    } else if (delay != null && delay > 2) {
+      chipText = _d(t.sjtLateChip('$delay'));
+      chipBg = cs.errorContainer;
+      chipFg = cs.onErrorContainer;
+      chipIcon = Icons.timer_outlined;
     } else {
-      final st = '${est?['state'] ?? ''}';
-      status = st == 'not_started'
-          ? t.trEstNotStarted
-          : (st == 'arrived' ? t.trEstArrived : t.trEstRunning);
+      chipText = t.sjtOnTimeChip;
+      chipBg = cs.primaryContainer;
+      chipFg = cs.onPrimaryContainer;
+      chipIcon = Icons.check_circle_rounded;
     }
+    final share = TrainShareController.I.value;
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl)),
       children: [
-        Text(_d('${tr['name_bn']} · ${trainStation(tr['from'] as Map?, bn)} → ${trainStation(tr['to'] as Map?, bn)}'),
-            style: AType.titleMedium),
-        if (v['runs'] == false)
-          Padding(
-            padding: const EdgeInsets.only(top: Gap.xs),
-            child: Text(t.trOffDay, style: AType.bodyMedium.copyWith(color: cs.error)),
-          ),
+        // ---- header
+        Semantics(
+          header: true,
+          child: Text(_d('${tr['name_bn']} · ${tr['no']}'),
+              key: const ValueKey('sjt_header'), style: AType.titleLarge),
+        ),
+        const SizedBox(height: Gap.xxs),
+        Text('${trainStation(tr['from'] as Map?, bn)} → ${trainStation(tr['to'] as Map?, bn)}',
+            style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
+        const SizedBox(height: Gap.sm),
+        Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+          Semantics(
+              label: chipText,
+              excludeSemantics: true,
+              child: _chip(chipText, chipBg, chipFg, chipIcon)),
+          if (v['runs'] == false)
+            _chip(t.trOffDay, cs.errorContainer, cs.onErrorContainer, Icons.event_busy_rounded),
+        ]),
         const SizedBox(height: Gap.sm),
         Semantics(
           container: true,
-          label: live != null ? t.trModeLive : t.trModeEstimate,
+          liveRegion: true,
           child: Container(
+            key: const ValueKey('sjt_mode_card'),
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
               color: live != null ? cs.primaryContainer : cs.tertiaryContainer,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(live != null ? t.trModeLive : t.trModeEstimate,
-                  style: AType.titleSmall.copyWith(
-                      color: live != null ? cs.onPrimaryContainer : cs.onTertiaryContainer,
-                      fontWeight: FontWeight.w700)),
-              const SizedBox(height: Gap.xxs),
-              Text(_d(status),
-                  style: AType.bodyMedium.copyWith(
-                      color: live != null ? cs.onPrimaryContainer : cs.onTertiaryContainer)),
+              Row(children: [
+                Icon(live != null ? Icons.sensors_rounded : Icons.schedule_rounded,
+                    color: live != null ? cs.onPrimaryContainer : cs.onTertiaryContainer),
+                const SizedBox(width: Gap.sm),
+                Expanded(
+                  child: Text(
+                      live != null
+                          ? _d(sharers == 1 ? t.sjtSharingOne : t.sjtSharingMany('$sharers'))
+                          : t.sjtEstimated,
+                      style: AType.titleSmall.copyWith(
+                          color: live != null ? cs.onPrimaryContainer : cs.onTertiaryContainer,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ]),
+              if (now != null) ...[
+                const SizedBox(height: Gap.xs),
+                Text(_d(now),
+                    key: const ValueKey('sjt_now'),
+                    style: AType.titleMedium.copyWith(
+                        color: live != null ? cs.onPrimaryContainer : cs.onTertiaryContainer)),
+              ] else if (live == null) ...[
+                const SizedBox(height: Gap.xs),
+                Text(
+                    estState == 'not_started'
+                        ? t.trEstNotStarted
+                        : (estState == 'arrived' ? t.trEstArrived : t.trEstRunning),
+                    style: AType.bodyMedium.copyWith(color: cs.onTertiaryContainer)),
+              ],
               if (live == null)
-                Text(t.trEstimateWhy,
-                    style: AType.bodySmall.copyWith(color: cs.onTertiaryContainer)),
+                Text(t.sjtEstimatedWhy, style: AType.bodySmall.copyWith(color: cs.onTertiaryContainer)),
             ]),
           ),
         ),
-        const SizedBox(height: Gap.sm),
-        SizedBox(
-          height: 240,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: VehMap(
-              config: _map,
-              route: path,
-              live: pos == null
-                  ? null
-                  : GeoPt((pos['lat'] as num).toDouble(), (pos['lng'] as num).toDouble()),
-              semanticsLabel: t.trMapA11y,
-              emptyLabel: t.trMapEmpty,
-              tileProvider: VehMap.debugTileProvider,
-            ),
-          ),
-        ),
         const SizedBox(height: Gap.md),
+        // ---- share
         FilledButton.icon(
           style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(52),
@@ -472,11 +534,43 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
           Padding(
             padding: const EdgeInsets.only(top: Gap.xs),
             child: Text(
-                _d(t.trShareCounts('${TrainShareController.I.value.accepted}',
-                    '${TrainShareController.I.value.rejected}')),
-                style: AType.bodySmall),
+                _d(share.offline
+                    ? t.sjtShareOffline('${share.queued}')
+                    : t.trShareCounts('${share.accepted}', '${share.rejected}')),
+                key: const ValueKey('sjt_share_state'),
+                style: AType.bodySmall.copyWith(color: share.offline ? Brand.warnInk(context) : null)),
           ),
         const SizedBox(height: Gap.sm),
+        // ---- chat + get-off alarm
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              key: const ValueKey('sjt_chat'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              icon: Icon(chatOpen ? Icons.forum_rounded : Icons.lock_clock_rounded),
+              label: Text(chatOpen ? t.trChat : t.sjtChatClosedShort),
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => TrainChatScreen(
+                          no: widget.no, date: widget.date, title: '${tr['name_bn']}'))),
+            ),
+          ),
+          if (alarmOn) ...[
+            const SizedBox(width: Gap.sm),
+            Expanded(
+              child: FilledButton.tonalIcon(
+                key: const ValueKey('sjt_getoff'),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                icon: const Icon(Icons.alarm_add_rounded),
+                label: Text(t.sjtGetOffAlarm),
+                onPressed: () => _openAlarm(stops, v),
+              ),
+            ),
+          ],
+        ]),
+        const SizedBox(height: Gap.sm),
+        // ---- SMS 16318 (official; the user sends it)
         OutlinedButton.icon(
           style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
           icon: const Icon(Icons.sms_rounded),
@@ -506,71 +600,73 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
             onPressed: () => launchUrl(trainTelUri('131')),
           ),
         ]),
-        const SizedBox(height: Gap.sm),
-        Row(children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-              icon: const Icon(Icons.forum_rounded),
-              label: Text(t.trChat),
-              onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => TrainChatScreen(
-                          no: widget.no, date: widget.date, title: '${tr['name_bn']}'))),
+        const SizedBox(height: Gap.lg),
+        // ---- the metro-style line
+        Text(t.sjtLineTitle, style: AType.titleMedium),
+        if (alarmOn)
+          Text(t.sjtLineTapHint, style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+        const SizedBox(height: Gap.xs),
+        if (line != null && (line['stations'] as List? ?? const []).isNotEmpty)
+          TrainLineView(
+            key: const ValueKey('sjt_line'),
+            line: line,
+            live: live != null,
+            onStation: alarmOn
+                ? (s) {
+                    // a passing station is not in the timetable stop list:
+                    // the alarm screen gets it as an extra suggestion
+                    final known = stops.any((x) => '${x['id']}' == '${s['id']}');
+                    final list = known
+                        ? stops
+                        : ([
+                            ...stops,
+                            {
+                              'id': '${s['id']}',
+                              'bn': s['bn'],
+                              'en': s['en'],
+                              'lat': s['lat'],
+                              'lng': s['lng'],
+                              'km': s['km'],
+                            }
+                          ]..sort((a, b) => ((a['km'] as num?) ?? 0).compareTo((b['km'] as num?) ?? 0)));
+                    _openAlarm(list, v, stationId: '${s['id']}');
+                  }
+                : null,
+          )
+        else
+          for (final s in stops)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.place_rounded),
+              title: Text(trainStation(s, bn)),
+              subtitle: Text(_d('${trainHm('${s['at']}')} ${t.trEstShort}'), style: AType.bodySmall),
             ),
-          ),
-          if (alarmOn) ...[
-            const SizedBox(width: Gap.sm),
-            Expanded(
-              child: OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                icon: const Icon(Icons.alarm_add_rounded),
-                label: Text(t.trAlarmShort),
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => DestAlarmScreen(
-                            suggestedIds: [for (final s in stops) '${s['id']}'],
-                            suggested: stops,
-                            path: trainPath(v)))),
-              ),
-            ),
-          ],
-        ]),
         const SizedBox(height: Gap.md),
-        Text(t.trStopsTitle, style: AType.titleSmall),
-        for (final s in stops)
-          ListTile(
-            dense: false,
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.place_rounded),
-            title: Text(trainStation(s, bn)),
-            // sjalarm: "Set alarm at this station" -> Destination Alarm, station
-            // filled (under the name, so it never squeezes the tile at 200 %)
-            subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(_d('${trainHm('${s['at']}')} ${t.trEstShort}'), style: AType.bodySmall),
-              if (alarmOn)
-                TextButton.icon(
-                  style: TextButton.styleFrom(
-                      minimumSize: const Size(48, 48), padding: const EdgeInsets.symmetric(horizontal: Gap.xs)),
-                  icon: const Icon(Icons.alarm_add_rounded),
-                  label: Text(t.sjaAlarmHere, semanticsLabel: t.sjaAlarmHereA11y(trainStation(s, bn))),
-                  onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => DestAlarmScreen(
-                              suggestedIds: [for (final x in stops) '${x['id']}'],
-                              suggested: stops,
-                              path: trainPath(v),
-                              initialStationId: '${s['id']}'))),
-                ),
-            ]),
+        // ---- seat card (crowd, unverified until 3 agree)
+        TrainSeatCard(no: widget.no, date: widget.date, tripOver: tripOver),
+        const SizedBox(height: Gap.md),
+        // ---- 2D map (no 3D)
+        SizedBox(
+          height: 200,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: VehMap(
+              config: _map,
+              route: path,
+              live: pos == null
+                  ? null
+                  : GeoPt((pos['lat'] as num).toDouble(), (pos['lng'] as num).toDouble()),
+              semanticsLabel: t.trMapA11y,
+              emptyLabel: t.trMapEmpty,
+              tileProvider: VehMap.debugTileProvider,
+            ),
           ),
+        ),
         const SizedBox(height: Gap.sm),
         if (tr['approved'] != true)
           Text(t.trUnchecked, style: AType.bodySmall.copyWith(color: Brand.warnInk(context))),
         Text(t.trSourceLine, style: AType.bodySmall),
+        Text(t.sjtLineSource, style: AType.bodySmall),
       ],
     );
   }
