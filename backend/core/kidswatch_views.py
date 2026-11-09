@@ -496,6 +496,14 @@ def _plan_json(p, user, now=None):
                      "ask": day.get("ask") or {},
                      "alerts": day.get("alerts") or {}},
            "last_known": p.last_known or None}
+    if cfg:   # sjkids: Children Corner — where now, open questions (guardians + child)
+        from .logic import kids_corner as KC
+        kc = KC.today_view(cfg, day, local)
+        if p.child_user_id == user.id and p.owner_id != user.id:
+            for a in kc["asks"]:
+                a.pop("lat", None)
+                a.pop("lng", None)
+        out["kids_corner"] = kc
     if cfg:
         t = SM.times(cfg, local)
         out["today"].update(school_day=SM.is_school_day(cfg, local),
@@ -517,7 +525,7 @@ def _load_plan(request, pk, manage=False):
 def _config_from(d, base=None):
     cfg = dict(base or {})
     for k in ("start", "end", "commute_min", "late_min", "days", "home", "school",
-              "holidays", "gate_camera_id"):
+              "holidays", "gate_camera_id", "kc_places"):  # sjkids: kc_places
         if k in d:
             cfg[k] = d[k]
     if "class_mode" in d:
@@ -845,7 +853,10 @@ class PlanEventsView(APIView):
         return R({"events": [{"id": e.id, "kind": e.kind, "at": _iso(e.at), "lat": e.lat,
                               "lng": e.lng, "source": e.source,
                               "voice_id": e.voice_id,
-                              "place_match": (e.detail or {}).get("place_match")}
+                              "place_match": (e.detail or {}).get("place_match"),
+                              # sjkids: Children Corner place of the event
+                              "place_kind": (e.detail or {}).get("place_kind"),
+                              "place_name": (e.detail or {}).get("place_name")}
                              for e in p.events.order_by("-at")[:100]]})
 
     def post(self, request, pk):
@@ -898,3 +909,34 @@ class GateSnapshotView(APIView):
             return R({"ok": False, "reason": why}, status=404)
         return R({"ok": True, "url": request.build_absolute_uri(e.snapshot.url),
                   "at": e.created.isoformat(), "event_at": at.isoformat()})
+
+
+class KidsCornerAnswerView(APIView):
+    """sjkids — POST school-mode/plans/<pk>/kc-answer {ask_id, answer:'ok'}:
+    a GUARDIAN answers "Do you know where NAME is?" -> no more questions for
+    that window today; the other guardians see who answered. The child
+    cannot answer for the guardians. Never flag-gated (a question must
+    always be answerable)."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        import copy
+        from .models import SchoolPlan
+        from .logic import kids_corner as KC
+        p, err = _load_plan(request, pk)
+        if err:
+            return err
+        if p.child_user_id == request.user.id and p.owner_id != request.user.id:
+            return R({"ok": False, "reason": "forbidden"}, status=403)
+        ask_id = str((request.data or {}).get("ask_id") or "")[:60]
+        ans = str((request.data or {}).get("answer") or "ok")
+        if ans != "ok" or not ask_id:
+            return R({"ok": False, "reason": "bad_answer"}, status=400)
+        local = timezone.now().astimezone(KW.LOCAL_TZ)
+        day = copy.deepcopy(p.day or {})
+        a = KC.answer(day, ask_id, ans, local, request.user.name or "")
+        if a is None:
+            return R({"ok": False, "reason": "not_found"}, status=404)
+        SchoolPlan.objects.filter(pk=p.pk).update(day=day)
+        p.day = day
+        return R({"ok": True, "ask": a, "plan": _plan_json(p, request.user)})
