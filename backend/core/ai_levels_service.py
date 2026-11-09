@@ -223,8 +223,8 @@ FREE_EXEMPT = {
     "learn.roleplay": "Learn hub daily free practice quota; beyond it the user pays",
     "chat.continue": "continues an answer that was CUT at its output limit — already paid once",
     # fcbrain (owner 9 Nov): Family Care is safety — never charged
-    "family.night_news": "Family Care night news card from structured facts, once per member per night",
-    "family.ask": "Family ask bar fallback when the offline parser cannot answer (family status only)",
+    "brain.night_news": "Family Care night news card from structured facts, once per member per night",
+    "brain.ask": "Family ask bar fallback when the offline parser cannot answer (family status only)",
 }
 
 

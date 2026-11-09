@@ -14,7 +14,7 @@ false comfort. This module is the SERVER half of:
   4  NIGHT NEWS — one short card per family member per night (default 21:30,
      changeable, can be off), written by the Normal model from STRUCTURED
      facts only (never chat text, never coordinates), FREE (ai free-list
-     "family.night_news"), with a template when AI is down. Each member
+     "brain.night_news"), with a template when AI is down. Each member
      chooses what about THEM goes in.
   5  TRUST — every member sees who can see them (+ a monthly in-app
      reminder); pause sharing 1 / 2 / 8 h shows "Paused" (never a fake
@@ -28,7 +28,7 @@ false comfort. This module is the SERVER half of:
      slot; arrival + battery are safety).
 
 ASK BAR — ask(): the same offline parser as the phone (fc_ask_parser.dart),
-answering from family status; the AI (free-listed "family.ask", Normal
+answering from family status; the AI (free-listed "brain.ask", Normal
 model) only when the parser cannot.
 
 Storage: the generic PaCollectionItem store (no migration), collection
@@ -419,9 +419,10 @@ def ping(user, data, now=None):
         if (paused is None and bat is not None and bat <= LOW_BATTERY and not chg
                 and st.get("low_batt_armed", True)):
             st["low_batt_armed"] = False
+            st["low_batt_n"] = int(st.get("low_batt_n") or 0) + 1
             st["low_batt"] = {"pct": bat, "at": _iso(now), **(pend or {})}
             tl.append({"at": _iso(now), "kind": "battery_low", "pct": bat})
-            fan.append(("battery", bat, pend))
+            fan.append(("battery", bat, pend, st["low_batt_n"]))
         st["seen_ids"] = seen[-MAX_SEEN_IDS:]
         st["timeline"] = tl[-MAX_TIMELINE:]
         st["latency"] = lat_list[-MAX_LATENCY:]
@@ -442,9 +443,8 @@ def ping(user, data, now=None):
                                                       e["at"].astimezone(receiver_tz(user))),
                                    now=now)
                 else:
-                    _, pct, loc = item
-                    st_ = FA.alert(user, "battery_low_loc",
-                                   "fcb:batt:%s" % now.strftime("%Y%m%d%H%M"),
+                    _, pct, loc, n = item
+                    st_ = FA.alert(user, "battery_low_loc", "fcb:batt:%d" % n,
                                    recipients=rec,
                                    payload={"event": "battery_low_loc", "member_id": user.pk,
                                             "battery": pct},
@@ -874,7 +874,7 @@ def night_text(facts, lang):
         from . import ai
         task = NIGHT_TASK.format(lang="natural Bangla (Bangla digits)" if lang != "en" else "English")
         txt, _cost = ai.generate(task, data=json.dumps(facts, ensure_ascii=False),
-                                 tier="cheap", max_tokens=220, feature="family.night_news",
+                                 tier="cheap", max_tokens=220, feature="brain.night_news", pii=True,
                                  user=None, task_class="cheap", level="normal",
                                  digits="bn" if lang != "en" else None)
         txt = (txt or "").strip()
@@ -1070,7 +1070,7 @@ def _ask_ai(q, members, lang):
         txt, _c = ai.generate(ASK_TASK.format(lang="natural Bangla" if lang != "en" else "English"),
                               data=json.dumps({"question": str(q)[:300], "members": facts},
                                               ensure_ascii=False),
-                              tier="cheap", max_tokens=160, feature="family.ask", user=None,
+                              tier="cheap", max_tokens=160, feature="brain.ask", user=None, pii=True,
                               task_class="cheap", level="normal",
                               digits="bn" if lang != "en" else None)
         txt = (txt or "").strip()

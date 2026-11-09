@@ -81,8 +81,26 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
   Map<String, dynamic> get _prefs => (_me?['prefs'] as Map?)?.cast<String, dynamic>() ?? const {};
   Map<String, dynamic> get _night => (_prefs['night'] as Map?)?.cast<String, dynamic>() ?? const {};
 
+  /// Gallery / tests: apply a change on the screen only (no server).
+  void _localMerge(Map<String, dynamic> body) {
+    final me = Map<String, dynamic>.from(_me ?? const {});
+    final p = Map<String, dynamic>.from((me['prefs'] as Map?) ?? const {});
+    body.forEach((k, v) {
+      if (k == 'night' && v is Map) {
+        p['night'] = {...((p['night'] as Map?) ?? const {}), ...v};
+      } else {
+        p[k] = v;
+      }
+    });
+    me['prefs'] = p;
+    setState(() => _me = me);
+  }
+
   Future<void> _save(Map<String, dynamic> body) async {
-    if (_debug) return;
+    if (_debug) {
+      _localMerge(body);
+      return;
+    }
     setState(() => _busy = true);
     try {
       final r = await widget.api.fcbSetPrefs(body);
@@ -99,8 +117,11 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
 
   Future<void> _toggleArrive(bool on) async {
     final t = AppLocalizations.of(context);
-    if (_debug) return;
     if (!on) {
+      if (_debug) {
+      _localMerge({'auto_arrive': false});
+      return;
+    }
       setState(() => _busy = true);
       await FcWatch.disable(widget.api);
       await _load();
@@ -140,6 +161,10 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
       ),
     );
     if (yes != true || !mounted) return;
+    if (_debug) {
+      _localMerge({'auto_arrive': true});
+      return;
+    }
     setState(() => _busy = true);
     final r = await FcWatch.enable(
         widget.api, FcWatch.texts(title: t.fcbWatchNotifTitle, body: t.fcbWatchNotifBody));
@@ -152,7 +177,13 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
   }
 
   Future<void> _pause(int h) async {
-    if (_debug) return;
+    if (_debug) {
+      setState(() => _me = {
+            ...?_me,
+            'paused_until': DateTime.now().add(Duration(hours: h)).toUtc().toIso8601String(),
+          });
+      return;
+    }
     try {
       final r = await widget.api.fcbPause(h);
       if (mounted) setState(() => _me = r);
@@ -162,7 +193,10 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
   }
 
   Future<void> _resume() async {
-    if (_debug) return;
+    if (_debug) {
+      setState(() => _me = {...?_me, 'paused_until': null});
+      return;
+    }
     try {
       final r = await widget.api.fcbResume();
       if (mounted) setState(() => _me = r);
@@ -186,7 +220,7 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
   Future<void> _leave() async {
     final t = AppLocalizations.of(context);
     final fid = widget.familyId;
-    if (fid == null || _debug) return;
+    if (fid == null) return;
     final ok = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
@@ -199,6 +233,10 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
       ),
     );
     if (ok != true) return;
+    if (_debug) {
+      if (mounted) Navigator.of(context).maybePop(true);
+      return;
+    }
     try {
       await widget.api.fcbLeave(fid);
       if (mounted) Navigator.of(context).pop(true);
@@ -304,7 +342,7 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
         child: Text(paused
             ? t.fcbPausedUntil(fcClockLabel(
-                '${until!.hour.toString().padLeft(2, '0')}:${until!.minute.toString().padLeft(2, '0')}', lang))
+                '${until.hour.toString().padLeft(2, '0')}:${until.minute.toString().padLeft(2, '0')}', lang))
             : t.fcbPauseHint),
       ),
       Padding(
@@ -412,7 +450,7 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
       _head(t.fcbBudgetHead),
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
-        child: Text(t.fcbBudgetBody(_n(context, used), _n(context, limit))),
+        child: Text(t.fcbBudgetBody(_n(context, limit), _n(context, used))),
       ),
     ]);
   }

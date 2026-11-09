@@ -343,10 +343,12 @@ class AdminNeverSeesLocationTests(Base):
 # ------------------------------------------------------------- 4 night news
 class NightNewsTests(Base):
     def _prep(self):
-        FB.ping(self.kid, {"battery": 60, "tz_offset_min": 360})
+        t = self._at(21, 20)          # fresh news shortly before 21:30, any CI hour
+        FB.ping(self.kid, {"battery": 60, "tz_offset_min": 360}, now=t)
         FB.set_prefs(self.kid, self.kid, {"auto_arrive": True})
-        FB.ping(self.kid, {"events": [{"id": "n1", "kind": "arrive", "place_kind": "home"}]})
-        FB.ping(self.mom, {"battery": 90})
+        FB.ping(self.kid, {"events": [{"id": "n1", "kind": "arrive", "place_kind": "home",
+                                       "at": t.isoformat()}]}, now=t)
+        FB.ping(self.mom, {"battery": 90}, now=t)
         self.spy.calls.clear()
 
     def _at(self, hh, mm):
@@ -378,9 +380,9 @@ class NightNewsTests(Base):
         with mock.patch.object(ai, "generate", side_effect=gen):
             FB.tick(now=self._at(21, 35))
         self.assertIsNone(seen["user"])                       # nobody pays
-        self.assertEqual(seen["feature"], "family.night_news")
+        self.assertEqual(seen["feature"], "brain.night_news")
         from core import ai_levels_service as ALS
-        self.assertTrue(ALS.exempt("family.night_news"))
+        self.assertTrue(ALS.exempt("brain.night_news"))
         facts = json.loads(seen["data"])
         self.assertTrue(all(set(f) <= {"name", "place", "moves", "battery", "carecall",
                                         "no_news", "paused"} for f in facts))
@@ -459,7 +461,7 @@ class AskTests(Base):
         self.assertIn("Yes", r.json()["text"])
         with mock.patch("core.ai.generate", return_value=("Assisto does not know.", 0.0)) as g:
             r = cl(self.kid).post("%s/family/brain/ask" % V, {"q": "did mom eat lunch"}, format="json")
-            self.assertEqual(g.call_args.kwargs["feature"], "family.ask")
+            self.assertEqual(g.call_args.kwargs["feature"], "brain.ask")
             self.assertIsNone(g.call_args.kwargs["user"])
         self.assertEqual(r.json()["source"], "ai")
 

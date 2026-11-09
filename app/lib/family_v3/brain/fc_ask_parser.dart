@@ -3,16 +3,21 @@
 /// Dart twin of backend/core/logic/fc_ask.py. ONE case table drives both
 /// test suites (app/test/fixtures/fc_ask_cases.json), so the phone and the
 /// server answer the same question the same way. Bangla, romanized Bangla
-/// and English: "Is Ammu OK" · "আম্মু ঠিক আছে?" · "ammu thik ase?" ·
-/// "Where is my son" · "ছেলে কোথায়" · "chele kothay" · "sobai thik?".
+/// and English ("Is Ammu OK", "ammu thik ase?", "Where is my son",
+/// "chele kothay", "sobai thik?" and the same in Bengali script).
 /// Answers ONLY from family status — never "OK" unless the status is ok.
 /// Returns null when it cannot answer: the caller then asks the server
 /// (POST family/brain/ask), which uses the AI only for those.
 ///
-/// The answer sentences live here (not in the ARB files) on purpose: the
-/// server must produce the very same sentence for the same case, and the
-/// slot that calls this has no BuildContext. Bangla digits throughout.
+/// The answer sentences are not ARB strings on purpose: the server must
+/// produce the very same sentence for the same case, and the slot that
+/// calls this has no BuildContext. Bangla words + sentences live in
+/// lib/l10n/fc_brain_bn.dart (the lang gate allows Bangla only there).
 library;
+
+import '../../l10n/fc_brain_bn.dart';
+
+export '../../l10n/fc_brain_bn.dart' show fcAtBn;
 
 class FcAskMember {
   final int userId;
@@ -61,32 +66,32 @@ class FcAskResult {
   const FcAskResult(this.text, this.memberUserId, this.action);
 }
 
-const Map<String, List<String>> kFcRelationWords = {
-  'mother': ['ammu', 'amma', 'ammi', 'ma', 'maa', 'mom', 'mum', 'mummy', 'mother', 'আম্মু', 'আম্মা', 'আম্মি', 'মা', 'মামণি'],
-  'father': ['abbu', 'abba', 'baba', 'bapi', 'dad', 'daddy', 'father', 'papa', 'আব্বু', 'আব্বা', 'বাবা', 'বাপি'],
-  'son': ['son', 'chele', 'chhele', 'cheley', 'bacha', 'ছেলে'],
-  'daughter': ['daughter', 'meye', 'maye', 'mey', 'মেয়ে', 'মেয়ে'],
-  'spouse': ['wife', 'husband', 'bou', 'bow', 'swami', 'বউ', 'বৌ', 'স্ত্রী', 'স্বামী'],
-  'brother': ['brother', 'bhai', 'bhaiya', 'vai', 'ভাই', 'ভাইয়া'],
-  'sister': ['sister', 'bon', 'apu', 'apa', 'didi', 'বোন', 'আপু', 'আপা', 'দিদি'],
-  'grandparent': ['dadu', 'nanu', 'dadi', 'nani', 'grandma', 'grandpa', 'granny', 'দাদু', 'নানু', 'দাদি', 'নানি'],
+const Map<String, List<String>> _kFcRelationLatin = {
+  'mother': ['ammu', 'amma', 'ammi', 'ma', 'maa', 'mom', 'mum', 'mummy', 'mother'],
+  'father': ['abbu', 'abba', 'baba', 'bapi', 'dad', 'daddy', 'father', 'papa'],
+  'son': ['son', 'chele', 'chhele', 'cheley', 'bacha'],
+  'daughter': ['daughter', 'meye', 'maye', 'mey'],
+  'spouse': ['wife', 'husband', 'bou', 'bow', 'swami'],
+  'brother': ['brother', 'bhai', 'bhaiya', 'vai'],
+  'sister': ['sister', 'bon', 'apu', 'apa', 'didi'],
+  'grandparent': ['dadu', 'nanu', 'dadi', 'nani', 'grandma', 'grandpa', 'granny'],
 };
-const _where = ['where', 'location', 'kothay', 'kothai', 'kotay', 'koi', 'kon jaygay', 'কোথায়', 'কোথায়', 'কই', 'লোকেশন'];
-const _okq = ['ok', 'okay', 'fine', 'safe', 'alright', 'all right', 'doing', 'how is', 'hows', 'thik', 'theek', 'valo', 'bhalo', 'nirapod', 'kemon', 'ঠিক', 'ভালো', 'ভাল', 'নিরাপদ', 'কেমন'];
-const _battery = ['battery', 'charge', 'charj', 'ব্যাটারি', 'চার্জ'];
-const _when = ['last seen', 'when', 'kokhon', 'shesh khobor', 'কখন', 'শেষ খবর'];
-const _all = ['everyone', 'everybody', 'all', 'family', 'sobai', 'shobai', 'sokole', 'সবাই', 'সকলে', 'পরিবার'];
-const _suffix = ['দের', 'এর', 'ের', 'র', 'কে', 'রা', 'টা', 'টি'];
+final Map<String, List<String>> kFcRelationWords = {
+  for (final e in _kFcRelationLatin.entries) e.key: [...e.value, ...?kFcRelationBn[e.key]],
+};
+final _where = ['where', 'location', 'kothay', 'kothai', 'kotay', 'koi', 'kon jaygay', ...kFcWhereBn];
+final _okq = ['ok', 'okay', 'fine', 'safe', 'alright', 'all right', 'doing', 'how is', 'hows', 'thik', 'theek', 'valo', 'bhalo', 'nirapod', 'kemon', ...kFcOkBn];
+final _battery = ['battery', 'charge', 'charj', ...kFcBatteryBn];
+final _when = ['last seen', 'when', 'kokhon', 'shesh khobor', ...kFcWhenBn];
+final _all = ['everyone', 'everybody', 'all', 'family', 'sobai', 'shobai', 'sokole', ...kFcAllBn];
+const _suffix = kFcSuffixBn;
 const _romSuffix = ['er', 'r', 'ke', 'ra'];
 
-String fcBn(Object v) {
-  const d = '০১২৩৪৫৬৭৮৯';
-  return v.toString().replaceAllMapped(RegExp(r'[0-9]'), (m) => d[int.parse(m[0]!)]);
-}
+String fcBn(Object v) => fcBnDigits(v);
 
 String fcNorm(String q) => q
     .toLowerCase()
-    .replaceAll(RegExp(r'''[?？!।,.;:"'()\-]+'''), ' ')
+    .replaceAll(RegExp('[?？!$kFcDandaBn,.;:"\'()\\-]+'), ' ')
     .replaceAll(RegExp(r'\s+'), ' ')
     .trim();
 
@@ -169,23 +174,12 @@ String _age(DateTime? seen, DateTime now, bool en) {
   if (seen == null) return '';
   final s0 = now.difference(seen).inSeconds;
   final s = s0 < 0 ? 0 : s0;
-  if (s < 90) return en ? 'just now' : 'এইমাত্র';
-  if (s < 3600) return en ? '${s ~/ 60} min ago' : '${fcBn(s ~/ 60)} মিনিট আগে';
-  if (s < 86400) return en ? '${s ~/ 3600} h ago' : '${fcBn(s ~/ 3600)} ঘণ্টা আগে';
-  return en ? '${s ~/ 86400} days ago' : '${fcBn(s ~/ 86400)} দিন আগে';
+  if (s < 90) return en ? 'just now' : FcAskBn.justNow;
+  if (s < 3600) return en ? '${s ~/ 60} min ago' : FcAskBn.minAgo(s ~/ 60);
+  if (s < 86400) return en ? '${s ~/ 3600} h ago' : FcAskBn.hAgo(s ~/ 3600);
+  return en ? '${s ~/ 86400} days ago' : FcAskBn.daysAgo(s ~/ 86400);
 }
 
-const _reasonBn = {
-  'battery_off': 'চার্জ শেষ হয়ে ফোন বন্ধ হতে পারে',
-  'no_internet': 'ইন্টারনেট নেই',
-  'background_killed': 'ফোন ব্যাকগ্রাউন্ডে Assisto বন্ধ করে দিচ্ছে',
-  'never': 'Assisto এখনো খবর পাঠায়নি',
-  'clock': 'ফোনের ঘড়ি ভুল',
-  'battery_low': 'চার্জ কম',
-  'watch': 'অনেকক্ষণ কোনো সাড়া নেই',
-  'carecall_missed': 'কেয়ার কল ধরেননি',
-  'journey_overdue': 'যাত্রায় দেরি হচ্ছে',
-};
 const _reasonEn = {
   'battery_off': 'the battery may have run out',
   'no_internet': 'no internet',
@@ -197,44 +191,32 @@ const _reasonEn = {
   'carecall_missed': 'missed a Care Call',
   'journey_overdue': 'a journey is late',
 };
-const _atBn = {
-  'বাড়ি': 'বাড়িতে',
-  'স্কুল': 'স্কুলে',
-  'অফিস': 'অফিসে',
-  'কলেজ': 'কলেজে',
-  'মাদ্রাসা': 'মাদ্রাসায়',
-  'দোকান': 'দোকানে',
-};
-
-/// Natural Bangla locative: বাড়ি -> বাড়িতে, স্কুল -> স্কুলে, else "X-এ".
-String fcAtBn(String place) => _atBn[place.trim()] ?? '${place.trim()}-এ';
-
-String _reason(String r, bool en) => (en ? _reasonEn : _reasonBn)[r] ?? '';
+String _reason(String r, bool en) => (en ? _reasonEn : kFcReasonBn)[r] ?? '';
 
 FcAskResult _okAnswer(FcAskMember m, bool en, DateTime now) {
   final n = m.shown;
   final age = _age(m.lastSeen, now, en);
   final st = m.state;
   if (st == 'sos') {
-    return FcAskResult(en ? '$n pressed SOS. Call now.' : '$n SOS চেপেছেন। এখনই ফোন করুন।', m.userId, 'call');
+    return FcAskResult(en ? '$n pressed SOS. Call now.' : FcAskBn.sos(n), m.userId, 'call');
   }
   if (st == 'paused' || m.paused) {
-    return FcAskResult(en ? '$n has paused sharing for now.' : '$n এখন শেয়ারিং বিরতিতে রেখেছেন।', m.userId, 'call');
+    return FcAskResult(en ? '$n has paused sharing for now.' : FcAskBn.paused(n), m.userId, 'call');
   }
   if (st == 'ok') {
     final w = m.placeLabel;
     final t = en
         ? 'Yes, $n is OK (last news $age${w.isNotEmpty ? ', at $w' : ''}).'
-        : 'হ্যাঁ, $n ঠিক আছেন (শেষ খবর $age${w.isNotEmpty ? ', ${fcAtBn(w)}' : ''})।';
+        : FcAskBn.ok(n, age, w);
     return FcAskResult(t, m.userId, 'open_member');
   }
   final r = _reason(m.reason, en);
   if (st == 'check') {
-    return FcAskResult(en ? 'Check on $n: $r.' : '$n-কে একবার দেখুন: $r।', m.userId, 'call');
+    return FcAskResult(en ? 'Check on $n: $r.' : FcAskBn.check(n, r), m.userId, 'call');
   }
   final t = en
       ? 'No fresh news from $n${age.isNotEmpty ? ' (last $age)' : ''}${r.isNotEmpty ? '; $r' : ''}. Call to be sure.'
-      : '$n-এর কাছ থেকে নতুন খবর নেই${age.isNotEmpty ? ' (শেষ খবর $age)' : ''}${r.isNotEmpty ? '; $r' : ''}। নিশ্চিত হতে ফোন করুন।';
+      : FcAskBn.stale(n, age, r);
   return FcAskResult(t, m.userId, 'call');
 }
 
@@ -244,7 +226,7 @@ FcAskResult _whereAnswer(FcAskMember m, bool en, DateTime now) {
     return FcAskResult(
         en
             ? '$n has paused sharing, so Assisto does not show a place.'
-            : '$n শেয়ারিং বিরতিতে রেখেছেন, তাই জায়গা দেখানো হচ্ছে না।',
+            : FcAskBn.wherePaused(n),
         m.userId,
         'call');
   }
@@ -252,20 +234,20 @@ FcAskResult _whereAnswer(FcAskMember m, bool en, DateTime now) {
   final age = _age(m.lastSeen, now, en);
   final fresh = const {'ok', 'check', 'sos'}.contains(m.state);
   if (place.isNotEmpty && fresh) {
-    return FcAskResult(en ? '$n is at $place (news $age).' : '$n এখন ${fcAtBn(place)} (খবর $age)।', m.userId, 'location');
+    return FcAskResult(en ? '$n is at $place (news $age).' : FcAskBn.whereNow(n, place, age), m.userId, 'location');
   }
   if (place.isNotEmpty) {
     return FcAskResult(
         en
             ? '$n was last at $place, $age. No fresh news since.'
-            : '$n শেষবার ${fcAtBn(place)} ছিলেন, $age। এরপর নতুন খবর নেই।',
+            : FcAskBn.whereLast(n, place, age),
         m.userId,
         'call');
   }
   return FcAskResult(
       en
           ? 'Assisto does not know where $n is right now${age.isNotEmpty ? ' (last news $age)' : ''}.'
-          : '$n এখন কোথায় Assisto জানে না${age.isNotEmpty ? ' (শেষ খবর $age)' : ''}।',
+          : FcAskBn.whereUnknown(n, age),
       m.userId,
       'open_member');
 }
@@ -274,35 +256,35 @@ FcAskResult _batteryAnswer(FcAskMember m, bool en, DateTime now) {
   final n = m.shown;
   final b = m.battery;
   if (m.paused || m.state == 'paused' || b == null) {
-    return FcAskResult(en ? "Assisto does not know $n's battery right now." : '$n-এর চার্জ এখন জানা নেই।', m.userId, 'open_member');
+    return FcAskResult(en ? "Assisto does not know $n's battery right now." : FcAskBn.batteryUnknown(n), m.userId, 'open_member');
   }
   final age = _age(m.lastSeen, now, en);
-  return FcAskResult(en ? "$n's phone was at $b% ($age)." : '$n-এর ফোনে চার্জ ছিল ${fcBn(b)}% ($age)।', m.userId, 'open_member');
+  return FcAskResult(en ? "$n's phone was at $b% ($age)." : FcAskBn.battery(n, b, age), m.userId, 'open_member');
 }
 
 FcAskResult _whenAnswer(FcAskMember m, bool en, DateTime now) {
   final n = m.shown;
   final age = _age(m.lastSeen, now, en);
   if (age.isEmpty) {
-    return FcAskResult(en ? 'No news from $n yet.' : '$n-এর কাছ থেকে এখনো কোনো খবর আসেনি।', m.userId, 'call');
+    return FcAskResult(en ? 'No news from $n yet.' : FcAskBn.noNewsYet(n), m.userId, 'call');
   }
-  return FcAskResult(en ? 'Last news from $n: $age.' : '$n-এর শেষ খবর: $age।', m.userId, 'open_member');
+  return FcAskResult(en ? 'Last news from $n: $age.' : FcAskBn.lastNews(n, age), m.userId, 'open_member');
 }
 
 FcAskResult _allAnswer(List<FcAskMember> members, bool en, DateTime now) {
   if (members.isEmpty) {
-    return FcAskResult(en ? 'No family members yet.' : 'পরিবারে এখনো কেউ নেই।', null, 'none');
+    return FcAskResult(en ? 'No family members yet.' : FcAskBn.noFamily, null, 'none');
   }
   const order = {'sos': 0, 'check': 1, 'stale': 2, 'paused': 3, 'ok': 4};
   final bad = members.where((m) => m.state != 'ok').toList()
     ..sort((a, b) => (order[a.state] ?? 2).compareTo(order[b.state] ?? 2));
   if (bad.isEmpty) {
-    return FcAskResult(en ? 'Yes, everyone is OK with fresh news.' : 'হ্যাঁ, সবাই ঠিক আছেন — সবার তাজা খবর আছে।', null, 'none');
+    return FcAskResult(en ? 'Yes, everyone is OK with fresh news.' : FcAskBn.allOk, null, 'none');
   }
   final a = _okAnswer(bad.first, en, now);
   if (bad.length == 1) return a;
   final more = bad.length - 1;
-  return FcAskResult(a.text + (en ? ' (+$more more to check)' : ' (আরও ${fcBn(more)} জন)'), a.memberUserId, a.action);
+  return FcAskResult(a.text + (en ? ' (+$more more to check)' : FcAskBn.more(more)), a.memberUserId, a.action);
 }
 
 /// The parser. [lang] 'bn' | 'en'. Null = not understood (ask the server).
@@ -331,7 +313,7 @@ FcAskResult? fcAskAnswer(String q, List<FcAskMember> members,
       return FcAskResult(
           en
               ? 'Nobody in your family list is "$word". Add them from My Circle.'
-              : 'আপনার পরিবারের তালিকায় "$word" নেই। My Circle থেকে যোগ করুন।',
+              : FcAskBn.notInList(word),
           null,
           'none');
     }
@@ -343,7 +325,7 @@ FcAskResult? fcAskAnswer(String q, List<FcAskMember> members,
   }
   if (hits.map((h) => h.userId).toSet().length > 1) {
     final names = hits.take(4).map((h) => h.shown).join(', ');
-    return FcAskResult(en ? 'Who do you mean: $names?' : 'কার কথা বলছেন: $names?', null, 'none');
+    return FcAskResult(en ? 'Who do you mean: $names?' : FcAskBn.who(names), null, 'none');
   }
   final m = hits.first;
   switch (intent) {

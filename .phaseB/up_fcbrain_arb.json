@@ -74,10 +74,10 @@
   "fcbBudgetBody": "Assisto sends at most {limit} non-safety notifications a day. Today: {used}. Safety alerts always come through.",
   "@fcbBudgetBody": {
    "placeholders": {
-    "used": {
+    "limit": {
      "type": "String"
     },
-    "limit": {
+    "used": {
      "type": "String"
     }
    }

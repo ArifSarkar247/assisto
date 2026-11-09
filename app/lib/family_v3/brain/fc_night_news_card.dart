@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../api.dart';
 import '../../l10n/app_localizations.dart';
+import '../../l10n/fc_brain_bn.dart';
 import '../../theme.dart';
 import '../../voice/reply_speaker.dart';
 import 'fc_brain_api.dart';
@@ -131,7 +132,7 @@ class _FcNightNewsCardState extends State<FcNightNewsCard> {
   }
 }
 
-/// "21:30" -> "রাত ৯:৩০" / "9:30 PM".
+/// "21:30" -> the Bangla night clock (part of day + Bangla digits) / "9:30 PM".
 String fcClockLabel(String hhmm, String lang) => _clock(hhmm, lang);
 
 String _clock(String hhmm, String lang) {
@@ -141,20 +142,5 @@ String _clock(String hhmm, String lang) {
   final h12 = h % 12 == 0 ? 12 : h % 12;
   final mm = m.toString().padLeft(2, '0');
   if (lang != 'bn') return '$h12:$mm ${h < 12 ? 'AM' : 'PM'}';
-  const d = '০১২৩৪৫৬৭৮৯';
-  String bn(String s) => s.replaceAllMapped(RegExp(r'[0-9]'), (x) => d[int.parse(x[0]!)]);
-  final part = h < 4
-      ? 'রাত'
-      : h < 6
-          ? 'ভোর'
-          : h < 12
-              ? 'সকাল'
-              : h < 15
-                  ? 'দুপুর'
-                  : h < 18
-                      ? 'বিকাল'
-                      : h < 20
-                          ? 'সন্ধ্যা'
-                          : 'রাত';
-  return '$part ${bn('$h12:$mm')}';
+  return '${fcDayPartBn(h)} ${fcBnDigits('$h12:$mm')}';
 }
