@@ -55,7 +55,12 @@ void registerSafeJourneyFlows() {
           what: '"pick the place" message for a name without coordinates');
       f.note('a typed name without a pin is refused (no start)');
       final paste = find.byKey(const ValueKey('j2_paste_link'));
-      await f.scrollTo(paste);
+      // back UP the lazy form (the Start tap scrolled down past it)
+      for (var i = 0; i < 25 && paste.evaluate().isEmpty; i++) {
+        await f.tester.drag(find.byType(Scrollable).hitTestable().first,
+            const Offset(0, 300), warnIfMissed: false);
+        await f.pumpFor(const Duration(milliseconds: 350));
+      }
       await f.tester.ensureVisible(paste);
       await f.tap(paste, settleSeconds: 2);
       await f.tester.enterText(find.byKey(const ValueKey('j2_link_field')),

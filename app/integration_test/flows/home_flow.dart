@@ -121,8 +121,15 @@ void registerHomeFlows() {
       await f.tap(checked.first, settleSeconds: 0.6);
       final free = find.byWidgetPredicate((w) =>
           w is CheckboxListTile && w.value == false && w.onChanged != null && label(w) != removed);
-      // qjourney: the picker is a lazy list — the free ones can be below the fold
-      await f.scrollTo(free);
+      // qjourney: the picker is a lazy list — the free ones can be below the
+      // fold. Drag the VERTICAL list (the chip row on top scrolls sideways).
+      final vlist = find.byWidgetPredicate((w) =>
+          w is Scrollable && axisDirectionToAxis(w.axisDirection) == Axis.vertical);
+      for (var i = 0; i < 25 && free.evaluate().isEmpty; i++) {
+        await f.tester.drag(vlist.hitTestable().last, const Offset(0, -300),
+            warnIfMissed: false);
+        await f.pumpFor(const Duration(milliseconds: 350));
+      }
       await f.tester.ensureVisible(free.first);
       await f.tap(free.first, settleSeconds: 0.6);
       await f.shot('changed');

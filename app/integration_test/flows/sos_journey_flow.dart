@@ -101,10 +101,13 @@ void registerSosJourneyFlows() {
         throw TestFailure('destination-alarm card missing (flag dest_alarm not on for A?)');
       }
       await f.tap(card, settleSeconds: 2);
-      final open = find.byKey(const ValueKey('sjl_open_alarm'));
-      await f.scrollTo(open);
-      await f.tester.ensureVisible(open);
-      await f.tap(open, settleSeconds: 3);
+      // the card may open its screen at once, or show an "Open" button
+      if (!await f.appears(find.byType(DestAlarmScreen), seconds: 3)) {
+        final open = find.byKey(const ValueKey('sjl_open_alarm'));
+        await f.scrollTo(open);
+        await f.tester.ensureVisible(open);
+        await f.tap(open, settleSeconds: 3);
+      }
       await f.waitFor(find.byType(DestAlarmScreen), what: 'destination alarm screen');
       await f.shot('dest_alarm');
       await _pop(f, find.byType(DestAlarmScreen));
@@ -113,10 +116,13 @@ void registerSosJourneyFlows() {
       final card = find.byKey(const ValueKey('sjl_card_train'));
       await f.waitFor(card, what: 'train card');
       await f.tap(card, settleSeconds: 2);
-      final open = find.byKey(const ValueKey('sjl_open_train'));
-      await f.scrollTo(open);
-      await f.tester.ensureVisible(open);
-      await f.tap(open, settleSeconds: 3);
+      // the card may open its screen at once, or show an "Open" button
+      if (!await f.appears(find.byType(TrainTrackerScreen), seconds: 3)) {
+        final open = find.byKey(const ValueKey('sjl_open_train'));
+        await f.scrollTo(open);
+        await f.tester.ensureVisible(open);
+        await f.tap(open, settleSeconds: 3);
+      }
       await f.waitFor(find.byType(TrainTrackerScreen), what: 'train tracker screen');
       await f.shot('train');
       await _pop(f, find.byType(TrainTrackerScreen));

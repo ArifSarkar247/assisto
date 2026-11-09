@@ -568,7 +568,11 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
               subtitle: p.address,
               onTap: () => _done(p)),
       if (!empty)
-        for (final (i, r) in _rows.indexed)
+        // a place already listed from saved / recent is not listed twice
+        for (final (i, r) in _rows
+            .where((r) => !(_focus.hasFocus &&
+                _mine(_ctl.text).any((m) => m.name == '${r['name'] ?? ''}')))
+            .indexed)
           _tile(
               key: ValueKey('ps_row_$i'),
               icon: _kindIcon('${r['kind'] ?? ''}'),
