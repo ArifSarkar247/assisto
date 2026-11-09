@@ -380,7 +380,9 @@ class DolynkAdapter(B.Provider):
                 last = e
                 if e.code == "IDV005":
                     # already in OUR product (an earlier link): the password
-                    # proves ownership again ("Verifying Device Password")
+                    # proves ownership again ("Verifying Device Password";
+                    # that page names the AK as key, "Adding Devices" and its
+                    # code example the SK — we follow the example)
                     c.call(P["verify"], {"deviceId": serial, "devCode": code_enc})
                     return {"mode": "device_code", "serials": [serial]}
                 if e.code not in CATEGORY_ERRORS or len(cats) == 1:
@@ -405,6 +407,8 @@ class DolynkAdapter(B.Provider):
                 cb_id = c.call(P["cb_add"], {"callbackUrl": callback_url, "isPush": True})
         except B.ConnectError:
             return None
+        if str(cb_id or "").isdigit():
+            cb_id = int(cb_id)                   # "callbackConfigId: number"
         # the secondary category of each device ("catalog" in "Searching for
         # Device Details in Batches"); subscriptions are per category
         by_cat = {}
