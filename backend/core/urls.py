@@ -822,6 +822,7 @@ urlpatterns += [
     path("shop/phonecam/claim", phonecam.PhoneCamClaimView.as_view()),
     path("shop/phonecam/unbind", phonecam.PhoneCamUnbindView.as_view()),
     path("shop/phonecam/<int:pk>", phonecam.PhoneCamSettingsView.as_view()),
+    path("shop/shopbox/download", phonecam.ShopBoxDownloadView.as_view()),  # cctvtoday
 ]
 
 # ---- cctvprice ---- CCTV plan on Google Play (flag cctv_watchman)

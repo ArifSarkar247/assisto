@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/l10n/app_localizations.dart';
@@ -131,6 +132,32 @@ void main() {
       final a = phoneAlert(modelAvailable: false);
       expect(a!.type, 'motion');
       expect(a.signals['person_check'], 'unavailable');
+    });
+  });
+
+  // cctvtoday: a big phone still is shrunk, never dropped from the alert
+  group('alert photo size', () {
+    test('a small JPEG passes unchanged', () {
+      final small = Uint8List.fromList(img.encodeJpg(img.Image(width: 64, height: 48)));
+      expect(identical(shrinkAlertJpeg(small), small), isTrue);
+    });
+    test('a big 12 MP-style JPEG comes back <= 200 KB and <= 960 px', () {
+      final big = img.Image(width: 2400, height: 1800);
+      for (var y = 0; y < big.height; y++) {
+        for (var x = 0; x < big.width; x++) {
+          big.setPixelRgb(x, y, (x * 7 + y) & 255, (x ^ y) & 255, (x * y) & 255);
+        }
+      }
+      final raw = Uint8List.fromList(img.encodeJpg(big, quality: 95));
+      expect(raw.length, greaterThan(200 * 1024));
+      final out = shrinkAlertJpeg(raw)!;
+      expect(out.length, lessThanOrEqualTo(200 * 1024));
+      final back = img.decodeJpg(out)!;
+      expect(back.width, lessThanOrEqualTo(960));
+      expect(back.width / back.height, closeTo(4 / 3, 0.01)); // never stretched
+    });
+    test('garbage is null, never a crash', () {
+      expect(shrinkAlertJpeg(Uint8List(300 * 1024)), isNull);
     });
   });
 

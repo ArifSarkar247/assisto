@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -83,7 +84,9 @@ const _kCamName = 'phonecam_camname';
 const _kAudio = 'phonecam_audio', _kCap = 'phonecam_cap_mb';
 const _channel = MethodChannel('com.assisto/shopbox');
 const _notifId = 7310;
-const _heartbeatEvery = Duration(seconds: 20);
+// cctvtoday: 10 s (was 20 s) — a live view the owner opens is picked up on
+// the next heartbeat, so the viewer sees video well inside its 35 s wait.
+const _heartbeatEvery = Duration(seconds: 10);
 const _personCooldown = Duration(seconds: 60);
 const _motionOnlyCooldown = Duration(minutes: 3);
 const _clipLength = Duration(seconds: 10);
@@ -562,7 +565,13 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       final alert = phoneAlert(modelAvailable: detect != null, boxes: boxes);
       if (alert != null) {
         _lastAlert = DateTime.now();
-        final snap = (jpeg != null && jpeg.length <= _maxSnapshotBytes) ? jpeg : null;
+        // cctvtoday: a big still is shrunk (off the UI thread), never dropped
+        final raw = jpeg;
+        final snap = raw == null
+            ? null
+            : raw.length <= _maxSnapshotBytes
+                ? raw
+                : await compute(shrinkAlertJpeg, raw);
         final r = await dev.ingest(alert.type, alert.signals, snapshot: snap);
         if (mounted && r.ok) setState(() => _alerts++);
         if (_cam == c && _running && !_inLive) await _recordClip(c);
