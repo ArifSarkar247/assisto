@@ -325,6 +325,11 @@ def queue_play(site, ev, sound, camera_id=None, seconds=20, by="owner"):
         if camera_id and t.get("camera_id") not in (None, camera_id):
             continue
         cam = ShopCamera.objects.filter(pk=t["camera_id"]).first() if t.get("camera_id") else None
+        if cam is None and t["target"] == "box":
+            # the Android Guard Box only has CAMERA tokens and picks "play"
+            # up in its heartbeat for that camera (cctvbox): bind the task to
+            # the camera that saw it; the Linux box reads gateway tasks anyway
+            cam = getattr(ev, "camera", None)
         ShopGatewayTask.objects.create(
             site=site, camera=cam, action="play",
             request={"sound": sound, "seconds": int(seconds), "target": t["target"],

@@ -420,6 +420,7 @@ class ActApiTests(_X):
         self.assertEqual((r.status_code, r.data["queued"]), (200, 1), r.data)
         t = ShopGatewayTask.objects.get(action="play")
         self.assertEqual((t.request["sound"], t.request["target"]), ("siren", "box"))
+        self.assertEqual(t.camera_id, self.camobj.id)       # the box picks it per camera
         # a family viewer cannot sound it
         self.assertEqual(self.m.post(url, {"sound": "siren", "confirm": True},
                                      format="json").status_code, 404)
