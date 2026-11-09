@@ -473,11 +473,13 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
                       key: const ValueKey('fcs-send-now'),
                       style: FilledButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: kSosRed,
-                          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                          foregroundColor: kSosRed),
                       onPressed: sending ? null : _send,
                       icon: const Icon(Icons.send_rounded),
-                      label: Text(t.fcsSendNow),
+                      // style on the Text (merges with the theme font);
+                      // ButtonStyle.textStyle would drop the app font
+                      label: Text(t.fcsSendNow,
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
                     ),
                   ),
                   const SizedBox(height: Gap.md),
@@ -487,11 +489,12 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
                       key: const ValueKey('fcs-cancel'),
                       style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white, width: 2),
-                          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                          side: const BorderSide(color: Colors.white, width: 2)),
                       onPressed: sending ? null : _cancelCountdown,
                       icon: const Icon(Icons.close_rounded),
-                      label: Text(t.fcsCancelMistake),
+                      label: Text(t.fcsCancelMistake,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                     ),
                   ),
                 ],

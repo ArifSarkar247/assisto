@@ -79,14 +79,15 @@ class SosBigButton extends StatelessWidget {
           backgroundColor: color,
           foregroundColor: fg,
           padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
-          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           alignment: AlignmentDirectional.centerStart,
         ),
         onPressed: onTap,
         icon: Icon(icon, size: 26),
         label: Align(
           alignment: AlignmentDirectional.centerStart,
-          child: Text(label, softWrap: true),
+          child: Text(label,
+              softWrap: true,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
         ),
       ),
     );

@@ -326,17 +326,21 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
   Widget _header(AppLocalizations t, String name, bool fall, Map<String, dynamic>? d) {
     final sent = '${d?['sent_at'] ?? ''}';
     final age = (d?['age_s'] as num?)?.toInt();
+    // over (mistake / safe): calm header — no red alarm look
+    final over = '${d?['state'] ?? 'active'}' != 'active';
+    final s = Theme.of(context).colorScheme;
+    final fg = over ? s.onSurface : Colors.white;
     return Container(
-      color: kSosRed,
+      color: over ? s.surfaceContainerHighest : kSosRed,
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.lg),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          const Icon(Icons.sos_rounded, color: Colors.white, size: 40),
+          Icon(over ? Icons.verified_rounded : Icons.sos_rounded, color: over ? Brand.success : fg, size: 40),
           const Spacer(),
           IconButton(
             tooltip: t.fcsClose,
             onPressed: () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.close_rounded, color: Colors.white),
+            icon: Icon(Icons.close_rounded, color: fg),
           ),
         ]),
         const SizedBox(height: Gap.sm),
@@ -345,14 +349,14 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
           liveRegion: true,
           child: Text(
             fall ? t.fcsAlarmFallTitle(name) : t.fcsAlarmTitle(name),
-            style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900),
+            style: TextStyle(color: fg, fontSize: 28, fontWeight: FontWeight.w900),
           ),
         ),
         if (sent.isNotEmpty) ...[
           const SizedBox(height: Gap.xs),
           Text(
             t.fcsAlarmWhen(sosClock(context, sent), sosAge(context, age ?? 0)),
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: fg, fontSize: 16),
           ),
         ],
       ]),
