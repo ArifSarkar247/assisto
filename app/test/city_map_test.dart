@@ -116,8 +116,9 @@ void main() {
 
   testWidgets('layer chips: bus, fares, waterlogging on/off; women bus honest empty', (tester) async {
     final api = _MapApi();
-    final t = await _pump(tester, _screen(), api);
-    expect(find.text('Sample Bus 2'), findsWidgets); // bus on by default
+    // bus only, so no metro label competes for the same spot (labels declutter)
+    final t = await _pump(tester, _screen(layers: {CityLayer.bus}), api);
+    expect(find.text('Sample Bus 2'), findsWidgets);
     await tester.tap(find.byKey(const ValueKey('city_layer_bus')));
     await tester.pumpAndSettle();
     expect(find.text('Sample Bus 2'), findsNothing);
