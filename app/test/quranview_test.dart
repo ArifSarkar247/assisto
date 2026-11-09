@@ -47,6 +47,10 @@ Future<void> _pump(WidgetTester tester, Widget screen,
   }
 }
 
+/// ListView children are built lazily: scroll the outer list to [f].
+Future<void> _see(WidgetTester tester, Finder f) => tester.scrollUntilVisible(
+    f, 250, scrollable: find.byType(Scrollable).first);
+
 QuranBilingualApi _api({bool qfOn = true, List<String>? log}) =>
     QuranBilingualApi((p) async {
       log?.add(p);
@@ -94,7 +98,7 @@ void main() {
       expect(find.text('আল্লাহর'), findsOneWidget);
       expect(find.text('(of) Allah'), findsOneWidget);
       expect(find.byKey(const Key('qv-play')), findsOneWidget);
-      await tester.scrollUntilVisible(find.byKey(const Key('qv-qf-credit')), 200);
+      await _see(tester, find.byKey(const Key('qv-qf-credit')));
       expect(find.byKey(const Key('qv-qf-credit')), findsOneWidget);
       expect(find.byKey(const Key('qv-noai')), findsOneWidget);
     });
@@ -168,6 +172,7 @@ void main() {
       final pl = _FakePlayer();
       await _pump(tester,
           AyahViewScreen(data: realQuranData(), sura: 1, aya: 1, api: _api(), player: pl));
+      await _see(tester, find.byKey(const Key('qv-play')));
       await tester.tap(find.byKey(const Key('qv-repeat-3')));
       await tester.pump();
       await tester.tap(find.byKey(const Key('qv-play')));
@@ -191,8 +196,8 @@ void main() {
       final log = <String>[];
       await _pump(tester,
           AyahViewScreen(data: realQuranData(), sura: 1, aya: 1, api: _api(log: log)));
+      await _see(tester, find.byKey(const Key('qv-next')));
       expect(tester.widget<OutlinedButton>(find.byKey(const Key('qv-prev'))).onPressed, isNull);
-      await tester.scrollUntilVisible(find.byKey(const Key('qv-next')), 200);
       await tester.tap(find.byKey(const Key('qv-next')));
       await tester.pump(const Duration(milliseconds: 200));
       expect(log, contains('/quran/qf/1/2'));
@@ -215,18 +220,23 @@ void main() {
       await _pump(tester, Scaffold(body: QuranTafsirBody(api: _api(), sura: 80, aya: 1)));
       expect(find.byKey(const Key('qv-src-zakaria_notes_bn')), findsOneWidget);
       expect(find.byKey(const Key('qv-src-mukhtasar_bn')), findsOneWidget);
+      await _see(tester, find.byKey(const Key('qv-tafsir-source')));
       expect(find.byKey(const Key('qv-shan-text')), findsOneWidget);
       expect(find.byKey(const Key('qv-shan-none')), findsNothing);
       expect(find.textContaining('version 1.1.1'), findsOneWidget);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, 3000));
+      await tester.pump();
       // switching to the Mukhtasar chip: that source states no reason here
       await tester.tap(find.byKey(const Key('qv-src-mukhtasar_bn')));
       await tester.pump();
+      await _see(tester, find.byKey(const Key('qv-tafsir-source')));
       expect(find.byKey(const Key('qv-shan-none')), findsOneWidget);
       expect(find.textContaining('version 1.0.0'), findsOneWidget);
     });
 
     testWidgets('no shane nuzul in the source -> the clear "none" line', (tester) async {
       await _pump(tester, Scaffold(body: QuranTafsirBody(api: _api(), sura: 1, aya: 1)));
+      await _see(tester, find.byKey(const Key('qv-tafsir-pending-note')));
       expect(find.byKey(const Key('qv-shan-none')), findsOneWidget);
       expect(find.byKey(const Key('qv-tafsir-pending-note')), findsOneWidget);
     });
