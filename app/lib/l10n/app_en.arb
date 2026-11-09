@@ -44891,5 +44891,25 @@
   },
   "@vaWkDisc4": {
     "description": "wakeword"
+  },
+  "qcQuietTitle": "Quiet hours",
+  "@qcQuietTitle": {
+    "description": "qcircle: My Circle notification settings switch — messages arrive silently in a time window"
+  },
+  "qcQuietSub": "Messages still arrive, without sound or vibration. Calls and SOS always ring.",
+  "@qcQuietSub": {
+    "description": "qcircle: quiet hours switch subtitle"
+  },
+  "qcQuietWindow": "Quiet time",
+  "@qcQuietWindow": {
+    "description": "qcircle: tile showing the quiet window, e.g. 10:00 PM – 7:00 AM"
+  },
+  "qcQuietFrom": "Quiet from",
+  "@qcQuietFrom": {
+    "description": "qcircle: time picker title for the start of quiet hours"
+  },
+  "qcQuietUntil": "Quiet until",
+  "@qcQuietUntil": {
+    "description": "qcircle: time picker title for the end of quiet hours"
   }
 }

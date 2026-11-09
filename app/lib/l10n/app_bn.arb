@@ -23955,5 +23955,10 @@
   "vaConfirmJourneyAny": "নিরাপদ যাত্রা শুরু করবেন?",
   "vaJourneyDetail": "নিরাপদ যাত্রা খুলবে: কে আপনার লাইভ লোকেশন দেখবে বেছে নিয়ে “শুরু” চাপুন।",
   "vaJourneyOpen": "নিরাপদ যাত্রা খুলুন",
-  "vaJourneyOpened": "নিরাপদ যাত্রা খোলা হয়েছে।"
+  "vaJourneyOpened": "নিরাপদ যাত্রা খোলা হয়েছে।",
+  "qcQuietTitle": "নীরব সময়",
+  "qcQuietSub": "মেসেজ আসবে, কিন্তু শব্দ বা কম্পন হবে না। কল ও SOS সবসময় বাজবে।",
+  "qcQuietWindow": "নীরব থাকার সময়",
+  "qcQuietFrom": "নীরব শুরু",
+  "qcQuietUntil": "নীরব শেষ"
 }
