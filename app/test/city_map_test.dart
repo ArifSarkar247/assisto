@@ -125,13 +125,16 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('city_layer_fares')));
     await tester.pumpAndSettle();
     expect(find.text('৳10–35'), findsWidgets); // fare label from OUR fare data
-    await tester.drag(find.byKey(const ValueKey('city_map_chips')), const Offset(-400, 0));
+    await tester.ensureVisible(find.byKey(const ValueKey('city_layer_waterlogging')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('city_layer_waterlogging')));
     await tester.pumpAndSettle();
     expect(api.gets.any((g) => g.startsWith('/city/reports')), isTrue);
+    await tester.ensureVisible(find.byKey(const ValueKey('city_layer_women')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('city_layer_women')));
     await tester.pumpAndSettle();
+    expect(api.gets.any((g) => g.startsWith('/city/women')), isTrue);
     expect(find.text(t.cityMapWomenNone), findsOneWidget); // fake list is empty -> honest line
   });
 
