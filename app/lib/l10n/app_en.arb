@@ -46123,5 +46123,696 @@
   "sjdAlsoWatching": "You are also watching",
   "sjdNightOn": "Night trip: Assisto checks in with you more often.",
   "sjdFamilyNone": "Nobody is travelling now",
-  "sjdFamilyOpen": "See journeys"
+  "sjdFamilyOpen": "See journeys",
+  "cityTitle": "City Service",
+  "cityFrom": "From",
+  "cityTo2": "To",
+  "cityMyLocation": "My current location",
+  "cityChooseStart": "Choose where you start",
+  "cityWhereTo": "Where are you going?",
+  "citySwap": "Swap From and To",
+  "cityVoiceAsk": "Ask by voice",
+  "cityVoiceExample": "For example: From here to New Market which bus",
+  "cityVoiceHint": "Say or type where you want to go",
+  "cityVoiceGo": "Find the way",
+  "cityVoiceNotFound": "We could not find \"{place}\" in our city data. Try another name, or pick it with Where are you going.",
+  "@cityVoiceNotFound": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "cityVoiceNeedLocation": "Turn on location, or say where you start: From Farmgate to Motijheel",
+  "cityVoiceRoutesFound": "These routes match what you said. Tap one to see its stops.",
+  "cityVoiceOffline": "No internet right now. Please try again.",
+  "cityStopsCount": "{count} stops",
+  "@cityStopsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cityCounts": "{routes} bus routes · {stops} stops · {stations} metro stations",
+  "@cityCounts": {
+    "placeholders": {
+      "routes": {
+        "type": "String"
+      },
+      "stops": {
+        "type": "String"
+      },
+      "stations": {
+        "type": "String"
+      }
+    }
+  },
+  "cityCoverage": "Covers about {pct}% of the city",
+  "@cityCoverage": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cityOfflineSaved": "Saved on this phone for offline use",
+  "cityOfflineReady": "No internet. Using the city data saved on this phone.",
+  "cityOfflineNone": "No internet, and the city data is not saved on this phone yet. Open City Service once with internet.",
+  "cityOfflinePlanned": "Offline: planned on your phone from the saved city data (up to one change).",
+  "cityOfflineRemembered": "Offline: the answer you got at {time}.",
+  "@cityOfflineRemembered": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cityOfflineNoPlan": "No internet, and this trip is not saved on your phone. Connect once and try again.",
+  "cityOfflineShowing": "Offline: showing the data saved on your phone.",
+  "cityPlanFailed": "Could not find the way right now.",
+  "cityTryAgain": "Try again",
+  "cityNoDataTitle": "No data for this city yet",
+  "cityNoDataBody": "City Service has Dhaka now and Chattogram next. Here, Google Maps transit can help.",
+  "cityNoDataYetCity": "We have no bus or metro data for {city} yet. Google Maps transit can help meanwhile.",
+  "@cityNoDataYetCity": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "cityNoRoute": "Our data has no bus or metro route for this trip yet. Try the other ways below, or Google Maps transit.",
+  "cityOpenGoogleMapsTransit": "Open in Google Maps (transit)",
+  "cityOpenInGoogleMaps": "Open in Google Maps",
+  "citySeeMoreGoogleMaps": "See more in Google Maps",
+  "cityNewHere": "New here? Simple mode",
+  "cityNewHereSub": "One easy way, with a tip at every step",
+  "cityNewHereShowing": "Simple mode: the way with the fewest changes.",
+  "cityCheapest": "Cheapest",
+  "cityFastest": "Fastest",
+  "cityFewestChanges": "Fewest changes",
+  "citySaferNight": "Safer at night",
+  "cityForNow": "Fare and time for now ({time})",
+  "@cityForNow": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cityTimeAm": "{time} AM",
+  "@cityTimeAm": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cityTimePm": "{time} PM",
+  "@cityTimePm": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cityWarnMetroHours": "The metro may be closed at this hour. Check the times in the Metro guide.",
+  "cityRouteReportedNote": "Part of this way is reported by users and not yet checked by 2 sources. Tap \"Wrong info\" if something is off.",
+  "cityStartSafeJourney": "Start as Safe Journey",
+  "cityStartSafeJourneySub": "Your family sees the trip live, and an alarm rings before your stop.",
+  "cityOtherWays": "Other ways",
+  "cityReportMistake": "Report a mistake",
+  "cityWrongInfo": "Wrong info",
+  "cityEmptyTitle": "Which bus, which metro gate, what fare",
+  "cityEmptyBody": "Tell us where you are going. You get the cheapest and the easiest way, with official fares.",
+  "cityEmptyHow": "Tap above, type a place, or tap the mic and say it.",
+  "cityExplore": "Explore the city",
+  "cityMetroGuide": "Metro guide",
+  "cityMetroGuideSub": "Stations, gates, times",
+  "cityAroundMe": "Around me",
+  "cityAroundMeSub": "Hospital, ATM, toilet…",
+  "cityLiveReports": "Live reports",
+  "cityLiveReportsSub": "Jams, flooding, buses",
+  "cityWomen": "Women",
+  "cityWomenSub": "Women buses, seats, night",
+  "cityLongDistance": "Long distance and water",
+  "cityLongDistanceSub": "Terminals, launch ghats",
+  "cityOffices": "City offices",
+  "cityOfficesSub": "Hours, papers to bring",
+  "cityAttribution": "Map data © OpenStreetMap contributors (ODbL)",
+  "cityIPaid": "I paid…",
+  "cityIPaidTitle": "What did you pay for the {mode}?",
+  "@cityIPaidTitle": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "cityIPaidSub": "No names are kept. It helps everyone see the real fare.",
+  "cityIPaidLabel": "Amount in taka",
+  "citySend": "Send",
+  "cityThanksFare": "Thanks! Your fare helps others.",
+  "citySendFailed": "Could not send. Please try again.",
+  "cityRideShareNote": "Estimate only. The app shows the real price.",
+  "cityFixTitle": "What is wrong?",
+  "cityFixSub": "We check every report and fix the data.",
+  "cityFixStop": "Stop is wrong",
+  "cityFixRoute": "Bus does not go this way",
+  "cityFixFare": "Fare is wrong",
+  "cityFixGate": "Gate is wrong",
+  "cityFixClosed": "Closed or stopped",
+  "cityFixOther": "Something else",
+  "cityFixMore": "Say more (optional)",
+  "cityThanksFix": "Thanks! We will check and fix it.",
+  "cityMinutes": "{n} min",
+  "@cityMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityHoursMinutes": "{h} h {m} min",
+  "@cityHoursMinutes": {
+    "placeholders": {
+      "h": {
+        "type": "String"
+      },
+      "m": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMeters": "{n} m",
+  "@cityMeters": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityKm": "{n} km",
+  "@cityKm": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityModeWalk": "Walk",
+  "cityModeMetro": "Metro",
+  "cityModeBus": "Bus",
+  "cityModeLeguna": "Leguna",
+  "cityModeWater": "Waterbus / launch",
+  "cityModeRickshaw": "Rickshaw",
+  "cityModeCng": "CNG",
+  "cityModeRideBike": "Ride share (bike)",
+  "cityModeRideCar": "Ride share (car)",
+  "cityFareOfficial": "Official",
+  "cityFareReported": "Reported by users",
+  "cityFareEstimate": "Estimate",
+  "cityFareMixed": "Official + estimate",
+  "cityFareOfficialHelp": "From the government's published fare chart or rate.",
+  "cityFareReportedHelp": "What many users said they paid.",
+  "cityFareEstimateHelp": "No official rate exists. This is our estimate as a range.",
+  "cityFareSourceTitle": "Where this fare comes from",
+  "cityFareCard": "৳{tk} with card",
+  "@cityFareCard": {
+    "placeholders": {
+      "tk": {
+        "type": "String"
+      }
+    }
+  },
+  "cityCheckedOn": "Checked {date}",
+  "@cityCheckedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cityOpenSource": "Open the source",
+  "cityStatusVerified": "Verified",
+  "cityStatusReported": "Reported by users",
+  "cityNoChange": "No change",
+  "cityChanges": "{n} change(s)",
+  "@cityChanges": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityWalkTotal": "Walk {dist}",
+  "@cityWalkTotal": {
+    "placeholders": {
+      "dist": {
+        "type": "String"
+      }
+    }
+  },
+  "cityTowards": "Towards {place}",
+  "@cityTowards": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "cityBoardAt": "Get on at: {stop}",
+  "@cityBoardAt": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+  "cityGetOffAt": "Get off at: {stop} ({n} stops)",
+  "@cityGetOffAt": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityVia": "Via {stops}",
+  "@cityVia": {
+    "placeholders": {
+      "stops": {
+        "type": "String"
+      }
+    }
+  },
+  "cityEvery": "Every {time}",
+  "@cityEvery": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cityWomenOnly": "Women only",
+  "cityTipMetro": "Buy a single-journey ticket at the counter or machine, or tap your MRT/Rapid Pass. Keep the ticket until you exit.",
+  "cityTipBus": "Tell the helper your stop when you get on. Pay when he asks; check the fare above.",
+  "cityTipLeguna": "Legunas are small shared vans. Sit and pay the driver's helper.",
+  "cityTipWater": "Buy the ticket at the ghat counter. Wear the life jacket when given.",
+  "cityTipRickshaw": "Agree on the fare before you sit.",
+  "cityYourDestination": "your destination",
+  "cityWalkMeters": "Walk {dist}",
+  "@cityWalkMeters": {
+    "placeholders": {
+      "dist": {
+        "type": "String"
+      }
+    }
+  },
+  "cityTo": "To {place}",
+  "@cityTo": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "citySideN": "North side",
+  "citySideE": "East side",
+  "citySideS": "South side",
+  "citySideW": "West side",
+  "cityExitGate": "Exit by gate {gate}",
+  "@cityExitGate": {
+    "placeholders": {
+      "gate": {
+        "type": "String"
+      }
+    }
+  },
+  "cityNear": "Near: {places}",
+  "@cityNear": {
+    "placeholders": {
+      "places": {
+        "type": "String"
+      }
+    }
+  },
+  "cityLiftHere": "Lift at this gate",
+  "cityEscalatorHere": "Escalator at this gate",
+  "cityCngMeterNote": "CNG must run by meter (BRTA rate). The range includes waiting in traffic.",
+  "cityShowIfOvercharged": "Show this if overcharged",
+  "cityComplaintBrta": "Complain to BRTA: {number}",
+  "@cityComplaintBrta": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "cityComplaintFallback": "Complain: call {number}",
+  "@cityComplaintFallback": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "cityOverchargeHeadline": "CNG fare by the government meter rate",
+  "cityOverchargeDistance": "About {km} km",
+  "@cityOverchargeDistance": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "cityOverchargeMeterRule": "Meter fare for this trip (the range includes waiting)",
+  "cityOverchargeLaw": "Charging more than the meter is against the law. You can complain to the number below.",
+  "cityAlarmFailed": "The get-off alarm could not start. The journey is on.",
+  "cityStartFailed": "Could not start the Safe Journey. Please try again.",
+  "cityWhoWatches": "Who should see your trip live? Tap to pick from My Circle.",
+  "cityNoCircle": "No one in My Circle yet. Add family once, then they can see your trips.",
+  "cityAddFamily": "Add family to My Circle",
+  "cityGetOffAlarm": "Get-off alarm",
+  "cityGetOffAlarmSub": "Rings before {stop}",
+  "@cityGetOffAlarmSub": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+  "cityStartNow": "Start now",
+  "cityTripTitle": "Your trip",
+  "cityWhichGateNow": "You are at {station}. Which gate to take:",
+  "@cityWhichGateNow": {
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "cityOpenSafeJourney": "Open Safe Journey",
+  "cityMetroNoData": "No metro data for this city yet.",
+  "cityStations": "Stations",
+  "cityGatesCount": "{n} exit gates",
+  "@cityGatesCount": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityGatesUnknown": "Gates not mapped yet",
+  "cityMetroFares": "Fares",
+  "cityMetroFareRule": "৳{perKm} per km · minimum ৳{min} · maximum ৳{max}",
+  "@cityMetroFareRule": {
+    "placeholders": {
+      "perKm": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMetroCardDiscount": "{pct}% less with MRT/Rapid Pass",
+  "@cityMetroCardDiscount": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "cityRecharge": "Card and recharge",
+  "cityMetroSatThu": "Saturday–Thursday: first train {first}, last {last}",
+  "@cityMetroSatThu": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMetroFriday": "Friday: first train {first}, last {last}",
+  "@cityMetroFriday": {
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMetroEvery": "Every {peak} min at rush hour, {offpeak} min otherwise, {fri} min on Friday",
+  "@cityMetroEvery": {
+    "placeholders": {
+      "peak": {
+        "type": "String"
+      },
+      "offpeak": {
+        "type": "String"
+      },
+      "fri": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMetroEndToEnd": "End to end about {min} min",
+  "@cityMetroEndToEnd": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cityWhichGateFor": "For {place}, take:",
+  "@cityWhichGateFor": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "cityExitGates": "Exit gates",
+  "cityGatesNotMapped": "The gates of this station are not mapped yet. Tap Report a mistake to tell us.",
+  "cityConnectingBuses": "Buses near this station",
+  "cityGateTitle": "Gate {gate}",
+  "@cityGateTitle": {
+    "placeholders": {
+      "gate": {
+        "type": "String"
+      }
+    }
+  },
+  "cityBusesHere": "Buses: {buses}",
+  "@cityBusesHere": {
+    "placeholders": {
+      "buses": {
+        "type": "String"
+      }
+    }
+  },
+  "cityStandsHere": "Stands: {stands}",
+  "@cityStandsHere": {
+    "placeholders": {
+      "stands": {
+        "type": "String"
+      }
+    }
+  },
+  "cityAroundHospital": "Hospital",
+  "cityAroundPharmacy": "Pharmacy",
+  "cityAroundAtm": "ATM",
+  "cityAroundMosque": "Mosque",
+  "cityAroundPolice": "Police",
+  "cityAroundFuel": "Fuel",
+  "cityAroundToilet": "Public toilet",
+  "cityAroundFood": "Food",
+  "cityAroundNeedLocation": "Turn on location to see what is around you.",
+  "cityAroundFailed": "Could not load places right now. Google Maps below still works.",
+  "cityAroundNone": "No {kind} found close by in our list or OpenStreetMap. See more in Google Maps.",
+  "@cityAroundNone": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "cityAdListings": "Ad listings",
+  "cityAdLabel": "Ad",
+  "cityCall": "Call",
+  "cityLiveJam": "Traffic jam",
+  "cityLiveClosed": "Road closed",
+  "cityLiveWater": "Waterlogging",
+  "cityLiveNoBus": "Bus not coming",
+  "cityLiveCrowded": "Bus crowded",
+  "cityLiveSeats": "Seats free",
+  "cityLiveTapToReport": "Tap to tell everyone nearby",
+  "cityLiveHow": "Shared at your spot for 60 minutes. No names are shown.",
+  "cityLiveNearYou": "Reported near you",
+  "cityLiveNone": "Nothing reported near you in the last hour. Be the first to tell others.",
+  "cityLiveFailed": "Could not load right now. Pull down to try again.",
+  "cityLiveThanks": "Thanks! Everyone nearby sees it for 60 minutes.",
+  "cityLiveTooMany": "Too many reports this hour. Please try later.",
+  "cityLiveNotTrue": "Not true",
+  "cityLiveFlagged": "Thanks. Reports marked wrong by several people are hidden.",
+  "cityReportCount": "{n} reported · {min} min ago",
+  "@cityReportCount": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cityWomenCoach": "Metro women coach",
+  "cityWomenSeats": "Reserved seats on buses",
+  "cityWomenBuses": "BRTC women-only buses",
+  "cityWomenBusesEmpty": "We have not been able to confirm a public list of BRTC women-only routes yet. When it is confirmed it shows here with times. Seen one? Tell us with Report a mistake.",
+  "cityNightRatings": "Night safety ratings",
+  "cityNightRatingsSub": "Ratings from users decide the Safer at night way.",
+  "cityNightStars": "{stars} of 5 · {n} ratings",
+  "@cityNightStars": {
+    "placeholders": {
+      "stars": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityRateNight": "Rate a bus route at night",
+  "cityRateWhichBus": "Which bus?",
+  "cityStarsN": "{n} stars",
+  "@cityStarsN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityThanksRating": "Thanks! Your rating helps others at night.",
+  "cityWomenSafeJourney": "Travel with Safe Journey",
+  "cityWomenSafeJourneySub": "Family sees your trip live; SOS in one tap.",
+  "cityNotCollectedYet": "Not collected yet. We are working on it.",
+  "cityTerminals": "Bus terminals",
+  "cityGhats": "Launch and waterbus ghats",
+  "cityLongSearch": "Which district? e.g. Rajshahi",
+  "cityOfficesSearch": "Search an office or a paper",
+  "cityHours": "Open: {hours}",
+  "@cityHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "cityHoursUnknown": "Open hours: not confirmed yet",
+  "cityBusesTo": "Buses to",
+  "cityLaunchesTo": "Launches to",
+  "cityServices": "Services",
+  "cityPapers": "Papers to bring",
+  "cityLearnTitle": "Help map the city's buses",
+  "cityLearnSub": "Your bus trips teach Assisto new routes and real travel times. No names.",
+  "cityLearnWhy": "Many Dhaka buses are on no map. Your trips, with no name attached, show where they really go and how long they take at each hour.",
+  "cityLearnWhen": "Only while a journey you started here is running, with the Safe Journey notification showing.",
+  "cityLearnNever": "Never in the background, never when no journey is running. No new permission is asked.",
+  "cityLearnNoNames": "No name or phone number is sent. The first and last 300 m of every trip are cut off.",
+  "cityLearnDelete": "Raw points are deleted within 7 days. Never sold or shared with anyone.",
+  "cityLearnOff": "Turn it off here any time.",
+  "cityLearnAgree": "I agree",
+  "cityLearnNo": "No thanks",
+  "cityLearnCardTitle": "Which bus? What fare?",
+  "cityLearnCardSub": "One tap helps the next rider. No name is sent.",
+  "cityLearnWhichBus": "Which bus did you take?",
+  "cityLearnWhatFare": "What fare did you pay?",
+  "cityLearnOtherBus": "Another bus",
+  "cityLearnOtherFare": "Other amount",
+  "cityLearnSkip": "Skip",
+  "cityLearnThanks": "Thank you!",
+  "cityLearnVerified": "You verified {count} stops",
+  "@cityLearnVerified": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cityLearnDone": "Done",
+  "cityTripArrived": "I have arrived",
+  "cityMapTitle": "City map",
+  "cityMapTileSub": "Metro, bus routes, fares, waterlogging",
+  "cityMapSeeOnMap": "See on the map",
+  "cityMapAssisto": "Assisto map",
+  "cityMapGoogleView": "Google view",
+  "cityMap3d": "3D",
+  "cityMapSatellite": "Satellite",
+  "cityMapLayerMetro": "Metro",
+  "cityMapLayerBus": "Bus routes",
+  "cityMapLayerFares": "Fares",
+  "cityMapLayerWater": "Waterlogging",
+  "cityMapLayerWomen": "Women bus",
+  "cityMapWomenNone": "No women-only bus is confirmed yet. The metro has a women's coach.",
+  "cityMapWaterLabel": "Waterlogging · {count} reports",
+  "@cityMapWaterLabel": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapLight": "Day map",
+  "cityMapNight": "Night map",
+  "cityMapOffline": "Dhaka offline",
+  "cityMapOfflineTitle": "Save the Dhaka map",
+  "cityMapOfflineBody": "The map then opens without internet — streets, buildings and our routes.",
+  "cityMapOfflineSize": "Size: about {mb} MB",
+  "@cityMapOfflineSize": {
+    "placeholders": {
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapOfflineWifi": "Wi-Fi is better for this download.",
+  "cityMapOfflineDownload": "Download",
+  "cityMapOfflineReady": "Saved on this phone — the Dhaka map works without internet.",
+  "cityMapOfflineDelete": "Remove from phone",
+  "cityMapOfflineNotYet": "The offline Dhaka map is being prepared. Please try again later.",
+  "cityMapOfflineFailed": "Download stopped. Tap Download to continue from where it stopped.",
+  "cityMapHint": "Choose where to go in City Service to see your routes here.",
+  "cityMapRoutesTo": "Ways to {place}",
+  "@cityMapRoutesTo": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapAssistoVerified": "Assisto verified",
+  "cityMapOursNone": "Our data has no bus or metro route for this trip yet.",
+  "cityMapSeeGoogle": "See Google transit",
+  "cityMapNoFare": "Fare not known yet",
+  "cityMapGoogleTransit": "Google transit",
+  "cityMapMoreRoutes": "More routes",
+  "cityMapMoreRoutesSub": "Bus, metro and train routes from Google.",
+  "cityMapByGoogle": "Routes by Google",
+  "cityMapGoogleOpenNote": "The Google map opens in the Google Maps app. Google's transit routes are below.",
+  "cityMapListNote": "The map could not open on this phone, so here is the same information as a list.",
+  "cityMapListEmpty": "Turn on a layer above (metro, bus routes …) to see it here.",
+  "cityMapRetry": "Try the map again",
+  "cityMapAssistoRoutes": "Assisto routes"
 }
