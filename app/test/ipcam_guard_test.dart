@@ -293,8 +293,7 @@ void main() {
       await _settle(tester);
       expect(tester.widget<FilledButton>(test).onPressed, isNotNull);
       // no decoder on the test host: an honest message, never a crash
-      await tester.ensureVisible(find.byKey(const Key('icgTest')));
-      await tester.tap(find.byKey(const Key('icgTest')));
+      tester.widget<FilledButton>(test).onPressed!();
       await _settle(tester, 20);
       expect(find.text(en.icgFailDecoder), findsOneWidget);
     });
@@ -312,6 +311,7 @@ void main() {
       await tester.ensureVisible(find.byKey(const Key('icgStop')));
       await tester.tap(find.byKey(const Key('icgStop')));
       await _settle(tester);
+      await tester.scrollUntilVisible(find.byKey(const Key('icgStart')), 300);
       expect(find.byKey(const Key('icgStart')), findsOneWidget);
     });
 

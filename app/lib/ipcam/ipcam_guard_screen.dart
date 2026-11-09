@@ -670,7 +670,9 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
       for (final k in [_kTok, _kCam, _kSite, _kCamName]) {
         await _secure.delete(key: k);
       }
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: the server already removed this camera; the token is dead anyway
+    }
     if (mounted) {
       setState(() {
         _token = null;
@@ -686,7 +688,9 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
       for (final k in [_kUrl, _kBrand, _kHost, _kUser, _kPass]) {
         await _secure.delete(key: k);
       }
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: the screen forgets it now; a stale copy is overwritten by the next test
+    }
     if (mounted) {
       setState(() {
         _url = null;

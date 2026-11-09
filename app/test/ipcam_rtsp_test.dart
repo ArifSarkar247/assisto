@@ -56,6 +56,8 @@ class _FakeCam {
   void _conn(Socket s) {
     var buf = '';
     Timer? pump;
+    // the client may hang up mid-stream: a late write must not fail the test
+    s.done.then((_) {}, onError: (Object _) => pump?.cancel());
     s.listen((d) {
       buf += latin1.decode(d);
       while (true) {
