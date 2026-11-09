@@ -11,6 +11,7 @@ from . import views_t9 as T9
 from . import views_cctvtraffic as CCTVT   # cctvguard
 from . import views_mapsusage as MAPSU   # mapscost
 from . import views_safeplans as SAFEP   # safeplans
+from . import views_plans as PLANSV      # plansprep: Plans & prices
 from . import views_aiusage as AIU     # aifinal
 from . import views_ailevels as AILV   # aifinal PART 3
 from . import views_sc1 as SC1   # sc1 app errors
@@ -30,6 +31,7 @@ from . import views_agent as AGR     # agent-core
 from . import views_train as TRS     # flagprep: train timetable check
 from . import views_crisis as CRH    # af-crisis
 from . import views_missing as MIS   # missing
+from . import views_boards as BRD    # adminboards
 from . import views_blood as BLD     # blood
 from . import views_nearby as NBY    # nearby
 from . import views_site3 as WS3     # sitev3: website go-live switch
@@ -112,6 +114,7 @@ urlpatterns = [
     path("cctv-traffic", CCTVT.cctv_traffic),   # cctvguard: CCTV live traffic
     path("maps-usage", MAPSU.maps_usage),       # mapscost: Maps usage + caps
     path("safe-plans", SAFEP.safe_plans),       # safeplans: Safety plans
+    path("plans", PLANSV.plans),                # plansprep: Plans & prices
     path("sellers", P1.sellers),      # p1-bizagent: Sellers (AI agent)
     # ---- p2-money ---- direct sponsors, campaigns, reports, ad impact
     path("sponsors", P2.sponsors),
@@ -165,4 +168,6 @@ urlpatterns = [
     path("nearby/dataset", NBY.nearby_dataset),                    # nearby
     path("nearby/<int:pk>", NBY.nearby_place),                     # nearby
     path("nearby/report/<int:pk>", NBY.nearby_report),             # nearby
+    path("vision", BRD.vision),                                    # adminboards
+    path("quality", BRD.quality),                                  # adminboards
 ]

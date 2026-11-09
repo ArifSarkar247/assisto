@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../screens/watchman/watchman_source.dart' show wmDigits, wmList;
 import '../screens/watchman/watchman_widgets.dart' show wmLang, wmOk, wmWarn, wmBad, WmPill;
 import '../shop_api.dart';
+import '../payments/store_billing.dart'; // plansprep: CCTV packs on Play
 import '../state.dart';
 import '../theme.dart';
 import 'cctv_cap_section.dart'; // cctvcap: AI checks, 80/100 % notices, extra pack
@@ -53,6 +54,31 @@ class _CctvUsageCardState extends State<CctvUsageCard> {
     loader().then((d) {
       if (mounted) setState(() => _d = d);
     }, onError: (_) {});
+  }
+
+  /// plansprep: one CCTV extra pack as a Taka Google Play product; the
+  /// server verifies the token (never the phone) and adds it to this month.
+  Future<Map<String, dynamic>?> _buyPlay(Map<String, dynamic> pack, String accountId) async {
+    final api = context.read<AppState>().api;
+    final b = await StoreBilling.forThisBuild();
+    if (b == null) throw StateError('store_unavailable');
+    final res = await b.buy(
+        productId: '${pack['play_product']}',
+        basePlanId: '',
+        isSubscription: false,
+        accountId: accountId);
+    if (res.status == StoreBuyStatus.cancelled) return null;
+    if (res.status != StoreBuyStatus.purchased) throw StateError('${res.status}');
+    final v = await api.postJson('/payments/play/verify', {
+      'kind': 'pack',
+      'product_id': '${pack['play_product']}',
+      'purchase_token': res.purchaseToken,
+    });
+    try {
+      await b.finish(res.purchaseToken);
+      if (v['consumed'] != true) await b.consume(res.purchaseToken);
+    } catch (_) {}
+    return api.cctvUsage();
   }
 
   Future<Map<String, dynamic>> _buy(String kind) {
@@ -123,6 +149,7 @@ class _CctvUsageCardState extends State<CctvUsageCard> {
             CctvCapSection(
               cap: Map<String, dynamic>.from(d['cap'] as Map),
               buy: _buy,
+              playBuy: _buyPlay, // plansprep
               onGetCredits: widget.onGetCredits,
               onBought: (u) {
                 if (mounted) setState(() => _d = u);

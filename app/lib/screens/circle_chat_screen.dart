@@ -2892,6 +2892,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
                             onLongPress: (_selecting || _reqIn || m.mediaJob != null)
                                 ? null
                                 : () => _onLongPress(m),
+                            // qcircle: one album photo → its own actions
+                            onLongPressAlbumItem: (x) => _onLongPress(x),
                             onTapMedia: (!_selecting &&
                                     m.contentType != 'text' &&
                                     m.media == null)

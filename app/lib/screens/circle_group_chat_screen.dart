@@ -2226,6 +2226,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                         size: 14),
                   ],
                 ]),
+                // qcircle: long-press one album photo → that item's actions
+                onLongPressItem: (_selecting || job is MediaJob || members.length < 2)
+                    ? null
+                    : (i) => _showActions(members[i]),
                 onOpen: _selecting
                     ? null
                     : (i, file) {
