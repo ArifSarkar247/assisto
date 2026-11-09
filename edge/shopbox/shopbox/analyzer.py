@@ -132,6 +132,7 @@ class CameraAnalyzer:
         self._last_pcheck: Optional[float] = None
         self._last_patch: Optional[float] = None
         self._frame_dets = None
+        self._frame_raw = None
         self.on_refs_changed: Optional[Callable[[dict], None]] = None
         self.reconfigure()
 
@@ -199,6 +200,11 @@ class CameraAnalyzer:
         except TypeError:                # a detector without the override
             dets = self.detector.detect(img)
         dets = [d for d in dets if d.score >= thr]
+        # cctvdet: the zone rules confirm over their own checks (gate: 2 in a
+        # row; post: minutes of absence) — they take the boxes BEFORE the
+        # 2-s night confirm, which would otherwise hide a still guard at a
+        # post checked every 30 s and raise a false "post empty"
+        self._frame_raw = list(dets)
         now = self._now if self._now is not None else self.clock()
         if not self._night_confirm.check(bool(dets), self.last_night, now):
             dets = []
@@ -270,8 +276,9 @@ class CameraAnalyzer:
         boxes = None
         if self.has_model and (m.motion or self.zrules.needs_person_check(
                 now, wd, minute, self._last_pcheck)):
-            dets = self._frame_dets if self._frame_dets is not None else self._detect(frame)
-            boxes = [[d.x1, d.y1, d.x2, d.y2, d.score] for d in dets]
+            if self._frame_dets is None:
+                self._detect(frame)
+            boxes = [[d.x1, d.y1, d.x2, d.y2, d.score] for d in (self._frame_raw or [])]
             self._last_pcheck = now
         patches = None
         gates = self.zrules.gate_zones()
@@ -304,6 +311,7 @@ class CameraAnalyzer:
         now = self.clock() if now is None else now
         self._now = now
         self._frame_dets = None
+        self._frame_raw = None
         frame = downscale(frame_bgr, self.cfg.frame_width)
         m = self.motion.update(frame, self.zone or None)
         if m.motion and not m.warming_up and not m.scene_change:

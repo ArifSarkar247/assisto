@@ -220,6 +220,29 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     );
   }
 
+  List<Widget> _detectLines(AppLocalizations t, Map<String, dynamic> e) {
+    final d = wmMap(e['detect']);
+    if (d.isEmpty) return const [];
+    final small = Theme.of(context).textTheme.bodySmall;
+    final detail = (d['detail'] ?? '').toString();
+    final desc = (d['desc'] ?? '').toString();
+    final measured = (d['measured_text'] ?? '').toString();
+    return [
+      if (detail.isNotEmpty) Text(detail),
+      if (desc.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(d['desc_src'] == 'ai' ? t.cdetDescAi(desc) : t.cdetDescTemplate(desc)),
+        ),
+      if (d['review_only'] == true) Text(t.cdetReviewOnly, style: small),
+      if (measured.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(measured, style: small),
+        ),
+    ];
+  }
+
   Widget _alertCard(AppLocalizations t, String lang, Map<String, dynamic> e) {
     final loc = MaterialLocalizations.of(context);
     final dt = DateTime.tryParse((e['last_at'] ?? e['created'] ?? '').toString())?.toLocal();
@@ -280,9 +303,13 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
               when,
             ].join(' · ')),
             const SizedBox(height: 2),
+            // cctvdet: zone name / minutes, the photo described in words
+            // (Claude's, or the plain template — labelled) and the accuracy
+            // MEASURED in tests instead of a guessed confidence
+            ..._detectLines(t, e),
             Text(
               [
-                t.wmConfidence(wmDigits(lang, pct)),
+                if (wmMap(e['detect'])['measured_text'] == null) t.wmConfidence(wmDigits(lang, pct)),
                 if (count > 1) t.wmSeenTimes(wmDigits(lang, count)),
               ].join(' · '),
               style: Theme.of(context).textTheme.bodySmall,

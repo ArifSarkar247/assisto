@@ -49,6 +49,9 @@ String wmVendorName(AppLocalizations t, String v) => switch (v) {
 /// cctvalerts: the server's own words for WHAT the alert is about (vehicle,
 /// animal, line A → B, covered camera ...) when it sent them, else by type.
 String wmEventWhatOf(AppLocalizations t, Map e) {
+  // cctvdet: a zone detection's own title (server words, viewer's language)
+  final d = e['detect'];
+  if (d is Map && (d['title'] ?? '').toString().isNotEmpty) return d['title'].toString();
   final w = (e['what'] ?? '').toString();
   return w.isNotEmpty ? w : wmEventWhat(t, (e['type'] ?? '').toString());
 }
@@ -67,6 +70,10 @@ String wmEventWhat(AppLocalizations t, String type) => switch (type) {
       'pose_possible' => t.wmEvMaybe,
       'eod_mismatch' => t.wmEvEod,
       'void_spike' || 'refund_spike' || 'discount_spike' => t.wmEvPos,
+      // cctvdet
+      'gate_person' => t.cdetEvGate,
+      'post_empty' => t.cdetEvPost,
+      'gate_open' => t.cdetEvGateOpen,
       _ => t.wmEvMotion,
     };
 

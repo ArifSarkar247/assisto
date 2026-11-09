@@ -229,7 +229,7 @@ def _opt_num(opts, key, default, lo, hi):
 class _ZoneState:
     __slots__ = ("hits", "since", "last_seen", "gate_fired", "dwell_fired",
                  "absent_since", "absent_fired", "open_since", "open_fired",
-                 "ref_day", "ref_night", "ref_at")
+                 "ref_day", "ref_night", "ref_at", "ref_for")
 
     def __init__(self):
         self.hits = 0
@@ -244,6 +244,7 @@ class _ZoneState:
         self.ref_day: Optional[List[float]] = None
         self.ref_night: Optional[List[float]] = None
         self.ref_at: Optional[float] = None
+        self.ref_for: Optional[float] = None     # the closed_at it answered
 
 
 class ZoneRules:
@@ -294,20 +295,24 @@ class ZoneRules:
         return [z for z in self.zones if z["type"] == "gate"
                 and (z.get("opts") or {}).get("watch_open")]
 
-    def wants_ref(self, zid: str) -> bool:
-        """A gate's CLOSED picture is (re)taken when the owner tapped "the gate
-        is closed now" (opts.closed_at) after the remembered one."""
+    def _closed_at(self, zid: str) -> float:
         z = next((z for z in self.zones if str(z["id"]) == zid), None)
-        if z is None:
-            return False
-        st = self.state[zid]
         try:
-            closed_at = float((z.get("opts") or {}).get("closed_at") or 0)
+            return float(((z or {}).get("opts") or {}).get("closed_at") or 0)
         except (TypeError, ValueError):
-            closed_at = 0.0
+            return 0.0
+
+    def wants_ref(self, zid: str) -> bool:
+        """A gate's CLOSED picture is (re)taken once for every new tap on
+        "the gate is closed now" (opts.closed_at, the phone's clock — compared
+        with the tap it answered, never with this device's clock)."""
+        if zid not in self.state:
+            return False
+        closed_at = self._closed_at(zid)
         if closed_at <= 0:
             return False
-        return st.ref_at is None or st.ref_at < closed_at
+        st = self.state[zid]
+        return st.ref_for is None or st.ref_for < closed_at
 
     def set_ref(self, zid: str, patch, night: bool, t: float) -> None:
         st = self.state.get(zid)
@@ -319,11 +324,13 @@ class ZoneRules:
         else:
             st.ref_day, st.ref_night = list(patch), None
         st.ref_at = t
+        st.ref_for = self._closed_at(zid)
         st.open_since, st.open_fired = None, False
 
     def refs(self) -> dict:
         """Remembered closed pictures (persisted by the caller)."""
-        return {zid: {"day": s.ref_day, "night": s.ref_night, "at": s.ref_at}
+        return {zid: {"day": s.ref_day, "night": s.ref_night, "at": s.ref_at,
+                      "for": s.ref_for}
                 for zid, s in self.state.items() if s.ref_at is not None}
 
     def load_refs(self, d) -> None:
@@ -334,6 +341,7 @@ class ZoneRules:
             st.ref_day = r.get("day") or None
             st.ref_night = r.get("night") or None
             st.ref_at = r.get("at")
+            st.ref_for = r.get("for")
 
     def _armed(self, z, weekday, minute) -> bool:
         sched = z.get("schedule")
@@ -420,7 +428,8 @@ class ZoneRules:
                     and zid in patches and (st.ref_day is not None
                                             or st.ref_night is not None):
                 patch = patches[zid]
-                if present_now:
+                recent = st.last_seen is not None and t - st.last_seen <= PRESENCE_GAP_S
+                if present_now or recent:
                     pass                    # someone in front: hold, decide later
                 else:
                     same = st.ref_night if night else st.ref_day

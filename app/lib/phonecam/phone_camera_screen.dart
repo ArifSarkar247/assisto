@@ -14,6 +14,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../cashguard/guard_box_engine.dart' show PersonDetect;
+import '../cctv/phone_zone_watch.dart';
 import '../cashguard/guard_box_model.dart';
 import '../l10n/app_localizations.dart';
 import '../notifications.dart';
@@ -122,6 +123,8 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   CameraController? _cam;
   final _motion = MotionDetector();
   final _dark = DarkMonitor();
+  final _zones = PhoneZoneWatch(); // cctvdet: gate / post / dwell zones + tamper
+  String? _zonesVer;
   DateTime _lastFrame = DateTime.fromMillisecondsSinceEpoch(0);
   bool _busy = false; // snapshot / person check / clip in progress
   DateTime? _lastAlert;
@@ -870,7 +873,30 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       // cctvacc2: + the pixel-level check (same place, 3 frames in a row)
       final plane = _motion.pixelPlane(p.bytes, img.width, img.height, p.bytesPerRow);
       final r = _motion.feedGrid(grid, plane: plane);
-      if (!r.motion) return;
+      // cctvdet: tamper + "gate left open" from the same grid (cheap)
+      final zd = _zones.onGrid(grid, _motion.gridW, _motion.gridH,
+          rot: _cam?.description.sensorOrientation ?? 0);
+      if (zd.isNotEmpty) {
+        if (!_busy && !_segRec) {
+          // take a photo (+ 10 s clip) for it, like any other alert
+          _busy = true;
+          unawaited(_onMotion(zoneOnly: true, carry: zd).whenComplete(() => _busy = false));
+          return;
+        }
+        unawaited(_sendZoneDets(zd, null));
+      }
+      if (!r.motion) {
+        // a post zone is armed / someone stands in a zone: check anyway
+        // (a photo at most every 5 s on the phone, like the motion path)
+        if (!_segRec &&
+            (_lastCheck == null || now.difference(_lastCheck!).inSeconds >= 5) &&
+            _zones.needsCheck()) {
+          _lastCheck = now;
+          _busy = true;
+          unawaited(_onMotion(zoneOnly: true).whenComplete(() => _busy = false));
+        }
+        return;
+      }
       final last = _lastAlert;
       final cool = _detect != null ? _personCooldown : _motionOnlyCooldown;
       if (last != null && now.difference(last) < cool) return;
@@ -906,7 +932,8 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
 
   /// Motion -> one photo -> person check on THIS phone -> alert (+ clip).
   /// cctvacc2: at night a person must be seen on TWO photos in a row.
-  Future<void> _onMotion() async {
+  Future<void> _onMotion(
+      {bool zoneOnly = false, List<Map<String, Object?>> carry = const []}) async {
     final c = _cam;
     final dev = _dev;
     if (c == null || dev == null) return;
@@ -927,7 +954,15 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
           }
         }
       }
-      final alert = phoneAlert(modelAvailable: detect != null, boxes: boxes);
+      // cctvdet: the same boxes feed the zone rules (person at the gate,
+      // dwell, counter empty) — each detection is its own alert + 10 s clip
+      final zd = [...carry];
+      if (_zones.active && detect != null) zd.addAll(_zones.onBoxes(boxes, night: _dark.dark));
+      if (zd.isNotEmpty) await _sendZoneDets(zd, jpeg);
+      // a zone alert already covers this check (one photo, one clip)
+      final alert = (zoneOnly || zd.isNotEmpty)
+          ? null
+          : phoneAlert(modelAvailable: detect != null, boxes: boxes);
       if (alert != null) {
         _lastAlert = DateTime.now();
         // cctvplay: the clip starts at once (not after the upload) and the
@@ -990,6 +1025,41 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     if (mounted && r.ok) setState(() => _alerts++);
   }
 
+  /// cctvdet: one alert per zone detection, with the phone's 10 s clip.
+  Future<void> _sendZoneDets(List<Map<String, Object?>> dets, Uint8List? jpeg) async {
+    final dev = _dev;
+    final c = _cam;
+    if (dev == null) return;
+    for (final d in dets) {
+      final ref = newClipRef();
+      final recording = (c != null && _cam == c && _running && !_inLive && jpeg != null)
+          ? _recordClip(c, ref)
+          : Future<void>.value();
+      final snap = jpeg == null
+          ? null
+          : jpeg.length <= _maxSnapshotBytes
+              ? jpeg
+              : await compute(shrinkAlertJpeg, jpeg);
+      final r = await dev.ingest('${d['type']}', _zones.signals(d, model: _detect != null),
+          snapshot: snap, clipRef: jpeg == null ? null : ref);
+      if (mounted && r.ok) setState(() => _alerts++);
+      await recording;
+    }
+  }
+
+  /// cctvdet: the owner's zones (drawn on this camera's picture) — fetched
+  /// again only when the server's config version changes.
+  Future<void> _refreshZones(ShopDeviceClient dev, Object? version) async {
+    if (version == null || version == _zonesVer) return;
+    try {
+      final c = await dev.config();
+      if (c.ok) {
+        _zones.applyConfig(c.body);
+        _zonesVer = '$version';
+      }
+    } catch (_) {} // zones stay as they were; alerts keep working
+  }
+
   Future<void> _heartbeat() async {
     final dev = _dev;
     if (dev == null || widget.preview != null) return;
@@ -1012,6 +1082,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
       return;
     }
     final pc = r.body['phonecam'];
+    if (r.ok) unawaited(_refreshZones(dev, r.body['config_version']));
     setState(() {
       _online = r.ok;
       _warnings = localWarnings(health);
