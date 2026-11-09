@@ -46388,5 +46388,238 @@
   "ccnConsent": "I own this camera and agree to link it to Assisto's account; I can unlink it any time.",
   "@ccnConsent": {
     "description": "cctvconnect: developer-account bind consent / owner test badge"
+  },
+  "ctrRoleStaff": "Staff",
+  "@ctrRoleStaff": {
+    "description": "cctvroles (CCTV V3 I/J): Role name: a shop worker who can only view"
+  },
+  "ctrRoleStaffHelp": "Sees every camera (or the ones you tick), view only — can never delete, download, share or change anything.",
+  "@ctrRoleStaffHelp": {
+    "description": "cctvroles (CCTV V3 I/J): Role help: staff"
+  },
+  "ctrOwnerOnlyNote": "Only you, the owner, can delete, download evidence, share clips or change settings. Every such step is saved in “Who viewed or changed what”.",
+  "@ctrOwnerOnlyNote": {
+    "description": "cctvroles (CCTV V3 I/J): Role sheet: who may delete/export/change"
+  },
+  "ctrLogTitle": "Who viewed or changed what",
+  "@ctrLogTitle": {
+    "description": "cctvroles (CCTV V3 I/J): Audit list title"
+  },
+  "ctrLogAll": "All",
+  "@ctrLogAll": {
+    "description": "cctvroles (CCTV V3 I/J): Audit filter chip"
+  },
+  "ctrLogChanges": "Changes and downloads",
+  "@ctrLogChanges": {
+    "description": "cctvroles (CCTV V3 I/J): Audit filter chip"
+  },
+  "ctrLogViews": "Views",
+  "@ctrLogViews": {
+    "description": "cctvroles (CCTV V3 I/J): Audit filter chip"
+  },
+  "ctrLogExport": "Downloaded evidence",
+  "@ctrLogExport": {
+    "description": "cctvroles (CCTV V3 I/J): Audit row action"
+  },
+  "ctrLogShare": "Shared a clip or link",
+  "@ctrLogShare": {
+    "description": "cctvroles (CCTV V3 I/J): Audit row action"
+  },
+  "ctrLogChange": "Changed something",
+  "@ctrLogChange": {
+    "description": "cctvroles (CCTV V3 I/J): Audit row action"
+  },
+  "ctrLogDelete": "Deleted",
+  "@ctrLogDelete": {
+    "description": "cctvroles (CCTV V3 I/J): Audit row action"
+  },
+  "ctrLogRole": "Changed what someone may see",
+  "@ctrLogRole": {
+    "description": "cctvroles (CCTV V3 I/J): Audit row action"
+  },
+  "ctrLogInstaller": "Installer",
+  "@ctrLogInstaller": {
+    "description": "cctvroles (CCTV V3 I/J): Audit row action"
+  },
+  "ctrLogYou": "You",
+  "@ctrLogYou": {
+    "description": "cctvroles (CCTV V3 I/J): Audit row: the owner themself"
+  },
+  "ctrInstTitle": "Installer",
+  "@ctrInstTitle": {
+    "description": "cctvroles (CCTV V3 I/J): Owner: installer screen title / button"
+  },
+  "ctrInstEmptyTitle": "No installer linked",
+  "@ctrInstEmptyTitle": {
+    "description": "cctvroles (CCTV V3 I/J): Owner installer empty title"
+  },
+  "ctrInstEmptyBenefit": "Let your local CCTV technician check the setup from their own phone — they never see video, photos or alerts.",
+  "@ctrInstEmptyBenefit": {
+    "description": "cctvroles (CCTV V3 I/J): Owner installer empty benefit"
+  },
+  "ctrInstMake": "Make installer code",
+  "@ctrInstMake": {
+    "description": "cctvroles (CCTV V3 I/J): Owner: button"
+  },
+  "ctrInstStep1": "Tap “Make installer code”.",
+  "@ctrInstStep1": {
+    "description": "cctvroles (CCTV V3 I/J): How-to step"
+  },
+  "ctrInstStep2": "The technician opens Assisto → CCTV → Installer partner and scans the QR or types the code.",
+  "@ctrInstStep2": {
+    "description": "cctvroles (CCTV V3 I/J): How-to step"
+  },
+  "ctrInstStep3": "End it any time from this screen.",
+  "@ctrInstStep3": {
+    "description": "cctvroles (CCTV V3 I/J): How-to step"
+  },
+  "ctrInstCodeTitle": "Show this to the technician",
+  "@ctrInstCodeTitle": {
+    "description": "cctvroles (CCTV V3 I/J): Code sheet title"
+  },
+  "ctrInstCodeHelp": "One-time code, valid for {hours} hours. It works only for an Assisto-approved installer partner.",
+  "@ctrInstCodeHelp": {
+    "description": "cctvroles (CCTV V3 I/J): Code sheet help",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "ctrInstCopy": "Copy code",
+  "@ctrInstCopy": {
+    "description": "cctvroles (CCTV V3 I/J): Button"
+  },
+  "ctrInstCopied": "Code copied",
+  "@ctrInstCopied": {
+    "description": "cctvroles (CCTV V3 I/J): Snack"
+  },
+  "ctrInstStatusInvited": "Waiting for the technician",
+  "@ctrInstStatusInvited": {
+    "description": "cctvroles (CCTV V3 I/J): Link status"
+  },
+  "ctrInstStatusActive": "Linked — sees setup status only",
+  "@ctrInstStatusActive": {
+    "description": "cctvroles (CCTV V3 I/J): Link status"
+  },
+  "ctrInstStatusExpired": "Code expired",
+  "@ctrInstStatusExpired": {
+    "description": "cctvroles (CCTV V3 I/J): Link status"
+  },
+  "ctrInstNotUsed": "Code not used yet",
+  "@ctrInstNotUsed": {
+    "description": "cctvroles (CCTV V3 I/J): Link row title before a partner joined"
+  },
+  "ctrInstEnd": "End",
+  "@ctrInstEnd": {
+    "description": "cctvroles (CCTV V3 I/J): Button"
+  },
+  "ctrInstEndConfirm": "End this installer's access? They will no longer see this place's setup status.",
+  "@ctrInstEndConfirm": {
+    "description": "cctvroles (CCTV V3 I/J): Confirm sheet"
+  },
+  "ctrInstEndYes": "Yes, end it",
+  "@ctrInstEndYes": {
+    "description": "cctvroles (CCTV V3 I/J): Confirm button"
+  },
+  "ctrInstKeep": "Keep",
+  "@ctrInstKeep": {
+    "description": "cctvroles (CCTV V3 I/J): Cancel button"
+  },
+  "ctrPartTitle": "Installer partner",
+  "@ctrPartTitle": {
+    "description": "cctvroles (CCTV V3 I/J): Technician screen title"
+  },
+  "ctrPartIntro": "For CCTV technicians: link your customers' places and check the setup from your phone. You never see video, photos or alerts.",
+  "@ctrPartIntro": {
+    "description": "cctvroles (CCTV V3 I/J): Technician intro"
+  },
+  "ctrPartName": "Your name or shop name",
+  "@ctrPartName": {
+    "description": "cctvroles (CCTV V3 I/J): Field label"
+  },
+  "ctrPartArea": "Area you work in",
+  "@ctrPartArea": {
+    "description": "cctvroles (CCTV V3 I/J): Field label"
+  },
+  "ctrPartApply": "Apply to be a partner",
+  "@ctrPartApply": {
+    "description": "cctvroles (CCTV V3 I/J): Button"
+  },
+  "ctrPartPending": "Application sent. Assisto will check and approve it — then you can add places here.",
+  "@ctrPartPending": {
+    "description": "cctvroles (CCTV V3 I/J): Pending state"
+  },
+  "ctrPartSuspended": "Your partner account is paused. Please contact Assisto support.",
+  "@ctrPartSuspended": {
+    "description": "cctvroles (CCTV V3 I/J): Suspended state"
+  },
+  "ctrPartCode": "Code from the owner",
+  "@ctrPartCode": {
+    "description": "cctvroles (CCTV V3 I/J): Field label"
+  },
+  "ctrPartCodeHint": "Scan the owner's QR with your phone camera, or type the 8-letter code.",
+  "@ctrPartCodeHint": {
+    "description": "cctvroles (CCTV V3 I/J): Field help"
+  },
+  "ctrPartJoin": "Add place",
+  "@ctrPartJoin": {
+    "description": "cctvroles (CCTV V3 I/J): Button"
+  },
+  "ctrPartJoined": "Place added",
+  "@ctrPartJoined": {
+    "description": "cctvroles (CCTV V3 I/J): Snack"
+  },
+  "ctrPartEmptyTitle": "No places yet",
+  "@ctrPartEmptyTitle": {
+    "description": "cctvroles (CCTV V3 I/J): Empty title"
+  },
+  "ctrPartEmptyBenefit": "Ask the owner to make an installer code in Assisto: CCTV → their place → Installer.",
+  "@ctrPartEmptyBenefit": {
+    "description": "cctvroles (CCTV V3 I/J): Empty benefit"
+  },
+  "ctrPartCams": "{online} of {total} cameras online",
+  "@ctrPartCams": {
+    "description": "cctvroles (CCTV V3 I/J): Site row",
+    "placeholders": {
+      "online": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "ctrPartDone": "Setup complete",
+  "@ctrPartDone": {
+    "description": "cctvroles (CCTV V3 I/J): Site row"
+  },
+  "ctrPartTodo": "Setup not finished",
+  "@ctrPartTodo": {
+    "description": "cctvroles (CCTV V3 I/J): Site row"
+  },
+  "ctrPartCommission": "Commission: a proposal, not active yet.",
+  "@ctrPartCommission": {
+    "description": "cctvroles (CCTV V3 I/J): Partner screen footer"
+  },
+  "ctrStepCamerasAdded": "Cameras added",
+  "@ctrStepCamerasAdded": {
+    "description": "cctvroles (CCTV V3 I/J): Checklist"
+  },
+  "ctrStepCamerasOnline": "All cameras online",
+  "@ctrStepCamerasOnline": {
+    "description": "cctvroles (CCTV V3 I/J): Checklist"
+  },
+  "ctrStepGateway": "Box or phone connected",
+  "@ctrStepGateway": {
+    "description": "cctvroles (CCTV V3 I/J): Checklist"
+  },
+  "ctrStepHours": "Opening hours set",
+  "@ctrStepHours": {
+    "description": "cctvroles (CCTV V3 I/J): Checklist"
+  },
+  "ctrStepZones": "Zones drawn on every camera",
+  "@ctrStepZones": {
+    "description": "cctvroles (CCTV V3 I/J): Checklist"
   }
 }
