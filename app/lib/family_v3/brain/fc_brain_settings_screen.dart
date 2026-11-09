@@ -366,7 +366,8 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
                 icon: Icons.play_arrow,
                 label: t.fcbResume,
               )
-            : DsChipRow(padding: EdgeInsets.zero, children: [
+            // three short chips: a Wrap (one vertical scroller on the page)
+            : Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
                 for (final h in hours)
                   DsChip(
                     icon: Icons.pause,

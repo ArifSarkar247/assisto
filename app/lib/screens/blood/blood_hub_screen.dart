@@ -391,8 +391,11 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
                   icon: _here != null ? Icons.my_location_rounded : Icons.location_searching_rounded,
                   label: _here != null ? t.bpHereOn : t.bpHere,
                 ),
+                // designv2: isExpanded — a long district name at 200% text
+                // wraps to its own line instead of overflowing the Wrap
                 DropdownButton<String>(
                   key: const ValueKey('bp-district'),
+                  isExpanded: true,
                   value: districts.any((d) => d['code'] == _district) ? _district : null,
                   hint: Text(t.bpDistrict),
                   underline: const SizedBox.shrink(),

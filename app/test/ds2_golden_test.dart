@@ -116,6 +116,11 @@ List<String> smallTargets(WidgetTester tester) {
     final r = e.renderObject;
     if (r is! RenderBox || !r.hasSize || !r.attached) continue;
     final s = r.size;
+    // a Switch / Checkbox inside a list tile: the whole tile (>= 48 dp) is the target
+    if (e.widget is Switch &&
+        e.findAncestorWidgetOfExactType<ListTile>() != null) {
+      continue;
+    }
     if (s.width < 47.5 || s.height < 47.5) {
       out.add('${e.widget.runtimeType} ${e.widget.key} ${s.width.toStringAsFixed(1)}x${s.height.toStringAsFixed(1)}');
     }
