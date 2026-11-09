@@ -305,8 +305,9 @@ class LpFixCard extends StatelessWidget {
             Icon(Icons.lightbulb_rounded, color: ink, size: 20),
             const SizedBox(width: Gap.xs),
             Expanded(child: Text(tr.lp2FixTitle, style: TextStyle(fontWeight: FontWeight.w700, color: ink))),
-            if (pron != null) LpPronChip(percent: pron!),
           ]),
+          if (pron != null)
+            Padding(padding: const EdgeInsets.only(top: Gap.xs), child: LpPronChip(percent: pron!)),
           if (wrong != null && wrong!.trim().isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(wrong!,
@@ -345,8 +346,10 @@ class LpPronChip extends StatelessWidget {
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.record_voice_over_rounded, size: 16, color: Brand.onTint(context, c)),
           const SizedBox(width: Gap.xs),
-          Text(tr.lp2PronPercent(ld(context, percent)),
-              style: TextStyle(fontWeight: FontWeight.w700, color: Brand.onTint(context, c))),
+          Flexible(
+            child: Text(tr.lp2PronPercent(ld(context, percent)),
+                style: TextStyle(fontWeight: FontWeight.w700, color: Brand.onTint(context, c))),
+          ),
         ]),
       ),
     );

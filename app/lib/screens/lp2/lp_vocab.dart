@@ -208,7 +208,7 @@ class _LpVocabSessionState extends State<LpVocabSession> {
         _rowById[id] = {...body, 'id': r['id']};
       }
     } catch (_) {
-      // offline: the word comes back next time; nothing is lost but this box move.
+      // best-effort: offline — the word comes back next time; only this box move is lost.
     }
     if (_i >= widget.words.length && !_logged) {
       _logged = true;

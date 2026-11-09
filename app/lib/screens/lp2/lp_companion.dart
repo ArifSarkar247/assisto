@@ -136,7 +136,9 @@ class _LpCompanionScreenState extends State<LpCompanionScreen> {
           'answers': {for (final e in _a.entries) if (e.value.text.trim().isNotEmpty) '${e.key}': e.value.text.trim()},
           'key': {for (final e in _k.entries) if (e.value.text.trim().isNotEmpty) '${e.key}': e.value.text.trim()},
         });
-      } catch (_) {}
+      } catch (_) {
+        // best-effort: history copy only; the marked sheet is already on screen
+      }
     }());
     unawaited(lpLogPractice(api, 'book', DateTime.now().difference(_opened).inMinutes.clamp(1, 90)));
   }

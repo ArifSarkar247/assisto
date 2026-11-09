@@ -267,7 +267,9 @@ void main() {
       for (var i = 0; i < 1801; i++) {
         await t.pump(const Duration(seconds: 1));
       }
-      await t.pumpAndSettle();
+      for (var i = 0; i < 10; i++) {
+        await t.pump(const Duration(milliseconds: 500));
+      }
       expect(lp2Posts.first['path'], 'lp/mocks/ac-001/mark');
       expect(find.text('Your result'), findsOneWidget);
     });
@@ -302,11 +304,6 @@ void main() {
       await t.pumpAndSettle();
       expect(find.textContaining('Why do you want to travel'), findsOneWidget);
       expect(find.byKey(const Key('lp2-hold')), findsOneWidget);
-      await t.tap(find.byKey(const Key('lp2-hold'))); // a tap explains how to hold
-      await t.pump();
-      expect(find.text('Hold the button while you speak, then let go.'), findsOneWidget);
-      await t.pump(const Duration(seconds: 5)); // let the hint snackbar go
-      await t.pumpAndSettle();
       await t.tap(find.byKey(const Key('lp2-type')));
       await t.pumpAndSettle();
       await t.enterText(find.byType(TextField), 'I want study master degree');
@@ -320,6 +317,11 @@ void main() {
       expect(find.text("I want to study for a master's degree."), findsOneWidget);
       expect(find.text('Thank you. And who will pay for your studies?'), findsOneWidget);
       expect(find.text('Say it right'), findsOneWidget);
+      await t.tap(find.byIcon(Icons.mic_rounded).last); // back to the hold-to-speak button
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(const Key('lp2-hold'))); // a tap explains how to hold
+      await t.pump();
+      expect(find.text('Hold the button while you speak, then let go.'), findsOneWidget);
     });
 
     testWidgets('guided practice: pronunciation percent from the model answer (key-free)', (t) async {

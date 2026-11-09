@@ -74,7 +74,9 @@ class _LpLifeListScreenState extends State<LpLifeListScreen> {
         for (final d in days)
           if ('${d['kind']}'.startsWith('life:')) '${d['kind']}'.substring(5),
       };
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: only the "practised" ticks; the scenarios still open offline
+    }
     if (mounted) setState(() => _loading = false);
   }
 
