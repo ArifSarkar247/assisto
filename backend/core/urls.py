@@ -1644,6 +1644,7 @@ urlpatterns += [
     path("school-mode/plans/<int:pk>/events", kwv.PlanEventsView.as_view()),
     path("school-mode/plans/<int:pk>/events/clear", kwv.PlanEventsView.as_view()),
     path("school-mode/plans/<int:pk>/gate-snapshot", kwv.GateSnapshotView.as_view()),  # sjlive
+    path("school-mode/plans/<int:pk>/kc-answer", kwv.KidsCornerAnswerView.as_view()),  # sjkids
     path("school-mode/plans/<int:pk>/<str:action>", kwv.PlanActionView.as_view()),
 ]
 # ---- /kidswatch ----

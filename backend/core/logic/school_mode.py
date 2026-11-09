@@ -114,6 +114,9 @@ def validate(cfg):
     out["gate_camera_id"] = cam if cam > 0 else None
     out["home"] = clean_place(out.get("home"))
     out["school"] = clean_place(out.get("school"))
+    # sjkids: Children Corner places (safe with time windows / watch)
+    from . import kids_corner as _KC
+    out["kc_places"] = _KC.clean_places(out.get("kc_places"))
     return out
 
 

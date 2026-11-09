@@ -70,6 +70,7 @@ const _launchPrefixes = <String>[
   'ctm_', // CCTV team (guards, links, access log)
   'dp_', 'task_mgr', 'cost_est', // p2plan: daily planner, task manager, estimator (3 Nov)
   'sjl_', 'trip_', // Safe Journey Live Location + trip recorder
+  'sjkids_', // sjkids: Children Corner (Safe Journey v2)
   'bbl2_', 'bbl_', // chat bubbles
   'psec_', // Personal Secretary
   'amk_', // Market
