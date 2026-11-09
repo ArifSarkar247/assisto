@@ -1,4 +1,4 @@
-"""E2E-proof CI settings (e2eproof; settings_e2e stays the CCTV harness). Used ONLY by .github/workflows/e2e.yml.
+"""E2E-proof CI settings (e2eproof). Used ONLY by .github/workflows/e2e.yml.
 
 settings_ci (throw-away DB, every paid key scrubbed, DEBUG off) PLUS the
 CI-only app `ci_e2e`, which swaps every third-party network seam for a
