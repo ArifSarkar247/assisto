@@ -1,3 +1,4 @@
+import '../family_v3/family_entry.dart'; // fcscreen
 import '../eldercare/elder_watch_screen.dart'; // fcelder
 import 'package:flutter/material.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
@@ -12,7 +13,6 @@ import '../screens/money_tax_screen.dart';
 import '../screens/money_wrapped_screen.dart';
 import '../screens/money_voice_screen.dart';
 import '../screens/vault_screen.dart';
-import '../screens/family_screen.dart';
 import '../screens/family_alerts_screen.dart'; // family100
 import '../screens/emergency_screen.dart';
 import '../screens/emergency_hub_screen.dart'; // emhub
@@ -197,7 +197,7 @@ class ChatNav {
   static final Map<String, WidgetBuilder> _allRoutes = {
     'money': (_) => const MoneyScreen(),
     'documents': (_) => const VaultScreen(),
-    'family': (_) => const FamilyScreen(),
+    'family': (_) => const FamilyEntry(), // fcscreen
     'family_alerts': (_) => const FamilyAlertsScreen(), // family100 (push)
     'carecall': (_) => const CareCallScreen(), // carecall (flag care_call, push)
     'elder_watch': (_) => const ElderWatchScreen(), // fcelder: Silent Watch (family; push)

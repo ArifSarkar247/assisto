@@ -436,6 +436,23 @@ jobs:
           )
           if '.AssistoWidgetProvider' not in s:
               s = s.replace('</application>', native_components + '    </application>', 1)
+          # ---- fcscreen ---- Family home-screen widget (Family Care v3):
+          # no periodic update, no service; the provider re-colours stale
+          # members itself with one inexact non-wakeup alarm (explicit intent).
+          fc_widget = (
+              '\n        <receiver android:name=".FamilyWidgetProvider"'
+              ' android:label="@string/fc_widget_label"'
+              ' android:exported="false">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>'
+              '\n            </intent-filter>'
+              '\n            <meta-data android:name="android.appwidget.provider"'
+              ' android:resource="@xml/fc_family_widget_info"/>'
+              '\n        </receiver>\n'
+          )
+          if '.FamilyWidgetProvider' not in s:
+              s = s.replace('</application>', fc_widget + '    </application>', 1)
+          # ---- /fcscreen ----
           # ---- callmoney ---- after-call note + money from notifications: ONE
           # NotificationListenerService, bound by Android only after the user
           # turns on Notification access for Assisto (the BIND_ permission

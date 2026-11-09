@@ -30,6 +30,7 @@ from . import views_push as pushv
 from . import views_family100 as fam100
 from . import views_famcare as famc  # famcare
 from . import views_family_brain as fcb  # fcbrain
+from . import views_family_v3 as f3  # fcscreen
 from . import views_moneybar  # moneybar
 from . import views_ads as ads_views
 from . import vault_recovery as vaultrec  # vault100
@@ -391,6 +392,18 @@ urlpatterns = [
     # famcare (owner 28 Oct): pick from My Circle, limits (safety free = 5),
     # shared reminders, family shopping list, shared vault documents.
     # MUST precede router.urls (family/<pk>).
+    # fcscreen: Family Care v3 (multi-family board, tasks, member page)
+    path("family/v3/families", f3.FamiliesView.as_view()),
+    path("family/v3/families/<int:fid>/board", f3.FamilyBoardView.as_view()),
+    path("family/v3/families/<int:fid>/rename", f3.FamilyRenameView.as_view()),
+    path("family/v3/families/<int:fid>/invite", f3.FamilyInviteView.as_view()),
+    path("family/v3/families/<int:fid>/leave", f3.FamilyLeaveView.as_view()),
+    path("family/v3/families/<int:fid>/remove/<int:uid>", f3.FamilyRemoveView.as_view()),
+    path("family/v3/families/<int:fid>/members/<int:uid>", f3.FamilyMemberEditView.as_view()),
+    path("family/v3/families/<int:fid>/tasks", f3.FamilyTasksView.as_view()),
+    path("family/v3/invites/<int:mid>/<str:answer>", f3.InviteAnswerView.as_view()),
+    path("family/v3/members/<int:uid>", f3.MemberPageView.as_view()),
+    path("family/v3/tasks/<int:tid>/<str:action>", f3.FamilyTaskActionView.as_view()),
     path("family/limits", famc.FamilyLimitsView.as_view()),
     path("family/limits/", famc.FamilyLimitsView.as_view()),
     path("family/circle-pick", famc.FamilyCirclePickView.as_view()),
