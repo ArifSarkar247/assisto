@@ -110,14 +110,19 @@ class _CircleGroupListScreenState extends State<CircleGroupListScreen> {
         label: Text(_t.circleGroupCreate),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+              for (var i = 0; i < 3; i++)
+                Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSkeleton.card(lines: 2)),
+            ])
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 96),
                 children: [
                   if (_groups.isEmpty) _emptyState(scheme),
-                  for (final g in _groups) _groupTile(g),
+                  // designv2: groups in one grouped card
+                  if (_groups.isNotEmpty)
+                    DsGroup(children: [for (final g in _groups) _groupTile(g)]),
                 ],
               ),
             ),
@@ -125,22 +130,13 @@ class _CircleGroupListScreenState extends State<CircleGroupListScreen> {
   }
 
   Widget _emptyState(ColorScheme scheme) => Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(
-          children: [
-            Icon(Icons.groups_2_rounded,
-                size: 56, color: scheme.primary.withValues(alpha: 0.7)),
-            const SizedBox(height: Gap.md),
-            Text(_t.circleGroupsEmptyTitle,
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.center),
-            const SizedBox(height: Gap.xs),
-            Text(
-              _backendReady ? _t.circleGroupsEmptyBody : _t.circleBackendPending,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: DsTokens.of(context).muted, height: 1.4),
-            ),
-          ],
+        padding: const EdgeInsets.all(Gap.lg),
+        child: DsEmptyState(
+          icon: Icons.groups_2_rounded,
+          title: _t.circleGroupsEmptyTitle,
+          benefit: _backendReady ? _t.circleGroupsEmptyBody : _t.circleBackendPending,
+          actionLabel: _backendReady ? _t.circleGroupCreate : null,
+          onAction: _backendReady ? _create : null,
         ),
       );
 
@@ -148,20 +144,17 @@ class _CircleGroupListScreenState extends State<CircleGroupListScreen> {
     final name = '${g['name'] ?? ''}';
     final count = (g['member_count'] ?? (g['member_ids'] as List?)?.length ?? 0);
     final announcementsOnly = g['announcements_only'] == true;
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor:
-            DsTokens.of(context).primarySoft,
-        child: const Icon(Icons.groups_rounded),
-      ),
-      title: Text(name),
-      subtitle: Text(_t.circleGroupMemberCount(notifLocalizeDigits(context, '$count'))),
+    final ds = DsTokens.of(context);
+    return DsListRow(
+      leading: DsAvatar(name: name),
+      title: name,
+      subtitle: _t.circleGroupMemberCount(notifLocalizeDigits(context, '$count')),
       trailing: announcementsOnly
           ? Tooltip(
               message: _t.circleGroupAnnouncementsOnly,
-              child: const Icon(Icons.campaign_rounded),
+              child: Icon(Icons.campaign_rounded, color: ds.primaryInk),
             )
-          : null,
+          : Icon(Icons.chevron_right_rounded, color: ds.muted),
       onTap: () => _open(g),
     );
   }
