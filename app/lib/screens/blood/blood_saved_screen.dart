@@ -8,6 +8,7 @@ import '../../blood_panel_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/money_circle_pick.dart' show CirclePickButton;
 import 'bp_common.dart';
@@ -97,24 +98,22 @@ class _BloodSavedScreenState extends State<BloodSavedScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.lg),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(t.bsvDeleteAsk('${row['name'] ?? ''}'), style: Theme.of(ctx).textTheme.titleMedium),
+            Text(t.bsvDeleteAsk('${row['name'] ?? ''}'),
+                style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                    color: DsTokens.of(ctx).text, fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.lg),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: FilledButton(
-                key: const ValueKey('bsv-delete-yes'),
-                style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
-                onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(t.delete),
-              ),
+            DsButton.danger(
+              key: const ValueKey('bsv-delete-yes'),
+              expand: true,
+              icon: Icons.delete_outline_rounded,
+              onPressed: () => Navigator.of(ctx).pop(true),
+              label: t.delete,
             ),
             const SizedBox(height: Gap.sm),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: OutlinedButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(t.cancel),
-              ),
+            DsButton.secondary(
+              expand: true,
+              onPressed: () => Navigator.of(ctx).pop(false),
+              label: t.cancel,
             ),
           ]),
         ),
@@ -144,7 +143,10 @@ class _BloodSavedScreenState extends State<BloodSavedScreen> {
               label: Text(t.bsvAdd),
             ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? ListView(
+              padding: const EdgeInsets.all(Gap.lg),
+              children: [for (var i = 0; i < 3; i++) Padding(
+                  padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSkeleton.card(lines: 3))])
           : _failed
               ? Center(child: BpError(onRetry: _load))
               : RefreshIndicator(
@@ -153,7 +155,12 @@ class _BloodSavedScreenState extends State<BloodSavedScreen> {
                     padding: withNavBarInset(
                         context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 96)),
                     children: [
-                      Text(t.bsvPrivate, key: const ValueKey('bsv-private'), style: text.bodyMedium),
+                      Row(key: const ValueKey('bsv-private'), crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Icon(Icons.lock_rounded, size: 18, color: DsTokens.of(context).muted),
+                        const SizedBox(width: Gap.sm),
+                        Expanded(child: Text(t.bsvPrivate,
+                            style: text.bodyMedium?.copyWith(color: DsTokens.of(context).muted))),
+                      ]),
                       const SizedBox(height: Gap.md),
                       if (_rows.isEmpty)
                         BpEmpty(
@@ -173,13 +180,15 @@ class _BloodSavedScreenState extends State<BloodSavedScreen> {
                                   (_counts['total'] as num?)?.toInt() ?? _rows.length,
                                   (_counts['available'] as num?)?.toInt() ?? 0,
                                   (_counts['soon'] as num?)?.toInt() ?? 0)),
-                              style: text.titleSmall),
+                              style: text.titleSmall?.copyWith(
+                                  color: DsTokens.of(context).text, fontWeight: FontWeight.w700)),
                         ),
                         const SizedBox(height: Gap.sm),
                         for (final d in _rows) _card(context, d),
                         Text(t.bpDoctorDecides,
                             key: const ValueKey('bsv-doctor-decides'),
-                            style: text.bodySmall?.copyWith(fontStyle: FontStyle.italic)),
+                            style: text.bodySmall?.copyWith(
+                                fontStyle: FontStyle.italic, color: DsTokens.of(context).muted)),
                       ],
                     ],
                   ),
@@ -189,14 +198,16 @@ class _BloodSavedScreenState extends State<BloodSavedScreen> {
 
   Widget _card(BuildContext context, Map<String, dynamic> d) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
+    final text = Theme.of(context).textTheme;
     final phone = '${d['phone'] ?? ''}';
     final area = '${d['area_text'] ?? ''}';
     final group = '${d['blood_group'] ?? ''}';
-    return Card(
+    // designv2: who + status on top, one row of round actions (call first)
+    return Padding(
       key: ValueKey('bsv-donor-${d['id']}'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+      padding: const EdgeInsets.only(bottom: Gap.md),
+      child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -204,52 +215,49 @@ class _BloodSavedScreenState extends State<BloodSavedScreen> {
             const SizedBox(width: Gap.md),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('${d['name'] ?? ''}', style: Theme.of(context).textTheme.titleMedium),
-                if (area.isNotEmpty) Text(area, style: TextStyle(color: s.onSurfaceVariant)),
+                Text('${d['name'] ?? ''}',
+                    style: text.titleMedium?.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
+                if (area.isNotEmpty) Text(area, style: text.bodyMedium?.copyWith(color: ds.muted)),
                 if (d['from_old_list'] == true)
-                  Text(t.bsvFromOld, style: Theme.of(context).textTheme.bodySmall),
+                  Text(t.bsvFromOld, style: text.bodySmall?.copyWith(color: ds.muted)),
                 const SizedBox(height: Gap.xs),
                 BpDonorStatus(donor: d),
               ]),
             ),
           ]),
           const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          Row(children: [
             if (phone.isNotEmpty) ...[
-              ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 48),
-                child: FilledButton.tonalIcon(
-                  key: ValueKey('bsv-call-${d['id']}'),
-                  onPressed: () => bpLaunch(context, 'tel', phone),
-                  icon: const Icon(Icons.call_rounded),
-                  label: Text(t.bpCall),
-                ),
+              DsIconAction(
+                key: ValueKey('bsv-call-${d['id']}'),
+                tooltip: t.bpCall,
+                color: ds.successInk,
+                onPressed: () => bpLaunch(context, 'tel', phone),
+                icon: Icons.call_rounded,
               ),
-              ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 48),
-                child: OutlinedButton.icon(
-                  key: ValueKey('bsv-sms-${d['id']}'),
-                  onPressed: () => bpLaunch(context, 'sms', phone),
-                  icon: const Icon(Icons.sms_outlined),
-                  label: Text(t.bpSms),
-                ),
+              const SizedBox(width: Gap.sm),
+              DsIconAction(
+                key: ValueKey('bsv-sms-${d['id']}'),
+                tooltip: t.bpSms,
+                onPressed: () => bpLaunch(context, 'sms', phone),
+                icon: Icons.sms_outlined,
               ),
             ],
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: OutlinedButton.icon(
-                key: ValueKey('bsv-edit-${d['id']}'),
-                onPressed: () => _edit(d),
-                icon: const Icon(Icons.edit_outlined),
-                label: Text(t.edit),
-              ),
+            const Spacer(),
+            DsIconAction(
+              key: ValueKey('bsv-edit-${d['id']}'),
+              tooltip: t.edit,
+              color: ds.muted,
+              onPressed: () => _edit(d),
+              icon: Icons.edit_outlined,
             ),
-            IconButton(
+            const SizedBox(width: Gap.sm),
+            DsIconAction(
               key: ValueKey('bsv-del-${d['id']}'),
               tooltip: t.delete,
-              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              color: ds.dangerInk,
               onPressed: () => _delete(d),
-              icon: const Icon(Icons.delete_outline_rounded),
+              icon: Icons.delete_outline_rounded,
             ),
           ]),
         ]),
@@ -328,7 +336,8 @@ class _SavedFormState extends State<_SavedForm> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(Gap.lg),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(widget.initial == null ? t.bsvAdd : t.bsvEditTitle, style: text.titleLarge),
+            Text(widget.initial == null ? t.bsvAdd : t.bsvEditTitle,
+                style: text.titleLarge?.copyWith(color: DsTokens.of(context).text, fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.md),
             CirclePickButton(name: _name, phone: _phone, onPicked: () => setState(() {})),
             const SizedBox(height: Gap.md),
@@ -341,15 +350,11 @@ class _SavedFormState extends State<_SavedForm> {
             ),
             Text(t.bsvGroup, style: text.titleSmall),
             const SizedBox(height: Gap.xs),
-            Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-              for (final g in kBloodGroups)
-                ChoiceChip(
-                  key: ValueKey('bsv-g-$g'),
-                  label: Text(g),
-                  selected: _group == g,
-                  onSelected: (on) => setState(() => _group = on ? g : ''),
-                ),
-            ]),
+            BpGroupGrid(
+              keyPrefix: 'bsv-g-',
+              selected: _group,
+              onTap: (g) => setState(() => _group = _group == g ? '' : g),
+            ),
             const SizedBox(height: Gap.md),
             TextField(
               key: const ValueKey('bsv-phone'),
@@ -397,15 +402,13 @@ class _SavedFormState extends State<_SavedForm> {
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.sm),
                 child: Text(_err!, key: const ValueKey('bsv-err'),
-                    style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                    style: text.bodyMedium?.copyWith(color: DsTokens.of(context).dangerInk)),
               ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 52),
-              child: FilledButton(
-                key: const ValueKey('bsv-save'),
-                onPressed: _save,
-                child: Text(t.save),
-              ),
+            DsButton(
+              key: const ValueKey('bsv-save'),
+              expand: true,
+              onPressed: _save,
+              label: t.save,
             ),
           ]),
         ),

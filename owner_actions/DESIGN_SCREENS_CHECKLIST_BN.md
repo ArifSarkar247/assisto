@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ১৫ / মোট ৪২০**
+**স্ক্রিন শেষ: ১৮ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -17,13 +17,13 @@
 
 ## ২. রক্তদাতা
 
-- ⬜ — `screens/blood/blood_banks_screen.dart`
+- ✅ batch 4 (উৎস কার্ড, ব্যাংক কার্ডে সবুজ কল বোতাম) — `screens/blood/blood_banks_screen.dart`
 - ✅ batch 4 (ধাপে ধাপে কার্ড, ৪×২ গ্রুপ গ্রিড) — `screens/blood/blood_donor_setup_screen.dart`
 - ✅ build designv2 batch 1 — `screens/blood/blood_hub_screen.dart`
 - ✅ batch 3 (খোলা অনুরোধ = লাল হিরো) — `screens/blood/blood_request_detail_screen.dart`
 - ✅ batch 4 (ফর্ম: ৪×২ গ্রুপ গ্রিড, কার্ডে ভাগ, লাল পাঠান বোতাম) — `screens/blood/blood_request_form_screen.dart`
-- ⬜ — `screens/blood/blood_saved_screen.dart`
-- ⬜ — `screens/blood/blood_thread_screen.dart`
+- ✅ batch 4 (কার্ডে গোল অ্যাকশন (কল আগে), ৪×২ গ্রিড ফর্মে) — `screens/blood/blood_saved_screen.dart`
+- ✅ batch 4 (চ্যাট বাবল, কার্ড ব্যানার, লাল ব্লক নিশ্চিতকরণ) — `screens/blood/blood_thread_screen.dart`
 - ✅ batch 4 (এক কার্ডে বার্তা তালিকা, স্কেলেটন) — `screens/blood/blood_threads_screen.dart`
 - ✅ batch 4 (হিরো + গোপনীয়তা, দুই বোতাম পাশাপাশি) — `screens/blood/blood_verify_screen.dart`
 

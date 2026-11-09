@@ -9,6 +9,7 @@ import '../../l10n/app_localizations.dart';
 import '../../m3_circle_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
 
@@ -126,18 +127,21 @@ class _BloodThreadScreenState extends State<BloodThreadScreen> {
         builder: (ctx) => Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.md),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(t.bpBlockTitle, style: Theme.of(ctx).textTheme.titleMedium),
-            const SizedBox(height: Gap.sm),
-            Text(t.bpBlockBody),
+            DsSheetHeader(t.bpBlockTitle, subtitle: t.bpBlockBody),
             const SizedBox(height: Gap.lg),
-            ConstrainedBox(constraints: const BoxConstraints(minHeight: 52),
-              child: FilledButton(
-                key: const ValueKey('bp-block-confirm'),
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(t.bpBlock),
-              ),
+            DsButton.danger(
+              key: const ValueKey('bp-block-confirm'),
+              expand: true,
+              icon: Icons.block_rounded,
+              onPressed: () => Navigator.pop(ctx, true),
+              label: t.bpBlock,
             ),
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.bpCancel)),
+            const SizedBox(height: Gap.sm),
+            DsButton.secondary(
+              expand: true,
+              onPressed: () => Navigator.pop(ctx, false),
+              label: t.bpCancel,
+            ),
           ]),
         ),
       );
@@ -173,7 +177,10 @@ class _BloodThreadScreenState extends State<BloodThreadScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? ListView(
+              padding: const EdgeInsets.all(Gap.lg),
+              children: [for (var i = 0; i < 3; i++) Padding(
+                  padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSkeleton.card(lines: 2))])
           : _failed
               ? Center(child: BpError(onRetry: _load))
               : Column(children: [
@@ -186,34 +193,36 @@ class _BloodThreadScreenState extends State<BloodThreadScreen> {
 
   Widget _banner(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
+    final text = Theme.of(context).textTheme;
+    Text note(String v) => Text(v, style: text.bodyMedium?.copyWith(color: ds.text));
     final side = '${_th['side']}';
     final ask = '${_th['circle_ask'] ?? ''}';
     final phone = _th['phone'] as String?;
     final children = <Widget>[];
     if (side == 'donor' && ask == 'asked') {
-      children.add(Text(t.bpCircleAskDonor));
-      children.add(Wrap(spacing: Gap.sm, children: [
-        ConstrainedBox(constraints: const BoxConstraints(minHeight: 48),
-          child: FilledButton(
-            key: const ValueKey('bp-circle-accept'),
-            onPressed: () => _circle('accept'),
-            child: Text(t.bpCircleAccept),
-          ),
-        ),
-        ConstrainedBox(constraints: const BoxConstraints(minHeight: 48),
-          child: OutlinedButton(
-            key: const ValueKey('bp-circle-decline'),
-            onPressed: () => _circle('decline'),
-            child: Text(t.bpCircleDecline),
-          ),
-        ),
+      children.add(note(t.bpCircleAskDonor));
+      children.add(const SizedBox(height: Gap.sm));
+      children.add(Row(children: [
+        Expanded(child: DsButton(
+          key: const ValueKey('bp-circle-accept'),
+          expand: true,
+          onPressed: () => _circle('accept'),
+          label: t.bpCircleAccept,
+        )),
+        const SizedBox(width: Gap.sm),
+        Expanded(child: DsButton.secondary(
+          key: const ValueKey('bp-circle-decline'),
+          expand: true,
+          onPressed: () => _circle('decline'),
+          label: t.bpCircleDecline,
+        )),
       ]));
     } else if (side == 'seeker' && ask.isEmpty && _th['blocked'] != true) {
-      children.add(Text(t.bpCallNote));
+      children.add(note(t.bpCallNote));
       children.add(Align(
-        alignment: Alignment.centerLeft,
-        child: ConstrainedBox(constraints: const BoxConstraints(minHeight: 48),
+        alignment: AlignmentDirectional.centerStart,
+        child: ConstrainedBox(constraints: const BoxConstraints(minHeight: kMinTap),
           child: TextButton.icon(
             key: const ValueKey('bp-circle-ask'),
             onPressed: () => _circle('ask'),
@@ -223,49 +232,58 @@ class _BloodThreadScreenState extends State<BloodThreadScreen> {
         ),
       ));
     } else if (ask == 'asked') {
-      children.add(Text(t.bpCircleWaiting));
+      children.add(note(t.bpCircleWaiting));
     } else if (ask == 'accepted') {
-      children.add(Text(t.bpCircleAccepted));
+      children.add(note(t.bpCircleAccepted));
     } else if (ask == 'declined' && side == 'seeker') {
-      children.add(Text(t.bpCircleDeclined));
+      children.add(note(t.bpCircleDeclined));
     }
     if (phone != null && phone.isNotEmpty) {
-      children.add(Wrap(spacing: Gap.sm, children: [
-        ConstrainedBox(constraints: const BoxConstraints(minHeight: 48),
-          child: OutlinedButton.icon(
-            onPressed: () => bpLaunch(context, 'tel', phone),
-            icon: const Icon(Icons.call_rounded),
-            label: Text(t.bpCall),
-          ),
-        ),
-        ConstrainedBox(constraints: const BoxConstraints(minHeight: 48),
-          child: OutlinedButton.icon(
-            onPressed: () => bpLaunch(context, 'sms', phone),
-            icon: const Icon(Icons.sms_outlined),
-            label: Text(t.bpSms),
-          ),
-        ),
+      children.add(const SizedBox(height: Gap.sm));
+      children.add(Row(children: [
+        Expanded(child: DsButton.secondary(
+          expand: true,
+          onPressed: () => bpLaunch(context, 'tel', phone),
+          icon: Icons.call_rounded,
+          label: t.bpCall,
+        )),
+        const SizedBox(width: Gap.sm),
+        Expanded(child: DsButton.secondary(
+          expand: true,
+          onPressed: () => bpLaunch(context, 'sms', phone),
+          icon: Icons.sms_outlined,
+          label: t.bpSms,
+        )),
       ]));
     }
     if (_th['blocked'] == true) {
       children.add(Text(_th['blocked_by_me'] == true ? t.bpBlockedByMe : t.bpErrBlocked,
-          style: TextStyle(color: s.error)));
+          style: text.bodyMedium?.copyWith(color: ds.dangerInk)));
     }
     if (children.isEmpty) return const SizedBox.shrink();
-    return Container(
-      width: double.infinity,
-      color: s.surfaceContainerHigh,
-      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+    // designv2: the banner is a card under the app bar (actions first)
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+      child: DsCard(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+      ),
     );
   }
 
   Widget _list(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
+    final text = Theme.of(context).textTheme;
     if (_msgs.isEmpty) {
       return Center(
-        child: Padding(padding: const EdgeInsets.all(Gap.xl), child: Text(t.bpThreadEmpty, textAlign: TextAlign.center)),
+        child: Padding(padding: const EdgeInsets.all(Gap.xl),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Icon(Icons.forum_outlined, color: ds.muted, size: 40),
+              const SizedBox(height: Gap.sm),
+              Text(t.bpThreadEmpty, textAlign: TextAlign.center,
+                  style: text.bodyMedium?.copyWith(color: ds.muted)),
+            ])),
       );
     }
     return ListView.builder(
@@ -281,16 +299,21 @@ class _BloodThreadScreenState extends State<BloodThreadScreen> {
             margin: const EdgeInsets.only(bottom: Gap.sm),
             padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
             decoration: BoxDecoration(
-              color: mine ? s.primaryContainer : s.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(Radii.md),
+              color: mine ? ds.primary : ds.card,
+              border: mine ? null : Border.all(color: ds.border),
+              borderRadius: BorderRadiusDirectional.only(
+                topStart: const Radius.circular(DsRadius.card),
+                topEnd: const Radius.circular(DsRadius.card),
+                bottomStart: Radius.circular(mine ? DsRadius.card : 4),
+                bottomEnd: Radius.circular(mine ? 4 : DsRadius.card),
+              ),
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('${m['text'] ?? ''}',
-                  style: TextStyle(color: mine ? s.onPrimaryContainer : s.onSurface)),
+                  style: text.bodyLarge?.copyWith(color: mine ? ds.onPrimary : ds.text)),
               const SizedBox(height: Gap.xxs),
               Text(bpWhen(context, m['at'] as String?),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: mine ? s.onPrimaryContainer : s.onSurfaceVariant)),
+                  style: text.bodySmall?.copyWith(color: mine ? ds.onPrimary : ds.muted)),
             ]),
           ),
         );
@@ -314,14 +337,15 @@ class _BloodThreadScreenState extends State<BloodThreadScreen> {
               minLines: 1,
               maxLines: 4,
               maxLength: 600,
-              decoration: InputDecoration(hintText: t.bpMsgLabel, counterText: '', border: const OutlineInputBorder()),
+              decoration: InputDecoration(hintText: t.bpMsgLabel, counterText: ''),
             ),
           ),
-          IconButton(
+          const SizedBox(width: Gap.xs),
+          DsIconAction(
             key: const ValueKey('bp-thread-send'),
             tooltip: t.bpSend,
             onPressed: blocked || _sending || _ctrl.text.trim().isEmpty ? null : _send,
-            icon: const Icon(Icons.send_rounded),
+            icon: Icons.send_rounded,
           ),
         ]),
       ),

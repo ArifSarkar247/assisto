@@ -48,6 +48,9 @@ const ds2Screens = <String>[
   'blood_request_form', // batch 4
   'blood_setup', // batch 4
   'blood_verify', // batch 4
+  'blood_banks', // batch 4
+  'blood_thread', // batch 4
+  'blood_saved', // batch 4
 ];
 
 Future<void> _png(WidgetTester tester, GlobalKey key, String name) async {
