@@ -187,8 +187,9 @@ class SearchTests(MapsBase):
         rows = [{"name": "X", "address": "", "lat": 23.7, "lng": 90.4}]
         with mock.patch("core.journey_geo.geocoder_ready", lambda: True), \
                 mock.patch("core.journey_geo._places_text", side_effect=lambda *a: list(rows)):
-            a = self.c1.get("%s/journey/geocode?q=Bashundhara" % V).json()
-            b = self.c1.get("%s/journey/geocode?q=Bashundhara" % V).json()
+            # sjp0: a name our own list does not know, so the paid search runs
+            a = self.c1.get("%s/journey/geocode?q=Zzqx Bashundhara" % V).json()
+            b = self.c1.get("%s/journey/geocode?q=Zzqx Bashundhara" % V).json()
         self.assertEqual((a["state"], b["state"]), ("ok", "none"))   # sjp0: never user_cap
 
 
