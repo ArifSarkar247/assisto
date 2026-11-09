@@ -40,7 +40,7 @@ def test_constants_match_the_shared_spec():
     assert DetectionConfig().night_confirm == SPEC["night_confirm"]
     # the box's own pixel path uses the same diff / learn / scene constants
     box = MotionDetector()
-    assert box.diff_threshold == SPEC["pixel"]["diff"]
+    assert box.diff_threshold == SPEC["pixel"]["box_diff"]
     assert box.learn_rate == SPEC["pixel"]["learn"]
     assert box.scene_change_frac == SPEC["pixel"]["scene_frac"]
     d = DetectionConfig()

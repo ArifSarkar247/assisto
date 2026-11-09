@@ -115,6 +115,7 @@ void main() {
       'h': kPixH,
       'samples': kPixSamples,
       'diff': kPixDiff,
+      'box_diff': kPixBoxDiff,
       'learn': kPixLearn,
       'scene_frac': kPixSceneFrac,
       'min_area': kPixMinArea,

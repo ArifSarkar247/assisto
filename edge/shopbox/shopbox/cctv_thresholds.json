@@ -30,15 +30,16 @@
     "hold_frames": 2,
     "confirm_frames": 3
   },
-  "_doc_pixel": "cctvacc2: the phone's second, pixel-level motion check (motion_gate.PixelCheck = shop_motion.dart PixelCheck); diff / learn / scene_frac equal the Shop Box pixel path (motion.py MotionDetector defaults).",
+  "_doc_pixel": "cctvacc2: the phone's second, pixel-level motion check (motion_gate.PixelCheck = shop_motion.dart PixelCheck). diff = the phone's threshold (40: its 80x60 point-sampled plane is noisier than the box's blurred 320-px image; picked on the development sequences of CI run 42672672391 = lowest diff with precision >= 90 on all three sets, reported on that run's held-out sequences); box_diff / learn / scene_frac = the Shop Box pixel path (motion.py MotionDetector defaults).",
   "pixel": {
     "w": 80,
     "h": 60,
     "samples": 3,
-    "diff": 25.0,
+    "diff": 40.0,
     "learn": 0.05,
     "scene_frac": 0.6,
-    "min_area": 6
+    "min_area": 6,
+    "box_diff": 25.0
   },
   "_doc_detect": "cctvdet: zone detections (shopbox/detect_rules.py = app/lib/cctv/detect_rules.dart): person at gate, loitering, post empty, gate open, tamper. 'measured' = precision/recall per detection from the cctv-accuracy CI job (tools/e2e/cctv_accuracy.py --detections); the alert shows that measured precision as its honest confidence.",
   "detect": {
