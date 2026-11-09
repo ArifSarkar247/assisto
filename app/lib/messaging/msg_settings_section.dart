@@ -30,6 +30,10 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
   bool _bubblesSupported = false;
   bool _loaded = false; // bubbles: no "needs Android 11" flash before load
   int _offChats = 0; // bubbles: chats whose bubble the user turned off
+  // qcircle: quiet hours (minutes after midnight)
+  bool _quiet = false;
+  int _qStart = MsgPrefs.quietStartDefault;
+  int _qEnd = MsgPrefs.quietEndDefault;
 
   @override
   void initState() {
@@ -43,8 +47,14 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
     final sup = await MsgNative.bubblesSupported();
     final pv = await LinkPreviewPrefs.on(); // circlea
     final off = (await MsgPrefs.bubbleOffChats()).length;
+    final q = await MsgPrefs.quietOn(); // qcircle
+    final qs = await MsgPrefs.quietStart();
+    final qe = await MsgPrefs.quietEnd();
     if (!mounted) return;
     setState(() {
+      _quiet = q;
+      _qStart = qs;
+      _qEnd = qe;
       _loaded = true;
       _offChats = off;
       _previews = pv;
@@ -52,6 +62,33 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
       _bubbles = b;
       _bubblesSupported = sup;
     });
+  }
+
+  String _fmt(BuildContext context, int min) {
+    final lang = Localizations.localeOf(context).languageCode;
+    final s = MaterialLocalizations.of(context)
+        .formatTimeOfDay(TimeOfDay(hour: min ~/ 60, minute: min % 60));
+    return localDigits(s, lang);
+  }
+
+  Future<void> _pickWindow() async {
+    final t = AppLocalizations.of(context);
+    final a = await showTimePicker(
+        context: context,
+        helpText: t.qcQuietFrom,
+        initialTime: TimeOfDay(hour: _qStart ~/ 60, minute: _qStart % 60));
+    if (a == null || !mounted) return;
+    final b = await showTimePicker(
+        context: context,
+        helpText: t.qcQuietUntil,
+        initialTime: TimeOfDay(hour: _qEnd ~/ 60, minute: _qEnd % 60));
+    if (b == null || !mounted) return;
+    final s = a.hour * 60 + a.minute, e = b.hour * 60 + b.minute;
+    setState(() {
+      _qStart = s;
+      _qEnd = e;
+    });
+    await MsgPrefs.setQuietWindow(s, e);
   }
 
   @override
@@ -73,6 +110,28 @@ class _MsgDeviceNotifSectionState extends State<MsgDeviceNotifSection> {
           },
         ),
         const SoundPickTile(kind: SoundPickKind.message),
+        // qcircle: quiet hours — messages arrive silently in the window
+        SwitchListTile(
+          key: const Key('qc-quiet-hours'),
+          secondary: const Icon(Icons.bedtime_rounded),
+          title: Text(t.qcQuietTitle),
+          subtitle: Text(t.qcQuietSub),
+          value: _quiet,
+          onChanged: (v) async {
+            setState(() => _quiet = v);
+            await MsgPrefs.setQuietOn(v);
+          },
+        ),
+        if (_quiet)
+          ListTile(
+            key: const Key('qc-quiet-window'),
+            leading: const Icon(Icons.schedule_rounded),
+            title: Text(t.qcQuietWindow),
+            subtitle: Text(
+                '${_fmt(context, _qStart)} – ${_fmt(context, _qEnd)}'),
+            trailing: const Icon(Icons.edit_rounded),
+            onTap: _pickWindow,
+          ),
         // circlea: previews are built on this phone and sent encrypted
         SwitchListTile(
           key: const Key('cla-link-previews'),
