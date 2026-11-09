@@ -56,7 +56,7 @@ def ai_levels(request):
     from core.views_build61 import pricing_apply
     lang = getattr(request, "owner_lang", "bn")
     lab = L.get(lang, L["bn"])
-    cur, _c = ALS.cfg()
+    cur, _c = ALS.cfg(raw=True)   # geminioff: saved rows, never the Claude twins
     ctx, status = {}, 200
     if request.method == "POST":
         reason = request.POST.get("reason", "").strip()[:200] or "ai_levels"
@@ -117,7 +117,7 @@ def ai_levels(request):
                 return done("/owner/ai-levels")
             ctx["error"] = ", ".join(payload.get("problems") or ["error"])
             status = 400
-    cur, _c = ALS.cfg()
+    cur, _c = ALS.cfg(raw=True)   # geminioff: saved rows, never the Claude twins
     ctx.update({"L": lab, "c": cur, "t": ALS.table(), "ids": AL.LEVEL_IDS,
                 "providers": AL.PROVIDERS, "caps": R.cfg()["caps_usd"], "int_keys": INT_KEYS,
                 "ad": ALS.ad_table(), "exam": _exam(), "ai_alerts": _alerts(),

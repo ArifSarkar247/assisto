@@ -9,13 +9,15 @@ NAMES = {"normal": ("সাধারণ", "Normal"), "better": ("ভালো", 
          "best": ("সেরা", "Best")}
 
 
-def cfg(c=None):
+def cfg(c=None, raw=False):
     """(levels block, full PricingConfig dict). geminioff: while the Gemini
     breaker is open every Gemini level row is served as its Claude twin
     (effective_levels) — prices, fallbacks and availability follow it."""
     from . import billing
     c = c or billing.cfg()
     lv = AL.normalize(c.get("ai_levels"))
+    if raw:
+        return lv, c        # the owner's SAVED rows (Owner Admin form)
     try:
         from . import gemini_breaker as GB
         if GB.is_open():
