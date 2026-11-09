@@ -385,6 +385,14 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // fcbrain: family arrival watch ("com.assisto/family_watch"). Handler
+        // only — the location service starts when Dart asks (user consent).
+        try {
+            com.assisto.assisto.family.FamilyWatchChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         // journey100: Safe Journey battery % ("com.assisto/journey"). Handler
         // only — BatteryManager is read when Dart asks, never at launch.
         try {

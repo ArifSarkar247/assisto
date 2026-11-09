@@ -1168,7 +1168,7 @@ class DolynkCallbackView(APIView):
         try:
             from . import integrations as I
             if CC.enabled("dolynk"):
-                app_id = str((I.get("dolynk") or {}).get("app_id") or "")
+                app_id = str((I.get("dolynk") or {}).get("access_key") or "")
         except Exception:
             app_id = ""
         if not app_id or not hmac.compare_digest(dolynk_callback_token(app_id), str(token)):

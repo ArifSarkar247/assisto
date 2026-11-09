@@ -250,7 +250,9 @@ class SealTests(SimpleTestCase):
 def _enable(slug, cfg):
     from core.models import Integration
     Integration.objects.update_or_create(slug=slug, defaults={
-        "enc_blob": integrations._encrypt(cfg), "status": "working"})
+        "enc_blob": integrations._encrypt(cfg), "status": "working",
+        # DoLynk switches on only after a SIGNED sign-in passed the Test
+        "detail": CC.DOLYNK_OK + " (test)" if slug == "dolynk" else ""})
 
 
 class ConnectApiE2ETests(E2E._Base):
@@ -451,7 +453,7 @@ class ConnectApiE2ETests(E2E._Base):
         from core import cctv_connect_views as V
         from core.models import ShopEvent
         link, serial, ch, cam = self.connect("dolynk")
-        url = V.dolynk_callback_url("dlid")
+        url = V.dolynk_callback_url(self.sim.cfg("dolynk")["access_key"])
         path = url[url.index("/api/v1/"):]
         r = APIClient().post(path.rsplit("/", 1)[0] + "/wrong", "{}", content_type="application/json")
         self.assertEqual(r.status_code, 404)
@@ -468,6 +470,28 @@ class ConnectApiE2ETests(E2E._Base):
         self.assertTrue(ShopEvent.objects.filter(camera_id=cam["id"]).exists())
         rows = {x["slug"]: x for x in integrations.list_all("en")}
         self.assertIn("/api/v1/cctv/dolynk/callback/", rows["dolynk"]["usage"])
+
+    def test_dolynk_on_only_after_signed_signin(self):
+        from core.models import Integration
+
+        class _R:
+            status_code = 404
+        get = mock.Mock()
+        get.get.return_value = _R()
+        Integration.objects.create(slug="dolynk", status="working",
+                                   enc_blob=integrations._encrypt(self.sim.cfg("dolynk")),
+                                   detail="DoLynk keys saved; server reachable (HTTP 404).")
+        self.assertNotIn("dolynk", self.providers())          # reachability alone: OFF
+        bad = dict(self.sim.cfg("dolynk"), secret_key="wrong")
+        ok, detail = integrations.test_dolynk(bad, http=get, signin_http=self.sim.http)
+        self.assertNotIn(CC.DOLYNK_OK, detail)
+        self.assertIn("SN1001", detail)                        # the raw code is shown
+        ok, detail = integrations.test_dolynk(self.sim.cfg("dolynk"), http=get,
+                                              signin_http=self.sim.http)
+        self.assertTrue(ok)
+        self.assertIn(CC.DOLYNK_OK, detail)
+        Integration.objects.filter(slug="dolynk").update(detail=detail)
+        self.assertIn("dolynk", self.providers())
 
     def test_import_respects_plan(self):
         _enable("imou", self.sim.cfg("imou"))

@@ -63,8 +63,8 @@ class VendorSims:
                          "oauth_sk": "imsk",
                          "oauth_h5_url": "https://open.imoulife.com/oauth/h5?project=sim"},
                 "hikconnect": {"app_key": "hck", "app_secret": "hcs"},
-                "dolynk": {"app_id": "dlid", "app_secret": "dls",
-                           "api_base": HOSTS["dolynk"]}}[vendor]
+                "dolynk": {"access_key": "dlid", "secret_key": "dls",
+                           "api_base": "https://openapi.dolynkcloud.com", "api_path": "/openapi"}}[vendor]
         return dict(base)
 
     def add_device(self, vendor, serial, code, channels=1, name=None):

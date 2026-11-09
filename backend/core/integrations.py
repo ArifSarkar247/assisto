@@ -525,6 +525,40 @@ REGISTRY = {
                            "Customers may also link by serial + code? (on = yes; empty = owner/admin only)",
                            secret=False)],
              "test": "test_imou"},
+    # dolynkcard (owner 9 Nov 18:12): Dahua DoLynk Open IoT — product
+    # "Assisto CCTV" (Singapore API). First step: keys + an honest test;
+    # the device list / live / playback / alarm adapter comes next.
+    "dolynk": {"name": "Dahua DoLynk (CCTV — Dahua / DMSS cameras)", "category": "Smart home",
+               "unlocks_bn": "Dahua/DMSS ক্যামেরা ও DVR — ডিভাইস তালিকা, লাইভ, প্লেব্যাক ও অ্যালার্ম Assisto-তে (সংযোগ তৈরি হচ্ছে)।",
+               "unlocks_en": "Dahua/DMSS cameras and DVRs — device list, live, playback and alarms in Assisto (integration in progress).",
+               "guide_bn": ["open.dolynkcloud.com → Open IoT → প্রোডাক্ট \"Assisto CCTV\"",
+                            "Access Key ও Secret Access Key কপি করুন",
+                            "নিচে পেস্ট → Save → Test",
+                            "বিস্তারিত: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (DAHUA DOLYNK NOW)"],
+               "guide_en": ["open.dolynkcloud.com → Open IoT → product \"Assisto CCTV\"",
+                            "Copy the Access Key and the Secret Access Key",
+                            "Paste below → Save → Test",
+                            "Details: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (DAHUA DOLYNK NOW)"],
+               "fields": [_f("access_key", "Access Key", "Access Key", secret=False),
+                          _f("secret_key", "Secret Access Key", "Secret Access Key"),
+                          _f("product_id", "Product ID (ঐচ্ছিক, ডিফল্ট 212808822)",
+                             "Product ID (optional, default 212808822)", secret=False),
+                          _f("api_base", "API ঠিকানা (ঐচ্ছিক, ডিফল্ট https://open-api-sg.dolynkcloud.com)",
+                             "API base (optional, default https://open-api-sg.dolynkcloud.com)", secret=False),
+                          # cctvconnect: the login-only Doc Center decides these
+                          _f("api_path", "API পথ (ঐচ্ছিক, ডিফল্ট /openapi)", "API path (optional, default /openapi)",
+                             secret=False),
+                          _f("sign_mode", "সিগনেচার (md5 বা hmac; খালি = md5)", "Signature (md5 or hmac; empty = md5)",
+                             secret=False),
+                          _f("methods_json", "পদ্ধতির নাম আলাদা হলে (JSON, যেমন {\"bindDevice\": \"...\"})",
+                             "Method names if different (JSON, e.g. {\"bindDevice\": \"...\"})", secret=False),
+                          _f("media_hosts", "ভিডিও/ছবির ডোমেইন (ঐচ্ছিক, যেমন .example.com)",
+                             "Video/picture domains (optional, e.g. .example.com)", secret=False),
+                          _f("devbind_customers",
+                             "গ্রাহকরাও সিরিয়াল + কোড দিয়ে যুক্ত করতে পারবেন? (on = হ্যাঁ; খালি = শুধু মালিক/অ্যাডমিন)",
+                             "Customers may also link by serial + code? (on = yes; empty = owner/admin only)",
+                             secret=False)],
+               "test": "test_dolynk"},
     # cashguard: EZVIZ cameras' OWN alarms (polled every minute until EZVIZ
     # approves real-time push). Without it EZVIZ cameras still work through
     # the local gateway (RTSP/ONVIF).
@@ -558,26 +592,6 @@ REGISTRY = {
                               _f("app_secret", "SecretKey", "SecretKey"),
                               _f("api_base", "API ঠিকানা (অঞ্চল, ঐচ্ছিক)", "API base (region, optional)", secret=False)],
                    "test": "test_hikconnect"},
-    "dolynk": {"name": "Dahua DoLynk Open Platform (CCTV)", "category": "Smart home",
-               "unlocks_bn": "Dahua DVR/NVR ও ক্যামেরা ক্লাউড দিয়ে যুক্ত: ডিভাইস তালিকা, লাইভ, ক্যামেরার নিজের AI সতর্কতা (SMD), হার্ডডিস্কের অবস্থা।",
-               "unlocks_en": "Dahua DVR/NVR + cameras through the cloud: device list, live, the camera's own AI alerts (SMD), disk health.",
-               "guide_bn": ["বিস্তারিত ধাপ: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (অংশ ৪)",
-                            "appId, appSecret ও API ঠিকানা (DoLynk কনসোলে লেখা) পেস্ট → Save → Test"],
-               "guide_en": ["Steps: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (part 4)",
-                            "Paste appId, appSecret and the API base (shown in the DoLynk console) → Save → Test"],
-               "fields": [_f("app_id", "appId", "appId", secret=False),
-                          _f("app_secret", "appSecret", "appSecret"),
-                          _f("api_base", "API ঠিকানা (DoLynk কনসোল থেকে)", "API base (from the DoLynk console)", secret=False),
-                          _f("media_hosts", "ভিডিও/ছবির ডোমেইন (ঐচ্ছিক, যেমন .example.com)", "Video/picture domains (optional, e.g. .example.com)", secret=False),
-                          # the login-only DoLynk docs decide these (agent note 9 Nov):
-                          _f("sign_mode", "সিগনেচার (md5 বা hmac; খালি = md5)", "Signature (md5 or hmac; empty = md5)", secret=False),
-                          _f("methods_json", "পদ্ধতির নাম আলাদা হলে (JSON, যেমন {\"bindDevice\": \"...\"})",
-                             "Method names if different (JSON, e.g. {\"bindDevice\": \"...\"})", secret=False),
-                          _f("devbind_customers",
-                             "গ্রাহকরাও সিরিয়াল + কোড দিয়ে যুক্ত করতে পারবেন? (on = হ্যাঁ; খালি = শুধু মালিক/অ্যাডমিন)",
-                             "Customers may also link by serial + code? (on = yes; empty = owner/admin only)",
-                             secret=False)],
-               "test": "test_dolynk"},
     "axon_erp": {"name": "Axon ERP (CRM onboarding)", "category": "Business",
                  "unlocks_bn": "AI CRM deal Won → Axon ERP-এ 1-click onboarding।",
                  "unlocks_en": "AI CRM deal Won → 1-click Axon ERP onboarding.",
@@ -1469,6 +1483,37 @@ def test_imou(cfg, http=None):
     return True, "Imou access token OK"
 
 
+DOLYNK_API_BASE = "https://open-api-sg.dolynkcloud.com"
+DOLYNK_PRODUCT_ID = "212808822"
+
+
+def test_dolynk(cfg, http=None, signin_http=None):
+    """dolynkcard: honest first check — both keys saved and the DoLynk API
+    host answers over HTTPS. The signed sign-in check arrives with the
+    adapter (the API reference is behind the DoLynk login)."""
+    import requests
+    if not (cfg.get("access_key") or "").strip() or not (cfg.get("secret_key") or "").strip():
+        return False, "DoLynk: Access Key and Secret Access Key are both needed"
+    base = (cfg.get("api_base") or DOLYNK_API_BASE).strip().rstrip("/")
+    if not base.startswith("https://") or not base.split("/")[2].endswith(".dolynkcloud.com"):
+        return False, "DoLynk: API base must be an https://….dolynkcloud.com address"
+    try:
+        r = (http or requests).get(base, timeout=10)
+    except Exception as e:  # noqa: BLE001
+        return False, "DoLynk: server not reachable (%s)" % type(e).__name__
+    if http is not None and signin_http is None:
+        return True, ("DoLynk keys saved; server reachable (HTTP %s). Sign-in not "
+                      "tried in this check." % getattr(r, "status_code", "?"))
+    # cctvconnect: a SIGNED sign-in (Dahua-family accessToken) — only a real
+    # token switches the camera link on; any other answer is shown raw
+    from .logic import cctv_connect as CC
+    ok, detail = CC.dolynk_signin(cfg, http=signin_http)
+    if ok:
+        return True, detail
+    return True, ("DoLynk keys saved; server reachable (HTTP %s). %s" % (
+        getattr(r, "status_code", "?"), detail))
+
+
 def test_ezviz(cfg, http=None):
     """cashguard: an access token proves the AppKey + Secret are right."""
     from .logic.ezviz import EzvizClient, EzvizError, _token_cache
@@ -1496,7 +1541,7 @@ def _vendor_usage(slug, lang):
         # the message-callback URL to paste into the DoLynk console (Cloud Message)
         try:
             from . import cctv_connect_views as CCV
-            url = CCV.dolynk_callback_url((get(slug) or {}).get("app_id"))
+            url = CCV.dolynk_callback_url((get(slug) or {}).get("access_key"))
         except Exception:
             url = ""
         if not url:
@@ -1527,9 +1572,4 @@ def test_hikconnect(cfg, http=None):
     from .logic import cctv_connect as CC
     return CC.test_integration("hikconnect", cfg, http=http)
 
-
-def test_dolynk(cfg, http=None):
-    """cctvconnect: a signed accessToken call proves appId + appSecret + base."""
-    from .logic import cctv_connect as CC
-    return CC.test_integration("dolynk", cfg, http=http)
 # ---- /cctvconnect ----

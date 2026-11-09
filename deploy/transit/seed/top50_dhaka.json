@@ -1,0 +1,605 @@
+{
+"_note": "citydata top-50 Dhaka trip list (well-known public landmarks, approximate centre points; not user data). Used by the GitHub Actions measurement.",
+"trips": [
+{
+"from": "Farmgate",
+"from_ll": [
+23.7577,
+90.3897
+],
+"to": "Motijheel",
+"to_ll": [
+23.733,
+90.4177
+]
+},
+{
+"from": "Mirpur 10",
+"from_ll": [
+23.8069,
+90.3685
+],
+"to": "Gulshan 1",
+"to_ll": [
+23.7808,
+90.4167
+]
+},
+{
+"from": "Uttara (House Building)",
+"from_ll": [
+23.8737,
+90.4
+],
+"to": "Shahbag",
+"to_ll": [
+23.7385,
+90.3958
+]
+},
+{
+"from": "Jatrabari",
+"from_ll": [
+23.7104,
+90.4349
+],
+"to": "Mohakhali",
+"to_ll": [
+23.7781,
+90.4053
+]
+},
+{
+"from": "Mirpur 10",
+"from_ll": [
+23.8069,
+90.3685
+],
+"to": "Motijheel",
+"to_ll": [
+23.733,
+90.4177
+]
+},
+{
+"from": "Gabtoli",
+"from_ll": [
+23.784,
+90.3445
+],
+"to": "Gulistan",
+"to_ll": [
+23.7237,
+90.4126
+]
+},
+{
+"from": "Mohammadpur Town Hall",
+"from_ll": [
+23.759,
+90.3626
+],
+"to": "Motijheel",
+"to_ll": [
+23.733,
+90.4177
+]
+},
+{
+"from": "Dhanmondi 27",
+"from_ll": [
+23.7563,
+90.3745
+],
+"to": "Gulshan 1",
+"to_ll": [
+23.7808,
+90.4167
+]
+},
+{
+"from": "New Market",
+"from_ll": [
+23.733,
+90.3846
+],
+"to": "Mirpur 10",
+"to_ll": [
+23.8069,
+90.3685
+]
+},
+{
+"from": "Science Lab",
+"from_ll": [
+23.7383,
+90.3833
+],
+"to": "Uttara (House Building)",
+"to_ll": [
+23.8737,
+90.4
+]
+},
+{
+"from": "Banani",
+"from_ll": [
+23.7937,
+90.4043
+],
+"to": "Motijheel",
+"to_ll": [
+23.733,
+90.4177
+]
+},
+{
+"from": "Badda",
+"from_ll": [
+23.7805,
+90.4266
+],
+"to": "Farmgate",
+"to_ll": [
+23.7577,
+90.3897
+]
+},
+{
+"from": "Rampura",
+"from_ll": [
+23.7613,
+90.4214
+],
+"to": "Shahbag",
+"to_ll": [
+23.7385,
+90.3958
+]
+},
+{
+"from": "Malibagh",
+"from_ll": [
+23.748,
+90.414
+],
+"to": "Mirpur 1",
+"to_ll": [
+23.7957,
+90.3537
+]
+},
+{
+"from": "Kuril",
+"from_ll": [
+23.8189,
+90.4209
+],
+"to": "Gulistan",
+"to_ll": [
+23.7237,
+90.4126
+]
+},
+{
+"from": "Airport",
+"from_ll": [
+23.8513,
+90.4078
+],
+"to": "Farmgate",
+"to_ll": [
+23.7577,
+90.3897
+]
+},
+{
+"from": "Abdullahpur",
+"from_ll": [
+23.8797,
+90.4008
+],
+"to": "Motijheel",
+"to_ll": [
+23.733,
+90.4177
+]
+},
+{
+"from": "Mirpur 12",
+"from_ll": [
+23.827,
+90.364
+],
+"to": "Karwan Bazar",
+"to_ll": [
+23.751,
+90.393
+]
+},
+{
+"from": "Agargaon",
+"from_ll": [
+23.7781,
+90.38
+],
+"to": "Sadarghat",
+"to_ll": [
+23.7069,
+90.4083
+]
+},
+{
+"from": "Shyamoli",
+"from_ll": [
+23.7741,
+90.3653
+],
+"to": "Paltan",
+"to_ll": [
+23.734,
+90.412
+]
+},
+{
+"from": "Kamalapur",
+"from_ll": [
+23.7316,
+90.426
+],
+"to": "Mohakhali",
+"to_ll": [
+23.7781,
+90.4053
+]
+},
+{
+"from": "Sayedabad",
+"from_ll": [
+23.7186,
+90.428
+],
+"to": "Gabtoli",
+"to_ll": [
+23.784,
+90.3445
+]
+},
+{
+"from": "Azimpur",
+"from_ll": [
+23.727,
+90.386
+],
+"to": "Mirpur 10",
+"to_ll": [
+23.8069,
+90.3685
+]
+},
+{
+"from": "Notun Bazar",
+"from_ll": [
+23.798,
+90.424
+],
+"to": "Shahbag",
+"to_ll": [
+23.7385,
+90.3958
+]
+},
+{
+"from": "Gulshan 2",
+"from_ll": [
+23.7946,
+90.4146
+],
+"to": "Dhanmondi 27",
+"to_ll": [
+23.7563,
+90.3745
+]
+},
+{
+"from": "Kakoli",
+"from_ll": [
+23.7939,
+90.4007
+],
+"to": "New Market",
+"to_ll": [
+23.733,
+90.3846
+]
+},
+{
+"from": "Dhaka University",
+"from_ll": [
+23.7329,
+90.395
+],
+"to": "Uttara (House Building)",
+"to_ll": [
+23.8737,
+90.4
+]
+},
+{
+"from": "Lalbagh",
+"from_ll": [
+23.719,
+90.388
+],
+"to": "Farmgate",
+"to_ll": [
+23.7577,
+90.3897
+]
+},
+{
+"from": "Khilgaon",
+"from_ll": [
+23.752,
+90.427
+],
+"to": "Mohakhali",
+"to_ll": [
+23.7781,
+90.4053
+]
+},
+{
+"from": "Wari",
+"from_ll": [
+23.718,
+90.418
+],
+"to": "Banani",
+"to_ll": [
+23.7937,
+90.4043
+]
+},
+{
+"from": "Banasree",
+"from_ll": [
+23.763,
+90.438
+],
+"to": "Motijheel",
+"to_ll": [
+23.733,
+90.4177
+]
+},
+{
+"from": "Mirpur 2",
+"from_ll": [
+23.805,
+90.363
+],
+"to": "Gulistan",
+"to_ll": [
+23.7237,
+90.4126
+]
+},
+{
+"from": "Kalyanpur",
+"from_ll": [
+23.782,
+90.357
+],
+"to": "Shahbag",
+"to_ll": [
+23.7385,
+90.3958
+]
+},
+{
+"from": "Asad Gate",
+"from_ll": [
+23.76,
+90.372
+],
+"to": "Rampura",
+"to_ll": [
+23.7613,
+90.4214
+]
+},
+{
+"from": "Bashundhara R/A",
+"from_ll": [
+23.8135,
+90.424
+],
+"to": "Farmgate",
+"to_ll": [
+23.7577,
+90.3897
+]
+},
+{
+"from": "Moghbazar",
+"from_ll": [
+23.749,
+90.404
+],
+"to": "Mirpur 10",
+"to_ll": [
+23.8069,
+90.3685
+]
+},
+{
+"from": "Postogola",
+"from_ll": [
+23.695,
+90.435
+],
+"to": "Gulistan",
+"to_ll": [
+23.7237,
+90.4126
+]
+},
+{
+"from": "Tejgaon",
+"from_ll": [
+23.764,
+90.399
+],
+"to": "Jatrabari",
+"to_ll": [
+23.7104,
+90.4349
+]
+},
+{
+"from": "Pallabi",
+"from_ll": [
+23.826,
+90.365
+],
+"to": "Motijheel",
+"to_ll": [
+23.733,
+90.4177
+]
+},
+{
+"from": "Khilkhet",
+"from_ll": [
+23.83,
+90.42
+],
+"to": "Mohakhali",
+"to_ll": [
+23.7781,
+90.4053
+]
+},
+{
+"from": "Uttara Sector 10",
+"from_ll": [
+23.88,
+90.38
+],
+"to": "Agargaon",
+"to_ll": [
+23.7781,
+90.38
+]
+},
+{
+"from": "Bangla Motor",
+"from_ll": [
+23.747,
+90.394
+],
+"to": "Uttara (House Building)",
+"to_ll": [
+23.8737,
+90.4
+]
+},
+{
+"from": "Kazipara",
+"from_ll": [
+23.797,
+90.3725
+],
+"to": "Karwan Bazar",
+"to_ll": [
+23.751,
+90.393
+]
+},
+{
+"from": "Mouchak",
+"from_ll": [
+23.7469,
+90.4123
+],
+"to": "Mirpur 10",
+"to_ll": [
+23.8069,
+90.3685
+]
+},
+{
+"from": "Sadarghat",
+"from_ll": [
+23.7069,
+90.4083
+],
+"to": "Mohakhali",
+"to_ll": [
+23.7781,
+90.4053
+]
+},
+{
+"from": "Motijheel",
+"from_ll": [
+23.733,
+90.4177
+],
+"to": "Mirpur 12",
+"to_ll": [
+23.827,
+90.364
+]
+},
+{
+"from": "Gulistan",
+"from_ll": [
+23.7237,
+90.4126
+],
+"to": "Airport",
+"to_ll": [
+23.8513,
+90.4078
+]
+},
+{
+"from": "Jatrabari",
+"from_ll": [
+23.7104,
+90.4349
+],
+"to": "Farmgate",
+"to_ll": [
+23.7577,
+90.3897
+]
+},
+{
+"from": "Mohakhali",
+"from_ll": [
+23.7781,
+90.4053
+],
+"to": "Mohammadpur Town Hall",
+"to_ll": [
+23.759,
+90.3626
+]
+},
+{
+"from": "Shahbag",
+"from_ll": [
+23.7385,
+90.3958
+],
+"to": "Badda",
+"to_ll": [
+23.7805,
+90.4266
+]
+}
+]
+}

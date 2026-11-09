@@ -63,11 +63,21 @@ KINDS = {
     # sjalarm: the destination alarm rang and the traveller tapped "I am awake"
     # with "tell family when I arrive" on — only the people they picked.
     "dest_arrived":    {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
+    # fcbrain (Family Care v3): on-phone geofence arrive / leave, the one
+    # last-location share at 15 % battery, and the night news card. Arrival
+    # + battery are safety (never budgeted); night news is budgeted (it
+    # holds the reserved slot) and rings in no quiet hours.
+    "auto_arrived":    {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
+    "auto_left":       {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
+    "battery_low_loc": {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
+    "night_news":      {"push": "family_alert", "route": "family/alerts", "urgent": False, "quiet_ok": False},
 }
 _CO_GUARDIAN_KINDS = ("sos", "sos_resolved", "fall", "checkin_overdue", "wellness_alert")
 SEVERITY = {"sos": "high", "sos_resolved": "info", "checkin_overdue": "high",
             "wellness_alert": "high", "scam_report": "high", "crisis_support": "high",
-            "fall": "high", "dest_arrived": "info"}
+            "fall": "high", "dest_arrived": "info",
+            "auto_arrived": "info", "auto_left": "info", "battery_low_loc": "high",
+            "night_news": "info"}  # fcbrain
 
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
 
@@ -201,6 +211,12 @@ def _push(d, fa, kind, title_bn, title_en, body_bn, body_en, data):
     from . import push
     from .models import Device
     cfg = KINDS[kind]
+    # fcbrain: notification budget — non-safety family kinds count against
+    # the recipient's 3/day; the in-app card is already written.
+    from . import notif_budget
+    if not cfg["urgent"] and not notif_budget.allow(d.recipient, "family_alert",
+                                                     family_kind=kind):
+        return "budget"
     ok = False
     try:
         ok = push.safe_push(d.recipient, cfg["push"], title_bn, title_en,
