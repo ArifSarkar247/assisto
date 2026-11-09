@@ -1,0 +1,16 @@
+{
+ "format": "assisto.lp.voices/1",
+ "note": "Synthetic stock voices only. No voice cloning, no reference recordings of any person. Licences in VOICES.md.",
+ "narrator": {"engine": "kokoro", "voice": "bm_george", "lang": "b"},
+ "pools": {
+  "GB/F": [{"engine": "kokoro", "voice": "bf_emma", "lang": "b"}, {"engine": "kokoro", "voice": "bf_isabella", "lang": "b"}, {"engine": "kokoro", "voice": "bf_lily", "lang": "b"}],
+  "GB/M": [{"engine": "kokoro", "voice": "bm_fable", "lang": "b"}, {"engine": "kokoro", "voice": "bm_lewis", "lang": "b"}, {"engine": "kokoro", "voice": "bm_daniel", "lang": "b"}],
+  "US/F": [{"engine": "kokoro", "voice": "af_heart", "lang": "a"}, {"engine": "kokoro", "voice": "af_bella", "lang": "a"}, {"engine": "kokoro", "voice": "af_nicole", "lang": "a"}, {"engine": "kokoro", "voice": "af_sarah", "lang": "a"}],
+  "US/M": [{"engine": "kokoro", "voice": "am_michael", "lang": "a"}, {"engine": "kokoro", "voice": "am_fenrir", "lang": "a"}, {"engine": "kokoro", "voice": "am_puck", "lang": "a"}],
+  "AU/F": [{"engine": "melo", "voice": "EN-AU", "lang": "EN"}],
+  "AU/M": [{"engine": "melo", "voice": "EN-AU", "lang": "EN"}]
+ },
+ "au_fallback": {"F": {"engine": "kokoro", "voice": "bf_isabella", "lang": "b"}, "M": {"engine": "kokoro", "voice": "bm_lewis", "lang": "b"}},
+ "gaps_s": {"speaker_change": 0.45, "same_speaker": 0.25, "after_narrator": 0.8, "before_narrator": 1.2},
+ "encode": {"codec": "mp3", "bitrate": "64k", "sample_rate": 24000, "channels": 1, "loudnorm": "I=-18:TP=-1.5:LRA=11"}
+}

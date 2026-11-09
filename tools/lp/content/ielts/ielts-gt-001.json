@@ -1,0 +1,2220 @@
+{
+ "format": "assisto.lp.bundle/1",
+ "bundle_id": "ielts-gt-001",
+ "exam": "ielts",
+ "module": "general",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "IELTS General Training Practice Test 1",
+  "bn": "IELTS জেনারেল ট্রেনিং প্র্যাকটিস টেস্ট ১"
+ },
+ "practice_label": {
+  "en": "Practice test written by Assisto. Not an official IELTS paper.",
+  "bn": "Assisto-র নিজের লেখা প্র্যাকটিস টেস্ট। এটি অফিসিয়াল IELTS প্রশ্ন নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpcontent",
+  "created": "2026-11-09",
+  "notes": "Original General Training mock; all names, places and data invented."
+ },
+ "listening": {
+  "minutes": 30,
+  "check_s": 30,
+  "parts": [
+   {
+    "part": 1,
+    "context": "everyday_dialogue",
+    "intro": "You will hear a woman phoning a letting agency to ask about a flat she has seen advertised.",
+    "speakers": {
+     "A": {
+      "name": "Daniel",
+      "gender": "M",
+      "accent": "US",
+      "role": "letting agent"
+     },
+     "B": {
+      "name": "Laura Carrow",
+      "gender": "F",
+      "accent": "GB",
+      "role": "caller"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       1,
+       5
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good afternoon, Brookside Lettings, Daniel speaking. How can I help?"
+       },
+       {
+        "spk": "B",
+        "text": "Oh, hello. I'm calling about one of the flats on your website. The two-bedroom one... I think it was only listed this morning."
+       },
+       {
+        "spk": "A",
+        "text": "Sure. We've actually got a few two-bedroom places on the books at the moment. Do you have the address, or maybe the reference number?"
+       },
+       {
+        "spk": "B",
+        "text": "Um, I don't have the reference, sorry. But it's on Ashgrove Street. Number twenty-two."
+       },
+       {
+        "spk": "A",
+        "text": "Ashgrove Street... let me just pull that up. Is that A-S-H-G-R-O-V-E?"
+       },
+       {
+        "spk": "B",
+        "text": "That's right."
+       },
+       {
+        "pause": 1.2
+       },
+       {
+        "spk": "A",
+        "text": "Okay, here it is. Twenty-two Ashgrove Street, the second-floor flat. Before I go through the details, can I take your name?"
+       },
+       {
+        "spk": "B",
+        "text": "Yes, it's Laura Carrow."
+       },
+       {
+        "spk": "A",
+        "text": "And could you spell the surname for me?"
+       },
+       {
+        "spk": "B",
+        "text": "C-A-R-R-O-W."
+       },
+       {
+        "spk": "A",
+        "text": "Thanks. So, Ms Carrow, what would you like to know?"
+       },
+       {
+        "spk": "B",
+        "text": "Well, first of all, the rent. The website says seven hundred and sixty pounds a month. Is that still correct?"
+       },
+       {
+        "spk": "A",
+        "text": "Ah, I'm afraid that figure's a little out of date. The landlord reviewed it last week, so it's now 785 a month."
+       },
+       {
+        "spk": "B",
+        "text": "Oh, I see. That's still within my budget... just about. And what about the deposit? Is it one month's rent?"
+       },
+       {
+        "spk": "A",
+        "text": "Not quite. The deposit is five weeks' rent, which is the maximum we're allowed to ask for. It's held in a government-approved scheme, so you get it back at the end as long as there's no damage."
+       },
+       {
+        "spk": "B",
+        "text": "Okay. And when would it be free? I need to move before my course starts."
+       },
+       {
+        "spk": "A",
+        "text": "The current tenants leave at the end of August, and we need a few days to clean and check everything. So, it's available from the 1st of September."
+       },
+       {
+        "spk": "B",
+        "text": "That would be perfect, actually."
+       }
+      ]
+     },
+     {
+      "questions": [
+       6,
+       10
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "B",
+        "text": "Can I ask about the bills? Are any of them included in the rent?"
+       },
+       {
+        "spk": "A",
+        "text": "Water is included. Electricity and gas you'd pay yourself, and the same with the internet, so you'd choose your own provider. Council tax isn't included either, although as a full-time student you may not have to pay it."
+       },
+       {
+        "spk": "B",
+        "text": "Right. And is there anywhere to keep a bike? I cycle everywhere."
+       },
+       {
+        "spk": "A",
+        "text": "There's no garden, I'm afraid, and the hallway has to be kept clear for fire safety. But each flat has a lockable storage room in the basement, and that's big enough for a bicycle."
+       },
+       {
+        "spk": "B",
+        "text": "Oh, good. How far is it from the station? The listing said eight minutes' walk."
+       },
+       {
+        "spk": "A",
+        "text": "Hmm, honestly? I'd say that's a bit optimistic. Unless you walk really fast, it's more like twelve minutes. The bus stop is right outside the building, though."
+       },
+       {
+        "spk": "B",
+        "text": "That's fine. I'd love to see it. When could I come round?"
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "Let me look at the diary... I could do Wednesday morning at ten?"
+       },
+       {
+        "spk": "B",
+        "text": "Oh, Wednesday's no good, I'm working all day. Is there anything later in the week?"
+       },
+       {
+        "spk": "A",
+        "text": "How about Thursday? I've got another viewing at four, so I could meet you after that... say, 5:30?"
+       },
+       {
+        "spk": "B",
+        "text": "Thursday at 5:30 works for me."
+       },
+       {
+        "spk": "A",
+        "text": "Lovely. Now, if you decide to go ahead, we'll need to do a few checks. When you come to the viewing, could you bring your passport? We have to check everyone's right to rent."
+       },
+       {
+        "spk": "B",
+        "text": "Of course. Do you need anything else, like references?"
+       },
+       {
+        "spk": "A",
+        "text": "We'll ask for a reference from your current landlord later on, but there's no need to bring anything else on Thursday. I'll email you a confirmation with the directions."
+       },
+       {
+        "spk": "B",
+        "text": "Thanks so much, Daniel."
+       },
+       {
+        "spk": "A",
+        "text": "You're welcome. See you on Thursday."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       1,
+       5
+      ],
+      "type": "form_completion",
+      "title": "Flat enquiry",
+      "instructions": "Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
+      "questions": [
+       {
+        "n": 1,
+        "prompt": "Caller's name: Laura {gap}",
+        "answer": "Carrow",
+        "evidence": "Yes, it's Laura Carrow.",
+        "skill": "spelling",
+        "explain_en": "The surname is spelled letter by letter: C-A-R-R-O-W.",
+        "explain_bn": "নামের বানান অক্ষর ধরে বলা হয়েছে: C-A-R-R-O-W; বানান ভুল হলে নম্বর কাটা যায়।"
+       },
+       {
+        "n": 2,
+        "prompt": "Address: 22 {gap} Street",
+        "answer": "Ashgrove",
+        "evidence": "it's on Ashgrove Street. Number twenty-two",
+        "skill": "spelling",
+        "explain_en": "The agent spells the street name A-S-H-G-R-O-V-E.",
+        "explain_bn": "রাস্তার নাম এজেন্ট বানান করে নিশ্চিত করেছেন: Ashgrove।"
+       },
+       {
+        "n": 3,
+        "prompt": "Monthly rent: £{gap}",
+        "answer": "785",
+        "accept": [
+         "£785"
+        ],
+        "evidence": "so it's now 785 a month",
+        "skill": "number",
+        "explain_en": "£760 is the old price on the website; the rent is now £785.",
+        "explain_bn": "ওয়েবসাইটের ৭৬০ পাউন্ড পুরোনো দাম — ফাঁদ; বর্তমান ভাড়া ৭৮৫।"
+       },
+       {
+        "n": 4,
+        "prompt": "Deposit: {gap} weeks' rent",
+        "answer": "five",
+        "accept": [
+         "5"
+        ],
+        "evidence": "The deposit is five weeks' rent",
+        "skill": "number",
+        "explain_en": "The caller guesses one month, but the agent says five weeks' rent.",
+        "explain_bn": "কলার এক মাস ভেবেছিলেন, কিন্তু এজেন্ট বলেছেন পাঁচ সপ্তাহের ভাড়া।"
+       },
+       {
+        "n": 5,
+        "prompt": "Available from: 1st {gap}",
+        "answer": "September",
+        "accept": [
+         "Sept"
+        ],
+        "evidence": "it's available from the 1st of September",
+        "skill": "detail",
+        "explain_en": "The tenants leave at the end of August, so the flat is free from 1st September.",
+        "explain_bn": "আগস্টের শেষে পুরোনো ভাড়াটে যাবে, তাই ফ্ল্যাট পাওয়া যাবে ১ সেপ্টেম্বর থেকে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       6,
+       10
+      ],
+      "type": "note_completion",
+      "title": "Further details",
+      "instructions": "Complete the notes below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
+      "questions": [
+       {
+        "n": 6,
+        "prompt": "Bill included in the rent: {gap}",
+        "answer": "water",
+        "evidence": "Water is included.",
+        "skill": "detail",
+        "explain_en": "Only water is included; electricity, gas, internet and council tax are not.",
+        "explain_bn": "শুধু পানির বিল ভাড়ার মধ্যে; বিদ্যুৎ, গ্যাস, ইন্টারনেট আলাদা।"
+       },
+       {
+        "n": 7,
+        "prompt": "Lockable basement room is big enough for a {gap}",
+        "answer": "bicycle",
+        "accept": [
+         "bike"
+        ],
+        "evidence": "that's big enough for a bicycle",
+        "skill": "paraphrase",
+        "explain_en": "The caller asks about a bike; the storage room is big enough for a bicycle.",
+        "explain_bn": "বেসমেন্টের স্টোর রুমে সাইকেল রাখা যাবে — bike বা bicycle দুটোই ঠিক।"
+       },
+       {
+        "n": 8,
+        "prompt": "Walk to the station: about {gap} minutes",
+        "answer": "12",
+        "accept": [
+         "twelve"
+        ],
+        "evidence": "it's more like twelve minutes",
+        "skill": "number",
+        "explain_en": "The listing says eight minutes, but the agent corrects it to twelve.",
+        "explain_bn": "বিজ্ঞাপনে ৮ মিনিট লেখা, কিন্তু এজেন্ট বলেছেন আসলে ১২ মিনিট — শেষ তথ্যটাই উত্তর।"
+       },
+       {
+        "n": 9,
+        "prompt": "Viewing: Thursday at {gap}",
+        "answer": "5.30",
+        "accept": [
+         "5:30",
+         "5.30pm",
+         "5:30pm",
+         "17.30",
+         "17:30"
+        ],
+        "evidence": "Thursday at 5:30 works for me.",
+        "skill": "number",
+        "explain_en": "Wednesday at ten is rejected and four o'clock is another viewing; the time agreed is 5.30.",
+        "explain_bn": "বুধবার ১০টা বাতিল, ৪টায় অন্য দর্শন; ঠিক হয়েছে বৃহস্পতিবার সাড়ে পাঁচটা।"
+       },
+       {
+        "n": 10,
+        "prompt": "Bring: {gap} (for the right-to-rent check)",
+        "answer": "passport",
+        "evidence": "could you bring your passport?",
+        "skill": "detail",
+        "explain_en": "Only the passport is needed on Thursday; the landlord reference comes later.",
+        "explain_bn": "বৃহস্পতিবার শুধু পাসপোর্ট লাগবে; রেফারেন্স পরে চাওয়া হবে।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "context": "everyday_monologue",
+    "intro": "You will hear a volunteer coordinator giving an introductory talk to new volunteers at a hospital.",
+    "speakers": {
+     "A": {
+      "name": "Volunteer coordinator",
+      "gender": "M",
+      "accent": "AU",
+      "role": "coordinator"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       11,
+       15
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Right, good morning, everyone, and welcome to Westfield Community Hospital. My name's Greg, and I coordinate the volunteer programme here. I know some of you have come straight from work, so thank you. This morning I'll cover the basics of your role, and then we'll look at a plan of the ground floor so you can find your way around."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "So, first things first. A lot of new volunteers assume they have to go to the security office at the start of each shift to pick up a badge. You don't. You collected your badge this morning, and it's yours to keep. You also don't need to report to the ward manager when you arrive; they're usually far too busy. What you must do, every single time, is sign in on the tablet at the volunteer desk in reception. That's how we know who's in the building if there's ever a fire alarm."
+       },
+       {
+        "spk": "A",
+        "text": "Now, hygiene. You won't be doing any clinical work, so you won't normally need gloves, and there's no monthly health check either, just the one you've already had. But hand hygiene is absolutely essential. You'll find gel dispensers at every ward door, and you must clean your hands every time you go into a ward and every time you come out. No exceptions."
+       },
+       {
+        "spk": "A",
+        "text": "People often ask me what the most valuable thing they can do on a ward is. Some of you will help at mealtimes, handing out trays, and some of you will walk patients down to their appointments, and that's all really helpful. But honestly, what makes the biggest difference is simply sitting and talking with patients who don't get many visitors. A twenty-minute chat can change someone's whole day."
+       },
+       {
+        "spk": "A",
+        "text": "Of course, patients will sometimes ask you about their condition or their medication. Even if you think you know the answer, please don't give any information yourself, not even general advice, and don't send them back to their relatives either. Just find one of the nurses and let them know the patient has a question."
+       },
+       {
+        "spk": "A",
+        "text": "And finally for this part, food. You're entitled to a free hot meal from the staff canteen, or a sandwich from the cafe if you prefer, any day of the week, provided you've done a shift of at least four hours. Just show your badge at the till."
+       }
+      ]
+     },
+     {
+      "questions": [
+       16,
+       20
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Okay, if you look at the plan of the ground floor, you'll see we're standing in reception, here, with the main entrance behind us. In front of us is the main corridor, which runs from one end of the building to the other."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "Your home base is the volunteer office. To get there, walk from reception up to the main corridor and turn left. It's on your right, the room immediately next to the pharmacy. That's where you'll find the rota and the kettle."
+       },
+       {
+        "spk": "A",
+        "text": "If patients or visitors want to buy a newspaper or a birthday card, send them to the shop. That's directly opposite the lifts, on the other side of the corridor."
+       },
+       {
+        "spk": "A",
+        "text": "We also have a quiet room, which is open to anyone who needs a peaceful space, whatever their faith. To find it, turn right into the main corridor and keep going right to the end. It's the very last room on your left."
+       },
+       {
+        "spk": "A",
+        "text": "Your volunteer lockers are in a small room between the cafe and reception. Please don't leave valuables in your coat on the wards; lock them away there."
+       },
+       {
+        "spk": "A",
+        "text": "And one more. Visitors often need to borrow a wheelchair, and they're kept in the wheelchair store. Go past the lifts, and it's the small room just before you reach the garden. If it's empty, call the porters on extension two-two-four."
+       },
+       {
+        "spk": "A",
+        "text": "Right, are there any questions before we take a walk round?"
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       11,
+       15
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 11,
+        "prompt": "At the start of every shift, volunteers must",
+        "answer": "C",
+        "options": [
+         {
+          "key": "A",
+          "text": "collect a badge from security."
+         },
+         {
+          "key": "B",
+          "text": "report to the ward manager."
+         },
+         {
+          "key": "C",
+          "text": "sign in at the reception desk."
+         }
+        ],
+        "evidence": "sign in on the tablet at the volunteer desk in reception",
+        "skill": "detail",
+        "explain_en": "Collecting a badge and reporting to the ward manager are both ruled out; signing in on the tablet is required.",
+        "explain_bn": "ব্যাজ নেওয়া বা ওয়ার্ড ম্যানেজারকে জানানো লাগবে না — রিসেপশনের ট্যাবলেটে সাইন-ইন বাধ্যতামূলক।"
+       },
+       {
+        "n": 12,
+        "prompt": "What does the speaker say about hygiene?",
+        "answer": "B",
+        "options": [
+         {
+          "key": "A",
+          "text": "Volunteers must wear gloves on the wards."
+         },
+         {
+          "key": "B",
+          "text": "Hands must be cleaned when entering and leaving a ward."
+         },
+         {
+          "key": "C",
+          "text": "Volunteers need a health check every month."
+         }
+        ],
+        "evidence": "you must clean your hands every time you go into a ward and every time you come out",
+        "skill": "detail",
+        "explain_en": "Gloves are not normally needed and there is no monthly check; hand cleaning on entering and leaving is required.",
+        "explain_bn": "গ্লাভস বা মাসিক চেকআপ লাগবে না; ওয়ার্ডে ঢোকা ও বের হওয়ার সময় হাত পরিষ্কার করতে হবে।"
+       },
+       {
+        "n": 13,
+        "prompt": "According to the speaker, the most valuable thing volunteers do is",
+        "answer": "A",
+        "options": [
+         {
+          "key": "A",
+          "text": "talking to patients who have few visitors."
+         },
+         {
+          "key": "B",
+          "text": "helping at mealtimes."
+         },
+         {
+          "key": "C",
+          "text": "taking patients to appointments."
+         }
+        ],
+        "evidence": "what makes the biggest difference is simply sitting and talking with patients who don't get many visitors",
+        "skill": "opinion",
+        "explain_en": "Meals and appointments are 'helpful', but talking with lonely patients makes 'the biggest difference'.",
+        "explain_bn": "খাবার দেওয়া ও রোগী নিয়ে যাওয়া উপকারী, কিন্তু সবচেয়ে বড় পার্থক্য আনে একা রোগীর সাথে গল্প করা।"
+       },
+       {
+        "n": 14,
+        "prompt": "If a patient asks about their medication, a volunteer should",
+        "answer": "B",
+        "options": [
+         {
+          "key": "A",
+          "text": "give only general advice."
+         },
+         {
+          "key": "B",
+          "text": "inform a member of the nursing staff."
+         },
+         {
+          "key": "C",
+          "text": "suggest the patient asks a relative."
+         }
+        ],
+        "evidence": "Just find one of the nurses and let them know the patient has a question.",
+        "skill": "detail",
+        "explain_en": "Volunteers must give no information and must not refer patients to relatives; they tell a nurse.",
+        "explain_bn": "নিজে কোনো তথ্য দেবেন না, আত্মীয়ের কাছেও পাঠাবেন না — নার্সকে জানাবেন।"
+       },
+       {
+        "n": 15,
+        "prompt": "Volunteers can get a free meal",
+        "answer": "C",
+        "options": [
+         {
+          "key": "A",
+          "text": "on weekdays only."
+         },
+         {
+          "key": "B",
+          "text": "only in the staff canteen."
+         },
+         {
+          "key": "C",
+          "text": "after working for four hours or more."
+         }
+        ],
+        "evidence": "any day of the week, provided you've done a shift of at least four hours",
+        "skill": "detail",
+        "explain_en": "The meal is available any day (not weekdays only), from the canteen or the cafe, after at least four hours.",
+        "explain_bn": "যেকোনো দিন, ক্যান্টিন বা ক্যাফে থেকে — শর্ত হলো অন্তত চার ঘণ্টার শিফট।"
+       }
+      ]
+     },
+     {
+      "range": [
+       16,
+       20
+      ],
+      "type": "map_labelling",
+      "visual": {
+       "kind": "map",
+       "title": "Westfield Community Hospital - ground floor",
+       "width": 100,
+       "height": 72,
+       "compass": true,
+       "areas": [
+        {
+         "name": "Pharmacy",
+         "x": 5,
+         "y": 5,
+         "w": 20,
+         "h": 24
+        },
+        {
+         "name": "",
+         "x": 28,
+         "y": 5,
+         "w": 15,
+         "h": 24
+        },
+        {
+         "name": "",
+         "x": 46,
+         "y": 5,
+         "w": 15,
+         "h": 24
+        },
+        {
+         "name": "",
+         "x": 64,
+         "y": 5,
+         "w": 15,
+         "h": 24
+        },
+        {
+         "name": "",
+         "x": 82,
+         "y": 5,
+         "w": 13,
+         "h": 24
+        },
+        {
+         "name": "Main corridor",
+         "x": 5,
+         "y": 32,
+         "w": 90,
+         "h": 10
+        },
+        {
+         "name": "Cafe",
+         "x": 5,
+         "y": 45,
+         "w": 17,
+         "h": 16
+        },
+        {
+         "name": "",
+         "x": 24,
+         "y": 45,
+         "w": 13,
+         "h": 16
+        },
+        {
+         "name": "Reception",
+         "x": 40,
+         "y": 45,
+         "w": 20,
+         "h": 16
+        },
+        {
+         "name": "Lifts",
+         "x": 62,
+         "y": 45,
+         "w": 7,
+         "h": 16
+        },
+        {
+         "name": "",
+         "x": 71,
+         "y": 45,
+         "w": 9,
+         "h": 16
+        },
+        {
+         "name": "Garden",
+         "x": 82,
+         "y": 45,
+         "w": 13,
+         "h": 24
+        },
+        {
+         "name": "",
+         "x": 5,
+         "y": 63,
+         "w": 17,
+         "h": 7
+        },
+        {
+         "name": "",
+         "x": 24,
+         "y": 63,
+         "w": 13,
+         "h": 7
+        },
+        {
+         "name": "Main entrance",
+         "x": 40,
+         "y": 63,
+         "w": 20,
+         "h": 7
+        }
+       ],
+       "labels": [
+        {
+         "key": "A",
+         "x": 35,
+         "y": 17
+        },
+        {
+         "key": "B",
+         "x": 53,
+         "y": 17
+        },
+        {
+         "key": "C",
+         "x": 71,
+         "y": 17
+        },
+        {
+         "key": "D",
+         "x": 88,
+         "y": 17
+        },
+        {
+         "key": "E",
+         "x": 30,
+         "y": 53
+        },
+        {
+         "key": "F",
+         "x": 75,
+         "y": 53
+        },
+        {
+         "key": "G",
+         "x": 13,
+         "y": 66
+        },
+        {
+         "key": "H",
+         "x": 30,
+         "y": 66
+        }
+       ]
+      },
+      "instructions": "Label the plan below. Choose FIVE answers from the box and write the correct letter, A-H, next to Questions 16-20.",
+      "options": [
+       {
+        "key": "A",
+        "text": "A"
+       },
+       {
+        "key": "B",
+        "text": "B"
+       },
+       {
+        "key": "C",
+        "text": "C"
+       },
+       {
+        "key": "D",
+        "text": "D"
+       },
+       {
+        "key": "E",
+        "text": "E"
+       },
+       {
+        "key": "F",
+        "text": "F"
+       },
+       {
+        "key": "G",
+        "text": "G"
+       },
+       {
+        "key": "H",
+        "text": "H"
+       }
+      ],
+      "options_reusable": false,
+      "questions": [
+       {
+        "n": 16,
+        "prompt": "Volunteer office",
+        "answer": "A",
+        "evidence": "It's on your right, the room immediately next to the pharmacy.",
+        "skill": "map_direction",
+        "explain_en": "Turning left into the corridor, the room on the right next to the pharmacy is A.",
+        "explain_bn": "করিডরে বাঁয়ে ঘুরে ডান দিকে ফার্মেসির ঠিক পাশের ঘর — A।"
+       },
+       {
+        "n": 17,
+        "prompt": "Shop",
+        "answer": "C",
+        "evidence": "That's directly opposite the lifts, on the other side of the corridor.",
+        "skill": "map_direction",
+        "explain_en": "The room across the corridor from the lifts is C.",
+        "explain_bn": "লিফটের ঠিক উল্টো দিকে, করিডরের ওপারে — C।"
+       },
+       {
+        "n": 18,
+        "prompt": "Quiet room",
+        "answer": "D",
+        "evidence": "It's the very last room on your left.",
+        "skill": "map_direction",
+        "explain_en": "Going right to the end of the corridor, the last room on the left (north side) is D.",
+        "explain_bn": "ডানে করিডরের একদম শেষে বাঁ দিকের শেষ ঘর — D।"
+       },
+       {
+        "n": 19,
+        "prompt": "Volunteer lockers",
+        "answer": "E",
+        "evidence": "in a small room between the cafe and reception",
+        "skill": "map_direction",
+        "explain_en": "The small room between the cafe and reception is E.",
+        "explain_bn": "ক্যাফে আর রিসেপশনের মাঝের ছোট ঘর — E।"
+       },
+       {
+        "n": 20,
+        "prompt": "Wheelchair store",
+        "answer": "F",
+        "evidence": "Go past the lifts, and it's the small room just before you reach the garden.",
+        "skill": "map_direction",
+        "explain_en": "After the lifts and before the garden is room F.",
+        "explain_bn": "লিফট পেরিয়ে বাগানের ঠিক আগের ছোট ঘর — F।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "context": "academic_discussion",
+    "intro": "You will hear two trainees on a retail management course, Megan and Tom, talking to their supervisor, Carol, about a customer survey they ran.",
+    "speakers": {
+     "A": {
+      "name": "Carol",
+      "gender": "F",
+      "accent": "GB",
+      "role": "supervisor"
+     },
+     "B": {
+      "name": "Megan",
+      "gender": "F",
+      "accent": "US",
+      "role": "trainee"
+     },
+     "C": {
+      "name": "Tom",
+      "gender": "M",
+      "accent": "GB",
+      "role": "trainee"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       21,
+       25
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Come in, both of you. So, I've had a quick look at the figures from your customer survey. Shall we start with the response rate?"
+       },
+       {
+        "spk": "B",
+        "text": "Yes. It was a lot lower than last year, wasn't it? We only got about two hundred replies."
+       },
+       {
+        "spk": "C",
+        "text": "We assumed at first it was because the survey was too long. But it's actually two questions shorter than last year's."
+       },
+       {
+        "spk": "B",
+        "text": "And we sent it on a Tuesday, same as last time, so the timing wasn't the problem either. What happened was that the link in the email didn't open properly on mobile phones. Most people tried it on their phones, saw a blank page and gave up."
+       },
+       {
+        "spk": "A",
+        "text": "Ah, that's frustrating, but it's a useful lesson. Now, what about the results themselves? Was there anything you didn't expect?"
+       },
+       {
+        "spk": "B",
+        "text": "Well, we knew people would grumble about parking, because they always do. And the prices scored about the same as usual. What really surprised me was how many people went out of their way to praise the staff by name. We got over forty comments like that."
+       },
+       {
+        "spk": "A",
+        "text": "That's lovely to hear. Make sure that goes back to the store teams. Tom, you said you had an idea for next time?"
+       },
+       {
+        "spk": "C",
+        "text": "Yes. I think sending another email reminder just annoys people, and a discount voucher would cost too much. So my suggestion is that staff simply ask customers at the till whether they'd be willing to answer three quick questions on a tablet."
+       },
+       {
+        "spk": "A",
+        "text": "I like that. It's cheap and it's immediate. Megan, you mentioned a prize draw as well."
+       },
+       {
+        "spk": "B",
+        "text": "Yes, entering everyone who replies into a draw for a gift card."
+       },
+       {
+        "spk": "A",
+        "text": "Hmm. Cost isn't really the issue, and there's nothing in company policy against it. My worry is that people rush through the questions just to enter the draw, so you get answers that don't really mean anything."
+       },
+       {
+        "spk": "C",
+        "text": "That's fair. So how should we structure the final report?"
+       },
+       {
+        "spk": "A",
+        "text": "Well, the directors won't read twenty pages. Put the method in an appendix, and save the recommendations for the end. The very first page should be a one-page summary of what you found."
+       }
+      ]
+     },
+     {
+      "questions": [
+       26,
+       30
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Now, let's go through the survey questions themselves, because I'd like you to improve them before next year. The first one, 'How did you hear about us?'"
+       },
+       {
+        "spk": "C",
+        "text": "Nobody really needs that any more. Marketing gets that information from the loyalty card system, so I'd say we drop it altogether."
+       },
+       {
+        "spk": "A",
+        "text": "Agreed. What about 'Rate the cleanliness of the store'?"
+       },
+       {
+        "spk": "B",
+        "text": "That one worked well. The answers were clear, and we can compare them with last year, so let's not touch it."
+       },
+       {
+        "spk": "A",
+        "text": "Fine. And 'Would you recommend us to a friend?'"
+       },
+       {
+        "spk": "C",
+        "text": "The question itself is good, but at the moment it's the very first one, and people haven't thought about their visit yet. I think it would work better as the final question."
+       },
+       {
+        "spk": "A",
+        "text": "Yes, move it. Then there's 'How long did you wait?'"
+       },
+       {
+        "spk": "B",
+        "text": "That's the one people misunderstood. Some thought it meant waiting at the till, others thought it meant waiting for help on the shop floor. We need to rewrite it so it's clear we mean the checkout queue."
+       },
+       {
+        "spk": "A",
+        "text": "Good. And finally, the comments box at the end."
+       },
+       {
+        "spk": "C",
+        "text": "Honestly, that gave us our best material. I wouldn't change anything about it."
+       },
+       {
+        "spk": "A",
+        "text": "Me neither. Right, send me the revised version by Friday and we'll book a meeting with the directors."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       21,
+       25
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "questions": [
+       {
+        "n": 21,
+        "prompt": "Why was the response rate lower than the year before?",
+        "answer": "B",
+        "options": [
+         {
+          "key": "A",
+          "text": "The survey had too many questions."
+         },
+         {
+          "key": "B",
+          "text": "There was a technical problem."
+         },
+         {
+          "key": "C",
+          "text": "It was sent on the wrong day."
+         }
+        ],
+        "evidence": "the link in the email didn't open properly on mobile phones",
+        "skill": "detail",
+        "explain_en": "The survey was shorter and the day was the same; the real reason was the link failing on phones.",
+        "explain_bn": "সার্ভে ছোট ছিল, দিনও একই — আসল কারণ মোবাইলে লিংক খোলেনি।"
+       },
+       {
+        "n": 22,
+        "prompt": "What surprised Megan most about the results?",
+        "answer": "C",
+        "options": [
+         {
+          "key": "A",
+          "text": "complaints about parking"
+         },
+         {
+          "key": "B",
+          "text": "low scores for prices"
+         },
+         {
+          "key": "C",
+          "text": "positive comments about employees"
+         }
+        ],
+        "evidence": "What really surprised me was how many people went out of their way to praise the staff by name.",
+        "skill": "opinion",
+        "explain_en": "Parking complaints were expected and prices scored as usual; praise for staff was the surprise.",
+        "explain_bn": "পার্কিং নিয়ে অভিযোগ প্রত্যাশিত ছিল; অবাক করেছে কর্মীদের নাম ধরে প্রশংসা।"
+       },
+       {
+        "n": 23,
+        "prompt": "Tom suggests increasing responses by",
+        "answer": "A",
+        "options": [
+         {
+          "key": "A",
+          "text": "asking customers in person."
+         },
+         {
+          "key": "B",
+          "text": "sending an email reminder."
+         },
+         {
+          "key": "C",
+          "text": "offering a discount voucher."
+         }
+        ],
+        "evidence": "staff simply ask customers at the till whether they'd be willing to answer three quick questions",
+        "skill": "detail",
+        "explain_en": "He rejects reminders and vouchers; he wants staff to ask customers at the till.",
+        "explain_bn": "রিমাইন্ডার ও ভাউচার বাদ; টম চান ক্যাশ কাউন্টারে কর্মীরা সরাসরি জিজ্ঞেস করুক।"
+       },
+       {
+        "n": 24,
+        "prompt": "What is Carol's concern about the prize draw?",
+        "answer": "B",
+        "options": [
+         {
+          "key": "A",
+          "text": "It would be too expensive."
+         },
+         {
+          "key": "B",
+          "text": "The answers might not be reliable."
+         },
+         {
+          "key": "C",
+          "text": "It is against company rules."
+         }
+        ],
+        "evidence": "My worry is that people rush through the questions just to enter the draw",
+        "skill": "opinion",
+        "explain_en": "She says cost and company policy are not problems; she fears rushed, meaningless answers.",
+        "explain_bn": "খরচ বা নিয়ম সমস্যা নয়; ভয় হলো লোকে তাড়াহুড়ো করে অর্থহীন উত্তর দেবে।"
+       },
+       {
+        "n": 25,
+        "prompt": "Carol says the report should begin with",
+        "answer": "C",
+        "options": [
+         {
+          "key": "A",
+          "text": "the method used."
+         },
+         {
+          "key": "B",
+          "text": "the recommendations."
+         },
+         {
+          "key": "C",
+          "text": "a summary of the findings."
+         }
+        ],
+        "evidence": "The very first page should be a one-page summary of what you found.",
+        "skill": "detail",
+        "explain_en": "The method goes in an appendix and recommendations at the end; it starts with a summary of findings.",
+        "explain_bn": "পদ্ধতি পরিশিষ্টে, সুপারিশ শেষে — শুরুতে থাকবে ফলাফলের এক পাতার সারাংশ।"
+       }
+      ]
+     },
+     {
+      "range": [
+       26,
+       30
+      ],
+      "type": "matching",
+      "instructions": "What do they decide to do with each survey question? Choose the correct letter, A-D, for questions 26-30. You may use any letter more than once.",
+      "options": [
+       {
+        "key": "A",
+        "text": "keep it unchanged"
+       },
+       {
+        "key": "B",
+        "text": "change the wording"
+       },
+       {
+        "key": "C",
+        "text": "move it to the end"
+       },
+       {
+        "key": "D",
+        "text": "remove it"
+       }
+      ],
+      "options_reusable": true,
+      "questions": [
+       {
+        "n": 26,
+        "prompt": "How did you hear about us?",
+        "answer": "D",
+        "evidence": "so I'd say we drop it altogether",
+        "skill": "gist",
+        "explain_en": "Marketing already has this information, so the question is dropped (removed).",
+        "explain_bn": "এই তথ্য আগেই আছে, তাই প্রশ্নটা বাদ দেওয়া হবে — drop মানে remove।"
+       },
+       {
+        "n": 27,
+        "prompt": "Rate the cleanliness of the store",
+        "answer": "A",
+        "evidence": "so let's not touch it",
+        "skill": "paraphrase",
+        "explain_en": "'Let's not touch it' means keep it unchanged.",
+        "explain_bn": "'let's not touch it' মানে কিছুই বদলাবে না।"
+       },
+       {
+        "n": 28,
+        "prompt": "Would you recommend us to a friend?",
+        "answer": "C",
+        "evidence": "I think it would work better as the final question.",
+        "skill": "paraphrase",
+        "explain_en": "The question is good but should be the final question, i.e. moved to the end.",
+        "explain_bn": "প্রশ্নটা ভালো, শুধু শেষে নিতে হবে — 'final question' মানে end।"
+       },
+       {
+        "n": 29,
+        "prompt": "How long did you wait?",
+        "answer": "B",
+        "evidence": "We need to rewrite it so it's clear we mean the checkout queue.",
+        "skill": "paraphrase",
+        "explain_en": "People misunderstood it, so it must be rewritten (change the wording).",
+        "explain_bn": "লোকে ভুল বুঝেছে, তাই নতুন করে লিখতে হবে — rewrite = change the wording।"
+       },
+       {
+        "n": 30,
+        "prompt": "Any other comments",
+        "answer": "A",
+        "evidence": "I wouldn't change anything about it.",
+        "skill": "gist",
+        "explain_en": "Both agree the comments box stays exactly as it is.",
+        "explain_bn": "মন্তব্যের ঘর যেমন আছে তেমনই থাকবে।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 4,
+    "context": "academic_lecture",
+    "intro": "You will hear a lecture about methods used to restore damaged coral reefs.",
+    "speakers": {
+     "A": {
+      "name": "Lecturer",
+      "gender": "F",
+      "accent": "US",
+      "role": "marine biology lecturer"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       31,
+       40
+      ],
+      "preview_s": 45,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good morning. Today we're moving from the biology of coral reefs to a more practical question: once a reef has been damaged, can we actually help it recover? And if so, how?"
+       },
+       {
+        "spk": "A",
+        "text": "Let me start with why this matters. Coral reefs cover well under one percent of the ocean floor, and yet they support roughly a quarter of all marine species at some point in their life cycle. They also protect coastlines from storms and support fishing communities in more than a hundred countries."
+       },
+       {
+        "spk": "A",
+        "text": "Reefs face many threats, including pollution, overfishing and physical damage from boats and anchors. But by far the biggest driver of decline in recent decades has been bleaching. When the water becomes too warm for too long, corals expel the tiny algae living in their tissues, which supply most of their food. The coral turns white, and if temperatures don't fall fairly quickly, it starves. So the main cause of bleaching is, quite simply, rising sea temperatures."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "So, what can restoration do? The most widely used method is known as coral gardening. Divers collect small fragments from healthy corals, often pieces that have already broken off naturally, and grow them in underwater nurseries. In many projects, the fragments are hung from frames made of plastic pipe, which are shaped like trees, with branches at different heights. Because the fragments are off the sea floor, they're less likely to be buried by sand or eaten by predators. The nurseries do need regular maintenance, though. Every couple of weeks, divers have to clean the frames to remove algae, which would otherwise grow over the young corals and block out the light. After six months to a year, the corals are big enough to be attached to the damaged reef."
+       },
+       {
+        "spk": "A",
+        "text": "The second method is a more recent one called microfragmenting. Interestingly, it was discovered by accident. A researcher working with a slow-growing species broke a coral into very small pieces by mistake, and noticed a few weeks later that these tiny pieces had grown far faster than larger ones would have done. When several microfragments of the same coral are placed close together, they grow towards each other and fuse into a single colony. This is particularly valuable for the massive, boulder-shaped corals, which can otherwise take decades to reach a reasonable size."
+       },
+       {
+        "spk": "A",
+        "text": "Both of these methods, however, rely on cloning, so every new coral is genetically identical to its parent. That's a problem, because a population with low genetic diversity is less able to cope with change. This is where the third method, larval seeding, comes in. Many corals reproduce by releasing eggs and sperm into the water on just a few nights each year. Teams collect this spawn from the surface using floating nets, and then raise the larvae in tanks. When they're ready to settle, the larvae are given small ceramic tiles to attach to, and these tiles can then be wedged into the reef."
+       },
+       {
+        "spk": "A",
+        "text": "Finally, some damaged areas aren't suitable for any of these methods, because the reef has been broken into loose rubble. Young corals can't survive on a surface that keeps moving. So here, the first job is to stabilise the sea floor, and one approach is to fix the rubble in place with steel mesh coated in sand, which gives corals a firm base to grow on."
+       },
+       {
+        "spk": "A",
+        "text": "Now, I don't want to give you the impression that restoration is a solution in itself. Every one of these methods is limited by cost. Restoring a single hectare can cost hundreds of thousands of dollars, which means the area we can treat is tiny compared with the scale of the damage. For this reason, many scientists now argue that restoration should focus on breeding corals with greater tolerance to heat, so that the reefs we rebuild have a better chance of surviving future warming. And of course, none of this replaces the need to reduce the emissions that are warming the oceans in the first place."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       31,
+       40
+      ],
+      "type": "note_completion",
+      "title": "Restoring coral reefs",
+      "instructions": "Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 31,
+        "prompt": "Reefs support about a quarter of all marine {gap}",
+        "answer": "species",
+        "evidence": "they support roughly a quarter of all marine species",
+        "skill": "detail",
+        "explain_en": "'Roughly a quarter' of marine species depend on reefs.",
+        "explain_bn": "সমুদ্রের প্রায় এক-চতুর্থাংশ প্রজাতি প্রবালপ্রাচীরের ওপর নির্ভর করে।"
+       },
+       {
+        "n": 32,
+        "prompt": "Main cause of bleaching: rising sea {gap}",
+        "answer": "temperatures",
+        "accept": [
+         "temperature"
+        ],
+        "evidence": "So the main cause of bleaching is, quite simply, rising sea temperatures.",
+        "skill": "detail",
+        "explain_en": "Pollution and overfishing are other threats; bleaching is caused by rising sea temperatures.",
+        "explain_bn": "দূষণ ও অতিরিক্ত মাছ ধরা অন্য হুমকি; ব্লিচিংয়ের মূল কারণ সমুদ্রের তাপমাত্রা বৃদ্ধি।"
+       },
+       {
+        "n": 33,
+        "prompt": "Coral gardening: fragments hung on plastic frames shaped like {gap}",
+        "answer": "trees",
+        "evidence": "which are shaped like trees",
+        "skill": "detail",
+        "explain_en": "The frames of plastic pipe are shaped like trees, with branches.",
+        "explain_bn": "প্লাস্টিক পাইপের কাঠামোগুলো গাছের মতো আকৃতির।"
+       },
+       {
+        "n": 34,
+        "prompt": "Frames cleaned regularly to remove {gap}",
+        "answer": "algae",
+        "evidence": "divers have to clean the frames to remove algae",
+        "skill": "detail",
+        "explain_en": "Algae would grow over the young corals and block the light.",
+        "explain_bn": "শৈবাল (algae) জন্মে আলো আটকে দেয়, তাই নিয়মিত পরিষ্কার করতে হয়।"
+       },
+       {
+        "n": 35,
+        "prompt": "Microfragmenting was discovered by {gap}",
+        "answer": "accident",
+        "evidence": "it was discovered by accident",
+        "skill": "detail",
+        "explain_en": "A researcher broke a coral into small pieces by mistake: it was discovered by accident.",
+        "explain_bn": "গবেষক ভুল করে প্রবাল ভেঙে ফেলেছিলেন — পদ্ধতিটা দুর্ঘটনাক্রমে আবিষ্কার।"
+       },
+       {
+        "n": 36,
+        "prompt": "Pieces of the same coral placed together {gap} into one colony",
+        "answer": "fuse",
+        "evidence": "they grow towards each other and fuse into a single colony",
+        "skill": "vocabulary",
+        "explain_en": "Small pieces grow towards each other and fuse into one colony.",
+        "explain_bn": "ছোট টুকরোগুলো একে অপরের দিকে বেড়ে একসাথে জুড়ে (fuse) যায়।"
+       },
+       {
+        "n": 37,
+        "prompt": "Larval seeding: spawn collected with floating {gap}",
+        "answer": "nets",
+        "evidence": "Teams collect this spawn from the surface using floating nets",
+        "skill": "detail",
+        "explain_en": "Spawn is collected at the surface with floating nets.",
+        "explain_bn": "ভাসমান জাল (nets) দিয়ে পানির ওপর থেকে ডিম-শুক্রাণু সংগ্রহ করা হয়।"
+       },
+       {
+        "n": 38,
+        "prompt": "Larvae settle on small ceramic {gap}",
+        "answer": "tiles",
+        "evidence": "the larvae are given small ceramic tiles to attach to",
+        "skill": "detail",
+        "explain_en": "Larvae attach to small ceramic tiles, which are then wedged into the reef.",
+        "explain_bn": "লার্ভা ছোট সিরামিক টাইলে বসে, পরে টাইল প্রাচীরে বসানো হয়।"
+       },
+       {
+        "n": 39,
+        "prompt": "Loose rubble fixed with steel {gap} coated in sand",
+        "answer": "mesh",
+        "evidence": "fix the rubble in place with steel mesh coated in sand",
+        "skill": "detail",
+        "explain_en": "Steel mesh coated in sand gives corals a firm base.",
+        "explain_bn": "বালু-মাখা ইস্পাতের জাল (mesh) দিয়ে আলগা ভাঙা টুকরো আটকানো হয়।"
+       },
+       {
+        "n": 40,
+        "prompt": "Future focus: corals with greater heat {gap}",
+        "answer": "tolerance",
+        "evidence": "breeding corals with greater tolerance to heat",
+        "skill": "paraphrase",
+        "explain_en": "'Greater tolerance to heat' = greater heat tolerance.",
+        "explain_bn": "'tolerance to heat' মানে তাপ সহ্য করার ক্ষমতা।"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "reading": {
+  "minutes": 60,
+  "parts": [
+   {
+    "part": 1,
+    "texts": [
+     {
+      "title": "Riverside Adult Learning Centre: evening classes this spring",
+      "paragraphs": [
+       {
+        "label": "A",
+        "text": "Conversational Spanish (Stage 2). Tuesdays, 7.00-9.00 pm, 10 weeks. Build your confidence in everyday conversation through role-plays, games and short films. This course is designed for learners who have already completed a beginners' course or who can hold a simple conversation about themselves. The course book is included in the fee of £95."
+       },
+       {
+        "label": "B",
+        "text": "Digital Photography. Mondays, 6.30-8.30 pm, 8 weeks. Learn how to take sharper, better-composed pictures and edit them on a computer. Bring your own camera; smartphones are welcome. The course includes two field trips on Saturday mornings, one to the coast and one to the city centre. Absolute beginners welcome. £120."
+       },
+       {
+        "label": "C",
+        "text": "Furniture Restoration. Wednesdays, 6.00-9.00 pm, 12 weeks. Bring an old chair or small table back to life. All workshop tools are provided, but students buy their own wood, glue and paint. Because of the size of the workshop, the class is limited to eight students, so early enrolment is recommended. No experience needed. £180."
+       },
+       {
+        "label": "D",
+        "text": "Bookkeeping for Small Businesses. Thursdays, 7.00-9.00 pm, 6 weeks. Ideal if you run your own business or are thinking of starting one. You will learn to keep accurate accounts and prepare for your tax return. Successful students can sit an exam for a nationally recognised certificate; the exam fee is not included. £110."
+       },
+       {
+        "label": "E",
+        "text": "Creative Writing. Tuesdays, 6.30-8.30 pm, 10 weeks. Whether you want to write short stories, poetry or your life story, our tutor, a published novelist, will help you find your voice. Please note that this class meets in the meeting room of the Central Library, not at the Learning Centre. The course ends with an evening reading to which family, friends and members of the public are invited. £100."
+       },
+       {
+        "label": "F",
+        "text": "Cooking on a Budget. Mondays, 6.00-8.00 pm, 5 weeks. Prepare healthy, tasty meals for a family of four for under £10. All ingredients are included in the fee, and you take home everything you cook. Places on this course are free for learners who receive certain government benefits; ask at reception for details. £60."
+       }
+      ]
+     },
+     {
+      "title": "Kingsmead Leisure Pool: changes from 1 March",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "From 1 March, the following changes will come into effect. We would like to thank all our users for their patience during the recent building work. The refurbishment of the changing rooms is now complete, and they include new family cubicles and improved access for wheelchair users."
+       },
+       {
+        "label": "",
+        "text": "Early-morning swim: on weekdays, this session will now open at 6.30 am instead of 7.00 am, following requests from swimmers who need to get to work."
+       },
+       {
+        "label": "",
+        "text": "Family sessions: these run on Saturday and Sunday afternoons from 1.00 to 3.00 pm. Children under eight must be accompanied in the water by an adult, and each adult may bring no more than two children under eight."
+       },
+       {
+        "label": "",
+        "text": "Booking: lane-swimming sessions must now be booked online up to seven days in advance. All other sessions remain pay-and-swim, with no booking needed."
+       },
+       {
+        "label": "",
+        "text": "Prices: the price of an adult swim stays at £5.20. Our monthly pass now includes use of the gym, at no additional charge to pass holders."
+       },
+       {
+        "label": "",
+        "text": "Lockers: the old coin-operated lockers have been replaced with new lockers that you open with a four-digit code of your choice. Please remember your code; staff can open a locker for you only if you show proof of identity."
+       },
+       {
+        "label": "",
+        "text": "Cafe: the poolside cafe is being redecorated and will open again in April. Until then, hot and cold drinks are available from the machines in the entrance hall."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       1,
+       7
+      ],
+      "type": "matching_information",
+      "instructions": "Look at the six advertisements for evening classes, A-F. For which class are the following statements true? Write the correct letter, A-F. NB You may use any letter more than once.",
+      "options": [
+       {
+        "key": "A",
+        "text": "Conversational Spanish (Stage 2)"
+       },
+       {
+        "key": "B",
+        "text": "Digital Photography"
+       },
+       {
+        "key": "C",
+        "text": "Furniture Restoration"
+       },
+       {
+        "key": "D",
+        "text": "Bookkeeping for Small Businesses"
+       },
+       {
+        "key": "E",
+        "text": "Creative Writing"
+       },
+       {
+        "key": "F",
+        "text": "Cooking on a Budget"
+       }
+      ],
+      "options_reusable": true,
+      "questions": [
+       {
+        "n": 1,
+        "prompt": "It is not suitable for complete beginners.",
+        "answer": "A",
+        "evidence": "designed for learners who have already completed a beginners' course",
+        "skill": "matching_info",
+        "explain_en": "Spanish Stage 2 needs a beginners' course or basic conversation first.",
+        "explain_bn": "স্প্যানিশ স্টেজ ২-এর জন্য আগে বিগিনার্স কোর্স লাগবে, তাই একদম নতুনদের জন্য নয়।"
+       },
+       {
+        "n": 2,
+        "prompt": "It takes place somewhere other than the Learning Centre.",
+        "answer": "E",
+        "evidence": "this class meets in the meeting room of the Central Library, not at the Learning Centre",
+        "skill": "matching_info",
+        "explain_en": "Creative Writing meets at the Central Library.",
+        "explain_bn": "ক্রিয়েটিভ রাইটিং ক্লাস হয় সেন্ট্রাল লাইব্রেরিতে, লার্নিং সেন্টারে নয়।"
+       },
+       {
+        "n": 3,
+        "prompt": "It includes some activities at the weekend.",
+        "answer": "B",
+        "evidence": "two field trips on Saturday mornings",
+        "skill": "paraphrase",
+        "explain_en": "Saturday morning field trips are weekend activities.",
+        "explain_bn": "শনিবার সকালের ফিল্ড ট্রিপ মানে সপ্তাহান্তের কার্যক্রম।"
+       },
+       {
+        "n": 4,
+        "prompt": "The number of students is restricted.",
+        "answer": "C",
+        "evidence": "the class is limited to eight students",
+        "skill": "paraphrase",
+        "explain_en": "'Limited to eight students' means the number is restricted.",
+        "explain_bn": "'limited to eight students' — শিক্ষার্থীর সংখ্যা সীমিত।"
+       },
+       {
+        "n": 5,
+        "prompt": "Students may pay extra to gain a qualification.",
+        "answer": "D",
+        "evidence": "Successful students can sit an exam for a nationally recognised certificate; the exam fee is not included.",
+        "skill": "paraphrase",
+        "explain_en": "The certificate exam fee is not in the course fee, so it costs extra.",
+        "explain_bn": "সার্টিফিকেট পরীক্ষার ফি কোর্স ফি-তে নেই — আলাদা দিতে হবে।"
+       },
+       {
+        "n": 6,
+        "prompt": "Some people can attend without paying.",
+        "answer": "F",
+        "evidence": "Places on this course are free for learners who receive certain government benefits",
+        "skill": "paraphrase",
+        "explain_en": "Learners on certain benefits get free places.",
+        "explain_bn": "নির্দিষ্ট সরকারি ভাতা পান এমন শিক্ষার্থীদের জন্য কোর্স বিনামূল্যে।"
+       },
+       {
+        "n": 7,
+        "prompt": "It finishes with an event that anyone can attend.",
+        "answer": "E",
+        "evidence": "an evening reading to which family, friends and members of the public are invited",
+        "skill": "paraphrase",
+        "explain_en": "Members of the public are invited to the final reading.",
+        "explain_bn": "শেষ দিনের পাঠ অনুষ্ঠানে সাধারণ মানুষও আমন্ত্রিত।"
+       }
+      ]
+     },
+     {
+      "range": [
+       8,
+       14
+      ],
+      "type": "tfng",
+      "instructions": "Do the following statements agree with the information in the notice? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "questions": [
+       {
+        "n": 8,
+        "prompt": "The changing rooms have recently been improved.",
+        "answer": "TRUE",
+        "evidence": "The refurbishment of the changing rooms is now complete",
+        "skill": "paraphrase",
+        "explain_en": "The refurbishment is complete, so they have been improved.",
+        "explain_bn": "চেঞ্জিং রুমের সংস্কার শেষ — অর্থাৎ উন্নত করা হয়েছে।"
+       },
+       {
+        "n": 9,
+        "prompt": "The weekday early-morning swim now begins later than before.",
+        "answer": "FALSE",
+        "evidence": "this session will now open at 6.30 am instead of 7.00 am",
+        "skill": "detail",
+        "explain_en": "It now starts at 6.30 instead of 7.00 - earlier, not later.",
+        "explain_bn": "৭টার বদলে ৬:৩০-এ শুরু — আগে, পরে নয়; তাই FALSE।"
+       },
+       {
+        "n": 10,
+        "prompt": "One adult may bring three children under eight to a family session.",
+        "answer": "FALSE",
+        "evidence": "each adult may bring no more than two children under eight",
+        "skill": "detail",
+        "explain_en": "The limit is two children per adult.",
+        "explain_bn": "প্রতি প্রাপ্তবয়স্ক সর্বোচ্চ দুটি শিশু আনতে পারবেন — তিনটি নয়।"
+       },
+       {
+        "n": 11,
+        "prompt": "The price of an adult swim will go up later in the year.",
+        "answer": "NOT GIVEN",
+        "rationale": "The notice gives only the current price; no future change is mentioned.",
+        "skill": "inference",
+        "explain_en": "The notice only says the price stays at £5.20 now; nothing about the future.",
+        "explain_bn": "এখন দাম ৫.২০ পাউন্ডই থাকছে — ভবিষ্যতে বাড়বে কিনা বলা নেই।"
+       },
+       {
+        "n": 12,
+        "prompt": "Monthly pass holders can now use the gym without paying more.",
+        "answer": "TRUE",
+        "evidence": "Our monthly pass now includes use of the gym, at no additional charge to pass holders.",
+        "skill": "paraphrase",
+        "explain_en": "'At no additional charge' = without paying more.",
+        "explain_bn": "'at no additional charge' মানে বাড়তি টাকা লাগবে না।"
+       },
+       {
+        "n": 13,
+        "prompt": "The new lockers are more secure than the old ones.",
+        "answer": "NOT GIVEN",
+        "rationale": "Only the opening method changes; security is never compared.",
+        "skill": "inference",
+        "explain_en": "The notice describes how the new lockers open, but does not compare their security.",
+        "explain_bn": "নতুন লকার কীভাবে খোলে বলা আছে, কিন্তু বেশি নিরাপদ কিনা তুলনা নেই।"
+       },
+       {
+        "n": 14,
+        "prompt": "Customers will be able to use the cafe again in April.",
+        "answer": "TRUE",
+        "evidence": "will open again in April",
+        "skill": "detail",
+        "explain_en": "The cafe will open again in April.",
+        "explain_bn": "ক্যাফে এপ্রিলে আবার খুলবে।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "texts": [
+     {
+      "title": "Northgate Distribution: staying safe at work - a guide for new staff",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "Welcome to Northgate Distribution. Your safety, and the safety of the people around you, is our first priority. Please read this guide carefully before your first shift and keep it for reference. Your shift supervisor will go through the main points with you during your induction."
+       },
+       {
+        "label": "",
+        "text": "Protective clothing. Safety boots with steel toecaps must be worn in all warehouse areas. You will be given two pairs when you join, and replacements are free if your boots are damaged at work. In addition, high-visibility vests must be worn at all times in the loading bay, where lorries are constantly arriving and leaving. Vests are not required in the offices or the staff canteen."
+       },
+       {
+        "label": "",
+        "text": "Reporting accidents. If you are involved in an accident, however minor, you must report it to your shift supervisor before the end of your shift. This applies even if nobody is hurt, because small incidents often warn us about bigger risks. Every accident is then recorded in the accident book, which is kept in the first-aid room. Trained first-aiders wear a green badge, and a list of their names is displayed beside every exit."
+       },
+       {
+        "label": "",
+        "text": "Fire. When the alarm sounds, which is a continuous ringing bell, stop work immediately and leave the building by the nearest exit. Do not stop to collect personal belongings and do not use the lifts. The assembly point is beside the main gate, where your supervisor will check that everyone is present. Fire drills take place every three months and are not announced in advance."
+       },
+       {
+        "label": "",
+        "text": "Vehicles and equipment. Forklift trucks may only be driven by staff who hold a valid licence, and the licence must be renewed every three years. If you would like to train as a forklift driver, speak to your supervisor; the company pays for the course. When lifting boxes by hand, bend your knees rather than your back, and ask a colleague for help with anything over 20 kilograms. Never try to repair a machine yourself. If you notice a problem with any equipment, report it by completing the fault form on the staff intranet, and an engineer will be sent to inspect it."
+       }
+      ]
+     },
+     {
+      "title": "Northgate Distribution staff handbook: holidays and shift changes",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "This section explains how to arrange time off and how to change your shifts. It applies to all permanent employees. Temporary staff should refer to the agreement provided by their agency."
+       },
+       {
+        "label": "",
+        "text": "Annual leave. Full-time employees are entitled to 28 days' paid holiday a year, including public holidays. Part-time employees receive the same entitlement in proportion to the hours they work. The holiday year runs from 1 April to 31 March."
+       },
+       {
+        "label": "",
+        "text": "Requests should be made through the online system at least four weeks before the first day of leave. Requests are approved in the order in which they are received, so it pays to plan ahead, particularly for the summer months. Because December is our busiest period, leave cannot normally be taken in that month, except in cases of family emergency."
+       },
+       {
+        "label": "",
+        "text": "We encourage everyone to take their full entitlement. However, if you are unable to do so, up to five unused days may be carried over into the next holiday year. These must be used by the end of June, or they will be lost."
+       },
+       {
+        "label": "",
+        "text": "Shift swaps. We understand that personal commitments sometimes clash with the rota. You may swap a shift with a colleague who does the same job, provided that the swap is approved by a manager at least 48 hours in advance. Once it has been approved, it is your responsibility to make sure the change is shown on the rota, so that we always know who is on site. Swaps that have not been approved will be treated as an unauthorised absence."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       15,
+       21
+      ],
+      "type": "note_completion",
+      "title": "Safety at Northgate Distribution",
+      "instructions": "Complete the notes below. Choose NO MORE THAN TWO WORDS from the text for each answer.",
+      "word_limit": {
+       "max_words": 2,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 15,
+        "prompt": "High-visibility vests: always required in the {gap}",
+        "answer": "loading bay",
+        "evidence": "high-visibility vests must be worn at all times in the loading bay",
+        "skill": "detail",
+        "explain_en": "Vests are required in the loading bay, not in offices or the canteen.",
+        "explain_bn": "হাই-ভিজিবিলিটি ভেস্ট লাগবে লোডিং বে-তে; অফিস বা ক্যান্টিনে নয়।"
+       },
+       {
+        "n": 16,
+        "prompt": "All accidents, even minor ones, must be reported to the {gap}",
+        "answer": "shift supervisor",
+        "accept": [
+         "supervisor"
+        ],
+        "evidence": "you must report it to your shift supervisor before the end of your shift",
+        "skill": "detail",
+        "explain_en": "Accidents are reported to the shift supervisor.",
+        "explain_bn": "যেকোনো দুর্ঘটনা শিফট সুপারভাইজারকে জানাতে হবে।"
+       },
+       {
+        "n": 17,
+        "prompt": "Details are written in the {gap} in the first-aid room",
+        "answer": "accident book",
+        "evidence": "Every accident is then recorded in the accident book",
+        "skill": "paraphrase",
+        "explain_en": "'Recorded in' = written in the accident book.",
+        "explain_bn": "দুর্ঘটনার বিবরণ লেখা হয় accident book-এ।"
+       },
+       {
+        "n": 18,
+        "prompt": "In a fire, staff meet beside the {gap}",
+        "answer": "main gate",
+        "evidence": "The assembly point is beside the main gate",
+        "skill": "detail",
+        "explain_en": "The assembly point is the main gate.",
+        "explain_bn": "আগুন লাগলে সবাই জড়ো হবে মেইন গেটের পাশে।"
+       },
+       {
+        "n": 19,
+        "prompt": "Forklift drivers need a {gap} that is renewed every three years",
+        "answer": "licence",
+        "accept": [
+         "license",
+         "valid licence",
+         "valid license"
+        ],
+        "evidence": "Forklift trucks may only be driven by staff who hold a valid licence",
+        "skill": "spelling",
+        "explain_en": "A valid licence is needed; the American spelling 'license' is also accepted.",
+        "explain_bn": "ফর্কলিফট চালাতে বৈধ লাইসেন্স লাগবে — licence/license দুই বানানই চলবে।"
+       },
+       {
+        "n": 20,
+        "prompt": "When lifting boxes, bend your {gap}",
+        "answer": "knees",
+        "evidence": "bend your knees rather than your back",
+        "skill": "detail",
+        "explain_en": "Bend your knees, not your back.",
+        "explain_bn": "বাক্স তোলার সময় পিঠ নয়, হাঁটু ভাঁজ করতে হবে।"
+       },
+       {
+        "n": 21,
+        "prompt": "Equipment problems: complete the {gap} on the intranet",
+        "answer": "fault form",
+        "evidence": "report it by completing the fault form on the staff intranet",
+        "skill": "detail",
+        "explain_en": "Problems are reported with the fault form on the intranet.",
+        "explain_bn": "যন্ত্রের সমস্যা জানাতে ইন্ট্রানেটে fault form পূরণ করতে হবে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       22,
+       27
+      ],
+      "type": "sentence_completion",
+      "instructions": "Complete the sentences below. Choose ONE WORD AND/OR A NUMBER from the text for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
+      "questions": [
+       {
+        "n": 22,
+        "prompt": "Full-time staff get {gap} days of paid holiday each year.",
+        "answer": "28",
+        "evidence": "Full-time employees are entitled to 28 days' paid holiday a year",
+        "skill": "number",
+        "explain_en": "Full-time employees are entitled to 28 days, including public holidays.",
+        "explain_bn": "পূর্ণকালীন কর্মীরা বছরে ২৮ দিন বেতনসহ ছুটি পান।"
+       },
+       {
+        "n": 23,
+        "prompt": "Holiday must be requested at least {gap} weeks ahead.",
+        "answer": "four",
+        "accept": [
+         "4"
+        ],
+        "evidence": "at least four weeks before the first day of leave",
+        "skill": "number",
+        "explain_en": "Requests are made at least four weeks before the leave starts.",
+        "explain_bn": "ছুটির আবেদন অন্তত চার সপ্তাহ আগে করতে হবে।"
+       },
+       {
+        "n": 24,
+        "prompt": "Staff are not usually allowed to take holiday in {gap}.",
+        "answer": "December",
+        "evidence": "Because December is our busiest period, leave cannot normally be taken in that month",
+        "skill": "detail",
+        "explain_en": "December is the busiest month, so leave cannot normally be taken then.",
+        "explain_bn": "ডিসেম্বর সবচেয়ে ব্যস্ত মাস, তাই সাধারণত তখন ছুটি নেওয়া যায় না।"
+       },
+       {
+        "n": 25,
+        "prompt": "A maximum of {gap} days can be carried over to the following year.",
+        "answer": "five",
+        "accept": [
+         "5"
+        ],
+        "evidence": "up to five unused days may be carried over into the next holiday year",
+        "skill": "number",
+        "explain_en": "Up to five unused days can be carried over.",
+        "explain_bn": "সর্বোচ্চ পাঁচ দিন অব্যবহৃত ছুটি পরের বছরে নেওয়া যায়।"
+       },
+       {
+        "n": 26,
+        "prompt": "A shift swap needs approval from a {gap}.",
+        "answer": "manager",
+        "evidence": "provided that the swap is approved by a manager at least 48 hours in advance",
+        "skill": "detail",
+        "explain_en": "Swaps must be approved by a manager.",
+        "explain_bn": "শিফট বদলাতে একজন ম্যানেজারের অনুমোদন লাগবে।"
+       },
+       {
+        "n": 27,
+        "prompt": "After approval, staff must check the change appears on the {gap}.",
+        "answer": "rota",
+        "evidence": "it is your responsibility to make sure the change is shown on the rota",
+        "skill": "detail",
+        "explain_en": "The approved change must be shown on the rota.",
+        "explain_bn": "অনুমোদনের পর পরিবর্তনটা rota-তে দেখানো হয়েছে কিনা নিশ্চিত করতে হবে।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "texts": [
+     {
+      "title": "The lighthouse keepers' last decades",
+      "paragraphs": [
+       {
+        "label": "A",
+        "text": "For more than two hundred years, the lighthouse keeper was a familiar figure on the coasts of Europe and North America. Children read stories about them, painters placed them in front of crashing waves, and sailors depended on them every night of the year. Yet within a single working lifetime the occupation disappeared almost completely. In many countries, the last keepers handed over their keys in the final decades of the twentieth century, and today most of the world's lighthouses operate without a single person on site."
+       },
+       {
+        "label": "B",
+        "text": "The working day of a keeper was shaped entirely by the light. Before electricity, lamps burned oil, and their wicks had to be trimmed several times a night so that the flame stayed bright and did not produce smoke. In the morning, the great glass lens was polished by hand, because even a thin film of soot could reduce the range of the beam. Many lights also turned by clockwork, which meant that someone had to wind a heavy weight back up the tower every few hours. In between these tasks, keepers kept a detailed log in which they noted the weather, the state of the sea and every vessel that passed. These records were later used by scientists studying climate and by investigators trying to understand shipwrecks."
+       },
+       {
+        "label": "C",
+        "text": "The experience of the job depended greatly on where a keeper was posted. At shore stations, keepers often lived with their families in cottages beside the tower, and their children attended local schools. Rock stations, built on isolated reefs or small islands, were very different. There, two or three men lived together in cramped rooms for several weeks at a time, while their families stayed on the mainland. They were supposed to be replaced on a fixed date, but the relief boat could only land in calm conditions, and in a stormy winter a keeper might wait a month or more before he was able to go home. Many filled the long hours with hobbies such as carving, painting or building model ships, and some became well known for the quality of their work."
+       },
+       {
+        "label": "D",
+        "text": "Change came gradually, through a series of inventions. Electric lamps, introduced at many stations in the early twentieth century, removed the need to trim wicks. Automatic devices for changing bulbs followed, so that a failed bulb could be replaced without human hands. One of the most important developments was a valve, designed by a Swedish engineer, that responded to daylight and switched a gas-powered light off at dawn and on again at dusk. Because the light now burned only when it was needed, a single supply of gas could last for many months, and some smaller lights could be left entirely alone. Later, radio links allowed engineers on the mainland to check a light's condition from many kilometres away."
+       },
+       {
+        "label": "E",
+        "text": "Despite these advances, many authorities moved slowly. Converting a large station was expensive, and some engineers doubted whether machines could be trusted on the most exposed rocks, where salt water and storms damaged everything. Keepers themselves argued that they did far more than tend a lamp. Because they watched the sea constantly, they were often the first to see a vessel in difficulty, and over the years they had raised the alarm for many crews and helped to rescue people from the water. They also sent regular weather observations, which were valued by forecasters."
+       },
+       {
+        "label": "F",
+        "text": "In the end, however, the economic case proved impossible to resist. Satellite navigation meant that ships relied less on lights, and the cost of employing staff at remote stations kept rising. The final keepers left their posts with mixed feelings. Some were relieved to give up a hard and lonely life, but many felt that something valuable was being lost. A number of them stayed on as part-time attendants, visiting the automated lights regularly to carry out maintenance. Meanwhile, the empty cottages were sold or rented out, and many are now holiday homes whose guests pay to experience the isolation that the keepers once endured."
+       },
+       {
+        "label": "G",
+        "text": "Interest in the keepers has, if anything, grown since they left. Several towers have become museums, and in some places volunteers act as guides during the summer months, explaining how the stations once worked. Historians have also realised that the generation who remember the job is getting older. Oral history projects have therefore recorded long interviews with former keepers and their families, preserving details that were never written down, from the recipes cooked on rock stations to the songs that were sung to pass the time. Thanks to this work, a way of life that has vanished from our coasts will not vanish from our memory."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       28,
+       33
+      ],
+      "type": "matching_headings",
+      "instructions": "The text has seven paragraphs, A-G. Choose the correct heading for paragraphs B-G from the list of headings below. Write the correct number, i-ix.",
+      "options": [
+       {
+        "key": "i",
+        "text": "Living with long periods of separation"
+       },
+       {
+        "key": "ii",
+        "text": "How the first towers were constructed"
+       },
+       {
+        "key": "iii",
+        "text": "Recording the memories of a vanished occupation"
+       },
+       {
+        "key": "iv",
+        "text": "Duties organised around the lamp"
+       },
+       {
+        "key": "v",
+        "text": "Inventions that reduced the need for staff"
+       },
+       {
+        "key": "vi",
+        "text": "The dangers faced by shipping in winter"
+       },
+       {
+        "key": "vii",
+        "text": "Reasons given for keeping people at the stations"
+       },
+       {
+        "key": "viii",
+        "text": "Why the decision finally came and how it was felt"
+       },
+       {
+        "key": "ix",
+        "text": "A shortage of young people wanting the job"
+       }
+      ],
+      "options_reusable": false,
+      "questions": [
+       {
+        "n": 28,
+        "prompt": "Paragraph B",
+        "answer": "iv",
+        "evidence": "The working day of a keeper was shaped entirely by the light.",
+        "skill": "main_idea",
+        "explain_en": "B lists the daily tasks: trimming wicks, polishing the lens, winding the clockwork, keeping the log.",
+        "explain_bn": "B অনুচ্ছেদে বাতিকে ঘিরে প্রতিদিনের কাজের বর্ণনা — তাই heading iv।"
+       },
+       {
+        "n": 29,
+        "prompt": "Paragraph C",
+        "answer": "i",
+        "evidence": "two or three men lived together in cramped rooms for several weeks at a time, while their families stayed on the mainland",
+        "skill": "main_idea",
+        "explain_en": "C focuses on rock-station keepers being away from their families for weeks or months.",
+        "explain_bn": "C-তে রক স্টেশনে পরিবার থেকে দীর্ঘ সময় দূরে থাকার কথা — heading i।"
+       },
+       {
+        "n": 30,
+        "prompt": "Paragraph D",
+        "answer": "v",
+        "evidence": "Change came gradually, through a series of inventions.",
+        "skill": "main_idea",
+        "explain_en": "D describes electric lamps, bulb changers, the daylight valve and radio links, all reducing the need for people.",
+        "explain_bn": "D-তে একের পর এক আবিষ্কার যা মানুষের প্রয়োজন কমিয়েছে — heading v।"
+       },
+       {
+        "n": 31,
+        "prompt": "Paragraph E",
+        "answer": "vii",
+        "evidence": "Keepers themselves argued that they did far more than tend a lamp.",
+        "skill": "main_idea",
+        "explain_en": "E gives arguments against automation: unreliable machines, rescues, weather reports.",
+        "explain_bn": "E-তে মানুষ রাখার পক্ষে যুক্তি (উদ্ধার, আবহাওয়া রিপোর্ট) — heading vii। vi শুধু একটা খুঁটিনাটি।"
+       },
+       {
+        "n": 32,
+        "prompt": "Paragraph F",
+        "answer": "viii",
+        "evidence": "In the end, however, the economic case proved impossible to resist.",
+        "skill": "main_idea",
+        "explain_en": "F explains why automation finally happened and the keepers' mixed feelings.",
+        "explain_bn": "F-এ শেষ পর্যন্ত কেন সিদ্ধান্ত এলো এবং রক্ষীদের মিশ্র অনুভূতি — heading viii।"
+       },
+       {
+        "n": 33,
+        "prompt": "Paragraph G",
+        "answer": "iii",
+        "evidence": "Oral history projects have therefore recorded long interviews with former keepers and their families",
+        "skill": "main_idea",
+        "explain_en": "G is about museums, guides and oral history interviews preserving memories.",
+        "explain_bn": "G-তে সাক্ষাৎকার রেকর্ড করে স্মৃতি সংরক্ষণের কথা — heading iii।"
+       }
+      ]
+     },
+     {
+      "range": [
+       34,
+       37
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 34,
+        "prompt": "According to paragraph B, the keepers' logs were later useful because they",
+        "answer": "D",
+        "options": [
+         {
+          "key": "A",
+          "text": "showed how much oil each lamp used."
+         },
+         {
+          "key": "B",
+          "text": "proved that keepers worked hard."
+         },
+         {
+          "key": "C",
+          "text": "helped engineers design new lenses."
+         },
+         {
+          "key": "D",
+          "text": "provided information about weather and accidents at sea."
+         }
+        ],
+        "evidence": "These records were later used by scientists studying climate and by investigators trying to understand shipwrecks.",
+        "skill": "detail",
+        "explain_en": "Scientists studying climate and shipwreck investigators used them.",
+        "explain_bn": "জলবায়ু গবেষক ও জাহাজডুবির তদন্তকারীরা এই লগ ব্যবহার করেছেন।"
+       },
+       {
+        "n": 35,
+        "prompt": "What does the writer say about keepers at rock stations?",
+        "answer": "B",
+        "options": [
+         {
+          "key": "A",
+          "text": "They usually lived there with their children."
+         },
+         {
+          "key": "B",
+          "text": "Their return home could be delayed by bad weather."
+         },
+         {
+          "key": "C",
+          "text": "They were not allowed to have hobbies."
+         },
+         {
+          "key": "D",
+          "text": "They were replaced every few days."
+         }
+        ],
+        "evidence": "in a stormy winter a keeper might wait a month or more before he was able to go home",
+        "skill": "detail",
+        "explain_en": "Relief depended on calm seas, so a keeper's return could be delayed by a month or more.",
+        "explain_bn": "শান্ত সমুদ্র ছাড়া বদলি নৌকা ভিড়তে পারত না, তাই বাড়ি ফেরা এক মাস বা বেশি দেরি হতে পারত।"
+       },
+       {
+        "n": 36,
+        "prompt": "Why was the daylight-sensitive valve so important?",
+        "answer": "A",
+        "options": [
+         {
+          "key": "A",
+          "text": "It allowed some lights to run unattended for long periods."
+         },
+         {
+          "key": "B",
+          "text": "It made the beam visible from further away."
+         },
+         {
+          "key": "C",
+          "text": "It replaced electric lamps at many stations."
+         },
+         {
+          "key": "D",
+          "text": "It let engineers check lights by radio."
+         }
+        ],
+        "evidence": "Because the light now burned only when it was needed, a single supply of gas could last for many months",
+        "skill": "inference",
+        "explain_en": "Fuel lasted months and some lights could be left alone, so they could work for long periods unattended.",
+        "explain_bn": "গ্যাস কয়েক মাস চলত, তাই ছোট বাতিঘর মানুষ ছাড়াই দীর্ঘদিন চলতে পারত।"
+       },
+       {
+        "n": 37,
+        "prompt": "What point did keepers make against automation?",
+        "answer": "C",
+        "options": [
+         {
+          "key": "A",
+          "text": "Machines were too expensive to buy."
+         },
+         {
+          "key": "B",
+          "text": "Forecasters did not want their reports."
+         },
+         {
+          "key": "C",
+          "text": "They could help people in danger at sea."
+         },
+         {
+          "key": "D",
+          "text": "Satellite navigation was unreliable."
+         }
+        ],
+        "evidence": "they were often the first to see a vessel in difficulty",
+        "skill": "detail",
+        "explain_en": "They watched the sea and raised the alarm for crews in trouble.",
+        "explain_bn": "তাঁরা সারাক্ষণ সমুদ্র দেখতেন, বিপদে পড়া জাহাজ প্রথম তাঁরাই দেখতেন।"
+       }
+      ]
+     },
+     {
+      "range": [
+       38,
+       40
+      ],
+      "type": "summary_completion",
+      "title": "After the keepers left",
+      "instructions": "Complete the summary below. Choose NO MORE THAN TWO WORDS from the text for each answer.",
+      "word_limit": {
+       "max_words": 2,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 38,
+        "prompt": "Some former keepers continued working as {gap}, maintaining the lights.",
+        "answer": "part-time attendants",
+        "accept": [
+         "attendants"
+        ],
+        "evidence": "A number of them stayed on as part-time attendants",
+        "skill": "paraphrase",
+        "explain_en": "They stayed on as part-time attendants. 'part-time' counts as one hyphenated word.",
+        "explain_bn": "কেউ কেউ খণ্ডকালীন অ্যাটেনডেন্ট হিসেবে থেকে যান; part-time একটি শব্দ ধরা হয়।"
+       },
+       {
+        "n": 39,
+        "prompt": "Many of the cottages have become {gap} for visitors.",
+        "answer": "holiday homes",
+        "evidence": "many are now holiday homes",
+        "skill": "detail",
+        "explain_en": "The empty cottages are now holiday homes.",
+        "explain_bn": "খালি কটেজগুলো এখন ছুটি কাটানোর বাড়ি (holiday homes)।"
+       },
+       {
+        "n": 40,
+        "prompt": "Researchers have collected {gap} from keepers and their relatives.",
+        "answer": "long interviews",
+        "accept": [
+         "interviews"
+        ],
+        "evidence": "Oral history projects have therefore recorded long interviews with former keepers",
+        "skill": "detail",
+        "explain_en": "Oral history projects recorded long interviews.",
+        "explain_bn": "ওরাল হিস্টরি প্রকল্পে প্রাক্তন রক্ষীদের দীর্ঘ সাক্ষাৎকার রেকর্ড করা হয়েছে।"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "writing": {
+  "minutes": 60,
+  "tasks": [
+   {
+    "task": 1,
+    "minutes": 20,
+    "min_words": 150,
+    "kind": "letter",
+    "prompt": "You live in a rented flat. For the past two months, building work on the flat next to yours has been causing a lot of noise. Write a letter to the property manager. In your letter, describe the noise and when it happens, explain how it is affecting you, and say what you would like the property manager to do. Write at least 150 words. You do NOT need to write any addresses. Begin your letter as follows: Dear Sir or Madam,",
+    "letter": {
+     "tone": "formal",
+     "bullets": [
+      "describe the noise and when it happens",
+      "explain how it is affecting you",
+      "say what you would like the property manager to do"
+     ],
+     "opening": "Dear Sir or Madam,"
+    },
+    "key_features": [
+     "Formal tone throughout; clear purpose stated in the first lines (complaint about noise from building work).",
+     "Bullet 1: specific description of the noise (drilling, hammering) and times/days, including any work outside permitted hours.",
+     "Bullet 2: concrete effects (sleep, working from home, health, children), not just 'it is annoying'.",
+     "Bullet 3: a realistic, specific request (limit working hours, advance notice, a timetable, a rent reduction) and a deadline or follow-up.",
+     "Appropriate formal close (Yours faithfully) and full name; logical paragraphs; at least 150 words."
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "Dear Sir or Madam,\n\nI am writing as the tenant of Flat 4B to complain about the noise caused by the renovation of Flat 4C, which has now continued for almost two months.\n\nThe work involves heavy drilling and hammering through the shared wall, and on most days it begins at around 7 am, well before the 8 am start time stated in the building rules. On several occasions the noise has also continued into the evening and even on Sundays.\n\nThis is having a serious effect on me. I work night shifts at a hospital three times a week, so I need to sleep during the morning, which has become almost impossible. As a result, I have been exhausted at work and have had to take two days of unpaid leave.\n\nI would therefore be grateful if you could remind the contractors of the permitted working hours and ask them to avoid the noisiest work before 10 am. I would also appreciate a timetable showing when the work is expected to finish. If the disturbance continues, I would like to discuss a temporary reduction in my rent.\n\nI look forward to hearing from you within the next week.\n\nYours faithfully,\nSamira Haque"
+    }
+   },
+   {
+    "task": 2,
+    "minutes": 40,
+    "min_words": 250,
+    "kind": "essay",
+    "essay_type": "opinion",
+    "prompt": "Some people believe that all secondary school students should have compulsory cooking lessons, so that they learn to prepare healthy meals. To what extent do you agree or disagree? Give reasons for your answer and include any relevant examples from your own knowledge or experience. Write at least 250 words.",
+    "key_features": [
+     "A clear position (agree, disagree or partly agree) stated in the introduction and kept consistent to the conclusion.",
+     "Main ideas such as health and obesity, independence and saving money, family and cultural knowledge, against pressure on the timetable and the cost of kitchens and teachers.",
+     "Each main idea developed with explanation and a relevant example.",
+     "Counter-argument acknowledged and answered if the writer agrees (or the reverse).",
+     "Paragraphing, linking and a range of vocabulary (nutrition, processed food, curriculum, life skills); at least 250 words."
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "In many countries, young people are leaving school able to solve equations but unable to cook a simple meal. For this reason, some argue that cooking should become a compulsory subject in secondary schools. I largely agree with this view, although the lessons need to be practical and carefully planned.\n\nThe strongest argument for compulsory cooking lessons concerns health. Teenagers increasingly rely on fast food and ready meals, which are often high in salt, sugar and fat, and this contributes to rising rates of obesity and diabetes. A student who knows how to prepare a quick vegetable curry or a simple pasta dish has a real alternative to takeaway food. Moreover, cooking lessons naturally teach nutrition, so students would understand why certain foods are better for them rather than simply being told so.\n\nCooking is also a vital life skill with financial benefits. Students who leave home for university or work often spend a large part of their income on convenience food. Being able to plan meals and cook in bulk can save a considerable amount of money, and it gives young people a sense of independence and confidence.\n\nCritics point out that the school timetable is already crowded and that equipping kitchens is expensive. These concerns are valid, but cooking does not need to replace core subjects; even one lesson a week for two years would make a difference, and schools could share facilities or use simple equipment.\n\nIn conclusion, I believe the benefits of compulsory cooking lessons for students' health, finances and independence clearly outweigh the practical difficulties, provided the lessons focus on simple, affordable and healthy meals."
+    }
+   }
+  ]
+ },
+ "speaking": {
+  "minutes": 14,
+  "part1": [
+   {
+    "topic": "Your neighbourhood",
+    "questions": [
+     "Can you describe the neighbourhood where you live?",
+     "How long have you lived there?",
+     "What do you like most about your neighbourhood?",
+     "Is there anything you would like to change about it?"
+    ]
+   },
+   {
+    "topic": "Shopping",
+    "questions": [
+     "Do you enjoy going shopping? Why or why not?",
+     "Do you prefer shopping in markets or in large shops?",
+     "How often do you buy things online?",
+     "Is there anything you regret buying?"
+    ]
+   },
+   {
+    "topic": "Rain",
+    "questions": [
+     "Does it rain a lot where you live?",
+     "How do you feel on rainy days?",
+     "What do you usually do when it rains?",
+     "Did you enjoy playing in the rain as a child?"
+    ]
+   }
+  ],
+  "part2": {
+   "cue_card": {
+    "topic": "Describe a time when you helped someone in your community.",
+    "bullets": [
+     "who you helped",
+     "what the problem was",
+     "what you did to help"
+    ],
+    "final": "and explain how you felt after helping this person."
+   },
+   "prep_s": 60,
+   "talk_s": 120,
+   "follow_up": [
+    "Do you often help people in your neighbourhood?",
+    "Did the person thank you?"
+   ]
+  },
+  "part3": [
+   {
+    "theme": "Helping others",
+    "questions": [
+     "Why do some people volunteer to help others without being paid?",
+     "Do you think people help their neighbours less than they did in the past? Why?",
+     "Should schools encourage students to do community work?",
+     "What kinds of help should the government provide rather than volunteers?"
+    ]
+   },
+   {
+    "theme": "Communities",
+    "questions": [
+     "What makes a community a good place to live?",
+     "How have communities in cities changed in recent years?",
+     "Can online groups replace face-to-face communities?"
+    ]
+   }
+  ]
+ }
+}

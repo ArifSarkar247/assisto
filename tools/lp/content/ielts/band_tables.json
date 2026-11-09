@@ -1,0 +1,348 @@
+{
+ "format": "assisto.lp.bandtable/1",
+ "label": {
+  "en": "Practice score estimate - not an official IELTS result",
+  "bn": "প্র্যাকটিস স্কোরের আনুমানিক হিসাব - অফিসিয়াল IELTS ফল নয়"
+ },
+ "source": {
+  "publisher": "IELTS partners (ielts.org)",
+  "title": "IELTS scoring in detail: band scores explained",
+  "url": "https://ielts.org/take-a-test/your-results/ielts-scoring-in-detail",
+  "checked": "2026-11-09",
+  "what_it_gives": "Average raw marks out of 40 needed for selected bands: Listening 16=5, 23=6, 30=7, 35=8; Academic Reading 15=5, 23=6, 30=7, 35=8; General Training Reading 15=4, 23=5, 30=6, 35=7. The page notes the exact marks vary slightly between test versions.",
+  "how_we_fill_the_rest": "Half bands and bands above/below the anchors follow the conversion commonly used by IELTS preparation materials, which is consistent with every official anchor; rows below the lowest anchor are our own estimate. Every row says its basis."
+ },
+ "rounding": {
+  "overall": "Average of the four section bands, rounded to the nearest half band; an average ending in .25 rounds up to .5 and one ending in .75 rounds up to the next whole band (public IELTS rule)."
+ },
+ "listening": [
+  {
+   "min": 39,
+   "max": 40,
+   "band": 9,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 37,
+   "max": 38,
+   "band": 8.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 35,
+   "max": 36,
+   "band": 8,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 32,
+   "max": 34,
+   "band": 7.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 30,
+   "max": 31,
+   "band": 7,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 26,
+   "max": 29,
+   "band": 6.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 23,
+   "max": 25,
+   "band": 6,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 18,
+   "max": 22,
+   "band": 5.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 16,
+   "max": 17,
+   "band": 5,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 13,
+   "max": 15,
+   "band": 4.5,
+   "basis": "estimate"
+  },
+  {
+   "min": 10,
+   "max": 12,
+   "band": 4,
+   "basis": "estimate"
+  },
+  {
+   "min": 8,
+   "max": 9,
+   "band": 3.5,
+   "basis": "estimate"
+  },
+  {
+   "min": 6,
+   "max": 7,
+   "band": 3,
+   "basis": "estimate"
+  },
+  {
+   "min": 4,
+   "max": 5,
+   "band": 2.5,
+   "basis": "estimate"
+  },
+  {
+   "min": 3,
+   "max": 3,
+   "band": 2,
+   "basis": "estimate"
+  },
+  {
+   "min": 2,
+   "max": 2,
+   "band": 1.5,
+   "basis": "estimate"
+  },
+  {
+   "min": 1,
+   "max": 1,
+   "band": 1,
+   "basis": "estimate"
+  },
+  {
+   "min": 0,
+   "max": 0,
+   "band": 0,
+   "basis": "estimate"
+  }
+ ],
+ "reading_academic": [
+  {
+   "min": 39,
+   "max": 40,
+   "band": 9,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 37,
+   "max": 38,
+   "band": 8.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 35,
+   "max": 36,
+   "band": 8,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 33,
+   "max": 34,
+   "band": 7.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 30,
+   "max": 32,
+   "band": 7,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 27,
+   "max": 29,
+   "band": 6.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 23,
+   "max": 26,
+   "band": 6,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 19,
+   "max": 22,
+   "band": 5.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 15,
+   "max": 18,
+   "band": 5,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 13,
+   "max": 14,
+   "band": 4.5,
+   "basis": "estimate"
+  },
+  {
+   "min": 10,
+   "max": 12,
+   "band": 4,
+   "basis": "estimate"
+  },
+  {
+   "min": 8,
+   "max": 9,
+   "band": 3.5,
+   "basis": "estimate"
+  },
+  {
+   "min": 6,
+   "max": 7,
+   "band": 3,
+   "basis": "estimate"
+  },
+  {
+   "min": 4,
+   "max": 5,
+   "band": 2.5,
+   "basis": "estimate"
+  },
+  {
+   "min": 3,
+   "max": 3,
+   "band": 2,
+   "basis": "estimate"
+  },
+  {
+   "min": 2,
+   "max": 2,
+   "band": 1.5,
+   "basis": "estimate"
+  },
+  {
+   "min": 1,
+   "max": 1,
+   "band": 1,
+   "basis": "estimate"
+  },
+  {
+   "min": 0,
+   "max": 0,
+   "band": 0,
+   "basis": "estimate"
+  }
+ ],
+ "reading_general": [
+  {
+   "min": 40,
+   "max": 40,
+   "band": 9,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 39,
+   "max": 39,
+   "band": 8.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 37,
+   "max": 38,
+   "band": 8,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 36,
+   "max": 36,
+   "band": 7.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 35,
+   "max": 35,
+   "band": 7,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 32,
+   "max": 34,
+   "band": 6.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 30,
+   "max": 31,
+   "band": 6,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 27,
+   "max": 29,
+   "band": 5.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 23,
+   "max": 26,
+   "band": 5,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 19,
+   "max": 22,
+   "band": 4.5,
+   "basis": "consistent_with_anchors"
+  },
+  {
+   "min": 15,
+   "max": 18,
+   "band": 4,
+   "basis": "official_anchor"
+  },
+  {
+   "min": 12,
+   "max": 14,
+   "band": 3.5,
+   "basis": "estimate"
+  },
+  {
+   "min": 9,
+   "max": 11,
+   "band": 3,
+   "basis": "estimate"
+  },
+  {
+   "min": 6,
+   "max": 8,
+   "band": 2.5,
+   "basis": "estimate"
+  },
+  {
+   "min": 4,
+   "max": 5,
+   "band": 2,
+   "basis": "estimate"
+  },
+  {
+   "min": 2,
+   "max": 3,
+   "band": 1.5,
+   "basis": "estimate"
+  },
+  {
+   "min": 1,
+   "max": 1,
+   "band": 1,
+   "basis": "estimate"
+  },
+  {
+   "min": 0,
+   "max": 0,
+   "band": 0,
+   "basis": "estimate"
+  }
+ ]
+}

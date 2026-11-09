@@ -1,0 +1,123 @@
+# Language Partner content pipeline (lpcontent, owner order 9 Nov 21:45 "LP V2").
+# check: unit tests + automatic content checks (lpcheck.py) + visuals + lpcore export (no audio).
+# audio: open-source TTS (Kokoro-82M Apache-2.0 for GB/US, MeloTTS MIT for AU) -> mp3 per Listening
+#        part + audio_manifest.json + lpcore import dir. Runs only on manual dispatch (audio=true) or a
+#        push whose head commit message contains "[audio]". Nothing is uploaded anywhere except CI
+#        artifacts; no secrets; no paid AI API.
+name: lp-content
+
+on:
+  push:
+    branches: ['ci/**']
+    paths: ['tools/lp/**', '.github/workflows/lp-content.yml']
+  workflow_dispatch:
+    inputs:
+      audio:
+        description: 'Also render Listening audio'
+        type: boolean
+        default: true
+
+concurrency:
+  group: lp-content-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Tools (SVG -> PNG)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq librsvg2-bin
+      - name: Unit tests
+        run: python -m unittest discover -s tools/lp/tests -v
+      - name: Content checks (draft -> ai-checked)
+        run: python tools/lp/lpcheck.py --out out
+      - name: Visuals + lpcore export (no audio)
+        if: always()
+        run: |
+          python tools/lp/render_visuals.py --out out/visuals
+          mkdir -p out/img
+          for f in out/visuals/*.svg; do [ -e "$f" ] || continue; rsvg-convert -w 1200 -b white "$f" -o "out/img/$(basename "${f%.svg}").png"; done
+          python tools/lp/export_bundle.py --index out/index.json --out out/lp_bundle --img out/img
+          python tools/lp/tts/plan.py --out out/tts_plan.json
+          cat out/report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lp-check-${{ github.run_number }}
+          path: out
+          retention-days: 30
+
+  audio:
+    needs: check
+    if: (github.event_name == 'workflow_dispatch' && inputs.audio) || contains(github.event.head_commit.message, '[audio]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        id: py310
+        with:
+          python-version: '3.10'
+      - uses: actions/setup-python@v5
+        id: py311
+        with:
+          python-version: '3.11'
+      - name: System packages
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq espeak-ng ffmpeg libsndfile1 librsvg2-bin
+      - name: Plan
+        run: python tools/lp/tts/plan.py --out work/plan.json
+      - uses: actions/cache@v4
+        with:
+          path: work/clips
+          key: lp-clips-v1-${{ hashFiles('work/plan.json') }}
+          restore-keys: lp-clips-v1-
+      - name: Kokoro venv (Apache-2.0)
+        run: |
+          ${{ steps.py311.outputs.python-path }} -m venv /tmp/vk
+          /tmp/vk/bin/pip install -q "numpy==1.26.4" "soundfile==0.12.1"
+          /tmp/vk/bin/pip install -q --extra-index-url https://download.pytorch.org/whl/cpu \
+            "torch==2.4.1" "kokoro==0.9.4" "misaki[en]==0.9.4"
+      - name: Render GB/US voices (Kokoro)
+        run: /tmp/vk/bin/python tools/lp/tts/synth.py --engine kokoro --plan work/plan.json --clips work/clips
+      - name: MeloTTS venv (MIT) for the Australian voice
+        id: melo
+        continue-on-error: true
+        run: |
+          ${{ steps.py310.outputs.python-path }} -m venv /tmp/vm
+          /tmp/vm/bin/pip install -q "numpy==1.26.4" "setuptools<70" wheel
+          /tmp/vm/bin/pip install -q --extra-index-url https://download.pytorch.org/whl/cpu "torch==2.4.1" "torchaudio==2.4.1"
+          /tmp/vm/bin/pip install -q "git+https://github.com/myshell-ai/MeloTTS.git@209145371cff8fc3bd60d7be902ea69cbdb7965a"
+          /tmp/vm/bin/python -m unidic download
+          /tmp/vm/bin/python -c "import nltk; nltk.download('averaged_perceptron_tagger_eng', quiet=True); nltk.download('averaged_perceptron_tagger', quiet=True); nltk.download('cmudict', quiet=True)"
+      - name: Render AU voice (MeloTTS)
+        if: steps.melo.outcome == 'success'
+        continue-on-error: true
+        run: /tmp/vm/bin/python tools/lp/tts/synth.py --engine melo --plan work/plan.json --clips work/clips
+      - name: Assemble mp3 + manifest
+        run: /tmp/vk/bin/python tools/lp/tts/assemble.py --plan work/plan.json --clips work/clips --out out/audio
+      - name: lpcore import dir (audio + images)
+        run: |
+          python tools/lp/lpcheck.py --out out || true
+          python tools/lp/render_visuals.py --out out/visuals
+          mkdir -p out/img
+          for f in out/visuals/*.svg; do [ -e "$f" ] || continue; rsvg-convert -w 1200 -b white "$f" -o "out/img/$(basename "${f%.svg}").png"; done
+          python tools/lp/export_bundle.py --index out/index.json --out out/lp_bundle --audio out/audio --img out/img
+          cp work/clips/_synth_*.json out/ 2>/dev/null || true
+          { echo "## Listening audio"; python -c "import json;m=json.load(open('out/audio/audio_manifest.json'));print('AU measured:',m['melo_au_measured']);[print('-',f['file'],f['duration_s'],'s',round(f['bytes']/1e6,2),'MB','subs:',len(f['substitutions'])) for f in m['files']]"; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lp-audio-${{ github.run_number }}
+          path: |
+            out/lp_bundle
+            out/_synth_*.json
+          retention-days: 30

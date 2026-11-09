@@ -371,16 +371,17 @@ def check_answers(b: dict, r: Result):
             if len(set(keys)) != len(keys):
                 r.err(c, f"{sec} {rg}: two questions share the same answer")
         elif t in OPTION_SINGLE:
-            if len(opts) < 2:
-                r.err(c, f"{sec} {rg}: option group needs options")
+            per_q = t == "mcq_single" and qs and all(q.get("options") for q in qs)
+            if len(opts) < 2 and not per_q:
+                r.err(c, f"{sec} {rg}: option group needs options (mcq_single: on the group or on every question)")
             if t == "mcq_single":
                 want = 3 if sec == "listening" else 4
                 for q in qs:
                     qo = [o.get("key") for o in q.get("options", [])]
-                    if qo:
-                        opts_q = qo
-                    else:
-                        opts_q = opts
+                    opts_q = qo or opts
+                    qt = [norm_answer(o.get("text", "")) for o in q.get("options", [])]
+                    if len(set(qo)) != len(qo) or len(set(qt)) != len(qt):
+                        r.err(c, f"{sec} Q{q.get('n')}: duplicate option keys/texts")
                     if len(opts_q) != want:
                         r.warn(c, f"{sec} Q{q.get('n')}: mcq has {len(opts_q)} options (exam uses {want})")
                     if q.get("answer") not in opts_q:
@@ -684,7 +685,7 @@ def check_cross_duplicates(results: dict, bundles: dict):
                 for tx in p.get("texts", [])]
         keys.append(norm_answer(b.get("speaking", {}).get("part2", {}).get("cue_card", {})
                                 .get("topic", "")))
-        keys += [norm_answer(t.get("prompt", ""))[:120] for t in b.get("writing", {}).get("tasks", [])]
+        keys += [writing_topic_key(t.get("prompt", "")) for t in b.get("writing", {}).get("tasks", [])]
         for k in keys:
             if not k:
                 continue
@@ -692,6 +693,23 @@ def check_cross_duplicates(results: dict, bundles: dict):
                 results[path].err("duplicates", f"topic/title repeated from "
                                                 f"{os.path.basename(seen[k])}: {k[:60]!r}")
             seen.setdefault(k, path)
+
+
+WRITING_BOILERPLATE = [
+    r"summari[sz]e the information by selecting and reporting the main features,? and make comparisons where relevant\.?",
+    r"write at least \d+ words\.?", r"you should spend about \d+ minutes on this task\.?",
+    r"give reasons for your answer and include any relevant examples from your own knowledge or experience\.?",
+    r"you do not need to write any addresses\.?", r"begin your letter as follows:?", r"dear sir or madam,?",
+    r"to what extent do you agree or disagree\??", r"discuss both these views and give your own opinion\.?",
+    r"in your letter,?"]
+
+
+def writing_topic_key(prompt: str) -> str:
+    """Topic of a writing prompt without the standard exam instruction lines (those repeat by design)."""
+    s = norm_answer(prompt)
+    for pat in WRITING_BOILERPLATE:
+        s = re.sub(pat, " ", s)
+    return re.sub(r"\s+", " ", s).strip()[:120]
 
 
 def load_known() -> set[str]:
@@ -753,7 +771,7 @@ def main(argv=None) -> int:
         ok = not r.errors
         bad += not ok
         index["bundles"].append({
-            "bundle_id": b.get("bundle_id"), "file": os.path.relpath(p, os.path.dirname(HERE + "/../..")),
+            "bundle_id": b.get("bundle_id"), "file": os.path.relpath(p, os.path.dirname(os.path.dirname(HERE))),
             "module": b.get("module"), "version": b.get("version"),
             "status": "ai-checked" if ok else "draft", "checks_passed": ok,
             "content_sha256": content_sha(b) if b else None,

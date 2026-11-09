@@ -5,312 +5,2325 @@
  "module": "academic",
  "version": 1,
  "status": "draft",
- "title": {"en": "IELTS Academic Practice Test 2", "bn": "IELTS অ্যাকাডেমিক প্র্যাকটিস টেস্ট ২"},
- "practice_label": {"en": "Practice test written by Assisto. Not an official IELTS paper.",
-                    "bn": "Assisto-র নিজের লেখা প্র্যাকটিস টেস্ট। এটি অফিসিয়াল IELTS প্রশ্ন নয়।"},
- "authoring": {"source": "original", "author": "assisto-lpcontent", "created": "2026-11-09",
-               "notes": "All scripts, passages, data and questions written from scratch for Assisto. Invented people, places and figures."},
+ "title": {
+  "en": "IELTS Academic Practice Test 2",
+  "bn": "IELTS অ্যাকাডেমিক প্র্যাকটিস টেস্ট ২"
+ },
+ "practice_label": {
+  "en": "Practice test written by Assisto. Not an official IELTS paper.",
+  "bn": "Assisto-র নিজের লেখা প্র্যাকটিস টেস্ট। এটি অফিসিয়াল IELTS প্রশ্ন নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpcontent",
+  "created": "2026-11-09",
+  "notes": "All scripts, passages, data and questions written from scratch for Assisto. Invented people, places and figures."
+ },
  "listening": {
-  "minutes": 30, "check_s": 30,
+  "minutes": 30,
+  "check_s": 30,
   "parts": [
-   {"part": 1, "context": "everyday_dialogue",
+   {
+    "part": 1,
+    "context": "everyday_dialogue",
     "intro": "You will hear a man phoning a bike hire company to book a family cycling tour.",
-    "speakers": {"A": {"name": "Lucy", "gender": "F", "accent": "GB", "role": "tour adviser"},
-                 "B": {"name": "Daniel Tremayne", "gender": "M", "accent": "US", "role": "caller"}},
+    "speakers": {
+     "A": {
+      "name": "Lucy",
+      "gender": "F",
+      "accent": "GB",
+      "role": "tour adviser"
+     },
+     "B": {
+      "name": "Daniel Tremayne",
+      "gender": "M",
+      "accent": "US",
+      "role": "caller"
+     }
+    },
     "segments": [
-     {"questions": [1, 6], "preview_s": 30, "turns": [
-      {"spk": "A", "text": "Good morning, Riverside Wheels, bike hire and guided tours. Lucy speaking. How can I help?"},
-      {"spk": "B", "text": "Oh, hi. I'm calling because I'd like to book one of your family cycling tours. We're visiting the area in the summer, and my kids are really excited about the idea."},
-      {"spk": "A", "text": "Lovely. I can take the booking over the phone now, if you like. Could I start with your name?"},
-      {"spk": "B", "text": "Sure. It's Daniel Tremayne."},
-      {"spk": "A", "text": "And could you spell the surname for me?"},
-      {"spk": "B", "text": "Yeah, it's T-R-E-M-A-Y-N-E."},
-      {"spk": "A", "text": "Thank you. And which tour were you interested in? We've got three family routes at the moment."},
-      {"spk": "B", "text": "Well, I was looking at your website, and the Castle Trail looked amazing, but I see it's about thirty kilometres."},
-      {"spk": "A", "text": "That's right, it's our longest. It takes most of the day, so it's really better for older teenagers."},
-      {"spk": "B", "text": "Yeah, I think that would be too much for us. What about the one that goes along the river?"},
-      {"spk": "A", "text": "The River Loop? I'm afraid that one's closed this summer, because they're repairing one of the bridges. But the Orchard Trail is very popular with families. It's completely flat, it's about twelve kilometres, and you stop at a fruit farm halfway round."},
-      {"spk": "B", "text": "That sounds perfect. Let's go for the Orchard Trail."},
-      {"spk": "A", "text": "Great. And what date would you like?"},
-      {"spk": "B", "text": "We were thinking of Thursday the 14th of August."},
-      {"pause": 1.5},
-      {"spk": "A", "text": "Let me just check. Oh, I'm sorry, the 14th is fully booked. I could offer you Saturday the 16th, or there's space on the 21st."},
-      {"spk": "B", "text": "The 21st is too late, we fly home on the 20th. So, the 16th, please."},
-      {"spk": "A", "text": "Fine, I've put you down for the 16th. How many people will there be?"},
-      {"spk": "B", "text": "There's my wife and me, and our three children."},
-      {"spk": "A", "text": "And how old are the children? We need to know so we can give everyone the right size of bike."},
-      {"spk": "B", "text": "The two older ones are eleven and nine, and they're both pretty confident riders. But our youngest, Rosie, is only five."},
-      {"spk": "A", "text": "Ah, then she'll need some extra equipment. We can either attach a trailer to one of the adult bikes, or fit a child seat on the back."},
-      {"spk": "B", "text": "Hmm. I think she'd feel a bit shut in, in a trailer. She likes to sit up and see what's going on, so a seat, please."},
-      {"spk": "A", "text": "No problem, I'll make a note of that. Now, the tour starts at half past nine, and we meet in the town centre."},
-      {"spk": "B", "text": "At your shop?"},
-      {"spk": "A", "text": "Well, the shop is actually quite small, so the guides meet the groups outside the library on Market Street. It's opposite the bus station, so it's easy to find."},
-      {"spk": "B", "text": "Outside the library. Got it."}
-     ]},
-     {"questions": [7, 10], "preview_s": 30, "turns": [
-      {"spk": "B", "text": "And can you tell me how much it's all going to cost?"},
-      {"spk": "A", "text": "Of course. Adults are 44 pounds each, and children with their own bikes are 22 pounds. Your youngest doesn't pay for the tour itself, but there's a charge of 10 pounds for the child seat."},
-      {"spk": "B", "text": "So that's 88 for my wife and me, 44 for the older two, and then 10 for the seat."},
-      {"spk": "A", "text": "Yes, so 142 pounds altogether."},
-      {"spk": "B", "text": "Is there a family discount at all? I think I saw something about that online."},
-      {"spk": "A", "text": "There was one last year, but I'm afraid we've stopped it. The price does include quite a lot, though. Everyone gets a helmet, of course, and a bottle of water, and each family gets a guidebook with information about the places you pass."},
-      {"spk": "B", "text": "Oh, that's nice. What about lunch?"},
-      {"spk": "A", "text": "Lunch isn't included, but the fruit farm has a lovely café, and it's not expensive."},
-      {"spk": "B", "text": "OK. And is there anything we need to bring with us?"},
-      {"spk": "A", "text": "Comfortable shoes and sun cream, definitely. And the weather here can change very quickly, even in August, so please bring a raincoat for each person. We do sell them in the shop, but they're quite expensive."},
-      {"spk": "B", "text": "Right, I'll make sure we pack them."},
-      {"spk": "A", "text": "And finally, to confirm the booking, we ask for a deposit of 30 pounds, which you can pay on our website. We normally give people a week to pay, but because it's the busy season, we'll need it by Friday."},
-      {"spk": "B", "text": "By Friday. You mean this Friday?"},
-      {"spk": "A", "text": "That's right. If we haven't received it by then, the places will be offered to other customers."},
-      {"spk": "B", "text": "No problem, I'll do it this evening. Thanks so much for your help."},
-      {"spk": "A", "text": "You're welcome, Mr Tremayne. I hope you all enjoy the tour."}
-     ]}
+     {
+      "questions": [
+       1,
+       6
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good morning, Riverside Wheels, bike hire and guided tours. Lucy speaking. How can I help?"
+       },
+       {
+        "spk": "B",
+        "text": "Oh, hi. I'm calling because I'd like to book one of your family cycling tours. We're visiting the area in the summer, and my kids are really excited about the idea."
+       },
+       {
+        "spk": "A",
+        "text": "Lovely. I can take the booking over the phone now, if you like. Could I start with your name?"
+       },
+       {
+        "spk": "B",
+        "text": "Sure. It's Daniel Tremayne."
+       },
+       {
+        "spk": "A",
+        "text": "And could you spell the surname for me?"
+       },
+       {
+        "spk": "B",
+        "text": "Yeah, it's T-R-E-M-A-Y-N-E."
+       },
+       {
+        "spk": "A",
+        "text": "Thank you. And which tour were you interested in? We've got three family routes at the moment."
+       },
+       {
+        "spk": "B",
+        "text": "Well, I was looking at your website, and the Castle Trail looked amazing, but I see it's about thirty kilometres."
+       },
+       {
+        "spk": "A",
+        "text": "That's right, it's our longest. It takes most of the day, so it's really better for older teenagers."
+       },
+       {
+        "spk": "B",
+        "text": "Yeah, I think that would be too much for us. What about the one that goes along the river?"
+       },
+       {
+        "spk": "A",
+        "text": "The River Loop? I'm afraid that one's closed this summer, because they're repairing one of the bridges. But the Orchard Trail is very popular with families. It's completely flat, it's about twelve kilometres, and you stop at a fruit farm halfway round."
+       },
+       {
+        "spk": "B",
+        "text": "That sounds perfect. Let's go for the Orchard Trail."
+       },
+       {
+        "spk": "A",
+        "text": "Great. And what date would you like?"
+       },
+       {
+        "spk": "B",
+        "text": "We were thinking of Thursday the 14th of August."
+       },
+       {
+        "pause": 1.5
+       },
+       {
+        "spk": "A",
+        "text": "Let me just check. Oh, I'm sorry, the 14th is fully booked. I could offer you Saturday the 16th, or there's space on the 21st."
+       },
+       {
+        "spk": "B",
+        "text": "The 21st is too late, we fly home on the 20th. So, the 16th, please."
+       },
+       {
+        "spk": "A",
+        "text": "Fine, I've put you down for the 16th. How many people will there be?"
+       },
+       {
+        "spk": "B",
+        "text": "There's my wife and me, and our three children."
+       },
+       {
+        "spk": "A",
+        "text": "And how old are the children? We need to know so we can give everyone the right size of bike."
+       },
+       {
+        "spk": "B",
+        "text": "The two older ones are eleven and nine, and they're both pretty confident riders. But our youngest, Rosie, is only five."
+       },
+       {
+        "spk": "A",
+        "text": "Ah, then she'll need some extra equipment. We can either attach a trailer to one of the adult bikes, or fit a child seat on the back."
+       },
+       {
+        "spk": "B",
+        "text": "Hmm. I think she'd feel a bit shut in, in a trailer. She likes to sit up and see what's going on, so a seat, please."
+       },
+       {
+        "spk": "A",
+        "text": "No problem, I'll make a note of that. Now, the tour starts at half past nine, and we meet in the town centre."
+       },
+       {
+        "spk": "B",
+        "text": "At your shop?"
+       },
+       {
+        "spk": "A",
+        "text": "Well, the shop is actually quite small, so the guides meet the groups outside the library on Market Street. It's opposite the bus station, so it's easy to find."
+       },
+       {
+        "spk": "B",
+        "text": "Outside the library. Got it."
+       }
+      ]
+     },
+     {
+      "questions": [
+       7,
+       10
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "B",
+        "text": "And can you tell me how much it's all going to cost?"
+       },
+       {
+        "spk": "A",
+        "text": "Of course. Adults are 44 pounds each, and children with their own bikes are 22 pounds. Your youngest doesn't pay for the tour itself, but there's a charge of 10 pounds for the child seat."
+       },
+       {
+        "spk": "B",
+        "text": "So that's 88 for my wife and me, 44 for the older two, and then 10 for the seat."
+       },
+       {
+        "spk": "A",
+        "text": "Yes, so 142 pounds altogether."
+       },
+       {
+        "spk": "B",
+        "text": "Is there a family discount at all? I think I saw something about that online."
+       },
+       {
+        "spk": "A",
+        "text": "There was one last year, but I'm afraid we've stopped it. The price does include quite a lot, though. Everyone gets a helmet, of course, and a bottle of water, and each family gets a guidebook with information about the places you pass."
+       },
+       {
+        "spk": "B",
+        "text": "Oh, that's nice. What about lunch?"
+       },
+       {
+        "spk": "A",
+        "text": "Lunch isn't included, but the fruit farm has a lovely café, and it's not expensive."
+       },
+       {
+        "spk": "B",
+        "text": "OK. And is there anything we need to bring with us?"
+       },
+       {
+        "spk": "A",
+        "text": "Comfortable shoes and sun cream, definitely. And the weather here can change very quickly, even in August, so please bring a raincoat for each person. We do sell them in the shop, but they're quite expensive."
+       },
+       {
+        "spk": "B",
+        "text": "Right, I'll make sure we pack them."
+       },
+       {
+        "spk": "A",
+        "text": "And finally, to confirm the booking, we ask for a deposit of 30 pounds, which you can pay on our website. We normally give people a week to pay, but because it's the busy season, we'll need it by Friday."
+       },
+       {
+        "spk": "B",
+        "text": "By Friday. You mean this Friday?"
+       },
+       {
+        "spk": "A",
+        "text": "That's right. If we haven't received it by then, the places will be offered to other customers."
+       },
+       {
+        "spk": "B",
+        "text": "No problem, I'll do it this evening. Thanks so much for your help."
+       },
+       {
+        "spk": "A",
+        "text": "You're welcome, Mr Tremayne. I hope you all enjoy the tour."
+       }
+      ]
+     }
     ],
     "groups": [
-     {"range": [1, 6], "type": "form_completion", "title": "Family Cycling Tour: Booking Form",
+     {
+      "range": [
+       1,
+       6
+      ],
+      "type": "form_completion",
+      "title": "Family Cycling Tour: Booking Form",
       "instructions": "Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
-      "word_limit": {"max_words": 1, "numbers": true},
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
       "questions": [
-       {"n": 1, "prompt": "Name: Daniel {gap}", "answer": "Tremayne", "evidence": "It's Daniel Tremayne", "skill": "spelling",
-        "explain_en": "The caller spells his surname: T-R-E-M-A-Y-N-E.", "explain_bn": "কলার নিজের পদবির বানান বলে দেন: T-R-E-M-A-Y-N-E, তাই বানান হুবহু মিলতে হবে।"},
-       {"n": 2, "prompt": "Tour: the {gap} Trail", "answer": "Orchard", "evidence": "Let's go for the Orchard Trail", "skill": "detail",
-        "explain_en": "The Castle Trail is too long and the River Loop is closed, so he chooses the Orchard Trail.", "explain_bn": "Castle Trail অনেক লম্বা আর River Loop বন্ধ, তাই তিনি Orchard Trail বেছে নেন।"},
-       {"n": 3, "prompt": "Date: {gap} August", "answer": "16th", "accept": ["16", "sixteenth"], "evidence": "So, the 16th, please", "skill": "number",
-        "explain_en": "He first asks for the 14th, but it is full; he then accepts the 16th.", "explain_bn": "প্রথমে ১৪ তারিখ চাইলেও সেটা ভর্তি ছিল; শেষে তিনি ১৬ তারিখ নেন — প্রথম বলা তারিখটা ফাঁদ।"},
-       {"n": 4, "prompt": "Group: 2 adults and {gap} children", "answer": "3", "accept": ["three"], "evidence": "and our three children", "skill": "number",
-        "explain_en": "He says he is coming with his wife and their three children.", "explain_bn": "তিনি বলেন স্ত্রী আর তিন সন্তান নিয়ে আসবেন, তাই উত্তর ৩।"},
-       {"n": 5, "prompt": "Extra equipment: one child {gap}", "answer": "seat", "evidence": "so a seat, please", "skill": "detail",
-        "explain_en": "A trailer is offered first, but he prefers a seat for his youngest child.", "explain_bn": "প্রথমে trailer-এর কথা আসে, কিন্তু তিনি ছোট মেয়ের জন্য seat চান।"},
-       {"n": 6, "prompt": "Meeting point: outside the {gap} on Market Street", "answer": "library", "evidence": "Outside the library. Got it", "skill": "detail",
-        "explain_en": "The shop is too small, so groups meet outside the library, opposite the bus station.", "explain_bn": "দোকান ছোট, তাই দল লাইব্রেরির বাইরে মিলিত হয়; বাস স্টেশনটা শুধু চেনার জন্য বলা হয়েছে।"}
-      ]},
-     {"range": [7, 10], "type": "form_completion", "title": "Family Cycling Tour: Booking Form (continued)",
+       {
+        "n": 1,
+        "prompt": "Name: Daniel {gap}",
+        "answer": "Tremayne",
+        "evidence": "It's Daniel Tremayne",
+        "skill": "spelling",
+        "explain_en": "The caller spells his surname: T-R-E-M-A-Y-N-E.",
+        "explain_bn": "কলার নিজের পদবির বানান বলে দেন: T-R-E-M-A-Y-N-E, তাই বানান হুবহু মিলতে হবে।"
+       },
+       {
+        "n": 2,
+        "prompt": "Tour: the {gap} Trail",
+        "answer": "Orchard",
+        "evidence": "Let's go for the Orchard Trail",
+        "skill": "detail",
+        "explain_en": "The Castle Trail is too long and the River Loop is closed, so he chooses the Orchard Trail.",
+        "explain_bn": "Castle Trail অনেক লম্বা আর River Loop বন্ধ, তাই তিনি Orchard Trail বেছে নেন।"
+       },
+       {
+        "n": 3,
+        "prompt": "Date: {gap} August",
+        "answer": "16th",
+        "accept": [
+         "16",
+         "sixteenth"
+        ],
+        "evidence": "So, the 16th, please",
+        "skill": "number",
+        "explain_en": "He first asks for the 14th, but it is full; he then accepts the 16th.",
+        "explain_bn": "প্রথমে ১৪ তারিখ চাইলেও সেটা ভর্তি ছিল; শেষে তিনি ১৬ তারিখ নেন — প্রথম বলা তারিখটা ফাঁদ।"
+       },
+       {
+        "n": 4,
+        "prompt": "Group: 2 adults and {gap} children",
+        "answer": "3",
+        "accept": [
+         "three"
+        ],
+        "evidence": "and our three children",
+        "skill": "number",
+        "explain_en": "He says he is coming with his wife and their three children.",
+        "explain_bn": "তিনি বলেন স্ত্রী আর তিন সন্তান নিয়ে আসবেন, তাই উত্তর ৩।"
+       },
+       {
+        "n": 5,
+        "prompt": "Extra equipment: one child {gap}",
+        "answer": "seat",
+        "evidence": "so a seat, please",
+        "skill": "detail",
+        "explain_en": "A trailer is offered first, but he prefers a seat for his youngest child.",
+        "explain_bn": "প্রথমে trailer-এর কথা আসে, কিন্তু তিনি ছোট মেয়ের জন্য seat চান।"
+       },
+       {
+        "n": 6,
+        "prompt": "Meeting point: outside the {gap} on Market Street",
+        "answer": "library",
+        "evidence": "Outside the library. Got it",
+        "skill": "detail",
+        "explain_en": "The shop is too small, so groups meet outside the library, opposite the bus station.",
+        "explain_bn": "দোকান ছোট, তাই দল লাইব্রেরির বাইরে মিলিত হয়; বাস স্টেশনটা শুধু চেনার জন্য বলা হয়েছে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       7,
+       10
+      ],
+      "type": "form_completion",
+      "title": "Family Cycling Tour: Booking Form (continued)",
       "instructions": "Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
-      "word_limit": {"max_words": 1, "numbers": true},
+      "word_limit": {
+       "max_words": 1,
+       "numbers": true
+      },
       "questions": [
-       {"n": 7, "prompt": "Total cost: £{gap}", "answer": "142", "evidence": "Yes, so 142 pounds altogether", "skill": "number",
-        "explain_en": "88 for the adults, 44 for two children and 10 for the seat make 142 pounds.", "explain_bn": "বড়দের ৮৮ + দুই শিশুর ৪৪ + সিটের ১০ = মোট ১৪২ পাউন্ড।"},
-       {"n": 8, "prompt": "Price includes: helmets, water and a {gap}", "answer": "guidebook", "evidence": "each family gets a guidebook", "skill": "detail",
-        "explain_en": "Each family receives a guidebook; lunch is not included.", "explain_bn": "প্রতিটি পরিবার একটি guidebook পায়; দুপুরের খাবার দামের মধ্যে নেই।"},
-       {"n": 9, "prompt": "Please bring: a {gap} for each person", "answer": "raincoat", "accept": ["raincoats"], "evidence": "please bring a raincoat for each person", "skill": "detail",
-        "explain_en": "The weather changes quickly, so each person should bring a raincoat.", "explain_bn": "আবহাওয়া দ্রুত বদলায়, তাই প্রত্যেককে raincoat আনতে বলা হয়েছে।"},
-       {"n": 10, "prompt": "Deposit (£30) must be paid by: {gap}", "answer": "Friday", "evidence": "we'll need it by Friday", "skill": "detail",
-        "explain_en": "People usually get a week, but in the busy season the deposit is needed by Friday.", "explain_bn": "সাধারণত এক সপ্তাহ সময় দেওয়া হয়, কিন্তু ব্যস্ত মৌসুমে শুক্রবারের মধ্যে টাকা দিতে হবে।"}
-      ]}
-    ]},
-   {"part": 2, "context": "everyday_monologue",
+       {
+        "n": 7,
+        "prompt": "Total cost: £{gap}",
+        "answer": "142",
+        "evidence": "Yes, so 142 pounds altogether",
+        "skill": "number",
+        "explain_en": "88 for the adults, 44 for two children and 10 for the seat make 142 pounds.",
+        "explain_bn": "বড়দের ৮৮ + দুই শিশুর ৪৪ + সিটের ১০ = মোট ১৪২ পাউন্ড।"
+       },
+       {
+        "n": 8,
+        "prompt": "Price includes: helmets, water and a {gap}",
+        "answer": "guidebook",
+        "evidence": "each family gets a guidebook",
+        "skill": "detail",
+        "explain_en": "Each family receives a guidebook; lunch is not included.",
+        "explain_bn": "প্রতিটি পরিবার একটি guidebook পায়; দুপুরের খাবার দামের মধ্যে নেই।"
+       },
+       {
+        "n": 9,
+        "prompt": "Please bring: a {gap} for each person",
+        "answer": "raincoat",
+        "accept": [
+         "raincoats"
+        ],
+        "evidence": "please bring a raincoat for each person",
+        "skill": "detail",
+        "explain_en": "The weather changes quickly, so each person should bring a raincoat.",
+        "explain_bn": "আবহাওয়া দ্রুত বদলায়, তাই প্রত্যেককে raincoat আনতে বলা হয়েছে।"
+       },
+       {
+        "n": 10,
+        "prompt": "Deposit (£30) must be paid by: {gap}",
+        "answer": "Friday",
+        "evidence": "we'll need it by Friday",
+        "skill": "detail",
+        "explain_en": "People usually get a week, but in the busy season the deposit is needed by Friday.",
+        "explain_bn": "সাধারণত এক সপ্তাহ সময় দেওয়া হয়, কিন্তু ব্যস্ত মৌসুমে শুক্রবারের মধ্যে টাকা দিতে হবে।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "context": "everyday_monologue",
     "intro": "You will hear a woman talking on a local radio programme about a volunteer programme in a city park.",
-    "speakers": {"A": {"name": "Helen Ashby", "gender": "F", "accent": "GB", "role": "volunteer coordinator"}},
+    "speakers": {
+     "A": {
+      "name": "Helen Ashby",
+      "gender": "F",
+      "accent": "GB",
+      "role": "volunteer coordinator"
+     }
+    },
     "segments": [
-     {"questions": [11, 15], "preview_s": 30, "turns": [
-      {"spk": "A", "text": "Good afternoon, and thank you for inviting me onto the programme. My name's Helen Ashby, and I coordinate the volunteers at Greenhollow Park, which, as many of your listeners will know, opened on the site of the old railway yards last spring."},
-      {"spk": "A", "text": "Now, a lot of people assume that the park is run entirely by the city council. In fact, the council owns the land, but the day-to-day running is shared between a small paid team and a charitable trust, and it's the trust that's launching our new volunteer programme this month."},
-      {"pause": 1.0},
-      {"spk": "A", "text": "So why now? Well, the park has been far more popular than anyone predicted. We expected around two thousand visitors a week, and we're actually getting nearer five thousand at weekends alone. That's wonderful, of course, but it does mean that the paths and the planting are wearing out faster than our team can repair them. Money isn't really the issue, by the way. We were given a generous grant in the summer. It's simply that there aren't enough hands."},
-      {"spk": "A", "text": "So, who can volunteer? We welcome anyone over sixteen, and younger teenagers are welcome to come along with a parent. You don't need any gardening experience at all; we'll teach you everything. What we do ask is that you can commit to at least one session a month for six months, because training each new volunteer takes up quite a lot of our staff's time."},
-      {"spk": "A", "text": "Sessions run on Tuesday and Thursday mornings, and on Saturdays from ten until one. We did think about evening sessions, but in winter it's simply too dark to work safely. Each session begins with a short safety talk, and we provide all the tools, as well as gloves and waterproof jackets. The one thing we can't provide is footwear, so please don't turn up in trainers. You'll need to bring suitable boots."},
-      {"spk": "A", "text": "There's a social side to all this, too. Once a month, after the Saturday session, there's a shared lunch in the park café, and in December we hold a celebration evening, where we give awards to the volunteers who've contributed the most. But when we asked our first group of volunteers what they valued most, the answer was something else entirely: they told us it was learning practical skills that they could use in their own gardens."}
-     ]},
-     {"questions": [16, 20], "preview_s": 30, "turns": [
-      {"spk": "A", "text": "Now, I'd like to tell you about the areas where volunteers will be working this autumn. If you have a look at the map on our website, you'll see that the park is divided into five main zones."},
-      {"spk": "A", "text": "First, the Wildflower Meadow. People often think we just leave it to grow wild, but at this time of year the grass has to be cut. We can't use machines there, because of the birds that nest on the ground, so volunteers will be cutting back the plants by hand. It's hard work, but very satisfying."},
-      {"spk": "A", "text": "Next, the Lake. The ducks and geese are doing very well, and we did consider asking volunteers to count the birds there, but a local wildlife group already does that every month. What we really need on the lake is help removing the rubbish that blows into the water. We provide long-handled nets for that, and you'll be amazed what you find."},
-      {"spk": "A", "text": "In the Children's Garden, you might expect the job to be planting, and there will be some of that in the spring. But this autumn the priority is the wooden fences around the vegetable beds, which were badly damaged in the storms, so volunteers will be repairing those."},
-      {"spk": "A", "text": "The Orchard is only two years old, so I'm afraid there isn't enough fruit to pick yet. Instead, the main job will be planting bulbs under the trees, mostly daffodils, so that the orchard is full of colour in March."},
-      {"spk": "A", "text": "And finally, the Woodland Walk. The paths there are in good condition, so they won't need any work this year. However, the university has asked us to help them keep a record of the bats and owls that live in the wood, so volunteers there will be taking part in a wildlife survey. That's the one exception to our daytime rule, as it starts in the early evening."},
-      {"pause": 1.0},
-      {"spk": "A", "text": "If you'd like to join us, the easiest way is to fill in the short form on the trust's website, and we'll invite you to an introductory morning. We'd love to see you there."}
-     ]}
-    ],
-    "groups": [
-     {"range": [11, 11], "type": "mcq_single", "instructions": "Choose the correct letter, A, B or C.",
-      "options": [{"key": "A", "text": "the city council"}, {"key": "B", "text": "the city council and a local business"}, {"key": "C", "text": "a paid team and a charity"}],
-      "questions": [{"n": 11, "prompt": "Who is responsible for the day-to-day running of Greenhollow Park?", "answer": "C",
-       "evidence": "the day-to-day running is shared between a small paid team and a charitable trust", "skill": "paraphrase",
-       "explain_en": "The council only owns the land; a paid team and a charitable trust run the park.", "explain_bn": "কাউন্সিল শুধু জমির মালিক; পার্ক চালায় বেতনভুক্ত দল আর একটি দাতব্য ট্রাস্ট (charity)।"}]},
-     {"range": [12, 12], "type": "mcq_single", "instructions": "Choose the correct letter, A, B or C.",
-      "options": [{"key": "A", "text": "More people use the park than was expected."}, {"key": "B", "text": "The park has lost some of its funding."}, {"key": "C", "text": "New areas of the park are about to open."}],
-      "questions": [{"n": 12, "prompt": "Why is the volunteer programme starting now?", "answer": "A",
-       "evidence": "the park has been far more popular than anyone predicted", "skill": "paraphrase",
-       "explain_en": "Visitor numbers are much higher than predicted; she says money is not the problem.", "explain_bn": "দর্শক প্রত্যাশার চেয়ে অনেক বেশি; টাকার সমস্যা নেই বলে তিনি নিজেই জানান, তাই B ভুল।"}]},
-     {"range": [13, 13], "type": "mcq_single", "instructions": "Choose the correct letter, A, B or C.",
-      "options": [{"key": "A", "text": "previous gardening experience"}, {"key": "B", "text": "a regular commitment over several months"}, {"key": "C", "text": "a minimum age of eighteen"}],
-      "questions": [{"n": 13, "prompt": "What does the park ask of all volunteers?", "answer": "B",
-       "evidence": "you can commit to at least one session a month for six months", "skill": "paraphrase",
-       "explain_en": "Volunteers must come at least once a month for six months; no experience is needed and the age is sixteen.", "explain_bn": "ছয় মাস ধরে মাসে অন্তত একবার আসতে হবে; অভিজ্ঞতা লাগে না, আর বয়সসীমা ষোলো, আঠারো নয়।"}]},
-     {"range": [14, 14], "type": "mcq_single", "instructions": "Choose the correct letter, A, B or C.",
-      "options": [{"key": "A", "text": "suitable boots"}, {"key": "B", "text": "gloves"}, {"key": "C", "text": "their own tools"}],
-      "questions": [{"n": 14, "prompt": "What must volunteers bring to each session?", "answer": "A",
-       "evidence": "You'll need to bring suitable boots", "skill": "detail",
-       "explain_en": "Tools and gloves are provided; only footwear is not.", "explain_bn": "যন্ত্রপাতি আর গ্লাভস পার্ক দেয়; শুধু জুতা (boots) নিজেকে আনতে হবে।"}]},
-     {"range": [15, 15], "type": "mcq_single", "instructions": "Choose the correct letter, A, B or C.",
-      "options": [{"key": "A", "text": "the monthly shared lunch"}, {"key": "B", "text": "the end-of-year awards"}, {"key": "C", "text": "learning skills for their own gardens"}],
-      "questions": [{"n": 15, "prompt": "According to the speaker, what do the first volunteers value most?", "answer": "C",
-       "evidence": "learning practical skills that they could use in their own gardens", "skill": "detail",
-       "explain_en": "The lunch and awards are mentioned, but the volunteers said they valued the practical skills most.", "explain_bn": "লাঞ্চ আর পুরস্কারের কথা এলেও স্বেচ্ছাসেবীরা সবচেয়ে বেশি মূল্য দেন নিজের বাগানে কাজে লাগার দক্ষতা শেখাকে।"}]},
-     {"range": [16, 20], "type": "matching", "options_reusable": false,
-      "instructions": "What will volunteers do in each area of the park? Choose FIVE answers from the box and write the correct letter, A-H, next to Questions 16-20.",
-      "options": [{"key": "A", "text": "planting bulbs"}, {"key": "B", "text": "counting water birds"}, {"key": "C", "text": "repairing fences"},
-                  {"key": "D", "text": "helping with an animal survey"}, {"key": "E", "text": "clearing litter from the water"},
-                  {"key": "F", "text": "picking fruit"}, {"key": "G", "text": "cutting vegetation without machines"}, {"key": "H", "text": "repairing paths"}],
+     {
       "questions": [
-       {"n": 16, "prompt": "Wildflower Meadow", "answer": "G", "evidence": "volunteers will be cutting back the plants by hand", "skill": "paraphrase",
-        "explain_en": "Machines cannot be used because of nesting birds, so plants are cut by hand.", "explain_bn": "মাটিতে পাখির বাসা থাকায় মেশিন চলে না, তাই হাতে গাছ ছাঁটা হবে।"},
-       {"n": 17, "prompt": "Lake", "answer": "E", "evidence": "help removing the rubbish that blows into the water", "skill": "paraphrase",
-        "explain_en": "Bird counting is already done by another group; volunteers will remove rubbish from the water.", "explain_bn": "পাখি গোনার কাজ অন্য দল করে; স্বেচ্ছাসেবীরা পানি থেকে ময়লা তুলবেন।"},
-       {"n": 18, "prompt": "Children's Garden", "answer": "C", "evidence": "so volunteers will be repairing those", "skill": "detail",
-        "explain_en": "Planting happens in spring; this autumn the damaged fences will be repaired.", "explain_bn": "রোপণ হবে বসন্তে; এই শরতে ঝড়ে ভাঙা বেড়া মেরামত করা হবে।"},
-       {"n": 19, "prompt": "Orchard", "answer": "A", "evidence": "the main job will be planting bulbs under the trees", "skill": "detail",
-        "explain_en": "There is no fruit to pick yet, so volunteers will plant bulbs.", "explain_bn": "এখনো তোলার মতো ফল নেই, তাই কাজ হবে গাছের নিচে bulb লাগানো।"},
-       {"n": 20, "prompt": "Woodland Walk", "answer": "D", "evidence": "volunteers there will be taking part in a wildlife survey", "skill": "paraphrase",
-        "explain_en": "The paths need no work; volunteers help the university record bats and owls.", "explain_bn": "পথ ঠিক আছে; স্বেচ্ছাসেবীরা বাদুড় ও পেঁচার জরিপে (survey) সাহায্য করবেন।"}
-      ]}
-    ]},
-   {"part": 3, "context": "academic_discussion",
-    "intro": "You will hear two students, Sophie and James, discussing their presentation on marine plastic waste with their tutor.",
-    "speakers": {"T": {"name": "Dr Harper", "gender": "F", "accent": "US", "role": "tutor"},
-                 "S": {"name": "Sophie", "gender": "F", "accent": "AU", "role": "student"},
-                 "J": {"name": "James", "gender": "M", "accent": "GB", "role": "student"}},
-    "segments": [
-     {"questions": [21, 25], "preview_s": 30, "turns": [
-      {"spk": "T", "text": "Come in, both of you, and have a seat. So, you wanted to talk about your presentation on marine plastic. How's it going?"},
-      {"spk": "J", "text": "Well, we've done most of the reading, but we're still not completely sure what the focus should be."},
-      {"spk": "S", "text": "Yeah, at first we wanted to cover everything: where the plastic comes from, what happens to it in the ocean, the effects on wildlife, possible solutions."},
-      {"spk": "T", "text": "That's a lot for fifteen minutes."},
-      {"spk": "S", "text": "Exactly. We timed a practice run last week and we were nearly half an hour over, so now we're thinking we should concentrate on the sources, where the plastic actually comes from."},
-      {"spk": "T", "text": "I think that's sensible. And, to be honest, most groups go straight for the wildlife pictures, turtles and so on, so looking at sources would make yours stand out."},
-      {"spk": "J", "text": "One thing that really surprised me was that most of the plastic in the sea doesn't come from ships. I'd always assumed it did. But according to most estimates, around eighty percent of it comes from the land, carried by rivers or blown off rubbish sites."},
-      {"spk": "T", "text": "That's a good point to open with, because I suspect your audience will make the same assumption. Where are you getting your data from?"},
-      {"spk": "S", "text": "Mostly from journal articles. We did find a documentary that looked useful, but some of its figures were quite old, so we've decided not to rely on it."},
-      {"spk": "T", "text": "Good. Always check the date of every statistic you use. Now, how are you planning to divide the work?"},
-      {"spk": "J", "text": "I'm better at the visual side of things, so I was going to design the slides, and Sophie would do most of the talking."},
-      {"spk": "T", "text": "Hmm. Actually, I should mention that we assess each person's speaking, so you'll both need to present for roughly equal amounts of time."},
-      {"spk": "S", "text": "Oh, I didn't realise that. OK, so we'll split the talking, and James can still design the slides."},
-      {"spk": "T", "text": "Fine. And what about the ending? That's often the weakest part of a presentation."},
-      {"spk": "J", "text": "We thought we'd finish with a summary of the main points."},
-      {"spk": "T", "text": "That's fine, but you could make it more memorable. What if you ended by asking the audience to think about the plastic they've used that day?"},
-      {"spk": "S", "text": "Oh, I like that. It makes it personal."},
-      {"spk": "J", "text": "Yeah, let's do that instead of the summary."}
-     ]},
-     {"questions": [26, 30], "preview_s": 30, "turns": [
-      {"spk": "T", "text": "So, within the land-based sources, which ones are you actually going to talk about?"},
-      {"spk": "S", "text": "We'd like to pick the less obvious ones. Everyone already knows about plastic bags and drinks bottles, so we're going to skip those."},
-      {"spk": "J", "text": "The two we found really interesting were car tyres. Tiny pieces wear off them on the road and then get washed into drains."},
-      {"spk": "S", "text": "And synthetic clothes. Every time you wash a fleece jacket, thousands of tiny fibres go down the drain and end up in rivers."},
-      {"spk": "T", "text": "Both excellent choices. What about fishing nets? There's a lot of research on those."},
-      {"spk": "J", "text": "They're important, but they're lost at sea, so they're not land-based. We'll leave them out."},
-      {"pause": 1.0},
-      {"spk": "T", "text": "Fair enough. Now, you mentioned some sources you're going to use. Let's go through them."},
-      {"spk": "S", "text": "Well, first there's a survey by a beach clean-up group. Their volunteers recorded every item they found over a whole year."},
-      {"spk": "T", "text": "Those surveys can be useful, but they're not always consistent in their methods."},
-      {"spk": "J", "text": "True. We were going to build the whole talk around it, but I think we'll just mention it in passing."},
-      {"spk": "S", "text": "Then there's the report on tyre dust from a transport research institute. It has really clear data."},
-      {"spk": "J", "text": "Yes, and there's a fantastic photograph in it of the particles under a microscope. Could we use that?"},
-      {"spk": "T", "text": "You could, as long as you credit it. But the numbers are what matter. I'd suggest you turn them into a chart of your own; it'll be much easier for the audience to follow than a table full of figures."},
-      {"spk": "S", "text": "OK, so we'll make a chart from it."},
-      {"spk": "J", "text": "And finally, there's the laundry study, the one where they measured the fibres released by different fabrics."},
-      {"spk": "T", "text": "That's the most recent research you have, isn't it?"},
-      {"spk": "S", "text": "Yes, it was published this year. Actually, I think that should be our main example. The results are so striking."},
-      {"spk": "J", "text": "Agreed. We'll spend most of the second half on it."},
-      {"spk": "T", "text": "Sounds like a plan. Send me your slides by next Wednesday and I'll give you some feedback."}
-     ]}
+       11,
+       15
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good afternoon, and thank you for inviting me onto the programme. My name's Helen Ashby, and I coordinate the volunteers at Greenhollow Park, which, as many of your listeners will know, opened on the site of the old railway yards last spring."
+       },
+       {
+        "spk": "A",
+        "text": "Now, a lot of people assume that the park is run entirely by the city council. In fact, the council owns the land, but the day-to-day running is shared between a small paid team and a charitable trust, and it's the trust that's launching our new volunteer programme this month."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "So why now? Well, the park has been far more popular than anyone predicted. We expected around two thousand visitors a week, and we're actually getting nearer five thousand at weekends alone. That's wonderful, of course, but it does mean that the paths and the planting are wearing out faster than our team can repair them. Money isn't really the issue, by the way. We were given a generous grant in the summer. It's simply that there aren't enough hands."
+       },
+       {
+        "spk": "A",
+        "text": "So, who can volunteer? We welcome anyone over sixteen, and younger teenagers are welcome to come along with a parent. You don't need any gardening experience at all; we'll teach you everything. What we do ask is that you can commit to at least one session a month for six months, because training each new volunteer takes up quite a lot of our staff's time."
+       },
+       {
+        "spk": "A",
+        "text": "Sessions run on Tuesday and Thursday mornings, and on Saturdays from ten until one. We did think about evening sessions, but in winter it's simply too dark to work safely. Each session begins with a short safety talk, and we provide all the tools, as well as gloves and waterproof jackets. The one thing we can't provide is footwear, so please don't turn up in trainers. You'll need to bring suitable boots."
+       },
+       {
+        "spk": "A",
+        "text": "There's a social side to all this, too. Once a month, after the Saturday session, there's a shared lunch in the park café, and in December we hold a celebration evening, where we give awards to the volunteers who've contributed the most. But when we asked our first group of volunteers what they valued most, the answer was something else entirely: they told us it was learning practical skills that they could use in their own gardens."
+       }
+      ]
+     },
+     {
+      "questions": [
+       16,
+       20
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Now, I'd like to tell you about the areas where volunteers will be working this autumn. If you have a look at the map on our website, you'll see that the park is divided into five main zones."
+       },
+       {
+        "spk": "A",
+        "text": "First, the Wildflower Meadow. People often think we just leave it to grow wild, but at this time of year the grass has to be cut. We can't use machines there, because of the birds that nest on the ground, so volunteers will be cutting back the plants by hand. It's hard work, but very satisfying."
+       },
+       {
+        "spk": "A",
+        "text": "Next, the Lake. The ducks and geese are doing very well, and we did consider asking volunteers to count the birds there, but a local wildlife group already does that every month. What we really need on the lake is help removing the rubbish that blows into the water. We provide long-handled nets for that, and you'll be amazed what you find."
+       },
+       {
+        "spk": "A",
+        "text": "In the Children's Garden, you might expect the job to be planting, and there will be some of that in the spring. But this autumn the priority is the wooden fences around the vegetable beds, which were badly damaged in the storms, so volunteers will be repairing those."
+       },
+       {
+        "spk": "A",
+        "text": "The Orchard is only two years old, so I'm afraid there isn't enough fruit to pick yet. Instead, the main job will be planting bulbs under the trees, mostly daffodils, so that the orchard is full of colour in March."
+       },
+       {
+        "spk": "A",
+        "text": "And finally, the Woodland Walk. The paths there are in good condition, so they won't need any work this year. However, the university has asked us to help them keep a record of the bats and owls that live in the wood, so volunteers there will be taking part in a wildlife survey. That's the one exception to our daytime rule, as it starts in the early evening."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "A",
+        "text": "If you'd like to join us, the easiest way is to fill in the short form on the trust's website, and we'll invite you to an introductory morning. We'd love to see you there."
+       }
+      ]
+     }
     ],
     "groups": [
-     {"range": [21, 21], "type": "mcq_single", "instructions": "Choose the correct letter, A, B or C.",
-      "options": [{"key": "A", "text": "They had too much material for the time available."}, {"key": "B", "text": "Their tutor advised them to change it."}, {"key": "C", "text": "Another group had chosen the same focus."}],
-      "questions": [{"n": 21, "prompt": "Why did the students decide to change the focus of their presentation?", "answer": "A",
-       "evidence": "We timed a practice run last week and we were nearly half an hour over", "skill": "inference",
-       "explain_en": "Their practice run was far too long for fifteen minutes; the tutor only agrees afterwards.", "explain_bn": "অনুশীলনে তারা প্রায় আধা ঘণ্টা বেশি সময় নিয়েছিল; টিউটর পরে শুধু সম্মতি দেন, নির্দেশ দেননি।"}]},
-     {"range": [22, 22], "type": "mcq_single", "instructions": "Choose the correct letter, A, B or C.",
-      "options": [{"key": "A", "text": "how much plastic is carried by ships"}, {"key": "B", "text": "how rivers transport plastic"}, {"key": "C", "text": "the proportion of plastic that comes from land"}],
-      "questions": [{"n": 22, "prompt": "What surprised James during his reading?", "answer": "C",
-       "evidence": "around eighty percent of it comes from the land", "skill": "detail",
-       "explain_en": "He had assumed ships were the main source, but about eighty percent comes from land.", "explain_bn": "তিনি ভেবেছিলেন জাহাজই মূল উৎস, কিন্তু প্রায় আশি শতাংশ প্লাস্টিক আসে স্থল থেকে।"}]},
-     {"range": [23, 23], "type": "mcq_single", "instructions": "Choose the correct letter, A, B or C.",
-      "options": [{"key": "A", "text": "It was too long to show."}, {"key": "B", "text": "Some of its data were out of date."}, {"key": "C", "text": "It focused only on wildlife."}],
-      "questions": [{"n": 23, "prompt": "Why did the students decide not to use the documentary?", "answer": "B",
-       "evidence": "some of its figures were quite old", "skill": "paraphrase",
-       "explain_en": "'Figures were quite old' means the data were out of date.", "explain_bn": "'figures were quite old' মানে তথ্য পুরোনো (out of date)।"}]},
-     {"range": [24, 24], "type": "mcq_single", "instructions": "Choose the correct letter, A, B or C.",
-      "options": [{"key": "A", "text": "Both students must speak for a similar length of time."}, {"key": "B", "text": "The slides will be marked separately."}, {"key": "C", "text": "It should be shorter than fifteen minutes."}],
-      "questions": [{"n": 24, "prompt": "What does the tutor tell the students about the assessment?", "answer": "A",
-       "evidence": "you'll both need to present for roughly equal amounts of time", "skill": "paraphrase",
-       "explain_en": "Each person's speaking is assessed, so they must share the talking equally.", "explain_bn": "প্রত্যেকের কথা বলা মূল্যায়ন হয়, তাই দুজনকে প্রায় সমান সময় বলতে হবে।"}]},
-     {"range": [25, 25], "type": "mcq_single", "instructions": "Choose the correct letter, A, B or C.",
-      "options": [{"key": "A", "text": "with a summary of the main points"}, {"key": "B", "text": "with a question for the audience to consider"}, {"key": "C", "text": "with a short video clip"}],
-      "questions": [{"n": 25, "prompt": "How will the students end their presentation?", "answer": "B",
-       "evidence": "What if you ended by asking the audience to think about the plastic they've used that day", "skill": "detail",
-       "explain_en": "They first planned a summary, but agree to ask the audience to think about their own plastic use instead.", "explain_bn": "প্রথমে সারাংশের পরিকল্পনা ছিল, কিন্তু তারা শ্রোতাদের নিজেদের প্লাস্টিক নিয়ে ভাবার প্রশ্ন দিয়ে শেষ করবে বলে ঠিক করে।"}]},
-     {"range": [26, 27], "type": "mcq_multi", "choose": 2,
+     {
+      "range": [
+       11,
+       11
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "options": [
+       {
+        "key": "A",
+        "text": "the city council"
+       },
+       {
+        "key": "B",
+        "text": "the city council and a local business"
+       },
+       {
+        "key": "C",
+        "text": "a paid team and a charity"
+       }
+      ],
+      "questions": [
+       {
+        "n": 11,
+        "prompt": "Who is responsible for the day-to-day running of Greenhollow Park?",
+        "answer": "C",
+        "evidence": "the day-to-day running is shared between a small paid team and a charitable trust",
+        "skill": "paraphrase",
+        "explain_en": "The council only owns the land; a paid team and a charitable trust run the park.",
+        "explain_bn": "কাউন্সিল শুধু জমির মালিক; পার্ক চালায় বেতনভুক্ত দল আর একটি দাতব্য ট্রাস্ট (charity)।"
+       }
+      ]
+     },
+     {
+      "range": [
+       12,
+       12
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "options": [
+       {
+        "key": "A",
+        "text": "More people use the park than was expected."
+       },
+       {
+        "key": "B",
+        "text": "The park has lost some of its funding."
+       },
+       {
+        "key": "C",
+        "text": "New areas of the park are about to open."
+       }
+      ],
+      "questions": [
+       {
+        "n": 12,
+        "prompt": "Why is the volunteer programme starting now?",
+        "answer": "A",
+        "evidence": "the park has been far more popular than anyone predicted",
+        "skill": "paraphrase",
+        "explain_en": "Visitor numbers are much higher than predicted; she says money is not the problem.",
+        "explain_bn": "দর্শক প্রত্যাশার চেয়ে অনেক বেশি; টাকার সমস্যা নেই বলে তিনি নিজেই জানান, তাই B ভুল।"
+       }
+      ]
+     },
+     {
+      "range": [
+       13,
+       13
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "options": [
+       {
+        "key": "A",
+        "text": "previous gardening experience"
+       },
+       {
+        "key": "B",
+        "text": "a regular commitment over several months"
+       },
+       {
+        "key": "C",
+        "text": "a minimum age of eighteen"
+       }
+      ],
+      "questions": [
+       {
+        "n": 13,
+        "prompt": "What does the park ask of all volunteers?",
+        "answer": "B",
+        "evidence": "you can commit to at least one session a month for six months",
+        "skill": "paraphrase",
+        "explain_en": "Volunteers must come at least once a month for six months; no experience is needed and the age is sixteen.",
+        "explain_bn": "ছয় মাস ধরে মাসে অন্তত একবার আসতে হবে; অভিজ্ঞতা লাগে না, আর বয়সসীমা ষোলো, আঠারো নয়।"
+       }
+      ]
+     },
+     {
+      "range": [
+       14,
+       14
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "options": [
+       {
+        "key": "A",
+        "text": "suitable boots"
+       },
+       {
+        "key": "B",
+        "text": "gloves"
+       },
+       {
+        "key": "C",
+        "text": "their own tools"
+       }
+      ],
+      "questions": [
+       {
+        "n": 14,
+        "prompt": "What must volunteers bring to each session?",
+        "answer": "A",
+        "evidence": "You'll need to bring suitable boots",
+        "skill": "detail",
+        "explain_en": "Tools and gloves are provided; only footwear is not.",
+        "explain_bn": "যন্ত্রপাতি আর গ্লাভস পার্ক দেয়; শুধু জুতা (boots) নিজেকে আনতে হবে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       15,
+       15
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "options": [
+       {
+        "key": "A",
+        "text": "the monthly shared lunch"
+       },
+       {
+        "key": "B",
+        "text": "the end-of-year awards"
+       },
+       {
+        "key": "C",
+        "text": "learning skills for their own gardens"
+       }
+      ],
+      "questions": [
+       {
+        "n": 15,
+        "prompt": "According to the speaker, what do the first volunteers value most?",
+        "answer": "C",
+        "evidence": "learning practical skills that they could use in their own gardens",
+        "skill": "detail",
+        "explain_en": "The lunch and awards are mentioned, but the volunteers said they valued the practical skills most.",
+        "explain_bn": "লাঞ্চ আর পুরস্কারের কথা এলেও স্বেচ্ছাসেবীরা সবচেয়ে বেশি মূল্য দেন নিজের বাগানে কাজে লাগার দক্ষতা শেখাকে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       16,
+       20
+      ],
+      "type": "matching",
+      "options_reusable": false,
+      "instructions": "What will volunteers do in each area of the park? Choose FIVE answers from the box and write the correct letter, A-H, next to Questions 16-20.",
+      "options": [
+       {
+        "key": "A",
+        "text": "planting bulbs"
+       },
+       {
+        "key": "B",
+        "text": "counting water birds"
+       },
+       {
+        "key": "C",
+        "text": "repairing fences"
+       },
+       {
+        "key": "D",
+        "text": "helping with an animal survey"
+       },
+       {
+        "key": "E",
+        "text": "clearing litter from the water"
+       },
+       {
+        "key": "F",
+        "text": "picking fruit"
+       },
+       {
+        "key": "G",
+        "text": "cutting vegetation without machines"
+       },
+       {
+        "key": "H",
+        "text": "repairing paths"
+       }
+      ],
+      "questions": [
+       {
+        "n": 16,
+        "prompt": "Wildflower Meadow",
+        "answer": "G",
+        "evidence": "volunteers will be cutting back the plants by hand",
+        "skill": "paraphrase",
+        "explain_en": "Machines cannot be used because of nesting birds, so plants are cut by hand.",
+        "explain_bn": "মাটিতে পাখির বাসা থাকায় মেশিন চলে না, তাই হাতে গাছ ছাঁটা হবে।"
+       },
+       {
+        "n": 17,
+        "prompt": "Lake",
+        "answer": "E",
+        "evidence": "help removing the rubbish that blows into the water",
+        "skill": "paraphrase",
+        "explain_en": "Bird counting is already done by another group; volunteers will remove rubbish from the water.",
+        "explain_bn": "পাখি গোনার কাজ অন্য দল করে; স্বেচ্ছাসেবীরা পানি থেকে ময়লা তুলবেন।"
+       },
+       {
+        "n": 18,
+        "prompt": "Children's Garden",
+        "answer": "C",
+        "evidence": "so volunteers will be repairing those",
+        "skill": "detail",
+        "explain_en": "Planting happens in spring; this autumn the damaged fences will be repaired.",
+        "explain_bn": "রোপণ হবে বসন্তে; এই শরতে ঝড়ে ভাঙা বেড়া মেরামত করা হবে।"
+       },
+       {
+        "n": 19,
+        "prompt": "Orchard",
+        "answer": "A",
+        "evidence": "the main job will be planting bulbs under the trees",
+        "skill": "detail",
+        "explain_en": "There is no fruit to pick yet, so volunteers will plant bulbs.",
+        "explain_bn": "এখনো তোলার মতো ফল নেই, তাই কাজ হবে গাছের নিচে bulb লাগানো।"
+       },
+       {
+        "n": 20,
+        "prompt": "Woodland Walk",
+        "answer": "D",
+        "evidence": "volunteers there will be taking part in a wildlife survey",
+        "skill": "paraphrase",
+        "explain_en": "The paths need no work; volunteers help the university record bats and owls.",
+        "explain_bn": "পথ ঠিক আছে; স্বেচ্ছাসেবীরা বাদুড় ও পেঁচার জরিপে (survey) সাহায্য করবেন।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "context": "academic_discussion",
+    "intro": "You will hear two students, Sophie and James, discussing their presentation on marine plastic waste with their tutor.",
+    "speakers": {
+     "T": {
+      "name": "Dr Harper",
+      "gender": "F",
+      "accent": "US",
+      "role": "tutor"
+     },
+     "S": {
+      "name": "Sophie",
+      "gender": "F",
+      "accent": "AU",
+      "role": "student"
+     },
+     "J": {
+      "name": "James",
+      "gender": "M",
+      "accent": "GB",
+      "role": "student"
+     }
+    },
+    "segments": [
+     {
+      "questions": [
+       21,
+       25
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "T",
+        "text": "Come in, both of you, and have a seat. So, you wanted to talk about your presentation on marine plastic. How's it going?"
+       },
+       {
+        "spk": "J",
+        "text": "Well, we've done most of the reading, but we're still not completely sure what the focus should be."
+       },
+       {
+        "spk": "S",
+        "text": "Yeah, at first we wanted to cover everything: where the plastic comes from, what happens to it in the ocean, the effects on wildlife, possible solutions."
+       },
+       {
+        "spk": "T",
+        "text": "That's a lot for fifteen minutes."
+       },
+       {
+        "spk": "S",
+        "text": "Exactly. We timed a practice run last week and we were nearly half an hour over, so now we're thinking we should concentrate on the sources, where the plastic actually comes from."
+       },
+       {
+        "spk": "T",
+        "text": "I think that's sensible. And, to be honest, most groups go straight for the wildlife pictures, turtles and so on, so looking at sources would make yours stand out."
+       },
+       {
+        "spk": "J",
+        "text": "One thing that really surprised me was that most of the plastic in the sea doesn't come from ships. I'd always assumed it did. But according to most estimates, around eighty percent of it comes from the land, carried by rivers or blown off rubbish sites."
+       },
+       {
+        "spk": "T",
+        "text": "That's a good point to open with, because I suspect your audience will make the same assumption. Where are you getting your data from?"
+       },
+       {
+        "spk": "S",
+        "text": "Mostly from journal articles. We did find a documentary that looked useful, but some of its figures were quite old, so we've decided not to rely on it."
+       },
+       {
+        "spk": "T",
+        "text": "Good. Always check the date of every statistic you use. Now, how are you planning to divide the work?"
+       },
+       {
+        "spk": "J",
+        "text": "I'm better at the visual side of things, so I was going to design the slides, and Sophie would do most of the talking."
+       },
+       {
+        "spk": "T",
+        "text": "Hmm. Actually, I should mention that we assess each person's speaking, so you'll both need to present for roughly equal amounts of time."
+       },
+       {
+        "spk": "S",
+        "text": "Oh, I didn't realise that. OK, so we'll split the talking, and James can still design the slides."
+       },
+       {
+        "spk": "T",
+        "text": "Fine. And what about the ending? That's often the weakest part of a presentation."
+       },
+       {
+        "spk": "J",
+        "text": "We thought we'd finish with a summary of the main points."
+       },
+       {
+        "spk": "T",
+        "text": "That's fine, but you could make it more memorable. What if you ended by asking the audience to think about the plastic they've used that day?"
+       },
+       {
+        "spk": "S",
+        "text": "Oh, I like that. It makes it personal."
+       },
+       {
+        "spk": "J",
+        "text": "Yeah, let's do that instead of the summary."
+       }
+      ]
+     },
+     {
+      "questions": [
+       26,
+       30
+      ],
+      "preview_s": 30,
+      "turns": [
+       {
+        "spk": "T",
+        "text": "So, within the land-based sources, which ones are you actually going to talk about?"
+       },
+       {
+        "spk": "S",
+        "text": "We'd like to pick the less obvious ones. Everyone already knows about plastic bags and drinks bottles, so we're going to skip those."
+       },
+       {
+        "spk": "J",
+        "text": "The two we found really interesting were car tyres. Tiny pieces wear off them on the road and then get washed into drains."
+       },
+       {
+        "spk": "S",
+        "text": "And synthetic clothes. Every time you wash a fleece jacket, thousands of tiny fibres go down the drain and end up in rivers."
+       },
+       {
+        "spk": "T",
+        "text": "Both excellent choices. What about fishing nets? There's a lot of research on those."
+       },
+       {
+        "spk": "J",
+        "text": "They're important, but they're lost at sea, so they're not land-based. We'll leave them out."
+       },
+       {
+        "pause": 1.0
+       },
+       {
+        "spk": "T",
+        "text": "Fair enough. Now, you mentioned some sources you're going to use. Let's go through them."
+       },
+       {
+        "spk": "S",
+        "text": "Well, first there's a survey by a beach clean-up group. Their volunteers recorded every item they found over a whole year."
+       },
+       {
+        "spk": "T",
+        "text": "Those surveys can be useful, but they're not always consistent in their methods."
+       },
+       {
+        "spk": "J",
+        "text": "True. We were going to build the whole talk around it, but I think we'll just mention it in passing."
+       },
+       {
+        "spk": "S",
+        "text": "Then there's the report on tyre dust from a transport research institute. It has really clear data."
+       },
+       {
+        "spk": "J",
+        "text": "Yes, and there's a fantastic photograph in it of the particles under a microscope. Could we use that?"
+       },
+       {
+        "spk": "T",
+        "text": "You could, as long as you credit it. But the numbers are what matter. I'd suggest you turn them into a chart of your own; it'll be much easier for the audience to follow than a table full of figures."
+       },
+       {
+        "spk": "S",
+        "text": "OK, so we'll make a chart from it."
+       },
+       {
+        "spk": "J",
+        "text": "And finally, there's the laundry study, the one where they measured the fibres released by different fabrics."
+       },
+       {
+        "spk": "T",
+        "text": "That's the most recent research you have, isn't it?"
+       },
+       {
+        "spk": "S",
+        "text": "Yes, it was published this year. Actually, I think that should be our main example. The results are so striking."
+       },
+       {
+        "spk": "J",
+        "text": "Agreed. We'll spend most of the second half on it."
+       },
+       {
+        "spk": "T",
+        "text": "Sounds like a plan. Send me your slides by next Wednesday and I'll give you some feedback."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       21,
+       21
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "options": [
+       {
+        "key": "A",
+        "text": "They had too much material for the time available."
+       },
+       {
+        "key": "B",
+        "text": "Their tutor advised them to change it."
+       },
+       {
+        "key": "C",
+        "text": "Another group had chosen the same focus."
+       }
+      ],
+      "questions": [
+       {
+        "n": 21,
+        "prompt": "Why did the students decide to change the focus of their presentation?",
+        "answer": "A",
+        "evidence": "We timed a practice run last week and we were nearly half an hour over",
+        "skill": "inference",
+        "explain_en": "Their practice run was far too long for fifteen minutes; the tutor only agrees afterwards.",
+        "explain_bn": "অনুশীলনে তারা প্রায় আধা ঘণ্টা বেশি সময় নিয়েছিল; টিউটর পরে শুধু সম্মতি দেন, নির্দেশ দেননি।"
+       }
+      ]
+     },
+     {
+      "range": [
+       22,
+       22
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "options": [
+       {
+        "key": "A",
+        "text": "how much plastic is carried by ships"
+       },
+       {
+        "key": "B",
+        "text": "how rivers transport plastic"
+       },
+       {
+        "key": "C",
+        "text": "the proportion of plastic that comes from land"
+       }
+      ],
+      "questions": [
+       {
+        "n": 22,
+        "prompt": "What surprised James during his reading?",
+        "answer": "C",
+        "evidence": "around eighty percent of it comes from the land",
+        "skill": "detail",
+        "explain_en": "He had assumed ships were the main source, but about eighty percent comes from land.",
+        "explain_bn": "তিনি ভেবেছিলেন জাহাজই মূল উৎস, কিন্তু প্রায় আশি শতাংশ প্লাস্টিক আসে স্থল থেকে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       23,
+       23
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "options": [
+       {
+        "key": "A",
+        "text": "It was too long to show."
+       },
+       {
+        "key": "B",
+        "text": "Some of its data were out of date."
+       },
+       {
+        "key": "C",
+        "text": "It focused only on wildlife."
+       }
+      ],
+      "questions": [
+       {
+        "n": 23,
+        "prompt": "Why did the students decide not to use the documentary?",
+        "answer": "B",
+        "evidence": "some of its figures were quite old",
+        "skill": "paraphrase",
+        "explain_en": "'Figures were quite old' means the data were out of date.",
+        "explain_bn": "'figures were quite old' মানে তথ্য পুরোনো (out of date)।"
+       }
+      ]
+     },
+     {
+      "range": [
+       24,
+       24
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "options": [
+       {
+        "key": "A",
+        "text": "Both students must speak for a similar length of time."
+       },
+       {
+        "key": "B",
+        "text": "The slides will be marked separately."
+       },
+       {
+        "key": "C",
+        "text": "It should be shorter than fifteen minutes."
+       }
+      ],
+      "questions": [
+       {
+        "n": 24,
+        "prompt": "What does the tutor tell the students about the assessment?",
+        "answer": "A",
+        "evidence": "you'll both need to present for roughly equal amounts of time",
+        "skill": "paraphrase",
+        "explain_en": "Each person's speaking is assessed, so they must share the talking equally.",
+        "explain_bn": "প্রত্যেকের কথা বলা মূল্যায়ন হয়, তাই দুজনকে প্রায় সমান সময় বলতে হবে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       25,
+       25
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B or C.",
+      "options": [
+       {
+        "key": "A",
+        "text": "with a summary of the main points"
+       },
+       {
+        "key": "B",
+        "text": "with a question for the audience to consider"
+       },
+       {
+        "key": "C",
+        "text": "with a short video clip"
+       }
+      ],
+      "questions": [
+       {
+        "n": 25,
+        "prompt": "How will the students end their presentation?",
+        "answer": "B",
+        "evidence": "What if you ended by asking the audience to think about the plastic they've used that day",
+        "skill": "detail",
+        "explain_en": "They first planned a summary, but agree to ask the audience to think about their own plastic use instead.",
+        "explain_bn": "প্রথমে সারাংশের পরিকল্পনা ছিল, কিন্তু তারা শ্রোতাদের নিজেদের প্লাস্টিক নিয়ে ভাবার প্রশ্ন দিয়ে শেষ করবে বলে ঠিক করে।"
+       }
+      ]
+     },
+     {
+      "range": [
+       26,
+       27
+      ],
+      "type": "mcq_multi",
+      "choose": 2,
       "instructions": "Choose TWO letters, A-E.",
       "prompt": "Which TWO sources of plastic will the students focus on?",
-      "options": [{"key": "A", "text": "plastic bags"}, {"key": "B", "text": "fishing nets"}, {"key": "C", "text": "car tyres"}, {"key": "D", "text": "drinks bottles"}, {"key": "E", "text": "clothing fibres"}],
-      "answers": ["C", "E"],
-      "evidence": ["The two we found really interesting were car tyres", "And synthetic clothes"],
+      "options": [
+       {
+        "key": "A",
+        "text": "plastic bags"
+       },
+       {
+        "key": "B",
+        "text": "fishing nets"
+       },
+       {
+        "key": "C",
+        "text": "car tyres"
+       },
+       {
+        "key": "D",
+        "text": "drinks bottles"
+       },
+       {
+        "key": "E",
+        "text": "clothing fibres"
+       }
+      ],
+      "answers": [
+       "C",
+       "E"
+      ],
+      "evidence": [
+       "The two we found really interesting were car tyres",
+       "And synthetic clothes"
+      ],
       "questions": [
-       {"n": 26, "skill": "detail", "explain_en": "They choose car tyres and synthetic clothes; bags and bottles are too obvious, nets are not land-based.", "explain_bn": "তারা গাড়ির টায়ার আর সিনথেটিক কাপড়ের আঁশ বেছে নেয়; ব্যাগ-বোতল খুব পরিচিত, জাল স্থল-উৎস নয়।"},
-       {"n": 27, "skill": "detail", "explain_en": "The second choice is fibres from synthetic clothing such as fleece jackets.", "explain_bn": "দ্বিতীয় উত্তর হলো fleece জ্যাকেটের মতো সিনথেটিক কাপড় থেকে আসা আঁশ।"}
-      ]},
-     {"range": [28, 30], "type": "matching", "options_reusable": false,
+       {
+        "n": 26,
+        "skill": "detail",
+        "explain_en": "They choose car tyres and synthetic clothes; bags and bottles are too obvious, nets are not land-based.",
+        "explain_bn": "তারা গাড়ির টায়ার আর সিনথেটিক কাপড়ের আঁশ বেছে নেয়; ব্যাগ-বোতল খুব পরিচিত, জাল স্থল-উৎস নয়।"
+       },
+       {
+        "n": 27,
+        "skill": "detail",
+        "explain_en": "The second choice is fibres from synthetic clothing such as fleece jackets.",
+        "explain_bn": "দ্বিতীয় উত্তর হলো fleece জ্যাকেটের মতো সিনথেটিক কাপড় থেকে আসা আঁশ।"
+       }
+      ]
+     },
+     {
+      "range": [
+       28,
+       30
+      ],
+      "type": "matching",
+      "options_reusable": false,
       "instructions": "What do the students decide to do with each source? Choose THREE answers from the box and write the correct letter, A-E, next to Questions 28-30.",
-      "options": [{"key": "A", "text": "use it as the main example"}, {"key": "B", "text": "present its data in a chart"}, {"key": "C", "text": "leave it out"},
-                  {"key": "D", "text": "mention it briefly"}, {"key": "E", "text": "show a photograph from it"}],
+      "options": [
+       {
+        "key": "A",
+        "text": "use it as the main example"
+       },
+       {
+        "key": "B",
+        "text": "present its data in a chart"
+       },
+       {
+        "key": "C",
+        "text": "leave it out"
+       },
+       {
+        "key": "D",
+        "text": "mention it briefly"
+       },
+       {
+        "key": "E",
+        "text": "show a photograph from it"
+       }
+      ],
       "questions": [
-       {"n": 28, "prompt": "the beach clean-up survey", "answer": "D", "evidence": "I think we'll just mention it in passing", "skill": "opinion",
-        "explain_en": "They planned to build the talk around it, but will now only mention it in passing.", "explain_bn": "প্রথমে পুরো উপস্থাপনা এর ওপর করার কথা ছিল, এখন শুধু সংক্ষেপে উল্লেখ করবে।"},
-       {"n": 29, "prompt": "the tyre dust report", "answer": "B", "evidence": "OK, so we'll make a chart from it", "skill": "opinion",
-        "explain_en": "The photograph is discussed, but the tutor recommends turning the numbers into a chart.", "explain_bn": "ছবির কথা উঠলেও টিউটরের পরামর্শে তারা তথ্য দিয়ে chart বানাবে।"},
-       {"n": 30, "prompt": "the laundry study", "answer": "A", "evidence": "I think that should be our main example", "skill": "opinion",
-        "explain_en": "It is the newest research and they will make it their main example.", "explain_bn": "এটি সবচেয়ে নতুন গবেষণা, তাই এটিকে মূল উদাহরণ করবে।"}
-      ]}
-    ]},
-   {"part": 4, "context": "academic_lecture",
+       {
+        "n": 28,
+        "prompt": "the beach clean-up survey",
+        "answer": "D",
+        "evidence": "I think we'll just mention it in passing",
+        "skill": "opinion",
+        "explain_en": "They planned to build the talk around it, but will now only mention it in passing.",
+        "explain_bn": "প্রথমে পুরো উপস্থাপনা এর ওপর করার কথা ছিল, এখন শুধু সংক্ষেপে উল্লেখ করবে।"
+       },
+       {
+        "n": 29,
+        "prompt": "the tyre dust report",
+        "answer": "B",
+        "evidence": "OK, so we'll make a chart from it",
+        "skill": "opinion",
+        "explain_en": "The photograph is discussed, but the tutor recommends turning the numbers into a chart.",
+        "explain_bn": "ছবির কথা উঠলেও টিউটরের পরামর্শে তারা তথ্য দিয়ে chart বানাবে।"
+       },
+       {
+        "n": 30,
+        "prompt": "the laundry study",
+        "answer": "A",
+        "evidence": "I think that should be our main example",
+        "skill": "opinion",
+        "explain_en": "It is the newest research and they will make it their main example.",
+        "explain_bn": "এটি সবচেয়ে নতুন গবেষণা, তাই এটিকে মূল উদাহরণ করবে।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 4,
+    "context": "academic_lecture",
     "intro": "You will hear a lecture about the psychology of habit formation.",
-    "speakers": {"A": {"name": "Lecturer", "gender": "M", "accent": "GB", "role": "psychology lecturer"}},
+    "speakers": {
+     "A": {
+      "name": "Lecturer",
+      "gender": "M",
+      "accent": "GB",
+      "role": "psychology lecturer"
+     }
+    },
     "segments": [
-     {"questions": [31, 40], "preview_s": 45, "turns": [
-      {"spk": "A", "text": "Good morning, everyone. In today's lecture, I'm going to look at the psychology of habits: what they are, how they develop in the brain, and what research tells us about changing them. This is a topic with obvious practical applications, from public health campaigns to personal productivity, but today I want to concentrate on the underlying mechanisms rather than on advice."},
-      {"spk": "A", "text": "Let's begin with a definition. Psychologists generally describe a habit as a behaviour that is triggered automatically by a particular context, without conscious deliberation. The crucial word here is 'automatically'. When you first learn to drive, every action requires your full attention. After a few months, you can drive home while thinking about something else entirely. The behaviour itself hasn't changed, but the mental effort it requires has fallen dramatically."},
-      {"spk": "A", "text": "So how does this transition happen? Most researchers describe a three-part cycle. First, there's a cue, which might be a location, a time of day, an emotional state, or the presence of particular people. Second, there's the routine, which is the behaviour itself. And third, there's the reward, some pleasant consequence that makes the behaviour more likely to be repeated. Each time the cycle is completed, the association between the cue and the routine becomes a little stronger."},
-      {"spk": "A", "text": "Neuroscientific studies suggest that, as a habit forms, control of the behaviour gradually shifts from the prefrontal cortex, which is involved in planning and decision-making, to a deeper structure called the basal ganglia. This shift is efficient, because it frees the prefrontal areas for other tasks. But it also helps to explain why habits are so persistent: they are stored in a region of the brain that operates largely outside our awareness."},
-      {"pause": 1.5},
-      {"spk": "A", "text": "How long, then, does it take to form a habit? You may have come across the popular claim that it takes exactly twenty-one days. In fact, there's very little evidence for this figure, which seems to have originated in anecdotes rather than in experiments. In one influential type of study, volunteers chose a simple daily behaviour, such as drinking a glass of water after breakfast, and reported each day how automatic it felt. On average, it took more than two months to reach the point where the behaviour felt as automatic as it ever would, and the range was enormous: some participants got there within three weeks, while others took most of a year. Not surprisingly, more complex behaviours, like going to the gym, took considerably longer than simple ones. One encouraging finding, however, was that missing a single day made very little difference to the overall process. So perfection isn't required."},
-      {"spk": "A", "text": "What about breaking unwanted habits? Here the research is rather more sobering. Simply deciding to stop is usually not enough, because the cue continues to trigger the old routine automatically. Willpower, it turns out, is a limited resource, and people who rely on it alone tend to relapse, particularly when they're tired or under stress."},
-      {"spk": "A", "text": "A more effective strategy is to alter the environment so that the cue no longer appears at all. Studies of people who had recently moved house found that this was an ideal moment to change behaviour, since many of the old cues had simply disappeared. Researchers refer to this as the 'discontinuity' effect. For instance, people who had moved were considerably more likely to begin commuting by bicycle, provided that they already cared about the environment."},
-      {"spk": "A", "text": "Another approach is substitution: keeping the same cue, but attaching a different routine to it. Someone who always snacks while watching television, for example, might replace the snack with a glass of water or a short stretching exercise. This tends to work better than trying to suppress the behaviour completely, because the cue still leads somewhere, and the brain isn't left with an empty gap."},
-      {"spk": "A", "text": "Finally, it's worth noting that habits are not inherently good or bad. The same mechanism that makes it hard to give up sugary drinks also makes it possible to brush our teeth or fasten a seatbelt without thinking. In the next lecture, we'll look at how governments and health organisations have tried to use these findings, and at some of the ethical questions that raises."}
-     ]}
+     {
+      "questions": [
+       31,
+       40
+      ],
+      "preview_s": 45,
+      "turns": [
+       {
+        "spk": "A",
+        "text": "Good morning, everyone. In today's lecture, I'm going to look at the psychology of habits: what they are, how they develop in the brain, and what research tells us about changing them. This is a topic with obvious practical applications, from public health campaigns to personal productivity, but today I want to concentrate on the underlying mechanisms rather than on advice."
+       },
+       {
+        "spk": "A",
+        "text": "Let's begin with a definition. Psychologists generally describe a habit as a behaviour that is triggered automatically by a particular context, without conscious deliberation. The crucial word here is 'automatically'. When you first learn to drive, every action requires your full attention. After a few months, you can drive home while thinking about something else entirely. The behaviour itself hasn't changed, but the mental effort it requires has fallen dramatically."
+       },
+       {
+        "spk": "A",
+        "text": "So how does this transition happen? Most researchers describe a three-part cycle. First, there's a cue, which might be a location, a time of day, an emotional state, or the presence of particular people. Second, there's the routine, which is the behaviour itself. And third, there's the reward, some pleasant consequence that makes the behaviour more likely to be repeated. Each time the cycle is completed, the association between the cue and the routine becomes a little stronger."
+       },
+       {
+        "spk": "A",
+        "text": "Neuroscientific studies suggest that, as a habit forms, control of the behaviour gradually shifts from the prefrontal cortex, which is involved in planning and decision-making, to a deeper structure called the basal ganglia. This shift is efficient, because it frees the prefrontal areas for other tasks. But it also helps to explain why habits are so persistent: they are stored in a region of the brain that operates largely outside our awareness."
+       },
+       {
+        "pause": 1.5
+       },
+       {
+        "spk": "A",
+        "text": "How long, then, does it take to form a habit? You may have come across the popular claim that it takes exactly twenty-one days. In fact, there's very little evidence for this figure, which seems to have originated in anecdotes rather than in experiments. In one influential type of study, volunteers chose a simple daily behaviour, such as drinking a glass of water after breakfast, and reported each day how automatic it felt. On average, it took more than two months to reach the point where the behaviour felt as automatic as it ever would, and the range was enormous: some participants got there within three weeks, while others took most of a year. Not surprisingly, more complex behaviours, like going to the gym, took considerably longer than simple ones. One encouraging finding, however, was that missing a single day made very little difference to the overall process. So perfection isn't required."
+       },
+       {
+        "spk": "A",
+        "text": "What about breaking unwanted habits? Here the research is rather more sobering. Simply deciding to stop is usually not enough, because the cue continues to trigger the old routine automatically. Willpower, it turns out, is a limited resource, and people who rely on it alone tend to relapse, particularly when they're tired or under stress."
+       },
+       {
+        "spk": "A",
+        "text": "A more effective strategy is to alter the environment so that the cue no longer appears at all. Studies of people who had recently moved house found that this was an ideal moment to change behaviour, since many of the old cues had simply disappeared. Researchers refer to this as the 'discontinuity' effect. For instance, people who had moved were considerably more likely to begin commuting by bicycle, provided that they already cared about the environment."
+       },
+       {
+        "spk": "A",
+        "text": "Another approach is substitution: keeping the same cue, but attaching a different routine to it. Someone who always snacks while watching television, for example, might replace the snack with a glass of water or a short stretching exercise. This tends to work better than trying to suppress the behaviour completely, because the cue still leads somewhere, and the brain isn't left with an empty gap."
+       },
+       {
+        "spk": "A",
+        "text": "Finally, it's worth noting that habits are not inherently good or bad. The same mechanism that makes it hard to give up sugary drinks also makes it possible to brush our teeth or fasten a seatbelt without thinking. In the next lecture, we'll look at how governments and health organisations have tried to use these findings, and at some of the ethical questions that raises."
+       }
+      ]
+     }
     ],
     "groups": [
-     {"range": [31, 40], "type": "note_completion", "title": "The psychology of habit formation",
+     {
+      "range": [
+       31,
+       40
+      ],
+      "type": "note_completion",
+      "title": "The psychology of habit formation",
       "instructions": "Complete the notes below. Write ONE WORD ONLY for each answer.",
-      "word_limit": {"max_words": 1, "numbers": false},
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
       "questions": [
-       {"n": 31, "prompt": "Definition: behaviour set off by a particular {gap}, without conscious thought", "answer": "context", "evidence": "triggered automatically by a particular context", "skill": "signpost",
-        "explain_en": "After 'Let's begin with a definition', a habit is triggered by a particular context.", "explain_bn": "'Let's begin with a definition' বলার পর সংজ্ঞায় বলা হয় অভ্যাস একটি নির্দিষ্ট context থেকে শুরু হয়।"},
-       {"n": 32, "prompt": "Three-part cycle: cue, then routine, then {gap}", "answer": "reward", "evidence": "And third, there's the reward", "skill": "signpost",
-        "explain_en": "The signposts 'First... Second... And third' give cue, routine and reward.", "explain_bn": "'First... Second... And third' সংকেত শুনে বোঝা যায় তৃতীয় অংশ reward।"},
-       {"n": 33, "prompt": "As a habit forms, control moves to the basal {gap}", "answer": "ganglia", "evidence": "a deeper structure called the basal ganglia", "skill": "spelling",
-        "explain_en": "Control shifts from the prefrontal cortex to the basal ganglia; spelling matters.", "explain_bn": "নিয়ন্ত্রণ prefrontal cortex থেকে basal ganglia-তে যায়; বানান ঠিক থাকতে হবে।"},
-       {"n": 34, "prompt": "Popular claim of 21 days: very little {gap} to support it", "answer": "evidence", "evidence": "there's very little evidence for this figure", "skill": "detail",
-        "explain_en": "The lecturer says there is very little evidence for the 21-day figure.", "explain_bn": "বক্তা বলেন ২১ দিনের দাবির পক্ষে প্রমাণ (evidence) খুব কম।"},
-       {"n": 35, "prompt": "Study: volunteers rated each day how {gap} a new behaviour felt", "answer": "automatic", "evidence": "reported each day how automatic it felt", "skill": "detail",
-        "explain_en": "Volunteers reported daily how automatic the behaviour felt.", "explain_bn": "অংশগ্রহণকারীরা প্রতিদিন জানাতেন আচরণটা কতটা automatic মনে হচ্ছে।"},
-       {"n": 36, "prompt": "More {gap} behaviours, e.g. going to the gym, took longer", "answer": "complex", "evidence": "more complex behaviours, like going to the gym, took considerably longer", "skill": "detail",
-        "explain_en": "Complex behaviours took considerably longer than simple ones.", "explain_bn": "জটিল (complex) আচরণ সহজ আচরণের চেয়ে বেশি সময় নেয়।"},
-       {"n": 37, "prompt": "Missing a single {gap} did not affect progress much", "answer": "day", "evidence": "missing a single day made very little difference", "skill": "paraphrase",
-        "explain_en": "'Made very little difference' is paraphrased as 'did not affect progress much'.", "explain_bn": "'made very little difference' কথাটাকে প্রশ্নে 'did not affect progress much' বলা হয়েছে; একদিন বাদ পড়লেও সমস্যা নেই।"},
-       {"n": 38, "prompt": "Relying on {gap} alone often leads to relapse", "answer": "willpower", "evidence": "Willpower, it turns out, is a limited resource", "skill": "detail",
-        "explain_en": "Willpower is limited, and people who rely on it alone tend to relapse.", "explain_bn": "ইচ্ছাশক্তি (willpower) সীমিত, শুধু এর ওপর নির্ভর করলে মানুষ আবার পুরোনো অভ্যাসে ফেরে।"},
-       {"n": 39, "prompt": "Moving house removes old cues: known as the '{gap}' effect", "answer": "discontinuity", "evidence": "Researchers refer to this as the 'discontinuity' effect", "skill": "spelling",
-        "explain_en": "The term for this is the 'discontinuity' effect; it is a long word, so check the spelling.", "explain_bn": "এই প্রভাবের নাম 'discontinuity' effect; লম্বা শব্দ, তাই বানান মিলিয়ে নিন।"},
-       {"n": 40, "prompt": "Substitution example: replace a snack with water or a short {gap} exercise", "answer": "stretching", "evidence": "a glass of water or a short stretching exercise", "skill": "detail",
-        "explain_en": "The snack can be replaced with water or a short stretching exercise.", "explain_bn": "নাস্তার বদলে পানি বা অল্প stretching ব্যায়ামের উদাহরণ দেওয়া হয়েছে।"}
-      ]}
-    ]}
+       {
+        "n": 31,
+        "prompt": "Definition: behaviour set off by a particular {gap}, without conscious thought",
+        "answer": "context",
+        "evidence": "triggered automatically by a particular context",
+        "skill": "signpost",
+        "explain_en": "After 'Let's begin with a definition', a habit is triggered by a particular context.",
+        "explain_bn": "'Let's begin with a definition' বলার পর সংজ্ঞায় বলা হয় অভ্যাস একটি নির্দিষ্ট context থেকে শুরু হয়।"
+       },
+       {
+        "n": 32,
+        "prompt": "Three-part cycle: cue, then routine, then {gap}",
+        "answer": "reward",
+        "evidence": "And third, there's the reward",
+        "skill": "signpost",
+        "explain_en": "The signposts 'First... Second... And third' give cue, routine and reward.",
+        "explain_bn": "'First... Second... And third' সংকেত শুনে বোঝা যায় তৃতীয় অংশ reward।"
+       },
+       {
+        "n": 33,
+        "prompt": "As a habit forms, control moves to the basal {gap}",
+        "answer": "ganglia",
+        "evidence": "a deeper structure called the basal ganglia",
+        "skill": "spelling",
+        "explain_en": "Control shifts from the prefrontal cortex to the basal ganglia; spelling matters.",
+        "explain_bn": "নিয়ন্ত্রণ prefrontal cortex থেকে basal ganglia-তে যায়; বানান ঠিক থাকতে হবে।"
+       },
+       {
+        "n": 34,
+        "prompt": "Popular claim of 21 days: very little {gap} to support it",
+        "answer": "evidence",
+        "evidence": "there's very little evidence for this figure",
+        "skill": "detail",
+        "explain_en": "The lecturer says there is very little evidence for the 21-day figure.",
+        "explain_bn": "বক্তা বলেন ২১ দিনের দাবির পক্ষে প্রমাণ (evidence) খুব কম।"
+       },
+       {
+        "n": 35,
+        "prompt": "Study: volunteers rated each day how {gap} a new behaviour felt",
+        "answer": "automatic",
+        "evidence": "reported each day how automatic it felt",
+        "skill": "detail",
+        "explain_en": "Volunteers reported daily how automatic the behaviour felt.",
+        "explain_bn": "অংশগ্রহণকারীরা প্রতিদিন জানাতেন আচরণটা কতটা automatic মনে হচ্ছে।"
+       },
+       {
+        "n": 36,
+        "prompt": "More {gap} behaviours, e.g. going to the gym, took longer",
+        "answer": "complex",
+        "evidence": "more complex behaviours, like going to the gym, took considerably longer",
+        "skill": "detail",
+        "explain_en": "Complex behaviours took considerably longer than simple ones.",
+        "explain_bn": "জটিল (complex) আচরণ সহজ আচরণের চেয়ে বেশি সময় নেয়।"
+       },
+       {
+        "n": 37,
+        "prompt": "Missing a single {gap} did not affect progress much",
+        "answer": "day",
+        "evidence": "missing a single day made very little difference",
+        "skill": "paraphrase",
+        "explain_en": "'Made very little difference' is paraphrased as 'did not affect progress much'.",
+        "explain_bn": "'made very little difference' কথাটাকে প্রশ্নে 'did not affect progress much' বলা হয়েছে; একদিন বাদ পড়লেও সমস্যা নেই।"
+       },
+       {
+        "n": 38,
+        "prompt": "Relying on {gap} alone often leads to relapse",
+        "answer": "willpower",
+        "evidence": "Willpower, it turns out, is a limited resource",
+        "skill": "detail",
+        "explain_en": "Willpower is limited, and people who rely on it alone tend to relapse.",
+        "explain_bn": "ইচ্ছাশক্তি (willpower) সীমিত, শুধু এর ওপর নির্ভর করলে মানুষ আবার পুরোনো অভ্যাসে ফেরে।"
+       },
+       {
+        "n": 39,
+        "prompt": "Moving house removes old cues: known as the '{gap}' effect",
+        "answer": "discontinuity",
+        "evidence": "Researchers refer to this as the 'discontinuity' effect",
+        "skill": "spelling",
+        "explain_en": "The term for this is the 'discontinuity' effect; it is a long word, so check the spelling.",
+        "explain_bn": "এই প্রভাবের নাম 'discontinuity' effect; লম্বা শব্দ, তাই বানান মিলিয়ে নিন।"
+       },
+       {
+        "n": 40,
+        "prompt": "Substitution example: replace a snack with water or a short {gap} exercise",
+        "answer": "stretching",
+        "evidence": "a glass of water or a short stretching exercise",
+        "skill": "detail",
+        "explain_en": "The snack can be replaced with water or a short stretching exercise.",
+        "explain_bn": "নাস্তার বদলে পানি বা অল্প stretching ব্যায়ামের উদাহরণ দেওয়া হয়েছে।"
+       }
+      ]
+     }
+    ]
+   }
   ]
  },
- "reading": "__READING__",
- "writing": "__WRITING__",
- "speaking": "__SPEAKING__"
+ "reading": {
+  "minutes": 60,
+  "parts": [
+   {
+    "part": 1,
+    "texts": [
+     {
+      "title": "The return of the urban tram",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "In the first half of the twentieth century, trams were a familiar sight in hundreds of cities across Europe, North America and Australia. Running on rails laid into the street and drawing power from overhead wires, they carried millions of passengers to work, school and market every day. Yet by the 1960s most of these networks had vanished. In city after city, tracks were torn up or simply covered with asphalt, and the tram came to be regarded as a slow, noisy relic of an earlier age. Today, remarkably, the tram is back. Since the mid-1980s more than a hundred new systems have opened worldwide, and many more are under construction or at the planning stage."
+       },
+       {
+        "label": "",
+        "text": "The decline of the first generation of trams had several causes. The most obvious was the rapid spread of private car ownership after the Second World War. As streets filled with traffic, trams sharing the road with cars were frequently delayed, and their reliability suffered. Motor buses, meanwhile, offered transport authorities a cheaper alternative: they required no tracks and no overhead power lines, and their routes could be altered overnight in response to changes in demand. Many tram operators had also failed to invest in their vehicles and infrastructure, so that by the 1950s passengers were often travelling in carriages that were several decades old. Faced with the cost of replacing worn-out track, numerous city councils concluded that abandoning the system altogether was the more sensible option."
+       },
+       {
+        "label": "",
+        "text": "Not every city followed this path, however. A number of cities in central Europe, particularly in Germany, Switzerland and the Netherlands, chose to modernise their networks rather than close them. Engineers there developed longer, articulated vehicles that could carry far more passengers than their predecessors, and planners began to give trams their own lanes, physically separated from general traffic. These cities would later serve as models when planners elsewhere began to reconsider the value of rail-based street transport."
+       },
+       {
+        "label": "",
+        "text": "The revival that began in the 1980s was driven by a combination of practical and environmental concerns. Traffic congestion in city centres had reached levels that were costly in both economic and human terms, and air quality had become a serious public health issue. Because trams are powered by electricity, they produce no exhaust fumes at street level, and if that electricity comes from renewable sources, their overall emissions can be very low indeed. Trams also have a considerably greater capacity than buses: a single modern vehicle can carry over three hundred people, roughly three times as many as a standard articulated bus. On busy routes, this translates into fewer vehicles, fewer drivers and lower operating costs over time."
+       },
+       {
+        "label": "",
+        "text": "Supporters of trams also point to a less tangible benefit, which transport researchers sometimes refer to as the 'rail factor'. Surveys in several countries have suggested that people are more willing to use a tram than a bus, even when the two services offer identical journey times. One explanation is that the fixed tracks give passengers a sense of permanence: they can see exactly where the route goes and trust that it will not be withdrawn the following year. Trams also tend to offer a smoother, quieter ride, and their level boarding, with the vehicle floor at the same height as the platform, makes them easier to use for people with pushchairs, wheelchairs or heavy luggage."
+       },
+       {
+        "label": "",
+        "text": "There is also evidence that a new tram line can stimulate investment along its route. Property developers, confident that the line will remain in place for decades, are more willing to build homes, offices and shops near the stops. In several French cities, the construction of a tram network was deliberately combined with the redesign of public spaces, with wide pavements, trees and pedestrian squares replacing what had previously been multi-lane roads. Critics, however, argue that the economic benefits attributed to tram schemes are often overstated, and that similar regeneration might well have taken place without them."
+       },
+       {
+        "label": "",
+        "text": "The greatest obstacle to new tram systems remains their cost. Laying track involves relocating the water pipes, gas mains and cables buried beneath the street, work that is slow, disruptive and expensive. Construction can close roads for months, and local businesses frequently complain of lost trade. For this reason, some cities have turned to an alternative known as 'bus rapid transit', in which high-capacity buses run in dedicated lanes, achieving some of the advantages of trams at a fraction of the price. Engineers are also experimenting with new technology to reduce costs: some recent vehicles carry batteries that allow them to run for short distances without overhead wires, which is particularly useful in historic city centres, where the wires are considered unsightly."
+       },
+       {
+        "label": "",
+        "text": "Whether the tram revival continues will depend largely on how cities weigh these immediate costs against long-term benefits. What is clear is that a form of transport once dismissed as obsolete has earned a second chance, and that its future may prove considerably brighter than its past."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       1,
+       7
+      ],
+      "type": "tfng",
+      "instructions": "Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "questions": [
+       {
+        "n": 1,
+        "prompt": "By the 1960s, the majority of early tram systems had disappeared.",
+        "answer": "TRUE",
+        "evidence": "Yet by the 1960s most of these networks had vanished",
+        "skill": "paraphrase",
+        "explain_en": "'Most of these networks had vanished' = the majority had disappeared.",
+        "explain_bn": "'most of these networks had vanished' মানে বেশিরভাগ ট্রাম ব্যবস্থা হারিয়ে গিয়েছিল — তাই TRUE।"
+       },
+       {
+        "n": 2,
+        "prompt": "Bus routes were harder to change than tram routes.",
+        "answer": "FALSE",
+        "evidence": "their routes could be altered overnight in response to changes in demand",
+        "skill": "paraphrase",
+        "explain_en": "Bus routes could be changed overnight, so they were easier, not harder, to change.",
+        "explain_bn": "বাসের রুট এক রাতেই বদলানো যেত — অর্থাৎ সহজ ছিল, কঠিন নয়; তাই FALSE।"
+       },
+       {
+        "n": 3,
+        "prompt": "Most tram operators in the 1950s were owned by city councils.",
+        "answer": "NOT GIVEN",
+        "rationale": "The passage says operators failed to invest and councils decided to close systems, but never says who owned the operators.",
+        "skill": "detail",
+        "explain_en": "Councils are mentioned as decision-makers, but ownership of the operators is never stated.",
+        "explain_bn": "সিটি কাউন্সিলের সিদ্ধান্তের কথা আছে, কিন্তু ট্রাম কোম্পানির মালিক কে ছিল তা কোথাও বলা নেই — NOT GIVEN।"
+       },
+       {
+        "n": 4,
+        "prompt": "Cities that modernised their tram networks later influenced planners in other places.",
+        "answer": "TRUE",
+        "evidence": "These cities would later serve as models when planners elsewhere began to reconsider",
+        "skill": "paraphrase",
+        "explain_en": "'Serve as models' for planners elsewhere = influenced planners in other places.",
+        "explain_bn": "'serve as models' মানে অন্য জায়গার পরিকল্পনাকারীরা তাদের অনুসরণ করেছে — TRUE।"
+       },
+       {
+        "n": 5,
+        "prompt": "Trams produce very little pollution regardless of how their electricity is generated.",
+        "answer": "FALSE",
+        "evidence": "if that electricity comes from renewable sources, their overall emissions can be very low indeed",
+        "skill": "detail",
+        "explain_en": "Overall emissions are very low only IF the electricity is renewable, so the source does matter.",
+        "explain_bn": "শুধু নবায়নযোগ্য বিদ্যুৎ হলে দূষণ খুব কম — উৎসের ওপর নির্ভর করে, তাই 'regardless' ভুল; FALSE।"
+       },
+       {
+        "n": 6,
+        "prompt": "The idea of the 'rail factor' was first developed by researchers in France.",
+        "answer": "NOT GIVEN",
+        "rationale": "The rail factor is described but its origin is not given; France is mentioned only in connection with redesigned public spaces.",
+        "skill": "detail",
+        "explain_en": "France appears in a different paragraph; nobody is said to have first developed the idea.",
+        "explain_bn": "ফ্রান্সের কথা অন্য অনুচ্ছেদে আছে; 'rail factor' কে প্রথম বলেছে তা লেখা নেই — NOT GIVEN।"
+       },
+       {
+        "n": 7,
+        "prompt": "Some people doubt that tram schemes produce all the economic benefits claimed for them.",
+        "answer": "TRUE",
+        "evidence": "Critics, however, argue that the economic benefits attributed to tram schemes are often overstated",
+        "skill": "paraphrase",
+        "explain_en": "Critics say the benefits are 'overstated' = they doubt the claims.",
+        "explain_bn": "সমালোচকরা বলেন সুবিধাগুলো বাড়িয়ে বলা হয় ('overstated') — অর্থাৎ তারা সন্দেহ করেন; TRUE।"
+       }
+      ]
+     },
+     {
+      "range": [
+       8,
+       13
+      ],
+      "type": "note_completion",
+      "title": "Modern trams: benefits and problems",
+      "instructions": "Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "word_limit": {
+       "max_words": 1,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 8,
+        "prompt": "Comfort: the ride is smoother and {gap} than on many buses",
+        "answer": "quieter",
+        "evidence": "Trams also tend to offer a smoother, quieter ride",
+        "skill": "detail",
+        "explain_en": "The passage pairs 'smoother' with 'quieter'.",
+        "explain_bn": "অনুচ্ছেদে 'smoother, quieter ride' আছে — ফাঁকে বসবে quieter।"
+       },
+       {
+        "n": 9,
+        "prompt": "Level boarding helps people with pushchairs, wheelchairs or heavy {gap}",
+        "answer": "luggage",
+        "evidence": "people with pushchairs, wheelchairs or heavy luggage",
+        "skill": "detail",
+        "explain_en": "The third group mentioned is people with heavy luggage.",
+        "explain_bn": "তৃতীয় দলটি হলো ভারী লাগেজওয়ালা যাত্রী — উত্তর luggage।"
+       },
+       {
+        "n": 10,
+        "prompt": "Developers build near stops as they expect the line to remain for {gap}",
+        "answer": "decades",
+        "evidence": "confident that the line will remain in place for decades",
+        "skill": "paraphrase",
+        "explain_en": "Developers are confident the line will stay 'for decades'.",
+        "explain_bn": "ডেভেলপাররা নিশ্চিত যে লাইন কয়েক দশক থাকবে — উত্তর decades।"
+       },
+       {
+        "n": 11,
+        "prompt": "Construction: water pipes, gas mains and {gap} under the street must be moved",
+        "answer": "cables",
+        "evidence": "relocating the water pipes, gas mains and cables buried beneath the street",
+        "skill": "detail",
+        "explain_en": "The list is water pipes, gas mains and cables.",
+        "explain_bn": "রাস্তার নিচে পাইপ, গ্যাস লাইন আর cables সরাতে হয় — উত্তর cables।"
+       },
+       {
+        "n": 12,
+        "prompt": "Local {gap} often complain about losing trade during building work",
+        "answer": "businesses",
+        "evidence": "local businesses frequently complain of lost trade",
+        "skill": "detail",
+        "explain_en": "It is local businesses that complain of lost trade.",
+        "explain_bn": "নির্মাণের সময় স্থানীয় ব্যবসায়ীরা ক্ষতির অভিযোগ করে — উত্তর businesses।"
+       },
+       {
+        "n": 13,
+        "prompt": "Some new vehicles use {gap} to travel short distances without overhead wires",
+        "answer": "batteries",
+        "evidence": "some recent vehicles carry batteries that allow them to run for short distances without overhead wires",
+        "skill": "detail",
+        "explain_en": "Batteries let the vehicles run without wires for short distances.",
+        "explain_bn": "ব্যাটারির কারণে অল্প দূরত্বে তার ছাড়াই চলা যায় — উত্তর batteries (বহুবচন খেয়াল রাখুন)।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 2,
+    "texts": [
+     {
+      "title": "How desert plants survive",
+      "paragraphs": [
+       {
+        "label": "A",
+        "text": "Deserts cover roughly a third of the Earth's land surface, and they are defined not by heat but by a shortage of water: most receive less than 250 millimetres of rainfall a year, and some receive almost none for years at a time. To a plant, such conditions present an extraordinary challenge. Plants need water not only to grow but also to carry out photosynthesis, the process by which they use sunlight to convert carbon dioxide into sugars. Yet every time a plant opens the tiny pores on its leaves, known as stomata, to take in carbon dioxide, water vapour escapes. In a hot, dry atmosphere, this loss can prove fatal within hours."
+       },
+       {
+        "label": "B",
+        "text": "One group of desert plants has solved the problem by avoiding drought altogether. These are the so-called ephemerals, annual plants whose seeds may lie dormant in the soil for many years. When sufficient rain finally falls, the seeds germinate, and the plants grow, flower and produce a new generation of seeds within a few weeks, before the soil dries out again. The seeds themselves are remarkably sophisticated. Many contain chemical inhibitors that are washed away only by a substantial quantity of rain, which prevents them from germinating after a light shower that would not provide enough moisture for the plant to complete its life cycle."
+       },
+       {
+        "label": "C",
+        "text": "Perennial plants, which must endure the dry season rather than avoid it, have developed a wide range of structural adaptations. The most familiar are the succulents, such as cacti, which store water in thick, fleshy stems or leaves. A large cactus may hold several hundred litres of water, enough to sustain it through months of drought. Many succulents have pleated or ribbed stems that expand like an accordion as they absorb water after rain and contract as the stored water is used. Their surfaces are typically coated with a waxy layer that greatly reduces evaporation, and their leaves have often been reduced to spines, which lose almost no water and also deter thirsty animals."
+       },
+       {
+        "label": "D",
+        "text": "Other perennials rely instead on reaching water that lies deep underground. The roots of certain desert shrubs have been found at depths of more than fifty metres, where they tap into permanent groundwater. Such plants are known as phreatophytes, and their survival depends less on rainfall than on the level of the water table. Cacti, by contrast, usually have shallow but extensive root systems that spread out just below the surface, allowing them to collect water rapidly from even a brief storm. Within hours of rain, some species grow fine new 'rain roots', which wither again once the soil dries."
+       },
+       {
+        "label": "E",
+        "text": "Perhaps the most ingenious adaptations, however, are invisible to the naked eye. Many succulents use a modified form of photosynthesis known as crassulacean acid metabolism, or CAM, named after the plant family in which it was first studied. CAM plants keep their stomata closed during the heat of the day and open them only at night, when temperatures are lower and the air is more humid. Carbon dioxide absorbed in darkness is stored in the form of an acid, and then released inside the leaf during daylight hours, when the plant can use the energy of the sun to turn it into sugar. The trade-off is that CAM plants generally grow very slowly, but they may lose as little as a tenth of the water that conventional plants lose for the same amount of carbon gained."
+       },
+       {
+        "label": "F",
+        "text": "Some desert plants have even found ways to harvest moisture from the air. In coastal deserts, where fog drifts inland from the ocean, certain grasses and shrubs have leaves whose surfaces cause tiny droplets to collect and run down towards the roots. Researchers have examined these surfaces in detail in the hope of designing materials that could collect drinking water in arid regions, and early prototypes inspired by such plants have produced encouraging results in field trials."
+       },
+       {
+        "label": "G",
+        "text": "Despite these remarkable adaptations, desert vegetation is more fragile than it appears. Because plants grow so slowly, damage caused by vehicles, overgrazing or construction can take decades to repair, and some slow-growing species may never recover in the affected area. Climate change poses a further threat: higher temperatures accelerate evaporation, and shifting rainfall patterns may disrupt the precise signals on which ephemeral seeds depend. Scientists warn that some desert ecosystems, which have persisted for thousands of years, could be transformed within a single human lifetime."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       14,
+       18
+      ],
+      "type": "matching_information",
+      "options": [
+       {
+        "key": "A",
+        "text": "Paragraph A"
+       },
+       {
+        "key": "B",
+        "text": "Paragraph B"
+       },
+       {
+        "key": "C",
+        "text": "Paragraph C"
+       },
+       {
+        "key": "D",
+        "text": "Paragraph D"
+       },
+       {
+        "key": "E",
+        "text": "Paragraph E"
+       },
+       {
+        "key": "F",
+        "text": "Paragraph F"
+       },
+       {
+        "key": "G",
+        "text": "Paragraph G"
+       }
+      ],
+      "options_reusable": true,
+      "instructions": "Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. NB You may use any letter more than once.",
+      "questions": [
+       {
+        "n": 14,
+        "prompt": "a possible practical use for people of a feature found in some plants",
+        "answer": "F",
+        "evidence": "in the hope of designing materials that could collect drinking water in arid regions",
+        "skill": "matching_info",
+        "explain_en": "Paragraph F: plant leaf surfaces may inspire materials that collect drinking water.",
+        "explain_bn": "F অনুচ্ছেদে আছে গাছের পাতার গঠন দেখে পানি সংগ্রহের উপকরণ বানানোর চেষ্টা — মানুষের ব্যবহারিক কাজ।"
+       },
+       {
+        "n": 15,
+        "prompt": "an explanation of why plants lose water when they take in a gas",
+        "answer": "A",
+        "evidence": "to take in carbon dioxide, water vapour escapes",
+        "skill": "matching_info",
+        "explain_en": "Paragraph A: opening stomata to take in carbon dioxide lets water vapour escape.",
+        "explain_bn": "A অনুচ্ছেদে কার্বন ডাই-অক্সাইড (গ্যাস) নিতে গেলে পানি বেরিয়ে যায় — সেই ব্যাখ্যা আছে।"
+       },
+       {
+        "n": 16,
+        "prompt": "a description of how some plants change shape as the amount of water inside them changes",
+        "answer": "C",
+        "evidence": "expand like an accordion as they absorb water after rain and contract as the stored water is used",
+        "skill": "matching_info",
+        "explain_en": "Paragraph C: ribbed stems expand and contract like an accordion.",
+        "explain_bn": "C অনুচ্ছেদে কাণ্ড অ্যাকর্ডিয়নের মতো ফুলে ওঠে ও সংকুচিত হয় — আকার বদলানোর বর্ণনা।"
+       },
+       {
+        "n": 17,
+        "prompt": "a reference to a mechanism that stops seeds reacting to too little rain",
+        "answer": "B",
+        "evidence": "which prevents them from germinating after a light shower",
+        "skill": "matching_info",
+        "explain_en": "Paragraph B: chemical inhibitors stop germination after a light shower.",
+        "explain_bn": "B অনুচ্ছেদে রাসায়নিক বাধা হালকা বৃষ্টিতে বীজ গজাতে দেয় না — সেটাই এই তথ্য।"
+       },
+       {
+        "n": 18,
+        "prompt": "an example of roots that exist only for a short period",
+        "answer": "D",
+        "evidence": "some species grow fine new 'rain roots', which wither again once the soil dries",
+        "skill": "matching_info",
+        "explain_en": "Paragraph D: 'rain roots' grow after rain and wither when the soil dries.",
+        "explain_bn": "D অনুচ্ছেদে 'rain roots' বৃষ্টির পর গজায়, মাটি শুকালে মরে যায় — অল্প সময়ের শিকড়।"
+       }
+      ]
+     },
+     {
+      "range": [
+       19,
+       23
+      ],
+      "type": "summary_completion",
+      "title": "Two long-term survival strategies",
+      "instructions": "Complete the summary below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+      "word_limit": {
+       "max_words": 2,
+       "numbers": false
+      },
+      "questions": [
+       {
+        "n": 19,
+        "prompt": "Phreatophytes send roots far below the surface, so whether they survive depends mainly on the level of the {gap} rather than on rainfall.",
+        "answer": "water table",
+        "evidence": "their survival depends less on rainfall than on the level of the water table",
+        "skill": "paraphrase",
+        "explain_en": "Their survival depends on 'the level of the water table'.",
+        "explain_bn": "এদের বেঁচে থাকা নির্ভর করে ভূগর্ভস্থ পানির স্তরের ওপর — উত্তর water table (দুই শব্দ)।"
+       },
+       {
+        "n": 20,
+        "prompt": "Many succulents use CAM, a process named after the {gap} in which it was first studied.",
+        "answer": "plant family",
+        "evidence": "named after the plant family in which it was first studied",
+        "skill": "detail",
+        "explain_en": "CAM is named after the plant family where it was first studied.",
+        "explain_bn": "CAM নামটি এসেছে যে উদ্ভিদ পরিবারে প্রথম গবেষণা হয়েছিল তার নাম থেকে — plant family।"
+       },
+       {
+        "n": 21,
+        "prompt": "These plants open their stomata only at {gap}, when the air is cooler and more humid.",
+        "answer": "night",
+        "evidence": "open them only at night",
+        "skill": "detail",
+        "explain_en": "CAM plants open their stomata only at night.",
+        "explain_bn": "CAM গাছ শুধু রাতে ছিদ্র খোলে — উত্তর night।"
+       },
+       {
+        "n": 22,
+        "prompt": "Carbon dioxide taken in during darkness is kept in the form of an {gap} until daylight.",
+        "answer": "acid",
+        "evidence": "is stored in the form of an acid",
+        "skill": "detail",
+        "explain_en": "The carbon dioxide is stored as an acid.",
+        "explain_bn": "অন্ধকারে নেওয়া কার্বন ডাই-অক্সাইড অ্যাসিড হিসেবে জমা থাকে — উত্তর acid।"
+       },
+       {
+        "n": 23,
+        "prompt": "Although they grow slowly, such plants may lose only a {gap} of the water lost by conventional plants.",
+        "answer": "tenth",
+        "evidence": "they may lose as little as a tenth of the water",
+        "skill": "number",
+        "explain_en": "They may lose 'as little as a tenth' of the water.",
+        "explain_bn": "সাধারণ গাছের তুলনায় মাত্র এক-দশমাংশ পানি হারায় — উত্তর tenth।"
+       }
+      ]
+     },
+     {
+      "range": [
+       24,
+       24
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 24,
+        "prompt": "According to the writer, what is the defining feature of a desert?",
+        "options": [
+         {
+          "key": "A",
+          "text": "very high temperatures"
+         },
+         {
+          "key": "B",
+          "text": "a lack of water"
+         },
+         {
+          "key": "C",
+          "text": "sandy soil"
+         },
+         {
+          "key": "D",
+          "text": "an absence of plant life"
+         }
+        ],
+        "answer": "B",
+        "evidence": "they are defined not by heat but by a shortage of water",
+        "skill": "detail",
+        "explain_en": "Deserts are defined 'not by heat but by a shortage of water'.",
+        "explain_bn": "লেখক বলেছেন মরুভূমি তাপ দিয়ে নয়, পানির অভাব দিয়ে সংজ্ঞায়িত — তাই B; A একটি ফাঁদ।"
+       }
+      ]
+     },
+     {
+      "range": [
+       25,
+       25
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 25,
+        "prompt": "What does the writer say about the spines of succulents?",
+        "options": [
+         {
+          "key": "A",
+          "text": "They collect moisture from fog."
+         },
+         {
+          "key": "B",
+          "text": "They store water for the dry season."
+         },
+         {
+          "key": "C",
+          "text": "They limit water loss and discourage animals."
+         },
+         {
+          "key": "D",
+          "text": "They help the plant to absorb sunlight."
+         }
+        ],
+        "answer": "C",
+        "evidence": "reduced to spines, which lose almost no water and also deter thirsty animals",
+        "skill": "detail",
+        "explain_en": "Spines lose almost no water and deter thirsty animals.",
+        "explain_bn": "কাঁটা প্রায় পানি হারায় না এবং তৃষ্ণার্ত প্রাণীকে দূরে রাখে — C; কুয়াশা থেকে পানি নেওয়া F অনুচ্ছেদের অন্য গাছের কথা।"
+       }
+      ]
+     },
+     {
+      "range": [
+       26,
+       26
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 26,
+        "prompt": "What is the main point of the final paragraph?",
+        "options": [
+         {
+          "key": "A",
+          "text": "Desert plants are well protected against human activity."
+         },
+         {
+          "key": "B",
+          "text": "Desert ecosystems could change quickly in spite of their long history."
+         },
+         {
+          "key": "C",
+          "text": "Climate change is likely to help ephemeral plants spread."
+         },
+         {
+          "key": "D",
+          "text": "Vehicles are the main cause of damage to desert vegetation."
+         }
+        ],
+        "answer": "B",
+        "evidence": "could be transformed within a single human lifetime",
+        "skill": "main_idea",
+        "explain_en": "Ecosystems that lasted thousands of years could be transformed within one lifetime.",
+        "explain_bn": "হাজার বছরের পুরোনো মরু-পরিবেশ এক মানুষের জীবদ্দশায় বদলে যেতে পারে — এটাই মূল কথা, তাই B।"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "part": 3,
+    "texts": [
+     {
+      "title": "Measuring happiness: the economics of well-being",
+      "paragraphs": [
+       {
+        "label": "",
+        "text": "For most of the twentieth century, governments measured national progress almost exclusively in terms of economic output. Gross domestic product, or GDP, which sums the market value of all goods and services produced in a country, became the dominant yardstick by which policies were judged and nations compared. Its appeal is easy to understand: it is precise, comparable across countries and years, and closely linked to employment and tax revenue. Yet even the economists who devised it cautioned that it was never intended to serve as a measure of welfare. GDP rises when a country rebuilds after a flood, when traffic congestion increases fuel consumption and when people spend more on treating preventable illnesses. It assigns no value to unpaid care, to leisure, or to the condition of the natural environment."
+       },
+       {
+        "label": "",
+        "text": "Dissatisfaction with GDP as a proxy for progress has given rise to a rapidly expanding discipline sometimes described as the economics of well-being. Its central proposition is deceptively simple: if we wish to know how people's lives are going, we should ask them. Large-scale surveys now routinely invite respondents to rate their satisfaction with life on a scale from nought to ten, or to estimate how much of the previous day they spent feeling contented, anxious or bored. Sceptics initially dismissed such data as hopelessly subjective, but researchers have found that the responses are surprisingly consistent. Individuals who report high life satisfaction are also rated as happier by their friends and relatives, smile more frequently in conversation, and are less likely to develop a range of stress-related illnesses."
+       },
+       {
+        "label": "",
+        "text": "Among the earliest and most contested findings concerns the relationship between income and happiness. Within any given country, at any given moment, wealthier people tend to report greater life satisfaction than poorer people. Yet an influential study published in the 1970s observed that, over several decades during which average incomes had risen substantially, average reported happiness in the United States had scarcely altered. One explanation is that people evaluate their circumstances largely in relative terms: what matters is not how much one earns, but how much one earns compared with neighbours, colleagues and one's own expectations. As a society grows more prosperous, the reference point rises accordingly, and the anticipated gain in satisfaction is cancelled out. Subsequent research using larger international data sets has qualified this conclusion, demonstrating that life satisfaction does continue to rise with income, although each additional unit of income yields a progressively smaller improvement. The debate, in other words, is less about whether money matters than about how much it matters relative to other considerations."
+       },
+       {
+        "label": "",
+        "text": "Those other considerations turn out to be substantial. Studies consistently find that unemployment reduces well-being far more than the associated loss of income would predict, which implies that work provides purpose, structure and social contact as well as a wage. Lengthy commutes, chronic pain and loneliness are among the circumstances most strongly associated with low life satisfaction, while close relationships, good health and a sense of control over one's own life are among the most reliable predictors of high satisfaction. Notably, people appear to adapt quickly to many changes in material circumstances, so that a salary increase or a larger house delivers a boost that fades within a year or two, whereas they adapt only partially, if at all, to others, such as persistent noise or bereavement."
+       },
+       {
+        "label": "",
+        "text": "These findings have begun to influence public policy. Several national governments now publish official well-being statistics alongside conventional economic data, and at least one has introduced a budgetary process in which proposed expenditure must be assessed for its probable effect on citizens' well-being. Advocates contend that such an approach can redirect resources towards areas that conventional cost-benefit analysis tends to neglect, such as mental health services, which are relatively inexpensive yet, according to some estimates, generate greater gains in life satisfaction per unit of public money than almost any other intervention."
+       },
+       {
+        "label": "",
+        "text": "The approach is not without its detractors. Some maintain that self-reported happiness is too readily influenced by trivial factors, such as the weather on the day of the survey or the order in which questions are presented, to provide a sound basis for allocating public funds. Others raise a more philosophical objection: a government that sets out to maximise its citizens' happiness may be tempted to determine on their behalf what a good life consists of, and the pursuit of contentment could, in principle, be used to justify policies that discourage ambition or dissent. There is also a danger that a single well-being index, like GDP before it, comes to be treated as a target in its own right, encouraging policies that improve the measurement without improving the reality it is meant to reflect."
+       },
+       {
+        "label": "",
+        "text": "In my view, none of these objections is decisive. Survey responses are undoubtedly imperfect, but so is GDP, which is regularly revised by considerable margins years after its initial publication. The more persuasive conclusion is that no single figure can capture something as multifaceted as human welfare, and that governments should consult a range of indicators, both economic and subjective, while remaining candid about the limitations of each. Well-being data will not settle questions of value on our behalf. What they can do is ensure that those questions are asked."
+       }
+      ]
+     }
+    ],
+    "groups": [
+     {
+      "range": [
+       27,
+       32
+      ],
+      "type": "ynng",
+      "instructions": "Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "questions": [
+       {
+        "n": 27,
+        "prompt": "GDP was originally designed to show how well people's lives were going.",
+        "answer": "NO",
+        "evidence": "even the economists who devised it cautioned that it was never intended to serve as a measure of welfare",
+        "skill": "writer_view",
+        "explain_en": "Its creators said it was never intended to measure welfare.",
+        "explain_bn": "GDP-র নির্মাতারাই বলেছিলেন এটা কল্যাণ মাপার জন্য নয় — তাই NO।"
+       },
+       {
+        "n": 28,
+        "prompt": "Answers to life-satisfaction surveys are more dependable than some people first assumed.",
+        "answer": "YES",
+        "evidence": "Sceptics initially dismissed such data as hopelessly subjective, but researchers have found that the responses are surprisingly consistent",
+        "skill": "writer_view",
+        "explain_en": "Sceptics dismissed the data, but the answers proved 'surprisingly consistent'.",
+        "explain_bn": "সন্দেহবাদীরা প্রথমে উড়িয়ে দিলেও উত্তরগুলো আশ্চর্যরকম সামঞ্জস্যপূর্ণ — অর্থাৎ বেশি নির্ভরযোগ্য; YES।"
+       },
+       {
+        "n": 29,
+        "prompt": "People in poorer countries generally feel more anxious than people in richer countries.",
+        "answer": "NOT GIVEN",
+        "rationale": "Anxiety is mentioned only as a survey category; poorer and richer countries are never compared on anxiety.",
+        "skill": "detail",
+        "explain_en": "The passage compares richer and poorer PEOPLE within a country on satisfaction, not countries on anxiety.",
+        "explain_bn": "দেশের ভেতরে ধনী-গরিব মানুষের তুলনা আছে, কিন্তু গরিব দেশের মানুষের উদ্বেগের কথা নেই — NOT GIVEN।"
+       },
+       {
+        "n": 30,
+        "prompt": "Later research proved that income has no effect on life satisfaction.",
+        "answer": "NO",
+        "evidence": "demonstrating that life satisfaction does continue to rise with income",
+        "skill": "writer_view",
+        "explain_en": "Later research showed satisfaction DOES rise with income, though more slowly.",
+        "explain_bn": "পরের গবেষণা দেখিয়েছে আয় বাড়লে সন্তুষ্টিও বাড়ে (ধীরে) — তাই 'no effect' ভুল; NO।"
+       },
+       {
+        "n": 31,
+        "prompt": "The pleasure people gain from moving to a bigger home tends to be temporary.",
+        "answer": "YES",
+        "evidence": "a larger house delivers a boost that fades within a year or two",
+        "skill": "paraphrase",
+        "explain_en": "The boost from a larger house 'fades within a year or two'.",
+        "explain_bn": "বড় বাড়ির আনন্দ এক-দুই বছরে মিলিয়ে যায় — অর্থাৎ সাময়িক; YES।"
+       },
+       {
+        "n": 32,
+        "prompt": "Governments that use well-being data spend less on transport than other governments.",
+        "answer": "NOT GIVEN",
+        "rationale": "Commutes are linked to low satisfaction, but nothing is said about transport spending by any government.",
+        "skill": "detail",
+        "explain_en": "Long commutes are mentioned, but transport spending is never discussed.",
+        "explain_bn": "দীর্ঘ যাতায়াতের কথা আছে, কিন্তু সরকারের পরিবহন খরচ নিয়ে কিছু বলা নেই — NOT GIVEN।"
+       }
+      ]
+     },
+     {
+      "range": [
+       33,
+       33
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 33,
+        "prompt": "Why does the writer mention floods and traffic congestion in the first paragraph?",
+        "options": [
+         {
+          "key": "A",
+          "text": "to show that GDP can rise for reasons that do not improve welfare"
+         },
+         {
+          "key": "B",
+          "text": "to argue that natural disasters slow economic growth"
+         },
+         {
+          "key": "C",
+          "text": "to criticise the way governments plan transport"
+         },
+         {
+          "key": "D",
+          "text": "to suggest that GDP figures are often calculated wrongly"
+         }
+        ],
+        "answer": "A",
+        "evidence": "GDP rises when a country rebuilds after a flood",
+        "skill": "inference",
+        "explain_en": "These are examples of GDP increasing although life has not improved.",
+        "explain_bn": "বন্যার পর পুনর্নির্মাণে GDP বাড়ে কিন্তু জীবন ভালো হয় না — উদাহরণগুলো এটাই দেখায়; তাই A।"
+       }
+      ]
+     },
+     {
+      "range": [
+       34,
+       34
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 34,
+        "prompt": "According to the third paragraph, why might average happiness stay the same as a country becomes richer?",
+        "options": [
+         {
+          "key": "A",
+          "text": "People tend to spend extra income unwisely."
+         },
+         {
+          "key": "B",
+          "text": "People judge their situation against others and their own expectations."
+         },
+         {
+          "key": "C",
+          "text": "Wealth is shared unequally among the population."
+         },
+         {
+          "key": "D",
+          "text": "Surveys tend to exaggerate negative feelings."
+         }
+        ],
+        "answer": "B",
+        "evidence": "people evaluate their circumstances largely in relative terms",
+        "skill": "paraphrase",
+        "explain_en": "People judge in relative terms, so the reference point rises with income.",
+        "explain_bn": "মানুষ অন্যের সাথে ও নিজের প্রত্যাশার সাথে তুলনা করে বিচার করে — তাই B।"
+       }
+      ]
+     },
+     {
+      "range": [
+       35,
+       35
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 35,
+        "prompt": "What does the writer say about unemployment?",
+        "options": [
+         {
+          "key": "A",
+          "text": "Its effects are mainly financial."
+         },
+         {
+          "key": "B",
+          "text": "People usually adapt to it within a year or two."
+         },
+         {
+          "key": "C",
+          "text": "It is less damaging than a long daily commute."
+         },
+         {
+          "key": "D",
+          "text": "It harms well-being more than lost income alone would explain."
+         }
+        ],
+        "answer": "D",
+        "evidence": "unemployment reduces well-being far more than the associated loss of income would predict",
+        "skill": "detail",
+        "explain_en": "Unemployment hurts well-being far more than the lost income predicts.",
+        "explain_bn": "বেকারত্ব শুধু আয় হারানোর চেয়েও অনেক বেশি ক্ষতি করে — D; 'mainly financial' উল্টো কথা।"
+       }
+      ]
+     },
+     {
+      "range": [
+       36,
+       36
+      ],
+      "type": "mcq_single",
+      "instructions": "Choose the correct letter, A, B, C or D.",
+      "questions": [
+       {
+        "n": 36,
+        "prompt": "Mental health services are given as an example of",
+        "options": [
+         {
+          "key": "A",
+          "text": "a service that many governments have reduced."
+         },
+         {
+          "key": "B",
+          "text": "an area where well-being statistics are unreliable."
+         },
+         {
+          "key": "C",
+          "text": "spending that offers good value in terms of well-being."
+         },
+         {
+          "key": "D",
+          "text": "a cost that GDP fails to include."
+         }
+        ],
+        "answer": "C",
+        "evidence": "generate greater gains in life satisfaction per unit of public money than almost any other intervention",
+        "skill": "detail",
+        "explain_en": "They give large well-being gains for little money = good value.",
+        "explain_bn": "কম খরচে সবচেয়ে বেশি সন্তুষ্টি দেয় — অর্থাৎ ভালো মূল্য; তাই C।"
+       }
+      ]
+     },
+     {
+      "range": [
+       37,
+       40
+      ],
+      "type": "matching_sentence_endings",
+      "options_reusable": false,
+      "instructions": "Complete each sentence with the correct ending, A-G, below. Write the correct letter, A-G.",
+      "options": [
+       {
+        "key": "A",
+        "text": "become a goal in itself rather than a guide."
+       },
+       {
+        "key": "B",
+        "text": "are more accurate than economic statistics."
+       },
+       {
+        "key": "C",
+        "text": "are too easily affected by minor factors to guide spending decisions."
+       },
+       {
+        "key": "D",
+        "text": "should replace economic statistics entirely."
+       },
+       {
+        "key": "E",
+        "text": "might impose its own idea of what a good life is."
+       },
+       {
+        "key": "F",
+        "text": "would make citizens more ambitious."
+       },
+       {
+        "key": "G",
+        "text": "cannot answer questions of value but can make sure they are raised."
+       }
+      ],
+      "questions": [
+       {
+        "n": 37,
+        "prompt": "Critics who mention the weather on the day of a survey believe that happiness ratings",
+        "answer": "C",
+        "evidence": "too readily influenced by trivial factors, such as the weather on the day of the survey",
+        "skill": "paraphrase",
+        "explain_en": "'Too readily influenced by trivial factors' = too easily affected by minor factors.",
+        "explain_bn": "'trivial factors'-এ সহজে প্রভাবিত হয়, তাই অর্থ বরাদ্দের ভিত্তি হতে পারে না — C।"
+       },
+       {
+        "n": 38,
+        "prompt": "Some critics fear that a government trying to maximise happiness",
+        "answer": "E",
+        "evidence": "may be tempted to determine on their behalf what a good life consists of",
+        "skill": "paraphrase",
+        "explain_en": "It may decide on citizens' behalf what a good life is.",
+        "explain_bn": "সরকার নাগরিকদের হয়ে ঠিক করে দিতে পারে ভালো জীবন কী — E।"
+       },
+       {
+        "n": 39,
+        "prompt": "There is a risk that a single well-being index could, like GDP,",
+        "answer": "A",
+        "evidence": "comes to be treated as a target in its own right",
+        "skill": "paraphrase",
+        "explain_en": "'A target in its own right' = a goal in itself.",
+        "explain_bn": "'target in its own right' মানে নিজেই লক্ষ্য হয়ে যাওয়া — A।"
+       },
+       {
+        "n": 40,
+        "prompt": "The writer concludes that well-being data",
+        "answer": "G",
+        "evidence": "Well-being data will not settle questions of value on our behalf. What they can do is ensure that those questions are asked",
+        "skill": "writer_view",
+        "explain_en": "They will not settle questions of value but ensure they are asked.",
+        "explain_bn": "ডেটা মূল্যবোধের প্রশ্নের সমাধান দেবে না, তবে প্রশ্নগুলো তোলা নিশ্চিত করবে — G; D লেখকের মতের বিপরীত।"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "writing": {
+  "minutes": 60,
+  "tasks": [
+   {
+    "task": 1,
+    "minutes": 20,
+    "min_words": 150,
+    "kind": "chart",
+    "prompt": "The bar chart below shows the average number of hours per week that adults in one country spent on five leisure activities in 2005 and 2025. Summarise the information by selecting and reporting the main features, and make comparisons where relevant. Write at least 150 words.",
+    "visual": {
+     "kind": "bar",
+     "title": "Average weekly hours spent on leisure activities by adults, 2005 and 2025",
+     "x_label": "Activity",
+     "y_label": "Hours per week",
+     "unit": "hours",
+     "categories": [
+      "Watching television",
+      "Using the internet",
+      "Sport and exercise",
+      "Reading",
+      "Meeting friends in person"
+     ],
+     "series": [
+      {
+       "name": "2005",
+       "values": [
+        15.5,
+        4.0,
+        3.5,
+        4.5,
+        8.0
+       ]
+      },
+      {
+       "name": "2025",
+       "values": [
+        9.0,
+        14.5,
+        4.0,
+        2.5,
+        5.5
+       ]
+      }
+     ]
+    },
+    "key_features": [
+     "Overview: internet use replaced television as the most time-consuming activity; most other activities fell.",
+     "Internet use more than tripled, from 4 to 14.5 hours.",
+     "Television fell from 15.5 to 9 hours, losing its top position.",
+     "Meeting friends in person (8 to 5.5) and reading (4.5 to 2.5) both declined.",
+     "Sport and exercise was the only other activity to rise, slightly (3.5 to 4).",
+     "Total time on the five activities was unchanged at 35.5 hours; an answer must not claim an overall rise or fall."
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "The bar chart compares how many hours per week adults in one country devoted to five leisure activities in 2005 and 2025.\n\nOverall, the most striking change was the shift from television to the internet: internet use, which was a minor pastime in 2005, had become the dominant leisure activity by 2025. Most other activities declined, with the exception of sport and exercise.\n\nIn 2005, watching television was by far the most popular activity, occupying an average of 15.5 hours a week, almost double the figure for meeting friends in person (8 hours). Adults spent only 4 hours online, slightly less than the time they spent reading (4.5 hours), while sport and exercise accounted for 3.5 hours.\n\nTwenty years later, the picture had changed considerably. Time spent on the internet more than tripled to 14.5 hours, whereas television viewing fell by 6.5 hours to 9 hours a week. Meeting friends face to face and reading also became less common, dropping to 5.5 and 2.5 hours respectively. By contrast, sport and exercise rose marginally to 4 hours, making it the only activity apart from internet use to increase."
+    }
+   },
+   {
+    "task": 2,
+    "minutes": 40,
+    "min_words": 250,
+    "kind": "essay",
+    "essay_type": "discussion",
+    "prompt": "Some people believe that employees are more productive when they are allowed to work from home, while others argue that working in an office is better for both staff and the organisation. Discuss both these views and give your own opinion. Give reasons for your answer and include any relevant examples from your own knowledge or experience. Write at least 250 words.",
+    "key_features": [
+     "Discusses BOTH views with developed reasons (home: no commute, fewer interruptions, flexibility; office: collaboration, learning from colleagues, clear boundaries, team culture).",
+     "Gives a clear personal opinion in the introduction or conclusion and keeps it consistent.",
+     "Supports points with specific examples rather than general statements.",
+     "Clear paragraphing: introduction, one paragraph per view, opinion/conclusion.",
+     "Range of vocabulary on work (productivity, collaboration, commute, supervision) and accurate complex sentences."
+    ],
+    "model_answer": {
+     "band_estimate": "8",
+     "text": "Since the widespread adoption of video-conferencing tools, the question of where employees should work has become a matter of lively debate. While some argue that staff achieve more at home, others maintain that the office benefits both workers and their employers. In my view, the most effective arrangement combines the two.\n\nThose in favour of home working point first to the time saved by not commuting. An employee who spends ninety minutes a day travelling can redirect that time to work or rest, arriving at the desk less tired and more focused. Home also offers fewer interruptions: tasks that require deep concentration, such as writing a report or analysing data, are often completed faster away from the noise of an open-plan office. Furthermore, the flexibility to organise one's day can improve motivation and reduce stress, particularly for parents.\n\nOn the other hand, the office has advantages that are difficult to reproduce online. Spontaneous conversations between colleagues frequently generate new ideas and solve problems in minutes that might otherwise take days of emails. Junior staff in particular learn a great deal simply by observing experienced colleagues, and they may struggle to develop professionally if they rarely meet them. There is also the question of boundaries: when the kitchen table becomes the workplace, many people find it hard to switch off, which can eventually lead to burnout.\n\nIn my opinion, both views contain an important truth, and organisations should therefore adopt a hybrid model. Focused individual work could be done at home on some days, while meetings, training and collaborative projects take place in the office on others. Such an approach allows companies to retain the benefits of teamwork without sacrificing the productivity and well-being gains of home working.\n\nIn conclusion, neither location is ideal for every task, and the most productive workplaces will be those that let the nature of the work decide where it is done."
+    }
+   }
+  ]
+ },
+ "speaking": {
+  "minutes": 14,
+  "part1": [
+   {
+    "topic": "Weekends",
+    "questions": [
+     "What do you usually do at the weekend?",
+     "Do you prefer to spend your weekends at home or going out? Why?",
+     "Is there anything you would like to do at weekends but don't have time for?",
+     "How were your weekends different when you were a child?"
+    ]
+   },
+   {
+    "topic": "Cooking",
+    "questions": [
+     "Do you enjoy cooking? Why or why not?",
+     "Who usually cooks the meals in your home?",
+     "What was the last thing you cooked?",
+     "Would you like to take a cooking class in the future?"
+    ]
+   },
+   {
+    "topic": "Public transport",
+    "questions": [
+     "What kinds of public transport do you use most often?",
+     "What do you like or dislike about public transport where you live?",
+     "Did you use public transport much when you were younger?",
+     "What could be done to improve public transport in your city?"
+    ]
+   }
+  ],
+  "part2": {
+   "cue_card": {
+    "topic": "Describe a place outdoors where you like to relax.",
+    "bullets": [
+     "where this place is",
+     "how often you go there",
+     "what you do there"
+    ],
+    "final": "and explain why you find this place relaxing."
+   },
+   "prep_s": 60,
+   "talk_s": 120,
+   "follow_up": [
+    "Do other people in your family like this place too?",
+    "Do you prefer to go there alone or with others?"
+   ]
+  },
+  "part3": [
+   {
+    "theme": "Green spaces in cities",
+    "questions": [
+     "Why do you think people in cities need parks and green spaces?",
+     "Should city governments spend more money on parks or on other services such as roads? Why?",
+     "How might green spaces in cities change in the future?"
+    ]
+   },
+   {
+    "theme": "Stress and relaxation",
+    "questions": [
+     "Why do many people find it difficult to relax nowadays?",
+     "Do you think technology helps people to relax or makes it harder?",
+     "Should employers be responsible for helping their staff reduce stress?",
+     "How do ways of relaxing differ between younger and older generations?"
+    ]
+   }
+  ]
+ }
 }

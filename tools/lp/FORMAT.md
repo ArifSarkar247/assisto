@@ -14,7 +14,8 @@ Everything here is plain JSON, original, licence-clean, no secrets.
 | `tools/lp/content/ielts/band_tables.json` | public raw-score → band tables (Listening, Academic Reading, GT Reading) with source |
 | `tools/lp/fingerprints/known_hashes.json` | hashed 8-word shingles of known published texts (copyright guard; no text stored) |
 | `tools/lp/blueprints/ielts_plan.json` | generated plan for mocks 004–200 (topics, accents, question-type mix) |
-| CI artifact `lp-check-<run>` → `index.json` | every bundle with check result, `status`, `content_sha256` — **lpcore imports this** |
+| CI artifact `lp-check-<run>` → `index.json` | every bundle with check result, `status`, `content_sha256` |
+| CI artifact `lp-audio-<run>` → `lp_bundle/` | **lpcore imports this** (`manage.py lp_import`), see §9 |
 | CI artifact `lp-audio-<run>` → `audio/*.mp3` + `audio_manifest.json` | Listening audio (never in git) |
 | CI artifact `lp-check-<run>` → `visuals/*.svg` | rendered Writing Task 1 charts / Listening maps |
 
@@ -203,17 +204,10 @@ Errors block `ai-checked`; warnings are listed for the human reviewer.
    `fingerprint_add.py`; only hashes are stored).
 8. **bilingual** — `title`, `practice_label` have `en` + `bn`; every `explain_bn` is Bangla script.
 
-## 9. RESUME (paused 9 Nov 21:55 — owner: LP V2 is backlog)
-Done: this format + `lpcheck.py` (stdlib validator, not yet run in CI). lpcore's import contract is
-`owner_actions/LANGUAGE_PARTNER_API.md` §6 (`bundle.json` {schema:1, bundle, source, items[]} + `audio/` +
-`img/`; answers as lists; `tag` = our `skill`; accent uk|au|us). TODO: `export_bundle.py` (this format → §6),
-mocks ielts-ac-001/002 + gt-001 (forks may have left partial ac-002/gt-001 drafts, uncommitted), fingerprints +
-`fingerprint_add.py`, `render_visuals.py` (SVG→PNG via rsvg-convert), `band_tables.json` (ielts.org
-"IELTS scoring in detail" anchors: L 16/23/30/35 → 5/6/7/8; AR 15/23/30/35; GT-R 15/23/30/35 → 4/5/6/7;
-rest interpolated = practice estimate), TTS in CI: Kokoro-82M 0.9.4 Apache-2.0 (GB bf_emma/bm_george…, US
-af_heart/am_michael…) + MeloTTS EN-AU (MIT, commit 209145371cff) for Australian (Piper vctk/libritts excluded:
-lessac non-commercial lineage, see .phaseB/MODEL_LICENSES.md), workflow `lp-content.yml`, unit tests.
-Partial: `content/ielts/ielts-ac-002.json` = Listening complete (Q1-40), reading/writing/speaking are placeholders.
-lpcheck fixes needed: `mcq_single` should accept per-question options without group options (ac-002 uses
-one-question groups as a workaround); exempt the standard Task 1/Task 2 instruction lines from the
-cross-bundle repeated-prompt check.
+## 9. lpcore import (LANGUAGE_PARTNER_API.md §6)
+`export_bundle.py` turns every `ai-checked` bundle into lpcore's import dir (`lp_bundle/bundle.json` with
+`{"schema":1,"bundle","source":"ai","items":[mock…, question…]}` + `audio/*.mp3` + `img/*.png`):
+completion answers become lists (`[answer, *accept]`), option answers stay letters, `mcq_multi` questions
+carry the letter set + `choose`, `skill` → `tag`, Listening parts carry `audio`, `accent` (uk|us|au,
+dominant speaker), `speakers`, `transcript`, `cues`. CI artifact `lp-audio-<run>` holds the full dir;
+`lp-check-<run>` holds it without audio. Server: `manage.py lp_import <dir>`.

@@ -1,0 +1,1636 @@
+{
+ "format": "assisto.lp.blueprint/1",
+ "note": "Writing briefs; see AUTHORING_SPEC.md",
+ "mocks": [
+  {
+   "bundle_id": "ielts-gt-002",
+   "module": "general",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "booking a kayak lesson",
+     "accents": [
+      "US",
+      "GB"
+     ],
+     "types": [
+      "form_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "tour of a botanical garden",
+     "accents": [
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "students planning a survey on commuting",
+     "accents": [
+      "US",
+      "GB",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "the history of the compass",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "texts": "adverts for six weekend courses"
+    },
+    {
+     "part": 2,
+     "texts": "new staff induction and dress code"
+    },
+    {
+     "part": 3,
+     "title": "The story of the travelling library van"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "letter",
+     "tone": "informal",
+     "purpose": "thanks"
+    },
+    "task2": {
+     "essay_type": "two_part",
+     "idea": "Many people today do not know their neighbours. Why? Is this a problem?"
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a journey that took longer than expected"
+   }
+  },
+  {
+   "bundle_id": "ielts-ac-003",
+   "module": "academic",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "joining a choir",
+     "accents": [
+      "AU",
+      "US"
+     ],
+     "types": [
+      "note_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "radio report on a new bus route",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "tutor feedback on a business case study",
+     "accents": [
+      "AU",
+      "US",
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "how deserts form",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "title": "The history of standard time zones"
+    },
+    {
+     "part": 2,
+     "title": "How bats navigate in total darkness"
+    },
+    {
+     "part": 3,
+     "title": "Seed banks and the future of crops"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "chart",
+     "visual": "map"
+    },
+    "task2": {
+     "essay_type": "opinion",
+     "idea": "Unpaid community service should be compulsory for teenagers."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a piece of advice you ignored"
+   }
+  },
+  {
+   "bundle_id": "ielts-gt-003",
+   "module": "general",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "enquiring about a language course",
+     "accents": [
+      "AU",
+      "GB"
+     ],
+     "types": [
+      "form_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "introduction to a science museum",
+     "accents": [
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "map_labelling"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "students preparing a presentation on urban trees",
+     "accents": [
+      "AU",
+      "GB",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "sleep in marine mammals",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "texts": "timetable of a ferry service"
+    },
+    {
+     "part": 2,
+     "texts": "guide to workplace first aid"
+    },
+    {
+     "part": 3,
+     "title": "Lighthouses of the northern coast"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "letter",
+     "tone": "formal",
+     "purpose": "suggestion"
+    },
+    "task2": {
+     "essay_type": "discussion",
+     "idea": "Some say museums should be free; others say visitors should pay."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a building you find beautiful"
+   }
+  },
+  {
+   "bundle_id": "ielts-ac-004",
+   "module": "academic",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "reporting a lost bag at a station",
+     "accents": [
+      "GB",
+      "US"
+     ],
+     "types": [
+      "note_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "talk on a town's recycling scheme",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "discussing a field trip to a wetland",
+     "accents": [
+      "GB",
+      "US",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "the economics of fair trade",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "title": "The economics of open-source software"
+    },
+    {
+     "part": 2,
+     "title": "Why some languages have no words for numbers"
+    },
+    {
+     "part": 3,
+     "title": "Mangrove forests as nurseries of the sea"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "chart",
+     "visual": "line"
+    },
+    "task2": {
+     "essay_type": "problem_solution",
+     "idea": "Traffic noise affects health in many cities."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a time you learned something from a mistake"
+   }
+  },
+  {
+   "bundle_id": "ielts-gt-004",
+   "module": "general",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "booking a birthday party venue",
+     "accents": [
+      "US",
+      "AU"
+     ],
+     "types": [
+      "form_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "guide to a music festival site",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "students comparing research methods",
+     "accents": [
+      "US",
+      "AU",
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "the development of written numbers",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "texts": "notices at a community sports hall"
+    },
+    {
+     "part": 2,
+     "texts": "staff leave and shift-swap policy"
+    },
+    {
+     "part": 3,
+     "title": "A history of the pocket watch"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "letter",
+     "tone": "formal",
+     "purpose": "complaint"
+    },
+    "task2": {
+     "essay_type": "advantages",
+     "idea": "Some companies now let employees choose their own working hours."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a festival you enjoy"
+   }
+  },
+  {
+   "bundle_id": "ielts-ac-005",
+   "module": "academic",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "renting a bicycle for a week",
+     "accents": [
+      "GB",
+      "AU"
+     ],
+     "types": [
+      "note_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "briefing for new library volunteers",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "mcq_single",
+      "map_labelling"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "planning a podcast for a media course",
+     "accents": [
+      "GB",
+      "AU",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "bird migration and magnetism",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "title": "The science of procrastination"
+    },
+    {
+     "part": 2,
+     "title": "Early printing and the spread of literacy"
+    },
+    {
+     "part": 3,
+     "title": "Glaciers as archives of past climate"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "chart",
+     "visual": "pie"
+    },
+    "task2": {
+     "essay_type": "two_part",
+     "idea": "Fewer people read newspapers. Why? What effects does this have?"
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a book that changed your opinion"
+   }
+  },
+  {
+   "bundle_id": "ielts-gt-005",
+   "module": "general",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "registering at a medical centre",
+     "accents": [
+      "US",
+      "GB"
+     ],
+     "types": [
+      "form_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "tour of a restored theatre",
+     "accents": [
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "discussing a placement at a museum",
+     "accents": [
+      "US",
+      "GB",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "the architecture of termite mounds",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "texts": "offers from four mobile phone shops"
+    },
+    {
+     "part": 2,
+     "texts": "working from home guidelines"
+    },
+    {
+     "part": 3,
+     "title": "The return of the village bakery"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "letter",
+     "tone": "informal",
+     "purpose": "invitation"
+    },
+    "task2": {
+     "essay_type": "opinion",
+     "idea": "Tourism does more harm than good to historic places."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a person who is good at their job"
+   }
+  },
+  {
+   "bundle_id": "ielts-ac-006",
+   "module": "academic",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "hiring a removal van",
+     "accents": [
+      "AU",
+      "US"
+     ],
+     "types": [
+      "note_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "talk about a nature reserve",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "students analysing a marketing campaign",
+     "accents": [
+      "AU",
+      "US",
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "the history of glass making",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "title": "How cities lose heat at night"
+    },
+    {
+     "part": 2,
+     "title": "The rise of the container ship"
+    },
+    {
+     "part": 3,
+     "title": "Ant colonies as problem solvers"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "chart",
+     "visual": "bar"
+    },
+    "task2": {
+     "essay_type": "discussion",
+     "idea": "Some prefer to work for large companies, others for small businesses."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a time you had to wait for something"
+   }
+  },
+  {
+   "bundle_id": "ielts-gt-006",
+   "module": "general",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "booking a cooking class",
+     "accents": [
+      "AU",
+      "GB"
+     ],
+     "types": [
+      "form_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "information on a charity bike ride",
+     "accents": [
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "map_labelling"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "tutor and student on dissertation topics",
+     "accents": [
+      "AU",
+      "GB",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "noise and wellbeing in offices",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "texts": "rules of a city campsite"
+    },
+    {
+     "part": 2,
+     "texts": "how to claim travel expenses"
+    },
+    {
+     "part": 3,
+     "title": "How public parks were invented"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "letter",
+     "tone": "informal",
+     "purpose": "thanks"
+    },
+    "task2": {
+     "essay_type": "problem_solution",
+     "idea": "Many older people feel lonely."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe an object you would save in a fire"
+   }
+  },
+  {
+   "bundle_id": "ielts-ac-007",
+   "module": "academic",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "ordering a cake for an event",
+     "accents": [
+      "GB",
+      "US"
+     ],
+     "types": [
+      "note_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "introduction to a farm open day",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "students reviewing a psychology experiment",
+     "accents": [
+      "GB",
+      "US",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "traditional star navigation at sea",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "title": "The psychology of queuing"
+    },
+    {
+     "part": 2,
+     "title": "Desalination: promise and cost"
+    },
+    {
+     "part": 3,
+     "title": "Ancient Roman concrete"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "chart",
+     "visual": "table"
+    },
+    "task2": {
+     "essay_type": "advantages",
+     "idea": "Students increasingly study abroad for their first degree."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a public place you would like to improve"
+   }
+  },
+  {
+   "bundle_id": "ielts-gt-007",
+   "module": "general",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "joining a gym",
+     "accents": [
+      "US",
+      "AU"
+     ],
+     "types": [
+      "form_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "guide to a shopping centre redevelopment",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "planning a group report on tourism",
+     "accents": [
+      "US",
+      "AU",
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "soil erosion and farming",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "texts": "descriptions of five museums"
+    },
+    {
+     "part": 2,
+     "texts": "customer complaint procedure"
+    },
+    {
+     "part": 3,
+     "title": "The rise of community gardens"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "letter",
+     "tone": "formal",
+     "purpose": "suggestion"
+    },
+    "task2": {
+     "essay_type": "two_part",
+     "idea": "Fast food is popular worldwide. Why? Should governments act?"
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a time you were very busy"
+   }
+  },
+  {
+   "bundle_id": "ielts-ac-008",
+   "module": "academic",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "enquiring about a part-time job at a café",
+     "accents": [
+      "GB",
+      "AU"
+     ],
+     "types": [
+      "note_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "radio talk on a food festival",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "mcq_single",
+      "map_labelling"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "discussing an architecture model",
+     "accents": [
+      "GB",
+      "AU",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "the physics of rainbows",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "title": "Tea and the making of a global trade"
+    },
+    {
+     "part": 2,
+     "title": "The microbiome of soil"
+    },
+    {
+     "part": 3,
+     "title": "Memory palaces and the art of remembering"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "chart",
+     "visual": "map"
+    },
+    "task2": {
+     "essay_type": "opinion",
+     "idea": "Advertising aimed at children should be banned."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a skill you want to learn"
+   }
+  },
+  {
+   "bundle_id": "ielts-gt-008",
+   "module": "general",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "booking a hotel conference room",
+     "accents": [
+      "US",
+      "GB"
+     ],
+     "types": [
+      "form_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "talk for new members of a sailing club",
+     "accents": [
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "students evaluating online learning",
+     "accents": [
+      "US",
+      "GB",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "the science of fermentation",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "texts": "guide to a recycling centre"
+    },
+    {
+     "part": 2,
+     "texts": "safe lifting at work"
+    },
+    {
+     "part": 3,
+     "title": "A short history of the umbrella shop"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "letter",
+     "tone": "formal",
+     "purpose": "complaint"
+    },
+    "task2": {
+     "essay_type": "discussion",
+     "idea": "Some think sport at school should be competitive, others not."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a family celebration"
+   }
+  },
+  {
+   "bundle_id": "ielts-ac-009",
+   "module": "academic",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "arranging a house cleaning service",
+     "accents": [
+      "AU",
+      "US"
+     ],
+     "types": [
+      "note_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "tour of a historic railway",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "discussing a nutrition study",
+     "accents": [
+      "AU",
+      "US",
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "early cinema technology",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "title": "Noise pollution in the oceans"
+    },
+    {
+     "part": 2,
+     "title": "The development of the modern bicycle"
+    },
+    {
+     "part": 3,
+     "title": "How children acquire grammar"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "chart",
+     "visual": "line"
+    },
+    "task2": {
+     "essay_type": "problem_solution",
+     "idea": "Much food is wasted by households and supermarkets."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a time you received good news"
+   }
+  },
+  {
+   "bundle_id": "ielts-gt-009",
+   "module": "general",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "signing up for a photography club",
+     "accents": [
+      "AU",
+      "GB"
+     ],
+     "types": [
+      "form_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "orientation at a holiday resort",
+     "accents": [
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "map_labelling"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "students preparing a debate on transport",
+     "accents": [
+      "AU",
+      "GB",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "urban foxes",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "texts": "advertisements for flats to rent"
+    },
+    {
+     "part": 2,
+     "texts": "staff training budget rules"
+    },
+    {
+     "part": 3,
+     "title": "The canal boats of the industrial age"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "letter",
+     "tone": "informal",
+     "purpose": "invitation"
+    },
+    "task2": {
+     "essay_type": "advantages",
+     "idea": "Cities are building more high-rise housing."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a river or lake you have visited"
+   }
+  },
+  {
+   "bundle_id": "ielts-ac-010",
+   "module": "academic",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "booking a city walking tour",
+     "accents": [
+      "GB",
+      "US"
+     ],
+     "types": [
+      "note_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "talk on a community art project",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "feedback on a geography poster",
+     "accents": [
+      "GB",
+      "US",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "the psychology of first impressions",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "title": "The return of the beaver to European rivers"
+    },
+    {
+     "part": 2,
+     "title": "Paper money and trust"
+    },
+    {
+     "part": 3,
+     "title": "Spider silk as an engineering material"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "chart",
+     "visual": "pie"
+    },
+    "task2": {
+     "essay_type": "two_part",
+     "idea": "People are living longer. What problems does this cause? Solutions?"
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a goal you achieved"
+   }
+  },
+  {
+   "bundle_id": "ielts-gt-010",
+   "module": "general",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "enquiring about a homestay",
+     "accents": [
+      "US",
+      "AU"
+     ],
+     "types": [
+      "form_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "briefing on a marathon route",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "students planning an exhibition",
+     "accents": [
+      "US",
+      "AU",
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "the history of maps",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "texts": "leaflet on a summer festival"
+    },
+    {
+     "part": 2,
+     "texts": "company car-park rules"
+    },
+    {
+     "part": 3,
+     "title": "Street food markets around the world"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "letter",
+     "tone": "informal",
+     "purpose": "thanks"
+    },
+    "task2": {
+     "essay_type": "opinion",
+     "idea": "Governments should spend more on public transport than on new roads."
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a time you helped a stranger"
+   }
+  },
+  {
+   "bundle_id": "ielts-ac-011",
+   "module": "academic",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "booking a driving lesson",
+     "accents": [
+      "GB",
+      "AU"
+     ],
+     "types": [
+      "note_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "tour of a newspaper office",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "mcq_single",
+      "map_labelling"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "discussing a history source analysis",
+     "accents": [
+      "GB",
+      "AU",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "plant communication",
+     "accents": [
+      "AU"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "title": "Light pollution and migratory birds"
+    },
+    {
+     "part": 2,
+     "title": "The invention of refrigeration"
+    },
+    {
+     "part": 3,
+     "title": "Placebo effects in medicine"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "chart",
+     "visual": "bar"
+    },
+    "task2": {
+     "essay_type": "discussion",
+     "idea": "Some think children should start school at four, others at seven. (vary wording)"
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a website you use often"
+   }
+  },
+  {
+   "bundle_id": "ielts-gt-011",
+   "module": "general",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "insurance claim for a broken phone",
+     "accents": [
+      "US",
+      "GB"
+     ],
+     "types": [
+      "form_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "talk on home energy saving",
+     "accents": [
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "students reviewing an engineering prototype",
+     "accents": [
+      "US",
+      "GB",
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "the economics of water pricing",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "texts": "information on four gyms"
+    },
+    {
+     "part": 2,
+     "texts": "fire evacuation procedure"
+    },
+    {
+     "part": 3,
+     "title": "The decline and revival of the cinema"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "letter",
+     "tone": "formal",
+     "purpose": "suggestion"
+    },
+    "task2": {
+     "essay_type": "problem_solution",
+     "idea": "Many young people in cities cannot afford to rent a home. (vary wording)"
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a meal you cooked for others"
+   }
+  },
+  {
+   "bundle_id": "ielts-ac-012",
+   "module": "academic",
+   "status": "planned",
+   "listening": [
+    {
+     "part": 1,
+     "topic": "booking a campsite pitch",
+     "accents": [
+      "AU",
+      "US"
+     ],
+     "types": [
+      "note_completion",
+      "table_completion"
+     ]
+    },
+    {
+     "part": 2,
+     "topic": "guide to a sports stadium",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "mcq_single",
+      "matching"
+     ]
+    },
+    {
+     "part": 3,
+     "topic": "planning a sociology interview study",
+     "accents": [
+      "AU",
+      "US",
+      "GB"
+     ],
+     "types": [
+      "mcq_single",
+      "mcq_multi",
+      "matching"
+     ]
+    },
+    {
+     "part": 4,
+     "topic": "tsunamis and early warning",
+     "accents": [
+      "US"
+     ],
+     "types": [
+      "note_completion"
+     ]
+    }
+   ],
+   "reading": [
+    {
+     "part": 1,
+     "title": "Rice terraces and water management"
+    },
+    {
+     "part": 2,
+     "title": "The decline of handwriting"
+    },
+    {
+     "part": 3,
+     "title": "Volcanic soils and early farming"
+    }
+   ],
+   "writing": {
+    "task1": {
+     "kind": "chart",
+     "visual": "table"
+    },
+    "task2": {
+     "essay_type": "advantages",
+     "idea": "More people now shop online rather than in local stores. (vary wording)"
+    }
+   },
+   "speaking": {
+    "cue_card": "Describe a time you changed your plans"
+   }
+  }
+ ]
+}
