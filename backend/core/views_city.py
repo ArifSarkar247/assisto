@@ -254,3 +254,12 @@ def city_trip(request):
     if err:
         return Response({"ok": False, "reason": err})
     return Response({"ok": True, "id": t.id}, status=201)
+
+
+@api_view(["GET"])
+def city_women(request):
+    city = _city(request)
+    w = CS.women(city)
+    if w is None:
+        return _no_data(request, city)
+    return Response(w)

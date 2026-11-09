@@ -306,6 +306,20 @@ class PlanApiTests(ApiBase):
         self.assertEqual(o[0]["status"], "reported")
 
 
+class WomenTests(ApiBase):
+    def test_women_info_and_night(self):
+        for u in (self.user, self.user2, self.user3):
+            self.as_(u).post("/api/v1/city/night-rating", {"route_id": "busB-a", "stars": 4}, format="json")
+        CS.apply_patch("dhaka", {"action": "edit_route", "id": "busA-a", "name": "Shatabdi"})
+        d = self.c.get("/api/v1/city/women").json()
+        self.assertEqual(d["metro_women_coach"]["status"], "verified")
+        self.assertEqual(len(d["metro_women_coach"]["sources"]), 2)
+        self.assertEqual(d["reserved_seats"]["status"], "reported")
+        self.assertEqual(d["women_buses"], [])            # no confirmed public list yet
+        self.assertEqual(d["night"], [{"route_id": "busB-a", "stars": 4.0, "count": 3}])
+        self.assertFalse(self.c.get("/api/v1/city/route/busA-a").json()["women_only"])
+
+
 class LiveReportTests(ApiBase):
     def test_merge_count_expiry_and_flags(self):
         r = self.c.post("/api/v1/city/reports", {"kind": "jam", "lat": 23.7577, "lon": 90.3897}, format="json")

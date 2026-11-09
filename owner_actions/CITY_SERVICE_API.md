@@ -81,4 +81,14 @@ crowd fare (rickshaw/leguna become "Reported by users" after enough reports).
 (only with consent; first/last 300 m trimmed server-side; raw points deleted ≤ 7 days;
 results stay Reported until several different trips confirm; never sold or shared).
 
+## 9. Women (added 9 Nov for cityapp)
+`GET city/women?city=` → `{women_buses:[{route_id,route,route_bn,company,from,to,hours,status,sources}],
+reserved_seats:{text,text_bn,status,checked,source_url}, metro_women_coach:{…}, night:[{route_id,stars,count}]}`.
+Every route (plan legs + `city/route/<id>`) carries `women_only: bool`. `women_buses` is empty until a
+public BRTC list is confirmed (see CITY_DATA_GAPS_BN.md) — show the honest empty state.
+
+## 10. Paid listings (Ad label)
+Reuse `GET nearby/sponsored?lat=&lon=&cat=` (flag `nearby_sponsored`). Ads never appear in route
+results, step lists, live reports or any safety screen; the router never reads listings.
+
 Changes to this contract: additive only; announced in this file.

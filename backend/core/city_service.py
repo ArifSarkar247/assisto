@@ -235,6 +235,59 @@ def metro_info(city="dhaka"):
                      "chart": [{"a": a, "b": b, "tk": tk} for (a, b), tk in F.METRO_CHART.items()]}}
 
 
+# Women (owner item 7). Facts with sources + checked date; the owner can
+# edit / add in overrides["women"] (e.g. BRTC women-only routes once a
+# public list is confirmed — none was found on 9 Nov, see CITY_DATA_GAPS_BN.md).
+WOMEN = {
+    "metro_women_coach": {
+        "text": "One of the six coaches of every MRT Line 6 train is for women only (women may "
+                "also ride any coach). Look for the pink signs on the platform.",
+        "text_bn": "এমআরটি লাইন ৬-এর প্রতিটি ট্রেনের ছয়টি কোচের একটি শুধু নারীদের জন্য (নারীরা অন্য "
+                   "যেকোনো কোচেও উঠতে পারেন)। প্ল্যাটফর্মের চিহ্ন দেখে দাঁড়ান।",
+        "status": "verified", "checked": "2026-11-09",
+        "source_url": "https://old.thefinancialexpress.com.bd/national/one-coach-to-be-reserved-for-women-on-metro-rail-1672048558",
+        "sources": ["https://old.thefinancialexpress.com.bd/national/one-coach-to-be-reserved-for-women-on-metro-rail-1672048558",
+                    "https://www.dhakatribune.com/bangladesh/329062/metro-rail-eases-travel-for-women-with-reserved"]},
+    "reserved_seats": {
+        "text": "City buses keep the marked front seats for women, children and people with "
+                "disabilities. If someone refuses, the conductor must help.",
+        "text_bn": "শহরের বাসে সামনের চিহ্নিত আসনগুলো নারী, শিশু ও প্রতিবন্ধীদের জন্য সংরক্ষিত। কেউ না "
+                   "ছাড়লে কন্ডাক্টরকে বলুন।",
+        "status": "reported", "checked": "2026-11-09", "source_url": "", "sources": []},
+}
+
+
+def women(city):
+    got = network(city)
+    if got is None:
+        return None
+    nw, raw, ds = got
+    ov = _overrides(ds)
+    w = {k: dict(v) for k, v in WOMEN.items()}
+    for k, v in ((ov.get("women") or {}).items()):
+        if k in w and isinstance(v, dict):
+            w[k].update(v)
+    buses = []
+    for r in nw.routes:
+        if r.get("women_only") and not r["hidden"]:
+            buses.append({"route_id": r["id"], "route": r.get("name"), "route_bn": r.get("name_bn"),
+                          "company": r.get("op", ""), "from": r.get("from", ""), "to": r.get("to", ""),
+                          "hours": r.get("hours", ""), "status": E.STATUS.get(r.get("st"), "reported"),
+                          "sources": r.get("src") or []})
+    for b in (ov.get("women") or {}).get("buses") or []:
+        if isinstance(b, dict):
+            buses.append(dict(b, status=b.get("status", "reported")))
+    night = []
+    from django.db.models import Count, Avg
+    from .models import CityNightRating
+    for row in (CityNightRating.objects.filter(city=city).values("route_id")
+                .annotate(n=Count("id"), avg=Avg("stars")).order_by("-n")[:200]):
+        if row["n"] >= NIGHT_MIN:
+            night.append({"route_id": row["route_id"], "stars": round(row["avg"], 1), "count": row["n"]})
+    return {"women_buses": buses, "reserved_seats": w["reserved_seats"],
+            "metro_women_coach": w["metro_women_coach"], "night": night}
+
+
 def route_detail(city, route_id):
     got = network(city)
     if got is None:
@@ -245,7 +298,7 @@ def route_detail(city, route_id):
             return {"id": r["id"], "mode": r["mode"], "name": r.get("name"), "name_bn": r.get("name_bn"),
                     "ref": r.get("ref"), "operator": r.get("op", ""), "status": E.STATUS.get(r.get("st"), "reported"),
                     "sources": r.get("src") or [], "headway_min": r["hw"],
-                    "counters": r.get("counters") or [],
+                    "counters": r.get("counters") or [], "women_only": bool(r.get("women_only")),
                     "stops": [nw._pt(i) for i in r["stops"]], "km": r["km"][-1] if r["km"] else 0}
     return None
 

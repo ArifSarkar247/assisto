@@ -391,7 +391,7 @@ class Network:
                     "via_bn": [self.stops[s]["name_bn"] for s in rs[bpos + 1:apos]][:12],
                     "wait_min": int(round(r["hw"] / 2.0)), "minutes": int(round(ride_s / 60.0)),
                     "km": round(r["km"][apos] - r["km"][bpos], 1), "fare": f,
-                    "headway_min": r["hw"],
+                    "headway_min": r["hw"], "women_only": bool(r.get("women_only")),
                 })
         # which exit gate after a metro ride
         for idx, lg in enumerate(legs):
