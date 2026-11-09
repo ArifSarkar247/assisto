@@ -1931,3 +1931,25 @@ urlpatterns += [
     path("bizai/cctv/test/<int:pk>/<str:action>", bzai.CctvTestView.as_view()),
 ]
 # ---- /bizai ----
+# ---- lpcore ---- Language Partner V2 (owner_actions/LANGUAGE_PARTNER_API.md)
+from . import lp_views as lpv  # noqa: E402
+urlpatterns += [
+    path("lp/mocks", lpv.LpMocksView.as_view()),
+    path("lp/mocks/<str:mid>", lpv.LpMockView.as_view()),
+    path("lp/mocks/<str:mid>/mark", lpv.LpMarkView.as_view()),
+    path("lp/mocks/<str:mid>/finish", lpv.LpFinishView.as_view()),
+    path("lp/weak/practice", lpv.LpWeakPracticeView.as_view()),
+    path("lp/practice/mark", lpv.LpPracticeMarkView.as_view()),
+    path("lp/score/writing", lpv.LpScoreWritingView.as_view()),
+    path("lp/score/speaking", lpv.LpScoreSpeakingView.as_view()),
+    path("lp/score/price", lpv.LpScorePriceView.as_view()),
+    path("lp/gates", lpv.LpGatesView.as_view()),
+    path("lp/content/version", lpv.LpContentVersionView.as_view()),
+    path("lp/content/<str:kind>", lpv.LpContentView.as_view()),
+    path("lp/life/roleplay", lpv.LpRoleplayView.as_view()),
+    path("lp/companion/books", lpv.LpCompanionBooksView.as_view()),
+    path("lp/companion/mark", lpv.LpCompanionMarkView.as_view()),
+    path("lp/companion/sheets", lpv.LpCompanionSheetsView.as_view()),
+    path("lp/certificate/<int:pk>", lpv.LpCertificateView.as_view()),
+]
+# ---- /lpcore ----

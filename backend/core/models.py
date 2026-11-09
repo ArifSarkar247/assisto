@@ -8764,3 +8764,60 @@ class CityLearned(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=["city", "kind", "key"], name="core_citylearn_uniq")]
 # ---- /citydata ----
+
+
+# ---- lpcore ----
+# Language Partner V2 (owner 9 Nov 21:45): versioned content items with a
+# review pipeline (draft -> ai_checked -> human_approved | rejected), the
+# review audit trail, and the learner's attempts (marks, AI scores, Cambridge
+# companion sheets, finished mocks). Cambridge material is NEVER stored: a
+# companion sheet keeps only the user's own typed answers + own typed key.
+class LpItem(models.Model):
+    KINDS = ("mock", "section", "question", "scenario", "vocab")
+    STATUSES = ("draft", "ai_checked", "human_approved", "rejected")
+    LIVE = ("ai_checked", "human_approved")
+    kind = models.CharField(max_length=10, db_index=True)
+    key = models.CharField(max_length=80, db_index=True)
+    version = models.PositiveIntegerField(default=1)
+    track = models.CharField(max_length=16, blank=True, default="", db_index=True)
+    level = models.CharField(max_length=12, blank=True, default="")
+    tag = models.CharField(max_length=40, blank=True, default="", db_index=True)
+    status = models.CharField(max_length=16, default="draft", db_index=True)
+    data = models.JSONField(default=dict, blank=True)
+    checks = models.JSONField(default=dict, blank=True)     # {ok, failures:[...], ran_at}
+    content_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    source = models.CharField(max_length=12, blank=True, default="ai")   # ai | human | app
+    bundle = models.CharField(max_length=80, blank=True, default="")
+    reviewed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                    related_name="+")
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now, db_index=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["key", "version"], name="core_lpitem_key_ver")]
+
+
+class LpReviewLog(models.Model):
+    item = models.ForeignKey(LpItem, on_delete=models.CASCADE, related_name="reviews")
+    action = models.CharField(max_length=16)        # import | check | approve | reject | edit
+    actor = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name="+")
+    note = models.CharField(max_length=500, blank=True, default="")
+    before = models.CharField(max_length=16, blank=True, default="")
+    after = models.CharField(max_length=16, blank=True, default="")
+    at = models.DateTimeField(default=timezone.now)
+
+
+class LpAttempt(models.Model):
+    # open (a free weekly section slot) | mark | practice | writing | speaking
+    # | companion | result (finished mock)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    kind = models.CharField(max_length=12, db_index=True)
+    item_key = models.CharField(max_length=80, blank=True, default="")
+    section = models.CharField(max_length=12, blank=True, default="")
+    band = models.FloatField(null=True, blank=True)
+    data = models.JSONField(default=dict, blank=True)
+    credits = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+# ---- /lpcore ----

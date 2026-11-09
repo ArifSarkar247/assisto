@@ -2,7 +2,8 @@
 
 Owner: lpcore. Consumers: lpapp (Flutter screens), lpcontent (content bundles + TTS audio).
 Base: `/api/v1/` + paths below. All JSON, JWT auth like every other app endpoint.
-Flag: `language_partner_v2` (backend default ON; old `/learn/*` and `/ielts/*` stay until lpapp swaps).
+Flag: `language_packs` (the existing Language Partner flag; old `/learn/*` and `/ielts/*` stay until lpapp swaps).
+Premium for LP = plans premium, premium_pro, founder, business (`lp_service.PREMIUM_PLANS`).
 Every score in every response carries `practice_label: {en, bn}` = "Practice score — not an official
 IELTS result" / "অনুশীলনের স্কোর — অফিসিয়াল IELTS ফল নয়". The app shows it under every band.
 
@@ -33,7 +34,7 @@ Errors: `{ok:false, reason}` — `feature_off` (403), `premium` (402: needs Prem
 - `POST /lp/mocks/<id>/finish {bands:{listening, reading, writing, speaking}, weak:[tag]}` ->
   `{ai_state, overall, comment_en, comment_bn, weak_areas:[{tag, title_en, title_bn}], result_id, certificate_url}`
   The phone may compute overall itself; the server recomputes (IELTS rounding: .25 -> .5, .75 -> next whole).
-  The comment is a free short Haiku note (no credits); when AI is off a rule-based comment comes back (`ai_state:"no_key"`).
+  Stage 1: the comment is rule-based and free (`ai_state:"rules"`), built from the four bands.
 - `POST /lp/weak/practice {tags:[tag], n?:10}` -> `{items:[Q + {answer_hidden:true}], tags}`;
   mark them with `POST /lp/practice/mark {answers:{qid:text}}` -> same item shape as mark.
 
@@ -42,7 +43,8 @@ Errors: `{ok:false, reason}` — `feature_off` (403), `premium` (402: needs Prem
 - `POST /lp/score/speaking {mock_id?, part:1|2|3, prompt, transcript, seconds, confidence?, level?}`
 - Both -> `{ai_state, band, criteria:{TA|TR, CC, LR, GRA} | {FC, LR, GRA, P}, criteria_notes:{key:{en,bn}},
   corrected, mistakes:[{wrong, right, type, en, bn}], credits_used, level, practice_label, attempt_id}`
-- `ai_state`: `used` | `no_key` | `credits` (not enough credits) | `premium` (Free plan) | `busy` | `cut`
+- `ai_state`: `used` | `no_key` | `credits` (not enough credits; `credits_needed`) | `premium` (Free plan) |
+  `user_limit` (40 scores / 24 h) | `busy` | `cut`
   (answer hit the length limit — refunded, try again) | `unreadable` (refunded). Credits are charged ONLY when
   `ai_state == "used"`. `GET /lp/score/price` -> `{normal, best}` credits per score.
 - Normal = Claude Haiku; Best = Claude Sonnet (Premium + credits). Prompts stay far under 90K tokens.
