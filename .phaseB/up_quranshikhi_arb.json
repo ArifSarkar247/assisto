@@ -1,0 +1,12 @@
+{
+  "en": {
+    "qsPracticeMeasure": "Practice measure, not a replacement for a teacher",
+    "@qsPracticeMeasure": {"description": "quranshikhi: label on the listen-and-repeat score (owner wording)"},
+    "qsMicReason": "The microphone turns on only when you tap Start, so the phone can hear your reading. Nothing is recorded or kept by Assisto.",
+    "@qsMicReason": {"description": "quranshikhi: why the microphone is used in listen-and-repeat"}
+  },
+  "bn": {
+    "qsPracticeMeasure": "অনুশীলনের মাপ — শিক্ষকের বিকল্প নয়",
+    "qsMicReason": "শুধু \"শুরু করুন\" চাপলে মাইক্রোফোন চালু হয়, যাতে ফোন আপনার পড়া শুনতে পারে। Assisto কোনো রেকর্ডিং রাখে না।"
+  }
+}

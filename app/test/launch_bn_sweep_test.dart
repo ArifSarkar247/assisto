@@ -104,6 +104,9 @@ const Map<String, String> _allow = {
   // quranread: same Tanzil notice (Uthmani file) on the lessons' source page.
   'quran_learn_about|digit|Tanzil': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',
   'quran_learn_about|digit|Copyright': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',
+  // quranshikhi: owner exception (9 Nov 21:55) - Quran Shikhi shows Bangla and
+  // English together; the line toggle chip names each language in its own script.
+  'quran_learn*|english|"English"': 'line toggle বাংলা / English, each in its own script (owner bilingual exception)',
   // Paper size / device model trade names are written the same in Bangla.
   'inv_*|digit|A4': 'paper size trade name (A4), same on Bangla printers and in shops',
   'chip_pair|digit|GT06': 'tracker model name printed on the box (Concox GT06)',

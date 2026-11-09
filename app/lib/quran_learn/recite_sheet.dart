@@ -171,7 +171,7 @@ class _ReciteSheetState extends State<ReciteSheet> {
         children: [
           Text(t.qlReciteTitle, style: AType.titleLarge),
           const SizedBox(height: Gap.xs),
-          _HelperBadge(text: t.qlHelperLabel),
+          _HelperBadge(text: t.qsPracticeMeasure), // quranshikhi: owner wording
           const SizedBox(height: Gap.md),
           // The text to read; after a check, each word coloured.
           Container(
@@ -204,6 +204,17 @@ class _ReciteSheetState extends State<ReciteSheet> {
           const SizedBox(height: Gap.md),
           Text(widget.letterName ? t.qlReciteLetterHint : t.qlReciteHint,
               style: AType.bodyMedium),
+          const SizedBox(height: Gap.xs),
+          // quranshikhi: why the microphone, and only on tap.
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(Icons.mic_none_rounded, size: 16, color: tok.textMuted),
+            const SizedBox(width: Gap.xs),
+            Expanded(
+              child: Text(t.qsMicReason,
+                  key: const Key('qs-mic-reason'),
+                  style: AType.bodySmall.copyWith(color: tok.textMuted)),
+            ),
+          ]),
           const SizedBox(height: Gap.md),
           Center(
             child: SizedBox(
@@ -374,5 +385,5 @@ class QlHelperBadge extends StatelessWidget {
   const QlHelperBadge({super.key});
   @override
   Widget build(BuildContext context) =>
-      _HelperBadge(text: AppLocalizations.of(context).qlHelperLabel);
+      _HelperBadge(text: AppLocalizations.of(context).qsPracticeMeasure);
 }

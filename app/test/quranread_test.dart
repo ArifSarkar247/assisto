@@ -102,7 +102,11 @@ void main() {
     });
 
     test('29 letters, each with its Arabic name and a makhraj note', () {
-      final letters = kQlStages[0].lessons.expand((l) => l.items).toList();
+      // quranshikhi: stage 1 also has the 'joining' drill lesson.
+      final letters = kQlStages[0].lessons
+          .where((l) => l.id.startsWith('letters'))
+          .expand((l) => l.items)
+          .toList();
       expect(letters.length, 29);
       for (final i in letters) {
         expect(i.check, isNotNull, reason: i.id);
@@ -376,7 +380,7 @@ void main() {
           const Scaffold(
               body: ReciteSheet(
                   expected: 'قُلْ هُوَ ٱللَّهُ أَحَدٌ', initialHeard: 'قل هو الله')));
-      expect(find.text('Helper - not a replacement for a teacher'), findsOneWidget);
+      expect(find.text('Practice measure, not a replacement for a teacher'), findsOneWidget); // quranshikhi
       expect(find.byKey(const Key('ql-recite-result')), findsOneWidget);
       expect(find.textContaining('Letters matched'), findsOneWidget);
     });
