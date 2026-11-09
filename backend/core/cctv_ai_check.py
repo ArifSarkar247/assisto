@@ -43,7 +43,7 @@ def vision_key():
     (None, None, 0.0)."""
     try:
         from . import chat_vision_service as CVS
-        slug, conf, cost = CVS._active()
+        slug, conf, cost = CVS.cctv_vision()     # geminioff: Claude = Haiku vision
         if slug:
             return slug, conf or {}, float(cost or 0)
     except Exception:

@@ -9,11 +9,47 @@ NAMES = {"normal": ("সাধারণ", "Normal"), "better": ("ভালো", 
          "best": ("সেরা", "Best")}
 
 
-def cfg(c=None):
-    """(levels block, full PricingConfig dict)."""
+def cfg(c=None, raw=False):
+    """(levels block, full PricingConfig dict). geminioff: while the Gemini
+    breaker is open every Gemini level row is served as its Claude twin
+    (effective_levels) — prices, fallbacks and availability follow it."""
     from . import billing
     c = c or billing.cfg()
-    return AL.normalize(c.get("ai_levels")), c
+    lv = AL.normalize(c.get("ai_levels"))
+    if raw:
+        return lv, c        # the owner's SAVED rows (Owner Admin form)
+    try:
+        from . import gemini_breaker as GB
+        if GB.is_open():
+            lv["levels"] = effective_levels(lv["levels"])
+    except Exception:  # noqa: BLE001 — routing never breaks the answer
+        pass
+    return lv, c
+
+
+# geminioff (owner 9 Nov 13:30): Normal + Better = Claude Haiku 5.5, Best =
+# Claude Sonnet 5.5 while Gemini is off. Better keeps its LARGER budget: the
+# Haiku answer cap (fallback_out_cap, else 2500) and at least 8000 in.
+CLAUDE_TWIN = {"normal": "claude-haiku-5-5", "better": "claude-haiku-5-5",
+               "best": "claude-sonnet-5-5"}
+
+
+def effective_levels(levels):
+    out = {}
+    for lid, row in levels.items():
+        r = dict(row)
+        if r.get("provider") == "gemini":
+            r["provider"] = "anthropic"
+            r["model"] = CLAUDE_TWIN.get(lid, "claude-haiku-5-5")
+            if lid == "better":
+                r["out_cap"] = max(int(r.get("out_cap") or 0),
+                                   int(r.get("fallback_out_cap") or 0) or 2500)
+                r["in_cap"] = max(int(r.get("in_cap") or 0), 8000)
+                r["history_turns"] = max(int(r.get("history_turns") or 0), 16)
+            r["fallback_out_cap"] = 0
+            r["gemini_off"] = True
+        out[lid] = r
+    return out
 
 
 def enabled(c=None):
@@ -308,6 +344,9 @@ def gemini_web_left(now=None, c=None):
     cap = int(lv.get("web_free_per_day") or 0)
     if cap <= 0:
         return 0
+    from . import gemini_breaker as GB
+    if GB.is_open():
+        return 0          # geminioff: web search = Claude web search only
     used = AIUsage.objects.filter(created_at__gte=R.day_start(now), provider="gemini",
                                   attempts__contains="gemini:ok:web").count()
     return max(0, cap - used)

@@ -158,7 +158,10 @@ def _providers():
     try:
         from . import integrations
         gk = integrations.get("gemini").get("api_key")
-        if gk and integrations.is_enabled("gemini"):
+        from . import gemini_breaker as GB
+        # geminioff: while the prepaid credit is empty (402) Gemini is not a
+        # usable provider for ANY feature — no call until the daily check
+        if gk and integrations.is_enabled("gemini") and not GB.is_open():
             out.append(("gemini", gk))
         ok = integrations.get("openai").get("api_key")
         if ok and integrations.is_enabled("openai"):
@@ -454,6 +457,9 @@ def _post(url, body, headers):
 
 
 def _call_gemini(key, model, system, prompt, max_tokens, history=None):
+    from . import gemini_breaker as GB
+    if GB.is_open():
+        raise ProviderError("billing", "http_402: gemini off (breaker)")
     contents = []
     for m in _messages(history, prompt):
         contents.append({"role": "model" if m["role"] == "assistant" else "user",
@@ -572,6 +578,9 @@ def health_probe(name, key, timeout=10):
             r = rq.get("https://api.openai.com/v1/models",
                        headers={"authorization": "Bearer %s" % key}, timeout=timeout)
         else:
+            from . import gemini_breaker as GB
+            if GB.is_open():
+                return False, "billing_off"     # geminioff: daily probe only
             r = rq.get("https://generativelanguage.googleapis.com/v1beta/models?pageSize=1",
                        headers={"x-goog-api-key": key}, timeout=timeout)
         if r.status_code == 200:
@@ -852,6 +861,11 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             if err.kind in AH.HARD_KINDS:
                 code, _, why = (err.detail or "").partition(": ")
                 AH.mark_down(name, model, err.kind, code, why, conf)
+            elif name == "gemini":
+                # geminioff: "prepayment credits depleted" can come as a 429
+                from . import gemini_breaker as GB
+                code, _, why = (err.detail or "").partition(": ")
+                GB.note_failure(code, why)
             if not err.failover:
                 log.error("ai: %s %s bad request (no failover): %s", name, model,
                           _safe_detail(err.detail))

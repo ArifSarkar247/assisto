@@ -74,6 +74,29 @@ def _call(key, wav, mime, lang):
         int(u.get("candidatesTokenCount", 0) or 0)
 
 
+# geminioff: honest, actionable (the phone's own keyboard mic is free)
+OFF_MSG = ("সার্ভারে কথা লেখা এখন বন্ধ। কি-বোর্ডের মাইক (যেমন Gboard) চাপুন, ভাষা বাংলা দিন — "
+           "ফোন নিজেই বিনা খরচে বাংলায় লিখবে। কোনো ক্রেডিট কাটা হয়নি।",
+           "Server voice typing is paused. Tap your keyboard's mic (e.g. Gboard) with Bangla "
+           "selected — your phone writes it for free. No credits were used.")
+
+
+def _alt_stt():
+    try:
+        from .bizagent_media import stt_config
+        return stt_config()
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def _alt_call(conf):
+    def run(_key, wav, mime, lang):
+        from .bizagent_media import _openai_transcribe
+        text = _openai_transcribe(conf, wav, mime, lang)
+        return text, 0, 0
+    return run
+
+
 def looks_romanized(text, lang):
     """A Bangla request that came back in Latin letters only (= romanized)."""
     return lang == "bn" and bool(text) and not _BN.search(text) and \
@@ -99,21 +122,40 @@ def transcribe(user, data, lang="bn", call=None):
     key = _key()
     from . import ai_health as AH
     if key and call is None and AH.is_down("gemini", model()):
-        # geminifix: Gemini said 404 / 402 / 403 a moment ago and no other
-        # provider here can turn audio into text -> the phone keeps its own
-        # on-device words; nothing is charged, no doomed call
+        # geminifix / geminioff: Gemini said 404 / 402 / 403 (or the 24 h
+        # breaker is open) -> no doomed call; a non-Gemini path if one exists
         key = ""
+    provider = "gemini"
     if not key and call is None:
-        log.info("voice: server transcription unavailable (no Gemini key)")
-        return 503, {"ok": False, "reason": "unavailable",
-                     "message": pick(lang, "কথা লেখার সুবিধা এই মুহূর্তে বন্ধ — একটু পরে চেষ্টা করুন।",
-                                     "Voice typing is not available right now — try again later.")}
+        alt = _alt_stt()
+        if alt:
+            # geminioff: the OpenAI speech-to-text key (Integrations ->
+            # Voice-note transcription), the only non-Gemini audio path —
+            # Claude cannot take audio
+            key, provider = "alt", "openai"
+            call = _alt_call(alt)
+    if not key and call is None:
+        log.info("voice: server transcription unavailable (no Gemini / STT key)")
+        return 503, {"ok": False, "reason": "unavailable", "use_phone": True,
+                     "message": pick(lang, OFF_MSG[0], OFF_MSG[1])}
+    if call is None or provider != "gemini":
+        try:
+            from . import ai_router as R
+            conf = R.cfg()
+            capped = R.total_capped(conf) or R.provider_capped(provider, conf)
+        except Exception:  # noqa: BLE001
+            capped = False
+        if capped:
+            # geminioff: the Owner Admin daily AI caps hold here too
+            return 503, {"ok": False, "reason": "unavailable", "use_phone": True,
+                         "message": pick(lang, OFF_MSG[0], OFF_MSG[1])}
     res = billing.charge(user, "voice_transcribe", note="voice.transcribe", exact=CREDITS)
     if not res["ok"]:
         return 402, {"ok": False, "reason": "credits"}
     charged = int(res.get("charged") or 0)
     t0 = time.monotonic()
     text, itok, otok, err = "", 0, 0, ""
+    audio_s = max(0.0, (len(wav) - 44) / 32000.0)     # seconds of 16 kHz mono WAV
     try:
         text, itok, otok = (call or _call)(key, wav, mime, lang)
         if not text:
@@ -129,13 +171,22 @@ def transcribe(user, data, lang="bn", call=None):
     used = model()
     p = DEFAULT_PRICES.get(used, {"in": 0.3, "out": 2.5})
     cost = (itok * 0.30 + otok * float(p["out"])) / 1e6      # audio input $0.30 / 1M
+    if provider == "openai":
+        # per-minute price from the STT integration (default $0.003 / min)
+        alt = _alt_stt()
+        used = (alt.get("model") or "gpt-4o-mini-transcribe")[:40]
+        try:
+            per_min = float(alt.get("cost_per_minute_usd") or 0.003)
+        except (TypeError, ValueError):
+            per_min = 0.003
+        cost = per_min * max(1.0, audio_s / 60.0)
     refunded = 0
     if err and charged:
         billing.credit(user, "adjust", charged, note="ai_refund:voice", spend_ref=res.get("spend_ref"))
         refunded, charged = charged, 0
     try:
         AIUsage.objects.create(user=user, feature="voice.transcribe", model=used[:40],
-                               provider="gemini", input_tokens=itok, output_tokens=otok,
+                               provider=provider, input_tokens=itok, output_tokens=otok,
                                cost_usd=cost, latency_ms=ms, ok=not err, error_kind=err[:30],
                                credits_charged=charged + refunded, refunded=refunded,
                                tier="voice", task_class="voice")

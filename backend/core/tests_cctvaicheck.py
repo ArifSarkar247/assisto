@@ -258,7 +258,9 @@ class AiCheckGlueTests(E2E._Base):
     def test_provider_dearer_than_plan_is_refused(self):
         ev = self.event()
         out, _s, m = self.run_check('{"object": "person", "confidence": 92}',
-                                    key=("vision_claude", {"api_key": "x"}, 0.01))
+                                    # geminioff: Claude now runs on Haiku vision
+                                    # (inside budget) -> a dearer OpenAI price here
+                                    key=("vision_openai", {"api_key": "x"}, 0.01))
         m.assert_not_called()
         self.assertEqual(self.row(ev)["ai_check"]["state"], "cost")
 

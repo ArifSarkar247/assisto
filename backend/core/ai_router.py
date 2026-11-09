@@ -121,6 +121,14 @@ def allow(slug, conf=None):
 def record(slug, ok, conf=None, slow=False, error=""):
     """Book one call outcome into the circuit for `slug`."""
     from .models import AIProviderState
+    if ok and slug == "gemini":
+        # geminioff: a real Gemini answer proves the credit is back
+        try:
+            from . import gemini_breaker as GB
+            if GB.is_open():
+                GB.close()
+        except Exception:  # noqa: BLE001
+            pass
     conf = conf or cfg()
     cc = conf["circuit"]
     try:

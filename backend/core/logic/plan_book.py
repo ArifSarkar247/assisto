@@ -180,18 +180,34 @@ V2_LEVELS = {
     "best": {"provider": "anthropic", "model": "claude-sonnet-5-5",
              "in_cap": 12000, "out_cap": 2500, "history_turns": 20},
 }
+# geminioff (owner 9 Nov 13:30): while the Gemini prepaid credit is empty
+# (402 breaker open) Better = Claude Haiku 5.5 with the LARGER budget: more
+# input + history than Normal and the long answer (2500). Worst case
+# 8000 x $0.125 + 2500 x $0.50 per 1M = $0.00225 = ৳0.28 at ৳125/USD, under
+# the ৳0.67 one-credit AI cap -> still ONE credit, ~54 % profit at ৳2.80.
+V2_BETTER_GEMINI_OFF = {"provider": "anthropic", "model": "claude-haiku-5-5",
+                        "in_cap": 8000, "out_cap": 2500, "history_turns": 16,
+                        "fallback_out_cap": 0}
 V2_CARECALL = {"free": {"schedules": 3, "rings_month": 90},
                "child": {"schedules": 5, "rings_month": 0},
                "family": {"schedules": 20, "rings_month": 0}}
 
 
-def v2_settings_patch():
+def v2_levels(gemini_off=False):
+    """The V2 level rows; Better on Claude Haiku while Gemini is off."""
+    rows = {k: dict(v) for k, v in V2_LEVELS.items()}
+    if gemini_off:
+        rows["better"] = dict(V2_BETTER_GEMINI_OFF)
+    return rows
+
+
+def v2_settings_patch(gemini_off=False):
     """The non-derived settings the apply command merges into the live row."""
     return {
         "pricing_v2": {"on": True},
         "ai_levels": {
             "enabled": True,
-            "levels": {k: dict(v) for k, v in V2_LEVELS.items()},
+            "levels": v2_levels(gemini_off),
             "free_credit_levels": ["normal", "better"],
             "welcome_on": True, "welcome_credits": 30,
             "ad_answers_per_ad": 1, "ads_per_answer": 2,

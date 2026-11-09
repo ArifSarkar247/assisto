@@ -415,7 +415,7 @@ def _owner_ai_used(owner, month=None):
 def vision_ready():
     try:
         from . import chat_vision_service as CVS
-        slug, conf, _cost = CVS._active()
+        slug, conf, _cost = CVS.cctv_vision()    # geminioff: Claude = Haiku vision
         return (slug, conf) if slug else (None, None)
     except Exception:
         return None, None
