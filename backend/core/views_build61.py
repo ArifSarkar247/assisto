@@ -1085,6 +1085,7 @@ class CircleMemberControlsView(APIView):
 from . import journey_watch as JW  # noqa: E402
 from . import sj_live as SL  # noqa: E402
 from .logic import journey_dest as JD  # noqa: E402
+from .logic import journey_arrival as JA  # noqa: E402  qjourney
 
 
 def _journey_pure(j):
@@ -1203,6 +1204,11 @@ class JourneyStartView(APIView):
         elif not isinstance(dest, dict) or not (str(dest.get("name") or "").strip() or
                                                 dest.get("lat") is not None):
             return Response({"detail": "destination_required"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif JA.point(dest) is None:
+            # qjourney (owner V2 root cause): a destination without real
+            # coordinates can never be checked, so "arrived" was unverifiable
+            return Response({"detail": "destination_coords_required"},
                             status=status.HTTP_400_BAD_REQUEST)
         eta = _parse_eta(d.get("eta"))
         grace = _int(d.get("overdue_grace_min"), 10, 0, 60)
@@ -1350,16 +1356,71 @@ class JourneyLocationView(APIView):
 
 
 class JourneyArrivedView(APIView):
+    """POST /journey/<id>/arrived {lat?, lng?, acc?, pin?}.
+
+    qjourney (owner V2, 9 Nov): this used to accept an arrival anywhere at
+    any time — the root cause of the false "Arrived safely". Now a manual
+    arrival is checked (core/logic/journey_arrival.py): far from the
+    destination, earlier than physically possible, no destination
+    coordinates or no idea where the phone is = UNUSUAL. Unusual + a safety
+    PIN set -> the PIN is asked (400 pin=required, arrival=unusual); the
+    normal PIN confirms ("Confirmed with PIN"), the danger PIN answers the
+    same while watchers silently get an SOS. Unusual + no PIN -> the trip
+    ends, but watchers get "Unusual arrival — check on NAME", never
+    "Arrived safely"."""
     def post(self, request, pk):
         j = Journey.objects.filter(traveller=request.user, pk=pk).first()
         if j is None:
             return _nf()
-        if j.status == "active":
-            JW.on_arrived(j)
-            j.save()
-            from . import guardian_journey as GJ
-            GJ.on_journey_arrived(j)        # guardian journey: ends at once
-        return Response({"ok": True, "status": j.status})
+        if j.status != "active":
+            return Response({"ok": True, "status": j.status})
+        d = request.data or {}
+        now = timezone.now()
+        a = _arrival_assess(j, d, now)
+        pin = d.get("pin")
+        action = _classify_pin(request, pin) if (not a["ok"] or pin) else "none"
+        if action == "locked":
+            return Response({"ok": False, "pin": "locked"}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        if action == "wrong":
+            return Response({"ok": False, "pin": "wrong", "arrival": "unusual"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if action == "required":
+            return Response({"ok": False, "pin": "required", "arrival": "unusual",
+                             "reason": a["reason"]}, status=status.HTTP_400_BAD_REQUEST)
+        from . import guardian_journey as GJ
+        if action == "duress":
+            # identical answer to a real arrival; watchers + family get red
+            _duress(request, j, lat=_num(d.get("lat")), lng=_num(d.get("lng")))
+            return Response({"ok": True, "status": "arrived"})
+        kind = "arrived"
+        payload = None
+        if action == "cancel":
+            payload = {"confirmed_pin": True}
+        elif not a["ok"]:
+            kind, payload = "arrival_unusual", {"reason": a["reason"],
+                                               "distance_m": a["distance_m"]}
+        JW.on_arrived(j, now, kind=kind, payload=payload)
+        j.save()
+        GJ.on_journey_arrived(j, now)        # guardian journey: ends at once
+        out = {"ok": True, "status": j.status}
+        if kind == "arrival_unusual":
+            out["arrival"] = "unusual"
+            out["reason"] = a["reason"]
+        elif payload:
+            out["arrival"] = "confirmed_pin"
+        return Response(out)
+
+
+def _num(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _arrival_assess(j, d, now):
+    """qjourney: plausibility of a manual arrival (JW.arrival_plausible)."""
+    return JW.arrival_plausible(j, now, here=JA.point(d), acc=_num(d.get("acc")))
 
 
 def _pin_rate_ok(user):

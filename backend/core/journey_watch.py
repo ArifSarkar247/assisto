@@ -349,7 +349,17 @@ def event_text(kind, j, name, lang, p, links=True):
         return pl["title"], pl["body"]
     if kind == "arrived":
         pl = SJ.arrived_payload(name, dest, lang=lang)
+        if p.get("confirmed_pin"):     # qjourney: the safety PIN confirmed it
+            return (pl["title"] + pick(lang, " · PIN দিয়ে নিশ্চিত", " · confirmed with PIN"),
+                    pl["body"])
         return pl["title"], pl["body"]
+    if kind == "arrival_unusual":
+        # qjourney (owner V2): never "arrived safely" for a manual arrival far
+        # from the destination or earlier than physically possible
+        return (pick(lang, "অস্বাভাবিক পৌঁছানো — %s-এর খোঁজ নিন" % name,
+                     "Unusual arrival — check on %s" % name),
+                pick(lang, "%s \"পৌঁছেছি\" চেপেছেন, কিন্তু %s থেকে দূরে বা সম্ভব সময়ের আগে। একবার ফোন করে খোঁজ নিন।" % (name, dest),
+                     "%s tapped \"Arrived\", but away from %s or sooner than possible. Please call to check." % (name, dest)))
     if kind == "extended":
         m, eta = _n(lang, p.get("minutes", "")), _hhmm(j.eta, lang)
         return (pick(lang, "যাত্রার সময় বাড়ানো হয়েছে", "Journey time extended"),
@@ -537,7 +547,7 @@ def deliver(ev):
         tbn, bbn = event_text(ev.kind, j, name, "bn", p, links=False)
         ten, ben = event_text(ev.kind, j, name, "en", p, links=False)
         _notify(u, ev.kind, j, tbn, ten, bbn, ben, data, urgent,
-                high=urgent or ev.kind in ("started", "arrived"))
+                high=urgent or ev.kind in ("started", "arrived", "arrival_unusual"))  # qjourney
         n += 1
     ev.attempts += 1
     ev.recipients = n
@@ -618,13 +628,15 @@ def on_location(j, lat, lng, at, battery, now=None):
             emit(j, "low_battery", key=str(b), payload={"battery": b, "lat": lat, "lng": lng})
 
 
-def on_arrived(j, now=None):
+def on_arrived(j, now=None, kind="arrived", payload=None):
+    """qjourney: kind='arrival_unusual' ends the trip WITHOUT telling the
+    watchers "arrived safely" (manual arrival far away / impossibly early)."""
     now = now or timezone.now()
     j.status = "arrived"
     j.stopped_at = j.stopped_at or now
     j.sos_active = False
     j.expires_at = now + timedelta(hours=int(j.location_retention_hours or 0))
-    emit(j, "arrived")
+    emit(j, kind, payload=payload)
     clear_urgent(j)
 
 
@@ -1001,3 +1013,44 @@ def sweep(now=None):
             stats["errors"] += 1
             log.warning("journey_sweep: %s %s", fn.__name__, type(e).__name__)
     return dict(stats)
+
+
+# ------------------------------------------------- qjourney: arrival check
+def arrival_plausible(j, now=None, here=None, acc=None):
+    """Is an arrival on journey `j` plausible right now? (owner V2, 9 Nov:
+    "never a false Arrived"). Shared contract with sjduring's /arrive-pin.
+
+    here/acc: a fresh (lat, lng) the phone sent with the tap (trusted when
+    acc <= 300 m or unknown); else the last stored fix (<= 15 min old).
+    C (earliest possible) = destination.earliest_at or vehicle.earliest_at
+    (ISO, from the start screen's route) when present, else straight-line
+    distance from the start / the mode's top speed.
+    -> {ok, reason, distance_m, earliest_at} (core/logic/journey_arrival.py)."""
+    from .logic import journey_arrival as JA
+    now = now or timezone.now()
+    here_at = None
+    if here is not None and (acc is None or acc <= JA.FIX_MAX_ACC_M):
+        here_at = now
+    else:
+        here = None
+        fx = fix_of(j)
+        if fx is not None:
+            here, here_at = (fx[0], fx[1]), fx[2] or now
+    origin = JA.point(j.origin or {})
+    if origin is None:
+        from .models import JourneyPoint
+        first = JourneyPoint.objects.filter(journey=j).order_by("at").first()
+        origin = (first.lat, first.lng) if first else None
+    out = JA.assess(dest=JA.point(j.destination or {}), now=now, start_at=j.created_at,
+                    origin=origin, here=here, here_at=here_at, mode=j.mode,
+                    radius_m=j.arrival_radius_m)
+    planned = None
+    for src in (j.destination or {}, j.vehicle or {}):
+        planned = planned or SJ.parse_dt((src or {}).get("earliest_at"))
+    if planned is not None:
+        if timezone.is_naive(planned):
+            planned = timezone.make_aware(planned)
+        out["earliest_at"] = planned
+        if out["ok"] and now < planned:
+            out.update(ok=False, reason="too_early")
+    return out

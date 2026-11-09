@@ -18,6 +18,7 @@ import '../payments/credits_out_sheet.dart'; // credout
 import '../state.dart';
 import '../theme.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed;
+import '../api.dart' show ApiException; // qjourney
 import '../widgets/journey_api.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/reminders_nlp.dart' as nlp;
@@ -1160,14 +1161,27 @@ Future<void> runSafetyAction(BuildContext context, AssistoChatPort port, SafetyA
   switch (a) {
     case SafetyAction.arrived:
       var place = '';
+      // qjourney (owner V2): the server checks a manual arrival; an unusual
+      // one (far away / too early) is never sent to the family as "arrived".
+      var unusual = false;
       try {
         final j = await api.journeyActive().timeout(const Duration(seconds: 8));
         final id = (j['id'] as num?)?.toInt();
         if (id != null) {
           place = '${(j['destination'] as Map?)?['name'] ?? ''}';
-          await api.journeyArrived(id);
+          final r = await api.journeyArrivedChecked(id);
+          unusual = r['arrival'] == 'unusual';
+        }
+      } on ApiException catch (e) {
+        if (e.status == 400 && '${e.body?['pin'] ?? ''}' == 'required') {
+          if (context.mounted) _snack(context, t.qjArrivedNeedsPin);
+          return;
         }
       } catch (_) {}
+      if (unusual) {
+        if (context.mounted) _snack(context, t.qjArrivedUnusual);
+        return;
+      }
       final card = AssistoCard(CardType.arrived, newCardId(),
           {'place': place, 'at': now.toUtc().toIso8601String()});
       final ok = await port.send(encodeCard(card,
