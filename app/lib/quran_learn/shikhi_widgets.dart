@@ -60,7 +60,7 @@ class QsLinePrefs {
 
 bool _appBn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
 
-/// Two chips: বাংলা / English - show or hide that line.
+/// Two chips (Bangla, English) - show or hide that line.
 class QsLineToggles extends StatelessWidget {
   const QsLineToggles({super.key});
 

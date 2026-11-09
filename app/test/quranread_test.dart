@@ -333,7 +333,10 @@ void main() {
       await _pump(tester,
           QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: p));
       expect(find.byKey(const Key('ql-focus')), findsOneWidget);
-      await tester.ensureVisible(find.byKey(const Key('ql-tile-l_ba'), skipOffstage: false));
+      // quranshikhi: the focus card is taller now (forms, both lines) - the
+      // lazily built grid is scrolled to.
+      await tester.scrollUntilVisible(find.byKey(const Key('ql-tile-l_ba')), 300,
+          scrollable: find.byType(Scrollable).first);
       await tester.pump();
       await tester.tap(find.byKey(const Key('ql-tile-l_ba')));
       await tester.pump();
@@ -357,7 +360,8 @@ void main() {
       await tester.pump();
       expect((await QlProgressStore.load()).learned, contains('l_ba'));
       // alif has no checkable letter: the check button is replaced by a note
-      await tester.ensureVisible(find.byKey(const Key('ql-tile-l_alif'), skipOffstage: false));
+      await tester.scrollUntilVisible(find.byKey(const Key('ql-tile-l_alif')), 300,
+          scrollable: find.byType(Scrollable).first);
       await tester.pump();
       await tester.tap(find.byKey(const Key('ql-tile-l_alif')));
       await tester.pump();
