@@ -33,6 +33,7 @@ from . import vault_recovery as vaultrec  # vault100
 from . import vault_e2e as vaulte2e  # p3docs
 from . import views_voice as voicev
 from . import views_nearby as nearbyv  # nearby
+from . import views_fcsos as fcsosv  # fcsos
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -394,6 +395,13 @@ urlpatterns = [
     path("family/sos", fam100.FamilySosView.as_view()),
     path("family/sos/resolve", fam100.FamilySosResolveView.as_view()),
     path("family/sos/ladder", fam100.FamilySosLadderView.as_view()),  # sosat
+    # fcsos: Family Care v3 SOS sender / receiver
+    path("family/sos/location", fcsosv.SosLocationView.as_view()),
+    path("family/sos/audio", fcsosv.SosAudioView.as_view()),
+    path("family/sos/status", fcsosv.SosStatusView.as_view()),
+    path("family/sos/settings", fcsosv.SosSettingsView.as_view()),
+    path("family/sos/event/<int:pk>", fcsosv.SosEventView.as_view()),
+    path("family/sos/event/<int:pk>/audio", fcsosv.SosEventAudioView.as_view()),
     path("family/fall/pending", fam100.FallPendingView.as_view()),   # sosat
     path("family/fall/ok", fam100.FallOkView.as_view()),             # sosat
     path("family/alerts", fam100.FamilyAlertsView.as_view()),
