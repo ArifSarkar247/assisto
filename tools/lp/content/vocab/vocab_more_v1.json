@@ -1,0 +1,1495 @@
+{
+ "version": 1,
+ "language": "en",
+ "beta": true,
+ "topics": [
+  {
+   "id": "ielts_media",
+   "group": "ielts",
+   "icon": "newspaper",
+   "title_en": "Media and news",
+   "title_bn": "গণমাধ্যম ও সংবাদ",
+   "words": [
+    {
+     "id": "ielts_media_journalism",
+     "w": "journalism",
+     "pos": "n",
+     "bn": "সাংবাদিকতা",
+     "ex": "Good journalism checks every fact before printing it."
+    },
+    {
+     "id": "ielts_media_headline",
+     "w": "headline",
+     "pos": "n",
+     "bn": "শিরোনাম",
+     "ex": "The headline was more dramatic than the story."
+    },
+    {
+     "id": "ielts_media_broadcast",
+     "w": "broadcast",
+     "pos": "v",
+     "bn": "সম্প্রচার করা",
+     "ex": "The match was broadcast live across the country."
+    },
+    {
+     "id": "ielts_media_censorship",
+     "w": "censorship",
+     "pos": "n",
+     "bn": "নিয়ন্ত্রণ / নিষেধাজ্ঞা আরোপ",
+     "ex": "Censorship limits what the public can learn."
+    },
+    {
+     "id": "ielts_media_misinformation",
+     "w": "misinformation",
+     "pos": "n",
+     "bn": "ভুল তথ্য",
+     "ex": "Misinformation spreads quickly on social media."
+    },
+    {
+     "id": "ielts_media_biased",
+     "w": "biased",
+     "pos": "adj",
+     "bn": "পক্ষপাতদুষ্ট",
+     "ex": "The report was biased towards one side."
+    },
+    {
+     "id": "ielts_media_coverage",
+     "w": "coverage",
+     "pos": "n",
+     "bn": "সংবাদ প্রচারের পরিমাণ",
+     "ex": "The flood received wide coverage on television."
+    },
+    {
+     "id": "ielts_media_audience",
+     "w": "audience",
+     "pos": "n",
+     "bn": "দর্শক / শ্রোতা",
+     "ex": "The programme attracts a young audience."
+    },
+    {
+     "id": "ielts_media_influential",
+     "w": "influential",
+     "pos": "adj",
+     "bn": "প্রভাবশালী",
+     "ex": "Online reviewers have become very influential."
+    },
+    {
+     "id": "ielts_media_sensational",
+     "w": "sensational",
+     "pos": "adj",
+     "bn": "চাঞ্চল্যকর",
+     "ex": "Some papers prefer sensational stories to serious news."
+    },
+    {
+     "id": "ielts_media_viral",
+     "w": "viral",
+     "pos": "adj",
+     "bn": "দ্রুত ছড়িয়ে পড়া",
+     "ex": "The video went viral within a day."
+    },
+    {
+     "id": "ielts_media_subscription",
+     "w": "subscription",
+     "pos": "n",
+     "bn": "নিয়মিত গ্রাহক চাঁদা",
+     "ex": "Many news sites now charge a subscription."
+    }
+   ]
+  },
+  {
+   "id": "ielts_urban",
+   "group": "ielts",
+   "icon": "location_city",
+   "title_en": "Cities and urban life",
+   "title_bn": "শহর ও নগরজীবন",
+   "words": [
+    {
+     "id": "ielts_urban_infrastructure",
+     "w": "infrastructure",
+     "pos": "n",
+     "bn": "অবকাঠামো",
+     "ex": "Rapid growth puts pressure on infrastructure."
+    },
+    {
+     "id": "ielts_urban_congestion",
+     "w": "congestion",
+     "pos": "n",
+     "bn": "যানজট",
+     "ex": "Congestion costs commuters hours every week."
+    },
+    {
+     "id": "ielts_urban_commuter",
+     "w": "commuter",
+     "pos": "n",
+     "bn": "নিয়মিত যাতায়াতকারী",
+     "ex": "Most commuters travel by bus."
+    },
+    {
+     "id": "ielts_urban_suburb",
+     "w": "suburb",
+     "pos": "n",
+     "bn": "শহরতলি",
+     "ex": "Families often move to the suburbs for more space."
+    },
+    {
+     "id": "ielts_urban_densely_populated",
+     "w": "densely populated",
+     "pos": "adj",
+     "bn": "ঘনবসতিপূর্ণ",
+     "ex": "Dhaka is one of the most densely populated cities."
+    },
+    {
+     "id": "ielts_urban_pedestrian",
+     "w": "pedestrian",
+     "pos": "n",
+     "bn": "পথচারী",
+     "ex": "The street is now open to pedestrians only."
+    },
+    {
+     "id": "ielts_urban_slum",
+     "w": "slum",
+     "pos": "n",
+     "bn": "বস্তি",
+     "ex": "The project improved water supply in the slum."
+    },
+    {
+     "id": "ielts_urban_amenities",
+     "w": "amenities",
+     "pos": "n",
+     "bn": "নাগরিক সুযোগ-সুবিধা",
+     "ex": "New housing should be near shops and other amenities."
+    },
+    {
+     "id": "ielts_urban_high_rise",
+     "w": "high-rise",
+     "pos": "adj",
+     "bn": "বহুতল",
+     "ex": "High-rise flats save land but can feel isolating."
+    },
+    {
+     "id": "ielts_urban_green_space",
+     "w": "green space",
+     "pos": "n",
+     "bn": "সবুজ খোলা জায়গা",
+     "ex": "Green space improves mental health."
+    },
+    {
+     "id": "ielts_urban_sprawl",
+     "w": "sprawl",
+     "pos": "n",
+     "bn": "শহরের অপরিকল্পিত বিস্তার",
+     "ex": "Urban sprawl swallows farmland."
+    },
+    {
+     "id": "ielts_urban_zoning",
+     "w": "zoning",
+     "pos": "n",
+     "bn": "এলাকাভিত্তিক ভূমি ব্যবহার নিয়ম",
+     "ex": "Zoning keeps factories away from homes."
+    }
+   ]
+  },
+  {
+   "id": "ielts_travel",
+   "group": "ielts",
+   "icon": "luggage",
+   "title_en": "Travel and tourism",
+   "title_bn": "ভ্রমণ ও পর্যটন",
+   "words": [
+    {
+     "id": "ielts_travel_itinerary",
+     "w": "itinerary",
+     "pos": "n",
+     "bn": "ভ্রমণসূচি",
+     "ex": "Our itinerary includes three cities in five days."
+    },
+    {
+     "id": "ielts_travel_destination",
+     "w": "destination",
+     "pos": "n",
+     "bn": "গন্তব্য",
+     "ex": "Cox's Bazar is a popular holiday destination."
+    },
+    {
+     "id": "ielts_travel_ecotourism",
+     "w": "ecotourism",
+     "pos": "n",
+     "bn": "পরিবেশবান্ধব পর্যটন",
+     "ex": "Ecotourism can protect forests and create jobs."
+    },
+    {
+     "id": "ielts_travel_landmark",
+     "w": "landmark",
+     "pos": "n",
+     "bn": "বিখ্যাত স্থাপনা / নিশানা",
+     "ex": "The old fort is the city's best-known landmark."
+    },
+    {
+     "id": "ielts_travel_hospitality",
+     "w": "hospitality",
+     "pos": "n",
+     "bn": "আতিথেয়তা",
+     "ex": "The region is known for its warm hospitality."
+    },
+    {
+     "id": "ielts_travel_souvenir",
+     "w": "souvenir",
+     "pos": "n",
+     "bn": "স্মারক উপহার",
+     "ex": "She bought a small boat as a souvenir."
+    },
+    {
+     "id": "ielts_travel_overcrowded",
+     "w": "overcrowded",
+     "pos": "adj",
+     "bn": "অতিরিক্ত ভিড়",
+     "ex": "Beaches become overcrowded during holidays."
+    },
+    {
+     "id": "ielts_travel_off_the_beaten_track",
+     "w": "off the beaten track",
+     "pos": "phr",
+     "bn": "জনপ্রিয় পথের বাইরে",
+     "ex": "We stayed in a village off the beaten track."
+    },
+    {
+     "id": "ielts_travel_accommodation",
+     "w": "accommodation",
+     "pos": "n",
+     "bn": "থাকার ব্যবস্থা",
+     "ex": "Accommodation near the beach is expensive."
+    },
+    {
+     "id": "ielts_travel_cultural_exchange",
+     "w": "cultural exchange",
+     "pos": "n",
+     "bn": "সাংস্কৃতিক বিনিময়",
+     "ex": "Student trips encourage cultural exchange."
+    },
+    {
+     "id": "ielts_travel_seasonal",
+     "w": "seasonal",
+     "pos": "adj",
+     "bn": "মৌসুমি",
+     "ex": "Tourism jobs are often seasonal."
+    },
+    {
+     "id": "ielts_travel_carbon_footprint",
+     "w": "carbon footprint",
+     "pos": "n",
+     "bn": "কার্বন নিঃসরণের পরিমাণ",
+     "ex": "Long flights increase your carbon footprint."
+    }
+   ]
+  },
+  {
+   "id": "ielts_science",
+   "group": "ielts",
+   "icon": "science",
+   "title_en": "Science and research",
+   "title_bn": "বিজ্ঞান ও গবেষণা",
+   "words": [
+    {
+     "id": "ielts_science_hypothesis",
+     "w": "hypothesis",
+     "pos": "n",
+     "bn": "অনুমান / প্রকল্প",
+     "ex": "The experiment tested a simple hypothesis."
+    },
+    {
+     "id": "ielts_science_experiment",
+     "w": "experiment",
+     "pos": "n",
+     "bn": "পরীক্ষা",
+     "ex": "The experiment was repeated three times."
+    },
+    {
+     "id": "ielts_science_evidence",
+     "w": "evidence",
+     "pos": "n",
+     "bn": "প্রমাণ",
+     "ex": "There is strong evidence for the theory."
+    },
+    {
+     "id": "ielts_science_sample",
+     "w": "sample",
+     "pos": "n",
+     "bn": "নমুনা",
+     "ex": "The sample included two hundred students."
+    },
+    {
+     "id": "ielts_science_findings",
+     "w": "findings",
+     "pos": "n",
+     "bn": "গবেষণার ফলাফল",
+     "ex": "The findings were published last year."
+    },
+    {
+     "id": "ielts_science_laboratory",
+     "w": "laboratory",
+     "pos": "n",
+     "bn": "গবেষণাগার",
+     "ex": "The samples were tested in a laboratory."
+    },
+    {
+     "id": "ielts_science_theory",
+     "w": "theory",
+     "pos": "n",
+     "bn": "তত্ত্ব",
+     "ex": "The theory explains why stars shine."
+    },
+    {
+     "id": "ielts_science_variable",
+     "w": "variable",
+     "pos": "n",
+     "bn": "পরিবর্তনশীল বিষয়",
+     "ex": "Temperature was the main variable."
+    },
+    {
+     "id": "ielts_science_peer_review",
+     "w": "peer review",
+     "pos": "n",
+     "bn": "বিশেষজ্ঞদের যাচাই",
+     "ex": "Peer review helps to catch errors."
+    },
+    {
+     "id": "ielts_science_funding",
+     "w": "funding",
+     "pos": "n",
+     "bn": "অর্থায়ন",
+     "ex": "The project lost its government funding."
+    },
+    {
+     "id": "ielts_science_ethical",
+     "w": "ethical",
+     "pos": "adj",
+     "bn": "নৈতিক",
+     "ex": "Testing on animals raises ethical questions."
+    },
+    {
+     "id": "ielts_science_replicate",
+     "w": "replicate",
+     "pos": "v",
+     "bn": "পুনরায় করে একই ফল পাওয়া",
+     "ex": "Other teams could not replicate the results."
+    }
+   ]
+  },
+  {
+   "id": "ielts_family",
+   "group": "ielts",
+   "icon": "family_restroom",
+   "title_en": "Family and relationships",
+   "title_bn": "পরিবার ও সম্পর্ক",
+   "words": [
+    {
+     "id": "ielts_family_upbringing",
+     "w": "upbringing",
+     "pos": "n",
+     "bn": "লালনপালন",
+     "ex": "A strict upbringing shaped his habits."
+    },
+    {
+     "id": "ielts_family_nuclear_family",
+     "w": "nuclear family",
+     "pos": "n",
+     "bn": "একক পরিবার",
+     "ex": "Nuclear families are more common in cities."
+    },
+    {
+     "id": "ielts_family_extended_family",
+     "w": "extended family",
+     "pos": "n",
+     "bn": "যৌথ / বড় পরিবার",
+     "ex": "We live with our extended family."
+    },
+    {
+     "id": "ielts_family_sibling",
+     "w": "sibling",
+     "pos": "n",
+     "bn": "ভাই বা বোন",
+     "ex": "I have two siblings."
+    },
+    {
+     "id": "ielts_family_parenting",
+     "w": "parenting",
+     "pos": "n",
+     "bn": "সন্তান লালনপালনের ধরন",
+     "ex": "Parenting styles differ across cultures."
+    },
+    {
+     "id": "ielts_family_role_model",
+     "w": "role model",
+     "pos": "n",
+     "bn": "আদর্শ ব্যক্তি",
+     "ex": "Her aunt was her role model."
+    },
+    {
+     "id": "ielts_family_generation_gap",
+     "w": "generation gap",
+     "pos": "n",
+     "bn": "প্রজন্মের ব্যবধান",
+     "ex": "Technology widens the generation gap."
+    },
+    {
+     "id": "ielts_family_bond",
+     "w": "bond",
+     "pos": "n",
+     "bn": "বন্ধন",
+     "ex": "Shared meals strengthen family bonds."
+    },
+    {
+     "id": "ielts_family_dependent",
+     "w": "dependent",
+     "pos": "adj",
+     "bn": "নির্ভরশীল",
+     "ex": "Young children are dependent on their parents."
+    },
+    {
+     "id": "ielts_family_childcare",
+     "w": "childcare",
+     "pos": "n",
+     "bn": "শিশু দেখাশোনা",
+     "ex": "Affordable childcare helps mothers return to work."
+    },
+    {
+     "id": "ielts_family_household",
+     "w": "household",
+     "pos": "n",
+     "bn": "পরিবার / সংসার",
+     "ex": "Each household received a food parcel."
+    },
+    {
+     "id": "ielts_family_breadwinner",
+     "w": "breadwinner",
+     "pos": "n",
+     "bn": "পরিবারের উপার্জনকারী",
+     "ex": "He became the family's breadwinner at nineteen."
+    }
+   ]
+  },
+  {
+   "id": "ielts_economy",
+   "group": "ielts",
+   "icon": "trending_up",
+   "title_en": "Economy and business",
+   "title_bn": "অর্থনীতি ও ব্যবসা",
+   "words": [
+    {
+     "id": "ielts_economy_recession",
+     "w": "recession",
+     "pos": "n",
+     "bn": "অর্থনৈতিক মন্দা",
+     "ex": "Many firms closed during the recession."
+    },
+    {
+     "id": "ielts_economy_consumer",
+     "w": "consumer",
+     "pos": "n",
+     "bn": "ভোক্তা",
+     "ex": "Consumers are spending less on luxuries."
+    },
+    {
+     "id": "ielts_economy_revenue",
+     "w": "revenue",
+     "pos": "n",
+     "bn": "আয় / রাজস্ব",
+     "ex": "The company's revenue doubled in two years."
+    },
+    {
+     "id": "ielts_economy_profit_margin",
+     "w": "profit margin",
+     "pos": "n",
+     "bn": "লাভের হার",
+     "ex": "Small shops work on a thin profit margin."
+    },
+    {
+     "id": "ielts_economy_supply_chain",
+     "w": "supply chain",
+     "pos": "n",
+     "bn": "সরবরাহ ব্যবস্থা",
+     "ex": "The storm disrupted the supply chain."
+    },
+    {
+     "id": "ielts_economy_subsidy",
+     "w": "subsidy",
+     "pos": "n",
+     "bn": "ভর্তুকি",
+     "ex": "Farmers receive a subsidy for fertiliser."
+    },
+    {
+     "id": "ielts_economy_tariff",
+     "w": "tariff",
+     "pos": "n",
+     "bn": "আমদানি শুল্ক",
+     "ex": "New tariffs made imported cars more expensive."
+    },
+    {
+     "id": "ielts_economy_investment",
+     "w": "investment",
+     "pos": "n",
+     "bn": "বিনিয়োগ",
+     "ex": "Foreign investment created new factories."
+    },
+    {
+     "id": "ielts_economy_competitive",
+     "w": "competitive",
+     "pos": "adj",
+     "bn": "প্রতিযোগিতামূলক",
+     "ex": "The garment market is highly competitive."
+    },
+    {
+     "id": "ielts_economy_monopoly",
+     "w": "monopoly",
+     "pos": "n",
+     "bn": "একচেটিয়া ব্যবসা",
+     "ex": "One firm had a monopoly on electricity."
+    },
+    {
+     "id": "ielts_economy_small_business",
+     "w": "small business",
+     "pos": "n",
+     "bn": "ছোট ব্যবসা",
+     "ex": "Small businesses employ most local workers."
+    },
+    {
+     "id": "ielts_economy_economic_growth",
+     "w": "economic growth",
+     "pos": "n",
+     "bn": "অর্থনৈতিক প্রবৃদ্ধি",
+     "ex": "Economic growth slowed last year."
+    }
+   ]
+  },
+  {
+   "id": "ielts_culture",
+   "group": "ielts",
+   "icon": "theater_comedy",
+   "title_en": "Culture and the arts",
+   "title_bn": "সংস্কৃতি ও শিল্পকলা",
+   "words": [
+    {
+     "id": "ielts_culture_custom",
+     "w": "custom",
+     "pos": "n",
+     "bn": "প্রথা",
+     "ex": "It is a local custom to remove shoes indoors."
+    },
+    {
+     "id": "ielts_culture_folk",
+     "w": "folk",
+     "pos": "adj",
+     "bn": "লোকজ",
+     "ex": "Folk songs tell the history of the village."
+    },
+    {
+     "id": "ielts_culture_craftsmanship",
+     "w": "craftsmanship",
+     "pos": "n",
+     "bn": "কারুকাজের দক্ষতা",
+     "ex": "The boat shows fine craftsmanship."
+    },
+    {
+     "id": "ielts_culture_exhibition",
+     "w": "exhibition",
+     "pos": "n",
+     "bn": "প্রদর্শনী",
+     "ex": "The exhibition showed photographs of river life."
+    },
+    {
+     "id": "ielts_culture_performing_arts",
+     "w": "performing arts",
+     "pos": "n",
+     "bn": "পরিবেশনা শিল্প",
+     "ex": "Dance and drama are performing arts."
+    },
+    {
+     "id": "ielts_culture_preserve",
+     "w": "preserve",
+     "pos": "v",
+     "bn": "সংরক্ষণ করা",
+     "ex": "Museums preserve objects from the past."
+    },
+    {
+     "id": "ielts_culture_identity",
+     "w": "identity",
+     "pos": "n",
+     "bn": "পরিচয়",
+     "ex": "Language is part of national identity."
+    },
+    {
+     "id": "ielts_culture_globalised",
+     "w": "globalised",
+     "pos": "adj",
+     "bn": "বিশ্বায়িত",
+     "ex": "In a globalised world, local crafts can disappear."
+    },
+    {
+     "id": "ielts_culture_festival",
+     "w": "festival",
+     "pos": "n",
+     "bn": "উৎসব",
+     "ex": "The spring festival fills the streets with colour."
+    },
+    {
+     "id": "ielts_culture_patron",
+     "w": "patron",
+     "pos": "n",
+     "bn": "পৃষ্ঠপোষক",
+     "ex": "Rich patrons once paid for artists' work."
+    },
+    {
+     "id": "ielts_culture_contemporary",
+     "w": "contemporary",
+     "pos": "adj",
+     "bn": "সমকালীন",
+     "ex": "The gallery shows contemporary art."
+    },
+    {
+     "id": "ielts_culture_multicultural",
+     "w": "multicultural",
+     "pos": "adj",
+     "bn": "বহু-সংস্কৃতির",
+     "ex": "London is a multicultural city."
+    }
+   ]
+  },
+  {
+   "id": "ielts_crime",
+   "group": "ielts",
+   "icon": "gavel",
+   "title_en": "Crime and law",
+   "title_bn": "অপরাধ ও আইন",
+   "words": [
+    {
+     "id": "ielts_crime_offender",
+     "w": "offender",
+     "pos": "n",
+     "bn": "অপরাধী",
+     "ex": "Young offenders need education, not only punishment."
+    },
+    {
+     "id": "ielts_crime_deterrent",
+     "w": "deterrent",
+     "pos": "n",
+     "bn": "নিবৃত্তকারী ব্যবস্থা",
+     "ex": "Long sentences are not always a deterrent."
+    },
+    {
+     "id": "ielts_crime_rehabilitation",
+     "w": "rehabilitation",
+     "pos": "n",
+     "bn": "পুনর্বাসন",
+     "ex": "Rehabilitation helps prisoners find work."
+    },
+    {
+     "id": "ielts_crime_sentence",
+     "w": "sentence",
+     "pos": "n",
+     "bn": "সাজা",
+     "ex": "He received a two-year sentence."
+    },
+    {
+     "id": "ielts_crime_legislation",
+     "w": "legislation",
+     "pos": "n",
+     "bn": "আইন প্রণয়ন",
+     "ex": "New legislation protects online shoppers."
+    },
+    {
+     "id": "ielts_crime_enforce",
+     "w": "enforce",
+     "pos": "v",
+     "bn": "আইন কার্যকর করা",
+     "ex": "Police must enforce speed limits."
+    },
+    {
+     "id": "ielts_crime_juvenile",
+     "w": "juvenile",
+     "pos": "adj",
+     "bn": "কিশোর বয়সী",
+     "ex": "Juvenile crime has fallen in the city."
+    },
+    {
+     "id": "ielts_crime_surveillance",
+     "w": "surveillance",
+     "pos": "n",
+     "bn": "নজরদারি",
+     "ex": "Surveillance cameras cover the station."
+    },
+    {
+     "id": "ielts_crime_victim",
+     "w": "victim",
+     "pos": "n",
+     "bn": "ভুক্তভোগী",
+     "ex": "Victims of crime can ask for support."
+    },
+    {
+     "id": "ielts_crime_reoffend",
+     "w": "reoffend",
+     "pos": "v",
+     "bn": "আবার অপরাধ করা",
+     "ex": "Training reduces the chance that people reoffend."
+    },
+    {
+     "id": "ielts_crime_community_service",
+     "w": "community service",
+     "pos": "n",
+     "bn": "সমাজসেবামূলক সাজা",
+     "ex": "She was given a hundred hours of community service."
+    },
+    {
+     "id": "ielts_crime_petty_crime",
+     "w": "petty crime",
+     "pos": "n",
+     "bn": "ছোটখাটো অপরাধ",
+     "ex": "Petty crime is common in crowded markets."
+    }
+   ]
+  },
+  {
+   "id": "ielts_energy",
+   "group": "ielts",
+   "icon": "bolt",
+   "title_en": "Energy and resources",
+   "title_bn": "জ্বালানি ও সম্পদ",
+   "words": [
+    {
+     "id": "ielts_energy_fossil_fuel",
+     "w": "fossil fuel",
+     "pos": "n",
+     "bn": "জীবাশ্ম জ্বালানি",
+     "ex": "Coal and gas are fossil fuels."
+    },
+    {
+     "id": "ielts_energy_solar_panel",
+     "w": "solar panel",
+     "pos": "n",
+     "bn": "সৌর প্যানেল",
+     "ex": "Solar panels power the village clinic."
+    },
+    {
+     "id": "ielts_energy_grid",
+     "w": "grid",
+     "pos": "n",
+     "bn": "বিদ্যুৎ সরবরাহ নেটওয়ার্ক",
+     "ex": "Remote islands are not connected to the grid."
+    },
+    {
+     "id": "ielts_energy_efficiency",
+     "w": "efficiency",
+     "pos": "n",
+     "bn": "দক্ষতা / অপচয় কম",
+     "ex": "LED lights improve energy efficiency."
+    },
+    {
+     "id": "ielts_energy_consumption",
+     "w": "consumption",
+     "pos": "n",
+     "bn": "ব্যবহার / খরচ",
+     "ex": "Energy consumption rises in summer."
+    },
+    {
+     "id": "ielts_energy_shortage",
+     "w": "shortage",
+     "pos": "n",
+     "bn": "ঘাটতি",
+     "ex": "Gas shortages caused power cuts."
+    },
+    {
+     "id": "ielts_energy_generate",
+     "w": "generate",
+     "pos": "v",
+     "bn": "উৎপাদন করা",
+     "ex": "The dam generates electricity for the region."
+    },
+    {
+     "id": "ielts_energy_finite",
+     "w": "finite",
+     "pos": "adj",
+     "bn": "সীমিত",
+     "ex": "Oil is a finite resource."
+    },
+    {
+     "id": "ielts_energy_insulation",
+     "w": "insulation",
+     "pos": "n",
+     "bn": "তাপ নিরোধক",
+     "ex": "Good insulation keeps homes cool."
+    },
+    {
+     "id": "ielts_energy_nuclear_power",
+     "w": "nuclear power",
+     "pos": "n",
+     "bn": "পারমাণবিক শক্তি",
+     "ex": "Nuclear power produces little carbon."
+    },
+    {
+     "id": "ielts_energy_wind_farm",
+     "w": "wind farm",
+     "pos": "n",
+     "bn": "বায়ুবিদ্যুৎ কেন্দ্র",
+     "ex": "A wind farm was built along the coast."
+    },
+    {
+     "id": "ielts_energy_power_cut",
+     "w": "power cut",
+     "pos": "n",
+     "bn": "বিদ্যুৎ বিভ্রাট",
+     "ex": "We had three power cuts last week."
+    }
+   ]
+  },
+  {
+   "id": "ielts_academic_verbs",
+   "group": "ielts",
+   "icon": "edit_note",
+   "title_en": "Academic verbs",
+   "title_bn": "একাডেমিক ক্রিয়াপদ",
+   "words": [
+    {
+     "id": "ielts_academic_verbs_analyse",
+     "w": "analyse",
+     "pos": "v",
+     "bn": "বিশ্লেষণ করা",
+     "ex": "The study analyses data from ten countries."
+    },
+    {
+     "id": "ielts_academic_verbs_argue",
+     "w": "argue",
+     "pos": "v",
+     "bn": "যুক্তি দিয়ে দাবি করা",
+     "ex": "Some experts argue that homework is unnecessary."
+    },
+    {
+     "id": "ielts_academic_verbs_assess",
+     "w": "assess",
+     "pos": "v",
+     "bn": "মূল্যায়ন করা",
+     "ex": "Teachers assess students in many ways."
+    },
+    {
+     "id": "ielts_academic_verbs_contribute",
+     "w": "contribute",
+     "pos": "v",
+     "bn": "অবদান রাখা",
+     "ex": "Many factors contribute to obesity."
+    },
+    {
+     "id": "ielts_academic_verbs_demonstrate",
+     "w": "demonstrate",
+     "pos": "v",
+     "bn": "প্রমাণ করে দেখানো",
+     "ex": "The results demonstrate a clear link."
+    },
+    {
+     "id": "ielts_academic_verbs_emphasise",
+     "w": "emphasise",
+     "pos": "v",
+     "bn": "গুরুত্ব দেওয়া",
+     "ex": "The writer emphasises the cost of delay."
+    },
+    {
+     "id": "ielts_academic_verbs_estimate",
+     "w": "estimate",
+     "pos": "v",
+     "bn": "আনুমানিক হিসাব করা",
+     "ex": "Scientists estimate that sea levels will rise."
+    },
+    {
+     "id": "ielts_academic_verbs_illustrate",
+     "w": "illustrate",
+     "pos": "v",
+     "bn": "উদাহরণ দিয়ে বোঝানো",
+     "ex": "This chart illustrates the change clearly."
+    },
+    {
+     "id": "ielts_academic_verbs_outline",
+     "w": "outline",
+     "pos": "v",
+     "bn": "সংক্ষেপে তুলে ধরা",
+     "ex": "The report outlines three solutions."
+    },
+    {
+     "id": "ielts_academic_verbs_highlight",
+     "w": "highlight",
+     "pos": "v",
+     "bn": "বিশেষভাবে তুলে ধরা",
+     "ex": "The survey highlights a lack of nurses."
+    },
+    {
+     "id": "ielts_academic_verbs_indicate",
+     "w": "indicate",
+     "pos": "v",
+     "bn": "ইঙ্গিত দেওয়া",
+     "ex": "Early signs indicate a good harvest."
+    },
+    {
+     "id": "ielts_academic_verbs_undermine",
+     "w": "undermine",
+     "pos": "v",
+     "bn": "দুর্বল করে দেওয়া",
+     "ex": "Corruption undermines trust in government."
+    }
+   ]
+  },
+  {
+   "id": "ielts_cause_effect",
+   "group": "ielts",
+   "icon": "account_tree",
+   "title_en": "Cause and effect language",
+   "title_bn": "কারণ ও ফলাফলের ভাষা",
+   "words": [
+    {
+     "id": "ielts_cause_effect_lead_to",
+     "w": "lead to",
+     "pos": "phr",
+     "bn": "কারণে ঘটা / নিয়ে যাওয়া",
+     "ex": "Poor sleep can lead to health problems."
+    },
+    {
+     "id": "ielts_cause_effect_result_in",
+     "w": "result in",
+     "pos": "phr",
+     "bn": "ফলাফল হিসেবে ঘটা",
+     "ex": "Heavy rain resulted in floods."
+    },
+    {
+     "id": "ielts_cause_effect_due_to",
+     "w": "due to",
+     "pos": "phr",
+     "bn": "কারণে",
+     "ex": "The flight was delayed due to fog."
+    },
+    {
+     "id": "ielts_cause_effect_owing_to",
+     "w": "owing to",
+     "pos": "phr",
+     "bn": "কারণবশত",
+     "ex": "Owing to high costs, the plan was dropped."
+    },
+    {
+     "id": "ielts_cause_effect_stem_from",
+     "w": "stem from",
+     "pos": "phr",
+     "bn": "থেকে উৎপত্তি হওয়া",
+     "ex": "Many conflicts stem from poverty."
+    },
+    {
+     "id": "ielts_cause_effect_trigger",
+     "w": "trigger",
+     "pos": "v",
+     "bn": "শুরু করিয়ে দেওয়া",
+     "ex": "The price rise triggered protests."
+    },
+    {
+     "id": "ielts_cause_effect_contributing_factor",
+     "w": "contributing factor",
+     "pos": "n",
+     "bn": "সহায়ক কারণ",
+     "ex": "Diet is a contributing factor in heart disease."
+    },
+    {
+     "id": "ielts_cause_effect_knock_on_effect",
+     "w": "knock-on effect",
+     "pos": "n",
+     "bn": "পরোক্ষ প্রভাব",
+     "ex": "Factory closures had a knock-on effect on local shops."
+    },
+    {
+     "id": "ielts_cause_effect_hence",
+     "w": "hence",
+     "pos": "adv",
+     "bn": "এজন্য / তাই",
+     "ex": "Fuel is expensive; hence, fares have risen."
+    },
+    {
+     "id": "ielts_cause_effect_thus",
+     "w": "thus",
+     "pos": "adv",
+     "bn": "এভাবে / ফলে",
+     "ex": "Costs fell, thus making the product cheaper."
+    },
+    {
+     "id": "ielts_cause_effect_give_rise_to",
+     "w": "give rise to",
+     "pos": "phr",
+     "bn": "সৃষ্টি করা",
+     "ex": "New technology gives rise to new jobs."
+    },
+    {
+     "id": "ielts_cause_effect_bring_about",
+     "w": "bring about",
+     "pos": "phr",
+     "bn": "ঘটানো",
+     "ex": "Education can bring about social change."
+    }
+   ]
+  },
+  {
+   "id": "ielts_opinion_phrases",
+   "group": "ielts",
+   "icon": "forum",
+   "title_en": "Opinion and argument phrases",
+   "title_bn": "মতামত ও যুক্তির ভাষা",
+   "words": [
+    {
+     "id": "ielts_opinion_phrases_in_my_view",
+     "w": "in my view",
+     "pos": "phr",
+     "bn": "আমার মতে",
+     "ex": "In my view, public transport should be free."
+    },
+    {
+     "id": "ielts_opinion_phrases_it_could_be_argued_that",
+     "w": "it could be argued that",
+     "pos": "phr",
+     "bn": "এমন যুক্তি দেওয়া যায় যে",
+     "ex": "It could be argued that exams are unfair."
+    },
+    {
+     "id": "ielts_opinion_phrases_admittedly",
+     "w": "admittedly",
+     "pos": "adv",
+     "bn": "স্বীকার করতেই হয়",
+     "ex": "Admittedly, the plan is expensive."
+    },
+    {
+     "id": "ielts_opinion_phrases_nevertheless",
+     "w": "nevertheless",
+     "pos": "adv",
+     "bn": "তবুও",
+     "ex": "It is difficult; nevertheless, it is worth trying."
+    },
+    {
+     "id": "ielts_opinion_phrases_to_a_large_extent",
+     "w": "to a large extent",
+     "pos": "phr",
+     "bn": "অনেকাংশে",
+     "ex": "I agree to a large extent."
+    },
+    {
+     "id": "ielts_opinion_phrases_firmly_believe",
+     "w": "firmly believe",
+     "pos": "phr",
+     "bn": "দৃঢ়ভাবে বিশ্বাস করা",
+     "ex": "I firmly believe that education is a right."
+    },
+    {
+     "id": "ielts_opinion_phrases_on_balance",
+     "w": "on balance",
+     "pos": "phr",
+     "bn": "সবদিক বিবেচনা করে",
+     "ex": "On balance, the benefits are greater."
+    },
+    {
+     "id": "ielts_opinion_phrases_critics_claim",
+     "w": "critics claim",
+     "pos": "phr",
+     "bn": "সমালোচকদের দাবি",
+     "ex": "Critics claim that the policy hurts the poor."
+    },
+    {
+     "id": "ielts_opinion_phrases_proponents",
+     "w": "proponents",
+     "pos": "n",
+     "bn": "সমর্থকেরা",
+     "ex": "Proponents say the tax reduces pollution."
+    },
+    {
+     "id": "ielts_opinion_phrases_outweigh",
+     "w": "outweigh",
+     "pos": "v",
+     "bn": "বেশি গুরুত্বপূর্ণ হওয়া",
+     "ex": "The advantages outweigh the disadvantages."
+    },
+    {
+     "id": "ielts_opinion_phrases_valid_point",
+     "w": "valid point",
+     "pos": "n",
+     "bn": "যৌক্তিক কথা",
+     "ex": "That is a valid point, but it is not the whole story."
+    },
+    {
+     "id": "ielts_opinion_phrases_from_my_perspective",
+     "w": "from my perspective",
+     "pos": "phr",
+     "bn": "আমার দৃষ্টিকোণ থেকে",
+     "ex": "From my perspective, cities need more parks."
+    }
+   ]
+  },
+  {
+   "id": "life_housing",
+   "group": "life",
+   "icon": "home",
+   "title_en": "Housing and home",
+   "title_bn": "বাসা ও ঘরবাড়ি",
+   "words": [
+    {
+     "id": "life_housing_landlord",
+     "w": "landlord",
+     "pos": "n",
+     "bn": "বাড়িওয়ালা",
+     "ex": "Tell the landlord when something breaks."
+    },
+    {
+     "id": "life_housing_tenant",
+     "w": "tenant",
+     "pos": "n",
+     "bn": "ভাড়াটিয়া",
+     "ex": "Tenants must keep the flat clean."
+    },
+    {
+     "id": "life_housing_lease",
+     "w": "lease",
+     "pos": "n",
+     "bn": "ভাড়ার চুক্তি",
+     "ex": "The lease is for twelve months."
+    },
+    {
+     "id": "life_housing_utilities",
+     "w": "utilities",
+     "pos": "n",
+     "bn": "পানি, বিদ্যুৎ, গ্যাস সেবা",
+     "ex": "Utilities are not included in the rent."
+    },
+    {
+     "id": "life_housing_leak",
+     "w": "leak",
+     "pos": "n",
+     "bn": "চুঁইয়ে পড়া / ফুটো",
+     "ex": "There is a leak under the sink."
+    },
+    {
+     "id": "life_housing_plumber",
+     "w": "plumber",
+     "pos": "n",
+     "bn": "কলমিস্ত্রি",
+     "ex": "The plumber fixed the pipe."
+    },
+    {
+     "id": "life_housing_electrician",
+     "w": "electrician",
+     "pos": "n",
+     "bn": "বিদ্যুৎমিস্ত্রি",
+     "ex": "Call an electrician if the switch sparks."
+    },
+    {
+     "id": "life_housing_mould",
+     "w": "mould",
+     "pos": "n",
+     "bn": "ছত্রাক / ভেজা দাগ",
+     "ex": "Open the window to stop mould in the bathroom."
+    },
+    {
+     "id": "life_housing_bunk_bed",
+     "w": "bunk bed",
+     "pos": "n",
+     "bn": "দোতলা খাট",
+     "ex": "Four workers share a room with bunk beds."
+    },
+    {
+     "id": "life_housing_neighbourhood",
+     "w": "neighbourhood",
+     "pos": "n",
+     "bn": "পাড়া / এলাকা",
+     "ex": "The neighbourhood is quiet at night."
+    },
+    {
+     "id": "life_housing_maintenance",
+     "w": "maintenance",
+     "pos": "n",
+     "bn": "রক্ষণাবেক্ষণ",
+     "ex": "Report maintenance problems by phone."
+    },
+    {
+     "id": "life_housing_evict",
+     "w": "evict",
+     "pos": "v",
+     "bn": "বাসা থেকে উচ্ছেদ করা",
+     "ex": "A landlord cannot evict you without notice."
+    }
+   ]
+  },
+  {
+   "id": "life_health_pharmacy",
+   "group": "life",
+   "icon": "medication",
+   "title_en": "Health and pharmacy",
+   "title_bn": "স্বাস্থ্য ও ফার্মেসি",
+   "words": [
+    {
+     "id": "life_health_pharmacy_headache",
+     "w": "headache",
+     "pos": "n",
+     "bn": "মাথাব্যথা",
+     "ex": "I have had a headache since morning."
+    },
+    {
+     "id": "life_health_pharmacy_cough",
+     "w": "cough",
+     "pos": "n",
+     "bn": "কাশি",
+     "ex": "This syrup is for a dry cough."
+    },
+    {
+     "id": "life_health_pharmacy_rash",
+     "w": "rash",
+     "pos": "n",
+     "bn": "চামড়ায় লাল ফুসকুড়ি",
+     "ex": "The cream helped the rash on my arm."
+    },
+    {
+     "id": "life_health_pharmacy_ointment",
+     "w": "ointment",
+     "pos": "n",
+     "bn": "মলম",
+     "ex": "Put the ointment on twice a day."
+    },
+    {
+     "id": "life_health_pharmacy_bandage",
+     "w": "bandage",
+     "pos": "n",
+     "bn": "ব্যান্ডেজ",
+     "ex": "The nurse put a bandage on my hand."
+    },
+    {
+     "id": "life_health_pharmacy_dehydrated",
+     "w": "dehydrated",
+     "pos": "adj",
+     "bn": "পানিশূন্য",
+     "ex": "Drink water so you do not get dehydrated."
+    },
+    {
+     "id": "life_health_pharmacy_over_the_counter",
+     "w": "over the counter",
+     "pos": "phr",
+     "bn": "প্রেসক্রিপশন ছাড়া কেনা যায়",
+     "ex": "This medicine is sold over the counter."
+    },
+    {
+     "id": "life_health_pharmacy_antibiotic",
+     "w": "antibiotic",
+     "pos": "n",
+     "bn": "অ্যান্টিবায়োটিক",
+     "ex": "Finish the full course of antibiotics."
+    },
+    {
+     "id": "life_health_pharmacy_swollen",
+     "w": "swollen",
+     "pos": "adj",
+     "bn": "ফোলা",
+     "ex": "My ankle is swollen after the fall."
+    },
+    {
+     "id": "life_health_pharmacy_nausea",
+     "w": "nausea",
+     "pos": "n",
+     "bn": "বমিভাব",
+     "ex": "The tablets may cause nausea."
+    },
+    {
+     "id": "life_health_pharmacy_check_up",
+     "w": "check-up",
+     "pos": "n",
+     "bn": "নিয়মিত স্বাস্থ্য পরীক্ষা",
+     "ex": "I go for a check-up every year."
+    },
+    {
+     "id": "life_health_pharmacy_clinic",
+     "w": "clinic",
+     "pos": "n",
+     "bn": "ক্লিনিক",
+     "ex": "The clinic opens at eight."
+    }
+   ]
+  },
+  {
+   "id": "life_construction_factory",
+   "group": "life",
+   "icon": "construction",
+   "title_en": "Construction and factory work",
+   "title_bn": "নির্মাণ ও কারখানার কাজ",
+   "words": [
+    {
+     "id": "life_construction_factory_site",
+     "w": "site",
+     "pos": "n",
+     "bn": "কাজের সাইট",
+     "ex": "The site closes at six."
+    },
+    {
+     "id": "life_construction_factory_foreman",
+     "w": "foreman",
+     "pos": "n",
+     "bn": "কাজের প্রধান তত্ত্বাবধায়ক",
+     "ex": "The foreman gives us our tasks each morning."
+    },
+    {
+     "id": "life_construction_factory_concrete",
+     "w": "concrete",
+     "pos": "n",
+     "bn": "কংক্রিট / ঢালাই",
+     "ex": "The concrete needs two days to dry."
+    },
+    {
+     "id": "life_construction_factory_crane",
+     "w": "crane",
+     "pos": "n",
+     "bn": "ক্রেন",
+     "ex": "Stand clear when the crane is moving."
+    },
+    {
+     "id": "life_construction_factory_drill",
+     "w": "drill",
+     "pos": "n",
+     "bn": "ড্রিল মেশিন",
+     "ex": "Wear ear protection when you use the drill."
+    },
+    {
+     "id": "life_construction_factory_assembly_line",
+     "w": "assembly line",
+     "pos": "n",
+     "bn": "উৎপাদন লাইন",
+     "ex": "She works on the assembly line."
+    },
+    {
+     "id": "life_construction_factory_quota",
+     "w": "quota",
+     "pos": "n",
+     "bn": "নির্ধারিত লক্ষ্যমাত্রা",
+     "ex": "Our daily quota is two hundred pieces."
+    },
+    {
+     "id": "life_construction_factory_defect",
+     "w": "defect",
+     "pos": "n",
+     "bn": "ত্রুটি",
+     "ex": "Check each item for defects."
+    },
+    {
+     "id": "life_construction_factory_goggles",
+     "w": "goggles",
+     "pos": "n",
+     "bn": "চোখের সুরক্ষা চশমা",
+     "ex": "Wear goggles when cutting metal."
+    },
+    {
+     "id": "life_construction_factory_forklift",
+     "w": "forklift",
+     "pos": "n",
+     "bn": "মাল তোলার গাড়ি",
+     "ex": "Only trained staff can drive the forklift."
+    },
+    {
+     "id": "life_construction_factory_maintenance_check",
+     "w": "maintenance check",
+     "pos": "n",
+     "bn": "যন্ত্র পরীক্ষা",
+     "ex": "The machine is off for a maintenance check."
+    },
+    {
+     "id": "life_construction_factory_ear_protection",
+     "w": "ear protection",
+     "pos": "n",
+     "bn": "কানের সুরক্ষা",
+     "ex": "Ear protection is required in this area."
+    }
+   ]
+  },
+  {
+   "id": "life_hospitality_care",
+   "group": "life",
+   "icon": "room_service",
+   "title_en": "Hotel, restaurant and care work",
+   "title_bn": "হোটেল, রেস্টুরেন্ট ও কেয়ার কাজ",
+   "words": [
+    {
+     "id": "life_hospitality_care_guest",
+     "w": "guest",
+     "pos": "n",
+     "bn": "অতিথি",
+     "ex": "Always greet the guest with a smile."
+    },
+    {
+     "id": "life_hospitality_care_housekeeper",
+     "w": "housekeeper",
+     "pos": "n",
+     "bn": "ঘর পরিষ্কারের কর্মী",
+     "ex": "The housekeeper cleans twenty rooms a day."
+    },
+    {
+     "id": "life_hospitality_care_kitchen_porter",
+     "w": "kitchen porter",
+     "pos": "n",
+     "bn": "রান্নাঘরের সহকারী",
+     "ex": "The kitchen porter washes the pots."
+    },
+    {
+     "id": "life_hospitality_care_hygiene",
+     "w": "hygiene",
+     "pos": "n",
+     "bn": "পরিচ্ছন্নতা",
+     "ex": "Food hygiene rules are very strict."
+    },
+    {
+     "id": "life_hospitality_care_apron",
+     "w": "apron",
+     "pos": "n",
+     "bn": "অ্যাপ্রন",
+     "ex": "Put on a clean apron before cooking."
+    },
+    {
+     "id": "life_hospitality_care_caregiver",
+     "w": "caregiver",
+     "pos": "n",
+     "bn": "সেবাকর্মী",
+     "ex": "The caregiver helps the old man to walk."
+    },
+    {
+     "id": "life_hospitality_care_patient",
+     "w": "patient",
+     "pos": "adj",
+     "bn": "ধৈর্যশীল",
+     "ex": "Care workers must be patient and kind."
+    },
+    {
+     "id": "life_hospitality_care_mobility",
+     "w": "mobility",
+     "pos": "n",
+     "bn": "চলাফেরার সামর্থ্য",
+     "ex": "Exercise improves mobility in older people."
+    },
+    {
+     "id": "life_hospitality_care_medication_round",
+     "w": "medication round",
+     "pos": "n",
+     "bn": "নির্দিষ্ট সময়ে ওষুধ দেওয়া",
+     "ex": "The nurse does the medication round at nine."
+    },
+    {
+     "id": "life_hospitality_care_tray",
+     "w": "tray",
+     "pos": "n",
+     "bn": "ট্রে",
+     "ex": "Carry the tray with both hands."
+    },
+    {
+     "id": "life_hospitality_care_complaint_form",
+     "w": "complaint form",
+     "pos": "n",
+     "bn": "অভিযোগের ফর্ম",
+     "ex": "The guest asked for a complaint form."
+    },
+    {
+     "id": "life_hospitality_care_rota",
+     "w": "rota",
+     "pos": "n",
+     "bn": "পালাক্রমে কাজের তালিকা",
+     "ex": "Check the rota for your days off."
+    }
+   ]
+  }
+ ]
+}

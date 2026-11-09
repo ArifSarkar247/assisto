@@ -1,0 +1,2447 @@
+{
+ "version": 1,
+ "language": "en",
+ "beta": true,
+ "scenarios": [
+  {
+   "id": "hotel",
+   "icon": "hotel",
+   "title_en": "Hotel check-in and problems",
+   "title_bn": "হোটেলে চেক-ইন ও সমস্যা",
+   "role_en": "hotel receptionist",
+   "role_bn": "হোটেলের রিসেপশনিস্ট",
+   "opening": "Good evening, welcome. Do you have a reservation with us?",
+   "goals_en": [
+    "Check in with your booking name and ID",
+    "Ask about breakfast, Wi-Fi and check-out time",
+    "Report a problem in your room politely"
+   ],
+   "goals_bn": [
+    "বুকিংয়ের নাম আর পরিচয়পত্র দিয়ে চেক-ইন করা",
+    "নাশতা, ওয়াই-ফাই আর চেক-আউটের সময় জেনে নেওয়া",
+    "রুমের কোনো সমস্যা ভদ্রভাবে জানানো"
+   ],
+   "sentences": [
+    {
+     "en": "I have a reservation under the name Hasan.",
+     "bn": "হাসান নামে আমার একটা বুকিং আছে।"
+    },
+    {
+     "en": "I booked a single room for three nights.",
+     "bn": "আমি তিন রাতের জন্য একটা সিঙ্গেল রুম বুক করেছি।"
+    },
+    {
+     "en": "Here is my passport. Do you need a copy?",
+     "bn": "এই যে আমার পাসপোর্ট। কপি লাগবে কি?"
+    },
+    {
+     "en": "What time is breakfast served?",
+     "bn": "নাশতা কয়টা থেকে দেওয়া হয়?"
+    },
+    {
+     "en": "What is the Wi-Fi password, please?",
+     "bn": "ওয়াই-ফাইয়ের পাসওয়ার্ডটা কী, বলবেন?"
+    },
+    {
+     "en": "The air conditioner in my room is not working.",
+     "bn": "আমার রুমের এসিটা কাজ করছে না।"
+    },
+    {
+     "en": "Could I have an extra towel and a blanket?",
+     "bn": "একটা বাড়তি তোয়ালে আর একটা কম্বল পেতে পারি?"
+    },
+    {
+     "en": "What time do I need to check out?",
+     "bn": "আমাকে কয়টার মধ্যে চেক-আউট করতে হবে?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "reservation",
+     "bn": "বুকিং / সংরক্ষণ",
+     "ex": "I made the reservation online last week."
+    },
+    {
+     "w": "check in",
+     "bn": "হোটেলে উঠে নাম লেখানো",
+     "ex": "You can check in after two o'clock."
+    },
+    {
+     "w": "check out",
+     "bn": "হোটেল ছেড়ে যাওয়া ও বিল মেটানো",
+     "ex": "Please check out before eleven."
+    },
+    {
+     "w": "single room",
+     "bn": "একজনের রুম",
+     "ex": "A single room is enough for me."
+    },
+    {
+     "w": "key card",
+     "bn": "দরজা খোলার কার্ড",
+     "ex": "My key card does not open the door."
+    },
+    {
+     "w": "deposit",
+     "bn": "জামানত (ফেরতযোগ্য টাকা)",
+     "ex": "The hotel takes a small deposit at check-in."
+    },
+    {
+     "w": "reception",
+     "bn": "অভ্যর্থনা কাউন্টার",
+     "ex": "Leave your key at reception."
+    },
+    {
+     "w": "housekeeping",
+     "bn": "রুম পরিষ্কারের বিভাগ",
+     "ex": "Housekeeping will clean your room today."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Do you have a reservation?",
+     "a": "Yes, I have a reservation under the name Hasan.",
+     "bn": "জি, হাসান নামে আমার বুকিং আছে।"
+    },
+    {
+     "q": "How many nights will you stay?",
+     "a": "I booked a single room for three nights.",
+     "bn": "আমি তিন রাতের জন্য সিঙ্গেল রুম বুক করেছি।"
+    },
+    {
+     "q": "Can I see your passport, please?",
+     "a": "Here is my passport. Do you need a copy?",
+     "bn": "এই যে পাসপোর্ট। কপি লাগবে কি?"
+    },
+    {
+     "q": "Is everything all right with your room?",
+     "a": "The air conditioner in my room is not working.",
+     "bn": "আমার রুমের এসি কাজ করছে না।"
+    },
+    {
+     "q": "Is there anything else you need?",
+     "a": "Could I have an extra towel and a blanket?",
+     "bn": "একটা বাড়তি তোয়ালে আর কম্বল পেতে পারি?"
+    }
+   ]
+  },
+  {
+   "id": "phone_call",
+   "icon": "call",
+   "title_en": "Phone calls",
+   "title_bn": "ফোনে কথা বলা",
+   "role_en": "office receptionist on the phone",
+   "role_bn": "ফোনে অফিসের রিসেপশনিস্ট",
+   "opening": "Good morning, this is the customer service desk. How can I help you?",
+   "goals_en": [
+    "Say who you are and why you are calling",
+    "Ask the other person to repeat or spell something",
+    "Leave a clear message with your number"
+   ],
+   "goals_bn": [
+    "নিজের পরিচয় আর ফোন করার কারণ বলা",
+    "অন্যজনকে আবার বলতে বা বানান করতে বলা",
+    "নম্বরসহ পরিষ্কার একটা মেসেজ রেখে যাওয়া"
+   ],
+   "sentences": [
+    {
+     "en": "Hello, my name is Rafiq. I am calling about my application.",
+     "bn": "হ্যালো, আমি রফিক। আমার আবেদনের ব্যাপারে ফোন করেছি।"
+    },
+    {
+     "en": "Could I speak to the manager, please?",
+     "bn": "ম্যানেজারের সাথে একটু কথা বলা যাবে?"
+    },
+    {
+     "en": "Sorry, the line is bad. Could you say that again?",
+     "bn": "দুঃখিত, লাইনটা খারাপ। আবার বলবেন?"
+    },
+    {
+     "en": "Could you spell that for me, please?",
+     "bn": "একটু বানান করে বলবেন?"
+    },
+    {
+     "en": "Can I leave a message for him?",
+     "bn": "উনার জন্য একটা মেসেজ রেখে যেতে পারি?"
+    },
+    {
+     "en": "Please ask her to call me back on this number.",
+     "bn": "দয়া করে উনাকে এই নম্বরে আমাকে ফোন করতে বলবেন।"
+    },
+    {
+     "en": "What is the best time to call again?",
+     "bn": "আবার কখন ফোন করলে ভালো হয়?"
+    },
+    {
+     "en": "Thank you for your help. Goodbye.",
+     "bn": "সাহায্যের জন্য ধন্যবাদ। আল্লাহ হাফেজ।"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "call back",
+     "bn": "পরে আবার ফোন করা",
+     "ex": "I will call you back in ten minutes."
+    },
+    {
+     "w": "hold on",
+     "bn": "লাইনে একটু অপেক্ষা করা",
+     "ex": "Please hold on, I will connect you."
+    },
+    {
+     "w": "put through",
+     "bn": "অন্যজনের সাথে লাইন জুড়ে দেওয়া",
+     "ex": "I will put you through to the manager."
+    },
+    {
+     "w": "extension",
+     "bn": "অফিসের ভেতরের লাইনের নম্বর",
+     "ex": "Her extension number is 214."
+    },
+    {
+     "w": "message",
+     "bn": "বার্তা",
+     "ex": "Can I take a message?"
+    },
+    {
+     "w": "spell",
+     "bn": "বানান করা",
+     "ex": "Could you spell your surname?"
+    },
+    {
+     "w": "engaged",
+     "bn": "লাইন ব্যস্ত",
+     "ex": "The line is engaged at the moment."
+    },
+    {
+     "w": "missed call",
+     "bn": "ধরতে না পারা কল",
+     "ex": "I had a missed call from this number."
+    }
+   ],
+   "drill": [
+    {
+     "q": "How can I help you?",
+     "a": "Hello, my name is Rafiq. I am calling about my application.",
+     "bn": "হ্যালো, আমি রফিক। আমার আবেদনের ব্যাপারে ফোন করেছি।"
+    },
+    {
+     "q": "Who would you like to speak to?",
+     "a": "Could I speak to the manager, please?",
+     "bn": "ম্যানেজারের সাথে কথা বলা যাবে?"
+    },
+    {
+     "q": "She is in a meeting right now.",
+     "a": "Can I leave a message for her?",
+     "bn": "উনার জন্য একটা মেসেজ রেখে যেতে পারি?"
+    },
+    {
+     "q": "What is your surname?",
+     "a": "It is Karim. Shall I spell it? K-A-R-I-M.",
+     "bn": "করিম। বানান করে দিই? K-A-R-I-M।"
+    },
+    {
+     "q": "Is there anything else?",
+     "a": "Please ask her to call me back on this number.",
+     "bn": "উনাকে এই নম্বরে আমাকে ফোন করতে বলবেন।"
+    }
+   ]
+  },
+  {
+   "id": "office",
+   "icon": "business_center",
+   "title_en": "In the office",
+   "title_bn": "অফিসে কাজ",
+   "role_en": "team leader",
+   "role_bn": "টিম লিডার",
+   "opening": "Good morning. Have you finished the report I asked for yesterday?",
+   "goals_en": [
+    "Give an update on your work",
+    "Ask for help or more time politely",
+    "Confirm a meeting or a task"
+   ],
+   "goals_bn": [
+    "নিজের কাজের অগ্রগতি জানানো",
+    "ভদ্রভাবে সাহায্য বা বাড়তি সময় চাওয়া",
+    "মিটিং বা কাজ নিশ্চিত করা"
+   ],
+   "sentences": [
+    {
+     "en": "I have finished most of it. I will send it by noon.",
+     "bn": "বেশিরভাগটা শেষ করেছি। দুপুরের মধ্যে পাঠিয়ে দেব।"
+    },
+    {
+     "en": "Could I have one more day for this task?",
+     "bn": "এই কাজটার জন্য আর একদিন সময় পেতে পারি?"
+    },
+    {
+     "en": "I am not sure how to do this part. Could you show me?",
+     "bn": "এই অংশটা কীভাবে করব বুঝতে পারছি না। একটু দেখিয়ে দেবেন?"
+    },
+    {
+     "en": "What time does the meeting start?",
+     "bn": "মিটিং কয়টায় শুরু হবে?"
+    },
+    {
+     "en": "I will send you an email to confirm.",
+     "bn": "নিশ্চিত করতে আপনাকে একটা ইমেইল পাঠাব।"
+    },
+    {
+     "en": "The printer on this floor is not working.",
+     "bn": "এই ফ্লোরের প্রিন্টারটা কাজ করছে না।"
+    },
+    {
+     "en": "May I leave early today? I have a doctor's appointment.",
+     "bn": "আজ একটু আগে যেতে পারি? ডাক্তারের অ্যাপয়েন্টমেন্ট আছে।"
+    },
+    {
+     "en": "Thank you for your feedback. I will correct it.",
+     "bn": "মতামতের জন্য ধন্যবাদ। আমি ঠিক করে নেব।"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "report",
+     "bn": "প্রতিবেদন",
+     "ex": "The report must be ready by Friday."
+    },
+    {
+     "w": "meeting",
+     "bn": "সভা",
+     "ex": "We have a team meeting every Monday."
+    },
+    {
+     "w": "feedback",
+     "bn": "মতামত / পরামর্শ",
+     "ex": "My manager gave me useful feedback."
+    },
+    {
+     "w": "task",
+     "bn": "কাজ / দায়িত্ব",
+     "ex": "This task will take two hours."
+    },
+    {
+     "w": "attachment",
+     "bn": "ইমেইলের সাথে জুড়ে দেওয়া ফাইল",
+     "ex": "Please open the attachment."
+    },
+    {
+     "w": "schedule",
+     "bn": "সময়সূচি",
+     "ex": "The schedule has changed this week."
+    },
+    {
+     "w": "confirm",
+     "bn": "নিশ্চিত করা",
+     "ex": "Please confirm the time of the meeting."
+    },
+    {
+     "w": "leave early",
+     "bn": "আগে আগে ছুটি নেওয়া",
+     "ex": "I asked to leave early on Thursday."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Have you finished the report?",
+     "a": "I have finished most of it. I will send it by noon.",
+     "bn": "বেশিরভাগ শেষ। দুপুরের মধ্যে পাঠাব।"
+    },
+    {
+     "q": "Can you finish this today?",
+     "a": "Could I have one more day for this task?",
+     "bn": "এই কাজটার জন্য আর একদিন সময় পেতে পারি?"
+    },
+    {
+     "q": "Do you have any questions?",
+     "a": "I am not sure how to do this part. Could you show me?",
+     "bn": "এই অংশটা বুঝিনি। একটু দেখিয়ে দেবেন?"
+    },
+    {
+     "q": "The meeting is tomorrow.",
+     "a": "What time does the meeting start?",
+     "bn": "মিটিং কয়টায় শুরু?"
+    },
+    {
+     "q": "There are two mistakes in your work.",
+     "a": "Thank you for your feedback. I will correct it.",
+     "bn": "মতামতের জন্য ধন্যবাদ। ঠিক করে নেব।"
+    }
+   ]
+  },
+  {
+   "id": "abroad_workplace",
+   "icon": "engineering",
+   "title_en": "First days at a job abroad",
+   "title_bn": "বিদেশে কাজের প্রথম দিনগুলো",
+   "role_en": "site supervisor",
+   "role_bn": "সাইট সুপারভাইজার",
+   "opening": "Welcome to the team. Is this your first job in this country?",
+   "goals_en": [
+    "Introduce yourself and your experience",
+    "Understand instructions and ask to repeat",
+    "Ask about breaks, shifts and rules"
+   ],
+   "goals_bn": [
+    "নিজের পরিচয় আর অভিজ্ঞতা জানানো",
+    "নির্দেশনা বোঝা আর দরকারে আবার জিজ্ঞেস করা",
+    "বিরতি, শিফট আর নিয়মকানুন জেনে নেওয়া"
+   ],
+   "sentences": [
+    {
+     "en": "Yes, this is my first job here. I worked as an electrician in Bangladesh.",
+     "bn": "জি, এখানে এটাই আমার প্রথম কাজ। বাংলাদেশে ইলেকট্রিশিয়ান ছিলাম।"
+    },
+    {
+     "en": "I have five years of experience.",
+     "bn": "আমার পাঁচ বছরের অভিজ্ঞতা আছে।"
+    },
+    {
+     "en": "Sorry, I did not understand. Could you show me once more?",
+     "bn": "দুঃখিত, বুঝিনি। আর একবার দেখিয়ে দেবেন?"
+    },
+    {
+     "en": "What time is the lunch break?",
+     "bn": "দুপুরের বিরতি কয়টায়?"
+    },
+    {
+     "en": "Which shift will I work next week?",
+     "bn": "আগামী সপ্তাহে আমার কোন শিফট?"
+    },
+    {
+     "en": "Where should I keep my tools after work?",
+     "bn": "কাজ শেষে যন্ত্রপাতি কোথায় রাখব?"
+    },
+    {
+     "en": "Who should I ask if I have a problem?",
+     "bn": "সমস্যা হলে কাকে বলব?"
+    },
+    {
+     "en": "I will follow the safety rules.",
+     "bn": "আমি নিরাপত্তার নিয়ম মেনে চলব।"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "experience",
+     "bn": "অভিজ্ঞতা",
+     "ex": "He has experience in welding."
+    },
+    {
+     "w": "shift",
+     "bn": "পালা (কাজের নির্দিষ্ট সময়)",
+     "ex": "My shift starts at six in the morning."
+    },
+    {
+     "w": "break",
+     "bn": "বিরতি",
+     "ex": "We have a thirty-minute break."
+    },
+    {
+     "w": "tools",
+     "bn": "যন্ত্রপাতি",
+     "ex": "Please return the tools to the store."
+    },
+    {
+     "w": "rules",
+     "bn": "নিয়মকানুন",
+     "ex": "Read the site rules on the notice board."
+    },
+    {
+     "w": "ID badge",
+     "bn": "পরিচয় ব্যাজ",
+     "ex": "Wear your ID badge at all times."
+    },
+    {
+     "w": "induction",
+     "bn": "নতুনদের পরিচিতিমূলক প্রশিক্ষণ",
+     "ex": "All new workers attend an induction."
+    },
+    {
+     "w": "accommodation",
+     "bn": "থাকার জায়গা",
+     "ex": "The company provides accommodation near the site."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Is this your first job here?",
+     "a": "Yes, this is my first job here. I worked as an electrician in Bangladesh.",
+     "bn": "জি, এখানে প্রথম কাজ। দেশে ইলেকট্রিশিয়ান ছিলাম।"
+    },
+    {
+     "q": "How much experience do you have?",
+     "a": "I have five years of experience.",
+     "bn": "আমার পাঁচ বছরের অভিজ্ঞতা আছে।"
+    },
+    {
+     "q": "Do you understand what to do?",
+     "a": "Sorry, I did not understand. Could you show me once more?",
+     "bn": "দুঃখিত, বুঝিনি। আর একবার দেখাবেন?"
+    },
+    {
+     "q": "Any questions about your timetable?",
+     "a": "Which shift will I work next week?",
+     "bn": "আগামী সপ্তাহে আমার কোন শিফট?"
+    },
+    {
+     "q": "Remember the safety rules.",
+     "a": "I will follow the safety rules.",
+     "bn": "আমি নিরাপত্তার নিয়ম মেনে চলব।"
+    }
+   ]
+  },
+  {
+   "id": "pharmacy",
+   "icon": "medication",
+   "title_en": "At the pharmacy",
+   "title_bn": "ফার্মেসিতে",
+   "role_en": "pharmacist",
+   "role_bn": "ফার্মাসিস্ট",
+   "opening": "Hello. Do you have a prescription, or can I help you choose something?",
+   "goals_en": [
+    "Describe your symptoms simply",
+    "Ask how and when to take the medicine",
+    "Mention allergies or other medicines"
+   ],
+   "goals_bn": [
+    "নিজের উপসর্গ সহজভাবে বলা",
+    "ওষুধ কীভাবে আর কখন খাবেন জেনে নেওয়া",
+    "অ্যালার্জি বা অন্য ওষুধের কথা জানানো"
+   ],
+   "sentences": [
+    {
+     "en": "I have a bad cold and a sore throat.",
+     "bn": "আমার খুব ঠান্ডা লেগেছে আর গলা ব্যথা।"
+    },
+    {
+     "en": "Here is my prescription from the doctor.",
+     "bn": "এই যে ডাক্তারের প্রেসক্রিপশন।"
+    },
+    {
+     "en": "How many times a day should I take this?",
+     "bn": "এটা দিনে কয়বার খেতে হবে?"
+    },
+    {
+     "en": "Should I take it before or after food?",
+     "bn": "খাবারের আগে না পরে খাব?"
+    },
+    {
+     "en": "I am allergic to penicillin.",
+     "bn": "আমার পেনিসিলিনে অ্যালার্জি আছে।"
+    },
+    {
+     "en": "I am already taking medicine for blood pressure.",
+     "bn": "আমি আগে থেকেই প্রেশারের ওষুধ খাচ্ছি।"
+    },
+    {
+     "en": "Is there anything without a prescription for a headache?",
+     "bn": "মাথাব্যথার জন্য প্রেসক্রিপশন ছাড়া কিছু আছে?"
+    },
+    {
+     "en": "Can this medicine make me sleepy?",
+     "bn": "এই ওষুধে কি ঘুম পায়?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "prescription",
+     "bn": "ডাক্তারের লেখা ওষুধের কাগজ",
+     "ex": "You need a prescription for this medicine."
+    },
+    {
+     "w": "symptom",
+     "bn": "রোগের লক্ষণ",
+     "ex": "Fever is a common symptom of flu."
+    },
+    {
+     "w": "dose",
+     "bn": "এক বারে খাওয়ার পরিমাণ",
+     "ex": "Do not take more than the dose."
+    },
+    {
+     "w": "tablet",
+     "bn": "বড়ি",
+     "ex": "Take one tablet after dinner."
+    },
+    {
+     "w": "syrup",
+     "bn": "তরল ওষুধ / সিরাপ",
+     "ex": "The syrup is for children."
+    },
+    {
+     "w": "side effect",
+     "bn": "পার্শ্বপ্রতিক্রিয়া",
+     "ex": "A side effect may be a dry mouth."
+    },
+    {
+     "w": "sore throat",
+     "bn": "গলা ব্যথা",
+     "ex": "Warm water helps a sore throat."
+    },
+    {
+     "w": "painkiller",
+     "bn": "ব্যথানাশক ওষুধ",
+     "ex": "She took a painkiller for her back."
+    }
+   ],
+   "drill": [
+    {
+     "q": "What is the problem?",
+     "a": "I have a bad cold and a sore throat.",
+     "bn": "খুব ঠান্ডা লেগেছে আর গলা ব্যথা।"
+    },
+    {
+     "q": "Do you have a prescription?",
+     "a": "Here is my prescription from the doctor.",
+     "bn": "এই যে ডাক্তারের প্রেসক্রিপশন।"
+    },
+    {
+     "q": "Take two tablets a day.",
+     "a": "Should I take it before or after food?",
+     "bn": "খাবারের আগে না পরে খাব?"
+    },
+    {
+     "q": "Do you have any allergies?",
+     "a": "I am allergic to penicillin.",
+     "bn": "আমার পেনিসিলিনে অ্যালার্জি আছে।"
+    },
+    {
+     "q": "Are you taking any other medicine?",
+     "a": "I am already taking medicine for blood pressure.",
+     "bn": "আগে থেকেই প্রেশারের ওষুধ খাচ্ছি।"
+    }
+   ]
+  },
+  {
+   "id": "restaurant",
+   "icon": "restaurant",
+   "title_en": "At a restaurant",
+   "title_bn": "রেস্টুরেন্টে",
+   "role_en": "waiter",
+   "role_bn": "ওয়েটার",
+   "opening": "Good evening. Table for how many people?",
+   "goals_en": [
+    "Ask for a table and the menu",
+    "Order food and ask about ingredients",
+    "Ask for the bill and pay"
+   ],
+   "goals_bn": [
+    "টেবিল আর মেনু চাওয়া",
+    "খাবার অর্ডার করা আর উপকরণ জেনে নেওয়া",
+    "বিল চাওয়া আর টাকা দেওয়া"
+   ],
+   "sentences": [
+    {
+     "en": "A table for two, please.",
+     "bn": "দুজনের জন্য একটা টেবিল, প্লিজ।"
+    },
+    {
+     "en": "Could we see the menu, please?",
+     "bn": "মেনুটা একটু দেখতে পারি?"
+    },
+    {
+     "en": "Is this dish halal?",
+     "bn": "এই খাবারটা কি হালাল?"
+    },
+    {
+     "en": "Does this have nuts in it? I am allergic.",
+     "bn": "এতে কি বাদাম আছে? আমার অ্যালার্জি।"
+    },
+    {
+     "en": "I would like the chicken rice, not too spicy.",
+     "bn": "আমি চিকেন রাইস নেব, বেশি ঝাল না।"
+    },
+    {
+     "en": "Could I have a glass of water, please?",
+     "bn": "এক গ্লাস পানি দেবেন?"
+    },
+    {
+     "en": "Excuse me, this is not what I ordered.",
+     "bn": "মাফ করবেন, আমি এটা অর্ডার করিনি।"
+    },
+    {
+     "en": "Could we have the bill, please? Can I pay by card?",
+     "bn": "বিলটা দেবেন? কার্ডে দেওয়া যাবে?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "menu",
+     "bn": "খাবারের তালিকা",
+     "ex": "The menu has pictures of every dish."
+    },
+    {
+     "w": "dish",
+     "bn": "পদ / খাবার",
+     "ex": "This is a popular local dish."
+    },
+    {
+     "w": "starter",
+     "bn": "শুরুর হালকা খাবার",
+     "ex": "We shared a soup as a starter."
+    },
+    {
+     "w": "main course",
+     "bn": "প্রধান খাবার",
+     "ex": "For the main course I chose fish."
+    },
+    {
+     "w": "ingredient",
+     "bn": "উপকরণ",
+     "ex": "What are the ingredients of this sauce?"
+    },
+    {
+     "w": "mild",
+     "bn": "কম ঝাল",
+     "ex": "Can you make it mild, please?"
+    },
+    {
+     "w": "service charge",
+     "bn": "সার্ভিস চার্জ",
+     "ex": "The bill includes a service charge."
+    },
+    {
+     "w": "pack",
+     "bn": "খাবার প্যাকেট করে দেওয়া",
+     "ex": "Could you pack the rest for me?"
+    }
+   ],
+   "drill": [
+    {
+     "q": "Table for how many people?",
+     "a": "A table for two, please.",
+     "bn": "দুজনের জন্য টেবিল।"
+    },
+    {
+     "q": "Are you ready to order?",
+     "a": "I would like the chicken rice, not too spicy.",
+     "bn": "চিকেন রাইস নেব, বেশি ঝাল না।"
+    },
+    {
+     "q": "Anything to drink?",
+     "a": "Could I have a glass of water, please?",
+     "bn": "এক গ্লাস পানি দেবেন?"
+    },
+    {
+     "q": "Is everything fine with your food?",
+     "a": "Excuse me, this is not what I ordered.",
+     "bn": "মাফ করবেন, এটা আমি অর্ডার করিনি।"
+    },
+    {
+     "q": "Would you like anything else?",
+     "a": "Could we have the bill, please? Can I pay by card?",
+     "bn": "বিলটা দেবেন? কার্ডে দেওয়া যাবে?"
+    }
+   ]
+  },
+  {
+   "id": "police_lost_documents",
+   "icon": "local_police",
+   "title_en": "Police: lost passport or stolen phone",
+   "title_bn": "পুলিশ: পাসপোর্ট হারানো বা ফোন চুরি",
+   "role_en": "police officer",
+   "role_bn": "পুলিশ অফিসার",
+   "opening": "Good afternoon. What happened? Please take a seat.",
+   "goals_en": [
+    "Explain what was lost or stolen, when and where",
+    "Give your personal details clearly",
+    "Ask for a written report for the embassy or insurance"
+   ],
+   "goals_bn": [
+    "কী হারিয়েছে বা চুরি গেছে, কখন আর কোথায় বলা",
+    "নিজের তথ্য পরিষ্কারভাবে দেওয়া",
+    "দূতাবাস বা বিমার জন্য লিখিত রিপোর্ট চাওয়া"
+   ],
+   "sentences": [
+    {
+     "en": "I have lost my passport.",
+     "bn": "আমার পাসপোর্ট হারিয়ে গেছে।"
+    },
+    {
+     "en": "Someone stole my phone on the bus this morning.",
+     "bn": "আজ সকালে বাসে কেউ আমার ফোন চুরি করেছে।"
+    },
+    {
+     "en": "I think it happened at about nine o'clock near the station.",
+     "bn": "মনে হয় নয়টার দিকে স্টেশনের কাছে ঘটেছে।"
+    },
+    {
+     "en": "My bag was black, with my wallet and ID card inside.",
+     "bn": "আমার ব্যাগটা কালো, ভেতরে মানিব্যাগ আর আইডি কার্ড ছিল।"
+    },
+    {
+     "en": "Here is a photocopy of my passport.",
+     "bn": "এই যে আমার পাসপোর্টের ফটোকপি।"
+    },
+    {
+     "en": "Can I have a copy of the police report?",
+     "bn": "পুলিশ রিপোর্টের একটা কপি পেতে পারি?"
+    },
+    {
+     "en": "I need it for my embassy and my employer.",
+     "bn": "দূতাবাস আর মালিকের জন্য এটা দরকার।"
+    },
+    {
+     "en": "Please call me on this number if you find anything.",
+     "bn": "কিছু পেলে দয়া করে এই নম্বরে ফোন করবেন।"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "lost",
+     "bn": "হারানো",
+     "ex": "I lost my wallet in the market."
+    },
+    {
+     "w": "report",
+     "bn": "অভিযোগ লিখিত করা",
+     "ex": "You should report the theft to the police."
+    },
+    {
+     "w": "theft",
+     "bn": "চুরি",
+     "ex": "The theft happened at night."
+    },
+    {
+     "w": "describe",
+     "bn": "বর্ণনা করা",
+     "ex": "Can you describe the man?"
+    },
+    {
+     "w": "photocopy",
+     "bn": "ফটোকপি",
+     "ex": "Always keep a photocopy of your passport."
+    },
+    {
+     "w": "reference number",
+     "bn": "রেফারেন্স নম্বর",
+     "ex": "Write down your reference number."
+    },
+    {
+     "w": "statement",
+     "bn": "জবানবন্দি / বিবৃতি",
+     "ex": "Please sign your statement here."
+    },
+    {
+     "w": "valuables",
+     "bn": "দামি জিনিসপত্র",
+     "ex": "Do not leave valuables in the car."
+    }
+   ],
+   "drill": [
+    {
+     "q": "What happened?",
+     "a": "Someone stole my phone on the bus this morning.",
+     "bn": "আজ সকালে বাসে আমার ফোন চুরি হয়েছে।"
+    },
+    {
+     "q": "Where and when did it happen?",
+     "a": "I think it happened at about nine o'clock near the station.",
+     "bn": "মনে হয় নয়টার দিকে স্টেশনের কাছে।"
+    },
+    {
+     "q": "What was in the bag?",
+     "a": "My bag was black, with my wallet and ID card inside.",
+     "bn": "কালো ব্যাগ, ভেতরে মানিব্যাগ আর আইডি কার্ড।"
+    },
+    {
+     "q": "Do you have a copy of your passport?",
+     "a": "Here is a photocopy of my passport.",
+     "bn": "এই যে পাসপোর্টের ফটোকপি।"
+    },
+    {
+     "q": "Do you need anything else?",
+     "a": "Can I have a copy of the police report?",
+     "bn": "পুলিশ রিপোর্টের একটা কপি পেতে পারি?"
+    }
+   ]
+  },
+  {
+   "id": "renting_abroad",
+   "icon": "apartment",
+   "title_en": "Renting a room abroad",
+   "title_bn": "বিদেশে রুম ভাড়া নেওয়া",
+   "role_en": "landlord",
+   "role_bn": "বাড়িওয়ালা",
+   "opening": "Hello, you called about the room. Would you like to see it now?",
+   "goals_en": [
+    "Ask about rent, bills and deposit",
+    "Check the room and the rules",
+    "Ask for a written agreement and receipts"
+   ],
+   "goals_bn": [
+    "ভাড়া, বিল আর জামানতের কথা জিজ্ঞেস করা",
+    "রুম আর বাসার নিয়ম দেখে নেওয়া",
+    "লিখিত চুক্তি আর রসিদ চাওয়া"
+   ],
+   "sentences": [
+    {
+     "en": "Yes, please. How much is the rent each month?",
+     "bn": "জি। মাসে ভাড়া কত?"
+    },
+    {
+     "en": "Are water and electricity included?",
+     "bn": "পানি আর বিদ্যুৎ বিল কি ভাড়ার মধ্যে?"
+    },
+    {
+     "en": "How much is the deposit, and will I get it back?",
+     "bn": "জামানত কত, আর সেটা কি ফেরত পাব?"
+    },
+    {
+     "en": "How many people share the kitchen and bathroom?",
+     "bn": "রান্নাঘর আর বাথরুম কয়জন ভাগ করে ব্যবহার করে?"
+    },
+    {
+     "en": "Is it close to a bus stop?",
+     "bn": "বাস স্টপ কি কাছে?"
+    },
+    {
+     "en": "Can I see the written agreement before I pay?",
+     "bn": "টাকা দেওয়ার আগে লিখিত চুক্তিটা দেখতে পারি?"
+    },
+    {
+     "en": "Please give me a receipt every month.",
+     "bn": "প্রতি মাসে আমাকে একটা রসিদ দেবেন।"
+    },
+    {
+     "en": "When can I move in?",
+     "bn": "কবে থেকে উঠতে পারব?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "rent",
+     "bn": "ভাড়া",
+     "ex": "The rent is paid on the first of the month."
+    },
+    {
+     "w": "deposit",
+     "bn": "জামানত",
+     "ex": "The deposit is one month's rent."
+    },
+    {
+     "w": "bills",
+     "bn": "বিল (পানি, বিদ্যুৎ ইত্যাদি)",
+     "ex": "Bills are shared between three people."
+    },
+    {
+     "w": "agreement",
+     "bn": "চুক্তিপত্র",
+     "ex": "Read the agreement carefully before signing."
+    },
+    {
+     "w": "furnished",
+     "bn": "আসবাবসহ",
+     "ex": "The room is furnished with a bed and a desk."
+    },
+    {
+     "w": "move in",
+     "bn": "নতুন বাসায় ওঠা",
+     "ex": "I will move in on Saturday."
+    },
+    {
+     "w": "notice",
+     "bn": "আগাম জানানো (বাসা ছাড়ার আগে)",
+     "ex": "Give one month's notice before you leave."
+    },
+    {
+     "w": "shared",
+     "bn": "ভাগাভাগি করে ব্যবহার",
+     "ex": "The kitchen is shared."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Would you like to see the room?",
+     "a": "Yes, please. How much is the rent each month?",
+     "bn": "জি। মাসে ভাড়া কত?"
+    },
+    {
+     "q": "The rent does not include bills.",
+     "a": "Are water and electricity included?",
+     "bn": "পানি আর বিদ্যুৎ কি ভাড়ার মধ্যে?"
+    },
+    {
+     "q": "I need a deposit first.",
+     "a": "How much is the deposit, and will I get it back?",
+     "bn": "জামানত কত, ফেরত পাব তো?"
+    },
+    {
+     "q": "Can you pay today?",
+     "a": "Can I see the written agreement before I pay?",
+     "bn": "টাকা দেওয়ার আগে চুক্তিটা দেখতে পারি?"
+    },
+    {
+     "q": "Do you have any other questions?",
+     "a": "When can I move in?",
+     "bn": "কবে থেকে উঠতে পারব?"
+    }
+   ]
+  },
+  {
+   "id": "supermarket_abroad",
+   "icon": "shopping_cart",
+   "title_en": "At the supermarket",
+   "title_bn": "সুপারমার্কেটে",
+   "role_en": "shop assistant",
+   "role_bn": "দোকানের কর্মী",
+   "opening": "Hi there. Are you looking for something?",
+   "goals_en": [
+    "Find products and ask where they are",
+    "Check prices, offers and weights",
+    "Pay and solve a problem at the till"
+   ],
+   "goals_bn": [
+    "জিনিস খুঁজে পেতে কোথায় আছে জিজ্ঞেস করা",
+    "দাম, অফার আর ওজন যাচাই করা",
+    "টাকা দেওয়া আর কাউন্টারে সমস্যা মেটানো"
+   ],
+   "sentences": [
+    {
+     "en": "Excuse me, where can I find rice and lentils?",
+     "bn": "মাফ করবেন, চাল আর ডাল কোথায় পাব?"
+    },
+    {
+     "en": "Do you sell halal meat here?",
+     "bn": "এখানে কি হালাল মাংস পাওয়া যায়?"
+    },
+    {
+     "en": "Is this on offer this week?",
+     "bn": "এটা কি এই সপ্তাহে অফারে আছে?"
+    },
+    {
+     "en": "Could you weigh these vegetables for me?",
+     "bn": "সবজিগুলো একটু মেপে দেবেন?"
+    },
+    {
+     "en": "I think the price is wrong. The shelf says it is cheaper.",
+     "bn": "মনে হয় দামটা ভুল। তাকে লেখা দাম কম।"
+    },
+    {
+     "en": "Do I need to pay for a bag?",
+     "bn": "ব্যাগের জন্য কি আলাদা টাকা দিতে হবে?"
+    },
+    {
+     "en": "Can I pay in cash?",
+     "bn": "নগদ টাকায় দেওয়া যাবে?"
+    },
+    {
+     "en": "Could I have the receipt, please?",
+     "bn": "রসিদটা দেবেন?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "aisle",
+     "bn": "দোকানের তাকের মাঝের পথ",
+     "ex": "Rice is in aisle five."
+    },
+    {
+     "w": "shelf",
+     "bn": "তাক",
+     "ex": "The milk is on the bottom shelf."
+    },
+    {
+     "w": "offer",
+     "bn": "ছাড় / অফার",
+     "ex": "There is an offer on cooking oil."
+    },
+    {
+     "w": "expiry date",
+     "bn": "মেয়াদ শেষের তারিখ",
+     "ex": "Check the expiry date on the packet."
+    },
+    {
+     "w": "till",
+     "bn": "টাকা দেওয়ার কাউন্টার",
+     "ex": "Please pay at the till."
+    },
+    {
+     "w": "trolley",
+     "bn": "জিনিস নেওয়ার ঠেলাগাড়ি",
+     "ex": "I need a trolley for all these bags."
+    },
+    {
+     "w": "frozen",
+     "bn": "হিমায়িত",
+     "ex": "Frozen fish is in the freezer section."
+    },
+    {
+     "w": "refund",
+     "bn": "টাকা ফেরত",
+     "ex": "Can I get a refund for this?"
+    }
+   ],
+   "drill": [
+    {
+     "q": "Are you looking for something?",
+     "a": "Excuse me, where can I find rice and lentils?",
+     "bn": "চাল আর ডাল কোথায় পাব?"
+    },
+    {
+     "q": "Can I help you with the meat?",
+     "a": "Do you sell halal meat here?",
+     "bn": "এখানে কি হালাল মাংস আছে?"
+    },
+    {
+     "q": "That comes to twelve dollars.",
+     "a": "I think the price is wrong. The shelf says it is cheaper.",
+     "bn": "দামটা ভুল মনে হচ্ছে। তাকে কম লেখা।"
+    },
+    {
+     "q": "Do you need a bag?",
+     "a": "Do I need to pay for a bag?",
+     "bn": "ব্যাগের জন্য কি টাকা লাগবে?"
+    },
+    {
+     "q": "How would you like to pay?",
+     "a": "Can I pay in cash?",
+     "bn": "নগদে দেওয়া যাবে?"
+    }
+   ]
+  },
+  {
+   "id": "doctor_appointment",
+   "icon": "medical_services",
+   "title_en": "Booking and seeing a doctor",
+   "title_bn": "ডাক্তারের অ্যাপয়েন্টমেন্ট ও দেখা করা",
+   "role_en": "clinic receptionist and doctor",
+   "role_bn": "ক্লিনিকের রিসেপশনিস্ট ও ডাক্তার",
+   "opening": "Good morning, City Clinic. Would you like to make an appointment?",
+   "goals_en": [
+    "Book an appointment at a suitable time",
+    "Explain how long you have been ill",
+    "Ask for a medical certificate for work"
+   ],
+   "goals_bn": [
+    "সুবিধামতো সময়ে অ্যাপয়েন্টমেন্ট নেওয়া",
+    "কতদিন ধরে অসুস্থ তা বলা",
+    "কাজের জন্য মেডিকেল সার্টিফিকেট চাওয়া"
+   ],
+   "sentences": [
+    {
+     "en": "Yes, I would like to see a doctor today, please.",
+     "bn": "জি, আজ একজন ডাক্তার দেখাতে চাই।"
+    },
+    {
+     "en": "Is there anything in the afternoon?",
+     "bn": "বিকেলে কোনো সময় খালি আছে?"
+    },
+    {
+     "en": "I have had a fever for three days.",
+     "bn": "তিন দিন ধরে আমার জ্বর।"
+    },
+    {
+     "en": "It hurts here, in my lower back.",
+     "bn": "এখানে ব্যথা, কোমরের নিচের দিকে।"
+    },
+    {
+     "en": "It gets worse at night.",
+     "bn": "রাতে বেশি হয়।"
+    },
+    {
+     "en": "Do I need a blood test?",
+     "bn": "রক্ত পরীক্ষা কি লাগবে?"
+    },
+    {
+     "en": "Could I have a medical certificate for my employer?",
+     "bn": "মালিকের জন্য একটা মেডিকেল সার্টিফিকেট পেতে পারি?"
+    },
+    {
+     "en": "Does my health insurance cover this visit?",
+     "bn": "আমার স্বাস্থ্যবিমায় কি এই ভিজিট কভার হবে?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "appointment",
+     "bn": "সাক্ষাতের নির্ধারিত সময়",
+     "ex": "My appointment is at half past three."
+    },
+    {
+     "w": "fever",
+     "bn": "জ্বর",
+     "ex": "The child has a high fever."
+    },
+    {
+     "w": "pain",
+     "bn": "ব্যথা",
+     "ex": "I have a pain in my chest."
+    },
+    {
+     "w": "blood test",
+     "bn": "রক্ত পরীক্ষা",
+     "ex": "The blood test results will come tomorrow."
+    },
+    {
+     "w": "medical certificate",
+     "bn": "অসুস্থতার সনদ",
+     "ex": "I gave the medical certificate to my supervisor."
+    },
+    {
+     "w": "sick leave",
+     "bn": "অসুস্থতার ছুটি",
+     "ex": "The doctor gave me two days of sick leave."
+    },
+    {
+     "w": "follow-up",
+     "bn": "পরের বার দেখানো",
+     "ex": "Come back for a follow-up next week."
+    },
+    {
+     "w": "dizzy",
+     "bn": "মাথা ঘোরা",
+     "ex": "I feel dizzy when I stand up."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Would you like to make an appointment?",
+     "a": "Yes, I would like to see a doctor today, please.",
+     "bn": "জি, আজ ডাক্তার দেখাতে চাই।"
+    },
+    {
+     "q": "We have ten o'clock or four o'clock.",
+     "a": "Is there anything in the afternoon? Four o'clock is fine.",
+     "bn": "বিকেলে চারটা হলে ভালো।"
+    },
+    {
+     "q": "How long have you been ill?",
+     "a": "I have had a fever for three days.",
+     "bn": "তিন দিন ধরে জ্বর।"
+    },
+    {
+     "q": "Where does it hurt?",
+     "a": "It hurts here, in my lower back.",
+     "bn": "এখানে, কোমরের নিচে ব্যথা।"
+    },
+    {
+     "q": "You should rest for two days.",
+     "a": "Could I have a medical certificate for my employer?",
+     "bn": "মালিকের জন্য মেডিকেল সার্টিফিকেট পেতে পারি?"
+    }
+   ]
+  },
+  {
+   "id": "site_safety",
+   "icon": "construction",
+   "title_en": "Safety at a work site",
+   "title_bn": "কাজের সাইটে নিরাপত্তা",
+   "role_en": "safety officer",
+   "role_bn": "সেফটি অফিসার",
+   "opening": "Stop there, please. Where is your helmet and your safety vest?",
+   "goals_en": [
+    "Understand and repeat safety instructions",
+    "Report a danger or an accident quickly",
+    "Refuse unsafe work politely and ask for equipment"
+   ],
+   "goals_bn": [
+    "নিরাপত্তা নির্দেশনা বুঝে আবার বলা",
+    "বিপদ বা দুর্ঘটনা দ্রুত জানানো",
+    "ঝুঁকিপূর্ণ কাজ ভদ্রভাবে না করা আর সরঞ্জাম চাওয়া"
+   ],
+   "sentences": [
+    {
+     "en": "Sorry, my helmet is in the locker. I will get it now.",
+     "bn": "দুঃখিত, হেলমেটটা লকারে। এখনই নিয়ে আসছি।"
+    },
+    {
+     "en": "Could I have new gloves? These are torn.",
+     "bn": "নতুন গ্লাভস পেতে পারি? এগুলো ছেঁড়া।"
+    },
+    {
+     "en": "The ladder on level two is broken.",
+     "bn": "দোতলার মইটা ভাঙা।"
+    },
+    {
+     "en": "There is oil on the floor near the machine.",
+     "bn": "মেশিনের কাছে মেঝেতে তেল পড়ে আছে।"
+    },
+    {
+     "en": "A worker has fallen. Please call the first aider.",
+     "bn": "একজন শ্রমিক পড়ে গেছেন। দয়া করে ফার্স্ট এইডারকে ডাকুন।"
+    },
+    {
+     "en": "I do not feel safe doing this without a harness.",
+     "bn": "হারনেস ছাড়া এটা করতে আমি নিরাপদ বোধ করছি না।"
+    },
+    {
+     "en": "Where is the assembly point?",
+     "bn": "জড়ো হওয়ার জায়গা কোথায়?"
+    },
+    {
+     "en": "I have not been trained to use this machine.",
+     "bn": "এই মেশিন চালানোর প্রশিক্ষণ আমার নেই।"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "helmet",
+     "bn": "হেলমেট",
+     "ex": "Wear your helmet on site at all times."
+    },
+    {
+     "w": "safety vest",
+     "bn": "উজ্জ্বল রঙের নিরাপত্তা জ্যাকেট",
+     "ex": "A safety vest helps drivers see you."
+    },
+    {
+     "w": "harness",
+     "bn": "উঁচুতে কাজের নিরাপত্তা বেল্ট",
+     "ex": "Use a harness when you work at height."
+    },
+    {
+     "w": "hazard",
+     "bn": "বিপদের উৎস",
+     "ex": "Wet floors are a hazard."
+    },
+    {
+     "w": "assembly point",
+     "bn": "জরুরি অবস্থায় জড়ো হওয়ার জায়গা",
+     "ex": "Go to the assembly point when the alarm rings."
+    },
+    {
+     "w": "first aider",
+     "bn": "প্রাথমিক চিকিৎসা জানা কর্মী",
+     "ex": "Our first aider is on the ground floor."
+    },
+    {
+     "w": "scaffolding",
+     "bn": "ভারা",
+     "ex": "The scaffolding was checked this morning."
+    },
+    {
+     "w": "unsafe",
+     "bn": "ঝুঁকিপূর্ণ",
+     "ex": "Report any unsafe equipment."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Where is your helmet?",
+     "a": "Sorry, my helmet is in the locker. I will get it now.",
+     "bn": "দুঃখিত, লকারে। এখনই আনছি।"
+    },
+    {
+     "q": "Is your equipment in good condition?",
+     "a": "Could I have new gloves? These are torn.",
+     "bn": "নতুন গ্লাভস পেতে পারি? এগুলো ছেঁড়া।"
+    },
+    {
+     "q": "Did you see any problems today?",
+     "a": "There is oil on the floor near the machine.",
+     "bn": "মেশিনের কাছে মেঝেতে তেল পড়ে আছে।"
+    },
+    {
+     "q": "Can you start work on the roof now?",
+     "a": "I do not feel safe doing this without a harness.",
+     "bn": "হারনেস ছাড়া নিরাপদ বোধ করছি না।"
+    },
+    {
+     "q": "Please use the cutting machine.",
+     "a": "I have not been trained to use this machine.",
+     "bn": "এই মেশিনের প্রশিক্ষণ আমার নেই।"
+    }
+   ]
+  },
+  {
+   "id": "payslip_query",
+   "icon": "receipt_long",
+   "title_en": "Asking about salary and payslip",
+   "title_bn": "বেতন ও পে-স্লিপ নিয়ে প্রশ্ন",
+   "role_en": "payroll officer",
+   "role_bn": "বেতন বিভাগের কর্মকর্তা",
+   "opening": "Hello. You wanted to ask about your salary?",
+   "goals_en": [
+    "Explain a problem in your payslip calmly",
+    "Ask about overtime and deductions",
+    "Ask when the problem will be fixed"
+   ],
+   "goals_bn": [
+    "পে-স্লিপের সমস্যা শান্তভাবে বুঝিয়ে বলা",
+    "ওভারটাইম আর কাটা টাকার ব্যাপারে জিজ্ঞেস করা",
+    "কবে সমস্যা ঠিক হবে জানতে চাওয়া"
+   ],
+   "sentences": [
+    {
+     "en": "Yes. I think my overtime is missing this month.",
+     "bn": "জি। মনে হয় এই মাসের ওভারটাইম যোগ হয়নি।"
+    },
+    {
+     "en": "I worked twelve extra hours, but I was paid for six.",
+     "bn": "আমি বারো ঘণ্টা বাড়তি কাজ করেছি, কিন্তু টাকা পেয়েছি ছয় ঘণ্টার।"
+    },
+    {
+     "en": "Here is my time sheet with the supervisor's signature.",
+     "bn": "এই যে সুপারভাইজারের সই করা টাইম শিট।"
+    },
+    {
+     "en": "What is this deduction for?",
+     "bn": "এই টাকাটা কেন কাটা হয়েছে?"
+    },
+    {
+     "en": "Could I have a printed payslip, please?",
+     "bn": "একটা ছাপানো পে-স্লিপ পেতে পারি?"
+    },
+    {
+     "en": "When will the missing money be paid?",
+     "bn": "বাকি টাকাটা কবে দেওয়া হবে?"
+    },
+    {
+     "en": "Will it be in next month's salary?",
+     "bn": "এটা কি পরের মাসের বেতনের সাথে আসবে?"
+    },
+    {
+     "en": "Thank you. Can you send me an email to confirm?",
+     "bn": "ধন্যবাদ। নিশ্চিত করে একটা ইমেইল পাঠাবেন?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "salary",
+     "bn": "বেতন",
+     "ex": "My salary is paid into my bank account."
+    },
+    {
+     "w": "payslip",
+     "bn": "বেতনের হিসাবের কাগজ",
+     "ex": "Check your payslip every month."
+    },
+    {
+     "w": "overtime",
+     "bn": "নির্ধারিত সময়ের বাইরে কাজ",
+     "ex": "Overtime is paid at a higher rate."
+    },
+    {
+     "w": "deduction",
+     "bn": "কেটে রাখা টাকা",
+     "ex": "There is a deduction for accommodation."
+    },
+    {
+     "w": "time sheet",
+     "bn": "কাজের ঘণ্টার হিসাবের কাগজ",
+     "ex": "Fill in your time sheet every day."
+    },
+    {
+     "w": "basic pay",
+     "bn": "মূল বেতন",
+     "ex": "Basic pay does not include overtime."
+    },
+    {
+     "w": "allowance",
+     "bn": "ভাতা",
+     "ex": "We get a food allowance each month."
+    },
+    {
+     "w": "back pay",
+     "bn": "বকেয়া বেতন",
+     "ex": "The back pay will come next month."
+    }
+   ],
+   "drill": [
+    {
+     "q": "You wanted to ask about your salary?",
+     "a": "Yes. I think my overtime is missing this month.",
+     "bn": "জি। এই মাসের ওভারটাইম মনে হয় আসেনি।"
+    },
+    {
+     "q": "How many extra hours did you work?",
+     "a": "I worked twelve extra hours, but I was paid for six.",
+     "bn": "বারো ঘণ্টা করেছি, টাকা পেয়েছি ছয় ঘণ্টার।"
+    },
+    {
+     "q": "Do you have any proof?",
+     "a": "Here is my time sheet with the supervisor's signature.",
+     "bn": "এই যে সুপারভাইজারের সই করা টাইম শিট।"
+    },
+    {
+     "q": "Anything else on the payslip?",
+     "a": "What is this deduction for?",
+     "bn": "এই টাকাটা কেন কাটা হয়েছে?"
+    },
+    {
+     "q": "We will correct it.",
+     "a": "When will the missing money be paid?",
+     "bn": "বাকি টাকা কবে পাব?"
+    }
+   ]
+  },
+  {
+   "id": "sim_card",
+   "icon": "sim_card",
+   "title_en": "Buying a SIM card",
+   "title_bn": "সিম কার্ড কেনা",
+   "role_en": "mobile shop assistant",
+   "role_bn": "মোবাইল দোকানের কর্মী",
+   "opening": "Hello. Do you want a new SIM card or a top-up?",
+   "goals_en": [
+    "Choose a plan for calls and data",
+    "Register the SIM with your passport",
+    "Ask about calling Bangladesh cheaply"
+   ],
+   "goals_bn": [
+    "কল আর ডেটার জন্য প্যাকেজ বেছে নেওয়া",
+    "পাসপোর্ট দিয়ে সিম নিবন্ধন করা",
+    "কম খরচে দেশে কল করার উপায় জানা"
+   ],
+   "sentences": [
+    {
+     "en": "I need a new SIM card, please.",
+     "bn": "আমার একটা নতুন সিম কার্ড লাগবে।"
+    },
+    {
+     "en": "Which plan has the most data?",
+     "bn": "কোন প্যাকেজে সবচেয়ে বেশি ডেটা?"
+    },
+    {
+     "en": "Is it prepaid or monthly?",
+     "bn": "এটা প্রিপেইড নাকি মাসিক?"
+    },
+    {
+     "en": "Do you need my passport to register it?",
+     "bn": "নিবন্ধনের জন্য কি পাসপোর্ট লাগবে?"
+    },
+    {
+     "en": "Is there a cheap package for calls to Bangladesh?",
+     "bn": "বাংলাদেশে কল করার জন্য কোনো সস্তা প্যাকেজ আছে?"
+    },
+    {
+     "en": "How do I check my balance?",
+     "bn": "ব্যালেন্স কীভাবে দেখব?"
+    },
+    {
+     "en": "My internet is not working. Can you check the settings?",
+     "bn": "আমার ইন্টারনেট চলছে না। সেটিংসটা একটু দেখবেন?"
+    },
+    {
+     "en": "When does the plan expire?",
+     "bn": "প্যাকেজের মেয়াদ কবে শেষ?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "SIM card",
+     "bn": "সিম কার্ড",
+     "ex": "Put the SIM card in your phone."
+    },
+    {
+     "w": "top-up",
+     "bn": "রিচার্জ করা",
+     "ex": "I need a top-up for my phone."
+    },
+    {
+     "w": "data",
+     "bn": "ইন্টারনেট ডেটা",
+     "ex": "This plan gives ten gigabytes of data."
+    },
+    {
+     "w": "prepaid",
+     "bn": "আগে টাকা দিয়ে ব্যবহার",
+     "ex": "A prepaid SIM has no monthly bill."
+    },
+    {
+     "w": "balance",
+     "bn": "অবশিষ্ট টাকা বা ডেটা",
+     "ex": "Check your balance by dialling this code."
+    },
+    {
+     "w": "expire",
+     "bn": "মেয়াদ শেষ হওয়া",
+     "ex": "The offer will expire in thirty days."
+    },
+    {
+     "w": "register",
+     "bn": "নিবন্ধন করা",
+     "ex": "You must register the SIM with your ID."
+    },
+    {
+     "w": "coverage",
+     "bn": "নেটওয়ার্কের এলাকা",
+     "ex": "Coverage is weak inside the building."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Do you want a new SIM card or a top-up?",
+     "a": "I need a new SIM card, please.",
+     "bn": "নতুন সিম কার্ড লাগবে।"
+    },
+    {
+     "q": "We have three plans.",
+     "a": "Which plan has the most data?",
+     "bn": "কোনটায় সবচেয়ে বেশি ডেটা?"
+    },
+    {
+     "q": "I need your ID.",
+     "a": "Here is my passport. Do you need a copy?",
+     "bn": "এই যে পাসপোর্ট। কপি লাগবে?"
+    },
+    {
+     "q": "Who will you call most?",
+     "a": "My family in Bangladesh. Is there a cheap package for that?",
+     "bn": "দেশে পরিবারকে। সস্তা প্যাকেজ আছে?"
+    },
+    {
+     "q": "Is everything working now?",
+     "a": "My internet is not working. Can you check the settings?",
+     "bn": "ইন্টারনেট চলছে না। সেটিংসটা দেখবেন?"
+    }
+   ]
+  },
+  {
+   "id": "remittance",
+   "icon": "currency_exchange",
+   "title_en": "Sending money home",
+   "title_bn": "দেশে টাকা পাঠানো",
+   "role_en": "money transfer counter staff",
+   "role_bn": "মানি ট্রান্সফার কাউন্টারের কর্মী",
+   "opening": "Good afternoon. Where would you like to send money today?",
+   "goals_en": [
+    "Send money through a legal, licensed channel",
+    "Check the rate, the fee and the total",
+    "Keep the receipt and the reference number"
+   ],
+   "goals_bn": [
+    "বৈধ, লাইসেন্সপ্রাপ্ত মাধ্যমে টাকা পাঠানো",
+    "রেট, ফি আর মোট টাকা যাচাই করা",
+    "রসিদ আর রেফারেন্স নম্বর রেখে দেওয়া"
+   ],
+   "sentences": [
+    {
+     "en": "I want to send money to Bangladesh.",
+     "bn": "আমি বাংলাদেশে টাকা পাঠাতে চাই।"
+    },
+    {
+     "en": "What is today's exchange rate?",
+     "bn": "আজকের এক্সচেঞ্জ রেট কত?"
+    },
+    {
+     "en": "How much is the fee for this amount?",
+     "bn": "এই পরিমাণের জন্য ফি কত?"
+    },
+    {
+     "en": "The money should go to my father's bank account.",
+     "bn": "টাকাটা আমার বাবার ব্যাংক অ্যাকাউন্টে যাবে।"
+    },
+    {
+     "en": "Can it go to a mobile wallet instead?",
+     "bn": "এর বদলে কি মোবাইল ওয়ালেটে পাঠানো যায়?"
+    },
+    {
+     "en": "How long will it take to arrive?",
+     "bn": "পৌঁছাতে কত সময় লাগবে?"
+    },
+    {
+     "en": "Please check the account number again.",
+     "bn": "দয়া করে অ্যাকাউন্ট নম্বরটা আবার মিলিয়ে দেখুন।"
+    },
+    {
+     "en": "Could I have the receipt with the reference number?",
+     "bn": "রেফারেন্স নম্বরসহ রসিদটা দেবেন?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "exchange rate",
+     "bn": "মুদ্রা বিনিময়ের হার",
+     "ex": "The exchange rate changes every day."
+    },
+    {
+     "w": "fee",
+     "bn": "সেবার খরচ",
+     "ex": "The fee is lower for larger amounts."
+    },
+    {
+     "w": "recipient",
+     "bn": "যে টাকা পাবে",
+     "ex": "Write the recipient's full name."
+    },
+    {
+     "w": "account number",
+     "bn": "অ্যাকাউন্ট নম্বর",
+     "ex": "One wrong digit in the account number is a big problem."
+    },
+    {
+     "w": "transfer",
+     "bn": "টাকা পাঠানো",
+     "ex": "The transfer was completed in one hour."
+    },
+    {
+     "w": "licensed",
+     "bn": "সরকারি অনুমোদনপ্রাপ্ত",
+     "ex": "Only use a licensed money transfer shop."
+    },
+    {
+     "w": "mobile wallet",
+     "bn": "মোবাইলে টাকার হিসাব",
+     "ex": "My mother receives money in her mobile wallet."
+    },
+    {
+     "w": "track",
+     "bn": "অবস্থা খোঁজ করা",
+     "ex": "You can track the money with this number."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Where would you like to send money?",
+     "a": "I want to send money to Bangladesh.",
+     "bn": "আমি বাংলাদেশে পাঠাতে চাই।"
+    },
+    {
+     "q": "How much do you want to send?",
+     "a": "Five hundred. How much is the fee for this amount?",
+     "bn": "পাঁচশো। এর জন্য ফি কত?"
+    },
+    {
+     "q": "Who is the recipient?",
+     "a": "The money should go to my father's bank account.",
+     "bn": "টাকা যাবে বাবার ব্যাংক অ্যাকাউন্টে।"
+    },
+    {
+     "q": "It will arrive tomorrow.",
+     "a": "Could I have the receipt with the reference number?",
+     "bn": "রেফারেন্স নম্বরসহ রসিদ দেবেন?"
+    },
+    {
+     "q": "Is the account number correct?",
+     "a": "Please check the account number again.",
+     "bn": "নম্বরটা আবার মিলিয়ে দেখুন।"
+    }
+   ]
+  },
+  {
+   "id": "train_ticket",
+   "icon": "train",
+   "title_en": "Buying a train ticket",
+   "title_bn": "ট্রেনের টিকিট কেনা",
+   "role_en": "ticket office clerk",
+   "role_bn": "টিকিট কাউন্টারের কর্মী",
+   "opening": "Next, please. Where are you travelling to?",
+   "goals_en": [
+    "Buy a single or return ticket",
+    "Ask about times, platforms and changes",
+    "Ask what to do if you miss the train"
+   ],
+   "goals_bn": [
+    "একমুখী বা আসা-যাওয়ার টিকিট কেনা",
+    "সময়, প্ল্যাটফর্ম আর ট্রেন বদলের কথা জানা",
+    "ট্রেন মিস করলে কী করবেন জানা"
+   ],
+   "sentences": [
+    {
+     "en": "A return ticket to the city centre, please.",
+     "bn": "শহরের কেন্দ্রে যাওয়া-আসার একটা টিকিট দিন।"
+    },
+    {
+     "en": "What time is the next train?",
+     "bn": "পরের ট্রেন কয়টায়?"
+    },
+    {
+     "en": "Which platform does it leave from?",
+     "bn": "কোন প্ল্যাটফর্ম থেকে ছাড়বে?"
+    },
+    {
+     "en": "Do I need to change trains?",
+     "bn": "কি ট্রেন বদলাতে হবে?"
+    },
+    {
+     "en": "Is there a cheaper ticket if I travel later?",
+     "bn": "পরে গেলে কি সস্তা টিকিট আছে?"
+    },
+    {
+     "en": "Can I reserve a seat?",
+     "bn": "সিট সংরক্ষণ করা যাবে?"
+    },
+    {
+     "en": "If I miss this train, can I take the next one?",
+     "bn": "এই ট্রেন মিস করলে কি পরেরটায় যেতে পারব?"
+    },
+    {
+     "en": "How long does the journey take?",
+     "bn": "যেতে কত সময় লাগে?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "single ticket",
+     "bn": "একমুখী টিকিট",
+     "ex": "A single ticket is for one journey."
+    },
+    {
+     "w": "return ticket",
+     "bn": "যাওয়া-আসার টিকিট",
+     "ex": "A return ticket is cheaper than two singles."
+    },
+    {
+     "w": "platform",
+     "bn": "প্ল্যাটফর্ম",
+     "ex": "The train leaves from platform four."
+    },
+    {
+     "w": "timetable",
+     "bn": "সময়সূচি",
+     "ex": "Check the timetable on the board."
+    },
+    {
+     "w": "delay",
+     "bn": "দেরি",
+     "ex": "There is a twenty-minute delay."
+    },
+    {
+     "w": "change",
+     "bn": "ট্রেন বদলানো",
+     "ex": "You change at the central station."
+    },
+    {
+     "w": "off-peak",
+     "bn": "ভিড় কম থাকার সময়",
+     "ex": "Off-peak tickets are cheaper."
+    },
+    {
+     "w": "fine",
+     "bn": "জরিমানা",
+     "ex": "You pay a fine if you travel without a ticket."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Where are you travelling to?",
+     "a": "A return ticket to the city centre, please.",
+     "bn": "শহরের কেন্দ্রে যাওয়া-আসার টিকিট দিন।"
+    },
+    {
+     "q": "That train has just left.",
+     "a": "What time is the next train?",
+     "bn": "পরের ট্রেন কয়টায়?"
+    },
+    {
+     "q": "Here is your ticket.",
+     "a": "Which platform does it leave from?",
+     "bn": "কোন প্ল্যাটফর্ম থেকে ছাড়বে?"
+    },
+    {
+     "q": "The direct train is full.",
+     "a": "Do I need to change trains?",
+     "bn": "তাহলে কি ট্রেন বদলাতে হবে?"
+    },
+    {
+     "q": "This ticket is only for the 9:15 train.",
+     "a": "If I miss this train, can I take the next one?",
+     "bn": "মিস করলে কি পরেরটায় যেতে পারব?"
+    }
+   ]
+  },
+  {
+   "id": "ride_hailing",
+   "icon": "local_taxi",
+   "title_en": "Taxi and ride-hailing apps",
+   "title_bn": "ট্যাক্সি ও রাইড শেয়ারিং",
+   "role_en": "driver",
+   "role_bn": "চালক",
+   "opening": "Hi, are you the passenger for the airport road?",
+   "goals_en": [
+    "Confirm the ride and the destination",
+    "Give simple directions and ask to stop",
+    "Handle a problem with the fare politely"
+   ],
+   "goals_bn": [
+    "রাইড আর গন্তব্য নিশ্চিত করা",
+    "সহজ দিকনির্দেশনা দেওয়া আর থামতে বলা",
+    "ভাড়া নিয়ে সমস্যা ভদ্রভাবে মেটানো"
+   ],
+   "sentences": [
+    {
+     "en": "Yes, that is me. Can you check the address on the app?",
+     "bn": "জি, আমি। অ্যাপে ঠিকানাটা একটু মিলিয়ে নেবেন?"
+    },
+    {
+     "en": "Please take me to this address.",
+     "bn": "দয়া করে আমাকে এই ঠিকানায় নিয়ে যান।"
+    },
+    {
+     "en": "Could you turn on the meter, please?",
+     "bn": "মিটারটা চালু করবেন, প্লিজ?"
+    },
+    {
+     "en": "Please turn left at the next traffic lights.",
+     "bn": "সামনের সিগন্যালে বাঁয়ে ঘুরবেন।"
+    },
+    {
+     "en": "You can stop here, next to the pharmacy.",
+     "bn": "এখানে থামুন, ফার্মেসির পাশে।"
+    },
+    {
+     "en": "The app showed a different price.",
+     "bn": "অ্যাপে অন্য দাম দেখিয়েছিল।"
+    },
+    {
+     "en": "Could you open the boot for my bag?",
+     "bn": "ব্যাগের জন্য পেছনের ডালাটা খুলবেন?"
+    },
+    {
+     "en": "Thank you. Have a good day.",
+     "bn": "ধন্যবাদ। ভালো থাকবেন।"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "passenger",
+     "bn": "যাত্রী",
+     "ex": "The driver waited for the passenger."
+    },
+    {
+     "w": "destination",
+     "bn": "গন্তব্য",
+     "ex": "Enter your destination in the app."
+    },
+    {
+     "w": "fare",
+     "bn": "ভাড়া",
+     "ex": "The fare was shown before the ride."
+    },
+    {
+     "w": "meter",
+     "bn": "ভাড়া মাপার যন্ত্র",
+     "ex": "The meter starts at a fixed amount."
+    },
+    {
+     "w": "pick-up point",
+     "bn": "যেখান থেকে তোলা হবে",
+     "ex": "My pick-up point is the main gate."
+    },
+    {
+     "w": "drop off",
+     "bn": "নামিয়ে দেওয়া",
+     "ex": "Please drop me off at the corner."
+    },
+    {
+     "w": "traffic lights",
+     "bn": "সিগন্যাল বাতি",
+     "ex": "Turn right after the traffic lights."
+    },
+    {
+     "w": "boot",
+     "bn": "গাড়ির পেছনের মালপত্রের জায়গা",
+     "ex": "Put the suitcase in the boot."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Are you the passenger?",
+     "a": "Yes, that is me. Can you check the address on the app?",
+     "bn": "জি, আমি। অ্যাপে ঠিকানা মিলিয়ে নেবেন?"
+    },
+    {
+     "q": "Where do you want to go?",
+     "a": "Please take me to this address.",
+     "bn": "এই ঠিকানায় নিয়ে যান।"
+    },
+    {
+     "q": "Which way now?",
+     "a": "Please turn left at the next traffic lights.",
+     "bn": "সামনের সিগন্যালে বাঁয়ে।"
+    },
+    {
+     "q": "Where should I stop?",
+     "a": "You can stop here, next to the pharmacy.",
+     "bn": "এখানে, ফার্মেসির পাশে থামুন।"
+    },
+    {
+     "q": "That will be thirty, please.",
+     "a": "The app showed a different price.",
+     "bn": "অ্যাপে অন্য দাম দেখিয়েছিল।"
+    }
+   ]
+  },
+  {
+   "id": "school_parent_meeting",
+   "icon": "school",
+   "title_en": "Meeting your child's teacher",
+   "title_bn": "সন্তানের শিক্ষকের সাথে সাক্ষাৎ",
+   "role_en": "class teacher",
+   "role_bn": "শ্রেণিশিক্ষক",
+   "opening": "Thank you for coming. I would like to talk about your daughter's progress.",
+   "goals_en": [
+    "Ask how your child is doing",
+    "Explain your child's needs or problems",
+    "Agree on how to help at home"
+   ],
+   "goals_bn": [
+    "সন্তান কেমন করছে জানতে চাওয়া",
+    "সন্তানের প্রয়োজন বা সমস্যা বুঝিয়ে বলা",
+    "বাসায় কীভাবে সাহায্য করবেন তা ঠিক করা"
+   ],
+   "sentences": [
+    {
+     "en": "Thank you. How is she doing in class?",
+     "bn": "ধন্যবাদ। ক্লাসে ও কেমন করছে?"
+    },
+    {
+     "en": "Is she making friends?",
+     "bn": "ওর কি বন্ধু হচ্ছে?"
+    },
+    {
+     "en": "She finds English reading difficult.",
+     "bn": "ইংরেজি পড়া ওর কাছে কঠিন লাগে।"
+    },
+    {
+     "en": "We speak Bangla at home. Is that a problem?",
+     "bn": "আমরা বাসায় বাংলা বলি। এতে কি সমস্যা?"
+    },
+    {
+     "en": "How can we help her with homework?",
+     "bn": "হোমওয়ার্কে আমরা কীভাবে সাহায্য করতে পারি?"
+    },
+    {
+     "en": "She will miss two days next week for a family reason.",
+     "bn": "পারিবারিক কারণে আগামী সপ্তাহে ও দুই দিন আসতে পারবে না।"
+    },
+    {
+     "en": "Could you send messages to my phone as well?",
+     "bn": "আমার ফোনেও মেসেজ পাঠাতে পারবেন?"
+    },
+    {
+     "en": "Thank you for your help. Can we meet again next term?",
+     "bn": "সাহায্যের জন্য ধন্যবাদ। পরের টার্মে আবার দেখা করা যাবে?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "progress",
+     "bn": "অগ্রগতি",
+     "ex": "Her progress in maths is very good."
+    },
+    {
+     "w": "homework",
+     "bn": "বাসার কাজ",
+     "ex": "Homework takes about thirty minutes."
+    },
+    {
+     "w": "term",
+     "bn": "শিক্ষাবর্ষের একটি ভাগ",
+     "ex": "The new term starts in January."
+    },
+    {
+     "w": "absent",
+     "bn": "অনুপস্থিত",
+     "ex": "He was absent on Monday."
+    },
+    {
+     "w": "behaviour",
+     "bn": "আচরণ",
+     "ex": "His behaviour in class is excellent."
+    },
+    {
+     "w": "report card",
+     "bn": "ফলাফলের কার্ড",
+     "ex": "We received her report card today."
+    },
+    {
+     "w": "support",
+     "bn": "সহায়তা",
+     "ex": "The school offers extra reading support."
+    },
+    {
+     "w": "uniform",
+     "bn": "স্কুলের পোশাক",
+     "ex": "The uniform must be clean every day."
+    }
+   ],
+   "drill": [
+    {
+     "q": "I would like to talk about her progress.",
+     "a": "Thank you. How is she doing in class?",
+     "bn": "ধন্যবাদ। ক্লাসে ও কেমন করছে?"
+    },
+    {
+     "q": "Is there anything we should know?",
+     "a": "She finds English reading difficult.",
+     "bn": "ইংরেজি পড়া ওর কাছে কঠিন লাগে।"
+    },
+    {
+     "q": "What language do you speak at home?",
+     "a": "We speak Bangla at home. Is that a problem?",
+     "bn": "বাসায় বাংলা বলি। এতে কি সমস্যা?"
+    },
+    {
+     "q": "Reading at home every day will help.",
+     "a": "How can we help her with homework?",
+     "bn": "হোমওয়ার্কে কীভাবে সাহায্য করব?"
+    },
+    {
+     "q": "Is there anything else?",
+     "a": "She will miss two days next week for a family reason.",
+     "bn": "পারিবারিক কারণে আগামী সপ্তাহে দুই দিন আসবে না।"
+    }
+   ]
+  },
+  {
+   "id": "courier_post",
+   "icon": "local_shipping",
+   "title_en": "Post office and courier",
+   "title_bn": "পোস্ট অফিস ও কুরিয়ার",
+   "role_en": "post office clerk",
+   "role_bn": "পোস্ট অফিসের কর্মী",
+   "opening": "Hello. Are you sending something today?",
+   "goals_en": [
+    "Send a parcel and choose the service",
+    "Ask what items are not allowed",
+    "Collect a parcel or track a delivery"
+   ],
+   "goals_bn": [
+    "পার্সেল পাঠানো আর সার্ভিস বেছে নেওয়া",
+    "কোন জিনিস পাঠানো নিষেধ জেনে নেওয়া",
+    "পার্সেল সংগ্রহ বা ডেলিভারির খোঁজ নেওয়া"
+   ],
+   "sentences": [
+    {
+     "en": "I would like to send this parcel to Bangladesh.",
+     "bn": "এই পার্সেলটা বাংলাদেশে পাঠাতে চাই।"
+    },
+    {
+     "en": "How long will it take by the cheapest service?",
+     "bn": "সবচেয়ে সস্তা সার্ভিসে কত দিন লাগবে?"
+    },
+    {
+     "en": "Is there a faster option with tracking?",
+     "bn": "ট্র্যাকিংসহ আরও দ্রুত কোনো উপায় আছে?"
+    },
+    {
+     "en": "It contains clothes and some books.",
+     "bn": "ভেতরে জামাকাপড় আর কিছু বই।"
+    },
+    {
+     "en": "Can I send medicine or food?",
+     "bn": "ওষুধ বা খাবার কি পাঠানো যায়?"
+    },
+    {
+     "en": "I missed a delivery. I have this card.",
+     "bn": "আমি ডেলিভারির সময় ছিলাম না। এই কার্ডটা রেখে গেছে।"
+    },
+    {
+     "en": "Do I need ID to collect it?",
+     "bn": "সংগ্রহ করতে কি আইডি লাগবে?"
+    },
+    {
+     "en": "How can I track my parcel?",
+     "bn": "পার্সেলের খোঁজ কীভাবে রাখব?"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "parcel",
+     "bn": "পার্সেল / প্যাকেট",
+     "ex": "The parcel weighs three kilos."
+    },
+    {
+     "w": "weigh",
+     "bn": "ওজন মাপা",
+     "ex": "Please put it on the scale so I can weigh it."
+    },
+    {
+     "w": "customs form",
+     "bn": "শুল্কের ফর্ম",
+     "ex": "Fill in the customs form for international parcels."
+    },
+    {
+     "w": "tracking number",
+     "bn": "খোঁজ রাখার নম্বর",
+     "ex": "Keep your tracking number safe."
+    },
+    {
+     "w": "fragile",
+     "bn": "ভঙ্গুর",
+     "ex": "Write fragile on the box."
+    },
+    {
+     "w": "prohibited",
+     "bn": "নিষিদ্ধ",
+     "ex": "Batteries are prohibited in this service."
+    },
+    {
+     "w": "collect",
+     "bn": "সংগ্রহ করা",
+     "ex": "You can collect it after two days."
+    },
+    {
+     "w": "address label",
+     "bn": "ঠিকানার লেবেল",
+     "ex": "Write the address label clearly."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Are you sending something today?",
+     "a": "I would like to send this parcel to Bangladesh.",
+     "bn": "এই পার্সেলটা দেশে পাঠাতে চাই।"
+    },
+    {
+     "q": "What is inside?",
+     "a": "It contains clothes and some books.",
+     "bn": "জামাকাপড় আর কিছু বই।"
+    },
+    {
+     "q": "The cheapest service takes three weeks.",
+     "a": "Is there a faster option with tracking?",
+     "bn": "ট্র্যাকিংসহ দ্রুত কিছু আছে?"
+    },
+    {
+     "q": "How can I help you?",
+     "a": "I missed a delivery. I have this card.",
+     "bn": "ডেলিভারির সময় ছিলাম না। এই কার্ডটা পেয়েছি।"
+    },
+    {
+     "q": "Here is your parcel.",
+     "a": "How can I track the next one I send?",
+     "bn": "পরেরটা পাঠালে কীভাবে খোঁজ রাখব?"
+    }
+   ]
+  },
+  {
+   "id": "emergency_call",
+   "icon": "emergency",
+   "title_en": "Calling emergency services",
+   "title_bn": "জরুরি সেবায় ফোন করা",
+   "role_en": "emergency operator",
+   "role_bn": "জরুরি সেবার অপারেটর",
+   "opening": "Emergency. Which service do you need: police, fire or ambulance?",
+   "goals_en": [
+    "Say which service you need and what happened",
+    "Give the exact location clearly",
+    "Answer questions and follow instructions"
+   ],
+   "goals_bn": [
+    "কোন সেবা দরকার আর কী ঘটেছে বলা",
+    "সঠিক জায়গা পরিষ্কার করে বলা",
+    "প্রশ্নের উত্তর দেওয়া আর নির্দেশনা মানা"
+   ],
+   "sentences": [
+    {
+     "en": "Ambulance, please. A man has collapsed.",
+     "bn": "অ্যাম্বুলেন্স লাগবে। একজন লোক পড়ে গেছেন।"
+    },
+    {
+     "en": "There is a fire in the building next to mine.",
+     "bn": "আমার পাশের বিল্ডিংয়ে আগুন লেগেছে।"
+    },
+    {
+     "en": "The address is building twelve, Green Road, near the mosque.",
+     "bn": "ঠিকানা: ১২ নম্বর বিল্ডিং, গ্রিন রোড, মসজিদের কাছে।"
+    },
+    {
+     "en": "He is breathing, but he is not answering.",
+     "bn": "উনি শ্বাস নিচ্ছেন, কিন্তু সাড়া দিচ্ছেন না।"
+    },
+    {
+     "en": "There is a lot of blood from his leg.",
+     "bn": "উনার পা থেকে অনেক রক্ত পড়ছে।"
+    },
+    {
+     "en": "I do not speak the local language well. Please speak slowly in English.",
+     "bn": "আমি এখানকার ভাষা ভালো বলি না। দয়া করে আস্তে ইংরেজিতে বলুন।"
+    },
+    {
+     "en": "My phone number is this one. I will stay here.",
+     "bn": "আমার ফোন নম্বর এটাই। আমি এখানেই থাকব।"
+    },
+    {
+     "en": "Everyone has left the building.",
+     "bn": "সবাই বিল্ডিং থেকে বেরিয়ে এসেছে।"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "emergency",
+     "bn": "জরুরি অবস্থা",
+     "ex": "Call this number only in an emergency."
+    },
+    {
+     "w": "collapse",
+     "bn": "হঠাৎ পড়ে যাওয়া",
+     "ex": "The worker collapsed in the heat."
+    },
+    {
+     "w": "conscious",
+     "bn": "জ্ঞান আছে এমন",
+     "ex": "Is the patient conscious?"
+    },
+    {
+     "w": "bleeding",
+     "bn": "রক্তপাত",
+     "ex": "Press on the wound to stop the bleeding."
+    },
+    {
+     "w": "location",
+     "bn": "অবস্থান",
+     "ex": "Share your location with the operator."
+    },
+    {
+     "w": "landmark",
+     "bn": "চেনা চিহ্ন / নিশানা",
+     "ex": "Give a landmark, like a mosque or a school."
+    },
+    {
+     "w": "evacuate",
+     "bn": "জায়গা খালি করে বের হওয়া",
+     "ex": "Evacuate the building now."
+    },
+    {
+     "w": "operator",
+     "bn": "ফোনের অপারেটর",
+     "ex": "The operator asked me to stay on the line."
+    }
+   ],
+   "drill": [
+    {
+     "q": "Which service do you need?",
+     "a": "Ambulance, please. A man has collapsed.",
+     "bn": "অ্যাম্বুলেন্স। একজন লোক পড়ে গেছেন।"
+    },
+    {
+     "q": "Where are you?",
+     "a": "The address is building twelve, Green Road, near the mosque.",
+     "bn": "১২ নম্বর বিল্ডিং, গ্রিন রোড, মসজিদের কাছে।"
+    },
+    {
+     "q": "Is he breathing?",
+     "a": "He is breathing, but he is not answering.",
+     "bn": "শ্বাস নিচ্ছেন, কিন্তু সাড়া দিচ্ছেন না।"
+    },
+    {
+     "q": "Is anyone still inside?",
+     "a": "Everyone has left the building.",
+     "bn": "সবাই বেরিয়ে এসেছে।"
+    },
+    {
+     "q": "Can you understand me?",
+     "a": "I do not speak the local language well. Please speak slowly in English.",
+     "bn": "এখানকার ভাষা ভালো জানি না। আস্তে ইংরেজিতে বলুন।"
+    }
+   ]
+  },
+  {
+   "id": "small_talk_colleagues",
+   "icon": "groups",
+   "title_en": "Small talk with colleagues",
+   "title_bn": "সহকর্মীদের সাথে হালকা আলাপ",
+   "role_en": "friendly colleague",
+   "role_bn": "বন্ধুসুলভ সহকর্মী",
+   "opening": "Hi! You are new here, right? Where are you from?",
+   "goals_en": [
+    "Introduce yourself and your country",
+    "Talk about the weekend, food and family",
+    "Keep the conversation going with a question"
+   ],
+   "goals_bn": [
+    "নিজের আর নিজের দেশের পরিচয় দেওয়া",
+    "ছুটির দিন, খাবার আর পরিবার নিয়ে কথা বলা",
+    "প্রশ্ন করে আলাপ চালিয়ে যাওয়া"
+   ],
+   "sentences": [
+    {
+     "en": "Yes, I started last week. I am from Bangladesh.",
+     "bn": "জি, গত সপ্তাহে শুরু করেছি। আমি বাংলাদেশ থেকে।"
+    },
+    {
+     "en": "I am from a small town near Sylhet. It is famous for tea.",
+     "bn": "আমি সিলেটের কাছের একটা ছোট শহর থেকে। জায়গাটা চায়ের জন্য বিখ্যাত।"
+    },
+    {
+     "en": "How long have you worked here?",
+     "bn": "আপনি এখানে কতদিন ধরে কাজ করছেন?"
+    },
+    {
+     "en": "What did you do at the weekend?",
+     "bn": "ছুটির দিনে কী করলেন?"
+    },
+    {
+     "en": "I called my family and cooked some Bangladeshi food.",
+     "bn": "পরিবারকে ফোন করেছি আর কিছু দেশি খাবার রান্না করেছি।"
+    },
+    {
+     "en": "You should try our biryani one day.",
+     "bn": "একদিন আমাদের বিরিয়ানি খেয়ে দেখবেন।"
+    },
+    {
+     "en": "The weather here is much colder than at home.",
+     "bn": "এখানকার আবহাওয়া দেশের চেয়ে অনেক ঠান্ডা।"
+    },
+    {
+     "en": "Nice talking to you. See you at lunch.",
+     "bn": "কথা বলে ভালো লাগল। দুপুরে দেখা হবে।"
+    }
+   ],
+   "vocab": [
+    {
+     "w": "colleague",
+     "bn": "সহকর্মী",
+     "ex": "My colleague helped me on the first day."
+    },
+    {
+     "w": "weekend",
+     "bn": "সাপ্তাহিক ছুটি",
+     "ex": "What are your plans for the weekend?"
+    },
+    {
+     "w": "hometown",
+     "bn": "নিজের শহর / এলাকা",
+     "ex": "My hometown is near a big river."
+    },
+    {
+     "w": "famous for",
+     "bn": "যার জন্য বিখ্যাত",
+     "ex": "Our town is famous for sweets."
+    },
+    {
+     "w": "get used to",
+     "bn": "অভ্যস্ত হওয়া",
+     "ex": "I am getting used to the cold."
+    },
+    {
+     "w": "hobby",
+     "bn": "শখ",
+     "ex": "My hobby is playing cricket."
+    },
+    {
+     "w": "catch up",
+     "bn": "খোঁজখবর নেওয়া / আলাপ করা",
+     "ex": "Let's catch up after work."
+    },
+    {
+     "w": "by the way",
+     "bn": "ভালো কথা / প্রসঙ্গত",
+     "ex": "By the way, do you like cricket?"
+    }
+   ],
+   "drill": [
+    {
+     "q": "Where are you from?",
+     "a": "Yes, I started last week. I am from Bangladesh.",
+     "bn": "গত সপ্তাহে শুরু করেছি। আমি বাংলাদেশ থেকে।"
+    },
+    {
+     "q": "What is your hometown like?",
+     "a": "I am from a small town near Sylhet. It is famous for tea.",
+     "bn": "সিলেটের কাছে ছোট শহর, চায়ের জন্য বিখ্যাত।"
+    },
+    {
+     "q": "What did you do at the weekend?",
+     "a": "I called my family and cooked some Bangladeshi food.",
+     "bn": "পরিবারকে ফোন করেছি আর দেশি খাবার রেঁধেছি।"
+    },
+    {
+     "q": "How do you find the weather here?",
+     "a": "The weather here is much colder than at home.",
+     "bn": "এখানে দেশের চেয়ে অনেক ঠান্ডা।"
+    },
+    {
+     "q": "I have to go back to work now.",
+     "a": "Nice talking to you. See you at lunch.",
+     "bn": "কথা বলে ভালো লাগল। দুপুরে দেখা হবে।"
+    }
+   ]
+  }
+ ]
+}
