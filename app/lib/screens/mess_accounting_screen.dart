@@ -164,14 +164,12 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
             ],
             for (final m in messes) _messTile(m, t, scheme),
             const SizedBox(height: Gap.md),
-            SizedBox(
-              height: 56,
-              child: FilledButton.icon(
-                key: const ValueKey('mess-create'),
-                onPressed: _busy ? null : _create,
-                icon: const Icon(Icons.add_home_work_rounded),
-                label: Text(t.mv2CreateMess),
-              ),
+            FilledButton.icon(
+              key: const ValueKey('mess-create'),
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
+              onPressed: _busy ? null : _create,
+              icon: const Icon(Icons.add_home_work_rounded),
+              label: Text(t.mv2CreateMess, textAlign: TextAlign.center),
             ),
             if (_data?['legacy_available'] == true) ...[
               const SizedBox(height: Gap.md),

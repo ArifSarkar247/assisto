@@ -541,10 +541,15 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
 
   Widget _bigButton(String label, IconData icon, VoidCallback? onTap, {Key? key}) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
-        child: SizedBox(
-          height: 52,
-          child: FilledButton.tonalIcon(key: key, onPressed: onTap, icon: Icon(icon), label: Text(label)),
-        ),
+        // min height, not a fixed one: a 2-line label at 200 % font grows
+        child: FilledButton.tonalIcon(
+            key: key,
+            style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+                padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm)),
+            onPressed: onTap,
+            icon: Icon(icon),
+            label: Text(label, textAlign: TextAlign.center)),
       );
 
   // ---- Meals

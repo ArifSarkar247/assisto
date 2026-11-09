@@ -591,19 +591,18 @@ class _CirclePickerState extends State<_CirclePicker> {
       ]);
     }
     return AppSheetBody(
-      primary: SizedBox(
-        height: 52,
-        child: _added
-            ? FilledButton(
-                key: const ValueKey('mess-pick-done'),
-                onPressed: () => Navigator.pop(context, true),
-                child: Text(t.mv2Done))
-            : OutlinedButton.icon(
-                key: const ValueKey('mess-pick-invite'),
-                onPressed: _invite,
-                icon: const Icon(Icons.person_add_alt_rounded),
-                label: Text(t.mv2InviteToCircle)),
-      ),
+      primary: _added
+          ? FilledButton(
+              key: const ValueKey('mess-pick-done'),
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(t.mv2Done))
+          : OutlinedButton.icon(
+              key: const ValueKey('mess-pick-invite'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              onPressed: _invite,
+              icon: const Icon(Icons.person_add_alt_rounded),
+              label: Text(t.mv2InviteToCircle, textAlign: TextAlign.center)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(t.mv2PickTitle,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),

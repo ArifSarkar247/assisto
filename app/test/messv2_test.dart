@@ -173,7 +173,8 @@ void main() {
         addTearDown(tester.view.reset);
         final api = _RecApi(lang: lang);
         for (final tab in [0, 1, 2, 3, 4]) {
-          await tester.pumpWidget(_app(MessDetailScreen(messId: 1, initialTab: tab), api,
+          await tester.pumpWidget(_app(
+              MessDetailScreen(key: ValueKey('tab$tab'), messId: 1, initialTab: tab), api,
               lang: lang, scale: 2.0, dark: dark));
           await _settle(tester);
           expect(tester.takeException(), isNull, reason: 'tab $tab');
@@ -190,7 +191,8 @@ void main() {
       expect(find.textContaining(lang == 'bn' ? 'আজ মোট মিল: ১০' : 'Meals today: 10'),
           findsOneWidget);
       await tester.pumpWidget(
-          _app(const MessDetailScreen(messId: 1, initialTab: 3), api, lang: lang));
+          _app(const MessDetailScreen(key: ValueKey('month'), messId: 1, initialTab: 3), api,
+              lang: lang));
       await _settle(tester);
       expect(find.textContaining(lang == 'bn' ? 'দেবেন ৳৪,৭৭১.৪৫' : 'Will pay ৳4,771.45'),
           findsOneWidget);
