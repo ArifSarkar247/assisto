@@ -94,7 +94,7 @@ def read_osm(pbf):
             if t.get("type") != "route" or t.get("route") not in MODE_OF:
                 return
             mem = [(m.type, m.ref, m.role) for m in r.members]
-            rels[r.id] = {"tags": dict(t), "members": mem}
+            rels[r.id] = {"tags": {tg.k: tg.v for tg in t}, "members": mem}
             for typ, ref, _role in mem:
                 if typ == "w":
                     need_ways.add(ref)
