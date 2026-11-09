@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# e2eproof: throw-away Django for the proof flows (settings_e2e = settings_ci
+# e2eproof: throw-away Django for the proof flows (settings_e2eproof = settings_ci
 # + the ci_e2e fakes). Migrate, seed + self-check, then serve on :8700.
 # Needs: REALITY_OUT, ASSISTO_CI_PG_* (the job's postgres service).
 set -euo pipefail
@@ -7,7 +7,7 @@ cd "$(dirname "$0")/../../backend"
 export E2E_OUTBOX="${E2E_OUTBOX:-$REALITY_OUT/outbox.jsonl}"
 # push_due_reminders keeps its "already pushed" state here (default is a server path)
 export PUSH_REMINDER_STATE_FILE="${PUSH_REMINDER_STATE_FILE:-$REALITY_OUT/push_reminders_state.json}"
-S=--settings=assisto_backend.settings_e2e
+S=--settings=assisto_backend.settings_e2eproof
 mkdir -p "$REALITY_OUT"
 timeout 600 python manage.py migrate $S -v 0
 timeout 300 python manage.py seed_e2e $S --out "$REALITY_OUT/seed_e2e.json" --reality-out "$REALITY_OUT/seed.json"

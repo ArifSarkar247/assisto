@@ -5,7 +5,7 @@ name: E2E proof (8 main flows, emulator + Test Lab)
 # "works end to end on a real phone" may rise above 5 ONLY with a green run of
 # this workflow linked (owner_actions/E2E_PROOF_BN.md).
 #
-# Job "emulator": throw-away Django inside the runner (settings_e2e = the
+# Job "emulator": throw-away Django inside the runner (settings_e2eproof = the
 # reality settings + backend/ci_e2e fakes for AI, photo answers, SMS OTP,
 # Google Places and push; fake-clock tick), the API-33 emulator, and the 8
 # flows in app/integration_test/flows/e2e_proof_flows.dart (REALITY_ONLY=e2e).

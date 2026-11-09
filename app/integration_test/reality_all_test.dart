@@ -53,6 +53,6 @@ void main() {
   if (on('business')) registerCrm100Flows(); // crm100
   if (on('docs')) registerDocsVoiceSettingsFlows();
   if (on('sweep')) registerSweepFlow();
-  // e2eproof: the 8 proof flows need settings_e2e's fakes -> opt-in only (e2e.yml)
+  // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
 }
