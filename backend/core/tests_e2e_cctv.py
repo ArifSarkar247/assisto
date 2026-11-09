@@ -165,7 +165,9 @@ class ImouCloudE2ETests(_Base):
     def link(self, code="L2C3D4"):
         from core.logic import imou as IM
         client = IM.ImouClient(self.APP_ID, self.SECRET, http=self.imou_http)
+        # cctvconnect: developer-account binds = owner test cameras + consent
         with mock.patch("core.watchman_views.imou_cloud_on", return_value=True), \
+                mock.patch("core.cctv_connect_views.devbind_allowed", return_value=True), \
                 mock.patch("core.logic.imou.ImouClient.from_integration",
                            return_value=client):
             return self.client.post("/api/v1/shop/cameras/%d/imou" % self.cam["id"],

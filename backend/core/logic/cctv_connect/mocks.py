@@ -152,7 +152,7 @@ class VendorSims:
             return ok([{"alarmId": a["id"], "deviceSerial": s, "channelNo": a["channel"],
                         "alarmType": a["type"], "alarmName": "%s(%s)" % (d.name, s),
                         "alarmTime": int(a["at"] * 1000), "alarmPicUrl": a["pic"],
-                        "isEncrypt": 0} for a in d.alarms if lo <= a["at"] * 1000 <= hi])
+                        "isEncrypt": 0} for a in d.alarms if lo <= int(a["at"] * 1000) <= hi])
         if path == "/api/lapp/device/format/status":
             return ok([{"index": 1, "name": "HDD1",
                         "status": {"ok": 0, "error": 1, "unformatted": 2}.get(d.disk, 0)}])
