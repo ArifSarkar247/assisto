@@ -52,11 +52,13 @@ def main():
         f = os.path.join(d, p[0])
         if len(p) == 2 and os.path.exists(f) and os.path.getsize(f) > 0:
             chunks.append((f, float(p[1]), duration(f)))
-    ev = {}
+    ev, last = {}, {}
     for line in open(os.path.join(d, "events.txt")):
         p = line.split()
         if len(p) == 2:
-            ev.setdefault(p[0], float(p[1]))  # first occurrence wins
+            ev.setdefault(p[0], float(p[1]))  # a segment starts at the first occurrence
+            last[p[0]] = float(p[1])          # and an "until" event ends at the last
+            # (perm_mic_tapped twice = mic dialog, then the notification dialog)
     os.makedirs(os.path.join(out, "final"), exist_ok=True)
     os.makedirs(os.path.join(out, "frames"), exist_ok=True)
     name = NAMES[vid]
@@ -90,8 +92,8 @@ def main():
             report["missing"].append(evn)
             continue
         s, e = ev[evn] - pre, ev[evn] + post
-        if until and until in ev and ev[until] > ev[evn]:
-            e = min(e, ev[until] + 0.6)
+        if until and until in last and last[until] > ev[evn]:
+            e = max(min(e, last[until] + 0.6), min(ev[evn] + 12.0, last[until] + 0.6))
         f, ls, cd = locate(s)
         le = min(ls + (e - s), cd if cd > 0 else ls + (e - s))
         if le - ls < 0.4:

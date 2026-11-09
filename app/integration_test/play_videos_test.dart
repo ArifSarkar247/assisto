@@ -196,11 +196,18 @@ void main() {
         await f.pumpFor(const Duration(milliseconds: 600));
         await f.tester.enterText(dest, 'Demo Park');
         await f.pumpFor(const Duration(seconds: 2));
-        if (f.tester.widget<TextField>(dest).controller?.text == 'Demo Park') break;
+        final ctl = f.tester.widget<TextField>(dest).controller;
+        if (ctl?.text == 'Demo Park') break;
+        // run 42613083400: enterText left the field empty in this profile
+        // APK (no test text input) -> set the field's own controller
+        ctl?.text = 'Demo Park';
+        await f.pumpFor(const Duration(seconds: 1));
+        if (ctl?.text == 'Demo Park') break;
       }
       _mark('form');
       await f.pumpFor(const Duration(seconds: 2));
       final start = find.byKey(const ValueKey('j100_start'));
+      await f.scrollTo(start, maxDrags: 12); // lazy form: build it first
       await f.tester.ensureVisible(start);
       await f.tap(start, settleSeconds: 2);
       // no road ETA on CI (no maps key): the app asks for an arrival time once
