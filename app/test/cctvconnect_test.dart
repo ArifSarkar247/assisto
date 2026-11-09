@@ -172,7 +172,7 @@ void main() {
 
     final green = FakeCctvConnect(lang: 'bn');
     await tester.pumpWidget(_app(
-        Scaffold(body: ListView(children: [DvrHealthCard(siteId: 2, source: green, owner: false)])),
+        Scaffold(body: ListView(children: [DvrHealthCard(key: const ValueKey('green'), siteId: 2, source: green, owner: false)])),
         lang: 'bn'));
     await tester.pumpAndSettle();
     final t = await AppLocalizations.delegate.load(const Locale('bn'));
