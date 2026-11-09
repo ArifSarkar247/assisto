@@ -194,8 +194,20 @@ class Harness {
     if (!userB && _backendA != null) return _backendA!;
     if (userB && _backendB != null) return _backendB!;
     final c = ApiClient();
-    final res = await c.login(identifier: userB ? Seed.phoneB : Seed.phoneA, password: Seed.password);
-    c.token = res.token;
+    // qbiz: per-device sessions — a sign-in from the SAME X-Device-Id revokes
+    // that device's older session ("replaced"). The harness ran on the app's
+    // own device id, so its login signed the app out: every flow after the
+    // first backend() call got 401 (run 42567594886). Sign in as a separate
+    // harness device; later requests may carry the app's id (harmless).
+    final appDevice = AppConfig.deviceId;
+    AppConfig.deviceId = userB ? 'reality-harness-b' : 'reality-harness-a';
+    final String tok;
+    try {
+      tok = (await c.login(identifier: userB ? Seed.phoneB : Seed.phoneA, password: Seed.password)).token;
+    } finally {
+      AppConfig.deviceId = appDevice;
+    }
+    c.token = tok;
     c.lang = 'en';
     if (userB) {
       _backendB = c;
