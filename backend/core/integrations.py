@@ -532,6 +532,31 @@ REGISTRY = {
                          _f("app_secret", "Secret", "Secret"),
                          _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False)],
               "test": "test_ezviz"},
+    # ---- cctvconnect (CCTV Guard V3 A1, 9 Nov) ---- brand clouds; each
+    # connector is OFF until its key is saved here AND Test is green.
+    "hikconnect": {"name": "Hikvision Hik-Connect OpenAPI (CCTV)", "category": "Smart home",
+                   "unlocks_bn": "Hikvision DVR/NVR ও ক্যামেরা ক্লাউড দিয়ে যুক্ত: ডিভাইস তালিকা, লাইভ, প্লেব্যাক, ক্যামেরার নিজের AI সতর্কতা (AcuSense), হার্ডডিস্কের অবস্থা।",
+                   "unlocks_en": "Hikvision DVR/NVR + cameras through the cloud: device list, live, playback, the camera's own AI alerts (AcuSense), disk health.",
+                   "guide_bn": ["বিস্তারিত ধাপ: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (অংশ ৩)",
+                                "AppKey ও SecretKey নিচে পেস্ট → Save → Test (সবুজ হলে চালু)"],
+                   "guide_en": ["Steps: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (part 3)",
+                                "Paste the AppKey and SecretKey below → Save → Test (green = on)"],
+                   "fields": [_f("app_key", "AppKey", "AppKey", secret=False),
+                              _f("app_secret", "SecretKey", "SecretKey"),
+                              _f("api_base", "API ঠিকানা (অঞ্চল, ঐচ্ছিক)", "API base (region, optional)", secret=False)],
+                   "test": "test_hikconnect"},
+    "dolynk": {"name": "Dahua DoLynk Open Platform (CCTV)", "category": "Smart home",
+               "unlocks_bn": "Dahua DVR/NVR ও ক্যামেরা ক্লাউড দিয়ে যুক্ত: ডিভাইস তালিকা, লাইভ, ক্যামেরার নিজের AI সতর্কতা (SMD), হার্ডডিস্কের অবস্থা।",
+               "unlocks_en": "Dahua DVR/NVR + cameras through the cloud: device list, live, the camera's own AI alerts (SMD), disk health.",
+               "guide_bn": ["বিস্তারিত ধাপ: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (অংশ ৪)",
+                            "appId, appSecret ও API ঠিকানা (DoLynk কনসোলে লেখা) পেস্ট → Save → Test"],
+               "guide_en": ["Steps: owner_actions/CCTV_DEV_ACCOUNTS_BN.md (part 4)",
+                            "Paste appId, appSecret and the API base (shown in the DoLynk console) → Save → Test"],
+               "fields": [_f("app_id", "appId", "appId", secret=False),
+                          _f("app_secret", "appSecret", "appSecret"),
+                          _f("api_base", "API ঠিকানা (DoLynk কনসোল থেকে)", "API base (from the DoLynk console)", secret=False),
+                          _f("media_hosts", "ভিডিও/ছবির ডোমেইন (ঐচ্ছিক, যেমন .example.com)", "Video/picture domains (optional, e.g. .example.com)", secret=False)],
+               "test": "test_dolynk"},
     "axon_erp": {"name": "Axon ERP (CRM onboarding)", "category": "Business",
                  "unlocks_bn": "AI CRM deal Won → Axon ERP-এ 1-click onboarding।",
                  "unlocks_en": "AI CRM deal Won → 1-click Axon ERP onboarding.",
@@ -1427,3 +1452,17 @@ def test_ezviz(cfg, http=None):
     except EzvizError as e:
         return False, "EZVIZ: %s %s" % (e.code, e.msg)
     return True, "EZVIZ access token OK"
+
+
+# ---- cctvconnect ----
+def test_hikconnect(cfg, http=None):
+    """cctvconnect: an access token proves AppKey + SecretKey."""
+    from .logic import cctv_connect as CC
+    return CC.test_integration("hikconnect", cfg, http=http)
+
+
+def test_dolynk(cfg, http=None):
+    """cctvconnect: a signed accessToken call proves appId + appSecret + base."""
+    from .logic import cctv_connect as CC
+    return CC.test_integration("dolynk", cfg, http=http)
+# ---- /cctvconnect ----

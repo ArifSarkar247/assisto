@@ -8634,3 +8634,52 @@ class RecoveryRequest(models.Model):
         ordering = ["-id"]
         indexes = [models.Index(fields=["state", "id"], name="core_recreq_state_idx")]
 # ---- /recovery ----
+
+
+# ---- cctvconnect (CCTV Guard V3 A1 + B, 9 Nov) ----
+class CctvCloudLink(models.Model):
+    """One brand-cloud authorization for ONE site (EZVIZ / Imou /
+    Hik-Connect / DoLynk). `grant_blob` is Fernet-sealed and bound to the site
+    id (logic/cctv_connect.seal) — never sent to any client, never logged.
+    `serials` (not secret) route vendor events to the site and stop two
+    sites claiming the same device. Revoking releases the devices at the
+    vendor and wipes the grant."""
+    STATUS = [("active", "active"), ("error", "error"), ("revoked", "revoked")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="cloud_links")
+    provider = models.CharField(max_length=16, db_index=True)
+    label = models.CharField(max_length=80, blank=True, default="")
+    mode = models.CharField(max_length=12, default="device_code")
+    grant_blob = models.TextField(blank=True, default="")
+    serials = models.JSONField(default=list, blank=True)
+    status = models.CharField(max_length=8, choices=STATUS, default="active")
+    # sync cursor + small dedupe list {"since": epoch, "seen": [ids]}
+    state = models.JSONField(default=dict, blank=True)
+    last_sync = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=80, blank=True, default="")
+    created = models.DateTimeField(auto_now_add=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["created", "id"]
+        indexes = [models.Index(fields=["provider", "status"], name="core_cctvcl_prov_st_idx")]
+
+
+class CctvDvrHealth(models.Model):
+    """The latest health report of one DVR / NVR / cloud camera of a site
+    (logic/dvr_health.py) + which problems were already alerted. device
+    "_daily" is the site's daily green-check bookkeeping row."""
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="dvr_health")
+    device = models.CharField(max_length=60)
+    source = models.CharField(max_length=16, blank=True, default="")
+    report = models.JSONField(default=dict, blank=True)
+    evaluation = models.JSONField(default=dict, blank=True)
+    alerted = models.JSONField(default=dict, blank=True)
+    updated = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["device"]
+        constraints = [models.UniqueConstraint(fields=["site", "device"],
+                                               name="uniq_cctv_dvr_health")]
+# ---- /cctvconnect ----
