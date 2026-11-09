@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gm;
 
@@ -12,7 +13,6 @@ import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/journey_ride.dart' show jDistanceM;
-import '../widgets/local_counter.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/permission_reason.dart';
 import 'address_resolver.dart';
@@ -431,8 +431,9 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
         controller: _ctl,
         focusNode: _focus,
         autofocus: widget.autofocus,
-        maxLength: 120,
-        buildCounter: localCounter,
+        // qjourney (owner V2): no "10/120" counter under the place search —
+        // the length cap stays, silently
+        inputFormatters: [LengthLimitingTextInputFormatter(120)],
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           labelText: widget.label ?? t.j2SearchField,

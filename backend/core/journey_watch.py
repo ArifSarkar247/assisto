@@ -1043,7 +1043,8 @@ def arrival_plausible(j, now=None, here=None, acc=None):
         origin = (first.lat, first.lng) if first else None
     out = JA.assess(dest=JA.point(j.destination or {}), now=now, start_at=j.created_at,
                     origin=origin, here=here, here_at=here_at, mode=j.mode,
-                    radius_m=j.arrival_radius_m)
+                    radius_m=j.arrival_radius_m,
+                    near_m=JA.near_for_kind((j.destination or {}).get("kind")))
     planned = None
     for src in (j.destination or {}, j.vehicle or {}):
         planned = planned or SJ.parse_dt((src or {}).get("earliest_at"))

@@ -34,6 +34,15 @@ TOP_KMH = {
 }
 DEFAULT_KMH = 130
 
+# a destination that is a whole AREA (picked from our place list as a
+# district, town, ...) is "reached" anywhere inside it, not at its centre
+AREA_NEAR_M = {"division": 60000, "district": 15000, "upazila": 8000, "city": 8000,
+               "union": 4000, "town": 3000, "area": 1500}
+
+
+def near_for_kind(kind):
+    return AREA_NEAR_M.get(str(kind or "").lower(), NEAR_M)
+
 
 def _f(v):
     try:
@@ -63,18 +72,18 @@ def haversine_m(a, b):
     return 2 * r * math.asin(min(1.0, math.sqrt(h)))
 
 
-def earliest_arrival(start_at, origin, dest, mode=""):
+def earliest_arrival(start_at, origin, dest, mode="", near_m=NEAR_M):
     """C: the earliest physically possible arrival (datetime), or None when
     the start point is unknown. A trip inside the NEAR_M ring has C = start."""
     if start_at is None or origin is None or dest is None:
         return None
-    km = max(0.0, haversine_m(origin, dest) - NEAR_M) / 1000.0
+    km = max(0.0, haversine_m(origin, dest) - max(NEAR_M, near_m)) / 1000.0
     kmh = TOP_KMH.get((mode or "").lower(), DEFAULT_KMH)
     return start_at + timedelta(hours=km / kmh)
 
 
 def assess(*, dest, now, start_at=None, origin=None, here=None, here_at=None,
-           mode="", radius_m=0):
+           mode="", radius_m=0, near_m=NEAR_M):
     """-> dict(ok, reason, distance_m, earliest_at).
 
     reason: '' (plausible) | 'no_destination' | 'no_location' | 'far' | 'too_early'.
@@ -84,7 +93,7 @@ def assess(*, dest, now, start_at=None, origin=None, here=None, here_at=None,
     if dest is None:
         out["reason"] = "no_destination"
         return out
-    c = earliest_arrival(start_at, origin, dest, mode)
+    c = earliest_arrival(start_at, origin, dest, mode, near_m)
     out["earliest_at"] = c
     if here is not None and here_at is not None and \
             now - here_at > timedelta(minutes=FIX_MAX_AGE_MIN):
@@ -94,7 +103,7 @@ def assess(*, dest, now, start_at=None, origin=None, here=None, here_at=None,
         return out
     dist = haversine_m(here, dest)
     out["distance_m"] = int(round(dist))
-    if dist > max(NEAR_M, int(radius_m or 0)):
+    if dist > max(NEAR_M, int(radius_m or 0), int(near_m or 0)):
         out["reason"] = "far"
         return out
     if c is not None and now < c:
