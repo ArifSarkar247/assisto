@@ -762,6 +762,10 @@ def clip_wanted(site, ev):
     try:
         if hasattr_clip(ev):
             return False
+        if ev.camera_id and ev.camera is not None and ev.camera.vendor == "phone":
+            # cctvplay: phone-camera previews have their own per-camera cap
+            from . import phonecam_clips_views as PCCV
+            return PCCV.preview_left(ev.camera) > 0 and bool(clip_recipients(site))
         if clips_today(site) >= owner_caps(site.owner)["clips_day"]:
             return False
         return bool(clip_recipients(site))
@@ -1458,6 +1462,10 @@ def _cash_fields(e):
                 "size": c.size}
     elif sig.get("clip_ref"):
         clip = {"status": "pending"}
+    # cctvplay: a phone camera's alert can always ask for the full video
+    if e.camera_id and e.camera is not None and e.camera.vendor == "phone":
+        clip = dict(clip or {"status": "none"}, phonecam=True,
+                    has_ref=bool(sig.get("clip_ref")))
     return {"cash": CG.is_cash_event(e.type, inputs),
             "away": bool(inputs.get("away")), "clip": clip}
 

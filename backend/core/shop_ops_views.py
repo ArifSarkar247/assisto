@@ -354,11 +354,17 @@ class ShopHeartbeatView(APIView):
         _sweep_live(now)
         cfg = device_config(site, cam)
         from . import watchman_views as WV
-        return Response({"ok": True, "config_version": cfg["version"],
-                         "tasks_pending": WV.pending_task_count(site, now),
-                         "server_time": now.isoformat(),
-                         "live_pending": [_live_device_row(s) for s in
-                                          _pending_for(site, cams, now)]})
+        body = {"ok": True, "config_version": cfg["version"],
+                "tasks_pending": WV.pending_task_count(site, now),
+                "server_time": now.isoformat(),
+                "live_pending": [_live_device_row(s) for s in
+                                 _pending_for(site, cams, now)]}
+        # cctvplay: a camera PHONE gets its clip recipients + video requests
+        from . import phonecam_clips_views as PCCV
+        pc = PCCV.heartbeat_block(site, cams, now)
+        if pc is not None:
+            body["phonecam"] = pc
+        return Response(body)
 
 
 class ShopDeviceConfigView(APIView):

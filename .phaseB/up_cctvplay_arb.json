@@ -1,0 +1,143 @@
+{
+ "en": {
+  "pcpWatchVideo": "Watch the video",
+  "@pcpWatchVideo": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpNoPreview": "No short preview for this alert (today's limit was used up, or a secure key was not ready on the viewer's phone). You can still get the full video from the camera phone below.",
+  "@pcpNoPreview": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPreviewNote": "Short preview: a few frames from the 10-second clip. Kept {hours} hours for you and your family, end-to-end encrypted — even Assisto cannot open it.",
+  "@pcpPreviewNote": {
+   "description": "cctvplay: phone-camera remote playback",
+   "placeholders": {
+    "hours": {
+     "type": "String"
+    }
+   }
+  },
+  "pcpFullTitle": "Full video from the camera phone",
+  "@pcpFullTitle": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpFullLimits": "About {secs} seconds, about {mb} MB. It comes straight from the camera phone, is kept {hours} hours and is end-to-end encrypted.",
+  "@pcpFullLimits": {
+   "description": "cctvplay: phone-camera remote playback",
+   "placeholders": {
+    "secs": {
+     "type": "String"
+    },
+    "mb": {
+     "type": "String"
+    },
+    "hours": {
+     "type": "String"
+    }
+   }
+  },
+  "pcpBudgetLeft": "This month's camera video budget: {left} MB left of {cap} MB.",
+  "@pcpBudgetLeft": {
+   "description": "cctvplay: phone-camera remote playback",
+   "placeholders": {
+    "left": {
+     "type": "String"
+    },
+    "cap": {
+     "type": "String"
+    }
+   }
+  },
+  "pcpCamOnline": "The camera phone is online — the video usually comes within 30 seconds.",
+  "@pcpCamOnline": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpCamOffline": "The camera phone is offline now. Your request waits up to 24 hours; the video comes when it is back online.",
+  "@pcpCamOffline": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpGetFull": "Get the full video",
+  "@pcpGetFull": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPlayFull": "Play the full video",
+  "@pcpPlayFull": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpWaiting": "Asking the camera phone…",
+  "@pcpWaiting": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpWaitingLong": "Still waiting. The camera phone may be offline or busy with a live view. The request stays for 24 hours — open this alert again later.",
+  "@pcpWaitingLong": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpOpening": "Opening the video on this phone…",
+  "@pcpOpening": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpMissing": "This video is no longer on the camera phone: when its storage limit is full, the oldest videos are deleted first. The photo stays.",
+  "@pcpMissing": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpExpired": "This request or video is older than 24 hours and was deleted. Ask again — it works while the video is still on the camera phone.",
+  "@pcpExpired": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpFailed": "Couldn't open the video. Check the internet and try again.",
+  "@pcpFailed": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpClipsHelp": "Each alert keeps a 10-second video here; when the space is full, the oldest is deleted first. A small preview (a few frames, end-to-end encrypted) goes to you and your family; the full video leaves this phone only when one of you asks for it.",
+  "@pcpClipsHelp": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpTrustBody": "Only the owner and the family members they allow can see this camera. Sound is off unless you switch it on here. Videos stay on this phone; only a small encrypted preview, and a full video someone asks for, are sent — end-to-end encrypted. Put a notice where people are filmed, and never film inside a room someone uses privately.",
+  "@pcpTrustBody": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPreviewsSent": "Previews sent to family: {n} · {left} left today",
+  "@pcpPreviewsSent": {
+   "description": "cctvplay: phone-camera remote playback",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "left": {
+     "type": "String"
+    }
+   }
+  },
+  "pcpPreviewsCapped": "Today's preview limit is used up — alerts and photos still go.",
+  "@pcpPreviewsCapped": {
+   "description": "cctvplay: phone-camera remote playback"
+  },
+  "pcpPreviewsNoKey": "Previews start once the owner's phone has opened Assisto (it makes a secure key).",
+  "@pcpPreviewsNoKey": {
+   "description": "cctvplay: phone-camera remote playback"
+  }
+ },
+ "bn": {
+  "pcpWatchVideo": "ভিডিও দেখুন",
+  "pcpNoPreview": "এই সতর্কতার ছোট প্রিভিউ নেই (আজকের সীমা শেষ, অথবা দর্শকের ফোনে নিরাপদ চাবি তৈরি ছিল না)। নিচে ক্যামেরা-ফোন থেকে পুরো ভিডিও আনতে পারেন।",
+  "pcpPreviewNote": "ছোট প্রিভিউ: ১০ সেকেন্ডের ক্লিপের কয়েকটি ছবি। আপনার ও পরিবারের জন্য {hours} ঘণ্টা রাখা হয়, এন্ড-টু-এন্ড এনক্রিপ্টেড — Assisto-ও খুলতে পারে না।",
+  "pcpFullTitle": "ক্যামেরা-ফোন থেকে পুরো ভিডিও",
+  "pcpFullLimits": "প্রায় {secs} সেকেন্ড, প্রায় {mb} MB। সরাসরি ক্যামেরা-ফোন থেকে আসে, {hours} ঘণ্টা রাখা হয়, এন্ড-টু-এন্ড এনক্রিপ্টেড।",
+  "pcpBudgetLeft": "এই মাসে ক্যামেরার ভিডিও সীমা: {cap} MB-এর মধ্যে {left} MB বাকি।",
+  "pcpCamOnline": "ক্যামেরা-ফোন অনলাইনে আছে — সাধারণত ৩০ সেকেন্ডের মধ্যে ভিডিও আসে।",
+  "pcpCamOffline": "ক্যামেরা-ফোন এখন অফলাইনে। আপনার অনুরোধ ২৪ ঘণ্টা অপেক্ষা করবে; ফোনটি আবার অনলাইনে এলে ভিডিও আসবে।",
+  "pcpGetFull": "পুরো ভিডিও আনুন",
+  "pcpPlayFull": "পুরো ভিডিও চালান",
+  "pcpWaiting": "ক্যামেরা-ফোনকে জানানো হচ্ছে…",
+  "pcpWaitingLong": "এখনো অপেক্ষা চলছে। ক্যামেরা-ফোন হয়তো অফলাইনে বা লাইভ দেখাচ্ছে। অনুরোধ ২৪ ঘণ্টা থাকবে — পরে আবার এই সতর্কতা খুলুন।",
+  "pcpOpening": "এই ফোনে ভিডিও খোলা হচ্ছে…",
+  "pcpMissing": "এই ভিডিও আর ক্যামেরা-ফোনে নেই: জায়গার সীমা ভরে গেলে সবচেয়ে পুরনো ভিডিও আগে মুছে যায়। ছবিটি আছে।",
+  "pcpExpired": "এই অনুরোধ বা ভিডিও ২৪ ঘণ্টার বেশি পুরনো, তাই মুছে গেছে। আবার চান — ভিডিওটি ক্যামেরা-ফোনে থাকলে আসবে।",
+  "pcpFailed": "ভিডিও খোলা গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "pcpClipsHelp": "প্রতি সতর্কতায় ১০ সেকেন্ডের ভিডিও এখানে থাকে; জায়গা ভরে গেলে সবচেয়ে পুরনোটি আগে মোছে। একটি ছোট প্রিভিউ (কয়েকটি ছবি, এন্ড-টু-এন্ড এনক্রিপ্টেড) আপনার ও পরিবারের কাছে যায়; পুরো ভিডিও এই ফোন থেকে যায় শুধু আপনাদের কেউ চাইলে।",
+  "pcpTrustBody": "শুধু মালিক ও তিনি যাঁদের অনুমতি দেন সেই পরিবারের সদস্যরা এই ক্যামেরা দেখতে পারেন। এখানে চালু না করলে শব্দ বন্ধ থাকে। ভিডিও এই ফোনেই থাকে; শুধু একটি ছোট এনক্রিপ্টেড প্রিভিউ, আর কেউ চাইলে পুরো ভিডিও পাঠানো হয় — এন্ড-টু-এন্ড এনক্রিপ্টেড। যেখানে মানুষের ছবি ওঠে সেখানে নোটিশ দিন, আর কেউ ব্যক্তিগতভাবে ব্যবহার করেন এমন ঘরের ভেতরে কখনো ভিডিও করবেন না।",
+  "pcpPreviewsSent": "পরিবারকে প্রিভিউ পাঠানো: {n} · আজ আর {left}টি",
+  "pcpPreviewsCapped": "আজকের প্রিভিউ সীমা শেষ — সতর্কতা ও ছবি ঠিকই যাবে।",
+  "pcpPreviewsNoKey": "মালিকের ফোনে Assisto খোলা হলে (নিরাপদ চাবি তৈরি হয়) প্রিভিউ শুরু হবে।"
+ }
+}

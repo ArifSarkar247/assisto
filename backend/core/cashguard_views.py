@@ -74,6 +74,12 @@ def purge_clips(now=None):
             n += 1
     except Exception:
         log.exception("clip purge failed")
+    # cctvplay: the phone cameras' full videos (24 h) go the same way
+    try:
+        from . import phonecam_clips_views as PCV
+        n += PCV.purge_videos(now)
+    except Exception:
+        log.exception("phonecam video purge failed")
     return n
 
 
@@ -127,8 +133,17 @@ class ShopClipUploadView(APIView):
                         code="clip_window_over")
         if SV.hasattr_clip(ev):
             return Response({"ok": True, "duplicate": True, "event_id": ev.id})
+        # cctvplay: a PHONE camera's alert preview (ACG1 frames of its 10 s
+        # clip) has its own per-camera daily cap and envelope rules
+        from . import phonecam_clips_views as PCV
+        from .logic import phonecam_clips as PCL
+        phone = PCV.is_phone(ev.camera)
         caps = SV.owner_caps(site.owner)
-        if SV.clips_today(site, now) >= caps["clips_day"]:
+        if phone and PCV.preview_left(ev.camera, now) <= 0:
+            return _err(lang, "আজকের ছোট ভিডিওর সীমা শেষ — শুধু ছবি থাকবে।",
+                        "Today's short-video limit is used up — the photo stays.",
+                        status=429, code="clip_cap", limit=PCV.previews_day())
+        if not phone and SV.clips_today(site, now) >= caps["clips_day"]:
             return _err(lang, "আজকের ক্লিপের সীমা শেষ — শুধু ছবি থাকবে।",
                         "Today's clip limit is used up — the photo stays.",
                         status=429, code="clip_cap", limit=caps["clips_day"])
@@ -138,7 +153,8 @@ class ShopClipUploadView(APIView):
                 raw_meta = json.loads(raw_meta)
             except ValueError:
                 raw_meta = None
-        probs = CG.clip_meta_problems(raw_meta)
+        probs = PCL.preview_meta_problems(raw_meta) if phone else \
+            CG.clip_meta_problems(raw_meta)
         if probs:
             return _err(lang, "ক্লিপের তথ্য ঠিক নেই।", "The clip envelope is not valid.",
                         status=422, code="bad_clip_meta", problems=probs)
@@ -157,7 +173,7 @@ class ShopClipUploadView(APIView):
                             code="extra_file")
         if up is None:
             return _err(lang, "ক্লিপ নেই।", "No clip.", status=422, code="no_blob")
-        limit = caps["clip_kb"] * 1024
+        limit = (PCL.PREVIEW_MAX_KB if phone else caps["clip_kb"]) * 1024
         if (getattr(up, "size", 0) or 0) > limit:
             return _err(lang, "ক্লিপটি খুব বড়।", "The clip is too large.",
                         status=413, code="clip_too_large")
@@ -187,6 +203,8 @@ class ShopClipUploadView(APIView):
             except Exception:
                 pass
             return Response({"ok": True, "duplicate": True, "event_id": ev.id})
+        if phone:
+            PCV.count_bytes(ev.camera, len(raw), now)
         return Response({"ok": True, "event_id": ev.id, "size": len(raw),
                          "expires_at": SV._iso(clip.expires_at)}, status=201)
 
@@ -205,6 +223,21 @@ GONE = {"viewed": ("মালিক ক্লিপটি দেখেছেন,
                     "The clip was deleted after 24 hours. The photo stays.")}
 
 
+def _phone_extra(request, ev, body, count=0):
+    """cctvplay: a phone camera's preview is kept 24 h for everyone (never
+    deleted by one view) + the full video's state and the honest limits."""
+    try:
+        from . import phonecam_clips_views as PCV
+        if not PCV.is_phone(ev.camera):
+            return
+        body["delete_on_view"] = False
+        body["phonecam"] = PCV.preview_envelope_extra(request, ev)
+        if count:
+            PCV.count_bytes(ev.camera, count)
+    except Exception:
+        log.exception("phonecam clip extra failed")
+
+
 class EventClipView(_OwnerBase):
     def get(self, request, pk):
         lang = req_lang(request)
@@ -213,7 +246,9 @@ class EventClipView(_OwnerBase):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         if not SV.hasattr_clip(ev):
             if (ev.signals or {}).get("clip_ref"):
-                return Response({"status": "pending", "event_id": ev.id})
+                body = {"status": "pending", "event_id": ev.id}
+                _phone_extra(request, ev, body)
+                return Response(body)
             return _err(lang, "এই সতর্কতার কোনো ক্লিপ নেই।",
                         "This alert has no clip.", status=404, code="no_clip")
         clip = _fresh(ev.clip)
@@ -233,12 +268,14 @@ class EventClipView(_OwnerBase):
             url = request.build_absolute_uri(clip.blob.url)
         except Exception:
             url = clip.blob.url
-        return Response({"status": "ready", "event_id": ev.id, "role": role,
-                         "url": url, "meta": meta, "size": clip.size,
-                         "expires_at": SV._iso(clip.expires_at),
-                         "delete_on_view": role in ("owner", "shared"),
-                         # cctvx: a shared wrap was made by the owner's phone
-                         "shared": role == "shared"})
+        body = {"status": "ready", "event_id": ev.id, "role": role,
+                "url": url, "meta": meta, "size": clip.size,
+                "expires_at": SV._iso(clip.expires_at),
+                "delete_on_view": role in ("owner", "shared"),
+                # cctvx: a shared wrap was made by the owner's phone
+                "shared": role == "shared"}
+        _phone_extra(request, ev, body, count=clip.size)
+        return Response(body)
 
 
 class EventClipViewedView(_OwnerBase):
@@ -250,6 +287,18 @@ class EventClipViewedView(_OwnerBase):
         clip = _fresh(ev.clip)
         if role not in ("owner", "shared"):
             return Response({"ok": True, "deleted": False, "status": clip.status})
+        # cctvplay: a phone camera's preview stays its 24 h for the family too
+        try:
+            from . import phonecam_clips_views as PCV
+            phone = PCV.is_phone(ev.camera)
+        except Exception:
+            phone = False
+        if phone:
+            if clip.status == "ready" and role == "owner" and clip.viewed_at is None:
+                clip.viewed_at = timezone.now()
+                clip.save(update_fields=["viewed_at"])
+            return Response({"ok": True, "deleted": False, "status": clip.status,
+                             "kept_until": SV._iso(clip.expires_at)})
         # cctvx: a clip the owner SHARED stays until that person watched it
         # too (or 24 h); each watcher's own wrapped key goes at once.
         meta = dict(clip.meta or {})

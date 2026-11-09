@@ -3,8 +3,14 @@ package com.assisto.assisto.shopbox
 import android.app.Activity
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Bitmap
+import android.media.MediaMetadataRetriever
 import android.os.BatteryManager
+import android.os.Handler
+import android.os.Looper
+import android.os.StatFs
 import android.view.WindowManager
+import java.io.ByteArrayOutputStream
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
@@ -23,6 +29,14 @@ import io.flutter.plugin.common.MethodChannel
  *   dim({on: Bool})           -> Bool   cctvphone: window brightness to the
  *                                       minimum while the phone is a camera
  *                                       (restored to the system value on off)
+ *   clipFrames({path, count, width, quality}) -> List<ByteArray>
+ *                                       cctvplay: small JPEG frames evenly
+ *                                       spread over a clip THIS app recorded
+ *                                       (MediaMetadataRetriever, framework API,
+ *                                       no permission) on a background thread;
+ *                                       [] on any failure
+ *   freeBytes()               -> Long?  cctvplay: free space of the app's own
+ *                                       storage (StatFs) for the recording guard
  *
  * Nothing runs at launch: registering a MethodChannel handler is free; the
  * work only happens when Dart calls a method. Every call is try/catch so a
@@ -113,8 +127,84 @@ object ShopBoxChannel {
                             result.success(false)
                         }
                     }
+                    "clipFrames" -> {
+                        val path = call.argument<String>("path") ?: ""
+                        val count = (call.argument<Int>("count") ?: 15).coerceIn(1, 40)
+                        val width = (call.argument<Int>("width") ?: 320).coerceIn(96, 960)
+                        val quality = (call.argument<Int>("quality") ?: 55).coerceIn(30, 90)
+                        val main = Handler(Looper.getMainLooper())
+                        try {
+                            Thread {
+                                val out = try {
+                                    clipFrames(path, count, width, quality)
+                                } catch (_: Throwable) {
+                                    ArrayList<ByteArray>()
+                                }
+                                main.post {
+                                    try {
+                                        result.success(out)
+                                    } catch (_: Throwable) {
+                                    }
+                                }
+                            }.apply { name = "assisto-clipframes"; isDaemon = true }.start()
+                        } catch (_: Throwable) {
+                            result.success(ArrayList<ByteArray>())
+                        }
+                    }
+                    "freeBytes" -> {
+                        try {
+                            val st = StatFs(activity.applicationContext.filesDir.absolutePath)
+                            result.success(st.availableBlocksLong * st.blockSizeLong)
+                        } catch (_: Throwable) {
+                            result.success(null)
+                        }
+                    }
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    /** cctvplay: [count] JPEG frames spread evenly over the clip, each scaled
+     *  to [width] px wide. One bitmap in memory at a time (old 2 GB phones). */
+    private fun clipFrames(path: String, count: Int, width: Int, quality: Int): ArrayList<ByteArray> {
+        val out = ArrayList<ByteArray>()
+        if (path.isEmpty()) return out
+        val r = MediaMetadataRetriever()
+        try {
+            r.setDataSource(path)
+            val durMs = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                ?.toLongOrNull() ?: 0L
+            if (durMs <= 0L) return out
+            for (i in 0 until count) {
+                val tUs = (durMs * 1000L * (2 * i + 1)) / (2L * count)
+                var bmp: Bitmap? = null
+                var scaled: Bitmap? = null
+                try {
+                    bmp = r.getFrameAtTime(tUs, MediaMetadataRetriever.OPTION_CLOSEST)
+                    if (bmp == null) continue
+                    val h = (bmp.height.toLong() * width / bmp.width.coerceAtLeast(1)).toInt()
+                        .coerceAtLeast(1)
+                    scaled = if (bmp.width > width) Bitmap.createScaledBitmap(bmp, width, h, true)
+                        else bmp
+                    val bos = ByteArrayOutputStream()
+                    scaled.compress(Bitmap.CompressFormat.JPEG, quality, bos)
+                    out.add(bos.toByteArray())
+                } catch (_: Throwable) {
+                } finally {
+                    try {
+                        if (scaled != null && scaled !== bmp) scaled.recycle()
+                        bmp?.recycle()
+                    } catch (_: Throwable) {
+                    }
+                }
+            }
+        } catch (_: Throwable) {
+        } finally {
+            try {
+                r.release()
+            } catch (_: Throwable) {
+            }
+        }
+        return out
     }
 }

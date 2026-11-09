@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../cashguard/cashguard_source.dart';
 import '../../cctvx/cctvx_source.dart';
 import '../../l10n/app_localizations.dart';
+import '../../phonecam/phonecam_clips.dart';
 import '../../state.dart';
 import 'cash_guard_clip.dart';
 import 'cctvx_actions.dart';
@@ -27,6 +28,9 @@ class WatchmanAlertsScreen extends StatefulWidget {
   /// cctvx: alert actions (siren, call the shop, share, evidence, 999).
   final CctvxSource? extras;
 
+  /// cctvplay: phone-camera full video on demand (tests inject a fake).
+  final PhoneCamClipSource? phoneSource;
+
   /// cctvveh: does this place have a camera yet (empty-state wording), and
   /// the first real step from an empty list (zones, or add a camera).
   final bool hasCamera;
@@ -38,6 +42,7 @@ class WatchmanAlertsScreen extends StatefulWidget {
       required this.owner,
       this.cash,
       this.extras,
+      this.phoneSource,
       this.hasCamera = true,
       this.onSetup});
 
@@ -61,6 +66,15 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     }
   }
 
+  PhoneCamClipSource? _phoneSrc() {
+    if (widget.phoneSource != null) return widget.phoneSource;
+    try {
+      return ApiPhoneCamClipSource(context.read<AppState>().api);
+    } catch (_) {
+      return null;
+    }
+  }
+
   CctvxSource? _extras() {
     if (widget.extras != null) return widget.extras;
     try {
@@ -73,9 +87,13 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
   Future<void> _openClip(Map<String, dynamic> e) async {
     final src = _cashSrc();
     if (src == null) return;
+    final clip = wmMap(e['clip']);
     await CashClipSheet.show(context, src, (e['id'] as num).toInt(), widget.owner,
         extras: widget.owner ? _extras() : null,
-        photoUrl: (e['snapshot_url'] ?? '').toString());
+        photoUrl: (e['snapshot_url'] ?? '').toString(),
+        // cctvplay: a phone camera's alert can fetch the full video
+        phoneSource: clip['phonecam'] == true ? _phoneSrc() : null,
+        previewStatus: (clip['status'] ?? '').toString());
     if (mounted) await _load();
   }
 
@@ -283,11 +301,15 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
               ),
             if (clip.isNotEmpty) ...[
               const SizedBox(height: 8),
-              if (clipSt == 'ready' || clipSt == 'pending')
+              if (clipSt == 'ready' || clipSt == 'pending' || clip['phonecam'] == true)
                 FilledButton.tonalIcon(
                   style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
                   icon: const Icon(Icons.play_circle_outline_rounded),
-                  label: Text(clipSt == 'pending' ? t.cgClipComing : t.cgWatchClip),
+                  label: Text(clip['phonecam'] == true
+                      ? t.pcpWatchVideo
+                      : clipSt == 'pending'
+                          ? t.cgClipComing
+                          : t.cgWatchClip),
                   onPressed: () => _openClip(e),
                 )
               else

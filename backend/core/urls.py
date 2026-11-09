@@ -781,6 +781,13 @@ urlpatterns += [
     path("shop/shopbox/download", phonecam.ShopBoxDownloadView.as_view()),  # cctvtoday
 ]
 
+# cctvplay: remote playback of phone-camera clips (+ continuous recording)
+from . import phonecam_clips_views as pcclips  # noqa: E402
+urlpatterns += [
+    path("shop/events/<int:pk>/clip/full", pcclips.EventFullClipView.as_view()),
+    path("shop/phonecam/video", pcclips.PhoneCamVideoUploadView.as_view()),
+]
+
 # ---- cctvprice ---- CCTV plan on Google Play (flag cctv_watchman)
 from . import cctv_plan_views as cpv  # noqa: E402
 urlpatterns += [
