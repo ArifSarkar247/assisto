@@ -4,7 +4,6 @@
 // "Going to Office? Tell family?" learned on the phone.
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:assisto/api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
@@ -294,7 +293,8 @@ void main() {
 
   testWidgets('a successful start remembers watchers and sends the plate photo', (tester) async {
     final api = _Api()..startOk = true;
-    final img = Uint8List.fromList(List.filled(32, 7));
+    final img = base64Decode( // a real 1x1 PNG
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==');
     await _open(tester, api, JourneyStartScreen(platePicker: (_) async => img));
     await tester.ensureVisible(find.byKey(const ValueKey('j100_w_8')));
     await tester.tap(find.byKey(const ValueKey('j100_w_8')));
