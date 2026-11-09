@@ -559,7 +559,7 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
               style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
         ),
       if (showPre) ..._preTyping(t),
-      if (!empty)
+      if (!empty && _focus.hasFocus) // only while typing (not under a pick)
         for (final (i, p) in _mine(_ctl.text).indexed)
           _tile(
               key: ValueKey('ps_mine_$i'),

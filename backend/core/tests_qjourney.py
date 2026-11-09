@@ -186,8 +186,11 @@ class PlaceListTests(MapsBase):
             row = r["results"][0]
             self.assertTrue(row["place_id"].startswith("bd:"))
             self.assertIsInstance(row["lat"], float)       # no paid Place Details
-        bn = self.c1.get("%s/maps/search" % V, {"q": "গাইবান্ধা", "session": S},
-                         HTTP_ACCEPT_LANGUAGE="bn").json()
+        from rest_framework.test import APIClient
+        cbn = APIClient()
+        cbn.force_authenticate(self.u1)
+        bn = cbn.get("%s/maps/search" % V, {"q": "গাইবান্ধা", "session": S},
+                     HTTP_ACCEPT_LANGUAGE="bn").json()
         self.assertIn("গাইবান্ধা", bn["results"][0]["name"])
 
     def test_badda_and_shahjalal_airport(self):
@@ -195,7 +198,7 @@ class PlaceListTests(MapsBase):
         self.assertTrue(any("Badda" in n or "বাড্ডা" in n for n in names), names)
         r, names = self.find("Shahjalal airport")
         self.assertTrue(any("Shahjalal" in n or "শাহজালাল" in n for n in names), names)
-        air = [x for x in r["results"] if x["kind"] == "airport"][0]
+        air = [x for x in r["results"] if x.get("kind") == "airport"][0]
         self.assertEqual(air["radius_m"], 400)
         self.assertAlmostEqual(air["lat"], 23.84, delta=0.05)
 
