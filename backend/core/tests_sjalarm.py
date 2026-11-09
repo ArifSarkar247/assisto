@@ -81,7 +81,10 @@ class ScheduleVerifiedTests(TestCase):
         self.assertTrue(SJ.schedule_verified())
         r = _client(self.u).get(V + "/train/search?q=701").json()
         self.assertTrue(all(t["approved"] is True for t in r["trains"]))
-        live = _client(self.u).get(V + "/train/701/live?date=2026-11-03").json()
+        # qbiz: was a fixed 2026-11-03 — the live view refuses old dates, so the
+        # test broke on 9 Nov (KeyError 'train'); use today's service date.
+        from core import train_service as TS
+        live = _client(self.u).get(V + "/train/701/live?date=%s" % TS.today().isoformat()).json()
         self.assertTrue(live["train"]["approved"])
         if live.get("estimate"):
             self.assertTrue(live["estimate"]["approved"])
