@@ -45985,5 +45985,143 @@
   "pcrNotRecorded": "Nothing was recorded at that minute.",
   "@pcrNotRecorded": {
     "description": "cctvplay item 4: continuous recording on the phone camera"
-  }
+  },
+  "qjNearbyFavBrowse": "See places near you",
+  "@qjNearbyFavBrowse": {
+    "description": "qjourney: button on the empty Favourites view of Nearby; goes back to the list of nearby places"
+  },
+  "qjWindow": "Arrive between {a} and {b}",
+  "@qjWindow": {
+    "description": "qjourney: arrival window card on the Safe Journey start screen",
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "qjEarliest": "Earlier than {c} is not possible",
+  "@qjEarliest": {
+    "description": "qjourney: earliest physically possible arrival under the window",
+    "placeholders": {
+      "c": {
+        "type": "String"
+      }
+    }
+  },
+  "qjPlaceName": "Name",
+  "@qjPlaceName": {
+    "description": "qjourney: rename field in the saved-place sheet"
+  },
+  "sjdStMoving": "Moving",
+  "sjdStSlow": "Slow in traffic",
+  "sjdStStopped": "Stopped {n} min",
+  "@sjdStStopped": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdStOffRoute": "Off route",
+  "sjdStNearly": "Nearly there",
+  "sjdStPhoneOff": "Phone off",
+  "sjdStPhoneOffBatt": "Phone off — last battery {n}%",
+  "@sjdStPhoneOffBatt": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdWhyBattery": "The battery probably ran out.",
+  "sjdWhyKilled": "The phone's battery saver probably paused Assisto.",
+  "sjdWhyUnknown": "The phone is off or has no internet.",
+  "sjdStArrived": "Arrived",
+  "sjdOnlyYourPhone": "Only on your phone — the family does not know yet",
+  "sjdAskRouteTitle": "Changed route?",
+  "sjdAskFromTo": "From {from} to {to}",
+  "@sjdAskFromTo": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdAskStopTitle": "Stopped for a while — all OK?",
+  "sjdAskNearTitle": "Stopped near your destination — all OK?",
+  "sjdAskLateTitle": "All OK?",
+  "sjdAskNightTitle": "Night trip — all OK?",
+  "sjdHere": "here",
+  "sjdThere": "the route",
+  "sjdBtnAddTime": "Yes, add time",
+  "sjdAddTimeNote": "The family sees only “Time extended”",
+  "sjdMinutes": "{n} min",
+  "@sjdMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdBtnShare": "Share the stop place",
+  "sjdBtnOk": "I am OK",
+  "sjdBtnDanger": "Danger",
+  "sjdBottomNote": "If you do not answer in 5 minutes, the family gets “Check on you”.",
+  "sjdBottomNoteNight": "Only you see this. A missed night check-in alone never alerts anyone.",
+  "sjdAnswerSent": "Done. The family knows only what you chose.",
+  "sjdPinTitle": "Enter your PIN to finish",
+  "sjdPinWhyEarly": "Arriving this early is not possible, so your PIN is needed.",
+  "sjdPinWhyRoute": "You changed route or stopped for long, so your PIN is needed.",
+  "sjdPinWhyAlways": "You chose to confirm every arrival with your PIN.",
+  "sjdPinWrong": "Wrong PIN. Try again.",
+  "sjdPinLocked": "Too many tries. Wait 10 minutes.",
+  "sjdPinConfirm": "Confirm",
+  "sjdEarlyNote": "Too early to count as arrived — the trip stays live and finishes by itself.",
+  "sjdPinAlways": "Ask my PIN on every arrival",
+  "sjdPinAlwaysSub": "Watchers then see “Confirmed with PIN”. A wrong-place or too-early arrival always asks it.",
+  "sjdActiveCount": "Active journeys ({n})",
+  "@sjdActiveCount": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdFinished": "Finished journeys",
+  "sjdNearNote": "No alert even if late — they are asked first after 30 minutes.",
+  "sjdWindow": "Arrive between {a} and {b}",
+  "@sjdWindow": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdBadgePin": "Confirmed with PIN",
+  "sjdBadgeFast": "Unusually fast arrival, PIN asked",
+  "sjdLevelAmber": "Check on {name}",
+  "@sjdLevelAmber": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sjdLevelRed": "Urgent — call now",
+  "sjdCall": "Call",
+  "sjdPlayAudio": "Play the 30-second audio",
+  "sjdAudioFailed": "Could not play the audio.",
+  "sjdAlsoWatching": "You are also watching",
+  "sjdNightOn": "Night trip: Assisto checks in with you more often.",
+  "sjdFamilyNone": "Nobody is travelling now",
+  "sjdFamilyOpen": "See journeys"
 }
