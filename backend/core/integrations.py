@@ -1546,8 +1546,16 @@ def _vendor_usage(slug, lang):
             url = ""
         if not url:
             return ""
-        return ("DoLynk কনসোলের Cloud Message-এ এই Callback URL দিন: " if lang == "bn"
+        line = ("DoLynk কনসোলের Cloud Message-এ এই Callback URL দিন: " if lang == "bn"
                 else "Put this Callback URL into the DoLynk console (Cloud Message): ") + url
+        try:
+            from .logic.cctv_connect import quota as Q
+            q = Q.text(slug, lang)
+            if q:
+                line += " · " + q
+        except Exception:
+            pass
+        return line
     if slug not in ("imou", "ezviz"):
         return ""
     out = []
