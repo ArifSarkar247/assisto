@@ -51,7 +51,7 @@ from . import payload
 from .config import CameraConfig, DetectionConfig
 from .hours import Hours, Schedule
 from .motion import MotionDetector, MotionResult
-from .night import is_night
+from .night import NightConfirm, model_input
 from .zone import (SENSITIVITY_MULT, box_centroid, box_zone_overlap,
                    normalize_polygon, point_in_polygon, segments_cross, zone_mask)
 
@@ -100,6 +100,11 @@ class CameraAnalyzer:
         self._prev_age = 0
         self.last_people = 0             # for the UI "test" view
         self.last_night = False          # cctvacc: last person check used night mode
+        # cctvacc2: night frames are enhanced (night.model_input) and a night
+        # person must be seen in NIGHT_CONFIRM checks in a row
+        self._night_confirm = NightConfirm(frames=getattr(cfg, "night_confirm", None))
+        self._now: Optional[float] = None
+        self._after_defer = 0
         self.last_motion_at: Optional[float] = None   # cctvx (heartbeat)
         self.reconfigure()
 
@@ -150,18 +155,22 @@ class CameraAnalyzer:
         return self._zmask_cache[1]
 
     def _detect(self, frame):
+        # cctvacc: IR / grey / dark frame -> the night threshold (same rule
+        # and values as the phone app; measured in CI). cctvacc2: the night
+        # frame is fit to 416 px and enhanced first, exactly as the phone.
+        img, self.last_night = model_input(frame)
         thr = self.person_conf
         if thr is None:
-            # cctvacc: IR / grey / dark frame -> the night threshold (same
-            # rule and values as the phone app; measured in CI)
-            self.last_night = is_night(frame)
             thr = (self.cfg.person_score_night if self.last_night
                    else self.cfg.person_score)
         try:
-            dets = self.detector.detect(frame, score_thr=thr)
+            dets = self.detector.detect(img, score_thr=thr)
         except TypeError:                # a detector without the override
-            dets = self.detector.detect(frame)
+            dets = self.detector.detect(img)
         dets = [d for d in dets if d.score >= thr]
+        now = self._now if self._now is not None else self.clock()
+        if not self._night_confirm.check(bool(dets), self.last_night, now):
+            dets = []
         self.last_people = len(dets)
         return dets
 
@@ -186,6 +195,7 @@ class CameraAnalyzer:
 
     def process(self, frame_bgr, now: Optional[float] = None) -> Optional[Trigger]:
         now = self.clock() if now is None else now
+        self._now = now
         frame = downscale(frame_bgr, self.cfg.frame_width)
         m = self.motion.update(frame, self.zone or None)
         if m.motion and not m.warming_up and not m.scene_change:
@@ -199,10 +209,18 @@ class CameraAnalyzer:
             self._reset_open_state()
             self._after_hits = self._after_hits + 1 if m.motion else 0
             if self._after_hits < confirm:
+                self._after_defer = 0
                 return None
             person_in_zone = False
             if self.has_model and self.zone:
                 person_in_zone = self._person_in_zone(frame)
+                # cctvacc2: a night person seen once waits for the next frame
+                # (2-frame check) instead of losing the person flag
+                if (not person_in_zone and self._night_confirm.pending
+                        and self._after_defer < self._night_confirm.frames - 1):
+                    self._after_defer += 1
+                    return None
+            self._after_defer = 0
             sig = payload.build_signals(
                 payload.AFTER_HOURS, detector=self.detector_name,
                 frames=self._after_hits, person_in_zone=person_in_zone)

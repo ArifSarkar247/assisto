@@ -186,3 +186,127 @@ def mask_from_polygon(poly) -> Optional[np.ndarray]:
     from .zone import zone_mask
 
     return zone_mask(poly, GRID_W, GRID_H).ravel() > 0
+
+
+# ------------------------------------------------------------ cctvacc2
+# The phone's SECOND, pixel-level check — the phone port of the Shop Box's
+# pixel path (motion.py: background difference at threshold 25, learn 0.05,
+# scene change when >= 60 % of pixels change, minimum blob size), adapted to
+# the phone pipeline: an 80 x 60 plane sampled from the camera's Y plane
+# (3 x 3 points per pixel — about 43 k reads per frame, cheap on 2 GB
+# phones), exposure-compensated with a histogram median, and a blob only
+# counts where the grid gate ALSO saw motion. Ported line by line to Dart
+# (app/lib/shop_motion.dart, class PixelCheck); constants asserted equal to
+# cctv_thresholds.json "pixel" by both suites, same fixture cases
+# (tests/fixtures/pixel_check_cases.json). The box itself keeps its cv2
+# pixel path with the same diff / learn / scene constants.
+PIX_W = 80
+PIX_H = 60
+PIX_SAMPLES = 3
+PIX_DIFF = 25.0
+PIX_LEARN = 0.05
+PIX_SCENE_FRAC = 0.6
+PIX_MIN_AREA = 6
+
+_PIX_IDX: dict = {}
+
+
+def pixel_plane(gray) -> np.ndarray:
+    """Phone: PIX_W x PIX_H plane, each pixel the mean of PIX_SAMPLES^2
+    sample points of the Y plane (Dart: MotionDetector.pixelPlane)."""
+    h, w = gray.shape[:2]
+    s = PIX_SAMPLES
+    key = (h, w)
+    if key not in _PIX_IDX:
+        cw, ch = w / PIX_W, h / PIX_H
+        ys = [min(max(int(np.floor(py * ch + (iy + 0.5) * ch / s)), 0), h - 1)
+              for py in range(PIX_H) for iy in range(s)]
+        xs = [min(max(int(np.floor(px * cw + (ix + 0.5) * cw / s)), 0), w - 1)
+              for px in range(PIX_W) for ix in range(s)]
+        _PIX_IDX[key] = (ys, xs)
+    ys, xs = _PIX_IDX[key]
+    sub = np.asarray(gray, dtype=np.float64)[np.ix_(ys, xs)]
+    return sub.reshape(PIX_H, s, PIX_W, s).mean(axis=(1, 3)).ravel()
+
+
+def hist_median(v) -> int:
+    """Lower median of floor(v) (0..255) via a 256-bin histogram: the smallest
+    b with 2 * count(floor(v) <= b) >= n. Identical in Dart (no float sort)."""
+    a = np.clip(np.floor(np.asarray(v, dtype=np.float64)), 0, 255).astype(np.int64)
+    cum = np.cumsum(np.bincount(a, minlength=256))
+    return int(np.argmax(cum * 2 >= a.shape[0]))
+
+
+# pixel -> gate cell (integer maths, same in Dart)
+_PIX_CELL = np.array([((i // PIX_W) * GRID_H // PIX_H) * GRID_W + (i % PIX_W) * GRID_W // PIX_W
+                      for i in range(PIX_W * PIX_H)], dtype=np.int64)
+
+
+class PixelCheck:
+    """Background difference on the 80 x 60 plane. feed() -> True when an
+    8-connected blob of >= PIX_MIN_AREA changed pixels exists (touching a
+    gate-moved cell when `gate_moved` is given)."""
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self) -> None:
+        self._bg = None
+
+    def feed(self, plane, gate_moved=None, scene: bool = False) -> bool:
+        p = np.asarray(plane, dtype=np.float64).ravel()
+        if self._bg is None or self._bg.shape != p.shape or scene:
+            self._bg = p.copy()
+            return False
+        ratio = (hist_median(p) + 1.0) / (hist_median(self._bg) + 1.0)
+        pred = self._bg * ratio
+        d = np.abs(p - pred) > PIX_DIFF
+        n = int(np.count_nonzero(d))
+        if n >= PIX_SCENE_FRAC * p.shape[0]:
+            self._bg = p.copy()              # lights / IR switch: adopt
+            return False
+        self._bg = (1.0 - PIX_LEARN) * pred + PIX_LEARN * p
+        if n < PIX_MIN_AREA:
+            return False
+        import cv2
+
+        k, lab = cv2.connectedComponents(d.reshape(PIX_H, PIX_W).astype(np.uint8),
+                                         connectivity=8)
+        lab = lab.ravel()
+        sizes = np.bincount(lab, minlength=k)
+        ok = sizes >= PIX_MIN_AREA
+        ok[0] = False
+        if gate_moved is not None:
+            gm = np.asarray(gate_moved, dtype=bool).ravel()
+            touch = np.bincount(lab, weights=gm[_PIX_CELL].astype(np.float64), minlength=k)
+            ok &= touch > 0
+        return bool(ok.any())
+
+
+class PhoneMotion:
+    """The phone's whole motion decision (Dart: MotionDetector.feedGrid with
+    a plane): grid gate AND pixel check, CONFIRM_FRAMES in a row."""
+
+    def __init__(self, pixel: bool = True, confirm_frames: int = CONFIRM_FRAMES):
+        self.gate = MotionGate(confirm_frames=1)
+        self.pix = PixelCheck() if pixel else None
+        self.confirm_frames = int(confirm_frames)
+        self.streak = 0
+
+    def reset(self) -> None:
+        self.gate.reset()
+        if self.pix is not None:
+            self.pix.reset()
+        self.streak = 0
+
+    def feed(self, gray) -> bool:
+        gr = self.gate.feed(phone_grid(gray))
+        cand = gr.candidate
+        if self.pix is not None:
+            pix = self.pix.feed(pixel_plane(gray), gr.moved,
+                                scene=gr.scene_change or gr.warming_up)
+            cand = cand and pix
+        if gr.scene_change or gr.warming_up:
+            cand = False
+        self.streak = self.streak + 1 if cand else 0
+        return self.streak >= self.confirm_frames

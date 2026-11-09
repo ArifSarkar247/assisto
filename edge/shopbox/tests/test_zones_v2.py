@@ -90,7 +90,7 @@ def cam_v2(zones, schedule=None, sensitivity="medium", tuning=None, cash=None):
 
 def analyzer(cam, det):
     return CameraAnalyzer(cam, Hours(open="09:00", close="22:00"),
-                          DetectionConfig(confirm_frames=2), det)
+                          DetectionConfig(confirm_frames=2, night_confirm=1), det)
 
 
 def moving_frames(n, step=40, x0=40):
