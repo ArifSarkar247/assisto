@@ -44961,5 +44961,620 @@
   "qcQuietUntil": "Quiet until",
   "@qcQuietUntil": {
     "description": "qcircle: time picker title for the end of quiet hours"
+  },
+  "fceGoodMorning": "Good morning, {name}",
+  "@fceGoodMorning": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceGoodAfternoon": "Good afternoon, {name}",
+  "@fceGoodAfternoon": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceGoodEvening": "Good evening, {name}",
+  "@fceGoodEvening": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceTimeNow": "It is {time} now",
+  "@fceTimeNow": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fceImOk": "I am OK",
+  "@fceImOk": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceImOkSub": "One tap tells Assisto you are fine",
+  "@fceImOkSub": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceImOkDone": "Thank you. Assisto noted that you are fine.",
+  "@fceImOkDone": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceCallSon": "Call son",
+  "@fceCallSon": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceCallDaughter": "Call daughter",
+  "@fceCallDaughter": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceCallName": "Call {name}",
+  "@fceCallName": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceCallConfirm": "Call {name}?",
+  "@fceCallConfirm": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceCallNow": "Call now",
+  "@fceCallNow": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceTalk": "Talk to Assisto",
+  "@fceTalk": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceDanger": "Danger",
+  "@fceDanger": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceDangerSub": "Tells your family at once",
+  "@fceDangerSub": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceAddFamily": "Add a family number",
+  "@fceAddFamily": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceAddFamilySub": "Then you can call them with one tap",
+  "@fceAddFamilySub": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchOn": "Silent Watch is on",
+  "@fceWatchOn": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchLearning": "Learning your normal day: day {n} of 7",
+  "@fceWatchLearning": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchLearned": "It knows your normal day. Tap to see or change.",
+  "@fceWatchLearned": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchTitle": "Silent Watch",
+  "@fceWatchTitle": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchExplain": "If your phone stays quiet for a long time in the day, Assisto first asks you “Are you OK?”. Only if you do not answer does it tell {setter}, then the family.",
+  "@fceWatchExplain": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "setter": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchHours": "Asks after {hours} quiet hours, or later if your normal day is quieter",
+  "@fceWatchHours": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchDay": "Only in the day: {start} to {end}. Never at night.",
+  "@fceWatchDay": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchWho": "Who is told: first {setter}, then all family, then {nearby}",
+  "@fceWatchWho": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "setter": {
+        "type": "String"
+      },
+      "nearby": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchPrivacy": "Your phone use never leaves this phone. Only an alert goes to your family.",
+  "@fceWatchPrivacy": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchTurnOff": "Turn off Silent Watch",
+  "@fceWatchTurnOff": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchTurnOffBody": "{setter} will be told that you turned it off. You can turn it on again any time.",
+  "@fceWatchTurnOffBody": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "setter": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchTurnOn": "Turn Silent Watch on",
+  "@fceWatchTurnOn": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceOffline": "No internet right now. Please try again.",
+  "@fceOffline": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceAskTitle": "Are you OK?",
+  "@fceAskTitle": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceAskBody": "Tap “I am OK” so your family does not worry.",
+  "@fceAskBody": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceAskWhy": "Your phone was quiet for a long time.",
+  "@fceAskWhy": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceAskNeedHelp": "I need help",
+  "@fceAskNeedHelp": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceListenAgain": "Listen again",
+  "@fceListenAgain": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceToldBody": "Your family has been told. Tap “I am OK” if you are fine.",
+  "@fceToldBody": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceChannelName": "Are you OK? (Silent Watch)",
+  "@fceChannelName": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupTitle": "Set up a parent's phone",
+  "@fceSetupTitle": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupBenefit": "Big easy buttons, Care Calls and Silent Watch — set up in 2 minutes, with their own Yes.",
+  "@fceSetupBenefit": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupWho": "Whose phone?",
+  "@fceSetupWho": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupEmptyTitle": "Add your parent to your family first",
+  "@fceSetupEmptyTitle": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupEmptyBody": "Add them with their phone number. They accept on their own phone, then come back here.",
+  "@fceSetupEmptyBody": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupEmptyCta": "Add family member",
+  "@fceSetupEmptyCta": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupWhat": "What to turn on",
+  "@fceSetupWhat": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupEasyHome": "Easy home with big buttons",
+  "@fceSetupEasyHome": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupEasyHomeSub": "I am OK, call you, talk, danger — each button says its name",
+  "@fceSetupEasyHomeSub": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupCareCall": "Care Call from you",
+  "@fceSetupCareCall": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupCareCallSub": "Their phone rings at the time you set (medicine, meals)",
+  "@fceSetupCareCallSub": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupWatchSub": "If the phone is quiet too long, it asks them first, then tells you",
+  "@fceSetupWatchSub": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupHours": "Ask after how many quiet hours?",
+  "@fceSetupHours": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceHoursN": "{n} h",
+  "@fceHoursN": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fceSetupDay": "Only during these hours (never at night)",
+  "@fceSetupDay": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupDayInvalid": "The day must start before it ends.",
+  "@fceSetupDayInvalid": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupNearby": "Nearby person (optional)",
+  "@fceSetupNearby": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupNearbyWhy": "Told last, if nobody in the family reaches them",
+  "@fceSetupNearbyWhy": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupNearbyNone": "No one",
+  "@fceSetupNearbyNone": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupPickFirst": "Pick whose phone first",
+  "@fceSetupPickFirst": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupMakeQr": "Show the QR",
+  "@fceSetupMakeQr": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupQrTitle": "Scan this with {name}'s phone",
+  "@fceSetupQrTitle": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceSetupQrStep1": "On {name}'s phone, open the camera and point it at this QR.",
+  "@fceSetupQrStep1": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceSetupQrStep2": "No QR scanner? Open Assisto on that phone → Family → Set up my phone, and type the code.",
+  "@fceSetupQrStep2": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupQrStep3": "{name} listens and taps the big Yes.",
+  "@fceSetupQrStep3": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceSetupExpires": "This code works for {min} more minutes, once",
+  "@fceSetupExpires": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "fceSetupExpired": "This code expired. Make a new one.",
+  "@fceSetupExpired": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceSetupDoneHint": "We will tell you when {name} says Yes.",
+  "@fceSetupDoneHint": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceSetupNewCode": "Make a new code",
+  "@fceSetupNewCode": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinTitle": "Set up my phone",
+  "@fceJoinTitle": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinCodeHelp": "Type the code shown on your child's phone.",
+  "@fceJoinCodeHelp": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinCodeHint": "8-letter code",
+  "@fceJoinCodeHint": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinCodeCta": "Continue",
+  "@fceJoinCodeCta": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinCodeInvalid": "The code has 8 letters and numbers.",
+  "@fceJoinCodeInvalid": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinConsentTitle": "{child} wants to make this phone easy for you",
+  "@fceJoinConsentTitle": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "fceJoinConsentIntro": "{child} is setting up this phone for you. If you say yes:",
+  "@fceJoinConsentIntro": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "fceJoinConsentEasy": "Your home screen will have a few very big buttons that say their name out loud.",
+  "@fceJoinConsentEasy": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinConsentCare": "{child} can send you Care Calls — your phone rings at the right time to remind you.",
+  "@fceJoinConsentCare": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "child": {
+        "type": "String"
+      }
+    }
+  },
+  "fceJoinConsentWatch": "If your phone stays quiet for {hours} hours or more in the day, Assisto will first ask you “Are you OK?”. If you do not answer, it tells your family.",
+  "@fceJoinConsentWatch": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "fceJoinConsentStop": "You can turn any of this off yourself, any time.",
+  "@fceJoinConsentStop": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinConsentAsk": "Do you agree?",
+  "@fceJoinConsentAsk": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinYes": "Yes",
+  "@fceJoinYes": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinNotNow": "Not now",
+  "@fceJoinNotNow": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinDone": "All set!",
+  "@fceJoinDone": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinBatteryBody": "One last step: so the alarms work even when the phone sleeps, allow Assisto in the battery settings. It takes one minute.",
+  "@fceJoinBatteryBody": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinBatteryCta": "Open the battery steps",
+  "@fceJoinBatteryCta": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceJoinFinish": "Go to the easy home",
+  "@fceJoinFinish": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceMoreSetupParent": "Set up a parent's phone",
+  "@fceMoreSetupParent": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceMoreSetupMine": "Set up my phone (code from my child)",
+  "@fceMoreSetupMine": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceMoreWatchSub": "Quietly watches a parent's phone; asks them first",
+  "@fceMoreWatchSub": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchEmptyTitle": "No parent's phone is watched yet",
+  "@fceWatchEmptyTitle": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchEmptyBody": "Set it up once on their phone with a QR. They hear what it does and say yes themselves.",
+  "@fceWatchEmptyBody": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchNoAlert": "No alert",
+  "@fceWatchNoAlert": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchNoAlertWhy": "You hear from us only if they do not answer “Are you OK?”. Call them to know how they are.",
+  "@fceWatchNoAlertWhy": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchAlertOpen": "{name} did not answer “Are you OK?”",
+  "@fceWatchAlertOpen": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchAsking": "Asking {name} now: “Are you OK?”",
+  "@fceWatchAsking": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchChecking": "{who} is checking on them",
+  "@fceWatchChecking": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchResolved": "{name} said they are OK",
+  "@fceWatchResolved": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchCall": "Call",
+  "@fceWatchCall": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchIChecking": "I am checking",
+  "@fceWatchIChecking": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchAckDone": "Thank you. The family knows you are checking on {name}.",
+  "@fceWatchAckDone": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchTest": "Test now",
+  "@fceWatchTest": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceWatchTestSent": "Test sent. {name}'s phone will ask “Are you OK?”.",
+  "@fceWatchTestSent": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fceWatchHours2": "Asks sooner when the quiet is unusual for that time of day — at most after {hours} quiet hours (later only if your normal day is that quiet)",
+  "@fceWatchHours2": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "fceJoinConsentWatch2": "If your phone stays quiet in the day for longer than is normal for you at that time (about {hours} hours at first), Assisto will first ask you “Are you OK?”. If you do not answer, it tells your family. Going out without the phone? Tap “I am going out”.",
+  "@fceJoinConsentWatch2": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "fceSetupHours2": "Longest quiet time before asking (hours)",
+  "@fceSetupHours2": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceGoingOut": "I am going out",
+  "@fceGoingOut": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceGoingOutSub": "Leaving the phone at home? Tap, so no one worries",
+  "@fceGoingOutSub": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceGoingOutActive": "Out — Assisto will not ask until {time}",
+  "@fceGoingOutActive": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fceGoingOutAsk": "For how long?",
+  "@fceGoingOutAsk": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceGoingOutWhy": "Assisto will not ask “Are you OK?” until you are back. When you use the phone again, it starts watching again.",
+  "@fceGoingOutWhy": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
+  },
+  "fceGoingOutHours": "{n} hours",
+  "@fceGoingOutHours": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "fceGoingOutDone": "Have a good trip. Assisto will not ask until {time}.",
+  "@fceGoingOutDone": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fceGoingOutFailed": "Could not pause. Silent Watch keeps watching as usual.",
+  "@fceGoingOutFailed": {
+    "description": "fcelder (Elder easy home / setup / Silent Watch)"
   }
 }
