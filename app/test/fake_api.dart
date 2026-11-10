@@ -11,6 +11,7 @@ import 'fake_missing.dart'; // missing
 import 'fake_blood.dart'; // blood
 import 'fake_kidaudio.dart'; // kidaudio
 import 'fake_learncert.dart'; // learncert
+import 'quranview_fixture.dart'; // quranview
 import 'fake_p3life.dart'; // p3life
 import 'fake_city.dart'; // cityapp
 import 'fake_city_map.dart'; // mapapp
@@ -1114,6 +1115,11 @@ class FakeApi extends ApiClient {
     if (ielts != null) {
       if (mode == FakeMode.fail) _fail();
       return ielts;
+    }
+    final qvg = fakeQuranViewGet(path, qfOn: mode != FakeMode.empty); // quranview
+    if (qvg != null) {
+      if (mode == FakeMode.fail) _fail();
+      return qvg;
     }
     final lcg = fakeLearnCertGet(path, empty: mode == FakeMode.empty); // learncert
     if (lcg != null) {

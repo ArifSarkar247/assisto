@@ -1977,6 +1977,15 @@ urlpatterns += [
     path("bizai/cctv/test/<int:pk>/<str:action>", bzai.CctvTestView.as_view()),
 ]
 # ---- /bizai ----
+# ---- quranview (lane 14): bilingual ayah view ----
+from . import views_quranview as qvv  # noqa: E402
+
+urlpatterns += [
+    path("quran/meaning/<int:surah>", qvv.MeaningView.as_view()),
+    path("quran/tafsir/<int:surah>/<int:ayah>", qvv.TafsirView.as_view()),
+    path("quran/qf/<int:surah>/<int:ayah>", qvv.QfAyahView.as_view()),
+    path("quran/reciters", qvv.RecitersView.as_view()),
+]
 # ---- cctvconnect (CCTV Guard V3 A1 brand clouds + B DVR health) ----
 from . import cctv_connect_views as ccv  # noqa: E402
 urlpatterns += [

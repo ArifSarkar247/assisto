@@ -628,6 +628,25 @@ REGISTRY = {
                          _f("app_secret", "Secret", "Secret"),
                          _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False)],
               "test": "test_ezviz"},
+    # quranview (owner 9 Nov 21:55): Quran Foundation Content API — per-ayah
+    # audio + reciters, word-by-word (bn/en), transliteration. Server-side only;
+    # cached max 6 days (QF terms: 7); never bundled; never used for training.
+    "quran_foundation": {"name": "Quran Foundation API (Quran audio, word-by-word)", "category": "Media",
+                         "unlocks_bn": "কুরআনের আয়াত-পাতায় ক্বারির অডিও (ক্বারি বাছাই, পুনরাবৃত্তি), শব্দে শব্দে অর্থ ও ইংরেজি উচ্চারণ।",
+                         "unlocks_en": "Quran ayah view: reciter audio (reciter choice, repeat), word-by-word meaning and English transliteration.",
+                         "guide_bn": ["api-docs.quran.foundation → Request Access → ফ্রি ডেভেলপার অ্যাকাউন্ট",
+                                      "Client ID ও Client Secret কপি করুন",
+                                      "নিচে পেস্ট → Save → Test (সবুজ হলে চালু)",
+                                      "বিস্তারিত: owner_actions/QURAN_BILINGUAL_SPEC_BN.md (অংশ ৭)"],
+                         "guide_en": ["api-docs.quran.foundation → Request Access → free developer account",
+                                      "Copy the Client ID and Client Secret",
+                                      "Paste below → Save → Test (green = on)",
+                                      "Details: owner_actions/QURAN_BILINGUAL_SPEC_BN.md (section 7)"],
+                         "fields": [_f("client_id", "Client ID", "Client ID", secret=False),
+                                    _f("client_secret", "Client Secret", "Client Secret"),
+                                    _f("env", "পরিবেশ: production / prelive (ঐচ্ছিক)",
+                                       "Environment: production / prelive (optional)", secret=False)],
+                         "test": "test_quran_foundation"},
     # ---- cctvconnect (CCTV Guard V3 A1, 9 Nov) ---- brand clouds; each
     # connector is OFF until its key is saved here AND Test is green.
     "hikconnect": {"name": "Hikvision Hik-Connect OpenAPI (CCTV)", "category": "Smart home",
@@ -1587,6 +1606,12 @@ def test_ezviz(cfg, http=None):
     except EzvizError as e:
         return False, "EZVIZ: %s %s" % (e.code, e.msg)
     return True, "EZVIZ access token OK"
+
+
+def test_quran_foundation(cfg, http=None):
+    """quranview: a client-credentials token proves Client ID + Secret."""
+    from .quran_bilingual import test_connection
+    return test_connection(cfg, http=http)
 
 
 # ---- cctvconnect ----

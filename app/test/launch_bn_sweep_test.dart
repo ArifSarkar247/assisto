@@ -90,6 +90,7 @@ const _launchPrefixes = <String>[
   'ramadan', 'quran_',
   // quranread (3 Nov): learn to read Quran
   'quran_learn',
+  'qv_', // quranview (9 Nov): bilingual ayah view + tafsir sheet
   'p3l_', // p3life: travel transport/documents, wedding programme/vendors/gifts/card, food diary
   // launchsweep3 (3 Nov): My Circle search + Farmer mode main screen (Help tab).
   'circle_search', 'farmer',
@@ -112,6 +113,12 @@ const Map<String, String> _allow = {
   // lpapp: exam / level names are written the same in Bangla (CEFR A1, IELTS).
   'lp2_*|digit|A1': 'CEFR level name (Germany A1 visa), written the same in Bangla',
   'lp2_*|english|"IELTS"': 'exam name, written the same in Bangla',
+  // quranview: the owner's ONE exception to language separation — Quran shows
+  // Bangla AND English together; publisher texts are verbatim (QuranEnc terms:
+  // no modification), so English meaning/notes keep their own [n] note marks.
+  'qv_*|digit|CC BY 3.0': 'Tanzil licence name in the source line (CC BY 3.0 attribution)',
+  'qv_*|digit|Allāh,[2]': 'Saheeh International English meaning, verbatim (QuranEnc terms)',
+  'qv_*|digit|[2] Allāh is a proper name': 'Saheeh International English note, verbatim (QuranEnc terms)',
   // quranshikhi: owner exception (9 Nov 21:55) - Quran Shikhi shows Bangla and
   // English together; the line toggle chip names each language in its own script.
   'quran_learn*|english|"English"': 'line toggle বাংলা / English, each in its own script (owner bilingual exception)',

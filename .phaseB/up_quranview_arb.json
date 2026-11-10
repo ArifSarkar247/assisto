@@ -1,0 +1,119 @@
+{
+ "_comment": "quranview (lane 14, owner 9 Nov 21:55): bilingual ayah view + tafsir/shane nuzul sheet. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_quranview_arb.json",
+ "en": {
+  "qvOpenAyah": "Open ayah {aya}: meaning, tafsir, audio",
+  "@qvOpenAyah": {
+   "placeholders": {
+    "aya": {
+     "type": "String"
+    }
+   }
+  },
+  "qvLines": "Show lines",
+  "qvLinesHint": "Turn each line on or off. Bangla and English are both shown in every app language.",
+  "qvLineArabic": "Arabic",
+  "qvLinePron": "Bangla pronunciation",
+  "qvLineTranslit": "English transliteration",
+  "qvLineBn": "Bangla meaning",
+  "qvLineEn": "English meaning",
+  "qvLineWords": "Word by word",
+  "qvLineAudio": "Recitation",
+  "qvUnderReview": "Under review — not yet checked by a scholar",
+  "qvSourceTanzil": "Source: Tanzil Project (tanzil.net), Uthmani text, CC BY 3.0 — unchanged",
+  "qvSourcePron": "Source: Assisto pronunciation rules with tajweed (no AI), from the Tanzil text",
+  "qvSourceQe": "Source: {publisher} · QuranEnc.com · version {version} — unchanged",
+  "@qvSourceQe": {
+   "placeholders": {
+    "publisher": {
+     "type": "String"
+    },
+    "version": {
+     "type": "String"
+    }
+   }
+  },
+  "qvSourceQf": "Source: Quran Foundation (quran.foundation)",
+  "qvLoadFailed": "Could not load. Check the internet and try again.",
+  "qvRetry": "Try again",
+  "qvNotInSource": "The source has nothing for this ayah.",
+  "qvReciter": "Reciter",
+  "qvRepeat": "Repeat",
+  "qvRepeatN": "{n} times",
+  "@qvRepeatN": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "qvPlay": "Play",
+  "qvStop": "Stop",
+  "qvPlaying": "Playing {i} of {n}",
+  "@qvPlaying": {
+   "placeholders": {
+    "i": {
+     "type": "String"
+    },
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "qvAudioFailed": "Could not play. Check the internet and try again.",
+  "qvAudioMissing": "This reciter has no audio for this ayah. Choose another reciter.",
+  "qvTafsirBtn": "Tafsir & shane nuzul",
+  "qvTafsirText": "Tafsir and notes",
+  "qvShanNuzul": "Shane nuzul (reason of revelation)",
+  "qvShanNone": "This source has no shane nuzul for this ayah.",
+  "qvShanRule": "Shown only where this source itself states the reason, word for word. Found by a fixed word rule, not AI — under review.",
+  "qvNoAi": "Every meaning and tafsir here is the publisher's exact text. Assisto AI never writes, shortens or changes it. No ads.",
+  "qvQfCredit": "Recitation audio, word-by-word meaning and transliteration: Quran Foundation (quran.foundation).",
+  "qvAboutQe": "Bangla meaning (Abu Bakr Zakaria), English meaning (Saheeh International) and the Al-Mukhtasar tafsir: QuranEnc.com — shown unchanged with the publisher and version, kept at the latest version.",
+  "qvTafsirPendingNote": "Other Bangla tafsirs (Ibn Kathir, Ahsanul Bayaan, Fathul Majid, the full Abu Bakr Zakaria tafsir) will be added only after their publishers' written permission.",
+  "qvPrev": "Previous ayah",
+  "qvNext": "Next ayah",
+  "qvBnHereTitle": "Bangla meaning is in the ayah view",
+  "qvBnHereBody": "Tap any ayah to see the Bangla meaning (Abu Bakr Zakaria, QuranEnc.com) with the English meaning, tafsir and audio."
+ },
+ "bn": {
+  "qvOpenAyah": "আয়াত {aya} খুলুন: অর্থ, তাফসির, অডিও",
+  "qvLines": "লাইন দেখাও",
+  "qvLinesHint": "প্রতিটি লাইন আলাদা চালু/বন্ধ করুন। অ্যাপ যে ভাষাতেই থাকুক, বাংলা ও ইংরেজি দুটোই দেখায়।",
+  "qvLineArabic": "আরবি",
+  "qvLinePron": "বাংলা উচ্চারণ",
+  "qvLineTranslit": "ইংরেজি উচ্চারণ (ট্রান্সলিটারেশন)",
+  "qvLineBn": "বাংলা অর্থ",
+  "qvLineEn": "ইংরেজি অর্থ",
+  "qvLineWords": "শব্দে শব্দে",
+  "qvLineAudio": "তিলাওয়াত (অডিও)",
+  "qvUnderReview": "যাচাই চলছে — আলেম/ক্বারি এখনো দেখেননি",
+  "qvSourceTanzil": "উৎস: Tanzil Project (tanzil.net), উসমানি লেখা, CC BY 3.0 — হুবহু",
+  "qvSourcePron": "উৎস: Assisto উচ্চারণ নিয়ম, তাজবীদসহ (AI নয়), Tanzil লেখা থেকে",
+  "qvSourceQe": "উৎস: {publisher} · QuranEnc.com · সংস্করণ {version} — হুবহু",
+  "qvSourceQf": "উৎস: Quran Foundation (quran.foundation)",
+  "qvLoadFailed": "লোড হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "qvRetry": "আবার চেষ্টা করুন",
+  "qvNotInSource": "এই আয়াতের জন্য উৎসে কিছু নেই।",
+  "qvReciter": "ক্বারি",
+  "qvRepeat": "কতবার বাজবে",
+  "qvRepeatN": "{n} বার",
+  "qvPlay": "শুনুন",
+  "qvStop": "থামান",
+  "qvPlaying": "{n} বারের {i} নম্বর চলছে",
+  "qvAudioFailed": "বাজানো গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "qvAudioMissing": "এই ক্বারির এই আয়াতের অডিও নেই। অন্য ক্বারি বাছুন।",
+  "qvTafsirBtn": "তাফসির ও শানে নুযূল",
+  "qvTafsirText": "তাফসির ও টীকা",
+  "qvShanNuzul": "শানে নুযূল (নাযিলের প্রেক্ষাপট)",
+  "qvShanNone": "এই উৎসে এই আয়াতের শানে নুযূল উল্লেখ নেই।",
+  "qvShanRule": "শুধু যেখানে এই উৎস নিজেই কারণ বলেছে, সেটুকু হুবহু দেখানো হয়। নির্দিষ্ট শব্দ-নিয়মে খোঁজা, AI নয় — যাচাই চলছে।",
+  "qvNoAi": "এখানের প্রতিটি অর্থ ও তাফসির প্রকাশকের হুবহু লেখা। Assisto AI কখনো তা লেখে, ছোট করে বা বদলায় না। কোনো বিজ্ঞাপন নেই।",
+  "qvQfCredit": "তিলাওয়াতের অডিও, শব্দে শব্দে অর্থ ও উচ্চারণ: Quran Foundation (quran.foundation)।",
+  "qvAboutQe": "বাংলা অর্থ (আবু বকর যাকারিয়া), ইংরেজি অর্থ (Saheeh International) ও আল-মুখতাসার তাফসির: QuranEnc.com — প্রকাশক ও সংস্করণসহ হুবহু, সবসময় সর্বশেষ সংস্করণ।",
+  "qvTafsirPendingNote": "অন্য বাংলা তাফসির (ইবনে কাসীর, আহসানুল বায়ান, ফাতহুল মাজীদ, আবু বকর যাকারিয়ার পূর্ণ তাফসির) প্রকাশকের লিখিত অনুমতি পেলেই যোগ হবে।",
+  "qvPrev": "আগের আয়াত",
+  "qvNext": "পরের আয়াত",
+  "qvBnHereTitle": "বাংলা অর্থ আয়াত-পাতায় আছে",
+  "qvBnHereBody": "যেকোনো আয়াতে ট্যাপ করুন — বাংলা অর্থ (আবু বকর যাকারিয়া, QuranEnc.com), ইংরেজি অর্থ, তাফসির ও অডিও দেখবেন।"
+ }
+}
