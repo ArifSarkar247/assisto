@@ -31,8 +31,10 @@ def _cfg(**caps):
 
 class ExitConfigTests(SimpleTestCase):
     def test_registered_exit_placements(self):
-        # 11 exit placements (2 Nov) + 4 owner transition moments (10 Nov)
-        self.assertEqual(len(A.INTERSTITIAL_MOMENTS), 15)
+        # 11 exit placements (2 Nov) + 3 owner transition moments (10 Nov);
+        # mess carries NO interstitial (owner order L)
+        self.assertEqual(len(A.INTERSTITIAL_MOMENTS), 14)
+        self.assertNotIn("mess_month_report", A.INTERSTITIAL_MOMENTS)
         self.assertIn("photo_after_save", A.INTERSTITIAL_MOMENTS)
         self.assertIn("exam_after_submit", A.INTERSTITIAL_MOMENTS)
         for pid in A.INTERSTITIAL_MOMENTS:

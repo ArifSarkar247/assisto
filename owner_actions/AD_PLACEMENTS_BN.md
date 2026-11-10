@@ -4,7 +4,7 @@
 
 **নিয়ম (সব জায়গায়):** AdMob শুধু **ফ্রি** ব্যবহারকারী — Premium, Plus, Business কখনো নয়; শিশু অ্যাকাউন্টে কখনো নয়। ডিসকভার/ব্র্যান্ড কার্ড (আপনি সরাসরি বিক্রি করেন, "Ad" লেখা) সবাই দেখেন। পূর্ণ পর্দার বিজ্ঞাপন: দুটির মাঝে কমপক্ষে ৩ মিনিট, দিনে সর্বোচ্চ ৬ (আপনি ০–১২ বদলাতে পারেন), প্রথম দিনে নয়। App open: শুধু আগে থেকে লোড থাকলে, অ্যাপ খোলায় কখনো দেরি নয়, প্রথমবার খোলা/লগইন/নোটিফিকেশন থেকে খোলায় নয়। ⚠ = জরুরি/নিরাপত্তা/আস্থার পাতা — ডিফল্ট বন্ধ; চালু করতে গেলে "আপনি কি নিশ্চিত?" সতর্কতা আসে; সার্ভারে পৌঁছাতে না পারলে বন্ধই থাকে।
 
-## ১. প্রতিটি বিজ্ঞাপনের জায়গা (রেজিস্ট্রি — ৭৬ টি)
+## ১. প্রতিটি বিজ্ঞাপনের জায়গা (রেজিস্ট্রি — ৭৫ টি)
 
 ### হোম, ডিসকভার ও সব সেবা
 
@@ -69,9 +69,8 @@
 
 | জায়গা | key | ডিফল্ট | যে ধরন বেছে নেওয়া যায় | কোডে কোথায় |
 |---|---|---|---|---|
-| মেস — ব্যানার | `mess_home` | চালু banner | banner, native | `screens/mess_accounting_screen.dart` |
-| মেস তালিকা — নেটিভ | `mess_list` | চালু native | native | `screens/mess_accounting_screen.dart` |
-| মেসের মাস শেষের রিপোর্ট — পূর্ণ পর্দা | `mess_month_report` | চালু interstitial | interstitial | `screens/mess_accounting_screen.dart` |
+| মেস — ব্যানার | `mess_home` | চালু banner | banner, native | `screens/mess/mess_ad.dart` (messv2; মেসে পূর্ণ পর্দার বিজ্ঞাপন নেই — আদেশ L) |
+| মেস তালিকা — নেটিভ | `mess_list` | চালু native | native | **এখনো লাগানো হয়নি** — messv2 চাইলে `AdSpotCard(placement: 'mess_list')` |
 
 ### নোট, কাজ ও রিমাইন্ডার
 
@@ -420,7 +419,7 @@
 | `screens/medicine_history_screen.dart` | — |
 | `screens/meetings_screen.dart` | meetings |
 | `screens/memory_screen.dart` | — |
-| `screens/mess_accounting_screen.dart` | mess_home, mess_list, mess_month_report |
+| `screens/mess_accounting_screen.dart` | — (messv2-এর নতুন মেস স্ক্রিন এর জায়গা নিয়েছে) |
 | `screens/mock_interview_screen.dart` | interview_after_feedback |
 | `screens/money_budget_screen.dart` | — |
 | `screens/money_import_screen.dart` | — |
