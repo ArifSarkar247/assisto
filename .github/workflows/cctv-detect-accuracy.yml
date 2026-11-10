@@ -16,6 +16,9 @@ on:
       n:
         description: "Scenarios per kind"
         default: "30"
+      mode:
+        description: "scenarios (rule P/R) or frames (cctvdet3 detector diagnostic)"
+        default: "scenarios"
 
 permissions:
   contents: read
@@ -41,11 +44,24 @@ jobs:
       - name: Person model (SHA-256 verified)
         working-directory: edge/shopbox
         run: python -m shopbox.model_fetch models/yolox_nano.onnx
+      - name: Vehicle model YOLOX-Tiny (Apache-2.0, SHA-256 verified)
+        run: |
+          curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o edge/shopbox/models/yolox_tiny.onnx \
+            https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.onnx
+          echo "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7  edge/shopbox/models/yolox_tiny.onnx" | sha256sum -c -
       - name: COCO val2017 annotations (CC BY 4.0)
         run: |
           curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o /tmp/ann.zip http://images.cocodataset.org/annotations/annotations_trainval2017.zip
           unzip -q -j /tmp/ann.zip annotations/instances_val2017.json -d /tmp/ann
+      - name: Frame-level diagnostic (cctvdet3)
+        if: ${{ inputs.mode == 'frames' }}
+        run: |
+          set -o pipefail
+          python tools/e2e/cctv_vehicle_frames.py --ann /tmp/ann/instances_val2017.json \
+            --nano edge/shopbox/models/yolox_nano.onnx --tiny edge/shopbox/models/yolox_tiny.onnx \
+            --out cctv_detect.json --n 220 | tee cctv_detect.txt
       - name: Evaluate
+        if: ${{ inputs.mode != 'frames' }}
         env:
           N: ${{ inputs.n || '30' }}
         run: |
