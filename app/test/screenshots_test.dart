@@ -202,6 +202,9 @@ import 'package:assisto/screens/ai_knowledge_screen.dart';
 import 'package:assisto/screens/admin/cost_flags_screen.dart';
 import 'package:assisto/screens/admin/discover_manager_screen.dart';
 import 'fake_discover.dart';
+import 'package:assisto/discover_api.dart' show DiscoverItem; // discms
+import 'package:assisto/widgets/home_suggestions.dart' show DiscoverCardV2; // discms
+import 'package:assisto/widgets/chatnav.dart' show ChatNav; // discms
 import 'package:assisto/screens/admin/server_address_screen.dart';
 import 'package:assisto/screens/app_update_screen.dart';
 import 'package:assisto/screens/about_screen.dart';
@@ -797,6 +800,15 @@ Map<String, GallerySpec> gallerySpecs() {
     'discover_edit': (build: (_) => DiscoverCardEditScreen(card: fakeDiscoverAdminCards().first, meta: const {
       'routes': ['photo_enhance', 'plans', 'notes'], 'icons': ['shopping_bag', 'star', 'campaign']}), mode: FakeMode.data, full: true),
     'discover_report': (build: (_) => const DiscoverReportScreen(cardId: 20, title: 'Fresh Market'), mode: FakeMode.data, full: true),
+    // discms: the owner's new Discover card types on Home (same card box).
+    'discms_cards': (build: (_) => Scaffold(body: SafeArea(child: ListView(padding: const EdgeInsets.all(16), children: [
+      for (final c in const [
+        DiscoverItem(id: 1, key: 'wn', type: DiscoverItem.whatsNew, titleBn: 'নোটে এখন ভয়েস', titleEn: 'Voice in Notes', descBn: 'বলুন, অ্যাসিস্টো লিখে রাখবে।', descEn: 'Speak and Assisto writes it down.', icon: 'lightbulb', route: 'notes'),
+        DiscoverItem(id: 2, key: 'of', type: DiscoverItem.offer, titleBn: 'প্রিমিয়ামে ৩০% ছাড়', titleEn: '30% off Premium', descBn: 'এই সপ্তাহে প্রথম মাস।', descEn: 'First month, this week only.', icon: 'local_offer', route: 'plans'),
+        DiscoverItem(id: 3, key: 'sp', type: DiscoverItem.sponsored, titleBn: 'ফ্রেশ মার্কেট', titleEn: 'Fresh Market', descBn: 'তাজা সবজি ঘরে পৌঁছে দেওয়া হয়।', descEn: 'Fresh vegetables delivered to your door.', icon: 'shopping_bag', route: 'offers'),
+      ])
+        Padding(padding: const EdgeInsets.only(bottom: 12), child: Builder(builder: (ctx) => DiscoverCardV2(item: c, onTap: () => ChatNav.push(ctx, c.route)))),
+    ]))), mode: FakeMode.data, full: true),
     'server_addr': (build: (_) => const ServerAddressScreen(), mode: FakeMode.data, full: true),
     'app_update': (build: (_) => const AppUpdateScreen(), mode: FakeMode.data, full: true),
     'about': (build: (_) => const AboutScreen(), mode: FakeMode.data, full: true),

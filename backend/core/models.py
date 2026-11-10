@@ -4407,7 +4407,8 @@ class DiscoverCard(models.Model):
     (Settings -> Discover manager). Visibility rules live in
     core/logic/discover.py and are enforced server-side."""
     TYPES = [("FEATURE", "Feature"), ("OUR_PRODUCT", "Our product"),
-             ("SPONSORED", "Sponsored"), ("ADMOB", "AdMob slot")]
+             ("SPONSORED", "Sponsored"), ("ADMOB", "AdMob slot"),
+             ("WHATS_NEW", "What's new"), ("OFFER", "Offer")]   # discms
     AUDIENCES = [("all", "all"), ("free", "free"), ("premium", "premium"),
                  ("business", "business")]
     key = models.SlugField(max_length=60, unique=True)
