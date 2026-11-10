@@ -185,6 +185,8 @@ flutter:
     - assets/quran/
     # mapscost: {"android_key": true} only in builds with the Maps SDK key
     - assets/maps/
+    # lpapp: Life English scenarios + vocabulary lists (original, offline)
+    - assets/lp/
   # f1-design: bundled OFL fonts (licences next to them in assets/fonts/).
   # Latin = Inter, Bangla = Noto Sans Bengali, static 400/500/600/700 subsets.
   # (assets/fonts/NotoSansBengali.ttf stays in the repo for the backend's

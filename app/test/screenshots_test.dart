@@ -29,6 +29,11 @@ import 'package:assisto/screens/messenger/m3_add_to_circle_screen.dart';
 import 'package:assisto/screens/messenger/m3_requests_screen.dart';
 import 'package:assisto/widgets/m3_circle_widgets.dart';
 import 'fake_otp.dart';
+import 'fake_lp2.dart'; // lpapp
+import 'package:assisto/screens/lp2/lp_companion.dart'; // lpapp
+import 'package:assisto/screens/lp2/lp_life.dart'; // lpapp
+import 'package:assisto/screens/lp2/lp_mock.dart'; // lpapp
+import 'package:assisto/screens/lp2/lp_vocab.dart'; // lpapp
 import 'fake_account_security.dart'; // recovery
 import 'package:assisto/screens/account_security_screen.dart'; // recovery
 import 'package:assisto/screens/account_recovery_screens.dart'; // recovery
@@ -662,6 +667,24 @@ Map<String, GallerySpec> gallerySpecs() {
     'cost_est': (build: (_) => const CostEstimatorScreen(), mode: FakeMode.data, full: true),
     'mock_iv': (build: (_) => const MockInterviewScreen(), mode: FakeMode.data, full: true),
     'lang_partner': (build: (_) => const LanguagePartnerScreen(), mode: FakeMode.data, full: true),
+    // lpapp: Language Partner V2 — the 4 owner-approved screens + hub, life list, vocab
+    'lp2_start': (build: (_) => const LanguagePartnerScreen(), mode: FakeMode.data, full: true),
+    'lp2_result': (build: (l) => LpMockResultScreen(
+        title: l == 'bn' ? 'অ্যাকাডেমিক মক ১' : 'Academic mock 1',
+        sections: const ['listening', 'reading', 'writing', 'speaking'],
+        bands: const {'listening': 7.0, 'reading': 6.5, 'writing': 6.0, 'speaking': 6.0},
+        overall: 6.5,
+        finish: fakeLp2Finish(),
+        details: {'listening': fakeLp2Mark('listening'), 'reading': fakeLp2Mark('reading')},
+        weakTags: const ['tfng', 'spelling']), mode: FakeMode.data, full: true),
+    'lp2_roleplay': (build: (_) => LpRolePlayScreen(scenario: lp2Scenario('embassy'), debugGuidedDone: true), mode: FakeMode.data, full: true),
+    'lp2_companion': (build: (_) => const LpCompanionScreen(
+        debugAnswers: {1: 'library', 2: 'Tuesdays', 3: 'B', 4: 'parking', 5: 'TRUE', 6: 'C', 7: 'the old bridge', 8: 'NOT GIVEN'},
+        debugKey: {1: 'library', 2: 'Tuesday', 3: 'B', 4: 'parking', 5: 'NOT GIVEN', 6: 'C', 7: 'bridge', 8: 'NOT GIVEN'}),
+        mode: FakeMode.data, full: true),
+    'lp2_hub': (build: (_) => const LpIeltsHub(), mode: FakeMode.data, full: true),
+    'lp2_life': (build: (_) => const LpLifeListScreen(), mode: FakeMode.data, full: false),
+    'lp2_vocab': (build: (_) => const LpVocabScreen(), mode: FakeMode.data, full: false),
     // p2lang: IELTS practice (hub + streak, pronunciation result, writing
     // checklist + AI estimate, reading passage, load failure)
     'ielts_hub': (build: (_) => const IeltsScreen(), mode: FakeMode.data, full: true),

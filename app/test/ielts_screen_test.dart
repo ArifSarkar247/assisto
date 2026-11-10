@@ -71,23 +71,31 @@ void main() {
     expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
   });
 
-  testWidgets('Language Partner home shows the 8 language cards only when language_packs is on',
+  testWidgets('lpapp: Language Partner start — language chips open the course when language_packs is on',
       (t) async {
     FeatureFlags.instance.debugOverride = {'language_packs': false};
     await t.pumpWidget(_app(const LanguagePartnerScreen(), FakeApi(mode: FakeMode.data, lang: 'en')));
     await t.pumpAndSettle();
-    expect(find.text('Learn a language'), findsNothing);
+    await t.scrollUntilVisible(find.text('Other languages'), 200, scrollable: find.byType(Scrollable).first);
+    await t.ensureVisible(find.text('Korea · EPS-TOPIK'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('Korea · EPS-TOPIK'));
+    await t.pumpAndSettle();
+    // off: an honest "next stage" sheet with a way forward, never a dead chip
+    expect(find.text('Korea · EPS-TOPIK opens in the next stage'), findsOneWidget);
+    expect(find.text('Practise Life English now'), findsOneWidget);
+    await t.tap(find.text('Close'));
+    await t.pumpAndSettle();
     FeatureFlags.instance.debugOverride = {'language_packs': true};
     await t.pumpWidget(_app(const LanguagePartnerScreen(key: ValueKey(2)), FakeApi(mode: FakeMode.data, lang: 'en')));
     await t.pumpAndSettle();
-    expect(find.text('Learn a language'), findsOneWidget);
-    expect(find.text('For work in Korea'), findsOneWidget);
-    // a language without a pack is an honest disabled card, never a promise
-    expect(find.text('Lessons for this language are not added yet.'), findsNWidgets(7));
-    await t.tap(find.text('English · English'));
+    await t.scrollUntilVisible(find.text('Other languages'), 200, scrollable: find.byType(Scrollable).first);
+    await t.ensureVisible(find.text('Korea · EPS-TOPIK'));
     await t.pumpAndSettle();
-    expect(find.text('Placement test'), findsOneWidget);
-    expect(find.text('IELTS practice'), findsOneWidget);
+    await t.tap(find.text('Korea · EPS-TOPIK'));
+    await t.pumpAndSettle();
+    expect(find.byType(LanguagePackScreen), findsOneWidget);
+    FeatureFlags.instance.debugOverride = null;
   });
 
   testWidgets('catalog order and exam names follow the owner order', (t) async {
