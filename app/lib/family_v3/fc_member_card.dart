@@ -3,6 +3,7 @@ import 'dart:ui' show PathMetric;
 
 import 'package:flutter/material.dart';
 
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'fc_manage.dart'; // fcrest
@@ -63,6 +64,8 @@ class FcMemberCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
+    final tx = Theme.of(context).textTheme;
     final st = fcRecheck(member, now);
     final brain = (member['brain'] as Map?) ?? const {};
     final name = _name(t);
@@ -84,17 +87,19 @@ class FcMemberCard extends StatelessWidget {
     final lastLoc = st.state == 'paused' ? null : fcrLastLocation(brain);
     final showReason = st.state != 'ok' && st.state != 'paused';
     final reason = showReason ? fcReason(context, st.reason, brain) : '';
+    // designv2: white "alive" card (radius 12, V2 shadow) when all is well;
+    // tinted + strong border for SOS / check; flat gray + dashed when stale.
     final bg = switch (st.state) {
-      'sos' => Brand.danger.withValues(alpha: 0.10),
-      'check' => Brand.warning.withValues(alpha: 0.10),
+      'sos' => ds.dangerBg,
+      'check' => AssistoTokens.of(context).warningContainer,
       'stale' => scheme.surfaceContainerHighest.withValues(alpha: 0.55),
-      _ => scheme.surfaceContainerLow,
+      _ => ds.card,
     };
     final border = switch (st.state) {
-      'sos' => const BorderSide(color: Brand.danger, width: 2),
+      'sos' => BorderSide(color: ds.danger, width: 2),
       'check' => const BorderSide(color: Brand.warning, width: 1.5),
-      'ok' => BorderSide(color: Brand.success.withValues(alpha: 0.6)),
-      _ => BorderSide(color: scheme.outlineVariant),
+      'ok' => BorderSide(color: ds.success.withValues(alpha: 0.6)),
+      _ => BorderSide(color: ds.border),
     };
     final body = Padding(
       padding: const EdgeInsets.all(Gap.md),
@@ -111,19 +116,16 @@ class FcMemberCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(name,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w700)),
+                        style: tx.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700, color: ds.text)),
                     if (place.isNotEmpty && !stale)
-                      Text(place, style: TextStyle(color: scheme.onSurface)),
+                      Text(place, style: tx.bodyMedium?.copyWith(color: ds.text)),
                     if (meta.isNotEmpty)
-                      Text(meta,
-                          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+                      Text(meta, style: tx.bodySmall?.copyWith(color: ds.muted)),
                     if (clocks.isNotEmpty)
                       Text(clocks,
                           key: ValueKey('fcr-clocks-${member['user_id']}'),
-                          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13)),
+                          style: tx.bodySmall?.copyWith(color: ds.muted)),
                   ],
                 ),
               ),
@@ -138,10 +140,10 @@ class FcMemberCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
                 decoration: BoxDecoration(
                   color: ink.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(DsRadius.chip),
                 ),
                 child: Text(chip,
-                    style: TextStyle(color: ink, fontWeight: FontWeight.w600, fontSize: 13)),
+                    style: tx.labelLarge?.copyWith(color: ink)),
               ),
             ),
           ],
@@ -160,7 +162,7 @@ class FcMemberCard extends StatelessWidget {
                       child: Text(
                           t.fcrLastPlace(fcDigits(context, lastLoc['pct'] ?? brain['battery'] ?? 15),
                               fcClock(context, lastLoc['at'])),
-                          style: TextStyle(color: scheme.onSurface)),
+                          style: tx.bodyMedium?.copyWith(color: ds.text)),
                     ),
                   ],
                 ),
@@ -178,40 +180,47 @@ class FcMemberCard extends StatelessWidget {
             const SizedBox(height: Gap.sm),
             Text(reason,
                 key: ValueKey('fc3-reason-${member['user_id']}'),
-                style: TextStyle(color: ink, fontWeight: FontWeight.w600)),
+                style: tx.bodyMedium?.copyWith(color: ink, fontWeight: FontWeight.w600)),
           ],
           if (_hasButtons(st)) ...[
             const SizedBox(height: Gap.sm),
-            Wrap(
-              spacing: Gap.sm,
-              runSpacing: Gap.xs,
+            // designv2: one even row of actions (never an odd second row);
+            // labels wrap under their icon at large font.
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (stale && onFix != null)
-                  FilledButton.tonalIcon(
-                    key: ValueKey('fc3-fix-${member['user_id']}'),
-                    onPressed: onFix,
-                    icon: const Icon(Icons.build_circle_rounded),
-                    label: Text(t.fc3Fix),
-                  ),
-                if (onCall != null)
-                  OutlinedButton.icon(
-                    key: ValueKey('fc3-call-${member['user_id']}'),
-                    onPressed: onCall,
-                    icon: const Icon(Icons.call_rounded),
-                    label: Text(t.fc3Call),
-                  ),
-                if (onCareCall != null)
-                  OutlinedButton.icon(
-                    onPressed: onCareCall,
-                    icon: const Icon(Icons.record_voice_over_rounded),
-                    label: Text(t.fc3CareCall),
-                  ),
-                if (onLocation != null)
-                  OutlinedButton.icon(
-                    onPressed: onLocation,
-                    icon: const Icon(Icons.place_rounded),
-                    label: Text(t.fc3Location),
-                  ),
+                for (final a in <Widget>[
+                  if (stale && onFix != null)
+                    _CardAction(
+                      key: ValueKey('fc3-fix-${member['user_id']}'),
+                      onPressed: onFix,
+                      icon: Icons.build_circle_rounded,
+                      label: t.fc3Fix,
+                      primary: true,
+                    ),
+                  if (onCall != null)
+                    _CardAction(
+                      key: ValueKey('fc3-call-${member['user_id']}'),
+                      onPressed: onCall,
+                      icon: Icons.call_rounded,
+                      label: t.fc3Call,
+                    ),
+                  if (onCareCall != null)
+                    _CardAction(
+                      onPressed: onCareCall,
+                      icon: Icons.record_voice_over_rounded,
+                      label: t.fc3CareCall,
+                    ),
+                  if (onLocation != null)
+                    _CardAction(
+                      onPressed: onLocation,
+                      icon: Icons.place_rounded,
+                      label: t.fc3Location,
+                    ),
+                ].indexed) ...[
+                  if (a.$1 > 0) const SizedBox(width: Gap.sm),
+                  Expanded(child: a.$2),
+                ],
               ],
             ),
           ],
@@ -220,7 +229,7 @@ class FcMemberCard extends StatelessWidget {
     );
     final a11y = t.fc3CardA11y(name, fcStateWord(t, st.state),
         [place, meta, clocks, reason].where((s) => s.isNotEmpty).join('. '));
-    final radius = BorderRadius.circular(16);
+    final radius = BorderRadius.circular(DsRadius.card);
     Widget card = Material(
       color: bg,
       shape: stale ? RoundedRectangleBorder(borderRadius: radius)
@@ -231,7 +240,18 @@ class FcMemberCard extends StatelessWidget {
     if (stale) {
       card = CustomPaint(
         key: ValueKey('fc3-dashed-${member['user_id']}'),
-        foregroundPainter: FcDashedBorder(color: scheme.outline, radius: 16),
+        foregroundPainter: FcDashedBorder(color: scheme.outline, radius: DsRadius.card),
+        child: card,
+      );
+    } else {
+      final lite = DsPerf.liteOf(context);
+      card = DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          boxShadow: st.state == 'sos'
+              ? (lite ? ds.liteShadows : ds.dangerGlow)
+              : (lite ? ds.liteShadows : ds.shadows),
+        ),
         child: card,
       );
     }
@@ -270,22 +290,17 @@ class _Avatar extends StatelessWidget {
             radius: 24,
             backgroundColor: scheme.primaryContainer,
             child: Text(fcInitial(name),
-                style: TextStyle(
-                    color: scheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 20)),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: scheme.onPrimaryContainer, fontWeight: FontWeight.w700)),
           ),
+          // designv2: the live dot gently pulses (ok / SOS; still on lite).
           PositionedDirectional(
-            end: 0,
-            bottom: 0,
-            child: Container(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(
-                color: fcDot(context, state),
-                shape: BoxShape.circle,
-                border: Border.all(color: scheme.surface, width: 2),
-              ),
+            end: -6,
+            bottom: -6,
+            child: DsStatusDot(
+              color: fcDot(context, state),
+              size: 14,
+              pulse: state == 'ok' || state == 'sos',
             ),
           ),
         ],
@@ -320,4 +335,44 @@ class FcDashedBorder extends CustomPainter {
 
   @override
   bool shouldRepaint(FcDashedBorder old) => old.color != color || old.radius != radius;
+}
+
+/// designv2: an even action cell — icon over a wrapping label, ≥ 56 dp tall.
+class _CardAction extends StatelessWidget {
+  const _CardAction({
+    super.key,
+    required this.onPressed,
+    required this.icon,
+    required this.label,
+    this.primary = false,
+  });
+  final VoidCallback? onPressed;
+  final IconData icon;
+  final String label;
+  final bool primary;
+
+  @override
+  Widget build(BuildContext context) {
+    final ds = DsTokens.of(context);
+    final fg = primary ? ds.onPrimary : ds.primaryInk;
+    final style = OutlinedButton.styleFrom(
+      backgroundColor: primary ? ds.primaryInk : ds.primarySoft,
+      foregroundColor: fg,
+      side: BorderSide(color: primary ? ds.primaryInk : ds.border),
+      minimumSize: const Size(kMinTap, 56),
+      padding: const EdgeInsets.symmetric(horizontal: Gap.xs, vertical: Gap.sm),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(DsRadius.button)),
+    );
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: style,
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icon, size: 22),
+        const SizedBox(height: Gap.xxs),
+        Text(label,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(color: fg)),
+      ]),
+    );
+  }
 }

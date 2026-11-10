@@ -11,6 +11,7 @@ import '../screens/circle_call_screen.dart';
 import '../screens/journey_watch_screen.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/app_sheet.dart';
 import 'carecall_alarms.dart';
 import 'carecall_api.dart';
@@ -190,18 +191,14 @@ class _CareCallScreenState extends State<CareCallScreen> {
     final m = _m;
     Widget body;
     if (m == null && _failed) {
-      body = Center(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.xl),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(t.loadFailed, textAlign: TextAlign.center),
-            const SizedBox(height: Gap.md),
-            FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.retry)),
-          ]),
-        ),
-      );
+      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(icon: Icons.cloud_off_rounded, title: t.loadFailed, actionLabel: t.retry, onAction: _load),
+      ]);
     } else if (m == null) {
-      body = const Center(child: CircularProgressIndicator());
+      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        for (var i = 0; i < 3; i++)
+          Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSkeleton.card(lines: 2)),
+      ]);
     } else {
       body = RefreshIndicator(onRefresh: _load, child: _content(t));
     }
@@ -214,13 +211,11 @@ class _CareCallScreenState extends State<CareCallScreen> {
           : SafeArea(
               child: Padding(
                 padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.md)),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 56),
-                  child: FilledButton.icon(
-                    onPressed: () => _openNew(),
-                    icon: const Icon(Icons.add_call),
-                    label: Text(t.ccNew, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-                  ),
+                child: DsButton(
+                  expand: true,
+                  onPressed: () => _openNew(),
+                  icon: Icons.add_call,
+                  label: t.ccNew,
                 ),
               ),
             ),
@@ -258,7 +253,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Text(
                 t.ccLimitLine(ccNum(context, lim['active_used'] ?? 0), ccNum(context, lim['active_per_setter'])),
-                style: tt.bodySmall?.copyWith(color: s.onSurfaceVariant)),
+                style: tt.bodySmall?.copyWith(color: DsTokens.of(context).muted)),
           ),
         for (final c in sent) _sentTile(t, c),
       ],
@@ -280,33 +275,29 @@ class _CareCallScreenState extends State<CareCallScreen> {
         padding: const EdgeInsets.only(top: Gap.md, bottom: Gap.sm),
         child: Semantics(
           header: true,
-          child: Text(text, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          child: Text(text,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700, color: DsTokens.of(context).text)),
         ),
       );
 
-  Widget _empty(AppLocalizations t) {
-    final s = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: Gap.xl),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Icon(Icons.phone_callback_rounded, size: 64, color: s.primary),
-        const SizedBox(height: Gap.md),
-        Text(t.ccEmptyBenefit, textAlign: TextAlign.center, style: tt.titleMedium),
-        const SizedBox(height: Gap.lg),
-        ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 56),
-          child: FilledButton.icon(
-            onPressed: () => _openNew(),
-            icon: const Icon(Icons.add_call),
-            label: Text(t.ccNew, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+  // designv2: DS empty state — benefit + one big button + how-to
+  Widget _empty(AppLocalizations t) => Padding(
+        padding: const EdgeInsets.only(top: Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          DsEmptyState(
+            icon: Icons.phone_callback_rounded,
+            title: t.ccEmptyBenefit,
+            actionLabel: t.ccNew,
+            onAction: () => _openNew(),
           ),
-        ),
-        const SizedBox(height: Gap.md),
-        Text(t.ccEmptyHow, textAlign: TextAlign.center, style: tt.bodyMedium?.copyWith(color: s.onSurfaceVariant)),
-      ]),
-    );
-  }
+          const SizedBox(height: Gap.md),
+          // the how-to string carries its own step numbers
+          Text(t.ccEmptyHow,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
+        ]),
+      );
 
   Widget _inviteCard(AppLocalizations t, Map<String, dynamic> inv) {
     final tt = Theme.of(context).textTheme;
@@ -362,7 +353,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
       margin: const EdgeInsets.only(bottom: Gap.md),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: missed ? BorderSide(color: amber, width: 2) : BorderSide(color: s.outlineVariant),
+        side: missed ? BorderSide(color: amber, width: 2) : BorderSide(color: DsTokens.of(context).border),
       ),
       color: missed ? Color.alphaBlend(amber.withValues(alpha: 0.08), s.surface) : null,
       child: Padding(
@@ -390,7 +381,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
                 ]),
                 if (text.isNotEmpty) ...[
                   const SizedBox(height: Gap.xs),
-                  Text('“$text”', style: tt.bodyMedium?.copyWith(color: s.onSurfaceVariant)),
+                  Text('“$text”', style: tt.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
                 ],
               ]),
             ),
@@ -455,7 +446,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
               Text('${c['other_name'] ?? ''}', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
               Text(_when(c), style: tt.bodyMedium),
               if ('${c['text'] ?? ''}'.isNotEmpty)
-                Text('“${c['text']}”', style: tt.bodySmall?.copyWith(color: s.onSurfaceVariant)),
+                Text('“${c['text']}”', style: tt.bodySmall?.copyWith(color: DsTokens.of(context).muted)),
               const SizedBox(height: Gap.xs),
               Row(children: [
                 if (c['has_voice'] == true) ...[
@@ -507,7 +498,7 @@ class _CareCallScreenState extends State<CareCallScreen> {
         title: Text(t.ccFrom('${c['other_name'] ?? ''}'), style: tt.titleMedium),
         subtitle: Text(
             '${_when(c)}${'${c['text'] ?? ''}'.isNotEmpty ? '\n“${c['text']}”' : ''}',
-            style: tt.bodyMedium?.copyWith(color: s.onSurfaceVariant)),
+            style: tt.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
         isThreeLine: '${c['text'] ?? ''}'.isNotEmpty,
         trailing: c['has_voice'] == true ? Icon(Icons.mic_rounded, color: s.primary) : null,
       ),

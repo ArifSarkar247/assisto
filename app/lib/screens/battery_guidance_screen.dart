@@ -116,11 +116,11 @@ class _BatteryGuidanceScreenState extends State<BatteryGuidanceScreen>
       body: SafeArea(
         child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
           Card(
-            color: scheme.tertiaryContainer,
+            color: scheme.ds.successBg,
             child: Padding(
               padding: const EdgeInsets.all(Gap.lg),
               child: Text(t.oemGuideIntro,
-                  style: TextStyle(color: scheme.onTertiaryContainer)),
+                  style: TextStyle(color: scheme.ds.successInk)),
             ),
           ),
           const SizedBox(height: Gap.md),
@@ -129,7 +129,7 @@ class _BatteryGuidanceScreenState extends State<BatteryGuidanceScreen>
                 style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           Text(t.oemGuidePickBrand,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             for (final b in brands)
@@ -173,10 +173,10 @@ class _BatteryGuidanceScreenState extends State<BatteryGuidanceScreen>
           ],
           const SizedBox(height: Gap.sm),
           Text(t.noteExactMenuNamesVary,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.xs),
           Text(t.oemGuideReopenHint,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           if (widget.firstRun) ...[
             const SizedBox(height: Gap.lg),
             RoboId(id: 'tl_oem_done',
@@ -227,7 +227,7 @@ class _StepCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final note = AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant);
+    final note = AType.bodyMedium.copyWith(color: scheme.ds.muted);
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.md),
       child: Padding(
@@ -238,9 +238,9 @@ class _StepCard extends StatelessWidget {
                 ? Icon(Icons.check_circle_rounded, color: scheme.primary, size: 28)
                 : CircleAvatar(
                     radius: 14,
-                    backgroundColor: scheme.primaryContainer,
+                    backgroundColor: scheme.ds.primarySoft,
                     child: Text('$index',
-                        style: AType.bodyMedium.copyWith(color: scheme.onPrimaryContainer)),
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
                   ),
           ),
           const SizedBox(width: Gap.md),
@@ -294,18 +294,18 @@ class _BrandPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final fg = selected ? scheme.onSecondaryContainer : scheme.onSurface;
+    final fg = selected ? scheme.ds.primaryInk : scheme.ds.text;
     return Semantics(
       button: true,
       selected: selected,
       inMutuallyExclusiveGroup: true,
       child: Material(
-        color: selected ? scheme.secondaryContainer : Colors.transparent,
+        color: selected ? scheme.ds.primarySoft : Colors.transparent,
         // Rounded rectangle, not a stadium: a label that wraps to two lines
         // at large text sizes must not touch the curved ends.
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: selected ? scheme.secondaryContainer : scheme.outline)),
+            side: BorderSide(color: selected ? scheme.ds.primarySoft : scheme.ds.muted)),
         child: InkWell(
           customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           onTap: onTap,

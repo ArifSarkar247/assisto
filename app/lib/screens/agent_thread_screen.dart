@@ -661,7 +661,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         const SizedBox(height: Gap.sm),
         Text(t.welcomeBody,
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            style: TextStyle(color: scheme.ds.muted, height: 1.4)),
       ],
     );
   }
@@ -806,7 +806,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
           BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
       padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
       decoration: BoxDecoration(
-        color: m.user ? scheme.primary : scheme.surfaceContainerHighest,
+        color: m.user ? scheme.primary : scheme.ds.cardHighest,
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(18),
           topRight: const Radius.circular(18),
@@ -821,7 +821,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
                   style: TextStyle(color: scheme.onPrimary, height: 1.4))
               // aifinal round 2 item 7: safe markdown (no raw ** in answers)
               : AiMarkdown(
-                  text: m.text, color: scheme.onSurface, linkColor: scheme.primary),
+                  text: m.text, color: scheme.ds.text, linkColor: scheme.primary),
         for (final c in m.cards) ChatCard(c, onUndo: _undo),
       ]),
     );
@@ -894,7 +894,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
                     ? t.listening
                     : t.inputHint,
                 filled: true,
-                fillColor: scheme.surfaceContainerHighest,
+                fillColor: scheme.ds.cardHighest,
                 contentPadding: const EdgeInsets.symmetric(
                     horizontal: Gap.lg, vertical: Gap.md),
                 border: OutlineInputBorder(

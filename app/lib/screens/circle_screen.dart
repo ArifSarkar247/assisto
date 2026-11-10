@@ -13,6 +13,7 @@ import '../l10n/app_localizations.dart';
 import '../messaging/connect_flow.dart'; // connect-flow
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/circle_relation.dart';
 import '../widgets/circle_sharing.dart';
 import '../widgets/loading_gate.dart';
@@ -309,7 +310,10 @@ class _CircleScreenState extends State<CircleScreen> {
         label: Text(_t.circleAdd),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+              for (var i = 0; i < 4; i++)
+                Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSkeleton.card(lines: 2)),
+            ])
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
@@ -345,46 +349,29 @@ class _CircleScreenState extends State<CircleScreen> {
 
   Widget _sectionHeader(String text) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xs),
-        child: Text(text,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: Theme.of(context).colorScheme.primary)),
+        child: Semantics(
+          header: true,
+          child: Text(text,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: DsTokens.of(context).text, fontWeight: FontWeight.w700)),
+        ),
       );
 
+  // designv2: DS empty state — benefit line + one big button (add / retry)
   Widget _emptyState(ColorScheme scheme) => Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(
-          children: [
-            Icon(Icons.diversity_1_rounded,
-                size: 56, color: scheme.primary.withValues(alpha: 0.7)),
-            const SizedBox(height: Gap.md),
-            // QA a6: a failed load used to read "Your circle is empty";
-            // now it says it couldn't load and offers Retry.
-            Text(_backendReady ? _t.circleEmptyTitle : _t.loadFailed,
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.center),
-            const SizedBox(height: Gap.xs),
-            Text(
-              _backendReady ? _t.circleEmptyBody : _t.qaLoadFailedRetry,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: scheme.onSurfaceVariant),
-            ),
-            if (!_backendReady) ...[
-              const SizedBox(height: Gap.md),
-              FilledButton.tonalIcon(
-                onPressed: () {
+        padding: const EdgeInsets.all(Gap.lg),
+        child: DsEmptyState(
+          icon: Icons.diversity_1_rounded,
+          // QA a6: a failed load says it couldn't load and offers Retry.
+          title: _backendReady ? _t.circleEmptyTitle : _t.loadFailed,
+          benefit: _backendReady ? _t.circleEmptyBody : _t.qaLoadFailedRetry,
+          actionLabel: _backendReady ? _t.circleAdd : _t.retry,
+          onAction: _backendReady
+              ? _addFlow
+              : () {
                   setState(() => _loading = true);
                   _load();
                 },
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(_t.retry),
-              ),
-            ],
-          ],
         ),
       );
 
@@ -446,11 +433,11 @@ class _CircleScreenState extends State<CircleScreen> {
               Container(
                 padding: const EdgeInsets.all(Gap.sm),
                 decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHighest,
+                  color: DsTokens.of(context).cardHighest,
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: Text('"$note"',
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
+                    style: TextStyle(color: DsTokens.of(context).muted)),
               ),
             ],
             const SizedBox(height: Gap.sm),

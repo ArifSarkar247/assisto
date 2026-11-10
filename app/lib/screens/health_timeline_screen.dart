@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -104,7 +105,7 @@ class _HealthTimelineScreenState extends State<HealthTimelineScreen> {
         appBar: AppBar(title: Text(tr.htlTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: DsTokens.of(context).dangerInk,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.htlLoadError),
           action: FilledButton.tonalIcon(
@@ -173,7 +174,7 @@ class _HealthTimelineScreenState extends State<HealthTimelineScreen> {
           child: events.isEmpty
               ? StateMessage(
                   icon: Icons.filter_alt_off_rounded,
-                  tint: scheme.onSurfaceVariant,
+                  tint: DsTokens.of(context).muted,
                   title: tr.htlNoneMatchTitle,
                   message: tr.htlNoneMatchBody,
                   action: OutlinedButton.icon(
@@ -378,7 +379,7 @@ class _SectionHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(999),
           ),
           child: Text('$count',
-              style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant,
+              style: AType.labelSmall.copyWith(color: DsTokens.of(context).muted,
                   fontWeight: FontWeight.w600)),
         ),
       ]),
@@ -440,7 +441,7 @@ class _EventCard extends StatelessWidget {
                         dateStr == null
                             ? tr.htlUndated
                             : _HealthView.dateLabel(context, dateStr),
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                        style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted),
                       ),
                     ]),
                     const SizedBox(height: Gap.xxs),
@@ -459,11 +460,11 @@ class _EventCard extends StatelessWidget {
                       Row(children: [
                         if (doctor.isNotEmpty) ...[
                           Icon(Icons.person_outline_rounded,
-                              size: 13, color: scheme.onSurfaceVariant),
+                              size: 13, color: DsTokens.of(context).muted),
                           const SizedBox(width: 3),
                           Flexible(
                             child: Text(doctor,
-                                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis),
                           ),
@@ -471,11 +472,11 @@ class _EventCard extends StatelessWidget {
                         ],
                         if (place.isNotEmpty) ...[
                           Icon(Icons.place_rounded,
-                              size: 13, color: scheme.onSurfaceVariant),
+                              size: 13, color: DsTokens.of(context).muted),
                           const SizedBox(width: 3),
                           Flexible(
                             child: Text(place,
-                                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis),
                           ),
@@ -485,7 +486,7 @@ class _EventCard extends StatelessWidget {
                     if (notes.isNotEmpty) ...[
                       const SizedBox(height: Gap.xs),
                       Text(notes,
-                          style: AType.bodyMedium.copyWith(color: scheme.onSurface)),
+                          style: AType.bodyMedium.copyWith(color: DsTokens.of(context).text)),
                     ],
                   ]),
             ),
@@ -504,16 +505,16 @@ class _Disclaimer extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
-      color: scheme.surfaceContainerHighest,
+      color: DsTokens.of(context).cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 18, color: DsTokens.of(context).muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.htlDisclaimer,
                 style:
-                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
           ),
         ]),
       ),
@@ -680,7 +681,7 @@ class _EventFormState extends State<_EventForm> {
             ),
             const SizedBox(height: Gap.md),
             Text(tr.htlDisclaimer,
-                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
             const SizedBox(height: Gap.lg),
             Row(children: [
               if (editing)
@@ -693,7 +694,7 @@ class _EventFormState extends State<_EventForm> {
                     }
                   },
                   icon: Icon(Icons.delete_outline_rounded,
-                      color: Theme.of(context).colorScheme.error),
+                      color: DsTokens.of(context).dangerInk),
                 ),
               Expanded(
                 child: OutlinedButton(

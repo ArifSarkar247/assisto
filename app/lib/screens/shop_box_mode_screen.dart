@@ -536,7 +536,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
     final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -547,7 +547,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
               Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Text(body,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
             ]),
           ),
         ]),
@@ -565,7 +565,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
       Text(t.shopModePairTitle, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: Gap.xs),
       Text(t.shopModePairHelp,
-          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+          style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
       const SizedBox(height: Gap.md),
       TextField(
         controller: _tokenField,
@@ -596,7 +596,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
       ),
       const SizedBox(height: Gap.sm),
       Text(t.shopModeNoScan,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
     ];
   }
 
@@ -611,8 +611,8 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               CircleAvatar(
-                backgroundColor: scheme.primaryContainer,
-                child: Icon(Icons.videocam_rounded, color: scheme.onPrimaryContainer),
+                backgroundColor: scheme.ds.primarySoft,
+                child: Icon(Icons.videocam_rounded, color: scheme.ds.primaryInk),
               ),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -624,7 +624,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                   Text(t.shopModePairedTo(_siteName.isEmpty ? '—' : _siteName),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ]),
               ),
             ]),
@@ -649,7 +649,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
             if (_running) ...[
               const SizedBox(height: Gap.sm),
               Text(_online ? t.shopModeServerOk : t.shopModeServerOffline,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               Text(
                   _lastEventAt == null
                       ? t.shopModeNoEvents
@@ -657,7 +657,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                           fmtInt(context, _sentCount),
                           MaterialLocalizations.of(context)
                               .formatTimeOfDay(TimeOfDay.fromDateTime(_lastEventAt!))),
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ],
           ]),
         ),
@@ -764,7 +764,7 @@ class _ZoneDialogState extends State<_ZoneDialog> {
               final ok = r > l && b > tp;
               return DecoratedBox(
                 decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(context).colorScheme.ds.cardHighest,
                     borderRadius: BorderRadius.circular(Radii.sm)),
                 child: Stack(children: [
                   if (ok)

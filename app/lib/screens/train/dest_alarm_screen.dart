@@ -703,8 +703,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
         if (sent != null)
           Card(
             color: sent
-                ? Theme.of(context).colorScheme.secondaryContainer
-                : Theme.of(context).colorScheme.errorContainer,
+                ? Theme.of(context).colorScheme.ds.primarySoft
+                : Theme.of(context).colorScheme.ds.dangerBg,
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Semantics(
@@ -712,8 +712,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
                 child: Text(sent ? t.sjaArrivedSent : t.sjaArrivedFailed,
                     style: AType.bodyMedium.copyWith(
                         color: sent
-                            ? Theme.of(context).colorScheme.onSecondaryContainer
-                            : Theme.of(context).colorScheme.onErrorContainer)),
+                            ? Theme.of(context).colorScheme.ds.primaryInk
+                            : Theme.of(context).colorScheme.ds.dangerInk)),
               ),
             ),
           ),

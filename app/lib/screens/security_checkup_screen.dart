@@ -273,7 +273,7 @@ class _SecScoreCard extends StatelessWidget {
                       value: score.percent / 100,
                       strokeWidth: 9,
                       backgroundColor:
-                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                          Theme.of(context).colorScheme.ds.cardHighest,
                       valueColor: AlwaysStoppedAnimation(color),
                     ),
                   ),
@@ -316,7 +316,7 @@ class _SecScoreCard extends StatelessWidget {
                     t.secGradeHint,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color:
-                            Theme.of(context).colorScheme.onSurfaceVariant),
+                            Theme.of(context).colorScheme.ds.muted),
                   ),
                 ],
               ),
@@ -340,13 +340,13 @@ class _SelfReportedBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: cs.secondaryContainer.withValues(alpha: 0.4),
+        color: cs.ds.primarySoft.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline_rounded, size: 20, color: cs.onSecondaryContainer),
+          Icon(Icons.info_outline_rounded, size: 20, color: cs.ds.primaryInk),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.secSelfReportedNote,
@@ -397,7 +397,7 @@ class _WeakAreasCard extends StatelessWidget {
                     const Text('•  '),
                     Expanded(
                       child: Text(secItemTitle(t, id),
-                          style: TextStyle(color: cs.onSurface)),
+                          style: TextStyle(color: cs.ds.text)),
                     ),
                   ],
                 ),
@@ -439,7 +439,7 @@ class _SecItemTile extends StatelessWidget {
               const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
           leading: Icon(
             done ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-            color: done ? Brand.success : cs.onSurfaceVariant,
+            color: done ? Brand.success : cs.ds.muted,
           ),
           title: Text(secItemTitle(t, item.id),
               style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -486,7 +486,7 @@ class _ErrorState extends StatelessWidget {
           children: [
             Icon(Icons.cloud_off_rounded,
                 size: 48,
-                color: Theme.of(context).colorScheme.onSurfaceVariant),
+                color: Theme.of(context).colorScheme.ds.muted),
             const SizedBox(height: Gap.md),
             Text(t.secLoadFailed, textAlign: TextAlign.center),
             const SizedBox(height: Gap.lg),

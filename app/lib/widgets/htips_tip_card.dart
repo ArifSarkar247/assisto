@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../growth/branded_share.dart'; // p5-growth
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 
 /// ADVANCED health-tip card. Over the GOOD card it adds:
@@ -67,7 +68,7 @@ class HtipsTipCard extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.xs),
-          Text(body, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.45)),
+          Text(body, style: TextStyle(color: DsTokens.of(context).muted, height: 1.45)),
 
           // symptom-awareness: WHEN to see a doctor (NOT a diagnosis)
           if (awareness.isNotEmpty) ...[
@@ -76,12 +77,12 @@ class HtipsTipCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(Gap.sm),
               decoration: BoxDecoration(
-                color: scheme.errorContainer,
+                color: DsTokens.of(context).dangerBg,
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(Icons.medical_services_rounded,
-                    size: 16, color: scheme.onErrorContainer),
+                    size: 16, color: DsTokens.of(context).dangerInk),
                 const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Column(
@@ -91,13 +92,13 @@ class HtipsTipCard extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w700,
-                                color: scheme.onErrorContainer)),
+                                color: DsTokens.of(context).dangerInk)),
                         const SizedBox(height: 2),
                         Text(awareness,
                             style: TextStyle(
                                 fontSize: 12,
                                 height: 1.35,
-                                color: scheme.onErrorContainer)),
+                                color: DsTokens.of(context).dangerInk)),
                       ]),
                 ),
               ]),
@@ -125,7 +126,7 @@ class HtipsTipCard extends StatelessWidget {
           // per-tip "not medical advice" footnote (travels with the content)
           const SizedBox(height: Gap.xs),
           Text(t.htipsNotMedicalAdvice,
-              style: TextStyle(fontSize: 10.5, color: scheme.onSurfaceVariant)),
+              style: TextStyle(fontSize: 10.5, color: DsTokens.of(context).muted)),
 
           // actions: save + share
           const SizedBox(height: Gap.xs),

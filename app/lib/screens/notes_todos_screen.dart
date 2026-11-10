@@ -259,7 +259,7 @@ class _NoteCard extends StatelessWidget {
                           ? Icons.push_pin_rounded
                           : Icons.sticky_note_2_rounded,
                       size: 20,
-                      color: pinned ? Brand.warning : scheme.onSurfaceVariant),
+                      color: pinned ? Brand.warning : scheme.ds.muted),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(titleText,
@@ -323,7 +323,7 @@ class _NoteCard extends StatelessWidget {
                     child: Text((d['body']).toString(),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                   ),
                 ],
                 // checklist preview: first 3 lines, tappable to tick
@@ -353,7 +353,7 @@ class _NoteCard extends StatelessWidget {
                               size: 18,
                               color: checklist[i]['done'] == true
                                   ? Brand.success
-                                  : scheme.onSurfaceVariant),
+                                  : scheme.ds.muted),
                           const SizedBox(width: Gap.xs),
                           Expanded(
                             child: Text(
@@ -362,7 +362,7 @@ class _NoteCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: checklist[i]['done'] == true
                                   // remnotes: struck through but still readable (AA)
-                                  ? AType.bodyMedium.copyWith(decoration: TextDecoration.lineThrough, color: scheme.onSurfaceVariant)
+                                  ? AType.bodyMedium.copyWith(decoration: TextDecoration.lineThrough, color: scheme.ds.muted)
                                   : AType.bodyMedium,
                             ),
                           ),
@@ -374,7 +374,7 @@ class _NoteCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: Gap.xl, top: Gap.xxs),
                       child: Text(t.notesMoreItems(rnDigits(t, checklist.length - 3)),
-                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     ),
                 ],
                 // meta chip row: progress / due / link / tags
@@ -401,7 +401,7 @@ class _NoteCard extends StatelessWidget {
                               Brand.onTint(context, Brand.blue)),
                         if (attachments > 0)
                           _chip(Icons.attach_file_rounded, rnDigits(t, attachments),
-                              scheme.onSurfaceVariant),
+                              scheme.ds.muted),
                         if (due != null)
                           _chip(Icons.event_rounded,
                               DateFormat('d MMM, h:mm a', appDateLocale(context)).format(due),
@@ -548,7 +548,7 @@ class _TodoTile extends StatelessWidget {
               // remnotes: struck through but readable (AA; was 3.6:1 dark)
               ? TextStyle(
                   decoration: TextDecoration.lineThrough,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)
+                  color: Theme.of(context).colorScheme.ds.muted)
               : null),
       subtitle: (due != null || high || rule != null)
           ? Wrap(spacing: Gap.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [

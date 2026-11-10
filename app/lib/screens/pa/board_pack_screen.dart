@@ -632,12 +632,12 @@ class _PackEditorState extends State<_PackEditor> {
           const SizedBox(height: Gap.lg),
 
           Row(children: [
-            Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 15, color: scheme.ds.muted),
             const SizedBox(width: 4),
             Expanded(
               child: Text(tr.f6BwTemplateMarker, // truth: template, not AI
                   style: TextStyle(
-                      color: scheme.onSurfaceVariant, fontSize: 12.5)),
+                      color: scheme.ds.muted, fontSize: 12.5)),
             ),
           ]),
           const SizedBox(height: Gap.sm),
@@ -645,15 +645,15 @@ class _PackEditorState extends State<_PackEditor> {
               style: Theme.of(context)
                   .textTheme
                   .labelLarge
-                  ?.copyWith(color: scheme.onSurfaceVariant)),
+                  ?.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.xs),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
+              color: scheme.ds.cardHighest,
               borderRadius: BorderRadius.circular(Radii.sm),
-              border: Border.all(color: scheme.outlineVariant),
+              border: Border.all(color: scheme.ds.border),
             ),
             child: SelectableText(
               rendered.trim().isEmpty ? tr.paBoardPreviewEmpty : rendered,
@@ -714,7 +714,7 @@ class _PackEditorState extends State<_PackEditor> {
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Radii.sm),
-          border: Border.all(color: scheme.outlineVariant),
+          border: Border.all(color: scheme.ds.border),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
@@ -728,7 +728,7 @@ class _PackEditorState extends State<_PackEditor> {
               const SizedBox(height: 2),
               Text(tr.paBoardAiSeamBody,
                   style: TextStyle(
-                      color: scheme.onSurfaceVariant,
+                      color: scheme.ds.muted,
                       fontSize: 12.5,
                       height: 1.4)),
             ]),
@@ -763,7 +763,7 @@ class _SectionEditor extends StatelessWidget {
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
@@ -777,7 +777,7 @@ class _SectionEditor extends StatelessWidget {
                     ?.copyWith(fontWeight: FontWeight.w700)),
           ),
           Text('${rows.length}',
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         ]),
         for (var i = 0; i < rows.length; i++) ...[
           const SizedBox(height: Gap.sm),

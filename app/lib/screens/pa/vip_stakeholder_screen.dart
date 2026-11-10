@@ -280,11 +280,11 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                             const SizedBox(height: Gap.md),
                           Row(children: [
                             Icon(Icons.lock_outline_rounded,
-                                size: 14, color: scheme.onSurfaceVariant),
+                                size: 14, color: scheme.ds.muted),
                             const SizedBox(width: Gap.xs),
                             Expanded(
                               child: Text(tr.paVipPrivacyNote,
-                                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                             ),
                           ]),
                           const SizedBox(height: Gap.sm),
@@ -339,7 +339,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
       _stOverdue => (scheme.error, _statusLabel(tr, a)),
       _stDueSoon => (scheme.tertiary, _statusLabel(tr, a)),
       _stOnTrack => (scheme.primary, _statusLabel(tr, a)),
-      _ => (scheme.onSurfaceVariant, _statusLabel(tr, a)),
+      _ => (scheme.ds.muted, _statusLabel(tr, a)),
     };
     return Card(
       margin: EdgeInsets.zero,
@@ -371,7 +371,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                           ].join(' · '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     ]),
               ),
               PopupMenuButton<String>(
@@ -641,7 +641,7 @@ class _VipEditorState extends State<_VipEditor> {
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Radii.md),
-              border: Border.all(color: scheme.outlineVariant),
+              border: Border.all(color: scheme.ds.border),
             ),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -705,11 +705,11 @@ class _VipEditorState extends State<_VipEditor> {
           ),
           const SizedBox(height: Gap.md),
           Row(children: [
-            Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 15, color: scheme.ds.muted),
             const SizedBox(width: Gap.xs),
             Expanded(
               child: Text(tr.paVipPrivacyNote,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ),
           ]),
           const SizedBox(height: Gap.lg),

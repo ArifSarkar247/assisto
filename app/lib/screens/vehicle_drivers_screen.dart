@@ -164,7 +164,7 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
                       children: [
                     if (_list.isNotEmpty) ...[
                       Text(tr.v100DriversIntro,
-                          style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
+                          style: TextStyle(color: scheme.ds.muted, height: 1.35)),
                       const SizedBox(height: Gap.md),
                     ],
                     if (widget.canAssign && widget.trackerId != null && _list.isNotEmpty)
@@ -326,7 +326,7 @@ class _DriverFormState extends State<_DriverForm> {
           const SizedBox(height: Gap.xs),
           Text(tr.v100DriverLicenceHint,
               style: AType.bodySmall.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.35)),
+                  color: Theme.of(context).colorScheme.ds.muted, height: 1.35)),
           const SizedBox(height: Gap.md),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
@@ -392,14 +392,14 @@ class _DriverMonthSheetState extends State<_DriverMonthSheet> {
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
         Text(widget.name, style: Theme.of(context).textTheme.titleLarge),
-        Text(tr.v100DriverMonth, style: TextStyle(color: scheme.onSurfaceVariant)),
+        Text(tr.v100DriverMonth, style: TextStyle(color: scheme.ds.muted)),
         const SizedBox(height: Gap.md),
         if (_error)
           Text(tr.vehLoadError, style: TextStyle(color: scheme.error))
         else if (r == null)
           const Center(child: CircularProgressIndicator())
         else if ((vehNum(tot['km']) ?? 0) <= 0)
-          Text(tr.v100DriverNoTrips, style: TextStyle(color: scheme.onSurfaceVariant))
+          Text(tr.v100DriverNoTrips, style: TextStyle(color: scheme.ds.muted))
         else ...[
           Text(
               '${tr.vehKm(vehNumStr(context, vehNum(tot['km']) ?? 0, decimals: 1))} · '

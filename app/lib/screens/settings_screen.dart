@@ -60,6 +60,7 @@ import 'encrypted_backup_screen.dart';
 import 'security_checkup_screen.dart';
 import 'delete_account_screen.dart';
 import 'voice_assistant_settings_screen.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../ads/ad_privacy_tile.dart';
@@ -214,304 +215,314 @@ class SettingsScreen extends StatelessWidget {
           ),
           // finish1 (owner final 2 Nov): "I am a blood donor" (flag blood_donors)
           const BloodDonorSwitchTile(),
-          const Divider(),
-          const SettingsLanguageSection(),
-          const Divider(),
-          // Settings -> Voice: the only voice-language override (Auto default).
-          const SettingsVoiceSection(),
-          const Divider(),
-          const SettingsThemeSection(),
-          const Divider(),
-          // faststart (owner 10 Nov): Low-data mode (pictures + calls)
-          const LowDataTile(),
-          // acctmode (owner 2 Nov): accounts mode personal / business / both —
-          // changes only which money/business modules the menu lists.
-          if (FeatureFlags.instance.isOn('money') &&
-              FeatureFlags.instance.isOn('business'))
-            const AccountModeSettingsTile(),
-          // Elderly simple-mode toggle (SPEC §29). Sits near Appearance/Safety
-          // (accessibility). Turning ON runs the parent-permission gate + an
-          // enter confirm; OFF runs an exit confirm. Popping to root makes the
-          // root route-swap re-resolve so the new home shows immediately.
-          ElderlyModeTile(
-            onChanged: (_) =>
-                Navigator.of(context).popUntil((r) => r.isFirst),
-          ),
-          // #200 True accessibility mode — large text, high contrast, reduce
-          // motion, simplified layout, screen-reader hints, haptics. Sits in the
-          // accessibility cluster next to Elderly simple-mode.
-          ListTile(
-            leading: const Icon(Icons.accessibility_new_rounded),
-            title: Text(t.a11yTitle),
-            subtitle: Text(t.a11yTileSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const AccessibilityModeScreen())),
-          ),
-          // a6: push — Notifications & calls (delivery status, permission,
-          // Android 14 full-screen calls, battery hint).
-          ListTile(
-            leading: const Icon(Icons.notifications_active_rounded),
-            title: Text(t.pushSetTitle),
-            subtitle: Text(t.pushSetTileSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const PushSettingsScreen())),
-          ),
-          // Part 3: Assisto Voice — default digital assistant, optional
-          // "Hey Assisto" wake word (off by default), spoken replies.
-          if (FeatureFlags.instance.isOn('voice_assistant')) // feature-flags
-          ListTile(
-            leading: const Icon(Icons.graphic_eq_rounded),
-            title: Text(t.vaSettingsTitle),
-            subtitle: Text(t.vaSettingsTileSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const VoiceAssistantSettingsScreen())),
-          ),
-          // callmoney: after-call note + money from notifications (consent first)
-          if (FeatureFlags.instance.isOn('reminders') || FeatureFlags.instance.isOn('money'))
-          ListTile(
-            key: const ValueKey('cmn_settings_tile'),
-            leading: const Icon(Icons.notifications_active_rounded),
-            title: Text(t.clnSettingsTitle),
-            subtitle: Text(t.clnSettingsTileSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const CallMoneySettingsScreen())),
-          ),
-          const Divider(),
-          const _SafetySection(),
-          // #198 Digital security check-up — a guided self-audit + security
-          // score. Lives with Safety (protection) settings.
-          ListTile(
-            leading: const Icon(Icons.verified_user_rounded),
-            title: Text(t.secTitle),
-            subtitle: Text(t.secTileSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const SecurityCheckupScreen())),
-          ),
-          // recovery (owner Part 8): phone + email, password, signed-in
-          // devices, "this was not me", family confirmations.
-          ListTile(
-            key: const Key('settings-account-security'),
-            leading: const Icon(Icons.manage_accounts_rounded),
-            title: Text(t.acsecTitle),
-            subtitle: Text(t.acsecTileSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const AccountSecurityScreen())),
-          ),
-          // smsotp: a verified email = backup for sign-in codes when SMS fails
-          ListTile(
-            key: const Key('settings-email-codes'),
-            leading: const Icon(Icons.alternate_email_rounded),
-            title: Text(t.smsotpEmailTile),
-            subtitle: Text(t.smsotpEmailTileSub),
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => EmailVerifyScreen(
-                        backend: ApiOtpBackend(context.read<AppState>().api)))),
-          ),
-          // #201 Trust / proof page — the app's honest integrity statement
-          // (what Assisto does and never does). Lives with the safety/trust tiles.
-          ListTile(
-            leading: const Icon(Icons.shield_rounded),
-            title: Text(t.trustTitle),
-            subtitle: Text(t.trustTileSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const TrustPageScreen())),
-          ),
-          const Divider(),
-          const SettingsAutonomySection(),
-          const Divider(),
-          // Wave-D batch-4: the audit-log tile now opens the ADVANCED Action
-          // Center (Pending approvals + Done/audit log, autonomy-tied). The
-          // Action Center's Done tab reads the same GET /audit source the old
-          // AuditScreen used, so this is a strict superset — no lost function.
-          ListTile(
-            leading: const Icon(Icons.receipt_long_rounded),
-            title: Text(AppLocalizations.of(context).auditLogTile),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const ActionCenterScreen())),
-          ),
-          ListTile(
-            leading: const Icon(Icons.cloud_off_rounded),
-            title: Text(oStr(context, 'offTitle')),
-            subtitle: Text(oStr(context, 'offAvailableOffline')),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const OfflineStatusScreen())),
-          ),
-          ListTile(
-            leading: const Icon(Icons.insights_rounded),
-            title: Text(AppLocalizations.of(context).analyticsTitle),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const OwnerAnalyticsScreen())),
-          ),
-          ListTile(
-            leading: const Icon(Icons.badge_rounded),
-            title: Text(AppLocalizations.of(context).nameAboutTitle),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const NameAboutScreen())),
-          ),
-          ListTile(
-            leading: const Icon(Icons.download_rounded),
-            title: Text(AppLocalizations.of(context).exportDataTile),
-            subtitle: Text(AppLocalizations.of(context).exportDataSubtitle),
-            onTap: () => _export(context),
-          ),
-          // #197 Encrypted backup & phone transfer — passphrase-encrypted bundle
-          // (reuses the SoftwareE2E crypto); local works no-key, Drive = seam.
-          ListTile(
-            leading: const Icon(Icons.enhanced_encryption_rounded),
-            title: Text(AppLocalizations.of(context).bkTitle),
-            subtitle: Text(AppLocalizations.of(context).bkTileSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const EncryptedBackupScreen())),
-          ),
-          ListTile(
-            leading: const Icon(Icons.table_chart_rounded),
-            title: Text(AppLocalizations.of(context).exportExcelTile),
-            onTap: () => _downloadOpen(context, '/export/excel', 'assisto-export.xlsx'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.picture_as_pdf_rounded),
-            title: Text(AppLocalizations.of(context).exportPdfTile),
-            onTap: () => _downloadOpen(context, '/export/pdf', 'assisto-export.pdf'),
-          ),
-          const Divider(),
-          // Business Model Build 3 — credits + an always-visible storage meter.
-          ListTile(
-            leading: const Icon(Icons.bolt_rounded),
-            title: Text(t.creditsTitle),
-            subtitle: Text(t.creditsSettingsSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const CreditsScreen())),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.sm),
-            child: StorageMeter(
-              onBuyStorage: () => Navigator.push(context,
+          DsGroup(children: [
+            const SettingsLanguageSection(),
+          ]),
+          DsGroup(children: [
+            // Settings -> Voice: the only voice-language override (Auto default).
+            const SettingsVoiceSection(),
+          ]),
+          DsGroup(children: [
+            const SettingsThemeSection(),
+            // faststart (owner 10 Nov): Low-data mode (pictures + calls)
+            const LowDataTile(),
+          ]),
+          DsGroup(children: [
+            // acctmode (owner 2 Nov): accounts mode personal / business / both —
+            // changes only which money/business modules the menu lists.
+            if (FeatureFlags.instance.isOn('money') &&
+                FeatureFlags.instance.isOn('business'))
+              const AccountModeSettingsTile(),
+            // Elderly simple-mode toggle (SPEC §29). Sits near Appearance/Safety
+            // (accessibility). Turning ON runs the parent-permission gate + an
+            // enter confirm; OFF runs an exit confirm. Popping to root makes the
+            // root route-swap re-resolve so the new home shows immediately.
+            ElderlyModeTile(
+              onChanged: (_) =>
+                  Navigator.of(context).popUntil((r) => r.isFirst),
+            ),
+            // #200 True accessibility mode — large text, high contrast, reduce
+            // motion, simplified layout, screen-reader hints, haptics. Sits in the
+            // accessibility cluster next to Elderly simple-mode.
+            ListTile(
+              leading: const Icon(Icons.accessibility_new_rounded),
+              title: Text(t.a11yTitle),
+              subtitle: Text(t.a11yTileSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const AccessibilityModeScreen())),
+            ),
+            // a6: push — Notifications & calls (delivery status, permission,
+            // Android 14 full-screen calls, battery hint).
+            ListTile(
+              leading: const Icon(Icons.notifications_active_rounded),
+              title: Text(t.pushSetTitle),
+              subtitle: Text(t.pushSetTileSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const PushSettingsScreen())),
+            ),
+            // Part 3: Assisto Voice — default digital assistant, optional
+            // "Hey Assisto" wake word (off by default), spoken replies.
+            if (FeatureFlags.instance.isOn('voice_assistant')) // feature-flags
+            ListTile(
+              leading: const Icon(Icons.graphic_eq_rounded),
+              title: Text(t.vaSettingsTitle),
+              subtitle: Text(t.vaSettingsTileSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const VoiceAssistantSettingsScreen())),
+            ),
+            // callmoney: after-call note + money from notifications (consent first)
+            if (FeatureFlags.instance.isOn('reminders') || FeatureFlags.instance.isOn('money'))
+            ListTile(
+              key: const ValueKey('cmn_settings_tile'),
+              leading: const Icon(Icons.notifications_active_rounded),
+              title: Text(t.clnSettingsTitle),
+              subtitle: Text(t.clnSettingsTileSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const CallMoneySettingsScreen())),
+            ),
+          ]),
+          DsGroup(children: [
+            const _SafetySection(),
+            // #198 Digital security check-up — a guided self-audit + security
+            // score. Lives with Safety (protection) settings.
+            ListTile(
+              leading: const Icon(Icons.verified_user_rounded),
+              title: Text(t.secTitle),
+              subtitle: Text(t.secTileSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const SecurityCheckupScreen())),
+            ),
+            // recovery (owner Part 8): phone + email, password, signed-in
+            // devices, "this was not me", family confirmations.
+            ListTile(
+              key: const Key('settings-account-security'),
+              leading: const Icon(Icons.manage_accounts_rounded),
+              title: Text(t.acsecTitle),
+              subtitle: Text(t.acsecTileSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const AccountSecurityScreen())),
+            ),
+            // smsotp: a verified email = backup for sign-in codes when SMS fails
+            ListTile(
+              key: const Key('settings-email-codes'),
+              leading: const Icon(Icons.alternate_email_rounded),
+              title: Text(t.smsotpEmailTile),
+              subtitle: Text(t.smsotpEmailTileSub),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => EmailVerifyScreen(
+                          backend: ApiOtpBackend(context.read<AppState>().api)))),
+            ),
+            // #201 Trust / proof page — the app's honest integrity statement
+            // (what Assisto does and never does). Lives with the safety/trust tiles.
+            ListTile(
+              leading: const Icon(Icons.shield_rounded),
+              title: Text(t.trustTitle),
+              subtitle: Text(t.trustTileSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const TrustPageScreen())),
+            ),
+          ]),
+          DsGroup(children: [
+            const SettingsAutonomySection(),
+          ]),
+          DsGroup(children: [
+            // Wave-D batch-4: the audit-log tile now opens the ADVANCED Action
+            // Center (Pending approvals + Done/audit log, autonomy-tied). The
+            // Action Center's Done tab reads the same GET /audit source the old
+            // AuditScreen used, so this is a strict superset — no lost function.
+            ListTile(
+              leading: const Icon(Icons.receipt_long_rounded),
+              title: Text(AppLocalizations.of(context).auditLogTile),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const ActionCenterScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.cloud_off_rounded),
+              title: Text(oStr(context, 'offTitle')),
+              subtitle: Text(oStr(context, 'offAvailableOffline')),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const OfflineStatusScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.insights_rounded),
+              title: Text(AppLocalizations.of(context).analyticsTitle),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const OwnerAnalyticsScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.badge_rounded),
+              title: Text(AppLocalizations.of(context).nameAboutTitle),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const NameAboutScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.download_rounded),
+              title: Text(AppLocalizations.of(context).exportDataTile),
+              subtitle: Text(AppLocalizations.of(context).exportDataSubtitle),
+              onTap: () => _export(context),
+            ),
+            // #197 Encrypted backup & phone transfer — passphrase-encrypted bundle
+            // (reuses the SoftwareE2E crypto); local works no-key, Drive = seam.
+            ListTile(
+              leading: const Icon(Icons.enhanced_encryption_rounded),
+              title: Text(AppLocalizations.of(context).bkTitle),
+              subtitle: Text(AppLocalizations.of(context).bkTileSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const EncryptedBackupScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_chart_rounded),
+              title: Text(AppLocalizations.of(context).exportExcelTile),
+              onTap: () => _downloadOpen(context, '/export/excel', 'assisto-export.xlsx'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_rounded),
+              title: Text(AppLocalizations.of(context).exportPdfTile),
+              onTap: () => _downloadOpen(context, '/export/pdf', 'assisto-export.pdf'),
+            ),
+          ]),
+          DsGroup(children: [
+            // Business Model Build 3 — credits + an always-visible storage meter.
+            ListTile(
+              leading: const Icon(Icons.bolt_rounded),
+              title: Text(t.creditsTitle),
+              subtitle: Text(t.creditsSettingsSub),
+              onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const CreditsScreen())),
             ),
-          ),
-          // p2-money: brand offers by interest (categories, mute brands,
-          // offer notifications max N/day).
-          if (FeatureFlags.instance.isOn('offers')) // feature-flags
-          ListTile(
-            key: const Key('settings-offers'),
-            leading: const Icon(Icons.local_offer_rounded),
-            title: Text(t.p2OffersTitle),
-            subtitle: Text(t.p2OffersSettingsSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const OffersSettingsScreen())),
-          ),
-          // missing: nearby safety alerts opt-in (Missing person alert)
-          if (FeatureFlags.instance.isOn('missing_alert')) // feature-flags
-          ListTile(
-            key: const Key('settings-nearby-alerts'),
-            leading: const Icon(Icons.person_search_rounded),
-            title: Text(t.maOptinTitle),
-            subtitle: Text(t.maOptinSettingsSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const MissingOptinScreen())),
-          ),
-          if (FeatureFlags.instance.isOn('subscriptions')) // feature-flags
-          ListTile(
-            leading: const Icon(Icons.autorenew_rounded),
-            title: Text(t.subscriptions),
-            subtitle: Text(t.subscriptionsHint),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const SubscriptionsScreen())),
-          ),
-          // ring-everywhere: the call ring checklist (badge while missing)
-          ListTile(
-            key: const Key('settings-ring-check'),
-            leading: const RingCheckBadge(child: Icon(Icons.ring_volume_rounded)),
-            title: Text(AppLocalizations.of(context).ringCheckTitle),
-            subtitle: Text(AppLocalizations.of(context).ringCheckTileSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const RingChecklistScreen())),
-          ),
-          ListTile(
-            leading: const Icon(Icons.battery_charging_full_rounded),
-            title: Text(AppLocalizations.of(context).oemGuideTitle),
-            subtitle: Text(AppLocalizations.of(context).oemGuideTileSub),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const BatteryGuidanceScreen())),
-          ),
-          // #196 Home-screen widget — enable/disable the native AppWidget that
-          // shows the next reminder + today's count. Self-contained; a failure
-          // never breaks Settings.
-          const _HomeWidgetTile(),
-          // f6 (no showpieces): saved on the server but no ingest path checks
-          // these switches yet, so the tile is hidden (feature_gates.dart).
-          if (kSourcePermissionsEnforced)
-          ListTile(
-            leading: const Icon(Icons.tune_rounded),
-            title: Text(AppLocalizations.of(context).inputSourcePermissions),
-            subtitle: Text(AppLocalizations.of(context).inputSourceSubtitle),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => SourcesScreen())),
-          ),
-          ListTile(
-            leading: const Icon(Icons.pending_actions_rounded),
-            title: Text(AppLocalizations.of(context).inProgress),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const InProgressScreen())),
-          ),
-          const Divider(),
-          _MsgrSettingsSection(),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.gavel_rounded),
-            title: Text(AppLocalizations.of(context).legalTitle),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const LegalScreen())),
-          ),
-          // L3: Google UMP "Ad privacy choices" — renders nothing unless UMP
-          // says the privacy-options entry point is required.
-          const AdPrivacyTile(),
-          // f1-founders: Send feedback / report a problem — a sheet over
-          // this screen (screenshot captured first, removable).
-          ListTile(
-            key: const Key('settings-feedback'),
-            leading: const Icon(Icons.rate_review_rounded),
-            title: Text(t.fbTile),
-            subtitle: Text(t.fbTileSub),
-            onTap: () => FeedbackSheet.open(context, route: 'settings'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.support_agent_rounded),
-            title: Text(AppLocalizations.of(context).supportReportTile),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const SupportCenterScreen())),
-          ),
-          // l1-launch: no self-update tile in the Google Play build.
-          if (!AppConfig.playStore)
-          ListTile(
-            leading: const Icon(Icons.system_update_rounded),
-            title: Text(AppLocalizations.of(context).updateTile),
-            subtitle: Text(AppLocalizations.of(context).updateTileSubtitle),
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const AppUpdateScreen())),
-          ),
-          ListTile(
-            leading: const Icon(Icons.card_giftcard_rounded),
-            title: Text(AppLocalizations.of(context).inviteFriendsTile),
-            onTap: () => _invite(context),
-          ),
-          ListTile(
-            leading: Icon(Icons.delete_forever_rounded,
-                color: Theme.of(context).colorScheme.error),
-            title: Text(AppLocalizations.of(context).delAcctTile,
-                style: TextStyle(color: Theme.of(context).colorScheme.error)),
-            subtitle: Text(AppLocalizations.of(context).delAcctTileSub),
-            onTap: () => _deleteAccount(context),
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout_rounded),
-            title: Text(AppLocalizations.of(context).logout),
-            onTap: () => app.logout(),
-          ),
-          const Divider(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.sm),
+              child: StorageMeter(
+                onBuyStorage: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const CreditsScreen())),
+              ),
+            ),
+            // p2-money: brand offers by interest (categories, mute brands,
+            // offer notifications max N/day).
+            if (FeatureFlags.instance.isOn('offers')) // feature-flags
+            ListTile(
+              key: const Key('settings-offers'),
+              leading: const Icon(Icons.local_offer_rounded),
+              title: Text(t.p2OffersTitle),
+              subtitle: Text(t.p2OffersSettingsSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const OffersSettingsScreen())),
+            ),
+            // missing: nearby safety alerts opt-in (Missing person alert)
+            if (FeatureFlags.instance.isOn('missing_alert')) // feature-flags
+            ListTile(
+              key: const Key('settings-nearby-alerts'),
+              leading: const Icon(Icons.person_search_rounded),
+              title: Text(t.maOptinTitle),
+              subtitle: Text(t.maOptinSettingsSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const MissingOptinScreen())),
+            ),
+            if (FeatureFlags.instance.isOn('subscriptions')) // feature-flags
+            ListTile(
+              leading: const Icon(Icons.autorenew_rounded),
+              title: Text(t.subscriptions),
+              subtitle: Text(t.subscriptionsHint),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const SubscriptionsScreen())),
+            ),
+            // ring-everywhere: the call ring checklist (badge while missing)
+            ListTile(
+              key: const Key('settings-ring-check'),
+              leading: const RingCheckBadge(child: Icon(Icons.ring_volume_rounded)),
+              title: Text(AppLocalizations.of(context).ringCheckTitle),
+              subtitle: Text(AppLocalizations.of(context).ringCheckTileSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const RingChecklistScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.battery_charging_full_rounded),
+              title: Text(AppLocalizations.of(context).oemGuideTitle),
+              subtitle: Text(AppLocalizations.of(context).oemGuideTileSub),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const BatteryGuidanceScreen())),
+            ),
+            // #196 Home-screen widget — enable/disable the native AppWidget that
+            // shows the next reminder + today's count. Self-contained; a failure
+            // never breaks Settings.
+            const _HomeWidgetTile(),
+            // f6 (no showpieces): saved on the server but no ingest path checks
+            // these switches yet, so the tile is hidden (feature_gates.dart).
+            if (kSourcePermissionsEnforced)
+            ListTile(
+              leading: const Icon(Icons.tune_rounded),
+              title: Text(AppLocalizations.of(context).inputSourcePermissions),
+              subtitle: Text(AppLocalizations.of(context).inputSourceSubtitle),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => SourcesScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.pending_actions_rounded),
+              title: Text(AppLocalizations.of(context).inProgress),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const InProgressScreen())),
+            ),
+          ]),
+          DsGroup(children: [
+            _MsgrSettingsSection(),
+          ]),
+          DsGroup(children: [
+            ListTile(
+              leading: const Icon(Icons.gavel_rounded),
+              title: Text(AppLocalizations.of(context).legalTitle),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const LegalScreen())),
+            ),
+            // L3: Google UMP "Ad privacy choices" — renders nothing unless UMP
+            // says the privacy-options entry point is required.
+            const AdPrivacyTile(),
+            // f1-founders: Send feedback / report a problem — a sheet over
+            // this screen (screenshot captured first, removable).
+            ListTile(
+              key: const Key('settings-feedback'),
+              leading: const Icon(Icons.rate_review_rounded),
+              title: Text(t.fbTile),
+              subtitle: Text(t.fbTileSub),
+              onTap: () => FeedbackSheet.open(context, route: 'settings'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.support_agent_rounded),
+              title: Text(AppLocalizations.of(context).supportReportTile),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const SupportCenterScreen())),
+            ),
+            // l1-launch: no self-update tile in the Google Play build.
+            if (!AppConfig.playStore)
+            ListTile(
+              leading: const Icon(Icons.system_update_rounded),
+              title: Text(AppLocalizations.of(context).updateTile),
+              subtitle: Text(AppLocalizations.of(context).updateTileSubtitle),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const AppUpdateScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.card_giftcard_rounded),
+              title: Text(AppLocalizations.of(context).inviteFriendsTile),
+              onTap: () => _invite(context),
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_forever_rounded,
+                  color: Theme.of(context).colorScheme.error),
+              title: Text(AppLocalizations.of(context).delAcctTile,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.error)),
+              subtitle: Text(AppLocalizations.of(context).delAcctTileSub),
+              onTap: () => _deleteAccount(context),
+            ),
+          ]),
+          DsGroup(children: [
+            ListTile(
+              leading: const Icon(Icons.logout_rounded),
+              title: Text(AppLocalizations.of(context).logout),
+              onTap: () => app.logout(),
+            ),
+          ]),
           Padding(
             padding: EdgeInsets.all(Gap.lg),
             child: Text(

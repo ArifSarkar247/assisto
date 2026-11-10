@@ -347,12 +347,12 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
         excludeSemantics: true,
         child: CircleAvatar(
           radius: 40,
-          backgroundColor: scheme.primaryContainer,
+          backgroundColor: scheme.ds.primarySoft,
           child: Text(initial.isEmpty ? '?' : initial,
               style: TextStyle(
                   fontSize: 34,
                   fontWeight: FontWeight.w800,
-                  color: scheme.onPrimaryContainer)),
+                  color: scheme.ds.primaryInk)),
         ),
       ),
       const SizedBox(height: Gap.md),
@@ -366,7 +366,7 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
       const SizedBox(height: Gap.xs),
       Text(t.ijJoinSub,
           textAlign: TextAlign.center,
-          style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+          style: TextStyle(color: scheme.ds.muted, height: 1.4)),
     ]);
   }
 
@@ -445,7 +445,7 @@ class _InviteJoinScreenState extends State<InviteJoinScreen> {
       const SizedBox(height: Gap.xs),
       Text(t.ijNoPassword,
           textAlign: TextAlign.center,
-          style: TextStyle(color: scheme.onSurfaceVariant)),
+          style: TextStyle(color: scheme.ds.muted)),
       _errorText(),
       TextButton(
         key: const Key('ij-switch-email'),

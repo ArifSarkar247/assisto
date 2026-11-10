@@ -136,7 +136,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
             ),
         ],
         if (missing.isNotEmpty) ...[
-          _header(t.crmTodayMissingStep, Icons.help_outline_rounded, scheme.onSurfaceVariant),
+          _header(t.crmTodayMissingStep, Icons.help_outline_rounded, scheme.ds.muted),
           for (final s in missing)
             Card(
               child: ListTile(

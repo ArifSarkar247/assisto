@@ -228,7 +228,7 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
           ),
           const SizedBox(height: Gap.xs),
           Text(AppLocalizations.of(context).pfNameVisibilityNote,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: TextStyle(fontSize: 12, color: scheme.ds.muted)),
           const SizedBox(height: Gap.lg),
 
           // ---- phone (shown per privacy) ----
@@ -238,12 +238,12 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading:
-                  Icon(Icons.phone_rounded, color: scheme.onSurfaceVariant),
+                  Icon(Icons.phone_rounded, color: scheme.ds.muted),
               title: Text(_phone),
             )
           else
             Text(AppLocalizations.of(context).pfPhoneHidden,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: TextStyle(color: scheme.ds.muted)),
           const SizedBox(height: Gap.sm),
 
           // ---- per-field visibility (hint + link to Privacy hub) ----
@@ -317,7 +317,7 @@ class _LoadingState extends StatelessWidget {
         const SizedBox(height: Gap.md),
         Text(AppLocalizations.of(context).pfLoading,
             style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                color: Theme.of(context).colorScheme.ds.muted)),
       ]),
     );
   }
@@ -346,7 +346,7 @@ class _LoadErrorState extends StatelessWidget {
           const SizedBox(height: Gap.xs),
           Text(honestFailText(t, error, otherwise: t.pfLoadErrorBody),
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
           const SizedBox(height: Gap.lg),
           FilledButton.tonal(onPressed: onRetry, child: Text(t.retry)),
         ]),
@@ -367,7 +367,7 @@ class _PrivacyHintCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Material(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       borderRadius: BorderRadius.circular(Radii.md),
       child: InkWell(
         borderRadius: BorderRadius.circular(Radii.md),
@@ -383,7 +383,7 @@ class _PrivacyHintCard extends StatelessWidget {
                   children: [
                     Text(hint,
                         style: TextStyle(
-                            fontSize: 13, color: scheme.onSurface)),
+                            fontSize: 13, color: scheme.ds.text)),
                     const SizedBox(height: 2),
                     Text(action,
                         style: TextStyle(
@@ -392,7 +392,7 @@ class _PrivacyHintCard extends StatelessWidget {
                             color: scheme.primary)),
                   ]),
             ),
-            Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
+            Icon(Icons.chevron_right_rounded, color: scheme.ds.muted),
           ]),
         ),
       ),

@@ -230,7 +230,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                   : null,
               icon: const Icon(Icons.compare_arrows_rounded),
               label: Text(tr.supCompareN(_compareIds.length)),
-              backgroundColor: _compareIds.length >= 2 ? null : scheme.surfaceContainerHighest,
+              backgroundColor: _compareIds.length >= 2 ? null : scheme.ds.cardHighest,
             )
           : _rows.isEmpty
               ? null // qa1: the empty state's CTA is the same action
@@ -274,7 +274,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                               Padding(
                                 padding: const EdgeInsets.only(bottom: Gap.sm),
                                 child: Text(tr.supComparePick,
-                                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                               ),
                             ...result.suppliers.map((s) => _supplierCard(
                                 context, tr, s)),
@@ -365,7 +365,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
           alignment: AlignmentDirectional.centerStart,
           child: Text(
             tr.supMatchCount(result.matchCount, result.totalCount),
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted),
           ),
         ),
       ),
@@ -375,7 +375,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
   Widget _manualNote(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
@@ -383,7 +383,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.supManualNote,
-                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
           ),
         ]),
       ),
@@ -421,7 +421,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                               : Icons.check_box_outline_blank_rounded,
                           color: selected
                               ? scheme.primary
-                              : scheme.onSurfaceVariant),
+                              : scheme.ds.muted),
                     ),
                   Expanded(
                     child: Text(s.name,
@@ -441,17 +441,17 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                 if (s.productsDisplay.isNotEmpty) ...[
                   const SizedBox(height: Gap.sm),
                   Text(s.productsDisplay,
-                      style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                 ],
                 if (s.priceNote.isNotEmpty) ...[
                   const SizedBox(height: Gap.xs),
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Icon(Icons.sell_rounded,
-                        size: 15, color: scheme.onSurfaceVariant),
+                        size: 15, color: scheme.ds.muted),
                     const SizedBox(width: Gap.xs),
                     Expanded(
                       child: Text(s.priceNote,
-                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     ),
                   ]),
                 ],
@@ -478,7 +478,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                       message: tr.supReorderToggle,
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Icon(Icons.shopping_cart_rounded,
-                            size: 16, color: scheme.onSurfaceVariant),
+                            size: 16, color: scheme.ds.muted),
                         Switch(
                           value: s.reorder,
                           onChanged: s.id == null
@@ -530,14 +530,14 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 13, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 13, color: scheme.ds.muted),
         const SizedBox(width: Gap.xs),
         Text(text,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ]),
     );
   }
@@ -546,7 +546,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -560,7 +560,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
           ]),
           const SizedBox(height: 6),
           Text(tr.supPartnerSeamBody,
-              style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
         ]),
       ),
     );
@@ -585,12 +585,12 @@ class _CompareScreen extends StatelessWidget {
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           Text(tr.supCompareIntro,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           for (final s in cmp.suppliers)
             Card(
               color: cmp.bestRatingId != null && cmp.bestRatingId == s.id
-                  ? scheme.primaryContainer
+                  ? scheme.ds.primarySoft
                   : null,
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
@@ -658,7 +658,7 @@ class _CompareScreen extends StatelessWidget {
         SizedBox(
           width: 96,
           child: Text(label,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
         Expanded(
           child: Text(value,
@@ -781,7 +781,7 @@ Future<Map<String, dynamic>?> _supplierSheet(
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(tr.supFieldRating,
-                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               ),
               Row(children: [
                 for (var i = 1; i <= 5; i++)
@@ -796,7 +796,7 @@ Future<Map<String, dynamic>?> _supplierSheet(
                   ),
                 const Spacer(),
                 Text(rating == 0 ? tr.supUnrated : '$rating / 5',
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
+                    style: TextStyle(color: scheme.ds.muted)),
               ]),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,

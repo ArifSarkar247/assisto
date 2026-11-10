@@ -175,7 +175,7 @@ class _NeedsTab extends StatelessWidget {
             label: Text(t.amkPostNeed),
           ),
           const SizedBox(height: Gap.sm),
-          Text(t.amkCodNote, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+          Text(t.amkCodNote, style: TextStyle(color: Theme.of(context).colorScheme.ds.muted, fontSize: 13)),
           const SizedBox(height: Gap.sm),
           for (final n in needs) MkNeedTile(need: n, onTap: () => onOpen(n['id'] as int)),
         ],
@@ -420,7 +420,7 @@ class _SellTabState extends State<_SellTab> with AutomaticKeepAliveClientMixin {
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
           Card(
-            color: status == 'approved' ? cs.primaryContainer : cs.secondaryContainer,
+            color: status == 'approved' ? cs.ds.primarySoft : cs.ds.primarySoft,
             child: ListTile(
               key: const Key('amk-seller-card'),
               leading: Icon(status == 'approved' ? Icons.verified_rounded : Icons.hourglass_top_rounded),
@@ -457,7 +457,7 @@ class _SellTabState extends State<_SellTab> with AutomaticKeepAliveClientMixin {
                   _load();
                 },
                 trailing: n['my_bid'] != null
-                    ? MkBadge(t.amkYourOffer, color: cs.tertiaryContainer, onColor: cs.onTertiaryContainer)
+                    ? MkBadge(t.amkYourOffer, color: cs.ds.successBg, onColor: cs.ds.successInk)
                     : null,
               ),
         ],
@@ -672,10 +672,10 @@ class _DealsTabState extends State<_DealsTab> with AutomaticKeepAliveClientMixin
                   ].join(' · ')),
                   const SizedBox(height: Gap.xs),
                   Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-                    MkBadge(t.amkCod, color: cs.secondaryContainer, onColor: cs.onSecondaryContainer),
-                    MkBadge(mkStatusLabel(t, '${d['status']}'), color: cs.surfaceContainerHighest, onColor: cs.onSurface),
+                    MkBadge(t.amkCod, color: cs.ds.primarySoft, onColor: cs.ds.primaryInk),
+                    MkBadge(mkStatusLabel(t, '${d['status']}'), color: cs.ds.cardHighest, onColor: cs.ds.text),
                     if (d['rating'] != null)
-                      MkBadge(t.amkStarsN(mkNum(context, d['rating'])), color: cs.tertiaryContainer, onColor: cs.onTertiaryContainer),
+                      MkBadge(t.amkStarsN(mkNum(context, d['rating'])), color: cs.ds.successBg, onColor: cs.ds.successInk),
                   ]),
                   const SizedBox(height: Gap.sm),
                   Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [

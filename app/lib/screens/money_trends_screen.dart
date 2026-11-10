@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
 import 'money_report_screen.dart';
@@ -108,7 +109,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
       // overflowing at 360 px.
       Wrap(spacing: Gap.lg, runSpacing: Gap.xs, children: [
         _legend(context, AssistoTokens.of(context).success, t.moneyMonthIncome),
-        _legend(context, Theme.of(context).colorScheme.error, t.moneyMonthExpense),
+        _legend(context, DsTokens.of(context).dangerInk, t.moneyMonthExpense),
       ]),
       const SizedBox(height: Gap.xl),
       Text(t.moneyCategoryTrends,
@@ -150,7 +151,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
               children: [
                 _bar(inc, AssistoTokens.of(context).success),
                 const SizedBox(width: 3),
-                _bar(exp, Theme.of(context).colorScheme.error),
+                _bar(exp, DsTokens.of(context).dangerInk),
               ]),
         ),
         const SizedBox(height: Gap.xs),
@@ -186,6 +187,6 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
                 BoxDecoration(color: c, borderRadius: BorderRadius.circular(3))),
         const SizedBox(width: Gap.xs),
         Text(label,
-            style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
       ]);
 }

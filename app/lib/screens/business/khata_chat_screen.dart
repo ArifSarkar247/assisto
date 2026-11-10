@@ -188,12 +188,12 @@ class _KhataChatScreenState extends State<KhataChatScreen> {
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
         child: Row(children: [
           Icon(Icons.info_outline_rounded,
-              size: 16, color: scheme.onSurfaceVariant),
+              size: 16, color: scheme.ds.muted),
           const SizedBox(width: Gap.xs),
           Expanded(
             child: Text(t.tg2ChatPrivacy,
                 style: AType.bodySmall
-                    .copyWith(color: scheme.onSurfaceVariant)),
+                    .copyWith(color: scheme.ds.muted)),
           ),
         ]),
       ),
@@ -219,7 +219,7 @@ class _KhataChatScreenState extends State<KhataChatScreen> {
             child: Text(
               _shop ? t.tg2NotReachable : t.tg2ChatBlockedYou,
               key: const ValueKey('tg2-chat-cant'),
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
             ),
           ),
         )
@@ -280,8 +280,8 @@ class _KhataChatScreenState extends State<KhataChatScreen> {
     final lang = Localizations.localeOf(context).languageCode;
     final at = DateTime.tryParse('${m['at'] ?? ''}')?.toLocal();
     final when = at == null ? '' : fmtDate('d MMM, h:mm a', at, lang);
-    final bg = mine ? scheme.primaryContainer : scheme.surfaceContainerHighest;
-    final fg = mine ? scheme.onPrimaryContainer : scheme.onSurface;
+    final bg = mine ? scheme.ds.primarySoft : scheme.ds.cardHighest;
+    final fg = mine ? scheme.ds.primaryInk : scheme.ds.text;
     return Align(
       alignment:
           mine ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,

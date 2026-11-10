@@ -291,7 +291,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
         if (_lang == 'banglish') ...[
           const SizedBox(height: Gap.xs),
           Text(t.lbWBwBanglishNote,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ],
         const SizedBox(height: Gap.lg),
         FilledButton.icon(
@@ -309,7 +309,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
           ]),
           const SizedBox(height: Gap.xs),
           Text(t.bwPlaceholderHint,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.sm),
           TextField(
             controller: _body,
@@ -394,9 +394,9 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
             child: ListTile(
               onTap: () => _openSaved(d),
               leading: CircleAvatar(
-                backgroundColor: scheme.secondaryContainer,
+                backgroundColor: scheme.ds.primarySoft,
                 child: Icon(_formatIcon((d['format'] ?? 'blog').toString()),
-                    size: 20, color: scheme.onSecondaryContainer),
+                    size: 20, color: scheme.ds.primaryInk),
               ),
               title: Text(title,
                   maxLines: 1,
@@ -406,7 +406,7 @@ class _BlogWriterScreenState extends State<BlogWriterScreen>
                 body,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: scheme.onSurfaceVariant),
+                style: TextStyle(color: scheme.ds.muted),
               ),
               trailing: IconButton(
                 icon: const Icon(Icons.delete_outline_rounded),
@@ -746,21 +746,21 @@ class _AiMarkerCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.tertiaryContainer,
+        color: scheme.ds.successBg,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.onTertiaryContainer),
+        Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.ds.successInk),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.f6BwTemplateMarker, // f6: a template draft, not AI
-                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer,
+                style: AType.bodySmall.copyWith(color: scheme.ds.successInk,
                     fontWeight: FontWeight.w700,
                     height: 1.4)),
             const SizedBox(height: Gap.xxs),
             Text(t.bwNeverAutoPost,
-                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer,
+                style: AType.bodySmall.copyWith(color: scheme.ds.successInk,
                     height: 1.4)),
           ]),
         ),
@@ -780,7 +780,7 @@ class _FullAiCard extends StatelessWidget {
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Radii.sm),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
@@ -792,7 +792,7 @@ class _FullAiCard extends StatelessWidget {
                     const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
             const SizedBox(height: Gap.xxs),
             Text(t.bwFullAiBody,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted,
                     height: 1.4)),
           ]),
         ),
@@ -822,7 +822,7 @@ class _ChipsRow extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
           style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700,
-              color: scheme.onSurfaceVariant)),
+              color: scheme.ds.muted)),
       const SizedBox(height: Gap.sm),
       Wrap(
         spacing: Gap.sm,

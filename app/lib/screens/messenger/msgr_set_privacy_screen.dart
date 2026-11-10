@@ -605,11 +605,11 @@ class _ErrorRetry extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_rounded, size: 48, color: scheme.outline),
+            Icon(Icons.cloud_off_rounded, size: 48, color: scheme.ds.muted),
             const SizedBox(height: Gap.md),
             Text(message,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: TextStyle(color: scheme.ds.muted)),
             const SizedBox(height: Gap.lg),
             FilledButton.tonalIcon(
               onPressed: () => onRetry(),
@@ -639,7 +639,7 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 48, color: scheme.outline),
+            Icon(icon, size: 48, color: scheme.ds.muted),
             const SizedBox(height: Gap.md),
             Text(text,
                 textAlign: TextAlign.center,
@@ -648,7 +648,7 @@ class _EmptyState extends StatelessWidget {
               const SizedBox(height: Gap.xs),
               Text(hint!,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant, height: 1.3)),
+                  style: TextStyle(color: scheme.ds.muted, height: 1.3)),
             ],
           ],
         ),

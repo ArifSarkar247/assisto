@@ -8,6 +8,7 @@ import '../../blood_panel_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'blood_donor_setup_screen.dart';
 import 'blood_request_detail_screen.dart';
@@ -71,7 +72,14 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
+    // designv2: the Find tab carries the red "Need blood urgently" hero, so
+    // the fixed request bar shows on the other two tabs only.
+    _tabs.addListener(_onTab);
     unawaited(_load());
+  }
+
+  void _onTab() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -300,27 +308,23 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
       // emergency action now sits in a fixed bar BELOW the list (the body is
       // laid out above it, so it can never cover anything) and the bar keeps
       // clear of the system navigation bar.
-      bottomNavigationBar: _loading || _failed
+      bottomNavigationBar: _loading || _failed || _tabs.index == 0
           ? null
-          : Material(
-              elevation: 6,
-              color: Theme.of(context).colorScheme.surfaceContainer,
+          : DecoratedBox(
+              decoration: BoxDecoration(
+                color: DsTokens.of(context).card,
+                border: Border(top: BorderSide(color: DsTokens.of(context).border)),
+              ),
               child: SafeArea(
                 top: false,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 52),
-                    child: FilledButton.icon(
-                      key: const ValueKey('bp-request-fab'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.error,
-                        foregroundColor: Theme.of(context).colorScheme.onError,
-                      ),
-                      onPressed: _newRequest,
-                      icon: const Icon(Icons.bloodtype_rounded),
-                      label: Text(t.bpRequestCta, textAlign: TextAlign.center),
-                    ),
+                  child: DsButton.danger(
+                    key: const ValueKey('bp-request-fab'),
+                    onPressed: _newRequest,
+                    icon: Icons.bloodtype_rounded,
+                    label: t.bpRequestCta,
+                    expand: true,
                   ),
                 ),
               ),
@@ -341,95 +345,84 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
       withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xl));
 
   // ------------------------------------------------------------------ find
+  // designv2 (owner's Blood donor layout, 10 Nov): red "Need blood urgently"
+  // hero with Send request → blood group 4×2 grid → distance / area →
+  // "Available near you now" → My donor card. Same data, same actions.
   Widget _findTab(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final ds = DsTokens.of(context);
     final text = Theme.of(context).textTheme;
     final districts = bpRows(_cfg, 'districts');
     final radii = ((_cfg['radius_choices'] as List?) ?? const [2, 5, 10, 25]).whereType<int>().toList();
     return ListView(
       padding: _pad(context),
       children: [
-        Text(t.bpFindLead, style: text.bodyMedium),
-        const SizedBox(height: Gap.sm),
-        // ownerfix (owner 3 Nov): the old personal list lives here now.
-        Card(
-          margin: EdgeInsets.zero,
-          child: ListTile(
-            key: const ValueKey('bp-saved'),
-            minVerticalPadding: Gap.sm,
-            leading: const Icon(Icons.contacts_rounded),
-            title: Text(t.bsvTitle),
-            subtitle: Text(_savedN == null || _savedN == 0
-                ? t.bsvTileSub
-                : bpD(context, t.bsvCount(_savedN!))),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: _openSaved,
-          ),
+        _urgentHero(context),
+        DsSectionHeader(t.bpGroupPick),
+        _groupGrid(context),
+        const SizedBox(height: Gap.md),
+        DsCard(
+          padding: const EdgeInsets.symmetric(vertical: Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Padding(
+              padding: Gap.screen,
+              child: Text(t.bpRadius, style: text.titleSmall?.copyWith(color: ds.text)),
+            ),
+            const SizedBox(height: Gap.xs),
+            DsChipRow(children: [
+              for (final r in radii)
+                DsChip(
+                  key: ValueKey('bp-r-$r'),
+                  label: bpD(context, t.bpKm(r)),
+                  selected: _radius == r,
+                  onSelected: (_) {
+                    setState(() => _radius = r);
+                    unawaited(_search());
+                  },
+                ),
+            ]),
+            const SizedBox(height: Gap.sm),
+            Padding(
+              padding: Gap.screen,
+              child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
+                DsButton.secondary(
+                  key: const ValueKey('bp-here'),
+                  onPressed: _useHere,
+                  icon: _here != null ? Icons.my_location_rounded : Icons.location_searching_rounded,
+                  label: _here != null ? t.bpHereOn : t.bpHere,
+                ),
+                // designv2: isExpanded — a long district name at 200% text
+                // wraps to its own line instead of overflowing the Wrap
+                DropdownButton<String>(
+                  key: const ValueKey('bp-district'),
+                  isExpanded: true,
+                  value: districts.any((d) => d['code'] == _district) ? _district : null,
+                  hint: Text(t.bpDistrict),
+                  underline: const SizedBox.shrink(),
+                  items: [
+                    for (final d in districts)
+                      DropdownMenuItem(value: '${d['code']}', child: Text('${d['name']}')),
+                  ],
+                  onChanged: (v) {
+                    setState(() {
+                      _district = v ?? '';
+                      _here = null;
+                    });
+                    unawaited(_search());
+                  },
+                ),
+              ]),
+            ),
+          ]),
         ),
-        const SizedBox(height: Gap.md),
-        Text(t.bpGroupPick, style: text.titleSmall),
-        const SizedBox(height: Gap.xs),
-        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-          for (final g in kBloodGroups)
-            ChoiceChip(
-              key: ValueKey('bp-g-$g'),
-              label: Text(g),
-              selected: _group == g,
-              onSelected: (on) {
-                setState(() => _group = on ? g : '');
-                unawaited(_search());
-              },
-            ),
-        ]),
-        const SizedBox(height: Gap.md),
-        Text(t.bpRadius, style: text.titleSmall),
-        const SizedBox(height: Gap.xs),
-        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-          for (final r in radii)
-            ChoiceChip(
-              key: ValueKey('bp-r-$r'),
-              label: Text(bpD(context, t.bpKm(r))),
-              selected: _radius == r,
-              onSelected: (_) {
-                setState(() => _radius = r);
-                unawaited(_search());
-              },
-            ),
-        ]),
-        const SizedBox(height: Gap.md),
-        Text(t.bpWhere, style: text.titleSmall),
-        const SizedBox(height: Gap.xs),
-        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 48),
-            child: OutlinedButton.icon(
-              key: const ValueKey('bp-here'),
-              onPressed: _useHere,
-              icon: Icon(_here != null ? Icons.my_location_rounded : Icons.location_searching_rounded),
-              label: Text(_here != null ? t.bpHereOn : t.bpHere),
-            ),
-          ),
-          DropdownButton<String>(
-            key: const ValueKey('bp-district'),
-            value: districts.any((d) => d['code'] == _district) ? _district : null,
-            hint: Text(t.bpDistrict),
-            items: [
-              for (final d in districts)
-                DropdownMenuItem(value: '${d['code']}', child: Text('${d['name']}')),
-            ],
-            onChanged: (v) {
-              setState(() {
-                _district = v ?? '';
-                _here = null;
-              });
-              unawaited(_search());
-            },
-          ),
-        ]),
         // finish1 (owner final): no "now only" filter — a donor is never
         // hidden; the list is sorted (can donate now, nearest first).
-        const SizedBox(height: Gap.sm),
-        if (_searching) const Center(child: Padding(padding: EdgeInsets.all(Gap.lg), child: CircularProgressIndicator())),
+        DsSectionHeader(t.dsBloodNearNow),
+        if (_searching) ...[
+          DsSkeleton.card(lines: 2),
+          const SizedBox(height: Gap.md),
+          DsSkeleton.card(lines: 2),
+        ],
         if (!_searching && !_searched)
           BpEmpty(
             icon: Icons.travel_explore_rounded,
@@ -440,7 +433,8 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
             onCta: _useHere,
           ),
         if (!_searching && _searched && _searchErr != null)
-          Text(bpReason(t, _searchErr == 'error' ? null : _searchErr)),
+          Text(bpReason(t, _searchErr == 'error' ? null : _searchErr),
+              style: text.bodyMedium?.copyWith(color: ds.dangerInk)),
         if (!_searching && _searched && _searchErr == null && _donors.isEmpty)
           BpEmpty(
             icon: Icons.bloodtype_outlined,
@@ -459,34 +453,215 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
                     (_counts['total'] as num?)?.toInt() ?? _donors.length,
                     (_counts['available'] as num?)?.toInt() ?? 0,
                     (_counts['soon'] as num?)?.toInt() ?? 0)),
-                style: text.titleSmall),
+                style: text.bodyMedium?.copyWith(color: ds.muted)),
           ),
           const SizedBox(height: Gap.sm),
           for (final d in _donors) _donorCard(context, d),
           Text(t.bpDoctorDecides,
               key: const ValueKey('bp-doctor-decides'),
-              style: text.bodySmall?.copyWith(fontStyle: FontStyle.italic)),
+              style: text.bodySmall?.copyWith(fontStyle: FontStyle.italic, color: ds.muted)),
         ],
+        DsSectionHeader(t.dsBloodMyCard),
+        _myDonorCard(context),
+        const SizedBox(height: Gap.md),
+        // ownerfix (owner 3 Nov): the old personal list lives here now.
+        DsCard(
+          padding: EdgeInsets.zero,
+          child: DsListRow(
+            key: const ValueKey('bp-saved'),
+            leading: DsAvatar(child: Icon(Icons.contacts_rounded, color: ds.primaryInk, size: 22)),
+            title: t.bsvTitle,
+            subtitle: _savedN == null || _savedN == 0
+                ? t.bsvTileSub
+                : bpD(context, t.bsvCount(_savedN!)),
+            trailing: Icon(Icons.chevron_right_rounded, color: ds.muted),
+            onTap: _openSaved,
+          ),
+        ),
         const SizedBox(height: Gap.lg),
         const BpPrivacyCard(),
       ],
     );
   }
 
+  /// The red urgent hero: the most important action comes first.
+  Widget _urgentHero(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final ds = DsTokens.of(context);
+    final text = Theme.of(context).textTheme;
+    return DsHeroCard(
+      danger: true,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: ds.onDangerHero.withValues(alpha: 0.18),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.bloodtype_rounded, color: ds.onDangerHero, size: 28),
+          ),
+          const SizedBox(width: Gap.md),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(t.dsBloodHeroTitle,
+                  style: text.titleLarge?.copyWith(color: ds.onDangerHero)),
+              const SizedBox(height: Gap.xxs),
+              Text(t.dsBloodHeroSub,
+                  style: text.bodyMedium?.copyWith(color: ds.onDangerHeroSoft)),
+            ]),
+          ),
+        ]),
+        const SizedBox(height: Gap.md),
+        FilledButton.icon(
+          key: const ValueKey('bp-hero-request'),
+          style: FilledButton.styleFrom(
+            backgroundColor: ds.onDangerHero,
+            foregroundColor: ds.dangerHero.last,
+            minimumSize: const Size(kMinTap, kMinTap + 4),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(DsRadius.button)),
+          ),
+          onPressed: _newRequest,
+          icon: const Icon(Icons.send_rounded),
+          label: Text(t.dsBloodHeroCta, textAlign: TextAlign.center),
+        ),
+      ]),
+    );
+  }
+
+  /// Blood group 4 × 2 grid (rows of Expanded cells — grows with the font,
+  /// never overflows).
+  Widget _groupGrid(BuildContext context) {
+    final ds = DsTokens.of(context);
+    final text = Theme.of(context).textTheme;
+    Widget cell(String g) {
+      final on = _group == g;
+      return Expanded(
+        child: Padding(
+          padding: const EdgeInsets.all(Gap.xs),
+          child: Semantics(
+            selected: on,
+            button: true,
+            label: AppLocalizations.of(context).bpGroupLabel(g),
+            child: DsSurface(
+              key: ValueKey('bp-g-$g'),
+              padding: const EdgeInsets.symmetric(vertical: Gap.md),
+              color: on ? ds.dangerFill : null,
+              borderColor: on ? ds.dangerFill : null,
+              onTap: () {
+                setState(() => _group = on ? '' : g);
+                unawaited(_search());
+              },
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: kMinTap - Gap.md),
+                child: Center(
+                  child: ExcludeSemantics(child: FittedBox(fit: BoxFit.scaleDown, child: Text(g, maxLines: 1,
+                      style: text.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.4,
+                        color: on ? ds.onDangerFill : ds.dangerInk,
+                      )))),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Column(children: [
+      for (var row = 0; row < 2; row++)
+        Row(children: [for (final g in kBloodGroups.skip(row * 4).take(4)) cell(g)]),
+    ]);
+  }
+
+  /// My donor card: next eligible date, last donation, the listed switch.
+  Widget _myDonorCard(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final ds = DsTokens.of(context);
+    final text = Theme.of(context).textTheme;
+    final me = _me;
+    if (!_isDonor) {
+      return DsCard(
+        padding: EdgeInsets.zero,
+        child: DsListRow(
+          key: const ValueKey('bp-find-become'),
+          leading: DsAvatar(
+              color: ds.dangerInk,
+              child: Icon(Icons.volunteer_activism_rounded, color: ds.dangerInk, size: 22)),
+          title: me['consented'] == true ? t.bpResume : t.bpBecomeTitle,
+          subtitle: t.bpNearNeedsDonor,
+          trailing: Icon(Icons.chevron_right_rounded, color: ds.muted),
+          onTap: _becomeDonor,
+        ),
+      );
+    }
+    final listed = me['available'] == true;
+    final eligible = me['eligible'] == true;
+    return DsCard(
+      key: const ValueKey('bp-my-card'),
+      onTap: () => _tabs.animateTo(2),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [
+          BpGroupBadge('${me['blood_group'] ?? ''}', size: 52),
+          const SizedBox(width: Gap.md),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                DsStatusDot(color: eligible ? ds.success : ds.muted, pulse: eligible && listed),
+                const SizedBox(width: Gap.xs),
+                Flexible(
+                  child: Text(
+                    eligible ? t.dsBloodCanGiveNow : t.bpAgainOn(bpDate(context, me['next_date'] as String?)),
+                    style: text.titleSmall?.copyWith(color: eligible ? ds.successInk : ds.text),
+                  ),
+                ),
+              ]),
+              if (me['last_donation'] != null)
+                Text(t.bpLastOn(bpDate(context, me['last_donation'] as String?)),
+                    style: text.bodyMedium?.copyWith(color: ds.muted)),
+            ]),
+          ),
+        ]),
+        const Divider(height: Gap.xl),
+        MergeSemantics(
+          child: Row(children: [
+            Expanded(
+              child: Text(t.dsBloodListedToggle,
+                  style: text.bodyLarge?.copyWith(color: ds.text, fontWeight: FontWeight.w600)),
+            ),
+            Switch(
+              key: const ValueKey('bp-listed-switch'),
+              value: listed,
+              onChanged: (_) => _toggleAvailable(),
+            ),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  /// "Available near you now" row: group, first name, area + distance,
+  /// status; message (in-app) + call only when the donor made it public.
+  /// Never an address.
   Widget _donorCard(BuildContext context, Map<String, dynamic> d) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
+    final text = Theme.of(context).textTheme;
     final phone = d['phone'] as String?;
     final km = d['km'];
+    final helped = (d['helped'] as num?)?.toInt() ?? 0;
     final area = [
       if ('${d['area_text'] ?? ''}'.isNotEmpty) '${d['area_text']}',
       if ('${d['district_name'] ?? ''}'.isNotEmpty) '${d['district_name']}',
       if (km is int) t.bpAboutKm(km),
     ].join(' · ');
-    return Card(
+    final hasPhone = phone != null && phone.isNotEmpty;
+    return Padding(
       key: ValueKey('bp-donor-${d['id']}'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+      padding: const EdgeInsets.only(bottom: Gap.md),
+      child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -494,9 +669,20 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
             const SizedBox(width: Gap.md),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('${d['name'] ?? ''}', style: Theme.of(context).textTheme.titleMedium),
+                Text('${d['name'] ?? ''}',
+                    style: text.titleMedium?.copyWith(color: ds.text)),
                 if (d['verified'] == true) const BpVerifiedChip(),
-                Text(bpD(context, area), style: TextStyle(color: s.onSurfaceVariant)),
+                Row(children: [
+                  Icon(Icons.place_outlined, size: 16, color: ds.muted),
+                  const SizedBox(width: Gap.xxs),
+                  Flexible(
+                    child: Text(bpD(context, area),
+                        style: text.bodyMedium?.copyWith(color: ds.muted)),
+                  ),
+                ]),
+                if (helped > 0)
+                  Text(bpD(context, t.bpHelped(helped)),
+                      style: text.bodySmall?.copyWith(color: ds.muted)),
                 const SizedBox(height: Gap.xs),
                 BpDonorStatus(donor: d),
               ]),
@@ -504,40 +690,32 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
           ]),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: FilledButton.tonalIcon(
-                key: ValueKey('bp-donor-msg-${d['id']}'),
-                onPressed: () => _message(d),
-                icon: const Icon(Icons.chat_bubble_outline_rounded),
-                label: Text(t.bpMessage),
-              ),
+            DsButton(
+              key: ValueKey('bp-donor-msg-${d['id']}'),
+              onPressed: () => _message(d),
+              icon: Icons.chat_bubble_outline_rounded,
+              label: t.bpMessage,
             ),
-            if (phone != null && phone.isNotEmpty) ...[
-              ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 48),
-                child: OutlinedButton.icon(
-                  key: ValueKey('bp-donor-call-${d['id']}'),
-                  onPressed: () => bpLaunch(context, 'tel', phone),
-                  icon: const Icon(Icons.call_rounded),
-                  label: Text(t.bpCall),
-                ),
+            if (hasPhone) ...[
+              DsButton.secondary(
+                key: ValueKey('bp-donor-call-${d['id']}'),
+                onPressed: () => bpLaunch(context, 'tel', phone ?? ''),
+                icon: Icons.call_rounded,
+                label: t.bpCall,
               ),
-              ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 48),
-                child: OutlinedButton.icon(
-                  key: ValueKey('bp-donor-sms-${d['id']}'),
-                  onPressed: () => bpLaunch(context, 'sms', phone),
-                  icon: const Icon(Icons.sms_outlined),
-                  label: Text(t.bpSms),
-                ),
+              DsButton.secondary(
+                key: ValueKey('bp-donor-sms-${d['id']}'),
+                onPressed: () => bpLaunch(context, 'sms', phone ?? ''),
+                icon: Icons.sms_outlined,
+                label: t.bpSms,
               ),
             ],
           ]),
-          if (phone == null || phone.isEmpty)
+          if (!hasPhone)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
-              child: Text(t.bpNumberPrivate, style: Theme.of(context).textTheme.bodySmall),
+              child: Text(t.bpNumberPrivate,
+                  style: text.bodySmall?.copyWith(color: ds.muted)),
             ),
         ]),
       ),

@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../state.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/famacct_section.dart';
@@ -358,7 +359,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
           Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Text(t.familyCheckToConfirm,
-                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))),
+                  style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted))),
         ]);
   }
 
@@ -427,14 +428,14 @@ class _FamilyScreenState extends State<FamilyScreen> {
             CircleAvatar(
               backgroundColor: taken
                   ? Brand.success.withValues(alpha: 0.15)
-                  : scheme.surfaceContainerHighest,
+                  : DsTokens.of(context).cardHighest,
               child: Icon(
                   taken
                       ? Icons.check_rounded
                       : skipped
                           ? Icons.remove_rounded
                           : Icons.medication_rounded,
-                  color: taken ? Brand.success : scheme.onSurfaceVariant),
+                  color: taken ? Brand.success : DsTokens.of(context).muted),
             ),
             const SizedBox(width: Gap.md),
             Expanded(
@@ -446,7 +447,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                     if (subtitle.isNotEmpty) ...[
                       const SizedBox(height: Gap.xs),
                       Text(subtitle,
-                          style: TextStyle(color: scheme.onSurfaceVariant)),
+                          style: TextStyle(color: DsTokens.of(context).muted)),
                     ],
                   ]),
             ),
@@ -676,7 +677,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   Padding(
                     padding: const EdgeInsets.only(top: Gap.sm),
                     child: Text(t.medPushGatedNote,
-                        style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
                   ),
               ]),
               actions: [
@@ -744,7 +745,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   Text(m['name'] ?? '',
                       style: Theme.of(context).textTheme.titleMedium),
                   if (sub.isNotEmpty)
-                    Text(sub, style: TextStyle(color: scheme.onSurfaceVariant)),
+                    Text(sub, style: TextStyle(color: DsTokens.of(context).muted)),
                 ]),
               ),
               if (adh != null && !prn)
@@ -779,10 +780,10 @@ class _FamilyScreenState extends State<FamilyScreen> {
               const SizedBox(height: Gap.xs),
               Row(children: [
                 Icon(Icons.event_repeat_rounded,
-                    size: 16, color: scheme.onSurfaceVariant),
+                    size: 16, color: DsTokens.of(context).muted),
                 const SizedBox(width: Gap.xs),
                 Text(t.medPredictedRefill(m['predicted_refill'].toString()),
-                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
               ]),
             ],
             const SizedBox(height: Gap.xs),
@@ -819,7 +820,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
       for (final p in people) _personCard(p, t, scheme),
       const SizedBox(height: Gap.sm),
       Card(
-        color: scheme.surfaceContainerHighest,
+        color: DsTokens.of(context).cardHighest,
         child: ListTile(
           leading: const Icon(Icons.picture_as_pdf_rounded),
           title: Text(t.medDoctorPdf),
@@ -831,11 +832,11 @@ class _FamilyScreenState extends State<FamilyScreen> {
         Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Row(children: [
-            Icon(Icons.info_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
+            Icon(Icons.info_outline_rounded, size: 16, color: DsTokens.of(context).muted),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.medPushGatedNote,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
+                    style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted))),
           ]),
         ),
     ]);
@@ -876,9 +877,9 @@ class _FamilyScreenState extends State<FamilyScreen> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               CircleAvatar(
-                backgroundColor: scheme.secondaryContainer,
+                backgroundColor: DsTokens.of(context).primarySoft,
                 child: Icon(isSelf ? Icons.person_rounded : Icons.elderly_rounded,
-                    color: scheme.onSecondaryContainer),
+                    color: DsTokens.of(context).primaryInk),
               ),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -886,7 +887,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                   Text(isSelf ? t.medForSelf : (p['name'] ?? ''),
                       style: Theme.of(context).textTheme.titleMedium),
                   Text(t.medTakenOfTotal(taken, due),
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                      style: TextStyle(color: DsTokens.of(context).muted)),
                 ]),
               ),
               if ((p['phone']?.toString() ?? '').trim().isNotEmpty)
@@ -906,7 +907,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               ])
             else if (nextDue != null)
               Row(children: [
-                Icon(Icons.schedule_rounded, size: 18, color: scheme.onSurfaceVariant),
+                Icon(Icons.schedule_rounded, size: 18, color: DsTokens.of(context).muted),
                 const SizedBox(width: Gap.sm),
                 Text(t.medNextDose(nextDue)),
               ]),
@@ -1161,7 +1162,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
               ),
               if (p['date'] != null)
                 Text(p['date'].toString(),
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
               IconButton(
                   icon: const Icon(Icons.edit_rounded),
                   tooltip: t.edit,

@@ -359,7 +359,7 @@ class _FilingScreenState extends State<FilingScreen> {
           if (notes.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(notes,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.3),
+                style: TextStyle(color: scheme.ds.muted, height: 1.3),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis),
           ],
@@ -386,7 +386,7 @@ class _FilingScreenState extends State<FilingScreen> {
             ]),
             const SizedBox(height: 2),
             Text(extracted,
-                style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
+                style: TextStyle(fontSize: 12.5, color: scheme.ds.muted),
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis),
           ],
@@ -445,11 +445,11 @@ class _FilingScreenState extends State<FilingScreen> {
   Widget _meta(IconData icon, String text, ColorScheme scheme) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 15, color: scheme.onSurfaceVariant),
+          Icon(icon, size: 15, color: scheme.ds.muted),
           const SizedBox(width: 4),
           Text(text,
               style:
-                  TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  TextStyle(fontSize: 12.5, color: scheme.ds.muted)),
         ],
       );
 }
@@ -470,7 +470,7 @@ class _OcrSeamCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
       child: Card(
         margin: EdgeInsets.zero,
-        color: scheme.secondaryContainer.withValues(alpha: 0.4),
+        color: scheme.ds.primarySoft.withValues(alpha: 0.4),
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -487,7 +487,7 @@ class _OcrSeamCard extends StatelessWidget {
                     Text(ready ? tr.paFileOcrReadyBody : tr.paFileOcrSeamBody,
                         style: TextStyle(
                             fontSize: 12,
-                            color: scheme.onSurfaceVariant,
+                            color: scheme.ds.muted,
                             height: 1.35)),
                   ]),
             ),

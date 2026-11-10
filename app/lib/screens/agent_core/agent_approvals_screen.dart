@@ -130,7 +130,7 @@ class _AgentApprovalsScreenState extends State<AgentApprovalsScreen> {
                 padding: const EdgeInsets.only(bottom: Gap.md),
                 child: Text(t.acApGone,
                     key: const ValueKey('ac_focus_gone'),
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
               ),
             if (ordered.isEmpty)
               AcMessage(icon: Icons.verified_user_outlined, body: t.acApprovalsEmpty),

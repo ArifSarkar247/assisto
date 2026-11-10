@@ -139,7 +139,7 @@ class _ScamScreenState extends State<ScamScreen> {
         Container(
           padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: Theme.of(context).colorScheme.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(children: [

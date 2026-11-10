@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'money_common.dart';
 import '../widgets/bn_day_periods.dart' show appDateLocale;
 import 'package:assisto/widgets/app_sheet.dart';
@@ -153,7 +154,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                         color: given ? AssistoTokens.of(context).warning : scheme.primary),
                     const SizedBox(width: Gap.sm),
                     Text(given ? t.moneyLoanGiven : t.moneyLoanTaken,
-                        style: TextStyle(color: scheme.onSurfaceVariant)),
+                        style: TextStyle(color: DsTokens.of(context).muted)),
                     const Spacer(),
                     if (_settled)
                       Chip(
@@ -163,7 +164,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                   ]),
                   const SizedBox(height: Gap.md),
                   Text(t.moneyLoanBalance,
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                      style: TextStyle(color: DsTokens.of(context).muted)),
                   Text(tkFmt(_balance),
                       style: AType.headlineLarge.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.bold)),
                   const SizedBox(height: Gap.sm),
@@ -176,7 +177,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                   ),
                   const SizedBox(height: Gap.xs),
                   Text(t.moneyLoanPaidOf(tkFmt(_paid), tkFmt(principal)),
-                      style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, color: DsTokens.of(context).muted)),
                 ]),
           ),
         ),
@@ -222,7 +223,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                         style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
                     Text(t.moneyLoanBalanceLabel(tkFmt(e['balance'])),
                         style:
-                            AType.labelSmall.copyWith(fontFeatures: AFonts.tabular, color: scheme.onSurfaceVariant)),
+                            AType.labelSmall.copyWith(fontFeatures: AFonts.tabular, color: DsTokens.of(context).muted)),
                   ])),
             ),
           ),

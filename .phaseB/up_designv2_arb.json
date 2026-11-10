@@ -1,0 +1,46 @@
+{
+ "en": {
+  "dsBloodHeroTitle": "Need blood urgently?",
+  "@dsBloodHeroTitle": {
+   "description": "designv2: blood donor hub red hero title"
+  },
+  "dsBloodHeroSub": "Donors near you get your request within a minute.",
+  "@dsBloodHeroSub": {
+   "description": "designv2: blood donor hub red hero subtitle"
+  },
+  "dsBloodHeroCta": "Send request",
+  "@dsBloodHeroCta": {
+   "description": "designv2: blood donor hub red hero button"
+  },
+  "dsBloodNearNow": "Available near you now",
+  "@dsBloodNearNow": {
+   "description": "designv2: blood donor list section title"
+  },
+  "dsBloodMyCard": "My donor card",
+  "@dsBloodMyCard": {
+   "description": "designv2: blood donor own card section title"
+  },
+  "dsBloodCanGiveNow": "You can give blood now",
+  "@dsBloodCanGiveNow": {
+   "description": "designv2: my donor card, eligible now"
+  },
+  "dsBloodListedToggle": "Show me in the donor list",
+  "@dsBloodListedToggle": {
+   "description": "designv2: my donor card listed switch label"
+  },
+  "ds2SosHoldLine": "Hold 1 second — your family gets your location.",
+  "@ds2SosHoldLine": {
+   "description": "designv2: one short line under the big SOS button (page rule: no paragraph)"
+  }
+ },
+ "bn": {
+  "dsBloodHeroTitle": "জরুরি রক্ত লাগবে?",
+  "dsBloodHeroSub": "এক মিনিটের মধ্যে কাছের রক্তদাতারা আপনার অনুরোধ পাবেন।",
+  "dsBloodHeroCta": "অনুরোধ পাঠান",
+  "dsBloodNearNow": "এখন আপনার কাছে আছেন",
+  "dsBloodMyCard": "আমার রক্তদাতা কার্ড",
+  "dsBloodCanGiveNow": "আপনি এখন রক্ত দিতে পারেন",
+  "dsBloodListedToggle": "রক্তদাতার তালিকায় আমাকে দেখান",
+  "ds2SosHoldLine": "১ সেকেন্ড চেপে ধরুন — পরিবার আপনার লোকেশন পাবে।"
+ }
+}

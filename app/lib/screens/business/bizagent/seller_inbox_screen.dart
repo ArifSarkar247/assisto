@@ -511,7 +511,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
     return Material(
       color: handover || pausedUntil.isNotEmpty
           ? AssistoTokens.of(context).warning.withValues(alpha: 0.12)
-          : Theme.of(context).colorScheme.surfaceContainerHighest,
+          : Theme.of(context).colorScheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -854,8 +854,8 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
             color: pending
                 ? AssistoTokens.of(context).warning.withValues(alpha: 0.14)
                 : out
-                    ? scheme.primaryContainer
-                    : scheme.surfaceContainerHighest,
+                    ? scheme.ds.primarySoft
+                    : scheme.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.md),
             border: failed ? Border.all(color: Theme.of(context).colorScheme.error) : null,
           ),
@@ -865,7 +865,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
                 padding: const EdgeInsets.only(bottom: Gap.xs),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Icon(kind == 'image' ? Icons.image_rounded : Icons.mic_none_rounded,
-                      size: 16, color: scheme.onSurfaceVariant),
+                      size: 16, color: scheme.ds.muted),
                   const SizedBox(width: Gap.xs),
                   Flexible(
                     child: Text(kind == 'image' ? t.g1PhotoFromCustomer : t.g1VoiceFromCustomer,
@@ -886,12 +886,12 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
               Text(bd(context, m['text']),
                   style: TextStyle(
                       height: 1.4,
-                      color: out ? scheme.onPrimaryContainer : scheme.onSurface)),
+                      color: out ? scheme.ds.primaryInk : scheme.ds.text)),
             if (meta.isNotEmpty) ...[
               const SizedBox(height: Gap.xs),
               Text(bd(context, meta),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: out ? scheme.onPrimaryContainer : scheme.onSurfaceVariant)),
+                      color: out ? scheme.ds.primaryInk : scheme.ds.muted)),
             ],
           ]),
         ),

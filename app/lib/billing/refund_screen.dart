@@ -6,6 +6,7 @@ import '../plans_v2/plans_v2.dart' show planName;
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/skeleton.dart';
 import 'billing_api.dart';
@@ -97,7 +98,7 @@ class _RefundScreenState extends State<RefundScreen> {
               ? StateMessage(
                   key: const Key('refund-error'),
                   icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
+                  tint: DsTokens.of(context).dangerInk,
                   title: t.loadFailed,
                   message: honestFailText(t, _fail, otherwise: t.loadFailedBody),
                   action: FilledButton.tonalIcon(
@@ -136,7 +137,7 @@ class _RefundScreenState extends State<RefundScreen> {
           padding: const EdgeInsets.symmetric(vertical: Gap.md),
           child: Text(t.billRefundNoPurchases,
               key: const Key('refund-empty'),
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: DsTokens.of(context).muted)),
         )
       else
         for (final p in page.purchases) _purchaseCard(t, scheme, p, page.windowHours),
@@ -181,7 +182,7 @@ class _RefundScreenState extends State<RefundScreen> {
           Wrap(spacing: Gap.sm, runSpacing: Gap.xxs, children: [
             if (p.purchasedAt != null)
               Text(t.billRefundBoughtOn(billDateTime(context, p.purchasedAt!)),
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
             if (p.test)
               Text(t.billRefundTest,
                   style: AType.bodySmall.copyWith(
@@ -203,7 +204,7 @@ class _RefundScreenState extends State<RefundScreen> {
           ] else
             Text(why!,
                 key: ValueKey('refund-why-${p.id}'),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
         ]),
       ),
     );
@@ -238,7 +239,7 @@ class RefundStatusTile extends StatelessWidget {
           Brand.onTint(context, Brand.success), Icons.check_circle_rounded),
       'manual' => (t.billRefundStatusManual(money(context, r.approvedAmount, cur)),
           Brand.onTint(context, Brand.success), Icons.schedule_send_rounded),
-      'rejected' => (t.billRefundStatusRejected, scheme.error, Icons.cancel_rounded),
+      'rejected' => (t.billRefundStatusRejected, DsTokens.of(context).dangerInk, Icons.cancel_rounded),
       _ => (t.billRefundStatusPending, scheme.primary, Icons.hourglass_top_rounded),
     };
     return Card(
@@ -253,13 +254,13 @@ class RefundStatusTile extends StatelessWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (p != null)
                 Text(purchaseName(t, p),
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
               Text(label,
                   key: ValueKey('refund-status-${r.id}'),
                   style: TextStyle(fontWeight: FontWeight.w700, color: c)),
               if (r.requestedAt != null)
                 Text(t.billRefundRequestedOn(billDateTime(context, r.requestedAt!)),
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
               if (r.note.trim().isNotEmpty) ...[
                 const SizedBox(height: Gap.xxs),
                 Text(t.billRefundOwnerNote(r.note.trim())),
@@ -345,7 +346,7 @@ class _RefundRequestSheetState extends State<RefundRequestSheet> {
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: Gap.xxs),
           Text('${purchaseName(t, p)} · ${money(context, p.price, p.currency)}',
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.md),
           if (p.suggested != null)
             Text(t.billRefundSuggested(money(context, p.suggested!, p.currency)),
@@ -373,9 +374,9 @@ class _RefundRequestSheetState extends State<RefundRequestSheet> {
           Container(
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerLow,
+              color: DsTokens.of(context).card,
               borderRadius: BorderRadius.circular(Radii.md),
-              border: Border.all(color: scheme.outlineVariant),
+              border: Border.all(color: DsTokens.of(context).border),
             ),
             child: Text(t.billRefundNoPromise,
                 key: const Key('refund-no-promise'),
@@ -384,7 +385,7 @@ class _RefundRequestSheetState extends State<RefundRequestSheet> {
           if (widget.policyText.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(uiDigits(context, widget.policyText),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted, height: 1.4)),
           ],
           if (_error.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
@@ -392,12 +393,12 @@ class _RefundRequestSheetState extends State<RefundRequestSheet> {
               key: const Key('refund-error-note'),
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                color: scheme.errorContainer,
+                color: DsTokens.of(context).dangerBg,
                 borderRadius: BorderRadius.circular(Radii.md),
               ),
               child: Semantics(
                 liveRegion: true,
-                child: Text(_error, style: TextStyle(color: scheme.onErrorContainer)),
+                child: Text(_error, style: TextStyle(color: DsTokens.of(context).dangerInk)),
               ),
             ),
           ],
@@ -451,7 +452,7 @@ class _Box extends StatelessWidget {
             Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xxs),
             Text(body,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted, height: 1.4)),
           ]),
         ),
       ]),

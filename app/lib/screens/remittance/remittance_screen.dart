@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../widgets/voice_input.dart';
 import 'remit_entry_screen.dart';
@@ -457,7 +458,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
               style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.xs),
           Text(t.rhbMonthBenefit,
-              textAlign: TextAlign.center, style: TextStyle(color: scheme.onSurfaceVariant)),
+              textAlign: TextAlign.center, style: TextStyle(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.md),
           SizedBox(
             height: 56,
@@ -471,7 +472,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
           const SizedBox(height: Gap.md),
           Card(
             margin: EdgeInsets.zero,
-            color: scheme.surfaceContainerHighest,
+            color: DsTokens.of(context).cardHighest,
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Column(
@@ -544,7 +545,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                       value: ((num.tryParse('${r['pct'] ?? 0}') ?? 0) / 100).clamp(0.0, 1.0).toDouble(),
                       minHeight: 8,
                       color: scheme.primary,
-                      backgroundColor: scheme.surfaceContainerHighest,
+                      backgroundColor: DsTokens.of(context).cardHighest,
                     ),
                   ),
                 ],
@@ -687,8 +688,8 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
         Icons.check_circle_outline_rounded,
         t.rmtExpArrived(amount),
       ),
-      'future' => (scheme.surfaceContainerHighest, scheme.onSurfaceVariant, Icons.event_rounded, t.rmtExpFuture),
-      _ => (scheme.surfaceContainerHighest, scheme.onSurfaceVariant, Icons.event_repeat_rounded, t.rmtExpNone),
+      'future' => (DsTokens.of(context).cardHighest, DsTokens.of(context).muted, Icons.event_rounded, t.rmtExpFuture),
+      _ => (DsTokens.of(context).cardHighest, DsTokens.of(context).muted, Icons.event_repeat_rounded, t.rmtExpNone),
     };
     return Card(
       key: ValueKey('rmt_expected_$status'),
@@ -742,8 +743,8 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
-                  backgroundColor: scheme.primaryContainer,
-                  child: Icon(rmChannelIcon('${e['channel']}'), color: scheme.onPrimaryContainer),
+                  backgroundColor: DsTokens.of(context).primarySoft,
+                  child: Icon(rmChannelIcon('${e['channel']}'), color: DsTokens.of(context).primaryInk),
                 ),
                 const SizedBox(width: Gap.md),
                 Expanded(
@@ -862,7 +863,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
     final actual = rmNum(l['actual']);
     final state = '${l['state']}';
     final color = switch (state) {
-      'over' => scheme.error,
+      'over' => DsTokens.of(context).dangerInk,
       'near' => tokens.warning,
       'ok' => tokens.success,
       _ => scheme.primary,
@@ -887,7 +888,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
             children: [
               Row(
                 children: [
-                  Icon(rmCategoryIcon(key), size: 20, color: scheme.onSurfaceVariant),
+                  Icon(rmCategoryIcon(key), size: 20, color: DsTokens.of(context).muted),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(rmCategory(t, key), style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -918,7 +919,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                     value: pct,
                     minHeight: 8,
                     color: color,
-                    backgroundColor: scheme.surfaceContainerHighest,
+                    backgroundColor: DsTokens.of(context).cardHighest,
                   ),
                 ),
               ],
@@ -975,7 +976,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
               value: pct / 100,
               minHeight: 10,
               color: tokens.success,
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              backgroundColor: DsTokens.of(context).cardHighest,
             ),
           ),
         ),
@@ -1068,8 +1069,8 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                     else
                       RmChip(
                         t.rmtBillReminderOn,
-                        bg: Theme.of(context).colorScheme.secondaryContainer,
-                        fg: Theme.of(context).colorScheme.onSecondaryContainer,
+                        bg: DsTokens.of(context).primarySoft,
+                        fg: DsTokens.of(context).primaryInk,
                       ),
                   ],
                 ),
@@ -1104,7 +1105,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                   RmStat(
                     t.rmtLeft,
                     rmTaka(context, plan['left']),
-                    color: rmNum(plan['left']) < 0 ? Theme.of(context).colorScheme.error : null,
+                    color: rmNum(plan['left']) < 0 ? DsTokens.of(context).dangerInk : null,
                   ),
                 ],
               ),
@@ -1244,7 +1245,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                                 value: maxM > 0 ? months[i] / maxM : 0,
                                 minHeight: 8,
                                 color: scheme.primary,
-                                backgroundColor: scheme.surfaceContainerHighest,
+                                backgroundColor: DsTokens.of(context).cardHighest,
                               ),
                             ),
                           ],

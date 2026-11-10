@@ -12,6 +12,7 @@ import '../push/lock_screen_guard.dart';
 import '../push/push_notifier.dart';
 import '../services/action_feedback.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../train/dest_alarm_sound.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
@@ -204,10 +205,12 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
 
   String _dg(String s) => notifLocalizeDigits(context, s);
 
+  TextStyle get _base => Theme.of(context).textTheme.bodyMedium!;
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final d = _d;
     final name = '${(d?['sender'] as Map?)?['name'] ?? widget.data['from_name'] ?? ''}';
     final fall = '${d?['kind'] ?? widget.data['alert_kind'] ?? 'sos'}' == 'fall';
@@ -217,7 +220,7 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
     final meGoing = d?['me_going'] == true;
     return Scaffold(
       key: const ValueKey('fcs-alarm'),
-      backgroundColor: s.surface,
+      backgroundColor: ds.bg,
       body: SafeArea(
         child: ListView(
           padding: withNavBarInset(context, EdgeInsets.zero),
@@ -263,16 +266,16 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
                           key: const ValueKey('fcs-call-sender'),
                           icon: Icons.call_rounded,
                           label: t.fcsCallName(name),
-                          color: s.primary,
-                          fg: s.onPrimary,
+                          color: ds.primary,
+                          fg: ds.onPrimary,
                           onTap: () => _open(Uri.parse('tel:$phone'), 'fcsos.call'),
                         )),
                   _half(SosBigButton(
                     key: const ValueKey('fcs-call-emergency'),
                     icon: Icons.local_police_rounded,
                     label: _dg(t.fcsCallEmergency(em.primary.number)),
-                    color: s.surfaceContainerHighest,
-                    fg: s.onSurface,
+                    color: ds.card,
+                    fg: ds.text,
                     onTap: () => _open(Uri.parse('tel:${em.primary.dial}'), 'fcsos.emergency'),
                   )),
                 ]),
@@ -286,9 +289,9 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
                   ),
                 ],
                 const SizedBox(height: Gap.md),
-                _where(t, s, d),
+                _where(t, ds, d),
                 const SizedBox(height: Gap.md),
-                _soundCard(t, s, d, state),
+                _soundCard(t, ds, d, state),
                 const SizedBox(height: Gap.md),
                 SosGoingList(
                   going: ((d?['going'] as List?) ?? const [])
@@ -299,13 +302,13 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
                   empty: t.fcsGoingNobody,
                 ),
                 const SizedBox(height: Gap.md),
-                _nearby(t, s, d),
+                _nearby(t, ds, d),
                 if (d?['info'] is Map) ...[
                   const SizedBox(height: Gap.md),
-                  _info(t, s, (d!['info'] as Map).cast<String, dynamic>()),
+                  _info(t, ds, (d!['info'] as Map).cast<String, dynamic>()),
                 ],
                 const SizedBox(height: Gap.md),
-                Text(t.fcsAlarmFree, style: TextStyle(fontSize: 12, color: s.onSurfaceVariant)),
+                Text(t.fcsAlarmFree, style: _base.copyWith(fontSize: 12, color: ds.muted)),
               ]),
             ),
           ],
@@ -328,10 +331,10 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
     final age = (d?['age_s'] as num?)?.toInt();
     // over (mistake / safe): calm header — no red alarm look
     final over = '${d?['state'] ?? 'active'}' != 'active';
-    final s = Theme.of(context).colorScheme;
-    final fg = over ? s.onSurface : Colors.white;
+    final ds = DsTokens.of(context);
+    final fg = over ? ds.text : Colors.white;
     return Container(
-      color: over ? s.surfaceContainerHighest : kSosRed,
+      color: over ? ds.card : kSosRed,
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.lg),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
@@ -349,21 +352,21 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
           liveRegion: true,
           child: Text(
             fall ? t.fcsAlarmFallTitle(name) : t.fcsAlarmTitle(name),
-            style: TextStyle(color: fg, fontSize: 28, fontWeight: FontWeight.w900),
+            style: _base.copyWith(color: fg, fontSize: 28, fontWeight: FontWeight.w900),
           ),
         ),
         if (sent.isNotEmpty) ...[
           const SizedBox(height: Gap.xs),
           Text(
             t.fcsAlarmWhen(sosClock(context, sent), sosAge(context, age ?? 0)),
-            style: TextStyle(color: fg, fontSize: 16),
+            style: _base.copyWith(color: fg, fontSize: 16),
           ),
         ],
       ]),
     );
   }
 
-  Widget _where(AppLocalizations t, ColorScheme s, Map<String, dynamic>? d) {
+  Widget _where(AppLocalizations t, DsTokens ds, Map<String, dynamic>? d) {
     final loc = d?['location'] as Map?;
     final lat = (loc?['lat'] as num?)?.toDouble();
     final lng = (loc?['lng'] as num?)?.toDouble();
@@ -379,28 +382,26 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
     final serverNow = DateTime.tryParse('${d?['server_now'] ?? ''}');
     final ago = (at != null && serverNow != null) ? serverNow.difference(at).inSeconds : null;
     final live = loc?['live'] == true;
-    return Card(
+    return DsCard(
       key: const ValueKey('fcs-where'),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.place_rounded, color: s.primary),
+            Icon(Icons.place_rounded, color: ds.primaryInk),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.fcsWhereTitle,
-                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800))),
+                    style: _base.copyWith(fontSize: 17, fontWeight: FontWeight.w800))),
           ]),
           const SizedBox(height: Gap.xs),
           Text(
             ago == null
                 ? t.fcsWhereAtSend
                 : (live ? t.fcsWhereLive(sosAge(context, ago)) : t.fcsWhereAtSendAgo(sosAge(context, ago))),
-            style: TextStyle(color: s.onSurfaceVariant),
+            style: _base.copyWith(color: ds.muted),
           ),
           Text(_dg('${lat.toStringAsFixed(5)}, ${lng.toStringAsFixed(5)}'),
-              style: TextStyle(fontSize: 13, color: s.onSurfaceVariant)),
+              style: _base.copyWith(fontSize: 13, color: ds.muted)),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             FilledButton.icon(
@@ -419,28 +420,27 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
             ),
           ]),
         ]),
-      ),
     );
   }
 
-  Widget _soundCard(AppLocalizations t, ColorScheme s, Map<String, dynamic>? d, String state) {
+  Widget _soundCard(AppLocalizations t, DsTokens ds, Map<String, dynamic>? d, String state) {
     final sec = (d?['audio_sec'] as num?)?.toInt() ?? 0;
     if (sec <= 0) {
       if (state != 'active') return const SizedBox.shrink();
       return SosBanner(
-          icon: Icons.mic_none_rounded, color: s.onSurfaceVariant, title: t.fcsSoundNotYet);
+          icon: Icons.mic_none_rounded, color: ds.muted, title: t.fcsSoundNotYet);
     }
     return SosBigButton(
       key: const ValueKey('fcs-play-sound'),
       icon: _playing ? Icons.graphic_eq_rounded : Icons.play_arrow_rounded,
       label: t.fcsPlaySound(_dg('$sec')),
-      color: s.secondaryContainer,
-      fg: s.onSecondaryContainer,
+      color: ds.primarySoft,
+      fg: ds.primaryInk,
       onTap: _playing ? null : _play,
     );
   }
 
-  Widget _nearby(AppLocalizations t, ColorScheme s, Map<String, dynamic>? d) {
+  Widget _nearby(AppLocalizations t, DsTokens ds, Map<String, dynamic>? d) {
     final n = (d?['nearby'] as Map?)?.cast<String, dynamic>() ?? const {};
     final rows = <(String, Map<String, dynamic>)>[
       for (final c in const ['police', 'hospital'])
@@ -448,22 +448,20 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
           (c, r.cast<String, dynamic>()),
     ];
     final bn = Localizations.localeOf(context).languageCode == 'bn';
-    return Card(
+    return DsCard(
       key: const ValueKey('fcs-nearby'),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(t.fcsNearbyTitle, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(t.fcsNearbyTitle, style: _base.copyWith(fontSize: 17, fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
           if (d != null && rows.isEmpty)
             Text(d['location'] == null ? t.fcsNearbyNeedLocation : t.fcsNearbyNone,
-                style: TextStyle(color: s.onSurfaceVariant)),
+                style: _base.copyWith(color: ds.muted)),
           for (final (cat, r) in rows)
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(cat == 'police' ? Icons.local_police_rounded : Icons.local_hospital_rounded,
-                  color: cat == 'police' ? s.primary : Brand.danger),
+                  color: cat == 'police' ? ds.primaryInk : Brand.danger),
               title: Text('${(bn ? r['name'] : r['name_en']) ?? r['name'] ?? ''}'),
               subtitle: Text(_dg(t.fcsKmAway(
                   (((r['distance_m'] as num?) ?? 0) / 1000).toStringAsFixed(1)))),
@@ -485,26 +483,23 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
               ]),
             ),
           if (rows.isNotEmpty)
-            Text('${n['attribution'] ?? ''}', style: TextStyle(fontSize: 11, color: s.onSurfaceVariant)),
+            Text('${n['attribution'] ?? ''}', style: _base.copyWith(fontSize: 11, color: ds.muted)),
         ]),
-      ),
     );
   }
 
-  Widget _info(AppLocalizations t, ColorScheme s, Map<String, dynamic> i) {
+  Widget _info(AppLocalizations t, DsTokens ds, Map<String, dynamic> i) {
     final contacts = ((i['contacts'] as List?) ?? const []).whereType<Map>().toList();
-    return Card(
+    return DsCard(
       key: const ValueKey('fcs-info'),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(t.fcsInfoTitle, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(t.fcsInfoTitle, style: _base.copyWith(fontSize: 17, fontWeight: FontWeight.w800)),
           if ('${i['blood_group'] ?? ''}'.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(t.fcsBloodGroup('${i['blood_group']}'),
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Brand.danger)),
+                  style: _base.copyWith(fontSize: 20, fontWeight: FontWeight.w900, color: ds.dangerInk)),
             ),
           if ('${i['allergies'] ?? ''}'.isNotEmpty) Text(t.fcsAllergies('${i['allergies']}')),
           if ('${i['conditions'] ?? ''}'.isNotEmpty) Text(t.fcsConditions('${i['conditions']}')),
@@ -521,7 +516,6 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
               ),
             ),
         ]),
-      ),
     );
   }
 }

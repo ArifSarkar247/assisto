@@ -272,7 +272,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Text(t.onbProgressStep(_page + 1, _steps),
-                style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
           ),
           OnbDots(count: _steps, index: _page),
           const SizedBox(height: Gap.lg),
@@ -321,7 +321,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xs),
         Text(t.onbLangStepSub,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.md),
         _langTile(scheme, 'bn', t.languageBangla, current == 'bn'),
         const SizedBox(height: Gap.sm),

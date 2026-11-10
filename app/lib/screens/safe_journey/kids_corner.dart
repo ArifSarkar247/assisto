@@ -158,7 +158,9 @@ class _KidsCornerSectionState extends State<KidsCornerSection> {
       margin: const EdgeInsets.only(top: Gap.sm),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: open ? Brand.warning.withValues(alpha: 0.14) : cs.surfaceContainerHighest,
+        color: open
+            ? Color.alphaBlend(Brand.warning.withValues(alpha: 0.08), cs.ds.card) // designv2: AA
+            : cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: open ? Brand.warnInk(context) : cs.outlineVariant),
       ),

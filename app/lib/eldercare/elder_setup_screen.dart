@@ -6,6 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../api.dart' show ApiException;
 import '../l10n/app_localizations.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/chatnav.dart';
@@ -128,37 +129,41 @@ class _ElderSetupScreenState extends State<ElderSetupScreen> {
   }
 
   Widget _form(AppLocalizations t) {
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final bn = ElderHooks.lang(context) == 'bn';
     final people = _people;
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
       children: [
-        Text(t.fceSetupBenefit, style: AType.titleMedium.copyWith(color: scheme.onSurfaceVariant)),
+        Text(t.fceSetupBenefit, style: AType.titleMedium.copyWith(color: ds.muted)),
         const SizedBox(height: Gap.lg),
-        Text(t.fceSetupWho, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
+        Text(t.fceSetupWho, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700, color: ds.text)),
         const SizedBox(height: Gap.sm),
         if (people == null && _error == null)
-          const Center(child: Padding(padding: EdgeInsets.all(Gap.lg), child: CircularProgressIndicator()))
+          DsSkeleton.card(lines: 2)
         else if (people != null && people.isEmpty)
           _empty(t)
         else if (people != null)
-          Wrap(
-            spacing: Gap.sm,
-            runSpacing: Gap.sm,
+          // designv2: people from My Circle in one tap — one scrolling row
+          DsChipRow(
+            padding: EdgeInsets.zero,
             children: [
               for (final p in people)
-                ChoiceChip(
+                DsChip(
                   key: Key('fce-who-${p['user_id']}'),
-                  label: Text('${p['name']}'),
+                  icon: Icons.person_rounded,
+                  label: '${p['name']}',
                   selected: _elderId == p['user_id'],
                   onSelected: (_) => setState(() => _elderId = p['user_id'] as int?),
                 ),
             ],
           ),
         if (people != null && people.isNotEmpty) ...[
-          const SizedBox(height: Gap.xl),
-          Text(t.fceSetupWhat, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: Gap.lg),
+          DsCard(
+            padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(t.fceSetupWhat, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700, color: ds.text)),
           SwitchListTile(
               contentPadding: EdgeInsets.zero,
               value: _easy,
@@ -180,93 +185,79 @@ class _ElderSetupScreenState extends State<ElderSetupScreen> {
               subtitle: Text(t.fceSetupWatchSub)),
           if (_watch) ...[
             const SizedBox(height: Gap.sm),
-            Text(t.fceSetupHours2, style: AType.titleMedium),
-            Wrap(spacing: Gap.sm, children: [
+            Text(t.fceSetupHours2, style: AType.titleMedium.copyWith(color: ds.text)),
+            const SizedBox(height: Gap.xs),
+            DsChipRow(padding: EdgeInsets.zero, children: [
               for (final h in const [3, 4, 6, 8])
-                ChoiceChip(
-                    label: Text(t.fceHoursN(elderDigits(h, bn))),
+                DsChip(
+                    label: t.fceHoursN(elderDigits(h, bn)),
                     selected: _hours == h,
                     onSelected: (_) => setState(() => _hours = h)),
             ]),
             const SizedBox(height: Gap.md),
-            Text(t.fceSetupDay, style: AType.titleMedium),
-            Wrap(spacing: Gap.sm, children: [
-              ActionChip(
-                  avatar: const Icon(Icons.wb_sunny_outlined),
-                  label: Text(elderHhmm(_start.hour * 60 + _start.minute, bn)),
-                  onPressed: () async {
+            Text(t.fceSetupDay, style: AType.titleMedium.copyWith(color: ds.text)),
+            const SizedBox(height: Gap.xs),
+            DsChipRow(padding: EdgeInsets.zero, children: [
+              DsChip(
+                  icon: Icons.wb_sunny_outlined,
+                  label: elderHhmm(_start.hour * 60 + _start.minute, bn),
+                  onSelected: (_) async {
                     final v = await showTimePicker(context: context, initialTime: _start);
                     if (v != null && mounted) setState(() => _start = v);
                   }),
-              ActionChip(
-                  avatar: const Icon(Icons.nightlight_outlined),
-                  label: Text(elderHhmm(_end.hour * 60 + _end.minute, bn)),
-                  onPressed: () async {
+              DsChip(
+                  icon: Icons.nightlight_outlined,
+                  label: elderHhmm(_end.hour * 60 + _end.minute, bn),
+                  onSelected: (_) async {
                     final v = await showTimePicker(context: context, initialTime: _end);
                     if (v != null && mounted) setState(() => _end = v);
                   }),
             ]),
             const SizedBox(height: Gap.md),
-            Text(t.fceSetupNearby, style: AType.titleMedium),
-            Text(t.fceSetupNearbyWhy, style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
-            Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-              ChoiceChip(
-                  label: Text(t.fceSetupNearbyNone),
+            Text(t.fceSetupNearby, style: AType.titleMedium.copyWith(color: ds.text)),
+            Text(t.fceSetupNearbyWhy, style: AType.bodyMedium.copyWith(color: ds.muted)),
+            const SizedBox(height: Gap.xs),
+            DsChipRow(padding: EdgeInsets.zero, children: [
+              DsChip(
+                  label: t.fceSetupNearbyNone,
                   selected: _nearbyId == null,
                   onSelected: (_) => setState(() => _nearbyId = null)),
               for (final p in people)
                 if (p['user_id'] != _elderId)
-                  ChoiceChip(
-                      label: Text('${p['name']}'),
+                  DsChip(
+                      label: '${p['name']}',
                       selected: _nearbyId == p['user_id'],
                       onSelected: (_) => setState(() => _nearbyId = p['user_id'] as int?)),
             ]),
           ],
-          const SizedBox(height: Gap.xl),
-          SizedBox(
-            height: 56,
-            child: FilledButton.icon(
-              key: const Key('fce-setup-make'),
-              onPressed: _elderId == null || _busy ? null : _make,
-              icon: const Icon(Icons.qr_code_2_rounded),
-              label: Text(_elderId == null ? t.fceSetupPickFirst : t.fceSetupMakeQr,
-                  style: AType.titleMedium),
-            ),
+            ]),
+          ),
+          const SizedBox(height: Gap.lg),
+          DsButton(
+            key: const Key('fce-setup-make'),
+            expand: true,
+            busy: _busy,
+            onPressed: _elderId == null ? null : _make,
+            icon: Icons.qr_code_2_rounded,
+            label: _elderId == null ? t.fceSetupPickFirst : t.fceSetupMakeQr,
           ),
         ],
         if (_error != null)
           Padding(
               padding: const EdgeInsets.only(top: Gap.md),
-              child: Text(_error!, style: AType.titleMedium.copyWith(color: scheme.error))),
+              child: Text(_error!, style: AType.titleMedium.copyWith(color: ds.dangerInk))),
       ],
     );
   }
 
-  Widget _empty(AppLocalizations t) {
-    final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Icon(Icons.family_restroom_rounded, size: 48, color: scheme.primary),
-          const SizedBox(height: Gap.sm),
-          Text(t.fceSetupEmptyTitle, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: Gap.xs),
-          Text(t.fceSetupEmptyBody, style: AType.bodyLarge),
-          const SizedBox(height: Gap.md),
-          SizedBox(
-            height: 52,
-            child: FilledButton.icon(
-              key: const Key('fce-setup-add'),
-              onPressed: () => ChatNav.push(context, 'family'),
-              icon: const Icon(Icons.person_add_alt_1_rounded),
-              label: Text(t.fceSetupEmptyCta),
-            ),
-          ),
-        ]),
-      ),
-    );
-  }
+  Widget _empty(AppLocalizations t) => DsEmptyState(
+        icon: Icons.family_restroom_rounded,
+        title: t.fceSetupEmptyTitle,
+        benefit: t.fceSetupEmptyBody,
+        actionLabel: t.fceSetupEmptyCta,
+        actionKey: const Key('fce-setup-add'),
+        onAction: () => ChatNav.push(context, 'family'),
+      );
 
   Widget _qr(AppLocalizations t) {
     final p = _pair!;
@@ -278,16 +269,21 @@ class _ElderSetupScreenState extends State<ElderSetupScreen> {
     final remainS = ttl - (clock.now().millisecondsSinceEpoch - made) ~/ 1000;
     final expired = remainS <= 0;
     final left = (remainS + 59) ~/ 60; // whole minutes, rounded up: 900 s -> 15
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
       children: [
-        Text(t.fceSetupQrTitle(name), style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w800)),
+        Text(t.fceSetupQrTitle(name),
+            style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w800, color: ds.text)),
         const SizedBox(height: Gap.md),
         Center(
           child: Container(
             padding: const EdgeInsets.all(Gap.md),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(DsRadius.card),
+                border: Border.all(color: ds.border),
+                boxShadow: DsPerf.liteOf(context) ? null : ds.shadows),
             child: Opacity(
               opacity: expired ? 0.15 : 1,
               child: QrImageView(
@@ -299,28 +295,25 @@ class _ElderSetupScreenState extends State<ElderSetupScreen> {
         Center(
           child: SelectableText(elderDigits(code, bn),
               key: const Key('fce-code'),
-              style: AType.headlineLarge.copyWith(fontWeight: FontWeight.w800, letterSpacing: 4)),
+              style: AType.headlineLarge.copyWith(fontWeight: FontWeight.w800, letterSpacing: 4, color: ds.text)),
         ),
         Center(
           child: Text(expired ? t.fceSetupExpired : t.fceSetupExpires(elderDigits(left, bn)),
-              style: AType.titleMedium.copyWith(color: expired ? scheme.error : scheme.onSurfaceVariant)),
+              style: AType.titleMedium.copyWith(color: expired ? ds.dangerInk : ds.muted)),
         ),
         const SizedBox(height: Gap.lg),
         _step(1, t.fceSetupQrStep1(name), bn),
         _step(2, t.fceSetupQrStep2, bn),
         _step(3, t.fceSetupQrStep3(name), bn),
         const SizedBox(height: Gap.md),
-        Text(t.fceSetupDoneHint(name), style: AType.titleMedium.copyWith(color: scheme.onSurfaceVariant)),
+        Text(t.fceSetupDoneHint(name), style: AType.titleMedium.copyWith(color: ds.muted)),
         const SizedBox(height: Gap.lg),
-        SizedBox(
-          height: 52,
-          child: OutlinedButton.icon(
-            onPressed: _busy
-                ? null
-                : (_elderId == null ? () => setState(() => _pair = null) : _make),
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.fceSetupNewCode),
-          ),
+        DsButton.secondary(
+          expand: true,
+          busy: _busy,
+          onPressed: _elderId == null ? () => setState(() => _pair = null) : _make,
+          icon: Icons.refresh_rounded,
+          label: t.fceSetupNewCode,
         ),
       ],
     );
@@ -329,9 +322,9 @@ class _ElderSetupScreenState extends State<ElderSetupScreen> {
   Widget _step(int n, String text, bool bn) => Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.xs),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          CircleAvatar(radius: 14, child: Text(elderDigits(n, bn))),
+          DsStepNumber(n),
           const SizedBox(width: Gap.md),
-          Expanded(child: Text(text, style: AType.titleMedium)),
+          Expanded(child: Text(text, style: AType.titleMedium.copyWith(color: DsTokens.of(context).text))),
         ]),
       );
 }

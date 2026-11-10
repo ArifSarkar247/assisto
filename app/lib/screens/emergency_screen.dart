@@ -393,7 +393,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
               const SizedBox(width: Gap.xs),
               Expanded(
                   child: Text(t.emergencyOfflineBadge,
-                      style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))),
+                      style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted))),
             ]),
           ),
 
@@ -462,7 +462,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
         const SizedBox(height: Gap.lg),
         Text(t.emergencyFooterNote,
-            style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
       ]),
     );
   }
@@ -649,7 +649,7 @@ class _CirclePickSheetState extends State<_CirclePickSheet> {
       body = Text(t.saPickCircleEmpty,
           key: const ValueKey('sosat-pick-empty'),
           textAlign: TextAlign.center,
-          style: TextStyle(color: scheme.onSurfaceVariant));
+          style: TextStyle(color: scheme.ds.muted));
     } else {
       body = Column(mainAxisSize: MainAxisSize.min, children: [
         for (final r in _rows!)
@@ -689,7 +689,7 @@ class _CirclePickSheetState extends State<_CirclePickSheet> {
         Text(t.saPickCircleTitle,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xs),
-        Text(t.saPickCircleSub, style: TextStyle(color: scheme.onSurfaceVariant)),
+        Text(t.saPickCircleSub, style: TextStyle(color: scheme.ds.muted)),
         const SizedBox(height: Gap.md),
         body,
       ]),

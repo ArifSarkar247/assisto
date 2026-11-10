@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../maps/address_resolver.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../widgets/journey_ride.dart' show jDigits;
 import 'sj_during_api.dart';
@@ -198,7 +199,7 @@ class _SjPrivateAskScreenState extends State<SjPrivateAskScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs, bottom: Gap.md),
               child: Text(t.sjdAddTimeNote,
-                  style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
             ),
             // 4) Share the stop place
             OutlinedButton.icon(
@@ -232,7 +233,7 @@ class _SjPrivateAskScreenState extends State<SjPrivateAskScreen> {
           // 7) bottom note
           Text(night ? t.sjdBottomNoteNight : t.sjdBottomNote,
               key: const ValueKey('sjd_bottom_note'),
-              style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
         ],
       ),
     );

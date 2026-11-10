@@ -108,11 +108,11 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
             width: 180,
             height: 180,
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
+              color: scheme.ds.cardHighest,
               borderRadius: BorderRadius.circular(Radii.md),
             ),
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Icon(Icons.qr_code_2_rounded, size: 72, color: scheme.onSurfaceVariant),
+              Icon(Icons.qr_code_2_rounded, size: 72, color: scheme.ds.muted),
               const SizedBox(height: Gap.sm),
               Text(_providerName(provider),
                   style: const TextStyle(fontWeight: FontWeight.w700)),
@@ -159,7 +159,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
         padding: const EdgeInsets.only(bottom: Gap.xs),
         child: Row(children: [
           Text('$k: ',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
           Expanded(child: Text(v, style: const TextStyle(fontWeight: FontWeight.w700))),
         ]),
       );

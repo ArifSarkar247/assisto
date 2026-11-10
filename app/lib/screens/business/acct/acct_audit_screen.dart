@@ -7,6 +7,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../services/error_kind.dart' show honestFailText;
 import '../../../state.dart';
 import '../../../theme.dart';
+import '../../../ds/ds.dart';
 import '../../../widgets/app_sheet.dart';
 import '../../../widgets/skeleton.dart';
 import 'acct_common.dart';
@@ -139,7 +140,7 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
               textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: Gap.sm),
           Text(t.acuAuditEmptyBody,
-              textAlign: TextAlign.center, style: TextStyle(height: 1.4, color: scheme.onSurfaceVariant)),
+              textAlign: TextAlign.center, style: TextStyle(height: 1.4, color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.xl),
           SizedBox(
             height: 52,
@@ -152,7 +153,7 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        Text(t.acuAuditIntro, style: TextStyle(height: 1.4, color: scheme.onSurfaceVariant)),
+        Text(t.acuAuditIntro, style: TextStyle(height: 1.4, color: DsTokens.of(context).muted)),
         if (_events.isNotEmpty) ...[
           const SizedBox(height: Gap.lg),
           Semantics(
@@ -208,8 +209,8 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
       'reversal' => t.acuAuditReversalOf(acctDigits(context, je['reversal_of'] ?? '')),
       _ => t.acuAuditLive,
     };
-    final chipColor = status == 'posted' ? scheme.primaryContainer : scheme.errorContainer;
-    final chipInk = status == 'posted' ? scheme.onPrimaryContainer : scheme.onErrorContainer;
+    final chipColor = status == 'posted' ? DsTokens.of(context).primarySoft : DsTokens.of(context).dangerBg;
+    final chipInk = status == 'posted' ? DsTokens.of(context).primaryInk : DsTokens.of(context).dangerInk;
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: ExpansionTile(
@@ -224,9 +225,9 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
             if ('${je['who'] ?? ''}'.isNotEmpty) '${je['who']}',
           ].join(' · ')),
           Text(t.acuAuditRecordedAt(_when(context, je['created_at'])),
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: DsTokens.of(context).muted)),
           if (je['late'] == true)
-            Text(t.acuAuditLate, style: TextStyle(color: scheme.onSurfaceVariant)),
+            Text(t.acuAuditLate, style: TextStyle(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
             Container(
@@ -241,7 +242,7 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
         expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(t.acuAuditForAccountant,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
+              style: TextStyle(color: DsTokens.of(context).muted, fontWeight: FontWeight.w600)),
           const SizedBox(height: Gap.xs),
           for (final l in (je['lines'] as List? ?? const []).cast<Map>())
             Padding(

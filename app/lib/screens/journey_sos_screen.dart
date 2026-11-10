@@ -393,7 +393,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                 'failed' || 'no_location' => t.j100NearbyFailed,
                 _ => t.j100NearbyNone,
               },
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
         if (_help.isEmpty && _helpState != 'loading')
           Wrap(spacing: Gap.sm, children: [
             OutlinedButton.icon(

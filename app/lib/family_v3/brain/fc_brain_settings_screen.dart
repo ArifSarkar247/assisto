@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../api.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import 'fc_ask_parser.dart' show fcBn;
@@ -255,7 +256,10 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.fcbSettingsTitle)),
       body: _me == null && _error == null
-          ? const Center(child: CircularProgressIndicator())
+          ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+              for (var i = 0; i < 3; i++)
+                Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSkeleton.card(lines: 3)),
+            ])
           : _error != null
               ? _errorView(t)
               : ListView(
@@ -263,54 +267,57 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.sm),
-                      child: Text(t.fcbSettingsIntro, style: Theme.of(context).textTheme.bodyMedium),
+                      child: Text(t.fcbSettingsIntro,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
                     ),
-                    _arriveSection(t),
-                    const Divider(),
-                    _pauseSection(t, lang),
-                    const Divider(),
-                    _nightSection(t, lang),
-                    const Divider(),
-                    _whoSection(t),
-                    const Divider(),
-                    _budgetSection(t),
-                    const Divider(),
-                    _batterySection(t),
-                    if (widget.familyId != null) ...[
-                      const Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.logout),
-                        title: Text(t.fcbLeaveTitle),
+                    // designv2: each section is its own card
+                    _card(_arriveSection(t)),
+                    _card(_pauseSection(t, lang)),
+                    _card(_nightSection(t, lang)),
+                    _card(_whoSection(t)),
+                    _card(_budgetSection(t)),
+                    _card(_batterySection(t)),
+                    if (widget.familyId != null)
+                      _card(ListTile(
+                        leading: Icon(Icons.logout, color: DsTokens.of(context).dangerInk),
+                        title: Text(t.fcbLeaveTitle,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: DsTokens.of(context).dangerInk)),
                         subtitle: Text(t.fcbLeaveHint),
                         onTap: _leave,
-                      ),
-                    ],
+                      )),
                   ],
                 ),
     );
   }
 
-  Widget _errorView(AppLocalizations t) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.xl),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(t.fcbLoadFailed, textAlign: TextAlign.center),
-            const SizedBox(height: Gap.md),
-            FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: () {
-                setState(() => _error = null);
-                _load();
-              },
-              child: Text(t.fcbRetry),
-            ),
-          ]),
-        ),
+  Widget _errorView(AppLocalizations t) => ListView(
+        padding: const EdgeInsets.all(Gap.lg),
+        children: [
+          DsEmptyState(
+            icon: Icons.cloud_off_rounded,
+            title: t.fcbLoadFailed,
+            actionLabel: t.fcbRetry,
+            onAction: () {
+              setState(() => _error = null);
+              _load();
+            },
+          ),
+        ],
+      );
+
+  Widget _card(Widget child) => Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
+        child: DsCard(padding: const EdgeInsets.symmetric(vertical: Gap.xs), child: child),
       );
 
   Widget _head(String s) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs),
-        child: Text(s, style: Theme.of(context).textTheme.titleMedium),
+        child: Semantics(
+          header: true,
+          child: Text(s,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: DsTokens.of(context).text, fontWeight: FontWeight.w700)),
+        ),
       );
 
   Widget _arriveSection(AppLocalizations t) {
@@ -354,19 +361,18 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
         child: paused
-            ? FilledButton.icon(
-                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+            ? DsButton(
                 onPressed: _resume,
-                icon: const Icon(Icons.play_arrow),
-                label: Text(t.fcbResume),
+                icon: Icons.play_arrow,
+                label: t.fcbResume,
               )
+            // three short chips: a Wrap (one vertical scroller on the page)
             : Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
                 for (final h in hours)
-                  ActionChip(
-                    materialTapTargetSize: MaterialTapTargetSize.padded,
-                    avatar: const Icon(Icons.pause, size: 18),
-                    label: Text(t.fcbPauseHours(_n(context, h))),
-                    onPressed: () => _pause(h),
+                  DsChip(
+                    icon: Icons.pause,
+                    label: t.fcbPauseHours(_n(context, h)),
+                    onSelected: (_) => _pause(h),
                   ),
               ]),
       ),
@@ -407,7 +413,8 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
-          child: Text(t.fcbNightAboutMe, style: Theme.of(context).textTheme.bodyMedium),
+          child: Text(t.fcbNightAboutMe,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
         ),
         for (final k in all)
           CheckboxListTile(
@@ -443,7 +450,8 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
         ),
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.sm),
-        child: Text(t.fcbWhoAdminNever, style: Theme.of(context).textTheme.bodySmall),
+        child: Text(t.fcbWhoAdminNever,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: DsTokens.of(context).muted)),
       ),
     ]);
   }
@@ -476,7 +484,8 @@ class _FcBrainSettingsScreenState extends State<FcBrainSettingsScreen> {
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
-        child: Text(t.fcbBatteryHow, style: Theme.of(context).textTheme.bodySmall),
+        child: Text(t.fcbBatteryHow,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: DsTokens.of(context).muted)),
       ),
     ]);
   }

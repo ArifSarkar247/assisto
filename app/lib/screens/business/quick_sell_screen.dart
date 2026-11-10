@@ -262,7 +262,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                     width: double.infinity,
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
-                      color: scheme.surfaceContainerHighest,
+                      color: scheme.ds.cardHighest,
                       borderRadius: BorderRadius.circular(Radii.sm),
                     ),
                     child: (p['photo'] ?? '').toString().startsWith('http')
@@ -270,9 +270,9 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => Icon(
                                 Icons.image_rounded,
-                                color: scheme.onSurfaceVariant))
+                                color: scheme.ds.muted))
                         : Icon(Icons.inventory_2_rounded,
-                            color: scheme.onSurfaceVariant),
+                            color: scheme.ds.muted),
                   ),
                 ),
                 const SizedBox(height: Gap.sm),
@@ -299,7 +299,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
     return SafeArea(
       top: false,
       child: Material(
-        color: scheme.surfaceContainerHigh,
+        color: scheme.ds.cardHigh,
         child: InkWell(
           onTap: () => _openCartSheet(t),
           child: Padding(
@@ -395,7 +395,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
       margin: const EdgeInsets.only(bottom: Gap.sm),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
+        color: scheme.ds.card,
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -407,7 +407,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                   Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
                   if (variant.isNotEmpty)
                     Text(variant,
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ]),
           ),
           IconButton(
@@ -820,7 +820,7 @@ class _CheckoutSheetState extends State<CheckoutSheet> {
                 padding: const EdgeInsets.only(top: Gap.xs),
                 child: Text(t.bbPaidEmptyIsExact,
                     style: AType.bodySmall
-                        .copyWith(color: scheme.onSurfaceVariant)),
+                        .copyWith(color: scheme.ds.muted)),
               ),
             if (_method == 'due') ...[
               // bizbar: a due sale goes to THIS customer's khata page

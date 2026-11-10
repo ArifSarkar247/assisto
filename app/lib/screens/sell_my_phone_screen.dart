@@ -318,7 +318,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           _sectionTitle(t.upReceiptTitle),
           const SizedBox(height: Gap.xs),
           Text(t.upReceiptIntro,
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           _receiptForm(t),
           if (_token != null && _token!.isNotEmpty) ...[
@@ -329,7 +329,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           _sectionTitle(t.upBuyerAcceptTitle),
           const SizedBox(height: Gap.xs),
           Text(t.upBuyerAcceptIntro,
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           _buyerAccept(t),
           const SizedBox(height: Gap.xl),
@@ -349,7 +349,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           ),
           const SizedBox(height: Gap.sm),
           Text(t.upHonestFooter,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ],
       ),
     );
@@ -364,7 +364,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           ),
           if (trailing != null)
             Text(trailing,
-                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         ],
       );
 
@@ -380,12 +380,12 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
           collapsedShape: const Border(),
           leading: Icon(
             done ? Icons.check_circle_rounded : s.icon,
-            color: done ? Brand.success : scheme.onSurfaceVariant,
+            color: done ? Brand.success : scheme.ds.muted,
           ),
           title: Text(s.title(t),
               style: const TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text(s.why(t),
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           childrenPadding:
               const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
           children: [
@@ -511,7 +511,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
   Widget _tokenCard(AppLocalizations t, ColorScheme scheme) {
     final token = _token!;
     return Card(
-      color: scheme.secondaryContainer,
+      color: scheme.ds.primarySoft,
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(
@@ -548,7 +548,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
             if (_saleState != null && _saleState!.isNotEmpty)
               Text(t.upStateLabel(_saleStateLabel(t, _saleState!)),
                   textAlign: TextAlign.center,
-                  style: AType.bodySmall.copyWith(color: scheme.onSecondaryContainer)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.primaryInk)),
             const SizedBox(height: Gap.sm),
             OutlinedButton.icon(
               icon: const Icon(Icons.copy_rounded, size: 18),
@@ -624,7 +624,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Text(t.upReceiptsEmpty,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         ),
       );
     }
@@ -645,7 +645,7 @@ class _SellMyPhoneScreenState extends State<SellMyPhoneScreen> {
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text(text,
-              style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.ds.muted)),
         ),
       );
 

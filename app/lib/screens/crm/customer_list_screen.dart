@@ -232,7 +232,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
               padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
               child: Text(t.c100CountLine(_d(_total)),
                   style: AType.bodySmall
-                      .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      .copyWith(color: Theme.of(context).colorScheme.ds.muted)),
             );
           }
           if (i == _rows.length + 1) {

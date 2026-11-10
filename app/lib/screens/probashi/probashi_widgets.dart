@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../api.dart';
+import '../../ds/ds.dart';
 import '../../l10n/app_localizations.dart';
 import '../../payments/play_prices.dart' show localizeStoreDigits;
 
@@ -71,24 +72,16 @@ class PbsStateView extends StatelessWidget {
       PbsFail.offline => (Icons.wifi_off_rounded, t.pbsOfflineTitle, t.pbsOfflineBody),
       PbsFail.error => (Icons.error_outline_rounded, t.pbsErrorTitle, pbsMessage(context, error!)),
     };
-    return ListView(padding: const EdgeInsets.all(24), children: [
-      const SizedBox(height: 40),
-      Icon(icon, size: 48, color: Theme.of(context).colorScheme.outline),
-      const SizedBox(height: 12),
-      Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
-      const SizedBox(height: 8),
-      Text(body, textAlign: TextAlign.center),
-      if (kind != PbsFail.off) ...[
-        const SizedBox(height: 16),
-        Center(
-          child: FilledButton.icon(
-            style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.pbsRetry),
-          ),
-        ),
-      ],
+    // designv2: one DS empty/error card
+    return ListView(padding: const EdgeInsets.all(16), children: [
+      const SizedBox(height: 24),
+      DsEmptyState(
+        icon: icon,
+        title: title,
+        benefit: body,
+        actionLabel: kind != PbsFail.off ? t.pbsRetry : null,
+        onAction: kind != PbsFail.off ? onRetry : null,
+      ),
     ]);
   }
 }
@@ -102,23 +95,25 @@ class PbsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Card(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+    // designv2: DS card, icon in a soft round badge, bold title
+    final ds = DsTokens.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: DsCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(icon, color: cs.primary),
-            const SizedBox(width: 8),
+            DsAvatar(size: 40, child: Icon(icon, color: ds.primaryInk, size: 22)),
+            const SizedBox(width: 12),
             Expanded(
               child: Semantics(
                 header: true,
-                child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+                child: Text(title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: ds.text, fontWeight: FontWeight.w700)),
               ),
             ),
           ]),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           ...children,
         ]),
       ),

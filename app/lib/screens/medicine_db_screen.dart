@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/health_api.dart';
 import '../widgets/skeleton.dart';
@@ -212,7 +213,7 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
       else if (_error)
         StateMessage(
           icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
+          tint: DsTokens.of(context).dangerInk,
           title: t.medicineDbLoadError,
           message: _offline ? t.medicineDbOfflineNoCache : null,
           action: OutlinedButton.icon(
@@ -230,7 +231,7 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
       else if (_results.isEmpty)
         StateMessage(
           icon: Icons.inventory_2_rounded,
-          tint: scheme.onSurfaceVariant,
+          tint: DsTokens.of(context).muted,
           title: t.medicineDbNeedsDataTitle,
           message: t.medicineDbNeedsDataBody,
         )
@@ -258,7 +259,7 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
     if (items.isEmpty) {
       return StateMessage(
         icon: emptyIcon,
-        tint: Theme.of(context).colorScheme.onSurfaceVariant,
+        tint: DsTokens.of(context).muted,
         title: emptyTitle,
         message: emptyBody,
       );
@@ -289,15 +290,15 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
         padding: const EdgeInsets.all(Gap.md),
         margin: const EdgeInsets.only(bottom: Gap.md),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(Radii.md),
+          color: DsTokens.of(context).cardHighest,
+          borderRadius: BorderRadius.circular(DsRadius.card),
         ),
         child: Row(children: [
-          Icon(Icons.cloud_off_rounded, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.cloud_off_rounded, size: 18, color: DsTokens.of(context).muted),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(t.medicineDbOfflineBanner,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
+                  style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted))),
         ]),
       );
 
@@ -307,8 +308,8 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
         padding: const EdgeInsets.all(Gap.md),
         margin: const EdgeInsets.only(bottom: Gap.md),
         decoration: BoxDecoration(
-          color: bg ?? scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(Radii.md),
+          color: bg ?? DsTokens.of(context).cardHighest,
+          borderRadius: BorderRadius.circular(DsRadius.card),
         ),
         child: Row(children: [
           Icon(icon, size: 18, color: fg),
@@ -322,11 +323,11 @@ class _MedicineDbScreenState extends State<MedicineDbScreen>
   Widget _warningRow(String text, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.md),
         child: Row(children: [
-          Icon(Icons.warning_amber_rounded, size: 16, color: scheme.error),
+          Icon(Icons.warning_amber_rounded, size: 16, color: DsTokens.of(context).dangerInk),
           const SizedBox(width: Gap.xs),
           Expanded(
               child: Text(text,
-                  style: AType.bodySmall.copyWith(color: scheme.error, fontWeight: FontWeight.w600))),
+                  style: AType.bodySmall.copyWith(color: DsTokens.of(context).dangerInk, fontWeight: FontWeight.w600))),
         ]),
       );
 }

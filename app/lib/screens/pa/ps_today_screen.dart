@@ -128,7 +128,7 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
         padding: const EdgeInsets.only(top: Gap.sm),
         child: Text(t.psecGroundedNote,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                color: Theme.of(context).colorScheme.ds.muted)),
       ));
     }
     return Scaffold(
@@ -195,7 +195,7 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
       key: const ValueKey('ps-today-empty'),
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
+        color: cs.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -210,7 +210,7 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
         const SizedBox(height: Gap.sm),
         Text(t.psecEmptyHow,
             textAlign: TextAlign.center,
-            style: TextStyle(color: cs.onSurfaceVariant)),
+            style: TextStyle(color: cs.ds.muted)),
         const SizedBox(height: Gap.md),
         FilledButton.icon(
           key: const ValueKey('ps-empty-add'),
@@ -226,17 +226,17 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
   Widget _nextCard(Map next) {
     final cs = Theme.of(context).colorScheme;
     return Card(
-      color: cs.primaryContainer,
+      color: cs.ds.primarySoft,
       margin: const EdgeInsets.only(bottom: Gap.md),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.schedule_rounded, color: cs.onPrimaryContainer),
+          Icon(Icons.schedule_rounded, color: cs.ds.primaryInk),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Text(_line(next),
                 style: TextStyle(
-                    color: cs.onPrimaryContainer, fontWeight: FontWeight.w700)),
+                    color: cs.ds.primaryInk, fontWeight: FontWeight.w700)),
           ),
         ]),
       ),
@@ -312,13 +312,13 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
                         ? Icons.warning_amber_rounded
                         : Icons.circle_outlined),
                 size: 16,
-                color: late || l['clash'] == true ? cs.error : cs.onSurfaceVariant),
+                color: late || l['clash'] == true ? cs.error : cs.ds.muted),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(_line(l),
                 style: TextStyle(
-                    color: late ? cs.error : cs.onSurface,
+                    color: late ? cs.error : cs.ds.text,
                     fontWeight: late ? FontWeight.w600 : FontWeight.normal)),
           ),
         ]),

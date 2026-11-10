@@ -134,7 +134,7 @@ class _ModerationAppealScreenState extends State<ModerationAppealScreen> {
                 const SizedBox(height: Gap.lg),
                 Text(
                   t.msgrModAppealIntro,
-                  style: TextStyle(color: scheme.onSurfaceVariant, height: 1.45),
+                  style: TextStyle(color: scheme.ds.muted, height: 1.45),
                 ),
                 const SizedBox(height: Gap.lg),
                 TextField(
@@ -151,7 +151,7 @@ class _ModerationAppealScreenState extends State<ModerationAppealScreen> {
                 const SizedBox(height: Gap.sm),
                 Text(
                   t.msgrModAppealWindowNote,
-                  style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+                  style: TextStyle(color: scheme.ds.muted, fontSize: 12),
                 ),
                 const SizedBox(height: Gap.md),
                 // A human reviewer re-reads the decision; the outcome and its
@@ -231,7 +231,7 @@ class _Submitted extends StatelessWidget {
             Text(
               t.msgrModAppealDoneBody,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
+              style: TextStyle(color: scheme.ds.muted, height: 1.4),
             ),
             const SizedBox(height: Gap.lg),
             FilledButton.tonal(

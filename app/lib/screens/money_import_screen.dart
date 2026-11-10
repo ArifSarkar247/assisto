@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'money_common.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
@@ -109,7 +110,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
       body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         Text(t.moneyImportHint,
             style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                color: DsTokens.of(context).muted)),
         const SizedBox(height: Gap.md),
         TextField(
           controller: _input,
@@ -131,7 +132,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
             label: Text(t.moneyImportParse)),
         if (_error != null) ...[
           const SizedBox(height: Gap.md),
-          Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          Text(_error!, style: TextStyle(color: DsTokens.of(context).dangerInk)),
         ],
         const SizedBox(height: Gap.lg),
         for (int i = 0; i < _parsed.length; i++) _reviewCard(context, t, i),
@@ -165,7 +166,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
                           ? null
                           : credit
                               ? AssistoTokens.of(context).success
-                              : Theme.of(context).colorScheme.error)),
+                              : DsTokens.of(context).dangerInk)),
             ),
             if (dup)
               Chip(
@@ -193,7 +194,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
             Text(p['raw'] ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: DsTokens.of(context).muted)),
           ]),
           isThreeLine: true,
         ),

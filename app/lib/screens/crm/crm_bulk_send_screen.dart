@@ -176,7 +176,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
       Text(t.c100BulkIntro(_d(widget.customers.length)), style: AType.bodyMedium),
       const SizedBox(height: Gap.xs),
       Text(t.c100NeverAuto,
-          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
       const SizedBox(height: Gap.md),
       TextField(
         controller: _text,

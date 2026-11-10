@@ -113,7 +113,7 @@ class _CrmErpHandoffScreenState extends State<CrmErpHandoffScreen> {
       ],
       const SizedBox(height: Gap.md),
       Text(t.crmErpDesignOnlyNote,
-          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
     ]);
   }
 

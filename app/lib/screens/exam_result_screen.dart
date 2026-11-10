@@ -357,7 +357,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
           _sectionTitle(t.examStudentsSection),
           const SizedBox(height: Gap.xs),
           Text(t.lifebarExamStudentsNote,
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           ExamStudentWatch(
             students: _students,
@@ -387,7 +387,7 @@ class _ExamResultScreenState extends State<ExamResultScreen> {
           _sectionTitle(t.examCardSection),
           const SizedBox(height: Gap.xs),
           Text(t.examCardNote,
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           TextField(controller: _name, decoration: InputDecoration(labelText: t.examFieldName, isDense: true)),
           const SizedBox(height: Gap.xs),

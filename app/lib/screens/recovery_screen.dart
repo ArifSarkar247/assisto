@@ -430,7 +430,7 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
 
   Widget _esimCard(AppLocalizations t) {
     return Card(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      color: Theme.of(context).colorScheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(

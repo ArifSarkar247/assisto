@@ -306,7 +306,7 @@ class _CircleStatusViewerScreenState extends State<CircleStatusViewerScreen> {
                 if (anon > 0) ...[
                   const SizedBox(height: Gap.xs),
                   Text(s.statusReceiptsOff,
-                      style: TextStyle(fontSize: 12, color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                      style: TextStyle(fontSize: 12, color: Theme.of(ctx).colorScheme.ds.muted)),
                 ],
                 const SizedBox(height: Gap.sm),
                 for (final v in named)

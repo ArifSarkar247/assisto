@@ -206,7 +206,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
         constraints: const BoxConstraints(minWidth: 140),
         padding: const EdgeInsets.all(Gap.sm),
         decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest,
+            color: scheme.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.sm)),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 20, color: scheme.primary),
@@ -218,7 +218,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
               Text(label,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
             ]),
@@ -293,7 +293,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                       ? Brand.success
                       : (band == 'ok'
                           ? Brand.warning
-                          : (band == 'improve' ? scheme.error : scheme.outline)),
+                          : (band == 'improve' ? scheme.error : scheme.ds.muted)),
                 ),
                 child: Text(score == null ? '-' : vehNumStr(context, score),
                     style: const TextStyle(
@@ -308,7 +308,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
               Text(_band(tr, band), style: const TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: Gap.xs),
               Text(tr.v100ScoreHow,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
               if ((vehNum(tot['coverage']) ?? 1) < 0.5 && !_month)
                 Padding(
                   padding: const EdgeInsets.only(top: Gap.xs),
@@ -319,7 +319,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: Gap.xs),
                   child: Text(tr.v100LimitDefault(vehNumStr(context, limit)),
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ),
             ]),
           ),
@@ -393,7 +393,7 @@ class _VehicleReportScreenState extends State<VehicleReportScreen> {
     }
     out.add(const SizedBox(height: Gap.md));
     out.add(Text(tr.v100ReportSource,
-        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)));
+        style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)));
     out.add(const SizedBox(height: Gap.xl));
     return out;
   }

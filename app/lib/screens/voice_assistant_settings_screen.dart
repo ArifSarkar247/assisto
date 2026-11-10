@@ -258,7 +258,7 @@ class _VoiceAssistantSettingsScreenState
       required List<Widget> children}) {
     return Card(
       elevation: 0,
-      color: scheme.surfaceContainerHigh,
+      color: scheme.ds.cardHigh,
       shape:
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.lg)),
       child: Padding(
@@ -294,10 +294,10 @@ class _VoiceAssistantSettingsScreenState
   }
 
   Widget _statusChip(ColorScheme scheme, String label, {required bool good}) {
-    final bg = good ? Brand.success.withValues(alpha: 0.16) : scheme.surfaceContainerHighest;
+    final bg = good ? Brand.success.withValues(alpha: 0.16) : scheme.ds.cardHighest;
     final fg = good
         ? AssistoTokens.of(context).success
-        : scheme.onSurfaceVariant;
+        : scheme.ds.muted;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: 6),
       decoration: BoxDecoration(
@@ -320,9 +320,9 @@ class _VoiceAssistantSettingsScreenState
             height: 24,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-                color: scheme.primaryContainer, shape: BoxShape.circle),
+                color: scheme.ds.primarySoft, shape: BoxShape.circle),
             child: Text('$n',
-                style: AType.bodySmall.copyWith(color: scheme.onPrimaryContainer, fontWeight: FontWeight.w700)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.primaryInk, fontWeight: FontWeight.w700)),
           ),
           const SizedBox(width: Gap.sm),
           Expanded(child: Text(text)),
@@ -340,7 +340,7 @@ class _VoiceAssistantSettingsScreenState
         title: t.vaDefTitle,
         children: [
           Text(t.vaDefBody2,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           status,
           const SizedBox(height: Gap.md),
@@ -351,12 +351,12 @@ class _VoiceAssistantSettingsScreenState
             margin: const EdgeInsets.only(top: Gap.xs),
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
+              color: scheme.ds.cardHighest,
               borderRadius: BorderRadius.circular(Radii.md),
             ),
             child: Text(
                 '${t.vaDefColorOs}\n\n${t.vaDefSamsungNote}\n\n${t.vaDefXiaomiNote}\n\n${t.vaDefPowerNote}',
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ),
           const SizedBox(height: Gap.md),
           SizedBox(
@@ -433,12 +433,12 @@ class _VoiceAssistantSettingsScreenState
   Widget _note(ColorScheme scheme, IconData icon, String text) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, size: 18, color: scheme.onSurfaceVariant),
+          Icon(icon, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(text,
                   style:
-                      AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))),
+                      AType.bodyMedium.copyWith(color: scheme.ds.muted))),
         ]),
       );
 
@@ -476,7 +476,7 @@ class _VoiceAssistantSettingsScreenState
                 onChanged: blocked && !on ? null : _toggleWake,
               ),
         children: [
-          Text(t.vaWkBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(t.vaWkBody, style: TextStyle(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           _statusChip(scheme, note, good: good),
           if (on) ...[
@@ -515,7 +515,7 @@ class _VoiceAssistantSettingsScreenState
             ),
             const SizedBox(height: Gap.xs),
             Text(levelSub,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ],
           SwitchListTile(
             key: const Key('va-wake-locked'),
@@ -560,7 +560,7 @@ class _VoiceAssistantSettingsScreenState
           },
         ),
         children: [
-          Text(t.vaTtsBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(t.vaTtsBody, style: TextStyle(color: scheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -609,7 +609,7 @@ class _VoiceAssistantSettingsScreenState
         icon: Icons.library_music_rounded,
         title: t.vaMusicTitle,
         children: [
-          Text(t.vaMusicBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(t.vaMusicBody, style: TextStyle(color: scheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           RadioGroup<String>(
             groupValue: _music,
@@ -635,7 +635,7 @@ class _VoiceAssistantSettingsScreenState
             ]),
           ),
           Text(t.vaMusicHonest,
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ]);
   }
 
@@ -669,7 +669,7 @@ class _VoiceAssistantSettingsScreenState
             ),
           const SizedBox(height: Gap.xs),
           Text(t.vaConfirmNote,
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ]);
   }
 }

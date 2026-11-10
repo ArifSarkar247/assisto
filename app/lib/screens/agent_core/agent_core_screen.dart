@@ -242,18 +242,18 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
                   const OfflineBanner(),
                   if (_approvals > 0)
                     Card(
-                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                      color: Theme.of(context).colorScheme.ds.successBg,
                       child: ListTile(
                         key: const ValueKey('ac_approvals_banner'),
                         minVerticalPadding: Gap.md,
                         leading: Icon(Icons.front_hand_rounded,
-                            color: Theme.of(context).colorScheme.onTertiaryContainer),
+                            color: Theme.of(context).colorScheme.ds.successInk),
                         title: Text(t.acApprovalsWaiting(acNum(context, _approvals)),
                             style: TextStyle(
-                                color: Theme.of(context).colorScheme.onTertiaryContainer,
+                                color: Theme.of(context).colorScheme.ds.successInk,
                                 fontWeight: FontWeight.w600)),
                         trailing: Icon(Icons.chevron_right_rounded,
-                            color: Theme.of(context).colorScheme.onTertiaryContainer),
+                            color: Theme.of(context).colorScheme.ds.successInk),
                         onTap: _openApprovals,
                       ),
                     ),
@@ -282,21 +282,21 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
     switch (_phase) {
       case AcPhase.compose:
         return [
-          Text(t.acIntro, style: TextStyle(color: s.onSurfaceVariant, height: 1.4)),
+          Text(t.acIntro, style: TextStyle(color: s.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.lg),
           // bizops: the shop owner's morning card (flag business; hidden when off)
           if (FeatureFlags.instance.isOn('business')) ...[
             Card(
-              color: s.secondaryContainer,
+              color: s.ds.primarySoft,
               child: ListTile(
                 key: const ValueKey('ac_open_biz_brief'),
                 minVerticalPadding: Gap.md,
-                leading: Icon(Icons.storefront_rounded, color: s.onSecondaryContainer),
+                leading: Icon(Icons.storefront_rounded, color: s.ds.primaryInk),
                 title: Text(t.boEntry,
                     style: TextStyle(
-                        color: s.onSecondaryContainer, fontWeight: FontWeight.w600)),
-                subtitle: Text(t.boEntryBody, style: TextStyle(color: s.onSecondaryContainer)),
-                trailing: Icon(Icons.chevron_right_rounded, color: s.onSecondaryContainer),
+                        color: s.ds.primaryInk, fontWeight: FontWeight.w600)),
+                subtitle: Text(t.boEntryBody, style: TextStyle(color: s.ds.primaryInk)),
+                trailing: Icon(Icons.chevron_right_rounded, color: s.ds.primaryInk),
                 onTap: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (_) => const BizBriefScreen())),
               ),
@@ -352,13 +352,13 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
             key: const ValueKey('ac_offline_queued'),
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
-                color: s.tertiaryContainer, borderRadius: BorderRadius.circular(Radii.md)),
+                color: s.ds.successBg, borderRadius: BorderRadius.circular(Radii.md)),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.cloud_off_rounded, color: s.onTertiaryContainer),
+              Icon(Icons.cloud_off_rounded, color: s.ds.successInk),
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(t.acOfflineQueued,
-                      style: TextStyle(color: s.onTertiaryContainer, height: 1.4))),
+                      style: TextStyle(color: s.ds.successInk, height: 1.4))),
             ]),
           ),
           const SizedBox(height: Gap.md),
@@ -410,13 +410,13 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: s.surfaceContainerHighest, borderRadius: BorderRadius.circular(Radii.md)),
+          color: s.ds.cardHighest, borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.flag_outlined, color: s.onSurfaceVariant),
+        Icon(Icons.flag_outlined, color: s.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(_goal,
-                style: TextStyle(color: s.onSurface, fontWeight: FontWeight.w600))),
+                style: TextStyle(color: s.ds.text, fontWeight: FontWeight.w600))),
       ]),
     );
   }
@@ -449,7 +449,7 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Radii.lg),
-          side: BorderSide(color: s.outlineVariant)),
+          side: BorderSide(color: s.ds.border)),
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -498,7 +498,7 @@ class _AgentCoreScreenState extends State<AgentCoreScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, size: 20, color: danger ? s.error : s.onSurfaceVariant),
+        Icon(icon, size: 20, color: danger ? s.error : s.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(child: Text(text, style: TextStyle(color: danger ? s.error : null, height: 1.35))),
       ]),

@@ -339,7 +339,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
             if (_logging)
               Card(
                 margin: const EdgeInsets.only(bottom: Gap.md),
-                color: scheme.primaryContainer,
+                color: scheme.ds.primarySoft,
                 child: Padding(
                   padding: const EdgeInsets.all(Gap.md),
                   child: Row(children: [
@@ -350,7 +350,7 @@ class _CarModeScreenState extends State<CarModeScreen> {
                         tr.vehCarLogging(vehNumStr(context, _points.length),
                             tr.vehKmh(vehNumStr(context, (_speedKmh ?? 0).clamp(0, 400)))),
                         style: TextStyle(
-                            color: scheme.onPrimaryContainer, fontWeight: FontWeight.w600),
+                            color: scheme.ds.primaryInk, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ]),
@@ -394,16 +394,16 @@ class _CarModeScreenState extends State<CarModeScreen> {
             const SizedBox(height: Gap.md),
             Card(
               margin: EdgeInsets.zero,
-              color: scheme.secondaryContainer,
+              color: scheme.ds.primarySoft,
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Icon(Icons.info_outline_rounded, color: scheme.onSecondaryContainer),
+                  Icon(Icons.info_outline_rounded, color: scheme.ds.primaryInk),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(tr.vehCarHonest,
                         style: TextStyle(
-                            color: scheme.onSecondaryContainer, height: 1.35)),
+                            color: scheme.ds.primaryInk, height: 1.35)),
                   ),
                 ]),
               ),
@@ -454,7 +454,7 @@ extension on _CarModeScreenState {
                     style: AType.headlineMedium.copyWith(
                         fontWeight: FontWeight.w800,
                         fontFeatures: AFonts.tabular,
-                        color: over ? scheme.error : scheme.onSurface)),
+                        color: over ? scheme.error : scheme.ds.text)),
               ),
               Chip(
                 key: const ValueKey('car-state'),
@@ -465,14 +465,14 @@ extension on _CarModeScreenState {
               if (d != null)
                 Chip(
                   key: const ValueKey('car-route-state'),
-                  backgroundColor: e.offRoute ? scheme.errorContainer : null,
+                  backgroundColor: e.offRoute ? scheme.ds.dangerBg : null,
                   avatar: Icon(e.offRoute ? Icons.wrong_location_rounded : Icons.alt_route_rounded,
-                      size: 18, color: e.offRoute ? scheme.onErrorContainer : null),
+                      size: 18, color: e.offRoute ? scheme.ds.dangerInk : null),
                   label: Text(
                       e.offRoute
                           ? tr.e2eVehOffRoute(vehNumStr(context, d.round()))
                           : tr.e2eVehOnRoute,
-                      style: TextStyle(color: e.offRoute ? scheme.onErrorContainer : null)),
+                      style: TextStyle(color: e.offRoute ? scheme.ds.dangerInk : null)),
                 ),
             ],
           ),
@@ -492,18 +492,18 @@ extension on _CarModeScreenState {
     return Card(
       key: const ValueKey('car-alert'),
       margin: const EdgeInsets.only(bottom: Gap.md),
-      color: scheme.errorContainer,
+      color: scheme.ds.dangerBg,
       child: Semantics(
         liveRegion: true,
         child: ListTile(
           minVerticalPadding: Gap.sm,
-          leading: Icon(Icons.warning_amber_rounded, color: scheme.onErrorContainer),
+          leading: Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk),
           title: Text(text,
               style: TextStyle(
-                  color: scheme.onErrorContainer, fontWeight: FontWeight.w700, height: 1.3)),
+                  color: scheme.ds.dangerInk, fontWeight: FontWeight.w700, height: 1.3)),
           trailing: IconButton(
             tooltip: tr.close,
-            icon: Icon(Icons.close_rounded, color: scheme.onErrorContainer),
+            icon: Icon(Icons.close_rounded, color: scheme.ds.dangerInk),
             onPressed: () => _set(() => _banner = null),
           ),
         ),
@@ -585,7 +585,7 @@ class _BigButton extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.onSurface)),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.text)),
           ]),
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import 'meddb_store.dart';
 import 'meddb_report_sheet.dart';
@@ -127,18 +128,18 @@ class _MedDbDrugCardState extends State<MedDbDrugCard> {
                 visualDensity: VisualDensity.compact,
                 tooltip: _fav ? t.medicineDbRemoveSave : t.medicineDbSave,
                 icon: Icon(_fav ? Icons.star_rounded : Icons.star_border_rounded,
-                    color: _fav ? Brand.warning : scheme.onSurfaceVariant),
+                    color: _fav ? Brand.warning : DsTokens.of(context).muted),
                 onPressed: _toggleFav,
               ),
           ]),
           if (widget.offline) ...[
             const SizedBox(height: Gap.xs),
             Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.cloud_off_rounded, size: 13, color: scheme.onSurfaceVariant),
+              Icon(Icons.cloud_off_rounded, size: 13, color: DsTokens.of(context).muted),
               const SizedBox(width: Gap.xs),
               Text(t.medicineDbOfflineCached,
                   style:
-                      TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                      TextStyle(fontSize: 11, color: DsTokens.of(context).muted)),
             ]),
           ],
           const SizedBox(height: Gap.xs),
@@ -178,7 +179,7 @@ class _MedDbDrugCardState extends State<MedDbDrugCard> {
             Container(
               padding: const EdgeInsets.all(Gap.sm),
               decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest,
+                color: DsTokens.of(context).cardHighest,
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Column(
@@ -186,13 +187,13 @@ class _MedDbDrugCardState extends State<MedDbDrugCard> {
                   children: [
                     Row(children: [
                       Icon(Icons.info_outline_rounded,
-                          size: 15, color: scheme.onSurfaceVariant),
+                          size: 15, color: DsTokens.of(context).muted),
                       const SizedBox(width: Gap.xs),
                       Text(t.medicineDbInteractions,
                           style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: scheme.onSurfaceVariant)),
+                              color: DsTokens.of(context).muted)),
                     ]),
                     const SizedBox(height: 2),
                     Text(interactions['text'].toString(),
@@ -206,7 +207,7 @@ class _MedDbDrugCardState extends State<MedDbDrugCard> {
                           style: TextStyle(
                               fontSize: 11,
                               fontStyle: FontStyle.italic,
-                              color: scheme.onSurfaceVariant)),
+                              color: DsTokens.of(context).muted)),
                     ],
                   ]),
             ),
@@ -218,17 +219,17 @@ class _MedDbDrugCardState extends State<MedDbDrugCard> {
             Container(
               padding: const EdgeInsets.all(Gap.sm),
               decoration: BoxDecoration(
-                color: scheme.errorContainer,
+                color: DsTokens.of(context).dangerBg,
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Row(children: [
                 Icon(Icons.warning_amber_rounded,
-                    size: 16, color: scheme.onErrorContainer),
+                    size: 16, color: DsTokens.of(context).dangerInk),
                 const SizedBox(width: Gap.xs),
                 Expanded(
                     child: Text(switchWarning,
                         style: TextStyle(
-                            fontSize: 11.5, color: scheme.onErrorContainer))),
+                            fontSize: 11.5, color: DsTokens.of(context).dangerInk))),
               ]),
             ),
           ],
@@ -254,11 +255,11 @@ class _MedDbDrugCardState extends State<MedDbDrugCard> {
                         const EdgeInsets.only(top: Gap.xs, bottom: Gap.sm),
                     child: Row(children: [
                       Icon(Icons.warning_amber_rounded,
-                          size: 14, color: scheme.error),
+                          size: 14, color: DsTokens.of(context).dangerInk),
                       const SizedBox(width: Gap.xs),
                       Expanded(
                         child: Text(t.medicineDbAlternativesNote,
-                            style: TextStyle(fontSize: 11, color: scheme.error)),
+                            style: TextStyle(fontSize: 11, color: DsTokens.of(context).dangerInk)),
                       ),
                     ]),
                   ),
@@ -315,8 +316,8 @@ class _AltRow extends StatelessWidget {
       } else {
         badge = _PriceBadge(
             text: t.medicineDbSamePrice,
-            fg: scheme.onSurfaceVariant,
-            bg: scheme.surfaceContainerHighest);
+            fg: DsTokens.of(context).muted,
+            bg: DsTokens.of(context).cardHighest);
       }
     }
 
@@ -366,13 +367,13 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: DsTokens.of(context).cardHighest,
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 13, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 13, color: DsTokens.of(context).muted),
         const SizedBox(width: Gap.xs),
-        Text(text, style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+        Text(text, style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted)),
       ]),
     );
   }

@@ -174,17 +174,17 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                   if (!s.enabled)
                     Card(
                       key: const Key('email-off'),
-                      color: scheme.secondaryContainer,
+                      color: scheme.ds.primarySoft,
                       child: Padding(
                         padding: const EdgeInsets.all(Gap.lg),
                         child: Row(children: [
                           Icon(Icons.info_outline_rounded,
-                              color: scheme.onSecondaryContainer),
+                              color: scheme.ds.primaryInk),
                           const SizedBox(width: Gap.sm),
                           Expanded(
                             child: Text(t.smsotpEmailOff,
                                 style: TextStyle(
-                                    color: scheme.onSecondaryContainer)),
+                                    color: scheme.ds.primaryInk)),
                           ),
                         ]),
                       ),
@@ -202,7 +202,7 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                               s.verified
                                   ? Icons.verified_rounded
                                   : Icons.mark_email_unread_rounded,
-                              color: s.verified ? scheme.primary : scheme.outline),
+                              color: s.verified ? scheme.primary : scheme.ds.muted),
                           title: Text(s.email,
                               maxLines: 2, overflow: TextOverflow.ellipsis),
                           subtitle: Text(s.verified
@@ -249,7 +249,7 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                           key: const Key('email-note'),
                           textAlign: TextAlign.center,
                           style: text.bodyMedium
-                              ?.copyWith(color: scheme.onSurfaceVariant)),
+                              ?.copyWith(color: scheme.ds.muted)),
                     ],
                     if (_codeSent) ...[
                       const SizedBox(height: Gap.lg),
@@ -260,7 +260,7 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                           key: const Key('email-code-rules'),
                           textAlign: TextAlign.center,
                           style: text.bodySmall
-                              ?.copyWith(color: scheme.onSurfaceVariant)),
+                              ?.copyWith(color: scheme.ds.muted)),
                       const SizedBox(height: Gap.md),
                       OtpCodeInput(
                         controller: _code,

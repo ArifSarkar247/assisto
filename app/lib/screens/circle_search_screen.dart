@@ -9,6 +9,7 @@ import '../crypto/e2e.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'package:intl/intl.dart';
 
 import '../messaging/chat_decor/chat_control.dart' show isControlText;
@@ -203,7 +204,7 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
               : results.isEmpty
                   ? (_loading
                       ? const Center(child: CircularProgressIndicator())
-                      : Center(child: Text(_t.circleSearchNoResults, style: TextStyle(color: scheme.onSurfaceVariant))))
+                      : Center(child: Text(_t.circleSearchNoResults, style: TextStyle(color: DsTokens.of(context).muted))))
                   : ListView.builder(
                       itemCount: results.length,
                       itemBuilder: (_, i) {
@@ -213,15 +214,14 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
                             'member:${h.member['id']}', '${h.member['name'] ?? ''}');
                         return ListTile(
                           key: Key('e-msg-hit-$i'),
-                          leading: CircleAvatar(
-                              child: Text(name.isEmpty ? '?' : name.characters.first.toUpperCase())),
+                          leading: DsAvatar(name: name.isEmpty ? '?' : name),
                           title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
                           subtitle: Text(cardFallback(h.text),
                               maxLines: 2, overflow: TextOverflow.ellipsis),
                           trailing: Text(
                               notifLocalizeDigits(context,
                                   DateFormat('d/M/yy').format(h.at)),
-                              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                              style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted)),
                           onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(
                             builder: (_) => CircleChatScreen(member: h.member, identity: widget.identity),
                           )),
@@ -238,11 +238,12 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.search_rounded, size: 48, color: scheme.primary.withValues(alpha: 0.6)),
+              const DsIllustration(icon: Icons.search_rounded),
               const SizedBox(height: Gap.md),
               Text(_t.circleSearchHint,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: DsTokens.of(context).muted, height: 1.4)),
             ],
           ),
         ),

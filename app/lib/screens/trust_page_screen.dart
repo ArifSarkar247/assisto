@@ -147,14 +147,14 @@ class TrustPageScreen extends StatelessWidget {
           _SectionHeader(text: t.trustTransparency),
           Card(
             margin: EdgeInsets.zero,
-            color: scheme.surfaceContainerHighest,
+            color: scheme.ds.cardHighest,
             child: Padding(
               padding: const EdgeInsets.all(Gap.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
-                    Icon(Icons.gavel_rounded, size: 22, color: scheme.onSurfaceVariant),
+                    Icon(Icons.gavel_rounded, size: 22, color: scheme.ds.muted),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(t.trustLicenseTitle,
@@ -188,7 +188,7 @@ class TrustPageScreen extends StatelessWidget {
           Center(
             child: Text(t.trustFooter,
                 textAlign: TextAlign.center,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           ),
         ],
       ),

@@ -58,7 +58,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                   ? AppLocalizations.of(context).chooseLanguageSub
                   : 'You can change this later in Settings.',
               textAlign: TextAlign.center,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted),
             ),
           ]),
         ),
@@ -77,7 +77,7 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
         duration: Motion.fast,
         padding: const EdgeInsets.all(Gap.lg),
         decoration: BoxDecoration(
-          color: selected ? scheme.secondaryContainer : scheme.surfaceContainerHighest,
+          color: selected ? scheme.ds.primarySoft : scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(Radii.md),
           border: Border.all(
             color: selected ? scheme.primary : Colors.transparent,
@@ -89,11 +89,11 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title,
                   style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
-              Text(sub, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              Text(sub, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ]),
           ),
           Icon(selected ? Icons.check_circle_rounded : Icons.circle_rounded,
-              color: selected ? scheme.primary : scheme.outline),
+              color: selected ? scheme.primary : scheme.ds.muted),
         ]),
       ),
       ),

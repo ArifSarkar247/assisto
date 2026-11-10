@@ -7,6 +7,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../services/error_kind.dart' show honestFailText;
 import '../../../state.dart';
 import '../../../theme.dart';
+import '../../../ds/ds.dart';
 import '../../../widgets/app_sheet.dart';
 import '../../../widgets/skeleton.dart';
 import '../business_common.dart' show pair, rememberedBusinessId;
@@ -208,7 +209,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
           SizedBox(
             width: w,
             child: Material(
-              color: scheme.surfaceContainerHighest,
+              color: DsTokens.of(context).cardHighest,
               borderRadius: BorderRadius.circular(Radii.lg),
               child: InkWell(
                 key: ValueKey('acct-home-$k'),
@@ -286,18 +287,18 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
     final failed = _queue.where((r) => r['failed'] != null).toList();
     final waiting = _queue.length - failed.length;
     return Card(
-      color: scheme.tertiaryContainer,
+      color: DsTokens.of(context).successBg,
       margin: const EdgeInsets.only(bottom: Gap.lg),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.cloud_upload_rounded, color: scheme.onTertiaryContainer),
+            Icon(Icons.cloud_upload_rounded, color: DsTokens.of(context).successInk),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.acuQueueWaiting(acctDigits(context, waiting)),
                   style: TextStyle(
-                      color: scheme.onTertiaryContainer, fontWeight: FontWeight.w700)),
+                      color: DsTokens.of(context).successInk, fontWeight: FontWeight.w700)),
             ),
           ]),
           if (waiting > 0) ...[
@@ -313,9 +314,9 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
               title: Text(
                   '${acctKindLabel(t, '${(f['entry'] as Map)['kind']}')} · '
                   '${acctMoney(context, (f['entry'] as Map)['amount'])}',
-                  style: TextStyle(color: scheme.onTertiaryContainer)),
+                  style: TextStyle(color: DsTokens.of(context).successInk)),
               subtitle: Text(pair(context, f['failed']),
-                  style: TextStyle(color: scheme.onTertiaryContainer)),
+                  style: TextStyle(color: DsTokens.of(context).successInk)),
               trailing: TextButton(
                 onPressed: () async {
                   await AcctQueue.remove('${(f['entry'] as Map)['client_id']}');
@@ -352,7 +353,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
   Widget _empty(AppLocalizations t, ColorScheme scheme) => Container(
         padding: const EdgeInsets.all(Gap.lg),
         decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(Radii.lg)),
+            color: DsTokens.of(context).cardHighest, borderRadius: BorderRadius.circular(Radii.lg)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Icon(Icons.auto_stories_rounded, size: 48, color: scheme.primary),
           const SizedBox(height: Gap.sm),
@@ -361,7 +362,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
               style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
           Text(t.acuEmptyBody,
-              textAlign: TextAlign.center, style: TextStyle(height: 1.4, color: scheme.onSurfaceVariant)),
+              textAlign: TextAlign.center, style: TextStyle(height: 1.4, color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.lg),
           SizedBox(
             height: 52,
@@ -373,7 +374,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
             ),
           ),
           const SizedBox(height: Gap.md),
-          Text(t.acuEmptyHowTo, style: TextStyle(height: 1.5, color: scheme.onSurfaceVariant)),
+          Text(t.acuEmptyHowTo, style: TextStyle(height: 1.5, color: DsTokens.of(context).muted)),
         ]),
       );
 
@@ -400,13 +401,13 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
     final voided = e['void'] != null;
     final style = TextStyle(
         decoration: voided ? TextDecoration.lineThrough : null,
-        color: voided ? scheme.onSurfaceVariant : null);
+        color: voided ? DsTokens.of(context).muted : null);
     return ListTile(
       contentPadding: EdgeInsets.zero,
       minVerticalPadding: Gap.sm,
       leading: CircleAvatar(
-        backgroundColor: scheme.primaryContainer,
-        child: Icon(acctKindIcon('${e['kind']}'), color: scheme.onPrimaryContainer, size: 20),
+        backgroundColor: DsTokens.of(context).primarySoft,
+        child: Icon(acctKindIcon('${e['kind']}'), color: DsTokens.of(context).primaryInk, size: 20),
       ),
       title: Text(_entryTitle(t, e), style: style.copyWith(fontWeight: FontWeight.w600)),
       subtitle: Text(
@@ -445,7 +446,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
             if ((e['vat'] as num? ?? 0) > 0) Text(t.acuVatLine(acctMoney(ctx, e['vat']))),
             const SizedBox(height: Gap.lg),
             if (voided)
-              Text(t.acuVoidedNote, style: TextStyle(color: Theme.of(ctx).colorScheme.onSurfaceVariant))
+              Text(t.acuVoidedNote, style: TextStyle(color: Theme.of(ctx).colorScheme.ds.muted))
             else ...[
               Text(t.acuVoidExplain, style: const TextStyle(height: 1.4)),
               const SizedBox(height: Gap.sm),

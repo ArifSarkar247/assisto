@@ -269,7 +269,7 @@ class _FitnessPartnerScreenState extends State<FitnessPartnerScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: Gap.sm),
           child: Text(tr.fitNoWorkoutsYet,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         ),
         Align(
           alignment: Alignment.centerLeft,
@@ -397,21 +397,21 @@ class _GoalHeadline extends StatelessWidget {
               Row(children: [
                 Expanded(
                   child: Text(_kindLabel(tr, progress.kind),
-                      style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                 ),
                 _statusChip(context, progress.status),
               ]),
               const SizedBox(height: Gap.sm),
               Text(ld(context, _headlineValue(tr)),
                   style: AType.displaySmall.copyWith(fontWeight: FontWeight.bold,
-                      color: scheme.onSurface)),
+                      color: scheme.ds.text)),
               const SizedBox(height: Gap.md),
               ClipRRect(
                 borderRadius: BorderRadius.circular(Radii.pill),
                 child: LinearProgressIndicator(
                   value: progress.percent / 100.0,
                   minHeight: 10,
-                  backgroundColor: scheme.surfaceContainerHighest,
+                  backgroundColor: scheme.ds.cardHighest,
                   color: c,
                 ),
               ),
@@ -475,7 +475,7 @@ class _CoachTip extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.secondaryContainer.withValues(alpha: 0.4),
+      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -490,7 +490,7 @@ class _CoachTip extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.w500)),
                   const SizedBox(height: Gap.xxs),
                   Text(tr.fitTipFixedNote,
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ]),
           ),
         ]),
@@ -557,7 +557,7 @@ class _GoalFormState extends State<_GoalForm> {
                   style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: Gap.sm),
               Text(tr.fitGoalHelp,
-                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
               const SizedBox(height: Gap.lg),
               DropdownButtonFormField<String>(
                 initialValue: _kind,
@@ -769,7 +769,7 @@ Color _statusColor(BuildContext context, String status) {
     case 'behind':
       return scheme.error;
     case 'not_started':
-      return scheme.onSurfaceVariant;
+      return scheme.ds.muted;
     default:
       return scheme.primary; // on_track
   }
@@ -821,7 +821,7 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
             maxLines: 2,
             overflow: TextOverflow.ellipsis),
         Text(label,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted),
             maxLines: 2,
             overflow: TextOverflow.ellipsis),
       ]),
@@ -832,16 +832,16 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
 Widget _nonMedicalNote(BuildContext context, String text) {
   final scheme = Theme.of(context).colorScheme;
   return Card(
-    color: scheme.surfaceContainerHighest,
+    color: scheme.ds.cardHighest,
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(Icons.favorite_border_rounded, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.favorite_border_rounded, size: 18, color: scheme.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
               style:
-                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
       ]),
     ),

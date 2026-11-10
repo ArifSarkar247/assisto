@@ -173,7 +173,7 @@ class _BooksScreenState extends State<BooksScreen> {
         const SizedBox(height: Gap.sm),
         Text(t.lgrEmptyBody,
             textAlign: TextAlign.center,
-            style: TextStyle(height: 1.4, color: scheme.onSurfaceVariant)),
+            style: TextStyle(height: 1.4, color: scheme.ds.muted)),
         const SizedBox(height: Gap.xl),
         SizedBox(
           height: 52,
@@ -184,7 +184,7 @@ class _BooksScreenState extends State<BooksScreen> {
           ),
         ),
         const SizedBox(height: Gap.lg),
-        Text(t.lgrEmptyHowTo, style: TextStyle(height: 1.5, color: scheme.onSurfaceVariant)),
+        Text(t.lgrEmptyHowTo, style: TextStyle(height: 1.5, color: scheme.ds.muted)),
       ],
     );
   }
@@ -224,12 +224,12 @@ class _BooksScreenState extends State<BooksScreen> {
       Container(
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
-            color: scheme.errorContainer, borderRadius: BorderRadius.circular(Radii.md)),
+            color: scheme.ds.dangerBg, borderRadius: BorderRadius.circular(Radii.md)),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.warning_amber_rounded, color: scheme.onErrorContainer),
+          Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk),
           const SizedBox(width: Gap.sm),
           Expanded(
-              child: Text(pair(context, w), style: TextStyle(color: scheme.onErrorContainer))),
+              child: Text(pair(context, w), style: TextStyle(color: scheme.ds.dangerInk))),
         ]),
       ),
       const SizedBox(height: Gap.md),
@@ -289,7 +289,7 @@ class _BooksScreenState extends State<BooksScreen> {
     );
   }
 
-  Widget _rule() => Divider(height: Gap.md, color: Theme.of(context).colorScheme.outlineVariant);
+  Widget _rule() => Divider(height: Gap.md, color: Theme.of(context).colorScheme.ds.border);
 
   List<Widget> _accountRows(Object? rows) => [
         for (final r in (rows as List? ?? const []).cast<Map>())
@@ -319,7 +319,7 @@ class _BooksScreenState extends State<BooksScreen> {
       ]),
       const SizedBox(height: Gap.sm),
       Text(t.lgrPeriodRange(_day(p['from']), _day(p['to'])),
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
       _heading(t.lgrIncomeHeading),
       ..._accountRows(p['sales']),
       if (((p['discounts_total'] as num?) ?? 0) != 0)
@@ -345,7 +345,7 @@ class _BooksScreenState extends State<BooksScreen> {
     return _list([
       _balancedBadge(b['balanced'] == true),
       Text(t.lgrAsOf(_day(b['as_of'])),
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
       _heading(t.lgrAssets),
       ..._accountRows(b['assets']),
       _row(t.lgrTotalAssets, b['total_assets'], strong: true),
@@ -366,7 +366,7 @@ class _BooksScreenState extends State<BooksScreen> {
     final scheme = Theme.of(context).colorScheme;
     return _list([
       _balancedBadge(b['balanced'] == true),
-      Text(t.lgrAsOf(_day(b['as_of'])), style: TextStyle(color: scheme.onSurfaceVariant)),
+      Text(t.lgrAsOf(_day(b['as_of'])), style: TextStyle(color: scheme.ds.muted)),
       const SizedBox(height: Gap.md),
       for (final r in (b['rows'] as List? ?? const []).cast<Map>())
         Semantics(

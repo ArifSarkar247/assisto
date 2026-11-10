@@ -388,7 +388,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
       margin: const EdgeInsets.only(bottom: Gap.lg),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cs.errorContainer.withValues(alpha: 0.55),
+        color: cs.ds.dangerBg.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(Radii.md),
         border: Border.all(color: cs.error.withValues(alpha: 0.5)),
       ),
@@ -401,7 +401,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
             child: Text(
               t.bkPassWarning,
               style: TextStyle(
-                  color: cs.onErrorContainer, fontWeight: FontWeight.w600),
+                  color: cs.ds.dangerInk, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -523,7 +523,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
           ],
         ),
         Text(t.bkTransferCodeHint,
-            style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
         const SizedBox(height: 20),
         Wrap(
           spacing: 12,
@@ -629,7 +629,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
     return Container(
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
-        color: cs.secondaryContainer.withValues(alpha: 0.5),
+        color: cs.ds.primarySoft.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(Radii.lg),
         border: Border.all(color: cs.secondary.withValues(alpha: 0.4)),
       ),
@@ -646,14 +646,14 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
                     : t.bkRestoreOk,
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: cs.onSecondaryContainer),
+                    color: cs.ds.primaryInk),
               ),
             ),
           ]),
           const SizedBox(height: 10),
           Text(t.bkRestorePreview,
               style: TextStyle(
-                  fontWeight: FontWeight.w600, color: cs.onSecondaryContainer)),
+                  fontWeight: FontWeight.w600, color: cs.ds.primaryInk)),
           const SizedBox(height: 6),
           Container(
             constraints: const BoxConstraints(maxHeight: 220),
@@ -697,7 +697,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+            color: cs.ds.cardHighest.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(
@@ -723,7 +723,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
     return Container(
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
-        color: cs.primaryContainer.withValues(alpha: 0.4),
+        color: cs.ds.primarySoft.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(Radii.lg),
       ),
       child: Row(
@@ -738,7 +738,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
                 Text(title,
                     style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
-                Text(body, style: TextStyle(color: cs.onSurfaceVariant)),
+                Text(body, style: TextStyle(color: cs.ds.muted)),
               ],
             ),
           ),

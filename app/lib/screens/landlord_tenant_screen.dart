@@ -342,7 +342,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.rentArrearsWindow(monthLabel(context, start),
                 monthLabel(context, _month)),
-                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
             const SizedBox(height: Gap.xs),
             Text(t.rentTotalArrears,
                 style: AType.bodyMedium),
@@ -483,7 +483,7 @@ class _MonthPicker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        color: scheme.ds.cardHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
@@ -524,7 +524,7 @@ class _UnitCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: Gap.md),
       child: Container(
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+          color: scheme.ds.cardHighest.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         // Material(transparency): the tile's ink/background must paint above
@@ -551,7 +551,7 @@ class _UnitCard extends StatelessWidget {
                         Text(moneyDigitsFor(context, '${data['tenant_name']}'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     ]),
               ),
               StatusPill(
@@ -573,7 +573,7 @@ class _UnitCard extends StatelessWidget {
               child: Text(
                 t.rentBillPaid(taka(context, data['bill_poisha'] as int),
                     taka(context, data['paid_poisha'] as int)), // (bill, paid) per signature
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
               ),
             ),
             children: [
@@ -720,7 +720,7 @@ class _UnitEditSheetState extends State<_UnitEditSheet> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(t.rentUtilitiesHint,
-                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           ),
           const SizedBox(height: Gap.sm),
           for (var i = 0; i < _utils.length; i++) _utilRow(t, i),
@@ -856,7 +856,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           alignment: Alignment.centerLeft,
           child: Text(t.rentMethod,
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  color: Theme.of(context).colorScheme.ds.muted)),
         ),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, children: [
@@ -918,7 +918,7 @@ class _OfflineBar extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: AType.bodySmall.copyWith(color: scheme.onSurface))),
+                style: AType.bodySmall.copyWith(color: scheme.ds.text))),
       ]),
     );
   }

@@ -280,7 +280,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
           _pipelineCard(tr, scheme),
           const SizedBox(height: Gap.md),
           Text(tr.starDealsNoHold,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.3)),
           const SizedBox(height: Gap.md),
           for (final r in list) ...[
             _card(r, tr, scheme),
@@ -316,7 +316,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
             ],
             const SizedBox(height: Gap.xs),
             Text(tr.starDealsExpectedNote,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.3)),
           ]),
         ),
       );
@@ -326,7 +326,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
         child: Row(children: [
           Expanded(
             child: Text(k,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
                 maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
           const SizedBox(width: Gap.sm),
@@ -344,7 +344,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
       case _stSigned:
         return Brand.cyan;
       default:
-        return scheme.onSurfaceVariant;
+        return scheme.ds.muted;
     }
   }
 
@@ -384,7 +384,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
           ]),
           const SizedBox(height: Gap.xs),
           Text(_money(_value(r)),
-              style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular, color: scheme.onSurface, fontWeight: FontWeight.w600)),
+              style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular, color: scheme.ds.text, fontWeight: FontWeight.w600)),
           if (deliverables.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Wrap(
@@ -403,12 +403,12 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
             const SizedBox(height: Gap.sm),
             Row(children: [
               Icon(Icons.event_rounded,
-                  size: 15, color: overdue ? scheme.error : scheme.onSurfaceVariant),
+                  size: 15, color: overdue ? scheme.error : scheme.ds.muted),
               const SizedBox(width: Gap.xs),
               Flexible(
                 child: Text(
                     overdue ? tr.starDealsDeadlineOverdue(deadline) : tr.starDealsDeadline(deadline),
-                    style: AType.bodySmall.copyWith(color: overdue ? scheme.error : scheme.onSurfaceVariant, fontWeight: overdue ? FontWeight.w700 : FontWeight.w400),
+                    style: AType.bodySmall.copyWith(color: overdue ? scheme.error : scheme.ds.muted, fontWeight: overdue ? FontWeight.w700 : FontWeight.w400),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
             ]),

@@ -12,6 +12,7 @@ import '../../kids_watch_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/fam_empty.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
@@ -399,20 +400,20 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
           Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
             if (!paired)
               _chip(w['state'] == 'pending' ? t.kwWaitingWatch : t.kwPairExpired,
-                  scheme.tertiaryContainer, scheme.onTertiaryContainer),
+                  DsTokens.of(context).successBg, DsTokens.of(context).successInk),
             if (paired)
               _chip(w['online'] == true ? t.kwOnline : t.kwOffline,
-                  w['online'] == true ? scheme.primaryContainer : scheme.surfaceContainerHighest,
-                  w['online'] == true ? scheme.onPrimaryContainer : scheme.onSurfaceVariant),
+                  w['online'] == true ? DsTokens.of(context).primarySoft : DsTokens.of(context).cardHighest,
+                  w['online'] == true ? DsTokens.of(context).primaryInk : DsTokens.of(context).muted),
             if (paired)
               _chip(full ? t.kwModeFull : t.kwModeSafety,
-                  full ? scheme.secondaryContainer : scheme.errorContainer,
-                  full ? scheme.onSecondaryContainer : scheme.onErrorContainer),
+                  full ? DsTokens.of(context).primarySoft : DsTokens.of(context).dangerBg,
+                  full ? DsTokens.of(context).primaryInk : DsTokens.of(context).dangerInk),
           ]),
           if (paired && !full) ...[
             const SizedBox(height: Gap.xs),
             Text(t.kwSafetyOnlyNote(_d('${_cfg['month_credits'] ?? ''}')),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
           ],
           const SizedBox(height: Gap.sm),
           if (live != null)
@@ -426,7 +427,7 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
             )
           else
             Text(paired ? t.kwNoLocationYet : t.kwPairHint,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           if (plan != null && plan.isNotEmpty) _todayLine(t, plan),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -462,8 +463,8 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
             if (mine)
               TextButton.icon(
                   onPressed: () => _remove(w),
-                  icon: Icon(Icons.delete_outline_rounded, color: scheme.error),
-                  label: Text(t.kwRemove, style: TextStyle(color: scheme.error))),
+                  icon: Icon(Icons.delete_outline_rounded, color: DsTokens.of(context).dangerInk),
+                  label: Text(t.kwRemove, style: TextStyle(color: DsTokens.of(context).dangerInk))),
           ]),
         ]),
       ),
@@ -521,18 +522,18 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
           Text(!enabled
               ? t.kwPlanStopped
               : (accepted ? t.kwPlanActivePhone : t.kwPlanWaitingChild),
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           if (enabled && accepted) _todayLine(t, p),
           if (watchers.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(t.cgaSeenBy(watchers.join(', ')),
                 key: ValueKey('cga-plan-watchers-${p['id']}'),
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           ],
           if (!mine && ownerName.isNotEmpty) ...[
             const SizedBox(height: Gap.xxs),
             Text(t.cgaSetUpBy(ownerName),
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           ],
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -548,8 +549,8 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
             if (mine)
               TextButton.icon(
                   onPressed: () => _deletePlan(p),
-                  icon: Icon(Icons.delete_outline_rounded, color: scheme.error),
-                  label: Text(t.kwRemove, style: TextStyle(color: scheme.error))),
+                  icon: Icon(Icons.delete_outline_rounded, color: DsTokens.of(context).dangerInk),
+                  label: Text(t.kwRemove, style: TextStyle(color: DsTokens.of(context).dangerInk))),
           ]),
         ]),
       ),
@@ -564,7 +565,7 @@ class _HonestCard extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.surfaceContainerHigh,
+      color: DsTokens.of(context).cardHigh,
       margin: const EdgeInsets.only(bottom: Gap.md),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
@@ -727,7 +728,7 @@ class _PairWatchSheetState extends State<_PairWatchSheet> {
         ],
         if (_error.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),
-          Text(_error, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          Text(_error, style: TextStyle(color: DsTokens.of(context).dangerInk)),
         ],
         const SizedBox(height: Gap.lg),
         FilledButton(
@@ -916,7 +917,7 @@ class _VoiceSheetState extends State<_VoiceSheet> {
         if (_loading)
           const Center(child: CircularProgressIndicator())
         else if (_notes.isEmpty)
-          Text(t.kwVoiceEmpty, style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))
+          Text(t.kwVoiceEmpty, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted))
         else
           for (final n in _notes)
             Card(
@@ -953,7 +954,7 @@ class _VoiceSheetState extends State<_VoiceSheet> {
             ),
         const SizedBox(height: Gap.sm),
         Text(t.kwVoiceKeepNote(notifLocalizeDigits(context, '14')),
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
       ]),
     );
   }

@@ -98,7 +98,7 @@ class _Empty extends StatelessWidget {
           const SizedBox(height: Gap.xs),
           Text(AppLocalizations.of(context).inprogNothingInProgress,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         ]),
       ),
     );

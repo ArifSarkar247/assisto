@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 
 import '../../calls/call_runtime.dart';
 import '../../l10n/app_localizations.dart';
@@ -95,7 +96,7 @@ class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  color: scheme.surfaceContainerHighest,
+                  color: scheme.ds.cardHighest,
                   alignment: Alignment.center,
                   child: photo.isEmpty
                       ? Padding(

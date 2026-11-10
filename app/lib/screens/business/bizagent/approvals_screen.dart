@@ -242,7 +242,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
             onPressed: _busy ? null : () => _run(() => api.bizAgentReject(id), t.baRejected),
             // a11y1: primary on the card tint was 4.48:1.
             style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.onSurface),
+                foregroundColor: Theme.of(context).colorScheme.ds.text),
             child: Text(t.baReject),
           ),
           FilledButton.icon(

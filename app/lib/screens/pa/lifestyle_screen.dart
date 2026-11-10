@@ -228,15 +228,15 @@ class _LifestyleScreenState extends State<LifestyleScreen>
   Widget _privacyNote(AppLocalizations tr, ColorScheme scheme) => Container(
         padding: const EdgeInsets.all(Gap.sm),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
+          color: scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Row(children: [
-          Icon(Icons.lock_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
+          Icon(Icons.lock_outline_rounded, size: 16, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.lifestylePrivacyNote,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12, height: 1.3)),
+                style: TextStyle(color: scheme.ds.muted, fontSize: 12, height: 1.3)),
           ),
         ]),
       );
@@ -254,13 +254,13 @@ class _LifestyleScreenState extends State<LifestyleScreen>
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(_catIcon(cat), size: 18,
-                color: past ? scheme.onSurfaceVariant : scheme.primary),
+                color: past ? scheme.ds.muted : scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(title,
                   style: TextStyle(
                       fontWeight: FontWeight.w700, fontSize: 14,
-                      color: past ? scheme.onSurfaceVariant : scheme.onSurface),
+                      color: past ? scheme.ds.muted : scheme.ds.text),
                   maxLines: 2, overflow: TextOverflow.ellipsis),
             ),
             _pill(_catLabel(tr, cat), scheme.primary),
@@ -274,7 +274,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
           if (note.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(note,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.3),
+                style: TextStyle(color: scheme.ds.muted, fontSize: 12.5, height: 1.3),
                 maxLines: 2, overflow: TextOverflow.ellipsis),
           ],
         ]),
@@ -409,16 +409,16 @@ class _LifestyleScreenState extends State<LifestyleScreen>
         padding: const EdgeInsets.only(bottom: Gap.sm, top: 2),
         child: Text(text,
             style: TextStyle(
-                color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700, fontSize: 13)),
+                color: scheme.ds.muted, fontWeight: FontWeight.w700, fontSize: 13)),
       );
 
   Widget _meta(IconData icon, String text, ColorScheme scheme) =>
       Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 14, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 14, color: scheme.ds.muted),
         const SizedBox(width: 3),
         Flexible(
           child: Text(text,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5),
+              style: TextStyle(color: scheme.ds.muted, fontSize: 12.5),
               maxLines: 1, overflow: TextOverflow.ellipsis),
         ),
       ]);

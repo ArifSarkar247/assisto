@@ -446,7 +446,7 @@ class _CvExportScreenState extends State<CvExportScreen> {
     return _section(context, t.crrAtsTitle, [
       Text(t.crrAtsScore(ld(context, score)),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: score >= 80 ? AssistoTokens.of(context).success : scheme.onSurface, fontWeight: FontWeight.w700)),
+              color: score >= 80 ? AssistoTokens.of(context).success : scheme.ds.text, fontWeight: FontWeight.w700)),
       const SizedBox(height: 6),
       for (final c in checks)
         ListTile(

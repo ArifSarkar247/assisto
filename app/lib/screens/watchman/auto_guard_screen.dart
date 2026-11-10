@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
@@ -255,23 +256,23 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       key: const ValueKey('carm-status'),
-      color: on ? scheme.primaryContainer : null,
+      color: on ? scheme.ds.primarySoft : null,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(on ? Icons.shield_rounded : Icons.shield_outlined,
-                color: on ? scheme.onPrimaryContainer : null),
+                color: on ? scheme.ds.primaryInk : null),
             const SizedBox(width: 8),
             Expanded(
                 child: Text(on ? t.carmStatusOn : t.carmStatusOff,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: on ? scheme.onPrimaryContainer : null))),
+                        color: on ? scheme.ds.primaryInk : null))),
           ]),
           if (reason.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(reason == 'family_away' ? t.carmReasonFamily : t.carmReasonClosed,
-                style: TextStyle(color: on ? scheme.onPrimaryContainer : null)),
+                style: TextStyle(color: on ? scheme.ds.primaryInk : null)),
           ],
           if (_cfg['family_on'] == true) ...[
             const SizedBox(height: 4),
@@ -280,7 +281,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
               'all_away' => t.carmSumAway,
               'unknown' => t.carmSumUnknown,
               _ => t.carmSumOff,
-            }, style: TextStyle(color: on ? scheme.onPrimaryContainer : null)),
+            }, style: TextStyle(color: on ? scheme.ds.primaryInk : null)),
           ],
           if (privacy) ...[
             const SizedBox(height: 8),

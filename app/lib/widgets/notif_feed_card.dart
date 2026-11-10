@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import 'notif_models.dart';
 
@@ -19,18 +20,14 @@ class NotifFeedCard extends StatelessWidget {
     final body = pickText(context, event.body);
     final time = notifAgo(context, event.timeIso);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      clipBehavior: Clip.antiAlias,
-      color: event.seen
-          ? null
-          : scheme.primaryContainer.withValues(alpha: 0.18),
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.md)),
-      child: InkWell(
+    final ds = DsTokens.of(context);
+    // designv2: alive DS card; unread = soft primary tint + pulsing dot
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsSurface(
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
+        color: event.seen ? null : ds.primarySoft,
+        padding: const EdgeInsets.all(Gap.md),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -38,8 +35,8 @@ class NotifFeedCard extends StatelessWidget {
                 height: 40,
                 width: 40,
                 decoration: BoxDecoration(
-                  color: vis.tint.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(Radii.sm),
+                  color: vis.tint.withValues(alpha: ds.isDark ? 0.22 : 0.12),
+                  borderRadius: BorderRadius.circular(DsRadius.card),
                 ),
                 child: Icon(vis.icon, color: vis.tint, size: 22),
               ),
@@ -58,6 +55,7 @@ class NotifFeedCard extends StatelessWidget {
                                 .textTheme
                                 .titleSmall
                                 ?.copyWith(
+                                    color: ds.text,
                                     fontWeight: event.seen
                                         ? FontWeight.w600
                                         : FontWeight.w700),
@@ -65,14 +63,9 @@ class NotifFeedCard extends StatelessWidget {
                         ),
                         if (!event.seen) ...[
                           const SizedBox(width: Gap.sm),
-                          Container(
-                            margin: const EdgeInsets.only(top: 6),
-                            height: 8,
-                            width: 8,
-                            decoration: BoxDecoration(
-                              color: scheme.primary,
-                              shape: BoxShape.circle,
-                            ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: DsStatusDot(color: ds.primary, size: 8, pulse: false), // a list: static (cheap)
                           ),
                         ],
                       ],
@@ -81,8 +74,8 @@ class NotifFeedCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         body,
-                        style: TextStyle(
-                            color: scheme.onSurfaceVariant, height: 1.3),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: ds.muted, height: 1.3),
                       ),
                     ],
                     if (time.isNotEmpty) ...[
@@ -92,7 +85,7 @@ class NotifFeedCard extends StatelessWidget {
                         style: Theme.of(context)
                             .textTheme
                             .labelSmall
-                            ?.copyWith(color: scheme.onSurfaceVariant),
+                            ?.copyWith(color: ds.muted),
                       ),
                     ],
                   ],
@@ -100,7 +93,6 @@ class NotifFeedCard extends StatelessWidget {
               ),
             ],
           ),
-        ),
       ),
     );
   }

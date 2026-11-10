@@ -397,7 +397,7 @@ class _JobFindScreenState extends State<JobFindScreen> {
       );
 
   Widget _note(BuildContext context, IconData icon, String s) => Card(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: Theme.of(context).colorScheme.ds.cardHighest,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [

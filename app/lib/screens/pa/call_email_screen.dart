@@ -329,17 +329,17 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.sm),
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest,
+            color: scheme.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.sm),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon, size: 16, color: scheme.onSurfaceVariant),
+            Icon(icon, size: 16, color: scheme.ds.muted),
             const SizedBox(width: 4),
             Flexible(
               child: Text(text,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12.5, color: scheme.onSurface)),
+                  style: TextStyle(fontSize: 12.5, color: scheme.ds.text)),
             ),
           ]),
         ),
@@ -378,7 +378,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
       case _prHigh:
         return scheme.error;
       case _prLow:
-        return scheme.onSurfaceVariant;
+        return scheme.ds.muted;
       default:
         return scheme.primary;
     }
@@ -410,7 +410,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(channel == _chCall ? Icons.call_rounded : Icons.mail_outline_rounded,
-                size: 18, color: scheme.onSurfaceVariant),
+                size: 18, color: scheme.ds.muted),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(subject.isEmpty ? contact : subject,
@@ -418,7 +418,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
                       fontWeight: FontWeight.w700,
                       fontSize: 15,
                       decoration: done ? TextDecoration.lineThrough : null,
-                      color: done ? scheme.onSurfaceVariant : scheme.onSurface),
+                      color: done ? scheme.ds.muted : scheme.ds.text),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
             ),
@@ -427,14 +427,14 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
           if (contact.isNotEmpty && subject.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(tr.paCeWith(contact),
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+                style: TextStyle(color: scheme.ds.muted, fontSize: 13),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
           ],
           if (notes.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(notes,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.3),
+                style: TextStyle(color: scheme.ds.muted, fontSize: 12.5, height: 1.3),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis),
           ],
@@ -595,18 +595,18 @@ class _DraftSheetState extends State<_DraftSheet> {
           ]),
           const SizedBox(height: Gap.sm),
           Text(tr.paCeNeverSends,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12, height: 1.3)),
+              style: TextStyle(color: scheme.ds.muted, fontSize: 12, height: 1.3)),
         ]),
       ),
     );
   }
 
   Widget _marker(AppLocalizations tr, ColorScheme scheme) => Row(children: [
-        Icon(Icons.info_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
+        Icon(Icons.info_outline_rounded, size: 15, color: scheme.ds.muted),
         const SizedBox(width: 4),
         Expanded(
           child: Text(tr.f6BwTemplateMarker, // truth: template, not AI
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5)),
+              style: TextStyle(color: scheme.ds.muted, fontSize: 12.5)),
         ),
       ]);
 
@@ -616,7 +616,7 @@ class _DraftSheetState extends State<_DraftSheet> {
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Radii.sm),
-          border: Border.all(color: scheme.outlineVariant),
+          border: Border.all(color: scheme.ds.border),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
@@ -627,7 +627,7 @@ class _DraftSheetState extends State<_DraftSheet> {
                   style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
               const SizedBox(height: 2),
               Text(tr.paCeAiSeamBody,
-                  style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.4)),
+                  style: TextStyle(color: scheme.ds.muted, fontSize: 12.5, height: 1.4)),
             ]),
           ),
         ]),

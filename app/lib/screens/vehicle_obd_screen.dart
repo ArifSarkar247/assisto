@@ -145,14 +145,14 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
-        backgroundColor: scheme.primaryContainer,
-        child: Icon(icon, color: scheme.onPrimaryContainer),
+        backgroundColor: scheme.ds.primarySoft,
+        child: Icon(icon, color: scheme.ds.primaryInk),
       ),
       title: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Text(value ?? tr.vehNotSupported,
           style: TextStyle(
               fontWeight: FontWeight.w700,
-              color: value == null ? scheme.onSurfaceVariant : scheme.onSurface)),
+              color: value == null ? scheme.ds.muted : scheme.ds.text)),
     );
   }
 
@@ -172,20 +172,20 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
           margin: const EdgeInsets.only(bottom: Gap.sm),
           padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
-            color: scheme.errorContainer,
+            color: scheme.ds.dangerBg,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.warning_amber_rounded, color: scheme.onErrorContainer, size: 28),
+            Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk, size: 28),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(tr.vehEngineHotTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: scheme.onErrorContainer, fontWeight: FontWeight.w700)),
+                        color: scheme.ds.dangerInk, fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.xs),
                 Text(tr.vehEngineHotBody(temp),
-                    style: TextStyle(color: scheme.onErrorContainer, height: 1.35)),
+                    style: TextStyle(color: scheme.ds.dangerInk, height: 1.35)),
               ]),
             ),
           ]),
@@ -210,8 +210,8 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
         Card(
           margin: const EdgeInsets.only(top: Gap.xs),
           color: '${d['severity']}' == 'high'
-              ? scheme.errorContainer
-              : scheme.surfaceContainerHighest,
+              ? scheme.ds.dangerBg
+              : scheme.ds.cardHighest,
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -222,7 +222,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                 Text('${bn ? d['bn'] : d['en']}', style: const TextStyle(height: 1.35)),
                 const SizedBox(height: Gap.xs),
                 Text('${bn ? d['advice_bn'] : d['advice_en']}',
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ],
             ]),
           ),
@@ -253,7 +253,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                     const LinearProgressIndicator()
                   else if (_tracker == null || _tracker!['available'] != true)
                     Text(tr.vehObdTrackerNone,
-                        style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35))
+                        style: TextStyle(color: scheme.ds.muted, height: 1.35))
                   else ...[
                     if ((vehNum(obd['coolant_temp_c']) ?? 0) >= kEngineHotC)
                       _hotWarning(context, vehNum(obd['coolant_temp_c'])!),
@@ -292,7 +292,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                 Text(tr.vehObdBtTitle, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: Gap.xs),
                 Text(tr.vehObdBtBody,
-                    style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
+                    style: TextStyle(color: scheme.ds.muted, height: 1.35)),
                 const SizedBox(height: Gap.sm),
                 FilledButton.icon(
                   onPressed: _btBusy ? null : _readDongle,
@@ -339,7 +339,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                 ],
                 const SizedBox(height: Gap.sm),
                 Text(tr.vehObdHonest,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
               ]),
             ),
           ),

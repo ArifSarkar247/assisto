@@ -245,6 +245,9 @@ void main() {
       expect(find.text('Empty number'), findsNothing);
       expect(find.text('Garbage'), findsNothing);
       expect(find.byKey(const ValueKey('emh-crisis-only999')), findsNothing);
+      // designv2: the row can sit at the very edge after the scroll
+      await tester.ensureVisible(find.byKey(const ValueKey('emh-crisis-109')));
+      await tester.pump();
       await tester.tap(find.byKey(const ValueKey('emh-crisis-109')));
       await tester.pump();
       expect(dialled, ['109']);
@@ -309,7 +312,8 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(_app(_hub()));
       await tester.pump(const Duration(milliseconds: 300));
-      for (final id in ['blood', 'missing', 'hospital', 'police', 'lost', 'fake']) {
+      // designv2: nearby (hospital / police) tiles sit right under 999 now
+      for (final id in ['hospital', 'police', 'blood', 'missing', 'lost', 'fake']) {
         await tester.scrollUntilVisible(find.byKey(ValueKey('emh-$id')), 200,
             scrollable: find.byType(Scrollable).first);
         expect(find.byKey(ValueKey('emh-$id')), findsOneWidget, reason: id);

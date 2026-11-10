@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../otp_api.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/password_field.dart';
 import 'otp/email_verify_screen.dart';
@@ -180,7 +181,7 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           const SizedBox(height: Gap.xl),
-          Icon(Icons.cloud_off_rounded, size: 48, color: scheme.outline),
+          Icon(Icons.cloud_off_rounded, size: 48, color: DsTokens.of(context).border),
           const SizedBox(height: Gap.md),
           Text(t.acsecLoadFail, textAlign: TextAlign.center, style: AType.bodyLarge),
           const SizedBox(height: Gap.lg),
@@ -201,7 +202,7 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
               child: Text(t.acsecIntro,
-                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
             ),
             for (final a in s.myRecoveryRequests) _ownerAlert(context, a),
             for (final a in s.familyRequests) _familyAsk(context, a),
@@ -254,7 +255,7 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
                 key: const Key('rec-google-note'),
                 leading: const Icon(Icons.info_outline_rounded),
                 title: Text(t.acsecGoogleNote,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
               ),
             ListTile(
               key: const Key('rec-password'),
@@ -278,7 +279,7 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
                 child: OutlinedButton.icon(
                   key: const Key('rec-signout-others'),
                   style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(48, 48), foregroundColor: scheme.error),
+                      minimumSize: const Size(48, 48), foregroundColor: DsTokens.of(context).dangerInk),
                   onPressed: _busy ? null : _signOutOthers,
                   icon: const Icon(Icons.logout_rounded),
                   label: Text(t.acsecSignOutOthers, textAlign: TextAlign.center),
@@ -313,14 +314,14 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
-      color: scheme.secondaryContainer,
+      color: DsTokens.of(context).primarySoft,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, color: scheme.onSecondaryContainer),
+          Icon(icon, color: DsTokens.of(context).primaryInk),
           const SizedBox(width: Gap.sm),
           Expanded(
-              child: Text(text, style: TextStyle(color: scheme.onSecondaryContainer))),
+              child: Text(text, style: TextStyle(color: DsTokens.of(context).primaryInk))),
         ]),
       ),
     );
@@ -348,7 +349,7 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
           : TextButton(
               key: Key('rec-signout-${d.id}'),
               style: TextButton.styleFrom(
-                  minimumSize: const Size(48, 48), foregroundColor: scheme.error),
+                  minimumSize: const Size(48, 48), foregroundColor: DsTokens.of(context).dangerInk),
               onPressed: _busy ? null : () => _signOut(d),
               child: Text(t.acsecSignOut),
             ),
@@ -361,30 +362,30 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
     return Card(
       key: Key('rec-owner-alert-${a.id}'),
       margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
-      color: scheme.errorContainer,
+      color: DsTokens.of(context).dangerBg,
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.warning_amber_rounded, color: scheme.onErrorContainer),
+            Icon(Icons.warning_amber_rounded, color: DsTokens.of(context).dangerInk),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.acsecOwnerAlertTitle,
                     style: AType.titleMedium.copyWith(
-                        color: scheme.onErrorContainer, fontWeight: FontWeight.w700))),
+                        color: DsTokens.of(context).dangerInk, fontWeight: FontWeight.w700))),
           ]),
           const SizedBox(height: Gap.sm),
           Text(
               t.acsecOwnerAlertBody(recDigits(context, a.contactMasked),
                   recWhen(context, a.holdUntil)),
-              style: TextStyle(color: scheme.onErrorContainer)),
+              style: TextStyle(color: DsTokens.of(context).dangerInk)),
           const SizedBox(height: Gap.md),
           FilledButton.icon(
             key: Key('rec-owner-cancel-${a.id}'),
             style: FilledButton.styleFrom(
                 minimumSize: const Size(48, 48),
-                backgroundColor: scheme.error,
-                foregroundColor: scheme.onError),
+                backgroundColor: DsTokens.of(context).dangerInk,
+                foregroundColor: DsTokens.of(context).onDangerFill),
             onPressed: _busy ? null : () => _cancelRecovery(a),
             icon: const Icon(Icons.block_rounded),
             label: Text(t.acsecNotMeCancel, textAlign: TextAlign.center),
@@ -400,15 +401,15 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
     return Card(
       key: Key('rec-family-${a.id}'),
       margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
-      color: scheme.tertiaryContainer,
+      color: DsTokens.of(context).successBg,
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.acsecFamilyTitle(a.name.isEmpty ? '—' : a.name),
               style: AType.titleMedium.copyWith(
-                  color: scheme.onTertiaryContainer, fontWeight: FontWeight.w700)),
+                  color: DsTokens.of(context).successInk, fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
-          Text(t.acsecFamilyBody, style: TextStyle(color: scheme.onTertiaryContainer)),
+          Text(t.acsecFamilyBody, style: TextStyle(color: DsTokens.of(context).successInk)),
           const SizedBox(height: Gap.md),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             FilledButton(
@@ -421,8 +422,8 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
               key: Key('rec-family-no-${a.id}'),
               style: OutlinedButton.styleFrom(
                   minimumSize: const Size(48, 48),
-                  foregroundColor: scheme.onTertiaryContainer,
-                  side: BorderSide(color: scheme.onTertiaryContainer)),
+                  foregroundColor: DsTokens.of(context).successInk,
+                  side: BorderSide(color: DsTokens.of(context).successInk)),
               onPressed: _busy ? null : () => _family(a, false),
               child: Text(t.acsecFamilyNo),
             ),
@@ -526,7 +527,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               onSubmitted: (_) => _save()),
           if (_error != null) ...[
             const SizedBox(height: Gap.md),
-            Text(_error!, key: const Key('rec-pw-error'), style: TextStyle(color: scheme.error)),
+            Text(_error!, key: const Key('rec-pw-error'), style: TextStyle(color: DsTokens.of(context).dangerInk)),
           ],
           const SizedBox(height: Gap.lg),
           FilledButton(

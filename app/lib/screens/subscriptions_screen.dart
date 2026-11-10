@@ -397,7 +397,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
             style: Theme.of(context)
                 .textTheme
                 .bodySmall
-                ?.copyWith(color: cs.outline)),
+                ?.copyWith(color: cs.ds.muted)),
       ],
     );
   }
@@ -421,11 +421,11 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.only(right: Gap.lg),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.errorContainer,
+            color: Theme.of(context).colorScheme.ds.dangerBg,
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Icon(Icons.delete_outline_rounded,
-              color: Theme.of(context).colorScheme.onErrorContainer),
+              color: Theme.of(context).colorScheme.ds.dangerInk),
         ),
         confirmDismiss: (_) async {
           await _delete(s);

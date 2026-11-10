@@ -7,6 +7,7 @@ import '../calls/call_avatar.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/circle_relation.dart';
 import '../widgets/circle_badges.dart';
 import '../crypto/identity_vault.dart';
@@ -124,7 +125,10 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(_t.circleCallHistoryTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+              for (var i = 0; i < 4; i++)
+                Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSkeleton.card(lines: 2)),
+            ])
           : RefreshIndicator(
               onRefresh: _load,
               child: _calls.isEmpty
@@ -152,7 +156,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
             child: Text(_t.waCallsNoMissed,
                 key: const Key('call-log-no-missed'),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                style: TextStyle(color: DsTokens.of(context).muted, height: 1.4)),
           );
         }
         return _callTile(rows[i - 1], scheme);
@@ -163,15 +167,15 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
   Widget _filters() => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
         child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-          ChoiceChip(
+          DsChip(
             key: const Key('call-filter-all'),
-            label: Text(_t.waCallsFilterAll),
+            label: _t.waCallsFilterAll,
             selected: !_missedOnly,
             onSelected: (_) => setState(() => _missedOnly = false),
           ),
-          ChoiceChip(
+          DsChip(
             key: const Key('call-filter-missed'),
-            label: Text(_t.waCallsFilterMissed),
+            label: _t.waCallsFilterMissed,
             selected: _missedOnly,
             onSelected: (_) => setState(() => _missedOnly = true),
           ),
@@ -183,53 +187,29 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
   /// call), and a 3-step how-to.
   Widget _empty(ColorScheme scheme) => ListView(
         key: const Key('circle2-calls-empty'),
-        padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
+        padding: const EdgeInsets.all(Gap.lg),
         children: [
-          const SizedBox(height: 72),
-          Icon(Icons.call_rounded,
-              size: 56, color: scheme.primary.withValues(alpha: 0.7)),
-          const SizedBox(height: Gap.md),
-          Text(
-            _backendReady
-                ? _t.circleCallHistoryEmpty
-                : _t.circleBackendPending,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
+          // designv2: DS empty state (benefit + big button), how-to under it
+          DsEmptyState(
+            icon: Icons.call_rounded,
+            title: _backendReady ? _t.circleCallHistoryEmpty : _t.circleBackendPending,
+            benefit: _backendReady ? _t.circle2CallsEmptyBenefit : null,
+            actionLabel: _backendReady ? _t.circle2CallsEmptyCta : _t.retry,
+            actionKey: Key(_backendReady ? 'circle2-calls-empty-cta' : 'circle2-calls-retry'),
+            onAction: _backendReady
+                ? () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const ContactsScreen()))
+                : () {
+                    setState(() => _loading = true);
+                    _load();
+                  },
           ),
-          if (!_backendReady) ...[
-            const SizedBox(height: Gap.lg),
-            Center(
-              child: FilledButton.icon(
-                key: const Key('circle2-calls-retry'),
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(_t.retry),
-                onPressed: () {
-                  setState(() => _loading = true);
-                  _load();
-                },
-              ),
-            ),
-          ],
           if (_backendReady) ...[
-            const SizedBox(height: Gap.sm),
-            Text(_t.circle2CallsEmptyBenefit,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
-            const SizedBox(height: Gap.lg),
-            Center(
-              child: FilledButton.icon(
-                key: const Key('circle2-calls-empty-cta'),
-                style: FilledButton.styleFrom(minimumSize: const Size(0, 52)),
-                icon: const Icon(Icons.add_call),
-                label: Text(_t.circle2CallsEmptyCta),
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const ContactsScreen())),
-              ),
-            ),
             const SizedBox(height: Gap.lg),
             Text(_t.circle2CallsEmptyHow,
                 textAlign: TextAlign.start,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.6)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: DsTokens.of(context).muted, height: 1.6)),
           ],
           const SizedBox(height: Gap.xl),
         ],
@@ -252,7 +232,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
     final atRaw = '${call['started_at'] ?? call['created_at'] ?? ''}';
     final at = DateTime.tryParse(atRaw)?.toLocal();
 
-    final dirColor = missed ? scheme.error : scheme.onSurfaceVariant;
+    final dirColor = missed ? DsTokens.of(context).dangerInk : DsTokens.of(context).muted;
 
     return ListTile(
       key: ValueKey('call-log-row-${call['id']}'),
@@ -270,7 +250,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
         key: Key('call-log-title-${call['id']}'),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(color: missed ? scheme.error : scheme.onSurface),
+        style: TextStyle(color: missed ? DsTokens.of(context).dangerInk : DsTokens.of(context).text),
       ),
       subtitle: Row(
         children: [
@@ -304,7 +284,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
             Text(
                 _digits(duration),
                 style:
-                    TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
+                    TextStyle(color: DsTokens.of(context).muted, fontSize: 12)),
           ],
         ],
       ),
@@ -313,7 +293,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
         children: [
           if (at != null)
             Text(_relativeTime(at),
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                style: TextStyle(fontSize: 11, color: DsTokens.of(context).muted)),
           IconButton(
             tooltip: kind == 'video'
                 ? _t.circleCallBackVideo

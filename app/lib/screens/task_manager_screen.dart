@@ -484,7 +484,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(tmStr(context, 'tmOffline'),
-                style: TextStyle(color: scheme.onSurface))),
+                style: TextStyle(color: scheme.ds.text))),
       ]),
     );
   }
@@ -517,7 +517,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
             const SizedBox(height: Gap.sm),
             Text(tmStr(context, 'tmWelcomeBody'),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.45)),
+                style: TextStyle(color: scheme.ds.muted, height: 1.45)),
             const SizedBox(height: Gap.xl),
             FilledButton.icon(
               onPressed: _openProjectEditor,
@@ -722,7 +722,7 @@ class _ProjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Material(
-      color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+      color: scheme.ds.cardHighest.withValues(alpha: 0.5),
       borderRadius: BorderRadius.circular(Radii.lg),
       child: InkWell(
         borderRadius: BorderRadius.circular(Radii.lg),
@@ -769,7 +769,7 @@ class _ProjectCard extends StatelessWidget {
               Text(project.description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
             ],
             const SizedBox(height: Gap.md),
             Row(children: [
@@ -779,7 +779,7 @@ class _ProjectCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: summary.total == 0 ? 0 : summary.percentDone / 100,
                     minHeight: 8,
-                    backgroundColor: scheme.surfaceContainerHighest,
+                    backgroundColor: scheme.ds.cardHighest,
                     color: Brand.success,
                   ),
                 ),
@@ -995,7 +995,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.md),
-      color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+      color: scheme.ds.cardHighest.withValues(alpha: 0.4),
       child: Row(children: [
         Expanded(
           child: ClipRRect(
@@ -1003,7 +1003,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
             child: LinearProgressIndicator(
               value: s.total == 0 ? 0 : s.percentDone / 100,
               minHeight: 8,
-              backgroundColor: scheme.surfaceContainerHighest,
+              backgroundColor: scheme.ds.cardHighest,
               color: Brand.success,
             ),
           ),
@@ -1041,7 +1041,7 @@ class _ProjectBoardScreenState extends State<_ProjectBoardScreen> {
         Expanded(
           child: Text(chips.join('  •  '),
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         ),
         TextButton(
           onPressed: () => setState(() {
@@ -1268,7 +1268,7 @@ class _BoardColumn extends StatelessWidget {
       margin: const EdgeInsets.only(right: Gap.md),
       padding: const EdgeInsets.all(Gap.sm),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        color: scheme.ds.cardHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(Radii.lg),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -1286,14 +1286,14 @@ class _BoardColumn extends StatelessWidget {
             ),
             const SizedBox(width: Gap.sm),
             Text(tmNum(context, tasks.length),
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: TextStyle(color: scheme.ds.muted)),
           ]),
         ),
         Expanded(
           child: tasks.isEmpty
               ? Center(
                   child: Text('—',
-                      style: TextStyle(color: scheme.onSurfaceVariant)))
+                      style: TextStyle(color: scheme.ds.muted)))
               : ListView.separated(
                   padding: const EdgeInsets.all(Gap.xs),
                   itemCount: tasks.length,
@@ -1359,14 +1359,14 @@ class _TaskTile extends StatelessWidget {
                           ? TextDecoration.lineThrough
                           : null,
                       color: task.status == kStatusDone
-                          ? scheme.onSurfaceVariant
-                          : scheme.onSurface,
+                          ? scheme.ds.muted
+                          : scheme.ds.text,
                     )),
               ),
               PopupMenuButton<String>(
                 tooltip: tmStr(context, 'tmMoveTo'),
                 icon: Icon(Icons.more_vert_rounded,
-                    size: 18, color: scheme.onSurfaceVariant),
+                    size: 18, color: scheme.ds.muted),
                 onSelected: onMove,
                 itemBuilder: (_) => [
                   for (final s in kBoardColumns)
@@ -1388,7 +1388,7 @@ class _TaskTile extends StatelessWidget {
               Text(task.description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
             ],
             if (task.status == kStatusDoing && task.progress > 0) ...[
               const SizedBox(height: Gap.sm),
@@ -1397,7 +1397,7 @@ class _TaskTile extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: task.progress / 100,
                   minHeight: 5,
-                  backgroundColor: scheme.surfaceContainerHighest,
+                  backgroundColor: scheme.ds.cardHighest,
                   color: Brand.blue,
                 ),
               ),
@@ -1442,7 +1442,7 @@ class _TaskTile extends StatelessWidget {
 
   Widget _chip(BuildContext c, IconData icon, String label, Color? tint) {
     final scheme = Theme.of(c).colorScheme;
-    final color = tint ?? scheme.onSurfaceVariant;
+    final color = tint ?? scheme.ds.muted;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(
@@ -1797,7 +1797,7 @@ class _TaskEditorState extends State<_TaskEditor> {
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(tmStr(context, 'tmStepsAfterSave'),
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
+                    style: TextStyle(color: scheme.ds.muted)),
               )
             else ...[
               for (final st in widget.stepsOf())
@@ -1912,7 +1912,7 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
                   ?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           Text(tmStr(context, 'tmQuickAddHelp'),
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: TextStyle(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _c,

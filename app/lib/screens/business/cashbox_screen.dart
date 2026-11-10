@@ -267,7 +267,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                           padding: const EdgeInsets.only(top: Gap.sm),
                           child: Text(t.bbCbDuesHint,
                               style: AType.bodySmall
-                                  .copyWith(color: scheme.onSurfaceVariant)),
+                                  .copyWith(color: scheme.ds.muted)),
                         ),
                       const SizedBox(height: Gap.md),
 
@@ -329,7 +329,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                               child: Center(
                                 child: Text(t.cashboxNoEntries,
                                     style: TextStyle(
-                                        color: scheme.onSurfaceVariant)),
+                                        color: scheme.ds.muted)),
                               ),
                             )
                           ];
@@ -378,7 +378,7 @@ class _Line extends StatelessWidget {
             if (sub != null)
               Text(sub!,
                   style: AType.bodySmall.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      color: Theme.of(context).colorScheme.ds.muted)),
           ]),
         ),
         const SizedBox(width: Gap.sm),
@@ -451,7 +451,7 @@ class _MiniRow extends StatelessWidget {
         Expanded(
             child: Text(label,
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant))),
+                    color: Theme.of(context).colorScheme.ds.muted))),
         Text(value,
             style: TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
       ]),

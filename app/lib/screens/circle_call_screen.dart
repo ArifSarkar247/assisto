@@ -31,6 +31,7 @@ import '../l10n/app_localizations.dart';
 import '../push/lock_screen_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/robo_id.dart';
 import '../widgets/paywall_sheet.dart'; // circle2
 import 'referral_screen.dart'; // circle2
@@ -1496,7 +1497,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
-                        ?.copyWith(color: scheme.onSurfaceVariant)),
+                        ?.copyWith(color: DsTokens.of(context).muted)),
                 const SizedBox(height: Gap.sm),
                 Text(_t.circle2VideoWhoPays(_name),
                     key: const Key('circle2-gate-who-pays'),
@@ -1504,7 +1505,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
-                        ?.copyWith(color: scheme.onSurface, height: 1.4)),
+                        ?.copyWith(color: DsTokens.of(context).text, height: 1.4)),
                 const SizedBox(height: Gap.xl),
                 // the free path first: the person still gets their call
                 FilledButton.icon(

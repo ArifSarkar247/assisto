@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -140,7 +141,7 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
           key: const ValueKey('pbs-not-on-play'),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: DsTokens.of(context).cardHighest,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(t.pbsNotOnPlay),
@@ -266,7 +267,7 @@ class _ProbashiPlanScreenState extends State<ProbashiPlanScreen> {
       if (!live)
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: Text(t.pbsPaused, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          child: Text(t.pbsPaused, style: TextStyle(color: DsTokens.of(context).dangerInk)),
         ),
       Text(t.pbsUsedOfCap(pbsNum(context, used), pbsNum(context, cap))),
       if (live) Text(t.pbsPoolLeftShort(pbsNum(context, m['pool_left'] ?? 0))),

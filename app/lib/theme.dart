@@ -1,4 +1,8 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
+
+import 'perf/low_ram.dart';
 
 /// Assisto design system (f1 design pass).
 ///
@@ -21,7 +25,7 @@ class Brand {
   static Color warnInk(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
           ? const Color(0xFFFFD666)
-          : const Color(0xFF8A6D00);
+          : const Color(0xFF735A00); // designv2: AA 5.4 on the V2 background
 
   Brand._();
 
@@ -402,38 +406,36 @@ class AssistoTheme {
       seedColor: Brand.blue,
       brightness: brightness,
     );
+    // designv2 (owner order 10 Nov 01:40): the owner-picked V2 palette —
+    // the exact values live in [DsTokens]; the scheme maps them onto Material
+    // roles. Text-role colours that missed WCAG AA by a hair are deepened /
+    // lightened a few % (owner_actions/DESIGN_SYSTEM_V2_BN.md lists each).
+    final v = isDark ? DsTokens.dark : DsTokens.light;
     final scheme = seeded.copyWith(
-      // Brand across both modes: blue primary, cyan highlight, green accent
-      // (new logo). Lightened in dark mode for AA contrast on dark surfaces.
-      // Light primary deepened from Brand.blue (white text 4.4:1 → 5.8:1 AA).
-      primary: isDark ? const Color(0xFF6FA0FF) : const Color(0xFF2C5BDB),
+      primary: v.primaryInk,
+      onPrimary: v.onPrimary,
+      primaryContainer: v.primarySoft,
+      onPrimaryContainer: v.text,
       secondary: isDark ? Brand.cyan : const Color(0xFF0E7F94),
-      tertiary: isDark ? const Color(0xFF5FD69E) : const Color(0xFF16805A),
-      // qa1 contrast: error buttons/text were E0485A with fromSeed's onError
-      // (white 4.0:1 in light; dark-on-red 3.2:1 in dark). Light: a deeper red
-      // (white 5.6:1, as text on surface 5.3:1). Dark: a lighter red with dark
-      // ink (6.8:1), readable as text on the dark surface too (6.7:1).
-      error: isDark ? const Color(0xFFFF6B78) : Brand.dangerFill,
-      onError: isDark ? const Color(0xFF2D0006) : Colors.white,
-      // Dark surfaces are tinted with the logo's navy (#030B28) instead of a
-      // neutral grey, so dark mode reads as "Assisto".
-      surface: isDark ? const Color(0xFF070E26) : const Color(0xFFFAFBFF),
-      surfaceContainerLowest:
-          isDark ? const Color(0xFF030B28) : Colors.white,
-      surfaceContainerLow:
-          isDark ? const Color(0xFF0D1631) : const Color(0xFFF3F5FC),
-      surfaceContainer:
-          isDark ? const Color(0xFF121C39) : const Color(0xFFEDF0F8),
-      surfaceContainerHigh:
-          isDark ? const Color(0xFF182342) : const Color(0xFFE7EAF4),
-      surfaceContainerHighest:
-          isDark ? const Color(0xFF1F2B4D) : const Color(0xFFE1E5F0),
-      onSurface: isDark ? const Color(0xFFE6E9F2) : const Color(0xFF141824),
-      onSurfaceVariant:
-          isDark ? const Color(0xFFB4BCD0) : const Color(0xFF465063),
-      outline: isDark ? const Color(0xFF8590A8) : const Color(0xFF6E788C),
-      outlineVariant:
-          isDark ? const Color(0xFF2C3758) : const Color(0xFFD5DAE6),
+      secondaryContainer: v.primarySoft,
+      onSecondaryContainer: v.text,
+      tertiary: v.successInk,
+      // dark: the danger fill (#F0525A) is 4.1:1 as text on a card — the
+      // error role is also text, so dark uses the danger ink (buttons use dangerFill)
+      error: isDark ? v.dangerInk : v.dangerFill,
+      onError: isDark ? v.card : v.onDangerFill,
+      errorContainer: v.dangerBg,
+      onErrorContainer: v.dangerInk,
+      surface: v.bg,
+      onSurface: v.text,
+      onSurfaceVariant: v.muted,
+      surfaceContainerLowest: v.card,
+      surfaceContainerLow: v.card,
+      surfaceContainer: v.cardAlt,
+      surfaceContainerHigh: v.cardHigh,
+      surfaceContainerHighest: v.cardHighest,
+      outline: isDark ? const Color(0xFF7D8DAD) : const Color(0xFF6F82A6),
+      outlineVariant: v.border,
     );
     final type = _type(scheme.onSurface);
 
@@ -448,11 +450,17 @@ class AssistoTheme {
       splashFactory: InkSparkle.splashFactory,
       visualDensity: VisualDensity.standard,
       materialTapTargetSize: MaterialTapTargetSize.padded,
-      extensions: [isDark ? AssistoTokens.dark : AssistoTokens.light],
+      extensions: [
+        isDark ? AssistoTokens.dark : AssistoTokens.light,
+        isDark ? DsTokens.dark : DsTokens.light,
+      ],
     );
     final t = base.textTheme;
     final rMd = RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Radii.md));
+    // designv2: buttons are radius 8 (cards 12).
+    final rBtn = RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(DsRadius.button));
     const btnPad = EdgeInsets.symmetric(horizontal: Gap.lg + Gap.xs, vertical: Gap.md);
 
     return base.copyWith(
@@ -472,15 +480,19 @@ class AssistoTheme {
         iconTheme: IconThemeData(color: scheme.onSurface, size: 24),
       ),
       iconTheme: IconThemeData(color: scheme.onSurfaceVariant, size: 24),
+      // designv2: "alive" cards — white (dark: #1C2A47), radius 12, a soft
+      // brand-tinted Material shadow (one cheap rrect shadow; DsCard draws
+      // the owner's full two-layer shadow + top highlight).
       cardTheme: CardThemeData(
-        elevation: 0,
+        elevation: DsPerf.lite ? 1 : 2,
+        shadowColor: v.shadowTint,
         margin: EdgeInsets.zero,
-        color: scheme.surfaceContainerLow,
+        color: v.card,
         surfaceTintColor: Colors.transparent,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Radii.lg),
-          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.6)),
+          borderRadius: BorderRadius.circular(DsRadius.card),
+          side: BorderSide(color: v.border.withValues(alpha: isDark ? 1 : 0.7)),
         ),
       ),
       listTileTheme: ListTileThemeData(
@@ -497,8 +509,8 @@ class AssistoTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: 68,
-        backgroundColor: scheme.surfaceContainer,
-        indicatorColor: scheme.secondaryContainer,
+        backgroundColor: v.card,
+        indicatorColor: v.primarySoft,
         elevation: 0,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         labelTextStyle: WidgetStatePropertyAll(t.labelMedium),
@@ -509,12 +521,12 @@ class AssistoTheme {
         labelTextStyle: WidgetStatePropertyAll(t.labelLarge),
       ),
       drawerTheme: DrawerThemeData(
-        backgroundColor: scheme.surfaceContainerLow,
+        backgroundColor: v.card,
         surfaceTintColor: Colors.transparent,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: scheme.surfaceContainerHigh,
+        fillColor: v.inputFill,
         isDense: true,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md + Gap.xxs),
@@ -549,7 +561,7 @@ class AssistoTheme {
         style: FilledButton.styleFrom(
           minimumSize: const Size(kMinTap, kMinTap + 2),
           padding: btnPad,
-          shape: rMd,
+          shape: rBtn,
           textStyle: t.labelLarge?.copyWith(fontSize: 15),
           animationDuration: Motion.fast,
         ),
@@ -558,7 +570,7 @@ class AssistoTheme {
         style: ElevatedButton.styleFrom(
           minimumSize: const Size(kMinTap, kMinTap),
           padding: btnPad,
-          shape: rMd,
+          shape: rBtn,
           elevation: Elev.none,
           backgroundColor: scheme.surfaceContainerHigh,
           foregroundColor: scheme.primary,
@@ -570,7 +582,7 @@ class AssistoTheme {
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(kMinTap, kMinTap),
           padding: btnPad,
-          shape: rMd,
+          shape: rBtn,
           side: BorderSide(color: scheme.outline),
           textStyle: t.labelLarge,
           animationDuration: Motion.fast,
@@ -580,7 +592,7 @@ class AssistoTheme {
         style: TextButton.styleFrom(
           minimumSize: const Size(kMinTap, kMinTap),
           padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-          shape: rMd,
+          shape: rBtn,
           textStyle: t.labelLarge,
           animationDuration: Motion.fast,
         ),
@@ -615,9 +627,9 @@ class AssistoTheme {
         padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: scheme.surfaceContainerLow,
+        backgroundColor: v.card,
         surfaceTintColor: Colors.transparent,
-        modalBackgroundColor: scheme.surfaceContainerLow,
+        modalBackgroundColor: v.card,
         elevation: Elev.high,
         modalElevation: Elev.high,
         showDragHandle: false, // many sheets draw their own handle
@@ -629,7 +641,7 @@ class AssistoTheme {
         ),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: scheme.surfaceContainerHigh,
+        backgroundColor: v.card,
         surfaceTintColor: Colors.transparent,
         elevation: Elev.high,
         shape: RoundedRectangleBorder(
@@ -639,7 +651,7 @@ class AssistoTheme {
             t.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
       ),
       popupMenuTheme: PopupMenuThemeData(
-        color: scheme.surfaceContainerHigh,
+        color: v.card,
         surfaceTintColor: Colors.transparent,
         elevation: Elev.mid,
         textStyle: t.bodyLarge,
@@ -770,28 +782,28 @@ class HomeV2Palette {
   static const light = HomeV2Palette._(
     dark: false,
     headerGradient: [Color(0xFF0A1A3F), Color(0xFF13306E), Color(0xFF1E4FB8)],
-    body: Color(0xFFF4F6FA),
-    sectionTitle: Color(0xFF0F172A),
+    body: Color(0xFFDFEAFE) /* designv2 bg */,
+    sectionTitle: Color(0xFF0F1A2E),
     dotOff: Color(0xFFCBD5E1),
     dotOn: Color(0xFF0A84FF),
     tile: Colors.white,
-    tileBorder: Color(0xFFEBEEF4),
-    tileShadow: Color(0x0D0F172A), // rgba(15,23,42,.05)
-    tileLabel: Color(0xFF0F172A),
+    tileBorder: Color(0xFFC1D3F5),
+    tileShadow: Color(0x1A2563EB), // designv2 rgba(37,99,235,.10)
+    tileLabel: Color(0xFF0F1A2E),
     circleSub: Color(0xFF800080),
     pinBorder: Color(0xFFA5B4FC),
     pinTop: Color(0xFFEEF2FF),
     chip: Colors.white,
-    chipBorder: Color(0xFFE2E8F0),
-    chipInk: Color(0xFF1E293B),
+    chipBorder: Color(0xFFC1D3F5),
+    chipInk: Color(0xFF0F1A2E),
     askGradient: [Color(0xFF0B2560), Color(0xFF1D4ED8), Color(0xFF3B82F6)],
     askShadow: Color(0x471D4ED8), // rgba(29,78,216,.28)
     nav: Colors.white,
-    navBorder: Color(0xFFE5E9F0),
-    navInk: Color(0xFF475569),
+    navBorder: Color(0xFFC1D3F5),
+    navInk: Color(0xFF576780),
     navActive: Color(0xFF1D4ED8),
     voiceRing: Colors.white,
-    voiceLabel: Color(0xFF0F172A),
+    voiceLabel: Color(0xFF0F1A2E),
     missedRing: Colors.white,
     discoverShadow: Color(0x4D4F46E5), // rgba(79,70,229,.30)
   );
@@ -799,29 +811,29 @@ class HomeV2Palette {
   static const darkSet = HomeV2Palette._(
     dark: true,
     headerGradient: [Color(0xFF060F29), Color(0xFF0D2252), Color(0xFF173F96)],
-    body: Color(0xFF0B1120),
-    sectionTitle: Color(0xFFE8EDF6),
+    body: Color(0xFF111A2E) /* designv2 bg */,
+    sectionTitle: Color(0xFFEEF3FF),
     dotOff: Color(0xFF334155),
     dotOn: Color(0xFF4DA3FF),
-    tile: Color(0xFF141C2F),
-    tileBorder: Color(0xFF222D45),
+    tile: Color(0xFF1C2A47),
+    tileBorder: Color(0xFF2A3B61),
     tileShadow: Color(0x33000000),
-    tileLabel: Color(0xFFE2E8F0),
+    tileLabel: Color(0xFFEEF3FF),
     circleSub: Color(0xFFE08AE0),
     pinBorder: Color(0xFF6366F1),
     pinTop: Color(0xFF1E1B4B),
-    chip: Color(0xFF141C2F),
-    chipBorder: Color(0xFF2A3650),
-    chipInk: Color(0xFFE2E8F0),
+    chip: Color(0xFF1C2A47),
+    chipBorder: Color(0xFF2A3B61),
+    chipInk: Color(0xFFEEF3FF),
     askGradient: [Color(0xFF0A1F52), Color(0xFF1A44BE), Color(0xFF2F6FE0)],
     askShadow: Color(0x40000000),
-    nav: Color(0xFF0F172A),
-    navBorder: Color(0xFF1E293B),
-    navInk: Color(0xFFA3B1C6),
+    nav: Color(0xFF1C2A47),
+    navBorder: Color(0xFF2A3B61),
+    navInk: Color(0xFF93A3C0),
     navActive: Color(0xFF7CB4FF),
-    voiceRing: Color(0xFF0F172A),
-    voiceLabel: Color(0xFFE8EDF6),
-    missedRing: Color(0xFF141C2F),
+    voiceRing: Color(0xFF1C2A47),
+    voiceLabel: Color(0xFFEEF3FF),
+    missedRing: Color(0xFF1C2A47),
     discoverShadow: Color(0x40000000),
   );
 
@@ -944,4 +956,233 @@ class InviteCardColors {
   static const roseBg = Color(0xFF6D0F2A), roseBg2 = Color(0xFF9B1B3F), roseAccent = Color(0xFFF3C969);
   static const holudBg = Color(0xFFFFE082), holudBg2 = Color(0xFFFFC107), holudInk = Color(0xFF1B3A12), holudAccent = Color(0xFF2E7D32);
   static const classicBg = Color(0xFFFFFBF2), classicBg2 = Color(0xFFF1E6CF), classicInk = Color(0xFF14213D), classicAccent = Color(0xFF9C6B12);
+}
+
+
+// ===========================================================================
+// designv2 — Design System V2 (owner order 10 Nov 01:40). The ONE source of
+// truth for the premium look: colours (light + dark), radii, shadows, motion
+// budget. Components live in lib/ds/ (DsCard, DsHeroCard, DsTile, DsButton…);
+// owner doc: owner_actions/DESIGN_SYSTEM_V2_BN.md.
+// ===========================================================================
+
+/// Radii: cards & tiles 12, buttons 8, chips pill, sheets 24.
+class DsRadius {
+  DsRadius._();
+  static const card = 12.0;
+  static const button = 8.0;
+  static const chip = 999.0;
+  static const sheet = 24.0;
+  static const small = 8.0;
+}
+
+/// Performance budget for decoration + motion. "Lite" = low-RAM phone
+/// (Android isLowRamDevice or ≤ 3 GB), or the system / in-app reduce-motion
+/// switch (Android battery saver on most phones sets the animator scale to 0,
+/// which Flutter reports as disableAnimations). Lite → one small shadow, no
+/// glow, no pulse, no press animation.
+class DsPerf {
+  DsPerf._();
+
+  /// Test / diag override (null = follow the device).
+  static bool? debugLite;
+
+  static bool get lite =>
+      debugLite ??
+      (_underTest ||
+          LowRamTuning.lowRam ||
+          (LowRamTuning.ramMb > 0 && LowRamTuning.ramMb <= 3328));
+
+  /// Widget tests run still (no endless pulse → pumpAndSettle settles);
+  /// a test that checks the motion sets [debugLite] = false.
+  static final bool _underTest = () {
+    try {
+      return Platform.environment['FLUTTER_TEST'] == 'true';
+    } catch (_) {
+      return false;
+    }
+  }();
+
+  static bool liteOf(BuildContext context) =>
+      lite || (MediaQuery.maybeDisableAnimationsOf(context) ?? false);
+}
+
+/// Motion tokens (V2).
+class DsMotion {
+  DsMotion._();
+  static const press = Duration(milliseconds: 120);
+  static const pulse = Duration(milliseconds: 2000);
+  static const curve = Curves.easeOutCubic;
+  static const lift = 2.0; // cards and tiles lift 2 px on press
+}
+
+/// The owner's V2 palette. Exact owner values are marked "owner"; text roles
+/// adjusted for WCAG AA are marked "AA".
+@immutable
+/// designv2: the V2 tokens from any ColorScheme (no BuildContext needed) —
+/// `scheme.ds.muted`. Same light/dark sets DsTokens.of falls back to.
+extension DsSchemeTokens on ColorScheme {
+  DsTokens get ds => brightness == Brightness.dark ? DsTokens.dark : DsTokens.light;
+}
+
+class DsTokens extends ThemeExtension<DsTokens> {
+  const DsTokens({
+    required this.isDark,
+    required this.bg,
+    required this.card,
+    required this.cardAlt,
+    required this.cardHigh,
+    required this.cardHighest,
+    required this.inputFill,
+    required this.text,
+    required this.muted,
+    required this.border,
+    required this.primary,
+    required this.primaryInk,
+    required this.onPrimary,
+    required this.primarySoft,
+    required this.success,
+    required this.successInk,
+    required this.successBg,
+    required this.danger,
+    required this.dangerInk,
+    required this.dangerBg,
+    required this.dangerBorder,
+    required this.dangerFill,
+    required this.onDangerFill,
+    required this.heroTop,
+    required this.heroBottom,
+    required this.dangerHero,
+    required this.onDangerHero,
+    required this.onDangerHeroSoft,
+    required this.highlight,
+    required this.shadowTint,
+    required this.shadows,
+    required this.pressedShadows,
+    required this.liteShadows,
+    required this.primaryGlow,
+    required this.dangerGlow,
+  });
+
+  final bool isDark;
+  final Color bg, card, cardAlt, cardHigh, cardHighest, inputFill;
+  final Color text, muted, border;
+  final Color primary, primaryInk, onPrimary, primarySoft;
+  final Color success, successInk, successBg;
+  final Color danger, dangerInk, dangerBg, dangerBorder, dangerFill, onDangerFill;
+  final Color heroTop, heroBottom;
+  final List<Color> dangerHero;
+  final Color onDangerHero, onDangerHeroSoft;
+  final Color highlight, shadowTint;
+  final List<BoxShadow> shadows, pressedShadows, liteShadows;
+  final List<BoxShadow> primaryGlow, dangerGlow;
+
+  static const light = DsTokens(
+    isDark: false,
+    bg: Color(0xFFDFEAFE), // owner
+    card: Color(0xFFFFFFFF), // owner
+    cardAlt: Color(0xFFF2F7FF), // owner (hero gradient end)
+    cardHigh: Color(0xFFEAF1FF),
+    cardHighest: Color(0xFFE8F0FE), // AA: muted 5.0, primary ink 4.8 on it
+    inputFill: Color(0xFFF2F7FF),
+    text: Color(0xFF0F1A2E), // owner
+    muted: Color(0xFF576780), // AA (owner #5B6B85: 4.46:1 on the background)
+    border: Color(0xFFC1D3F5), // owner
+    primary: Color(0xFF2563EB), // owner (fills, glow)
+    primaryInk: Color(0xFF1F55CF), // AA as text on the background (5.3:1) and on tinted panels (≥ 4.7:1)
+    onPrimary: Color(0xFFFFFFFF),
+    primarySoft: Color(0xFFE6EEFF),
+    success: Color(0xFF2F9E6E), // owner (dots, icons, fills)
+    successInk: Color(0xFF216F4D), // AA as text on #E4F5EC
+    successBg: Color(0xFFE4F5EC), // owner
+    danger: Color(0xFFE5484D), // owner (dots, icons, glow)
+    dangerInk: Color(0xFFB8373C), // AA as text on #FFF1F1 and the background
+    dangerBg: Color(0xFFFFF1F1), // owner
+    dangerBorder: Color(0xFFF6C5C7),
+    dangerFill: Color(0xFFB8373C), // AA: white text 5.75:1
+    onDangerFill: Color(0xFFFFFFFF),
+    heroTop: Color(0xFFFFFFFF), // owner: white → #F2F7FF
+    heroBottom: Color(0xFFF2F7FF),
+    dangerHero: [Color(0xFFC93F44), Color(0xFFA7303A)], // white text ≥ 4.9:1
+    onDangerHero: Color(0xFFFFFFFF),
+    onDangerHeroSoft: Color(0xFFFFE3E4),
+    highlight: Color(0xFFFFFFFF), // owner: 1 px white top highlight
+    shadowTint: Color(0x592563EB),
+    shadows: [
+      BoxShadow(color: Color(0x1A2563EB), offset: Offset(0, 4), blurRadius: 10), // owner .10
+      BoxShadow(color: Color(0x2E2563EB), offset: Offset(0, 16), blurRadius: 32), // owner .18
+    ],
+    pressedShadows: [
+      BoxShadow(color: Color(0x242563EB), offset: Offset(0, 6), blurRadius: 12),
+      BoxShadow(color: Color(0x382563EB), offset: Offset(0, 18), blurRadius: 34),
+    ],
+    liteShadows: [
+      BoxShadow(color: Color(0x262563EB), offset: Offset(0, 2), blurRadius: 6),
+    ],
+    primaryGlow: [
+      BoxShadow(color: Color(0x592563EB), offset: Offset(0, 6), blurRadius: 16),
+    ],
+    dangerGlow: [
+      BoxShadow(color: Color(0x59E5484D), offset: Offset(0, 6), blurRadius: 16),
+    ],
+  );
+
+  static const dark = DsTokens(
+    isDark: true,
+    bg: Color(0xFF111A2E), // owner
+    card: Color(0xFF1C2A47), // owner
+    cardAlt: Color(0xFF18243F),
+    cardHigh: Color(0xFF22314F),
+    cardHighest: Color(0xFF21304E), // AA: muted 5.2, primary ink 5.1 on it
+    inputFill: Color(0xFF16223B),
+    text: Color(0xFFEEF3FF), // owner
+    muted: Color(0xFF93A3C0), // owner
+    border: Color(0xFF2A3B61), // owner
+    primary: Color(0xFF3B82F6), // owner (fills, glow)
+    primaryInk: Color(0xFF6CA1F8), // AA as text on the card (5.5:1)
+    onPrimary: Color(0xFF0B1530),
+    primarySoft: Color(0xFF1F3257),
+    success: Color(0xFF3DD68C), // owner
+    successInk: Color(0xFF3DD68C), // owner (6.5:1 on the card)
+    successBg: Color(0xFF0F3A2A),
+    danger: Color(0xFFFF7A80), // owner danger text
+    dangerInk: Color(0xFFFF7A80), // owner
+    dangerBg: Color(0xFF3A1A22), // owner danger card
+    dangerBorder: Color(0xFF4A2430), // owner
+    dangerFill: Color(0xFFF0525A), // owner danger button
+    onDangerFill: Color(0xFF2A0A0E), // AA: 5.3:1 on #F0525A
+    heroTop: Color(0xFF1C2A47), // owner: card → background
+    heroBottom: Color(0xFF111A2E),
+    dangerHero: [Color(0xFFA7303A), Color(0xFF6E1C27)],
+    onDangerHero: Color(0xFFFFFFFF),
+    onDangerHeroSoft: Color(0xFFFFE3E4),
+    highlight: Color(0x14FFFFFF), // owner rgba(255,255,255,.08)
+    shadowTint: Color(0x993B82F6),
+    shadows: [
+      BoxShadow(color: Color(0x473B82F6), offset: Offset(0, 8), blurRadius: 24), // owner .28
+    ],
+    pressedShadows: [
+      BoxShadow(color: Color(0x5C3B82F6), offset: Offset(0, 10), blurRadius: 28),
+    ],
+    liteShadows: [
+      BoxShadow(color: Color(0x40000000), offset: Offset(0, 2), blurRadius: 6),
+    ],
+    primaryGlow: [
+      BoxShadow(color: Color(0x663B82F6), offset: Offset(0, 6), blurRadius: 18),
+    ],
+    dangerGlow: [
+      BoxShadow(color: Color(0x66F0525A), offset: Offset(0, 6), blurRadius: 18),
+    ],
+  );
+
+  static DsTokens of(BuildContext context) =>
+      Theme.of(context).extension<DsTokens>() ??
+      (Theme.of(context).brightness == Brightness.dark ? dark : light);
+
+  @override
+  DsTokens copyWith() => this;
+
+  @override
+  DsTokens lerp(DsTokens? other, double t) =>
+      other == null ? this : (t < 0.5 ? this : other);
 }

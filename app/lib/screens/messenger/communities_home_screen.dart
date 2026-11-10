@@ -176,7 +176,7 @@ class CommunitiesHomeScreenState extends State<CommunitiesHomeScreen> {
             Text(t.chxCommunitiesHowTo,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    color: Theme.of(context).colorScheme.ds.muted)),
           ]),
         ),
         const SizedBox(height: Gap.xxl * 2),
@@ -301,7 +301,7 @@ class _CreateCommunitySheetState extends State<_CreateCommunitySheet> {
             const SizedBox(height: Gap.sm),
             Text(t.chxNewCommunitySub,
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    color: Theme.of(context).colorScheme.ds.muted)),
             const SizedBox(height: Gap.lg),
             TextField(
               key: const Key('chx-community-name'),
@@ -319,7 +319,7 @@ class _CreateCommunitySheetState extends State<_CreateCommunitySheet> {
                 style: Theme.of(context).textTheme.titleSmall),
             Text(t.chxStarterGroupsSub,
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    color: Theme.of(context).colorScheme.ds.muted)),
             for (var i = 0; i < _groups.length; i++) ...[
               const SizedBox(height: Gap.sm),
               TextField(
@@ -552,12 +552,12 @@ class _SpaceLinkScreenState extends State<SpaceLinkScreen> {
           const SizedBox(height: Gap.sm),
           Text('${_c['description']}',
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         ],
         const SizedBox(height: Gap.sm),
         Text(t.communityMemberCount(notifLocalizeDigits(context, '${_c['member_count'] ?? 0}')),
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant)),
+            style: TextStyle(color: scheme.ds.muted)),
         const SizedBox(height: Gap.xl),
         if (state == 'member')
           FilledButton.icon(
@@ -581,7 +581,7 @@ class _SpaceLinkScreenState extends State<SpaceLinkScreen> {
           const SizedBox(height: Gap.sm),
           Text(t.chxAskToJoinNote,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: TextStyle(color: scheme.ds.muted)),
         ],
       ]);
     }

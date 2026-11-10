@@ -127,7 +127,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
             ],
             const SizedBox(height: Gap.sm),
             Text(t.srvApplyNote,
-                style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.ds.muted)),
           ],
         ),
         actions: [
@@ -260,9 +260,9 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
@@ -290,7 +290,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
     final p = _probe;
     if (p == null) {
       return _probeRow(
-          Icons.help_outline_rounded, scheme.onSurfaceVariant, t.srvProbeIdle, null);
+          Icons.help_outline_rounded, scheme.ds.muted, t.srvProbeIdle, null);
     }
     switch (p.state) {
       case ServerConfig.probeReachable:
@@ -322,7 +322,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
                 style: TextStyle(fontWeight: FontWeight.w600, color: color)),
             if (sub != null)
               Text(sub,
-                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           ]),
         ),
       ]),

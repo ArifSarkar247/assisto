@@ -226,7 +226,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                       key: const ValueKey('sosat-fall-switch'),
                       secondary: Icon(
                           s.fallOn ? Icons.shield_rounded : Icons.shield_outlined,
-                          color: s.fallOn ? Brand.success : scheme.onSurfaceVariant),
+                          color: s.fallOn ? Brand.success : scheme.ds.muted),
                       title: Text(t.saFallSwitch,
                           style: const TextStyle(fontWeight: FontWeight.w700)),
                       subtitle: Text(s.fallOn ? t.saOn : t.saFallSwitchSub),
@@ -253,7 +253,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                 ),
                 const SizedBox(height: Gap.lg),
                 Text(t.saFallLimits,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ],
             ),
     );

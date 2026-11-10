@@ -9,6 +9,7 @@ import '../../api.dart';
 import '../../kids_watch_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
@@ -168,25 +169,18 @@ class _SchoolModeChildScreenState extends State<SchoolModeChildScreen> {
   }
 
   Widget _body(AppLocalizations t) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) {
+      return ListView(padding: const EdgeInsets.all(Gap.md), children: [DsSkeleton.card(lines: 4)]);
+    }
     if (_failed) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(t.kwLoadFailed, textAlign: TextAlign.center, style: AType.bodyLarge),
-            const SizedBox(height: Gap.md),
-            FilledButton.icon(
-                onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.kwRetry)),
-          ]),
-        ),
-      );
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+            icon: Icons.cloud_off_rounded, title: t.kwLoadFailed, actionLabel: t.kwRetry, onAction: _load),
+      ]);
     }
     if (_plans.isEmpty) {
       return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-        const Icon(Icons.school_rounded, size: 56),
-        const SizedBox(height: Gap.md),
-        Text(t.kwChildEmpty, textAlign: TextAlign.center, style: AType.bodyLarge),
+        DsEmptyState(icon: Icons.school_rounded, title: t.kwChildEmpty),
       ]);
     }
     return RefreshIndicator(
@@ -200,6 +194,8 @@ class _SchoolModeChildScreenState extends State<SchoolModeChildScreen> {
 
   Widget _plan(AppLocalizations t, Map<String, dynamic> p) {
     final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
+    final lite = DsPerf.liteOf(context);
     final watchers = kwRows(p, 'watchers').map((w) => '${w['name']}').join(', ');
     final accepted = p['accepted'] == true;
     final enabled = p['enabled'] == true;
@@ -210,27 +206,23 @@ class _SchoolModeChildScreenState extends State<SchoolModeChildScreen> {
     final arriveNext = st == 'to_school' || st == 'to_home';
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       // the banner: on + who sees, always first
-      Container(
+      DsSurface(
         padding: const EdgeInsets.all(Gap.md),
-        decoration: BoxDecoration(
-          color: enabled ? scheme.primaryContainer : scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        color: enabled ? ds.primarySoft : null,
         child: Row(children: [
-          Icon(enabled ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-              color: enabled ? scheme.onPrimaryContainer : scheme.onSurfaceVariant),
+          if (enabled) DsStatusDot(color: ds.success) else Icon(Icons.visibility_off_rounded, color: ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(
               !enabled ? t.kwChildOff : (accepted ? t.kwChildOnSeenBy(watchers) : t.kwChildInvite(watchers)),
               style: AType.bodyLarge.copyWith(
-                  color: enabled ? scheme.onPrimaryContainer : scheme.onSurfaceVariant),
+                  color: enabled ? ds.primaryInk : ds.muted),
             ),
           ),
         ]),
       ),
       const SizedBox(height: Gap.sm),
-      Text(phone ? t.kwChildWhatPhone : t.kwChildWhatWatch, style: AType.bodyMedium),
+      Text(phone ? t.kwChildWhatPhone : t.kwChildWhatWatch, style: AType.bodyMedium.copyWith(color: ds.muted)),
       const SizedBox(height: Gap.md),
       if (enabled && !accepted)
         FilledButton(
@@ -250,7 +242,11 @@ class _SchoolModeChildScreenState extends State<SchoolModeChildScreen> {
             label: Text(t.kwImOk, style: AType.titleMedium.copyWith(color: scheme.onError)),
           ),
         if (asked) const SizedBox(height: Gap.sm),
-        FilledButton.icon(
+        DecoratedBox(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(DsRadius.button),
+              boxShadow: lite || _busy ? null : ds.primaryGlow),
+          child: FilledButton.icon(
           key: const ValueKey('kw-big-button'),
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(88)),
           onPressed: _busy ? null : () => _checkin(p, arriveNext ? 'arrived' : 'leaving'),
@@ -258,7 +254,8 @@ class _SchoolModeChildScreenState extends State<SchoolModeChildScreen> {
               size: 32),
           label: Text(arriveNext ? t.kwReached : t.kwLeavingNow,
               textAlign: TextAlign.center,
-              style: AType.headlineSmall.copyWith(color: scheme.onPrimary)),
+              style: AType.headlineSmall.copyWith(color: scheme.onPrimary, fontWeight: FontWeight.w800)),
+        ),
         ),
         const SizedBox(height: Gap.sm),
         OutlinedButton(
@@ -284,7 +281,7 @@ class _SchoolModeChildScreenState extends State<SchoolModeChildScreen> {
       if (accepted && today['arrive_due'] != null && enabled)
         Text(t.kwExpectedBy(notifLocalizeDigits(context, kwClock(today['arrive_due'])),
                 notifLocalizeDigits(context, kwClock(today['home_due']))),
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: ds.muted)),
       const SizedBox(height: Gap.md),
       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
         if (enabled && accepted)
@@ -299,9 +296,9 @@ class _SchoolModeChildScreenState extends State<SchoolModeChildScreen> {
         if (enabled)
           TextButton.icon(
               onPressed: () => _action(p, 'stop'),
-              icon: Icon(Icons.stop_circle_outlined, color: scheme.error),
+              icon: Icon(Icons.stop_circle_outlined, color: ds.dangerInk),
               label: Text(accepted ? t.kwStop : t.kwDecline,
-                  style: TextStyle(color: scheme.error))),
+                  style: AType.labelLarge.copyWith(color: ds.dangerInk))),
       ]),
       const Divider(height: Gap.xxl),
     ]);

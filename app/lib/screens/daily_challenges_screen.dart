@@ -213,7 +213,7 @@ class _WelcomeBanner extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.md),
-      color: scheme.primaryContainer.withValues(alpha: 0.5),
+      color: scheme.ds.primarySoft.withValues(alpha: 0.5),
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Row(children: [
@@ -227,7 +227,7 @@ class _WelcomeBanner extends StatelessWidget {
                       style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xxs),
                   Text(tr.chalWelcomeBody,
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ]),
           ),
         ]),
@@ -277,7 +277,7 @@ class _StatsStrip extends StatelessWidget {
           const SizedBox(height: Gap.xxs),
           Text(label,
               textAlign: TextAlign.center,
-              style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant),
+              style: AType.labelSmall.copyWith(color: scheme.ds.muted),
               maxLines: 2,
               overflow: TextOverflow.ellipsis),
         ]),
@@ -320,7 +320,7 @@ class _TodayCardState extends State<_TodayCard> {
             Text(
                 item.kind == 'task' ? tr.chalKindTask : tr.chalKindQuiz,
                 style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600,
-                    color: scheme.onSurfaceVariant)),
+                    color: scheme.ds.muted)),
           ]),
           const SizedBox(height: Gap.md),
           Text(item.question,
@@ -370,7 +370,7 @@ class _TodayCardState extends State<_TodayCard> {
             final isCorrect = done && i == item.answer;
             final isWrongPick =
                 done && i == answeredIdx && answeredIdx != item.answer;
-            Color border = scheme.outlineVariant;
+            Color border = scheme.ds.border;
             Color? bg;
             if (done) {
               if (isCorrect) {
@@ -414,7 +414,7 @@ class _TodayCardState extends State<_TodayCard> {
                             ? scheme.error
                             : (_selected == i && !done
                                 ? scheme.primary
-                                : scheme.onSurfaceVariant)),
+                                : scheme.ds.muted)),
                   ),
                   const SizedBox(width: Gap.md),
                   Expanded(
@@ -436,7 +436,7 @@ class _TodayCardState extends State<_TodayCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
@@ -445,7 +445,7 @@ class _TodayCardState extends State<_TodayCard> {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(done ? tr.chalTaskCompleted : tr.chalTaskHint,
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ),
       ]),
     );
@@ -458,7 +458,7 @@ class _TodayCardState extends State<_TodayCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.secondaryContainer.withValues(alpha: 0.45),
+        color: scheme.ds.primarySoft.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -587,15 +587,15 @@ Widget _catChip(BuildContext context, String cat) {
 Widget _pointsNote(BuildContext context, String text) {
   final scheme = Theme.of(context).colorScheme;
   return Card(
-    color: scheme.surfaceContainerHighest,
+    color: scheme.ds.cardHighest,
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.info_outline_rounded, size: 18, color: scheme.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
       ]),
     ),

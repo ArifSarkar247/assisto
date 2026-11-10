@@ -225,10 +225,10 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
     return Container(
       margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(color: cs.errorContainer, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: cs.ds.dangerBg, borderRadius: BorderRadius.circular(12)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(t.trEmergencyTitle,
-            style: AType.titleSmall.copyWith(color: cs.onErrorContainer, fontWeight: FontWeight.w700)),
+            style: AType.titleSmall.copyWith(color: cs.ds.dangerInk, fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           FilledButton.icon(
@@ -379,9 +379,9 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
       margin: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.md),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
+          color: cs.ds.cardHighest, borderRadius: BorderRadius.circular(12)),
       child: Row(children: [
-        Icon(Icons.lock_clock_rounded, color: cs.onSurfaceVariant),
+        Icon(Icons.lock_clock_rounded, color: cs.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(before ? t.sjtChatOpensAt(hm(opens)) : t.sjtChatClosed,
@@ -409,8 +409,8 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
               color: m['emergency'] == true
-                  ? cs.errorContainer
-                  : (mine ? cs.primaryContainer : cs.surfaceContainerHighest),
+                  ? cs.ds.dangerBg
+                  : (mine ? cs.ds.primarySoft : cs.ds.cardHighest),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

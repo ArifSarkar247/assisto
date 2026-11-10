@@ -8,6 +8,7 @@
 // Only the proof / password goes to the server; the PIN and the recovery code
 // never do. Documents are never lost: they are not encrypted with the PIN.
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 
 import '../l10n/app_localizations.dart';
 import '../otp_api.dart';
@@ -245,23 +246,23 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
               Container(
                 padding: const EdgeInsets.all(Gap.md),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
+                  color: Theme.of(context).colorScheme.ds.primarySoft,
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Icon(Icons.verified_user_rounded,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer),
+                      color: Theme.of(context).colorScheme.ds.primaryInk),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text(t.vaultRecoverSafeTitle,
                           style: AType.titleMedium.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onPrimaryContainer)),
+                              color: Theme.of(context).colorScheme.ds.primaryInk)),
                       const SizedBox(height: Gap.xs),
                       Text(t.vaultRecoverSafeBody,
                           style: AType.bodyMedium.copyWith(
-                              color: Theme.of(context).colorScheme.onPrimaryContainer)),
+                              color: Theme.of(context).colorScheme.ds.primaryInk)),
                     ]),
                   ),
                 ]),

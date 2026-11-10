@@ -48,9 +48,9 @@ class WakeDisclosureScreen extends StatelessWidget {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                      color: scheme.primaryContainer, shape: BoxShape.circle),
+                      color: scheme.ds.primarySoft, shape: BoxShape.circle),
                   child: Icon(Icons.mic_none_rounded,
-                      size: 34, color: scheme.onPrimaryContainer),
+                      size: 34, color: scheme.ds.primaryInk),
                 ),
                 const SizedBox(height: Gap.lg),
                 Text(t.vaWkDiscTitle,
@@ -62,12 +62,12 @@ class WakeDisclosureScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(Gap.lg),
                   decoration: BoxDecoration(
-                    color: scheme.secondaryContainer,
+                    color: scheme.ds.primarySoft,
                     borderRadius: BorderRadius.circular(Radii.md),
                   ),
                   child: Text(t.vaWkDiscLead,
                       style: TextStyle(
-                          color: scheme.onSecondaryContainer,
+                          color: scheme.ds.primaryInk,
                           fontWeight: FontWeight.w600,
                           height: 1.35)),
                 ),

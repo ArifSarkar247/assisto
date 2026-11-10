@@ -344,22 +344,22 @@ class _Disclosure extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
-          color: scheme.secondaryContainer,
+          color: scheme.ds.primarySoft,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.lock_open_rounded, color: scheme.onSecondaryContainer),
+          Icon(Icons.lock_open_rounded, color: scheme.ds.primaryInk),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (big)
                 Text(t.bizaiDisclosureTitle,
                     style: TextStyle(
-                        fontWeight: FontWeight.w700, color: scheme.onSecondaryContainer)),
+                        fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
               Text(text,
                   maxLines: big ? null : 2,
                   overflow: big ? null : TextOverflow.ellipsis,
-                  style: TextStyle(color: scheme.onSecondaryContainer)),
+                  style: TextStyle(color: scheme.ds.primaryInk)),
             ]),
           ),
         ]),
@@ -382,7 +382,7 @@ class _Bubble extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: Gap.sm),
         child: Text(bd(context, m['text']),
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, fontStyle: FontStyle.italic)),
+            style: TextStyle(color: scheme.ds.muted, fontStyle: FontStyle.italic)),
       );
     }
     final mine = dir == 'in';
@@ -400,7 +400,7 @@ class _Bubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
-          color: mine ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+          color: mine ? scheme.ds.primarySoft : scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -421,13 +421,13 @@ class _Bubble extends StatelessWidget {
             ),
           if (m['voice'] == true && mine)
             Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.mic_rounded, size: 16, color: scheme.onPrimaryContainer),
+              Icon(Icons.mic_rounded, size: 16, color: scheme.ds.primaryInk),
               const SizedBox(width: 4),
               Flexible(child: Text(t.bizaiVoiceHeard)),
             ]),
           SelectableText(bd(context, shown),
               style: TextStyle(
-                  color: mine ? scheme.onPrimaryContainer : scheme.onSurface)),
+                  color: mine ? scheme.ds.primaryInk : scheme.ds.text)),
         ]),
       ),
     );

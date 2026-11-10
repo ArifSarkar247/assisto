@@ -318,7 +318,7 @@ class _TaskTile extends StatelessWidget {
     final done = task.status == statusDone;
     return Container(
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        color: scheme.ds.cardHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(Radii.md),
         border: Border(
             left: BorderSide(color: _priorityColor(), width: 4)),
@@ -331,7 +331,7 @@ class _TaskTile extends StatelessWidget {
             IconButton(
               onPressed: onToggleStatus,
               icon: Icon(_statusIcon(),
-                  color: done ? Brand.success : scheme.onSurfaceVariant),
+                  color: done ? Brand.success : scheme.ds.muted),
               tooltip: statusLabel,
             ),
             Expanded(
@@ -342,7 +342,7 @@ class _TaskTile extends StatelessWidget {
                   Text(
                     task.title,
                     style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, decoration:
-                          done ? TextDecoration.lineThrough : null, color: done ? scheme.onSurfaceVariant : null),
+                          done ? TextDecoration.lineThrough : null, color: done ? scheme.ds.muted : null),
                   ),
                   const SizedBox(height: 6),
                   Wrap(
@@ -354,7 +354,7 @@ class _TaskTile extends StatelessWidget {
                       _badge(statusLabel, scheme.primary),
                       if (task.due.isNotEmpty)
                         _badge(_dueText(task.due),
-                            overdue ? Brand.danger : scheme.onSurfaceVariant,
+                            overdue ? Brand.danger : scheme.ds.muted,
                             icon: Icons.event_rounded),
                       if (overdue)
                         _badge(overdueLabel, Brand.danger,
@@ -364,7 +364,7 @@ class _TaskTile extends StatelessWidget {
                   if (task.note.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Text(task.note,
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ],
                 ],
               ),

@@ -5,6 +5,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
@@ -368,7 +369,7 @@ class _AlwaysFreeCard extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: s.onSurface)),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: DsTokens.of(context).text)),
             const SizedBox(height: Gap.xs),
             Text(body, style: Theme.of(context).textTheme.bodyMedium),
           ]),
@@ -397,7 +398,7 @@ class _PlanCard extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Radii.lg),
-        side: BorderSide(color: current ? s.primary : s.outlineVariant, width: current ? 2 : 1),
+        side: BorderSide(color: current ? s.primary : DsTokens.of(context).border, width: current ? 2 : 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),

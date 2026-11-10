@@ -138,7 +138,7 @@ class _TargetsTabState extends State<_TargetsTab> {
                 child: Text(tg['member_name']?.toString() ?? t.crmWholeTeam,
                     style: const TextStyle(fontWeight: FontWeight.w800))),
             Text(tg['period']?.toString() ?? '',
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             IconButton(
                 tooltip: AppLocalizations.of(context).edit,
                 icon: const Icon(Icons.edit_rounded, size: 18),
@@ -157,7 +157,7 @@ class _TargetsTabState extends State<_TargetsTab> {
                 Text('${pct.toStringAsFixed(1)}%',
                     style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: pct >= 100 ? AssistoTokens.of(context).success : scheme.onSurface)),
+                        color: pct >= 100 ? AssistoTokens.of(context).success : scheme.ds.text)),
             ]),
             const SizedBox(height: Gap.xs),
             ClipRRect(

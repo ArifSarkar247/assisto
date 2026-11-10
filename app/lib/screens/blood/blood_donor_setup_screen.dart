@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,6 +6,7 @@ import '../../blood_panel_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
 import '../../widgets/local_counter.dart';
@@ -127,165 +129,179 @@ class _BloodDonorSetupScreenState extends State<BloodDonorSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final s = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final text = Theme.of(context).textTheme;
     final districts = bpRows(widget.config, 'districts');
     Widget err(String key, String msg) => _bad.contains(key)
-        ? Padding(padding: const EdgeInsets.only(top: Gap.xs), child: Text(msg, style: TextStyle(color: s.error)))
+        ? Padding(padding: const EdgeInsets.only(top: Gap.xs),
+            child: Text(msg, style: text.bodyMedium?.copyWith(color: ds.dangerInk)))
         : const SizedBox.shrink();
+    Widget title(String s) => Semantics(header: true, child: Text(s,
+        style: text.titleSmall?.copyWith(color: ds.text, fontWeight: FontWeight.w700)));
+    Widget sub(String s) => Padding(
+          padding: const EdgeInsets.only(top: 2, bottom: Gap.sm),
+          child: Text(s, style: text.bodySmall?.copyWith(color: ds.muted)),
+        );
+    // designv2: one card per step, the main action (save) last and full width
     return Scaffold(
       appBar: AppBar(title: Text(widget.initial['enabled'] == true ? t.bpEdit : t.bpBecomeTitle)),
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
-          Text(t.bpSetupLead, style: text.bodyMedium),
-          const SizedBox(height: Gap.lg),
-          Text(t.bpGroupMine, style: text.titleSmall),
-          const SizedBox(height: Gap.xs),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            for (final g in kBloodGroups)
-              ChoiceChip(
-                key: ValueKey('bp-setup-g-$g'),
-                label: Text(g),
-                selected: _group == g,
-                onSelected: (on) => setState(() => _group = on ? g : ''),
-              ),
-          ]),
-          Text(t.bpGroupNotFamily, style: text.bodySmall),
-          err('blood_group', t.bpErrGroup),
-          const SizedBox(height: Gap.lg),
-          Text(t.bpSex, style: text.titleSmall),
-          Text(t.bpSexWhy, style: text.bodySmall),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            for (final o in [('m', t.bpSexMale), ('f', t.bpSexFemale), ('', t.bpSexSkip)])
-              ChoiceChip(
-                key: ValueKey('bp-sex-${o.$1}'),
-                label: Text(o.$2),
-                selected: _sex == o.$1,
-                onSelected: (_) => setState(() => _sex = o.$1),
-              ),
-          ]),
-          const SizedBox(height: Gap.lg),
-          Text(t.bpLastDonation, style: text.titleSmall),
-          const SizedBox(height: Gap.xs),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: OutlinedButton.icon(
-                key: const ValueKey('bp-last-pick'),
-                onPressed: _pickDate,
-                icon: const Icon(Icons.event_rounded),
-                label: Text(_last != null && !_never ? bpDate(context, _last!.toIso8601String()) : t.bpPickDate),
-              ),
-            ),
-            ChoiceChip(
-              key: const ValueKey('bp-last-never'),
-              label: Text(t.bpNeverDonated),
-              selected: _never,
-              onSelected: (on) => setState(() {
-                _never = on;
-                if (on) _last = null;
-              }),
-            ),
-          ]),
-          err('last_donation', t.bpErrLast),
-          const SizedBox(height: Gap.lg),
-          Text(t.bpAreaTitle, style: text.titleSmall),
-          Text(t.bpAreaWhy, style: text.bodySmall),
-          const SizedBox(height: Gap.xs),
-          DropdownButtonFormField<String>(
-            key: const ValueKey('bp-setup-district'),
-            initialValue: districts.any((d) => d['code'] == _district) ? _district : null,
-            isExpanded: true,
-            decoration: InputDecoration(labelText: t.bpDistrict, border: const OutlineInputBorder()),
-            items: [
-              for (final d in districts)
-                DropdownMenuItem(value: '${d['code']}', child: Text('${d['name']}')),
-            ],
-            onChanged: (v) => setState(() => _district = v ?? ''),
-          ),
-          const SizedBox(height: Gap.sm),
-          TextField(
-            key: const ValueKey('bp-setup-area'),
-            controller: _area,
-            maxLength: 60,
-            buildCounter: localCounter,
-            decoration: InputDecoration(
-                labelText: t.bpAreaLabel, helperText: t.bpAreaHelp, helperMaxLines: 3,
-                border: const OutlineInputBorder()),
-          ),
-          err('area_text', t.bpErrAreaText),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: TextButton.icon(
-                key: const ValueKey('bp-setup-here'),
-                onPressed: _useHere,
-                icon: const Icon(Icons.my_location_rounded),
-                label: Text(_point != null || widget.initial['has_point'] == true ? t.bpPointSaved : t.bpUsePoint),
-              ),
-            ),
-          ),
-          err('area', t.bpErrArea),
+          Text(t.bpSetupLead, style: text.bodyMedium?.copyWith(color: ds.muted)),
           const SizedBox(height: Gap.md),
-          Text(t.bpContactTitle, style: text.titleSmall),
-          SwitchListTile(
-            key: const ValueKey('bp-phone-public'),
-            contentPadding: EdgeInsets.zero,
-            title: Text(t.bpPhonePublic),
-            subtitle: Text(t.bpPhonePublicSub),
-            value: _phonePublic,
-            onChanged: (v) => setState(() => _phonePublic = v),
-          ),
-          SwitchListTile(
-            key: const ValueKey('bp-email-public'),
-            contentPadding: EdgeInsets.zero,
-            title: Text(t.bpEmailPublic),
-            subtitle: Text(t.bpEmailPublicSub),
-            value: _emailPublic,
-            onChanged: (v) => setState(() => _emailPublic = v),
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              title(t.bpGroupMine),
+              sub(t.bpGroupNotFamily),
+              BpGroupGrid(
+                keyPrefix: 'bp-setup-g-',
+                selected: _group,
+                onTap: (g) => setState(() => _group = _group == g ? '' : g),
+              ),
+              err('blood_group', t.bpErrGroup),
+            ]),
           ),
           const SizedBox(height: Gap.md),
-          Card(
-            margin: EdgeInsets.zero,
-            color: s.surfaceContainerHigh,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Text(t.bpConsentTitle, style: text.titleSmall),
-                const SizedBox(height: Gap.xs),
-                Text(t.bpConsentBody),
-                CheckboxListTile(
-                  key: const ValueKey('bp-consent'),
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  title: Text(t.bpConsentCheck),
-                  value: _consent,
-                  onChanged: (v) => setState(() => _consent = v == true),
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              title(t.bpSex),
+              sub(t.bpSexWhy),
+              DsChipRow(padding: EdgeInsets.zero, children: [
+                for (final o in [('m', t.bpSexMale), ('f', t.bpSexFemale), ('', t.bpSexSkip)])
+                  DsChip(
+                    key: ValueKey('bp-sex-${o.$1}'),
+                    label: o.$2,
+                    selected: _sex == o.$1,
+                    onSelected: (_) => setState(() => _sex = o.$1),
+                  ),
+              ]),
+              const SizedBox(height: Gap.lg),
+              title(t.bpLastDonation),
+              const SizedBox(height: Gap.sm),
+              DsChipRow(padding: EdgeInsets.zero, children: [
+                DsChip(
+                  key: const ValueKey('bp-last-pick'),
+                  icon: Icons.event_rounded,
+                  label: _last != null && !_never ? bpDate(context, _last!.toIso8601String()) : t.bpPickDate,
+                  selected: _last != null && !_never,
+                  onSelected: (_) => unawaited(_pickDate()),
                 ),
-                CheckboxListTile(
-                  key: const ValueKey('bp-basics'),
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  title: Text(bpD(context, t.bpBasicsCheck)),
-                  value: _basics,
-                  onChanged: (v) => setState(() => _basics = v == true),
+                DsChip(
+                  key: const ValueKey('bp-last-never'),
+                  label: t.bpNeverDonated,
+                  selected: _never,
+                  onSelected: (on) => setState(() {
+                    _never = on;
+                    if (on) _last = null;
+                  }),
                 ),
               ]),
-            ),
+              err('last_donation', t.bpErrLast),
+            ]),
           ),
-          err('consent', t.bpErrConsent),
+          const SizedBox(height: Gap.md),
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              title(t.bpAreaTitle),
+              sub(t.bpAreaWhy),
+              DropdownButtonFormField<String>(
+                key: const ValueKey('bp-setup-district'),
+                initialValue: districts.any((d) => d['code'] == _district) ? _district : null,
+                isExpanded: true,
+                decoration: InputDecoration(labelText: t.bpDistrict),
+                items: [
+                  for (final d in districts)
+                    DropdownMenuItem(value: '${d['code']}', child: Text('${d['name']}')),
+                ],
+                onChanged: (v) => setState(() => _district = v ?? ''),
+              ),
+              const SizedBox(height: Gap.sm),
+              TextField(
+                key: const ValueKey('bp-setup-area'),
+                controller: _area,
+                maxLength: 60,
+                buildCounter: localCounter,
+                decoration: InputDecoration(
+                    labelText: t.bpAreaLabel, helperText: t.bpAreaHelp, helperMaxLines: 5),
+              ),
+              err('area_text', t.bpErrAreaText),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: kMinTap),
+                  child: TextButton.icon(
+                    key: const ValueKey('bp-setup-here'),
+                    onPressed: _useHere,
+                    icon: Icon(_point != null || widget.initial['has_point'] == true
+                        ? Icons.check_circle_rounded
+                        : Icons.my_location_rounded),
+                    label: Text(_point != null || widget.initial['has_point'] == true ? t.bpPointSaved : t.bpUsePoint),
+                  ),
+                ),
+              ),
+              err('area', t.bpErrArea),
+            ]),
+          ),
+          const SizedBox(height: Gap.md),
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              title(t.bpContactTitle),
+              SwitchListTile(
+                key: const ValueKey('bp-phone-public'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(t.bpPhonePublic),
+                subtitle: Text(t.bpPhonePublicSub),
+                value: _phonePublic,
+                onChanged: (v) => setState(() => _phonePublic = v),
+              ),
+              SwitchListTile(
+                key: const ValueKey('bp-email-public'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(t.bpEmailPublic),
+                subtitle: Text(t.bpEmailPublicSub),
+                value: _emailPublic,
+                onChanged: (v) => setState(() => _emailPublic = v),
+              ),
+            ]),
+          ),
+          const SizedBox(height: Gap.md),
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Row(children: [
+                Icon(Icons.verified_user_rounded, color: ds.primaryInk, size: 22),
+                const SizedBox(width: Gap.sm),
+                Expanded(child: title(t.bpConsentTitle)),
+              ]),
+              const SizedBox(height: Gap.xs),
+              Text(t.bpConsentBody, style: text.bodyMedium?.copyWith(color: ds.muted)),
+              CheckboxListTile(
+                key: const ValueKey('bp-consent'),
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(t.bpConsentCheck),
+                value: _consent,
+                onChanged: (v) => setState(() => _consent = v == true),
+              ),
+              CheckboxListTile(
+                key: const ValueKey('bp-basics'),
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(bpD(context, t.bpBasicsCheck)),
+                value: _basics,
+                onChanged: (v) => setState(() => _basics = v == true),
+              ),
+              err('consent', t.bpErrConsent),
+            ]),
+          ),
           const SizedBox(height: Gap.lg),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 56),
-            child: FilledButton(
-              key: const ValueKey('bp-setup-save'),
-              onPressed: _busy ? null : _save,
-              child: _busy
-                  ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(widget.initial['enabled'] == true ? t.bpSave : t.bpJoin),
-            ),
+          DsButton(
+            key: const ValueKey('bp-setup-save'),
+            label: widget.initial['enabled'] == true ? t.bpSave : t.bpJoin,
+            icon: Icons.volunteer_activism_rounded,
+            expand: true,
+            busy: _busy,
+            onPressed: _save,
           ),
         ],
       ),

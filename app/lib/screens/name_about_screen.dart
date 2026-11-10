@@ -159,7 +159,7 @@ class _NameAboutScreenState extends State<NameAboutScreen> {
             NameAboutSectionTitle(
                 text: t.nameAboutClassesLabel, icon: Icons.category_rounded),
             Text(t.nameAboutClassesHint,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.45)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.45)),
             const SizedBox(height: Gap.sm),
             ...classWidgets,
             const SizedBox(height: Gap.lg),
@@ -184,7 +184,7 @@ class _NameAboutScreenState extends State<NameAboutScreen> {
           if (serverDisclaimer.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
             Text(serverDisclaimer,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.5, fontStyle: FontStyle.italic)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.5, fontStyle: FontStyle.italic)),
           ],
         ],
       ),
@@ -207,7 +207,7 @@ class _EmptyWithDisclaimer extends StatelessWidget {
         const NameAboutDisclaimerBanner(),
         const SizedBox(height: Gap.xl),
         Icon(Icons.badge_rounded,
-            size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            size: 48, color: Theme.of(context).colorScheme.ds.muted),
         const SizedBox(height: Gap.md),
         Text(t.nameAboutEmptyTitle,
             textAlign: TextAlign.center,
@@ -219,7 +219,7 @@ class _EmptyWithDisclaimer extends StatelessWidget {
         Text(t.nameAboutEmptyBody,
             textAlign: TextAlign.center,
             style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.45)),
+                color: Theme.of(context).colorScheme.ds.muted, height: 1.45)),
         const SizedBox(height: Gap.lg),
         Center(
           child: FilledButton.tonal(onPressed: onRetry, child: Text(t.retry)),

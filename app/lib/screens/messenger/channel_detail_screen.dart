@@ -432,7 +432,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
             children: [
               Icon(Icons.info_outline_rounded,
                   size: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  color: Theme.of(context).colorScheme.ds.muted),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.channelReplyDisabledNote,
@@ -620,7 +620,7 @@ class _MyVisibilitySheet extends StatelessWidget {
             const SizedBox(height: Gap.sm),
             Text(t.channelVisDefaultNote,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    color: Theme.of(context).colorScheme.ds.muted)),
           ],
         ),
       ),

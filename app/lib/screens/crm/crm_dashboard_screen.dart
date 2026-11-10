@@ -90,10 +90,10 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                     // the formula is fixed server-side; show it in the user's
                     // language (the server's text is English-only)
                     Text('${t.crmMethod}: ${t.shopQaForecastMethod}',
-                        style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
                   ])
                 : Row(children: [
-                    Icon(Icons.info_outline_rounded, color: scheme.onSurfaceVariant, size: 18),
+                    Icon(Icons.info_outline_rounded, color: scheme.ds.muted, size: 18),
                     const SizedBox(width: Gap.sm),
                     Expanded(child: Text(lang == 'bn'
                         ? (forecast['message_bn'] ?? t.crmNotEnoughData).toString()
@@ -113,7 +113,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                     _line(t.crmMarkLost, fmtInt(context, (winLoss['lost'] as num?)?.toInt() ?? 0)),
                     _line(t.crmWinRate, winLoss['win_rate'] == null ? '—' : '${fmtInt(context, (winLoss['win_rate'] as num).toInt())}%'),
                   ])
-                : Text(t.crmNotEnoughData, style: TextStyle(color: scheme.onSurfaceVariant)),
+                : Text(t.crmNotEnoughData, style: TextStyle(color: scheme.ds.muted)),
           ),
         ),
         const SizedBox(height: Gap.md),
@@ -136,7 +136,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: block['has_data'] == true && rows.isNotEmpty
             ? Column(children: [for (final r in rows) row(r)])
-            : Text(t.crmNotEnoughData, style: TextStyle(color: scheme.onSurfaceVariant)),
+            : Text(t.crmNotEnoughData, style: TextStyle(color: scheme.ds.muted)),
       ),
     );
   }
@@ -153,7 +153,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(value, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800), maxLines: 1)),
-          Text(label, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          Text(label, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ]),
       ),
     );

@@ -407,9 +407,9 @@ class _RemitTab extends StatelessWidget {
                 ...summary.rows.map((r) => Card(
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: scheme.primaryContainer,
+                          backgroundColor: scheme.ds.primarySoft,
                           child: Icon(Icons.arrow_upward_rounded,
-                              color: scheme.onPrimaryContainer),
+                              color: scheme.ds.primaryInk),
                         ),
                         title: Text(
                           tr.probashiSentReceived(
@@ -444,7 +444,7 @@ class _RemitTab extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
-              child: Text(k, style: TextStyle(color: scheme.onSurfaceVariant))),
+              child: Text(k, style: TextStyle(color: scheme.ds.muted))),
           const SizedBox(width: Gap.sm),
           Flexible(
             child: Text(ld(context, v),
@@ -507,7 +507,7 @@ class _ClockTabState extends State<_ClockTab> {
                     child: _clock(context, tr.probashiAbroad,
                         pair.abroadTime, pair.abroadOffsetDisplay)),
                 Container(
-                    width: 1, height: 64, color: scheme.outlineVariant),
+                    width: 1, height: 64, color: scheme.ds.border),
                 Expanded(
                     child: _clock(context, tr.probashiHome, pair.homeTime,
                         pair.homeOffsetDisplay)),
@@ -517,13 +517,13 @@ class _ClockTabState extends State<_ClockTab> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: Gap.md, vertical: Gap.sm),
                 decoration: BoxDecoration(
-                  color: scheme.primaryContainer,
+                  color: scheme.ds.primarySoft,
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: Text(
                   _diffLabel(tr, pair),
                   style: TextStyle(
-                      color: scheme.onPrimaryContainer,
+                      color: scheme.ds.primaryInk,
                       fontWeight: FontWeight.w600),
                 ),
               ),
@@ -562,7 +562,7 @@ class _ClockTabState extends State<_ClockTab> {
     final scheme = Theme.of(context).colorScheme;
     return Column(children: [
       Text(label,
-          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.xs),
       FittedBox(
         fit: BoxFit.scaleDown,
@@ -571,7 +571,7 @@ class _ClockTabState extends State<_ClockTab> {
       ),
       const SizedBox(height: Gap.xs),
       Text(ld(context, offset),
-          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
     ]);
   }
 }
@@ -672,7 +672,7 @@ class _DocsTab extends StatelessWidget {
       const SizedBox(height: Gap.xs),
       Text(label,
           textAlign: TextAlign.center,
-          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
     ]);
   }
 
@@ -699,7 +699,7 @@ class _DocsTab extends StatelessWidget {
       case 'valid':
         return scheme.primary;
       default:
-        return scheme.onSurfaceVariant;
+        return scheme.ds.muted;
     }
   }
 
@@ -721,7 +721,7 @@ class _DocsTab extends StatelessWidget {
 Widget _noteCard(BuildContext context, String text) {
   final scheme = Theme.of(context).colorScheme;
   return Card(
-    color: scheme.surfaceContainerHighest,
+    color: scheme.ds.cardHighest,
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
@@ -729,7 +729,7 @@ Widget _noteCard(BuildContext context, String text) {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted))),
       ]),
     ),
   );

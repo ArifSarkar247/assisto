@@ -140,7 +140,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
         const SizedBox(height: Gap.sm),
         Text(t.crmWelcomeBody,
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            style: TextStyle(color: scheme.ds.muted, height: 1.4)),
         const SizedBox(height: Gap.lg),
 
         // ---- path switch ----
@@ -174,7 +174,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.errorContainer.withValues(alpha: 0.6),
+        color: scheme.ds.dangerBg.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -182,7 +182,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(e.message, style: TextStyle(color: scheme.onErrorContainer)),
+            Text(e.message, style: TextStyle(color: scheme.ds.dangerInk)),
             if (e.ref.isNotEmpty) ...[
               const SizedBox(height: Gap.xs),
               RefCodeChip(e.ref),
@@ -196,7 +196,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
   // ---- (a) Start your company's CRM ----
   Widget _startForm(AppLocalizations t) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(t.crmStartOrgHint, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      Text(t.crmStartOrgHint, style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
       const SizedBox(height: Gap.md),
       TextField(
         controller: _nameCtl,
@@ -243,7 +243,7 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
   // ---- (b) Join a team ----
   Widget _joinForm(AppLocalizations t) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(t.crmJoinTeamHint, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      Text(t.crmJoinTeamHint, style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
       const SizedBox(height: Gap.md),
       TextField(
         controller: _codeCtl,

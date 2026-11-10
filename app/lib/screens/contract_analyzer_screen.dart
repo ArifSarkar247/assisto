@@ -552,7 +552,7 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Icon(Icons.check_box_outline_blank_rounded,
-                  size: 18, color: scheme.onSurfaceVariant),
+                  size: 18, color: scheme.ds.muted),
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(_checkLabel(t, k),
@@ -568,15 +568,15 @@ class _ContractAnalyzerScreenState extends State<ContractAnalyzerScreen>
       Container(
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
+          color: scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.gavel_rounded, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.gavel_rounded, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(t.caDisclaimer,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted,
                       height: 1.4))),
         ]),
       ),
@@ -651,21 +651,21 @@ class _HonestMarker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.tertiaryContainer,
+        color: scheme.ds.successBg,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.onTertiaryContainer),
+        Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.ds.successInk),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.f6QtRuleMarker, // truth: rule-based, not AI
-                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer,
+                style: AType.bodySmall.copyWith(color: scheme.ds.successInk,
                     fontWeight: FontWeight.w700,
                     height: 1.4)),
             const SizedBox(height: Gap.xxs),
             Text(t.caMarkerSub,
-                style: AType.bodySmall.copyWith(color: scheme.onTertiaryContainer,
+                style: AType.bodySmall.copyWith(color: scheme.ds.successInk,
                     height: 1.4)),
           ]),
         ),
@@ -685,7 +685,7 @@ class _DeeperAiCard extends StatelessWidget {
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Radii.sm),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(Icons.lock_outline_rounded, size: 18, color: scheme.primary),
@@ -696,7 +696,7 @@ class _DeeperAiCard extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
             const SizedBox(height: Gap.xxs),
             Text(t.caDeeperBody,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
           ]),
         ),
       ]),
@@ -720,7 +720,7 @@ class _CountChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Text('${ld(context, count)} · $label',
-          style: AType.bodySmall.copyWith(color: dim ? Theme.of(context).colorScheme.onSurfaceVariant : color,
+          style: AType.bodySmall.copyWith(color: dim ? Theme.of(context).colorScheme.ds.muted : color,
               fontWeight: FontWeight.w700)),
     );
   }
@@ -765,7 +765,7 @@ class _FlagCard extends StatelessWidget {
         if (snippet.isNotEmpty) ...[
           const SizedBox(height: Gap.xs),
           Text(snippet,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted,
                   height: 1.4,
                   fontStyle: FontStyle.italic)),
         ],

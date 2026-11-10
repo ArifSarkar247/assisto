@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart' show ImageSource; // sjstart2
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import '../state.dart';
@@ -764,7 +765,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       margin: const EdgeInsets.only(top: Gap.sm),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: cs.primaryContainer.withValues(alpha: 0.5),
+          color: DsTokens.of(context).primarySoft.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(Radii.md)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.qjWindow(hm(a), hm(b)),
@@ -772,7 +773,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         if (c != null)
           Text(t.qjEarliest(c),
               key: const ValueKey('qj_earliest'),
-              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
       ]),
     );
   }
@@ -883,7 +884,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         key: const ValueKey('j2_intro'),
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
-            color: cs.primaryContainer.withValues(alpha: 0.45),
+            color: DsTokens.of(context).primarySoft.withValues(alpha: 0.45),
             borderRadius: BorderRadius.circular(Radii.md)),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.verified_user_rounded, color: cs.primary),
@@ -922,7 +923,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs),
                 child: Text(t.j2PinnedFar(jKm(context, d)),
-                    style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
               ),
             const SizedBox(height: Gap.xs),
             Align(
@@ -947,7 +948,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       key: const ValueKey('j2_no_pin'),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
+          color: DsTokens.of(context).cardHighest.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(Icons.place_outlined, color: cs.primary),
@@ -1052,7 +1053,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
           ])
         else
           Text(t.j2PlacesEmpty,
-              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
         if (_psMode != PlaceSearchMode.off)
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -1153,14 +1154,14 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             padding: const EdgeInsets.only(top: Gap.xs),
             child: Text(t.psEtaHint,
                 key: const ValueKey('js_eta_hint'),
-                style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
           ),
         if (_window(context, t) case final w?) w,
         if (rough != null && _etaMin == null) ...[
           const SizedBox(height: Gap.xs),
           Text(t.j2Rough(jDigits(context, rough)),
               key: const ValueKey('j2_rough'),
-              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: TextButton(
@@ -1191,7 +1192,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         // truth: no watcher = nobody can be alerted. Not a dead end: one tap
         // to add a family member, then the list reloads on return.
         if (_watchers.isEmpty) ...[
-          Text(t.journeyNoWatchers, style: TextStyle(color: cs.onSurfaceVariant)),
+          Text(t.journeyNoWatchers, style: TextStyle(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.sm),
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -1229,7 +1230,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                   color: _selectedWatchers.isEmpty ? cs.error : cs.onSurfaceVariant)),
         ],
         Text(t.j2NoAppPeople,
-            style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
         const Divider(height: 28),
 
         // sjstart2 (owner V2 item 6): optional number-plate photo
@@ -1298,7 +1299,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                 decoration: InputDecoration(labelText: t.j2DriverPhone)),
             const SizedBox(height: Gap.xs),
             Text(t.j2RideHint,
-                style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
             const SizedBox(height: Gap.sm),
           ],
         ),
@@ -1346,7 +1347,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                 label: jDigits(context, _retentionHours),
                 onChanged: (v) => setState(() => _retentionHours = v.round())),
             Text(t.journeyRetentionNote,
-                style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
             // sjstart2: usual-trip suggestions (learned on this phone only)
             SwitchListTile(
                 key: const ValueKey('sj2_suggest_switch'),

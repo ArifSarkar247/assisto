@@ -139,7 +139,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
         onAcceptWithDetails: (d) => _move(t, d.data, stage),
         builder: (ctx, cand, rej) => Container(
           decoration: BoxDecoration(
-            color: cand.isNotEmpty ? scheme.primaryContainer.withValues(alpha: 0.4) : scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+            color: cand.isNotEmpty ? scheme.ds.primarySoft.withValues(alpha: 0.4) : scheme.ds.cardHighest.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           padding: const EdgeInsets.all(Gap.sm),
@@ -148,7 +148,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
               padding: const EdgeInsets.all(Gap.xs),
               child: Row(children: [
                 Expanded(child: Text(stage['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w800))),
-                Text('${fmtInt(context, (stage['probability'] as num?)?.toInt() ?? 0)}%', style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                Text('${fmtInt(context, (stage['probability'] as num?)?.toInt() ?? 0)}%', style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ]),
             ),
             Expanded(
@@ -157,7 +157,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
                 if (deals.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(Gap.md),
-                    child: Text(t.crmNoDealsHere, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    child: Text(t.crmNoDealsHere, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ),
               ]),
             ),
@@ -179,7 +179,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
           Text(bdt(context, (d['value'] as num?)), style: const TextStyle(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
           Text('${fmtInt(context, (d['probability'] as num?)?.toInt() ?? 0)}% · ${_closeDate(d['expected_close'])}',
               maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           if (stuckDays != null)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
