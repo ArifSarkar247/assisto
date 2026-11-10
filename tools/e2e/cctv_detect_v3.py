@@ -299,9 +299,12 @@ GROUPS = {
 def grids():
     g = {}
     v = []
-    for model in ("nano", "tiny"):
+    models = [("nano", (0.2, 0.25, 0.3, 0.35)), ("tiny", (0.2, 0.25, 0.3, 0.35))]
+    if "bd" in VEH:
+        models.append(("bd", (0.25, 0.35, 0.45, 0.55)))
+    for model, thrs in models:
         for zoom in (False, True):
-            for thr in (0.2, 0.25, 0.3, 0.35):
+            for thr in thrs:
                 v.append({"veh_model": model, "veh_zoom": zoom, "veh_thr": thr,
                           "rules": {"TRACK_JUMP_CAP": 0.5, "CROSS_MARGIN": 0.02}})
     g["vehicles"] = v
@@ -338,6 +341,7 @@ def main():
     ap.add_argument("--ann", required=True)
     ap.add_argument("--nano", required=True)
     ap.add_argument("--tiny", required=True)
+    ap.add_argument("--bd", default="", help="the Bangladesh vehicle model (mode=train artifact)")
     ap.add_argument("--out", default="cctv_detect.json")
     ap.add_argument("--cache", default="/tmp/coco_eval")
     ap.add_argument("--real-cache", default="/tmp/sylhet")
@@ -349,6 +353,8 @@ def main():
     os.makedirs(a.cache, exist_ok=True)
     det = Cached(a.nano, "yolox_nano")
     VEH["tiny"] = Cached(a.tiny, "yolox_tiny")
+    if a.bd:
+        VEH["bd"] = Cached(a.bd, "assisto_vehicle_bd")
     ann = json.load(open(a.ann))
     pos, neg = CA.build_set(ann, 320, 320)
     pools = {s: {"bgs": [], "cuts": [], "vcuts": [], "real": []} for s in ("cal", "held")}
@@ -376,7 +382,7 @@ def main():
         s = RS.split_of("coco%d" % v["id"])
         pools[s]["vcuts"].append(c)
         sources.append(dict(v, split=s))
-    real = RS.load(a.real, a.real, a.real_cache)
+    real = RS.load(a.real, a.real, a.real_cache) if "vehicles" in a.groups else []
     for it in real:
         pools[it["split"]]["real"].append(it)
     print("pools: " + "; ".join("%s bgs %d people %d vehicles %d real %d" % (
@@ -424,7 +430,7 @@ def main():
                                                     for s, x in sorted(c["by_scenario"].items())), flush=True)
     res["chosen"] = chosen
     res["held"] = report
-    res["model_calls"] = {"nano": det.calls, "tiny": VEH["tiny"].calls}
+    res["model_calls"] = dict({"nano": det.calls}, **{k: v.calls for k, v in VEH.items()})
     json.dump(res, open(a.out, "w"), indent=1)
     print("CHOSEN_JSON " + json.dumps(chosen, sort_keys=True))
     measured = {}

@@ -19,12 +19,19 @@ on:
       minutes:
         description: "mode=train: training time budget (minutes)"
         default: "200"
+      groups:
+        description: "mode=v3: groups to tune (vehicles,post,loiter,crowd)"
+        default: "vehicles,post,loiter,crowd"
+      veh_run:
+        description: "mode=v3: run id of a mode=train run (its Bangladesh vehicle model)"
+        default: ""
       mode:
         description: "scenarios (stage-2 rule P/R), frames (cctvdet3 detector diagnostic) v3 (cctvdet3: tune on calibration, report held-out) or train (cctvdet3: Bangladesh vehicle model)"
         default: "scenarios"
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: cctv-detect-accuracy-${{ github.ref }}-${{ inputs.mode }}
@@ -62,17 +69,31 @@ jobs:
         run: |
           set -o pipefail
           python tools/e2e/cctv_vehicle_frames.py --ann /tmp/ann/instances_val2017.json \
-            --nano edge/shopbox/models/yolox_nano.onnx --tiny edge/shopbox/models/yolox_tiny.onnx \
+            --model nano=edge/shopbox/models/yolox_nano.onnx --model tiny=edge/shopbox/models/yolox_tiny.onnx \
             --out cctv_detect.json --n 220 | tee cctv_detect.txt
+      - name: The Bangladesh vehicle model of a mode=train run (artifact, SHA-256 printed)
+        if: ${{ inputs.mode == 'v3' && inputs.veh_run != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: cctv-vehicle-bd
+          path: /tmp/bd
+          run-id: ${{ inputs.veh_run }}
+          github-token: ${{ github.token }}
       - name: Tune on calibration, report held-out (cctvdet3)
         if: ${{ inputs.mode == 'v3' }}
         env:
           N: ${{ inputs.n || '30' }}
+          GROUPS: ${{ inputs.groups || 'vehicles,post,loiter,crowd' }}
         run: |
           set -o pipefail
+          BD=""
+          if [ -f /tmp/bd/assisto_vehicle_bd_nano.onnx ]; then
+            sha256sum /tmp/bd/assisto_vehicle_bd_nano.onnx; cat /tmp/bd/assisto_vehicle_bd_nano.onnx.sha256
+            BD="--bd /tmp/bd/assisto_vehicle_bd_nano.onnx"
+          fi
           python tools/e2e/cctv_detect_v3.py --ann /tmp/ann/instances_val2017.json \
-            --nano edge/shopbox/models/yolox_nano.onnx --tiny edge/shopbox/models/yolox_tiny.onnx \
-            --out cctv_detect.json --n "$N" | tee cctv_detect.txt
+            --nano edge/shopbox/models/yolox_nano.onnx --tiny edge/shopbox/models/yolox_tiny.onnx $BD \
+            --groups "$GROUPS" --out cctv_detect.json --n "$N" | tee cctv_detect.txt
       - name: Evaluate
         if: ${{ inputs.mode != 'frames' && inputs.mode != 'v3' }}
         env:
