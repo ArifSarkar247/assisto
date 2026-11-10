@@ -987,7 +987,8 @@ def _rider_add(city, anon, stop_ids):
     from .models import CityLearned
     ids = [str(x)[:80] for x in stop_ids if x and not str(x).startswith("new:")]
     with transaction.atomic():
-        obj, _ = CityLearned.objects.select_for_update().get_or_create(city=city, kind="rider", key=anon[:120])
+        # one rider row per person (city="all"), shared with citycov's _rider_and_hint
+        obj, _ = CityLearned.objects.select_for_update().get_or_create(city="all", kind="rider", key=anon[:120])
         have = list((obj.data or {}).get("stops") or [])
         seen = set(have)
         for x in ids:
@@ -1001,13 +1002,13 @@ def _rider_add(city, anon, stop_ids):
 
 
 def rider_stats(user):
+    """mapapp + citycov: stops this rider verified (taps + trips), confirmed
+    rides and processed trips, from the one per-person row (keyed hash)."""
     from .models import CityLearned
-    anon = anon_key(user)
-    stops, rides = 0, 0
-    for d, n in CityLearned.objects.filter(kind="rider", key=anon).values_list("data", "trips"):
-        stops += len((d or {}).get("stops") or [])
-        rides += int((d or {}).get("rides") or 0)
-    return {"stops_verified": stops, "rides": rides}
+    r = CityLearned.objects.filter(city="all", kind="rider", key=anon_key(user)[:120]).first()
+    d = (r.data or {}) if r else {}
+    return {"stops_verified": len(d.get("stops") or []), "rides": int(d.get("rides") or 0),
+            "trips": int(d.get("trips", 0))}
 
 
 def confirm_ride(user, d):
@@ -1067,7 +1068,7 @@ def confirm_ride(user, d):
         km = E.hav(sa["lat"], sa["lon"], sb["lat"], sb["lon"]) * 1.35 / 1000.0
         fare_report(user, city, mode, max(0.2, km), paid)
     _rider_add(city, anon, [a, b])
-    obj = CityLearned.objects.get(city=city, kind="rider", key=anon[:120])
+    obj = CityLearned.objects.get(city="all", kind="rider", key=anon[:120])
     obj.data = dict(obj.data or {}, rides=int((obj.data or {}).get("rides") or 0) + 1)
     obj.save(update_fields=["data"])
     return rider_stats(user), ""
@@ -1228,14 +1229,6 @@ def _trace_km(points):
     pts = points or []
     m = sum(E.hav(a[1], a[2], b[1], b[2]) for a, b in zip(pts, pts[1:]))
     return round(m / 1000.0, 2) if m else 0
-
-
-def rider_stats(user):
-    """How many different stops this rider's trips / taps have verified."""
-    from .models import CityLearned
-    r = CityLearned.objects.filter(kind="rider", key=anon_key(user)).first()
-    d = (r.data or {}) if r else {}
-    return {"stops_verified": len(d.get("stops") or []), "trips": int(d.get("trips", 0))}
 
 
 def _rider_and_hint(trip, seq):
