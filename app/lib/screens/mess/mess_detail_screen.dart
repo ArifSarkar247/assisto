@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../ads/ad_placements.dart' show AdExit, AdExitPlacement; // adcontrol
 import '../../api.dart';
 import '../../config.dart';
 import '../../l10n/app_localizations.dart';
@@ -246,7 +247,15 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
   Future<void> _closeMonth() async {
     final t = AppLocalizations.of(context);
     if (!await _confirm(t.mv2CloseMonthTitle, t.mv2CloseMonthBody, t.mv2CloseMonth)) return;
-    await _call(() => _api.messClose(widget.messId), ok: t.mv2MonthClosed);
+    var closed = false;
+    await _call(() async {
+      final r = await _api.messClose(widget.messId);
+      closed = true;
+      return r;
+    }, ok: t.mv2MonthClosed);
+    // adcontrol (owner ads order 10 Nov 03:45): the month-end report is ready
+    // -> one interstitial (Free only, owner switch + caps; never in the chat)
+    if (closed && mounted) AdExit.transition(AdExitPlacement.messMonthReport);
   }
 
   Future<void> _shareInGroup() async {
