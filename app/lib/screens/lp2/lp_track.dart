@@ -245,8 +245,7 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
         for (final d in days)
           if ('${d['kind']}'.startsWith('lesson:')) '${d['kind']}'.substring(7)
       };
-    } catch (_) {
-      // progress ticks are optional; the course itself loaded above
+    } catch (_) { // best-effort: lesson ticks only; the course itself loaded above
     }
     if (mounted) setState(() => _loading = false);
   }

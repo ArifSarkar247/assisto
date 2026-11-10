@@ -50,6 +50,13 @@ Widget _app(Widget child, ApiClient api, {String lang = 'en', bool dark = false,
 }
 
 final _spoken = <String>[];
+
+/// Scrolls [f] fully into view (tap lands on it, not on its edge).
+Future<void> _show(WidgetTester t, Finder f) async {
+  await t.scrollUntilVisible(f, 200, scrollable: find.byType(Scrollable).first);
+  await t.ensureVisible(f);
+  await t.pumpAndSettle();
+}
 final _ascii = RegExp(r'[0-9]');
 
 void main() {
@@ -81,7 +88,7 @@ void main() {
       await t.pumpWidget(_app(const LanguagePartnerScreen(), FakeApi(mode: FakeMode.data, lang: 'en')));
       await t.pumpAndSettle();
       final chip = find.byKey(const ValueKey('lp2-chip-ko'));
-      await t.scrollUntilVisible(chip, 200, scrollable: find.byType(Scrollable).first);
+      await _show(t, chip);
       await t.tap(chip);
       await t.pumpAndSettle();
       expect(find.byType(LpTrackScreen), findsOneWidget);
@@ -104,22 +111,24 @@ void main() {
     expect(_spoken.first, 'ko-KR|사장님');
     // listening practice is read by the phone voice
     final play = find.byKey(const Key('lp2-tts-play'));
-    await t.scrollUntilVisible(play, 200, scrollable: find.byType(Scrollable).first);
+    await _show(t, play);
     await t.tap(play);
     await t.pumpAndSettle();
     expect(_spoken.last, 'ko-KR|안녕하세요.');
+    await _show(t, find.text('A. 안녕하세요').first);
     await t.tap(find.text('A. 안녕하세요').first);
     await t.pumpAndSettle();
+    await _show(t, find.byKey(const ValueKey('lp2-check-ko-l1-p1')));
     await t.tap(find.byKey(const ValueKey('lp2-check-ko-l1-p1')));
     await t.pumpAndSettle();
     expect(find.text('শুভেচ্ছা বলল।'), findsOneWidget);
     final model = find.byKey(const ValueKey('lp2-model-ko-l1-w1'));
-    await t.scrollUntilVisible(model, 200, scrollable: find.byType(Scrollable).first);
+    await _show(t, model);
     await t.tap(model);
     await t.pumpAndSettle();
     expect(find.text('저는 민수예요.'), findsWidgets);
     final done = find.byKey(const Key('lp2-lesson-done'));
-    await t.scrollUntilVisible(done, 200, scrollable: find.byType(Scrollable).first);
+    await _show(t, done);
     await t.tap(done);
     await t.pumpAndSettle();
     expect(find.byType(LpLessonScreen), findsNothing);
@@ -129,7 +138,7 @@ void main() {
     await t.pumpWidget(_app(const LpTrackScreen(title: 'Korea', tracks: ['eps_topik']), FakeApi(mode: FakeMode.data)));
     await t.pumpAndSettle();
     final sec = find.byKey(const ValueKey('lp2-track-sec-eps-topik-001-reading'));
-    await t.scrollUntilVisible(sec, 200, scrollable: find.byType(Scrollable).first);
+    await _show(t, sec);
     await t.tap(sec);
     await t.pumpAndSettle();
     expect(find.byType(LpTrackTestRunner), findsOneWidget);

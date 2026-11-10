@@ -145,13 +145,13 @@ class LpProgress {
 Future<void> lpLogPractice(ApiClient api, String kind, int minutes) async {
   try {
     await api.createItem(kLpDays, {'day': ieltsToday(), 'kind': kind, 'minutes': minutes});
-  } catch (_) {}
+  } catch (_) {} // best-effort: streak minutes only; the lesson itself is never lost
 }
 
 Future<void> lpSaveResult(ApiClient api, Map<String, dynamic> row) async {
   try {
     await api.createItem(kLpResults, {...row, 'at': DateTime.now().millisecondsSinceEpoch, 'day': ieltsToday()});
-  } catch (_) {}
+  } catch (_) {} // best-effort: history row only; the result is already on screen
 }
 
 // -------------------------------------------------------- offline mocks
