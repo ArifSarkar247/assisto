@@ -94,7 +94,7 @@ class _JourneyWatcherChipsState extends State<JourneyWatcherChips> {
           : CircleAvatar(
               backgroundColor: cs.primaryContainer,
               child: Text(name.isEmpty ? '?' : name.characters.first.toUpperCase(),
-                  style: TextStyle(color: cs.onPrimaryContainer, fontSize: 12)),
+                  style: AType.bodySmall.copyWith(color: cs.onPrimaryContainer, fontSize: 12)),
             ),
       label: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 220),

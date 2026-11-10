@@ -221,7 +221,7 @@ class _Verbatim extends StatelessWidget {
       for (final r in qvRuns(text))
         TextSpan(
             text: r.$1,
-            style: r.$2 ? const TextStyle(fontWeight: FontWeight.bold) : null),
+            style: r.$2 ? base.copyWith(fontWeight: FontWeight.bold) : null),
     ]));
   }
 }

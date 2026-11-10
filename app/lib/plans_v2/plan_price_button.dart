@@ -112,7 +112,7 @@ class _PlanPriceButtonState extends State<PlanPriceButton> {
     if (p == null || price == null) {
       if (p != null && _flavour == 'play' && _pricesLoading) {
         return Text(t.pv2PriceLoading,
-            style: TextStyle(color: scheme.onSurfaceVariant));
+            style: DefaultTextStyle.of(context).style.copyWith(color: scheme.onSurfaceVariant));
       }
       return const SizedBox.shrink();
     }

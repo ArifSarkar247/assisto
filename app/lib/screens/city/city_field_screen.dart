@@ -136,7 +136,8 @@ class _CityFieldScreenState extends State<CityFieldScreen> {
             const SizedBox(width: Gap.md),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(title,
+                    style: DefaultTextStyle.of(context).style.copyWith(fontWeight: FontWeight.w700)),
                 if (subtitle.isNotEmpty) Text(subtitle, style: AType.bodySmall),
               ]),
             ),
