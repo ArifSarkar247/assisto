@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪৯ / মোট ৪২০**
+**স্ক্রিন শেষ: ৫০ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -174,7 +174,7 @@
 - ⬜ — `screens/business/business_plans_screen.dart`
 - ⬜ — `screens/day_planner_screen.dart`
 - ⬜ — `screens/delete_account_screen.dart`
-- ⬜ — `screens/finance_screen.dart`
+- ✅ batch 6 (পেজ নিয়ম: টুলগুলোই আগে, গ্রুপ = এক কার্ড, লম্বা ব্যানার বাদ) — `screens/finance_screen.dart`
 - ⬜ — `screens/mess_accounting_screen.dart`
 - ⬜ — `screens/money_budget_screen.dart`
 - ⬜ — `screens/money_import_screen.dart`
