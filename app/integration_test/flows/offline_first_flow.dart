@@ -27,6 +27,7 @@ import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/crypto/key_wiring.dart';
 import 'package:assisto/messaging/outbox.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
+import 'package:assisto/state.dart' show Settings;
 
 import '../support/harness.dart';
 
@@ -92,9 +93,21 @@ void registerOfflineFirstFlows() {
     if (const String.fromEnvironment('REALITY_SHOT_MODE') == 'inapp') {
       f.skip('real phones (Test Lab): no host adb to switch airplane mode');
     }
-    if (!f.app.loggedIn) {
+    for (var i = 0; i < 40 && f.app.loading; i++) {
+      await f.pumpFor(const Duration(milliseconds: 250));
+    }
+    if (!f.app.loggedIn || !f.app.onboarded) {
+      // run alone (REALITY_ONLY=offline) on a fresh emulator: sign in and
+      // persist "onboarded" exactly like the perf sign-in (p00_signin)
       await f.step('A signs in (test account)', () async {
-        await f.net(() => f.app.login(identifier: Seed.phoneA, password: Seed.password));
+        if (f.app.locale?.languageCode != 'en') {
+          await f.net(() => f.app.setLocale(const Locale('en')));
+        }
+        if (!f.app.loggedIn) {
+          await f.net(() => f.app.login(identifier: Seed.phoneA, password: Seed.password));
+        }
+        await f.net(() => Settings.setBool('onboarded', true));
+        f.app.markOnboarded();
         await f.pumpFor(const Duration(seconds: 3));
       });
     }
