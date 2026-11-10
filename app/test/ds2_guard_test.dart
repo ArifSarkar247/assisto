@@ -188,6 +188,16 @@ void main() {
       if (t > at) bad.add('$p: $t raw TextStyle( (allowed $at)');
       if (c > ac) bad.add('$p: $c raw Color( (allowed $ac)');
     }
+    // SHRINKING baseline (lead 10 Nov): the allow-list may only get smaller.
+    // A new file or a higher total needs these ceilings raised in review —
+    // lower them whenever a file is migrated (owner_actions/design/ds2_mark.py).
+    const maxFiles = 655, maxTextStyle = 2721, maxColor = 215;
+    final files = {...ts.keys, ...cs.keys}.length;
+    final sumT = ts.values.fold<int>(0, (a, b) => a + b);
+    final sumC = cs.values.fold<int>(0, (a, b) => a + b);
+    if (files > maxFiles) bad.add('baseline grew: $files files (max $maxFiles)');
+    if (sumT > maxTextStyle) bad.add('baseline grew: $sumT TextStyle( (max $maxTextStyle)');
+    if (sumC > maxColor) bad.add('baseline grew: $sumC Color( (max $maxColor)');
     expect(bad, isEmpty,
         reason: 'Design System V2: use DsTokens.of(context) and '
             'Theme.of(context).textTheme.*.copyWith(...) (lib/ds/ds.dart).\n'

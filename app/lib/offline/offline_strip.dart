@@ -55,7 +55,7 @@ class OfflineStrip extends StatelessWidget {
                           oStr(context, 'offStatusOfflineSub'),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w600,
                               color: scheme.onTertiaryContainer),

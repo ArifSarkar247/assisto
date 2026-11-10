@@ -130,7 +130,7 @@ Future<Map<String, dynamic>?> showAddExpenseSheet(
             if (membersError != null)
               Text(membersError!,
                   key: const ValueKey('fa-members-error'),
-                  style: TextStyle(color: Theme.of(ctx).colorScheme.error)),
+                  style: DefaultTextStyle.of(ctx).style.copyWith(color: Theme.of(ctx).colorScheme.error)),
           ]),
         ),
         actions: [
