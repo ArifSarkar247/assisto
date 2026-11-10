@@ -4,21 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../ads/ad_banner_slot.dart';
-import '../feature_flags.dart' show FeatureFlags;
 import '../l10n/app_localizations.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
-import '../widgets/app_sheet.dart';
+import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/local_digits.dart';
 import '../widgets/skeleton.dart';
-import 'language_pack_screen.dart' show LanguagePackScreen;
 import 'lp2/lp_companion.dart';
 import 'lp2/lp_data.dart';
 import 'lp2/lp_engine.dart' show bandText;
 import 'lp2/lp_life.dart';
 import 'lp2/lp_mock.dart';
-import 'lp2/lp_ui.dart';
+import 'lp2/lp_track.dart';
 import 'lp2/lp_vocab.dart';
 
 /// LANGUAGE PARTNER V2 — Start (owner-approved screen 1, 9 Nov).
@@ -121,25 +119,22 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
             ),
             const SizedBox(height: Gap.lg),
             _ChipGroup(
+              key: const Key('lp2-abroad'),
               title: tr.lp2AbroadTitle,
               chips: [
-                ('ja', tr.lp2AbroadJapan, Icons.work_rounded),
-                ('ko', tr.lp2AbroadKorea, Icons.factory_rounded),
-                ('de', tr.lp2AbroadGermany, Icons.flight_takeoff_rounded),
-                ('ar', tr.lp2AbroadGulf, Icons.construction_rounded),
+                (kLpAbroadChips[0], tr.lp2AbroadJapan),
+                (kLpAbroadChips[1], tr.lp2AbroadKorea),
+                (kLpAbroadChips[2], tr.lp2AbroadGermany),
+                (kLpAbroadChips[3], tr.lp2AbroadGulf),
               ],
             ),
             const SizedBox(height: Gap.md),
             _ChipGroup(
+              key: const Key('lp2-other'),
               title: tr.lp2OtherLangTitle,
               chips: [
-                ('de', tr.lp2LangGerman, Icons.translate_rounded),
-                ('fr', tr.lp2LangFrench, Icons.translate_rounded),
-                ('es', tr.lp2LangSpanish, Icons.translate_rounded),
-                ('ar', tr.lp2LangArabic, Icons.translate_rounded),
-                ('ja', tr.lp2LangJapanese, Icons.translate_rounded),
-                ('ko', tr.lp2LangKorean, Icons.translate_rounded),
-                ('zh', tr.lp2LangChinese, Icons.translate_rounded),
+                (kLpOtherChips[0], tr.lp2LangChineseHsk),
+                (kLpOtherChips[1], tr.lp2LangFrenchA1),
               ],
             ),
           ],
@@ -275,63 +270,27 @@ class _BigCard extends StatelessWidget {
   }
 }
 
-/// Going-abroad / other-language chips. Each opens that language's course
-/// (8 language packs) when courses are switched on; while they are off it
-/// says honestly that the course opens in the next stage and offers English
-/// practice now — never a dead chip.
+/// Going-abroad / other-language chips (lpfinish): each opens that language's
+/// REAL course — syllabus, weekly lessons taught from Bangla and practice tests
+/// in the public exam format (lp2/lp_track.dart). One course = one chip.
 class _ChipGroup extends StatelessWidget {
   final String title;
-  final List<(String, String, IconData)> chips;
-  const _ChipGroup({required this.title, required this.chips});
-
-  void _tap(BuildContext context, String lang, String label) {
-    if (FeatureFlags.instance.isOn('language_packs')) {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (_) => LanguagePackScreen(lang: lang, title: label)));
-      return;
-    }
-    final tr = AppLocalizations.of(context);
-    showAppSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(tr.lp2NextStageTitle(label),
-              style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: Gap.sm),
-          Text(tr.lp2NextStageBody, style: const TextStyle(height: 1.4)),
-          const SizedBox(height: Gap.lg),
-          FilledButton.icon(
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(kMinTap)),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LpLifeListScreen()));
-            },
-            icon: const Icon(Icons.record_voice_over_rounded),
-            label: Text(tr.lp2NextStageCta),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(kMinTap)),
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(tr.lp2Close),
-          ),
-        ]),
-      ),
-    );
-  }
+  final List<(LpTrackChip, String)> chips;
+  const _ChipGroup({super.key, required this.title, required this.chips});
 
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-          for (final (lang, label, icon) in chips)
+          for (final (chip, label) in chips)
             ActionChip(
-              avatar: Icon(icon, size: 18),
+              key: ValueKey('lp2-chip-${chip.id}'),
+              avatar: Icon(chip.icon, size: 18),
               label: Text(label),
               materialTapTargetSize: MaterialTapTargetSize.padded,
-              onPressed: () => _tap(context, lang, label),
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => LpTrackScreen(title: label, tracks: chip.tracks))),
             ),
         ]),
       ]);

@@ -21,6 +21,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../widgets/local_digits.dart';
+import '../../widgets/num_input.dart' show LatinDigitsFormatter, parseIntInput;
 import 'lp_data.dart';
 import 'lp_engine.dart';
 import 'lp_score.dart';
@@ -112,7 +113,7 @@ class _LpCompanionScreenState extends State<LpCompanionScreen> {
     final ans = {for (final e in _a.entries) e.key: e.value.text};
     final key = {for (final e in _k.entries) e.key: e.value.text};
     _res = markSheet(_section, _variant, ans, key,
-        wordLimit: _wordLimit, mapFrom: int.tryParse(_mapFrom.text), mapTo: int.tryParse(_mapTo.text));
+        wordLimit: _wordLimit, mapFrom: parseIntInput(_mapFrom.text), mapTo: parseIntInput(_mapTo.text));
     _phase = _Phase.result;
     _running = false;
   }
@@ -338,7 +339,7 @@ class _LpCompanionScreenState extends State<LpCompanionScreen> {
   Widget _numField(TextEditingController c, String hint) => TextField(
         controller: c,
         keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(2)],
+        inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(2)],
         decoration: InputDecoration(isDense: true, hintText: hint, border: const OutlineInputBorder()),
       );
 

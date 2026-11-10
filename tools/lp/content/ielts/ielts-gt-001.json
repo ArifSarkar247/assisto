@@ -1,0 +1,1639 @@
+{
+ "format": "assisto.lp.ielts/1",
+ "bundle_id": "ielts-gt-001",
+ "module": "general",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "IELTS General Training Practice Test 1",
+  "bn": "IELTS জেনারেল ট্রেনিং প্র্যাকটিস টেস্ট ১"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpfinish",
+  "created": "2026-11-10"
+ },
+ "listening": {
+  "duration_sec": 1800,
+  "parts": [
+   {
+    "n": 1,
+    "accent": "uk",
+    "intro": "You will hear a telephone conversation between a receptionist at a health centre and a man who wants to register as a new patient.",
+    "speakers": {
+     "A": {
+      "name": "Receptionist",
+      "gender": "F"
+     },
+     "B": {
+      "name": "Daniel",
+      "gender": "M"
+     }
+    },
+    "turns": [
+     {
+      "spk": "A",
+      "text": "Good morning, Hollybank Health Centre. How can I help you?"
+     },
+     {
+      "spk": "B",
+      "text": "Hi. I've just moved to the area and I'd like to register as a patient with you, please."
+     },
+     {
+      "spk": "A",
+      "text": "Of course. I can take your details now over the phone, and then we'll book you in for a new patient check. Can I start with your name?"
+     },
+     {
+      "spk": "B",
+      "text": "Yes, it's Daniel Ferrant."
+     },
+     {
+      "spk": "A",
+      "text": "Could you spell the surname for me?"
+     },
+     {
+      "spk": "B",
+      "text": "Sure. It's F-E-R-R-A-N-T."
+     },
+     {
+      "spk": "A",
+      "text": "Two Rs?"
+     },
+     {
+      "spk": "B",
+      "text": "That's right. Two Rs in the middle, and just one N near the end."
+     },
+     {
+      "spk": "A",
+      "text": "Thank you. And your date of birth?"
+     },
+     {
+      "spk": "B",
+      "text": "The fourteenth of March, nineteen ninety-one."
+     },
+     {
+      "spk": "A",
+      "text": "Lovely. And what's your new address?"
+     },
+     {
+      "spk": "B",
+      "text": "It's Flat 3, 28 Quarry Lane. Oh, sorry, no, it's Quarry Road. Quarry Lane is where my sister lives. I always mix them up."
+     },
+     {
+      "spk": "A",
+      "text": "No problem. Quarry Road. That's inside our area, good, we cover all the streets up to the river. Can I ask what you do for a living? We ask because some jobs carry particular health risks."
+     },
+     {
+      "spk": "B",
+      "text": "I'm an electrician. I used to work in a factory, but these days I'm mostly on building sites."
+     },
+     {
+      "spk": "A",
+      "text": "Electrician, thanks. Now, do you have any allergies we should know about?"
+     },
+     {
+      "spk": "B",
+      "text": "Yes, I'm allergic to penicillin. I found out when I was a child. I'm fine with other antibiotics, as far as I know."
+     },
+     {
+      "spk": "A",
+      "text": "Penicillin. I've marked that clearly on your record. Are you taking any regular medication?"
+     },
+     {
+      "spk": "B",
+      "text": "Just an inhaler. I've had asthma since I was a teenager, but it's quite mild. I only use it a couple of times a week, a bit more in winter."
+     },
+     {
+      "spk": "A",
+      "text": "Asthma, okay. The nurse will want to review that at your check. So, let's book that now. The nurse runs new patient checks on Tuesday and Thursday mornings, but Tuesday this week is fully booked, I'm afraid."
+     },
+     {
+      "spk": "B",
+      "text": "Thursday's better for me anyway. I start work late on Thursdays."
+     },
+     {
+      "spk": "A",
+      "text": "Right. I've got a quarter past nine or a quarter to ten."
+     },
+     {
+      "spk": "B",
+      "text": "Quarter past nine might be a rush with the school traffic. Could I take the later one?"
+     },
+     {
+      "spk": "A",
+      "text": "Yes, so that's Thursday at 9.45 with Nurse Lindqvist."
+     },
+     {
+      "spk": "B",
+      "text": "Great. Do I need to bring anything? I've already sent you a copy of my tenancy agreement to prove my address."
+     },
+     {
+      "spk": "A",
+      "text": "That's fine for the registration. For the check itself, please bring a list of any medicines you take, with the name and strength of your inhaler. You don't need your passport. And wear something with loose sleeves, because she'll take your blood pressure."
+     },
+     {
+      "spk": "B",
+      "text": "Okay. And when I need more inhaler, how do I get a repeat prescription? At my old surgery I had to phone up."
+     },
+     {
+      "spk": "A",
+      "text": "We stopped taking requests by phone last year, because the lines were always too busy. You can still drop a paper form in the box at reception, but most people use our online app now, and that's the quickest way, because it goes straight to the doctor. I'd recommend that."
+     },
+     {
+      "spk": "B",
+      "text": "I'll download it today. One last thing: what should I do if I'm ill at night or at the weekend?"
+     },
+     {
+      "spk": "A",
+      "text": "When we're closed, please don't go to the hospital unless it's a real emergency. Phone the evening line instead. The number's on the back of the leaflet I'll post to you. A nurse there will tell you what to do, and they can book you an appointment with us for the next day."
+     },
+     {
+      "spk": "B",
+      "text": "Perfect. Thanks very much for your help."
+     },
+     {
+      "spk": "A",
+      "text": "You're welcome, Mr Ferrant. See you on Thursday."
+     }
+    ],
+    "questions": [
+     {
+      "n": 1,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Surname: ____",
+      "max_words": 1,
+      "answer": [
+       "Ferrant"
+      ],
+      "explain_en": "He spells his surname: 'F-E-R-R-A-N-T', with two Rs and one N.",
+      "explain_bn": "ডেনিয়েল তার পদবি অক্ষর ধরে বলেন: F-E-R-R-A-N-T। দুটি R আর একটি N — বানান ঠিক না হলে নম্বর পাবেন না।",
+      "tag": "spelling"
+     },
+     {
+      "n": 2,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Address: Flat 3, 28 ____ Road",
+      "max_words": 1,
+      "answer": [
+       "Quarry"
+      ],
+      "explain_en": "He first says 'Quarry Lane' but corrects himself: 'no, it's Quarry Road'.",
+      "explain_bn": "প্রথমে তিনি 'Quarry Lane' বলেন, তারপর নিজেকে শুধরে বলেন 'Quarry Road'। IELTS-এ এমন self-correction প্রায়ই থাকে — শেষ উত্তরটি নিন।",
+      "tag": "detail"
+     },
+     {
+      "n": 3,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Occupation: ____",
+      "max_words": 1,
+      "answer": [
+       "electrician"
+      ],
+      "explain_en": "He says 'I'm an electrician'; the factory was his old workplace, not his job title.",
+      "explain_bn": "তিনি বলেন 'I'm an electrician'। factory আগের কাজের জায়গা, পেশা নয় — তাই উত্তর electrician।",
+      "tag": "detail"
+     },
+     {
+      "n": 4,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Allergy: ____",
+      "max_words": 1,
+      "answer": [
+       "penicillin"
+      ],
+      "explain_en": "He says 'I'm allergic to penicillin' and is fine with other antibiotics.",
+      "explain_bn": "তিনি বলেন 'I'm allergic to penicillin'। অন্য antibiotics-এ সমস্যা নেই, তাই উত্তর শুধু penicillin।",
+      "tag": "spelling"
+     },
+     {
+      "n": 5,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Regular medication: inhaler for ____",
+      "max_words": 1,
+      "answer": [
+       "asthma"
+      ],
+      "explain_en": "He explains: 'I've had asthma since I was a teenager'.",
+      "explain_bn": "তিনি বলেন কিশোর বয়স থেকে তার asthma (হাঁপানি) আছে, তাই inhaler ব্যবহার করেন।",
+      "tag": "detail"
+     },
+     {
+      "n": 6,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "New patient check: ____ morning",
+      "max_words": 1,
+      "answer": [
+       "Thursday"
+      ],
+      "explain_en": "Tuesday is 'fully booked', so he takes Thursday: 'Thursday's better for me anyway'.",
+      "explain_bn": "মঙ্গলবার (Tuesday) পুরো বুকড, তাই তিনি বৃহস্পতিবার (Thursday) নেন। Tuesday এখানে ফাঁদ।",
+      "tag": "detail"
+     },
+     {
+      "n": 7,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Time: ____",
+      "max_words": 1,
+      "answer": [
+       "9.45",
+       "9:45"
+      ],
+      "explain_en": "He rejects 'a quarter past nine' and takes 'the later one'; the receptionist confirms 'Thursday at 9.45'.",
+      "explain_bn": "সোয়া নয়টা (9.15) তিনি নেননি, পরেরটি নেন — তাই উত্তর 9.45 (পৌনে দশটা)। সংখ্যা অঙ্কে লিখুন।",
+      "tag": "number"
+     },
+     {
+      "n": 8,
+      "type": "mcq",
+      "group": "Questions 8-10. Choose the correct letter, A, B or C.",
+      "prompt": "What must Daniel bring to the new patient check?",
+      "options": [
+       "A. a list of his medicines",
+       "B. his passport",
+       "C. proof of his address"
+      ],
+      "answer": "A",
+      "explain_en": "The receptionist says 'please bring a list of any medicines you take' and 'You don't need your passport'; his address proof was already sent.",
+      "explain_bn": "রিসেপশনিস্ট বলেন ওষুধের তালিকা আনতে হবে; পাসপোর্ট লাগবে না, আর ঠিকানার প্রমাণ আগেই পাঠানো হয়েছে। তাই উত্তর A।",
+      "tag": "detail"
+     },
+     {
+      "n": 9,
+      "type": "mcq",
+      "group": "Questions 8-10. Choose the correct letter, A, B or C.",
+      "prompt": "What is the quickest way to order a repeat prescription?",
+      "options": [
+       "A. by telephone",
+       "B. with a paper form at reception",
+       "C. through the online app"
+      ],
+      "answer": "C",
+      "explain_en": "Phone requests stopped; the paper form still works, but the online app is 'the quickest way'.",
+      "explain_bn": "ফোনে আর অর্ডার নেওয়া হয় না; কাগজের ফর্ম চলে, কিন্তু সবচেয়ে দ্রুত হলো online app — তাই C।",
+      "tag": "detail"
+     },
+     {
+      "n": 10,
+      "type": "mcq",
+      "group": "Questions 8-10. Choose the correct letter, A, B or C.",
+      "prompt": "If Daniel is ill when the centre is closed, he should",
+      "options": [
+       "A. go to the hospital.",
+       "B. phone the evening line.",
+       "C. call the centre's main number."
+      ],
+      "answer": "B",
+      "explain_en": "She says 'please don't go to the hospital unless it's a real emergency. Phone the evening line instead.'",
+      "explain_bn": "ক্লিনিক বন্ধ থাকলে হাসপাতালে নয় (শুধু জরুরি হলে), বরং 'evening line'-এ ফোন করতে বলা হয়েছে — তাই B।",
+      "tag": "detail"
+     }
+    ]
+   },
+   {
+    "n": 2,
+    "accent": "au",
+    "intro": "You will hear a shift manager giving an induction talk to new staff at a warehouse.",
+    "speakers": {
+     "A": {
+      "name": "Shift manager",
+      "gender": "F"
+     }
+    },
+    "turns": [
+     {
+      "spk": "A",
+      "text": "Morning, everyone, and welcome to Westgate Distribution. I'm Karen, and I'm one of the three shift managers here. Over the next twenty minutes I'll give you the basics you need before you go out onto the floor this afternoon."
+     },
+     {
+      "spk": "A",
+      "text": "First, a bit about the site. We used to handle mostly food for supermarkets, but these days it's mainly household goods: cleaning products, kitchenware, that sort of thing. There's talk of building a second warehouse next door, but that won't happen for a couple of years. What matters for you is that we run twenty-four hours a day, Monday to Saturday. On Sundays the building is closed so the maintenance team can service the machines."
+     },
+     {
+      "spk": "A",
+      "text": "Now, shifts. Normally there are three: early, six till two; late, two till ten; and nights. But for your first two weeks you'll all be on the early shift, so that there's always a trainer and a supervisor around to answer questions. I know some of you were hoping to start on nights straight away, and you'll get your chance, but not in your first fortnight. After that you'll go onto the normal rota, which changes every month."
+     },
+     {
+      "spk": "A",
+      "text": "You'll see the rota on the staff app. A lot of people think they can swap shifts on the app, but you can't; it only shows you the rota. If you need to swap, you can arrange it with a colleague, but the swap doesn't count until a manager has approved it, and we need at least two days' notice. Turning up for someone else's shift without approval means neither of you gets paid properly, so please don't do it."
+     },
+     {
+      "spk": "A",
+      "text": "Right, safety. When I ask new staff what causes most accidents here, they always say forklifts. And of course we take forklifts very seriously. But actually, most of the injuries we had last year happened because people tripped over loose packaging: plastic wrap, straps, empty boxes left on the floor. So put rubbish in the bins as you go. Lifting injuries used to be our biggest problem, but since we brought in the lifting training they've dropped right down."
+     },
+     {
+      "spk": "A",
+      "text": "If you see a spill, don't try to clean it up straight away. You may not know what it is, and some of the cleaning products we store can burn your skin. The first thing to do is put one of the yellow warning cones beside it, so nobody walks through it. Then tell a supervisor, and they'll decide how it should be cleaned."
+     },
+     {
+      "spk": "A",
+      "text": "Finally, let me run through the different areas, because each one has its own rule. At the loading bay, lorries are reversing all day. The alarms are loud, and there are ear plugs in the box by the door if you want them, but they're your choice. The rule you must follow there is that you don't use your mobile phone at all, not even to check the time, because you need your eyes on the vehicles."
+     },
+     {
+      "spk": "A",
+      "text": "The cold store is kept at minus eighteen degrees. There are jackets hanging by the door, and you have to put one on before you go in, even if you're only popping in for a minute. No exceptions."
+     },
+     {
+      "spk": "A",
+      "text": "You'll spend most of your time in the picking aisles. The forklifts use the same aisles, so you must keep to the green walkways painted on the floor. Step outside them and you're in the forklift lane."
+     },
+     {
+      "spk": "A",
+      "text": "The staff canteen is the only place you can eat or drink, apart from water bottles. Because we handle food for one of our clients, there's a sink at the entrance, and everyone has to wash their hands as they go in."
+     },
+     {
+      "spk": "A",
+      "text": "And the battery charging room, where the forklifts are charged: only staff with a forklift licence are allowed in, because the batteries give off gas and need careful handling. If your trolley needs charging, ask a driver."
+     },
+     {
+      "spk": "A",
+      "text": "The offices upstairs are where visitors usually go, and any visitor must have someone from the company with them, but that won't affect you much. Okay, let's take a short break, and then we'll go and look round."
+     }
+    ],
+    "questions": [
+     {
+      "n": 11,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "What does the speaker say about the warehouse?",
+      "options": [
+       "A. It has recently doubled in size.",
+       "B. It operates around the clock six days a week.",
+       "C. It mainly stores food for supermarkets."
+      ],
+      "answer": "B",
+      "explain_en": "She says 'we run twenty-four hours a day, Monday to Saturday'; the second warehouse is only planned and it no longer handles mostly food.",
+      "explain_bn": "তিনি বলেন গুদাম সোমবার থেকে শনিবার ২৪ ঘণ্টা চলে। দ্বিতীয় গুদাম শুধু পরিকল্পনা, আর এখন মূলত খাবার নয় — তাই B।",
+      "tag": "detail"
+     },
+     {
+      "n": 12,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "New staff will work only on the early shift for",
+      "options": [
+       "A. two weeks.",
+       "B. one week.",
+       "C. one month."
+      ],
+      "answer": "A",
+      "explain_en": "'For your first two weeks you'll all be on the early shift' and later 'not in your first fortnight'.",
+      "explain_bn": "'first two weeks' আর 'first fortnight' — দুটোই দুই সপ্তাহ বোঝায়। fortnight শব্দটি মনে রাখুন। উত্তর A।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 13,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "A shift swap is only valid if it is",
+      "options": [
+       "A. agreed with a colleague.",
+       "B. requested through the staff app.",
+       "C. approved by a manager two days in advance."
+      ],
+      "answer": "C",
+      "explain_en": "'the swap doesn't count until a manager has approved it, and we need at least two days' notice'; the app cannot change the rota.",
+      "explain_bn": "সহকর্মীর সাথে ঠিক করলেই হবে না, app-এও বদলানো যায় না — ম্যানেজারের অনুমোদন আর অন্তত দুই দিন আগে জানাতে হবে। তাই C।",
+      "tag": "detail"
+     },
+     {
+      "n": 14,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "According to the speaker, most injuries last year were caused by",
+      "options": [
+       "A. lifting heavy items.",
+       "B. tripping over packaging.",
+       "C. accidents with forklifts."
+      ],
+      "answer": "B",
+      "explain_en": "'most of the injuries we had last year happened because people tripped over loose packaging'; forklifts are what people expect, and lifting injuries have dropped.",
+      "explain_bn": "সবাই forklift ভাবে, কিন্তু আসলে বেশিরভাগ আঘাত হয়েছে মেঝেতে পড়ে থাকা প্যাকেজিংয়ে হোঁচট খেয়ে — তাই B।",
+      "tag": "detail"
+     },
+     {
+      "n": 15,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "What should staff do first if they see a spill?",
+      "options": [
+       "A. place a warning cone next to it",
+       "B. inform a supervisor",
+       "C. clean it up immediately"
+      ],
+      "answer": "A",
+      "explain_en": "'The first thing to do is put one of the yellow warning cones beside it... Then tell a supervisor.'",
+      "explain_bn": "প্রথম কাজ হলো পাশে হলুদ warning cone রাখা, তারপর supervisor-কে জানানো। নিজে পরিষ্কার করতে মানা। তাই A।",
+      "tag": "signpost"
+     },
+     {
+      "n": 16,
+      "type": "matching",
+      "group": "Questions 16-20. What rule does the speaker give for each area of the warehouse? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "prompt": "the loading bay",
+      "options": [
+       "A. Hands must be washed on entry.",
+       "B. Staff must stay inside the marked walkways.",
+       "C. A warm jacket must be worn.",
+       "D. Mobile phones must not be used.",
+       "E. Only staff with a licence may enter.",
+       "F. Visitors must be accompanied.",
+       "G. Ear protection must be worn."
+      ],
+      "answer": "D",
+      "explain_en": "Ear plugs are 'your choice', but 'the rule you must follow there is that you don't use your mobile phone at all'.",
+      "explain_bn": "ear plug ঐচ্ছিক (your choice), তাই G নয়। নিয়ম হলো মোবাইল ফোন একদম ব্যবহার করা যাবে না — D।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 17,
+      "type": "matching",
+      "group": "Questions 16-20. What rule does the speaker give for each area of the warehouse? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "prompt": "the cold store",
+      "options": [
+       "A. Hands must be washed on entry.",
+       "B. Staff must stay inside the marked walkways.",
+       "C. A warm jacket must be worn.",
+       "D. Mobile phones must not be used.",
+       "E. Only staff with a licence may enter.",
+       "F. Visitors must be accompanied.",
+       "G. Ear protection must be worn."
+      ],
+      "answer": "C",
+      "explain_en": "'There are jackets hanging by the door, and you have to put one on before you go in'.",
+      "explain_bn": "cold store-এ ঢোকার আগে jacket পরতেই হবে, এক মিনিটের জন্য হলেও — তাই C।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 18,
+      "type": "matching",
+      "group": "Questions 16-20. What rule does the speaker give for each area of the warehouse? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "prompt": "the picking aisles",
+      "options": [
+       "A. Hands must be washed on entry.",
+       "B. Staff must stay inside the marked walkways.",
+       "C. A warm jacket must be worn.",
+       "D. Mobile phones must not be used.",
+       "E. Only staff with a licence may enter.",
+       "F. Visitors must be accompanied.",
+       "G. Ear protection must be worn."
+      ],
+      "answer": "B",
+      "explain_en": "'you must keep to the green walkways painted on the floor'.",
+      "explain_bn": "picking aisle-এ মেঝেতে আঁকা সবুজ walkway-র ভেতরে থাকতে হবে — তাই B।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 19,
+      "type": "matching",
+      "group": "Questions 16-20. What rule does the speaker give for each area of the warehouse? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "prompt": "the staff canteen",
+      "options": [
+       "A. Hands must be washed on entry.",
+       "B. Staff must stay inside the marked walkways.",
+       "C. A warm jacket must be worn.",
+       "D. Mobile phones must not be used.",
+       "E. Only staff with a licence may enter.",
+       "F. Visitors must be accompanied.",
+       "G. Ear protection must be worn."
+      ],
+      "answer": "A",
+      "explain_en": "'there's a sink at the entrance, and everyone has to wash their hands as they go in'.",
+      "explain_bn": "canteen-এ ঢোকার সময় সবাইকে হাত ধুতে হয় — তাই A।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 20,
+      "type": "matching",
+      "group": "Questions 16-20. What rule does the speaker give for each area of the warehouse? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "prompt": "the battery charging room",
+      "options": [
+       "A. Hands must be washed on entry.",
+       "B. Staff must stay inside the marked walkways.",
+       "C. A warm jacket must be worn.",
+       "D. Mobile phones must not be used.",
+       "E. Only staff with a licence may enter.",
+       "F. Visitors must be accompanied.",
+       "G. Ear protection must be worn."
+      ],
+      "answer": "E",
+      "explain_en": "'only staff with a forklift licence are allowed in'.",
+      "explain_bn": "শুধু forklift licence আছে এমন কর্মীরা ঢুকতে পারে — তাই E। F (visitors) অফিসের নিয়ম, এখানে নয়।",
+      "tag": "matching_info"
+     }
+    ]
+   },
+   {
+    "n": 3,
+    "accent": "us",
+    "intro": "You will hear two adult learners, Marta and Joel, talking to a course adviser at a community college about evening courses.",
+    "speakers": {
+     "A": {
+      "name": "Adviser",
+      "gender": "F"
+     },
+     "B": {
+      "name": "Marta",
+      "gender": "F"
+     },
+     "C": {
+      "name": "Joel",
+      "gender": "M"
+     }
+    },
+    "turns": [
+     {
+      "spk": "A",
+      "text": "Hi, come on in. You're Marta and Joel? Great. So you're both interested in our evening program this fall. Marta, maybe you could start. What are you hoping to get out of a course?"
+     },
+     {
+      "spk": "B",
+      "text": "Well, everyone assumes I want to change careers, but actually I'm happy with what I do. I run a small cake stall at the weekend market, and it's growing, and I need to be able to handle the business side myself. At the moment my brother does my accounts, and I'd like to stop relying on him."
+     },
+     {
+      "spk": "A",
+      "text": "That makes sense. And Joel?"
+     },
+     {
+      "spk": "C",
+      "text": "For me it's partly about meeting people. I moved here in the spring and I don't know many people yet. The fees are okay, I think. My employer said they might pay part of it. My real worry is the timing. I start work at six in the morning, so anything that finishes after nine is going to be difficult for me."
+     },
+     {
+      "spk": "A",
+      "text": "Okay, most of our classes run from seven to nine, but a few go until nine thirty, so we'll keep an eye on that. And about fees, there's a twenty percent reduction if you sign up for two courses at the same time. We did have an early payment discount too, but I'm afraid that ended last week."
+     },
+     {
+      "spk": "B",
+      "text": "Two courses, that's interesting. When do we need to decide by?"
+     },
+     {
+      "spk": "A",
+      "text": "Enrollment was supposed to close this Friday, but because so many people came in late, it's been extended to next Monday. So you have a few days."
+     },
+     {
+      "spk": "B",
+      "text": "Is it possible to try a class first? I don't want to pay and then find it's not right for me."
+     },
+     {
+      "spk": "A",
+      "text": "Yes, most courses offer a free trial class in the first week."
+     },
+     {
+      "spk": "B",
+      "text": "Then I'd really like to go to one before I enroll. Last year I paid for a yoga class and gave up after two weeks."
+     },
+     {
+      "spk": "A",
+      "text": "Good idea. Okay, let me tell you about the courses you both marked on your forms. Joel, you were interested in Digital Photography. It's a very popular course, but be aware that it isn't held here on the main campus. It's taught at the Arts Center on River Street, because they have the darkroom and the lighting studio."
+     },
+     {
+      "spk": "C",
+      "text": "That's across town. Hmm, okay."
+     },
+     {
+      "spk": "A",
+      "text": "Marta, Bookkeeping for Small Businesses sounds perfect for you. It used to include a two-week work placement in a local firm, but that was dropped last year. What it does do is prepare you for the national bookkeeping exam, so at the end you get a certificate that employers and banks recognize."
+     },
+     {
+      "spk": "B",
+      "text": "That would be useful when I apply for a loan."
+     },
+     {
+      "spk": "A",
+      "text": "Then Spanish for Beginners. Joel, you mentioned that. The classroom group finishes at nine thirty, which might be too late for you. But there's also an online version of the same course, with live lessons from home."
+     },
+     {
+      "spk": "C",
+      "text": "That might work, actually."
+     },
+     {
+      "spk": "A",
+      "text": "Furniture Restoration. Marta, you ticked that too? It's a lovely course, very practical. The tutor provides the tools, but you'll need to buy your own wood, paint, and varnish, so materials cost extra, usually around sixty dollars over the term."
+     },
+     {
+      "spk": "B",
+      "text": "That's fine. I've got an old chair I'd love to fix up."
+     },
+     {
+      "spk": "A",
+      "text": "And finally Creative Writing. Most of our courses run for twelve weeks, but this one is only six weeks long, so it's a good taster if you're not sure about committing for a whole term. People sometimes think it's full because Pottery, which runs on the same night, filled up in a day, but there are still places in Creative Writing."
+     },
+     {
+      "spk": "C",
+      "text": "Okay. I think I'll go for the online Spanish, and maybe Photography as well, if I can get across town in time."
+     },
+     {
+      "spk": "B",
+      "text": "And I'll come to the trial class for Bookkeeping on Tuesday and decide after that."
+     }
+    ],
+    "questions": [
+     {
+      "n": 21,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "Why does Marta want to take a course?",
+      "options": [
+       "A. to change her career",
+       "B. to meet new people",
+       "C. to help her with her current work"
+      ],
+      "answer": "C",
+      "explain_en": "She says 'everyone assumes I want to change careers' but she wants to 'handle the business side' of her cake stall herself.",
+      "explain_bn": "মার্তা ক্যারিয়ার বদলাতে চান না; নিজের কেকের ব্যবসার হিসাব নিজে সামলাতে চান। এটা বর্তমান কাজে সাহায্য — তাই C।",
+      "tag": "detail"
+     },
+     {
+      "n": 22,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "What is Joel's main concern?",
+      "options": [
+       "A. the cost of the course",
+       "B. the time classes finish",
+       "C. the level of difficulty"
+      ],
+      "answer": "B",
+      "explain_en": "He says 'The fees are okay' and 'My real worry is the timing... anything that finishes after nine is going to be difficult'.",
+      "explain_bn": "জোয়েল বলেন খরচ ঠিক আছে; আসল চিন্তা হলো ক্লাস কখন শেষ হয় (রাত ৯টার পরে হলে সমস্যা)। তাই B।",
+      "tag": "opinion"
+     },
+     {
+      "n": 23,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "The fee reduction is currently available to people who",
+      "options": [
+       "A. enroll on two courses.",
+       "B. pay early.",
+       "C. have a low income."
+      ],
+      "answer": "A",
+      "explain_en": "'there's a twenty percent reduction if you sign up for two courses'; the early payment discount 'ended last week'.",
+      "explain_bn": "দুটি কোর্সে একসাথে ভর্তি হলে ২০% ছাড়। early payment ছাড়টি গত সপ্তাহে শেষ হয়ে গেছে — তাই A।",
+      "tag": "detail"
+     },
+     {
+      "n": 24,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "When does enrollment now close?",
+      "options": [
+       "A. this Friday",
+       "B. next Monday",
+       "C. at the end of the month"
+      ],
+      "answer": "B",
+      "explain_en": "'Enrollment was supposed to close this Friday, but... it's been extended to next Monday.'",
+      "explain_bn": "আগে শুক্রবার শেষ হওয়ার কথা ছিল, কিন্তু সময় বাড়িয়ে পরের সোমবার করা হয়েছে — তাই B।",
+      "tag": "detail"
+     },
+     {
+      "n": 25,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "What does Marta say about the trial class?",
+      "options": [
+       "A. She wants to attend one before enrolling.",
+       "B. She found a previous one disappointing.",
+       "C. She is unable to attend one next week."
+      ],
+      "answer": "A",
+      "explain_en": "She says 'I'd really like to go to one before I enroll'.",
+      "explain_bn": "মার্তা ভর্তি হওয়ার আগে একটি trial class করতে চান — তাই A।",
+      "tag": "opinion"
+     },
+     {
+      "n": 26,
+      "type": "matching",
+      "group": "Questions 26-30. What does the adviser say about each course? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 26-30.",
+      "prompt": "Digital Photography",
+      "options": [
+       "A. It includes a work placement.",
+       "B. It has an online version.",
+       "C. Materials cost extra.",
+       "D. It leads to a recognised certificate.",
+       "E. It is already full.",
+       "F. It is taught at a different site.",
+       "G. It is shorter than most courses."
+      ],
+      "answer": "F",
+      "explain_en": "'it isn't held here on the main campus. It's taught at the Arts Center on River Street'.",
+      "explain_bn": "এই কোর্স মূল ক্যাম্পাসে নয়, River Street-এর Arts Center-এ হয় — অর্থাৎ ভিন্ন জায়গা, F।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 27,
+      "type": "matching",
+      "group": "Questions 26-30. What does the adviser say about each course? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 26-30.",
+      "prompt": "Bookkeeping for Small Businesses",
+      "options": [
+       "A. It includes a work placement.",
+       "B. It has an online version.",
+       "C. Materials cost extra.",
+       "D. It leads to a recognised certificate.",
+       "E. It is already full.",
+       "F. It is taught at a different site.",
+       "G. It is shorter than most courses."
+      ],
+      "answer": "D",
+      "explain_en": "The placement 'was dropped last year', but 'you get a certificate that employers and banks recognize'.",
+      "explain_bn": "work placement আর নেই (তাই A নয়), কিন্তু শেষে স্বীকৃত সার্টিফিকেট পাওয়া যায় — D।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 28,
+      "type": "matching",
+      "group": "Questions 26-30. What does the adviser say about each course? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 26-30.",
+      "prompt": "Spanish for Beginners",
+      "options": [
+       "A. It includes a work placement.",
+       "B. It has an online version.",
+       "C. Materials cost extra.",
+       "D. It leads to a recognised certificate.",
+       "E. It is already full.",
+       "F. It is taught at a different site.",
+       "G. It is shorter than most courses."
+      ],
+      "answer": "B",
+      "explain_en": "'there's also an online version of the same course'.",
+      "explain_bn": "একই কোর্সের একটি online version আছে — তাই B।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 29,
+      "type": "matching",
+      "group": "Questions 26-30. What does the adviser say about each course? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 26-30.",
+      "prompt": "Furniture Restoration",
+      "options": [
+       "A. It includes a work placement.",
+       "B. It has an online version.",
+       "C. Materials cost extra.",
+       "D. It leads to a recognised certificate.",
+       "E. It is already full.",
+       "F. It is taught at a different site.",
+       "G. It is shorter than most courses."
+      ],
+      "answer": "C",
+      "explain_en": "'you'll need to buy your own wood, paint, and varnish, so materials cost extra'.",
+      "explain_bn": "কাঠ, রং, বার্নিশ নিজে কিনতে হবে — উপকরণের খরচ আলাদা, তাই C।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 30,
+      "type": "matching",
+      "group": "Questions 26-30. What does the adviser say about each course? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 26-30.",
+      "prompt": "Creative Writing",
+      "options": [
+       "A. It includes a work placement.",
+       "B. It has an online version.",
+       "C. Materials cost extra.",
+       "D. It leads to a recognised certificate.",
+       "E. It is already full.",
+       "F. It is taught at a different site.",
+       "G. It is shorter than most courses."
+      ],
+      "answer": "G",
+      "explain_en": "'Most of our courses run for twelve weeks, but this one is only six weeks long'; it is Pottery that is full.",
+      "explain_bn": "বেশিরভাগ কোর্স ১২ সপ্তাহ, এটি মাত্র ৬ সপ্তাহ — G। পূর্ণ (full) হয়েছে Pottery, এটি নয়।",
+      "tag": "matching_info"
+     }
+    ]
+   },
+   {
+    "n": 4,
+    "accent": "uk",
+    "intro": "You will hear part of a lecture about the history of public libraries.",
+    "speakers": {
+     "A": {
+      "name": "Lecturer",
+      "gender": "M"
+     }
+    },
+    "turns": [
+     {
+      "spk": "A",
+      "text": "Good afternoon. Today I want to look at how the public library, something most of us take for granted, actually came into being, and how its role has kept changing."
+     },
+     {
+      "spk": "A",
+      "text": "Collections of books are, of course, very ancient, but for most of history they belonged to monasteries, universities or wealthy individuals, and ordinary people had no right to use them. In the eighteenth century a new model appeared in many towns: the subscription library. Groups of middle-class readers pooled their money to buy books they could not afford alone. Each member paid a yearly fee, and in return could borrow from the shared collection. These libraries tended to stock serious works such as history, travel and science."
+     },
+     {
+      "spk": "A",
+      "text": "Alongside them grew up what were called circulating libraries, which were run as businesses, often by booksellers. They charged a small sum per book, and their great attraction was lending novels, which were expensive to buy and which the subscription libraries often refused to stock. Critics at the time complained that circulating libraries encouraged young people to waste their time, but they were enormously popular."
+     },
+     {
+      "spk": "A",
+      "text": "Neither of these, though, was a public library in the modern sense, because you had to pay. The real turning point came in the middle of the nineteenth century, when laws were passed in several countries allowing towns to collect a small tax from local households and spend it on a free library. It's worth stressing that these laws allowed towns to do this; they didn't force them, and many towns voted against it for decades."
+     },
+     {
+      "spk": "A",
+      "text": "Why the opposition? Some of it was simply about money. But there were other fears too. Later in the century, as people began to understand germs, some critics worried that books passed from hand to hand could spread disease. In a few places, books returned from homes where someone was sick were even burned."
+     },
+     {
+      "spk": "A",
+      "text": "The great expansion came around the turn of the twentieth century. Many towns could not afford a proper building from local taxes alone, and much of the money for construction came from wealthy donors, who often paid for the building on condition that the town would pay to run it. That's why so many older libraries look rather grand, with columns and steps at the front."
+     },
+     {
+      "spk": "A",
+      "text": "Inside, early public libraries worked very differently from today. Most used what was called closed access. Readers were not allowed near the books at all. Instead, they looked through a printed catalogue, wrote down the number of the book they wanted, and a member of staff fetched it. Some libraries even had a large board showing which books were in and which were out."
+     },
+     {
+      "spk": "A",
+      "text": "This gradually gave way to open access, where readers could browse the shelves themselves. Librarians at first were alarmed, expecting theft, but losses turned out to be small, and borrowing rose sharply. Open access, I'd argue, changed the library from a store of books into a place for discovery."
+     },
+     {
+      "spk": "A",
+      "text": "Another change in the early twentieth century was the arrival of separate rooms for children. Before that, many libraries had simply refused to admit anyone under fourteen. Children's rooms, with low shelves and story hours, helped to create the next generation of adult readers."
+     },
+     {
+      "spk": "A",
+      "text": "Libraries also tried to reach people far from towns. The earliest mobile services were actually horse-drawn carts carrying boxes of books from village to village. Motor vans replaced them later, and in some regions today boats and even bicycles do the same job."
+     },
+     {
+      "spk": "A",
+      "text": "So what about now? Libraries have had to argue for their place in a digital world. Many offer free internet access and help with online forms, which matters a great deal to people without a computer at home. And some have returned to their sharing roots in a surprising way: as well as books, they now lend unusual items such as tools, from drills to sewing machines, so that people don't have to buy something they'll use only once. In the second half of the lecture, we'll look at one such library in detail."
+     }
+    ],
+    "questions": [
+     {
+      "n": 31,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Subscription libraries: each member paid a yearly ____",
+      "max_words": 1,
+      "answer": [
+       "fee"
+      ],
+      "explain_en": "'Each member paid a yearly fee, and in return could borrow from the shared collection.'",
+      "explain_bn": "subscription library-তে প্রত্যেক সদস্য বছরে একটি fee (চাঁদা) দিতেন।",
+      "tag": "detail"
+     },
+     {
+      "n": 32,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Circulating libraries: main attraction was lending ____",
+      "max_words": 1,
+      "answer": [
+       "novels"
+      ],
+      "explain_en": "'their great attraction was lending novels'.",
+      "explain_bn": "circulating library-র প্রধান আকর্ষণ ছিল novels (উপন্যাস) ধার দেওয়া, যা কিনতে দামি ছিল।",
+      "tag": "detail"
+     },
+     {
+      "n": 33,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Mid-19th-century laws allowed towns to collect a small ____ to pay for a free library",
+      "max_words": 1,
+      "answer": [
+       "tax"
+      ],
+      "explain_en": "'laws were passed... allowing towns to collect a small tax from local households'.",
+      "explain_bn": "আইন শহরগুলোকে পরিবারগুলো থেকে ছোট একটি tax (কর) তুলে বিনা মূল্যের লাইব্রেরি চালাতে দিত।",
+      "tag": "detail"
+     },
+     {
+      "n": 34,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Some critics feared that shared books could spread ____",
+      "max_words": 1,
+      "answer": [
+       "disease"
+      ],
+      "explain_en": "'some critics worried that books passed from hand to hand could spread disease'.",
+      "explain_bn": "কেউ কেউ ভয় পেতেন হাত ঘুরে আসা বই থেকে disease (রোগ) ছড়াতে পারে।",
+      "tag": "detail"
+     },
+     {
+      "n": 35,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Money for many buildings came from wealthy ____",
+      "max_words": 1,
+      "answer": [
+       "donors"
+      ],
+      "explain_en": "'much of the money for construction came from wealthy donors'.",
+      "explain_bn": "অনেক ভবন তৈরির টাকা দিয়েছিলেন ধনী donors (দাতা)।",
+      "tag": "detail"
+     },
+     {
+      "n": 36,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Closed access: readers searched a printed ____ and staff fetched the book",
+      "max_words": 1,
+      "answer": [
+       "catalogue",
+       "catalog"
+      ],
+      "explain_en": "'they looked through a printed catalogue, wrote down the number of the book they wanted'.",
+      "explain_bn": "closed access-এ পাঠকরা ছাপা catalogue (তালিকা) দেখে বইয়ের নম্বর লিখতেন। British বানান catalogue, American বানান catalog — দুটোই চলবে।",
+      "tag": "spelling"
+     },
+     {
+      "n": 37,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Open access: readers could browse the ____ themselves",
+      "max_words": 1,
+      "answer": [
+       "shelves"
+      ],
+      "explain_en": "'open access, where readers could browse the shelves themselves'.",
+      "explain_bn": "open access-এ পাঠকরা নিজেরাই shelves (তাক) ঘেঁটে বই বাছতে পারতেন। বহুবচন shelves লিখুন।",
+      "tag": "detail"
+     },
+     {
+      "n": 38,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Early 20th century: separate rooms were created for ____",
+      "max_words": 1,
+      "answer": [
+       "children"
+      ],
+      "explain_en": "'the arrival of separate rooms for children'.",
+      "explain_bn": "বিংশ শতকের শুরুতে children (শিশুদের) জন্য আলাদা কক্ষ চালু হয়।",
+      "tag": "detail"
+     },
+     {
+      "n": 39,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Earliest mobile services used horse-drawn ____",
+      "max_words": 1,
+      "answer": [
+       "carts"
+      ],
+      "explain_en": "'The earliest mobile services were actually horse-drawn carts'; motor vans came later.",
+      "explain_bn": "প্রথম ভ্রাম্যমাণ লাইব্রেরি ছিল ঘোড়ায় টানা carts (গাড়ি)। vans পরে এসেছে — ফাঁদে পড়বেন না।",
+      "tag": "detail"
+     },
+     {
+      "n": 40,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Today some libraries lend unusual items such as ____",
+      "max_words": 1,
+      "answer": [
+       "tools"
+      ],
+      "explain_en": "'they now lend unusual items such as tools, from drills to sewing machines'.",
+      "explain_bn": "এখন কিছু লাইব্রেরি বইয়ের পাশাপাশি tools (যন্ত্রপাতি) ধার দেয়, যেমন ড্রিল বা সেলাই মেশিন।",
+      "tag": "detail"
+     }
+    ]
+   }
+  ]
+ },
+ "reading": {
+  "duration_sec": 3600,
+  "passages": [
+   {
+    "n": 1,
+    "title": "Three local notices",
+    "text": "A  CORRAN VALLEY BUSES: NEW PASS OFFERS\n\nWhether you travel every day or only now and then, one of our passes could save you money. All passes can be bought from the driver, at the Central Bus Station ticket office, or through the CVB Go app.\n\nWeekly Pass: £18\nUnlimited travel for seven days from the first day of use. Valid on all our routes except the Airport Express, which has its own fares.\n\nMonthly Pass: £62\nUnlimited travel for a calendar month. If you no longer need your Monthly Pass, you can return it to the ticket office before the 10th of the month and we will refund half the price. After this date the full price is charged.\n\nStudent Pass: £45 per month\nAvailable to anyone in full-time education aged 16 or over. Each time you board, you must show the driver a valid student card together with your pass. Without the card, you will be asked to pay the full single fare.\n\nFamily Day Pass: £14\nTravel for up to two adults and three children under 16, any day of the week, including weekends and public holidays. All members of the group must travel together.\n\nPlease note: passes are personal and cannot be shared, except the Family Day Pass as described above. Lost passes can be replaced at the ticket office for a £5 charge, as long as you bring proof of purchase.\n\nB  EASTFIELD COMMUNITY POOL: AUTUMN TIMETABLE\n\nThe main pool reopens on Monday 2 September after its summer repairs, and the new changing rooms are now fully open.\n\nPublic swimming\nMonday to Thursday: 7.00 am to 9.00 pm\nFriday: 7.00 am to 10.00 pm (late swim with music from 8.00 pm)\nSaturday and Sunday: 8.00 am to 6.00 pm\nThe pool is closed on all public holidays.\n\nLane swimming\nThree lanes are kept for lane swimming every weekday from 7.00 to 9.00 am and from 12.00 to 1.30 pm. Lanes are marked slow, medium and fast. Please choose the lane that suits your speed and always swim in a clockwise direction.\n\nChildren's lessons\nLessons for ages 5 to 11 run on Mondays, Tuesdays and Thursdays from 4.30 to 6.00 pm. Places are limited, so book at reception at least a week ahead. Children under 8 who are not in a lesson must be accompanied in the water by an adult at all times.\n\nPool rules\nAll swimmers with hair longer than shoulder length must wear a swimming cap. Caps are on sale at reception for £2. Please shower before entering the pool. Lockers in the changing rooms need a £1 coin, which you get back when you open the locker again. Valuables are left at your own risk.\n\nEntry prices: adults £4.50, children £2.50.\n\nC  BROOK STREET SECOND-HAND FURNITURE MARKET\n\nEvery Saturday, 9 am to 3 pm, Brook Street Hall\n\nLooking for a sofa, a table for a new flat, or a set of shelves? The Brook Street market brings together around forty sellers, from families clearing out their homes to small businesses that repair and restore old furniture. Prices are usually far below those in shops, and many sellers are happy to discuss them.\n\nBuying\nPayment is by cash or card at most tables, and a cash machine is available in the entrance hall. Large items that you have bought can be left in the storage room until 4 pm, when the hall closes. Please collect them by then, as anything left after this time will be returned to the seller. Our volunteer team can deliver items within six miles of the hall for an extra charge of £15 per trip; ask at the information desk.\n\nSafety\nAll electrical items, such as lamps and heaters, are tested by a qualified volunteer electrician before they go on sale, and carry a green 'tested' sticker. Other furniture is sold as seen, so check items carefully before you pay.\n\nSelling\nTables for sellers cost £12 for the day and must be booked by the Wednesday before. Sellers should arrive by 8.15 am to set up. We cannot accept mattresses, or any upholstered furniture without a fire safety label.\n\nFree parking is available behind the hall.",
+    "questions": [
+     {
+      "n": 1,
+      "type": "matching",
+      "group": "Questions 1-5. Look at the three texts, A-C. Which text mentions the following? Write the correct letter, A, B or C. You may use any letter more than once.",
+      "prompt": "a service that is not available on public holidays",
+      "options": [
+       "A. Corran Valley Buses",
+       "B. Eastfield Community Pool",
+       "C. Brook Street Furniture Market"
+      ],
+      "answer": "B",
+      "explain_en": "Text B says 'The pool is closed on all public holidays'; text A's Family Day Pass is valid on public holidays.",
+      "explain_bn": "B লেখায় আছে পুল সব সরকারি ছুটির দিনে বন্ধ। A-তে বরং ছুটির দিনেও পাস চলে — তাই উত্তর B।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 2,
+      "type": "matching",
+      "group": "Questions 1-5. Look at the three texts, A-C. Which text mentions the following? Write the correct letter, A, B or C. You may use any letter more than once.",
+      "prompt": "something that can be delivered for an additional payment",
+      "options": [
+       "A. Corran Valley Buses",
+       "B. Eastfield Community Pool",
+       "C. Brook Street Furniture Market"
+      ],
+      "answer": "C",
+      "explain_en": "Text C: 'Our volunteer team can deliver items... for an extra charge of £15 per trip'.",
+      "explain_bn": "C লেখায় বলা আছে স্বেচ্ছাসেবকরা অতিরিক্ত £15 নিয়ে আসবাব বাসায় পৌঁছে দেয় — তাই C।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 3,
+      "type": "matching",
+      "group": "Questions 1-5. Look at the three texts, A-C. Which text mentions the following? Write the correct letter, A, B or C. You may use any letter more than once.",
+      "prompt": "a cheaper price for people who are studying",
+      "options": [
+       "A. Corran Valley Buses",
+       "B. Eastfield Community Pool",
+       "C. Brook Street Furniture Market"
+      ],
+      "answer": "A",
+      "explain_en": "Text A offers a 'Student Pass: £45 per month' for 'anyone in full-time education'.",
+      "explain_bn": "A লেখায় full-time শিক্ষার্থীদের জন্য কম দামের Student Pass আছে — তাই A।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 4,
+      "type": "matching",
+      "group": "Questions 1-5. Look at the three texts, A-C. Which text mentions the following? Write the correct letter, A, B or C. You may use any letter more than once.",
+      "prompt": "a rule about something people must wear",
+      "options": [
+       "A. Corran Valley Buses",
+       "B. Eastfield Community Pool",
+       "C. Brook Street Furniture Market"
+      ],
+      "answer": "B",
+      "explain_en": "Text B: 'All swimmers with hair longer than shoulder length must wear a swimming cap.'",
+      "explain_bn": "B লেখায় লম্বা চুল থাকলে swimming cap পরতেই হবে — পোশাক সংক্রান্ত নিয়ম, তাই B।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 5,
+      "type": "matching",
+      "group": "Questions 1-5. Look at the three texts, A-C. Which text mentions the following? Write the correct letter, A, B or C. You may use any letter more than once.",
+      "prompt": "a way of getting some money back",
+      "options": [
+       "A. Corran Valley Buses",
+       "B. Eastfield Community Pool",
+       "C. Brook Street Furniture Market"
+      ],
+      "answer": "A",
+      "explain_en": "Text A: return the Monthly Pass 'before the 10th of the month and we will refund half the price'.",
+      "explain_bn": "A লেখায় মাসের ১০ তারিখের আগে Monthly Pass ফেরত দিলে অর্ধেক টাকা ফেরত (refund) পাওয়া যায় — তাই A।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 6,
+      "type": "tfng",
+      "group": "Questions 6-9. Do the following statements agree with the information given in the texts? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.",
+      "prompt": "The Weekly Pass can be used on every Corran Valley bus route.",
+      "answer": "FALSE",
+      "explain_en": "It is 'Valid on all our routes except the Airport Express', so not every route.",
+      "explain_bn": "Weekly Pass সব রুটে চলে, কিন্তু Airport Express বাদে — তাই 'every route' কথাটি ভুল, FALSE।",
+      "tag": "detail"
+     },
+     {
+      "n": 7,
+      "type": "tfng",
+      "group": "Questions 6-9. Do the following statements agree with the information given in the texts? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.",
+      "prompt": "The Family Day Pass can be used from Monday to Friday.",
+      "answer": "TRUE",
+      "explain_en": "The pass is for travel 'any day of the week, including weekends and public holidays'.",
+      "explain_bn": "'any day of the week' মানে সপ্তাহের যেকোনো দিন — সোমবার থেকে শুক্রবারও। তাই TRUE।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 8,
+      "type": "tfng",
+      "group": "Questions 6-9. Do the following statements agree with the information given in the texts? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.",
+      "prompt": "Swimmers can hire towels at the pool reception.",
+      "answer": "NOT GIVEN",
+      "explain_en": "Reception sells caps and the pool has lockers, but towels are never mentioned.",
+      "explain_bn": "reception-এ cap বিক্রি হয়, locker আছে — কিন্তু towel ভাড়ার কথা কোথাও নেই। তাই NOT GIVEN।",
+      "tag": "detail"
+     },
+     {
+      "n": 9,
+      "type": "tfng",
+      "group": "Questions 6-9. Do the following statements agree with the information given in the texts? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.",
+      "prompt": "Every item sold at the furniture market is checked for safety first.",
+      "answer": "FALSE",
+      "explain_en": "Only 'electrical items' are tested; 'Other furniture is sold as seen'.",
+      "explain_bn": "শুধু বৈদ্যুতিক জিনিস পরীক্ষা করা হয়; বাকি আসবাব 'sold as seen' (যেমন আছে তেমন)। তাই FALSE।",
+      "tag": "detail"
+     },
+     {
+      "n": 10,
+      "type": "short",
+      "group": "Questions 10-13. Answer the questions below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the texts for each answer.",
+      "prompt": "What must passengers with a Student Pass show the driver as well as the pass? ____",
+      "max_words": 2,
+      "answer": [
+       "student card"
+      ],
+      "explain_en": "'you must show the driver a valid student card together with your pass'.",
+      "explain_bn": "Student Pass-এর সাথে ড্রাইভারকে একটি বৈধ student card দেখাতে হয়।",
+      "tag": "detail"
+     },
+     {
+      "n": 11,
+      "type": "short",
+      "group": "Questions 10-13. Answer the questions below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the texts for each answer.",
+      "prompt": "On which day does the pool stay open latest? ____",
+      "max_words": 2,
+      "answer": [
+       "Friday",
+       "Fridays"
+      ],
+      "explain_en": "Friday hours are '7.00 am to 10.00 pm', later than any other day.",
+      "explain_bn": "শুক্রবার পুল রাত ১০টা পর্যন্ত খোলা, যা অন্য সব দিনের চেয়ে দেরিতে — উত্তর Friday।",
+      "tag": "detail"
+     },
+     {
+      "n": 12,
+      "type": "short",
+      "group": "Questions 10-13. Answer the questions below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the texts for each answer.",
+      "prompt": "What do swimmers need in order to use a locker? ____",
+      "max_words": 2,
+      "answer": [
+       "£1 coin",
+       "1 coin",
+       "coin"
+      ],
+      "explain_en": "'Lockers in the changing rooms need a £1 coin, which you get back'.",
+      "explain_bn": "locker ব্যবহারে একটি £1 coin লাগে, যা পরে ফেরত পাওয়া যায়।",
+      "tag": "detail"
+     },
+     {
+      "n": 13,
+      "type": "short",
+      "group": "Questions 10-13. Answer the questions below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the texts for each answer.",
+      "prompt": "Where can buyers leave large items until 4 pm? ____",
+      "max_words": 2,
+      "answer": [
+       "storage room"
+      ],
+      "explain_en": "'Large items that you have bought can be left in the storage room until 4 pm'.",
+      "explain_bn": "কেনা বড় জিনিস বিকেল ৪টা পর্যন্ত storage room-এ রাখা যায়।",
+      "tag": "detail"
+     }
+    ]
+   },
+   {
+    "n": 2,
+    "title": "Two staff guides",
+    "text": "REQUESTING ANNUAL LEAVE: A GUIDE FOR STAFF\n\nAll full-time employees at Harrowgate Freight are entitled to 25 days of paid annual leave each year, in addition to public holidays. Part-time staff receive the same entitlement in proportion to the hours they work. The leave year runs from 1 January to 31 December.\n\nHow to make a request\nAll requests must be made through the staff portal, which you can reach from any work computer or from your own phone. Paper forms are no longer accepted. Your request goes automatically to your line manager, who will normally reply within three working days. Do not book travel or make any payments that cannot be refunded until your leave has been approved.\n\nHow much notice to give\nFor leave of one to five days, give at least two weeks' notice. For anything longer than five days, the minimum is four weeks. Requests made at shorter notice may still be approved, but only if your team has enough cover.\n\nBusy periods\nSome weeks are especially popular, particularly in July and August and around the end of the year. To keep things fair, if more people ask for the same week than the team can release, a ballot is held, and the names drawn are given priority. Staff who are unsuccessful in a ballot will be given first choice the following year.\n\nCarrying leave over\nWe encourage everyone to take their full entitlement within the year. However, up to five days of unused leave may be carried over into the following year, provided they are used by the end of March. Any further unused days will be lost.\n\nOther types of leave\nIn an emergency, such as a sudden family illness, you should phone your line manager before the start of your shift; a text message or email is not enough. Time off for medical or dental appointments is paid, but where possible appointments should be booked at the start or end of a shift to reduce disruption. Requests for unpaid leave, for example for an extended trip abroad, must be approved by Human Resources (HR) as well as by your manager.\n\nWORKPLACE FIRST-AID KITS: WHAT YOU NEED TO KNOW\n\nEvery site has at least one first-aid kit, and every member of staff should know where the nearest one is kept. Kits are green boxes marked with a white cross, and their locations are shown on the notice board beside each entrance.\n\nWho looks after the kits?\nEach site has an appointed first-aider, whose name is displayed next to each kit. Although anyone may use a kit in an emergency, it is the first-aider's job to check the contents and keep them up to date. Other staff should not move kits or take items from them for any purpose other than first aid.\n\nChecking and refilling\nKits are checked once a month, and the date of each check is written on the card inside the lid. Whenever you use anything from a kit, write what you took in the logbook kept with it, so that the first-aider knows what needs replacing. Items such as sterile dressings have an expiry date and must be thrown away once it has passed.\n\nWhat a kit contains\nA standard kit includes plasters in various sizes, sterile eye pads, bandages, disposable gloves, safety pins and cleansing wipes. You will not find tablets or medicines of any kind, including common painkillers. This is because some people react badly to particular medicines, and first-aiders are not trained to decide which drugs are safe for someone else to take.\n\nLarger kits and extra equipment\nWhere staff work with machinery or sharp tools, such as in the workshop and on the loading dock, larger kits are provided, along with eye-wash stations. The size of a kit depends on the level of risk rather than simply on the number of people working in an area.\n\nTravel kits\nDrivers who spend their working day on the road are each issued with a small travel kit to keep in their vehicle. If you are a driver and your kit is used or damaged, report it to the transport office, which will replace it.",
+    "questions": [
+     {
+      "n": 14,
+      "type": "gap",
+      "group": "Questions 14-20. Complete the notes below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the text for each answer.",
+      "prompt": "All leave requests must be made through the staff ____",
+      "max_words": 2,
+      "answer": [
+       "portal"
+      ],
+      "explain_en": "'All requests must be made through the staff portal'; 'Paper forms are no longer accepted'.",
+      "explain_bn": "সব ছুটির আবেদন staff portal দিয়ে করতে হবে; কাগজের ফর্ম আর চলে না।",
+      "tag": "detail"
+     },
+     {
+      "n": 15,
+      "type": "gap",
+      "group": "Questions 14-20. Complete the notes below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the text for each answer.",
+      "prompt": "Leave of more than five days: at least ____ weeks' notice",
+      "max_words": 2,
+      "answer": [
+       "four",
+       "4"
+      ],
+      "explain_en": "'For anything longer than five days, the minimum is four weeks.' Two weeks is for one to five days.",
+      "explain_bn": "পাঁচ দিনের বেশি ছুটিতে অন্তত চার (four) সপ্তাহ আগে জানাতে হবে। two weeks হলো ১-৫ দিনের জন্য — ফাঁদ।",
+      "tag": "number"
+     },
+     {
+      "n": 16,
+      "type": "gap",
+      "group": "Questions 14-20. Complete the notes below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the text for each answer.",
+      "prompt": "Popular weeks: if too many people apply, a ____ decides who gets priority",
+      "max_words": 2,
+      "answer": [
+       "ballot"
+      ],
+      "explain_en": "'if more people ask for the same week than the team can release, a ballot is held'.",
+      "explain_bn": "একই সপ্তাহে অনেকে ছুটি চাইলে ballot (লটারির মতো নাম তোলা) হয়।",
+      "tag": "vocabulary"
+     },
+     {
+      "n": 17,
+      "type": "gap",
+      "group": "Questions 14-20. Complete the notes below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the text for each answer.",
+      "prompt": "Up to ____ unused days can be carried into the next year",
+      "max_words": 2,
+      "answer": [
+       "five",
+       "5"
+      ],
+      "explain_en": "'up to five days of unused leave may be carried over into the following year'.",
+      "explain_bn": "অব্যবহৃত ছুটির সর্বোচ্চ পাঁচ (five) দিন পরের বছরে নেওয়া যায়, মার্চের মধ্যে ব্যবহার করতে হবে।",
+      "tag": "number"
+     },
+     {
+      "n": 18,
+      "type": "gap",
+      "group": "Questions 14-20. Complete the notes below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the text for each answer.",
+      "prompt": "Emergency leave: phone your ____ before your shift starts",
+      "max_words": 2,
+      "answer": [
+       "line manager"
+      ],
+      "explain_en": "'you should phone your line manager before the start of your shift; a text message or email is not enough'.",
+      "explain_bn": "জরুরি ছুটিতে শিফট শুরুর আগে line manager-কে ফোন করতে হবে; মেসেজ বা ইমেইল যথেষ্ট নয়।",
+      "tag": "detail"
+     },
+     {
+      "n": 19,
+      "type": "gap",
+      "group": "Questions 14-20. Complete the notes below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the text for each answer.",
+      "prompt": "Medical appointments: book at the start or ____ of a shift if possible",
+      "max_words": 2,
+      "answer": [
+       "end"
+      ],
+      "explain_en": "'appointments should be booked at the start or end of a shift'.",
+      "explain_bn": "ডাক্তারের অ্যাপয়েন্টমেন্ট সম্ভব হলে শিফটের শুরুতে বা end (শেষে) রাখতে হবে।",
+      "tag": "detail"
+     },
+     {
+      "n": 20,
+      "type": "gap",
+      "group": "Questions 14-20. Complete the notes below. Choose NO MORE THAN TWO WORDS AND/OR A NUMBER from the text for each answer.",
+      "prompt": "Unpaid leave: must be approved by your manager and by ____",
+      "max_words": 2,
+      "answer": [
+       "Human Resources",
+       "HR"
+      ],
+      "explain_en": "'Requests for unpaid leave... must be approved by Human Resources (HR) as well as by your manager.'",
+      "explain_bn": "বিনা বেতনের ছুটিতে ম্যানেজার ছাড়াও Human Resources (HR)-এর অনুমোদন লাগে।",
+      "tag": "detail"
+     },
+     {
+      "n": 21,
+      "type": "mcq",
+      "group": "Questions 21-26. Choose the correct letter, A, B, C or D.",
+      "prompt": "Whose job is it to keep the first-aid kits up to date?",
+      "options": [
+       "A. any member of staff",
+       "B. the appointed first-aider",
+       "C. the site manager",
+       "D. the person who last used the kit"
+      ],
+      "answer": "B",
+      "explain_en": "'it is the first-aider's job to check the contents and keep them up to date'; anyone may only use a kit.",
+      "explain_bn": "যে কেউ জরুরি অবস্থায় kit ব্যবহার করতে পারে, কিন্তু দেখাশোনার দায়িত্ব নিযুক্ত first-aider-এর — তাই B।",
+      "tag": "detail"
+     },
+     {
+      "n": 22,
+      "type": "mcq",
+      "group": "Questions 21-26. Choose the correct letter, A, B, C or D.",
+      "prompt": "How often are the kits checked?",
+      "options": [
+       "A. every week",
+       "B. every three months",
+       "C. once a year",
+       "D. every month"
+      ],
+      "answer": "D",
+      "explain_en": "'Kits are checked once a month'.",
+      "explain_bn": "'once a month' মানে প্রতি মাসে একবার — তাই D।",
+      "tag": "detail"
+     },
+     {
+      "n": 23,
+      "type": "mcq",
+      "group": "Questions 21-26. Choose the correct letter, A, B, C or D.",
+      "prompt": "Why do the kits contain no painkillers?",
+      "options": [
+       "A. Some people may have a bad reaction to them.",
+       "B. They go out of date too quickly.",
+       "C. They are too expensive to replace.",
+       "D. Staff might take them without permission."
+      ],
+      "answer": "A",
+      "explain_en": "'some people react badly to particular medicines, and first-aiders are not trained to decide which drugs are safe'.",
+      "explain_bn": "কিছু মানুষের নির্দিষ্ট ওষুধে খারাপ প্রতিক্রিয়া হয়, আর first-aider-রা ওষুধ বাছাইয়ে প্রশিক্ষিত নন — তাই A। দাম বা আইনের কথা লেখায় নেই।",
+      "tag": "inference"
+     },
+     {
+      "n": 24,
+      "type": "mcq",
+      "group": "Questions 21-26. Choose the correct letter, A, B, C or D.",
+      "prompt": "Larger kits are provided in areas where",
+      "options": [
+       "A. a large number of people work.",
+       "B. staff work at night.",
+       "C. staff use machines or sharp tools.",
+       "D. visitors often come."
+      ],
+      "answer": "C",
+      "explain_en": "'Where staff work with machinery or sharp tools... larger kits are provided'; size depends on risk 'rather than simply on the number of people'.",
+      "explain_bn": "যেখানে মেশিন বা ধারালো যন্ত্র নিয়ে কাজ হয় সেখানে বড় kit। কর্মীর সংখ্যা নয়, ঝুঁকিই আসল — তাই C, A নয়।",
+      "tag": "detail"
+     },
+     {
+      "n": 25,
+      "type": "mcq",
+      "group": "Questions 21-26. Choose the correct letter, A, B, C or D.",
+      "prompt": "What should staff do after taking something from a kit?",
+      "options": [
+       "A. record it in the logbook",
+       "B. replace it themselves",
+       "C. tell the transport office",
+       "D. write the date on the card in the lid"
+      ],
+      "answer": "A",
+      "explain_en": "'write what you took in the logbook kept with it, so that the first-aider knows what needs replacing'.",
+      "explain_bn": "kit থেকে কিছু নিলে সাথে রাখা logbook-এ লিখে রাখতে হবে — তাই A।",
+      "tag": "detail"
+     },
+     {
+      "n": 26,
+      "type": "mcq",
+      "group": "Questions 21-26. Choose the correct letter, A, B, C or D.",
+      "prompt": "Who is given a travel kit?",
+      "options": [
+       "A. office staff",
+       "B. first-aiders",
+       "C. workshop staff",
+       "D. drivers"
+      ],
+      "answer": "D",
+      "explain_en": "'Drivers who spend their working day on the road are each issued with a small travel kit'.",
+      "explain_bn": "সারাদিন রাস্তায় কাজ করা drivers-দের প্রত্যেককে ছোট travel kit দেওয়া হয় — তাই D।",
+      "tag": "detail"
+     }
+    ]
+   },
+   {
+    "n": 3,
+    "title": "Before the Fridge: How People Kept Food",
+    "text": "Before the Fridge: How People Kept Food\n\nA  In many countries the home refrigerator became common only in the second half of the twentieth century, and in large parts of the world it is still far from universal. Yet for thousands of years before that, people managed to store food through the winter, carry it on long journeys and save the surplus from a good harvest. They did so using a handful of techniques, most of which are still in use today, often without our noticing. What all of them have in common is that they make life difficult for the bacteria and moulds that cause food to spoil.\n\nB  Drying is probably the oldest of all these methods. Microbes need water to grow, and if enough moisture is removed from meat, fish, fruit or grain, decay slows almost to a stop. In hot, dry regions the sun and wind did the work naturally. In coastal communities further north, fish were split and hung on wooden racks in the cold, windy air, where they could become so hard that they lasted for years. Dried fruit, meanwhile, had the added advantage of becoming sweeter as its sugars were concentrated, making it a valuable food for travellers.\n\nC  Salting works in a similar way. When food is packed in salt, water is drawn out of it, and the salty environment that remains is one in which few harmful organisms can survive. Because salt made it possible to keep meat and fish for months, it became one of the most valuable goods in the ancient and medieval world. Roads were built to transport it, and governments in many places taxed it heavily. Salted fish and meat fed sailors and soldiers far from home, although such food was hardly a pleasure to eat: it often had to be soaked in fresh water for many hours before it could be cooked.\n\nD  Smoking may well have begun by accident. Food hung near a fire to keep it away from animals would have dried out faster, and people would have noticed that it also lasted longer. We now know that wood smoke contains chemical compounds that slow the growth of bacteria and stop fats from turning bad. For a long time, then, smoking was mainly a practical measure, and the distinctive flavour it gives to fish, meat and cheese only later became valued in its own right. Today, smoked foods are often eaten for their taste alone, and many are smoked so lightly that they must still be kept cold.\n\nE  Fermentation and pickling take a different approach. Rather than trying to remove all microbes, they encourage useful ones. When vegetables are kept in salty water, or milk is left in the right conditions, friendly bacteria multiply and produce acid, and this acid prevents harmful organisms from taking hold. Pickling in vinegar achieves a similar result more directly. Fermented foods such as yoghurt and pickled cabbage are found in cuisines all over the world, and some ship captains carried barrels of fermented vegetables on long voyages in the belief that they kept their crews healthy.\n\nF  Cold storage itself is not a modern idea. Long before electricity, wealthy households built ice houses: partly underground buildings into which blocks of ice, cut from frozen lakes in winter, were packed with straw or sawdust as insulation. Well-built ice houses could keep ice solid well into the summer. In the nineteenth century the ice trade became a major industry, and ice was shipped across oceans to much warmer countries. In hot, dry climates a much cheaper method was used: a clay pot placed inside a larger one, with wet sand between them. As water evaporates from the outer pot, it draws heat away from the inner one, which can keep vegetables fresh for days longer than they would last in the open air.\n\nG  The last major technique arrived in the early nineteenth century, when a government at war offered a prize to anyone who could find a better way of feeding its armies. The winning method was to seal food in glass jars and then heat them for a long time. Remarkably, the process worked decades before anyone could explain why: it was only later in the century that scientists showed that heating killed the microbes inside, and that the seal prevented new ones from entering. Glass was soon replaced by metal cans, which were lighter and did not break. The first cans, however, were so thick that they had to be opened with a hammer and chisel; a proper can opener did not appear until almost fifty years later.\n\nH  For much of the twentieth century these older methods were seen as old-fashioned, replaced by the convenience of the freezer. Recently, however, they have attracted fresh interest. They use little or no energy, which matters both to people who care about the environment and to the many households whose electricity supply is unreliable. They also offer a way of using up a large harvest instead of throwing it away, and so help to reduce food waste. And for many people, the flavours they create are reason enough to keep them alive.",
+    "questions": [
+     {
+      "n": 27,
+      "type": "matching",
+      "group": "Questions 27-31. The text has eight paragraphs, A-H. Which paragraph contains the following information? Write the correct letter, A-H.",
+      "prompt": "a suggestion that a method was first discovered by chance",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G",
+       "H. Paragraph H"
+      ],
+      "answer": "D",
+      "explain_en": "Paragraph D: 'Smoking may well have begun by accident.'",
+      "explain_bn": "D অনুচ্ছেদে বলা আছে ধোঁয়া দিয়ে সংরক্ষণ সম্ভবত দুর্ঘটনাক্রমে (by accident) শুরু হয়েছিল — by chance-এর paraphrase।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 28,
+      "type": "matching",
+      "group": "Questions 27-31. The text has eight paragraphs, A-H. Which paragraph contains the following information? Write the correct letter, A-H.",
+      "prompt": "an example of a method that was successful before the science behind it was understood",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G",
+       "H. Paragraph H"
+      ],
+      "answer": "G",
+      "explain_en": "Paragraph G: 'the process worked decades before anyone could explain why'.",
+      "explain_bn": "G অনুচ্ছেদে আছে বয়ামে সিল করে গরম করার পদ্ধতি কাজ করত, কিন্তু কেন করে তা বিজ্ঞানীরা অনেক পরে বুঝেছেন।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 29,
+      "type": "matching",
+      "group": "Questions 27-31. The text has eight paragraphs, A-H. Which paragraph contains the following information? Write the correct letter, A-H.",
+      "prompt": "a description of a method that depends on evaporation",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G",
+       "H. Paragraph H"
+      ],
+      "answer": "F",
+      "explain_en": "Paragraph F: 'As water evaporates from the outer pot, it draws heat away from the inner one'.",
+      "explain_bn": "F অনুচ্ছেদে মাটির দুই পাত্রের পদ্ধতি — বাইরের পাত্র থেকে পানি বাষ্প হয়ে ভেতরের পাত্র ঠান্ডা রাখে।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 30,
+      "type": "matching",
+      "group": "Questions 27-31. The text has eight paragraphs, A-H. Which paragraph contains the following information? Write the correct letter, A-H.",
+      "prompt": "a reference to preserved food that needed preparation before cooking",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G",
+       "H. Paragraph H"
+      ],
+      "answer": "C",
+      "explain_en": "Paragraph C: salted food 'often had to be soaked in fresh water for many hours before it could be cooked'.",
+      "explain_bn": "C অনুচ্ছেদে লবণে রাখা খাবার রান্নার আগে অনেক ঘণ্টা পানিতে ভিজিয়ে রাখতে হতো।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 31,
+      "type": "matching",
+      "group": "Questions 27-31. The text has eight paragraphs, A-H. Which paragraph contains the following information? Write the correct letter, A-H.",
+      "prompt": "reasons why traditional methods are becoming popular again",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G",
+       "H. Paragraph H"
+      ],
+      "answer": "H",
+      "explain_en": "Paragraph H: 'Recently, however, they have attracted fresh interest. They use little or no energy...'",
+      "explain_bn": "H অনুচ্ছেদে বলা আছে কেন পুরনো পদ্ধতিগুলো আবার আগ্রহ পাচ্ছে — কম বিদ্যুৎ, খাবার অপচয় কমানো, স্বাদ।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 32,
+      "type": "tfng",
+      "group": "Questions 32-36. Do the following statements agree with the information given in the text? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.",
+      "prompt": "Drying is thought to be the earliest method of preserving food.",
+      "answer": "TRUE",
+      "explain_en": "Paragraph B: 'Drying is probably the oldest of all these methods.'",
+      "explain_bn": "'probably the oldest' আর 'thought to be the earliest' একই অর্থ — তাই TRUE।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 33,
+      "type": "tfng",
+      "group": "Questions 32-36. Do the following statements agree with the information given in the text? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.",
+      "prompt": "Smoking was originally used mainly because people enjoyed the taste.",
+      "answer": "FALSE",
+      "explain_en": "Paragraph D: 'smoking was mainly a practical measure, and the distinctive flavour... only later became valued'.",
+      "explain_bn": "শুরুতে ধোঁয়া দেওয়া ছিল ব্যবহারিক কারণে; স্বাদের কদর এসেছে পরে। তাই বক্তব্যটি উল্টো — FALSE।",
+      "tag": "detail"
+     },
+     {
+      "n": 34,
+      "type": "tfng",
+      "group": "Questions 32-36. Do the following statements agree with the information given in the text? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.",
+      "prompt": "Ice from frozen lakes was sometimes sent to other countries by sea.",
+      "answer": "TRUE",
+      "explain_en": "Paragraph F: 'ice was shipped across oceans to much warmer countries'.",
+      "explain_bn": "F অনুচ্ছেদে আছে বরফ সমুদ্র পেরিয়ে গরম দেশে পাঠানো হতো — তাই TRUE।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 35,
+      "type": "tfng",
+      "group": "Questions 32-36. Do the following statements agree with the information given in the text? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.",
+      "prompt": "The clay pot cooler was invented in the twentieth century.",
+      "answer": "NOT GIVEN",
+      "explain_en": "Paragraph F describes how the pot-in-pot method works but gives no date or inventor.",
+      "explain_bn": "মাটির পাত্রের কুলার কীভাবে কাজ করে তা বলা আছে, কিন্তু কখন আবিষ্কার হয়েছে তা কোথাও নেই — NOT GIVEN।",
+      "tag": "detail"
+     },
+     {
+      "n": 36,
+      "type": "tfng",
+      "group": "Questions 32-36. Do the following statements agree with the information given in the text? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, or NOT GIVEN if there is no information on this.",
+      "prompt": "Early canned food was more expensive than fresh food.",
+      "answer": "NOT GIVEN",
+      "explain_en": "Paragraph G discusses glass jars, metal cans and can openers but never compares prices.",
+      "explain_bn": "G অনুচ্ছেদে বয়াম, টিন আর can opener-এর কথা আছে, কিন্তু দাম নিয়ে কোনো তুলনা নেই — NOT GIVEN।",
+      "tag": "detail"
+     },
+     {
+      "n": 37,
+      "type": "gap",
+      "group": "Questions 37-40. Complete the summary below. Choose ONE WORD ONLY from the text for each answer.",
+      "prompt": "In the early nineteenth century, a government offered a ____ for a better way to feed its soldiers.",
+      "max_words": 1,
+      "answer": [
+       "prize"
+      ],
+      "explain_en": "Paragraph G: 'a government at war offered a prize to anyone who could find a better way of feeding its armies'.",
+      "explain_bn": "যুদ্ধরত এক সরকার সৈন্যদের খাওয়ানোর ভালো উপায়ের জন্য prize (পুরস্কার) ঘোষণা করেছিল।",
+      "tag": "detail"
+     },
+     {
+      "n": 38,
+      "type": "gap",
+      "group": "Questions 37-40. Complete the summary below. Choose ONE WORD ONLY from the text for each answer.",
+      "prompt": "The winning idea was to seal food in glass ____ and heat them.",
+      "max_words": 1,
+      "answer": [
+       "jars"
+      ],
+      "explain_en": "'The winning method was to seal food in glass jars and then heat them'.",
+      "explain_bn": "জয়ী পদ্ধতি ছিল খাবার কাচের jars (বয়াম)-এ সিল করে গরম করা।",
+      "tag": "detail"
+     },
+     {
+      "n": 39,
+      "type": "gap",
+      "group": "Questions 37-40. Complete the summary below. Choose ONE WORD ONLY from the text for each answer.",
+      "prompt": "Today older methods are attractive partly because they need little ____.",
+      "max_words": 1,
+      "answer": [
+       "energy"
+      ],
+      "explain_en": "Paragraph H: 'They use little or no energy'.",
+      "explain_bn": "পুরনো পদ্ধতিতে খুব কম energy (শক্তি/বিদ্যুৎ) লাগে — যেখানে বিদ্যুৎ অনিশ্চিত, সেখানে এটা খুব কাজের।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 40,
+      "type": "gap",
+      "group": "Questions 37-40. Complete the summary below. Choose ONE WORD ONLY from the text for each answer.",
+      "prompt": "They also help to cut food ____ by making use of a large harvest.",
+      "max_words": 1,
+      "answer": [
+       "waste"
+      ],
+      "explain_en": "'They also offer a way of using up a large harvest instead of throwing it away, and so help to reduce food waste.'",
+      "explain_bn": "বড় ফসল ফেলে না দিয়ে কাজে লাগিয়ে এগুলো food waste (খাবারের অপচয়) কমায়।",
+      "tag": "detail"
+     }
+    ]
+   }
+  ]
+ },
+ "writing": {
+  "duration_sec": 3600,
+  "tasks": [
+   {
+    "n": 1,
+    "min_words": 150,
+    "prompt": "You should spend about 20 minutes on this task.\n\nThe heater in the flat you rent has stopped working, and it is now very cold.\n\nWrite a letter to your landlord. In your letter\n- describe the problem with the heater\n- explain how this problem is affecting you\n- say what you would like your landlord to do\n\nWrite at least 150 words.\n\nBegin your letter as follows:\n\nDear Mr Halloway,"
+   },
+   {
+    "n": 2,
+    "min_words": 250,
+    "prompt": "You should spend about 40 minutes on this task.\n\nWrite about the following topic:\n\nMany people now work in a country where a different language is spoken. Some people believe that employers should pay for these workers to take language classes, while others think that workers should pay for their own training.\n\nWhat is your opinion?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite at least 250 words."
+   }
+  ]
+ },
+ "speaking": {
+  "duration_sec": 780,
+  "parts": [
+   {
+    "n": 1,
+    "questions": [
+     "Do you work or are you a student?",
+     "What do you like most about your work or studies?",
+     "Is there anything you would like to change about your work or studies?",
+     "Do you think you will do the same kind of work or study in the future? Why or why not?",
+     "Do you enjoy cooking? Why or why not?",
+     "Who usually cooks in your home?",
+     "What was the first dish you learned to cook?",
+     "Would you like to take cooking lessons one day?"
+    ]
+   },
+   {
+    "n": 2,
+    "prep_sec": 60,
+    "talk_sec": 120,
+    "cue_card": "Describe a journey you made that did not go as planned.\nYou should say:\n- where you were going and why\n- who you were with\n- what went wrong during the journey\nand explain how you felt about the journey afterwards."
+   },
+   {
+    "n": 3,
+    "questions": [
+     "Why do you think some journeys go wrong even when people plan them carefully?",
+     "How has public transport in towns and cities changed in recent years?",
+     "Should governments spend more money on public transport or on building new roads? Why?",
+     "Some people say that cheap air travel is bad for the environment. What is your view?",
+     "How do you think the way people travel to work will change in the next twenty years?",
+     "Is travelling to other countries still as important for young people as it was in the past?"
+    ]
+   }
+  ]
+ }
+}
