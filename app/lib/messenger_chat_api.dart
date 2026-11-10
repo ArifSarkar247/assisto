@@ -1,4 +1,5 @@
 import 'api.dart';
+import 'offline/offline_store.dart'; // offline1st
 
 /// Assisto Messenger — 1:1 CHAT surface API (top-bar + ⋮ menu behaviours and
 /// the Contact info screen).
@@ -134,8 +135,11 @@ extension MessengerChatApi on ApiClient {
   /// chat entry and hides every message up to now FOR THIS USER ONLY (a
   /// per-user marker; the peer's copy is untouched — E2E rows are never
   /// rewritten).
-  Future<Map<String, dynamic>> clearChat(int peerId) =>
-      postJson('/circle/$peerId/clear', const {});
+  Future<Map<String, dynamic>> clearChat(int peerId) async {
+    final r = await postJson('/circle/$peerId/clear', const {});
+    await OfflineStore.instance.dropChat('member:$peerId'); // offline1st
+    return r;
+  }
 
   /// POST /circle/<peer>/controls {blocked:true} — silent two-way block.
   Future<Map<String, dynamic>> blockContact(int peerId, {bool on = true}) =>

@@ -247,7 +247,12 @@ urlpatterns = [
     path("city/night-rating", cityv.city_night_rating),
     path("city/trips/consent", cityv.city_trip_consent),
     path("city/trips", cityv.city_trip),
+    path("city/trips/confirm", cityv.city_trip_confirm_ride),  # mapapp (renamed: citycov owns city_trip_confirm(tid))
+    path("city/trips/mine", cityv.city_trip_mine),  # mapapp
+    path("city/map", cityv.city_map),  # mapapp
     path("city/women", cityv.city_women),
+    path("city/field-stops", cityv.city_field_stops),  # citycov
+    path("city/trips/<int:tid>/confirm", cityv.city_trip_confirm),  # citycov
     path("artist/favourite", views.FavouriteArtistView.as_view()),
     path("finance", views.FinanceView.as_view()),
     path("prices/official", views_moneybar.OfficialPricesView.as_view()),  # moneybar
@@ -630,8 +635,10 @@ urlpatterns = [
     path("maps/reverse", vmaps.MapsReverseView.as_view()),
     path("maps/autocomplete", vmaps.MapsAutocompleteView.as_view()),
     path("maps/search", vmaps.MapsSearchView.as_view()),  # qjourney
+    path("maps/area", vmaps.MapsAreaView.as_view()),  # sjstart2
     path("maps/place", vmaps.MapsPlaceView.as_view()),
     path("maps/eta", vmaps.MapsEtaView.as_view()),
+    path("maps/transit", vmaps.MapsTransitView.as_view()),  # mapapp
     path("journey/places/<int:pk>", b61.SavedPlaceDetailView.as_view()),
     # owner idea 1: guardian-requested journeys (core/guardian_journey.py)
     path("journey/requests", vg.JourneyRequestsView.as_view()),
@@ -1970,6 +1977,15 @@ urlpatterns += [
     path("bizai/cctv/test/<int:pk>/<str:action>", bzai.CctvTestView.as_view()),
 ]
 # ---- /bizai ----
+# ---- quranview (lane 14): bilingual ayah view ----
+from . import views_quranview as qvv  # noqa: E402
+
+urlpatterns += [
+    path("quran/meaning/<int:surah>", qvv.MeaningView.as_view()),
+    path("quran/tafsir/<int:surah>/<int:ayah>", qvv.TafsirView.as_view()),
+    path("quran/qf/<int:surah>/<int:ayah>", qvv.QfAyahView.as_view()),
+    path("quran/reciters", qvv.RecitersView.as_view()),
+]
 # ---- cctvconnect (CCTV Guard V3 A1 brand clouds + B DVR health) ----
 from . import cctv_connect_views as ccv  # noqa: E402
 urlpatterns += [
@@ -2047,3 +2063,33 @@ urlpatterns += [
     path("lp/certificate/<int:pk>", lpv.LpCertificateView.as_view()),
 ]
 # ---- /lpcore ----
+
+# ---- buyinside ---- plan recommendation from real usage + purchase origins
+from . import views_buyinside as buyv  # noqa: E402
+urlpatterns += [
+    path("plans/recommend", buyv.PlanRecommendView.as_view()),
+    path("owner/buy-origins", buyv.BuyOriginsView.as_view()),
+]
+# ---- messv2 ---- Mess and bachelor V2 (shared mess, owner order 10 Nov)
+from . import views_mess as messv  # noqa: E402
+
+urlpatterns += [
+    path("mess/v2", messv.MessListView.as_view()),
+    path("mess/v2/import-legacy", messv.MessImportLegacyView.as_view()),
+    path("mess/v2/by-group/<int:gid>", messv.MessByGroupView.as_view()),
+    path("mess/v2/<int:pk>", messv.MessDetailView.as_view()),
+    path("mess/v2/<int:pk>/edit", messv.MessEditView.as_view()),
+    path("mess/v2/<int:pk>/circle-pick", messv.MessCirclePickView.as_view()),
+    path("mess/v2/<int:pk>/members", messv.MessMembersView.as_view()),
+    path("mess/v2/<int:pk>/members/<int:mid>", messv.MessMemberActionView.as_view()),
+    path("mess/v2/<int:pk>/meals", messv.MessMealsView.as_view()),
+    path("mess/v2/<int:pk>/meals/off", messv.MessMealsOffView.as_view()),
+    path("mess/v2/<int:pk>/entries", messv.MessEntriesView.as_view()),
+    path("mess/v2/<int:pk>/entries/<int:eid>", messv.MessEntryActionView.as_view()),
+    path("mess/v2/<int:pk>/close", messv.MessCloseMonthView.as_view()),
+    path("mess/v2/<int:pk>/remind", messv.MessRemindView.as_view()),
+    path("mess/v2/<int:pk>/history", messv.MessHistoryView.as_view()),
+    path("mess/v2/<int:pk>/report", messv.MessReportView.as_view()),
+    path("mess/v2/<int:pk>/close-mess", messv.MessCloseMessView.as_view()),
+]
+# ---- /messv2 ----

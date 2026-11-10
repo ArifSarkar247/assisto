@@ -8,6 +8,7 @@ app shows the coordinates text + "Open in Google Maps" instead.
   GET  /maps/autocomplete?q&session&lat&lng  Places (New) Autocomplete
   GET  /maps/place?id&session                one Place Details Essentials
   GET  /maps/eta?olat&olng&dlat&dlng&mode    one Routes call (start / tap)
+  GET  /maps/transit?olat&olng&dlat&dlng     mapapp: live Google transit (Google view only, never stored)
 """
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -68,6 +69,17 @@ class MapsEtaView(APIView):
                                                mode=_q(request, "mode") or "")))
 
 
+class MapsTransitView(APIView):
+    """mapapp (owner 10 Nov 00:35): Google Routes TRANSIT for the City
+    Service Google view. Live per request, never cached or stored; any
+    refusal answers state "none" + routes [] (the app then shows only our
+    own results, never a limit message)."""
+    def get(self, request):
+        return Response(PS.public(MC.transit(request.user, _q(request, "olat"), _q(request, "olng"),
+                                             _q(request, "dlat"), _q(request, "dlng"),
+                                             lang=req_lang(request))))
+
+
 class MapsSearchView(APIView):
     """qjourney (owner Safe Journey V2, 9 Nov) — GET /maps/search?q&session&lat&lng
 
@@ -82,3 +94,14 @@ class MapsSearchView(APIView):
         return Response(PS.suggest(request.user, _q(request, "q"), _q(request, "session"),
                                    lat=_q(request, "lat"), lng=_q(request, "lng"),
                                    lang=req_lang(request)))
+
+
+class MapsAreaView(APIView):
+    """sjstart2 — GET /maps/area?lat&lng: the nearest area name from our own
+    free Bangladesh list ("From: My current location · Badda"). Never a paid
+    call; {"area": null} when nothing is near (the phone then shows only
+    "My current location")."""
+    def get(self, request):
+        from . import bd_places as BP
+        return Response({"area": BP.nearest_area(_q(request, "lat"), _q(request, "lng"),
+                                                 lang=req_lang(request))})

@@ -6,7 +6,7 @@
 {% if errors %}<div class="flash warn" role="alert"><b>{{ T.fix_fields }}</b><ul>{% for k, v in errors.items %}<li>{{ k }}: {{ v }}</li>{% endfor %}</ul></div>{% endif %}
 <form method="post" enctype="multipart/form-data" class="card grid2" action="{% if card %}/owner/discover/{{ card.id }}{% else %}/owner/discover/new{% endif %}">
   {% include "owner/_csrf.html" %}
-  <label>{{ T.type }}<select name="type">{% for t in types %}<option value="{{ t }}" {% if card and card.type == t or not card and data.type == t %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></label>
+  <label>{{ T.type }}<select name="type">{% for t, tl in type_opts %}<option value="{{ t }}" {% if card and card.type == t or not card and data.type == t %}selected{% endif %}>{{ tl }}</option>{% endfor %}</select></label>
   <label class="check"><input type="checkbox" name="enabled" {% if card and card.enabled or not card and data.enabled %}checked{% endif %}> {{ T.enabled }}</label>
   <label>{{ T.title }} (বাংলা)<input name="title_bn" maxlength="80" value="{% if card %}{{ card.title_bn }}{% else %}{{ data.title_bn }}{% endif %}"></label>
   <label>{{ T.title }} (English)<input name="title_en" maxlength="80" value="{% if card %}{{ card.title_en }}{% else %}{{ data.title_en }}{% endif %}"></label>
@@ -24,6 +24,7 @@
   <label class="span2">{{ T.image }} (PNG/JPEG/WEBP ≤ 2 MB)<input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>
   {% if card and card.image %}<div class="span2 imgrow"><img src="{{ card.image.url }}" alt="" class="thumb"><label class="check"><input type="checkbox" name="remove_image"> {{ T.remove_image }}</label></div>{% endif %}
   <p class="mut small span2">{{ T.sponsored_rule }}</p>
+  <p class="mut small span2">{{ T.discms_rules }}</p>
   <div class="span2"><button class="btn primary">{{ T.save }}</button></div>
 </form>
 {% if card %}

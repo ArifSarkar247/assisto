@@ -68,6 +68,8 @@ def main():
     ap.add_argument("--height", type=int, default=360)
     ap.add_argument("--fps", type=int, default=10)
     ap.add_argument("--period", type=float, default=12.0)
+    # cctvacc: wall-clock time each time the person walks in (alert latency)
+    ap.add_argument("--events-log", default="")
     a = ap.parse_args()
     import av
 
@@ -84,8 +86,15 @@ def main():
                           "g": str(a.fps)}
             t0 = time.monotonic()
             n = 0
+            last_cycle = -1
             while True:
                 t = time.monotonic() - t0
+                cyc = int(t // a.period)
+                if (a.events_log and cyc != last_cycle
+                        and (t % a.period) / a.period >= 1 / 3.0):
+                    last_cycle = cyc
+                    with open(a.events_log, "a") as fh:
+                        fh.write("%.3f\n" % time.time())
                 img = frame_at(t, bg, person, a.period, w, h)
                 vf = av.VideoFrame.from_ndarray(img, format="bgr24")
                 vf.pts = n

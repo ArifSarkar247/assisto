@@ -2356,6 +2356,26 @@ BN.update({
     "cty_learn_note": "অনুমতি দেওয়া, নামহীন বাস যাত্রা থেকে পাওয়া; ৩ জন আলাদা মানুষের পরে নিশ্চিত।",
     "cty_people": "মানুষ / যাত্রা",
 })
+# ---- citycov: users' stops (field collection + trip learning) ----
+EN.update({
+    "cty_tab_stops": "Users' stops", "cty_t_stops": "Stops waiting",
+    "cty_stops_note": "\"Add a stop here\" / \"This bus stops here\" taps from the app (no names, one tap at the phone's own location) and stops found by trip learning. A tap report goes live after 3 different people; a trip stop after 3 separate trips. Both show as Reported by users. Reject removes it for everyone; Accept adds it now.",
+    "cty_src_field": "Tap report", "cty_src_trips": "Trip learning", "cty_bus": "Bus",
+    "cty_any_bus": "not named (routes passing within 150 m)", "cty_live_cov": "Coverage now (with users' stops)",
+    "cty_cov_stops": "stop within 700 m (headline)", "cty_cov_corr": "separate measure: a bus / leguna route passes within 700 m",
+    "cty_cov_built": "built-up areas only", "cty_user_stops": "users' stops in the network",
+    "cty_map": "Map",
+})
+BN.update({
+    "cty_tab_stops": "যাত্রীদের স্টপ", "cty_t_stops": "অপেক্ষায় স্টপ",
+    "cty_stops_note": "অ্যাপের \"এখানে স্টপ যোগ করুন\" / \"এই বাস এখানে থামে\" (নাম ছাড়া, ফোনের নিজের জায়গায় এক ট্যাপ) আর যাত্রা থেকে শেখা স্টপ। ট্যাপের রিপোর্ট ৩ জন আলাদা মানুষ জানালে চালু হয়; যাত্রার স্টপ ৩টি আলাদা যাত্রার পরে। দুটোই \"যাত্রীদের জানানো\" লেবেলে দেখায়। বাতিল করলে সবার কাছ থেকে সরে যায়; গ্রহণ করলে এখনই যোগ হয়।",
+    "cty_src_field": "ট্যাপের রিপোর্ট", "cty_src_trips": "যাত্রা থেকে শেখা", "cty_bus": "বাস",
+    "cty_any_bus": "বলা হয়নি (১৫০ মি.-এর মধ্যে দিয়ে যাওয়া রুট)", "cty_live_cov": "এখনকার কভারেজ (যাত্রীদের স্টপসহ)",
+    "cty_cov_stops": "৭০০ মি.-এর মধ্যে স্টপ (মূল মাপ)", "cty_cov_corr": "আলাদা মাপ: ৭০০ মি.-এর মধ্যে দিয়ে বাস/লেগুনার রুট যায়",
+    "cty_cov_built": "শুধু বসতির এলাকা", "cty_user_stops": "নেটওয়ার্কে যাত্রীদের স্টপ",
+    "cty_map": "মানচিত্র",
+})
+# ---- /citycov ----
 # ---- /citydata ----
 # ---- quranpron ----
 EN.update({
@@ -2406,3 +2426,60 @@ BN.update({
     "lp_fix_first": "আগে ব্যর্থ যাচাইগুলো ঠিক করুন", "lp_none": "এখানে কিছু নেই।",
 })
 # ---- /lpcore ----
+
+# ---- adcontrol: Owner Admin -> Ad control (owner order 10 Nov 03:45) ----
+EN.update({
+    "nav_ad_control": "Ad control",
+    "adc_intro": "Every ad placement in the app, grouped by feature. Turn each one on or off and pick its ad type (only the types that fit that spot). AdMob is shown to FREE users only — Premium and Plus never see AdMob; your own Discover / brand cards are separate.",
+    "adc_live": "Changes apply live: the app re-reads this on start and on every return to the app (no new build). If the app cannot reach the server, emergency and safety placements stay OFF.",
+    "adc_on_count": "Placements on", "adc_days": "days",
+    "adc_estimate_note": "Income and eCPM come from Google's own per-impression values when AdMob sends them; until then they are an ESTIMATE (impressions x your eCPM guess below) and are marked 'estimate'. Exact AdMob reports need AdMob API access (owner item).",
+    "adc_caps": "Global caps", "adc_cap_gap": "Interstitial: minimum gap (seconds, at least 180 = 3 minutes)",
+    "adc_cap_daily": "Interstitial: daily cap per user (0-12)", "adc_cap_every": "List native: one card every N rows (15-20)",
+    "adc_cap_train": "Train live location: free minutes after one rewarded ad",
+    "adc_ecpm": "Estimated eCPM (Tk per 1,000 impressions, used only until real AdMob values exist)",
+    "adc_blocked": "Blocked ad categories (set in the AdMob console too)", "adc_rating": "Max ad content rating in the app",
+    "adc_on": "On", "adc_place": "Placement", "adc_type": "Ad type", "adc_default": "Default",
+    "adc_impr": "Impressions", "adc_income": "Income", "adc_est": "estimate", "adc_date": "Date",
+    "adc_safety": "Emergency / safety screen",
+    "adc_warn_title": "This is an emergency or safety screen — are you sure?",
+    "adc_warn_body": "People use these screens when they are in danger, worried, paying, or at a sensitive moment. An ad here can distract them or break trust. Nothing has been saved yet. Tick each screen you really want ads on, then confirm.",
+    "adc_warn_yes": "Yes, show ads on", "adc_warn_go": "Confirm and save", "adc_warn_cancel": "Cancel",
+})
+BN.update({
+    "nav_ad_control": "বিজ্ঞাপন নিয়ন্ত্রণ",
+    "adc_intro": "অ্যাপের প্রতিটি বিজ্ঞাপনের জায়গা, ফিচার অনুযায়ী সাজানো। প্রতিটি চালু/বন্ধ করুন আর বিজ্ঞাপনের ধরন বেছে নিন (শুধু যে ধরন ওই জায়গায় মানায়)। AdMob শুধু ফ্রি ব্যবহারকারীরা দেখেন — Premium ও Plus কখনো AdMob দেখেন না; আপনার নিজের ডিসকভার / ব্র্যান্ড কার্ড আলাদা।",
+    "adc_live": "পরিবর্তন সঙ্গে সঙ্গে চালু হয়: অ্যাপ খোলার সময় ও প্রতিবার অ্যাপে ফিরলে এটা আবার পড়ে (নতুন বিল্ড লাগে না)। অ্যাপ সার্ভারে পৌঁছাতে না পারলে জরুরি ও নিরাপত্তার জায়গা বন্ধই থাকে।",
+    "adc_on_count": "চালু জায়গা", "adc_days": "দিন",
+    "adc_estimate_note": "আয় ও eCPM আসে Google-এর নিজের প্রতি-ইমপ্রেশন মান থেকে, যখন AdMob তা পাঠায়; তার আগে এটা আনুমানিক (ইমপ্রেশন × নিচের আপনার eCPM অনুমান) এবং 'আনুমানিক' লেখা থাকে। AdMob-এর হুবহু রিপোর্টের জন্য AdMob API অ্যাক্সেস লাগবে (মালিকের কাজ)।",
+    "adc_caps": "সব জায়গার সীমা", "adc_cap_gap": "পূর্ণ পর্দার বিজ্ঞাপন: দুটির মাঝে কমপক্ষে (সেকেন্ড, অন্তত ১৮০ = ৩ মিনিট)",
+    "adc_cap_daily": "পূর্ণ পর্দার বিজ্ঞাপন: একজনের দিনে সর্বোচ্চ (০–১২)", "adc_cap_every": "তালিকার নেটিভ: প্রতি কত সারিতে একটি কার্ড (১৫–২০)",
+    "adc_cap_train": "ট্রেনের লাইভ অবস্থান: একটি বিজ্ঞাপনের পর কত মিনিট ফ্রি",
+    "adc_ecpm": "আনুমানিক eCPM (প্রতি ১,০০০ ইমপ্রেশনে টাকা; আসল AdMob মান আসা পর্যন্ত)",
+    "adc_blocked": "বন্ধ করা বিজ্ঞাপন বিভাগ (AdMob কনসোলেও সেট করুন)", "adc_rating": "অ্যাপে সর্বোচ্চ বিজ্ঞাপন রেটিং",
+    "adc_on": "চালু", "adc_place": "জায়গা", "adc_type": "বিজ্ঞাপনের ধরন", "adc_default": "ডিফল্ট",
+    "adc_impr": "ইমপ্রেশন", "adc_income": "আয়", "adc_est": "আনুমানিক", "adc_date": "তারিখ",
+    "adc_safety": "জরুরি / নিরাপত্তার পাতা",
+    "adc_warn_title": "এটা জরুরি বা নিরাপত্তার পাতা — আপনি কি নিশ্চিত?",
+    "adc_warn_body": "মানুষ এই পাতাগুলো ব্যবহার করেন বিপদে, দুশ্চিন্তায়, টাকা দেওয়ার সময় বা খুব সংবেদনশীল মুহূর্তে। এখানে বিজ্ঞাপন মনোযোগ নষ্ট করতে পারে বা আস্থা ভাঙতে পারে। এখনো কিছু সংরক্ষণ হয়নি। যে পাতায় সত্যিই বিজ্ঞাপন চান, প্রতিটিতে টিক দিয়ে নিশ্চিত করুন।",
+    "adc_warn_yes": "হ্যাঁ, বিজ্ঞাপন দেখাও", "adc_warn_go": "নিশ্চিত করে সংরক্ষণ", "adc_warn_cancel": "বাতিল",
+})
+# ---- /adcontrol ----
+# ---- discms ---- Discover = the owner's ads + updates slot (10 Nov)
+EN.update({
+    "dtype_feature": "Feature", "dtype_our_product": "Our product",
+    "dtype_sponsored": "Sponsored ad (labelled Ad)", "dtype_admob": "AdMob native ad slot",
+    "dtype_whats_new": "What's new (app update)", "dtype_offer": "Offer / promotion",
+    "dtype_ad_label": "Ad",
+    "discover_note": "Everyone sees your cards, free and Premium / Plus. Sponsored cards always carry the “Ad” label. The AdMob slot shows to Free users only (switch it in Ads → placements, “discover_native”); a booked Sponsored card takes the slot that day.",
+    "discms_rules": "No automatic expiry: a card stays until you change or remove it (End is optional). A card for a feature already on the Home tiles is not shown. A Sponsored card can never open an SOS, safety, child or Quran screen. Phones keep the last cards offline.",
+})
+BN.update({
+    "dtype_feature": "ফিচার", "dtype_our_product": "আমাদের পণ্য",
+    "dtype_sponsored": "স্পনসর্ড বিজ্ঞাপন (“বিজ্ঞাপন” লেবেলসহ)", "dtype_admob": "AdMob নেটিভ বিজ্ঞাপনের জায়গা",
+    "dtype_whats_new": "নতুন কী (অ্যাপ আপডেট)", "dtype_offer": "অফার / প্রচার",
+    "dtype_ad_label": "বিজ্ঞাপন",
+    "discover_note": "আপনার কার্ড সবাই দেখেন — ফ্রি ও প্রিমিয়াম / প্লাস। স্পনসর্ড কার্ডে সবসময় “বিজ্ঞাপন” লেবেল থাকে। AdMob-এর জায়গা শুধু ফ্রি ব্যবহারকারীরা দেখেন (বিজ্ঞাপন → জায়গা, “discover_native” থেকে চালু/বন্ধ); সেদিন স্পনসর্ড কার্ড থাকলে জায়গাটি স্পনসর পায়।",
+    "discms_rules": "নিজে থেকে মেয়াদ শেষ হয় না: আপনি না বদলানো বা না সরানো পর্যন্ত কার্ড থাকে (শেষ তারিখ ঐচ্ছিক)। হোমের টাইলে আগে থেকে থাকা ফিচারের কার্ড দেখানো হয় না। স্পনসর্ড কার্ড কখনো SOS, নিরাপত্তা, শিশু বা কুরআনের স্ক্রিন খোলে না। ইন্টারনেট না থাকলে ফোন শেষ কার্ডগুলো দেখায়।",
+})
+# ---- /discms ----

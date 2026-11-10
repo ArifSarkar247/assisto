@@ -65,6 +65,7 @@ import '../theme.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../ads/ad_privacy_tile.dart';
 import 'fall_detect_screen.dart';
+import '../perf/low_data.dart' show LowDataTile; // faststart
 import '../notiflisten/callmoney_screens.dart'; // callmoney
 import '../services/action_feedback.dart'; // db1
 import '../services/data_export.dart'; // framebar
@@ -223,6 +224,8 @@ class SettingsScreen extends StatelessWidget {
           ]),
           DsGroup(children: [
             const SettingsThemeSection(),
+            // faststart (owner 10 Nov): Low-data mode (pictures + calls)
+            const LowDataTile(),
           ]),
           DsGroup(children: [
             // acctmode (owner 2 Nov): accounts mode personal / business / both —

@@ -45,6 +45,14 @@ CAMERA_ALARM = "camera_alarm"
 # ---- cctvalerts (W3) ----
 LOITERING = "loitering"          # a person present > 2 min at night
 CAMERA_HEALTH = "camera_health"  # covered / moved / dark / SD-card failure
+# cctvdet (Guard V3 part C): zone detections decided on the box / phone
+GATE_PERSON = "gate_person"      # a person box at the shutter / gate zone
+POST_EMPTY = "post_empty"        # counter / post zone empty for N minutes
+GATE_OPEN = "gate_open"          # gate zone no longer looks "closed" for N min
+CROWD = "crowd"                  # >= N people in a zone for a while
+VEHICLE_IN_OUT = "vehicle_in_out"
+PARKING_OVERSTAY = "parking_overstay"
+WRONG_PARKING = "wrong_parking"
 
 # POS kinds (mirrors ShopPosEvent.KINDS) used for correlation.
 POS_SALE = "sale"
@@ -276,9 +284,37 @@ def combine(camera_event, pos_events, now=None, window_s=DEFAULT_WINDOW_S,
     # on the same camera >= 2 min at night) or the camera's native rule.
     # Night is part of the definition: never raised by day.
     if etype == LOITERING:
+        # cctvdet: the owner's DWELL zone (box / phone timed one visit in the
+        # zone; the server already checked the zone's schedule)
+        if extra.get("zone_dwell") and extra.get("human"):
+            return _result(True, etype, 0.7, ["person", "zone_dwell"])
         if not extra.get("night"):
             return _result(False, etype, 0.0, ["not_night"])
         return _result(True, etype, 0.7, ["person", "loiter_2min", "night"])
+
+    # ---- cctvdet: zone detections. Each needs its own observation flag
+    # (a person box in the gate zone / an absence / a picture change) next to
+    # the zone itself; the zone's schedule was checked by the caller.
+    if etype == GATE_PERSON:
+        if not (extra.get("person") and extra.get("zone_breach")):
+            return _result(False, etype, 0.0, ["no_person_in_zone"])
+        return _result(True, etype, 0.75, ["person", "gate_zone"])
+    if etype == POST_EMPTY:
+        if not extra.get("absent"):
+            return _result(False, etype, 0.0, ["no_absence"])
+        return _result(True, etype, 0.7, ["post_zone", "nobody_for_minutes"])
+    if etype == GATE_OPEN:
+        if not extra.get("gate_open"):
+            return _result(False, etype, 0.0, ["no_change"])
+        return _result(True, etype, 0.6, ["gate_zone", "not_like_closed_picture"])
+    if etype == CROWD:
+        if not (extra.get("crowd") and int(extra.get("count") or 0) >= 2):
+            return _result(False, etype, 0.0, ["no_crowd"])
+        return _result(True, etype, 0.7, ["people_count", "crowd_zone"])
+    if etype in (VEHICLE_IN_OUT, PARKING_OVERSTAY, WRONG_PARKING):
+        if not extra.get("vehicle"):
+            return _result(False, etype, 0.0, ["no_vehicle"])
+        return _result(True, etype, 0.7, ["vehicle", etype])
 
     # ---- cctvalerts: CAMERA HEALTH (covered / moved / dark / SD card) ----
     # A problem with the camera itself, not a person: raised any time (the

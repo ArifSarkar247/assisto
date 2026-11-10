@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../ads/ad_banner_slot.dart';
+import '../../ads/ad_reward_gate.dart'; // adcontrol
 import '../../api.dart';
 import '../../feature_flags.dart';
 import '../../l10n/app_localizations.dart';
@@ -79,10 +80,17 @@ class TrainTrackerScreen extends StatelessWidget {
           const SizedBox(height: Gap.md),
           Text(t.trDataNote2, style: AType.bodySmall),
         ],
-        onPick: (tr, date) => Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) => TrainLiveScreen(no: '${tr['no']}', date: date))),
+        // adcontrol (owner 10 Nov): one rewarded ad to see a train live,
+        // then free for 15 min (owner-editable); never blocks (no ad -> open)
+        onPick: (tr, date) => AdRewardGate.run(context,
+            placement: 'train_live_unlock',
+            grant: AdGateGrant.window,
+            unlockId: 'train_live',
+            what: t.adGateWhatTrain,
+            action: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => TrainLiveScreen(no: '${tr['no']}', date: date)))),
       ),
     );
   }
@@ -248,7 +256,13 @@ class _TrainSearchPanelState extends State<TrainSearchPanel> {
 
 class TrainLiveScreen extends StatefulWidget {
   final String no, date;
-  const TrainLiveScreen({super.key, required this.no, required this.date});
+
+  /// adcontrol (owner 10 Nov): false when a family member watches a
+  /// relative's ACTIVE train journey or the traveller's own Safe Journey —
+  /// no ad there (registry row train_family_watch, default OFF).
+  final bool showAds;
+  const TrainLiveScreen(
+      {super.key, required this.no, required this.date, this.showAds = true});
 
   @override
   State<TrainLiveScreen> createState() => _TrainLiveScreenState();
@@ -364,7 +378,9 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
       // owner fix 3 Nov: ONE banner below the page (Scaffold lays the body,
       // its map and the 999 / 131 buttons out ABOVE it — never covered);
       // the 999 / 131 buttons sit high on the page, far from it
-      bottomNavigationBar: const AdBannerSlot(screen: 'train_detail'),
+      bottomNavigationBar: widget.showAds
+          ? const AdBannerSlot(screen: 'train_detail')
+          : SizedBox(height: MediaQuery.paddingOf(context).bottom),
       body: v == null
           ? Center(
               child: _failed

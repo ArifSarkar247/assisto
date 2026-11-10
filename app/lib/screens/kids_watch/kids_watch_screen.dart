@@ -21,6 +21,7 @@ import 'chip_widgets.dart';
 import 'kw_recorder.dart';
 import 'school_plan_form.dart';
 import '../../safe_plans/safe_plans_screen.dart' show showSafeCreditsOutSheet; // safeplans
+import '../../widgets/num_input.dart'; // savesweep
 
 /// kidswatch (owner idea 2, 28 Oct) — the PARENT side: kids GPS watches and
 /// School Mode plans. Behind the server flag `kids_watch` (route owned by it).
@@ -688,7 +689,7 @@ class _PairWatchSheetState extends State<_PairWatchSheet> {
         TextField(
           controller: _code,
           keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(
               labelText: t.kwCodeLabel,
               helperText: t.kwCodeHelp,

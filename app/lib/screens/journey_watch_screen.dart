@@ -201,6 +201,7 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
                   onOpen: jmTrainOn
                       ? () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => TrainLiveScreen(
+                              showAds: false,
                               no: '${(j['train'] as Map)['no']}',
                               date: '${(j['train'] as Map)['date']}')))
                       : null),

@@ -36,7 +36,7 @@
   </form>
   {% if preview %}
   <div class="phone">{% for p in preview %}
-    <div class="pcard">{% if p.type == 'ADMOB' %}<span class="pill">{{ T.ad_slot }}</span>{% else %}{% if p.label == 'sponsored' %}<span class="pill spons">{{ T.sponsored }}</span>{% elif p.label == 'our_products' %}<span class="pill">{{ T.our_products }}</span>{% endif %}
+    <div class="pcard">{% if p.type == 'ADMOB' %}<span class="pill">{{ T.ad_slot }}</span>{% else %}{% if p.label == 'sponsored' %}<span class="pill spons">{{ T.dtype_ad_label }}</span>{% elif p.label == 'our_products' %}<span class="pill">{{ T.our_products }}</span>{% elif p.label == 'whats_new' %}<span class="pill">{{ T.dtype_whats_new }}</span>{% elif p.label == 'offer' %}<span class="pill">{{ T.dtype_offer }}</span>{% endif %}
       {% if p.image_url %}<img src="{{ p.image_url }}" alt="">{% endif %}
       <b>{% if lang == 'en' %}{{ p.title.en }}{% else %}{{ p.title.bn|default:p.title.en }}{% endif %}</b>
       <small>{% if lang == 'en' %}{{ p.description.en }}{% else %}{{ p.description.bn|default:p.description.en }}{% endif %}</small>

@@ -202,7 +202,7 @@ void main() {
     expect(find.text('20/20 contacts'), findsOneWidget); // usage
     final buy = find.byKey(const Key('pv2-upgrade-buy'));
     expect(buy, findsOneWidget);
-    expect(find.textContaining('৳199'), findsOneWidget);
+    expect(find.textContaining('৳199'), findsNWidgets(2)); // buyinside: price button + then-line
     expect(find.textContaining('BDT 199.00'), findsNothing); // never Play's on the APK
     expect(billing.priceQueries, isEmpty); // the APK never asks Play
     await tester.tap(buy);
@@ -215,7 +215,7 @@ void main() {
     final b = FakePaymentsBackend();
     await _open(tester, _write, b: b, flavour: 'play');
     expect(find.text('CRM is view only on Free'), findsOneWidget);
-    expect(find.textContaining('BDT 199.00'), findsOneWidget);
+    expect(find.textContaining('BDT 199.00'), findsNWidgets(2)); // buyinside: price button + then-line
     expect(find.textContaining('৳199'), findsNothing);
     expect(billing.priceQueries.single, contains('assisto_premium'));
     expect(find.byKey(const Key('pv2-upgrade-buy')), findsOneWidget);
@@ -251,7 +251,7 @@ void main() {
           calls++;
           return {'ok': true, 'trial_plan': 'business', 'trial_until': '2026-11-03T10:00:00Z'};
         });
-    expect(find.text('Start the free 7-day Business trial'), findsOneWidget);
+    expect(find.text('Start 7 days free'), findsOneWidget); // buyinside: owner-approved copy
     expect(find.textContaining('no card needed'), findsOneWidget);
     expect(find.textContaining('nothing is charged'), findsOneWidget);
     await tester.tap(find.byKey(const Key('pv2-trial')));
@@ -275,7 +275,7 @@ void main() {
         scale: 2,
         dark: true);
     expect(find.text('২০/২০ কন্টাক্ট'), findsOneWidget);
-    expect(find.textContaining('৳১৯৯'), findsOneWidget);
+    expect(find.textContaining('৳১৯৯'), findsNWidgets(2)); // buyinside: price button + then-line
     expect(tester.takeException(), isNull);
     // every tappable is at least 48 dp tall
     for (final f in [

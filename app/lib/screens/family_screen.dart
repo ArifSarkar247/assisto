@@ -27,6 +27,7 @@ import '../services/action_feedback.dart'; // db1
 import '../family_alerts_api.dart'; // family100
 import '../widgets/family_push_banner.dart'; // family100
 import 'family_alerts_screen.dart'; // family100
+import '../widgets/num_input.dart'; // savesweep
 
 class FamilyScreen extends StatefulWidget {
   /// famcare: open on a tab — 'family' | 'accounting' | 'school' |
@@ -616,14 +617,14 @@ class _FamilyScreenState extends State<FamilyScreen> {
         'member': memberId,
         // clearable: send the key even when empty so the server unsets it
         'stock_count':
-            stock.text.trim().isEmpty ? null : num.tryParse(stock.text.trim()),
+            stock.text.trim().isEmpty ? null : parseNumInput(stock.text.trim()),
         'duration_days': duration.text.trim().isEmpty
             ? null
-            : int.tryParse(duration.text.trim()),
+            : parseIntInput(duration.text.trim()),
         'refill_date': refill.text.trim().isEmpty ? null : refill.text.trim(),
-        'followup_repeat_min': int.tryParse(repeat.text.trim()) ?? 15,
-        'followup_retries': int.tryParse(retries.text.trim()) ?? 2,
-        'caregiver_alert_min': int.tryParse(caregiverMin.text.trim()) ?? 30,
+        'followup_repeat_min': parseIntInput(repeat.text.trim()) ?? 15,
+        'followup_retries': parseIntInput(retries.text.trim()) ?? 2,
+        'caregiver_alert_min': parseIntInput(caregiverMin.text.trim()) ?? 30,
         'quiet_start': quietStart.text.trim(),
         'quiet_end': quietEnd.text.trim(),
       };

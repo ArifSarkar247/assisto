@@ -119,10 +119,15 @@ def _card_snapshot(card):
     return json.loads(json.dumps(p, default=str))
 
 
-def _discover_meta():
+def _discover_meta(request=None):
     from core.logic import discover as D
-    return {"types": D.TYPES, "audiences": D.AUDIENCES, "routes": D.ROUTE_KEYS,
-            "icons": D.ICONS, "segments": D.SEGMENTS}
+    from .i18n import strings
+    T = strings(getattr(request, "owner_lang", "bn"))
+    # discms: the type picker shows plain names ("What's new", "Offer",
+    # "Sponsored (labelled Ad)", "AdMob ad slot") instead of codes
+    type_opts = [(t, T.get("dtype_" + t.lower(), t)) for t in D.TYPES]
+    return {"types": D.TYPES, "type_opts": type_opts, "audiences": D.AUDIENCES,
+            "routes": D.ROUTE_KEYS, "icons": D.ICONS, "segments": D.SEGMENTS}
 
 
 def _local_input(dt):
@@ -146,13 +151,13 @@ def discover_list(request):
     preview = [app_payload(c) for c in cards_for(seg, build)]
     return page(request, "owner/discover_list.html",
                 {"cards": cards, "preview": preview, "seg": seg, "build": build,
-                 "ids": ",".join(str(c["id"]) for c in cards), **_discover_meta()},
+                 "ids": ",".join(str(c["id"]) for c in cards), **_discover_meta(request)},
                 nav="discover")
 
 
 def _render_card_form(request, card, errors=None, safety=None, status=200, data=None):
     ctx = {"card": card, "errors": errors or {}, "safety": safety or [],
-           "data": data or {}, **_discover_meta()}
+           "data": data or {}, **_discover_meta(request)}
     if card is not None and card.pk:
         ctx["start_local"] = _local_input(card.start_at)
         ctx["end_local"] = _local_input(card.end_at)

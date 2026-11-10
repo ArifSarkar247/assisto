@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../api.dart' show ApiException;
 import '../l10n/app_localizations.dart';
+import '../plans_v2/buy_inside.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
@@ -74,6 +75,16 @@ class _DayPlannerScreenState extends State<DayPlannerScreen> {
       if (!mounted) return;
       setState(() => _advice = lines);
     } on ApiException catch (e) {
+      if (!mounted) return;
+      // buyinside: out of credits -> the credits sheet here, then the same
+      // polish runs once by itself
+      var again = false;
+      if (await BuyInside.handle(context, e, 'day_planner',
+          then: (ok) => again = ok)) {
+        if (again && mounted) return _polish();
+        if (mounted) setState(() => _aiBusy = false);
+        return;
+      }
       if (!mounted) return;
       setState(() => _aiMessage = e.message);
     } catch (_) {

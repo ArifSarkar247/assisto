@@ -10,6 +10,7 @@ import '../../../theme.dart';
 import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
 import 'seller_agent_screen.dart' show asciiDigits, baErrorText, bd;
+import '../../../widgets/num_input.dart'; // savesweep
 
 /// G1 — the advanced Business AI Agent ("Night Salesman") seller screens:
 ///
@@ -181,7 +182,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
           FilledButton(
             onPressed: _busy
                 ? null
-                : () => _save({key: int.tryParse(asciiDigits(c.text.trim())) ?? fallback}),
+                : () => _save({key: parseIntInput(asciiDigits(c.text.trim())) ?? fallback}),
             child: Text(t.g1Save),
           ),
         ]),
@@ -289,7 +290,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
             FilledButton(
               onPressed: _busy
                   ? null
-                  : () => _save({'resume_minutes': int.tryParse(asciiDigits(_resume.text)) ?? 15}),
+                  : () => _save({'resume_minutes': parseIntInput(asciiDigits(_resume.text)) ?? 15}),
               child: Text(t.g1Save),
             ),
           ]),
@@ -372,8 +373,8 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
             onPressed: _busy
                 ? null
                 : () {
-                    final q = int.tryParse(asciiDigits(_bundleQty.text));
-                    final p = double.tryParse(asciiDigits(_bundlePct.text));
+                    final q = parseIntInput(asciiDigits(_bundleQty.text));
+                    final p = parseNumInput(asciiDigits(_bundlePct.text));
                     _save({
                       'bundle_rules': (q == null || p == null)
                           ? []

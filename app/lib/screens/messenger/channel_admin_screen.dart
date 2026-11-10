@@ -10,6 +10,7 @@ import '../../widgets/msgr_channel_common.dart';
 import '../../widgets/msgr_channel_post_card.dart';
 import 'channel_list_screen.dart' show msgrChannelCategories;
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// Assisto Messenger — CHANNEL admin console (Step 3).
 ///
@@ -906,7 +907,7 @@ class _AdminsTabState extends State<_AdminsTab> {
               child: Text(t.channelCancel)),
           FilledButton(
             onPressed: () =>
-                Navigator.pop(context, int.tryParse(controller.text.trim())),
+                Navigator.pop(context, parseIntInput(controller.text.trim())),
             child: Text(t.channelAddAdmin),
           ),
         ],

@@ -13,6 +13,7 @@ import '../theme.dart';
 import '../widgets/rewarded_ad_sheet.dart';
 import '../widgets/subs_common.dart' show fmtInt;
 import '../screens/credits_screen.dart'; // billapp: "see my credits"
+import '../plans_v2/buy_inside.dart' show BuyOrigin;
 import 'checkout_sheet.dart';
 import 'payments_api.dart';
 import 'play_prices.dart';
@@ -72,6 +73,7 @@ class CreditsOut {
       PaymentsBackend? backend,
       String? flavour}) async {
     final o = debugOffer;
+    BuyOrigin.current = screen; // buyinside: where the purchase started
     if (o != null) return o(context, screen: screen, draftKept: draftKept);
     if (_open || !context.mounted) return false; // double 402 / double tap
     _open = true;
@@ -107,7 +109,15 @@ class CreditsOut {
 }
 
 /// Reasons our server uses for "not enough credits".
-const _creditReasons = {'credits', 'out_of_credits', 'insufficient'};
+const _creditReasons = {
+  'credits',
+  'out_of_credits',
+  'insufficient',
+  // buyinside: the other spellings the server uses for the same moment
+  // (vehicle tracker, business AI) now open the same sheet
+  'no_credits',
+  'ai_insufficient',
+};
 
 /// True when an API error is the server's out-of-credits answer.
 bool isOutOfCredits(Object? e) =>
@@ -136,7 +146,12 @@ class CreditsOutSheet extends StatefulWidget {
     this.watchAd,
     this.gatewayCheckout,
     this.need = 0,
+    this.adsPerAnswer,
   });
+
+  /// aimoney (owner 10 Nov 03:45): ads for ONE Normal answer today — the
+  /// server's daily number (`/ads/wallet` ads_per_answer). Tests inject it.
+  final Future<int?> Function(BuildContext context)? adsPerAnswer;
 
   /// billapp: credits the refused task needs (the server's 402 `need`).
   final int need;
@@ -166,6 +181,7 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
   PayConfig? _cfg;
   bool _pricesLoading = false;
   bool _ads = false;
+  int? _adsN; // aimoney: the server's N (null = not known -> no number shown)
   String? _busySku; // a purchase is running (double-tap guard)
   String _note = '';
   bool _noteBad = false;
@@ -203,9 +219,26 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
         ads = false;
       }
     }
+    // aimoney: the honest daily number from the server, never typed here
+    int? n;
+    if (ads) {
+      try {
+        final f = widget.adsPerAnswer;
+        if (f != null) {
+          n = await f(context);
+        } else {
+          final w = await context.read<AppState>().api.adsWallet();
+          final v = w['ads_per_answer'];
+          n = v is num ? v.toInt() : null;
+        }
+      } catch (_) {
+        n = null;
+      }
+    }
     if (!mounted) return;
     setState(() {
       _ads = ads;
+      _adsN = (n != null && n > 0) ? n : null;
       _s = _S.list;
     });
     if (_play) await _loadPrices();
@@ -572,8 +605,24 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
     }
   }
 
+  /// buyinside: the pack with the most credits per taka is marked "Best
+  /// value" (৳399 = 140 today) — computed from the real numbers, never typed.
+  String? get _bestSku {
+    final l = _packs;
+    if (l.length < 2) return null;
+    PayProduct? best;
+    for (final p in l) {
+      if (p.priceBdt <= 0) continue;
+      if (best == null || p.credits / p.priceBdt > best.credits / best.priceBdt) {
+        best = p;
+      }
+    }
+    return best?.sku;
+  }
+
   Widget _packRow(AppLocalizations t, ColorScheme scheme, PayProduct p) {
     final busy = _busySku == p.sku;
+    final bestValue = p.sku == _bestSku;
     final enabled = _busySku == null && _priced(p);
     final credits = t.qa1CreditsN(fmtInt(context, p.credits));
     final price = _price(t, p);
@@ -606,8 +655,30 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(credits,
-                            style: const TextStyle(fontWeight: FontWeight.w700)),
+                        Wrap(
+                            spacing: Gap.sm,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(credits,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700)),
+                              if (bestValue)
+                                Container(
+                                  key: ValueKey('credout-best-${p.sku}'),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: Gap.sm, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: scheme.tertiaryContainer,
+                                    borderRadius:
+                                        BorderRadius.circular(Radii.sm),
+                                  ),
+                                  child: Text(t.biBestValue,
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: scheme.onTertiaryContainer)),
+                                ),
+                            ]),
                         if (bonus > 0)
                           Text(t.credoutBonus(fmtInt(context, bonus)),
                               style: TextStyle(
@@ -648,6 +719,13 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
                 horizontal: Gap.md, vertical: Gap.sm)),
         onPressed: _busySku == null ? _watch : null,
         icon: const Icon(Icons.ondemand_video_rounded),
-        label: Text(t.credoutWatchAd, textAlign: TextAlign.center),
+        // buyinside + aimoney: the honest server rule — N ads = 1 Normal
+        // answer (N recomputed daily on the server), within the daily ad cap;
+        // N unknown -> the plain line with no number
+        label: Text(
+            _adsN != null
+                ? t.aimAdsOutRow(fmtInt(context, _adsN!))
+                : t.credoutWatchAd,
+            textAlign: TextAlign.center),
       );
 }

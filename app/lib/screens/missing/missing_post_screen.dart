@@ -17,6 +17,7 @@ import '../../widgets/app_sheet.dart';
 import '../../widgets/permission_reason.dart';
 import 'ma_common.dart';
 import '../../widgets/local_counter.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// missing (owner 2 Nov) — post a missing person alert. One screen, top to
 /// bottom: who (My Circle family / a Family entry / someone else in the
@@ -106,7 +107,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
   void _snack(String m) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
 
-  int? get _ageVal => int.tryParse(maAsciiDigits(_age.text.trim()));
+  int? get _ageVal => parseIntInput(maAsciiDigits(_age.text.trim()));
   int get _childUnder => (_cfg['child_under'] as int?) ?? 18;
   bool get _isChild => _ageVal != null && _ageVal! < _childUnder;
 

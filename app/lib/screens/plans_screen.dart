@@ -14,7 +14,8 @@ import '../payments/checkout_sheet.dart'; // pay1
 import '../services/error_kind.dart' show serverFailText; // qa2
 import '../payments/payments_api.dart'
     show ApiPaymentsBackend, PayConfig, PayProduct, payFlavour; // pay1
-import '../payments/play_restore.dart'; // pay-e2e
+import '../payments/play_restore.dart';
+import '../plans_v2/plans_buy_section.dart'; // buyinside // pay-e2e
 import '../payments/store_billing.dart'; // pay-e2e
 import '../payments/play_prices.dart'; // credout: Play's own prices
 import '../plans_v2/plans_v2.dart'; // plans-v2
@@ -383,6 +384,8 @@ class _PlansScreenState extends State<PlansScreen> {
       ),
       ..._v2Trial(t, scheme),
       ..._payBanner(t, scheme),
+      // buyinside: recommendation from real usage + CCTV plan + manage/cancel
+      const PlansBuySection(),
       const SizedBox(height: Gap.lg),
       _safetyPromise(t, scheme),
       const SizedBox(height: Gap.md),

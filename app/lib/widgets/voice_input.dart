@@ -13,6 +13,8 @@ import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../l10n/app_localizations.dart';
+import '../plans_v2/buy_inside.dart';
+import '../payments/credits_out_sheet.dart' show isOutOfCreditsBody;
 import '../state.dart';
 import '../theme.dart';
 import 'permission_reason.dart';
@@ -507,6 +509,20 @@ class VoiceDictation extends ChangeNotifier {
     });
     if (r['use_phone'] == true && '${r['message'] ?? ''}'.isNotEmpty) {
       debugSetServerOff('${r['message']}'); // geminioff: honest, no retry loop
+    }
+    // buyinside: out of credits -> the credits sheet right here; after a
+    // purchase the same recording is transcribed once (nothing is lost)
+    if (r['ok'] != true &&
+        isOutOfCreditsBody(r) &&
+        context.mounted &&
+        await BuyInside.open(context, 'voice_input', draftKept: true) &&
+        context.mounted) {
+      final r2 = await context.read<AppState>().api.postJsonRaw('/voice/transcribe', {
+        'audio_b64': base64Encode(wav),
+        'mime': 'audio/wav',
+        'lang': lang,
+      });
+      return r2['ok'] == true ? (r2['text'] ?? '').toString() : null;
     }
     return r['ok'] == true ? (r['text'] ?? '').toString() : null;
   }

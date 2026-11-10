@@ -73,7 +73,7 @@
   "lib/p3/scam_banner.dart": 4,
   "lib/p3/story_privacy_sheet.dart": 2,
   "lib/payments/checkout_sheet.dart": 8,
-  "lib/payments/credits_out_sheet.dart": 9,
+  "lib/payments/credits_out_sheet.dart": 10,
   "lib/phonecam/phone_camera_screen.dart": 15,
   "lib/phonecam/phonecam_pair_sheet.dart": 3,
   "lib/photo_studio/ps_export.dart": 1,
@@ -242,7 +242,7 @@
   "lib/screens/journey_fake_call_screen.dart": 3,
   "lib/screens/journey_map_pick_screen.dart": 1,
   "lib/screens/journey_sos_screen.dart": 4,
-  "lib/screens/journey_start_screen.dart": 1,
+  "lib/screens/journey_start_screen.dart": 2,
   "lib/screens/kid_school_screen.dart": 4,
   "lib/screens/kids_watch/chip_widgets.dart": 2,
   "lib/screens/kids_watch/kids_watch_screen.dart": 4,
@@ -264,7 +264,7 @@
   "lib/screens/market/market_widgets.dart": 2,
   "lib/screens/meetings_screen.dart": 10,
   "lib/screens/memory_screen.dart": 4,
-  "lib/screens/mess_accounting_screen.dart": 4,
+  "lib/screens/mess_accounting_screen.dart": 7,
   "lib/screens/messenger/admin_moderation_screen.dart": 9,
   "lib/screens/messenger/admin_users_screen.dart": 9,
   "lib/screens/messenger/broadcast_lists_screen.dart": 2,
@@ -605,7 +605,7 @@
   "lib/widgets/remote_switches_card.dart": 1,
   "lib/widgets/reset_options.dart": 3,
   "lib/widgets/reset_strength_meter.dart": 2,
-  "lib/widgets/rewarded_ad_sheet.dart": 7,
+  "lib/widgets/rewarded_ad_sheet.dart": 8,
   "lib/widgets/ride_widgets.dart": 7,
   "lib/widgets/rn_bits.dart": 3,
   "lib/widgets/safety_checkin_card.dart": 3,
@@ -636,7 +636,19 @@
   "lib/widgets/watch_card.dart": 2,
   "lib/widgets/watch_sources_sheet.dart": 2,
   "lib/widgets/wrapped_cards.dart": 19,
-  "lib/world/world_widgets.dart": 1
+  "lib/world/world_widgets.dart": 1,
+  "lib/widgets/mess_group_card.dart": 4,
+  "lib/screens/lp2/lp_companion.dart": 6,
+  "lib/screens/lp2/lp_vocab.dart": 4,
+  "lib/screens/lp2/lp_mock.dart": 24,
+  "lib/screens/lp2/lp_score.dart": 6,
+  "lib/screens/lp2/lp_life.dart": 13,
+  "lib/screens/lp2/lp_ui.dart": 9,
+  "lib/screens/mess/mess_sheets.dart": 7,
+  "lib/screens/mess/mess_detail_screen.dart": 9,
+  "lib/quran/ayah_view_screen.dart": 3,
+  "lib/plans_v2/plans_buy_section.dart": 4,
+  "lib/plans_v2/cctv_locked_sheet.dart": 5
  },
  "color": {
   "lib/growth/branded_share.dart": 5,
@@ -671,6 +683,7 @@
   "lib/widgets/nearby_data.dart": 10,
   "lib/widgets/ref_leaderboard.dart": 3,
   "lib/widgets/safety_checkin_card.dart": 1,
-  "lib/widgets/sos_button.dart": 1
+  "lib/widgets/sos_button.dart": 1,
+  "lib/city/map/assisto_map_view.dart": 1
  }
 }

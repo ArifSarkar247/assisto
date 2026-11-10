@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../ads/ad_spot_card.dart'; // adcontrol
 import '../ads/sponsor_api.dart';
 import '../ads/sponsor_models.dart';
 import '../ads/sponsor_widgets.dart';
@@ -409,6 +410,10 @@ class _OffersFeedScreenState extends State<OffersFeedScreen> {
                                   o.where((x) => x.sponsorId != c.sponsorId).toList());
                             },
                           ),
+                        // adcontrol (owner 10 Nov): one AdMob native card
+                        // under the offers (Free only; brand offers stay
+                        // for everyone)
+                        const AdSpotCard(placement: 'offers_list'),
                       ],
                     ),
     );

@@ -153,7 +153,11 @@ class ShopClipUploadView(APIView):
                 raw_meta = json.loads(raw_meta)
             except ValueError:
                 raw_meta = None
-        probs = PCL.preview_meta_problems(raw_meta) if phone else \
+        # cctvdet: a Shop Box detection alert carries the 10 s clip (the same
+        # ACG1 preview envelope as the phone's: 2-12.5 s, <= 40 frames)
+        from .logic import cctv_detect as CD
+        long_clip = ev.type in CD.LONG_CLIP_TYPES
+        probs = PCL.preview_meta_problems(raw_meta) if (phone or long_clip) else \
             CG.clip_meta_problems(raw_meta)
         if probs:
             return _err(lang, "ক্লিপের তথ্য ঠিক নেই।", "The clip envelope is not valid.",

@@ -1,0 +1,100 @@
+{
+  "_doc": "cctvacc: ONE set of CCTV detection thresholds for the phone app (app/lib/shop_motion.dart + guard_box_model.dart -> GuardBoxChannel.kt) and the Shop Box (shopbox/motion_gate.py, shopbox/night.py). Both test suites assert their constants equal this file. Measured by tools/e2e/cctv_accuracy.py (CI).",
+  "person_score_day": 0.45,
+  "person_score_night": 0.3,
+  "night_side": 416,
+  "night_spread_max": 10.0,
+  "night_luma_max": 40.0,
+  "night_pre": "clahe",
+  "night_clahe_clip": 2.0,
+  "night_clahe_tiles": 8,
+  "night_gamma_target": 0.45,
+  "night_confirm": 2,
+  "night_confirm_gap_s": 2.0,
+  "motion": {
+    "grid_w": 32,
+    "grid_h": 24,
+    "cell_thr": 14.0,
+    "k_sigma": 3.0,
+    "sigma0": 4.0,
+    "var_learn": 0.1,
+    "var_cap": 3600.0,
+    "bg_learn": 0.08,
+    "ratio_min": 0.6,
+    "ratio_max": 1.6667,
+    "global_frac": 0.35,
+    "min_blob": 3,
+    "min_fresh": 2,
+    "fresh_diff": 7.0,
+    "stable_frames": 2,
+    "hold_frames": 2,
+    "confirm_frames": 3
+  },
+  "_doc_pixel": "cctvacc2: the phone's second, pixel-level motion check (motion_gate.PixelCheck = shop_motion.dart PixelCheck). diff = the phone's threshold (40: its 80x60 point-sampled plane is noisier than the box's blurred 320-px image; picked on the development sequences of CI run 42672672391 = lowest diff with precision >= 90 on all three sets, reported on that run's held-out sequences); box_diff / learn / scene_frac = the Shop Box pixel path (motion.py MotionDetector defaults).",
+  "pixel": {
+    "w": 80,
+    "h": 60,
+    "samples": 3,
+    "diff": 40.0,
+    "learn": 0.05,
+    "scene_frac": 0.6,
+    "min_area": 6,
+    "box_diff": 25.0
+  },
+  "_doc_detect": "cctvdet: zone detections (shopbox/detect_rules.py = app/lib/cctv/detect_rules.dart): person at gate, loitering, post empty, gate open, tamper. 'measured' = precision/recall per detection from the cctv-accuracy CI job (tools/e2e/cctv_accuracy.py --detections); the alert shows that measured precision as its honest confidence.",
+  "detect": {
+    "zone_hit_points": 2,
+    "gate_confirm": 2,
+    "presence_gap_s": 10.0,
+    "dwell_s_default": 120,
+    "absent_min_default": 5,
+    "open_min_default": 10,
+    "post_check_s": 30.0,
+    "presence_check_s": 2.0,
+    "patch_w": 16,
+    "patch_h": 12,
+    "gate_closed_sim": 0.6,
+    "tamper_every_s": 30.0,
+    "bad_persist_s": 60,
+    "moved_min_gap_s": 120,
+    "post_presence_score": 0.25,
+    "crowd_s_default": 60,
+    "veh_gap_s": 90.0,
+    "veh_check_s": 10.0,
+    "veh_still": 0.06,
+    "overstay_min_default": 60,
+    "wrong_s_default": 120,
+    "track_max_jump": 0.25,
+    "moved_shape_sim": 0.35,
+    "moved_shape_keep": 0.6
+  },
+  "measured": {
+    "_run": "42664700860",
+    "_set": "COCO val2017 licensed images, synthetic CCTV scenarios (tools/e2e/cctv_detect_accuracy.py, n=30/kind)",
+    "camera_health": {
+      "n": 330,
+      "p": 0.9907,
+      "r": 0.7067
+    },
+    "gate_open": {
+      "n": 240,
+      "p": 1.0,
+      "r": 0.9556
+    },
+    "gate_person": {
+      "n": 180,
+      "p": 0.9388,
+      "r": 0.7667
+    },
+    "loitering": {
+      "n": 180,
+      "p": 0.8913,
+      "r": 0.6833
+    },
+    "post_empty": {
+      "n": 120,
+      "p": 0.72,
+      "r": 0.6
+    }
+  }
+}

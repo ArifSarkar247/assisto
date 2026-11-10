@@ -528,6 +528,11 @@ def issue_ticket(user, job, lang="bn"):
         return 409, {"ok": False, "reason": "not_awaiting_ads"}
     if _verified_count(job) >= job.ads_required:
         return 409, {"ok": False, "reason": "already_funded"}
+    from .admob_service import placement_on
+    if not placement_on("photo_studio"):
+        # adcontrol: the owner switched this placement off (Ad control)
+        return 409, {"ok": False, "reason": "ads_off",
+                     "message": funding_message("ads_not_live", lang)}
     units = _ad_units()
     if not units.get("_configured"):
         # photo-final: AdMob on Google TEST ids -> Google's SSV never verifies

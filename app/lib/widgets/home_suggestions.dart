@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../ads/hero_ad.dart' show HomeAdGuard;
+import '../ads/ads_service.dart' show AdsService;
+import '../ads/hero_ad.dart'
+    show HeroAdBridge, HeroAdConfig, HeroAdHandle, HeroAdLook, HeroAdSize, HomeAdGuard;
+import '../ads/hero_binding.dart' show createHeroAdBridge; // discms
 import '../discover_api.dart';
 import '../feature_flags.dart';
 import '../home_api.dart';
@@ -16,6 +19,7 @@ import '../theme.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding, SchedulerPhase; // svcclean
 import 'chatnav.dart';
 import 'home_quick_buttons.dart' show HomeQuickButtons; // svcclean
+import '../perf/disk_image.dart'; // faststart
 import '../services/action_feedback.dart'; // db1
 import '../screens/home_v2/home_v2_tokens.dart'; // home_v2
 
@@ -33,7 +37,11 @@ import '../screens/home_v2/home_v2_tokens.dart'; // home_v2
 ///   * picks the bn/en copy by the user's UI language,
 ///   * opens in-app routes via [ChatNav] or https links externally,
 ///   * records impressions + taps fire-and-forget (never blocks the UI),
-///   * renders NOTHING for ADMOB cards: AdMob is not linked in the app yet.
+///   * discms (owner 10 Nov): the ADMOB slot (Free users only — the server
+///     never sends it to Premium / Plus / Business) shows one AdMob NATIVE ad
+///     in the same card size, placement `discover_native` (owner's Ad
+///     control switch). No fill / offline / switch off -> the slot is simply
+///     left out, never an empty card.
 ///
 /// Personalisation stays client-side: feature cards the user already opened
 /// move behind unopened ones, inside the feature slots only (sponsored and
@@ -60,6 +68,15 @@ class HomeSuggestions extends StatefulWidget {
   /// SharedPreferences key holding the last server card set (JSON list).
   static const cacheKey = 'discover_cards_cache_v1';
 
+  /// discms: the owner's Ad control placement of the Discover native slot.
+  static const adPlacement = 'discover_native';
+
+  /// Tests / gallery: a fake native-ad bridge and /ads/config.
+  @visibleForTesting
+  static HeroAdBridge? debugAdBridge;
+  @visibleForTesting
+  static Future<Map<String, dynamic>> Function()? debugAdConfig;
+
   @override
   State<HomeSuggestions> createState() => _HomeSuggestionsState();
 }
@@ -77,6 +94,16 @@ const Set<String> kDiscoverProtectedRoutes = {
   'voice_sos',
   'blood_panel',
   'blood_donor', // ownerfix: old-link alias of the same panel
+  // discms (lead 10 Nov): no ad next to a child, Quran or family-safety card
+  'quran',
+  'quran_learn',
+  'kids_watch',
+  'school_mode',
+  'kid_audio',
+  'missing_alert',
+  'carecall',
+  'elder_watch',
+  'family_alerts',
 };
 
 /// ownerfix (owner 3 Nov): the owner's lead cards after SOS — Train tracker,
@@ -314,9 +341,12 @@ List<DiscoverItem> withoutHomeTiles(List<DiscoverItem> cards, Set<String> shown)
               if (c.route.isEmpty || !shown.contains(HomeQuickButtons.canon(c.route))) c
           ];
 
-List<DiscoverItem> renderableDiscover(List<DiscoverItem> items) =>
+/// discms: [admobReady] = a native ad is loaded for the Discover slot; the
+/// ADMOB card renders only then (no empty / placeholder card).
+List<DiscoverItem> renderableDiscover(List<DiscoverItem> items,
+        {bool admobReady = false}) =>
     separateDiscoverAds(items.where((c) {
-      if (c.isAdmob) return false;
+      if (c.isAdmob) return admobReady;
       if (c.route.isNotEmpty) {
         return ChatNav.routes.containsKey(c.route) &&
             !FeatureFlags.instance.isPreviewRoute(c.route);
@@ -345,6 +375,10 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
   final Set<int> _impressed = {};
   int _index = 0;
 
+  // discms: the Discover AdMob native slot (Free users only; v2 home only)
+  HeroAdHandle? _ad;
+  bool _adLoading = false;
+
   AppLocalizations get t => AppLocalizations.of(context);
 
   @override
@@ -370,6 +404,7 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
   @override
   void dispose() {
     homeTilesShown.removeListener(_onTiles); // svcclean
+    _disposeAd(); // discms
     _autoRotate?.cancel(); // never leave a timer firing after unmount
     _page.dispose();
     _rotate.dispose();
@@ -444,13 +479,80 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
             jsonEncode([for (final c in items) c.toJson()]));
       } catch (_) {}
       _rebuild();
+      // discms: the server sent the AdMob slot (Free user, switch on) ->
+      // load one native ad AFTER the cards are on screen; none -> drop any
+      // old ad (e.g. the user just bought Premium).
+      if (items.any((c) => c.isAdmob)) {
+        unawaited(_loadAd());
+      } else if (_ad != null) {
+        _disposeAd();
+        _rebuild();
+      }
     } catch (_) {/* offline / server down — keep cache or fallback */}
   }
 
+  void _disposeAd() {
+    try {
+      _ad?.dispose();
+    } catch (_) {}
+    _ad = null;
+  }
+
+  /// discms: one AdMob native ad for the Discover slot. Never blocks the
+  /// home, never throws; every "no" (paid plan, switch off, not linked, no
+  /// fill, timeout) leaves the slot out.
+  Future<void> _loadAd() async {
+    if (!widget.v2 || _adLoading || _ad != null || !mounted) return;
+    _adLoading = true;
+    try {
+      Map<String, dynamic>? raw;
+      final load = HomeSuggestions.debugAdConfig;
+      if (load != null) {
+        raw = await load();
+      } else {
+        raw = await context.read<AppState>().api.getJson('/ads/config');
+      }
+      final cfg = HeroAdConfig.fromJson(raw);
+      if (cfg.paid || !discoverAdSwitchOn(raw)) return;
+      final bridge = HomeSuggestions.debugAdBridge ??
+          createHeroAdBridge(placement: HomeSuggestions.adPlacement);
+      if (!bridge.linked) return;
+      final unit = cfg.unit(builtAppId: AdsService.builtAppId);
+      if (unit == null || !mounted) return;
+      final scheme = Theme.of(context).colorScheme;
+      final look = HeroAdLook(
+        background: scheme.surfaceContainerLow,
+        headline: scheme.onSurface,
+        body: scheme.onSurfaceVariant,
+        ctaBackground: scheme.primary,
+        ctaText: scheme.onPrimary,
+        textScale: MediaQuery.textScalerOf(context).scale(1),
+      );
+      final ad = await bridge
+          .load(unit, startMuted: true, look: look, size: HeroAdSize.compact)
+          .timeout(const Duration(seconds: 45), onTimeout: () => null);
+      if (ad == null) return;
+      if (!mounted) {
+        try {
+          ad.dispose();
+        } catch (_) {}
+        return;
+      }
+      _ad = ad;
+      _rebuild();
+    } catch (_) {
+      // never let an ad problem reach the home
+    } finally {
+      _adLoading = false;
+    }
+  }
+
   void _rebuild() {
-    final list = renderableDiscover(widget.v2
-        ? withoutHomeTiles(_source ?? const [], homeTilesShown.value) // svcclean
-        : (_source ?? const []));
+    final list = renderableDiscover(
+        widget.v2
+            ? withoutHomeTiles(_source ?? const [], homeTilesShown.value) // svcclean
+            : (_source ?? const []),
+        admobReady: widget.v2 && _ad != null); // discms
     // Feature slots get unopened-first ordering; other slots stay put.
     // homeorder: SOS / Blood donor keep the owner's position (SOS first).
     bool movable(DiscoverItem c) => discoverMovable(c);
@@ -608,7 +710,9 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
                 Padding(
                   padding: const EdgeInsetsDirectional.only(
                       end: HV2.discoverPeekGap),
-                  child: DiscoverCardV2(item: c, onTap: () => _tap(c)),
+                  child: c.isAdmob && _ad != null
+                      ? DiscoverAdCardV2(ad: _ad!) // discms
+                      : DiscoverCardV2(item: c, onTap: () => _tap(c)),
                 ),
             ],
           ),
@@ -647,7 +751,7 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
       }
       var need = 0.0;
       for (final c in _cards) {
-        final badge = c.isProduct || c.isSponsored ? 10 * 1.5 * scale + 4 : 0;
+        final badge = c.hasBadge ? 10 * 1.5 * scale + 4 : 0; // discms
         final v = badge +
             h(c.title(t, lang), DiscoverCardV2.titleStyle) +
             h(c.description(t, lang), DiscoverCardV2.descStyle);
@@ -757,8 +861,8 @@ class DiscoverCardTile extends StatelessWidget {
             if (img != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(Radii.sm),
-                child: Image.network(
-                  img,
+                child: Image(
+                  image: DiskCachedImage(img), // faststart: saved on the phone
                   width: 46,
                   height: 46,
                   fit: BoxFit.cover,
@@ -776,8 +880,8 @@ class DiscoverCardTile extends StatelessWidget {
                   if (item.isProduct) ...[
                     _badge(t.discoverOurProducts, scheme.tertiary),
                     const SizedBox(height: Gap.xs),
-                  ] else if (item.isSponsored) ...[
-                    _badge(t.discoverSponsoredLabel, scheme.secondary),
+                  ] else if (item.hasBadge) ...[
+                    _badge(item.badge(t)!, scheme.secondary), // discms: Ad
                     const SizedBox(height: Gap.xs),
                   ],
                   Text(
@@ -855,11 +959,7 @@ class DiscoverCardV2 extends StatelessWidget {
     final img = item.absoluteImageUrl;
     final title = item.title(t, lang);
     final desc = item.description(t, lang);
-    final badge = item.isProduct
-        ? t.discoverOurProducts
-        : item.isSponsored
-            ? t.discoverSponsoredLabel
-            : null;
+    final badge = item.badge(t); // discms: Ad / What's new / Offer
     final icon = Icon(item.iconData,
         color: HomeV2Palette.onColor, size: HV2.glassIcon);
     // normal font: the reference's 1 + 2 lines; large font: the card is
@@ -909,7 +1009,8 @@ class DiscoverCardV2 extends StatelessWidget {
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: img != null
-                          ? Image.network(img,
+                          ? Image(
+                              image: DiskCachedImage(img), // faststart
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => Center(child: icon))
                           : Center(child: icon),
@@ -966,6 +1067,45 @@ class DiscoverCardV2 extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// discms: the owner's Ad control switch for the Discover native slot from
+/// `/ads/config` (`control.placements.discover_native.on`). Missing (older
+/// server, registry not deployed) = ON — the owner's default (10 Nov 03:45).
+bool discoverAdSwitchOn(Map<String, dynamic>? cfg) {
+  try {
+    final control = cfg?['control'];
+    if (control is! Map) return true;
+    final pl = control['placements'];
+    if (pl is! Map) return true;
+    final p = pl[HomeSuggestions.adPlacement];
+    if (p is! Map) return true;
+    return p['on'] != false;
+  } catch (_) {
+    return true;
+  }
+}
+
+/// discms: the Discover AdMob slot — AdMob's own SMALL native template
+/// (it draws Google's "Ad" badge + AdChoices) inside the SAME card box as the
+/// owner's cards, so the carousel keeps its size and place on Home.
+class DiscoverAdCardV2 extends StatelessWidget {
+  final HeroAdHandle ad;
+  const DiscoverAdCardV2({super.key, required this.ad});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return Semantics(
+      container: true,
+      label: t.discoverAdBadge,
+      child: ClipRRect(
+        key: const ValueKey('discover_v2_admob'),
+        borderRadius: BorderRadius.circular(HV2.discoverRadius),
+        child: ad.view(),
       ),
     );
   }

@@ -1,0 +1,228 @@
+name: Start speed (cold / warm / My Circle, online + offline, low-RAM emulator)
+
+# faststart (owner order 10 Nov 00:55, "open like WhatsApp"): measures cold
+# start, warm/hot start, time to usable Home and time to the My Circle chat
+# list on a 2 GB (or 3 GB) emulator profile, ONLINE, in AIRPLANE MODE and on a
+# "lie-fi" network (connected, server frozen), with every startup step
+# timestamped (ASSISTO_PERF marks). Reuses perf2gb's in-runner Django + profile
+# APK build. Report: artifact startspeed-<profile> (startspeed.json/.md);
+# owner doc owner_actions/APP_START_SPEED_BN.md. Firebase Test Lab: only when
+# the GCP_TESTLAB_SA secret exists (it does not yet — owner item).
+# Heavy emulator job: runs on a push to ci/faststart* ONLY when the commit
+# message contains [startspeed] (CI budget), or by hand.
+
+on:
+  workflow_dispatch:
+    inputs:
+      profiles:
+        description: "Comma list: 2gb,3gb"
+        required: false
+        default: "2gb"
+  push:
+    branches: ["ci/faststart*"]
+
+concurrency:
+  group: startspeed-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[startspeed]')
+    runs-on: ubuntu-latest
+    outputs:
+      profiles: ${{ steps.p.outputs.profiles }}
+    steps:
+      - id: p
+        env:
+          P: ${{ github.event.inputs.profiles }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          want = [x.strip() for x in (os.environ.get("P") or "2gb").split(",") if x.strip()]
+          print("profiles=" + json.dumps([w for w in want if w in ("2gb", "3gb")] or ["2gb"]))
+          PY
+
+  start:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: ${{ fromJson(needs.plan.outputs.profiles) }}
+    name: start (${{ matrix.profile }})
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: assisto_ci
+          POSTGRES_PASSWORD: ci-reality-throwaway   # disposable container, not a secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    env:
+      ASSISTO_CI_DB: ${{ github.workspace }}/backend/ci_reality.sqlite3
+      ASSISTO_CI_PG_NAME: assisto_ci
+      ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
+      PERF_OUT: ${{ github.workspace }}/start_out
+      START_OUT: ${{ github.workspace }}/start_out
+      PERF_ONLY: p02
+    steps:
+      - uses: actions/checkout@v4
+
+      # ------------------------------------------------ backend (in-runner)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Backend deps
+        run: python -m pip install -q -r backend/requirements.txt pyyaml
+      - name: Migrate + seed (reality accounts + perf bulk data)
+        working-directory: backend
+        run: |
+          mkdir -p "$PERF_OUT"
+          timeout 600 python manage.py migrate --settings=assisto_backend.settings_ci -v 0
+          timeout 300 python manage.py seed_reality --settings=assisto_backend.settings_ci --out "$PERF_OUT/seed.json"
+          timeout 300 python manage.py seed_perf --settings=assisto_backend.settings_ci --out "$PERF_OUT/seed_perf.json"
+      - name: Start Django on :8700 (10.0.2.2:8700 from the emulator)
+        working-directory: backend
+        run: |
+          nohup python manage.py runserver 0.0.0.0:8700 --noreload --settings=assisto_backend.settings_ci \
+            > "$PERF_OUT/django.log" 2>&1 &
+          echo $! > "$PERF_OUT/django.pid"
+          for i in $(seq 1 60); do
+            curl -fsS -m 5 http://127.0.0.1:8700/api/v1/health >/dev/null && { echo "django up"; exit 0; }
+            sleep 2
+          done
+          echo "::error::Django did not come up"; tail -50 "$PERF_OUT/django.log"; exit 1
+
+      # ------------------------------------------------ app (android.yml build prep)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Dev deps + a real build number
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os, re
+          p = "pubspec.yaml"
+          s = open(p).read()
+          if "integration_test:" not in s:
+              s = s.replace("dev_dependencies:\n  flutter_test:\n    sdk: flutter\n",
+                            "dev_dependencies:\n  flutter_test:\n    sdk: flutter\n"
+                            "  integration_test:\n    sdk: flutter\n", 1)
+          n = 9000 + int(os.environ.get("GITHUB_RUN_NUMBER", "0"))
+          s, k = re.subn(r"(?m)^version: .*$", "version: 1.0.%d+%d" % (n, n), s, count=1)
+          assert k == 1
+          open(p, "w").write(s)
+          PY
+      - name: Replay android.yml build prep
+        run: python3 tools/reality/replay_android_steps.py
+      - name: Profile-only cleartext to the in-runner backend (Skia, like reality.yml)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          p = "android/app/src/profile/AndroidManifest.xml"
+          os.makedirs(os.path.dirname(p), exist_ok=True)
+          s = open(p).read() if os.path.exists(p) else (
+              '<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n'
+              '    <uses-permission android:name="android.permission.INTERNET"/>\n</manifest>\n')
+          if "usesCleartextTraffic" not in s:
+              # Skia: Impeller-GLES on the swiftshader emulator segfaulted
+              # (reality.yml rf1). Real phones run Impeller (Vulkan) — noted.
+              meta = ('        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" '
+                      'android:value="false"/>\n')
+              s = s.replace("</manifest>",
+                  '    <application android:usesCleartextTraffic="true">\n' + meta +
+                  '    </application>\n</manifest>', 1)
+              open(p, "w").write(s)
+          print(open(p).read())
+          PY
+      - name: Analyze the perf flows (fail on errors)
+        working-directory: app
+        run: |
+          set +e
+          flutter analyze integration_test > ia.txt 2>&1; cat ia.txt | tail -40
+          grep -qE "error •" ia.txt && { echo "::error::perf flows do not compile"; exit 1; }
+          exit 0
+      - name: Build the two x86_64 PROFILE APKs (perf test + real app)
+        working-directory: app
+        run: |
+          # plugins pinned below SDK 36 (in_app_review, geocoding_android)
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
+          D="--dart-define=REALITY_API_BASE=http://10.0.2.2:8700 --dart-define=ASSISTO_PERF=true"
+          timeout 2400 flutter build apk --profile --target-platform=android-x64 \
+            --target=integration_test/perf_all_test.dart $D --dart-define=PERF_ONLY="$PERF_ONLY"
+          mv build/app/outputs/flutter-apk/app-profile.apk "$RUNNER_TEMP/perf_test.apk"
+          timeout 1800 flutter build apk --profile --target-platform=android-x64 $D
+          mv build/app/outputs/flutter-apk/app-profile.apk "$RUNNER_TEMP/perf_app.apk"
+          ls -la "$RUNNER_TEMP"/*.apk
+          echo "PERF_TEST_APK=$RUNNER_TEMP/perf_test.apk" >> "$GITHUB_ENV"
+          echo "PERF_APP_APK=$RUNNER_TEMP/perf_app.apk" >> "$GITHUB_ENV"
+      # ------------------------------------------------ emulator
+      - name: Free the runner (stop Gradle/Kotlin daemons)
+        working-directory: app
+        run: |
+          (cd android && timeout 60 ./gradlew --stop) || true
+          pkill -f 'KotlinCompileDaemon' || true
+          pkill -f 'GradleDaemon' || true
+          free -m
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Start-speed runs (${{ matrix.profile }})
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.profile == '3gb' && 30 || 33 }}
+          arch: x86_64
+          target: default
+          profile: pixel_5
+          disable-animations: false
+          emulator-boot-timeout: 600
+          ram-size: ${{ matrix.profile == '3gb' && '3072M' || '2048M' }}
+          heap-size: ${{ matrix.profile == '3gb' && '192M' || '128M' }}
+          cores: 2
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -prop dalvik.vm.heapgrowthlimit=128m
+          # ONE line: screen size/density of the profile + a hardware keyboard
+          # (no IME window). 2gb = 720x1600 @ 320, mid = 1080x2400 @ 420.
+          pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && sed -i -e '/^hw.keyboard=/d' -e '/^hw.lcd.width=/d' -e '/^hw.lcd.height=/d' -e '/^hw.lcd.density=/d' "$c" && printf 'hw.keyboard=yes\nhw.lcd.width=%s\nhw.lcd.height=%s\nhw.lcd.density=%s\n' 720 1600 320 >> "$c" && echo "profile -> $c"; done; true
+          script: bash tools/startspeed/run_start.sh
+
+      # ------------------------------------------------ evidence
+      - name: Collect startspeed.json / startspeed.md
+        if: always()
+        run: |
+          python3 tools/startspeed/collect.py "$START_OUT" --profile ${{ matrix.profile }} --run-id ${{ github.run_id }} > /dev/null || true
+          cat "$START_OUT/startspeed.md" >> "$GITHUB_STEP_SUMMARY" || true
+          cat "$START_OUT/startspeed.md" || true
+          echo "::group::diagnostics"
+          tail -60 "$START_OUT/run.log" 2>/dev/null || true
+          cat "$START_OUT/net_state.txt" 2>/dev/null || true
+          grep -aE "ASSISTO_PERF|PERF_ALL_DONE|REALITY FAIL|FATAL|ANR in|has died" "$START_OUT/live_logcat.txt" 2>/dev/null | cut -c1-300 | tail -200 || true
+          echo "::endgroup::"
+          # artifacts can hit the account egress cap: the JSON also goes to the log
+          echo "STARTSPEED_JSON_BEGIN ${{ matrix.profile }}"
+          gzip -9c "$START_OUT/startspeed.json" | base64 -w 2000 || true
+          echo "STARTSPEED_JSON_END ${{ matrix.profile }}"
+      - name: Stop Django
+        if: always()
+        run: kill -CONT "$(cat "$START_OUT/django.pid" 2>/dev/null)" 2>/dev/null; kill "$(cat "$START_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: startspeed-${{ matrix.profile }}
+          path: start_out/
+          retention-days: 21
+          if-no-files-found: warn

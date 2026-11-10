@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// o1-otp — 6-box one-time-code input.
 ///
@@ -110,7 +111,7 @@ class _OtpCodeInputState extends State<OtpCodeInput> {
                   enableSuggestions: false,
                   autocorrect: false,
                   inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
+                    const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(widget.length),
                   ],
                   decoration: const InputDecoration(

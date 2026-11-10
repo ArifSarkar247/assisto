@@ -13,6 +13,7 @@ import 'app_open_gate.dart';
 import 'sponsor_api.dart';
 import 'sponsor_models.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../perf/disk_image.dart'; // faststart
 
 /// p2-money: DIRECT sponsor UI — our own server-served creatives (works
 /// without AdMob). Every surface carries a clear "Sponsored" label, a
@@ -144,7 +145,8 @@ class SponsorWhySheet extends StatelessWidget {
 
 Widget _creativeImage(SponsorCreative c, {double? height, BoxFit fit = BoxFit.cover}) {
   if (c.imageUrl.isEmpty) return const SizedBox.shrink();
-  return Image.network(c.imageUrl,
+  return Image(
+      image: DiskCachedImage(c.imageUrl), // faststart: saved on the phone
       height: height,
       width: double.infinity,
       fit: fit,

@@ -6,6 +6,7 @@ import 'crypto/e2e.dart';
 import 'models.dart';
 import 'services/own_device_guard.dart'; // grab-guard
 import 'diag/device_facts.dart'; // recovery
+import 'offline/net_status.dart'; // offline1st
 
 class ApiException implements Exception {
   final String message;
@@ -31,7 +32,9 @@ class ApiException implements Exception {
 class ApiClient {
   String? _token;
   String? lang; // 'bn'|'en' -> Accept-Language (follows selected locale)
-  final http.Client _c = http.Client();
+  // offline1st: every answer / network failure feeds NetStatus (the Offline
+  // strip, the outbox flush on reconnect, the quiet session refresh).
+  final http.Client _c = NetWatchClient(http.Client());
 
   ApiClient({String? token}) {
     this.token = token;
@@ -150,6 +153,19 @@ class ApiClient {
     try {
       await _c.post(AppConfig.api('/auth/logout'), headers: _headers());
     } catch (_) {}
+  }
+
+  /// offline1st: the reachability probe (GET /health, no auth, ~100 bytes)
+  /// used only while the phone is offline. true = the server answered.
+  Future<bool> health() async {
+    try {
+      final r = await _c
+          .get(AppConfig.api('/health'))
+          .timeout(const Duration(seconds: 4));
+      return r.statusCode < 500;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<AppUser> me() async {

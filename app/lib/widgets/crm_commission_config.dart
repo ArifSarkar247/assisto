@@ -3,6 +3,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
 import '../screens/crm/crm_advanced_api.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// OWNER-REVIEW COMMISSION configuration (CRM spec #8).
 ///
@@ -63,7 +64,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
   Map<String, dynamic> _buildConfig() {
     final cfg = <String, dynamic>{'kind': _kind};
     if (_kind == 'flat') {
-      cfg['flat_pct'] = double.tryParse(_flatPct.text.trim()) ?? 0;
+      cfg['flat_pct'] = parseNumInput(_flatPct.text.trim()) ?? 0;
     } else if (_kind == 'tiered') {
       cfg['tiers'] = [
         for (final tr in _tiers)
@@ -71,12 +72,12 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
             {
               'upto': tr.upto.text.trim().isEmpty
                   ? null
-                  : double.tryParse(tr.upto.text.trim()),
-              'pct': double.tryParse(tr.pct.text.trim()) ?? 0,
+                  : parseNumInput(tr.upto.text.trim()),
+              'pct': parseNumInput(tr.pct.text.trim()) ?? 0,
             }
       ];
     }
-    final bonus = double.tryParse(_bonus.text.trim()) ?? 0;
+    final bonus = parseNumInput(_bonus.text.trim()) ?? 0;
     if (bonus > 0) cfg['per_deal_bonus'] = bonus;
     return cfg;
   }

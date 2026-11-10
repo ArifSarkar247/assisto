@@ -1,0 +1,10 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_ad_control }}{% endblock %}
+{% block content %}
+<div class="card" style="border:2px solid #b00020"><h3 style="color:#b00020">⚠ {{ T.adc_warn_title }}</h3>
+<p>{{ T.adc_warn_body }}</p>
+<form method="post" action="/owner/ad-control">{% include "owner/_csrf.html" %}
+{% for k, v in post %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+{% for w in warn %}<p><label><input type="checkbox" name="confirm_safety" value="{{ w.key }}"> {{ T.adc_warn_yes }}: <b>{{ w.label }}</b></label></p>{% endfor %}
+<p><button class="btn">{{ T.adc_warn_go }}</button> <a href="/owner/ad-control">{{ T.adc_warn_cancel }}</a></p></form></div>
+{% endblock %}

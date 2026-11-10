@@ -49583,5 +49583,2522 @@
   "icgLowPower": "Old-phone mode: checking the camera's key pictures only (about one every 2–4 seconds).",
   "icgHonest": "Honest limits: keep this phone plugged in, on this screen, on the same Wi-Fi as the camera. The camera's address and password stay only on this phone. Live view from an IP camera is a fast picture stream (about 4 a second, no sound). Alerts carry a photo; video clips are not kept on this phone yet.",
   "icgPlayedSiren": "Siren played here (the owner asked)",
-  "icgPlayedWarn": "The owner's warning played here"
+  "icgPlayedWarn": "The owner's warning played here",
+  "sj2PlateTitle": "Number plate photo (optional)",
+  "@sj2PlateTitle": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateAdded": "Plate photo ready",
+  "@sj2PlateAdded": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateHint": "CNG, Uber, Pathao or bus: your watchers get this photo when the trip starts.",
+  "@sj2PlateHint": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateAdd": "Add photo",
+  "@sj2PlateAdd": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateChange": "Change",
+  "@sj2PlateChange": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateRemove": "Remove",
+  "@sj2PlateRemove": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2PlateNotSent": "Journey started. The plate photo did not go; add it again from the live screen.",
+  "@sj2PlateNotSent": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2WatchNone": "Pick at least one person to watch this trip.",
+  "@sj2WatchNone": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2WatchCount": "{n} watching this trip",
+  "@sj2WatchCount": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sj2SuggestTitle": "Going to {place}? Tell family?",
+  "@sj2SuggestTitle": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "sj2SuggestBody": "Your usual trip at this time. One tap starts Safe Journey and lets your family follow.",
+  "@sj2SuggestBody": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2SuggestGo": "Start and tell family",
+  "@sj2SuggestGo": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2SuggestBanner": "Your usual trip to {place} (about {time}). Check and tap Start.",
+  "@sj2SuggestBanner": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sj2SuggestSwitch": "Suggest my usual trips",
+  "@sj2SuggestSwitch": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2SuggestSwitchDesc": "Only while Assisto is open. Learned on this phone only; nothing is sent until you start.",
+  "@sj2SuggestSwitchDesc": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2SuggestForget": "Forget learned trips",
+  "@sj2SuggestForget": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2SuggestForgotten": "Learned trips deleted from this phone.",
+  "@sj2SuggestForgotten": {
+    "description": "sjstart2: Safe Journey V2 start screen (watcher chips / plate photo / usual-trip suggestion)"
+  },
+  "sj2From": "From",
+  "@sj2From": {
+    "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
+  },
+  "sj2FromHere": "My current location",
+  "@sj2FromHere": {
+    "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
+  },
+  "sj2FromHereArea": "My current location · {area}",
+  "@sj2FromHereArea": {
+    "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "sj2FromSearch": "Search a place or pick on the map",
+  "@sj2FromSearch": {
+    "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
+  },
+  "sj2FromChange": "Change",
+  "@sj2FromChange": {
+    "description": "sjstart2: Safe Journey start screen 'From' row (owner V2 START 1)"
+  },
+  "cdetZoneGate": "Shutter / gate",
+  "@cdetZoneGate": {
+    "description": "cctvdet zone tool: person at the shutter or gate, gate left open"
+  },
+  "cdetZonePost": "Counter / post",
+  "@cdetZonePost": {
+    "description": "cctvdet zone tool: counter or guard post that must not be left empty"
+  },
+  "cdetZoneHelp": "Shutter / gate: an alert when someone is at it while the camera is on guard, and (if you switch it on) when it is left open. Counter / post: an alert when nobody is there for some minutes during its hours. These need the person check (AI) on the phone camera, Guard Box or Shop Box. Never face recognition.",
+  "cdetOptionsTooltip": "Zone settings",
+  "cdetOptionsTitle": "Settings: {name}",
+  "@cdetOptionsTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetLabel": "Name (e.g. Main shutter)",
+  "cdetMinutes": "{n} min",
+  "@cdetMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumGatePerson": "Alerts when someone is at it",
+  "cdetSumGateOpen": "left open over {min}",
+  "@cdetSumGateOpen": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumPost": "Alerts when empty for {min} ({hours})",
+  "@cdetSumPost": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumLoiter": "someone stays over {min}",
+  "@cdetSumLoiter": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetOff": "Off",
+  "cdetGatePersonBody": "While the camera is on guard, you get an alert with a photo and a 10-second clip when someone is at this shutter or gate.",
+  "cdetOpenTitle": "Alert if it is left open",
+  "cdetOpenBody": "The camera remembers how it looks when closed and warns you when it stays different.",
+  "cdetOpenAfter": "Alert when open for longer than",
+  "cdetClosedNow": "It is closed now — remember this",
+  "cdetClosedSaved": "Done. Tap Save, then keep it closed for a minute while the camera takes its picture.",
+  "cdetClosedNeeded": "Close it, then tap the button above once — without this the open check cannot start.",
+  "cdetClosedKnown": "The closed picture is remembered. Tap again if the camera was moved.",
+  "cdetPostHours": "Someone must be here",
+  "cdetPostAbsent": "Alert when empty for",
+  "cdetLoiterTitle": "Alert if someone stays longer than",
+  "cdetNeedsAi": "Uses only a person box on the device — never a face, a name or who it is.",
+  "cdetDone": "Done",
+  "cdetEvGate": "Someone is at the shutter / gate",
+  "cdetEvPost": "The counter / post has been left empty",
+  "cdetEvGateOpen": "The gate / shutter has been left open",
+  "cdetDescAi": "AI: {text}",
+  "@cdetDescAi": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetDescTemplate": "{text} (not AI)",
+  "@cdetDescTemplate": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetReviewOnly": "Review only — never an accusation.",
+  "cityMapStop": "Map a stop",
+  "cityMapStopSub": "Add a bus stop near you",
+  "cityMapTitle": "Map a stop",
+  "cityMapBenefit": "Help everyone find the bus: stand where buses stop and tap once.",
+  "cityMapAddHere": "Add a stop here",
+  "cityMapHow": "Your name is never kept. A stop goes on the map when {n} different people confirm it, and shows as Reported by users. Our team removes wrong ones.",
+  "@cityMapHow": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapWhichBus": "Which bus stops here? (optional)",
+  "cityMapThisBus": "Stops here",
+  "cityMapNoBuses": "No known bus passes near here yet. Just tap Add a stop here.",
+  "cityMapOthers": "Waiting for confirmation near you",
+  "cityMapYes": "Yes, it stops here",
+  "cityMapPeople": "{n} of {need} people confirmed",
+  "@cityMapPeople": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "need": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapAnyBus": "A bus stop",
+  "cityMapOnMap": "On the map now",
+  "cityMapNoneWaiting": "Nothing is waiting near you. Be the first: tap Add a stop here at a real bus stop.",
+  "cityMapThanks": "Thanks! The stop is added once {n} people confirm it.",
+  "@cityMapThanks": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapConfirmed": "Confirmed! The stop now shows in everyone's routes.",
+  "cityMapKnown": "This stop is already on the map. Thank you!",
+  "cityMapAlready": "You have already confirmed this one.",
+  "cityMapRejected": "This was checked before and not added.",
+  "cityMapFar": "Please be at the stop to confirm it.",
+  "cityMapLimit": "Today's limit is reached. Please try tomorrow.",
+  "cityMapFailed": "Could not load. Pull down to try again.",
+  "svcEmergency": "Emergency",
+  "@svcEmergency": {
+    "description": "svcclean: All Services tile + Emergency screen title (one place for every emergency job)"
+  },
+  "svcLostPhone": "Lost phone",
+  "@svcLostPhone": {
+    "description": "svcclean: Tile: Lost or Stolen Pro + My lost phone"
+  },
+  "svcPhoneSafety": "Phone safety",
+  "@svcPhoneSafety": {
+    "description": "svcclean: Tile: check-up + ownership + sell safely + used phone check"
+  },
+  "svcCctvWatch": "CCTV watch",
+  "@svcCctvWatch": {
+    "description": "svcclean: Tile: home and shop CCTV watchman"
+  },
+  "svcTileBirthdays": "Birthdays",
+  "@svcTileBirthdays": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileMeetings": "Meetings",
+  "@svcTileMeetings": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileBudgetRemit": "Budget & remit",
+  "@svcTileBudgetRemit": {
+    "description": "svcclean: Short tile label: budget with remittance"
+  },
+  "svcTileMess": "Mess accounts",
+  "@svcTileMess": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileStaff": "Staff & driver",
+  "@svcTileStaff": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTilePriceRadar": "Price radar",
+  "@svcTilePriceRadar": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileKidsWatch": "Kids watch",
+  "@svcTileKidsWatch": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileMissing": "Missing alert",
+  "@svcTileMissing": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileChildAudio": "Child SOS audio",
+  "@svcTileChildAudio": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileDoctor": "Doctor serial",
+  "@svcTileDoctor": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileMedicine": "Medicines",
+  "@svcTileMedicine": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileDailyInfo": "Daily info",
+  "@svcTileDailyInfo": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileUnseen": "Unseen BD",
+  "@svcTileUnseen": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileLearnQuran": "Learn Quran",
+  "@svcTileLearnQuran": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileQurbani": "Qurbani & Eid",
+  "@svcTileQurbani": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileWellness": "Water & sleep",
+  "@svcTileWellness": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileSmartwatch": "Smartwatch",
+  "@svcTileSmartwatch": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileCerts": "Certificates",
+  "@svcTileCerts": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileVoiceNotes": "Voice notes",
+  "@svcTileVoiceNotes": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileMood": "Mood journal",
+  "@svcTileMood": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileCommunity": "Community",
+  "@svcTileCommunity": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileEstimator": "Estimator",
+  "@svcTileEstimator": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileBlog": "Blog writer",
+  "@svcTileBlog": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileSecretary": "Secretary",
+  "@svcTileSecretary": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileBizBookings": "Bookings",
+  "@svcTileBizBookings": {
+    "description": "svcclean: Short tile label (business side)"
+  },
+  "svcTileRetention": "Retention",
+  "@svcTileRetention": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcTileShopMsgs": "Shop messages",
+  "@svcTileShopMsgs": {
+    "description": "svcclean: Short tile label (customer side)"
+  },
+  "svcTileAccounts": "Accounts",
+  "@svcTileAccounts": {
+    "description": "svcclean: Short tile label"
+  },
+  "svcCatSaveShare": "Savings & sharing",
+  "@svcCatSaveShare": {
+    "description": "svcclean: All Services category"
+  },
+  "svcCatHomeLife": "Home & life",
+  "@svcCatHomeLife": {
+    "description": "svcclean: All Services category"
+  },
+  "svcCatKids": "Kids",
+  "@svcCatKids": {
+    "description": "svcclean: All Services category"
+  },
+  "svcCatTravel": "Travel & city",
+  "@svcCatTravel": {
+    "description": "svcclean: All Services category"
+  },
+  "svcCatFaith": "Faith",
+  "@svcCatFaith": {
+    "description": "svcclean: All Services category"
+  },
+  "svcCatToday": "Today & news",
+  "@svcCatToday": {
+    "description": "svcclean: All Services category"
+  },
+  "svcCatTools": "Tools",
+  "@svcCatTools": {
+    "description": "svcclean: All Services category"
+  },
+  "svcCatShopping": "Shopping",
+  "@svcCatShopping": {
+    "description": "svcclean: All Services category"
+  },
+  "svcCatLearn": "Jobs & learning",
+  "@svcCatLearn": {
+    "description": "svcclean: All Services category"
+  },
+  "svcLostIntro": "Phone gone? Open the first card now. Turn on protection today so you are ready.",
+  "@svcLostIntro": {
+    "description": "svcclean: Lost phone screen intro"
+  },
+  "svcLostNowTitle": "My phone is lost: act now",
+  "@svcLostNowTitle": {
+    "description": "svcclean: Lost phone section"
+  },
+  "svcLostNowSub": "Lost mode, last place, SIM-change alert and intruder photos while it is online",
+  "@svcLostNowSub": {
+    "description": "svcclean: Lost phone section"
+  },
+  "svcLostProtTitle": "Protect it before it is lost",
+  "@svcLostProtTitle": {
+    "description": "svcclean: Lost phone section"
+  },
+  "svcLostProtSub": "Lock, loud alarm and location from this phone",
+  "@svcLostProtSub": {
+    "description": "svcclean: Lost phone section"
+  },
+  "svcSafetyIntro": "Everything that keeps this phone yours, in one place.",
+  "@svcSafetyIntro": {
+    "description": "svcclean: Phone safety screen intro"
+  },
+  "svcSafetyCheckSub": "Step-by-step check of your locks and settings",
+  "@svcSafetyCheckSub": {
+    "description": "svcclean: Phone safety section"
+  },
+  "svcSafetyOwnSub": "A delay and an alert before anyone can sell, wipe or switch off protection",
+  "@svcSafetyOwnSub": {
+    "description": "svcclean: Phone safety section"
+  },
+  "svcSafetySellSub": "Hand over your phone without leaving your data on it",
+  "@svcSafetySellSub": {
+    "description": "svcclean: Phone safety section"
+  },
+  "svcSafetyUsedSub": "Check a used phone before you pay for it",
+  "@svcSafetyUsedSub": {
+    "description": "svcclean: Phone safety section"
+  },
+  "svcEmFire": "Nearest fire station",
+  "@svcEmFire": {
+    "description": "svcclean: Emergency screen row"
+  },
+  "svcEmContacts": "Emergency contacts",
+  "@svcEmContacts": {
+    "description": "svcclean: Emergency screen row (opens the emergency card)"
+  },
+  "svcEmContactsSub": "Who gets your SOS, and your emergency card",
+  "@svcEmContactsSub": {
+    "description": "svcclean: Emergency screen row"
+  },
+  "svcEmFallOn": "On: your family is told if you fall",
+  "@svcEmFallOn": {
+    "description": "svcclean: Emergency screen fall row"
+  },
+  "svcEmFallOff": "Off: tap to turn on",
+  "@svcEmFallOff": {
+    "description": "svcclean: Emergency screen fall row"
+  },
+  "svcFamNomineeSub": "Who can reach your things if something happens to you",
+  "@svcFamNomineeSub": {
+    "description": "svcclean: Family page row under Nominee access"
+  },
+  "svcSosCardDesc": "One press sends help and your location to family.",
+  "@svcSosCardDesc": {
+    "description": "svcclean: SOS Discover card line; fits 2 lines at 360 dp in bn + en (the longer server text was cut)"
+  },
+  "biBestValue": "Best value",
+  "@biBestValue": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCareCallExtra": "More Care Calls with the Safe Family plan",
+  "@biCareCallExtra": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvAllPlans": "All CCTV plans (more cameras, yearly)",
+  "@biCctvAllPlans": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvB1": "Watch 2 cameras live from anywhere — phone cameras count too",
+  "@biCctvB1": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvB2": "Smart alerts when someone comes in after closing",
+  "@biCctvB2": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvB3": "Evidence clips you can share with the police or insurance",
+  "@biCctvB3": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvName": "CCTV for your shop",
+  "@biCctvName": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvNoStore": "The CCTV plan ({price} a month for 2 cameras) is bought through Google Play. Open the CCTV plans to see how.",
+  "@biCctvNoStore": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "biCctvPlanLine": "From ৳500 a month for 2 cameras · 7 days free",
+  "@biCctvPlanLine": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvPlanTitle": "CCTV plan",
+  "@biCctvPlanTitle": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biCctvPrice": "{price} a month for 2 cameras",
+  "@biCctvPrice": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "biCctvTrialNote": "7 days free — once per shop and per Google account. Cancel in Google Play before day 7 and you pay nothing.",
+  "@biCctvTrialNote": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biContinue": "Continue",
+  "@biContinue": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatAdFree": "Assisto without ads",
+  "@biFeatAdFree": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatBizAiReply": "AI replies for your customers",
+  "@biFeatBizAiReply": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatBody": "{feature} is part of {plan}. Start it here — you come back to this screen and can continue at once.",
+  "@biFeatBody": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "biFeatCallLink": "Call links and scheduled calls",
+  "@biFeatCallLink": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatChatThemes": "Chat themes",
+  "@biFeatChatThemes": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatMktFollowup": "Automatic marketing follow-ups",
+  "@biFeatMktFollowup": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatPhotoUltra": "Ultra HD photo",
+  "@biFeatPhotoUltra": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatShopCctv": "Shop CCTV",
+  "@biFeatShopCctv": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatShopQuote": "Quotes for customers",
+  "@biFeatShopQuote": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatStorage": "More storage",
+  "@biFeatStorage": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biFeatVideoCall": "Video calls",
+  "@biFeatVideoCall": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biGetBusinessHere": "Get Business here",
+  "@biGetBusinessHere": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biGetCctvPlan": "Get the CCTV plan",
+  "@biGetCctvPlan": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biGetCredits": "Get credits here",
+  "@biGetCredits": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biManageCancel": "Manage or cancel subscription (Google Play)",
+  "@biManageCancel": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biPlanPrice": "{plan} — {price} a month",
+  "@biPlanPrice": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "biRecommendSwitch": "Switch and save",
+  "@biRecommendSwitch": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biRecommendTitle": "A cheaper plan for how you really use Assisto",
+  "@biRecommendTitle": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biStartTrialDays": "Start {days} days free",
+  "@biStartTrialDays": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "biThenApk": "Then {price} a month · cancel any time",
+  "@biThenApk": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "biThenPlay": "Then {price} a month · cancel any time · paid with Google Play",
+  "@biThenPlay": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "biUnlocked": "Unlocked — you can continue now.",
+  "@biUnlocked": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "biWatchTwoAds": "Free: watch 2 short ads = 1 Normal answer (daily limit applies)",
+  "@biWatchTwoAds": {
+    "description": "buyinside: in-place buy screens (owner order 10 Nov)"
+  },
+  "ssAmountInvalid": "Enter an amount above 0. Bangla or English digits both work.",
+  "@ssAmountInvalid": {
+    "description": "Shown under an amount field when Save is tapped with no valid amount"
+  },
+  "ssNameRequired": "Type a name, or pick someone from My Circle.",
+  "@ssNameRequired": {
+    "description": "Shown when Save is tapped on an empty name field"
+  },
+  "fsLowDataTitle": "Low-data mode",
+  "@fsLowDataTitle": {
+    "description": "faststart: Settings switch that saves mobile data"
+  },
+  "fsLowDataSub": "Home and sponsor pictures show only if already saved on this phone (no new downloads), and calls use less data.",
+  "@fsLowDataSub": {
+    "description": "faststart: subtitle of the Low-data mode switch"
+  },
+  "cityLearnCardTitle": "Which bus? What fare?",
+  "cityLearnCardSub": "One tap helps the next rider. No name is sent.",
+  "cityLearnWhichBus": "Which bus did you take?",
+  "cityLearnWhatFare": "What fare did you pay?",
+  "cityLearnOtherBus": "Another bus",
+  "cityLearnOtherFare": "Other amount",
+  "cityLearnSkip": "Skip",
+  "cityLearnThanks": "Thank you!",
+  "cityLearnVerified": "You verified {count} stops",
+  "@cityLearnVerified": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cityLearnDone": "Done",
+  "cityTripArrived": "I have arrived",
+  "cityMapScreenTitle": "City map",
+  "cityMapTileSub": "Metro, bus routes, fares, waterlogging",
+  "cityMapSeeOnMap": "See on the map",
+  "cityMapAssisto": "Assisto map",
+  "cityMapGoogleView": "Google view",
+  "cityMap3d": "3D",
+  "cityMapSatellite": "Satellite",
+  "cityMapLayerMetro": "Metro",
+  "cityMapLayerBus": "Bus routes",
+  "cityMapLayerFares": "Fares",
+  "cityMapLayerWater": "Waterlogging",
+  "cityMapLayerWomen": "Women bus",
+  "cityMapWomenNone": "No women-only bus is confirmed yet. The metro has a women's coach.",
+  "cityMapWaterLabel": "Waterlogging · {count} reports",
+  "@cityMapWaterLabel": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapLight": "Day map",
+  "cityMapNight": "Night map",
+  "cityMapOffline": "Dhaka offline",
+  "cityMapOfflineTitle": "Save the Dhaka map",
+  "cityMapOfflineBody": "The map then opens without internet — streets, buildings and our routes.",
+  "cityMapOfflineSize": "Size: about {mb} MB",
+  "@cityMapOfflineSize": {
+    "placeholders": {
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapOfflineWifi": "Wi-Fi is better for this download.",
+  "cityMapOfflineDownload": "Download",
+  "cityMapOfflineReady": "Saved on this phone — the Dhaka map works without internet.",
+  "cityMapOfflineDelete": "Remove from phone",
+  "cityMapOfflineNotYet": "The offline Dhaka map is being prepared. Please try again later.",
+  "cityMapOfflineFailed": "Download stopped. Tap Download to continue from where it stopped.",
+  "cityMapHint": "Choose where to go in City Service to see your routes here.",
+  "cityMapRoutesTo": "Ways to {place}",
+  "@cityMapRoutesTo": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "cityMapAssistoVerified": "Assisto verified",
+  "cityMapOursNone": "Our data has no bus or metro route for this trip yet.",
+  "cityMapSeeGoogle": "See Google transit",
+  "cityMapNoFare": "Fare not known yet",
+  "cityMapGoogleTransit": "Google transit",
+  "cityMapMoreRoutes": "More routes",
+  "cityMapMoreRoutesSub": "Bus, metro and train routes from Google.",
+  "cityMapByGoogle": "Routes by Google",
+  "cityMapGoogleOpenNote": "The Google map opens in the Google Maps app. Google's transit routes are below.",
+  "cityMapListNote": "The map could not open on this phone, so here is the same information as a list.",
+  "cityMapListEmpty": "Turn on a layer above (metro, bus routes …) to see it here.",
+  "cityMapRetry": "Try the map again",
+  "cityMapAssistoRoutes": "Assisto routes",
+  "aimAdsPerAnswer": "Watch {n} ads for 1 AI answer",
+  "@aimAdsPerAnswer": {
+    "description": "Rewarded-ad sheet: how many ads buy one AI answer today (n is already formatted).",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "aimAdsOutRow": "Free: watch {n} short ads = 1 Normal answer (daily limit applies)",
+  "@aimAdsOutRow": {
+    "description": "Credits-finished sheet: the free option; n = today's ads per answer from the server (already formatted).",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetZoneParking": "Parking",
+  "cdetZoneNoParking": "No parking",
+  "cdetSumCrowd": "alerts at {n} people or more",
+  "@cdetSumCrowd": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumOverstay": "alerts when a vehicle stays over {min}",
+  "@cdetSumOverstay": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumWrong": "alerts when a vehicle stands over {min}",
+  "@cdetSumWrong": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumLineNotify": "counts vehicles in / out, tells you each time",
+  "cdetSumLineLog": "counts vehicles in / out (log, no ring)",
+  "cdetCrowdTitle": "Crowd / queue: alert when this many people stay for a minute",
+  "cdetPeople": "{n} people",
+  "@cdetPeople": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetOverstayTitle": "Alert when one vehicle stays longer than",
+  "cdetWrongTitle": "Alert when a vehicle stands here longer than",
+  "cdetLineVehicles": "Count vehicles in and out",
+  "cdetLineVehiclesBody": "Cars, motorbikes, buses, trucks and rickshaws crossing this line, with the number plate when it can be read.",
+  "cdetLineNotify": "Tell me every time",
+  "cdetLineFlip": "Swap in and out",
+  "cdetLineFlipBody": "Use this if the app shows 'in' when a vehicle leaves.",
+  "cdetVehicleNote": "Number plates are read only for vehicles at your own gate or parking — a plate is not a face, and we never identify people.",
+  "cdetEvCrowd": "A crowd / long queue",
+  "cdetEvVehicle": "A vehicle came in / went out",
+  "cdetEvOverstay": "A vehicle has overstayed",
+  "cdetEvWrongParking": "A vehicle is parked in the wrong place",
+  "lp2Listen": "Listen",
+  "@lp2Listen": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2PracticeLabel": "Practice score — not an official IELTS result.",
+  "@lp2PracticeLabel": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NotScored": "Not scored",
+  "@lp2NotScored": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TimeLeft": "Time left {time}",
+  "@lp2TimeLeft": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2HoldHint": "Hold the button while you speak, then let go.",
+  "@lp2HoldHint": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NothingHeard": "The phone did not hear any words. Hold the button and speak a little louder.",
+  "@lp2NothingHeard": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2HoldToSpeak": "Hold to speak",
+  "@lp2HoldToSpeak": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Listening": "Listening… let go when you finish",
+  "@lp2Listening": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2FixTitle": "Better way to say it",
+  "@lp2FixTitle": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2PronPercent": "Pronunciation {percent}%",
+  "@lp2PronPercent": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2MistakeSpelling": "Spelling",
+  "@lp2MistakeSpelling": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakePlural": "Plural / singular",
+  "@lp2MistakePlural": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeWordLimit": "Word limit",
+  "@lp2MistakeWordLimit": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeTfng": "True / False / Not Given",
+  "@lp2MistakeTfng": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeMap": "Map / plan",
+  "@lp2MistakeMap": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeMatching": "Matching",
+  "@lp2MistakeMatching": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeBlank": "Left blank",
+  "@lp2MistakeBlank": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MistakeOther": "Other",
+  "@lp2MistakeOther": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipSpelling": "A wrong spelling gets zero. Write the 20 most common IELTS words (accommodation, government, environment…) daily.",
+  "@lp2TipSpelling": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipPlural": "Listen for the final s sound and check the word before the gap (a / many / several).",
+  "@lp2TipPlural": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipWordLimit": "Read the instruction: NO MORE THAN TWO WORDS means three words are wrong, even if the meaning is right.",
+  "@lp2TipWordLimit": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipTfng": "FALSE = the text says the opposite. NOT GIVEN = the text says nothing about it. Do not use your own knowledge.",
+  "@lp2TipTfng": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipMap": "Before the audio, find the start point and learn the words: opposite, next to, behind, at the end of.",
+  "@lp2TipMap": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipMatching": "Underline the key word in each option; the text uses other words with the same meaning.",
+  "@lp2TipMatching": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipBlank": "Never leave a blank — a guess can still be right. Watch the timer and move on.",
+  "@lp2TipBlank": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TipOther": "Check the meaning again in the text or transcript and note why the key is right.",
+  "@lp2TipOther": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ProgressOffline": "Your progress could not load. You can still practise; it saves when you are back online.",
+  "@lp2ProgressOffline": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2IeltsTitle": "IELTS",
+  "@lp2IeltsTitle": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2IeltsBody": "Full mock tests with the real timer, section practice, Writing and Speaking scoring with Bangla explanations, and a companion for your own book.",
+  "@lp2IeltsBody": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LastMock": "Last mock: band {band}",
+  "@lp2LastMock": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2MockTests": "Mock tests",
+  "@lp2MockTests": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2BookCompanion": "Book companion",
+  "@lp2BookCompanion": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeTitle": "Life English",
+  "@lp2LifeTitle": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeBody": "Speak with confidence at the airport, embassy, market, hospital, bank and job interview — learnt from Bangla.",
+  "@lp2LifeBody": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeDone": "{count} of 10 situations practised",
+  "@lp2LifeDone": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2LifeStart": "Start",
+  "@lp2LifeStart": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AbroadTitle": "Going abroad",
+  "@lp2AbroadTitle": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AbroadJapan": "Japan · JLPT / JFT",
+  "@lp2AbroadJapan": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AbroadKorea": "Korea · EPS-TOPIK",
+  "@lp2AbroadKorea": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AbroadGermany": "Germany · A1 visa",
+  "@lp2AbroadGermany": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AbroadGulf": "Middle East · work Arabic",
+  "@lp2AbroadGulf": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2OtherLangTitle": "Other languages",
+  "@lp2OtherLangTitle": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangGerman": "German",
+  "@lp2LangGerman": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangFrench": "French",
+  "@lp2LangFrench": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangSpanish": "Spanish",
+  "@lp2LangSpanish": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangArabic": "Arabic",
+  "@lp2LangArabic": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangJapanese": "Japanese",
+  "@lp2LangJapanese": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangKorean": "Korean",
+  "@lp2LangKorean": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LangChinese": "Chinese",
+  "@lp2LangChinese": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2GoalTitle": "Today's goal",
+  "@lp2GoalTitle": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Streak": "{count}-day streak",
+  "@lp2Streak": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2StreakBest": "Best: {count} days",
+  "@lp2StreakBest": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2GoalDone": "Goal done for today — well done! Come back tomorrow to keep your streak.",
+  "@lp2GoalDone": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2GoalMin": "{done} of {goal} minutes today",
+  "@lp2GoalMin": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2VocabOpen": "Today's words",
+  "@lp2VocabOpen": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NextStageTitle": "{language} opens in the next stage",
+  "@lp2NextStageTitle": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2NextStageBody": "We are building a full course taught from Bangla, level by level, with practice tests. Start with English today — the same daily habit carries over.",
+  "@lp2NextStageBody": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NextStageCta": "Practise Life English now",
+  "@lp2NextStageCta": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Close": "Close",
+  "@lp2Close": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabTitle": "Vocabulary",
+  "@lp2VocabTitle": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ContentFail": "The lessons could not open. Please try again.",
+  "@lp2ContentFail": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabToday": "Today's review",
+  "@lp2VocabToday": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabAllDone": "All done for today. New words unlock tomorrow.",
+  "@lp2VocabAllDone": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabDue": "{count} words are waiting: words to review and up to 10 new ones.",
+  "@lp2VocabDue": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2VocabLearned": "{learned} of {total} learned",
+  "@lp2VocabLearned": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "learned": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2VocabComeBack": "Come back tomorrow",
+  "@lp2VocabComeBack": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabStart": "Start review",
+  "@lp2VocabStart": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabIelts": "IELTS",
+  "@lp2VocabIelts": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabLife": "Life",
+  "@lp2VocabLife": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabDoneTitle": "Session complete",
+  "@lp2VocabDoneTitle": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabDoneBody": "You knew {knew} of {total}. Words you missed come back sooner, so they stick.",
+  "@lp2VocabDoneBody": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "knew": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2Done": "Done",
+  "@lp2Done": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ShowMeaning": "Show meaning",
+  "@lp2ShowMeaning": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NotYet": "Not yet",
+  "@lp2NotYet": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2KnewIt": "I knew it",
+  "@lp2KnewIt": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2VocabHow": "Say the meaning in your head first, then check. Words you know come back after 2, 4, 7 and 15 days.",
+  "@lp2VocabHow": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeIntro": "Pick a situation. Learn the key sentences with Bangla meaning, listen, then practise talking with the officer or seller.",
+  "@lp2LifeIntro": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeOffline": "Sentences, words and guided practice work without internet.",
+  "@lp2LifeOffline": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LifeRole": "You talk with: {role}",
+  "@lp2LifeRole": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2KeySentences": "Key sentences",
+  "@lp2KeySentences": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Words": "Words",
+  "@lp2Words": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Goals": "You will be able to",
+  "@lp2Goals": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2SayIt": "Say it",
+  "@lp2SayIt": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2StartRolePlay": "Practise with the {role}",
+  "@lp2StartRolePlay": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2SayClearer": "Say these words more clearly: {words}",
+  "@lp2SayClearer": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2PronHow": "Your phone's own speech recognition checks which words it heard as you meant them. Free, and the microphone is on only while you hold the button.",
+  "@lp2PronHow": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiFail": "The AI could not answer right now. Nothing was charged. Please try again.",
+  "@lp2AiFail": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiNoCredits": "Today's free AI turns are used and you have no credits left. Guided practice is always free.",
+  "@lp2AiNoCredits": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiPremium": "AI scoring is part of Premium. Guided practice and vocabulary stay free.",
+  "@lp2AiPremium": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiNotConnected": "AI conversation is not switched on yet. Use guided practice — it works fully on your phone.",
+  "@lp2AiNotConnected": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiBusy": "The AI is busy right now. Nothing was charged. Try again in a minute, or use guided practice.",
+  "@lp2AiBusy": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2GuidedInstead": "Use guided practice",
+  "@lp2GuidedInstead": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2SeePlans": "See plans",
+  "@lp2SeePlans": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2SayItRight": "Say it right",
+  "@lp2SayItRight": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ModeAi": "AI conversation",
+  "@lp2ModeAi": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ModeGuided": "Guided practice",
+  "@lp2ModeGuided": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Thinking": "The {role} is answering…",
+  "@lp2Thinking": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2GuidedDone": "Well done — you answered every question. Try again to raise your pronunciation score, or talk freely with the AI.",
+  "@lp2GuidedDone": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Again": "Again",
+  "@lp2Again": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TypeAnswer": "Type your answer",
+  "@lp2TypeAnswer": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Send": "Send",
+  "@lp2Send": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2You": "You",
+  "@lp2You": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2GoodEnglish": "Good English!",
+  "@lp2GoodEnglish": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritTA": "Task achievement",
+  "@lp2CritTA": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritTR": "Task response",
+  "@lp2CritTR": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritCC": "Coherence and cohesion",
+  "@lp2CritCC": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritLR": "Vocabulary (Lexical resource)",
+  "@lp2CritLR": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritGRA": "Grammar range and accuracy",
+  "@lp2CritGRA": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritFC": "Fluency and coherence",
+  "@lp2CritFC": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2CritP": "Pronunciation",
+  "@lp2CritP": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiCut": "The answer was too long to score in one go. Nothing was charged — shorten it a little and try again.",
+  "@lp2AiCut": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AiUnreadable": "The answer could not be read as English. Nothing was charged — check it and try again.",
+  "@lp2AiUnreadable": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2BandIs": "Band {band}",
+  "@lp2BandIs": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2Mistakes": "{count} mistakes to fix",
+  "@lp2Mistakes": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2Corrected": "Corrected version",
+  "@lp2Corrected": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2CreditsUsed": "{count} credits used",
+  "@lp2CreditsUsed": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2NeedPromptAnswer": "Type the question from your book and your answer first.",
+  "@lp2NeedPromptAnswer": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TooShort": "Write at least 40 words so the score means something.",
+  "@lp2TooShort": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ScoreWriting": "Score a Writing answer",
+  "@lp2ScoreWriting": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ScoreSpeaking": "Score a Speaking answer",
+  "@lp2ScoreSpeaking": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TaskN": "Task {n}",
+  "@lp2TaskN": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2PartN": "Part {n}",
+  "@lp2PartN": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2Academic": "Academic",
+  "@lp2Academic": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2General": "General Training",
+  "@lp2General": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2PromptLabel": "Question from your book",
+  "@lp2PromptLabel": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2PromptHelp": "Used only for this score; the app does not keep it.",
+  "@lp2PromptHelp": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2YourAnswer": "Your answer",
+  "@lp2YourAnswer": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2WhatPhoneHeard": "What the phone heard (you can fix it)",
+  "@lp2WhatPhoneHeard": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2WordCount": "{count} words",
+  "@lp2WordCount": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2BestLevel": "Best scoring",
+  "@lp2BestLevel": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2BestLevelSub": "More detailed feedback from our strongest AI; uses more credits.",
+  "@lp2BestLevelSub": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ScoreMyAnswer": "Score my answer",
+  "@lp2ScoreMyAnswer": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NoContentLine": "Questions, audio and answers are not kept in the app. Use your own book.",
+  "@lp2NoContentLine": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2WeekUsed": "Your free mock section for this week is used. The next one is free from {date}. Premium opens every full mock now.",
+  "@lp2WeekUsed": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2FullIsPremium": "Full mock tests with the real timer and AI Writing and Speaking scoring are part of Premium. On the free plan you can practise one mock section a week.",
+  "@lp2FullIsPremium": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2FreeMeanwhile": "Practise vocabulary for free",
+  "@lp2FreeMeanwhile": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2OfflineRemoved": "Removed from this phone.",
+  "@lp2OfflineRemoved": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2OfflineSaved": "Saved on this phone. You can take this test without internet; scoring needs internet.",
+  "@lp2OfflineSaved": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2DownloadFail": "The download did not finish. Check the internet and try again.",
+  "@lp2DownloadFail": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2WeakAreas": "Weak areas",
+  "@lp2WeakAreas": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2FreeLeft": "Free plan: {count} mock section left this week",
+  "@lp2FreeLeft": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2FreeLeftSub": "Premium opens full mocks and AI scoring. Tap to see plans.",
+  "@lp2FreeLeftSub": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MocksFail": "The mock tests could not load. Downloaded tests still work offline.",
+  "@lp2MocksFail": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NoMocksTitle": "New mock tests are being prepared",
+  "@lp2NoMocksTitle": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NoMocksBody": "Each test is checked before it appears here. Meanwhile, practise with your own book in the book companion.",
+  "@lp2NoMocksBody": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MocksOriginal": "All mock tests are original Assisto practice material in the real exam format. Scores are practice scores, not official IELTS results.",
+  "@lp2MocksOriginal": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2OfflineRemove": "Remove download",
+  "@lp2OfflineRemove": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Download": "Download for offline",
+  "@lp2Download": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Beta": "Beta · under review",
+  "@lp2Beta": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Offline": "On this phone",
+  "@lp2Offline": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2FullMock": "Full mock · 2 h 45 min",
+  "@lp2FullMock": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2PracticeOne": "Or practise one section:",
+  "@lp2PracticeOne": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LeaveTitle": "Leave the test?",
+  "@lp2LeaveTitle": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LeaveBody": "Your answers in this test will be lost.",
+  "@lp2LeaveBody": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2KeepGoing": "Keep going",
+  "@lp2KeepGoing": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2LeaveTest": "Leave",
+  "@lp2LeaveTest": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Marking": "Marking {section}…",
+  "@lp2Marking": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2OnlyOneTask": "Only one task was answered — the real exam needs both.",
+  "@lp2OnlyOneTask": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NotAnswered": "Not answered",
+  "@lp2NotAnswered": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Summary": "Writing your summary…",
+  "@lp2Summary": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MarkFail": "Marking did not finish. Your answers are kept — check the internet and try again.",
+  "@lp2MarkFail": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ScoringWait": "This takes up to a minute. Please keep the app open.",
+  "@lp2ScoringWait": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2FullStep": "Full mock · section {step} of {total}",
+  "@lp2FullStep": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2PracticeMode": "Section practice",
+  "@lp2PracticeMode": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TimeUp": "Time is up. Your answers were submitted.",
+  "@lp2TimeUp": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Resume": "Resume",
+  "@lp2Resume": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Pause": "Pause",
+  "@lp2Pause": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Paused": "Paused",
+  "@lp2Paused": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2SubmitFinish": "Submit and see my score",
+  "@lp2SubmitFinish": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2SubmitNext": "Submit and go to the next section",
+  "@lp2SubmitNext": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MaxWords": "No more than {count} words",
+  "@lp2MaxWords": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2Right": "Correct",
+  "@lp2Right": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ChooseMany": "Choose all the right answers.",
+  "@lp2ChooseMany": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2SectionEmpty": "This section has no questions yet.",
+  "@lp2SectionEmpty": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Answered": "{done} of {total} answered",
+  "@lp2Answered": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2PassageN": "Passage {n}",
+  "@lp2PassageN": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2Passage": "Passage",
+  "@lp2Passage": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Questions": "Questions",
+  "@lp2Questions": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioFail": "The audio could not play. Check the internet or download the test first.",
+  "@lp2AudioFail": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioMissing": "The audio for this part is not ready yet.",
+  "@lp2AudioMissing": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2PlayAudio": "Play the recording",
+  "@lp2PlayAudio": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioPlayedOnce": "Played — like the real exam, you hear it once",
+  "@lp2AudioPlayedOnce": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioPlaying": "Playing…",
+  "@lp2AudioPlaying": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioPractice": "Practice mode: you can replay.",
+  "@lp2AudioPractice": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2AudioOnce": "Exam mode: the recording plays once.",
+  "@lp2AudioOnce": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2WritingHint": "Spend about 20 minutes on Task 1 and 40 minutes on Task 2. Task 2 counts double.",
+  "@lp2WritingHint": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ImageFail": "The picture could not load.",
+  "@lp2ImageFail": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2WordsOfMin": "{count} words (at least {min})",
+  "@lp2WordsOfMin": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2StartPrep": "Start 1 minute of preparation",
+  "@lp2StartPrep": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Prep": "Prepare",
+  "@lp2Prep": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2SkipPrep": "Start talking",
+  "@lp2SkipPrep": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TalkNow": "Talk now",
+  "@lp2TalkNow": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2QuestionOf": "Question {n} of {total}",
+  "@lp2QuestionOf": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2NextQuestion": "Next question",
+  "@lp2NextQuestion": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2SpeakingHow": "Hold the button and answer aloud like in the real test. The phone writes down what it hears; the AI scores fluency, vocabulary, grammar and pronunciation from it.",
+  "@lp2SpeakingHow": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2CommentNone": "Finish a section to get your coach comment.",
+  "@lp2CommentNone": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2RuleComment": "Your weakest section is {section} (band {band}). Improving it by half a band raises your overall the fastest — start with the weak-area practice below.",
+  "@lp2RuleComment": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "section": {
+        "type": "String"
+      },
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2ResultTitle": "Your result",
+  "@lp2ResultTitle": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2OverallNeedsAll": "The overall band needs all four sections.",
+  "@lp2OverallNeedsAll": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2OverallBand": "Overall band {band}",
+  "@lp2OverallBand": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2Overall": "Overall",
+  "@lp2Overall": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NotTaken": "Not taken this time",
+  "@lp2NotTaken": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2CoachComment": "Coach comment",
+  "@lp2CoachComment": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2PracticeWeak": "Practise weak areas",
+  "@lp2PracticeWeak": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2ReviewAnswers": "Review {section} answers",
+  "@lp2ReviewAnswers": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2ItemLine": "{n}. You: {your} · Answer: {key}",
+  "@lp2ItemLine": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "your": {
+        "type": "String"
+      },
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2WeakEmpty": "No practice questions for this area yet",
+  "@lp2WeakEmpty": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2WeakEmptyBody": "Take a mock section first — your mistakes decide what you practise here.",
+  "@lp2WeakEmptyBody": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2WeakIntro": "These questions target the mistakes from your last test.",
+  "@lp2WeakIntro": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2WeakScore": "{right} of {total} right",
+  "@lp2WeakScore": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "right": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2CheckAnswers": "Check answers",
+  "@lp2CheckAnswers": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MoreQuestions": "More questions",
+  "@lp2MoreQuestions": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2KeyNeeded": "Type the answer key from your book first.",
+  "@lp2KeyNeeded": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2Book": "Your IELTS book",
+  "@lp2Book": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2BookN": "Book {n}",
+  "@lp2BookN": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2Test": "Test",
+  "@lp2Test": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2TestN": "Test {n}",
+  "@lp2TestN": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2ExamTimer": "Exam timer · {minutes} min",
+  "@lp2ExamTimer": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2StartTimer": "Start timer",
+  "@lp2StartTimer": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2OmrStepAnswer": "Step 1: start the timer, do the test from your book and fill in the answer sheet.",
+  "@lp2OmrStepAnswer": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2OmrStepKey": "Step 2: copy the answer key from the back of your book. Use / for other accepted answers.",
+  "@lp2OmrStepKey": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2OmrStepResult": "Step 3: see your band and the type of every mistake.",
+  "@lp2OmrStepResult": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2WordLimit": "Word limit:",
+  "@lp2WordLimit": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NoLimit": "None",
+  "@lp2NoLimit": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MapRange": "Map / plan questions",
+  "@lp2MapRange": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2From": "from",
+  "@lp2From": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2To": "to",
+  "@lp2To": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2EnterKey": "I'm done — enter the key",
+  "@lp2EnterKey": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2MarkSheet": "Mark my sheet",
+  "@lp2MarkSheet": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2NewSheet": "New answer sheet",
+  "@lp2NewSheet": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2BookWS": "Writing and Speaking from your book",
+  "@lp2BookWS": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2KeyHint": "key",
+  "@lp2KeyHint": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2YouWrote": "You: {answer}",
+  "@lp2YouWrote": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2KeyWas": "Key: {key}",
+  "@lp2KeyWas": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2RawScore": "{raw} of {total} correct",
+  "@lp2RawScore": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "raw": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2ScaledNote": "Only {count} questions had a key, so the band is an estimate scaled to 40.",
+  "@lp2ScaledNote": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2MistakeTypes": "Mistake types",
+  "@lp2MistakeTypes": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2WatchAdCredits": "Watch a short ad to earn credits",
+  "@lp2WatchAdCredits": {
+    "description": "lpapp: Language Partner V2"
+  },
+  "lp2OpenWithCredits": "Open this section with {count} credits",
+  "@lp2OpenWithCredits": {
+    "description": "lpapp: Language Partner V2",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "adGateTitle": "Watch one short ad?",
+  "@adGateTitle": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateBody": "Watch one short ad {what}. It keeps this free for you.",
+  "@adGateBody": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "adGateOnceNote": "Only once. After this it stays free on this phone.",
+  "@adGateOnceNote": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateWindowNote": "After the ad it stays free for {minutes} minutes.",
+  "@adGateWindowNote": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "adGatePerUseNote": "One ad for each check. Premium and Plus have no ads.",
+  "@adGatePerUseNote": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateWatch": "Watch the ad and continue",
+  "@adGateWatch": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateNotNow": "Not now",
+  "@adGateNotNow": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateWhatTrain": "to see this train's live location",
+  "@adGateWhatTrain": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateWhatScan": "to run this check",
+  "@adGateWhatScan": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateWhatSecurity": "to switch this security feature on",
+  "@adGateWhatSecurity": {
+    "description": "adcontrol rewarded gate"
+  },
+  "mv2Title": "Mess and bachelor",
+  "mv2Add": "Add",
+  "mv2AddBazar": "Add bazar",
+  "mv2AddCharge": "Add service charge",
+  "mv2AddDeposit": "Add deposit",
+  "mv2AddMember": "Add member from My Circle",
+  "mv2AddTurn": "Set bazar turn",
+  "mv2AddressLabel": "Address (optional)",
+  "mv2Advance": "Advance for the big bazar",
+  "mv2AdvanceSub": "Counted as a deposit only because it was given",
+  "mv2AllClear": "All clear — nothing to pay or get back",
+  "mv2AmountError": "Enter the amount in taka, for example 500",
+  "mv2AmountLabel": "Amount (taka)",
+  "mv2BazarEmpty": "No bazar yet this month. Tap Add bazar after shopping — add the receipt photo so everyone can see it.",
+  "mv2BoughtBy": "Who bought",
+  "mv2Breakfast": "Breakfast",
+  "mv2BreakfastLabel": "Breakfast counts as",
+  "mv2Camera": "Camera",
+  "mv2CardA11y": "Mess today: meals, bazar and who has not set tomorrow",
+  "mv2CardAllSet": "Everyone has set tomorrow's meals",
+  "mv2CardBazar": "Bazar today: {amount}",
+  "@mv2CardBazar": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2CardCollapse": "Hide mess card",
+  "mv2CardExpand": "Show mess card",
+  "mv2CardMeals": "Meals today: {n}",
+  "@mv2CardMeals": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2CardNotSet": "Not set tomorrow yet: {names}",
+  "@mv2CardNotSet": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2CardTitle": "Today in the mess",
+  "mv2CardTurn": "Bazar turn: {name}",
+  "@mv2CardTurn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2CarryIn": "From last month",
+  "mv2ChElectricity": "Electricity",
+  "mv2ChGas": "Gas",
+  "mv2ChKhala": "Khala (cook)",
+  "mv2ChOther": "Other bill",
+  "mv2ChRent": "Rent",
+  "mv2ChWater": "Water",
+  "mv2ChWifi": "Wi-Fi",
+  "mv2ChargeNote": "Service charges are not in the meal rate. They are split among members — equally, or by seat or room share.",
+  "mv2ChargeTitleLabel": "Note (optional)",
+  "mv2ChargesEmpty": "No service charge yet. The manager adds khala, electricity, gas, water, Wi-Fi or rent here.",
+  "mv2CircleEmpty": "Nobody in your My Circle yet. Invite your mess mates to My Circle — after they accept, add them here in one tap.",
+  "mv2CloseMess": "Close this mess",
+  "mv2CloseMessBody": "The group chat and all history stay. The mess card disappears and nobody can add new entries.",
+  "mv2CloseMonth": "Close the month",
+  "mv2CloseMonthBody": "Everyone's result is fixed and the balance moves to next month. After closing, nobody can change this month — not even the manager.",
+  "mv2CloseMonthTitle": "Close this month?",
+  "mv2Confirm": "Yes, continue",
+  "mv2CorrectMeals": "Correct a member's meals",
+  "mv2CorrectWho": "Whose meals?",
+  "mv2CreateMess": "Create a mess",
+  "mv2Created": "Mess created. Now add members from My Circle.",
+  "mv2CutoffItem": "Until {time} the day before",
+  "@mv2CutoffItem": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2CutoffLabel": "Meal change cut-off",
+  "mv2DateLabel": "Date: {date}",
+  "@mv2DateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2DaysOffBody": "Going home or travelling? Turn your meals off for all those days at once.",
+  "mv2DaysOffFor": "Meals off for several days",
+  "mv2DaysOffTitle": "Turn meals off for several days",
+  "mv2Delete": "Delete",
+  "mv2DeleteEntry": "Delete this entry?",
+  "mv2DeleteEntryBody": "It is removed from the month's math. The history still shows who deleted it and when.",
+  "mv2Deleted": "Deleted",
+  "mv2Deposit": "Deposit",
+  "mv2DepositBy": "Who deposited",
+  "mv2Deposits": "Deposits",
+  "mv2DepositsEmpty": "No deposit yet. When you give money to the manager, add it here so everyone sees it.",
+  "mv2Dinner": "Dinner",
+  "mv2Done": "Done",
+  "mv2Edit": "Change",
+  "mv2EditMess": "Mess details",
+  "mv2EmptyBody": "Everyone enters their own meals from their own phone, bazar and deposits are visible to all, and the app works out who pays or gets back at month end — no notebook, no arguments.",
+  "mv2EmptyTitle": "Run your mess together",
+  "mv2FreeLine": "Free for everyone. Premium adds several messes and full reports for older months.",
+  "mv2Gallery": "Gallery",
+  "mv2GetsBack": "Gets back {amount}",
+  "@mv2GetsBack": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2GuestLess": "One guest less",
+  "mv2GuestMore": "One guest more",
+  "mv2GuestNote": "Guest meals are counted under your name.",
+  "mv2Guests": "Guests",
+  "mv2History": "Edit history",
+  "mv2HistoryEmpty": "No changes yet.",
+  "mv2How1": "Create the mess with its name, for example Rampura Mess.",
+  "mv2How2": "Add members from My Circle — a mess group is made for you.",
+  "mv2How3": "Meals are ON every day; each person turns off their own by 10 pm the day before.",
+  "mv2How4": "Add bazar, deposits and bills; at month end tap Close the month.",
+  "mv2HowTitle": "How it works",
+  "mv2ImportBody": "Your old mess records are on this account. Bring them into a new shared mess — the old records are kept as a backup.",
+  "mv2ImportButton": "Bring old records in",
+  "mv2ImportDone": "Old records brought in. Link the old names to people from My Circle in Members.",
+  "mv2ImportTitle": "Old mess records found",
+  "mv2InMess": "Already in the mess",
+  "mv2InviteToCircle": "Invite to My Circle",
+  "mv2ItemsLabel": "What was bought (optional)",
+  "mv2KeyMissing": "Your chat key is not on this phone yet. Open My Circle once, then try again.",
+  "mv2LeaveMess": "Leave the mess",
+  "mv2LinkNone": "No, add as a new member",
+  "mv2LinkTitle": "Is {name} one of these old names?",
+  "@mv2LinkTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2Locked": "Locked",
+  "mv2Lunch": "Lunch",
+  "mv2MakeAdmin": "Make admin",
+  "mv2MakeManager": "Make this month's manager",
+  "mv2MealCost": "Meal cost",
+  "mv2MealCount": "{n} meals",
+  "@mv2MealCount": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MealRate": "Meal rate",
+  "mv2Meals": "Meals",
+  "mv2MealsFor": "Meals on {date}",
+  "@mv2MealsFor": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MealsForPerson": "{name}: meals on {date}",
+  "@mv2MealsForPerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MealsHelp": "Meals are ON by default. Change a day until {time} the day before; after that only the manager can correct it.",
+  "@mv2MealsHelp": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MealsOff": "Meals off",
+  "mv2MealsOn": "Meals on",
+  "mv2MemberAdded": "{name} added to the mess and its group",
+  "@mv2MemberAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MembersEmpty": "Only you so far. Add your mess mates from My Circle — each one then enters their own meals.",
+  "mv2MessClosed": "Closed — history kept",
+  "mv2MonthClosed": "Month closed. Everyone got their result inside Assisto.",
+  "mv2MonthClosedLabel": "Month {key} (closed)",
+  "@mv2MonthClosedLabel": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MonthEmpty": "No members to show yet.",
+  "mv2MonthOpenLabel": "Month {key} (running)",
+  "@mv2MonthOpenLabel": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MyMeals": "My meals",
+  "mv2NameHint": "For example Rampura Mess",
+  "mv2NameLabel": "Mess name",
+  "mv2NameRequired": "Enter the mess name",
+  "mv2NoGroupYet": "Add a member first — the mess group is made then.",
+  "mv2NotLinked": "Old name — not linked yet",
+  "mv2NoteLabel": "Note (optional)",
+  "mv2OfflineBanner": "No internet — showing the last saved copy. New entries are kept on this phone and sync later.",
+  "mv2OldMonths": "Old months",
+  "mv2OpAdded": "added",
+  "mv2OpChanged": "changed",
+  "mv2OpClosed": "closed",
+  "mv2OpRemoved": "removed",
+  "mv2OpenMess": "Open mess",
+  "mv2Pdf": "PDF report",
+  "mv2PendingBanner": "{n} entries waiting for internet — they sync by themselves.",
+  "@mv2PendingBanner": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2PerMember": "Each member",
+  "mv2PhotoAdded": "Receipt photo added",
+  "mv2PhotoFailed": "Could not get the photo. Try again.",
+  "mv2PickDays": "Pick the days",
+  "mv2PickSub": "Only people in your My Circle can join, so everyone has Assisto and enters their own meals.",
+  "mv2PickTitle": "Add from My Circle",
+  "mv2PremiumOldMonths": "Full reports of older months are in Premium. The current month and the last closed month are free.",
+  "mv2PremiumSeveral": "Free runs one mess. With Premium you can run several messes at once.",
+  "mv2RateFormula": "Meal rate = total bazar ÷ total meals. Each member: meals × rate + service charges − deposits.",
+  "mv2ReceiptLabel": "Receipt photo (optional)",
+  "mv2RemindDues": "Remind who still has to pay",
+  "mv2RemindSent": "Reminder sent inside Assisto (free, no SMS)",
+  "mv2RemoveAdmin": "Remove admin role",
+  "mv2RemoveBody": "Their meals stop from tomorrow and they leave the mess group. Their past entries stay in the history.",
+  "mv2RemoveMember": "Remove from mess",
+  "mv2RoleAdmin": "Admin",
+  "mv2RoleManager": "Manager this month",
+  "mv2RoleMember": "Member",
+  "mv2Save": "Save",
+  "mv2SaveFailed": "Could not save. Check the internet and try again.",
+  "mv2Saved": "Saved",
+  "mv2SavedOffline": "Saved on this phone — it syncs when the internet is back",
+  "mv2SeatShare": "Seat or room share for rent",
+  "mv2SeatShareHelp": "How many shares of the rent? For example 2 for a bigger room.",
+  "mv2SeePremium": "See Premium",
+  "mv2ServiceCharge": "Service charge",
+  "mv2ServiceCharges": "Service charges",
+  "mv2ShareInGroup": "Share report in the mess group",
+  "mv2SplitBySeat": "Split by seat or room share",
+  "mv2SplitBySeatSub": "Off = split equally among all members",
+  "mv2SplitEqualShort": "equal split",
+  "mv2SplitSeatShort": "by seat",
+  "mv2StartDayItem": "Day {n} of the month",
+  "@mv2StartDayItem": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2StartDayLabel": "Month starts on",
+  "mv2SyncRefused": "An offline entry was not accepted: {reason}",
+  "@mv2SyncRefused": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2TabBazar": "Bazar",
+  "mv2TabMeals": "Meals",
+  "mv2TabMembers": "Members",
+  "mv2TabMoney": "Deposits and bills",
+  "mv2TabMonth": "Month end",
+  "mv2ThisMonth": "This month",
+  "mv2TotalBazar": "Total bazar",
+  "mv2TotalMeals": "Total meals",
+  "mv2TurnWho": "Whose turn",
+  "mv2Turns": "Bazar turns",
+  "mv2TurnsEmpty": "No turns set. The manager sets who shops on which day; that person gets a reminder the night before.",
+  "mv2ViewReceipt": "View receipt",
+  "mv2WillPay": "Will pay {amount}",
+  "@mv2WillPay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dsBloodHeroTitle": "Need blood urgently?",
+  "@dsBloodHeroTitle": {
+    "description": "designv2: blood donor hub red hero title"
+  },
+  "dsBloodHeroSub": "Donors near you get your request within a minute.",
+  "@dsBloodHeroSub": {
+    "description": "designv2: blood donor hub red hero subtitle"
+  },
+  "dsBloodHeroCta": "Send request",
+  "@dsBloodHeroCta": {
+    "description": "designv2: blood donor hub red hero button"
+  },
+  "dsBloodNearNow": "Available near you now",
+  "@dsBloodNearNow": {
+    "description": "designv2: blood donor list section title"
+  },
+  "dsBloodMyCard": "My donor card",
+  "@dsBloodMyCard": {
+    "description": "designv2: blood donor own card section title"
+  },
+  "dsBloodCanGiveNow": "You can give blood now",
+  "@dsBloodCanGiveNow": {
+    "description": "designv2: my donor card, eligible now"
+  },
+  "dsBloodListedToggle": "Show me in the donor list",
+  "@dsBloodListedToggle": {
+    "description": "designv2: my donor card listed switch label"
+  },
+  "ds2SosHoldLine": "Hold 1 second — your family gets your location.",
+  "@ds2SosHoldLine": {
+    "description": "designv2: one short line under the big SOS button (page rule: no paragraph)"
+  },
+  "qvOpenAyah": "Open ayah {aya}: meaning, tafsir, audio",
+  "@qvOpenAyah": {
+    "placeholders": {
+      "aya": {
+        "type": "String"
+      }
+    }
+  },
+  "qvLines": "Show lines",
+  "qvLinesHint": "Turn each line on or off. Bangla and English are both shown in every app language.",
+  "qvLineArabic": "Arabic",
+  "qvLinePron": "Bangla pronunciation",
+  "qvLineTranslit": "English transliteration",
+  "qvLineBn": "Bangla meaning",
+  "qvLineEn": "English meaning",
+  "qvLineWords": "Word by word",
+  "qvLineAudio": "Recitation",
+  "qvUnderReview": "Under review — not yet checked by a scholar",
+  "qvSourceTanzil": "Source: Tanzil Project (tanzil.net), Uthmani text, CC BY 3.0 — unchanged",
+  "qvSourcePron": "Source: Assisto pronunciation rules with tajweed (no AI), from the Tanzil text",
+  "qvSourceQe": "Source: {publisher} · QuranEnc.com · version {version} — unchanged",
+  "@qvSourceQe": {
+    "placeholders": {
+      "publisher": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "qvSourceQf": "Source: Quran Foundation (quran.foundation)",
+  "qvLoadFailed": "Could not load. Check the internet and try again.",
+  "qvRetry": "Try again",
+  "qvNotInSource": "The source has nothing for this ayah.",
+  "qvReciter": "Reciter",
+  "qvRepeat": "Repeat",
+  "qvRepeatN": "{n} times",
+  "@qvRepeatN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qvPlay": "Play",
+  "qvStop": "Stop",
+  "qvPlaying": "Playing {i} of {n}",
+  "@qvPlaying": {
+    "placeholders": {
+      "i": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qvAudioFailed": "Could not play. Check the internet and try again.",
+  "qvAudioMissing": "This reciter has no audio for this ayah. Choose another reciter.",
+  "qvTafsirBtn": "Tafsir & shane nuzul",
+  "qvTafsirText": "Tafsir and notes",
+  "qvShanNuzul": "Shane nuzul (reason of revelation)",
+  "qvShanNone": "This source has no shane nuzul for this ayah.",
+  "qvShanRule": "Shown only where this source itself states the reason, word for word. Found by a fixed word rule, not AI — under review.",
+  "qvNoAi": "Every meaning and tafsir here is the publisher's exact text. Assisto AI never writes, shortens or changes it. No ads.",
+  "qvQfCredit": "Recitation audio, word-by-word meaning and transliteration: Quran Foundation (quran.foundation).",
+  "qvAboutQe": "Bangla meaning (Abu Bakr Zakaria), English meaning (Saheeh International) and the Al-Mukhtasar tafsir: QuranEnc.com — shown unchanged with the publisher and version, kept at the latest version.",
+  "qvTafsirPendingNote": "Other Bangla tafsirs (Ibn Kathir, Ahsanul Bayaan, Fathul Majid, the full Abu Bakr Zakaria tafsir) will be added only after their publishers' written permission.",
+  "qvPrev": "Previous ayah",
+  "qvNext": "Next ayah",
+  "qvBnHereTitle": "Bangla meaning is in the ayah view",
+  "qvBnHereBody": "Tap any ayah to see the Bangla meaning (Abu Bakr Zakaria, QuranEnc.com) with the English meaning, tafsir and audio.",
+  "discmsWhatsNewBadge": "What's new",
+  "@discmsWhatsNewBadge": {
+    "description": "discms: badge on a Home Discover card about an app update"
+  },
+  "discmsOfferBadge": "Offer",
+  "@discmsOfferBadge": {
+    "description": "discms: badge on a Home Discover offer / promotion card"
+  },
+  "discmsTypeWhatsNew": "What's new (app update)",
+  "@discmsTypeWhatsNew": {
+    "description": "discms: Discover manager card type"
+  },
+  "discmsTypeOffer": "Offer / promotion",
+  "@discmsTypeOffer": {
+    "description": "discms: Discover manager card type"
+  }
 }

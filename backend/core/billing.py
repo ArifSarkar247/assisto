@@ -1094,7 +1094,18 @@ def ad_wallet_state(user, now=None):
         "caps": {k: {"cap": caps[k], "used": used[k],
                      "remaining": max(0, caps[k] - used[k])} for k in caps},
         "ads_configured": _ads_configured(),
+        # aimoney (owner 10 Nov, part G): honest "Watch N ads for 1 answer"
+        **_ads_per_answer_field(),
     }
+
+
+def _ads_per_answer_field():
+    try:
+        from . import ai_levels_service as ALS
+        n = ALS.ads_per_answer()
+        return {"ads_per_answer": int(n)} if n else {}
+    except Exception:  # noqa: BLE001
+        return {}
 
 
 def _ads_configured():

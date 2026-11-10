@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../api.dart' show ApiException;
+import '../../plans_v2/buy_inside.dart';
 import 'camera_label.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import 'watchman_zones.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../widgets/local_counter.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// cctv1 camera onboarding + COMPATIBILITY CHECK. The phone cannot reach LAN
 /// cameras from the internet, so the GATEWAY runs the check (reachable? auth
@@ -56,6 +59,18 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
   Map<String, dynamic>? _camera;
   Map<String, dynamic>? _task;
   String? _error;
+  // buyinside: the camera limit of the CCTV plan — buy / grow it right here
+  bool _capHit = false;
+
+  Future<void> _buyPlan() async {
+    final ok = await BuyInside.open(context, 'cctv_camera_cap');
+    if (!ok || !mounted) return;
+    setState(() {
+      _capHit = false;
+      _error = null;
+    });
+    await _submit(); // everything typed is kept; add the camera now
+  }
   bool _busy = false;
   bool _imouConsent = false; // cctvconnect: the camera owner's consent (owner 9 Nov)
   bool _scanning = false;
@@ -164,7 +179,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
     try {
       var cam = _camera;
       if (cam == null) {
-        final ch = int.tryParse(_channel.text.trim()) ?? 1;
+        final ch = parseIntInput(_channel.text.trim()) ?? 1;
         cam = await widget.source.addCamera((widget.site['id'] as num).toInt(), {
           'name': _name.text.trim().isEmpty ? wmVendorName(t, _vendor) : _name.text.trim(),
           'kind': 'shopbox',
@@ -200,7 +215,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
         'secret': _secret.text.trim(),
         if (!_fixedAdmin) 'username': _user.text.trim(),
         if (_host.text.trim().isNotEmpty) 'host': _host.text.trim(),
-        'channel': int.tryParse(_channel.text.trim()) ?? 1,
+        'channel': parseIntInput(_channel.text.trim()) ?? 1,
         'stream': _stream,
         if (_vendor == 'rtsp') 'rtsp_url': _rtsp.text.trim(),
       });
@@ -216,6 +231,9 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
       setState(() {
         _busy = false;
         _error = wmError(e) ?? t.wmGenericError;
+        _capHit = e is ApiException &&
+            e.status == 402 &&
+            (e.reason == 'camera_cap' || e.reason == 'cctv_plan_full');
       });
     }
   }
@@ -486,6 +504,17 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
       if (_error != null) ...[
         const SizedBox(height: 12),
         Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+      ],
+      if (_capHit) ...[
+        const SizedBox(height: 8),
+        FilledButton.tonalIcon(
+          key: const Key('bi-wm-cap-buy'),
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: _busy ? null : _buyPlan,
+          icon: const Icon(Icons.videocam_rounded),
+          label: Text(AppLocalizations.of(context).biGetCctvPlan,
+              textAlign: TextAlign.center),
+        ),
       ],
       const SizedBox(height: 18),
       FilledButton(

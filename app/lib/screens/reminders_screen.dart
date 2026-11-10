@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../ds/ds.dart';
 import '../theme.dart';
+import '../ads/ad_banner_slot.dart'; // adcontrol
 import '../notifications.dart';
 import '../services/home_widget_service.dart';
 import '../widgets/reminders_nlp.dart';
@@ -99,7 +100,9 @@ class _RemindersScreenState extends State<RemindersScreen>
         ));
 
     return Scaffold(
-      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      // adcontrol (owner 10 Nov): one bottom banner on the reminders LIST
+      // (Free only) — never on the alarm moment (another screen, no slot)
+      bottomNavigationBar: const AdBannerSlot(screen: 'reminders_list'),
       appBar: AppBar(
         title: Text(t.navReminders),
         actions: [

@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
 import '../screens/crm/crm_advanced_api.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// Routing configuration (CRM spec #8): ordered territory / industry / source
 /// rules, first-match wins (mirrors logic_team.route_by_rules + pipeline.
@@ -141,7 +142,7 @@ class _RuleSheetState extends State<_RuleSheet> {
         'org': widget.org,
         if (_industry != null) 'match_industry': _industry,
         if (_source != null) 'match_source': _source,
-        'min_company_size': int.tryParse(_minSize.text.trim()) ?? 0,
+        'min_company_size': parseIntInput(_minSize.text.trim()) ?? 0,
         if (_assignTo != null) 'assign_to': _assignTo,
         if (_territory != null) 'territory': _territory,
         'active': true,

@@ -10,6 +10,7 @@ import '../../theme.dart';
 import '../../widgets/msgr_set_tiles.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../widgets/local_counter.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// Change number — a two-step flow: enter the NEW number, receive a code on it,
 /// confirm. The server migrates the circle + chats; the old number keeps the
@@ -169,6 +170,7 @@ class _MsgrSetChangeNumberScreenState
               readOnly: widget.verifyOwn, // tagada2: own number, locked
               keyboardType: TextInputType.phone,
               inputFormatters: [
+                const LatinDigitsFormatter(),
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
               ],
               decoration: InputDecoration(
@@ -199,7 +201,7 @@ class _MsgrSetChangeNumberScreenState
               keyboardType: TextInputType.number,
               maxLength: 6,
               buildCounter: localCounter,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 labelText: t.msgrSetChangeNumberCode,
                 border: const OutlineInputBorder(),
@@ -214,7 +216,7 @@ class _MsgrSetChangeNumberScreenState
                 keyboardType: TextInputType.number,
                 maxLength: 6,
                 buildCounter: localCounter,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   labelText: t.msgTwoStepCurrentPin,
                   border: const OutlineInputBorder(),

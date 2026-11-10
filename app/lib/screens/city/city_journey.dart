@@ -16,6 +16,7 @@ import '../../api.dart';
 import '../../city/city_api.dart';
 import '../../city/city_models.dart';
 import '../../city/city_widgets.dart';
+import '../../city/map/city_trip_learn_card.dart' show learnableRides, showCityTripLearnCard; // mapapp
 import '../../l10n/app_localizations.dart';
 import '../../maps/place_search.dart' show PlacePick;
 import '../../state.dart';
@@ -280,9 +281,19 @@ class _CityTripScreenState extends State<CityTripScreen> {
     if (api != null && _trace.length >= kCityTraceMinPoints) {
       // fire-and-forget: the server trims the first/last 300 m, keeps no
       // names and deletes raw points within 7 days
-      unawaited(api.cityTripUpload(List.of(_trace)).then((_) {}, onError: (_) {}));
+      // citycov: a leguna-only trip teaches leguna stops, not bus stops
+      final legs = widget.option.legs;
+      final mode = legs.any((l) => l.mode == 'bus') ? 'bus' : 'leguna';
+      unawaited(api.cityTripUpload(List.of(_trace), mode: mode).then((_) {}, onError: (_) {}));
     }
     super.dispose();
+  }
+
+  /// mapapp: "Which bus? What fare?" then back to City Service.
+  Future<void> _arrived() async {
+    final nav = Navigator.of(context);
+    await showCityTripLearnCard(context, option: widget.option);
+    if (mounted && nav.canPop()) nav.pop();
   }
 
   @override
@@ -314,6 +325,20 @@ class _CityTripScreenState extends State<CityTripScreen> {
           CityOptionSummary(widget.option),
           const Divider(height: Gap.xl),
           CityStepList(widget.option),
+          if (learnableRides(widget.option).isNotEmpty) ...[
+            // mapapp (owner 10 Nov, LEARN FROM TRIPS): one tap at the end
+            const SizedBox(height: Gap.lg),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                key: const ValueKey('city_trip_done'),
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+                onPressed: _arrived,
+                icon: const Icon(Icons.flag_rounded),
+                label: Text(t.cityTripArrived),
+              ),
+            ),
+          ],
         ],
       ),
     );

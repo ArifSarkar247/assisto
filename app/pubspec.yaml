@@ -52,6 +52,15 @@ dependencies:
   # (assets/maps/sdk.json flipped by CI from the MAPS_ANDROID_KEY secret);
   # no startup init — the native map is created only when a map screen opens.
   google_maps_flutter: ^2.10.0
+  # mapapp (owner order 10 Nov 00:35): the Assisto map — MapLibre (BSD-2,
+  # open source; MapLibre Native Android 11.9.0 = OpenGL ES 3, PMTiles
+  # (pmtiles://) supported from 11.8). Pinned to 0.22.0: later plugin
+  # versions compile with Java 21 (CI uses 17). No startup provider, no
+  # new permission (INTERNET / network / location are already in the app);
+  # the plugin's unused offline Service + Activity are removed and GLES 3 is
+  # required=false in CI (android.yml "MapLibre manifest guards"). The view is
+  # created only after the City map's first frame, crash-guarded.
+  maplibre_gl: 0.22.0
   # mapscost: the phone's own Android Geocoder (free) before any paid lookup;
   # called lazily, try/catch + timeout.
   geocoding: ^3.0.0
@@ -176,6 +185,8 @@ flutter:
     - assets/quran/
     # mapscost: {"android_key": true} only in builds with the Maps SDK key
     - assets/maps/
+    # lpapp: Life English scenarios + vocabulary lists (original, offline)
+    - assets/lp/
   # f1-design: bundled OFL fonts (licences next to them in assets/fonts/).
   # Latin = Inter, Bangla = Noto Sans Bengali, static 400/500/600/700 subsets.
   # (assets/fonts/NotoSansBengali.ttf stays in the repo for the backend's

@@ -1,0 +1,18 @@
+{
+  "en": {
+    "discmsWhatsNewBadge": "What's new",
+    "@discmsWhatsNewBadge": {"description": "discms: badge on a Home Discover card about an app update"},
+    "discmsOfferBadge": "Offer",
+    "@discmsOfferBadge": {"description": "discms: badge on a Home Discover offer / promotion card"},
+    "discmsTypeWhatsNew": "What's new (app update)",
+    "@discmsTypeWhatsNew": {"description": "discms: Discover manager card type"},
+    "discmsTypeOffer": "Offer / promotion",
+    "@discmsTypeOffer": {"description": "discms: Discover manager card type"}
+  },
+  "bn": {
+    "discmsWhatsNewBadge": "নতুন কী",
+    "discmsOfferBadge": "অফার",
+    "discmsTypeWhatsNew": "নতুন কী (অ্যাপ আপডেট)",
+    "discmsTypeOffer": "অফার / প্রচার"
+  }
+}

@@ -1,1 +1,5 @@
-Build: Home shows City Service and My Business (Digital Ledger moved inside My Business); City Service routes, fares, metro guide; Family screen, elder easy home and silent watch, children corner; train tracker and get-off alarm; CCTV brand cameras (Imou, EZVIZ, Hik-Connect), DVR health, roles and installers, action buttons and closing report.
+- Save now works for whole amounts in Family accounting, Mess, wedding and staff accounts (Bangla digits too); Save buttons reachable with the keyboard open.
+- All Services cleaned up: Family & Safety has 8 clear tiles with one red Emergency screen; other services in 16 tidy groups with full names.
+- Buy or start a free trial right inside paid features (CCTV: 7 days free).
+- CCTV: new detections, better phone motion and fewer night false alerts.
+- Safe Journey start screen and City Service coverage improvements.

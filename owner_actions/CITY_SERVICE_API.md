@@ -110,3 +110,11 @@ results, step lists, live reports or any safety screen; the router never reads l
 - Bus rate object: + `minibus_per_km`, `minibus_min`, `effective`, `sources[]`.
 
 Changes to this contract: additive only; announced in this file.
+
+## 12. citycov additions (9 Nov, additive)
+- `GET city/field-stops?lat&lon` → `{items: [{id, lat, lon, route_id, route, route_bn, people, need, confirmed, mine, meters}], need: 3, routes: [{id, mode, name, name_bn, status, from, from_bn, to, to_bn}]}` — waiting users' stop reports within ~800 m + buses/legunas passing close (one entry per route; both directions are updated together).
+- `POST city/field-stops {lat, lon}` = "Add a stop here"; `+ route_id` = "This bus stops here"; `{lat, lon, id}` = "Yes, it stops here" (must be within 300 m). No names, no free text. → `{ok, id, status: reported|confirmed|already|known|rejected, people, need}`; 404 unknown route/report, 400 `reason: far|no_city`, 429 after 20 a day.
+- 3 different people → the stop is put into the named route (both directions) or, with no bus named, into routes passing within 150 m; label stays "Reported by users". A trip-learned stop is promoted after 3 separate trips, into the route those trips rode. Owner Admin → City data → Users' stops: accept / reject (reject removes it for everyone).
+- `city/package` now carries the network AS APPLIED (owner edits + users' stops + learned routes), so offline planning matches the server.
+- Data build report: `coverage_pct` / `coverage_built_pct` (headline, unchanged definition) + `coverage_corridor_pct` / `coverage_built_corridor_pct` (separate measure), `built_cells`, `leguna_routes`, `extra_public_routes`.
+- Own map A4 (10 Nov): `POST city/trips/<id>/confirm {route_id?, fare?}` — the post-trip "which bus / what fare" card for the rider's own trip (`id` from `POST city/trips`). Fare → rider-reported fare; bus → the trip's new stops go into that route once promoted. → `{ok, stops_verified, trips}`. `GET city/trips/consent` now also returns `stops_verified`, `trips` (additive; existing fields unchanged). Card rows are deleted with the trip (7 days); the per-rider count is keyed by a hash, never a name.

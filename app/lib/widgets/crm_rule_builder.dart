@@ -5,6 +5,7 @@ import '../screens/crm/crm_common.dart';
 import '../plans_v2/plans_v2.dart';
 import '../plans_v2/upgrade_sheet.dart';
 import '../screens/crm/crm_advanced_api.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// Builder sheet for ONE owner automation rule (CRM spec #11), in the shape
 /// logic_automation expects: {trigger, condition, delay_days, action}. The UI
@@ -110,7 +111,7 @@ class _CrmRuleBuilderState extends State<CrmRuleBuilder> {
       'name': _name.text.trim(),
       'trigger': _trigger,
       'condition': {if (_noReply) 'no_reply': true},
-      'delay_days': int.tryParse(_delay.text.trim()) ?? 0,
+      'delay_days': parseIntInput(_delay.text.trim()) ?? 0,
       'action': {'kind': _action, 'subject': _subject.text.trim()},
       'active': true,
     };

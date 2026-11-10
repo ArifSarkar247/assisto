@@ -11,8 +11,10 @@ import 'fake_missing.dart'; // missing
 import 'fake_blood.dart'; // blood
 import 'fake_kidaudio.dart'; // kidaudio
 import 'fake_learncert.dart'; // learncert
+import 'quranview_fixture.dart'; // quranview
 import 'fake_p3life.dart'; // p3life
 import 'fake_city.dart'; // cityapp
+import 'fake_city_map.dart'; // mapapp
 import 'package:assisto/api.dart';
 import 'package:assisto/business_selling_api.dart';
 import 'package:assisto/models.dart';
@@ -36,7 +38,9 @@ import 'fake_acct.dart'; // acctui
 import 'fake_standing.dart'; // adminsafe
 import 'fake_career.dart'; // p2career
 import 'fake_ielts.dart'; // p2lang
+import 'fake_lp2.dart'; // lpapp
 import 'fake_langkoja.dart'; // langkoja
+import 'fake_messv2.dart'; // messv2
 import 'bizai_fakes.dart' show fakeBizaiGet; // bizai
 
 enum FakeMode { data, empty, fail, slow }
@@ -320,6 +324,7 @@ class FakeApi extends ApiClient {
     if (path == 'food/log') return _maybe(fakeFoodLog(DateTime.now()));
     if (path == 'food/goal') return _maybe([{'id': 1, 'kcal': 1800}]);
     if (path == 'ielts/practice') return fakeIeltsPractice(empty: mode == FakeMode.empty); // p2lang
+    if (path.startsWith('lp/')) return _maybe(fakeLp2List(path)); // lpapp
     if (path == 'ielts/vocab') return const []; // p2lang: every word due
     final p3l = fakeP3LifeList(path, bn: _bn); // p3life
     if (p3l != null) return _maybe(p3l);
@@ -1040,6 +1045,7 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> createItem(String path, Map<String, dynamic> body) async {
     if (path.startsWith('crm/')) return {'id': 99, ...body};
+    if (path.startsWith('lp/')) return {'id': 700, ...body}; // lpapp
     if (path == 'jobs' || path.startsWith('career/')) return {'id': 77, ...body}; // p2career
     if (path.startsWith('food/')) { // p2food
       if (mode == FakeMode.fail) _fail();
@@ -1070,15 +1076,30 @@ class FakeApi extends ApiClient {
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
     await _slow();
+    final lp2G = fakeLp2Get(path, bn: _bn); // lpapp
+    if (lp2G != null) {
+      if (mode == FakeMode.fail) _fail();
+      return lp2G;
+    }
     final fc3 = fakeFcGet(path, bn: _bn, empty: mode == FakeMode.empty); // fcscreen
     if (fc3 != null) {
       if (mode == FakeMode.fail) _fail();
       return fc3;
     }
+    final mapG = fakeCityMapGet(path); // mapapp
+    if (mapG != null) {
+      if (mode == FakeMode.fail) _fail();
+      return mapG;
+    }
     final cityG = fakeCityGet(path, empty: mode == FakeMode.empty); // cityapp
     if (cityG != null) {
       if (mode == FakeMode.fail) _fail();
       return cityG;
+    }
+    final mv2 = fakeMessV2Get(path, bn: _bn, empty: mode == FakeMode.empty); // messv2
+    if (mv2 != null) {
+      if (mode == FakeMode.fail) _fail();
+      return mv2;
     }
     final lkG = fakeLangkojaGet(path); // langkoja
     if (lkG != null) {
@@ -1094,6 +1115,11 @@ class FakeApi extends ApiClient {
     if (ielts != null) {
       if (mode == FakeMode.fail) _fail();
       return ielts;
+    }
+    final qvg = fakeQuranViewGet(path, qfOn: mode != FakeMode.empty); // quranview
+    if (qvg != null) {
+      if (mode == FakeMode.fail) _fail();
+      return qvg;
     }
     final lcg = fakeLearnCertGet(path, empty: mode == FakeMode.empty); // learncert
     if (lcg != null) {
@@ -2221,8 +2247,12 @@ class FakeApi extends ApiClient {
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
     final fc3P = fakeFcPost(path, body); // fcscreen
     if (fc3P != null) return fc3P;
+    final mapP = fakeCityMapPost(path, body); // mapapp
+    if (mapP != null) return mapP;
     final cityP = fakeCityPost(path, body); // cityapp
     if (cityP != null) return cityP;
+    final mv2p = fakeMessV2Post(path, body); // messv2
+    if (mv2p != null) return mv2p;
     if (path.endsWith('learn/quran/complete')) { // learnwire
       final c = '${body['course']}';
       return {'ok': true, 'cert': {'course': c, 'level': c == 'quran_nazera' ? 'nazera' : 'qaida',
@@ -2248,6 +2278,8 @@ class FakeApi extends ApiClient {
     if (p2p != null) return p2p;
     final lkP = fakeLangkojaPost(path, body); // langkoja
     if (lkP != null) return lkP;
+    final lp2P = fakeLp2Post(path, body); // lpapp
+    if (lp2P != null) return lp2P;
     final ieltsP = fakeIeltsPost(path, body); // p2lang
     if (ieltsP != null) return ieltsP;
     final chxP = fakeChannelsPost(path, body); // channels
@@ -2561,6 +2593,7 @@ class FakeApi extends ApiClient {
       if (mode == FakeMode.fail) _fail();
       return;
     }
+    if (path.startsWith('lp/')) return; // lpapp
     return super.updateItem(path, id, body);
   }
 

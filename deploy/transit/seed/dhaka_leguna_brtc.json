@@ -1,0 +1,2116 @@
+{
+ "_note": "citycov (9 Nov 2026): Dhaka leguna (human hauler) routes and BRTC / Dhaka Nagar Paribahan / 1 Nov 2026 franchise bus routes that news reports say RUN (planned-only routes — DTCA plan list, Nagar Paribahan 23-25, unlaunched franchise routes — are left out on purpose; BRTC pink buses live in dhaka_women_buses.json; dhakabusservice.com pages are already crawled). Collected from public news pages only (no logins); every route keeps its source links and dates; 'snippet': true = seen in a search-result snippet only. The build marks a route Verified only when 2+ different publishers (not snippets) list it, else Reported. Legunas are often informal and reports date 2018-2026: they stay Reported until trips / field reports confirm. Routes whose stops do not match 3+ known places are skipped by the build (report gaps).",
+ "not_found": {
+  "Mirpur DOHS / Pallabi / Kalshi (leguna)": "Only vague 'Kalshi Road to various blocks' (bdnews24 2018) - no defined leguna route; bus coverage via DTCA plan routes 7/17/20/24/33 and many private buses (Kalshi, Pallabi, ECB) from dhakabusservice.com.",
+  "Khilkhet / Nikunja / Kuril (leguna)": "No leguna route found; covered only by bus routes (BRTC, pink bus Abdullahpur-Motijheel, DTCA plan, private).",
+  "Bashundhara / Baridhara (leguna)": "No leguna route found; BRTC Mohammadpur/Kamalapur/Motijheel - Kuril Bishwa Road via Bashundhara (dhakabusservice.com) and DTCA plan route 3.",
+  "Badda / Aftabnagar / Meradia (leguna)": "Only Mohammadpur-Gulshan-Badda and Shia Masjid-Badda Link Road legunas; nothing for Aftabnagar or Meradia. Buses: pink Notun Bazar-Motijheel, DTCA routes 13/27 (Meradia).",
+  "Uttara sectors interior": "Leguna: Uttara North-House Building, Azampur-Dakshinkhan/Uttarkhan, Jashimuddin-Bawnia only; no sector-by-sector routes.",
+  "Diabari / Uttara sectors 15-18": "Only BRTC House Building-Diabari metro feeder (2022) and the Uttara North leguna; no further routes.",
+  "Mirpur 2 / Shah Ali / Rupnagar": "Mirpur 2 leguna routes to Farmgate found; nothing specific for Rupnagar/Shah Ali beyond private buses (e.g. Everest Paribahan from Rupnagar on dhakabusservice.com).",
+  "Kamrangirchar": "Only the Jhauchar-New Market-Farmgate leguna (2018) and DTCA plan route 4; private bus Janjabil per route site.",
+  "Mohammadpur Beribadh / Bosila (leguna)": "Atibazar-Mohammadpur legunas only; reports mention legunas at Mohammadpur Beribadh but no route ends.",
+  "OpenStreetMap": "0 share_taxi/minibus relations and 0 BRTC-operator bus relations in the Dhaka bbox.",
+  "brtc.gov.bd": "Not fetched successfully / no city route list found; BRTC city routes taken from news and the route site instead."
+ },
+ "routes": [
+  {
+   "company": "Leguna: Gulistan - Goran (via Khilgaon Railgate)",
+   "company_bn": "লেগুনা: গুলিস্তান - গোড়ান",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ],
+    [
+     "Khilgaon Railgate",
+     "খিলগাঁও রেলগেট"
+    ],
+    [
+     "Goran",
+     "গোড়ান"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Dhaka Courier: Those responsible for bottlenecks",
+     "url": "https://dhakacourier.com.bd/news/Society/Those-responsible-for-bottlenecks/157",
+     "date": "2018-04-20"
+    },
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Gulistan - Sipahibagh (via Khilgaon Railgate)",
+   "company_bn": "লেগুনা: গুলিস্তান - সিপাহীবাগ",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ],
+    [
+     "Khilgaon Railgate",
+     "খিলগাঁও রেলগেট"
+    ],
+    [
+     "Sipahibagh",
+     "সিপাহীবাগ"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Dhaka Courier: Those responsible for bottlenecks",
+     "url": "https://dhakacourier.com.bd/news/Society/Those-responsible-for-bottlenecks/157",
+     "date": "2018-04-20"
+    },
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Gulistan - Basabo Madartek",
+   "company_bn": "লেগুনা: গুলিস্তান - মাদারটেক",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ],
+    [
+     "Basabo",
+     "বাসাবো"
+    ],
+    [
+     "Madartek",
+     "মাদারটেক"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Gulistan - Manda",
+   "company_bn": "লেগুনা: গুলিস্তান - মাণ্ডা",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ],
+    [
+     "Manda",
+     "মাণ্ডা"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Gulistan - Khilgaon",
+   "company_bn": "লেগুনা: গুলিস্তান - খিলগাঁও",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ],
+    [
+     "Khilgaon",
+     "খিলগাঁও"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Khilgaon Railgate - Malibagh Mor",
+   "company_bn": "লেগুনা: খিলগাঁও রেলগেট - মালিবাগ মোড়",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Khilgaon Railgate",
+     "খিলগাঁও রেলগেট"
+    ],
+    [
+     "Malibagh Mor",
+     "মালিবাগ মোড়"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Dhaka Courier: Those responsible for bottlenecks",
+     "url": "https://dhakacourier.com.bd/news/Society/Those-responsible-for-bottlenecks/157",
+     "date": "2018-04-20"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Shahjahanpur Amtala - Gulistan",
+   "company_bn": "লেগুনা: শাহজাহানপুর আমতলা - গুলিস্তান",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Shahjahanpur Amtala",
+     "শাহজাহানপুর আমতলা"
+    ],
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Dhaka Courier: Those responsible for bottlenecks",
+     "url": "https://dhakacourier.com.bd/news/Society/Those-responsible-for-bottlenecks/157",
+     "date": "2018-04-20"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Gulistan - Hazaribagh",
+   "company_bn": "লেগুনা: গুলিস্তান - হাজারীবাগ",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ],
+    [
+     "Hazaribagh",
+     "হাজারীবাগ"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    },
+    {
+     "s": "Amar Sangbad (snippet): মিলেমিশে গিলছে চক্র",
+     "url": "https://www.amarsangbad.com/newspaper/news-215327",
+     "date": "2026-11-09",
+     "snippet": true
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Gulistan - Lalbagh",
+   "company_bn": "লেগুনা: গুলিস্তান - লালবাগ",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ],
+    [
+     "Lalbagh",
+     "লালবাগ"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Gulistan - Chawkbazar",
+   "company_bn": "লেগুনা: গুলিস্তান - চকবাজার",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ],
+    [
+     "Chawkbazar",
+     "চকবাজার"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Gulistan - Jatrabari",
+   "company_bn": "লেগুনা: গুলিস্তান - যাত্রাবাড়ী",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ],
+    [
+     "Jatrabari",
+     "যাত্রাবাড়ী"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Jatrabari - Jurain",
+   "company_bn": "লেগুনা: যাত্রাবাড়ী - জুরাইন",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Jatrabari",
+     "যাত্রাবাড়ী"
+    ],
+    [
+     "Jurain",
+     "জুরাইন"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    },
+    {
+     "s": "Daily Star Bangla: লেগুনার পাদানিতে ঝুলন্ত শৈশব",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-475991",
+     "date": "2023-05-06"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Jatrabari - Shyampur",
+   "company_bn": "লেগুনা: যাত্রাবাড়ী - শ্যামপুর",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Jatrabari",
+     "যাত্রাবাড়ী"
+    ],
+    [
+     "Shyampur",
+     "শ্যামপুর"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Jatrabari - Postogola",
+   "company_bn": "লেগুনা: যাত্রাবাড়ী - পোস্তগোলা",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Jatrabari",
+     "যাত্রাবাড়ী"
+    ],
+    [
+     "Postogola",
+     "পোস্তগোলা"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    },
+    {
+     "s": "Daily Star Bangla: লেগুনার পাদানিতে ঝুলন্ত শৈশব",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-475991",
+     "date": "2023-05-06"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Jatrabari - Demra / Konapara",
+   "company_bn": "লেগুনা: যাত্রাবাড়ী - ডেমরা",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Jatrabari",
+     "যাত্রাবাড়ী"
+    ],
+    [
+     "Konapara",
+     "কোনাপাড়া"
+    ],
+    [
+     "Demra",
+     "ডেমরা"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    },
+    {
+     "s": "Jamuna TV (snippet): যাত্রাবাড়ী মোড়: সড়কের ওপর লেগুনা স্ট্যান্ড",
+     "url": "https://jamuna.tv/news/92755",
+     "date": "2026-11-09",
+     "snippet": true
+    }
+   ],
+   "fare_note": "bdnews24: 'যাত্রাবাড়ী থেকে ডেমরার বিভিন্ন রুট'; Jamuna TV: 'ডেমরা ও কোনাপাড়াগামী লেগুনা স্ট্যান্ড' at Jatrabari mor"
+  },
+  {
+   "company": "Leguna: Signboard - Jatrabari Chowrasta (Dhaka-Chattogram highway)",
+   "company_bn": "লেগুনা: সাইনবোর্ড - যাত্রাবাড়ী চৌরাস্তা",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Signboard",
+     "সাইনবোর্ড"
+    ],
+    [
+     "Jatrabari Chowrasta",
+     "যাত্রাবাড়ী চৌরাস্তা"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Ekhon TV: রাজধানীতে দাপিয়ে বেড়াচ্ছে 'নিষিদ্ধ লেগুনা'",
+     "url": "https://ekhon.tv/article/6585083f1e6ca6ec98b45b03",
+     "date": "2024-03-19"
+    }
+   ],
+   "fare_note": "passengers quoted ~20 taka by leguna vs 80-100 taka by rickshaw (general, not route-specific)"
+  },
+  {
+   "company": "Leguna: Farmgate - Mohammadpur",
+   "company_bn": "লেগুনা: ফার্মগেট - মোহাম্মদপুর",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ],
+    [
+     "Mohammadpur",
+     "মোহাম্মদপুর"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    },
+    {
+     "s": "Dhaka Courier: Those responsible for bottlenecks",
+     "url": "https://dhakacourier.com.bd/news/Society/Those-responsible-for-bottlenecks/157",
+     "date": "2018-04-20"
+    },
+    {
+     "s": "Prothom Alo: ঢাকায় লেগুনা চলে 'যেমন খুশি তেমন'",
+     "url": "https://www.prothomalo.com/bangladesh/capital/%E0%A6%A2%E0%A6%BE%E0%A6%95%E0%A6%BE%E0%A7%9F-%E0%A6%B2%E0%A7%87%E0%A6%97%E0%A7%81%E0%A6%A8%E0%A6%BE-%E0%A6%9A%E0%A6%B2%E0%A7%87-%E0%A6%AF%E0%A7%87%E0%A6%AE%E0%A6%A8-%E0%A6%96%E0%A7%81%E0%A6%B6%E0%A6%BF-%E0%A6%A4%E0%A7%87%E0%A6%AE%E0%A6%A8",
+     "date": "2022-02-21"
+    },
+    {
+     "s": "Daily Star Bangla: লেগুনার পাদানিতে ঝুলন্ত শৈশব",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-475991",
+     "date": "2023-05-06"
+    }
+   ],
+   "fare_note": "Prothom Alo 2022: Farmgate-Mohammadpur/Shankar 20 taka (raised from 15)"
+  },
+  {
+   "company": "Leguna: Farmgate - Shankar",
+   "company_bn": "লেগুনা: ফার্মগেট - শংকর",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ],
+    [
+     "Shankar",
+     "শংকর"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo: ঢাকায় লেগুনা চলে 'যেমন খুশি তেমন'",
+     "url": "https://www.prothomalo.com/bangladesh/capital/%E0%A6%A2%E0%A6%BE%E0%A6%95%E0%A6%BE%E0%A7%9F-%E0%A6%B2%E0%A7%87%E0%A6%97%E0%A7%81%E0%A6%A8%E0%A6%BE-%E0%A6%9A%E0%A6%B2%E0%A7%87-%E0%A6%AF%E0%A7%87%E0%A6%AE%E0%A6%A8-%E0%A6%96%E0%A7%81%E0%A6%B6%E0%A6%BF-%E0%A6%A4%E0%A7%87%E0%A6%AE%E0%A6%A8",
+     "date": "2022-02-21"
+    },
+    {
+     "s": "The Daily Star: A rough day for Laguna passengers",
+     "url": "https://www.thedailystar.net/node/1629802",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": "20 taka (Prothom Alo, Feb 2022)"
+  },
+  {
+   "company": "Leguna: Farmgate - Jigatola",
+   "company_bn": "লেগুনা: ফার্মগেট - জিগাতলা",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ],
+    [
+     "Jigatola",
+     "জিগাতলা"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo: ঢাকায় লেগুনা চলে 'যেমন খুশি তেমন'",
+     "url": "https://www.prothomalo.com/bangladesh/capital/%E0%A6%A2%E0%A6%BE%E0%A6%95%E0%A6%BE%E0%A7%9F-%E0%A6%B2%E0%A7%87%E0%A6%97%E0%A7%81%E0%A6%A8%E0%A6%BE-%E0%A6%9A%E0%A6%B2%E0%A7%87-%E0%A6%AF%E0%A7%87%E0%A6%AE%E0%A6%A8-%E0%A6%96%E0%A7%81%E0%A6%B6%E0%A6%BF-%E0%A6%A4%E0%A7%87%E0%A6%AE%E0%A6%A8",
+     "date": "2022-02-21"
+    },
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": "25 taka Jigatola-Farmgate (Prothom Alo, Feb 2022); 29 vehicles"
+  },
+  {
+   "company": "Leguna: Farmgate - Hazaribagh",
+   "company_bn": "লেগুনা: ফার্মগেট - হাজারীবাগ",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ],
+    [
+     "Hazaribagh",
+     "হাজারীবাগ"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Farmgate - Mirpur 2 (via 60 Feet)",
+   "company_bn": "লেগুনা: ফার্মগেট - মিরপুর ২",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ],
+    [
+     "Khamarbari",
+     "খামারবাড়ি"
+    ],
+    [
+     "Sher-e-Bangla Nagar",
+     "শেরেবাংলা নগর"
+    ],
+    [
+     "60 Feet",
+     "৬০ ফিট"
+    ],
+    [
+     "Mirpur 2",
+     "মিরপুর ২"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Jago News (snippet): তিন বছর ধরে লেগুনা চালাচ্ছে ৮ বছরের বাদশা",
+     "url": "https://www.jagonews24.com/special-reports/news/458561",
+     "date": "2026-11-09",
+     "snippet": true
+    },
+    {
+     "s": "Prothom Alo: ঢাকায় লেগুনা চলে 'যেমন খুশি তেমন'",
+     "url": "https://www.prothomalo.com/bangladesh/capital/%E0%A6%A2%E0%A6%BE%E0%A6%95%E0%A6%BE%E0%A7%9F-%E0%A6%B2%E0%A7%87%E0%A6%97%E0%A7%81%E0%A6%A8%E0%A6%BE-%E0%A6%9A%E0%A6%B2%E0%A7%87-%E0%A6%AF%E0%A7%87%E0%A6%AE%E0%A6%A8-%E0%A6%96%E0%A7%81%E0%A6%B6%E0%A6%BF-%E0%A6%A4%E0%A7%87%E0%A6%AE%E0%A6%A8",
+     "date": "2022-02-21"
+    }
+   ],
+   "fare_note": "Prothom Alo 2022 lists Farmgate-60 Feet; Jago News snippet gives via Khamarbari roundabout, Sher-e-Bangla Nagar, 60 Feet to Mirpur-2 mor"
+  },
+  {
+   "company": "Leguna: Mirpur 2 - Farmgate (via Agargaon)",
+   "company_bn": "লেগুনা: মিরপুর ২ - ফার্মগেট",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Mirpur 2",
+     "মিরপুর ২"
+    ],
+    [
+     "Amtola",
+     "আমতলা"
+    ],
+    [
+     "Radio Station",
+     "রেডিও স্টেশন"
+    ],
+    [
+     "Agargaon",
+     "আগারগাঁও"
+    ],
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "The Daily Star: A human hauler all to myself from Mirpur-2 to Farmgate",
+     "url": "https://www.thedailystar.net/news/bangladesh/news/human-hauler-all-myself-mirpur-2-farmgate-3462356",
+     "date": "2023-11-05"
+    }
+   ],
+   "fare_note": "about 8 km; 15-17 passengers per trip"
+  },
+  {
+   "company": "Leguna: Farmgate - Nilkhet - New Market",
+   "company_bn": "লেগুনা: ফার্মগেট - নিউমার্কেট",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ],
+    [
+     "Nilkhet",
+     "নীলক্ষেত"
+    ],
+    [
+     "New Market",
+     "নিউমার্কেট"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Dhaka Courier: Those responsible for bottlenecks",
+     "url": "https://dhakacourier.com.bd/news/Society/Those-responsible-for-bottlenecks/157",
+     "date": "2018-04-20"
+    },
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    },
+    {
+     "s": "Prothom Alo: ঢাকায় লেগুনা চলে 'যেমন খুশি তেমন'",
+     "url": "https://www.prothomalo.com/bangladesh/capital/%E0%A6%A2%E0%A6%BE%E0%A6%95%E0%A6%BE%E0%A7%9F-%E0%A6%B2%E0%A7%87%E0%A6%97%E0%A7%81%E0%A6%A8%E0%A6%BE-%E0%A6%9A%E0%A6%B2%E0%A7%87-%E0%A6%AF%E0%A7%87%E0%A6%AE%E0%A6%A8-%E0%A6%96%E0%A7%81%E0%A6%B6%E0%A6%BF-%E0%A6%A4%E0%A7%87%E0%A6%AE%E0%A6%A8",
+     "date": "2022-02-21"
+    },
+    {
+     "s": "Daily Star Bangla: লেগুনার পাদানিতে ঝুলন্ত শৈশব",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-475991",
+     "date": "2023-05-06"
+    }
+   ],
+   "fare_note": "Prothom Alo 2022 names Farmgate end as Ananda Cinema Hall"
+  },
+  {
+   "company": "Leguna: Farmgate - Mohakhali",
+   "company_bn": "লেগুনা: ফার্মগেট - মহাখালী",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ],
+    [
+     "Mohakhali",
+     "মহাখালী"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Dhaka Courier: Those responsible for bottlenecks",
+     "url": "https://dhakacourier.com.bd/news/Society/Those-responsible-for-bottlenecks/157",
+     "date": "2018-04-20"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Farmgate - Nabisco",
+   "company_bn": "লেগুনা: ফার্মগেট - নাবিস্কো",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ],
+    [
+     "Nabisco",
+     "নাবিস্কো"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Dhaka Courier: Those responsible for bottlenecks",
+     "url": "https://dhakacourier.com.bd/news/Society/Those-responsible-for-bottlenecks/157",
+     "date": "2018-04-20"
+    }
+   ],
+   "fare_note": "stand beside Holy Cross College, East Tejturi Bazar road"
+  },
+  {
+   "company": "Leguna: Azimpur Tannery Mor - New Market",
+   "company_bn": "লেগুনা: ট্যানারি মোড় - নিউমার্কেট",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Tannery Mor",
+     "ট্যানারি মোড়"
+    ],
+    [
+     "New Market",
+     "নিউমার্কেট"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo: ঢাকায় লেগুনা চলে 'যেমন খুশি তেমন'",
+     "url": "https://www.prothomalo.com/bangladesh/capital/%E0%A6%A2%E0%A6%BE%E0%A6%95%E0%A6%BE%E0%A7%9F-%E0%A6%B2%E0%A7%87%E0%A6%97%E0%A7%81%E0%A6%A8%E0%A6%BE-%E0%A6%9A%E0%A6%B2%E0%A7%87-%E0%A6%AF%E0%A7%87%E0%A6%AE%E0%A6%A8-%E0%A6%96%E0%A7%81%E0%A6%B6%E0%A6%BF-%E0%A6%A4%E0%A7%87%E0%A6%AE%E0%A6%A8",
+     "date": "2022-02-21"
+    },
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Hazaribagh - New Market",
+   "company_bn": "লেগুনা: হাজারীবাগ - নিউমার্কেট",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Hazaribagh",
+     "হাজারীবাগ"
+    ],
+    [
+     "New Market",
+     "নিউমার্কেট"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo: ঢাকায় লেগুনা চলে 'যেমন খুশি তেমন'",
+     "url": "https://www.prothomalo.com/bangladesh/capital/%E0%A6%A2%E0%A6%BE%E0%A6%95%E0%A6%BE%E0%A7%9F-%E0%A6%B2%E0%A7%87%E0%A6%97%E0%A7%81%E0%A6%A8%E0%A6%BE-%E0%A6%9A%E0%A6%B2%E0%A7%87-%E0%A6%AF%E0%A7%87%E0%A6%AE%E0%A6%A8-%E0%A6%96%E0%A7%81%E0%A6%B6%E0%A6%BF-%E0%A6%A4%E0%A7%87%E0%A6%AE%E0%A6%A8",
+     "date": "2022-02-21"
+    }
+   ],
+   "fare_note": "17 vehicles (Prothom Alo 2022)"
+  },
+  {
+   "company": "Leguna: Nilkhet - Chawkbazar",
+   "company_bn": "লেগুনা: নীলক্ষেত - চকবাজার",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Nilkhet",
+     "নীলক্ষেত"
+    ],
+    [
+     "Chawkbazar",
+     "চকবাজার"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Daily Star Bangla: লেগুনার পাদানিতে ঝুলন্ত শৈশব",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-475991",
+     "date": "2023-05-06"
+    }
+   ],
+   "fare_note": "Daily Star Bangla 2022 (same publisher) also reports a Nilkhet->Chawkbazar route"
+  },
+  {
+   "company": "Leguna: Nilkhet - Gulistan",
+   "company_bn": "লেগুনা: নীলক্ষেত - গুলিস্তান",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Nilkhet",
+     "নীলক্ষেত"
+    ],
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Daily Star Bangla: লেগুনার পাদানিতে ঝুলন্ত শৈশব",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-475991",
+     "date": "2023-05-06"
+    }
+   ],
+   "fare_note": "Daily Star Bangla 2022 (ds22n) also reports Nilkhet->Gulistan/Chawkbazar routes"
+  },
+  {
+   "company": "Leguna: Kamrangirchar Jhauchar - New Market - Farmgate",
+   "company_bn": "লেগুনা: ঝাউচর (কামরাঙ্গীরচর) - ফার্মগেট",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Jhauchar (Kamrangirchar)",
+     "ঝাউচর (কামরাঙ্গীরচর)"
+    ],
+    [
+     "New Market",
+     "নিউমার্কেট"
+    ],
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Atibazar - Mohammadpur",
+   "company_bn": "লেগুনা: আঁটিবাজার - মোহাম্মদপুর",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Atibazar",
+     "আঁটিবাজার"
+    ],
+    [
+     "Mohammadpur",
+     "মোহাম্মদপুর"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Atibazar - Mohammadpur - Nilkhet",
+   "company_bn": "লেগুনা: আঁটিবাজার - নীলক্ষেত",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Atibazar",
+     "আঁটিবাজার"
+    ],
+    [
+     "Mohammadpur",
+     "মোহাম্মদপুর"
+    ],
+    [
+     "Nilkhet",
+     "নীলক্ষেত"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Mohammadpur - Shyamoli",
+   "company_bn": "লেগুনা: মোহাম্মদপুর - শ্যামলী",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Mohammadpur",
+     "মোহাম্মদপুর"
+    ],
+    [
+     "Shyamoli",
+     "শ্যামলী"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo: ঢাকায় লেগুনা চলে 'যেমন খুশি তেমন'",
+     "url": "https://www.prothomalo.com/bangladesh/capital/%E0%A6%A2%E0%A6%BE%E0%A6%95%E0%A6%BE%E0%A7%9F-%E0%A6%B2%E0%A7%87%E0%A6%97%E0%A7%81%E0%A6%A8%E0%A6%BE-%E0%A6%9A%E0%A6%B2%E0%A7%87-%E0%A6%AF%E0%A7%87%E0%A6%AE%E0%A6%A8-%E0%A6%96%E0%A7%81%E0%A6%B6%E0%A6%BF-%E0%A6%A4%E0%A7%87%E0%A6%AE%E0%A6%A8",
+     "date": "2022-02-21"
+    },
+    {
+     "s": "Daily Star Bangla: লেগুনার পাদানিতে ঝুলন্ত শৈশব",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-475991",
+     "date": "2023-05-06"
+    }
+   ],
+   "fare_note": "15 taka (raised from 10), about 50 vehicles (Prothom Alo, Feb 2022)"
+  },
+  {
+   "company": "Leguna: Mohammadpur - Mohakhali",
+   "company_bn": "লেগুনা: মোহাম্মদপুর - মহাখালী",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Mohammadpur",
+     "মোহাম্মদপুর"
+    ],
+    [
+     "Mohakhali",
+     "মহাখালী"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Daily Star Bangla: লেগুনার পাদানিতে ঝুলন্ত শৈশব",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-475991",
+     "date": "2023-05-06"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Mohammadpur - Gulshan - Badda",
+   "company_bn": "লেগুনা: মোহাম্মদপুর - বাড্ডা",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Mohammadpur",
+     "মোহাম্মদপুর"
+    ],
+    [
+     "Gulshan",
+     "গুলশান"
+    ],
+    [
+     "Badda",
+     "বাড্ডা"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Shia Masjid - Shyamoli - Mohakhali - Badda Link Road",
+   "company_bn": "লেগুনা: শিয়া মসজিদ - বাড্ডা লিংক রোড",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Shia Masjid",
+     "শিয়া মসজিদ"
+    ],
+    [
+     "Shyamoli",
+     "শ্যামলী"
+    ],
+    [
+     "Mohakhali",
+     "মহাখালী"
+    ],
+    [
+     "Badda Link Road",
+     "বাড্ডা লিংক রোড"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo: রিং রোডের যন্ত্রণা লেগুনা",
+     "url": "https://www.prothomalo.com/bangladesh/রিং-রোডের-যন্ত্রণা-লেগুনা",
+     "date": "2018-02-26"
+    }
+   ],
+   "fare_note": "50 vehicles (Prothom Alo 2018)"
+  },
+  {
+   "company": "Leguna: Dhaka Udyan - Ring Road - Shyamoli Square",
+   "company_bn": "লেগুনা: ঢাকা উদ্যান - শ্যামলী স্কয়ার",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Dhaka Udyan",
+     "ঢাকা উদ্যান"
+    ],
+    [
+     "Ring Road",
+     "রিং রোড"
+    ],
+    [
+     "Shyamoli Square",
+     "শ্যামলী স্কয়ার"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo: রিং রোডের যন্ত্রণা লেগুনা",
+     "url": "https://www.prothomalo.com/bangladesh/রিং-রোডের-যন্ত্রণা-লেগুনা",
+     "date": "2018-02-26"
+    },
+    {
+     "s": "Daily Star Bangla: লেগুনার পাদানিতে ঝুলন্ত শৈশব",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-475991",
+     "date": "2023-05-06"
+    }
+   ],
+   "fare_note": "40 vehicles (Prothom Alo 2018)"
+  },
+  {
+   "company": "Leguna: Mirpur 10 - Shyamoli - Mohammadpur",
+   "company_bn": "লেগুনা: মিরপুর ১০ - মোহাম্মদপুর",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Mirpur 10",
+     "মিরপুর ১০"
+    ],
+    [
+     "Shyamoli",
+     "শ্যামলী"
+    ],
+    [
+     "Mohammadpur",
+     "মোহাম্মদপুর"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo: রিং রোডের যন্ত্রণা লেগুনা",
+     "url": "https://www.prothomalo.com/bangladesh/রিং-রোডের-যন্ত্রণা-লেগুনা",
+     "date": "2018-02-26"
+    }
+   ],
+   "fare_note": "40 vehicles (Prothom Alo 2018)"
+  },
+  {
+   "company": "Leguna: Mirpur 1 - Shyamoli Square - Jigatola",
+   "company_bn": "লেগুনা: মিরপুর ১ - জিগাতলা",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Mirpur 1",
+     "মিরপুর ১"
+    ],
+    [
+     "Shyamoli Square",
+     "শ্যামলী স্কয়ার"
+    ],
+    [
+     "Jigatola",
+     "জিগাতলা"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo: রিং রোডের যন্ত্রণা লেগুনা",
+     "url": "https://www.prothomalo.com/bangladesh/রিং-রোডের-যন্ত্রণা-লেগুনা",
+     "date": "2018-02-26"
+    }
+   ],
+   "fare_note": "at least 40 vehicles (Prothom Alo 2018)"
+  },
+  {
+   "company": "Leguna: Gabtoli - Mazar Road",
+   "company_bn": "লেগুনা: গাবতলী - মাজার রোড",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Gabtoli",
+     "গাবতলী"
+    ],
+    [
+     "Mazar Road",
+     "মাজার রোড"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Gabtoli - Mohakhali",
+   "company_bn": "লেগুনা: গাবতলী - মহাখালী",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Gabtoli",
+     "গাবতলী"
+    ],
+    [
+     "Mohakhali",
+     "মহাখালী"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    },
+    {
+     "s": "Dhaka Courier: Those responsible for bottlenecks",
+     "url": "https://dhakacourier.com.bd/news/Society/Those-responsible-for-bottlenecks/157",
+     "date": "2018-04-20"
+    }
+   ],
+   "fare_note": "Dhaka Courier: legunas from Gabtoli turn back at Mohakhali level crossing"
+  },
+  {
+   "company": "Leguna: Mohakhali - Shyamoli",
+   "company_bn": "লেগুনা: মহাখালী - শ্যামলী",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Mohakhali",
+     "মহাখালী"
+    ],
+    [
+     "Shyamoli",
+     "শ্যামলী"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": "10 taka by leguna vs 20 taka by bus (resident quoted, 2018)"
+  },
+  {
+   "company": "Leguna: Mirpur 14 - ECB Chattar - Matikata",
+   "company_bn": "লেগুনা: মিরপুর ১৪ - মাটিকাটা",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Mirpur 14",
+     "মিরপুর ১৪"
+    ],
+    [
+     "ECB Chattar",
+     "ইসিবি চত্বর"
+    ],
+    [
+     "Matikata",
+     "মাটিকাটা"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": "source: 'মিরপুর ১৪ নম্বর থেকে ইসিবি চত্বর মাটিকাটা হয়ে বিভিন্ন এলাকায়'"
+  },
+  {
+   "company": "Leguna: Purba Tejturi Bazar - Niketan (Gulshan 1)",
+   "company_bn": "লেগুনা: পূর্ব তেজতুরী বাজার - নিকেতন",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Purba Tejturi Bazar",
+     "পূর্ব তেজতুরী বাজার"
+    ],
+    [
+     "Niketan",
+     "নিকেতন"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "The Daily Star: A rough day for Laguna passengers",
+     "url": "https://www.thedailystar.net/node/1629802",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Rampura - Demra Staff Quarter",
+   "company_bn": "লেগুনা: রামপুরা - ডেমরা স্টাফ কোয়ার্টার",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Rampura",
+     "রামপুরা"
+    ],
+    [
+     "Demra Staff Quarter",
+     "ডেমরা স্টাফ কোয়ার্টার"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Rampura - Nandipara",
+   "company_bn": "লেগুনা: রামপুরা - নন্দীপাড়া",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Rampura",
+     "রামপুরা"
+    ],
+    [
+     "Nandipara",
+     "নন্দীপাড়া"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: House Building / Azampur - Dakshinkhan",
+   "company_bn": "লেগুনা: হাউজ বিল্ডিং - দক্ষিণখান",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "House Building",
+     "হাউজ বিল্ডিং"
+    ],
+    [
+     "Azampur",
+     "আজমপুর"
+    ],
+    [
+     "Dakshinkhan",
+     "দক্ষিণখান"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Azampur - Uttarkhan",
+   "company_bn": "লেগুনা: আজমপুর - উত্তরখান",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Azampur",
+     "আজমপুর"
+    ],
+    [
+     "Uttarkhan",
+     "উত্তরখান"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Jashimuddin - Bawnia",
+   "company_bn": "লেগুনা: জসীমউদ্দীন - বাউনিয়া",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Jashimuddin",
+     "জসীমউদ্দীন"
+    ],
+    [
+     "Bawnia",
+     "বাউনিয়া"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: লেগুনা বন্ধে দুর্ভোগ ঢাকাবাসীর",
+     "url": "https://bangla.bdnews24.com/bangladesh/article1536727.bdnews",
+     "date": "2018-09-05"
+    }
+   ],
+   "fare_note": ""
+  },
+  {
+   "company": "Leguna: Uttara North (Diabari) - House Building",
+   "company_bn": "লেগুনা: উত্তরা উত্তর - হাউজ বিল্ডিং",
+   "op": "leguna",
+   "ref": "",
+   "mode": "leguna",
+   "stops": [
+    [
+     "Uttara North",
+     "উত্তরা উত্তর"
+    ],
+    [
+     "House Building",
+     "হাউজ বিল্ডিং"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Somoyer Konthosor: ফিটনেসবিহীন লেগুনা ও চাঁদাবাজিতে অচল উত্তরার অভ্যন্তরীণ রুট",
+     "url": "https://www.somoyerkonthosor.com/index.php/post/2026/10/06/6ac4c1f7bd75e",
+     "date": "2026-10-06"
+    }
+   ],
+   "fare_note": "150-160 legunas daily; 250 taka/day 'GP' levy per vehicle (not a fare)"
+  },
+  {
+   "company": "Dhaka Nagar Paribahan: Ghatarchar - Kanchpur",
+   "company_bn": "ঢাকা নগর পরিবহন: ঘাটারচর - কাঁচপুর",
+   "op": "Dhaka Nagar Paribahan (DSCC/BRTC)",
+   "ref": "21",
+   "mode": "bus",
+   "stops": [
+    [
+     "Ghatarchar",
+     "ঘাটারচর"
+    ],
+    [
+     "Bosila",
+     "বসিলা"
+    ],
+    [
+     "Mohammadpur",
+     "মোহাম্মদপুর"
+    ],
+    [
+     "Jigatola",
+     "জিগাতলা"
+    ],
+    [
+     "Elephant Road",
+     "এলিফ্যান্ট রোড"
+    ],
+    [
+     "Shahbagh",
+     "শাহবাগ"
+    ],
+    [
+     "Press Club",
+     "প্রেসক্লাব"
+    ],
+    [
+     "Paltan",
+     "পল্টন"
+    ],
+    [
+     "Motijheel",
+     "মতিঝিল"
+    ],
+    [
+     "Jatrabari",
+     "যাত্রাবাড়ী"
+    ],
+    [
+     "Kanchpur",
+     "কাঁচপুর"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "TBS: Dhaka Nagar Paribahan to operate starting 26 Dec",
+     "url": "https://www.tbsnews.net/node/345955",
+     "date": "2021-12-19"
+    },
+    {
+     "s": "Daily Star Bangla (snippet): নগর পরিবহন ২১ নম্বর রুট",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-477096",
+     "date": "2026-11-09",
+     "snippet": true
+    }
+   ],
+   "fare_note": "Tk 2.15 per km (TBS, Dec 2021). Stops merged from TBS (Bosila, Mohammadpur, Elephant Road, Shahbagh, Paltan, Motijheel) and Daily Star Bangla snippet (Mohammadpur, Jigatola, Press Club, Motijheel, Jatrabari). Launched 26 Dec 2021; later reported run by BRTC."
+  },
+  {
+   "company": "Dhaka Nagar Paribahan: Ghatarchar - Demra Staff Quarter",
+   "company_bn": "ঢাকা নগর পরিবহন: ঘাটারচর - ডেমরা স্টাফ কোয়ার্টার",
+   "op": "Dhaka Nagar Paribahan",
+   "ref": "22",
+   "mode": "bus",
+   "stops": [
+    [
+     "Ghatarchar",
+     "ঘাটারচর"
+    ],
+    [
+     "Washpur",
+     "ওয়াশপুর"
+    ],
+    [
+     "Bosila",
+     "বছিলা"
+    ],
+    [
+     "Bosila CNG Station",
+     "বসিলা সিএনজি স্টেশন"
+    ],
+    [
+     "Mohammadpur Bus Stand",
+     "মোহাম্মদপুর বাসস্ট্যান্ড"
+    ],
+    [
+     "Mohammadpur Town Hall",
+     "মোহাম্মদপুর টাউন হল"
+    ],
+    [
+     "Asad Gate",
+     "আসাদ গেট"
+    ],
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ],
+    [
+     "Karwan Bazar",
+     "কারওয়ান বাজার"
+    ],
+    [
+     "Bangla Motor",
+     "বাংলামোটর"
+    ],
+    [
+     "Shahbagh",
+     "শাহবাগ"
+    ],
+    [
+     "Kakrail",
+     "কাকরাইল"
+    ],
+    [
+     "Fakirapool",
+     "ফকিরাপুল"
+    ],
+    [
+     "Motijheel",
+     "মতিঝিল"
+    ],
+    [
+     "Tikatuli",
+     "টিকাটুলী"
+    ],
+    [
+     "Sayedabad",
+     "সায়েদাবাদ"
+    ],
+    [
+     "Jatrabari",
+     "যাত্রাবাড়ী"
+    ],
+    [
+     "Kajla",
+     "কাজলা"
+    ],
+    [
+     "Konapara",
+     "কোনাপাড়া"
+    ],
+    [
+     "Demra Staff Quarter",
+     "ডেমরা স্টাফ কোয়ার্টার"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Financial Express: Nagar Paribahan launched on two new routes",
+     "url": "https://today.thefinancialexpress.com.bd/print/nagar-paribahan-launched-on-two-new-routes-1665682043",
+     "date": "2022-10-14"
+    },
+    {
+     "s": "Prothom Alo: নতুন ১০০ বাস দিয়ে আরও দুই রুটে চালু ঢাকা নগর পরিবহন",
+     "url": "https://www.prothomalo.com/bangladesh/outq1cn0bv",
+     "date": "2022-10-13"
+    }
+   ],
+   "fare_note": "Launched 13 Oct 2022. FE lists Bosila CNG, Mohammadpur Bus Stand, Bangla Motor, Kajla; Prothom Alo lists Tikatuli, Sayedabad, Jatrabari."
+  },
+  {
+   "company": "Dhaka Nagar Paribahan: Ghatarchar - Kadamtali (Postogola)",
+   "company_bn": "ঢাকা নগর পরিবহন: ঘাটারচর - কদমতলী (পোস্তগোলা)",
+   "op": "Dhaka Nagar Paribahan",
+   "ref": "26",
+   "mode": "bus",
+   "stops": [
+    [
+     "Ghatarchar",
+     "ঘাটারচর"
+    ],
+    [
+     "Washpur",
+     "ওয়াশপুর"
+    ],
+    [
+     "Bosila",
+     "বছিলা"
+    ],
+    [
+     "Mohammadpur Town Hall",
+     "মোহাম্মদপুর টাউন হল"
+    ],
+    [
+     "Asad Gate",
+     "আসাদ গেট"
+    ],
+    [
+     "Kalabagan",
+     "কলাবাগান"
+    ],
+    [
+     "Science Lab",
+     "সায়েন্স ল্যাব"
+    ],
+    [
+     "New Market",
+     "নিউমার্কেট"
+    ],
+    [
+     "Azimpur",
+     "আজিমপুর"
+    ],
+    [
+     "Palashi",
+     "পলাশী"
+    ],
+    [
+     "Chankharpul",
+     "চাঁনখারপুল"
+    ],
+    [
+     "Mayor Hanif Flyover",
+     "মেয়র হানিফ উড়ালসড়ক"
+    ],
+    [
+     "Kadamtali (Postogola)",
+     "পোস্তগোলার কদমতলী"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo: নতুন ১০০ বাস দিয়ে আরও দুই রুটে চালু ঢাকা নগর পরিবহন",
+     "url": "https://www.prothomalo.com/bangladesh/outq1cn0bv",
+     "date": "2022-10-13"
+    }
+   ],
+   "fare_note": "Launched 13 Oct 2022 (Prothom Alo Bangla; Prothom Alo English 21 Jun 2022 lists the same plan with Postagola)."
+  },
+  {
+   "company": "VIP City Paribahan: Shibbari (Gazipur) - Azimpur",
+   "company_bn": "ভিআইপি সিটি পরিবহন: শিববাড়ী - আজিমপুর",
+   "op": "VIP City Paribahan",
+   "ref": "",
+   "mode": "bus",
+   "stops": [
+    [
+     "Shibbari (Gazipur)",
+     "শিববাড়ী"
+    ],
+    [
+     "Tongi",
+     "টঙ্গী"
+    ],
+    [
+     "Airport",
+     "বিমানবন্দর"
+    ],
+    [
+     "Mohakhali",
+     "মহাখালী"
+    ],
+    [
+     "New Market",
+     "নিউমার্কেট"
+    ],
+    [
+     "Azimpur / Dhakeshwari Temple",
+     "আজিমপুর / ঢাকেশ্বরী মন্দির"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Ajker Patrika: রাজধানীতে ৭ কোম্পানির অধীনে চালু হলো ৮৬১ বাস",
+     "url": "https://www.ajkerpatrika.com/bangladesh/dhaka/ajp3eumspmzbt",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "bdnews24 Bangla: ঢাকার সাত রুটে কোম্পানিভিত্তিক বাস চালু",
+     "url": "https://bangla.bdnews24.com/bangladesh/2mf3bo0sgg",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "Bangladesh Post: Company-run bus services to begin on six Dhaka routes",
+     "url": "https://bangladeshpost.net/posts/company-run-bus-services-to-begin-on-six-dhaka-routes-175070",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "Daily Star Bangla: এক রুট, এক কোম্পানি: ৬ রুটে পরীক্ষামূলক বাস চলাচল শুরু ১ নভেম্বর",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-3972226",
+     "date": "2026-10-19"
+    }
+   ],
+   "fare_note": "Franchise route launched 1 Nov 2026 (253 buses). Via points (Tongi, Airport, Mohakhali, New Market) from Daily Star Bangla pre-launch plan (19 Oct 2026)."
+  },
+  {
+   "company": "Dhaka Dhaka City Paribahan: Tongi - Azimpur",
+   "company_bn": "ঢাকা ঢাকা সিটি পরিবহন: টঙ্গী - আজিমপুর",
+   "op": "Dhaka Dhaka City Paribahan",
+   "ref": "",
+   "mode": "bus",
+   "stops": [
+    [
+     "Tongi College Gate",
+     "টঙ্গী কলেজ গেট"
+    ],
+    [
+     "Azimpur / Dhakeshwari Temple",
+     "আজিমপুর / ঢাকেশ্বরী মন্দির"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Ajker Patrika: রাজধানীতে ৭ কোম্পানির অধীনে চালু হলো ৮৬১ বাস",
+     "url": "https://www.ajkerpatrika.com/bangladesh/dhaka/ajp3eumspmzbt",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "bdnews24 Bangla: ঢাকার সাত রুটে কোম্পানিভিত্তিক বাস চালু",
+     "url": "https://bangla.bdnews24.com/bangladesh/2mf3bo0sgg",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "Bangladesh Post: Company-run bus services to begin on six Dhaka routes",
+     "url": "https://bangladeshpost.net/posts/company-run-bus-services-to-begin-on-six-dhaka-routes-175070",
+     "date": "2026-11-01"
+    }
+   ],
+   "fare_note": "Franchise route launched 1 Nov 2026 (20 buses). Ends only."
+  },
+  {
+   "company": "Chiriakhana City Paribahan: Mirpur Zoo - Chunkutia (Keraniganj)",
+   "company_bn": "চিড়িয়াখানা সিটি পরিবহন: মিরপুর চিড়িয়াখানা - চুনকুটিয়া",
+   "op": "Chiriakhana City Paribahan",
+   "ref": "",
+   "mode": "bus",
+   "stops": [
+    [
+     "Mirpur Zoo",
+     "মিরপুর চিড়িয়াখানা"
+    ],
+    [
+     "Chunkutia (Keraniganj)",
+     "চুনকুটিয়া"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Ajker Patrika: রাজধানীতে ৭ কোম্পানির অধীনে চালু হলো ৮৬১ বাস",
+     "url": "https://www.ajkerpatrika.com/bangladesh/dhaka/ajp3eumspmzbt",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "Bangladesh Post: Company-run bus services to begin on six Dhaka routes",
+     "url": "https://bangladeshpost.net/posts/company-run-bus-services-to-begin-on-six-dhaka-routes-175070",
+     "date": "2026-11-01"
+    }
+   ],
+   "fare_note": "Franchise route launched 1 Nov 2026 (133 buses). Ends only."
+  },
+  {
+   "company": "Ramjan Ali City Paribahan: Ghatarchar - Demra Staff Quarter",
+   "company_bn": "রমজান আলী সিটি পরিবহন: ঘাটারচর - ডেমরা স্টাফ কোয়ার্টার",
+   "op": "Ramjan Ali City Paribahan",
+   "ref": "",
+   "mode": "bus",
+   "stops": [
+    [
+     "Ghatarchar",
+     "ঘাটারচর"
+    ],
+    [
+     "Mohammadpur",
+     "মোহাম্মদপুর"
+    ],
+    [
+     "Shahbagh",
+     "শাহবাগ"
+    ],
+    [
+     "Rampura",
+     "রামপুরা"
+    ],
+    [
+     "Demra Staff Quarter",
+     "ডেমরা স্টাফ কোয়ার্টার"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Ajker Patrika: রাজধানীতে ৭ কোম্পানির অধীনে চালু হলো ৮৬১ বাস",
+     "url": "https://www.ajkerpatrika.com/bangladesh/dhaka/ajp3eumspmzbt",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "bdnews24 Bangla: ঢাকার সাত রুটে কোম্পানিভিত্তিক বাস চালু",
+     "url": "https://bangla.bdnews24.com/bangladesh/2mf3bo0sgg",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "Bangladesh Post: Company-run bus services to begin on six Dhaka routes",
+     "url": "https://bangladeshpost.net/posts/company-run-bus-services-to-begin-on-six-dhaka-routes-175070",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "Daily Star Bangla: এক রুট, এক কোম্পানি: ৬ রুটে পরীক্ষামূলক বাস চলাচল শুরু ১ নভেম্বর",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-3972226",
+     "date": "2026-10-19"
+    }
+   ],
+   "fare_note": "Franchise route launched 1 Nov 2026 (80 buses). Via points from Daily Star Bangla pre-launch plan ('ঘাটারচর-ডেমরা' via মোহাম্মদপুর, শাহবাগ, রামপুরা)."
+  },
+  {
+   "company": "Three Star City Paribahan: Ghatarchar - Chittagong Road - Kanchpur",
+   "company_bn": "থ্রি স্টার সিটি পরিবহন: ঘাটারচর - চিটাগাং রোড-কাঁচপুর",
+   "op": "Three Star City Paribahan",
+   "ref": "",
+   "mode": "bus",
+   "stops": [
+    [
+     "Ghatarchar",
+     "ঘাটারচর"
+    ],
+    [
+     "Shahbagh",
+     "শাহবাগ"
+    ],
+    [
+     "Paltan",
+     "পল্টন"
+    ],
+    [
+     "Signboard",
+     "সাইনবোর্ড"
+    ],
+    [
+     "Chittagong Road",
+     "চিটাগাং রোড"
+    ],
+    [
+     "Kanchpur",
+     "কাঁচপুর"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Ajker Patrika: রাজধানীতে ৭ কোম্পানির অধীনে চালু হলো ৮৬১ বাস",
+     "url": "https://www.ajkerpatrika.com/bangladesh/dhaka/ajp3eumspmzbt",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "bdnews24 Bangla: ঢাকার সাত রুটে কোম্পানিভিত্তিক বাস চালু",
+     "url": "https://bangla.bdnews24.com/bangladesh/2mf3bo0sgg",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "Bangladesh Post: Company-run bus services to begin on six Dhaka routes",
+     "url": "https://bangladeshpost.net/posts/company-run-bus-services-to-begin-on-six-dhaka-routes-175070",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "Daily Star Bangla: এক রুট, এক কোম্পানি: ৬ রুটে পরীক্ষামূলক বাস চলাচল শুরু ১ নভেম্বর",
+     "url": "https://bangla.thedailystar.net/news/bangladesh/news-3972226",
+     "date": "2026-10-19"
+    }
+   ],
+   "fare_note": "Franchise route launched 1 Nov 2026 (120 buses). Via points from Daily Star Bangla pre-launch plan."
+  },
+  {
+   "company": "P.P.B. City Paribahan: Ghatarchar - Dhour (Abdullahpur) via Mirpur 10",
+   "company_bn": "পি. পি. বি. সিটি পরিবহন: ঘাটারচর - আব্দুল্লাহপুরের ধউর",
+   "op": "P.P.B. City Paribahan",
+   "ref": "",
+   "mode": "bus",
+   "stops": [
+    [
+     "Ghatarchar",
+     "ঘাটারচর"
+    ],
+    [
+     "Mirpur 10",
+     "মিরপুর ১০"
+    ],
+    [
+     "Dhour Bridge",
+     "ধউর সেতু"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Ajker Patrika: রাজধানীতে ৭ কোম্পানির অধীনে চালু হলো ৮৬১ বাস",
+     "url": "https://www.ajkerpatrika.com/bangladesh/dhaka/ajp3eumspmzbt",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "bdnews24 Bangla: ঢাকার সাত রুটে কোম্পানিভিত্তিক বাস চালু",
+     "url": "https://bangla.bdnews24.com/bangladesh/2mf3bo0sgg",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "Bangladesh Post: Company-run bus services to begin on six Dhaka routes",
+     "url": "https://bangladeshpost.net/posts/company-run-bus-services-to-begin-on-six-dhaka-routes-175070",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "Ittefaq English (snippet): Dhaka revamps its bus routes",
+     "url": "https://en.ittefaq.com.bd/18686/dhaka-revamps-its-bus-routes",
+     "date": "2026-11-09",
+     "snippet": true
+    }
+   ],
+   "fare_note": "Franchise route launched 1 Nov 2026 (225 buses). 'via Mirpur-10' from Ittefaq search snippet."
+  },
+  {
+   "company": "Trust Transport Service: Mirpur 1 circular (Kachukhet - Sainik Club - Jahangir Gate - Agargaon)",
+   "company_bn": "ট্রাস্ট ট্রান্সপোর্ট সার্ভিস: মিরপুর-১ সার্কুলার",
+   "op": "Trust Transport Service",
+   "ref": "",
+   "mode": "bus",
+   "stops": [
+    [
+     "Mirpur 1",
+     "মিরপুর-১"
+    ],
+    [
+     "Kachukhet",
+     "কচুক্ষেত"
+    ],
+    [
+     "Sainik Club",
+     "সৈনিক ক্লাব"
+    ],
+    [
+     "Jahangir Gate",
+     "জাহাঙ্গীর গেইট"
+    ],
+    [
+     "Agargaon",
+     "আগারগাঁও"
+    ],
+    [
+     "Ansar Camp",
+     "আনসার ক্যাম্প"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "bdnews24 Bangla: ঢাকার সাত রুটে কোম্পানিভিত্তিক বাস চালু",
+     "url": "https://bangla.bdnews24.com/bangladesh/2mf3bo0sgg",
+     "date": "2026-11-01"
+    },
+    {
+     "s": "Ajker Patrika: রাজধানীতে ৭ কোম্পানির অধীনে চালু হলো ৮৬১ বাস",
+     "url": "https://www.ajkerpatrika.com/bangladesh/dhaka/ajp3eumspmzbt",
+     "date": "2026-11-01"
+    }
+   ],
+   "fare_note": "Circular franchise route launched 1 Nov 2026 (30 buses). bdnews24 gives stops Mirpur-1 -> Kachukhet -> Sainik Club -> Jahangir Gate -> Agargaon -> Ansar Camp; Ajker Patrika names it 'মিরপুর-১ – কাকলী-বনানী (সার্কুলার)'."
+  },
+  {
+   "company": "BRTC: Agargaon - Motijheel (metro feeder double decker)",
+   "company_bn": "বিআরটিসি: আগারগাঁও - মতিঝিল",
+   "op": "BRTC",
+   "ref": "",
+   "mode": "bus",
+   "stops": [
+    [
+     "Agargaon",
+     "আগারগাঁও"
+    ],
+    [
+     "Farmgate",
+     "ফার্মগেট"
+    ],
+    [
+     "Karwan Bazar",
+     "কারওয়ান বাজার"
+    ],
+    [
+     "Shahbagh",
+     "শাহবাগ"
+    ],
+    [
+     "Gulistan",
+     "গুলিস্তান"
+    ],
+    [
+     "Motijheel",
+     "মতিঝিল"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo English: 30 BRTC buses to carry passengers from metro rail stations",
+     "url": "https://en.prothomalo.com/bangladesh/city/7meabfunqt",
+     "date": "2022-12-27"
+    }
+   ],
+   "fare_note": "20 double-deckers; fare 'similar to Nagar Paribahan' (Dec 2022)."
+  },
+  {
+   "company": "BRTC: Uttara House Building - Uttara North (Diabari) metro feeder",
+   "company_bn": "বিআরটিসি: হাউজবিল্ডিং - দিয়াবাড়ী",
+   "op": "BRTC",
+   "ref": "",
+   "mode": "bus",
+   "stops": [
+    [
+     "House Building",
+     "হাউজবিল্ডিং"
+    ],
+    [
+     "Abdullahpur",
+     "আব্দুল্লাহপুর"
+    ],
+    [
+     "Uttara North (Diabari)",
+     "উত্তরা উত্তর (দিয়াবাড়ী)"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo English: 30 BRTC buses to carry passengers from metro rail stations",
+     "url": "https://en.prothomalo.com/bangladesh/city/7meabfunqt",
+     "date": "2022-12-27"
+    }
+   ],
+   "fare_note": "10 double-deckers (Dec 2022)."
+  },
+  {
+   "company": "BRTC double decker: Airport - Motijheel via Progoti Sarani",
+   "company_bn": "বিআরটিসি দ্বিতল: বিমানবন্দর - মতিঝিল",
+   "op": "BRTC",
+   "ref": "",
+   "mode": "bus",
+   "stops": [
+    [
+     "Airport",
+     "বিমানবন্দর"
+    ],
+    [
+     "Badda (Progoti Sarani)",
+     "বাড্ডা প্রগতি সরণি"
+    ],
+    [
+     "Rampura",
+     "রামপুরা"
+    ],
+    [
+     "Malibagh",
+     "মালিবাগ"
+    ],
+    [
+     "Motijheel",
+     "মতিঝিল"
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Prothom Alo (snippet): পরিবহনসংকট মেটাতে দ্বিতল বাস",
+     "url": "https://www.prothomalo.com/bangladesh/পরিবহনসংকট-মেটাতে-দ্বিতল-বাস",
+     "date": "2026-11-09",
+     "snippet": true
+    }
+   ],
+   "fare_note": "Tk 45 Airport-Motijheel (search snippet; article year not shown)"
+  }
+ ]
+}

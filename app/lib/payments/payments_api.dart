@@ -1,4 +1,5 @@
 import '../api.dart';
+import '../plans_v2/buy_inside.dart' show BuyOrigin;
 import '../config.dart';
 
 /// pay1 — the app only ever talks to OUR backend (never to a gateway or to
@@ -191,7 +192,12 @@ class ApiPaymentsBackend implements PaymentsBackend {
 
   @override
   Future<PayResult> checkout(String sku, String idem, String flavour) =>
-      _post('/payments/checkout', {'sku': sku, 'idem': idem, 'flavour': flavour});
+      _post('/payments/checkout', {
+        'sku': sku,
+        'idem': idem,
+        'flavour': flavour,
+        if (BuyOrigin.current.isNotEmpty) 'origin': BuyOrigin.current,
+      });
 
   @override
   Future<PayResult> order(int id) async {
@@ -204,7 +210,10 @@ class ApiPaymentsBackend implements PaymentsBackend {
 
   @override
   Future<PayResult> playPrecheck(String sku) =>
-      _post('/payments/play/precheck', {'sku': sku});
+      _post('/payments/play/precheck', {
+        'sku': sku,
+        if (BuyOrigin.current.isNotEmpty) 'origin': BuyOrigin.current,
+      });
 
   @override
   Future<PayResult> playVerify(
@@ -214,6 +223,8 @@ class ApiPaymentsBackend implements PaymentsBackend {
       _post('/payments/play/verify', {
         'kind': kind,
         'product_id': productId,
-        'purchase_token': purchaseToken
+        'purchase_token': purchaseToken,
+        // buyinside: where this purchase started (a feature key, no personal data)
+        if (BuyOrigin.current.isNotEmpty) 'origin': BuyOrigin.current,
       });
 }

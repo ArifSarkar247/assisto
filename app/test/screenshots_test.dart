@@ -29,6 +29,11 @@ import 'package:assisto/screens/messenger/m3_add_to_circle_screen.dart';
 import 'package:assisto/screens/messenger/m3_requests_screen.dart';
 import 'package:assisto/widgets/m3_circle_widgets.dart';
 import 'fake_otp.dart';
+import 'fake_lp2.dart'; // lpapp
+import 'package:assisto/screens/lp2/lp_companion.dart'; // lpapp
+import 'package:assisto/screens/lp2/lp_life.dart'; // lpapp
+import 'package:assisto/screens/lp2/lp_mock.dart'; // lpapp
+import 'package:assisto/screens/lp2/lp_vocab.dart'; // lpapp
 import 'fake_account_security.dart'; // recovery
 import 'package:assisto/screens/account_security_screen.dart'; // recovery
 import 'package:assisto/screens/account_recovery_screens.dart'; // recovery
@@ -44,6 +49,7 @@ import 'bubbles_shots.dart'; // bubbles
 import 'bubbles2_shots.dart'; // bubbles2
 import 'at100_shots.dart'; // at100
 import 'city_shots.dart'; // cityapp
+import 'city_map_shots.dart'; // mapapp
 import 'aivoice_shots.dart'; // aivoice
 import 'aibar_shots.dart'; // aibar
 import 'callsbar_shots.dart'; // callsbar
@@ -181,6 +187,7 @@ import 'package:assisto/screens/wedding_events_screen.dart';
 import 'package:assisto/screens/task_manager_screen.dart';
 import 'package:assisto/screens/day_planner_screen.dart'; // p2plan
 import 'package:assisto/screens/mess_accounting_screen.dart';
+import 'package:assisto/screens/mess/mess_detail_screen.dart'; // messv2
 import 'package:assisto/screens/expense_split_screen.dart';
 import 'package:assisto/screens/samity_screen.dart';
 import 'package:assisto/screens/landlord_tenant_screen.dart';
@@ -195,6 +202,9 @@ import 'package:assisto/screens/ai_knowledge_screen.dart';
 import 'package:assisto/screens/admin/cost_flags_screen.dart';
 import 'package:assisto/screens/admin/discover_manager_screen.dart';
 import 'fake_discover.dart';
+import 'package:assisto/discover_api.dart' show DiscoverItem; // discms
+import 'package:assisto/widgets/home_suggestions.dart' show DiscoverCardV2; // discms
+import 'package:assisto/widgets/chatnav.dart' show ChatNav; // discms
 import 'package:assisto/screens/admin/server_address_screen.dart';
 import 'package:assisto/screens/app_update_screen.dart';
 import 'package:assisto/screens/about_screen.dart';
@@ -304,6 +314,10 @@ import 'package:assisto/quran_learn/quran_learn_screen.dart'; // quranread
 import 'package:assisto/quran_learn/recite_sheet.dart'; // quranread
 import 'package:assisto/l10n/quran_learn_content.dart'; // quranread
 import 'quran_learn_fixture.dart'; // quranread
+import 'package:assisto/quran/ayah_view_screen.dart'; // quranview
+import 'package:assisto/quran/quran_bilingual_api.dart'; // quranview
+import 'package:assisto/quran/quran_tafsir_sheet.dart'; // quranview
+import 'quranview_fixture.dart'; // quranview
 import 'package:assisto/screens/exam_result_screen.dart';
 import 'package:assisto/screens/circle_screen.dart';
 import 'package:assisto/screens/circle_chat_screen.dart';
@@ -320,6 +334,9 @@ import 'package:assisto/screens/circle_privacy_screen.dart';
 import 'package:assisto/screens/circle_search_screen.dart';
 import 'package:assisto/screens/referral_screen.dart';
 import 'package:assisto/screens/journey_start_screen.dart';
+import 'package:assisto/services/journey_habits.dart' show JourneySuggestion; // sjstart2
+import 'package:assisto/widgets/journey_plate_photo.dart' show JourneyPlatePhotoTile, sj2PickPlatePhoto; // sjstart2
+import 'package:assisto/widgets/journey_watcher_chips.dart' show JourneyWatcherChips; // sjstart2
 import 'package:assisto/screens/journey_live_screen.dart';
 import 'package:assisto/screens/journey_sos_screen.dart';
 import 'package:assisto/screens/journey_settings_screen.dart';
@@ -344,6 +361,7 @@ import 'admobump_shots.dart'; // admobump
 import 'p1_bizagent_shots.dart'; // p1-bizagent
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'cctv1_shots.dart'; // cctv1 Home & shop watchman
+import 'cctvdet_shots.dart'; // cctvdet CCTV zone detections
 import 'cctvalerts_shots.dart'; // cctvalerts W3 alert types
 import 'cctvaicheck_shots.dart'; // cctvaicheck W4 AI check of the alert photo
 import 'cctvguard_shots.dart'; // cctvguard: CCTV cost guards
@@ -357,6 +375,7 @@ import 'cctvevidence_shots.dart'; // cctvevidence CCTV recording + evidence
 import 'cctvescalate_shots.dart'; // cctvescalate C3-C6
 import 'cctvact_shots.dart'; // cctvact CCTV V3 D/E/F/G
 import 'cctvprice_shots.dart'; // cctvprice CCTV plan
+import 'buyinside_shots.dart'; // buyinside
 import 'safeplans_shots.dart'; // safeplans Safety plans
 import 'carecall_shots.dart'; // carecall Care Call SCREEN 1/2/3
 import 'fcbrain_shots.dart'; // fcbrain
@@ -656,6 +675,24 @@ Map<String, GallerySpec> gallerySpecs() {
     'cost_est': (build: (_) => const CostEstimatorScreen(), mode: FakeMode.data, full: true),
     'mock_iv': (build: (_) => const MockInterviewScreen(), mode: FakeMode.data, full: true),
     'lang_partner': (build: (_) => const LanguagePartnerScreen(), mode: FakeMode.data, full: true),
+    // lpapp: Language Partner V2 — the 4 owner-approved screens + hub, life list, vocab
+    'lp2_start': (build: (_) => const LanguagePartnerScreen(), mode: FakeMode.data, full: true),
+    'lp2_result': (build: (l) => LpMockResultScreen(
+        title: l == 'bn' ? 'অ্যাকাডেমিক মক ১' : 'Academic mock 1',
+        sections: const ['listening', 'reading', 'writing', 'speaking'],
+        bands: const {'listening': 7.0, 'reading': 6.5, 'writing': 6.0, 'speaking': 6.0},
+        overall: 6.5,
+        finish: fakeLp2Finish(),
+        details: {'listening': fakeLp2Mark('listening'), 'reading': fakeLp2Mark('reading')},
+        weakTags: const ['tfng', 'spelling']), mode: FakeMode.data, full: true),
+    'lp2_roleplay': (build: (_) => LpRolePlayScreen(scenario: lp2Scenario('embassy'), debugGuidedDone: true), mode: FakeMode.data, full: true),
+    'lp2_companion': (build: (_) => const LpCompanionScreen(
+        debugAnswers: {1: 'library', 2: 'Tuesdays', 3: 'B', 4: 'parking', 5: 'TRUE', 6: 'C', 7: 'the old bridge', 8: 'NOT GIVEN'},
+        debugKey: {1: 'library', 2: 'Tuesday', 3: 'B', 4: 'parking', 5: 'NOT GIVEN', 6: 'C', 7: 'bridge', 8: 'NOT GIVEN'}),
+        mode: FakeMode.data, full: true),
+    'lp2_hub': (build: (_) => const LpIeltsHub(), mode: FakeMode.data, full: true),
+    'lp2_life': (build: (_) => const LpLifeListScreen(), mode: FakeMode.data, full: false),
+    'lp2_vocab': (build: (_) => const LpVocabScreen(), mode: FakeMode.data, full: false),
     // p2lang: IELTS practice (hub + streak, pronunciation result, writing
     // checklist + AI estimate, reading passage, load failure)
     'ielts_hub': (build: (_) => const IeltsScreen(), mode: FakeMode.data, full: true),
@@ -732,6 +769,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'dp_plan': (build: (_) => const DayPlannerScreen(), mode: FakeMode.data, full: true),
     'dp_empty': (build: (_) => const DayPlannerScreen(), mode: FakeMode.empty, full: true),
     'mess_acct': (build: (_) => const MessAccountingScreen(), mode: FakeMode.data, full: true),
+    // messv2: list empty state, the shared mess (meals tab), month-end tab
+    'mess_v2_empty': (build: (_) => const MessAccountingScreen(), mode: FakeMode.empty, full: true),
+    'mess_v2_meals': (build: (_) => const MessDetailScreen(messId: 1), mode: FakeMode.data, full: true),
+    'mess_v2_month': (build: (_) => const MessDetailScreen(messId: 1, initialTab: 3), mode: FakeMode.data, full: true),
     'expense_split': (build: (_) => const ExpenseSplitScreen(), mode: FakeMode.data, full: true),
     'samity': (build: (_) => const SamityScreen(), mode: FakeMode.data, full: true),
     'landlord': (build: (_) => const LandlordTenantScreen(), mode: FakeMode.data, full: true),
@@ -759,6 +800,15 @@ Map<String, GallerySpec> gallerySpecs() {
     'discover_edit': (build: (_) => DiscoverCardEditScreen(card: fakeDiscoverAdminCards().first, meta: const {
       'routes': ['photo_enhance', 'plans', 'notes'], 'icons': ['shopping_bag', 'star', 'campaign']}), mode: FakeMode.data, full: true),
     'discover_report': (build: (_) => const DiscoverReportScreen(cardId: 20, title: 'Fresh Market'), mode: FakeMode.data, full: true),
+    // discms: the owner's new Discover card types on Home (same card box).
+    'discms_cards': (build: (_) => Scaffold(body: SafeArea(child: ListView(padding: const EdgeInsets.all(16), children: [
+      for (final c in const [
+        DiscoverItem(id: 1, key: 'wn', type: DiscoverItem.whatsNew, titleBn: 'নোটে এখন ভয়েস', titleEn: 'Voice in Notes', descBn: 'বলুন, অ্যাসিস্টো লিখে রাখবে।', descEn: 'Speak and Assisto writes it down.', icon: 'lightbulb', route: 'notes'),
+        DiscoverItem(id: 2, key: 'of', type: DiscoverItem.offer, titleBn: 'প্রিমিয়ামে ৩০% ছাড়', titleEn: '30% off Premium', descBn: 'এই সপ্তাহে প্রথম মাস।', descEn: 'First month, this week only.', icon: 'local_offer', route: 'plans'),
+        DiscoverItem(id: 3, key: 'sp', type: DiscoverItem.sponsored, titleBn: 'ফ্রেশ মার্কেট', titleEn: 'Fresh Market', descBn: 'তাজা সবজি ঘরে পৌঁছে দেওয়া হয়।', descEn: 'Fresh vegetables delivered to your door.', icon: 'shopping_bag', route: 'offers'),
+      ])
+        Padding(padding: const EdgeInsets.only(bottom: 12), child: Builder(builder: (ctx) => DiscoverCardV2(item: c, onTap: () => ChatNav.push(ctx, c.route)))),
+    ]))), mode: FakeMode.data, full: true),
     'server_addr': (build: (_) => const ServerAddressScreen(), mode: FakeMode.data, full: true),
     'app_update': (build: (_) => const AppUpdateScreen(), mode: FakeMode.data, full: true),
     'about': (build: (_) => const AboutScreen(), mode: FakeMode.data, full: true),
@@ -1145,6 +1195,11 @@ Map<String, GallerySpec> gallerySpecs() {
     // result state of "I read, check me": the text a phone engine returns when the last word is missed
     'quran_learn_check': (build: (_) { preloadRealUthmani(); return Scaffold(body: SafeArea(child: ReciteSheet(expected: realUthmani().text(kQlStages[7].lessons[1].items[0].ref!)!, initialHeard: '\u0642\u0644 \u0647\u0648 \u0627\u0644\u0644\u0647'))); }, mode: FakeMode.data, full: true),
     'quran_learn_about': (build: (_) { preloadRealUthmani(); return const QuranLearnAboutScreen(); }, mode: FakeMode.data, full: true),
+    // quranview: bilingual ayah view (real QuranEnc texts; QF part = test fixture) + tafsir/shane nuzul sheet
+    'qv_ayah': (build: (_) { SharedPreferences.setMockInitialValues({}); QuranBilingualApi.clearForTest(); return AyahViewScreen(data: realQuranData(), sura: 1, aya: 1, player: QvSilentPlayer(), api: QuranBilingualApi((p) async => fakeQuranViewGet(p)!)); }, mode: FakeMode.data, full: true),
+    'qv_ayah_qf_pending': (build: (_) { SharedPreferences.setMockInitialValues({}); QuranBilingualApi.clearForTest(); return AyahViewScreen(data: realQuranData(), sura: 1, aya: 1, player: QvSilentPlayer(), api: QuranBilingualApi((p) async => fakeQuranViewGet(p, qfOn: false)!)); }, mode: FakeMode.data, full: true),
+    'qv_tafsir_shan': (build: (_) { QuranBilingualApi.clearForTest(); return Scaffold(body: SafeArea(child: QuranTafsirBody(api: QuranBilingualApi((p) async => fakeQuranViewGet(p)!), sura: 80, aya: 1))); }, mode: FakeMode.data, full: true),
+    'qv_tafsir_none': (build: (_) { QuranBilingualApi.clearForTest(); return Scaffold(body: SafeArea(child: QuranTafsirBody(api: QuranBilingualApi((p) async => fakeQuranViewGet(p)!), sura: 1, aya: 1))); }, mode: FakeMode.data, full: true),
     // quranshikhi: the owner-approved letter lesson (bn + en lines, four forms,
     // makhraj, under review, streak), joining letters, a new short sura.
     'quran_learn_letter': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress(), initialItem: 'l_ba'), mode: FakeMode.data, full: true),
@@ -1198,6 +1253,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in admobumpShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
+    for (final e in cctvdetShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvdet
     for (final e in cctvalertsShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvalerts
     for (final e in cctvaicheckShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvaicheck
     for (final e in cctvguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvguard
@@ -1211,6 +1267,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in cctvescalateShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvescalate
     for (final e in cctvactShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvact
     for (final e in cctvpriceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvprice
+    for (final e in buyinsideShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // buyinside
     for (final e in safeplansShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // safeplans
     for (final e in carecallShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // carecall
     for (final e in fcbrainShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // fcbrain
@@ -1246,6 +1303,20 @@ Map<String, GallerySpec> gallerySpecs() {
     'nearby_general': (build: (_) => const NearbyScreen(placeType: 'atm', debugLocation: (lat: 23.738, lon: 90.395)), mode: FakeMode.data, full: true),
     'truth_firstwin_business': (build: (_) => Scaffold(body: SafeArea(child: Builder(builder: (c) => OnbFirstWin(role: OnbRole.business, onPick: (w) => ScaffoldMessenger.of(c).showSnackBar(SnackBar(content: Text(w.name))))))), mode: FakeMode.data, full: true),
     'truth_journey_empty_circle': (build: (_) => const JourneyStartScreen(), mode: FakeMode.empty, full: true),
+    // sjstart2: "Who watches" chips (family first, more than one) + plate photo; usual-trip suggestion
+    'sjstart2_watchers': (build: (l) { var sel = <int>{1, 2}; return StatefulBuilder(builder: (c, set) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).journeyWhoKnows)), body: ListView(padding: const EdgeInsets.all(16), children: [
+          JourneyWatcherChips(rows: [
+            {'id': 1, 'name': l == 'bn' ? 'আম্মু' : 'Mum', 'relation': 'mother'},
+            {'id': 2, 'name': l == 'bn' ? 'আব্বু' : 'Dad', 'relation': 'father'},
+            {'id': 3, 'name': l == 'bn' ? 'রিনা (বোন)' : 'Rina (sister)', 'relation': 'sister'},
+            {'id': 4, 'name': l == 'bn' ? 'রাফি (অফিস)' : 'Rafi (office)', 'relation': 'colleague'},
+          ], selected: sel, onChanged: (v) => set(() => sel = v)),
+          const SizedBox(height: 8),
+          Text(AppLocalizations.of(c).sj2WatchCount(l == 'bn' ? const ['০', '১', '২', '৩', '৪'][sel.length] : '${sel.length}')),
+          const SizedBox(height: 16),
+          JourneyPlatePhotoTile(bytes: null, onPick: () => sj2PickPlatePhoto(c), onRemove: () {}),
+        ]))); }, mode: FakeMode.data, full: true),
+    'sjstart2_suggest': (build: (l) => JourneyStartScreen(suggest: JourneySuggestion(oLat: 23.78, oLng: 90.426, dLat: 23.7925, dLng: 90.4078, name: l == 'bn' ? 'অফিস' : 'Office', kind: 'office', mode: 'cng', usualMin: 510, times: 4)), mode: FakeMode.data, full: true),
     'used_phone_check': (build: (_) => const UsedPhoneCheckScreen(), mode: FakeMode.data, full: true),
     // b6-antitheft: always-on Lost/Stolen engine (status, options, honest limits)
     'at_protection_off': (build: (_) => const AlwaysOnProtectionScreen(), mode: FakeMode.empty, full: true),
@@ -1428,6 +1499,8 @@ Map<String, GallerySpec> gallerySpecs() {
     // cityapp: City Service (route options, steps, metro guide, around me, live, women, offices)
     for (final e in cityShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in cityEmptyShots.entries) e.key: (build: e.value, mode: FakeMode.empty, full: true),
+    // mapapp: City map (Badda, Motijheel, Mirpur routes, airport, Google view, trip card)
+    for (final e in cityMapShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // aivoice: no-key banner, voice-conversation bar, Bangla voice help
     for (final e in aivoiceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // aibar: credit line under an AI answer + a not-sent turn with Send again

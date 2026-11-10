@@ -845,7 +845,8 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
               train: tr,
               onOpen: jmTrainOn
                   ? () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => TrainLiveScreen(no: '${tr['no']}', date: '${tr['date']}')))
+                      builder: (_) => TrainLiveScreen(
+                          no: '${tr['no']}', date: '${tr['date']}', showAds: false)))
                   : null),
         ],
         if (_bgRisk) ...[

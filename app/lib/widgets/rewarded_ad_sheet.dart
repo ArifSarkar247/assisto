@@ -208,6 +208,16 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
           const SizedBox(height: Gap.sm),
           Text(t.adUnlockBody,
               style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+          // aimoney (owner 10 Nov, part G): the server's daily number, shown
+          // honestly — "Watch N ads for 1 AI answer"
+          if (_int(_wallet['ads_per_answer']) > 0) ...[
+            const SizedBox(height: Gap.sm),
+            Text(
+                t.aimAdsPerAnswer(
+                    fmtInt(context, _int(_wallet['ads_per_answer']))),
+                key: const Key('ad-per-answer'),
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+          ],
           const SizedBox(height: Gap.lg),
 
           // Ad-wallet balance (always honest — straight from the server).

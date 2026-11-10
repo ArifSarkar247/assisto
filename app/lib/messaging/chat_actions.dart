@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../api.dart';
 import '../l10n/app_localizations.dart';
+import '../offline/offline_store.dart'; // offline1st
 import '../services/error_report.dart';
 import '../theme.dart';
 import '../widgets/msgr_channel_common.dart' show msgrLocalizeDigits;
@@ -25,14 +26,21 @@ extension ChatActionsApi on ApiClient {
   /// POST /circle/<id>/delete-chat or /circle/groups/<id>/delete-chat.
   /// [chatKey] is 'member:<edge id>' | 'group:<group id>'.
   Future<Map<String, dynamic>> deleteChatFor(String chatKey,
-          {bool deleteMedia = false}) =>
-      postJson('${chatActionBase(chatKey)}/delete-chat',
-          {'delete_media': deleteMedia});
+      {bool deleteMedia = false}) async {
+    final r = await postJson('${chatActionBase(chatKey)}/delete-chat',
+        {'delete_media': deleteMedia});
+    await OfflineStore.instance.dropChat(chatKey); // offline1st
+    return r;
+  }
 
   /// POST …/clear {keep_starred}.
   Future<Map<String, dynamic>> clearChatFor(String chatKey,
-          {bool keepStarred = false}) =>
-      postJson('${chatActionBase(chatKey)}/clear', {'keep_starred': keepStarred});
+      {bool keepStarred = false}) async {
+    final r = await postJson(
+        '${chatActionBase(chatKey)}/clear', {'keep_starred': keepStarred});
+    await OfflineStore.instance.dropChat(chatKey); // offline1st
+    return r;
+  }
 
   /// GET/POST /circle/settings/default-timer {ttl: off|24h|7d|90d}.
   Future<Map<String, dynamic>> defaultTimer() =>

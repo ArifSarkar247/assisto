@@ -39,6 +39,7 @@ import 'services/security_guard.dart' show SecurityHeartbeat;
 import 'services/startup_guard.dart';
 import 'home_api.dart';
 import 'widgets/a11y_prefs.dart';
+import 'offline/offline_strip.dart'; // offline1st
 import 'screens/login_screen.dart';
 import 'crypto/key_wiring.dart';
 import 'growth/install_ping.dart';
@@ -68,11 +69,14 @@ import 'device_id.dart'; // own-device
 import 'screens/deletion_grace_screen.dart';
 import 'perf/perf_marks.dart'; // perf2gb (CI-only define)
 import 'perf/low_ram.dart'; // perf2gb: image-cache cap on 2-3 GB phones
+import 'perf/low_data.dart' show LowDataMode; // faststart
+import 'perf/circle_warm.dart'; // faststart
 import 'invite/invite_link.dart'; // invite-join
 import 'invite/space_link.dart'; // channels: /ch/ + /cm/ links
 import 'screens/messenger/communities_home_screen.dart' show SpaceLinkScreen; // channels
 import 'invite/invite_router.dart'; // invite-join
 import 'services/missing_nearby_sync.dart'; // missing
+import 'services/journey_habits.dart'; // sjstart2
 import 'cctvx/home_presence_sync.dart'; // cctvarm
 import 'family_v3/brain/fc_watch.dart'; // fcbrain
 import 'calls/kid_audio_child.dart'; // kidaudio
@@ -175,6 +179,10 @@ void main() {
       // perf2gb: cap the decoded-image cache on 2-3 GB phones (one guarded,
       // time-boxed device_info read, after the first frame; never throws).
       unawaited(LowRamTuning.apply());
+      unawaited(LowDataMode.load()); // faststart: one prefs read
+      // faststart: signed in -> load the chat key + previews in the
+      // background once Home is up, so My Circle opens at once on the tap
+      CircleWarm.start(appState);
       final safe = await StartupGuard.isSafeMode();
       // sc1 crash reporting: 4 s after the first frame, guarded; Crashlytics
       // (Firebase) only outside safe mode, our own server sink always.
@@ -183,7 +191,9 @@ void main() {
       }));
       // Notifications (local scheduling) — self-guarded, not a startup blocker.
       // Time-boxed: a hang here must not delay key publishing below.
+      PerfMarks.once('post_frame_begin'); // faststart
       try { await Notifications.init().timeout(const Duration(seconds: 5)); } catch (_) {}
+      PerfMarks.once('notifications_ready'); // faststart
       // remmeter: re-arm reminder alarms (exact when allowed) after an app
       // update / reboot / permission change; guarded, after the first frame.
       unawaited(Future<void>.delayed(const Duration(seconds: 5), () {
@@ -210,11 +220,14 @@ void main() {
         // #196 home-widget plugin — only touch the native widget bridge when the
         // last launch was healthy; never at cold start.
         try { await HomeWidgetService.init(); } catch (_) {}
+        PerfMarks.once('home_widget_ready'); // faststart
         // Push (FCM) — lazy, after the first frame and after local
         // notifications are initialised; silently off when this build has no
         // Firebase config. Never blocks or crashes the launch.
         unawaited(Future<void>.delayed(const Duration(seconds: 2), () async {
+          PerfMarks.once('push_begin'); // faststart
           try { await PushService.instance.start(appState); } catch (_) {}
+          PerfMarks.once('push_ready'); // faststart
         }));
       } else {
         // ty1: safe mode still rings My Circle calls in-app and shows
@@ -309,7 +322,9 @@ class AssistoApp extends StatelessWidget {
                 key: AppShot.boundaryKey,
                 // b1-calls: "tap to return to the call" bar while a call is
                 // minimized (nothing extra is drawn otherwise).
-                child: CallMiniBarHost(child: child ?? const SizedBox.shrink()),
+                // offline1st: the small "Offline" strip (nothing while online)
+                child: CallMiniBarHost(
+                    child: OfflineStrip(child: child ?? const SizedBox.shrink())),
               ),
             );
           },
@@ -441,7 +456,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   }
 
   Future<void> _maybeSmokeOpen() async {
-    if (!kDebugMode && !_smokeBuild) return;
+    // faststart: the CI start-speed run (PERF profile APK) opens My Circle
+    // via `am start --es ao_open circle` to time it — inert elsewhere.
+    if (!kDebugMode && !_smokeBuild && !PerfMarks.enabled) return;
     if (_smokeBuild) {
       // ring-everywhere CI proof (job ring-proof): arm the adb-only native
       // ring-test hook. ONLY the CI smoke APK ever does this.
@@ -451,8 +468,17 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     try {
       const ch = MethodChannel('com.assisto/device_admin');
-      final route = await ch.invokeMethod<String>('aoSmokeOpen');
+      var route = await ch.invokeMethod<String>('aoSmokeOpen');
       if (route == null || route.isEmpty || !mounted) return;
+      // faststart (CI start-speed only): "circle@3000" = a user tapping My
+      // Circle 3 s after the app opened (not at the very first frame)
+      if (PerfMarks.enabled && route.contains('@')) {
+        final at = route.indexOf('@');
+        final ms = int.tryParse(route.substring(at + 1)) ?? 0;
+        route = route.substring(0, at);
+        await Future<void>.delayed(Duration(milliseconds: ms));
+        if (!mounted) return;
+      }
       if (route == '__ring__') return; // ring-proof: arming above is all
       if (route == '__fsi__') {
         // play-fsi CI proof (Android 14 emulator job fsi-proof-api34)
@@ -478,6 +504,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
           } catch (_) {}
         }
       } else {
+        if (PerfMarks.enabled) PerfMarks.mark('ao_open_$route'); // faststart
         ChatNav.push(context, route);
       }
     } catch (_) {}
@@ -508,6 +535,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     if (state == AppLifecycleState.paused) {
       PlayUpdate.onBackground(); // ota1: install a downloaded Play update
+      JourneyHabits.onBackground(); // sjstart2: suggestions only while open
     }
     if (state == AppLifecycleState.resumed) {
       // feature-flags: pick up an owner switch (throttled, ETag, offline-safe).
@@ -543,6 +571,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // missing: an opted-in user's coarse area while the app is OPEN only
       // (flag + opt-in + permission already granted; throttled 2 h; never throws).
       unawaited(MissingNearbySync.maybeSend(app.api));
+      // sjstart2: "Going to Office? Tell family?" — only while Assisto is
+      // open, location already allowed (never asks), habits on the phone.
+      JourneyHabits.onForeground(app);
       // cctvarm: a consenting member's "near Home?" for the camera guard
       // (flag + consent + permission already granted; 10 min; never throws).
       unawaited(HomePresenceSync.maybeSend(app.api));

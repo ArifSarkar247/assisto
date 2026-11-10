@@ -7,6 +7,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
+import '../plans_v2/buy_inside.dart';
 import '../state.dart';
 import '../theme.dart';
 import 'veh_format.dart';
@@ -226,6 +227,17 @@ class _VehSetupViewState extends State<VehSetupView> {
               style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
         ]),
       ),
+      // buyinside: the tracker stopped for credits -> buy them right here
+      if (disabled && '${_t['disabled_reason']}' == 'no_credits') ...[
+        const SizedBox(height: Gap.sm),
+        FilledButton.icon(
+          key: const Key('bi-vehicle-credits'),
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: () => BuyInside.open(context, 'vehicle'),
+          icon: const Icon(Icons.bolt_rounded),
+          label: Text(tr.biGetCredits),
+        ),
+      ],
       if (!paired && !expired && !disabled) ...[
         const SizedBox(height: Gap.sm),
         const LinearProgressIndicator(),

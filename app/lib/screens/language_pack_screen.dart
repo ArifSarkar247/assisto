@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
+import '../plans_v2/buy_inside.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement; // adcontrol
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/local_counter.dart';
 import '../widgets/local_digits.dart';
@@ -525,6 +527,9 @@ class _PlacementPageState extends State<_PlacementPage> {
           .read<AppState>()
           .api
           .postJson('/learn/${widget.pack.lang}/placement', {'answers': _answers});
+      // adcontrol (owner 10 Nov): one interstitial after Submit, before the
+      // result (Free only, all caps) — never while the test is running
+      AdExit.transition(AdExitPlacement.examAfterSubmit);
       if (mounted) setState(() => _result = r);
     } catch (e) {
       if (mounted) _toast(context, honestFailText(tr, e, otherwise: tr.learnCatalogFail));
@@ -788,6 +793,22 @@ class _ScenarioChatPageState extends State<ScenarioChatPage> {
         'message': msg,
       });
       if (!mounted) return;
+      if ('${r['ai_state']}' == 'credits') {
+        // buyinside: out of credits — keep the message (back in the box),
+        // open the credits sheet here, and send it again once after buying
+        setState(() {
+          _turns.removeLast();
+          _input.text = msg;
+          _state = 'credits';
+          _busy = false;
+        });
+        if (await BuyInside.open(context, 'learn_roleplay', draftKept: true) &&
+            mounted) {
+          setState(() => _state = null);
+          await _send();
+        }
+        return;
+      }
       setState(() {
         final st = '${r['ai_state']}';
         _state = st == 'used' ? null : st;
@@ -1046,6 +1067,8 @@ class _MockTestPageState extends State<MockTestPage> {
         'seconds': _clock.elapsed.inSeconds,
       });
       _clock.stop();
+      // adcontrol: one interstitial after Submit, before the result
+      AdExit.transition(AdExitPlacement.examAfterSubmit);
       if (mounted) setState(() => _result = r);
     } catch (e) {
       if (mounted) _toast(context, honestFailText(tr, e, otherwise: tr.learnCatalogFail));

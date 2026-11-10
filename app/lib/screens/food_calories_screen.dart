@@ -19,6 +19,7 @@ import '../widgets/health_disclaimer_bar.dart';
 import '../widgets/local_counter.dart';
 import '../widgets/local_digits.dart';
 import '../widgets/skeleton.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// FOOD PHOTO -> CALORIES (p2food, owner PART 2; flag `food_calories`).
 ///
@@ -166,7 +167,7 @@ class FoodMath {
   }
 
   static int? cleanGoal(String raw) {
-    final v = int.tryParse(raw.trim());
+    final v = parseIntInput(raw.trim());
     if (v == null || v < goalMin || v > goalMax) return null;
     return v;
   }

@@ -192,3 +192,34 @@ def row(i, lang="bn"):
     name = (bn or en) if lang == "bn" else (en or bn)
     return {"name": name, "secondary": parent, "lat": plat, "lng": plng, "kind": kind,
             "radius_m": RADIUS.get(kind, 150 if kind in ("area",) else 300)}
+
+
+# sjstart2 (owner V2 "From: My current location, shown as an area name"):
+# the nearest named area from OUR list — free, no Google call. Tiers: a city
+# area within 2.5 km, else a town / city within 6 km, else a union within
+# 6 km, else the upazila within 20 km.
+AREA_TIERS = ((("area",), 2.5), (("town", "city"), 6.0), (("union",), 6.0), (("upazila",), 20.0))
+
+
+def nearest_area(lat, lng, lang="bn"):
+    """-> {name, secondary, kind, distance_m} or None (outside every tier)."""
+    _load()
+    try:
+        lat, lng = float(lat), float(lng)
+    except (TypeError, ValueError):
+        return None
+    if not _rows or not (-90 <= lat <= 90 and -180 <= lng <= 180):
+        return None
+    for kinds, max_km in AREA_TIERS:
+        best = None
+        for kind, en, bn, alt, plat, plng, parent in _rows:
+            if kind not in kinds or abs(plat - lat) > 0.25 or abs(plng - lng) > 0.25:
+                continue
+            km = _dist_km(lat, lng, plat, plng)
+            if km <= max_km and (best is None or km < best[0]):
+                best = (km, kind, en, bn, parent)
+        if best is not None:
+            km, kind, en, bn, parent = best
+            return {"name": (bn or en) if lang == "bn" else (en or bn), "secondary": parent,
+                    "kind": kind, "distance_m": int(km * 1000)}
+    return None

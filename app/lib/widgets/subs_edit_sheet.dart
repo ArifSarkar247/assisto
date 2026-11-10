@@ -4,6 +4,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'subs_common.dart';
 import 'bn_day_periods.dart' show appDateLocale;
+import '../widgets/num_input.dart'; // savesweep
 
 /// Advanced add/edit bottom sheet for a subscription.
 ///
@@ -73,7 +74,7 @@ class _SubsEditSheetState extends State<SubsEditSheet> {
       'amount_poisha': takaToPoisha(_amount.text),
       'cycle': _cycle,
       if (_cycle == 'custom')
-        'interval_days': int.tryParse(_ascii(_interval.text)) ?? 30,
+        'interval_days': parseIntInput(_ascii(_interval.text)) ?? 30,
       if (_due != null) 'next_due': DateFormat('yyyy-MM-dd').format(_due!),
       'category': _category,
       'payment_method': _payment,
