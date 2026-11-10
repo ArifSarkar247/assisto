@@ -1,0 +1,5 @@
+{
+  "_source": "android.yml run 42732702112 (b317): bundletool get-size total MAX, bn, 320 dpi; website arm64 APK 111.1 MB",
+  "arm64_download_mb": 51.24,
+  "v7a_download_mb": 48.86
+}
