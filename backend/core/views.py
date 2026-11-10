@@ -972,20 +972,8 @@ class DoctorVisitPdfView(APIView):
     """Doctor-visit summary PDF: current meds + schedule, 30-day adherence,
     recent prescription changes. ?member=<id|self> scopes to one person."""
     def get(self, request):
-        import io
         from datetime import timedelta
-        from reportlab.lib.pagesizes import A4
-        from reportlab.pdfgen import canvas
-        from reportlab.pdfbase import pdfmetrics
-        from reportlab.pdfbase.ttfonts import TTFont
-        FONT = "Helvetica"
-        try:
-            if "Noto" not in pdfmetrics.getRegisteredFontNames():
-                pdfmetrics.registerFont(TTFont(
-                    "Noto", _NOTO_BN_TTF))
-            FONT = "Noto"
-        except Exception:
-            FONT = "Helvetica"
+        from . import pdf_bn
 
         u = request.user
         lang = req_lang(request)
@@ -1001,70 +989,54 @@ class DoctorVisitPdfView(APIView):
             meds = meds.filter(member__isnull=True)
 
         today = timezone.localdate()
-        buf = io.BytesIO()
-        c = canvas.Canvas(buf, pagesize=A4)
-        w, h = A4
-        y = h - 50
-        c.setFont(FONT, 16)
-        c.drawString(40, y, pick(lang, "Assisto — ডাক্তার ভিজিট সারাংশ",
-                                 "Assisto — Doctor Visit Summary")); y -= 20
-        c.setFont(FONT, 9)
-        c.drawString(40, y, pick(lang, "রোগী: ", "Patient: ") + person); y -= 12
-        c.drawString(40, y, pick(lang, "তারিখ: ", "Date: ") + today.isoformat()); y -= 22
-
-        def line(txt, indent=48, size=9):
-            nonlocal y
-            if y < 60:
-                c.showPage(); y = h - 50; c.setFont(FONT, size)
-            c.setFont(FONT, size); c.drawString(indent, y, txt[:120]); y -= 13
-
-        def heading(txt):
-            nonlocal y
-            if y < 80:
-                c.showPage(); y = h - 50
-            y -= 4; c.setFont(FONT, 12); c.drawString(40, y, txt); y -= 16
-
-        heading(pick(lang, "বর্তমান ওষুধ ও সময়সূচি", "Current Medicines & Schedule"))
+        num = lambda v: pdf_bn.digits(v, lang)  # noqa: E731
         food_map = {"before": pick(lang, "খাওয়ার আগে", "before food"),
                     "after": pick(lang, "খাওয়ার পরে", "after food"),
                     "with": pick(lang, "খাওয়ার সাথে", "with food"),
                     "any": ""}
+        med_items = []
         if not meds.exists():
-            line(pick(lang, "(কোনো ওষুধ নেই)", "(none)"))
+            med_items.append(pick(lang, "(কোনো ওষুধ নেই)", "(none)"))
         for med in meds:
             ts = _taken_set(med)
             adh, _, _ = mlogic.adherence_for_med(
                 med.times, med.start_date, med.end_date, ts,
                 today - timedelta(days=29), today, prn=med.as_needed)
             sched = pick(lang, "প্রয়োজনে", "as needed") if med.as_needed \
-                else ", ".join(med.times or [])
+                else ", ".join(num(t) for t in (med.times or []))
             food = food_map.get(med.food_relation, "")
             bits = [b for b in [med.dosage, sched, food] if b]
-            line(f"- {med.name}: " + " | ".join(bits))
-            line(pick(lang, f"  মেনে চলা (৩০ দিন): {adh}%",
-                      f"  Adherence (30d): {adh}%"), indent=56)
+            med_items.append(("b", f"{med.name}: " + " | ".join(bits)))
+            med_items.append(("sub", pick(lang, f"মেনে চলা (৩০ দিন): {num(adh)}%",
+                                          f"Adherence (30d): {adh}%")))
             if med.end_date:
-                line(pick(lang, f"  কোর্স শেষ: {med.end_date.isoformat()}",
-                          f"  Course ends: {med.end_date.isoformat()}"), indent=56)
+                med_items.append(("sub", pick(lang, f"কোর্স শেষ: {num(med.end_date.isoformat())}",
+                                              f"Course ends: {med.end_date.isoformat()}")))
 
-        heading(pick(lang, "সাম্প্রতিক প্রেসক্রিপশন", "Recent Prescriptions"))
         pres = Prescription.objects.filter(user=u)
         if member and member != "self":
             pres = pres.filter(member_id=member)
         pres = pres[:8]
+        pres_items = []
         if not pres:
-            line(pick(lang, "(কোনো প্রেসক্রিপশন নেই)", "(none)"))
+            pres_items.append(pick(lang, "(কোনো প্রেসক্রিপশন নেই)", "(none)"))
         for p in pres:
             doc = p.doctor.name if p.doctor_id and p.doctor else p.doctor_name
-            d = p.date.isoformat() if p.date else "?"
-            line(f"- {d} · {doc or '-'}: {p.diagnosis or ''}")
+            d = num(p.date.isoformat()) if p.date else "?"
+            pres_items.append(("b", f"{d} · {doc or '-'}: {p.diagnosis or ''}"))
             for m in (p.meds or [])[:6]:
                 nm = m.get("name", "") if isinstance(m, dict) else str(m)
-                line(f"    · {nm}", indent=60)
+                pres_items.append(("sub", f"· {nm}"))
 
-        c.showPage(); c.save()
+        title = pick(lang, "Assisto — ডাক্তার ভিজিট সারাংশ", "Assisto — Doctor Visit Summary")
+        pdf = pdf_bn.report(title, [
+            pick(lang, "রোগী: ", "Patient: ") + person,
+            pick(lang, "তারিখ: ", "Date: ") + num(today.isoformat())], [
+            (pick(lang, "বর্তমান ওষুধ ও সময়সূচি", "Current Medicines & Schedule"), med_items),
+            (pick(lang, "সাম্প্রতিক প্রেসক্রিপশন", "Recent Prescriptions"), pres_items),
+        ], lang=lang)
         log(u, "export.doctor_pdf", member=member or "self")
-        resp = HttpResponse(buf.getvalue(), content_type="application/pdf")
+        resp = HttpResponse(pdf, content_type="application/pdf")
         resp["Content-Disposition"] = 'attachment; filename="assisto-doctor-visit.pdf"'
         return resp
 
@@ -2054,51 +2026,33 @@ class ExportExcelView(APIView):
 
 class ExportPdfView(APIView):
     def get(self, request):
-        import io
-        from reportlab.lib.pagesizes import A4
-        from reportlab.pdfgen import canvas
-        from reportlab.pdfbase import pdfmetrics
-        from reportlab.pdfbase.ttfonts import TTFont
-        FONT = "Helvetica"
-        try:
-            if "Noto" not in pdfmetrics.getRegisteredFontNames():
-                pdfmetrics.registerFont(TTFont(
-                    "Noto", _NOTO_BN_TTF))
-            FONT = "Noto"   # note: reportlab lacks complex shaping; conjuncts imperfect
-        except Exception:
-            FONT = "Helvetica"
+        from . import pdf_bn
         u = request.user
-        buf = io.BytesIO()
-        c = canvas.Canvas(buf, pagesize=A4)
-        w, h = A4
-        y = h - 50
-        c.setFont(FONT, 16)
-        c.drawString(40, y, "Assisto — My Data Export")
-        y -= 20
-        c.setFont(FONT, 9)
-        c.drawString(40, y, f"User: {u.name or u.username}")
-        y -= 25
+        lang = req_lang(request)
+        none = pick(lang, "(কিছু নেই)", "(none)")
+        nodate = pick(lang, "তারিখ নেই", "no date")
 
-        def section(title, lines):
-            nonlocal y
-            if y < 80:
-                c.showPage(); y = h - 50
-            c.setFont(FONT, 12); c.drawString(40, y, title); y -= 16
-            c.setFont(FONT, 9)
-            for ln in lines:
-                if y < 60:
-                    c.showPage(); y = h - 50; c.setFont(FONT, 9)
-                c.drawString(48, y, ln[:110]); y -= 13
-            y -= 8
+        def when(v):
+            return pdf_bn.digits(timezone.localtime(v).strftime("%Y-%m-%d %H:%M"), lang) \
+                if v else nodate
 
-        section("Reminders", [f"- {r.title} ({r.due_at or 'no date'})" for r in u.reminders.all()] or ["(none)"])
-        section("Notes", [f"- {n.title or n.body[:40]}" for n in u.notes.all()] or ["(none)"])
-        section("To-Do", [f"- [{'x' if t.done else ' '}] {t.title}" for t in u.todos.all()] or ["(none)"])
-        section("Memory", [f"- {m.title}" for m in u.memories.all()] or ["(none)"])
-        c.showPage(); c.save()
+        sections = [
+            (pick(lang, "রিমাইন্ডার", "Reminders"),
+             [("b", f"{r.title} ({when(r.due_at)})") for r in u.reminders.all()] or [none]),
+            (pick(lang, "নোট", "Notes"),
+             [("b", n.title or n.body[:80]) for n in u.notes.all()] or [none]),
+            (pick(lang, "করণীয়", "To-Do"),
+             [("b", (pick(lang, "[হয়েছে] ", "[done] ") if t.done else "") + t.title)
+              for t in u.todos.all()] or [none]),
+            (pick(lang, "স্মৃতি", "Memory"),
+             [("b", m.title) for m in u.memories.all()] or [none]),
+        ]
+        pdf = pdf_bn.report(pick(lang, "Assisto — আমার তথ্য", "Assisto — My Data Export"),
+                            [pick(lang, "ব্যবহারকারী: ", "User: ") + (u.name or u.username)],
+                            sections, lang=lang)
         log(u, "export.pdf")
         _mark_export_downloaded(u)
-        resp = HttpResponse(buf.getvalue(), content_type="application/pdf")
+        resp = HttpResponse(pdf, content_type="application/pdf")
         resp["Content-Disposition"] = 'attachment; filename="assisto-export.pdf"'
         return resp
 
@@ -3317,6 +3271,26 @@ class MoneyReportView(APIView):
         return Response(_json_decimals(rep))
 
 
+def money_report_parts(rep, lang):
+    """(title, meta, sections) of the monthly money report PDF (pdf_bn)."""
+    from . import pdf_bn
+    tk = lambda v: pdf_bn.taka(v, lang)  # noqa: E731
+    month = pdf_bn.digits(rep.get("month", ""), lang)
+    title = pick(lang, "মাসিক হিসাব — %s" % month, "Monthly report — %s" % month)
+    summary = [
+        ("row", pick(lang, "আয়", "Income"), tk(rep.get("income"))),
+        ("row", pick(lang, "খরচ", "Expense"), tk(rep.get("expense"))),
+        ("row", pick(lang, "নিট (আয় − খরচ)", "Net (income − expense)"), tk(rep.get("net")), True),
+        ("row", pick(lang, "সঞ্চয়ের হার", "Savings rate"),
+         pdf_bn.digits("%s%%" % rep.get("savings_rate", 0), lang)),
+    ]
+    cats = [("row", str(r.get("category") or pick(lang, "অন্যান্য", "Other")), tk(r.get("amount")))
+            for r in rep.get("by_category") or []]
+    cats = cats or [pick(lang, "এই মাসে কোনো খরচ লেখা নেই।", "No spending recorded this month.")]
+    return title, ["Assisto"], [(pick(lang, "সারাংশ", "Summary"), summary),
+                                (pick(lang, "খাত অনুযায়ী খরচ", "By category"), cats)]
+
+
 class MoneyReportExportView(APIView):
     def get(self, request, fmt="pdf"):
         from .logic import money_engine as me
@@ -3346,13 +3320,10 @@ class MoneyReportExportView(APIView):
             except Exception:
                 return HttpResponse("\n".join(lines), content_type="text/csv")
         try:
-            import io
-            from reportlab.pdfgen import canvas
-            buf = io.BytesIO(); c = canvas.Canvas(buf); y = 800
-            for ln in lines:
-                c.drawString(50, y, ln); y -= 18
-            c.showPage(); c.save()
-            return HttpResponse(buf.getvalue(), content_type="application/pdf")
+            from . import pdf_bn
+            lang = req_lang(request)
+            pdf = pdf_bn.report(*money_report_parts(rep, lang), lang=lang)
+            return HttpResponse(pdf, content_type="application/pdf")
         except Exception:
             return HttpResponse("\n".join(lines), content_type="text/plain")
 
