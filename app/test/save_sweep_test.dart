@@ -18,6 +18,7 @@ import 'package:assisto/famacct_api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/mess_accounting_screen.dart';
+import 'package:assisto/screens/mess/mess_detail_screen.dart'; // messv2
 import 'package:assisto/state.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import 'package:assisto/widgets/famacct_sheets.dart';
@@ -29,27 +30,15 @@ import 'fake_api.dart';
 String bnDigits(String latin) => String.fromCharCodes(latin.codeUnits
     .map((c) => c >= 0x30 && c <= 0x39 ? 0x09E6 + (c - 0x30) : c));
 
+// messv2: Mess V2 records every POST (create mess, entries, members).
 class _MessFake extends FakeApi {
-  _MessFake() : super(lang: 'bn');
-  final created = <Map<String, dynamic>>[];
-  final members = <Map<String, dynamic>>[];
+  _MessFake({super.mode}) : super(lang: 'bn');
+  final posts = <MapEntry<String, Map<String, dynamic>>>[];
   @override
-  Future<List<Map<String, dynamic>>> listItems(String path) async {
-    if (path == 'mess/members') return List.of(members);
-    if (path.startsWith('mess/')) return const [];
-    return super.listItems(path);
-  }
-
-  @override
-  Future<Map<String, dynamic>> createItem(
-      String path, Map<String, dynamic> body) async {
-    if (path == 'mess/members') {
-      created.add(body);
-      final row = {'id': 100 + members.length, ...body};
-      members.add(row);
-      return row;
-    }
-    return super.createItem(path, body);
+  Future<Map<String, dynamic>> postJson(String path,
+      [Map<String, dynamic> body = const {}]) async {
+    posts.add(MapEntry(path, body));
+    return super.postJson(path, body);
   }
 }
 
@@ -174,13 +163,11 @@ void main() {
     expect(body!['note'], 'bazar');
   });
 
-  testWidgets('(c) mess Add member: Save tappable with the keyboard open',
-      (tester) async {
-    // A 6.6" phone (393x850 dp) with a Bangla keyboard (330 dp) open.
-    tester.view.physicalSize = const Size(393 * 2, 850 * 2);
-    tester.view.devicePixelRatio = 2;
-    addTearDown(tester.view.reset);
-    final api = _MessFake();
+  // (c) was written for the V1 mess screen; Mess V2 (messv2) replaced it.
+  // The same promise on V2: with a Bangla keyboard (330 dp) open on a 6.6"
+  // phone, every mess Save is reachable by a finger and really sends —
+  // create mess (name), add bazar (Bangla digits), add member from My Circle.
+  Widget messApp(_MessFake api, Widget home) {
     final app = AppState()
       ..api = api
       ..user = AppUser(
@@ -188,7 +175,7 @@ void main() {
           autonomyLevel: 2, language: 'bn')
       ..locale = const Locale('bn')
       ..loading = false;
-    await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
+    return ChangeNotifierProvider<AppState>.value(
       value: app,
       child: MaterialApp(
         locale: const Locale('bn'),
@@ -207,28 +194,77 @@ void main() {
           ),
           child: child!,
         ),
-        home: const MessAccountingScreen(),
+        home: home,
       ),
-    ));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.person_add_alt_1_rounded).first);
-    await tester.pumpAndSettle();
-    final sheet = find.byType(BottomSheet);
-    expect(sheet, findsOneWidget);
-    final field = find.descendant(of: sheet, matching: find.byType(TextField));
-    await tester.enterText(field.first, 'Karim');
+    );
+  }
+
+  Future<void> settle(WidgetTester tester) async {
+    for (var i = 0; i < 15; i++) {
+      await tester.pump(const Duration(milliseconds: 80));
+    }
+  }
+
+  testWidgets('(c) mess V2 create: Save tappable with the keyboard open',
+      (tester) async {
+    tester.view.physicalSize = const Size(393 * 2, 850 * 2);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final api = _MessFake(mode: FakeMode.empty);
+    await tester.pumpWidget(messApp(api, const MessAccountingScreen()));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('mess-create')));
+    await settle(tester);
+    await tester.enterText(find.byKey(const ValueKey('mess-name')), 'Rampura Mess');
     await tester.pump();
-    final t = AppLocalizations.of(tester.element(sheet));
-    final save = find.descendant(
-        of: sheet, matching: find.widgetWithText(FilledButton, t.save));
-    // the real check: a finger on Save reaches Save
+    final save = find.byKey(const ValueKey('mess-settings-save'));
     expect(save.hitTestable(), findsOneWidget,
         reason: 'Save is drawn but a tap does not reach it (dead Save)');
     await tester.tap(save.hitTestable());
-    await tester.pumpAndSettle();
-    expect(api.created, [
-      {'name': 'Karim'}
-    ]);
+    await settle(tester);
+    expect(api.posts.where((e) => e.key == '/mess/v2').map((e) => e.value['name']),
+        ['Rampura Mess']);
+  });
+
+  testWidgets('(c) mess V2 bazar: Bangla amount, Save tappable with the keyboard open',
+      (tester) async {
+    tester.view.physicalSize = const Size(393 * 2, 850 * 2);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final api = _MessFake();
+    await tester.pumpWidget(
+        messApp(api, const MessDetailScreen(messId: 1, initialTab: 1)));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('mess-add-bazar')));
+    await settle(tester);
+    await tester.enterText(find.byKey(const ValueKey('entry-amount')), bnDigits('500'));
+    await tester.pump();
+    final save = find.byKey(const ValueKey('entry-save'));
+    expect(save.hitTestable(), findsOneWidget,
+        reason: 'Save is drawn but a tap does not reach it (dead Save)');
+    await tester.tap(save.hitTestable());
+    await settle(tester);
+    final p = api.posts.firstWhere((e) => e.key == '/mess/v2/1/entries');
+    expect(p.value['amount'], 50000);
+  });
+
+  testWidgets('(c) mess V2 Add member from My Circle really sends', (tester) async {
+    tester.view.physicalSize = const Size(393 * 2, 850 * 2);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final api = _MessFake();
+    await tester.pumpWidget(
+        messApp(api, const MessDetailScreen(messId: 1, initialTab: 4)));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('mess-add-member')));
+    await settle(tester);
+    final row = find.byKey(const ValueKey('mess-pick-8'));
+    final add = find.descendant(of: row, matching: find.byType(FilledButton));
+    expect(add.hitTestable(), findsOneWidget);
+    await tester.tap(add.hitTestable());
+    await settle(tester);
+    final p = api.posts.firstWhere((e) => e.key == '/mess/v2/1/members');
+    expect(p.value['circle_member_id'], 8);
   });
 
   testWidgets('every showAppSheet builder sees the keyboard inset once',
