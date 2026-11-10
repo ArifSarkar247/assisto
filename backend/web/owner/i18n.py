@@ -2432,7 +2432,7 @@ EN.update({
     "dtype_sponsored": "Sponsored ad (labelled Ad)", "dtype_admob": "AdMob native ad slot",
     "dtype_whats_new": "What's new (app update)", "dtype_offer": "Offer / promotion",
     "dtype_ad_label": "Ad",
-    "discover_note": "Everyone sees your cards, free and Premium / Plus. Sponsored cards always carry the “Ad” label. The AdMob slot shows to Free users only (switch it in Ads → placements, “discover_native”); a booked Sponsored card takes the slot that day.",
+    "discover_note": "Everyone sees your cards, free and Premium / Plus. Sponsored cards always carry the “Ad” label. The AdMob slot shows to Free users only (switch it in Ads → placements, “discover_native”). A Sponsored card and the AdMob ad are never side by side.",
     "discms_rules": "No automatic expiry: a card stays until you change or remove it (End is optional). A card for a feature already on the Home tiles is not shown. A Sponsored card can never open an SOS, safety, child or Quran screen. Phones keep the last cards offline.",
 })
 BN.update({
@@ -2440,7 +2440,7 @@ BN.update({
     "dtype_sponsored": "স্পনসর্ড বিজ্ঞাপন (“বিজ্ঞাপন” লেবেলসহ)", "dtype_admob": "AdMob নেটিভ বিজ্ঞাপনের জায়গা",
     "dtype_whats_new": "নতুন কী (অ্যাপ আপডেট)", "dtype_offer": "অফার / প্রচার",
     "dtype_ad_label": "বিজ্ঞাপন",
-    "discover_note": "আপনার কার্ড সবাই দেখেন — ফ্রি ও প্রিমিয়াম / প্লাস। স্পনসর্ড কার্ডে সবসময় “বিজ্ঞাপন” লেবেল থাকে। AdMob-এর জায়গা শুধু ফ্রি ব্যবহারকারীরা দেখেন (বিজ্ঞাপন → জায়গা, “discover_native” থেকে চালু/বন্ধ); সেদিন স্পনসর্ড কার্ড থাকলে জায়গাটি স্পনসর পায়।",
+    "discover_note": "আপনার কার্ড সবাই দেখেন — ফ্রি ও প্রিমিয়াম / প্লাস। স্পনসর্ড কার্ডে সবসময় “বিজ্ঞাপন” লেবেল থাকে। AdMob-এর জায়গা শুধু ফ্রি ব্যবহারকারীরা দেখেন (বিজ্ঞাপন → জায়গা, “discover_native” থেকে চালু/বন্ধ)। স্পনসর্ড কার্ড আর AdMob বিজ্ঞাপন কখনো পাশাপাশি বসে না।",
     "discms_rules": "নিজে থেকে মেয়াদ শেষ হয় না: আপনি না বদলানো বা না সরানো পর্যন্ত কার্ড থাকে (শেষ তারিখ ঐচ্ছিক)। হোমের টাইলে আগে থেকে থাকা ফিচারের কার্ড দেখানো হয় না। স্পনসর্ড কার্ড কখনো SOS, নিরাপত্তা, শিশু বা কুরআনের স্ক্রিন খোলে না। ইন্টারনেট না থাকলে ফোন শেষ কার্ডগুলো দেখায়।",
 })
 # ---- /discms ----

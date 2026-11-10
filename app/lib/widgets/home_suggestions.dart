@@ -131,10 +131,13 @@ List<DiscoverItem> separateDiscoverAds(List<DiscoverItem> cards) {
   final plain = [for (final c in cards) if (!_isAd(c)) c];
   if (plain.length == cards.length) return List.of(cards);
   final n = plain.length;
+  final slots = <int, List<DiscoverItem>>{};
+  // discms: one ad per gap -> a Sponsored card and the AdMob slot are never
+  // side by side (at least one owner card between them)
   bool ok(int g) =>
+      !slots.containsKey(g) &&
       !((g > 0 && discoverProtected(plain[g - 1])) ||
           (g < n && discoverProtected(plain[g])));
-  final slots = <int, List<DiscoverItem>>{};
   var seen = 0;
   for (final c in cards) {
     if (!_isAd(c)) {

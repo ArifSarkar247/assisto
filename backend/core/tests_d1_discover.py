@@ -36,16 +36,17 @@ class RulesPureTests(TestCase):
                 _row(id=3, type="ADMOB"), _row(id=4, type="SPONSORED")]
         self.assertEqual(self.ids(rows, "premium"), [1, 2, 4])
         self.assertEqual(self.ids(rows, "business"), [1, 4])
-        self.assertEqual(self.ids(rows, "free"), [1, 4])
+        # discms: sponsor AND AdMob both shown, never side by side
+        self.assertEqual(self.ids(rows, "free"), [4, 1, 3])
         for r in D.visible_cards(rows, "premium", None, self.now):
             if r["type"] == "SPONSORED":
                 self.assertEqual(D.label_for(r["type"]), "sponsored")
 
-    def test_admob_only_free_and_only_without_sponsor(self):
+    def test_admob_only_free_and_kept_next_to_a_sponsor_never_adjacent(self):
         rows = [_row(id=1), _row(id=3, type="ADMOB", order=5)]
         self.assertEqual(self.ids(rows, "free"), [1, 3])
         rows.append(_row(id=4, type="SPONSORED"))
-        self.assertEqual(self.ids(rows, "free"), [1, 4])
+        self.assertEqual(self.ids(rows, "free"), [3, 1, 4])   # discms
 
     def test_admob_fills_when_sponsor_expired_and_max_one(self):
         past = self.now - timedelta(days=1)
@@ -200,11 +201,13 @@ class SponsoredFeedTests(_Base):
             self.assertEqual(sp["label"], "sponsored")
             self.assertNotIn("ad1", [c["key"] for c in cards])
 
-    def test_free_sees_sponsor_with_label_and_no_admob(self):
+    def test_free_sees_sponsor_with_label_and_admob_not_adjacent(self):
         cards = self.feed(self.free)
         sp = next(c for c in cards if c["key"] == "sp1")
         self.assertEqual(sp["label"], "sponsored")
-        self.assertNotIn("ad1", [c["key"] for c in cards])
+        keys = [c["key"] for c in cards]
+        self.assertIn("ad1", keys)   # discms: both shown
+        self.assertGreater(abs(keys.index("ad1") - keys.index("sp1")), 1)
 
     def test_admob_fills_when_no_sponsor(self):
         self.sp.enabled = False
