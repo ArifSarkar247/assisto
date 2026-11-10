@@ -259,7 +259,7 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
           const SizedBox(height: Gap.sm),
           // designv2 page rule: one short line, not a paragraph (the full
           // explanation stays in TalkBack via the button's hint)
-          Text(t.saHoldHint,
+          Text(t.ds2SosHoldLine,
               key: const ValueKey('sosat-hold-line'),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(

@@ -245,6 +245,9 @@ void main() {
       expect(find.text('Empty number'), findsNothing);
       expect(find.text('Garbage'), findsNothing);
       expect(find.byKey(const ValueKey('emh-crisis-only999')), findsNothing);
+      // designv2: the row can sit at the very edge after the scroll
+      await tester.ensureVisible(find.byKey(const ValueKey('emh-crisis-109')));
+      await tester.pump();
       await tester.tap(find.byKey(const ValueKey('emh-crisis-109')));
       await tester.pump();
       expect(dialled, ['109']);

@@ -102,7 +102,7 @@ class _ServiceSectionsScreenState extends State<ServiceSectionsScreen> {
                   child: Icon(s.icon),
                 ),
                 title: Text(s.title,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
                 subtitle: Text(s.subtitle),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () => _go(s),

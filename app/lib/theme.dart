@@ -1089,7 +1089,7 @@ class DsTokens extends ThemeExtension<DsTokens> {
     muted: Color(0xFF576780), // AA (owner #5B6B85: 4.46:1 on the background)
     border: Color(0xFFC1D3F5), // owner
     primary: Color(0xFF2563EB), // owner (fills, glow)
-    primaryInk: Color(0xFF245FE2), // AA as text on the background (4.55:1)
+    primaryInk: Color(0xFF1F55CF), // AA as text on the background (5.3:1) and on tinted panels (≥ 4.7:1)
     onPrimary: Color(0xFFFFFFFF),
     primarySoft: Color(0xFFE6EEFF),
     success: Color(0xFF2F9E6E), // owner (dots, icons, fills)
