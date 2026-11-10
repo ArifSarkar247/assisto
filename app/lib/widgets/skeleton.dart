@@ -67,17 +67,21 @@ class SkeletonList extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.lg),
         itemCount: count,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
-        itemBuilder: (_, __) => Row(children: [
-        const Skeleton(width: 44, height: 44, radius: 12),
-        const SizedBox(width: Gap.md),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [
-            Skeleton(width: 160, height: 13),
-            SizedBox(height: Gap.sm),
-            Skeleton(width: 110, height: 11),
+        // designv2: each placeholder sits in a DS card, like the real rows
+        itemBuilder: (_, __) => DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: Row(children: [
+            const Skeleton(width: 44, height: 44, radius: 12),
+            const SizedBox(width: Gap.md),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [
+                Skeleton(width: 160, height: 13),
+                SizedBox(height: Gap.sm),
+                Skeleton(width: 110, height: 11),
+              ]),
+            ),
           ]),
         ),
-      ]),
       );
     });
   }
