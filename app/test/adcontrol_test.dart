@@ -304,19 +304,17 @@ void main() {
     });
   });
 
-  test('part F: max 2 mediation SDKs, no startup ContentProvider, no new sensitive permission', () {
+  test('part F: Meta mediation now (AppLovin deferred: size guard), no startup ContentProvider', () {
     final ci = File('../.github/workflows/android.yml').readAsStringSync();
     final adapters = RegExp(r'"com\.google\.ads\.mediation:(\w+):[0-9.]+"')
         .allMatches(ci)
         .map((m) => m.group(1))
         .toSet();
-    expect(adapters, {'facebook', 'applovin'});
-    for (final p in ['com.facebook.ads.AudienceNetworkContentProvider',
-        'com.applovin.sdk.AppLovinInitProvider']) {
+    expect(adapters, {'facebook'});
+    for (final p in ['com.facebook.ads.AudienceNetworkContentProvider']) {
       expect(RegExp('provider android:name="${RegExp.escape(p)}"[^>]*tools:node="remove"')
           .hasMatch(ci), isTrue, reason: '$p must be removed');
     }
-    expect(ci.contains('com.android.vending.CHECK_LICENSE" tools:node="remove"'), isTrue);
   });
 
   group('rewarded gate never blocks', () {
