@@ -121,14 +121,15 @@ def finish_u8(f, night, rng):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ann", required=True)
-    ap.add_argument("--nano", required=True)
-    ap.add_argument("--tiny", required=True)
+    ap.add_argument("--model", action="append", required=True,
+                    help="name=path.onnx (repeat); the first one also scores people")
     ap.add_argument("--out", default="cctv_frames.json")
     ap.add_argument("--cache", default="/tmp/coco_eval")
     ap.add_argument("--real-cache", default="/tmp/sylhet")
     ap.add_argument("--n", type=int, default=200)
     a = ap.parse_args()
-    models = [Raw(a.nano, "nano"), Raw(a.tiny, "tiny")]
+    os.makedirs(a.cache, exist_ok=True)
+    models = [Raw(p, n) for n, p in (m.split("=", 1) for m in a.model)]
     ann = json.load(open(a.ann))
     rnd = random.Random(DA.SEED + 99)
     acc = Acc()
@@ -262,8 +263,28 @@ def main():
                     cd = m(crop)
                     acc.add(("sylhet", m.name, "zoom", light, it["split"]),
                             score_frame(cd, [(nb, True)], VEH, min_h=10.0))
+    # ---- the independent held-out set (Dhaka / Sirajganj), never trained on
+    br = RS.load_banglaroad(a.real_cache + "_br")
+    print("banglaroad: %d photos" % len(br), flush=True)
+    for k, it in enumerate(br):
+        gts = []
+        for b in it["boxes"]:
+            bb = (b[1], b[2], b[3], b[4])
+            gts.append((bb, b[0] in RS.BR_VEHICLES and b[4] - b[2] >= 0.08))
+        fr = finish_u8(it["img"], False, np.random.default_rng(k))
+        for m in models:
+            dets = m(fr)
+            acc.add(("banglaroad", m.name, "full", "day", "held"), score_frame(dets, gts, VEH))
+            for b in it["boxes"]:
+                if b[0] not in RS.BR_VEHICLES or b[4] - b[2] < 0.08:
+                    continue
+                pc = per_cls.setdefault("%s|br|%s" % (m.name, b[0]), [0, 0, 0])
+                pc[0] += 1
+                hit = [d for d in dets if d[0] in VEH and RS.iou((b[1], b[2], b[3], b[4]), d[2]) >= 0.3]
+                pc[1] += int(any(d[1] >= 0.25 for d in hit))
+                pc[2] += int(any(d[1] >= 0.35 for d in hit))
     res = {"sources": {"coco": "COCO val2017 (CC BY 4.0 annotations; licensed images only)",
-                       "sylhet": RS.SOURCE},
+                       "sylhet": RS.SOURCE, "banglaroad": RS.BANGLAROAD},
            "thresholds": THRS, "counts": {"|".join(k): v for k, v in acc.r.items()},
            "per_class": per_cls}
     json.dump(res, open(a.out, "w"), indent=1)

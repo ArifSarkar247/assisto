@@ -18,9 +18,18 @@ The archive is 8.6 GB; we read ONLY the images we use, by HTTP range
 requests into the public zip (its central directory, then each member) —
 a few hundred MB on a CI runner.
 
-SPLIT: every image is CALIBRATION or HELD-OUT by a hash of its name, so
-thresholds are tuned on one half and the reported numbers come from the
-other half only.
+SPLIT (the dataset's own folders): train/ = TRAINING data for the
+Bangladesh vehicle model (tools/e2e/cctv_vehicle_train.py) and never
+evaluated; valid/ = CALIBRATION (thresholds are tuned here); test/ =
+HELD-OUT (the reported numbers).
+
+SECOND, INDEPENDENT HELD-OUT SET (never trained or tuned on):
+  BanglaRoad — "BanglaRoad: A Multi-Environment Road Scene Dataset from
+  Bangladesh for Object Detection in Autonomous Navigation Systems",
+  Mendeley Data, DOI 10.17632/k7bpz99284.1,
+  https://data.mendeley.com/datasets/k7bpz99284/1 , CC BY 4.0 — Dhaka urban
+  roads, Sirajganj rural roads and the Sirajganj-Dhaka highway; we use only
+  its valid/ and test/ folders (not the augmented train/ copies).
 """
 import hashlib
 import io
@@ -40,6 +49,23 @@ SOURCE = {
     "licence": "CC BY 4.0",
     "changes": "resized to 640x360, camera noise + JPEG; rectangular vehicle crops pasted between photos of the same set in some scenarios",
 }
+BANGLAROAD = {
+    "name": "BanglaRoad: A Multi-Environment Road Scene Dataset from Bangladesh for Object Detection in Autonomous Navigation Systems",
+    "doi": "10.17632/k7bpz99284.1",
+    "url": "https://data.mendeley.com/datasets/k7bpz99284/1",
+    "licence": "CC BY 4.0",
+    "changes": "resized for the detector; only valid/ + test/ used",
+}
+BR_ZIP_URL = ("https://data.mendeley.com/public-files/datasets/k7bpz99284/files/"
+              "1321d5a7-a68b-4a6b-999c-251c1741ce42/file_downloaded")
+BR_NAMES = ["CNG", "Motor van", "Nosimon", "bus", "car", "pedestrian", "pickup", "pothole",
+            "rickshaw", "road_divider", "road_sign", "truck", "two wheeler", "van",
+            "zebra_crossing"]
+BR_VEHICLES = {"CNG", "Motor van", "Nosimon", "bus", "car", "pickup", "rickshaw", "truck",
+               "two wheeler", "van"}
+# Bangladeshi class -> the COCO class id the box reports (shopbox VEHICLE_CLASSES)
+TO_COCO = {"Bicycle": 1, "Bike": 3, "Bus": 5, "CNGRickshaw": 2, "Car": 2, "CycleRickshaw": 1,
+           "Leguna": 2, "Microbus": 2, "Pickup": 7, "Truck": 7, "VanRickshaw": 1}
 ZIP_URL = ("https://data.mendeley.com/public-files/datasets/tx6699m24b/files/"
            "8a584d53-f142-481d-9622-65ea04171a3b/file_downloaded")
 ROOT_DIR = "Vehicle_Detection_Dataset_New/"
@@ -49,7 +75,15 @@ W, H = 640, 360
 
 
 def split_of(key):
-    """'cal' or 'held' — fixed by the name, never by the result."""
+    """COCO pictures: 'cal' or 'held' by a hash of the name (never by the
+    result). Sylhet photos: by the dataset's own folder (valid = cal,
+    test = held, train = train)."""
+    if "/valid/" in key:
+        return "cal"
+    if "/test/" in key:
+        return "held"
+    if "/train/" in key:
+        return "train"
     return "cal" if hashlib.sha256(key.encode()).digest()[0] % 2 == 0 else "held"
 
 
@@ -127,7 +161,7 @@ class RangeFile(io.RawIOBase):
         return zlib.decompress(raw, -15)
 
 
-def parse_labels(txt):
+def parse_labels(txt, names=None):
     """YOLO txt -> [(class_name, x1, y1, x2, y2)] normalised."""
     out = []
     for line in txt.splitlines():
@@ -138,9 +172,10 @@ def parse_labels(txt):
             c, cx, cy, w, h = int(p[0]), float(p[1]), float(p[2]), float(p[3]), float(p[4])
         except ValueError:
             continue
-        if not 0 <= c < len(NAMES):
+        names = names or NAMES
+        if not 0 <= c < len(names):
             continue
-        out.append((NAMES[c], max(0.0, cx - w / 2), max(0.0, cy - h / 2),
+        out.append((names[c], max(0.0, cx - w / 2), max(0.0, cy - h / 2),
                     min(1.0, cx + w / 2), min(1.0, cy + h / 2)))
     return out
 
@@ -158,7 +193,8 @@ def load(n_day, n_night, cache, seed=20261110, workers=8):
     rnd = random.Random(seed)
     for light, n in (("day", n_day), ("night", n_night)):
         pre = ROOT_DIR + "%s_images_dataset/" % light
-        imgs = sorted(k for k in infos if k.startswith(pre) and k.endswith(".jpg"))
+        imgs = sorted(k for k in infos if k.startswith(pre) and k.endswith(".jpg")
+                      and ("/valid/" in k or "/test/" in k))
         rnd.shuffle(imgs)
         picks += [(light, k) for k in imgs[: int(n * 1.6)]]
 
@@ -195,8 +231,70 @@ def load(n_day, n_night, cache, seed=20261110, workers=8):
         got = [g for g in ex.map(one, picks) if g is not None]
     out = []
     for light, n in (("day", n_day), ("night", n_night)):
-        out += [g for g in got if g["light"] == light][:n]
+        for sp in ("cal", "held"):
+            out += [g for g in got if g["light"] == light and g["split"] == sp][:n]
     return out
+
+
+def train_members(cache, workers=16):
+    """cctvdet3 TRAINING data: every Sylhet train/ photo -> [(jpg path,
+    [(coco id, x1, y1, x2, y2)])], saved as 640x360 JPEGs in `cache`."""
+    import cv2
+    os.makedirs(cache, exist_ok=True)
+    rf = RangeFile(ZIP_URL)
+    z = zipfile.ZipFile(io.BufferedReader(rf, 1 << 16))
+    infos = {i.filename: i for i in z.infolist()}
+    keys = sorted(k for k in infos if k.endswith(".jpg") and "/train/" in k
+                  and ("/day_images_dataset/" in k or "/night_images_dataset/" in k))
+
+    def one(k):
+        safe = hashlib.sha1(k.encode()).hexdigest()
+        jp = os.path.join(cache, safe + ".jpg")
+        lab = k.replace("/images/", "/labels/")[:-4] + ".txt"
+        try:
+            if lab not in infos:
+                return None
+            boxes = [(TO_COCO[b[0]],) + tuple(b[1:]) for b in
+                     parse_labels(rf.read_member(infos[lab]).decode("utf-8", "replace"))]
+            if not os.path.exists(jp):
+                img = cv2.imdecode(np.frombuffer(rf.read_member(infos[k]), np.uint8), cv2.IMREAD_COLOR)
+                if img is None:
+                    return None
+                cv2.imwrite(jp, cv2.resize(img, (W, H), interpolation=cv2.INTER_AREA),
+                            [cv2.IMWRITE_JPEG_QUALITY, 92])
+            return jp, boxes
+        except Exception:
+            return None
+
+    with ThreadPoolExecutor(workers) as ex:
+        return [g for g in ex.map(one, keys) if g is not None]
+
+
+def load_banglaroad(cache, workers=8):
+    """The independent held-out set: BanglaRoad valid/ + test/ -> items like
+    load() (img kept at its own 640 x 640; boxes of ALL labelled objects,
+    vehicle or not, so a vehicle box on a pedestrian is a false alarm)."""
+    import cv2
+    os.makedirs(cache, exist_ok=True)
+    rf = RangeFile(BR_ZIP_URL)
+    z = zipfile.ZipFile(io.BufferedReader(rf, 1 << 16))
+    infos = {i.filename: i for i in z.infolist()}
+    keys = sorted(k for k in infos if k.endswith(".jpg") and (k.startswith("valid/") or k.startswith("test/")))
+
+    def one(k):
+        try:
+            lab = k.replace("/images/", "/labels/")[:-4] + ".txt"
+            boxes = parse_labels(rf.read_member(infos[lab]).decode("utf-8", "replace"), BR_NAMES)
+            img = cv2.imdecode(np.frombuffer(rf.read_member(infos[k]), np.uint8), cv2.IMREAD_COLOR)
+            if img is None:
+                return None
+            return {"key": "banglaroad/" + k, "light": "day", "split": "held", "img": img,
+                    "boxes": boxes}
+        except Exception:
+            return None
+
+    with ThreadPoolExecutor(workers) as ex:
+        return [g for g in ex.map(one, keys) if g is not None]
 
 
 def vehicle_crop(item, box, margin=0.12):
