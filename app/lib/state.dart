@@ -324,8 +324,18 @@ class AppState extends ChangeNotifier {
         unawaited(_refreshSession());
       } else {
         // First start after an update from a build without the cache: one
-        // bounded wait for /me (a fresh install with a token always has it).
-        await _refreshSession(timeout: const Duration(seconds: 6));
+        // SHORT bounded wait for /me (online it answers well inside it).
+        await _refreshSession(timeout: const Duration(milliseconds: 1500));
+        // offline2: no answer (offline, slow network, server down) is not
+        // a sign-out — open Home on a MINIMAL profile and refresh quietly.
+        // Only a real 401 with the server's JSON (handled above) logs out.
+        if (_user == null && api.token != null) {
+          _user = await minimalUser(lang: locale?.languageCode);
+          final mid = _user!.id;
+          OfflineStore.instance.currentUid = mid == 0 ? null : mid;
+          sessionFromCache = true;
+          if (!_refreshing) unawaited(_refreshSession());
+        }
       }
     }
     PerfMarks.once('init_auth'); // faststart: after the /me wait (if any)
@@ -373,6 +383,22 @@ class AppState extends ChangeNotifier {
       _refreshing = false;
     }
     if (!loading) notifyListeners();
+  }
+
+  /// offline2: the profile used when a session token exists but this phone
+  /// has no cached profile yet (first start after an app update, offline).
+  /// The id is the account this phone last confirmed (grab-guard keeps it;
+  /// 0 when unknown); everything else is a neutral default until /me
+  /// answers. Never written to the profile cache.
+  @visibleForTesting
+  static Future<AppUser> minimalUser({String? lang}) async {
+    var id = 0;
+    try {
+      final p = await SharedPreferences.getInstance().timeout(_ioTimeout);
+      id = p.getInt('own_guard_uid') ?? 0;
+    } catch (_) {}
+    return AppUser(
+        id: id, name: '', autonomyLevel: 2, language: lang == 'en' ? 'en' : 'bn');
   }
 
   bool _refreshing = false;

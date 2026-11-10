@@ -93,6 +93,8 @@ import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'package:assisto/widgets/app_sheet.dart';
 import '../offline/offline_store.dart'; // offline1st
 import '../widgets/mess_group_card.dart'; // messv2
+import '../messaging/outbox.dart'; // offline2
+import '../services/error_kind.dart'; // offline2
 
 /// End-to-end-encrypted GROUP chat (M2 item 7).
 ///
@@ -228,6 +230,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     // md1: media sends of this group (progress ring) + decrypted-file dir.
     MediaOutbox.instance.identity ??= () async => widget.identity;
     MediaOutbox.instance.changes.addListener(_onMediaJobs);
+    Outbox.instance.changes.addListener(_onOutbox); // offline2
+    unawaited(_reloadQueued()); // offline2
     _mediaSentSub = MediaOutbox.instance.sent.listen((s) {
       if (s.chatKind == 'group' && s.chatId == _gid) unawaited(_pollMessages());
     });
@@ -351,6 +355,42 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           '${m['id']}',
           if ('${m['client_msg_id'] ?? ''}'.isNotEmpty) '${m['client_msg_id']}',
         ]
+      };
+
+  // ---- offline2: group messages written offline ----------------------------
+  // Encrypted per recipient when written, kept in the encrypted outbox, drawn
+  // with the clock until the network is back; then sent in order (same
+  // client_msg_id -> the server never stores one twice).
+  List<OutboxItem> _queued = const [];
+
+  void _onOutbox() => unawaited(_reloadQueued());
+
+  Future<void> _reloadQueued() async {
+    final now = await Outbox.instance.forChat('group', _gid);
+    if (!mounted) return;
+    final ids = now.map((i) => i.id).toSet();
+    var sentSome = false;
+    setState(() {
+      for (final q in _queued) {
+        if (ids.contains(q.id) || !Outbox.instance.recentlySent.contains(q.id)) continue;
+        sentSome = true;
+        // sent: an ordinary "sent" bubble until the server copy is listed
+        _addEcho(_queuedRow(q, 'sent'));
+      }
+      _queued = now;
+    });
+    if (sentSome) unawaited(_pollMessages());
+  }
+
+  Map<String, dynamic> _queuedRow(OutboxItem q, String status) => {
+        'id': q.id,
+        'client_msg_id': q.id,
+        'mine': true,
+        'content_type': 'text',
+        'md2_plain': q.text,
+        'sender_id': _myUserId,
+        'status': status,
+        'created_at': q.at.toUtc().toIso8601String(),
       };
 
   void _addEcho(Map<String, dynamic> e) {
@@ -551,6 +591,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
     _poll?.cancel();
     MediaOutbox.instance.changes.removeListener(_onMediaJobs);
+    Outbox.instance.changes.removeListener(_onOutbox); // offline2
     _mediaSentSub?.cancel();
     _rcptSub?.cancel(); // x2-ticks
     _newSub?.cancel();
@@ -888,17 +929,19 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
     final mentions = asCard ? const <int>[] : _parseMentions(text);
     var ok = true;
+    var queued = false; // offline2
     final cmid = 'local-${DateTime.now().microsecondsSinceEpoch}';
+    final body = <String, dynamic>{
+      'recipient_ids': recipientIds,
+      'per_recipient': perRecipient,
+      'sender_key_id': widget.identity.keyId,
+      'scheme': _e2e.scheme,
+      if (mentions.isNotEmpty) 'mentions': mentions,
+      if (_replyTo != null && !asCard) 'reply_to': '${_replyTo!['id']}',
+      'client_msg_id': cmid,
+    };
     try {
-      final res = await _api.postJson('/circle/groups/$_groupId/messages', {
-        'recipient_ids': recipientIds,
-        'per_recipient': perRecipient,
-        'sender_key_id': widget.identity.keyId,
-        'scheme': _e2e.scheme,
-        if (mentions.isNotEmpty) 'mentions': mentions,
-        if (_replyTo != null && !asCard) 'reply_to': '${_replyTo!['id']}',
-        'client_msg_id': cmid,
-      });
+      final res = await _api.postJson('/circle/groups/$_groupId/messages', body);
       // md2: the sent text stays on screen (my bubble) until the reload /
       // poll lists its server copy — never a frame where it is missing.
       final sid = '${res['id'] ?? ''}';
@@ -915,8 +958,39 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           'created_at': DateTime.now().toUtc().toIso8601String(),
         });
       }
-    } catch (_) {
+    } catch (e) {
       ok = false;
+      // offline2: NO ANSWER (offline, Wi-Fi <-> data, 5xx) is not the user's
+      // problem — like the 1:1 chat the message waits with its clock in the
+      // encrypted outbox and goes by itself. Only a REFUSAL (4xx) stays red.
+      if (!asCard && failKindOf(e) != FailKind.refused) {
+        final item = OutboxItem(
+            id: cmid,
+            chatKind: 'group',
+            chatId: _gid,
+            text: text,
+            at: DateTime.now(),
+            envelope: body);
+        await Outbox.instance.add(item);
+        queued = true;
+        if (mounted) {
+          setState(() {
+            if (!_queued.any((q) => q.id == cmid)) _queued = [..._queued, item];
+          });
+          _toast(_t.circle2QueuedOffline);
+        }
+        unawaited(Outbox.instance.kick(onlyGroup: _gid));
+      }
+    }
+    if (queued) {
+      // the draft is done: it is in the queue (clock), not failed
+      _input.clear();
+      _replyTo = null;
+      _failedText = null;
+      _draftPreview = null;
+      _dismissedUrl = null;
+      if (mounted) setState(() => _sending = false);
+      return true;
     }
     if (ok && !asCard) {
       _input.clear();
@@ -1953,6 +2027,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final items = [
       ..._visible,
       if (!searching) ...echoes,
+      if (!searching) // offline2: written offline, waiting (clock)
+        for (final q in _queued)
+          if (!have.contains(q.id) && !echoed.contains(q.id)) _queuedRow(q, 'pending'),
       if (!searching)
         for (final j in _mediaJobs)
           if (!have.contains(j.id) && !echoed.contains(j.id))

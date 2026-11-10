@@ -28,6 +28,7 @@ import 'package:assisto/crypto/key_wiring.dart';
 import 'package:assisto/messaging/outbox.dart';
 import 'package:assisto/push/push_service.dart' show appNavigatorKey;
 import 'package:assisto/screens/circle_chat_screen.dart';
+import 'package:assisto/screens/circle_group_chat_screen.dart';
 import 'package:assisto/state.dart' show Settings;
 
 import '../support/harness.dart';
@@ -77,6 +78,16 @@ Future<void> _airplane(RFlow f, bool on) async {
       seconds: on ? 30 : 90);
 }
 
+Future<void> _openGroup(RFlow f, String name) async {
+  await f.openRoute('circle');
+  if (await f.appears(find.text(f.t.bbl2Title), seconds: 4)) {
+    await f.tap(find.text('Later').hitTestable().last, settleSeconds: 2);
+  }
+  await f.waitFor(find.text(name), seconds: 20, what: 'the group in the My Circle list');
+  await f.tap(find.text(name).first, settleSeconds: 3);
+  await f.waitFor(find.byType(CircleGroupChatScreen), what: 'group chat');
+}
+
 Future<void> _openChatWithB(RFlow f) async {
   await f.openRoute('circle');
   if (await f.appears(find.text(f.t.bbl2Title), seconds: 4)) {
@@ -89,7 +100,7 @@ Future<void> _openChatWithB(RFlow f) async {
 
 void registerOfflineFirstFlows() {
   realityFlow('e2e9_offline_first', 'E2E proof',
-      'Offline first: airplane mode -> open app -> Home + My Circle chat history from the phone -> message queued (clock) -> online -> delivered to B in order (two accounts)',
+      'Offline first: airplane mode -> open app -> Home + My Circle chat history from the phone -> 1:1 and group messages queued (clock) -> online -> delivered to B in order (two accounts)',
       (f) async {
     if (const String.fromEnvironment('REALITY_SHOT_MODE') == 'inapp') {
       f.skip('real phones (Test Lab): no host adb to switch airplane mode');
@@ -124,6 +135,11 @@ void registerOfflineFirstFlows() {
     final fromB = 'Offline proof from B $_tag';
     final q1 = 'Queued offline one $_tag';
     final q2 = 'Queued offline two $_tag';
+    // offline2: the group part (A + B in one group)
+    final groupName = 'Offline group $_tag';
+    final g1 = 'Group offline one $_tag';
+    final g2 = 'Group offline two $_tag';
+    late int gid;
 
     await f.step('online: B publishes a key and sends A a message', () async {
       await f.net(() async {
@@ -156,6 +172,20 @@ void registerOfflineFirstFlows() {
       await f.waitFor(_sees(fromB), seconds: 30, what: "B's message decrypted");
       await f.pumpFor(const Duration(seconds: 3)); // the copy is written
       await f.shot('online-chat');
+    });
+
+    await f.step('online: A makes a group with B and opens it (encrypted copy)', () async {
+      final apiA = ApiClient.detached(f.app.api.token ?? '')..lang = 'en';
+      await f.net(() async {
+        final g = await apiA.postJson('/circle/groups', {'name': groupName});
+        gid = (g['id'] as num).toInt();
+        final edgeA = _rows(await apiA.getJson('/circle/members'))
+            .firstWhere((m) => '${m['name']}'.contains('Karim'));
+        await apiA.postJson('/circle/groups/$gid/members', {'member_id': edgeA['id']});
+      });
+      await _openGroup(f, groupName);
+      await f.pumpFor(const Duration(seconds: 3)); // the copy is written
+      await f.shot('online-group');
     });
 
     await f.step('airplane mode ON (real network off)', () async {
@@ -201,6 +231,21 @@ void registerOfflineFirstFlows() {
       await f.shot('offline-queued');
     });
 
+    await f.step('offline: the group opens from the phone; two messages queued (clock)', () async {
+      await _openGroup(f, groupName);
+      for (final m in [g1, g2]) {
+        await f.enter(m, label: f.t.circleGroupMessageHint);
+        await f.tapSend(settleSeconds: 6);
+      }
+      await f.waitFor(find.byIcon(Icons.schedule_rounded), seconds: 10, what: 'group clock icon');
+      final q = await f.net(() => Outbox.instance.forChat('group', gid));
+      final texts = q.map((i) => i.text).toList();
+      if (texts.length != 2 || texts.first != g1) {
+        throw TestFailure('group messages not queued in order: $texts');
+      }
+      await f.shot('offline-group-queued');
+    });
+
     await f.step('airplane mode OFF -> both delivered to B, in order, E2E', () async {
       await _airplane(f, false);
       await f.eventually('B decrypts both, in the order written', () async {
@@ -225,6 +270,37 @@ void registerOfflineFirstFlows() {
         }
         if (got.length > 2) throw TestFailure('duplicate delivery: $got');
         return got.length == 2 && got.first == q1;
+      }, seconds: 120);
+      await f.eventually('B decrypts both GROUP messages, in order, once', () async {
+        final edge = _rows(await apiB.getJson('/circle/members'))
+            .firstWhere((m) => '${m['name']}'.contains('Rahim'));
+        final peer = base64Decode('${edge['public_key']}');
+        final msgs = _rows(await apiB.getJson('/circle/groups/$gid/messages?limit=50'))
+            .where((m) => m['mine'] != true)
+            .toList()
+          ..sort((a, b) => (a['id'] as num).compareTo(b['id'] as num));
+        final got = <String>[];
+        for (final m in msgs) {
+          final pr = m['per_recipient'];
+          if (pr is! Map) continue;
+          for (final v in pr.values) {
+            if (v is! Map) continue;
+            final pt = e2e.decrypt(
+                self: idB,
+                senderPublicKey: peer,
+                ct: Ciphertext(
+                    ciphertextB64: '${v['ciphertext']}',
+                    nonceB64: '${v['nonce']}',
+                    senderKeyId: '${m['sender_key_id'] ?? ''}',
+                    scheme: '${m['scheme'] ?? e2e.scheme}'));
+            if (pt == g1 || pt == g2) {
+              got.add(pt!);
+              break;
+            }
+          }
+        }
+        if (got.length > 2) throw TestFailure('duplicate group delivery: $got');
+        return got.length == 2 && got.first == g1;
       }, seconds: 120);
       await f.eventually('the outbox on the phone is empty',
           () async => (await Outbox.instance.all()).isEmpty, seconds: 30);
