@@ -52011,5 +52011,78 @@
   "ds2SosHoldLine": "Hold 1 second — your family gets your location.",
   "@ds2SosHoldLine": {
     "description": "designv2: one short line under the big SOS button (page rule: no paragraph)"
-  }
+  },
+  "qvOpenAyah": "Open ayah {aya}: meaning, tafsir, audio",
+  "@qvOpenAyah": {
+    "placeholders": {
+      "aya": {
+        "type": "String"
+      }
+    }
+  },
+  "qvLines": "Show lines",
+  "qvLinesHint": "Turn each line on or off. Bangla and English are both shown in every app language.",
+  "qvLineArabic": "Arabic",
+  "qvLinePron": "Bangla pronunciation",
+  "qvLineTranslit": "English transliteration",
+  "qvLineBn": "Bangla meaning",
+  "qvLineEn": "English meaning",
+  "qvLineWords": "Word by word",
+  "qvLineAudio": "Recitation",
+  "qvUnderReview": "Under review — not yet checked by a scholar",
+  "qvSourceTanzil": "Source: Tanzil Project (tanzil.net), Uthmani text, CC BY 3.0 — unchanged",
+  "qvSourcePron": "Source: Assisto pronunciation rules with tajweed (no AI), from the Tanzil text",
+  "qvSourceQe": "Source: {publisher} · QuranEnc.com · version {version} — unchanged",
+  "@qvSourceQe": {
+    "placeholders": {
+      "publisher": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "qvSourceQf": "Source: Quran Foundation (quran.foundation)",
+  "qvLoadFailed": "Could not load. Check the internet and try again.",
+  "qvRetry": "Try again",
+  "qvNotInSource": "The source has nothing for this ayah.",
+  "qvReciter": "Reciter",
+  "qvRepeat": "Repeat",
+  "qvRepeatN": "{n} times",
+  "@qvRepeatN": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qvPlay": "Play",
+  "qvStop": "Stop",
+  "qvPlaying": "Playing {i} of {n}",
+  "@qvPlaying": {
+    "placeholders": {
+      "i": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "qvAudioFailed": "Could not play. Check the internet and try again.",
+  "qvAudioMissing": "This reciter has no audio for this ayah. Choose another reciter.",
+  "qvTafsirBtn": "Tafsir & shane nuzul",
+  "qvTafsirText": "Tafsir and notes",
+  "qvShanNuzul": "Shane nuzul (reason of revelation)",
+  "qvShanNone": "This source has no shane nuzul for this ayah.",
+  "qvShanRule": "Shown only where this source itself states the reason, word for word. Found by a fixed word rule, not AI — under review.",
+  "qvNoAi": "Every meaning and tafsir here is the publisher's exact text. Assisto AI never writes, shortens or changes it. No ads.",
+  "qvQfCredit": "Recitation audio, word-by-word meaning and transliteration: Quran Foundation (quran.foundation).",
+  "qvAboutQe": "Bangla meaning (Abu Bakr Zakaria), English meaning (Saheeh International) and the Al-Mukhtasar tafsir: QuranEnc.com — shown unchanged with the publisher and version, kept at the latest version.",
+  "qvTafsirPendingNote": "Other Bangla tafsirs (Ibn Kathir, Ahsanul Bayaan, Fathul Majid, the full Abu Bakr Zakaria tafsir) will be added only after their publishers' written permission.",
+  "qvPrev": "Previous ayah",
+  "qvNext": "Next ayah",
+  "qvBnHereTitle": "Bangla meaning is in the ayah view",
+  "qvBnHereBody": "Tap any ayah to see the Bangla meaning (Abu Bakr Zakaria, QuranEnc.com) with the English meaning, tafsir and audio."
 }
