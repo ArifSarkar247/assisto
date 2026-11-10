@@ -142,7 +142,7 @@
   "lib/screens/business/khata_invite_sheet.dart": 1,
   "lib/screens/business/khata_screen.dart": 6,
   "lib/screens/business/low_stock_card.dart": 1,
-  "lib/screens/business/orders_screen.dart": 7,
+  "lib/screens/business/orders_screen.dart": 5,
   "lib/screens/business/payments_screen.dart": 3,
   "lib/screens/business/products_screen.dart": 6,
   "lib/screens/business/quick_sell_screen.dart": 6,
