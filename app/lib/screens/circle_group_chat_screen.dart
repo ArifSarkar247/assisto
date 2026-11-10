@@ -713,6 +713,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     // offline1st: the newest page + members open AT ONCE from this phone's
     // encrypted copy (group E2E ciphertext as relayed); the network replaces it.
     final slot = OfflineStore.chatSlot('group', _groupId);
+    var cachedShown = false; // offline2: a saved copy (even an empty one)
     if (!_loadedOnce && _messages.isEmpty) {
       final c = await OfflineStore.instance.read(uid, slot);
       if (c is Map && c['page'] is List && mounted && _messages.isEmpty) {
@@ -720,6 +721,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             .whereType<Map>()
             .map((e) => e.cast<String, dynamic>())
             .toList();
+        cachedShown = true;
         setState(() {
           _members = rows(c['members']);
           _messages = rows(c['page']);
@@ -762,7 +764,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     } catch (_) {
       // Keep any already-loaded messages visible; only flag the error so the
       // UI can offer Retry instead of silently showing an empty chat.
-      _loadFailed = _messages.isEmpty;
+      // offline2: a saved copy is on screen (a new group may have no
+      // messages yet) -> the composer stays, the Offline strip says the rest
+      _loadFailed = _messages.isEmpty && !cachedShown;
     }
     if (mounted) {
       setState(() => _loading = false);
