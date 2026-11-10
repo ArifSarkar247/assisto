@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../business_ai_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../widgets/business_ui.dart';
 import '../../widgets/skeleton.dart';
@@ -63,12 +64,15 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
   Widget _body(AppLocalizations tr) {
     if (_loading) return const SkeletonList();
     if (_error != null) {
-      return StateMessage(
-        icon: Icons.cloud_off_rounded,
-        title: tr.bizLoadFailed,
-        message: _error,
-        action: FilledButton(onPressed: _load, child: Text(tr.bizRetry)),
-      );
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: tr.bizLoadFailed,
+          benefit: _error,
+          actionLabel: tr.bizRetry,
+          onAction: _load,
+        ),
+      ]);
     }
     final hasMerchant = _qr != null &&
         (_qr!['merchant_number'] ?? '').toString().isNotEmpty;
@@ -131,12 +135,14 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
       title: tr.bizYourMerchant,
       icon: Icons.qr_code_2_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(tr.bizAddMerchantBody, style: const TextStyle(height: 1.4)),
+        Text(tr.bizAddMerchantBody,
+            style: AType.bodyMedium.copyWith(height: 1.4, color: DsTokens.of(context).muted)),
         const SizedBox(height: Gap.md),
-        FilledButton.icon(
+        DsButton(
+          expand: true,
           onPressed: () => _editMerchant(tr),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(tr.bizAddMerchant),
+          icon: Icons.add_rounded,
+          label: tr.bizAddMerchant,
         ),
       ]),
     );
@@ -158,9 +164,10 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
   Widget _kv(String k, String v) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs),
         child: Row(children: [
-          Text('$k: ',
-              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
-          Expanded(child: Text(v, style: const TextStyle(fontWeight: FontWeight.w700))),
+          Text('$k: ', style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
+          Expanded(
+              child: Text(v,
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: DsTokens.of(context).text))),
         ]),
       );
 
