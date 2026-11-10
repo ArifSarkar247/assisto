@@ -364,9 +364,10 @@ def section_questions(name, body):
 def public_section(name, body):
     if name == "listening":
         return {"duration_sec": body.get("duration_sec"),
-                "parts": [{"n": p.get("n"), "audio_url": media_url(p.get("audio")),
-                           "accent": p.get("accent"),
-                           "questions": [public_question(q) for q in p.get("questions") or []]}
+                "parts": [dict({"n": p.get("n"), "audio_url": media_url(p.get("audio")),
+                                "accent": p.get("accent"),
+                                "questions": [public_question(q) for q in p.get("questions") or []]},
+                               **_phone_tts(p))
                           for p in body.get("parts") or []]}
     if name == "reading":
         return {"duration_sec": body.get("duration_sec"),
@@ -383,6 +384,17 @@ def public_section(name, body):
                 "parts": [{k: p[k] for k in ("n", "questions", "cue_card", "prep_sec", "talk_sec")
                            if k in p} for p in body.get("parts") or []]}
     return {}
+
+
+def _phone_tts(part):
+    """lpfinish: a part without recorded audio is read by the phone's own
+    voice — the app plays these lines and never displays them."""
+    if part.get("audio"):
+        return {}
+    lines = CK.tts_lines(part)
+    if not lines:
+        return {}
+    return {"tts": {"lang": part.get("tts_lang") or "en-GB", "lines": lines, "repeat": 1}}
 
 
 def mock_sections(mock):
@@ -928,15 +940,18 @@ CERT_FOOTER = {
 
 
 def certificate_pdf(att, name):
-    """A one-page 'Assisto Practice Certificate' (reportlab, Latin text)."""
+    """A one-page 'Assisto Practice Certificate' (reportlab + core.pdf_bn, so
+    a Bangla learner name is shaped right)."""
     import io
     from reportlab.lib.pagesizes import A4, landscape
     from reportlab.pdfgen import canvas
+    from . import pdf_bn
     page = landscape(A4)
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=page, pageCompression=0)
     c.setTitle("Assisto Practice Certificate")
     c.setAuthor("Assisto")
+    c.setSubject(CERT_FOOTER["en"])
     w, h = page
     for i, col in enumerate(((0.0, 0.74, 0.83), (0.15, 0.39, 0.92), (0.49, 0.23, 0.93))):
         c.setStrokeColorRGB(*col)
@@ -950,18 +965,16 @@ def certificate_pdf(att, name):
                        (16, "IELTS-style practice mock (%s)" % (
                            "General Training" if d.get("variant") == "general" else "Academic")),
                        (20, "Overall practice band: %s" % (att.band if att.band is not None else "-"))):
-        c.setFont("Helvetica-Bold" if size >= 20 else "Helvetica", size)
-        c.drawCentredString(w / 2, y, text)
+        pdf_bn.draw(c, w / 2, y, text, size, bold=size >= 20, align="center")
         y -= size + 22
     bands = d.get("bands") or {}
     line = "   ".join("%s %s" % (k.capitalize(), bands[k]) for k in SECTIONS if k in bands)
-    c.setFont("Helvetica", 14)
-    c.drawCentredString(w / 2, y, line)
+    pdf_bn.draw(c, w / 2, y, line, 14, align="center")
     y -= 30
-    c.drawCentredString(w / 2, y, "Date: %s" % timezone.localtime(att.created_at).date().isoformat())
+    pdf_bn.draw(c, w / 2, y, "Date: %s" % timezone.localtime(att.created_at).date().isoformat(),
+                14, align="center")
     c.setFillColorRGB(0.55, 0.11, 0.07)
-    c.setFont("Helvetica-Bold", 13)
-    c.drawString(60, 60, CERT_FOOTER["en"])
+    pdf_bn.draw(c, 60, 60, CERT_FOOTER["en"], 13, bold=True)
     c.showPage()
     c.save()
     return buf.getvalue()

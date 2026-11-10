@@ -157,7 +157,7 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
                       ?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.sm),
               Text(t.mv2EmptyBody, textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
               const SizedBox(height: Gap.lg),
               _howTo(t, scheme),
               const SizedBox(height: Gap.lg),
@@ -178,7 +178,7 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
                   padding: const EdgeInsets.all(Gap.md),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     Text(t.mv2ImportTitle,
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: Gap.xs),
                     Text(t.mv2ImportBody),
                     const SizedBox(height: Gap.sm),
@@ -195,7 +195,7 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
             ],
             const SizedBox(height: Gap.md),
             Text(t.mv2FreeLine, textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
           ],
         ),
       );
@@ -213,7 +213,7 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(t.mv2HowTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(t.mv2HowTitle, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           for (var i = 0; i < steps.length; i++)
             Padding(
@@ -222,7 +222,7 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
                 CircleAvatar(
                     radius: 12,
                     child: Text(messDigits(context, i + 1),
-                        style: const TextStyle(fontSize: 12))),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12))),
                 const SizedBox(width: Gap.sm),
                 Expanded(child: Text(steps[i])),
               ]),
@@ -242,7 +242,7 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
         key: ValueKey('mess-${m['id']}'),
         minTileHeight: 64,
         leading: CircleAvatar(child: Icon(closed ? Icons.lock_rounded : Icons.home_work_rounded)),
-        title: Text('${m['name'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('${m['name'] ?? ''}', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Text(closed ? t.mv2MessClosed : role),
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => _open((m['id'] as num).toInt()),
@@ -351,7 +351,7 @@ class _MessSettingsSheetState extends State<_MessSettingsSheet> {
           onChanged: (v) => setState(() => _startDay = v ?? 1),
         ),
         const SizedBox(height: Gap.md),
-        Text(t.mv2BreakfastLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+        Text(t.mv2BreakfastLabel, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: Gap.xs),
         SegmentedButton<int>(
           segments: [

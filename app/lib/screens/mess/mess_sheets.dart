@@ -54,7 +54,7 @@ class _MealDaySheetState extends State<_MealDaySheet> {
         SwitchListTile(
           key: ValueKey('meal-$k'),
           contentPadding: EdgeInsets.zero,
-          title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+          title: Text(label, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
           value: _v[k] == 1,
           onChanged: (on) => setState(() => _v[k] = on ? 1 : 0),
         ),
@@ -98,7 +98,7 @@ class _MealDaySheetState extends State<_MealDaySheet> {
         _slot('b', t.mv2Breakfast),
         _slot('l', t.mv2Lunch),
         _slot('d', t.mv2Dinner),
-        Text(t.mv2GuestNote, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        Text(t.mv2GuestNote, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ]),
     );
   }
@@ -325,7 +325,7 @@ class _EntrySheetState extends State<_EntrySheet> {
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.sm),
         if (widget.kind == 'charge') ...[
-          Text(t.mv2ChargeNote, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(t.mv2ChargeNote, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             for (final k in messChargeKinds)
@@ -413,7 +413,7 @@ class _EntrySheetState extends State<_EntrySheet> {
           ),
         if (widget.kind == 'bazar') ...[
           const SizedBox(height: Gap.sm),
-          Text(t.mv2ReceiptLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(t.mv2ReceiptLabel, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             OutlinedButton.icon(
@@ -433,7 +433,7 @@ class _EntrySheetState extends State<_EntrySheet> {
           if (_photo != null)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
-              child: Text(t.mv2PhotoAdded, style: TextStyle(color: scheme.primary)),
+              child: Text(t.mv2PhotoAdded, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.primary)),
             ),
         ],
       ]),
@@ -566,7 +566,7 @@ class _CirclePickerState extends State<_CirclePicker> {
           padding: EdgeInsets.all(Gap.xl), child: Center(child: CircularProgressIndicator()));
     } else if (_rows!.isEmpty) {
       body = Text(t.mv2CircleEmpty, textAlign: TextAlign.center,
-          style: TextStyle(color: scheme.onSurfaceVariant));
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant));
     } else {
       body = Column(mainAxisSize: MainAxisSize.min, children: [
         for (final r in _rows!)
@@ -607,7 +607,7 @@ class _CirclePickerState extends State<_CirclePicker> {
         Text(t.mv2PickTitle,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xs),
-        Text(t.mv2PickSub, style: TextStyle(color: scheme.onSurfaceVariant)),
+        Text(t.mv2PickSub, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
         const SizedBox(height: Gap.md),
         body,
         if (_added) ...[

@@ -10,7 +10,6 @@ import 'package:assisto/feature_flags.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/screens/ielts_screen.dart';
 import 'package:assisto/screens/language_pack_screen.dart';
-import 'package:assisto/screens/language_partner_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 
@@ -71,32 +70,8 @@ void main() {
     expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
   });
 
-  testWidgets('lpapp: Language Partner start — language chips open the course when language_packs is on',
-      (t) async {
-    FeatureFlags.instance.debugOverride = {'language_packs': false};
-    await t.pumpWidget(_app(const LanguagePartnerScreen(), FakeApi(mode: FakeMode.data, lang: 'en')));
-    await t.pumpAndSettle();
-    await t.scrollUntilVisible(find.text('Other languages'), 200, scrollable: find.byType(Scrollable).first);
-    await t.ensureVisible(find.text('Korea · EPS-TOPIK'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('Korea · EPS-TOPIK'));
-    await t.pumpAndSettle();
-    // off: an honest "next stage" sheet with a way forward, never a dead chip
-    expect(find.text('Korea · EPS-TOPIK opens in the next stage'), findsOneWidget);
-    expect(find.text('Practise Life English now'), findsOneWidget);
-    await t.tap(find.text('Close'));
-    await t.pumpAndSettle();
-    FeatureFlags.instance.debugOverride = {'language_packs': true};
-    await t.pumpWidget(_app(const LanguagePartnerScreen(key: ValueKey(2)), FakeApi(mode: FakeMode.data, lang: 'en')));
-    await t.pumpAndSettle();
-    await t.scrollUntilVisible(find.text('Other languages'), 200, scrollable: find.byType(Scrollable).first);
-    await t.ensureVisible(find.text('Korea · EPS-TOPIK'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('Korea · EPS-TOPIK'));
-    await t.pumpAndSettle();
-    expect(find.byType(LanguagePackScreen), findsOneWidget);
-    FeatureFlags.instance.debugOverride = null;
-  });
+  // lpfinish: the start-screen language chips now open the real course with
+  // or without language_packs — covered in lp2_track_test.dart.
 
   testWidgets('catalog order and exam names follow the owner order', (t) async {
     await t.pumpWidget(_app(const Scaffold(body: SingleChildScrollView(child: LanguageCatalogSection())),

@@ -113,6 +113,7 @@ class AdControl {
     AdSpot('lp_home', 'lp', 'banner,native', true, 'banner'),
     AdSpot('lp_hub', 'lp', 'banner,native', true, 'banner'),
     AdSpot('lp_life', 'lp', 'banner,native', true, 'banner'),
+    AdSpot('lp_vocab', 'lp', 'banner,native', true, 'banner'),
     AdSpot('lesson_after_finish', 'lp', 'interstitial', true, 'interstitial'),
     AdSpot('lp_unlock', 'lp', 'rewarded', true, 'rewarded'),
     AdSpot('exam_after_submit', 'exam', 'interstitial', true, 'interstitial'),

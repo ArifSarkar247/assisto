@@ -196,8 +196,111 @@ Map<String, dynamic> fakeLp2Finish() => {
       'practice_label': _label,
     };
 
+
+// lpfinish: a going-abroad track (sample data only)
+const _trackKinds = {'jlpt_n5', 'jft_basic', 'eps_topik', 'de_a1', 'hsk1', 'fr_a1', 'ar_work'};
+
+Map<String, dynamic> fakeLpTrackSyllabus(String track) => {
+      'items': [
+        {
+          'id': 'syl-$track', 'track': track, 'beta': true,
+          'title': {'en': 'Korean for EPS-TOPIK', 'bn': 'EPS-TOPIK-এর জন্য কোরিয়ান'},
+          'summary_bn': 'কারখানার কাজের জন্য কোরিয়ান, বাংলায় বোঝানো।',
+          'who_for_bn': 'যাঁরা কোরিয়ায় কাজে যেতে চান।',
+          'can_do_bn': ['নিজের পরিচয় দিতে পারবেন।'],
+          'exam_format': {
+            'sections': [
+              {'id': 'reading', 'title': {'en': 'Reading', 'bn': 'পড়া'}, 'minutes': 40, 'questions': 20},
+              {'id': 'listening', 'title': {'en': 'Listening', 'bn': 'শোনা'}, 'minutes': 30, 'questions': 20},
+            ],
+            'scoring_bn': '২০০ নম্বরের পরীক্ষা।',
+          },
+          'weeks': [
+            {'week': 1, 'goal_bn': 'শুভেচ্ছা ও পরিচয়', 'lessons': ['ko-w01-l1']},
+            {'week': 5, 'goal_bn': 'পরে', 'lessons': [], 'planned': true},
+          ],
+          'probashi': {'country': 'KR', 'note_bn': 'প্রবাসী অংশে কাজের পথ দেখুন।'},
+          'practice_label': {'en': 'Practice course — not official.', 'bn': 'অনুশীলন কোর্স — অফিসিয়াল নয়।'},
+        }
+      ]
+    };
+
+Map<String, dynamic> fakeLpTrackLessons() => {
+      'items': [
+        {
+          'id': 'ko-w01-l1', 'day': 1, 'minutes': 20, 'lang': 'ko', 'beta': true,
+          'title': {'en': 'Hello at work', 'bn': 'কাজে শুভেচ্ছা'},
+          'goal_bn': 'বসকে শুভেচ্ছা দিতে শিখবেন।',
+          'vocab': [
+            {'target': '사장님', 'roman': 'sajangnim', 'bn': 'মালিক',
+             'example': {'target': '사장님, 안녕하세요?', 'roman': 'sajangnim, annyeonghaseyo?', 'bn': 'বস, শুভ দিন।'}},
+          ],
+          'grammar': [
+            {'pattern': 'N이에요/예요', 'explain_bn': 'পরিচয় দিতে।',
+             'examples': [{'target': '저는 민수예요.', 'roman': 'jeoneun minsuyeyo.', 'bn': 'আমি মিনসু।'}]},
+          ],
+          'practice': {
+            'listening': [
+              {'id': 'ko-l1-p1', 'script': {'turns': [{'spk': 'A', 'text': '안녕하세요.'}], 'repeat': 1},
+               'prompt_bn': 'কী বলল?', 'options': ['안녕하세요', '감사합니다', '미안합니다'], 'answer': 'A',
+               'explain_bn': 'শুভেচ্ছা বলল।'},
+            ],
+            'reading': [
+              {'id': 'ko-l1-r1', 'passage': '저는 민수예요.', 'prompt_bn': 'নাম কী?', 'options': ['민수', '사장님', '회사'],
+               'answer': 'A', 'explain_bn': 'মিনসু।'},
+            ],
+            'writing': [
+              {'id': 'ko-l1-w1', 'prompt_bn': 'নিজের নাম লিখুন।', 'model': {'target': '저는 민수예요.', 'bn': 'আমি মিনসু।'}},
+            ],
+            'speaking': [
+              {'id': 'ko-l1-s1', 'prompt_bn': 'জোরে বলুন।', 'model': {'target': '안녕하세요.', 'bn': 'শুভ দিন।'}},
+            ],
+          },
+          'practice_label': {'en': 'Practice course — not official.', 'bn': 'অনুশীলন কোর্স — অফিসিয়াল নয়।'},
+        }
+      ]
+    };
+
+Map<String, dynamic> fakeLpTrackMocks(String track) => {
+      'mocks': [
+        {'id': 'eps-topik-001', 'title_en': 'EPS-TOPIK practice test 1', 'title_bn': 'EPS-TOPIK অনুশীলন টেস্ট ১',
+         'kind': track, 'exam': 'EPS-TOPIK', 'beta': true, 'sections': ['reading', 'listening']},
+      ],
+      'free_sections_left_week': 1,
+      'premium': false,
+    };
+
+Map<String, dynamic> fakeLpTrackTest(String section) => {
+      'id': 'eps-topik-001', 'kind': 'eps_topik', 'lang': 'ko', 'beta': true,
+      'title_en': 'EPS-TOPIK practice test 1', 'title_bn': 'EPS-TOPIK অনুশীলন টেস্ট ১',
+      'scoring': {'max': 200, 'per_question': 4, 'pass_hint_bn': 'পাস নম্বর কোম্পানি ঠিক করে।',
+                  'note_bn': 'প্র্যাকটিস স্কোর — অফিসিয়াল ফল নয়।'},
+      'sections': [
+        {
+          'id': section, 'kind': section, 'minutes': 40,
+          'title': {'en': 'Reading', 'bn': 'পড়া'},
+          'parts': [
+            {
+              'part': 'r1', 'instructions': {'target': '알맞은 것을 고르십시오.', 'bn': 'সঠিকটি বাছুন।'},
+              'questions': [
+                {'n': 1, 'prompt': '이것은 무엇입니까?', 'options': ['모자', '신발', '가방', '시계'],
+                 if (section == 'listening') 'tts': {'lang': 'ko-KR', 'lines': ['이것은 가방입니다.'], 'repeat': 2}},
+                {'n': 2, 'prompt': '어디에서 일합니까?', 'options': ['공장', '병원', '학교', '은행']},
+              ],
+            }
+          ],
+        }
+      ],
+    };
+
 Map<String, dynamic>? fakeLp2Get(String path, {bool bn = false}) {
   final p = path.startsWith('/') ? path.substring(1) : path;
+  // lpfinish
+  final qp = Uri.parse('/$p').queryParameters;
+  if (p.startsWith('lp/content/syllabus')) return fakeLpTrackSyllabus(qp['track'] ?? 'eps_topik');
+  if (p.startsWith('lp/content/lesson')) return fakeLpTrackLessons();
+  if (p.startsWith('lp/mocks?') && _trackKinds.contains(qp['kind'])) return fakeLpTrackMocks(qp['kind']!);
+  if (p.startsWith('lp/mocks/eps-topik-001')) return fakeLpTrackTest(qp['section'] ?? 'reading');
   if (p.startsWith('lp/mocks?')) {
     return {
       'mocks': [
@@ -230,6 +333,15 @@ Map<String, dynamic>? fakeLp2Post(String path, Map<String, dynamic> body) {
   final p = path.startsWith('/') ? path.substring(1) : path;
   if (!p.startsWith('lp/')) return null;
   lp2Posts.add({'path': p, ...body});
+  if (p == 'lp/mocks/eps-topik-001/mark') { // lpfinish
+    return {
+      'raw': 1, 'total': 2, 'score': 4, 'max': 8, 'band': null,
+      'items': [
+        {'n': 1, 'your': 'C', 'key': 'C', 'correct': true, 'mistake': null, 'explain_bn': 'ব্যাগ।'},
+        {'n': 2, 'your': '', 'key': 'A', 'correct': false, 'mistake': 'other', 'explain_bn': 'কারখানা = 공장।'},
+      ],
+    };
+  }
   if (p.endsWith('/mark') && p.startsWith('lp/mocks/')) return fakeLp2Mark('${body['section']}');
   if (p.endsWith('/finish')) return fakeLp2Finish();
   if (p == 'lp/score/writing') return fakeLp2Writing(task: (body['task'] as num?)?.toInt() ?? 2);

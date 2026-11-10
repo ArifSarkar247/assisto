@@ -39,8 +39,13 @@ LATER_TYPES = ("smoke_fire", "fight", "fall", "weapon_review", "loud_sound")
 MEASURED = {
     "camera_health": {
         "n": 330,
-        "p": 0.9907,
-        "r": 0.7067
+        "p": 1.0,
+        "r": 0.9133
+    },
+    "crowd": {
+        "n": 240,
+        "p": 0.9873,
+        "r": 0.65
     },
     "gate_open": {
         "n": 240,
@@ -49,21 +54,36 @@ MEASURED = {
     },
     "gate_person": {
         "n": 180,
-        "p": 0.9388,
-        "r": 0.7667
+        "p": 0.9286,
+        "r": 0.8667
     },
     "loitering": {
         "n": 180,
         "p": 0.8913,
         "r": 0.6833
     },
+    "parking_overstay": {
+        "n": 180,
+        "p": 0.9412,
+        "r": 0.2667
+    },
     "post_empty": {
         "n": 120,
-        "p": 0.72,
-        "r": 0.6
+        "p": 0.9318,
+        "r": 0.6833
     },
+    "vehicle_in_out": {
+        "n": 240,
+        "p": 1.0,
+        "r": 0.1833
+    },
+    "wrong_parking": {
+        "n": 180,
+        "p": 0.9333,
+        "r": 0.2333
+    }
 }
-MEASURED_RUN = "42664700860"
+MEASURED_RUN = "42726621893"
 MEASURED_SET = 'COCO val2017 licensed images, synthetic CCTV scenarios (tools/e2e/cctv_detect_accuracy.py, n=30/kind)'
 
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")

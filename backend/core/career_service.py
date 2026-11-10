@@ -78,11 +78,13 @@ def photo_bytes(row):
 
 
 def cv_pdf(row, lang="en"):
-    """ATS-friendly English PDF bytes: single column, Helvetica, real text,
-    standard headings, no tables. Photo (optional) top-right."""
+    """ATS-friendly English PDF bytes: single column, real text (Inter, and
+    any Bangla the user typed shaped right via core.pdf_bn), standard
+    headings, no tables. Photo (optional) top-right."""
     from reportlab.lib.pagesizes import A4
-    from reportlab.lib.utils import ImageReader, simpleSplit
+    from reportlab.lib.utils import ImageReader
     from reportlab.pdfgen import canvas
+    from . import pdf_bn
     cv = CC.normalize_cv(row)
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=A4)
@@ -103,12 +105,14 @@ def cv_pdf(row, lang="en"):
 
     def line(txt, font="Helvetica", size=10.5, gap=14, indent=0, width=None):
         nonlocal y
-        for part in simpleSplit(txt, font, size, (width or (right - left)) - indent):
+        bold = font.endswith("Bold")
+        if pdf_bn.has_bn(txt):
+            gap = max(gap, size * 1.55)  # Bangla needs taller lines
+        for part in pdf_bn.wrap(txt, size, (width or (right - left)) - indent, bold):
             if y < 60:
                 c.showPage()
                 y = h - 56
-            c.setFont(font, size)
-            c.drawString(left + indent, y, part)
+            pdf_bn.draw(c, left + indent, y, part, size, bold)
             y -= gap
 
     if cv["name"]:

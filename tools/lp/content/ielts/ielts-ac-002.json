@@ -1,0 +1,1696 @@
+{
+ "format": "assisto.lp.ielts/1",
+ "bundle_id": "ielts-ac-002",
+ "module": "academic",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "IELTS Academic Practice Test 2",
+  "bn": "IELTS অ্যাকাডেমিক প্র্যাকটিস টেস্ট ২"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpfinish",
+  "created": "2026-11-10"
+ },
+ "listening": {
+  "duration_sec": 1800,
+  "parts": [
+   {
+    "n": 1,
+    "accent": "uk",
+    "intro": "You will hear a telephone conversation between a woman who works for a storage company and a man who wants to rent a storage unit.",
+    "speakers": {
+     "A": {
+      "name": "Assistant",
+      "gender": "F"
+     },
+     "B": {
+      "name": "Customer",
+      "gender": "M"
+     }
+    },
+    "turns": [
+     {
+      "spk": "A",
+      "text": "Good morning, Keystone Self Storage, Rachel speaking. How can I help you?"
+     },
+     {
+      "spk": "B",
+      "text": "Oh, hello. I'd like to rent a storage unit for a few months."
+     },
+     {
+      "spk": "A",
+      "text": "Of course. Could I have your name first?"
+     },
+     {
+      "spk": "B",
+      "text": "Yes, it's Daniel Pelham."
+     },
+     {
+      "spk": "A",
+      "text": "Could you spell the surname for me, please?"
+     },
+     {
+      "spk": "B",
+      "text": "Sure. It's P-E-L-H-A-M."
+     },
+     {
+      "spk": "A",
+      "text": "Thank you, Mr Pelham. And may I ask why you need the storage? It just helps us suggest the right kind of unit."
+     },
+     {
+      "spk": "B",
+      "text": "Well, originally I was planning to move abroad for work, so I thought I'd need somewhere for everything. But that's fallen through, actually. What's happening now is that our flat is being renovated, new kitchen, new floors, the lot, so everything has to come out for about three months."
+     },
+     {
+      "spk": "A",
+      "text": "I see. What size were you thinking of?"
+     },
+     {
+      "spk": "B",
+      "text": "I thought 4 square metres might be enough, but my wife says that's far too small once you add the sofa and the wardrobe."
+     },
+     {
+      "spk": "A",
+      "text": "She's probably right. Four is quite tight for furniture."
+     },
+     {
+      "spk": "B",
+      "text": "Let's say 6 square metres, then. That should be plenty."
+     },
+     {
+      "spk": "A",
+      "text": "Fine. And what will you mainly be storing?"
+     },
+     {
+      "spk": "B",
+      "text": "Furniture, mostly. The sofa, a wardrobe, a dining table and chairs. And then a lot of boxes of books. I've got hundreds of them, I'm afraid."
+     },
+     {
+      "spk": "A",
+      "text": "Got it. Now, when would you like the unit from?"
+     },
+     {
+      "spk": "B",
+      "text": "The builders start on the 15th of March, so I'd want to move things in a few days before that. Could I have it from the 12th?"
+     },
+     {
+      "spk": "A",
+      "text": "Let me check. Hmm, the 12th is a Sunday, and we don't sign up new customers on Sundays. How about the 14th?"
+     },
+     {
+      "spk": "B",
+      "text": "The 14th is fine. That still gives me a day before the builders arrive."
+     },
+     {
+      "spk": "A",
+      "text": "Lovely. Now, the price. A unit that size is normally 65 pounds a month, but we have a special offer at the moment for anyone staying three months or more, so for you it would be 58 pounds a month."
+     },
+     {
+      "spk": "B",
+      "text": "58. That's better than I expected."
+     },
+     {
+      "spk": "A",
+      "text": "That doesn't include insurance, though. That's an extra 4 pounds a month, and it's compulsory unless you have your own policy that covers storage."
+     },
+     {
+      "spk": "B",
+      "text": "I'll take yours, I think. And how do I get in? Do I collect a key?"
+     },
+     {
+      "spk": "A",
+      "text": "No, there are no keys. You'll be given a personal code, and you enter it on the keypad at the gate. The site is open from six in the morning until ten at night, every day of the week."
+     },
+     {
+      "spk": "B",
+      "text": "That's good, because I'll probably be coming after work."
+     },
+     {
+      "spk": "A",
+      "text": "When you come in to sign the contract, you'll need to bring some photo identification, a passport or a driving licence, and also proof of address, so a recent bank statement or a utility bill."
+     },
+     {
+      "spk": "B",
+      "text": "Proof of address. Okay, I'll find a bill."
+     },
+     {
+      "spk": "A",
+      "text": "You'll also need a lock for the door of your unit. You can buy one of ours for 8 pounds, or bring your own if it's a strong one."
+     },
+     {
+      "spk": "B",
+      "text": "I've got a really good padlock at home already, so I'll use that."
+     },
+     {
+      "spk": "A",
+      "text": "That's fine. Do you need any packing materials?"
+     },
+     {
+      "spk": "B",
+      "text": "What do you have?"
+     },
+     {
+      "spk": "A",
+      "text": "We sell a pack of ten strong cardboard boxes for 12 pounds."
+     },
+     {
+      "spk": "B",
+      "text": "Yes, I'll have a pack of those. I don't have nearly enough for all the books. Oh, and I'll need a trolley to move the heavy things in. Is there a charge for that?"
+     },
+     {
+      "spk": "A",
+      "text": "No, the trolleys are free to use. They're by the lift."
+     },
+     {
+      "spk": "B",
+      "text": "Brilliant. And how do I pay? Should I bring cash when I come in?"
+     },
+     {
+      "spk": "A",
+      "text": "Actually, we don't accept cash any more. You can set up a direct debit when you sign, but most of our customers find it easiest to pay by card on our website before they arrive."
+     },
+     {
+      "spk": "B",
+      "text": "I'll do it online, then."
+     },
+     {
+      "spk": "A",
+      "text": "Perfect. I'll email you the link now."
+     }
+    ],
+    "questions": [
+     {
+      "n": 1,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Customer name: Daniel ____",
+      "max_words": 1,
+      "answer": [
+       "Pelham"
+      ],
+      "explain_en": "The caller spells his surname: \"P-E-L-H-A-M\".",
+      "explain_bn": "কলার নিজের পদবি বানান করে বলেন: \"P-E-L-H-A-M\"। নামের বানান সঠিক না হলে উত্তর ভুল ধরা হয়।",
+      "tag": "spelling"
+     },
+     {
+      "n": 2,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Reason for storage: flat is being ____",
+      "max_words": 1,
+      "answer": [
+       "renovated"
+      ],
+      "explain_en": "He first mentions moving abroad but says \"that's fallen through\"; now \"our flat is being renovated\".",
+      "explain_bn": "প্রথমে বিদেশে যাওয়ার কথা বললেও তিনি জানান সেটা বাতিল হয়েছে; এখন \"our flat is being renovated\" — অর্থাৎ ফ্ল্যাট সংস্কার হচ্ছে। প্রথম তথ্যটা ফাঁদ।",
+      "tag": "detail"
+     },
+     {
+      "n": 3,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Unit size: ____ square metres",
+      "max_words": 1,
+      "answer": [
+       "6",
+       "six"
+      ],
+      "explain_en": "He considered 4 square metres, but his wife thinks it is too small, so he says \"Let's say 6 square metres\".",
+      "explain_bn": "তিনি প্রথমে ৪ বর্গমিটার ভেবেছিলেন, কিন্তু স্ত্রী বলেন সেটা ছোট; শেষে বলেন \"Let's say 6 square metres\"। শেষ সিদ্ধান্তটাই উত্তর।",
+      "tag": "number"
+     },
+     {
+      "n": 4,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Main items: furniture and boxes of ____",
+      "max_words": 1,
+      "answer": [
+       "books"
+      ],
+      "explain_en": "He says he will store furniture \"and then a lot of boxes of books\".",
+      "explain_bn": "তিনি বলেন আসবাবপত্রের সঙ্গে \"a lot of boxes of books\" রাখবেন — তাই উত্তর books।",
+      "tag": "detail"
+     },
+     {
+      "n": 5,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Start date: ____ March",
+      "max_words": 1,
+      "answer": [
+       "14",
+       "14th",
+       "fourteenth"
+      ],
+      "explain_en": "He asks for the 12th, but it is a Sunday; the assistant offers the 14th and he says \"The 14th is fine\".",
+      "explain_bn": "তিনি ১২ তারিখ চেয়েছিলেন, কিন্তু সেদিন রবিবার; তাই ঠিক হয় \"The 14th\"। ১৫ তারিখ হলো নির্মাণকাজ শুরুর দিন — ফাঁদ।",
+      "tag": "number"
+     },
+     {
+      "n": 6,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Monthly cost (offer price): £____",
+      "max_words": 1,
+      "answer": [
+       "58"
+      ],
+      "explain_en": "The normal price is 65 pounds, but with the offer \"it would be 58 pounds a month\".",
+      "explain_bn": "সাধারণ দাম ৬৫ পাউন্ড, কিন্তু অফারে \"58 pounds a month\"। বিমার ৪ পাউন্ড আলাদা, তাই সেটা যোগ করবেন না।",
+      "tag": "number"
+     },
+     {
+      "n": 7,
+      "type": "gap",
+      "group": "Questions 1-7. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Documents to bring: photo identification and proof of ____",
+      "max_words": 1,
+      "answer": [
+       "address"
+      ],
+      "explain_en": "The assistant says he needs \"photo identification ... and also proof of address\".",
+      "explain_bn": "সহকারী বলেন ছবিসহ পরিচয়পত্র এবং \"proof of address\" আনতে হবে — অর্থাৎ ঠিকানার প্রমাণ (যেমন বিদ্যুৎ বিল)।",
+      "tag": "detail"
+     },
+     {
+      "n": 8,
+      "type": "mcq",
+      "group": "Questions 8-10. Choose the correct letter, A, B or C.",
+      "prompt": "What will Mr Pelham do about a lock for the unit?",
+      "options": [
+       "A. buy one from the company",
+       "B. use one he already owns",
+       "C. borrow one from the company"
+      ],
+      "answer": "B",
+      "explain_en": "He says \"I've got a really good padlock at home already, so I'll use that\"; he does not buy one for 8 pounds.",
+      "explain_bn": "তিনি বলেন বাড়িতে ভালো তালা আছে, সেটাই ব্যবহার করবেন। ৮ পাউন্ডের তালা কেনার প্রস্তাব ছিল, কিন্তু তিনি কেনেননি।",
+      "tag": "detail"
+     },
+     {
+      "n": 9,
+      "type": "mcq",
+      "group": "Questions 8-10. Choose the correct letter, A, B or C.",
+      "prompt": "Which of these can customers use free of charge?",
+      "options": [
+       "A. cardboard boxes",
+       "B. insurance",
+       "C. trolleys"
+      ],
+      "answer": "C",
+      "explain_en": "The assistant says \"the trolleys are free to use\"; boxes cost 12 pounds and insurance costs 4 pounds a month.",
+      "explain_bn": "সহকারী বলেন \"the trolleys are free to use\" — ট্রলি বিনা খরচে। বাক্সের দাম ১২ পাউন্ড আর বিমা মাসে ৪ পাউন্ড।",
+      "tag": "detail"
+     },
+     {
+      "n": 10,
+      "type": "mcq",
+      "group": "Questions 8-10. Choose the correct letter, A, B or C.",
+      "prompt": "How will Mr Pelham pay?",
+      "options": [
+       "A. by card on the website",
+       "B. by direct debit",
+       "C. in cash at the office"
+      ],
+      "answer": "A",
+      "explain_en": "Cash is not accepted; he could use a direct debit, but he says \"I'll do it online, then\", meaning by card on the website.",
+      "explain_bn": "নগদ টাকা নেওয়া হয় না; direct debit-এর সুযোগ থাকলেও তিনি বলেন \"I'll do it online\" — অর্থাৎ ওয়েবসাইটে কার্ড দিয়ে পরিশোধ করবেন।",
+      "tag": "detail"
+     }
+    ]
+   },
+   {
+    "n": 2,
+    "accent": "au",
+    "intro": "You will hear a woman from a walking organisation talking on a local radio programme about a new coastal walking trail.",
+    "speakers": {
+     "A": {
+      "name": "Lena Marsh",
+      "gender": "F"
+     },
+     "B": {
+      "name": "Presenter",
+      "gender": "M"
+     }
+    },
+    "turns": [
+     {
+      "spk": "B",
+      "text": "Good morning and welcome back to Coastline Weekend. With me in the studio is Lena Marsh from the Southern Shores Walking Trust, who's here to tell us about the new coastal trail opening next month. Welcome, Lena."
+     },
+     {
+      "spk": "A",
+      "text": "Thanks for having me. Well, it's been a long time coming. The Bluewater Coast Trail, as we're calling it, joins up a lot of older paths that used to stop and start, so for the first time you can walk all the way from the harbour at Port Ellery to Wickett Cove without going onto a main road. People often assume it's a short day walk. When we first drew up the plans, it was going to be about 32 kilometres, but we managed to add the headland section, so the final length is 46 kilometres. Most people will do it over three days, although some very fit walkers on our test days managed it in two."
+     },
+     {
+      "spk": "A",
+      "text": "I'm often asked who paid for it all. A lot of people think it was the local council, and they did help by arranging access to private land, but the bulk of the money, around eighty percent, came from a conservation charity, the Harlow Foundation. The rest was raised by local businesses, mainly cafes and guesthouses who'll benefit from more visitors."
+     },
+     {
+      "spk": "A",
+      "text": "Now, you won't get lost. We did think about painted arrows on the rocks, but the rangers felt that would spoil the landscape. And metal signs rust very quickly by the sea. So instead there are short wooden posts, every five hundred metres or so, with a small wave symbol carved into the top. They're easy to spot once you know what you're looking for."
+     },
+     {
+      "spk": "A",
+      "text": "The one thing I really want to stress is the tides. A couple of sections cross beaches that are completely underwater at high tide, so please check the tide times before you set out each morning. There are inland routes you can take instead, but they add quite a lot of distance. And you don't need to book anything. The shelters along the way are first come, first served."
+     },
+     {
+      "spk": "A",
+      "text": "The official opening is on Saturday the 9th. There was talk of holding a fun run, but we decided that didn't really suit the idea of a slow, peaceful walk. So instead there'll be guided walks led by our rangers during the day, and then in the evening a concert of local folk music down at the harbour."
+     },
+     {
+      "spk": "A",
+      "text": "Let me take you quickly through the main sections, heading from west to east. The first stretch goes round Gullhaven Bay. It's very gentle, flat sand mostly, and at low tide there are wonderful rock pools that children love to explore, so allow extra time if you've got kids with you."
+     },
+     {
+      "spk": "A",
+      "text": "Next comes Marrow Point, the headland section I mentioned. There used to be a lighthouse out on the point, but it was knocked down in a storm many years ago. What's left of it has been made safe, and the ruins are a lovely spot to stop and look out to sea. We had planned to put picnic tables there too, but the wind is so strong that they'd simply blow away, so just bring something to sit on."
+     },
+     {
+      "spk": "A",
+      "text": "Then you reach Tern Cliffs. This is the toughest part of the whole trail. There are around three hundred steep steps cut into the cliff face, so take your time and don't try it in wet weather. Some people expect to see lots of seabirds nesting on the cliffs, and you might see a few, but for proper birdwatching you'll want the next section."
+     },
+     {
+      "spk": "A",
+      "text": "That's Saltbrook Estuary, where the river meets the sea. We've built a wooden bird hide there, looking out over the mudflats, and in spring and autumn it's full of wading birds."
+     },
+     {
+      "spk": "A",
+      "text": "And finally there's Wickett Cove, where the trail ends. There's a small cafe run by the local surf club, which is the perfect place to celebrate finishing. Parking at the cove is very limited, though, so we'd recommend leaving your car at Port Ellery and taking the shuttle bus back."
+     },
+     {
+      "spk": "B",
+      "text": "That all sounds wonderful. Lena, thank you for joining us."
+     }
+    ],
+    "questions": [
+     {
+      "n": 11,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "What is the total length of the Bluewater Coast Trail?",
+      "options": [
+       "A. 32 kilometres",
+       "B. 46 kilometres",
+       "C. 54 kilometres"
+      ],
+      "answer": "B",
+      "explain_en": "It was first planned at 32 km, but after adding the headland \"the final length is 46 kilometres\".",
+      "explain_bn": "প্রথম পরিকল্পনা ছিল ৩২ কিমি, কিন্তু headland অংশ যোগ হওয়ায় \"the final length is 46 kilometres\"। প্রথম সংখ্যাটা ফাঁদ।",
+      "tag": "number"
+     },
+     {
+      "n": 12,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "Who provided most of the money for the trail?",
+      "options": [
+       "A. a charity",
+       "B. the local council",
+       "C. local businesses"
+      ],
+      "answer": "A",
+      "explain_en": "The council helped with land access, but \"the bulk of the money, around eighty percent, came from a conservation charity\".",
+      "explain_bn": "কাউন্সিল জমিতে প্রবেশের ব্যবস্থা করেছিল, কিন্তু \"the bulk of the money\" অর্থাৎ বেশিরভাগ টাকা দিয়েছে একটি দাতব্য সংস্থা (charity)।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 13,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "How is the route marked?",
+      "options": [
+       "A. painted arrows on rocks",
+       "B. wooden posts with a carved symbol",
+       "C. metal signs with maps"
+      ],
+      "answer": "B",
+      "explain_en": "Painted arrows and metal signs were rejected; \"there are short wooden posts ... with a small wave symbol carved into the top\".",
+      "explain_bn": "রং করা তীর আর ধাতব সাইন বাতিল হয়েছে; পথ চেনানো হয় \"short wooden posts\" দিয়ে, যার মাথায় ঢেউয়ের চিহ্ন খোদাই করা।",
+      "tag": "detail"
+     },
+     {
+      "n": 14,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "What does Lena advise walkers to do?",
+      "options": [
+       "A. check the tide times",
+       "B. book a shelter in advance",
+       "C. use the inland routes"
+      ],
+      "answer": "A",
+      "explain_en": "She says \"please check the tide times before you set out\"; the inland routes are only an alternative and shelters need no booking.",
+      "explain_bn": "লেনা বলেন \"please check the tide times\" — জোয়ার-ভাটার সময় দেখে নিতে। শেল্টার বুক করার দরকার নেই, আর inland পথ শুধু বিকল্প।",
+      "tag": "detail"
+     },
+     {
+      "n": 15,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "What will take place in the evening of the opening day?",
+      "options": [
+       "A. a fun run",
+       "B. a guided walk",
+       "C. a music concert"
+      ],
+      "answer": "C",
+      "explain_en": "A fun run was rejected and guided walks are \"during the day\"; \"in the evening a concert of local folk music\".",
+      "explain_bn": "fun run বাতিল হয়েছে, guided walk হবে দিনে; সন্ধ্যায় হবে \"a concert of local folk music\" — লোকসংগীতের কনসার্ট।",
+      "tag": "detail"
+     },
+     {
+      "n": 16,
+      "type": "matching",
+      "group": "Questions 16-20. Which feature does each section of the trail have? Choose FIVE answers from the list, A-G, and write the correct letter next to Questions 16-20.",
+      "prompt": "Gullhaven Bay",
+      "options": [
+       "A. a cafe",
+       "B. steep steps",
+       "C. a bird hide",
+       "D. picnic tables",
+       "E. the remains of a lighthouse",
+       "F. rock pools",
+       "G. a large car park"
+      ],
+      "answer": "F",
+      "explain_en": "\"At low tide there are wonderful rock pools that children love to explore.\"",
+      "explain_bn": "Gullhaven Bay সম্পর্কে বলা হয়েছে ভাটার সময় সেখানে \"rock pools\" থাকে।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 17,
+      "type": "matching",
+      "group": "Questions 16-20. Which feature does each section of the trail have? Choose FIVE answers from the list, A-G, and write the correct letter next to Questions 16-20.",
+      "prompt": "Marrow Point",
+      "options": [
+       "A. a cafe",
+       "B. steep steps",
+       "C. a bird hide",
+       "D. picnic tables",
+       "E. the remains of a lighthouse",
+       "F. rock pools",
+       "G. a large car park"
+      ],
+      "answer": "E",
+      "explain_en": "The lighthouse was knocked down, but \"the ruins are a lovely spot\"; picnic tables were planned but not built.",
+      "explain_bn": "বাতিঘর ঝড়ে ভেঙে গেলেও তার ধ্বংসাবশেষ (\"the ruins\") আছে। picnic table-এর পরিকল্পনা ছিল, কিন্তু বসানো হয়নি — ফাঁদ।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 18,
+      "type": "matching",
+      "group": "Questions 16-20. Which feature does each section of the trail have? Choose FIVE answers from the list, A-G, and write the correct letter next to Questions 16-20.",
+      "prompt": "Tern Cliffs",
+      "options": [
+       "A. a cafe",
+       "B. steep steps",
+       "C. a bird hide",
+       "D. picnic tables",
+       "E. the remains of a lighthouse",
+       "F. rock pools",
+       "G. a large car park"
+      ],
+      "answer": "B",
+      "explain_en": "\"There are around three hundred steep steps cut into the cliff face.\"",
+      "explain_bn": "Tern Cliffs-এ আছে প্রায় ৩০০টি \"steep steps\" — খাড়া সিঁড়ি। পাখি দেখার জায়গা পরের অংশে।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 19,
+      "type": "matching",
+      "group": "Questions 16-20. Which feature does each section of the trail have? Choose FIVE answers from the list, A-G, and write the correct letter next to Questions 16-20.",
+      "prompt": "Saltbrook Estuary",
+      "options": [
+       "A. a cafe",
+       "B. steep steps",
+       "C. a bird hide",
+       "D. picnic tables",
+       "E. the remains of a lighthouse",
+       "F. rock pools",
+       "G. a large car park"
+      ],
+      "answer": "C",
+      "explain_en": "\"We've built a wooden bird hide there, looking out over the mudflats.\"",
+      "explain_bn": "Saltbrook Estuary-তে তৈরি হয়েছে কাঠের \"bird hide\" — লুকিয়ে পাখি দেখার ঘর।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 20,
+      "type": "matching",
+      "group": "Questions 16-20. Which feature does each section of the trail have? Choose FIVE answers from the list, A-G, and write the correct letter next to Questions 16-20.",
+      "prompt": "Wickett Cove",
+      "options": [
+       "A. a cafe",
+       "B. steep steps",
+       "C. a bird hide",
+       "D. picnic tables",
+       "E. the remains of a lighthouse",
+       "F. rock pools",
+       "G. a large car park"
+      ],
+      "answer": "A",
+      "explain_en": "\"There's a small cafe run by the local surf club\"; parking there is \"very limited\", so G is wrong.",
+      "explain_bn": "Wickett Cove-এ সার্ফ ক্লাবের একটি ছোট \"cafe\" আছে। সেখানে পার্কিং খুব কম, তাই 'large car park' ভুল।",
+      "tag": "matching_info"
+     }
+    ]
+   },
+   {
+    "n": 3,
+    "accent": "uk",
+    "intro": "You will hear two engineering students, Priya and Tom, discussing their project on bamboo as a building material with their tutor.",
+    "speakers": {
+     "A": {
+      "name": "Tutor",
+      "gender": "M"
+     },
+     "B": {
+      "name": "Priya",
+      "gender": "F"
+     },
+     "C": {
+      "name": "Tom",
+      "gender": "M"
+     }
+    },
+    "turns": [
+     {
+      "spk": "A",
+      "text": "Come in, both of you, and sit down. So, this is our progress meeting for the materials project. Remind me where you've got to with the bamboo idea."
+     },
+     {
+      "spk": "B",
+      "text": "Well, when we first proposed it, we were going to look at bamboo scaffolding, because it's still used on high-rise building sites in some countries. But we found there's already a lot written on that, and most of it is about safety regulations rather than the material itself."
+     },
+     {
+      "spk": "C",
+      "text": "And I pushed for flooring for a while, but that turned out to be mainly about surface finishes. So in the end we've decided to focus on bamboo as the main structural material for low-rise housing, so one- and two-storey homes."
+     },
+     {
+      "spk": "A",
+      "text": "That sounds like a sensible scope. What's struck you most in the reading so far?"
+     },
+     {
+      "spk": "C",
+      "text": "For me, well, I knew it was strong in tension. Some sources compare it to steel if you measure strength against weight, so that wasn't really a shock. And everyone knows it grows incredibly quickly. Some species put on almost a metre a day. What actually surprised me most was that despite growing so fast, a stem needs between three and five years to mature before it's any good for building. Cut it too early and it's weak."
+     },
+     {
+      "spk": "A",
+      "text": "Yes, that catches a lot of people out. Priya, what about you?"
+     },
+     {
+      "spk": "B",
+      "text": "I was more interested in the problems. Everyone assumes the biggest one is fire, and it is a concern, but there are treatments that help a lot. Insects are another issue. But the engineers we read all seem to agree that the main difficulty is that every pole is different. The diameter and the wall thickness vary along the length and from one pole to the next, so it's really hard to design standard joints."
+     },
+     {
+      "spk": "A",
+      "text": "Exactly. Steel and concrete are predictable; bamboo isn't. Now, you did some testing in the lab, didn't you?"
+     },
+     {
+      "spk": "C",
+      "text": "We did compression tests on twelve samples. Most behaved as we'd expected, but three of them split along the grain at quite low loads."
+     },
+     {
+      "spk": "A",
+      "text": "Any idea why?"
+     },
+     {
+      "spk": "C",
+      "text": "We wondered at first whether they came from younger stems, but the supplier's records show they were all the same age, and they'd all been cut at the right time of year. We think the problem was that those three had been dried too quickly. The technician told us the oven setting had been wrong that week."
+     },
+     {
+      "spk": "A",
+      "text": "That's worth discussing in your report as a limitation, then. So what's your next step?"
+     },
+     {
+      "spk": "B",
+      "text": "We were thinking of visiting a construction firm, but the nearest one that builds with bamboo is hours away."
+     },
+     {
+      "spk": "A",
+      "text": "I'd actually suggest something more useful. A former student of mine is now an architect, and she's designed several bamboo houses. Talking to her would give you the design perspective that's missing at the moment. I'll send you her email address."
+     },
+     {
+      "spk": "B",
+      "text": "That would be great, thank you."
+     },
+     {
+      "spk": "A",
+      "text": "Right, let's go through your draft report section by section. First, the history of bamboo construction. It's interesting, but it's six pages long."
+     },
+     {
+      "spk": "C",
+      "text": "I did wonder whether we should just take it out completely."
+     },
+     {
+      "spk": "A",
+      "text": "No, I wouldn't remove it. It gives the reader useful context. But do cut it down to a page or so."
+     },
+     {
+      "spk": "B",
+      "text": "Okay. Then there's the section with our test results."
+     },
+     {
+      "spk": "A",
+      "text": "Those are the heart of the project. But twelve samples really isn't enough to draw firm conclusions. Could you test some more?"
+     },
+     {
+      "spk": "C",
+      "text": "The lab has free time next month, so we could do another twenty."
+     },
+     {
+      "spk": "A",
+      "text": "Good. Do that, and add the new results to the section."
+     },
+     {
+      "spk": "B",
+      "text": "Then the cost comparison with timber and concrete. We've got several pages of tables there."
+     },
+     {
+      "spk": "A",
+      "text": "The figures are important, but all those tables break up your argument. Put them at the back, in an appendix, and just summarise the main figures in the text."
+     },
+     {
+      "spk": "B",
+      "text": "And the case study of the community hall?"
+     },
+     {
+      "spk": "C",
+      "text": "We weren't sure about that one."
+     },
+     {
+      "spk": "A",
+      "text": "Honestly, that's the best part of the whole report. It's clear and well organised. Leave it exactly as it is."
+     },
+     {
+      "spk": "C",
+      "text": "Finally, there's the section on protecting bamboo from insects. It's a bit thin."
+     },
+     {
+      "spk": "A",
+      "text": "It's short because many of the same chemicals are used against fire as well. Why not put it together with your section on fire treatment, so you have one section on treatments?"
+     },
+     {
+      "spk": "B",
+      "text": "That makes a lot of sense. We'll do that."
+     }
+    ],
+    "questions": [
+     {
+      "n": 21,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "What is the main focus of the students' project?",
+      "options": [
+       "A. bamboo scaffolding on building sites",
+       "B. bamboo flooring and finishes",
+       "C. bamboo as a structure for low-rise homes"
+      ],
+      "answer": "C",
+      "explain_en": "Scaffolding and flooring were considered and dropped; \"we've decided to focus on bamboo as the main structural material for low-rise housing\".",
+      "explain_bn": "scaffolding আর flooring দুটোই বাদ দেওয়া হয়েছে; শেষে ঠিক হয়েছে \"low-rise housing\" — নিচু বাড়িতে প্রধান কাঠামো হিসেবে বাঁশ।",
+      "tag": "gist"
+     },
+     {
+      "n": 22,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "What surprised Tom most about bamboo?",
+      "options": [
+       "A. the time it needs to mature",
+       "B. its strength compared with steel",
+       "C. the speed at which it grows"
+      ],
+      "answer": "A",
+      "explain_en": "Its strength and fast growth were not a shock; \"what actually surprised me most was that ... a stem needs between three and five years to mature\".",
+      "explain_bn": "শক্তি আর দ্রুত বৃদ্ধি তার কাছে নতুন ছিল না; সবচেয়ে অবাক হয়েছে যে ব্যবহারের আগে কাণ্ডকে ৩-৫ বছর পরিপক্ব হতে হয়। \"surprised me most\" শব্দগুলো খেয়াল করুন।",
+      "tag": "detail"
+     },
+     {
+      "n": 23,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "According to Priya, what is the main technical difficulty with bamboo?",
+      "options": [
+       "A. its risk of fire",
+       "B. differences in the size of poles",
+       "C. damage caused by insects"
+      ],
+      "answer": "B",
+      "explain_en": "Fire and insects are mentioned, but \"the main difficulty is that every pole is different. The diameter and the wall thickness vary\".",
+      "explain_bn": "আগুন ও পোকার কথা এসেছে, কিন্তু প্রধান সমস্যা হলো \"every pole is different\" — প্রতিটি বাঁশের মাপ আলাদা, তাই একই রকম জোড়া (joint) বানানো কঠিন।",
+      "tag": "detail"
+     },
+     {
+      "n": 24,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "Why do the students think three samples failed early?",
+      "options": [
+       "A. They had been dried too quickly.",
+       "B. They came from younger stems.",
+       "C. They were cut at the wrong time of year."
+      ],
+      "answer": "A",
+      "explain_en": "They were the same age and cut at the right time; \"those three had been dried too quickly\".",
+      "explain_bn": "নমুনাগুলো একই বয়সের এবং সঠিক সময়ে কাটা ছিল; ছাত্ররা মনে করে সমস্যা ছিল \"dried too quickly\" — খুব দ্রুত শুকানো।",
+      "tag": "inference"
+     },
+     {
+      "n": 25,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "What does the tutor suggest the students do next?",
+      "options": [
+       "A. visit a construction firm",
+       "B. speak to an architect",
+       "C. repeat the laboratory tests"
+      ],
+      "answer": "B",
+      "explain_en": "They planned to visit a firm, but the tutor says \"talking to her\", a former student who \"is now an architect\", would be more useful.",
+      "explain_bn": "ছাত্ররা কোম্পানি দেখতে যেতে চেয়েছিল, কিন্তু শিক্ষক বলেন একজন \"architect\"-এর সঙ্গে কথা বলা বেশি কাজে দেবে।",
+      "tag": "detail"
+     },
+     {
+      "n": 26,
+      "type": "matching",
+      "group": "Questions 26-30. What does the tutor recommend for each section of the report? Choose FIVE answers from the list, A-F, and write the correct letter next to Questions 26-30.",
+      "prompt": "history of bamboo construction",
+      "options": [
+       "A. keep it unchanged",
+       "B. make it shorter",
+       "C. move part of it to an appendix",
+       "D. add more data",
+       "E. combine it with another section",
+       "F. remove it"
+      ],
+      "answer": "B",
+      "explain_en": "Tom suggests removing it, but the tutor says \"I wouldn't remove it ... But do cut it down to a page or so\".",
+      "explain_bn": "টম পুরোটা বাদ দিতে চেয়েছিল, কিন্তু শিক্ষক বলেন বাদ নয়, \"cut it down to a page\" — ছোট করতে হবে।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 27,
+      "type": "matching",
+      "group": "Questions 26-30. What does the tutor recommend for each section of the report? Choose FIVE answers from the list, A-F, and write the correct letter next to Questions 26-30.",
+      "prompt": "test results",
+      "options": [
+       "A. keep it unchanged",
+       "B. make it shorter",
+       "C. move part of it to an appendix",
+       "D. add more data",
+       "E. combine it with another section",
+       "F. remove it"
+      ],
+      "answer": "D",
+      "explain_en": "\"Twelve samples really isn't enough ... add the new results to the section.\"",
+      "explain_bn": "১২টি নমুনা যথেষ্ট নয়, তাই আরও ২০টি পরীক্ষা করে \"add the new results\" — নতুন তথ্য যোগ করতে হবে।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 28,
+      "type": "matching",
+      "group": "Questions 26-30. What does the tutor recommend for each section of the report? Choose FIVE answers from the list, A-F, and write the correct letter next to Questions 26-30.",
+      "prompt": "cost comparison",
+      "options": [
+       "A. keep it unchanged",
+       "B. make it shorter",
+       "C. move part of it to an appendix",
+       "D. add more data",
+       "E. combine it with another section",
+       "F. remove it"
+      ],
+      "answer": "C",
+      "explain_en": "\"Put them at the back, in an appendix, and just summarise the main figures in the text.\"",
+      "explain_bn": "খরচের টেবিলগুলো \"in an appendix\" — রিপোর্টের শেষে পরিশিষ্টে সরাতে হবে।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 29,
+      "type": "matching",
+      "group": "Questions 26-30. What does the tutor recommend for each section of the report? Choose FIVE answers from the list, A-F, and write the correct letter next to Questions 26-30.",
+      "prompt": "case study of the community hall",
+      "options": [
+       "A. keep it unchanged",
+       "B. make it shorter",
+       "C. move part of it to an appendix",
+       "D. add more data",
+       "E. combine it with another section",
+       "F. remove it"
+      ],
+      "answer": "A",
+      "explain_en": "\"That's the best part of the whole report ... Leave it exactly as it is.\"",
+      "explain_bn": "শিক্ষক বলেন এটাই সেরা অংশ: \"Leave it exactly as it is\" — কোনো পরিবর্তন নয়।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 30,
+      "type": "matching",
+      "group": "Questions 26-30. What does the tutor recommend for each section of the report? Choose FIVE answers from the list, A-F, and write the correct letter next to Questions 26-30.",
+      "prompt": "protection from insects",
+      "options": [
+       "A. keep it unchanged",
+       "B. make it shorter",
+       "C. move part of it to an appendix",
+       "D. add more data",
+       "E. combine it with another section",
+       "F. remove it"
+      ],
+      "answer": "E",
+      "explain_en": "\"Why not put it together with your section on fire treatment, so you have one section on treatments?\"",
+      "explain_bn": "পোকা থেকে সুরক্ষার অংশটি আগুন-প্রতিরোধের অংশের সঙ্গে \"put it together\" — একসঙ্গে মিলিয়ে এক অংশ করতে হবে।",
+      "tag": "matching_info"
+     }
+    ]
+   },
+   {
+    "n": 4,
+    "accent": "us",
+    "intro": "You will hear part of a biology lecture about how migrating birds sleep.",
+    "speakers": {
+     "A": {
+      "name": "Lecturer",
+      "gender": "F"
+     }
+    },
+    "turns": [
+     {
+      "spk": "A",
+      "text": "Good afternoon, everyone. Today we're turning to a question that puzzled biologists for a very long time: how do birds that migrate over huge distances manage to sleep? Some species cross oceans or deserts where there's simply nowhere safe to land, and a few may stay in the air for days or even weeks at a time. For years the assumption was that they must somehow do without sleep altogether, which always seemed unlikely, since losing sleep has serious effects on almost every animal we've studied."
+     },
+     {
+      "spk": "A",
+      "text": "Part of the answer lies in something called unihemispheric sleep. This means that one half, or hemisphere, of the brain sleeps while the other half remains awake. Interestingly, you can often tell which half is asleep just by looking at the bird, because the eye connected to the waking hemisphere stays open, while the other eye closes."
+     },
+     {
+      "spk": "A",
+      "text": "This was first studied not in migrating birds at all, but in ducks resting on the ground. Researchers noticed that when ducks slept in a row, the birds at the two ends of the row were far more likely to sleep with one eye open, and that eye was almost always the one facing away from the group, in other words towards the direction a predator might come from. The ducks in the middle, protected by their neighbours, tended to sleep with both eyes shut."
+     },
+     {
+      "spk": "A",
+      "text": "Now, watching ducks on a pond is one thing, but measuring sleep in a bird flying over the ocean is quite another. The breakthrough came when engineers produced recording devices light enough to be carried in flight. These are attached to the bird's head, and they record the electrical activity of the brain, while a separate sensor tracks the bird's movements. In one well-known study, researchers fitted these devices to large seabirds that spend several days at sea looking for food, and then recovered them when the birds returned to their nests."
+     },
+     {
+      "spk": "A",
+      "text": "The results were striking in two ways. First, the birds did sleep in flight, sometimes with both hemispheres at once, which nobody had predicted. But they slept remarkably little: on average around 40 minutes per day in the air, compared with more than 12 hours a day once they were back on land. Second, the sleep happened mostly while the birds were gliding upwards in circles on rising currents of warm air, rather than while they were flapping, and almost all of it occurred after dark. The individual episodes of sleep were also very short, lasting only a few seconds each, although there might be hundreds of them in a single night."
+     },
+     {
+      "spk": "A",
+      "text": "What about smaller birds, such as songbirds, which usually migrate at night and rest during the day? Here much of the evidence comes from laboratory work. During the migration season, caged songbirds become extremely active at night, hopping and fluttering around. This restlessness appears even when the birds cannot see the sky, which tells us that it's driven by an internal clock rather than by outside signals. Naturally, these birds get much less sleep than usual during this period. Yet in experiments where they had been trained to do simple tasks, such as pecking a key to receive food, their performance stayed the same. By contrast, when the same birds were kept awake in a similar way outside the migration season, they made far more mistakes. So it seems that during migration these birds somehow become resistant to the normal effects of sleep loss."
+     },
+     {
+      "spk": "A",
+      "text": "That isn't the whole story, though. Migrants also make up for lost sleep during stopovers, the days they spend on the ground feeding between flights. Observations show that they take many short naps during the day, often in a typical position with the head turned backwards and the beak tucked into the feathers on the back. This position seems to help them save heat, which matters because they're also trying to build up fat reserves as fast as possible."
+     },
+     {
+      "spk": "A",
+      "text": "Why does any of this matter beyond biology? Well, if we could understand how these birds resist the effects of sleep loss, it might one day help people whose work involves long periods without proper rest, for example pilots on long-distance flights, or doctors working night shifts. We're a long way from that, but it's one reason this research attracts funding."
+     },
+     {
+      "spk": "A",
+      "text": "Finally, a point about conservation. Migrating birds rely on darkness both to find their way and to rest, and artificial light from cities can confuse them, draw them off course and disturb their sleep at stopover sites. Some cities have started switching off decorative lighting on tall buildings during the busiest weeks of migration, and early results suggest this reduces the number of birds that crash into buildings. Next week we'll look at how birds navigate."
+     }
+    ],
+    "questions": [
+     {
+      "n": 31,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Unihemispheric sleep: one half of the brain sleeps; the eye linked to the waking half stays ____",
+      "max_words": 1,
+      "answer": [
+       "open"
+      ],
+      "explain_en": "\"The eye connected to the waking hemisphere stays open, while the other eye closes.\"",
+      "explain_bn": "মস্তিষ্কের যে অর্ধেক জেগে থাকে, তার সঙ্গে যুক্ত চোখটি \"stays open\" — খোলা থাকে।",
+      "tag": "detail"
+     },
+     {
+      "n": 32,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "First studied in ____ resting on the ground; birds at the ends of a row kept the outer eye open",
+      "max_words": 1,
+      "answer": [
+       "ducks"
+      ],
+      "explain_en": "\"This was first studied not in migrating birds at all, but in ducks resting on the ground.\"",
+      "explain_bn": "এটি প্রথম গবেষণা হয়েছিল পরিযায়ী পাখিতে নয়, মাটিতে বিশ্রামরত \"ducks\" (হাঁস)-এর ওপর।",
+      "tag": "detail"
+     },
+     {
+      "n": 33,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Flight studies: light recording devices attached to the bird's ____",
+      "max_words": 1,
+      "answer": [
+       "head"
+      ],
+      "explain_en": "\"These are attached to the bird's head, and they record the electrical activity of the brain.\"",
+      "explain_bn": "রেকর্ডিং যন্ত্রগুলো পাখির \"head\" — মাথায় লাগানো হয়, যাতে মস্তিষ্কের বৈদ্যুতিক কার্যকলাপ মাপা যায়।",
+      "tag": "detail"
+     },
+     {
+      "n": 34,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Seabirds slept mostly while ____ upwards on rising warm air, and mainly after dark",
+      "max_words": 1,
+      "answer": [
+       "gliding"
+      ],
+      "explain_en": "\"The sleep happened mostly while the birds were gliding upwards in circles ... rather than while they were flapping.\"",
+      "explain_bn": "পাখিরা ঘুমাত মূলত যখন উষ্ণ বাতাসে \"gliding\" — ডানা না ঝাপটে ভেসে উপরে উঠছিল। flapping হলো ফাঁদ।",
+      "tag": "detail"
+     },
+     {
+      "n": 35,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Each episode of sleep lasted only a few ____",
+      "max_words": 1,
+      "answer": [
+       "seconds"
+      ],
+      "explain_en": "\"The individual episodes of sleep were also very short, lasting only a few seconds each.\"",
+      "explain_bn": "প্রতিবারের ঘুম ছিল খুব ছোট — মাত্র কয়েক \"seconds\" (সেকেন্ড)। মোট ৪০ মিনিট হলো সারা দিনের হিসাব।",
+      "tag": "detail"
+     },
+     {
+      "n": 36,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Songbirds: night-time ____ in cages is controlled by an internal clock",
+      "max_words": 1,
+      "answer": [
+       "restlessness"
+      ],
+      "explain_en": "\"This restlessness appears even when the birds cannot see the sky ... driven by an internal clock.\"",
+      "explain_bn": "খাঁচার পাখিদের রাতের অস্থিরতা (\"restlessness\") ভেতরের ঘড়ি দিয়ে নিয়ন্ত্রিত, বাইরের সংকেতে নয়।",
+      "tag": "vocabulary"
+     },
+     {
+      "n": 37,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Sleep-deprived birds outside the migration season made more ____ in tasks",
+      "max_words": 1,
+      "answer": [
+       "mistakes"
+      ],
+      "explain_en": "\"When the same birds were kept awake ... outside the migration season, they made far more mistakes.\"",
+      "explain_bn": "পরিযানের মৌসুমের বাইরে একই ভাবে ঘুম কমালে পাখিরা অনেক বেশি \"mistakes\" (ভুল) করেছিল।",
+      "tag": "detail"
+     },
+     {
+      "n": 38,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Stopovers: short daytime naps with the beak tucked into the ____ on the back",
+      "max_words": 1,
+      "answer": [
+       "feathers"
+      ],
+      "explain_en": "\"With the head turned backwards and the beak tucked into the feathers on the back.\"",
+      "explain_bn": "বিরতির সময় পাখিরা ঠোঁট পিঠের \"feathers\" (পালক)-এর ভেতর গুঁজে ছোট ঘুম দেয়, এতে তাপ বাঁচে।",
+      "tag": "detail"
+     },
+     {
+      "n": 39,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Possible human benefit: people such as ____ on long-distance flights",
+      "max_words": 1,
+      "answer": [
+       "pilots"
+      ],
+      "explain_en": "\"It might one day help people ... for example pilots on long-distance flights, or doctors working night shifts.\"",
+      "explain_bn": "এই গবেষণা ভবিষ্যতে দীর্ঘ ফ্লাইটের \"pilots\" ও রাতের শিফটের ডাক্তারদের কাজে লাগতে পারে।",
+      "tag": "detail"
+     },
+     {
+      "n": 40,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Conservation: artificial ____ from cities disturbs navigation and rest",
+      "max_words": 1,
+      "answer": [
+       "light"
+      ],
+      "explain_en": "\"Artificial light from cities can confuse them, draw them off course and disturb their sleep.\"",
+      "explain_bn": "শহরের কৃত্রিম \"light\" (আলো) পাখিদের পথ হারায় ও ঘুমে ব্যাঘাত ঘটায়; তাই কিছু শহর আলো নিভিয়ে রাখে।",
+      "tag": "detail"
+     }
+    ]
+   }
+  ]
+ },
+ "reading": {
+  "duration_sec": 3600,
+  "passages": [
+   {
+    "n": 1,
+    "title": "The Long Road to the Modern Bicycle",
+    "text": "Few machines have changed everyday life as quietly as the bicycle. Today it is so familiar that it is easy to assume it was invented in a single moment of inspiration. In fact, the machine that most people now ride took almost eighty years to emerge, through a long series of experiments, false starts and passing fashions in Europe and North America during the nineteenth century.\n\nThe earliest ancestor of the bicycle is usually said to be the \"running machine\", demonstrated in 1817 by a forestry inspector in a small German state. It consisted of two wooden wheels placed one behind the other and joined by a wooden frame. The rider sat astride the frame and pushed against the ground with his feet, rather like a child on a modern balance bike. There were no pedals at all. On a good road the machine could reach around 13 kilometres per hour, and its inventor promoted it as a cheaper alternative to the horse, partly because a series of poor harvests had made feeding horses very expensive. For a short time running machines became a fashion among wealthy young men in London and Paris, where they were nicknamed \"hobby horses\". The enthusiasm faded within two years, however. Riders tended to use the smooth pavements to avoid rutted roads, injuring pedestrians, and several cities banned the machines altogether.\n\nFor the next forty years, inventors searched for a way of driving the wheels without touching the ground. A number of three- and four-wheeled vehicles were built, powered by hand levers or foot treadles, but most were heavy and slow. One account claims that a village blacksmith in Scotland built a two-wheeled machine driven by levers around 1839, but the evidence for this rests largely on stories written down decades later, and historians remain divided over whether it ever existed.\n\nThe real breakthrough came in Paris in the 1860s, when pedals and cranks were attached directly to the hub of the front wheel. The resulting machine, known as the velocipede, had an iron frame and wooden wheels with iron tyres. In English it quickly earned the nickname \"boneshaker\", because on the cobbled streets of the time it transmitted every bump straight to the rider. Even so, it caused a sensation. By 1868 a single Paris workshop was producing several hundred machines a year, riding schools opened in a number of cities, and the first organised races were held. Yet the velocipede weighed around 30 kilograms, and the craze had largely passed by the early 1870s.\n\nBecause the pedals were fixed to the front wheel, one turn of the pedals produced exactly one turn of the wheel. The only way to travel further with each turn was to make the front wheel bigger, and that is precisely what manufacturers did. The result was the high-wheeler of the 1870s and 1880s, with a front wheel that could measure up to one and a half metres across and a tiny wheel behind. Two innovations made these machines lighter and faster than the velocipede: solid rubber tyres, and thin wheels built with spokes of tightly stretched wire rather than wood. High-wheelers were popular with athletic young men, who formed clubs and undertook remarkable long-distance tours. But they were also dangerous. The rider sat high above the front wheel, so that any sudden stop, caused by a stone or a pothole, could throw him forward over the handlebars, an accident known as \"taking a header\". Older people were largely excluded, and for women, whose long skirts made climbing onto the machine almost impossible, the high-wheeler was hardly an option at all.\n\nManufacturers therefore experimented with designs they advertised as \"safety\" machines. The solution that eventually won was to drive the rear wheel by means of a chain. Through a large front gear and a small rear one, a chain allowed a wheel of ordinary size to turn quickly, so there was no longer any need for an enormous front wheel. The safety bicycle of the mid-1880s had two wheels of similar size, and the rider sat between them, low enough to put both feet on the ground. At first, many high-wheel enthusiasts ridiculed the new machines as slow and unmanly, but within a few years safety bicycles were winning races against them. A further improvement followed in 1888, when a veterinary surgeon developed an air-filled tyre for his young son's tricycle. Pneumatic tyres made riding far more comfortable as well as faster, and within five years they had been fitted to almost every new bicycle.\n\nBy the 1890s the diamond-shaped frame made of steel tubes had become standard, and the bicycle had taken more or less its modern form. A boom followed. As factories adopted mass-production methods borrowed from the sewing machine and arms industries, prices fell sharply, and by the end of the decade a new bicycle cost a skilled worker a few weeks' wages rather than several months'. The social effects were considerable. Cycling gave many women a new degree of independence and encouraged lighter, more practical clothing, while cyclists' associations campaigned for better roads years before motor cars became common. Many of the techniques developed for bicycles, from ball bearings to light steel tubing, were later used by the builders of the first cars and aeroplanes.",
+    "questions": [
+     {
+      "n": 1,
+      "type": "tfng",
+      "group": "Questions 1-7. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "One reason the running machine was promoted was the high cost of feeding horses.",
+      "answer": "TRUE",
+      "explain_en": "Its inventor promoted it \"partly because a series of poor harvests had made feeding horses very expensive\".",
+      "explain_bn": "অনুচ্ছেদে বলা আছে খারাপ ফসলের কারণে ঘোড়াকে খাওয়ানো খুব ব্যয়বহুল হয়েছিল, তাই এই যন্ত্র প্রচার করা হয় — তথ্যটি মিলে যায়, উত্তর TRUE।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 2,
+      "type": "tfng",
+      "group": "Questions 1-7. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "Running machines remained fashionable in London and Paris for more than ten years.",
+      "answer": "FALSE",
+      "explain_en": "The passage says \"The enthusiasm faded within two years\".",
+      "explain_bn": "লেখায় আছে \"faded within two years\" — দুই বছরের মধ্যেই আগ্রহ কমে যায়। দশ বছরের বেশি বলায় এটি বিপরীত, তাই FALSE।",
+      "tag": "detail"
+     },
+     {
+      "n": 3,
+      "type": "tfng",
+      "group": "Questions 1-7. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "The inventor of the running machine earned a large amount of money from it.",
+      "answer": "NOT GIVEN",
+      "explain_en": "The passage describes how he promoted the machine but says nothing about how much money he made.",
+      "explain_bn": "উদ্ভাবক যন্ত্রটির প্রচার করেছিলেন বলা আছে, কিন্তু তিনি কত টাকা আয় করেছিলেন সে বিষয়ে কিছুই বলা নেই — তাই NOT GIVEN।",
+      "tag": "detail"
+     },
+     {
+      "n": 4,
+      "type": "tfng",
+      "group": "Questions 1-7. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "Historians agree that a lever-driven bicycle was built in Scotland around 1839.",
+      "answer": "FALSE",
+      "explain_en": "The passage says \"historians remain divided over whether it ever existed\".",
+      "explain_bn": "লেখায় বলা আছে ইতিহাসবিদরা এ বিষয়ে \"divided\" — একমত নন। প্রশ্নে 'agree' বলা হয়েছে, তাই FALSE।",
+      "tag": "detail"
+     },
+     {
+      "n": 5,
+      "type": "tfng",
+      "group": "Questions 1-7. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "The velocipede was uncomfortable to ride on the streets of its time.",
+      "answer": "TRUE",
+      "explain_en": "It was called the \"boneshaker\" because \"it transmitted every bump straight to the rider\".",
+      "explain_bn": "\"boneshaker\" নামটাই বলে দেয় — রাস্তার প্রতিটি ঝাঁকুনি সরাসরি চালকের গায়ে লাগত, অর্থাৎ চালানো আরামদায়ক ছিল না। উত্তর TRUE।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 6,
+      "type": "tfng",
+      "group": "Questions 1-7. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "Women formed their own high-wheeler clubs in the 1880s.",
+      "answer": "NOT GIVEN",
+      "explain_en": "The passage mentions clubs formed by \"athletic young men\" and says the high-wheeler was hardly an option for women; women's clubs are not mentioned.",
+      "explain_bn": "ক্লাব গঠনের কথা আছে শুধু তরুণ পুরুষদের ক্ষেত্রে; মেয়েদের নিজস্ব ক্লাবের কোনো উল্লেখ নেই — তাই NOT GIVEN। সাবধান: 'hardly an option' মানে নিশ্চিত 'না' নয়।",
+      "tag": "detail"
+     },
+     {
+      "n": 7,
+      "type": "tfng",
+      "group": "Questions 1-7. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "Supporters of the high-wheeler initially made fun of the safety bicycle.",
+      "answer": "TRUE",
+      "explain_en": "\"At first, many high-wheel enthusiasts ridiculed the new machines as slow and unmanly.\"",
+      "explain_bn": "\"ridiculed\" মানে উপহাস করা = 'made fun of'। শুরুতে high-wheeler ভক্তরা safety bicycle নিয়ে ঠাট্টা করত — TRUE।",
+      "tag": "vocabulary"
+     },
+     {
+      "n": 8,
+      "type": "gap",
+      "group": "Questions 8-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "High-wheeler: lighter wheels built with spokes made of ____",
+      "max_words": 1,
+      "answer": [
+       "wire"
+      ],
+      "explain_en": "High-wheelers had \"thin wheels built with spokes of tightly stretched wire rather than wood\".",
+      "explain_bn": "high-wheeler-এর চাকার স্পোক কাঠের বদলে টানটান \"wire\" (তার) দিয়ে তৈরি ছিল।",
+      "tag": "detail"
+     },
+     {
+      "n": 9,
+      "type": "gap",
+      "group": "Questions 8-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "Danger: being thrown over the handlebars, known as \"taking a ____\"",
+      "max_words": 1,
+      "answer": [
+       "header"
+      ],
+      "explain_en": "The accident was \"known as 'taking a header'\".",
+      "explain_bn": "হ্যান্ডেলের ওপর দিয়ে সামনে ছিটকে পড়ার দুর্ঘটনাকে বলা হতো \"taking a header\"।",
+      "tag": "vocabulary"
+     },
+     {
+      "n": 10,
+      "type": "gap",
+      "group": "Questions 8-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "Women were mostly unable to ride it because of their long ____",
+      "max_words": 1,
+      "answer": [
+       "skirts"
+      ],
+      "explain_en": "For women, \"whose long skirts made climbing onto the machine almost impossible\".",
+      "explain_bn": "মেয়েদের লম্বা \"skirts\" (স্কার্ট)-এর কারণে এই উঁচু সাইকেলে ওঠা প্রায় অসম্ভব ছিল।",
+      "tag": "detail"
+     },
+     {
+      "n": 11,
+      "type": "gap",
+      "group": "Questions 8-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "Safety bicycle: the rear wheel was driven by a ____",
+      "max_words": 1,
+      "answer": [
+       "chain"
+      ],
+      "explain_en": "\"The solution that eventually won was to drive the rear wheel by means of a chain.\"",
+      "explain_bn": "safety bicycle-এ পেছনের চাকা চালানো হতো \"chain\" (চেইন) দিয়ে — আজকের সাইকেলের মতো।",
+      "tag": "detail"
+     },
+     {
+      "n": 12,
+      "type": "gap",
+      "group": "Questions 8-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "Air-filled tyre first developed for a child's ____",
+      "max_words": 1,
+      "answer": [
+       "tricycle"
+      ],
+      "explain_en": "A veterinary surgeon \"developed an air-filled tyre for his young son's tricycle\".",
+      "explain_bn": "একজন পশুচিকিৎসক তার ছোট ছেলের \"tricycle\"-এর জন্য বাতাস-ভরা টায়ার বানান।",
+      "tag": "detail"
+     },
+     {
+      "n": 13,
+      "type": "gap",
+      "group": "Questions 8-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "1890s: mass-production methods taken from the sewing machine and ____ industries",
+      "max_words": 1,
+      "answer": [
+       "arms"
+      ],
+      "explain_en": "Factories \"adopted mass-production methods borrowed from the sewing machine and arms industries\".",
+      "explain_bn": "কারখানাগুলো সেলাই মেশিন ও \"arms\" (অস্ত্র) শিল্প থেকে ব্যাপক উৎপাদনের পদ্ধতি নিয়েছিল, ফলে দাম কমে।",
+      "tag": "detail"
+     }
+    ]
+   },
+   {
+    "n": 2,
+    "title": "Mangrove Forests: Living Defences of the Coast",
+    "text": "A  Along tropical and subtropical coastlines, where rivers meet the sea, grow some of the most unusual forests on the planet. Mangroves are trees and shrubs that live in the zone between low and high tide, rooted in soft mud that is flooded with salt water twice a day. They are found on the coasts of around 120 countries, mostly between latitudes 30 degrees north and south of the equator, and together they cover roughly 140,000 square kilometres, an area smaller than many people imagine and one that has shrunk considerably over the past half-century. The largest continuous stretches lie in South and Southeast Asia, but extensive forests also line parts of West Africa, Central America and northern Australia.\n\nB  Few plants could tolerate the conditions in which mangroves thrive. Salt water would kill most trees, but mangroves deal with it in several ways: some species filter salt out at the roots, while others take it in and then push it out through special glands on their leaves, where it can sometimes be seen as white crystals. A second challenge is the mud itself, which is so waterlogged that it contains almost no oxygen. To overcome this, many mangroves send up vertical roots, like pencils sticking out of the mud, which have tiny pores through which air can pass down to the buried root system. Others are supported by arching stilt roots that hold the trunk above the water, giving the forest its characteristic tangled appearance.\n\nC  It is this tangle of roots and trunks that makes mangroves valuable as coastal defences. When waves enter a mangrove forest, they lose energy as the water is forced around countless obstacles. Field measurements suggest that wave height can fall by between a third and a half over the first 100 metres of forest. The most important factor, researchers have found, is not the species or the age of the trees but simply the width of the forest belt: a narrow fringe a few dozen metres deep offers modest protection, while a belt several kilometres wide can significantly reduce the inland flooding caused by storm surges. Even so, no forest can entirely stop the largest surges, and scientists warn against presenting mangroves as a guarantee of safety.\n\nD  Mangroves also shape the land itself. Their roots slow the movement of water, so that fine particles of mud and sand carried by rivers and tides settle among them. Over time this sediment, together with decaying leaves and roots, can raise the level of the forest floor. Where there is a good supply of sediment, this process allows mangroves to keep pace with a moderate rise in sea level; where dams upstream have reduced the flow of sediment, however, the forests are far more likely to be drowned. The same waterlogged soils also lock away large amounts of carbon, because dead plant material decays very slowly without oxygen. Per hectare, mangroves can store several times more carbon than most tropical forests on dry land.\n\nE  The economic case for protecting mangroves has become clearer in recent years. A study of the Pelora delta compared three ways of defending a stretch of low-lying farmland: a concrete sea wall, a restored mangrove belt, and a combination of a lower sea wall with mangroves planted in front of it. The sea wall alone was the most expensive option to build and maintain, partly because waves striking it directly caused constant damage. Mangroves alone were the cheapest, but they did not provide enough protection during the strongest storms. The combined approach proved the most cost-effective over a 30-year period, since the trees absorbed much of the wave energy before it reached the wall, which could therefore be built lower and repaired less often.\n\nF  Despite such findings, mangroves continue to be cleared, mainly to make way for shrimp farms, rice fields and coastal development. Replanting has become popular with governments and charities, but the results have often been disappointing. In one large programme more than a million seedlings were planted, yet a survey five years later found that fewer than one in five had survived. The main reason was that many had been planted on open mudflats below the natural mangrove zone, where they were covered by water for too long each day. Others were placed in abandoned shrimp ponds whose walls still blocked the natural flow of the tides. Ecologists now argue that restoring the flow of water and allowing seeds to arrive naturally often works better than planting.\n\nG  Increasingly, the most successful projects are those that involve the people who live beside the forests. In several regions, legal responsibility for managing mangroves has been transferred from national agencies to village committees. Their members patrol the forest, agree rules on the harvesting of firewood and decide which areas should be left untouched. In return, they earn an income from sustainable activities such as crab fishing and small-scale ecotourism. Where such arrangements are supported by clear land rights and a fair sharing of income, mangrove cover has stabilised or even increased.",
+    "questions": [
+     {
+      "n": 14,
+      "type": "matching",
+      "group": "Questions 14-19. Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. You may use any letter more than once.",
+      "prompt": "a comparison of the costs of different ways of protecting land from the sea",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G"
+      ],
+      "answer": "E",
+      "explain_en": "Paragraph E compares a sea wall, a mangrove belt and a combination, and says which was \"the most cost-effective\".",
+      "explain_bn": "অনুচ্ছেদ E-তে সমুদ্র-প্রাচীর, ম্যানগ্রোভ ও দুটোর মিশ্রণের খরচ তুলনা করা হয়েছে (\"most expensive\", \"cheapest\", \"most cost-effective\")।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 15,
+      "type": "matching",
+      "group": "Questions 14-19. Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. You may use any letter more than once.",
+      "prompt": "an explanation of how some mangroves obtain air for their roots",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G"
+      ],
+      "answer": "B",
+      "explain_en": "Paragraph B: vertical roots \"have tiny pores through which air can pass down to the buried root system\".",
+      "explain_bn": "অনুচ্ছেদ B-তে বলা হয়েছে খাড়া শিকড়ের ছোট ছিদ্র দিয়ে বাতাস মাটির নিচের শিকড়ে যায় — অক্সিজেনহীন কাদায় বাঁচার কৌশল।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 16,
+      "type": "matching",
+      "group": "Questions 14-19. Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. You may use any letter more than once.",
+      "prompt": "an example of a tree-planting effort that largely failed",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G"
+      ],
+      "answer": "F",
+      "explain_en": "Paragraph F: \"more than a million seedlings were planted, yet ... fewer than one in five had survived\".",
+      "explain_bn": "অনুচ্ছেদ F-এ দশ লাখের বেশি চারা লাগানোর পর পাঁচ ভাগের এক ভাগও বাঁচেনি — একটি ব্যর্থ উদ্যোগের উদাহরণ।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 17,
+      "type": "matching",
+      "group": "Questions 14-19. Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. You may use any letter more than once.",
+      "prompt": "information about where in the world mangroves are found",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G"
+      ],
+      "answer": "A",
+      "explain_en": "Paragraph A gives the number of countries, the latitudes and the regions with \"the largest continuous stretches\".",
+      "explain_bn": "অনুচ্ছেদ A-তে আছে ম্যানগ্রোভ কোন কোন দেশে ও অঞ্চলে পাওয়া যায় — যেমন দক্ষিণ ও দক্ষিণ-পূর্ব এশিয়া (আমাদের সুন্দরবনও এর অংশ)।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 18,
+      "type": "matching",
+      "group": "Questions 14-19. Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. You may use any letter more than once.",
+      "prompt": "a warning that mangroves cannot give complete protection",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G"
+      ],
+      "answer": "C",
+      "explain_en": "Paragraph C: \"no forest can entirely stop the largest surges, and scientists warn against presenting mangroves as a guarantee of safety\".",
+      "explain_bn": "অনুচ্ছেদ C-এর শেষে সতর্ক করা হয়েছে যে বড় জলোচ্ছ্বাস কোনো বন পুরোপুরি থামাতে পারে না।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 19,
+      "type": "matching",
+      "group": "Questions 14-19. Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. You may use any letter more than once.",
+      "prompt": "a reference to local people gaining financially from the forest",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G"
+      ],
+      "answer": "G",
+      "explain_en": "Paragraph G: committee members \"earn an income from sustainable activities such as crab fishing\".",
+      "explain_bn": "অনুচ্ছেদ G-তে স্থানীয় মানুষ কাঁকড়া ধরা ও পর্যটন থেকে আয় করে — অর্থাৎ আর্থিক লাভ।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 20,
+      "type": "mcq",
+      "group": "Questions 20-23. Choose the correct letter, A, B, C or D.",
+      "prompt": "According to paragraph C, what mainly determines how well mangroves protect against storm surges?",
+      "options": [
+       "A. the species of tree",
+       "B. the age of the trees",
+       "C. the height of the waves",
+       "D. the width of the forest"
+      ],
+      "answer": "D",
+      "explain_en": "\"The most important factor ... is not the species or the age of the trees but simply the width of the forest belt.\"",
+      "explain_bn": "লেখায় স্পষ্ট বলা আছে প্রজাতি বা গাছের বয়স নয়, \"the width of the forest belt\" — বনের প্রস্থই সবচেয়ে গুরুত্বপূর্ণ।",
+      "tag": "detail"
+     },
+     {
+      "n": 21,
+      "type": "mcq",
+      "group": "Questions 20-23. Choose the correct letter, A, B, C or D.",
+      "prompt": "What does the writer say about mangroves and rising sea levels?",
+      "options": [
+       "A. Most forests will be drowned whatever happens.",
+       "B. Dams help forests by holding back water.",
+       "C. Their survival depends on the supply of sediment.",
+       "D. Rising seas increase the carbon they store."
+      ],
+      "answer": "C",
+      "explain_en": "Sediment lets mangroves \"keep pace with a moderate rise in sea level\", but where dams reduce sediment they \"are far more likely to be drowned\".",
+      "explain_bn": "পলি জমে বনের মাটি উঁচু হয়, তাই পর্যাপ্ত পলি থাকলে ম্যানগ্রোভ সমুদ্রপৃষ্ঠের মাঝারি বৃদ্ধির সঙ্গে তাল মেলাতে পারে; বাঁধে পলি কমলে ডুবে যাওয়ার ঝুঁকি বাড়ে।",
+      "tag": "inference"
+     },
+     {
+      "n": 22,
+      "type": "mcq",
+      "group": "Questions 20-23. Choose the correct letter, A, B, C or D.",
+      "prompt": "What did the study of the Pelora delta find?",
+      "options": [
+       "A. A sea wall alone was the cheapest option.",
+       "B. Mangroves alone gave enough protection in all storms.",
+       "C. Sea walls needed less repair than expected.",
+       "D. A mixture of a wall and mangroves gave the best value."
+      ],
+      "answer": "D",
+      "explain_en": "\"The combined approach proved the most cost-effective over a 30-year period.\"",
+      "explain_bn": "পেলোরা বদ্বীপের গবেষণায় নিচু প্রাচীর + সামনে ম্যানগ্রোভ — এই মিশ্র পদ্ধতিই ৩০ বছরে সবচেয়ে সাশ্রয়ী প্রমাণিত হয়েছে।",
+      "tag": "detail"
+     },
+     {
+      "n": 23,
+      "type": "mcq",
+      "group": "Questions 20-23. Choose the correct letter, A, B, C or D.",
+      "prompt": "According to paragraph F, what was the main reason many seedlings died?",
+      "options": [
+       "A. Local people cut them down for shrimp farms.",
+       "B. They were put in places that stayed under water too long.",
+       "C. The seeds used were of poor quality.",
+       "D. Too few seedlings were planted in each area."
+      ],
+      "answer": "B",
+      "explain_en": "\"Many had been planted on open mudflats below the natural mangrove zone, where they were covered by water for too long.\"",
+      "explain_bn": "প্রধান কারণ: চারাগুলো লাগানো হয়েছিল ভুল জায়গায় — প্রাকৃতিক ম্যানগ্রোভ এলাকার নিচে খোলা কাদায়, যেখানে অনেকক্ষণ পানির নিচে থাকে।",
+      "tag": "detail"
+     },
+     {
+      "n": 24,
+      "type": "gap",
+      "group": "Questions 24-26. Complete the summary below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+      "prompt": "In several regions, control of mangrove forests has passed from national agencies to ____.",
+      "max_words": 2,
+      "answer": [
+       "village committees"
+      ],
+      "explain_en": "\"Legal responsibility for managing mangroves has been transferred from national agencies to village committees.\"",
+      "explain_bn": "ম্যানগ্রোভ ব্যবস্থাপনার দায়িত্ব জাতীয় সংস্থা থেকে \"village committees\" (গ্রাম কমিটি)-এর হাতে দেওয়া হয়েছে। দুই শব্দের সীমা মানুন।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 25,
+      "type": "gap",
+      "group": "Questions 24-26. Complete the summary below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+      "prompt": "Members guard the forest and set rules about collecting ____.",
+      "max_words": 2,
+      "answer": [
+       "firewood"
+      ],
+      "explain_en": "Members \"agree rules on the harvesting of firewood\".",
+      "explain_bn": "কমিটির সদস্যরা \"firewood\" (জ্বালানি কাঠ) সংগ্রহের নিয়ম ঠিক করেন।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 26,
+      "type": "gap",
+      "group": "Questions 24-26. Complete the summary below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+      "prompt": "They earn money from activities such as ____ and small-scale tourism.",
+      "max_words": 2,
+      "answer": [
+       "crab fishing"
+      ],
+      "explain_en": "They earn income \"from sustainable activities such as crab fishing and small-scale ecotourism\".",
+      "explain_bn": "আয়ের উৎস: \"crab fishing\" (কাঁকড়া ধরা) ও ছোট পরিসরের ইকোট্যুরিজম।",
+      "tag": "detail"
+     }
+    ]
+   },
+   {
+    "n": 3,
+    "title": "Should Governments Measure Happiness?",
+    "text": "Over the past two decades, a growing number of governments have begun to collect data not only on income, employment and health, but also on how satisfied their citizens are with their lives. National statistics offices now routinely ask large samples of the population to rate, on a scale from 0 to 10, how satisfied they are with their lives nowadays, how happy they felt yesterday, and whether the things they do are worthwhile. Enthusiasts argue that such figures should sit alongside, or even replace, gross domestic product (GDP) as the main measure of a nation's progress. Critics regard the whole exercise as at best a distraction and at worst a threat to personal freedom. In my view, both camps overstate their case.\n\nThe enthusiasts' argument begins with the weaknesses of GDP. It measures market activity, not well-being: it rises when money is spent rebuilding towns after a flood, and it counts the sale of products that damage health just as it counts those that improve it. Life-satisfaction surveys, by contrast, attempt to capture what people actually value. They have produced some striking findings. Losing a job, for example, appears to reduce well-being far more than the loss of income alone would predict, while loneliness and long journeys to work turn out to matter a great deal. Such findings, the enthusiasts say, should change how public money is spent. I find this argument persuasive up to a point. GDP was never designed as a measure of welfare, and its own creators warned against using it in that way.\n\nCritics usually respond that happiness is too subjective to be measured. This objection, however, is weaker than it first appears. People's answers to well-being questions are related to things we would expect: they agree reasonably well with ratings given by friends and family, with how often people smile, and even with later health outcomes. The measures are not perfect, but neither are the official figures for unemployment or inflation, which involve many judgement calls of their own. A more serious problem is one of scale. Even if the question stays the same, people's standards may change. As a society becomes richer, its members may quietly adjust what they mean by a \"7\". This may explain why average life satisfaction in several wealthy countries has hardly moved in fifty years despite large increases in income. It does not necessarily mean that nothing has improved; it may simply mean that the ruler has stretched.\n\nThe real danger lies not in measurement but in the temptation to turn a single well-being figure into a target. It is a familiar rule of public administration that a measure ceases to be useful once people are rewarded for changing it. A government judged on national happiness scores might be tempted to improve them in ways that have little to do with people's lives, by encouraging lower expectations, perhaps, or by public campaigns reminding citizens how fortunate they are. This is not merely a theoretical risk. When the regional government of Valdoria linked part of the funding for its town councils to local life-satisfaction scores, the scores duly rose, but independent inspections found no improvement in the services the councils provided. Several councils, it emerged, had simply arranged for their surveys to take place during local festivals.\n\nWhere well-being data is most valuable, I would argue, is not in setting national targets but in comparing particular policies. Because the effects of very different programmes can be expressed in the same unit, changes in life satisfaction, it becomes possible to ask whether a given sum would do more good if spent on a new park, a hospital ward or a training scheme for the unemployed. Several analyses of this kind have suggested that treatment for common mental illnesses produces far more well-being per unit of money than many transport projects. Even here, though, caution is needed. Such analysis naturally favours policies whose effects appear quickly and are easy to capture in a survey. The benefits of early childhood education, for instance, may not be fully visible for decades, and a method that overlooks them could lead governments seriously astray.\n\nWhat, then, of the claim that it is simply not the business of the state to make people happy? I have some sympathy with the instinct behind it, but I think it is misplaced. Governments already make countless decisions that affect well-being, from planning permission for housing to the opening hours of public libraries. The question is not whether they influence happiness, but whether they do so with or without evidence. To ignore the evidence is not a neutral position; it is merely a less informed one. What matters is that the data informs decisions rather than dictates them, and that citizens remain free to pursue their own idea of a good life.\n\nMeasuring happiness, in short, is neither a revolution nor a fraud. It is a useful additional instrument, best used modestly, as one dial on the dashboard among many. The greatest risk is not that governments will measure happiness, but that they will come to trust the measurement more than it deserves.",
+    "questions": [
+     {
+      "n": 27,
+      "type": "mcq",
+      "group": "Questions 27-31. Choose the correct letter, A, B, C or D.",
+      "prompt": "What is the writer's main point in the first paragraph?",
+      "options": [
+       "A. Happiness surveys are now carried out in every country.",
+       "B. Life satisfaction should replace GDP as a measure of progress.",
+       "C. Both supporters and opponents of happiness data claim too much.",
+       "D. The critics of happiness data have the stronger argument."
+      ],
+      "answer": "C",
+      "explain_en": "After describing both sides, the writer says \"In my view, both camps overstate their case\".",
+      "explain_bn": "দুই পক্ষের কথা বলার পর লেখক বলেন \"both camps overstate their case\" — দুই পক্ষই বাড়িয়ে বলছে। এটিই মূল বক্তব্য।",
+      "tag": "main_idea"
+     },
+     {
+      "n": 28,
+      "type": "mcq",
+      "group": "Questions 27-31. Choose the correct letter, A, B, C or D.",
+      "prompt": "The writer mentions rebuilding towns after a flood in order to show that",
+      "options": [
+       "A. GDP can rise for reasons unrelated to people's well-being.",
+       "B. natural disasters have a lasting effect on happiness.",
+       "C. governments spend too little on flood protection.",
+       "D. surveys fail to record the effects of disasters."
+      ],
+      "answer": "A",
+      "explain_en": "GDP \"measures market activity, not well-being: it rises when money is spent rebuilding towns after a flood\".",
+      "explain_bn": "বন্যার পর পুনর্নির্মাণে খরচ হলে GDP বাড়ে, অথচ মানুষের জীবন ভালো হয় না — অর্থাৎ GDP সুখ-সমৃদ্ধির সঙ্গে সম্পর্কহীন কারণেও বাড়তে পারে।",
+      "tag": "inference"
+     },
+     {
+      "n": 29,
+      "type": "mcq",
+      "group": "Questions 27-31. Choose the correct letter, A, B, C or D.",
+      "prompt": "What does the writer suggest about the lack of change in life satisfaction in wealthy countries?",
+      "options": [
+       "A. It proves that wealth does not make people happier.",
+       "B. It shows that the surveys have been badly designed.",
+       "C. It is caused by falling incomes in those countries.",
+       "D. It may reflect a change in how people interpret the scale."
+      ],
+      "answer": "D",
+      "explain_en": "\"It does not necessarily mean that nothing has improved; it may simply mean that the ruler has stretched\", i.e. people use the scale differently.",
+      "explain_bn": "\"the ruler has stretched\" একটি রূপক: মানুষের মানদণ্ড বদলে গেছে, ফলে একই '৭' এখন ভিন্ন অর্থ বহন করে। লেখক বলেননি যে ধন-সম্পদ সুখ আনে না।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 30,
+      "type": "mcq",
+      "group": "Questions 27-31. Choose the correct letter, A, B, C or D.",
+      "prompt": "The example of Valdoria is used to illustrate",
+      "options": [
+       "A. the high cost of running national surveys.",
+       "B. how a target can be met without real progress.",
+       "C. the benefits of local festivals for well-being.",
+       "D. the success of regional control of public services."
+      ],
+      "answer": "B",
+      "explain_en": "Scores rose after funding was linked to them, but services did not improve; councils timed surveys \"during local festivals\".",
+      "explain_bn": "ভালদোরিয়ায় স্কোরকে লক্ষ্য বানানোর পর কাউন্সিলগুলো উৎসবের সময় জরিপ করে স্কোর বাড়িয়েছে — লক্ষ্য হলে মাপকাঠি কীভাবে কারসাজি হয়, তার উদাহরণ।",
+      "tag": "inference"
+     },
+     {
+      "n": 31,
+      "type": "mcq",
+      "group": "Questions 27-31. Choose the correct letter, A, B, C or D.",
+      "prompt": "According to the writer, well-being data is most useful for",
+      "options": [
+       "A. setting targets for national happiness.",
+       "B. replacing all other economic statistics.",
+       "C. comparing the value of different policies.",
+       "D. measuring the success of mental health services."
+      ],
+      "answer": "C",
+      "explain_en": "\"Where well-being data is most valuable, I would argue, is not in setting national targets but in comparing particular policies.\"",
+      "explain_bn": "লেখকের মতে জাতীয় লক্ষ্য ঠিক করায় নয়, বরং \"comparing particular policies\" — বিভিন্ন নীতির ফল তুলনায় এই তথ্য সবচেয়ে কাজের।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 32,
+      "type": "ynng",
+      "group": "Questions 32-36. Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "prompt": "GDP was originally intended to measure how well people's lives were going.",
+      "answer": "NO",
+      "explain_en": "The writer states \"GDP was never designed as a measure of welfare\".",
+      "explain_bn": "লেখক বলেন \"GDP was never designed as a measure of welfare\" — GDP কখনোই কল্যাণ মাপার জন্য তৈরি হয়নি। তাই NO।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 33,
+      "type": "ynng",
+      "group": "Questions 32-36. Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "prompt": "The argument that happiness is too subjective to measure is less convincing than it seems.",
+      "answer": "YES",
+      "explain_en": "\"This objection, however, is weaker than it first appears.\"",
+      "explain_bn": "লেখক বলেন আপত্তিটি \"weaker than it first appears\" — যতটা মনে হয় ততটা জোরালো নয়। তাই YES।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 34,
+      "type": "ynng",
+      "group": "Questions 32-36. Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "prompt": "Well-being surveys cost more to run than surveys of employment.",
+      "answer": "NOT GIVEN",
+      "explain_en": "The writer compares the accuracy of the measures, not the cost of carrying out the surveys.",
+      "explain_bn": "লেখক বেকারত্বের পরিসংখ্যানের নির্ভুলতা নিয়ে তুলনা করেছেন, কিন্তু জরিপের খরচ নিয়ে কিছু বলেননি — তাই NOT GIVEN।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 35,
+      "type": "ynng",
+      "group": "Questions 32-36. Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "prompt": "Well-being analysis may undervalue policies whose benefits take many years to appear.",
+      "answer": "YES",
+      "explain_en": "Such analysis \"favours policies whose effects appear quickly\"; early education benefits \"may not be fully visible for decades\".",
+      "explain_bn": "লেখক সতর্ক করেন: এই পদ্ধতি দ্রুত ফল দেওয়া নীতিকে বেশি গুরুত্ব দেয়, আর শিশু-শিক্ষার মতো দীর্ঘমেয়াদি সুফল চোখ এড়িয়ে যেতে পারে। তাই YES।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 36,
+      "type": "ynng",
+      "group": "Questions 32-36. Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "prompt": "A government that ignores well-being evidence is taking a neutral position.",
+      "answer": "NO",
+      "explain_en": "\"To ignore the evidence is not a neutral position; it is merely a less informed one.\"",
+      "explain_bn": "লেখক সরাসরি বলেন \"To ignore the evidence is not a neutral position\" — প্রমাণ উপেক্ষা করা নিরপেক্ষ থাকা নয়। তাই NO।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 37,
+      "type": "matching",
+      "group": "Questions 37-40. Complete each sentence with the correct ending, A-F. Write the correct letter, A-F.",
+      "prompt": "Enthusiasts believe that findings about unemployment and loneliness",
+      "options": [
+       "A. should influence decisions about public spending.",
+       "B. may come to place more confidence in the figures than they merit.",
+       "C. led to higher scores without any real improvement.",
+       "D. shows that people's standards never change over time.",
+       "E. suggests that the answers are not meaningless.",
+       "F. should be kept completely separate from government."
+      ],
+      "answer": "A",
+      "explain_en": "\"Such findings, the enthusiasts say, should change how public money is spent.\"",
+      "explain_bn": "সমর্থকদের মতে বেকারত্ব ও একাকীত্ব নিয়ে পাওয়া তথ্য সরকারি টাকা খরচের সিদ্ধান্ত বদলানো উচিত — অর্থাৎ A।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 38,
+      "type": "matching",
+      "group": "Questions 37-40. Complete each sentence with the correct ending, A-F. Write the correct letter, A-F.",
+      "prompt": "The fact that people's answers agree with ratings from friends",
+      "options": [
+       "A. should influence decisions about public spending.",
+       "B. may come to place more confidence in the figures than they merit.",
+       "C. led to higher scores without any real improvement.",
+       "D. shows that people's standards never change over time.",
+       "E. suggests that the answers are not meaningless.",
+       "F. should be kept completely separate from government."
+      ],
+      "answer": "E",
+      "explain_en": "Answers \"agree reasonably well with ratings given by friends and family\", which weakens the claim that they are too subjective.",
+      "explain_bn": "বন্ধু ও পরিবারের মূল্যায়নের সঙ্গে উত্তর মিলে যায় — এতে বোঝা যায় উত্তরগুলো অর্থহীন নয়। তাই E।",
+      "tag": "inference"
+     },
+     {
+      "n": 39,
+      "type": "matching",
+      "group": "Questions 37-40. Complete each sentence with the correct ending, A-F. Write the correct letter, A-F.",
+      "prompt": "Linking council funding to life-satisfaction scores",
+      "options": [
+       "A. should influence decisions about public spending.",
+       "B. may come to place more confidence in the figures than they merit.",
+       "C. led to higher scores without any real improvement.",
+       "D. shows that people's standards never change over time.",
+       "E. suggests that the answers are not meaningless.",
+       "F. should be kept completely separate from government."
+      ],
+      "answer": "C",
+      "explain_en": "\"The scores duly rose, but independent inspections found no improvement in the services.\"",
+      "explain_bn": "কাউন্সিলের বাজেটকে স্কোরের সঙ্গে যুক্ত করায় স্কোর বেড়েছে, কিন্তু সেবার কোনো উন্নতি হয়নি — তাই C।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 40,
+      "type": "matching",
+      "group": "Questions 37-40. Complete each sentence with the correct ending, A-F. Write the correct letter, A-F.",
+      "prompt": "The writer's greatest concern is that governments",
+      "options": [
+       "A. should influence decisions about public spending.",
+       "B. may come to place more confidence in the figures than they merit.",
+       "C. led to higher scores without any real improvement.",
+       "D. shows that people's standards never change over time.",
+       "E. suggests that the answers are not meaningless.",
+       "F. should be kept completely separate from government."
+      ],
+      "answer": "B",
+      "explain_en": "\"The greatest risk is ... that they will come to trust the measurement more than it deserves.\"",
+      "explain_bn": "লেখকের সবচেয়ে বড় চিন্তা: সরকার এই পরিসংখ্যানকে তার প্রাপ্যের চেয়ে বেশি বিশ্বাস করে ফেলবে — তাই B।",
+      "tag": "writer_view"
+     }
+    ]
+   }
+  ]
+ },
+ "writing": {
+  "duration_sec": 3600,
+  "tasks": [
+   {
+    "n": 1,
+    "prompt": "The table below shows the percentage of commuters who used different modes of transport to travel to work in four cities in 2005 and 2025.\n\nCity | Year | Car | Public transport | Bicycle | Walking\nNorvale | 2005 | 58 | 22 | 6 | 14\nNorvale | 2025 | 41 | 31 | 15 | 13\nKestrel Bay | 2005 | 35 | 48 | 4 | 13\nKestrel Bay | 2025 | 29 | 55 | 5 | 11\nAmberton | 2005 | 72 | 15 | 2 | 11\nAmberton | 2025 | 74 | 12 | 3 | 11\nLisford | 2005 | 30 | 25 | 27 | 18\nLisford | 2025 | 18 | 27 | 38 | 17\n\n(All figures are percentages of commuters in each city.)\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant. Write at least 150 words.",
+    "min_words": 150
+   },
+   {
+    "n": 2,
+    "prompt": "Some people believe that universities should focus mainly on giving students the skills they need for particular jobs. Others think that the main purpose of a university is to provide a broad education and develop knowledge for its own sake.\n\nDiscuss both these views and give your own opinion.\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience. Write at least 250 words.",
+    "min_words": 250
+   }
+  ]
+ },
+ "speaking": {
+  "duration_sec": 780,
+  "parts": [
+   {
+    "n": 1,
+    "questions": [
+     "Let's talk about the weather. What kind of weather do you have where you live?",
+     "What is your favourite kind of weather? Why?",
+     "Does the weather ever change your plans? How?",
+     "Would you like to live somewhere with a very different climate? Why or why not?",
+     "Now let's talk about music. What kind of music do you enjoy listening to?",
+     "When do you usually listen to music during the day?",
+     "Did you learn to play a musical instrument when you were a child?",
+     "Do you prefer listening to music alone or with other people? Why?"
+    ]
+   },
+   {
+    "n": 2,
+    "cue_card": "Describe a time when you helped a neighbour.\nYou should say:\n- who the neighbour was\n- what the problem or situation was\n- what you did to help\nand explain how you felt after helping this person.",
+    "prep_sec": 60,
+    "talk_sec": 120
+   },
+   {
+    "n": 3,
+    "questions": [
+     "Do people in cities know their neighbours as well as people in smaller places? Why do you think that is?",
+     "What can local governments do to help people in cities feel part of a community?",
+     "Some people say that modern technology has made communities weaker. Do you agree?",
+     "How important are public spaces, such as parks and markets, for bringing people together?",
+     "Should young people be expected to do voluntary work in their local area? Why or why not?",
+     "How do you think city life will change over the next twenty years?"
+    ]
+   }
+  ]
+ }
+}
