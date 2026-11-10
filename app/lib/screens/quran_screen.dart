@@ -10,6 +10,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../quran/ayah_view_screen.dart'; // quranview
 import '../quran/quran_store.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/local_digits.dart';
@@ -134,7 +136,7 @@ class _QuranScreenState extends State<QuranScreen> {
       );
     }
     final d = _data;
-    if (d == null) return const Center(child: CircularProgressIndicator());
+    if (d == null) return const SkeletonList();
     return TabBarView(children: [_surasTab(t, d), _bookmarksTab(t, d)]);
   }
 
@@ -184,7 +186,9 @@ class _QuranScreenState extends State<QuranScreen> {
             ),
           ),
         if (hits != null) ..._hitList(t, d, hits),
-        for (final s in suras) _suraTile(t, s),
+        // designv2 (calm): the suras in one quiet card — no glow, no motion
+        if (suras.isNotEmpty)
+          DsGroup(margin: EdgeInsets.zero, children: [for (final s in suras) _suraTile(t, s)]),
       ],
     );
   }
@@ -240,10 +244,12 @@ class _QuranScreenState extends State<QuranScreen> {
 
   Widget _continueCard(AppLocalizations t, QuranData d, AyaRef r) {
     final s = d.suras[r.sura - 1];
-    return Card(
+    // designv2 (calm): continue reading is the soft hero
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.md),
+      child: DsHeroCard(
       key: const Key('quran-continue'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      color: _accent(context).withOpacity(0.08),
+      padding: EdgeInsets.zero,
       child: ListTile(
         minTileHeight: 56,
         leading: Icon(Icons.auto_stories_rounded, color: _accent(context)),
@@ -253,6 +259,7 @@ class _QuranScreenState extends State<QuranScreen> {
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => _open(r.sura, r.aya),
       ),
+      ),
     );
   }
 
@@ -261,7 +268,7 @@ class _QuranScreenState extends State<QuranScreen> {
     return ListTile(
       key: Key('quran-sura-${s.index}'),
       minTileHeight: 56,
-      contentPadding: const EdgeInsets.symmetric(horizontal: Gap.xs),
+      contentPadding: const EdgeInsets.symmetric(horizontal: Gap.md),
       leading: CircleAvatar(
         backgroundColor: _accent(context).withOpacity(0.12),
         child: FittedBox(
@@ -293,20 +300,24 @@ class _QuranScreenState extends State<QuranScreen> {
         key: const Key('quran-bookmarks-empty'),
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          Icon(Icons.bookmark_add_outlined, size: 56, color: _accent(context)),
-          const SizedBox(height: Gap.md),
-          Text(t.qrnBookmarksEmpty,
-              textAlign: TextAlign.center,
-              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
-          const SizedBox(height: Gap.sm),
-          Text(t.qrnBookmarksEmptyHow, textAlign: TextAlign.center),
-          const SizedBox(height: Gap.lg),
-          Center(
-            child: FilledButton.icon(
-              icon: const Icon(Icons.menu_book_rounded),
-              label: Text(t.qrnStartReading),
-              onPressed: () => _open(1),
-            ),
+          // designv2 (calm): drawn illustration, quiet secondary button (no glow)
+          DsCard(
+            padding: const EdgeInsets.all(Gap.xl),
+            child: Column(children: [
+              DsIllustration(icon: Icons.bookmark_add_outlined, color: _accent(context), size: 88),
+              const SizedBox(height: Gap.md),
+              Text(t.qrnBookmarksEmpty,
+                  textAlign: TextAlign.center,
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
+              const SizedBox(height: Gap.sm),
+              Text(t.qrnBookmarksEmptyHow, textAlign: TextAlign.center),
+              const SizedBox(height: Gap.lg),
+              DsButton.secondary(
+                icon: Icons.menu_book_rounded,
+                label: t.qrnStartReading,
+                onPressed: () => _open(1),
+              ),
+            ]),
           ),
         ],
       );
