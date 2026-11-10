@@ -13,7 +13,9 @@ import '../home_api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import 'package:flutter/scheduler.dart' show SchedulerBinding, SchedulerPhase; // svcclean
 import 'chatnav.dart';
+import 'home_quick_buttons.dart' show HomeQuickButtons; // svcclean
 import '../services/action_feedback.dart'; // db1
 import '../screens/home_v2/home_v2_tokens.dart'; // home_v2
 
@@ -241,7 +243,7 @@ const List<DiscoverItem> kDiscoverFallback = [
 
 // Top-level tear-offs so the fallback entries can stay `const`.
 String _tSosTitle(AppLocalizations t) => t.emergencySosBigButton;
-String _tSosBenefit(AppLocalizations t) => t.discoverSosBenefit;
+String _tSosBenefit(AppLocalizations t) => t.svcSosCardDesc; // svcclean: fits
 String _tTrainTitle(AppLocalizations t) => t.sjlNameTrain;
 String _tTrainBenefit(AppLocalizations t) => t.discoverTrainBenefit;
 // b2-badges: the card opens Photo Studio, so it is named Photo Studio
@@ -296,6 +298,22 @@ List<DiscoverItem> parseDiscoverItems(Object? raw) {
 /// homeorder: a feature the owner / testers see only as a PREVIEW counts as
 /// off here (same rule as the home tiles), and the ad-placement rule
 /// ([separateDiscoverAds]) is re-applied on what is left.
+/// svcclean (owner 10 Nov, one job = one place on Home): the routes the v2
+/// home already shows as shortcut tiles or bottom-bar tabs (canonical, see
+/// [HomeQuickButtons.canon]). Set by the home's shortcut grid; empty when no
+/// home is on screen.
+final ValueNotifier<Set<String>> homeTilesShown = ValueNotifier(const <String>{});
+
+/// svcclean: Discover never repeats something already on the home (e.g. the
+/// SOS card next to the Emergency tile). Link / ad cards are untouched.
+List<DiscoverItem> withoutHomeTiles(List<DiscoverItem> cards, Set<String> shown) =>
+    shown.isEmpty
+        ? cards
+        : [
+            for (final c in cards)
+              if (c.route.isEmpty || !shown.contains(HomeQuickButtons.canon(c.route))) c
+          ];
+
 List<DiscoverItem> renderableDiscover(List<DiscoverItem> items) =>
     separateDiscoverAds(items.where((c) {
       if (c.isAdmob) return false;
@@ -335,10 +353,23 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
     widget.onReady?.call(_refresh);
     WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
     _startAutoRotate();
+    if (widget.v2) homeTilesShown.addListener(_onTiles); // svcclean
+  }
+
+  void _onTiles() {
+    if (!mounted) return;
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _rebuild();
+      });
+    } else {
+      _rebuild();
+    }
   }
 
   @override
   void dispose() {
+    homeTilesShown.removeListener(_onTiles); // svcclean
     _autoRotate?.cancel(); // never leave a timer firing after unmount
     _page.dispose();
     _rotate.dispose();
@@ -417,7 +448,9 @@ class _HomeSuggestionsState extends State<HomeSuggestions> {
   }
 
   void _rebuild() {
-    final list = renderableDiscover(_source ?? const []);
+    final list = renderableDiscover(widget.v2
+        ? withoutHomeTiles(_source ?? const [], homeTilesShown.value) // svcclean
+        : (_source ?? const []));
     // Feature slots get unopened-first ordering; other slots stay put.
     // homeorder: SOS / Blood donor keep the owner's position (SOS first).
     bool movable(DiscoverItem c) => discoverMovable(c);

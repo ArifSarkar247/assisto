@@ -68,13 +68,14 @@ void registerSafeJourneyFlows() {
       await f.tap(find.byKey(const ValueKey('j2_link_use')), settleSeconds: 4);
       await f.scrollTo(find.byKey(const ValueKey('j2_pinned')));
       await f.waitFor(find.byKey(const ValueKey('j2_pinned')), what: 'pinned destination');
-      final b = find.widgetWithText(CheckboxListTile, Seed.nameB);
+      final b = find.widgetWithText(FilterChip, Seed.nameB); // sjstart2: watcher chips
       await f.scrollTo(b);
       if (!await f.appears(b, seconds: 6)) {
         throw TestFailure('watcher ${Seed.nameB} not listed (seed edge A->B missing)');
       }
       await f.tester.ensureVisible(b);
-      await f.tap(b);
+      // sjstart2: last trip's watchers come back preselected — never untick
+      if (!f.tester.widget<FilterChip>(b).selected) await f.tap(b);
       await f.shot('form');
       final start = find.byKey(const ValueKey('j100_start'));
       await f.scrollTo(start);

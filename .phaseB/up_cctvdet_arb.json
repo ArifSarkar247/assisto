@@ -1,0 +1,126 @@
+{
+ "en": {
+  "cdetZoneGate": "Shutter / gate",
+  "@cdetZoneGate": {
+   "description": "cctvdet zone tool: person at the shutter or gate, gate left open"
+  },
+  "cdetZonePost": "Counter / post",
+  "@cdetZonePost": {
+   "description": "cctvdet zone tool: counter or guard post that must not be left empty"
+  },
+  "cdetZoneHelp": "Shutter / gate: an alert when someone is at it while the camera is on guard, and (if you switch it on) when it is left open. Counter / post: an alert when nobody is there for some minutes during its hours. These need the person check (AI) on the phone camera, Guard Box or Shop Box. Never face recognition.",
+  "cdetOptionsTooltip": "Zone settings",
+  "cdetOptionsTitle": "Settings: {name}",
+  "@cdetOptionsTitle": {
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "cdetLabel": "Name (e.g. Main shutter)",
+  "cdetMinutes": "{n} min",
+  "@cdetMinutes": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "cdetSumGatePerson": "Alerts when someone is at it",
+  "cdetSumGateOpen": "left open over {min}",
+  "@cdetSumGateOpen": {
+   "placeholders": {
+    "min": {
+     "type": "String"
+    }
+   }
+  },
+  "cdetSumPost": "Alerts when empty for {min} ({hours})",
+  "@cdetSumPost": {
+   "placeholders": {
+    "min": {
+     "type": "String"
+    },
+    "hours": {
+     "type": "String"
+    }
+   }
+  },
+  "cdetSumLoiter": "someone stays over {min}",
+  "@cdetSumLoiter": {
+   "placeholders": {
+    "min": {
+     "type": "String"
+    }
+   }
+  },
+  "cdetOff": "Off",
+  "cdetGatePersonBody": "While the camera is on guard, you get an alert with a photo and a 10-second clip when someone is at this shutter or gate.",
+  "cdetOpenTitle": "Alert if it is left open",
+  "cdetOpenBody": "The camera remembers how it looks when closed and warns you when it stays different.",
+  "cdetOpenAfter": "Alert when open for longer than",
+  "cdetClosedNow": "It is closed now — remember this",
+  "cdetClosedSaved": "Done. Tap Save, then keep it closed for a minute while the camera takes its picture.",
+  "cdetClosedNeeded": "Close it, then tap the button above once — without this the open check cannot start.",
+  "cdetClosedKnown": "The closed picture is remembered. Tap again if the camera was moved.",
+  "cdetPostHours": "Someone must be here",
+  "cdetPostAbsent": "Alert when empty for",
+  "cdetLoiterTitle": "Alert if someone stays longer than",
+  "cdetNeedsAi": "Uses only a person box on the device — never a face, a name or who it is.",
+  "cdetDone": "Done",
+  "cdetEvGate": "Someone is at the shutter / gate",
+  "cdetEvPost": "The counter / post has been left empty",
+  "cdetEvGateOpen": "The gate / shutter has been left open",
+  "cdetDescAi": "AI: {text}",
+  "@cdetDescAi": {
+   "placeholders": {
+    "text": {
+     "type": "String"
+    }
+   }
+  },
+  "cdetDescTemplate": "{text} (not AI)",
+  "@cdetDescTemplate": {
+   "placeholders": {
+    "text": {
+     "type": "String"
+    }
+   }
+  },
+  "cdetReviewOnly": "Review only — never an accusation."
+ },
+ "bn": {
+  "cdetZoneGate": "শাটার / গেট",
+  "cdetZonePost": "কাউন্টার / পোস্ট",
+  "cdetZoneHelp": "শাটার / গেট: পাহারার সময়ে কেউ সামনে এলে সতর্কতা, আর (চালু করলে) খোলা রয়ে গেলে সতর্কতা। কাউন্টার / পোস্ট: নির্ধারিত সময়ে কয়েক মিনিট কেউ না থাকলে সতর্কতা। এগুলোর জন্য ফোন ক্যামেরা, Guard Box বা Shop Box-এ মানুষ চেনার AI দরকার। মুখ চেনা কখনো নয়।",
+  "cdetOptionsTooltip": "জায়গার সেটিং",
+  "cdetOptionsTitle": "সেটিং: {name}",
+  "cdetLabel": "নাম (যেমন: মূল শাটার)",
+  "cdetMinutes": "{n} মিনিট",
+  "cdetSumGatePerson": "কেউ সামনে এলে সতর্কতা",
+  "cdetSumGateOpen": "{min}-এর বেশি খোলা থাকলে",
+  "cdetSumPost": "{min} ফাঁকা থাকলে সতর্কতা ({hours})",
+  "cdetSumLoiter": "কেউ {min}-এর বেশি থাকলে",
+  "cdetOff": "বন্ধ",
+  "cdetGatePersonBody": "ক্যামেরা পাহারায় থাকার সময় এই শাটার বা গেটের সামনে কেউ এলে ছবি আর ১০ সেকেন্ডের ক্লিপসহ সতর্কতা পাবেন।",
+  "cdetOpenTitle": "খোলা রয়ে গেলে সতর্কতা",
+  "cdetOpenBody": "বন্ধ অবস্থায় কেমন দেখায় ক্যামেরা মনে রাখে; অনেকক্ষণ অন্যরকম দেখালে জানায়।",
+  "cdetOpenAfter": "এতক্ষণের বেশি খোলা থাকলে জানাবে",
+  "cdetClosedNow": "এখন বন্ধ আছে — এটা মনে রাখো",
+  "cdetClosedSaved": "হয়েছে। সেভ চাপুন, তারপর ক্যামেরা ছবি নেওয়া পর্যন্ত এক মিনিট বন্ধ রাখুন।",
+  "cdetClosedNeeded": "বন্ধ করে ওপরের বোতামটি একবার চাপুন — এটা ছাড়া খোলা-থাকা যাচাই শুরু হবে না।",
+  "cdetClosedKnown": "বন্ধ অবস্থার ছবি মনে রাখা আছে। ক্যামেরা সরানো হলে আবার চাপুন।",
+  "cdetPostHours": "এই সময়ে কেউ থাকতেই হবে",
+  "cdetPostAbsent": "এতক্ষণ ফাঁকা থাকলে জানাবে",
+  "cdetLoiterTitle": "কেউ এর বেশি সময় থাকলে জানাবে",
+  "cdetNeedsAi": "ডিভাইসে শুধু মানুষের আকৃতি দেখা হয় — মুখ, নাম বা কে সে, কখনো নয়।",
+  "cdetDone": "ঠিক আছে",
+  "cdetEvGate": "শাটার / গেটের সামনে কেউ আছেন",
+  "cdetEvPost": "কাউন্টার / পোস্ট ফাঁকা পড়ে আছে",
+  "cdetEvGateOpen": "গেট / শাটার খোলা রয়ে গেছে",
+  "cdetDescAi": "AI: {text}",
+  "cdetDescTemplate": "{text} (AI নয়)",
+  "cdetReviewOnly": "শুধু দেখে যাচাই করুন — কখনো অভিযোগ নয়।"
+ }
+}

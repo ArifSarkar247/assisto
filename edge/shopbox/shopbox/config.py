@@ -86,8 +86,10 @@ class DetectionConfig:
     motion_min_area_frac: float = 0.002
     zone_motion_frac: float = 0.03    # >= this share of zone pixels changed
     person_score: float = 0.45
+    person_score_night: float = 0.30  # cctvacc: IR / grey / dark frames (night.py)
     zone_overlap: float = 0.15        # person box vs zone overlap to count
-    confirm_frames: int = 2           # consecutive sampled frames required
+    confirm_frames: int = 3           # cctvacc: 3 frames (~1 s) — same as the phone
+    night_confirm: int = 2            # cctvacc2: a night person in 2 checks in a row (night.py)
     linger_s: float = 8.0             # in-zone this long => "lingering"
     detector_threads: int = 2
 

@@ -240,7 +240,8 @@ def city_trip_consent(request):
         on = CS.consent(request.user, bool(d.get("on")))
     else:
         on = CS.consent(request.user)
-    return Response({"on": on, "keep_days": CS.TRIP_KEEP_DAYS, "trim_m": CS.TRIP_TRIM_M})
+    return Response(dict({"on": on, "keep_days": CS.TRIP_KEEP_DAYS, "trim_m": CS.TRIP_TRIM_M},
+                         **CS.rider_stats(request.user)))       # citycov: + stops_verified, trips
 
 
 @api_view(["POST"])
@@ -263,3 +264,77 @@ def city_women(request):
     if w is None:
         return _no_data(request, city)
     return Response(w)
+
+
+# ---------------------------------------------------------------- citycov
+_FIELD_ERR = {
+    "no_city": ("এই জায়গা আমাদের শহরের তালিকায় নেই।", "This place is outside our cities."),
+    "no_data": ("এই শহরের তথ্য এখনো নেই।", "No data for this city yet."),
+    "limit": ("আজকের সীমা পূর্ণ। কাল আবার চেষ্টা করুন।", "Today's limit is reached. Please try tomorrow."),
+    "route": ("এই বাসটি পাওয়া যায়নি।", "That bus was not found."),
+    "not_found": ("রিপোর্টটি পাওয়া যায়নি।", "Report not found."),
+    "invalid": ("লোকেশন ঠিক নেই।", "Location is not valid."),
+}
+
+
+@api_view(["GET", "POST"])
+def city_field_stops(request):
+    """citycov: field collection. GET ?lat&lon = waiting reports nearby (to
+    confirm). POST {lat, lon, route_id?} = "Add a stop here" / "This bus stops
+    here" at the phone's location; POST {lat, lon, id} = "Yes, it stops here"
+    on a nearby report. Reported until FIELD_CONFIRM different people agree."""
+    if request.method == "GET":
+        ll = _qll(request)
+        if ll is None:
+            return _need_loc(request)
+        return Response({"items": CS.field_list(request.user, *ll), "need": CS.FIELD_CONFIRM,
+                         "routes": CS.field_routes(*ll)})
+    d = request.data if isinstance(request.data, dict) else {}
+    try:
+        rid = int(d.get("id")) if d.get("id") not in (None, "") else None
+    except (TypeError, ValueError):
+        rid = None
+    if d.get("lat") in (None, "") or d.get("lon") in (None, ""):
+        return _need_loc(request)
+    obj, err = CS.field_stop(request.user, d.get("lat"), d.get("lon"),
+                             str(d.get("route_id") or ""), rid)
+    lang = req_lang(request)
+    if err in _FIELD_ERR:
+        bn, en = _FIELD_ERR[err]
+        code = 429 if err == "limit" else 404 if err in ("not_found", "route") else 400
+        return Response({"ok": False, "reason": err, "detail": pick(lang, bn, en)}, status=code)
+    if err == "known":
+        return Response({"ok": True, "status": "known",
+                         "detail": pick(lang, "এখানে স্টপটি আগেই আছে — ধন্যবাদ!",
+                                        "This stop is already on the map — thank you!")})
+    if err == "far":
+        return Response({"ok": False, "reason": "far",
+                         "detail": pick(lang, "নিশ্চিত করতে স্টপের কাছে থাকুন।",
+                                        "Please be at the stop to confirm it.")}, status=400)
+    if err == "rejected":
+        return Response({"ok": True, "status": "rejected",
+                         "detail": pick(lang, "এটি আগে যাচাই করে বাদ দেওয়া হয়েছে।",
+                                        "This was checked before and not added.")})
+    people = len(obj.anons or [])
+    st = "confirmed" if obj.status == "confirmed" else "already" if err == "already" else "reported"
+    if st == "confirmed":
+        msg = pick(lang, "নিশ্চিত! স্টপটি এখন সবার রুটে দেখাবে (যাত্রীদের জানানো)।",
+                   "Confirmed! The stop now shows in everyone's routes (Reported by users).")
+    else:
+        msg = pick(lang, "ধন্যবাদ! আরও কয়েকজন নিশ্চিত করলে স্টপটি যোগ হবে।",
+                   "Thanks! The stop is added once a few more people confirm it.")
+    return Response({"ok": True, "id": obj.id, "status": st, "people": people,
+                     "need": CS.FIELD_CONFIRM, "detail": msg}, status=200 if err else 201)
+
+
+@api_view(["POST"])
+def city_trip_confirm(request, tid):
+    """citycov / own map A4: post-trip card {route_id?, fare?} for the
+    rider's own trip (by its id from POST city/trips). No name kept."""
+    d = request.data if isinstance(request.data, dict) else {}
+    stats, err = CS.trip_confirm(request.user, tid, str(d.get("route_id") or ""), d.get("fare"))
+    if err == "not_found":
+        return _bad(request, "যাত্রাটি পাওয়া যায়নি।", "Trip not found.", 404)
+    if err:
+        return _bad(request, "বাস বা ভাড়া ঠিক নেই।", "Bus or fare is not valid.")
+    return Response(dict({"ok": True}, **stats))

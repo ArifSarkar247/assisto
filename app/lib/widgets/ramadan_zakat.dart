@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'local_digits.dart'; // lifebar
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// Inline Zakat calculator. Zakat = 2.5% of zakatable wealth AT OR ABOVE nisab.
 /// Every amount (cash, gold VALUE, silver VALUE, investments, debts, nisab) is
@@ -36,7 +37,7 @@ class _RamadanZakatState extends State<RamadanZakat> {
   }
 
   double _v(TextEditingController c) =>
-      double.tryParse(c.text.trim().replaceAll(',', '')) ?? 0;
+      parseNumInput(c.text.trim().replaceAll(',', '')) ?? 0;
 
   void _calc() {
     final wealth =

@@ -14,6 +14,7 @@ import 'vehicle_fence_editor_screen.dart'; // veh100
 import '../widgets/cv_empty.dart';
 import 'messenger/messenger_home_screen.dart';
 import '../widgets/local_counter.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// Owner-only tracker settings: alerts (over-speed, night ignition,
 /// geofences), reporting interval, engine-cut family approval, who can see /
@@ -117,7 +118,7 @@ class _VehicleTrackerSettingsScreenState extends State<VehicleTrackerSettingsScr
           'quiet_end': _quietEnd,
         },
         if (_odo.text.trim().isNotEmpty && _odo.text.trim() != _odoStart)
-          'odometer_km': double.tryParse(_odo.text.trim()) ?? -1,
+          'odometer_km': parseNumInput(_odo.text.trim()) ?? -1,
       });
       _snack(tr.vehSaved);
     } catch (e) {

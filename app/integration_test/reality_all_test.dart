@@ -32,6 +32,7 @@ import 'flows/safe_journey_flow.dart';
 import 'flows/sos_journey_flow.dart'; // qjourney
 import 'flows/journey_v2_flow.dart'; // qjourney
 import 'flows/sweep_flow.dart';
+import 'flows/save_sweep_flow.dart'; // savesweep
 import 'support/harness.dart';
 
 void main() {
@@ -61,6 +62,8 @@ void main() {
   if (on('business')) registerCrm100Flows(); // crm100
   if (on('business')) registerBizQualityFlows(); // qbiz
   if (on('docs')) registerDocsVoiceSettingsFlows();
+  // savesweep: per-form fill -> Save -> reopen -> still there (group 'save')
+  if (on('save')) registerSaveSweepFlows();
   if (on('sweep')) registerSweepFlow();
   // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();

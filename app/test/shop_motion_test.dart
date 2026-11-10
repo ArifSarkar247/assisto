@@ -31,14 +31,23 @@ void main() {
     }
   });
 
-  test('a moving blob is confirmed only after 2 consecutive frames', () {
+  test('a moving blob is confirmed only after 3 consecutive frames (cctvacc)', () {
     final d = MotionDetector();
     d.feed(_frame(w, h, 100), w, h, w); // background
+    Uint8List at(int k) =>
+        _frame(w, h, 100, box: Rect(100.0 + 20 * k, 80, 180.0 + 20 * k, 160));
+    expect(d.feed(at(0), w, h, w).motion, isFalse); // one frame is never enough
+    expect(d.feed(at(1), w, h, w).motion, isFalse); // nor two
+    expect(d.feed(at(2), w, h, w).motion, isTrue);
+  });
+
+  test('an object that appears and stays still (lamp, bag) is not motion', () {
+    final d = MotionDetector();
+    d.feed(_frame(w, h, 100), w, h, w);
     final f = _frame(w, h, 100, box: const Rect(100, 80, 180, 160));
-    final r1 = d.feed(f, w, h, w);
-    expect(r1.motion, isFalse); // one frame is never enough
-    final r2 = d.feed(f, w, h, w);
-    expect(r2.motion, isTrue);
+    for (var i = 0; i < 6; i++) {
+      expect(d.feed(f, w, h, w).motion, isFalse);
+    }
   });
 
   test('global lighting change resets the background, no motion', () {
@@ -53,9 +62,11 @@ void main() {
   test('zone: motion outside the cash zone is not "in zone"', () {
     final d = MotionDetector(zone: const ZoneRect(0.0, 0.0, 0.3, 0.3));
     d.feed(_frame(w, h, 100), w, h, w);
-    final f = _frame(w, h, 100, box: const Rect(220, 160, 310, 230));
-    d.feed(f, w, h, w);
-    final r = d.feed(f, w, h, w);
+    Uint8List at(int k) =>
+        _frame(w, h, 100, box: Rect(200.0 + 15 * k, 160, 270.0 + 15 * k, 230));
+    d.feed(at(0), w, h, w);
+    d.feed(at(1), w, h, w);
+    final r = d.feed(at(2), w, h, w);
     expect(r.motion, isTrue);
     expect(r.inZone, isFalse);
   });
@@ -63,9 +74,11 @@ void main() {
   test('zone: motion inside the cash zone is reported', () {
     final d = MotionDetector(zone: const ZoneRect(0.25, 0.25, 0.75, 0.75));
     d.feed(_frame(w, h, 100), w, h, w);
-    final f = _frame(w, h, 100, box: const Rect(110, 90, 210, 150));
-    d.feed(f, w, h, w);
-    expect(d.feed(f, w, h, w).inZone, isTrue);
+    Uint8List at(int k) =>
+        _frame(w, h, 100, box: Rect(100.0 + 15 * k, 90, 160.0 + 15 * k, 150));
+    d.feed(at(0), w, h, w);
+    d.feed(at(1), w, h, w);
+    expect(d.feed(at(2), w, h, w).inZone, isTrue);
   });
 
   test('row stride larger than width is handled', () {

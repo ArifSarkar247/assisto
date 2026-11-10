@@ -248,6 +248,8 @@ import 'fake_fcscreen.dart'; // fcscreen
 import 'package:assisto/screens/medicine_history_screen.dart';
 import 'package:assisto/screens/emergency_screen.dart';
 import 'package:assisto/screens/emergency_hub_screen.dart';
+import 'package:assisto/screens/merged/phone_tiles.dart'; // svcclean
+import 'package:assisto/screens/home_v2/all_services_screen.dart' show AllServicesScreen; // svcclean
 import 'package:assisto/screens/reminders_screen.dart';
 import 'package:assisto/screens/notes_todos_screen.dart';
 import 'package:assisto/screens/memory_screen.dart';
@@ -323,6 +325,9 @@ import 'package:assisto/screens/circle_privacy_screen.dart';
 import 'package:assisto/screens/circle_search_screen.dart';
 import 'package:assisto/screens/referral_screen.dart';
 import 'package:assisto/screens/journey_start_screen.dart';
+import 'package:assisto/services/journey_habits.dart' show JourneySuggestion; // sjstart2
+import 'package:assisto/widgets/journey_plate_photo.dart' show JourneyPlatePhotoTile, sj2PickPlatePhoto; // sjstart2
+import 'package:assisto/widgets/journey_watcher_chips.dart' show JourneyWatcherChips; // sjstart2
 import 'package:assisto/screens/journey_live_screen.dart';
 import 'package:assisto/screens/journey_sos_screen.dart';
 import 'package:assisto/screens/journey_settings_screen.dart';
@@ -347,6 +352,7 @@ import 'admobump_shots.dart'; // admobump
 import 'p1_bizagent_shots.dart'; // p1-bizagent
 import 'tl1_shots.dart'; // tl1 OEM background guide
 import 'cctv1_shots.dart'; // cctv1 Home & shop watchman
+import 'cctvdet_shots.dart'; // cctvdet CCTV zone detections
 import 'cctvalerts_shots.dart'; // cctvalerts W3 alert types
 import 'cctvaicheck_shots.dart'; // cctvaicheck W4 AI check of the alert photo
 import 'cctvguard_shots.dart'; // cctvguard: CCTV cost guards
@@ -360,6 +366,7 @@ import 'cctvevidence_shots.dart'; // cctvevidence CCTV recording + evidence
 import 'cctvescalate_shots.dart'; // cctvescalate C3-C6
 import 'cctvact_shots.dart'; // cctvact CCTV V3 D/E/F/G
 import 'cctvprice_shots.dart'; // cctvprice CCTV plan
+import 'buyinside_shots.dart'; // buyinside
 import 'safeplans_shots.dart'; // safeplans Safety plans
 import 'carecall_shots.dart'; // carecall Care Call SCREEN 1/2/3
 import 'fcbrain_shots.dart'; // fcbrain
@@ -1069,6 +1076,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'emergency': (build: (_) => const EmergencyScreen(), mode: FakeMode.data, full: true),
     // emhub: the Emergency hub (SOS first, 999, then the rest by urgency)
     'emergency_hub': (build: (_) => const EmergencyHubScreen(), mode: FakeMode.data, full: true),
+    // svcclean (owner 10 Nov): All Services after the cleanup + the merged tiles
+    'svc_all_services': (build: (_) => const AllServicesScreen(), mode: FakeMode.data, full: true),
+    'svc_lost_phone': (build: (_) => const LostPhoneTileScreen(), mode: FakeMode.data, full: true),
+    'svc_phone_safety': (build: (_) => const PhoneSafetyTileScreen(), mode: FakeMode.data, full: true),
     'reminders': (build: (_) => const RemindersScreen(), mode: FakeMode.data, full: true),
     // remmeter: delivery check + recharge paths (sheets shown as pages)
     'rem_check': (build: (_) {
@@ -1215,6 +1226,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in admobumpShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     for (final e in tl1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // tl1
     for (final e in cctv1Shots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctv1
+    for (final e in cctvdetShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvdet
     for (final e in cctvalertsShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvalerts
     for (final e in cctvaicheckShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvaicheck
     for (final e in cctvguardShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvguard
@@ -1228,6 +1240,7 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in cctvescalateShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvescalate
     for (final e in cctvactShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvact
     for (final e in cctvpriceShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // cctvprice
+    for (final e in buyinsideShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // buyinside
     for (final e in safeplansShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // safeplans
     for (final e in carecallShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // carecall
     for (final e in fcbrainShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true), // fcbrain
@@ -1263,6 +1276,20 @@ Map<String, GallerySpec> gallerySpecs() {
     'nearby_general': (build: (_) => const NearbyScreen(placeType: 'atm', debugLocation: (lat: 23.738, lon: 90.395)), mode: FakeMode.data, full: true),
     'truth_firstwin_business': (build: (_) => Scaffold(body: SafeArea(child: Builder(builder: (c) => OnbFirstWin(role: OnbRole.business, onPick: (w) => ScaffoldMessenger.of(c).showSnackBar(SnackBar(content: Text(w.name))))))), mode: FakeMode.data, full: true),
     'truth_journey_empty_circle': (build: (_) => const JourneyStartScreen(), mode: FakeMode.empty, full: true),
+    // sjstart2: "Who watches" chips (family first, more than one) + plate photo; usual-trip suggestion
+    'sjstart2_watchers': (build: (l) { var sel = <int>{1, 2}; return StatefulBuilder(builder: (c, set) => Scaffold(appBar: AppBar(title: Text(AppLocalizations.of(c).journeyWhoKnows)), body: ListView(padding: const EdgeInsets.all(16), children: [
+          JourneyWatcherChips(rows: [
+            {'id': 1, 'name': l == 'bn' ? 'আম্মু' : 'Mum', 'relation': 'mother'},
+            {'id': 2, 'name': l == 'bn' ? 'আব্বু' : 'Dad', 'relation': 'father'},
+            {'id': 3, 'name': l == 'bn' ? 'রিনা (বোন)' : 'Rina (sister)', 'relation': 'sister'},
+            {'id': 4, 'name': l == 'bn' ? 'রাফি (অফিস)' : 'Rafi (office)', 'relation': 'colleague'},
+          ], selected: sel, onChanged: (v) => set(() => sel = v)),
+          const SizedBox(height: 8),
+          Text(AppLocalizations.of(c).sj2WatchCount(l == 'bn' ? const ['০', '১', '২', '৩', '৪'][sel.length] : '${sel.length}')),
+          const SizedBox(height: 16),
+          JourneyPlatePhotoTile(bytes: null, onPick: () => sj2PickPlatePhoto(c), onRemove: () {}),
+        ]))); }, mode: FakeMode.data, full: true),
+    'sjstart2_suggest': (build: (l) => JourneyStartScreen(suggest: JourneySuggestion(oLat: 23.78, oLng: 90.426, dLat: 23.7925, dLng: 90.4078, name: l == 'bn' ? 'অফিস' : 'Office', kind: 'office', mode: 'cng', usualMin: 510, times: 4)), mode: FakeMode.data, full: true),
     'used_phone_check': (build: (_) => const UsedPhoneCheckScreen(), mode: FakeMode.data, full: true),
     // b6-antitheft: always-on Lost/Stolen engine (status, options, honest limits)
     'at_protection_off': (build: (_) => const AlwaysOnProtectionScreen(), mode: FakeMode.empty, full: true),

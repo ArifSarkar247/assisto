@@ -12,6 +12,7 @@ import 'farmer/farmer_help.dart'; // p3farm: Help tab + crop calendar
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/num_input.dart'; // savesweep
 
 /// FARMER / VILLAGE MODE — ADVANCED (#199, SPEC v2.1 §20).
 ///
@@ -1169,8 +1170,8 @@ class _RecordFormState extends State<_RecordForm> {
       'crop': _crop ?? '',
       'planted': _iso(_planted) ?? '',
       'harvest': _iso(_harvest) ?? '',
-      'cost': num.tryParse(_cost.text.trim()) ?? 0,
-      'income': num.tryParse(_income.text.trim()) ?? 0,
+      'cost': parseNumInput(_cost.text.trim()) ?? 0,
+      'income': parseNumInput(_income.text.trim()) ?? 0,
       'notes': _notes.text.trim(),
     };
     final problems = FarmerEngine.validateRecord(row);
@@ -1343,7 +1344,7 @@ class _LivestockFormState extends State<_LivestockForm> {
     final t = AppLocalizations.of(context);
     final row = <String, dynamic>{
       'animal': _animal ?? '',
-      'count': int.tryParse(_count.text.trim()) ?? 0,
+      'count': parseIntInput(_count.text.trim()) ?? 0,
       'last_vaccinated': _lastVacc == null
           ? ''
           : '${_lastVacc!.year.toString().padLeft(4, '0')}-${_lastVacc!.month.toString().padLeft(2, '0')}-${_lastVacc!.day.toString().padLeft(2, '0')}',

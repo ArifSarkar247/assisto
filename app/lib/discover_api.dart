@@ -190,6 +190,9 @@ class DiscoverItem {
 
   String description(AppLocalizations t, String lang) {
     if (tDesc != null) return tDesc!(t);
+    // svcclean (owner 10 Nov): the SOS card's line is the app's own short
+    // text so it always fits (the server's longer line was cut with "...").
+    if (key == 'sos') return t.svcSosCardDesc;
     final a = lang == 'bn' ? descBn : descEn;
     return a.isNotEmpty ? a : (lang == 'bn' ? descEn : descBn);
   }

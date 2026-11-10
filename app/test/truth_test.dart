@@ -282,6 +282,10 @@ void main() {
         await tester.scrollUntilVisible(find.text(t.journeyNoWatchers), 300,
             scrollable: find.byType(Scrollable).first);
         expect(find.text(t.journeyNoWatchers), findsOneWidget);
+        // sjstart2: the "From" row on top moved the form down a little
+        await tester.ensureVisible(find.byKey(const ValueKey('truth_journey_add_watcher'),
+            skipOffstage: false));
+        await tester.pump();
         expect(find.byKey(const ValueKey('truth_journey_add_watcher')),
             findsOneWidget);
         expect(find.text(t.truthJourneyAddFamily), findsOneWidget);

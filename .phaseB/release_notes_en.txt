@@ -1,1 +1,5 @@
-Build 325: Safe Journey V2 — new start screen with one search (our own Bangladesh place list first, never a limit message), arrival window with the earliest possible time, private check-in for the traveler, alert ladder with safe and danger PIN, family watcher board, live page with the arrival window.
+- Save now works for whole amounts in Family accounting, Mess, wedding and staff accounts (Bangla digits too); Save buttons reachable with the keyboard open.
+- All Services cleaned up: Family & Safety has 8 clear tiles with one red Emergency screen; other services in 16 tidy groups with full names.
+- Buy or start a free trial right inside paid features (CCTV: 7 days free).
+- CCTV: new detections, better phone motion and fewer night false alerts.
+- Safe Journey start screen and City Service coverage improvements.

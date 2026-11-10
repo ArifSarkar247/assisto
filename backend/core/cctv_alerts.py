@@ -229,7 +229,10 @@ def _prepare(site, cam, cam_event, now, snapshot):
     person = (obj == "person" or kind == "person" or etype == "person_detected"
               or bool(sig.get("human")))
     native = kind == "loiter"
-    if (person or native) and etype in PRESENCE_TYPES + ("loitering",):
+    # cctvdet: a DWELL-zone loitering from the box / phone is already timed
+    # there (the zone's schedule is checked in shop_views) — not re-timed here
+    if (person or native) and etype in PRESENCE_TYPES + ("loitering",) \
+            and not sig.get("zone_dwell"):
         night = is_night(cam, now)
         lst, fire, dur = CR.loiter_step(st.get("loiter"), float(cam_event.get("at") or ts),
                                         night, native=native)

@@ -16,6 +16,7 @@ import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import '../widgets/local_digits.dart'; // lifebar
 import '../feature_flags.dart'; // p2career
 import 'career/job_find_screen.dart'; // p2career
+import '../widgets/num_input.dart'; // savesweep
 
 /// Job Hunter — ADVANCED (feature 37, SPEC v2.1 §21). Three tabs:
 ///   • Discover — curated sample feed + search/filters + salary insight, with an
@@ -153,7 +154,7 @@ class _JobsScreenState extends State<JobsScreen> {
       }),
     );
     if (ok != true || !mounted) return;
-    final sal = int.tryParse(salary.text.replaceAll(RegExp(r'[^0-9]'), ''));
+    final sal = parseIntInput(salary.text.replaceAll(RegExp(r'[^0-9]'), ''));
     final messenger = ScaffoldMessenger.of(context);
     try {
       await context.read<AppState>().api.createItem('jobs', {

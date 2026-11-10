@@ -26,6 +26,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import '../cctv/detect_rules.dart';
 import '../crypto/e2e.dart';
 import 'clip_crypto.dart' show kClipAad, kClipScheme;
 
@@ -272,13 +273,21 @@ class GuardBoxEngine {
   final double Function() clock; // seconds
   final Random? rng;
   final ZoneMotion motion;
-  final JpegRing ring = JpegRing(4);
+  final JpegRing ring = JpegRing(kDetClipPreS + 1); // cctvdet: 10 s clips need 4 s before
   final GuardStats stats = GuardStats();
   List<Map<String, dynamic>> recipients = const [];
   double cooldownS;
   double preS = 2, postS = 2, clipFps = 2;
   double _lastEventAt = -1e9;
   final List<_Job> _jobs = [];
+  // cctvdet: zone detections (gate / post / dwell) + camera tamper, the
+  // same rules as the Shop Box (lib/cctv/detect_rules.dart)
+  final ZoneRules zrules = ZoneRules();
+  final TamperCheck tamper = TamperCheck();
+  double? _lastPcheck, _lastPatch;
+  final Map<String, double> _detCool = {};
+  /// Persists a gate's remembered CLOSED picture (survives a restart).
+  void Function(Map<String, Map<String, Object?>> refs)? onRefsChanged;
 
   GuardBoxEngine({
     required this.device,
@@ -313,6 +322,8 @@ class GuardBoxEngine {
       }
       final cd = (c['tuning'] as Map?)?['cooldown_s'];
       if (cd is num) cooldownS = cd.toDouble();
+      final zc = (c['zones'] as Map?) ?? (c['zone_config'] as Map?);
+      zrules.configureFromJson(zc); // cctvdet
     }
   }
 
@@ -339,6 +350,9 @@ class GuardBoxEngine {
     final m = motion.feed(g);
     stats.frames++;
     var sent = false;
+    try {
+      sent = await _zoneDetections(now, jpeg, g, m.any);
+    } catch (_) {} // a new rule never stops the cash guard
     if (m.inZone && hasZone && now - _lastEventAt >= cooldownS) {
       List<List<double>>? people;
       if (detect != null) {
@@ -357,6 +371,86 @@ class GuardBoxEngine {
     final ms = DateTime.now().difference(t0).inMicroseconds / 1000.0;
     stats.avgFrameMs = stats.frames <= 1 ? ms : stats.avgFrameMs * 0.9 + ms * 0.1;
     return sent;
+  }
+
+  /// cctvdet: gate / post / dwell zones + tamper on this frame.
+  Future<bool> _zoneDetections(double now, Uint8List jpeg, GrayFrame g, bool moved) async {
+    final local = DateTime.fromMillisecondsSinceEpoch((now * 1000).round());
+    final wd = local.weekday - 1, minute = local.hour * 60 + local.minute;
+    final dets = <Map<String, Object?>>[];
+    if (tamper.due(now)) {
+      final (grid, mean, std) = stillStats(g.y, g.width, g.height);
+      final kind = tamper.check(grid, mean, std, mean < 40, now);
+      if (kind != null) dets.add({'type': kDetCameraHealth, 'kind': kind});
+    }
+    if (zrules.zones.isNotEmpty) {
+      List<List<double>>? boxes;
+      if (detect != null && (moved || zrules.needsPersonCheck(now, wd, minute, _lastPcheck))) {
+        try {
+          boxes = await detect!(jpeg);
+        } catch (_) {
+          boxes = null;
+        }
+        _lastPcheck = now;
+      }
+      Map<String, List<double>>? patches;
+      final gates = zrules.gateZones();
+      if (gates.isNotEmpty && (_lastPatch == null || now - _lastPatch! >= 5)) {
+        _lastPatch = now;
+        patches = {};
+        var changed = false;
+        for (final z in gates) {
+          final p = zonePatch(g.y, g.width, g.height, z.points);
+          patches[z.id] = p;
+          final busy = boxes != null && boxes.any((b) => detBoxInZone(b, z.points));
+          if (zrules.wantsRef(z.id) && !busy) {
+            zrules.setRef(z.id, p, _night(g), now);
+            changed = true;
+          }
+        }
+        if (changed) onRefsChanged?.call(zrules.refs());
+      }
+      dets.addAll(zrules.step(now, wd, minute, boxes, night: _night(g), patches: patches));
+    }
+    var sent = false;
+    for (final d in dets) {
+      final key = '${d['type']}/${d['zone'] ?? ''}';
+      if (now - (_detCool[key] ?? -1e9) < cooldownS) continue;
+      _detCool[key] = now;
+      final sig = detectionSignals(d,
+          detector: detect == null ? 'motion_only' : 'yolox_nano', source: 'guard_box');
+      if (await _send('${d['type']}', sig, now, jpeg, long: true)) sent = true;
+    }
+    return sent;
+  }
+
+  static bool _night(GrayFrame g) {
+    var s = 0;
+    for (final v in g.y) {
+      s += v;
+    }
+    return g.y.isNotEmpty && s / g.y.length < 40;
+  }
+
+  /// cctvdet: send one detection; a 10 s clip (4 s before, 6 s after).
+  Future<bool> _send(String type, Map<String, dynamic> signals, double now, Uint8List jpeg,
+      {bool long = false}) async {
+    final ref = _ref();
+    final wantClip = recipients.isNotEmpty;
+    final (status, body) = await device.ingest(type, signals,
+        snapshot: jpeg, clipRef: wantClip ? ref : null);
+    if (status < 200 || status >= 300) {
+      stats.lastError = 'ingest_$status';
+      return false;
+    }
+    stats.events++;
+    if (wantClip && body['raised'] == true && body['clip_wanted'] != false) {
+      final pre = ring.since(now - kDetClipPreS);
+      final preDur = pre.isEmpty ? 0.0 : now - pre.first.$1;
+      final post = max(kDetClipS - kDetClipPreS, kDetClipS - preDur);
+      _jobs.add(_Job(ref, now + post, pre, long: long));
+    }
+    return body['raised'] == true;
   }
 
   Future<bool> _alert(double now, Uint8List jpeg, bool person) async {
@@ -403,7 +497,8 @@ class GuardBoxEngine {
       return;
     }
     final dur = frames.last.$1 - frames.first.$1 + 1 / clipFps;
-    if (dur < 3.0 || dur > 5.5) {
+    // cctvdet: a detection clip is ~10 s (server: 2-12.5 s, <= 40 frames)
+    if (dur < 3.0 || dur > (j.long ? kDetClipS + 0.5 : 5.5) || frames.length > 40) {
       stats.clipsDropped++;
       return;
     }
@@ -435,6 +530,7 @@ class GuardBoxEngine {
 class _Job {
   final String ref;
   final double until;
+  final bool long;
   final List<(double, Uint8List)> frames;
-  _Job(this.ref, this.until, List<(double, Uint8List)> pre) : frames = [...pre];
+  _Job(this.ref, this.until, List<(double, Uint8List)> pre, {this.long = false}) : frames = [...pre];
 }

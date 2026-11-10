@@ -13,6 +13,7 @@ import '../widgets/confirm_delete.dart'; // lifebar
 import '../widgets/app_sheet.dart' show withNavBarInset, showAppSheet; // lifebar
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show serverFailText; // qa2
+import '../widgets/num_input.dart'; // savesweep
 
 /// COST / TIME ESTIMATOR (#36, SPEC v2.1 §8, ADVANCED).
 ///
@@ -865,7 +866,7 @@ class _TemplateQuestionsState extends State<_TemplateQuestions> {
           TextField(
             controller: _c['${q['key']}'],
             keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly],
             decoration: InputDecoration(
               labelText: '${q['label'] ?? ''}',
               suffixText: '${q['unit'] ?? ''}',
@@ -876,7 +877,7 @@ class _TemplateQuestionsState extends State<_TemplateQuestions> {
         ],
         FilledButton.icon(
           onPressed: () => Navigator.pop(context, {
-            for (final e in _c.entries) e.key: int.tryParse(e.value.text.trim()) ?? 0,
+            for (final e in _c.entries) e.key: parseIntInput(e.value.text.trim()) ?? 0,
           }),
           icon: const Icon(Icons.calculate_rounded),
           label: Text(t.p2CeBuild),

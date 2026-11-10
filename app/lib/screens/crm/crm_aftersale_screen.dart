@@ -4,6 +4,7 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_aftersale_api.dart';
 import '../../widgets/crm_aftersale_widgets.dart';
 import 'crm_common.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// AFTER-SALE hub (CRM_SPEC §7): four tabs — Collections, AMC/Renewals,
 /// Complaints, Upsell. All money is integer POISHA from the server (no float).
@@ -130,7 +131,7 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
       ),
     );
     if (ok != true) return;
-    final taka = double.tryParse(amtCtl.text.trim()) ?? 0;
+    final taka = parseNumInput(amtCtl.text.trim()) ?? 0;
     final poisha = (taka * 100).round();
     try {
       await CrmAfterSaleApi.of(context).recordCollection(

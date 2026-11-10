@@ -19,6 +19,11 @@ import uuid
 from . import clip as clipmod
 from . import paths, payload
 from .analyzer import CameraAnalyzer
+
+# cctvdet: zone detections + tamper get a 10 s clip and a per-zone cooldown
+DET_CLIP_TYPES = frozenset({payload.GATE_PERSON, payload.LOITERING,
+                            payload.POST_EMPTY, payload.GATE_OPEN,
+                            payload.CAMERA_HEALTH})
 from .camera import CameraWorker
 from .client import (CLIP_GIVE_UP_S, DROP, SENT, UNAUTHORIZED, ClipClient,
                      ClipSender, IngestClient, Sender)
@@ -107,6 +112,7 @@ class Engine:
         # cashguard: encrypted 3-5 s clips for cash-zone alerts (only once
         # the server config names someone to seal them for)
         self.clips = clipmod.ClipRecorder(on_ready=self._on_clip_ready)
+        self._long_refs: set = set()      # cctvdet: refs of 10 s detection clips
         self.clip_outbox = Outbox(paths.path("clips"), max_items=40,
                                   max_bytes=40 * 1024 * 1024,
                                   max_age_s=CLIP_GIVE_UP_S, ext=".bin")
@@ -269,6 +275,9 @@ class Engine:
     def _start_camera(self, cam) -> None:
         an = CameraAnalyzer(cam, self.cfg.hours_for(cam), self.cfg.detection,
                             self.detector)
+        # cctvdet: a gate's remembered CLOSED picture survives a restart
+        an.zrules.load_refs(self._load_refs(cam.id))
+        an.on_refs_changed = lambda refs, cid=cam.id: self._save_refs(cid, refs)
         self.analyzers[cam.id] = an
         w = CameraWorker(cam.id, cam.name,
                          url_provider=lambda cid=cam.id: self.rtsp_url_for(cid),
@@ -327,12 +336,34 @@ class Engine:
             self.clips.sweep()
 
     @staticmethod
+    def _refs_path(cam_id: str) -> str:
+        safe = "".join(c for c in str(cam_id) if c.isalnum() or c in "-_")[:40] or "cam"
+        return paths.path("zone_refs_%s.json" % safe)
+
+    def _load_refs(self, cam_id: str) -> dict:
+        try:
+            with open(self._refs_path(cam_id), encoding="utf-8") as f:
+                d = json.load(f)
+            return d if isinstance(d, dict) else {}
+        except (OSError, ValueError):
+            return {}
+
+    def _save_refs(self, cam_id: str, refs: dict) -> None:
+        try:
+            with open(self._refs_path(cam_id), "w", encoding="utf-8") as f:
+                json.dump(refs, f)
+        except OSError:
+            log.warning("gate picture could not be saved (kept in memory)")
+
+    @staticmethod
     def wants_clip(trig) -> bool:
         """Cash-guard alerts get a clip: a hand/person at the cash zone, the
         motion-only cash-zone fallback, someone in a restricted zone, or a
         person in the cash zone after closing."""
         sig = trig.signals or {}
         if trig.type == "hand_in_cash_zone" or trig.type == "zone_intrusion":
+            return True
+        if trig.type in DET_CLIP_TYPES:     # cctvdet: 10 s clip
             return True
         if trig.type == "motion":
             return bool(sig.get("motion_in_zone"))
@@ -342,10 +373,20 @@ class Engine:
 
     def _on_clip_ready(self, cam_id: str, clip_ref: str, frames) -> None:
         cfg = self.clips.cfg
+        long_clip = clip_ref in self._long_refs
+        self._long_refs.discard(clip_ref)
         try:
-            built = clipmod.build_clip(frames, float(cfg.get("fps") or 5),
-                                       cfg.get("recipients") or [],
-                                       int(cfg.get("max_kb") or 900) * 1024)
+            if long_clip:
+                # cctvdet: the 10 s detection clip (server: 2-12.5 s, <= 40 frames)
+                built = clipmod.build_clip(frames, float(cfg.get("fps") or 5),
+                                           cfg.get("recipients") or [],
+                                           int(cfg.get("max_kb") or 900) * 1024,
+                                           min_s=3.0, max_s=clipmod.DET_CLIP_S + 0.5,
+                                           max_frames=clipmod.DET_CLIP_MAX_FRAMES)
+            else:
+                built = clipmod.build_clip(frames, float(cfg.get("fps") or 5),
+                                           cfg.get("recipients") or [],
+                                           int(cfg.get("max_kb") or 900) * 1024)
         except Exception:
             log.exception("clip could not be sealed")
             built = None
@@ -369,9 +410,10 @@ class Engine:
         if an is None:
             return
         trig = an.process(frame)
-        if trig is None:
-            return
-        self.handle_trigger(cam_id, trig)
+        if trig is not None:
+            self.handle_trigger(cam_id, trig)
+        for x in an.take_extra():         # cctvdet: zone detections / tamper
+            self.handle_trigger(cam_id, x)
 
     def handle_trigger(self, cam_id: str, trig) -> bool:
         """Apply cooldown, encode the one snapshot, queue. Returns True if queued."""
@@ -379,7 +421,11 @@ class Engine:
         if cam is not None and not cam.enabled:
             return False                     # the owner switched it off
         cool = (cam.tuning or {}).get("cooldown_s") if cam is not None else None
-        if not self.cooldown.allow((cam_id, trig.type), cool):
+        key = (cam_id, trig.type)
+        if trig.type in DET_CLIP_TYPES:
+            # cctvdet: one per zone (a gate and a post may both be busy)
+            key = (cam_id, trig.type, str((trig.signals or {}).get("zone") or ""))
+        if not self.cooldown.allow(key, cool):
             return False
         snap = None
         if self.cfg.sending.snapshot_mode != "never":
@@ -395,8 +441,16 @@ class Engine:
             event["server_camera_id"] = int(cam.server_id)
         if self.clips.enabled and self.wants_clip(trig):
             ref = uuid.uuid4().hex
-            if self.clips.start(cam_id, ref, trig.at):
+            if trig.type in DET_CLIP_TYPES:
+                self._long_refs.add(ref)
+                ok = self.clips.start(cam_id, ref, trig.at, seconds=clipmod.DET_CLIP_S,
+                                      pre_s=clipmod.DET_CLIP_PRE_S)
+            else:
+                ok = self.clips.start(cam_id, ref, trig.at)
+            if ok:
                 event["clip_ref"] = ref
+            else:
+                self._long_refs.discard(ref)
         self.outbox.put(event, snap)
         self.events.add(camera=cam.name if cam else cam_id, type=trig.type,
                         status="queued", signals=trig.signals)

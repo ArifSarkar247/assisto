@@ -178,19 +178,30 @@ DEFAULTS = {
     "storage_usd_gb_month": 0.023,
     "play_fee": 0.15,
     "vat": 0.15,
+    # buyinside (owner 10 Nov): the 7-day free trial's own worst case. During
+    # a trial the guards are lower (enforced by cctv_cap.trial_limits) and the
+    # trial cost is carried by the trials that convert: worst case 1 in 4
+    # trials buys and then pays 12 months.
+    "trial_relay_mb_per_camera": 100,
+    "trial_ai_checks_per_camera": 10,
+    "trial_conv_worst": 0.25,
+    "trial_paid_months_worst": 12,
 }
 _INT_BOUNDS = {"relay_mb_per_camera": (0, 5000), "ai_checks_per_camera": (0, 1000),
                "unbind_after_days": (1, 30), "keep_days": (30, 90),
                "clips_per_day": (0, 100),
                "extra_relay_mb": (100, 10000), "extra_relay_bdt": (10, 5000),
-               "extra_ai_checks": (10, 1000), "extra_ai_bdt": (10, 5000)}
+               "extra_ai_checks": (10, 1000), "extra_ai_bdt": (10, 5000),
+               "trial_relay_mb_per_camera": (0, 5000),
+               "trial_ai_checks_per_camera": (0, 1000),
+               "trial_paid_months_worst": (1, 60)}
 _NUM_BOUNDS = {"usd_bdt": (50.0, 500.0), "ezviz_device_usd_year": (0.0, 100.0),
                "ezviz_traffic_usd_gb": (0.0, 10.0), "imou_device_bdt_month": (0.0, 1000.0),
                "imou_traffic_usd_gb": (0.0, 10.0), "turn_bdt_per_gb": (0.0, 500.0),
                "ai_check_usd": (0.0, 1.0), "server_bdt_per_camera": (0.0, 500.0),
                "snapshot_bdt_per_camera": (0.0, 100.0), "clip_mb": (0.0, 50.0),
                "storage_usd_gb_month": (0.0, 1.0), "play_fee": (0.0, 0.5),
-               "vat": (0.0, 0.5)}
+               "vat": (0.0, 0.5), "trial_conv_worst": (0.01, 1.0)}
 _ID_RE = re.compile(r"^[a-z0-9][a-z0-9_.]{1,39}$")
 _OFFER_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
 
@@ -370,6 +381,66 @@ def profit_table(cfg=None, target_pct=40.0):
             "limits": {"relay_mb_per_camera": c["relay_mb_per_camera"],
                        "ai_checks_per_camera": c["ai_checks_per_camera"],
                        "owner_confirmed": c["limits_owner_confirmed"]}}
+
+
+# ---------------------------------------------------------------- trial cost
+# buyinside: rows the owner has to decide (shown in Owner Admin and in
+# owner_actions/PLAY_TRIAL_OFFER_BN.md). The CI check fails on any OTHER row
+# under 40 % — a new failure can never slip in silently.
+TRIAL_OWNER_DECISION = {("ezviz", 2)}
+
+
+def trial_camera_cost_bdt(c, vendor):
+    """Worst case cost of ONE camera during the 7-day trial at the trial
+    guards (every trial relay MB and every trial AI check used; device and
+    server costs pro rata for the trial days)."""
+    usd = c["usd_bdt"]
+    f = TRIAL_DAYS / 30.0
+    relay_gb = c["trial_relay_mb_per_camera"] / 1000.0
+    common = ((c["snapshot_bdt_per_camera"] + c["server_bdt_per_camera"]) * f
+              + c["trial_ai_checks_per_camera"] * c["ai_check_usd"] * usd)
+    if vendor == "ezviz":
+        dev = c["ezviz_device_usd_year"] / 12.0 * usd * f
+        relay = relay_gb * c["ezviz_traffic_usd_gb"] * usd
+    elif vendor == "imou":
+        dev = c["imou_device_bdt_month"] * f
+        relay = relay_gb * c["imou_traffic_usd_gb"] * usd
+    elif vendor == "phone":
+        dev = 0.0
+        relay = relay_gb * c["turn_bdt_per_gb"]
+    else:
+        raise ValueError(vendor)
+    return round(dev + relay + common, 2)
+
+
+def trial_profit_rows(cfg=None, target_pct=40.0):
+    """The 40 % worst case WITH the free trial: the trial is only on the
+    base plan (1-2 cameras). Every trial costs `trial cost`; only
+    `trial_conv_worst` of them pay, for `trial_paid_months_worst` months, so
+    each paid month carries trial_cost / (conv x months). Per vendor, because
+    the vendors' costs differ a lot."""
+    c = normalize_cfg(cfg)
+    share = net_share(c)
+    per_month_pay = c["trial_conv_worst"] * c["trial_paid_months_worst"]
+    rows = []
+    for v in VENDORS:
+        cam = camera_cost_bdt(c, v)["total"]
+        tcam = trial_camera_cost_bdt(c, v)
+        for n in (1, BASE_CAMERAS):
+            pr = monthly_price(n)
+            trial_cost = tcam * n
+            carry = trial_cost / per_month_pay
+            r = _row(pr, cam * n + carry, share)
+            r.update(vendor=v, cameras=n, trial_cost=round(trial_cost, 2),
+                     carry_per_month=round(carry, 2),
+                     owner_decision=(v, n) in TRIAL_OWNER_DECISION)
+            rows.append(r)
+    bad = [r for r in rows if r["pct"] < target_pct]
+    return {"rows": rows, "target_pct": target_pct,
+            "conv_worst": c["trial_conv_worst"],
+            "paid_months_worst": c["trial_paid_months_worst"],
+            "below": [(r["vendor"], r["cameras"]) for r in bad],
+            "ok": all(r["owner_decision"] for r in bad)}
 
 
 # ---------------------------------------------------------------- unpaid end

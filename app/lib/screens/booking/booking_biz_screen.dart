@@ -9,6 +9,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import 'booking_detail_screen.dart';
 import 'booking_setup_screen.dart';
+import '../../plans_v2/buy_inside.dart';
 import 'booking_source.dart';
 import 'booking_widgets.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -155,7 +156,7 @@ class _BookingBizScreenState extends State<BookingBizScreen> {
         _Welcome(owner: _page['is_owner'] == true, onStart: _setup),
       ]);
     }
-    final header = _Header(page: _page, ready: _ready, onSetup: _setup);
+    final header = _Header(page: _page, ready: _ready, onSetup: _setup, onReload: _load);
     return TabBarView(children: [
       _BookingList(
           key: ValueKey('today$_rev'),
@@ -200,7 +201,12 @@ class _Header extends StatelessWidget {
   final Map<String, dynamic> page;
   final bool ready;
   final VoidCallback onSetup;
-  const _Header({required this.page, required this.ready, required this.onSetup});
+  final Future<void> Function() onReload;
+  const _Header(
+      {required this.page,
+      required this.ready,
+      required this.onSetup,
+      required this.onReload});
 
   @override
   Widget build(BuildContext context) {
@@ -226,6 +232,21 @@ class _Header extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(page['plan_ok'] == false ? t.bkgNeedsPlan : t.bkgTurnOnHint),
+            ),
+          // buyinside: Business right here; back on this screen, unlocked
+          if (!on && page['is_owner'] == true && page['plan_ok'] == false)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.sm),
+              child: FilledButton.tonalIcon(
+                key: const Key('bi-booking-biz-buy'),
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: () async {
+                  final ok = await BuyInside.open(context, 'booking_bot');
+                  if (ok) await onReload();
+                },
+                icon: const Icon(Icons.workspace_premium_rounded),
+                label: Text(t.biGetBusinessHere, textAlign: TextAlign.center),
+              ),
             ),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.lg, runSpacing: Gap.xs, children: [

@@ -338,13 +338,41 @@ Map<String, dynamic>? fakeCityGet(String path, {bool empty = false}) {
   if (p == '/city/women') return fakeCityWomen();
   if (p == '/city/reports') return fakeCityReports(empty: empty);
   if (p == '/city/trips/consent') return {'on': false, 'keep_days': 7, 'trim_m': 300};
+  if (p == '/city/field-stops') return fakeCityField(empty: empty); // citycov
   return {'ok': true};
 }
+
+// citycov: "Map a stop" (field collection). Made-up sample reports.
+Map<String, dynamic> fakeCityField({bool empty = false}) => {
+      'need': 3,
+      'items': empty
+          ? <Map<String, dynamic>>[]
+          : [
+              {'id': 41, 'lat': 23.8081, 'lon': 90.3664, 'route_id': 'bus_shikor_1-a', 'route': 'Shikor Paribahan',
+               'route_bn': 'শিকড় পরিবহন', 'people': 2, 'need': 3, 'confirmed': false, 'mine': false, 'meters': 90},
+              {'id': 42, 'lat': 23.8090, 'lon': 90.3650, 'route_id': '', 'route': '', 'route_bn': '', 'people': 1,
+               'need': 3, 'confirmed': false, 'mine': true, 'meters': 260},
+            ],
+      'routes': empty
+          ? <Map<String, dynamic>>[]
+          : [
+              {'id': 'bus_shikor_1-a', 'mode': 'bus', 'name': 'Shikor Paribahan', 'name_bn': 'শিকড় পরিবহন',
+               'status': 'verified', 'from': 'Mirpur 10', 'from_bn': 'মিরপুর ১০', 'to': 'Motijheel', 'to_bn': 'মতিঝিল'},
+              {'id': 'leg-mirpur-a', 'mode': 'leguna', 'name': 'Leguna: Mirpur 10 - Kalshi', 'name_bn': 'লেগুনা: মিরপুর ১০ - কালশী',
+               'status': 'reported', 'from': 'Mirpur 10', 'from_bn': 'মিরপুর ১০', 'to': 'Kalshi', 'to_bn': 'কালশী'},
+            ],
+    };
 
 /// POST handler: every City Service write succeeds like the server.
 Map<String, dynamic>? fakeCityPost(String path, [Map<String, dynamic> body = const {}]) {
   if (!path.startsWith('/city/')) return null;
   if (path == '/city/trips/consent') return {'on': body['on'] == true, 'keep_days': 7, 'trim_m': 300};
   if (path == '/city/reports') return {'ok': true, 'id': 99, 'count': 1};
+  if (path == '/city/field-stops') {
+    // citycov: a 3rd "yes" confirms report 41; anything else waits
+    return body['id'] == 41
+        ? {'ok': true, 'id': 41, 'status': 'confirmed', 'people': 3, 'need': 3}
+        : {'ok': true, 'id': 43, 'status': 'reported', 'people': 1, 'need': 3};
+  }
   return {'ok': true, 'id': 1};
 }

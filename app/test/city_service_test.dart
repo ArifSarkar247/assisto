@@ -342,6 +342,11 @@ void main() {
           tester, CityServiceScreen(debugHere: _here, debugSimple: false, store: CityStore(files: MemoryCityFiles())),
           api);
       await tester.scrollUntilVisible(find.byKey(const ValueKey('city_learn')), 300, scrollable: _list());
+      // citycov: one more tile above -> bring the link fully on screen before tapping
+      await tester.drag(_list(), const Offset(0, -300));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const ValueKey('city_learn')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('city_learn')));
       await tester.pumpAndSettle();
       expect(find.text(t.cityLearnWhen), findsOneWidget);
