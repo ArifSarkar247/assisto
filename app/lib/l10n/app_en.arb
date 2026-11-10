@@ -50361,5 +50361,54 @@
         "type": "String"
       }
     }
-  }
+  },
+  "cdetZoneParking": "Parking",
+  "cdetZoneNoParking": "No parking",
+  "cdetSumCrowd": "alerts at {n} people or more",
+  "@cdetSumCrowd": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumOverstay": "alerts when a vehicle stays over {min}",
+  "@cdetSumOverstay": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumWrong": "alerts when a vehicle stands over {min}",
+  "@cdetSumWrong": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetSumLineNotify": "counts vehicles in / out, tells you each time",
+  "cdetSumLineLog": "counts vehicles in / out (log, no ring)",
+  "cdetCrowdTitle": "Crowd / queue: alert when this many people stay for a minute",
+  "cdetPeople": "{n} people",
+  "@cdetPeople": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "cdetOverstayTitle": "Alert when one vehicle stays longer than",
+  "cdetWrongTitle": "Alert when a vehicle stands here longer than",
+  "cdetLineVehicles": "Count vehicles in and out",
+  "cdetLineVehiclesBody": "Cars, motorbikes, buses, trucks and rickshaws crossing this line, with the number plate when it can be read.",
+  "cdetLineNotify": "Tell me every time",
+  "cdetLineFlip": "Swap in and out",
+  "cdetLineFlipBody": "Use this if the app shows 'in' when a vehicle leaves.",
+  "cdetVehicleNote": "Number plates are read only for vehicles at your own gate or parking — a plate is not a face, and we never identify people.",
+  "cdetEvCrowd": "A crowd / long queue",
+  "cdetEvVehicle": "A vehicle came in / went out",
+  "cdetEvOverstay": "A vehicle has overstayed",
+  "cdetEvWrongParking": "A vehicle is parked in the wrong place"
 }
