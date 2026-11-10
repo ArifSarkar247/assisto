@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../crypto/e2e.dart';
 import '../crypto/key_service.dart';
+import '../offline/net_status.dart'; // offline1st
 import '../security/secret_store.dart';
 
 /// e2-keys — the persistent LOCAL outbox (owner PRODUCT RULE: the sender is
@@ -88,6 +89,50 @@ abstract class OutboxStore {
   Future<void> save(List<Map<String, dynamic>> rows);
 }
 
+/// offline1st: the outbox ENCRYPTED AT REST — one [SecretStore] slot
+/// (ChaCha20-Poly1305, no_backup dir). It holds messages typed offline in
+/// PLAINTEXT (they are encrypted for the peer only when sent), so it must not
+/// sit in SharedPreferences. Read from disk on every use (no memory cache),
+/// so the FCM background isolate's flushes are seen. A queue an older build
+/// left in SharedPreferences is moved here once (merged by id).
+class SecretOutboxStore implements OutboxStore {
+  const SecretOutboxStore({SecretStore? store}) : _store = store;
+  static const slot = 'e2_outbox_v2';
+  final SecretStore? _store;
+  SecretStore get _s => _store ?? SecretStore.instance;
+
+  @override
+  Future<List<Map<String, dynamic>>> load() async {
+    final rows = <Map<String, dynamic>>[];
+    try {
+      final raw = await _s.read(slot);
+      if (raw != null && raw.isNotEmpty) {
+        rows.addAll((jsonDecode(raw) as List)
+            .whereType<Map>()
+            .map((m) => m.cast<String, dynamic>()));
+      }
+    } catch (_) {}
+    // one-time move of an older build's plaintext queue
+    try {
+      final old = await const PrefsOutboxStore().load();
+      if (old.isNotEmpty) {
+        final have = rows.map((r) => '${r['id']}').toSet();
+        rows.addAll(old.where((r) => !have.contains('${r['id']}')));
+        if (await _s.write(slot, jsonEncode(rows))) {
+          final p = await SharedPreferences.getInstance();
+          await p.remove(PrefsOutboxStore.key);
+        }
+      }
+    } catch (_) {}
+    return rows;
+  }
+
+  @override
+  Future<void> save(List<Map<String, dynamic>> rows) async {
+    await _s.write(slot, jsonEncode(rows));
+  }
+}
+
 class PrefsOutboxStore implements OutboxStore {
   const PrefsOutboxStore();
   static const key = 'e2_outbox_v1';
@@ -149,7 +194,11 @@ class FlushResult {
 }
 
 class Outbox {
-  Outbox({OutboxStore? store}) : store = store ?? const PrefsOutboxStore();
+  Outbox({OutboxStore? store}) : store = store ?? defaultStore;
+
+  /// offline1st: encrypted at rest in the app. Unit tests keep the
+  /// SharedPreferences store (reset per test) via test/flutter_test_config.
+  static OutboxStore defaultStore = const SecretOutboxStore();
 
   static Outbox instance = Outbox();
 
@@ -298,11 +347,19 @@ class Outbox {
     _transport = transport;
     _identity = identity;
     _sub?.cancel();
+    // offline1st: the moment the server is reachable again, send what was
+    // typed offline (in order, same client_msg_id -> the server dedupes).
+    NetStatus.instance.onBackOnline(_onNetBack);
     _sub = keyEvents?.listen((ev) {
       final chat = '${ev['chat'] ?? ''}';
       final id = chat.startsWith('member:') ? int.tryParse(chat.substring(7)) : null;
       unawaited(kick(onlyChat: id));
     });
+    unawaited(kick());
+  }
+
+  void _onNetBack() {
+    _step = 0;
     unawaited(kick());
   }
 

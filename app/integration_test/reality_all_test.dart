@@ -17,6 +17,7 @@ import 'flows/crm100_flow.dart'; // crm100
 import 'flows/circle_real_call_flow.dart';
 import 'flows/docs_voice_settings_flow.dart';
 import 'flows/e2e_proof_flows.dart'; // e2eproof
+import 'flows/offline_first_flow.dart'; // offline1st
 import 'flows/family_alerts_flow.dart';
 import 'flows/family_circle_flow.dart';
 import 'flows/home_flow.dart';
@@ -61,4 +62,9 @@ void main() {
   if (on('sweep')) registerSweepFlow();
   // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
+  // offline1st: the offline proof (real airplane mode) — nightly with the
+  // e2e proof flows, or alone with REALITY_ONLY=offline (e2e.yml input)
+  if (only.split(',').contains('e2e') || only.split(',').contains('offline')) {
+    registerOfflineFirstFlows();
+  }
 }
