@@ -28,9 +28,11 @@ import 'city_around_screen.dart';
 import 'city_directory_screen.dart';
 import 'city_journey.dart';
 import 'city_metro_screen.dart';
+import 'city_field_screen.dart'; // citycov
 import 'city_reports_screen.dart';
 import 'city_voice.dart';
 import 'city_women_screen.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 const String kCitySimpleModeKey = 'city_simple_mode';
 
@@ -651,6 +653,9 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
           t.cityLongDistanceSub, () => _open(CityDirectoryScreen(city: city, kinds: const ['terminals', 'ghats']))),
       (const ValueKey('city_tile_offices'), Icons.account_balance_rounded, Brand.blueDeep, t.cityOffices,
           t.cityOfficesSub, () => _open(CityDirectoryScreen(city: city, kinds: const ['offices']))),
+      // citycov: field collection
+      (const ValueKey('city_tile_mapstop'), Icons.add_location_alt_rounded, Brand.success, t.cityMapStop,
+          t.cityMapStopSub, () => _open(CityFieldScreen(debugHere: o))),
     ];
     return LayoutBuilder(builder: (context, c) {
       final cols = c.maxWidth > 560 ? 3 : (MediaQuery.textScalerOf(context).scale(14) > 22 ? 1 : 2);
@@ -724,7 +729,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
             child: FilledButton(
               key: const ValueKey('city_paid_send'),
               style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-              onPressed: () => Navigator.pop(ctx, int.tryParse(_asciiDigits(c.text.trim()))),
+              onPressed: () => Navigator.pop(ctx, parseIntInput(_asciiDigits(c.text.trim()))),
               child: Text(t.citySend),
             ),
           ),

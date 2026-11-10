@@ -12,6 +12,7 @@ import '../widgets/ladder_common.dart' show taka, fmtInt;
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/local_counter.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// END-OF-DAY CASH CHECK. The owner counts the drawer; the server compares it
 /// with today's NON-voided Assisto POS cash sales (paid - change) + the opening
@@ -156,7 +157,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                     TextField(
                       controller: _counted,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+                      inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
                       decoration: InputDecoration(
                           labelText: t.shopEodCounted,
                           prefixText: '৳ ',
@@ -166,7 +167,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                     TextField(
                       controller: _opening,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+                      inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
                       decoration: InputDecoration(
                           labelText: t.shopEodOpening,
                           helperText: t.shopEodOpeningHelp,

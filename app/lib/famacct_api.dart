@@ -1,4 +1,5 @@
 import 'api.dart';
+import 'widgets/num_input.dart'; // savesweep
 
 /// FAMILY ACCOUNTING API surface (#61, SPEC v2.1 §21) — shared family money.
 ///
@@ -74,30 +75,12 @@ extension FamAcctApi on ApiClient {
 class FamAcctLocal {
   /// Parse a taka-ish string ("12.50", "1,250") to INTEGER poisha. Mirrors
   /// to_poisha(): decimal-string path, half-up on the paisa, no binary float.
-  static int takaToPoisha(String input) {
-    var s = input.trim().replaceAll(',', '');
-    if (s.isEmpty) return 0;
-    final neg = s.startsWith('-');
-    if (neg) s = s.substring(1);
-    String whole, frac;
-    final dot = s.indexOf('.');
-    if (dot >= 0) {
-      whole = s.substring(0, dot);
-      frac = s.substring(dot + 1);
-    } else {
-      whole = s;
-      frac = '';
-    }
-    if (whole.isEmpty) whole = '0';
-    frac = (frac + '00');
-    frac = frac.substring(0, 3); // 3 digits -> round the 3rd
-    final taka = int.tryParse(whole);
-    final milli = int.tryParse(frac);
-    if (taka == null || milli == null) return 0;
-    var poisha = taka * 100 + milli ~/ 10;
-    if (milli % 10 >= 5) poisha += 1;
-    return neg ? -poisha : poisha;
-  }
+  static int takaToPoisha(String input) =>
+      // savesweep (owner bug 10 Nov): the old body padded the fraction to 2
+      // digits then took 3 for every WHOLE amount ("15000") -> RangeError inside
+      // the Save tap -> Save did nothing. It also could not read Bangla
+      // digits. Now the shared parser; 0 = no valid amount (caller shows why).
+      takaToPoishaInput(input) ?? 0;
 
   /// Format integer poisha as a ৳ amount string (always 2 dp, lakh grouping).
   /// The ৳ sign is a currency glyph, not Bangla copy.

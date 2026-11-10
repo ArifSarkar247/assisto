@@ -4,6 +4,7 @@ import '../theme.dart';
 import 'studio_engine.dart';
 import 'studio_cards.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// The WHEN … IF … THEN builder sheet — create or edit one automation.
 /// A guided, no-code form (benchmark: Shortcuts / Zapier, kept simple for
@@ -312,7 +313,7 @@ class _TriggerEditor extends StatelessWidget {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: t.studioFieldDayOfMonth),
               onChanged: (v) {
-                final n = int.tryParse(v);
+                final n = parseIntInput(v);
                 if (n != null && n >= 1 && n <= 31) trigger.dayOfMonth = n;
               },
             )

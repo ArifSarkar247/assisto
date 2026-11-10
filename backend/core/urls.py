@@ -248,6 +248,8 @@ urlpatterns = [
     path("city/trips/consent", cityv.city_trip_consent),
     path("city/trips", cityv.city_trip),
     path("city/women", cityv.city_women),
+    path("city/field-stops", cityv.city_field_stops),  # citycov
+    path("city/trips/<int:tid>/confirm", cityv.city_trip_confirm),  # citycov
     path("artist/favourite", views.FavouriteArtistView.as_view()),
     path("finance", views.FinanceView.as_view()),
     path("prices/official", views_moneybar.OfficialPricesView.as_view()),  # moneybar
@@ -630,6 +632,7 @@ urlpatterns = [
     path("maps/reverse", vmaps.MapsReverseView.as_view()),
     path("maps/autocomplete", vmaps.MapsAutocompleteView.as_view()),
     path("maps/search", vmaps.MapsSearchView.as_view()),  # qjourney
+    path("maps/area", vmaps.MapsAreaView.as_view()),  # sjstart2
     path("maps/place", vmaps.MapsPlaceView.as_view()),
     path("maps/eta", vmaps.MapsEtaView.as_view()),
     path("journey/places/<int:pk>", b61.SavedPlaceDetailView.as_view()),
@@ -2047,3 +2050,10 @@ urlpatterns += [
     path("lp/certificate/<int:pk>", lpv.LpCertificateView.as_view()),
 ]
 # ---- /lpcore ----
+
+# ---- buyinside ---- plan recommendation from real usage + purchase origins
+from . import views_buyinside as buyv  # noqa: E402
+urlpatterns += [
+    path("plans/recommend", buyv.PlanRecommendView.as_view()),
+    path("owner/buy-origins", buyv.BuyOriginsView.as_view()),
+]

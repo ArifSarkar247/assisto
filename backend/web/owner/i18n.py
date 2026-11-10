@@ -2356,6 +2356,26 @@ BN.update({
     "cty_learn_note": "অনুমতি দেওয়া, নামহীন বাস যাত্রা থেকে পাওয়া; ৩ জন আলাদা মানুষের পরে নিশ্চিত।",
     "cty_people": "মানুষ / যাত্রা",
 })
+# ---- citycov: users' stops (field collection + trip learning) ----
+EN.update({
+    "cty_tab_stops": "Users' stops", "cty_t_stops": "Stops waiting",
+    "cty_stops_note": "\"Add a stop here\" / \"This bus stops here\" taps from the app (no names, one tap at the phone's own location) and stops found by trip learning. A tap report goes live after 3 different people; a trip stop after 3 separate trips. Both show as Reported by users. Reject removes it for everyone; Accept adds it now.",
+    "cty_src_field": "Tap report", "cty_src_trips": "Trip learning", "cty_bus": "Bus",
+    "cty_any_bus": "not named (routes passing within 150 m)", "cty_live_cov": "Coverage now (with users' stops)",
+    "cty_cov_stops": "stop within 700 m (headline)", "cty_cov_corr": "separate measure: a bus / leguna route passes within 700 m",
+    "cty_cov_built": "built-up areas only", "cty_user_stops": "users' stops in the network",
+    "cty_map": "Map",
+})
+BN.update({
+    "cty_tab_stops": "যাত্রীদের স্টপ", "cty_t_stops": "অপেক্ষায় স্টপ",
+    "cty_stops_note": "অ্যাপের \"এখানে স্টপ যোগ করুন\" / \"এই বাস এখানে থামে\" (নাম ছাড়া, ফোনের নিজের জায়গায় এক ট্যাপ) আর যাত্রা থেকে শেখা স্টপ। ট্যাপের রিপোর্ট ৩ জন আলাদা মানুষ জানালে চালু হয়; যাত্রার স্টপ ৩টি আলাদা যাত্রার পরে। দুটোই \"যাত্রীদের জানানো\" লেবেলে দেখায়। বাতিল করলে সবার কাছ থেকে সরে যায়; গ্রহণ করলে এখনই যোগ হয়।",
+    "cty_src_field": "ট্যাপের রিপোর্ট", "cty_src_trips": "যাত্রা থেকে শেখা", "cty_bus": "বাস",
+    "cty_any_bus": "বলা হয়নি (১৫০ মি.-এর মধ্যে দিয়ে যাওয়া রুট)", "cty_live_cov": "এখনকার কভারেজ (যাত্রীদের স্টপসহ)",
+    "cty_cov_stops": "৭০০ মি.-এর মধ্যে স্টপ (মূল মাপ)", "cty_cov_corr": "আলাদা মাপ: ৭০০ মি.-এর মধ্যে দিয়ে বাস/লেগুনার রুট যায়",
+    "cty_cov_built": "শুধু বসতির এলাকা", "cty_user_stops": "নেটওয়ার্কে যাত্রীদের স্টপ",
+    "cty_map": "মানচিত্র",
+})
+# ---- /citycov ----
 # ---- /citydata ----
 # ---- quranpron ----
 EN.update({

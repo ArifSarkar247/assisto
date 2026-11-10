@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../messaging/date_separators.dart' show localDigits;
 import '../theme.dart';
 import '../widgets/password_field.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// e2e-recover — shown ONCE after sign-in on a new install / new phone when a
 /// PIN-protected chat-key backup exists, BEFORE a new key is made: with the
@@ -98,7 +99,7 @@ class _E2RestoreScreenState extends State<E2RestoreScreen> {
                 maxLength: 8,
                 autofocus: true,
                 enabled: !_busy,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(labelText: t.e2rPinLabel),
                 onSubmitted: (_) => _restore(),
               ),

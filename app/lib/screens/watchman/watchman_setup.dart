@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../api.dart' show ApiException;
+import '../../plans_v2/buy_inside.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -28,6 +30,21 @@ class _WatchmanSetupScreenState extends State<WatchmanSetupScreen> {
   final _name = TextEditingController();
   bool _busy = false;
   String? _error;
+  // buyinside: shop protection needs Business — bought right here
+  bool _planNeeded = false, _shopBought = false;
+  bool get _canShop => widget.canShop || _shopBought;
+
+  Future<void> _buyBusiness() async {
+    final retry = _planNeeded;
+    final ok = await BuyInside.open(context, 'shop_cctv_site');
+    if (!ok || !mounted) return;
+    setState(() {
+      _shopBought = true;
+      _planNeeded = false;
+      _error = null;
+    });
+    if (retry) await _create(); // the typed name is kept; finish the setup
+  }
 
   @override
   void dispose() {
@@ -47,6 +64,7 @@ class _WatchmanSetupScreenState extends State<WatchmanSetupScreen> {
       return;
     } catch (e) {
       _error = wmError(e) ?? t.wmGenericError;
+      _planNeeded = e is ApiException && e.reason == 'plan_required';
     }
     if (mounted) setState(() => _busy = false);
   }
@@ -79,10 +97,20 @@ class _WatchmanSetupScreenState extends State<WatchmanSetupScreen> {
             const SizedBox(height: 12),
             Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ],
+          if (_planNeeded || (_step == 0 && _kind == 'shop' && !_canShop)) ...[
+            const SizedBox(height: 12),
+            FilledButton.tonalIcon(
+              key: const Key('bi-wm-shop-buy'),
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: _busy ? null : _buyBusiness,
+              icon: const Icon(Icons.workspace_premium_rounded),
+              label: Text(t.biGetBusinessHere, textAlign: TextAlign.center),
+            ),
+          ],
           const SizedBox(height: 20),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-            onPressed: _busy || (_step == 0 && _kind == 'shop' && !widget.canShop)
+            onPressed: _busy || (_step == 0 && _kind == 'shop' && !_canShop)
                 ? null
                 : () {
                     if (_step < 2) {
@@ -124,7 +152,7 @@ class _WatchmanSetupScreenState extends State<WatchmanSetupScreen> {
           _Choice(
             icon: Icons.storefront_rounded,
             title: t.wmKindShop,
-            body: widget.canShop ? t.wmKindShopBody : t.wmKindShopNeedsBusiness,
+            body: _canShop ? t.wmKindShopBody : t.wmKindShopNeedsBusiness,
             selected: _kind == 'shop',
             onTap: () => setState(() => _kind = 'shop'),
           ),

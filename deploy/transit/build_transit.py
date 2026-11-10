@@ -84,6 +84,18 @@ def hav(a, b, c, d):
     return E.hav(a, b, c, d)
 
 
+def publishers(srcs):
+    """citycov: distinct publishers (web sites) among a route's sources."""
+    out = set()
+    for x in srcs or ():
+        if x.get("snippet"):
+            continue          # seen only in a search snippet: not counted
+        host = re.sub(r"^https?://(www\.|m\.|en\.|bn\.)?", "", str(x.get("url") or "")).split("/")[0].lower()
+        if host:
+            out.add(host)
+    return out
+
+
 # ------------------------------------------------------------------ OSM read
 def read_osm(pbf):
     import osmium
@@ -584,6 +596,25 @@ class Builder:
                 self.add_public(pr, pts)
         for pr in (self.seeds.get("women") or {}).get("routes", []):
             self.add_public(dict(pr, counters=[]), women=True)
+        # citycov: leguna (human hauler) and BRTC / Dhaka Nagar Paribahan
+        # routes from news, BRTC lists and Wikipedia (seed/dhaka_leguna_brtc.json,
+        # each with its source links). Verified only when 2+ independent
+        # publishers (different sites) list the same route; else Reported.
+        self.extra_routes = defaultdict(int)
+        for pr in (self.seeds.get("leguna_brtc") or {}).get("routes", []):
+            srcs = pr.get("sources") or []
+            if not srcs or not pr.get("stops"):
+                continue
+            pr = dict(pr, counters=[], source=srcs[0]["s"], source_url=srcs[0]["url"],
+                      fetched=srcs[0].get("date", ""))
+            n0 = len(self.routes)
+            self.add_public(pr, mode=pr.get("mode") or "bus")
+            if len(self.routes) > n0:
+                self.extra_routes[pr.get("mode") or "bus"] += 1
+                if len(publishers(srcs)) >= 2:
+                    for r in self.routes[n0:]:
+                        r["_v"] = True
+                    self.extra_routes["verified"] += 1
 
     def match_public(self, pr, log=True):
         path, miss = self.match_sequence(pr["stops"])
@@ -656,7 +687,7 @@ class Builder:
             out.append(b)
         return out
 
-    def add_public(self, pr, pts=None, women=False):
+    def add_public(self, pr, pts=None, women=False, mode="bus"):
         if pts is None:
             pts = self.match_public(pr)
             if pts is None:
@@ -669,21 +700,21 @@ class Builder:
             km.append(acc)
         base = re.sub(r"[^a-z0-9]+", "-", pr["company"].lower()).strip("-")[:32] + "-" + \
             hashlib.sha1((pr["source_url"] + "|" + "|".join(e or b for e, b in pr["stops"])).encode()).hexdigest()[:6]
-        grp = ("women-" if women else "pub-") + base
+        grp = ("women-" if women else "leg-" if mode == "leguna" else "pub-") + base
         if any(r.get("_grp") == grp for r in self.routes):
             return
         for direction, seq, kk in (("a", pts, km), ("b", pts[::-1], [km[-1] - x for x in km[::-1]])):
             idx = []
             for p in seq:
                 sid = p[3] if p[3][0] in "nm" else "s" + hashlib.sha1(p[3].encode()).hexdigest()[:10]
-                i = self.stop(sid, p[2], p[4], p[0], p[1], "bus", "osm" if p[5] == "dense" else "public")
+                i = self.stop(sid, p[2], p[4], p[0], p[1], mode, "osm" if p[5] == "dense" else "public")
                 if p[3].startswith("n") and p[5] != "dense":   # an OSM bus-stop node: 2nd source
                     self.stops[i]["src"].add("osm")
                 idx.append(i)
             src = [{"s": s_["s"], "url": s_["url"], "date": s_["date"]} for s_ in pr.get("sources", [])] or \
                 [{"s": pr["source"], "url": pr["source_url"], "date": pr["fetched"]}]
             r = {
-                "id": "%s-%s" % (grp, direction), "mode": "bus", "name": pr["company"],
+                "id": "%s-%s" % (grp, direction), "mode": mode, "name": pr["company"],
                 "name_bn": pr.get("company_bn", ""), "ref": pr.get("ref", ""), "op": pr.get("op") or pr["company"],
                 "from": seq[0][2], "to": seq[-1][2], "src": src,
                 "stops": idx, "km": [round(x, 3) for x in kk], "_ck": company_key(pr["company"]),
@@ -715,9 +746,13 @@ class Builder:
                            for sj in o["stops"]):
                         shared += 1
                 if shared >= 3:
-                    p["_v"] = o["_v"] = True
-                    p["src"] = p["src"] + [s for s in o["src"] if s not in p["src"]]
-                    o["src"] = o["src"] + [s for s in p["src"] if s not in o["src"]]
+                    # citycov licence rule (CITY_MAP_LICENSE_BN.md): the OSM
+                    # route (ODbL) and our public-page route stay SEPARATE
+                    # records — linked, never merged. Only our own record
+                    # gets the Verified mark (2 independent sources agree).
+                    p["_v"] = True
+                    p["same_as"] = sorted(set(p.get("same_as", [])) | {o["id"]})
+                    o["same_as"] = sorted(set(o.get("same_as", [])) | {p["id"]})
                     self.cross += 1
 
     # ------------------------------------------------------------ metro
@@ -895,7 +930,10 @@ class Builder:
             s = self.stops[old]
             srcs = {x for x in s["src"] if x != "seed"}
             st = "v" if len(srcs) >= 2 else "r"
-            rows.append([s["id"], s["name"], s["name_bn"], s["lat"], s["lon"], s["kind"], st, s["code"]])
+            # citycov licence rule: where the record itself comes from — an
+            # OSM node keeps source=osm (ODbL) even when a public page names it
+            origin = "osm" if "osm" in srcs or str(s["id"]).startswith("n") else (sorted(srcs) or ["seed"])[0]
+            rows.append([s["id"], s["name"], s["name_bn"], s["lat"], s["lon"], s["kind"], st, s["code"], origin])
         routes = []
         for r in self.routes:
             rr = {k: v for k, v in r.items() if not k.startswith("_")}
@@ -924,7 +962,7 @@ class Builder:
                             "url": "https://www.dhakabusroute.com/"},
                            {"s": "news (BRTC pink bus routes)",
                             "url": "https://thereport.live/metropolitan/new-pink-bus-service-for-women-starts-today-check-the-routes/41332"}],
-               "stops": {"cols": ["id", "name", "name_bn", "lat", "lon", "kind", "st", "code"], "rows": rows},
+               "stops": {"cols": ["id", "name", "name_bn", "lat", "lon", "kind", "st", "code", "src"], "rows": rows},
                "routes": routes, "gates": gates}
         if self.seeds.get("metro") and self.city == "dhaka":
             net["metro"] = {k: self.seeds["metro"].get(k) for k in ("line", "service", "recharge", "facilities")}
@@ -968,7 +1006,25 @@ class Builder:
                 else:
                     empty.append([round(lat, 4), round(lon, 4), dens[(a, b)]])
         empty.sort(key=lambda e: -e[2])
+        self.built_cells = sorted(k for k, v in dens.items() if v >= 5 and 0 <= k[0] < ny and 0 <= k[1] < nx)
         return round(100.0 * hit / max(1, tot), 1), tot, empty[:40]
+
+    def coverage_both(self, net):
+        """citycov: the headline stop measure again (shared engine code, must
+        equal coverage()) + the separate corridor measure, all and built-up."""
+        pts = [(r[3], r[4]) for r in net["stops"]["rows"]]
+        segs = []
+        for r in net["routes"]:
+            if r["mode"] in ("metro", "rail") or r.get("women_only"):
+                continue
+            for a, b in zip(r["stops"], r["stops"][1:]):
+                ra, rb = net["stops"]["rows"][a], net["stops"]["rows"][b]
+                segs.append((ra[3], ra[4], rb[3], rb[4]))
+        path = E.corridor_points(segs)
+        core = self.cfg["core"]
+        allc = E.coverage(core, pts, path)
+        built = E.coverage(core, pts, path, set(map(tuple, getattr(self, "built_cells", []))))
+        return allc, built
 
     def coverage(self, net):
         c = self.cfg["core"]
@@ -1088,6 +1144,9 @@ def main():
         seeds["metro"] = json.load(open(os.path.join(sd, "dhaka_metro.json")))
         seeds["aliases"] = json.load(open(os.path.join(sd, "dhaka_aliases.json")))
         seeds["women"] = json.load(open(os.path.join(sd, "dhaka_women_buses.json")))
+        lb = os.path.join(sd, "dhaka_leguna_brtc.json")
+        if os.path.exists(lb):
+            seeds["leguna_brtc"] = json.load(open(lb))
     public = json.load(open(a.public)) if a.public and os.path.exists(a.public) else {}
     t0 = time.time()
     osm = read_osm(a.pbf)
@@ -1107,6 +1166,7 @@ def main():
     net = b.network(version, a.osm_timestamp)
     cov, cells = b.coverage(net)
     built = b.coverage_built(net)
+    both_all, both_built = b.coverage_both(net)
     modes = defaultdict(int)
     for r in net["routes"]:
         modes[r["mode"]] += 1
@@ -1135,7 +1195,13 @@ def main():
               "coverage_built_pct": built[0], "coverage_built_cells": built[1],
               "wiki_places": len(public.get("wiki_places") or {}),
               "fuzzy_names": len(getattr(b, "fuzzy_hits", {})),
-              "brta_hotlines_found": (public.get("texts", {}).get("brta_home") or {}).get("hotlines", [])}
+              "brta_hotlines_found": (public.get("texts", {}).get("brta_home") or {}).get("hotlines", []),
+              # citycov: the separate corridor measure (never the headline)
+              "coverage_corridor_pct": both_all["corridor_pct"],
+              "coverage_built_corridor_pct": both_built["corridor_pct"],
+              "coverage_check_same": both_all["stops_pct"] == cov and both_built["stops_pct"] == built[0],
+              "leguna_routes": sum(1 for r in net["routes"] if r["mode"] == "leguna"),
+              "extra_public_routes": dict(getattr(b, "extra_routes", {}))}
     net["counts"] = counts
     os.makedirs(a.out, exist_ok=True)
     blob = gzip.compress(json.dumps(net, ensure_ascii=False, separators=(",", ":")).encode(), 9)
@@ -1156,6 +1222,7 @@ def main():
               "crawl_errors": public.get("errors", [])[:30],
               "crawl_debug": public.get("debug", {}),
               "built_cells_without_stop": built[2],
+              "built_cells": [list(k) for k in getattr(b, "built_cells", [])],
               "fuzzy": dict(list(getattr(b, "fuzzy_hits", {}).items())[:80])}
     top = os.path.join(sd, "top50_%s.json" % a.city)
     if os.path.exists(top):

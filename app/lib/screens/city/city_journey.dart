@@ -280,7 +280,10 @@ class _CityTripScreenState extends State<CityTripScreen> {
     if (api != null && _trace.length >= kCityTraceMinPoints) {
       // fire-and-forget: the server trims the first/last 300 m, keeps no
       // names and deletes raw points within 7 days
-      unawaited(api.cityTripUpload(List.of(_trace)).then((_) {}, onError: (_) {}));
+      // citycov: a leguna-only trip teaches leguna stops, not bus stops
+      final legs = widget.option.legs;
+      final mode = legs.any((l) => l.mode == 'bus') ? 'bus' : 'leguna';
+      unawaited(api.cityTripUpload(List.of(_trace), mode: mode).then((_) {}, onError: (_) {}));
     }
     super.dispose();
   }

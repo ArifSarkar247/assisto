@@ -1,3 +1,4 @@
+import '../plans_v2/buy_inside.dart';
 import '../calls/call_reply.dart';
 import 'dart:async';
 import 'dart:io';
@@ -2559,6 +2560,14 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       _input.text = link;
       _toast(_t.msgrChatCallLinkReady);
     } catch (e) {
+      // buyinside: a Premium-only call link opens the in-place buy screen;
+      // after buying, the link is made at once (same screen, same chat)
+      if (mounted &&
+          await BuyInside.handle(context, e, 'call_link', then: (ok) {
+            if (ok && mounted) _sendCallLink();
+          })) {
+        return;
+      }
       _fail(e);
     }
   }
@@ -2580,6 +2589,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       await _api.scheduleCall(_memberId ?? 0, atIso: at.toUtc().toIso8601String());
       _toast(_t.msgrChatCallScheduled);
     } catch (e) {
+      if (mounted && await BuyInside.handle(context, e, 'call_link')) return;
       _fail(e);
     }
   }

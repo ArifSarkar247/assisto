@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import 'ladder_common.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// Advanced add/edit sheet for a debt + its escalation ladder. Collects the
 /// party, amount (→ integer poisha), due date, recurring interval, the
@@ -100,7 +101,7 @@ class _LadderBuilderSheetState extends State<LadderBuilderSheet> {
         'amount_poisha': takaToPoisha(_amount.text),
         'paid_poisha': takaToPoisha(_paid.text),
         if (_dueDate != null) 'due_date': iso(_dueDate!),
-        'recurring_days': int.tryParse(_recurring.text.trim()) ?? 0,
+        'recurring_days': parseIntInput(_recurring.text.trim()) ?? 0,
         'paused': widget.debt?['paused'] == true,
       };
 

@@ -11,6 +11,8 @@ import '../../theme.dart';
 import '../../widgets/chatnav.dart';
 import '../../widgets/circle_badges.dart';
 import '../../widgets/home_quick_buttons.dart';
+import '../../widgets/home_suggestions.dart' show homeTilesShown; // svcclean
+import 'package:flutter/foundation.dart' show setEquals; // svcclean
 import 'home_v2_tokens.dart';
 
 /// home_v2 shortcuts: My Circle (pinned, always first) + up to 11 of the
@@ -78,7 +80,8 @@ class HomeV2Shortcuts {
     // any flag-off tile (no placeholder screen: no showpieces).
     kCityServiceRoute,
     'crm',
-    'business',
+    // svcclean (owner 10 Nov, one job = one place): My Business is the
+    // bottom-bar tab on this home, so it is not a shortcut tile too.
     'sales_agent',
     'watchman',
     'vehicle_tracking',
@@ -205,24 +208,43 @@ class HomeV2Shortcuts {
     QuickShortcut('khata', Icons.description_outlined, (t) => t.hv2TileLedger),
     QuickShortcut('jobs', Icons.work_outline_rounded, (t) => t.hv2TileJobs),
     QuickShortcut('lost_stolen', Icons.phonelink_lock_outlined,
-        (t) => t.hv2TilePhoneSecurity),
+        (t) => t.svcLostPhone), // svcclean: one name everywhere
     // budget-remittance (owner 26 Oct): "Budget" opening the existing budget
     // while the flag is OFF; "Budget and Remittance" opening the new feature
     // once `budget_remittance` is ON (see [openRoute]).
     QuickShortcut('budget', Icons.pie_chart_outline_rounded,
-        (t) => remittanceOn ? t.rmtTileTitle : t.budgetTitle),
+        (t) => remittanceOn ? t.svcTileBudgetRemit : t.budgetTitle), // svcclean: fits
     QuickShortcut('contract', Icons.policy_outlined, (t) => t.hv2TileContract),
   ];
+
+  /// svcclean (owner 10 Nov): routes the home's BOTTOM BAR already opens —
+  /// never offered / defaulted as a shortcut tile too (one place only). A
+  /// saved My Business tile is replaced in place ([removedTile]); a saved
+  /// Reminders tile is kept (the user chose it).
+  static const bottomNavRoutes = {'reminders', 'business'};
+
+  /// svcclean (owner 10 Nov 01:48): the shortcut tile that LEFT the home
+  /// (My Business = bottom-bar tab). Saved sets migrate it (see [sanitize]).
+  static const removedTile = 'business';
+
+  /// Everything pinnable in THIS build for THIS user (bottom-bar routes left
+  /// out — see [bottomNavRoutes]).
+  static List<QuickShortcut> get catalog => [
+        for (final s in catalogWithNav)
+          if (!bottomNavRoutes.contains(s.route)) s
+      ];
 
   /// Everything pinnable in THIS build for THIS user: the owner's tiles first,
   /// then every old-home shortcut (same flag / medical rules), no duplicates,
   /// only routes that really open ([ChatNav.routes]).
-  static List<QuickShortcut> get catalog {
+  static List<QuickShortcut> get catalogWithNav {
     final routes = ChatNav.routes;
     final out = <QuickShortcut>[];
     final seen = <String>{};
     for (final s in [..._owner, ...HomeQuickButtons.catalog]) {
       if (seen.contains(s.route) ||
+          // svcclean: a merged-away tile is never offered on its own
+          HomeQuickButtons.mergedAliases.containsKey(s.route) ||
           HomeQuickButtons.pinnedAliases.contains(s.route) ||
           !routes.containsKey(s.route) ||
           // owner feedback 27 Oct: a feature the owner / testers see only as
@@ -256,7 +278,7 @@ class HomeV2Shortcuts {
   }
 
   static QuickShortcut? byRoute(String r, [List<QuickShortcut>? cat]) {
-    for (final s in cat ?? catalog) {
+    for (final s in cat ?? catalogWithNav) {
       if (s.route == r) return s;
     }
     return null;
@@ -288,9 +310,22 @@ class HomeV2Shortcuts {
   /// Circle (it is pinned), at most [max]. NOT topped up — the user's own set
   /// is exactly what they chose.
   static List<String> sanitize(List<String> saved) {
-    final cat = catalog;
+    final cat = catalogWithNav; // svcclean: a saved Reminders tile is kept
     final out = <String>[];
-    for (final r in saved) {
+    final wanted = saved.map(HomeQuickButtons.canon).toSet();
+    for (final r0 in saved) {
+      // svcclean: a saved merged-away tile becomes the one new tile
+      var r = HomeQuickButtons.canon(r0);
+      // svcclean (owner 01:48): the My Business tile left Shortcuts (it is
+      // the bottom-bar tab). A saved one becomes the next owner-default tile
+      // the user does not have yet, in the same place — never an empty slot.
+      if (r == removedTile) {
+        r = [...defaults(), ...fillPool].firstWhere(
+            (x) => !wanted.contains(x) && !out.contains(x) && byRoute(x, cat) != null,
+            orElse: () => '');
+        if (r.isEmpty) continue;
+        wanted.add(r);
+      }
       if (out.length == max) break;
       if (!out.contains(r) &&
           !HomeQuickButtons.pinnedAliases.contains(r) &&
@@ -462,6 +497,13 @@ class _HomeV2ShortcutsSectionState extends State<HomeV2ShortcutsSection> {
     if (widget.debugRoutes == null) _load();
   }
 
+  @override
+  void dispose() {
+    // svcclean: no home on screen -> Discover filters nothing
+    homeTilesShown.value = const {};
+    super.dispose();
+  }
+
   Future<void> _load() async {
     final r = await HomeV2Shortcuts.load();
     final seen = await HomeV2Shortcuts.newSeen();
@@ -523,10 +565,21 @@ class _HomeV2ShortcutsSectionState extends State<HomeV2ShortcutsSection> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final p = HomeV2Palette.of(context);
-    final cat = HomeV2Shortcuts.catalog;
+    final cat = HomeV2Shortcuts.catalogWithNav;
     final items = [
       for (final r in _routes) HomeV2Shortcuts.byRoute(r, cat),
     ].whereType<QuickShortcut>().toList();
+    // svcclean: tell Discover what the home already shows (tiles + bottom
+    // bar) so a carousel card never repeats a tile (e.g. SOS twice).
+    final shown = {
+      for (final s in items) HomeQuickButtons.canon(s.route),
+      ...HomeV2Shortcuts.bottomNavRoutes,
+    };
+    if (!setEquals(homeTilesShown.value, shown)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        homeTilesShown.value = shown;
+      });
+    }
     final scale = MediaQuery.textScalerOf(context).scale(1);
     final cols = scale > HV2.threeColumnScale ? 3 : 4;
     final circleVisible =

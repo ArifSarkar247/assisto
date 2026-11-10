@@ -100,7 +100,8 @@ const kNightConfirm = 2;
 const kNightConfirmGapS = 2.0;
 
 /// cctvacc2: the phone's SECOND, pixel-level motion check — the port of the
-/// Shop Box pixel path (motion.py: background difference > 25, learn 0.05,
+/// Shop Box pixel path (motion.py: background difference (box > 25, phone
+/// > 40 on its noisier plane), learn 0.05,
 /// scene change at 60 % of pixels, minimum blob) on an 80 x 60 plane
 /// (3 x 3 sample points per pixel, ~43 k reads a frame — cheap on 2 GB
 /// phones), exposure-compensated by a histogram median; a blob counts only
@@ -109,7 +110,8 @@ const kNightConfirmGapS = 2.0;
 const kPixW = 80;
 const kPixH = 60;
 const kPixSamples = 3;
-const kPixDiff = 25.0;
+const kPixDiff = 40.0; // phone: noisier sampled plane (CI 42672672391 dev sweep)
+const kPixBoxDiff = 25.0; // the Shop Box pixel path
 const kPixLearn = 0.05;
 const kPixSceneFrac = 0.6;
 const kPixMinArea = 6;

@@ -190,7 +190,10 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
     final name = await _promptName(context, tr.messAddMember, circle: true);
     if (name == null) return;
     final trimmed = name.trim();
-    if (trimmed.isEmpty) return;
+    if (trimmed.isEmpty) {
+      _toast(tr.ssNameRequired); // savesweep: never a silent dead Save
+      return;
+    }
     final dup = _members.any((m) =>
         (m['name'] ?? '').toString().toLowerCase() == trimmed.toLowerCase());
     if (dup) {
@@ -1021,7 +1024,7 @@ class _MessMath {
       frac = '';
     }
     if (whole.isEmpty) whole = '0';
-    frac = (frac + '00');
+    frac = (frac + '000'); // savesweep: '00' -> RangeError on whole amounts
     frac = frac.substring(0, 3);
     final taka = int.tryParse(whole);
     final milli = int.tryParse(frac);

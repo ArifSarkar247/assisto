@@ -1,0 +1,77 @@
+{
+ "_comment": "citycov: Map a stop (field collection) — en+bn",
+ "en": {
+  "cityMapStop": "Map a stop",
+  "cityMapStopSub": "Add a bus stop near you",
+  "cityMapTitle": "Map a stop",
+  "cityMapBenefit": "Help everyone find the bus: stand where buses stop and tap once.",
+  "cityMapAddHere": "Add a stop here",
+  "cityMapHow": "Your name is never kept. A stop goes on the map when {n} different people confirm it, and shows as Reported by users. Our team removes wrong ones.",
+  "@cityMapHow": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "cityMapWhichBus": "Which bus stops here? (optional)",
+  "cityMapThisBus": "Stops here",
+  "cityMapNoBuses": "No known bus passes near here yet. Just tap Add a stop here.",
+  "cityMapOthers": "Waiting for confirmation near you",
+  "cityMapYes": "Yes, it stops here",
+  "cityMapPeople": "{n} of {need} people confirmed",
+  "@cityMapPeople": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "need": {
+     "type": "String"
+    }
+   }
+  },
+  "cityMapAnyBus": "A bus stop",
+  "cityMapOnMap": "On the map now",
+  "cityMapNoneWaiting": "Nothing is waiting near you. Be the first: tap Add a stop here at a real bus stop.",
+  "cityMapThanks": "Thanks! The stop is added once {n} people confirm it.",
+  "@cityMapThanks": {
+   "placeholders": {
+    "n": {
+     "type": "String"
+    }
+   }
+  },
+  "cityMapConfirmed": "Confirmed! The stop now shows in everyone's routes.",
+  "cityMapKnown": "This stop is already on the map. Thank you!",
+  "cityMapAlready": "You have already confirmed this one.",
+  "cityMapRejected": "This was checked before and not added.",
+  "cityMapFar": "Please be at the stop to confirm it.",
+  "cityMapLimit": "Today's limit is reached. Please try tomorrow.",
+  "cityMapFailed": "Could not load. Pull down to try again."
+ },
+ "bn": {
+  "cityMapStop": "স্টপ চিনিয়ে দিন",
+  "cityMapStopSub": "কাছের বাস স্টপ যোগ করুন",
+  "cityMapTitle": "স্টপ চিনিয়ে দিন",
+  "cityMapBenefit": "সবাইকে বাস খুঁজে পেতে সাহায্য করুন: যেখানে বাস থামে সেখানে দাঁড়িয়ে একবার চাপুন।",
+  "cityMapAddHere": "এখানে স্টপ যোগ করুন",
+  "cityMapHow": "আপনার নাম কখনো রাখা হয় না। {n} জন আলাদা মানুষ নিশ্চিত করলে স্টপটি মানচিত্রে আসে, \"যাত্রীদের জানানো\" লেবেলে। ভুলগুলো আমাদের দল সরিয়ে দেয়।",
+  "cityMapWhichBus": "কোন বাস এখানে থামে? (না জানলে বাদ দিন)",
+  "cityMapThisBus": "এখানে থামে",
+  "cityMapNoBuses": "এখানে দিয়ে যাওয়া কোনো বাস এখনো জানা নেই। শুধু \"এখানে স্টপ যোগ করুন\" চাপুন।",
+  "cityMapOthers": "আশেপাশে নিশ্চিত হওয়ার অপেক্ষায়",
+  "cityMapYes": "হ্যাঁ, এখানে থামে",
+  "cityMapPeople": "{need} জনের মধ্যে {n} জন নিশ্চিত করেছেন",
+  "cityMapAnyBus": "একটি বাস স্টপ",
+  "cityMapOnMap": "এখন মানচিত্রে আছে",
+  "cityMapNoneWaiting": "আশেপাশে অপেক্ষায় কিছু নেই। প্রথম হোন: আসল বাস স্টপে দাঁড়িয়ে \"এখানে স্টপ যোগ করুন\" চাপুন।",
+  "cityMapThanks": "ধন্যবাদ! {n} জন নিশ্চিত করলে স্টপটি যোগ হবে।",
+  "cityMapConfirmed": "নিশ্চিত! স্টপটি এখন সবার রুটে দেখাবে।",
+  "cityMapKnown": "এই স্টপটি আগেই মানচিত্রে আছে। ধন্যবাদ!",
+  "cityMapAlready": "আপনি এটি আগেই নিশ্চিত করেছেন।",
+  "cityMapRejected": "এটি আগে যাচাই করে যোগ করা হয়নি।",
+  "cityMapFar": "নিশ্চিত করতে স্টপের কাছে থাকুন।",
+  "cityMapLimit": "আজকের সীমা পূর্ণ। কাল আবার চেষ্টা করুন।",
+  "cityMapFailed": "লোড হয়নি। আবার চেষ্টা করতে নিচে টানুন।"
+ }
+}

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../plans_v2/buy_inside.dart';
+
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
@@ -145,5 +147,11 @@ class SheetGateUi extends GateUi {
   Future<bool> outOfCredits() {
     if (!context.mounted) return Future.value(false);
     return CreditsOut.offer(context, screen: 'photo_studio', draftKept: true);
+  }
+
+  @override
+  Future<bool> needsPremium() {
+    if (!context.mounted) return Future.value(false);
+    return BuyInside.open(context, 'photo_ultra_hd');
   }
 }

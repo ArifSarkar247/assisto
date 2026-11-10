@@ -14,7 +14,8 @@ import 'dest_alarm_service.dart';
 
 /// The start-screen chips, in the owner's order.
 const List<String> kTravelModes = [
-  'local_bus', 'long_bus', 'train', 'metro', 'launch', 'car', 'cng'
+  'local_bus', 'long_bus', 'train', 'metro', 'launch', 'car', 'cng',
+  'bike', 'walk', // sjstart2: owner V2 spec has 9 ways
 ];
 
 /// Remembered last choice (on the phone).

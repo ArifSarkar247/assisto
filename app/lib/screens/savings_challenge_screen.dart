@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/num_input.dart'; // savesweep
 
 /// SAVINGS CHALLENGE — ADVANCED (#171, SPEC v2.1).
 ///
@@ -566,7 +567,7 @@ class _PlanFormState extends State<_PlanForm> {
     final nameOk = _name.text.trim().isNotEmpty;
     final baseOk = _SaveMath.toPoisha(_base.text) > 0;
     final periodsOk =
-        _kind != 'fixed' || (int.tryParse(_periods.text.trim()) ?? 0) > 0;
+        _kind != 'fixed' || (parseIntInput(_periods.text.trim()) ?? 0) > 0;
 
     // live preview total so the saver sees the goal before committing
     final preview = _SaveMath.progress({
