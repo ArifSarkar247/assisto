@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৫২ / মোট ৪২০**
+**স্ক্রিন শেষ: ৫৩ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -232,7 +232,7 @@
 - ✅ batch 6 (জীবন্ত BizCard, DS ত্রুটি অবস্থা, পূর্ণ-চওড়া বোতাম) — `screens/business/payments_screen.dart`
 - ⬜ — `screens/business/products_screen.dart`
 - ⬜ — `screens/business/quick_sell_screen.dart`
-- ⬜ — `screens/business/reports_screen.dart`
+- ✅ batch 6 (বিক্রি = নরম হিরো (বড় সংখ্যা), সমান উচ্চতার লাভ/খরচ কার্ড) — `screens/business/reports_screen.dart`
 - ⬜ — `screens/business/sms_balance_screen.dart`
 - ⬜ — `screens/business/staff_screen.dart`
 - ⬜ — `screens/business/supplier_market_screen.dart`

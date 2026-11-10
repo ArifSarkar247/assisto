@@ -3,6 +3,7 @@ import '../../widgets/subs_common.dart' show fmtInt; // bizbar
 import '../../plans_v2/plans_v2.dart';
 import '../../plans_v2/upgrade_sheet.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../api.dart';
 import '../../business_selling_api.dart';
@@ -165,24 +166,23 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final net = poishaOf(d['net_profit']);
     final expenses = poishaOf(d['expenses']);
     return Column(children: [
-      Container(
-        padding: const EdgeInsets.all(Gap.lg),
-        decoration: BoxDecoration(
-          gradient: Brand.gradient,
-          borderRadius: BorderRadius.circular(Radii.lg),
-        ),
+      // designv2: sales is the soft hero — big bold tight number
+      DsHeroCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.biz_report_sales,
-              style: AType.bodyMedium.copyWith(color: Colors.white70)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.xs),
           Text(sales.takaIn(context),
-              style: AType.headlineLarge.copyWith(color: Colors.white,
+              style: AType.headlineLarge.copyWith(
+                  color: scheme.ds.text,
+                  letterSpacing: -1,
+                  fontFeatures: AFonts.tabular,
                   fontWeight: FontWeight.w800)),
         ]),
       ),
       if (!_profitRedacted) ...[
         const SizedBox(height: Gap.md),
-        Row(children: [
+        IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Expanded(
               child: _statCard(scheme, t.biz_report_profit, profit.takaIn(context),
                   AssistoTokens.of(context).success)),
@@ -190,7 +190,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           Expanded(
               child: _statCard(scheme, t.biz_report_expenses,
                   expenses.takaIn(context), AssistoTokens.of(context).warning)),
-        ]),
+        ])),
         const SizedBox(height: Gap.md),
         SellCard(
           child: MoneyRow(t.biz_report_net_profit, net,
@@ -221,7 +221,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return SellCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.biz_report_by_payment,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.text)),
         const SizedBox(height: Gap.sm),
         for (final m in methods)
           if (map.containsKey(m.code))
@@ -240,7 +240,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (items.isEmpty) return const SizedBox.shrink();
     return SellCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        Text(title, style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.text)),
         const SizedBox(height: Gap.sm),
         for (int i = 0; i < items.length && i < 10; i++)
           _topRow(scheme, icon, items[i] as Map, i + 1),
@@ -258,7 +258,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       child: Row(children: [
         CircleAvatar(
           radius: 13,
-          backgroundColor: scheme.ds.cardHighest,
+          backgroundColor: scheme.ds.primarySoft,
           child: Text(fmtInt(context, rank),
               style: AType.labelMedium.copyWith(fontWeight: FontWeight.w700)),
         ),
@@ -274,7 +274,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
         Text(amount.takaIn(context),
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.text)),
       ]),
     );
   }
