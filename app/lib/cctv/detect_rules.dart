@@ -600,7 +600,7 @@ class ZoneRules {
 
       final crowdN = _optNum(opts, 'crowd_n', 0, 0, 50).toInt();
       if (crowdN > 0 && boxes != null) {
-        if (crowdBoxes!.length < crowdN && st.crowdSince != null) {
+        if (crowdBoxes.length < crowdN && st.crowdSince != null) {
           // cctvdet3: a short dip below crowd_n does not end the queue
           st.crowdLow ??= t;
           if (t - st.crowdLow! <= kCrowdKeepS) crowdBoxes = null;

@@ -30,6 +30,14 @@ VEHICLE_MODEL_FILENAME = "yolox_tiny.onnx"
 VEHICLE_MODEL_URL = ("https://github.com/Megvii-BaseDetection/YOLOX/releases/download/"
                      "0.1.1rc0/yolox_tiny.onnx")
 VEHICLE_MODEL_SHA256 = "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7"
+# cctvdet3: the BANGLADESH vehicle model (YOLOX-Nano fine-tuned on CC BY 4.0
+# Bangladeshi street photos by tools/e2e/cctv_vehicle_train.py in CI; knows
+# CNG, rickshaw, leguna ...). Preferred when published at this URL with this
+# SHA-256 (None = not published yet -> YOLOX-Tiny above).
+BD_VEHICLE_MODEL_FILENAME = "assisto_vehicle_bd_nano.onnx"
+BD_VEHICLE_MODEL_URL = ("https://github.com/ArifSarkar247/assisto/releases/download/"
+                        "shopbox-vehicle-bd-1/assisto_vehicle_bd_nano.onnx")
+BD_VEHICLE_MODEL_SHA256 = None
 
 
 def sha256_of(path: str) -> str:
@@ -127,17 +135,32 @@ def ensure_vehicle_model(allow_download: bool = True) -> Optional[str]:
     """cctvdet3: the vehicle model, fetched only when a camera has a parking,
     no-parking or vehicle gate-line zone. None -> vehicles come from the
     person model's own vehicle classes (less recall, measured and shown)."""
-    p = find_model(VEHICLE_MODEL_FILENAME)
-    if p and verify_sha256(p, VEHICLE_MODEL_SHA256):
-        return p
+    choices = [(VEHICLE_MODEL_FILENAME, VEHICLE_MODEL_URL, VEHICLE_MODEL_SHA256)]
+    if BD_VEHICLE_MODEL_SHA256:
+        choices.insert(0, (BD_VEHICLE_MODEL_FILENAME, BD_VEHICLE_MODEL_URL,
+                           BD_VEHICLE_MODEL_SHA256))
+    for name, _url, sha in choices:
+        p = find_model(name)
+        if p and verify_sha256(p, sha):
+            return p
     if not allow_download:
         return None
-    try:
-        return download(url=VEHICLE_MODEL_URL, expected=VEHICLE_MODEL_SHA256,
-                        filename=VEHICLE_MODEL_FILENAME)
-    except Exception as exc:
-        log.warning("could not fetch the vehicle model (%s)", exc)
-        return None
+    for name, url, sha in choices:
+        try:
+            return download(url=url, expected=sha, filename=name)
+        except Exception as exc:
+            log.warning("could not fetch the vehicle model %s (%s)", name, exc)
+    return None
+
+
+def vehicle_model_sha(path: str) -> Optional[str]:
+    """The pinned SHA-256 for a vehicle model file name (None = unknown)."""
+    base = os.path.basename(path or "")
+    if base == BD_VEHICLE_MODEL_FILENAME:
+        return BD_VEHICLE_MODEL_SHA256
+    if base == VEHICLE_MODEL_FILENAME:
+        return VEHICLE_MODEL_SHA256
+    return None
 
 
 if __name__ == "__main__":   # used by CI: python -m shopbox.model_fetch <dest>

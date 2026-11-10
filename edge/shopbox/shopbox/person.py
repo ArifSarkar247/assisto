@@ -16,6 +16,7 @@ importable, `load_detector()` returns a `NullDetector` whose `name` is
 from __future__ import annotations
 
 import logging
+import os
 import threading
 from dataclasses import dataclass
 from typing import List, Optional
@@ -227,9 +228,12 @@ def load_vehicle_detector(model_path: Optional[str] = None, threads: int = 2,
     own vehicle classes). Never raises."""
     try:
         path = model_path or model_fetch.ensure_vehicle_model(allow_download)
-        if not path or not model_fetch.verify_sha256(path, model_fetch.VEHICLE_MODEL_SHA256):
+        sha = model_fetch.vehicle_model_sha(path) if path else None
+        if not path or not sha or not model_fetch.verify_sha256(path, sha):
             return None
         det = YoloxVehicleDetector(path, threads=threads)
+        if os.path.basename(path) == model_fetch.BD_VEHICLE_MODEL_FILENAME:
+            det.name = "assisto_vehicle_bd"
     except Exception as exc:
         log.warning("vehicle model not loaded (%s); using the person model's vehicles",
                     type(exc).__name__)
