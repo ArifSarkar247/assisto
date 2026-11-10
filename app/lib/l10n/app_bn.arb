@@ -25906,5 +25906,9 @@
   "qvPrev": "আগের আয়াত",
   "qvNext": "পরের আয়াত",
   "qvBnHereTitle": "বাংলা অর্থ আয়াত-পাতায় আছে",
-  "qvBnHereBody": "যেকোনো আয়াতে ট্যাপ করুন — বাংলা অর্থ (আবু বকর যাকারিয়া, QuranEnc.com), ইংরেজি অর্থ, তাফসির ও অডিও দেখবেন।"
+  "qvBnHereBody": "যেকোনো আয়াতে ট্যাপ করুন — বাংলা অর্থ (আবু বকর যাকারিয়া, QuranEnc.com), ইংরেজি অর্থ, তাফসির ও অডিও দেখবেন।",
+  "discmsWhatsNewBadge": "নতুন কী",
+  "discmsOfferBadge": "অফার",
+  "discmsTypeWhatsNew": "নতুন কী (অ্যাপ আপডেট)",
+  "discmsTypeOffer": "অফার / প্রচার"
 }

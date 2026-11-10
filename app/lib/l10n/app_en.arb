@@ -52084,5 +52084,21 @@
   "qvPrev": "Previous ayah",
   "qvNext": "Next ayah",
   "qvBnHereTitle": "Bangla meaning is in the ayah view",
-  "qvBnHereBody": "Tap any ayah to see the Bangla meaning (Abu Bakr Zakaria, QuranEnc.com) with the English meaning, tafsir and audio."
+  "qvBnHereBody": "Tap any ayah to see the Bangla meaning (Abu Bakr Zakaria, QuranEnc.com) with the English meaning, tafsir and audio.",
+  "discmsWhatsNewBadge": "What's new",
+  "@discmsWhatsNewBadge": {
+    "description": "discms: badge on a Home Discover card about an app update"
+  },
+  "discmsOfferBadge": "Offer",
+  "@discmsOfferBadge": {
+    "description": "discms: badge on a Home Discover offer / promotion card"
+  },
+  "discmsTypeWhatsNew": "What's new (app update)",
+  "@discmsTypeWhatsNew": {
+    "description": "discms: Discover manager card type"
+  },
+  "discmsTypeOffer": "Offer / promotion",
+  "@discmsTypeOffer": {
+    "description": "discms: Discover manager card type"
+  }
 }
