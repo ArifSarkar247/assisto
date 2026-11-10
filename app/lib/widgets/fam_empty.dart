@@ -51,7 +51,7 @@ class FamEmptyState extends StatelessWidget {
         if (header != null) header!,
         const SizedBox(height: Gap.lg),
         // designv2: the drawn DS illustration
-        Center(child: DsIllustration(icon: icon)),
+        Center(child: DsIllustration(icon: icon, size: 72)), // same height as before (lazy list)
         const SizedBox(height: Gap.lg),
         Text(title,
             textAlign: TextAlign.center,

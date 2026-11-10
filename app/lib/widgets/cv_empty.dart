@@ -52,7 +52,7 @@ class CvEmptyBlock extends StatelessWidget {
       children: [
         SizedBox(height: compact ? Gap.xs : Gap.xl),
         // designv2: the drawn DS illustration (no image files)
-        Center(child: DsIllustration(icon: icon, size: compact ? 72 : 96)),
+        Center(child: DsIllustration(icon: icon, size: compact ? 52 : 72)), // same height as before
         const SizedBox(height: Gap.md),
         Text(title,
             textAlign: TextAlign.center,
