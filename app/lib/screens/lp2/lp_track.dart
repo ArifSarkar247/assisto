@@ -182,7 +182,7 @@ class _LpTtsPlayerState extends State<LpTtsPlayer> {
                       : multi
                           ? tr.lp2TrackPlayPart(ld(context, _piece + 1), ld(context, pieces.length))
                           : tr.lp2PlayAudio,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
               Text(tr.lp2TrackPhoneVoice, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               if (!widget.replay && !locked)
                 Text(tr.lp2TrackPlaysLeft(ld(context, _allowed - _plays)),
@@ -323,21 +323,21 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                       Text(_loc2(context, _syl['title']),
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
                       const SizedBox(height: Gap.sm),
-                      Text('${_syl['summary_bn'] ?? ''}', style: const TextStyle(height: 1.5)),
+                      Text('${_syl['summary_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.5)),
                       if ('${_syl['who_for_bn'] ?? ''}'.isNotEmpty) ...[
                         const SizedBox(height: Gap.sm),
-                        Text('${_syl['who_for_bn']}', style: TextStyle(color: scheme.onSurfaceVariant, height: 1.5)),
+                        Text('${_syl['who_for_bn']}', style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.5)),
                       ],
                       if (lpStrs(_syl['can_do_bn']).isNotEmpty) ...[
                         const SizedBox(height: Gap.md),
-                        Text(tr.lp2TrackCanDo, style: const TextStyle(fontWeight: FontWeight.w700)),
+                        Text(tr.lp2TrackCanDo, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                         for (final c in lpStrs(_syl['can_do_bn']))
                           Padding(
                             padding: const EdgeInsets.only(top: Gap.xs),
                             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               Icon(Icons.check_circle_rounded, size: 18, color: Brand.onTint(context, Brand.success)),
                               const SizedBox(width: Gap.sm),
-                              Expanded(child: Text(c, style: const TextStyle(height: 1.4))),
+                              Expanded(child: Text(c, style: AType.bodyMedium.copyWith(height: 1.4))),
                             ]),
                           ),
                       ],
@@ -361,7 +361,7 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                           ].join(' · ')),
                         ),
                       if ('${fmt['scoring_bn'] ?? ''}'.isNotEmpty)
-                        Text('${fmt['scoring_bn']}', style: const TextStyle(height: 1.5)),
+                        Text('${fmt['scoring_bn']}', style: AType.bodyMedium.copyWith(height: 1.5)),
                       if ('${fmt['official_info_bn'] ?? ''}'.isNotEmpty) ...[
                         const SizedBox(height: Gap.sm),
                         Text('${fmt['official_info_bn']}',
@@ -383,8 +383,8 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                       key: PageStorageKey('wk-$_track-${w['week']}'),
                       initiallyExpanded: w == weeks.first,
                       title: Text(tr.lp2TrackWeek(ld(context, w['week'] ?? 1)),
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
-                      subtitle: Text('${w['goal_bn'] ?? ''}', style: const TextStyle(height: 1.4)),
+                          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+                      subtitle: Text('${w['goal_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
                       children: [
                         for (final id in lpStrs(w['lessons']))
                           if (byId[id] != null) _lessonTile(byId[id]!),
@@ -404,7 +404,7 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                       Row(children: [
                         Expanded(
                           child: Text(lpLoc(context, m, 'title'),
-                              style: const TextStyle(fontWeight: FontWeight.w700, height: 1.3)),
+                              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, height: 1.3)),
                         ),
                         if (m['beta'] == true) LpTag(text: tr.lp2Beta, color: Brand.warning),
                       ]),
@@ -429,9 +429,9 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                   child: ListTile(
                     leading: Icon(Icons.public_rounded, color: scheme.onSecondaryContainer),
                     title: Text(tr.lp2TrackProbashi,
-                        style: TextStyle(color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
+                        style: AType.bodyMedium.copyWith(color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
                     subtitle: Text('${probashi['note_bn']}',
-                        style: TextStyle(color: scheme.onSecondaryContainer, height: 1.4)),
+                        style: AType.bodyMedium.copyWith(color: scheme.onSecondaryContainer, height: 1.4)),
                   ),
                 ),
               LpPracticeFooter(text: _loc2(context, _syl['practice_label']).isEmpty ? null : _loc2(context, _syl['practice_label'])),
@@ -507,9 +507,9 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
           Text(target,
               style: big
                   ? Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)
-                  : const TextStyle(fontWeight: FontWeight.w600, height: 1.4)),
-          if (reading.isNotEmpty) Text(reading, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
-          if ('${m['bn'] ?? ''}'.isNotEmpty) Text('${m['bn']}', style: const TextStyle(height: 1.4)),
+                  : AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, height: 1.4)),
+          if (reading.isNotEmpty) Text(reading, style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+          if ('${m['bn'] ?? ''}'.isNotEmpty) Text('${m['bn']}', style: AType.bodyMedium.copyWith(height: 1.4)),
         ]),
       ),
       if (target.isNotEmpty) _say(target),
@@ -552,10 +552,10 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(mine == right ? tr.lp2Right : tr.lp2TrackKey(right),
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       fontWeight: FontWeight.w700,
                       color: Brand.onTint(context, mine == right ? Brand.success : Brand.danger))),
-              if ('${q['explain_bn'] ?? ''}'.isNotEmpty) Text('${q['explain_bn']}', style: const TextStyle(height: 1.4)),
+              if ('${q['explain_bn'] ?? ''}'.isNotEmpty) Text('${q['explain_bn']}', style: AType.bodyMedium.copyWith(height: 1.4)),
             ]),
           ),
         ),
@@ -581,7 +581,7 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Text(tr.lp2TrackModel, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(tr.lp2TrackModel, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               _targetBlock(model),
               Text(tr.lp2TrackSelfCheck, style: AType.bodySmall),
             ]),
@@ -629,7 +629,7 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
             Card(
               child: ListTile(
                 leading: const Icon(Icons.flag_rounded),
-                title: Text('${l['goal_bn']}', style: const TextStyle(height: 1.4)),
+                title: Text('${l['goal_bn']}', style: AType.bodyMedium.copyWith(height: 1.4)),
               ),
             ),
           h(tr.lp2TrackVocab),
@@ -652,9 +652,9 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  Text('${g['pattern'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                  Text('${g['pattern'] ?? ''}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xs),
-                  Text('${g['explain_bn'] ?? ''}', style: const TextStyle(height: 1.5)),
+                  Text('${g['explain_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.5)),
                   for (final e in lpList(g['examples'])) ...[const Divider(), _targetBlock(e)],
                 ]),
               ),
@@ -665,9 +665,9 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  Text(lpSectionName(tr, 'listening'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                  Text(lpSectionName(tr, 'listening'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   LpTtsPlayer(tts: _ttsOf(q)),
-                  Text('${q['prompt_bn'] ?? ''}', style: const TextStyle(height: 1.4)),
+                  Text('${q['prompt_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   _choice(q),
                 ]),
@@ -678,13 +678,13 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  Text(lpSectionName(tr, 'reading'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                  Text(lpSectionName(tr, 'reading'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xs),
-                  SelectableText('${q['passage'] ?? ''}', style: const TextStyle(height: 1.6)),
+                  SelectableText('${q['passage'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.6)),
                   if ('${q['passage_roman'] ?? ''}'.isNotEmpty)
                     Text('${q['passage_roman']}', style: AType.bodySmall),
                   const SizedBox(height: Gap.sm),
-                  Text('${q['prompt_bn'] ?? ''}', style: const TextStyle(height: 1.4)),
+                  Text('${q['prompt_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   _choice(q),
                 ]),
@@ -695,8 +695,8 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  Text(lpSectionName(tr, 'writing'), style: const TextStyle(fontWeight: FontWeight.w700)),
-                  Text('${q['prompt_bn'] ?? ''}', style: const TextStyle(height: 1.4)),
+                  Text(lpSectionName(tr, 'writing'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+                  Text('${q['prompt_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   _model('${q['id']}', _map(q['model'])),
                 ]),
@@ -707,8 +707,8 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  Text(lpSectionName(tr, 'speaking'), style: const TextStyle(fontWeight: FontWeight.w700)),
-                  Text('${q['prompt_bn'] ?? ''}', style: const TextStyle(height: 1.4)),
+                  Text(lpSectionName(tr, 'speaking'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+                  Text('${q['prompt_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
                   Text(tr.lp2TrackSayAloud, style: AType.bodySmall),
                   const SizedBox(height: Gap.sm),
                   _model('${q['id']}', _map(q['model']), typed: false),
@@ -849,7 +849,7 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         if (tts.isNotEmpty && _result == null) LpTtsPlayer(tts: tts, replay: false),
         if ('${q['passage'] ?? ''}'.isNotEmpty) ...[
-          SelectableText('${q['passage']}', style: const TextStyle(height: 1.6)),
+          SelectableText('${q['passage']}', style: AType.bodyMedium.copyWith(height: 1.6)),
           if ('${q['passage_roman'] ?? ''}'.isNotEmpty) Text('${q['passage_roman']}', style: AType.bodySmall),
           const SizedBox(height: Gap.xs),
         ],
@@ -858,7 +858,7 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('${q['prompt'] ?? ''}', style: const TextStyle(height: 1.4)),
+              Text('${q['prompt'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
               if ('${q['prompt_roman'] ?? ''}'.isNotEmpty)
                 Text('${q['prompt_roman']}', style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
             ]),
@@ -884,11 +884,11 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
                     item['correct'] == true
                         ? AppLocalizations.of(context).lp2Right
                         : AppLocalizations.of(context).lp2TrackKey('${item['key'] ?? ''}'),
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         fontWeight: FontWeight.w700,
                         color: Brand.onTint(context, item['correct'] == true ? Brand.success : Brand.danger))),
                 if ('${item['explain_bn'] ?? ''}'.isNotEmpty)
-                  Text('${item['explain_bn']}', style: const TextStyle(height: 1.4)),
+                  Text('${item['explain_bn']}', style: AType.bodyMedium.copyWith(height: 1.4)),
               ]),
             ),
           ),
@@ -908,11 +908,11 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           if (prompt.isEmpty)
-            Text('${t['prompt'] ?? ''}', style: const TextStyle(height: 1.4))
+            Text('${t['prompt'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4))
           else ...[
-            if ('${prompt['bn'] ?? ''}'.isNotEmpty) Text('${prompt['bn']}', style: const TextStyle(height: 1.4)),
+            if ('${prompt['bn'] ?? ''}'.isNotEmpty) Text('${prompt['bn']}', style: AType.bodyMedium.copyWith(height: 1.4)),
             if ('${prompt['target'] ?? ''}'.isNotEmpty)
-              Text('${prompt['target']}', style: const TextStyle(fontWeight: FontWeight.w600, height: 1.4)),
+              Text('${prompt['target']}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, height: 1.4)),
           ],
           const SizedBox(height: Gap.sm),
           TextField(
@@ -925,8 +925,8 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
             decoration: InputDecoration(border: const OutlineInputBorder(), hintText: tr.lp2TrackWriteHere),
           ),
           if (_selfDone && model.isNotEmpty) ...[
-            Text(tr.lp2TrackModel, style: const TextStyle(fontWeight: FontWeight.w700)),
-            Text('${model['target'] ?? ''}', style: const TextStyle(height: 1.5)),
+            Text(tr.lp2TrackModel, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+            Text('${model['target'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.5)),
             if ('${model['bn'] ?? ''}'.isNotEmpty) Text('${model['bn']}', style: AType.bodySmall),
             IconButton(
               tooltip: tr.lp2Listen,
@@ -1042,7 +1042,7 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
                             ?.copyWith(fontWeight: FontWeight.w800, color: scheme.onPrimaryContainer)),
                     if (r['score'] != null && r['max'] != null && _scoring['per_question'] != null)
                       Text(tr.lp2TrackScore(ld(context, r['score']), ld(context, r['max'])),
-                          style: TextStyle(color: scheme.onPrimaryContainer)),
+                          style: AType.bodyMedium.copyWith(color: scheme.onPrimaryContainer)),
                     if ('${_scoring['pass_hint_bn'] ?? ''}'.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: Gap.sm),
@@ -1058,14 +1058,14 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
                   padding: const EdgeInsets.only(bottom: Gap.sm),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     Text('${_map(p['instructions'])['bn'] ?? ''}',
-                        style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, height: 1.4)),
                     if ('${_map(p['instructions'])['target'] ?? ''}'.isNotEmpty)
                       Text('${_map(p['instructions'])['target']}', style: AType.bodySmall),
                   ]),
                 ),
               if (_map(p['tts']).isNotEmpty && _result == null) LpTtsPlayer(tts: _map(p['tts']), replay: false),
               if ('${p['passage'] ?? ''}'.isNotEmpty) ...[
-                SelectableText('${p['passage']}', style: const TextStyle(height: 1.6)),
+                SelectableText('${p['passage']}', style: AType.bodyMedium.copyWith(height: 1.6)),
                 if ('${p['passage_roman'] ?? ''}'.isNotEmpty) Text('${p['passage_roman']}', style: AType.bodySmall),
                 const SizedBox(height: Gap.sm),
               ],
