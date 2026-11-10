@@ -735,13 +735,24 @@ def run(paths: list[str], all_paths: list[str]) -> tuple[dict, dict]:
     return results, bundles
 
 
+def _lpfinish_format(path) -> bool:
+    """lpfinish mocks (format assisto.lp.ielts/1) are the importer's own shape;
+    lpcore's checks (backend/core/logic/lp_checks.py, tests_lpfinish) gate them."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f).get("format") == "assisto.lp.ielts/1"
+    except (OSError, ValueError):
+        return False
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("files", nargs="*")
     ap.add_argument("--out")
     a = ap.parse_args(argv)
     all_paths = sorted(p for p in glob.glob(os.path.join(CONTENT_DIR, "*", "*.json"))
-                       if re.fullmatch(r"ielts-(ac|gt)-\d{3}\.json", os.path.basename(p)))
+                       if re.fullmatch(r"ielts-(ac|gt)-\d{3}\.json", os.path.basename(p))
+                       and not _lpfinish_format(p))
     paths = [os.path.abspath(p) for p in a.files] or all_paths
     all_paths = [os.path.abspath(p) for p in all_paths]
     results, bundles = run(paths, all_paths)
