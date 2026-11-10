@@ -414,12 +414,13 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           ),
           if (nearbyOn) ...[
             const SizedBox(height: Gap.md),
-            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            // equal-height tiles (a 2-line label must not make one taller)
+            IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               near('hospital', Icons.local_hospital_rounded, t.emhHospital, 'hospital'),
               near('police', Icons.local_police_rounded, t.emhPolice, 'police'),
               // svcclean: fire station from the same Nearby list
               near('fire', Icons.local_fire_department_rounded, t.svcEmFire, 'fire'),
-            ]),
+            ])),
           ],
           const SizedBox(height: Gap.lg),
           Semantics(
