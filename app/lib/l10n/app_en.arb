@@ -50255,5 +50255,21 @@
   "ssNameRequired": "Type a name, or pick someone from My Circle.",
   "@ssNameRequired": {
     "description": "Shown when Save is tapped on an empty name field"
+  },
+  "discmsWhatsNewBadge": "What's new",
+  "@discmsWhatsNewBadge": {
+    "description": "discms: badge on a Home Discover card about an app update"
+  },
+  "discmsOfferBadge": "Offer",
+  "@discmsOfferBadge": {
+    "description": "discms: badge on a Home Discover offer / promotion card"
+  },
+  "discmsTypeWhatsNew": "What's new (app update)",
+  "@discmsTypeWhatsNew": {
+    "description": "discms: Discover manager card type"
+  },
+  "discmsTypeOffer": "Offer / promotion",
+  "@discmsTypeOffer": {
+    "description": "discms: Discover manager card type"
   }
 }
