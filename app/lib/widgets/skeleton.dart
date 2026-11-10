@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 
 /// A single shimmering placeholder block.
@@ -99,39 +100,39 @@ class StateMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
+    // designv2: every empty / error state app-wide is the DS card with the
+    // drawn illustration (no image files) — same look as DsEmptyState.
     return Center(
       child: SingleChildScrollView( // qa1: no bottom overflow at large font
       child: Padding(
-        padding: const EdgeInsets.all(Gap.xxl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(
-            height: 72,
-            width: 72,
-            decoration: BoxDecoration(
-              color: (tint ?? scheme.primary).withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 34, color: tint ?? scheme.primary),
-          ),
-          const SizedBox(height: Gap.lg),
-          Text(title,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700)),
-          if (message != null) ...[
-            const SizedBox(height: Gap.sm),
-            Text(message!,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
-          ],
-          if (action != null) ...[
+        padding: const EdgeInsets.all(Gap.lg),
+        child: DsCard(
+          padding: const EdgeInsets.all(Gap.xl),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            DsIllustration(icon: icon, color: tint ?? ds.primary),
             const SizedBox(height: Gap.lg),
-            action!,
-          ],
-        ]),
+            Text(title,
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700, color: ds.text)),
+            if (message != null) ...[
+              const SizedBox(height: Gap.sm),
+              Text(message!,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: ds.muted, height: 1.4)),
+            ],
+            if (action != null) ...[
+              const SizedBox(height: Gap.lg),
+              action!,
+            ],
+          ]),
+        ),
       ),
       ),
     );
