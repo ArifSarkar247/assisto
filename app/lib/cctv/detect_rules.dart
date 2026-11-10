@@ -33,6 +33,24 @@ const kTamperEveryS = 30.0;
 const kBadPersistS = 60;
 const kMovedMinGapS = 120;
 
+// stage 2 (cctvdet)
+const kPostPresenceScore = 0.25;
+const kCrowdSDefault = 60;
+const kVehGapS = 90.0;
+const kVehCheckS = 10.0;
+const kVehStill = 0.06;
+const kOverstayMinDefault = 60;
+const kWrongSDefault = 120;
+const kTrackMaxJump = 0.25;
+const kMovedShapeSim = 0.35;
+const kMovedShapeKeep = 0.6;
+const kVehicleClasses = {1: 'cycle', 2: 'car', 3: 'motorbike', 5: 'bus', 7: 'truck'};
+
+const kDetCrowd = 'crowd';
+const kDetVehicleInOut = 'vehicle_in_out';
+const kDetParkingOverstay = 'parking_overstay';
+const kDetWrongParking = 'wrong_parking';
+
 const kDetGatePerson = 'gate_person';
 const kDetLoitering = 'loitering';
 const kDetPostEmpty = 'post_empty';
@@ -162,6 +180,21 @@ double detSimilarity(List<double> patch, List<double> ref, {bool gradOnly = fals
   return _r4(math.max(_ncc(patch, ref), g));
 }
 
+double _dist(List<double> a, List<double> b) {
+  final dx = a[0] - b[0], dy = a[1] - b[1];
+  return math.sqrt(dx * dx + dy * dy);
+}
+
+double _orient(List<double> a, List<double> b, List<double> c) =>
+    (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+
+/// p1->p2 properly crosses q1-q2 (touching / along it does not count).
+bool detSegmentsCross(List<double> p1, List<double> p2, List<double> q1, List<double> q2) {
+  final d1 = _orient(q1, q2, p1), d2 = _orient(q1, q2, p2);
+  final d3 = _orient(p1, p2, q1), d4 = _orient(p1, p2, q2);
+  return ((d1 > 0 && 0 > d2) || (d1 < 0 && 0 < d2)) && ((d3 > 0 && 0 > d4) || (d3 < 0 && 0 < d4));
+}
+
 // ---------------------------------------------------------------- schedule
 int? _hhmm(Object? v) {
   final p = (v ?? '').toString().split(':');
@@ -205,17 +238,29 @@ class DetZone {
   static DetZone? fromJson(Object? z) {
     if (z is! Map) return null;
     final type = '${z['type']}';
-    if (type != 'gate' && type != 'post' && type != 'restricted') return null;
+    if (!const {'gate', 'post', 'restricted', 'parking', 'no_parking', 'entry_line'}.contains(type)) {
+      return null;
+    }
     final id = '${z['id'] ?? ''}';
     final pts = [
       for (final p in (z['points'] as List? ?? const []))
         if (p is List && p.length >= 2 && p[0] is num && p[1] is num)
           [(p[0] as num).toDouble(), (p[1] as num).toDouble()]
     ];
-    if (id.isEmpty || pts.length < 3) return null;
     final opts = z['opts'] is Map ? z['opts'] as Map : const {};
+    if (type == 'entry_line') {
+      // people on the line are the analyzer's; vehicles in / out are here
+      if (id.isEmpty || pts.length != 2 || opts['vehicles'] != true) return null;
+    } else if (id.isEmpty || pts.length < 3) {
+      return null;
+    }
     // restricted zones are the analyzer's — here only when they time a dwell
-    if (type == 'restricted' && _optNum(opts, 'dwell_s', 0, 0, 3600) <= 0) return null;
+    // or count a crowd
+    if (type == 'restricted' &&
+        _optNum(opts, 'dwell_s', 0, 0, 3600) <= 0 &&
+        _optNum(opts, 'crowd_n', 0, 0, 50) <= 0) {
+      return null;
+    }
     final label = '${z['label'] ?? ''}';
     return DetZone(id, type, pts,
         label: label.length > 40 ? label.substring(0, 40) : label,
@@ -228,6 +273,9 @@ class _ZoneState {
   int hits = 0;
   double? since, lastSeen, absentSince, openSince, refAt, refFor;
   bool gateFired = false, dwellFired = false, absentFired = false, openFired = false;
+  double? crowdSince, vehSince, vehLast;
+  bool crowdFired = false, vehFired = false;
+  List<double>? vehAnchor;
   List<double>? refDay, refNight;
 }
 
@@ -245,7 +293,6 @@ class ZoneRules {
     final keep = <String, _ZoneState>{};
     zones = [];
     for (final z in zs) {
-      if (z.type != 'gate' && z.type != 'post' && z.type != 'restricted') continue;
       zones.add(z);
       keep[z.id] = state[z.id] ?? _ZoneState();
     }
@@ -274,6 +321,92 @@ class ZoneRules {
       }
     }
     return false;
+  }
+
+  bool get hasPost => zones.any((z) => z.type == 'post');
+  bool get wantsVehicles => zones.any((z) => z.type == 'parking' || z.type == 'no_parking' || z.type == 'entry_line');
+
+  bool needsVehicleCheck(double t, double? lastCheck) {
+    if (!zones.any((z) => z.type == 'parking' || z.type == 'no_parking')) return false;
+    return lastCheck == null || t - lastCheck >= kVehCheckS;
+  }
+
+  final List<Map<String, Object>> _tracks = [];
+
+  /// Nearest-centre tracking -> [(prev, cur, cls, box)].
+  List<(List<double>, List<double>, int, List<double>)> _track(double t, List<List<double>> vehicles) {
+    final moves = <(List<double>, List<double>, int, List<double>)>[];
+    final used = <int>{};
+    final fresh = <Map<String, Object>>[];
+    for (final v in vehicles) {
+      final c = [(v[0] + v[2]) / 2.0, (v[1] + v[3]) / 2.0];
+      final cls = v.length > 5 ? v[5].toInt() : 2;
+      final box = [for (final x in v.take(4)) (x * 10000).roundToDouble() / 10000];
+      int? best;
+      var bd = kTrackMaxJump;
+      for (var i = 0; i < _tracks.length; i++) {
+        final tr = _tracks[i];
+        if (used.contains(i) || t - (tr['t'] as double) > kVehGapS) continue;
+        final d = _dist(tr['c'] as List<double>, c);
+        if (d <= bd) {
+          best = i;
+          bd = d;
+        }
+      }
+      if (best == null) {
+        fresh.add({'c': c, 't': t, 'cls': cls});
+      } else {
+        used.add(best);
+        moves.add((_tracks[best]['c'] as List<double>, c, cls, box));
+        _tracks[best] = {'c': c, 't': t, 'cls': cls};
+      }
+    }
+    final keep = [for (final tr in _tracks) if (t - (tr['t'] as double) <= kVehGapS) tr, ...fresh];
+    _tracks
+      ..clear()
+      ..addAll(keep.length > 32 ? keep.sublist(keep.length - 32) : keep);
+    return moves;
+  }
+
+  Map<String, Object>? _vehicleZone(DetZone z, _ZoneState st, double t, int weekday, int minute,
+      List<List<double>>? vehicles) {
+    if (vehicles == null) return null;
+    final vin = [for (final v in vehicles) if (detBoxInZone(v, z.points)) v];
+    if (vin.isEmpty) {
+      if (st.vehLast != null && t - st.vehLast! > kVehGapS) {
+        st.vehAnchor = null;
+        st.vehSince = null;
+        st.vehLast = null;
+        st.vehFired = false;
+      }
+      return null;
+    }
+    final cs = [for (final v in vin) [(v[0] + v[2]) / 2.0, (v[1] + v[3]) / 2.0]];
+    var same = st.vehAnchor != null && st.vehLast != null && t - st.vehLast! <= kVehGapS;
+    if (same) same = cs.map((c) => _dist(c, st.vehAnchor!)).reduce(math.min) <= kVehStill;
+    if (!same) {
+      st.vehAnchor = cs.first;
+      st.vehSince = t;
+      st.vehFired = false;
+    }
+    st.vehLast = t;
+    if (!_openArmed(z, weekday, minute)) return null;
+    final cls = kVehicleClasses[vin.first.length > 5 ? vin.first[5].toInt() : 2] ?? 'vehicle';
+    final parking = z.type == 'parking';
+    final need = parking
+        ? _optNum(z.opts, 'overstay_min', kOverstayMinDefault, 5, 1440) * 60
+        : _optNum(z.opts, 'wrong_s', kWrongSDefault, 30, 3600);
+    if (t - st.vehSince! >= need && !st.vehFired) {
+      st.vehFired = true;
+      return {
+        'type': parking ? kDetParkingOverstay : kDetWrongParking,
+        'cls': cls,
+        'seconds': (t - st.vehSince!).toInt(),
+        if (parking) 'minutes': (t - st.vehSince!) ~/ 60,
+        'box': [for (final x in vin.first.take(4)) (x * 10000).roundToDouble() / 10000],
+      };
+    }
+    return null;
   }
 
   List<DetZone> gateZones() =>
@@ -341,14 +474,45 @@ class ZoneRules {
   /// One analysed frame. boxes: [[x1, y1, x2, y2, score], ...] from the
   /// person model THIS frame, or null when it did not run.
   List<Map<String, Object>> step(double t, int weekday, int minute, List<List<double>>? boxes,
-      {bool night = false, Map<String, List<double>>? patches}) {
+      {bool night = false,
+      Map<String, List<double>>? patches,
+      double minScore = 0.0,
+      List<List<double>>? vehicles}) {
     final out = <Map<String, Object>>[];
+    final moves = vehicles != null ? _track(t, vehicles) : const <(List<double>, List<double>, int, List<double>)>[];
     for (final z in zones) {
       final st = state[z.id]!;
       final opts = z.opts;
+      if (z.type == 'entry_line') {
+        final a = z.points[0], b = z.points[1];
+        for (final (prev, cur, cls, box) in moves) {
+          if (detSegmentsCross(prev, cur, a, b)) {
+            final left = _orient(a, b, cur) > 0;
+            final inward = (opts['in_side'] ?? 'left') == 'left' ? left : !left;
+            out.add({
+              'type': kDetVehicleInOut,
+              'zone': z.id,
+              'label': z.label,
+              'dir': inward ? 'in' : 'out',
+              'cls': kVehicleClasses[cls] ?? 'vehicle',
+              'box': box,
+            });
+          }
+        }
+        continue;
+      }
+      if (z.type == 'parking' || z.type == 'no_parking') {
+        final d = _vehicleZone(z, st, t, weekday, minute, vehicles);
+        if (d != null) out.add({...d, 'zone': z.id, 'label': z.label});
+        continue;
+      }
       var inZone = const <List<double>>[];
+      var strong = const <List<double>>[];
       if (boxes != null) {
-        inZone = [for (final b in boxes) if (detBoxInZone(b, z.points)) b];
+        final floor = z.type == 'post' ? kPostPresenceScore : minScore;
+        final allIn = [for (final b in boxes) if (detBoxInZone(b, z.points)) b];
+        strong = [for (final b in allIn) if (b.length < 5 || b[4] >= minScore) b];
+        inZone = [for (final b in allIn) if (b.length < 5 || b[4] >= floor) b];
         if (inZone.isNotEmpty) {
           st.hits++;
           if (st.lastSeen == null || t - st.lastSeen! > kPresenceGapS) {
@@ -389,6 +553,21 @@ class ZoneRules {
           'seconds': (t - st.since!).toInt(),
           if (conf != null) 'conf': (conf * 1000).roundToDouble() / 1000,
         });
+      }
+
+      final crowdN = _optNum(opts, 'crowd_n', 0, 0, 50).toInt();
+      if (crowdN > 0 && boxes != null) {
+        if (strong.length >= crowdN) {
+          st.crowdSince ??= t;
+          final need = _optNum(opts, 'crowd_s', kCrowdSDefault, 10, 1800);
+          if (_openArmed(z, weekday, minute) && t - st.crowdSince! >= need && !st.crowdFired) {
+            st.crowdFired = true;
+            out.add({'type': kDetCrowd, 'zone': z.id, 'label': z.label, 'count': strong.length});
+          }
+        } else {
+          st.crowdSince = null;
+          st.crowdFired = false;
+        }
       }
 
       if (z.type == 'post') {
@@ -553,17 +732,63 @@ double _r1(double v) => (v * 10).roundToDouble() / 10;
   return (grid, mean, math.sqrt(math.max(0.0, s2 / n - mean * mean)));
 }
 
+double _r2(double v) => (v * 100).roundToDouble() / 100;
+
+/// Stage 2: CAMERA MOVED by the scene's shapes (= detect_rules.assess_shape).
+(Map<String, dynamic>, String?) assessShape(Map<String, dynamic> state, List<double> shape, bool ir, double ts) {
+  final st = Map<String, dynamic>.of(state);
+  final key = ir ? 'shape_ir' : 'shape_day';
+  final ref = (st[key] as List?)?.map((e) => (e as num).toDouble()).toList();
+  if (ref == null || ref.isEmpty) {
+    st[key] = [for (final v in shape) _r2(v)];
+    return (st, null);
+  }
+  final sim = detSimilarity(shape, ref, gradOnly: true);
+  if (sim >= kMovedShapeKeep) {
+    st[key] = [for (var i = 0; i < ref.length; i++) _r2(0.8 * ref[i] + 0.2 * shape[i])];
+    st.remove('shape_pending');
+    return (st, null);
+  }
+  if (sim < kMovedShapeSim) {
+    final p = st['shape_pending'] as Map?;
+    final ps = (p?['shape'] as List?)?.map((e) => (e as num).toDouble()).toList() ?? const <double>[];
+    if (p != null && p['ir'] == ir && ts - ((p['ts'] as num?) ?? 0).toDouble() >= kMovedMinGapS &&
+        ps.isNotEmpty && detSimilarity(shape, ps, gradOnly: true) >= 0.7) {
+      st[key] = [for (final v in shape) _r2(v)];
+      st.remove('shape_pending');
+      return (st, 'moved');
+    }
+    if (p == null || p['ir'] != ir) {
+      st['shape_pending'] = {'shape': [for (final v in shape) _r2(v)], 'ts': ts, 'ir': ir};
+    }
+  }
+  return (st, null);
+}
+
 class TamperCheck {
   Map<String, dynamic> state = {};
+  Map<String, dynamic> shapeState = {};
   double? last;
   bool due(double t) => last == null || t - last! >= kTamperEveryS;
 
   /// 'covered' | 'moved' | null (dark alone is a night, not tamper).
-  String? check(List<double> grid, double mean, double std, bool ir, double t) {
+  String? check(List<double> grid, double mean, double std, bool ir, double t, [List<double>? shape]) {
     last = t;
     final (st, kind) = assessStill(state, grid, mean, std, ir, t);
     state = st;
-    return (kind == 'covered' || kind == 'moved') ? kind : null;
+    if (kind == 'covered' || kind == 'moved') {
+      if (kind == 'moved') {
+        shapeState.remove('shape_pending');
+        shapeState.remove(ir ? 'shape_ir' : 'shape_day');
+      }
+      return kind;
+    }
+    if (kind == null && shape != null && shape.isNotEmpty && stillKind(mean, std) == null) {
+      final (ss, sk) = assessShape(shapeState, shape, ir, t);
+      shapeState = ss;
+      if (sk == 'moved') return 'moved';
+    }
+    return null;
   }
 }
 
@@ -595,6 +820,13 @@ Map<String, dynamic> detectionSignals(Map<String, Object?> det,
       if (det['sim'] is num) s['sim'] = det['sim'];
     case kDetCameraHealth:
       s.addAll({'kind': '${det['kind'] ?? ''}', 'health': true});
+    case kDetCrowd:
+      s.addAll({'crowd': true, 'count': det['count'] ?? 0});
+    case kDetVehicleInOut || kDetParkingOverstay || kDetWrongParking:
+      s.addAll({'vehicle': true, 'object': 'vehicle', 'cls': '${det['cls'] ?? 'vehicle'}'});
+      if (type == kDetVehicleInOut) s['dir'] = det['dir'] == 'in' ? 'in' : 'out';
+      if (det['minutes'] is num) s['minutes'] = det['minutes'];
+      if (det['seconds'] is num) s['seconds'] = det['seconds'];
   }
   return s;
 }

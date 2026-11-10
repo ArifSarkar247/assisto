@@ -1680,6 +1680,1377 @@
      }
     }
    ]
+  },
+  {
+   "name": "crowd_three_for_a_minute",
+   "zones": [
+    {
+     "id": "z6",
+     "type": "restricted",
+     "points": [
+      [
+       0.3,
+       0.5
+      ],
+      [
+       0.7,
+       0.5
+      ],
+      [
+       0.7,
+       1.0
+      ],
+      [
+       0.3,
+       1.0
+      ]
+     ],
+     "opts": {
+      "crowd_n": 3,
+      "crowd_s": 60
+     }
+    }
+   ],
+   "cam_schedule": null,
+   "steps": [
+    {
+     "t": 0,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.32,
+       0.55,
+       0.42,
+       0.95,
+       0.8
+      ],
+      [
+       0.45,
+       0.55,
+       0.55,
+       0.95,
+       0.8
+      ],
+      [
+       0.58,
+       0.55,
+       0.68,
+       0.95,
+       0.8
+      ]
+     ],
+     "night": false,
+     "expect": []
+    },
+    {
+     "t": 30,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.32,
+       0.55,
+       0.42,
+       0.95,
+       0.8
+      ],
+      [
+       0.45,
+       0.55,
+       0.55,
+       0.95,
+       0.8
+      ],
+      [
+       0.58,
+       0.55,
+       0.68,
+       0.95,
+       0.8
+      ]
+     ],
+     "night": false,
+     "expect": []
+    },
+    {
+     "t": 60,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.32,
+       0.55,
+       0.42,
+       0.95,
+       0.8
+      ],
+      [
+       0.45,
+       0.55,
+       0.55,
+       0.95,
+       0.8
+      ],
+      [
+       0.58,
+       0.55,
+       0.68,
+       0.95,
+       0.8
+      ]
+     ],
+     "night": false,
+     "expect": [
+      {
+       "type": "crowd",
+       "zone": "z6",
+       "count": 3
+      }
+     ]
+    },
+    {
+     "t": 70,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.32,
+       0.55,
+       0.42,
+       0.95,
+       0.8
+      ],
+      [
+       0.45,
+       0.55,
+       0.55,
+       0.95,
+       0.8
+      ],
+      [
+       0.58,
+       0.55,
+       0.68,
+       0.95,
+       0.8
+      ]
+     ],
+     "night": false,
+     "expect": []
+    },
+    {
+     "t": 80,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.32,
+       0.55,
+       0.42,
+       0.95,
+       0.8
+      ],
+      [
+       0.45,
+       0.55,
+       0.55,
+       0.95,
+       0.8
+      ]
+     ],
+     "night": false,
+     "expect": []
+    },
+    {
+     "t": 90,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.32,
+       0.55,
+       0.42,
+       0.95,
+       0.8
+      ],
+      [
+       0.45,
+       0.55,
+       0.55,
+       0.95,
+       0.8
+      ],
+      [
+       0.58,
+       0.55,
+       0.68,
+       0.95,
+       0.8
+      ]
+     ],
+     "night": false,
+     "expect": []
+    },
+    {
+     "t": 150,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.32,
+       0.55,
+       0.42,
+       0.95,
+       0.8
+      ],
+      [
+       0.45,
+       0.55,
+       0.55,
+       0.95,
+       0.8
+      ],
+      [
+       0.58,
+       0.55,
+       0.68,
+       0.95,
+       0.8
+      ]
+     ],
+     "night": false,
+     "expect": [
+      {
+       "type": "crowd",
+       "zone": "z6",
+       "count": 3
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "weak_box_keeps_post_manned_but_never_alerts_gate",
+   "zones": [
+    {
+     "id": "p",
+     "type": "post",
+     "points": [
+      [
+       0.3,
+       0.5
+      ],
+      [
+       0.7,
+       0.5
+      ],
+      [
+       0.7,
+       1.0
+      ],
+      [
+       0.3,
+       1.0
+      ]
+     ],
+     "schedule": {
+      "days": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5,
+       6
+      ],
+      "start": "00:00",
+      "end": "00:00"
+     },
+     "opts": {
+      "absent_min": 1
+     }
+    },
+    {
+     "id": "g",
+     "type": "gate",
+     "points": [
+      [
+       0.3,
+       0.5
+      ],
+      [
+       0.7,
+       0.5
+      ],
+      [
+       0.7,
+       1.0
+      ],
+      [
+       0.3,
+       1.0
+      ]
+     ]
+    }
+   ],
+   "cam_schedule": null,
+   "steps": [
+    {
+     "t": 0,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.95,
+       0.3
+      ]
+     ],
+     "night": false,
+     "expect": [],
+     "min_score": 0.45
+    },
+    {
+     "t": 30,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.95,
+       0.3
+      ]
+     ],
+     "night": false,
+     "expect": [],
+     "min_score": 0.45
+    },
+    {
+     "t": 60,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.95,
+       0.3
+      ]
+     ],
+     "night": false,
+     "expect": [],
+     "min_score": 0.45
+    },
+    {
+     "t": 90,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.95,
+       0.3
+      ]
+     ],
+     "night": false,
+     "expect": [],
+     "min_score": 0.45
+    },
+    {
+     "t": 120,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.95,
+       0.3
+      ]
+     ],
+     "night": false,
+     "expect": [],
+     "min_score": 0.45
+    },
+    {
+     "t": 150,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.95,
+       0.3
+      ]
+     ],
+     "night": false,
+     "expect": [],
+     "min_score": 0.45
+    },
+    {
+     "t": 180,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.95,
+       0.3
+      ]
+     ],
+     "night": false,
+     "expect": [],
+     "min_score": 0.45
+    },
+    {
+     "t": 210,
+     "wd": 0,
+     "min": 600,
+     "boxes": [],
+     "night": false,
+     "expect": [],
+     "min_score": 0.45
+    },
+    {
+     "t": 270,
+     "wd": 0,
+     "min": 600,
+     "boxes": [],
+     "night": false,
+     "expect": [
+      {
+       "type": "post_empty",
+       "zone": "p",
+       "minutes": 1
+      }
+     ],
+     "min_score": 0.45
+    }
+   ]
+  },
+  {
+   "name": "vehicle_in_out_on_the_line",
+   "zones": [
+    {
+     "id": "l1",
+     "type": "entry_line",
+     "points": [
+      [
+       0.5,
+       0.0
+      ],
+      [
+       0.5,
+       1.0
+      ]
+     ],
+     "opts": {
+      "vehicles": true
+     }
+    }
+   ],
+   "cam_schedule": null,
+   "steps": [
+    {
+     "t": 0,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.6,
+       0.4,
+       0.8,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 1,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.4,
+       0.65,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 2,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [
+      {
+       "type": "vehicle_in_out",
+       "zone": "l1",
+       "dir": "in",
+       "cls": "car"
+      }
+     ],
+     "vehicles": [
+      [
+       0.3,
+       0.4,
+       0.5,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 3,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.15,
+       0.4,
+       0.35,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 60,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.2,
+       0.4,
+       0.4,
+       0.6,
+       0.9,
+       5
+      ]
+     ]
+    },
+    {
+     "t": 61,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.35,
+       0.4,
+       0.55,
+       0.6,
+       0.9,
+       5
+      ]
+     ]
+    },
+    {
+     "t": 62,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [
+      {
+       "type": "vehicle_in_out",
+       "zone": "l1",
+       "dir": "out",
+       "cls": "bus"
+      }
+     ],
+     "vehicles": [
+      [
+       0.5,
+       0.4,
+       0.7,
+       0.6,
+       0.9,
+       5
+      ]
+     ]
+    },
+    {
+     "t": 100,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.1,
+       0.4,
+       0.3,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 101,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.7,
+       0.4,
+       0.9,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 102,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": []
+    }
+   ]
+  },
+  {
+   "name": "parking_overstay_one_still_car",
+   "zones": [
+    {
+     "id": "pk",
+     "type": "parking",
+     "points": [
+      [
+       0.3,
+       0.5
+      ],
+      [
+       0.7,
+       0.5
+      ],
+      [
+       0.7,
+       1.0
+      ],
+      [
+       0.3,
+       1.0
+      ]
+     ],
+     "opts": {
+      "overstay_min": 5
+     }
+    }
+   ],
+   "cam_schedule": null,
+   "steps": [
+    {
+     "t": 0,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 60,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.41000000000000003,
+       0.6,
+       0.61,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 120,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.39,
+       0.6,
+       0.59,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 180,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.41000000000000003,
+       0.6,
+       0.61,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 240,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.39,
+       0.6,
+       0.59,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 300,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [
+      {
+       "type": "parking_overstay",
+       "zone": "pk",
+       "minutes": 5,
+       "cls": "car"
+      }
+     ],
+     "vehicles": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 360,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 420,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": []
+    },
+    {
+     "t": 480,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 540,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.4,
+       0.6,
+       0.6,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "name": "wrong_parking_vs_passing_traffic",
+   "zones": [
+    {
+     "id": "np",
+     "type": "no_parking",
+     "points": [
+      [
+       0.3,
+       0.5
+      ],
+      [
+       0.7,
+       0.5
+      ],
+      [
+       0.7,
+       1.0
+      ],
+      [
+       0.3,
+       1.0
+      ]
+     ],
+     "opts": {
+      "wrong_s": 120
+     }
+    }
+   ],
+   "cam_schedule": null,
+   "steps": [
+    {
+     "t": 0,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.3,
+       0.6,
+       0.39999999999999997,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 10,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 20,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.6,
+       0.6,
+       0.7000000000000001,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 30,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.3,
+       0.6,
+       0.39999999999999997,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 40,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 50,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.6,
+       0.6,
+       0.7000000000000001,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 60,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.3,
+       0.6,
+       0.39999999999999997,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 70,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 80,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.6,
+       0.6,
+       0.7000000000000001,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 90,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.3,
+       0.6,
+       0.39999999999999997,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 100,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 110,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.6,
+       0.6,
+       0.7000000000000001,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 120,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.3,
+       0.6,
+       0.39999999999999997,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 130,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 140,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.6,
+       0.6,
+       0.7000000000000001,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 150,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.3,
+       0.6,
+       0.39999999999999997,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 160,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 170,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.6,
+       0.6,
+       0.7000000000000001,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 180,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.3,
+       0.6,
+       0.39999999999999997,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 190,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 300,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       3
+      ]
+     ]
+    },
+    {
+     "t": 330,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       3
+      ]
+     ]
+    },
+    {
+     "t": 360,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       3
+      ]
+     ]
+    },
+    {
+     "t": 390,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       3
+      ]
+     ]
+    },
+    {
+     "t": 420,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [
+      {
+       "type": "wrong_parking",
+       "zone": "np",
+       "seconds": 120,
+       "cls": "motorbike"
+      }
+     ],
+     "vehicles": [
+      [
+       0.45,
+       0.6,
+       0.55,
+       0.9,
+       0.9,
+       3
+      ]
+     ]
+    }
+   ]
   }
  ],
  "tamper": {
@@ -2420,6 +3791,136 @@
    }
   ]
  },
+ "shape": {
+  "moved": [
+   {
+    "shape": {
+     "pattern": "h",
+     "lo": 50,
+     "hi": 200
+    },
+    "ir": false,
+    "ts": 0,
+    "expect": null
+   },
+   {
+    "shape": {
+     "pattern": "v",
+     "lo": 50,
+     "hi": 200
+    },
+    "ir": false,
+    "ts": 30,
+    "expect": null
+   },
+   {
+    "shape": {
+     "pattern": "v",
+     "lo": 50,
+     "hi": 200
+    },
+    "ir": false,
+    "ts": 100,
+    "expect": null
+   },
+   {
+    "shape": {
+     "pattern": "v",
+     "lo": 50,
+     "hi": 200
+    },
+    "ir": false,
+    "ts": 160,
+    "expect": "moved"
+   }
+  ],
+  "light_and_ir": [
+   {
+    "shape": {
+     "pattern": "h",
+     "lo": 50,
+     "hi": 200
+    },
+    "ir": false,
+    "ts": 0,
+    "expect": null
+   },
+   {
+    "shape": {
+     "pattern": "h",
+     "lo": 80,
+     "hi": 180
+    },
+    "ir": false,
+    "ts": 30,
+    "expect": null
+   },
+   {
+    "shape": {
+     "pattern": "h",
+     "lo": 20,
+     "hi": 60
+    },
+    "ir": false,
+    "ts": 60,
+    "expect": null
+   },
+   {
+    "shape": {
+     "pattern": "v",
+     "lo": 20,
+     "hi": 60
+    },
+    "ir": true,
+    "ts": 90,
+    "expect": null
+   },
+   {
+    "shape": {
+     "pattern": "h",
+     "lo": 50,
+     "hi": 200
+    },
+    "ir": false,
+    "ts": 300,
+    "expect": null
+   }
+  ]
+ },
+ "plates": [
+  {
+   "text": "\u09a2\u09be\u0995\u09be \u09ae\u09c7\u099f\u09cd\u09b0\u09cb-\u0997 \u09e7\u09e8-\u09e9\u09ea\u09eb\u09ec",
+   "bn": "\u09a2\u09be\u0995\u09be \u09ae\u09c7\u099f\u09cd\u09b0\u09cb-\u0997 \u09e7\u09e8-\u09e9\u09ea\u09eb\u09ec",
+   "en": "DHAKA METRO-GA 12-3456",
+   "number": "12-3456",
+   "partial": false
+  },
+  {
+   "text": "DHAKA METRO-GA 12-3456",
+   "bn": "\u09a2\u09be\u0995\u09be \u09ae\u09c7\u099f\u09cd\u09b0\u09cb-\u0997 \u09e7\u09e8-\u09e9\u09ea\u09eb\u09ec",
+   "en": "DHAKA METRO-GA 12-3456",
+   "number": "12-3456",
+   "partial": false
+  },
+  {
+   "text": "chattogram metro ha 11 2233",
+   "bn": "\u099a\u099f\u09cd\u099f\u0997\u09cd\u09b0\u09be\u09ae \u09ae\u09c7\u099f\u09cd\u09b0\u09cb-\u09b9 \u09e7\u09e7-\u09e8\u09e8\u09e9\u09e9",
+   "en": "CHATTOGRAM METRO-HA 11-2233",
+   "number": "11-2233",
+   "partial": false
+  },
+  {
+   "text": "number 15 7788 on the plate",
+   "bn": "\u09e7\u09eb-\u09ed\u09ed\u09ee\u09ee",
+   "en": "15-7788",
+   "number": "15-7788",
+   "partial": true
+  },
+  {
+   "text": "no plate visible",
+   "bn": null
+  }
+ ],
  "patches": [
   {
    "w": 8,

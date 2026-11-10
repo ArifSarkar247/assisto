@@ -459,10 +459,18 @@ def describe_one(ev, slug, conf, now):
         ShopEvent.objects.filter(pk=ev.pk).update(signals=sig)
         return "cap"
     try:
+        vehicle = ev.type in CB.VEHICLE_DESC_TYPES
         reply = VP.ask(slug, conf, image_bytes=raw,
                        mime="image/png" if raw[:4] == b"\x89PNG" else "image/jpeg",
-                       system=CB.AI_SYSTEM, question="Describe this camera photo.")
+                       system=CB.AI_SYSTEM + (CB.PLATE_ADDON if vehicle else ""),
+                       question="Describe this camera photo.")
         d = CB.clean_ai_desc(reply)
+        # cctvdet stage 2: the plate the AI read (Bangla / English), parsed
+        if d is not None and vehicle and not sig.get("plate"):
+            from .logic import bd_plate as BP
+            p = BP.parse_bd_plate(d.get("bn"))
+            if p:
+                sig["plate"] = dict(p, source="ai")
     except Exception:
         d = None
     if d is None:

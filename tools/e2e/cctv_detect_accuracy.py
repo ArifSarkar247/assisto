@@ -374,6 +374,149 @@ def tamper(bgs, det, n, rnd):
     return tally(rows_c), tally(rows_m)
 
 
+# ------------------------------------------------------------------ stage 2
+VEH_CATS = {3: 2, 4: 3, 6: 5, 8: 7}      # COCO category id -> YOLOX class id
+CROWD_Z = [[0.04, 0.3], [0.96, 0.3], [0.96, 1.0], [0.04, 1.0]]
+LINE = [[0.5, 0.0], [0.5, 1.0]]
+
+
+def vehicle_cutouts(ann, cache, n):
+    images = {im["id"]: im for im in ann["images"] if im.get("license") in CA.OK_LICENCES}
+    cands = []
+    for a in ann["annotations"]:
+        if a["category_id"] not in VEH_CATS or a.get("iscrowd") or a["image_id"] not in images:
+            continue
+        im = images[a["image_id"]]
+        if a["area"] / float(im["width"] * im["height"]) >= 0.06:
+            cands.append((im, a))
+    rnd = random.Random(SEED + 7)
+    rnd.shuffle(cands)
+    cuts, ids = [], []
+    for im, a in cands:
+        if len(cuts) >= n:
+            break
+        img = CA.fetch(im, cache)
+        if img is None:
+            continue
+        c = CA.person_cutout(img, [a])
+        if c is None or c[0].shape[1] < 80:
+            continue
+        cuts.append(c)
+        ids.append({"id": im["id"], "role": "vehicle", "licence": CA.OK_LICENCES[im["license"]]})
+    return cuts, ids
+
+
+def scaled_w(cut, width_frac):
+    import cv2
+    patch, mask = cut
+    pw = int(W * width_frac)
+    ph = max(4, int(patch.shape[0] * pw / patch.shape[1]))
+    return (cv2.resize(patch, (pw, ph), interpolation=cv2.INTER_AREA).astype(np.float32),
+            cv2.resize(mask, (pw, ph), interpolation=cv2.INTER_NEAREST) > 0)
+
+
+def crowd(bgs, cuts, det, n, rnd):
+    rows = []
+    zone = {"id": "q", "type": "restricted", "points": CROWD_Z, "opts": {"crowd_n": 4, "crowd_s": 60}}
+    for i in range(n):
+        for night in (False, True):
+            for kind, k in (("pos_5", 5), ("pos_6", 6), ("neg_2", 2), ("neg_3", 3)):
+                bg = fit(bgs[rnd.randrange(len(bgs))])
+                rng = np.random.default_rng(rnd.randrange(1 << 30))
+                people = [scaled_cut(cuts[rnd.randrange(len(cuts))], rnd.uniform(0.38, 0.5), rnd)
+                          for _ in range(k)]
+                xs = [0.1 + (0.8 * (j + 0.5) / k) + rnd.uniform(-0.03, 0.03) for j in range(k)]
+                an = analyzer([zone], det)
+                frames = [(j * 1.0, finish(bg.copy(), night, rng)) for j in range(6)]
+                t = 6.0
+                while t <= 6.0 + 100:
+                    f = bg.copy()
+                    for pm, x in zip(people, xs):
+                        paste(f, pm, x + rnd.uniform(-0.01, 0.01), rnd.uniform(0.9, 0.99))
+                    frames.append((t, finish(f, night, rng)))
+                    t += 4.0 if t < 30 else 10.0
+                hits = run(an, frames, {"crowd"})
+                rows.append({"pos": kind.startswith("pos"), "hit": bool(hits),
+                             "kind": "%s_%s" % (kind, "night" if night else "day"), "dur": 106.0})
+    return tally(rows)
+
+
+def vehicle_in_out(bgs, vcuts, pcuts, det, n, rnd):
+    rows = []
+    zone = {"id": "l1", "type": "entry_line", "points": LINE, "opts": {"vehicles": True}}
+    for i in range(n):
+        for night in (False, True):
+            for kind in ("pos_in", "pos_out", "neg_turn_back", "neg_person"):
+                bg = fit(bgs[rnd.randrange(len(bgs))])
+                rng = np.random.default_rng(rnd.randrange(1 << 30))
+                if kind == "neg_person":
+                    pm = scaled_cut(pcuts[rnd.randrange(len(pcuts))], 0.55, rnd)
+                else:
+                    pm = scaled_w(vcuts[rnd.randrange(len(vcuts))], rnd.uniform(0.25, 0.35))
+                if kind == "pos_in" or kind == "neg_person":
+                    path = [0.88 - 0.1 * j for j in range(9)]          # right -> left
+                elif kind == "pos_out":
+                    path = [0.12 + 0.1 * j for j in range(9)]
+                else:
+                    path = [0.9, 0.82, 0.74, 0.66, 0.6, 0.66, 0.74, 0.82, 0.9]
+                an = analyzer([zone], det)
+                frames = [(j * 1.0, finish(bg.copy(), night, rng)) for j in range(6)]
+                foot = rnd.uniform(0.8, 0.95)
+                for j, x in enumerate(path):
+                    f = bg.copy()
+                    paste(f, pm, x, foot)
+                    frames.append((6.0 + j * 1.0, finish(f, night, rng)))
+                hits = run(an, frames, {"vehicle_in_out"})
+                pos = kind.startswith("pos")
+                want = "in" if kind == "pos_in" else "out"
+                ok = any(h[2].get("dir") == want for h in hits) if pos else bool(hits)
+                rows.append({"pos": pos, "hit": ok, "kind": "%s_%s" % (kind, "night" if night else "day"),
+                             "dur": 15.0})
+    return tally(rows)
+
+
+def parking(bgs, vcuts, det, n, rnd, ztype):
+    rows = []
+    if ztype == "parking":
+        zone = {"id": "pk", "type": "parking", "points": GATE, "opts": {"overstay_min": 5}}
+        step, total, want = 30.0, 420.0, "parking_overstay"
+        kinds = ("pos_stays", "neg_leaves", "neg_turnover")
+    else:
+        zone = {"id": "np", "type": "no_parking", "points": GATE, "opts": {"wrong_s": 120}}
+        step, total, want = 10.0, 240.0, "wrong_parking"
+        kinds = ("pos_stands", "neg_passing", "neg_short")
+    for i in range(n):
+        for night in (False, True):
+            for kind in kinds:
+                bg = fit(bgs[rnd.randrange(len(bgs))])
+                rng = np.random.default_rng(rnd.randrange(1 << 30))
+                cars = [scaled_w(vcuts[rnd.randrange(len(vcuts))], rnd.uniform(0.25, 0.33)) for _ in range(30)]
+                an = analyzer([zone], det)
+                frames = []
+                t = 0.0
+                k = 0
+                while t <= total:
+                    f = bg.copy()
+                    if kind in ("pos_stays", "pos_stands"):
+                        paste(f, cars[0], 0.5 + rnd.uniform(-0.005, 0.005), 0.93)
+                    elif kind == "neg_leaves" and t < 180:
+                        paste(f, cars[0], 0.5, 0.93)
+                    elif kind == "neg_short" and t < 60:
+                        paste(f, cars[0], 0.5, 0.93)
+                    elif kind == "neg_turnover":
+                        slot = int(t // 60)
+                        paste(f, cars[slot % len(cars)], 0.4 + 0.2 * (slot % 2), 0.93)
+                    elif kind == "neg_passing":
+                        paste(f, cars[k % len(cars)], (0.35, 0.5, 0.65)[k % 3], 0.93)
+                    frames.append((t, finish(f, night, rng)))
+                    t += step
+                    k += 1
+                hits = run(an, frames, {want})
+                rows.append({"pos": kind.startswith("pos"), "hit": bool(hits),
+                             "kind": "%s_%s" % (kind, "night" if night else "day"), "dur": total})
+    return tally(rows)
+
+
 CUTS = []
 
 
@@ -405,7 +548,9 @@ def main():
         if c is not None and c[0].shape[0] >= 120 and c[0].shape[0] > c[0].shape[1]:
             CUTS.append(c)              # tall, big enough: a standing person
             ids.append({"id": im["id"], "role": "person", "licence": CA.OK_LICENCES[im["license"]]})
-    print("backgrounds %d, people %d" % (len(bgs), len(CUTS)), flush=True)
+    vcuts, vids = vehicle_cutouts(ann, a.cache, 120)
+    ids += vids
+    print("backgrounds %d, people %d, vehicles %d" % (len(bgs), len(CUTS), len(vcuts)), flush=True)
     rnd = random.Random(SEED)
     res = {"set": {"source": "COCO val2017 (CC BY 4.0 annotations; licensed images only)",
                    "backgrounds": len(bgs), "people": len(CUTS), "seed": SEED,
@@ -413,7 +558,11 @@ def main():
     for name, fn in (("gate_person", lambda: gate_person(bgs, CUTS, det, a.n, rnd)),
                      ("loitering", lambda: loitering(bgs, CUTS, det, a.n, rnd)),
                      ("post_empty", lambda: post_empty(bgs, CUTS, det, a.n, rnd)),
-                     ("gate_open", lambda: gate_open(bgs, det, a.n, rnd))):
+                     ("gate_open", lambda: gate_open(bgs, det, a.n, rnd)),
+                     ("crowd", lambda: crowd(bgs, CUTS, det, a.n, rnd)),
+                     ("vehicle_in_out", lambda: vehicle_in_out(bgs, vcuts, CUTS, det, a.n, rnd)),
+                     ("parking_overstay", lambda: parking(bgs, vcuts, det, a.n, rnd, "parking")),
+                     ("wrong_parking", lambda: parking(bgs, vcuts, det, a.n, rnd, "no_parking"))):
         t = time.time()
         res[name] = fn()
         print("%s %.0fs" % (name, time.time() - t), flush=True)
@@ -422,7 +571,8 @@ def main():
     print("tamper %.0fs" % (time.time() - t), flush=True)
     json.dump(res, open(a.out, "w"), indent=1)
     print("DETECTION            P      R      F1   n(pos/neg)  false/cam-week (95%% <=)")
-    for k in ("gate_person", "loitering", "post_empty", "gate_open", "tamper_covered", "tamper_moved"):
+    for k in ("gate_person", "loitering", "post_empty", "gate_open", "crowd", "vehicle_in_out",
+              "parking_overstay", "wrong_parking", "tamper_covered", "tamper_moved"):
         r = res[k]
         print("%-18s %.3f  %.3f  %.3f  %3d/%-3d     %s (%s)" % (
             k, r["precision"], r["recall"], r["f1"], r["tp"] + r["fn"], r["fp"] + r["tn"],
@@ -432,7 +582,9 @@ def main():
     # the table the shared thresholds file keeps (the alert's confidence)
     measured = {}
     for k, src in (("gate_person", "gate_person"), ("loitering", "loitering"),
-                   ("post_empty", "post_empty"), ("gate_open", "gate_open")):
+                   ("post_empty", "post_empty"), ("gate_open", "gate_open"),
+                   ("crowd", "crowd"), ("vehicle_in_out", "vehicle_in_out"),
+                   ("parking_overstay", "parking_overstay"), ("wrong_parking", "wrong_parking")):
         r = res[src]
         measured[k] = {"p": r["precision"], "r": r["recall"], "n": r["tp"] + r["fp"] + r["fn"] + r["tn"]}
     tc, tm = res["tamper_covered"], res["tamper_moved"]

@@ -117,4 +117,55 @@ final Map<String, Widget Function(String)> cctvdetShots = {
           },
           opts: const {'absent_min': 5})),
   'cdet_alerts': (_) => WatchmanAlertsScreen(source: FakeWatchmanDet(), siteId: 1, owner: true),
+  // stage 2: parking zones, the vehicle line, crowd count
+  'cdet_zone_no_parking': (_) => Scaffold(
+      body: ZoneOptionsBody(
+          type: 'no_parking', name: 'No parking', label: 'Gate front', schedule: null,
+          opts: const {'wrong_s': 120})),
+  'cdet_zone_line': (_) => Scaffold(
+      body: ZoneOptionsBody(
+          type: 'entry_line', name: 'Entry line', label: 'Main gate', schedule: null,
+          opts: const {'vehicles': true, 'notify': false})),
+  'cdet_zone_queue': (_) => Scaffold(
+      body: ZoneOptionsBody(
+          type: 'restricted', name: 'Restricted area', label: 'Bill counter queue', schedule: null,
+          opts: const {'crowd_n': 5})),
+  'cdet_alerts_vehicle': (_) => WatchmanAlertsScreen(source: FakeWatchmanVeh(), siteId: 1, owner: true),
 };
+
+class FakeWatchmanVeh extends FakeWatchman {
+  FakeWatchmanVeh() : super('data');
+
+  @override
+  Future<Map<String, dynamic>> events(int siteId) async => {
+        'role': 'owner',
+        'held_today': 0,
+        'events': [
+          {
+            'id': 401, 'type': 'vehicle_in_out', 'confidence': 0.7, 'count': 1, 'status': 'open',
+            'verdict': null, 'camera': 21, 'camera_name': 'Parking gate', 'snapshot_url': '',
+            'label': 'suspicious_please_check', 'last_at': '2026-11-10T08:15:00+06:00',
+            'created': '2026-11-10T08:15:00+06:00',
+            'detect': {
+              'title': 'A vehicle came in / went out', 'detail': 'Main gate · car · in · Plate: DHAKA METRO-GA 12-3456',
+              'zone': 'l1', 'measured': null, 'measured_text': 'Accuracy of this alert type is not measured yet',
+              'review_only': false, 'source': 'edge',
+              'plate': {'bn': 'ঢাকা মেট্রো-গ ১২-৩৪৫৬', 'en': 'DHAKA METRO-GA 12-3456', 'number': '12-3456',
+                        'partial': false, 'source': 'ai'},
+              'desc': 'A white car enters through the gate.', 'desc_src': 'ai'
+            }
+          },
+          {
+            'id': 402, 'type': 'crowd', 'confidence': 0.7, 'count': 1, 'status': 'open',
+            'verdict': null, 'camera': 22, 'camera_name': 'Bill counter', 'snapshot_url': '',
+            'label': 'suspicious_please_check', 'last_at': '2026-11-10T13:05:00+06:00',
+            'created': '2026-11-10T13:05:00+06:00',
+            'detect': {
+              'title': 'A crowd / long queue', 'detail': 'Bill counter queue · 7 people', 'zone': 'q',
+              'measured': null, 'measured_text': 'Accuracy of this alert type is not measured yet',
+              'review_only': false, 'source': 'edge', 'desc': null, 'desc_src': null
+            }
+          },
+        ],
+      };
+}

@@ -214,3 +214,100 @@ class DetectionIngestE2ETests(E2E._Base):
         self.assertIn("camera_health", CD.LONG_CLIP_TYPES)
         self.assertGreaterEqual(PCL.PREVIEW_MAX_S, 10.0)
         self.assertLess(CG.CLIP_MAX_S, 10.0)     # the cash clip stays 3-5 s
+
+
+# ============================================================ stage 2
+class Stage2RuleTests(SimpleTestCase):
+    def test_parking_zones_lines_and_crowd_options(self):
+        out = WM.normalize_zone_config({"zones": [
+            {"id": "pk", "type": "parking", "points": LOWER, "opts": {"crowd_n": 5, "overstay_min": 2}},
+            {"id": "np", "type": "no_parking", "points": LOWER},
+            {"id": "l1", "type": "entry_line", "points": [[0.5, 0], [0.5, 1]],
+             "opts": {"vehicles": True, "notify": True, "in_side": "right", "crowd_n": 4}},
+            {"id": "q", "type": "restricted", "points": LOWER, "opts": {"crowd_n": 1}},
+            {"id": "q2", "type": "restricted", "points": LOWER, "opts": {"crowd_n": 6, "crowd_s": 5}}]})
+        pk, np_, l1, q, q2 = out["zones"]
+        self.assertEqual(pk["opts"], {"overstay_min": 5})          # clamped, no crowd on parking
+        self.assertEqual(np_["opts"], {"wrong_s": 120})
+        self.assertEqual(l1["opts"], {"vehicles": True, "notify": True, "in_side": "right"})
+        self.assertNotIn("opts", q)                                # a crowd of 1 is no crowd
+        self.assertEqual(q2["opts"], {"crowd_n": 6, "crowd_s": 10})
+
+    def test_combine_and_gate_for_crowd_and_vehicles(self):
+        c = lambda t, **s: SG.combine({"type": t, "signals": s}, [], now=1.7e9)["raise"]
+        self.assertTrue(c("crowd", crowd=True, count=6))
+        self.assertFalse(c("crowd", count=6))
+        for t in CD.VEHICLE_TYPES:
+            self.assertTrue(c(t, vehicle=True))
+            self.assertFalse(c(t, person=True))
+        v2 = {"v": 2, "schedule": {"days": [0, 1, 2, 3, 4, 5, 6], "start": "22:00", "end": "06:00"},
+              "zones": [{"id": "q", "type": "restricted", "points": LOWER},
+                        {"id": "pk", "type": "parking", "points": LOWER}]}
+        noon = datetime(2026, 11, 9, 12, 0)
+        # a queue / a car matter by day too: not the night guard schedule
+        self.assertIsNone(CD.zone_gate(v2, "crowd", {"zone": "q"}, noon, WM.is_armed))
+        self.assertIsNone(CD.zone_gate(v2, "parking_overstay", {"zone": "pk"}, noon, WM.is_armed))
+
+    def test_plate_parser_is_the_same_on_box_and_server(self):
+        from core.logic import bd_plate as BP
+        for c in _edge_json("tests", "fixtures", "detect_cases.json")["plates"]:
+            got = BP.parse_bd_plate(c["text"])
+            if c["bn"] is None:
+                self.assertIsNone(got)
+                continue
+            for k in ("bn", "en", "number", "partial"):
+                self.assertEqual(got[k], c[k], (k, c))
+
+    def test_detail_shows_vehicle_direction_and_plate(self):
+        sig = {"inputs": {"zone": "l1", "zone_label": "Gate", "cls": "car", "dir": "in",
+                          "plate": {"bn": "ঢাকা মেট্রো-গ ১২-৩৪৫৬", "en": "DHAKA METRO-GA 12-3456",
+                                    "number": "12-3456", "partial": False, "source": "box_ocr"}}}
+        self.assertIn("ঢুকেছে", CD.detail("vehicle_in_out", sig, "bn"))
+        self.assertIn("DHAKA METRO-GA 12-3456", CD.detail("vehicle_in_out", sig, "en"))
+        f = CD.event_fields("vehicle_in_out", sig, "bn")
+        self.assertEqual(f["plate"]["number"], "12-3456")
+        # the AI's reading (beside inputs) counts when the box had none
+        ai = {"inputs": {"cls": "car"}, "plate": {"number": "15-7788", "partial": True}}
+        self.assertEqual(CD.plate_of(ai)["number"], "15-7788")
+
+
+class Stage2IngestE2ETests(E2E._Base):
+    def setUp(self):
+        super().setUp()
+        sys.path.insert(0, EDGE)
+        self.addCleanup(lambda: sys.path.remove(EDGE))
+        self.cam = self.add_camera("rtsp", "Parking gate")
+        z = self.client.put("/api/v1/shop/cameras/%d/zones" % self.cam["id"], {"zone_config": {
+            "zones": [{"id": "l1", "type": "entry_line", "points": [[0.5, 0], [0.5, 1]],
+                       "opts": {"vehicles": True}},
+                      {"id": "l2", "type": "entry_line", "points": [[0.2, 0], [0.2, 1]],
+                       "opts": {"vehicles": True, "notify": True}},
+                      {"id": "np", "type": "no_parking", "points": LOWER, "label": "Gate front"}],
+            "schedule": None, "sensitivity": "medium", "quiet_hours": None}}, format="json")
+        self.assertEqual(z.status_code, 200, z.data)
+
+    send = DetectionIngestE2ETests.send
+
+    def test_vehicle_log_is_silent_unless_the_line_says_notify(self):
+        from core.models import ShopEvent
+        self.send("vehicle_in_out", {"zone": "l1", "dir": "in", "cls": "car"})
+        self.assertTrue(ShopEvent.objects.filter(type="vehicle_in_out").exists())
+        loud = [k for k in self.shop_pushes() if not (k.get("data") or {}).get("quiet")]
+        self.assertEqual(loud, [])
+        self.send("vehicle_in_out", {"zone": "l2", "dir": "out", "cls": "bus",
+                                     "plate": {"bn": "১৫-৭৭৮৮", "en": "15-7788",
+                                               "number": "15-7788", "partial": True}})
+        # the same camera + type inside the group window is ONE alert, counted
+        ev = ShopEvent.objects.get(type="vehicle_in_out")
+        self.assertEqual(ev.count, 2)
+
+    def test_wrong_parking_alert_row(self):
+        from core.models import ShopEvent
+        self.send("wrong_parking", {"zone": "np", "label": "Gate front", "cls": "motorbike",
+                                    "seconds": 150})
+        ShopEvent.objects.get(type="wrong_parking")
+        rows = self.client.get("/api/v1/shop/events?site=%d" % self.site["id"],
+                               HTTP_ACCEPT_LANGUAGE="en").data["events"]
+        d = rows[0]["detect"]
+        self.assertIn("Gate front", d["detail"])
+        self.assertIn("motorbike", d["detail"])

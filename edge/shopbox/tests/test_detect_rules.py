@@ -44,7 +44,8 @@ def run_case(case):
             r = s["set_ref"]
             rules.set_ref(r["zone"], patch_of(r["patch"]), r["night"], r["t"])
         patches = {k: patch_of(v) for k, v in (s.get("patches") or {}).items()} or None
-        got = rules.step(s["t"], s["wd"], s["min"], s["boxes"], s["night"], patches)
+        got = rules.step(s["t"], s["wd"], s["min"], s["boxes"], s["night"], patches,
+                         min_score=s.get("min_score", 0.0), vehicles=s.get("vehicles"))
         _match(got, s["expect"])
         for zid, want in (s.get("expect_wants_ref") or {}).items():
             assert rules.wants_ref(zid) == want, s
@@ -55,7 +56,7 @@ def test_shared_cases():
     for case in FIX["cases"]:
         run_case(case)
         names.append(case["name"])
-    assert len(names) >= 8
+    assert len(names) >= 13
 
 
 def test_tamper_cases():
@@ -121,3 +122,45 @@ def test_unknown_and_line_zones_are_left_to_the_analyzer():
                       {"id": "l", "type": "entry_line", "points": [[0, 0], [1, 1]]},
                       {"id": "x", "type": "weird", "points": [[0, 0], [1, 0], [1, 1]]}])
     assert r.zones == []
+
+
+def test_shape_cases_camera_moved_by_shapes():
+    for name, seq in FIX["shape"].items():
+        st = {}
+        for s in seq:
+            st, kind = dr.assess_shape(st, patch_of(s["shape"]), s["ir"], s["ts"])
+            assert kind == s["expect"], (name, s["ts"], kind)
+
+
+def test_tamper_check_uses_shapes_when_the_grid_rule_is_unsure():
+    tc = dr.TamperCheck()
+    grid = [float(i % 8) * 20 + 40 for i in range(64)]
+    h = patch_of({"pattern": "h", "lo": 50, "hi": 200})
+    v = patch_of({"pattern": "v", "lo": 50, "hi": 200})
+    # the grid stays alike (corr 1) -> only the shape rule can see the turn
+    assert tc.check(grid, 110, 46, False, 0, h) is None
+    assert tc.check(grid, 110, 46, False, 30, v) is None
+    assert tc.check(grid, 110, 46, False, 160, v) == "moved"
+
+
+def test_bd_plate_cases():
+    from shopbox.plates import parse_bd_plate
+    for c in FIX["plates"]:
+        got = parse_bd_plate(c["text"])
+        if c["bn"] is None:
+            assert got is None, c
+            continue
+        for k in ("bn", "en", "number", "partial"):
+            assert got[k] == c[k], (k, got, c)
+
+
+def test_vehicle_signals_carry_plate_but_never_identity():
+    from shopbox import payload
+    s = payload.build_signals(payload.VEHICLE_IN_OUT, detector="yolox_nano", det={
+        "zone": "l1", "dir": "in", "cls": "car",
+        "plate": {"bn": "ঢাকা মেট্রো-গ ১২-৩৪৫৬", "en": "DHAKA METRO-GA 12-3456",
+                  "number": "12-3456", "partial": False, "source": "box_ocr"}})
+    assert s["vehicle"] and s["dir"] == "in" and s["plate"]["number"] == "12-3456"
+    assert "face" not in str(s) and "name" not in s
+    c = payload.build_signals(payload.CROWD, detector="yolox_nano", det={"zone": "q", "count": 7})
+    assert c["crowd"] and c["count"] == 7
