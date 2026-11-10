@@ -70,6 +70,7 @@ import 'screens/deletion_grace_screen.dart';
 import 'perf/perf_marks.dart'; // perf2gb (CI-only define)
 import 'perf/low_ram.dart'; // perf2gb: image-cache cap on 2-3 GB phones
 import 'perf/low_data.dart' show LowDataMode; // faststart
+import 'perf/circle_warm.dart'; // faststart
 import 'invite/invite_link.dart'; // invite-join
 import 'invite/space_link.dart'; // channels: /ch/ + /cm/ links
 import 'screens/messenger/communities_home_screen.dart' show SpaceLinkScreen; // channels
@@ -179,6 +180,9 @@ void main() {
       // time-boxed device_info read, after the first frame; never throws).
       unawaited(LowRamTuning.apply());
       unawaited(LowDataMode.load()); // faststart: one prefs read
+      // faststart: signed in -> load the chat key + previews in the
+      // background once Home is up, so My Circle opens at once on the tap
+      CircleWarm.start(appState);
       final safe = await StartupGuard.isSafeMode();
       // sc1 crash reporting: 4 s after the first frame, guarded; Crashlytics
       // (Firebase) only outside safe mode, our own server sink always.
@@ -464,8 +468,17 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     try {
       const ch = MethodChannel('com.assisto/device_admin');
-      final route = await ch.invokeMethod<String>('aoSmokeOpen');
+      var route = await ch.invokeMethod<String>('aoSmokeOpen');
       if (route == null || route.isEmpty || !mounted) return;
+      // faststart (CI start-speed only): "circle@3000" = a user tapping My
+      // Circle 3 s after the app opened (not at the very first frame)
+      if (PerfMarks.enabled && route.contains('@')) {
+        final at = route.indexOf('@');
+        final ms = int.tryParse(route.substring(at + 1)) ?? 0;
+        route = route.substring(0, at);
+        await Future<void>.delayed(Duration(milliseconds: ms));
+        if (!mounted) return;
+      }
       if (route == '__ring__') return; // ring-proof: arming above is all
       if (route == '__fsi__') {
         // play-fsi CI proof (Android 14 emulator job fsi-proof-api34)

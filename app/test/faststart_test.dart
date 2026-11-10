@@ -9,6 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:assisto/calls/call_data_prefs.dart';
 import 'package:assisto/perf/disk_image.dart';
 import 'package:assisto/perf/low_data.dart';
+import 'package:assisto/perf/circle_warm.dart';
+import 'package:assisto/models.dart';
+import 'package:assisto/state.dart';
 
 String _src(String p) => File(p).readAsStringSync();
 
@@ -153,6 +156,41 @@ void main() {
       LowDataMode.resetForTest();
       await LowDataMode.load();
       expect(LowDataMode.on.value, isTrue);
+    });
+  });
+
+  group('CircleWarm (My Circle opens at once after a cold start)', () {
+    setUp(CircleWarm.resetForTest);
+    tearDown(CircleWarm.resetForTest);
+
+    test('waits for startup, then warms only when signed in', () async {
+      SharedPreferences.setMockInitialValues({});
+      var warmed = 0;
+      CircleWarm.warm = () async => warmed++;
+      final app = AppState();
+      app.loading = true;
+      app.api.token = 't';
+      app.user = AppUser(id: 7, name: 'Sample', autonomyLevel: 2, language: 'en');
+      CircleWarm.start(app, delay: Duration.zero);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(warmed, 0, reason: 'never during the cold-start path');
+      app.loading = false;
+      app.clearDeletionGrace(); // any public change notifies listeners
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(warmed, 1);
+      // once per process
+      CircleWarm.start(app, delay: Duration.zero);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(warmed, 1);
+    });
+
+    test('signed out: nothing is loaded', () async {
+      var warmed = 0;
+      CircleWarm.warm = () async => warmed++;
+      final app = AppState()..loading = false;
+      CircleWarm.start(app, delay: Duration.zero);
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(warmed, 0);
     });
   });
 }
