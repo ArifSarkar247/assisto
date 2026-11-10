@@ -35,6 +35,7 @@ import 'lp_data.dart';
 import 'lp_engine.dart';
 import 'lp_life.dart' show lpVoice;
 import 'lp_score.dart';
+import 'lp_track.dart' show LpTtsPlayer;
 import 'lp_ui.dart';
 import 'lp_vocab.dart';
 
@@ -256,8 +257,8 @@ class _LpIeltsHubState extends State<LpIeltsHub> {
             else if (mocks.isEmpty)
               StateMessage(
                 icon: Icons.hourglass_top_rounded,
-                title: tr.lp2NoMocksTitle,
-                message: tr.lp2NoMocksBody,
+                title: tr.lp2NoMocksNowTitle,
+                message: tr.lp2NoMocksNowBody,
                 action: FilledButton.icon(
                   onPressed: () => _open(const LpCompanionScreen()),
                   icon: const Icon(Icons.menu_book_rounded),
@@ -870,7 +871,13 @@ class _LrSectionState extends State<_LrSection> {
             ),
         ]),
         const SizedBox(height: Gap.md),
-        if (listening)
+        if (listening && '${p['audio_url'] ?? ''}'.isEmpty && p['tts'] is Map)
+          // lpfinish: no recorded audio yet -> the phone's own voice reads the script
+          LpTtsPlayer(
+              key: ValueKey('t$_part'),
+              tts: (p['tts'] as Map).cast<String, dynamic>(),
+              replay: widget.replay)
+        else if (listening)
           _LpAudio(key: ValueKey('a$_part'), url: '${p['audio_url'] ?? ''}', replay: widget.replay)
         else ...[
           SegmentedButton<bool>(

@@ -364,9 +364,10 @@ def section_questions(name, body):
 def public_section(name, body):
     if name == "listening":
         return {"duration_sec": body.get("duration_sec"),
-                "parts": [{"n": p.get("n"), "audio_url": media_url(p.get("audio")),
-                           "accent": p.get("accent"),
-                           "questions": [public_question(q) for q in p.get("questions") or []]}
+                "parts": [dict({"n": p.get("n"), "audio_url": media_url(p.get("audio")),
+                                "accent": p.get("accent"),
+                                "questions": [public_question(q) for q in p.get("questions") or []]},
+                               **_phone_tts(p))
                           for p in body.get("parts") or []]}
     if name == "reading":
         return {"duration_sec": body.get("duration_sec"),
@@ -383,6 +384,17 @@ def public_section(name, body):
                 "parts": [{k: p[k] for k in ("n", "questions", "cue_card", "prep_sec", "talk_sec")
                            if k in p} for p in body.get("parts") or []]}
     return {}
+
+
+def _phone_tts(part):
+    """lpfinish: a part without recorded audio is read by the phone's own
+    voice — the app plays these lines and never displays them."""
+    if part.get("audio"):
+        return {}
+    lines = CK.tts_lines(part)
+    if not lines:
+        return {}
+    return {"tts": {"lang": part.get("tts_lang") or "en-GB", "lines": lines, "repeat": 1}}
 
 
 def mock_sections(mock):

@@ -21,7 +21,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../widgets/local_digits.dart';
-import '../../widgets/num_input.dart' show parseIntInput, LatinDigitsFormatter;
+import '../../widgets/num_input.dart' show LatinDigitsFormatter, parseIntInput;
 import 'lp_data.dart';
 import 'lp_engine.dart';
 import 'lp_score.dart';

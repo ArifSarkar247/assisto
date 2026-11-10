@@ -170,7 +170,7 @@ void main() {
       await t.scrollUntilVisible(find.text('Other languages'), 200, scrollable: find.byType(Scrollable).first);
       expect(find.text('Japan · JLPT / JFT'), findsOneWidget);
       expect(find.text('Other languages'), findsOneWidget);
-      expect(find.text('French'), findsOneWidget);
+      expect(find.text('French · A1'), findsOneWidget); // lpfinish: one course = one chip
     });
 
     testWidgets('Bangla: no ASCII digits except the A1 level name', (t) async {
