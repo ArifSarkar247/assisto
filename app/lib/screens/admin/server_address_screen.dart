@@ -309,8 +309,9 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(Radii.md),
+        // designv2: tint over the card (not the page) — text stays AA
+        color: Color.alphaBlend(color.withValues(alpha: 0.08), Theme.of(context).colorScheme.ds.card),
+        borderRadius: BorderRadius.circular(DsRadius.card),
         border: Border.all(color: color.withValues(alpha: 0.30)),
       ),
       child: Row(children: [

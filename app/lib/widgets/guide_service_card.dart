@@ -233,7 +233,7 @@ class _StepRow extends StatelessWidget {
           width: 22,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: scheme.primary.withValues(alpha: 0.12),
+            color: scheme.ds.primarySoft, // designv2: AA for the number (dark 4.9:1)
             shape: BoxShape.circle,
           ),
           child: Text(ld(context, index), // p3guides: Bangla digits in bn
