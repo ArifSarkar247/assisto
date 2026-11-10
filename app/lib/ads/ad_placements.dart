@@ -79,6 +79,7 @@ class AdPlacements {
     // timed mock, listening audio, speaking recording, role-play, book
     // companion sheet or a certificate (those screens have no slot).
     'lp_home', 'lp_hub', 'lp_life', 'lp_vocab',
+    'mess_home', // messv2 (adcontrol registry key): Mess and bachelor V2 screens (never the mess group chat)
   };
 
   /// Interstitial: the registered EXIT placements -> the screen they leave.

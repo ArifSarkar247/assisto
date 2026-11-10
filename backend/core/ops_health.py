@@ -225,6 +225,8 @@ JOBS = (
     # citydata: City Service data import (6-hourly manifest) + hourly trip
     # learning / crowd fares; idle = two small reads
     Job("city_tick", MIN, "* * * * *", via="minute_jobs"),
+    # messv2: night-before bazar turn reminder (gated 20:00+, once per turn)
+    Job("mess_tick", MIN, "* * * * *", via="minute_jobs"),
     # moneybar: TCB (govt) market prices, once a day (19:40 Dhaka)
     Job("tcb_prices_fetch", DAY, "40 13 * * *", "nice -n15 ionice -c3", lock=True,
         max_s=5 * MIN),
@@ -259,6 +261,7 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("nearby_import", {"quiet": True}),
                # citydata: after nearby; idle = two small reads
                ("city_tick", {"quiet": True}),
+               ("mess_tick", {"quiet": True}),   # messv2
                # geminioff: Gemini 24 h breaker — one check a day while off
                ("gemini_probe", {"quiet": True}),
                # aimoney: ads per AI answer, once a day; idle = one read

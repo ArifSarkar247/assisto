@@ -140,6 +140,7 @@ BANNER_SCREENS = (
     "train_search", "train_detail",
     # lpapp (owner 10 Nov PART B): Language Partner home + lists only
     "lp_home", "lp_hub", "lp_life", "lp_vocab",
+    "mess_home",  # messv2 (adcontrol registry key): Mess and bachelor V2 screens (never the mess group chat)
 )
 # OWNER ADS FINAL (2 Nov): interstitials ONLY on the EXIT after a finished
 # task — the ONE registry (mirrors AdExitPlacement in ad_placements.dart).

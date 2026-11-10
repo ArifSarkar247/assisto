@@ -20,6 +20,7 @@ import 'flows/docs_voice_settings_flow.dart';
 import 'flows/e2e_proof_flows.dart'; // e2eproof
 import 'flows/offline_first_flow.dart'; // offline1st
 import 'flows/family_alerts_flow.dart';
+import 'flows/mess_v2_flow.dart'; // messv2
 import 'flows/family_circle_flow.dart';
 import 'flows/family_v3_flow.dart'; // fcscreen
 import 'flows/home_flow.dart';
@@ -50,6 +51,7 @@ void main() {
   if (on('family')) registerSafeJourneyFlows(); // journey100
   if (on('family')) registerFamilyAlertsFlows(); // family100
   if (on('family')) registerFamilyV3Flows(); // fcscreen
+  if (on('family') || on('mess')) registerMessV2Flows(); // messv2
   if (on('family')) registerSosJourneyFlows(); // qjourney
   if (on('family')) registerJourneyV2Flows(); // qjourney
   if (on('family')) registerAntiTheftSnatchFlows(); // at100: two-phone snatch proof

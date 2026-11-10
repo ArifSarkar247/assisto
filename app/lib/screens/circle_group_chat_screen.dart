@@ -92,6 +92,7 @@ import '../messaging/share/share_payload.dart'
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'package:assisto/widgets/app_sheet.dart';
 import '../offline/offline_store.dart'; // offline1st
+import '../widgets/mess_group_card.dart'; // messv2
 
 /// End-to-end-encrypted GROUP chat (M2 item 7).
 ///
@@ -131,7 +132,12 @@ class CircleGroupChatScreen extends StatefulWidget {
     required this.identity,
     this.circleMembers = const [],
     this.bubble = false,
+    this.initialDraft, // messv2: a mess month report to send (E2E)
   });
+
+  /// messv2: prefilled composer text (the user reviews and taps Send; it is
+  /// sealed like every group message).
+  final String? initialDraft;
 
   @override
   State<CircleGroupChatScreen> createState() => _CircleGroupChatScreenState();
@@ -201,6 +207,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   void initState() {
     super.initState();
     _input.addListener(_onDraftForPreview); // finish1
+    if ((widget.initialDraft ?? '').isNotEmpty) _input.text = widget.initialDraft!; // messv2
     DecorStore.instance.revision.addListener(_onDecor); // cde-chat
     if (_gid > 0) unawaited(_decor.load());
     MsgActiveChat.current = _chatKey;
@@ -1816,6 +1823,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                     // t1-ticks: min-version gate (never blocks sending).
                     if (!_searching && _gid > 0)
                       McVersionBanner(api: _api, kind: 'group', chatId: _gid),
+                    // messv2: the mess "Today" card (only on an active mess group)
+                    if (!_searching && !_selecting && _gid > 0)
+                      MessGroupCard(groupId: _gid),
                     if (pinned.isNotEmpty && !_searching && !_selecting)
                       _pinnedBar(pinned),
                     Expanded(
