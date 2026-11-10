@@ -300,7 +300,7 @@ class _QuranScreenState extends State<QuranScreen> {
         key: const Key('quran-bookmarks-empty'),
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          // designv2 (calm): drawn illustration, quiet secondary button (no glow)
+          // designv2 (calm): drawn illustration, a plain primary button (no glow)
           DsCard(
             padding: const EdgeInsets.all(Gap.xl),
             child: Column(children: [
@@ -312,9 +312,10 @@ class _QuranScreenState extends State<QuranScreen> {
               const SizedBox(height: Gap.sm),
               Text(t.qrnBookmarksEmptyHow, textAlign: TextAlign.center),
               const SizedBox(height: Gap.lg),
-              DsButton.secondary(
-                icon: Icons.menu_book_rounded,
-                label: t.qrnStartReading,
+              // the big primary button (empty-state rule) — plain, no glow (calm)
+              FilledButton.icon(
+                icon: const Icon(Icons.menu_book_rounded),
+                label: Text(t.qrnStartReading),
                 onPressed: () => _open(1),
               ),
             ]),
