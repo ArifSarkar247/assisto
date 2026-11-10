@@ -46123,5 +46123,13 @@
   "sjdAlsoWatching": "You are also watching",
   "sjdNightOn": "Night trip: Assisto checks in with you more often.",
   "sjdFamilyNone": "Nobody is travelling now",
-  "sjdFamilyOpen": "See journeys"
+  "sjdFamilyOpen": "See journeys",
+  "fsLowDataTitle": "Low-data mode",
+  "@fsLowDataTitle": {
+    "description": "faststart: Settings switch that saves mobile data"
+  },
+  "fsLowDataSub": "Home and sponsor pictures show only if already saved on this phone (no new downloads), and calls use less data.",
+  "@fsLowDataSub": {
+    "description": "faststart: subtitle of the Low-data mode switch"
+  }
 }
