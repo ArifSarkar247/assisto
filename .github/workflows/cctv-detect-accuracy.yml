@@ -16,19 +16,23 @@ on:
       n:
         description: "Scenarios per kind"
         default: "30"
+      minutes:
+        description: "mode=train: training time budget (minutes)"
+        default: "200"
       mode:
-        description: "scenarios (stage-2 rule P/R), frames (cctvdet3 detector diagnostic) or v3 (cctvdet3: tune on calibration, report held-out)"
+        description: "scenarios (stage-2 rule P/R), frames (cctvdet3 detector diagnostic) v3 (cctvdet3: tune on calibration, report held-out) or train (cctvdet3: Bangladesh vehicle model)"
         default: "scenarios"
 
 permissions:
   contents: read
 
 concurrency:
-  group: cctv-detect-accuracy-${{ github.ref }}
+  group: cctv-detect-accuracy-${{ github.ref }}-${{ inputs.mode }}
   cancel-in-progress: true
 
 jobs:
   detections:
+    if: ${{ inputs.mode != 'train' }}
     runs-on: ubuntu-latest
     timeout-minutes: 340
     steps:
@@ -85,3 +89,68 @@ jobs:
           path: |
             cctv_detect.json
             cctv_detect.txt
+
+  vehicle_train:
+    # cctvdet3 (mode=train): fine-tune YOLOX-Nano (Apache-2.0) on the Sylhet
+    # train/ folders (CC BY 4.0) -> a vehicle model that knows CNG, rickshaw,
+    # leguna ...; measured vs the stock models on Sylhet valid/ (cal) + test/
+    # (held-out) and BanglaRoad (never trained on). The model is an artifact.
+    if: ${{ inputs.mode == 'train' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install (CPU torch, YOLOX 0.3.0 code, Shop Box runtime)
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch==2.3.1 torchvision==0.18.1 --index-url https://download.pytorch.org/whl/cpu
+          pip install "numpy==1.26.4" loguru thop psutil tabulate tqdm "onnx==1.16.1" requests
+          pip install -r edge/shopbox/requirements.txt
+          python -c "import numpy; print('numpy', numpy.__version__)"
+          git clone -q --depth 1 --branch 0.3.0 https://github.com/Megvii-BaseDetection/YOLOX.git /tmp/YOLOX
+          echo "PYTHONPATH=/tmp/YOLOX" >> "$GITHUB_ENV"
+      - name: Weights and models (SHA-256 verified)
+        run: |
+          mkdir -p /tmp/w edge/shopbox/models
+          curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o /tmp/w/yolox_nano.pth \
+            https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_nano.pth
+          echo "cd28f55fbbc1829f99d9ac9b38a16d259a22889739c8728ea877610201feff7b  /tmp/w/yolox_nano.pth" | sha256sum -c -
+          curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o edge/shopbox/models/yolox_tiny.onnx \
+            https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.onnx
+          echo "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7  edge/shopbox/models/yolox_tiny.onnx" | sha256sum -c -
+          cd edge/shopbox && python -m shopbox.model_fetch models/yolox_nano.onnx
+      - name: Smoke (30 iterations on 64 photos, fails fast)
+        run: |
+          python tools/e2e/cctv_vehicle_train.py --weights /tmp/w/yolox_nano.pth --smoke \
+            --out /tmp/smoke.onnx --minutes 2 2>&1 | tail -20
+          python -c "import onnxruntime as o; s=o.InferenceSession('/tmp/smoke.onnx'); import numpy as n; print(s.run(None,{'images':n.zeros((1,3,416,416),n.float32)})[0].shape)"
+      - name: Train
+        env:
+          MIN: ${{ inputs.minutes || '200' }}
+        run: |
+          set -o pipefail
+          python tools/e2e/cctv_vehicle_train.py --weights /tmp/w/yolox_nano.pth \
+            --out assisto_vehicle_bd_nano.onnx --minutes "$MIN" 2>&1 | grep -v "CPU Mode\|^ *$" | tee train.txt
+      - name: COCO val2017 annotations (CC BY 4.0)
+        run: |
+          curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o /tmp/ann.zip http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+          unzip -q -j /tmp/ann.zip annotations/instances_val2017.json -d /tmp/ann
+      - name: Frame-level accuracy (stock nano / tiny vs the Bangladesh model)
+        run: |
+          set -o pipefail
+          python tools/e2e/cctv_vehicle_frames.py --ann /tmp/ann/instances_val2017.json \
+            --model nano=edge/shopbox/models/yolox_nano.onnx --model tiny=edge/shopbox/models/yolox_tiny.onnx \
+            --model bd=assisto_vehicle_bd_nano.onnx --out cctv_frames.json --n 260 | tee cctv_frames.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cctv-vehicle-bd
+          path: |
+            assisto_vehicle_bd_nano.onnx
+            assisto_vehicle_bd_nano.onnx.sha256
+            train.txt
+            cctv_frames.json
+            cctv_frames.txt
