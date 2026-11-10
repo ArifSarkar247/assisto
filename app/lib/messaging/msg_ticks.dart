@@ -25,6 +25,9 @@ MsgTick tickFrom(String? status, {bool pending = false, bool failed = false}) {
       return MsgTick.delivered;
     case 'failed':
       return MsgTick.failed;
+    case 'pending': // offline2: written offline, waiting in the outbox
+    case 'queued':
+      return MsgTick.pending;
     default:
       return MsgTick.sent;
   }
