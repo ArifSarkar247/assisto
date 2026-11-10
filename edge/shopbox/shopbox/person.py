@@ -55,6 +55,14 @@ class Vehicle:
 
 VEHICLE_CLASS_IDS = (1, 2, 3, 5, 7)
 VEHICLE_SCORE = 0.35
+# cctvdet3: per-class vehicle thresholds (COCO id -> score), measured on the
+# CALIBRATION half of tools/e2e/cctv_detect_accuracy.py; the shared thresholds
+# file (cctv_thresholds.json["vehicle"]["score"]) overrides these defaults.
+VEHICLE_SCORES = {}
+
+
+def class_thr(cid: int, default: float = VEHICLE_SCORE) -> float:
+    return float(VEHICLE_SCORES.get(int(cid), default))
 
 
 class NullDetector:
@@ -113,12 +121,25 @@ class YoloxPersonDetector:
         thr = self.score_thr if score_thr is None else float(score_thr)
         people = _decode(out, self._grids, self._expanded_strides, ratio, w, h,
                          thr, self.nms_thr)
+        return people, self._vehicles(out, ratio, w, h, vehicle_thr)
+
+    def detect_vehicles(self, frame_bgr, vehicle_thr: float = VEHICLE_SCORE):
+        """cctvdet3: vehicles only (the vehicle model, or the second look on
+        a parking zone's crop)."""
+        h, w = frame_bgr.shape[:2]
+        blob, ratio = _letterbox(frame_bgr, _INPUT_SIZE)
+        with self._lock:
+            out = self._sess.run(None, {self._input: blob})[0][0]
+        return self._vehicles(out, ratio, w, h, vehicle_thr)
+
+    def _vehicles(self, out, ratio, w, h, vehicle_thr):
         vehicles = []
         for cid in VEHICLE_CLASS_IDS:
             for d in _decode(out, self._grids, self._expanded_strides, ratio, w, h,
-                             vehicle_thr, self.nms_thr, cls=cid):
+                             class_thr(cid, vehicle_thr),
+                             self.nms_thr, cls=cid):
                 vehicles.append(Vehicle(d.x1, d.y1, d.x2, d.y2, d.score, cid))
-        return people, vehicles
+        return vehicles
 
 
 def _make_grids(size: int):
@@ -190,4 +211,28 @@ def load_detector(model_path: Optional[str] = None, score_thr: float = 0.45,
                     type(exc).__name__)
         return NullDetector()
     log.info("person detector ready: %s", det.name)
+    return det
+
+
+class YoloxVehicleDetector(YoloxPersonDetector):
+    """cctvdet3: YOLOX-Tiny (Apache-2.0, ~20 MB) for VEHICLES only, on the
+    Shop Box only, only for cameras with parking / no-parking / vehicle
+    gate-line zones. People keep YOLOX-Nano (and phones see people only)."""
+    name = "yolox_tiny"
+
+
+def load_vehicle_detector(model_path: Optional[str] = None, threads: int = 2,
+                          allow_download: bool = False):
+    """The vehicle model, or None (vehicles then come from the person model's
+    own vehicle classes). Never raises."""
+    try:
+        path = model_path or model_fetch.ensure_vehicle_model(allow_download)
+        if not path or not model_fetch.verify_sha256(path, model_fetch.VEHICLE_MODEL_SHA256):
+            return None
+        det = YoloxVehicleDetector(path, threads=threads)
+    except Exception as exc:
+        log.warning("vehicle model not loaded (%s); using the person model's vehicles",
+                    type(exc).__name__)
+        return None
+    log.info("vehicle detector ready: %s", det.name)
     return det

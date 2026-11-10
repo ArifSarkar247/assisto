@@ -73,6 +73,16 @@ WRONG_S_DEFAULT = 120        # wrong parking after 2 minutes
 TRACK_MAX_JUMP = 0.25        # a vehicle centre moves at most this per check
 MOVED_SHAPE_SIM = 0.35       # the scene's SHAPES no longer match ...
 MOVED_SHAPE_KEEP = 0.6       # ... vs still the same scene (slow update)
+# --- stage 3 (cctvdet3): recall without losing precision (tuned on the
+# CALIBRATION half of tools/e2e/cctv_detect_accuracy.py, reported on HELD-OUT)
+TRACK_JUMP_CAP = 0.5         # a vehicle unseen for a few checks may move further
+TRACK_COAST_S = 3.0          # ... but only for this long (no stale-track jumps)
+CROSS_MARGIN = 0.02          # in / out counts only clear of the line (no jitter)
+DWELL_KEEP_SCORE = 0.25      # a visit already seen keeps going on a weaker box
+CROWD_SCORE = 0.25           # people counted for a crowd (box score floor)
+CROWD_KEEP_S = 10.0          # a crowd survives a short dip below crowd_n
+POST_WEAK_HITS = 2           # a weak-only box must be seen this often in a row
+                             # to count a post as manned again
 VEHICLE_CLASSES = {1: "cycle", 2: "car", 3: "motorbike", 5: "bus", 7: "truck"}
 
 GATE_PERSON = "gate_person"
@@ -264,7 +274,7 @@ class _ZoneState:
                  "absent_since", "absent_fired", "open_since", "open_fired",
                  "ref_day", "ref_night", "ref_at", "ref_for",
                  "crowd_since", "crowd_fired", "veh_since", "veh_last",
-                 "veh_anchor", "veh_fired")
+                 "veh_anchor", "veh_fired", "crowd_low", "weak_hits")
 
     def __init__(self):
         self.hits = 0
@@ -286,6 +296,8 @@ class _ZoneState:
         self.veh_last: Optional[float] = None
         self.veh_anchor = None
         self.veh_fired = False
+        self.crowd_low: Optional[float] = None   # cctvdet3: first check below crowd_n
+        self.weak_hits = 0                       # cctvdet3: weak-only post checks in a row
 
 
 class ZoneRules:
@@ -455,7 +467,11 @@ class ZoneRules:
         return schedule_armed(sched if isinstance(sched, dict) else None, weekday, minute)
 
     def _track(self, t: float, vehicles) -> List[tuple]:
-        """Nearest-centre tracking of vehicles -> [(prev_xy, cur_xy, cls)]."""
+        """Nearest-centre tracking of vehicles -> [(track, cur_xy, cls, box)].
+        cctvdet3: a track unseen for dt seconds may move TRACK_MAX_JUMP per
+        second (at most TRACK_JUMP_CAP), so one missed check does not break
+        it; each track keeps where it STARTED ("first") and, per line, where it
+        last crossed ("o") for the line rule."""
         moves = []
         used = set()
         new = []
@@ -463,19 +479,23 @@ class ZoneRules:
             c = ((float(v[0]) + float(v[2])) / 2.0, (float(v[1]) + float(v[3])) / 2.0)
             cls = int(v[5]) if len(v) > 5 else 2
             box = [round(float(x), 4) for x in v[:4]]
-            best, bd = None, TRACK_MAX_JUMP
+            best, bd = None, None
             for i, tr in enumerate(self.tracks):
                 if i in used or t - tr["t"] > VEH_GAP_S:
                     continue
                 d = _dist(tr["c"], c)
-                if d <= bd:
+                dt = t - tr["t"]
+                lim = (min(TRACK_JUMP_CAP, TRACK_MAX_JUMP * max(1.0, dt))
+                       if dt <= TRACK_COAST_S else TRACK_MAX_JUMP)
+                if d <= lim and (bd is None or d < bd):
                     best, bd = i, d
             if best is None:
-                new.append({"c": c, "t": t, "cls": cls})
+                new.append({"c": c, "t": t, "cls": cls, "first": c, "o": {}})
             else:
                 used.add(best)
-                moves.append((self.tracks[best]["c"], c, cls, box))
-                self.tracks[best] = {"c": c, "t": t, "cls": cls}
+                tr = self.tracks[best]
+                moves.append((tr, c, cls, box))
+                tr["c"], tr["t"], tr["cls"] = c, t, cls
         self.tracks = ([tr for tr in self.tracks if t - tr["t"] <= VEH_GAP_S] + new)[-32:]
         return moves
 
@@ -496,8 +516,15 @@ class ZoneRules:
             label = str(z.get("label") or "")[:40]
             if z["type"] == "entry_line":
                 a, b = z["points"][0], z["points"][1]
-                for prev, cur, cls, box in moves:
-                    if segments_cross(prev, cur, a, b):
+                ln = max(1e-9, _dist(a, b))
+                for tr, cur, cls, box in moves:
+                    # cctvdet3: from where the track STARTED (or last crossed)
+                    # to now, both points clear of the line by CROSS_MARGIN
+                    o = tr["o"].get(zid, tr["first"])
+                    if (abs(_orient(a, b, o)) / ln >= CROSS_MARGIN
+                            and abs(_orient(a, b, cur)) / ln >= CROSS_MARGIN
+                            and segments_cross(o, cur, a, b)):
+                        tr["o"][zid] = cur
                         # crossing to the LEFT of a->b = "in" (opts.in_side flips it)
                         left = _orient(a, b, cur) > 0
                         inward = left if opts.get("in_side", "left") == "left" else not left
@@ -514,11 +541,32 @@ class ZoneRules:
                 continue
             in_zone = []
             strong = []
+            crowd_boxes = []
             if boxes is not None:
                 floor = POST_PRESENCE_SCORE if z["type"] == "post" else min_score
                 all_in = [b for b in boxes if box_in_zone(b, z["points"])]
                 strong = [b for b in all_in if len(b) < 5 or float(b[4]) >= min_score]
                 in_zone = [b for b in all_in if len(b) < 5 or float(b[4]) >= floor]
+                crowd_boxes = [b for b in all_in if len(b) < 5
+                               or float(b[4]) >= min(min_score, CROWD_SCORE)]
+                if z["type"] == "post":
+                    # cctvdet3: a lone WEAK box (a shadow, a poster) must be
+                    # seen POST_WEAK_HITS checks in a row to count as manned;
+                    # a strong box counts at once
+                    if strong:
+                        st.weak_hits = 0
+                    elif in_zone:
+                        st.weak_hits += 1
+                        if st.weak_hits < POST_WEAK_HITS:
+                            in_zone = []
+                    else:
+                        st.weak_hits = 0
+                elif (z["type"] != "gate" and not in_zone and st.last_seen is not None
+                      and t - st.last_seen <= PRESENCE_GAP_S):
+                    # cctvdet3: a visit already under way keeps going on a
+                    # weaker box (DWELL_KEEP_SCORE); it never STARTS on one
+                    in_zone = [b for b in all_in if len(b) < 5
+                               or float(b[4]) >= min(min_score, DWELL_KEEP_SCORE)]
                 present = bool(in_zone)
                 if present:
                     st.hits += 1
@@ -557,7 +605,17 @@ class ZoneRules:
             # 2b. crowd / queue: >= crowd_n people (strong boxes) for crowd_s
             crowd_n = int(_opt_num(opts, "crowd_n", 0, 0, 50))
             if crowd_n > 0 and boxes is not None:
-                if len(strong) >= crowd_n:
+                if len(crowd_boxes) < crowd_n and st.crowd_since is not None:
+                    # cctvdet3: one missed person for a moment is not the end
+                    # of a queue: the crowd ends after CROWD_KEEP_S below N
+                    if st.crowd_low is None:
+                        st.crowd_low = t
+                    if t - st.crowd_low <= CROWD_KEEP_S:
+                        crowd_boxes = None
+                if crowd_boxes is None:
+                    pass
+                elif len(crowd_boxes) >= crowd_n:
+                    st.crowd_low = None
                     if st.crowd_since is None:
                         st.crowd_since = t
                     need = _opt_num(opts, "crowd_s", CROWD_S_DEFAULT, 10, 1800)
@@ -567,9 +625,9 @@ class ZoneRules:
                             and t - st.crowd_since >= need and not st.crowd_fired):
                         st.crowd_fired = True
                         out.append({"type": CROWD, "zone": zid, "label": label,
-                                    "count": len(strong)})
+                                    "count": len(crowd_boxes)})
                 else:
-                    st.crowd_since, st.crowd_fired = None, False
+                    st.crowd_since, st.crowd_fired, st.crowd_low = None, False, None
 
             # 3. counter / post left empty
             if z["type"] == "post":

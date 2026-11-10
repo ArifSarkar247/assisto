@@ -42,6 +42,15 @@ const kVehStill = 0.06;
 const kOverstayMinDefault = 60;
 const kWrongSDefault = 120;
 const kTrackMaxJump = 0.25;
+// cctvdet3: recall without losing precision (tuned on the CALIBRATION half of
+// tools/e2e/cctv_detect_accuracy.py, reported on the HELD-OUT half)
+const kTrackJumpCap = 0.5;
+const kTrackCoastS = 3.0;
+const kCrossMargin = 0.02;
+const kDwellKeepScore = 0.25;
+const kCrowdScore = 0.25;
+const kCrowdKeepS = 10.0;
+const kPostWeakHits = 2;
 const kMovedShapeSim = 0.35;
 const kMovedShapeKeep = 0.6;
 const kVehicleClasses = {1: 'cycle', 2: 'car', 3: 'motorbike', 5: 'bus', 7: 'truck'};
@@ -275,6 +284,8 @@ class _ZoneState {
   bool gateFired = false, dwellFired = false, absentFired = false, openFired = false;
   double? crowdSince, vehSince, vehLast;
   bool crowdFired = false, vehFired = false;
+  double? crowdLow; // cctvdet3: first check below crowd_n
+  int weakHits = 0; // cctvdet3: weak-only post checks in a row
   List<double>? vehAnchor;
   List<double>? refDay, refNight;
 }
@@ -333,9 +344,12 @@ class ZoneRules {
 
   final List<Map<String, Object>> _tracks = [];
 
-  /// Nearest-centre tracking -> [(prev, cur, cls, box)].
-  List<(List<double>, List<double>, int, List<double>)> _track(double t, List<List<double>> vehicles) {
-    final moves = <(List<double>, List<double>, int, List<double>)>[];
+  /// Nearest-centre tracking -> [(track, cur, cls, box)]. cctvdet3: a track
+  /// unseen for dt s may move kTrackMaxJump per second (cap kTrackJumpCap);
+  /// it keeps where it started ('first') and, per line, where it last
+  /// crossed ('o').
+  List<(Map<String, Object>, List<double>, int, List<double>)> _track(double t, List<List<double>> vehicles) {
+    final moves = <(Map<String, Object>, List<double>, int, List<double>)>[];
     final used = <int>{};
     final fresh = <Map<String, Object>>[];
     for (final v in vehicles) {
@@ -343,22 +357,27 @@ class ZoneRules {
       final cls = v.length > 5 ? v[5].toInt() : 2;
       final box = [for (final x in v.take(4)) (x * 10000).roundToDouble() / 10000];
       int? best;
-      var bd = kTrackMaxJump;
+      double? bd;
       for (var i = 0; i < _tracks.length; i++) {
         final tr = _tracks[i];
-        if (used.contains(i) || t - (tr['t'] as double) > kVehGapS) continue;
+        final dt = t - (tr['t'] as double);
+        if (used.contains(i) || dt > kVehGapS) continue;
         final d = _dist(tr['c'] as List<double>, c);
-        if (d <= bd) {
+        final lim = dt <= kTrackCoastS ? math.min(kTrackJumpCap, kTrackMaxJump * math.max(1.0, dt)) : kTrackMaxJump;
+        if (d <= lim && (bd == null || d < bd)) {
           best = i;
           bd = d;
         }
       }
       if (best == null) {
-        fresh.add({'c': c, 't': t, 'cls': cls});
+        fresh.add({'c': c, 't': t, 'cls': cls, 'first': c, 'o': <String, List<double>>{}});
       } else {
         used.add(best);
-        moves.add((_tracks[best]['c'] as List<double>, c, cls, box));
-        _tracks[best] = {'c': c, 't': t, 'cls': cls};
+        final tr = _tracks[best];
+        moves.add((tr, c, cls, box));
+        tr['c'] = c;
+        tr['t'] = t;
+        tr['cls'] = cls;
       }
     }
     final keep = [for (final tr in _tracks) if (t - (tr['t'] as double) <= kVehGapS) tr, ...fresh];
@@ -479,14 +498,20 @@ class ZoneRules {
       double minScore = 0.0,
       List<List<double>>? vehicles}) {
     final out = <Map<String, Object>>[];
-    final moves = vehicles != null ? _track(t, vehicles) : const <(List<double>, List<double>, int, List<double>)>[];
+    final moves = vehicles != null ? _track(t, vehicles) : const <(Map<String, Object>, List<double>, int, List<double>)>[];
     for (final z in zones) {
       final st = state[z.id]!;
       final opts = z.opts;
       if (z.type == 'entry_line') {
         final a = z.points[0], b = z.points[1];
-        for (final (prev, cur, cls, box) in moves) {
-          if (detSegmentsCross(prev, cur, a, b)) {
+        final ln = math.max(1e-9, _dist(a, b));
+        for (final (tr, cur, cls, box) in moves) {
+          final os = tr['o'] as Map<String, List<double>>;
+          final o = os[z.id] ?? tr['first'] as List<double>;
+          if (_orient(a, b, o).abs() / ln >= kCrossMargin &&
+              _orient(a, b, cur).abs() / ln >= kCrossMargin &&
+              detSegmentsCross(o, cur, a, b)) {
+            os[z.id] = cur;
             final left = _orient(a, b, cur) > 0;
             final inward = (opts['in_side'] ?? 'left') == 'left' ? left : !left;
             out.add({
@@ -508,11 +533,29 @@ class ZoneRules {
       }
       var inZone = const <List<double>>[];
       var strong = const <List<double>>[];
+      List<List<double>>? crowdBoxes = const <List<double>>[];
       if (boxes != null) {
         final floor = z.type == 'post' ? kPostPresenceScore : minScore;
         final allIn = [for (final b in boxes) if (detBoxInZone(b, z.points)) b];
         strong = [for (final b in allIn) if (b.length < 5 || b[4] >= minScore) b];
         inZone = [for (final b in allIn) if (b.length < 5 || b[4] >= floor) b];
+        final crowdFloor = math.min(minScore, kCrowdScore);
+        crowdBoxes = [for (final b in allIn) if (b.length < 5 || b[4] >= crowdFloor) b];
+        if (z.type == 'post') {
+          // cctvdet3: a lone weak box must be seen kPostWeakHits checks in a row
+          if (strong.isNotEmpty) {
+            st.weakHits = 0;
+          } else if (inZone.isNotEmpty) {
+            st.weakHits++;
+            if (st.weakHits < kPostWeakHits) inZone = const <List<double>>[];
+          } else {
+            st.weakHits = 0;
+          }
+        } else if (z.type != 'gate' && inZone.isEmpty && st.lastSeen != null && t - st.lastSeen! <= kPresenceGapS) {
+          // cctvdet3: a visit under way keeps going on a weaker box
+          final keep = math.min(minScore, kDwellKeepScore);
+          inZone = [for (final b in allIn) if (b.length < 5 || b[4] >= keep) b];
+        }
         if (inZone.isNotEmpty) {
           st.hits++;
           if (st.lastSeen == null || t - st.lastSeen! > kPresenceGapS) {
@@ -557,16 +600,25 @@ class ZoneRules {
 
       final crowdN = _optNum(opts, 'crowd_n', 0, 0, 50).toInt();
       if (crowdN > 0 && boxes != null) {
-        if (strong.length >= crowdN) {
+        if (crowdBoxes!.length < crowdN && st.crowdSince != null) {
+          // cctvdet3: a short dip below crowd_n does not end the queue
+          st.crowdLow ??= t;
+          if (t - st.crowdLow! <= kCrowdKeepS) crowdBoxes = null;
+        }
+        if (crowdBoxes == null) {
+          // hold
+        } else if (crowdBoxes.length >= crowdN) {
+          st.crowdLow = null;
           st.crowdSince ??= t;
           final need = _optNum(opts, 'crowd_s', kCrowdSDefault, 10, 1800);
           if (_openArmed(z, weekday, minute) && t - st.crowdSince! >= need && !st.crowdFired) {
             st.crowdFired = true;
-            out.add({'type': kDetCrowd, 'zone': z.id, 'label': z.label, 'count': strong.length});
+            out.add({'type': kDetCrowd, 'zone': z.id, 'label': z.label, 'count': crowdBoxes.length});
           }
         } else {
           st.crowdSince = null;
           st.crowdFired = false;
+          st.crowdLow = null;
         }
       }
 

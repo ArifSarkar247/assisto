@@ -17,7 +17,7 @@ on:
         description: "Scenarios per kind"
         default: "30"
       mode:
-        description: "scenarios (rule P/R) or frames (cctvdet3 detector diagnostic)"
+        description: "scenarios (stage-2 rule P/R), frames (cctvdet3 detector diagnostic) or v3 (cctvdet3: tune on calibration, report held-out)"
         default: "scenarios"
 
 permissions:
@@ -30,7 +30,7 @@ concurrency:
 jobs:
   detections:
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -60,8 +60,17 @@ jobs:
           python tools/e2e/cctv_vehicle_frames.py --ann /tmp/ann/instances_val2017.json \
             --nano edge/shopbox/models/yolox_nano.onnx --tiny edge/shopbox/models/yolox_tiny.onnx \
             --out cctv_detect.json --n 220 | tee cctv_detect.txt
+      - name: Tune on calibration, report held-out (cctvdet3)
+        if: ${{ inputs.mode == 'v3' }}
+        env:
+          N: ${{ inputs.n || '30' }}
+        run: |
+          set -o pipefail
+          python tools/e2e/cctv_detect_v3.py --ann /tmp/ann/instances_val2017.json \
+            --nano edge/shopbox/models/yolox_nano.onnx --tiny edge/shopbox/models/yolox_tiny.onnx \
+            --out cctv_detect.json --n "$N" | tee cctv_detect.txt
       - name: Evaluate
-        if: ${{ inputs.mode != 'frames' }}
+        if: ${{ inputs.mode != 'frames' && inputs.mode != 'v3' }}
         env:
           N: ${{ inputs.n || '30' }}
         run: |

@@ -192,6 +192,7 @@ class Engine:
                 cam = self.cfg.camera(cid)
                 if cam is not None:
                     an.reconfigure(cam, self.cfg.hours_for(cam))
+                    self._want_vehicle_model()
             self._save_config()
             log.info("applied the owner's server settings")
 
@@ -274,6 +275,39 @@ class Engine:
         log.info("monitoring %d camera(s); detector=%s", len(self.workers),
                  getattr(self.detector, "name", "motion_only"))
 
+    def _want_vehicle_model(self) -> None:
+        """cctvdet3: the YOLOX-Tiny vehicle model is fetched (SHA-256 checked)
+        and loaded once, in the background, only when some camera has a
+        parking / no-parking / vehicle gate-line zone. Until then (or without
+        it) vehicles come from the person model, as before."""
+        if getattr(self.detector, "name", "") != "yolox_nano":
+            return                       # no real person model (or a test double)
+        need = [a for a in self.analyzers.values()
+                if getattr(a, "wants_vehicle_model", False)]
+        if not need:
+            return
+        vd = getattr(self, "_veh_det", None)
+        if vd:
+            for a in need:
+                a.vehicle_detector = vd
+            return
+        if vd is False or getattr(self, "_veh_loading", False):
+            return
+        self._veh_loading = True
+
+        def load():
+            from .person import load_vehicle_detector
+            det = load_vehicle_detector(threads=self.cfg.detection.detector_threads,
+                                        allow_download=True)
+            self._veh_det = det or False
+            self._veh_loading = False
+            if det:
+                for a in list(self.analyzers.values()):
+                    if getattr(a, "wants_vehicle_model", False):
+                        a.vehicle_detector = det
+
+        threading.Thread(target=load, name="vehicle-model", daemon=True).start()
+
     def _start_camera(self, cam) -> None:
         an = CameraAnalyzer(cam, self.cfg.hours_for(cam), self.cfg.detection,
                             self.detector)
@@ -289,6 +323,7 @@ class Engine:
                 self._plates = False
         an.plates = self._plates if self._plates else None
         self.analyzers[cam.id] = an
+        self._want_vehicle_model()
         w = CameraWorker(cam.id, cam.name,
                          url_provider=lambda cid=cam.id: self.rtsp_url_for(cid),
                          sample_fps=self.cfg.detection.sample_fps,
