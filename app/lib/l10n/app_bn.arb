@@ -25671,5 +25671,15 @@
   "lp2ScaledNote": "শুধু {count}টি প্রশ্নের উত্তর দেওয়া হয়েছে, তাই ব্যান্ডটা ৪০-এর হিসাবে আনুমানিক।",
   "lp2MistakeTypes": "ভুলের ধরন",
   "lp2WatchAdCredits": "ছোট একটি বিজ্ঞাপন দেখে ক্রেডিট নিন",
-  "lp2OpenWithCredits": "{count} ক্রেডিট দিয়ে এই সেকশন খুলুন"
+  "lp2OpenWithCredits": "{count} ক্রেডিট দিয়ে এই সেকশন খুলুন",
+  "adGateTitle": "একটি ছোট বিজ্ঞাপন দেখবেন?",
+  "adGateBody": "{what} একটি ছোট বিজ্ঞাপন দেখুন। এতে এটি আপনার জন্য ফ্রি থাকে।",
+  "adGateOnceNote": "শুধু একবার। এরপর এই ফোনে এটি সবসময় ফ্রি।",
+  "adGateWindowNote": "বিজ্ঞাপনের পর {minutes} মিনিট ফ্রি।",
+  "adGatePerUseNote": "প্রতিটি যাচাইয়ে একটি বিজ্ঞাপন। Premium ও Plus-এ কোনো বিজ্ঞাপন নেই।",
+  "adGateWatch": "বিজ্ঞাপন দেখে এগিয়ে যান",
+  "adGateNotNow": "এখন না",
+  "adGateWhatTrain": "ট্রেনটির লাইভ অবস্থান দেখতে",
+  "adGateWhatScan": "এই যাচাই চালাতে",
+  "adGateWhatSecurity": "এই নিরাপত্তা ফিচার চালু করতে"
 }
