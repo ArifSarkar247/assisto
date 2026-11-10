@@ -9,6 +9,24 @@
 // dictionary glosses for the four words of 1:1, written for this test.
 // The pronunciation line stands in for lane 15's rule engine output.
 
+import 'dart:async';
+
+import 'package:assisto/quran/quran_ayah_audio.dart';
+
+/// Gallery / sweep player: never touches the audioplayers plugin (a real
+/// AudioPlayer created in a test process stalls other screens' players).
+class QvSilentPlayer implements QvPlayer {
+  final _done = StreamController<void>.broadcast();
+  @override
+  Future<void> playUrl(String url) async {}
+  @override
+  Future<void> stop() async {}
+  @override
+  Stream<void> get completed => _done.stream;
+  @override
+  Future<void> dispose() async {}
+}
+
 const _zakPub = 'QuranEnc.com (Encyclopedia of the Noble Quran)';
 const _sahPub = 'Noor International Center · QuranEnc.com';
 const _mukPub = 'Tafsir Center for Quranic Studies · QuranEnc.com';
