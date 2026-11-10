@@ -581,7 +581,7 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Text(t.mv2CardTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(t.mv2CardTitle, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Text(t.mv2CardMeals(messDigits(context, today['meals_today']))),
               Text(t.mv2CardBazar(messDigits(context, today['bazar_today_display']))),
@@ -593,7 +593,7 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
         ),
       _sectionTitle(t.mv2MyMeals),
       Text(t.mv2MealsHelp(messDigits(context, '${((_mess['cutoff_hour'] as num?) ?? 22).toString().padLeft(2, '0')}:00')),
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       const SizedBox(height: Gap.sm),
       if (_messOpen && !_closedMonth)
         _bigButton(t.mv2DaysOffTitle, Icons.event_busy_rounded, _busy ? null : () => _daysOff(),
@@ -655,7 +655,7 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
   Widget _emptyLine(String s) => Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.md),
         child: Text(s, textAlign: TextAlign.center,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       );
 
   Widget _entryTile(Map<String, dynamic> e, AppLocalizations t) {
@@ -679,7 +679,7 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
         subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           if (e['kind'] != 'turn')
             Text(messDigits(context, e['amount_display']),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
           Text(sub.join(' · ')),
         ]),
         trailing: photo is String && photo.isNotEmpty
@@ -724,7 +724,7 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
       if (deps.isEmpty) _emptyLine(t.mv2DepositsEmpty),
       for (final e in deps) _entryTile(e, t),
       _sectionTitle(t.mv2ServiceCharges),
-      Text(t.mv2ChargeNote, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      Text(t.mv2ChargeNote, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       const SizedBox(height: Gap.sm),
       if (can && _staff)
         _bigButton(t.mv2AddCharge, Icons.receipt_rounded, _busy ? null : () => _addEntry('charge'),
@@ -781,7 +781,7 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
             _kv(t.mv2ServiceCharges, s['charges_total_display']),
             _kv(t.mv2Deposits, s['deposits_total_display']),
             const SizedBox(height: Gap.xs),
-            Text(t.mv2RateFormula, style: TextStyle(color: scheme.onSurfaceVariant)),
+            Text(t.mv2RateFormula, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
           ]),
         ),
       ),
@@ -791,7 +791,7 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Text('${r['name']}', style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text('${r['name']}', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               _kv(t.mv2Meals, r['meals']),
               _kv(t.mv2MealCost, r['meal_cost_display']),
@@ -805,7 +805,7 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
                   'gets_back' => t.mv2GetsBack(messDigits(context, r['due_display'])),
                   _ => t.mv2AllClear,
                 },
-                style: TextStyle(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: r['state'] == 'will_pay' ? scheme.error : scheme.primary),
               ),
@@ -834,7 +834,7 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
           Flexible(
             child: Text(messDigits(context, v ?? '—'),
                 textAlign: TextAlign.end,
-                style: TextStyle(fontWeight: strong ? FontWeight.w800 : FontWeight.w600)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: strong ? FontWeight.w800 : FontWeight.w600)),
           ),
         ]),
       );

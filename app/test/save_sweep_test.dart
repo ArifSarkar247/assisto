@@ -213,6 +213,9 @@ void main() {
     final api = _MessFake(mode: FakeMode.empty);
     await tester.pumpWidget(messApp(api, const MessAccountingScreen()));
     await settle(tester);
+    // the keyboard leaves little room: scroll the list to the button first
+    await tester.scrollUntilVisible(find.byKey(const ValueKey('mess-create')), 200,
+        scrollable: find.byType(Scrollable).first);
     await tester.tap(find.byKey(const ValueKey('mess-create')));
     await settle(tester);
     await tester.enterText(find.byKey(const ValueKey('mess-name')), 'Rampura Mess');
