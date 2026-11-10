@@ -100,6 +100,15 @@ class EveryoneSeesOwnerCardsTests(DiscmsBase):
                                     sponsor_name="Brand", order=3)
         DiscoverCard.objects.create(key="ad", type="ADMOB", order=4)
 
+    def _no_sponsor(self):
+        # a booked Sponsored card wins the one ad slot (d1 rule) — the AdMob
+        # tests run on a day with no sponsor booked
+        DiscoverCard.objects.filter(key="sp").update(enabled=False)
+
+    def test_sponsor_takes_the_slot_that_day(self):
+        self.assertNotIn("ad", self.keys(self.free))
+        self.assertIn("sp", self.keys(self.free))
+
     def test_free_premium_plus_all_get_owner_cards(self):
         for u in (self.free, self.prem, self.plus):
             ks = self.keys(u)
@@ -107,11 +116,13 @@ class EveryoneSeesOwnerCardsTests(DiscmsBase):
                 self.assertIn(k, ks, (u.phone, k))
 
     def test_admob_slot_free_only_never_premium_or_plus(self):
+        self._no_sponsor()
         self.assertIn("ad", self.keys(self.free))
         self.assertNotIn("ad", self.keys(self.prem))
         self.assertNotIn("ad", self.keys(self.plus))
 
     def test_admob_audience_cannot_force_it_on_paid_users(self):
+        self._no_sponsor()
         DiscoverCard.objects.filter(key="ad").update(audience="premium")
         self.assertNotIn("ad", self.keys(self.prem))
         self.assertNotIn("ad", self.keys(self.plus))
@@ -131,14 +142,17 @@ class EveryoneSeesOwnerCardsTests(DiscmsBase):
         self.assertEqual(by["sp"]["label"], "sponsored")
 
     def test_admob_payload_names_its_registry_placement(self):
+        self._no_sponsor()
         ad = next(c for c in self.feed(self.free) if c["key"] == "ad")
         self.assertEqual(ad["placement"], "discover_native")
         self.assertEqual(ad["label"], "ad")
 
     def test_registry_switch_off_hides_the_admob_slot(self):
+        self._no_sponsor()
+        self.assertIn("ad", self.keys(self.free))
         with mock.patch.object(V, "discover_admob_on", return_value=False):
             self.assertNotIn("ad", self.keys(self.free))
-            self.assertIn("sp", self.keys(self.free))   # owner cards stay
+            self.assertIn("wn", self.keys(self.free))   # owner cards stay
 
     def test_registry_missing_means_default_on(self):
         from core import admob_service as AS
@@ -157,6 +171,7 @@ class EveryoneSeesOwnerCardsTests(DiscmsBase):
         self.assertFalse(V.discover_admob_on(self.plus))
 
     def test_home_native_and_discover_native_both_on(self):
+        self._no_sponsor()
         # ads final 03:45: the hero native ad no longer removes the slot
         self.client.force_authenticate(self.free)
         r = self.client.get("/api/v1/discover/cards?build=999&hero_ad=1")
