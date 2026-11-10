@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/local_digits.dart';
 import '../widgets/skeleton.dart';
 import 'lp2/lp_companion.dart';
@@ -16,7 +17,6 @@ import 'lp2/lp_engine.dart' show bandText;
 import 'lp2/lp_life.dart';
 import 'lp2/lp_mock.dart';
 import 'lp2/lp_track.dart';
-import 'lp2/lp_ui.dart';
 import 'lp2/lp_vocab.dart';
 
 /// LANGUAGE PARTNER V2 — Start (owner-approved screen 1, 9 Nov).
