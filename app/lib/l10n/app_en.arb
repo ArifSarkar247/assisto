@@ -52100,5 +52100,190 @@
   "discmsTypeOffer": "Offer / promotion",
   "@discmsTypeOffer": {
     "description": "discms: Discover manager card type"
+  },
+  "lp2LangChineseHsk": "Chinese · HSK 1",
+  "@lp2LangChineseHsk": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2LangFrenchA1": "French · A1",
+  "@lp2LangFrenchA1": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2NoMocksNowTitle": "No mock test of this type right now",
+  "@lp2NoMocksNowTitle": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2NoMocksNowBody": "Pull down to refresh, or practise with your own book in the book companion.",
+  "@lp2NoMocksNowBody": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackCanDo": "After this course you can",
+  "@lp2TrackCanDo": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackCheck": "Check",
+  "@lp2TrackCheck": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackDone": "Lesson done",
+  "@lp2TrackDone": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackDoneToast": "Well done — today's lesson is saved.",
+  "@lp2TrackDoneToast": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackEmptyBody": "Lessons and practice tests could not be found on the server. Pull down to try again — meanwhile, practise English for real life.",
+  "@lp2TrackEmptyBody": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackEmptyTitle": "Course not loaded",
+  "@lp2TrackEmptyTitle": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackExamFormat": "Exam format",
+  "@lp2TrackExamFormat": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackGrammar": "Grammar",
+  "@lp2TrackGrammar": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackKey": "Correct answer: {answer}",
+  "@lp2TrackKey": {
+    "description": "lpfinish: Language Partner tracks",
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2TrackLessons": "Lessons",
+  "@lp2TrackLessons": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackLoadFail": "The course could not be loaded.",
+  "@lp2TrackLoadFail": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackMinutes": "{count} min",
+  "@lp2TrackMinutes": {
+    "description": "lpfinish: Language Partner tracks",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2TrackModel": "Model answer",
+  "@lp2TrackModel": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackPhoneVoice": "Read by your phone's own voice",
+  "@lp2TrackPhoneVoice": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackPlayPart": "Play part {part} of {total}",
+  "@lp2TrackPlayPart": {
+    "description": "lpfinish: Language Partner tracks",
+    "placeholders": {
+      "part": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2TrackPlaysLeft": "Plays left: {count}",
+  "@lp2TrackPlaysLeft": {
+    "description": "lpfinish: Language Partner tracks",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2TrackPractice": "Practice",
+  "@lp2TrackPractice": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackProbashi": "For work abroad",
+  "@lp2TrackProbashi": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackQuestions": "{count} questions",
+  "@lp2TrackQuestions": {
+    "description": "lpfinish: Language Partner tracks",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2TrackRight": "{raw} of {total} right",
+  "@lp2TrackRight": {
+    "description": "lpfinish: Language Partner tracks",
+    "placeholders": {
+      "raw": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2TrackSayAloud": "Say it aloud, then listen to the model and compare.",
+  "@lp2TrackSayAloud": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackScore": "Score {score} of {max}",
+  "@lp2TrackScore": {
+    "description": "lpfinish: Language Partner tracks",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2TrackSelfCheck": "Compare your answer with the model — this part is self-checked.",
+  "@lp2TrackSelfCheck": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackShowModel": "Show model answer",
+  "@lp2TrackShowModel": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackStop": "Stop",
+  "@lp2TrackStop": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackSubmit": "Submit answers",
+  "@lp2TrackSubmit": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackTests": "Practice tests",
+  "@lp2TrackTests": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackVocab": "New words",
+  "@lp2TrackVocab": {
+    "description": "lpfinish: Language Partner tracks"
+  },
+  "lp2TrackWeek": "Week {week}",
+  "@lp2TrackWeek": {
+    "description": "lpfinish: Language Partner tracks",
+    "placeholders": {
+      "week": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2TrackWriteHere": "Write your answer here",
+  "@lp2TrackWriteHere": {
+    "description": "lpfinish: Language Partner tracks"
   }
 }
