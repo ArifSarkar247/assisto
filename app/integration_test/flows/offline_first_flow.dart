@@ -26,6 +26,7 @@ import 'package:assisto/config.dart';
 import 'package:assisto/crypto/e2e.dart';
 import 'package:assisto/crypto/key_wiring.dart';
 import 'package:assisto/messaging/outbox.dart';
+import 'package:assisto/push/push_service.dart' show appNavigatorKey;
 import 'package:assisto/screens/circle_chat_screen.dart';
 import 'package:assisto/state.dart' show Settings;
 
@@ -162,6 +163,10 @@ void registerOfflineFirstFlows() {
     });
 
     await f.step('open the app with NO internet -> signed in, Home usable, Offline strip', () async {
+      // close every screen first: the app's navigator key is global, so a
+      // re-boot would otherwise keep the old route stack (run 42734908525)
+      appNavigatorKey.currentState?.popUntil((r) => r.isFirst);
+      await f.pumpFor(const Duration(seconds: 1));
       final t0 = DateTime.now();
       await f.h.boot(f.tester, settleSeconds: 0);
       await f.home();
