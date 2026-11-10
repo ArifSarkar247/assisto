@@ -562,67 +562,70 @@ class EvidencePdfView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        from .i18n import pick, req_lang
+        lang = req_lang(request)
         phone = _primary_phone(request.user)  # owner's own primary phone
         when, place = _when_place(phone)
-        lines = [
-            "ASSISTO — LOST / STOLEN PHONE EVIDENCE PACK",
-            f"Generated: {timezone.now().strftime('%Y-%m-%d %H:%M %Z')}",
-            "",
-            f"Owner: {getattr(request.user, 'name', '') or ''}",
-            f"Model: {phone.model_name or '(unknown)'}",
-            f"IMEI 1: {phone.imei1 or '(unknown)'}",
-            f"IMEI 2: {phone.imei2 or '(unknown)'}",
-            f"GD number: {phone.gd_number or '(not filed)'}",
-            f"Status: {phone.status}   Armed: {phone.armed}   Lost mode: {phone.lost_mode}",
-            f"Approx. last seen: {when or '(unknown)'}  at  {place or '(unknown)'}",
-            "",
-            "LOCATION TRAIL (recent heartbeats):",
+        unk = pick(lang, "(অজানা)", "(unknown)")
+        title = pick(lang, "Assisto — হারানো / চুরি হওয়া ফোনের প্রমাণপত্র",
+                     "ASSISTO — LOST / STOLEN PHONE EVIDENCE PACK")
+        gen = timezone.localtime(timezone.now()).strftime("%Y-%m-%d %H:%M %Z")
+        facts = [
+            ("row", pick(lang, "মালিক", "Owner"), getattr(request.user, "name", "") or unk),
+            ("row", pick(lang, "মডেল", "Model"), phone.model_name or unk),
+            ("row", "IMEI 1", phone.imei1 or unk),
+            ("row", "IMEI 2", phone.imei2 or unk),
+            ("row", pick(lang, "জিডি নম্বর", "GD number"),
+             phone.gd_number or pick(lang, "(করা হয়নি)", "(not filed)")),
+            ("row", pick(lang, "অবস্থা", "Status"),
+             f"{phone.status} · armed {phone.armed} · lost mode {phone.lost_mode}"),
+            ("row", pick(lang, "শেষ দেখা (আনুমানিক)", "Approx. last seen"),
+             f"{when or unk} · {place or unk}"),
         ]
+        trail_items = []
         trail = [h for h in phone.heartbeats.all()[:TRAIL_LIMIT]
                  if h.lat is not None and h.lng is not None]
-        if trail:
-            for h in trail:
-                lines.append(f"  {h.at.strftime('%Y-%m-%d %H:%M')}  "
-                             f"{h.lat:.5f}, {h.lng:.5f}  "
-                             f"(battery {h.battery if h.battery is not None else '?'}%, "
-                             f"{h.network or '?'})")
-        else:
-            lines.append("  (no location heartbeats recorded)")
-        lines += ["", "CAPTURED EVENTS:"]
-        evs = list(phone.captured_events.all()[:TRAIL_LIMIT])
-        if evs:
-            for e in evs:
-                t = (e.at or e.created_at).strftime("%Y-%m-%d %H:%M")
-                lines.append(f"  {t}  {e.kind}  {e.data or {}}")
-        else:
-            lines.append("  (no captured events)")
-        lines += ["", "THEFT SIGNALS:"]
-        for s in (phone.signals or []):
-            lines.append(f"  {s.get('at', '?')}  {s.get('kind', '?')}")
-        if not (phone.signals or []):
-            lines.append("  (none)")
-        lines += ["", "This pack is generated from Assisto's own server records. "
-                      "Values marked (unknown) were never captured — not withheld."]
-
+        for h in trail:
+            trail_items.append(("b", f"{h.at.strftime('%Y-%m-%d %H:%M')}  "
+                                     f"{h.lat:.5f}, {h.lng:.5f}  "
+                                     f"(battery {h.battery if h.battery is not None else '?'}%, "
+                                     f"{h.network or '?'})"))
+        if not trail_items:
+            trail_items.append(pick(lang, "(কোনো লোকেশন রেকর্ড নেই)",
+                                    "(no location heartbeats recorded)"))
+        ev_items = []
+        for e in list(phone.captured_events.all()[:TRAIL_LIMIT]):
+            t = (e.at or e.created_at).strftime("%Y-%m-%d %H:%M")
+            ev_items.append(("b", f"{t}  {e.kind}  {e.data or {}}"))
+        if not ev_items:
+            ev_items.append(pick(lang, "(কোনো ঘটনা ধরা পড়েনি)", "(no captured events)"))
+        sig_items = [("b", f"{s.get('at', '?')}  {s.get('kind', '?')}")
+                     for s in (phone.signals or [])] or [pick(lang, "(নেই)", "(none)")]
+        note = pick(lang,
+                    "এই প্রমাণপত্র Assisto সার্ভারের নিজস্ব রেকর্ড থেকে তৈরি। "
+                    "(অজানা) লেখা মান কখনো ধরা পড়েনি — লুকানো হয়নি।",
+                    "This pack is generated from Assisto's own server records. "
+                    "Values marked (unknown) were never captured — not withheld.")
+        sections = [
+            (pick(lang, "ফোনের তথ্য", "Phone"), facts),
+            (pick(lang, "লোকেশন ট্রেইল (সাম্প্রতিক)", "Location trail (recent heartbeats)"), trail_items),
+            (pick(lang, "ধরা পড়া ঘটনা", "Captured events"), ev_items),
+            (pick(lang, "চুরির সংকেত", "Theft signals"), sig_items),
+        ]
         try:
-            import io
-            from reportlab.pdfgen import canvas
-            buf = io.BytesIO()
-            c = canvas.Canvas(buf)
-            y = 800
-            for ln in lines:
-                c.drawString(40, y, ln[:110])
-                y -= 16
-                if y < 40:
-                    c.showPage()
-                    y = 800
-            c.showPage()
-            c.save()
-            resp = HttpResponse(buf.getvalue(), content_type="application/pdf")
+            from . import pdf_bn
+            pdf = pdf_bn.report(title, [pick(lang, "তৈরি: ", "Generated: ") + gen],
+                                sections, lang=lang, note=note)
+            resp = HttpResponse(pdf, content_type="application/pdf")
             resp["Content-Disposition"] = 'attachment; filename="assisto-evidence.pdf"'
             return resp
-        except Exception:
-            return HttpResponse("\n".join(lines), content_type="text/plain")
+        except Exception:  # noqa: BLE001 — plain text, never a 500
+            lines = [title, gen, ""]
+            for head, items in sections:
+                lines.append(head)
+                lines += ["  " + " ".join(str(x) for x in (it[1:] if isinstance(it, tuple) else [it]))
+                          for it in items]
+            return HttpResponse("\n".join(lines + ["", note]), content_type="text/plain")
 
 
 class PoliceStationsView(APIView):
