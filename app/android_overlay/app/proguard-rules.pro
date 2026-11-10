@@ -62,3 +62,6 @@
 # creates / reads ai.onnxruntime Java objects by name and the AAR ships no
 # consumer rules, so R8 must keep the whole package.
 -keep class ai.onnxruntime.** { *; }
+
+# adcontrol: AppLovin OMID attestation references Amazon PrivacyPass (not shipped)
+-dontwarn com.amazon.privacypass.**
