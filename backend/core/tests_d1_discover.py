@@ -34,7 +34,8 @@ class RulesPureTests(TestCase):
         # ADMOB stays Free-only (paid-plan benefit).
         rows = [_row(id=1), _row(id=2, type="SPONSORED", audience="premium"),
                 _row(id=3, type="ADMOB"), _row(id=4, type="SPONSORED")]
-        self.assertEqual(self.ids(rows, "premium"), [1, 2, 4])
+        # discms: two ads are never side by side -> one sponsor moves
+        self.assertEqual(self.ids(rows, "premium"), [4, 1, 2])
         self.assertEqual(self.ids(rows, "business"), [1, 4])
         # discms: sponsor AND AdMob both shown, never side by side
         self.assertEqual(self.ids(rows, "free"), [4, 1, 3])
