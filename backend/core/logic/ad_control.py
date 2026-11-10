@@ -74,6 +74,7 @@ PLACEMENTS = (
     _p("lp_home", "lp", INLINE, True, "banner", "ল্যাঙ্গুয়েজ পার্টনার — ব্যানার", "Language Partner banner"),
     _p("lp_hub", "lp", INLINE, True, "banner", "ল্যাঙ্গুয়েজ পার্টনার IELTS হাব — ব্যানার", "Language Partner IELTS hub banner"),
     _p("lp_life", "lp", INLINE, True, "banner", "ল্যাঙ্গুয়েজ পার্টনার জীবনের পরিস্থিতি তালিকা — ব্যানার", "Language Partner life scenarios list banner"),
+    _p("lp_vocab", "lp", INLINE, True, "banner", "ল্যাঙ্গুয়েজ পার্টনার শব্দভান্ডার — ব্যানার", "Language Partner vocabulary banner"),
     _p("lesson_after_finish", "lp", MOMENT, True, "interstitial", "পাঠ শেষে — পূর্ণ পর্দা", "Language Partner interstitial at lesson end"),
     _p("lp_unlock", "lp", REWARD, True, "rewarded", "ল্যাঙ্গুয়েজ পার্টনার — বিজ্ঞাপন দেখে খুলুন", "Language Partner rewarded unlock"),
     _p("exam_after_submit", "exam", MOMENT, True, "interstitial", "পরীক্ষা জমার পর, ফলাফলের আগে — একটি পূর্ণ পর্দা", "Exams: one interstitial after Submit, before the result",
