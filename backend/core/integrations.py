@@ -199,6 +199,9 @@ REGISTRY = {
                    _f("publisher_id", "Publisher ID (app-ads.txt, যেমন pub-XXXXXXXXXXXXXXXX)", "Publisher ID (app-ads.txt, e.g. pub-XXXXXXXXXXXXXXXX)", secret=False),
                    # l3-ump: hashed device ids from logcat ("Use new ConsentDebugSettings
                    # .Builder().addTestDeviceHashedId(...)") — testing only
+                   # adcontrol (owner 10 Nov part F): mediation partners' own
+                   # app-ads.txt lines (Meta Audience Network, AppLovin), one per line
+                   _f("app_ads_extra", "app-ads.txt অতিরিক্ত লাইন (Meta / AppLovin; প্রতি লাইনে একটি বা ; দিয়ে আলাদা)", "app-ads.txt extra lines (Meta / AppLovin; one per line or separated by ;)", secret=False),
                    _f("ump_test_devices", "UMP টেস্ট ডিভাইস আইডি (কমা দিয়ে, শুধু পরীক্ষা)", "UMP test device IDs (comma-separated, testing only)", secret=False)],
         "test": "test_admob",
     },

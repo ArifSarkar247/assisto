@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ads/ad_spot_card.dart'; // adcontrol
 import '../widgets/ladder_common.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
@@ -235,6 +236,8 @@ class _OverviewTab extends StatelessWidget {
             t.moneyNetWorthSubtitle,
             () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const MoneyNetWorthScreen()))),
+        // adcontrol (owner 10 Nov): main page — one native card (Free only)
+        const AdSpotCard(placement: 'finance_home', padding: EdgeInsets.only(top: Gap.md)),
         const SizedBox(height: Gap.lg),
         // expense breakdown
         _breakdown(context, s),
@@ -647,8 +650,9 @@ class _TxnsTabState extends State<_TxnsTab> {
               : ListView(
                   padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, 88),
                   children: [
-                    for (final it in items)
-                      Card(
+                    // adcontrol: one native card every 15-20 rows (Free only)
+                    for (final (i, it) in items.indexed)
+                      AdSpotCard.afterRow(i, items.length, 'finance_list', Card(
                         child: ListTile(
                           leading: Icon(
                               it['data']['kind'] == 'income'
@@ -696,7 +700,7 @@ class _TxnsTabState extends State<_TxnsTab> {
                           onLongPress: () => confirmDelete(
                               context, () => app.txns.remove(it)),
                         ),
-                      ),
+                      )),
                   ],
                 ),
         ),

@@ -270,6 +270,10 @@ def issue_ad_ticket(user, unlock):
         return 409, {"ok": False, "reason": "premium_no_ads"}
     if ads_needed(unlock) is None:
         return 409, {"ok": False, "reason": "not_offered"}
+    from .admob_service import placement_on
+    if not placement_on("lp_unlock"):
+        # adcontrol: the owner switched this placement off (Ad control)
+        return 409, {"ok": False, "reason": "not_offered"}
     from .photo_studio_service import _ad_units
     units = _ad_units()
     if not units.get("_configured"):

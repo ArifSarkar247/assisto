@@ -15,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../ads/ad_banner_slot.dart';
+import '../../ads/ad_moment.dart' show AdMomentOnShow; // adcontrol
+import '../../ads/ad_placements.dart' show AdExitPlacement; // adcontrol
 import '../../api.dart' show ApiException;
 import '../../widgets/rewarded_ad_sheet.dart';
 import '../../audio/audio_route_service.dart';
@@ -1260,7 +1262,8 @@ class LpMockResultScreen extends StatelessWidget {
     final tags = weakTags.isNotEmpty ? weakTags : [if (weakest != null) weakest];
     final shownBand = overall ?? (sections.length == 1 ? bands[sections.first] : null);
     final label = finish['practice_label'];
-    return LpAdExit(
+    // adcontrol (owner 10 Nov 03:45): one interstitial after Submit, before the result
+    return AdMomentOnShow(placement: AdExitPlacement.examAfterSubmit, child: LpAdExit(
       child: Scaffold(
       appBar: AppBar(title: Text(tr.lp2ResultTitle)),
       body: ListView(
@@ -1360,7 +1363,7 @@ class LpMockResultScreen extends StatelessWidget {
           LpPracticeFooter(text: label is Map ? '${(bn ? label['bn'] : label['en']) ?? ''}' : null),
         ],
       ),
-    ));
+    )));
   }
 }
 

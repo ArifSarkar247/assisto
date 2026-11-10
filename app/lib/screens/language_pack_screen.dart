@@ -8,6 +8,7 @@ import '../plans_v2/buy_inside.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../theme.dart';
+import '../ads/ad_placements.dart' show AdExit, AdExitPlacement; // adcontrol
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/local_counter.dart';
 import '../widgets/local_digits.dart';
@@ -526,6 +527,9 @@ class _PlacementPageState extends State<_PlacementPage> {
           .read<AppState>()
           .api
           .postJson('/learn/${widget.pack.lang}/placement', {'answers': _answers});
+      // adcontrol (owner 10 Nov): one interstitial after Submit, before the
+      // result (Free only, all caps) — never while the test is running
+      AdExit.transition(AdExitPlacement.examAfterSubmit);
       if (mounted) setState(() => _result = r);
     } catch (e) {
       if (mounted) _toast(context, honestFailText(tr, e, otherwise: tr.learnCatalogFail));
@@ -1063,6 +1067,8 @@ class _MockTestPageState extends State<MockTestPage> {
         'seconds': _clock.elapsed.inSeconds,
       });
       _clock.stop();
+      // adcontrol: one interstitial after Submit, before the result
+      AdExit.transition(AdExitPlacement.examAfterSubmit);
       if (mounted) setState(() => _result = r);
     } catch (e) {
       if (mounted) _toast(context, honestFailText(tr, e, otherwise: tr.learnCatalogFail));

@@ -2426,3 +2426,42 @@ BN.update({
     "lp_fix_first": "আগে ব্যর্থ যাচাইগুলো ঠিক করুন", "lp_none": "এখানে কিছু নেই।",
 })
 # ---- /lpcore ----
+
+# ---- adcontrol: Owner Admin -> Ad control (owner order 10 Nov 03:45) ----
+EN.update({
+    "nav_ad_control": "Ad control",
+    "adc_intro": "Every ad placement in the app, grouped by feature. Turn each one on or off and pick its ad type (only the types that fit that spot). AdMob is shown to FREE users only — Premium and Plus never see AdMob; your own Discover / brand cards are separate.",
+    "adc_live": "Changes apply live: the app re-reads this on start and on every return to the app (no new build). If the app cannot reach the server, emergency and safety placements stay OFF.",
+    "adc_on_count": "Placements on", "adc_days": "days",
+    "adc_estimate_note": "Income and eCPM come from Google's own per-impression values when AdMob sends them; until then they are an ESTIMATE (impressions x your eCPM guess below) and are marked 'estimate'. Exact AdMob reports need AdMob API access (owner item).",
+    "adc_caps": "Global caps", "adc_cap_gap": "Interstitial: minimum gap (seconds, at least 180 = 3 minutes)",
+    "adc_cap_daily": "Interstitial: daily cap per user (0-12)", "adc_cap_every": "List native: one card every N rows (15-20)",
+    "adc_cap_train": "Train live location: free minutes after one rewarded ad",
+    "adc_ecpm": "Estimated eCPM (Tk per 1,000 impressions, used only until real AdMob values exist)",
+    "adc_blocked": "Blocked ad categories (set in the AdMob console too)", "adc_rating": "Max ad content rating in the app",
+    "adc_on": "On", "adc_place": "Placement", "adc_type": "Ad type", "adc_default": "Default",
+    "adc_impr": "Impressions", "adc_income": "Income", "adc_est": "estimate", "adc_date": "Date",
+    "adc_safety": "Emergency / safety screen",
+    "adc_warn_title": "This is an emergency or safety screen — are you sure?",
+    "adc_warn_body": "People use these screens when they are in danger, worried, paying, or at a sensitive moment. An ad here can distract them or break trust. Nothing has been saved yet. Tick each screen you really want ads on, then confirm.",
+    "adc_warn_yes": "Yes, show ads on", "adc_warn_go": "Confirm and save", "adc_warn_cancel": "Cancel",
+})
+BN.update({
+    "nav_ad_control": "বিজ্ঞাপন নিয়ন্ত্রণ",
+    "adc_intro": "অ্যাপের প্রতিটি বিজ্ঞাপনের জায়গা, ফিচার অনুযায়ী সাজানো। প্রতিটি চালু/বন্ধ করুন আর বিজ্ঞাপনের ধরন বেছে নিন (শুধু যে ধরন ওই জায়গায় মানায়)। AdMob শুধু ফ্রি ব্যবহারকারীরা দেখেন — Premium ও Plus কখনো AdMob দেখেন না; আপনার নিজের ডিসকভার / ব্র্যান্ড কার্ড আলাদা।",
+    "adc_live": "পরিবর্তন সঙ্গে সঙ্গে চালু হয়: অ্যাপ খোলার সময় ও প্রতিবার অ্যাপে ফিরলে এটা আবার পড়ে (নতুন বিল্ড লাগে না)। অ্যাপ সার্ভারে পৌঁছাতে না পারলে জরুরি ও নিরাপত্তার জায়গা বন্ধই থাকে।",
+    "adc_on_count": "চালু জায়গা", "adc_days": "দিন",
+    "adc_estimate_note": "আয় ও eCPM আসে Google-এর নিজের প্রতি-ইমপ্রেশন মান থেকে, যখন AdMob তা পাঠায়; তার আগে এটা আনুমানিক (ইমপ্রেশন × নিচের আপনার eCPM অনুমান) এবং 'আনুমানিক' লেখা থাকে। AdMob-এর হুবহু রিপোর্টের জন্য AdMob API অ্যাক্সেস লাগবে (মালিকের কাজ)।",
+    "adc_caps": "সব জায়গার সীমা", "adc_cap_gap": "পূর্ণ পর্দার বিজ্ঞাপন: দুটির মাঝে কমপক্ষে (সেকেন্ড, অন্তত ১৮০ = ৩ মিনিট)",
+    "adc_cap_daily": "পূর্ণ পর্দার বিজ্ঞাপন: একজনের দিনে সর্বোচ্চ (০–১২)", "adc_cap_every": "তালিকার নেটিভ: প্রতি কত সারিতে একটি কার্ড (১৫–২০)",
+    "adc_cap_train": "ট্রেনের লাইভ অবস্থান: একটি বিজ্ঞাপনের পর কত মিনিট ফ্রি",
+    "adc_ecpm": "আনুমানিক eCPM (প্রতি ১,০০০ ইমপ্রেশনে টাকা; আসল AdMob মান আসা পর্যন্ত)",
+    "adc_blocked": "বন্ধ করা বিজ্ঞাপন বিভাগ (AdMob কনসোলেও সেট করুন)", "adc_rating": "অ্যাপে সর্বোচ্চ বিজ্ঞাপন রেটিং",
+    "adc_on": "চালু", "adc_place": "জায়গা", "adc_type": "বিজ্ঞাপনের ধরন", "adc_default": "ডিফল্ট",
+    "adc_impr": "ইমপ্রেশন", "adc_income": "আয়", "adc_est": "আনুমানিক", "adc_date": "তারিখ",
+    "adc_safety": "জরুরি / নিরাপত্তার পাতা",
+    "adc_warn_title": "এটা জরুরি বা নিরাপত্তার পাতা — আপনি কি নিশ্চিত?",
+    "adc_warn_body": "মানুষ এই পাতাগুলো ব্যবহার করেন বিপদে, দুশ্চিন্তায়, টাকা দেওয়ার সময় বা খুব সংবেদনশীল মুহূর্তে। এখানে বিজ্ঞাপন মনোযোগ নষ্ট করতে পারে বা আস্থা ভাঙতে পারে। এখনো কিছু সংরক্ষণ হয়নি। যে পাতায় সত্যিই বিজ্ঞাপন চান, প্রতিটিতে টিক দিয়ে নিশ্চিত করুন।",
+    "adc_warn_yes": "হ্যাঁ, বিজ্ঞাপন দেখাও", "adc_warn_go": "নিশ্চিত করে সংরক্ষণ", "adc_warn_cancel": "বাতিল",
+})
+# ---- /adcontrol ----

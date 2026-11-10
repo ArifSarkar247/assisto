@@ -7,6 +7,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ads/ad_reward_gate.dart'; // adcontrol
 import '../widgets/imei_tools.dart';
 import 'report_stolen_screen.dart';
 import 'registry_imei.dart';
@@ -166,6 +167,18 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
       setState(() => _error = t.upImeiEmpty);
       return;
     }
+    // adcontrol (owner 10 Nov): one rewarded ad per manual check for a Free
+    // user — never blocks (no ad / Premium / Plus -> the check just runs)
+    await AdRewardGate.run(context,
+        placement: 'security_scan',
+        grant: AdGateGrant.perUse,
+        what: t.adGateWhatScan,
+        action: () => _runCheck(imei));
+  }
+
+  Future<void> _runCheck(String imei) async {
+    if (!mounted) return;
+    final t = AppLocalizations.of(context);
     setState(() {
       _busy = true;
       _error = null;

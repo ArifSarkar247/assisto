@@ -1,6 +1,6 @@
 // admobump — OWNER ADS FINAL (2 Nov): interstitials ONLY on the exit after
 // a finished task, through the ONE registry (AdExitPlacement). Proves:
-// exit-only timing, max 4 a day, >= 800 s gap, none on the first day of use,
+// exit-only timing, daily cap (<= 12), >= 180 s gap, none on the first day of use,
 // never on a paid plan, quick tools once a day, Ad impact "closed the app
 // right after" event, and the never-list guard (no ad API reachable from
 // the owner's never-list files; AdExit.maybeShow only on an exit).
@@ -87,19 +87,22 @@ void main() {
   });
 
   group('rules', () {
-    test('max 4 a day, even if the server asks for more', () {
+    // adcontrol (owner 10 Nov 03:45): max 1 per 3 min + an owner-editable
+    // daily cap (replaces the 2 Nov 800 s / 4 a day)
+    test('the server daily cap, never above 12', () {
       expect(_d('photo_after_save', today: 3).allowed, isTrue);
       expect(_d('photo_after_save', today: 4).reason, 'daily_cap');
-      expect(_d('photo_after_save', j: _cfgJson(cap: 20), today: 4).reason,
+      expect(_d('photo_after_save', j: _cfgJson(cap: 20), today: 11).allowed, isTrue);
+      expect(_d('photo_after_save', j: _cfgJson(cap: 20), today: 12).reason,
           'daily_cap');
-      expect(AdRules.maxInterstitialsPerDay, 4);
+      expect(AdRules.maxInterstitialsPerDay, 12);
     });
 
-    test('>= 800 s after ANY full-screen ad, even if the server says 300', () {
-      final j = _cfgJson(gap: 300);
-      expect(_d('scan_after_save', j: j, last: _now.subtract(const Duration(seconds: 799)))
+    test('>= 180 s (3 min) after ANY full-screen ad, even if the server says 60', () {
+      final j = _cfgJson(gap: 60);
+      expect(_d('scan_after_save', j: j, last: _now.subtract(const Duration(seconds: 179)))
           .reason, 'too_soon');
-      expect(_d('scan_after_save', j: j, last: _now.subtract(const Duration(seconds: 800)))
+      expect(_d('scan_after_save', j: j, last: _now.subtract(const Duration(seconds: 180)))
           .allowed, isTrue);
     });
 
@@ -131,7 +134,8 @@ void main() {
         expect(AdRules.isBlockedScreen(p.screen), isFalse, reason: p.id);
         expect(_d(p.id).allowed, isTrue, reason: p.id);
       }
-      expect(AdExitPlacement.values.length, 11);
+      // 11 exits (2 Nov) + 4 owner transition moments (10 Nov)
+      expect(AdExitPlacement.values.length, 15);
     });
   });
 
@@ -229,29 +233,35 @@ void main() {
   });
 
   group('never-list guard (allow-list design)', () {
-    // the owner's never list, as path tokens of lib/ files
+    // adcontrol (OWNER FINAL ORDER ADS 10 Nov 03:45, part C): the default-OFF
+    // emergency / safety / trust screens, as path tokens of lib/ files — no
+    // ad API may be reachable from them (the owner can still switch a
+    // registered safety placement on in Owner Admin, after a warning; code
+    // for that is added on purpose, with this list). Also still no ad: CCTV,
+    // vehicle, missing person (no ON order for them).
     const never = [
-      'sos', 'journey', 'family_alert', 'antitheft', 'anti_theft', 'cctv',
-      // owner fix 3 Nov: train search / detail carry one banner; chat never
-      'vehicle', 'missing', 'blood', 'train_chat', 'destination',
+      'sos', 'journey', 'family', 'elder', 'carecall', 'care_call',
+      'blood', 'quran', 'kids', 'child', 'guardian', 'school',
       'circle_chat', 'circle_call', 'circle_group_chat', '/calls/',
-      'incoming_call', 'assisto_chat', 'ai_chat', 'payment', 'checkout',
-      'budget', 'money', 'remit', 'prepaid', 'vault', 'khata', 'sales',
-      'selling', 'invoice', 'crm', 'quran', 'ramadan', 'calorie', 'food',
-      'health', 'medicine', 'reminder', 'notes', 'todo', 'task', 'school',
-      'kids', 'child', 'credit',
+      'incoming_call', 'messenger_chat', 'payment', 'checkout', 'billing',
+      'login', 'otp', 'onboarding', 'antitheft', 'anti_theft', 'lost',
+      'alarm', 'destination', 'train_chat', 'cert', 'cctv', 'vehicle',
+      'missing', 'vault', 'remit', 'prepaid', 'khata', 'sales', 'selling',
+      'invoice', 'crm', 'ramadan', 'calorie', 'food', 'health', 'medicine',
+      'assisto_chat', 'ai_chat', 'credit',
     ];
-    // owner decision pending (STATUS): the user-chosen "watch an ad to earn
-    // credits" sheet — rewarded only, never a passive ad
+    // user-chosen REWARDED only (never a passive ad): the "watch an ad for
+    // credits" sheet and, for aimoney (part G), the AI chat unlock
     const rewardedOnly = {
       'lib/screens/credits_screen.dart',
       'lib/payments/credits_out_sheet.dart',
+      'lib/screens/ai_chat_screen.dart',
     };
     final adApi = RegExp(
         r'AdBannerSlot\(|AdExit\.|SponsoredPostSlot\(|HomeHero\(|AdmobSdk\.|'
         r'SponsorAppOpenScreen|maybeInterstitial|showInterstitial|'
-        r'AdsService\.instance|RewardedAdSheet');
-    final passive = RegExp(r'AdBannerSlot\(|AdExit\.|SponsoredPostSlot\(|HomeHero\(|'
+        r'AdsService\.instance|RewardedAdSheet|AdSpotCard|AdMomentOnShow|AdRewardGate');
+    final passive = RegExp(r'AdBannerSlot\(|AdExit\.|SponsoredPostSlot\(|HomeHero\(|AdSpotCard|AdMomentOnShow|'
         r'maybeInterstitial|showInterstitial|SponsorAppOpenScreen');
 
     List<File> libFiles() => Directory('lib')

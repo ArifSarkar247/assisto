@@ -7,11 +7,14 @@ import '../l10n/app_localizations.dart';
 import '../screens/plans_screen.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/home_hero.dart' show CompactAdFrame;
 import 'ad_placements.dart';
 import 'ad_rules.dart';
 import 'admob_banner_bridge.dart';
 import 'admob_platform.dart';
 import 'ads_service.dart';
+import 'hero_ad.dart';
+import 'hero_binding.dart';
 
 /// One loaded banner. [view] renders AdMob's own banner view.
 abstract class BannerAdHandle {
@@ -80,6 +83,10 @@ class AdBannerSlot extends StatefulWidget {
 
   @visibleForTesting
   static BannerBridge? debugBridge;
+
+  /// adcontrol: the native-card seam (the owner picked "native" here).
+  @visibleForTesting
+  static HeroAdBridge? debugNativeBridge;
   @visibleForTesting
   static Future<AdConfig> Function()? debugLoadConfig;
 
@@ -95,6 +102,7 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
   late final BannerBridge _bridge =
       widget.bridge ?? AdBannerSlot.debugBridge ?? createBannerBridge();
   BannerAdHandle? _ad;
+  HeroAdHandle? _native; // adcontrol: owner picked type "native"
   Timer? _timer;
   Object? _route;
   bool _loading = false;
@@ -128,7 +136,11 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
     try {
       _ad?.dispose();
     } catch (_) {}
+    try {
+      _native?.dispose();
+    } catch (_) {}
     _ad = null;
+    _native = null;
   }
 
   Future<AdConfig> _config() async {
@@ -172,7 +184,7 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
     if (!mounted || _loading || _blocked || !widget.enabled) return;
     _loading = true;
     try {
-      if (!_bridge.linked) {
+      if (!_bridge.linked && !_nativeBridge.linked) {
         _blocked = true;
         return;
       }
@@ -180,10 +192,12 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
       // the next refresh at the latest (AdsService caches the config)
       final cfg = await _config();
       if (!mounted) return;
-      final d = AdPlacements.banner(widget.screen, cfg, loggedIn: _loggedIn());
-      if (!d.allowed) {
+      // adcontrol: banner or native card — whatever the owner picked here
+      final kind = AdPlacements.inline(widget.screen, cfg, loggedIn: _loggedIn());
+      final linked = kind == AdKind.native ? _nativeBridge.linked : _bridge.linked;
+      if (kind == null || !linked) {
         _blocked = true;
-        if (_ad != null) setState(_drop);
+        if (_ad != null || _native != null) setState(_drop);
         return;
       }
       // one banner per route: a second slot on the same page stays empty
@@ -211,6 +225,10 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
           _schedule(wait, paced: true);
           return;
         }
+      }
+      if (kind == AdKind.native) {
+        await _loadNative(cfg, s);
+        return;
       }
       final unit = cfg.unitFor(AdKind.banner, builtAppId: AdsService.builtAppId);
       if (unit == null) return;
@@ -249,6 +267,41 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
     }
   }
 
+  late final HeroAdBridge _nativeBridge = AdBannerSlot.debugNativeBridge ??
+      createHeroAdBridge(placement: 'native_${widget.screen.trim().toLowerCase()}');
+
+  /// adcontrol: one compact native card in the slot, refreshed like a banner.
+  Future<void> _loadNative(AdConfig cfg, String s) async {
+    final unit = cfg.unitFor(AdKind.native, builtAppId: AdsService.builtAppId);
+    if (unit == null) return;
+    BannerPacer.markLoaded(s, DateTime.now());
+    final ad = await _nativeBridge
+        .load(unit, startMuted: true)
+        .timeout(const Duration(seconds: 12), onTimeout: () => null);
+    if (!mounted) {
+      try {
+        ad?.dispose();
+      } catch (_) {}
+      return;
+    }
+    if (ad != null) {
+      final old = _native;
+      setState(() => _native = ad);
+      if (old != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          try {
+            old.dispose();
+          } catch (_) {}
+        });
+      }
+    }
+    _schedule(
+        cfg.bannerRefresh < AdRules.minBannerRefresh
+            ? AdRules.minBannerRefresh
+            : cfg.bannerRefresh,
+        paced: true);
+  }
+
   void _openPlans() {
     final b = AdBannerSlot.debugPlansBuilder ?? (_) => const PlansScreen();
     Navigator.of(context).push(MaterialPageRoute(builder: b));
@@ -260,6 +313,20 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
     // never next to an open keyboard; hidden tab = no banner
     if (MediaQuery.viewInsetsOf(context).bottom > 0) {
       return const SizedBox.shrink();
+    }
+    final native = _native;
+    if (native != null && widget.enabled) {
+      return SafeArea(
+        top: false,
+        child: Material(
+          color: Theme.of(context).colorScheme.surface,
+          child: Padding(
+            key: const ValueKey('ad-native-slot'),
+            padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.sm, Gap.sm, Gap.sm),
+            child: CompactAdFrame(onRemoveAds: _openPlans, child: native.view()),
+          ),
+        ),
+      );
     }
     if (ad == null || !widget.enabled) {
       // lifebar: no banner (Premium / no fill) must still keep the system

@@ -66,15 +66,15 @@ class ConfigPureTests(SimpleTestCase):
         self.assertTrue(c["ads_enabled"])
         self.assertEqual(c["appopen_min_gap_sec"], 10800)   # owner 26 Oct: 3 h
         self.assertEqual(c["appopen_daily_cap"], 6)
-        # OWNER ADS FINAL (2 Nov): >= 800 s, max 4 a day
-        self.assertEqual(c["interstitial_min_gap_sec"], 800)
-        self.assertEqual(c["interstitial_daily_cap"], 4)
+        # adcontrol (owner 10 Nov): max 1 per 3 min, owner-editable daily cap (6)
+        self.assertEqual(c["interstitial_min_gap_sec"], 180)
+        self.assertEqual(c["interstitial_daily_cap"], 6)
         self.assertGreaterEqual(c["appopen_min_bg_sec"], 5)
         # banners-everywhere (owner 26 Oct): every normal feature screen
         self.assertEqual(c["banner_screens"], list(A.BANNER_SCREENS))
         self.assertIn("circle_list", c["banner_screens"])
         self.assertEqual(c["banner_refresh_sec"], 60)
-        self.assertEqual(c["interstitial_moments"], list(A.INTERSTITIAL_MOMENTS))
+        self.assertEqual(sorted(c["interstitial_moments"]), sorted(A.INTERSTITIAL_MOMENTS))
         self.assertEqual(c["native_screens"], ["home"])
         p = c["placements"]
         self.assertTrue(p["app_open"] and p["native_home"] and p["banner"] and p["interstitial"])
@@ -100,8 +100,9 @@ class ConfigPureTests(SimpleTestCase):
 
     def test_premium_and_business_get_zero_ads(self):
         caps = dict(P.DEFAULTS()["ad_rewards"], admob_real_ids=True)
-        for plan in ("premium", "business", "founder", "annual"):
+        for plan in ("premium", "plus", "business", "founder", "annual"):
             c = _cfg(plan=plan, paid=True, ad_caps=caps)
+            self.assertFalse(any(r["on"] for r in c["control"]["placements"].values()), plan)
             self.assertFalse(c["ads_enabled"], plan)
             self.assertFalse(any(c["placements"].values()), plan)
             self.assertFalse(c["hero_enabled"], plan)
@@ -109,9 +110,13 @@ class ConfigPureTests(SimpleTestCase):
             self.assertEqual(c["interstitial_moments"], [], plan)
 
     def test_per_placement_switches_and_allowlist_narrowing(self):
-        caps = dict(P.DEFAULTS()["ad_rewards"], place_banner=False, place_app_open=False,
-                    interstitial_moments="quick_tool_exit, vault, sos, task_done")
-        c = _cfg(ad_caps=caps)
+        caps = dict(P.DEFAULTS()["ad_rewards"], place_banner=False, place_app_open=False)
+        # adcontrol (owner 10 Nov): the per-placement registry narrows moments;
+        # unknown ids (vault, sos, task_done) can never be switched on
+        from core.logic import ad_control as AC
+        ctl = {"placements": {k: {"on": k in ("quick_tool_exit", "vault", "sos", "task_done")}
+                              for k in AC.BY_KEY}}
+        c = _cfg(ad_caps=caps, ad_control=ctl)
         self.assertFalse(c["placements"]["banner"])
         self.assertEqual(c["banner_screens"], [])
         self.assertFalse(c["app_open_enabled"])

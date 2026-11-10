@@ -886,6 +886,8 @@ def normalize(data):
                                                base["gateway_fee"]))),
         "vat": max(0.0, min(0.95, _num(d.get("vat"), base["vat"]))),
         "ad_rewards": _norm_ad_rewards(d.get("ad_rewards"), base["ad_rewards"]),
+        # adcontrol (owner 10 Nov): per-placement on/off + type + caps
+        "ad_control": _ad_control_norm(d.get("ad_control")),
         "profit_guard": _norm_profit_guard(d.get("profit_guard"),
                                            base["profit_guard"]),
         "fixed_cost_per_day": max(0.0, _num(d.get("fixed_cost_per_day"),
@@ -1124,6 +1126,11 @@ def _norm_ad_list(raw, allowed, fallback):
         if p in allowed and p not in out:
             out.append(p)
     return ",".join(out)
+
+
+def _ad_control_norm(raw):
+    from .ad_control import normalize as _n
+    return _n(raw)
 
 
 def _norm_ad_rewards(raw, base):

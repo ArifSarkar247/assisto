@@ -196,6 +196,12 @@ class AdsService with WidgetsBindingObserver {
       noteImpactPause(DateTime.now());
     } else if (state == AppLifecycleState.resumed) {
       noteImpactResume(DateTime.now());
+      // adcontrol (owner 10 Nov): Owner Admin -> Ad control changes apply
+      // live — re-read /ads/config on a resume when it is > 5 min old
+      final cAt = _configAt;
+      if (cAt == null || DateTime.now().difference(cAt) > const Duration(minutes: 5)) {
+        unawaited(refreshConfig(force: true));
+      }
       final at = _pausedAt;
       _pausedAt = null;
       final bg = at == null ? null : DateTime.now().difference(at);

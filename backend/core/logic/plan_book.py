@@ -38,7 +38,11 @@ ROUND_TO = 10
 
 LEGACY_PACKS = ("p20", "p50", "p100", "p200")
 # the three packs the owner approved (prices unchanged; credits by formula)
-V2_PACKS = ({"id": "c50", "price": 179, "valid_months": 12},
+# adcontrol (owner 10 Nov 03:45 part F): a small pack ৳49 = 15 credits
+# (Play product credits_c15; not sold until the owner creates it in Play
+# Console and the server's PlaySkuCheck sees it ACTIVE).
+V2_PACKS = ({"id": "c15", "price": 49, "valid_months": 12},
+            {"id": "c50", "price": 179, "valid_months": 12},
             {"id": "c120", "price": 399, "valid_months": 12},
             {"id": "c300", "price": 949, "valid_months": 12})
 PACK_EXPIRY_MONTHS = 12
@@ -51,6 +55,10 @@ PAID_PLANS = ("plus", "premium", "premium_pro", "business")
 APPROVED = {"plus": (199, 70), "premium": (449, 160), "premium_pro": (999, 350),
             "business": (1299, 440), "c50": (179, 60), "c120": (399, 140),
             "c300": (949, 330)}
+# adcontrol (owner 10 Nov 03:45 part F): the owner's EXPLICIT exception —
+# ৳49 = 15 credits (the formula's round-to-10 would give 10). 15 x ৳2.80 =
+# ৳42 <= ৳49, so it stays inside the per-credit cap (40 % rule; aimoney CI).
+PACK_CREDIT_OVERRIDES = {"c15": 15}
 APPROVED_PROBASHI = (4.99, 120.0, 210)
 APPROVED_LEVEL_CREDITS = {"normal": 1, "better": 1, "best": 11}
 HAIKU_PROMPT_MAX_TOKENS = 90000     # owner: above 100k Haiku costs 5x
@@ -132,6 +140,9 @@ def derive(out, legacy_floor_fn=None):
             out["topup_packs"].append(dict(p, credits=0))
     for p in out["topup_packs"]:
         p["credits"] = credits_for_price(p["price"])
+        o = PACK_CREDIT_OVERRIDES.get(p["id"])
+        if o and o * MIN_BDT_PER_CREDIT <= float(p["price"] or 0):
+            p["credits"] = o
         p["valid_months"] = PACK_EXPIRY_MONTHS
     out["pricing_v2"]["packs_off"] = [p["id"] for p in out["topup_packs"]
                                       if p["id"] in LEGACY_PACKS]
