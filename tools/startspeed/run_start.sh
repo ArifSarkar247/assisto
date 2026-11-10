@@ -11,7 +11,9 @@
 #     chat with 200 real E2E messages)
 #  4. real app again over the signed-in data (install -r keeps it):
 #       online   : cold x5, hot x5 (Home key -> reopen), warm x3 (activity
-#                  re-created in a live process), My Circle x3 (cold + ao_open)
+#                  re-created in a live process), My Circle x3 (tapped 3 s
+#                  after a cold open: ao_open circle@3000) + x2 at the very
+#                  first frame (circle0 = worst case)
 #       airplane : the same (cold x5, hot x3, warm x3, My Circle x3)
 #       lie-fi   : network ON but the server frozen (SIGSTOP) = the slow /
 #                  captive-portal case: cold x3, My Circle x2 (30 s windows)
@@ -178,7 +180,8 @@ say "signed in: online"
 cold home_online 5 12
 hot hot_online 5
 warm warm_online 3
-cold circle_online 3 12 "--es ao_open circle"
+cold circle_online 3 14 "--es ao_open circle@3000"
+cold circle0_online 2 12 "--es ao_open circle"
 T=40 A shell dumpsys meminfo "$PKG" > "$OUT/mem/home_idle.txt" 2>&1 || true
 
 say "signed in: airplane mode"
@@ -186,13 +189,14 @@ net_off
 cold home_offline 5 12
 hot hot_offline 3
 warm warm_offline 3
-cold circle_offline 3 12 "--es ao_open circle"
+cold circle_offline 3 14 "--es ao_open circle@3000"
+cold circle0_offline 2 12 "--es ao_open circle"
 net_on
 
 say "signed in: lie-fi (network on, server frozen)"
 server_freeze
 cold home_liefi 3 30
-cold circle_liefi 2 30 "--es ao_open circle"
+cold circle_liefi 2 30 "--es ao_open circle@3000"
 server_thaw
 sleep 5
 cold home_after 2 12
