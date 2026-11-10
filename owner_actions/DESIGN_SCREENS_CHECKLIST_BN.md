@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪৮ / মোট ৪২০**
+**স্ক্রিন শেষ: ৪৯ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -163,7 +163,7 @@
 - ⬜ — `billing/refund_screen.dart`
 - ⬜ — `safe_plans/safe_ad_unlock_screen.dart`
 - ⬜ — `safe_plans/safe_plans_screen.dart`
-- ⬜ — `screens/account_security_screen.dart`
+- ✅ batch 6 (সাইন-ইন, ডিভাইস, হারালে — আলাদা কার্ড; DS ত্রুটি/স্কেলেটন) — `screens/account_security_screen.dart`
 - ⬜ — `screens/account_standing_screen.dart`
 - ⬜ — `screens/business/acct/acct_audit_screen.dart`
 - ⬜ — `screens/business/acct/acct_close_screen.dart`

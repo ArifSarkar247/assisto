@@ -202,8 +202,26 @@ class _SafeJourneyHubScreenState extends State<SafeJourneyHubScreen> {
         final scale = MediaQuery.textScalerOf(ctx).scale(1);
         final two = c.maxWidth / scale >= 300;
         final w = two ? (c.maxWidth - Gap.sm) / 2 : c.maxWidth;
-        return Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-          for (final x in tiles) SizedBox(width: w, child: x),
+        if (!two) {
+          return Column(children: [
+            for (final x in tiles)
+              Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: SizedBox(width: w, child: x)),
+          ]);
+        }
+        // designv2: two per row, equal height (a 3-line hint must not make
+        // one tile taller than its neighbour)
+        return Column(children: [
+          for (var i = 0; i < tiles.length; i += 2)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Gap.sm),
+              child: IntrinsicHeight(
+                child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  SizedBox(width: w, child: tiles[i]),
+                  const SizedBox(width: Gap.sm),
+                  SizedBox(width: w, child: i + 1 < tiles.length ? tiles[i + 1] : null),
+                ]),
+              ),
+            ),
         ]);
       });
 

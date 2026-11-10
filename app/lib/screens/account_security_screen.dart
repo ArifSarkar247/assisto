@@ -175,21 +175,21 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
     final s = _s;
     Widget body;
     if (_loading && s == null) {
-      body = const Center(child: CircularProgressIndicator());
+      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        for (var i = 0; i < 3; i++)
+          Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSkeleton.card(lines: 3)),
+      ]);
     } else if (s == null) {
       body = ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          const SizedBox(height: Gap.xl),
-          Icon(Icons.cloud_off_rounded, size: 48, color: DsTokens.of(context).border),
-          const SizedBox(height: Gap.md),
-          Text(t.acsecLoadFail, textAlign: TextAlign.center, style: AType.bodyLarge),
-          const SizedBox(height: Gap.lg),
-          FilledButton.icon(
-              key: const Key('rec-retry'),
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.retry)),
+          DsEmptyState(
+            icon: Icons.cloud_off_rounded,
+            title: t.acsecLoadFail,
+            actionLabel: t.retry,
+            actionKey: const Key('rec-retry'),
+            onAction: _load,
+          ),
         ],
       );
     } else {
@@ -210,6 +210,8 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
               _note(context, Icons.lock_clock_rounded,
                   s.blockedReason == 'identity_locked' ? t.acsecLocked : t.acsecCooldown),
             _header(context, t.acsecSignInSection),
+            // designv2: sign-in ways in one card
+            _group([
             ListTile(
               key: const Key('rec-phone'),
               leading: const Icon(Icons.phone_iphone_rounded),
@@ -265,8 +267,9 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: _busy ? null : _password,
             ),
-            const Divider(),
+            ]),
             _header(context, t.acsecDevicesTitle(recDigits(context, '${s.devices.length}'))),
+            _group([
             if (s.devices.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
@@ -285,12 +288,15 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
                   label: Text(t.acsecSignOutOthers, textAlign: TextAlign.center),
                 ),
               ),
-            const Divider(),
+            ]),
             _header(context, t.acsecLostTitle),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
-              child: Text(t.acsecLostBody, style: AType.bodyMedium),
-            ),
+            _group([
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+                child: Text(t.acsecLostBody,
+                    style: AType.bodyMedium.copyWith(color: DsTokens.of(context).text)),
+              ),
+            ]),
             const SizedBox(height: Gap.lg),
           ],
         ),
@@ -298,6 +304,14 @@ class _AccountSecurityScreenState extends State<AccountSecurityScreen> {
     }
     return Scaffold(appBar: AppBar(title: Text(t.acsecTitle)), body: body);
   }
+
+  Widget _group(List<Widget> children) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
+        child: DsCard(
+          padding: const EdgeInsets.symmetric(vertical: Gap.sm),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+        ),
+      );
 
   Widget _header(BuildContext context, String text) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xs),
