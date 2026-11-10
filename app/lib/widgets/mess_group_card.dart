@@ -94,16 +94,16 @@ class _MessGroupCardState extends State<MessGroupCard> {
           if (!_collapsed) ...[
             Wrap(spacing: Gap.md, runSpacing: Gap.xs, children: [
               Text(t.mv2CardMeals(messDigits(context, c['meals_today'])),
-                  style: TextStyle(color: scheme.onSecondaryContainer)),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSecondaryContainer)),
               Text(t.mv2CardBazar(messDigits(context, c['bazar_today_display'])),
-                  style: TextStyle(color: scheme.onSecondaryContainer)),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSecondaryContainer)),
               if (turn.isNotEmpty)
-                Text(t.mv2CardTurn(turn), style: TextStyle(color: scheme.onSecondaryContainer)),
+                Text(t.mv2CardTurn(turn), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSecondaryContainer)),
             ]),
             const SizedBox(height: Gap.xs),
             Text(
               notSet.isEmpty ? t.mv2CardAllSet : t.mv2CardNotSet(notSet.join(', ')),
-              style: TextStyle(color: scheme.onSecondaryContainer),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSecondaryContainer),
             ),
             const SizedBox(height: Gap.sm),
             Align(
