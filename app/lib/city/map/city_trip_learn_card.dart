@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../services/bangla_calendar.dart' show asciiDigits;
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart' show showAppSheet;
 import '../../widgets/local_counter.dart';
+import '../../widgets/num_input.dart' show parseIntInput;
 import '../city_models.dart';
 import '../city_widgets.dart';
 import 'city_map_data.dart';
@@ -75,7 +75,7 @@ class _CityTripLearnCardState extends State<CityTripLearnCard> {
   Future<void> _send() async {
     final api = context.read<AppState>().api;
     final leg = _leg;
-    final typed = _other ? int.tryParse(asciiDigits(_c.text.trim())) : null;
+    final typed = _other ? parseIntInput(_c.text) : null; // savesweep shared parser
     setState(() {
       _sending = true;
       _failed = false;

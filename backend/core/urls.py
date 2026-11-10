@@ -247,7 +247,7 @@ urlpatterns = [
     path("city/night-rating", cityv.city_night_rating),
     path("city/trips/consent", cityv.city_trip_consent),
     path("city/trips", cityv.city_trip),
-    path("city/trips/confirm", cityv.city_trip_confirm),  # mapapp
+    path("city/trips/confirm", cityv.city_trip_confirm_ride),  # mapapp (renamed: citycov owns city_trip_confirm(tid))
     path("city/trips/mine", cityv.city_trip_mine),  # mapapp
     path("city/map", cityv.city_map),  # mapapp
     path("city/women", cityv.city_women),

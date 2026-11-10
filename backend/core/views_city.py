@@ -258,7 +258,7 @@ def city_trip(request):
 
 
 @api_view(["POST"])
-def city_trip_confirm(request):
+def city_trip_confirm_ride(request):
     """mapapp: the one-tap "Which bus? What fare?" card after a trip."""
     d = request.data if isinstance(request.data, dict) else {}
     st, err = CS.confirm_ride(request.user, d)
