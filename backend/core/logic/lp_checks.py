@@ -96,6 +96,18 @@ def copyright_failures(text, known=frozenset()):
     return fails
 
 
+_OPT_LETTER = re.compile(r"^\s*([A-Za-z]{1,4})[.)]\s")
+
+
+def opt_id(o):
+    """An option's id: a dict's "id", the letter of "A. text" (the app's
+    shape), else the normalized text."""
+    if isinstance(o, dict):
+        return B.norm(o.get("id"))
+    m = _OPT_LETTER.match(str(o or ""))
+    return B.norm(m.group(1)) if m else B.norm(o)
+
+
 def _q_failures(q, where):
     f = []
     t = q.get("type")
@@ -115,14 +127,14 @@ def _q_failures(q, where):
         f.append(("format", "%s: needs explain_en + explain_bn" % where))
     opts = q.get("options")
     if opts is not None:
-        labels = [B.norm(o.get("id") if isinstance(o, dict) else o) for o in opts]
+        labels = [opt_id(o) for o in opts]
         if len(labels) != len(set(labels)):
             f.append(("uniqueness", "%s: repeated options" % where))
     if t in ("mcq", "mcq_multi"):
         if not opts or len(opts) < 3:
             f.append(("format", "%s: mcq needs 3+ options" % where))
         else:
-            ids = {B.norm(o.get("id") if isinstance(o, dict) else o).upper() for o in opts}
+            ids = {opt_id(o).upper() for o in opts}
             letters = B._letters("/".join(str(k) for k in keys)) if t == "mcq_multi" \
                 else [B.norm(keys[0]).upper()]
             if any(x not in ids for x in letters):
@@ -174,8 +186,10 @@ def section_failures(name, s, level=""):
         nq = 0
         for p in parts:
             w = "listening part %s" % p.get("n")
-            if not p.get("audio"):
-                f.append(("format", w + ": no audio"))
+            # lpfinish: until the CI TTS job renders audio, a part may carry its
+            # script as `turns` — the phone's own voice reads it (never shown)
+            if not p.get("audio") and not tts_lines(p):
+                f.append(("format", w + ": no audio and no TTS script"))
             if p.get("accent") not in ACCENTS:
                 f.append(("format", w + ": accent must be one of " + "/".join(ACCENTS)))
             if not str(p.get("transcript") or "").strip():
@@ -228,6 +242,12 @@ def section_failures(name, s, level=""):
     return f
 
 
+def tts_lines(part):
+    """The spoken lines of a listening part without recorded audio."""
+    return [str(t.get("text")).strip() for t in part.get("turns") or []
+            if isinstance(t, dict) and str(t.get("text") or "").strip()]
+
+
 def track_questions(data):
     """[(section, part, question)] of a stage-2 track test (sections is a LIST)."""
     out = []
@@ -253,8 +273,10 @@ def track_mock_failures(data):
         w = "%s q%s" % (s.get("id"), q.get("n"))
         ns.append(q.get("n"))
         opts = q.get("options") or []
-        if not 3 <= len(opts) <= 6:
-            f.append(("format", w + ": 3-6 options"))
+        # 2 = true/false items of the real formats (German A1 Hoeren richtig/falsch,
+        # HSK 1 picture judge); 6 = the shared HSK / DELF matching banks
+        if not 2 <= len(opts) <= 6:
+            f.append(("format", w + ": 2-6 options"))
         elif len(set(map(str, opts))) != len(opts):
             f.append(("uniqueness", w + ": repeated options"))
         a = str(q.get("answer") or "")

@@ -120,3 +120,13 @@ level (reading passage length by level), timing (L 30 min, R 60, W 60, S 11-14 m
 - lpapp credits path: the 402 `week_used` answer carries `unlock_credits` (1). `GET /lp/mocks/<id>?section=X&pay=credits`
   charges it and opens the section (402 `credits` when the balance is short). Re-opening it this week is free.
 
+
+## 9. lpfinish — repo content seed + phone-TTS listening (10 Nov)
+- `python manage.py lp_seed` imports `tools/lp/content/ielts/*.json` (format `assisto.lp.ielts/1`, original mocks),
+  the 7 language tracks (`tools/lp/content/<lang>/`) and `app/assets/lp/*.json`; idempotent; exits non-zero if any item
+  is not live (lists the check failures). Converter: `core/logic/lp_seed.py`.
+- A listening part without `audio` may carry `turns` (script); `GET /lp/mocks/<id>?section=listening` then returns
+  `parts[].tts = {lang: en-GB|en-US|en-AU, lines:[..], repeat}` for the phone's own voice (the app never displays it).
+  Track tests: every listening question/part with a script gets `tts {lang: ja-JP|ko-KR|de-DE|zh-CN|fr-FR|ar-SA, lines, repeat}`.
+  Recorded audio, when the CI TTS job ships it, replaces this automatically (`audio_url` wins).
+- Track choice questions may have 2–6 options (true/false items of German A1 Hören and HSK 1 picture judge).

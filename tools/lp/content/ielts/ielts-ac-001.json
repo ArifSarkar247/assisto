@@ -1,0 +1,1648 @@
+{
+ "format": "assisto.lp.ielts/1",
+ "bundle_id": "ielts-ac-001",
+ "module": "academic",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "IELTS Academic Practice Test 1",
+  "bn": "IELTS অ্যাকাডেমিক প্র্যাকটিস টেস্ট ১"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpfinish",
+  "created": "2026-11-10"
+ },
+ "listening": {
+  "duration_sec": 1800,
+  "parts": [
+   {
+    "n": 1,
+    "accent": "uk",
+    "intro": "You will hear a woman at a community kitchen taking a booking from a man who wants to join a cooking course.",
+    "speakers": {
+     "A": {
+      "name": "Receptionist",
+      "gender": "F"
+     },
+     "B": {
+      "name": "Tomas",
+      "gender": "M"
+     }
+    },
+    "turns": [
+     {
+      "spk": "A",
+      "text": "Good morning, Hartfield Community Kitchen, this is Gemma speaking. How can I help?"
+     },
+     {
+      "spk": "B",
+      "text": "Oh, hello. I'm calling about the evening cooking courses. I saw them advertised and I'd like to book a place, if there's still room."
+     },
+     {
+      "spk": "A",
+      "text": "Of course. Let me just open the booking form. Can I take your name first?"
+     },
+     {
+      "spk": "B",
+      "text": "Yes, it's Tomas Brennick."
+     },
+     {
+      "spk": "A",
+      "text": "Could you spell the surname for me?"
+     },
+     {
+      "spk": "B",
+      "text": "Sure. It's B-R-E-N-N-I-C-K. Brennick."
+     },
+     {
+      "spk": "A",
+      "text": "Thank you. And which course were you interested in? We have four running this term: baking, world street food, vegetarian cooking and cooking on a budget."
+     },
+     {
+      "spk": "B",
+      "text": "Well, I was going to ask about the baking one, but a friend told me it's mostly cakes, and I don't really have a sweet tooth. So I think I'll go for the vegetarian course instead. I'm trying to eat less meat."
+     },
+     {
+      "spk": "A",
+      "text": "Good choice, that's one of our most popular. Now, it runs on two evenings. The Tuesday group is completely full, I'm afraid, but there are still three places left in the Thursday group."
+     },
+     {
+      "spk": "B",
+      "text": "Thursday's fine. What time does it start?"
+     },
+     {
+      "spk": "A",
+      "text": "Half past six, and it finishes at nine. The first session is on the fourteenth of March."
+     },
+     {
+      "spk": "B",
+      "text": "Great. And how much is it?"
+     },
+     {
+      "spk": "A",
+      "text": "The standard price is 22 pounds a session, which covers all the ingredients. But if you live in the borough, there's a residents' rate of 18 pounds."
+     },
+     {
+      "spk": "B",
+      "text": "I do live locally, just off Mill Lane."
+     },
+     {
+      "spk": "A",
+      "text": "Then it's 18 for you. You'll just need to show something with your address on it on the first evening, like a utility bill."
+     },
+     {
+      "spk": "B",
+      "text": "No problem. Is there anything I need to bring?"
+     },
+     {
+      "spk": "A",
+      "text": "We provide knives and all the equipment, but please bring an apron. Oh, and a container, a plastic box or something like that, because you'll usually want to take home what you've cooked."
+     },
+     {
+      "spk": "B",
+      "text": "Good idea, I'll remember that."
+     },
+     {
+      "spk": "A",
+      "text": "And just for our records, how did you hear about the course? Was it the poster in the library?"
+     },
+     {
+      "spk": "B",
+      "text": "I did see a poster there, but that's not where I found it. It was the newsletter that comes through the door every month."
+     },
+     {
+      "spk": "A",
+      "text": "Lovely, thanks."
+     },
+     {
+      "spk": "B",
+      "text": "Er, could I ask a few things about the place itself? I've never been inside."
+     },
+     {
+      "spk": "A",
+      "text": "Sure. The building's a bit unusual, actually. It was a primary school until about fifteen years ago, and the kitchen is in what used to be the school hall. People often think it was a church because of the tall windows, but no, it was definitely a school."
+     },
+     {
+      "spk": "B",
+      "text": "Is there parking?"
+     },
+     {
+      "spk": "A",
+      "text": "There's a small car park at the back, but it fills up quickly, so the bus is easier if you can manage it."
+     },
+     {
+      "spk": "B",
+      "text": "I'll probably cycle anyway. And how many people are in each group?"
+     },
+     {
+      "spk": "A",
+      "text": "A maximum of ten. Some people assume that's because of insurance, but really it's because we only have ten cooking stations, and we want everyone to have their own space and equipment rather than sharing."
+     },
+     {
+      "spk": "B",
+      "text": "That makes sense. I'm a complete beginner, by the way. Is that a problem?"
+     },
+     {
+      "spk": "A",
+      "text": "Not at all, most people are beginners. What we do need, though, before the first class, is to know about any food allergies, because the teacher orders the ingredients a week in advance. We don't need your phone number, because the system's already saved it from this call."
+     },
+     {
+      "spk": "B",
+      "text": "Right. Well, I'm allergic to peanuts, actually."
+     },
+     {
+      "spk": "A",
+      "text": "Okay, I'll make a note of that now, so you don't need to email us. Now, how would you like to pay? Most people pay online by card, but we also accept bank transfers."
+     },
+     {
+      "spk": "B",
+      "text": "Could I just pay in cash on the first evening?"
+     },
+     {
+      "spk": "A",
+      "text": "I'm afraid we stopped taking cash last year."
+     },
+     {
+      "spk": "B",
+      "text": "Oh, okay. Then I'll do it online. I'll pay by card on your website tonight."
+     },
+     {
+      "spk": "A",
+      "text": "Perfect. That's everything, then. We'll send a confirmation once your payment comes through. See you on the fourteenth!"
+     }
+    ],
+    "questions": [
+     {
+      "n": 1,
+      "type": "gap",
+      "group": "Questions 1-6. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Name: Tomas ____",
+      "max_words": 2,
+      "answer": [
+       "Brennick"
+      ],
+      "explain_en": "The caller spells his surname: 'B-R-E-N-N-I-C-K. Brennick.'",
+      "explain_bn": "কলার নিজের পদবি বানান করে বলেছেন: B-R-E-N-N-I-C-K, অর্থাৎ Brennick। বানান ভুল হলে নম্বর পাবেন না।",
+      "tag": "spelling"
+     },
+     {
+      "n": 2,
+      "type": "gap",
+      "group": "Questions 1-6. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Course chosen: ____ cooking",
+      "max_words": 2,
+      "answer": [
+       "vegetarian"
+      ],
+      "explain_en": "He first mentions baking but changes his mind: 'I'll go for the vegetarian course instead.'",
+      "explain_bn": "প্রথমে baking-এর কথা বললেও পরে মত বদলে বলেছেন 'vegetarian course instead' — এটা একটা ফাঁদ (distractor), শেষ সিদ্ধান্তটাই উত্তর।",
+      "tag": "detail"
+     },
+     {
+      "n": 3,
+      "type": "gap",
+      "group": "Questions 1-6. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Day: ____ evenings",
+      "max_words": 2,
+      "answer": [
+       "Thursday"
+      ],
+      "explain_en": "'The Tuesday group is completely full ... there are still three places left in the Thursday group.'",
+      "explain_bn": "Tuesday-এর গ্রুপ পুরো ভর্তি, তাই জায়গা আছে শুধু Thursday-তে। কলারও বলেছেন 'Thursday's fine'।",
+      "tag": "detail"
+     },
+     {
+      "n": 4,
+      "type": "gap",
+      "group": "Questions 1-6. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Cost per session: £____ (residents' rate)",
+      "max_words": 2,
+      "answer": [
+       "18",
+       "eighteen"
+      ],
+      "explain_en": "The standard price is 22 pounds, but 'there's a residents' rate of 18 pounds' and he lives locally.",
+      "explain_bn": "সাধারণ দাম ২২ পাউন্ড, কিন্তু স্থানীয় বাসিন্দাদের জন্য ১৮ পাউন্ড; কলার স্থানীয় (Mill Lane), তাই উত্তর 18।",
+      "tag": "number"
+     },
+     {
+      "n": 5,
+      "type": "gap",
+      "group": "Questions 1-6. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Bring: an apron and a ____",
+      "max_words": 2,
+      "answer": [
+       "container"
+      ],
+      "explain_en": "'please bring an apron. Oh, and a container ... because you'll usually want to take home what you've cooked.'",
+      "explain_bn": "রান্না করা খাবার বাড়ি নিয়ে যাওয়ার জন্য একটা container আনতে বলা হয়েছে। ছুরি ও অন্য সরঞ্জাম কিচেনই দেয়।",
+      "tag": "detail"
+     },
+     {
+      "n": 6,
+      "type": "gap",
+      "group": "Questions 1-6. Complete the form below. Write ONE WORD AND/OR A NUMBER for each answer.",
+      "prompt": "Heard about the course from: the ____",
+      "max_words": 2,
+      "answer": [
+       "newsletter"
+      ],
+      "explain_en": "He saw a poster, 'but that's not where I found it. It was the newsletter that comes through the door every month.'",
+      "explain_bn": "পোস্টার দেখেছিলেন, কিন্তু কোর্সের খবর পেয়েছেন মাসিক newsletter থেকে। 'poster' হলো ফাঁদ।",
+      "tag": "detail"
+     },
+     {
+      "n": 7,
+      "type": "mcq",
+      "group": "Questions 7-10. Choose the correct letter, A, B or C.",
+      "prompt": "What was the kitchen building originally?",
+      "options": [
+       "A. a church",
+       "B. a school",
+       "C. a factory"
+      ],
+      "answer": "B",
+      "explain_en": "'It was a primary school until about fifteen years ago ... People often think it was a church ... but no, it was definitely a school.'",
+      "explain_bn": "লম্বা জানালার কারণে অনেকে গির্জা ভাবেন, কিন্তু Gemma স্পষ্ট বলেছেন এটি আগে একটি primary school ছিল।",
+      "tag": "detail"
+     },
+     {
+      "n": 8,
+      "type": "mcq",
+      "group": "Questions 7-10. Choose the correct letter, A, B or C.",
+      "prompt": "Why is each group limited to ten people?",
+      "options": [
+       "A. There are only ten cooking stations.",
+       "B. The insurance does not allow more.",
+       "C. The teacher prefers small classes."
+      ],
+      "answer": "A",
+      "explain_en": "'Some people assume that's because of insurance, but really it's because we only have ten cooking stations.'",
+      "explain_bn": "অনেকে insurance ভাবেন, কিন্তু আসল কারণ হলো কিচেনে মাত্র দশটি cooking station আছে।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 9,
+      "type": "mcq",
+      "group": "Questions 7-10. Choose the correct letter, A, B or C.",
+      "prompt": "What does the kitchen need to know before the first class?",
+      "options": [
+       "A. the student's phone number",
+       "B. any food allergies",
+       "C. the student's cooking experience"
+      ],
+      "answer": "B",
+      "explain_en": "'What we do need, though, before the first class, is to know about any food allergies.' The phone number is already saved.",
+      "explain_bn": "প্রথম ক্লাসের আগে food allergy জানাতে হবে, কারণ শিক্ষক এক সপ্তাহ আগে উপকরণ অর্ডার দেন। ফোন নম্বর আগেই সেভ হয়ে গেছে, আর beginner হলে সমস্যা নেই।",
+      "tag": "detail"
+     },
+     {
+      "n": 10,
+      "type": "mcq",
+      "group": "Questions 7-10. Choose the correct letter, A, B or C.",
+      "prompt": "How will Tomas pay for the course?",
+      "options": [
+       "A. in cash on the first evening",
+       "B. by bank transfer",
+       "C. online by card"
+      ],
+      "answer": "C",
+      "explain_en": "Cash is no longer accepted, so he says: 'I'll pay by card on your website tonight.'",
+      "explain_bn": "নগদ টাকা আর নেওয়া হয় না, তাই Tomas বলেছেন তিনি আজ রাতে ওয়েবসাইটে কার্ড দিয়ে পেমেন্ট করবেন।",
+      "tag": "detail"
+     }
+    ]
+   },
+   {
+    "n": 2,
+    "accent": "au",
+    "intro": "You will hear a guide talking to a group of visitors at the start of a tour of a restored river port.",
+    "speakers": {
+     "A": {
+      "name": "Guide",
+      "gender": "M"
+     }
+    },
+    "turns": [
+     {
+      "spk": "A",
+      "text": "Good morning, everyone, and welcome to Port Callow. My name's Rhys and I'll be your guide this morning. Before we set off, let me give you a little background. People often assume the port was at its busiest in the early 1700s, when the first stone quay was built, but in fact trade really peaked in the mid-1800s, when steamers carried wool and timber down the river to the coast. By the 1920s the railway had taken most of that trade away, and the port slowly fell into ruin."
+     },
+     {
+      "spk": "A",
+      "text": "The restoration began about twelve years ago. The city council did contribute a small grant, and a few local businesses donated materials, but the bulk of the money, around eighty per cent, came from a public fund-raising campaign. Thousands of ordinary people bought a single brick with their name on it, and you'll see those bricks along the main wharf."
+     },
+     {
+      "spk": "A",
+      "text": "Now, a couple of quick requests. You're welcome to take photos anywhere, and you can touch the old boats on display; they're very solid. But please keep to the marked paths, because some of the old timber decking is still being repaired. And you don't need to stay right beside me the whole time. If you fall behind, just follow the blue signs."
+     },
+     {
+      "spk": "A",
+      "text": "One more thing about your ticket. It doesn't include the boat trip, I'm afraid, that's sold separately at the ferry office, and there's no lunch included either. But the good news is that you can come back and use the same ticket any time within seven days."
+     },
+     {
+      "spk": "A",
+      "text": "Finally, you may have noticed the old toll gate at the entrance where you came in. That's the original gate. For many years it was kept in the museum in town, but it was brought back here last year, and it's now where we start and finish every tour. So if you lose the group, wait there."
+     },
+     {
+      "spk": "A",
+      "text": "Right, let's look at the map and I'll tell you about the five places we'll visit. First, the Customs House. This is where ships' cargoes were checked and taxed. Today the ground floor holds a collection of old charts and maps of the river, some of them over two hundred years old. People sometimes expect a restaurant here, because of the lovely terrace, but the restaurant is actually somewhere else. I'll come to that."
+     },
+     {
+      "spk": "A",
+      "text": "Next is the Rope Walk, a long, narrow building, almost two hundred metres long, where ropes for the ships were made. A team of volunteers gives demonstrations, and they'll let you have a go at twisting your own piece of rope to take home."
+     },
+     {
+      "spk": "A",
+      "text": "Then we'll climb up to Crane Wharf. The giant steam crane itself doesn't work any more, but from the platform at the top you get the finest view of the river anywhere in Port Callow. On a clear day you can see all the way to the estuary."
+     },
+     {
+      "spk": "A",
+      "text": "After that comes Warehouse Row. These five brick warehouses once stored wool. Two of them are now artists' studios, and the largest has been turned into a seafood restaurant, which I can highly recommend."
+     },
+     {
+      "spk": "A",
+      "text": "And finally, the Ferry Steps. When the restoration team started work, the steps had almost completely collapsed. Luckily, the original engineer's drawings had survived in the city archive, so the steps were rebuilt exactly as they were in 1862. Now, you may have heard that the little ferry is free for children. That used to be true, but sadly it isn't any more. The ferry office is open as usual today, by the way, so you can buy boat tickets there. Okay, let's go."
+     }
+    ],
+    "questions": [
+     {
+      "n": 11,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "When was the port at its busiest?",
+      "options": [
+       "A. the early 1700s",
+       "B. the 1920s",
+       "C. the mid-1800s"
+      ],
+      "answer": "C",
+      "explain_en": "'People often assume ... the early 1700s ... but in fact trade really peaked in the mid-1800s.'",
+      "explain_bn": "অনেকে 1700-এর দশক ভাবেন, কিন্তু গাইড বলেছেন বাণিজ্য সবচেয়ে বেশি ছিল ১৮০০ সালের মাঝামাঝি (mid-1800s)। 'peaked' মানে সর্বোচ্চ পর্যায়ে পৌঁছানো।",
+      "tag": "detail"
+     },
+     {
+      "n": 12,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "Most of the money for the restoration came from",
+      "options": [
+       "A. members of the public.",
+       "B. the city council.",
+       "C. local businesses."
+      ],
+      "answer": "A",
+      "explain_en": "'the bulk of the money, around eighty per cent, came from a public fund-raising campaign.'",
+      "explain_bn": "'the bulk of the money' মানে টাকার বেশিরভাগ অংশ — প্রায় ৮০% এসেছে সাধারণ মানুষের fund-raising campaign থেকে। Council আর ব্যবসায়ীরা অল্প দিয়েছেন।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 13,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "What does the guide ask visitors to do?",
+      "options": [
+       "A. avoid touching the boats",
+       "B. stay on the marked paths",
+       "C. remain close to the guide"
+      ],
+      "answer": "B",
+      "explain_en": "'please keep to the marked paths, because some of the old timber decking is still being repaired.'",
+      "explain_bn": "নৌকা ছোঁয়া যাবে এবং গাইডের পাশে সবসময় থাকতে হবে না; কিন্তু চিহ্নিত পথ (marked paths) ধরে হাঁটতে বলা হয়েছে।",
+      "tag": "detail"
+     },
+     {
+      "n": 14,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "What is true about the tour ticket?",
+      "options": [
+       "A. It includes a boat trip.",
+       "B. It includes lunch.",
+       "C. It can be used again within a week."
+      ],
+      "answer": "C",
+      "explain_en": "No boat trip or lunch is included, but 'you can come back and use the same ticket any time within seven days.'",
+      "explain_bn": "টিকিটে নৌকা ভ্রমণ বা দুপুরের খাবার নেই, কিন্তু সাত দিনের মধ্যে আবার একই টিকিটে আসা যাবে।",
+      "tag": "detail"
+     },
+     {
+      "n": 15,
+      "type": "mcq",
+      "group": "Questions 11-15. Choose the correct letter, A, B or C.",
+      "prompt": "The old toll gate is now",
+      "options": [
+       "A. the meeting point for tours.",
+       "B. on display in a museum.",
+       "C. being repaired."
+      ],
+      "answer": "A",
+      "explain_en": "'it was brought back here last year, and it's now where we start and finish every tour.'",
+      "explain_bn": "গেটটি আগে শহরের museum-এ ছিল, এখন ফিরিয়ে আনা হয়েছে এবং প্রতিটি ট্যুর এখান থেকেই শুরু ও শেষ হয় — অর্থাৎ meeting point।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 16,
+      "type": "matching",
+      "group": "Questions 16-20. What does the guide say about each place on the tour? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "prompt": "Customs House",
+      "options": [
+       "A. Visitors can try a traditional craft.",
+       "B. It was rebuilt using original plans.",
+       "C. It is closed to visitors today.",
+       "D. It gives the best view of the river.",
+       "E. It now contains a restaurant.",
+       "F. It has a display of old maps.",
+       "G. Children can travel on it free of charge."
+      ],
+      "answer": "F",
+      "explain_en": "'the ground floor holds a collection of old charts and maps of the river'. The restaurant is elsewhere.",
+      "explain_bn": "Customs House-এ পুরনো নদীর মানচিত্রের সংগ্রহ আছে। রেস্তোরাঁ এখানে নয় — এটা ফাঁদ।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 17,
+      "type": "matching",
+      "group": "Questions 16-20. What does the guide say about each place on the tour? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "prompt": "Rope Walk",
+      "options": [
+       "A. Visitors can try a traditional craft.",
+       "B. It was rebuilt using original plans.",
+       "C. It is closed to visitors today.",
+       "D. It gives the best view of the river.",
+       "E. It now contains a restaurant.",
+       "F. It has a display of old maps.",
+       "G. Children can travel on it free of charge."
+      ],
+      "answer": "A",
+      "explain_en": "Volunteers 'let you have a go at twisting your own piece of rope' – trying a traditional craft.",
+      "explain_bn": "স্বেচ্ছাসেবকরা দর্শনার্থীদের নিজে দড়ি পাকাতে দেন — এটাই 'traditional craft' চেষ্টা করা।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 18,
+      "type": "matching",
+      "group": "Questions 16-20. What does the guide say about each place on the tour? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "prompt": "Crane Wharf",
+      "options": [
+       "A. Visitors can try a traditional craft.",
+       "B. It was rebuilt using original plans.",
+       "C. It is closed to visitors today.",
+       "D. It gives the best view of the river.",
+       "E. It now contains a restaurant.",
+       "F. It has a display of old maps.",
+       "G. Children can travel on it free of charge."
+      ],
+      "answer": "D",
+      "explain_en": "'from the platform at the top you get the finest view of the river anywhere in Port Callow.'",
+      "explain_bn": "'finest view' মানে 'best view' — Crane Wharf-এর উপর থেকে নদীর সবচেয়ে সুন্দর দৃশ্য দেখা যায়।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 19,
+      "type": "matching",
+      "group": "Questions 16-20. What does the guide say about each place on the tour? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "prompt": "Warehouse Row",
+      "options": [
+       "A. Visitors can try a traditional craft.",
+       "B. It was rebuilt using original plans.",
+       "C. It is closed to visitors today.",
+       "D. It gives the best view of the river.",
+       "E. It now contains a restaurant.",
+       "F. It has a display of old maps.",
+       "G. Children can travel on it free of charge."
+      ],
+      "answer": "E",
+      "explain_en": "'the largest has been turned into a seafood restaurant.'",
+      "explain_bn": "সবচেয়ে বড় গুদামটিকে seafood restaurant বানানো হয়েছে।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 20,
+      "type": "matching",
+      "group": "Questions 16-20. What does the guide say about each place on the tour? Choose FIVE answers from the box and write the correct letter, A-G, next to Questions 16-20.",
+      "prompt": "Ferry Steps",
+      "options": [
+       "A. Visitors can try a traditional craft.",
+       "B. It was rebuilt using original plans.",
+       "C. It is closed to visitors today.",
+       "D. It gives the best view of the river.",
+       "E. It now contains a restaurant.",
+       "F. It has a display of old maps.",
+       "G. Children can travel on it free of charge."
+      ],
+      "answer": "B",
+      "explain_en": "'the original engineer's drawings had survived ... so the steps were rebuilt exactly as they were in 1862.'",
+      "explain_bn": "মূল প্রকৌশলীর নকশা (drawings = plans) দেখে সিঁড়ি আবার তৈরি করা হয়েছে। শিশুদের বিনা ভাড়ার কথা এখন আর সত্য নয়, আর ferry office আজ খোলা।",
+      "tag": "paraphrase"
+     }
+    ]
+   },
+   {
+    "n": 3,
+    "accent": "us",
+    "intro": "You will hear two students, Mia and Jonah, discussing their survey on campus food waste with their tutor.",
+    "speakers": {
+     "A": {
+      "name": "Dr Varga",
+      "gender": "F"
+     },
+     "B": {
+      "name": "Mia",
+      "gender": "F"
+     },
+     "C": {
+      "name": "Jonah",
+      "gender": "M"
+     }
+    },
+    "turns": [
+     {
+      "spk": "A",
+      "text": "Come in, Mia, Jonah. So, you wanted to talk about your survey project on food waste in the campus canteens."
+     },
+     {
+      "spk": "B",
+      "text": "Yes, thanks, Dr Varga. We've changed the plan quite a bit since the proposal."
+     },
+     {
+      "spk": "A",
+      "text": "Before we get to that, remind me why you chose food waste in the first place."
+     },
+     {
+      "spk": "C",
+      "text": "Well, partly because the student union has been campaigning about it, and we'd had a lecture on sustainability too. But honestly, the main reason was something we saw ourselves. We both work part-time in the main canteen, and we were shocked at how many full plates come back at the end of lunch."
+     },
+     {
+      "spk": "B",
+      "text": "Yes, it was really seeing it every day that made us want to investigate."
+     },
+     {
+      "spk": "A",
+      "text": "Personal experience is a good starting point. Now, I did read your first proposal. The question itself was clear enough, but it tried to cover all six food outlets on campus, and I felt that was far too ambitious for an eight-week project."
+     },
+     {
+      "spk": "C",
+      "text": "We agree now. So we've decided to focus on just one."
+     },
+     {
+      "spk": "A",
+      "text": "Which one?"
+     },
+     {
+      "spk": "B",
+      "text": "We thought about the coffee bar in the library, because it's small and easy to observe, but it mostly sells drinks, so there isn't much food waste. And the Hilltop Cafe closes during the exam period, which is right in the middle of our data collection. So we're going with the Riverside canteen. It's the largest, and it serves hot meals at lunch and dinner."
+     },
+     {
+      "spk": "A",
+      "text": "Sensible. What about your sample? How many students are you hoping to reach?"
+     },
+     {
+      "spk": "C",
+      "text": "We originally said five hundred responses to the questionnaire."
+     },
+     {
+      "spk": "A",
+      "text": "And do you think that's realistic?"
+     },
+     {
+      "spk": "C",
+      "text": "It might be, actually. Our worry is less about the number and more about who answers. If we just put a link on the union website, we'll only hear from students who already care about the environment."
+     },
+     {
+      "spk": "A",
+      "text": "Exactly. That's the real risk, a biased sample rather than a small one. So how will you deal with it?"
+     },
+     {
+      "spk": "B",
+      "text": "We're thinking of handing out cards with a QR code at the tills, so everyone who buys a meal gets one."
+     },
+     {
+      "spk": "A",
+      "text": "Good. And at the end of the project, what will you produce?"
+     },
+     {
+      "spk": "C",
+      "text": "The department wants a written report, of course, but we'd also like to give a short presentation to the catering staff. We won't show them all the statistics, just a set of practical recommendations."
+     },
+     {
+      "spk": "A",
+      "text": "I like that. Recommendations will be far more useful to them than tables of numbers. Now, let's go through your methods one by one. The online questionnaire first."
+     },
+     {
+      "spk": "B",
+      "text": "We tested it on some friends and it took nearly fifteen minutes. People will give up halfway. So we're cutting it down to ten questions."
+     },
+     {
+      "spk": "A",
+      "text": "Good. And weighing the food left on plates?"
+     },
+     {
+      "spk": "C",
+      "text": "That's the most important one, really. But we can't just walk into the kitchen with a set of scales. Mrs Dorrell, the catering manager, has to agree first, so I'm emailing her today."
+     },
+     {
+      "spk": "A",
+      "text": "What about the interviews with kitchen staff?"
+     },
+     {
+      "spk": "B",
+      "text": "We'll do those before anything else, actually, in week one, because what the staff tell us will help us decide what to weigh."
+     },
+     {
+      "spk": "A",
+      "text": "And photographing the trays?"
+     },
+     {
+      "spk": "C",
+      "text": "We did think about combining the photos with the weighing, but some students might object to being photographed, even if it's only their tray, and the pictures are slow to analyse. So we've decided to leave it out altogether."
+     },
+     {
+      "spk": "A",
+      "text": "Fair enough. And the bin audit, going through what's thrown away at the end of the day?"
+     },
+     {
+      "spk": "B",
+      "text": "We're not sure we've designed the categories properly: fruit, bread, cooked meals and so on. Could you look at our category list before we begin?"
+     },
+     {
+      "spk": "A",
+      "text": "Of course. Send it to me by Friday and I'll comment on it."
+     }
+    ],
+    "questions": [
+     {
+      "n": 21,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "What was the main reason the students chose food waste as their topic?",
+      "options": [
+       "A. a student union campaign",
+       "B. what they noticed at their workplace",
+       "C. a lecture on sustainability"
+      ],
+      "answer": "B",
+      "explain_en": "'the main reason was something we saw ourselves ... we were shocked at how many full plates come back.'",
+      "explain_bn": "Union-এর campaign ও lecture-এর কথা বললেও 'the main reason' ছিল কাজের সময় নিজের চোখে দেখা — ভরা প্লেট ফেরত আসা।",
+      "tag": "detail"
+     },
+     {
+      "n": 22,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "What did the tutor think was wrong with the first proposal?",
+      "options": [
+       "A. It included too many food outlets.",
+       "B. The research question was unclear.",
+       "C. The project would take more than eight weeks."
+      ],
+      "answer": "A",
+      "explain_en": "'it tried to cover all six food outlets on campus, and I felt that was far too ambitious.'",
+      "explain_bn": "টিউটর বলেছেন প্রশ্নটা পরিষ্কারই ছিল; সমস্যা ছিল ছয়টি food outlet একসাথে কভার করা — আট সপ্তাহের জন্য অনেক বেশি।",
+      "tag": "opinion"
+     },
+     {
+      "n": 23,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "Which outlet will the students study?",
+      "options": [
+       "A. the library coffee bar",
+       "B. the Hilltop Cafe",
+       "C. the Riverside canteen"
+      ],
+      "answer": "C",
+      "explain_en": "The library coffee bar sells mostly drinks and the Hilltop Cafe closes in exams, 'So we're going with the Riverside canteen.'",
+      "explain_bn": "লাইব্রেরির coffee bar-এ খাবার কম বিক্রি হয়, Hilltop Cafe পরীক্ষার সময় বন্ধ — তাই তারা Riverside canteen বেছে নিয়েছে।",
+      "tag": "detail"
+     },
+     {
+      "n": 24,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "What is the students' main concern about their sample?",
+      "options": [
+       "A. They may not get enough responses.",
+       "B. The people who respond may not be typical.",
+       "C. Printing QR code cards will be expensive."
+      ],
+      "answer": "B",
+      "explain_en": "'If we just put a link on the union website, we'll only hear from students who already care about the environment.' The tutor calls it 'a biased sample'.",
+      "explain_bn": "সংখ্যা নিয়ে চিন্তা কম; আসল ভয় হলো শুধু পরিবেশ-সচেতন ছাত্ররাই উত্তর দেবে — অর্থাৎ biased sample।",
+      "tag": "inference"
+     },
+     {
+      "n": 25,
+      "type": "mcq",
+      "group": "Questions 21-25. Choose the correct letter, A, B or C.",
+      "prompt": "What will the students present to the catering staff?",
+      "options": [
+       "A. their written report",
+       "B. a full set of statistics",
+       "C. practical suggestions"
+      ],
+      "answer": "C",
+      "explain_en": "'We won't show them all the statistics, just a set of practical recommendations.'",
+      "explain_bn": "ক্যাটারিং স্টাফদের সব পরিসংখ্যান দেখানো হবে না, শুধু ব্যবহারিক পরামর্শ (practical recommendations)।",
+      "tag": "detail"
+     },
+     {
+      "n": 26,
+      "type": "matching",
+      "group": "Questions 26-30. What do the students decide about each method of collecting data? Choose FIVE answers from the box and write the correct letter, A-F, next to Questions 26-30.",
+      "prompt": "online questionnaire",
+      "options": [
+       "A. use it first",
+       "B. get permission before using it",
+       "C. make it shorter",
+       "D. drop it completely",
+       "E. ask the tutor to check it",
+       "F. combine it with another method"
+      ],
+      "answer": "C",
+      "explain_en": "'it took nearly fifteen minutes ... So we're cutting it down to ten questions.'",
+      "explain_bn": "প্রশ্নপত্রটি ১৫ মিনিট লাগছিল, তাই দশটি প্রশ্নে কমিয়ে আনা হচ্ছে — 'cutting it down' মানে ছোট করা।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 27,
+      "type": "matching",
+      "group": "Questions 26-30. What do the students decide about each method of collecting data? Choose FIVE answers from the box and write the correct letter, A-F, next to Questions 26-30.",
+      "prompt": "weighing food left on plates",
+      "options": [
+       "A. use it first",
+       "B. get permission before using it",
+       "C. make it shorter",
+       "D. drop it completely",
+       "E. ask the tutor to check it",
+       "F. combine it with another method"
+      ],
+      "answer": "B",
+      "explain_en": "'Mrs Dorrell, the catering manager, has to agree first, so I'm emailing her today.'",
+      "explain_bn": "রান্নাঘরে ওজন মাপার আগে catering manager-এর সম্মতি (permission) লাগবে।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 28,
+      "type": "matching",
+      "group": "Questions 26-30. What do the students decide about each method of collecting data? Choose FIVE answers from the box and write the correct letter, A-F, next to Questions 26-30.",
+      "prompt": "interviews with kitchen staff",
+      "options": [
+       "A. use it first",
+       "B. get permission before using it",
+       "C. make it shorter",
+       "D. drop it completely",
+       "E. ask the tutor to check it",
+       "F. combine it with another method"
+      ],
+      "answer": "A",
+      "explain_en": "'We'll do those before anything else, actually, in week one.'",
+      "explain_bn": "'before anything else' মানে সবার আগে — প্রথম সপ্তাহেই স্টাফদের সাক্ষাৎকার নেওয়া হবে।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 29,
+      "type": "matching",
+      "group": "Questions 26-30. What do the students decide about each method of collecting data? Choose FIVE answers from the box and write the correct letter, A-F, next to Questions 26-30.",
+      "prompt": "photographing trays",
+      "options": [
+       "A. use it first",
+       "B. get permission before using it",
+       "C. make it shorter",
+       "D. drop it completely",
+       "E. ask the tutor to check it",
+       "F. combine it with another method"
+      ],
+      "answer": "D",
+      "explain_en": "They thought about combining it with weighing, but 'we've decided to leave it out altogether.'",
+      "explain_bn": "Weighing-এর সাথে মেলানোর কথা ভেবেছিল (ফাঁদ F), কিন্তু শেষে 'leave it out altogether' — পুরোপুরি বাদ।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 30,
+      "type": "matching",
+      "group": "Questions 26-30. What do the students decide about each method of collecting data? Choose FIVE answers from the box and write the correct letter, A-F, next to Questions 26-30.",
+      "prompt": "bin audit",
+      "options": [
+       "A. use it first",
+       "B. get permission before using it",
+       "C. make it shorter",
+       "D. drop it completely",
+       "E. ask the tutor to check it",
+       "F. combine it with another method"
+      ],
+      "answer": "E",
+      "explain_en": "'Could you look at our category list before we begin?'",
+      "explain_bn": "Bin audit-এর category ঠিক হয়েছে কিনা নিশ্চিত নয়, তাই টিউটরকে list দেখে দিতে বলেছে।",
+      "tag": "paraphrase"
+     }
+    ]
+   },
+   {
+    "n": 4,
+    "accent": "uk",
+    "intro": "You will hear part of a biology lecture about how desert ants find their way.",
+    "speakers": {
+     "A": {
+      "name": "Lecturer",
+      "gender": "F"
+     }
+    },
+    "turns": [
+     {
+      "spk": "A",
+      "text": "Good morning. Today I want to look at one of the most impressive navigators in the animal kingdom, and it isn't a bird or a whale. It's the desert ant. Several species of these ants live in hot, flat deserts, where there are very few features to help them find their way, and yet a single ant can wander more than a hundred metres from its nest in search of food and then return in an almost perfectly straight line."
+     },
+     {
+      "spk": "A",
+      "text": "Let's start with their daily routine, which is rather surprising. Most insects avoid the midday sun, but desert ants do the opposite. They forage at the hottest time of the day, when the ground can reach sixty degrees. The reason is that this is when their predators, mainly lizards, are inactive, sheltering from the heat. The ants feed largely on other insects that have died of heat exhaustion, so the hottest hours are both the safest and the most productive. Of course, the cost is that every minute outside is dangerous, which is why returning home quickly matters so much."
+     },
+     {
+      "spk": "A",
+      "text": "So how do they do it? The main strategy is known as path integration. As the ant moves, twisting and turning on its outward journey, it constantly keeps track of two things: the direction it is travelling in and the distance it has covered. By combining these, it always knows, roughly, where its nest lies relative to its current position, and it can head straight back."
+     },
+     {
+      "spk": "A",
+      "text": "Take direction first. You might expect the ant to use the sun itself, and it does to some extent, but more importantly it reads the pattern of polarised light in the sky. Sunlight becomes polarised as it is scattered in the atmosphere, and this creates a pattern across the sky that humans cannot see but ants can, using special cells at the top of their eyes. Even when the sun is hidden, a small patch of blue sky is enough."
+     },
+     {
+      "spk": "A",
+      "text": "Distance is more puzzling, and for a long time researchers assumed the ants simply estimated how long they had been walking. In fact, they count their steps. This was shown in a rather elegant experiment. Researchers trained ants to walk to a feeder, and then, at the feeder, they changed the length of some of the ants' legs. Some ants had their legs shortened, while others had their legs lengthened by attaching tiny stilts made from bristles. When the ants set off home, those on stilts took longer strides and so walked too far, overshooting the nest, while those with shorter legs stopped too soon. The ants were clearly relying on the number of steps, not on time."
+     },
+     {
+      "spk": "A",
+      "text": "Path integration is powerful, but small errors build up over a long journey. So, when the ant gets close to home, it switches to other cues. Desert ants learn visual landmarks, such as rocks and small shrubs, around the nest entrance, and they store something like a snapshot of the scene. They also use smell. The nest has a distinctive odour, which is carried by the wind, and an ant that is slightly off course will often turn and walk upwind until it picks up the scent."
+     },
+     {
+      "spk": "A",
+      "text": "One more remarkable detail. When an ant finds a large piece of food, it often has to drag it, which means walking backwards. For years it was thought this would confuse the navigation system, but recent work shows that the ants still keep their course while walking backwards, occasionally putting the food down to turn round and check the view before carrying on."
+     },
+     {
+      "spk": "A",
+      "text": "Finally, why does any of this matter beyond biology? Engineers are increasingly interested in how such a tiny brain, smaller than a pinhead, manages such reliable navigation with so little energy. Designers of robots that must operate where satellite signals fail, for instance inside buildings, underground or on other planets, have already built prototypes that use a polarised light compass and step counting inspired by the ant. Next week we'll look at how honeybees communicate the location of food."
+     }
+    ],
+    "questions": [
+     {
+      "n": 31,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Desert ants forage at the hottest time of day because their ____ are inactive then.",
+      "max_words": 1,
+      "answer": [
+       "predators"
+      ],
+      "explain_en": "'this is when their predators, mainly lizards, are inactive'.",
+      "explain_bn": "দুপুরের তীব্র গরমে শিকারি প্রাণী (predators, মূলত টিকটিকি জাতীয় lizards) লুকিয়ে থাকে, তাই পিঁপড়ারা তখন খাবার খোঁজে।",
+      "tag": "detail"
+     },
+     {
+      "n": 32,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Path integration: the ant tracks its direction and the ____ it has covered.",
+      "max_words": 1,
+      "answer": [
+       "distance"
+      ],
+      "explain_en": "'it constantly keeps track of two things: the direction it is travelling in and the distance it has covered.'",
+      "explain_bn": "Path integration-এ পিঁপড়া দুটি জিনিস হিসাব রাখে — দিক (direction) আর কতটা দূরত্ব (distance) পার হয়েছে।",
+      "tag": "detail"
+     },
+     {
+      "n": 33,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Direction: the ant reads the pattern of ____ light in the sky.",
+      "max_words": 1,
+      "answer": [
+       "polarised",
+       "polarized"
+      ],
+      "explain_en": "'more importantly it reads the pattern of polarised light in the sky.'",
+      "explain_bn": "সূর্যের চেয়েও বেশি গুরুত্বপূর্ণ হলো আকাশের polarised light-এর নকশা। আমেরিকান বানান polarized-ও গ্রহণযোগ্য।",
+      "tag": "spelling"
+     },
+     {
+      "n": 34,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Distance: the ant counts its ____ rather than measuring time.",
+      "max_words": 1,
+      "answer": [
+       "steps"
+      ],
+      "explain_en": "'In fact, they count their steps.' Researchers had wrongly assumed they measured time.",
+      "explain_bn": "আগে ভাবা হতো পিঁপড়া সময় হিসাব করে, কিন্তু আসলে তারা পায়ের ধাপ (steps) গোনে।",
+      "tag": "detail"
+     },
+     {
+      "n": 35,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "In an experiment, some ants' legs were lengthened using tiny ____.",
+      "max_words": 1,
+      "answer": [
+       "stilts"
+      ],
+      "explain_en": "'others had their legs lengthened by attaching tiny stilts made from bristles.'",
+      "explain_bn": "কিছু পিঁপড়ার পায়ে ছোট stilts (লম্বা কাঠির মতো খুঁটি) লাগিয়ে পা লম্বা করা হয়েছিল।",
+      "tag": "detail"
+     },
+     {
+      "n": 36,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Ants with longer legs walked too ____ and missed the nest.",
+      "max_words": 1,
+      "answer": [
+       "far"
+      ],
+      "explain_en": "'those on stilts took longer strides and so walked too far, overshooting the nest.'",
+      "explain_bn": "লম্বা পায়ের পিঁপড়ারা বড় ধাপ নেওয়ায় বাসা পেরিয়ে বেশি দূরে (too far) চলে গেছে।",
+      "tag": "detail"
+     },
+     {
+      "n": 37,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Near the nest, ants recognise visual ____ such as rocks and shrubs.",
+      "max_words": 1,
+      "answer": [
+       "landmarks"
+      ],
+      "explain_en": "'Desert ants learn visual landmarks, such as rocks and small shrubs'.",
+      "explain_bn": "বাসার কাছে এসে পিঁপড়ারা পাথর ও ঝোপের মতো চিহ্ন (landmarks) চিনে পথ খুঁজে নেয়।",
+      "tag": "vocabulary"
+     },
+     {
+      "n": 38,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "The smell of the nest is carried by the ____.",
+      "max_words": 1,
+      "answer": [
+       "wind"
+      ],
+      "explain_en": "'The nest has a distinctive odour, which is carried by the wind'.",
+      "explain_bn": "বাসার গন্ধ বাতাস (wind) বয়ে আনে; পথ হারালে পিঁপড়া বাতাসের বিপরীতে হাঁটে।",
+      "tag": "detail"
+     },
+     {
+      "n": 39,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Ants can keep their course even when walking ____ while dragging food.",
+      "max_words": 1,
+      "answer": [
+       "backwards"
+      ],
+      "explain_en": "'the ants still keep their course while walking backwards'.",
+      "explain_bn": "বড় খাবার টানার সময় পিঁপড়া পিছন দিকে (backwards) হাঁটে, তবুও দিক হারায় না।",
+      "tag": "detail"
+     },
+     {
+      "n": 40,
+      "type": "gap",
+      "group": "Questions 31-40. Complete the notes below. Write ONE WORD ONLY for each answer.",
+      "prompt": "Ideas from ant navigation are used in ____ that work where satellite signals fail.",
+      "max_words": 1,
+      "answer": [
+       "robots"
+      ],
+      "explain_en": "'Designers of robots that must operate where satellite signals fail ... have already built prototypes'.",
+      "explain_bn": "যেখানে GPS বা স্যাটেলাইট সিগন্যাল কাজ করে না (ভবনের ভিতরে, মাটির নিচে), সেখানে চলার মতো robots বানাতে এই ধারণা কাজে লাগছে।",
+      "tag": "detail"
+     }
+    ]
+   }
+  ]
+ },
+ "reading": {
+  "duration_sec": 3600,
+  "passages": [
+   {
+    "n": 1,
+    "title": "Bending the Light: A Short History of Lighthouse Lenses",
+    "text": "For most of human history, a lighthouse was little more than a fire on a hill. The earliest coastal lights burned wood or coal in open iron baskets, and their glow was weak, smoky and unreliable. On a clear night a coal fire might be seen from perhaps eight kilometres away; in rain or fog, sailors could pass close to the shore without noticing it at all. Keepers struggled to keep the flames alive in strong winds, and much of the light that was produced simply escaped upwards into the sky, where it was of no use to anyone at sea.\n\nThe first major improvement came in the late eighteenth century, when oil lamps with glass chimneys began to replace open fires. These lamps burned more cleanly, but on their own they were still not bright enough. Engineers therefore placed polished metal reflectors behind the flames. Shaped like shallow bowls, the reflectors gathered light that would otherwise have been lost and sent it out in a single direction. A large lighthouse might use twenty or more lamps, each with its own reflector, arranged on a frame. The system worked, but it had serious weaknesses. The reflectors were usually made of copper coated with silver, and the silver tarnished quickly in the salty air, so keepers had to spend hours each day polishing them. Even when perfectly clean, the reflectors absorbed roughly half of the light that fell on them.\n\nAn obvious alternative was to use a lens, which bends light rather than bouncing it back. However, a conventional lens large enough to gather the light of a lighthouse lamp would have had to be enormously thick in the centre. Such a lens would be extremely heavy, and thick glass of that period was often full of bubbles and impurities that absorbed light. It might also crack as it heated up during the night. For these reasons, early experiments with solid lenses were disappointing, and most lighthouse authorities stayed loyal to reflectors.\n\nThe breakthrough came in the 1820s, when a French physicist proposed a radically different design. He realised that only the curved surface of a lens actually bends light; the glass behind that surface merely adds weight. His solution was to divide the lens into a series of concentric rings, each one a thin slice of the curve that a solid lens would have had. Viewed from the side, the lens looked stepped, rather like a flight of stairs. Because the rings were thin, the whole lens used far less glass, weighed much less and lost far less light. Around the central rings he added glass prisms, which caught light escaping above and below the lamp and redirected it towards the horizon.\n\nThe results were dramatic. A lighthouse fitted with one of the new stepped lenses could be seen from more than thirty kilometres away, and it needed only a single lamp instead of dozens. Within a few decades, lighthouse authorities in many countries had adopted the design. The lenses were manufactured in several standard sizes, known as orders. The largest, the first order, stood taller than a person and was used on major coastal headlands, while smaller orders served harbours, piers and rivers.\n\nMaking these lenses demanded great skill. Each prism had to be ground and polished by hand to exactly the right angle, and then fixed into a heavy frame made of bronze, a metal chosen because it resists corrosion by sea air. A large lens might contain more than a thousand separate pieces of glass, and building one could take several years. For much of the nineteenth century, only a handful of workshops in Europe were capable of producing them, and their lenses were shipped to lighthouses all over the world.\n\nLighthouses also needed to be recognised. A sailor who saw a light needed to know which lighthouse it was, and therefore where the ship was. To solve this problem, engineers gave each light its own pattern of flashes. Some lenses were made in separate panels and rotated around the lamp, producing a beam that swept across the sea like the hand of a clock. At first the heavy lenses were turned by clockwork, which the keeper had to wind every few hours throughout the night. Later, the entire lens was floated on a bath of mercury, which allowed a lens weighing several tonnes to be turned by a very small force.\n\nIn the twentieth century, electric lamps replaced oil, and the role of the keeper gradually disappeared as lighthouses were automated. More recently, many of the great glass lenses have been removed and replaced by small, low-maintenance electronic units. Satellite navigation means that ships rely far less on lighthouses than they once did. Yet many of the old lenses survive in museums, where visitors still admire them both as practical inventions and as objects of remarkable beauty.",
+    "questions": [
+     {
+      "n": 1,
+      "type": "tfng",
+      "group": "Questions 1-6. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "Early coastal fires wasted a large amount of light by sending it upwards.",
+      "answer": "TRUE",
+      "explain_en": "'much of the light that was produced simply escaped upwards into the sky, where it was of no use to anyone at sea.'",
+      "explain_bn": "অনুচ্ছেদ ১-এ বলা আছে আগুনের আলোর বড় অংশ আকাশের দিকে উপরে চলে যেত, যা নাবিকদের কোনো কাজে আসত না — তাই TRUE।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 2,
+      "type": "tfng",
+      "group": "Questions 1-6. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "Oil lamps by themselves produced enough light for a lighthouse.",
+      "answer": "FALSE",
+      "explain_en": "'These lamps burned more cleanly, but on their own they were still not bright enough.'",
+      "explain_bn": "'on their own they were still not bright enough' — একা তেলের বাতি যথেষ্ট উজ্জ্বল ছিল না, তাই বিবৃতিটি FALSE।",
+      "tag": "detail"
+     },
+     {
+      "n": 3,
+      "type": "tfng",
+      "group": "Questions 1-6. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "Most reflectors were manufactured in coastal towns.",
+      "answer": "NOT GIVEN",
+      "explain_en": "The passage says reflectors were 'made of copper coated with silver' but never says where they were made.",
+      "explain_bn": "Reflector কী দিয়ে তৈরি (তামা ও রূপা) তা বলা আছে, কিন্তু কোথায় তৈরি হতো তার কোনো তথ্য নেই — তাই NOT GIVEN।",
+      "tag": "detail"
+     },
+     {
+      "n": 4,
+      "type": "tfng",
+      "group": "Questions 1-6. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "Even a clean reflector absorbed about half of the light that reached it.",
+      "answer": "TRUE",
+      "explain_en": "'Even when perfectly clean, the reflectors absorbed roughly half of the light that fell on them.'",
+      "explain_bn": "'roughly half' মানে প্রায় অর্ধেক — পরিষ্কার থাকলেও reflector অর্ধেক আলো শুষে নিত। TRUE।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 5,
+      "type": "tfng",
+      "group": "Questions 1-6. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "Early tests of solid lenses gave encouraging results.",
+      "answer": "FALSE",
+      "explain_en": "'early experiments with solid lenses were disappointing'.",
+      "explain_bn": "প্যাসেজে 'disappointing' (হতাশাজনক) বলা আছে, যা 'encouraging'-এর উল্টো — তাই FALSE।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 6,
+      "type": "tfng",
+      "group": "Questions 1-6. Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if the statement contradicts the information, NOT GIVEN if there is no information on this.",
+      "prompt": "The French physicist had previously designed lenses for telescopes.",
+      "answer": "NOT GIVEN",
+      "explain_en": "The passage describes his lighthouse design only; nothing is said about any earlier work on telescopes.",
+      "explain_bn": "ফরাসি পদার্থবিদের বাতিঘরের লেন্সের নকশার কথা আছে, কিন্তু তিনি আগে telescope নিয়ে কাজ করেছিলেন কিনা — কিছুই বলা নেই। NOT GIVEN।",
+      "tag": "detail"
+     },
+     {
+      "n": 7,
+      "type": "gap",
+      "group": "Questions 7-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "The stepped lens was divided into concentric ____.",
+      "max_words": 1,
+      "answer": [
+       "rings"
+      ],
+      "explain_en": "'His solution was to divide the lens into a series of concentric rings'.",
+      "explain_bn": "লেন্সকে কয়েকটি এককেন্দ্রিক বলয়ে (concentric rings) ভাগ করা হয়েছিল।",
+      "tag": "detail"
+     },
+     {
+      "n": 8,
+      "type": "gap",
+      "group": "Questions 7-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "From the side, it looked like a flight of ____.",
+      "max_words": 1,
+      "answer": [
+       "stairs"
+      ],
+      "explain_en": "'Viewed from the side, the lens looked stepped, rather like a flight of stairs.'",
+      "explain_bn": "পাশ থেকে দেখলে লেন্সটিকে সিঁড়ির (stairs) মতো ধাপে ধাপে দেখাত।",
+      "tag": "detail"
+     },
+     {
+      "n": 9,
+      "type": "gap",
+      "group": "Questions 7-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "Glass ____ caught light escaping above and below the lamp.",
+      "max_words": 1,
+      "answer": [
+       "prisms"
+      ],
+      "explain_en": "'he added glass prisms, which caught light escaping above and below the lamp'.",
+      "explain_bn": "বাতির উপর ও নিচ দিয়ে যে আলো বেরিয়ে যেত, তা কাচের prisms ধরে দিগন্তের দিকে পাঠাত।",
+      "tag": "detail"
+     },
+     {
+      "n": 10,
+      "type": "gap",
+      "group": "Questions 7-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "A lighthouse now needed only one ____.",
+      "max_words": 1,
+      "answer": [
+       "lamp"
+      ],
+      "explain_en": "'it needed only a single lamp instead of dozens.'",
+      "explain_bn": "নতুন লেন্সে ডজন ডজন বাতির বদলে একটি মাত্র বাতি (lamp) লাগত।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 11,
+      "type": "gap",
+      "group": "Questions 7-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "Lenses were made in standard sizes called ____.",
+      "max_words": 1,
+      "answer": [
+       "orders"
+      ],
+      "explain_en": "'The lenses were manufactured in several standard sizes, known as orders.'",
+      "explain_bn": "লেন্সের মাপগুলোকে বলা হতো 'orders' — সবচেয়ে বড়টি first order।",
+      "tag": "vocabulary"
+     },
+     {
+      "n": 12,
+      "type": "gap",
+      "group": "Questions 7-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "Prisms were fixed into a frame made of ____, which resists corrosion.",
+      "max_words": 1,
+      "answer": [
+       "bronze"
+      ],
+      "explain_en": "'fixed into a heavy frame made of bronze, a metal chosen because it resists corrosion by sea air.'",
+      "explain_bn": "প্রিজমগুলো bronze (ব্রোঞ্জ) ধাতুর ফ্রেমে বসানো হতো, কারণ এটি সমুদ্রের বাতাসে ক্ষয় হয় না।",
+      "tag": "detail"
+     },
+     {
+      "n": 13,
+      "type": "gap",
+      "group": "Questions 7-13. Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "Later, heavy lenses were floated on ____ so they could turn easily.",
+      "max_words": 1,
+      "answer": [
+       "mercury"
+      ],
+      "explain_en": "'the entire lens was floated on a bath of mercury, which allowed a lens weighing several tonnes to be turned by a very small force.'",
+      "explain_bn": "কয়েক টন ভারী লেন্স পারদের (mercury) উপর ভাসিয়ে রাখা হতো, ফলে খুব অল্প বলেই ঘোরানো যেত।",
+      "tag": "detail"
+     }
+    ]
+   },
+   {
+    "n": 2,
+    "title": "Cooling the City: Urban Heat Islands and Cool Roofs",
+    "text": "A  On a still summer evening, the centre of a large city can be several degrees warmer than the countryside only a short drive away. This effect, known as the urban heat island, was first described in the nineteenth century by amateur weather observers who noticed that thermometers in town gardens regularly read higher than those in nearby villages. Today, with more than half of the world's population living in cities, it has become a serious concern for planners, doctors and energy companies alike.\n\nB  The causes are well understood. Natural surfaces such as soil, grass and trees stay relatively cool because they hold water, and the evaporation of that water absorbs heat. Cities replace these surfaces with asphalt, concrete and brick, which are dry and often dark. Dark materials absorb a large proportion of the sunlight that strikes them, and dense materials store that heat during the day and release it slowly after sunset. This is why the difference between city and countryside is usually greatest at night rather than in the afternoon. Tall buildings make matters worse by trapping heat in narrow streets and blocking the breezes that might otherwise carry it away, while vehicles, air-conditioners and factories add heat of their own.\n\nC  The consequences reach well beyond discomfort. During heatwaves, death rates rise sharply in cities, particularly among elderly people and those with heart or lung conditions, and warm nights are especially dangerous because the body gets no chance to recover. Higher temperatures also speed up the chemical reactions that produce ground-level ozone, worsening air quality. And as people turn up their air-conditioning, demand for electricity peaks, which can overload power networks and, where electricity comes from fossil fuels, add to the very greenhouse gases that are warming the planet in the long term. In this way the problem feeds on itself.\n\nD  Among the many proposed responses, one of the simplest is to change the colour of the city's roofs. Roofs make up roughly a fifth of the surface area of a typical city, and many are covered in dark materials such as bitumen or black rubber. A conventional dark roof may reflect only five to ten per cent of the sunlight that hits it, and on a hot afternoon its surface can reach eighty degrees Celsius. A so-called cool roof, coated with a white or specially formulated reflective material, may reflect seventy per cent or more, and its surface stays only a little warmer than the surrounding air. Because less heat passes into the building below, the rooms under the roof stay cooler too.\n\nE  The benefits have been measured in a number of field trials. In a three-year trial in the southern city of Valmora, researchers painted the roofs of forty single-storey houses white and compared them with similar unpainted houses in the same streets. Indoor temperatures in the painted homes were on average two degrees lower on summer afternoons, and the households that used air-conditioning reduced their cooling bills by around fifteen per cent. Computer models suggest that if most roofs in a city were converted, average air temperatures across the whole urban area could fall by as much as one degree, a modest figure, but one that could make a real difference on the most extreme days.\n\nF  Cool roofs are not without drawbacks, however. In cities with cold winters, a reflective roof also reflects the weak winter sunshine, so buildings may need slightly more heating. In most climates this so-called winter penalty is smaller than the summer savings, but that is not true everywhere. White surfaces also become dirty, and a coating that loses its brightness loses much of its effect, so roofs need regular cleaning or recoating. Some residents object to the glare from bright roofs, especially those living in taller buildings that look down on them. And roofs are only part of the picture: they do little to cool the street where pedestrians actually walk.\n\nG  For this reason, most specialists see cool roofs as one tool among several. Planting street trees provides shade and cools the air through evaporation; green roofs covered in plants offer insulation and absorb rainwater as well as heat; and paler paving can reduce surface temperatures at ground level. Some cities now require reflective materials on all new flat roofs, while others offer grants to owners who convert existing ones. What experts broadly agree on is that the cost of acting is low compared with the cost of doing nothing, as heatwaves become more frequent and more intense.",
+    "questions": [
+     {
+      "n": 14,
+      "type": "matching",
+      "group": "Questions 14-18. Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. You may use any letter more than once.",
+      "prompt": "an explanation of why the temperature difference is greatest after dark",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G"
+      ],
+      "answer": "B",
+      "explain_en": "Paragraph B: dense materials 'store that heat during the day and release it slowly after sunset. This is why the difference ... is usually greatest at night'.",
+      "explain_bn": "অনুচ্ছেদ B-তে বলা আছে ঘন উপাদান দিনে তাপ জমিয়ে রাতে ধীরে ছাড়ে — তাই রাতে পার্থক্য সবচেয়ে বেশি।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 15,
+      "type": "matching",
+      "group": "Questions 14-18. Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. You may use any letter more than once.",
+      "prompt": "a reference to the people who first noticed the effect",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G"
+      ],
+      "answer": "A",
+      "explain_en": "Paragraph A: the effect 'was first described in the nineteenth century by amateur weather observers'.",
+      "explain_bn": "অনুচ্ছেদ A-তে আছে উনিশ শতকে শখের আবহাওয়া পর্যবেক্ষকরা (amateur weather observers) প্রথম বিষয়টি লক্ষ করেন।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 16,
+      "type": "matching",
+      "group": "Questions 14-18. Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. You may use any letter more than once.",
+      "prompt": "a description of a study comparing two groups of buildings",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G"
+      ],
+      "answer": "E",
+      "explain_en": "Paragraph E: researchers 'painted the roofs of forty single-storey houses white and compared them with similar unpainted houses'.",
+      "explain_bn": "অনুচ্ছেদ E-তে Valmora শহরে রং করা ও রং না করা বাড়ির তুলনামূলক গবেষণার (field trial) বর্ণনা আছে।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 17,
+      "type": "matching",
+      "group": "Questions 14-18. Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. You may use any letter more than once.",
+      "prompt": "a mention of complaints from neighbours",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G"
+      ],
+      "answer": "F",
+      "explain_en": "Paragraph F: 'Some residents object to the glare from bright roofs'.",
+      "explain_bn": "অনুচ্ছেদ F-এ বলা আছে উঁচু ভবনের কিছু বাসিন্দা উজ্জ্বল ছাদের ঝলকানি (glare) নিয়ে আপত্তি করেন — 'object' মানে complaint।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 18,
+      "type": "matching",
+      "group": "Questions 14-18. Reading Passage 2 has seven paragraphs, A-G. Which paragraph contains the following information? Write the correct letter, A-G. You may use any letter more than once.",
+      "prompt": "an example of a problem that makes itself worse",
+      "options": [
+       "A. Paragraph A",
+       "B. Paragraph B",
+       "C. Paragraph C",
+       "D. Paragraph D",
+       "E. Paragraph E",
+       "F. Paragraph F",
+       "G. Paragraph G"
+      ],
+      "answer": "C",
+      "explain_en": "Paragraph C: more air-conditioning means more fossil-fuel electricity and more greenhouse gases: 'the problem feeds on itself'.",
+      "explain_bn": "অনুচ্ছেদ C-তে গরম → বেশি AC → বেশি বিদ্যুৎ → বেশি গ্রিনহাউস গ্যাস → আরও গরম — 'feeds on itself' মানে সমস্যা নিজেই নিজেকে বাড়ায়।",
+      "tag": "inference"
+     },
+     {
+      "n": 19,
+      "type": "mcq",
+      "group": "Questions 19-22. Choose the correct letter, A, B, C or D.",
+      "prompt": "According to paragraph D, roofs cover approximately",
+      "options": [
+       "A. one fifth of a city's surface.",
+       "B. half of a city's surface.",
+       "C. seventy per cent of a city's surface.",
+       "D. five to ten per cent of a city's surface."
+      ],
+      "answer": "A",
+      "explain_en": "'Roofs make up roughly a fifth of the surface area of a typical city'.",
+      "explain_bn": "'roughly a fifth' মানে প্রায় পাঁচ ভাগের এক ভাগ। ৫-১০% আর ৭০% হলো আলো প্রতিফলনের হার, ছাদের আয়তন নয় — ফাঁদ।",
+      "tag": "number"
+     },
+     {
+      "n": 20,
+      "type": "mcq",
+      "group": "Questions 19-22. Choose the correct letter, A, B, C or D.",
+      "prompt": "In the Valmora trial, households that used air-conditioning",
+      "options": [
+       "A. stopped using it on summer afternoons.",
+       "B. replaced their old units.",
+       "C. lowered the city temperature by one degree.",
+       "D. spent about fifteen per cent less on cooling."
+      ],
+      "answer": "D",
+      "explain_en": "'the households that used air-conditioning reduced their cooling bills by around fifteen per cent.'",
+      "explain_bn": "Valmora-তে যারা AC ব্যবহার করত, তাদের ঠান্ডা রাখার বিল প্রায় ১৫% কমেছে। এক ডিগ্রি কমার কথাটা পুরো শহরের computer model-এর।",
+      "tag": "detail"
+     },
+     {
+      "n": 21,
+      "type": "mcq",
+      "group": "Questions 19-22. Choose the correct letter, A, B, C or D.",
+      "prompt": "The writer mentions the 'winter penalty' to show that cool roofs",
+      "options": [
+       "A. are of no use in cold countries.",
+       "B. increase air pollution in winter.",
+       "C. may increase heating needs in some places.",
+       "D. lose their colour in cold weather."
+      ],
+      "answer": "C",
+      "explain_en": "'a reflective roof also reflects the weak winter sunshine, so buildings may need slightly more heating ... that is not true everywhere.'",
+      "explain_bn": "শীতের দেশে সাদা ছাদ শীতের রোদও ফিরিয়ে দেয়, তাই একটু বেশি হিটিং লাগতে পারে — কিছু জলবায়ুতে এটা অসুবিধা।",
+      "tag": "inference"
+     },
+     {
+      "n": 22,
+      "type": "mcq",
+      "group": "Questions 19-22. Choose the correct letter, A, B, C or D.",
+      "prompt": "What do experts broadly agree on?",
+      "options": [
+       "A. Cool roofs are the most effective solution.",
+       "B. Taking action is cheaper than not acting.",
+       "C. Street trees should replace cool roofs.",
+       "D. All new roofs should be covered in plants."
+      ],
+      "answer": "B",
+      "explain_en": "'What experts broadly agree on is that the cost of acting is low compared with the cost of doing nothing'.",
+      "explain_bn": "বিশেষজ্ঞরা একমত যে কিছু না করার খরচের তুলনায় ব্যবস্থা নেওয়ার খরচ কম। কোনটা 'সেরা' সমাধান — তা বলা হয়নি।",
+      "tag": "main_idea"
+     },
+     {
+      "n": 23,
+      "type": "gap",
+      "group": "Questions 23-26. Complete the summary below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "Natural surfaces stay cool because the ____ of the water they hold absorbs heat.",
+      "max_words": 1,
+      "answer": [
+       "evaporation"
+      ],
+      "explain_en": "'they hold water, and the evaporation of that water absorbs heat.'",
+      "explain_bn": "মাটি, ঘাস ও গাছে পানি থাকে; সেই পানির বাষ্পীভবন (evaporation) তাপ শুষে নেয়।",
+      "tag": "detail"
+     },
+     {
+      "n": 24,
+      "type": "gap",
+      "group": "Questions 23-26. Complete the summary below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "Dense city materials ____ heat during the day and release it after sunset.",
+      "max_words": 1,
+      "answer": [
+       "store"
+      ],
+      "explain_en": "'dense materials store that heat during the day and release it slowly after sunset.'",
+      "explain_bn": "ঘন উপাদান দিনে তাপ জমা রাখে (store), সন্ধ্যার পর ধীরে ছাড়ে।",
+      "tag": "detail"
+     },
+     {
+      "n": 25,
+      "type": "gap",
+      "group": "Questions 23-26. Complete the summary below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "A cool roof is coated with a white or ____ material.",
+      "max_words": 1,
+      "answer": [
+       "reflective"
+      ],
+      "explain_en": "'coated with a white or specially formulated reflective material'.",
+      "explain_bn": "Cool roof-এ সাদা বা প্রতিফলনকারী (reflective) উপাদানের প্রলেপ দেওয়া হয়।",
+      "tag": "vocabulary"
+     },
+     {
+      "n": 26,
+      "type": "gap",
+      "group": "Questions 23-26. Complete the summary below. Choose ONE WORD ONLY from the passage for each answer.",
+      "prompt": "Because dirty roofs lose their effect, they need regular cleaning or ____.",
+      "max_words": 1,
+      "answer": [
+       "recoating"
+      ],
+      "explain_en": "'so roofs need regular cleaning or recoating.'",
+      "explain_bn": "ময়লা হলে ছাদ উজ্জ্বলতা হারায়, তাই নিয়মিত পরিষ্কার বা নতুন করে প্রলেপ (recoating) দিতে হয়।",
+      "tag": "spelling"
+     }
+    ]
+   },
+   {
+    "n": 3,
+    "title": "The Uses of an Empty Hour",
+    "text": "Few experiences are as widely disliked as boredom. We fidget in queues, reach for our phones the moment a conversation stalls and fill every spare minute with podcasts, messages and short videos. Technology companies have built extraordinarily profitable businesses on our apparent determination never to be bored again. Yet in recent years a counter-argument has gained popularity, in magazines and self-help books as much as in academic journals: boredom, we are told, is not an enemy but a hidden resource, the soil from which original ideas grow. If we eliminate it, the argument runs, we risk eliminating creativity too. The claim is attractive, but I believe it deserves far more scrutiny than it usually receives.\n\nThe case for boredom rests largely on a well-known experiment. The psychologist Imogen Taverly asked one group of volunteers to spend fifteen minutes copying numbers from a telephone directory, a deliberately tedious task, while a control group went straight to the main test. Both groups were then asked to think of as many uses as possible for a pair of plastic cups. The bored volunteers produced more ideas, and their ideas were judged to be more unusual. Taverly concluded that boredom pushes the mind to seek stimulation elsewhere, and that this restless searching makes unexpected connections more likely.\n\nI do not doubt the finding, but I am wary of how far it has been stretched. The experiment measured a narrow skill, generating ideas quickly in a laboratory, and it measured it within minutes of a mildly dull activity. Real creative work, whether it is writing a novel or designing a bridge, involves long periods of focused and often frustrating effort, and it is not at all obvious that fifteen minutes of copying numbers tells us much about it. Moreover, later attempts to repeat the study have produced mixed results. A team led by Rafael Ondieki found the effect only when participants had also been told that their creativity was being assessed, which suggests that motivation, rather than boredom itself, may have done much of the work.\n\nThere is also an important distinction that popular accounts tend to blur. Researchers increasingly separate boredom from mind-wandering, the drifting of attention away from the task at hand. Mind-wandering can occur when we are bored, but it also happens during pleasant, undemanding activities such as walking, showering or gardening, and these states seem far more reliably linked to creative insight. Hana Leskovar, who studies daydreaming, argues that what matters is not the unpleasant feeling of boredom but the freedom it occasionally gives the mind to roam. On this view, boredom is at best an inefficient route to a state that can be reached in more agreeable ways.\n\nBoredom also has a darker side that its enthusiasts rarely mention. People who are frequently bored are more likely to report anxiety and low mood, and in some studies bored participants chose to give themselves mild electric shocks rather than sit alone with their thoughts. Chronic boredom at school is associated with lower achievement, not higher, and boredom at work is a common reason for leaving a job. To present boredom as something to be welcomed, without acknowledging these associations, seems to me irresponsible.\n\nNone of this means that the critics of constant stimulation are wrong. There is good evidence that the habit of checking a phone whenever attention flags can make it harder to concentrate, and some evidence that it reduces the time we spend reflecting on our own experiences. Gideon Marr, a sociologist, has shown that adults who described their days as always full were less likely to report having had a new idea in the previous month. But notice what this finding actually implies. The problem is not a shortage of boredom; it is a shortage of unstructured time. A person who takes an hour-long walk without headphones has not been bored, yet they have given their mind exactly the space that boredom is supposed to provide.\n\nWhy, then, has the idea of useful boredom proved so appealing? Part of the answer, I suspect, is that it offers a comforting story. It reassures parents that children who complain of having nothing to do are not being neglected but nurtured, and it tells adults who feel overwhelmed by their devices that the cure is simple and free. Comforting stories are not necessarily false, but they deserve particular caution precisely because we want to believe them.\n\nWhat should we conclude? Boredom is best understood as a signal rather than a gift: a message that our current activity is failing to engage us. Sometimes the right response is to let our thoughts drift; sometimes it is to change what we are doing. The creative benefit, where it exists, comes from what we do with the signal, not from the discomfort itself. Rather than seeking boredom, we might do better to protect periods of quiet, undirected activity, and to treat a child's boredom as an invitation to explore rather than as a virtue in its own right.",
+    "questions": [
+     {
+      "n": 27,
+      "type": "mcq",
+      "group": "Questions 27-30. Choose the correct letter, A, B, C or D.",
+      "prompt": "In the first paragraph, the writer suggests that the idea that boredom helps creativity",
+      "options": [
+       "A. is mainly promoted by technology companies.",
+       "B. is popular but has not been examined carefully enough.",
+       "C. is a recent scientific discovery.",
+       "D. has been rejected by most academics."
+      ],
+      "answer": "B",
+      "explain_en": "'The claim is attractive, but I believe it deserves far more scrutiny than it usually receives.'",
+      "explain_bn": "লেখক বলছেন ধারণাটি জনপ্রিয় ও আকর্ষণীয়, কিন্তু যতটা যাচাই করা উচিত ততটা করা হয়নি ('deserves more scrutiny')।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 28,
+      "type": "mcq",
+      "group": "Questions 27-30. Choose the correct letter, A, B, C or D.",
+      "prompt": "What is the writer's main criticism of Taverly's experiment?",
+      "options": [
+       "A. It used too few volunteers.",
+       "B. Its results were reported inaccurately.",
+       "C. It tested only a limited kind of creativity.",
+       "D. The control group was given a harder task."
+      ],
+      "answer": "C",
+      "explain_en": "'The experiment measured a narrow skill, generating ideas quickly in a laboratory'; the writer does 'not doubt the finding'.",
+      "explain_bn": "লেখক ফলাফলে সন্দেহ করেন না; তাঁর আপত্তি হলো পরীক্ষাটি শুধু একটি সংকীর্ণ দক্ষতা (দ্রুত আইডিয়া বের করা) মেপেছে, আসল সৃজনশীল কাজ নয়।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 29,
+      "type": "mcq",
+      "group": "Questions 27-30. Choose the correct letter, A, B, C or D.",
+      "prompt": "Ondieki's study suggests that",
+      "options": [
+       "A. motivation may explain the original result.",
+       "B. boredom has no effect on the mind.",
+       "C. the original task was too easy.",
+       "D. creativity cannot be measured in a laboratory."
+      ],
+      "answer": "A",
+      "explain_en": "The effect appeared only when participants knew creativity was being assessed, 'which suggests that motivation, rather than boredom itself, may have done much of the work.'",
+      "explain_bn": "Ondieki দেখিয়েছেন ফল তখনই এসেছে যখন অংশগ্রহণকারীরা জানত তাদের সৃজনশীলতা মাপা হচ্ছে — অর্থাৎ boredom নয়, motivation (আগ্রহ) কাজ করেছে।",
+      "tag": "inference"
+     },
+     {
+      "n": 30,
+      "type": "mcq",
+      "group": "Questions 27-30. Choose the correct letter, A, B, C or D.",
+      "prompt": "According to the fourth paragraph, mind-wandering",
+      "options": [
+       "A. occurs only when people are bored.",
+       "B. tends to reduce creative insight.",
+       "C. is harder to study than boredom.",
+       "D. is linked to insight during relaxing, easy activities."
+      ],
+      "answer": "D",
+      "explain_en": "'it also happens during pleasant, undemanding activities such as walking ... and these states seem far more reliably linked to creative insight.'",
+      "explain_bn": "Mind-wandering শুধু বিরক্তিতে নয়, হাঁটা বা গোসলের মতো আরামদায়ক কাজেও হয়, আর সেটাই সৃজনশীল ভাবনার সাথে বেশি যুক্ত।",
+      "tag": "detail"
+     },
+     {
+      "n": 31,
+      "type": "ynng",
+      "group": "Questions 31-36. Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "prompt": "Popular accounts often fail to separate boredom from mind-wandering.",
+      "answer": "YES",
+      "explain_en": "'There is also an important distinction that popular accounts tend to blur.'",
+      "explain_bn": "লেখক বলেছেন জনপ্রিয় লেখাগুলো এই পার্থক্য 'blur' করে, মানে গুলিয়ে ফেলে — তাই YES।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 32,
+      "type": "ynng",
+      "group": "Questions 31-36. Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "prompt": "Pupils who are often bored at school tend to achieve better results.",
+      "answer": "NO",
+      "explain_en": "'Chronic boredom at school is associated with lower achievement, not higher'.",
+      "explain_bn": "লেখক স্পষ্ট বলেছেন স্কুলে দীর্ঘ বিরক্তি কম ফলাফলের সাথে যুক্ত, বেশি নয় — তাই NO।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 33,
+      "type": "ynng",
+      "group": "Questions 31-36. Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "prompt": "The electric-shock studies should not have been carried out.",
+      "answer": "NOT GIVEN",
+      "explain_en": "The writer reports the electric-shock studies but gives no opinion on whether they should have been done.",
+      "explain_bn": "লেখক electric shock গবেষণার কথা উল্লেখ করেছেন, কিন্তু সেগুলো করা উচিত ছিল কিনা সে বিষয়ে কোনো মত দেননি — NOT GIVEN।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 34,
+      "type": "ynng",
+      "group": "Questions 31-36. Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "prompt": "Frequently checking a phone may make it more difficult to concentrate.",
+      "answer": "YES",
+      "explain_en": "'There is good evidence that the habit of checking a phone whenever attention flags can make it harder to concentrate'.",
+      "explain_bn": "লেখক মেনে নিয়েছেন বারবার ফোন দেখার অভ্যাস মনোযোগ কঠিন করে — 'good evidence' আছে। YES।",
+      "tag": "paraphrase"
+     },
+     {
+      "n": 35,
+      "type": "ynng",
+      "group": "Questions 31-36. Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "prompt": "Marr's findings show that busy adults need more boredom.",
+      "answer": "NO",
+      "explain_en": "'The problem is not a shortage of boredom; it is a shortage of unstructured time.'",
+      "explain_bn": "লেখকের মতে সমস্যা boredom-এর অভাব নয়, বরং অবসর/অগোছালো সময়ের (unstructured time) অভাব — তাই NO।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 36,
+      "type": "ynng",
+      "group": "Questions 31-36. Do the following statements agree with the claims of the writer in Reading Passage 3? Write YES if the statement agrees with the claims of the writer, NO if the statement contradicts the claims of the writer, NOT GIVEN if it is impossible to say what the writer thinks about this.",
+      "prompt": "Children today are bored more often than children in previous generations.",
+      "answer": "NOT GIVEN",
+      "explain_en": "The writer discusses parents and children's boredom but never compares today's children with earlier generations.",
+      "explain_bn": "শিশুদের বিরক্তি নিয়ে কথা আছে, কিন্তু আগের প্রজন্মের সাথে তুলনা কোথাও নেই — NOT GIVEN।",
+      "tag": "writer_view"
+     },
+     {
+      "n": 37,
+      "type": "matching",
+      "group": "Questions 37-40. Match each finding with the correct researcher, A-D. Write the correct letter, A-D. You may use any letter more than once.",
+      "prompt": "People with very busy lives reported fewer new ideas.",
+      "options": [
+       "A. Imogen Taverly",
+       "B. Rafael Ondieki",
+       "C. Hana Leskovar",
+       "D. Gideon Marr"
+      ],
+      "answer": "D",
+      "explain_en": "Gideon Marr 'has shown that adults who described their days as always full were less likely to report having had a new idea'.",
+      "explain_bn": "Gideon Marr দেখিয়েছেন যাদের দিন সবসময় ব্যস্ত, তারা কম নতুন আইডিয়ার কথা বলেছে।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 38,
+      "type": "matching",
+      "group": "Questions 37-40. Match each finding with the correct researcher, A-D. Write the correct letter, A-D. You may use any letter more than once.",
+      "prompt": "A dull task was followed by more original thinking.",
+      "options": [
+       "A. Imogen Taverly",
+       "B. Rafael Ondieki",
+       "C. Hana Leskovar",
+       "D. Gideon Marr"
+      ],
+      "answer": "A",
+      "explain_en": "In Taverly's study, after copying numbers 'The bored volunteers produced more ideas, and their ideas were judged to be more unusual.'",
+      "explain_bn": "Imogen Taverly-র পরীক্ষায় বিরক্তিকর কাজের পরে স্বেচ্ছাসেবকরা বেশি ও অভিনব আইডিয়া দিয়েছে।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 39,
+      "type": "matching",
+      "group": "Questions 37-40. Match each finding with the correct researcher, A-D. Write the correct letter, A-D. You may use any letter more than once.",
+      "prompt": "The mind's freedom to roam matters more than the feeling of boredom.",
+      "options": [
+       "A. Imogen Taverly",
+       "B. Rafael Ondieki",
+       "C. Hana Leskovar",
+       "D. Gideon Marr"
+      ],
+      "answer": "C",
+      "explain_en": "Leskovar 'argues that what matters is not the unpleasant feeling of boredom but the freedom it occasionally gives the mind to roam.'",
+      "explain_bn": "Hana Leskovar-এর মতে বিরক্তির অনুভূতি নয়, মনের মুক্তভাবে ঘুরে বেড়ানোর সুযোগটাই আসল।",
+      "tag": "matching_info"
+     },
+     {
+      "n": 40,
+      "type": "matching",
+      "group": "Questions 37-40. Match each finding with the correct researcher, A-D. Write the correct letter, A-D. You may use any letter more than once.",
+      "prompt": "An effect appeared only under particular conditions.",
+      "options": [
+       "A. Imogen Taverly",
+       "B. Rafael Ondieki",
+       "C. Hana Leskovar",
+       "D. Gideon Marr"
+      ],
+      "answer": "B",
+      "explain_en": "Ondieki's team 'found the effect only when participants had also been told that their creativity was being assessed'.",
+      "explain_bn": "Rafael Ondieki-র দল ফলটি পেয়েছে শুধু একটি শর্তে — যখন অংশগ্রহণকারীদের বলা হয়েছিল সৃজনশীলতা মাপা হচ্ছে।",
+      "tag": "matching_info"
+     }
+    ]
+   }
+  ]
+ },
+ "writing": {
+  "duration_sec": 3600,
+  "tasks": [
+   {
+    "n": 1,
+    "prompt": "The table below shows the proportion of household energy use that came from five different sources in four countries in 2023.\n\nHousehold energy use by source, 2023 (% of total)\n\nCountry | Electricity (grid) | Natural gas | Oil | Wood and biomass | Rooftop solar\nNorvalia | 58 | 12 | 6 | 19 | 5\nTeressa | 31 | 44 | 15 | 4 | 6\nKalbari | 22 | 9 | 18 | 47 | 4\nOstria | 40 | 27 | 3 | 8 | 22\n\nSummarise the information by selecting and reporting the main features, and make comparisons where relevant.\n\nWrite at least 150 words.",
+    "min_words": 150
+   },
+   {
+    "n": 2,
+    "prompt": "As more people work from home for some or all of the week, many city centres are losing the office workers who once filled their streets, shops and cafes. Some people argue that governments and employers should encourage workers to return to offices in order to keep city centres alive.\n\nTo what extent do you agree or disagree?\n\nGive reasons for your answer and include any relevant examples from your own knowledge or experience.\n\nWrite at least 250 words.",
+    "min_words": 250
+   }
+  ]
+ },
+ "speaking": {
+  "duration_sec": 780,
+  "parts": [
+   {
+    "n": 1,
+    "questions": [
+     "Let's talk about your home town. Where is your home town, and what is it like?",
+     "What do you like most about living there?",
+     "How has your home town changed in recent years?",
+     "Would you like to live in your home town in the future? Why or why not?",
+     "Now let's talk about reading. How often do you read for pleasure?",
+     "What kind of things do you usually read, for example books, news or online articles?",
+     "Do you prefer reading on paper or on a screen? Why?",
+     "Did you read a lot when you were a child?"
+    ]
+   },
+   {
+    "n": 2,
+    "cue_card": "Describe a useful skill you learned from an older person.\nYou should say:\n- what the skill is\n- who taught it to you\n- how you learned it\nand explain why this skill is useful to you.",
+    "prep_sec": 60,
+    "talk_sec": 120
+   },
+   {
+    "n": 3,
+    "questions": [
+     "What kinds of skills do older people usually pass on to younger people in your country?",
+     "Do you think young people today are as willing to learn from older generations as they were in the past? Why?",
+     "In what ways can older people learn from younger people, for example with technology?",
+     "Some people say that traditional skills will disappear in the future. Do you agree?",
+     "Should schools invite older members of the community to teach students? What would be the benefits and drawbacks?",
+     "How might the relationship between generations change as more learning moves online?"
+    ]
+   }
+  ]
+ }
+}
