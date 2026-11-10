@@ -63,7 +63,7 @@ const _onList = {
   'exam_after_submit': 'interstitial', 'mess_home': 'banner', 'mess_list': 'native',
   'finance_home': 'native', 'finance_list': 'native', 'finance_reports': 'native',
   'finance_after_export': 'interstitial', 'finance_month_report': 'interstitial',
-  'mess_month_report': 'interstitial', 'notes_home': 'banner', 'notes_list': 'native',
+  'notes_home': 'banner', 'notes_list': 'native',
   'reminders_list': 'banner', 'city_search': 'banner', 'city_results': 'native',
   'city_more_routes': 'rewarded', 'train_search': 'banner',
   'train_live_unlock': 'rewarded', 'security_unlock': 'rewarded',
@@ -140,8 +140,8 @@ void main() {
     });
 
     test('found the wiring', () {
-      for (final k in ['notes_home', 'reminders_list', 'mess_home', 'city_search',
-          'finance_home', 'finance_list', 'finance_reports', 'mess_list', 'offers_list',
+      for (final k in ['notes_home', 'reminders_list', 'city_search',
+          'finance_home', 'finance_list', 'finance_reports', 'offers_list',
           'city_results', 'notes_list', 'train_live_unlock', 'security_scan',
           'security_unlock', 'all_services', 'circle_list']) {
         expect(used.containsKey(k), isTrue, reason: '$k is not wired');

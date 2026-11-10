@@ -134,8 +134,8 @@ void main() {
         expect(AdRules.isBlockedScreen(p.screen), isFalse, reason: p.id);
         expect(_d(p.id).allowed, isTrue, reason: p.id);
       }
-      // 11 exits (2 Nov) + 4 owner transition moments (10 Nov)
-      expect(AdExitPlacement.values.length, 15);
+      // 11 exits (2 Nov) + 3 owner transition moments (10 Nov; mess: none, order L)
+      expect(AdExitPlacement.values.length, 14);
     });
   });
 

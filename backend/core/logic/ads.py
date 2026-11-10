@@ -148,7 +148,6 @@ INTERSTITIAL_MOMENTS = (
     "estimate_after_finish", "quick_tool_exit",
     # adcontrol (owner 10 Nov): owner-approved TRANSITION moments
     "exam_after_submit", "finance_after_export", "finance_month_report",
-    "mess_month_report",
 )
 # pre-2-Nov ids (photo_saved / task_done): a stored list made only of these
 # means "the defaults" (task_done is on the never list now)

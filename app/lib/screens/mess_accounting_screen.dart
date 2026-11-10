@@ -5,10 +5,6 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
-import '../ads/ad_banner_slot.dart'; // adcontrol
-import '../ads/ad_moment.dart'; // adcontrol
-import '../ads/ad_placements.dart' show AdExitPlacement; // adcontrol
-import '../ads/ad_spot_card.dart'; // adcontrol
 import '../widgets/finance_common.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -153,8 +149,6 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        // adcontrol (owner 10 Nov): Mess — one bottom banner (Free only)
-        bottomNavigationBar: const AdBannerSlot(screen: 'mess_home'),
         appBar: AppBar(
           title: Text(tr.messTitle),
           bottom: TabBar(tabs: [
@@ -178,16 +172,12 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
             nameOf: _nameOf,
             onChanged: _load,
           ),
-          // adcontrol: the month's full report -> one interstitial (rules apply)
-          AdMomentOnShow(
-            placement: AdExitPlacement.messMonthReport,
-            child: _SummaryTab(
-              members: _members,
-              meals: _meals,
-              bazar: _bazar,
-              deposits: _deposits,
-              charges: _charges,
-            ),
+          _SummaryTab(
+            members: _members,
+            meals: _meals,
+            bazar: _bazar,
+            deposits: _deposits,
+            charges: _charges,
           ),
         ]),
       ),
@@ -200,7 +190,10 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
     final name = await _promptName(context, tr.messAddMember, circle: true);
     if (name == null) return;
     final trimmed = name.trim();
-    if (trimmed.isEmpty) return;
+    if (trimmed.isEmpty) {
+      _toast(tr.ssNameRequired); // savesweep: never a silent dead Save
+      return;
+    }
     final dup = _members.any((m) =>
         (m['name'] ?? '').toString().toLowerCase() == trimmed.toLowerCase());
     if (dup) {
@@ -645,8 +638,6 @@ class _SummaryTab extends StatelessWidget {
             ]),
           ),
         ),
-        // adcontrol: one native card at the end of the list (Free only)
-        const AdSpotCard(placement: 'mess_list', padding: EdgeInsets.only(top: Gap.md)),
       ],
     );
   }
@@ -1033,7 +1024,7 @@ class _MessMath {
       frac = '';
     }
     if (whole.isEmpty) whole = '0';
-    frac = (frac + '00');
+    frac = (frac + '000'); // savesweep: '00' -> RangeError on whole amounts
     frac = frac.substring(0, 3);
     final taka = int.tryParse(whole);
     final milli = int.tryParse(frac);

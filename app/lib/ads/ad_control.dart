@@ -125,7 +125,6 @@ class AdControl {
     AdSpot('finance_month_report', 'finance', 'interstitial', true, 'interstitial'),
     AdSpot('mess_home', 'mess', 'banner,native', true, 'banner'),
     AdSpot('mess_list', 'mess', 'native', true, 'native'),
-    AdSpot('mess_month_report', 'mess', 'interstitial', true, 'interstitial'),
     AdSpot('notes_home', 'notes', 'banner,native', true, 'banner'),
     AdSpot('notes_list', 'notes', 'native', true, 'native'),
     AdSpot('reminders_list', 'notes', 'banner,native', true, 'banner'),
