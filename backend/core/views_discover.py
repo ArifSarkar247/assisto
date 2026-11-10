@@ -546,39 +546,22 @@ def report_csv(rep):
 
 
 def report_pdf(rep):
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.styles import getSampleStyleSheet
-    from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer,
-                                    Table, TableStyle)
-    buf = io.BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=A4, title="Assisto sponsor report")
-    st = getSampleStyleSheet()
+    """Sponsor report PDF (core.pdf_bn: a Bangla card title or sponsor name is
+    shaped right; Latin in Inter)."""
+    from . import pdf_bn
     card, t = rep["card"], rep["totals"]
-    story = [
-        Paragraph("Assisto — Discover sponsor report", st["Title"]),
-        Paragraph("Card: %s" % _esc(card["title_en"] or card["key"]), st["Normal"]),
-        Paragraph("Sponsor: %s" % _esc(card["sponsor_name"] or "-"), st["Normal"]),
-        Paragraph("Period: %s to %s" % (rep["from"], rep["to"]), st["Normal"]),
-        Paragraph("Impressions are unique per user per day; clicks are unique "
-                  "per user per day.", st["Italic"]),
-        Spacer(1, 10),
-    ]
-    data = [["Date", "Impressions", "Clicks", "CTR %"]]
-    data += [[r["date"], r["impressions"], r["clicks"], "%.2f" % r["ctr"]]
-             for r in rep["rows"]]
-    data.append(["Total", t["impressions"], t["clicks"], "%.2f" % t["ctr"]])
-    tbl = Table(data, repeatRows=1)
-    tbl.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1e40af")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("GRID", (0, 0), (-1, -1), 0.25, colors.grey),
-        ("FONTNAME", (0, -1), (-1, -1), "Helvetica-Bold"),
-        ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
-    ]))
-    story.append(tbl)
-    doc.build(story)
-    return buf.getvalue()
+    d = pdf_bn.Doc("Assisto sponsor report", lang="en")
+    d.title("Assisto — Discover sponsor report")
+    d.text("Card: %s" % (card["title_en"] or card["key"]))
+    d.text("Sponsor: %s" % (card["sponsor_name"] or "-"))
+    d.text("Period: %s to %s" % (rep["from"], rep["to"]))
+    d.meta("Impressions are unique per user per day; clicks are unique per user per day.")
+    d.gap(8)
+    rows = [[r["date"], r["impressions"], r["clicks"], "%.2f" % r["ctr"]] for r in rep["rows"]]
+    rows.append(["Total", t["impressions"], t["clicks"], "%.2f" % t["ctr"]])
+    d.table(["Date", "Impressions", "Clicks", "CTR %"], rows, [0.34, 0.26, 0.2, 0.2],
+            ["left", "right", "right", "right"], bold_last=True)
+    return d.pdf()
 
 
 def _esc(s):
