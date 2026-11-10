@@ -51665,5 +51665,319 @@
   "adGateWhatSecurity": "to switch this security feature on",
   "@adGateWhatSecurity": {
     "description": "adcontrol rewarded gate"
+  },
+  "mv2Title": "Mess and bachelor",
+  "mv2Add": "Add",
+  "mv2AddBazar": "Add bazar",
+  "mv2AddCharge": "Add service charge",
+  "mv2AddDeposit": "Add deposit",
+  "mv2AddMember": "Add member from My Circle",
+  "mv2AddTurn": "Set bazar turn",
+  "mv2AddressLabel": "Address (optional)",
+  "mv2Advance": "Advance for the big bazar",
+  "mv2AdvanceSub": "Counted as a deposit only because it was given",
+  "mv2AllClear": "All clear — nothing to pay or get back",
+  "mv2AmountError": "Enter the amount in taka, for example 500",
+  "mv2AmountLabel": "Amount (taka)",
+  "mv2BazarEmpty": "No bazar yet this month. Tap Add bazar after shopping — add the receipt photo so everyone can see it.",
+  "mv2BoughtBy": "Who bought",
+  "mv2Breakfast": "Breakfast",
+  "mv2BreakfastLabel": "Breakfast counts as",
+  "mv2Camera": "Camera",
+  "mv2CardA11y": "Mess today: meals, bazar and who has not set tomorrow",
+  "mv2CardAllSet": "Everyone has set tomorrow's meals",
+  "mv2CardBazar": "Bazar today: {amount}",
+  "@mv2CardBazar": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2CardCollapse": "Hide mess card",
+  "mv2CardExpand": "Show mess card",
+  "mv2CardMeals": "Meals today: {n}",
+  "@mv2CardMeals": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2CardNotSet": "Not set tomorrow yet: {names}",
+  "@mv2CardNotSet": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2CardTitle": "Today in the mess",
+  "mv2CardTurn": "Bazar turn: {name}",
+  "@mv2CardTurn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2CarryIn": "From last month",
+  "mv2ChElectricity": "Electricity",
+  "mv2ChGas": "Gas",
+  "mv2ChKhala": "Khala (cook)",
+  "mv2ChOther": "Other bill",
+  "mv2ChRent": "Rent",
+  "mv2ChWater": "Water",
+  "mv2ChWifi": "Wi-Fi",
+  "mv2ChargeNote": "Service charges are not in the meal rate. They are split among members — equally, or by seat or room share.",
+  "mv2ChargeTitleLabel": "Note (optional)",
+  "mv2ChargesEmpty": "No service charge yet. The manager adds khala, electricity, gas, water, Wi-Fi or rent here.",
+  "mv2CircleEmpty": "Nobody in your My Circle yet. Invite your mess mates to My Circle — after they accept, add them here in one tap.",
+  "mv2CloseMess": "Close this mess",
+  "mv2CloseMessBody": "The group chat and all history stay. The mess card disappears and nobody can add new entries.",
+  "mv2CloseMonth": "Close the month",
+  "mv2CloseMonthBody": "Everyone's result is fixed and the balance moves to next month. After closing, nobody can change this month — not even the manager.",
+  "mv2CloseMonthTitle": "Close this month?",
+  "mv2Confirm": "Yes, continue",
+  "mv2CorrectMeals": "Correct a member's meals",
+  "mv2CorrectWho": "Whose meals?",
+  "mv2CreateMess": "Create a mess",
+  "mv2Created": "Mess created. Now add members from My Circle.",
+  "mv2CutoffItem": "Until {time} the day before",
+  "@mv2CutoffItem": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2CutoffLabel": "Meal change cut-off",
+  "mv2DateLabel": "Date: {date}",
+  "@mv2DateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2DaysOffBody": "Going home or travelling? Turn your meals off for all those days at once.",
+  "mv2DaysOffFor": "Meals off for several days",
+  "mv2DaysOffTitle": "Turn meals off for several days",
+  "mv2Delete": "Delete",
+  "mv2DeleteEntry": "Delete this entry?",
+  "mv2DeleteEntryBody": "It is removed from the month's math. The history still shows who deleted it and when.",
+  "mv2Deleted": "Deleted",
+  "mv2Deposit": "Deposit",
+  "mv2DepositBy": "Who deposited",
+  "mv2Deposits": "Deposits",
+  "mv2DepositsEmpty": "No deposit yet. When you give money to the manager, add it here so everyone sees it.",
+  "mv2Dinner": "Dinner",
+  "mv2Done": "Done",
+  "mv2Edit": "Change",
+  "mv2EditMess": "Mess details",
+  "mv2EmptyBody": "Everyone enters their own meals from their own phone, bazar and deposits are visible to all, and the app works out who pays or gets back at month end — no notebook, no arguments.",
+  "mv2EmptyTitle": "Run your mess together",
+  "mv2FreeLine": "Free for everyone. Premium adds several messes and full reports for older months.",
+  "mv2Gallery": "Gallery",
+  "mv2GetsBack": "Gets back {amount}",
+  "@mv2GetsBack": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2GuestLess": "One guest less",
+  "mv2GuestMore": "One guest more",
+  "mv2GuestNote": "Guest meals are counted under your name.",
+  "mv2Guests": "Guests",
+  "mv2History": "Edit history",
+  "mv2HistoryEmpty": "No changes yet.",
+  "mv2How1": "Create the mess with its name, for example Rampura Mess.",
+  "mv2How2": "Add members from My Circle — a mess group is made for you.",
+  "mv2How3": "Meals are ON every day; each person turns off their own by 10 pm the day before.",
+  "mv2How4": "Add bazar, deposits and bills; at month end tap Close the month.",
+  "mv2HowTitle": "How it works",
+  "mv2ImportBody": "Your old mess records are on this account. Bring them into a new shared mess — the old records are kept as a backup.",
+  "mv2ImportButton": "Bring old records in",
+  "mv2ImportDone": "Old records brought in. Link the old names to people from My Circle in Members.",
+  "mv2ImportTitle": "Old mess records found",
+  "mv2InMess": "Already in the mess",
+  "mv2InviteToCircle": "Invite to My Circle",
+  "mv2ItemsLabel": "What was bought (optional)",
+  "mv2KeyMissing": "Your chat key is not on this phone yet. Open My Circle once, then try again.",
+  "mv2LeaveMess": "Leave the mess",
+  "mv2LinkNone": "No, add as a new member",
+  "mv2LinkTitle": "Is {name} one of these old names?",
+  "@mv2LinkTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2Locked": "Locked",
+  "mv2Lunch": "Lunch",
+  "mv2MakeAdmin": "Make admin",
+  "mv2MakeManager": "Make this month's manager",
+  "mv2MealCost": "Meal cost",
+  "mv2MealCount": "{n} meals",
+  "@mv2MealCount": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MealRate": "Meal rate",
+  "mv2Meals": "Meals",
+  "mv2MealsFor": "Meals on {date}",
+  "@mv2MealsFor": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MealsForPerson": "{name}: meals on {date}",
+  "@mv2MealsForPerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MealsHelp": "Meals are ON by default. Change a day until {time} the day before; after that only the manager can correct it.",
+  "@mv2MealsHelp": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MealsOff": "Meals off",
+  "mv2MealsOn": "Meals on",
+  "mv2MemberAdded": "{name} added to the mess and its group",
+  "@mv2MemberAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MembersEmpty": "Only you so far. Add your mess mates from My Circle — each one then enters their own meals.",
+  "mv2MessClosed": "Closed — history kept",
+  "mv2MonthClosed": "Month closed. Everyone got their result inside Assisto.",
+  "mv2MonthClosedLabel": "Month {key} (closed)",
+  "@mv2MonthClosedLabel": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MonthEmpty": "No members to show yet.",
+  "mv2MonthOpenLabel": "Month {key} (running)",
+  "@mv2MonthOpenLabel": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2MyMeals": "My meals",
+  "mv2NameHint": "For example Rampura Mess",
+  "mv2NameLabel": "Mess name",
+  "mv2NameRequired": "Enter the mess name",
+  "mv2NoGroupYet": "Add a member first — the mess group is made then.",
+  "mv2NotLinked": "Old name — not linked yet",
+  "mv2NoteLabel": "Note (optional)",
+  "mv2OfflineBanner": "No internet — showing the last saved copy. New entries are kept on this phone and sync later.",
+  "mv2OldMonths": "Old months",
+  "mv2OpAdded": "added",
+  "mv2OpChanged": "changed",
+  "mv2OpClosed": "closed",
+  "mv2OpRemoved": "removed",
+  "mv2OpenMess": "Open mess",
+  "mv2Pdf": "PDF report",
+  "mv2PendingBanner": "{n} entries waiting for internet — they sync by themselves.",
+  "@mv2PendingBanner": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2PerMember": "Each member",
+  "mv2PhotoAdded": "Receipt photo added",
+  "mv2PhotoFailed": "Could not get the photo. Try again.",
+  "mv2PickDays": "Pick the days",
+  "mv2PickSub": "Only people in your My Circle can join, so everyone has Assisto and enters their own meals.",
+  "mv2PickTitle": "Add from My Circle",
+  "mv2PremiumOldMonths": "Full reports of older months are in Premium. The current month and the last closed month are free.",
+  "mv2PremiumSeveral": "Free runs one mess. With Premium you can run several messes at once.",
+  "mv2RateFormula": "Meal rate = total bazar ÷ total meals. Each member: meals × rate + service charges − deposits.",
+  "mv2ReceiptLabel": "Receipt photo (optional)",
+  "mv2RemindDues": "Remind who still has to pay",
+  "mv2RemindSent": "Reminder sent inside Assisto (free, no SMS)",
+  "mv2RemoveAdmin": "Remove admin role",
+  "mv2RemoveBody": "Their meals stop from tomorrow and they leave the mess group. Their past entries stay in the history.",
+  "mv2RemoveMember": "Remove from mess",
+  "mv2RoleAdmin": "Admin",
+  "mv2RoleManager": "Manager this month",
+  "mv2RoleMember": "Member",
+  "mv2Save": "Save",
+  "mv2SaveFailed": "Could not save. Check the internet and try again.",
+  "mv2Saved": "Saved",
+  "mv2SavedOffline": "Saved on this phone — it syncs when the internet is back",
+  "mv2SeatShare": "Seat or room share for rent",
+  "mv2SeatShareHelp": "How many shares of the rent? For example 2 for a bigger room.",
+  "mv2SeePremium": "See Premium",
+  "mv2ServiceCharge": "Service charge",
+  "mv2ServiceCharges": "Service charges",
+  "mv2ShareInGroup": "Share report in the mess group",
+  "mv2SplitBySeat": "Split by seat or room share",
+  "mv2SplitBySeatSub": "Off = split equally among all members",
+  "mv2SplitEqualShort": "equal split",
+  "mv2SplitSeatShort": "by seat",
+  "mv2StartDayItem": "Day {n} of the month",
+  "@mv2StartDayItem": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2StartDayLabel": "Month starts on",
+  "mv2SyncRefused": "An offline entry was not accepted: {reason}",
+  "@mv2SyncRefused": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "mv2TabBazar": "Bazar",
+  "mv2TabMeals": "Meals",
+  "mv2TabMembers": "Members",
+  "mv2TabMoney": "Deposits and bills",
+  "mv2TabMonth": "Month end",
+  "mv2ThisMonth": "This month",
+  "mv2TotalBazar": "Total bazar",
+  "mv2TotalMeals": "Total meals",
+  "mv2TurnWho": "Whose turn",
+  "mv2Turns": "Bazar turns",
+  "mv2TurnsEmpty": "No turns set. The manager sets who shops on which day; that person gets a reminder the night before.",
+  "mv2ViewReceipt": "View receipt",
+  "mv2WillPay": "Will pay {amount}",
+  "@mv2WillPay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   }
 }
