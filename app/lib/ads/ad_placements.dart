@@ -294,9 +294,11 @@ enum AdExitPlacement {
   /// 13. Account & Finance — after a PDF export or share.
   financeAfterExport('finance_after_export', 'finance_reports', transition: true),
 
-  /// 14. Account & Finance — the month-end full report. (Mess: NO
-  /// interstitial — owner order L; banner / native only.)
-  financeMonthReport('finance_month_report', 'finance_reports', transition: true);
+  /// 14. Account & Finance — the month-end full report.
+  financeMonthReport('finance_month_report', 'finance_reports', transition: true),
+
+  /// 15. Mess — the month-end report.
+  messMonthReport('mess_month_report', 'mess_home', transition: true);
 
   const AdExitPlacement(this.id, this.screen,
       {this.dailyMax = 0, this.transition = false});

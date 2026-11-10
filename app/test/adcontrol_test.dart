@@ -63,7 +63,7 @@ const _onList = {
   'exam_after_submit': 'interstitial', 'mess_home': 'banner', 'mess_list': 'native',
   'finance_home': 'native', 'finance_list': 'native', 'finance_reports': 'native',
   'finance_after_export': 'interstitial', 'finance_month_report': 'interstitial',
-  'notes_home': 'banner', 'notes_list': 'native',
+  'mess_month_report': 'interstitial', 'notes_home': 'banner', 'notes_list': 'native',
   'reminders_list': 'banner', 'city_search': 'banner', 'city_results': 'native',
   'city_more_routes': 'rewarded', 'train_search': 'banner',
   'train_live_unlock': 'rewarded', 'security_unlock': 'rewarded',
@@ -140,6 +140,7 @@ void main() {
     });
 
     test('found the wiring', () {
+      // (mess_home / mess_list / mess_month_report: messv2's mess screens, wired in b318)
       for (final k in ['notes_home', 'reminders_list', 'city_search',
           'finance_home', 'finance_list', 'finance_reports', 'offers_list',
           'city_results', 'notes_list', 'train_live_unlock', 'security_scan',
