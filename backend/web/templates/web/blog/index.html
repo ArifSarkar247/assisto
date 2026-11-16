@@ -1,0 +1,17 @@
+{% extends "web/blog/_base.html" %}
+{% block main %}
+<ol class="crumbs" aria-label="breadcrumb"><li><a href="/{{ q }}">{{ T.home }}</a></li><li aria-current="page">{{ T.blog }}</li></ol>
+<h1>{{ T.index_h1 }}</h1>
+<p class="lead">{{ T.index_lead }}</p>
+{% if posts %}
+<ul class="cards">
+{% for p in posts %}<li class="card">
+  <h2><a href="{{ p.href }}">{{ p.title }}</a></h2>
+  <p>{{ p.summary }}</p>
+  <p class="small">{% if p.reviewed %}{{ T.reviewed }}: {{ p.reviewed }}{% endif %}{% if p.feature %} · {{ p.feature.name }}{% endif %}</p>
+</li>{% endfor %}
+</ul>
+{% else %}
+<p class="card">{{ T.empty }} <a href="/{{ q }}">Assisto</a></p>
+{% endif %}
+{% endblock %}

@@ -20,6 +20,7 @@ from . import views_channels_web   # channels
 from . import views_learncert   # learncert
 from . import views_site3  # sitev3: website v3 behind the go-live switch
 from . import views_lifeshare  # p3life
+from . import views_blog  # seoblog
 
 urlpatterns = [
     # sitev3: the go-live switch picks the current site (OFF) or v3 (ON)
@@ -40,6 +41,10 @@ urlpatterns = [
     path("favicon.ico", views_site.favicon_ico),
     path("apple-touch-icon.png", views_site.apple_touch_icon),
     path("site.webmanifest", views_site.webmanifest),
+    # seoblog: public blog (only published posts; unpublished = 404)
+    path("blog", views_blog.blog_index),
+    path("blog/<slug:slug>", views_blog.blog_article),
+    path("blog/<slug:slug>/cover", views_blog.blog_cover),
     path("get", views.get_app),
     path("khata-free", views.khata_free),   # ledger100
     # antitheft2: a trusted contact's signed web view of a protected phone

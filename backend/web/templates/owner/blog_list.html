@@ -1,0 +1,18 @@
+{% extends "owner/base.html" %}
+{% block title %}{{ L.title }}{% endblock %}
+{% block heading %}{{ L.title }}{% endblock %}
+{% block content %}
+<p class="mut">{{ L.intro }}</p>
+<p><a class="btn primary" href="/owner/blog/new">{{ L.new }}</a></p>
+{% if rows %}
+<div class="card"><table class="tbl">
+<thead><tr><th>{{ L.title_bn }}</th><th>slug</th><th>{{ L.reviewed }}</th><th></th></tr></thead>
+<tbody>{% for r in rows %}<tr>
+  <td><a href="/owner/blog/{{ r.p.id }}">{{ r.p.title_bn }}</a><br><small class="mut">{{ r.p.title_en }}</small></td>
+  <td><code>/blog/{{ r.p.slug }}</code></td>
+  <td>{{ r.p.last_reviewed|default_if_none:"—" }}</td>
+  <td>{% if r.p.published %}<b>{{ L.state_on }}</b> · <a href="/blog/{{ r.p.slug }}" target="_blank" rel="noopener">{{ L.view }}</a>{% else %}<span class="mut">{{ L.state_off }}</span>{% endif %}
+    <form method="post" action="/owner/blog/{{ r.p.id }}/toggle" class="inline">{% include "owner/_csrf.html" %}<button class="btn {% if r.p.published %}ghost{% else %}primary{% endif %}" {% if not r.p.published and not r.complete %}disabled title="{{ L.err.both_languages }}"{% endif %}>{% if r.p.published %}{{ L.unpublish }}{% else %}{{ L.publish }}{% endif %}</button></form></td>
+</tr>{% endfor %}</tbody></table></div>
+{% else %}<p class="empty">{{ L.none }}</p>{% endif %}
+{% endblock %}

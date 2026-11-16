@@ -1,0 +1,36 @@
+{% extends "owner/base.html" %}
+{% block title %}{{ L.title }}{% endblock %}
+{% block heading %}{% if post %}{{ L.edit }}{% else %}{{ L.new }}{% endif %}{% endblock %}
+{% block content %}
+<p><a href="/owner/blog">← {{ L.title }}</a>{% if post and post.published %} · <a href="/blog/{{ post.slug }}" target="_blank" rel="noopener">{{ L.view }}</a>{% endif %}</p>
+<p class="mut">{{ L.intro }}</p>
+{% if errors %}<div class="flash warn" role="alert"><b>{{ L.errors }}</b><ul>{% for k, v in errors.items %}<li>{{ k }}: {{ v }}</li>{% endfor %}</ul></div>{% endif %}
+<form method="post" enctype="multipart/form-data" class="card grid2" action="{% if post %}/owner/blog/{{ post.id }}{% else %}/owner/blog/new{% endif %}">
+  {% include "owner/_csrf.html" %}
+  <label class="check span2"><input type="checkbox" name="published" {% if d.published %}checked{% endif %}> {{ L.published }}</label>
+  <label>{{ L.slug }}<input name="slug" maxlength="80" required pattern="[a-z0-9]+(-[a-z0-9]+)*" value="{{ d.slug|default:'' }}"></label>
+  <label>{{ L.feature }}<select name="feature"><option value="">—</option>{% for k, n in features %}<option value="{{ k }}" {% if d.feature == k %}selected{% endif %}>{{ n }}</option>{% endfor %}</select></label>
+  <label>{{ L.title_bn }}<input name="title_bn" maxlength="120" required value="{{ d.title_bn|default:'' }}"></label>
+  <label>{{ L.title_en }}<input name="title_en" maxlength="120" value="{{ d.title_en|default:'' }}"></label>
+  <label>{{ L.summary_bn }}<textarea name="summary_bn" maxlength="200" rows="3">{{ d.summary_bn|default:'' }}</textarea></label>
+  <label>{{ L.summary_en }}<textarea name="summary_en" maxlength="200" rows="3">{{ d.summary_en|default:'' }}</textarea></label>
+  <label class="span2">{{ L.body_bn }}<textarea name="body_bn" rows="22">{{ d.body_bn|default:'' }}</textarea></label>
+  <label class="span2">{{ L.body_en }}<textarea name="body_en" rows="22">{{ d.body_en|default:'' }}</textarea></label>
+  <label>{{ L.last_reviewed }}<input name="last_reviewed" type="date" value="{{ d.last_reviewed|default:'' }}"></label>
+  <label>{{ L.order }}<input name="order" type="number" value="{{ d.order|default:0 }}"></label>
+  <label class="span2">{{ L.keywords }}<input name="keywords" maxlength="300" value="{{ d.keywords|default:'' }}"></label>
+  <label class="span2">{{ L.cover }}<input name="cover" type="file" accept="image/png,image/jpeg,image/webp"></label>
+  {% if post and post.cover %}<div class="span2 imgrow"><img src="{{ post.cover.url }}" alt="" class="thumb"><label class="check"><input type="checkbox" name="remove_cover"> {{ L.remove_cover }}</label></div>{% endif %}
+  <label>{{ L.cover_alt_bn }}<input name="cover_alt_bn" maxlength="160" value="{{ d.cover_alt_bn|default:'' }}"></label>
+  <label>{{ L.cover_alt_en }}<input name="cover_alt_en" maxlength="160" value="{{ d.cover_alt_en|default:'' }}"></label>
+  <div class="span2"><button class="btn primary">{{ L.save }}</button></div>
+</form>
+{% if preview %}<section class="card"><h2>{{ L.preview }}</h2><div class="blogpv">{{ preview|safe }}</div></section>{% endif %}
+{% if post %}
+<form method="post" action="/owner/blog/{{ post.id }}/delete" class="card danger">
+  {% include "owner/_csrf.html" %}
+  <label class="check"><input type="checkbox" name="confirm"> {{ L.confirm }}</label>
+  <button class="btn danger">{{ L.delete }}</button>
+</form>
+{% endif %}
+{% endblock %}

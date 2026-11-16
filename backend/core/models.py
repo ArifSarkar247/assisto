@@ -9074,3 +9074,33 @@ class LpAttempt(models.Model):
     credits = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now, db_index=True)
 # ---- /lpcore ----
+
+
+# ---- seoblog ---- (owner order 17 Nov 00:32, item 6): lifeassisto.com/blog
+class BlogPost(models.Model):
+    """One how-to article on the public website blog. Edited in Owner Admin
+    (/owner/blog); Markdown bodies in Bangla + English; the cover image is a
+    private upload served through a signed link. Starts UNPUBLISHED — only a
+    published post is reachable, listed and in the sitemap."""
+    slug = models.SlugField(max_length=80, unique=True)
+    title_bn = models.CharField(max_length=120)
+    title_en = models.CharField(max_length=120, blank=True, default="")
+    summary_bn = models.CharField(max_length=200, blank=True, default="")
+    summary_en = models.CharField(max_length=200, blank=True, default="")
+    body_bn = models.TextField(blank=True, default="")
+    body_en = models.TextField(blank=True, default="")
+    feature = models.CharField(max_length=40, blank=True, default="")
+    keywords = models.CharField(max_length=300, blank=True, default="")
+    cover = models.ImageField(upload_to="blog/", null=True, blank=True)
+    cover_alt_bn = models.CharField(max_length=160, blank=True, default="")
+    cover_alt_en = models.CharField(max_length=160, blank=True, default="")
+    published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+    last_reviewed = models.DateField(null=True, blank=True)
+    order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["order", "-published_at", "id"]
+# ---- /seoblog ----
