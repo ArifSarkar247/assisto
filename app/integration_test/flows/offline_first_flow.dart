@@ -237,7 +237,7 @@ void registerOfflineFirstFlows() {
         await f.enter(m, label: f.t.circleGroupMessageHint);
         await f.tapSend(settleSeconds: 6);
       }
-      await f.waitFor(find.byIcon(Icons.schedule_rounded), seconds: 10, what: 'group clock icon');
+      await f.waitFor(find.byKey(const ValueKey('tick-pending')), seconds: 10, what: 'group clock icon');
       final q = await f.net(() => Outbox.instance.forChat('group', gid));
       final texts = q.map((i) => i.text).toList();
       if (texts.length != 2 || texts.first != g1) {
