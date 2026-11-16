@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show InternetAddress; // faststart: offline check
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart' show GestureBinding, PointerDownEvent, PointerEvent;
@@ -99,6 +100,32 @@ class AdsService with WidgetsBindingObserver {
   /// Test seam for the native launch-source flag.
   @visibleForTesting
   Future<bool> Function()? debugNativeSuppressed;
+
+  /// faststart test seam: is the phone online right now?
+  Future<bool> Function()? debugOnline;
+
+  /// faststart (owner 10 Nov): never an app-open ad offline. The app's own
+  /// last-known state first; in release/profile also one time-boxed DNS
+  /// lookup (pure Dart, only right before an ad could show). Never throws.
+  Future<bool> _onlineNow(AppState app) async {
+    final f = debugOnline;
+    if (f != null) {
+      try {
+        return await f();
+      } catch (_) {
+        return false;
+      }
+    }
+    if (!app.online) return false;
+    if (!(kReleaseMode || kProfileMode)) return true;
+    try {
+      final r = await InternetAddress.lookup('googleads.g.doubleclick.net')
+          .timeout(const Duration(milliseconds: 1500));
+      return r.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
 
   static const _kLast = 'ads_app_open_last_ms';
   static const _kDay = 'ads_app_open_day';
@@ -263,6 +290,7 @@ class AdsService with WidgetsBindingObserver {
         callActive: _callActive(),
       );
       if (!guard.allowed) return;
+      if (!await _onlineNow(app)) return; // faststart: never offline
       final cfg = await refreshConfig();
       if (cfg.paid || !cfg.adsEnabled) return;
       final prefs = await SharedPreferences.getInstance();
@@ -290,10 +318,17 @@ class AdsService with WidgetsBindingObserver {
       if (sb == null) return;
       _showing = true;
       // the server is the authority: day-N, caps, gap, free-only, direct first
-      final slot = await sb.slot('app_open', screen: 'home', entry: entry);
+      // faststart: the slot answer is time-boxed — a slow network is "no ad
+      // this time", never a late pop-up over a Home already in use
+      final slot = await sb
+          .slot('app_open', screen: 'home', entry: entry)
+          .timeout(const Duration(milliseconds: 1500));
       if (!slot.show || currentScreen() != 'home' || AppEntry.blocked()) return;
       var shown = false;
       if (slot.isDirect) {
+        // faststart: a sponsor card is never preloaded on a cold start, so
+        // it shows only on a resume (cold start = straight into Home)
+        if (!resumed) return;
         final nav = appNavigatorKey.currentState;
         if (nav == null || !nav.mounted) return;
         await _markShown(prefs, today, count);
@@ -563,6 +598,7 @@ class AdsService with WidgetsBindingObserver {
     _pausedAt = null;
     rootScreen = 'home';
     debugNativeSuppressed = null;
+    debugOnline = null; // faststart
     AdTelemetry.sink = null;
     AdExit.sink = null;
     AdExit.resetForTest();

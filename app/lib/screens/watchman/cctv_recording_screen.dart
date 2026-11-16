@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/local_counter.dart';
 import '../../cctvx/cctv_evidence_source.dart';
 import '../../l10n/app_localizations.dart';
+import '../../plans_v2/buy_inside.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset;
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
@@ -115,7 +116,13 @@ class _CctvRecordingScreenState extends State<CctvRecordingScreen> {
       ),
     );
     if (ok != true || !mounted) return;
+    await _doBuy(tier);
+  }
+
+  Future<void> _doBuy(Map<String, dynamic> tier, {bool retried = false}) async {
+    final t = AppLocalizations.of(context);
     setState(() => _busy = true);
+    var again = false;
     try {
       final d = await widget.source.buyAddon(widget.cameraId, (tier['tier'] ?? '').toString());
       if (mounted) {
@@ -123,9 +130,15 @@ class _CctvRecordingScreenState extends State<CctvRecordingScreen> {
         _snack(t.cevBought);
       }
     } catch (e) {
-      if (mounted) _snack(wmError(e) ?? t.wmGenericError);
+      // buyinside: not enough credits -> the credits sheet right here; once
+      // credits land the same add-on is bought again (once)
+      final handled = mounted &&
+          await BuyInside.handle(context, e, 'cctv_video_addon',
+              then: (bought) => again = bought && !retried);
+      if (!handled && mounted) _snack(wmError(e) ?? t.wmGenericError);
     }
     if (mounted) setState(() => _busy = false);
+    if (again && mounted) await _doBuy(tier, retried: true);
   }
 
   Future<void> _saveAddress() async {

@@ -39,6 +39,7 @@ import 'services/security_guard.dart' show SecurityHeartbeat;
 import 'services/startup_guard.dart';
 import 'home_api.dart';
 import 'widgets/a11y_prefs.dart';
+import 'offline/offline_strip.dart'; // offline1st
 import 'screens/login_screen.dart';
 import 'crypto/key_wiring.dart';
 import 'growth/install_ping.dart';
@@ -68,6 +69,7 @@ import 'device_id.dart'; // own-device
 import 'screens/deletion_grace_screen.dart';
 import 'perf/perf_marks.dart'; // perf2gb (CI-only define)
 import 'perf/low_ram.dart'; // perf2gb: image-cache cap on 2-3 GB phones
+import 'perf/low_data.dart' show LowDataMode; // faststart
 import 'invite/invite_link.dart'; // invite-join
 import 'invite/space_link.dart'; // channels: /ch/ + /cm/ links
 import 'screens/messenger/communities_home_screen.dart' show SpaceLinkScreen; // channels
@@ -176,6 +178,7 @@ void main() {
       // perf2gb: cap the decoded-image cache on 2-3 GB phones (one guarded,
       // time-boxed device_info read, after the first frame; never throws).
       unawaited(LowRamTuning.apply());
+      unawaited(LowDataMode.load()); // faststart: one prefs read
       final safe = await StartupGuard.isSafeMode();
       // sc1 crash reporting: 4 s after the first frame, guarded; Crashlytics
       // (Firebase) only outside safe mode, our own server sink always.
@@ -184,7 +187,9 @@ void main() {
       }));
       // Notifications (local scheduling) — self-guarded, not a startup blocker.
       // Time-boxed: a hang here must not delay key publishing below.
+      PerfMarks.once('post_frame_begin'); // faststart
       try { await Notifications.init().timeout(const Duration(seconds: 5)); } catch (_) {}
+      PerfMarks.once('notifications_ready'); // faststart
       // remmeter: re-arm reminder alarms (exact when allowed) after an app
       // update / reboot / permission change; guarded, after the first frame.
       unawaited(Future<void>.delayed(const Duration(seconds: 5), () {
@@ -211,11 +216,14 @@ void main() {
         // #196 home-widget plugin — only touch the native widget bridge when the
         // last launch was healthy; never at cold start.
         try { await HomeWidgetService.init(); } catch (_) {}
+        PerfMarks.once('home_widget_ready'); // faststart
         // Push (FCM) — lazy, after the first frame and after local
         // notifications are initialised; silently off when this build has no
         // Firebase config. Never blocks or crashes the launch.
         unawaited(Future<void>.delayed(const Duration(seconds: 2), () async {
+          PerfMarks.once('push_begin'); // faststart
           try { await PushService.instance.start(appState); } catch (_) {}
+          PerfMarks.once('push_ready'); // faststart
         }));
       } else {
         // ty1: safe mode still rings My Circle calls in-app and shows
@@ -310,7 +318,9 @@ class AssistoApp extends StatelessWidget {
                 key: AppShot.boundaryKey,
                 // b1-calls: "tap to return to the call" bar while a call is
                 // minimized (nothing extra is drawn otherwise).
-                child: CallMiniBarHost(child: child ?? const SizedBox.shrink()),
+                // offline1st: the small "Offline" strip (nothing while online)
+                child: CallMiniBarHost(
+                    child: OfflineStrip(child: child ?? const SizedBox.shrink())),
               ),
             );
           },
@@ -442,7 +452,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   }
 
   Future<void> _maybeSmokeOpen() async {
-    if (!kDebugMode && !_smokeBuild) return;
+    // faststart: the CI start-speed run (PERF profile APK) opens My Circle
+    // via `am start --es ao_open circle` to time it — inert elsewhere.
+    if (!kDebugMode && !_smokeBuild && !PerfMarks.enabled) return;
     if (_smokeBuild) {
       // ring-everywhere CI proof (job ring-proof): arm the adb-only native
       // ring-test hook. ONLY the CI smoke APK ever does this.
@@ -479,6 +491,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
           } catch (_) {}
         }
       } else {
+        if (PerfMarks.enabled) PerfMarks.mark('ao_open_$route'); // faststart
         ChatNav.push(context, route);
       }
     } catch (_) {}

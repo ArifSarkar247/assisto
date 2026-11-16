@@ -3,6 +3,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'jobs_store.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// Advanced discovery filters (category, location, salary, type, experience)
 /// for the Job Hunter — SPEC v2.1 §21. A bottom sheet returning a [JobFilter].
@@ -133,8 +134,8 @@ class _JobsFilterSheetState extends State<JobsFilterSheet> {
                 location: _location.text.trim(),
                 jobType: _jobType,
                 experience: _experience,
-                minSalary: int.tryParse(_minSal.text.trim()),
-                maxSalary: int.tryParse(_maxSal.text.trim()),
+                minSalary: parseIntInput(_minSal.text.trim()),
+                maxSalary: parseIntInput(_maxSal.text.trim()),
               )),
               child: Text(tr.jobsApplyFilters),
             )),

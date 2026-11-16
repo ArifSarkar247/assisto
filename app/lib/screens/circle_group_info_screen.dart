@@ -12,6 +12,7 @@ import '../widgets/circle_group_member_tile.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/local_counter.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// Group info / settings (M2 item 7). Shows group name/photo/description, the
 /// member roster with roles, and admin controls: add members (circle-only),
@@ -185,7 +186,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
         content: TextField(
           controller: c,
           keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(labelText: _t.circleGroupSizeLimit),
         ),
         actions: [
@@ -199,7 +200,7 @@ class _CircleGroupInfoScreenState extends State<CircleGroupInfoScreen> {
       ),
     );
     if (ok != true) return;
-    final v = int.tryParse(c.text.trim());
+    final v = parseIntInput(c.text.trim());
     if (v == null || v < 1) return;
     final done = await _run(() async {
       await _api

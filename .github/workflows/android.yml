@@ -1060,6 +1060,32 @@ jobs:
               json.dump({"android_key": True}, f)
           print("Maps SDK key added (value not printed)")
           PY
+      # ---- mapapp ---- MapLibre (City map, owner order 10 Nov 00:35): the
+      # plugin's unused offline-download Service + Activity are removed (no
+      # extra service in the Play manifest), and its GLES 3 uses-feature is
+      # required=false so Play never filters phones out (the app checks at
+      # runtime: crash guard + list view). No new permission.
+      - name: MapLibre manifest guards (mapapp)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          m = "android/app/src/main/AndroidManifest.xml"
+          x = open(m).read()
+          if 'xmlns:tools=' not in x:
+              x = x.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
+          if 'OfflineDownloadService' not in x:
+              x = x.replace('</application>',
+                  '\n        <service android:name="org.maplibre.android.plugins.offline.offline.OfflineDownloadService"'
+                  ' tools:node="remove"/>'
+                  '\n        <activity android:name="org.maplibre.android.plugins.offline.ui.OfflineActivity"'
+                  ' tools:node="remove"/>\n    </application>', 1)
+          if 'glEsVersion="0x00030000"' not in x:
+              x = x.replace('<application', '<uses-feature android:glEsVersion="0x00030000" android:required="false"'
+                            ' tools:replace="android:required"/>\n    <application', 1)
+          open(m, "w").write(x)
+          print("MapLibre: offline service/activity removed, GLES3 not required")
+          PY
+      # ---- /mapapp ----
 
       # ---- crash-map ---- native debug symbols (symbol table) inside the AAB, so
       # Play Vitals symbolicates native crashes too (Flutter engine, onnxruntime)
@@ -1142,17 +1168,67 @@ jobs:
           PY
       # ---- /pay1 ----
 
+      # faststart (owner 10 Nov, item 6): per-build native-ABI filter. The
+      # Dart --target-platform covers only Flutter's own code; plugin AARs
+      # (onnxruntime, WebRTC, MapLibre, ML Kit) still packed x86_64 +
+      # armeabi-v7a into the "arm64" APK (202 MB universal). A build that
+      # writes android/app/abi_filters.txt gets exactly those ABIs; no file =
+      # unchanged (the x86_64 CI smoke APK keeps x86_64).
+      - name: Native ABI filter hook (faststart)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          kts = "android/app/build.gradle.kts"
+          p, is_kts = (kts, True) if os.path.exists(kts) else ("android/app/build.gradle", False)
+          s = open(p).read()
+          if "abi_filters.txt" not in s:
+              if is_kts:
+                  s += (
+                      "\n\n// faststart: per-build ABI filter (android.yml writes abi_filters.txt)\n"
+                      "val fsAbi = file(\"abi_filters.txt\")\n"
+                      "if (fsAbi.exists()) {\n"
+                      "    android { defaultConfig { ndk {\n"
+                      "        abiFilters.clear()\n"
+                      "        abiFilters.addAll(fsAbi.readText().split(\",\").map { it.trim() }.filter { it.isNotEmpty() })\n"
+                      "    } } }\n"
+                      "}\n")
+              else:
+                  s += (
+                      "\n\n// faststart: per-build ABI filter (android.yml writes abi_filters.txt)\n"
+                      "def fsAbi = file('abi_filters.txt')\n"
+                      "if (fsAbi.exists()) {\n"
+                      "    android { defaultConfig { ndk {\n"
+                      "        abiFilters.clear()\n"
+                      "        abiFilters.addAll(fsAbi.text.split(',').collect { it.trim() }.findAll { it })\n"
+                      "    } } }\n"
+                      "}\n")
+              open(p, "w").write(s)
+          print("ABI filter hook in", p)
+          PY
+
       - name: Build release APK (arm64 only)
         working-directory: app
         run: |
           API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}"
           BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
+          # faststart: the website APK carries ONLY arm64 native code (it had
+          # x86_64 + armeabi-v7a plugin libs but no 32-bit Flutter engine, so
+          # a 32-bit phone could install it and then crash). 32-bit phones
+          # get Play (AAB keeps armeabi-v7a) or the Play universal APK.
+          echo "arm64-v8a" > android/app/abi_filters.txt
           flutter build apk --release \
             --target-platform=android-arm64 \
             --build-number=${{ github.run_number }} \
             --build-name=1.0.${{ github.run_number }} \
             --dart-define=API_BASE="$API_BASE" \
             --dart-define=BUILD_TIME="$BUILD_TIME"
+          rm -f android/app/abi_filters.txt
+          REL=build/app/outputs/flutter-apk/app-release.apk
+          unzip -l "$REL" | grep -q "lib/arm64-v8a/libflutter.so" || { echo "::error::no arm64 Flutter engine in the APK"; exit 1; }
+          if unzip -l "$REL" | grep -qE "lib/(x86_64|x86|armeabi-v7a)/"; then
+            echo "::error::website APK still carries non-arm64 native libs"; exit 1
+          fi
 
       - name: R8 keeps Gson generics for scheduled notifications (gate)
         working-directory: app
@@ -1203,15 +1279,49 @@ jobs:
           # aside and restored, so the signing step still ships arm64.
           REL=build/app/outputs/flutter-apk/app-release.apk
           cp "$REL" /tmp/arm64-release.apk
+          echo "x86_64" > android/app/abi_filters.txt   # faststart: test APK = x86_64 only
           flutter build apk --release --target-platform=android-x64 \
             --dart-define=ASSISTO_SMOKE=true \
             --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}" \
             --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
+          rm -f android/app/abi_filters.txt
           cp "$REL" emu-x64.apk
           cp /tmp/arm64-release.apk "$REL"
           unzip -l "$REL" | grep -q "lib/arm64-v8a/" || { echo "::error::shipped APK is not arm64"; exit 1; }
           unzip -l emu-x64.apk | grep -q "lib/x86_64/" || { echo "::error::smoke APK is not x86_64"; exit 1; }
 
+      # faststart (owner 10 Nov, item 6): website APK size report. Biggest
+      # entries go to the run summary on every build. Hard cap 140 MB (it
+      # was 202 MB with stray x86_64/v7a plugin libs; arm64-only ~101-112 MB).
+      # What a PHONE downloads is guarded on the AAB below (bundletool).
+      - name: APK size report (faststart)
+        working-directory: app
+        run: |
+          REL=build/app/outputs/flutter-apk/app-release.apk
+          python3 - "$REL" <<'PY'
+          import os, sys, zipfile
+          p = sys.argv[1]
+          mb = os.path.getsize(p) / 1048576
+          z = zipfile.ZipFile(p)
+          groups = {}
+          for i in z.infolist():
+              top = i.filename.split("/")[0]
+              if top == "lib":
+                  key = i.filename
+              elif top == "assets":
+                  key = "/".join(i.filename.split("/")[:4])
+              else:
+                  key = top if "/" in i.filename else ("dex" if i.filename.endswith(".dex") else "other")
+              groups[key] = groups.get(key, 0) + i.compress_size
+          rows = sorted(groups.items(), key=lambda kv: -kv[1])[:25]
+          out = ["### APK size (arm64 release): %.1f MB" % mb, "", "| entry | MB (compressed) |", "|---|---|"]
+          out += ["| %s | %.2f |" % (k, v / 1048576) for k, v in rows]
+          txt = "\n".join(out) + "\n"
+          print(txt)
+          open(os.environ["GITHUB_STEP_SUMMARY"], "a").write(txt)
+          if mb > 140:
+              print("::error::website APK %.1f MB > 140 MB cap" % mb); sys.exit(1)
+          PY
       - name: Upload emulator smoke APK
         uses: actions/upload-artifact@v4
         with:
@@ -1336,12 +1446,19 @@ jobs:
           #    (owner order), still rising with every release.
           PLAY_VC=$(( ${{ github.run_number }} + 10000 ))
           echo "Play versionCode: $PLAY_VC"
+          # faststart: phones only — arm64-v8a + armeabi-v7a (32-bit BD
+          # phones keep working); x86_64 lives only in the CI test APK. Play
+          # serves each phone its own ABI split; the Play universal APK (the
+          # website /dl/play copy) loses ~35 MB of x86_64 code.
+          echo "armeabi-v7a,arm64-v8a" > android/app/abi_filters.txt
           flutter build appbundle --release \
+            --target-platform=android-arm,android-arm64 \
             --build-number=$PLAY_VC \
             --build-name=1.0.${{ github.run_number }} \
             --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}" \
             --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)" \
             --dart-define=PLAY_STORE=true
+          rm -f android/app/abi_filters.txt
           AAB=build/app/outputs/bundle/release/app-release.aab
           # the bundle's own (protobuf) manifest keeps permission names as text
           unzip -p "$AAB" base/manifest/AndroidManifest.xml > /tmp/play-manifest.pb
@@ -1367,7 +1484,7 @@ jobs:
               echo "::error::$P is in the Play bundle manifest (not declared for the 8 Nov launch)"; exit 1
             fi
           done
-          for C in GeolocatorLocationService; do
+          for C in GeolocatorLocationService OfflineDownloadService; do
             if grep -a -q "$C" /tmp/play-manifest.pb; then
               echo "::error::$C is in the Play bundle manifest (unused foreground service)"; exit 1
             fi
@@ -1410,6 +1527,55 @@ jobs:
           MAP=build/app/outputs/mapping/release/mapping.txt
           if [ -s "$MAP" ]; then cp "$MAP" "out/assisto-play-build${{ github.run_number }}.mapping.txt"; else echo "::warning::no R8 mapping.txt for the AAB"; fi
           ls -la out/
+
+      # faststart (owner 10 Nov, item 6): what a PHONE really downloads from
+      # Play — bundletool `get-size total` for an arm64 and a 32-bit
+      # (armeabi-v7a) Bangladesh phone (bn, 320 dpi). Guard: > 5 % (+1 MB)
+      # above tools/startspeed/size_baseline.json fails; no baseline yet =
+      # report only (the first numbers are then committed as the baseline).
+      - name: Phone download size per ABI (bundletool, faststart)
+        if: steps.aab.outcome == 'success'
+        working-directory: app
+        run: |
+          # tool trouble (download / bundletool) = a warning, never a red ship;
+          # only a real size regression fails
+          skip() { echo "::warning::download-size check skipped: $1"; exit 0; }
+          curl -fsSL -o /tmp/bundletool.jar \
+            https://github.com/google/bundletool/releases/download/1.17.2/bundletool-all-1.17.2.jar || skip "bundletool download"
+          AAB=$(ls out/*.aab 2>/dev/null | head -1)
+          [ -n "$AAB" ] || skip "no AAB"
+          java -jar /tmp/bundletool.jar build-apks --bundle "$AAB" --output /tmp/fs.apks --overwrite || skip "build-apks"
+          echo '{"supportedAbis":["arm64-v8a"],"supportedLocales":["bn"],"screenDensity":320,"sdkVersion":33}' > /tmp/spec_arm64.json
+          echo '{"supportedAbis":["armeabi-v7a"],"supportedLocales":["bn"],"screenDensity":320,"sdkVersion":28}' > /tmp/spec_v7a.json
+          for a in arm64 v7a; do
+            java -jar /tmp/bundletool.jar get-size total --apks /tmp/fs.apks --device-spec /tmp/spec_$a.json > /tmp/size_$a.csv || skip "get-size $a"
+            echo "$a: $(tail -1 /tmp/size_$a.csv)"
+          done
+          python3 - <<'PY'
+          import json, os, sys
+          base_p = os.path.join(os.environ["GITHUB_WORKSPACE"], "tools/startspeed/size_baseline.json")
+          base = json.load(open(base_p)) if os.path.exists(base_p) else {}
+          rows, bad = [], []
+          for a in ("arm64", "v7a"):
+              mx = int(open("/tmp/size_%s.csv" % a).read().strip().splitlines()[-1].split(",")[-1])
+              mb = mx / 1048576
+              b = base.get(a + "_download_mb")
+              lim = None if b is None else b * 1.05 + 1
+              ok = lim is None or mb <= lim
+              rows.append("| %s | %.1f MB | %s | %s |" % (a, mb, "-" if b is None else "%.1f MB" % b,
+                          "PASS" if ok else "FAIL"))
+              if not ok:
+                  bad.append("%s %.1f MB > %.1f MB (baseline %.1f + 5%% + 1)" % (a, mb, lim, b))
+          txt = ("### Phone download size from Play (bundletool get-size, MAX)\n\n"
+                 "| phone | download | baseline | result |\n|---|---|---|---|\n" + "\n".join(rows) + "\n")
+          if not base:
+              txt += "\n(no baseline yet: report only)\n"
+          print(txt)
+          open(os.environ["GITHUB_STEP_SUMMARY"], "a").write(txt)
+          for m in bad:
+              print("::error::download-size regression: " + m)
+          sys.exit(1 if bad else 0)
+          PY
 
       - name: Upload AAB artifact (Google Play)
         if: steps.aab.outcome == 'success'
@@ -1504,6 +1670,52 @@ jobs:
             live_logcat.txt
             logcat.txt
           retention-days: 7
+          if-no-files-found: warn
+
+  # ---- faststart ---- CI START-TIME GUARD (owner 10 Nov 00:55): every build,
+  # the release x86_64 APK on a 2 GB / 2-core emulator in AIRPLANE MODE
+  # (offline; no traffic to the live server): cold-start median < 2.5 s
+  # (2 s target + 25 % emulator tolerance) and hot-start median < 1 s, median
+  # of 5 after a warm-up, one re-measure batch before failing
+  # (tools/startspeed/guard.sh). Not named launch-smoke-test: a red guard
+  # shows the regression without blocking the ship (ship_watch).
+  start-time-guard:
+    needs: build-apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/startspeed
+      - uses: actions/download-artifact@v4
+        with:
+          name: assisto-apk-emu
+          path: apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Start-time guard (API 33, 2 GB, offline)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          ram-size: 2048M
+          cores: 2
+          disable-animations: false
+          emulator-boot-timeout: 480
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: bash tools/startspeed/guard.sh apk/emu-x64.apk
+      - name: Upload guard evidence (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: start-time-guard
+          path: start_guard/
+          retention-days: 14
           if-no-files-found: warn
 
   # ---- play-fsi ---- Proof on a real Android 14 (API 34) emulator that the

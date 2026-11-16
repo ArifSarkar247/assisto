@@ -247,6 +247,9 @@ urlpatterns = [
     path("city/night-rating", cityv.city_night_rating),
     path("city/trips/consent", cityv.city_trip_consent),
     path("city/trips", cityv.city_trip),
+    path("city/trips/confirm", cityv.city_trip_confirm_ride),  # mapapp (renamed: citycov owns city_trip_confirm(tid))
+    path("city/trips/mine", cityv.city_trip_mine),  # mapapp
+    path("city/map", cityv.city_map),  # mapapp
     path("city/women", cityv.city_women),
     path("city/field-stops", cityv.city_field_stops),  # citycov
     path("city/trips/<int:tid>/confirm", cityv.city_trip_confirm),  # citycov
@@ -635,6 +638,7 @@ urlpatterns = [
     path("maps/area", vmaps.MapsAreaView.as_view()),  # sjstart2
     path("maps/place", vmaps.MapsPlaceView.as_view()),
     path("maps/eta", vmaps.MapsEtaView.as_view()),
+    path("maps/transit", vmaps.MapsTransitView.as_view()),  # mapapp
     path("journey/places/<int:pk>", b61.SavedPlaceDetailView.as_view()),
     # owner idea 1: guardian-requested journeys (core/guardian_journey.py)
     path("journey/requests", vg.JourneyRequestsView.as_view()),
@@ -2059,3 +2063,10 @@ urlpatterns += [
     path("lp/certificate/<int:pk>", lpv.LpCertificateView.as_view()),
 ]
 # ---- /lpcore ----
+
+# ---- buyinside ---- plan recommendation from real usage + purchase origins
+from . import views_buyinside as buyv  # noqa: E402
+urlpatterns += [
+    path("plans/recommend", buyv.PlanRecommendView.as_view()),
+    path("owner/buy-origins", buyv.BuyOriginsView.as_view()),
+]

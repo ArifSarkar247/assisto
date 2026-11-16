@@ -10,6 +10,7 @@ import '../screens/plans_screen.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
+import 'buy_inside.dart' show BuyOrigin, kPaidFeatures, paidFeatureName;
 import 'plans_v2.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
@@ -94,6 +95,12 @@ class UpgradeSheet extends StatefulWidget {
     case 'ledger_ai_addons':
       return (t.pv2ReasonLedgerAiTitle, t.pv2ReasonLedgerAiBody(plan));
   }
+  // buyinside: every other paid feature has its own name on the sheet
+  final name = paidFeatureName(t, r.feature);
+  if (name != null) {
+    return (name,
+        r.serverMessage.isNotEmpty ? r.serverMessage : t.biFeatBody(name, plan));
+  }
   return (t.pv2ReasonGenericTitle(plan),
       r.serverMessage.isNotEmpty ? r.serverMessage : t.pv2ReasonGenericBody(plan));
 }
@@ -122,7 +129,7 @@ IconData _icon(String feature) => switch (feature) {
       'ai_sales_agent' => Icons.support_agent_rounded,
       'booking_bot' => Icons.event_available_rounded,
       'reports' => Icons.bar_chart_rounded,
-      _ => Icons.workspace_premium_rounded,
+      _ => kPaidFeatures[feature]?.icon ?? Icons.workspace_premium_rounded,
     };
 
 class _UpgradeSheetState extends State<UpgradeSheet> {
@@ -147,6 +154,7 @@ class _UpgradeSheetState extends State<UpgradeSheet> {
   @override
   void initState() {
     super.initState();
+    BuyOrigin.current = widget.reason.feature; // buyinside analytics
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
@@ -212,7 +220,10 @@ class _UpgradeSheetState extends State<UpgradeSheet> {
       final st = widget.startTrial;
       r = st != null
           ? await st()
-          : await context.read<AppState>().api.postJson('/plans/trial/start');
+          : await context
+              .read<AppState>()
+              .api
+              .postJson('/plans/trial/start', {'origin': widget.reason.feature});
     } catch (_) {
       r = {'ok': false};
     }
@@ -231,6 +242,8 @@ class _UpgradeSheetState extends State<UpgradeSheet> {
 
   String _date(DateTime d) =>
       trialDate(context, d);
+
+  bool get _showTrial => _state.on && _state.trialAvailable && !_trialOk;
 
   @override
   Widget build(BuildContext context) {
@@ -275,9 +288,14 @@ class _UpgradeSheetState extends State<UpgradeSheet> {
           Text(t.pv2WhatYouGet(planName(t, r.neededPlan)),
               style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
+          // buyinside (owner-approved layout): 3 clear benefits, then
+          // "Start 7 days free" (primary, only while the server offers it),
+          // the price button, "then X a month · cancel any time · paid with
+          // Google Play", and the link to all plans.
           for (final b in upgradeBenefits(t, r.neededPlan,
-              booking: FeatureFlags.instance.isOn('booking_bot'),
-              retention: FeatureFlags.instance.isOn('retention_auto')))
+                  booking: FeatureFlags.instance.isOn('booking_bot'),
+                  retention: FeatureFlags.instance.isOn('retention_auto'))
+              .take(3))
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -294,33 +312,9 @@ class _UpgradeSheetState extends State<UpgradeSheet> {
               child: Center(child: CircularProgressIndicator()),
             )
           else ...[
-            if (canBuy)
-              FilledButton.icon(
-                key: const Key('pv2-upgrade-buy'),
-                onPressed: _busy ? null : _buy,
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                icon: const Icon(Icons.workspace_premium_rounded),
-                label: Text(t.pv2UpgradeTo(planName(t, r.neededPlan), price),
-                    textAlign: TextAlign.center),
-              )
-            else if (p != null && _flavour == 'play')
-              // Play build, store price not known yet: no button, honest line.
-              Padding(
-                padding: const EdgeInsets.only(bottom: Gap.sm),
-                child: Text(
-                    _pricesLoading ? t.pv2PriceLoading : t.payPriceUnavailable,
-                    key: const Key('pv2-price-unavailable'),
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
-              ),
-            if (canBuy && _flavour == 'play')
-              Padding(
-                padding: const EdgeInsets.only(top: Gap.xs),
-                child: Text(t.pv2PlayNote,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-              ),
             if (_trialMsg != null)
               Padding(
-                padding: const EdgeInsets.only(top: Gap.md),
+                padding: const EdgeInsets.only(bottom: Gap.md),
                 child: Text(_trialMsg!,
                     key: const Key('pv2-trial-msg'),
                     style: TextStyle(
@@ -329,31 +323,76 @@ class _UpgradeSheetState extends State<UpgradeSheet> {
                             : scheme.error,
                         fontWeight: FontWeight.w600)),
               ),
-            if (_state.on && _state.trialAvailable && !_trialOk) ...[
-              const SizedBox(height: Gap.md),
-              OutlinedButton.icon(
+            if (_trialOk)
+              FilledButton.icon(
+                key: const Key('bi-continue'),
+                onPressed: () => Navigator.pop(context, true),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                icon: const Icon(Icons.arrow_forward_rounded),
+                label: Text(t.biContinue),
+              ),
+            if (_showTrial) ...[
+              FilledButton.icon(
                 key: const Key('pv2-trial'),
                 onPressed: _busy ? null : _trial,
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
                 icon: const Icon(Icons.card_giftcard_rounded),
-                label: Text(
-                    t.pv2TrialButton(fmtInt(context, _state.trialDays),
-                        planName(t, _state.trialPlan)),
+                label: Text(t.biStartTrialDays(fmtInt(context, _state.trialDays)),
                     textAlign: TextAlign.center),
               ),
               const SizedBox(height: Gap.xs),
               Text(t.pv2TrialNote(_date(trialEnd)),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: scheme.onSurfaceVariant)),
+              const SizedBox(height: Gap.md),
             ],
-            const SizedBox(height: Gap.md),
-            OutlinedButton(
+            if (canBuy && !_trialOk) ...[
+              if (_showTrial)
+                OutlinedButton(
+                  key: const Key('pv2-upgrade-buy'),
+                  onPressed: _busy ? null : _buy,
+                  style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50)),
+                  child: Text(t.biPlanPrice(planName(t, r.neededPlan), price ?? ''),
+                      textAlign: TextAlign.center),
+                )
+              else
+                FilledButton.icon(
+                  key: const Key('pv2-upgrade-buy'),
+                  onPressed: _busy ? null : _buy,
+                  style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(52)),
+                  icon: const Icon(Icons.workspace_premium_rounded),
+                  label: Text(t.biPlanPrice(planName(t, r.neededPlan), price ?? ''),
+                      textAlign: TextAlign.center),
+                ),
+              const SizedBox(height: Gap.xs),
+              Text(_flavour == 'play' ? t.biThenPlay(price ?? '') : t.biThenApk(price ?? ''),
+                  key: const Key('bi-then-line'),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: scheme.onSurfaceVariant)),
+            ] else if (p != null && _flavour == 'play' && !_trialOk)
+              // Play build, store price not known yet: no button, honest line.
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.sm),
+                child: Text(
+                    _pricesLoading ? t.pv2PriceLoading : t.payPriceUnavailable,
+                    key: const Key('pv2-price-unavailable'),
+                    style: TextStyle(color: scheme.onSurfaceVariant)),
+              ),
+            const SizedBox(height: Gap.sm),
+            TextButton(
               key: const Key('pv2-see-plans'),
               onPressed: () {
                 final nav = Navigator.of(context);
                 nav.pop(_trialOk);
                 nav.push(MaterialPageRoute(builder: (_) => const PlansScreen()));
               },
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
               child: Text(t.pv2SeePlans),
             ),
           ],

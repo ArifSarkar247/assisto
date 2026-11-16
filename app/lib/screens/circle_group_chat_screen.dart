@@ -91,6 +91,7 @@ import '../messaging/share/share_payload.dart'
     show kShareKinds, mc2ForwardKind, mc2ForwardText, shareFallback;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'package:assisto/widgets/app_sheet.dart';
+import '../offline/offline_store.dart'; // offline1st
 
 /// End-to-end-encrypted GROUP chat (M2 item 7).
 ///
@@ -668,9 +669,29 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
     _ringWait ??= Timer(const Duration(seconds: 4), ready);
     unawaited(ringF.then((_) => ready(), onError: (_) => ready()));
+    // offline1st: the newest page + members open AT ONCE from this phone's
+    // encrypted copy (group E2E ciphertext as relayed); the network replaces it.
+    final slot = OfflineStore.chatSlot('group', _groupId);
+    if (!_loadedOnce && _messages.isEmpty) {
+      final c = await OfflineStore.instance.read(uid, slot);
+      if (c is Map && c['page'] is List && mounted && _messages.isEmpty) {
+        List<Map<String, dynamic>> rows(Object? l) => (l is List ? l : const [])
+            .whereType<Map>()
+            .map((e) => e.cast<String, dynamic>())
+            .toList();
+        setState(() {
+          _members = rows(c['members']);
+          _messages = rows(c['page']);
+          _hasMore = c['has_more'] == true;
+          _loading = false;
+        });
+      }
+    }
     // Spinner only on the very first load — a reload after send/react/pin
     // keeps the list on screen (no flash, no jump).
-    if (mounted && !_loading && !_loadedOnce) setState(() => _loading = true);
+    if (mounted && !_loading && !_loadedOnce && _messages.isEmpty) {
+      setState(() => _loading = true);
+    }
     try {
       final mem = await _api.getJson('/circle/groups/$_groupId/members');
       _members = ((mem['results'] ?? mem['members'] ?? []) as List)
@@ -679,6 +700,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           .getJson('/circle/groups/$_groupId/messages?limit=$_pageSize');
       final page = ((msg['results'] ?? msg['messages'] ?? []) as List)
           .cast<Map<String, dynamic>>();
+      unawaited(OfflineStore.instance.write(uid, slot,
+          {'members': _members, 'page': page, 'has_more': msg['has_more'] == true}));
       if (!_loadedOnce) {
         _messages = page;
         _hasMore = msg['has_more'] == true;

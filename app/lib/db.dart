@@ -7,10 +7,19 @@ class LocalDb {
   static final LocalDb instance = LocalDb._();
   LocalDb._();
   Database? _db;
+  Future<Database>? _opening; // faststart: single-flight open
 
   Future<Database> get db async {
-    _db ??= await _open();
-    return _db!;
+    final d = _db;
+    if (d != null) return d;
+    // faststart: startup reads run in parallel — open the file ONCE
+    final f = _opening ??= _open();
+    try {
+      return _db = await f;
+    } catch (e) {
+      _opening = null; // a failed open may be retried
+      rethrow;
+    }
   }
 
   Future<Database> _open() async {

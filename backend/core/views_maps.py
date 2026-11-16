@@ -8,6 +8,7 @@ app shows the coordinates text + "Open in Google Maps" instead.
   GET  /maps/autocomplete?q&session&lat&lng  Places (New) Autocomplete
   GET  /maps/place?id&session                one Place Details Essentials
   GET  /maps/eta?olat&olng&dlat&dlng&mode    one Routes call (start / tap)
+  GET  /maps/transit?olat&olng&dlat&dlng     mapapp: live Google transit (Google view only, never stored)
 """
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -66,6 +67,17 @@ class MapsEtaView(APIView):
         return Response(PS.public(MC.route_eta(request.user, _q(request, "olat"), _q(request, "olng"),
                                                _q(request, "dlat"), _q(request, "dlng"),
                                                mode=_q(request, "mode") or "")))
+
+
+class MapsTransitView(APIView):
+    """mapapp (owner 10 Nov 00:35): Google Routes TRANSIT for the City
+    Service Google view. Live per request, never cached or stored; any
+    refusal answers state "none" + routes [] (the app then shows only our
+    own results, never a limit message)."""
+    def get(self, request):
+        return Response(PS.public(MC.transit(request.user, _q(request, "olat"), _q(request, "olng"),
+                                             _q(request, "dlat"), _q(request, "dlng"),
+                                             lang=req_lang(request))))
 
 
 class MapsSearchView(APIView):

@@ -10,7 +10,8 @@ abstract class AdsBridge {
   /// Initialise the SDK (lazy — first real need only). Never throws.
   Future<bool> init();
 
-  /// Load + show an app-open ad. true if it was shown.
+  /// Show an app-open ad ONLY if one is already loaded (faststart); else
+  /// preload one for later and return false at once. true if it was shown.
   Future<bool> showAppOpen(String unitId);
 
   /// Load + show a rewarded ad. [RewardOutcome.earned] only when the SDK

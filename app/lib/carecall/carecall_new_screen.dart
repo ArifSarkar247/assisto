@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api.dart';
 import '../l10n/app_localizations.dart';
+import '../plans_v2/buy_inside.dart';
 import '../messaging/media/voice_player.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -71,6 +72,7 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
   CcRecorder? _rec;
   bool _saving = false;
   String? _error;
+  bool _limitHit = false; // buyinside: free schedules used up (extra = paid)
 
   int get _maxSec => (widget.limits?['voice_max_seconds'] as num?)?.toInt() ?? 30;
   int get _maxChars => (widget.limits?['text_max_chars'] as num?)?.toInt() ?? 300;
@@ -332,6 +334,9 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
       setState(() {
         _saving = false;
         _error = e.message.isNotEmpty ? e.message : t.ccFailed;
+        _limitHit = e.reason == 'limit_active' ||
+            e.body?['error'] == 'limit_active' ||
+            e.body?['detail'] == 'limit_active';
       });
     } catch (_) {
       // offline: keep it on this phone, turn it on when online
@@ -497,6 +502,16 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
               liveRegion: true,
               child: Text(_error!, style: tt.bodyMedium?.copyWith(color: s.error)),
             ),
+            // buyinside: only the EXTRA schedules beyond the free ones are
+            // paid — the free schedules never show this. The form stays filled.
+            if (_limitHit)
+              TextButton.icon(
+                key: const Key('bi-carecall-extra'),
+                style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: () => BuyInside.open(context, 'carecall_extra'),
+                icon: const Icon(Icons.add_alarm_rounded),
+                label: Text(t.biCareCallExtra),
+              ),
           ],
         ],
       ),

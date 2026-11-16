@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../../widgets/bn_day_periods.dart' show appDateLocale;
+import '../../plans_v2/buy_inside.dart';
 import 'booking_source.dart';
 import 'booking_widgets.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// booking-bot — the 3-step setup wizard: 1 services, 2 weekly hours + days
 /// off, 3 rules (capacity, staff, confirm, cancel window, chat bot, link) and
@@ -36,6 +38,8 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
   late int _cancel = (widget.initial['cancel_hours'] as num?)?.toInt() ?? 2;
   late bool _bot = widget.initial['chat_bot'] != false;
   late bool _sms = widget.initial['sms_reminders'] == true;
+  // buyinside: the booking page needs Business — buy it right here
+  late bool _planOk = widget.initial['plan_ok'] != false;
   late bool _enabled = widget.initial['enabled'] == true || bkList(widget.initial['services']).isEmpty;
   late final _slug = TextEditingController(text: (widget.initial['slug'] ?? '').toString());
   final _svcName = TextEditingController();
@@ -102,7 +106,7 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
         'name': _svcName.text.trim(),
         'duration_min': _svcDur,
         'buffer_min': _svcBuf,
-        'price_bdt': int.tryParse(_svcPrice.text.trim()) ?? 0,
+        'price_bdt': parseIntInput(_svcPrice.text.trim()) ?? 0,
       });
       _services = [..._services, s];
       _svcName.clear();
@@ -492,9 +496,23 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
         ),
         SwitchListTile(
           title: Text(t.bkgTakeBookings),
-          subtitle: Text(widget.initial['plan_ok'] == false ? t.bkgNeedsPlan : t.bkgTakeBookingsBody),
+          subtitle: Text(!_planOk ? t.bkgNeedsPlan : t.bkgTakeBookingsBody),
           value: _enabled,
           onChanged: (v) => setState(() => _enabled = v),
         ),
+        if (!_planOk)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+            child: FilledButton.tonalIcon(
+              key: const Key('bi-booking-buy'),
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: () async {
+                final ok = await BuyInside.open(context, 'booking_bot');
+                if (ok && mounted) setState(() => _planOk = true);
+              },
+              icon: const Icon(Icons.workspace_premium_rounded),
+              label: Text(t.biGetBusinessHere, textAlign: TextAlign.center),
+            ),
+          ),
       ];
 }

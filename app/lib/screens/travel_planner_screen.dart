@@ -15,6 +15,7 @@ import 'expense_split_screen.dart'; // p3life
 import 'life/life_common.dart'; // p3life
 import 'life/life_logic.dart' show tripSplitScope; // p3life
 import 'life/life_travel.dart'; // p3life
+import '../widgets/num_input.dart'; // savesweep
 
 /// TRAVEL PLANNER — ADVANCED, KEY-GATED (#35, SPEC v2.1 §21).
 ///
@@ -1284,7 +1285,7 @@ class _DayEditorSheetState extends State<_DayEditorSheet> {
             })
         .toList();
     Navigator.pop(context, {
-      'day': int.tryParse(_dayNum.text.trim()) ?? 1,
+      'day': parseIntInput(_dayNum.text.trim()) ?? 1,
       'title': _title.text.trim(),
       'activities': acts,
     });

@@ -257,6 +257,30 @@ def city_trip(request):
     return Response({"ok": True, "id": t.id}, status=201)
 
 
+@api_view(["POST"])
+def city_trip_confirm_ride(request):
+    """mapapp: the one-tap "Which bus? What fare?" card after a trip."""
+    d = request.data if isinstance(request.data, dict) else {}
+    st, err = CS.confirm_ride(request.user, d)
+    if err == "limit":
+        return _bad(request, "আজকের সীমা পূর্ণ।", "Today's limit is reached.", 429)
+    if err:
+        return _bad(request, "উত্তরটা নেওয়া গেল না।", "That answer could not be saved.")
+    return Response(dict(st, ok=True), status=201)
+
+
+@api_view(["GET"])
+def city_trip_mine(request):
+    """mapapp: "You verified N stops" (anon key only)."""
+    return Response(CS.rider_stats(request.user))
+
+
+@api_view(["GET"])
+def city_map(request):
+    """mapapp: tiles base (CITY_MAP_TILES_API.md) + credits for the app map."""
+    return Response(CS.map_config())
+
+
 @api_view(["GET"])
 def city_women(request):
     city = _city(request)

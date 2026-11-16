@@ -590,10 +590,29 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
             safe_mode = AC.is_minor(user)
             use_web = False
             out_cap = 0
+            if level and follow_free and session is not None:
+                # aimoney: the free Continue of an AD-FUNDED answer stays at
+                # Normal (an ad never pays for a longer level's Continue)
+                try:
+                    _last = session.messages.filter(role="assistant").order_by(
+                        "-created_at", "-id").first()
+                    if _last and (_last.meta or {}).get("ad"):
+                        level = "normal"
+                except Exception:  # noqa: BLE001
+                    pass
             if level:
                 from . import ai_levels_service as _ALS
                 use_web = _ALS.wants_web(text, level)
                 out_cap = int((_ALS.spec(level) or {}).get("out_cap") or 0)
+                if user is not None and not follow_free:
+                    # aimoney: an ad-funded answer states its shorter budget
+                    try:
+                        from . import ad_money_service as _AMS
+                        _row, _ad = _AMS.ad_level(user, _ALS.spec(level))
+                        if _ad:
+                            out_cap, use_web = int(_row["out_cap"]), False
+                    except Exception:  # noqa: BLE001
+                        pass
             task_text = chat_task_text(lang, user, follow=follow, photo=bool(photo),
                                        out_cap=out_cap, web=use_web)
             if user is not None:
@@ -698,6 +717,8 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
                 meta["spend_ref"] = str(meta_out["spend_ref"])   # aileft: Stop refunds the same lots
             if cut:
                 meta["cut"] = True
+            if meta_out.get("ad_funded"):
+                meta["ad"] = True       # aimoney: its free Continue stays at Normal
             if follow:
                 meta["follow"] = follow   # shown: "no credits used"
             if mode == "quick" and credits == 0:

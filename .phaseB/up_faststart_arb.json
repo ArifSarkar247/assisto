@@ -1,0 +1,12 @@
+{
+  "en": {
+    "fsLowDataTitle": "Low-data mode",
+    "@fsLowDataTitle": {"description": "faststart: Settings switch that saves mobile data"},
+    "fsLowDataSub": "Home and sponsor pictures show only if already saved on this phone (no new downloads), and calls use less data.",
+    "@fsLowDataSub": {"description": "faststart: subtitle of the Low-data mode switch"}
+  },
+  "bn": {
+    "fsLowDataTitle": "কম ডেটা মোড",
+    "fsLowDataSub": "হোম ও স্পনসরের ছবি শুধু আগে থেকে ফোনে রাখা থাকলে দেখাবে (নতুন ডাউনলোড হবে না), আর কলে কম ডেটা খরচ হবে।"
+  }
+}
