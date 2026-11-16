@@ -19,6 +19,7 @@ import '../photo_studio/ps_report.dart';
 import '../photo_studio/ps_tools.dart';
 import '../photo_studio/ps_web_import.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/photo_compare.dart';
@@ -805,21 +806,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
   // ------------------------------------------------------------------ hero
   Widget _hero(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
+    // design2: the DS soft hero (light: white -> #F2F7FF; dark: card -> page)
+    return DsHeroCard(
       padding: const EdgeInsets.all(Gap.xl),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Radii.lg),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Brand.cyan.withValues(alpha: 0.18),
-            Brand.blue.withValues(alpha: 0.16),
-            Brand.purple.withValues(alpha: 0.20),
-          ],
-        ),
-        border: Border.all(color: scheme.ds.border),
-      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(
           width: 52,
@@ -1062,18 +1051,21 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
       required String title,
       required List<Widget> children}) {
     final scheme = Theme.of(context).colorScheme;
-    return Material(
-      color: scheme.ds.card,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Radii.lg),
-        side: BorderSide(color: scheme.ds.border),
-      ),
-      child: Padding(
+    // design2: every studio section is an alive DS card with a tinted icon bubble
+    return DsCard(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(icon, color: scheme.primary),
-            const SizedBox(width: Gap.sm),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: scheme.ds.primarySoft,
+                borderRadius: BorderRadius.circular(DsRadius.card),
+              ),
+              child: Icon(icon, color: scheme.ds.primaryInk),
+            ),
+            const SizedBox(width: Gap.md),
             Expanded(
                 child: Text(title,
                     style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
@@ -1081,7 +1073,6 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           const SizedBox(height: Gap.md),
           ...children,
         ]),
-      ),
     );
   }
 
