@@ -13,8 +13,9 @@ SERVER-ENFORCED RULES (the app never decides who sees what):
     always labelled "Sponsored"; the per-card audience can still narrow them;
   * Premium and Business users NEVER receive ADMOB cards (no AdMob ads is a
     paid-plan benefit), whatever the card's audience says;
-  * the ADMOB slot is for FREE users only, at most ONE, and only when no active
-    SPONSORED card is booked for that user (a sponsor always wins the slot);
+  * the ADMOB slot is for FREE users only, at most ONE; discms (lead decision
+    10 Nov): a booked SPONSORED card and the ADMOB slot are BOTH shown, never
+    next to each other (at least one owner card between any two ads);
   * homeorder (owner 2 Nov): a card whose in-app route belongs to a feature
     flag that is OFF for this user is hidden (preview-only = off, so the
     owner's home matches normal users');
@@ -192,6 +193,8 @@ def separate_ads(cards):
     n = len(plain)
 
     def ok(g):   # gap g sits between plain[g-1] and plain[g]
+        if g in slots:   # discms: one ad per gap = never two ads side by side
+            return False
         return not ((g > 0 and is_protected(plain[g - 1])) or
                     (g < n and is_protected(plain[g])))
 
@@ -241,13 +244,12 @@ def visible_cards(cards, segment, build, now, hero_ad=False, route_on=None):
             continue
         base.append(c)
     base.sort(key=lambda c: (int(c.get("order") or 0), int(c.get("id") or 0)))
-    has_sponsor = any(c.get("type") == SPONSORED for c in base)
     out, admob_used = [], False
     for c in base:
         if c.get("type") == ADMOB:
             # h1-home: only ONE AdMob ad on home — while the home hero is
             # showing a native ad the Discover AdMob slot is dropped.
-            if paid or has_sponsor or admob_used or hero_ad:
+            if paid or admob_used or hero_ad:
                 continue
             admob_used = True
         out.append(c)

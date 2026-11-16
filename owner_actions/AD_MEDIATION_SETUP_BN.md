@@ -3,9 +3,9 @@
 শাখা `agent/adcontrol`। অ্যাপের দিকের কাজ শেষ; নিচের ধাপগুলো **শুধু আপনি** আপনার অ্যাকাউন্টে করবেন। কোনো টাকা খরচ নেই।
 
 ## অ্যাপে যা করা হয়েছে
-- **মিডিয়েশন:** AdMob bidding-এর মাধ্যমে **Meta Audience Network** ও **AppLovin** — মোট ২টি বাড়তি SDK (সর্বোচ্চ ২)। অ্যাডাপ্টার: `com.google.ads.mediation:facebook:6.22.0.1`, `com.google.ads.mediation:applovin:13.6.4.2` (আমাদের Google Ads SDK 25.4.0-এর সাথে মেলানো)।
-- **দ্রুত চালু থাকে:** দুই SDK-র নিজের "startup ContentProvider" সরানো হয়েছে (ColorOS/Realme-এ আগের ক্র্যাশের শিক্ষা); এগুলো শুধু ফ্রি ব্যবহারকারীর জন্য, সম্মতির পরে, অ্যাপ খোলা শেষ হওয়ার পর চালু হয়। কোনো নতুন সংবেদনশীল অনুমতি নেই (AppLovin-এর `CHECK_LICENSE` সরানো)।
-- **আকার ও গতি:** দুই SDK মিলিয়ে কাঁচা AAR ≈ ৬.৫ MB; R8-এর পর APK-তে আনুমানিক +২–৩ MB। প্রথম ইন্টিগ্রেশন বিল্ডের APK আকার (android.yml-এর `size:` লাইন) ও শুরু-সময় (perf2gb) আগের বিল্ডের সাথে মিলিয়ে STATUS-এ লেখা হবে; লক্ষ্য ছাড়ালে মিডিয়েশন সরিয়ে দেওয়া হবে।
+- **মিডিয়েশন:** এখন AdMob bidding-এর মাধ্যমে **Meta Audience Network** (`com.google.ads.mediation:facebook:6.22.0.1`)। **AppLovin পরের বিল্ডে:** দুটো একসাথে দিলে অ্যাপের ডাউনলোড-আকারের সীমা ছাড়িয়ে যায় (arm64 ৫৫.৩ MB, সীমা ৫৪.৮; v7a ৫২.৯, সীমা ৫২.৩)। AppLovin-এর ক্র্যাশ-রিপোর্টার বাদ দিলেও v7a-তে ~৫২.৪ MB থাকে, আর ওর কোড (১.৬ MB) ছোট করা যায় না। সীমা বাড়ানো হবে না; জায়গা হলে AppLovin যোগ হবে (`applovin:13.6.4.2`)।
+- **দ্রুত চালু থাকে:** Meta SDK-র নিজের "startup ContentProvider" সরানো হয়েছে (ColorOS/Realme-এ আগের ক্র্যাশের শিক্ষা); এটি শুধু ফ্রি ব্যবহারকারীর জন্য, সম্মতির পরে, অ্যাপ খোলা শেষ হওয়ার পর চালু হয়। কোনো নতুন অনুমতি নেই।
+- **আকার ও গতি:** Meta যোগ করায় APK আনুমানিক +২.৫ MB (ওর রানটাইম ফাইল)। প্রতিটি ABI-র আসল মাপ ইন্টিগ্রেশন বিল্ডে মাপা হয় (ডাউনলোড-আকারের সীমা পার হলে বিল্ড লাল হয়)।
 - **ব্লক করা বিভাগ (অংশ E):** অ্যাপ নিজে সর্বোচ্চ রেটিং **T** পাঠায় (প্রাপ্তবয়স্ক/MA বিজ্ঞাপন আসে না)। ডেটিং, জুয়া, মদ, রাজনীতি — এগুলো শুধু AdMob কনসোলেই বন্ধ করা যায় (নিচে ধাপ ২)।
 - **ফ্লোর:** অ্যাপে কোনো স্থির ফ্লোর নেই — AdMob-এর **Optimized floors** ব্যবহার হবে (ধাপ ৪)।
 - **৳৪৯ = ১৫ ক্রেডিট** ছোট প্যাক (`credits_c15`) সার্ভারে যোগ হয়েছে; Play Console-এ পণ্যটি বানানো ও Active না হওয়া পর্যন্ত অ্যাপে দেখায় না (ধাপ ৬)।
@@ -15,7 +15,7 @@
 ### ১. AdMob — মিডিয়েশন গ্রুপ (৫ মিনিট)
 1. admob.google.com → **Mediation** → **Create mediation group**।
 2. Ad format: **Banner** → Platform: **Android** → নাম: `Assisto Banner`। **Ad units**-এ Assisto-র Banner ইউনিট যোগ করুন।
-3. **Bidding** অংশে **Add ad source** → **Meta Audience Network (bidding)** → পরে **AppLovin (bidding)**।
+3. **Bidding** অংশে **Add ad source** → **Meta Audience Network (bidding)**। (AppLovin এখন যোগ করবেন না — অ্যাপে আসবে পরের বিল্ডে।)
 4. একই কাজ আবার করুন: **Native**, **Interstitial**, **Rewarded**, **App open** (প্রতিটি ফরম্যাটে একটি গ্রুপ)।
 
 ### ২. AdMob — বিভাগ ব্লক (৩ মিনিট)
@@ -30,14 +30,14 @@
 3. AdMob → ধাপ ১-এর গ্রুপে Meta-র পাশে **Placement ID** বসান।
 4. Monetization Manager → **app-ads.txt** লাইনটি কপি করুন (যেমন `facebook.com, <আপনার ID>, RESELLER, c3e20eee3f780d68`)।
 
-### ৪. AppLovin অ্যাকাউন্ট (১০ মিনিট)
+### ৪. AppLovin অ্যাকাউন্ট (পরের বিল্ডে — এখন শুধু ৪ নং ধাপের শেষ লাইন করুন)
 1. dash.applovin.com → সাইন আপ (Publisher) → **Account → Keys** → **SDK Key** কপি করুন।
 2. AdMob → ধাপ ১-এর গ্রুপে AppLovin-এর পাশে **SDK Key** বসান।
 3. AppLovin-এর app-ads.txt লাইন কপি করুন (Account → app-ads.txt)।
 4. AdMob → **Apps → Assisto → App settings** → **Optimized floors**: **On** (প্রতিটি ইউনিটে "Optimized" — কোনো স্থির উঁচু ফ্লোর নয়)।
 
 ### ৫. app-ads.txt-এ সঙ্গীদের লাইন (২ মিনিট)
-Owner Admin → **Integrations → Google AdMob** → **app-ads.txt অতিরিক্ত লাইন** ঘরে ধাপ ৩ ও ৪-এর লাইন দুটি বসান (প্রতি লাইনে একটি, বা `;` দিয়ে আলাদা) → সংরক্ষণ। ১০ মিনিটের মধ্যে `lifeassisto.com/app-ads.txt`-এ দেখা যাবে। ভুল লেখা লাইন নিজে থেকে বাদ পড়ে।
+Owner Admin → **Integrations → Google AdMob** → **app-ads.txt অতিরিক্ত লাইন** ঘরে ধাপ ৩-এর লাইনটি বসান (AppLovin-এরটা পরে) (প্রতি লাইনে একটি, বা `;` দিয়ে আলাদা) → সংরক্ষণ। ১০ মিনিটের মধ্যে `lifeassisto.com/app-ads.txt`-এ দেখা যাবে। ভুল লেখা লাইন নিজে থেকে বাদ পড়ে।
 
 ### ৬. Play Console — নতুন ছোট প্যাক ৳৪৯ (৫ মিনিট)
 1. Play Console → Assisto → **Monetize → Products → In-app products** → **Create product**।

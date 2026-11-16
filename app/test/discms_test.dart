@@ -183,8 +183,9 @@ void main() {
     final api = _Api()..response = _feed();
     await _pump(tester, api);
     expect(bridge.loads, 1);
-    // the slot sits at the owner's position (4th page)
-    await _swipeTo(tester, 3);
+    // Sponsored (3rd page) and AdMob are never side by side: one owner card
+    // between them -> the ad is the 5th page
+    await _swipeTo(tester, 4);
     expect(find.byKey(const ValueKey('discover_v2_admob')), findsOneWidget);
     expect(find.byKey(const ValueKey('fake_native')), findsOneWidget);
     // Home layout unchanged: the carousel keeps the reference card height

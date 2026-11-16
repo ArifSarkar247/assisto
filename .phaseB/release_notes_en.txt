@@ -1,5 +1,5 @@
-- Save now works for whole amounts in Family accounting, Mess, wedding and staff accounts (Bangla digits too); Save buttons reachable with the keyboard open.
-- All Services cleaned up: Family & Safety has 8 clear tiles with one red Emergency screen; other services in 16 tidy groups with full names.
-- Buy or start a free trial right inside paid features (CCTV: 7 days free).
-- CCTV: new detections, better phone motion and fewer night false alerts.
-- Safe Journey start screen and City Service coverage improvements.
+- Faster start: Home opens in about 1.4 s and works offline from the last saved data.
+- New Low-data mode in Settings.
+- New City map: our own map with metro, bus routes, fares and waterlogging; optional Google view.
+- AI: "Watch N ads for 1 answer" for free users, honest and fair.
+- Smaller download from Play (about 50 MB).

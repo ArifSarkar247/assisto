@@ -101,13 +101,26 @@ class EveryoneSeesOwnerCardsTests(DiscmsBase):
         DiscoverCard.objects.create(key="ad", type="ADMOB", order=4)
 
     def _no_sponsor(self):
-        # a booked Sponsored card wins the one ad slot (d1 rule) — the AdMob
-        # tests run on a day with no sponsor booked
+        # AdMob tests also run with no sponsor booked (both are shown now)
         DiscoverCard.objects.filter(key="sp").update(enabled=False)
 
-    def test_sponsor_takes_the_slot_that_day(self):
-        self.assertNotIn("ad", self.keys(self.free))
-        self.assertIn("sp", self.keys(self.free))
+    def test_sponsor_and_admob_both_shown_never_adjacent(self):
+        ks = self.keys(self.free)
+        self.assertIn("sp", ks)
+        self.assertIn("ad", ks)
+        self.assertGreater(abs(ks.index("ad") - ks.index("sp")), 1)
+
+    def test_two_ads_never_side_by_side_pure(self):
+        def row(i, t="FEATURE"):
+            return {"id": i, "type": t, "enabled": True, "start_at": None,
+                    "end_at": None, "audience": "all", "min_build": None,
+                    "order": i, "route": "notes"}
+        rows = [row(1), row(2, "SPONSORED"), row(3, "ADMOB"), row(4), row(5)]
+        out = [r["type"] for r in D.visible_cards(rows, "free", None, timezone.now())]
+        for a, b in zip(out, out[1:]):
+            self.assertFalse(a in D.AD_TYPES and b in D.AD_TYPES, out)
+        self.assertEqual(out.count("ADMOB"), 1)
+        self.assertEqual(out.count("SPONSORED"), 1)
 
     def test_free_premium_plus_all_get_owner_cards(self):
         for u in (self.free, self.prem, self.plus):
