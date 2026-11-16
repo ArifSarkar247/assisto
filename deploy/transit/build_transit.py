@@ -1026,6 +1026,52 @@ class Builder:
         built = E.coverage(core, pts, path, set(map(tuple, getattr(self, "built_cells", []))))
         return allc, built
 
+    def coverage_map(self, net):
+        """citycov3: where the gaps are — one text row per 1-km grid row
+        (north first): '#' a stop within 700 m, 'o' built-up cell without a
+        stop, '.' empty cell (river, airport, cantonment, fields). Plus the
+        empty built-up cells with their nearest named places (OSM) and the
+        OSM bus stops inside them, so the next data round knows what to
+        look for."""
+        c = self.cfg["core"]
+        sl, so = 0.009, 0.0098
+        ny = int(round((c[2] - c[0]) / sl))
+        nx = int(round((c[3] - c[1]) / so))
+        g = Grid()
+        for row in net["stops"]["rows"]:
+            g.add(row[3], row[4], 1)
+        pg = Grid(cell=0.01)
+        for p in self.osm["places"]:
+            if not p.get("road") and p.get("name"):
+                pg.add(p["lat"], p["lon"], p.get("name_en") or p["name"])
+        built = set(map(tuple, getattr(self, "built_cells", [])))
+        rows, empty = [], []
+        for a in reversed(range(ny)):
+            line = ""
+            for b in range(nx):
+                la, lo = c[0] + (a + 0.5) * sl, c[1] + (b + 0.5) * so
+                if g.near(la, lo, 700):
+                    line += "#"
+                    continue
+                line += "o" if (a, b) in built else "."
+                names = []
+                for _d, nm in sorted(pg.near(la, lo, 900)):
+                    if nm not in names:
+                        names.append(nm)
+                osm_st = len(self.sgrid.near(la, lo, 700))
+                empty.append({"cell": [a, b], "lat": round(la, 4), "lon": round(lo, 4),
+                              "built": (a, b) in built, "places": names[:5], "osm_stops": osm_st})
+            rows.append("%.4f %s" % (c[0] + (a + 0.5) * sl, line))
+        unm = defaultdict(int)
+        for x in self.gaps.get("public_stop_unmatched", []):
+            for m in x["missing"]:
+                unm[m] += 1
+        for x in self.gaps.get("public_route_unmatched", []):
+            for m in x["missing"]:
+                unm[m] += 1
+        return {"map": rows, "empty": empty,
+                "unmatched_names": sorted(unm.items(), key=lambda kv: -kv[1])[:150]}
+
     def coverage(self, net):
         c = self.cfg["core"]
         g = Grid()
@@ -1230,6 +1276,17 @@ def main():
     with open(os.path.join(a.out, "report_%s.json" % a.city), "w") as fh:
         json.dump(report, fh, ensure_ascii=False, indent=1)
     print(json.dumps({k: report[k] for k in ("counts", "bytes", "gap_counts", "directory")}, ensure_ascii=False))
+    cmap = b.coverage_map(net)
+    report["coverage_map"] = cmap
+    with open(os.path.join(a.out, "report_%s.json" % a.city), "w") as fh:
+        json.dump(report, fh, ensure_ascii=False, indent=1)
+    print("COVERAGE MAP (# stop within 700 m, o built-up without stop, . empty)")
+    print("\n".join(cmap["map"]))
+    for e in cmap["empty"]:
+        if e["built"]:
+            print("  EMPTY-BUILT", e["cell"], e["lat"], e["lon"], "osm_stops=%d" % e["osm_stops"],
+                  "; ".join(e["places"]))
+    print("UNMATCHED", json.dumps(cmap["unmatched_names"], ensure_ascii=False)[:6000])
     if "top50" in report:
         t = report["top50"]
         print("TOP50 %d/%d pass, p50 %d ms, p95 %d ms, max %d ms, fastest with rickshaw %d" % (
