@@ -213,7 +213,7 @@
   "lib/screens/delete_account_screen.dart": 3,
   "lib/screens/deletion_grace_screen.dart": 2,
   "lib/screens/dictionary_screen.dart": 3,
-  "lib/screens/disaster_alerts_screen.dart": 5,
+  "lib/screens/disaster_alerts_screen.dart": 3,
   "lib/screens/doc_scanner_screen.dart": 4,
   "lib/screens/doctor_serial_screen.dart": 3,
   "lib/screens/domestic_staff_screen.dart": 6,
