@@ -29,7 +29,7 @@ if n1 != 1 or n2 != 1:
 open(p, "w").write(s)
 PY
 built=0
-if (cd "$W/g" && cmake -DCMAKE_BUILD_TYPE=Release . >/dev/null && make -s && ./font-maker >/dev/null); then
+if (cd "$W/g" && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Wno-c++11-narrowing" . >/dev/null && make -s && ./font-maker >/dev/null); then
   if ls "$W/g/font/$STACK"/*.pbf >/dev/null 2>&1; then
     rm -rf "$OUT/$STACK"; cp -r "$W/g/font/$STACK" "$OUT/$STACK"; built=1
   fi
@@ -45,6 +45,11 @@ git -C "$W/a" checkout -q "$ASSETS_SHA"
 git -C "$W/a" sparse-checkout set fonts
 for s in "Noto Sans Regular" "Noto Sans Medium" "Noto Sans Italic"; do
   rm -rf "$OUT/$s"; cp -r "$W/a/fonts/$s" "$OUT/$s"
+done
+# Spaces, Latin digits and punctuation inside Bangla labels stay plain Unicode (not PGF), so the
+# Bengali stack also needs those ranges: copy Noto Sans Regular's ranges that the PGF font lacks.
+for f in "$OUT/Noto Sans Regular"/*.pbf; do
+  [ -e "$OUT/$STACK/$(basename "$f")" ] || cp "$f" "$OUT/$STACK/"
 done
 echo "bengali_built_in_ci=$built"
 ls "$OUT/$STACK" | wc -l | xargs echo "bengali ranges:"

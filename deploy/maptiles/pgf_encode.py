@@ -13,6 +13,7 @@ Usage from the shell (one label per line on stdin -> JSON lines on stdout):
 """
 import csv
 import json
+import re
 import sys
 
 import uharfbuzz as hb
@@ -22,6 +23,9 @@ _DELTAS = [(0, 0), (-1, 0), (0, 1), (0, -1), (1, 0), (-2, 0), (-1, 1), (-1, -1),
            (1, 1), (1, -1), (2, 0), (-3, 0), (-2, 1), (-2, -1), (-1, 2), (-1, -2), (0, 3), (0, -3),
            (1, 2), (1, -2), (2, 1), (2, -1), (3, 0), (-4, 0), (-3, 1), (-3, -1), (-2, 2), (-2, -2),
            (-1, 3), (-1, -3), (0, 4), (0, -4), (1, 3), (1, -3), (2, 2), (2, -2), (3, 1), (3, -1), (4, 0)]
+
+
+_RUNS = re.compile("[\u0980-\u09ff]+|[^\u0980-\u09ff]+")
 
 
 def is_bengali(text):
@@ -49,9 +53,22 @@ class PgfEncoder:
         return None
 
     def encode(self, text):
-        """PUA string for a Bengali-script label; None if it cannot be encoded exactly."""
+        """Encoded label: Bengali-block runs -> PUA, everything else (spaces, Latin) kept as is,
+        exactly like protomaps TextEngine.encodeRegisteredScripts. None if a Bengali run fails."""
         if not text:
             return None
+        out = []
+        for run in _RUNS.findall(text):
+            if is_bengali(run):
+                enc = self._encode_run(run)
+                if enc is None:
+                    return None
+                out.append(enc)
+            else:
+                out.append(run)
+        return "".join(out)
+
+    def _encode_run(self, text):
         buf = hb.Buffer()
         buf.add_str(text)
         buf.guess_segment_properties()
