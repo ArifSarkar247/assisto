@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/bn_day_periods.dart' show appDateLocale;
 import '../../plans_v2/buy_inside.dart';
 import 'booking_source.dart';
@@ -181,7 +182,14 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: Gap.xxs),
-                  child: LinearProgressIndicator(value: i <= _step ? 1 : 0, minHeight: 6),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(Radii.pill),
+                    child: LinearProgressIndicator(
+                        value: i <= _step ? 1 : 0,
+                        minHeight: 6,
+                        backgroundColor: Theme.of(context).colorScheme.ds.cardHighest,
+                        color: Theme.of(context).colorScheme.ds.primary),
+                  ),
                 ),
               ),
           ]),
@@ -202,7 +210,11 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
             if (_err != null)
               Padding(
                 padding: const EdgeInsets.only(top: Gap.md),
-                child: Text(_err!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                child: DsCard(
+                  tone: DsTone.danger,
+                  padding: const EdgeInsets.all(Gap.md),
+                  child: Text(_err!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.dangerInk)),
+                ),
               ),
           ]),
         ),
@@ -213,16 +225,17 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
             child: Row(children: [
               if (_step > 0)
                 Expanded(
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 52)),
+                  child: DsButton.secondary(
                     onPressed: _busy ? null : () => setState(() => _step--),
-                    child: Text(t.bkgBack),
+                    label: t.bkgBack,
+                    expand: true,
                   ),
                 ),
               if (_step > 0) const SizedBox(width: Gap.md),
               Expanded(
-                child: FilledButton(
-                  style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+                child: DsButton(
+                  expand: true,
+                  busy: _busy,
                   onPressed: _busy
                       ? null
                       : () {
@@ -241,7 +254,7 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
                             _finish();
                           }
                         },
-                  child: Text(_step == 2 ? t.bkgFinish : t.bkgNext),
+                  label: _step == 2 ? t.bkgFinish : t.bkgNext,
                 ),
               ),
             ]),
@@ -257,7 +270,8 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
         Text(t.bkgStep1Body),
         const SizedBox(height: Gap.md),
         for (final s in _services)
-          Card(
+          DsCard(
+            padding: EdgeInsets.zero,
             child: ListTile(
               minVerticalPadding: Gap.md,
               title: Text(s['name'].toString()),
@@ -274,10 +288,9 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
             ),
           ),
         const SizedBox(height: Gap.sm),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(t.bkgAddService, style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: Gap.sm),
               TextField(
@@ -318,7 +331,6 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
                 onPressed: _busy ? null : _addService,
               ),
             ]),
-          ),
         ),
       ];
 
@@ -342,10 +354,9 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
         Text(t.bkgStep2Body),
         const SizedBox(height: Gap.md),
         for (var d = 0; d < 7; d++)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          DsCard(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(_dayName(d)),
@@ -367,7 +378,6 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
                     ),
                   ]),
               ]),
-            ),
           ),
         const SizedBox(height: Gap.md),
         Text(t.bkgDaysOff, style: Theme.of(context).textTheme.titleSmall),
@@ -409,10 +419,9 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
         const SizedBox(height: Gap.xs),
         Text(t.bkgStep3Body),
         const SizedBox(height: Gap.md),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(t.bkgStaffTitle, style: Theme.of(context).textTheme.titleSmall),
               Text(t.bkgStaffBody),
               Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -452,7 +461,6 @@ class _BookingSetupScreenState extends State<BookingSetupScreen> {
                 ]),
               ],
             ]),
-          ),
         ),
         SwitchListTile(
           title: Text(t.bkgAutoConfirm),
