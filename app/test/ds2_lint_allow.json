@@ -240,7 +240,7 @@
   "lib/screens/jobs_screen.dart": 4,
   "lib/screens/journey_fake_call_screen.dart": 3,
   "lib/screens/journey_map_pick_screen.dart": 1,
-  "lib/screens/journey_sos_screen.dart": 4,
+  "lib/screens/journey_sos_screen.dart": 2,
   "lib/screens/journey_start_screen.dart": 2,
   "lib/screens/kid_school_screen.dart": 4,
   "lib/screens/kids_watch/chip_widgets.dart": 2,
