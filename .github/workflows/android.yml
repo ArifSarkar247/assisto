@@ -1252,6 +1252,17 @@ jobs:
                       "}\n")
               open(p, "w").write(s)
           print("ABI filter hook in", p)
+          # b320 (lead 16 Nov): the runner's Android lint crashes inside
+          # camera_android_camerax lintVitalAnalyzeRelease (List.removeLast(),
+          # a Java-21 API, on JDK 17). Skip only the release lint-vital pass;
+          # our own analyze / static checks stay (checks.yml flutter-static).
+          s = open(p).read()
+          if "checkReleaseBuilds" not in s:
+              s += ("\n\n// b320: no lint-vital in release builds (runner lint crash on JDK 17)\n"
+                    + ("android { lint { checkReleaseBuilds = false } }\n" if is_kts
+                       else "android { lint { checkReleaseBuilds false } }\n"))
+              open(p, "w").write(s)
+          print("release lint-vital off in", p)
           PY
 
       - name: Build release APK (arm64 only)
