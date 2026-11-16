@@ -29,7 +29,7 @@ class EmailHealthPageTests(OwnerBase):
         self.assertIn(email_sender.mask_email(DEAD), html)
         self.assertNotIn(DEAD, html)
         self.assertIn("not connected", html)                 # honest: no SMTP entry here
-        bn = self.c.get("/owner/email-health").content.decode()
+        bn = self.c.get("/owner/email-health?lang=bn").content.decode()
         self.assertIn("ইমেইল স্বাস্থ্য", bn)
         self.assertIn('href="/owner/email-health"', bn)      # in the nav
 

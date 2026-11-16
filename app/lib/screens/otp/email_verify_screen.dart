@@ -210,7 +210,8 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                             const SizedBox(width: Gap.sm),
                             Expanded(
                               child: Text(t.emailrelBouncingBanner,
-                                  style: TextStyle(color: scheme.ds.dangerInk)),
+                                  style: text.bodyMedium
+                                      ?.copyWith(color: scheme.ds.dangerInk)),
                             ),
                           ]),
                         ),
