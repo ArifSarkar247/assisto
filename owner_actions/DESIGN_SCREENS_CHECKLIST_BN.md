@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৬২ / মোট ৪২০**
+**স্ক্রিন শেষ: ৬৩ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -65,7 +65,7 @@
 - ⬜ — `screens/journey_fake_call_screen.dart`
 - ⬜ — `screens/journey_live_screen.dart`
 - ⬜ — `screens/journey_map_pick_screen.dart`
-- ⬜ — `screens/journey_settings_screen.dart`
+- ✅ batch 7 (প্রতিটি অংশ আলাদা DS কার্ডে, স্কেলেটন) — `screens/journey_settings_screen.dart`
 - ⬜ — `screens/journey_start_screen.dart`
 - ✅ batch 5 (DS খালি অবস্থা (সুবিধা+কীভাবে+বড় বোতাম), স্কেলেটন) — `screens/journey_watch_screen.dart`
 - ⬜ — `screens/safe_journey/sj_child_school_screen.dart`
