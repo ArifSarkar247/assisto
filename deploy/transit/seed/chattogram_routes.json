@@ -1,0 +1,551 @@
+{
+ "_note": "citycov3 (16 Nov 2026): Chattogram core city bus network (New Market, GEC, Agrabad, port/EPZ, Patenga, Bahaddarhat, Oxygen, Chittagong University) from public pages only: Wikivoyage 'Chittagong' (stop lists read 16 Nov 2026) and The Daily Star (11 Nov 2012, routes 6 and 10 with the same places -> Verified, 2 publishers). Everything else stays Reported. Numbering/stops are old and can change: trips and users' corrections confirm. Routes with fewer than 3 places on the map are skipped by the build (report gaps).",
+ "not_found": {
+  "route 3/5/9 official list": "No BRTA/CMP Chattogram route list found online (news: 17 routes designated); fares: BRTA per-km rate (Prothom Alo 25 Apr 2026: Tk 2.53/km, min Tk 10).",
+  "tempo / human hauler routes": "No public list found."
+ },
+ "routes": [
+  {
+   "company": "Chattogram city bus route 1: New Market - Bahaddarhat",
+   "company_bn": "চট্টগ্রাম নগর বাস রুট ১",
+   "op": "",
+   "ref": "1",
+   "mode": "bus",
+   "stops": [
+    [
+     "New Market",
+     ""
+    ],
+    [
+     "Laldighi",
+     ""
+    ],
+    [
+     "Anderkilla",
+     ""
+    ],
+    [
+     "Nabab Siraj Ud Dawla Road",
+     ""
+    ],
+    [
+     "Chawk Bazar",
+     ""
+    ],
+    [
+     "Kapasgola",
+     ""
+    ],
+    [
+     "Badurtola",
+     ""
+    ],
+    [
+     "Bahaddarhat",
+     ""
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Wikivoyage: Chittagong (Get around, By bus)",
+     "url": "https://en.wikivoyage.org/wiki/Chittagong",
+     "date": "2026-11-16"
+    }
+   ]
+  },
+  {
+   "company": "Chattogram city bus route 2: New Market - Kaptai Rastar Matha",
+   "company_bn": "চট্টগ্রাম নগর বাস রুট ২",
+   "op": "",
+   "ref": "2",
+   "mode": "bus",
+   "stops": [
+    [
+     "New Market",
+     ""
+    ],
+    [
+     "Laldighi",
+     ""
+    ],
+    [
+     "Anderkilla",
+     ""
+    ],
+    [
+     "Jamal Khan",
+     ""
+    ],
+    [
+     "Chawk Bazar",
+     ""
+    ],
+    [
+     "Probartak",
+     ""
+    ],
+    [
+     "2 No. Gate",
+     ""
+    ],
+    [
+     "Muradpur",
+     ""
+    ],
+    [
+     "Bahaddarhat",
+     ""
+    ],
+    [
+     "Sharafat Petrol Pump",
+     ""
+    ],
+    [
+     "CMP Rastar Matha",
+     ""
+    ],
+    [
+     "Kaptai Rastar Matha",
+     ""
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Wikivoyage: Chittagong (Get around, By bus)",
+     "url": "https://en.wikivoyage.org/wiki/Chittagong",
+     "date": "2026-11-16"
+    }
+   ]
+  },
+  {
+   "company": "Chattogram city bus route 3: New Market - University of Chittagong",
+   "company_bn": "চট্টগ্রাম নগর বাস রুট ৩",
+   "op": "",
+   "ref": "3",
+   "mode": "bus",
+   "stops": [
+    [
+     "New Market",
+     ""
+    ],
+    [
+     "DC Hill",
+     ""
+    ],
+    [
+     "Kazir Dewri",
+     ""
+    ],
+    [
+     "Almas",
+     ""
+    ],
+    [
+     "WASA",
+     ""
+    ],
+    [
+     "GEC",
+     ""
+    ],
+    [
+     "2 No. Gate",
+     ""
+    ],
+    [
+     "Muradpur",
+     ""
+    ],
+    [
+     "Bibir Hat",
+     ""
+    ],
+    [
+     "Oxygen",
+     ""
+    ],
+    [
+     "Fatehabad",
+     ""
+    ],
+    [
+     "University of Chittagong",
+     ""
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Wikivoyage: Chittagong (Get around, By bus)",
+     "url": "https://en.wikivoyage.org/wiki/Chittagong",
+     "date": "2026-11-16"
+    }
+   ]
+  },
+  {
+   "company": "Chattogram city bus route 4: New Market - Bhatiari",
+   "company_bn": "চট্টগ্রাম নগর বাস রুট ৪",
+   "op": "",
+   "ref": "4",
+   "mode": "bus",
+   "stops": [
+    [
+     "New Market",
+     ""
+    ],
+    [
+     "Tigerpass",
+     ""
+    ],
+    [
+     "Lalkhan Bazar",
+     ""
+    ],
+    [
+     "WASA",
+     ""
+    ],
+    [
+     "GEC",
+     ""
+    ],
+    [
+     "Jhautola",
+     ""
+    ],
+    [
+     "AK Khan",
+     ""
+    ],
+    [
+     "Colonel Hat",
+     ""
+    ],
+    [
+     "Bhatiari",
+     ""
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Wikivoyage: Chittagong (Get around, By bus)",
+     "url": "https://en.wikivoyage.org/wiki/Chittagong",
+     "date": "2026-11-16"
+    }
+   ]
+  },
+  {
+   "company": "Chattogram city bus route 6: Laldighi - Patenga Sea Beach",
+   "company_bn": "চট্টগ্রাম নগর বাস রুট ৬",
+   "op": "",
+   "ref": "6",
+   "mode": "bus",
+   "stops": [
+    [
+     "Laldighi",
+     ""
+    ],
+    [
+     "New Market",
+     ""
+    ],
+    [
+     "Station Road",
+     ""
+    ],
+    [
+     "Tigerpass",
+     ""
+    ],
+    [
+     "Dewanhat",
+     ""
+    ],
+    [
+     "Agrabad",
+     ""
+    ],
+    [
+     "Barek Building",
+     ""
+    ],
+    [
+     "Saltgola",
+     ""
+    ],
+    [
+     "EPZ",
+     ""
+    ],
+    [
+     "Bandartila",
+     ""
+    ],
+    [
+     "Cement Crossing",
+     ""
+    ],
+    [
+     "Katgor",
+     ""
+    ],
+    [
+     "Patenga Sea Beach",
+     ""
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Wikivoyage: Chittagong (Get around, By bus)",
+     "url": "https://en.wikivoyage.org/wiki/Chittagong",
+     "date": "2026-11-16"
+    },
+    {
+     "s": "The Daily Star: Ctg city buses illegally changing routes",
+     "url": "https://www.thedailystar.net/news-detail-257137",
+     "date": "2012-11-11"
+    }
+   ]
+  },
+  {
+   "company": "Chattogram city bus route 7: New Market - Bhatiari",
+   "company_bn": "চট্টগ্রাম নগর বাস রুট ৭",
+   "op": "",
+   "ref": "7",
+   "mode": "bus",
+   "stops": [
+    [
+     "New Market",
+     ""
+    ],
+    [
+     "Tigerpass",
+     ""
+    ],
+    [
+     "Dewanhat",
+     ""
+    ],
+    [
+     "Agrabad",
+     ""
+    ],
+    [
+     "Boropole",
+     ""
+    ],
+    [
+     "Alankar",
+     ""
+    ],
+    [
+     "Bhatiari",
+     ""
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Wikivoyage: Chittagong (Get around, By bus)",
+     "url": "https://en.wikivoyage.org/wiki/Chittagong",
+     "date": "2026-11-16"
+    }
+   ]
+  },
+  {
+   "company": "Chattogram city bus route 8: New Market - Oxygen",
+   "company_bn": "চট্টগ্রাম নগর বাস রুট ৮",
+   "op": "",
+   "ref": "8",
+   "mode": "bus",
+   "stops": [
+    [
+     "New Market",
+     ""
+    ],
+    [
+     "Tigerpass",
+     ""
+    ],
+    [
+     "Lalkhan Bazar",
+     ""
+    ],
+    [
+     "GEC",
+     ""
+    ],
+    [
+     "2 No. Gate",
+     ""
+    ],
+    [
+     "Bayezid Bostami",
+     ""
+    ],
+    [
+     "Oxygen",
+     ""
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Wikivoyage: Chittagong (Get around, By bus)",
+     "url": "https://en.wikivoyage.org/wiki/Chittagong",
+     "date": "2026-11-16"
+    }
+   ]
+  },
+  {
+   "company": "Chattogram city bus route 10: Kalurghat - Katgor",
+   "company_bn": "চট্টগ্রাম নগর বাস রুট ১০",
+   "op": "",
+   "ref": "10",
+   "mode": "bus",
+   "stops": [
+    [
+     "Kalurghat",
+     ""
+    ],
+    [
+     "Kaptai Rastar Matha",
+     ""
+    ],
+    [
+     "Bahaddarhat",
+     ""
+    ],
+    [
+     "Muradpur",
+     ""
+    ],
+    [
+     "2 No. Gate",
+     ""
+    ],
+    [
+     "GEC",
+     ""
+    ],
+    [
+     "Lalkhan Bazar",
+     ""
+    ],
+    [
+     "Tigerpass",
+     ""
+    ],
+    [
+     "Chowmuhani",
+     ""
+    ],
+    [
+     "Dewanhat",
+     ""
+    ],
+    [
+     "Agrabad",
+     ""
+    ],
+    [
+     "Barek Building",
+     ""
+    ],
+    [
+     "Fakirhat",
+     ""
+    ],
+    [
+     "Customs",
+     ""
+    ],
+    [
+     "Saltgola",
+     ""
+    ],
+    [
+     "EPZ",
+     ""
+    ],
+    [
+     "Bandartila",
+     ""
+    ],
+    [
+     "Cement Crossing",
+     ""
+    ],
+    [
+     "Katgor",
+     ""
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Wikivoyage: Chittagong (Get around, By bus)",
+     "url": "https://en.wikivoyage.org/wiki/Chittagong",
+     "date": "2026-11-16"
+    },
+    {
+     "s": "The Daily Star: Ctg city buses illegally changing routes",
+     "url": "https://www.thedailystar.net/news-detail-257137",
+     "date": "2012-11-11"
+    }
+   ]
+  },
+  {
+   "company": "Chattogram city bus route 11: Bhatiari - Patenga Sea Beach",
+   "company_bn": "চট্টগ্রাম নগর বাস রুট ১১",
+   "op": "",
+   "ref": "11",
+   "mode": "bus",
+   "stops": [
+    [
+     "Bhatiari",
+     ""
+    ],
+    [
+     "Colonel Hat",
+     ""
+    ],
+    [
+     "AK Khan",
+     ""
+    ],
+    [
+     "Naya Bazar",
+     ""
+    ],
+    [
+     "Boropole",
+     ""
+    ],
+    [
+     "Saltgola",
+     ""
+    ],
+    [
+     "EPZ",
+     ""
+    ],
+    [
+     "Bandartila",
+     ""
+    ],
+    [
+     "Katgor",
+     ""
+    ],
+    [
+     "Patenga Sea Beach",
+     ""
+    ]
+   ],
+   "sources": [
+    {
+     "s": "Wikivoyage: Chittagong (Get around, By bus)",
+     "url": "https://en.wikivoyage.org/wiki/Chittagong",
+     "date": "2026-11-16"
+    }
+   ]
+  }
+ ]
+}

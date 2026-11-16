@@ -606,7 +606,7 @@ class Builder:
             if not srcs or not pr.get("stops"):
                 continue
             pr = dict(pr, counters=[], source=srcs[0]["s"], source_url=srcs[0]["url"],
-                      fetched=srcs[0].get("date", ""))
+                      fetched=srcs[0].get("date", ""), _two_ok=True)
             n0 = len(self.routes)
             self.add_public(pr, mode=pr.get("mode") or "bus")
             if len(self.routes) > n0:
@@ -615,6 +615,88 @@ class Builder:
                     for r in self.routes[n0:]:
                         r["_v"] = True
                     self.extra_routes["verified"] += 1
+        self.brta_routes()
+
+    def brta_routes(self):
+        """citycov3: the official BRTA / Dhaka RTC bus fare chart (route
+        number, stops in order, official km). A chart route that matches an
+        already listed route (>= 70 % of its placed stops within 400 m of
+        that route's stops, 4+ shared) adds the government source to it (2
+        independent sources -> Verified) and its route number; otherwise it
+        becomes its own route "BRTA A-xxx", Reported. Its fare uses the
+        official distances (current per-km rate x official km)."""
+        seed = self.seeds.get("brta_chart") or {}
+        src0 = seed.get("source") or {}
+        self.brta = {"chart_routes": len(seed.get("routes", [])), "placed": 0, "confirmed_existing": 0,
+                     "new_routes": 0, "unplaced": 0, "official_km": 0}
+        for cr in seed.get("routes", []):
+            src = {"s": src0.get("s", "BRTA fare chart"), "url": src0.get("url", ""),
+                   "date": src0.get("date", ""), "ref": cr["code"]}
+            pr = {"company": "BRTA %s" % cr["code"], "company_bn": "বিআরটিএ রুট %s" % cr.get("code_bn", ""),
+                  "ref": cr["code"], "op": "", "stops": [(x[0], x[1]) for x in cr["stops"]],
+                  "source": src["s"], "source_url": src["url"], "fetched": src0.get("fetched", ""),
+                  "sources": [src], "counters": [], "_brta": cr}
+            path, miss = self.match_sequence(pr["stops"])
+            pts, kms = [], []
+            for i, m in path:
+                en, bn = pr["stops"][i]
+                if pts and pts[-1][3] == m[3]:
+                    continue
+                pts.append((m[1], m[2], en or m[4], m[3], bn or m[5], ""))
+                kms.append(float(cr["stops"][i][2]))
+            if len(pts) < 3 or len(pts) < 0.5 * len(pr["stops"]):
+                self.brta["unplaced"] += 1
+                self.gaps["brta_route_unplaced"].append({"code": cr["code"], "name": cr["name"],
+                                                         "missing": miss[:12], "matched": len(pts)})
+                continue
+            if miss:
+                self.gaps["brta_stop_unmatched"].append({"code": cr["code"], "missing": miss[:12]})
+            self.brta["placed"] += 1
+            hit, dup = None, False
+            for r in self.routes:
+                if r["mode"] != "bus" or not r["id"].endswith("-a") or r.get("women_only") or not r.get("_grp"):
+                    continue
+                rs = [self.stops[i] for i in r["stops"]]
+                shared = sum(1 for p in pts if any(hav(p[0], p[1], q["lat"], q["lon"]) < 400 for q in rs))
+                frac = shared / float(len(pts))
+                if any(x.get("s") == src["s"] for x in r["src"]):
+                    # the chart cannot confirm itself; the same route listed
+                    # again (e.g. the return direction) is a duplicate
+                    dup = dup or (frac >= 0.9 and len(rs) <= len(pts) + 2)
+                    continue
+                if shared >= 4 and frac >= 0.7 and (hit is None or frac > hit[0]):
+                    hit = (frac, r["_grp"])
+            if dup and not hit:
+                self.brta["duplicate"] = self.brta.get("duplicate", 0) + 1
+                continue
+            if hit:
+                self.brta["confirmed_existing"] += 1
+                for r in self.routes:
+                    if r.get("_grp") == hit[1]:
+                        if src not in r["src"]:
+                            r["src"] = r["src"] + [src]
+                        r["_v"] = True
+                        r.setdefault("brta", cr["code"])
+                        if not r.get("ref"):
+                            r["ref"] = cr["code"]
+                        for si in r["stops"]:
+                            st = self.stops[si]
+                            if any(hav(p[0], p[1], st["lat"], st["lon"]) < 150 for p in pts):
+                                st["src"].add("brta")
+                continue
+            # official km per placed stop; only when it is sane (monotonic and
+            # never shorter than the straight line), else the usual estimate
+            ok = all(b > a for a, b in zip(kms, kms[1:]))
+            for k in range(1, len(pts)):
+                crow = hav(pts[k - 1][0], pts[k - 1][1], pts[k][0], pts[k][1]) / 1000.0
+                if ok and kms[k] - kms[k - 1] < 0.75 * crow:
+                    ok = False
+            pr["_km"] = {pts[k][3]: kms[k] - kms[0] for k in range(len(pts))} if ok else None
+            self.brta["official_km"] += bool(ok)
+            n0 = len(self.routes)
+            self.add_public(pr, pts, mode="bus", src_kind="brta")
+            if len(self.routes) > n0:
+                self.brta["new_routes"] += 1
 
     def match_public(self, pr, log=True):
         path, miss = self.match_sequence(pr["stops"])
@@ -624,6 +706,13 @@ class Builder:
             if pts and pts[-1][3] == m[3]:
                 continue
             pts.append((m[1], m[2], en or m[4], m[3], bn or m[5], ""))
+        if len(pts) == 2 and pr.get("_two_ok") and len(path) == 2 and all(m[0] <= 2 for _i, m in path) \
+                and 500 <= hav(pts[0][0], pts[0][1], pts[1][0], pts[1][1]) <= 15000:
+            # citycov3: a news-reported leguna/bus line between two named
+            # places (both found as a stop / station / named place, a sane
+            # distance apart) is a real 2-stop line: kept, Reported
+            self.two_stop = getattr(self, "two_stop", 0) + 1
+            return pts
         if len(pts) < 3 or len(pts) < 0.5 * len(pr["stops"]):
             if log:
                 self.gaps["public_route_unmatched"].append(
@@ -687,7 +776,7 @@ class Builder:
             out.append(b)
         return out
 
-    def add_public(self, pr, pts=None, women=False, mode="bus"):
+    def add_public(self, pr, pts=None, women=False, mode="bus", src_kind="public"):
         if pts is None:
             pts = self.match_public(pr)
             if pts is None:
@@ -698,16 +787,18 @@ class Builder:
         for i in range(1, len(pts)):
             acc += hav(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]) * 1.25 / 1000.0
             km.append(acc)
+        if pr.get("_km"):
+            km = official_km(pts, pr["_km"], km)
         base = re.sub(r"[^a-z0-9]+", "-", pr["company"].lower()).strip("-")[:32] + "-" + \
             hashlib.sha1((pr["source_url"] + "|" + "|".join(e or b for e, b in pr["stops"])).encode()).hexdigest()[:6]
-        grp = ("women-" if women else "leg-" if mode == "leguna" else "pub-") + base
+        grp = ("women-" if women else "leg-" if mode == "leguna" else "brta-" if src_kind == "brta" else "pub-") + base
         if any(r.get("_grp") == grp for r in self.routes):
             return
         for direction, seq, kk in (("a", pts, km), ("b", pts[::-1], [km[-1] - x for x in km[::-1]])):
             idx = []
             for p in seq:
                 sid = p[3] if p[3][0] in "nm" else "s" + hashlib.sha1(p[3].encode()).hexdigest()[:10]
-                i = self.stop(sid, p[2], p[4], p[0], p[1], mode, "osm" if p[5] == "dense" else "public")
+                i = self.stop(sid, p[2], p[4], p[0], p[1], mode, "osm" if p[5] == "dense" else src_kind)
                 if p[3].startswith("n") and p[5] != "dense":   # an OSM bus-stop node: 2nd source
                     self.stops[i]["src"].add("osm")
                 idx.append(i)
@@ -720,6 +811,9 @@ class Builder:
                 "stops": idx, "km": [round(x, 3) for x in kk], "_ck": company_key(pr["company"]),
                 "_grp": grp, "counters": [c[0] or c[1] for c in pr.get("counters") or []][:20],
             }
+            if src_kind == "brta":
+                r["brta"] = pr["ref"]
+                r["km_basis"] = "official" if pr.get("_km") else "estimate"
             if women:
                 r.update({"women_only": True, "hw": pr.get("hw", 40), "hours": pr.get("hours", ""),
                           "note": pr.get("note", "")})
@@ -1026,6 +1120,52 @@ class Builder:
         built = E.coverage(core, pts, path, set(map(tuple, getattr(self, "built_cells", []))))
         return allc, built
 
+    def coverage_map(self, net):
+        """citycov3: where the gaps are — one text row per 1-km grid row
+        (north first): '#' a stop within 700 m, 'o' built-up cell without a
+        stop, '.' empty cell (river, airport, cantonment, fields). Plus the
+        empty built-up cells with their nearest named places (OSM) and the
+        OSM bus stops inside them, so the next data round knows what to
+        look for."""
+        c = self.cfg["core"]
+        sl, so = 0.009, 0.0098
+        ny = int(round((c[2] - c[0]) / sl))
+        nx = int(round((c[3] - c[1]) / so))
+        g = Grid()
+        for row in net["stops"]["rows"]:
+            g.add(row[3], row[4], 1)
+        pg = Grid(cell=0.01)
+        for p in self.osm["places"]:
+            if not p.get("road") and p.get("name"):
+                pg.add(p["lat"], p["lon"], p.get("name_en") or p["name"])
+        built = set(map(tuple, getattr(self, "built_cells", [])))
+        rows, empty = [], []
+        for a in reversed(range(ny)):
+            line = ""
+            for b in range(nx):
+                la, lo = c[0] + (a + 0.5) * sl, c[1] + (b + 0.5) * so
+                if g.near(la, lo, 700):
+                    line += "#"
+                    continue
+                line += "o" if (a, b) in built else "."
+                names = []
+                for _d, nm in sorted(pg.near(la, lo, 900)):
+                    if nm not in names:
+                        names.append(nm)
+                osm_st = len(self.sgrid.near(la, lo, 700))
+                empty.append({"cell": [a, b], "lat": round(la, 4), "lon": round(lo, 4),
+                              "built": (a, b) in built, "places": names[:5], "osm_stops": osm_st})
+            rows.append("%.4f %s" % (c[0] + (a + 0.5) * sl, line))
+        unm = defaultdict(int)
+        for x in self.gaps.get("public_stop_unmatched", []):
+            for m in x["missing"]:
+                unm[m] += 1
+        for x in self.gaps.get("public_route_unmatched", []):
+            for m in x["missing"]:
+                unm[m] += 1
+        return {"map": rows, "empty": empty,
+                "unmatched_names": sorted(unm.items(), key=lambda kv: -kv[1])[:150]}
+
     def coverage(self, net):
         c = self.cfg["core"]
         g = Grid()
@@ -1043,6 +1183,25 @@ class Builder:
                 lon += step_lon
             lat += step_lat
         return round(100.0 * hit / max(1, tot), 1), tot
+
+
+def official_km(pts, by_sid, est):
+    """citycov3: km along the route from the official chart for the listed
+    stops; stops added on the path in between get the share of the
+    estimate between their two listed neighbours."""
+    known = [(k, by_sid[p[3]]) for k, p in enumerate(pts) if p[5] != "dense" and p[3] in by_sid]
+    if len(known) < 2 or known[0][0] != 0:
+        return est
+    out = list(est)
+    for (ka, va), (kb, vb) in zip(known, known[1:]):
+        span = est[kb] - est[ka]
+        for k in range(ka, kb + 1):
+            f = (est[k] - est[ka]) / span if span > 0 else 0.0
+            out[k] = va + f * (vb - va)
+    last_k, last_v = known[-1]
+    for k in range(last_k + 1, len(pts)):
+        out[k] = last_v + (est[k] - est[last_k])
+    return out
 
 
 # ------------------------------------------------------------------ GTFS
@@ -1099,6 +1258,22 @@ def sensible(ans, crow_km):
         return False, "missing fare"
     if crow_km >= 3 and not any(l["mode"] in E.MODES for l in best["legs"]):
         return False, "no transit leg"
+    # citycov3: every paid leg says what kind of fare it is (Official /
+    # Reported by users / Estimate) and when it was checked
+    for o in opts.values():
+        for l in o["legs"]:
+            f = l.get("fare")
+            if l["mode"] in E.MODES or l["mode"] in ("rickshaw", "cng", "ride"):
+                if not f or f.get("label") not in ("official", "reported", "estimate") or not f.get("checked"):
+                    return False, "fare without label/date (%s)" % l["mode"]
+    # some option (usually Cheapest) must cost what a Dhaka commuter
+    # would expect; Fastest may use a rickshaw/CNG and cost more
+    low_fare = min(o["fare"]["high"] for o in opts.values())
+    if low_fare > 60 + 12 * crow_km:
+        return False, "fare too high %d" % low_fare
+    ch = opts.get("cheapest")
+    if ch and ch["fare"]["low"] > best["fare"]["low"] + 1:
+        return False, "cheapest dearer than fastest"
     if best["walk_m"] > 2500:
         return False, "walk %d m" % best["walk_m"]
     limit = 25 + crow_km * 9          # Dhaka: very generous upper bound (min)
@@ -1120,6 +1295,9 @@ def measure(net, trips):
         f = (ans["options"].get("fastest") or {})
         ch = (ans["options"].get("cheapest") or {})
         out.append({"trip": "%s -> %s" % (t["from"], t["to"]), "pass": good, "why": why,
+                    "fare_label": (f.get("fare") or {}).get("label"),
+                    "brta_routes": sorted({l.get("ref", "") for l in f.get("legs", [])
+                                           if l.get("mode") == "bus" and l.get("ref", "").startswith("A-")}),
                     "fastest": {"min": f.get("minutes"), "fare": f.get("fare"), "modes": f.get("modes")},
                     "cheapest": {"min": ch.get("minutes"), "fare": ch.get("fare"), "modes": ch.get("modes")},
                     "ms": ans["ms"]})
@@ -1144,9 +1322,18 @@ def main():
         seeds["metro"] = json.load(open(os.path.join(sd, "dhaka_metro.json")))
         seeds["aliases"] = json.load(open(os.path.join(sd, "dhaka_aliases.json")))
         seeds["women"] = json.load(open(os.path.join(sd, "dhaka_women_buses.json")))
+        bc = os.path.join(sd, "dhaka_brta_chart.json")
+        if os.path.exists(bc):
+            seeds["brta_chart"] = json.load(open(bc))
         lb = os.path.join(sd, "dhaka_leguna_brtc.json")
         if os.path.exists(lb):
             seeds["leguna_brtc"] = json.load(open(lb))
+    if a.city == "chattogram":
+        # citycov3: Chattogram core network from public pages (same route
+        # pipeline as Dhaka's news routes: Verified only with 2+ publishers)
+        cr = os.path.join(sd, "chattogram_routes.json")
+        if os.path.exists(cr):
+            seeds["leguna_brtc"] = json.load(open(cr))
     public = json.load(open(a.public)) if a.public and os.path.exists(a.public) else {}
     t0 = time.time()
     osm = read_osm(a.pbf)
@@ -1201,7 +1388,11 @@ def main():
               "coverage_built_corridor_pct": both_built["corridor_pct"],
               "coverage_check_same": both_all["stops_pct"] == cov and both_built["stops_pct"] == built[0],
               "leguna_routes": sum(1 for r in net["routes"] if r["mode"] == "leguna"),
-              "extra_public_routes": dict(getattr(b, "extra_routes", {}))}
+              "extra_public_routes": dict(getattr(b, "extra_routes", {})),
+              # citycov3: official BRTA / RTC fare-chart routes
+              "brta_chart": getattr(b, "brta", {}),
+              "routes_with_brta_number": sum(1 for r in net["routes"] if r.get("brta")),
+              "two_stop_lines": getattr(b, "two_stop", 0)}
     net["counts"] = counts
     os.makedirs(a.out, exist_ok=True)
     blob = gzip.compress(json.dumps(net, ensure_ascii=False, separators=(",", ":")).encode(), 9)
@@ -1230,13 +1421,25 @@ def main():
     with open(os.path.join(a.out, "report_%s.json" % a.city), "w") as fh:
         json.dump(report, fh, ensure_ascii=False, indent=1)
     print(json.dumps({k: report[k] for k in ("counts", "bytes", "gap_counts", "directory")}, ensure_ascii=False))
+    cmap = b.coverage_map(net)
+    report["coverage_map"] = cmap
+    with open(os.path.join(a.out, "report_%s.json" % a.city), "w") as fh:
+        json.dump(report, fh, ensure_ascii=False, indent=1)
+    print("COVERAGE MAP (# stop within 700 m, o built-up without stop, . empty)")
+    print("\n".join(cmap["map"]))
+    for e in cmap["empty"]:
+        if e["built"]:
+            print("  EMPTY-BUILT", e["cell"], e["lat"], e["lon"], "osm_stops=%d" % e["osm_stops"],
+                  "; ".join(e["places"]))
+    print("UNMATCHED", json.dumps(cmap["unmatched_names"], ensure_ascii=False)[:6000])
     if "top50" in report:
         t = report["top50"]
         print("TOP50 %d/%d pass, p50 %d ms, p95 %d ms, max %d ms, fastest with rickshaw %d" % (
             t["pass"], t["total"], t["p50_ms"], t["p95_ms"], t["max_ms"], t["fastest_with_rickshaw"]))
         for x in t["trips"]:
             print(" ", "PASS" if x["pass"] else "FAIL", x["trip"], x["why"], x["fastest"]["min"],
-                  (x["fastest"]["fare"] or {}).get("high"), x["fastest"]["modes"])
+                  (x["fastest"]["fare"] or {}).get("high"), x["fare_label"], x["fastest"]["modes"],
+                  "cheapest", x["cheapest"]["min"], (x["cheapest"]["fare"] or {}).get("high"))
 
 
 def merge_directory(seed_items, osm_items):
