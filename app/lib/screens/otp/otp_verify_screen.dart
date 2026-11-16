@@ -150,6 +150,13 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
         return t.smsotpEmailOff;
       case 'email_daily_cap':
         return t.smsotpEmailCap;
+      // emailrel: honest email failures, each naming the way out (SMS / later)
+      case 'email_bouncing':
+        return t.emailrelBouncing;
+      case 'email_rejected':
+        return t.emailrelRejected;
+      case 'email_send_failed':
+        return t.emailrelSendFailed;
       case 'no_verified_email':
         return t.smsotpEmailNoVerified;
       default:
@@ -229,7 +236,12 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
       return;
     }
     setState(() {
-      if (r.emailOff || r.reason == 'email_daily_cap') _emailAvailable = false;
+      if (r.emailOff ||
+          r.reason == 'email_daily_cap' ||
+          r.reason == 'email_bouncing' ||
+          r.reason == 'email_rejected') {
+        _emailAvailable = false; // emailrel: offer SMS, not a dead email button
+      }
       if (_phase == _Phase.smsOff || _phase == _Phase.sending) {
         _phase = _Phase.entering;
       }

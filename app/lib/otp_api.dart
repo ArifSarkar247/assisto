@@ -86,7 +86,13 @@ class EmailState {
   final String email;
   final bool verified;
   final bool enabled; // the server can send email codes at all
-  const EmailState({this.email = '', this.verified = false, this.enabled = false});
+  /// emailrel: mail to this address bounced — "please check your email address"
+  final bool bouncing;
+  const EmailState(
+      {this.email = '',
+      this.verified = false,
+      this.enabled = false,
+      this.bouncing = false});
 }
 
 /// smsotp — purposes whose code may also be delivered by email.
@@ -207,7 +213,8 @@ class ApiOtpBackend implements OtpBackend {
       return EmailState(
           email: '${j['email'] ?? ''}',
           verified: j['verified'] == true,
-          enabled: j['email_enabled'] == true);
+          enabled: j['email_enabled'] == true,
+          bouncing: j['bouncing'] == true);
     } catch (_) {
       return const EmailState();
     }

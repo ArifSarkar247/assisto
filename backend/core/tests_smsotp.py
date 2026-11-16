@@ -91,7 +91,8 @@ def connect_email():
 
 
 def mail_text(msg):
-    return msg.get_content()
+    # emailrel: multipart/alternative (plain text + branded HTML)
+    return msg.get_body(preferencelist=("plain",)).get_content()
 
 
 # ======================================================================= segments
@@ -596,7 +597,13 @@ class EmailOtpTests(APITestCase):
         self.assertNotIn("Rahim", body)                      # no personal names
         self.assertNotIn("<img", body)
         self.assertNotIn("http", body)                       # no links / tracking
-        self.assertEqual(msg.get_content_type(), "text/plain")
+        # emailrel: plain text + branded HTML; the HTML has no image / link either
+        self.assertEqual(msg.get_content_type(), "multipart/alternative")
+        html = msg.get_body(preferencelist=("html",)).get_content()
+        self.assertIn(CODE, html)
+        self.assertNotIn("<img", html)
+        self.assertNotIn("href", html)
+        self.assertNotIn("Rahim", html)
         self.assertEqual(FakeSMTP.logins, [("assistoaiagent@gmail.com", "abcdefghijklmnop")])
         v = self.client.post("/api/v1/auth/otp/verify",
                              {"phone": PHONE, "purpose": "login", "code": CODE}, format="json")
@@ -690,12 +697,17 @@ class EmailOtpTests(APITestCase):
         EmailLog.objects.update(created_at=timezone.now() - timedelta(hours=25))
         self.assertTrue(otp.email_available())
 
-    def test_gmail_quota_error_is_send_failed(self, _g):
+    def test_gmail_quota_error_is_daily_cap(self, _g):
+        # emailrel: Gmail's "550 5.4.5 quota" is the provider's daily cap —
+        # honest 503 + prefer SMS, and email pauses (no more refused sends)
         FakeSMTP.fail_send = True
         self.client.force_authenticate(self.u)
         r = self._req(purpose="delete_account")
-        self.assertEqual((r.status_code, r.data["reason"]), (502, "send_failed"))
-        self.assertEqual(EmailLog.objects.get().status, "failed")
+        self.assertEqual((r.status_code, r.data["reason"]), (503, "email_daily_cap"))
+        self.assertTrue(r.data["prefer_sms"])
+        row = EmailLog.objects.get()
+        self.assertEqual((row.status, row.error_kind, row.attempts), ("failed", "quota", 1))
+        self.assertFalse(otp.public_status()["email_enabled"])
 
     def test_rate_limit_per_email(self, _g):
         set_cfg("otp", per_email_per_hour=2, resend_cooldown_seconds=15)

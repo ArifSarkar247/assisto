@@ -509,6 +509,9 @@ _EMAIL_DEFAULTS = {
     # ~2000): stay under it so Google never suspends the company mailbox.
     "daily_cap": 400,
     "near_cap_pct": 90,            # from here the app is told to prefer SMS
+    # emailrel: priority under the cap — reports / marketing (bulk) stop at
+    # this %, notices at near_cap_pct, codes + security mail use the rest
+    "bulk_cap_pct": 70,
 }
 
 
@@ -531,7 +534,9 @@ def _norm_email(raw, base):
     return {"provider": prov if prov in ("smtp",) else "smtp",
             "daily_cap": max(0, min(2000, _int(raw.get("daily_cap"), base["daily_cap"]))),
             "near_cap_pct": max(50, min(100, _int(raw.get("near_cap_pct"),
-                                                  base["near_cap_pct"])))}
+                                                  base["near_cap_pct"]))),
+            "bulk_cap_pct": max(0, min(100, _int(raw.get("bulk_cap_pct"),
+                                                 base.get("bulk_cap_pct", 70))))}
 
 
 def sms_cfg(cfg):

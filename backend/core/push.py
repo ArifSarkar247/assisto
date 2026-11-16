@@ -829,13 +829,24 @@ def notify_owner(subject, body):
                 out["push_sent"] += push_to_user(
                     u, "owner_alert", subject, subject, body, body,
                     data={"route": "owner"}, high_priority=True)
-        if _smtp_configured():
+        from . import email_sender
+        company = email_sender.configured()     # emailrel: company sender first
+        if company or _smtp_configured():
             emails = [u.email for u in owners if getattr(u, "email", None)]
             extra = (os.getenv("OWNER_ALERT_EMAIL") or "").strip()
             if extra:
                 emails += [e.strip() for e in extra.split(",") if e.strip()]
             emails = list(dict.fromkeys(emails))
-            if emails:
+            if emails and company:
+                from . import email_templates as ET
+                subj, text, html = ET.render_notice(
+                    "en", subject, subject, body, body, subject="Assisto owner: %s" % subject)
+                r = email_sender.send_notice(emails, subj, text, html=html,
+                                             purpose="owner_alert")
+                out["email"] = r["sent"] > 0
+                out["email_recipients"] = r["sent"]
+                out["email_failed"] = r["failed"]
+            elif emails:
                 from django.core.mail import send_mail
                 send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, emails,
                           fail_silently=True)

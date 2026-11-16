@@ -351,7 +351,10 @@ class OtpEmailRequestView(APIView):
         try:
             out = otp.issue_email(purpose, **kw)
         except otp.OtpError as e:
-            if neutral and e.reason == "send_failed":
+            # emailrel: neutral flows (account unknown to the caller) never
+            # reveal a delivery problem — the message itself names SMS
+            if neutral and e.reason in ("send_failed", "email_send_failed",
+                                        "email_bouncing", "email_rejected"):
                 out = {"ok": True, "channel": "email", "purpose": purpose,
                        "email_enabled": True,
                        "expires_in": otp.limits()["ttl_seconds"],
@@ -416,8 +419,18 @@ class OtpEmailMeView(APIView):
     def get(self, request):
         v = otp.verified_email(request.user)
         cur = (request.user.email or "").strip().lower()
+        bouncing = False
+        try:                  # emailrel: "please check your email address"
+            from . import email_sender
+            bouncing = bool(v or cur) and email_sender.is_bouncing(v or cur)
+        except Exception:  # noqa: BLE001
+            pass
+        lang = req_lang(request)
         return Response({"email": v or cur, "verified": bool(v) and (not cur or v == cur),
-                         "email_enabled": otp.email_available()})
+                         "email_enabled": otp.email_available(),
+                         "bouncing": bouncing,
+                         "bouncing_message": otp.message("email_bouncing", lang)
+                         if bouncing else ""})
 
 
 def signup_gate_response(lang):

@@ -22,6 +22,7 @@ import 'package:assisto/updater.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/screens/login_screen.dart';
 import 'package:assisto/screens/otp/otp_verify_screen.dart';
+import 'package:assisto/screens/otp/email_verify_screen.dart'; // emailrel
 import 'package:assisto/screens/otp/otp_login_screen.dart';
 import 'fake_c1_contacts.dart';
 import 'fake_m3_circle.dart';
@@ -885,6 +886,8 @@ Map<String, GallerySpec> gallerySpecs() {
     'recov_support_form': (build: (_) => SupportRecoveryScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend(), store: MemoryRefStore()), mode: FakeMode.data, full: true),
     'recov_support_status': (build: (_) => SupportRecoveryScreen(backend: FakeAccountSecurity(), otpBackend: FakeOtpBackend(), store: MemoryRefStore({'ref': 'AB12CD34', 'secret': 's', 'contact': '01611000004'})), mode: FakeMode.data, full: true),
     // ---- /recovery ----
+    // emailrel: saved sign-in email bounces -> "please check your email address"
+    'emailrel_bouncing': (build: (_) => EmailVerifyScreen(backend: FakeOtpBackend(emailEnabled: true, verifiedEmail: 'rahim@example.com', emailBouncing: true)), mode: FakeMode.data, full: true),
     // framebar: SMS off at launch -> honest email-code sign-in
     'fb_login_email_code': (build: (_) => LoginScreen(otpBackend: FakeOtpBackend(smsEnabled: false, emailEnabled: true)), mode: FakeMode.data, full: true),
     'fb_otp_email_login': (build: (_) => OtpLoginScreen(backend: FakeOtpBackend(smsEnabled: false, emailEnabled: true), emailMode: true), mode: FakeMode.data, full: true),

@@ -1051,6 +1051,9 @@ urlpatterns += [
     path("auth/otp/email/me", otpv.OtpEmailMeView.as_view()),
 ]
 # ---- /o1-otp ----
+# emailrel: one-click unsubscribe for bulk email (reports); public, signed token
+from . import views_email as emailv  # noqa: E402
+urlpatterns += [path("email/unsubscribe", emailv.unsubscribe)]
 
 # ---- v1-vehicle ---- Vehicle tracking: GT06/Teltonika trackers, live map,
 # 24h route + trips, engine cut (PIN + speed gate + approval), grants, OBD,

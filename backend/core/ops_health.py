@@ -210,6 +210,8 @@ JOBS = (
     Job("gemini_probe", MIN, "* * * * *", via="minute_jobs"),
     # aimoney: ads per AI answer recomputed once a local day (idle = one read)
     Job("ad_money_tick", MIN, "* * * * *", via="minute_jobs"),
+    # emailrel: Gmail bounce reports over IMAP, gated inside to every 15 min
+    Job("email_bounces", MIN, "* * * * *", via="minute_jobs"),
     Job("ai_exam", MIN, "* * * * *", via="minute_jobs"),          # aifinal nightly exam
     # bizai: Market group-buy expiry (gated inside: every 30 min) and the
     # weekly Bangla business report (gated: Friday from 10:00 Dhaka, once per
@@ -266,6 +268,8 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("gemini_probe", {"quiet": True}),
                # aimoney: ads per AI answer, once a day; idle = one read
                ("ad_money_tick", {"quiet": True}),
+               # emailrel: idle = one indexed read (every 15 min, email set up)
+               ("email_bounces", {"tick": True, "quiet": True}),
                # flagprep: LAST, 20 s budget — never delays the safety jobs above
                ("agent_core_run", {"seconds": 20.0}))
 

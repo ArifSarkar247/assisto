@@ -74,6 +74,13 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
         return t.smsotpEmailOff;
       case 'email_daily_cap':
         return t.smsotpEmailCap;
+      // emailrel: honest email failures, each naming the way out
+      case 'email_bouncing':
+        return t.emailrelBouncing;
+      case 'email_rejected':
+        return t.emailrelRejected;
+      case 'email_send_failed':
+        return t.emailrelSendFailed;
       case 'cooldown':
         return t.otpErrCooldown;
       case 'rate_limited':
@@ -190,6 +197,24 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                       ),
                     )
                   else ...[
+                    // emailrel: mail to the saved address bounced
+                    if (s.bouncing)
+                      Card(
+                        key: const Key('email-bouncing'),
+                        color: scheme.ds.dangerBg,
+                        child: Padding(
+                          padding: const EdgeInsets.all(Gap.lg),
+                          child: Row(children: [
+                            Icon(Icons.report_gmailerrorred_rounded,
+                                color: scheme.ds.dangerInk),
+                            const SizedBox(width: Gap.sm),
+                            Expanded(
+                              child: Text(t.emailrelBouncingBanner,
+                                  style: TextStyle(color: scheme.ds.dangerInk)),
+                            ),
+                          ]),
+                        ),
+                      ),
                     if (s.email.isNotEmpty)
                       Semantics(
                         container: true,

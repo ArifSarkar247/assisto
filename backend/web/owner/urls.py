@@ -12,6 +12,7 @@ from . import views_cctvtraffic as CCTVT   # cctvguard
 from . import views_imoudev as IMOUDEV   # cctvconnect
 from . import views_cctvpartners as CCTVP  # cctvroles
 from . import views_mapsusage as MAPSU   # mapscost
+from . import views_emailhealth as EMAILH   # emailrel
 from . import views_safeplans as SAFEP   # safeplans
 from . import views_plans as PLANSV      # plansprep: Plans & prices
 from . import views_money as MONEYV      # aimoney: Money (daily)
@@ -122,6 +123,7 @@ urlpatterns = [
     path("imou-devices", IMOUDEV.imou_devices),   # cctvconnect: owner's Imou test cameras
     path("cctv-partners", CCTVP.cctv_partners),   # cctvroles: installer partners
     path("maps-usage", MAPSU.maps_usage),       # mapscost: Maps usage + caps
+    path("email-health", EMAILH.email_health),  # emailrel: sent / failures / bounces / cap
     path("safe-plans", SAFEP.safe_plans),       # safeplans: Safety plans
     path("plans", PLANSV.plans),                # plansprep: Plans & prices
     path("money", MONEYV.money),                # aimoney: Money (daily)
