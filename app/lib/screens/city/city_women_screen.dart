@@ -94,7 +94,8 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
                   label: Text(t.cityRateNight),
                 ),
                 const SizedBox(height: Gap.lg),
-                Card(
+                DsCard(
+                  padding: EdgeInsets.zero,
                   child: ListTile(
                     minVerticalPadding: Gap.sm,
                     leading: const Icon(Icons.shield_rounded),
@@ -139,8 +140,9 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
     );
   }
 
-  Widget _bus(AppLocalizations t, bool bn, Map<String, dynamic> b) => Card(
-        child: ListTile(
+  Widget _bus(AppLocalizations t, bool bn, Map<String, dynamic> b) => DsCard(
+    padding: EdgeInsets.zero,
+    child: ListTile(
           minVerticalPadding: Gap.sm,
           leading: const Icon(Icons.woman_rounded),
           title: Text(cityD(context, '${(bn ? b['route_bn'] : null) ?? b['route'] ?? ''}'),
@@ -151,11 +153,12 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
           ].join(' · '))),
           trailing: '${b['status'] ?? ''}'.isEmpty ? null : CityStatusBadge('${b['status']}'),
         ),
-      );
+  );
 
   Widget _night(AppLocalizations t, bool bn, Map<String, dynamic> n) {
     final stars = (n['stars'] as num?)?.toDouble() ?? 0;
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         leading: const Icon(Icons.directions_bus_rounded),
         title: Text(cityD(context, '${n['route'] ?? n['name']}')),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
@@ -76,7 +77,8 @@ class CrmRoutingEditor extends StatelessWidget {
       if (((r['min_company_size'] as num?)?.toInt() ?? 0) > 0)
         '${t.crmMinSize}: ${r['min_company_size']}',
     ].join(' · ');
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Theme.of(context).colorScheme.ds.primarySoft,

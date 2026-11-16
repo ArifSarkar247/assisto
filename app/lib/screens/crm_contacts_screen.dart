@@ -561,9 +561,9 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
       if (c.phones.isNotEmpty) c.phones.first,
     ];
     final due = c.touchDue();
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: Gap.xs),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.symmetric(vertical: Gap.xs), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         onTap: () => _openDetail(c),
         leading: Stack(children: [
           CircleAvatar(
@@ -612,7 +612,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
                 },
               ),
       ),
-    );
+      ));
   }
 
   Future<void> _pickSort() async {

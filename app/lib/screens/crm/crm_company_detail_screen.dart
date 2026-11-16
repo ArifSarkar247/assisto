@@ -277,9 +277,9 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
               : state == 'lost'
                   ? Theme.of(context).colorScheme.error
                   : scheme.primary;
-          return Card(
-            margin: EdgeInsets.zero,
-            child: ListTile(
+          return Padding(padding: EdgeInsets.zero, child: DsCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
               leading: Icon(Icons.handshake_rounded, color: tint),
               title: Text(d['title']?.toString() ?? '—',
                   maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -289,7 +289,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
               trailing: Text(bdt(context, d['value'] as num?),
                   style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
             ),
-          );
+            ));
         },
       ),
     );
@@ -316,9 +316,9 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
           style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.sm),
       for (final a in withDocs)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
             leading: const Icon(Icons.attach_file_rounded),
             title: Text(
                 (a['subject']?.toString().isNotEmpty == true
@@ -327,7 +327,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                     .toString()),
             subtitle: Text(_date(a['created_at']?.toString())),
           ),
-        ),
+          )),
     ]);
   }
 

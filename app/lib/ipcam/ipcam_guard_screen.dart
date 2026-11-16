@@ -816,14 +816,15 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
         ),
       ]);
 
-  Widget _pairedTile(AppLocalizations t) => Card(
-        child: ListTile(
+  Widget _pairedTile(AppLocalizations t) => DsCard(
+    padding: EdgeInsets.zero,
+    child: ListTile(
           leading: const Icon(Icons.videocam_rounded),
           title: Text(_camName.isEmpty ? t.icgDefaultName : _camName,
               style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           subtitle: Text(t.pcPairedTo(_site.isEmpty ? '—' : _site)),
         ),
-      );
+  );
 
   Widget _cameraCard(AppLocalizations t) {
     final canTest = !_testing &&

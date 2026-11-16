@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -269,9 +270,9 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
     }
     final (color, icon, label) = _statusLook(t, scheme, (c['status'] ?? 'ok').toString());
     final diff = _i(c['difference']);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         leading: Icon(icon, color: color),
         // qa1: localized day (was ISO "2026-10-20" in both languages)
         title: Text('${dayLabel(context, c['day'])}  ·  $label',
@@ -282,6 +283,6 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
             '${taka(context, diff.abs())}',
             maxLines: 2),
       ),
-    );
+      ));
   }
 }

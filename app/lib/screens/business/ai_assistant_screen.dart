@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import '../../business_ai_api.dart';
 import '../../l10n/app_localizations.dart';
@@ -196,7 +197,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     final name = (t['customer_name'] ?? t['customer_phone'] ?? '').toString();
     final last = (t['last_text'] ?? '').toString();
     final channel = (t['channel'] ?? '').toString();
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
         leading: CircleAvatar(

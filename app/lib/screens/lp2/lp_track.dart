@@ -343,7 +343,8 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                     ]),
                 ),
               if (lpList(fmt['sections']).isNotEmpty)
-                Card(
+                DsCard(
+                  padding: EdgeInsets.zero,
                   child: ExpansionTile(
                     leading: const Icon(Icons.fact_check_rounded),
                     title: Text(tr.lp2TrackExamFormat),
@@ -376,7 +377,8 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                 for (final l in _lessons) _lessonTile(l)
               else
                 for (final w in weeks)
-                  Card(
+                  DsCard(
+                    padding: EdgeInsets.zero,
                     child: ExpansionTile(
                       key: PageStorageKey('wk-$_track-${w['week']}'),
                       initiallyExpanded: w == weeks.first,
@@ -621,7 +623,8 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
           if ('${l['goal_bn'] ?? ''}'.isNotEmpty)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: const Icon(Icons.flag_rounded),
                 title: Text('${l['goal_bn']}', style: AType.bodyMedium.copyWith(height: 1.4)),
@@ -1053,8 +1056,8 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
             ],
             for (final t in lpList(_sec!['tasks'])) _task(t),
             if (_selfDone)
-              Card(
-                key: const Key('lp2-track-self'),
+              DsCard(key: const Key('lp2-track-self'),
+                padding: EdgeInsets.zero,
                 child: ListTile(leading: const Icon(Icons.rate_review_rounded), title: Text(tr.lp2TrackSelfCheck)),
               ),
             LpPracticeFooter(text: '${_scoring['note_bn'] ?? ''}'.isEmpty || !lpBn(context) ? null : '${_scoring['note_bn']}'),

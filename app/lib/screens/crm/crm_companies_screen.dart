@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_company_widgets.dart';
@@ -125,9 +126,9 @@ class _CompanyRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final ind = company['industry']?.toString();
     final size = (company['size'] as num?)?.toInt() ?? 0;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: ListTile(
+    return Padding(padding: EdgeInsets.zero, child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
           backgroundColor: scheme.ds.primarySoft,
@@ -151,6 +152,6 @@ class _CompanyRow extends StatelessWidget {
         ]),
         trailing: const Icon(Icons.chevron_right_rounded),
       ),
-    );
+      ));
   }
 }

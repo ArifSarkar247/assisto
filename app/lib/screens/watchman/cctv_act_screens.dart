@@ -46,10 +46,9 @@ class CctvActHubScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     void go(Widget w) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
-    Widget tile(Key key, IconData icon, String title, String sub, VoidCallback onTap) => Card(
-          key: key,
-          margin: const EdgeInsets.only(bottom: 10),
-          child: ListTile(
+    Widget tile(Key key, IconData icon, String title, String sub, VoidCallback onTap) => Padding(key: key, padding: const EdgeInsets.only(bottom: 10), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
             minTileHeight: 64,
             leading: Icon(icon, size: 28),
             title: Text(title),
@@ -57,7 +56,7 @@ class CctvActHubScreen extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: onTap,
           ),
-        );
+      ));
     return Scaffold(
       appBar: AppBar(title: Text(t.cv3HubTitle)),
       body: SafeArea(
@@ -131,16 +130,16 @@ Widget _eventRow(BuildContext context, Map<String, dynamic> r, CctvxSource? even
         (r['camera_name'] ?? r['camera'] ?? '').toString(),
         (r['what'] ?? '').toString(),
       ].where((x) => x.isNotEmpty).join(' · ');
-  return Card(
-    margin: const EdgeInsets.only(bottom: 8),
-    child: ListTile(
+  return Padding(padding: const EdgeInsets.only(bottom: 8), child: DsCard(
+      padding: EdgeInsets.zero,
+      child: ListTile(
       minTileHeight: 56,
       leading: Icon(r['has_clip'] == true ? Icons.play_circle_outline_rounded : Icons.photo_outlined),
       title: Text(line),
       subtitle: Text(r['has_clip'] == true ? t.cv3HasClip : t.cv3PhotoOnly),
       onTap: (id == null || events == null) ? null : () => AlertActionsSheet.show(context, events, id),
     ),
-  );
+    ));
 }
 
 // ======================================================================= E

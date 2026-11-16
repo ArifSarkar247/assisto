@@ -92,9 +92,9 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
                     _rechargeCard(t, bn, m),
                     CitySection(t.cityStations, icon: Icons.subway_rounded),
                     for (var i = 0; i < _stations.length; i++)
-                      Card(
-                        margin: const EdgeInsets.only(bottom: Gap.xs),
-                        child: ListTile(
+                      Padding(padding: const EdgeInsets.only(bottom: Gap.xs), child: DsCard(
+                          padding: EdgeInsets.zero,
+                          child: ListTile(
                           key: ValueKey('city_station_${_stations[i].id}'),
                           minVerticalPadding: Gap.sm,
                           leading: CircleAvatar(
@@ -113,7 +113,7 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
                               builder: (_) => CityStationScreen(
                                   city: widget.city, station: _stations[i], store: _store, dest: widget.dest, metro: m))),
                         ),
-                      ),
+                        )),
                   ],
                 ),
     );
@@ -149,8 +149,8 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
     final r = (m['recharge'] as Map?)?.cast<String, dynamic>() ?? const {};
     final text = '${(bn ? r['text_bn'] : r['text_en']) ?? r['text_en'] ?? ''}';
     if (text.isEmpty) return const SizedBox.shrink();
-    return Card(
-      key: const ValueKey('city_metro_recharge'),
+    return DsCard(key: const ValueKey('city_metro_recharge'),
+      padding: EdgeInsets.zero,
       child: ListTile(
         minVerticalPadding: Gap.sm,
         leading: const Icon(Icons.credit_card_rounded),

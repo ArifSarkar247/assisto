@@ -114,9 +114,9 @@ class _LpLifeListScreenState extends State<LpLifeListScreen> {
           ]),
           const SizedBox(height: Gap.md),
           for (final s in _items)
-            Card(
-              margin: const EdgeInsets.only(bottom: Gap.sm),
-              child: ListTile(
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                padding: EdgeInsets.zero,
+                child: ListTile(
                 key: Key('lp2-sc-${s['id']}'),
                 minVerticalPadding: Gap.md,
                 leading: CircleAvatar(
@@ -133,7 +133,7 @@ class _LpLifeListScreenState extends State<LpLifeListScreen> {
                   if (mounted) unawaited(_load());
                 },
               ),
-            ),
+              )),
         ],
       ),
     );
@@ -198,14 +198,14 @@ class LpScenarioScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl),
             children: [
               for (final v in lpList(s['vocab']))
-                Card(
-                  margin: const EdgeInsets.only(bottom: Gap.sm),
-                  child: ListTile(
+                Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                    padding: EdgeInsets.zero,
+                    child: ListTile(
                     title: Text('${v['w']}  ·  ${v['bn']}', style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
                     subtitle: Text('${v['ex'] ?? ''}'),
                     trailing: LpListenButton(text: '${v['w']}. ${v['ex'] ?? ''}'),
                   ),
-                ),
+                  )),
             ],
           ),
         ]),

@@ -688,7 +688,8 @@ class _CrmUpsellTabState extends State<CrmUpsellTab> {
   Widget _signalCard(AppLocalizations t, Map<String, dynamic> s) {
     final kind = (s['kind'] ?? '').toString();
     final isRenewal = kind == 'amc_renewal';
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         leading: Icon(
             isRenewal ? Icons.autorenew_rounded : Icons.add_business_rounded,

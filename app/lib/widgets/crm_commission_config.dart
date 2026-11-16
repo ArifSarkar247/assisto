@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
@@ -212,7 +213,8 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
   Widget _previewRow(
       BuildContext context, AppLocalizations t, Map<String, dynamic> p) {
     final set = p['config_set'] == true;
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         title: Text(p['member_name']?.toString() ?? ''),
         subtitle: Text('${t.crmWon}: ${bdt(context, p['won_amount'] as num?)}'),

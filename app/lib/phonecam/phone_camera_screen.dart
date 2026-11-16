@@ -1325,7 +1325,8 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   List<Widget> _ipcamEntry(AppLocalizations t) => [
         if (FeatureFlags.instance.isOn('guard_box_mode')) ...[
           const SizedBox(height: 12),
-          Card(
+          DsCard(
+            padding: EdgeInsets.zero,
             child: ListTile(
               key: const Key('pcIpcamEntry'),
               minVerticalPadding: 12,
@@ -1348,7 +1349,8 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     final caps = [...kClipCapChoicesMb];
     if (!caps.contains(_capMb)) caps.add(_capMb);
     return [
-      Card(
+      DsCard(
+        padding: EdgeInsets.zero,
         child: ListTile(
           leading: const Icon(Icons.videocam_rounded),
           title: Text(_cameraName.isEmpty ? t.pcUnnamed : _cameraName,

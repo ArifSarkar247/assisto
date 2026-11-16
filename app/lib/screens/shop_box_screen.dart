@@ -507,9 +507,9 @@ class _SitesTab extends StatelessWidget {
   Widget _shopModeEntry(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: ListTile(
+    return Padding(padding: EdgeInsets.zero, child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         leading: Icon(Icons.phone_android_rounded, color: scheme.primary),
         title: Text(t.shopModeEntryTitle,
             style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
@@ -518,7 +518,7 @@ class _SitesTab extends StatelessWidget {
         onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ShopBoxModeScreen())),
       ),
-    );
+      ));
   }
 
   Future<void> _editHours(BuildContext context, Map<String, dynamic> s) async {
@@ -1035,9 +1035,9 @@ class _CamerasTabState extends State<_CamerasTab> {
     final kindLabel = kind == 'shopbox'
         ? t.shopBoxCameraKindShopbox
         : t.shopBoxCameraKindEdge;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: ListTile(
+    return Padding(padding: EdgeInsets.zero, child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         onTap: () => _openSettings(c),
         leading: CircleAvatar(
           backgroundColor: scheme.ds.primarySoft,
@@ -1063,7 +1063,7 @@ class _CamerasTabState extends State<_CamerasTab> {
           color: enabled ? scheme.primary : scheme.ds.muted,
         ),
       ),
-    );
+      ));
   }
 }
 
@@ -1460,9 +1460,9 @@ class _ReportTabState extends State<_ReportTab> {
           _sitePickerBanner(context, widget.site),
           const SizedBox(height: Gap.md),
           // a2-cctv: end-of-day cash vs Assisto POS sales
-          Card(
-            margin: EdgeInsets.zero,
-            child: ListTile(
+          Padding(padding: EdgeInsets.zero, child: DsCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
               leading: Icon(Icons.point_of_sale_rounded, color: scheme.primary),
               title: Text(t.shopEodTitle,
                   style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
@@ -1474,7 +1474,7 @@ class _ReportTabState extends State<_ReportTab> {
                       siteId: widget.site!['id'] as int,
                       siteName: (widget.site!['name'] ?? '').toString()))),
             ),
-          ),
+            )),
           const SizedBox(height: Gap.md),
           // days selector
           Wrap(spacing: Gap.sm, children: [

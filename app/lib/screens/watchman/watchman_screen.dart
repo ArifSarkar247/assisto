@@ -282,7 +282,8 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
           // cctvprice: the CCTV plan (price per camera count, trial, add-on)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Card(
+            child: DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 minVerticalPadding: 12,
                 leading: const Icon(Icons.workspace_premium_outlined),

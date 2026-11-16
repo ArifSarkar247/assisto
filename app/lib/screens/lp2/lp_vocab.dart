@@ -139,9 +139,9 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
             Builder(builder: (context) {
               final words = lpList(t['words']);
               final learned = words.where((w) => (st['${w['id']}']?.box ?? 0) >= 3).length;
-              return Card(
-                margin: const EdgeInsets.only(bottom: Gap.sm),
-                child: ListTile(
+              return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
                   minVerticalPadding: Gap.md,
                   leading: CircleAvatar(
                     backgroundColor: scheme.ds.primarySoft,
@@ -152,7 +152,7 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => _study(words, lpLoc(context, t, 'title')),
                 ),
-              );
+                ));
             }),
         ],
       ),

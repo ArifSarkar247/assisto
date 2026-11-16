@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -467,9 +468,9 @@ class _CashEntryTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final isIn = (entry['kind'] ?? '') == 'in';
     final note = (entry['note'] ?? '').toString();
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         leading: Icon(isIn ? Icons.south_west_rounded : Icons.north_east_rounded,
             color: isIn ? AssistoTokens.of(context).success : scheme.error),
         title: Text(note.isEmpty
@@ -485,7 +486,7 @@ class _CashEntryTile extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 color: isIn ? AssistoTokens.of(context).success : scheme.error)),
       ),
-    );
+      ));
   }
 }
 

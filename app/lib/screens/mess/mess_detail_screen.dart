@@ -622,7 +622,8 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
       if (_messOpen && _staff && !_closedMonth)
         _bigButton(t.mv2CorrectMeals, Icons.edit_calendar_rounded, _busy ? null : _correctMeals),
       for (final d in upcoming)
-        Card(
+        DsCard(
+          padding: EdgeInsets.zero,
           child: ListTile(
             key: ValueKey('mess-day-${d['date']}'),
             minTileHeight: 56,
@@ -690,7 +691,8 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
       if ('${data['items'] ?? ''}'.isNotEmpty) '${data['items']}',
       if ('${data['title'] ?? ''}'.isNotEmpty) '${data['title']}',
     ];
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         key: ValueKey('mess-entry-${e['id']}'),
         minTileHeight: 56,
@@ -871,7 +873,8 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
         }, key: const ValueKey('mess-add-member')),
       if (active.length <= 1) _emptyLine(t.mv2MembersEmpty),
       for (final m in active)
-        Card(
+        DsCard(
+          padding: EdgeInsets.zero,
           child: ListTile(
             key: ValueKey('mess-member-${m['id']}'),
             minTileHeight: 56,

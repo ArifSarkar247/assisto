@@ -274,9 +274,9 @@ class _DeterTilesState extends State<DeterTiles> {
     ]);
   }
 
-  Widget _tile(IconData icon, String label, String sub, VoidCallback? onTap) => Card(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: ListTile(
+  Widget _tile(IconData icon, String label, String sub, VoidCallback? onTap) => Padding(padding: const EdgeInsets.only(bottom: 8), child: DsCard(
+      padding: EdgeInsets.zero,
+      child: ListTile(
           minTileHeight: 56,
           enabled: onTap != null,
           leading: Icon(icon),
@@ -284,7 +284,7 @@ class _DeterTilesState extends State<DeterTiles> {
           subtitle: Text(sub),
           onTap: onTap,
         ),
-      );
+    ));
 }
 
 /// Per-camera table: siren / light / message / two-way talk — available or

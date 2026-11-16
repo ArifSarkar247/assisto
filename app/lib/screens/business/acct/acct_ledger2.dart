@@ -232,9 +232,9 @@ class _AcctCashboxScreenState extends State<AcctCashboxScreen> {
               style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           for (final r in sorted)
-            Card(
-              margin: const EdgeInsets.only(bottom: Gap.sm),
-              child: ListTile(
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                padding: EdgeInsets.zero,
+                child: ListTile(
                 key: ValueKey('acct-cash-${r['id']}'),
                 minVerticalPadding: Gap.sm,
                 enabled: !_busy,
@@ -254,7 +254,7 @@ class _AcctCashboxScreenState extends State<AcctCashboxScreen> {
                     color: '${r['code'] ?? ''}'.isEmpty ? scheme.tertiary : scheme.primary),
                 onTap: () => _pick(r),
               ),
-            ),
+              )),
         ],
       ),
     );
@@ -476,9 +476,9 @@ class _AcctVatRatesScreenState extends State<AcctVatRatesScreen> {
           )
         else
           for (final p in products)
-            Card(
-              margin: const EdgeInsets.only(bottom: Gap.sm),
-              child: ListTile(
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                padding: EdgeInsets.zero,
+                child: ListTile(
                 key: ValueKey('acct-vatp-${p['product_id']}'),
                 minVerticalPadding: Gap.sm,
                 title: Text('${p['name']}', style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
@@ -489,7 +489,7 @@ class _AcctVatRatesScreenState extends State<AcctVatRatesScreen> {
                 trailing: const Icon(Icons.edit_rounded),
                 onTap: () => _edit(p),
               ),
-            ),
+              )),
       ],
     );
   }
@@ -642,7 +642,8 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
     final scheme = Theme.of(context).colorScheme;
     final d = _d;
     if (_error != null) {
-      return Card(
+      return DsCard(
+        padding: EdgeInsets.zero,
         child: ListTile(
           leading: const Icon(Icons.cloud_off_rounded),
           title: Text(t.lg2YearHeading),
@@ -691,9 +692,9 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
           ),
         ),
       for (final s in sugg)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
             key: ValueKey('acct-year-close-${s['end']}'),
             minVerticalPadding: Gap.sm,
             enabled: !_busy,
@@ -704,7 +705,7 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => _close('${s['end']}', '${s['kind']}'),
           ),
-        ),
+          )),
     ]);
   }
 }

@@ -5,6 +5,7 @@
 // flags (moderated). No names are ever shown.
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -165,16 +166,14 @@ class _CityReportsScreenState extends State<CityReportsScreen> {
             else if (_failed)
               Text(t.cityLiveFailed)
             else if (_reports.isEmpty)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.lg),
-                  child: Text(t.cityLiveNone),
-                ),
+              DsCard(
+                padding: const EdgeInsets.all(Gap.lg),
+                child: Text(t.cityLiveNone),
               )
             else
               for (final r in _reports)
-                Card(
-                  key: ValueKey('city_report_${r.id}'),
+                DsCard(key: ValueKey('city_report_${r.id}'),
+                  padding: EdgeInsets.zero,
                   child: ListTile(
                     minVerticalPadding: Gap.sm,
                     leading: CircleAvatar(

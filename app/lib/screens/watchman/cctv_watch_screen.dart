@@ -86,9 +86,9 @@ class _CctvWatchScreenState extends State<CctvWatchScreen> {
                     Text(t.ctmWatchIntro),
                     const SizedBox(height: 8),
                     for (final g in _groups)
-                      Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
+                      Padding(padding: const EdgeInsets.only(bottom: 8), child: DsCard(
+                          padding: EdgeInsets.zero,
+                          child: ListTile(
                           key: ValueKey('ctm-watch-group-${g['id']}'),
                           minVerticalPadding: 12,
                           leading: const CircleAvatar(child: Icon(Icons.lock_rounded)),
@@ -102,7 +102,7 @@ class _CctvWatchScreenState extends State<CctvWatchScreen> {
                                   groupId: (g['id'] as num).toInt(),
                                   name: (g['name'] ?? '').toString()))),
                         ),
-                      ),
+                        )),
                   ],
                   if (_note.isNotEmpty) ...[
                     const SizedBox(height: 12),

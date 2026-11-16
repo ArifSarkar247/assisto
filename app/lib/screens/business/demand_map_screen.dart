@@ -373,9 +373,9 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
       ..._rows.map((r) {
         final sig = _DMath.normalize(r);
         final color = _bandColor(sig.level);
-        return Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
             leading: CircleAvatar(
               backgroundColor: color.withValues(alpha: 0.16),
               child: Icon(Icons.trending_up_rounded, color: color, size: 20),
@@ -400,7 +400,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
             ),
             onTap: () => _edit(r),
           ),
-        );
+          ));
       }),
     ]);
   }

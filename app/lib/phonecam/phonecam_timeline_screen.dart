@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:http/http.dart' as http;
 
 import '../api.dart';
@@ -209,10 +210,9 @@ class _PhoneCamTimelineScreenState extends State<PhoneCamTimelineScreen> {
       body = RefreshIndicator(
         onRefresh: _load,
         child: ListView(padding: withNavBarInset(context, const EdgeInsets.all(16)), children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsCard(
+            padding: const EdgeInsets.all(14),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   Icon(on ? Icons.fiber_manual_record_rounded : Icons.stop_circle_outlined,
                       color: on ? Brand.danger : null),
@@ -226,7 +226,6 @@ class _PhoneCamTimelineScreenState extends State<PhoneCamTimelineScreen> {
                   Expanded(child: Text(online ? t.pcrPhoneOnline : t.pcrPhoneOffline, style: tt.bodySmall)),
                 ]),
               ]),
-            ),
           ),
           const SizedBox(height: 8),
           if (owner) ...[
@@ -312,10 +311,9 @@ class _PhoneCamTimelineScreenState extends State<PhoneCamTimelineScreen> {
   }
 
   Widget _empty(AppLocalizations t, bool owner, bool on) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           const Icon(Icons.video_library_outlined, size: 40),
           const SizedBox(height: 8),
           Text(t.pcrEmptyBenefit, textAlign: TextAlign.center),
@@ -330,7 +328,6 @@ class _PhoneCamTimelineScreenState extends State<PhoneCamTimelineScreen> {
           const SizedBox(height: 8),
           Text(on ? t.pcrEmptyWaiting : t.pcrEmptyHow, style: Theme.of(context).textTheme.bodySmall),
         ]),
-      ),
     );
   }
 

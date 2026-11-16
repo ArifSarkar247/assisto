@@ -212,7 +212,8 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
     final role = m['is_admin'] == true
         ? t.mv2RoleAdmin
         : (m['i_am_manager'] == true ? t.mv2RoleManager : t.mv2RoleMember);
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         key: ValueKey('mess-${m['id']}'),
         minTileHeight: 64,

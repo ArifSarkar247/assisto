@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
@@ -156,7 +157,8 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
       if (size > 0) '$size ${t.crmHeadcount}',
       l['status_display'],
     ].where((e) => (e ?? '').toString().isNotEmpty).join(' · ');
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         leading: _scoreBadge((l['score'] as num?)?.toInt() ?? 0),
         title: Row(children: [

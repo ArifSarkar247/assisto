@@ -277,9 +277,9 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
           ),
           const SizedBox(height: Gap.sm),
           for (final m in months.reversed)
-            Card(
-              margin: const EdgeInsets.only(bottom: Gap.sm),
-              child: ListTile(
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                padding: EdgeInsets.zero,
+                child: ListTile(
                 key: ValueKey('acct-close-${acctIso(m)}'),
                 minVerticalPadding: Gap.sm,
                 leading: const Icon(Icons.calendar_month_rounded),
@@ -289,7 +289,7 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
                 enabled: !_busy,
                 onTap: () => _close(m),
               ),
-            ),
+              )),
         ],
         // ledger2: year-end close (income & expenses -> retained earnings)
         const SizedBox(height: Gap.xl),

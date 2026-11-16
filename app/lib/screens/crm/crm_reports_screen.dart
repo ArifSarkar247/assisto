@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_company_widgets.dart';
@@ -124,10 +125,9 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         // ---- weighted forecast (ESTIMATE) ----
         CrmSectionHeader(t.crmReportForecast,
             trailing: _estimateBadge(t)),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: forecast['has_data'] == true
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: forecast['has_data'] == true
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -150,16 +150,14 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                     ],
                   )
                 : _notEnough(lang, forecast),
-          ),
         ),
         const SizedBox(height: Gap.md),
 
         // ---- win / loss ----
         CrmSectionHeader(t.crmReportWinRate),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: winLoss['has_data'] == true
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: winLoss['has_data'] == true
                 ? Column(children: [
                     _line(t.crmWon, '${winLoss['won'] ?? 0}'),
                     _line(t.crmLost, '${winLoss['lost'] ?? 0}'),
@@ -183,7 +181,6 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                   ])
                 : Text(t.crmNotEnoughData,
                     style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
-          ),
         ),
         const SizedBox(height: Gap.md),
 
@@ -270,10 +267,9 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
 
   Widget _unavailable(String message) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
           Icon(Icons.cloud_queue_rounded,
               size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
@@ -281,7 +277,6 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
               child: Text(message,
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted))),
         ]),
-      ),
     );
   }
 
@@ -291,22 +286,19 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     if (funnel == null) return _unavailable(t.crmReportUnavailable);
     final rows = ((funnel['rows'] as List?) ?? []).cast<Map<String, dynamic>>();
     if (funnel['has_data'] != true || rows.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Text(t.crmNotEnoughData,
+      return DsCard(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Text(t.crmNotEnoughData,
               style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
-        ),
       );
     }
     final maxReached = rows.fold<int>(
         0, (m, r) => ((r['reached'] as num?)?.toInt() ?? 0) > m
             ? ((r['reached'] as num?)?.toInt() ?? 0)
             : m);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(children: [
           for (final r in rows)
             FunnelBar(
               stage: r['stage']?.toString() ?? '—',
@@ -316,7 +308,6 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                   (r['conversion_from_prev'] as num?)?.toDouble(),
             ),
         ]),
-      ),
     );
   }
 
@@ -324,22 +315,18 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (cycle == null) return _unavailable(t.crmReportUnavailable);
     if (cycle['has_data'] != true) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Text(t.crmNotEnoughData,
+      return DsCard(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Text(t.crmNotEnoughData,
               style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
-        ),
       );
     }
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(children: [
           _line(t.crmAvgDays, '${cycle['avg_days']} ${t.crmDays}'),
           _line(t.crmSampleSize, '${cycle['sample'] ?? 0}'),
         ]),
-      ),
     );
   }
 
@@ -348,14 +335,12 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final rows = ((block['rows'] as List?) ?? []).cast<Map<String, dynamic>>();
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: block['has_data'] == true && rows.isNotEmpty
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: block['has_data'] == true && rows.isNotEmpty
             ? Column(children: [for (final r in rows) row(r)])
             : Text(t.crmNotEnoughData,
                 style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
-      ),
     );
   }
 
@@ -363,21 +348,17 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     final scheme = Theme.of(context).colorScheme;
     final rows = ((block['rows'] as List?) ?? []).cast<Map<String, dynamic>>();
     if (block['has_data'] != true || rows.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Text(t.crmNotEnoughData,
+      return DsCard(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Text(t.crmNotEnoughData,
               style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
-        ),
       );
     }
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(children: [
           for (final r in rows) _repRow(r, t),
         ]),
-      ),
     );
   }
 

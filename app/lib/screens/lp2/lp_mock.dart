@@ -975,7 +975,10 @@ class _LpAudioState extends State<_LpAudio> {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (widget.url.isEmpty) {
-      return Card(child: ListTile(leading: const Icon(Icons.volume_off_rounded), title: Text(tr.lp2AudioMissing)));
+      return DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(leading: const Icon(Icons.volume_off_rounded), title: Text(tr.lp2AudioMissing)),
+      );
     }
     final locked = _played && !widget.replay;
     return Card(

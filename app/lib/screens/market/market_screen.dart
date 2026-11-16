@@ -203,7 +203,8 @@ class MkNeedTile extends StatelessWidget {
       if ((n['joiners'] ?? 0) as int > 0) t.amkJoinersN(mkNum(context, n['joiners'])),
       if (n['km'] != null) t.amkKmAway(mkNum(context, n['km'])),
     ].join(' · ');
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         minVerticalPadding: Gap.md,
         onTap: onTap,

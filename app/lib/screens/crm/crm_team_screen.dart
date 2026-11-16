@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
@@ -74,7 +75,8 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
         NeedsKeyBanner(t.crmTeamAlertNote, icon: Icons.notifications_active_rounded),
         // Invite code (owner/manager): share so teammates can "Join a team".
         if (_inviteCode != null && _inviteCode!.isNotEmpty) ...[
-          Card(
+          DsCard(
+            padding: EdgeInsets.zero,
             child: ListTile(
               leading: const Icon(Icons.vpn_key_rounded),
               title: Text(t.crmInviteCode),
@@ -90,7 +92,8 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
           Padding(padding: const EdgeInsets.all(Gap.md), child: Text(t.crmNoTeam))
         else
           for (final m in _members)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: CircleAvatar(
                   backgroundColor: scheme.ds.primarySoft,
@@ -107,7 +110,8 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
           Padding(padding: const EdgeInsets.all(Gap.md), child: Text(t.crmNoRouting))
         else
           for (final r in _rules)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: const Icon(Icons.alt_route_rounded),
                 title: Text([

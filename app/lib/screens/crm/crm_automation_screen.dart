@@ -176,7 +176,8 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
   /// one tap from here, shown only when that feature is on for this user.
   Widget? _customerMsgsLink(AppLocalizations t) {
     if (!FeatureFlags.instance.isOn('retention_auto')) return null;
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         key: const Key('crm-customer-msgs'),
         minVerticalPadding: 12,

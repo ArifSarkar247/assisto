@@ -216,7 +216,8 @@ class _LanguageCatalogSectionState extends State<LanguageCatalogSection> {
           padding: EdgeInsets.all(Gap.lg), child: Center(child: CircularProgressIndicator()));
     }
     if (_fail != null || _cat == null) {
-      return Card(
+      return DsCard(
+        padding: EdgeInsets.zero,
         child: ListTile(
           leading: Icon(Icons.cloud_off_rounded, color: scheme.error),
           title: Text(honestFailText(tr, _fail, otherwise: tr.learnCatalogFail)),
@@ -403,9 +404,9 @@ class _LanguagePackScreenState extends State<LanguagePackScreen> {
       _note(context, p.estimate(context)),
       const SizedBox(height: Gap.md),
       for (final t in tiles)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
             minVerticalPadding: Gap.md,
             leading: CircleAvatar(
                 backgroundColor: scheme.ds.primarySoft,
@@ -415,7 +416,7 @@ class _LanguagePackScreenState extends State<LanguagePackScreen> {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: t.$4,
           ),
-        ),
+          )),
     ]);
   }
 }
@@ -602,16 +603,16 @@ class _LessonsPage extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           ),
         for (final l in lessons.where((l) => l['level'] == lv['id']))
-          Card(
-            margin: const EdgeInsets.only(bottom: Gap.sm),
-            child: ListTile(
+          Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
               minVerticalPadding: Gap.md,
               title: Text(_loc(context, l, 'title_bn', 'title_en')),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (_) => LessonPage(pack: pack, lesson: l))),
             ),
-          ),
+            )),
       ],
     ]);
   }
@@ -662,9 +663,9 @@ class LessonPage extends StatelessWidget {
         const SizedBox(height: Gap.sm),
         Text(tr.learnSayIt, style: Theme.of(context).textTheme.titleMedium),
         for (final s in _strs(lesson['practice']))
-          Card(
-            margin: const EdgeInsets.only(top: Gap.sm),
-            child: ListTile(
+          Padding(padding: const EdgeInsets.only(top: Gap.sm), child: DsCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
               minVerticalPadding: Gap.md,
               leading: const Icon(Icons.mic_rounded),
               title: Text(s),
@@ -672,7 +673,7 @@ class LessonPage extends StatelessWidget {
                   builder: (_) => IeltsPronPractice(
                       ctx: Object(), row: {'text': s}, localeId: locale, title: tr.ieltsPron))),
             ),
-          ),
+            )),
       ],
     ]);
   }
@@ -689,9 +690,9 @@ class _PronListPage extends StatelessWidget {
     return _page(context, tr.ieltsPron, [
       _muted(context, tr.ieltsPronHow),
       for (final r in _list(pack.data['pron']))
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
             minVerticalPadding: Gap.md,
             title: Text('${r['text']}'),
             subtitle: Text(_loc(context, r, 'tip_bn', 'tip_en'), maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -699,7 +700,7 @@ class _PronListPage extends StatelessWidget {
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => IeltsPronPractice(ctx: Object(), row: r, localeId: pack.locale))),
           ),
-        ),
+          )),
     ]);
   }
 }
@@ -715,9 +716,9 @@ class _ScenarioListPage extends StatelessWidget {
     return _page(context, tr.learnScenarios, [
       _muted(context, tr.learnScenariosHow),
       for (final s in _list(pack.data['scenarios']))
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
             minVerticalPadding: Gap.md,
             leading: Icon(switch ('${s['id']}') {
               'airport' => Icons.flight_rounded,
@@ -734,7 +735,7 @@ class _ScenarioListPage extends StatelessWidget {
             onTap: () => Navigator.of(context)
                 .push(MaterialPageRoute(builder: (_) => ScenarioChatPage(pack: pack, scenario: s))),
           ),
-        ),
+          )),
     ]);
   }
 }
@@ -951,9 +952,9 @@ class _MockListPage extends StatelessWidget {
     return _page(context, tr.learnMock, [
       _muted(context, tr.learnMockHow),
       for (final m in _list(pack.data['mock']))
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
             minVerticalPadding: Gap.md,
             title: Text(_loc(context, m, 'title_bn', 'title_en')),
             subtitle: Text(ld(context,
@@ -963,7 +964,7 @@ class _MockListPage extends StatelessWidget {
             onTap: () => Navigator.of(context)
                 .push(MaterialPageRoute(builder: (_) => MockTestPage(pack: pack, mock: m))),
           ),
-        ),
+          )),
     ]);
   }
 }
@@ -1163,9 +1164,9 @@ class _MockTestPageState extends State<MockTestPage> {
           const SizedBox(height: Gap.md),
         ],
         for (final sp in _list(s['speak_prompts']))
-          Card(
-            margin: const EdgeInsets.only(bottom: Gap.sm),
-            child: ListTile(
+          Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
               minVerticalPadding: Gap.md,
               leading: const Icon(Icons.record_voice_over_rounded),
               title: Text(_pickText(context, sp)),
@@ -1176,11 +1177,11 @@ class _MockTestPageState extends State<MockTestPage> {
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => SpeakPromptPage(prompt: sp, localeId: _p?.locale))),
             ),
-          ),
+            )),
         for (final ra in _strs(s['read_aloud']))
-          Card(
-            margin: const EdgeInsets.only(bottom: Gap.sm),
-            child: ListTile(
+          Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
               minVerticalPadding: Gap.md,
               leading: const Icon(Icons.mic_rounded),
               title: Text(ra),
@@ -1188,7 +1189,7 @@ class _MockTestPageState extends State<MockTestPage> {
                   builder: (_) => IeltsPronPractice(
                       ctx: Object(), row: {'text': ra}, localeId: _p?.locale, title: tr.ieltsPron))),
             ),
-          ),
+            )),
       ],
       const SizedBox(height: Gap.md),
       if (_result == null && !lastSec)
