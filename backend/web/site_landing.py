@@ -481,6 +481,29 @@ def nav(lang, live=None):
     return [{"name": LANDINGS[s][lang]["name"], "url": path(s) + q, "slug": s} for s in live_slugs(live)]
 
 
+# Copy without any Google Play wording, used while the owner keeps the Play
+# badge hidden (site_play_badge_hidden ON): never "Get it on Play" next to
+# "coming soon to Play" (lead review 17 Nov).
+NO_PLAY_COPY = {
+    "bn": {"cta_p": "ফোনে Assisto নিন। বাংলা বা ইংরেজি, আপনার পছন্দ।",
+           "apk_note": "আগে ওয়েবসাইটের পুরনো APK বসিয়ে থাকলে একবার আনইনস্টল করে এটি বসান।",
+           "pricing_lead": "ফ্রিতে শুরু করুন। পরিবারের নিরাপত্তা সব প্ল্যানে ফ্রি।"},
+    "en": {"cta_p": "Get Assisto on your phone. Bangla or English, your choice.",
+           "apk_note": "Installed an older APK from this website? Uninstall it once and install this one.",
+           "pricing_lead": "Start free. Family safety is free on every plan."},
+}
+NO_PLAY_TEXT = (  # sentence swaps inside shared FAQ answers
+    ("প্রিমিয়াম বা বিজনেস প্ল্যান Google Play থেকে কেনা যায়।", "প্রিমিয়াম বা বিজনেস প্ল্যান অ্যাপ থেকেই কেনা যায়।"),
+    ("Premium or Business can be bought through Google Play.", "Premium or Business can be bought in the app."),
+)
+
+
+def no_play(text):
+    for a, b in NO_PLAY_TEXT:
+        text = text.replace(a, b)
+    return text
+
+
 def shot_names():
     return sorted({s["name"] for d in LANDINGS.values() for s in d["shots"]})
 
