@@ -47,8 +47,8 @@ env:
   SPREET_VER: 'v0.14.0'
   DHAKA_BBOX: '90.30,23.68,90.53,23.92'
   STAGE_TAG: map-tiles-staging-${{ github.run_id }}
-  REUSE_BUILDINGS_TAG: 'map-tiles-staging-43925833019'   # clear when the Overture release changes
-  REUSE_BASE_TAG: 'map-tiles-staging-43945665247'        # clear for a fresh OSM build (monthly)
+  REUSE_BUILDINGS_TAG: 'map-tiles-staging-43975174165'   # clear when the Overture release changes
+  REUSE_BASE_TAG: 'map-tiles-staging-43975174165'        # clear for a fresh OSM build (monthly)
   GH_TOKEN: ${{ github.token }}
   GH_REPO: ${{ github.repository }}
 
