@@ -230,6 +230,11 @@ List<String> _texts(WidgetTester tester) {
 }
 
 final _ascii = RegExp(r'[0-9]');
+// Official exam / level codes keep their Latin form in Bangla too (CEFR
+// A1–C2, JLPT N1–N5, HSK 1–6, TOPIK I/II/1–6). Whole tokens only: they are
+// removed before the digit check, so real numbers (prices, counts, dates,
+// IELTS band scores) next to them still fail.
+final _levelCode = RegExp(r'\b(?:[ABC][12]|N[1-5]|HSK ?[1-6]|TOPIK ?(?:I{1,2}|[1-6]))\b');
 // URLs / app links / invite codes are not reading text.
 final _urlish = RegExp(r'(https?://|lifeassisto\.com|\.com/|www\.)');
 
@@ -270,7 +275,7 @@ Set<String> _bnFindings(WidgetTester tester, String name,
   final open = <String>{};
   for (final s in _texts(tester)) {
     final one = s.replaceAll('\n', ' ');
-    if (_ascii.hasMatch(one) && !_urlish.hasMatch(one)) {
+    if (_ascii.hasMatch(one.replaceAll(_levelCode, '')) && !_urlish.hasMatch(one)) {
       final d = 'digit: "$one"';
       if (!_allowed(name, 'digit', d)) open.add(d);
     }
