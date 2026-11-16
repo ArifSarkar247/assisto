@@ -6,6 +6,7 @@ import 'package:camera/camera.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart';
 import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -1249,7 +1250,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     return Scaffold(
       appBar: AppBar(title: Text(t.pcTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(
               padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 12, 16, 32)),
               children: _token == null ? _pairView(t) : _readyView(t),

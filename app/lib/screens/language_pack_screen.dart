@@ -212,8 +212,7 @@ class _LanguageCatalogSectionState extends State<LanguageCatalogSection> {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
-      return const Padding(
-          padding: EdgeInsets.all(Gap.lg), child: Center(child: CircularProgressIndicator()));
+      return const SkeletonList(count: 3);
     }
     if (_fail != null || _cat == null) {
       return DsCard(

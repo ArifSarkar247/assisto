@@ -6,6 +6,7 @@
 // (B15) — never in route results, never on safety screens.
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' show LaunchMode;
@@ -146,7 +147,7 @@ class _CityAroundScreenState extends State<CityAroundScreen> {
           ]),
           const SizedBox(height: Gap.md),
           if (_loading)
-            const Padding(padding: EdgeInsets.all(Gap.xl), child: Center(child: CircularProgressIndicator()))
+            const SkeletonList(count: 3)
           else if (_here == null)
             _info(t.cityAroundNeedLocation, Icons.location_off_rounded)
           else if (_failed)

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 
@@ -408,7 +409,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
     final n = _n;
     Widget body;
     if (n == null) {
-      body = _err != null ? MkError(error: _err!, onRetry: _load) : const Center(child: CircularProgressIndicator());
+      body = _err != null ? MkError(error: _err!, onRetry: _load) : const SkeletonList();
     } else {
       final mine = n['mine'] == true;
       final joined = n['joined_qty'] != null;
