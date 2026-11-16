@@ -24,6 +24,28 @@ from core.logic import tuya as T
 from core.tests_cashguard import _MEDIA
 from core.tests_cctvx import _X
 
+
+def _clear_of_midnight():
+    """Now, or 01:00 local when the real clock is in the first hour after
+    Dhaka midnight (these tests look at "today" and at minutes before now;
+    CI runs that cross 00:00 Dhaka failed, 16 Nov)."""
+    n = timezone.localtime(timezone.now())
+    return n.replace(hour=1, minute=0, second=0, microsecond=0) if n.hour < 1 else n
+
+
+def _midnight_safe(fn):
+    """Run the test with the clock frozen at _clear_of_midnight() (computed
+    when the test starts)."""
+    import functools
+
+    @functools.wraps(fn)
+    def run(*a, **k):
+        n = _clear_of_midnight()
+        with mock.patch("django.utils.timezone.now", return_value=n):
+            return fn(*a, **k)
+    return run
+
+
 NOW = datetime(2026, 11, 9, 10, 0, tzinfo=dtz.utc)
 
 
@@ -352,6 +374,7 @@ class PosWebhookApiTests(_X):
         self.assertEqual(self.m.get("/api/v1/shop/sites/%d/pos-key" % self.site["id"])
                          .status_code, 404)
 
+    @_midnight_safe
     def test_csv_import_dedupes_and_sales_match_review_only(self):
         from core.models import ShopPosEvent
         now = timezone.localtime(timezone.now())
