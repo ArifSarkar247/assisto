@@ -181,6 +181,7 @@ jobs:
           python3 tools/reality/summarize.py "$REALITY_OUT" > /dev/null || true
           python3 tools/e2e/proof.py "$REALITY_OUT" "$E2E_OUTBOX" "emulator API 33 (pixel_5, x86_64)"
       - name: Upload evidence
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -358,6 +359,7 @@ jobs:
           [ -s "$REALITY_OUT/tl_out.json" ] && cat "$REALITY_OUT/tl_out.json" | head -40
           exit $rc
       - name: Upload Test Lab evidence
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always() && steps.pre.outputs.run == 'true'
         uses: actions/upload-artifact@v4
         with:

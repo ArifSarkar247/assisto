@@ -54,6 +54,7 @@ jobs:
           print("ok", by)
           PY
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         with:
           name: bd-places
           path: out/

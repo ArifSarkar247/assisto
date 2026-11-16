@@ -45,6 +45,7 @@ jobs:
       - name: Build
         run: bash deploy/transit/ci_run.sh "$PWD/transit_work"
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         with:
           name: transit-data
           path: transit_work/out/

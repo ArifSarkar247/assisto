@@ -117,6 +117,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           python3 -c "import json,sys;d=json.load(open('$E2E_DIR/ipcam_proof.json'));sys.exit(0 if d['alert_with_photo'] and d['live_pictures_ok'] else 1)"
       - name: Upload evidence
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:

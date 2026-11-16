@@ -104,6 +104,7 @@ jobs:
           python tools/website/site_shots.py "$RUNNER_TEMP/gallery"
           python tools/website/site_shots.py --check
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: github.event.inputs.shots_run_id != ''
         with:
           name: website-shots3
@@ -122,16 +123,19 @@ jobs:
           cp "$GITHUB_WORKSPACE/tools/website/shots_v3.mjs" .
           node shots_v3.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/v3"
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         with:
           name: website-before
           path: ${{ runner.temp }}/shots/before
           retention-days: 5
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         with:
           name: website-after
           path: ${{ runner.temp }}/shots/after
           retention-days: 5
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         with:
           name: website-v3-preview
           path: ${{ runner.temp }}/shots/v3
@@ -159,24 +163,28 @@ jobs:
           node uxcheck.mjs http://127.0.0.1:8001 "$RUNNER_TEMP/shots/uxcheck" before || true
           node uxcheck.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/uxcheck" after
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-uxcheck
           path: ${{ runner.temp }}/shots/uxcheck
           retention-days: 5
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-livelocal
           path: ${{ runner.temp }}/shots/livelocal
           retention-days: 5
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-before-360
           path: ${{ runner.temp }}/shots/before360
           retention-days: 5
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-clipcheck
@@ -201,6 +209,7 @@ jobs:
             python tools/website/lh_summary.py lhci-report-desktop/manifest.json | tee -a "$GITHUB_STEP_SUMMARY"
           fi
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-lighthouse
@@ -256,6 +265,7 @@ jobs:
             cp -r lhci-report-live "$RUNNER_TEMP/live/" || true
           fi
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-live

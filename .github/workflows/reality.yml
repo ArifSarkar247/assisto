@@ -280,6 +280,7 @@ jobs:
         if: always()
         run: kill "$(cat "$REALITY_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
       - name: Upload evidence
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -321,6 +322,7 @@ jobs:
           first=$(python3 -c "import json,os;print(json.loads(os.environ['GPUS'])[0])")
           mkdir -p groups && cp "by_gpu/$first/reality_summary.json" "by_gpu/$first/reality_summary.md" groups/ || true
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: reality-summary
