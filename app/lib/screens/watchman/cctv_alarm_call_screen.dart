@@ -66,66 +66,80 @@ class _CctvAlarmCallScreenState extends State<CctvAlarmCallScreen> {
     final photo = (p.data['snapshot_url'] ?? '').trim();
     final place = (p.data['site_name'] ?? '').trim();
     final cam = (p.data['camera_name'] ?? '').trim();
+    final ds = scheme.ds;
     return Scaffold(
-      backgroundColor: scheme.surface,
+      backgroundColor: ds.bg,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 16, 16, 16)),
+          padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Row(children: [
-              Icon(Icons.videocam_rounded, color: scheme.error),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(t.cescCallKicker,
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelLarge
-                        ?.copyWith(color: scheme.error, fontWeight: FontWeight.w700)),
-              ),
-            ]),
-            const SizedBox(height: 8),
-            Text(
-              [place, cam].where((s) => s.isNotEmpty).join(' — '),
-              style: Theme.of(context).textTheme.headlineSmall,
+            // the urgent thing first: the red DS hero (what, where, why)
+            DsHeroCard(
+              danger: true,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  const Icon(Icons.videocam_rounded),
+                  const SizedBox(width: Gap.sm),
+                  Expanded(
+                    child: Text(t.cescCallKicker,
+                        style: AType.labelLarge.copyWith(
+                            color: ds.onDangerHero, fontWeight: FontWeight.w800)),
+                  ),
+                  const DsStatusDot(),
+                ]),
+                const SizedBox(height: Gap.sm),
+                Text(
+                  [place, cam].where((s) => s.isNotEmpty).join(' — '),
+                  style: AType.headlineSmall.copyWith(
+                      color: ds.onDangerHero, fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: Gap.xs),
+                Text(t.cescCallWhy,
+                    style: AType.bodyMedium.copyWith(color: ds.onDangerHeroSoft)),
+              ]),
             ),
-            const SizedBox(height: 4),
-            Text(t.cescCallWhy),
-            const SizedBox(height: 12),
+            const SizedBox(height: Gap.md),
             AspectRatio(
               aspectRatio: 4 / 3,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(DsRadius.card),
                 child: Container(
-                  color: scheme.ds.cardHighest,
+                  color: ds.cardHighest,
                   alignment: Alignment.center,
                   child: photo.isEmpty
                       ? Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Text(t.cescCallNoPhoto, textAlign: TextAlign.center))
+                          padding: const EdgeInsets.all(Gap.xl),
+                          child: Text(t.cescCallNoPhoto,
+                              textAlign: TextAlign.center,
+                              style: AType.bodyMedium.copyWith(color: ds.muted)))
                       : Image.network(photo,
                           fit: BoxFit.contain,
                           semanticLabel: t.cescCallPhotoLabel,
                           errorBuilder: (_, __, ___) => Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Text(t.cescCallNoPhoto, textAlign: TextAlign.center))),
+                              padding: const EdgeInsets.all(Gap.xl),
+                              child: Text(t.cescCallNoPhoto,
+                                  textAlign: TextAlign.center,
+                                  style: AType.bodyMedium.copyWith(color: ds.muted)))),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-            Text(t.cescCallStopsNote, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 8),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(minimumSize: const Size(64, 56)),
+            const SizedBox(height: Gap.md),
+            // one big glowing "open the alert", then "not now"
+            DsButton.danger(
               onPressed: _open,
-              icon: const Icon(Icons.visibility_rounded),
-              label: Text(t.cescCallOpen),
+              icon: Icons.visibility_rounded,
+              label: t.cescCallOpen,
+              expand: true,
             ),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(minimumSize: const Size(64, 48)),
+            const SizedBox(height: Gap.sm),
+            DsButton.secondary(
               onPressed: _later,
-              child: Text(t.cescCallLater),
+              label: t.cescCallLater,
+              expand: true,
             ),
+            const SizedBox(height: Gap.md),
+            Text(t.cescCallStopsNote,
+                style: AType.bodySmall.copyWith(color: ds.muted)),
           ]),
         ),
       ),
