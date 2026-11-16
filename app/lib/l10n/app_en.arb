@@ -49583,5 +49583,53 @@
   "icgLowPower": "Old-phone mode: checking the camera's key pictures only (about one every 2–4 seconds).",
   "icgHonest": "Honest limits: keep this phone plugged in, on this screen, on the same Wi-Fi as the camera. The camera's address and password stay only on this phone. Live view from an IP camera is a fast picture stream (about 4 a second, no sound). Alerts carry a photo; video clips are not kept on this phone yet.",
   "icgPlayedSiren": "Siren played here (the owner asked)",
-  "icgPlayedWarn": "The owner's warning played here"
+  "icgPlayedWarn": "The owner's warning played here",
+  "adGateTitle": "Watch one short ad?",
+  "@adGateTitle": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateBody": "Watch one short ad {what}. It keeps this free for you.",
+  "@adGateBody": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "adGateOnceNote": "Only once. After this it stays free on this phone.",
+  "@adGateOnceNote": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateWindowNote": "After the ad it stays free for {minutes} minutes.",
+  "@adGateWindowNote": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "adGatePerUseNote": "One ad for each check. Premium and Plus have no ads.",
+  "@adGatePerUseNote": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateWatch": "Watch the ad and continue",
+  "@adGateWatch": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateNotNow": "Not now",
+  "@adGateNotNow": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateWhatTrain": "to see this train's live location",
+  "@adGateWhatTrain": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateWhatScan": "to run this check",
+  "@adGateWhatScan": {
+    "description": "adcontrol rewarded gate"
+  },
+  "adGateWhatSecurity": "to switch this security feature on",
+  "@adGateWhatSecurity": {
+    "description": "adcontrol rewarded gate"
+  }
 }
