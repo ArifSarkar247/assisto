@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ১০২ / মোট ৪২০**
+**স্ক্রিন শেষ: ১০৫ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -246,7 +246,7 @@
 - ⬜ — `screens/crm/crm_company_detail_screen.dart`
 - ✅ batch d2-7 (ওজনযুক্ত পূর্বাভাস = নরম হিরো, লেবেল কাটা যায় না) — `screens/crm/crm_dashboard_screen.dart`
 - ⬜ — `screens/crm/crm_erp_handoff_screen.dart`
-- ⬜ — `screens/crm/crm_firstrun_screen.dart`
+- ✅ batch d2-8 (স্বাগতম = নরম হিরো আঁকা ছবিসহ, ত্রুটি = লাল কার্ড) — `screens/crm/crm_firstrun_screen.dart`
 - ⬜ — `screens/crm/crm_home_screen.dart`
 - ⬜ — `screens/crm/crm_lead_detail_screen.dart`
 - ⬜ — `screens/crm/crm_lead_form_screen.dart`
@@ -258,7 +258,7 @@
 - ⬜ — `screens/crm/crm_team_advanced_screen.dart`
 - ⬜ — `screens/crm/crm_team_screen.dart`
 - ⬜ — `screens/crm/crm_today_screen.dart`
-- ⬜ — `screens/crm/customer_history_screen.dart`
+- ✅ batch d2-8 (গ্রাহক = নরম হিরো, DS অ্যাভাটার) — `screens/crm/customer_history_screen.dart`
 - ⬜ — `screens/crm/customer_list_screen.dart`
 - ⬜ — `screens/crm_contacts_screen.dart`
 - ⬜ — `screens/pa/biz_travel_events_screen.dart`
@@ -282,7 +282,7 @@
 
 - ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `screens/language_pack_screen.dart`
 - ✅ batch d2-2 (আজকের লক্ষ্য = নরম হিরো, জীবন্ত কার্ড) — `screens/language_partner_screen.dart`
-- ⬜ — `screens/language_picker_screen.dart`
+- ✅ batch d2-8 (ভাষা = জীবন্ত কার্ড, বাছাই করা = নীল সীমানা, বড় চালিয়ে যান বোতাম) — `screens/language_picker_screen.dart`
 
 ## ১৪. কুরআন
 
