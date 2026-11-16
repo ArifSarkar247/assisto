@@ -1,5 +1,6 @@
-- Faster start: Home opens in about 1.4 s and works offline from the last saved data.
-- New Low-data mode in Settings.
-- New City map: our own map with metro, bus routes, fares and waterlogging; optional Google view.
-- AI: "Watch N ads for 1 answer" for free users, honest and fair.
-- Smaller download from Play (about 50 MB).
+- Mess & Bachelor V2: members from My Circle, a shared mess group, exact month-end accounts, works offline.
+- Language Partner V2: 3 full IELTS mock tests, Life English role-play, vocabulary, and courses for Japan, Korea, Germany, Middle East, Chinese and French.
+- Quran: bilingual ayah page with Bangla and English meaning and tafsir sources.
+- CCTV: more detections (crowd, vehicles, parking) and better night accuracy.
+- Bangla now prints correctly in every PDF.
+- New look across many screens; Discover cards and fairer ads for free users.
