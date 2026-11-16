@@ -381,7 +381,10 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     // qjourney (owner V2): the tap carries the phone's fresh fix; the server
     // checks distance + the earliest possible time. Far away / too early =
     // "unusual": never "arrived safely", and the safety PIN is asked.
-    final f = _tr.value.lastFix;
+    // sjproof: a fresh position at the tap (the last tracked fix can be 2 min
+    // and ~2 km old on a bus -> a real arrival looked "far")
+    final f = await _tr.freshFix() ?? _tr.value.lastFix;
+    if (!mounted) return;
     final fresh = f != null && DateTime.now().difference(f.at).inMinutes < 2;
     Map<String, dynamic> r;
     try {

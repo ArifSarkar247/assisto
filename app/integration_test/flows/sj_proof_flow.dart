@@ -61,8 +61,14 @@ Finder _sees(String s) => find.byWidgetPredicate((w) {
 ApiClient _apiA(RFlow f) => ApiClient.detached(f.app.api.token ?? '')..lang = 'en';
 
 Future<Map<String, dynamic>> _sim(ApiClient api, Map<String, dynamic> body) async {
-  final r = await api.postJsonRaw('/ci-e2e/sj-sim', body);
-  if (r['ok'] != true) throw TestFailure('sj-sim ${body['op']}: $r');
+  Map<String, dynamic>? r;
+  Object? err;
+  try {
+    r = await api.postJsonRaw('/ci-e2e/sj-sim', body);
+  } catch (e) {
+    err = e; // e.g. 409 no_train_running_now
+  }
+  if (r == null || r['ok'] != true) throw TestFailure('sj-sim ${body['op']}: ${r ?? err}');
   return r;
 }
 
@@ -189,7 +195,18 @@ Future<void> _openLive(RFlow f, int jid) async {
   // location is granted by the CI host; our own reason dialog = "Not now"
   final notNow = find.text(f.t.notNow);
   if (await f.appears(notNow, seconds: 2)) await f.tap(notNow, settleSeconds: 2);
-  await f.waitFor(find.byType(JourneyLiveScreen), what: 'live journey screen');
+  // the private ask may already cover it (then the live screen is offstage)
+  await f.waitFor(
+      find.byWidgetPredicate((w) => w is JourneyLiveScreen || w is SjPrivateAskScreen,
+          skipOffstage: false),
+      what: 'live journey screen');
+}
+
+/// Night (22:00-06:00 Dhaka): the trip checks in privately by itself (owner
+/// V2) — a night check-in is the traveller's own private ask, never an alert.
+bool _night() {
+  final h = DateTime.now().toUtc().add(const Duration(hours: 6)).hour;
+  return h >= 22 || h < 6;
 }
 
 void registerSjProofFlows() {
@@ -386,9 +403,12 @@ void registerSjProofFlows() {
             for (var m = 0; m < 64; m++) (m, _north(_o, math.min(19400.0, m * 300.0))),
             for (var m = 64; m <= 92; m++) (m, tea),
           ]));
-      if ((r['events'] as List).any(_watcherKinds.contains) || r['ask'] != null) {
+      final ask = (r['ask'] as Map?)?['kind'];
+      if ((r['events'] as List).any(_watcherKinds.contains) ||
+          (ask != null && !(ask == 'night_checkin' && _night()))) {
         throw TestFailure('alert or ask during a 29-minute tea stop: $r');
       }
+      if (ask != null) f.note('night trip: private night check-in only (no alert)');
     });
     await f.step('A (watcher): Nearly there + the green note; no alert push', () async {
       await f.pushScreen(const JourneyWatchScreen());
@@ -412,7 +432,10 @@ void registerSjProofFlows() {
             for (var m = 0; m < 64; m++) (m, _north(_o, math.min(19400.0, m * 300.0))),
             for (var m = 64; m <= 97; m++) (m, tea),
           ]));
-      if ((r['ask'] as Map?)?['kind'] != 'near_stop') throw TestFailure('no private near-stop ask: $r');
+      final kind = (r['ask'] as Map?)?['kind'];
+      if (kind != 'near_stop' && !(kind == 'night_checkin' && _night())) {
+        throw TestFailure('no private near-stop ask: $r');
+      }
       if ((r['events'] as List).any(_watcherKinds.contains)) throw TestFailure('family alerted: $r');
       final toB = await f.net(() => _pushes(api, s2, p.b));
       final toA = await f.net(() => _pushes(api, s2, p.a));
@@ -687,8 +710,13 @@ void registerSjProofFlows() {
             .firstWhere((c) => c['id'] == jid, orElse: () => {});
         return ((c['lat'] as num?) ?? 0) > _d.$1;
       });
-      final audio = await f.net(() => apiB.getJson('/journey/$jid/danger-audio'))
-          .then((r) => r, onError: (_) => <String, dynamic>{});
+      final audio = await f.net(() async {
+        try {
+          return await apiB.getJson('/journey/$jid/danger-audio');
+        } catch (_) {
+          return <String, dynamic>{}; // no clip (the emulator has no microphone)
+        }
+      });
       f.note('30 s clip at B: ${audio['audio_b64'] != null ? 'yes' : 'not yet (emulator mic)'}');
       await f.net(() => JourneyTracker.I.stop());
     });

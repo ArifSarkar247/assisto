@@ -287,19 +287,22 @@ class SjSimView(APIView):
         from core.logic import train_geo as TG
         from core.models import User
         now = timezone.now()
-        day = TS.today()
         delay = td(minutes=10)
         pick = None
         trains = TG.timetable()["trains"]
         trains = sorted(trains, key=lambda t: (0 if "express" in str(t.get("name", "")).lower()
                                                else 1, str(t.get("no"))))
-        for t in trains:
-            rt = TG.route(t["no"])
-            if rt is None or not TG.runs_on(t, day):
-                continue
-            dep, arr = TG.times(t, day)
-            if dep + delay + td(minutes=25) <= now <= arr + delay - td(minutes=20):
-                pick = (t, rt)
+        # today's trains first; at night an overnight train that left yesterday
+        for day in (TS.today(), TS.today() - td(days=1)):
+            for t in trains:
+                rt = TG.route(t["no"])
+                if rt is None or not TG.runs_on(t, day):
+                    continue
+                dep, arr = TG.times(t, day)
+                if dep + delay + td(minutes=25) <= now <= arr + delay - td(minutes=20):
+                    pick = (t, rt)
+                    break
+            if pick:
                 break
         if pick is None:
             return Response({"ok": False, "reason": "no_train_running_now"}, status=409)
