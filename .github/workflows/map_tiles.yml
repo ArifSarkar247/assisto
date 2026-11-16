@@ -47,8 +47,8 @@ env:
   SPREET_VER: 'v0.14.0'
   DHAKA_BBOX: '90.30,23.68,90.53,23.92'
   STAGE_TAG: map-tiles-staging-${{ github.run_id }}
-  REUSE_BUILDINGS_TAG: 'map-tiles-staging-43975174165'   # clear when the Overture release changes
-  REUSE_BASE_TAG: 'map-tiles-staging-43975174165'        # clear for a fresh OSM build (monthly)
+  REUSE_BUILDINGS_TAG: ''   # clear when the Overture release changes
+  REUSE_BASE_TAG: ''        # clear for a fresh OSM build (monthly)
   GH_TOKEN: ${{ github.token }}
   GH_REPO: ${{ github.repository }}
 
@@ -288,11 +288,11 @@ jobs:
           mkdir -p tiles && mv in/*.pmtiles tiles/
           npm i -s --no-save --prefix r '@maplibre/maplibre-gl-native@6.4.1' 'pmtiles@4.5.0' 'pngjs@7.0.0'
           cp deploy/maptiles/render_shots.mjs r/
-          xvfb-run -a node r/render_shots.mjs tiles in/dist_assets shots
+          xvfb-run -a node r/render_shots.mjs tiles in/dist_assets map_shots
       - name: Stage screenshots
         if: always()
         run: |
-          ls shots 2>/dev/null | head; test -d shots && tar -czf shots.tar.gz shots && gh release upload "$STAGE_TAG" shots.tar.gz --clobber
+          ls map_shots 2>/dev/null | head; test -d map_shots && tar -czf shots.tar.gz map_shots && gh release upload "$STAGE_TAG" shots.tar.gz --clobber
 
   publish:
     needs: [assets, base, overture, terrain]

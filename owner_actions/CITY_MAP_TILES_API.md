@@ -77,10 +77,25 @@ listed in `offline/manifest.json` → `"fonts"` and keep them with the pack.
 copernicus: {tiles}}, files: [{name, bytes, sha256}]}`. The deploy step fetches it LAST-written,
 verifies every sha256, swaps a `current` symlink atomically (rollback = previous dir).
 
-## 7. Hosting + cost (summary; numbers in STATUS after the first CI build)
+## 7. Hosting + cost (measured, build 20261116.8 = CI run 43979150359, all jobs green; staged in non-public draft map-tiles-staging-43979150359)
+
+| File | Size |
+|---|---|
+| bd_base.pmtiles (OSM, Geofabrik 15 Nov 2026, z0-15) | 405 MB |
+| bd_buildings.pmtiles (Overture 2026-10-21.0, 40.8 M buildings, z14) | 561 MB |
+| bd_places.pmtiles (93,918 places, 20,686 with Bangla names, z15) | 5.9 MB |
+| bd_terrain.pmtiles (Copernicus GLO-30, 32 tiles, z5-11) | 130 MB |
+| offline/dhaka_base + dhaka_buildings | 20.9 + 14.7 MB = **35.6 MB** pack |
+| map_assets.tar.gz (4 styles, glyphs, sprites) | 9.6 MB |
+| **Total on server disk** | **≈ 1.15 GB** (60 % → ≈ 61 %; limit 75 %) |
+
+Building heights: only 38,536 of 40.8 M footprints have a height (1,572 measured, the rest
+num_floors x 3 m); everything else is drawn at a 6 m style default — honest limit of the open data.
 
 Served from our server disk by nginx (range requests, `Cache-Control: public, max-age=86400`,
-immutable versioned dir). AWS Mumbai egress: first 100 GB/month free (shared with all our
-traffic), then USD 0.1093/GB. Estimate ≈15 MB/month per active map user → ≈ ৳0.2 per user per
-month; Dhaka pack ≈ one download. Options if egress grows: Cloudflare R2 (10 GB free storage,
-USD 0 egress) — owner approval needed before any account/spending.
+ETag). AWS Mumbai egress: first 100 GB/month free (shared with all our traffic), then
+USD 0.1093/GB. Estimate ≈ 15 MB/month per active map user (MapLibre caches tiles) → USD 0.0016
+≈ ৳0.2 per user per month; one Dhaka pack download 35.6 MB → USD 0.004 ≈ ৳0.5. 40 % rule: map
+cost is < 0.2 % of the ৳199 Premium price; free users ≈ ৳0.2/month each. If map egress passes
+~50 GB/month: Cloudflare R2 (10 GB free storage, USD 0 egress) — owner approval needed before
+any account/spending.
