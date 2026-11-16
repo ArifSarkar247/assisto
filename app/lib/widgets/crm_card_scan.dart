@@ -1,6 +1,7 @@
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
 import '../screens/crm/crm_advanced_api.dart';
@@ -105,61 +106,74 @@ class _CrmCardScanState extends State<CrmCardScan> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final ds = Theme.of(context).colorScheme.ds;
     return ListView(
       padding: const EdgeInsets.all(Gap.md),
       children: [
         if (_needsKey && kShowKeySeams) // truth: no key dead end
           NeedsKeyBanner(t.crmCardOcrNeedsKey, icon: Icons.document_scanner_rounded),
-        Text(t.crmCardPasteHint,
-            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
-        const SizedBox(height: Gap.sm),
-        TextField(
-          controller: _raw,
-          maxLines: 5,
-          decoration: InputDecoration(
-              hintText: t.crmCardPastePlaceholder, border: const OutlineInputBorder()),
-        ),
-        const SizedBox(height: Gap.sm),
-        FilledButton.tonalIcon(
-          onPressed: _busy ? null : _parse,
-          icon: const Icon(Icons.auto_fix_high_rounded),
-          label: Text(t.crmCardParse),
+        // step 1: paste the card text — one alive card with its button
+        DsCard(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Text(t.crmCardPasteHint, style: AType.bodyMedium.copyWith(color: ds.muted)),
+            const SizedBox(height: Gap.sm),
+            TextField(
+              controller: _raw,
+              maxLines: 5,
+              decoration: InputDecoration(hintText: t.crmCardPastePlaceholder),
+            ),
+            const SizedBox(height: Gap.md),
+            DsButton(
+              onPressed: _busy ? null : _parse,
+              busy: _busy && !_hasDraft,
+              icon: Icons.auto_fix_high_rounded,
+              label: t.crmCardParse,
+              expand: true,
+            ),
+          ]),
         ),
         if (_hasDraft) ...[
-          const Divider(height: Gap.lg),
-          Text(t.crmReviewDraft, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
-          Text(t.crmReviewDraftHint,
-              style: AType.bodyMedium.copyWith(fontSize: 12, color: Theme.of(context).colorScheme.ds.muted)),
-          const SizedBox(height: Gap.sm),
-          _field(t.crmName, _name),
-          _field(t.crmCompany, _company),
-          _field(t.crmPhone, _phone),
-          _field(t.crmEmail, _email),
-          if (_dupeHits.isNotEmpty) ...[
-            const SizedBox(height: Gap.sm),
-            Container(
-              padding: const EdgeInsets.all(Gap.sm),
-              decoration: BoxDecoration(
-                color: Brand.warning.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(Radii.sm),
+          // step 2: check the draft, then save
+          DsSectionHeader(t.crmReviewDraft),
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Text(t.crmReviewDraftHint, style: AType.bodySmall.copyWith(color: ds.muted)),
+              const SizedBox(height: Gap.sm),
+              _field(t.crmName, _name),
+              _field(t.crmCompany, _company),
+              _field(t.crmPhone, _phone),
+              _field(t.crmEmail, _email),
+              if (_dupeHits.isNotEmpty) ...[
+                const SizedBox(height: Gap.xs),
+                DsSurface(
+                  flat: true,
+                  color: AssistoTokens.of(context).warning.withValues(alpha: 0.14),
+                  padding: const EdgeInsets.all(Gap.md),
+                  child: Row(children: [
+                    Icon(Icons.warning_amber_rounded, size: 18,
+                        color: Brand.onTint(context, AssistoTokens.of(context).warning)),
+                    const SizedBox(width: Gap.sm),
+                    Expanded(
+                        child: Text(t.crmPossibleDuplicate,
+                            style: AType.bodyMedium.copyWith(
+                                color: Brand.onTint(context, AssistoTokens.of(context).warning)))),
+                  ]),
+                ),
+              ],
+              const SizedBox(height: Gap.md),
+              DsButton(
+                onPressed: _busy ? null : _save,
+                busy: _busy && _hasDraft,
+                icon: Icons.check_rounded,
+                label: t.crmSaveLead,
+                expand: true,
               ),
-              child: Row(children: [
-                const Icon(Icons.warning_amber_rounded, size: 18, color: Brand.warning),
-                const SizedBox(width: Gap.xs),
-                Expanded(child: Text(t.crmPossibleDuplicate)),
-              ]),
-            ),
-          ],
-          const SizedBox(height: Gap.md),
-          FilledButton.icon(
-            onPressed: _busy ? null : _save,
-            icon: const Icon(Icons.check_rounded),
-            label: Text(t.crmSaveLead),
+            ]),
           ),
         ],
         if (_err != null) ...[
           const SizedBox(height: Gap.sm),
-          Text(_err!, style: AType.bodyMedium.copyWith(color: Brand.danger)),
+          Text(_err!, style: AType.bodyMedium.copyWith(color: ds.dangerInk)),
         ],
       ],
     );
@@ -169,7 +183,7 @@ class _CrmCardScanState extends State<CrmCardScan> {
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: TextField(
           controller: c,
-          decoration: InputDecoration(labelText: label, border: const OutlineInputBorder(), isDense: true),
+          decoration: InputDecoration(labelText: label),
         ),
       );
 }
