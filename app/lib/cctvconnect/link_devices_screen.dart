@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart';
 import '../ds/ds.dart';
 
 import '../l10n/app_localizations.dart';
@@ -115,7 +116,7 @@ class _CctvLinkDevicesScreenState extends State<CctvLinkDevicesScreen> {
               ),
             ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(

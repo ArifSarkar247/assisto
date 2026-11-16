@@ -4,6 +4,7 @@
 // date). With a destination: "Which gate to take" per station. Works
 // offline from the city package.
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
@@ -74,7 +75,7 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.cityMetroGuide)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : m == null || _stations.isEmpty
               ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
                   CityNoDataCard(googleMaps: googleMapsTransit(null, null, null, null), message: t.cityMetroNoData),
@@ -247,7 +248,7 @@ class _CityStationScreenState extends State<CityStationScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(cityD(context, widget.station.label(bn)))),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(
               key: const ValueKey('city_station_list'),
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),

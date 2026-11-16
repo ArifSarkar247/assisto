@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -149,7 +150,7 @@ class _BookingBizScreenState extends State<BookingBizScreen> {
   }
 
   Widget _body(AppLocalizations t, bool setUp) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_err != null) return bkErrorView(context, _err!, _load);
     if (!setUp) {
       return ListView(padding: const EdgeInsets.only(bottom: Gap.xxl), children: [
@@ -326,7 +327,7 @@ class _BookingListState extends State<_BookingList> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_err != null) return bkErrorView(context, _err!, _fetch);
     return RefreshIndicator(
       onRefresh: _fetch,
@@ -429,7 +430,7 @@ class _DayViewState extends State<_DayView> {
       ),
       Expanded(
         child: _loading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList()
             : _err != null
                 ? bkErrorView(context, _err!, _fetch)
                 : RefreshIndicator(

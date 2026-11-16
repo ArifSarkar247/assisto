@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../../widgets/skeleton.dart';
 import '../../../ds/ds.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -318,7 +319,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.invSetTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : _error != null
               ? Center(
                   child: Padding(

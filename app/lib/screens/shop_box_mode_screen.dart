@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart';
 import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -525,7 +526,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
     return Scaffold(
       appBar: AppBar(title: Text(t.shopModeTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
               children: _token == null ? _pairView(t) : _runView(t),

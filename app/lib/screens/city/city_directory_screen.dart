@@ -3,6 +3,7 @@
 // other ghats) and the City offices guide (passport, BRTA, DC, land office,
 // city corporation: where, open hours, papers to bring, date checked).
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' show LaunchMode;
@@ -86,7 +87,7 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(_offices ? t.cityOffices : t.cityLongDistance)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(
               key: ValueKey('city_dir_${widget.kinds.join('_')}'),
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),

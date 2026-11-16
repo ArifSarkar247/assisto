@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart';
 import '../ds/ds.dart';
 import '../theme.dart' show AType;
 import 'package:flutter/services.dart';
@@ -715,7 +716,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
         child: Center(child: Text(t.gbNotYet, textAlign: TextAlign.center)),
       );
     } else if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else {
       body = ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 12, 16, 32)),

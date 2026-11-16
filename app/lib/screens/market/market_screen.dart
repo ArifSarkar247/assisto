@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
@@ -123,7 +124,7 @@ class _MarketScreenState extends State<MarketScreen> {
           ]),
         ),
         body: _loading && _ov == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList()
             : _err != null && _ov == null
                 ? MkError(error: _err!, onRetry: _load)
                 : TabBarView(children: [
@@ -258,7 +259,7 @@ class _GroupTabState extends State<_GroupTab> with AutomaticKeepAliveClientMixin
     super.build(context);
     final t = AppLocalizations.of(context);
     if (_err != null && _rows == null) return MkError(error: _err!, onRetry: _load);
-    if (_rows == null) return const Center(child: CircularProgressIndicator());
+    if (_rows == null) return const SkeletonList();
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
@@ -376,7 +377,7 @@ class _SellTabState extends State<_SellTab> with AutomaticKeepAliveClientMixin {
     final t = AppLocalizations.of(context);
     if (_err != null && _d == null) return MkError(error: _err!, onRetry: _load);
     final d = _d;
-    if (d == null) return const Center(child: CircularProgressIndicator());
+    if (d == null) return const SkeletonList();
     final seller = (d['seller'] as Map?)?.cast<String, dynamic>();
     final status = '${seller?['status'] ?? ''}';
     if (d['has_business'] != true && seller == null) {
@@ -639,7 +640,7 @@ class _DealsTabState extends State<_DealsTab> with AutomaticKeepAliveClientMixin
     final t = AppLocalizations.of(context);
     if (_err != null && _rows == null) return MkError(error: _err!, onRetry: _load);
     final rows = _rows;
-    if (rows == null) return const Center(child: CircularProgressIndicator());
+    if (rows == null) return const SkeletonList();
     if (rows.isEmpty) {
       return ListView(children: [
         MkEmpty(

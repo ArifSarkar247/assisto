@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart';
 import '../ds/ds.dart';
 import 'package:http/http.dart' as http;
 
@@ -181,7 +182,7 @@ class _PhoneCamTimelineScreenState extends State<PhoneCamTimelineScreen> {
     final tt = Theme.of(context).textTheme;
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else if (_error != null) {
       body = ListView(padding: const EdgeInsets.all(16), children: [
         Text(_error!),

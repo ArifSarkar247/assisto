@@ -3,6 +3,7 @@
 // "Safer at night"). A safety screen: never any ads. Missing facts are said
 // honestly ("not collected yet"), never invented.
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' show LaunchMode;
@@ -63,7 +64,7 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.cityWomen)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(
               key: const ValueKey('city_women_list'),
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),

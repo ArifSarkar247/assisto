@@ -1,6 +1,7 @@
 // invoices — the hub: set up once, print any shop sale again, make a service
 // invoice (lawyer / VAT-tax consultant / any service).
 import 'package:flutter/material.dart';
+import '../../../widgets/skeleton.dart';
 import 'package:provider/provider.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -91,7 +92,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
     final tt = Theme.of(context).textTheme;
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else if (_error != null) {
       body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         DsEmptyState(
