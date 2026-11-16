@@ -401,7 +401,7 @@
   "lib/screens/voice_assistant_screen.dart": 3,
   "lib/screens/voice_assistant_settings_screen.dart": 8,
   "lib/screens/voice_mood_screen.dart": 12,
-  "lib/screens/voice_sos_screen.dart": 4,
+  "lib/screens/voice_sos_screen.dart": 2,
   "lib/screens/wake_disclosure_screen.dart": 2,
   "lib/screens/wake_oem_guide_screen.dart": 6,
   "lib/screens/watch_feed_screen.dart": 5,

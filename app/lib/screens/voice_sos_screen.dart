@@ -7,6 +7,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../state.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/permission_reason.dart';
@@ -205,13 +207,15 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
     return Scaffold(
       appBar: AppBar(title: Text(t.vsosTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 3)
           : ListView(
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
               children: [
-                _header(),
-                const SizedBox(height: Gap.lg),
+                // designv2 page rule: the switch (the action) first, the
+                // explanation after it
                 _mainToggle(),
+                const SizedBox(height: Gap.lg),
+                _header(),
                 if (_unavailable) ...[
                   const SizedBox(height: Gap.md),
                   _notice(Icons.mic_off_rounded, Brand.warning,
@@ -280,24 +284,25 @@ class _VoiceSosScreenState extends State<VoiceSosScreen>
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800)),
+                  ?.copyWith(fontWeight: FontWeight.w700, color: cs.ds.text)),
         ),
       ]),
       const SizedBox(height: Gap.sm),
       Text(t.vsosIntro,
-          style: TextStyle(color: cs.ds.muted, height: 1.4)),
+          style: AType.bodyMedium.copyWith(color: cs.ds.muted, height: 1.4)),
     ]);
   }
 
   Widget _mainToggle() {
-    return Card(
+    return DsHeroCard(
+      padding: const EdgeInsets.symmetric(vertical: Gap.sm, horizontal: Gap.xs),
       child: SwitchListTile(
         value: _enabled,
         onChanged: _busy ? null : _toggle,
         secondary: Icon(_enabled ? Icons.hearing_rounded : Icons.hearing_disabled_rounded,
-            color: _enabled ? Brand.danger : Colors.grey),
+            color: _enabled ? DsTokens.of(context).dangerInk : DsTokens.of(context).muted),
         title: Text(t.vsosEnableTitle,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Text(_enabled ? t.vsosStateOn : t.vsosStateOff),
       ),
     );
