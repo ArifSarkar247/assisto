@@ -6,7 +6,7 @@
 #  * Noto Sans Regular / Medium / Italic (Latin) — protomaps/basemaps-assets (OFL), pinned.
 #   build_glyphs.sh PGF_ZIP OUT_FONTS_DIR
 set -euo pipefail
-PGF_ZIP="$(readlink -f "$1")"; OUT="$(readlink -f "$2")"
+mkdir -p "$2"; PGF_ZIP="$(readlink -f "$1")"; OUT="$(readlink -f "$2")"
 GLYPH_SHA=96cbacf2e76adaf0f111d8d082379ee018d0010a
 ASSETS_SHA=028c18f713baecad011301ff7a69acc39bcc2ae7
 STACK="Noto Sans Bengali Regular v1"

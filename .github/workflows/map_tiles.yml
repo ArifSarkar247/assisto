@@ -5,7 +5,10 @@
 #   terrain   Copernicus DEM GLO-30 -> terrarium raster-dem -> bd_terrain.pmtiles
 #   assets    Bangla PGF glyphs (built here) + Latin glyphs, own sprites, 4 styles (validated)
 #   render    MapLibre Native screenshots (Badda, Motijheel, Mirpur, airport; light/night)
-#   publish   sha256 manifest (artifact) -> release "map-tiles" ONLY on main (deploy_fetch.sh pulls it)
+#   publish   sha256 manifest -> public release "map-tiles" ONLY on main (deploy_fetch.sh pulls it)
+# Hand-over between jobs: a DRAFT (non-public) release map-tiles-staging-<run id>, because the
+# repo's shared artifact quota is often full (16 Nov). Branch runs end there; the lead deploys
+# from it with deploy_fetch.sh (MAPTILES_TAG=...). Older staging drafts are deleted (keep 2).
 # Licences: owner_actions/CITY_MAP_LICENSE_BN.md. App contract: owner_actions/CITY_MAP_TILES_API.md.
 # CI budget: a push to ci/maptiles runs ONLY the light `assets` job; the heavy data build runs
 # on workflow_dispatch (full=true), push to ci/maptiles-data, or monthly.
@@ -43,9 +46,24 @@ env:
   PMTILES_VER: '1.31.2'
   SPREET_VER: 'v0.14.0'
   DHAKA_BBOX: '90.30,23.68,90.53,23.92'
+  STAGE_TAG: map-tiles-staging-${{ github.run_id }}
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
 
 jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Draft staging release (not public) + prune old ones
+        run: |
+          gh release create "$STAGE_TAG" --draft --target "$GITHUB_SHA" --title "map-tiles staging (draft) $GITHUB_RUN_ID" \
+            --notes "Non-public staging for map-tiles run $GITHUB_RUN_ID ($GITHUB_REF_NAME). © OpenStreetMap contributors · Overture Maps · Copernicus."
+          gh api "repos/$GH_REPO/releases?per_page=100" --jq '.[] | select(.draft and (.name|startswith("map-tiles staging"))) | .id' \
+            | tail -n +3 | xargs -r -I{} gh api -X DELETE "repos/$GH_REPO/releases/{}"
+
   assets:
+    needs: stage
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -96,16 +114,13 @@ jobs:
           for f in dist_assets/style/*.json; do work/npm/node_modules/.bin/gl-style-validate "$f"; done
           echo "styles valid"
           cp owner_actions/CITY_MAP_TILES_API.md dist_assets/README_contract.md 2>/dev/null || true
-      - uses: actions/upload-artifact@v4
-        with:
-          name: map-assets
-          path: |
-            dist_assets/
-            work/pgf.sha256
-            work/pgf_proof.jsonl
-          retention-days: 30
+      - name: Stage assets
+        run: |
+          tar -czf assets.tar.gz dist_assets work/pgf.sha256 work/pgf_proof.jsonl
+          gh release upload "$STAGE_TAG" assets.tar.gz --clobber
 
   base:
+    needs: stage
     if: github.event_name == 'schedule' || github.ref == 'refs/heads/ci/maptiles-data' || (github.event_name == 'workflow_dispatch' && inputs.full)
     runs-on: ubuntu-latest
     timeout-minutes: 150
@@ -116,7 +131,7 @@ jobs:
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
           df -h / | tail -1
       - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: '21', cache: maven }
+        with: { distribution: temurin, java-version: '21' }
       - name: Protomaps basemap (pinned) + Assisto patches (name:bn, Bangla PGF, metro z11)
         run: |
           git clone -q https://github.com/protomaps/basemaps pm && git -C pm checkout -q "$PROTOMAPS_SHA"
@@ -147,11 +162,12 @@ jobs:
           pmtiles verify dist/bd_base.pmtiles
           pmtiles show dist/bd_base.pmtiles --metadata | head -c 3000 || true
           ls -la dist
-          mv src_base.json pgf.sha256 dist/
-      - uses: actions/upload-artifact@v4
-        with: { name: map-base, path: dist/, retention-days: 7, compression-level: 0 }
+          mv src_base.json dist/ && mv pgf.sha256 dist/pgf_tiles.sha256
+      - name: Stage outputs
+        run: bash deploy/maptiles/stage_up.sh dist/*
 
   overture:
+    needs: stage
     if: github.event_name == 'schedule' || github.ref == 'refs/heads/ci/maptiles-data' || (github.event_name == 'workflow_dispatch' && inputs.full)
     runs-on: ubuntu-latest
     timeout-minutes: 150
@@ -194,10 +210,11 @@ jobs:
             ov/places.geojson
           python3 -c "import json; r=open('ov/overture_release.txt').read().strip(); b=json.load(open('ov/buildings_stats.json')); p=json.load(open('ov/places_stats.json')); json.dump({'overture':{'release':r,'buildings':b,'places':p}}, open('dist/src_overture.json','w'))"
           cat dist/src_overture.json; ls -la dist
-      - uses: actions/upload-artifact@v4
-        with: { name: map-overture, path: dist/, retention-days: 7, compression-level: 0 }
+      - name: Stage outputs
+        run: bash deploy/maptiles/stage_up.sh dist/*
 
   terrain:
+    needs: stage
     if: github.event_name == 'schedule' || github.ref == 'refs/heads/ci/maptiles-data' || (github.event_name == 'workflow_dispatch' && inputs.full)
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -216,8 +233,8 @@ jobs:
           mkdir -p dist && pmtiles convert dem/terrain.mbtiles dist/bd_terrain.pmtiles
           pmtiles show dist/bd_terrain.pmtiles | head -15
           ls dem/*.tif | wc -l | python3 -c "import json,sys; json.dump({'copernicus':{'product':'COP-DEM GLO-30 (AWS open data)','tiles':int(sys.stdin.read())}}, open('dist/src_terrain.json','w'))"
-      - uses: actions/upload-artifact@v4
-        with: { name: map-terrain, path: dist/, retention-days: 7, compression-level: 0 }
+      - name: Stage outputs
+        run: bash deploy/maptiles/stage_up.sh dist/*
 
   render:
     needs: [assets, base, overture, terrain]
@@ -226,20 +243,23 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with: { path: in, pattern: 'map-*' }
+      - name: Fetch staged files
+        run: |
+          bash deploy/maptiles/stage_down.sh in '*.pmtiles' 'assets.tar.gz'
+          tar -xzf in/assets.tar.gz -C in
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - name: Render (MapLibre Native, same engine as the app)
         run: |
           sudo apt-get update -q && sudo apt-get install -y -q xvfb libglfw3 libuv1 libjpeg-turbo8 libcurl4 libopengl0 libegl1 libgles2 libwebp7 libicu74 || true
-          mkdir -p tiles && mv in/map-base/*.pmtiles in/map-overture/*.pmtiles in/map-terrain/*.pmtiles tiles/
+          mkdir -p tiles && mv in/*.pmtiles tiles/
           npm i -s --no-save --prefix r '@maplibre/maplibre-gl-native@6.4.1' 'pmtiles@4.5.0' 'pngjs@7.0.0'
           cp deploy/maptiles/render_shots.mjs r/
-          xvfb-run -a node r/render_shots.mjs tiles in/map-assets/dist_assets shots
-      - uses: actions/upload-artifact@v4
+          xvfb-run -a node r/render_shots.mjs tiles in/dist_assets shots
+      - name: Stage screenshots
         if: always()
-        with: { name: map-shots, path: shots/, retention-days: 30 }
+        run: |
+          test -d shots && tar -czf shots.tar.gz shots && gh release upload "$STAGE_TAG" shots.tar.gz --clobber
 
   publish:
     needs: [assets, base, overture, terrain]
@@ -249,34 +269,39 @@ jobs:
       - uses: actions/checkout@v4
       - name: Free runner disk
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
-      - uses: actions/download-artifact@v4
-        with: { path: in, pattern: 'map-*' }
+      - name: Fetch staged files
+        run: |
+          bash deploy/maptiles/stage_down.sh in '*.pmtiles' 'assets.tar.gz' 'src_*.json' '*.sha256'
+          tar -xzf in/assets.tar.gz -C in
       - name: Same PGF encoding in tiles and glyphs
         run: |
-          a=$(cut -d' ' -f1 in/map-assets/work/pgf.sha256); b=$(cut -d' ' -f1 in/map-base/pgf.sha256)
+          a=$(cut -d' ' -f1 in/work/pgf.sha256); b=$(cut -d' ' -f1 in/pgf_tiles.sha256)
           echo "assets $a / tiles $b"; test "$a" = "$b"
       - name: Manifest + sizes
         run: |
           mkdir -p dist
-          mv in/map-base/*.pmtiles in/map-overture/*.pmtiles in/map-terrain/*.pmtiles dist/
+          mv in/*.pmtiles dist/
           python3 -c "
           import json,glob
           s={}
-          for f in glob.glob('in/*/src_*.json'): s.update(json.load(open(f)))
+          for f in glob.glob('in/src_*.json'): s.update(json.load(open(f)))
           json.dump(s, open('sources.json','w'))"
           VER="$(date -u +%Y%m%d).${GITHUB_RUN_NUMBER}"
-          A=in/map-assets/dist_assets
+          A=in/dist_assets
           python3 deploy/maptiles/manifest.py dist "$A" "$VER" sources.json | tee sizes.json
           tar -czf dist/map_assets.tar.gz -C "$A" style fonts sprites offline
           (cd deploy/maptiles && python3 finalize.py ../../dist) > uploads.txt
           cat uploads.txt
           { echo "## Assisto map-tiles $VER"; echo '```'; cat sizes.json; du -sh dist; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           cp sizes.json dist/sizes.json
-      - uses: actions/upload-artifact@v4
-        with: { name: map-manifest, path: 'dist/*.json', retention-days: 30 }
+      - name: Stage manifest (+ split parts) for the lead's deploy
+        run: |
+          cd dist
+          xargs -a ../uploads.txt -I{} sh -c 'case "{}" in *.part*|map_assets.tar.gz) gh release upload "$STAGE_TAG" "{}" --clobber;; esac'
+          gh release upload "$STAGE_TAG" sizes.json manifest.json --clobber
       - name: Publish release assets (manifest last)
         # Public release ONLY from main (lead 10 Nov, same rule as the Shop Box release).
-        # Branch runs keep everything as workflow artifacts (map-base/-overture/-terrain/-assets/-manifest).
+        # Branch runs end in the draft staging release (non-public).
         if: github.ref == 'refs/heads/main' && (github.event_name != 'workflow_dispatch' || inputs.publish)
         env:
           GH_TOKEN: ${{ github.token }}

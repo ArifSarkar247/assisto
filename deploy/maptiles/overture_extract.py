@@ -37,6 +37,10 @@ def connect():
     for ext in ("spatial", "httpfs"):
         con.execute(f"INSTALL {ext}; LOAD {ext};")
     con.execute("SET s3_region='us-west-2'; SET preserve_insertion_order=false;")
+    try:
+        con.execute("SET geometry_always_xy = true;")  # DuckDB 2.0: lon/lat order for GDAL output
+    except duckdb.Error:
+        pass
     return con
 
 

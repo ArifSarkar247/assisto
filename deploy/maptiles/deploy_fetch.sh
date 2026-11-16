@@ -11,7 +11,14 @@ ROOT="${MAPTILES_ROOT:-$HOME/assisto/maptiles}"
 MAX_PCT="${MAPTILES_MAX_DISK_PCT:-75}"
 mkdir -p "$ROOT/releases"
 tmp="$(mktemp -d "$ROOT/.dl.XXXX")"; trap 'rm -rf "$tmp"' EXIT
-curl -fsSL "$BASE/manifest.json" -o "$tmp/manifest.json"
+# MAPTILES_TAG=map-tiles-staging-<run id> fetches a non-public DRAFT staging release with gh (lead's deploy);
+# default = the public release "map-tiles" (published from main only).
+GH="${GH:-$HOME/assisto/bin/gh}"
+fetch() {  # fetch NAME OUTFILE
+  if [ -n "${MAPTILES_TAG:-}" ]; then "$GH" release download "$MAPTILES_TAG" -R "$REPO" -p "$1" -O "$2" --clobber
+  else curl -fsSL "$BASE/$1" -o "$2"; fi
+}
+fetch manifest.json "$tmp/manifest.json"
 ver="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$tmp/manifest.json")"
 dest="$ROOT/releases/$ver"
 if [ -e "$ROOT/current" ] && [ "$(readlink -f "$ROOT/current")" = "$(readlink -f "$dest")" ]; then echo "already on $ver"; exit 0; fi
@@ -28,8 +35,8 @@ for f in m["files"] + [m["assets"]]:
     print(f["name"], f["sha256"], " ".join(f.get("parts", [])))
 PY
 while read -r name sum parts; do
-  if [ -n "$parts" ]; then : > "$tmp/$name"; for p in $parts; do curl -fsSL "$BASE/$p" >> "$tmp/$name"; done
-  else curl -fsSL "$BASE/$name" -o "$tmp/$name"; fi
+  if [ -n "$parts" ]; then : > "$tmp/$name"; for p in $parts; do fetch "$p" "$tmp/part"; cat "$tmp/part" >> "$tmp/$name"; rm -f "$tmp/part"; done
+  else fetch "$name" "$tmp/$name"; fi
   echo "$sum  $tmp/$name" | sha256sum -c --quiet || { echo "sha256 mismatch: $name"; exit 3; }
 done < "$tmp/list.txt"
 tar -xzf "$tmp/map_assets.tar.gz" -C "$tmp/v"
