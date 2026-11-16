@@ -558,6 +558,7 @@ class RFlow {
   /// The home chat: on the old home it IS the home; on home_v2 the Ask
   /// Assisto card opens it on its own screen (same thread, same input).
   Future<void> openHomeChat() async {
+    await dismissNudges();
     if (isHomeV2) {
       final ask = find.byKey(const ValueKey('hv2_ask'));
       await tester.ensureVisible(ask);
@@ -644,6 +645,17 @@ class RFlow {
             (w is Text && w.data == t.inputHint)),
         seconds: 25,
         what: 'home screen');
+    await dismissNudges();
+  }
+
+  /// qboard: the one-time "Add an email to protect your account" sheet
+  /// (EmailNudge, shown after a phone sign-up) covers home and the chat
+  /// input — e2e6 failed nightly from 11 Nov on it (run 42936984108).
+  /// Tap its "Later" like a user would; no-op when it is not showing.
+  Future<void> dismissNudges() async {
+    final later = find.byKey(const Key('rec-nudge-later'));
+    if (later.evaluate().isEmpty) return;
+    await tap(later, settleSeconds: 1);
   }
 
   // ------------------------------------------------------------ asserts
