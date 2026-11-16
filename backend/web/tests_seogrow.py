@@ -205,6 +205,16 @@ class LandingPageTests(LandingBase):
 
 
 class HonestyTests(LandingBase):
+    def test_each_screenshot_sits_next_to_its_own_point(self):
+        html = self.get("family-care", "en").content.decode()
+        rows = re.findall(r'<section class="frow.*?</section>', html, re.S)
+        sos = [r for r in rows if "One-tap SOS" in r]
+        self.assertEqual(len(sos), 1)
+        self.assertIn("emergency_hub_en_360", sos[0])
+        school = [r for r in rows if "school corner" in r][0]
+        self.assertIn("famcare_school_en_360", school)
+
+
     def test_page_404_when_its_app_feature_is_off(self):
         set_flag("quran", False)
         set_state(site_seo_growth_preview=False)

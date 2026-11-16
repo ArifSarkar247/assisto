@@ -34,9 +34,10 @@ def P(bn, en, flags=(), ai=False):
     return {"bn": bn, "en": en, "flags": tuple(flags), "ai": ai}
 
 
-def S(name, bn_alt, en_alt, flags=()):
-    """One real gallery screenshot (site_assets/shots3/<name>_<lang>_<w>.webp)."""
-    return {"name": name, "bn": bn_alt, "en": en_alt, "flags": tuple(flags)}
+def S(name, bn_alt, en_alt, flags=(), pt=0):
+    """One real gallery screenshot (site_assets/shots3/<name>_<lang>_<w>.webp)
+    shown next to point number `pt` (the screen that point talks about)."""
+    return {"name": name, "bn": bn_alt, "en": en_alt, "flags": tuple(flags), "pt": pt}
 
 
 # Order = footer / sitemap / features-page order.
@@ -67,8 +68,8 @@ LANDINGS = {
               ("A simple home for elders", "Big buttons and few choices: SOS, call family, messages and help — easy to use on your parents' phone.")),
         ],
         "shots": [S("famcare_card", "ফ্যামিলি কেয়ার: পরিবারের জরুরি কার্ড", "Family Care: family emergency card"),
-                  S("famcare_school", "বাচ্চার স্কুল কর্নার", "Child's school corner", ("kid_school",)),
-                  S("emergency_hub", "SOS ও জরুরি হাব", "SOS and emergency hub", ("emergency",))],
+                  S("famcare_school", "বাচ্চার স্কুল কর্নার", "Child's school corner", ("kid_school",), pt=2),
+                  S("emergency_hub", "SOS ও জরুরি হাব", "SOS and emergency hub", ("emergency",), pt=1)],
         "faq": {
             "bn": [("ফ্যামিলি কেয়ার কি ফ্রি?", "হ্যাঁ, পরিবারের জরুরি কার্ড, SOS আর স্কুলের রিমাইন্ডার ফ্রি। নিরাপত্তার কোনো ফিচার কখনো টাকার পেছনে আটকানো হয় না।"),
                    ("পরিবারের কে আমার তথ্য দেখতে পায়?", "শুধু আপনি যাদের বেছে নেন। কাকে কী দেখাবেন, তা আপনি ঠিক করেন এবং যেকোনো সময় বদলাতে পারেন।"),
@@ -103,9 +104,9 @@ LANDINGS = {
               ("One-tap SOS on the way", "If something feels wrong on the way, one tap sends SOS — your family gets an alert with your location."),
               flags=("emergency",)),
         ],
-        "shots": [S("journey_live", "নিরাপদ যাত্রা: লাইভ যাত্রা", "Safe Journey: a live trip"),
-                  S("gj_live_banner", "যাত্রায় লাইভ লোকেশন শেয়ার", "Live location shared during a trip"),
-                  S("dest_alarm", "গন্তব্য অ্যালার্ম", "Destination alarm", ("dest_alarm",))],
+        "shots": [S("journey_live", "নিরাপদ যাত্রা: লাইভ যাত্রা", "Safe Journey: a live trip", pt=1),
+                  S("gj_live_banner", "যাত্রায় লাইভ লোকেশন শেয়ার", "Live location shared during a trip", pt=0),
+                  S("dest_alarm", "গন্তব্য অ্যালার্ম", "Destination alarm", ("dest_alarm",), pt=2)],
         "faq": {
             "bn": [("আমার লোকেশন কি সবসময় শেয়ার হয়?", "না। শুধু আপনি যাত্রা শুরু করলে, শুধু আপনার বেছে নেওয়া মানুষের কাছে, আর যাত্রা শেষ হওয়া পর্যন্ত।"),
                    ("যাত্রা শেষে পথের তথ্য কোথায় যায়?", "যাত্রা শেষ হলে পথটা মুছে যায় — পরে কেউ সেই পথ দেখতে পারে না।"),
@@ -140,8 +141,8 @@ LANDINGS = {
               flags=("cctv_watchman",)),
         ],
         "shots": [S("wm_alerts", "CCTV: ছবিসহ স্মার্ট সতর্কতা", "CCTV: smart photo alerts"),
-                  S("wm_viewer", "CCTV লাইভ দেখা", "CCTV live view"),
-                  S("shop_box", "বাড়তি ফোনকে ক্যামেরা বানানো", "A spare phone as a camera", ("cctv_watchman",))],
+                  S("wm_viewer", "CCTV লাইভ দেখা", "CCTV live view", pt=1),
+                  S("shop_box", "বাড়তি ফোনকে ক্যামেরা বানানো", "A spare phone as a camera", ("cctv_watchman",), pt=3)],
         "faq": {
             "bn": [("কোন ক্যামেরা চলে?", "Imou, Hikvision, Dahua আর ONVIF সমর্থিত ক্যামেরা জোড়া যায়; ক্যামেরা না থাকলে একটা বাড়তি Android ফোনও ক্যামেরা হতে পারে।"),
                    ("ভিডিও কি আপনাদের সার্ভারে যায়?", "ফোন-ক্যামেরা ফোনেই শনাক্ত করে, শুধু সংকেত আর দরকার হলে একটা ছবি পাঠায় — পুরো ভিডিও দোকানের বাইরে যায় না।"),
@@ -176,8 +177,8 @@ LANDINGS = {
               ("Status, channels and communities", "Share a photo from your day with your circle only; reach many people with a channel and keep a neighbourhood's or office's groups in one community.")),
         ],
         "shots": [S("c3_chat_list", "আমার সার্কেল: চ্যাট তালিকা", "My Circle: chat list"),
-                  S("c2_call_video_connected", "এনক্রিপ্টেড ভিডিও কল", "Encrypted video call", ("calls",)),
-                  S("p3_story_viewer", "সার্কেলের স্ট্যাটাস", "Circle status")],
+                  S("c2_call_video_connected", "এনক্রিপ্টেড ভিডিও কল", "Encrypted video call", ("calls",), pt=1),
+                  S("p3_story_viewer", "সার্কেলের স্ট্যাটাস", "Circle status", pt=3)],
         "faq": {
             "bn": [("Assisto কি আমার মেসেজ পড়তে পারে?", "না। চ্যাট end-to-end এনক্রিপ্টেড — শুধু আপনি আর যাকে পাঠান তিনি পড়তে পারেন; আমাদের সার্ভার বা AI নয়।"),
                    ("কল কি রেকর্ড হয়?", "না, আমার সার্কেলের কল কখনো রেকর্ড হয় না।"),
@@ -214,8 +215,8 @@ LANDINGS = {
               flags=("daily_brief",)),
         ],
         "shots": [S("chat", "AI সহকারীর সাথে চ্যাট", "Chat with the AI assistant"),
-                  S("voice_assistant", "Assisto ভয়েস", "Assisto Voice", ("voice_assistant",)),
-                  S("daily_brief", "দৈনিক ব্রিফ", "Daily brief", ("daily_brief",))],
+                  S("voice_assistant", "Assisto ভয়েস", "Assisto Voice", ("voice_assistant",), pt=2),
+                  S("daily_brief", "দৈনিক ব্রিফ", "Daily brief", ("daily_brief",), pt=3)],
         "faq": {
             "bn": [("AI কি বাংলা বোঝে?", "হ্যাঁ। বাংলা হরফে, রোমান হরফে বাংলা (যেমন \"kal 8 tay ma ke phone\") বা ইংরেজি — যেভাবে লেখেন, সেই ভাষায় উত্তর দেয়।"),
                    ("Assisto কি নিজে থেকে টাকা পাঠায় বা পোস্ট করে?", "না। রিমাইন্ডার আর সারাংশ নিজে বানায়, কিন্তু টাকা পাঠানো, পোস্ট বা আবেদনের আগে সবসময় আপনার অনুমতি নেয়।"),
@@ -249,8 +250,8 @@ LANDINGS = {
               ("Profit and loss and cash flow", "Log sales, purchases, expenses and credit and your profit and loss, cash flow and VAT summary are ready.")),
         ],
         "shots": [S("biz_khata", "ডিজিটাল খাতা", "Digital khata"),
-                  S("inv_paper_80", "৮০ মিমি থার্মাল ইনভয়েস", "80 mm thermal invoice"),
-                  S("acct_home", "ব্যবসার হিসাব", "Business accounts")],
+                  S("inv_paper_80", "৮০ মিমি থার্মাল ইনভয়েস", "80 mm thermal invoice", pt=2),
+                  S("acct_home", "ব্যবসার হিসাব", "Business accounts", pt=3)],
         "faq": {
             "bn": [("খাতা কি সত্যিই ফ্রি?", "হ্যাঁ। ডিজিটাল খাতা চিরকাল ফ্রি — এটা আমাদের লিখিত প্রতিশ্রুতি।"),
                    ("গ্রাহক কীভাবে তাগাদা পান?", "Assisto গ্রাহককে বাকির একটা লিংক পাঠায়, যেখানে তিনি তাঁর হিসাব দেখতে পান; টাকা পেলে তাগাদা থেমে যায়।"),
@@ -317,7 +318,7 @@ LANDINGS = {
               ("IELTS-style practice", "Speaking, Writing and Reading practice with explanations in Bangla. Scores are a practice measure — not an official IELTS band."),
               flags=("language_packs",)),
         ],
-        "shots": [S("lang_partner", "ভাষা শেখার সঙ্গী", "Language Partner", ("language_packs",))],
+        "shots": [S("lang_partner", "ভাষা শেখার সঙ্গী", "Language Partner", ("language_packs",), pt=3)],
         "faq": {
             "bn": [("ভাষা শেখার সঙ্গী কি ফ্রি?", "হ্যাঁ, শব্দের ডেক, ফ্ল্যাশকার্ড আর কুইজ ফ্রি।"),
                    ("প্রতিদিন কতক্ষণ লাগে?", "কয়েক মিনিটই যথেষ্ট — অল্প অল্প নিয়মিত অনুশীলনই spaced repetition-এর মূল কথা।"),
@@ -352,7 +353,7 @@ LANDINGS = {
               flags=("quran_learn",)),
         ],
         "shots": [S("quran_list", "কুরআন: সূরার তালিকা", "Quran: surah list"),
-                  S("quran_learn", "কুরআন পড়া শিখি", "Learn to read the Quran", ("quran_learn",))],
+                  S("quran_learn", "কুরআন পড়া শিখি", "Learn to read the Quran", ("quran_learn",), pt=3)],
         "faq": {
             "bn": [("বাংলা অনুবাদ আছে?", "এখনো নেই। বাংলা অনুবাদের লিখিত অনুমতি পাওয়ার পরেই যোগ হবে; আজ আরবি লেখা আর পাবলিক-ডোমেইন ইংরেজি অনুবাদ আছে।"),
                    ("তিলাওয়াতের অডিও আছে?", "না, এখনো নেই — লাইসেন্স পরিষ্কার এমন উৎস ছাড়া আমরা অডিও যোগ করি না।"),
@@ -488,9 +489,10 @@ def build(slug, lang, live, ai_ok):
     """Everything the template needs for one page (live flags already known)."""
     d = LANDINGS[slug]
     t = d[lang]
-    points = [{"h": p[lang][0], "b": p[lang][1]} for p in d["points"]
+    shot_at = {s["pt"]: {"name": s["name"], "alt": s[lang]} for s in d["shots"] if _ok(s["flags"], live)}
+    points = [{"h": p[lang][0], "b": p[lang][1], "shot": shot_at.get(i)} for i, p in enumerate(d["points"])
               if _ok(p["flags"], live) and (ai_ok or not p["ai"])]
-    shots = [{"name": s["name"], "alt": s[lang]} for s in d["shots"] if _ok(s["flags"], live)]
+    shots = [x["shot"] for x in points if x["shot"]]
     q = "?lang=en" if lang == "en" else ""
     related = [{"name": LANDINGS[r][lang]["name"], "lead": LANDINGS[r][lang]["lead"], "icon": LANDINGS[r]["icon"],
                 "url": path(r) + q} for r in d["related"] if page_live(r, live)]

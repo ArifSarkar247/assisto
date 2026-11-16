@@ -254,10 +254,13 @@ def _render(request, page, preview, group=None, status=200):
     ctx["landing_nav"] = LP.nav(lang, flags)
     ctx["noindex"] = page == "landing" and not LP.growth_live()
     if page == "landing":
-        L["imgs"] = [x for x in (_shot(s["name"], lang, s["alt"], eager=(i == 0)) for i, s in enumerate(L["shots"])) if x]
-        # each point gets the next real screenshot; points without one become cards
-        L["rows"] = [dict(pt, img=L["imgs"][i]) for i, pt in enumerate(L["points"][:len(L["imgs"])])]
-        L["cards"] = L["points"][len(L["imgs"]):]
+        # each point sits next to the real screen it talks about; points
+        # without a (live) screenshot become cards below
+        rows, cards = [], []
+        for pt in L["points"]:
+            img = _shot(pt["shot"]["name"], lang, pt["shot"]["alt"], eager=not rows) if pt["shot"] else None
+            (rows if img else cards).append(dict(pt, img=img))
+        L["rows"], L["cards"] = rows, cards
         L["group_url"] = gmap[L["group"]]["url"] if is_live() or preview else ""
         L["group_name"] = gmap[L["group"]]["name"]
         ctx["L"] = L
