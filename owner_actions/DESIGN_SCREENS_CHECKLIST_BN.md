@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৭২ / মোট ৪২০**
+**স্ক্রিন শেষ: ৯৩ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -76,25 +76,25 @@
 
 ## ৬. সিসিটিভি
 
-- ⬜ — `billing/cctv_plan_screen.dart`
+- ✅ batch d2-5 (চলতি প্ল্যান = নরম হিরো, জীবন্ত কার্ড, DS বার্তা) — `billing/cctv_plan_screen.dart`
 - ⬜ — `bizai/cctv_accuracy_screen.dart`
-- ⬜ — `cctvconnect/cctv_connect_screen.dart`
-- ⬜ — `cctvconnect/link_devices_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `cctvconnect/cctv_connect_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `cctvconnect/link_devices_screen.dart`
 - ⬜ — `cctvguard/vendor_live_screen.dart`
 - ⬜ — `phonecam/phone_camera_screen.dart`
 - ⬜ — `screens/camera/camera_preview_edit_screen.dart`
 - ⬜ — `screens/camera/camera_screen.dart`
 - ⬜ — `screens/circle_guardians_screen.dart`
 - ⬜ — `screens/guardian_request_screen.dart`
-- ⬜ — `screens/watchman/activity_screen.dart`
-- ⬜ — `screens/watchman/auto_guard_screen.dart`
-- ⬜ — `screens/watchman/cash_guard_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/activity_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/auto_guard_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/cash_guard_screen.dart`
 - ⬜ — `screens/watchman/cctv_alarm_call_screen.dart`
-- ⬜ — `screens/watchman/cctv_grid_screen.dart`
-- ⬜ — `screens/watchman/cctv_recording_screen.dart`
+- ✅ batch d2-5 (স্কেলেটন) — `screens/watchman/cctv_grid_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/watchman/cctv_recording_screen.dart`
 - ⬜ — `screens/watchman/cctv_watch_screen.dart`
-- ⬜ — `screens/watchman/cctvx_guard_screen.dart`
-- ⬜ — `screens/watchman/guard_box_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/cctvx_guard_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/guard_box_screen.dart`
 - ✅ batch d2-2 (জায়গাগুলো আগে, প্ল্যান পরে; জীবন্ত কার্ড, লাইভ বিন্দু) — `screens/watchman/watchman_screen.dart`
 
 ## ৭. মাই সার্কেল চ্যাট
@@ -171,11 +171,11 @@
 - ✅ batch d2-1 (হিসাবের ধরন জীবন্ত টাইল, টুলগুলো এক গ্রুপ কার্ডে) — `screens/business/acct/acct_home_screen.dart`
 - ⬜ — `screens/business/acct/acct_opening_screen.dart`
 - ⬜ — `screens/business/acct/acct_reports_screen.dart`
-- ⬜ — `screens/business/business_plans_screen.dart`
+- ✅ batch d2-5 (সুপারিশকৃত প্ল্যান হালকা নীল কার্ডে, AA লেখা, শিরোনাম ভাঙে না) — `screens/business/business_plans_screen.dart`
 - ⬜ — `screens/day_planner_screen.dart`
 - ⬜ — `screens/delete_account_screen.dart`
 - ✅ batch 6 (পেজ নিয়ম: টুলগুলোই আগে, গ্রুপ = এক কার্ড, লম্বা ব্যানার বাদ) — `screens/finance_screen.dart`
-- ⬜ — `screens/mess_accounting_screen.dart`
+- ✅ batch d2-5 (DS খালি অবস্থা: ছবি, এক বড় বোতাম, ধাপগুলো) — `screens/mess_accounting_screen.dart`
 - ⬜ — `screens/money_budget_screen.dart`
 - ⬜ — `screens/money_import_screen.dart`
 - ⬜ — `screens/money_loan_detail_screen.dart`
@@ -210,7 +210,7 @@
 - ⬜ — `bizai/weekly_report_screen.dart`
 - ⬜ — `bizai/winback_screen.dart`
 - ⬜ — `screens/agent_core/biz_brief_screen.dart`
-- ⬜ — `screens/booking/booking_biz_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/booking/booking_biz_screen.dart`
 - ⬜ — `screens/business/ai_assistant_screen.dart`
 - ⬜ — `screens/business/bargain_rules_screen.dart`
 - ⬜ — `screens/business/bizagent/approvals_screen.dart`
@@ -224,8 +224,8 @@
 - ⬜ — `screens/business/cashbox_screen.dart`
 - ⬜ — `screens/business/customers_screen.dart`
 - ⬜ — `screens/business/demand_map_screen.dart`
-- ⬜ — `screens/business/invoice/invoice_screen.dart`
-- ⬜ — `screens/business/invoice/invoice_settings_screen.dart`
+- ✅ batch d2-5 (স্কেলেটন) — `screens/business/invoice/invoice_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/business/invoice/invoice_settings_screen.dart`
 - ✅ batch d2-2 (নতুন ইনভয়েস বোতাম সবার আগে, অনুচ্ছেদ নেই) — `screens/business/invoice/invoices_screen.dart`
 - ⬜ — `screens/business/invoice/new_invoice_screen.dart`
 - ✅ batch 6 (জীবন্ত অর্ডার কার্ড, DS খালি/ত্রুটি) — `screens/business/orders_screen.dart`
@@ -262,7 +262,7 @@
 - ⬜ — `screens/crm/customer_list_screen.dart`
 - ⬜ — `screens/crm_contacts_screen.dart`
 - ⬜ — `screens/pa/biz_travel_events_screen.dart`
-- ⬜ — `screens/shop_box_mode_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/shop_box_mode_screen.dart`
 - ⬜ — `screens/shop_box_screen.dart`
 - ⬜ — `screens/shop_eod_screen.dart`
 - ⬜ — `screens/shop_live_screen.dart`
@@ -299,7 +299,7 @@
 
 - ⬜ — `growth/invite_screen.dart`
 - ⬜ — `invite/invite_join_screen.dart`
-- ⬜ — `phonecam/phonecam_timeline_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `phonecam/phonecam_timeline_screen.dart`
 - ⬜ — `screens/about_screen.dart`
 - ⬜ — `screens/accessibility_mode_screen.dart`
 - ⬜ — `screens/action_center_screen.dart`
@@ -323,11 +323,11 @@
 - ⬜ — `screens/career/interview_role_screen.dart`
 - ⬜ — `screens/career/job_find_screen.dart`
 - ⬜ — `screens/city/city_around_screen.dart`
-- ⬜ — `screens/city/city_directory_screen.dart`
-- ⬜ — `screens/city/city_metro_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/city/city_directory_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/city/city_metro_screen.dart`
 - ⬜ — `screens/city/city_reports_screen.dart`
 - ✅ batch d2-2 (শহর = নরম হিরো, টাইলে রঙিন আইকন-ব্যাজ) — `screens/city/city_service_screen.dart`
-- ⬜ — `screens/city/city_women_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/city/city_women_screen.dart`
 - ⬜ — `screens/contract_analyzer_screen.dart`
 - ⬜ — `screens/cost_estimator_screen.dart`
 - ✅ batch 5 (জীবন্ত কার্ড, সতর্কতা = লাল কার্ড, বড় সংখ্যা ঘন) — `screens/credits_screen.dart`
@@ -362,7 +362,7 @@
 - ⬜ — `screens/login_screen.dart`
 - ⬜ — `screens/lost_stolen_screen.dart`
 - ⬜ — `screens/market/market_need_screen.dart`
-- ⬜ — `screens/market/market_screen.dart`
+- ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/market/market_screen.dart`
 - ⬜ — `screens/meetings_screen.dart`
 - ⬜ — `screens/memory_screen.dart`
 - ⬜ — `screens/missing/missing_detail_screen.dart`
