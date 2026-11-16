@@ -146,9 +146,12 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                 padding: const EdgeInsets.symmetric(vertical: Gap.sm),
                 child: Text(t.invHubManualEmpty, style: tt.bodyMedium?.copyWith(color: scheme.ds.muted)),
               ),
+            // design2: each list sits in one grouped DS card (not loose on the page)
+            if (_manual.isNotEmpty)
+              DsGroup(margin: EdgeInsets.zero, children: [
             for (final m in _manual)
               ListTile(
-                contentPadding: EdgeInsets.zero,
+                contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg),
                 minVerticalPadding: Gap.sm,
                 leading: const Icon(Icons.description_outlined),
                 title: Text('${invNum(m['number'] ?? '', lang)} · ${m['buyer'] ?? ''}'),
@@ -161,6 +164,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                     style: tt.titleSmall),
                 onTap: () => _openManual((m['id'] as num).toInt()),
               ),
+              ]),
             const SizedBox(height: Gap.lg),
             DsSectionHeader(t.invHubRecentSales),
             if (_sales.isEmpty)
@@ -168,9 +172,11 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                 padding: const EdgeInsets.symmetric(vertical: Gap.sm),
                 child: Text(t.invHubEmptySales, style: tt.bodyMedium?.copyWith(color: scheme.ds.muted)),
               ),
+            if (_sales.isNotEmpty)
+              DsGroup(margin: EdgeInsets.zero, children: [
             for (final s in _sales)
               ListTile(
-                contentPadding: EdgeInsets.zero,
+                contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg),
                 minVerticalPadding: Gap.sm,
                 leading: const Icon(Icons.point_of_sale_rounded),
                 title: Text([
@@ -183,6 +189,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                 onTap: () => openSaleInvoice(context, (s['id'] as num).toInt(),
                     businessId: widget.businessId),
               ),
+              ]),
           ],
         ),
       );

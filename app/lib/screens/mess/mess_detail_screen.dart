@@ -508,13 +508,31 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
             IconButton(
                 tooltip: t.mv2History, icon: const Icon(Icons.history_rounded), onPressed: _history),
           ],
-          bottom: TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: [
+          // design2 (lead review): tighter label padding so more tabs fit, and
+          // the bar fades out at the end edge — reads as "scroll", never as a
+          // clipped label
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(kTextTabBarHeight),
+            child: ShaderMask(
+              blendMode: BlendMode.dstIn,
+              shaderCallback: (r) => LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [Colors.white, Colors.white, Colors.white.withValues(alpha: 0)],
+                stops: const [0, 0.9, 1],
+              ).createShader(r),
+              child: TabBar(isScrollable: true, tabAlignment: TabAlignment.start,
+                  // room after the last tab so, scrolled to the end, it sits clear of the fade
+                  padding: const EdgeInsetsDirectional.only(end: Gap.xxl),
+                  labelPadding: const EdgeInsets.symmetric(horizontal: Gap.md), tabs: [
             Tab(text: t.mv2TabMeals),
             Tab(text: t.mv2TabBazar),
             Tab(text: t.mv2TabMoney),
             Tab(text: t.mv2TabMonth),
             Tab(text: t.mv2TabMembers),
           ]),
+            ),
+          ),
         ),
         body: Column(children: [
           if (_offline || _pending > 0)
@@ -613,14 +631,15 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
           ]),
         ),
       _sectionTitle(t.mv2MyMeals),
-      Text(t.mv2MealsHelp(messDigits(context, '${((_mess['cutoff_hour'] as num?) ?? 22).toString().padLeft(2, '0')}:00')),
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-      const SizedBox(height: Gap.sm),
       if (_messOpen && !_closedMonth)
         _bigButton(t.mv2DaysOffTitle, Icons.event_busy_rounded, _busy ? null : () => _daysOff(),
             key: const ValueKey('mess-days-off')),
       if (_messOpen && _staff && !_closedMonth)
         _bigButton(t.mv2CorrectMeals, Icons.edit_calendar_rounded, _busy ? null : _correctMeals),
+      // design2 (page rule): actions first, the cut-off rule as a short muted line after them
+      Text(t.mv2MealsHelp(messDigits(context, '${((_mess['cutoff_hour'] as num?) ?? 22).toString().padLeft(2, '0')}:00')),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
+      const SizedBox(height: Gap.sm),
       for (final d in upcoming)
         DsCard(
           padding: EdgeInsets.zero,
@@ -628,9 +647,24 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
             key: ValueKey('mess-day-${d['date']}'),
             minTileHeight: 56,
             title: Text(messShortDate(context, '${d['date']}')),
-            subtitle: Text('${_slotsLine(t, d)} · ${t.mv2MealCount(dayTotal(d))}'),
-            trailing: Icon(d['can_edit'] == true ? Icons.edit_rounded : Icons.lock_clock_rounded,
-                semanticLabel: d['can_edit'] == true ? t.mv2Edit : t.mv2Locked),
+            subtitle: Text(_slotsLine(t, d)),
+            // design2 (lead review): the meal count is its own right-aligned
+            // badge, so the slots line never pushes it onto a line of its own
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
+                decoration: BoxDecoration(
+                  color: DsTokens.of(context).primarySoft,
+                  borderRadius: BorderRadius.circular(DsRadius.button),
+                ),
+                child: Text(t.mv2MealCount(dayTotal(d)),
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w700, color: DsTokens.of(context).primaryInk)),
+              ),
+              const SizedBox(width: Gap.sm),
+              Icon(d['can_edit'] == true ? Icons.edit_rounded : Icons.lock_clock_rounded,
+                  semanticLabel: d['can_edit'] == true ? t.mv2Edit : t.mv2Locked),
+            ]),
             onTap: d['can_edit'] == true && _messOpen ? () => _editDay(d) : null,
           ),
         ),
