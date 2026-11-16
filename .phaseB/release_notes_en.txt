@@ -1,4 +1,4 @@
-- Messages written offline in groups now wait and send in order when you are back online.
-- Opening the app offline right after an update goes straight to Home.
-- New look across more screens.
-- Reliability and test fixes.
+- New website blog (managed by the owner).
+- Care Call: one-time calls now use the receiver's own day, also for family abroad.
+- New look for khata, Mess, CCTV, invoices and more screens.
+- Reliability fixes.
