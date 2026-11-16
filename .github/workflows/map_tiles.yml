@@ -56,12 +56,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Draft staging release (not public) + prune old ones
+      - name: Draft staging release (not public; the cleanup job removes it)
         run: |
           gh release create "$STAGE_TAG" --draft --target "$GITHUB_SHA" --title "map-tiles staging (draft) $GITHUB_RUN_ID" \
             --notes "Non-public staging for map-tiles run $GITHUB_RUN_ID ($GITHUB_REF_NAME). © OpenStreetMap contributors · Overture Maps · Copernicus."
-          gh api "repos/$GH_REPO/releases?per_page=100" --jq '.[] | select(.draft and (.name|startswith("map-tiles staging"))) | .id' \
-            | tail -n +3 | xargs -r -I{} gh api -X DELETE "repos/$GH_REPO/releases/{}"
 
   assets:
     needs: stage
@@ -195,9 +193,9 @@ jobs:
         run: python -I deploy/maptiles/overture_extract.py boundary ov
       - name: Buildings -> bd_buildings.pmtiles (z14, heights)
         run: |
-          if [ -n "${REUSE_BUILDINGS_TAG:-}" ]; then
+          if [ -n "${REUSE_BUILDINGS_TAG:-}" ] && mkdir -p dist old && \
+             STAGE_TAG="$REUSE_BUILDINGS_TAG" bash deploy/maptiles/stage_down.sh old 'bd_buildings.pmtiles' 'dhaka_buildings.pmtiles' 'src_overture.json'; then
             # Same Overture release already built in an earlier staging draft: reuse it (saves ~80 runner-minutes).
-            mkdir -p dist old && STAGE_TAG="$REUSE_BUILDINGS_TAG" bash deploy/maptiles/stage_down.sh old 'bd_buildings.pmtiles' 'dhaka_buildings.pmtiles' 'src_overture.json'
             python3 -c "import json; b=json.load(open('old/src_overture.json'))['overture']; assert b['release']==open('ov/overture_release.txt').read().strip(), 'release changed'; json.dump(b['buildings'], open('ov/buildings_stats.json','w'))"
             mv old/*.pmtiles dist/
             exit 0
@@ -323,3 +321,25 @@ jobs:
           xargs -a ../uploads.txt -I{} gh release upload map-tiles {} --clobber
           gh release upload map-tiles sizes.json --clobber
           gh release upload map-tiles manifest.json --clobber
+
+  cleanup:
+    # Staging drafts (~1-2 GB) never pile up (lead 16 Nov): a failed/cancelled run deletes its own
+    # draft; a successful run deletes every OTHER staging draft, so only the newest good one stays
+    # (the lead deploys from it with deploy_fetch.sh MAPTILES_TAG=<tag>).
+    needs: [stage, assets, base, overture, terrain, render, publish]
+    if: always() && needs.stage.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Delete staging drafts
+        env:
+          OK: ${{ needs.publish.result == 'success' }}
+        run: |
+          gh api "repos/$GH_REPO/releases?per_page=100" \
+            --jq '.[] | select(.draft and (.name|startswith("map-tiles staging"))) | "\(.id) \(.tag_name)"' > drafts.txt
+          cat drafts.txt
+          while read -r id tag; do
+            if [ "$OK" = "true" ]; then [ "$tag" = "$STAGE_TAG" ] && continue
+            else [ "$tag" != "$STAGE_TAG" ] && continue; fi
+            echo "delete $tag"; gh api -X DELETE "repos/$GH_REPO/releases/$id"
+          done < drafts.txt
