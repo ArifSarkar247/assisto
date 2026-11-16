@@ -24,6 +24,14 @@ mkdir -p "$E2E_DIR"
 log() { echo "[gbox-e2e $ARCH] $*"; }
 SLOW=1; [ "$ARCH" = "arm64" ] && SLOW=4          # qemu: inference is ~4x slower
 
+diag() {  # on any failure: what the box saw (logs hold no secrets: userinfo is masked)
+  echo "----- box status.json"; docker exec gbox cat /var/lib/assisto-guardbox/status.json 2>/dev/null | head -c 3000; echo
+  echo "----- box run.log (tail)"; docker exec gbox sh -c 'tail -60 /var/lib/assisto-guardbox/run.log; tail -80 /var/lib/assisto-guardbox/logs/*.log' 2>/dev/null | tail -120
+  echo "----- box config.json (no secrets)"; docker exec gbox cat /var/lib/assisto-guardbox/config.json 2>/dev/null | head -c 2500; echo
+  echo "----- django (tail)"; grep -E "shop/(ingest|heartbeat|config|phonecam)" "$E2E_DIR/django.log" | tail -25
+}
+trap 'rc=$?; [ $rc -ne 0 ] && diag; exit $rc' EXIT
+
 bash "$HERE/ipcam_e2e_up.sh"
 
 CODE="$(curl -fsS http://127.0.0.1:18799/mint | "$PY" -c 'import json,sys;print(json.load(sys.stdin)["code"])')"

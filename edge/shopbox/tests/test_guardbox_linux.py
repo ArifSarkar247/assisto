@@ -615,3 +615,14 @@ def test_profile_is_never_saved_to_config_json():
     d = cfg.to_dict()
     assert d["detection"]["sample_fps"] == AppConfig().detection.sample_fps
     assert d["detection"]["prefer_substream"] is False
+
+
+def test_server_phone_source_never_overwrites_a_guard_cameras_brand():
+    from shopbox.config import CameraConfig
+    from shopbox.device import apply_server_camera
+    cam = CameraConfig(id="g", name="Gate", rtsp_url="rtsp://x", guard=True,
+                       source={"vendor": "hikvision", "host": "192.168.1.64"})
+    apply_server_camera(cam, {"enabled": True, "source": {"vendor": "phone"},
+                              "zones": {"v": 2, "zones": [], "schedule": None}})
+    assert cam.source["vendor"] == "hikvision"
+    assert cam.zones_v2 and cam.zones_v2["v"] == 2

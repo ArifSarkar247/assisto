@@ -165,7 +165,9 @@ def apply_server_camera(local_cam, server_cam: dict, site_hours: Optional[dict] 
         if t != local_cam.tuning:
             local_cam.tuning = t
             changed = True
-    if "source" in server_cam:
+    # gboxlinux: a code-paired camera is a "phone" camera on the server; its
+    # real brand / DVR address (for DVR health, sub-stream) stays the local one
+    if "source" in server_cam and not getattr(local_cam, "guard", False):
         src = clean_source(server_cam.get("source"))
         if src and src != local_cam.source:
             local_cam.source = src

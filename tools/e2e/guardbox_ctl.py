@@ -41,9 +41,22 @@ def _state():
     return cams, ours, notifs, info
 
 
+PERSON_TYPES = ("person_detected", "zone_intrusion", "line_crossing")
+
+
 def _wait(pred, timeout, what):
     end = time.time() + timeout
+    last_note = 0.0
     while time.time() < end:
+        if time.time() - last_note >= 60:
+            last_note = time.time()
+            try:
+                cams, ours, notifs, _i = _state()
+                print("progress: cameras=%d events=%s notifs=%s" % (
+                    len(cams), [(e["type"], e["source"], e["snapshot"]) for e in ours][-5:],
+                    [n["kind"] for n in notifs]), flush=True)
+            except Exception as e:  # noqa: BLE001
+                print("progress error: %s" % e, flush=True)
         try:
             got = pred()
             if got:
@@ -61,7 +74,7 @@ def wait_alert(timeout):
         IC.django_setup()
         IC._arm_new_cameras()
         _c, ours, _n, _i = _state()
-        return [e for e in ours if e["snapshot"] and e["type"] == "person_detected"
+        return [e for e in ours if e["snapshot"] and e["type"] in PERSON_TYPES
                 and str(e["source"] or "").startswith("guard_box_linux")]
     return _wait(p, timeout, "person alert with picture from the Linux box")
 
@@ -90,7 +103,7 @@ def proof():
     out = {"cameras": [{"id": c["id"], "name": c["name"]} for c in cams],
            "device_info": info,
            "alerts": ours,
-           "alert_with_photo": any(e["snapshot"] and e["type"] == "person_detected"
+           "alert_with_photo": any(e["snapshot"] and e["type"] in PERSON_TYPES
                                    for e in ours),
            "notifications": notifs}
     with open(PROOF, "w") as f:
