@@ -376,11 +376,20 @@ void registerE2eProofFlows() {
       }
       await f.waitFor(dest, what: 'destination search');
       await f.tester.tap(dest, warnIfMissed: false);
-      await f.tester.enterText(dest, 'Chandra');
-      await f.waitFor(find.byKey(const ValueKey('ps_row_0')), seconds: 20, what: 'Places suggestions');
+      // sjproof: since the qjourney/sjp0 P0 change the app asks ONE merged
+      // /maps/search (our free BD list first); the SERVER adds Google
+      // Autocomplete only when fewer than 5 good local matches. "Chandra"
+      // alone is in our own list (no Google needed); "Chandra Bus" is not ->
+      // the Google row (fake Places) must appear, then ONE Place Details.
+      await f.tester.enterText(dest, 'Chandra Bus');
+      final gRow = find.ancestor(
+          of: find.textContaining('Chandra Bus Stand'),
+          matching: find.byWidgetPredicate((w) =>
+              w.key is ValueKey<String> && (w.key as ValueKey<String>).value.startsWith('ps_row_')));
+      await f.waitFor(gRow, seconds: 20, what: 'Google row in the merged suggestions');
       await f.shot('suggestions');
-      f.expectHttp('GET', '/maps/autocomplete');
-      await f.tap(find.byKey(const ValueKey('ps_row_0')), settleSeconds: 4);
+      f.expectHttp('GET', '/maps/search');
+      await f.tap(gRow.first, settleSeconds: 4);
       final use = find.byKey(const ValueKey('ps_use'));
       if (await f.appears(use, seconds: 6)) {
         await f.shot('confirm-place');
