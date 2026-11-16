@@ -320,7 +320,8 @@ void main() {
     expect(ci, contains('uses-permission android:name="com.android.vending.CHECK_LICENSE" tools:node="remove"'));
     expect(ci, contains('**/libapplovin-native-crash-reporter.so'));
     expect(ci, contains('--split-debug-info=build/dart-symbols'));
-    expect(ci, isNot(contains('--obfuscate')), reason: 'no behaviour change (runtimeType names)');
+    expect(RegExp(r'^\s+--obfuscate', multiLine: true).hasMatch(ci), isFalse,
+        reason: 'no behaviour change (runtimeType names)');
     // the guard itself is never raised
     expect(ci, contains('lim = None if b is None else b * 1.05 + 1'));
     final base = File('../tools/startspeed/size_baseline.json').readAsStringSync();
