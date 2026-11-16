@@ -135,7 +135,8 @@ class ViewTests(Base):
         j2 = self.go(minutes_ago=12)
         self.fix_at(j2, BADDA)
         r = self.arrive(j2, pin="9876").json()
-        self.assertEqual(r, {"ok": True, "status": "arrived"})
+        # sjproof: k=1 = keep sharing silently + record 30 s (same Arrived screen)
+        self.assertEqual(r, {"ok": True, "status": "arrived", "k": 1})
         j2.refresh_from_db()
         self.assertTrue(j2.sos_active and j2.silent)
 

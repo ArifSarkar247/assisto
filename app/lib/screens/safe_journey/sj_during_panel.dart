@@ -115,7 +115,11 @@ class _SjDuringPanelState extends State<SjDuringPanel> with WidgetsBindingObserv
       return;
     }
     final pw = _d['pin_wait'];
-    if (pw is Map && !_pinOpen && _shownPin != '${pw['at']}') {
+    // sjproof: a manual "I've arrived" tap now also sets pin_wait — the live
+    // screen's own PIN box is already open then; never stack a second one
+    // (asked again on the next poll if that box was closed without a PIN)
+    final onTop = ModalRoute.of(context)?.isCurrent ?? true;
+    if (pw is Map && !_pinOpen && onTop && _shownPin != '${pw['at']}') {
       _shownPin = '${pw['at']}';
       unawaited(_askPin());
     }
