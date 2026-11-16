@@ -297,3 +297,4 @@ auto-update channel.
   arena; systemd caps MemoryMax=1G, watchdog restart after 2 min silence.
 * DVR health uses `shopbox.camlink.health_probe` when that library is in the
   build (off, and reported as off, otherwise).
+* CI proof: `.github/workflows/guardbox-linux.yml` (build amd64 + arm64, container E2E).
