@@ -25944,5 +25944,7 @@
   "lp2TrackTests": "অনুশীলন টেস্ট",
   "lp2TrackVocab": "নতুন শব্দ",
   "lp2TrackWeek": "সপ্তাহ {week}",
-  "lp2TrackWriteHere": "এখানে আপনার উত্তর লিখুন"
+  "lp2TrackWriteHere": "এখানে আপনার উত্তর লিখুন",
+  "adwireMoreRoutesGoogle": "আরও রুট (Google)",
+  "adGateWhatRoutes": "Google থেকে আরও রুট দেখতে"
 }

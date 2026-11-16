@@ -52285,5 +52285,13 @@
   "lp2TrackWriteHere": "Write your answer here",
   "@lp2TrackWriteHere": {
     "description": "lpfinish: Language Partner tracks"
+  },
+  "adwireMoreRoutesGoogle": "More routes (Google)",
+  "@adwireMoreRoutesGoogle": {
+    "description": "adwire: City Service results button — one Google transit request (Free users watch one short ad first)"
+  },
+  "adGateWhatRoutes": "to see more routes from Google",
+  "@adGateWhatRoutes": {
+    "description": "adwire: rewarded gate line for More routes (Google) on City Service"
   }
 }
