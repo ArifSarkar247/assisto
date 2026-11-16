@@ -72,4 +72,4 @@ jobs:
         with:
           name: ai-eval-scorecard
           path: ai-eval-scorecard/
-          retention-days: 30
+          retention-days: 5

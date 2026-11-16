@@ -84,3 +84,4 @@ jobs:
           name: agent-eval-report
           path: ${{ runner.temp }}/agent_eval_*.json
           if-no-files-found: ignore
+          retention-days: 5

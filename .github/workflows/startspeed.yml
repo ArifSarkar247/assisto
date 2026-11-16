@@ -224,5 +224,5 @@ jobs:
         with:
           name: startspeed-${{ matrix.profile }}
           path: start_out/
-          retention-days: 21
+          retention-days: 5
           if-no-files-found: warn

@@ -41,3 +41,4 @@ jobs:
         with:
           name: lp-check-${{ github.run_id }}
           path: out/
+          retention-days: 2

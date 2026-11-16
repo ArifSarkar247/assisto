@@ -85,7 +85,7 @@ jobs:
           path: |
             nearby_work/out/nearby_*.json.gz
             nearby_work/out/manifest.json
-          retention-days: 35
+          retention-days: 5
       - name: Publish release assets (manifest last)
         env:
           GH_TOKEN: ${{ github.token }}

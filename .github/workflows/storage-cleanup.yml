@@ -1,0 +1,202 @@
+# ghstore (owner 17 Nov 00:15): the Actions artifact quota filled up. Every
+# upload-artifact step now sets retention-days (guard: tools/ci/
+# check_artifact_retention.py in checks.yml); this weekly job is the safety
+# net. It
+#   * deletes artifacts older than their retention class (by name pattern):
+#       test outputs 2 days, screenshots/reports 5 days, release 30 days —
+#     but NEVER the newest `assisto-aab` from a successful run on main;
+#   * deletes Actions caches whose branch no longer exists, or that were not
+#     used for 7 days;
+#   * prints storage before/after to the job summary.
+# Built-in GITHUB_TOKEN only (actions: write); no secrets, no checkout, no
+# paid change. Manual run: Actions -> storage-cleanup -> Run (dry_run=true
+# only lists what it would delete).
+name: storage-cleanup
+
+on:
+  schedule:
+    - cron: '30 20 * * 6'   # Sunday 02:30 Dhaka
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'List only, delete nothing'
+        type: boolean
+        default: false
+
+concurrency:
+  group: storage-cleanup
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Clean artifacts and caches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          python3 - <<'PY'
+          import fnmatch, json, os, subprocess, time, urllib.error, urllib.request
+          from datetime import datetime, timedelta, timezone
+
+          REPO, TOKEN = os.environ["REPO"], os.environ["GH_TOKEN"]
+          DRY = os.environ.get("DRY_RUN", "false").lower() == "true"
+          API = f"https://api.github.com/repos/{REPO}"
+          NOW = datetime.now(timezone.utc)
+          MAX_DELETES = 700          # stay far below the 1000 req/h token limit
+          TEST, REPORT, RELEASE = 2, 5, 30
+          # first match wins; keep in step with the retention-days values set
+          # in .github/workflows (unknown names fall back to REPORT).
+          RULES = [
+              ("keystore-backup-encrypted", 1),
+              ("assisto-apk-emu", TEST),
+              ("assisto-aab*", RELEASE), ("assisto-apk*", RELEASE),
+              ("AssistoShopBox-*", RELEASE), ("*shopbox*", RELEASE),
+              ("*gbox*", RELEASE), ("*.deb", RELEASE), ("*-deb*", RELEASE),
+              ("*installer*", RELEASE), ("*mapping*", RELEASE),
+              ("*release*", RELEASE), ("*signed*", RELEASE),
+              ("wakeword-model-*", RELEASE), ("play-listing-pack", RELEASE),
+              ("*logcat*", TEST), ("*-proof*", TEST), ("*proof-*", TEST),
+              ("*junit*", TEST), ("*coverage*", TEST), ("*test-results*", TEST),
+              ("e2e-*", TEST), ("camflows-*", TEST), ("ipcam-e2e-*", TEST),
+              ("reality-evidence-*", TEST), ("testlab-*", TEST),
+              ("wakeword-proof", TEST), ("lp-check-*", TEST),
+              ("*", REPORT),
+          ]
+
+          def days_for(name):
+              for pat, d in RULES:
+                  if fnmatch.fnmatchcase(name.lower(), pat.lower()):
+                      return d
+
+          deletes = 0
+          def call(method, url, ok404=False):
+              if not url.startswith("http"):
+                  url = API + url
+              req = urllib.request.Request(url, method=method, headers={
+                  "Authorization": f"Bearer {TOKEN}",
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28"})
+              for attempt in range(3):
+                  try:
+                      with urllib.request.urlopen(req, timeout=60) as r:
+                          body = r.read()
+                          return json.loads(body) if body else {}
+                  except urllib.error.HTTPError as e:
+                      if e.code == 404 and ok404:
+                          return None
+                      if e.code in (403, 429, 502, 503) and attempt < 2:
+                          time.sleep(30 * (attempt + 1)); continue
+                      raise
+
+          def pages(path, key):
+              out, page = [], 1
+              while True:
+                  sep = "&" if "?" in path else "?"
+                  data = call("GET", f"{path}{sep}per_page=100&page={page}")
+                  items = data.get(key, [])
+                  out += items
+                  if len(items) < 100 or page >= 200:
+                      return out
+                  page += 1
+
+          def ts(s):
+              return datetime.fromisoformat(s.replace("Z", "+00:00")) if s else NOW
+
+          def mb(n):
+              return f"{n / 1048576:,.1f} MB"
+
+          def artifact_usage():
+              arts = [a for a in pages("/actions/artifacts", "artifacts") if not a.get("expired")]
+              return arts, sum(a.get("size_in_bytes", 0) for a in arts)
+
+          def cache_usage():
+              u = call("GET", "/actions/cache/usage") or {}
+              return u.get("active_caches_size_in_bytes", 0), u.get("active_caches_count", 0)
+
+          summary = [f"## Actions storage cleanup{' (DRY RUN)' if DRY else ''}", ""]
+          arts, a_before = artifact_usage()
+          c_before, c_count_before = cache_usage()
+
+          # ---- protect the newest assisto-aab of a successful main run ----
+          protected = set()
+          aabs = sorted((a for a in arts if a["name"] == "assisto-aab"
+                         and (a.get("workflow_run") or {}).get("head_branch") == "main"),
+                        key=lambda a: a["created_at"], reverse=True)
+          for a in aabs:
+              run = call("GET", f"/actions/runs/{a['workflow_run']['id']}", ok404=True) or {}
+              if run.get("conclusion") == "success":
+                  protected.add(a["id"])
+                  summary.append(f"Protected: assisto-aab #{a['id']} from main run {run.get('id')} ({a['created_at']})")
+                  break
+          else:
+              summary.append("No assisto-aab from a successful main run found (nothing extra protected).")
+
+          # ---- artifacts older than their class ----
+          gone, freed, kept_cap = [], 0, 0
+          for a in sorted(arts, key=lambda a: a["created_at"]):
+              d = days_for(a["name"])
+              if a["id"] in protected or NOW - ts(a["created_at"]) <= timedelta(days=d):
+                  continue
+              if deletes >= MAX_DELETES:
+                  kept_cap += 1; continue
+              if not DRY:
+                  call("DELETE", f"/actions/artifacts/{a['id']}", ok404=True)
+                  time.sleep(0.3)
+              deletes += 1
+              gone.append(f"{a['name']} ({d}d class, {a['created_at'][:10]}, {mb(a.get('size_in_bytes', 0))})")
+              freed += a.get("size_in_bytes", 0)
+
+          # ---- caches: branch gone, or unused for 7 days ----
+          branches = None
+          try:
+              out = subprocess.run(["git", "ls-remote", "--heads", f"https://github.com/{REPO}.git"],
+                                   capture_output=True, text=True, timeout=120, check=True).stdout
+              branches = {ln.split("\t", 1)[1] for ln in out.splitlines() if "\t" in ln}
+          except Exception as e:
+              print("branch list unavailable, only the 7-day rule applies:", e)
+          cgone, cfreed = [], 0
+          for c in pages("/actions/caches", "actions_caches"):
+              ref = c.get("ref") or ""
+              stale = NOW - ts(c.get("last_accessed_at")) > timedelta(days=7)
+              orphan = branches is not None and ref.startswith("refs/heads/") and ref not in branches
+              if not (stale or orphan):
+                  continue
+              if deletes >= MAX_DELETES:
+                  kept_cap += 1; continue
+              if not DRY:
+                  call("DELETE", f"/actions/caches/{c['id']}", ok404=True)
+                  time.sleep(0.3)
+              deletes += 1
+              cgone.append(f"{c.get('key', '')[:60]} [{ref}] ({'branch gone' if orphan else 'unused 7d'}, {mb(c.get('size_in_bytes', 0))})")
+              cfreed += c.get("size_in_bytes", 0)
+
+          if DRY:
+              a_after, c_after, c_count_after = a_before - freed, c_before - cfreed, c_count_before - len(cgone)
+          else:
+              time.sleep(10)
+              _, a_after = artifact_usage()
+              c_after, c_count_after = cache_usage()
+
+          summary += ["", "| storage | before | after |", "|---|---|---|",
+                      f"| artifacts ({len(arts)} live before) | {mb(a_before)} | {mb(a_after)} |",
+                      f"| caches | {mb(c_before)} ({c_count_before}) | {mb(c_after)} ({c_count_after}) |",
+                      "", f"Artifacts {'to delete' if DRY else 'deleted'}: {len(gone)} ({mb(freed)}); "
+                      f"caches: {len(cgone)} ({mb(cfreed)})."]
+          if kept_cap:
+              summary.append(f"Stopped at {MAX_DELETES} deletions; {kept_cap} more left for the next run.")
+          for title, rows in (("Artifacts", gone), ("Caches", cgone)):
+              if rows:
+                  summary += ["", f"<details><summary>{title} ({len(rows)})</summary>", ""]
+                  summary += [f"- {r}" for r in rows[:300]] + ["", "</details>"]
+          txt = "\n".join(summary) + "\n"
+          print(txt)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write(txt)
+          PY

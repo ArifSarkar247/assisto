@@ -57,4 +57,4 @@ jobs:
         with:
           name: bd-places
           path: out/
-          retention-days: 14
+          retention-days: 5

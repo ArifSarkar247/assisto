@@ -57,6 +57,10 @@ jobs:
           fi
           echo "backend=$B app=$A shards=$SH"
           { echo "backend=$B"; echo "app=$A"; echo "shards=$SH"; } >> "$GITHUB_OUTPUT"
+      # ghstore (owner 17 Nov): every upload-artifact step must set
+      # retention-days 1-30 (test 2, screenshots/reports 5, release 30).
+      - name: Artifact retention guard
+        run: python3 tools/ci/check_artifact_retention.py
 
   backend:
     needs: changes
@@ -146,4 +150,4 @@ jobs:
           name: shots-${{ matrix.shard }}
           path: ${{ runner.temp }}/shots
           if-no-files-found: ignore
-          retention-days: 14
+          retention-days: 5

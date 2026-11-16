@@ -63,3 +63,4 @@ jobs:
         with:
           name: owner-admin-shots
           path: ${{ runner.temp }}/shots
+          retention-days: 5

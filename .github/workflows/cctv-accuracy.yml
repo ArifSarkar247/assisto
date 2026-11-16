@@ -85,3 +85,4 @@ jobs:
           path: |
             cctv_accuracy.json
             cctv_accuracy.txt
+          retention-days: 5

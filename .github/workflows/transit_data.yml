@@ -48,7 +48,7 @@ jobs:
         with:
           name: transit-data
           path: transit_work/out/
-          retention-days: 35
+          retention-days: 5
       - name: Publish release assets (manifest last)
         # agent branches other than ci/citydata only build + upload the artifact
         # (the integrator decides when a new data release goes out)

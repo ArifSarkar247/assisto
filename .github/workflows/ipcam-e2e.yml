@@ -127,5 +127,5 @@ jobs:
             /tmp/assisto-ipcam-e2e/*.txt
             /tmp/assisto-ipcam-e2e/*.jpg
             /tmp/assisto-ipcam-e2e/media/shop/**
-          retention-days: 30
+          retention-days: 2
           if-no-files-found: warn

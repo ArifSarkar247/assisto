@@ -108,6 +108,7 @@ jobs:
         with:
           name: website-shots3
           path: backend/web/site_assets/shots3
+          retention-days: 5
 
       - name: screenshots (before + after)
         run: |
@@ -124,14 +125,17 @@ jobs:
         with:
           name: website-before
           path: ${{ runner.temp }}/shots/before
+          retention-days: 5
       - uses: actions/upload-artifact@v4
         with:
           name: website-after
           path: ${{ runner.temp }}/shots/after
+          retention-days: 5
       - uses: actions/upload-artifact@v4
         with:
           name: website-v3-preview
           path: ${{ runner.temp }}/shots/v3
+          retention-days: 5
 
       - name: screenshot clip check (v3 fails; BEFORE = live site at 360 px, report only)
         if: always()
@@ -159,21 +163,25 @@ jobs:
         with:
           name: website-uxcheck
           path: ${{ runner.temp }}/shots/uxcheck
+          retention-days: 5
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: website-livelocal
           path: ${{ runner.temp }}/shots/livelocal
+          retention-days: 5
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: website-before-360
           path: ${{ runner.temp }}/shots/before360
+          retention-days: 5
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: website-clipcheck
           path: ${{ runner.temp }}/shots/clipcheck
+          retention-days: 5
 
       - name: Lighthouse CI (fails under 95)
         if: always()
@@ -199,6 +207,7 @@ jobs:
           path: |
             lhci-report
             lhci-report-desktop
+          retention-days: 5
       - name: website Django tests
         if: always()
         working-directory: backend
@@ -251,3 +260,4 @@ jobs:
         with:
           name: website-live
           path: ${{ runner.temp }}/live
+          retention-days: 5

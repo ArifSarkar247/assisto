@@ -288,7 +288,7 @@ jobs:
             reality_out/
             !reality_out/.recording
             !reality_out/.attempt.log
-          retention-days: 14
+          retention-days: 2
           if-no-files-found: warn
 
   # ------------------------------------------------ verdict (all groups)
@@ -327,6 +327,7 @@ jobs:
           path: |
             by_gpu/*/reality_summary.json
             by_gpu/*/reality_summary.md
+          retention-days: 5
       # A green run must MEAN the flows passed: the first run (21 Oct) showed
       # green with ZERO flows executed (driver crashed, no results.json).
       - name: Verdict (fail on no results or any C/D)

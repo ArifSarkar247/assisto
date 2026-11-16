@@ -47,7 +47,7 @@ jobs:
         with:
           name: api-contract-report
           path: route_check.md
-          retention-days: 14
+          retention-days: 5
           if-no-files-found: ignore
 
       - uses: actions/setup-java@v4
@@ -1327,7 +1327,7 @@ jobs:
         with:
           name: assisto-apk-emu
           path: app/emu-x64.apk
-          retention-days: 3
+          retention-days: 2
 
       - name: Sign APK with permanent release key
         working-directory: app
@@ -1393,7 +1393,7 @@ jobs:
         with:
           name: assisto-apk
           path: app/out/*.apk
-          retention-days: 14
+          retention-days: 30
 
       # ---- l1-launch: Google Play release bundle ----
       # Runs AFTER the website APK is built, signed and uploaded, so nothing
@@ -1669,7 +1669,7 @@ jobs:
           path: |
             live_logcat.txt
             logcat.txt
-          retention-days: 7
+          retention-days: 2
           if-no-files-found: warn
 
   # ---- faststart ---- CI START-TIME GUARD (owner 10 Nov 00:55): every build,
@@ -1715,7 +1715,7 @@ jobs:
         with:
           name: start-time-guard
           path: start_guard/
-          retention-days: 14
+          retention-days: 5
           if-no-files-found: warn
 
   # ---- play-fsi ---- Proof on a real Android 14 (API 34) emulator that the
@@ -1782,7 +1782,7 @@ jobs:
           path: |
             fsi_*.png
             fsi_*.txt
-          retention-days: 30
+          retention-days: 2
           if-no-files-found: warn
   # ---- /play-fsi ----
 
@@ -1843,6 +1843,6 @@ jobs:
             ring_*.txt
             accept_*.png
             accept_*.txt
-          retention-days: 30
+          retention-days: 2
           if-no-files-found: warn
   # ---- /ring-everywhere ----

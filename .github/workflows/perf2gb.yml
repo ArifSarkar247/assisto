@@ -264,5 +264,5 @@ jobs:
         with:
           name: perf2gb-${{ matrix.profile }}
           path: perf_out/
-          retention-days: 21
+          retention-days: 5
           if-no-files-found: warn

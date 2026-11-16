@@ -60,3 +60,4 @@ jobs:
           path: |
             cctv_detect.json
             cctv_detect.txt
+          retention-days: 5
