@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../theme.dart' show AType;
 import '../../ds/ds.dart';
 
@@ -59,7 +60,7 @@ class _CctvWatchScreenState extends State<CctvWatchScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.ctmWatchTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
@@ -205,7 +206,7 @@ class _CctvWatchGroupScreenState extends State<CctvWatchGroupScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.name)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
@@ -419,7 +420,7 @@ class _CctvWatchShareSheetState extends State<CctvWatchShareSheet> {
     final t = AppLocalizations.of(context);
     final lang = wmLang(context);
     if (_loading) {
-      return const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator()));
+      return const SkeletonList(count: 3);
     }
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 8, 16, 16 + MediaQuery.viewInsetsOf(context).bottom),

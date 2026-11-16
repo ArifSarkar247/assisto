@@ -5,6 +5,7 @@
 // flags (moderated). No names are ever shown.
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
@@ -160,7 +161,7 @@ class _CityReportsScreenState extends State<CityReportsScreen> {
             }),
             CitySection(t.cityLiveNearYou, icon: Icons.campaign_rounded),
             if (_loading)
-              const Center(child: CircularProgressIndicator())
+              const SkeletonList(count: 3)
             else if (_here == null)
               Text(t.cityAroundNeedLocation)
             else if (_failed)
