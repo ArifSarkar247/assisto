@@ -222,11 +222,11 @@ class _Header extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(on ? Icons.check_circle_rounded : Icons.pause_circle_outline_rounded,
-                color: on ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline),
+                color: on ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.ds.muted),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(on ? t.bkgTakingOn : t.bkgTakingOff,
-                    style: const TextStyle(fontWeight: FontWeight.w700))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700))),
           ]),
           if (!on && page['is_owner'] == true)
             Padding(
@@ -556,7 +556,7 @@ class _BkManualSheetState extends State<BkManualSheet> {
           if (_err != null)
             Padding(
               padding: const EdgeInsets.only(top: Gap.sm),
-              child: Text(_err!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              child: Text(_err!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
             ),
           const SizedBox(height: Gap.lg),
           FilledButton(

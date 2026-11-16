@@ -425,7 +425,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(cStr(context, 'cOfflineShowingCached'),
-                style: TextStyle(color: scheme.ds.primaryInk)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
           ),
         ]),
       );
@@ -568,7 +568,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
           CircleAvatar(
             backgroundColor: scheme.ds.primarySoft,
             child: Text(c.initial(context),
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: scheme.ds.primaryInk,
                     fontWeight: FontWeight.w700)),
           ),
@@ -673,7 +673,7 @@ class _DedupeSheet extends StatelessWidget {
                     ?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xs),
             Text(cStrNum(context, 'cDuplicatesFound', groups.length),
-                style: TextStyle(color: scheme.ds.muted)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ]),
         ),
         for (final g in groups)

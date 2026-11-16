@@ -78,7 +78,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
             const Icon(Icons.content_copy_rounded, size: 18),
             const SizedBox(width: Gap.xs),
             Text('${t.crmMatchedOn}: ${g['match_on']}',
-                style: const TextStyle(fontWeight: FontWeight.w800)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
           ]),
           const SizedBox(height: Gap.xs),
           for (final id in ids) _leadLine(t, id),
@@ -102,7 +102,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(children: [
-        Icon(Icons.person_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
+        Icon(Icons.person_outline_rounded, size: 16, color: scheme.ds.muted),
         const SizedBox(width: Gap.xs),
         Expanded(
           child: Text(
@@ -113,7 +113,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        Text('#$id', style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+        Text('#$id', style: AType.bodyMedium.copyWith(fontSize: 11, color: scheme.ds.muted)),
       ]),
     );
   }
@@ -129,7 +129,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
           title: Text(t.crmPickSurvivor),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             Text(t.crmPickSurvivorHint,
-                style: TextStyle(fontSize: 12, color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(fontSize: 12, color: Theme.of(ctx).colorScheme.ds.muted)),
             for (final id in ids)
               RadioListTile<int>(
                 value: id,
@@ -176,7 +176,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
                   safe
                       ? '${t.crmNoDataLoss} ($before → $after ${t.crmActivitiesWord})'
                       : t.crmMergeUnsafe,
-                  style: TextStyle(color: safe ? Brand.success : Brand.danger),
+                  style: AType.bodyMedium.copyWith(color: safe ? Brand.success : Brand.danger),
                 ),
               ),
             ]),

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
 import '../../ds/ds.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -1037,7 +1038,7 @@ class _TimelapseState extends State<_Timelapse> with AutomaticKeepAliveClientMix
           if (_failed)
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Text(t.cactTlFailed, style: TextStyle(color: wmBad())),
+              child: Text(t.cactTlFailed, style: AType.bodyMedium.copyWith(color: wmBad())),
             ),
           const SizedBox(height: 12),
           Wrap(spacing: 8, runSpacing: 8, children: [

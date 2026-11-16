@@ -201,7 +201,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
             const SizedBox(width: Gap.xs),
             Expanded(
                 child: Text(r['name']?.toString() ?? t.crmRule,
-                    style: const TextStyle(fontWeight: FontWeight.w800))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             Switch(value: active, onChanged: (v) => _toggle(r, v)),
           ]),
           const SizedBox(height: Gap.xs),
@@ -215,7 +215,7 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
             TextButton.icon(
                 onPressed: () => _delete(r),
                 icon: Icon(Icons.delete_outline_rounded, size: 16, color: Theme.of(context).colorScheme.error),
-                label: Text(t.delete, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+                label: Text(t.delete, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error))),
           ]),
         ]),
       ),
@@ -236,6 +236,6 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
       '${t.crmThen} ${CrmRuleBuilder.actionLabel(t, action['kind']?.toString())}',
     ];
     return Text(parts.join(' · '),
-        style: TextStyle(color: scheme.ds.muted, height: 1.4));
+        style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4));
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
 import '../../ds/ds.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
@@ -272,7 +273,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
           if (reason.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(reason == 'family_away' ? t.carmReasonFamily : t.carmReasonClosed,
-                style: TextStyle(color: on ? scheme.ds.primaryInk : null)),
+                style: AType.bodyMedium.copyWith(color: on ? scheme.ds.primaryInk : null)),
           ],
           if (_cfg['family_on'] == true) ...[
             const SizedBox(height: 4),
@@ -281,7 +282,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
               'all_away' => t.carmSumAway,
               'unknown' => t.carmSumUnknown,
               _ => t.carmSumOff,
-            }, style: TextStyle(color: on ? scheme.ds.primaryInk : null)),
+            }, style: AType.bodyMedium.copyWith(color: on ? scheme.ds.primaryInk : null)),
           ],
           if (privacy) ...[
             const SizedBox(height: 8),
@@ -295,7 +296,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
           ],
           if (sos) ...[
             const SizedBox(height: 8),
-            Text(t.carmSosActive, style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600)),
+            Text(t.carmSosActive, style: AType.bodyMedium.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
           ],
         ]),
       ),
@@ -306,7 +307,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
       SwitchListTile(
         key: ValueKey(key),
         contentPadding: EdgeInsets.zero,
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(title, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(body),
         value: value,
         onChanged: on,
@@ -332,7 +333,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
           Text(t.carmFamilyRules(wmDigits(lang, 30)), style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
           if (places.isEmpty && home.isEmpty)
-            Text(t.carmHomeMissing, style: TextStyle(color: wmBad()))
+            Text(t.carmHomeMissing, style: AType.bodyMedium.copyWith(color: wmBad()))
           else
             Text(t.carmHomeLabel((home['name'] ?? places.first['name'] ?? '').toString())),
           if (on) ...[
@@ -464,7 +465,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
             _switchTile('carm-closed', t.carmClosedTitle, t.carmClosedBody, _cfg['closed_on'] == true,
                 (v) => _save({'closed_on': v})),
             if (_cfg['closed_on'] == true && _d['hours_set'] != true)
-              Text(t.carmHoursMissing, style: TextStyle(color: wmWarn())),
+              Text(t.carmHoursMissing, style: AType.bodyMedium.copyWith(color: wmWarn())),
           ]),
         ),
       );
@@ -491,7 +492,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(t.carmNomoveTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(t.carmNomoveTitle, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           Text(t.carmNomoveBody),
           if (cams.isEmpty) ...[const SizedBox(height: 8), Text(t.carmNoCameras)],
@@ -589,7 +590,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(t.carmLogTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(t.carmLogTitle, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
           if (rows.isEmpty) Text(t.carmLogEmpty),
           for (final r in rows)
@@ -692,7 +693,7 @@ class _SosLiveScreenState extends State<SosLiveScreen> {
                       style: Theme.of(context).textTheme.titleMedium),
                   Text((g['name'] ?? '').toString()),
                   const SizedBox(height: 4),
-                  Text(t.carmCall999, style: TextStyle(color: wmBad(), fontWeight: FontWeight.w600)),
+                  Text(t.carmCall999, style: AType.bodyMedium.copyWith(color: wmBad(), fontWeight: FontWeight.w600)),
                   for (final c in wmList(g['cameras']))
                     ListTile(
                       contentPadding: EdgeInsets.zero,

@@ -210,10 +210,10 @@ class _MarketNeedFormState extends State<MarketNeedForm> {
             onChanged: (v) => setState(() => _group = v),
           ),
           const SizedBox(height: Gap.sm),
-          Text(t.amkCodNote, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          Text(t.amkCodNote, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           if (_error != null) ...[
             const SizedBox(height: Gap.sm),
-            Text(_error!, key: const Key('amk-f-error'), style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            Text(_error!, key: const Key('amk-f-error'), style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           ],
           const SizedBox(height: Gap.md),
           FilledButton.icon(

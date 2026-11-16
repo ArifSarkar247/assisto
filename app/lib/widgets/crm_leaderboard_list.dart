@@ -32,19 +32,19 @@ class CrmLeaderboardList extends StatelessWidget {
             height: 36,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: medal ?? scheme.surfaceContainerHighest,
+              color: medal ?? scheme.ds.cardHighest,
               shape: BoxShape.circle,
             ),
             child: Text('$rank',
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: medal != null ? Colors.white : scheme.onSurfaceVariant)),
+                    color: medal != null ? Colors.white : scheme.ds.muted)),
           ),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(r['name']?.toString() ?? '',
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 2),
               Wrap(spacing: Gap.sm, children: [
                 _chip(context, Icons.call_rounded, r['calls'], t.crmCalls),
@@ -56,12 +56,12 @@ class CrmLeaderboardList extends StatelessWidget {
           ),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text('${(r['score'] as num?)?.toStringAsFixed(0) ?? '0'}',
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, fontSize: 18)),
             Text(t.crmPoints,
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(fontSize: 11, color: scheme.ds.muted)),
             if (r['won_amount'] != null)
               Text(bdt(context, r['won_amount'] as num?),
-                  style: TextStyle(fontSize: 11, color: Brand.success)),
+                  style: AType.bodyMedium.copyWith(fontSize: 11, color: Brand.success)),
           ]),
         ]),
       ),
@@ -84,10 +84,10 @@ class CrmLeaderboardList extends StatelessWidget {
   Widget _chip(BuildContext context, IconData icon, dynamic value, String label) {
     final scheme = Theme.of(context).colorScheme;
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, size: 13, color: scheme.onSurfaceVariant),
+      Icon(icon, size: 13, color: scheme.ds.muted),
       const SizedBox(width: 3),
       Text('${(value as num?)?.toInt() ?? 0}',
-          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+          style: AType.bodyMedium.copyWith(fontSize: 12, color: scheme.ds.muted)),
     ]);
   }
 }

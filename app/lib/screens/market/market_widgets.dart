@@ -94,7 +94,7 @@ class MkEmpty extends StatelessWidget {
           const SizedBox(height: Gap.md),
           Text(howTo!,
               textAlign: TextAlign.center,
-              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(color: cs.ds.muted, fontSize: 13)),
         ],
       ]),
     );
@@ -114,7 +114,7 @@ class MkError extends StatelessWidget {
     return ListView(padding: const EdgeInsets.all(Gap.xl), children: [
       const SizedBox(height: 40),
       Icon(off ? Icons.wifi_off_rounded : Icons.error_outline_rounded,
-          size: 48, color: Theme.of(context).colorScheme.outline),
+          size: 48, color: Theme.of(context).colorScheme.ds.muted),
       const SizedBox(height: Gap.md),
       Text(mkMessage(context, error), textAlign: TextAlign.center),
       const SizedBox(height: Gap.lg),
@@ -141,7 +141,7 @@ class MkBadge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
-        child: Text(text, style: TextStyle(color: onColor, fontSize: 12, fontWeight: FontWeight.w600)),
+        child: Text(text, style: AType.bodyMedium.copyWith(color: onColor, fontSize: 12, fontWeight: FontWeight.w600)),
       );
 }
 

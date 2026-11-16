@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -822,7 +823,7 @@ class _CameraRow extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const SizedBox(height: 10),
             Text((cam['name'] ?? '').toString().isEmpty ? t.wmUnnamedCamera : cam['name'].toString(),
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: 2),
             Text('${wmVendorName(t, vendor)} · ${shopSeenLabel(t, context, cam)}',
                 style: Theme.of(context).textTheme.bodySmall),
@@ -1018,7 +1019,7 @@ class _EzvizSheetState extends State<_EzvizSheet> {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(_msg,
-                style: TextStyle(color: _ok || _info ? null : Theme.of(context).colorScheme.error)),
+                style: AType.bodyMedium.copyWith(color: _ok || _info ? null : Theme.of(context).colorScheme.error)),
           ),
       ]),
     );

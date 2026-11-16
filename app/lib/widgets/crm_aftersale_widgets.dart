@@ -36,15 +36,15 @@ class CrmStatusPill extends StatelessWidget {
         fg = Colors.white;
         break;
       case CrmStatusTone.neutral:
-        bg = scheme.surfaceContainerHighest;
-        fg = scheme.onSurfaceVariant;
+        bg = scheme.ds.cardHighest;
+        fg = scheme.ds.muted;
         break;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
       child: Text(label,
-          style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 11)),
+          style: AType.bodyMedium.copyWith(color: fg, fontWeight: FontWeight.w700, fontSize: 11)),
     );
   }
 }
@@ -66,7 +66,7 @@ class CrmMoneyRow extends StatelessWidget {
         Flexible(child: Text(label)),
         const SizedBox(width: Gap.sm),
         Text(value,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
                 color: valueColor)),
       ]),
@@ -90,7 +90,7 @@ class CrmSectionHeader extends StatelessWidget {
           const SizedBox(width: Gap.xs),
         ],
         Text(title,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, fontSize: 15)),
       ]),
     );
   }
@@ -111,14 +111,14 @@ class CrmProgressBar extends StatelessWidget {
         child: LinearProgressIndicator(
           value: f,
           minHeight: 10,
-          backgroundColor: scheme.surfaceContainerHighest,
+          backgroundColor: scheme.ds.cardHighest,
           valueColor: AlwaysStoppedAnimation(
               f >= 1.0 ? Brand.success : Brand.blue),
         ),
       ),
       const SizedBox(height: Gap.xs),
       Text(caption,
-          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+          style: AType.bodyMedium.copyWith(fontSize: 12, color: scheme.ds.muted)),
     ]);
   }
 }

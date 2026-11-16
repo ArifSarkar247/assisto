@@ -181,7 +181,7 @@ class _WinbackScreenState extends State<WinbackScreen> {
                         tilePadding: EdgeInsets.zero,
                         title: Text(_segLabel(t, '${s['key']}')),
                         trailing: Text(fmtInt(context, (s['count'] as num).toInt()),
-                            style: const TextStyle(fontWeight: FontWeight.w700)),
+                            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                         children: [
                           for (final m in _list(s['members']))
                             ListTile(
@@ -211,7 +211,7 @@ class _WinbackScreenState extends State<WinbackScreen> {
             for (final s in stages) ...[
               Text('${_stageLabel(t, '${s['stage']}')} · '
                   '${t.bizaiLadderAudience(fmtInt(context, (s['audience'] as num?)?.toInt() ?? 0))}',
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Text(bd(context, (_drafts['${s['stage']}'] ?? '')
                   .replaceAll('{name}', t.bizaiPhName)

@@ -108,7 +108,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
         // Loud, honest "owner must set" banner — never a guessed rate.
         NeedsKeyBanner(t.crmCommissionOwnerNote, icon: Icons.verified_user_rounded),
         const SizedBox(height: Gap.sm),
-        Text(t.crmCommissionPlan, style: const TextStyle(fontWeight: FontWeight.w800)),
+        Text(t.crmCommissionPlan, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.xs),
         SegmentedButton<String>(
           segments: [
@@ -132,8 +132,8 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
           ),
         if (_kind == 'tiered') ...[
           Text(t.crmCommTieredHint,
-              style: TextStyle(
-                  fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(
+                  fontSize: 12, color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           for (int i = 0; i < _tiers.length; i++) _tierRow(t, i),
           TextButton.icon(
@@ -155,7 +155,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
         ],
         if (_err != null) ...[
           const SizedBox(height: Gap.sm),
-          Text(_err!, style: const TextStyle(color: Brand.danger)),
+          Text(_err!, style: AType.bodyMedium.copyWith(color: Brand.danger)),
         ],
         const SizedBox(height: Gap.md),
         FilledButton.icon(
@@ -165,7 +165,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
         ),
         const SizedBox(height: Gap.lg),
         if (preview.isNotEmpty) ...[
-          Text(t.crmCommissionPreview, style: const TextStyle(fontWeight: FontWeight.w800)),
+          Text(t.crmCommissionPreview, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
           for (final p in preview) _previewRow(context, t, p),
         ],
@@ -218,9 +218,9 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
         subtitle: Text('${t.crmWon}: ${bdt(context, p['won_amount'] as num?)}'),
         trailing: set
             ? Text(bdt(context, p['payout'] as num?),
-                style: const TextStyle(fontWeight: FontWeight.w800, color: Brand.success))
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, color: Brand.success))
             : Text(t.crmOwnerMustSet,
-                style: const TextStyle(fontSize: 11, color: Brand.warning)),
+                style: AType.bodyMedium.copyWith(fontSize: 11, color: Brand.warning)),
       ),
     );
   }

@@ -177,7 +177,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
           Row(children: [
             Expanded(child: Text('${n['title']}', style: Theme.of(context).textTheme.titleMedium)),
             const SizedBox(width: Gap.sm),
-            MkBadge(mkStatusLabel(t, '${n['status']}'), color: cs.surfaceContainerHighest, onColor: cs.onSurface),
+            MkBadge(mkStatusLabel(t, '${n['status']}'), color: cs.ds.cardHighest, onColor: cs.ds.text),
           ]),
           if ('${n['description'] ?? ''}'.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
@@ -187,7 +187,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
           for (final l in lines) Text(l),
           if (n['hidden'] == true) ...[
             const SizedBox(height: Gap.sm),
-            Text(t.amkHiddenByReports, style: TextStyle(color: cs.error)),
+            Text(t.amkHiddenByReports, style: AType.bodyMedium.copyWith(color: cs.error)),
           ],
         ]),
       ),
@@ -210,22 +210,22 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Card(
-        color: cs.primaryContainer,
+        color: cs.ds.primarySoft,
         child: Padding(
           key: const Key('amk-summary'),
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Icon(Icons.auto_awesome_rounded, color: cs.onPrimaryContainer),
+              Icon(Icons.auto_awesome_rounded, color: cs.ds.primaryInk),
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(t.amkWhyTitle,
-                      style: TextStyle(fontWeight: FontWeight.w600, color: cs.onPrimaryContainer))),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: cs.ds.primaryInk))),
             ]),
             const SizedBox(height: Gap.xs),
-            Text('${rk['summary'] ?? ''}', style: TextStyle(color: cs.onPrimaryContainer)),
+            Text('${rk['summary'] ?? ''}', style: AType.bodyMedium.copyWith(color: cs.ds.primaryInk)),
             const SizedBox(height: Gap.xs),
-            Text(t.amkNoAiNeeded, style: TextStyle(color: cs.onPrimaryContainer, fontSize: 12)),
+            Text(t.amkNoAiNeeded, style: AType.bodyMedium.copyWith(color: cs.ds.primaryInk, fontSize: 12)),
           ]),
         ),
       ),
@@ -244,7 +244,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
                   flex: 3,
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text('${b['seller_name']}', style: Theme.of(context).textTheme.titleSmall),
-                    Text('${b['seller_area'] ?? ''}', style: TextStyle(color: cs.onSurfaceVariant)),
+                    Text('${b['seller_area'] ?? ''}', style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
                   ]),
                 ),
                 const SizedBox(width: Gap.sm),
@@ -254,7 +254,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
                     Text(mkTaka(context, b['total']),
                         textAlign: TextAlign.end, style: Theme.of(context).textTheme.titleMedium),
                     Text(t.amkPerUnit(mkTaka(context, b['unit_price'])),
-                        textAlign: TextAlign.end, style: TextStyle(color: cs.onSurfaceVariant)),
+                        textAlign: TextAlign.end, style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
                   ]),
                 ),
               ]),
@@ -262,18 +262,18 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
               Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
                 if (b['recommended'] == true) MkBadge(t.amkSuggested, color: cs.primary, onColor: cs.onPrimary),
                 if (b['cheapest'] == true)
-                  MkBadge(t.amkLowest, color: cs.tertiaryContainer, onColor: cs.onTertiaryContainer),
+                  MkBadge(t.amkLowest, color: cs.ds.successBg, onColor: cs.ds.successInk),
                 if (b['fastest'] == true && bids.length > 1)
-                  MkBadge(t.amkFastest, color: cs.secondaryContainer, onColor: cs.onSecondaryContainer),
+                  MkBadge(t.amkFastest, color: cs.ds.primarySoft, onColor: cs.ds.primaryInk),
                 if (b['over_budget'] == true)
-                  MkBadge(t.amkOverBudget, color: cs.errorContainer, onColor: cs.onErrorContainer),
-                MkBadge(t.amkScore(mkNum(context, b['score'])), color: cs.surfaceContainerHighest, onColor: cs.onSurface),
+                  MkBadge(t.amkOverBudget, color: cs.ds.dangerBg, onColor: cs.ds.dangerInk),
+                MkBadge(t.amkScore(mkNum(context, b['score'])), color: cs.ds.cardHighest, onColor: cs.ds.text),
               ]),
               const SizedBox(height: Gap.xs),
               for (final r in (b['reasons'] as List? ?? const [])) Text('• $r'),
               if ('${b['notes'] ?? ''}'.isNotEmpty) ...[
                 const SizedBox(height: Gap.xs),
-                Text(t.amkSellerNote('${b['notes']}'), style: const TextStyle(fontStyle: FontStyle.italic)),
+                Text(t.amkSellerNote('${b['notes']}'), style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic)),
               ],
               const SizedBox(height: Gap.sm),
               Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -285,7 +285,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
                     child: Text(t.amkTakeOffer),
                   ),
                 if (b['status'] == 'accepted')
-                  MkBadge(t.amkStAccepted, color: cs.primaryContainer, onColor: cs.onPrimaryContainer),
+                  MkBadge(t.amkStAccepted, color: cs.ds.primarySoft, onColor: cs.ds.primaryInk),
                 TextButton(
                   style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                   onPressed: () => mkReportOrBlock(context, widget.source, 'bid', b['id'] as int, onDone: _load),
@@ -309,7 +309,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(mine == null ? t.amkYourOfferTitle : t.amkYourOfferEdit, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: Gap.xs),
-          Text(t.amkSealedNote, style: TextStyle(color: cs.onSurfaceVariant)),
+          Text(t.amkSealedNote, style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
           if (mine != null && mine['status'] != 'active') ...[
             const SizedBox(height: Gap.xs),
             Text(mkStatusLabel(t, '${mine['status']}')),
@@ -363,7 +363,7 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
               onPressed: _busy ? null : () => _act('withdraw', const {}, t.amkOfferWithdrawn),
               child: Text(t.amkWithdraw),
             ),
-          if (!canBid) Text(t.amkBiddingClosed, style: TextStyle(color: cs.onSurfaceVariant)),
+          if (!canBid) Text(t.amkBiddingClosed, style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
         ]),
       ),
     );

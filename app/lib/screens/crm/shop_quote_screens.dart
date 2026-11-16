@@ -192,9 +192,9 @@ class _ShopQuoteListScreenState extends State<ShopQuoteListScreen> {
             Chip(
               visualDensity: VisualDensity.compact,
               backgroundColor: st == 'accepted'
-                  ? scheme.primaryContainer
+                  ? scheme.ds.primarySoft
                   : (st == 'declined' || st == 'expired' || st == 'revoked')
-                      ? scheme.errorContainer
+                      ? scheme.ds.dangerBg
                       : null,
               label: Text(quoteStateLabel(t, st)),
             ),
@@ -205,7 +205,7 @@ class _ShopQuoteListScreenState extends State<ShopQuoteListScreen> {
           ]),
           if (open)
             Text(t.c100ValidUntil(crmDate(context, q['valid_until'])),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           if (st == 'accepted' && q['order'] != null)
             Text(t.c100OrderMade(_d(q['order'])), style: AType.bodySmall),
           if (st == 'declined' && '${q['decline_reason'] ?? ''}'.isNotEmpty)
@@ -462,7 +462,7 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
       appBar: AppBar(title: Text(t.c100NewQuote)),
       body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
         Text(t.c100BuilderIntro,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.md),
         TextField(
             controller: _name,
@@ -485,7 +485,7 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
                     failKindOf(_catFail!) == FailKind.network
                         ? t.c100Offline
                         : honestFailText(t, _catFail),
-                    style: TextStyle(color: scheme.error))),
+                    style: AType.bodyMedium.copyWith(color: scheme.error))),
             TextButton(onPressed: _loadCatalog, child: Text(t.retry)),
           ])
         else if (_catalog != null && _catalog!.isEmpty)
@@ -549,7 +549,7 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
           const SizedBox(height: Gap.sm),
           Semantics(
               liveRegion: true,
-              child: Text(_error, style: TextStyle(color: scheme.error))),
+              child: Text(_error, style: AType.bodyMedium.copyWith(color: scheme.error))),
         ],
         const SizedBox(height: Gap.md),
         FilledButton.icon(
@@ -562,7 +562,7 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
         ),
         const SizedBox(height: Gap.xs),
         Text(t.c100LinkPromise,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.xxl),
       ]),
     );
@@ -590,7 +590,7 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
           ]),
           Text(t.c100StockLeft(_d(l.stock)),
               style: AType.bodySmall
-                  .copyWith(color: l.stock < l.qty ? scheme.error : scheme.onSurfaceVariant)),
+                  .copyWith(color: l.stock < l.qty ? scheme.error : scheme.ds.muted)),
           Row(children: [
             IconButton(
                 tooltip: t.c100QtyLess,

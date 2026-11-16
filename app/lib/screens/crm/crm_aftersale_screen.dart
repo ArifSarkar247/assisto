@@ -203,7 +203,7 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
           Row(children: [
             Expanded(
                 child: Text('${t.crmInstallment} #${inst['seq']}',
-                    style: const TextStyle(fontWeight: FontWeight.w800))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             CrmStatusPill(_statusLabel(t, status),
                 tone: done
                     ? CrmStatusTone.success
@@ -312,7 +312,7 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
           Row(children: [
             Expanded(
                 child: Text((amc['company'] ?? amc['title'] ?? '').toString(),
-                    style: const TextStyle(fontWeight: FontWeight.w800))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             CrmStatusPill(_stateLabel(t, state), tone: tone),
           ]),
           const SizedBox(height: Gap.xs),
@@ -322,7 +322,7 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
                 : (daysTo as num) >= 0
                     ? t.crmRenewalInDays(daysTo.toString())
                     : t.crmRenewalOverdueDays((-daysTo).toString()),
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted),
           ),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.xs, children: [
@@ -511,14 +511,14 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
           Row(children: [
             Expanded(
                 child: Text((c['subject'] ?? '').toString(),
-                    style: const TextStyle(fontWeight: FontWeight.w800))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             CrmStatusPill(_stateLabel(t, state), tone: _stateTone(state)),
           ]),
           if ((c['details'] ?? '').toString().isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(c['details'].toString(),
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(
+                    color: Theme.of(context).colorScheme.ds.muted)),
           ],
           if (breached)
             Padding(

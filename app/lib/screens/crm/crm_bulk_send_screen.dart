@@ -198,7 +198,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
               failKindOf(_fail!) == FailKind.network
                   ? t.c100Offline
                   : honestFailText(t, _fail, otherwise: t.c100PreviewFailed),
-              style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
         ),
       FilledButton.icon(
         onPressed: _busy ? null : _build,

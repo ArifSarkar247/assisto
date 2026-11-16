@@ -136,7 +136,7 @@ class _CompanyRow extends StatelessWidget {
         title: Text(company['name']?.toString() ?? '—',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Row(children: [
           Icon(Icons.people_alt_rounded, size: 13, color: scheme.ds.muted),
           const SizedBox(width: 3),

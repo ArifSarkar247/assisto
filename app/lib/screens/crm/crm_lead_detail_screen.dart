@@ -272,9 +272,9 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                   ),
                 if (_followup?['ok'] == true) ...[
                   Text('${t.crmSuggestedContact}: ${crmDate(context, _followup!['suggested_contact_date'])}',
-                      style: TextStyle(color: scheme.ds.muted)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                   const SizedBox(height: Gap.xs),
-                  Text(_followup!['draft'] ?? '', style: const TextStyle(height: 1.4)),
+                  Text(_followup!['draft'] ?? '', style: AType.bodyMedium.copyWith(height: 1.4)),
                   const SizedBox(height: Gap.xs),
                   Text(
                     _followup!['draft_source'] == 'ai' ? t.crmDraftAi : t.crmDraftTemplate,
@@ -328,7 +328,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Icon(Icons.auto_awesome_rounded, size: 16),
                 const SizedBox(width: Gap.xs),
-                Expanded(child: Text(insight, style: TextStyle(fontStyle: FontStyle.italic, color: scheme.ds.muted))),
+                Expanded(child: Text(insight, style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted))),
               ]),
             ),
           for (final a in acts)
@@ -483,7 +483,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
 
   Widget _sectionTitle(String s) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs),
-        child: Text(s, style: const TextStyle(fontWeight: FontWeight.w800)),
+        child: Text(s, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
       );
 
   IconData _kindIcon(String? k) {

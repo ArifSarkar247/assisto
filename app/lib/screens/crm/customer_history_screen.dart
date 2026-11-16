@@ -454,7 +454,7 @@ class _Banner extends StatelessWidget {
       child: Row(children: [
         Icon(icon, size: 20, color: scheme.ds.primaryInk),
         const SizedBox(width: Gap.sm),
-        Expanded(child: Text(text, style: TextStyle(color: scheme.ds.primaryInk))),
+        Expanded(child: Text(text, style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk))),
       ]),
     );
   }

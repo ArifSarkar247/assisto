@@ -124,7 +124,7 @@ class _OutcomeCardState extends State<OutcomeCard> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(bizaiTaka(context, r['bdt']),
-                              style: const TextStyle(fontWeight: FontWeight.w700)),
+                              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                           Text(t.bizaiOutCount(fmtInt(context, (r['count'] as num?)?.toInt() ?? 0))),
                         ]),
                   ),

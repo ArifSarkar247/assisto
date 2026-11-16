@@ -111,7 +111,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
             Text(t.crmAcceptanceLinkHint),
             const SizedBox(height: Gap.sm),
             SelectableText(link.isEmpty ? '—' : link,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.sm),
             CrmStatusPill(_acceptLabel(t, state),
                 tone: state == 'accepted'
@@ -191,7 +191,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
               ],
               const SizedBox(height: Gap.sm),
               Text((m['brand']?['name'] ?? '').toString(),
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
               Text((m['title'] ?? '').toString(),
                   style: Theme.of(context).textTheme.bodyMedium),
               const Divider(),
@@ -262,7 +262,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
           Row(children: [
             Expanded(
                 child: Text('v${p['version']} · ${p['title'] ?? ''}',
-                    style: const TextStyle(fontWeight: FontWeight.w800))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             CrmStatusPill(status, tone: _statusTone(status)),
           ]),
           const SizedBox(height: Gap.xs),
@@ -273,7 +273,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
             padding: const EdgeInsets.only(top: Gap.xs),
             child: Row(children: [
               Icon(Icons.event_rounded,
-                  size: 16, color: expired ? Theme.of(context).colorScheme.error : scheme.onSurfaceVariant),
+                  size: 16, color: expired ? Theme.of(context).colorScheme.error : scheme.ds.muted),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(
@@ -282,7 +282,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
                       : daysLeft == null
                           ? t.crmQuoteNoExpiry
                           : t.crmQuoteDaysLeft(daysLeft.toString()),
-                  style: AType.labelMedium.copyWith(color: expired ? Theme.of(context).colorScheme.error : scheme.onSurfaceVariant,
+                  style: AType.labelMedium.copyWith(color: expired ? Theme.of(context).colorScheme.error : scheme.ds.muted,
                       fontWeight: FontWeight.w700),
                 ),
               ),

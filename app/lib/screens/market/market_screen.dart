@@ -175,7 +175,7 @@ class _NeedsTab extends StatelessWidget {
             label: Text(t.amkPostNeed),
           ),
           const SizedBox(height: Gap.sm),
-          Text(t.amkCodNote, style: TextStyle(color: Theme.of(context).colorScheme.ds.muted, fontSize: 13)),
+          Text(t.amkCodNote, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted, fontSize: 13)),
           const SizedBox(height: Gap.sm),
           for (final n in needs) MkNeedTile(need: n, onTap: () => onOpen(n['id'] as int)),
         ],

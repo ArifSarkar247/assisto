@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../theme.dart' show AType;
 
 import '../../l10n/app_localizations.dart';
 import '../../api.dart' show ApiException;
@@ -95,7 +97,7 @@ class _WatchmanSetupScreenState extends State<WatchmanSetupScreen> {
           ..._stepBody(t),
           if (_error != null) ...[
             const SizedBox(height: 12),
-            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           ],
           if (_planNeeded || (_step == 0 && _kind == 'shop' && !_canShop)) ...[
             const SizedBox(height: 12),
@@ -218,7 +220,7 @@ class _Choice extends StatelessWidget {
         selected: selected,
         button: true,
         child: Material(
-          color: selected ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+          color: selected ? scheme.ds.primarySoft : scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(14),
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
@@ -231,17 +233,17 @@ class _Choice extends StatelessWidget {
                 border: Border.all(color: selected ? scheme.primary : Colors.transparent, width: 2),
               ),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(icon, color: selected ? scheme.onPrimaryContainer : scheme.onSurface),
+                Icon(icon, color: selected ? scheme.ds.primaryInk : scheme.ds.text),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(title,
-                        style: TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             fontWeight: FontWeight.w700,
-                            color: selected ? scheme.onPrimaryContainer : scheme.onSurface)),
+                            color: selected ? scheme.ds.primaryInk : scheme.ds.text)),
                     const SizedBox(height: 2),
                     Text(body,
-                        style: TextStyle(color: selected ? scheme.onPrimaryContainer : scheme.onSurface)),
+                        style: AType.bodyMedium.copyWith(color: selected ? scheme.ds.primaryInk : scheme.ds.text)),
                   ]),
                 ),
                 if (selected) Icon(Icons.check_circle_rounded, color: scheme.primary),

@@ -79,7 +79,7 @@ class CrmRoutingEditor extends StatelessWidget {
     return Card(
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          backgroundColor: Theme.of(context).colorScheme.ds.primarySoft,
           child: Text('${i + 1}'),
         ),
         title: Text(conds.isEmpty ? t.crmAnyLead : conds),
@@ -165,7 +165,7 @@ class _RuleSheetState extends State<_RuleSheet> {
           top: Gap.md,
           bottom: MediaQuery.of(context).viewInsets.bottom + Gap.md),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(t.crmAddRule, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+        Text(t.crmAddRule, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, fontSize: 18)),
         const SizedBox(height: Gap.md),
         DropdownButtonFormField<String?>(
           initialValue: _industry,
@@ -221,7 +221,7 @@ class _RuleSheetState extends State<_RuleSheet> {
         ],
         if (_err != null) ...[
           const SizedBox(height: Gap.sm),
-          Text(_err!, style: const TextStyle(color: Brand.danger)),
+          Text(_err!, style: AType.bodyMedium.copyWith(color: Brand.danger)),
         ],
         const SizedBox(height: Gap.md),
         Row(children: [
