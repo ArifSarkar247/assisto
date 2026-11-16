@@ -157,7 +157,8 @@
  "Abdullahpur": [
   "Abdullahpur Bus Stop",
   "Abdullahpur Bus Stand",
-  "Abdullahpur Bridge"
+  "Abdullahpur Bridge",
+  "Abdullapur"
  ],
  "Vashantek": [
   "Bhashantek",
@@ -169,7 +170,8 @@
   "Kuril Flyover"
  ],
  "Baitul Mukarram": [
-  "Baitul Mukarram National Mosque"
+  "Baitul Mukarram National Mosque",
+  "Baitul Mukarram Mosque"
  ],
  "Eden College": [
   "Eden Mohila College"
@@ -329,7 +331,10 @@
  "Shia Masjid": [
   "Shia Mosque",
   "Shia Masjid Bus Stop",
-  "Mohammadpur Shia Masjid"
+  "Mohammadpur Shia Masjid",
+  "Mohammadpur Shia Mosque",
+  "Shia Masjid Mor",
+  "Shia Moshjid"
  ],
  "Ring Road": [
   "Mohammadpur Ring Road",
@@ -499,7 +504,8 @@
  ],
  "Palashi": [
   "Palashi Mor",
-  "Polashi"
+  "Polashi",
+  "Polashi Mor"
  ],
  "Sonargao": [
   "Sonargaon",
@@ -1043,5 +1049,123 @@
  ],
  "Mawa Ghat": [
   "Mawa"
+ ],
+ "Khilgaon Railgate": [
+  "Khilgaon Rail Gate",
+  "Khilgaon Railway Crossing",
+  "Khilgaon Railgate Bus Stop",
+  "Khilgaon"
+ ],
+ "Khilgaon Rail Gate": [
+  "Khilgaon Railgate",
+  "Khilgaon"
+ ],
+ "Secretariat": [
+  "Bangladesh Secretariat",
+  "Secretariat Bus Stop"
+ ],
+ "IDB": [
+  "IDB Bhaban",
+  "IDB Bhabon"
+ ],
+ "Mayor Hanif Flyover": [
+  "Mayor Mohammad Hanif Flyover",
+  "Jatrabari"
+ ],
+ "Mirpur Zoo": [
+  "Chiriyakhana",
+  "Bangladesh National Zoo",
+  "Zoo"
+ ],
+ "Dhour Bridge": [
+  "Dhour"
+ ],
+ "Bosila CNG Station": [
+  "Bosila"
+ ],
+ "Elephant Road": [
+  "Elephant Road Bus Stop",
+  "Bata Signal"
+ ],
+ "Azimpur / Dhakeshwari Temple": [
+  "Azimpur",
+  "Dhakeshwari Temple"
+ ],
+ "Uttarkhan": [
+  "Uttar Khan"
+ ],
+ "Dakshinkhan": [
+  "Dakshin Khan",
+  "Dokkhinkhan",
+  "Dakkhinkhan"
+ ],
+ "Bawnia": [
+  "Baunia"
+ ],
+ "Jhauchar (Kamrangirchar)": [
+  "Jhau Char",
+  "Kamrangirchor",
+  "Kamrangirchar"
+ ],
+ "Kamrangirchar": [
+  "Kamrangirchor"
+ ],
+ "Atibazar": [
+  "Ati Bazar"
+ ],
+ "Ati Bazar": [
+  "Atibazar"
+ ],
+ "Shahjahanpur Amtala": [
+  "Shahjahanpur",
+  "Amtala"
+ ],
+ "Purba Tejturi Bazar": [
+  "Tejturi Bazar",
+  "Tejkunipara"
+ ],
+ "Tongi College Gate": [
+  "College Gate, Tongi",
+  "Tongi"
+ ],
+ "Chalantika Mor": [
+  "Chalantika"
+ ],
+ "Signal": [
+  "Signal Gate"
+ ],
+ "CMH": [
+  "Combined Military Hospital"
+ ],
+ "Bansher Pul": [
+  "Basher Pul"
+ ],
+ "Beraid": [
+  "Beraid Bazar",
+  "Beraid Union"
+ ],
+ "Nandipara": [
+  "Middle Nandipara",
+  "East Nandipara"
+ ],
+ "Manda": [
+  "South Manda",
+  "North Manda"
+ ],
+ "Goran": [
+  "North Goran"
+ ],
+ "Dhaka Udyan": [
+  "Dhaka Uddan"
+ ],
+ "Matikata": [
+  "Matikata Bus Stop"
+ ],
+ "Sipahibagh": [
+  "Sipahibag",
+  "Sepahibag"
+ ],
+ "Madartek": [
+  "Madartek Bazar"
  ]
 }

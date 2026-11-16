@@ -104,3 +104,26 @@ class SensibleTests(SimpleTestCase):
         a = self.ans({"label": "estimate", "checked": "2026-09-22", "high": 900, "low": 10})
         a["options"]["fastest"]["fare"]["high"] = 900
         self.assertFalse(BT.sensible(a, 2.0)[0])
+
+
+class TwoStopLineTests(SimpleTestCase):
+    def seed(self, *stops):
+        return {"leguna_brtc": {"routes": [{
+            "company": "Leguna: sample", "company_bn": "", "op": "leguna", "ref": "", "mode": "leguna",
+            "stops": [[s, ""] for s in stops],
+            "sources": [{"s": "news", "url": "https://news.example/1", "date": "2026-01-01"}]}]}}
+
+    def test_two_named_stops_make_a_reported_line(self):
+        b = BT.Builder("dhaka", tiny_osm(), {}, self.seed("Alpha", "Gamma"))
+        b.public_routes()
+        net = b.network("v", "")
+        legs = [r for r in net["routes"] if r["mode"] == "leguna"]
+        self.assertEqual(len(legs), 2)
+        self.assertTrue(all(r["st"] == "r" for r in legs))
+        self.assertEqual(b.two_stop, 1)
+
+    def test_weak_name_match_not_enough_for_two_stops(self):
+        # a shop/hospital name (POI) is too weak to pin a 2-stop line
+        b = BT.Builder("dhaka", tiny_osm(), {}, self.seed("Alpha", "Sample Hospital"))
+        b.public_routes()
+        self.assertEqual([r for r in b.network("v", "")["routes"] if r["mode"] == "leguna"], [])

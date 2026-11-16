@@ -606,7 +606,7 @@ class Builder:
             if not srcs or not pr.get("stops"):
                 continue
             pr = dict(pr, counters=[], source=srcs[0]["s"], source_url=srcs[0]["url"],
-                      fetched=srcs[0].get("date", ""))
+                      fetched=srcs[0].get("date", ""), _two_ok=True)
             n0 = len(self.routes)
             self.add_public(pr, mode=pr.get("mode") or "bus")
             if len(self.routes) > n0:
@@ -706,6 +706,13 @@ class Builder:
             if pts and pts[-1][3] == m[3]:
                 continue
             pts.append((m[1], m[2], en or m[4], m[3], bn or m[5], ""))
+        if len(pts) == 2 and pr.get("_two_ok") and len(path) == 2 and all(m[0] <= 2 for _i, m in path) \
+                and 500 <= hav(pts[0][0], pts[0][1], pts[1][0], pts[1][1]) <= 15000:
+            # citycov3: a news-reported leguna/bus line between two named
+            # places (both found as a stop / station / named place, a sane
+            # distance apart) is a real 2-stop line: kept, Reported
+            self.two_stop = getattr(self, "two_stop", 0) + 1
+            return pts
         if len(pts) < 3 or len(pts) < 0.5 * len(pr["stops"]):
             if log:
                 self.gaps["public_route_unmatched"].append(
@@ -1318,6 +1325,12 @@ def main():
         lb = os.path.join(sd, "dhaka_leguna_brtc.json")
         if os.path.exists(lb):
             seeds["leguna_brtc"] = json.load(open(lb))
+    if a.city == "chattogram":
+        # citycov3: Chattogram core network from public pages (same route
+        # pipeline as Dhaka's news routes: Verified only with 2+ publishers)
+        cr = os.path.join(sd, "chattogram_routes.json")
+        if os.path.exists(cr):
+            seeds["leguna_brtc"] = json.load(open(cr))
     public = json.load(open(a.public)) if a.public and os.path.exists(a.public) else {}
     t0 = time.time()
     osm = read_osm(a.pbf)
@@ -1375,7 +1388,8 @@ def main():
               "extra_public_routes": dict(getattr(b, "extra_routes", {})),
               # citycov3: official BRTA / RTC fare-chart routes
               "brta_chart": getattr(b, "brta", {}),
-              "routes_with_brta_number": sum(1 for r in net["routes"] if r.get("brta"))}
+              "routes_with_brta_number": sum(1 for r in net["routes"] if r.get("brta")),
+              "two_stop_lines": getattr(b, "two_stop", 0)}
     net["counts"] = counts
     os.makedirs(a.out, exist_ok=True)
     blob = gzip.compress(json.dumps(net, ensure_ascii=False, separators=(",", ":")).encode(), 9)
