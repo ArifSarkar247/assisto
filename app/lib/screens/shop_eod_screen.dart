@@ -134,7 +134,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
               : ListView(
                   padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
                   children: [
-                    Padding(padding: EdgeInsets.zero, child: DsSurface(color: scheme.ds.cardHighest,
+                    DsSurface(color: scheme.ds.cardHighest,
                         padding: const EdgeInsets.all(Gap.md),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text(t.shopEodTodayCash,
@@ -149,7 +149,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                           Text(t.shopEodExplain(taka(context, _tolerance)),
                               style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
                         ]),
-                      )),
+                      ),
                     const SizedBox(height: Gap.lg),
                     TextField(
                       controller: _counted,

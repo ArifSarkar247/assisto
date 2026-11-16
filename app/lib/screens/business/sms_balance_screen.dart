@@ -101,7 +101,7 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
       child: ListView(
         padding: const EdgeInsets.all(Gap.lg),
         children: [
-          Padding(padding: EdgeInsets.zero, child: DsCard(
+          DsCard(
               padding: const EdgeInsets.all(Gap.lg),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,7 +138,7 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
                         style: AType.bodySmall
                             .copyWith(color: scheme.ds.muted)),
                   ]),
-            )),
+            ),
           const SizedBox(height: Gap.md),
           if (all <= 0)
             _banner(Icons.block_rounded, t.tg2BalEmpty, scheme.ds.dangerBg,

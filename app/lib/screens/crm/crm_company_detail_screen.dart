@@ -277,7 +277,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
               : state == 'lost'
                   ? Theme.of(context).colorScheme.error
                   : scheme.primary;
-          return Padding(padding: EdgeInsets.zero, child: DsCard(
+          return DsCard(
               padding: EdgeInsets.zero,
               child: ListTile(
               leading: Icon(Icons.handshake_rounded, color: tint),
@@ -289,7 +289,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
               trailing: Text(bdt(context, d['value'] as num?),
                   style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
             ),
-            ));
+            );
         },
       ),
     );
@@ -397,7 +397,7 @@ class _ContactTile extends StatelessWidget {
         isPrimary: isPrimary);
     final phone = (contact['phone'] ?? contact['whatsapp'] ?? '').toString();
     final email = (contact['email'] ?? '').toString();
-    return Padding(padding: EdgeInsets.zero, child: DsCard(
+    return DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -450,6 +450,6 @@ class _ContactTile extends StatelessWidget {
               ),
           ]),
         ]),
-      ));
+      );
   }
 }

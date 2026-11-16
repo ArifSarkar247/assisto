@@ -126,7 +126,7 @@ class _CompanyRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final ind = company['industry']?.toString();
     final size = (company['size'] as num?)?.toInt() ?? 0;
-    return Padding(padding: EdgeInsets.zero, child: DsCard(
+    return DsCard(
         padding: EdgeInsets.zero,
         child: ListTile(
         onTap: onTap,
@@ -152,6 +152,6 @@ class _CompanyRow extends StatelessWidget {
         ]),
         trailing: const Icon(Icons.chevron_right_rounded),
       ),
-      ));
+      );
   }
 }

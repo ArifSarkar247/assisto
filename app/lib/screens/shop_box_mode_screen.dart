@@ -536,7 +536,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
 
   Widget _infoCard(IconData icon, String title, String body, {Color? tint}) {
     final scheme = Theme.of(context).colorScheme;
-    return Padding(padding: EdgeInsets.zero, child: DsSurface(color: scheme.ds.cardHighest,
+    return DsSurface(color: scheme.ds.cardHighest,
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, size: 20, color: tint ?? scheme.primary),
@@ -550,7 +550,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
             ]),
           ),
         ]),
-      ));
+      );
   }
 
   List<Widget> _pairView(AppLocalizations t) {
@@ -602,7 +602,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
     final scheme = Theme.of(context).colorScheme;
     final z = _detector.zone;
     return [
-      Padding(padding: EdgeInsets.zero, child: DsCard(
+      DsCard(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
@@ -656,7 +656,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ],
           ]),
-        )),
+        ),
       if (_running && _cam != null && _cam!.value.isInitialized) ...[
         const SizedBox(height: Gap.md),
         ClipRRect(

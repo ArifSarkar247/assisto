@@ -25,7 +25,7 @@ class KhataFreePromise extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Padding(key: const ValueKey('ldg-free-promise'), padding: EdgeInsets.zero, child: DsCard(
+    return DsCard(key: const ValueKey('ldg-free-promise'), 
         padding: EdgeInsets.zero,
         child: ListTile(
         minVerticalPadding: Gap.md,
@@ -38,7 +38,7 @@ class KhataFreePromise extends StatelessWidget {
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => showDetails(context),
       ),
-      ));
+      );
   }
 }
 

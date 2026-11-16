@@ -615,7 +615,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
         ],
       );
 
-  Widget _payBox(AppLocalizations t) => Padding(padding: EdgeInsets.zero, child: DsCard(
+  Widget _payBox(AppLocalizations t) => DsCard(
       padding: const EdgeInsets.all(Gap.md),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.ldgPayInfo, style: Theme.of(context).textTheme.titleSmall),
@@ -656,7 +656,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
               ),
             ),
           ]),
-    ));
+    );
 
   Widget _smsLine(AppLocalizations t) {
     final String line;

@@ -390,7 +390,7 @@ class ShopWebhookCard extends StatelessWidget {
       );
     }
 
-    return Padding(padding: EdgeInsets.zero, child: DsSurface(color: scheme.ds.cardHighest,
+    return DsSurface(color: scheme.ds.cardHighest,
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -415,7 +415,7 @@ class ShopWebhookCard extends StatelessWidget {
           Text(t.shopHookSecret,
               style: AType.bodySmall.copyWith(color: scheme.error, height: 1.4)),
         ]),
-      ));
+      );
   }
 }
 

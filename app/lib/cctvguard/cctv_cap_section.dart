@@ -245,7 +245,7 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
         ],
         for (final p in packs) ...[
           const SizedBox(height: Gap.sm),
-          Padding(padding: EdgeInsets.zero, child: DsCard(
+          DsCard(
               padding: const EdgeInsets.all(Gap.md),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
@@ -291,7 +291,7 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
                   ),
                 ],
               ]),
-            )),
+            ),
         ],
         if (_error != null) ...[
           const SizedBox(height: Gap.sm),
