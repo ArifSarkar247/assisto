@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
@@ -120,27 +121,20 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
     return ListView(
       padding: const EdgeInsets.all(Gap.lg),
       children: [
-        const SizedBox(height: Gap.lg),
-        // ---- welcome header ----
-        Center(
-          child: Container(
-            height: 80,
-            width: 80,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Brand.cyan, Brand.blue, Brand.purple]),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.hub_rounded, size: 38, color: Colors.white),
-          ),
+        // ---- welcome header (design2: the DS soft hero with the drawn illustration) ----
+        DsHeroCard(
+          child: Column(children: [
+            const DsIllustration(icon: Icons.hub_rounded, size: 80),
+            const SizedBox(height: Gap.lg),
+            Text(t.crmWelcomeTitle,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: Gap.sm),
+            Text(t.crmWelcomeBody,
+                textAlign: TextAlign.center,
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
+          ]),
         ),
-        const SizedBox(height: Gap.lg),
-        Text(t.crmWelcomeTitle,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: Gap.sm),
-        Text(t.crmWelcomeBody,
-            textAlign: TextAlign.center,
-            style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
         const SizedBox(height: Gap.lg),
 
         // ---- path switch ----
@@ -171,14 +165,11 @@ class _CrmFirstRunScreenState extends State<CrmFirstRunScreen> {
   Widget _errorBanner(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
     final e = _error!;
-    return Container(
+    return DsCard(
+      tone: DsTone.danger,
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.ds.dangerBg.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(Radii.md),
-      ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.error_outline_rounded, color: scheme.error, size: 20),
+        Icon(Icons.error_outline_rounded, color: scheme.ds.dangerInk, size: 20),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

@@ -7,6 +7,7 @@ import '../../messaging/date_separators.dart' show localDigits;
 import '../../plans_v2/upgrade_sheet.dart';
 import '../../services/error_kind.dart';
 import '../../services/error_report.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
 import 'crm100_api.dart';
@@ -274,17 +275,11 @@ class _CustomerHistoryScreenState extends State<CustomerHistoryScreen> {
   Widget _header(AppLocalizations t, Map s) {
     final scheme = Theme.of(context).colorScheme;
     final sources = ((s['sources'] ?? const []) as List).map((e) => '$e').toList();
-    return Container(
+    // design2: the customer is the soft hero (avatar, name, sources)
+    return DsHeroCard(
       padding: const EdgeInsets.all(Gap.lg),
-      decoration: BoxDecoration(
-          color: scheme.ds.cardHighest, borderRadius: BorderRadius.circular(Radii.lg)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        CircleAvatar(
-          radius: 26,
-          backgroundColor: scheme.ds.primarySoft,
-          child: Text(_name.isEmpty ? '#' : _name.characters.first.toUpperCase(),
-              style: AType.titleLarge.copyWith(color: scheme.ds.primaryInk)),
-        ),
+        DsAvatar(name: _name, size: 52, child: _name.trim().isEmpty ? const Icon(Icons.person_rounded) : null),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
