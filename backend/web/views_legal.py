@@ -187,7 +187,8 @@ def sitemap_xml(request):
     site = _site()
     rows = []
     from .views_site3 import sitemap_extra   # sitev3: only once v3 is live
-    for p in SITEMAP_PATHS + sitemap_extra():
+    from .blog import sitemap_paths as blog_paths   # seoblog: published posts only
+    for p in SITEMAP_PATHS + sitemap_extra() + blog_paths():
         bn = site + p
         en = site + p + "?lang=en"
         for loc in (bn, en):

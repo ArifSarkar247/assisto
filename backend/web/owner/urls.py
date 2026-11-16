@@ -42,6 +42,7 @@ from . import views_lp as LPR        # lpcore
 from . import views_nearby as NBY    # nearby
 from . import views_city as CTY      # citydata
 from . import views_site3 as WS3     # sitev3: website go-live switch
+from . import views_blog as BLOG     # seoblog
 from . import views_market as MKT     # amarket
 from . import views_safety as SAF    # adminsafe: stats, actions, appeals, staff
 from . import views_buylinks as BUY   # chipbuy2: own-shop buy links
@@ -143,6 +144,11 @@ urlpatterns = [
     path("vitals/issues/<int:pk>/known", PV1.issue_known),       # play-vitals
     path("features", FF1.features),                              # feature-flags
     path("website", WS3.website),                                # sitev3
+    path("blog", BLOG.blog_list),                                # seoblog
+    path("blog/new", BLOG.blog_new),                             # seoblog
+    path("blog/<int:pk>", BLOG.blog_edit),                       # seoblog
+    path("blog/<int:pk>/toggle", BLOG.blog_toggle),              # seoblog
+    path("blog/<int:pk>/delete", BLOG.blog_delete),              # seoblog
     path("ai", AIRT.ai_page),                                     # ai-router
     path("ai-usage", AIU.ai_usage),                              # aifinal: AI usage log
     path("ai-levels", AILV.ai_levels),                           # aifinal: answer levels
