@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৫৭ / মোট ৪২০**
+**স্ক্রিন শেষ: ৫৮ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -52,7 +52,7 @@
 - ⬜ — `screens/disaster_alerts_screen.dart`
 - ✅ batch 5 (পেজ নিয়ম: SOS-এর নিচে এক লাইন, ৯৯৯ আভাসহ, কাছের সাহায্য ৩ টাইল, সারিতে ব্যাখ্যা নেই) — `screens/emergency_hub_screen.dart`
 - ⬜ — `screens/emergency_screen.dart`
-- ⬜ — `screens/fall_detect_screen.dart`
+- ✅ batch 7 (পেজ নিয়ম: সুরক্ষা → সুইচ কার্ড → ব্যাখ্যা; DS কার্ড) — `screens/fall_detect_screen.dart`
 - ⬜ — `screens/journey_sos_screen.dart`
 - ⬜ — `screens/phone_safety_screen.dart`
 - ✅ batch 5 (পেজ নিয়ম: SOS সবার আগে, নিরাপদ যাত্রা হিরো কার্ড, সারিগুলো এক কার্ডে) — `screens/safety_screen.dart`
