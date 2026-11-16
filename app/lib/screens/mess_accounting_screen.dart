@@ -133,11 +133,12 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
     Widget body;
     if (_error != null && _data == null) {
       body = ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-        Text(honestFailText(t, _error), textAlign: TextAlign.center),
-        const SizedBox(height: Gap.md),
-        Center(
-          child: FilledButton.icon(
-              onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.retry)),
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.mv2Title,
+          benefit: honestFailText(t, _error),
+          actionLabel: t.retry,
+          onAction: _load,
         ),
       ]);
     } else if (_data == null) {
@@ -149,29 +150,29 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
         child: ListView(
           padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
           children: [
-            if (messes.isEmpty) ...[
-              const SizedBox(height: Gap.lg),
-              Icon(Icons.groups_rounded, size: 64, color: scheme.primary),
+            // design2: DS empty state — drawn illustration, benefit line,
+            // one big Create button, then the how-to steps
+            if (messes.isEmpty)
+              DsEmptyState(
+                icon: Icons.groups_rounded,
+                title: t.mv2EmptyTitle,
+                benefit: t.mv2EmptyBody,
+                actionLabel: t.mv2CreateMess,
+                actionKey: const ValueKey('mess-create'),
+                onAction: _busy ? null : _create,
+                howTo: [t.mv2How1, t.mv2How2, t.mv2How3, t.mv2How4],
+              )
+            else ...[
+              for (final m in messes) _messTile(m, t, scheme),
               const SizedBox(height: Gap.md),
-              Text(t.mv2EmptyTitle, textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w700)),
-              const SizedBox(height: Gap.sm),
-              Text(t.mv2EmptyBody, textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
-              const SizedBox(height: Gap.lg),
-              _howTo(t, scheme),
-              const SizedBox(height: Gap.lg),
+              DsButton(
+                buttonKey: const ValueKey('mess-create'),
+                expand: true,
+                onPressed: _busy ? null : _create,
+                icon: Icons.add_home_work_rounded,
+                label: t.mv2CreateMess,
+              ),
             ],
-            for (final m in messes) _messTile(m, t, scheme),
-            const SizedBox(height: Gap.md),
-            FilledButton.icon(
-              key: const ValueKey('mess-create'),
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
-              onPressed: _busy ? null : _create,
-              icon: const Icon(Icons.add_home_work_rounded),
-              label: Text(t.mv2CreateMess, textAlign: TextAlign.center),
-            ),
             if (_data?['legacy_available'] == true) ...[
               const SizedBox(height: Gap.md),
               DsCard(
@@ -194,7 +195,7 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
             ],
             const SizedBox(height: Gap.md),
             Text(t.mv2FreeLine, textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.ds.muted)),
           ],
         ),
       );
@@ -203,29 +204,6 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
       appBar: AppBar(title: Text(t.mv2Title)),
       body: body,
       bottomNavigationBar: const MessAdBanner(),
-    );
-  }
-
-  Widget _howTo(AppLocalizations t, ColorScheme scheme) {
-    final steps = [t.mv2How1, t.mv2How2, t.mv2How3, t.mv2How4];
-    return DsCard(
-      padding: const EdgeInsets.all(Gap.md),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(t.mv2HowTitle, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: Gap.sm),
-          for (var i = 0; i < steps.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: Gap.xs),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                CircleAvatar(
-                    radius: 12,
-                    child: Text(messDigits(context, i + 1),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12))),
-                const SizedBox(width: Gap.sm),
-                Expanded(child: Text(steps[i])),
-              ]),
-            ),
-        ]),
     );
   }
 
