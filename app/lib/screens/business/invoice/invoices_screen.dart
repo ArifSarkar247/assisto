@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../state.dart';
+import '../../../ds/ds.dart';
 import '../../../theme.dart';
 import '../../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../../widgets/fam_empty.dart';
@@ -92,16 +93,14 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
     if (_loading) {
       body = const Center(child: CircularProgressIndicator());
     } else if (_error != null) {
-      body = Center(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(t.invLoadFailed, textAlign: TextAlign.center),
-            const SizedBox(height: Gap.md),
-            FilledButton(onPressed: _load, child: Text(t.invRetry)),
-          ]),
+      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.invLoadFailed,
+          actionLabel: t.invRetry,
+          onAction: _load,
         ),
-      );
+      ]);
     } else if (_sales.isEmpty && _manual.isEmpty) {
       body = FamEmptyState(
         icon: Icons.receipt_long_rounded,
@@ -119,31 +118,28 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
         child: ListView(
           padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
           children: [
-            Text(t.invHubBenefit, style: tt.bodyMedium?.copyWith(color: scheme.ds.muted)),
-            const SizedBox(height: Gap.md),
-            if (!_saved && _canEdit)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.md),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(t.invNotSetBanner),
-                    const SizedBox(height: Gap.sm),
-                    FilledButton.tonal(
-                        style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
-                        onPressed: _settings,
-                        child: Text(t.invSetUpNow)),
-                  ]),
-                ),
-              ),
-            FilledButton.icon(
+            // design2 (page rule): the main action first, no explanation
+            // paragraph above it (the benefit line lives in the empty state)
+            DsButton(
               key: const ValueKey('inv-new'),
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              expand: true,
               onPressed: _new,
-              icon: const Icon(Icons.add_rounded),
-              label: Text(t.invHubNew),
+              icon: Icons.add_rounded,
+              label: t.invHubNew,
             ),
+            if (!_saved && _canEdit) ...[
+              const SizedBox(height: Gap.md),
+              DsCard(
+                padding: const EdgeInsets.all(Gap.md),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(t.invNotSetBanner),
+                  const SizedBox(height: Gap.sm),
+                  DsButton.secondary(onPressed: _settings, label: t.invSetUpNow),
+                ]),
+              ),
+            ],
             const SizedBox(height: Gap.lg),
-            Text(t.invHubManual, style: tt.titleMedium),
+            DsSectionHeader(t.invHubManual),
             if (_manual.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: Gap.sm),
@@ -165,7 +161,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                 onTap: () => _openManual((m['id'] as num).toInt()),
               ),
             const SizedBox(height: Gap.lg),
-            Text(t.invHubRecentSales, style: tt.titleMedium),
+            DsSectionHeader(t.invHubRecentSales),
             if (_sales.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: Gap.sm),
