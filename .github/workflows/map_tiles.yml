@@ -48,6 +48,7 @@ env:
   DHAKA_BBOX: '90.30,23.68,90.53,23.92'
   STAGE_TAG: map-tiles-staging-${{ github.run_id }}
   REUSE_BUILDINGS_TAG: 'map-tiles-staging-43925833019'   # clear when the Overture release changes
+  REUSE_BASE_TAG: 'map-tiles-staging-43945665247'        # clear for a fresh OSM build (monthly)
   GH_TOKEN: ${{ github.token }}
   GH_REPO: ${{ github.repository }}
 
@@ -110,7 +111,7 @@ jobs:
         run: |
           python -I deploy/maptiles/make_style.py "$BASE_URL" dist_assets/style
           npm i -s --no-save --prefix work/npm '@maplibre/maplibre-gl-style-spec@26.4.4'
-          for f in dist_assets/style/*.json; do work/npm/node_modules/.bin/gl-style-validate "$f"; done
+          bad=0; for f in dist_assets/style/*.json; do work/npm/node_modules/.bin/gl-style-validate "$f" || bad=1; done; test $bad = 0
           echo "styles valid"
           cp owner_actions/CITY_MAP_TILES_API.md dist_assets/README_contract.md 2>/dev/null || true
       - name: Stage assets
@@ -125,30 +126,44 @@ jobs:
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
+      - name: Reuse an earlier staged base (same OSM extract day + same patches)
+        id: reuse
+        run: |
+          mkdir -p dist
+          if [ -n "${REUSE_BASE_TAG:-}" ] && STAGE_TAG="$REUSE_BASE_TAG" bash deploy/maptiles/stage_down.sh dist 'bd_base.pmtiles' 'dhaka_base.pmtiles' 'src_base.json' 'pgf_tiles.sha256'; then
+            echo "hit=1" >> "$GITHUB_OUTPUT"
+          else
+            rm -rf dist/*; echo "hit=0" >> "$GITHUB_OUTPUT"
+          fi
       - name: Free runner disk
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
           df -h / | tail -1
       - uses: actions/setup-java@v4
+        if: steps.reuse.outputs.hit != '1'
         with: { distribution: temurin, java-version: '21' }
       - name: Protomaps basemap (pinned) + Assisto patches (name:bn, Bangla PGF, metro z11)
+        if: steps.reuse.outputs.hit != '1'
         run: |
           git clone -q https://github.com/protomaps/basemaps pm && git -C pm checkout -q "$PROTOMAPS_SHA"
           bash deploy/maptiles/patch_protomaps.sh pm
           (cd pm/tiles && mvn -q -B -DskipTests package)
           ls pm/tiles/target/*with-deps.jar
       - name: pmtiles CLI
+        if: steps.reuse.outputs.hit != '1'
         run: curl -fsSL "https://github.com/protomaps/go-pmtiles/releases/download/v${PMTILES_VER}/go-pmtiles_${PMTILES_VER}_Linux_x86_64.tar.gz" | sudo tar -xz -C /usr/local/bin pmtiles
       - name: Sources (Geofabrik Bangladesh + PGF encoding)
+        if: steps.reuse.outputs.hit != '1'
         run: |
           mkdir -p pm/tiles/data/sources
-          curl -fsSL -D hdr.txt https://download.geofabrik.de/asia/bangladesh-latest.osm.pbf -o pm/tiles/data/sources/bangladesh.osm.pbf
-          curl -fsSL "$PGF_ZIP_URL" -o pm/tiles/data/sources/pgf-encoding.zip
+          curl -fsSL --retry 6 --retry-delay 20 --retry-all-errors -D hdr.txt https://download.geofabrik.de/asia/bangladesh-latest.osm.pbf -o pm/tiles/data/sources/bangladesh.osm.pbf
+          curl -fsSL --retry 6 --retry-all-errors "$PGF_ZIP_URL" -o pm/tiles/data/sources/pgf-encoding.zip
           sha256sum pm/tiles/data/sources/pgf-encoding.zip | tee pgf.sha256
           LM=$(grep -i '^last-modified' hdr.txt | tail -1 | cut -d' ' -f2- | tr -d '\r')
           python3 -c "import json,sys; json.dump({'osm':{'extract':'geofabrik asia/bangladesh','last_modified':sys.argv[1],'bytes':int(sys.argv[2])}}, open('src_base.json','w'))" "$LM" "$(stat -c %s pm/tiles/data/sources/bangladesh.osm.pbf)"
           cat src_base.json
       - name: Build bd_base.pmtiles (z0-15)
+        if: steps.reuse.outputs.hit != '1'
         working-directory: pm/tiles
         run: |
           set -o pipefail
@@ -157,6 +172,7 @@ jobs:
             --maxzoom=15 --download --force --nodemap-type=sparsearray --storage=mmap 2>&1 | grep -v DEBUG | tail -60
           mkdir -p ../../dist && mv bangladesh.pmtiles ../../dist/bd_base.pmtiles
       - name: Dhaka offline base + checks
+        if: steps.reuse.outputs.hit != '1'
         run: |
           pmtiles extract dist/bd_base.pmtiles dist/dhaka_base.pmtiles --bbox="$DHAKA_BBOX" --maxzoom=15
           pmtiles show dist/bd_base.pmtiles | head -20

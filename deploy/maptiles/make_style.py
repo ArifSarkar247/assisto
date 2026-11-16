@@ -169,8 +169,8 @@ def build(theme, lang, base):
                     ["match", ["get", "kind"], ["river", "canal", "stream", "drain", "ditch"], True, False]],
          "layout": {"line-cap": "round", "line-join": "round"},
          "paint": {"line-color": p["water_line"],
-                   "line-width": ["match", ["get", "kind"], ["river", "canal"], z(8, 0.6, 14, 3, 18, 12),
-                                  z(12, 0.3, 18, 4)]}},
+                   "line-width": z(*[v for zz, big, small in ((8, 0.6, 0), (12, 1.6, 0.3), (14, 3, 0.8), (18, 12, 4))
+                                     for v in (zz, ["match", ["get", "kind"], ["river", "canal"], big, small])])}},
         {"id": "boundaries", "type": "line", "source": "assisto_base", "source-layer": "boundaries",
          "filter": ["<=", ["to-number", ["get", "kind_detail"], 4], 4],
          "paint": {"line-color": p["boundary"], "line-dasharray": [3, 2],
