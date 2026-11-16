@@ -134,29 +134,26 @@ class _SjPrivateAskScreenState extends State<SjPrivateAskScreen> {
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           // 1) privacy note on top
-          Container(
+          // designv2: DS surfaces tinted over the card (AA text)
+          DsSurface(
             key: const ValueKey('sjd_only_you'),
             padding: const EdgeInsets.all(Gap.md),
-            decoration: BoxDecoration(
-                color: cs.primary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(Radii.md)),
+            color: cs.ds.primarySoft,
             child: Row(children: [
               Icon(Icons.lock_rounded, color: cs.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(t.sjdOnlyYourPhone,
-                      style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700))),
+                      style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700, color: cs.ds.text))),
             ]),
           ),
           const SizedBox(height: Gap.md),
           // 2) amber card: what we noticed
-          Container(
+          DsSurface(
             key: const ValueKey('sjd_ask_card'),
             padding: const EdgeInsets.all(Gap.md),
-            decoration: BoxDecoration(
-                color: warn.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(Radii.md),
-                border: Border.all(color: warn.withValues(alpha: 0.6))),
+            color: Color.alphaBlend(warn.withValues(alpha: 0.10), cs.ds.card),
+            borderColor: warn.withValues(alpha: 0.6),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Icon(_kind == 'off_route' ? Icons.alt_route_rounded : Icons.pause_circle_rounded,
@@ -164,7 +161,7 @@ class _SjPrivateAskScreenState extends State<SjPrivateAskScreen> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(_title(t),
-                        style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700))),
+                        style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: cs.ds.text))),
               ]),
               if (_kind == 'off_route') ...[
                 const SizedBox(height: Gap.xs),
