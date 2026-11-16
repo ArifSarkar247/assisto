@@ -134,15 +134,13 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
               : ListView(
                   padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
                   children: [
-                    DsSurface(color: scheme.ds.cardHighest,
-                        padding: const EdgeInsets.all(Gap.md),
+                    // today's POS cash = the soft hero, big tight number
+                    DsHeroCard(
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text(t.shopEodTodayCash,
-                              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+                              style: AType.titleSmall.copyWith(color: scheme.ds.muted)),
                           const SizedBox(height: Gap.xs),
-                          Text(taka(context, _todayCash),
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(fontWeight: FontWeight.w700)),
+                          DsNumber(taka(context, _todayCash)),
                           Text(t.shopEodTodayCount(fmtInt(context, _todayCount)),
                               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                           const SizedBox(height: Gap.sm),
@@ -151,14 +149,16 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                         ]),
                       ),
                     const SizedBox(height: Gap.lg),
+                    // the count form in one alive card with its button
+                    DsCard(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     TextField(
                       controller: _counted,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
                       decoration: InputDecoration(
                           labelText: t.shopEodCounted,
-                          prefixText: '৳ ',
-                          border: const OutlineInputBorder()),
+                          prefixText: '৳ '),
                     ),
                     const SizedBox(height: Gap.md),
                     TextField(
@@ -169,8 +169,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                           labelText: t.shopEodOpening,
                           helperText: t.shopEodOpeningHelp,
                           helperMaxLines: 2,
-                          prefixText: '৳ ',
-                          border: const OutlineInputBorder()),
+                          prefixText: '৳ '),
                     ),
                     const SizedBox(height: Gap.md),
                     TextField(
@@ -178,28 +177,28 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                       maxLength: 200,
                       buildCounter: localCounter,
                       decoration: InputDecoration(
-                          labelText: t.shopEodNote, border: const OutlineInputBorder()),
+                          labelText: t.shopEodNote),
                     ),
                     const SizedBox(height: Gap.sm),
-                    FilledButton.icon(
+                    DsButton(
                       onPressed: _saving ? null : _submit,
-                      icon: _saving
-                          ? const SizedBox(
-                              width: 18, height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.fact_check_rounded),
-                      label: Text(t.shopEodCheck),
+                      busy: _saving,
+                      icon: Icons.fact_check_rounded,
+                      label: t.shopEodCheck,
+                      expand: true,
+                    ),
+                      ]),
                     ),
                     if (_result != null) ...[
                       const SizedBox(height: Gap.lg),
                       _resultCard(context, t, scheme, _result!),
                     ],
-                    const SizedBox(height: Gap.xl),
-                    Text(t.shopEodHistory, style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: Gap.sm),
+                    DsSectionHeader(t.shopEodHistory),
                     if (_checks.isEmpty)
-                      Text(t.shopEodHistoryEmpty,
-                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted))
+                      DsCard(
+                        child: Text(t.shopEodHistoryEmpty,
+                            style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+                      )
                     else
                       for (final c in _checks) _historyTile(context, t, scheme, c),
                   ],
@@ -222,20 +221,20 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
       Map<String, dynamic> r) {
     final (color, icon, label) = _statusLook(t, scheme, (r['status'] ?? 'ok').toString());
     final diff = _i(r['difference']);
-    return Card(
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Radii.md),
-          side: BorderSide(color: color, width: 1.4)),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
+    final st = (r['status'] ?? 'ok').toString();
+    // short = the danger DS tone, ok = success tone, over = amber border
+    return DsSurface(
+      tone: st == 'short' ? DsTone.danger : (st == 'over' ? DsTone.normal : DsTone.success),
+      borderColor: st == 'over' ? color : null,
+      padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(icon, color: color),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(label,
-                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: color))),
+                    style: AType.titleMedium.copyWith(
+                        fontWeight: FontWeight.w800, color: Brand.onTint(context, color)))),
           ]),
           const SizedBox(height: Gap.sm),
           Text((r['message'] ?? '').toString(), style: AType.bodyMedium.copyWith(height: 1.4)),
@@ -245,7 +244,6 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
           _kv(t.shopEodDifference, '${diff < 0 ? '-' : diff > 0 ? '+' : ''}'
               '${taka(context, diff.abs())}'),
         ]),
-      ),
     );
   }
 
@@ -271,8 +269,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
         child: ListTile(
         leading: Icon(icon, color: color),
         // qa1: localized day (was ISO "2026-10-20" in both languages)
-        title: Text('${dayLabel(context, c['day'])}  ·  $label',
-            maxLines: 2, overflow: TextOverflow.ellipsis),
+        title: Text('${dayLabel(context, c['day'])}  ·  $label'),
         subtitle: Text(
             '${t.shopEodCountedShort}: ${taka(context, _i(c['counted']))}  ·  '
             '${t.shopEodDifference}: ${diff < 0 ? '-' : diff > 0 ? '+' : ''}'
