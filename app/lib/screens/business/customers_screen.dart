@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/subs_common.dart' show fmtInt; // bizbar
 import '../../messaging/date_separators.dart' show fmtDate; // bizbar
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../api.dart';
 import '../../business_selling_api.dart';
 import '../../widgets/skeleton.dart';
@@ -121,80 +122,98 @@ class _CustomersScreenState extends State<CustomersScreen> {
       );
     }
     if (_items.isEmpty) {
-      return StateMessage(
-        icon: Icons.people_outline_rounded,
-        title: t.shopQaNoCustomersTitle,
-        message: t.shopQaNoCustomersBody,
-        action: FilledButton.icon(
-            onPressed: () => _openSheet(),
-            icon: const Icon(Icons.person_add_alt_rounded),
-            label: Text(t.shopQaAddCustomer)),
+      // Empty: benefit line + one big button (DS empty state).
+      return ListView(
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+        children: [
+          DsEmptyState(
+            icon: Icons.people_outline_rounded,
+            title: t.shopQaNoCustomersTitle,
+            benefit: t.shopQaNoCustomersBody,
+            actionLabel: t.shopQaAddCustomer,
+            onAction: () => _openSheet(),
+          ),
+        ],
       );
     }
+    // Real totals of the loaded list for the soft hero (no invented figures).
+    var duesTotal = 0;
+    for (final c in _items) {
+      final d = poishaOf(c['dues_poisha'] ?? c['dues'] ?? c['due']);
+      if (d > 0) duesTotal += d;
+    }
+    final ds = scheme.ds;
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.all(Gap.lg),
-        itemCount: _items.length,
+        // bottom room so the "Add customer" button never covers the last row
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 96)),
+        itemCount: _items.length + 1,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
         itemBuilder: (_, i) {
-          final c = _items[i];
+          if (i == 0) {
+            return DsHeroCard(
+              child: Wrap(spacing: Gap.xl, runSpacing: Gap.md, children: [
+                Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                  Text(t.shopQaCustomers, style: AType.titleSmall.copyWith(color: ds.muted)),
+                  DsNumber(fmtInt(context, _items.length)),
+                ]),
+                if (duesTotal > 0)
+                  Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                    Text(t.biz_customer_dues, style: AType.titleSmall.copyWith(color: ds.muted)),
+                    DsNumber(duesTotal.takaIn(context), color: ds.dangerInk),
+                  ]),
+              ]),
+            );
+          }
+          final c = _items[i - 1];
           final dues = poishaOf(c['dues_poisha'] ?? c['dues'] ?? c['due']);
           final vip = c['vip'] == true;
-          return InkWell(
+          final name = (c['name'] ?? '').toString().isEmpty
+              ? (c['phone'] ?? '').toString()
+              : c['name'].toString();
+          return DsCard(
             onTap: () => _openHistory(c),
-            borderRadius: BorderRadius.circular(Radii.md),
-            child: SellCard(
-              child: Row(children: [
-                CircleAvatar(
-                  backgroundColor:
-                      vip ? AssistoTokens.of(context).warning.withValues(alpha: 0.2) : scheme.ds.cardHighest,
-                  child: Icon(vip ? Icons.star_rounded : Icons.person_outline_rounded,
-                      color: vip ? AssistoTokens.of(context).warning : scheme.ds.muted),
-                ),
-                const SizedBox(width: Gap.md),
-                Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(children: [
-                          Flexible(
-                            child: Text(
-                                (c['name'] ?? '').toString().isEmpty
-                                    ? (c['phone'] ?? '').toString()
-                                    : c['name'].toString(),
-                                style: AType.bodyMedium.copyWith(
-                                    fontWeight: FontWeight.w700),
-                                overflow: TextOverflow.ellipsis),
-                          ),
-                          if (vip) ...[
-                            const SizedBox(width: Gap.sm),
-                            _vipBadge(t),
-                          ],
-                        ]),
-                        if ((c['phone'] ?? '').toString().isNotEmpty)
-                          Text(c['phone'].toString(),
-                              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-                        if ((c['area'] ?? '').toString().isNotEmpty)
-                          Text(c['area'].toString(),
-                              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-                      ]),
-                ),
-                if (dues > 0)
-                  Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                    Text(t.biz_customer_dues,
-                        style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
-                    Text(dues.takaIn(context),
-                        style: AType.bodyMedium.copyWith(
-                            color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w800)),
-                  ]),
-                IconButton(
-                  tooltip: AppLocalizations.of(context).edit,
-                  icon: const Icon(Icons.edit_rounded),
-                  onPressed: () => _openSheet(c),
-                ),
-              ]),
-            ),
+            padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.xs, Gap.md),
+            child: Row(children: [
+              vip
+                  ? DsAvatar(
+                      color: AssistoTokens.of(context).warning,
+                      child: Icon(Icons.star_rounded, color: AssistoTokens.of(context).warning))
+                  : DsAvatar(name: name),
+              const SizedBox(width: Gap.md),
+              Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // the name wraps at 200% instead of being cut with "…"
+                      Wrap(
+                          spacing: Gap.sm,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(name,
+                                style: AType.bodyLarge.copyWith(
+                                    color: ds.text, fontWeight: FontWeight.w700)),
+                            if (vip) _vipBadge(t),
+                          ]),
+                      if ((c['phone'] ?? '').toString().isNotEmpty && name != c['phone'].toString())
+                        Text(c['phone'].toString(),
+                            style: AType.bodySmall.copyWith(color: ds.muted)),
+                      if ((c['area'] ?? '').toString().isNotEmpty)
+                        Text(c['area'].toString(),
+                            style: AType.bodySmall.copyWith(color: ds.muted)),
+                      if (dues > 0)
+                        Text('${t.biz_customer_dues}: ${dues.takaIn(context)}',
+                            style: AType.bodyMedium.copyWith(
+                                color: ds.dangerInk, fontWeight: FontWeight.w800)),
+                    ]),
+              ),
+              IconButton(
+                tooltip: AppLocalizations.of(context).edit,
+                icon: const Icon(Icons.edit_rounded),
+                onPressed: () => _openSheet(c),
+              ),
+            ]),
           );
         },
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../business_selling_api.dart';
 import '../../widgets/skeleton.dart';
 import '../../l10n/app_localizations.dart';
@@ -160,13 +161,10 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
             .map((d) => t.bbLowAfterSaleItem('${d['product_name'] ?? ''}',
                 localDigits('${d['new_stock'] ?? 0}', lang)))
             .join(', ');
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: Duration(seconds: low.isEmpty ? 4 : 8),
-          content: Text(
-              low.isEmpty ? t.biz_sale_done : '${t.biz_sale_done} · ${t.bbLowAfterSale(lowText)}',
-              style: AType.bodyMedium.copyWith(color: Colors.white)),
-          backgroundColor: Brand.successFill,
-        ));
+        showDsToast(
+            context,
+            low.isEmpty ? t.biz_sale_done : '${t.biz_sale_done} · ${t.bbLowAfterSale(lowText)}',
+            tone: DsToastTone.success);
       }
     }
   }
@@ -215,14 +213,21 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                 (p['barcode'] ?? '').toString().toLowerCase().contains(_q))
             .toList();
     if (filtered.isEmpty) {
-      return StateMessage(
-          icon: Icons.inventory_2_rounded, title: t.biz_cart_empty);
+      return ListView(
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+        children: [
+          DsEmptyState(icon: Icons.inventory_2_rounded, title: t.biz_cart_empty),
+        ],
+      );
     }
+    // Taller cards when the phone's font is large, so the name and price
+    // never overflow the tile (200% font).
+    final scale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0);
     return GridView.builder(
-      padding: const EdgeInsets.all(Gap.lg),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 180,
-        childAspectRatio: 0.85,
+        childAspectRatio: 0.85 / (1 + (scale - 1) * 0.6),
         crossAxisSpacing: Gap.md,
         mainAxisSpacing: Gap.md,
       ),
@@ -247,12 +252,10 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
     }
     final stock = (p['stock'] ?? 0) as num;
     final oos = stock <= 0 && (p['variants'] as List? ?? const []).isEmpty;
-    return InkWell(
-      onTap: oos ? null : () => _tapProduct(p),
-      borderRadius: BorderRadius.circular(Radii.md),
-      child: Opacity(
+    return Opacity(
         opacity: oos ? 0.45 : 1,
-        child: SellCard(
+        child: DsCard(
+          onTap: oos ? null : () => _tapProduct(p),
           padding: const EdgeInsets.all(Gap.md),
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,15 +282,15 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                 Text((p['name'] ?? '').toString(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600)),
+                    style: AType.titleSmall.copyWith(
+                        color: scheme.ds.text, fontWeight: FontWeight.w600)),
                 const SizedBox(height: Gap.xxs),
                 Text(oos ? t.biz_out_of_stock : sell.takaIn(context),
                     style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular,
-                        color: oos ? scheme.error : scheme.primary,
+                        color: oos ? scheme.ds.dangerInk : scheme.ds.primaryInk,
                         fontWeight: FontWeight.w800)),
               ]),
         ),
-      ),
     );
   }
 
@@ -299,7 +302,10 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
     return SafeArea(
       top: false,
       child: Material(
-        color: scheme.ds.cardHigh,
+        color: scheme.ds.card,
+        shape: Border(top: BorderSide(color: scheme.ds.border)),
+        elevation: 8,
+        shadowColor: scheme.ds.shadowTint,
         child: InkWell(
           onTap: () => _openCartSheet(t),
           child: Padding(
@@ -315,8 +321,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                 child: Text('${t.biz_total}: ${total.takaIn(context)}',
                     style: AType.titleMedium.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800)),
               ),
-              FilledButton(
-                  onPressed: _checkout, child: Text(t.biz_pay_method)),
+              DsButton(label: t.biz_pay_method, onPressed: _checkout),
             ]),
           ),
         ),
@@ -391,13 +396,10 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
       (line['size'] ?? '').toString(),
       (line['colour'] ?? '').toString()
     ].where((s) => s.isNotEmpty).join(' / ');
-    return Container(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsCard(
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.ds.card,
-        borderRadius: BorderRadius.circular(Radii.md),
-      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Expanded(
@@ -420,12 +422,19 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
           ),
         ]),
         const SizedBox(height: Gap.sm),
-        Row(children: [
+        // Wrap, not Row: at 200% font the price drops under the stepper
+        // instead of overflowing the card.
+        Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: Gap.sm,
+            runSpacing: Gap.xs,
+            children: [
           _qtyStepper(qty, (n) async {
             await _setQty(line, n);
             after();
           }),
-          const Spacer(),
+          Row(mainAxisSize: MainAxisSize.min, children: [
           TextButton.icon(
             onPressed: () async {
               await _editPrice(line);
@@ -437,13 +446,14 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
           const SizedBox(width: Gap.sm),
           Text(lineTotal.takaIn(context),
               style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800)),
+          ]),
         ]),
       ]),
-    );
+    ));
   }
 
   Widget _qtyStepper(int qty, ValueChanged<int> onChange) {
-    return Row(children: [
+    return Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton.filledTonal(
         tooltip: AppLocalizations.of(context).f2Decrease,
         icon: const Icon(Icons.remove_rounded, size: 18),
