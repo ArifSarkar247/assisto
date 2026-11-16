@@ -383,7 +383,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     // "unusual": never "arrived safely", and the safety PIN is asked.
     // sjproof: a fresh position at the tap (the last tracked fix can be 2 min
     // and ~2 km old on a bus -> a real arrival looked "far")
-    final f = await _tr.freshFix() ?? _tr.value.lastFix;
+    final f = await _tr.freshFix(timeout: const Duration(seconds: 4)) ?? _tr.value.lastFix;
     if (!mounted) return;
     final fresh = f != null && DateTime.now().difference(f.at).inMinutes < 2;
     Map<String, dynamic> r;
