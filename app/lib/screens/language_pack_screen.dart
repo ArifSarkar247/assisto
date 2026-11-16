@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
@@ -632,9 +633,7 @@ class LessonPage extends StatelessWidget {
     final tts = p is _Pack ? p.ttsLocale : (ttsLocale ?? '');
     return _page(context, _loc(context, lesson, 'title_bn', 'title_en'), [
       for (final it in _list(lesson['items']))
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: Padding(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -658,8 +657,7 @@ class LessonPage extends StatelessWidget {
                 Text(_loc(context, it, 'note_bn', 'note_en'),
                     style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
             ]),
-          ),
-        ),
+          )),
       if (_strs(lesson['practice']).isNotEmpty) ...[
         const SizedBox(height: Gap.sm),
         Text(tr.learnSayIt, style: Theme.of(context).textTheme.titleMedium),
@@ -1339,12 +1337,10 @@ class _SpeakPromptPageState extends State<SpeakPromptPage> {
     final tr = AppLocalizations.of(context);
     final sp = widget.prompt;
     return _page(context, tr.lwSpeakTitle, [
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Text(_pickText(context, sp),
+      DsCard(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Text(_pickText(context, sp),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(height: 1.35)),
-        ),
       ),
       if (sp['seconds'] is num) _muted(context, ld(context, tr.lwSpeakSeconds(sp['seconds']))),
       if (_checks.isNotEmpty) PackChecklist(checks: _checks, results: _res, title: tr.lwSpeakTry),

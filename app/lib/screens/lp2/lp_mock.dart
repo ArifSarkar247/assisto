@@ -12,6 +12,7 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../ads/ad_banner_slot.dart';
@@ -307,10 +308,7 @@ class _MockCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final sections = lpStrs(m['sections']).isEmpty ? kLpSections : lpStrs(m['sections']);
-    return Card(
-      key: Key('lp2-mock-${m['id']}'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(key: Key('lp2-mock-${m['id']}'), padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.sm, Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
@@ -354,8 +352,7 @@ class _MockCard extends StatelessWidget {
               ),
           ]),
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -1040,10 +1037,9 @@ class _WritingSectionState extends State<_WritingSection> {
               Text(tr.lp2TaskN(ld(context, n)),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.md),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              DsCard(
+                padding: const EdgeInsets.all(Gap.md),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     SelectableText('${t['prompt'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.5)),
                     if (img.startsWith('http'))
                       Padding(
@@ -1053,7 +1049,6 @@ class _WritingSectionState extends State<_WritingSection> {
                                 style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
                       ),
                   ]),
-                ),
               ),
               const SizedBox(height: Gap.sm),
               TextField(
@@ -1134,14 +1129,12 @@ class _SpeakingSectionState extends State<_SpeakingSection> {
         ]),
         const SizedBox(height: Gap.md),
         if (n == 2) ...[
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Row(children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Row(children: [
                 Expanded(child: SelectableText('${p['cue_card'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.5))),
                 LpListenButton(text: '${p['cue_card'] ?? ''}'),
               ]),
-            ),
           ),
           const SizedBox(height: Gap.sm),
           if (!_prep && !_talk)
@@ -1311,10 +1304,9 @@ class LpMockResultScreen extends StatelessWidget {
               child: Text(tr.lp2OverallNeedsAll, textAlign: TextAlign.center),
             ),
           const SizedBox(height: Gap.lg),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(children: [
                 for (final s in kLpSections)
                   LpBandBar(
                     label: lpSectionName(tr, s),
@@ -1322,7 +1314,6 @@ class LpMockResultScreen extends StatelessWidget {
                     note: sections.contains(s) ? notes[s] : tr.lp2NotTaken,
                   ),
               ]),
-            ),
           ),
           const SizedBox(height: Gap.md),
           Card(
@@ -1500,11 +1491,9 @@ class _LpWeakPracticeState extends State<LpWeakPractice> {
             ),
           for (var i = 0; i < _items.length; i++) ...[
             if ('${_items[i]['passage'] ?? ''}'.isNotEmpty)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.md),
-                  child: SelectableText('${_items[i]['passage']}', style: AType.bodyMedium.copyWith(height: 1.5)),
-                ),
+              DsCard(
+                padding: const EdgeInsets.all(Gap.md),
+                child: SelectableText('${_items[i]['passage']}', style: AType.bodyMedium.copyWith(height: 1.5)),
               ),
             LpQuestion(
               q: {..._items[i], 'n': i + 1},

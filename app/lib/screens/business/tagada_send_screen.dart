@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -614,11 +615,9 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
         ],
       );
 
-  Widget _payBox(AppLocalizations t) => Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _payBox(AppLocalizations t) => Padding(padding: EdgeInsets.zero, child: DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.ldgPayInfo, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: Gap.sm),
             Wrap(
@@ -657,8 +656,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
               ),
             ),
           ]),
-        ),
-      );
+    ));
 
   Widget _smsLine(AppLocalizations t) {
     final String line;
@@ -717,10 +715,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
       _St.waiting => scheme.ds.muted,
       _ => AssistoTokens.of(context).success,
     };
-    return Card(
-      key: ValueKey('ldg-row-${row.partyId}'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(key: ValueKey('ldg-row-${row.partyId}'), padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -811,8 +806,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ],
         ]),
-      ),
-    );
+      ));
   }
 
   /// tagada2: the buttons in the server's send order — (1) Assisto, free,

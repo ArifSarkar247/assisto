@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_aftersale_api.dart';
@@ -166,10 +167,9 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(children: [
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(children: [
               CrmProgressBar(
                 booked > 0 ? collected / booked : 0,
                 t.crmCollectedOfBooked(
@@ -182,7 +182,6 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
                 CrmMoneyRow(t.crmOverdue, bdtFromPoisha(overdue),
                     bold: true, valueColor: Theme.of(context).colorScheme.error),
             ]),
-          ),
         ),
         const SizedBox(height: Gap.sm),
         CrmSectionHeader(t.crmInstallments, icon: Icons.receipt_long_rounded),
@@ -196,10 +195,9 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
     final due = (inst['amount_poisha'] as num?) ?? 0;
     final collected = (inst['collected_poisha'] as num?) ?? 0;
     final done = status == 'collected' || status == 'overpaid';
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text('${t.crmInstallment} #${inst['seq']}',
@@ -224,7 +222,6 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
             ),
           ],
         ]),
-      ),
     );
   }
 
@@ -305,10 +302,9 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
         : (state == 'due_soon' || state == 'due_today')
             ? CrmStatusTone.warning
             : CrmStatusTone.success;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text((amc['company'] ?? amc['title'] ?? '').toString(),
@@ -339,7 +335,6 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
                   label: Text(t.crmRenew)),
           ]),
         ]),
-      ),
     );
   }
 
@@ -504,10 +499,9 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
     final state = (c['state'] ?? 'open').toString();
     final breached = c['sla_breached'] == true;
     final actions = _nextActions(state);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text((c['subject'] ?? '').toString(),
@@ -542,7 +536,6 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
             ]),
           ],
         ]),
-      ),
     );
   }
 

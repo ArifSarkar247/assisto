@@ -3,6 +3,7 @@
 // the shop's customers or My Circle in one tap. The server numbers it (SV-…)
 // and does the VAT math; this screen only collects the facts.
 import 'package:flutter/material.dart';
+import '../../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../../business_selling_api.dart';
@@ -320,10 +321,9 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
               subtitle: Text(t.ivdByHoursHelp),
             ),
           for (var i = 0; i < _lines.length; i++)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
-                child: Column(children: [
+            DsCard(
+              padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
+              child: Column(children: [
                   Row(children: [
                     Expanded(
                         child: _tf(_lines[i].desc, t.invLineDesc,
@@ -358,7 +358,6 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                               kb: TextInputType.number, key: ValueKey('inv-line-warranty-$i'))),
                     ]),
                 ]),
-              ),
             ),
           TextButton.icon(
             style: TextButton.styleFrom(minimumSize: const Size(0, 48)),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
@@ -158,10 +159,9 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
         onRefresh: _load,
         child: ListView(padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96), children: [ // clear the FAB
           // ---- smart profile + score ----
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   ScoreBadge((l['score'] as num?)?.toInt() ?? 0),
                   const SizedBox(width: Gap.sm),
@@ -183,7 +183,6 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                   if ((l['decision_maker'] ?? '').toString().isNotEmpty) _pill(t.crmDecisionMaker, l['decision_maker']),
                 ]),
               ]),
-            ),
           ),
           // ---- quick actions (each logged) ----
           const SizedBox(height: Gap.sm),
@@ -237,10 +236,9 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
           // ---- next step / follow-up suggestion ----
           const SizedBox(height: Gap.md),
           _sectionTitle(t.crmNextStep),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 // Tap to set/change the next follow-up date (drives Today).
                 InkWell(
                   onTap: _logActivity,
@@ -282,7 +280,6 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                   ),
                 ],
               ]),
-            ),
           ),
           // ---- proposals ----
           const SizedBox(height: Gap.md),

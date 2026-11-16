@@ -210,9 +210,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   Widget _card(BuildContext context, IconData icon, String title, List<Widget> children) {
-    return Card(
-      margin: const EdgeInsets.only(top: 12),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(top: 12), child: DsCard(
         padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -223,8 +221,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           const SizedBox(height: 8),
           ...children,
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _openClose(BuildContext context, AppLocalizations t, String lang) {
@@ -309,9 +306,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     final rows = wmList(f['rows']);
     final src = (_day['foot_src'] ?? 'none').toString();
     if (src == 'none' && (f['sales'] ?? 0) == 0) {
-      return Card(
-        margin: const EdgeInsets.only(top: 12),
-        child: Padding(
+      return Padding(padding: const EdgeInsets.only(top: 12), child: DsCard(
           padding: const EdgeInsets.all(8),
           child: CvEmptyBlock(
             compact: true,
@@ -320,8 +315,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             benefit: t.cactFootEmptyBenefit,
             steps: [t.cactFootStep1, t.cactFootStep2, t.cactFootStep3],
           ),
-        ),
-      );
+        ));
     }
     final conv = f['conversion'];
     var maxV = 1;

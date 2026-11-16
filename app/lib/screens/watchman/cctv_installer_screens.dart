@@ -172,9 +172,7 @@ class _CctvInstallerScreenState extends State<CctvInstallerScreen> {
     final who = p.isEmpty
         ? t.ctrInstNotUsed
         : [p['name'], p['area']].where((x) => (x ?? '').toString().isNotEmpty).join(' · ');
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: 8), child: DsCard(
         padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
         child: Row(children: [
           Icon(st == 'active' ? Icons.handyman_rounded : Icons.qr_code_2_rounded, color: color),
@@ -194,8 +192,7 @@ class _CctvInstallerScreenState extends State<CctvInstallerScreen> {
             child: Text(t.ctrInstEnd),
           ),
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -484,9 +481,7 @@ class _SiteSetupCard extends StatelessWidget {
           'hours_set' => t.ctrStepHours,
           _ => t.ctrStepZones,
         };
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: 12), child: DsCard(
         padding: const EdgeInsets.all(12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -524,7 +519,6 @@ class _SiteSetupCard extends StatelessWidget {
               ]),
             ),
         ]),
-      ),
-    );
+      ));
   }
 }

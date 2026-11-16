@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -215,9 +216,7 @@ class _Header extends StatelessWidget {
     final counts = bkMap(page['counts']);
     final on = page['enabled'] == true;
     final url = (page['public_url'] ?? '').toString();
-    return Card(
-      margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs), child: DsCard(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -278,8 +277,7 @@ class _Header extends StatelessWidget {
             ]),
           ],
         ]),
-      ),
-    );
+      ));
   }
 }
 

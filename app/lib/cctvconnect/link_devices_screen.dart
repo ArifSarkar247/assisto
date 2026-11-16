@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 
 import '../l10n/app_localizations.dart';
 import '../screens/watchman/watchman_source.dart' show wmDigits, wmError, wmList;
@@ -175,12 +176,9 @@ class _CctvLinkDevicesScreenState extends State<CctvLinkDevicesScreen> {
                       const Divider(height: Gap.xl),
                     ],
                   if (_result.isNotEmpty)
-                    Card(
-                      key: const Key('ccnResult'),
-                      child: Padding(
-                        padding: const EdgeInsets.all(Gap.md),
-                        child: Text(_result),
-                      ),
+                    DsCard(key: const Key('ccnResult'),
+                      padding: const EdgeInsets.all(Gap.md),
+                      child: Text(_result),
                     ),
                 ],
               ),

@@ -16,6 +16,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../ads/ad_banner_slot.dart';
@@ -172,9 +173,7 @@ class LpScenarioScreen extends StatelessWidget {
                 ),
               const SizedBox(height: Gap.md),
               for (final x in lpList(s['sentences']))
-                Card(
-                  margin: const EdgeInsets.only(bottom: Gap.sm),
-                  child: Padding(
+                Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
                     padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
                     child: Row(children: [
                       Expanded(
@@ -192,8 +191,7 @@ class LpScenarioScreen extends StatelessWidget {
                         onPressed: () => showLpSayIt(context, '${x['en']}', '${x['bn']}'),
                       ),
                     ]),
-                  ),
-                ),
+                  )),
             ],
           ),
           ListView(

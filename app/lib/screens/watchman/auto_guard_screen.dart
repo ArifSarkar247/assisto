@@ -180,10 +180,9 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
     }
     final yes = m['consent'] == true;
     return [
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      DsCard(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.carmAskTitle((m['owner_name'] ?? '').toString()),
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
@@ -222,7 +221,6 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
             const SizedBox(height: 4),
             Text(t.carmStaleRule(wmDigits(lang, 30)), style: Theme.of(context).textTheme.bodySmall),
           ]),
-        ),
       ),
     ];
   }
@@ -324,10 +322,9 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
     final exit = (_cfg['exit_m'] as num?)?.toInt() ?? radius + 150;
     final me = members.where((m) => m['is_me'] == true).firstOrNull;
     final others = members.where((m) => m['is_me'] != true).toList();
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _switchTile('carm-family', t.carmFamilyTitle, t.carmFamilyBenefit, on,
               (v) => _save({'family_on': v})),
           Text(t.carmFamilyRules(wmDigits(lang, 30)), style: Theme.of(context).textTheme.bodySmall),
@@ -413,7 +410,6 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
             ],
           ],
         ]),
-      ),
     );
   }
 
@@ -458,17 +454,15 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
     }
   }
 
-  Widget _closedCard(AppLocalizations t) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _closedCard(AppLocalizations t) => DsCard(
+    padding: const EdgeInsets.all(16),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             _switchTile('carm-closed', t.carmClosedTitle, t.carmClosedBody, _cfg['closed_on'] == true,
                 (v) => _save({'closed_on': v})),
             if (_cfg['closed_on'] == true && _d['hours_set'] != true)
               Text(t.carmHoursMissing, style: AType.bodyMedium.copyWith(color: wmWarn())),
           ]),
-        ),
-      );
+  );
 
   String _hhmm(TimeOfDay v) =>
       '${v.hour.toString().padLeft(2, '0')}:${v.minute.toString().padLeft(2, '0')}';
@@ -488,10 +482,9 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
         if (m['is_me'] != true) (m['uid'] as num).toInt(): (m['name'] ?? '').toString(),
       for (final c in wmList(_d['candidates'])) (c['uid'] as num).toInt(): (c['name'] ?? '').toString(),
     };
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.carmNomoveTitle, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           Text(t.carmNomoveBody),
@@ -501,7 +494,6 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
             _nomoveRow(t, lang, c, people),
           ],
         ]),
-      ),
     );
   }
 
@@ -574,22 +566,19 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
   Widget _sosCard(AppLocalizations t) {
     final lang = wmLang(context);
     final min = (wmMap(_d['rules'])['sos_live_min'] as num?)?.toInt() ?? 30;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: _switchTile('carm-sos', t.carmSosTitle, t.carmSosBody(wmDigits(lang, min)),
+    return DsCard(
+      padding: const EdgeInsets.all(16),
+      child: _switchTile('carm-sos', t.carmSosTitle, t.carmSosBody(wmDigits(lang, min)),
             _cfg['sos_live'] == true, (v) => _save({'sos_live': v})),
-      ),
     );
   }
 
   Widget _logCard(AppLocalizations t) {
     final rows = wmList(_d['log']);
     final lang = wmLang(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.carmLogTitle, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
           if (rows.isEmpty) Text(t.carmLogEmpty),
@@ -599,7 +588,6 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
               child: Text('${_when(lang, (r['at'] ?? '').toString())} · ${r['text'] ?? ''}'),
             ),
         ]),
-      ),
     );
   }
 
@@ -685,10 +673,9 @@ class _SosLiveScreenState extends State<SosLiveScreen> {
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 8, 16, 32)),
         children: [
           for (final g in _grants)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            DsCard(
+              padding: const EdgeInsets.all(16),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(t.carmSosFrom((g['by_name'] ?? '').toString()),
                       style: Theme.of(context).textTheme.titleMedium),
                   Text((g['name'] ?? '').toString()),
@@ -714,7 +701,6 @@ class _SosLiveScreenState extends State<SosLiveScreen> {
                       ),
                     ),
                 ]),
-              ),
             ),
         ],
       );

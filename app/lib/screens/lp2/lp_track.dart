@@ -15,6 +15,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart' show ApiException;
@@ -315,11 +316,9 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
               )
             else ...[
               if (_syl.isNotEmpty)
-                Card(
-                  key: const Key('lp2-track-syllabus'),
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.lg),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                DsCard(key: const Key('lp2-track-syllabus'),
+                  padding: const EdgeInsets.all(Gap.lg),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                       Text(_loc2(context, _syl['title']),
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
                       const SizedBox(height: Gap.sm),
@@ -342,7 +341,6 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                           ),
                       ],
                     ]),
-                  ),
                 ),
               if (lpList(fmt['sections']).isNotEmpty)
                 Card(
@@ -396,11 +394,9 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.sm),
               for (final m in _tests)
-                Card(
-                  key: ValueKey('lp2-track-test-${m['id']}'),
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.md),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                DsCard(key: ValueKey('lp2-track-test-${m['id']}'),
+                  padding: const EdgeInsets.all(Gap.md),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                       Row(children: [
                         Expanded(
                           child: Text(lpLoc(context, m, 'title'),
@@ -421,7 +417,6 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                           ),
                       ]),
                     ]),
-                  ),
                 ),
               if ('${probashi['note_bn'] ?? ''}'.isNotEmpty)
                 Card(
@@ -634,50 +629,43 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
             ),
           h(tr.lp2TrackVocab),
           for (final v in lpList(l['vocab']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   _targetBlock(v, big: true),
                   if (_map(v['example']).isNotEmpty) ...[
                     const Divider(),
                     _targetBlock(_map(v['example'])),
                   ],
                 ]),
-              ),
             ),
           h(tr.lp2TrackGrammar),
           for (final g in lpList(l['grammar']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   Text('${g['pattern'] ?? ''}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xs),
                   Text('${g['explain_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.5)),
                   for (final e in lpList(g['examples'])) ...[const Divider(), _targetBlock(e)],
                 ]),
-              ),
             ),
           h(tr.lp2TrackPractice),
           for (final q in lpList(pr['listening']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   Text(lpSectionName(tr, 'listening'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   LpTtsPlayer(tts: _ttsOf(q)),
                   Text('${q['prompt_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   _choice(q),
                 ]),
-              ),
             ),
           for (final q in lpList(pr['reading']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   Text(lpSectionName(tr, 'reading'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xs),
                   SelectableText('${q['passage'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.6)),
@@ -688,32 +676,27 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
                   const SizedBox(height: Gap.sm),
                   _choice(q),
                 ]),
-              ),
             ),
           for (final q in lpList(pr['writing']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   Text(lpSectionName(tr, 'writing'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   Text('${q['prompt_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   _model('${q['id']}', _map(q['model'])),
                 ]),
-              ),
             ),
           for (final q in lpList(pr['speaking']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   Text(lpSectionName(tr, 'speaking'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   Text('${q['prompt_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
                   Text(tr.lp2TrackSayAloud, style: AType.bodySmall),
                   const SizedBox(height: Gap.sm),
                   _model('${q['id']}', _map(q['model']), typed: false),
                 ]),
-              ),
             ),
           const SizedBox(height: Gap.lg),
           FilledButton.icon(
@@ -902,11 +885,9 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
     final c = _text.putIfAbsent(id, () => TextEditingController());
     final model = _map(t['model']);
     final prompt = _map(t['prompt']);
-    return Card(
-      key: ValueKey('tt$id'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(key: ValueKey('tt$id'),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           if (prompt.isEmpty)
             Text('${t['prompt'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4))
           else ...[
@@ -938,7 +919,6 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
             ),
           ],
         ]),
-      ),
     );
   }
 

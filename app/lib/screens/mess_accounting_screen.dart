@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
@@ -173,10 +174,9 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
             ),
             if (_data?['legacy_available'] == true) ...[
               const SizedBox(height: Gap.md),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.md),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              DsCard(
+                padding: const EdgeInsets.all(Gap.md),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     Text(t.mv2ImportTitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: Gap.xs),
@@ -190,7 +190,6 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
                       label: Text(t.mv2ImportButton),
                     ),
                   ]),
-                ),
               ),
             ],
             const SizedBox(height: Gap.md),
@@ -209,10 +208,9 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
 
   Widget _howTo(AppLocalizations t, ColorScheme scheme) {
     final steps = [t.mv2How1, t.mv2How2, t.mv2How3, t.mv2How4];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(t.mv2HowTitle, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           for (var i = 0; i < steps.length; i++)
@@ -228,7 +226,6 @@ class _MessAccountingScreenState extends State<MessAccountingScreen> {
               ]),
             ),
         ]),
-      ),
     );
   }
 

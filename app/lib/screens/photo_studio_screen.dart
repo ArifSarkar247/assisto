@@ -436,10 +436,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     final eta = p?.etaMs;
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 340),
-      child: Card(
-        key: const Key('psProgress'),
-        margin: const EdgeInsets.symmetric(horizontal: Gap.lg),
-        child: Padding(
+      child: Padding(key: const Key('psProgress'), padding: const EdgeInsets.symmetric(horizontal: Gap.lg), child: DsCard(
           padding: const EdgeInsets.all(Gap.lg),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Row(children: [
@@ -473,8 +470,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
               ),
             ],
           ]),
-        ),
-      ),
+        )),
     );
   }
 

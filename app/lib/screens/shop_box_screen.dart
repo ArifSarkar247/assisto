@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../bizai/cctv_accuracy_screen.dart' show CctvAccuracyScreen; // bizai
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -1273,9 +1274,7 @@ class _AlertsTabState extends State<_AlertsTab> {
         statusLabel = t.shopBoxStatusOpen;
     }
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return Padding(padding: EdgeInsets.zero, child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1361,8 +1360,7 @@ class _AlertsTabState extends State<_AlertsTab> {
                 }),
               ],
             ]),
-      ),
-    );
+      ));
   }
 
   Widget _pill(String text, Color c) => Container(
@@ -1569,9 +1567,7 @@ class _ReportTabState extends State<_ReportTab> {
   Widget _stat(
       BuildContext context, String label, String value, Color color) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return Padding(padding: EdgeInsets.zero, child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(value,
@@ -1581,8 +1577,7 @@ class _ReportTabState extends State<_ReportTab> {
               style:
                   AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _exceptionRow(BuildContext context, AppLocalizations t, String label,

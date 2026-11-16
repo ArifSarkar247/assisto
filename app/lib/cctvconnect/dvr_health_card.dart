@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
@@ -112,10 +113,7 @@ class _DvrHealthCardState extends State<DvrHealthCard> {
     };
     final days = (d['recorded_days'] as num?)?.toInt();
     final target = (d['target_days'] as num?)?.toInt() ?? 7;
-    return Card(
-      key: const Key('dvrHealthCard'),
-      margin: const EdgeInsets.fromLTRB(0, Gap.sm, 0, Gap.xs),
-      child: Padding(
+    return Padding(key: const Key('dvrHealthCard'), padding: const EdgeInsets.fromLTRB(0, Gap.sm, 0, Gap.xs), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           InkWell(
@@ -176,7 +174,6 @@ class _DvrHealthCardState extends State<DvrHealthCard> {
               ),
             ),
         ]),
-      ),
-    );
+      ));
   }
 }

@@ -3,6 +3,7 @@
 // "Safer at night"). A safety screen: never any ads. Missing facts are said
 // honestly ("not collected yet"), never invented.
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' show LaunchMode;
 
@@ -74,12 +75,9 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
                     const ValueKey('city_women_seats')),
                 CitySection(t.cityWomenBuses, icon: Icons.directions_bus_rounded),
                 if ((w?.buses ?? const []).isEmpty)
-                  Card(
-                    key: const ValueKey('city_women_buses_empty'),
-                    child: Padding(
-                      padding: const EdgeInsets.all(Gap.lg),
-                      child: Text(t.cityWomenBusesEmpty),
-                    ),
+                  DsCard(key: const ValueKey('city_women_buses_empty'),
+                    padding: const EdgeInsets.all(Gap.lg),
+                    child: Text(t.cityWomenBusesEmpty),
                   )
                 else
                   for (final b in w!.buses) _bus(t, bn, b),
@@ -115,11 +113,9 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
     final text = '${(bn ? m['text_bn'] : m['text']) ?? m['text'] ?? m['text_en'] ?? ''}';
     final url = '${m['source_url'] ?? ''}';
     final checked = '${m['checked'] ?? ''}';
-    return Card(
-      key: key,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: key,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(icon),
             const SizedBox(width: Gap.sm),
@@ -140,7 +136,6 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
                 ),
             ]),
         ]),
-      ),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 
@@ -304,10 +305,9 @@ class ReportStatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, color: tint ?? scheme.primary),
           const SizedBox(height: Gap.xs),
           // big BDT values shrink to fit a third-width tile, never cut with an ellipsis
@@ -321,7 +321,6 @@ class ReportStatTile extends StatelessWidget {
           Text(label,
               style: AType.bodyMedium.copyWith(fontSize: 12, color: scheme.ds.muted)),
         ]),
-      ),
     );
   }
 }

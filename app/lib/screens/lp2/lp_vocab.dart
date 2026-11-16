@@ -6,6 +6,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../ads/ad_banner_slot.dart';
@@ -252,10 +253,9 @@ class _LpVocabSessionState extends State<LpVocabSession> {
           const SizedBox(height: Gap.xs),
           Text(ld(context, '${_i + 1} / $n'), style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.lg),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.xl),
-              child: Column(children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.xl),
+            child: Column(children: [
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Flexible(
                     child: Text(word,
@@ -281,7 +281,6 @@ class _LpVocabSessionState extends State<LpVocabSession> {
                     ]),
                 ],
               ]),
-            ),
           ),
           const SizedBox(height: Gap.lg),
           if (!_shown)

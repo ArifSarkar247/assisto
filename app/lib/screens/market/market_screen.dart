@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -658,11 +659,9 @@ class _DealsTabState extends State<_DealsTab> with AutomaticKeepAliveClientMixin
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
           for (final d in rows)
-            Card(
-              key: Key('amk-deal-${d['id']}'),
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            DsCard(key: Key('amk-deal-${d['id']}'),
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('${d['title']}', style: Theme.of(context).textTheme.titleSmall),
                   const SizedBox(height: Gap.xs),
                   Text([
@@ -723,7 +722,6 @@ class _DealsTabState extends State<_DealsTab> with AutomaticKeepAliveClientMixin
                       ),
                   ]),
                 ]),
-              ),
             ),
         ],
       ),

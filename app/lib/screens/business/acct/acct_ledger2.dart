@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../../acct_api.dart';
@@ -724,11 +725,7 @@ class AcctCostGapBanner extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final n = (gaps['sales'] as num?)?.toInt() ?? 0;
     if (n == 0) return const SizedBox.shrink();
-    return Card(
-      key: const ValueKey('acct-cost-banner'),
-      color: scheme.ds.dangerBg,
-      margin: const EdgeInsets.only(top: Gap.sm, bottom: Gap.sm),
-      child: Padding(
+    return Padding(key: const ValueKey('acct-cost-banner'), padding: const EdgeInsets.only(top: Gap.sm, bottom: Gap.sm), child: DsCard(tone: DsTone.danger,
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -769,8 +766,7 @@ class AcctCostGapBanner extends StatelessWidget {
             ),
           ),
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -865,9 +861,7 @@ class _AcctCostGapsSheetState extends State<AcctCostGapsSheet> {
   Widget _productCard(AppLocalizations t, ColorScheme scheme, Map p) {
     final id = (p['product_id'] as num?)?.toInt();
     final current = (p['current_cost'] as num?)?.toInt() ?? 0;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text('${p['name']}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
@@ -900,7 +894,6 @@ class _AcctCostGapsSheetState extends State<AcctCostGapsSheet> {
             ),
           ],
         ]),
-      ),
-    );
+      ));
   }
 }

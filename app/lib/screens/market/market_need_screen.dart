@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -170,10 +171,9 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
             n['budget_max'] != null ? mkTaka(context, n['budget_max']) : '—'),
       if (n['km'] != null) t.amkKmAway(mkNum(context, n['km'])),
     ];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(child: Text('${n['title']}', style: Theme.of(context).textTheme.titleMedium)),
             const SizedBox(width: Gap.sm),
@@ -190,7 +190,6 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
             Text(t.amkHiddenByReports, style: AType.bodyMedium.copyWith(color: cs.error)),
           ],
         ]),
-      ),
     );
   }
 
@@ -303,10 +302,9 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
     final canBid = n['can_bid'] == true;
     final cs = Theme.of(context).colorScheme;
     final digits = [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(8)];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(mine == null ? t.amkYourOfferTitle : t.amkYourOfferEdit, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: Gap.xs),
           Text(t.amkSealedNote, style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
@@ -365,16 +363,14 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
             ),
           if (!canBid) Text(t.amkBiddingClosed, style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
         ]),
-      ),
     );
   }
 
   Widget _joinBox(AppLocalizations t, Map<String, dynamic> n) {
     final joined = n['joined_qty'] != null;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(joined ? t.amkJoinedTitle : t.amkJoinTitle, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: Gap.xs),
           Text(t.amkJoinNote),
@@ -403,7 +399,6 @@ class _MarketNeedScreenState extends State<MarketNeedScreen> {
               child: Text(t.amkLeave),
             ),
         ]),
-      ),
     );
   }
 

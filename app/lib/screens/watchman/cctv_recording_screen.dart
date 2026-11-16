@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 
 import '../../widgets/local_counter.dart';
 import '../../cctvx/cctv_evidence_source.dart';
@@ -224,10 +225,9 @@ class _CctvRecordingScreenState extends State<CctvRecordingScreen> {
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 8, 16, 32)),
       children: [
         // ---------------------------------------------------------- SD card
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        DsCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.cevSdTitle, style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               WmPill(label: (sd['label'] ?? '').toString(), icon: icon, color: c),
@@ -251,14 +251,12 @@ class _CctvRecordingScreenState extends State<CctvRecordingScreen> {
                 ),
               ),
             ]),
-          ),
         ),
         const SizedBox(height: 8),
         // ---------------------------------------------------------- add-on
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        DsCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.cevAddonTitle, style: theme.textTheme.titleMedium),
               const SizedBox(height: 4),
               Text(t.cevAddonWhat),
@@ -324,14 +322,12 @@ class _CctvRecordingScreenState extends State<CctvRecordingScreen> {
                         : (support['text'] ?? '').toString())),
               ]),
             ]),
-          ),
         ),
         const SizedBox(height: 8),
         // ---------------------------------------------------------- address
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        DsCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.cevAddressTitle, style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               TextField(
@@ -352,7 +348,6 @@ class _CctvRecordingScreenState extends State<CctvRecordingScreen> {
                 ),
               ),
             ]),
-          ),
         ),
         const SizedBox(height: 12),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [

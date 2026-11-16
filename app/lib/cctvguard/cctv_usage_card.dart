@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
@@ -100,10 +101,7 @@ class _CctvUsageCardState extends State<CctvUsageCard> {
     final msg = (d['message'] ?? '').toString();
     final scheme = Theme.of(context).colorScheme;
     final pillColor = level == 'paused' ? wmBad() : level == 'notice' ? wmWarn() : wmOk();
-    return Card(
-      key: const Key('cctvUsageCard'),
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: Padding(
+    return Padding(key: const Key('cctvUsageCard'), padding: const EdgeInsets.fromLTRB(16, 8, 16, 0), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           InkWell(
@@ -170,7 +168,6 @@ class _CctvUsageCardState extends State<CctvUsageCard> {
           Text(t.cgUsageFreeNote,
               style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
         ]),
-      ),
-    );
+      ));
   }
 }

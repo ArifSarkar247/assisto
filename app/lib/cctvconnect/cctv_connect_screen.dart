@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -181,9 +182,7 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
           const SizedBox(height: Gap.lg),
           Text(t.ccnLinkedTitle, style: th.titleMedium),
           for (final l in links)
-            Card(
-              margin: const EdgeInsets.only(top: Gap.sm),
-              child: Padding(
+            Padding(padding: const EdgeInsets.only(top: Gap.sm), child: DsCard(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Row(children: [
@@ -232,8 +231,7 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
                     ),
                   ]),
                 ]),
-              ),
-            ),
+              )),
         ],
         const SizedBox(height: Gap.lg),
         if (providers.isNotEmpty) ...[

@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -255,10 +256,9 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
 
   Widget _hottestCard(BuildContext context, AppLocalizations tr, _DHeat h) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr.demandHeatTitle,
               style: Theme.of(context)
                   .textTheme
@@ -289,7 +289,6 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
             style: AType.bodySmall.copyWith(color: scheme.ds.muted),
           ),
         ]),
-      ),
     );
   }
 
@@ -315,10 +314,9 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
     final color = _bandColor(b.band);
     // Heat bar: avg score (1..4) mapped to a 0..1 fill.
     final fill = ((b.avg - 1.0) / 3.0).clamp(0.0, 1.0);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Text(b.label,
@@ -355,7 +353,6 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
             _mini(context, tr.demandStatAvg, b.avg.toStringAsFixed(1)),
           ]),
         ]),
-      ),
     );
   }
 

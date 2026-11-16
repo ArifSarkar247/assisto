@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
@@ -191,10 +192,9 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
   Widget _ruleCard(AppLocalizations t, Map<String, dynamic> r) {
     final scheme = Theme.of(context).colorScheme;
     final active = r['active'] != false;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.bolt_rounded,
                 color: active ? AssistoTokens.of(context).warning : scheme.ds.muted, size: 20),
@@ -218,7 +218,6 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
                 label: Text(t.delete, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error))),
           ]),
         ]),
-      ),
     );
   }
 

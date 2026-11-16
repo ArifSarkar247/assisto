@@ -420,10 +420,9 @@ class _AskState extends State<CctvAskScreen> {
           if (_busy) const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator())),
           if (_error != null) Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           if (a != null && !_busy) ...[
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            DsCard(
+              padding: const EdgeInsets.all(16),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   for (final l in (a['answer'] as List? ?? const []))
                     Padding(
                         padding: const EdgeInsets.only(bottom: 6), child: Text(l.toString())),
@@ -433,7 +432,6 @@ class _AskState extends State<CctvAskScreen> {
                             _hm(lang, (wmMap(a['filter'])['to_min'] as num?)?.toInt())),
                         style: Theme.of(context).textTheme.bodySmall),
                 ]),
-              ),
             ),
             const SizedBox(height: 8),
             for (final r in wmList(a['results'])) _eventRow(context, r, widget.events),
@@ -649,11 +647,9 @@ class _SalesState extends State<CctvSalesMatchScreen> {
                   style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 12),
               if (items.isEmpty)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(t.cv3SalesNone),
-                  ),
+                DsCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(t.cv3SalesNone),
                 )
               else
                 for (final it in items)
@@ -870,10 +866,7 @@ class _AutoState extends State<CctvAutomationsScreen> {
     final r = _rule(trigger);
     final devs = wmList(_d?['devices']);
     final chosen = {for (final a in wmList(r['actions'])) a['device_id']};
-    return Card(
-      key: ValueKey('cv3-rule-$trigger'),
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
+    return Padding(key: ValueKey('cv3-rule-$trigger'), padding: const EdgeInsets.only(bottom: 12), child: DsCard(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SwitchListTile(
@@ -907,8 +900,7 @@ class _AutoState extends State<CctvAutomationsScreen> {
             ),
           ],
         ]),
-      ),
-    );
+      ));
   }
 
   @override

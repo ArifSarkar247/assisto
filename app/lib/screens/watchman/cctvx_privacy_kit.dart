@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart' show AType;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -145,11 +146,9 @@ class _PrivacyKitScreenState extends State<PrivacyKitScreen> {
           onSelectionChanged: (v) => setState(() => _staffBn = v.first),
         ),
         const SizedBox(height: 8),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: SelectableText(staffText),
-          ),
+        DsCard(
+          padding: const EdgeInsets.all(14),
+          child: SelectableText(staffText),
         ),
         Wrap(spacing: 8, runSpacing: 8, children: [
           OutlinedButton.icon(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
@@ -677,10 +678,8 @@ class _DedupeSheet extends StatelessWidget {
           ]),
         ),
         for (final g in groups)
-          Card(
-            margin: const EdgeInsets.symmetric(
-                horizontal: Gap.md, vertical: Gap.xs),
-            child: Padding(
+          Padding(padding: const EdgeInsets.symmetric(
+                horizontal: Gap.md, vertical: Gap.xs), child: DsCard(
               padding: const EdgeInsets.all(Gap.md),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -712,8 +711,7 @@ class _DedupeSheet extends StatelessWidget {
                       ),
                     ),
                   ]),
-            ),
-          ),
+            )),
         const SizedBox(height: Gap.lg),
       ]),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:intl/intl.dart';
 
 import '../../widgets/local_counter.dart';
@@ -133,13 +134,10 @@ class _GuardSettingsScreenState extends State<GuardSettingsScreen> {
     return Scaffold(appBar: AppBar(title: Text(t.cxSettingsTitle)), body: body);
   }
 
-  Widget _card(List<Widget> children) => Card(
-        margin: const EdgeInsets.only(top: 12),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
-        ),
-      );
+  Widget _card(List<Widget> children) => Padding(padding: const EdgeInsets.only(top: 12), child: DsCard(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+    ));
 
   Widget _title(IconData icon, String text) => Row(children: [
         Icon(icon),
@@ -527,9 +525,7 @@ class _GuardReportCardState extends State<GuardReportCard> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    return Card(
-      margin: const EdgeInsets.only(top: 12),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(top: 12), child: DsCard(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
@@ -551,7 +547,6 @@ class _GuardReportCardState extends State<GuardReportCard> {
           const SizedBox(height: 6),
           Text(t.cxReportNote, style: Theme.of(context).textTheme.bodySmall),
         ]),
-      ),
-    );
+      ));
   }
 }

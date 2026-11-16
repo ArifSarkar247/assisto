@@ -364,17 +364,14 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
     return Scaffold(appBar: AppBar(title: Text(t.gbTitle)), body: body);
   }
 
-  Widget _card(String title, List<Widget> children) => Card(
-        margin: const EdgeInsets.only(top: 12),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+  Widget _card(String title, List<Widget> children) => Padding(padding: const EdgeInsets.only(top: 12), child: DsCard(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text(title, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             ...children,
           ]),
-        ),
-      );
+    ));
 
   Widget _pairCard(AppLocalizations t) {
     if (_token != null) {

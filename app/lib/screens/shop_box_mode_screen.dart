@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -604,9 +605,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
     final scheme = Theme.of(context).colorScheme;
     final z = _detector.zone;
     return [
-      Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
+      Padding(padding: EdgeInsets.zero, child: DsCard(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
@@ -660,8 +659,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ],
           ]),
-        ),
-      ),
+        )),
       if (_running && _cam != null && _cam!.value.isInitialized) ...[
         const SizedBox(height: Gap.md),
         ClipRRect(

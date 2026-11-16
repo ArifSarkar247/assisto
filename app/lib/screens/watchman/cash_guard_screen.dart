@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 
 import '../../cashguard/cashguard_source.dart';
 import '../../cctvx/cctvx_source.dart';
@@ -195,13 +196,10 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
     return Scaffold(appBar: AppBar(title: Text(t.cgTitle)), body: body);
   }
 
-  Widget _card(List<Widget> children) => Card(
-        margin: const EdgeInsets.only(top: 12),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
-        ),
-      );
+  Widget _card(List<Widget> children) => Padding(padding: const EdgeInsets.only(top: 12), child: DsCard(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+    ));
 
   Widget _awayCard(AppLocalizations t) {
     final loc = MaterialLocalizations.of(context);

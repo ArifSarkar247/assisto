@@ -758,27 +758,23 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
         ),
       );
 
-  Widget _section(String title, List<Widget> children) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+  Widget _section(String title, List<Widget> children) => DsCard(
+    padding: const EdgeInsets.all(14),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text(title, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             ...children,
           ]),
-        ),
-      );
+  );
 
-  Widget _introCard(AppLocalizations t) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _introCard(AppLocalizations t) => DsCard(
+    padding: const EdgeInsets.all(14),
+    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Icon(Icons.router_rounded),
             const SizedBox(width: 12),
             Expanded(child: Text(t.icgIntro, style: AType.bodyMedium.copyWith(height: 1.4))),
           ]),
-        ),
-      );
+  );
 
   Widget _pairCard(AppLocalizations t) => _section(t.icgStepPair, [
         Text(t.pcPairHereHelp),
@@ -1032,14 +1028,12 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
     ]);
   }
 
-  Widget _honestCard(AppLocalizations t) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _honestCard(AppLocalizations t) => DsCard(
+    padding: const EdgeInsets.all(14),
+    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Icon(Icons.privacy_tip_rounded),
             const SizedBox(width: 12),
             Expanded(child: Text(t.icgHonest, style: AType.bodyMedium.copyWith(height: 1.4))),
           ]),
-        ),
-      );
+  );
 }

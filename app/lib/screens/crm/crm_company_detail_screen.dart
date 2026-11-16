@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
@@ -132,10 +133,9 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         CrmSectionHeader(t.crmCompanyProfile),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(children: [
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(children: [
               KvRow(t.crmIndustry, _industryLabel(t, c['industry']?.toString()),
                   icon: Icons.category_rounded),
               if ((c['size'] as num?) != null && (c['size'] as num) > 0)
@@ -151,7 +151,6 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                 KvRow(t.crmAddress, c['address'].toString(),
                     icon: Icons.place_rounded),
             ]),
-          ),
         ),
         if (primary.isNotEmpty) ...[
           const SizedBox(height: Gap.md),
@@ -160,10 +159,9 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
         ],
         const SizedBox(height: Gap.md),
         CrmSectionHeader(t.crmCustomFields),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: custom.isEmpty
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: custom.isEmpty
                 ? Text(t.crmNoCustomFields,
                     style: AType.bodyMedium.copyWith(
                         color: Theme.of(context).colorScheme.ds.muted))
@@ -173,7 +171,6 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                         KvRow(e.key, e.value?.toString() ?? '—'),
                     ],
                   ),
-          ),
         ),
       ]),
     );
@@ -400,9 +397,7 @@ class _ContactTile extends StatelessWidget {
         isPrimary: isPrimary);
     final phone = (contact['phone'] ?? contact['whatsapp'] ?? '').toString();
     final email = (contact['email'] ?? '').toString();
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return Padding(padding: EdgeInsets.zero, child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -455,7 +450,6 @@ class _ContactTile extends StatelessWidget {
               ),
           ]),
         ]),
-      ),
-    );
+      ));
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/ladder_common.dart';
@@ -76,10 +77,9 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
         const SizedBox(height: Gap.md),
         // ---- weighted forecast with method shown ----
         _sectionTitle(t.crmWeightedForecast),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: forecast['has_data'] == true
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: forecast['has_data'] == true
                 ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(bdt(context, forecast['weighted'] as num?), style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w800)),
                     const SizedBox(height: Gap.xs),
@@ -99,22 +99,19 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                         ? (forecast['message_bn'] ?? t.crmNotEnoughData).toString()
                         : (forecast['message_en'] ?? t.crmNotEnoughData).toString())),
                   ]),
-          ),
         ),
         const SizedBox(height: Gap.md),
         // ---- win / loss ----
         _sectionTitle(t.crmWinLoss),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: winLoss['has_data'] == true
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: winLoss['has_data'] == true
                 ? Column(children: [
                     _line(t.shopQaWon, fmtInt(context, (winLoss['won'] as num?)?.toInt() ?? 0)),
                     _line(t.crmMarkLost, fmtInt(context, (winLoss['lost'] as num?)?.toInt() ?? 0)),
                     _line(t.crmWinRate, winLoss['win_rate'] == null ? '—' : '${fmtInt(context, (winLoss['win_rate'] as num).toInt())}%'),
                   ])
                 : Text(t.crmNotEnoughData, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
-          ),
         ),
         const SizedBox(height: Gap.md),
         // ---- by industry ----
@@ -131,22 +128,19 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
   Widget _rows(Map<String, dynamic> block, Widget Function(Map<String, dynamic>) row, AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
     final rows = ((block['rows'] as List?) ?? []).cast<Map<String, dynamic>>();
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: block['has_data'] == true && rows.isNotEmpty
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: block['has_data'] == true && rows.isNotEmpty
             ? Column(children: [for (final r in rows) row(r)])
             : Text(t.crmNotEnoughData, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
-      ),
     );
   }
 
   Widget _metric(String label, String value, IconData icon) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, color: scheme.primary),
           const SizedBox(height: Gap.xs),
           FittedBox(
@@ -155,7 +149,6 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
               child: Text(value, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800), maxLines: 1)),
           Text(label, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ]),
-      ),
     );
   }
 

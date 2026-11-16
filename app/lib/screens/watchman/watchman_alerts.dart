@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../cashguard/cashguard_source.dart';
@@ -173,11 +174,9 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
               child: Text(t.wmViewerReadOnly, style: Theme.of(context).textTheme.bodySmall),
             ),
           if (_held > 0)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(t.wmHeldToday(wmDigits(lang, _held))),
-              ),
+            DsCard(
+              padding: const EdgeInsets.all(12),
+              child: Text(t.wmHeldToday(wmDigits(lang, _held))),
             ),
           // cctvveh: benefit + the first real step + how-to (owner)
           if (_events.isEmpty)
