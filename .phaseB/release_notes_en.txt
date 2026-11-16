@@ -1,6 +1,4 @@
-- Mess & Bachelor V2: members from My Circle, a shared mess group, exact month-end accounts, works offline.
-- Language Partner V2: 3 full IELTS mock tests, Life English role-play, vocabulary, and courses for Japan, Korea, Germany, Middle East, Chinese and French.
-- Quran: bilingual ayah page with Bangla and English meaning and tafsir sources.
-- CCTV: more detections (crowd, vehicles, parking) and better night accuracy.
-- Bangla now prints correctly in every PDF.
-- New look across many screens; Discover cards and fairer ads for free users.
+- Messages written offline in groups now wait and send in order when you are back online.
+- Opening the app offline right after an update goes straight to Home.
+- New look across more screens.
+- Reliability and test fixes.
