@@ -264,6 +264,10 @@ class EndToEndTests(_Base):
 
         # a purchase after the message (inside 7 days) is attributed
         self.sale(self.cust, DAY1 + timedelta(days=1), total=80000)
+        # seogrow (17 Nov): attribute at the test's clock — the results view uses
+        # the real clock, and DAY1 (27 Oct) fell out of the 2x attribution
+        # window around 10 Nov (time bomb, not a product change)
+        S.attribute_business(self.biz, now=DAY1 + timedelta(days=2))
         r = self.oc.get("/api/v1/retention/automations/%d/results" % a["id"])
         self.assertEqual(r.status_code, 200)
         d = r.data
