@@ -23,6 +23,7 @@ import '../../city/city_widgets.dart';
 import '../../l10n/app_localizations.dart';
 import '../../maps/place_search.dart';
 import '../../state.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart' show showAppSheet, withNavBarInset;
 import '../../widgets/local_counter.dart';
@@ -360,15 +361,17 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       lines.add(t.cityCounts('${w.routes}', '${w.stops}', '${w.stations}'));
       if (w.coveragePct != null) lines.add(t.cityCoverage(w.coveragePct!.toStringAsFixed(0)));
     }
-    return Card(
+    // design2: where you are + what the app knows here is the soft hero
+    return DsHeroCard(
       key: const ValueKey('city_header'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
-          CircleAvatar(
-              radius: 24,
-              backgroundColor: s.primaryContainer,
-              child: Icon(Icons.location_city_rounded, color: s.onPrimaryContainer)),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
+          Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                  color: s.ds.primarySoft, borderRadius: BorderRadius.circular(DsRadius.card)),
+              child: Icon(Icons.location_city_rounded, color: s.ds.primaryInk)),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -377,7 +380,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
               for (final l in lines) Text(cityD(context, l), style: AType.bodyMedium),
               if (_whereFailed)
                 Text(_offlineReady ? t.cityOfflineReady : t.cityOfflineNone,
-                    style: AType.bodySmall.copyWith(color: s.error))
+                    style: AType.bodySmall.copyWith(color: s.ds.dangerInk))
               else if (_offlineReady)
                 Row(children: [
                   Icon(Icons.offline_pin_rounded, size: 16, color: s.primary),
@@ -387,7 +390,6 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
             ]),
           ),
         ]),
-      ),
     );
   }
 
@@ -424,8 +426,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
             ),
           ),
         );
-    return Card(
-      child: Padding(
+    return DsCard(
         padding: const EdgeInsets.all(Gap.xs),
         child: Row(children: [
           Expanded(
@@ -444,7 +445,6 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
             icon: const Icon(Icons.swap_vert_rounded),
           ),
         ]),
-      ),
     );
   }
 
@@ -715,24 +715,27 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
         for (final e in tiles)
           SizedBox(
             width: w,
-            child: Card(
-              margin: EdgeInsets.zero,
-              child: InkWell(
-                key: e.$1,
-                borderRadius: BorderRadius.circular(Radii.md),
-                onTap: e.$6,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 96),
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.md),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Icon(e.$2, color: e.$3, size: 28),
-                      const SizedBox(height: Gap.xs),
-                      Text(e.$4, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
-                      Text(e.$5, style: AType.bodySmall),
-                    ]),
+            // design2: alive DS tile (lifts on press), icon in a tinted bubble
+            child: DsSurface(
+              key: e.$1,
+              onTap: e.$6,
+              padding: const EdgeInsets.all(Gap.md),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 72),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: e.$3.withValues(alpha: DsTokens.of(context).isDark ? 0.22 : 0.12),
+                      borderRadius: BorderRadius.circular(DsRadius.card),
+                    ),
+                    child: Icon(e.$2, color: Brand.onTint(context, e.$3), size: 24),
                   ),
-                ),
+                  const SizedBox(height: Gap.sm),
+                  Text(e.$4, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
+                  Text(e.$5, style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
+                ]),
               ),
             ),
           ),
