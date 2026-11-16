@@ -129,6 +129,16 @@ class PublicTests(TestCase):
         sm = Client().get("/sitemap.xml").content.decode()
         self.assertNotIn("/blog", sm)
 
+    def test_empty_list_is_noindex_until_a_post_is_published(self):
+        r = Client().get("/blog")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["X-Robots-Tag"], "noindex")
+        self.assertContains(r, '<meta name="robots" content="noindex, follow">')
+        _publish(self.slug)
+        r = Client().get("/blog")
+        self.assertFalse(r.has_header("X-Robots-Tag"))
+        self.assertContains(r, 'content="index, follow')
+
     def test_published_article_seo_bn_and_en(self):
         _publish(self.slug)
         r = Client().get("/blog/%s" % self.slug)

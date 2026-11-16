@@ -66,9 +66,14 @@ def blog_index(request):
                    "feature": B.feature_link(p.feature, lang)} for p in posts],
         "jsonld": B.jsonld_index(posts, lang, ctx["site"], ctx["seo"]["canonical"]),
         "og_type": "website",
+        # no published post yet -> an empty list must not be indexed
+        "noindex": not posts,
     })
     html = render_to_string("web/blog/index.html", ctx, request=request)
-    return _etag_response(request, html, preview=False)
+    resp = _etag_response(request, html, preview=False)
+    if not posts:
+        resp["X-Robots-Tag"] = "noindex"
+    return resp
 
 
 def blog_article(request, slug):
