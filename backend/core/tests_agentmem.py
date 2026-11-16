@@ -3,6 +3,7 @@ all, consent / suggestions, planner scope + masking, weekly learning cron,
 retention, pause) and the server-side health answer filter. No AI call: the
 planner is a scripted override (no key, no spend)."""
 import json
+import re
 from datetime import date, timedelta
 from decimal import Decimal
 from io import StringIO
@@ -387,7 +388,11 @@ class LearningTests(_Base):
         self.assertNotIn("Friend", labels)
         self.assertNotIn("ওষুধ", labels)                      # health never by itself
         self.assertIn("Office", labels)
-        self.assertNotIn("23.7", json.dumps(labels))          # never coordinates
+        # never coordinates (the seeded lat is 23.7). A bare substring check was
+        # flaky: ISO timestamps like "...:05:23.7xxxxx" contain "23.7" too.
+        dumped = json.dumps(labels)
+        self.assertNotIn('"lat"', dumped)
+        self.assertIsNone(re.search(r"(?<![\d:.])23\.7(?!\d)", dumped), dumped)
         self.assertEqual(labels["Office"]["prov"]["rule"], "journey_routine")
         # idempotent: again (forced, and via the cron) proposes nothing new
         self.assertEqual(MEM.learn_for_user(self.u, force=True)["suggested"], 0)
