@@ -352,6 +352,21 @@ class ZoneRules:
     def has_post(self) -> bool:
         return any(z["type"] == "post" for z in self.zones)
 
+    def weak_floor(self, thr: float) -> float:
+        """cctvdet3: the lowest person-box score any zone rule here uses
+        (post presence, a visit kept on a weaker box, crowd counting) — the
+        box passes boxes down to it; each rule applies its own floor."""
+        low = float(thr)
+        for z in self.zones:
+            opts = z.get("opts") or {}
+            if z["type"] == "post":
+                low = min(low, POST_PRESENCE_SCORE)
+            if z["type"] != "gate" and _opt_num(opts, "dwell_s", 0, 0, 3600) > 0:
+                low = min(low, DWELL_KEEP_SCORE)
+            if _opt_num(opts, "crowd_n", 0, 0, 50) > 0:
+                low = min(low, CROWD_SCORE)
+        return low
+
     @property
     def wants_vehicles(self) -> bool:
         return any(z["type"] in ("parking", "no_parking", "entry_line") for z in self.zones)

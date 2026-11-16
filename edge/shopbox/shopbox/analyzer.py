@@ -95,6 +95,26 @@ _VCFG = _vehicle_cfg()
 VEH_SCORE = float(_VCFG.get("default", 0.35))
 VEH_ZOOM = bool(_VCFG.get("zoom", False))           # second look on a parking zone crop
 VEH_ZOOM_MAX_AREA = float(_VCFG.get("zoom_max_area", 0.35))
+VEH_UNION = bool(_VCFG.get("union", False))         # + the person model's COCO vehicles
+VEH_COCO_SCORE = float(_VCFG.get("coco_score", 0.35))
+
+
+def _iou(a, b) -> float:
+    ix = max(0.0, min(a.x2, b.x2) - max(a.x1, b.x1))
+    iy = max(0.0, min(a.y2, b.y2) - max(a.y1, b.y1))
+    i = ix * iy
+    u = (a.x2 - a.x1) * (a.y2 - a.y1) + (b.x2 - b.x1) * (b.y2 - b.y1) - i
+    return i / u if u > 0 else 0.0
+
+
+def merge_vehicles(primary, extra):
+    """cctvdet3: the vehicle model's boxes plus any other box it did not
+    already cover (IoU <= 0.5) — a COCO car the local model missed."""
+    out = list(primary or [])
+    for v in extra or []:
+        if all(_iou(v, p) <= 0.5 for p in out):
+            out.append(v)
+    return out
 try:
     from . import person as _person
     _person.VEHICLE_SCORES.update({int(k): float(v)
@@ -232,18 +252,25 @@ class CameraAnalyzer:
         # cctvdet stage 2: a post zone counts as manned on a weaker box
         # (POST_PRESENCE_SCORE) and parking / entry-line zones need vehicles
         # from the SAME model pass (COCO classes; no second model)
-        low = min(thr, DR.POST_PRESENCE_SCORE) if self.zrules.has_post else thr
+        low = self.zrules.weak_floor(thr)       # cctvdet3: post / dwell / crowd floors
         self._frame_thr = thr
         self._frame_veh = None
         try:
             vdet = self.vehicle_detector
             if self.zrules.wants_vehicles and vdet is not None:
                 # cctvdet3: the vehicle model sees vehicles, nano sees people
-                dets = self.detector.detect(img, score_thr=low)
+                # (and, with VEH_UNION, nano's own COCO vehicles are added)
+                coco = []
+                if VEH_UNION and hasattr(self.detector, "detect_all"):
+                    dets, coco = self.detector.detect_all(img, score_thr=low,
+                                                          vehicle_thr=VEH_COCO_SCORE)
+                else:
+                    dets = self.detector.detect(img, score_thr=low)
                 try:
-                    self._frame_veh = vdet.detect_vehicles(img, vehicle_thr=VEH_SCORE)
+                    self._frame_veh = merge_vehicles(
+                        vdet.detect_vehicles(img, vehicle_thr=VEH_SCORE), coco)
                 except Exception:
-                    self._frame_veh = None
+                    self._frame_veh = coco or None
             elif self.zrules.wants_vehicles and hasattr(self.detector, "detect_all"):
                 dets, self._frame_veh = self.detector.detect_all(img, score_thr=low,
                                                                  vehicle_thr=VEH_SCORE)

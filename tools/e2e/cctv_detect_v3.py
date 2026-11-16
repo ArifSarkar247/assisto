@@ -94,7 +94,8 @@ class Cached:
 BASE_RULES = {"TRACK_JUMP_CAP": 0.25, "CROSS_MARGIN": 0.0, "DWELL_KEEP_SCORE": 1.0,
               "CROWD_SCORE": 1.0, "CROWD_KEEP_S": -1.0, "POST_WEAK_HITS": 1,
               "PRESENCE_GAP_S": 10.0, "POST_PRESENCE_SCORE": 0.25}
-BASELINE = {"rules": dict(BASE_RULES), "veh_model": "nano", "veh_thr": 0.35, "veh_zoom": False}
+BASELINE = {"rules": dict(BASE_RULES), "veh_model": "nano", "veh_thr": 0.35, "veh_zoom": False,
+            "veh_union": False}
 VEH = {}                      # name -> Cached
 
 
@@ -108,6 +109,8 @@ def apply(cfg):
     P.VEHICLE_SCORES.update({int(k): float(v) for k, v in (cfg.get("veh_cls") or {}).items()})
     AN.VEH_SCORE = float(cfg["veh_thr"])
     AN.VEH_ZOOM = bool(cfg["veh_zoom"])
+    AN.VEH_UNION = bool(cfg.get("veh_union"))
+    AN.VEH_COCO_SCORE = 0.35
     vd = VEH.get(cfg["veh_model"]) if cfg["veh_model"] != "nano" else None
 
     def analyzer(zones, det, schedule=None):
@@ -299,21 +302,22 @@ GROUPS = {
 def grids():
     g = {}
     v = []
-    models = [("nano", (0.2, 0.25, 0.3, 0.35)), ("tiny", (0.2, 0.25, 0.3, 0.35))]
+    models = [("nano", (0.25, 0.35), (False,)), ("tiny", (0.25, 0.35), (False,))]
     if "bd" in VEH:
-        models.append(("bd", (0.25, 0.35, 0.45, 0.55)))
-    for model, thrs in models:
+        models = [("nano", (0.25, 0.35), (False,)), ("bd", (0.15, 0.25, 0.35, 0.45), (False, True))]
+    for model, thrs, unions in models:
         for zoom in (False, True):
             for thr in thrs:
-                v.append({"veh_model": model, "veh_zoom": zoom, "veh_thr": thr,
-                          "rules": {"TRACK_JUMP_CAP": 0.5, "CROSS_MARGIN": 0.02}})
+                for un in unions:
+                    v.append({"veh_model": model, "veh_zoom": zoom, "veh_thr": thr, "veh_union": un,
+                              "rules": {"TRACK_JUMP_CAP": 0.5, "CROSS_MARGIN": 0.02}})
     g["vehicles"] = v
     g["post"] = [{"rules": {"POST_WEAK_HITS": h, "POST_PRESENCE_SCORE": s}}
                  for h in (1, 2, 3) for s in (0.2, 0.25, 0.3)]
     g["loiter"] = [{"rules": {"DWELL_KEEP_SCORE": k, "PRESENCE_GAP_S": gap}}
-                   for k in (1.0, 0.3, 0.2) for gap in (10.0, 16.0)]
+                   for k in (1.0, 0.3, 0.2) for gap in (16.0, 20.0)]
     g["crowd"] = [{"rules": {"CROWD_SCORE": s, "CROWD_KEEP_S": keep}}
-                  for s in (1.0, 0.35, 0.25) for keep in (-1.0, 10.0, 20.0)]
+                  for s in (1.0, 0.3, 0.2) for keep in (10.0, 20.0, 30.0)]
     return g
 
 
