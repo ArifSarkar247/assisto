@@ -83,7 +83,15 @@ void registerBusinessFlows() {
     final name = 'Khata Rafiq k$_tag';
     await f.step('open Khata from the hub', () async {
       await f.openFeature(f.t.business, 'business');
-      await f.tap(find.text(f.t.khataTitle), settleSeconds: 3);
+      // realproof: homeshort (9 Nov) made the ledger the hub's FIRST tile,
+      // labelled "Digital Ledger" — tap that tile by its visible label, then
+      // the Khata screen itself must open.
+      await f.tap(
+          find.descendant(
+              of: find.byKey(const ValueKey('biz_hub_ledger')),
+              matching: find.text(f.t.hv2TileLedger)),
+          settleSeconds: 3);
+      await f.waitFor(find.text(f.t.khataTitle), what: 'Khata screen');
       await f.shot('khata');
     });
     await f.step('add a party', () async {
