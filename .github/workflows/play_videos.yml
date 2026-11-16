@@ -1,0 +1,266 @@
+name: Play declaration videos (CI backup recording)
+
+# playvideos (owner decision 8, 9 Nov): records the two Play Console
+# declaration videos on a GitHub Actions emulator, as a BACKUP to the owner's
+# own phone recording (owner_actions/PLAY_PRODUCTION_APPLY_BN.md §2.6,
+# owner_actions/WAKE_WORD_PLAY_BN.md §2):
+#   A  Location foreground service — Safe Journey start -> in-app disclosure
+#      -> Android location dialog (NOT pre-granted; tapped with UiAutomator)
+#      -> live screen -> Home -> "Safe Journey is on" notification while
+#      `adb emu geo fix` walks a made-up route.
+#   B  Microphone ("Hey Assisto") — switch -> disclosure -> Android mic and
+#      notification dialogs (tapped) -> "Listening for Hey Assisto" notice.
+# Throwaway in-runner Django + seed_reality users only (never the live
+# server, no real people / places). The app is a PROFILE build (AOT like
+# release, no debug banner) of the same Android project android.yml ships
+# (replay_android_steps.py); the only manifest difference is cleartext to the
+# in-runner backend (src/profile only) and Skia instead of Impeller
+# (swiftshader emulator). Output: mp4s as artifacts AND on a DRAFT GitHub
+# release "play-videos-<run id>" (drafts are visible only to repo admins).
+on:
+  # workflow_dispatch works once this file is on main; until then a push to
+  # agent/playvideos* runs it (en + bn).
+  push:
+    branches: ['agent/playvideos*']
+    paths:
+      - '.github/workflows/play_videos.yml'
+      - 'tools/playvideos/**'
+      - 'app/integration_test/play_videos_test.dart'
+  workflow_dispatch:
+    inputs:
+      langs:
+        description: "App languages to record (comma list: en,bn)"
+        required: false
+        default: "en,bn"
+
+concurrency:
+  group: play-videos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      langs: ${{ steps.p.outputs.langs }}
+    steps:
+      - id: p
+        env:
+          L: ${{ github.event.inputs.langs }}
+        run: |
+          python3 -c "import json,os; l=[x.strip() for x in (os.environ.get('L') or 'en,bn').split(',') if x.strip() in ('en','bn')]; print('langs='+json.dumps(l or ['en']))" >> "$GITHUB_OUTPUT"
+
+  record:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: ${{ fromJson(needs.plan.outputs.langs) }}
+    name: record (${{ matrix.lang }})
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: assisto_ci
+          POSTGRES_PASSWORD: ci-reality-throwaway   # disposable container, not a secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    env:
+      ASSISTO_CI_DB: ${{ github.workspace }}/backend/ci_reality.sqlite3
+      ASSISTO_CI_PG_NAME: assisto_ci
+      ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
+      PV_OUT: ${{ github.workspace }}/pv_out
+      PV_LANG: ${{ matrix.lang }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: ffmpeg
+        run: (command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null)) && ffmpeg -version | head -1
+
+      # ------------------------------------------------ throwaway backend
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Backend deps
+        run: python -m pip install -q -r backend/requirements.txt pyyaml
+      - name: Migrate + seed (throwaway CI users)
+        working-directory: backend
+        run: |
+          mkdir -p "$PV_OUT"
+          timeout 600 python manage.py migrate --settings=assisto_backend.settings_ci -v 0
+          timeout 300 python manage.py seed_reality --settings=assisto_backend.settings_ci --out "$PV_OUT/seed.json" > /dev/null
+          python3 -c "import json,os; d=json.load(open(os.environ['PV_OUT']+'/seed.json')); assert not d['failed_steps'], d['failed_steps']; print('seed OK')"
+      - name: Start Django on :8700 (10.0.2.2:8700 from the emulator)
+        working-directory: backend
+        run: |
+          nohup python manage.py runserver 0.0.0.0:8700 --noreload --settings=assisto_backend.settings_ci \
+            > "$PV_OUT/django.log" 2>&1 &
+          echo $! > "$PV_OUT/django.pid"
+          for i in $(seq 1 60); do
+            curl -fsS -m 5 http://127.0.0.1:8700/api/v1/health >/dev/null && { echo "django up"; exit 0; }
+            sleep 2
+          done
+          echo "::error::Django did not come up"; tail -50 "$PV_OUT/django.log"; exit 1
+          
+      # ------------------------------------------------ app (android.yml build prep, profile)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Dev deps + a real build number
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os, re
+          p = "pubspec.yaml"
+          s = open(p).read()
+          if "integration_test:" not in s:
+              s = s.replace("dev_dependencies:\n  flutter_test:\n    sdk: flutter\n",
+                            "dev_dependencies:\n  flutter_test:\n    sdk: flutter\n"
+                            "  integration_test:\n    sdk: flutter\n", 1)
+              assert "integration_test:" in s
+          n = 9000 + int(os.environ.get("GITHUB_RUN_NUMBER", "0"))
+          s, k = re.subn(r"(?m)^version: .*$", "version: 1.0.%d+%d" % (n, n), s, count=1)
+          assert k == 1
+          open(p, "w").write(s)
+          PY
+      - name: Replay android.yml build prep (same project/manifest as the Play build)
+        run: python3 tools/reality/replay_android_steps.py
+      - name: Profile-only cleartext to the in-runner backend (Skia, like perf2gb.yml)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          p = "android/app/src/profile/AndroidManifest.xml"
+          os.makedirs(os.path.dirname(p), exist_ok=True)
+          s = open(p).read() if os.path.exists(p) else (
+              '<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n'
+              '    <uses-permission android:name="android.permission.INTERNET"/>\n</manifest>\n')
+          if "usesCleartextTraffic" not in s:
+              meta = ('        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" '
+                      'android:value="false"/>\n')
+              s = s.replace("</manifest>",
+                  '    <application android:usesCleartextTraffic="true">\n' + meta +
+                  '    </application>\n</manifest>', 1)
+              open(p, "w").write(s)
+          print(open(p).read())
+          PY
+      - name: Analyze the video flow (fail on errors)
+        working-directory: app
+        run: |
+          set +e
+          flutter analyze integration_test/play_videos_test.dart > ia.txt 2>&1; tail -30 ia.txt
+          grep -qE "error •" ia.txt && { echo "::error::play_videos_test.dart does not compile"; exit 1; }
+          exit 0
+      - name: Build the x86_64 PROFILE APK (video flow)
+        working-directory: app
+        run: |
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
+          timeout 2400 flutter build apk --profile --target-platform=android-x64 \
+            --target=integration_test/play_videos_test.dart \
+            --dart-define=REALITY_API_BASE=http://10.0.2.2:8700
+          mv build/app/outputs/flutter-apk/app-profile.apk "$RUNNER_TEMP/pv.apk"
+          echo "PV_APK=$RUNNER_TEMP/pv.apk" >> "$GITHUB_ENV"
+          # the permissions the Play manifest declares (for the record)
+          "$ANDROID_HOME"/build-tools/*/aapt2 dump permissions "$RUNNER_TEMP/pv.apk" 2>/dev/null | head -60 > "$PV_OUT/apk_permissions.txt" || true
+          (cd android && timeout 60 ./gradlew --stop) || true
+          pkill -f 'KotlinCompileDaemon' || true
+          pkill -f 'GradleDaemon' || true
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # ------------------------------------------------ emulator + recording
+      - name: Record on API 33
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          PV_TOTAL_SECONDS: "1500"
+        with:
+          api-level: 33
+          arch: x86_64
+          target: default
+          profile: pixel_5
+          disable-animations: false
+          emulator-boot-timeout: 600
+          ram-size: 4096M
+          heap-size: 576M
+          cores: 3
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -no-boot-anim -camera-back none -camera-front none
+          pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && sed -i '/^hw.keyboard=/d' "$c" && echo 'hw.keyboard=yes' >> "$c"; done; true
+          script: bash tools/playvideos/record.sh
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Play videos (${{ matrix.lang }})"
+            ls -la "$PV_OUT/final" 2>/dev/null | sed 's/^/    /'
+            for f in "$PV_OUT"/final/report_*.json; do [ -f "$f" ] && { echo; echo '```'; cat "$f"; echo '```'; }; done
+            echo; echo '```'; tail -40 "$PV_OUT/flow_log.txt" 2>/dev/null; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          tail -60 "$PV_OUT/run.log" 2>/dev/null || true
+          cat "$PV_OUT"/notifications_*.txt 2>/dev/null | head -40 || true
+      - name: Stop Django
+        if: always()
+        run: kill "$(cat "$PV_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
+      - name: Upload videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: play-videos-${{ matrix.lang }}
+          path: pv_out/final/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Upload review frames + evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: play-videos-evidence-${{ matrix.lang }}
+          path: |
+            pv_out/frames/
+            pv_out/shots/
+            pv_out/ui/
+            pv_out/*.txt
+            pv_out/*.log
+            pv_out/results.json
+            pv_out/a/events.txt
+            pv_out/b/events.txt
+            pv_out/a/chunks.txt
+            pv_out/b/chunks.txt
+          retention-days: 14
+          if-no-files-found: warn
+
+  release:
+    needs: record
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: play-videos-*
+          path: dl
+      - name: Attach the videos to a DRAFT release (owner downloads from there)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p up
+          find dl -path '*/play-videos-evidence-*' -prune -o -name '*.mp4' -print -exec cp {} up/ \;
+          find dl -path '*/play-videos-evidence-*' -name '*.png' -path '*frames*' -exec cp {} up/ \; || true
+          ls -la up
+          [ -n "$(ls up/*.mp4 2>/dev/null)" ] || { echo "::error::no video was produced"; exit 1; }
+          tag="play-videos-${{ github.run_id }}"
+          gh release create "$tag" -R "${{ github.repository }}" --draft --target "${{ github.sha }}" \
+            --title "Play declaration videos (CI backup) — run ${{ github.run_id }}" \
+            --notes "Backup recordings for the Play Console declarations (owner decision 8). play_location_fgs_*.mp4 = Location foreground service (Safe Journey); play_hey_assisto_mic_*.mp4 = Microphone ('Hey Assisto'). en = English UI, bn = Bangla UI. raw_* = the full uncut recording. PNGs = review frames. Throwaway CI test accounts only." \
+            up/*
+          gh release view "$tag" -R "${{ github.repository }}" --json url,assets -q '.url, (.assets[] | .name + "  " + .url)' | tee -a "$GITHUB_STEP_SUMMARY"
