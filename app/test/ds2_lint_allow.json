@@ -343,7 +343,7 @@
   "lib/screens/password_reset_confirm_screen.dart": 3,
   "lib/screens/password_reset_screen.dart": 2,
   "lib/screens/payment_ladder_screen.dart": 2,
-  "lib/screens/phone_safety_screen.dart": 3,
+  "lib/screens/phone_safety_screen.dart": 2,
   "lib/screens/photo_edit_screens.dart": 1,
   "lib/screens/photo_studio_screen.dart": 24,
   "lib/screens/plans_screen.dart": 5,

@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/loading_gate.dart';
 import 'messenger/messenger_home_screen.dart';
@@ -256,7 +257,7 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
     if (_loading) {
       return Scaffold(
         appBar: AppBar(title: Text(t.phoneSafetyTitle)),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const SkeletonList(count: 4),
       );
     }
     if (_loadFailed) {
@@ -312,40 +313,8 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
           ),
         ),
         const SizedBox(height: Gap.md),
-        // Honest reality explainer — what software can and cannot do.
-        Card(
-          color: scheme.ds.primarySoft,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(children: [
-                  Icon(Icons.shield_rounded,
-                      color: scheme.ds.primaryInk, size: 20),
-                  const SizedBox(width: Gap.sm),
-                  Expanded(
-                    child: Text(t.phoneSafeRealityTitle,
-                        style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, fontWeight: FontWeight.w700)),
-                  ),
-                ]),
-                const SizedBox(height: Gap.sm),
-                // QA a6: one wall of text — split the paragraphs with air.
-                for (final (i, para) in t.phoneSafeRealityBody
-                    .split('\n')
-                    .where((x) => x.trim().isNotEmpty)
-                    .indexed) ...[
-                  if (i > 0) const SizedBox(height: Gap.sm),
-                  Text(para.trim(),
-                      style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, height: 1.45)),
-                ],
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: Gap.lg),
         Text(t.phoneSafeBrandPrompt,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.text)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
           for (final b in _brands)
@@ -381,6 +350,40 @@ class _PhoneSafetyScreenState extends State<PhoneSafetyScreen> {
             icon: const Icon(Icons.ios_share_rounded),
             label: Text(t.phoneSafeShareChecklist),
             onPressed: _shareChecklist,
+          ),
+        ),
+        const SizedBox(height: Gap.lg),
+        // designv2 page rule: the long "what software can and cannot do"
+        // explainer sits after the checklist, not before it
+        // Honest reality explainer — what software can and cannot do.
+        Card(
+          color: scheme.ds.primarySoft,
+          child: Padding(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Icon(Icons.shield_rounded,
+                      color: scheme.ds.primaryInk, size: 20),
+                  const SizedBox(width: Gap.sm),
+                  Expanded(
+                    child: Text(t.phoneSafeRealityTitle,
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, fontWeight: FontWeight.w700)),
+                  ),
+                ]),
+                const SizedBox(height: Gap.sm),
+                // QA a6: one wall of text — split the paragraphs with air.
+                for (final (i, para) in t.phoneSafeRealityBody
+                    .split('\n')
+                    .where((x) => x.trim().isNotEmpty)
+                    .indexed) ...[
+                  if (i > 0) const SizedBox(height: Gap.sm),
+                  Text(para.trim(),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, height: 1.45)),
+                ],
+              ],
+            ),
           ),
         ),
         const SizedBox(height: Gap.lg),
