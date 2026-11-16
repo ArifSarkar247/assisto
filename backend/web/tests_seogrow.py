@@ -243,6 +243,33 @@ class HonestyTests(LandingBase):
         self.assertEqual(self.c.get("/features/nope").status_code, 404)
 
 
+class CrawlTests(LandingBase):
+    def test_no_internal_link_on_any_public_page_is_a_404(self):
+        """Lead review 17 Nov: the footer must never link a landing page whose
+        app feature is OFF (e.g. Quran) — crawl every internal link."""
+        set_live(True)
+        set_state(site_seo_growth_preview=False)
+        set_flag("quran", False)
+        pages = {"/", "/features", "/pricing", "/security", "/help", "/about", "/get", "/privacy", "/terms",
+                 "/delete-account"} | {"/features/%s" % g for g in ("ai", "circle", "safety", "cctv", "business", "work", "daily")}
+        pages |= {LP.path(s) for s in LP.live_slugs()}
+        seen = {}
+        for path in sorted(pages):
+            for q in ("?lang=bn", "?lang=en"):
+                r = Client().get(path + q)
+                self.assertEqual(r.status_code, 200, path + q)
+                p = parse(r.content.decode())
+                for h in p.hrefs:
+                    if not h.startswith("/") or h.startswith(("/site/", "/dl/", "/download/")):
+                        continue
+                    h = h.split("#")[0] or "/"
+                    if h not in seen:
+                        seen[h] = Client().get(h).status_code
+                    self.assertNotEqual(seen[h], 404, (path + q, h))
+        self.assertNotIn("/features/quran", seen)
+        self.assertIn("/features/mess", seen)
+
+
 class GoLiveSwitchTests(LandingBase):
     def test_off_by_default_noindex_not_in_sitemap_or_nav(self):
         self.assertFalse(LP.growth_live())
@@ -297,6 +324,20 @@ class PlayBadgeTests(Base):
             self.assertNotIn("play.google.com", html, path)
             self.assertNotIn("google-play-badge", html, path)
         self.assertIn("Install the APK directly", self.c.get("/get?lang=en").content.decode())
+
+    def test_no_play_wording_anywhere_while_hidden(self):
+        set_live(True)
+        pages = ["/", "/features", "/pricing", "/security", "/help", "/about", "/features/safety", "/get"] \
+            + [LP.path(s) for s in LP.SLUGS]
+        for path in pages:
+            for q in ("?lang=bn", "?lang=en"):
+                r = Client().get(path + q)
+                if r.status_code == 404:
+                    continue
+                html = re.sub(r'<script type="application/ld\+json">.*?</script>', "", r.content.decode(), flags=re.S)
+                body = html.split("<body", 1)[1]
+                for w in ("Google Play", "Play Store", "Play থেকে", "from Play"):
+                    self.assertNotIn(w, body, (path + q, w))
 
     def test_shown_once_the_owner_says_live(self):
         set_live(True)

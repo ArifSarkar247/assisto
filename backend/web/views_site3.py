@@ -219,7 +219,11 @@ def _render(request, page, preview, group=None, status=200):
             desc = SC.PAGES[page]["desc"][lang] if page != "features" else C["groups_lead"]
     from . import site_v3_dist as DIST
     play = play_links(lang)
-    pub = DIST.play_shown()   # seogrow item 7: hidden until the owner says live
+    play_ok = DIST.play_badge_on()   # seogrow item 7: owner said the app is live on Play
+    pub = play_ok and DIST.play_public()
+    if not play_ok:   # no Google Play wording anywhere while the badge is hidden
+        C = dict(C, **LP.NO_PLAY_COPY[lang])
+        faq = [{"q": r["q"], "a": LP.no_play(r["a"])} for r in faq]
     play["_public"] = pub
     dist = {"public": pub, "apk": DIST.apk_display(DIST.apk_info(), lang), "apk_url": DIST.apk_url()}
     monthly, yearly = OLD._plans(lang) if page in ("home", "pricing") else ([], [])
@@ -227,7 +231,7 @@ def _render(request, page, preview, group=None, status=200):
     for g in groups:
         icons |= {f["icon"] for f in g["features"]}
     ctx = {
-        "lang": lang, "other": "bn" if lang == "en" else "en", "C": C, "U": U, "page": page,
+        "lang": lang, "other": "bn" if lang == "en" else "en", "C": C, "U": U, "page": page, "play_ok": play_ok,
         "preview": preview, "groups": groups, "group": gmap.get(group), "title": title, "desc": desc,
         "seo": {"canonical": en_url if lang == "en" else bn_url, "alt_bn": bn_url, "alt_en": en_url},
         "other_url": request.path + ("?lang=bn" if lang == "en" else "?lang=en"),
