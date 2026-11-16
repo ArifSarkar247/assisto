@@ -219,10 +219,11 @@ jobs:
         if: always()
         run: kill -CONT "$(cat "$START_OUT/django.pid" 2>/dev/null)" 2>/dev/null; kill "$(cat "$START_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
       - name: Upload evidence
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: startspeed-${{ matrix.profile }}
           path: start_out/
-          retention-days: 21
+          retention-days: 5
           if-no-files-found: warn

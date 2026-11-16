@@ -179,9 +179,10 @@ jobs:
             fi
 
       - name: Upload logcat
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: logcat
           path: app/logcat-full.txt
-          retention-days: 7
+          retention-days: 2

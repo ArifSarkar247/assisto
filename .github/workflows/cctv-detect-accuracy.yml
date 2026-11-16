@@ -54,9 +54,11 @@ jobs:
             --model edge/shopbox/models/yolox_nano.onnx --out cctv_detect.json --n "$N" \
             | tee cctv_detect.txt
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: cctv-detect-accuracy
           path: |
             cctv_detect.json
             cctv_detect.txt
+          retention-days: 5

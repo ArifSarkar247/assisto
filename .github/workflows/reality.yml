@@ -280,6 +280,7 @@ jobs:
         if: always()
         run: kill "$(cat "$REALITY_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
       - name: Upload evidence
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -288,7 +289,7 @@ jobs:
             reality_out/
             !reality_out/.recording
             !reality_out/.attempt.log
-          retention-days: 14
+          retention-days: 2
           if-no-files-found: warn
 
   # ------------------------------------------------ verdict (all groups)
@@ -321,12 +322,14 @@ jobs:
           first=$(python3 -c "import json,os;print(json.loads(os.environ['GPUS'])[0])")
           mkdir -p groups && cp "by_gpu/$first/reality_summary.json" "by_gpu/$first/reality_summary.md" groups/ || true
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: reality-summary
           path: |
             by_gpu/*/reality_summary.json
             by_gpu/*/reality_summary.md
+          retention-days: 5
       # A green run must MEAN the flows passed: the first run (21 Oct) showed
       # green with ZERO flows executed (driver crashed, no results.json).
       - name: Verdict (fail on no results or any C/D)

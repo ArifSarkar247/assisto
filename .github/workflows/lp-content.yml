@@ -37,7 +37,9 @@ jobs:
           python tools/lp/export_tracks.py out/tracks_bundle --index out/tracks_index.json
           python tools/lp/tts/plan_tracks.py out/tts
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: lp-check-${{ github.run_id }}
           path: out/
+          retention-days: 2
