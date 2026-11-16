@@ -225,12 +225,30 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-        _planCard(t),
-        const SizedBox(height: Gap.md),
-        BizCard(
-          title: t.baAgentCardTitle,
-          icon: Icons.smart_toy_rounded,
+        // Page rule: replies waiting for the owner come first (urgent), then
+        // the agent itself (on/off = the soft hero), the plan, today's
+        // numbers, and the tools as one grouped list.
+        if (pending > 0) ...[
+          DsCard(padding: EdgeInsets.zero, child: _approvalsRow(t, pending)),
+          const SizedBox(height: Gap.md),
+        ],
+        DsHeroCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              DsAvatar(
+                  child: Icon(Icons.smart_toy_rounded,
+                      color: Theme.of(context).colorScheme.ds.primaryInk)),
+              const SizedBox(width: Gap.md),
+              Expanded(
+                child: Semantics(
+                  header: true,
+                  child: Text(t.baAgentCardTitle,
+                      style: AType.titleMedium.copyWith(
+                          color: Theme.of(context).colorScheme.ds.text,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ]),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               value: aiOn,
@@ -260,78 +278,61 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
           ]),
         ),
         const SizedBox(height: Gap.md),
-        // bizai: the in-app shop chat link (no Meta needed) + COD-risk switch
-        const ShopLinkCard(),
-        const SizedBox(height: Gap.md),
-        DsCard(
-          padding: EdgeInsets.zero,
-          child: Column(children: [
-            ListTile(
-              leading: const Icon(Icons.fact_check_rounded),
-              title: Text(t.baApprovalsTitle),
-              subtitle: Text(bd(context, pending > 0 ? t.baApprovalsPending(pending) : t.baApprovalsNone)),
-              trailing: pending > 0
-                  ? Badge(label: Text(bd(context, pending)), child: const Icon(Icons.chevron_right_rounded))
-                  : const Icon(Icons.chevron_right_rounded),
-              onTap: () => _open(const ApprovalsScreen()),
-            ),
-            // biz-v2: the Business inbox shows only once a channel is
-            // connected (server features.inbox) — never an empty showpiece.
-            if (features['inbox'] == true) ...[
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.inbox_rounded),
-                title: Text(t.bv2InboxTitle),
-                subtitle: Text(t.bv2InboxSub),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => _open(const SellerInboxScreen()),
-              ),
-            ],
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.schedule_rounded),
-              title: Text(t.g1BehaviourTitle),
-              subtitle: Text(t.g1BehaviourSub),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => _open(const AgentBehaviourScreen()),
-            ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.bolt_rounded),
-              title: Text(t.g1AnswersTitle),
-              subtitle: Text(t.g1AnswersSub),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => _open(const AgentAnswersScreen()),
-            ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.insights_rounded),
-              title: Text(t.g1ReportTitle),
-              subtitle: Text(t.g1ReportSub),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => _open(const AgentReportScreen()),
-            ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.history_rounded),
-              title: Text(t.sbActivityTitle),
-              subtitle: Text(t.sbActivitySub),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => _open(const SellerActivityScreen()),
-            ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.tune_rounded),
-              title: Text(t.baSetupTitle),
-              subtitle: Text(t.baSetupSub),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => _open(const SellerSetupScreen()),
-            ),
-          ]),
-        ),
+        _planCard(t),
         const SizedBox(height: Gap.md),
         _todayCard(t),
+        const SizedBox(height: Gap.md),
+        DsGroup(margin: EdgeInsets.zero, children: [
+          if (pending <= 0) _approvalsRow(t, pending),
+          // biz-v2: the Business inbox shows only once a channel is
+          // connected (server features.inbox) — never an empty showpiece.
+          if (features['inbox'] == true)
+            _menuRow(Icons.inbox_rounded, t.bv2InboxTitle, t.bv2InboxSub,
+                () => _open(const SellerInboxScreen())),
+          _menuRow(Icons.schedule_rounded, t.g1BehaviourTitle, t.g1BehaviourSub,
+              () => _open(const AgentBehaviourScreen())),
+          _menuRow(Icons.bolt_rounded, t.g1AnswersTitle, t.g1AnswersSub,
+              () => _open(const AgentAnswersScreen())),
+          _menuRow(Icons.insights_rounded, t.g1ReportTitle, t.g1ReportSub,
+              () => _open(const AgentReportScreen())),
+          _menuRow(Icons.history_rounded, t.sbActivityTitle, t.sbActivitySub,
+              () => _open(const SellerActivityScreen())),
+          _menuRow(Icons.tune_rounded, t.baSetupTitle, t.baSetupSub,
+              () => _open(const SellerSetupScreen())),
+        ]),
+        const SizedBox(height: Gap.md),
+        // bizai: the in-app shop chat link (no Meta needed) + COD-risk switch
+        const ShopLinkCard(),
       ]),
+    );
+  }
+
+  /// One tool row: tinted icon bubble, title, one-line purpose, chevron.
+  Widget _menuRow(IconData icon, String title, String sub, VoidCallback onTap) {
+    final ds = Theme.of(context).colorScheme.ds;
+    return DsListRow(
+      leading: DsAvatar(size: 40, child: Icon(icon, size: 20, color: ds.primaryInk)),
+      title: title,
+      subtitle: sub,
+      trailing: Icon(Icons.chevron_right_rounded, color: ds.muted),
+      onTap: onTap,
+    );
+  }
+
+  Widget _approvalsRow(AppLocalizations t, int pending) {
+    final ds = Theme.of(context).colorScheme.ds;
+    return DsListRow(
+      leading: DsAvatar(
+          size: 40,
+          color: pending > 0 ? AssistoTokens.of(context).warning : null,
+          child: Icon(Icons.fact_check_rounded, size: 20,
+              color: pending > 0 ? Brand.onTint(context, AssistoTokens.of(context).warning) : ds.primaryInk)),
+      title: t.baApprovalsTitle,
+      subtitle: bd(context, pending > 0 ? t.baApprovalsPending(pending) : t.baApprovalsNone),
+      trailing: pending > 0
+          ? Badge(label: Text(bd(context, pending)), child: Icon(Icons.chevron_right_rounded, color: ds.muted))
+          : Icon(Icons.chevron_right_rounded, color: ds.muted),
+      onTap: () => _open(const ApprovalsScreen()),
     );
   }
 
@@ -448,12 +449,9 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
   Widget _stat(String label, String value) => ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 120),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(bd(context, value),
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w700)),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          DsNumber(bd(context, value), small: true),
+          Text(label,
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         ]),
       );
 }
