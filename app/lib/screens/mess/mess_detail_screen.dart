@@ -613,14 +613,15 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
           ]),
         ),
       _sectionTitle(t.mv2MyMeals),
-      Text(t.mv2MealsHelp(messDigits(context, '${((_mess['cutoff_hour'] as num?) ?? 22).toString().padLeft(2, '0')}:00')),
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-      const SizedBox(height: Gap.sm),
       if (_messOpen && !_closedMonth)
         _bigButton(t.mv2DaysOffTitle, Icons.event_busy_rounded, _busy ? null : () => _daysOff(),
             key: const ValueKey('mess-days-off')),
       if (_messOpen && _staff && !_closedMonth)
         _bigButton(t.mv2CorrectMeals, Icons.edit_calendar_rounded, _busy ? null : _correctMeals),
+      // design2 (page rule): actions first, the cut-off rule as a short muted line after them
+      Text(t.mv2MealsHelp(messDigits(context, '${((_mess['cutoff_hour'] as num?) ?? 22).toString().padLeft(2, '0')}:00')),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
+      const SizedBox(height: Gap.sm),
       for (final d in upcoming)
         DsCard(
           padding: EdgeInsets.zero,
