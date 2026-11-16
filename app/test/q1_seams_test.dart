@@ -154,6 +154,8 @@ void main() {
       await tester.ensureVisible(btn);
       await tester.tap(btn);
       await tester.pump();
+      // sjproof: the tap first asks GPS for a fresh fix (max 4 s; no GPS here)
+      await tester.pump(const Duration(milliseconds: 4100));
       await tester.pump(const Duration(milliseconds: 300));
       expect(api.posts, contains('/journey/5/arrived'));
       expect(find.text(_en.realityArrivedNotSent), findsOneWidget);

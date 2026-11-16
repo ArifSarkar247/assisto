@@ -31,6 +31,12 @@ BOARD = {
     "e2e7_khata_expense_confirm": [8, 1],
     "e2e8_care_call": [21],
     "e2e9_offline_first": [2],   # offline1st: My Circle (+ start) with no internet
+    # sjproof: Safe Journey V2 proof (e2e.yml group=start+sjproof)
+    "sjp01_place_search_budget": [4], "sjp02_normal_trip": [4],
+    "sjp03_route_change_extend": [4], "sjp04_tea_stop_near_destination": [4],
+    "sjp05_impossible_early_arrival": [4], "sjp06_danger_pin_silent_red": [4],
+    "sjp07_two_journeys": [4], "sjp08_child_unknown_place": [4],
+    "sjp09_train_three_passengers": [4], "sjp10_offline_destination_alarm": [4],
 }
 ALLOW_SKIP = set()   # Care Call is on main since build 314: a skip is NOT green
 
@@ -40,12 +46,16 @@ def expected():
              "app/integration_test/flows/offline_first_flow.dart"]   # offline1st
     if os.environ.get("REALITY_ONLY", "e2e") == "offline":
         files = files[1:]   # the offline proof run alone (e2e.yml input group=offline)
+    pat = r"realityFlow\(\s*'(e2e\d[^']*)',\s*'[^']*',\s*'([^']*)'"
+    if "sjproof" in os.environ.get("REALITY_ONLY", ""):
+        # sjproof: the Safe Journey V2 proof run (e2e.yml input group=start+sjproof)
+        files = ["app/integration_test/flows/sj_proof_flow.dart"]
+        pat = r"realityFlow\(\s*'(sjp\d\d[^']*)',\s*'[^']*',\s*'([^']*)'"
     out = []
     for f in files:
         p = ROOT / f
         if p.exists():
-            out += re.findall(r"realityFlow\(\s*'(e2e\d[^']*)',\s*'[^']*',\s*'([^']*)'",
-                              p.read_text(), re.S)
+            out += re.findall(pat, p.read_text(), re.S)
     return out
 
 

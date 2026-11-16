@@ -1403,10 +1403,34 @@ class JourneyArrivedView(APIView):
             return Response({"ok": False, "pin": "wrong", "arrival": "unusual"},
                             status=status.HTTP_400_BAD_REQUEST)
         if action == "required":
+            if a["reason"] == "too_early":
+                # sjproof (owner V2): an impossible early "I've arrived" tap is
+                # never accepted AND the watchers see "Unusually fast arrival,
+                # PIN asked" (amber) at once — before, only the auto-arrival
+                # path told them; a traveller who closed the PIN box left the
+                # family with nothing. The trip stays live until the PIN.
+                from . import journey_during as JDUR
+                if JDUR.enabled(j):
+                    JDUR.ask_pin(j, now, ["too_early"], "pin", push=False)
             return Response({"ok": False, "pin": "required", "arrival": "unusual",
                              "reason": a["reason"]}, status=status.HTTP_400_BAD_REQUEST)
         from . import guardian_journey as GJ
         if action == "duress":
+            from . import journey_during as JDUR
+            if JDUR.enabled(j):
+                # sjproof (owner V2): the danger PIN typed in the "I've
+                # arrived" PIN box = the same as the PIN banner: the screen
+                # says Arrived, the trip stays live for the watchers (red,
+                # live location, 30 s audio: k=1 tells the phone to keep
+                # sharing and record). Before, this path stopped the phone's
+                # location and recorded nothing.
+                from .views_sjduring import danger_cover
+                lat, lng = _num(d.get("lat")), _num(d.get("lng"))
+                if lat is not None and lng is not None and JA.point(d) is not None:
+                    j.last_location = JW.location_row(j.last_location, lat, lng, now, None, "app")
+                    j.save(update_fields=["last_location"])
+                danger_cover(request.user, j, now)
+                return Response({"ok": True, "status": "arrived", "k": 1})
             # identical answer to a real arrival; watchers + family get red
             _duress(request, j, lat=_num(d.get("lat")), lng=_num(d.get("lng")))
             return Response({"ok": True, "status": "arrived"})

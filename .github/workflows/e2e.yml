@@ -26,9 +26,9 @@ on:
         type: boolean
         default: false
       group:
-        description: "Flows: e2e = the proof flows (+ offline proof); offline = only the offline-first proof"
+        description: "Flows: e2e = the proof flows (+ offline proof); offline = only the offline-first proof; start+sjproof = Safe Journey V2 proof (sjproof)"
         type: choice
-        options: [e2e, offline]
+        options: [e2e, offline, start+sjproof]
         default: e2e
   schedule:
     - cron: "0 21 * * *"   # nightly, 03:00 Asia/Dhaka (after reality.yml)
@@ -131,7 +131,7 @@ jobs:
           timeout 1800 flutter build apk --debug --target-platform=android-x64 \
             --target=integration_test/reality_all_test.dart \
             --dart-define=REALITY_API_BASE=http://10.0.2.2:8700 \
-            --dart-define=REALITY_ONLY="$E2E_GROUP"
+            --dart-define=REALITY_ONLY="${E2E_GROUP//+/,}"
           echo "REALITY_APK=$PWD/build/app/outputs/flutter-apk/app-debug.apk" >> "$GITHUB_ENV"
       - name: Free the runner for the emulator
         working-directory: app

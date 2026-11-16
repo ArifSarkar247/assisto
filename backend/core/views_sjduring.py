@@ -131,6 +131,27 @@ def _classify(request, pin):
     return _classify_pin(request, pin)
 
 
+def danger_cover(user, j, now):
+    """The danger PIN (here or in the "I've arrived" PIN box, sjproof): the
+    traveller's screen says Arrived; the trip silently stays live for the
+    watchers (COVER_MIN), red + the SOS with the last location; the phone
+    then records 30 s of audio (answer k=1)."""
+    d = dict(j.during or {})
+    d.pop("pin_wait", None)
+    fx = JW.fix_of(j)
+    d.update({"pin": "danger", "cover": True,
+              "cover_until": JDUR._iso(now + timezone.timedelta(minutes=JDUR.COVER_MIN))})
+    j.during = d
+    j.sos_active, j.silent = True, True
+    keep = now + timezone.timedelta(hours=24)
+    if not j.expires_at or j.expires_at < keep:
+        j.expires_at = keep
+    j.save(update_fields=["during", "sos_active", "silent", "expires_at"])
+    JW.emit(j, "danger_pin", key="1", payload={"level": "red"})
+    PUSH.hook_sos(user, lat=fx[0] if fx else None, lng=fx[1] if fx else None,
+                  silent=True, journey_id=j.id, source="journey_danger_pin")
+
+
 class ArrivePinView(APIView):
     """POST {pin}. Safe PIN -> Arrived, watchers: "Confirmed with PIN".
     Danger PIN -> the SAME answer on this phone; watchers silently get red
@@ -155,18 +176,7 @@ class ArrivePinView(APIView):
         d = dict(j.during or {})
         d.pop("pin_wait", None)
         if action == "duress":
-            fx = JW.fix_of(j)
-            d.update({"pin": "danger", "cover": True,
-                      "cover_until": JDUR._iso(now + timezone.timedelta(minutes=JDUR.COVER_MIN))})
-            j.during = d
-            j.sos_active, j.silent = True, True
-            keep = now + timezone.timedelta(hours=24)
-            if not j.expires_at or j.expires_at < keep:
-                j.expires_at = keep
-            j.save(update_fields=["during", "sos_active", "silent", "expires_at"])
-            JW.emit(j, "danger_pin", key="1", payload={"level": "red"})
-            PUSH.hook_sos(request.user, lat=fx[0] if fx else None, lng=fx[1] if fx else None,
-                          silent=True, journey_id=j.id, source="journey_danger_pin")
+            danger_cover(request.user, j, now)
             return Response({**_arrived_face(), "k": 1})
         d["pin"] = "ok"
         b = list(d.get("badges") or [])

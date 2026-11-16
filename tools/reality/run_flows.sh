@@ -127,6 +127,18 @@ net_mode() {  # $1 = off|on
         echo "$(date +%T) net $mode $f" >> "$OUT/net.log"
       done ) &
 
+# sjproof: FAKE GPS for the Safe Journey proof. The app prints
+# `REALITY_GEO <lat> <lng> <file>`; the host moves the emulator's GPS
+# (`adb emu geo fix` takes longitude first; works in airplane mode too) and acks.
+( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+    | grep --line-buffered -oE 'REALITY_GEO -?[0-9.]+ -?[0-9.]+ [A-Za-z0-9_.-]+' \
+    | while read -r _ lat lng f; do
+        timeout 10 adb shell cmd location set-location-enabled true >/dev/null 2>&1 || true
+        timeout 10 adb emu geo fix "$lng" "$lat" >/dev/null 2>&1 || true
+        timeout 10 adb shell "mkdir -p $DEV/acks && touch $DEV/acks/$f" >/dev/null 2>&1 || true
+        echo "$(date +%T) geo $lat $lng $f" >> "$OUT/geo.log"
+      done ) &
+
 echo "== settle 60 s after boot"; sleep 60
 # rt2: a "+" joins groups into ONE drive / app process (the matrix job runs
 # "start+personal": log in, then the group, on a fresh emulator).

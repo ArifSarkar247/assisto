@@ -30,6 +30,7 @@ import '../widgets/sos_button.dart';
 import 'journey_fake_call_screen.dart';
 import 'safe_journey/sj_where_now.dart' show sjAccText;
 import 'safe_journey/sj_during_panel.dart'; // sjduring
+import 'safe_journey/sj_danger_audio.dart' show sjRecordDangerClip; // sjproof
 import 'journey_sos_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
@@ -381,7 +382,10 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     // qjourney (owner V2): the tap carries the phone's fresh fix; the server
     // checks distance + the earliest possible time. Far away / too early =
     // "unusual": never "arrived safely", and the safety PIN is asked.
-    final f = _tr.value.lastFix;
+    // sjproof: a fresh position at the tap (the last tracked fix can be 2 min
+    // and ~2 km old on a bus -> a real arrival looked "far")
+    final f = await _tr.freshFix(timeout: const Duration(seconds: 4)) ?? _tr.value.lastFix;
+    if (!mounted) return;
     final fresh = f != null && DateTime.now().difference(f.at).inMinutes < 2;
     Map<String, dynamic> r;
     try {
@@ -408,7 +412,14 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
       return;
     }
     _arrivalMsg = r['arrival'] == 'unusual' ? t.qjArrivedUnusual : t.journeyArrivedSafely;
-    await _tr.finished('arrived');
+    // sjproof: k=1 = the danger PIN — the SAME Arrived here, but the location
+    // service goes on for the watchers and 30 s of audio is recorded quietly
+    // (exactly like the PIN banner); the server ends the cover itself.
+    if (r['k'] == 1) {
+      unawaited(sjRecordDangerClip(_api, widget.journeyId));
+    } else {
+      await _tr.finished('arrived');
+    }
     if (!mounted) return;
     _closeWith(_arrivalMsg);
   }

@@ -599,10 +599,11 @@ def auto_arrival(j, now, acc=None):
     return None
 
 
-def ask_pin(j, now, why, verdict="pin"):
+def ask_pin(j, now, why, verdict="pin", push=True):
     """Arrival looks abnormal: keep the trip live, ask the traveller for the
     PIN privately; an impossible (too early) arrival is shown to watchers
-    as "Unusually fast arrival, PIN asked"."""
+    as "Unusually fast arrival, PIN asked". push=False: the traveller is
+    already looking at the PIN box (a manual "I've arrived" tap, sjproof)."""
     from . import journey_watch as JW
     d = dict(j.during or {})
     if verdict == "pin":
@@ -614,7 +615,7 @@ def ask_pin(j, now, why, verdict="pin"):
         d["badges"] = b
     j.during = d
     j.save(update_fields=["during"])
-    if verdict == "pin":
+    if verdict == "pin" and push:
         JW.push_traveller(j.traveller, j.id, "arrive_pin",
                           "পৌঁছেছেন? PIN দিন", "Arrived? Enter your PIN",
                           "যাত্রা শেষ করতে আপনার গোপন PIN দিন।",
