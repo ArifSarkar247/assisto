@@ -62,11 +62,18 @@ jobs:
           D=$(mktemp -d); tar -C "$D" -xzf edge/shopbox/dist-linux/assisto-guardbox-linux-${{ matrix.arch }}.tar.gz
           SHOPBOX_HOME=$(mktemp -d) "$D/assisto-guardbox/assisto-guardbox" --self-test
           du -sh "$D/assisto-guardbox" edge/shopbox/dist-linux/*
+      # the .deb goes to the next jobs through the Actions cache (the repo's
+      # artifact storage quota is shared by every agent and often full)
+      - uses: actions/cache/save@v4
+        with:
+          path: edge/shopbox/dist-linux
+          key: gbox-deb-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.arch }}
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: guardbox-linux-${{ matrix.arch }}
           path: edge/shopbox/dist-linux/
-          retention-days: 30
+          retention-days: 14
 
   e2e:
     name: e2e ${{ matrix.arch }}
@@ -92,12 +99,13 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
-      - uses: actions/download-artifact@v4
+      - uses: actions/cache/restore@v4
         with:
-          name: guardbox-linux-${{ matrix.arch }}
-          path: dist-linux
+          path: edge/shopbox/dist-linux
+          key: gbox-deb-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.arch }}
+          fail-on-cache-miss: true
       - name: Camera + backend + the box container
-        run: bash tools/e2e/guardbox_linux_e2e.sh ${{ matrix.arch }} dist-linux
+        run: bash tools/e2e/guardbox_linux_e2e.sh ${{ matrix.arch }} edge/shopbox/dist-linux
       - name: Proof
         if: always()
         run: |
@@ -112,6 +120,7 @@ jobs:
           python3 -c "import json,sys;d=json.load(open('$E2E_DIR/guardbox_proof.json'));k={n['kind'] for n in d['notifications']};print(k);sys.exit(0 if d['alert_with_photo'] and {'net_back','power_back'}<=k else 1)"
       - name: Upload evidence
         if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: guardbox-e2e-${{ matrix.arch }}
@@ -132,11 +141,18 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/cache/restore@v4
         with:
-          pattern: guardbox-linux-*
-          path: art
-          merge-multiple: true
+          path: edge/shopbox/dist-linux
+          key: gbox-deb-${{ github.run_id }}-${{ github.run_attempt }}-amd64
+          fail-on-cache-miss: true
+      - run: mkdir -p art && cp edge/shopbox/dist-linux/* art/ && rm -rf edge/shopbox/dist-linux
+      - uses: actions/cache/restore@v4
+        with:
+          path: edge/shopbox/dist-linux
+          key: gbox-deb-${{ github.run_id }}-${{ github.run_attempt }}-arm64
+          fail-on-cache-miss: true
+      - run: cp edge/shopbox/dist-linux/*arm64* art/
       - name: Assets + checksums
         run: |
           mkdir rel
