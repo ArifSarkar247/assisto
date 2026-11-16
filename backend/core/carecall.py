@@ -362,8 +362,9 @@ def _link_push(link, what):
 
 
 # --------------------------------------------------------------- schedules
-def _clean(data, lim):
-    """(fields, error). The text is kept EXACTLY as written (only outer
+def _clean(data, lim, tz=TZ):
+    """(fields, error). `tz` = the receiver's clock (a "once" with no date
+    means today on THEIR clock, not Dhaka's). The text is kept EXACTLY as written (only outer
     whitespace trimmed) — never filtered, blocked or rewritten."""
     text = str((data or {}).get("text") or "").strip()
     has_voice = bool((data or {}).get("voice_b64")) or bool((data or {}).get("keep_voice"))
@@ -388,7 +389,7 @@ def _clean(data, lim):
         try:
             once = date.fromisoformat(str((data or {}).get("date") or "")[:10])
         except ValueError:
-            once = timezone.localtime(timezone.now(), TZ).date()
+            once = timezone.localtime(timezone.now(), tz).date()
     return {"text": text, "time_hhmm": t, "repeat": repeat, "days": days, "once_date": once}, None
 
 
@@ -432,7 +433,7 @@ def create(setter, data):
         return None, link, "receiver_stopped"
     if active_count(setter) >= lim["carecall_active_per_setter"]:
         return None, link, "limit_active"
-    fields, err = _clean(data, lim)
+    fields, err = _clean(data, lim, rtz(receiver))
     if err:
         return None, link, err
     raw, sec, err = _voice(data, lim)
@@ -471,7 +472,8 @@ def update(setter, cc_id, data):
     if cc is None:
         return None, "not_found"
     lim = limits(setter)
-    fields, err = _clean(dict(data or {}, keep_voice=bool(cc.voice) and not (data or {}).get("delete_voice")), lim)
+    fields, err = _clean(dict(data or {}, keep_voice=bool(cc.voice) and not (data or {}).get("delete_voice")), lim,
+                         rtz(cc.receiver))
     if err:
         return None, err
     raw, sec, err = _voice(data, lim)
