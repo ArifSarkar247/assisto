@@ -366,8 +366,12 @@ class ResetRequestView(APIView):
                 getattr(settings, "APP_DEEP_LINK_BASE", "assisto://reset/confirm"), raw)
             subject, body = reset_logic.build_email(lang, user.name or "", link)
             try:
-                send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [email],
-                          fail_silently=True)
+                from . import email_sender
+                if email_sender.configured():   # emailrel: logged, retried
+                    email_sender.send_email(email, subject, body, purpose="reset")
+                else:
+                    send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [email],
+                              fail_silently=True)
             except Exception:
                 pass
         return neutral

@@ -193,6 +193,15 @@ def notify_deletion_scheduled(user, req):
             return
         bn = (getattr(u, "language", "bn") or "bn") == "bn"
         try:
+            from . import email_sender, email_templates as ET
+            if email_sender.configured():      # emailrel: retry + bounce list + log
+                subj, text, html = ET.render_notice(
+                    "bn" if bn else "en", t["title_bn"], t["title_en"],
+                    t["body_bn"], t["body_en"],
+                    subject=t["title_bn"] if bn else t["title_en"])
+                email_sender.send_notice([u.email], subj, text, html=html,
+                                         purpose="account")
+                return
             send_mail(t["title_bn"] if bn else t["title_en"],
                       t["body_bn"] if bn else t["body_en"],
                       settings.DEFAULT_FROM_EMAIL, [u.email], fail_silently=True)

@@ -1561,6 +1561,7 @@ EN.update({
     "pf_safety_global_day": "Safety SMS: all users per day",
     "pf_provider": "Email sender (smtp; ses later)", "pf_daily_cap": "Emails per 24 hours (Gmail ≈500, keep below)",
     "pf_near_cap_pct": "From this % of the email cap, prefer SMS",
+    "pf_bulk_cap_pct": "Reports / bulk email stop at this % of the cap (codes + security keep the rest)",
     "pf_per_email_per_hour": "OTP codes per email address per hour",
 })
 BN.update({
@@ -1588,6 +1589,7 @@ BN.update({
     "pf_safety_global_day": "সেফটি SMS: সবার মিলে দিনে",
     "pf_provider": "ইমেইল প্রেরক (smtp; পরে ses)", "pf_daily_cap": "২৪ ঘণ্টায় ইমেইল (Gmail ≈৫০০, এর নিচে রাখুন)",
     "pf_near_cap_pct": "ইমেইল সীমার এত % থেকে SMS-কে অগ্রাধিকার",
+    "pf_bulk_cap_pct": "সীমার এত %-এ রিপোর্ট/বাল্ক ইমেইল বন্ধ (বাকিটা কোড ও নিরাপত্তার জন্য)",
     "pf_per_email_per_hour": "প্রতি ইমেইলে ঘণ্টায় OTP কোড",
 })
 

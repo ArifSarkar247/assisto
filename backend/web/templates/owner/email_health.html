@@ -1,0 +1,31 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ L.title }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ L.intro }}</p>
+<p class="small" id="email-configured">{% if card.configured %}<b>✓ {{ L.configured }}</b>{% else %}<b>✗ {{ L.not_configured }}</b>{% endif %}</p>
+{% if card.provider_quota %}<div class="flash warn" role="alert" id="email-quota">{{ L.quota }} {{ card.quota_until }}</div>{% endif %}
+<section class="card" id="email-health">
+<table><tbody>
+<tr><th>{{ L.sent_today }}</th><td id="eh-sent">{{ card.sent_today }}</td></tr>
+<tr><th>{{ L.failed_today }}</th><td id="eh-failed">{{ card.failed_today }}</td></tr>
+<tr><th>{{ L.held_today }}</th><td id="eh-held">{{ card.held_today }}</td></tr>
+<tr><th>{{ L.retried_today }}</th><td>{{ card.retried_today }}</td></tr>
+<tr><th>{{ L.used }}</th><td id="eh-used">{{ card.used_24h }} / {{ card.cap }}</td></tr>
+<tr><th>{{ L.bulk_at }}</th><td>{{ card.bulk_at }}{% if card.bulk_stop %} ⚠{% endif %}</td></tr>
+<tr><th>{{ L.near_at }}</th><td>{{ card.near_at }}{% if card.near %} ⚠{% endif %}</td></tr>
+<tr><th>{{ L.bounces }}</th><td id="eh-bounces">{{ card.bounces_7d }}</td></tr>
+<tr><th>{{ L.suppressed }}</th><td>{{ card.suppressed }}</td></tr>
+<tr><th>{{ L.unsub }}</th><td>{{ card.unsubscribed }}</td></tr>
+<tr><th>{{ L.last_poll }}</th><td>{% if card.last_poll %}{{ card.last_poll }} — {{ card.last_poll_detail }}{% else %}{{ L.never }}{% endif %}</td></tr>
+</tbody></table>
+<p class="mut small">{{ L.provider_doc }}</p>
+</section>
+{% if card.kinds_today %}<section class="card"><h2>{{ L.kinds }}</h2><ul>{% for k, n in card.kinds_today %}<li>{{ k }}: {{ n }}</li>{% endfor %}</ul></section>{% endif %}
+<section class="card tbl"><h2>{{ L.recent }}</h2>
+{% if card.recent_failures %}<table id="eh-recent"><tbody>{% for r in card.recent_failures %}<tr><td>{{ r.at }}</td><td>{{ r.to }}</td><td>{{ r.purpose }}</td><td>{{ r.kind_label }}</td><td class="small">{{ r.detail }}</td></tr>{% endfor %}</tbody></table>
+{% else %}<p class="mut">{{ L.empty }}</p>{% endif %}</section>
+{% if card.suppression_rows %}<section class="card tbl"><h2>{{ L.list }}</h2><table id="eh-list"><tbody>
+{% for r in card.suppression_rows %}<tr><td>{{ r.to }}</td><td>{{ r.reason }} {{ r.code }}</td><td>×{{ r.hits }}</td><td>{{ r.at }}</td>
+<td><form method="post" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="remove" value="{{ r.id }}"><button class="btn">{{ L.remove }}</button></form></td></tr>{% endfor %}
+</tbody></table></section>{% endif %}
+{% endblock %}

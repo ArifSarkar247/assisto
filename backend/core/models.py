@@ -4128,8 +4128,27 @@ class EmailLog(models.Model):
     to_hash = models.CharField(max_length=64, db_index=True)
     to_masked = models.CharField(max_length=80, blank=True, default="")
     provider = models.CharField(max_length=16, blank=True, default="smtp")
-    status = models.CharField(max_length=10, default="sent")   # sent|failed|blocked
+    status = models.CharField(max_length=10, default="sent")   # sent|failed|blocked|suppressed|poll
     detail = models.CharField(max_length=200, blank=True, default="")
+    # emailrel: why it failed (temp|quota|bounce|policy|auth|config|cap|
+    # unsub), the class of mail (critical|normal|bulk) and the attempt count
+    error_kind = models.CharField(max_length=10, blank=True, default="")
+    category = models.CharField(max_length=10, blank=True, default="critical")
+    attempts = models.PositiveSmallIntegerField(default=1)
+
+
+class EmailSuppression(models.Model):
+    """emailrel: an address we must not mail — hard bounce (SMTP 5xx 5.1.x
+    or a mailer-daemon report), complaint, or 'unsubscribe' (bulk mail only).
+    Only the hash + mask of the address; cleared when the user re-verifies."""
+    to_hash = models.CharField(max_length=64, unique=True)
+    to_masked = models.CharField(max_length=80, blank=True, default="")
+    reason = models.CharField(max_length=12, default="hard_bounce")  # hard_bounce|complaint|unsubscribed
+    code = models.CharField(max_length=12, blank=True, default="")
+    detail = models.CharField(max_length=200, blank=True, default="")
+    hits = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    last_at = models.DateTimeField(default=timezone.now)
 
 
 class EmailVerification(models.Model):

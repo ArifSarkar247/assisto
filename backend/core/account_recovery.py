@@ -157,7 +157,14 @@ def _alert_email(to, kind, new_masked, link, lang):
                     % (what_bn, what_en),
                     "Assisto: your %s was changed" % what_en)
         body = (bn + "\n\n— — —\n\n" + en) if lang != "en" else (en + "\n\n— — —\n\n" + bn)
-        return bool(email_sender.send_email(to, subj, body, purpose="security_alert")["ok"])
+        # emailrel: the same text + a branded HTML part with one big button
+        from . import email_templates as ET
+        html = ET.render_notice(
+            lang, "আপনার %s বদলানো হয়েছে" % what_bn, "Your %s was changed" % what_en,
+            bn.rsplit("\n", 1)[0], en.rsplit("\n", 1)[0], action_url=link, action_bn="এটা আমি নই",
+            action_en="This was not me")[2]
+        return bool(email_sender.send_email(to, subj, body, purpose="security_alert",
+                                            html=html)["ok"])
     except Exception:  # noqa: BLE001
         return False
 

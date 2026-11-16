@@ -12,6 +12,8 @@ class FakeOtpBackend implements OtpBackend {
   bool loginSucceeds;
   bool emailEnabled; // smsotp
   String verifiedEmail; // smsotp: '' = none yet
+  bool emailBouncing; // emailrel: saved address bounced
+  String? emailFailReason; // emailrel: requestEmail fails with this reason
   final List<String> calls = [];
   String? lastPurpose;
   String? lastPhone;
@@ -26,6 +28,8 @@ class FakeOtpBackend implements OtpBackend {
     this.loginSucceeds = false,
     this.emailEnabled = false,
     this.verifiedEmail = '',
+    this.emailBouncing = false,
+    this.emailFailReason,
   });
 
   @override
@@ -133,6 +137,15 @@ class FakeOtpBackend implements OtpBackend {
         'email_enabled': false,
       });
     }
+    if (emailFailReason != null) {
+      // emailrel: the server's honest failure (bounce / temporary / refused)
+      return OtpResult.fromRaw({
+        '_status': emailFailReason == 'email_bouncing' ? 400 : 502,
+        'ok': false,
+        'reason': emailFailReason,
+        'prefer_sms': true,
+      });
+    }
     return OtpResult.fromRaw({
       '_status': 200,
       'ok': true,
@@ -164,6 +177,7 @@ class FakeOtpBackend implements OtpBackend {
     return EmailState(
         email: verifiedEmail,
         verified: verifiedEmail.isNotEmpty,
-        enabled: emailEnabled);
+        enabled: emailEnabled,
+        bouncing: emailBouncing);
   }
 }

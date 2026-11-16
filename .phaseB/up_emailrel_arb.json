@@ -1,0 +1,18 @@
+{
+  "en": {
+    "emailrelBouncing": "Emails to this address bounce back. Please check your email address, or get the code by SMS.",
+    "@emailrelBouncing": {"description": "emailrel: email OTP refused because the address hard-bounced"},
+    "emailrelRejected": "Your email provider refused the message (inbox full or blocked). Check your inbox, or get the code by SMS.",
+    "@emailrelRejected": {"description": "emailrel: permanent refusal that is not a dead address"},
+    "emailrelSendFailed": "We couldn't send the email right now. Get the code by SMS, or try again in a few minutes.",
+    "@emailrelSendFailed": {"description": "emailrel: temporary email failure after retries"},
+    "emailrelBouncingBanner": "Emails to your saved address are bouncing back. Please check your email address and verify it again.",
+    "@emailrelBouncingBanner": {"description": "emailrel: banner on the sign-in email screen"}
+  },
+  "bn": {
+    "emailrelBouncing": "এই ঠিকানায় ইমেইল পৌঁছায় না (ফেরত আসে)। ইমেইল ঠিকানাটি ঠিক আছে কি না দেখুন, অথবা এসএমএস-এ কোড নিন।",
+    "emailrelRejected": "আপনার ইমেইল সার্ভার মেইলটি নেয়নি (ইনবক্স ভরা বা ব্লক)। ইনবক্স দেখুন, অথবা এসএমএস-এ কোড নিন।",
+    "emailrelSendFailed": "ইমেইল এখন পাঠানো যায়নি। এসএমএস-এ কোড নিন, বা কয়েক মিনিট পরে আবার চেষ্টা করুন।",
+    "emailrelBouncingBanner": "আপনার সেভ করা ঠিকানায় ইমেইল ফেরত আসছে। ইমেইল ঠিকানাটি দেখুন এবং আবার যাচাই করুন।"
+  }
+}
