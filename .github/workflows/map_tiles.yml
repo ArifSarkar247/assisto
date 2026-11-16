@@ -47,6 +47,7 @@ env:
   SPREET_VER: 'v0.14.0'
   DHAKA_BBOX: '90.30,23.68,90.53,23.92'
   STAGE_TAG: map-tiles-staging-${{ github.run_id }}
+  REUSE_BUILDINGS_TAG: 'map-tiles-staging-43925833019'   # clear when the Overture release changes
   GH_TOKEN: ${{ github.token }}
   GH_REPO: ${{ github.repository }}
 
@@ -152,8 +153,10 @@ jobs:
       - name: Build bd_base.pmtiles (z0-15)
         working-directory: pm/tiles
         run: |
+          set -o pipefail
+          df -h . | tail -1
           java -Xmx10g -jar target/*-with-deps.jar --area=bangladesh --bounds=88.0,20.55,92.75,26.65 \
-            --maxzoom=15 --download --force --nodemap-type=array --storage=mmap 2>&1 | grep -v DEBUG | tail -40
+            --maxzoom=15 --download --force --nodemap-type=sparsearray --storage=mmap 2>&1 | grep -v DEBUG | tail -60
           mkdir -p ../../dist && mv bangladesh.pmtiles ../../dist/bd_base.pmtiles
       - name: Dhaka offline base + checks
         run: |
@@ -192,6 +195,13 @@ jobs:
         run: python -I deploy/maptiles/overture_extract.py boundary ov
       - name: Buildings -> bd_buildings.pmtiles (z14, heights)
         run: |
+          if [ -n "${REUSE_BUILDINGS_TAG:-}" ]; then
+            # Same Overture release already built in an earlier staging draft: reuse it (saves ~80 runner-minutes).
+            mkdir -p dist old && STAGE_TAG="$REUSE_BUILDINGS_TAG" bash deploy/maptiles/stage_down.sh old 'bd_buildings.pmtiles' 'dhaka_buildings.pmtiles' 'src_overture.json'
+            python3 -c "import json; b=json.load(open('old/src_overture.json'))['overture']; assert b['release']==open('ov/overture_release.txt').read().strip(), 'release changed'; json.dump(b['buildings'], open('ov/buildings_stats.json','w'))"
+            mv old/*.pmtiles dist/
+            exit 0
+          fi
           python -I deploy/maptiles/overture_extract.py buildings ov
           ls -la ov
           mkdir -p dist
@@ -227,9 +237,9 @@ jobs:
           sudo apt-get update -q && sudo apt-get install -y -q gdal-bin
           python -m pip install -q 'rasterio==1.5.2' numpy pillow
           curl -fsSL "https://github.com/protomaps/go-pmtiles/releases/download/v${PMTILES_VER}/go-pmtiles_${PMTILES_VER}_Linux_x86_64.tar.gz" | sudo tar -xz -C /usr/local/bin pmtiles
-      - name: Copernicus DEM GLO-30 -> bd_terrain.pmtiles (z5-12)
+      - name: Copernicus DEM GLO-30 -> bd_terrain.pmtiles (z5-11, overzoomed; z12 was 497 MB)
         run: |
-          python -I deploy/maptiles/dem_tiles.py dem dem/terrain.mbtiles 5 12
+          python -I deploy/maptiles/dem_tiles.py dem dem/terrain.mbtiles 5 11
           mkdir -p dist && pmtiles convert dem/terrain.mbtiles dist/bd_terrain.pmtiles
           pmtiles show dist/bd_terrain.pmtiles | head -15
           ls dem/*.tif | wc -l | python3 -c "import json,sys; json.dump({'copernicus':{'product':'COP-DEM GLO-30 (AWS open data)','tiles':int(sys.stdin.read())}}, open('dist/src_terrain.json','w'))"

@@ -3,7 +3,7 @@
 MapLibre cannot shape Bengali script, so labels are shaped here with HarfBuzz and each
 positioned glyph is replaced by the Private-Use codepoint that the PGF glyph PBFs
 (font stack "Noto Sans Bengali Regular v1") draw. Same algorithm as protomaps
-TextEngine.java (+-4 unit tolerance search), so tiles and app overlays match.
+TextEngine.java (units = font units / 64, +-4 tolerance search), so tiles and app overlays match.
 
     enc = PgfEncoder("NotoSansBengali-Regular.ttf", "NotoSansBengali-Regular-v1.csv")
     enc.encode("মতিঝিল")   -> PUA string, or None if any glyph is not in the encoding
@@ -56,11 +56,12 @@ class PgfEncoder:
         buf.add_str(text)
         buf.guess_segment_properties()
         hb.shape(self.font, buf, {})
-        scale = 1000.0 / self.upem
+        # pgf-encoding stores hb-shape font units / 64, rounded (wipfli glyph_counts.py).
+        def u(v):
+            return int(round(v / 64.0))
         out = []
         for info, pos in zip(buf.glyph_infos, buf.glyph_positions):
-            cp = self._lookup(info.codepoint, int(pos.x_offset * scale // 1), int(pos.y_offset * scale // 1),
-                              int(pos.x_advance * scale // 1), int(pos.y_advance * scale // 1))
+            cp = self._lookup(info.codepoint, u(pos.x_offset), u(pos.y_offset), u(pos.x_advance), u(pos.y_advance))
             if cp is None:
                 return None  # never draw a half-encoded (broken) label
             out.append(chr(cp))
