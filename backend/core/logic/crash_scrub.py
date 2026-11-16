@@ -83,6 +83,28 @@ def frames_from_text(log: str) -> list:
             out.append(c)
         if len(out) >= MAX_FRAMES:
             break
+    return out or aot_frames(log)
+
+
+# applovin (size): Play builds use --split-debug-info, so Dart traces are
+# non-symbolic ("#00 abs … virt 00000000001ee2a7 …" under "build_id: '…'").
+# Same shape as the app's CrashScrub.aotFrames: "pc+0x1ee2a7 (dart:aot/<id8>)".
+_AOT_FRAME = re.compile(r"#\d+\s+abs\s+[0-9a-f]+\s+virt\s+([0-9a-f]+)")
+_BUILD_ID = re.compile(r"build_id:\s*'([0-9a-f]+)'")
+
+
+def aot_frames(log: str) -> list:
+    text = str(log or "")
+    m = _BUILD_ID.search(text)
+    tag = m.group(1)[:8] if m else "unknown"
+    out = []
+    for fm in _AOT_FRAME.finditer(text):
+        pc = fm.group(1).lstrip("0") or "0"
+        c = _clean_frame(f"pc+0x{pc} (dart:aot/{tag})")
+        if c:
+            out.append(c)
+        if len(out) >= MAX_FRAMES:
+            break
     return out
 
 
