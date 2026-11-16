@@ -268,7 +268,7 @@ jobs:
 
   render:
     needs: [assets, base, overture, terrain]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # maplibre-gl-native 6.4 binary links libicu 74
     timeout-minutes: 30
     continue-on-error: true
     steps:
@@ -292,7 +292,7 @@ jobs:
       - name: Stage screenshots
         if: always()
         run: |
-          test -d shots && tar -czf shots.tar.gz shots && gh release upload "$STAGE_TAG" shots.tar.gz --clobber
+          ls shots 2>/dev/null | head; test -d shots && tar -czf shots.tar.gz shots && gh release upload "$STAGE_TAG" shots.tar.gz --clobber
 
   publish:
     needs: [assets, base, overture, terrain]
