@@ -9,6 +9,8 @@ import '../services/safety_triggers_logic.dart';
 import '../services/sos_trigger_settings.dart';
 import '../sosat_api.dart';
 import '../state.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
@@ -168,7 +170,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.saFallTitle)),
       body: s == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 3)
           : ListView(
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
               children: [
@@ -192,18 +194,6 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                   ),
                   const SizedBox(height: Gap.lg),
                 ],
-                Row(children: [
-                  Expanded(child: Text(t.saFallBenefit, style: AType.titleMedium)),
-                  const SizedBox(width: Gap.sm),
-                  Chip(
-                    key: const ValueKey('sosat-experimental'),
-                    label: Text(t.saExperimental),
-                    backgroundColor: Brand.warning.withValues(alpha: 0.18),
-                  ),
-                ]),
-                const SizedBox(height: Gap.sm),
-                Text(t.saFallHow, style: AType.bodyMedium),
-                const SizedBox(height: Gap.lg),
                 if (!_running) ...[
                   Text(t.saNeedsProtectionBody, style: AType.bodyMedium),
                   const SizedBox(height: Gap.sm),
@@ -220,7 +210,10 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                   ),
                   const SizedBox(height: Gap.lg),
                 ],
-                Card(
+                // designv2 page rule: protection (if off) → the switch → what
+                // it does; DS cards
+                DsCard(
+                  padding: const EdgeInsets.symmetric(vertical: Gap.xs),
                   child: Column(children: [
                     SwitchListTile(
                       key: const ValueKey('sosat-fall-switch'),
@@ -228,7 +221,7 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                           s.fallOn ? Icons.shield_rounded : Icons.shield_outlined,
                           color: s.fallOn ? Brand.success : scheme.ds.muted),
                       title: Text(t.saFallSwitch,
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
+                          style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
                       subtitle: Text(s.fallOn ? t.saOn : t.saFallSwitchSub),
                       value: s.fallOn && _running,
                       onChanged: _running ? _toggle : null,
@@ -243,7 +236,20 @@ class _FallDetectScreenState extends State<FallDetectScreen> {
                     ),
                   ]),
                 ),
-                const SizedBox(height: Gap.md),
+                const SizedBox(height: Gap.lg),
+                Row(children: [
+                  Expanded(child: Text(t.saFallBenefit,
+                    style: AType.titleMedium.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w600))),
+                  const SizedBox(width: Gap.sm),
+                  Chip(
+                    key: const ValueKey('sosat-experimental'),
+                    label: Text(t.saExperimental),
+                    backgroundColor: Brand.warning.withValues(alpha: 0.18),
+                  ),
+                ]),
+                const SizedBox(height: Gap.sm),
+                Text(t.saFallHow, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+                const SizedBox(height: Gap.lg),
                 OutlinedButton.icon(
                   key: const ValueKey('sosat-fall-practice'),
                   style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),

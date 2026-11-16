@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
@@ -163,16 +164,23 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
   }
 
   @override
+  Widget _sec(List<Widget> children) => DsCard(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+      );
+
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     if (_loading) {
       return Scaffold(
           appBar: AppBar(title: Text(t.journeySettingsTitle)),
-          body: const Center(child: CircularProgressIndicator()));
+          body: const SkeletonList(count: 4));
     }
     return Scaffold(
       appBar: AppBar(title: Text(t.journeySettingsTitle)),
       body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
+        // designv2: each section is its own DS card
+        _sec([
         // SOS
         Text(t.sosSection,
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
@@ -198,7 +206,9 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
             Settings.setBool('journey_siren', v);
           },
         ),
-        const Divider(height: 28),
+        ]),
+        const SizedBox(height: Gap.md),
+        _sec([
 
         // Duress PIN
         Text(t.duressSection,
@@ -206,14 +216,16 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: Icon(_hasDuress ? Icons.lock_rounded : Icons.lock_open_rounded,
-              color: _hasDuress ? Colors.green : Colors.grey),
+              color: _hasDuress ? DsTokens.of(context).successInk : DsTokens.of(context).muted),
           title: Text(_hasDuress ? t.duressConfigured : t.duressNotSet),
           subtitle: Text(t.duressSubtitle),
           trailing: TextButton(
               onPressed: _setDuressPin,
               child: Text(_hasDuress ? t.edit : t.duressSetUp)),
         ),
-        const Divider(height: 28),
+        ]),
+        const SizedBox(height: Gap.md),
+        _sec([
 
         // Wellness check (parents living alone)
         Text(t.wellnessSection,
@@ -287,7 +299,9 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
             ),
           ),
         ],
-        const Divider(height: 28),
+        ]),
+        const SizedBox(height: Gap.md),
+        _sec([
 
         // (NO SHOWPIECES: the native discreet-trigger rows — power button,
         // shake, lock-screen tile, widget, background service — were "coming
@@ -299,6 +313,8 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
         const SizedBox(height: 6),
         Text(t.journeyPrivacyStatement,
             style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
+        ]),
+        const SizedBox(height: Gap.md),
       ]),
     );
   }

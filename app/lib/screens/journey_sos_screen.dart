@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../ds/ds.dart';
 import '../theme.dart';
 import 'package:flutter/material.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // sosat
@@ -328,26 +329,26 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
           foregroundColor: Colors.white,
           title: Text(t.sosSentTitle)),
       body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-        Container(
+        // designv2: the state is the danger card
+        DsCard(
           key: const ValueKey('j100_sos_state'),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(Radii.md)),
+          tone: DsTone.danger,
+          padding: const EdgeInsets.all(Gap.md),
           child: Row(children: [
             if (_sending)
               const SizedBox(
                   width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
             else
               Icon(_sendFailed ? Icons.cloud_off_rounded : Icons.check_circle_rounded,
-                  color: Theme.of(context).colorScheme.error),
+                  color: DsTokens.of(context).dangerInk),
             const SizedBox(width: 10),
             Expanded(
                 child: Text(
                     _sending
                         ? t.sosSending
                         : (_sendFailed ? t.j100SosNotSent : t.sosSentBody),
-                    style: const TextStyle(fontWeight: FontWeight.w600))),
+                    style: AType.bodyLarge.copyWith(
+                        fontWeight: FontWeight.w600, color: DsTokens.of(context).dangerInk))),
           ]),
         ),
         if (_sendFailed && !_sending)
@@ -371,9 +372,15 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
         Text(t.sosHelplines,
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
-        ..._helplines.map((h) => Card(
+        ..._helplines.map((h) => Padding(
+              padding: const EdgeInsets.only(bottom: Gap.sm),
+              child: DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
-                leading: Icon(Icons.call_rounded, color: Theme.of(context).colorScheme.error),
+                leading: DsAvatar(
+                    size: 40,
+                    color: DsTokens.of(context).dangerInk,
+                    child: Icon(Icons.call_rounded, size: 20, color: DsTokens.of(context).dangerInk)),
                 title: Text(h['number'].toString()),
                 subtitle:
                     h['label'] != null ? Text(h['label'].toString()) : null,
@@ -381,7 +388,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                     onPressed: () => _call(h['number'].toString()),
                     child: Text(t.call)),
               ),
-            )),
+            ))),
         const SizedBox(height: Gap.lg),
         Text(t.sosNearestHelp,
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
@@ -393,7 +400,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                 'failed' || 'no_location' => t.j100NearbyFailed,
                 _ => t.j100NearbyNone,
               },
-              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         if (_help.isEmpty && _helpState != 'loading')
           Wrap(spacing: Gap.sm, children: [
             OutlinedButton.icon(
@@ -405,13 +412,16 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                 label: Text(t.j100SearchHospital),
                 onPressed: () => _searchMap(t.j100SearchHospitalQuery)),
           ]),
-        ..._help.map((p) => Card(
+        ..._help.map((p) => Padding(
+              padding: const EdgeInsets.only(bottom: Gap.sm),
+              child: DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: Icon(
                     (p['type'] == 'hospital')
                         ? Icons.local_hospital_rounded
                         : Icons.local_police_rounded,
-                    color: Colors.indigo),
+                    color: DsTokens.of(context).primaryInk),
                 title: Text((p['name'] ?? '').toString()),
                 subtitle: p['distance_m'] != null
                     ? Text(t.sosDistanceAway(p['distance_m'].toString()))
@@ -428,7 +438,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                             _directions(p['directions'].toString())),
                 ]),
               ),
-            )),
+            ))),
         const SizedBox(height: Gap.xl),
         OutlinedButton(
             onPressed: () => Navigator.of(context).maybePop(),

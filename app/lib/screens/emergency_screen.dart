@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../l10n/app_localizations.dart';
 import '../widgets/emergency_card_view.dart';
@@ -359,7 +360,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     if (_loading) {
       return Scaffold(
         appBar: AppBar(title: Text(t.emergencyCard)),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const SkeletonList(count: 4),
       );
     }
     return Scaffold(
@@ -429,28 +430,28 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
           label: Text(t.safetyToolsButton, textAlign: TextAlign.center),
         ),
 
-        const Divider(height: Gap.xxl),
+        const SizedBox(height: Gap.xl), // designv2: air, not rules
 
         // ---- the emergency card (preview or editor) ----
         _sectionTitle(t.emergencyCardSection),
         const SizedBox(height: Gap.sm),
         if (_editing) _editor(t) else _preview(t),
 
-        const Divider(height: Gap.xxl),
+        const SizedBox(height: Gap.xl), // designv2: air, not rules
 
         // ---- verified helpline directory ----
         _sectionTitle(t.emergencyHelplinesSection),
         const SizedBox(height: Gap.sm),
         EmergencyHelplineList(onCall: _call, localeDigits: _digits),
 
-        const Divider(height: Gap.xxl),
+        const SizedBox(height: Gap.xl), // designv2: air, not rules
 
         // ---- nearest help ----
         _sectionTitle(t.emergencyNearestSection),
         const SizedBox(height: Gap.sm),
         const EmergencyNearestHelp(),
 
-        const Divider(height: Gap.xxl),
+        const SizedBox(height: Gap.xl), // designv2: air, not rules
 
         // ---- first-aid quick cards ----
         // play-nomed: first-aid guidance is medical advice — not in Play.
@@ -467,8 +468,11 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     );
   }
 
-  Widget _sectionTitle(String s) =>
-      Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700));
+  Widget _sectionTitle(String s) => Semantics(
+      header: true,
+      child: Text(s,
+          style: AType.titleMedium.copyWith(
+              fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.ds.text)));
 
   Widget _preview(AppLocalizations t) {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

@@ -11,6 +11,7 @@ import '../services/action_feedback.dart';
 import '../services/journey_tracker.dart' show journeyMapsLink;
 import '../state.dart';
 import '../theme.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../ds/ds.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/journey_ride.dart';
@@ -363,8 +364,9 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
 
   Widget _empty(AppLocalizations t) {
     final cs = Theme.of(context).colorScheme;
-    return Column(key: const ValueKey('gj_empty'), children: [
-      Icon(Icons.family_restroom_rounded, size: 56, color: cs.primary),
+    // designv2: drawn illustration in a DS card
+    return DsCard(key: const ValueKey('gj_empty'), padding: const EdgeInsets.all(Gap.xl), child: Column(children: [
+      DsIllustration(icon: Icons.family_restroom_rounded, color: cs.ds.primary, size: 88),
       const SizedBox(height: Gap.md),
       Text(t.gjEmptyTitle,
           textAlign: TextAlign.center,
@@ -375,7 +377,7 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
       Text(t.gjEmptyHow,
           textAlign: TextAlign.center,
           style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
-    ]);
+    ]));
   }
 
   @override
@@ -385,14 +387,11 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
     final inc = _list('incoming'), out = _list('outgoing'), hist = _list('history');
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList(count: 3);
     } else if (_error && _data.isEmpty) {
       body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-        Text(t.j100WatchError, style: AType.bodyLarge),
-        const SizedBox(height: Gap.md),
-        Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: FilledButton(onPressed: _load, child: Text(t.retry))),
+        DsEmptyState(
+            icon: Icons.cloud_off_rounded, title: t.j100WatchError, actionLabel: t.retry, onAction: _load),
       ]);
     } else {
       body = ListView(
@@ -429,12 +428,14 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
             if (hist.isNotEmpty) ...[
               const SizedBox(height: Gap.lg),
               Text(t.gjHistory, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
-              for (final r in hist)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text('${r['name'] ?? ''} · ${_dest(t, r)}'),
-                  subtitle: Text('${_status(t, r)} · ${_window(t, r)}'),
-                ),
+              const SizedBox(height: Gap.sm),
+              DsGroup(margin: EdgeInsets.zero, children: [
+                for (final r in hist)
+                  DsListRow(
+                    title: '${r['name'] ?? ''} · ${_dest(t, r)}',
+                    subtitle: '${_status(t, r)} · ${_window(t, r)}',
+                  ),
+              ]),
             ],
           ]);
     }

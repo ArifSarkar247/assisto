@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../l10n/app_localizations.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/skeleton.dart';
@@ -259,13 +260,15 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
           _warningsSection(t, scheme),
           const SizedBox(height: Gap.lg),
         ],
+        // designv2 page rule: the numbers to call come right after the
+        // warnings; family, library and preparedness after that
+        _emergencyContacts(t, scheme),
+        const SizedBox(height: Gap.lg),
         _familySection(t, scheme),
         const SizedBox(height: Gap.lg),
         _safetyLibrary(t, scheme),
         const SizedBox(height: Gap.lg),
         _preparedness(t, scheme),
-        const SizedBox(height: Gap.lg),
-        _emergencyContacts(t, scheme),
         const SizedBox(height: Gap.xl),
         Text(t.disOfficialOnlyFooter,
             style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
@@ -302,22 +305,23 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
   }
 
   Widget _bannerCard(Color tint, IconData icon, String title, String body) {
-    return Card(
-      color: tint.withValues(alpha: 0.08),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, color: tint),
+    // designv2: DS card tinted over the card colour; text in the AA ink
+    return DsSurface(
+      color: Color.alphaBlend(tint.withValues(alpha: 0.08), DsTokens.of(context).card),
+      borderColor: tint.withValues(alpha: 0.35),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(icon, color: Brand.onTint(context, tint)),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: TextStyle(fontWeight: FontWeight.w700, color: tint)),
+              Text(title,
+                  style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700, color: Brand.onTint(context, tint))),
               const SizedBox(height: Gap.xxs),
-              Text(body, style: AType.bodySmall.copyWith(height: 1.35)),
+              Text(body, style: AType.bodySmall.copyWith(height: 1.35, color: DsTokens.of(context).text)),
             ]),
           ),
         ]),
-      ),
     );
   }
 
@@ -463,11 +467,11 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
       const SizedBox(height: Gap.sm),
       for (final h in rows)
         Card(
-          color: h.primary ? Brand.danger.withValues(alpha: 0.08) : null,
+          color: h.primary ? Color.alphaBlend(Brand.danger.withValues(alpha: 0.08), scheme.ds.card) : null,
           margin: const EdgeInsets.only(bottom: Gap.sm),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: h.primary ? Brand.danger : scheme.ds.primarySoft,
+              backgroundColor: h.primary ? Brand.dangerFill : scheme.ds.primarySoft,
               foregroundColor: h.primary ? Colors.white : scheme.ds.primaryInk,
               child: Icon(h.icon),
             ),
@@ -477,7 +481,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
             subtitle: Text(h.note, style: AType.bodySmall),
             trailing: FilledButton.icon(
               style: FilledButton.styleFrom(
-                backgroundColor: h.primary ? Brand.danger : null,
+                backgroundColor: h.primary ? Brand.dangerFill : null, // designv2: AA with white
                 minimumSize: const Size(0, 44),
               ),
               onPressed: () => _call(h.number),
@@ -496,19 +500,26 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
     return Row(children: [
       Icon(icon, size: 18, color: tint),
       const SizedBox(width: Gap.sm),
-      Expanded(child: Text(title, style: TextStyle(fontWeight: FontWeight.w700, color: tint))),
+      Expanded(
+          child: Semantics(
+              header: true,
+              child: Text(title,
+                  style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700, color: DsTokens.of(context).text)))),
     ]);
   }
 
   Widget _tile(IconData icon, String text, ColorScheme scheme,
       {VoidCallback? onTap, Color? tint}) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         leading: Icon(icon, color: tint ?? scheme.ds.muted),
         title: Text(text),
         trailing: onTap == null ? null : const Icon(Icons.chevron_right_rounded),
         onTap: onTap,
+      ),
       ),
     );
   }

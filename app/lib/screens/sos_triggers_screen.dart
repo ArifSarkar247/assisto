@@ -7,6 +7,8 @@ import '../feature_flags.dart';
 import '../l10n/app_localizations.dart';
 import '../services/antitheft_service.dart';
 import '../services/sos_trigger_settings.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import 'always_on_protection_screen.dart';
@@ -119,25 +121,22 @@ class _SosTriggersScreenState extends State<SosTriggersScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.saMoreWaysTitle)),
       body: s == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 3)
           : ListView(
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
               children: [
-                Text(t.saMoreWaysBenefit, style: AType.titleMedium),
+                Text(t.saMoreWaysBenefit,
+                    style: AType.titleMedium.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w600)),
                 const SizedBox(height: Gap.md),
                 if (!_running) ...[
-                  Container(
+                  // designv2: the one thing to do first — the soft hero
+                  DsHeroCard(
                     key: const ValueKey('sosat-needs-protection'),
-                    padding: const EdgeInsets.all(Gap.lg),
-                    decoration: BoxDecoration(
-                      color: scheme.ds.primarySoft.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(Radii.md),
-                    ),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                       Text(t.saNeedsProtectionTitle,
-                          style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+                          style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.text)),
                       const SizedBox(height: Gap.xs),
-                      Text(t.saNeedsProtectionBody, style: AType.bodyMedium),
+                      Text(t.saNeedsProtectionBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                       const SizedBox(height: Gap.md),
                       FilledButton.icon(
                         key: const ValueKey('sosat-turn-on-protection'),
@@ -167,8 +166,8 @@ class _SosTriggersScreenState extends State<SosTriggersScreen> {
                   onChanged: _running ? (v) => _set((x) => x.powerOn = v) : null,
                 ),
                 if (_fallVisible)
-                  Card(
-                    margin: const EdgeInsets.only(bottom: Gap.sm),
+                  DsCard(
+                    padding: EdgeInsets.zero,
                     child: ListTile(
                       key: const ValueKey('sosat-fall'),
                       minTileHeight: 64,
@@ -209,15 +208,18 @@ class _SosTriggersScreenState extends State<SosTriggersScreen> {
     required bool value,
     required ValueChanged<bool>? onChanged,
   }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsCard(
+      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: SwitchListTile(
         key: ValueKey(key),
         secondary: Icon(icon),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(title, style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Text(body),
         value: value && onChanged != null,
         onChanged: onChanged,
+      ),
       ),
     );
   }
