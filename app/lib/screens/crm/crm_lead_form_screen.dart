@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
+import '../../messaging/date_separators.dart' show localDigits;
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
 import '../../plans_v2/upgrade_sheet.dart';
@@ -186,60 +188,76 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
             IconButton(onPressed: () => _paste(t), icon: const Icon(Icons.content_paste_rounded), tooltip: t.crmPasteTitle),
         ],
       ),
+      // three DS cards: who, which company, what they need — then one
+      // glowing save button
       body: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)), children: [
-        _field(_name, t.name),
-        _field(_phone, t.phone, keyboard: TextInputType.phone),
-        _field(_whatsapp, t.crmWhatsApp, keyboard: TextInputType.phone),
-        _field(_email, t.email, keyboard: TextInputType.emailAddress),
-        _field(_company, t.company),
-        _field(_designation, t.crmDesignation),
-        const SizedBox(height: Gap.sm),
-        _dropdown(t.industry, _industry, {
-          'rmg': t.crmIndRmg,
-          'pharma': t.crmIndPharma,
-          'retail': t.crmIndRetail,
-          'other': t.crmIndOther,
-        }, (v) => setState(() => _industry = v)),
-        _dropdown(t.source, _source, {
-          'manual': t.crmSrcManual,
-          'whatsapp': 'WhatsApp',
-          'messenger': 'Messenger',
-          'linkedin': 'LinkedIn',
-          'email': t.email,
-        }, (v) => setState(() => _source = v)),
-        const SizedBox(height: Gap.sm),
-        Text(t.crmHeadcount, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-        Slider(
-          value: _size.clamp(0, 1000).toDouble(),
-          min: 0,
-          max: 1000,
-          divisions: 20,
-          label: _size == 0 ? '—' : '$_size',
-          onChanged: (v) => setState(() => _size = v.round()),
+        DsCard(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            _field(_name, t.name),
+            _field(_phone, t.phone, keyboard: TextInputType.phone),
+            _field(_whatsapp, t.crmWhatsApp, keyboard: TextInputType.phone),
+            _field(_email, t.email, keyboard: TextInputType.emailAddress),
+          ]),
         ),
-        const SizedBox(height: Gap.sm),
-        Text(t.crmRequiredModules, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-        const SizedBox(height: Gap.xs),
-        Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
-          for (final m in moduleOptions(t))
-            FilterChip(
-              label: Text(m.label),
-              selected: _modules.contains(m.code),
-              onSelected: (on) => setState(() => on ? _modules.add(m.code) : _modules.remove(m.code)),
+        DsSectionHeader(t.company),
+        DsCard(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            _field(_company, t.company),
+            _field(_designation, t.crmDesignation),
+            _dropdown(t.industry, _industry, {
+              'rmg': t.crmIndRmg,
+              'pharma': t.crmIndPharma,
+              'retail': t.crmIndRetail,
+              'other': t.crmIndOther,
+            }, (v) => setState(() => _industry = v)),
+            _dropdown(t.source, _source, {
+              'manual': t.crmSrcManual,
+              'whatsapp': 'WhatsApp',
+              'messenger': 'Messenger',
+              'linkedin': 'LinkedIn',
+              'email': t.email,
+            }, (v) => setState(() => _source = v)),
+            const SizedBox(height: Gap.xs),
+            Text(
+                _size == 0
+                    ? t.crmHeadcount
+                    : '${t.crmHeadcount}: ${localDigits('$_size', Localizations.localeOf(context).languageCode)}',
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+            Slider(
+              value: _size.clamp(0, 1000).toDouble(),
+              min: 0,
+              max: 1000,
+              divisions: 20,
+              label: _size == 0 ? '—' : localDigits('$_size', Localizations.localeOf(context).languageCode),
+              onChanged: (v) => setState(() => _size = v.round()),
             ),
-        ]),
-        const SizedBox(height: Gap.md),
-        _field(_budget, t.crmBudgetRange),
-        _field(_timeline, t.crmTimeline),
-        _field(_decisionMaker, t.crmDecisionMaker),
-        _field(_notes, t.note, lines: 3),
+          ]),
+        ),
+        DsSectionHeader(t.crmRequiredModules),
+        DsCard(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+              for (final m in moduleOptions(t))
+                DsChip(
+                  label: m.label,
+                  selected: _modules.contains(m.code),
+                  onSelected: (on) => setState(() => on ? _modules.add(m.code) : _modules.remove(m.code)),
+                ),
+            ]),
+            const SizedBox(height: Gap.md),
+            _field(_budget, t.crmBudgetRange),
+            _field(_timeline, t.crmTimeline),
+            _field(_decisionMaker, t.crmDecisionMaker),
+            _field(_notes, t.note, lines: 3),
+          ]),
+        ),
         const SizedBox(height: Gap.lg),
-        FilledButton.icon(
+        DsButton(
           onPressed: _saving ? null : () => _save(t),
-          icon: _saving
-              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-              : const Icon(Icons.save_rounded),
-          label: Text(t.save),
+          busy: _saving,
+          icon: Icons.save_rounded,
+          label: t.save,
+          expand: true,
         ),
       ]),
     );
@@ -253,7 +271,7 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
           controller: c,
           keyboardType: keyboard,
           maxLines: lines,
-          decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+          decoration: InputDecoration(labelText: label),
         ),
       );
 
@@ -263,7 +281,7 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: DropdownButtonFormField<String>(
           initialValue: value,
-          decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+          decoration: InputDecoration(labelText: label),
           items: [for (final e in opts.entries) DropdownMenuItem(value: e.key, child: Text(e.value))],
           onChanged: (v) => v == null ? null : onChanged(v),
         ),
