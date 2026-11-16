@@ -171,14 +171,15 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
     if (_loading) {
       body = const SkeletonList();
     } else if (_error != null) {
-      body = ListView(padding: const EdgeInsets.all(32), children: [
-        Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),
-        const SizedBox(height: 16),
-        Center(
-            child: FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-                onPressed: _load,
-                child: Text(t.wmRetry))),
+      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        // design2: DS error state (drawn illustration + one big retry)
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.wmLoadErrorTitle,
+          benefit: _error!.isEmpty ? t.wmLoadErrorBody : _error!,
+          actionLabel: t.wmRetry,
+          onAction: _load,
+        ),
       ]);
     } else {
       body = RefreshIndicator(

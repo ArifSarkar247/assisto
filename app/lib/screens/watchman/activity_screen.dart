@@ -169,14 +169,15 @@ class _ActivityScreenState extends State<ActivityScreen> {
   Widget _summaryTab(BuildContext context, AppLocalizations t, String lang) {
     if (_loading) return const SkeletonList();
     if (_error != null) {
-      return ListView(padding: const EdgeInsets.all(32), children: [
-        Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),
-        const SizedBox(height: 16),
-        Center(
-            child: FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-                onPressed: _load,
-                child: Text(t.wmRetry))),
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        // design2: DS error state (drawn illustration + one big retry)
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.wmLoadErrorTitle,
+          benefit: _error!.isEmpty ? t.wmLoadErrorBody : _error!,
+          actionLabel: t.wmRetry,
+          onAction: _load,
+        ),
       ]);
     }
     final lines = (_day['lines'] as List?)?.map((e) => e.toString()).toList() ?? const <String>[];
@@ -986,14 +987,15 @@ class _TimelapseState extends State<_Timelapse> with AutomaticKeepAliveClientMix
     final loc = MaterialLocalizations.of(context);
     if (_loading) return const SkeletonList();
     if (_error != null) {
-      return ListView(padding: const EdgeInsets.all(32), children: [
-        Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),
-        const SizedBox(height: 16),
-        Center(
-            child: FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-                onPressed: _load,
-                child: Text(t.wmRetry))),
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        // design2: DS error state (drawn illustration + one big retry)
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.wmLoadErrorTitle,
+          benefit: _error!.isEmpty ? t.wmLoadErrorBody : _error!,
+          actionLabel: t.wmRetry,
+          onAction: _load,
+        ),
       ]);
     }
     final frames = wmList(_data['frames']);

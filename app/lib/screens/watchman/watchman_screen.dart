@@ -331,14 +331,21 @@ class _Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(padding: const EdgeInsets.all(32), children: [
-      const SizedBox(height: 40),
-      Icon(icon, size: 56, color: Theme.of(context).colorScheme.primary),
-      const SizedBox(height: 16),
-      Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
-      const SizedBox(height: 8),
-      Text(body, textAlign: TextAlign.center),
-      if (action != null) ...[const SizedBox(height: 20), Center(child: action!)],
+    // design2: the DS message card (drawn illustration, title, body, action)
+    return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      DsCard(
+        padding: const EdgeInsets.all(Gap.xl),
+        child: Column(children: [
+          DsIllustration(icon: icon),
+          const SizedBox(height: Gap.lg),
+          Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: Gap.sm),
+          Text(body,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
+          if (action != null) ...[const SizedBox(height: Gap.lg), Center(child: action!)],
+        ]),
+      ),
     ]);
   }
 }

@@ -340,10 +340,8 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
     final t = AppLocalizations.of(context);
     Widget body;
     if (!_flagOn) {
-      body = ListView(padding: const EdgeInsets.all(32), children: [
-        const Icon(Icons.lock_clock_outlined, size: 56),
-        const SizedBox(height: 12),
-        Text(t.gbNotYet, textAlign: TextAlign.center),
+      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(icon: Icons.lock_clock_outlined, title: t.gbNotYet),
       ]);
     } else if (_loading) {
       body = const SkeletonList();

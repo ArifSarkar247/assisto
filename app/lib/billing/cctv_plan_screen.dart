@@ -204,18 +204,24 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
     );
   }
 
-  Widget _message(IconData icon, String title, String body, Widget? action) => Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon, size: 48),
-            const SizedBox(height: 12),
-            Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(body, textAlign: TextAlign.center),
-            if (action != null) ...[const SizedBox(height: 16), action],
-          ]),
-        ),
+  // design2: the DS message card (drawn illustration, title, body, action)
+  Widget _message(IconData icon, String title, String body, Widget? action) => ListView(
+        padding: const EdgeInsets.all(Gap.lg),
+        children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.xl),
+            child: Column(children: [
+              DsIllustration(icon: icon),
+              const SizedBox(height: Gap.lg),
+              Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: Gap.sm),
+              Text(body,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
+              if (action != null) ...[const SizedBox(height: Gap.lg), action],
+            ]),
+          ),
+        ],
       );
 
   Widget _body(AppLocalizations t) {
