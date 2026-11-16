@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
@@ -152,7 +153,7 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     final lang = wmLang(context);
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else if (_error != null) {
       body = ListView(padding: const EdgeInsets.all(32), children: [
         Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../theme.dart' show AType;
 import '../../ds/ds.dart';
 
@@ -111,7 +112,7 @@ class _CctvGridScreenState extends State<CctvGridScreen> {
   }
 
   Widget _body(AppLocalizations t) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_featureOff) {
       return _Msg(icon: Icons.lock_clock_outlined, title: t.wmFeatureOffTitle, body: t.wmFeatureOffBody);
     }

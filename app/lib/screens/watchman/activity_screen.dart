@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../theme.dart' show AType;
 import '../../ds/ds.dart';
 import 'package:path_provider/path_provider.dart';
@@ -166,7 +167,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
   // ------------------------------------------------------------- summary
   Widget _summaryTab(BuildContext context, AppLocalizations t, String lang) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_error != null) {
       return ListView(padding: const EdgeInsets.all(32), children: [
         Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),
@@ -983,7 +984,7 @@ class _TimelapseState extends State<_Timelapse> with AutomaticKeepAliveClientMix
     final t = AppLocalizations.of(context);
     final lang = wmLang(context);
     final loc = MaterialLocalizations.of(context);
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_error != null) {
       return ListView(padding: const EdgeInsets.all(32), children: [
         Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),

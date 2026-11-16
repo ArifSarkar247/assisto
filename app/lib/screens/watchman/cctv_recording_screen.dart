@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 
 import '../../widgets/local_counter.dart';
@@ -193,7 +194,7 @@ class _CctvRecordingScreenState extends State<CctvRecordingScreen> {
         ),
       );
     } else if (_d == null) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else {
       body = _content(t, _d!);
     }

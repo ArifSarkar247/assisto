@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import 'package:provider/provider.dart';
 
 import '../../cashguard/cashguard_source.dart';
@@ -97,7 +98,7 @@ class _GuardInboxScreenState extends State<GuardInboxScreen> {
     final t = AppLocalizations.of(context);
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else if (_error != null) {
       body = ListView(padding: const EdgeInsets.all(32), children: [
         Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
@@ -122,7 +123,7 @@ class _CctvInstallerScreenState extends State<CctvInstallerScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.ctrInstTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
@@ -356,7 +357,7 @@ class _CctvPartnerScreenState extends State<CctvPartnerScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.ctrPartTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(

@@ -12,6 +12,7 @@
 //                           after the owner's Yes
 // Empty states = benefit line + big button + how-to. No dead buttons.
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
@@ -89,7 +90,7 @@ class CctvActHubScreen extends StatelessWidget {
 Widget _loadingOr(BuildContext context, bool loading, String? error, VoidCallback retry,
     Widget Function() body) {
   final t = AppLocalizations.of(context);
-  if (loading) return const Center(child: CircularProgressIndicator());
+  if (loading) return const SkeletonList();
   if (error != null) {
     return Center(
       child: Padding(

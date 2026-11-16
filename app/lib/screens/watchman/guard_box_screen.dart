@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../theme.dart' show AType;
 import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
@@ -345,7 +346,7 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
         Text(t.gbNotYet, textAlign: TextAlign.center),
       ]);
     } else if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else {
       body = ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
         Text(t.gbIntro),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart';
 import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -161,7 +162,7 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
     return Scaffold(
       appBar: AppBar(title: Text(t.ccnTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : _error != null
               ? _ErrorBody(text: _error!.isEmpty ? t.ccnLoadError : _error!, onRetry: _load)
               : RefreshIndicator(onRefresh: _load, child: _body(context, t)),
