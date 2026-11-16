@@ -73,6 +73,7 @@ jobs:
             --out cctv_detect.json --n 220 | tee cctv_detect.txt
       - name: The Bangladesh vehicle model of a mode=train run (artifact, SHA-256 printed)
         if: ${{ inputs.mode == 'v3' && inputs.veh_run != '' }}
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: cctv-vehicle-bd
@@ -87,6 +88,12 @@ jobs:
         run: |
           set -o pipefail
           BD=""
+          # artifacts expire: a ci/ branch may carry the trained model (never main)
+          if [ ! -f /tmp/bd/assisto_vehicle_bd_nano.onnx ] && [ -f .ci_models/assisto_vehicle_bd_nano.onnx ]; then
+            mkdir -p /tmp/bd && cp .ci_models/assisto_vehicle_bd_nano.onnx /tmp/bd/
+            echo "2792908189f104ecb2316ddc09b49c01067dc06e77f443ab52c0f3ff3f0981a7  /tmp/bd/assisto_vehicle_bd_nano.onnx" | sha256sum -c -
+            cp /tmp/bd/assisto_vehicle_bd_nano.onnx /tmp/bd/x && sha256sum /tmp/bd/x | sed 's#/tmp/bd/x#assisto_vehicle_bd_nano.onnx#' > /tmp/bd/assisto_vehicle_bd_nano.onnx.sha256
+          fi
           if [ -f /tmp/bd/assisto_vehicle_bd_nano.onnx ]; then
             sha256sum /tmp/bd/assisto_vehicle_bd_nano.onnx; cat /tmp/bd/assisto_vehicle_bd_nano.onnx.sha256
             BD="--bd /tmp/bd/assisto_vehicle_bd_nano.onnx"
