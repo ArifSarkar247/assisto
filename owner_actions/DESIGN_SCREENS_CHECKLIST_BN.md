@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৬৫ / মোট ৪২০**
+**স্ক্রিন শেষ: ৬৬ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -61,7 +61,7 @@
 
 ## ৫. নিরাপদ যাত্রা
 
-- ⬜ — `screens/guardian_journey_screen.dart`
+- ✅ batch 7 (আঁকা খালি অবস্থা, DS ত্রুটি, ইতিহাস এক কার্ডে) — `screens/guardian_journey_screen.dart`
 - ⬜ — `screens/journey_fake_call_screen.dart`
 - ⬜ — `screens/journey_live_screen.dart`
 - ⬜ — `screens/journey_map_pick_screen.dart`
