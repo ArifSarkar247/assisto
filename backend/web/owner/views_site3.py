@@ -61,12 +61,13 @@ def website(request):
             # seogrow (17 Nov): landing pages go-live + Play badge, one tap each, audited
             from core.views_build61 import flags_flip
             from web import site_landing as LP
-            fid = LP.LIVE_FLAG if act.startswith("seo_") else DIST.PLAY_BADGE_FLAG
-            value = act in ("seo_golive", "playbadge_on")
-            before = LP.growth_live() if fid == LP.LIVE_FLAG else DIST.play_badge_on()
-            ok, payload = flags_flip(request.owner.id, fid, value, "website: %s (owner, Owner Admin -> Website)" % act)
+            fid = LP.PREVIEW_FLAG if act.startswith("seo_") else DIST.PLAY_BADGE_HIDDEN_FLAG
+            live = act in ("seo_golive", "playbadge_on")
+            before = LP.growth_live() if fid == LP.PREVIEW_FLAG else DIST.play_badge_on()
+            # inverted flags: going live = flag OFF
+            ok, payload = flags_flip(request.owner.id, fid, not live, "website: %s (owner, Owner Admin -> Website)" % act)
             if ok:
-                S.audit(request, request.owner, "flag.flip", "flag:%s" % fid, before={fid: before}, after={fid: value})
+                S.audit(request, request.owner, "flag.flip", "flag:%s" % fid, before={"live": before}, after={"live": live})
                 return done("/owner/website", "saved")
             problems, status = payload.get("problems") or [], 400
         else:

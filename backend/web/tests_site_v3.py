@@ -41,9 +41,9 @@ def set_flag(key, on):
 
 
 def _badge_on():
-    """seogrow item 7: Play badge/links need the owner's site_play_badge_live."""
+    """seogrow item 7: Play badge/links need the owner's go-ahead (badge not hidden)."""
     row, _ = AdminFlagState.objects.get_or_create(key="global")
-    row.state = dict(row.state or {}, site_play_badge_live=True)
+    row.state = dict(row.state or {}, site_play_badge_hidden=False)
     row.save()
 
 

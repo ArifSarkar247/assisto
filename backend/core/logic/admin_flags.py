@@ -106,15 +106,16 @@ CATALOG = (
     # OFF = the updated policy is live at /privacy (like website_classic).
     # Owner Admin → Website, one tap each way.
     ("privacy_classic", KIND_FEATURE, "ops", True),
-    # seogrow (owner order 17 Nov 00:32): OFF (default) = the feature landing
-    # pages (/features/<slug>, web.site_landing) answer at their final URLs
-    # but are noindex and kept out of the sitemap and the site navigation
-    # (owner preview); ON = live for Google. Owner Admin -> Website.
-    ("site_seo_growth_live", KIND_FEATURE, "ops", False),
-    # seogrow item 7: OFF (default) = no Google Play badge or Play link on the
-    # website at all; ON (owner says the app is live on Play) = shown once the
+    # seogrow (owner order 17 Nov 00:32) — inverted like website_classic so
+    # every catalog default stays ON: ON (default) = the feature landing pages
+    # (/features/<slug>, web.site_landing) answer at their final URLs but are
+    # noindex and kept out of the sitemap and the site navigation (owner
+    # preview); OFF = "site SEO growth live" for Google. Owner Admin -> Website.
+    ("site_seo_growth_preview", KIND_FEATURE, "ops", True),
+    # seogrow item 7: ON (default) = no Google Play badge or Play link on the
+    # website at all; OFF (owner says the app is live on Play) = shown once the
     # listing is public. The Install-APK path is unchanged either way.
-    ("site_play_badge_live", KIND_FEATURE, "ops", False),
+    ("site_play_badge_hidden", KIND_FEATURE, "ops", True),
 )
 
 _BY_ID = {row[0]: row for row in CATALOG}

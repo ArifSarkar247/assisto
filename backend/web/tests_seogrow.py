@@ -87,7 +87,7 @@ def main_part(html):
 class LandingBase(Base):
     def setUp(self):
         super().setUp()
-        set_state(site_play_badge_live=False)   # Play not live yet (the real state)
+        set_state(site_play_badge_hidden=True)   # Play not live yet (the real state)
         for f in ALL_FLAGS:
             set_flag(f, True)
 
@@ -195,7 +195,7 @@ class LandingPageTests(LandingBase):
 
     def test_internal_links_resolve(self):
         set_live(True)
-        set_state(site_seo_growth_live=True)
+        set_state(site_seo_growth_preview=False)
         for slug in LP.SLUGS:
             p = parse(self.get(slug, "bn").content.decode())
             related = [h for h in p.hrefs if h.startswith("/features/") and h.split("/")[2] in LP.LANDINGS]
@@ -207,7 +207,7 @@ class LandingPageTests(LandingBase):
 class HonestyTests(LandingBase):
     def test_page_404_when_its_app_feature_is_off(self):
         set_flag("quran", False)
-        set_state(site_seo_growth_live=True)
+        set_state(site_seo_growth_preview=False)
         self.assertEqual(self.c.get("/features/quran").status_code, 404)
         self.assertNotIn("/features/quran", self.c.get("/sitemap.xml").content.decode())
         self.assertIsNone(LP.url_for("quran", "bn"))
@@ -250,7 +250,7 @@ class GoLiveSwitchTests(LandingBase):
 
     def test_on_indexable_in_sitemap_with_hreflang_and_in_nav(self):
         set_live(True)
-        set_state(site_seo_growth_live=True)
+        set_state(site_seo_growth_preview=False)
         r = self.get("mess", "bn")
         self.assertNotIn("X-Robots-Tag", r)
         self.assertContains(r, 'content="index, follow, max-image-preview:large"')
@@ -264,7 +264,7 @@ class GoLiveSwitchTests(LandingBase):
         self.assertIn('href="/features/mess?lang=en"', self.c.get("/features?lang=en").content.decode())
 
     def test_preview_url_always_noindex(self):
-        set_state(site_seo_growth_live=True)
+        set_state(site_seo_growth_preview=False)
         r = self.c.get("/preview/features/blood-donor")
         self.assertEqual(r.status_code, 200)
         self.assertIn("noindex", r["X-Robots-Tag"])
@@ -276,7 +276,7 @@ class PlayBadgeTests(Base):
 
     def setUp(self):
         super().setUp()
-        set_state(site_play_badge_live=False)
+        set_state(site_play_badge_hidden=True)
 
     def test_hidden_by_default_even_if_listing_public(self):
         set_live(True)
@@ -290,7 +290,7 @@ class PlayBadgeTests(Base):
 
     def test_shown_once_the_owner_says_live(self):
         set_live(True)
-        set_state(site_play_badge_live=True)
+        set_state(site_play_badge_hidden=False)
         html = self.c.get("/?lang=en").content.decode()
         self.assertIn('class="badge"', html)
         self.assertIn("play.google.com/store/apps/details?id=com.assisto.assisto", html)
@@ -301,7 +301,7 @@ class PlayBadgeTests(Base):
         cache.delete("sitev3:play_public")
         self.play_check.return_value = False
         set_live(True)
-        set_state(site_play_badge_live=True)
+        set_state(site_play_badge_hidden=False)
         self.assertNotIn('class="badge"', self.c.get("/?lang=en").content.decode())
 
 
@@ -309,7 +309,7 @@ class OwnerSwitchTests(OwnerBase):
     def setUp(self):
         super().setUp()
         no_network(self)
-        set_state(site_play_badge_live=False)
+        set_state(site_play_badge_hidden=True)
         self.ready()
 
     def test_one_tap_each_and_audited(self):

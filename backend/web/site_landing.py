@@ -10,19 +10,21 @@ HONESTY (same rules as web.site_v3, enforced by web.tests_seogrow):
   * only real CI gallery screenshots (site_assets/shots3, see
     tools/website/site_shots.py), no reviews, no ratings, no user counts,
     no competitor names, no medicine words.
-GO-LIVE: AdminFlagState flag `site_seo_growth_live` (default OFF). OFF = the
+GO-LIVE ("site_seo_growth_live", default OFF): stored inverted as the
+AdminFlagState flag `site_seo_growth_preview` (default ON, like
+website_classic, so every flag-catalog default stays ON). Not live = the
 pages answer at their final URLs but carry noindex (meta + X-Robots-Tag) and
 are not in the sitemap or the site navigation, so the owner can review them.
 ON (Owner Admin -> Website, one tap) = indexable, in the sitemap and linked
 from the footer and the features page.
 """
-LIVE_FLAG = "site_seo_growth_live"
+PREVIEW_FLAG = "site_seo_growth_preview"   # ON (default) = not live yet
 
 
 def growth_live():
     try:
         from core.billing import flag_on
-        return flag_on(LIVE_FLAG, False)
+        return not flag_on(PREVIEW_FLAG, True)
     except Exception:  # noqa: BLE001 — flag trouble keeps the pages hidden
         return False
 

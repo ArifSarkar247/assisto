@@ -76,7 +76,7 @@ jobs:
             (cd "$DIR" && python manage.py migrate -v0 --settings=assisto_backend.settings_webci --noinput)
             if [ $side = after ]; then
               # sitev3: v3 live in this CI-only database
-              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import AdminFlagState as A; r,_=A.objects.get_or_create(key='global'); r.state=dict(r.state or {}, website_classic=False, site_seo_growth_live=True); r.save(); print('website v3 live (classic OFF), seogrow landing pages live')")
+              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import AdminFlagState as A; r,_=A.objects.get_or_create(key='global'); r.state=dict(r.state or {}, website_classic=False, site_seo_growth_preview=False); r.save(); print('website v3 live (classic OFF), seogrow landing pages live')")
               # seogrow: the landing pages exist only while their app feature is on -> turn on the ones that default OFF (CI database only)
               (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import FeatureFlag as F; [F.objects.update_or_create(key=k, defaults={'enabled_all': True, 'enabled_play': True, 'rollout_pct': 100}) for k in ('quran', 'quran_learn', 'dest_alarm')]")
             fi
