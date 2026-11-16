@@ -171,7 +171,7 @@ class _StaffScreenState extends State<StaffScreen> {
               padding: const EdgeInsets.symmetric(vertical: Gap.lg),
               child: Text(t.bbStaffNone,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.ds.muted)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             )
           else
             for (final m in _rows)

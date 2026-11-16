@@ -217,7 +217,7 @@ class _CctvAccuracyScreenState extends State<CctvAccuracyScreen> {
             ],
             const SizedBox(height: Gap.sm),
             Text(t.bizaiCamSessions(fmtInt(context, (live['sessions'] as num?)?.toInt() ?? 0)),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             _table(t, (live['per_type'] as Map?) ?? const {}),
           ]),
         ),

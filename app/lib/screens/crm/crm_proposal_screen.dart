@@ -149,7 +149,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Expanded(child: Text(p['title']?.toString().isNotEmpty == true ? p['title'] : '${t.crmProposals} v${p['version']}', style: const TextStyle(fontWeight: FontWeight.w800))),
+            Expanded(child: Text(p['title']?.toString().isNotEmpty == true ? p['title'] : '${t.crmProposals} v${p['version']}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             _statusChip(status),
           ]),
           const SizedBox(height: Gap.xs),
@@ -171,7 +171,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
             ),
           if ((p['body'] ?? '').toString().isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
-            Text(p['body'], maxLines: 6, overflow: TextOverflow.ellipsis, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            Text(p['body'], maxLines: 6, overflow: TextOverflow.ellipsis, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           ],
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.xs, children: [
@@ -193,7 +193,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text(k),
-          Text(v, style: TextStyle(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
+          Text(v, style: AType.bodyMedium.copyWith(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
         ]),
       );
 
@@ -216,8 +216,8 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
-      decoration: BoxDecoration(color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(Radii.pill)),
-      child: Text(_statusLabel(status), style: AType.labelSmall.copyWith(color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
+      decoration: BoxDecoration(color: scheme.ds.primarySoft, borderRadius: BorderRadius.circular(Radii.pill)),
+      child: Text(_statusLabel(status), style: AType.labelSmall.copyWith(color: scheme.ds.primaryInk, fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -384,7 +384,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
                 label: Text(t.crmCreateProposal),
               ),
               const SizedBox(height: Gap.xs),
-              Text(t.crmQuotePriceBookNote, style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+              Text(t.crmQuotePriceBookNote, style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
             ]),
     );
   }
@@ -400,9 +400,9 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
         child: Row(children: [
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(p['name']?.toString() ?? sku, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(p['name']?.toString() ?? sku, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               Text('${bdt(context, (_dec(p['unit_price'])))} · $sku',
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               if (!reviewed)
                 Text(t.crmToReview, style: AType.labelSmall.copyWith(color: AssistoTokens.of(context).warning, fontWeight: FontWeight.w700)),
             ]),
@@ -412,7 +412,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
             icon: const Icon(Icons.remove_circle_outline_rounded),
             onPressed: q > 0 ? () => setState(() => _qty[sku] = q - 1) : null,
           ),
-          Text('$q', style: const TextStyle(fontWeight: FontWeight.w800)),
+          Text('$q', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
           IconButton(
             tooltip: AppLocalizations.of(context).f2Increase,
             icon: const Icon(Icons.add_circle_outline_rounded),
@@ -427,13 +427,13 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Flexible(child: Text(k)),
-          Text(v, style: TextStyle(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
+          Text(v, style: AType.bodyMedium.copyWith(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
         ]),
       );
 
   Widget _sectionTitle(String s) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs, top: Gap.sm),
-        child: Text(s, style: const TextStyle(fontWeight: FontWeight.w800)),
+        child: Text(s, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
       );
 }
 

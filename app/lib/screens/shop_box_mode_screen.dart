@@ -544,7 +544,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(title, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Text(body,
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
@@ -620,7 +620,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                   Text(_cameraName.isEmpty ? t.shopBoxUnnamedCamera : _cameraName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   Text(t.shopModePairedTo(_siteName.isEmpty ? '—' : _siteName),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -643,7 +643,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(_status,
-                        style: TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             color: _statusIsError ? scheme.error : null, height: 1.35))),
               ]),
             if (_running) ...[

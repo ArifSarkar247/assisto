@@ -98,19 +98,19 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
           Card(
-            color: scheme.primaryContainer,
+            color: scheme.ds.primarySoft,
             child: Padding(
               padding: const EdgeInsets.all(Gap.lg),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Text(tr.lp2VocabToday, style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onPrimaryContainer)),
+                Text(tr.lp2VocabToday, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
                 const SizedBox(height: Gap.xs),
                 Text(
                     due.isEmpty
                         ? tr.lp2VocabAllDone
                         : tr.lp2VocabDue(ld(context, due.length)),
-                    style: TextStyle(color: scheme.onPrimaryContainer, height: 1.4)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, height: 1.4)),
                 Text(tr.lp2VocabLearned(ld(context, learnedCount(st)), ld(context, all.length)),
-                    style: AType.bodySmall.copyWith(color: scheme.onPrimaryContainer)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.primaryInk)),
                 const SizedBox(height: Gap.md),
                 FilledButton.icon(
                   key: const Key('lp2-vocab-start'),
@@ -143,8 +143,8 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
                 child: ListTile(
                   minVerticalPadding: Gap.md,
                   leading: CircleAvatar(
-                    backgroundColor: scheme.secondaryContainer,
-                    child: Icon(lpIcon('${t['icon']}', Icons.style_rounded), color: scheme.onSecondaryContainer),
+                    backgroundColor: scheme.ds.primarySoft,
+                    child: Icon(lpIcon('${t['icon']}', Icons.style_rounded), color: scheme.ds.primaryInk),
                   ),
                   title: Text(lpLoc(context, t, 'title')),
                   subtitle: Text(tr.lp2VocabLearned(ld(context, learned), ld(context, words.length))),
@@ -248,9 +248,9 @@ class _LpVocabSessionState extends State<LpVocabSession> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          LinearProgressIndicator(value: _i / n, backgroundColor: scheme.surfaceContainerHighest),
+          LinearProgressIndicator(value: _i / n, backgroundColor: scheme.ds.cardHighest),
           const SizedBox(height: Gap.xs),
-          Text(ld(context, '${_i + 1} / $n'), style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          Text(ld(context, '${_i + 1} / $n'), style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.lg),
           Card(
             child: Padding(
@@ -266,7 +266,7 @@ class _LpVocabSessionState extends State<LpVocabSession> {
                   LpListenButton(text: word),
                 ]),
                 if ('${w['pos'] ?? ''}'.isNotEmpty)
-                  Text('${w['pos']}', style: TextStyle(color: scheme.onSurfaceVariant)),
+                  Text('${w['pos']}', style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                 if (_shown) ...[
                   const Divider(height: Gap.xl),
                   Text('${w['bn']}',
@@ -276,7 +276,7 @@ class _LpVocabSessionState extends State<LpVocabSession> {
                   const SizedBox(height: Gap.md),
                   if (ex.isNotEmpty)
                     Row(children: [
-                      Expanded(child: Text(ex, style: const TextStyle(fontStyle: FontStyle.italic, height: 1.4))),
+                      Expanded(child: Text(ex, style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic, height: 1.4))),
                       LpListenButton(text: ex),
                     ]),
                 ],
@@ -315,7 +315,7 @@ class _LpVocabSessionState extends State<LpVocabSession> {
               ),
             ]),
           const SizedBox(height: Gap.md),
-          Text(tr.lp2VocabHow, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+          Text(tr.lp2VocabHow, style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
         ],
       ),
     );

@@ -69,9 +69,9 @@ class LpScoreView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(title, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xs),
-            Text(why, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            Text(why, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
             if (st == 'credits' || st == 'premium')
               Wrap(spacing: Gap.sm, children: [
                 if (st == 'credits')
@@ -105,7 +105,7 @@ class LpScoreView extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.w700))),
+            Expanded(child: Text(title, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700))),
             Text(tr.lp2BandIs(ld(context, bandText(band))),
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
           ]),
@@ -121,7 +121,7 @@ class LpScoreView extends StatelessWidget {
             ),
           if (mistakes.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
-            Text(tr.lp2Mistakes(ld(context, mistakes.length)), style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(tr.lp2Mistakes(ld(context, mistakes.length)), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xs),
             for (final m in mistakes.take(12))
               LpFixCard(
@@ -133,17 +133,17 @@ class LpScoreView extends StatelessWidget {
           if (corrected.trim().isNotEmpty)
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
-              title: Text(tr.lp2Corrected, style: const TextStyle(fontWeight: FontWeight.w700)),
+              title: Text(tr.lp2Corrected, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
               children: [
                 Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Expanded(child: SelectableText(corrected, style: const TextStyle(height: 1.5))),
+                  Expanded(child: SelectableText(corrected, style: AType.bodyMedium.copyWith(height: 1.5))),
                   LpListenButton(text: corrected),
                 ]),
               ],
             ),
           if ((r['credits_used'] as num?) != null && (r['credits_used'] as num) > 0)
             Text(tr.lp2CreditsUsed(ld(context, r['credits_used'])),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           LpPracticeFooter(text: label == null ? null : '${(bn ? label['bn'] : label['en']) ?? ''}'),
         ]),
       ),
@@ -279,7 +279,7 @@ class _LpAiScoreScreenState extends State<LpAiScoreScreen> {
             decoration: InputDecoration(
                 labelText: _w ? tr.lp2YourAnswer : tr.lp2WhatPhoneHeard, border: const OutlineInputBorder()),
           ),
-          Text(tr.lp2WordCount(ld(context, words)), style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          Text(tr.lp2WordCount(ld(context, words)), style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _best,

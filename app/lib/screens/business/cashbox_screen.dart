@@ -328,7 +328,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                               padding: const EdgeInsets.all(Gap.xl),
                               child: Center(
                                 child: Text(t.cashboxNoEntries,
-                                    style: TextStyle(
+                                    style: AType.bodyMedium.copyWith(
                                         color: scheme.ds.muted)),
                               ),
                             )
@@ -383,7 +383,7 @@ class _Line extends StatelessWidget {
         ),
         const SizedBox(width: Gap.sm),
         Text(sign.isEmpty ? value : '$sign $value',
-            style: TextStyle(fontFeatures: AFonts.tabular,
+            style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w700, color: valueColor)),
         if (trailing != null) trailing!,
       ]),
@@ -416,7 +416,7 @@ class _ReconciledCard extends StatelessWidget {
             const SizedBox(width: Gap.sm),
             Text(pair(context, summary['variance_status'],
                 fallback: t.cashboxBalanced),
-                style: TextStyle(fontWeight: FontWeight.w700, color: color)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: color)),
           ]),
           const SizedBox(height: Gap.md),
           _MiniRow(
@@ -450,10 +450,10 @@ class _MiniRow extends StatelessWidget {
       child: Row(children: [
         Expanded(
             child: Text(label,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: Theme.of(context).colorScheme.ds.muted))),
         Text(value,
-            style: TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
+            style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
       ]),
     );
   }
@@ -481,7 +481,7 @@ class _CashEntryTile extends StatelessWidget {
             ? null
             : Text(entry['ref'].toString()),
         trailing: Text(pair(context, entry['amount_display']),
-            style: TextStyle(fontFeatures: AFonts.tabular,
+            style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w700,
                 color: isIn ? AssistoTokens.of(context).success : scheme.error)),
       ),

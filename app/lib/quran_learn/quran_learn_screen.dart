@@ -18,6 +18,8 @@ import '../screens/learn_cert_screen.dart' as lc;
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
 import '../l10n/quran_learn_content.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/local_digits.dart';
@@ -130,7 +132,7 @@ class _QuranLearnScreenState extends State<QuranLearnScreen> {
         ],
       ),
       body: p == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : ListView(
               key: const Key('ql-home'),
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
@@ -169,11 +171,10 @@ class _QuranLearnScreenState extends State<QuranLearnScreen> {
     final done = p.today(now);
     final streak = p.streak(now);
     final cs = Theme.of(context).colorScheme;
-    return Card(
+    // designv2 (calm): today's goal is the soft hero
+    return DsHeroCard(
       key: const Key('ql-today'),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
+      padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
           SizedBox(
             width: 64,
@@ -189,7 +190,8 @@ class _QuranLearnScreenState extends State<QuranLearnScreen> {
               if (done >= p.goal)
                 Icon(Icons.check_rounded, color: cs.primary)
               else
-                Text(ld(context, done), style: AType.titleMedium),
+                Text(ld(context, done),
+                    style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.4)),
             ]),
           ),
           const SizedBox(width: Gap.md),
@@ -216,7 +218,6 @@ class _QuranLearnScreenState extends State<QuranLearnScreen> {
             ]),
           ),
         ]),
-      ),
     );
   }
 

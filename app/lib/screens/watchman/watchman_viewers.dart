@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
 
 import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
@@ -155,7 +156,7 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
               ),
               if (_addError != null) ...[
                 const SizedBox(height: 8),
-                Text(_addError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                Text(_addError!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
               ],
               const SizedBox(height: 8),
               ValueListenableBuilder<TextEditingValue>(

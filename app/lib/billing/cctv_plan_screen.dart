@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme.dart' show AType;
 import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -282,7 +283,7 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
           Text('${bn ? n['title_bn'] : n['title_en']}',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.ds.dangerInk)),
           const SizedBox(height: 6),
-          Text('${bn ? n['bn'] : n['en']}', style: TextStyle(color: scheme.ds.dangerInk)),
+          Text('${bn ? n['bn'] : n['en']}', style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
           if (hold && _store) ...[
             const SizedBox(height: 10),
             FilledButton(
@@ -335,7 +336,7 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
           Text(t.cplUsed(wmDigits(_lang(), used), wmDigits(_lang(), n))),
           if (over > 0) ...[
             const SizedBox(height: 6),
-            Text(t.cplOverBy(wmDigits(_lang(), over)), style: TextStyle(color: scheme.error)),
+            Text(t.cplOverBy(wmDigits(_lang(), over)), style: AType.bodyMedium.copyWith(color: scheme.error)),
           ],
           if (_store)
             TextButton.icon(
@@ -442,7 +443,7 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
           const SizedBox(width: 6),
           Flexible(
               child: Text(t.cplTrialBadge,
-                  style: TextStyle(color: scheme.ds.successInk, fontWeight: FontWeight.w600))),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.successInk, fontWeight: FontWeight.w600))),
         ]),
       );
 

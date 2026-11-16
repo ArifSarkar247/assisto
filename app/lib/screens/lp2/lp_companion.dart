@@ -206,7 +206,7 @@ class _LpCompanionScreenState extends State<LpCompanionScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
               child: Row(children: [
-                Expanded(child: Text(tr.lp2ExamTimer(ld(context, _duration ~/ 60)), style: const TextStyle(fontWeight: FontWeight.w600))),
+                Expanded(child: Text(tr.lp2ExamTimer(ld(context, _duration ~/ 60)), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
                 if (_started)
                   LpTimer(
                     key: ValueKey('ct$_timerKey'),
@@ -248,7 +248,7 @@ class _LpCompanionScreenState extends State<LpCompanionScreen> {
                 _Phase.key => tr.lp2OmrStepKey,
                 _Phase.result => tr.lp2OmrStepResult,
               },
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           if (_phase == _Phase.key) ...[
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, crossAxisAlignment: WrapCrossAlignment.center, children: [
@@ -312,7 +312,7 @@ class _LpCompanionScreenState extends State<LpCompanionScreen> {
               ),
           },
           const SizedBox(height: Gap.lg),
-          Text(tr.lp2BookWS, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(tr.lp2BookWS, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             OutlinedButton.icon(
@@ -349,7 +349,7 @@ class _LpCompanionScreenState extends State<LpCompanionScreen> {
     final m = _res?.mistakes;
     final marked = m != null && m.containsKey(n);
     final ok = marked && m[n] == null;
-    final colour = !marked ? scheme.outlineVariant : (ok ? Brand.success : Brand.danger);
+    final colour = !marked ? scheme.ds.border : (ok ? Brand.success : Brand.danger);
     final field = _phase == _Phase.key ? _ctl(_k, n) : _ctl(_a, n);
     return Container(
       padding: const EdgeInsets.all(Gap.xs),
@@ -361,7 +361,7 @@ class _LpCompanionScreenState extends State<LpCompanionScreen> {
         Row(children: [
           CircleAvatar(
             radius: 13,
-            backgroundColor: marked ? colour.withValues(alpha: 0.2) : scheme.surfaceContainerHighest,
+            backgroundColor: marked ? colour.withValues(alpha: 0.2) : scheme.ds.cardHighest,
             child: Text(ld(context, n), style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700)),
           ),
           const SizedBox(width: Gap.xs),
@@ -385,7 +385,7 @@ class _LpCompanionScreenState extends State<LpCompanionScreen> {
         ]),
         if (_phase == _Phase.key && _ctl(_a, n).text.isNotEmpty)
           Text(tr.lp2YouWrote(_ctl(_a, n).text),
-              overflow: TextOverflow.ellipsis, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              overflow: TextOverflow.ellipsis, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         if (marked && !ok) ...[
           Text(tr.lp2KeyWas(_ctl(_k, n).text), overflow: TextOverflow.ellipsis, style: AType.bodySmall),
           Text(lpMistakeName(tr, m[n]!),
@@ -407,35 +407,35 @@ class _ScoreCard extends StatelessWidget {
     final counts = res.counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     return Card(
       key: const Key('lp2-omr-score'),
-      color: scheme.primaryContainer,
+      color: scheme.ds.primarySoft,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
             Expanded(
               child: Text(tr.lp2RawScore(ld(context, res.raw), ld(context, res.total)),
-                  style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onPrimaryContainer)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
             ),
             Text(tr.lp2BandIs(ld(context, bandText(res.band))),
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.w800, color: scheme.onPrimaryContainer)),
+                    ?.copyWith(fontWeight: FontWeight.w800, color: scheme.ds.primaryInk)),
           ]),
           if (res.total != 40)
             Text(tr.lp2ScaledNote(ld(context, res.total)),
-                style: AType.bodySmall.copyWith(color: scheme.onPrimaryContainer)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.primaryInk)),
           if (counts.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
-            Text(tr.lp2MistakeTypes, style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onPrimaryContainer)),
+            Text(tr.lp2MistakeTypes, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
             for (final e in counts)
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('${lpMistakeName(tr, e.key)} · ${ld(context, e.value)}',
-                      style: TextStyle(fontWeight: FontWeight.w600, color: scheme.onPrimaryContainer)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: scheme.ds.primaryInk)),
                   Text(lpMistakeTip(tr, e.key),
-                      style: AType.bodySmall.copyWith(color: scheme.onPrimaryContainer, height: 1.35)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.primaryInk, height: 1.35)),
                 ]),
               ),
           ],

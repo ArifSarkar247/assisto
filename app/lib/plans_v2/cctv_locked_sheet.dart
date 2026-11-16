@@ -179,9 +179,9 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
           Row(children: [
             CircleAvatar(
               radius: 26,
-              backgroundColor: scheme.primaryContainer,
+              backgroundColor: scheme.ds.primarySoft,
               child: Icon(Icons.videocam_rounded,
-                  size: 28, color: scheme.onPrimaryContainer),
+                  size: 28, color: scheme.ds.primaryInk),
             ),
             const SizedBox(width: Gap.md),
             Expanded(
@@ -201,7 +201,7 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
                 Icon(Icons.check_circle_rounded,
                     size: 20, color: Brand.onTint(context, Brand.success)),
                 const SizedBox(width: Gap.sm),
-                Expanded(child: Text(b, style: const TextStyle(height: 1.35))),
+                Expanded(child: Text(b, style: AType.bodyMedium.copyWith(height: 1.35))),
               ]),
             ),
           const SizedBox(height: Gap.md),
@@ -213,14 +213,14 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
           else if (_active)
             Text(t.biUnlocked,
                 key: const Key('bi-cctv-active'),
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: Brand.onTint(context, Brand.success),
                     fontWeight: FontWeight.w700))
           else ...[
             if (_failed)
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.sm),
-                child: Text(t.payNetwork, style: TextStyle(color: scheme.error)),
+                child: Text(t.payNetwork, style: AType.bodyMedium.copyWith(color: scheme.error)),
               ),
             if (canBuy && _trial)
               FilledButton.icon(
@@ -254,19 +254,19 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall
-                      ?.copyWith(color: scheme.onSurfaceVariant)),
+                      ?.copyWith(color: scheme.ds.muted)),
               if (_trial)
                 Text(t.biCctvTrialNote,
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall
-                        ?.copyWith(color: scheme.onSurfaceVariant)),
+                        ?.copyWith(color: scheme.ds.muted)),
             ] else
               // No Play client (website APK) / store price unknown: an honest
               // line + the plan screen (never a fake buy button).
               Text(t.biCctvNoStore(taka),
                   key: const Key('bi-cctv-nostore'),
-                  style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
             if (_busy)
               const Padding(
                 padding: EdgeInsets.only(top: Gap.sm),
@@ -277,7 +277,7 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
                 padding: const EdgeInsets.only(top: Gap.sm),
                 child: Text(_note,
                     key: const Key('bi-cctv-note'),
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
               ),
           ],
           const SizedBox(height: Gap.sm),

@@ -208,27 +208,28 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
         for (final k in kinds)
           SizedBox(
             width: w,
-            child: Material(
-              color: DsTokens.of(context).cardHighest,
-              borderRadius: BorderRadius.circular(Radii.lg),
-              child: InkWell(
-                key: ValueKey('acct-home-$k'),
-                borderRadius: BorderRadius.circular(Radii.lg),
-                onTap: () => _newEntry(k),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 72),
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.md),
-                    child: Row(children: [
-                      Icon(acctKindIcon(k), color: scheme.primary, size: 28),
-                      const SizedBox(width: Gap.sm),
-                      Expanded(
-                        child: Text(acctKindLabel(t, k),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                      ),
-                    ]),
+            child: DsSurface(
+              key: ValueKey('acct-home-$k'),
+              onTap: () => _newEntry(k),
+              padding: const EdgeInsets.all(Gap.md),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 48),
+                child: Row(children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: DsTokens.of(context).primarySoft,
+                      borderRadius: BorderRadius.circular(DsRadius.card),
+                    ),
+                    child: Icon(acctKindIcon(k), color: DsTokens.of(context).primaryInk, size: 26),
                   ),
-                ),
+                  const SizedBox(width: Gap.sm),
+                  Expanded(
+                    child: Text(acctKindLabel(t, k),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                  ),
+                ]),
               ),
             ),
           ),
@@ -247,17 +248,14 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
   }
 
   Widget _toolsSection(AppLocalizations t, ColorScheme scheme) {
-    Widget tile(IconData icon, String title, String sub, VoidCallback on, String key) => Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+    Widget tile(IconData icon, String title, String sub, VoidCallback on, String key) => ListTile(
             key: ValueKey(key),
             minVerticalPadding: Gap.sm,
             leading: Icon(icon, color: scheme.primary),
-            title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+            title: Text(title, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
             subtitle: Text(sub),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: on,
-          ),
         );
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Semantics(
@@ -266,6 +264,8 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
       ),
       const SizedBox(height: Gap.sm),
+      // design2: the tools sit in one grouped V2 card (settings style)
+      DsGroup(margin: EdgeInsets.zero, children: [
       tile(Icons.insights_rounded, t.acuReports, t.acuReportsSub,
           () => _open(AcctReportsScreen(businessId: _biz)), 'acct-tool-reports'),
       tile(Icons.ios_share_rounded, t.acuExport, t.acuExportSub,
@@ -280,6 +280,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
           () => _open(AcctAuditScreen(businessId: _biz)), 'acct-tool-audit'),
       tile(Icons.flag_rounded, t.acuOpening, t.acuOpeningSub,
           () => _open(AcctOpeningScreen(businessId: _biz)), 'acct-tool-opening'),
+      ]),
     ]);
   }
 
@@ -297,7 +298,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.acuQueueWaiting(acctDigits(context, waiting)),
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: DsTokens.of(context).successInk, fontWeight: FontWeight.w700)),
             ),
           ]),
@@ -314,9 +315,9 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
               title: Text(
                   '${acctKindLabel(t, '${(f['entry'] as Map)['kind']}')} · '
                   '${acctMoney(context, (f['entry'] as Map)['amount'])}',
-                  style: TextStyle(color: DsTokens.of(context).successInk)),
+                  style: AType.bodyMedium.copyWith(color: DsTokens.of(context).successInk)),
               subtitle: Text(pair(context, f['failed']),
-                  style: TextStyle(color: DsTokens.of(context).successInk)),
+                  style: AType.bodyMedium.copyWith(color: DsTokens.of(context).successInk)),
               trailing: TextButton(
                 onPressed: () async {
                   await AcctQueue.remove('${(f['entry'] as Map)['client_id']}');
@@ -338,7 +339,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
             Text(t.acuOpeningCardTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.xs),
-            Text(t.acuOpeningCardBody, style: const TextStyle(height: 1.4)),
+            Text(t.acuOpeningCardBody, style: AType.bodyMedium.copyWith(height: 1.4)),
             const SizedBox(height: Gap.sm),
             FilledButton(
               key: const ValueKey('acct-opening-start'),
@@ -362,7 +363,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
               style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
           Text(t.acuEmptyBody,
-              textAlign: TextAlign.center, style: TextStyle(height: 1.4, color: DsTokens.of(context).muted)),
+              textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(height: 1.4, color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.lg),
           SizedBox(
             height: 52,
@@ -374,7 +375,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
             ),
           ),
           const SizedBox(height: Gap.md),
-          Text(t.acuEmptyHowTo, style: TextStyle(height: 1.5, color: DsTokens.of(context).muted)),
+          Text(t.acuEmptyHowTo, style: AType.bodyMedium.copyWith(height: 1.5, color: DsTokens.of(context).muted)),
         ]),
       );
 
@@ -399,7 +400,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
 
   Widget _entryTile(AppLocalizations t, ColorScheme scheme, Map<String, dynamic> e) {
     final voided = e['void'] != null;
-    final style = TextStyle(
+    final style = AType.bodyMedium.copyWith(
         decoration: voided ? TextDecoration.lineThrough : null,
         color: voided ? DsTokens.of(context).muted : null);
     return ListTile(
@@ -446,9 +447,9 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
             if ((e['vat'] as num? ?? 0) > 0) Text(t.acuVatLine(acctMoney(ctx, e['vat']))),
             const SizedBox(height: Gap.lg),
             if (voided)
-              Text(t.acuVoidedNote, style: TextStyle(color: Theme.of(ctx).colorScheme.ds.muted))
+              Text(t.acuVoidedNote, style: AType.bodyMedium.copyWith(color: Theme.of(ctx).colorScheme.ds.muted))
             else ...[
-              Text(t.acuVoidExplain, style: const TextStyle(height: 1.4)),
+              Text(t.acuVoidExplain, style: AType.bodyMedium.copyWith(height: 1.4)),
               const SizedBox(height: Gap.sm),
               TextField(
                 controller: reason,

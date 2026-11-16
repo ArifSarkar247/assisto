@@ -220,7 +220,7 @@ class _CrmSendSheetState extends State<CrmSendSheet> {
                 style: AType.titleLarge, maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: Gap.xs),
             Text(t.c100NeverAuto,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.md),
             TextField(
               controller: _text,
@@ -323,7 +323,7 @@ class _Way extends StatelessWidget {
       child: ListTile(
         minVerticalPadding: Gap.md,
         enabled: on,
-        leading: Icon(icon, color: on ? scheme.primary : scheme.onSurfaceVariant),
+        leading: Icon(icon, color: on ? scheme.primary : scheme.ds.muted),
         title: Text(title),
         subtitle: Text(sub),
         trailing: on ? const Icon(Icons.chevron_right_rounded) : null,
@@ -345,15 +345,15 @@ class _Note extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: bad ? scheme.errorContainer : scheme.secondaryContainer,
+          color: bad ? scheme.ds.dangerBg : scheme.ds.primarySoft,
           borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, size: 20, color: bad ? scheme.onErrorContainer : scheme.onSecondaryContainer),
+        Icon(icon, size: 20, color: bad ? scheme.ds.dangerInk : scheme.ds.primaryInk),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: TextStyle(
-                    color: bad ? scheme.onErrorContainer : scheme.onSecondaryContainer))),
+                style: AType.bodyMedium.copyWith(
+                    color: bad ? scheme.ds.dangerInk : scheme.ds.primaryInk))),
       ]),
     );
   }

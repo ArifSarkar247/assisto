@@ -7,6 +7,7 @@ import '../ads/ad_banner_slot.dart';
 import '../l10n/app_localizations.dart';
 import '../services/error_kind.dart' show honestFailText;
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/local_digits.dart';
@@ -65,7 +66,6 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     if (_loading) {
       return Scaffold(appBar: AppBar(title: Text(tr.lpTitle)), body: const SkeletonList());
     }
@@ -81,7 +81,7 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
             if (_fail != null)
               Card(
                 child: ListTile(
-                  leading: Icon(Icons.cloud_off_rounded, color: scheme.error),
+                  leading: Icon(Icons.cloud_off_rounded, color: DsTokens.of(context).dangerInk),
                   title: Text(honestFailText(tr, _fail, otherwise: tr.lp2ProgressOffline)),
                   trailing: TextButton(onPressed: _load, child: Text(tr.retry)),
                 ),
@@ -155,11 +155,11 @@ class _GoalCard extends StatelessWidget {
     final done = p.minutesToday;
     final s = p.streak;
     final reached = done >= kLpDailyGoalMin;
-    return Card(
+    // design2: today's goal + streak is the soft hero (most important first)
+    return DsHeroCard(
       key: const Key('lp2-goal'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
             Icon(Icons.flag_rounded, color: scheme.primary),
             const SizedBox(width: Gap.sm),
@@ -167,9 +167,9 @@ class _GoalCard extends StatelessWidget {
                 child: Text(tr.lp2GoalTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))),
             Icon(Icons.local_fire_department_rounded,
-                color: s.current > 0 ? Brand.warning : scheme.onSurfaceVariant),
+                color: s.current > 0 ? Brand.warning : scheme.ds.muted),
             const SizedBox(width: Gap.xs),
-            Text(tr.lp2Streak(ld(context, s.current)), style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(tr.lp2Streak(ld(context, s.current)), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ]),
           const SizedBox(height: Gap.md),
           ClipRRect(
@@ -177,8 +177,8 @@ class _GoalCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: (done / kLpDailyGoalMin).clamp(0.0, 1.0),
               minHeight: 10,
-              color: reached ? Brand.success : scheme.primary,
-              backgroundColor: scheme.surfaceContainerHighest,
+              color: reached ? DsTokens.of(context).success : DsTokens.of(context).primary,
+              backgroundColor: scheme.ds.cardHighest,
             ),
           ),
           const SizedBox(height: Gap.sm),
@@ -186,9 +186,9 @@ class _GoalCard extends StatelessWidget {
               reached
                   ? tr.lp2GoalDone
                   : tr.lp2GoalMin(ld(context, done), ld(context, kLpDailyGoalMin)),
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           if (s.best > 0)
-            Text(tr.lp2StreakBest(ld(context, s.best)), style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            Text(tr.lp2StreakBest(ld(context, s.best)), style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -201,7 +201,6 @@ class _GoalCard extends StatelessWidget {
             ),
           ),
         ]),
-      ),
     );
   }
 }
@@ -223,17 +222,19 @@ class _BigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: actions.first.$3,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    // design2: alive DS card (lifts on press), icon in a tinted bubble
+    return DsSurface(
+      onTap: actions.first.$3,
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Row(children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: colour.withValues(alpha: 0.15),
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: colour.withValues(alpha: DsTokens.of(context).isDark ? 0.22 : 0.12),
+                  borderRadius: BorderRadius.circular(DsRadius.card),
+                ),
                 child: Icon(icon, color: Brand.onTint(context, colour)),
               ),
               const SizedBox(width: Gap.md),
@@ -243,10 +244,10 @@ class _BigCard extends StatelessWidget {
               ),
             ]),
             const SizedBox(height: Gap.sm),
-            Text(body, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            Text(body, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
             if (extra != null) ...[
               const SizedBox(height: Gap.sm),
-              Text(extra!, style: TextStyle(fontWeight: FontWeight.w700, color: Brand.onTint(context, colour))),
+              Text(extra!, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: Brand.onTint(context, colour))),
             ],
             const SizedBox(height: Gap.md),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -264,8 +265,6 @@ class _BigCard extends StatelessWidget {
                         label: Text(a.$1)),
             ]),
           ]),
-        ),
-      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../ds/ds.dart';
 import '../theme.dart';
 import 'fam_sharing_strings.dart' show famNum;
 
@@ -49,17 +50,8 @@ class FamEmptyState extends StatelessWidget {
       children: [
         if (header != null) header!,
         const SizedBox(height: Gap.lg),
-        Center(
-          child: Container(
-            height: 72,
-            width: 72,
-            decoration: BoxDecoration(
-              color: scheme.primary.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 34, color: scheme.primary),
-          ),
-        ),
+        // designv2: the drawn DS illustration
+        Center(child: DsIllustration(icon: icon, size: 72)), // same height as before (lazy list)
         const SizedBox(height: Gap.lg),
         Text(title,
             textAlign: TextAlign.center,

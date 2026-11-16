@@ -80,7 +80,7 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
               title: Text(t.crmInviteCode),
               subtitle: Text(t.crmInviteCodeHint),
               trailing: SelectableText(_inviteCode!,
-                  style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, letterSpacing: 1.2)),
             ),
           ),
           const SizedBox(height: Gap.sm),
@@ -95,7 +95,7 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
                 leading: CircleAvatar(
                   backgroundColor: scheme.ds.primarySoft,
                   child: Text(((m['user_name'] ?? '?').toString().isNotEmpty ? m['user_name'][0] : '?').toUpperCase(),
-                      style: TextStyle(color: scheme.ds.primaryInk)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
                 ),
                 title: Text(m['user_name'] ?? ''),
                 subtitle: Text(_roleLabel(t, m['role'])),
@@ -125,7 +125,7 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
 
   Widget _sectionTitle(String s) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs, top: Gap.sm),
-        child: Text(s, style: const TextStyle(fontWeight: FontWeight.w800)),
+        child: Text(s, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
       );
 
   String _memberName(Object? id) {

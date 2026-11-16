@@ -354,12 +354,12 @@ class _Disclosure extends StatelessWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (big)
                 Text(t.bizaiDisclosureTitle,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
               Text(text,
                   maxLines: big ? null : 2,
                   overflow: big ? null : TextOverflow.ellipsis,
-                  style: TextStyle(color: scheme.ds.primaryInk)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
             ]),
           ),
         ]),
@@ -382,7 +382,7 @@ class _Bubble extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: Gap.sm),
         child: Text(bd(context, m['text']),
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.ds.muted, fontStyle: FontStyle.italic)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted, fontStyle: FontStyle.italic)),
       );
     }
     final mine = dir == 'in';
@@ -415,7 +415,7 @@ class _Bubble extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: scheme.tertiary, borderRadius: BorderRadius.circular(8)),
                 child: Text(t.bizaiAiLabel,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         color: scheme.onTertiary, fontWeight: FontWeight.w700, fontSize: 12)),
               ),
             ),
@@ -426,7 +426,7 @@ class _Bubble extends StatelessWidget {
               Flexible(child: Text(t.bizaiVoiceHeard)),
             ]),
           SelectableText(bd(context, shown),
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   color: mine ? scheme.ds.primaryInk : scheme.ds.text)),
         ]),
       ),

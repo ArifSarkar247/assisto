@@ -90,7 +90,7 @@ class _CrmFormImportState extends State<CrmFormImport> {
     return ListView(
       padding: const EdgeInsets.all(Gap.md),
       children: [
-        Text(t.crmFormImportHint, style: TextStyle(color: scheme.onSurfaceVariant)),
+        Text(t.crmFormImportHint, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.sm),
         TextField(
           controller: _raw,
@@ -106,11 +106,11 @@ class _CrmFormImportState extends State<CrmFormImport> {
         ),
         if (_parsed) ...[
           const Divider(height: Gap.lg),
-          Text(t.crmReviewDraft, style: const TextStyle(fontWeight: FontWeight.w800)),
+          Text(t.crmReviewDraft, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
           if (_draft.isEmpty)
             Text(t.crmFormNothingMapped,
-                style: const TextStyle(color: Brand.warning)),
+                style: AType.bodyMedium.copyWith(color: Brand.warning)),
           for (final e in _draft.entries)
             if (e.key != 'source')
               ListTile(
@@ -122,7 +122,7 @@ class _CrmFormImportState extends State<CrmFormImport> {
           if (_unmapped.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(t.crmUnmappedFields,
-                style: const TextStyle(fontWeight: FontWeight.w700, color: Brand.warning)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: Brand.warning)),
             for (final e in _unmapped.entries)
               ListTile(
                 dense: true,
@@ -140,7 +140,7 @@ class _CrmFormImportState extends State<CrmFormImport> {
         ],
         if (_err != null) ...[
           const SizedBox(height: Gap.sm),
-          Text(_err!, style: const TextStyle(color: Brand.danger)),
+          Text(_err!, style: AType.bodyMedium.copyWith(color: Brand.danger)),
         ],
       ],
     );

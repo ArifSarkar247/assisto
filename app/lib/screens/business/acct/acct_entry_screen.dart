@@ -267,7 +267,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
           ]),
           const SizedBox(height: Gap.sm),
           Text(acctKindHint(t, _kind),
-              style: TextStyle(color: DsTokens.of(context).muted, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted, height: 1.4)),
           _label(t.acuAmount),
           TextField(
             key: const ValueKey('acct-amount'),
@@ -355,7 +355,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(_effect(t),
-                        style: TextStyle(color: DsTokens.of(context).primaryInk, height: 1.4))),
+                        style: AType.bodyMedium.copyWith(color: DsTokens.of(context).primaryInk, height: 1.4))),
               ]),
             ),
           ),
@@ -447,7 +447,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                 padding: const EdgeInsets.only(top: Gap.sm),
                 child: Text(_error!,
                     key: const ValueKey('acct-error'),
-                    style: TextStyle(color: DsTokens.of(context).dangerInk, fontWeight: FontWeight.w600)),
+                    style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk, fontWeight: FontWeight.w600)),
               ),
             ),
           const SizedBox(height: Gap.lg),

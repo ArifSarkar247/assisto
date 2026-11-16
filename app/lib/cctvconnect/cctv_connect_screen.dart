@@ -478,7 +478,7 @@ class CctvLinkSheetState extends State<CctvLinkSheet> {
                   padding: const EdgeInsets.only(top: Gap.sm),
                   child: Text(_msg,
                       key: const Key('ccnMsg'),
-                      style: TextStyle(
+                      style: AType.bodyMedium.copyWith(
                           color: _info ? null : Theme.of(context).colorScheme.error)),
                 ),
               const SizedBox(height: Gap.sm),

@@ -147,7 +147,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
             Padding(
               padding: const EdgeInsets.all(Gap.xs),
               child: Row(children: [
-                Expanded(child: Text(stage['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w800))),
+                Expanded(child: Text(stage['name'] ?? '', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
                 Text('${fmtInt(context, (stage['probability'] as num?)?.toInt() ?? 0)}%', style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ]),
             ),
@@ -174,9 +174,9 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(d['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
+          Text(d['title'] ?? '', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
           const SizedBox(height: Gap.xs),
-          Text(bdt(context, (d['value'] as num?)), style: const TextStyle(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(bdt(context, (d['value'] as num?)), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
           Text('${fmtInt(context, (d['probability'] as num?)?.toInt() ?? 0)}% · ${_closeDate(d['expected_close'])}',
               maxLines: 1, overflow: TextOverflow.ellipsis,
               style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),

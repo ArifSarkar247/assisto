@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -162,8 +163,8 @@ class _CctvRoleSheetState extends State<CctvRoleSheet> {
           onChanged: (v) => setState(() => _live = v),
         ),
         if (_error != null && _error!.isNotEmpty)
-          Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-        if (!_valid) Text(t.ctmGuardPick, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
+        if (!_valid) Text(t.ctmGuardPick, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
         const SizedBox(height: 8),
         FilledButton(
           key: const ValueKey('ctm-role-save'),
@@ -446,7 +447,7 @@ class _NewLinkSheetState extends State<_NewLinkSheet> {
         ),
         Text(t.ctmLinkWarning),
         if (_error != null && _error!.isNotEmpty)
-          Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
         const SizedBox(height: 8),
         FilledButton(
           key: const ValueKey('ctm-link-make'),

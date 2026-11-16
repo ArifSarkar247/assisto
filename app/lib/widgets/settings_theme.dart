@@ -84,7 +84,7 @@ class SettingsThemeSection extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.md),
           child: Text(
             t.themeFollowSystemNote,
-            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+            style: AType.bodyMedium.copyWith(fontSize: 12, color: cs.ds.muted),
           ),
         ),
       ],
@@ -122,7 +122,7 @@ class _ThemeCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Radii.md),
               border: Border.all(
-                color: selected ? cs.primary : cs.outlineVariant,
+                color: selected ? cs.primary : cs.ds.border,
                 width: selected ? 2 : 1,
               ),
             ),
@@ -139,7 +139,7 @@ class _ThemeCard extends StatelessWidget {
                       ? Icons.radio_button_checked_rounded
                       : Icons.radio_button_unchecked_rounded,
                   size: 16,
-                  color: selected ? cs.primary : cs.onSurfaceVariant,
+                  color: selected ? cs.primary : cs.ds.muted,
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -148,11 +148,11 @@ class _ThemeCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                   softWrap: true,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                     fontSize: 12,
                     height: 1.15,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    color: selected ? cs.primary : cs.onSurface,
+                    color: selected ? cs.primary : cs.ds.text,
                   ),
                 ),
               ],
@@ -207,7 +207,7 @@ class _ThemeCard extends StatelessWidget {
             height: 8,
             width: 26,
             decoration: BoxDecoration(
-              color: s.surfaceContainerHighest,
+              color: s.ds.cardHighest,
               borderRadius: BorderRadius.circular(4),
             ),
           ),

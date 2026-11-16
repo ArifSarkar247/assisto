@@ -245,7 +245,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
         child: Row(children: [
           Icon(icon, size: 18, color: tint),
           const SizedBox(width: Gap.sm),
-          Expanded(child: Text(text, style: const TextStyle(fontWeight: FontWeight.w800))),
+          Expanded(child: Text(text, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
         ]),
       );
 }

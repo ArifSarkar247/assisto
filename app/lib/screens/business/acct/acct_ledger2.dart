@@ -209,7 +209,7 @@ class _AcctCashboxScreenState extends State<AcctCashboxScreen> {
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           Card(
-            color: pending > 0 ? scheme.tertiaryContainer : scheme.surfaceContainerHighest,
+            color: pending > 0 ? scheme.ds.successBg : scheme.ds.cardHighest,
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Semantics(
@@ -219,16 +219,16 @@ class _AcctCashboxScreenState extends State<AcctCashboxScreen> {
                         ? t.lg2CashboxPending(acctDigits(context, pending),
                             acctMoney(context, d['unclassified_amount']))
                         : t.lg2CashboxAllDone,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         fontWeight: FontWeight.w700,
                         height: 1.4,
-                        color: pending > 0 ? scheme.onTertiaryContainer : null)),
+                        color: pending > 0 ? scheme.ds.successInk : null)),
               ),
             ),
           ),
           const SizedBox(height: Gap.sm),
           Text(t.lg2CashboxWhy,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           for (final r in sorted)
             Card(
@@ -241,7 +241,7 @@ class _AcctCashboxScreenState extends State<AcctCashboxScreen> {
                     color: r['kind'] == 'in' ? scheme.primary : scheme.error),
                 title: Text(
                     '${r['kind'] == 'in' ? t.lg2CashIn : t.lg2CashOut} · ${acctMoney(context, r['amount'])}',
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                 subtitle: Text([
                   acctDay(context, r['date']),
                   if ('${r['note'] ?? ''}'.isNotEmpty) '${r['note']}',
@@ -370,11 +370,11 @@ class _AcctVatRatesScreenState extends State<AcctVatRatesScreen> {
               if (err != null)
                 Semantics(
                   liveRegion: true,
-                  child: Text(err!, style: TextStyle(color: Theme.of(ctx).colorScheme.error)),
+                  child: Text(err!, style: AType.bodyMedium.copyWith(color: Theme.of(ctx).colorScheme.error)),
                 ),
               const SizedBox(height: Gap.sm),
               Text(t.lg2VatFromToday,
-                  style: TextStyle(color: Theme.of(ctx).colorScheme.onSurfaceVariant, height: 1.4)),
+                  style: AType.bodyMedium.copyWith(color: Theme.of(ctx).colorScheme.ds.muted, height: 1.4)),
               const SizedBox(height: Gap.sm),
               SizedBox(
                 height: 52,
@@ -440,19 +440,19 @@ class _AcctVatRatesScreenState extends State<AcctVatRatesScreen> {
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
         Card(
-          color: seller ? scheme.surfaceContainerHighest : scheme.tertiaryContainer,
+          color: seller ? scheme.ds.cardHighest : scheme.ds.successBg,
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Text(
                 seller ? t.lg2VatShopRate(acctPct(context, d['shop_vat_bp'])) : t.lg2VatNotSeller,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     height: 1.4,
                     fontWeight: FontWeight.w600,
-                    color: seller ? null : scheme.onTertiaryContainer)),
+                    color: seller ? null : scheme.ds.successInk)),
           ),
         ),
         const SizedBox(height: Gap.sm),
-        Text(t.lg2VatRatesWhy, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+        Text(t.lg2VatRatesWhy, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
         const SizedBox(height: Gap.md),
         TextField(
           key: const ValueKey('acct-vat-search'),
@@ -480,7 +480,7 @@ class _AcctVatRatesScreenState extends State<AcctVatRatesScreen> {
               child: ListTile(
                 key: ValueKey('acct-vatp-${p['product_id']}'),
                 minVerticalPadding: Gap.sm,
-                title: Text('${p['name']}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                title: Text('${p['name']}', style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                 subtitle: Text([
                   _modeText(t, p),
                   if ('${p['note'] ?? ''}'.isNotEmpty) '${p['note']}',
@@ -545,7 +545,7 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(t.lg2YearCloseTitle(day), style: Theme.of(ctx).textTheme.titleLarge),
               const SizedBox(height: Gap.sm),
-              Text(t.lg2YearCloseExplain, style: const TextStyle(height: 1.5)),
+              Text(t.lg2YearCloseExplain, style: AType.bodyMedium.copyWith(height: 1.5)),
               CheckboxListTile(
                 key: const ValueKey('acct-year-understand'),
                 contentPadding: EdgeInsets.zero,
@@ -587,7 +587,7 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(t.lg2YearReopenTitle(day), style: Theme.of(ctx).textTheme.titleLarge),
               const SizedBox(height: Gap.sm),
-              Text(t.lg2YearReopenExplain, style: const TextStyle(height: 1.5)),
+              Text(t.lg2YearReopenExplain, style: AType.bodyMedium.copyWith(height: 1.5)),
               const SizedBox(height: Gap.md),
               TextField(
                 key: const ValueKey('acct-year-reason'),
@@ -661,17 +661,17 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
       ),
       const SizedBox(height: Gap.xs),
-      Text(t.lg2YearWhy, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+      Text(t.lg2YearWhy, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
       const SizedBox(height: Gap.sm),
       for (final c in live)
         Card(
           margin: const EdgeInsets.only(bottom: Gap.sm),
-          color: scheme.primaryContainer,
+          color: scheme.ds.primarySoft,
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(t.lg2YearClosedOn(acctDay(context, c['end'])),
-                  style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onPrimaryContainer)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
               const SizedBox(height: Gap.sm),
               Align(
                 alignment: AlignmentDirectional.centerStart,
@@ -679,8 +679,8 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
                   key: ValueKey('acct-year-reopen-${c['end']}'),
                   style: OutlinedButton.styleFrom(
                       minimumSize: const Size(0, 48),
-                      foregroundColor: scheme.onPrimaryContainer,
-                      side: BorderSide(color: scheme.onPrimaryContainer)),
+                      foregroundColor: scheme.ds.primaryInk,
+                      side: BorderSide(color: scheme.ds.primaryInk)),
                   onPressed: _busy || c != live.first ? null : () => _reopen('${c['end']}'),
                   icon: const Icon(Icons.lock_open_rounded),
                   label: Text(t.acuReopenButton),
@@ -698,7 +698,7 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
             enabled: !_busy,
             leading: const Icon(Icons.event_available_rounded),
             title: Text(t.lg2YearCloseTitle(acctDay(context, s['end'])),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             subtitle: Text(s['kind'] == 'tax' ? t.lg2YearTax : t.lg2YearCalendar),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => _close('${s['end']}', '${s['kind']}'),
@@ -726,21 +726,21 @@ class AcctCostGapBanner extends StatelessWidget {
     if (n == 0) return const SizedBox.shrink();
     return Card(
       key: const ValueKey('acct-cost-banner'),
-      color: scheme.errorContainer,
+      color: scheme.ds.dangerBg,
       margin: const EdgeInsets.only(top: Gap.sm, bottom: Gap.sm),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.warning_amber_rounded, color: scheme.onErrorContainer),
+            Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Semantics(
                 liveRegion: true,
                 child: Text(
                     t.lg2CostBanner(acctDigits(context, n), acctMoney(context, gaps['revenue'])),
-                    style: TextStyle(
-                        color: scheme.onErrorContainer, fontWeight: FontWeight.w700, height: 1.4)),
+                    style: AType.bodyMedium.copyWith(
+                        color: scheme.ds.dangerInk, fontWeight: FontWeight.w700, height: 1.4)),
               ),
             ),
           ]),
@@ -751,8 +751,8 @@ class AcctCostGapBanner extends StatelessWidget {
               key: const ValueKey('acct-cost-open'),
               style: OutlinedButton.styleFrom(
                   minimumSize: const Size(0, 48),
-                  foregroundColor: scheme.onErrorContainer,
-                  side: BorderSide(color: scheme.onErrorContainer)),
+                  foregroundColor: scheme.ds.dangerInk,
+                  side: BorderSide(color: scheme.ds.dangerInk)),
               onPressed: () async {
                 var fixed = false;   // however the sheet is closed (drag too)
                 await showAppSheet<void>(
@@ -848,13 +848,13 @@ class _AcctCostGapsSheetState extends State<AcctCostGapsSheet> {
         children: [
           Text(t.lg2CostTitle, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: Gap.sm),
-          Text(t.lg2CostExplain, style: const TextStyle(height: 1.5)),
+          Text(t.lg2CostExplain, style: AType.bodyMedium.copyWith(height: 1.5)),
           const SizedBox(height: Gap.md),
           if (_products.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.lg),
               child: Text(t.lg2CostAllFixed,
-                  style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(color: scheme.primary, fontWeight: FontWeight.w700)),
             ),
           for (final p in _products) _productCard(t, scheme, p),
         ],
@@ -870,12 +870,12 @@ class _AcctCostGapsSheetState extends State<AcctCostGapsSheet> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text('${p['name']}', style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text('${p['name']}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           Text(t.lg2CostSold(acctDigits(context, p['lines']), acctMoney(context, p['revenue'])),
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           if (id == null)
-            Text(t.lg2CostNoProduct, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4))
+            Text(t.lg2CostNoProduct, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4))
           else ...[
             if (current <= 0)
               TextField(

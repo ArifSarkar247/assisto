@@ -77,15 +77,15 @@ class ContactRoleChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: muted ? scheme.surfaceContainerHighest : c,
+        color: muted ? scheme.ds.cardHighest : c,
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Text(
         contactRoleLabel(role, t),
-        style: TextStyle(
+        style: AType.bodyMedium.copyWith(
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: muted ? scheme.onSurfaceVariant : Colors.white,
+          color: muted ? scheme.ds.muted : Colors.white,
         ),
       ),
     );
@@ -102,7 +102,7 @@ class PrimaryContactBadge extends StatelessWidget {
       const Icon(Icons.star_rounded, size: 14, color: Brand.warning),
       const SizedBox(width: 3),
       Text(t.crmPrimary,
-          style: const TextStyle(
+          style: AType.bodyMedium.copyWith(
               fontSize: 11, fontWeight: FontWeight.w700, color: Brand.warning)),
     ]);
   }
@@ -142,7 +142,7 @@ class CrmTagChip extends StatelessWidget {
                 size: 13, color: selected ? Colors.white : c),
             const SizedBox(width: 4),
             Text(name,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: selected ? Colors.white : c)),
@@ -166,17 +166,17 @@ class KvRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         if (icon != null) ...[
-          Icon(icon, size: 16, color: scheme.onSurfaceVariant),
+          Icon(icon, size: 16, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
         ],
         SizedBox(
           width: 110,
           child: Text(label,
-              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(fontSize: 13, color: scheme.ds.muted)),
         ),
         Expanded(
           child: Text(value,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              style: AType.bodyMedium.copyWith(fontSize: 13, fontWeight: FontWeight.w600)),
         ),
       ]),
     );
@@ -198,14 +198,14 @@ class CrmSectionHeader extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(title,
-                style: const TextStyle(
+                style: AType.bodyMedium.copyWith(
                     fontWeight: FontWeight.w800, fontSize: 15)),
             if (hint != null)
               Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: Text(hint!,
                     style:
-                        TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                        AType.bodyMedium.copyWith(fontSize: 11, color: scheme.ds.muted)),
               ),
           ]),
         ),
@@ -264,14 +264,14 @@ class FunnelBar extends StatelessWidget {
             child: Text(stage,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, fontSize: 13)),
           ),
           Text('$reached',
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, fontSize: 13)),
           if (conversionFromPrev != null) ...[
             const SizedBox(width: 6),
             Text('· $conversionFromPrev% ${t.crmFromPrevStage}',
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(fontSize: 11, color: scheme.ds.muted)),
           ],
         ]),
         const SizedBox(height: 4),
@@ -280,7 +280,7 @@ class FunnelBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: frac,
             minHeight: 10,
-            backgroundColor: scheme.surfaceContainerHighest,
+            backgroundColor: scheme.ds.cardHighest,
             valueColor: const AlwaysStoppedAnimation(Brand.blue),
           ),
         ),
@@ -315,11 +315,11 @@ class ReportStatTile extends StatelessWidget {
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(value,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                style: AType.bodyMedium.copyWith(fontSize: 18, fontWeight: FontWeight.w800),
                 maxLines: 1),
           ),
           Text(label,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(fontSize: 12, color: scheme.ds.muted)),
         ]),
       ),
     );

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
 
 import '../../cashguard/cashguard_source.dart';
 import '../../cashguard/clip_crypto.dart';
@@ -259,7 +260,7 @@ class _CashClipSheetState extends State<CashClipSheet> {
                     ? const SizedBox.shrink()
                     : Image.memory(c.frames[_i], fit: BoxFit.contain, gaplessPlayback: true,
                         errorBuilder: (_, __, ___) => Center(
-                            child: Text(t.cgClipFailed, style: const TextStyle(color: Colors.white)))),
+                            child: Text(t.cgClipFailed, style: AType.bodyMedium.copyWith(color: Colors.white)))),
               ),
             ),
           ),

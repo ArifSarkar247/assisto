@@ -99,9 +99,9 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
                           leading: CircleAvatar(
                               backgroundColor: Brand.success,
                               child: Text(cityD(context, '${i + 1}'),
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800))),
+                                  style: AType.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w800))),
                           title: Text(cityD(context, _stations[i].label(bn)),
-                              style: const TextStyle(fontWeight: FontWeight.w700)),
+                              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                           subtitle: Text(cityD(
                               context,
                               _stations[i].gates > 0
@@ -156,7 +156,7 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
       child: ListTile(
         minVerticalPadding: Gap.sm,
         leading: const Icon(Icons.credit_card_rounded),
-        title: Text(t.cityRecharge, style: const TextStyle(fontWeight: FontWeight.w800)),
+        title: Text(t.cityRecharge, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
         subtitle: Text(cityD(context, text)),
       ),
     );
@@ -185,8 +185,8 @@ class CityMetroHoursCard extends StatelessWidget {
           if (name.isNotEmpty) Text(d(name), style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           if ('${line['operator'] ?? ''}'.isNotEmpty) Text(d('${line['operator']}'), style: AType.bodySmall),
           const SizedBox(height: Gap.sm),
-          if (svc.hoursSatThu.isNotEmpty) Text(d(t.cityMetroSatThu(f1, l1)), style: const TextStyle(fontWeight: FontWeight.w700)),
-          if (svc.hoursFri.isNotEmpty) Text(d(t.cityMetroFriday(f2, l2)), style: const TextStyle(fontWeight: FontWeight.w700)),
+          if (svc.hoursSatThu.isNotEmpty) Text(d(t.cityMetroSatThu(f1, l1)), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+          if (svc.hoursFri.isNotEmpty) Text(d(t.cityMetroFriday(f2, l2)), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           if (svc.headwayPeak > 0)
             Text(d(t.cityMetroEvery('${svc.headwayPeak}', '${svc.headwayOffpeak}', '${svc.headwayFri}'))),
           if (svc.endToEnd > 0) Text(d(t.cityMetroEndToEnd('${svc.endToEnd}'))),
@@ -303,8 +303,8 @@ class _CityStationScreenState extends State<CityStationScreen> {
             if (g.status.isNotEmpty) CityStatusBadge(g.status),
           ]),
           if (side.isNotEmpty) Text(side),
-          if (g.lift == true) Text(t.cityLiftHere, style: const TextStyle(fontWeight: FontWeight.w700)),
-          if (g.escalator == true) Text(t.cityEscalatorHere, style: const TextStyle(fontWeight: FontWeight.w700)),
+          if (g.lift == true) Text(t.cityLiftHere, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+          if (g.escalator == true) Text(t.cityEscalatorHere, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           if (g.near.isNotEmpty)
             Text(cityD(
                 context,

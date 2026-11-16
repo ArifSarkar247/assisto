@@ -84,7 +84,7 @@ class _CrmTargetEditorState extends State<CrmTargetEditor> {
           top: Gap.md,
           bottom: MediaQuery.of(context).viewInsets.bottom + Gap.md),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(t.crmSetTarget, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+        Text(t.crmSetTarget, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, fontSize: 18)),
         const SizedBox(height: Gap.md),
         DropdownButtonFormField<int?>(
           initialValue: _memberId,
@@ -125,7 +125,7 @@ class _CrmTargetEditorState extends State<CrmTargetEditor> {
         ),
         if (_err != null) ...[
           const SizedBox(height: Gap.sm),
-          Text(_err!, style: const TextStyle(color: Brand.danger)),
+          Text(_err!, style: AType.bodyMedium.copyWith(color: Brand.danger)),
         ],
         const SizedBox(height: Gap.md),
         Row(children: [

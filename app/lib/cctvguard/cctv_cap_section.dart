@@ -255,7 +255,7 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
                   Expanded(
                     child: Text(
                         p['kind'] == 'relay' ? t.capPackRelay(gb(p['mb'])) : t.capPackAi(n(p['checks'])),
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   ),
                 ]),
                 const SizedBox(height: Gap.xs),

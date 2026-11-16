@@ -199,7 +199,7 @@ class _BusinessSetupScreenState extends State<BusinessSetupScreen> {
             value: _hasStaff,
             title: Text(t.businessHasStaff),
             subtitle: Text(t.businessHasStaffHelp,
-                style: TextStyle(color: scheme.ds.muted)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             onChanged: (v) => setState(() => _hasStaff = v),
           ),
           const SizedBox(height: Gap.xl),
@@ -260,7 +260,7 @@ class _TypeTile extends StatelessWidget {
             child: Text(label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     color:
                         selected ? scheme.ds.primaryInk : scheme.ds.text)),

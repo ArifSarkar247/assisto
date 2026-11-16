@@ -151,7 +151,7 @@ class _KhataInviteSheetState extends State<KhataInviteSheet> {
             const SizedBox(height: Gap.sm),
             Semantics(
               liveRegion: true,
-              child: Text(_error, style: TextStyle(color: scheme.error)),
+              child: Text(_error, style: AType.bodyMedium.copyWith(color: scheme.error)),
             ),
           ],
           const SizedBox(height: Gap.md),

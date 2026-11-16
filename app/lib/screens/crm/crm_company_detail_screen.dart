@@ -165,7 +165,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
             padding: const EdgeInsets.all(Gap.md),
             child: custom.isEmpty
                 ? Text(t.crmNoCustomFields,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         color: Theme.of(context).colorScheme.ds.muted))
                 : Column(
                     children: [
@@ -232,7 +232,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                         (a['subject']?.toString().isNotEmpty == true
                             ? a['subject']
                             : (a['kind_display'] ?? a['kind'] ?? '—')).toString(),
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600),
                       ),
                       if ((a['body'] ?? '').toString().isNotEmpty)
                         Text(a['body'].toString(),
@@ -290,7 +290,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                   '${d['stage_name'] ?? ''} · ${_stateLabel(t, state)}',
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               trailing: Text(bdt(context, d['value'] as num?),
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
             ),
           );
         },
@@ -420,7 +420,7 @@ class _ContactTile extends StatelessWidget {
                     Text(contact['name']?.toString() ?? '—',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                     if ((contact['title'] ?? '').toString().isNotEmpty)
                       Text(contact['title'].toString(),
                           maxLines: 1,

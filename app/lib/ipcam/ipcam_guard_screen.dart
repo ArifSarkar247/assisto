@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
+import '../theme.dart' show AType;
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -742,15 +744,15 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
   }
 
   Widget _banner(String text, IconData icon) => Card(
-        color: Theme.of(context).colorScheme.secondaryContainer,
+        color: Theme.of(context).colorScheme.ds.primarySoft,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(children: [
-            Icon(icon, color: Theme.of(context).colorScheme.onSecondaryContainer),
+            Icon(icon, color: Theme.of(context).colorScheme.ds.primaryInk),
             const SizedBox(width: 10),
             Expanded(
               child: Text(text,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+                  style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.primaryInk)),
             ),
           ]),
         ),
@@ -773,7 +775,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Icon(Icons.router_rounded),
             const SizedBox(width: 12),
-            Expanded(child: Text(t.icgIntro, style: const TextStyle(height: 1.4))),
+            Expanded(child: Text(t.icgIntro, style: AType.bodyMedium.copyWith(height: 1.4))),
           ]),
         ),
       );
@@ -822,7 +824,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
         child: ListTile(
           leading: const Icon(Icons.videocam_rounded),
           title: Text(_camName.isEmpty ? t.icgDefaultName : _camName,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           subtitle: Text(t.pcPairedTo(_site.isEmpty ? '—' : _site)),
         ),
       );
@@ -857,7 +859,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
           ),
         const SizedBox(height: 12),
       ],
-      Text(t.icgBrand, style: const TextStyle(fontWeight: FontWeight.w600)),
+      Text(t.icgBrand, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
       const SizedBox(height: 6),
       Wrap(spacing: 8, runSpacing: 8, children: [
         for (final b in kIpCamBrands)
@@ -937,7 +939,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
         const SizedBox(height: 10),
         Text(_testMsg,
             key: const Key('icgTestFail'),
-            style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w600)),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w600)),
       ],
       if (_url != null && _works.isNotEmpty) ...[
         const SizedBox(height: 12),
@@ -946,7 +948,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(t.icgWorks(ld(context, _works)),
-                key: const Key('icgWorks'), style: const TextStyle(fontWeight: FontWeight.w600)),
+                key: const Key('icgWorks'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           ),
         ]),
         if (_preview != null) ...[
@@ -1036,7 +1038,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Icon(Icons.privacy_tip_rounded),
             const SizedBox(width: 12),
-            Expanded(child: Text(t.icgHonest, style: const TextStyle(height: 1.4))),
+            Expanded(child: Text(t.icgHonest, style: AType.bodyMedium.copyWith(height: 1.4))),
           ]),
         ),
       );

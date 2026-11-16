@@ -182,7 +182,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                     })(),
                   ])
                 : Text(t.crmNotEnoughData,
-                    style: TextStyle(color: scheme.ds.muted)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ),
         ),
         const SizedBox(height: Gap.md),
@@ -295,7 +295,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Text(t.crmNotEnoughData,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ),
       );
     }
@@ -328,7 +328,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Text(t.crmNotEnoughData,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ),
       );
     }
@@ -354,7 +354,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         child: block['has_data'] == true && rows.isNotEmpty
             ? Column(children: [for (final r in rows) row(r)])
             : Text(t.crmNotEnoughData,
-                style: TextStyle(color: scheme.ds.muted)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       ),
     );
   }
@@ -367,7 +367,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Text(t.crmNotEnoughData,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ),
       );
     }
@@ -392,10 +392,10 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
             child: Text(r['name']?.toString() ?? '—',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ),
           Text(bdt(context, r['won_value'] as num?),
-              style: const TextStyle(fontWeight: FontWeight.w800)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
         ]),
         const SizedBox(height: Gap.xxs),
         Text(
@@ -446,7 +446,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Flexible(child: Text(k, maxLines: 1, overflow: TextOverflow.ellipsis)),
-          Text(v, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(v, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         ]),
       );
 }

@@ -12,6 +12,8 @@
 //                           after the owner's Yes
 // Empty states = benefit line + big button + how-to. No dead buttons.
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
 
 import '../../cctvact/cctvact_source.dart';
@@ -222,8 +224,8 @@ class _ClosingState extends State<CctvClosingReportScreen> {
             child: ListView(padding: const EdgeInsets.all(16), children: [
               Card(
                 color: ok
-                    ? Theme.of(context).colorScheme.primaryContainer
-                    : Theme.of(context).colorScheme.surfaceContainerHighest,
+                    ? Theme.of(context).colorScheme.ds.primarySoft
+                    : Theme.of(context).colorScheme.ds.cardHighest,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -416,7 +418,7 @@ class _AskState extends State<CctvAskScreen> {
               ),
           ],
           if (_busy) const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator())),
-          if (_error != null) Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          if (_error != null) Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           if (a != null && !_busy) ...[
             Card(
               child: Padding(

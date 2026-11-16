@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
 import '../../ds/ds.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -285,7 +286,7 @@ class CctvTile extends StatelessWidget {
                       radius: 13,
                       backgroundColor: wmBad(),
                       child: Text(wmDigits(lang, open),
-                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
+                          style: AType.bodyMedium.copyWith(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
                     ),
                   ),
               ]),

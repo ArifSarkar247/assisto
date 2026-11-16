@@ -155,8 +155,8 @@ class _PartySheetState extends State<_PartySheet> {
               key: const ValueKey('acct-party-new'),
               minVerticalPadding: Gap.sm,
               leading: CircleAvatar(
-                  backgroundColor: scheme.primaryContainer,
-                  child: Icon(Icons.person_add_alt_1_rounded, color: scheme.onPrimaryContainer)),
+                  backgroundColor: scheme.ds.primarySoft,
+                  child: Icon(Icons.person_add_alt_1_rounded, color: scheme.ds.primaryInk)),
               title: Text(t.acuPickNew(_q.text.trim())),
               subtitle: Text(t.acuPickNewSub),
               onTap: () => Navigator.pop(context, {'name': _q.text.trim()}),
@@ -180,7 +180,7 @@ class _PartySheetState extends State<_PartySheet> {
               padding: const EdgeInsets.symmetric(vertical: Gap.lg),
               child: Text(_crm ? t.acuPickCrmEmpty : t.acuPickKhataEmpty,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
             ),
           for (final r in rows)
             ListTile(

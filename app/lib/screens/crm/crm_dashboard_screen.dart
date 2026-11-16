@@ -113,7 +113,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                     _line(t.crmMarkLost, fmtInt(context, (winLoss['lost'] as num?)?.toInt() ?? 0)),
                     _line(t.crmWinRate, winLoss['win_rate'] == null ? '—' : '${fmtInt(context, (winLoss['win_rate'] as num).toInt())}%'),
                   ])
-                : Text(t.crmNotEnoughData, style: TextStyle(color: scheme.ds.muted)),
+                : Text(t.crmNotEnoughData, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ),
         ),
         const SizedBox(height: Gap.md),
@@ -136,7 +136,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: block['has_data'] == true && rows.isNotEmpty
             ? Column(children: [for (final r in rows) row(r)])
-            : Text(t.crmNotEnoughData, style: TextStyle(color: scheme.ds.muted)),
+            : Text(t.crmNotEnoughData, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       ),
     );
   }
@@ -163,13 +163,13 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Flexible(child: Text(k, maxLines: 1, overflow: TextOverflow.ellipsis)),
-          Text(v, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(v, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         ]),
       );
 
   Widget _sectionTitle(String s) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs),
-        child: Text(s, style: const TextStyle(fontWeight: FontWeight.w800)),
+        child: Text(s, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
       );
 
   String _industryLabel(AppLocalizations t, String? code) =>

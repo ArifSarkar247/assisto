@@ -213,7 +213,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
                     padding: const EdgeInsets.all(Gap.lg),
                     child: Text(tr.demandGridNeedsBoth,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: scheme.ds.muted)),
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                   ),
                 const SizedBox(height: Gap.lg),
                 _signalsList(context, tr),
@@ -364,7 +364,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
     return Row(children: [
       Text('$label ',
           style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-      Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
+      Text(value, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
     ]);
   }
 
@@ -385,7 +385,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
             ),
             title: Text(
                 sig.product.isEmpty ? sig.area : sig.product,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             subtitle: Text(_signalSubtitle(tr, sig)),
             trailing: PopupMenuButton<String>(
               onSelected: (v) {
@@ -428,7 +428,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(tr.demandTradeSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             ),
           ]),
           const SizedBox(height: 6),

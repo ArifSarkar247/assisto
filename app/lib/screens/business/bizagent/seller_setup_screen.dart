@@ -248,7 +248,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
       title: t.baChannelsTitle,
       icon: Icons.hub_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(t.baChannelsBody, style: const TextStyle(height: 1.4)),
+        Text(t.baChannelsBody, style: AType.bodyMedium.copyWith(height: 1.4)),
         const SizedBox(height: Gap.sm),
         for (final c in chans) _channelRow(t, c, kill['${c['kind']}'] == true),
         const SizedBox(height: Gap.sm),
@@ -391,7 +391,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
         ],
         if (low.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),
-          Text(t.baLowStockTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(t.baLowStockTitle, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           for (final x in low.take(5))
             Text(bd(context, t.baLowStockLine('${x['name']}', (x['stock'] as num?)?.toInt() ?? 0))),
         ],
@@ -406,7 +406,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
       title: t.baAiTitle,
       icon: Icons.smart_toy_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(t.baTone, style: const TextStyle(fontWeight: FontWeight.w700)),
+        Text(t.baTone, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.sm),
         SegmentedButton<String>(
           segments: [
@@ -468,7 +468,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
       title: t.baCouriersTitle,
       icon: Icons.local_shipping_rounded,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(t.baCouriersBody, style: const TextStyle(height: 1.4)),
+        Text(t.baCouriersBody, style: AType.bodyMedium.copyWith(height: 1.4)),
         for (final c in _courierFields.keys)
           _CourierTile(
             courier: c,
@@ -650,7 +650,7 @@ class _ConnectSheetState extends State<_ConnectSheet> {
           Text(t.baConnectX(baChannelLabel(t, widget.kind)),
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: Gap.sm),
-          Text(steps, style: const TextStyle(height: 1.5)),
+          Text(steps, style: AType.bodyMedium.copyWith(height: 1.5)),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _id,
@@ -670,7 +670,7 @@ class _ConnectSheetState extends State<_ConnectSheet> {
           ),
           if (_err != null) ...[
             const SizedBox(height: Gap.sm),
-            Text(bd(context, _err!), style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            Text(bd(context, _err!), style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           ],
           const SizedBox(height: Gap.md),
           SizedBox(

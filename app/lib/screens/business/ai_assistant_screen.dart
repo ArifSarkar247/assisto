@@ -118,7 +118,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
         title: tr.bizConnectChannelsTitle,
         icon: Icons.hub_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(tr.bizConnectChannelsBody, style: const TextStyle(height: 1.4)),
+          Text(tr.bizConnectChannelsBody, style: AType.bodyMedium.copyWith(height: 1.4)),
           const SizedBox(height: Gap.md),
           _channelTile(tr, tr.bizChannelWhatsapp, Icons.chat_rounded, 'whatsapp_cloud'),
           const SizedBox(height: Gap.sm),
@@ -139,13 +139,13 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
         Icon(icon, color: scheme.primary),
         const SizedBox(width: Gap.md),
-        Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.w600))),
+        Expanded(child: Text(name, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
         if (connected)
           BizStatusChip(label: tr.bizConnected, color: AssistoTokens.of(context).success)
         else
@@ -200,10 +200,10 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
         leading: CircleAvatar(
-          backgroundColor: scheme.secondaryContainer,
+          backgroundColor: scheme.ds.primarySoft,
           child: Icon(
             channel == 'messenger' ? Icons.forum_rounded : Icons.chat_rounded,
-            color: scheme.onSecondaryContainer,
+            color: scheme.ds.primaryInk,
             size: 20,
           ),
         ),
@@ -212,7 +212,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
             child: Text(name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ),
           if (needsHuman)
             BizStatusChip(label: tr.bizNeedsYou, color: Theme.of(context).colorScheme.error)
@@ -439,8 +439,8 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
         constraints: const BoxConstraints(maxWidth: 320),
         decoration: BoxDecoration(
           color: isIn
-              ? scheme.surfaceContainerHighest
-              : (isAi ? scheme.secondaryContainer : scheme.primaryContainer),
+              ? scheme.ds.cardHighest
+              : (isAi ? scheme.ds.primarySoft : scheme.ds.primarySoft),
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -449,7 +449,7 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
               padding: const EdgeInsets.only(bottom: Gap.xs),
               child: Text(tr.bizSentByAi,
                   style: AType.labelSmall.copyWith(fontWeight: FontWeight.w700,
-                      color: scheme.onSecondaryContainer)),
+                      color: scheme.ds.primaryInk)),
             ),
           Text((m['text'] ?? '').toString()),
         ]),
@@ -473,7 +473,7 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           // Owner takeover toggle.
           Row(children: [
-            Expanded(child: Text(tr.bizOwnerTakeover, style: const TextStyle(fontWeight: FontWeight.w600))),
+            Expanded(child: Text(tr.bizOwnerTakeover, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
             Switch(
               value: _ownerTakeover,
               onChanged: _busy ? null : _toggleTakeover,
@@ -499,11 +499,11 @@ class _AiThreadScreenState extends State<AiThreadScreen> {
           // Confidence read-out for the AI draft.
           if (!_ownerTakeover && conf != null) ...[
             Row(children: [
-              Icon(Icons.insights_rounded, size: 16, color: scheme.onSurfaceVariant),
+              Icon(Icons.insights_rounded, size: 16, color: scheme.ds.muted),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(tr.bizConfidence('${(conf * 100).round()}'),
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ),
               // ai-report: flag the AI-drafted reply (text only)
               if ((_draft?['text'] ?? '').toString().trim().isNotEmpty)

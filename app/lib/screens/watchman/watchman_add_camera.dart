@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -503,7 +504,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
       ],
       if (_error != null) ...[
         const SizedBox(height: 12),
-        Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+        Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
       ],
       if (_capHit) ...[
         const SizedBox(height: 8),
@@ -622,7 +623,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text(_stepName(t, (s['key'] ?? '').toString()),
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                       if (s['ok'] == false && _fix(t, s['key'].toString(), (s['code'] ?? '').toString()) != null)
                         Text(_fix(t, s['key'].toString(), (s['code'] ?? '').toString())!),
                       if (s['ok'] == null)

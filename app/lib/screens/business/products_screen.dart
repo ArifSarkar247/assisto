@@ -276,20 +276,20 @@ class _ProductTile extends StatelessWidget {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(name,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
               const SizedBox(height: Gap.xs),
               Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                 _tag('${t.biz_sell_price}: ${sell.takaIn(context)}',
-                    scheme.primaryContainer, scheme.onPrimaryContainer),
+                    scheme.ds.primarySoft, scheme.ds.primaryInk),
                 if (showCost && min > 0)
                   _tag('${t.biz_min_price}: ${min.takaIn(context)}',
-                      scheme.tertiaryContainer, scheme.onTertiaryContainer),
+                      scheme.ds.successBg, scheme.ds.successInk),
                 _stockTag(context, t, stock, lowAt),
                 if (variants.isNotEmpty)
                   _tag(t.qa1VariantCount(variants.length, fmtInt(context, variants.length)),
-                      scheme.surfaceContainerHighest, scheme.onSurfaceVariant),
+                      scheme.ds.cardHighest, scheme.ds.muted),
               ]),
               if (showCost) ...[
                 const SizedBox(height: 6),
@@ -312,15 +312,15 @@ class _ProductTile extends StatelessWidget {
       height: 52,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: photo.startsWith('http')
           ? Image.network(photo,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) =>
-                  Icon(Icons.image_rounded, color: scheme.onSurfaceVariant))
-          : Icon(Icons.inventory_2_rounded, color: scheme.onSurfaceVariant),
+                  Icon(Icons.image_rounded, color: scheme.ds.muted))
+          : Icon(Icons.inventory_2_rounded, color: scheme.ds.muted),
     );
   }
 
@@ -343,8 +343,8 @@ class _ProductTile extends StatelessWidget {
       return _tag('${t.biz_low_stock} (${fmtInt(ctx, stock.toInt())})',
           AssistoTokens.of(ctx).warning.withValues(alpha: 0.18), AssistoTokens.of(ctx).warning);
     }
-    return _tag('${t.biz_stock}: ${fmtInt(ctx, stock.toInt())}', scheme.surfaceContainerHighest,
-        scheme.onSurfaceVariant);
+    return _tag('${t.biz_stock}: ${fmtInt(ctx, stock.toInt())}', scheme.ds.cardHighest,
+        scheme.ds.muted);
   }
 }
 
@@ -507,7 +507,7 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                      color: scheme.outlineVariant,
+                      color: scheme.ds.border,
                       borderRadius: BorderRadius.circular(2)),
                 ),
               ),
@@ -611,9 +611,9 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
         height: 120,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
+          color: scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(Radii.md),
-          border: Border.all(color: scheme.outlineVariant),
+          border: Border.all(color: scheme.ds.border),
         ),
         child: hasLocal
             ? Image.file(File(_photoPath!), fit: BoxFit.cover)
@@ -623,10 +623,10 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.add_a_photo_rounded,
-                          color: scheme.onSurfaceVariant),
+                          color: scheme.ds.muted),
                       const SizedBox(height: Gap.sm),
                       Text(t.biz_product_photo,
-                          style: TextStyle(color: scheme.onSurfaceVariant)),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                     ],
                   ),
       ),
@@ -640,7 +640,7 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
         Text(t.biz_product_variant,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         TextButton.icon(
           onPressed: () => setState(() => _variants.add(_VariantDraft())),
           icon: const Icon(Icons.add_rounded, size: 18),
@@ -862,14 +862,14 @@ class _ProductImportSheetState extends State<ProductImportSheet> {
                   Expanded(
                     child: Text(
                       '${t.biz_import_bad_rows} (${bad.length + conflicts.length})',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ]),
               ),
             const SizedBox(height: Gap.md),
             Text('${rows.length} · ${t.biz_product_name}',
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.sm),
             for (final r in rows.take(50))
               _previewRow(context, r as Map, scheme),
@@ -899,7 +899,7 @@ class _ProductImportSheetState extends State<ProductImportSheet> {
       leading: Icon(Icons.check_circle_outline_rounded, color: AssistoTokens.of(context).success, size: 20),
       title: Text((r['name'] ?? '').toString()),
       trailing: Text(sell.takaIn(context),
-          style: const TextStyle(fontWeight: FontWeight.w600)),
+          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
     );
   }
 

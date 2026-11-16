@@ -21,7 +21,7 @@ import '../notifications.dart';
 import '../services/error_report.dart';
 import '../shop_api.dart';
 import '../shop_motion.dart';
-import '../theme.dart' show Brand;
+import '../theme.dart' show AType, Brand;
 import '../widgets/local_digits.dart' show ld;
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/permission_reason.dart';
@@ -1264,9 +1264,9 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
             const SizedBox(width: 12),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(title, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 4),
-                Text(body, style: const TextStyle(height: 1.4)),
+                Text(body, style: AType.bodyMedium.copyWith(height: 1.4)),
               ]),
             ),
           ]),
@@ -1331,7 +1331,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
               key: const Key('pcIpcamEntry'),
               minVerticalPadding: 12,
               leading: const Icon(Icons.router_rounded),
-              title: Text(t.icgOpen, style: const TextStyle(fontWeight: FontWeight.w700)),
+              title: Text(t.icgOpen, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
               subtitle: Text(t.icgOpenBody),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () async {
@@ -1353,7 +1353,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
         child: ListTile(
           leading: const Icon(Icons.videocam_rounded),
           title: Text(_cameraName.isEmpty ? t.pcUnnamed : _cameraName,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           subtitle: Text(t.pcPairedTo(_siteName.isEmpty ? '—' : _siteName)),
         ),
       ),
@@ -1467,7 +1467,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(_audio ? t.pcRecordingBannerAudio : t.pcRecordingBanner,
-                          style: const TextStyle(color: fg, fontWeight: FontWeight.w700)),
+                          style: AType.bodyMedium.copyWith(color: fg, fontWeight: FontWeight.w700)),
                     ),
                   ]),
                 ),
@@ -1481,20 +1481,20 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                 if (_showControls) ...[
                   Text(_cameraName.isEmpty ? t.pcUnnamed : _cameraName,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: fg, fontSize: 20, fontWeight: FontWeight.w700)),
+                      style: AType.bodyMedium.copyWith(color: fg, fontSize: 20, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 6),
-                  Text(_status, textAlign: TextAlign.center, style: const TextStyle(color: dim)),
+                  Text(_status, textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
                   const SizedBox(height: 4),
                   Text(_online ? t.pcServerOk : t.pcServerOffline,
-                      textAlign: TextAlign.center, style: const TextStyle(color: dim)),
+                      textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
                   Text(_detect != null ? t.pcModelOn : t.pcModelOff,
-                      textAlign: TextAlign.center, style: const TextStyle(color: dim)),
+                      textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
                   Text(t.pcAlertsSent(fmtInt(context, _alerts)),
-                      textAlign: TextAlign.center, style: const TextStyle(color: dim)),
+                      textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
                   Text(t.pcClipsLine(fmtInt(context, _clipCount), _mb(_clipBytes), fmtInt(context, _capMb)),
-                      textAlign: TextAlign.center, style: const TextStyle(color: dim)),
+                      textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
                   if (_recOn)
-                    Text(_recLine(t), textAlign: TextAlign.center, style: const TextStyle(color: dim)),
+                    Text(_recLine(t), textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: dim)),
                   // cctvplay: honest — does the family get a preview?
                   Text(
                       _clipCfg.enabled
@@ -1503,13 +1503,13 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                               ? t.pcpPreviewsCapped
                               : t.pcpPreviewsNoKey,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: dim)),
+                      style: AType.bodyMedium.copyWith(color: dim)),
                   for (final w in _warnings)
                     Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(_warnText(t, w),
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Brand.warning, fontWeight: FontWeight.w600)),
+                          style: AType.bodyMedium.copyWith(color: Brand.warning, fontWeight: FontWeight.w600)),
                     ),
                   const SizedBox(height: 16),
                   FilledButton.icon(
@@ -1524,7 +1524,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
                   ),
                 ] else
                   Text(t.pcTapToShow,
-                      textAlign: TextAlign.center, style: const TextStyle(color: Colors.white60)),
+                      textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: Colors.white60)),
                           ]),
                     ),
                   ),

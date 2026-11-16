@@ -111,7 +111,7 @@ class _CrmCardScanState extends State<CrmCardScan> {
         if (_needsKey && kShowKeySeams) // truth: no key dead end
           NeedsKeyBanner(t.crmCardOcrNeedsKey, icon: Icons.document_scanner_rounded),
         Text(t.crmCardPasteHint,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         const SizedBox(height: Gap.sm),
         TextField(
           controller: _raw,
@@ -127,9 +127,9 @@ class _CrmCardScanState extends State<CrmCardScan> {
         ),
         if (_hasDraft) ...[
           const Divider(height: Gap.lg),
-          Text(t.crmReviewDraft, style: const TextStyle(fontWeight: FontWeight.w800)),
+          Text(t.crmReviewDraft, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
           Text(t.crmReviewDraftHint,
-              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(fontSize: 12, color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           _field(t.crmName, _name),
           _field(t.crmCompany, _company),
@@ -159,7 +159,7 @@ class _CrmCardScanState extends State<CrmCardScan> {
         ],
         if (_err != null) ...[
           const SizedBox(height: Gap.sm),
-          Text(_err!, style: const TextStyle(color: Brand.danger)),
+          Text(_err!, style: AType.bodyMedium.copyWith(color: Brand.danger)),
         ],
       ],
     );

@@ -13,6 +13,7 @@ import '../../mess_v2_api.dart';
 import '../../messaging/msg_notify.dart' show loadStoredIdentity;
 import '../../services/error_kind.dart' show honestFailText;
 import '../../state.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/skeleton.dart';
@@ -477,13 +478,14 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
         body: _error == null
             ? const SkeletonList()
             : ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-                Text(honestFailText(t, _error), textAlign: TextAlign.center),
-                const SizedBox(height: Gap.md),
-                Center(
-                    child: FilledButton.icon(
-                        onPressed: _load,
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: Text(t.retry))),
+                // design2: DS error state (drawn illustration, one big retry)
+                DsEmptyState(
+                  icon: Icons.cloud_off_rounded,
+                  title: t.mv2Title,
+                  benefit: honestFailText(t, _error),
+                  actionLabel: t.retry,
+                  onAction: _load,
+                ),
               ]),
         bottomNavigationBar: const MessAdBanner(),
       );
@@ -516,10 +518,10 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
         ),
         body: Column(children: [
           if (_offline || _pending > 0)
-            MaterialBanner(
-              content: Text(_offline ? t.mv2OfflineBanner : t.mv2PendingBanner(messDigits(context, _pending))),
-              leading: const Icon(Icons.cloud_off_rounded),
-              actions: [TextButton(onPressed: _load, child: Text(t.retry))],
+            DsOfflineStrip(
+              label: _offline ? t.mv2OfflineBanner : t.mv2PendingBanner(messDigits(context, _pending)),
+              retryLabel: t.retry,
+              onRetry: _load,
             ),
           if (_busy) const LinearProgressIndicator(minHeight: 2),
           Expanded(
@@ -576,20 +578,39 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
     }
 
     return _scroll([
+      // design2: today's mess at a glance is the soft hero (page rule: most
+      // important first), meals in a big bold line
       if (today != null)
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Text(t.mv2CardTitle, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
-              const SizedBox(height: Gap.xs),
-              Text(t.mv2CardMeals(messDigits(context, today['meals_today']))),
-              Text(t.mv2CardBazar(messDigits(context, today['bazar_today_display']))),
-              Text(((today['not_set_tomorrow'] as List?) ?? const []).isEmpty
-                  ? t.mv2CardAllSet
-                  : t.mv2CardNotSet((today['not_set_tomorrow'] as List).join(', '))),
+        DsHeroCard(
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Text(t.mv2CardTitle,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700, color: DsTokens.of(context).muted)),
+            const SizedBox(height: Gap.xs),
+            Text(t.mv2CardMeals(messDigits(context, today['meals_today'])),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800, letterSpacing: -0.3, color: DsTokens.of(context).text)),
+            Text(t.mv2CardBazar(messDigits(context, today['bazar_today_display'])),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: DsTokens.of(context).text)),
+            const SizedBox(height: Gap.xs),
+            Row(children: [
+              Icon(
+                  ((today['not_set_tomorrow'] as List?) ?? const []).isEmpty
+                      ? Icons.check_circle_rounded
+                      : Icons.schedule_rounded,
+                  size: 18,
+                  color: ((today['not_set_tomorrow'] as List?) ?? const []).isEmpty
+                      ? DsTokens.of(context).successInk
+                      : DsTokens.of(context).primaryInk),
+              const SizedBox(width: Gap.xs),
+              Expanded(
+                child: Text(((today['not_set_tomorrow'] as List?) ?? const []).isEmpty
+                    ? t.mv2CardAllSet
+                    : t.mv2CardNotSet((today['not_set_tomorrow'] as List).join(', '))),
+              ),
             ]),
-          ),
+          ]),
         ),
       _sectionTitle(t.mv2MyMeals),
       Text(t.mv2MealsHelp(messDigits(context, '${((_mess['cutoff_hour'] as num?) ?? 22).toString().padLeft(2, '0')}:00')),
@@ -740,7 +761,6 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
     final rows = _list(s['members']);
     final months = ((_d?['months_closed'] as List?) ?? const []).map((e) => '$e').toList();
     final key = '${_monthInfo['key'] ?? ''}';
-    final scheme = Theme.of(context).colorScheme;
     return _scroll([
       Row(children: [
         Expanded(
@@ -764,16 +784,15 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
       const SizedBox(height: Gap.sm),
       if (_monthInfo['full'] == false)
         Card(
-          color: scheme.tertiaryContainer,
+          color: DsTokens.of(context).primarySoft,
           child: ListTile(
             title: Text(t.mv2PremiumOldMonths),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => _premiumSheet(t.mv2PremiumOldMonths),
           ),
         ),
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
+      DsHeroCard(
+          padding: const EdgeInsets.all(Gap.lg),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             _kv(t.mv2TotalBazar, s['bazar_total_display']),
             _kv(t.mv2TotalMeals, s['meals_total']),
@@ -781,14 +800,14 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
             _kv(t.mv2ServiceCharges, s['charges_total_display']),
             _kv(t.mv2Deposits, s['deposits_total_display']),
             const SizedBox(height: Gap.xs),
-            Text(t.mv2RateFormula, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
+            Text(t.mv2RateFormula, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: DsTokens.of(context).muted)),
           ]),
-        ),
       ),
       _sectionTitle(t.mv2PerMember),
       for (final r in rows)
-        Card(
-          child: Padding(
+        Padding(
+          padding: const EdgeInsets.only(bottom: Gap.sm),
+          child: DsCard(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text('${r['name']}', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
@@ -807,7 +826,9 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
                 },
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: r['state'] == 'will_pay' ? scheme.error : scheme.primary),
+                    color: r['state'] == 'will_pay'
+                        ? DsTokens.of(context).dangerInk
+                        : DsTokens.of(context).successInk),
               ),
             ]),
           ),

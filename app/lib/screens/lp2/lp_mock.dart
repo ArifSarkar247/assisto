@@ -56,7 +56,7 @@ Future<bool> lpGateSheet(BuildContext context, String reason, {String? nextFreeA
     builder: (ctx) => SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(text, style: const TextStyle(height: 1.4)),
+        Text(text, style: AType.bodyMedium.copyWith(height: 1.4)),
         const SizedBox(height: Gap.lg),
         if (unlockCredits != null && unlockCredits > 0) ...[
           FilledButton.icon(
@@ -234,12 +234,12 @@ class _LpIeltsHubState extends State<LpIeltsHub> {
             const SizedBox(height: Gap.md),
             if (_data != null && !premium)
               Card(
-                color: scheme.secondaryContainer,
+                color: scheme.ds.primarySoft,
                 child: ListTile(
-                  leading: Icon(Icons.card_giftcard_rounded, color: scheme.onSecondaryContainer),
+                  leading: Icon(Icons.card_giftcard_rounded, color: scheme.ds.primaryInk),
                   title: Text(tr.lp2FreeLeft(ld(context, left ?? 0)),
-                      style: TextStyle(color: scheme.onSecondaryContainer, fontWeight: FontWeight.w600)),
-                  subtitle: Text(tr.lp2FreeLeftSub, style: TextStyle(color: scheme.onSecondaryContainer)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, fontWeight: FontWeight.w600)),
+                  subtitle: Text(tr.lp2FreeLeftSub, style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlansScreen())),
                 ),
               ),
@@ -630,7 +630,7 @@ class _LpMockRunnerState extends State<LpMockRunner> {
           const SizedBox(height: Gap.lg),
           for (final p in _progress) Text(p, textAlign: TextAlign.center),
           const SizedBox(height: Gap.md),
-          Text(tr.lp2ScoringWait, textAlign: TextAlign.center, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(tr.lp2ScoringWait, textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ]),
       );
     }
@@ -753,7 +753,7 @@ class LpQuestion extends StatelessWidget {
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           CircleAvatar(radius: 14, child: Text(ld(context, n), style: AType.bodySmall)),
           const SizedBox(width: Gap.sm),
-          Expanded(child: Text('${q['prompt'] ?? ''}', style: const TextStyle(height: 1.4))),
+          Expanded(child: Text('${q['prompt'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4))),
         ]),
         const SizedBox(height: Gap.xs),
         if (options.isNotEmpty)
@@ -792,11 +792,11 @@ class LpQuestion extends StatelessWidget {
           ),
         if (result != null)
           Text(result == 'ok' ? tr.lp2Right : lpMistakeName(tr, result!),
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   fontWeight: FontWeight.w700,
                   color: Brand.onTint(context, result == 'ok' ? Brand.success : Brand.danger))),
         if (result == null && type == 'mcq_multi')
-          Text(tr.lp2ChooseMany, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          Text(tr.lp2ChooseMany, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ]),
     );
   }
@@ -810,7 +810,7 @@ List<Widget> _questionList(List<Map<String, dynamic>> qs, Map<int, String> answe
     if (g.isNotEmpty && g != group) {
       out.add(Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
-        child: Text(g, style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
+        child: Text(g, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, height: 1.4)),
       ));
       group = g;
     }
@@ -860,7 +860,7 @@ class _LrSectionState extends State<_LrSection> {
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl),
       children: [
         Text(tr.lp2Answered(ld(context, answered), ld(context, total)),
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           for (var i = 0; i < parts.length; i++)
@@ -893,7 +893,7 @@ class _LrSectionState extends State<_LrSection> {
         if (!listening && _showText) ...[
           Text('${p['title'] ?? ''}', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
-          SelectableText('${p['text'] ?? ''}', style: const TextStyle(height: 1.6)),
+          SelectableText('${p['text'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.6)),
           const SizedBox(height: Gap.md),
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(kMinTap)),
@@ -982,7 +982,7 @@ class _LpAudioState extends State<_LpAudio> {
     }
     final locked = _played && !widget.replay;
     return Card(
-      color: scheme.surfaceContainerHigh,
+      color: scheme.ds.cardHigh,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
@@ -997,9 +997,9 @@ class _LpAudioState extends State<_LpAudio> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(locked ? tr.lp2AudioPlayedOnce : (_playing ? tr.lp2AudioPlaying : tr.lp2PlayAudio),
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
               Text(widget.replay ? tr.lp2AudioPractice : tr.lp2AudioOnce,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               if (_pos > Duration.zero) Text(ld(context, clock(_pos.inSeconds)), style: AType.bodySmall),
             ]),
           ),
@@ -1027,7 +1027,7 @@ class _WritingSectionState extends State<_WritingSection> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl),
       children: [
-        Text(tr.lp2WritingHint, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+        Text(tr.lp2WritingHint, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
         for (final t in tasks) ...[
           const SizedBox(height: Gap.lg),
           Builder(builder: (context) {
@@ -1044,13 +1044,13 @@ class _WritingSectionState extends State<_WritingSection> {
                 child: Padding(
                   padding: const EdgeInsets.all(Gap.md),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    SelectableText('${t['prompt'] ?? ''}', style: const TextStyle(height: 1.5)),
+                    SelectableText('${t['prompt'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.5)),
                     if (img.startsWith('http'))
                       Padding(
                         padding: const EdgeInsets.only(top: Gap.sm),
                         child: Image.network(img,
                             errorBuilder: (_, __, ___) => Text(tr.lp2ImageFail,
-                                style: TextStyle(color: scheme.onSurfaceVariant))),
+                                style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
                       ),
                   ]),
                 ),
@@ -1067,9 +1067,9 @@ class _WritingSectionState extends State<_WritingSection> {
                 decoration: InputDecoration(labelText: tr.lp2YourAnswer, border: const OutlineInputBorder()),
               ),
               Text(tr.lp2WordsOfMin(ld(context, w), ld(context, min)),
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: w >= min ? Brand.onTint(context, Brand.success) : scheme.onSurfaceVariant)),
+                      color: w >= min ? Brand.onTint(context, Brand.success) : scheme.ds.muted)),
             ]);
           }),
         ],
@@ -1138,7 +1138,7 @@ class _SpeakingSectionState extends State<_SpeakingSection> {
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Row(children: [
-                Expanded(child: SelectableText('${p['cue_card'] ?? ''}', style: const TextStyle(height: 1.5))),
+                Expanded(child: SelectableText('${p['cue_card'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.5))),
                 LpListenButton(text: '${p['cue_card'] ?? ''}'),
               ]),
             ),
@@ -1185,13 +1185,13 @@ class _SpeakingSectionState extends State<_SpeakingSection> {
             ]),
         ] else if (qs.isNotEmpty) ...[
           Text(tr.lp2QuestionOf(ld(context, qi + 1), ld(context, qs.length)),
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           Card(
-            color: scheme.surfaceContainerHighest,
+            color: scheme.ds.cardHighest,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
               child: Row(children: [
-                Expanded(child: Text(qs[qi], style: const TextStyle(fontWeight: FontWeight.w600, height: 1.4))),
+                Expanded(child: Text(qs[qi], style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, height: 1.4))),
                 LpListenButton(text: qs[qi]),
               ]),
             ),
@@ -1226,7 +1226,7 @@ class _SpeakingSectionState extends State<_SpeakingSection> {
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(labelText: tr.lp2WhatPhoneHeard, border: const OutlineInputBorder()),
         ),
-        Text(tr.lp2SpeakingHow, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+        Text(tr.lp2SpeakingHow, style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
       ],
     );
   }
@@ -1276,7 +1276,7 @@ class LpMockResultScreen extends StatelessWidget {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
-          Text(title, textAlign: TextAlign.center, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(title, textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           Center(
             child: Semantics(
@@ -1291,7 +1291,7 @@ class LpMockResultScreen extends StatelessWidget {
                       value: (shownBand ?? 0) / 9,
                       strokeWidth: 12,
                       color: scheme.primary,
-                      backgroundColor: scheme.surfaceContainerHighest,
+                      backgroundColor: scheme.ds.cardHighest,
                     ),
                   ),
                   Column(mainAxisSize: MainAxisSize.min, children: [
@@ -1327,18 +1327,18 @@ class LpMockResultScreen extends StatelessWidget {
           const SizedBox(height: Gap.md),
           Card(
             key: const Key('lp2-comment'),
-            color: scheme.secondaryContainer,
+            color: scheme.ds.primarySoft,
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
-                  Icon(Icons.auto_awesome_rounded, color: scheme.onSecondaryContainer),
+                  Icon(Icons.auto_awesome_rounded, color: scheme.ds.primaryInk),
                   const SizedBox(width: Gap.sm),
                   Text(tr.lp2CoachComment,
-                      style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onSecondaryContainer)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
                 ]),
                 const SizedBox(height: Gap.sm),
-                Text(comment, style: TextStyle(color: scheme.onSecondaryContainer, height: 1.45)),
+                Text(comment, style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, height: 1.45)),
               ]),
             ),
           ),
@@ -1356,7 +1356,7 @@ class LpMockResultScreen extends StatelessWidget {
             if (details[s] is Map)
               ExpansionTile(
                 tilePadding: EdgeInsets.zero,
-                title: Text(tr.lp2ReviewAnswers(lpSectionName(tr, s)), style: const TextStyle(fontWeight: FontWeight.w700)),
+                title: Text(tr.lp2ReviewAnswers(lpSectionName(tr, s)), style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                 children: [for (final it in lpList((details[s] as Map)['items'])) LpItemReview(it: it)],
               ),
           for (final s in ['writing', 'speaking'])
@@ -1392,8 +1392,8 @@ class LpItemReview extends StatelessWidget {
       title: Text(tr.lp2ItemLine(ld(context, it['n'] ?? it['id'] ?? ''), '${it['your'] ?? ''}', '${it['key'] ?? ''}')),
       subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         if (!ok && m.isNotEmpty && m != 'null')
-          Text(lpMistakeName(tr, m), style: const TextStyle(fontWeight: FontWeight.w600)),
-        if (why.isNotEmpty) Text(why, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+          Text(lpMistakeName(tr, m), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+        if (why.isNotEmpty) Text(why, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
       ]),
     );
   }
@@ -1488,14 +1488,14 @@ class _LpWeakPracticeState extends State<LpWeakPractice> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
-          Text(tr.lp2WeakIntro, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+          Text(tr.lp2WeakIntro, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           if (done)
             Card(
-              color: scheme.primaryContainer,
+              color: scheme.ds.primarySoft,
               child: ListTile(
                 title: Text(tr.lp2WeakScore(ld(context, right), ld(context, _items.length)),
-                    style: TextStyle(fontWeight: FontWeight.w700, color: scheme.onPrimaryContainer)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
               ),
             ),
           for (var i = 0; i < _items.length; i++) ...[
@@ -1503,7 +1503,7 @@ class _LpWeakPracticeState extends State<LpWeakPractice> {
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(Gap.md),
-                  child: SelectableText('${_items[i]['passage']}', style: const TextStyle(height: 1.5)),
+                  child: SelectableText('${_items[i]['passage']}', style: AType.bodyMedium.copyWith(height: 1.5)),
                 ),
               ),
             LpQuestion(

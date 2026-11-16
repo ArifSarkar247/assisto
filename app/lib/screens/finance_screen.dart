@@ -138,7 +138,6 @@ class _Picker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     final groups = <(String, List<_ToolMeta>)>[
       (t.financeCatLoans, const [
         _ToolMeta(_Tool.emi, Icons.account_balance_rounded),
@@ -164,59 +163,26 @@ class _Picker extends StatelessWidget {
         _ToolMeta(_Tool.convert, Icons.currency_exchange_rounded),
       ]),
     ];
+    // designv2 page rule: the tools are the action — one short line on top,
+    // then each group as one DS card of rows (no gradient banner paragraph)
+    final ds = DsTokens.of(context);
     return ListView(
-      padding: const EdgeInsets.all(Gap.lg),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xl),
       children: [
-        Container(
-          padding: const EdgeInsets.all(Gap.lg),
-          decoration: BoxDecoration(
-            gradient: Brand.gradient,
-            borderRadius: BorderRadius.circular(Radii.lg),
-          ),
-          child: DefaultTextStyle.merge(
-            style: const TextStyle(color: Colors.white),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.calculate_rounded,
-                    color: Colors.white, size: 28),
-                const SizedBox(height: Gap.sm),
-                Text(t.financePickTool,
-                    style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
-                const SizedBox(height: Gap.xs),
-                Text(t.financePickToolBody,
-                    style: const TextStyle(height: 1.4)),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: Gap.xl),
+        Text(t.financePickTool,
+            style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: ds.text)),
         for (final g in groups) ...[
-          Padding(
-            padding: const EdgeInsets.only(bottom: Gap.sm, left: Gap.xs),
-            child: Text(g.$1,
-                style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: DsTokens.of(context).muted)),
-          ),
-          ...g.$2.map((m) => Card(
-                margin: const EdgeInsets.only(bottom: Gap.sm),
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(Radii.md)),
-                  leading: CircleAvatar(
-                    backgroundColor: DsTokens.of(context).primarySoft,
-                    foregroundColor: DsTokens.of(context).primaryInk,
-                    child: Icon(m.icon, size: 20),
-                  ),
-                  title: Text(_title(t, m.tool),
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text(_subtitle(t, m.tool)),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => onPick(m.tool),
-                ),
-              )),
-          const SizedBox(height: Gap.lg),
+          DsSectionHeader(g.$1),
+          DsGroup(margin: EdgeInsets.zero, children: [
+            for (final m in g.$2)
+              DsListRow(
+                leading: DsAvatar(size: 40, child: Icon(m.icon, size: 20, color: ds.primaryInk)),
+                title: _title(t, m.tool),
+                subtitle: _subtitle(t, m.tool),
+                trailing: Icon(Icons.chevron_right_rounded, color: ds.muted),
+                onTap: () => onPick(m.tool),
+              ),
+          ]),
         ],
       ],
     );

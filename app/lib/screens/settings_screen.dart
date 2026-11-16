@@ -527,7 +527,7 @@ class SettingsScreen extends StatelessWidget {
             padding: EdgeInsets.all(Gap.lg),
             child: Text(
               AppLocalizations.of(context).privacyNotice,
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted),
             ),
           ),
           // Version info lives ONLY here, deep in Settings → About (owner rule:
@@ -835,7 +835,7 @@ class _SourcesScreenState extends State<SourcesScreen> {
                 Padding(
                   padding: EdgeInsets.all(Gap.lg),
                   child: Text(AppLocalizations.of(context).inputSourceHint,
-                      style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
                 ),
                 for (final s in _sources)
                   SwitchListTile(
@@ -991,7 +991,7 @@ class _SafetySectionState extends State<_SafetySection> {
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
         child: Text(t.safety,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
       ),
       // NO SHOWPIECES: no fall sensor engine yet -> no fall switch.
       if (FallDetectScreen.engineShipped)
@@ -1022,7 +1022,7 @@ class _SafetySectionState extends State<_SafetySection> {
               onChangeEnd: (_) => _save(),
             ),
             Text(t.n30Sec10MinDefault,
-                style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           ]),
         ),
       // play-nomed: medicine follow-up note only where medicines exist.

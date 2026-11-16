@@ -57,11 +57,11 @@ class LpPracticeFooter extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.md),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, size: 18, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 18, color: scheme.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text ?? AppLocalizations.of(context).lp2PracticeLabel,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
         ),
       ]),
     );
@@ -80,7 +80,7 @@ class LpBandBar extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final b = band;
     final colour = b == null
-        ? scheme.outline
+        ? scheme.ds.muted
         : b >= 7
             ? Brand.success
             : b >= 5.5
@@ -93,9 +93,9 @@ class LpBandBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
+            Expanded(child: Text(label, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
             Text(b == null ? tr.lp2NotScored : ld(context, bandText(b)),
-                style: TextStyle(fontWeight: FontWeight.w700, color: b == null ? scheme.onSurfaceVariant : null)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: b == null ? scheme.ds.muted : null)),
           ]),
           const SizedBox(height: Gap.xs),
           ClipRRect(
@@ -104,13 +104,13 @@ class LpBandBar extends StatelessWidget {
               value: b == null ? 0 : b / 9,
               minHeight: 10,
               color: colour,
-              backgroundColor: scheme.surfaceContainerHighest,
+              backgroundColor: scheme.ds.cardHighest,
             ),
           ),
           if (note != null && note!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
-              child: Text(note!, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              child: Text(note!, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ),
         ]),
       ),
@@ -158,7 +158,7 @@ class _LpTimerState extends State<LpTimer> {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final low = _left <= 300;
-    final fg = low ? Brand.onTint(context, Brand.danger) : Theme.of(context).colorScheme.onSurface;
+    final fg = low ? Brand.onTint(context, Brand.danger) : Theme.of(context).colorScheme.ds.text;
     return Semantics(
       label: tr.lp2TimeLeft(ld(context, clock(_left))),
       excludeSemantics: true,
@@ -172,7 +172,7 @@ class _LpTimerState extends State<LpTimer> {
           Icon(widget.paused ? Icons.pause_rounded : Icons.timer_outlined, size: 18, color: fg),
           const SizedBox(width: Gap.xs),
           Text(ld(context, clock(_left)),
-              style: TextStyle(fontWeight: FontWeight.w700, color: fg, fontFeatures: const [FontFeature.tabularFigures()])),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: fg, fontFeatures: const [FontFeature.tabularFigures()])),
         ]),
       ),
     );
@@ -254,7 +254,7 @@ class _LpHoldToSpeakState extends State<LpHoldToSpeak> {
               padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.md),
               decoration: BoxDecoration(
                 color: !widget.enabled
-                    ? scheme.surfaceContainerHighest
+                    ? scheme.ds.cardHighest
                     : on
                         ? Brand.danger
                         : scheme.primary,
@@ -262,14 +262,14 @@ class _LpHoldToSpeakState extends State<LpHoldToSpeak> {
               ),
               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Icon(on ? Icons.graphic_eq_rounded : Icons.mic_rounded,
-                    color: widget.enabled ? scheme.onPrimary : scheme.onSurfaceVariant),
+                    color: widget.enabled ? scheme.onPrimary : scheme.ds.muted),
                 const SizedBox(width: Gap.sm),
                 Flexible(
                   child: Text(on ? tr.lp2Listening : (widget.label ?? tr.lp2HoldToSpeak),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: AType.bodyMedium.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: widget.enabled ? scheme.onPrimary : scheme.onSurfaceVariant)),
+                          color: widget.enabled ? scheme.onPrimary : scheme.ds.muted)),
                 ),
               ]),
             ),
@@ -305,21 +305,21 @@ class LpFixCard extends StatelessWidget {
           Row(children: [
             Icon(Icons.lightbulb_rounded, color: ink, size: 20),
             const SizedBox(width: Gap.xs),
-            Expanded(child: Text(tr.lp2FixTitle, style: TextStyle(fontWeight: FontWeight.w700, color: ink))),
+            Expanded(child: Text(tr.lp2FixTitle, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: ink))),
           ]),
           if (pron != null)
             Padding(padding: const EdgeInsets.only(top: Gap.xs), child: LpPronChip(percent: pron!)),
           if (wrong != null && wrong!.trim().isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(wrong!,
-                style: TextStyle(decoration: TextDecoration.lineThrough, color: ink.withValues(alpha: 0.8))),
+                style: AType.bodyMedium.copyWith(decoration: TextDecoration.lineThrough, color: ink.withValues(alpha: 0.8))),
           ],
           const SizedBox(height: Gap.xs),
           Row(children: [
-            Expanded(child: Text(right, style: TextStyle(fontWeight: FontWeight.w700, color: ink, height: 1.35))),
+            Expanded(child: Text(right, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: ink, height: 1.35))),
             LpListenButton(text: right),
           ]),
-          if (why.trim().isNotEmpty) Text(why, style: TextStyle(color: ink, height: 1.4)),
+          if (why.trim().isNotEmpty) Text(why, style: AType.bodyMedium.copyWith(color: ink, height: 1.4)),
           if (action != null) ...[const SizedBox(height: Gap.sm), action!],
         ]),
       ),
@@ -349,7 +349,7 @@ class LpPronChip extends StatelessWidget {
           const SizedBox(width: Gap.xs),
           Flexible(
             child: Text(tr.lp2PronPercent(ld(context, percent)),
-                style: TextStyle(fontWeight: FontWeight.w700, color: Brand.onTint(context, c))),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: Brand.onTint(context, c))),
           ),
         ]),
       ),

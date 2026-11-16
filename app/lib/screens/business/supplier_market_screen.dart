@@ -555,7 +555,7 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(tr.supPartnerSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             ),
           ]),
           const SizedBox(height: 6),
@@ -796,7 +796,7 @@ Future<Map<String, dynamic>?> _supplierSheet(
                   ),
                 const Spacer(),
                 Text(rating == 0 ? tr.supUnrated : '$rating / 5',
-                    style: TextStyle(color: scheme.ds.muted)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               ]),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,

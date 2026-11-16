@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪৮ / মোট ৪২০**
+**স্ক্রিন শেষ: ৫৫ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -163,7 +163,7 @@
 - ⬜ — `billing/refund_screen.dart`
 - ⬜ — `safe_plans/safe_ad_unlock_screen.dart`
 - ⬜ — `safe_plans/safe_plans_screen.dart`
-- ⬜ — `screens/account_security_screen.dart`
+- ✅ batch 6 (সাইন-ইন, ডিভাইস, হারালে — আলাদা কার্ড; DS ত্রুটি/স্কেলেটন) — `screens/account_security_screen.dart`
 - ⬜ — `screens/account_standing_screen.dart`
 - ⬜ — `screens/business/acct/acct_audit_screen.dart`
 - ⬜ — `screens/business/acct/acct_close_screen.dart`
@@ -174,7 +174,7 @@
 - ⬜ — `screens/business/business_plans_screen.dart`
 - ⬜ — `screens/day_planner_screen.dart`
 - ⬜ — `screens/delete_account_screen.dart`
-- ⬜ — `screens/finance_screen.dart`
+- ✅ batch 6 (পেজ নিয়ম: টুলগুলোই আগে, গ্রুপ = এক কার্ড, লম্বা ব্যানার বাদ) — `screens/finance_screen.dart`
 - ⬜ — `screens/mess_accounting_screen.dart`
 - ⬜ — `screens/money_budget_screen.dart`
 - ⬜ — `screens/money_import_screen.dart`
@@ -228,11 +228,11 @@
 - ⬜ — `screens/business/invoice/invoice_settings_screen.dart`
 - ⬜ — `screens/business/invoice/invoices_screen.dart`
 - ⬜ — `screens/business/invoice/new_invoice_screen.dart`
-- ⬜ — `screens/business/orders_screen.dart`
-- ⬜ — `screens/business/payments_screen.dart`
+- ✅ batch 6 (জীবন্ত অর্ডার কার্ড, DS খালি/ত্রুটি) — `screens/business/orders_screen.dart`
+- ✅ batch 6 (জীবন্ত BizCard, DS ত্রুটি অবস্থা, পূর্ণ-চওড়া বোতাম) — `screens/business/payments_screen.dart`
 - ⬜ — `screens/business/products_screen.dart`
 - ⬜ — `screens/business/quick_sell_screen.dart`
-- ⬜ — `screens/business/reports_screen.dart`
+- ✅ batch 6 (বিক্রি = নরম হিরো (বড় সংখ্যা), সমান উচ্চতার লাভ/খরচ কার্ড) — `screens/business/reports_screen.dart`
 - ⬜ — `screens/business/sms_balance_screen.dart`
 - ⬜ — `screens/business/staff_screen.dart`
 - ⬜ — `screens/business/supplier_market_screen.dart`
@@ -286,8 +286,8 @@
 
 ## ১৪. কুরআন
 
-- ⬜ — `quran_learn/quran_learn_screen.dart`
-- ⬜ — `screens/quran_screen.dart`
+- ✅ batch 6 (শান্ত: আজকের লক্ষ্য = নরম হিরো, স্কেলেটন) — `quran_learn/quran_learn_screen.dart`
+- ✅ batch 6 (শান্ত: পড়া চালিয়ে যান = নরম হিরো, সূরা এক কার্ডে, আভা নেই) — `screens/quran_screen.dart`
 
 ## ১৫. সেটিংস
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -258,20 +260,6 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
           if (_showGuide || sites.isEmpty)
             WatchmanGuideCard(onClose: sites.isEmpty ? null : _closeGuide),
           if (sites.isEmpty) _Welcome(onStart: _startSetup),
-          // cctvprice: the CCTV plan (price per camera count, trial, add-on)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Card(
-              child: ListTile(
-                minVerticalPadding: 12,
-                leading: const Icon(Icons.workspace_premium_outlined),
-                title: Text(t.cplEntryTitle),
-                subtitle: Text(t.cplEntrySub),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: _openPlan,
-              ),
-            ),
-          ),
           if (sites.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -290,6 +278,21 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
           // (an injected test source never reaches the network: tests pass usageLoader)
           if (owned.isNotEmpty && (widget.usageLoader != null || widget.source == null))
             CctvUsageCard(load: widget.usageLoader),
+          // design2 (page rule): live places first, the plan (a setting) after them
+          // cctvprice: the CCTV plan (price per camera count, trial, add-on)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Card(
+              child: ListTile(
+                minVerticalPadding: 12,
+                leading: const Icon(Icons.workspace_premium_outlined),
+                title: Text(t.cplEntryTitle),
+                subtitle: Text(t.cplEntrySub),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: _openPlan,
+              ),
+            ),
+          ),
           if (owned.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -514,18 +517,30 @@ class _SiteCard extends StatelessWidget {
     final held = (site['held_today'] as num?)?.toInt() ?? 0;
     final home = site['kind'] == 'home';
     final siteId = (site['id'] as num).toInt();
-    return Card(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Padding(
+    // design2: each place is an alive DS card; a gently pulsing dot shows the
+    // recorder / gateway is live (static in lite mode)
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: DsCard(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(home ? Icons.home_rounded : Icons.storefront_rounded),
-            const SizedBox(width: 8),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: DsTokens.of(context).primarySoft,
+                borderRadius: BorderRadius.circular(DsRadius.card),
+              ),
+              child: Icon(home ? Icons.home_rounded : Icons.storefront_rounded,
+                  color: DsTokens.of(context).primaryInk),
+            ),
+            const SizedBox(width: 10),
             Expanded(
               child: Text((site['name'] ?? '').toString(),
-                  style: Theme.of(context).textTheme.titleMedium),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
             ),
+            if (online) DsStatusDot(color: DsTokens.of(context).success),
           ]),
           if (!_owner)
             Padding(
@@ -822,7 +837,7 @@ class _CameraRow extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const SizedBox(height: 10),
             Text((cam['name'] ?? '').toString().isEmpty ? t.wmUnnamedCamera : cam['name'].toString(),
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: 2),
             Text('${wmVendorName(t, vendor)} · ${shopSeenLabel(t, context, cam)}',
                 style: Theme.of(context).textTheme.bodySmall),
@@ -1018,7 +1033,7 @@ class _EzvizSheetState extends State<_EzvizSheet> {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(_msg,
-                style: TextStyle(color: _ok || _info ? null : Theme.of(context).colorScheme.error)),
+                style: AType.bodyMedium.copyWith(color: _ok || _info ? null : Theme.of(context).colorScheme.error)),
           ),
       ]),
     );
