@@ -42,12 +42,13 @@ jobs:
           python -m pip install -q -r backend/requirements.txt
           timeout 600 python tools/route_check.py --md route_check.md
       - name: Upload API contract report
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: api-contract-report
           path: route_check.md
-          retention-days: 14
+          retention-days: 5
           if-no-files-found: ignore
 
       - uses: actions/setup-java@v4
@@ -1369,11 +1370,12 @@ jobs:
               print("::error::website APK %.1f MB > 140 MB cap" % mb); sys.exit(1)
           PY
       - name: Upload emulator smoke APK
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         uses: actions/upload-artifact@v4
         with:
           name: assisto-apk-emu
           path: app/emu-x64.apk
-          retention-days: 3
+          retention-days: 2
 
       - name: Sign APK with permanent release key
         working-directory: app
@@ -1439,7 +1441,7 @@ jobs:
         with:
           name: assisto-apk
           path: app/out/*.apk
-          retention-days: 14
+          retention-days: 30
 
       # ---- l1-launch: Google Play release bundle ----
       # Runs AFTER the website APK is built, signed and uploaded, so nothing
@@ -1708,6 +1710,7 @@ jobs:
             test -s pid.txt || { echo "::error::app NOT running 30 s after a release cold start on API ${{ matrix.api }}"; exit 1; }
             echo "RELEASE COLD START OK on API ${{ matrix.api }} pid=$(cat pid.txt)"
       - name: Upload smoke logcat (always)
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -1715,7 +1718,7 @@ jobs:
           path: |
             live_logcat.txt
             logcat.txt
-          retention-days: 7
+          retention-days: 2
           if-no-files-found: warn
 
   # ---- faststart ---- CI START-TIME GUARD (owner 10 Nov 00:55): every build,
@@ -1756,12 +1759,13 @@ jobs:
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: bash tools/startspeed/guard.sh apk/emu-x64.apk
       - name: Upload guard evidence (always)
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: start-time-guard
           path: start_guard/
-          retention-days: 14
+          retention-days: 5
           if-no-files-found: warn
 
   # ---- play-fsi ---- Proof on a real Android 14 (API 34) emulator that the
@@ -1821,6 +1825,7 @@ jobs:
             grep -q "FSI_PROBE can=true" fsi_allowed_logcat.txt || { echo "::error::allowed case did not report can=true"; exit 1; }
             echo "FSI PROOF OK on API 34"
       - name: Upload FSI proof (always)
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -1828,7 +1833,7 @@ jobs:
           path: |
             fsi_*.png
             fsi_*.txt
-          retention-days: 30
+          retention-days: 2
           if-no-files-found: warn
   # ---- /play-fsi ----
 
@@ -1880,6 +1885,7 @@ jobs:
             sleep 60
             bash tools/ringproof/ring_proof.sh "$(ls apk/*.apk | head -1)" ${{ matrix.api }}; r=$?; bash tools/ringproof/accept_proof.sh "$(ls apk/*.apk | head -1)" ${{ matrix.api }}; a=$?; exit $((r | a))
       - name: Upload ring proof (always)
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -1889,6 +1895,6 @@ jobs:
             ring_*.txt
             accept_*.png
             accept_*.txt
-          retention-days: 30
+          retention-days: 2
           if-no-files-found: warn
   # ---- /ring-everywhere ----
