@@ -264,7 +264,10 @@ class EndToEndTests(_Base):
 
         # a purchase after the message (inside 7 days) is attributed
         self.sale(self.cust, DAY1 + timedelta(days=1), total=80000)
-        r = self.oc.get("/api/v1/retention/automations/%d/results" % a["id"])
+        # results() attributes sends from the last 2x attribution window before
+        # NOW: freeze now near DAY1 (the real clock made this a time bomb, 16 Nov)
+        with mock.patch("django.utils.timezone.now", return_value=DAY1 + timedelta(days=2)):
+            r = self.oc.get("/api/v1/retention/automations/%d/results" % a["id"])
         self.assertEqual(r.status_code, 200)
         d = r.data
         self.assertEqual((d["sent"], d["delivered"], d["replied"], d["purchases"]), (1, 1, 1, 1))
