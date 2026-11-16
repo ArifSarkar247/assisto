@@ -32,6 +32,8 @@ def main(dist, assets, version, sources_json):
     fonts = []
     fdir = os.path.join(assets, "fonts")
     for stack in sorted(os.listdir(fdir)):
+        if not os.path.isdir(os.path.join(fdir, stack)):
+            continue  # OFL.txt
         for rng in sorted(os.listdir(os.path.join(fdir, stack))):
             if stack.startswith("Noto Sans Bengali") or rng in ("0-255.pbf", "256-511.pbf", "8192-8447.pbf"):
                 fonts.append(f"fonts/{stack}/{rng}")

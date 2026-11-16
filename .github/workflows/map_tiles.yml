@@ -253,6 +253,12 @@ jobs:
           curl -fsSL "https://github.com/protomaps/go-pmtiles/releases/download/v${PMTILES_VER}/go-pmtiles_${PMTILES_VER}_Linux_x86_64.tar.gz" | sudo tar -xz -C /usr/local/bin pmtiles
       - name: Copernicus DEM GLO-30 -> bd_terrain.pmtiles (z5-11, overzoomed; z12 was 497 MB)
         run: |
+          mkdir -p dist
+          if [ -n "${REUSE_BASE_TAG:-}" ] && STAGE_TAG="$REUSE_BASE_TAG" bash deploy/maptiles/stage_down.sh dist 'bd_terrain.pmtiles' 'src_terrain.json' \
+             && pmtiles show dist/bd_terrain.pmtiles | grep -qi "max zoom: 11"; then
+            echo "reused terrain from $REUSE_BASE_TAG"; exit 0
+          fi
+          rm -rf dist/*
           python -I deploy/maptiles/dem_tiles.py dem dem/terrain.mbtiles 5 11
           mkdir -p dist && pmtiles convert dem/terrain.mbtiles dist/bd_terrain.pmtiles
           pmtiles show dist/bd_terrain.pmtiles | head -15
@@ -275,7 +281,10 @@ jobs:
         with: { node-version: '20' }
       - name: Render (MapLibre Native, same engine as the app)
         run: |
-          sudo apt-get update -q && sudo apt-get install -y -q xvfb libglfw3 libuv1 libjpeg-turbo8 libcurl4 libopengl0 libegl1 libgles2 libwebp7 libicu74 || true
+          sudo apt-get update -q
+          for p in xvfb libopengl0 libegl1 libgles2 libgl1 libglx0 libglfw3 libuv1 libjpeg-turbo8 libcurl4t64 libcurl4 libwebp7 libicu74 libpng16-16t64; do
+            sudo apt-get install -y -q "$p" >/dev/null 2>&1 && echo "installed $p" || echo "skip $p"
+          done
           mkdir -p tiles && mv in/*.pmtiles tiles/
           npm i -s --no-save --prefix r '@maplibre/maplibre-gl-native@6.4.1' 'pmtiles@4.5.0' 'pngjs@7.0.0'
           cp deploy/maptiles/render_shots.mjs r/
@@ -303,6 +312,7 @@ jobs:
           echo "assets $a / tiles $b"; test "$a" = "$b"
       - name: Manifest + sizes
         run: |
+          set -o pipefail
           mkdir -p dist
           mv in/*.pmtiles dist/
           python3 -c "
@@ -351,11 +361,19 @@ jobs:
         env:
           OK: ${{ needs.publish.result == 'success' }}
         run: |
+          # success: mark this draft good, delete every other staging draft.
+          # failure: keep this draft (so failed jobs can be re-run), the drafts named in REUSE_*_TAG
+          # and the newest good one (marked ok.txt); delete the rest. Never more than ~3 drafts.
+          if [ "$OK" = "true" ]; then echo ok > ok.txt; gh release upload "$STAGE_TAG" ok.txt --clobber; fi
           gh api "repos/$GH_REPO/releases?per_page=100" \
-            --jq '.[] | select(.draft and (.name|startswith("map-tiles staging"))) | "\(.id) \(.tag_name)"' > drafts.txt
+            --jq '.[] | select(.draft and (.name|startswith("map-tiles staging"))) | "\(.id) \(.tag_name) \([.assets[].name]|index("ok.txt") != null)"' > drafts.txt
           cat drafts.txt
-          while read -r id tag; do
-            if [ "$OK" = "true" ]; then [ "$tag" = "$STAGE_TAG" ] && continue
-            else [ "$tag" != "$STAGE_TAG" ] && continue; fi
+          while read -r id tag good; do
+            [ "$tag" = "$STAGE_TAG" ] && continue
+            if [ "$OK" != "true" ]; then
+              [ "$good" = "true" ] && continue
+              [ "$tag" = "${REUSE_BASE_TAG:-}" ] && continue
+              [ "$tag" = "${REUSE_BUILDINGS_TAG:-}" ] && continue
+            fi
             echo "delete $tag"; gh api -X DELETE "repos/$GH_REPO/releases/$id"
           done < drafts.txt
