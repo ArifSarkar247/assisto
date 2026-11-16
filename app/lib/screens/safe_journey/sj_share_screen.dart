@@ -10,6 +10,7 @@ import '../../services/journey_tracker.dart' show kPhonesKey;
 import '../../services/oem_guide.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/circle_people_filter.dart';
@@ -200,20 +201,23 @@ class _SjShareScreenState extends State<SjShareScreen> {
     final t = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     Widget h(String s) => Padding(
-        padding: const EdgeInsets.only(top: Gap.lg, bottom: Gap.sm),
+        padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Semantics(
             header: true,
-            child: Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold))));
+            child: Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold, color: DsTokens.of(context).text))));
     final ids = _people.map((m) => (m['id'] as num?)?.toInt()).whereType<int>().toList();
     final allOn = ids.isNotEmpty && ids.every(_picked.contains);
     return Scaffold(
       appBar: AppBar(title: Text(t.sjlBtnShare)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 3)
           : ListView(
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
               children: [
-                Text(t.sjlShareIntro, style: AType.bodyLarge),
+                Text(t.sjlShareIntro, style: AType.bodyLarge.copyWith(color: DsTokens.of(context).muted)),
+                const SizedBox(height: Gap.md),
+                // designv2: the two choices on DS cards, the start button last
+                DsCard(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 h(t.sjlShareHowLong),
                 Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                   for (final m in kSjSharePresets)
@@ -236,6 +240,9 @@ class _SjShareScreenState extends State<SjShareScreen> {
                     onSelected: (_) => _pickUntil(),
                   ),
                 ]),
+                ])),
+                const SizedBox(height: Gap.md),
+                DsCard(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 h(t.sjlShareWho),
                 if (_people.isEmpty) ...[
                   Text(t.journeyNoWatchers, style: AType.bodyMedium),
@@ -274,6 +281,7 @@ class _SjShareScreenState extends State<SjShareScreen> {
                           }),
                         ),
                   ]),
+                ])),
                 const SizedBox(height: Gap.lg),
                 Text(t.sjlShareRules,
                     style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
