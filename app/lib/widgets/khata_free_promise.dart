@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
@@ -24,10 +25,9 @@ class KhataFreePromise extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      key: const ValueKey('ldg-free-promise'),
-      margin: EdgeInsets.zero,
-      child: ListTile(
+    return DsCard(key: const ValueKey('ldg-free-promise'), 
+        padding: EdgeInsets.zero,
+        child: ListTile(
         minVerticalPadding: Gap.md,
         leading: Icon(Icons.verified_rounded,
             color: AssistoTokens.of(context).success),
@@ -38,7 +38,7 @@ class KhataFreePromise extends StatelessWidget {
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => showDetails(context),
       ),
-    );
+      );
   }
 }
 

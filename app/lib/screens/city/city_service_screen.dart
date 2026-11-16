@@ -466,10 +466,9 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     final p = _plan;
     if (p == null) {
       return [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        DsCard(
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(_planError == 'offline' ? t.cityOfflineNoPlan : t.cityPlanFailed),
               const SizedBox(height: Gap.sm),
               FilledButton.icon(
@@ -478,7 +477,6 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
                   icon: const Icon(Icons.refresh_rounded),
                   label: Text(t.cityTryAgain)),
             ]),
-          ),
         )
       ];
     }
@@ -523,11 +521,9 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       for (final w in p.warnings) {
         if (w == 'metro_hours') out.add(_banner(Icons.schedule_rounded, t.cityWarnMetroHours));
       }
-      out.add(Card(
-        key: const ValueKey('city_option'),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      out.add(DsCard(key: const ValueKey('city_option'),
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             CityOptionSummary(opt),
             if (opt.status == 'reported') ...[
               const SizedBox(height: Gap.xs),
@@ -564,7 +560,6 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
             const SizedBox(height: Gap.xs),
             Text(t.cityStartSafeJourneySub, style: AType.bodySmall),
           ]),
-        ),
       ));
     }
     if (p.otherWays.isNotEmpty) {
@@ -608,11 +603,9 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
   }
 
   Widget _otherWay(AppLocalizations t, CityOtherWay w, CityComplaint complaint) {
-    return Card(
-      key: ValueKey('city_other_${w.mode}'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: ValueKey('city_other_${w.mode}'),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(cityModeIcon(w.mode), color: cityModeColor(w.mode)),
             const SizedBox(width: Gap.sm),
@@ -636,7 +629,6 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
               label: Text(t.cityIPaid),
             ),
         ]),
-      ),
     );
   }
 
@@ -656,12 +648,9 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
 
   Widget _emptyHint(AppLocalizations t) {
     final s = Theme.of(context).colorScheme;
-    return Card(
-      key: const ValueKey('city_empty'),
-      color: s.secondaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(key: const ValueKey('city_empty'), color: s.secondaryContainer,
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.cityEmptyTitle,
               style: AType.titleLarge.copyWith(color: s.onSecondaryContainer, fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
@@ -680,7 +669,6 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
           const SizedBox(height: Gap.xs),
           Text(t.cityEmptyHow, style: AType.bodySmall.copyWith(color: s.onSecondaryContainer)),
         ]),
-      ),
     );
   }
 

@@ -133,19 +133,14 @@ class _PoliceCardSheetState extends State<PoliceCardSheet> {
           Text(t.cescCardSub, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 12),
           if (missing)
-            Card(
-              color: scheme.ds.dangerBg,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(t.cescAddressMissing,
-                    style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
-              ),
-            ),
-          Card(
-            child: Padding(
+            DsCard(tone: DsTone.danger,
               padding: const EdgeInsets.all(12),
-              child: SelectableText(_card(lang)),
+              child: Text(t.cescAddressMissing,
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
             ),
+          DsCard(
+            padding: const EdgeInsets.all(12),
+            child: SelectableText(_card(lang)),
           ),
           const SizedBox(height: 4),
           Text(t.cescShareWarn, style: Theme.of(context).textTheme.bodySmall),
@@ -279,9 +274,9 @@ class _DeterTilesState extends State<DeterTiles> {
     ]);
   }
 
-  Widget _tile(IconData icon, String label, String sub, VoidCallback? onTap) => Card(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: ListTile(
+  Widget _tile(IconData icon, String label, String sub, VoidCallback? onTap) => Padding(padding: const EdgeInsets.only(bottom: 8), child: DsCard(
+      padding: EdgeInsets.zero,
+      child: ListTile(
           minTileHeight: 56,
           enabled: onTap != null,
           leading: Icon(icon),
@@ -289,7 +284,7 @@ class _DeterTilesState extends State<DeterTiles> {
           subtitle: Text(sub),
           onTap: onTap,
         ),
-      );
+    ));
 }
 
 /// Per-camera table: siren / light / message / two-way talk — available or
@@ -484,9 +479,10 @@ class _WarnClipSheetState extends State<WarnClipSheet> {
                   Text(t.cescWarnHow),
                   const SizedBox(height: 8),
                   for (final l in lines)
-                    Card(
-                        child: Padding(
-                            padding: const EdgeInsets.all(12), child: Text('“$l”'))),
+                    DsCard(
+                      padding: const EdgeInsets.all(12),
+                      child: Text('“$l”'),
+                    ),
                   const SizedBox(height: 12),
                   FilledButton.icon(
                     style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),

@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -237,11 +238,9 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
 
   Widget _manualNote(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsSurface(color: scheme.ds.cardHighest,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
           Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -249,16 +248,14 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
                 style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
           ),
         ]),
-      ),
     );
   }
 
   Widget _hottestCard(BuildContext context, AppLocalizations tr, _DHeat h) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr.demandHeatTitle,
               style: Theme.of(context)
                   .textTheme
@@ -289,7 +286,6 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
             style: AType.bodySmall.copyWith(color: scheme.ds.muted),
           ),
         ]),
-      ),
     );
   }
 
@@ -315,10 +311,9 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
     final color = _bandColor(b.band);
     // Heat bar: avg score (1..4) mapped to a 0..1 fill.
     final fill = ((b.avg - 1.0) / 3.0).clamp(0.0, 1.0);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Text(b.label,
@@ -355,7 +350,6 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
             _mini(context, tr.demandStatAvg, b.avg.toStringAsFixed(1)),
           ]),
         ]),
-      ),
     );
   }
 
@@ -376,9 +370,9 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
       ..._rows.map((r) {
         final sig = _DMath.normalize(r);
         final color = _bandColor(sig.level);
-        return Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
             leading: CircleAvatar(
               backgroundColor: color.withValues(alpha: 0.16),
               child: Icon(Icons.trending_up_rounded, color: color, size: 20),
@@ -403,7 +397,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
             ),
             onTap: () => _edit(r),
           ),
-        );
+          ));
       }),
     ]);
   }
@@ -418,11 +412,9 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
   Widget _tradeSeamCard(BuildContext context, AppLocalizations tr) {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: scheme.ds.cardHighest,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.public_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
@@ -435,7 +427,6 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
           Text(tr.demandTradeSeamBody,
               style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
         ]),
-      ),
     );
   }
 }

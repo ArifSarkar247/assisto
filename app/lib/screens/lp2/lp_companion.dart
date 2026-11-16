@@ -13,6 +13,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -202,10 +203,9 @@ class _LpCompanionScreenState extends State<LpCompanionScreen> {
           ]),
           const SizedBox(height: Gap.md),
           // ---- timer
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-              child: Row(children: [
+          DsCard(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+            child: Row(children: [
                 Expanded(child: Text(tr.lp2ExamTimer(ld(context, _duration ~/ 60)), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
                 if (_started)
                   LpTimer(
@@ -234,7 +234,6 @@ class _LpCompanionScreenState extends State<LpCompanionScreen> {
                     icon: Icon(_running ? Icons.pause_rounded : Icons.play_arrow_rounded),
                   ),
               ]),
-            ),
           ),
           if (res != null) ...[
             const SizedBox(height: Gap.sm),
@@ -405,12 +404,9 @@ class _ScoreCard extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final counts = res.counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-    return Card(
-      key: const Key('lp2-omr-score'),
-      color: scheme.ds.primarySoft,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsSurface(key: const Key('lp2-omr-score'), color: scheme.ds.primarySoft,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
             Expanded(
               child: Text(tr.lp2RawScore(ld(context, res.raw), ld(context, res.total)),
@@ -441,7 +437,6 @@ class _ScoreCard extends StatelessWidget {
           ],
           const LpPracticeFooter(),
         ]),
-      ),
     );
   }
 }

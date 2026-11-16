@@ -4,6 +4,8 @@
 // date). With a destination: "Which gate to take" per station. Works
 // offline from the city package.
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -73,7 +75,7 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.cityMetroGuide)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : m == null || _stations.isEmpty
               ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
                   CityNoDataCard(googleMaps: googleMapsTransit(null, null, null, null), message: t.cityMetroNoData),
@@ -91,9 +93,9 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
                     _rechargeCard(t, bn, m),
                     CitySection(t.cityStations, icon: Icons.subway_rounded),
                     for (var i = 0; i < _stations.length; i++)
-                      Card(
-                        margin: const EdgeInsets.only(bottom: Gap.xs),
-                        child: ListTile(
+                      Padding(padding: const EdgeInsets.only(bottom: Gap.xs), child: DsCard(
+                          padding: EdgeInsets.zero,
+                          child: ListTile(
                           key: ValueKey('city_station_${_stations[i].id}'),
                           minVerticalPadding: Gap.sm,
                           leading: CircleAvatar(
@@ -112,7 +114,7 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
                               builder: (_) => CityStationScreen(
                                   city: widget.city, station: _stations[i], store: _store, dest: widget.dest, metro: m))),
                         ),
-                      ),
+                        )),
                   ],
                 ),
     );
@@ -132,18 +134,15 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
         checked: '${f['checked'] ?? ''}',
         source: '${f['source'] ?? ''}',
         sourceUrl: '${f['source_url'] ?? ''}');
-    return Card(
-      key: const ValueKey('city_metro_fare'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: const ValueKey('city_metro_fare'),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.cityMetroFares, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
           CityFareChip(fare),
           Text(cityD(context, t.cityMetroFareRule(n('per_km'), n('min'), n('max')))),
           if ((f['card_discount_pct'] as num?) != null && (f['card_discount_pct'] as num) > 0)
             Text(cityD(context, t.cityMetroCardDiscount(n('card_discount_pct')))),
         ]),
-      ),
     );
   }
 
@@ -151,8 +150,8 @@ class _CityMetroScreenState extends State<CityMetroScreen> {
     final r = (m['recharge'] as Map?)?.cast<String, dynamic>() ?? const {};
     final text = '${(bn ? r['text_bn'] : r['text_en']) ?? r['text_en'] ?? ''}';
     if (text.isEmpty) return const SizedBox.shrink();
-    return Card(
-      key: const ValueKey('city_metro_recharge'),
+    return DsCard(key: const ValueKey('city_metro_recharge'),
+      padding: EdgeInsets.zero,
       child: ListTile(
         minVerticalPadding: Gap.sm,
         leading: const Icon(Icons.credit_card_rounded),
@@ -177,11 +176,9 @@ class CityMetroHoursCard extends StatelessWidget {
     final (f2, l2) = MetroService.split(svc.hoursFri);
     final name = '${(bn ? line['name_bn'] : line['name']) ?? line['name'] ?? ''}';
     String d(String s) => cityD(context, s);
-    return Card(
-      key: const ValueKey('city_metro_hours'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: const ValueKey('city_metro_hours'),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           if (name.isNotEmpty) Text(d(name), style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           if ('${line['operator'] ?? ''}'.isNotEmpty) Text(d('${line['operator']}'), style: AType.bodySmall),
           const SizedBox(height: Gap.sm),
@@ -196,7 +193,6 @@ class CityMetroHoursCard extends StatelessWidget {
             if (svc.checked.isNotEmpty) Text(t.cityCheckedOn(cityDate(context, svc.checked)), style: AType.bodySmall),
           ]),
         ]),
-      ),
     );
   }
 }
@@ -252,7 +248,7 @@ class _CityStationScreenState extends State<CityStationScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(cityD(context, widget.station.label(bn)))),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(
               key: const ValueKey('city_station_list'),
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
@@ -291,11 +287,9 @@ class _CityStationScreenState extends State<CityStationScreen> {
 
   Widget _gateCard(AppLocalizations t, bool bn, CityGate g) {
     final side = citySideText(t, g.side);
-    return Card(
-      key: ValueKey('city_gate_${g.ref}'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: ValueKey('city_gate_${g.ref}'),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text(cityD(context, t.cityGateTitle(g.title(bn))),
@@ -316,7 +310,6 @@ class _CityStationScreenState extends State<CityStationScreen> {
           if (g.stands.isNotEmpty)
             Text(cityD(context, t.cityStandsHere(g.stands.map((s) => s.label(bn)).take(4).join(', ')))),
         ]),
-      ),
     );
   }
 }

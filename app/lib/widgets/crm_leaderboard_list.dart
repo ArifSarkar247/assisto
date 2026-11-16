@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
@@ -23,10 +24,9 @@ class CrmLeaderboardList extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final rank = (r['rank'] as num?)?.toInt() ?? 0;
     final medal = _medal(rank);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
           Container(
             width: 36,
             height: 36,
@@ -64,7 +64,6 @@ class CrmLeaderboardList extends StatelessWidget {
                   style: AType.bodyMedium.copyWith(fontSize: 11, color: Brand.success)),
           ]),
         ]),
-      ),
     );
   }
 

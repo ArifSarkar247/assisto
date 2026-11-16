@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -173,9 +174,7 @@ class _ShopQuoteListScreenState extends State<ShopQuoteListScreen> {
         ? '${q['customer_name']}'
         : ('${q['customer_phone'] ?? ''}'.isNotEmpty ? _d(q['customer_phone']) : t.c100Customer);
     final items = ((q['items'] ?? const []) as List).length;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -223,8 +222,7 @@ class _ShopQuoteListScreenState extends State<ShopQuoteListScreen> {
               TextButton(onPressed: () => _revoke(q), child: Text(t.c100Revoke)),
           ]),
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -571,9 +569,7 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
   Widget _lineCard(AppLocalizations t, _Line l) {
     final scheme = Theme.of(context).colorScheme;
     final below = l.min != null && l.price.text.trim().isNotEmpty && l.unit < l.min!;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -626,8 +622,7 @@ class _ShopQuoteBuilderScreenState extends State<ShopQuoteBuilderScreen> {
                 style: AType.titleSmall.copyWith(fontWeight: FontWeight.w800)),
           ),
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _totals(AppLocalizations t) {

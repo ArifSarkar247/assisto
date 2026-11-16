@@ -290,9 +290,9 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
       VoidCallback? onTap,
       bool danger = false}) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: 8), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         minTileHeight: 56,
         enabled: onTap != null,
         leading: Icon(icon, color: danger ? scheme.error : null),
@@ -300,7 +300,7 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
         subtitle: Text(sub),
         onTap: onTap,
       ),
-    );
+      ));
   }
 }
 

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../theme.dart' show AType;
 import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
@@ -339,13 +340,11 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
     final t = AppLocalizations.of(context);
     Widget body;
     if (!_flagOn) {
-      body = ListView(padding: const EdgeInsets.all(32), children: [
-        const Icon(Icons.lock_clock_outlined, size: 56),
-        const SizedBox(height: 12),
-        Text(t.gbNotYet, textAlign: TextAlign.center),
+      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(icon: Icons.lock_clock_outlined, title: t.gbNotYet),
       ]);
     } else if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else {
       body = ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
         Text(t.gbIntro),
@@ -364,17 +363,14 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
     return Scaffold(appBar: AppBar(title: Text(t.gbTitle)), body: body);
   }
 
-  Widget _card(String title, List<Widget> children) => Card(
-        margin: const EdgeInsets.only(top: 12),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+  Widget _card(String title, List<Widget> children) => Padding(padding: const EdgeInsets.only(top: 12), child: DsCard(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text(title, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             ...children,
           ]),
-        ),
-      );
+    ));
 
   Widget _pairCard(AppLocalizations t) {
     if (_token != null) {

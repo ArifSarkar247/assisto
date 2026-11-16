@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../api.dart';
@@ -318,9 +319,9 @@ class _Way extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final on = onTap != null;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         minVerticalPadding: Gap.md,
         enabled: on,
         leading: Icon(icon, color: on ? scheme.primary : scheme.ds.muted),
@@ -329,7 +330,7 @@ class _Way extends StatelessWidget {
         trailing: on ? const Icon(Icons.chevron_right_rounded) : null,
         onTap: onTap,
       ),
-    );
+      ));
   }
 }
 

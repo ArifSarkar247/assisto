@@ -204,18 +204,24 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
     );
   }
 
-  Widget _message(IconData icon, String title, String body, Widget? action) => Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon, size: 48),
-            const SizedBox(height: 12),
-            Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(body, textAlign: TextAlign.center),
-            if (action != null) ...[const SizedBox(height: 16), action],
-          ]),
-        ),
+  // design2: the DS message card (drawn illustration, title, body, action)
+  Widget _message(IconData icon, String title, String body, Widget? action) => ListView(
+        padding: const EdgeInsets.all(Gap.lg),
+        children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.xl),
+            child: Column(children: [
+              DsIllustration(icon: icon),
+              const SizedBox(height: Gap.lg),
+              Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: Gap.sm),
+              Text(body,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
+              if (action != null) ...[const SizedBox(height: Gap.lg), action],
+            ]),
+          ),
+        ],
       );
 
   Widget _body(AppLocalizations t) {
@@ -275,11 +281,9 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
   Widget _noticeCard(AppLocalizations t, Map<String, dynamic> n, ColorScheme scheme) {
     final bn = _lang() != 'en';
     final hold = _status['status'] == 'hold';
-    return Card(
-      color: scheme.ds.dangerBg,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(tone: DsTone.danger,
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('${bn ? n['title_bn'] : n['title_en']}',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.ds.dangerInk)),
           const SizedBox(height: 6),
@@ -293,7 +297,6 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
             ),
           ],
         ]),
-      ),
     );
   }
 
@@ -301,10 +304,9 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
     final st = _status;
     final tt = Theme.of(context).textTheme;
     if (!_active) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      return DsCard(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Icon(Icons.videocam_outlined, color: scheme.primary),
               const SizedBox(width: 8),
@@ -313,7 +315,6 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
             const SizedBox(height: 6),
             Text(t.cplNoPlanBody),
           ]),
-        ),
       );
     }
     final n = (st['cameras'] as num?)?.toInt() ?? 0;
@@ -324,19 +325,20 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
     final when = st['in_trial'] == true
         ? t.cplInTrial(date)
         : (st['auto_renew'] == true ? t.cplRenews(date) : t.cplEnds(date));
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(t.cplCurrent, style: tt.labelLarge),
+    // design2: the plan you have now is the soft hero, its line big and bold
+    return DsHeroCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(t.cplCurrent, style: tt.labelLarge?.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: 4),
-          Text(t.cplCurrentLine(wmDigits(_lang(), n), period), style: tt.titleLarge),
+          Text(t.cplCurrentLine(wmDigits(_lang(), n), period),
+              style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.3)),
           if (date.isNotEmpty) Text(when),
           const SizedBox(height: 4),
           Text(t.cplUsed(wmDigits(_lang(), used), wmDigits(_lang(), n))),
           if (over > 0) ...[
             const SizedBox(height: 6),
-            Text(t.cplOverBy(wmDigits(_lang(), over)), style: AType.bodyMedium.copyWith(color: scheme.error)),
+            Text(t.cplOverBy(wmDigits(_lang(), over)), style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
           ],
           if (_store)
             TextButton.icon(
@@ -346,7 +348,6 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
               label: Text(t.cplManage),
             ),
         ]),
-      ),
     );
   }
 
@@ -356,10 +357,9 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
     final more = _cams > 10;
     final tier = more ? null : _tier(_cams);
     final current = _active && _status['base_plan'] == _selectedPlan;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.cplHowManyCameras, style: tt.titleMedium),
           const SizedBox(height: 4),
           Text(t.cplHowPriced(_n((d['base_price'] as num?)?.toInt() ?? 0),
@@ -428,7 +428,6 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
             _buyArea(t, tier, current),
           ],
         ]),
-      ),
     );
   }
 
@@ -512,10 +511,9 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
     final current = addonOn && a['base_plan'] == plan;
     final cams = wmList(d['cameras']);
     final chosen = {for (final i in (d['addon_cameras'] as List? ?? const [])) (i as num).toInt()};
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.video_library_outlined, color: scheme.primary),
             const SizedBox(width: 8),
@@ -596,14 +594,12 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
           if (_addonOffers[plan] != null && _active && d['on_sale'] == true)
             Text(t.cplPlayPrice(wmDigits(_lang(), _addonOffers[plan]!)), style: tt.bodySmall),
         ]),
-      ),
     );
   }
 
-  Widget _unpaidCard(AppLocalizations t, ColorScheme scheme) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _unpaidCard(AppLocalizations t, ColorScheme scheme) => DsCard(
+    padding: const EdgeInsets.all(16),
+    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(Icons.info_outline_rounded, color: scheme.primary),
             const SizedBox(width: 8),
             Expanded(
@@ -614,8 +610,7 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
               ]),
             ),
           ]),
-        ),
-      );
+  );
 
   String? _limitsLine(AppLocalizations t) {
     final l = wmMap(_d?['limits']);

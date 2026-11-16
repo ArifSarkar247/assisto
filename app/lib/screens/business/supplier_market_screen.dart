@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -374,11 +375,9 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
 
   Widget _manualNote(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsSurface(color: scheme.ds.cardHighest,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
           Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -386,7 +385,6 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                 style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
           ),
         ]),
-      ),
     );
   }
 
@@ -545,11 +543,9 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
   Widget _partnerSeamCard(BuildContext context, AppLocalizations tr) {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: scheme.ds.cardHighest,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.hub_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
@@ -562,7 +558,6 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
           Text(tr.supPartnerSeamBody,
               style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
         ]),
-      ),
     );
   }
 }
@@ -588,13 +583,11 @@ class _CompareScreen extends StatelessWidget {
               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           for (final s in cmp.suppliers)
-            Card(
-              color: cmp.bestRatingId != null && cmp.bestRatingId == s.id
+            DsSurface(color: cmp.bestRatingId != null && cmp.bestRatingId == s.id
                   ? scheme.ds.primarySoft
                   : null,
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(children: [
@@ -643,7 +636,6 @@ class _CompareScreen extends StatelessWidget {
                           ]),
                         ),
                     ]),
-              ),
             ),
         ],
       ),

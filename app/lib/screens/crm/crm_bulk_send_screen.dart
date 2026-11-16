@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../api.dart';
@@ -244,9 +245,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
     final c = k.c;
     final phoneOk = c['phone_ok'] == true;
     final smsOk = k.sms['available'] == true;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text('${c['name'] ?? ''}'.isEmpty ? _d('${c['phone'] ?? ''}') : '${c['name']}',
@@ -295,7 +294,6 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
             ),
           ]),
         ]),
-      ),
-    );
+      ));
   }
 }

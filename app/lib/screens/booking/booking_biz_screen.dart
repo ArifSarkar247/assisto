@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -148,7 +150,7 @@ class _BookingBizScreenState extends State<BookingBizScreen> {
   }
 
   Widget _body(AppLocalizations t, bool setUp) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_err != null) return bkErrorView(context, _err!, _load);
     if (!setUp) {
       return ListView(padding: const EdgeInsets.only(bottom: Gap.xxl), children: [
@@ -215,9 +217,7 @@ class _Header extends StatelessWidget {
     final counts = bkMap(page['counts']);
     final on = page['enabled'] == true;
     final url = (page['public_url'] ?? '').toString();
-    return Card(
-      margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs), child: DsCard(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -278,8 +278,7 @@ class _Header extends StatelessWidget {
             ]),
           ],
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -328,7 +327,7 @@ class _BookingListState extends State<_BookingList> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_err != null) return bkErrorView(context, _err!, _fetch);
     return RefreshIndicator(
       onRefresh: _fetch,
@@ -431,7 +430,7 @@ class _DayViewState extends State<_DayView> {
       ),
       Expanded(
         child: _loading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList()
             : _err != null
                 ? bkErrorView(context, _err!, _fetch)
                 : RefreshIndicator(

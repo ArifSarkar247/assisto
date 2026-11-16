@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart' show AType;
 import 'package:provider/provider.dart';
@@ -228,7 +229,7 @@ class _CameraAlertTypesScreenState extends State<CameraAlertTypesScreen> {
     final theme = Theme.of(context);
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else if (_failed || _data == null) {
       body = Center(
         child: Padding(

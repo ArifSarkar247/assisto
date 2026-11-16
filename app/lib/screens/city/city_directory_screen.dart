@@ -3,6 +3,8 @@
 // other ghats) and the City offices guide (passport, BRTA, DC, land office,
 // city corporation: where, open hours, papers to bring, date checked).
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' show LaunchMode;
 
@@ -85,7 +87,7 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(_offices ? t.cityOffices : t.cityLongDistance)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(
               key: ValueKey('city_dir_${widget.kinds.join('_')}'),
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
@@ -104,7 +106,10 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
                 for (final k in widget.kinds) ...[
                   if (widget.kinds.length > 1) CitySection(_kindTitle(t, k)),
                   if ((_items[k] ?? const []).isEmpty && !_failed)
-                    Card(child: Padding(padding: const EdgeInsets.all(Gap.lg), child: Text(t.cityNotCollectedYet))),
+                    DsCard(
+                      padding: const EdgeInsets.all(Gap.lg),
+                      child: Text(t.cityNotCollectedYet),
+                    ),
                   for (final i in (_items[k] ?? const <CityDirItem>[]).where((i) => _match(i, q))) _card(t, i),
                 ],
               ],
@@ -117,11 +122,9 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
     final s = Theme.of(context).colorScheme;
     String d(String x) => cityD(context, x);
     final papers = i.papers(bn);
-    return Card(
-      key: ValueKey('city_dir_item_${i.id}'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: ValueKey('city_dir_item_${i.id}'),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(child: Text(d(i.label(bn)), style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
             if (i.status.isNotEmpty) CityStatusBadge(i.status),
@@ -182,7 +185,6 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
             ),
           ]),
         ]),
-      ),
     );
   }
 }

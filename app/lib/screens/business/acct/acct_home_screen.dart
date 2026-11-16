@@ -287,10 +287,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
   Widget _queueCard(AppLocalizations t, ColorScheme scheme) {
     final failed = _queue.where((r) => r['failed'] != null).toList();
     final waiting = _queue.length - failed.length;
-    return Card(
-      color: DsTokens.of(context).successBg,
-      margin: const EdgeInsets.only(bottom: Gap.lg),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.lg), child: DsCard(tone: DsTone.success,
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -327,15 +324,12 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
               ),
             ),
         ]),
-      ),
-    );
+      ));
   }
 
-  Widget _openingCard(AppLocalizations t, ColorScheme scheme) => Card(
-        margin: const EdgeInsets.only(bottom: Gap.lg),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _openingCard(AppLocalizations t, ColorScheme scheme) => Padding(padding: const EdgeInsets.only(bottom: Gap.lg), child: DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.acuOpeningCardTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.xs),
@@ -347,8 +341,7 @@ class _AcctHomeScreenState extends State<AcctHomeScreen> with WidgetsBindingObse
               child: Text(t.acuOpeningStart),
             ),
           ]),
-        ),
-      );
+    ));
 
   /// Empty state: benefit + big button + how-to.
   Widget _empty(AppLocalizations t, ColorScheme scheme) => Container(

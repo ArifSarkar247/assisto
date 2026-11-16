@@ -5,6 +5,7 @@
 // Yes) and what the automations already did. Every row is honest: when
 // something cannot be done here it says why, never a dead button.
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart' show LaunchMode;
 
@@ -228,10 +229,9 @@ class _ActTilesState extends State<ActTiles> {
       VoidCallback? onTap,
       bool danger = false}) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      key: key,
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
+    return Padding(key: key, padding: const EdgeInsets.only(bottom: 8), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         minTileHeight: 56,
         enabled: onTap != null,
         leading: Icon(icon, color: danger ? scheme.error : null),
@@ -239,7 +239,7 @@ class _ActTilesState extends State<ActTiles> {
         subtitle: Text(sub),
         onTap: onTap,
       ),
-    );
+      ));
   }
 
   @override

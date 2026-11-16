@@ -6,6 +6,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../ads/ad_banner_slot.dart';
@@ -97,11 +98,9 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
-          Card(
-            color: scheme.ds.primarySoft,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.lg),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          DsSurface(color: scheme.ds.primarySoft,
+            padding: const EdgeInsets.all(Gap.lg),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Text(tr.lp2VocabToday, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
                 const SizedBox(height: Gap.xs),
                 Text(
@@ -122,7 +121,6 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
                   label: Text(due.isEmpty ? tr.lp2VocabComeBack : tr.lp2VocabStart),
                 ),
               ]),
-            ),
           ),
           const SizedBox(height: Gap.lg),
           SegmentedButton<String>(
@@ -138,9 +136,9 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
             Builder(builder: (context) {
               final words = lpList(t['words']);
               final learned = words.where((w) => (st['${w['id']}']?.box ?? 0) >= 3).length;
-              return Card(
-                margin: const EdgeInsets.only(bottom: Gap.sm),
-                child: ListTile(
+              return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
                   minVerticalPadding: Gap.md,
                   leading: CircleAvatar(
                     backgroundColor: scheme.ds.primarySoft,
@@ -151,7 +149,7 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => _study(words, lpLoc(context, t, 'title')),
                 ),
-              );
+                ));
             }),
         ],
       ),
@@ -252,10 +250,9 @@ class _LpVocabSessionState extends State<LpVocabSession> {
           const SizedBox(height: Gap.xs),
           Text(ld(context, '${_i + 1} / $n'), style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.lg),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.xl),
-              child: Column(children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.xl),
+            child: Column(children: [
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Flexible(
                     child: Text(word,
@@ -281,7 +278,6 @@ class _LpVocabSessionState extends State<LpVocabSession> {
                     ]),
                 ],
               ]),
-            ),
           ),
           const SizedBox(height: Gap.lg),
           if (!_shown)

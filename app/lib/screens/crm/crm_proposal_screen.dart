@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../payments/credits_out_sheet.dart' show isOutOfCreditsBody;
@@ -144,10 +145,9 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
     final status = (p['status'] ?? 'draft').toString();
     final reviewed = p['prices_reviewed'] == true;
     final total = _dec(p['total']) ?? 0;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(child: Text(p['title']?.toString().isNotEmpty == true ? p['title'] : '${t.crmProposals} v${p['version']}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             _statusChip(status),
@@ -185,7 +185,6 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
               OutlinedButton(onPressed: () => _transition(t, p, 'accepted'), child: Text(t.crmMarkAccepted)),
           ]),
         ]),
-      ),
     );
   }
 
@@ -334,10 +333,9 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
               for (final p in _active) _productRow(t, p),
               const SizedBox(height: Gap.md),
               _sectionTitle(t.crmQuoteTotals),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.md),
-                  child: Column(children: [
+              DsCard(
+                padding: const EdgeInsets.all(Gap.md),
+                child: Column(children: [
                     Row(children: [
                       Expanded(
                         child: TextField(
@@ -373,7 +371,6 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
                         ]),
                       ),
                   ]),
-                ),
               ),
               const SizedBox(height: Gap.md),
               FilledButton.icon(
@@ -394,10 +391,9 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
     final sku = p['sku']?.toString() ?? '';
     final q = _qty[sku] ?? 0;
     final reviewed = p['price_reviewed'] == true;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.sm),
-        child: Row(children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.sm),
+      child: Row(children: [
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(p['name']?.toString() ?? sku, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
@@ -419,7 +415,6 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
             onPressed: () => setState(() => _qty[sku] = q + 1),
           ),
         ]),
-      ),
     );
   }
 

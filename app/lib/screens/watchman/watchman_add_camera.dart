@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
 
@@ -583,10 +584,9 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
     final info = wmMap(res['info']);
     final cam = _camera;
     return ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 16, 16, 24)), children: [
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      DsCard(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Icon(ok ? Icons.check_circle_rounded : Icons.error_outline_rounded,
                   color: ok ? wmOk() : wmBad(), size: 30),
@@ -634,7 +634,6 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
                 ]),
               ),
           ]),
-        ),
       ),
       const SizedBox(height: 12),
       if (ok && cam != null)

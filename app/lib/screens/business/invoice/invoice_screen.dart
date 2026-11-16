@@ -8,6 +8,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import '../../../widgets/skeleton.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -259,7 +260,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : d == null
               ? _ErrorBody(onRetry: _load, error: _error)
               : ListView(

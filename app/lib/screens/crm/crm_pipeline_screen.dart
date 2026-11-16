@@ -1,5 +1,6 @@
 import 'crm_erp_handoff_screen.dart';
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/ladder_common.dart';
@@ -169,9 +170,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
 
   Widget _dealCard(AppLocalizations t, Map<String, dynamic> d, Map<String, dynamic> stage) {
     final stuckDays = _stuckAge(d, stage);
-    final card = Card(
-      margin: const EdgeInsets.symmetric(vertical: Gap.xs),
-      child: Padding(
+    final card = Padding(padding: const EdgeInsets.symmetric(vertical: Gap.xs), child: DsCard(
         padding: const EdgeInsets.all(Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(d['title'] ?? '', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -194,8 +193,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
               ]),
             ),
         ]),
-      ),
-    );
+      ));
     return LongPressDraggable<Map<String, dynamic>>(
       data: d,
       feedback: Material(color: Colors.transparent, child: SizedBox(width: 240, child: card)),

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -524,7 +526,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
     return Scaffold(
       appBar: AppBar(title: Text(t.shopModeTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
               children: _token == null ? _pairView(t) : _runView(t),
@@ -534,10 +536,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
 
   Widget _infoCard(IconData icon, String title, String body, {Color? tint}) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.ds.cardHighest,
-      child: Padding(
+    return DsSurface(color: scheme.ds.cardHighest,
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, size: 20, color: tint ?? scheme.primary),
@@ -551,8 +550,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
             ]),
           ),
         ]),
-      ),
-    );
+      );
   }
 
   List<Widget> _pairView(AppLocalizations t) {
@@ -604,9 +602,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
     final scheme = Theme.of(context).colorScheme;
     final z = _detector.zone;
     return [
-      Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
+      DsCard(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
@@ -661,7 +657,6 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
             ],
           ]),
         ),
-      ),
       if (_running && _cam != null && _cam!.value.isInitialized) ...[
         const SizedBox(height: Gap.md),
         ClipRRect(

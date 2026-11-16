@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../../widgets/skeleton.dart';
+import '../../../ds/ds.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -317,7 +319,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.invSetTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : _error != null
               ? Center(
                   child: Padding(
@@ -340,10 +342,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
                     Text(t.invSetBusinessType, style: tt.titleMedium),
                     const SizedBox(height: Gap.sm),
                     if (_designs && _suggested != null && _suggested != _template)
-                      Card(
-                        key: const ValueKey('ivd-suggest'),
-                        margin: const EdgeInsets.only(bottom: Gap.sm),
-                        child: Padding(
+                      Padding(key: const ValueKey('ivd-suggest'), padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
                           padding: const EdgeInsets.all(Gap.md),
                           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text(t.ivdSuggested(templateLabel(t, _suggested!)), style: tt.bodyLarge),
@@ -359,8 +358,7 @@ class _InvoiceSettingsScreenState extends State<InvoiceSettingsScreen> {
                               ),
                             ],
                           ]),
-                        ),
-                      ),
+                        )),
                     Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
                       for (final k in _designs ? invoiceTemplates : classicTemplates)
                         ChoiceChip(

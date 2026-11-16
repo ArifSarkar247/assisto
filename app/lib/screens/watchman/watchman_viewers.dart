@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../theme.dart' show AType;
 
 import '../../l10n/app_localizations.dart';
@@ -121,7 +122,7 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.wmFamily)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 12, 16, 32)), children: [
               if (_error == null && _rows.isEmpty)
                 CvEmptyBlock(

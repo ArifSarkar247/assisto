@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../bizai/cctv_accuracy_screen.dart' show CctvAccuracyScreen; // bizai
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -210,11 +211,9 @@ class _UpsellBody extends StatelessWidget {
             t.shopBoxWhatAlerts),
         _bullet(context, Icons.assessment_rounded, t.shopBoxWhatReport),
         const SizedBox(height: Gap.lg),
-        Card(
-          color: scheme.ds.cardHighest,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Row(children: [
+        DsSurface(color: scheme.ds.cardHighest,
+          padding: const EdgeInsets.all(Gap.md),
+          child: Row(children: [
               Icon(Icons.verified_rounded, size: 20, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -222,7 +221,6 @@ class _UpsellBody extends StatelessWidget {
                     style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.4)),
               ),
             ]),
-          ),
         ),
         const SizedBox(height: Gap.lg),
         FilledButton.icon(
@@ -506,9 +504,9 @@ class _SitesTab extends StatelessWidget {
   Widget _shopModeEntry(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: ListTile(
+    return DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         leading: Icon(Icons.phone_android_rounded, color: scheme.primary),
         title: Text(t.shopModeEntryTitle,
             style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
@@ -517,7 +515,7 @@ class _SitesTab extends StatelessWidget {
         onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ShopBoxModeScreen())),
       ),
-    );
+      );
   }
 
   Future<void> _editHours(BuildContext context, Map<String, dynamic> s) async {
@@ -533,10 +531,7 @@ class _SitesTab extends StatelessWidget {
   Widget _privacyNote(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.cardHighest,
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return DsSurface(color: scheme.ds.cardHighest,
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.privacy_tip_rounded, size: 18, color: scheme.primary),
@@ -547,8 +542,7 @@ class _SitesTab extends StatelessWidget {
                     height: 1.4)),
           ),
         ]),
-      ),
-    );
+      );
   }
 
   Widget _siteCard(BuildContext context, AppLocalizations t, ColorScheme scheme,
@@ -985,10 +979,7 @@ class _CamerasTabState extends State<_CamerasTab> {
             _sitePickerBanner(context, widget.site),
             const SizedBox(height: Gap.md),
             // used / included meter
-            Card(
-              margin: EdgeInsets.zero,
-              color: scheme.ds.cardHighest,
-              child: Padding(
+            DsSurface(color: scheme.ds.cardHighest,
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(children: [
                   Icon(Icons.videocam_rounded,
@@ -1003,7 +994,6 @@ class _CamerasTabState extends State<_CamerasTab> {
                   ),
                 ]),
               ),
-            ),
             const SizedBox(height: Gap.md),
             if (_cameras.isEmpty)
               CvEmptyBlock(
@@ -1034,9 +1024,9 @@ class _CamerasTabState extends State<_CamerasTab> {
     final kindLabel = kind == 'shopbox'
         ? t.shopBoxCameraKindShopbox
         : t.shopBoxCameraKindEdge;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: ListTile(
+    return DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         onTap: () => _openSettings(c),
         leading: CircleAvatar(
           backgroundColor: scheme.ds.primarySoft,
@@ -1062,7 +1052,7 @@ class _CamerasTabState extends State<_CamerasTab> {
           color: enabled ? scheme.primary : scheme.ds.muted,
         ),
       ),
-    );
+      );
   }
 }
 
@@ -1273,9 +1263,7 @@ class _AlertsTabState extends State<_AlertsTab> {
         statusLabel = t.shopBoxStatusOpen;
     }
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1361,8 +1349,7 @@ class _AlertsTabState extends State<_AlertsTab> {
                 }),
               ],
             ]),
-      ),
-    );
+      );
   }
 
   Widget _pill(String text, Color c) => Container(
@@ -1462,9 +1449,9 @@ class _ReportTabState extends State<_ReportTab> {
           _sitePickerBanner(context, widget.site),
           const SizedBox(height: Gap.md),
           // a2-cctv: end-of-day cash vs Assisto POS sales
-          Card(
-            margin: EdgeInsets.zero,
-            child: ListTile(
+          DsCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
               leading: Icon(Icons.point_of_sale_rounded, color: scheme.primary),
               title: Text(t.shopEodTitle,
                   style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
@@ -1476,7 +1463,7 @@ class _ReportTabState extends State<_ReportTab> {
                       siteId: widget.site!['id'] as int,
                       siteName: (widget.site!['name'] ?? '').toString()))),
             ),
-          ),
+            ),
           const SizedBox(height: Gap.md),
           // days selector
           Wrap(spacing: Gap.sm, children: [
@@ -1518,10 +1505,7 @@ class _ReportTabState extends State<_ReportTab> {
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.xs),
           if (cameraOnly)
-            Card(
-              margin: EdgeInsets.zero,
-              color: scheme.ds.cardHighest,
-              child: Padding(
+            DsSurface(color: scheme.ds.cardHighest,
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1536,7 +1520,6 @@ class _ReportTabState extends State<_ReportTab> {
                       ),
                     ]),
               ),
-            ),
           const SizedBox(height: Gap.sm),
           _exceptionRow(context, t, t.shopBoxExcVoids,
               _int(exceptions['voids']), cameraOnly),
@@ -1569,9 +1552,7 @@ class _ReportTabState extends State<_ReportTab> {
   Widget _stat(
       BuildContext context, String label, String value, Color color) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(value,
@@ -1581,8 +1562,7 @@ class _ReportTabState extends State<_ReportTab> {
               style:
                   AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ]),
-      ),
-    );
+      );
   }
 
   Widget _exceptionRow(BuildContext context, AppLocalizations t, String label,

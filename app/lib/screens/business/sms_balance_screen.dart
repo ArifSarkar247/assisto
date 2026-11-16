@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../business_khata_api.dart';
@@ -100,9 +101,7 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
       child: ListView(
         padding: const EdgeInsets.all(Gap.lg),
         children: [
-          Card(
-            margin: EdgeInsets.zero,
-            child: Padding(
+          DsCard(
               padding: const EdgeInsets.all(Gap.lg),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,7 +139,6 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
                             .copyWith(color: scheme.ds.muted)),
                   ]),
             ),
-          ),
           const SizedBox(height: Gap.md),
           if (all <= 0)
             _banner(Icons.block_rounded, t.tg2BalEmpty, scheme.ds.dangerBg,
@@ -207,9 +205,7 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
     final price = (p['price_bdt'] as num?)?.toInt() ?? 0;
     final sku = '${p['sku'] ?? ''}';
     final sale = p['on_sale'] == true && sku.isNotEmpty;
-    return Card(
-      margin: const EdgeInsets.only(top: Gap.sm),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(top: Gap.sm), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Wrap(
           alignment: WrapAlignment.spaceBetween,
@@ -240,7 +236,6 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
                       color: Theme.of(context).colorScheme.ds.muted)),
           ],
         ),
-      ),
-    );
+      ));
   }
 }

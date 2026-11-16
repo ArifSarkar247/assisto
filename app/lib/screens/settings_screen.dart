@@ -592,8 +592,8 @@ class _DeletePendingBannerState extends State<_DeletePendingBanner> {
             .format(_effectiveAt!);
     return Padding(
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
-      child: Card(
-        color: AssistoTokens.of(context).warning.withValues(alpha: 0.14),
+      child: DsSurface(color: AssistoTokens.of(context).warning.withValues(alpha: 0.14),
+        padding: EdgeInsets.zero,
         child: ListTile(
           leading: Icon(Icons.schedule_rounded, color: AssistoTokens.of(context).warning),
           title: Text(t.delAcctScheduledTitle),

@@ -3,6 +3,8 @@
 // "Safer at night"). A safety screen: never any ads. Missing facts are said
 // honestly ("not collected yet"), never invented.
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' show LaunchMode;
 
@@ -62,7 +64,7 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.cityWomen)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(
               key: const ValueKey('city_women_list'),
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
@@ -74,12 +76,9 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
                     const ValueKey('city_women_seats')),
                 CitySection(t.cityWomenBuses, icon: Icons.directions_bus_rounded),
                 if ((w?.buses ?? const []).isEmpty)
-                  Card(
-                    key: const ValueKey('city_women_buses_empty'),
-                    child: Padding(
-                      padding: const EdgeInsets.all(Gap.lg),
-                      child: Text(t.cityWomenBusesEmpty),
-                    ),
+                  DsCard(key: const ValueKey('city_women_buses_empty'),
+                    padding: const EdgeInsets.all(Gap.lg),
+                    child: Text(t.cityWomenBusesEmpty),
                   )
                 else
                   for (final b in w!.buses) _bus(t, bn, b),
@@ -96,7 +95,8 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
                   label: Text(t.cityRateNight),
                 ),
                 const SizedBox(height: Gap.lg),
-                Card(
+                DsCard(
+                  padding: EdgeInsets.zero,
                   child: ListTile(
                     minVerticalPadding: Gap.sm,
                     leading: const Icon(Icons.shield_rounded),
@@ -115,11 +115,9 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
     final text = '${(bn ? m['text_bn'] : m['text']) ?? m['text'] ?? m['text_en'] ?? ''}';
     final url = '${m['source_url'] ?? ''}';
     final checked = '${m['checked'] ?? ''}';
-    return Card(
-      key: key,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: key,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(icon),
             const SizedBox(width: Gap.sm),
@@ -140,12 +138,12 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
                 ),
             ]),
         ]),
-      ),
     );
   }
 
-  Widget _bus(AppLocalizations t, bool bn, Map<String, dynamic> b) => Card(
-        child: ListTile(
+  Widget _bus(AppLocalizations t, bool bn, Map<String, dynamic> b) => DsCard(
+    padding: EdgeInsets.zero,
+    child: ListTile(
           minVerticalPadding: Gap.sm,
           leading: const Icon(Icons.woman_rounded),
           title: Text(cityD(context, '${(bn ? b['route_bn'] : null) ?? b['route'] ?? ''}'),
@@ -156,11 +154,12 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
           ].join(' · '))),
           trailing: '${b['status'] ?? ''}'.isEmpty ? null : CityStatusBadge('${b['status']}'),
         ),
-      );
+  );
 
   Widget _night(AppLocalizations t, bool bn, Map<String, dynamic> n) {
     final stars = (n['stars'] as num?)?.toDouble() ?? 0;
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         leading: const Icon(Icons.directions_bus_rounded),
         title: Text(cityD(context, '${n['route'] ?? n['name']}')),

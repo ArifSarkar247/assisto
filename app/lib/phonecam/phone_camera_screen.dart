@@ -6,6 +6,7 @@ import 'package:camera/camera.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -1256,10 +1257,9 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     );
   }
 
-  Widget _card(IconData icon, String title, String body) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _card(IconData icon, String title, String body) => DsCard(
+    padding: const EdgeInsets.all(14),
+    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(icon),
             const SizedBox(width: 12),
             Expanded(
@@ -1270,8 +1270,7 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
               ]),
             ),
           ]),
-        ),
-      );
+  );
 
   List<Widget> _pairView(AppLocalizations t) => [
         _card(Icons.phone_android_rounded, t.pcIntroTitle, t.pcIntroBody),
@@ -1326,7 +1325,8 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
   List<Widget> _ipcamEntry(AppLocalizations t) => [
         if (FeatureFlags.instance.isOn('guard_box_mode')) ...[
           const SizedBox(height: 12),
-          Card(
+          DsCard(
+            padding: EdgeInsets.zero,
             child: ListTile(
               key: const Key('pcIpcamEntry'),
               minVerticalPadding: 12,
@@ -1349,7 +1349,8 @@ class _PhoneCameraScreenState extends State<PhoneCameraScreen> with WidgetsBindi
     final caps = [...kClipCapChoicesMb];
     if (!caps.contains(_capMb)) caps.add(_capMb);
     return [
-      Card(
+      DsCard(
+        padding: EdgeInsets.zero,
         child: ListTile(
           leading: const Icon(Icons.videocam_rounded),
           title: Text(_cameraName.isEmpty ? t.pcUnnamed : _cameraName,

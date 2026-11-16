@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart';
 import '../ds/ds.dart';
 import '../theme.dart' show AType;
 import 'package:flutter/services.dart';
@@ -715,7 +716,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
         child: Center(child: Text(t.gbNotYet, textAlign: TextAlign.center)),
       );
     } else if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else {
       body = ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 12, 16, 32)),
@@ -743,11 +744,9 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
     return Scaffold(appBar: AppBar(title: Text(t.icgTitle)), body: body);
   }
 
-  Widget _banner(String text, IconData icon) => Card(
-        color: Theme.of(context).colorScheme.ds.primarySoft,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(children: [
+  Widget _banner(String text, IconData icon) => DsSurface(color: Theme.of(context).colorScheme.ds.primarySoft,
+    padding: const EdgeInsets.all(12),
+    child: Row(children: [
             Icon(icon, color: Theme.of(context).colorScheme.ds.primaryInk),
             const SizedBox(width: 10),
             Expanded(
@@ -755,30 +754,25 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
                   style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.primaryInk)),
             ),
           ]),
-        ),
-      );
+  );
 
-  Widget _section(String title, List<Widget> children) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+  Widget _section(String title, List<Widget> children) => DsCard(
+    padding: const EdgeInsets.all(14),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text(title, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             ...children,
           ]),
-        ),
-      );
+  );
 
-  Widget _introCard(AppLocalizations t) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _introCard(AppLocalizations t) => DsCard(
+    padding: const EdgeInsets.all(14),
+    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Icon(Icons.router_rounded),
             const SizedBox(width: 12),
             Expanded(child: Text(t.icgIntro, style: AType.bodyMedium.copyWith(height: 1.4))),
           ]),
-        ),
-      );
+  );
 
   Widget _pairCard(AppLocalizations t) => _section(t.icgStepPair, [
         Text(t.pcPairHereHelp),
@@ -820,14 +814,15 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
         ),
       ]);
 
-  Widget _pairedTile(AppLocalizations t) => Card(
-        child: ListTile(
+  Widget _pairedTile(AppLocalizations t) => DsCard(
+    padding: EdgeInsets.zero,
+    child: ListTile(
           leading: const Icon(Icons.videocam_rounded),
           title: Text(_camName.isEmpty ? t.icgDefaultName : _camName,
               style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           subtitle: Text(t.pcPairedTo(_site.isEmpty ? '—' : _site)),
         ),
-      );
+  );
 
   Widget _cameraCard(AppLocalizations t) {
     final canTest = !_testing &&
@@ -1032,14 +1027,12 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
     ]);
   }
 
-  Widget _honestCard(AppLocalizations t) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _honestCard(AppLocalizations t) => DsCard(
+    padding: const EdgeInsets.all(14),
+    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Icon(Icons.privacy_tip_rounded),
             const SizedBox(width: 12),
             Expanded(child: Text(t.icgHonest, style: AType.bodyMedium.copyWith(height: 1.4))),
           ]),
-        ),
-      );
+  );
 }

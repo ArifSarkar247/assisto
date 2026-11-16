@@ -7,6 +7,7 @@
 // Owner Admin -> City data -> Users' stops and can remove wrong ones.
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -126,11 +127,9 @@ class _CityFieldScreenState extends State<CityFieldScreen> {
       required bool done,
       required String action,
       required VoidCallback onTap}) {
-    return Card(
-      key: key,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: key,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             icon,
             const SizedBox(width: Gap.md),
@@ -153,7 +152,6 @@ class _CityFieldScreenState extends State<CityFieldScreen> {
               ),
             ),
         ]),
-      ),
     );
   }
 
@@ -170,11 +168,9 @@ class _CityFieldScreenState extends State<CityFieldScreen> {
           key: const ValueKey('city_map_list'),
           padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
           children: [
-            Card(
-              color: s.secondaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.lg),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            DsSurface(color: s.secondaryContainer,
+              padding: const EdgeInsets.all(Gap.lg),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(t.cityMapBenefit,
                       style: AType.titleMedium.copyWith(color: s.onSecondaryContainer, fontWeight: FontWeight.w800)),
                   const SizedBox(height: Gap.md),
@@ -192,7 +188,6 @@ class _CityFieldScreenState extends State<CityFieldScreen> {
                   Text(cityD(context, t.cityMapHow('$_need')),
                       style: AType.bodySmall.copyWith(color: s.onSecondaryContainer)),
                 ]),
-              ),
             ),
             if (_loading)
               const Padding(padding: EdgeInsets.all(Gap.lg), child: Center(child: CircularProgressIndicator()))
@@ -217,8 +212,9 @@ class _CityFieldScreenState extends State<CityFieldScreen> {
                   ),
               CitySection(t.cityMapOthers, icon: Icons.how_to_vote_rounded),
               if (_items.isEmpty)
-                Card(
-                  child: Padding(padding: const EdgeInsets.all(Gap.lg), child: Text(t.cityMapNoneWaiting)),
+                DsCard(
+                  padding: const EdgeInsets.all(Gap.lg),
+                  child: Text(t.cityMapNoneWaiting),
                 )
               else
                 for (final f in _items)

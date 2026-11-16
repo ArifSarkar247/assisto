@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../feature_flags.dart';
@@ -163,7 +164,8 @@ class _MyShopsScreenState extends State<MyShopsScreen> {
       onRefresh: _load,
       child: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)), children: [
         for (final r in _rows)
-          Card(
+          DsCard(
+            padding: EdgeInsets.zero,
             child: ListTile(
               minVerticalPadding: Gap.md,
               leading: const CircleAvatar(child: Icon(Icons.storefront_rounded)),

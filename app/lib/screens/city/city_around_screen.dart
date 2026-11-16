@@ -6,6 +6,7 @@
 // (B15) — never in route results, never on safety screens.
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' show LaunchMode;
 
@@ -176,16 +177,14 @@ class _CityAroundScreenState extends State<CityAroundScreen> {
     );
   }
 
-  Widget _info(String text, IconData icon) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Row(children: [
+  Widget _info(String text, IconData icon) => DsCard(
+    padding: const EdgeInsets.all(Gap.lg),
+    child: Row(children: [
             Icon(icon),
             const SizedBox(width: Gap.sm),
             Expanded(child: Text(text)),
           ]),
-        ),
-      );
+  );
 
   Widget _row(AppLocalizations t, Map<String, dynamic> p, {bool ad = false}) {
     final s = Theme.of(context).colorScheme;
@@ -194,11 +193,9 @@ class _CityAroundScreenState extends State<CityAroundScreen> {
     final dist = (p['distance_m'] as num?)?.toDouble() ??
         (h != null && lat != null && lon != null ? havM(h.lat, h.lon, lat, lon) : null);
     final phone = '${p['phone'] ?? ''}';
-    return Card(
-      key: ValueKey('city_place_${p['id'] ?? p['name']}'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: ValueKey('city_place_${p['id'] ?? p['name']}'),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text(cityD(context, '${p['name'] ?? ''}'),
@@ -227,7 +224,6 @@ class _CityAroundScreenState extends State<CityAroundScreen> {
               ),
           ]),
         ]),
-      ),
     );
   }
 }

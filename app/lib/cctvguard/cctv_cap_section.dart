@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 
 import '../api.dart';
 import '../l10n/app_localizations.dart';
@@ -244,9 +245,7 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
         ],
         for (final p in packs) ...[
           const SizedBox(height: Gap.sm),
-          Card(
-            margin: EdgeInsets.zero,
-            child: Padding(
+          DsCard(
               padding: const EdgeInsets.all(Gap.md),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
@@ -293,7 +292,6 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
                 ],
               ]),
             ),
-          ),
         ],
         if (_error != null) ...[
           const SizedBox(height: Gap.sm),

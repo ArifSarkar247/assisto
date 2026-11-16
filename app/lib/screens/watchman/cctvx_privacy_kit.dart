@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart' show AType;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -98,7 +100,7 @@ class _PrivacyKitScreenState extends State<PrivacyKitScreen> {
               padding: const EdgeInsets.all(32),
               child: Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center)));
     } else if (kit == null) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else {
       final st = wmMap(kit['sticker']);
       final staff = wmMap(kit['staff_notice']);
@@ -145,11 +147,9 @@ class _PrivacyKitScreenState extends State<PrivacyKitScreen> {
           onSelectionChanged: (v) => setState(() => _staffBn = v.first),
         ),
         const SizedBox(height: 8),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: SelectableText(staffText),
-          ),
+        DsCard(
+          padding: const EdgeInsets.all(14),
+          child: SelectableText(staffText),
         ),
         Wrap(spacing: 8, runSpacing: 8, children: [
           OutlinedButton.icon(

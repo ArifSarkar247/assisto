@@ -15,6 +15,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart' show ApiException;
@@ -161,11 +162,9 @@ class _LpTtsPlayerState extends State<LpTtsPlayer> {
     final pieces = _pieces;
     final locked = !widget.replay && _plays >= _allowed;
     final multi = pieces.length > 1;
-    return Card(
-      color: scheme.surfaceContainerHigh,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsSurface(color: scheme.surfaceContainerHigh,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
           IconButton.filled(
             key: const Key('lp2-tts-play'),
             tooltip: _on ? tr.lp2TrackStop : tr.lp2PlayAudio,
@@ -190,7 +189,6 @@ class _LpTtsPlayerState extends State<LpTtsPlayer> {
             ]),
           ),
         ]),
-      ),
     );
   }
 }
@@ -315,11 +313,9 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
               )
             else ...[
               if (_syl.isNotEmpty)
-                Card(
-                  key: const Key('lp2-track-syllabus'),
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.lg),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                DsCard(key: const Key('lp2-track-syllabus'),
+                  padding: const EdgeInsets.all(Gap.lg),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                       Text(_loc2(context, _syl['title']),
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
                       const SizedBox(height: Gap.sm),
@@ -342,10 +338,10 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                           ),
                       ],
                     ]),
-                  ),
                 ),
               if (lpList(fmt['sections']).isNotEmpty)
-                Card(
+                DsCard(
+                  padding: EdgeInsets.zero,
                   child: ExpansionTile(
                     leading: const Icon(Icons.fact_check_rounded),
                     title: Text(tr.lp2TrackExamFormat),
@@ -378,7 +374,8 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                 for (final l in _lessons) _lessonTile(l)
               else
                 for (final w in weeks)
-                  Card(
+                  DsCard(
+                    padding: EdgeInsets.zero,
                     child: ExpansionTile(
                       key: PageStorageKey('wk-$_track-${w['week']}'),
                       initiallyExpanded: w == weeks.first,
@@ -396,11 +393,9 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.sm),
               for (final m in _tests)
-                Card(
-                  key: ValueKey('lp2-track-test-${m['id']}'),
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.md),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                DsCard(key: ValueKey('lp2-track-test-${m['id']}'),
+                  padding: const EdgeInsets.all(Gap.md),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                       Row(children: [
                         Expanded(
                           child: Text(lpLoc(context, m, 'title'),
@@ -421,11 +416,10 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                           ),
                       ]),
                     ]),
-                  ),
                 ),
               if ('${probashi['note_bn'] ?? ''}'.isNotEmpty)
-                Card(
-                  color: scheme.secondaryContainer,
+                DsSurface(color: scheme.secondaryContainer,
+                  padding: EdgeInsets.zero,
                   child: ListTile(
                     leading: Icon(Icons.public_rounded, color: scheme.onSecondaryContainer),
                     title: Text(tr.lp2TrackProbashi,
@@ -546,18 +540,15 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
           ),
         )
       else
-        Card(
-          color: (mine == right ? Brand.success : Brand.warning).withValues(alpha: 0.15),
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        DsSurface(color: (mine == right ? Brand.success : Brand.warning).withValues(alpha: 0.15),
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(mine == right ? tr.lp2Right : tr.lp2TrackKey(right),
                   style: AType.bodyMedium.copyWith(
                       fontWeight: FontWeight.w700,
                       color: Brand.onTint(context, mine == right ? Brand.success : Brand.danger))),
               if ('${q['explain_bn'] ?? ''}'.isNotEmpty) Text('${q['explain_bn']}', style: AType.bodyMedium.copyWith(height: 1.4)),
             ]),
-          ),
         ),
     ]);
   }
@@ -576,16 +567,13 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
           decoration: InputDecoration(border: const OutlineInputBorder(), hintText: tr.lp2TrackWriteHere),
         ),
       if (_shown.contains(id))
-        Card(
-          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        DsSurface(color: Theme.of(context).colorScheme.surfaceContainerHigh,
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(tr.lp2TrackModel, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               _targetBlock(model),
               Text(tr.lp2TrackSelfCheck, style: AType.bodySmall),
             ]),
-          ),
         )
       else
         Align(
@@ -626,7 +614,8 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
           if ('${l['goal_bn'] ?? ''}'.isNotEmpty)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: const Icon(Icons.flag_rounded),
                 title: Text('${l['goal_bn']}', style: AType.bodyMedium.copyWith(height: 1.4)),
@@ -634,50 +623,43 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
             ),
           h(tr.lp2TrackVocab),
           for (final v in lpList(l['vocab']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   _targetBlock(v, big: true),
                   if (_map(v['example']).isNotEmpty) ...[
                     const Divider(),
                     _targetBlock(_map(v['example'])),
                   ],
                 ]),
-              ),
             ),
           h(tr.lp2TrackGrammar),
           for (final g in lpList(l['grammar']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   Text('${g['pattern'] ?? ''}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xs),
                   Text('${g['explain_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.5)),
                   for (final e in lpList(g['examples'])) ...[const Divider(), _targetBlock(e)],
                 ]),
-              ),
             ),
           h(tr.lp2TrackPractice),
           for (final q in lpList(pr['listening']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   Text(lpSectionName(tr, 'listening'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   LpTtsPlayer(tts: _ttsOf(q)),
                   Text('${q['prompt_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   _choice(q),
                 ]),
-              ),
             ),
           for (final q in lpList(pr['reading']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   Text(lpSectionName(tr, 'reading'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xs),
                   SelectableText('${q['passage'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.6)),
@@ -688,32 +670,27 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
                   const SizedBox(height: Gap.sm),
                   _choice(q),
                 ]),
-              ),
             ),
           for (final q in lpList(pr['writing']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   Text(lpSectionName(tr, 'writing'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   Text('${q['prompt_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   _model('${q['id']}', _map(q['model'])),
                 ]),
-              ),
             ),
           for (final q in lpList(pr['speaking']))
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   Text(lpSectionName(tr, 'speaking'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   Text('${q['prompt_bn'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4)),
                   Text(tr.lp2TrackSayAloud, style: AType.bodySmall),
                   const SizedBox(height: Gap.sm),
                   _model('${q['id']}', _map(q['model']), typed: false),
                 ]),
-              ),
             ),
           const SizedBox(height: Gap.lg),
           FilledButton.icon(
@@ -875,11 +852,9 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
             ),
         ]),
         if (item != null && item.isNotEmpty)
-          Card(
-            color: (item['correct'] == true ? Brand.success : Brand.warning).withValues(alpha: 0.15),
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          DsSurface(color: (item['correct'] == true ? Brand.success : Brand.warning).withValues(alpha: 0.15),
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Text(
                     item['correct'] == true
                         ? AppLocalizations.of(context).lp2Right
@@ -890,7 +865,6 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
                 if ('${item['explain_bn'] ?? ''}'.isNotEmpty)
                   Text('${item['explain_bn']}', style: AType.bodyMedium.copyWith(height: 1.4)),
               ]),
-            ),
           ),
       ]),
     );
@@ -902,11 +876,9 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
     final c = _text.putIfAbsent(id, () => TextEditingController());
     final model = _map(t['model']);
     final prompt = _map(t['prompt']);
-    return Card(
-      key: ValueKey('tt$id'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(key: ValueKey('tt$id'),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           if (prompt.isEmpty)
             Text('${t['prompt'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.4))
           else ...[
@@ -938,7 +910,6 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
             ),
           ],
         ]),
-      ),
     );
   }
 
@@ -1029,12 +1000,9 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl),
           children: [
             if (r != null)
-              Card(
-                key: const Key('lp2-track-result'),
-                color: scheme.primaryContainer,
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.lg),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              DsSurface(key: const Key('lp2-track-result'), color: scheme.primaryContainer,
+                padding: const EdgeInsets.all(Gap.lg),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     Text(tr.lp2TrackRight(ld(context, r['raw'] ?? 0), ld(context, r['total'] ?? 0)),
                         style: Theme.of(context)
                             .textTheme
@@ -1050,7 +1018,6 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
                             style: AType.bodySmall.copyWith(color: scheme.onPrimaryContainer, height: 1.4)),
                       ),
                   ]),
-                ),
               ),
             for (final p in lpList(_sec!['parts'])) ...[
               if (_map(p['instructions']).isNotEmpty)
@@ -1073,8 +1040,8 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
             ],
             for (final t in lpList(_sec!['tasks'])) _task(t),
             if (_selfDone)
-              Card(
-                key: const Key('lp2-track-self'),
+              DsCard(key: const Key('lp2-track-self'),
+                padding: EdgeInsets.zero,
                 child: ListTile(leading: const Icon(Icons.rate_review_rounded), title: Text(tr.lp2TrackSelfCheck)),
               ),
             LpPracticeFooter(text: '${_scoring['note_bn'] ?? ''}'.isEmpty || !lpBn(context) ? null : '${_scoring['note_bn']}'),

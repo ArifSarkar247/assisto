@@ -211,9 +211,9 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
     };
     final chipColor = status == 'posted' ? DsTokens.of(context).primarySoft : DsTokens.of(context).dangerBg;
     final chipInk = status == 'posted' ? DsTokens.of(context).primaryInk : DsTokens.of(context).dangerInk;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ExpansionTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ExpansionTile(
         shape: const Border(),
         title: Text('#${acctDigits(context, je['number'])} · ${acctDigits(context, memo)}',
             style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
@@ -257,6 +257,6 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
             ),
         ],
       ),
-    );
+      ));
   }
 }

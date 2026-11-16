@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
@@ -129,10 +130,9 @@ class _TargetsTabState extends State<_TargetsTab> {
     final set = tg['target_set'] == true;
     final pct = (tg['pct'] as num?)?.toDouble();
     final onPace = tg['on_pace'];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text(tg['member_name']?.toString() ?? t.crmWholeTeam,
@@ -181,7 +181,6 @@ class _TargetsTabState extends State<_TargetsTab> {
             ],
           ],
         ]),
-      ),
     );
   }
 }

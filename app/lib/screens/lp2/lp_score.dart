@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -65,10 +66,9 @@ class LpScoreView extends StatelessWidget {
     final st = '${r['ai_state']}';
     final why = lpAiStateText(tr, st);
     if (why != null) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      return DsCard(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text(title, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xs),
             Text(why, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
@@ -89,7 +89,6 @@ class LpScoreView extends StatelessWidget {
                 ),
               ]),
           ]),
-        ),
       );
     }
     final band = (r['band'] as num?)?.toDouble() ?? 0;
@@ -99,11 +98,9 @@ class LpScoreView extends StatelessWidget {
     final mistakes = (r['mistakes'] as List?)?.whereType<Map>().toList() ?? const [];
     final corrected = '${r['corrected'] ?? ''}';
     final label = (r['practice_label'] as Map?);
-    return Card(
-      key: const Key('lp2-score'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(key: const Key('lp2-score'),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
             Expanded(child: Text(title, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700))),
             Text(tr.lp2BandIs(ld(context, bandText(band))),
@@ -146,7 +143,6 @@ class LpScoreView extends StatelessWidget {
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           LpPracticeFooter(text: label == null ? null : '${(bn ? label['bn'] : label['en']) ?? ''}'),
         ]),
-      ),
     );
   }
 }

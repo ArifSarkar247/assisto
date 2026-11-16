@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart' show ApiException;
@@ -175,7 +176,8 @@ class _StaffScreenState extends State<StaffScreen> {
             )
           else
             for (final m in _rows)
-              Card(
+              DsCard(
+                padding: EdgeInsets.zero,
                 child: ListTile(
                   leading: const CircleAvatar(child: Icon(Icons.badge_rounded)),
                   title: Text('${m['name'] ?? ''}'),

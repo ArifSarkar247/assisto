@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
@@ -260,7 +262,7 @@ class _CctvShareLinksScreenState extends State<CctvShareLinksScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.ctmLinksTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
@@ -291,9 +293,7 @@ class _CctvShareLinksScreenState extends State<CctvShareLinksScreen> {
                   ],
                   if (_cams.isEmpty && _error == null) Text(t.cvvNoCamBenefit),
                   for (final l in _links)
-                    Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: Padding(
+                    Padding(padding: const EdgeInsets.only(bottom: 8), child: DsCard(
                         padding: const EdgeInsets.fromLTRB(12, 10, 8, 6),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text((l['label'] ?? '').toString().isEmpty ? t.ctmLinkNoLabel : l['label'].toString(),
@@ -324,8 +324,7 @@ class _CctvShareLinksScreenState extends State<CctvShareLinksScreen> {
                               ),
                             ),
                         ]),
-                      ),
-                    ),
+                      )),
                 ],
               ),
             ),
@@ -587,7 +586,7 @@ class _CctvAccessLogScreenState extends State<CctvAccessLogScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.ctrLogTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(

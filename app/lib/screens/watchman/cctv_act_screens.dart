@@ -12,6 +12,7 @@
 //                           after the owner's Yes
 // Empty states = benefit line + big button + how-to. No dead buttons.
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
@@ -45,10 +46,9 @@ class CctvActHubScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     void go(Widget w) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
-    Widget tile(Key key, IconData icon, String title, String sub, VoidCallback onTap) => Card(
-          key: key,
-          margin: const EdgeInsets.only(bottom: 10),
-          child: ListTile(
+    Widget tile(Key key, IconData icon, String title, String sub, VoidCallback onTap) => Padding(key: key, padding: const EdgeInsets.only(bottom: 10), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
             minTileHeight: 64,
             leading: Icon(icon, size: 28),
             title: Text(title),
@@ -56,7 +56,7 @@ class CctvActHubScreen extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: onTap,
           ),
-        );
+      ));
     return Scaffold(
       appBar: AppBar(title: Text(t.cv3HubTitle)),
       body: SafeArea(
@@ -89,7 +89,7 @@ class CctvActHubScreen extends StatelessWidget {
 Widget _loadingOr(BuildContext context, bool loading, String? error, VoidCallback retry,
     Widget Function() body) {
   final t = AppLocalizations.of(context);
-  if (loading) return const Center(child: CircularProgressIndicator());
+  if (loading) return const SkeletonList();
   if (error != null) {
     return Center(
       child: Padding(
@@ -130,16 +130,16 @@ Widget _eventRow(BuildContext context, Map<String, dynamic> r, CctvxSource? even
         (r['camera_name'] ?? r['camera'] ?? '').toString(),
         (r['what'] ?? '').toString(),
       ].where((x) => x.isNotEmpty).join(' · ');
-  return Card(
-    margin: const EdgeInsets.only(bottom: 8),
-    child: ListTile(
+  return Padding(padding: const EdgeInsets.only(bottom: 8), child: DsCard(
+      padding: EdgeInsets.zero,
+      child: ListTile(
       minTileHeight: 56,
       leading: Icon(r['has_clip'] == true ? Icons.play_circle_outline_rounded : Icons.photo_outlined),
       title: Text(line),
       subtitle: Text(r['has_clip'] == true ? t.cv3HasClip : t.cv3PhotoOnly),
       onTap: (id == null || events == null) ? null : () => AlertActionsSheet.show(context, events, id),
     ),
-  );
+    ));
 }
 
 // ======================================================================= E
@@ -222,13 +222,11 @@ class _ClosingState extends State<CctvClosingReportScreen> {
           return RefreshIndicator(
             onRefresh: _load,
             child: ListView(padding: const EdgeInsets.all(16), children: [
-              Card(
-                color: ok
+              DsSurface(color: ok
                     ? Theme.of(context).colorScheme.ds.primarySoft
                     : Theme.of(context).colorScheme.ds.cardHighest,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                padding: const EdgeInsets.all(16),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text((d['title'] ?? '').toString(),
                         style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
@@ -241,7 +239,6 @@ class _ClosingState extends State<CctvClosingReportScreen> {
                         ]),
                       ),
                   ]),
-                ),
               ),
               if (hourly.any((v) => v > 0)) ...[
                 const SizedBox(height: 12),
@@ -420,10 +417,9 @@ class _AskState extends State<CctvAskScreen> {
           if (_busy) const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator())),
           if (_error != null) Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           if (a != null && !_busy) ...[
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            DsCard(
+              padding: const EdgeInsets.all(16),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   for (final l in (a['answer'] as List? ?? const []))
                     Padding(
                         padding: const EdgeInsets.only(bottom: 6), child: Text(l.toString())),
@@ -433,7 +429,6 @@ class _AskState extends State<CctvAskScreen> {
                             _hm(lang, (wmMap(a['filter'])['to_min'] as num?)?.toInt())),
                         style: Theme.of(context).textTheme.bodySmall),
                 ]),
-              ),
             ),
             const SizedBox(height: 8),
             for (final r in wmList(a['results'])) _eventRow(context, r, widget.events),
@@ -649,11 +644,9 @@ class _SalesState extends State<CctvSalesMatchScreen> {
                   style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 12),
               if (items.isEmpty)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(t.cv3SalesNone),
-                  ),
+                DsCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(t.cv3SalesNone),
                 )
               else
                 for (final it in items)
@@ -870,10 +863,7 @@ class _AutoState extends State<CctvAutomationsScreen> {
     final r = _rule(trigger);
     final devs = wmList(_d?['devices']);
     final chosen = {for (final a in wmList(r['actions'])) a['device_id']};
-    return Card(
-      key: ValueKey('cv3-rule-$trigger'),
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
+    return Padding(key: ValueKey('cv3-rule-$trigger'), padding: const EdgeInsets.only(bottom: 12), child: DsCard(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SwitchListTile(
@@ -907,8 +897,7 @@ class _AutoState extends State<CctvAutomationsScreen> {
             ),
           ],
         ]),
-      ),
-    );
+      ));
   }
 
   @override

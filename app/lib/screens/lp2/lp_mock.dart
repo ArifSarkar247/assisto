@@ -12,6 +12,7 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../ads/ad_banner_slot.dart';
@@ -233,8 +234,8 @@ class _LpIeltsHubState extends State<LpIeltsHub> {
             ),
             const SizedBox(height: Gap.md),
             if (_data != null && !premium)
-              Card(
-                color: scheme.ds.primarySoft,
+              DsSurface(color: scheme.ds.primarySoft,
+                padding: EdgeInsets.zero,
                 child: ListTile(
                   leading: Icon(Icons.card_giftcard_rounded, color: scheme.ds.primaryInk),
                   title: Text(tr.lp2FreeLeft(ld(context, left ?? 0)),
@@ -307,10 +308,7 @@ class _MockCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final sections = lpStrs(m['sections']).isEmpty ? kLpSections : lpStrs(m['sections']);
-    return Card(
-      key: Key('lp2-mock-${m['id']}'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(key: Key('lp2-mock-${m['id']}'), padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.sm, Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
@@ -354,8 +352,7 @@ class _MockCard extends StatelessWidget {
               ),
           ]),
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -978,14 +975,15 @@ class _LpAudioState extends State<_LpAudio> {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (widget.url.isEmpty) {
-      return Card(child: ListTile(leading: const Icon(Icons.volume_off_rounded), title: Text(tr.lp2AudioMissing)));
+      return DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(leading: const Icon(Icons.volume_off_rounded), title: Text(tr.lp2AudioMissing)),
+      );
     }
     final locked = _played && !widget.replay;
-    return Card(
-      color: scheme.ds.cardHigh,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsSurface(color: scheme.ds.cardHigh,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
           IconButton.filled(
             key: const Key('lp2-play'),
             tooltip: _playing ? tr.lp2Pause : tr.lp2PlayAudio,
@@ -1004,7 +1002,6 @@ class _LpAudioState extends State<_LpAudio> {
             ]),
           ),
         ]),
-      ),
     );
   }
 }
@@ -1040,10 +1037,9 @@ class _WritingSectionState extends State<_WritingSection> {
               Text(tr.lp2TaskN(ld(context, n)),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.md),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              DsCard(
+                padding: const EdgeInsets.all(Gap.md),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     SelectableText('${t['prompt'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.5)),
                     if (img.startsWith('http'))
                       Padding(
@@ -1053,7 +1049,6 @@ class _WritingSectionState extends State<_WritingSection> {
                                 style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
                       ),
                   ]),
-                ),
               ),
               const SizedBox(height: Gap.sm),
               TextField(
@@ -1134,14 +1129,12 @@ class _SpeakingSectionState extends State<_SpeakingSection> {
         ]),
         const SizedBox(height: Gap.md),
         if (n == 2) ...[
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Row(children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Row(children: [
                 Expanded(child: SelectableText('${p['cue_card'] ?? ''}', style: AType.bodyMedium.copyWith(height: 1.5))),
                 LpListenButton(text: '${p['cue_card'] ?? ''}'),
               ]),
-            ),
           ),
           const SizedBox(height: Gap.sm),
           if (!_prep && !_talk)
@@ -1186,15 +1179,12 @@ class _SpeakingSectionState extends State<_SpeakingSection> {
         ] else if (qs.isNotEmpty) ...[
           Text(tr.lp2QuestionOf(ld(context, qi + 1), ld(context, qs.length)),
               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-          Card(
-            color: scheme.ds.cardHighest,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
-              child: Row(children: [
+          DsSurface(color: scheme.ds.cardHighest,
+            padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
+            child: Row(children: [
                 Expanded(child: Text(qs[qi], style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, height: 1.4))),
                 LpListenButton(text: qs[qi]),
               ]),
-            ),
           ),
           Align(
             alignment: AlignmentDirectional.centerEnd,
@@ -1311,10 +1301,9 @@ class LpMockResultScreen extends StatelessWidget {
               child: Text(tr.lp2OverallNeedsAll, textAlign: TextAlign.center),
             ),
           const SizedBox(height: Gap.lg),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(children: [
                 for (final s in kLpSections)
                   LpBandBar(
                     label: lpSectionName(tr, s),
@@ -1322,15 +1311,11 @@ class LpMockResultScreen extends StatelessWidget {
                     note: sections.contains(s) ? notes[s] : tr.lp2NotTaken,
                   ),
               ]),
-            ),
           ),
           const SizedBox(height: Gap.md),
-          Card(
-            key: const Key('lp2-comment'),
-            color: scheme.ds.primarySoft,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsSurface(key: const Key('lp2-comment'), color: scheme.ds.primarySoft,
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   Icon(Icons.auto_awesome_rounded, color: scheme.ds.primaryInk),
                   const SizedBox(width: Gap.sm),
@@ -1340,7 +1325,6 @@ class LpMockResultScreen extends StatelessWidget {
                 const SizedBox(height: Gap.sm),
                 Text(comment, style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, height: 1.45)),
               ]),
-            ),
           ),
           const SizedBox(height: Gap.md),
           FilledButton.icon(
@@ -1491,8 +1475,8 @@ class _LpWeakPracticeState extends State<LpWeakPractice> {
           Text(tr.lp2WeakIntro, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           if (done)
-            Card(
-              color: scheme.ds.primarySoft,
+            DsSurface(color: scheme.ds.primarySoft,
+              padding: EdgeInsets.zero,
               child: ListTile(
                 title: Text(tr.lp2WeakScore(ld(context, right), ld(context, _items.length)),
                     style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
@@ -1500,11 +1484,9 @@ class _LpWeakPracticeState extends State<LpWeakPractice> {
             ),
           for (var i = 0; i < _items.length; i++) ...[
             if ('${_items[i]['passage'] ?? ''}'.isNotEmpty)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.md),
-                  child: SelectableText('${_items[i]['passage']}', style: AType.bodyMedium.copyWith(height: 1.5)),
-                ),
+              DsCard(
+                padding: const EdgeInsets.all(Gap.md),
+                child: SelectableText('${_items[i]['passage']}', style: AType.bodyMedium.copyWith(height: 1.5)),
               ),
             LpQuestion(
               q: {..._items[i], 'n': i + 1},

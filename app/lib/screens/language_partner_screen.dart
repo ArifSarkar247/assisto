@@ -79,7 +79,8 @@ class _LanguagePartnerScreenState extends State<LanguagePartnerScreen> {
           padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
           children: [
             if (_fail != null)
-              Card(
+              DsCard(
+                padding: EdgeInsets.zero,
                 child: ListTile(
                   leading: Icon(Icons.cloud_off_rounded, color: DsTokens.of(context).dangerInk),
                   title: Text(honestFailText(tr, _fail, otherwise: tr.lp2ProgressOffline)),

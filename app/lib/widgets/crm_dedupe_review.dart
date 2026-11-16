@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
@@ -70,10 +71,9 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
 
   Widget _groupCard(AppLocalizations t, Map<String, dynamic> g) {
     final ids = ((g['lead_ids'] as List?) ?? []).map((e) => (e as num).toInt()).toList();
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             const Icon(Icons.content_copy_rounded, size: 18),
             const SizedBox(width: Gap.xs),
@@ -92,7 +92,6 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
             ),
           ),
         ]),
-      ),
     );
   }
 

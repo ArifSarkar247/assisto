@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../../acct_api.dart';
@@ -208,11 +209,9 @@ class _AcctCashboxScreenState extends State<AcctCashboxScreen> {
       child: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          Card(
-            color: pending > 0 ? scheme.ds.successBg : scheme.ds.cardHighest,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Semantics(
+          DsSurface(color: pending > 0 ? scheme.ds.successBg : scheme.ds.cardHighest,
+            padding: const EdgeInsets.all(Gap.md),
+            child: Semantics(
                 liveRegion: true,
                 child: Text(
                     pending > 0
@@ -224,16 +223,15 @@ class _AcctCashboxScreenState extends State<AcctCashboxScreen> {
                         height: 1.4,
                         color: pending > 0 ? scheme.ds.successInk : null)),
               ),
-            ),
           ),
           const SizedBox(height: Gap.sm),
           Text(t.lg2CashboxWhy,
               style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           for (final r in sorted)
-            Card(
-              margin: const EdgeInsets.only(bottom: Gap.sm),
-              child: ListTile(
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                padding: EdgeInsets.zero,
+                child: ListTile(
                 key: ValueKey('acct-cash-${r['id']}'),
                 minVerticalPadding: Gap.sm,
                 enabled: !_busy,
@@ -253,7 +251,7 @@ class _AcctCashboxScreenState extends State<AcctCashboxScreen> {
                     color: '${r['code'] ?? ''}'.isEmpty ? scheme.tertiary : scheme.primary),
                 onTap: () => _pick(r),
               ),
-            ),
+              )),
         ],
       ),
     );
@@ -439,17 +437,14 @@ class _AcctVatRatesScreenState extends State<AcctVatRatesScreen> {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        Card(
-          color: seller ? scheme.ds.cardHighest : scheme.ds.successBg,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Text(
+        DsSurface(color: seller ? scheme.ds.cardHighest : scheme.ds.successBg,
+          padding: const EdgeInsets.all(Gap.md),
+          child: Text(
                 seller ? t.lg2VatShopRate(acctPct(context, d['shop_vat_bp'])) : t.lg2VatNotSeller,
                 style: AType.bodyMedium.copyWith(
                     height: 1.4,
                     fontWeight: FontWeight.w600,
                     color: seller ? null : scheme.ds.successInk)),
-          ),
         ),
         const SizedBox(height: Gap.sm),
         Text(t.lg2VatRatesWhy, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
@@ -475,9 +470,9 @@ class _AcctVatRatesScreenState extends State<AcctVatRatesScreen> {
           )
         else
           for (final p in products)
-            Card(
-              margin: const EdgeInsets.only(bottom: Gap.sm),
-              child: ListTile(
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                padding: EdgeInsets.zero,
+                child: ListTile(
                 key: ValueKey('acct-vatp-${p['product_id']}'),
                 minVerticalPadding: Gap.sm,
                 title: Text('${p['name']}', style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
@@ -488,7 +483,7 @@ class _AcctVatRatesScreenState extends State<AcctVatRatesScreen> {
                 trailing: const Icon(Icons.edit_rounded),
                 onTap: () => _edit(p),
               ),
-            ),
+              )),
       ],
     );
   }
@@ -641,7 +636,8 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
     final scheme = Theme.of(context).colorScheme;
     final d = _d;
     if (_error != null) {
-      return Card(
+      return DsCard(
+        padding: EdgeInsets.zero,
         child: ListTile(
           leading: const Icon(Icons.cloud_off_rounded),
           title: Text(t.lg2YearHeading),
@@ -664,10 +660,7 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
       Text(t.lg2YearWhy, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
       const SizedBox(height: Gap.sm),
       for (final c in live)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          color: scheme.ds.primarySoft,
-          child: Padding(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(color: scheme.ds.primarySoft,
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(t.lg2YearClosedOn(acctDay(context, c['end'])),
@@ -687,12 +680,11 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
                 ),
               ),
             ]),
-          ),
-        ),
+          )),
       for (final s in sugg)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
             key: ValueKey('acct-year-close-${s['end']}'),
             minVerticalPadding: Gap.sm,
             enabled: !_busy,
@@ -703,7 +695,7 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => _close('${s['end']}', '${s['kind']}'),
           ),
-        ),
+          )),
     ]);
   }
 }
@@ -724,11 +716,7 @@ class AcctCostGapBanner extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final n = (gaps['sales'] as num?)?.toInt() ?? 0;
     if (n == 0) return const SizedBox.shrink();
-    return Card(
-      key: const ValueKey('acct-cost-banner'),
-      color: scheme.ds.dangerBg,
-      margin: const EdgeInsets.only(top: Gap.sm, bottom: Gap.sm),
-      child: Padding(
+    return Padding(key: const ValueKey('acct-cost-banner'), padding: const EdgeInsets.only(top: Gap.sm, bottom: Gap.sm), child: DsCard(tone: DsTone.danger,
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -769,8 +757,7 @@ class AcctCostGapBanner extends StatelessWidget {
             ),
           ),
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -865,9 +852,7 @@ class _AcctCostGapsSheetState extends State<AcctCostGapsSheet> {
   Widget _productCard(AppLocalizations t, ColorScheme scheme, Map p) {
     final id = (p['product_id'] as num?)?.toInt();
     final current = (p['current_cost'] as num?)?.toInt() ?? 0;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text('${p['name']}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
@@ -900,7 +885,6 @@ class _AcctCostGapsSheetState extends State<AcctCostGapsSheet> {
             ),
           ],
         ]),
-      ),
-    );
+      ));
   }
 }

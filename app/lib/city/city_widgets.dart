@@ -2,6 +2,7 @@
 // checked date), status badge, the step list, an option summary, the CNG
 // "Show this if overcharged" card and the honest "no data" card.
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:url_launcher/url_launcher.dart' show LaunchMode;
 
@@ -488,11 +489,9 @@ class CityNoDataCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    return Card(
-      key: const ValueKey('city_no_data'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: const ValueKey('city_no_data'),
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             const Icon(Icons.travel_explore_rounded, size: 32),
             const SizedBox(width: Gap.sm),
@@ -515,7 +514,6 @@ class CityNoDataCard extends StatelessWidget {
             ),
           ),
         ]),
-      ),
     );
   }
 }

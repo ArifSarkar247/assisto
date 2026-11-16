@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -160,7 +162,7 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
     return Scaffold(
       appBar: AppBar(title: Text(t.ccnTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : _error != null
               ? _ErrorBody(text: _error!.isEmpty ? t.ccnLoadError : _error!, onRetry: _load)
               : RefreshIndicator(onRefresh: _load, child: _body(context, t)),
@@ -181,9 +183,7 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
           const SizedBox(height: Gap.lg),
           Text(t.ccnLinkedTitle, style: th.titleMedium),
           for (final l in links)
-            Card(
-              margin: const EdgeInsets.only(top: Gap.sm),
-              child: Padding(
+            Padding(padding: const EdgeInsets.only(top: Gap.sm), child: DsCard(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Row(children: [
@@ -232,16 +232,15 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
                     ),
                   ]),
                 ]),
-              ),
-            ),
+              )),
         ],
         const SizedBox(height: Gap.lg),
         if (providers.isNotEmpty) ...[
           Text(t.ccnAddBrandTitle, style: th.titleMedium),
           for (final p in providers)
-            Card(
-              margin: const EdgeInsets.only(top: Gap.sm),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Padding(padding: const EdgeInsets.only(top: Gap.sm), child: DsCard(
+                padding: EdgeInsets.zero,
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 // owner 9 Nov: the owner's OWN brand account in one tap (OAuth)
                 if (p['modes'] is List && (p['modes'] as List).contains('oauth'))
                   Padding(
@@ -264,7 +263,7 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
                   onTap: () => _connect(p),
                 ),
               ]),
-            ),
+              )),
           if (widget.onFindOnWifi != null)
             Padding(
               padding: const EdgeInsets.only(top: Gap.md),

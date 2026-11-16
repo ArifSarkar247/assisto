@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
@@ -255,10 +256,9 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
     final total = (p['total_poisha'] as num?) ??
         (((p['total'] as num?) ?? 0) * 100);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text('v${p['version']} · ${p['title'] ?? ''}',
@@ -351,7 +351,6 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
                   label: Text(t.crmConvertToOrder)),
           ]),
         ]),
-      ),
     );
   }
 

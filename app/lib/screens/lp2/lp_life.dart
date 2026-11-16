@@ -16,6 +16,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../ads/ad_banner_slot.dart';
@@ -113,9 +114,9 @@ class _LpLifeListScreenState extends State<LpLifeListScreen> {
           ]),
           const SizedBox(height: Gap.md),
           for (final s in _items)
-            Card(
-              margin: const EdgeInsets.only(bottom: Gap.sm),
-              child: ListTile(
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                padding: EdgeInsets.zero,
+                child: ListTile(
                 key: Key('lp2-sc-${s['id']}'),
                 minVerticalPadding: Gap.md,
                 leading: CircleAvatar(
@@ -132,7 +133,7 @@ class _LpLifeListScreenState extends State<LpLifeListScreen> {
                   if (mounted) unawaited(_load());
                 },
               ),
-            ),
+              )),
         ],
       ),
     );
@@ -172,9 +173,7 @@ class LpScenarioScreen extends StatelessWidget {
                 ),
               const SizedBox(height: Gap.md),
               for (final x in lpList(s['sentences']))
-                Card(
-                  margin: const EdgeInsets.only(bottom: Gap.sm),
-                  child: Padding(
+                Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
                     padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
                     child: Row(children: [
                       Expanded(
@@ -192,22 +191,21 @@ class LpScenarioScreen extends StatelessWidget {
                         onPressed: () => showLpSayIt(context, '${x['en']}', '${x['bn']}'),
                       ),
                     ]),
-                  ),
-                ),
+                  )),
             ],
           ),
           ListView(
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl),
             children: [
               for (final v in lpList(s['vocab']))
-                Card(
-                  margin: const EdgeInsets.only(bottom: Gap.sm),
-                  child: ListTile(
+                Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                    padding: EdgeInsets.zero,
+                    child: ListTile(
                     title: Text('${v['w']}  ·  ${v['bn']}', style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
                     subtitle: Text('${v['ex'] ?? ''}'),
                     trailing: LpListenButton(text: '${v['w']}. ${v['ex'] ?? ''}'),
                   ),
-                ),
+                  )),
             ],
           ),
         ]),
@@ -610,11 +608,9 @@ class _LpRolePlayScreenState extends State<LpRolePlayScreen> {
                   ]),
                 ),
               if (finished)
-                Card(
-                  color: Brand.success.withValues(alpha: 0.12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.md),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                DsSurface(color: Brand.success.withValues(alpha: 0.12),
+                  padding: const EdgeInsets.all(Gap.md),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                       Text(tr.lp2GuidedDone, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                       const SizedBox(height: Gap.sm),
                       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -628,7 +624,6 @@ class _LpRolePlayScreenState extends State<LpRolePlayScreen> {
                             child: Text(tr.lp2ModeAi)),
                       ]),
                     ]),
-                  ),
                 ),
             ],
           ),
