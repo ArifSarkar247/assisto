@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৬৬ / মোট ৪২০**
+**স্ক্রিন শেষ: ৭২ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -95,7 +95,7 @@
 - ⬜ — `screens/watchman/cctv_watch_screen.dart`
 - ⬜ — `screens/watchman/cctvx_guard_screen.dart`
 - ⬜ — `screens/watchman/guard_box_screen.dart`
-- ⬜ — `screens/watchman/watchman_screen.dart`
+- ✅ batch d2-2 (জায়গাগুলো আগে, প্ল্যান পরে; জীবন্ত কার্ড, লাইভ বিন্দু) — `screens/watchman/watchman_screen.dart`
 
 ## ৭. মাই সার্কেল চ্যাট
 
@@ -168,7 +168,7 @@
 - ⬜ — `screens/business/acct/acct_audit_screen.dart`
 - ⬜ — `screens/business/acct/acct_close_screen.dart`
 - ⬜ — `screens/business/acct/acct_entry_screen.dart`
-- ⬜ — `screens/business/acct/acct_home_screen.dart`
+- ✅ batch d2-1 (হিসাবের ধরন জীবন্ত টাইল, টুলগুলো এক গ্রুপ কার্ডে) — `screens/business/acct/acct_home_screen.dart`
 - ⬜ — `screens/business/acct/acct_opening_screen.dart`
 - ⬜ — `screens/business/acct/acct_reports_screen.dart`
 - ⬜ — `screens/business/business_plans_screen.dart`
@@ -226,7 +226,7 @@
 - ⬜ — `screens/business/demand_map_screen.dart`
 - ⬜ — `screens/business/invoice/invoice_screen.dart`
 - ⬜ — `screens/business/invoice/invoice_settings_screen.dart`
-- ⬜ — `screens/business/invoice/invoices_screen.dart`
+- ✅ batch d2-2 (নতুন ইনভয়েস বোতাম সবার আগে, অনুচ্ছেদ নেই) — `screens/business/invoice/invoices_screen.dart`
 - ⬜ — `screens/business/invoice/new_invoice_screen.dart`
 - ✅ batch 6 (জীবন্ত অর্ডার কার্ড, DS খালি/ত্রুটি) — `screens/business/orders_screen.dart`
 - ✅ batch 6 (জীবন্ত BizCard, DS ত্রুটি অবস্থা, পূর্ণ-চওড়া বোতাম) — `screens/business/payments_screen.dart`
@@ -281,7 +281,7 @@
 ## ১৩. ল্যাঙ্গুয়েজ পার্টনার
 
 - ⬜ — `screens/language_pack_screen.dart`
-- ⬜ — `screens/language_partner_screen.dart`
+- ✅ batch d2-2 (আজকের লক্ষ্য = নরম হিরো, জীবন্ত কার্ড) — `screens/language_partner_screen.dart`
 - ⬜ — `screens/language_picker_screen.dart`
 
 ## ১৪. কুরআন
@@ -326,7 +326,7 @@
 - ⬜ — `screens/city/city_directory_screen.dart`
 - ⬜ — `screens/city/city_metro_screen.dart`
 - ⬜ — `screens/city/city_reports_screen.dart`
-- ⬜ — `screens/city/city_service_screen.dart`
+- ✅ batch d2-2 (শহর = নরম হিরো, টাইলে রঙিন আইকন-ব্যাজ) — `screens/city/city_service_screen.dart`
 - ⬜ — `screens/city/city_women_screen.dart`
 - ⬜ — `screens/contract_analyzer_screen.dart`
 - ⬜ — `screens/cost_estimator_screen.dart`
@@ -411,7 +411,7 @@
 - ⬜ — `screens/password_reset_confirm_screen.dart`
 - ⬜ — `screens/password_reset_screen.dart`
 - ⬜ — `screens/payment_ladder_screen.dart`
-- ⬜ — `screens/photo_studio_screen.dart`
+- ✅ batch d2-2 (তিন-রঙা ব্লকের বদলে নরম হিরো, প্রতিটি অংশ জীবন্ত কার্ড) — `screens/photo_studio_screen.dart`
 - ⬜ — `screens/prepaid_meter_screen.dart`
 - ⬜ — `screens/price_radar_screen.dart`
 - ⬜ — `screens/proactive_ai_screen.dart`
