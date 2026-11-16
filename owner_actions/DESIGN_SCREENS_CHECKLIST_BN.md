@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৯৪ / মোট ৪২০**
+**স্ক্রিন শেষ: ১০২ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -81,7 +81,7 @@
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `cctvconnect/cctv_connect_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `cctvconnect/link_devices_screen.dart`
 - ⬜ — `cctvguard/vendor_live_screen.dart`
-- ⬜ — `phonecam/phone_camera_screen.dart`
+- ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `phonecam/phone_camera_screen.dart`
 - ⬜ — `screens/camera/camera_preview_edit_screen.dart`
 - ⬜ — `screens/camera/camera_screen.dart`
 - ⬜ — `screens/circle_guardians_screen.dart`
@@ -92,7 +92,7 @@
 - ⬜ — `screens/watchman/cctv_alarm_call_screen.dart`
 - ✅ batch d2-5 (স্কেলেটন) — `screens/watchman/cctv_grid_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/watchman/cctv_recording_screen.dart`
-- ⬜ — `screens/watchman/cctv_watch_screen.dart`
+- ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `screens/watchman/cctv_watch_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/cctvx_guard_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/guard_box_screen.dart`
 - ✅ batch d2-2 (জায়গাগুলো আগে, প্ল্যান পরে; জীবন্ত কার্ড, লাইভ বিন্দু) — `screens/watchman/watchman_screen.dart`
@@ -244,7 +244,7 @@
 - ⬜ — `screens/crm/crm_capture_screen.dart`
 - ⬜ — `screens/crm/crm_companies_screen.dart`
 - ⬜ — `screens/crm/crm_company_detail_screen.dart`
-- ⬜ — `screens/crm/crm_dashboard_screen.dart`
+- ✅ batch d2-7 (ওজনযুক্ত পূর্বাভাস = নরম হিরো, লেবেল কাটা যায় না) — `screens/crm/crm_dashboard_screen.dart`
 - ⬜ — `screens/crm/crm_erp_handoff_screen.dart`
 - ⬜ — `screens/crm/crm_firstrun_screen.dart`
 - ⬜ — `screens/crm/crm_home_screen.dart`
@@ -254,7 +254,7 @@
 - ⬜ — `screens/crm/crm_pipeline_screen.dart`
 - ⬜ — `screens/crm/crm_proposal_advanced_screen.dart`
 - ⬜ — `screens/crm/crm_proposal_screen.dart`
-- ⬜ — `screens/crm/crm_reports_screen.dart`
+- ✅ batch d2-7 (পূর্বাভাস = নরম হিরো, লেবেল কাটা যায় না) — `screens/crm/crm_reports_screen.dart`
 - ⬜ — `screens/crm/crm_team_advanced_screen.dart`
 - ⬜ — `screens/crm/crm_team_screen.dart`
 - ⬜ — `screens/crm/crm_today_screen.dart`
@@ -280,7 +280,7 @@
 
 ## ১৩. ল্যাঙ্গুয়েজ পার্টনার
 
-- ⬜ — `screens/language_pack_screen.dart`
+- ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `screens/language_pack_screen.dart`
 - ✅ batch d2-2 (আজকের লক্ষ্য = নরম হিরো, জীবন্ত কার্ড) — `screens/language_partner_screen.dart`
 - ⬜ — `screens/language_picker_screen.dart`
 
@@ -322,10 +322,10 @@
 - ⬜ — `screens/career/cv_export_screen.dart`
 - ⬜ — `screens/career/interview_role_screen.dart`
 - ⬜ — `screens/career/job_find_screen.dart`
-- ⬜ — `screens/city/city_around_screen.dart`
+- ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `screens/city/city_around_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/city/city_directory_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/city/city_metro_screen.dart`
-- ⬜ — `screens/city/city_reports_screen.dart`
+- ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `screens/city/city_reports_screen.dart`
 - ✅ batch d2-2 (শহর = নরম হিরো, টাইলে রঙিন আইকন-ব্যাজ) — `screens/city/city_service_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/city/city_women_screen.dart`
 - ⬜ — `screens/contract_analyzer_screen.dart`
@@ -361,7 +361,7 @@
 - ⬜ — `screens/legal_screen.dart`
 - ⬜ — `screens/login_screen.dart`
 - ⬜ — `screens/lost_stolen_screen.dart`
-- ⬜ — `screens/market/market_need_screen.dart`
+- ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `screens/market/market_need_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/market/market_screen.dart`
 - ⬜ — `screens/meetings_screen.dart`
 - ⬜ — `screens/memory_screen.dart`
