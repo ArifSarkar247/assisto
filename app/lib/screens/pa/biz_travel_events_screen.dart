@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
+import '../../messaging/date_separators.dart' show localDigits;
 import '../../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -208,22 +210,26 @@ class _BizTravelEventsScreenState extends State<BizTravelEventsScreen> {
     final events = _events;
     return Scaffold(
       appBar: AppBar(title: Text(t.paBizTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openEventEditor(),
-        icon: const Icon(Icons.add_rounded),
-        label: Text(t.paBizNewEvent),
-      ),
+      // empty: the state's big button is the one action (no second FAB)
+      floatingActionButton: events.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _openEventEditor(),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(t.paBizNewEvent),
+            ),
       body: events.isEmpty
-          ? StateMessage(
-              icon: Icons.groups_3_rounded,
-              tint: Brand.blue,
-              title: t.paBizWelcomeTitle,
-              message: t.paBizWelcomeBody,
-              action: FilledButton.icon(
-                onPressed: () => _openEventEditor(),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(t.paBizNewEvent),
-              ),
+          ? ListView(
+              padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+              children: [
+                DsEmptyState(
+                  icon: Icons.groups_3_rounded,
+                  title: t.paBizWelcomeTitle,
+                  benefit: t.paBizWelcomeBody,
+                  actionLabel: t.paBizNewEvent,
+                  onAction: () => _openEventEditor(),
+                ),
+              ],
             )
           : RefreshIndicator(
               onRefresh: _load,
@@ -278,24 +284,26 @@ class _EventCard extends StatelessWidget {
       cdText = t.paBizPast(-cd);
     }
     final place = [venue, city].where((x) => x.isNotEmpty).join(' · ');
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
+    // one alive DS card per event; name, dates and place wrap (never "…")
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         onTap: onOpen,
-        leading: CircleAvatar(
-          backgroundColor: scheme.ds.primarySoft,
-          child: Icon(Icons.event_available_rounded, color: scheme.ds.primaryInk),
+        leading: DsAvatar(
+          child: Icon(Icons.event_available_rounded, size: 22, color: scheme.ds.primaryInk),
         ),
         title: Text('${event['name'] ?? ''}',
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+            style: AType.bodyLarge.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w700)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (date.isNotEmpty)
-              Text(end.isEmpty ? date : '$date → $end',
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text(localDigits(end.isEmpty ? date : '$date → $end',
+                  Localizations.localeOf(context).languageCode)),
             if (place.isNotEmpty)
-              Text(place, maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text(place),
             Wrap(spacing: 6, children: [
               if (days > 0) _chip(t.paBizDaysCount(days), scheme.secondary),
               if (cdText.isNotEmpty) _chip(cdText, scheme.primary),
@@ -307,7 +315,7 @@ class _EventCard extends StatelessWidget {
             tooltip: t.edit,
             onPressed: onEdit),
       ),
-    );
+    ));
   }
 
   Widget _chip(String label, Color c) => Container(
@@ -316,9 +324,11 @@ class _EventCard extends StatelessWidget {
         decoration: BoxDecoration(
             color: c.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(Radii.pill)),
-        child: Text(label,
-            style: TextStyle(
-                fontSize: 11.5, fontWeight: FontWeight.w700, color: c)),
+        // AA ink on the tint (the raw status colour was too light)
+        child: Builder(
+            builder: (context) => Text(label,
+                style: AType.labelMedium.copyWith(
+                    fontWeight: FontWeight.w700, color: Brand.onTint(context, c)))),
       );
 }
 
@@ -510,8 +520,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.event['name'] ?? ''}',
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text('${widget.event['name'] ?? ''}'),
       ),
       body: _loading
           ? const SkeletonList()
@@ -537,6 +546,9 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                   if (attendees.isEmpty)
                     _EmptyLine(t.paBizNoAttendees)
                   else
+                    DsCard(
+                      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+                      child: Column(children: [
                     for (final a in attendees)
                       _AttendeeTile(
                         attendee: a,
@@ -548,6 +560,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                         onEdit: () => _editAttendee(a),
                         onDelete: () => _deleteAttendee(a['id'] as int),
                       ),
+                    ])),
                   const SizedBox(height: Gap.lg),
 
                   // ---- agenda ----
@@ -558,6 +571,9 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                   if (agenda.isEmpty)
                     _EmptyLine(t.paBizNoAgenda)
                   else
+                    DsCard(
+                      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+                      child: Column(children: [
                     for (final g in agenda)
                       _TwoLineTile(
                         icon: Icons.article_rounded,
@@ -569,6 +585,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                         onEdit: () => _editAgenda(g),
                         onDelete: () => _deleteChild(g['id'] as int),
                       ),
+                    ])),
                   const SizedBox(height: Gap.lg),
 
                   // ---- budget (৳ estimated vs actual) ----
@@ -579,6 +596,9 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                   if (budget.isEmpty)
                     _EmptyLine(t.paBizNoBudget)
                   else ...[
+                    DsCard(
+                      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+                      child: Column(children: [
                     for (final b in budget)
                       _BudgetTile(
                         label: '${b['label'] ?? ''}',
@@ -588,6 +608,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                         onEdit: () => _editBudget(b),
                         onDelete: () => _deleteChild(b['id'] as int),
                       ),
+                    ])),
                     const SizedBox(height: Gap.sm),
                     _BudgetTotals(
                       estimated: _fmtMoney(est),
@@ -603,8 +624,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                   Padding(
                     padding: const EdgeInsets.only(top: Gap.xs),
                     child: Text(t.paBizBudgetDisclaimer,
-                        style: TextStyle(
-                            fontSize: 11.5,
+                        style: AType.labelMedium.copyWith(
                             color: scheme.ds.muted,
                             height: 1.35)),
                   ),
@@ -632,12 +652,15 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                         const SizedBox(width: Gap.sm),
                         Text(t.paBizChecklistProgress(doneTasks, tasks.length),
                             style:
-                                const TextStyle(fontWeight: FontWeight.w700)),
+                                AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                       ]),
                     ),
                   if (tasks.isEmpty)
                     _EmptyLine(t.paBizNoTasks)
                   else
+                    DsCard(
+                      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+                      child: Column(children: [
                     for (final x in tasks)
                       CheckboxListTile(
                         contentPadding: EdgeInsets.zero,
@@ -651,6 +674,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                             tooltip: t.delete,
                             onPressed: () => _deleteChild(x['id'] as int)),
                       ),
+                    ])),
                   const SizedBox(height: Gap.xl),
 
                   // ---- printable summary ----
@@ -745,10 +769,10 @@ class _BookingSeamCard extends StatelessWidget {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
+    return DsSurface(
+      flat: true,
+      color: scheme.ds.primarySoft,
+      padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.confirmation_number_rounded,
               size: 20, color: scheme.secondary),
@@ -757,17 +781,15 @@ class _BookingSeamCard extends StatelessWidget {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.paBizBookingSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 2),
               Text(t.paBizBookingSeamBody,
-                  style: TextStyle(
-                      fontSize: 12,
+                  style: AType.bodySmall.copyWith(
                       color: scheme.ds.muted,
                       height: 1.35)),
             ]),
           ),
         ]),
-      ),
     );
   }
 }
@@ -796,9 +818,10 @@ class _RollupBar extends StatelessWidget {
         decoration: BoxDecoration(
             color: c.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(Radii.pill)),
-        child: Text(label,
-            style: TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w700, color: c)),
+        child: Builder(
+            builder: (context) => Text(label,
+                style: AType.bodySmall.copyWith(
+                    fontWeight: FontWeight.w700, color: Brand.onTint(context, c)))),
       );
 }
 
@@ -813,12 +836,12 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Row(children: [
-      Icon(icon, size: 18, color: scheme.primary),
+      DsAvatar(size: 32, child: Icon(icon, size: 16, color: scheme.ds.primaryInk)),
       const SizedBox(width: Gap.sm),
       Expanded(
           child: Text(label,
               style:
-                  const TextStyle(fontWeight: FontWeight.w800, fontSize: 15))),
+                  AType.titleMedium.copyWith(fontWeight: FontWeight.w800, ))),
       IconButton(
           icon: const Icon(Icons.add_circle_outline_rounded),
           tooltip: AppLocalizations.of(context).add,
@@ -834,9 +857,9 @@ class _EmptyLine extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Text(text,
-            style: TextStyle(
+            style: AType.bodySmall.copyWith(
                 color: Theme.of(context).colorScheme.ds.muted,
-                fontSize: 13)),
+                )),
       );
 }
 
@@ -857,10 +880,10 @@ class _TwoLineTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       dense: true,
       leading: Icon(icon),
-      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Text(title),
       subtitle: subtitle.trim().isEmpty
           ? null
-          : Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
+          : Text(subtitle),
       trailing: PopupMenuButton<String>(
         onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
         itemBuilder: (_) => [
@@ -922,9 +945,7 @@ class _AttendeeTile extends StatelessWidget {
           child: Text(
               role.isEmpty
                   ? '${attendee['name'] ?? ''}'
-                  : '${attendee['name'] ?? ''} · $role',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
+                  : '${attendee['name'] ?? ''} · $role'),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -932,11 +953,11 @@ class _AttendeeTile extends StatelessWidget {
               color: sc.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(Radii.pill)),
           child: Text(statusLabel,
-              style: TextStyle(
-                  fontSize: 10.5, fontWeight: FontWeight.w800, color: sc)),
+              style: AType.labelSmall.copyWith(
+                  fontWeight: FontWeight.w800, color: sc)),
         ),
       ]),
-      subtitle: Text(line2, maxLines: 2, overflow: TextOverflow.ellipsis),
+      subtitle: Text(line2),
       trailing: PopupMenuButton<String>(
         onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
         itemBuilder: (_) => [
@@ -965,10 +986,8 @@ class _BudgetTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       dense: true,
       leading: const Icon(Icons.receipt_rounded),
-      title: Text(label.isEmpty ? catLabel : label,
-          maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text('$catLabel · ${t.paBizEstVsAct(/* (actual, estimated) */ actual, estimated)}',
-          maxLines: 2, overflow: TextOverflow.ellipsis),
+      title: Text(label.isEmpty ? catLabel : label),
+      subtitle: Text('$catLabel · ${t.paBizEstVsAct(/* (actual, estimated) */ actual, estimated)}'),
       trailing: PopupMenuButton<String>(
         onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
         itemBuilder: (_) => [
@@ -1020,10 +1039,10 @@ class _BudgetTotals extends StatelessWidget {
         child: Row(children: [
           Expanded(
               child: Text(label,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       fontWeight: bold ? FontWeight.w800 : FontWeight.w500))),
           Text(value,
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   fontWeight: FontWeight.w800,
                   color: color ?? Theme.of(context).colorScheme.ds.text)),
         ]),
@@ -1087,7 +1106,7 @@ class _EventEditorState extends State<_EventEditor> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(widget.existing == null ? t.paBizNewEvent : t.edit,
               style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.lg),
           TextField(
             controller: _name,
@@ -1211,8 +1230,8 @@ class _AttendeeEditorState extends State<_AttendeeEditor> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(t.paBizAttendeesHeader,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w800)),
+                  style: AType.titleLarge.copyWith(
+                      fontWeight: FontWeight.w800)),
               const SizedBox(height: Gap.md),
               TextField(
                   controller: _name,
@@ -1228,7 +1247,7 @@ class _AttendeeEditorState extends State<_AttendeeEditor> {
                       border: const OutlineInputBorder())),
               const SizedBox(height: Gap.md),
               Text(t.paBizModeLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Wrap(spacing: Gap.sm, children: [
                 for (final m in _travelModes)
@@ -1269,7 +1288,7 @@ class _AttendeeEditorState extends State<_AttendeeEditor> {
                       border: const OutlineInputBorder())),
               const SizedBox(height: Gap.md),
               Text(t.paBizStatusLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Wrap(spacing: Gap.sm, children: [
                 for (final s in _arrStates)
@@ -1335,7 +1354,7 @@ class _AgendaEditorState extends State<_AgendaEditor> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(t.paBizAgendaHeader,
               style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.md),
           TextField(
               controller: _title,
@@ -1421,8 +1440,8 @@ class _BudgetEditorState extends State<_BudgetEditor> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(t.paBizBudgetHeader,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w800)),
+                  style: AType.titleLarge.copyWith(
+                      fontWeight: FontWeight.w800)),
               const SizedBox(height: Gap.md),
               TextField(
                   controller: _label,
@@ -1432,7 +1451,7 @@ class _BudgetEditorState extends State<_BudgetEditor> {
                       border: const OutlineInputBorder())),
               const SizedBox(height: Gap.md),
               Text(t.paBizCategoryLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Wrap(spacing: Gap.sm, children: [
                 for (final c in _budgetCats)
@@ -1509,7 +1528,7 @@ class _EventSummarySheet extends StatelessWidget {
         children: [
           Text('${event['name'] ?? ''}',
               style:
-                  const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
           Text(
               '${event['date'] ?? ''}${'${event['end'] ?? ''}'.trim().isEmpty ? '' : ' → ${event['end']}'}'),
@@ -1517,7 +1536,7 @@ class _EventSummarySheet extends StatelessWidget {
           if (days > 0) Text(t.paBizDaysCount(days)),
           const Divider(height: Gap.xl),
           Text(t.paBizRollupConfirmed(confirmed),
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           if (pending > 0) Text(t.paBizRollupPending(pending)),
           _summarySection(context, t.paBizAttendeesHeader, [
             for (final a in attendees)
@@ -1530,21 +1549,19 @@ class _EventSummarySheet extends StatelessWidget {
           ]),
           const SizedBox(height: Gap.sm),
           Text(t.paBizBudgetHeader,
-              style: const TextStyle(fontWeight: FontWeight.w800)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
           Text(t.paBizEstVsAct(/* (actual, estimated) */ actual, estimated)),
           Text('${t.paBizGrandEstimate}: $grandEstimate'),
           if (taskTotal > 0)
             Text(t.paBizChecklistProgress(doneTasks, taskTotal),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.md),
           Text(t.paBizBudgetDisclaimer,
-              style: TextStyle(
-                  fontSize: 12,
+              style: AType.bodySmall.copyWith(
                   color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           Text(t.paBizBookingSeamBody,
-              style: TextStyle(
-                  fontSize: 12,
+              style: AType.bodySmall.copyWith(
                   color: Theme.of(context).colorScheme.ds.muted)),
         ],
       ),
@@ -1558,7 +1575,7 @@ class _EventSummarySheet extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: Gap.sm),
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+        Text(title, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
         for (final l in lines) Text('• $l'),
       ],
     );
