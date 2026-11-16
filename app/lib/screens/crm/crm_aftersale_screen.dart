@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart';
+import '../../messaging/date_separators.dart' show localDigits;
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_aftersale_api.dart';
 import '../../widgets/crm_aftersale_widgets.dart';
@@ -10,6 +11,11 @@ import '../../widgets/num_input.dart'; // savesweep
 /// AFTER-SALE hub (CRM_SPEC §7): four tabs — Collections, AMC/Renewals,
 /// Complaints, Upsell. All money is integer POISHA from the server (no float).
 /// No amount is invented in the app; everything is rendered exactly as returned.
+/// Poisha → "৳1,500.50" with Bangla digits in bn (the shared formatter is
+/// Latin-only).
+String _tk(BuildContext context, num? poisha) =>
+    localDigits(bdtFromPoisha(poisha), Localizations.localeOf(context).languageCode);
+
 class CrmAfterSaleScreen extends StatelessWidget {
   final int org;
   const CrmAfterSaleScreen({super.key, required this.org});
@@ -21,13 +27,15 @@ class CrmAfterSaleScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.crmAfterSale),
+          // scrollable tabs size to their label: nothing cut at any font size
           bottom: TabBar(
             isScrollable: true,
+            tabAlignment: TabAlignment.start,
             tabs: [
-              Tab(child: Text(t.crmCollections, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-              Tab(child: Text(t.crmAmcRenewals, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-              Tab(child: Text(t.crmComplaints, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-              Tab(child: Text(t.crmUpsell, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.crmCollections, softWrap: false)),
+              Tab(child: Text(t.crmAmcRenewals, softWrap: false)),
+              Tab(child: Text(t.crmComplaints, softWrap: false)),
+              Tab(child: Text(t.crmUpsell, softWrap: false)),
             ],
           ),
         ),
@@ -167,25 +175,29 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
-        DsCard(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(children: [
+        // what is still to collect = the soft hero (big number first)
+        DsHeroCard(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(t.crmOutstanding,
+                  style: AType.titleSmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
+              DsNumber(_tk(context, outstanding),
+                  color: overdue > 0 ? Theme.of(context).colorScheme.ds.dangerInk : null),
+              const SizedBox(height: Gap.sm),
               CrmProgressBar(
                 booked > 0 ? collected / booked : 0,
                 t.crmCollectedOfBooked(
-                    bdtFromPoisha(collected), bdtFromPoisha(booked)),
+                    _tk(context, collected), _tk(context, booked)),
               ),
               const SizedBox(height: Gap.sm),
-              CrmMoneyRow(t.crmOutstanding, bdtFromPoisha(outstanding),
-                  valueColor: outstanding > 0 ? AssistoTokens.of(context).warning : null),
               if (overdue > 0)
-                CrmMoneyRow(t.crmOverdue, bdtFromPoisha(overdue),
+                CrmMoneyRow(t.crmOverdue, _tk(context, overdue),
                     bold: true, valueColor: Theme.of(context).colorScheme.error),
             ]),
         ),
         const SizedBox(height: Gap.sm),
         CrmSectionHeader(t.crmInstallments, icon: Icons.receipt_long_rounded),
-        for (final inst in _installments) _instCard(t, inst),
+        for (final inst in _installments)
+          Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: _instCard(t, inst)),
       ]),
     );
   }
@@ -200,7 +212,8 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
-                child: Text('${t.crmInstallment} #${inst['seq']}',
+                child: Text(localDigits('${t.crmInstallment} #${inst['seq']}',
+                    Localizations.localeOf(context).languageCode),
                     style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             CrmStatusPill(_statusLabel(t, status),
                 tone: done
@@ -209,16 +222,16 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
                         ? CrmStatusTone.warning
                         : CrmStatusTone.neutral),
           ]),
-          CrmMoneyRow(t.crmBooked, bdtFromPoisha(due)),
-          CrmMoneyRow(t.crmCollected, bdtFromPoisha(collected)),
+          CrmMoneyRow(t.crmBooked, _tk(context, due)),
+          CrmMoneyRow(t.crmCollected, _tk(context, collected)),
           if (!done) ...[
             const SizedBox(height: Gap.xs),
             Align(
               alignment: Alignment.centerRight,
-              child: FilledButton.tonalIcon(
+              child: DsButton(
                   onPressed: () => _collect(t, inst),
-                  icon: const Icon(Icons.add_card_rounded, size: 18),
-                  label: Text(t.crmRecordCollection)),
+                  icon: Icons.add_card_rounded,
+                  label: t.crmRecordCollection),
             ),
           ],
         ]),
@@ -289,7 +302,8 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
-        for (final amc in _amcs) _amcCard(t, amc),
+        for (final amc in _amcs)
+          Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: _amcCard(t, amc)),
       ]),
     );
   }
@@ -316,23 +330,24 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
             daysTo == null
                 ? ''
                 : (daysTo as num) >= 0
-                    ? t.crmRenewalInDays(daysTo.toString())
-                    : t.crmRenewalOverdueDays((-daysTo).toString()),
+                    ? t.crmRenewalInDays(localDigits(daysTo.toString(), Localizations.localeOf(context).languageCode))
+                    : t.crmRenewalOverdueDays(localDigits((-daysTo).toString(), Localizations.localeOf(context).languageCode)),
             style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted),
           ),
           const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.xs, children: [
-            OutlinedButton.icon(
-                onPressed: () => _run(() => CrmAfterSaleApi.of(context)
-                    .scheduleReminder((amc['id'] as num).toInt())),
-                icon: const Icon(Icons.notifications_active_rounded, size: 18),
-                label: Text(t.crmScheduleReminder)),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+            // renewing is the main action when one is due: it goes first
             if (state != 'active')
-              FilledButton.tonalIcon(
+              DsButton(
                   onPressed: () => _run(() => CrmAfterSaleApi.of(context)
                       .renewAmc((amc['id'] as num).toInt(), 365)),
-                  icon: const Icon(Icons.autorenew_rounded, size: 18),
-                  label: Text(t.crmRenew)),
+                  icon: Icons.autorenew_rounded,
+                  label: t.crmRenew),
+            DsButton.secondary(
+                onPressed: () => _run(() => CrmAfterSaleApi.of(context)
+                    .scheduleReminder((amc['id'] as num).toInt())),
+                icon: Icons.notifications_active_rounded,
+                label: t.crmScheduleReminder),
           ]),
         ]),
     );
@@ -487,9 +502,12 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
                   : RefreshIndicator(
                       onRefresh: _load,
                       child: ListView(
-                          padding: const EdgeInsets.all(Gap.md),
+                          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
                           children: [
-                            for (final c in _complaints) _complaintCard(t, c)
+                            for (final c in _complaints)
+                              Padding(
+                                  padding: const EdgeInsets.only(bottom: Gap.sm),
+                                  child: _complaintCard(t, c))
                           ]),
                     ),
     );
@@ -679,8 +697,10 @@ class _CrmUpsellTabState extends State<CrmUpsellTab> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         // Honest note: upsell signals only — the owner sets any price elsewhere.
+        DsGroup(margin: EdgeInsets.zero, children: [
+          for (final s in signals) _signalCard(t, Map<String, dynamic>.from(s)),
+        ]),
         NeedsKeyBanner(t.crmUpsellNoPriceNote, icon: Icons.info_outline_rounded),
-        for (final s in signals) _signalCard(t, Map<String, dynamic>.from(s)),
       ]),
     );
   }
@@ -688,17 +708,16 @@ class _CrmUpsellTabState extends State<CrmUpsellTab> {
   Widget _signalCard(AppLocalizations t, Map<String, dynamic> s) {
     final kind = (s['kind'] ?? '').toString();
     final isRenewal = kind == 'amc_renewal';
-    return DsCard(
-      padding: EdgeInsets.zero,
-      child: ListTile(
-        leading: Icon(
-            isRenewal ? Icons.autorenew_rounded : Icons.add_business_rounded,
-            color: Theme.of(context).colorScheme.primary),
-        title: Text(isRenewal
-            ? t.crmUpsellRenewal
-            : t.crmUpsellModule((s['module'] ?? '').toString())),
-        subtitle: Text(isRenewal ? t.crmUpsellRenewalHint : t.crmUpsellModuleHint),
-      ),
+    final ds = Theme.of(context).colorScheme.ds;
+    return DsListRow(
+      leading: DsAvatar(
+          size: 40,
+          child: Icon(isRenewal ? Icons.autorenew_rounded : Icons.add_business_rounded,
+              size: 20, color: ds.primaryInk)),
+      title: isRenewal
+          ? t.crmUpsellRenewal
+          : t.crmUpsellModule((s['module'] ?? '').toString()),
+      subtitle: isRenewal ? t.crmUpsellRenewalHint : t.crmUpsellModuleHint,
     );
   }
 }
