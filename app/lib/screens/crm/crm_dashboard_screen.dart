@@ -77,11 +77,13 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
         const SizedBox(height: Gap.md),
         // ---- weighted forecast with method shown ----
         _sectionTitle(t.crmWeightedForecast),
-        DsCard(
-          padding: const EdgeInsets.all(Gap.md),
+        // design2: the weighted forecast is the soft hero (big tight number)
+        DsHeroCard(
+          padding: const EdgeInsets.all(Gap.lg),
           child: forecast['has_data'] == true
                 ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(bdt(context, forecast['weighted'] as num?), style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w800)),
+                    Text(bdt(context, forecast['weighted'] as num?),
+                        style: AType.headlineMedium.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.5, color: scheme.ds.text)),
                     const SizedBox(height: Gap.xs),
                     _line(t.crmBestCase, bdt(context, forecast['best_case'] as num?)),
                     _line(t.crmCommit, bdt(context, forecast['commit'] as num?)),
@@ -141,12 +143,18 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
     return DsCard(
       padding: const EdgeInsets.all(Gap.md),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, color: scheme.primary),
-          const SizedBox(height: Gap.xs),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+                color: scheme.ds.primarySoft, borderRadius: BorderRadius.circular(DsRadius.card)),
+            child: Icon(icon, color: scheme.ds.primaryInk),
+          ),
+          const SizedBox(height: Gap.sm),
           FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              child: Text(value, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800), maxLines: 1)),
+              child: Text(value, style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.3), maxLines: 1)),
           Text(label, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ]),
     );
@@ -154,15 +162,20 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
 
   Widget _line(String k, String v) => Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Flexible(child: Text(k, maxLines: 1, overflow: TextOverflow.ellipsis)),
+        // design2: labels wrap (never cut with "…")
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: Text(k)),
+          const SizedBox(width: Gap.sm),
           Text(v, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         ]),
       );
 
   Widget _sectionTitle(String s) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs),
-        child: Text(s, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
+        child: Semantics(
+          header: true,
+          child: Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
+        ),
       );
 
   String _industryLabel(AppLocalizations t, String? code) =>

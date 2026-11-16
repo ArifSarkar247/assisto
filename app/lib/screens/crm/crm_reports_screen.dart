@@ -125,8 +125,9 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         // ---- weighted forecast (ESTIMATE) ----
         CrmSectionHeader(t.crmReportForecast,
             trailing: _estimateBadge(t)),
-        DsCard(
-          padding: const EdgeInsets.all(Gap.md),
+        // design2: the forecast is the soft hero
+        DsHeroCard(
+          padding: const EdgeInsets.all(Gap.lg),
           child: forecast['has_data'] == true
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -425,8 +426,10 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
 
   Widget _line(String k, String v) => Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Flexible(child: Text(k, maxLines: 1, overflow: TextOverflow.ellipsis)),
+        // design2: labels wrap (never cut with "…")
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: Text(k)),
+          const SizedBox(width: Gap.sm),
           Text(v, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         ]),
       );
