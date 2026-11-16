@@ -324,6 +324,8 @@ void main() {
       final (api, t) = await pumpCity(tester);
       final btn = find.byKey(const ValueKey('city_more_routes'));
       await tester.scrollUntilVisible(btn, 300, scrollable: list());
+      await tester.ensureVisible(btn);
+      await tester.pumpAndSettle();
       expect(find.text(t.adwireMoreRoutesGoogle), findsOneWidget);
       expect(api.transitCalls, 0, reason: 'nothing is asked before the tap');
       await tester.tap(btn);
@@ -343,6 +345,8 @@ void main() {
       final (api, _) = await pumpCity(tester);
       final btn = find.byKey(const ValueKey('city_more_routes'));
       await tester.scrollUntilVisible(btn, 300, scrollable: list());
+      await tester.ensureVisible(btn);
+      await tester.pumpAndSettle();
       await tester.tap(btn);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('ad-gate-cancel')));
@@ -360,6 +364,8 @@ void main() {
       final (api, _) = await pumpCity(tester);
       final btn = find.byKey(const ValueKey('city_more_routes'));
       await tester.scrollUntilVisible(btn, 300, scrollable: list());
+      await tester.ensureVisible(btn);
+      await tester.pumpAndSettle();
       await tester.tap(btn);
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('ad-gate-sheet')), findsNothing);
