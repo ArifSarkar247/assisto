@@ -187,7 +187,9 @@ void main() {
     final failing = _PostFailApi('/journey/wellness');
     await _pump(tester, const JourneySettingsScreen(), failing);
     final sw = find.text(_en.wellnessEnable);
-    await tester.ensureVisible(sw);
+    // designv2: sections are cards now — scroll the list itself to the row
+    await tester.scrollUntilVisible(sw, 200, scrollable: find.byType(Scrollable).first);
+    await tester.pump();
     await tester.tap(sw);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));

@@ -467,11 +467,11 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
       const SizedBox(height: Gap.sm),
       for (final h in rows)
         Card(
-          color: h.primary ? Brand.danger.withValues(alpha: 0.08) : null,
+          color: h.primary ? Color.alphaBlend(Brand.danger.withValues(alpha: 0.08), scheme.ds.card) : null,
           margin: const EdgeInsets.only(bottom: Gap.sm),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: h.primary ? Brand.danger : scheme.ds.primarySoft,
+              backgroundColor: h.primary ? Brand.dangerFill : scheme.ds.primarySoft,
               foregroundColor: h.primary ? Colors.white : scheme.ds.primaryInk,
               child: Icon(h.icon),
             ),
@@ -481,7 +481,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
             subtitle: Text(h.note, style: AType.bodySmall),
             trailing: FilledButton.icon(
               style: FilledButton.styleFrom(
-                backgroundColor: h.primary ? Brand.danger : null,
+                backgroundColor: h.primary ? Brand.dangerFill : null, // designv2: AA with white
                 minimumSize: const Size(0, 44),
               ),
               onPressed: () => _call(h.number),
