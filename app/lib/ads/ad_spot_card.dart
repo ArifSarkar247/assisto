@@ -25,11 +25,17 @@ import 'hero_binding.dart';
 /// link sit OUTSIDE the ad ([CompactAdFrame]). Lazy: nothing loads before
 /// the card's first frame; any failure is "no card". Never throws.
 class AdSpotCard extends StatefulWidget {
-  const AdSpotCard({super.key, required this.placement, this.padding});
+  const AdSpotCard(
+      {super.key, required this.placement, this.padding, this.onResult});
 
   /// A registry key whose allowed types include native.
   final String placement;
   final EdgeInsetsGeometry? padding;
+
+  /// adwire: called ONCE when the card knows its fate — true = an ad is
+  /// showing, false = no ad (off, paid plan, no fill, timeout, error). The
+  /// after-call screen keeps itself open until this arrives.
+  final ValueChanged<bool>? onResult;
 
   /// adcontrol list native: [row] alone, or [row] + one native card when
   /// row [i] (of [count]) is the N-th row (N = the owner's 15–20,
@@ -89,6 +95,16 @@ class _AdSpotCardState extends State<AdSpotCard> {
     }
   }
 
+  bool _reported = false;
+
+  void _report(bool shown) {
+    if (_reported) return;
+    _reported = true;
+    try {
+      widget.onResult?.call(shown);
+    } catch (_) {}
+  }
+
   Future<void> _load() async {
     if (!mounted || _loading || _ad != null) return;
     _loading = true;
@@ -110,11 +126,15 @@ class _AdSpotCardState extends State<AdSpotCard> {
         } catch (_) {}
         return;
       }
-      if (ad != null) setState(() => _ad = ad);
+      if (ad != null) {
+        setState(() => _ad = ad);
+        _report(true);
+      }
     } catch (_) {
       // an ad problem never reaches the page
     } finally {
       _loading = false;
+      if (mounted) _report(false); // no-op when already reported true
     }
   }
 

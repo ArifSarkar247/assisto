@@ -28,7 +28,13 @@ import 'package:assisto/widgets/app_sheet.dart';
 /// unless they open this sheet themselves (opt-in) — their whole credits go
 /// straight to their balance (server side).
 class RewardedAdSheet extends StatefulWidget {
-  const RewardedAdSheet({super.key});
+  const RewardedAdSheet({super.key, this.placement = 'credits'});
+
+  /// adwire: the registered rewarded placement this ad plays under
+  /// ([AdControl]) — 'credits' (watch to earn) or 'ai_chat_unlock' (the AI
+  /// chat "Watch N ads for 1 answer" sheet). The owner's switch for it
+  /// decides (Free users only; Premium / Plus never).
+  final String placement;
 
   /// p2-money: injectable SSV-ticket backend for tests.
   @visibleForTesting
@@ -36,11 +42,13 @@ class RewardedAdSheet extends StatefulWidget {
 
   /// Convenience launcher. Returns true if the ad wallet was credited (so the
   /// caller can refresh balances), false/null otherwise.
-  static Future<bool?> show(BuildContext context) => showAppSheet<bool>(
+  static Future<bool?> show(BuildContext context,
+          {String placement = 'credits'}) =>
+      showAppSheet<bool>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,
-        builder: (_) => const RewardedAdSheet(),
+        builder: (_) => RewardedAdSheet(placement: placement),
       );
 
   @override
@@ -109,7 +117,9 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
       _note = null;
     });
     try {
-      final ticket = await b.rewardTicket();
+      final ticket = (widget.placement != 'credits' && b is ApiSponsorBackend)
+          ? await b.rewardTicketFor(widget.placement)
+          : await b.rewardTicket();
       if (!mounted) return;
       if (ticket['ok'] != true) {
         if (ticket['reason'] == 'capped') {
@@ -126,7 +136,7 @@ class _RewardedAdSheetState extends State<RewardedAdSheet> {
       }
       final nonce = '${ticket['nonce'] ?? ''}';
       final outcome = await AdsService.instance.showRewardedSsv(app,
-          screen: 'credits',
+          screen: widget.placement,
           userId: '${ticket['user_id'] ?? ''}',
           customData: '${ticket['custom_data'] ?? nonce}',
           unit: '${ticket['rewarded_unit'] ?? ''}');

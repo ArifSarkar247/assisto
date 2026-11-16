@@ -122,7 +122,8 @@ class KidAudioChild {
     final nav = appNavigatorKey.currentState;
     if (nav == null) return;
     unawaited(nav.push(MaterialPageRoute<void>(
-        builder: (_) => CircleCallScreen(member: member, kind: 'voice'))));
+        builder: (_) => CircleCallScreen(
+            member: member, kind: 'voice', origin: 'kid_audio')))); // adwire
   }
 
   /// On open / resume / the "listen" push. Cheap no-op when the flag is off.
