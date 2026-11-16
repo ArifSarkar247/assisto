@@ -146,8 +146,10 @@ def app_ads_txt(request):
 
 
 # ---------------------------------------------------------------- sitemap
-SITEMAP_PATHS = ["/", "/pricing", "/security", "/help", "/khata-free", "/cv", "/scam", "/photo", "/festival", "/made30", "/get",
-                 "/privacy", "/terms", "/delete-account", "/refund-policy"]
+# seo (17 Nov): one public-page list for sitemap + canonical (web/seo.py);
+# /features* only once v3 is live (sitemap_extra).
+from .seo import PUBLIC_PATHS
+SITEMAP_PATHS = [p for p in PUBLIC_PATHS if not p.startswith("/features")]
 
 
 def sitemap_xml(request):
@@ -161,8 +163,9 @@ def sitemap_xml(request):
             rows.append(
                 "  <url><loc>%s</loc>"
                 "<xhtml:link rel=\"alternate\" hreflang=\"bn\" href=\"%s\"/>"
-                "<xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"%s\"/></url>"
-                % (loc.replace("&", "&amp;"), bn, en.replace("&", "&amp;")))
+                "<xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"%s\"/>"
+                "<xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"%s\"/></url>"
+                % (loc.replace("&", "&amp;"), bn, en.replace("&", "&amp;"), bn))
     body = ('<?xml version="1.0" encoding="UTF-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
             'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'

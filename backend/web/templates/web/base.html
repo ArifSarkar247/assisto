@@ -10,6 +10,7 @@
 {% include "web/_icons.html" %}
 {% if lang != 'en' %}<link rel="preload" href="{% site_asset 'noto-sans-bengali-var.woff2' %}" as="font" type="font/woff2" crossorigin>{% endif %}
 {% block og %}{% include "web/_og.html" %}{% endblock %}
+{% auto_seo %}
 {% block head %}{% endblock %}
 <style>
 @font-face{font-family:"Taka3";font-style:normal;font-weight:400 800;font-display:swap;src:url({% site_asset 'taka.woff2' %}) format("woff2");unicode-range:U+09F3}

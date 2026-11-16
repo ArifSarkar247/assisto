@@ -29,6 +29,7 @@ urlpatterns = [
     path("help", views_site3.help_page),
     path("features", views_site3.features_index),
     path("features/<str:gid>", views_site3.feature_group),
+    path("about", views_site3.about),                            # seo: real About page
     path("preview/", views_site3.preview),                       # noindex review
     path("download/apk", views_site3.download_apk),               # sitev3: owner-chosen APK
     path("preview/features", views_site3.preview, {"page": "features"}),

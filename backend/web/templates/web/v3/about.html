@@ -1,0 +1,24 @@
+{% extends "web/v3/base.html" %}
+{% block main %}
+<section class="sec" aria-labelledby="about-h"><div class="wrap">
+  <h1 id="about-h" class="h1s">{{ A.h1 }}</h1>
+  <p class="lead">{{ A.lead }}</p>
+  <h2>{{ A.mission_h }}</h2>
+  <p>{{ A.mission }}</p>
+</div></section>
+<section class="sec alt" aria-labelledby="values-h"><div class="wrap">
+  <h2 id="values-h">{{ A.values_h }}</h2>
+  <div class="trust">{% for icon, h, b in A.values %}<article class="card rv"><div class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ icon }}"/></svg></div><h3>{{ h }}</h3><p>{{ b }}</p></article>{% endfor %}</div>
+  <p><a href="/khata-free{{ U.q }}">{{ A.promise_link }}</a> · <a href="/privacy{{ U.q }}">{{ C.f_privacy }}</a> · <a href="{{ U.security }}">{{ C.nav_security }}</a></p>
+</div></section>
+<section class="sec" aria-labelledby="what-h"><div class="wrap">
+  <h2 id="what-h">{{ A.what_h }}</h2>
+  <div class="trust">{% for g in groups %}<article class="card rv"><div class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ g.icon }}"/></svg></div><h3><a href="{{ g.url }}">{{ g.name }}</a></h3><p>{{ g.lead }}</p></article>{% endfor %}</div>
+</div></section>
+<section class="sec alt" aria-labelledby="who-h"><div class="wrap">
+  <h2 id="who-h">{{ A.who_h }}</h2>
+  <p>{{ A.who }}</p>
+  <h2>{{ A.contact_h }}</h2>
+  <p>{{ A.contact }} <a href="mailto:assistoaiagent@gmail.com">assistoaiagent@gmail.com</a></p>
+</div></section>
+{% endblock %}

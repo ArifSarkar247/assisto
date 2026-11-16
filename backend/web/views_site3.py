@@ -191,13 +191,17 @@ def _render(request, page, preview, group=None, status=200):
     gmap = {g["id"]: g for g in groups}
     site = _site()
     path = {"home": "/", "features": "/features", "pricing": "/pricing", "security": "/security",
-            "help": "/help", "group": "/features/%s" % group}[page]
+            "help": "/help", "group": "/features/%s" % group, "about": "/about"}[page]
     bn_url, en_url = site + path, site + path + "?lang=en"
     faq = SC.faq(lang) + [{"q": q, "a": a} for q, a in V3.EXTRA_FAQ[lang]]
     if page == "group":
         g = gmap[group]
         title, desc = g["title"], g["desc"]
         crumbs = [("Assisto", site + "/"), (C["nav_features"], site + "/features"), (g["name"], bn_url if lang == "bn" else en_url)]
+    elif page == "about":   # seo (17 Nov): a real About page
+        from .site_about import ABOUT
+        title, desc = ABOUT[lang]["title"], ABOUT[lang]["desc"]
+        crumbs = [("Assisto", site + "/"), (ABOUT[lang]["h1"], bn_url if lang == "bn" else en_url)]
     else:
         title, desc, crumbs = C["title"], C["desc"], None
         if page in ("pricing", "security", "help", "features"):
@@ -235,6 +239,8 @@ def _render(request, page, preview, group=None, status=200):
                             faq if page in ("home", "help") else None, crumbs),
         "year": 2026,
     }
+    from .site_about import ABOUT
+    ctx["A"] = ABOUT[lang]
     ctx["chips"] = _chips(C, page, group, base, U, groups, ctx["play"])
     ctx["menu"] = _menu(C, page, group, U, groups, ctx["other_url"], ctx["other"])
     if page == "group":
@@ -242,7 +248,8 @@ def _render(request, page, preview, group=None, status=200):
         ctx["prev_g"] = groups[i - 1] if i > 0 else None
         ctx["next_g"] = groups[i + 1] if i + 1 < len(groups) else None
     tpl = {"home": "web/v3/home.html", "features": "web/v3/features.html", "group": "web/v3/group.html",
-           "pricing": "web/v3/pricing.html", "security": "web/v3/security.html", "help": "web/v3/help.html"}[page]
+           "pricing": "web/v3/pricing.html", "security": "web/v3/security.html", "help": "web/v3/help.html",
+           "about": "web/v3/about.html"}[page]
     html = render_to_string(tpl, ctx, request=request)
     resp = _etag_response(request, html, preview)
     if status != 200 and resp.status_code == 200:
@@ -276,6 +283,11 @@ def feature_group(request, gid):
     if gid not in V3.GROUP_IDS or not is_live():
         raise Http404
     return _render(request, "group", preview=False, group=gid)
+
+
+def about(request):
+    """seo (17 Nov): /about is always the v3 page (Bangla + English)."""
+    return _render(request, "about", preview=False)
 
 
 # ------------------------------------------------------------ preview
