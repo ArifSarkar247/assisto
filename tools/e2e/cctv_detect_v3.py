@@ -93,7 +93,7 @@ class Cached:
 # ------------------------------------------------------------------ config
 BASE_RULES = {"TRACK_JUMP_CAP": 0.25, "CROSS_MARGIN": 0.0, "DWELL_KEEP_SCORE": 1.0,
               "CROWD_SCORE": 1.0, "CROWD_KEEP_S": -1.0, "POST_WEAK_HITS": 1,
-              "PRESENCE_GAP_S": 10.0, "POST_PRESENCE_SCORE": 0.25}
+              "PRESENCE_GAP_S": 10.0, "POST_PRESENCE_SCORE": 0.25, "VEH_START_SCORE": 0.0}
 BASELINE = {"rules": dict(BASE_RULES), "veh_model": "nano", "veh_thr": 0.35, "veh_zoom": False,
             "veh_union": False}
 VEH = {}                      # name -> Cached
@@ -302,14 +302,20 @@ GROUPS = {
 def grids():
     g = {}
     v = []
-    models = [("nano", (0.25, 0.35), (False,)), ("tiny", (0.25, 0.35), (False,))]
     if "bd" in VEH:
-        models = [("nano", (0.25, 0.35), (False,)), ("bd", (0.15, 0.25, 0.35, 0.45), (False, True))]
-    for model, thrs, unions in models:
+        # cctvdet3 run 43923414622 (calibration, before it was stopped): the
+        # Bangladesh model + union at 0.15 had the best recall; precision is
+        # what is left -> the start-score hysteresis is what is searched here
         for zoom in (False, True):
-            for thr in thrs:
-                for un in unions:
-                    v.append({"veh_model": model, "veh_zoom": zoom, "veh_thr": thr, "veh_union": un,
+            for start in (0.0, 0.4, 0.5, 0.6):
+                v.append({"veh_model": "bd", "veh_zoom": zoom, "veh_thr": 0.15, "veh_union": True,
+                          "rules": {"TRACK_JUMP_CAP": 0.5, "CROSS_MARGIN": 0.02,
+                                    "VEH_START_SCORE": start}})
+    else:
+        for model in ("nano", "tiny"):
+            for zoom in (False, True):
+                for thr in (0.25, 0.35):
+                    v.append({"veh_model": model, "veh_zoom": zoom, "veh_thr": thr,
                               "rules": {"TRACK_JUMP_CAP": 0.5, "CROSS_MARGIN": 0.02}})
     g["vehicles"] = v
     g["post"] = [{"rules": {"POST_WEAK_HITS": h, "POST_PRESENCE_SCORE": s}}
@@ -337,6 +343,51 @@ def feasible_score(res):
 
 N_OLD = 30
 N_REAL = 30
+POOLS = None
+ARGS = None
+
+
+def run_group(gname):
+    """Tune one group on CALIBRATION, then baseline vs pick on HELD-OUT."""
+    a = ARGS
+    th = 2 if gname == "vehicles" else 1
+    det = Cached(a.nano, "yolox_nano", threads=th)
+    if gname == "vehicles":
+        VEH["tiny"] = Cached(a.tiny, "yolox_tiny", threads=th)
+        if a.bd:
+            VEH["bd"] = Cached(a.bd, "assisto_vehicle_bd", threads=th)
+    fns = detections(POOLS, det)
+    keys = GROUPS[gname]
+    t0 = time.time()
+    trials = []
+    for opt in grids()[gname]:
+        cfg = merged(BASELINE, **opt)
+        r = [run_one(fns, k, "cal", cfg) for k in keys]
+        ok, mn, mean = feasible_score(r)
+        trials.append({"opt": opt, "ok": ok, "min_r": mn, "mean_r": mean,
+                       "cal": {"%s/%s" % k: {"p": x["precision"], "r": x["recall"],
+                                             "by": x["by_scenario"]} for k, x in zip(keys, r)}})
+        print("  cal %-8s %s ok=%s minR=%.3f %.0fs %s" % (gname, json.dumps(opt), ok, mn, time.time() - t0, " ".join(
+            "%s/%s %.2f/%.2f" % (k[0][:10], k[1], x["precision"], x["recall"]) for k, x in zip(keys, r))),
+            flush=True)
+        for k, x in zip(keys, r):
+            print("      %s/%s: %s" % (k[0], k[1], ", ".join("%s %d/%d" % (s_, b["hit"], b["n"])
+                                                         for s_, b in sorted(x["by_scenario"].items()))),
+                  flush=True)
+    good = [t for t in trials if t["ok"]] or trials
+    best = max(good, key=lambda t: (t["min_r"], t["mean_r"], -good.index(t)))
+    print("PICK %s %s (cal ok=%s) %.0fs" % (gname, json.dumps(best["opt"]), best["ok"], time.time() - t0),
+          flush=True)
+    chosen = merged(BASELINE, **best["opt"])
+    held = {}
+    for key in keys:
+        b = run_one(fns, key, "held", BASELINE)
+        c = run_one(fns, key, "held", chosen)
+        held["%s/%s" % key] = {"baseline": b, "chosen": c}
+        print("  held %s/%s baseline %.3f/%.3f new %.3f/%.3f %.0fs" % (
+            key[0], key[1], b["precision"], b["recall"], c["precision"], c["recall"], time.time() - t0), flush=True)
+    calls = dict({"nano": det.calls}, **{k: v.calls for k, v in VEH.items()})
+    return {"trials": trials, "pick": best["opt"], "ok": best["ok"], "held": held, "calls": calls}
 
 
 def main():
@@ -355,10 +406,6 @@ def main():
     a = ap.parse_args()
     N_OLD = N_REAL = a.n
     os.makedirs(a.cache, exist_ok=True)
-    det = Cached(a.nano, "yolox_nano")
-    VEH["tiny"] = Cached(a.tiny, "yolox_tiny")
-    if a.bd:
-        VEH["bd"] = Cached(a.bd, "assisto_vehicle_bd")
     ann = json.load(open(a.ann))
     pos, neg = CA.build_set(ann, 320, 320)
     pools = {s: {"bgs": [], "cuts": [], "vcuts": [], "real": []} for s in ("cal", "held")}
@@ -392,49 +439,37 @@ def main():
     print("pools: " + "; ".join("%s bgs %d people %d vehicles %d real %d" % (
         s, len(p["bgs"]), len(p["cuts"]), len(p["vcuts"]), len(p["real"])) for s, p in pools.items()),
         flush=True)
-    fns = detections(pools, det)
     res = {"sets": {"old": "COCO val2017 (CC BY 4.0 annotations; licensed images only), pasted (stage 2)",
                     "real": RS.SOURCE},
-           "split": "sha256(name)[0] % 2 (cal = even)", "p_min": P_MIN,
-           "baseline": BASELINE, "groups": {}, "images": sources,
+           "split": "COCO: sha256(name)[0] % 2 (cal = even); Sylhet: valid/ = cal, test/ = held",
+           "p_min": P_MIN, "baseline": BASELINE, "groups": {}, "images": sources,
            "real_images": [{"key": it["key"], "split": it["split"], "light": it["light"]} for it in real]}
+    # one process per group (their rule constants do not overlap), each with
+    # its own models (created after the fork) and cache; vehicles get 2 threads
+    global POOLS, ARGS
+    POOLS, ARGS = pools, a
+    import multiprocessing as mp
+    groups = [g for g in a.groups.split(",") if g]
+    with mp.get_context("fork").Pool(len(groups)) as pool:
+        outs = pool.map(run_group, groups)
     chosen = json.loads(json.dumps(BASELINE))
-    for gname in a.groups.split(","):
-        keys = GROUPS[gname]
-        t0 = time.time()
-        trials = []
-        for opt in grids()[gname]:
-            cfg = merged(chosen, **opt)
-            r = [run_one(fns, k, "cal", cfg) for k in keys]
-            ok, mn, mean = feasible_score(r)
-            trials.append({"opt": opt, "ok": ok, "min_r": mn, "mean_r": mean,
-                           "cal": {"%s/%s" % k: {"p": x["precision"], "r": x["recall"]}
-                                   for k, x in zip(keys, r)}})
-            print("  cal %-8s %s ok=%s minR=%.3f %s" % (gname, json.dumps(opt), ok, mn, " ".join(
-                "%s/%s %.2f/%.2f" % (k[0][:10], k[1], x["precision"], x["recall"]) for k, x in zip(keys, r))),
-                flush=True)
-        good = [t for t in trials if t["ok"]] or trials
-        best = max(good, key=lambda t: (t["min_r"], t["mean_r"], -good.index(t)))
-        chosen = merged(chosen, **best["opt"])
-        res["groups"][gname] = {"trials": trials, "pick": best["opt"], "pick_ok_on_cal": best["ok"]}
-        print("PICK %s %s (cal ok=%s) %.0fs" % (gname, json.dumps(best["opt"]), best["ok"], time.time() - t0),
-              flush=True)
-    # ---- HELD-OUT: baseline vs the pick, every detection once
     report = {}
-    for key in fns:
-        if not any(key in GROUPS[g] for g in a.groups.split(",")):
-            continue
-        b = run_one(fns, key, "held", BASELINE)
-        c = run_one(fns, key, "held", chosen)
-        report["%s/%s" % key] = {"baseline": b, "chosen": c}
-        print("HELD %-17s %-4s baseline P %.3f R %.3f | new P %.3f R %.3f  (n pos %d neg %d)" % (
-            key[0], key[1], b["precision"], b["recall"], c["precision"], c["recall"],
-            c["tp"] + c["fn"], c["fp"] + c["tn"]), flush=True)
-        print("     by scenario (new): " + ", ".join("%s %d/%d" % (s, x["hit"], x["n"])
-                                                    for s, x in sorted(c["by_scenario"].items())), flush=True)
+    calls = {}
+    for gname, o in zip(groups, outs):
+        res["groups"][gname] = {"trials": o["trials"], "pick": o["pick"], "pick_ok_on_cal": o["ok"]}
+        chosen = merged(chosen, **o["pick"])
+        report.update(o["held"])
+        for k, v in o["calls"].items():
+            calls[k] = calls.get(k, 0) + v
+    for k, v in sorted(report.items()):
+        b, c = v["baseline"], v["chosen"]
+        print("HELD %-22s baseline P %.3f R %.3f | new P %.3f R %.3f  (n pos %d neg %d)" % (
+            k, b["precision"], b["recall"], c["precision"], c["recall"], c["tp"] + c["fn"], c["fp"] + c["tn"]))
+        print("     by scenario (new): " + ", ".join("%s %d/%d" % (s_, x["hit"], x["n"])
+                                                    for s_, x in sorted(c["by_scenario"].items())))
+    res["model_calls"] = calls
     res["chosen"] = chosen
     res["held"] = report
-    res["model_calls"] = dict({"nano": det.calls}, **{k: v.calls for k, v in VEH.items()})
     json.dump(res, open(a.out, "w"), indent=1)
     print("CHOSEN_JSON " + json.dumps(chosen, sort_keys=True))
     measured = {}

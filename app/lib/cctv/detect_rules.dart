@@ -51,6 +51,7 @@ const kDwellKeepScore = 0.25;
 const kCrowdScore = 0.25;
 const kCrowdKeepS = 10.0;
 const kPostWeakHits = 2;
+const kVehStartScore = 0.0;
 const kMovedShapeSim = 0.35;
 const kMovedShapeKeep = 0.6;
 const kVehicleClasses = {1: 'cycle', 2: 'car', 3: 'motorbike', 5: 'bus', 7: 'truck'};
@@ -355,6 +356,7 @@ class ZoneRules {
     for (final v in vehicles) {
       final c = [(v[0] + v[2]) / 2.0, (v[1] + v[3]) / 2.0];
       final cls = v.length > 5 ? v[5].toInt() : 2;
+      final sc = v.length > 4 ? v[4] : 1.0;
       final box = [for (final x in v.take(4)) (x * 10000).roundToDouble() / 10000];
       int? best;
       double? bd;
@@ -370,7 +372,7 @@ class ZoneRules {
         }
       }
       if (best == null) {
-        fresh.add({'c': c, 't': t, 'cls': cls, 'first': c, 'o': <String, List<double>>{}});
+        fresh.add({'c': c, 't': t, 'cls': cls, 'first': c, 'o': <String, List<double>>{}, 'best': sc});
       } else {
         used.add(best);
         final tr = _tracks[best];
@@ -378,6 +380,7 @@ class ZoneRules {
         tr['c'] = c;
         tr['t'] = t;
         tr['cls'] = cls;
+        tr['best'] = math.max((tr['best'] as double?) ?? 0.0, sc);
       }
     }
     final keep = [for (final tr in _tracks) if (t - (tr['t'] as double) <= kVehGapS) tr, ...fresh];
@@ -404,7 +407,16 @@ class ZoneRules {
     var same = st.vehAnchor != null && st.vehLast != null && t - st.vehLast! <= kVehGapS;
     if (same) same = cs.map((c) => _dist(c, st.vehAnchor!)).reduce(math.min) <= kVehStill;
     if (!same) {
-      st.vehAnchor = cs.first;
+      // cctvdet3: a NEW stay starts only on a confident box
+      var best = 0;
+      for (var i = 1; i < vin.length; i++) {
+        final si = vin[i].length > 4 ? vin[i][4] : 1.0;
+        final sb = vin[best].length > 4 ? vin[best][4] : 1.0;
+        if (si > sb) best = i;
+      }
+      final sc = vin[best].length > 4 ? vin[best][4] : 1.0;
+      if (sc < kVehStartScore) return null;
+      st.vehAnchor = cs[best];
       st.vehSince = t;
       st.vehFired = false;
     }
@@ -508,7 +520,8 @@ class ZoneRules {
         for (final (tr, cur, cls, box) in moves) {
           final os = tr['o'] as Map<String, List<double>>;
           final o = os[z.id] ?? tr['first'] as List<double>;
-          if (_orient(a, b, o).abs() / ln >= kCrossMargin &&
+          if (((tr['best'] as double?) ?? 1.0) >= kVehStartScore &&
+              _orient(a, b, o).abs() / ln >= kCrossMargin &&
               _orient(a, b, cur).abs() / ln >= kCrossMargin &&
               detSegmentsCross(o, cur, a, b)) {
             os[z.id] = cur;

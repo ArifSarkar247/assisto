@@ -81,6 +81,8 @@ CROSS_MARGIN = 0.02          # in / out counts only clear of the line (no jitter
 DWELL_KEEP_SCORE = 0.25      # a visit already seen keeps going on a weaker box
 CROWD_SCORE = 0.25           # people counted for a crowd (box score floor)
 CROWD_KEEP_S = 10.0          # a crowd survives a short dip below crowd_n
+VEH_START_SCORE = 0.0        # a parking stay / a line track counts only once one
+                             # of its boxes reached this score (weak boxes keep it)
 POST_WEAK_HITS = 2           # a weak-only box must be seen this often in a row
                              # to count a post as manned again
 VEHICLE_CLASSES = {1: "cycle", 2: "car", 3: "motorbike", 5: "bus", 7: "truck"}
@@ -455,7 +457,12 @@ class ZoneRules:
                 and t - st.veh_last <= VEH_GAP_S
                 and min(_dist(c, st.veh_anchor) for c in cs) <= VEH_STILL)
         if not same:
-            st.veh_anchor, st.veh_since, st.veh_fired = cs[0], t, False
+            # cctvdet3: a NEW stay starts only on a confident box
+            best = max(range(len(vin)), key=lambda i: float(vin[i][4]) if len(vin[i]) > 4 else 1.0)
+            sc = float(vin[best][4]) if len(vin[best]) > 4 else 1.0
+            if sc < VEH_START_SCORE:
+                return None
+            st.veh_anchor, st.veh_since, st.veh_fired = cs[best], t, False
         st.veh_last = t
         if not self._open_armed(z, weekday, minute):
             return None
@@ -493,6 +500,7 @@ class ZoneRules:
         for v in vehicles:
             c = ((float(v[0]) + float(v[2])) / 2.0, (float(v[1]) + float(v[3])) / 2.0)
             cls = int(v[5]) if len(v) > 5 else 2
+            sc = float(v[4]) if len(v) > 4 else 1.0
             box = [round(float(x), 4) for x in v[:4]]
             best, bd = None, None
             for i, tr in enumerate(self.tracks):
@@ -505,12 +513,13 @@ class ZoneRules:
                 if d <= lim and (bd is None or d < bd):
                     best, bd = i, d
             if best is None:
-                new.append({"c": c, "t": t, "cls": cls, "first": c, "o": {}})
+                new.append({"c": c, "t": t, "cls": cls, "first": c, "o": {}, "best": sc})
             else:
                 used.add(best)
                 tr = self.tracks[best]
                 moves.append((tr, c, cls, box))
                 tr["c"], tr["t"], tr["cls"] = c, t, cls
+                tr["best"] = max(tr.get("best", 0.0), sc)
         self.tracks = ([tr for tr in self.tracks if t - tr["t"] <= VEH_GAP_S] + new)[-32:]
         return moves
 
@@ -536,7 +545,8 @@ class ZoneRules:
                     # cctvdet3: from where the track STARTED (or last crossed)
                     # to now, both points clear of the line by CROSS_MARGIN
                     o = tr["o"].get(zid, tr["first"])
-                    if (abs(_orient(a, b, o)) / ln >= CROSS_MARGIN
+                    if (tr.get("best", 1.0) >= VEH_START_SCORE
+                            and abs(_orient(a, b, o)) / ln >= CROSS_MARGIN
                             and abs(_orient(a, b, cur)) / ln >= CROSS_MARGIN
                             and segments_cross(o, cur, a, b)):
                         tr["o"][zid] = cur
