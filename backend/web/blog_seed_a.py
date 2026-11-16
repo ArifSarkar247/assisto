@@ -131,7 +131,7 @@ In Assisto's mess feature, each member records their own meals, bazar and deposi
 FAMILY = {
     "slug": "family-location-sharing-safely",
     "feature": "family-care",
-    "keywords": "family location tracker; family location sharing app; পরিবারের লোকেশন; লোকেশন শেয়ার; মোবাইল লোকেশন",
+    "keywords": "family location sharing (how to); পরিবারের লোকেশন; লোকেশন শেয়ার; মোবাইল লোকেশন",
     "title_bn": "পরিবারের সাথে লোকেশন শেয়ার: নিরাপদে ও সম্মতি নিয়ে চালু করার গাইড",
     "title_en": "Family location sharing: how to set it up safely and with consent",
     "summary_bn": "পরিবারের সাথে লাইভ লোকেশন শেয়ারের আগে কী ঠিক করবেন, ফোনের কোন সেটিং বদলাবেন, সন্তান ও বয়স্কদের জন্য কী আলাদা — আর কোন কাজ কখনো করবেন না।",
@@ -392,9 +392,9 @@ IELTS = {
 - উত্তর মেলানোর পর শুধু স্কোর নয়, প্রতিটি ভুলের কারণ লিখুন।
 - অনলাইনে অনেক "ফ্রি মক টেস্ট" আছে; মান ভিন্ন। অফিসিয়াল প্র্যাকটিস টেস্ট দিয়ে নিজের স্কোর মিলিয়ে নিন।
 
-## Assisto-তে IELTS অনুশীলন
+## Assisto-তে ভাষা শেখা
 
-Assisto-র ভাষা শেখার সঙ্গীতে IELTS-এর চার অংশই অনুশীলন করা যায়; Speaking-এ নিজের উচ্চারণ যাচাই করা যায় আর প্রতিটি ভুলের ব্যাখ্যা বাংলায় পাওয়া যায়।
+Assisto-র ভাষা শেখার সঙ্গীতে বাংলা↔ইংরেজি শব্দের ডেক, ফ্ল্যাশকার্ড আর কুইজ দিয়ে প্রতিদিনের শব্দ শেখা যায় — ওপরের রুটিনের "দিনে ২০টি শব্দ" অংশের জন্য কাজে লাগবে। IELTS-এর পূর্ণ অনুশীলন অংশ চালু হলে সেটাও এখানেই পাবেন।
 
 **পরের ধাপ:** আজই একটি পূর্ণ মক টেস্টের সময় ঠিক করুন (যেমন শুক্রবার সকাল ৯টা) আর ভুলের খাতাটা খুলে ফেলুন।
 """,
@@ -444,9 +444,9 @@ Band scores run from 0 to 9. The Overall band comes from the average of the four
 - After checking answers, write the reason for each mistake, not just the score.
 - There are many "free mock tests" online and the quality varies. Compare your score with an official practice test.
 
-## IELTS practice in Assisto
+## Language learning in Assisto
 
-Assisto's Language Partner lets you practise all four IELTS parts; in Speaking you can check your pronunciation, and every mistake is explained in Bangla.
+Assisto's Language Partner has Bangla↔English word decks, flashcards and quizzes for daily vocabulary — useful for the "20 words a day" part of this routine. When its full IELTS practice section is switched on, you will find it there too.
 
 **Next step:** fix a time for your first full mock test today (for example Friday at 9 am) and open your mistakes notebook.
 """,

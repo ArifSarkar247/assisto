@@ -389,7 +389,7 @@ In Assisto, tap "Start journey" and your family can follow your live location on
 AI = {
     "slug": "ai-assistant-bangla-daily-tasks",
     "feature": "ai-assistant",
-    "keywords": "ai app bangla; bangla ai; chatgpt bangla; এআই অ্যাপ; ai assistant app",
+    "keywords": "এআই অ্যাপ কিভাবে ব্যবহার; এআই অ্যাপস এর কাজ কি; ai app bangla (how to)",
     "title_bn": "বাংলায় AI সহকারী দিয়ে রোজকার কাজ: ভালো প্রশ্ন করার নিয়ম ও ১০টি উদাহরণ",
     "title_en": "Everyday tasks with an AI assistant in Bangla: how to ask well, with 10 examples",
     "summary_bn": "AI-কে কীভাবে প্রশ্ন করলে কাজের উত্তর পাবেন, কোন কাজে AI সত্যিই সময় বাঁচায়, কোথায় যাচাই করা জরুরি, আর কোন তথ্য কখনো দেবেন না — বাংলায় সহজ গাইড।",

@@ -76,12 +76,12 @@
 | বাংলা | `Assisto: চ্যাট, AI ও নিরাপত্তা` | `Assisto: AI সহকারী, SOS ও খাতা` (৩০) |
 
 **ছোট বিবরণ (সীমা ৮০):** আপনার ৩ Nov-এর হিরো আদেশ ("চ্যাট, কল, AI সহকারী, নিরাপত্তা আর ব্যবসা — এক সুপার অ্যাপে") ওয়েবসাইটের সাথে মিল রাখে, তাই সেটাই থাকবে। শুধু বিকল্প হিসেবে, যদি সার্চের শব্দ বেশি চান:
-* English: `Family location, SOS, CCTV app, khata & AI assistant in Bangla` (৬২)
-* বাংলা: `পরিবারের লোকেশন, SOS, মোবাইলে CCTV, দোকানের খাতা আর বাংলা AI সহকারী` (৬৭)
+* English: `Family SOS, safe journey, CCTV app, khata & AI assistant in Bangla` (৬৬)
+* বাংলা: `পরিবারের SOS, নিরাপদ যাত্রা, মোবাইলে CCTV, দোকানের খাতা আর বাংলা AI সহকারী` (৭৪)
 
 **পুরো বিবরণ (সীমা ৪০০০):** `PLAY_LISTING_8NOV_ALL_BN.md`-এর যাচাই করা লেখা রেখে শুধু এগুলো যোগ:
-* প্রথম ২ লাইনে: "family location sharing", "SOS", "CCTV mobile app", "khata" (বাংলায়: পরিবারের লোকেশন, মোবাইলে সিসিটিভি, বাকি খাতা, মেসের হিসাব)।
-* প্রতিটি অংশের শিরোনামে একটি স্বাভাবিক শব্দ: MESS & BACHELOR (mess meal hisab), LANGUAGE & IELTS (IELTS practice), QURAN (Bangla pronunciation), CITY (Dhaka bus & metro)।
+* প্রথম ২ লাইনে: "family safety", "SOS", "CCTV mobile app", "khata" (বাংলায়: পরিবারের নিরাপত্তা, মোবাইলে সিসিটিভি, বাকি খাতা, মেসের হিসাব)। অ্যাপ যা এখন পারে না (Quran বাংলা অনুবাদ, IELTS মক যতক্ষণ language_packs বন্ধ, সর্বক্ষণ লোকেশন ট্র্যাকার) — সেই শব্দ নয়।
+* প্রতিটি অংশের শিরোনামে একটি স্বাভাবিক শব্দ: MESS & BACHELOR (mess meal hisab), LANGUAGE (English learning; IELTS শুধু ফ্ল্যাগ চালু হলে), QURAN (Bangla pronunciation), CITY (Dhaka bus & metro)।
 * শেষে ওয়েবসাইটের লিংক: `https://lifeassisto.com` (ব্লগ লেখাগুলো বিশ্বাস বাড়ায়)।
 
 **স্ক্রিনশট (৮টি, ফোনের মাপ):** CI গ্যালারির আসল শট — Play-মোডে নতুন করে তোলা (PLAY_LISTING-এর পুরনো নোট অনুযায়ী)। ক্রম: ১) হোম/AI চ্যাট ২) পরিবারের SOS ৩) নিরাপদ যাত্রা ৪) CCTV সতর্কতা ৫) বাকি খাতা ৬) মেসের হিসাব ৭) IELTS/ভাষা ৮) কুরআন। প্রতিটির ওপরে ৪–৬ শব্দের বাংলা ক্যাপশন (বাংলা লিস্টিংয়ে বাংলা, ইংরেজিতে ইংরেজি)। কোনো নকল রিভিউ, "#১", তারকা বা ব্যবহারকারীর সংখ্যা নয়।
