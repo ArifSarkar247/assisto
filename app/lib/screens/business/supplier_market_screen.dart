@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../messaging/date_separators.dart' show localDigits;
 import '../../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -241,33 +242,35 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                   label: Text(tr.supAddSupplier),
                 ),
       body: _rows.isEmpty
-          ? StateMessage(
-              icon: Icons.inventory_2_rounded,
-              title: tr.supWelcomeTitle,
-              message: tr.supWelcomeBody,
-              action: FilledButton.icon(
-                onPressed: _add,
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tr.supAddSupplier),
-              ),
+          ? ListView(
+              padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+              children: [
+                DsEmptyState(
+                  icon: Icons.inventory_2_rounded,
+                  title: tr.supWelcomeTitle,
+                  benefit: tr.supWelcomeBody,
+                  actionLabel: tr.supAddSupplier,
+                  onAction: _add,
+                ),
+              ],
             )
           : Column(
               children: [
                 _filterBar(context, tr, result),
                 Expanded(
                   child: result.suppliers.isEmpty
-                      ? StateMessage(
-                          icon: Icons.search_off_rounded,
-                          title: tr.supNoMatchTitle,
-                          message: tr.supNoMatchBody,
-                          action: TextButton(
-                            onPressed: _clearFilters,
-                            child: Text(tr.supClearFilters),
+                      ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+                          DsEmptyState(
+                            icon: Icons.search_off_rounded,
+                            title: tr.supNoMatchTitle,
+                            benefit: tr.supNoMatchBody,
+                            actionLabel: tr.supClearFilters,
+                            onAction: _clearFilters,
                           ),
-                        )
+                        ])
                       : ListView(
-                          padding: const EdgeInsets.fromLTRB(
-                              Gap.lg, Gap.sm, Gap.lg, 96),
+                          padding: withNavBarInset(context, const EdgeInsets.fromLTRB(
+                              Gap.lg, Gap.sm, Gap.lg, 96)),
                           children: [
                             _manualNote(context, tr),
                             const SizedBox(height: Gap.sm),
@@ -313,52 +316,36 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
         child: TextField(
           onChanged: (v) => setState(() => _query = v),
           decoration: InputDecoration(
-            isDense: true,
             prefixIcon: const Icon(Icons.search_rounded),
             hintText: tr.supSearchHint,
-            border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(Radii.md)),
           ),
         ),
       ),
-      SizedBox(
-        height: Gap.xxxl,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: Gap.sm, right: Gap.sm),
-              child: FilterChip(
-                label: Text(tr.supReorderOnly),
-                avatar: const Icon(Icons.shopping_cart_rounded, size: 16),
-                selected: _reorderOnly,
-                onSelected: (v) => setState(() => _reorderOnly = v),
+      // one scrolling DS chip row (grows with the font; never odd wrapped rows)
+      DsChipRow(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
+        children: [
+          DsChip(
+            label: tr.supReorderOnly,
+            icon: Icons.shopping_cart_rounded,
+            selected: _reorderOnly,
+            onSelected: (v) => setState(() => _reorderOnly = v),
+          ),
+          DsChip(
+            label: tr.supRatedMin4,
+            icon: Icons.star_outline_rounded,
+            selected: _minRating >= 4,
+            onSelected: (v) => setState(() => _minRating = v ? 4 : 0),
+          ),
+          for (final c in _categories)
+            if ((result.byCategory[c] ?? 0) > 0 || _category == c)
+              DsChip(
+                label: localDigits('${_catLabel(tr, c)} (${result.byCategory[c] ?? 0})',
+                    Localizations.localeOf(context).languageCode),
+                selected: _category == c,
+                onSelected: (v) => setState(() => _category = v ? c : ''),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: Gap.sm, right: Gap.sm),
-              child: FilterChip(
-                label: Text(tr.supRatedMin4),
-                avatar: const Icon(Icons.star_outline_rounded, size: 16),
-                selected: _minRating >= 4,
-                onSelected: (v) => setState(() => _minRating = v ? 4 : 0),
-              ),
-            ),
-            for (final c in _categories)
-              if ((result.byCategory[c] ?? 0) > 0 || _category == c)
-                Padding(
-                  padding: const EdgeInsets.only(top: Gap.sm, right: Gap.sm),
-                  child: ChoiceChip(
-                    label: Text(
-                        '${_catLabel(tr, c)} (${result.byCategory[c] ?? 0})'),
-                    selected: _category == c,
-                    onSelected: (v) =>
-                        setState(() => _category = v ? c : ''),
-                  ),
-                ),
-          ],
-        ),
+        ],
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.xs),
@@ -392,9 +379,14 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
       BuildContext context, AppLocalizations tr, _SSupplier s) {
     final scheme = Theme.of(context).colorScheme;
     final selected = _compareIds.contains(s.id);
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
+    final ds = scheme.ds;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsSurface(
+        // compare pick = the selected DS look (primary border on the soft tint)
+        color: _compareMode && selected ? ds.primarySoft : null,
+        borderColor: _compareMode && selected ? ds.primaryInk : null,
+        padding: const EdgeInsets.all(Gap.md),
         onTap: _compareMode && s.id != null
             ? () => setState(() {
                   if (selected) {
@@ -404,12 +396,10 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                   }
                 })
             : () => _edit(s.raw),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(
+        child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(children: [
+                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   if (_compareMode)
                     Padding(
                       padding: const EdgeInsets.only(right: Gap.sm),
@@ -417,15 +407,13 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                           selected
                               ? Icons.check_box_rounded
                               : Icons.check_box_outline_blank_rounded,
-                          color: selected
-                              ? scheme.primary
-                              : scheme.ds.muted),
+                          color: selected ? ds.primaryInk : ds.muted),
                     ),
                   Expanded(
+                    // wraps (never "…") at 200% font
                     child: Text(s.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
+                        style: AType.titleMedium.copyWith(
+                            color: ds.text, fontWeight: FontWeight.w800)),
                   ),
                   if (s.rating > 0) _ratingChip(context, s.rating),
                 ]),
@@ -439,44 +427,40 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                 if (s.productsDisplay.isNotEmpty) ...[
                   const SizedBox(height: Gap.sm),
                   Text(s.productsDisplay,
-                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+                      style: AType.bodyMedium.copyWith(color: ds.muted)),
                 ],
                 if (s.priceNote.isNotEmpty) ...[
                   const SizedBox(height: Gap.xs),
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Icon(Icons.sell_rounded,
-                        size: 15, color: scheme.ds.muted),
+                    Icon(Icons.sell_rounded, size: 15, color: ds.muted),
                     const SizedBox(width: Gap.xs),
                     Expanded(
                       child: Text(s.priceNote,
-                          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+                          style: AType.bodySmall.copyWith(color: ds.muted)),
                     ),
                   ]),
                 ],
                 if (!_compareMode) ...[
                   const Divider(height: Gap.lg),
-                  Row(children: [
-                    if (s.contact.isNotEmpty)
-                      Expanded(
-                        child: Row(children: [
-                          Icon(Icons.call_rounded,
-                              size: 15, color: scheme.primary),
-                          const SizedBox(width: Gap.xs),
-                          Expanded(
-                            child: Text(s.contact,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AType.bodySmall.copyWith(color: scheme.primary)),
-                          ),
-                        ]),
-                      )
-                    else
-                      const Spacer(),
+                  if (s.contact.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: Gap.xs),
+                      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Icon(Icons.call_rounded, size: 15, color: ds.primaryInk),
+                        const SizedBox(width: Gap.xs),
+                        Expanded(
+                          child: Text(s.contact,
+                              style: AType.bodySmall.copyWith(color: ds.primaryInk)),
+                        ),
+                      ]),
+                    ),
+                  // actions on their own row, end-aligned: nothing squeezes
+                  // the contact line at 200% font
+                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                     Tooltip(
                       message: tr.supReorderToggle,
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Icon(Icons.shopping_cart_rounded,
-                            size: 16, color: scheme.ds.muted),
+                        Icon(Icons.shopping_cart_rounded, size: 16, color: ds.muted),
                         Switch(
                           value: s.reorder,
                           onChanged: s.id == null
@@ -487,21 +471,17 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
                     ),
                     IconButton(
                       tooltip: AppLocalizations.of(context).edit,
-                      visualDensity: VisualDensity.compact,
-                      icon: const Icon(Icons.edit_rounded, size: 18),
+                      icon: const Icon(Icons.edit_rounded, size: 20),
                       onPressed: () => _edit(s.raw),
                     ),
                     IconButton(
                       tooltip: AppLocalizations.of(context).delete,
-                      visualDensity: VisualDensity.compact,
-                      icon: Icon(Icons.delete_outline_rounded,
-                          size: 18, color: scheme.error),
+                      icon: Icon(Icons.delete_outline_rounded, size: 20, color: ds.dangerInk),
                       onPressed: () => _delete(s.raw),
                     ),
                   ]),
                 ],
               ]),
-        ),
       ),
     );
   }
@@ -516,9 +496,9 @@ class _SupplierMarketScreenState extends State<SupplierMarketScreen> {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(Icons.star_rounded, size: 13, color: AssistoTokens.of(context).warning),
         const SizedBox(width: 3),
-        Text('$rating',
+        Text(localDigits('$rating', Localizations.localeOf(context).languageCode),
             style: AType.labelMedium.copyWith(fontWeight: FontWeight.w700,
-                color: AssistoTokens.of(context).warning)),
+                color: Brand.onTint(context, AssistoTokens.of(context).warning))),
       ]),
     );
   }
@@ -583,35 +563,45 @@ class _CompareScreen extends StatelessWidget {
               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           for (final s in cmp.suppliers)
-            DsSurface(color: cmp.bestRatingId != null && cmp.bestRatingId == s.id
+            Padding(
+              padding: const EdgeInsets.only(bottom: Gap.md),
+              child: DsSurface(color: cmp.bestRatingId != null && cmp.bestRatingId == s.id
                   ? scheme.ds.primarySoft
+                  : null,
+              borderColor: cmp.bestRatingId != null && cmp.bestRatingId == s.id
+                  ? scheme.ds.primaryInk
                   : null,
               padding: const EdgeInsets.all(Gap.md),
               child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(children: [
-                        Expanded(
-                          child: Text(s.name,
-                              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
-                        ),
+                      Wrap(
+                          spacing: Gap.sm,
+                          runSpacing: Gap.xs,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                        Text(s.name,
+                            style: AType.titleMedium.copyWith(
+                                color: scheme.ds.text, fontWeight: FontWeight.w800)),
                         if (cmp.bestRatingId != null &&
                             cmp.bestRatingId == s.id)
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: Gap.sm, vertical: 3),
                             decoration: BoxDecoration(
-                              color: scheme.primary,
+                              color: scheme.ds.primary,
                               borderRadius: BorderRadius.circular(Radii.pill),
                             ),
                             child: Text(tr.supBestRated,
-                                style: AType.labelSmall.copyWith(color: Colors.white,
+                                style: AType.labelSmall.copyWith(color: scheme.ds.onPrimary,
                                     fontWeight: FontWeight.w700)),
                           ),
                       ]),
                       const SizedBox(height: Gap.sm),
                       _cmpRow(context, tr.supFieldRating,
-                          s.rating > 0 ? '${s.rating} / 5' : tr.supUnrated),
+                          s.rating > 0
+                              ? localDigits('${s.rating} / 5', Localizations.localeOf(context).languageCode)
+                              : tr.supUnrated),
                       _cmpRow(context, tr.supFieldCategory,
                           _catLabel(tr, s.category)),
                       _cmpRow(
@@ -636,7 +626,7 @@ class _CompareScreen extends StatelessWidget {
                           ]),
                         ),
                     ]),
-            ),
+            )),
         ],
       ),
     );
