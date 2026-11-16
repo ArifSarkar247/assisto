@@ -307,7 +307,7 @@ class _VoiceAssistantSettingsScreenState
         const SizedBox(width: 6),
         Flexible(
             child: Text(label,
-                style: TextStyle(color: fg, fontWeight: FontWeight.w600))),
+                style: AType.bodyMedium.copyWith(color: fg, fontWeight: FontWeight.w600))),
       ]),
     );
   }
@@ -340,7 +340,7 @@ class _VoiceAssistantSettingsScreenState
         title: t.vaDefTitle,
         children: [
           Text(t.vaDefBody2,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           status,
           const SizedBox(height: Gap.md),
@@ -476,7 +476,7 @@ class _VoiceAssistantSettingsScreenState
                 onChanged: blocked && !on ? null : _toggleWake,
               ),
         children: [
-          Text(t.vaWkBody, style: TextStyle(color: scheme.ds.muted)),
+          Text(t.vaWkBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           _statusChip(scheme, note, good: good),
           if (on) ...[
@@ -497,7 +497,7 @@ class _VoiceAssistantSettingsScreenState
           if (!blocked) ...[
             const SizedBox(height: Gap.md),
             Text(t.vaWkSensitivity,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.sm),
             SizedBox(
               width: double.infinity,
@@ -522,7 +522,7 @@ class _VoiceAssistantSettingsScreenState
             contentPadding: EdgeInsets.zero,
             value: _lockedOk,
             title: Text(t.vaWkLockedSwitch,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             subtitle: Text(t.vaWkLockedSwitchSub),
             onChanged: _busy ? null : _setLockedOk,
           ),
@@ -560,7 +560,7 @@ class _VoiceAssistantSettingsScreenState
           },
         ),
         children: [
-          Text(t.vaTtsBody, style: TextStyle(color: scheme.ds.muted)),
+          Text(t.vaTtsBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -579,7 +579,7 @@ class _VoiceAssistantSettingsScreenState
             contentPadding: EdgeInsets.zero,
             value: _continue,
             title: Text(t.vaContinueTitle,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             subtitle: Text(t.vaContinueBody),
             onChanged: (v) async {
               setState(() => _continue = v);
@@ -609,7 +609,7 @@ class _VoiceAssistantSettingsScreenState
         icon: Icons.library_music_rounded,
         title: t.vaMusicTitle,
         children: [
-          Text(t.vaMusicBody, style: TextStyle(color: scheme.ds.muted)),
+          Text(t.vaMusicBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           RadioGroup<String>(
             groupValue: _music,

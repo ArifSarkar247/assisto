@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -132,11 +134,11 @@ class _PoliceCardSheetState extends State<PoliceCardSheet> {
           const SizedBox(height: 12),
           if (missing)
             Card(
-              color: scheme.errorContainer,
+              color: scheme.ds.dangerBg,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(t.cescAddressMissing,
-                    style: TextStyle(color: scheme.onErrorContainer)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
               ),
             ),
           Card(
@@ -314,7 +316,7 @@ class CapabilityTable extends StatelessWidget {
                   rows[f]?['supported'] == true
                       ? Icons.check_circle_rounded
                       : Icons.remove_circle_outline_rounded,
-                  color: rows[f]?['supported'] == true ? scheme.primary : scheme.outline),
+                  color: rows[f]?['supported'] == true ? scheme.primary : scheme.ds.muted),
               title: Text(featureLabel(t, f)),
               subtitle: Text(rows[f]?['supported'] == true
                   ? t.cescFeatYes

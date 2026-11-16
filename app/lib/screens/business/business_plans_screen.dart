@@ -104,7 +104,7 @@ class BusinessPlansScreen extends StatelessWidget {
         ]),
         const SizedBox(height: Gap.xs),
         Text(subtitle,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 height: 1.4,
                 color: highlighted ? Colors.white : DsTokens.of(context).muted)),
         const SizedBox(height: Gap.lg),
@@ -117,7 +117,7 @@ class BusinessPlansScreen extends StatelessWidget {
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(b,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         height: 1.4,
                         color: highlighted ? Colors.white : DsTokens.of(context).text)),
               ),
@@ -125,7 +125,7 @@ class BusinessPlansScreen extends StatelessWidget {
           ),
         const SizedBox(height: Gap.md),
         Text(priceLine,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 fontWeight: FontWeight.w700,
                 color: highlighted ? Colors.white : DsTokens.of(context).text)),
         if (cta != null) ...[

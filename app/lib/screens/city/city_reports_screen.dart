@@ -178,9 +178,9 @@ class _CityReportsScreenState extends State<CityReportsScreen> {
                   child: ListTile(
                     minVerticalPadding: Gap.sm,
                     leading: CircleAvatar(
-                        backgroundColor: s.secondaryContainer,
-                        child: Icon(cityReportIcon(r.kind), color: s.onSecondaryContainer)),
-                    title: Text(cityReportName(t, r.kind), style: const TextStyle(fontWeight: FontWeight.w700)),
+                        backgroundColor: s.ds.primarySoft,
+                        child: Icon(cityReportIcon(r.kind), color: s.ds.primaryInk)),
+                    title: Text(cityReportName(t, r.kind), style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                     subtitle: Text(cityD(context, [
                       t.cityReportCount('${r.count}', '${r.minutesAgo}'),
                       if (_here != null && r.lat != null && r.lon != null)

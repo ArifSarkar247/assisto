@@ -97,16 +97,16 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
             const SizedBox(height: Gap.md),
             if (pl != null)
               Text(t.acuCloseMonthProfit(acctMoney(ctx, pl['net_profit'])),
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             if (tb != null)
               Text(tb['balanced'] == true ? t.acuBalanced : t.acuNotBalanced,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: tb['balanced'] == true
                           ? Theme.of(ctx).colorScheme.primary
                           : Theme.of(ctx).colorScheme.error,
                       fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.md),
-            Text(t.acuCloseExplain(acctDay(ctx, acctIso(end))), style: const TextStyle(height: 1.5)),
+            Text(t.acuCloseExplain(acctDay(ctx, acctIso(end))), style: AType.bodyMedium.copyWith(height: 1.5)),
             const SizedBox(height: Gap.sm),
             CheckboxListTile(
               key: const ValueKey('acct-close-understood'),
@@ -155,7 +155,7 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(t.acuReopenTitle(month), style: Theme.of(ctx).textTheme.titleLarge),
               const SizedBox(height: Gap.sm),
-              Text(t.acuReopenExplain, style: const TextStyle(height: 1.5)),
+              Text(t.acuReopenExplain, style: AType.bodyMedium.copyWith(height: 1.5)),
               const SizedBox(height: Gap.md),
               TextField(
                 key: const ValueKey('acct-reopen-reason'),
@@ -239,7 +239,7 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
                       lock == null
                           ? t.acuCloseNone
                           : t.acuClosedUpTo(acctDay(context, acctIso(lock))),
-                      style: TextStyle(
+                      style: AType.bodyMedium.copyWith(
                           fontWeight: FontWeight.w700,
                           color: lock == null ? null : DsTokens.of(context).primaryInk)),
                 ),
@@ -265,10 +265,10 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
           ),
         ),
         const SizedBox(height: Gap.lg),
-        Text(t.acuCloseWhy, style: const TextStyle(height: 1.5)),
+        Text(t.acuCloseWhy, style: AType.bodyMedium.copyWith(height: 1.5)),
         const SizedBox(height: Gap.lg),
         if (months.isEmpty)
-          Text(t.acuCloseNothing, style: TextStyle(color: DsTokens.of(context).muted, height: 1.4))
+          Text(t.acuCloseNothing, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted, height: 1.4))
         else ...[
           Semantics(
             header: true,
@@ -283,7 +283,7 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
                 key: ValueKey('acct-close-${acctIso(m)}'),
                 minVerticalPadding: Gap.sm,
                 leading: const Icon(Icons.calendar_month_rounded),
-                title: Text(fmtMonth(m, lang), style: const TextStyle(fontWeight: FontWeight.w700)),
+                title: Text(fmtMonth(m, lang), style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                 subtitle: Text(t.acuCloseUpTo(acctDay(context, acctIso(m)))),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 enabled: !_busy,

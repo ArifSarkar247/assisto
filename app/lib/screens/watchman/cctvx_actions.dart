@@ -4,6 +4,8 @@ import 'dart:isolate'; // cctvact: watermark off the UI thread
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../theme.dart' show AType;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -415,15 +417,15 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                  color: Theme.of(ctx).colorScheme.errorContainer,
+                  color: Theme.of(ctx).colorScheme.ds.dangerBg,
                   borderRadius: BorderRadius.circular(12)),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(Icons.privacy_tip_rounded,
-                    color: Theme.of(ctx).colorScheme.onErrorContainer),
+                    color: Theme.of(ctx).colorScheme.ds.dangerInk),
                 const SizedBox(width: 8),
                 Expanded(
                     child: Text(t.cevPrivacyWarn,
-                        style: TextStyle(color: Theme.of(ctx).colorScheme.onErrorContainer))),
+                        style: AType.bodyMedium.copyWith(color: Theme.of(ctx).colorScheme.ds.dangerInk))),
               ]),
             ),
           ]),

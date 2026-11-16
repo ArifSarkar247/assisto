@@ -57,7 +57,7 @@ class _LowStockCardState extends State<LowStockCard> {
           minVerticalPadding: Gap.md,
           leading: Icon(Icons.warning_amber_rounded, color: warn),
           title: Text(t.bbLowStockTitle(fmtInt(context, _n)),
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           subtitle: Text(t.bbLowStockSub),
           trailing: const Icon(Icons.chevron_right_rounded),
           onTap: widget.onOpen,

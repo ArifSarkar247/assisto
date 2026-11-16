@@ -127,7 +127,7 @@ class _DvrHealthCardState extends State<DvrHealthCard> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(t.ccnHealthTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    Text(t.ccnHealthTitle, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
                     Text((d['title'] ?? '').toString(), key: const Key('dvrHealthTitle')),
                   ]),

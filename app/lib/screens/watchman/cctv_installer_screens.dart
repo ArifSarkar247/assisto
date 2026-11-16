@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -207,13 +209,13 @@ class _NoteCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: cs.primaryContainer.withValues(alpha: 0.5),
+        color: cs.ds.primarySoft.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.privacy_tip_outlined, color: cs.onPrimaryContainer),
+        Icon(Icons.privacy_tip_outlined, color: cs.ds.primaryInk),
         const SizedBox(width: 8),
-        Expanded(child: Text(text, style: TextStyle(color: cs.onPrimaryContainer))),
+        Expanded(child: Text(text, style: AType.bodyMedium.copyWith(color: cs.ds.primaryInk))),
       ]),
     );
   }
@@ -249,7 +251,7 @@ class CctvInstallerCodeSheet extends StatelessWidget {
           code.length == 8 ? '${code.substring(0, 4)} ${code.substring(4)}' : code,
           key: const ValueKey('ctr-inst-code'),
           textAlign: TextAlign.center,
-          style: const TextStyle(fontFamily: 'monospace', fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: 2),
+          style: AType.bodyMedium.copyWith(fontFamily: 'monospace', fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: 2),
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
@@ -380,7 +382,7 @@ class _CctvPartnerScreenState extends State<CctvPartnerScreen> {
     final note = (_me['note'] ?? '').toString();
     final err = _formError == null
         ? const <Widget>[]
-        : [Text(_formError!, style: TextStyle(color: Theme.of(context).colorScheme.error))];
+        : [Text(_formError!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error))];
     if (p.isEmpty) {
       final ok = _name.text.trim().length >= 2 && _area.text.trim().length >= 2;
       return [
@@ -505,7 +507,7 @@ class _SiteSetupCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 2),
               child: Row(children: [
                 Icon(st['ok'] == true ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                    size: 20, color: st['ok'] == true ? wmOk() : Theme.of(context).colorScheme.outline),
+                    size: 20, color: st['ok'] == true ? wmOk() : Theme.of(context).colorScheme.ds.muted),
                 const SizedBox(width: 8),
                 Expanded(child: Text(stepName((st['key'] ?? '').toString()))),
               ]),

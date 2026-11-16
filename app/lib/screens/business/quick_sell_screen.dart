@@ -164,7 +164,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
           duration: Duration(seconds: low.isEmpty ? 4 : 8),
           content: Text(
               low.isEmpty ? t.biz_sale_done : '${t.biz_sale_done} · ${t.bbLowAfterSale(lowText)}',
-              style: const TextStyle(color: Colors.white)),
+              style: AType.bodyMedium.copyWith(color: Colors.white)),
           backgroundColor: Brand.successFill,
         ));
       }
@@ -282,7 +282,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
                     style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: Gap.xxs),
                 Text(oos ? t.biz_out_of_stock : sell.takaIn(context),
-                    style: TextStyle(fontFeatures: AFonts.tabular,
+                    style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular,
                         color: oos ? scheme.error : scheme.primary,
                         fontWeight: FontWeight.w800)),
               ]),
@@ -404,7 +404,7 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  Text(name, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                   if (variant.isNotEmpty)
                     Text(variant,
                         style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
@@ -432,11 +432,11 @@ class _QuickSellScreenState extends State<QuickSellScreen> {
               after();
             },
             icon: const Icon(Icons.edit_rounded, size: 16),
-            label: Text('${unit.takaIn(context)}', style: const TextStyle(fontFeatures: AFonts.tabular)),
+            label: Text('${unit.takaIn(context)}', style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular)),
           ),
           const SizedBox(width: Gap.sm),
           Text(lineTotal.takaIn(context),
-              style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800)),
+              style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800)),
         ]),
       ]),
     );
@@ -490,7 +490,7 @@ class _VariantPicker extends StatelessWidget {
             subtitle: Text('${t.biz_stock}: ${localDigits('${v['stock'] ?? 0}', Localizations.localeOf(context).languageCode)}'),
             trailing: Text(
                 poishaOf(v['sell_price'] ?? v['price']).takaIn(context),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             enabled: ((v['stock'] ?? 0) as num) > 0,
             // rt1: variants have a string `key`, no `id` — the old
             // `v['id'] as int` threw on every tap and nothing was added.

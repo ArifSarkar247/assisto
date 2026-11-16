@@ -173,7 +173,7 @@ class _BooksScreenState extends State<BooksScreen> {
         const SizedBox(height: Gap.sm),
         Text(t.lgrEmptyBody,
             textAlign: TextAlign.center,
-            style: TextStyle(height: 1.4, color: scheme.ds.muted)),
+            style: AType.bodyMedium.copyWith(height: 1.4, color: scheme.ds.muted)),
         const SizedBox(height: Gap.xl),
         SizedBox(
           height: 52,
@@ -184,7 +184,7 @@ class _BooksScreenState extends State<BooksScreen> {
           ),
         ),
         const SizedBox(height: Gap.lg),
-        Text(t.lgrEmptyHowTo, style: TextStyle(height: 1.5, color: scheme.ds.muted)),
+        Text(t.lgrEmptyHowTo, style: AType.bodyMedium.copyWith(height: 1.5, color: scheme.ds.muted)),
       ],
     );
   }
@@ -229,7 +229,7 @@ class _BooksScreenState extends State<BooksScreen> {
           Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk),
           const SizedBox(width: Gap.sm),
           Expanded(
-              child: Text(pair(context, w), style: TextStyle(color: scheme.ds.dangerInk))),
+              child: Text(pair(context, w), style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk))),
         ]),
       ),
       const SizedBox(height: Gap.md),
@@ -247,7 +247,7 @@ class _BooksScreenState extends State<BooksScreen> {
         const SizedBox(width: Gap.xs),
         Expanded(
           child: Text(ok ? t.lgrBalanced : t.lgrNotBalanced,
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600, color: ok ? scheme.primary : scheme.error)),
         ),
       ]),
@@ -268,7 +268,7 @@ class _BooksScreenState extends State<BooksScreen> {
     final base = strong
         ? Theme.of(context).textTheme.titleMedium
         : Theme.of(context).textTheme.bodyMedium;
-    final style = (base ?? const TextStyle()).copyWith(
+    final style = (base ?? AType.bodyMedium).copyWith(
         fontWeight: strong ? FontWeight.w800 : FontWeight.w400, height: 1.35);
     return Semantics(
       container: true,
@@ -319,7 +319,7 @@ class _BooksScreenState extends State<BooksScreen> {
       ]),
       const SizedBox(height: Gap.sm),
       Text(t.lgrPeriodRange(_day(p['from']), _day(p['to'])),
-          style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
+          style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
       _heading(t.lgrIncomeHeading),
       ..._accountRows(p['sales']),
       if (((p['discounts_total'] as num?) ?? 0) != 0)
@@ -345,7 +345,7 @@ class _BooksScreenState extends State<BooksScreen> {
     return _list([
       _balancedBadge(b['balanced'] == true),
       Text(t.lgrAsOf(_day(b['as_of'])),
-          style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
+          style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
       _heading(t.lgrAssets),
       ..._accountRows(b['assets']),
       _row(t.lgrTotalAssets, b['total_assets'], strong: true),
@@ -366,7 +366,7 @@ class _BooksScreenState extends State<BooksScreen> {
     final scheme = Theme.of(context).colorScheme;
     return _list([
       _balancedBadge(b['balanced'] == true),
-      Text(t.lgrAsOf(_day(b['as_of'])), style: TextStyle(color: scheme.ds.muted)),
+      Text(t.lgrAsOf(_day(b['as_of'])), style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.md),
       for (final r in (b['rows'] as List? ?? const []).cast<Map>())
         Semantics(

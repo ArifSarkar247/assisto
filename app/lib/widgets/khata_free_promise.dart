@@ -32,9 +32,9 @@ class KhataFreePromise extends StatelessWidget {
         leading: Icon(Icons.verified_rounded,
             color: AssistoTokens.of(context).success),
         title: Text(t.ldgFreeTitle,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Text(t.ldgFreeSub,
-            style: TextStyle(color: scheme.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => showDetails(context),
       ),
@@ -63,7 +63,7 @@ class KhataFreePromiseDetails extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.ldgFreeTitle, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: Gap.sm),
-        Text(t.ldgFreeSub, style: TextStyle(color: scheme.onSurfaceVariant)),
+        Text(t.ldgFreeSub, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.md),
         for (final s in [
           t.ldgFreeL1,
@@ -76,10 +76,10 @@ class KhataFreePromiseDetails extends StatelessWidget {
         const SizedBox(height: Gap.md),
         Text(t.ldgFreePaidTitle, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: Gap.xs),
-        line(Icons.sms_outlined, t.ldgFreePaidSms, scheme.onSurfaceVariant),
-        line(Icons.auto_awesome_outlined, t.ldgFreePaidAi, scheme.onSurfaceVariant),
+        line(Icons.sms_outlined, t.ldgFreePaidSms, scheme.ds.muted),
+        line(Icons.auto_awesome_outlined, t.ldgFreePaidAi, scheme.ds.muted),
         const SizedBox(height: Gap.md),
-        Text(t.ldgFreeWeb, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+        Text(t.ldgFreeWeb, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ]),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
 import '../../ds/ds.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -480,7 +481,7 @@ class _CctvWatchShareSheetState extends State<CctvWatchShareSheet> {
             onChanged: (v) => setState(() => _confirm = v ?? false),
           ),
           if (_error != null && _error!.isNotEmpty)
-            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           const SizedBox(height: 8),
           FilledButton.icon(
             key: const ValueKey('ctm-watch-send'),

@@ -167,9 +167,9 @@ class _GoalCard extends StatelessWidget {
                 child: Text(tr.lp2GoalTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))),
             Icon(Icons.local_fire_department_rounded,
-                color: s.current > 0 ? Brand.warning : scheme.onSurfaceVariant),
+                color: s.current > 0 ? Brand.warning : scheme.ds.muted),
             const SizedBox(width: Gap.xs),
-            Text(tr.lp2Streak(ld(context, s.current)), style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(tr.lp2Streak(ld(context, s.current)), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ]),
           const SizedBox(height: Gap.md),
           ClipRRect(
@@ -178,7 +178,7 @@ class _GoalCard extends StatelessWidget {
               value: (done / kLpDailyGoalMin).clamp(0.0, 1.0),
               minHeight: 10,
               color: reached ? Brand.success : scheme.primary,
-              backgroundColor: scheme.surfaceContainerHighest,
+              backgroundColor: scheme.ds.cardHighest,
             ),
           ),
           const SizedBox(height: Gap.sm),
@@ -186,9 +186,9 @@ class _GoalCard extends StatelessWidget {
               reached
                   ? tr.lp2GoalDone
                   : tr.lp2GoalMin(ld(context, done), ld(context, kLpDailyGoalMin)),
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           if (s.best > 0)
-            Text(tr.lp2StreakBest(ld(context, s.best)), style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            Text(tr.lp2StreakBest(ld(context, s.best)), style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -243,10 +243,10 @@ class _BigCard extends StatelessWidget {
               ),
             ]),
             const SizedBox(height: Gap.sm),
-            Text(body, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            Text(body, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
             if (extra != null) ...[
               const SizedBox(height: Gap.sm),
-              Text(extra!, style: TextStyle(fontWeight: FontWeight.w700, color: Brand.onTint(context, colour))),
+              Text(extra!, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: Brand.onTint(context, colour))),
             ],
             const SizedBox(height: Gap.md),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [

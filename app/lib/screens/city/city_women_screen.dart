@@ -100,7 +100,7 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
                   child: ListTile(
                     minVerticalPadding: Gap.sm,
                     leading: const Icon(Icons.shield_rounded),
-                    title: Text(t.cityWomenSafeJourney, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    title: Text(t.cityWomenSafeJourney, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                     subtitle: Text(t.cityWomenSafeJourneySub),
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => ChatNav.push(context, 'journey'),
@@ -149,7 +149,7 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
           minVerticalPadding: Gap.sm,
           leading: const Icon(Icons.woman_rounded),
           title: Text(cityD(context, '${(bn ? b['route_bn'] : null) ?? b['route'] ?? ''}'),
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           subtitle: Text(cityD(context, [
             '${b['from'] ?? ''} → ${b['to'] ?? ''}',
             if ('${b['hours'] ?? ''}'.isNotEmpty) '${b['hours']}',

@@ -104,12 +104,12 @@ class _LpLifeListScreenState extends State<LpLifeListScreen> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
-          Text(tr.lp2LifeIntro, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+          Text(tr.lp2LifeIntro, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.sm),
           Row(children: [
             Icon(Icons.offline_pin_rounded, size: 18, color: Brand.onTint(context, Brand.success)),
             const SizedBox(width: Gap.xs),
-            Expanded(child: Text(tr.lp2LifeOffline, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
+            Expanded(child: Text(tr.lp2LifeOffline, style: AType.bodySmall.copyWith(color: scheme.ds.muted))),
           ]),
           const SizedBox(height: Gap.md),
           for (final s in _items)
@@ -119,10 +119,10 @@ class _LpLifeListScreenState extends State<LpLifeListScreen> {
                 key: Key('lp2-sc-${s['id']}'),
                 minVerticalPadding: Gap.md,
                 leading: CircleAvatar(
-                  backgroundColor: scheme.primaryContainer,
-                  child: Icon(lpScenarioIcon('${s['icon']}'), color: scheme.onPrimaryContainer),
+                  backgroundColor: scheme.ds.primarySoft,
+                  child: Icon(lpScenarioIcon('${s['icon']}'), color: scheme.ds.primaryInk),
                 ),
-                title: Text(lpLoc(context, s, 'title'), style: const TextStyle(fontWeight: FontWeight.w600)),
+                title: Text(lpLoc(context, s, 'title'), style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
                 subtitle: Text(tr.lp2LifeRole(lpLoc(context, s, 'role'))),
                 trailing: _done.contains('${s['id']}')
                     ? Icon(Icons.check_circle_rounded, color: Brand.onTint(context, Brand.success))
@@ -160,14 +160,14 @@ class LpScenarioScreen extends StatelessWidget {
           ListView(
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl),
             children: [
-              Text(tr.lp2Goals, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(tr.lp2Goals, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               for (final g in lpStrs(bn ? s['goals_bn'] : s['goals_en']))
                 Padding(
                   padding: const EdgeInsets.only(top: Gap.xs),
                   child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Icon(Icons.check_rounded, size: 18, color: scheme.primary),
                     const SizedBox(width: Gap.xs),
-                    Expanded(child: Text(g, style: const TextStyle(height: 1.4))),
+                    Expanded(child: Text(g, style: AType.bodyMedium.copyWith(height: 1.4))),
                   ]),
                 ),
               const SizedBox(height: Gap.md),
@@ -179,9 +179,9 @@ class LpScenarioScreen extends StatelessWidget {
                     child: Row(children: [
                       Expanded(
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('${x['en']}', style: const TextStyle(fontWeight: FontWeight.w600, height: 1.35)),
+                          Text('${x['en']}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, height: 1.35)),
                           const SizedBox(height: Gap.xxs),
-                          Text('${x['bn']}', style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
+                          Text('${x['bn']}', style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.35)),
                         ]),
                       ),
                       LpListenButton(text: '${x['en']}'),
@@ -203,7 +203,7 @@ class LpScenarioScreen extends StatelessWidget {
                 Card(
                   margin: const EdgeInsets.only(bottom: Gap.sm),
                   child: ListTile(
-                    title: Text('${v['w']}  ·  ${v['bn']}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                    title: Text('${v['w']}  ·  ${v['bn']}', style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
                     subtitle: Text('${v['ex'] ?? ''}'),
                     trailing: LpListenButton(text: '${v['w']}. ${v['ex'] ?? ''}'),
                   ),
@@ -274,14 +274,14 @@ class _SayItSheetState extends State<_SayItSheet> {
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))),
           LpListenButton(text: widget.target),
         ]),
-        Text(widget.meaning, style: TextStyle(color: scheme.onSurfaceVariant)),
+        Text(widget.meaning, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.lg),
         if (_score != null) ...[
           Align(alignment: AlignmentDirectional.centerStart, child: LpPronChip(percent: _score!)),
           const SizedBox(height: Gap.sm),
-          Text(_heard.text, style: const TextStyle(fontStyle: FontStyle.italic)),
+          Text(_heard.text, style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic)),
           if (_missed.isNotEmpty)
-            Text(tr.lp2SayClearer(_missed.join(', ')), style: TextStyle(color: Brand.warnInk(context), height: 1.4)),
+            Text(tr.lp2SayClearer(_missed.join(', ')), style: AType.bodyMedium.copyWith(color: Brand.warnInk(context), height: 1.4)),
           const SizedBox(height: Gap.md),
         ],
         LpHoldToSpeak(
@@ -297,7 +297,7 @@ class _SayItSheetState extends State<_SayItSheet> {
           },
         ),
         const SizedBox(height: Gap.sm),
-        Text(tr.lp2PronHow, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+        Text(tr.lp2PronHow, style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
       ]),
     );
   }
@@ -504,7 +504,7 @@ class _LpRolePlayScreenState extends State<LpRolePlayScreen> {
       builder: (ctx) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(msg, style: const TextStyle(height: 1.4)),
+          Text(msg, style: AType.bodyMedium.copyWith(height: 1.4)),
           const SizedBox(height: Gap.lg),
           FilledButton.icon(
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(kMinTap)),
@@ -572,7 +572,7 @@ class _LpRolePlayScreenState extends State<LpRolePlayScreen> {
         if (_note != null)
           Padding(
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
-            child: Text(_note!, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            child: Text(_note!, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
         Expanded(
           child: ListView(
@@ -615,7 +615,7 @@ class _LpRolePlayScreenState extends State<LpRolePlayScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(Gap.md),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                      Text(tr.lp2GuidedDone, style: const TextStyle(fontWeight: FontWeight.w700)),
+                      Text(tr.lp2GuidedDone, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                       const SizedBox(height: Gap.sm),
                       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
                         FilledButton.tonal(
@@ -708,8 +708,8 @@ class _Bubble extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final ai = turn.ai;
-    final bg = ai ? scheme.surfaceContainerHighest : scheme.primaryContainer;
-    final fg = ai ? scheme.onSurface : scheme.onPrimaryContainer;
+    final bg = ai ? scheme.ds.cardHighest : scheme.ds.primarySoft;
+    final fg = ai ? scheme.ds.text : scheme.ds.primaryInk;
     return Align(
       alignment: ai ? AlignmentDirectional.centerStart : AlignmentDirectional.centerEnd,
       child: ConstrainedBox(
@@ -729,7 +729,7 @@ class _Bubble extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(ai ? role : tr.lp2You, style: AType.bodySmall.copyWith(color: fg, fontWeight: FontWeight.w700)),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Flexible(child: Text(turn.text, style: TextStyle(color: fg, height: 1.4))),
+              Flexible(child: Text(turn.text, style: AType.bodyMedium.copyWith(color: fg, height: 1.4))),
               if (ai) LpListenButton(text: turn.text) else const SizedBox(width: Gap.sm),
             ]),
             if (!ai && (turn.good || (turn.pron != null && turn.fixRight == null)))

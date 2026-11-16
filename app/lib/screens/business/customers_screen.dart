@@ -163,7 +163,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                 (c['name'] ?? '').toString().isEmpty
                                     ? (c['phone'] ?? '').toString()
                                     : c['name'].toString(),
-                                style: const TextStyle(
+                                style: AType.bodyMedium.copyWith(
                                     fontWeight: FontWeight.w700),
                                 overflow: TextOverflow.ellipsis),
                           ),
@@ -185,7 +185,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                     Text(t.biz_customer_dues,
                         style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
                     Text(dues.takaIn(context),
-                        style: TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w800)),
                   ]),
                 IconButton(
@@ -411,7 +411,7 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
               .toString(),
               style: Theme.of(context).textTheme.titleLarge),
           Text(t.biz_purchase_history,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           if (dues > 0)
             SellCard(
@@ -440,7 +440,7 @@ class _CustomerHistorySheetState extends State<CustomerHistorySheet> {
                 subtitle: Text(
                     '${t.bbItems(fmtInt(context, ((s['lines'] as List?)?.length ?? (s['items'] as num?) ?? 0).toInt()))} · ${_payLabel(t, '${s['payment_method'] ?? ''}')}'),
                 trailing: Text(poishaOf(s['total']).takaIn(context),
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               ),
           const SizedBox(height: Gap.lg),
         ],

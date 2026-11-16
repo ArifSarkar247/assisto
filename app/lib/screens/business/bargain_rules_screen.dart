@@ -129,7 +129,7 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
           Expanded(
             child: Row(children: [
               Expanded(child: _kv(tr.bizMinPriceFloor, '৳$min')),
-              Icon(Icons.lock_rounded, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              Icon(Icons.lock_rounded, size: 14, color: Theme.of(context).colorScheme.ds.muted),
             ]),
           ),
         ]),
@@ -155,12 +155,12 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
         // "Minimum price (floor)" column by 11px at 360dp (tap sweep).
         child: Text.rich(TextSpan(children: [
           TextSpan(text: '$k: ', style: _label()),
-          TextSpan(text: v, style: const TextStyle(fontWeight: FontWeight.w600)),
+          TextSpan(text: v, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         ])),
       );
 
   TextStyle _label() =>
-      AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant);
+      AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted);
 
   Future<void> _edit(AppLocalizations tr, Map<String, dynamic> r) async {
     final steps = TextEditingController(

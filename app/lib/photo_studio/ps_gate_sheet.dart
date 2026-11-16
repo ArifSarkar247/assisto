@@ -67,7 +67,7 @@ class PsGateSheet extends StatelessWidget {
               Text(
                   t.psGateProgress(fmtInt(context, need.adsTotal - need.adsRemaining),
                       fmtInt(context, need.adsTotal)),
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ],
             if (need.lastAdFailed) ...[
               const SizedBox(height: Gap.md),
@@ -75,7 +75,7 @@ class PsGateSheet extends StatelessWidget {
             ],
             if (adsBlocked) ...[
               const SizedBox(height: Gap.md),
-              _note(context, Icons.info_outline_rounded, t.psGateAdsNotLinked, scheme.onSurfaceVariant),
+              _note(context, Icons.info_outline_rounded, t.psGateAdsNotLinked, scheme.ds.muted),
             ],
             const SizedBox(height: Gap.lg),
             if (adsPossible)
@@ -108,7 +108,7 @@ class PsGateSheet extends StatelessWidget {
             const SizedBox(height: Gap.sm),
             Text(t.psGateNoFillNote,
                 textAlign: TextAlign.center,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ],
         ),
       ),
@@ -120,7 +120,7 @@ class PsGateSheet extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: color),
           const SizedBox(width: Gap.sm),
-          Expanded(child: Text(text, style: TextStyle(color: color))),
+          Expanded(child: Text(text, style: AType.bodyMedium.copyWith(color: color))),
         ],
       );
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
@@ -191,7 +192,7 @@ class _Sticker extends StatelessWidget {
     Text line(String s, double size, {bool bold = false}) => Text(s,
         textAlign: TextAlign.center,
         textScaler: TextScaler.noScaling,
-        style: TextStyle(color: ink, fontSize: size, height: 1.3,
+        style: AType.bodyMedium.copyWith(color: ink, fontSize: size, height: 1.3,
             fontWeight: bold ? FontWeight.w800 : FontWeight.w500));
     return AspectRatio(
       aspectRatio: 1 / 1.414,

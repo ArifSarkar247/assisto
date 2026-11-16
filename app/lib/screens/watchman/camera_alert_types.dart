@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../theme.dart' show AType;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -192,11 +194,11 @@ class _CameraAlertTypesScreenState extends State<CameraAlertTypesScreen> {
       key: const ValueKey('cxat_ai_check'),
       contentPadding: EdgeInsets.zero,
       secondary: Icon(Icons.auto_awesome_rounded,
-          color: ready ? scheme.primary : scheme.onSurfaceVariant),
+          color: ready ? scheme.primary : scheme.ds.muted),
       value: ready && ai['on'] == true,
       title: Text((ai['title'] ?? '').toString()),
       subtitle: Text((ai['note'] ?? '').toString(),
-          style: TextStyle(color: scheme.onSurfaceVariant)),
+          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       onChanged: !ready || _saving.contains('ai_check') ? null : _toggleAi,
     );
   }
@@ -208,12 +210,12 @@ class _CameraAlertTypesScreenState extends State<CameraAlertTypesScreen> {
     return SwitchListTile(
       contentPadding: EdgeInsets.zero,
       secondary: Icon(_icon(kind),
-          color: available ? scheme.primary : scheme.onSurfaceVariant),
+          color: available ? scheme.primary : scheme.ds.muted),
       value: available && r['on'] == true,
       title: Text((r['label'] ?? kind).toString()),
       subtitle: Text((r['note'] ?? '').toString(),
-          style: TextStyle(
-              color: available ? scheme.onSurfaceVariant : scheme.error,
+          style: AType.bodyMedium.copyWith(
+              color: available ? scheme.ds.muted : scheme.error,
               fontWeight: available ? FontWeight.normal : FontWeight.w600)),
       onChanged: !available || _saving.contains(kind) ? null : (v) => _toggle(kind, v),
     );

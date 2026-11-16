@@ -129,7 +129,7 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
           if (i.address.isNotEmpty) Text(d(i.address)),
           const SizedBox(height: Gap.xs),
           Text(i.hours.isNotEmpty ? d(t.cityHours(i.hours)) : t.cityHoursUnknown,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           if (i.routesFor(bn).isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(i.kind == 'ghat' ? t.cityLaunchesTo : (i.kind == 'office' ? t.cityServices : t.cityBusesTo),
@@ -145,7 +145,7 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xxs),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Icon(Icons.check_box_outline_blank_rounded, size: 18, color: s.onSurfaceVariant),
+                  Icon(Icons.check_box_outline_blank_rounded, size: 18, color: s.ds.muted),
                   const SizedBox(width: Gap.xs),
                   Expanded(child: Text(d(p))),
                 ]),

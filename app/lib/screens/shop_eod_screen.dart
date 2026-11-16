@@ -135,21 +135,21 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                   children: [
                     Card(
                       margin: EdgeInsets.zero,
-                      color: scheme.surfaceContainerHighest,
+                      color: scheme.ds.cardHighest,
                       child: Padding(
                         padding: const EdgeInsets.all(Gap.md),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text(t.shopEodTodayCash,
-                              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                           const SizedBox(height: Gap.xs),
                           Text(taka(context, _todayCash),
                               style: Theme.of(context).textTheme.headlineSmall
                                   ?.copyWith(fontWeight: FontWeight.w700)),
                           Text(t.shopEodTodayCount(fmtInt(context, _todayCount)),
-                              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                           const SizedBox(height: Gap.sm),
                           Text(t.shopEodExplain(taka(context, _tolerance)),
-                              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+                              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
                         ]),
                       ),
                     ),
@@ -202,7 +202,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                     const SizedBox(height: Gap.sm),
                     if (_checks.isEmpty)
                       Text(t.shopEodHistoryEmpty,
-                          style: TextStyle(color: scheme.onSurfaceVariant))
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted))
                     else
                       for (final c in _checks) _historyTile(context, t, scheme, c),
                   ],
@@ -238,10 +238,10 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(label,
-                    style: TextStyle(fontWeight: FontWeight.w700, color: color))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: color))),
           ]),
           const SizedBox(height: Gap.sm),
-          Text((r['message'] ?? '').toString(), style: const TextStyle(height: 1.4)),
+          Text((r['message'] ?? '').toString(), style: AType.bodyMedium.copyWith(height: 1.4)),
           const SizedBox(height: Gap.sm),
           _kv(t.shopEodExpected, taka(context, _i(r['expected']))),
           _kv(t.shopEodCountedShort, taka(context, _i(r['counted']))),
@@ -256,7 +256,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
         padding: const EdgeInsets.only(top: Gap.xs),
         child: Row(children: [
           Expanded(child: Text(k)),
-          Text(v, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(v, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         ]),
       );
 

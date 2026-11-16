@@ -116,8 +116,8 @@ class CityStatusBadge extends StatelessWidget {
     final v = status == 'verified';
     return CityPill(v ? t.cityStatusVerified : t.cityStatusReported,
         icon: v ? Icons.verified_rounded : Icons.groups_rounded,
-        bg: v ? s.primaryContainer : s.surfaceContainerHighest,
-        fg: v ? s.onPrimaryContainer : s.onSurfaceVariant);
+        bg: v ? s.ds.primarySoft : s.ds.cardHighest,
+        fg: v ? s.ds.primaryInk : s.ds.muted);
   }
 }
 
@@ -132,9 +132,9 @@ class CityFareChip extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final s = Theme.of(context).colorScheme;
     final (bg, fg) = switch (fare.label) {
-      FareLabel.official => (s.primaryContainer, s.onPrimaryContainer),
-      FareLabel.reported => (s.tertiaryContainer, s.onTertiaryContainer),
-      _ => (s.surfaceContainerHighest, s.onSurfaceVariant),
+      FareLabel.official => (s.ds.primarySoft, s.ds.primaryInk),
+      FareLabel.reported => (s.ds.successBg, s.ds.successInk),
+      _ => (s.ds.cardHighest, s.ds.muted),
     };
     return Semantics(
       button: true,
@@ -156,7 +156,7 @@ class CityFareChip extends StatelessWidget {
                 Text(cityD(context, t.cityFareCard('${fare.card}')), style: AType.bodySmall),
               if (showChecked && fare.checked.isNotEmpty)
                 Text(t.cityCheckedOn(cityDate(context, fare.checked)),
-                    style: AType.bodySmall.copyWith(color: s.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: s.ds.muted)),
             ],
           ),
         ),
@@ -224,7 +224,7 @@ class CityOptionSummary extends StatelessWidget {
                 option.changes == 0 ? t.cityNoChange : t.cityChanges('${option.changes}'),
                 t.cityWalkTotal(cityDistance(context, option.walkM)),
               ].join(' · ')),
-          style: AType.bodyMedium.copyWith(color: s.onSurfaceVariant)),
+          style: AType.bodyMedium.copyWith(color: s.ds.muted)),
     ]);
   }
 }
@@ -268,24 +268,24 @@ class _Step extends StatelessWidget {
       final towards = leg.towards?.label(bn) ?? '';
       if (towards.isNotEmpty) lines.add(Text(d(t.cityTowards(towards))));
       lines.add(Text(d(t.cityBoardAt(leg.board?.label(bn) ?? '')),
-          style: const TextStyle(fontWeight: FontWeight.w700)));
+          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)));
       lines.add(Text(d(t.cityGetOffAt(leg.alight?.label(bn) ?? '', '${leg.stops}')),
-          style: const TextStyle(fontWeight: FontWeight.w700)));
+          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)));
       final via = bn && leg.viaBn.any((v) => v.isNotEmpty) ? leg.viaBn : leg.via;
       final viaClean = via.where((v) => v.isNotEmpty).toList();
       if (viaClean.isNotEmpty) {
         lines.add(Text(d(t.cityVia(viaClean.take(6).join(', '))),
-            style: AType.bodySmall.copyWith(color: s.onSurfaceVariant)));
+            style: AType.bodySmall.copyWith(color: s.ds.muted)));
       }
       final meta = [
         cityMinutes(context, leg.minutes),
         if (leg.headwayMin > 0) d(t.cityEvery(cityMinutes(context, leg.headwayMin))),
       ].join(' · ');
-      lines.add(Text(meta, style: AType.bodySmall.copyWith(color: s.onSurfaceVariant)));
+      lines.add(Text(meta, style: AType.bodySmall.copyWith(color: s.ds.muted)));
       lines.add(Wrap(spacing: Gap.xs, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
         if (leg.status.isNotEmpty) CityStatusBadge(leg.status),
         if (leg.womenOnly)
-          CityPill(t.cityWomenOnly, icon: Icons.woman_rounded, bg: s.secondaryContainer, fg: s.onSecondaryContainer),
+          CityPill(t.cityWomenOnly, icon: Icons.woman_rounded, bg: s.ds.primarySoft, fg: s.ds.primaryInk),
       ]));
       if (leg.fare != null) lines.add(CityFareChip(leg.fare!));
       final g = leg.exitGate;
@@ -303,7 +303,7 @@ class _Step extends StatelessWidget {
           ? t.cityWalkMeters(cityDistance(context, leg.meters))
           : '${cityModeName(t, leg.mode)} · ${cityDistance(context, leg.meters)}');
       if (toName.isNotEmpty) lines.add(Text(d(t.cityTo(toName))));
-      lines.add(Text(cityMinutes(context, leg.minutes), style: AType.bodySmall.copyWith(color: s.onSurfaceVariant)));
+      lines.add(Text(cityMinutes(context, leg.minutes), style: AType.bodySmall.copyWith(color: s.ds.muted)));
       if (leg.fare != null) lines.add(CityFareChip(leg.fare!));
       if (simple && leg.mode == 'rickshaw') lines.add(_tip(context, t.cityTipRickshaw));
     }
@@ -348,11 +348,11 @@ class _Step extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: Gap.xs),
       padding: const EdgeInsets.all(Gap.sm),
-      decoration: BoxDecoration(color: s.secondaryContainer, borderRadius: BorderRadius.circular(Radii.md)),
+      decoration: BoxDecoration(color: s.ds.primarySoft, borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.lightbulb_outline_rounded, size: 18, color: s.onSecondaryContainer),
+        Icon(Icons.lightbulb_outline_rounded, size: 18, color: s.ds.primaryInk),
         const SizedBox(width: Gap.xs),
-        Expanded(child: Text(text, style: TextStyle(color: s.onSecondaryContainer))),
+        Expanded(child: Text(text, style: AType.bodyMedium.copyWith(color: s.ds.primaryInk))),
       ]),
     );
   }
@@ -383,19 +383,19 @@ class CityGateBox extends StatelessWidget {
       margin: const EdgeInsets.only(top: Gap.xs),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: s.primaryContainer, borderRadius: BorderRadius.circular(Radii.md)),
+          color: s.ds.primarySoft, borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.logout_rounded, color: s.onPrimaryContainer, size: big ? 32 : 22),
+        Icon(Icons.logout_rounded, color: s.ds.primaryInk, size: big ? 32 : 22),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(cityD(context, t.cityExitGate(gate.title(bn))),
                 style: (big ? AType.headlineSmall : AType.titleMedium)
-                    .copyWith(color: s.onPrimaryContainer, fontWeight: FontWeight.w800)),
-            if (side.isNotEmpty) Text(side, style: TextStyle(color: s.onPrimaryContainer)),
-            if (near.isNotEmpty) Text(cityD(context, t.cityNear(near)), style: TextStyle(color: s.onPrimaryContainer)),
+                    .copyWith(color: s.ds.primaryInk, fontWeight: FontWeight.w800)),
+            if (side.isNotEmpty) Text(side, style: AType.bodyMedium.copyWith(color: s.ds.primaryInk)),
+            if (near.isNotEmpty) Text(cityD(context, t.cityNear(near)), style: AType.bodyMedium.copyWith(color: s.ds.primaryInk)),
             if (gate.lift == true)
-              Text(t.cityLiftHere, style: TextStyle(color: s.onPrimaryContainer, fontWeight: FontWeight.w700)),
+              Text(t.cityLiftHere, style: AType.bodyMedium.copyWith(color: s.ds.primaryInk, fontWeight: FontWeight.w700)),
           ]),
         ),
       ]),

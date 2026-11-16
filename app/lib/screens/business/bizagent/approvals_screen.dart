@@ -217,7 +217,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
         if ('${it['customer_text'] ?? ''}'.isNotEmpty) ...[
           Text(t.baCustomerSaid, style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: Gap.xs),
-          Text(bd(context, it['customer_text']), style: const TextStyle(height: 1.4)),
+          Text(bd(context, it['customer_text']), style: AType.bodyMedium.copyWith(height: 1.4)),
           const SizedBox(height: Gap.md),
         ],
         if (problems.isNotEmpty) ...[

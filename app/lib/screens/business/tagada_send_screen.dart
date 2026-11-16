@@ -583,7 +583,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
 
   Widget _tally(String label, Color? c) => Chip(
         label: Text(label,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w600,
                 color: c)),
@@ -731,7 +731,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
                     overflow: TextOverflow.ellipsis)),
             const SizedBox(width: Gap.sm),
             Text(amount,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     fontFeatures: AFonts.tabular,
                     fontWeight: FontWeight.w700,
                     color: AssistoTokens.of(context).success)),
@@ -761,7 +761,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
                 const SizedBox(width: Gap.xs),
                 Expanded(
                     child: Text(row.detail,
-                        style: TextStyle(color: statusColor))),
+                        style: AType.bodyMedium.copyWith(color: statusColor))),
               ]),
             ),
           ],
