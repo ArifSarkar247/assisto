@@ -124,9 +124,14 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
                 ],
               ),
           ],
+          // 13 tools: one scrolling tab row that starts at the screen edge
+          // (no centred first tab); a scrollable tab sizes to its label, so
+          // nothing is cut with "…" at any font size.
           bottom: TabBar(
             isScrollable: true,
-            tabs: [for (final tb in tabs) Tab(icon: Icon(tb.icon, size: 20), child: Text(tb.label, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis))],
+            tabAlignment: TabAlignment.start,
+            padding: const EdgeInsets.symmetric(horizontal: Gap.sm),
+            tabs: [for (final tb in tabs) Tab(icon: Icon(tb.icon, size: 20), child: Text(tb.label, softWrap: false))],
           ),
         ),
         body: TabBarView(children: [for (final tb in tabs) tb.child]),
