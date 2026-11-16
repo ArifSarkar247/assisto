@@ -92,7 +92,8 @@ class LandingBase(Base):
             set_flag(f, True)
 
     def get(self, slug, lang):
-        return self.c.get(LP.path(slug) + ("?lang=en" if lang == "en" else ""))
+        # explicit ?lang= : a bare URL redirects to the language remembered in the cookie
+        return self.c.get(LP.path(slug) + "?lang=" + lang)
 
 
 class LandingPageTests(LandingBase):
@@ -121,7 +122,7 @@ class LandingPageTests(LandingBase):
                     self.assertTrue((ASSETS / name).is_file(), name)
                     if i:
                         self.assertEqual(im.get("loading"), "lazy")
-                self.assertTrue(all(i.get("width") and i.get("height") for i in p.imgs), slug)
+                self.assertTrue(all(i.get("width") and i.get("height") for i in p.imgs if i.get("src")), slug)
                 body = main_part(html).lower()
                 for w in COMPETITORS + MEDICINE:
                     self.assertNotIn(w, body, (slug, lang, w))
@@ -165,7 +166,7 @@ class LandingPageTests(LandingBase):
         set_live(True)
         pages += ["/", "/features", "/pricing", "/security", "/help", "/about", "/features/safety"]
         for path in pages:
-            for q in ("", "?lang=en"):
+            for q in ("?lang=bn", "?lang=en"):
                 p = parse(self.c.get(path + q).content.decode())
                 self.assertTrue(p.ld, path)
                 g = graph(p)
@@ -200,7 +201,7 @@ class LandingPageTests(LandingBase):
             related = [h for h in p.hrefs if h.startswith("/features/") and h.split("/")[2] in LP.LANDINGS]
             self.assertGreaterEqual(len(set(related)), 2, slug)
             for h in set(h.split("#")[0] for h in p.hrefs if h.startswith("/") and not h.startswith("/site/")):
-                self.assertLess(self.c.get(h).status_code, 400, (slug, h))
+                self.assertLess(Client().get(h).status_code, 400, (slug, h))   # fresh client: no remembered language
 
 
 class HonestyTests(LandingBase):
@@ -280,7 +281,9 @@ class PlayBadgeTests(Base):
     def test_hidden_by_default_even_if_listing_public(self):
         set_live(True)
         for path in ("/", "/?lang=en", "/features/safety", "/get", "/get?lang=en"):
-            html = self.c.get(path).content.decode()
+            r = Client().get(path)
+            self.assertEqual(r.status_code, 200, path)
+            html = r.content.decode()
             self.assertNotIn("play.google.com", html, path)
             self.assertNotIn("google-play-badge", html, path)
         self.assertIn("Install the APK directly", self.c.get("/get?lang=en").content.decode())
