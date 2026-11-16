@@ -12,6 +12,7 @@ import '../../kids_watch_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/fam_empty.dart';
@@ -296,19 +297,13 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
   }
 
   Widget _body(AppLocalizations t) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    // designv2: DS loader + error states
+    if (_loading) return const SkeletonList(count: 3);
     if (_failed) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(t.kwLoadFailed, textAlign: TextAlign.center, style: AType.bodyLarge),
-            const SizedBox(height: Gap.md),
-            FilledButton.icon(
-                onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.kwRetry)),
-          ]),
-        ),
-      );
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+            icon: Icons.cloud_off_rounded, title: t.kwLoadFailed, actionLabel: t.kwRetry, onAction: _load),
+      ]);
     }
     if (_nothing) {
       return FamEmptyState(
