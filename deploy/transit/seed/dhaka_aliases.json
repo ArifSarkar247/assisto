@@ -1032,7 +1032,8 @@
   "Mirpur 12"
  ],
  "Cantonment Signal Gate": [
-  "Signal Gate"
+  "Signal Gate",
+  "Kurmitola"
  ],
  "Demra Bridge": [
   "Demra"
@@ -1167,5 +1168,51 @@
  ],
  "Madartek": [
   "Madartek Bazar"
+ ],
+ "Stadium": [
+  "Bangabandhu National Stadium",
+  "National Stadium",
+  "Gulistan"
+ ],
+ "Russell Square": [
+  "Russel Square",
+  "Panthapath"
+ ],
+ "Shyamoli Ring Road": [
+  "Ring Road",
+  "Shyamoli"
+ ],
+ "Baikali Hotel": [
+  "Gulistan"
+ ],
+ "TV Center": [
+  "Rampura TV Center",
+  "Rampura"
+ ],
+ "Pirjangi Mazar": [
+  "Kamalapur"
+ ],
+ "Kalapani": [
+  "Kalapani Bus Stop",
+  "Mirpur 11"
+ ],
+ "Bijoy Smriti": [
+  "Bijoy Sarani"
+ ],
+ "Mirpur Thana": [
+  "Mirpur Model Thana",
+  "Mirpur 2"
+ ],
+ "Manda Crossroad": [
+  "Manda",
+  "South Manda"
+ ],
+ "Bangabandhu Avenue": [
+  "Gulistan",
+  "Bangabandhu Avenue"
+ ],
+ "Narayanganj Link Road": [
+  "Link Road",
+  "Signboard"
  ]
 }

@@ -1266,8 +1266,11 @@ def sensible(ans, crow_km):
             if l["mode"] in E.MODES or l["mode"] in ("rickshaw", "cng", "ride"):
                 if not f or f.get("label") not in ("official", "reported", "estimate") or not f.get("checked"):
                     return False, "fare without label/date (%s)" % l["mode"]
-    if best["fare"]["high"] > 60 + 12 * crow_km:
-        return False, "fare too high %d" % best["fare"]["high"]
+    # some option (usually Cheapest) must cost what a Dhaka commuter
+    # would expect; Fastest may use a rickshaw/CNG and cost more
+    low_fare = min(o["fare"]["high"] for o in opts.values())
+    if low_fare > 60 + 12 * crow_km:
+        return False, "fare too high %d" % low_fare
     ch = opts.get("cheapest")
     if ch and ch["fare"]["low"] > best["fare"]["low"] + 1:
         return False, "cheapest dearer than fastest"
