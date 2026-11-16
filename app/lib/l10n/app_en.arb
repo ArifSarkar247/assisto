@@ -52285,5 +52285,21 @@
   "lp2TrackWriteHere": "Write your answer here",
   "@lp2TrackWriteHere": {
     "description": "lpfinish: Language Partner tracks"
+  },
+  "emailrelBouncing": "Emails to this address bounce back. Please check your email address, or get the code by SMS.",
+  "@emailrelBouncing": {
+    "description": "emailrel: email OTP refused because the address hard-bounced"
+  },
+  "emailrelRejected": "Your email provider refused the message (inbox full or blocked). Check your inbox, or get the code by SMS.",
+  "@emailrelRejected": {
+    "description": "emailrel: permanent refusal that is not a dead address"
+  },
+  "emailrelSendFailed": "We couldn't send the email right now. Get the code by SMS, or try again in a few minutes.",
+  "@emailrelSendFailed": {
+    "description": "emailrel: temporary email failure after retries"
+  },
+  "emailrelBouncingBanner": "Emails to your saved address are bouncing back. Please check your email address and verify it again.",
+  "@emailrelBouncingBanner": {
+    "description": "emailrel: banner on the sign-in email screen"
   }
 }
