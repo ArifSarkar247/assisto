@@ -1,0 +1,34 @@
+{% extends "web/v3/base.html" %}
+{% comment %}seogrow (owner order 17 Nov 00:32): one landing page per main feature
+  (web.site_landing). Exactly one H1; real CI gallery screenshots only; honest
+  text (points whose app flag is off are not rendered); FAQ = FAQPage JSON-LD.{% endcomment %}
+{% block main %}
+<section class="ghead" id="hero" aria-labelledby="l-h">
+  <div class="wrap">
+    <nav class="crumb" aria-label="Breadcrumb"><a href="{{ U.home }}">Assisto</a> › <a href="{{ U.features }}">{{ C.nav_features }}</a> › <span aria-current="page">{{ L.name }}</span></nav>
+    <h1 id="l-h"><span class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ L.icon }}"/></svg></span>{{ L.h1 }}</h1>
+    <p class="lead">{{ L.lead }}</p>
+    {% include "web/v3/_get.html" with g=get.hero nosoon=True %}
+  </div>
+</section>
+<div class="wrap">
+  <div class="rows">{% for r in L.rows %}
+    <section class="frow{% if not forloop.first %} rv{% endif %}" aria-labelledby="lp{{ forloop.counter }}-h">
+      <div class="ft-txt">
+        <h2 id="lp{{ forloop.counter }}-h">{{ r.h }}</h2>
+        <p class="body">{{ r.b }}</p>
+      </div>
+      {% include "web/v3/_shot.html" with s=r.img %}
+    </section>{% endfor %}
+  </div>
+  {% if L.cards %}<div class="fgrid">{% for r in L.cards %}
+    <article class="card fc rv"><div class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ L.icon }}"/></svg></div><h2 class="h3">{{ r.h }}</h2><p>{{ r.b }}</p></article>{% endfor %}
+  </div>{% endif %}
+</div>
+{% include "web/v3/_faq.html" %}
+{% if L.related or L.group_url %}<section class="sec alt" aria-labelledby="rel-h"><div class="wrap">
+  <h2 id="rel-h">{% if lang == 'en' %}Related in Assisto{% else %}Assisto-তে আরও দেখুন{% endif %}</h2>
+  <div class="trust">{% for r in L.related %}<article class="card rv"><div class="ic"><svg class="i" aria-hidden="true"><use href="#i-{{ r.icon }}"/></svg></div><h3><a href="{{ r.url }}">{{ r.name }}</a></h3><p>{{ r.lead }}</p></article>{% endfor %}</div>
+  {% if L.group_url %}<p><a href="{{ L.group_url }}">{% if lang == 'en' %}All {{ L.group_name }} features →{% else %}{{ L.group_name }} — সব ফিচার →{% endif %}</a></p>{% endif %}
+</div></section>{% endif %}
+{% endblock %}

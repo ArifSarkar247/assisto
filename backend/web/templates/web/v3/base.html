@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{{ title }}</title>
 <meta name="description" content="{{ desc }}">
-{% if preview %}<meta name="robots" content="noindex, nofollow">{% else %}<meta name="robots" content="index, follow, max-image-preview:large">{% endif %}
+{% if preview or noindex %}<meta name="robots" content="noindex, nofollow">{% else %}<meta name="robots" content="index, follow, max-image-preview:large">{% endif %}
 <link rel="canonical" href="{{ seo.canonical }}">
 <link rel="alternate" hreflang="bn" href="{{ seo.alt_bn }}">
 <link rel="alternate" hreflang="en" href="{{ seo.alt_en }}">
@@ -81,6 +81,10 @@
       <h2 class="ft-h">{{ C.nav_features }}</h2>
       <ul>{% for g in groups %}<li><a href="{{ g.url }}">{{ g.name }}</a></li>{% endfor %}</ul>
     </div>
+    {% if landing_nav %}<div class="ft-col">
+      <h2 class="ft-h">{% if lang == 'en' %}Popular{% else %}জনপ্রিয়{% endif %}</h2>
+      <ul>{% for l in landing_nav %}<li><a href="{{ l.url }}">{{ l.name }}</a></li>{% endfor %}</ul>
+    </div>{% endif %}
     <div class="ft-col">
       <h2 class="ft-h">Assisto</h2>
       <ul>

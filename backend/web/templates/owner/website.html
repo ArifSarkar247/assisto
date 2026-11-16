@@ -33,6 +33,22 @@
   {% if apk %}<p>{{ apk.name }} · {{ apk.version }} · {{ apk.size_mb }} MB · {{ apk.date }}<br><code>SHA-256 {{ apk.sha256 }}</code><br><a href="{{ apk_url }}">{{ apk_url }}</a></p>{% else %}<p class="mut">{{ T.ws_apk_none }}</p>{% endif %}
   <p class="mut small">{{ T.ws_apk_note }}</p>
 </section>
+<section class="card" id="seogrow"><h2>{{ T.ws_seo_title }}</h2>
+  <p><b>{{ T.ws_now }}</b> {% if seo_live %}<span class="pill ok">{{ T.ws_seo_live }}</span>{% else %}<span class="pill off">{{ T.ws_seo_hidden }}</span>{% endif %}</p>
+  <form method="post" class="inline">{% include "owner/_csrf.html" %}
+    {% if seo_live %}<button class="btn ghost" name="action" value="seo_hide">{{ T.ws_seo_hide }}</button>
+    {% else %}<button class="btn" name="action" value="seo_golive">{{ T.ws_seo_golive }}</button>{% endif %}
+  </form>
+  <p class="mut small">{{ T.ws_seo_note }}</p>
+  <ul>{% for bn, en in landings %}<li><a href="{{ bn }}" target="_blank" rel="noopener">{{ bn }}</a> · <a href="{{ en }}" target="_blank" rel="noopener">EN</a></li>{% endfor %}</ul>
+  <h3>{{ T.ws_badge_title }}</h3>
+  <p>{% if play_badge %}<span class="pill ok">{{ T.ws_badge_on }}</span>{% else %}<span class="pill off">{{ T.ws_badge_off }}</span>{% endif %}</p>
+  <form method="post" class="inline">{% include "owner/_csrf.html" %}
+    {% if play_badge %}<button class="btn ghost" name="action" value="playbadge_off">{{ T.ws_badge_hide }}</button>
+    {% else %}<button class="btn" name="action" value="playbadge_on">{{ T.ws_badge_show }}</button>{% endif %}
+  </form>
+  <p class="mut small">{{ T.ws_badge_note }}</p>
+</section>
 <section class="card"><h2>{{ T.ws_preview }}</h2>
   <p class="mut small">{{ T.ws_preview_note }}</p>
   <ul>{% for bn, en in previews %}<li><a href="{{ bn }}" target="_blank" rel="noopener">{{ bn }}</a> · <a href="{{ en }}" target="_blank" rel="noopener">{{ en }}</a></li>{% endfor %}</ul>

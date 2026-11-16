@@ -21,6 +21,7 @@ from django.http import Http404, HttpResponse, HttpResponseNotModified
 from django.template.loader import render_to_string
 
 from . import site_content as SC
+from . import site_landing as LP
 from . import site_v3 as V3
 from . import site_v3_icons as ICONS
 from . import views_site as OLD
@@ -191,13 +192,20 @@ def _render(request, page, preview, group=None, status=200):
     gmap = {g["id"]: g for g in groups}
     site = _site()
     path = {"home": "/", "features": "/features", "pricing": "/pricing", "security": "/security",
-            "help": "/help", "group": "/features/%s" % group, "about": "/about"}[page]
+            "help": "/help", "group": "/features/%s" % group, "about": "/about",
+            "landing": "/features/%s" % group}[page]
     bn_url, en_url = site + path, site + path + "?lang=en"
     faq = SC.faq(lang) + [{"q": q, "a": a} for q, a in V3.EXTRA_FAQ[lang]]
     if page == "group":
         g = gmap[group]
         title, desc = g["title"], g["desc"]
         crumbs = [("Assisto", site + "/"), (C["nav_features"], site + "/features"), (g["name"], bn_url if lang == "bn" else en_url)]
+    elif page == "landing":   # seogrow (17 Nov): one landing page per main feature
+        L = LP.build(group, lang, flags, ai_ok)
+        title, desc = L["title"], L["desc"]
+        faq = L["faq"]
+        crumbs = [("Assisto", site + "/"), (C["nav_features"], site + "/features" + ("?lang=en" if lang == "en" else "")),
+                  (L["name"], bn_url if lang == "bn" else en_url)]
     elif page == "about":   # seo (17 Nov): a real About page
         from .site_about import ABOUT
         title, desc = ABOUT[lang]["title"], ABOUT[lang]["desc"]
@@ -211,7 +219,7 @@ def _render(request, page, preview, group=None, status=200):
             desc = SC.PAGES[page]["desc"][lang] if page != "features" else C["groups_lead"]
     from . import site_v3_dist as DIST
     play = play_links(lang)
-    pub = DIST.play_public()
+    pub = DIST.play_shown()   # seogrow item 7: hidden until the owner says live
     play["_public"] = pub
     dist = {"public": pub, "apk": DIST.apk_display(DIST.apk_info(), lang), "apk_url": DIST.apk_url()}
     monthly, yearly = OLD._plans(lang) if page in ("home", "pricing") else ([], [])
@@ -223,11 +231,11 @@ def _render(request, page, preview, group=None, status=200):
         "preview": preview, "groups": groups, "group": gmap.get(group), "title": title, "desc": desc,
         "seo": {"canonical": en_url if lang == "en" else bn_url, "alt_bn": bn_url, "alt_en": en_url},
         "other_url": request.path + ("?lang=bn" if lang == "en" else "?lang=en"),
-        "og_image": site + OLD.asset_url("og-%s.jpg" % lang), "og_url": en_url if lang == "en" else bn_url,
+        "og_image": site + OLD.asset_url(_og_name(page, group, lang)), "og_url": en_url if lang == "en" else bn_url,
         "auto_strip": V3.auto_strip(groups), "faq": faq, "trust": SC.trust(lang), "tools": SC.tools(lang),
         "plans": monthly, "plans_yearly": yearly, "cctv_plan": V3.cctv_plan(lang),
         "play_url": SC.play_url(lang), "play": play,
-        "dist": dist, "get": {p: {"play": play[p], "install": play[p] if dist["public"] else (dist["apk_url"] or play[p]),
+        "dist": dist, "get": {p: {"play": play[p], "install": play[p] if dist["public"] else (dist["apk_url"] or "/get" + U["q"]),
                                   "place": p} for p in GET_PLACES},
         "slides": _slides(C, lang), "badge": OLD.asset_url("google-play-badge-%s.png" % lang),
         "hero": _shot("home_v2", lang, C["shot_alt"] + ("হোম স্ক্রিন" if lang == "bn" else "home screen"), eager=True),
@@ -236,11 +244,23 @@ def _render(request, page, preview, group=None, status=200):
         "font_taka": OLD.asset_url("taka.woff2"),  # sitelive: clear ৳ (Noto's reads as "b")
         "font_in": {"w%d" % w: OLD.asset_url("inter-%d.woff2" % w) for w in (400, 600, 700)},
         "jsonld": V3.jsonld(lang, site, en_url if lang == "en" else bn_url, page,
-                            faq if page in ("home", "help") else None, crumbs),
+                            faq if page in ("home", "help", "landing") else None, crumbs,
+                            install_url=(SC.play_url(lang) if pub else site + "/get" + ("?lang=en" if lang == "en" else ""))),
         "year": 2026,
     }
     from .site_about import ABOUT
     ctx["A"] = ABOUT[lang]
+    # seogrow: landing pages (noindex until the owner makes them live)
+    ctx["landing_nav"] = LP.nav(lang, flags)
+    ctx["noindex"] = page == "landing" and not LP.growth_live()
+    if page == "landing":
+        L["imgs"] = [x for x in (_shot(s["name"], lang, s["alt"], eager=(i == 0)) for i, s in enumerate(L["shots"])) if x]
+        # each point gets the next real screenshot; points without one become cards
+        L["rows"] = [dict(pt, img=L["imgs"][i]) for i, pt in enumerate(L["points"][:len(L["imgs"])])]
+        L["cards"] = L["points"][len(L["imgs"]):]
+        L["group_url"] = gmap[L["group"]]["url"] if is_live() or preview else ""
+        L["group_name"] = gmap[L["group"]]["name"]
+        ctx["L"] = L
     ctx["chips"] = _chips(C, page, group, base, U, groups, ctx["play"])
     ctx["menu"] = _menu(C, page, group, U, groups, ctx["other_url"], ctx["other"])
     if page == "group":
@@ -249,12 +269,20 @@ def _render(request, page, preview, group=None, status=200):
         ctx["next_g"] = groups[i + 1] if i + 1 < len(groups) else None
     tpl = {"home": "web/v3/home.html", "features": "web/v3/features.html", "group": "web/v3/group.html",
            "pricing": "web/v3/pricing.html", "security": "web/v3/security.html", "help": "web/v3/help.html",
-           "about": "web/v3/about.html"}[page]
+           "about": "web/v3/about.html", "landing": "web/v3/landing.html"}[page]
     html = render_to_string(tpl, ctx, request=request)
-    resp = _etag_response(request, html, preview)
+    resp = _etag_response(request, html, preview or ctx["noindex"])
     if status != 200 and resp.status_code == 200:
         resp.status_code = status
     return resp
+
+
+def _og_name(page, group, lang):
+    """seogrow: a 1200x630 share image per feature landing page
+    (tools/website/og_images.py), else the site-wide one."""
+    if page == "landing" and (OLD.ASSET_DIR / "og" / ("%s-%s.jpg" % (group, lang))).is_file():
+        return "og/%s-%s.jpg" % (group, lang)
+    return "og-%s.jpg" % lang
 
 
 # ----------------------------------------------------- live (switch) routes
@@ -280,6 +308,10 @@ def features_index(request):
 
 
 def feature_group(request, gid):
+    if gid in LP.LANDINGS:   # seogrow: /features/<slug> landing pages
+        if not LP.page_live(gid):
+            raise Http404
+        return _render(request, "landing", preview=False, group=gid)
     if gid not in V3.GROUP_IDS or not is_live():
         raise Http404
     return _render(request, "group", preview=False, group=gid)
@@ -296,6 +328,10 @@ def preview(request, page="home"):
 
 
 def preview_group(request, gid):
+    if gid in LP.LANDINGS:
+        if not LP.page_live(gid):
+            raise Http404
+        return _render(request, "landing", preview=True, group=gid)
     if gid not in V3.GROUP_IDS:
         raise Http404
     return _render(request, "group", preview=True, group=gid)
@@ -303,9 +339,10 @@ def preview_group(request, gid):
 
 def sitemap_extra():
     """Paths the sitemap adds once v3 is live (never the preview)."""
+    extra = LP.sitemap_paths()   # seogrow: landing pages, only once the owner made them live
     if not is_live():
-        return []
-    return ["/features"] + ["/features/%s" % g for g in V3.GROUP_IDS]
+        return extra
+    return ["/features"] + ["/features/%s" % g for g in V3.GROUP_IDS] + extra
 
 
 # ------------------------------------------------------- owner switch

@@ -40,6 +40,13 @@ def set_flag(key, on):
     FF.invalidate()
 
 
+def _badge_on():
+    """seogrow item 7: Play badge/links need the owner's site_play_badge_live."""
+    row, _ = AdminFlagState.objects.get_or_create(key="global")
+    row.state = dict(row.state or {}, site_play_badge_live=True)
+    row.save()
+
+
 def no_network(test, public=True):
     """The Play listing check never touches the network in tests."""
     from django.core.cache import cache
@@ -48,6 +55,8 @@ def no_network(test, public=True):
     test.play_check = p.start()
     test.addCleanup(p.stop)
     test.addCleanup(cache.delete, "sitev3:play_public")
+    if public:
+        _badge_on()   # seogrow: these tests model "the app is live on Play"
 
 
 class Base(TestCase):
@@ -455,6 +464,7 @@ class InstallAndApkTests(Base):
                 self.assertIn("১.০.৩২১", bn)                       # Bangla digits
 
     def test_public_listing_shows_badge_and_install_to_play(self):
+        _badge_on()   # seogrow: the owner said the app is live on Play
         html = self.c.get("/preview/?lang=en").content.decode()
         self.assertNotIn("Coming soon to Play Store", html)
         hero = re.search(r'<div class="get get-hero">.*?</div>', html, re.S).group(0)
@@ -465,6 +475,7 @@ class InstallAndApkTests(Base):
 
     def test_play_check_is_cached_and_owner_can_override(self):
         from web import site_v3_dist as DIST
+        _badge_on()   # seogrow: the listing is only checked once the owner turned the badge on
         self.c.get("/preview/")
         self.c.get("/preview/?lang=bn")
         self.assertEqual(self.play_check.call_count, 1)             # cached ~1 h
