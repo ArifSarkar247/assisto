@@ -54,6 +54,9 @@ class _Oem implements OemGuideNative {
   Future<OemOpen> open(String step) async => OemOpen.none;
 }
 
+/// The phone's GPS (the bus moves on between the last tracked fix and the tap).
+double _gpsLat = 23.959;
+
 ApiException _pinRequired() => ApiException('pin required', 400, null, null,
     {'ok': false, 'pin': 'required', 'arrival': 'unusual', 'reason': 'too_early'});
 
@@ -70,7 +73,7 @@ Future<(JourneyTracker, GlobalKey<NavigatorState>)> _pumpLive(WidgetTester t, Sj
   addTearDown(() => m.setMockMethodCallHandler(
       const MethodChannel('flutter.baseflow.com/geolocator'), null));
   final tr = JourneyTracker(
-      useService: false, position: () async => (lat: 23.959, lng: 90.426), battery: () async => 64);
+      useService: false, position: () async => (lat: _gpsLat, lng: 90.426), battery: () async => 64);
   final nav = GlobalKey<NavigatorState>();
   final app = AppState()
     ..api = api
@@ -137,6 +140,27 @@ void main() {
     expect(clips, [5]);                                  // 30 s audio for the watchers
     expect(tr.running, isTrue);                          // the location goes on
     await tr.stop();
+  });
+
+  testWidgets('the Arrived tap carries a FRESH fix, not the last tracked one', (t) async {
+    // bug found by the e2e: the tap sent the last tracked fix (up to 2 min /
+    // ~2 km old on a bus) -> a real arrival looked "far" and asked the PIN
+    _gpsLat = 23.78; // tracked at the start
+    addTearDown(() => _gpsLat = 23.959);
+    final api = _ArriveApi([{'ok': true, 'status': 'arrived'}])
+      ..active = sjdTrip('en')
+      ..during = sjdDuring(state: 'nearly', dist: 90);
+    final (tr, _) = await _pumpLive(t, api);
+    expect(tr.value.lastFix?.lat, 23.78);
+    _gpsLat = 23.959; // now at the destination
+    final btn = find.byKey(const ValueKey('j100_arrived'));
+    await t.ensureVisible(btn);
+    await t.tap(btn);
+    for (var i = 0; i < 20; i++) {
+      await t.pump(const Duration(milliseconds: 100));
+    }
+    expect(api.arrivedBodies.single['lat'], 23.959);
+    expect(tr.running, isFalse);
   });
 
   testWidgets('safe PIN in the Arrived box: Arrived, tracking ends, no clip', (t) async {
