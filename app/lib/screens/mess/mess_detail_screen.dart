@@ -785,8 +785,8 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
       ]),
       const SizedBox(height: Gap.sm),
       if (_monthInfo['full'] == false)
-        Card(
-          color: DsTokens.of(context).primarySoft,
+        DsSurface(color: DsTokens.of(context).primarySoft,
+          padding: EdgeInsets.zero,
           child: ListTile(
             title: Text(t.mv2PremiumOldMonths),
             trailing: const Icon(Icons.chevron_right_rounded),

@@ -137,8 +137,8 @@ class LearnForWorkTile extends StatelessWidget {
     final gulf = isGulfOffset(abroadOffsetMin);
     void open(Widget w) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
     final fg = scheme.ds.successInk;
-    return Card(
-      color: scheme.ds.successBg,
+    return DsCard(tone: DsTone.success,
+      padding: EdgeInsets.zero,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         ListTile(
           key: const Key('lw-work-tile'),
@@ -481,11 +481,9 @@ class LearnResultCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final weak = _strs(result['weak']);
     final sections = _list(result['sections']);
-    return Card(
-      color: scheme.ds.primarySoft,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: scheme.ds.primarySoft,
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(ld(context, tr.learnYourLevel(levelName)),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
@@ -502,7 +500,6 @@ class LearnResultCard extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           Text(estimate, style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, fontSize: 13)),
         ]),
-      ),
     );
   }
 }
@@ -866,10 +863,9 @@ class _ScenarioChatPageState extends State<ScenarioChatPage> {
                   ],
                 ),
               if (!_aiReady)
-                Card(
-                  color: scheme.ds.cardHighest,
-                  child: Padding(
-                      padding: const EdgeInsets.all(Gap.md), child: Text(tr.learnAiNotConnected)),
+                DsSurface(color: scheme.ds.cardHighest,
+                  padding: const EdgeInsets.all(Gap.md),
+                  child: Text(tr.learnAiNotConnected),
                 ),
               for (final t in _turns)
                 Align(

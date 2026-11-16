@@ -238,11 +238,9 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
 
   Widget _manualNote(BuildContext context, AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsSurface(color: scheme.ds.cardHighest,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
           Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -250,7 +248,6 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
                 style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
           ),
         ]),
-      ),
     );
   }
 
@@ -415,11 +412,9 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
   Widget _tradeSeamCard(BuildContext context, AppLocalizations tr) {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: scheme.ds.cardHighest,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.public_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
@@ -432,7 +427,6 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
           Text(tr.demandTradeSeamBody,
               style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
         ]),
-      ),
     );
   }
 }

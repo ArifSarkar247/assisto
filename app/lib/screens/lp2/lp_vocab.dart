@@ -98,11 +98,9 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
-          Card(
-            color: scheme.ds.primarySoft,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.lg),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          DsSurface(color: scheme.ds.primarySoft,
+            padding: const EdgeInsets.all(Gap.lg),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Text(tr.lp2VocabToday, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),
                 const SizedBox(height: Gap.xs),
                 Text(
@@ -123,7 +121,6 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
                   label: Text(due.isEmpty ? tr.lp2VocabComeBack : tr.lp2VocabStart),
                 ),
               ]),
-            ),
           ),
           const SizedBox(height: Gap.lg),
           SegmentedButton<String>(

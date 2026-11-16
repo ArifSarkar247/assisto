@@ -162,11 +162,9 @@ class _LpTtsPlayerState extends State<LpTtsPlayer> {
     final pieces = _pieces;
     final locked = !widget.replay && _plays >= _allowed;
     final multi = pieces.length > 1;
-    return Card(
-      color: scheme.surfaceContainerHigh,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsSurface(color: scheme.surfaceContainerHigh,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
           IconButton.filled(
             key: const Key('lp2-tts-play'),
             tooltip: _on ? tr.lp2TrackStop : tr.lp2PlayAudio,
@@ -191,7 +189,6 @@ class _LpTtsPlayerState extends State<LpTtsPlayer> {
             ]),
           ),
         ]),
-      ),
     );
   }
 }
@@ -421,8 +418,8 @@ class _LpTrackScreenState extends State<LpTrackScreen> {
                     ]),
                 ),
               if ('${probashi['note_bn'] ?? ''}'.isNotEmpty)
-                Card(
-                  color: scheme.secondaryContainer,
+                DsSurface(color: scheme.secondaryContainer,
+                  padding: EdgeInsets.zero,
                   child: ListTile(
                     leading: Icon(Icons.public_rounded, color: scheme.onSecondaryContainer),
                     title: Text(tr.lp2TrackProbashi,
@@ -543,18 +540,15 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
           ),
         )
       else
-        Card(
-          color: (mine == right ? Brand.success : Brand.warning).withValues(alpha: 0.15),
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        DsSurface(color: (mine == right ? Brand.success : Brand.warning).withValues(alpha: 0.15),
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(mine == right ? tr.lp2Right : tr.lp2TrackKey(right),
                   style: AType.bodyMedium.copyWith(
                       fontWeight: FontWeight.w700,
                       color: Brand.onTint(context, mine == right ? Brand.success : Brand.danger))),
               if ('${q['explain_bn'] ?? ''}'.isNotEmpty) Text('${q['explain_bn']}', style: AType.bodyMedium.copyWith(height: 1.4)),
             ]),
-          ),
         ),
     ]);
   }
@@ -573,16 +567,13 @@ class _LpLessonScreenState extends State<LpLessonScreen> {
           decoration: InputDecoration(border: const OutlineInputBorder(), hintText: tr.lp2TrackWriteHere),
         ),
       if (_shown.contains(id))
-        Card(
-          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        DsSurface(color: Theme.of(context).colorScheme.surfaceContainerHigh,
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(tr.lp2TrackModel, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               _targetBlock(model),
               Text(tr.lp2TrackSelfCheck, style: AType.bodySmall),
             ]),
-          ),
         )
       else
         Align(
@@ -861,11 +852,9 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
             ),
         ]),
         if (item != null && item.isNotEmpty)
-          Card(
-            color: (item['correct'] == true ? Brand.success : Brand.warning).withValues(alpha: 0.15),
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          DsSurface(color: (item['correct'] == true ? Brand.success : Brand.warning).withValues(alpha: 0.15),
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Text(
                     item['correct'] == true
                         ? AppLocalizations.of(context).lp2Right
@@ -876,7 +865,6 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
                 if ('${item['explain_bn'] ?? ''}'.isNotEmpty)
                   Text('${item['explain_bn']}', style: AType.bodyMedium.copyWith(height: 1.4)),
               ]),
-            ),
           ),
       ]),
     );
@@ -1012,12 +1000,9 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl),
           children: [
             if (r != null)
-              Card(
-                key: const Key('lp2-track-result'),
-                color: scheme.primaryContainer,
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.lg),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              DsSurface(key: const Key('lp2-track-result'), color: scheme.primaryContainer,
+                padding: const EdgeInsets.all(Gap.lg),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     Text(tr.lp2TrackRight(ld(context, r['raw'] ?? 0), ld(context, r['total'] ?? 0)),
                         style: Theme.of(context)
                             .textTheme
@@ -1033,7 +1018,6 @@ class _LpTrackTestRunnerState extends State<LpTrackTestRunner> {
                             style: AType.bodySmall.copyWith(color: scheme.onPrimaryContainer, height: 1.4)),
                       ),
                   ]),
-                ),
               ),
             for (final p in lpList(_sec!['parts'])) ...[
               if (_map(p['instructions']).isNotEmpty)

@@ -743,11 +743,9 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
     return Scaffold(appBar: AppBar(title: Text(t.icgTitle)), body: body);
   }
 
-  Widget _banner(String text, IconData icon) => Card(
-        color: Theme.of(context).colorScheme.ds.primarySoft,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(children: [
+  Widget _banner(String text, IconData icon) => DsSurface(color: Theme.of(context).colorScheme.ds.primarySoft,
+    padding: const EdgeInsets.all(12),
+    child: Row(children: [
             Icon(icon, color: Theme.of(context).colorScheme.ds.primaryInk),
             const SizedBox(width: 10),
             Expanded(
@@ -755,8 +753,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
                   style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.primaryInk)),
             ),
           ]),
-        ),
-      );
+  );
 
   Widget _section(String title, List<Widget> children) => DsCard(
     padding: const EdgeInsets.all(14),

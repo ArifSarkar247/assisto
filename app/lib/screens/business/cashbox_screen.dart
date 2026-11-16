@@ -220,7 +220,8 @@ class _CashboxScreenState extends State<CashboxScreen> {
 
                       // Breakdown: opening + what the shop already booked
                       // today (read-only) + hand-written rows.
-                      Card(
+                      DsCard(
+                        padding: EdgeInsets.zero,
                         child: Column(children: [
                           _Line(
                               label: t.cashboxOpening,
@@ -407,11 +408,9 @@ class _ReconciledCard extends StatelessWidget {
         : (variancePoisha > 0
             ? Icons.trending_up_rounded
             : Icons.trending_down_rounded);
-    return Card(
-      color: color.withValues(alpha: 0.10),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: color.withValues(alpha: 0.10),
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(icon, color: color),
             const SizedBox(width: Gap.sm),
@@ -434,7 +433,6 @@ class _ReconciledCard extends StatelessWidget {
                   fallback: '৳0'),
               color: color),
         ]),
-      ),
     );
   }
 }

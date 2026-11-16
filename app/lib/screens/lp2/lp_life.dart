@@ -608,11 +608,9 @@ class _LpRolePlayScreenState extends State<LpRolePlayScreen> {
                   ]),
                 ),
               if (finished)
-                Card(
-                  color: Brand.success.withValues(alpha: 0.12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.md),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                DsSurface(color: Brand.success.withValues(alpha: 0.12),
+                  padding: const EdgeInsets.all(Gap.md),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                       Text(tr.lp2GuidedDone, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                       const SizedBox(height: Gap.sm),
                       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -626,7 +624,6 @@ class _LpRolePlayScreenState extends State<LpRolePlayScreen> {
                             child: Text(tr.lp2ModeAi)),
                       ]),
                     ]),
-                  ),
                 ),
             ],
           ),

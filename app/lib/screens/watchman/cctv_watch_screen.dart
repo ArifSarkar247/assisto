@@ -121,16 +121,13 @@ class _PrivacyNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: Theme.of(context).colorScheme.ds.cardHighest,
+      padding: const EdgeInsets.all(12),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Icon(Icons.privacy_tip_outlined),
           const SizedBox(width: 8),
           Expanded(child: Text(text)),
         ]),
-      ),
     );
   }
 }

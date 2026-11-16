@@ -254,12 +254,9 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
     final privacy = _st['privacy'] == true;
     final sos = _st['sos_until'] != null;
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      key: const ValueKey('carm-status'),
-      color: on ? scheme.ds.primarySoft : null,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(key: const ValueKey('carm-status'), color: on ? scheme.ds.primarySoft : null,
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(on ? Icons.shield_rounded : Icons.shield_outlined,
                 color: on ? scheme.ds.primaryInk : null),
@@ -298,7 +295,6 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
             Text(t.carmSosActive, style: AType.bodyMedium.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
           ],
         ]),
-      ),
     );
   }
 

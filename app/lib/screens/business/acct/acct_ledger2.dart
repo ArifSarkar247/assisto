@@ -209,11 +209,9 @@ class _AcctCashboxScreenState extends State<AcctCashboxScreen> {
       child: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          Card(
-            color: pending > 0 ? scheme.ds.successBg : scheme.ds.cardHighest,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Semantics(
+          DsSurface(color: pending > 0 ? scheme.ds.successBg : scheme.ds.cardHighest,
+            padding: const EdgeInsets.all(Gap.md),
+            child: Semantics(
                 liveRegion: true,
                 child: Text(
                     pending > 0
@@ -225,7 +223,6 @@ class _AcctCashboxScreenState extends State<AcctCashboxScreen> {
                         height: 1.4,
                         color: pending > 0 ? scheme.ds.successInk : null)),
               ),
-            ),
           ),
           const SizedBox(height: Gap.sm),
           Text(t.lg2CashboxWhy,
@@ -440,17 +437,14 @@ class _AcctVatRatesScreenState extends State<AcctVatRatesScreen> {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        Card(
-          color: seller ? scheme.ds.cardHighest : scheme.ds.successBg,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Text(
+        DsSurface(color: seller ? scheme.ds.cardHighest : scheme.ds.successBg,
+          padding: const EdgeInsets.all(Gap.md),
+          child: Text(
                 seller ? t.lg2VatShopRate(acctPct(context, d['shop_vat_bp'])) : t.lg2VatNotSeller,
                 style: AType.bodyMedium.copyWith(
                     height: 1.4,
                     fontWeight: FontWeight.w600,
                     color: seller ? null : scheme.ds.successInk)),
-          ),
         ),
         const SizedBox(height: Gap.sm),
         Text(t.lg2VatRatesWhy, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
@@ -666,10 +660,7 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
       Text(t.lg2YearWhy, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
       const SizedBox(height: Gap.sm),
       for (final c in live)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          color: scheme.ds.primarySoft,
-          child: Padding(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(color: scheme.ds.primarySoft,
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(t.lg2YearClosedOn(acctDay(context, c['end'])),
@@ -689,8 +680,7 @@ class _AcctYearCloseSectionState extends State<AcctYearCloseSection> {
                 ),
               ),
             ]),
-          ),
-        ),
+          )),
       for (final s in sugg)
         Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
             padding: EdgeInsets.zero,

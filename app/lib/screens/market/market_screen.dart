@@ -421,8 +421,8 @@ class _SellTabState extends State<_SellTab> with AutomaticKeepAliveClientMixin {
       child: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
-          Card(
-            color: status == 'approved' ? cs.ds.primarySoft : cs.ds.primarySoft,
+          DsSurface(color: status == 'approved' ? cs.ds.primarySoft : cs.ds.primarySoft,
+            padding: EdgeInsets.zero,
             child: ListTile(
               key: const Key('amk-seller-card'),
               leading: Icon(status == 'approved' ? Icons.verified_rounded : Icons.hourglass_top_rounded),

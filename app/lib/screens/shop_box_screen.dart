@@ -211,11 +211,9 @@ class _UpsellBody extends StatelessWidget {
             t.shopBoxWhatAlerts),
         _bullet(context, Icons.assessment_rounded, t.shopBoxWhatReport),
         const SizedBox(height: Gap.lg),
-        Card(
-          color: scheme.ds.cardHighest,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Row(children: [
+        DsSurface(color: scheme.ds.cardHighest,
+          padding: const EdgeInsets.all(Gap.md),
+          child: Row(children: [
               Icon(Icons.verified_rounded, size: 20, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
@@ -223,7 +221,6 @@ class _UpsellBody extends StatelessWidget {
                     style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.4)),
               ),
             ]),
-          ),
         ),
         const SizedBox(height: Gap.lg),
         FilledButton.icon(
@@ -534,10 +531,7 @@ class _SitesTab extends StatelessWidget {
   Widget _privacyNote(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.cardHighest,
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return Padding(padding: EdgeInsets.zero, child: DsSurface(color: scheme.ds.cardHighest,
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.privacy_tip_rounded, size: 18, color: scheme.primary),
@@ -548,8 +542,7 @@ class _SitesTab extends StatelessWidget {
                     height: 1.4)),
           ),
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _siteCard(BuildContext context, AppLocalizations t, ColorScheme scheme,
@@ -986,10 +979,7 @@ class _CamerasTabState extends State<_CamerasTab> {
             _sitePickerBanner(context, widget.site),
             const SizedBox(height: Gap.md),
             // used / included meter
-            Card(
-              margin: EdgeInsets.zero,
-              color: scheme.ds.cardHighest,
-              child: Padding(
+            Padding(padding: EdgeInsets.zero, child: DsSurface(color: scheme.ds.cardHighest,
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(children: [
                   Icon(Icons.videocam_rounded,
@@ -1003,8 +993,7 @@ class _CamerasTabState extends State<_CamerasTab> {
                     ),
                   ),
                 ]),
-              ),
-            ),
+              )),
             const SizedBox(height: Gap.md),
             if (_cameras.isEmpty)
               CvEmptyBlock(
@@ -1516,10 +1505,7 @@ class _ReportTabState extends State<_ReportTab> {
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.xs),
           if (cameraOnly)
-            Card(
-              margin: EdgeInsets.zero,
-              color: scheme.ds.cardHighest,
-              child: Padding(
+            Padding(padding: EdgeInsets.zero, child: DsSurface(color: scheme.ds.cardHighest,
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1533,8 +1519,7 @@ class _ReportTabState extends State<_ReportTab> {
                                 height: 1.4)),
                       ),
                     ]),
-              ),
-            ),
+              )),
           const SizedBox(height: Gap.sm),
           _exceptionRow(context, t, t.shopBoxExcVoids,
               _int(exceptions['voids']), cameraOnly),

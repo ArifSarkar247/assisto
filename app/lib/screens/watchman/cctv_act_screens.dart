@@ -222,13 +222,11 @@ class _ClosingState extends State<CctvClosingReportScreen> {
           return RefreshIndicator(
             onRefresh: _load,
             child: ListView(padding: const EdgeInsets.all(16), children: [
-              Card(
-                color: ok
+              DsSurface(color: ok
                     ? Theme.of(context).colorScheme.ds.primarySoft
                     : Theme.of(context).colorScheme.ds.cardHighest,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                padding: const EdgeInsets.all(16),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text((d['title'] ?? '').toString(),
                         style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
@@ -241,7 +239,6 @@ class _ClosingState extends State<CctvClosingReportScreen> {
                         ]),
                       ),
                   ]),
-                ),
               ),
               if (hourly.any((v) => v > 0)) ...[
                 const SizedBox(height: 12),

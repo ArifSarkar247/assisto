@@ -648,12 +648,9 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
 
   Widget _emptyHint(AppLocalizations t) {
     final s = Theme.of(context).colorScheme;
-    return Card(
-      key: const ValueKey('city_empty'),
-      color: s.secondaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(key: const ValueKey('city_empty'), color: s.secondaryContainer,
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.cityEmptyTitle,
               style: AType.titleLarge.copyWith(color: s.onSecondaryContainer, fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
@@ -672,7 +669,6 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
           const SizedBox(height: Gap.xs),
           Text(t.cityEmptyHow, style: AType.bodySmall.copyWith(color: s.onSecondaryContainer)),
         ]),
-      ),
     );
   }
 

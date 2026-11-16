@@ -404,12 +404,9 @@ class _ScoreCard extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final counts = res.counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-    return Card(
-      key: const Key('lp2-omr-score'),
-      color: scheme.ds.primarySoft,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsSurface(key: const Key('lp2-omr-score'), color: scheme.ds.primarySoft,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
             Expanded(
               child: Text(tr.lp2RawScore(ld(context, res.raw), ld(context, res.total)),
@@ -440,7 +437,6 @@ class _ScoreCard extends StatelessWidget {
           ],
           const LpPracticeFooter(),
         ]),
-      ),
     );
   }
 }

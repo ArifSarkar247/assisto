@@ -234,8 +234,8 @@ class _LpIeltsHubState extends State<LpIeltsHub> {
             ),
             const SizedBox(height: Gap.md),
             if (_data != null && !premium)
-              Card(
-                color: scheme.ds.primarySoft,
+              DsSurface(color: scheme.ds.primarySoft,
+                padding: EdgeInsets.zero,
                 child: ListTile(
                   leading: Icon(Icons.card_giftcard_rounded, color: scheme.ds.primaryInk),
                   title: Text(tr.lp2FreeLeft(ld(context, left ?? 0)),
@@ -981,11 +981,9 @@ class _LpAudioState extends State<_LpAudio> {
       );
     }
     final locked = _played && !widget.replay;
-    return Card(
-      color: scheme.ds.cardHigh,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsSurface(color: scheme.ds.cardHigh,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
           IconButton.filled(
             key: const Key('lp2-play'),
             tooltip: _playing ? tr.lp2Pause : tr.lp2PlayAudio,
@@ -1004,7 +1002,6 @@ class _LpAudioState extends State<_LpAudio> {
             ]),
           ),
         ]),
-      ),
     );
   }
 }
@@ -1182,15 +1179,12 @@ class _SpeakingSectionState extends State<_SpeakingSection> {
         ] else if (qs.isNotEmpty) ...[
           Text(tr.lp2QuestionOf(ld(context, qi + 1), ld(context, qs.length)),
               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-          Card(
-            color: scheme.ds.cardHighest,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
-              child: Row(children: [
+          DsSurface(color: scheme.ds.cardHighest,
+            padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
+            child: Row(children: [
                 Expanded(child: Text(qs[qi], style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, height: 1.4))),
                 LpListenButton(text: qs[qi]),
               ]),
-            ),
           ),
           Align(
             alignment: AlignmentDirectional.centerEnd,
@@ -1319,12 +1313,9 @@ class LpMockResultScreen extends StatelessWidget {
               ]),
           ),
           const SizedBox(height: Gap.md),
-          Card(
-            key: const Key('lp2-comment'),
-            color: scheme.ds.primarySoft,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsSurface(key: const Key('lp2-comment'), color: scheme.ds.primarySoft,
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   Icon(Icons.auto_awesome_rounded, color: scheme.ds.primaryInk),
                   const SizedBox(width: Gap.sm),
@@ -1334,7 +1325,6 @@ class LpMockResultScreen extends StatelessWidget {
                 const SizedBox(height: Gap.sm),
                 Text(comment, style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, height: 1.45)),
               ]),
-            ),
           ),
           const SizedBox(height: Gap.md),
           FilledButton.icon(
@@ -1485,8 +1475,8 @@ class _LpWeakPracticeState extends State<LpWeakPractice> {
           Text(tr.lp2WeakIntro, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           if (done)
-            Card(
-              color: scheme.ds.primarySoft,
+            DsSurface(color: scheme.ds.primarySoft,
+              padding: EdgeInsets.zero,
               child: ListTile(
                 title: Text(tr.lp2WeakScore(ld(context, right), ld(context, _items.length)),
                     style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.primaryInk)),

@@ -225,11 +225,9 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        Card(
-          color: lock == null ? DsTokens.of(context).cardHighest : DsTokens.of(context).primarySoft,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        DsSurface(color: lock == null ? DsTokens.of(context).cardHighest : DsTokens.of(context).primarySoft,
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Row(children: [
                 Icon(lock == null ? Icons.lock_open_rounded : Icons.lock_rounded,
                     color: lock == null ? DsTokens.of(context).muted : DsTokens.of(context).primaryInk),
@@ -262,7 +260,6 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
                 ),
               ],
             ]),
-          ),
         ),
         const SizedBox(height: Gap.lg),
         Text(t.acuCloseWhy, style: AType.bodyMedium.copyWith(height: 1.5)),

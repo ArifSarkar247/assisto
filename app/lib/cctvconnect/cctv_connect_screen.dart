@@ -238,9 +238,9 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
         if (providers.isNotEmpty) ...[
           Text(t.ccnAddBrandTitle, style: th.titleMedium),
           for (final p in providers)
-            Card(
-              margin: const EdgeInsets.only(top: Gap.sm),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Padding(padding: const EdgeInsets.only(top: Gap.sm), child: DsCard(
+                padding: EdgeInsets.zero,
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 // owner 9 Nov: the owner's OWN brand account in one tap (OAuth)
                 if (p['modes'] is List && (p['modes'] as List).contains('oauth'))
                   Padding(
@@ -263,7 +263,7 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
                   onTap: () => _connect(p),
                 ),
               ]),
-            ),
+              )),
           if (widget.onFindOnWifi != null)
             Padding(
               padding: const EdgeInsets.only(top: Gap.md),
