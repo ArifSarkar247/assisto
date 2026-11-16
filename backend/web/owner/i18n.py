@@ -2033,6 +2033,36 @@ BN.update({
     "ws_apk_none": "সার্ভারে কোনো APK ফাইল পাওয়া যায়নি।",
     "ws_apk_note": "উৎস: সেটিং WEBSITE_APK_FILE (খালি = সর্বশেষ প্রকাশিত APK)। আকার ও SHA-256 এই ফাইল থেকেই হিসাব হয়।",
 })
+# ---- seogrow (17 Nov): feature landing pages + Play badge switch ----
+EN.update({
+    "ws_seo_title": "Feature landing pages (SEO) — go live",
+    "ws_seo_live": "LIVE for Google (in sitemap and site menus)",
+    "ws_seo_hidden": "Preview only (noindex, not in sitemap or menus)",
+    "ws_seo_golive": "Make the landing pages live",
+    "ws_seo_hide": "Hide them from Google again",
+    "ws_seo_note": "The pages always open at their final address so you can check them first. A page whose app feature is OFF does not exist (404). One tap, audited.",
+    "ws_badge_title": "Google Play badge on the website",
+    "ws_badge_on": "Shown (once the Play listing is public)",
+    "ws_badge_off": "Hidden — no Play badge or Play link anywhere on the site",
+    "ws_badge_show": "Show the Play badge (the app is live on Play)",
+    "ws_badge_hide": "Hide the Play badge",
+    "ws_badge_note": "Turn this on only after the app is LIVE on Google Play. The Install APK path stays the same either way.",
+})
+BN.update({
+    "ws_seo_title": "ফিচারের ল্যান্ডিং পাতা (SEO) — লাইভ করুন",
+    "ws_seo_live": "Google-এর জন্য লাইভ (সাইটম্যাপ ও মেনুতে আছে)",
+    "ws_seo_hidden": "শুধু প্রিভিউ (noindex, সাইটম্যাপ বা মেনুতে নেই)",
+    "ws_seo_golive": "ল্যান্ডিং পাতাগুলো লাইভ করুন",
+    "ws_seo_hide": "আবার Google থেকে লুকান",
+    "ws_seo_note": "পাতাগুলো সবসময় আসল ঠিকানাতেই খোলে, যাতে আগে দেখে নিতে পারেন। অ্যাপে যে ফিচার বন্ধ, তার পাতা থাকে না (৪০৪)। এক চাপেই, অডিট লগে থাকে।",
+    "ws_badge_title": "ওয়েবসাইটে Google Play ব্যাজ",
+    "ws_badge_on": "দেখাচ্ছে (Play পাতা প্রকাশিত হলে)",
+    "ws_badge_off": "লুকানো — সাইটের কোথাও Play ব্যাজ বা Play লিংক নেই",
+    "ws_badge_show": "Play ব্যাজ দেখান (অ্যাপ Play-তে লাইভ)",
+    "ws_badge_hide": "Play ব্যাজ লুকান",
+    "ws_badge_note": "অ্যাপ Google Play-তে লাইভ হওয়ার পরেই এটা চালু করুন। APK ইনস্টলের পথ যেমন আছে তেমনই থাকবে।",
+})
+# ---- /seogrow ----
 # ---- /sitev3 ----
 # ---- privacyupd: privacy policy v2 go-live (Owner Admin → Website) ----
 EN.update({

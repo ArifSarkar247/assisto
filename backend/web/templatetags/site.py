@@ -68,3 +68,14 @@ def auto_seo(context):
         '<link rel="alternate" hreflang="en" href="{}">\n'
         '<link rel="alternate" hreflang="x-default" href="{}">',
         u["canonical"], u["alt_bn"], u["alt_en"], u["alt_bn"])
+
+
+@register.simple_tag
+def play_shown():
+    """seogrow item 7: Play badge/links only once the owner said the app is
+    live on Play (site_play_badge_live) and the listing is public."""
+    try:
+        from web import site_v3_dist as DIST
+        return DIST.play_shown()
+    except Exception:  # noqa: BLE001 — never break a page; hide the badge
+        return False

@@ -647,17 +647,28 @@ def shot_names():
         for f in feats:
             if f["shot"]:
                 names.add(f["shot"])
+    from . import site_landing   # seogrow: the feature landing pages' shots
+    names |= set(site_landing.shot_names())
     return sorted(names)
 
 
-def jsonld(lang, site, url, page, faq_rows, crumbs=None):
+def jsonld(lang, site, url, page, faq_rows, crumbs=None, install_url=None):
+    # seogrow (17 Nov): full Organization (legal name + postal address) and an
+    # honest SoftwareApplication — Android, free to install with optional
+    # in-app purchases, NO aggregateRating/review (we have no real reviews).
     org = {"@type": "Organization", "@id": site + "/#org", "name": SC.COMPANY, "url": site + "/",
-           "email": SC.EMAIL, "logo": site + "/site/icon-512.png",
-           "address": {"@type": "PostalAddress", "addressCountry": "BD"}}
-    app = {"@type": "SoftwareApplication", "name": "Assisto", "operatingSystem": "Android 8.0+",
+           "email": SC.EMAIL, "logo": {"@type": "ImageObject", "url": site + "/site/icon-512.png", "width": 512, "height": 512},
+           "address": {"@type": "PostalAddress", "streetAddress": "Cha-63 Uttar Badda", "addressLocality": "Dhaka",
+                       "postalCode": "1212", "addressCountry": "BD"},
+           "contactPoint": {"@type": "ContactPoint", "email": SC.EMAIL, "contactType": "customer support",
+                            "availableLanguage": ["bn", "en"]}}
+    app = {"@type": "SoftwareApplication", "@id": site + "/#app", "name": "Assisto", "operatingSystem": "Android",
            "applicationCategory": "LifestyleApplication", "url": site + "/", "inLanguage": ["bn", "en"],
            "publisher": {"@id": site + "/#org"}, "description": COPY[lang]["desc"],
-           "installUrl": SC.play_url(lang), "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BDT"}}
+           "installUrl": install_url or SC.play_url(lang),
+           "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BDT",
+                      "description": ("ইনস্টল ফ্রি; ঐচ্ছিক ইন-অ্যাপ কেনাকাটা আছে" if lang == "bn"
+                                      else "Free to install; optional in-app purchases")}}
     graph = [org, app]
     if faq_rows:
         graph.append({"@type": "FAQPage", "mainEntity": [

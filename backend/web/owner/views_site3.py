@@ -57,12 +57,28 @@ def website(request):
                         before={"mode": before}, after={"mode": DIST.play_mode()})
                 return done("/owner/website", "saved")
             status = 400
+        elif act in ("seo_golive", "seo_hide", "playbadge_on", "playbadge_off"):
+            # seogrow (17 Nov): landing pages go-live + Play badge, one tap each, audited
+            from core.views_build61 import flags_flip
+            from web import site_landing as LP
+            fid = LP.PREVIEW_FLAG if act.startswith("seo_") else DIST.PLAY_BADGE_HIDDEN_FLAG
+            live = act in ("seo_golive", "playbadge_on")
+            before = LP.growth_live() if fid == LP.PREVIEW_FLAG else DIST.play_badge_on()
+            # inverted flags: going live = flag OFF
+            ok, payload = flags_flip(request.owner.id, fid, not live, "website: %s (owner, Owner Admin -> Website)" % act)
+            if ok:
+                S.audit(request, request.owner, "flag.flip", "flag:%s" % fid, before={"live": before}, after={"live": live})
+                return done("/owner/website", "saved")
+            problems, status = payload.get("problems") or [], 400
         else:
             problems, status = ["bad_value"], 400
     from web import views_legal as VL
+    from web import site_landing as LP
     return page(request, "owner/website.html",
                 {"live": live, "privacy_live": VL.privacy_v2_live(), "problems": problems, "play_mode": DIST.play_mode(),
                  "play_public": DIST.play_public(), "apk": DIST.apk_info(), "apk_url": DIST.apk_url(),
+                 "seo_live": LP.growth_live(), "play_badge": DIST.play_badge_on(),
+                 "landings": [(LP.path(x), LP.path(x) + "?lang=en") for x in LP.live_slugs()],
                  "previews": [("/preview/", "/preview/?lang=en"), ("/preview/features/safety", "/preview/features/safety?lang=en"),
                               ("/preview/privacy", "/preview/privacy?lang=en")]},
                 status=status, nav="website")

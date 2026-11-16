@@ -17,11 +17,11 @@
 {% endif %}
 {% if lang == 'en' %}
 <h1>Get the Assisto app</h1>
-<div class="card">
+{% comment %}seogrow item 7: the Play card only once the owner said the app is live on Play (site_play_badge_live){% endcomment %}{% if play_on %}<div class="card">
   <p>Assisto is on Google Play for Android 8 or newer — updates arrive automatically.</p>
   <a class="play" href="https://play.google.com/store/apps/details?id=com.assisto.assisto&amp;hl=en" rel="noopener"><img src="{% site_asset 'google-play-badge-en.png' %}" width="186" height="72" alt="Get it on Google Play"></a>
 </div>
-<h2 style="font-size:19px">Or install the APK directly</h2>
+<h2 style="font-size:19px">Or install the APK directly</h2>{% else %}<h2 style="font-size:19px">Install the APK directly</h2>{% endif %}
 <div class="card">
   <p>Chat, family safety, reminders, money and your shop khata — all in one place.</p>
   {% if apk.apk_url %}
@@ -41,11 +41,11 @@
 <p style="text-align:center"><a href="/{{ qlang }}">← Back to the home page</a></p>
 {% else %}
 <h1>Assisto অ্যাপ নিন</h1>
-<div class="card">
+{% if play_on %}<div class="card">
   <p>Assisto পাবেন Google Play-তে, Android ৮ বা নতুন ফোনে — আপডেট নিজে থেকেই আসে।</p>
   <a class="play" href="https://play.google.com/store/apps/details?id=com.assisto.assisto&amp;hl=bn" rel="noopener"><img src="{% site_asset 'google-play-badge-bn.png' %}" width="186" height="72" alt="Google Play-তে পাবেন"></a>
 </div>
-<h2 style="font-size:19px">অথবা সরাসরি APK ইনস্টল করুন</h2>
+<h2 style="font-size:19px">অথবা সরাসরি APK ইনস্টল করুন</h2>{% else %}<h2 style="font-size:19px">সরাসরি APK ইনস্টল করুন</h2>{% endif %}
 <div class="card">
   <p>চ্যাট, পরিবারের নিরাপত্তা, রিমাইন্ডার, হিসাব আর দোকানের খাতা — সব এক জায়গায়।</p>
   {% if apk.apk_url %}

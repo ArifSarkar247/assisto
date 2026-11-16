@@ -266,7 +266,8 @@ def get_app(request):
         shopbox = SBR.latest()
     except Exception:
         shopbox = {}
-    return render(request, "web/get_app.html", _ctx(request, apk=data, shopbox=shopbox))
+    from . import site_v3_dist as DIST   # seogrow item 7: Play card hidden until the owner says live
+    return render(request, "web/get_app.html", _ctx(request, apk=data, shopbox=shopbox, play_on=DIST.play_shown()))
 
 
 # ---------------- W1: CV score ----------------
