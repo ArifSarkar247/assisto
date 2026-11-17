@@ -619,6 +619,13 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
   }
 }
 
+/// group-calls: the group call a ring belongs to (push / in-app ring data
+/// `room_id`), or null for a normal 1:1 ring.
+int? groupRoomOf(Map<String, String> data) {
+  final v = int.tryParse(data['room_id'] ?? '');
+  return v != null && v > 0 ? v : null;
+}
+
 /// The line under an ended group call.
 String endLine(AppLocalizations t, GroupEndReason r) => switch (r) {
       GroupEndReason.ended => t.gcallEndedAll,

@@ -1,3 +1,4 @@
+import '../screens/group_call_screen.dart' show GroupCallScreen, groupRoomOf; // group-calls
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -141,17 +142,25 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
     // calls-a: INSTANT swap to the call screen (no zoom transition: the
     // half-drawn "split" frame came from a transition snapshot taken while
     // the window was still waking over the lock screen).
+    // group-calls: a ring INTO a group call opens the group call screen
+    final room = groupRoomOf(p.data);
     Navigator.of(context).pushReplacement(instantCallRoute<void>(
-      (_) => CircleCallScreen(
-        member: {
-          'id': int.tryParse(p.chatId),
-          'name': p.callerName,
-          'photo_url': p.callerPhoto,
-        },
-        kind: p.isVideo ? 'video' : 'voice',
-        outgoing: false,
-        callId: int.tryParse(p.callId),
-      ),
+      (_) => room != null
+          ? GroupCallScreen(
+              roomId: room,
+              answerCallId: int.tryParse(p.callId),
+              video: p.isVideo,
+              title: p.callerName)
+          : CircleCallScreen(
+              member: {
+                'id': int.tryParse(p.chatId),
+                'name': p.callerName,
+                'photo_url': p.callerPhoto,
+              },
+              kind: p.isVideo ? 'video' : 'voice',
+              outgoing: false,
+              callId: int.tryParse(p.callId),
+            ),
       name: CallLaunchRouter.acceptRouteName,
     ));
   }
