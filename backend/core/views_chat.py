@@ -43,6 +43,7 @@ from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.views import APIView
 
 from . import ai
@@ -451,6 +452,10 @@ def finish_reply(reply, text, lang, *, truncated=False, data_reply="", history=N
     except Exception:  # noqa: BLE001 — a guard bug never costs the answer
         log.exception("chat: answer guard failed")
     reply, proposal = AT.extract(reply)
+    if proposal is None:
+        # gap-aichat2: the model skipped the ACTION line on an unambiguous
+        # "log X taka spent / earned" -> the same proposal (still needs Yes)
+        proposal = AT.money_safety_net(text)
     reply = scrub_internal(reply)
     reply = tables_to_lists(reply)
     if lang == "bn":
@@ -1157,6 +1162,29 @@ class ChatSendView(APIView):
 # ---------------------------------------------------------------------------
 # GET/POST /chat/sessions/<id>/stream  — SSE token stream of the reply
 # ---------------------------------------------------------------------------
+class EventStreamRenderer(BaseRenderer):
+    """gap-aichat2: lets DRF content negotiation accept `Accept:
+    text/event-stream` (the app's stream requests). Without it every stream
+    request was answered 406 Not Acceptable before the view ran, so home-chat
+    and Assisto AI streaming never started and every turn fell back to the
+    non-stream POST. The stream itself is a StreamingHttpResponse (not
+    rendered); an error Response (402 / 429 / 400) is rendered as JSON text so
+    the app still reads its reason."""
+    media_type = "text/event-stream"
+    format = "sse"
+    charset = "utf-8"
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        if data is None:
+            return b""
+        import json as _j
+        return _j.dumps(data, ensure_ascii=False, default=str).encode("utf-8")
+
+
+# JSON first (a client without an Accept header still gets JSON errors)
+STREAM_RENDERERS = (JSONRenderer, EventStreamRenderer)
+
+
 class ChatStreamView(APIView):
     """Server-Sent-Events stream of the reply. We compute the full reply via the
     same `_produce_reply` path (so credits/kill-switch/Brain-fallback are all
@@ -1164,6 +1192,8 @@ class ChatStreamView(APIView):
     lib doesn't support real token streaming we simply chunk the final text — the
     app handles both. Robust by construction: a chunked final answer is always a
     valid SSE stream."""
+    renderer_classes = STREAM_RENDERERS   # gap-aichat2: no 406 on Accept: text/event-stream
+
     def get(self, request, sid):
         return self._run(request, sid, (request.query_params.get("text") or "").strip())
 
