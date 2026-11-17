@@ -108,6 +108,9 @@ class SnatchDetector {
         return true
     }
 
+    /** antitheft-e2e: debug trace replay only (each trace starts fresh). */
+    fun clearCooldown() { cooldownUntil = null }
+
     fun reset() {
         profile = null
         spikeAtMs = null

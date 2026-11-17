@@ -95,11 +95,11 @@ class Trace:
             gx, gy, gz = self._g()
             self.emit(-gx, -gy, -gz, noise=0.3)
 
-    def write(self, name, meta):
+    def write(self, name, meta, detector="snatch"):
         path = os.path.join(OUT, name + ".csv")
         with open(path, "w") as f:
             f.write("# source=synthetic (physics-modelled, NOT a real phone recording)\n")
-            f.write("# detector=snatch\n")
+            f.write("# detector=%s\n" % detector)
             for k, v in meta.items():
                 f.write("# %s=%s\n" % (k, v))
             f.write("t_ms,x,y,z\n")
@@ -185,6 +185,21 @@ def main():
     t.write("fa_snatch_shop_counter_run", {
         "label": "snatch", "screen_on": "0", "hour": "17",
         "note": "lying on a shop counter, grabbed, thief runs"})
+
+    # 8. antitheft-e2e: BORDERLINE — phone in use, a grab just under the
+    # normal grab threshold, then a real run. The owner's sensitivity decides:
+    # low = never (unlocked hand), normal = no (grab too weak), high = alert.
+    # Own detector tag: kept out of the precision/recall harness (its label
+    # depends on the setting); test/antitheft_e2e_borderline_test.dart.
+    t = Trace(108, IN_HAND)
+    t.shake(5000, 2.0)
+    t.spike(29.0, 3)  # 2nd sample ~24.5: >= 22.5 (high), < 25 (normal)
+    t.tilt = (0.4, 0.4, 0.8)
+    t.run(9000, 2.8, 14.0)
+    t.write("fa_borderline_in_hand_weak_grab_run", {
+        "label": "high_only", "screen_on": "1", "in_use": "1", "hour": "19",
+        "note": "in use, weak grab (between the high and normal thresholds), run"},
+        detector="snatch_borderline")
 
 
 if __name__ == "__main__":

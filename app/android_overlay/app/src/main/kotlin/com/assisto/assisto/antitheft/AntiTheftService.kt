@@ -126,6 +126,51 @@ class AntiTheftService : Service(), SensorEventListener {
         // the owner is the one moving the phone: no snatch detection.
         @Volatile private var quietUntil = 0L
 
+        // ---- antitheft-e2e: TEST-ONLY hooks (debuggable builds only) --------
+        // The emulator E2E (integration_test/flows/antitheft_e2e_flow.dart)
+        // replays labelled sensor traces into the REAL detector of the running
+        // service and fakes a SIM swap. A release build is never debuggable:
+        // every hook then refuses and changes nothing.
+        fun isDebuggable(ctx: Context): Boolean = try {
+            (ctx.applicationInfo.flags and
+                android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        } catch (_: Throwable) { false }
+
+        /** Fake SIM slot identities (SimBaseline.slotIdentity form); null =
+         *  the real SIM again. Debug builds only. */
+        @Volatile internal var debugSimSlots: List<String?>? = null
+
+        fun debugInject(ctx: Context, mags: List<Double>, dtMs: Int,
+                        c: Map<String, Any?>, endGrace: Boolean): Map<String, Any?> {
+            if (!isDebuggable(ctx)) return mapOf("refused" to "not_debuggable")
+            val s = instance
+            if (s == null || !running) return mapOf("refused" to "not_running")
+            return s.injectTrace(mags, dtMs, c, endGrace)
+        }
+
+        fun debugSim(ctx: Context, slots: List<String?>?): Boolean {
+            if (!isDebuggable(ctx)) return false
+            debugSimSlots = slots
+            try { instance?.scheduleSimCheck(500L) } catch (_: Throwable) {}
+            return true
+        }
+
+        fun debugState(ctx: Context): Map<String, Any?> {
+            if (!isDebuggable(ctx)) return mapOf("refused" to "not_debuggable")
+            val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            val s = instance
+            return mapOf(
+                "running" to running,
+                "halSamples" to (s?.halSamples ?: 0L),
+                "sensitivity" to (s?.snatch?.sensitivity ?: ""),
+                "simBase" to p.getString(K_SIM_BASE, null),
+                "grabPendingMs" to grabPendingMs(ctx),
+                "lostShown" to RemoteCommands.lostMessageShowing(ctx),
+                "graceLeftMs" to (s?.let { maxOf(0L, it.snatchGraceUntil -
+                    System.currentTimeMillis()) } ?: -1L),
+            )
+        }
+
         fun setQuiet(on: Boolean) {
             quietUntil = if (on) System.currentTimeMillis() + QUIET_MAX_MS else 0L
         }
@@ -140,7 +185,10 @@ class AntiTheftService : Service(), SensorEventListener {
         // flag-antitheft: v2 = vibrates (a channel's sound/vibration cannot
         // change after it is created, so a new id)
         private const val GRAB_CHANNEL_ID = "assisto_grab_check_v2"
-        private const val GRAB_NOTIF_ID = 8442
+        // antitheft-e2e (bug): was 8442 = RemoteCommands.LOST_NOTIF_ID, so a
+        // grab check REPLACED the lock-screen "This phone is lost" message and
+        // cancelling it 15 s later removed that message for good.
+        private const val GRAB_NOTIF_ID = 8444
         private val grabLock = Any()
 
         /** bn/en texts of the local "Was this you?" notification (from the
@@ -543,6 +591,9 @@ class AntiTheftService : Service(), SensorEventListener {
     private var lastSimReceiver: BroadcastReceiver? = null
     private var sysReceiver: BroadcastReceiver? = null
     @Volatile private var snatchGraceUntil = 0L
+    // antitheft-e2e: real sensor samples seen (proves the listener is live)
+    @Volatile private var halSamples = 0L
+    @Volatile private var injectUntil = 0L
     // grab-guard: live facts for SnatchPolicy, kept by runtime receivers
     // (never a binder call per sensor sample).
     @Volatile private var screenOn = true
@@ -1085,6 +1136,23 @@ class AntiTheftService : Service(), SensorEventListener {
             val cfg = resp.optJSONObject("config")
             if (cfg != null) {
                 nightGuard = cfg.optBoolean("night_guard", nightGuard)
+                // antitheft-e2e (bug): the owner's grab sensitivity reached a
+                // running engine ONLY from the open app on THIS phone; a
+                // change from another device / the server never did, so the
+                // phone kept judging grabs with the old level. Apply it from
+                // every check-in and keep it for a restart.
+                if (cfg.has("snatch_sensitivity")) {
+                    val sens = SnatchSensitivity.clean(cfg.optString("snatch_sensitivity"))
+                    if (sens != snatch.sensitivity) {
+                        snatch.sensitivity = sens
+                        val p = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                        val stored = try {
+                            JSONObject(p.getString("config", "{}") ?: "{}")
+                        } catch (_: Throwable) { JSONObject() }
+                        p.edit().putString("config",
+                            stored.put("snatch_sensitivity", sens).toString()).apply()
+                    }
+                }
                 cfg.optJSONArray("home_wifi")?.let { a ->
                     val hw = HashSet<String>()
                     for (i in 0 until a.length()) {
@@ -1194,6 +1262,44 @@ class AntiTheftService : Service(), SensorEventListener {
         }
     }
 
+    /**
+     * antitheft-e2e (debug builds only, main thread like onSensorChanged):
+     * replay linear-acceleration magnitudes at [dtMs] into the real
+     * detector with the trace's context, then the REAL path on a fire
+     * (onSnatchDetected -> "Are you OK?" -> pending grab to the server).
+     * Real sensor samples are ignored meanwhile. [endGrace] ends the
+     * 2-minute just-armed grace (asserted separately by the flow).
+     */
+    internal fun injectTrace(mags: List<Double>, dtMs: Int, c: Map<String, Any?>,
+                             endGrace: Boolean): Map<String, Any?> {
+        if (endGrace) snatchGraceUntil = 0L
+        if (snatchSuppressed()) return mapOf("fired" to false, "suppressed" to true)
+        val dt = dtMs.coerceIn(5, 200).toLong()
+        val inUse = c["inUse"] == true
+        val screen = (c["screenOn"] as? Boolean) ?: inUse
+        val hour = (c["hour"] as? Number)?.toInt() ?: 12
+        val t0 = System.currentTimeMillis()
+        injectUntil = t0 + mags.size * dt + 1_000L
+        hourNow = hour
+        hourAt = t0 + 10 * 60_000L // keep the trace's hour for the grab facts
+        snatch.reset()
+        snatch.clearCooldown()
+        var fired = false
+        for ((i, m) in mags.withIndex()) {
+            val t = t0 + i * dt
+            val ctx = SnatchContext(charging = false, screenOn = screen, unlocked = inUse,
+                msSinceUnlock = if (inUse) 300_000L + i * dt else null, hour = hour,
+                faceDown = false, onHomeWifi = false, nightGuard = nightGuard)
+            if (snatch.onSample(m, t, ctx)) { fired = true; break }
+        }
+        snatch.reset()
+        snatch.clearCooldown()
+        if (fired) onSnatchDetected()
+        return mapOf("fired" to fired, "suppressed" to false,
+            "sensitivity" to snatch.sensitivity,
+            "features" to (if (fired) HashMap<String, Any>(snatch.lastFeatures) else HashMap<String, Any>()))
+    }
+
     /** Owner is handling the phone: setup screen open or just armed. */
     private fun snatchSuppressed(): Boolean {
         val now = System.currentTimeMillis()
@@ -1218,6 +1324,9 @@ class AntiTheftService : Service(), SensorEventListener {
                 // not feed the snatch detector twice
                 if (snatchType != Sensor.TYPE_ACCELEROMETER) return
             }
+            halSamples++
+            // antitheft-e2e: a debug trace is being replayed into the detector
+            if (System.currentTimeMillis() < injectUntil) return
             if (snatchSuppressed()) { snatch.reset(); return }
             var x = event.values[0]; var y = event.values[1]; var z = event.values[2]
             // For a raw accelerometer, remove ~gravity so magnitude ~0 at rest.
@@ -1564,6 +1673,7 @@ class AntiTheftService : Service(), SensorEventListener {
      *  getSimState(slot), getSubscriptionIds(slot) and simOperator are all
      *  readable without READ_PHONE_STATE. */
     private fun readSimSlots(): List<String?> {
+        debugSimSlots?.let { if (isDebuggable(this)) return it }
         val tm = getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
             ?: return listOf(null)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
