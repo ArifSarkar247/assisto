@@ -3,7 +3,7 @@
 
 Request shapes follow Imou's public Open API docs (bindDevice,
 listDeviceDetailsByIds, getAlarmMessage, bindDeviceLive, deviceSdcardStatus,
-deviceStorage, queryLocalRecords)."""
+deviceStorage, queryLocalRecords, createDeviceRecordHls, setMessageCallback)."""
 import base64
 from datetime import datetime, timedelta
 from urllib.parse import urlencode, urlparse
@@ -137,7 +137,9 @@ class ImouAdapter(B.Provider):
         if (grant or {}).get("mode") == "oauth":
             clients.append(self._client(grant))
         for c in clients:
-            for flags in ("alarm,deviceStatus,numberstat", "alarm,deviceStatus"):
+            # imou-real: capabilityEvent = person / motion on current models
+            for flags in (IM.CALLBACK_FLAGS + ",numberstat", IM.CALLBACK_FLAGS,
+                          "alarm,deviceStatus"):
                 try:
                     c.set_callback(callback_url, flags)
                     break
@@ -310,20 +312,38 @@ class ImouAdapter(B.Provider):
                         "token": str(x.get("liveToken") or data.get("liveToken") or "")}
         raise B.ConnectError("no_stream")
 
-    def playback(self, grant, serial, channel, start_epoch, end_epoch):
-        """The Open HTTP API lists SD-card / DVR recordings but gives no
-        playable URL for them (that needs the vendor's player SDK): we say so
-        honestly and hand back the recording list for the timeline."""
+    def playback(self, grant, serial, channel, start_epoch, end_epoch, hd=False):
+        """imou-real: the recording list (queryLocalRecords) + an HLS playback
+        address from createDeviceRecordHls (SD card first, then Imou cloud
+        storage). The window must sit inside ONE device day, so a window
+        crossing midnight starts at 00:00 of the end day. When Imou gives no
+        address (old firmware DV1026 / no cloud plan) the list still comes
+        back with proto "sdk_only" — said honestly in the app."""
         c = self._client(grant)
         fmt = "%Y-%m-%d %H:%M:%S"
-        b = (datetime.utcfromtimestamp(start_epoch) + BD).strftime(fmt)
-        e = (datetime.utcfromtimestamp(end_epoch) + BD).strftime(fmt)
-        recs = self._call(c.local_records, serial, str(channel or 0), b, e)
-        if not recs:
+        bdt = datetime.utcfromtimestamp(start_epoch) + BD
+        edt = datetime.utcfromtimestamp(end_epoch) + BD
+        if bdt.date() != edt.date():
+            bdt = datetime(edt.year, edt.month, edt.day)
+        b, e = bdt.strftime(fmt), edt.strftime(fmt)
+        ch = str(channel or 0)
+        recs = self._call(c.local_records, serial, ch, b, e)
+        rows = [{"begin": r.get("beginTime"), "end": r.get("endTime")}
+                for r in (recs or [])[:50] if isinstance(r, dict)]
+        for rtype in (("localRecord", "cloudRecord") if rows else ("cloudRecord",)):
+            try:
+                url = c.record_hls(serial, ch, b, e, rtype, hd)
+            except IM.ImouError as err:
+                if err.code in ("network", "DV1007", "LV1002"):
+                    raise self._map(err)
+                continue
+            if self._stream_ok(url):
+                return {"url": url, "proto": "hls", "expires_s": 600, "token": "",
+                        "source": "sd" if rtype == "localRecord" else "cloud",
+                        "records": rows}
+        if not rows:
             raise B.ConnectError("no_stream")
-        return {"url": "", "proto": "sdk_only", "expires_s": 0, "token": "",
-                "records": [{"begin": r.get("beginTime"), "end": r.get("endTime")}
-                            for r in recs[:50] if isinstance(r, dict)]}
+        return {"url": "", "proto": "sdk_only", "expires_s": 0, "token": "", "records": rows}
 
     def events(self, grant, serial, since_epoch, channels=None):
         from .. import cctv_rules as CR

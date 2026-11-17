@@ -648,6 +648,12 @@ class ImouCallbackView(APIView):
                     continue
             except Exception:
                 pass
+            # imou-real: Imou documents no signature on pushes, so besides the
+            # unguessable URL a message naming ANOTHER appId is refused
+            if isinstance(m, dict) and m.get("appId") and \
+                    str(m.get("appId")) != str((cfg or {}).get("app_id") or ""):
+                out.append({"ignored": "other_app"})
+                continue
             a = IM.parse_alarm(m)
             if a is None:
                 out.append({"ignored": "not_alarm"})
@@ -670,6 +676,12 @@ class ImouCallbackView(APIView):
                 continue
             if aid:
                 compat["imou_seen_ids"] = (seen + [aid])[-30:]
+            # imou-real: camera saw it -> our server got it, in seconds (the
+            # "within seconds" proof for the real-camera test); last 20 kept
+            lat = IM.push_latency(a.get("at"), now.timestamp())
+            if lat is not None:
+                compat["imou_latency_s"] = (list(compat.get("imou_latency_s") or []) + [lat])[-20:]
+                log.info("imou push latency_s=%.1f camera=%s human=%s", lat, cam.pk, a["human"])
             # honest diagnostics: a picture on a host outside our SSRF
             # allow-list is NOT downloaded — remember the host (never the
             # signed query) so the real-camera test shows it at once.
@@ -692,7 +704,7 @@ class ImouCallbackView(APIView):
                 cam.site, cam, {"type": etype, "at": now.timestamp(),
                                 "signals": sig}, now, snap)
             out.append({"raised": ev is not None,
-                        "grouped": bool(decision.get("grouped"))})
+                        "grouped": bool(decision.get("grouped")), "latency_s": lat})
         return Response({"ok": True, "events": out})
 
 
