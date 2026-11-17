@@ -222,6 +222,18 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
                 padding: const EdgeInsets.only(bottom: Gap.sm),
                 child: Text(t.payNetwork, style: AType.bodyMedium.copyWith(color: scheme.error)),
               ),
+            // gap-cctv: a failed load can be tried again here
+            if (_failed && _d == null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.sm),
+                child: OutlinedButton.icon(
+                  key: const Key('bi-cctv-retry'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: Text(t.retry),
+                  onPressed: _busy ? null : _load,
+                ),
+              ),
             if (canBuy && _trial)
               FilledButton.icon(
                 key: const Key('bi-cctv-trial'),

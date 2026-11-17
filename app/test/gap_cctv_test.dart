@@ -19,6 +19,7 @@ import 'package:assisto/screens/watchman/cctv_act_tiles.dart';
 import 'package:assisto/screens/watchman/cctv_escalate.dart';
 import 'package:assisto/screens/watchman/cctvx_actions.dart';
 import 'package:assisto/screens/watchman/cctv_watch_screen.dart';
+import 'package:assisto/screens/watchman/watchman_viewers.dart';
 import 'package:assisto/theme.dart';
 
 import 'cctvact_fakes.dart' show FakeCctvAct;
@@ -26,6 +27,7 @@ import 'cctvconnect_fakes.dart' show FakeCctvConnect;
 import 'cctvescalate_fakes.dart' show FakeEscalate;
 import 'cctvx_fakes.dart' show FakeCctvx;
 import 'cctvteam_fakes.dart' show FakeCctvTeam;
+import 'cctv1_fakes.dart' show FakeWatchman;
 import 'cctvguard_fakes.dart' show FakeVendorLive, FakeNetCtl;
 import 'phonecam_shots.dart' show pcFakePair;
 
@@ -65,6 +67,25 @@ class _FullConnect extends FakeCctvConnect {
       'skipped': [for (final i in items) {...i, 'why': 'plan_full'}],
       'message': 'Your plan has no room for more cameras.',
     };
+  }
+}
+
+class _NoDevices extends FakeCctvConnect {
+  int n = 0;
+  @override
+  Future<Map<String, dynamic>> devices(int linkId) async {
+    n++;
+    calls.add('devices:$linkId');
+    return {'link': {'id': linkId}, 'devices': const []};
+  }
+}
+
+class _ViewersFailOnce extends FakeWatchman {
+  int n = 0;
+  @override
+  Future<Map<String, dynamic>> viewers(int siteId) async {
+    if (n++ == 0) throw StateError('offline');
+    return super.viewers(siteId);
   }
 }
 
@@ -447,6 +468,30 @@ void main() {
       expect(cv3AutoStateLabel(bn, 'locked'), bn.cv3AutoLocked);
       expect(bn.gcvPosSecret, isNot(contains('Secret')));
       expect(bn.gcvPosKeyId, isNot(contains('Key')));
+    });
+  });
+
+  group('G19 load errors and empty lists always have a next step', () {
+    testWidgets('brand-cloud link with no devices: check again', (tester) async {
+      _phone(tester);
+      final src = _NoDevices();
+      await tester.pumpWidget(_app(CctvLinkDevicesScreen(source: src, linkId: 5)));
+      await _settle(tester);
+      expect(find.byKey(const Key('ccnNoDevices')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('ccnNoDevicesRetry')));
+      await _settle(tester);
+      expect(src.n, 2);
+    });
+
+    testWidgets('family viewers: a failed load has Retry', (tester) async {
+      _phone(tester, height: 2000);
+      final src = _ViewersFailOnce();
+      await tester.pumpWidget(_app(WatchmanViewersScreen(source: src, siteId: 1)));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('wm-viewers-retry')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('wm-viewers-retry')));
+      await _settle(tester);
+      expect(find.text('Karima'), findsOneWidget);
     });
   });
 }

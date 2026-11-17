@@ -135,9 +135,18 @@ class _CctvLinkDevicesScreenState extends State<CctvLinkDevicesScreen> {
                       icon: const Icon(Icons.refresh_rounded),
                       label: Text(t.ccnRetry),
                     ),
-                  ] else if (_devices.isEmpty)
-                    Text(t.ccnNoDevices, key: const Key('ccnNoDevices'))
-                  else
+                  ] else if (_devices.isEmpty) ...[
+                    Text(t.ccnNoDevices, key: const Key('ccnNoDevices')),
+                    // gap-cctv: added a camera in the vendor app? check again here
+                    const SizedBox(height: Gap.md),
+                    OutlinedButton.icon(
+                      key: const Key('ccnNoDevicesRetry'),
+                      style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                      onPressed: _load,
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: Text(t.ccnRetry),
+                    ),
+                  ] else
                     for (final dev in _devices) ...[
                       Row(children: [
                         const Icon(Icons.dvr_rounded),

@@ -173,7 +173,20 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
                 ),
               ),
               const Divider(height: 28),
-              if (_error != null) Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!),
+              if (_error != null) ...[
+                Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!),
+                // gap-cctv: never a dead end
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    key: const ValueKey('wm-viewers-retry'),
+                    style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: Text(t.wmRetry),
+                    onPressed: _load,
+                  ),
+                ),
+              ],
               if (widget.team != null && _rows.isNotEmpty)
                 Text(t.ctmTapToSetRole, style: Theme.of(context).textTheme.bodySmall),
               for (final v in _rows)
