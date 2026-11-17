@@ -103,6 +103,8 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     final x = _extras();
     if (x == null) return;
     await AlertActionsSheet.show(context, x, (e['id'] as num).toInt(), cash: _cashSrc());
+    // gap-cctv: a "Wrong alert" marked in the sheet shows on the card at once
+    if (mounted) await _load();
   }
 
   @override

@@ -164,6 +164,16 @@ class LearnTests(SimpleTestCase):
         self.assertEqual(learn[k]["r"], {"animal": 1})
 
 
+class GapCctvLearnNoteTests(SimpleTestCase):
+    def test_no_answer_yet_invites_instead_of_thanking(self):
+        # gap-cctv: before any answer the tile must not say "Thanks"
+        for row in (None, {}, {"w": 0, "c": 0, "at": 1.0}):
+            self.assertIn("Tell us", A.learn_summary(row, 1_800_000_000, "en"))
+            self.assertNotIn("ধন্যবাদ", A.learn_summary(row, 1_800_000_000, "bn"))
+        self.assertIn("Thanks", A.learn_summary({"w": 1, "at": 1_800_000_000.0},
+                                                1_800_000_000, "en"))
+
+
 class ThanaTests(SimpleTestCase):
     def test_nearest_thana_real_rows_only(self):
         rows = [{"name": "Traffic Police Box", "lat": 23.8101, "lng": 90.4101, "phone": "999"},
@@ -435,6 +445,19 @@ class ActApiTests(_X):
         cam = own["live"]["camera_id"]
         r = self.m.post("/api/v1/shop/live/start", {"camera": cam}, format="json")
         self.assertIn(r.status_code, (403, 404))
+
+    def test_gapcctv_reason_after_card_wrong_is_kept_not_double_counted(self):
+        from core.models import ShopSite
+        ev = self.ingest().data["event_id"]
+        url = "/api/v1/shop/events/%d/mark" % ev
+        self.assertEqual(self.client.post(url, {"status": "wrong"}, format="json").status_code, 200)
+        r = self.client.post(url, {"status": "wrong", "reason": "staff"}, format="json")
+        self.assertEqual(r.status_code, 200, r.data)
+        learn = (ShopSite.objects.get(pk=self.site["id"]).guard or {}).get(A.LEARN_KEY) or {}
+        rows = list(learn.values())
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["w"], 1)                 # one wrong, not two
+        self.assertEqual(rows[0]["r"], {"staff": 1})      # the reason is kept
 
     def test_live_thana_and_play_actions(self):
         from core.models import ShopGatewayTask

@@ -129,11 +129,25 @@ def on_verdict(ev, before, after, reason=""):
     """The owner's Correct / Wrong on an alert -> this SITE's pattern.
     Called from shop_views.ShopEventMarkView. Never raises."""
     try:
+        reason = reason if reason in A.WRONG_REASONS else ""
         if before == after:
-            return None
+            # gap-cctv: Wrong on the card first, then the reason in the sheet —
+            # keep the reason (it is not counted as a second wrong)
+            if after != "false_alarm" or not reason:
+                return None
+            key = _event_key(ev)
+
+            def add_reason(learn):
+                learn = learn if isinstance(learn, dict) else {}
+                row = dict(learn.get(key) or {})
+                rs = dict(row.get("r") or {})
+                rs[reason] = int(rs.get(reason, 0) or 0) + 1
+                row["r"] = rs
+                learn[key] = row
+                return dict(row)
+            return guard_update(ev.site, A.LEARN_KEY, add_reason)
         key = _event_key(ev)
         ts = timezone.now().timestamp()
-        reason = reason if reason in A.WRONG_REASONS else ""
 
         def f(learn):
             if before == "false_alarm":
