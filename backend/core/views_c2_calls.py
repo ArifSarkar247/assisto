@@ -769,6 +769,9 @@ def incoming_row(rec, me):
         "caller_photo": photo_of(rec.caller)[0],
         "caller_photo_v": photo_of(rec.caller)[1],
         "chat_id": edge.id if edge is not None else None,
+        # group-calls: a ring INTO a group call (the phone opens the group
+        # call screen when it answers)
+        "room_id": getattr(rec, "room_id", None),
         "phase": CS.phase(rec.state, session_of(rec).ringing_at,
                           getattr(session_of(rec), "delivered_at", None)),
     }
@@ -794,7 +797,7 @@ def _existing_body(request, rec, side, lang, **flags):
     return body
 
 
-def place_call(request, member, peer, kind, client_call_id=""):
+def place_call(request, member, peer, kind, client_call_id="", room=None):
     """Create the record + session for an allowed call and decide up front
     (x1-calls rules, A1-a/f):
 
@@ -853,7 +856,8 @@ def place_call(request, member, peer, kind, client_call_id=""):
         from .calls_free import calls_free   # dl1
         rec = CallRecord.objects.create(caller=me, callee=callee, circle=member,
                                         kind=kind, state="ringing",
-                                        free_testing=calls_free())
+                                        free_testing=calls_free(),
+                                        room=room)   # group-calls: a group ring
         sess = CallSession.objects.create(call=rec, caller_seen_at=now,
                                           client_call_id=key)
         outcome = ""
