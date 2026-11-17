@@ -17,8 +17,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'sosat_trace_io.dart';
 
-bool runSnatch(Trace t) {
-  final d = SnatchDetector();
+bool runSnatch(Trace t, {String sensitivity = SnatchSensitivity.normal}) {
+  final d = SnatchDetector(sensitivity: sensitivity);
+  // flag-antitheft: in_use=1 = unlocked in the hand for minutes already
+  final inUse = t.intMeta('in_use', 0) == 1;
   final unlockAt = t.intMeta('unlock_at_ms', -1);
   final screenOn0 = t.intMeta('screen_on', 0) == 1;
   final hour = t.intMeta('hour', 12);
@@ -44,12 +46,13 @@ bool runSnatch(Trace t) {
     }
     final faceDown = (faceDownSince > 0 && s.t - faceDownSince >= SnatchPolicy.restMs) ||
         s.t < faceDownStillUntil;
-    final unlocked = unlockAt >= 0 && s.t >= unlockAt;
+    final unlocked = inUse || (unlockAt >= 0 && s.t >= unlockAt);
     final ctx = SnatchContext(
       charging: charging,
       screenOn: screenOn0 || unlocked,
       unlocked: unlocked,
-      msSinceUnlock: unlocked ? s.t - unlockAt : null,
+      msSinceUnlock:
+          inUse ? 300000 + s.t : (unlocked ? s.t - unlockAt : null),
       hour: hour,
       faceDown: faceDown,
       onHomeWifi: homeWifi,
@@ -86,6 +89,30 @@ void main() {
     for (final t in traces.where((t) => t.source == 'synthetic')) {
       if (t.name.contains('MISS_EXPECTED') || t.name.contains('FP_RISK')) continue;
       expect(results[t.name], t.label == 'snatch', reason: t.name);
+    }
+  });
+
+  // flag-antitheft (17 Nov): per-sensitivity table + the false-alarm cases
+  // (drop, bag, fast walk, bumpy rickshaw, sofa toss) never fire at normal.
+  test('flag-antitheft: sensitivity table and false-alarm traces', () {
+    for (final sens in SnatchSensitivity.all) {
+      final r = {for (final t in traces) t.name: runSnatch(t, sensitivity: sens)};
+      final g = traces.where((t) => t.source == 'synthetic').toList();
+      // ignore: avoid_print
+      print('SNATCH[synthetic][$sens] ${Metrics.of(g, r, positive: 'snatch').summary()}');
+    }
+    final fa = traces.where((t) => t.name.startsWith('fa_')).toList();
+    expect(fa.where((t) => t.label == 'nosnatch').length, greaterThanOrEqualTo(5));
+    for (final t in fa) {
+      expect(runSnatch(t), t.label == 'snatch', reason: t.name);
+    }
+    // the in-hand jogging risk: quiet at normal, may fire at high (honest)
+    final jog = traces.firstWhere((t) => t.name.contains('jogging'));
+    expect(runSnatch(jog), isFalse);
+    // low never counts a grab from the unlocked hand
+    for (final t in fa.where((t) => t.intMeta('in_use', 0) == 1)) {
+      expect(runSnatch(t, sensitivity: SnatchSensitivity.low), isFalse,
+          reason: t.name);
     }
   });
 }

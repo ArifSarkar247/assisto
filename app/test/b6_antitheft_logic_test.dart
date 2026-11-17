@@ -183,7 +183,7 @@ void main() {
       expect(SnatchPolicy.profileFor(inUse, restBefore: false)?.name, 'day');
       expect(SnatchPolicy.profileFor(onTable, restBefore: true)?.name, 'night');
       expect(SnatchPolicy.profileFor(onTable, restBefore: false), isNull);
-      expect(SnatchPolicy.confirmWindowMs, 60000);
+      expect(SnatchPolicy.confirmWindowMs, 15000); // flag-antitheft
     });
   });
 
