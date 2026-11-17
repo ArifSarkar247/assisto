@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
@@ -128,7 +129,8 @@ class CommunitiesHomeScreenState extends State<CommunitiesHomeScreen> {
   Widget _joinTile(AppLocalizations t) => ListTile(
         key: const Key('chx-community-join'),
         minVerticalPadding: Gap.md,
-        leading: const CircleAvatar(child: Icon(Icons.link_rounded)),
+        leading: DsAvatar(child: Icon(Icons.link_rounded,
+            color: Theme.of(context).colorScheme.ds.primaryInk)),
         title: Text(t.chxJoinWithLink),
         subtitle: Text(t.chxJoinWithLinkSub),
         onTap: _joinByLink,
@@ -142,11 +144,7 @@ class CommunitiesHomeScreenState extends State<CommunitiesHomeScreen> {
           icon: Icons.cloud_off_rounded,
           title: t.communityLoadError,
           body: t.checkInternetRetry,
-          action: FilledButton.icon(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.retry),
-          ),
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
         ),
       ]);
     }
@@ -159,24 +157,24 @@ class CommunitiesHomeScreenState extends State<CommunitiesHomeScreen> {
           title: t.chxCommunitiesEmptyTitle,
           body: t.chxCommunitiesEmptyBody,
           action: Column(mainAxisSize: MainAxisSize.min, children: [
-            FilledButton.icon(
-              key: const Key('chx-community-empty-create'),
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+            DsButton(
+              buttonKey: const Key('chx-community-empty-create'),
               onPressed: create,
-              icon: const Icon(Icons.add_rounded),
-              label: Text(t.chxNewCommunity),
+              icon: Icons.add_rounded,
+              label: t.chxNewCommunity,
+              expand: true,
             ),
             const SizedBox(height: Gap.sm),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+            DsButton.secondary(
               onPressed: _joinByLink,
-              icon: const Icon(Icons.link_rounded),
-              label: Text(t.chxJoinWithLink),
+              icon: Icons.link_rounded,
+              label: t.chxJoinWithLink,
+              expand: true,
             ),
             const SizedBox(height: Gap.lg),
             Text(t.chxCommunitiesHowTo,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: Theme.of(context).colorScheme.ds.muted)),
           ]),
         ),
@@ -186,8 +184,8 @@ class CommunitiesHomeScreenState extends State<CommunitiesHomeScreen> {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.only(bottom: Gap.xxl * 3)),
       children: [
-        _joinTile(t),
-        const Divider(height: 1),
+        // join with a link = one DS row card on top
+        DsGroup(children: [_joinTile(t)]),
         for (final c in _mine)
           MsgrCommunityCard(
             name: '${c['name'] ?? ''}',
@@ -195,10 +193,9 @@ class CommunitiesHomeScreenState extends State<CommunitiesHomeScreen> {
             countLabel: t.communityMemberCount(notifLocalizeDigits(context, '${c['member_count'] ?? 0}')),
             badge: c['viewer_role'] == 'admin'
                 ? Text(t.chxYouAreAdmin,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.tertiary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600))
+                    style: AType.labelMedium.copyWith(
+                        color: Theme.of(context).colorScheme.ds.primaryInk,
+                        fontWeight: FontWeight.w700))
                 : null,
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => _open(c),
@@ -207,8 +204,8 @@ class CommunitiesHomeScreenState extends State<CommunitiesHomeScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xs),
             child: Text(t.chxWaitingApproval,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary)),
+                style: AType.titleSmall.copyWith(
+                    color: Theme.of(context).colorScheme.ds.muted, fontWeight: FontWeight.w700)),
           ),
           for (final c in _requested)
             MsgrCommunityCard(
@@ -301,7 +298,7 @@ class _CreateCommunitySheetState extends State<_CreateCommunitySheet> {
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: Gap.sm),
             Text(t.chxNewCommunitySub,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: Theme.of(context).colorScheme.ds.muted)),
             const SizedBox(height: Gap.lg),
             TextField(
@@ -319,7 +316,7 @@ class _CreateCommunitySheetState extends State<_CreateCommunitySheet> {
             Text(t.chxStarterGroups,
                 style: Theme.of(context).textTheme.titleSmall),
             Text(t.chxStarterGroupsSub,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: Theme.of(context).colorScheme.ds.muted)),
             for (var i = 0; i < _groups.length; i++) ...[
               const SizedBox(height: Gap.sm),
@@ -330,16 +327,12 @@ class _CreateCommunitySheetState extends State<_CreateCommunitySheet> {
               ),
             ],
             const SizedBox(height: Gap.xl),
-            FilledButton(
-              key: const Key('chx-community-submit'),
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+            DsButton(
+              buttonKey: const Key('chx-community-submit'),
               onPressed: _saving ? null : _submit,
-              child: _saving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(t.chxCreate),
+              busy: _saving,
+              label: t.chxCreate,
+              expand: true,
             ),
           ],
         ),
@@ -530,59 +523,65 @@ class _SpaceLinkScreenState extends State<SpaceLinkScreen> {
         body: _notFound ? t.chxNotFoundBody : t.checkInternetRetry,
         action: _notFound
             ? null
-            : FilledButton.icon(
+            : DsButton(
                 onPressed: () {
                   setState(() => _loading = true);
                   _resolve();
                 },
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(t.retry),
+                icon: Icons.refresh_rounded,
+                label: t.retry,
               ),
       );
     } else {
       final state = '${_c['state'] ?? 'none'}';
       body = ListView(
-          padding: withNavBarInset(context, const EdgeInsets.all(Gap.xl)),
+          padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
           children: [
-        Icon(Icons.diversity_3_rounded, size: 64, color: scheme.primary),
-        const SizedBox(height: Gap.lg),
-        Text('${_c['name'] ?? ''}',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall),
-        if ('${_c['description'] ?? ''}'.isNotEmpty) ...[
-          const SizedBox(height: Gap.sm),
-          Text('${_c['description']}',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.ds.muted)),
-        ],
-        const SizedBox(height: Gap.sm),
-        Text(t.communityMemberCount(notifLocalizeDigits(context, '${_c['member_count'] ?? 0}')),
-            textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.ds.muted)),
+        // the community = the soft DS hero, the join action under it
+        DsHeroCard(
+          child: Column(children: [
+            DsIllustration(icon: Icons.diversity_3_rounded),
+            const SizedBox(height: Gap.lg),
+            Text('${_c['name'] ?? ''}',
+                textAlign: TextAlign.center,
+                style: AType.headlineSmall.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w800)),
+            if ('${_c['description'] ?? ''}'.isNotEmpty) ...[
+              const SizedBox(height: Gap.sm),
+              Text('${_c['description']}',
+                  textAlign: TextAlign.center,
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+            ],
+            const SizedBox(height: Gap.sm),
+            Text(t.communityMemberCount(notifLocalizeDigits(context, '${_c['member_count'] ?? 0}')),
+                textAlign: TextAlign.center,
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+          ]),
+        ),
         const SizedBox(height: Gap.xl),
         if (state == 'member')
-          FilledButton.icon(
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+          DsButton(
             onPressed: _openCommunity,
-            icon: const Icon(Icons.arrow_forward_rounded),
-            label: Text(t.communityOpen),
+            icon: Icons.arrow_forward_rounded,
+            label: t.communityOpen,
+            expand: true,
           )
         else if (state == 'requested')
           Text(t.chxRequestSentWait,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium)
         else ...[
-          FilledButton.icon(
-            key: const Key('chx-ask-join'),
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+          DsButton(
+            buttonKey: const Key('chx-ask-join'),
             onPressed: _busy ? null : _ask,
-            icon: const Icon(Icons.how_to_reg_rounded),
-            label: Text(t.chxAskToJoin),
+            busy: _busy,
+            icon: Icons.how_to_reg_rounded,
+            label: t.chxAskToJoin,
+            expand: true,
           ),
           const SizedBox(height: Gap.sm),
           Text(t.chxAskToJoinNote,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ],
       ]);
     }
