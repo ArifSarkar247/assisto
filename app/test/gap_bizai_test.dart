@@ -207,6 +207,9 @@ void main() {
 
   group('win-back in the owner\'s words', () {
     testWidgets('edit → own text shown, placeholders kept for the server', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.5;
+      addTearDown(tester.view.reset);
       final f = FakeWinbackReach();
       await tester.pumpWidget(_app(Scaffold(body: WinbackScreen(source: f))));
       await _settle(tester);
@@ -214,8 +217,11 @@ void main() {
       // honest reach: 2 of 4 use Assisto
       await tester.scrollUntilVisible(find.byKey(const ValueKey('gbz-wb-reach-wb30')), 200);
       expect(find.text(t.gbzWbReach('2', '4')), findsOneWidget);
-      await tester.scrollUntilVisible(find.byKey(const ValueKey('gbz-wb-edit-wb30')), 200);
-      await tester.tap(find.byKey(const ValueKey('gbz-wb-edit-wb30')));
+      final edit = find.byKey(const ValueKey('gbz-wb-edit-wb30'));
+      await tester.scrollUntilVisible(edit, 200);
+      await tester.ensureVisible(edit);
+      await _settle(tester);
+      await tester.tap(edit);
       await _settle(tester);
       final field = find.byKey(const ValueKey('gbz-wb-edit-field'));
       expect(tester.widget<TextField>(field).controller!.text, contains(t.bizaiPhName));
@@ -223,8 +229,11 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('gbz-wb-edit-save')));
       await _settle(tester);
       expect(find.text('${t.bizaiPhName}, come by ${t.bizaiPhShop} this week!'), findsOneWidget);
-      await tester.scrollUntilVisible(find.byKey(const ValueKey('bizai-ladder-approve')), 200);
-      await tester.tap(find.byKey(const ValueKey('bizai-ladder-approve')));
+      final approve = find.byKey(const ValueKey('bizai-ladder-approve'));
+      await tester.scrollUntilVisible(approve, 200);
+      await tester.ensureVisible(approve);
+      await _settle(tester);
+      await tester.tap(approve);
       await _settle(tester);
       final drafts = f.lastApprove!['drafts'] as Map;
       expect((drafts['wb30'] as Map)['en'], '{name}, come by {shop} this week!');

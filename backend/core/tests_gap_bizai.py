@@ -48,7 +48,7 @@ class LadderGapTests(_Base):
 
     def test_owner_edit_problem_is_explained(self):
         r = self.oc.post(API + "bizai/crm/ladder",
-                         {"drafts": {"wb30": {"bn": "{name} {দাম}"}}}, format="json",
+                         {"drafts": {"wb30": {"bn": "{name} {price}"}}}, format="json",
                          HTTP_ACCEPT_LANGUAGE="bn")
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.data["reason"], "unknown_variable")

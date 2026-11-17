@@ -24,7 +24,7 @@ class StopRespectedEverywhereTests(_World):
         self.assertEqual(r.status_code, 200, r.data)
         self.assertIs(r.data["opted_out"], True)
         self.assertEqual((r.data["wa_url"], r.data["sms_uri"]), ("", ""))
-        self.assertEqual(r.data["sms"]["blocked"], "opted_out")
+        self.assertFalse(r.data["sms"]["available"])         # no Assisto SMS either
 
     def test_send_log_refused_for_a_stop_customer(self, _q):
         MG.record_opt_out(self.biz.pk, "01712345678")
