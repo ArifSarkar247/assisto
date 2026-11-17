@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("core", "0169_emailrel"),
+        ("core", "0171_cctvprice"),
     ]
 
     operations = [
