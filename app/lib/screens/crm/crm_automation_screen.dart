@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart';
+import '../../messaging/date_separators.dart' show localDigits;
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
 import '../../plans_v2/upgrade_sheet.dart';
@@ -115,7 +116,10 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.crmAutomation)),
-      floatingActionButton: FloatingActionButton.extended(
+      // empty: the state's own big button is the one action (no second FAB)
+      floatingActionButton: !_loading && _error == null && _rules.isEmpty
+          ? null
+          : FloatingActionButton.extended(
         key: const Key('crm-new-rule'),
         onPressed: () => _edit(null),
         icon: Icon(_v2.crmLock('automation') != null ? Icons.lock_rounded : Icons.add_rounded),
@@ -134,38 +138,40 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
     if (_rules.isEmpty && link != null) {
       return ListView(padding: const EdgeInsets.all(Gap.md), children: [
         link,
-        SizedBox(
-          height: 360,
-          child: CrmStateView.empty(
-            icon: Icons.bolt_rounded,
-            title: t.crmNoRules,
-            message: t.crmNoRulesHint,
-            action: FilledButton.tonalIcon(
-                onPressed: () => _edit(null), icon: const Icon(Icons.add_rounded), label: Text(t.crmNewRule)),
-          ),
+        const SizedBox(height: Gap.md),
+        DsEmptyState(
+          icon: Icons.bolt_rounded,
+          title: t.crmNoRules,
+          benefit: t.crmNoRulesHint,
+          actionKey: const Key('crm-new-rule'),
+          actionLabel: t.crmNewRule,
+          onAction: () => _edit(null),
         ),
       ]);
     }
     if (_rules.isEmpty) {
-      return CrmStateView.empty(
-        icon: Icons.bolt_rounded,
-        title: t.crmNoRules,
-        message: t.crmNoRulesHint,
-        action: FilledButton.tonalIcon(
-            onPressed: () => _edit(null),
-            icon: const Icon(Icons.add_rounded),
-            label: Text(t.crmNewRule)),
-      );
+      return ListView(padding: const EdgeInsets.all(Gap.md), children: [
+        DsEmptyState(
+          icon: Icons.bolt_rounded,
+          title: t.crmNoRules,
+          benefit: t.crmNoRulesHint,
+          actionKey: const Key('crm-new-rule'),
+          actionLabel: t.crmNewRule,
+          onAction: () => _edit(null),
+        ),
+      ]);
     }
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.all(Gap.md),
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
         children: [
-          NeedsKeyBanner(t.crmAutomationNote, icon: Icons.verified_user_rounded),
-          const SizedBox(height: Gap.sm),
+          // the rules first (what runs), the customer-messages link and the
+          // safety note after
+          for (final r in _rules)
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: _ruleCard(t, r)),
           if (link != null) link,
-          for (final r in _rules) _ruleCard(t, r),
+          NeedsKeyBanner(t.crmAutomationNote, icon: Icons.verified_user_rounded),
         ],
       ),
     );
@@ -176,15 +182,15 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
   /// one tap from here, shown only when that feature is on for this user.
   Widget? _customerMsgsLink(AppLocalizations t) {
     if (!FeatureFlags.instance.isOn('retention_auto')) return null;
+    final ds = Theme.of(context).colorScheme.ds;
     return DsCard(
       padding: EdgeInsets.zero,
-      child: ListTile(
+      child: DsListRow(
         key: const Key('crm-customer-msgs'),
-        minVerticalPadding: 12,
-        leading: const Icon(Icons.autorenew_rounded),
-        title: Text(t.crmAutoCustomerMsgsTitle),
-        subtitle: Text(t.crmAutoCustomerMsgsBody),
-        trailing: const Icon(Icons.chevron_right_rounded),
+        leading: DsAvatar(size: 40, child: Icon(Icons.autorenew_rounded, size: 20, color: ds.primaryInk)),
+        title: t.crmAutoCustomerMsgsTitle,
+        subtitle: t.crmAutoCustomerMsgsBody,
+        trailing: Icon(Icons.chevron_right_rounded, color: ds.muted),
         onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RetentionScreen())),
       ),
     );
@@ -197,26 +203,31 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
       padding: const EdgeInsets.all(Gap.md),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(Icons.bolt_rounded,
-                color: active ? AssistoTokens.of(context).warning : scheme.ds.muted, size: 20),
-            const SizedBox(width: Gap.xs),
+            DsAvatar(
+                size: 36,
+                color: active ? AssistoTokens.of(context).warning : scheme.ds.muted,
+                child: Icon(Icons.bolt_rounded, size: 18,
+                    color: active
+                        ? Brand.onTint(context, AssistoTokens.of(context).warning)
+                        : scheme.ds.muted)),
+            const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(r['name']?.toString() ?? t.crmRule,
-                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
+                    style: AType.bodyLarge.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w800))),
             Switch(value: active, onChanged: (v) => _toggle(r, v)),
           ]),
           const SizedBox(height: Gap.xs),
           _sentence(t, r),
           const SizedBox(height: Gap.xs),
-          Row(children: [
+          Wrap(spacing: Gap.xs, children: [
             TextButton.icon(
                 onPressed: () => _edit(r),
                 icon: const Icon(Icons.edit_rounded, size: 16),
                 label: Text(t.edit)),
             TextButton.icon(
                 onPressed: () => _delete(r),
-                icon: Icon(Icons.delete_outline_rounded, size: 16, color: Theme.of(context).colorScheme.error),
-                label: Text(t.delete, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error))),
+                icon: Icon(Icons.delete_outline_rounded, size: 16, color: scheme.ds.dangerInk),
+                label: Text(t.delete, style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk))),
           ]),
         ]),
     );
@@ -232,7 +243,8 @@ class _CrmAutomationScreenState extends State<CrmAutomationScreen> {
     final parts = <String>[
       '${t.crmWhen} ${CrmRuleBuilder.triggerLabel(t, trigger)}',
       if (cond['no_reply'] == true) t.crmAndNoReply,
-      if (delay > 0) '${t.crmAfter} $delay${t.crmDaysShort}',
+      if (delay > 0)
+        '${t.crmAfter} ${localDigits('$delay', Localizations.localeOf(context).languageCode)}${t.crmDaysShort}',
       '${t.crmThen} ${CrmRuleBuilder.actionLabel(t, action['kind']?.toString())}',
     ];
     return Text(parts.join(' · '),
