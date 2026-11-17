@@ -41,12 +41,18 @@ class SjDuringPanel extends StatefulWidget {
 
   /// Tests: no periodic poll.
   final bool poll;
+
+  /// gap-safejourney: false when the screen above already shows "km left"
+  /// from the phone's own fresh fix — two different numbers on one screen
+  /// (phone vs server) confused travellers.
+  final bool showDistance;
   const SjDuringPanel(
       {super.key,
       required this.journeyId,
       required this.onArrived,
       required this.onDanger,
-      this.poll = true});
+      this.poll = true,
+      this.showDistance = true});
 
   @override
   State<SjDuringPanel> createState() => _SjDuringPanelState();
@@ -241,7 +247,9 @@ class _SjDuringPanelState extends State<SjDuringPanel> with WidgetsBindingObserv
                   child: Text(look.label,
                       style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700))),
             ]),
-            if (dist != null) Text(t.j2ToGo(jKm(context, dist)), style: AType.bodyMedium),
+            if (dist != null && widget.showDistance)
+              Text(t.j2ToGo(jKm(context, dist)),
+                  key: const ValueKey('sjd_state_dist'), style: AType.bodyMedium),
             if (why.isNotEmpty) Text(why, style: AType.bodyMedium),
             if (_d['near_note'] == true)
               Text(t.sjdNearNote, style: AType.bodyMedium.copyWith(color: Brand.successFill)),

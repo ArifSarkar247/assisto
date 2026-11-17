@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../family_alerts_api.dart';
+import '../family_sos/sos_sms.dart' show cleanPhone; // gap-sos
 import '../l10n/app_localizations.dart';
 import '../services/action_feedback.dart';
 import '../services/sos_ladder.dart';
@@ -31,6 +32,7 @@ class SosLadderCard extends StatefulWidget {
     this.smsBody,
     this.load,
     this.resolve,
+    this.openUri,
     this.offline = false,
   });
 
@@ -46,6 +48,9 @@ class SosLadderCard extends StatefulWidget {
   /// Test seams (default: GET /family/sos/ladder, POST /family/sos/resolve).
   final Future<Map<String, dynamic>> Function()? load;
   final Future<Map<String, dynamic>> Function()? resolve;
+
+  /// gap-sos test seam: open sms:/tel: (default openForUser).
+  final Future<void> Function(Uri uri)? openUri;
 
   @override
   State<SosLadderCard> createState() => _SosLadderCardState();
@@ -88,20 +93,28 @@ class _SosLadderCardState extends State<SosLadderCard> {
     return '${_d?['stage'] ?? SosLadder.waiting}';
   }
 
+  // gap-sos (P0): numbers cleaned for the URI (Bangla digits -> 0-9,
+  // spaces / dashes dropped); a number that cannot be dialled is skipped.
   List<String> get _phones => [
         for (final c in widget.contacts)
-          if ('${c['phone'] ?? ''}'.trim().isNotEmpty) '${c['phone']}'.trim()
+          if (cleanPhone('${c['phone'] ?? ''}').isNotEmpty) cleanPhone('${c['phone']}')
       ];
+
+  Future<void> _open(Uri u, String where) => widget.openUri != null
+      ? widget.openUri!(u)
+      : openForUser(context, u, where: where);
 
   Future<void> _sms() async {
     final nums = _phones.join(';');
     final body = Uri.encodeComponent(
         widget.smsBody ?? AppLocalizations.of(context).emergencySosAlertText);
-    await openForUser(context, Uri.parse('sms:$nums?body=$body'), where: 'sos.sms');
+    await _open(Uri.parse('sms:$nums?body=$body'), 'sos.sms');
   }
 
-  Future<void> _call(String phone) =>
-      openForUser(context, Uri.parse('tel:$phone'), where: 'sos.ladder.call');
+  Future<void> _call(String phone) {
+    final p = cleanPhone(phone);
+    return _open(Uri.parse('tel:${p.isEmpty ? phone.trim() : p}'), 'sos.ladder.call');
+  }
 
   Future<void> _safe() async {
     final t = AppLocalizations.of(context);
@@ -176,9 +189,14 @@ class _SosLadderCardState extends State<SosLadderCard> {
         st == SosLadder.rerung ||
         st == SosLadder.call999;
     final firstPhone = _phones.isEmpty ? null : _phones.first;
-    final firstName = widget.contacts
-        .firstWhere((c) => '${c['phone'] ?? ''}'.trim().isNotEmpty,
-            orElse: () => const {})['name'];
+    final first = widget.contacts.firstWhere(
+        (c) => cleanPhone('${c['phone'] ?? ''}').isNotEmpty,
+        orElse: () => const <String, dynamic>{});
+    final rawName = '${first['name'] ?? ''}'.trim();
+    // gap-sos: a contact saved without a name reads "Call <number>" (local digits), never "Call "
+    final String? firstName = rawName.isNotEmpty
+        ? rawName
+        : (firstPhone == null ? null : notifLocalizeDigits(context, firstPhone));
 
     return Semantics(
       container: true,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 
 import '../../l10n/app_localizations.dart';
@@ -136,7 +137,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Text(_exposesLabel(scope.exposesKey),
-                  style: const TextStyle(fontSize: 13)),
+                  style: AType.bodySmall),
             ),
           ],
         ),
@@ -258,7 +259,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
         icon: Icons.cloud_off_rounded,
         tint: Brand.danger,
         title: t.paDelegateLoadError,
-        action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
+        action: DsButton.secondary(onPressed: _load, label: t.retry),
       );
     }
     if (!_configured) {
@@ -268,11 +269,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
         tint: Brand.blue,
         title: t.paDelegateWelcomeTitle,
         message: t.paDelegateWelcomeBody,
-        action: FilledButton.icon(
-          onPressed: _startLeastPrivilege,
-          icon: const Icon(Icons.play_arrow_rounded, size: 18),
-          label: Text(t.paDelegateStart),
-        ),
+        action: DsButton(onPressed: _startLeastPrivilege, icon: Icons.play_arrow_rounded, label: t.paDelegateStart),
       );
     }
 
@@ -292,12 +289,12 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.paDelegateLeastPrivilegeNote,
-                    style: const TextStyle(fontSize: 12.5))),
+                    style: AType.bodySmall)),
           ]),
         ),
         const SizedBox(height: Gap.lg),
         Text(t.paDelegateScopesHeader,
-            style: const TextStyle(fontWeight: FontWeight.w800)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.sm),
         for (final s in kScopeCatalog)
           _ScopeTile(
@@ -310,8 +307,8 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
           ),
         const SizedBox(height: Gap.lg),
         Text(t.paDelegateServerNote,
-            style: TextStyle(
-                fontSize: 12, color: scheme.ds.muted)),
+            style: AType.bodySmall.copyWith(
+                color: scheme.ds.muted)),
       ],
     );
   }
@@ -344,7 +341,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
             child: Text(
               t.paAuditSummary(/* (denied, sensitive, total) */
                   summary.denied, summary.sensitive, summary.total),
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, ),
             ),
           );
         }
@@ -362,12 +359,11 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
           ),
           title: Text('${_actionLabel(e.action)} · ${_scopeLabel(e.scope)}',
               maxLines: 2, overflow: TextOverflow.ellipsis),
-          subtitle: Text(e.at,
-              maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: Text(e.at),
           trailing: e.sensitive
               ? Chip(
                   label: Text(t.paScopeSensitiveBadge,
-                      style: const TextStyle(fontSize: 11)),
+                      style: AType.labelSmall),
                   visualDensity: VisualDensity.compact,
                   backgroundColor: Brand.warning.withValues(alpha: 0.15),
                   side: BorderSide.none,
@@ -407,7 +403,7 @@ class _ScopeTile extends StatelessWidget {
         title: Row(children: [
           Flexible(
             child: Text(label,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis),
           ),
@@ -421,8 +417,7 @@ class _ScopeTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(Radii.pill),
               ),
               child: Text(sensitiveBadge,
-                  style: const TextStyle(
-                      fontSize: 11,
+                  style: AType.labelSmall.copyWith(
                       fontWeight: FontWeight.w700,
                       color: Brand.warning)),
             ),
@@ -431,8 +426,8 @@ class _ScopeTile extends StatelessWidget {
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Text(exposes,
-              style: TextStyle(
-                  fontSize: 12.5, color: scheme.ds.muted)),
+              style: AType.bodySmall.copyWith(
+                  color: scheme.ds.muted)),
         ),
       ),
     );

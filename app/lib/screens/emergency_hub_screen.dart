@@ -15,6 +15,7 @@ import '../widgets/chatnav.dart';
 import '../widgets/emergency_sos_panel.dart';
 import '../widgets/fam_card_section.dart' show FamCardScreen, FamCardStore;
 import '../family_sos/sos_setup_card.dart'; // fcsos
+import '../family_sos/sos_sms.dart'; // gap-sos
 import 'emergency_screen.dart';
 import 'fall_detect_screen.dart'; // svcclean
 import '../services/sos_trigger_settings.dart'; // svcclean
@@ -49,7 +50,12 @@ class EmergencyHubScreen extends StatefulWidget {
     this.famCard,
     this.open,
     this.fallOn,
+    this.smsPeople,
   });
+
+  /// gap-sos test seam: the 2 "SMS people" chosen in Get SOS ready
+  /// (default: SosSmsStore on this phone).
+  final Future<List<SosSmsContact>> Function()? smsPeople;
 
   /// svcclean: an OLD route that now lives inside Emergency ('fall_detect')
   /// lands here and opens that section on top (Back returns here).
@@ -140,9 +146,18 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
     final seen = <String>{};
     void add(Object? name, Object? phone, [Object? relation]) {
       final p = '${phone ?? ''}'.trim();
-      if (p.isEmpty || !seen.add(p)) return;
+      if (p.isEmpty || !seen.add(cleanPhone(p).isEmpty ? p : cleanPhone(p))) return;
       contacts.add({'name': '${name ?? ''}', 'phone': p, 'relation': '${relation ?? ''}'});
     }
+
+    // gap-sos (P1): the 2 people chosen in "Get SOS ready" come FIRST in
+    // the SMS / call steps (before, this screen ignored them — with no
+    // emergency card numbers the offline SMS went to nobody).
+    try {
+      for (final c in await (widget.smsPeople ?? SosSmsStore.load)()) {
+        add(c.name, c.phone);
+      }
+    } catch (_) {/* best-effort: the card numbers below still count */}
 
     try {
       final raw = await Settings.getString(EmergencyHubScreen.emergencyCardCacheKey);
@@ -439,9 +454,9 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           ),
           ...later,
           // fcsos: get SOS ready (SMS people, info share, DND, full screen)
-          const Padding(
-            padding: EdgeInsets.only(top: Gap.md),
-            child: SosSetupCard(),
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.md),
+            child: SosSetupCard(onSmsChanged: _loadLocal), // gap-sos
           ),
           const SizedBox(height: Gap.md),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [

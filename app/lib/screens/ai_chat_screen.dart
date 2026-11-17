@@ -233,6 +233,10 @@ class _AiChatScreenState extends State<AiChatScreen>
   /// aifinal PART 3: the answer level the user picked (null = levels off).
   String? _level;
 
+  /// gap-aichat: 'continue' | 'more' for the next turn only (Continue after a
+  /// cut answer is free on the server; More detail is a normal turn).
+  String? _follow;
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -841,6 +845,7 @@ class _AiChatScreenState extends State<AiChatScreen>
     setState(() => _msgs.add(assistantNew));
     _toBottom();
     try {
+      _api.chatExtra = _turnExtra(); // gap-aichat: keep the picked level
       final r = await _api.chatRegenerate(_active!.id, edit: edit);
       if (!mounted) return;
       final cards = ((r['cards'] ?? []) as List).cast<Map<String, dynamic>>();
@@ -851,6 +856,9 @@ class _AiChatScreenState extends State<AiChatScreen>
         assistantNew.cards
           ..clear()
           ..addAll(cards);
+        // gap-aichat: the credit line / Continue / hint of the new answer
+        final meta = r['meta'];
+        if (meta is Map) assistantNew.meta = meta.cast<String, dynamic>();
         _sending = false;
       });
       _applySource(assistantNew, r['source'], r['meta']);
@@ -874,7 +882,14 @@ class _AiChatScreenState extends State<AiChatScreen>
         }
         return;
       }
-      _onSendError();
+      // gap-aichat: the server keeps the old answer when a regenerate fails
+      // — so does the screen (before, the old answer vanished)
+      if (mounted && edit == null) {
+        setState(() {
+          _msgs.insert((at < 0 || at > _msgs.length) ? _msgs.length : at, assistant);
+        });
+      }
+      _onSendError(e);
     }
   }
 
@@ -911,7 +926,11 @@ class _AiChatScreenState extends State<AiChatScreen>
   /// photo of this chat (within its last 12 turns) so a follow-up question
   /// can be about that photo without re-sending it.
   Map<String, Object?> _turnExtra() {
-    final out = <String, Object?>{if (_level != null) 'level': _level};
+    final out = <String, Object?>{
+      if (_level != null) 'level': _level,
+      if (_follow != null) 'follow': _follow,
+    };
+    _follow = null; // gap-aichat: one turn only
     final recent = _msgs.length > 12 ? _msgs.sublist(_msgs.length - 12) : _msgs;
     for (final m in recent.reversed) {
       final id = m.photo?.answeredJobId;
@@ -1220,6 +1239,8 @@ class _AiChatScreenState extends State<AiChatScreen>
             if (!m.streaming && AiCreditLine.shows(m.meta)) AiCreditLine(m.meta),
             if (!m.streaming && AiBetterHint.shows(m.meta)) AiBetterHint(m.meta),
             if (!m.streaming && AiActionButtons.shows(m.meta)) AiActionButtons(m.meta),
+            // gap-aichat: Continue after a cut answer / More detail
+            if (isLastAssistant && m.text.isNotEmpty) _followRow(m),
             if (isLastAssistant && m.text.isNotEmpty) _assistantActions(m),
           ]),
         ),
@@ -1264,6 +1285,59 @@ class _AiChatScreenState extends State<AiChatScreen>
           ),
         ),
       );
+
+  /// gap-aichat (owner AI answer rule): an answer cut at its length limit
+  /// ends at a full sentence and offers Continue from the cut point (free on
+  /// the server while `continue_free`); a finished AI answer offers More
+  /// detail. Before, only the home chat had these — Assisto AI had none.
+  Widget _followRow(_Msg m) {
+    final cut = m.meta['cut'] == true;
+    final ai = m.meta['source'] == 'ai' || m.source == 'ai';
+    if (!cut && !ai) return const SizedBox.shrink();
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: Gap.xs),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        if (cut)
+          Padding(
+            padding: const EdgeInsets.only(left: Gap.xs, bottom: Gap.xs),
+            child: Text(
+              m.meta['continue_free'] == false
+                  ? t.gapAichatCutHintPaid
+                  : t.gapAichatCutHint,
+              key: const ValueKey('aichat_cut_hint'),
+              style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant),
+            ),
+          ),
+        if (cut)
+          FilledButton.tonalIcon(
+            key: const ValueKey('aichat_continue'),
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: _sending ? null : () => _sendFollow('continue', t.aiContinue),
+            icon: const Icon(Icons.play_arrow_rounded, size: 18),
+            label: Text(t.aiContinue),
+          )
+        else
+          TextButton.icon(
+            key: const ValueKey('aichat_more'),
+            style: TextButton.styleFrom(
+                minimumSize: const Size(48, 48),
+                foregroundColor: scheme.primary,
+                padding: const EdgeInsets.symmetric(horizontal: Gap.sm)),
+            onPressed: _sending ? null : () => _sendFollow('more', t.aiMoreDetail),
+            icon: const Icon(Icons.unfold_more_rounded, size: 18),
+            label: Text(t.aiMoreDetail),
+          ),
+      ]),
+    );
+  }
+
+  Future<void> _sendFollow(String kind, String label) async {
+    if (_sending) return;
+    _follow = kind;
+    await _send(label);
+    _follow = null;
+  }
 
   Widget _assistantActions(_Msg m) {
     final scheme = Theme.of(context).colorScheme;

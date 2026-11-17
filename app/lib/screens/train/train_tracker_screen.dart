@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -64,7 +65,8 @@ class TrainTrackerScreen extends StatelessWidget {
       body: TrainSearchPanel(
         leading: [
           if (alarmOn)
-            Card(
+            DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+              padding: EdgeInsets.zero,
               child: ListTile(
                 minVerticalPadding: Gap.md,
                 leading: const Icon(Icons.alarm_on_rounded),
@@ -165,7 +167,6 @@ class _TrainSearchPanelState extends State<TrainSearchPanel> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search_rounded),
                 labelText: t.trSearchHint,
-                border: const OutlineInputBorder(),
               ),
               onChanged: (_) {
                 _deb?.cancel();
@@ -220,8 +221,7 @@ class _TrainSearchPanelState extends State<TrainSearchPanel> {
         const SizedBox(height: Gap.sm),
         Align(
           alignment: Alignment.centerLeft,
-          child: FilledButton.icon(
-              onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.trRetry)),
+          child: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.trRetry),
         ),
       ];
     }
@@ -389,10 +389,7 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
                         Text(t.trLoadFailed, textAlign: TextAlign.center, style: AType.bodyLarge),
                         const SizedBox(height: Gap.md),
-                        FilledButton.icon(
-                            onPressed: _load,
-                            icon: const Icon(Icons.refresh_rounded),
-                            label: Text(t.trRetry)),
+                        DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.trRetry),
                       ]),
                     )
                   : const CircularProgressIndicator())
@@ -609,12 +606,7 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
             label: Text(_d(t.trCall999)),
             onPressed: () => launchUrl(trainTelUri('999')),
           ),
-          FilledButton.tonalIcon(
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-            icon: const Icon(Icons.train_rounded),
-            label: Text(_d(t.trCall131)),
-            onPressed: () => launchUrl(trainTelUri('131')),
-          ),
+          DsButton.secondary(onPressed: () => launchUrl(trainTelUri('131')), icon: Icons.train_rounded, label: _d(t.trCall131)),
         ]),
         const SizedBox(height: Gap.lg),
         // ---- the metro-style line

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
@@ -66,30 +67,18 @@ class TrustPageScreen extends StatelessWidget {
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 28)),
         children: [
           // ---- header / integrity statement ----
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Brand.cyan, Brand.blue],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(Radii.lg),
-            ),
-            child: Column(
+          DsHeroCard(padding: const EdgeInsets.all(18), child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.verified_user_rounded, color: Colors.white, size: 36),
+                Icon(Icons.verified_user_rounded, color: Theme.of(context).colorScheme.ds.primaryInk, size: 36),
                 const SizedBox(height: 10),
                 Text(t.trustHeadline,
-                    style: AType.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                    style: AType.titleLarge.copyWith(color: Theme.of(context).colorScheme.ds.text, fontWeight: FontWeight.bold)),
                 const SizedBox(height: Gap.sm),
                 Text(t.trustIntro,
-                    style: AType.titleMedium.copyWith(color: Colors.white, height: 1.4)),
+                    style: AType.titleMedium.copyWith(color: Theme.of(context).colorScheme.ds.text, height: 1.4)),
               ],
-            ),
-          ),
+            )),
           const SizedBox(height: 20),
 
           // ---- WHAT WE DO (verified claims) ----
@@ -145,12 +134,9 @@ class TrustPageScreen extends StatelessWidget {
 
           // ---- transparency / licensing note (conservative) ----
           _SectionHeader(text: t.trustTransparency),
-          Card(
-            margin: EdgeInsets.zero,
-            color: scheme.ds.cardHighest,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.lg),
-              child: Column(
+          DsSurface(color: scheme.ds.cardHighest,
+            padding: const EdgeInsets.all(Gap.lg),
+            child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
@@ -166,7 +152,6 @@ class TrustPageScreen extends StatelessWidget {
                       style: AType.bodyMedium.copyWith(height: 1.4)),
                 ],
               ),
-            ),
           ),
 
           const SizedBox(height: 20),
@@ -217,9 +202,7 @@ class _ClaimTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
         padding: const EdgeInsets.all(Gap.lg),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,8 +230,7 @@ class _ClaimTile extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ));
   }
 }
 
@@ -278,15 +260,15 @@ class _LinkTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: 10), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+        padding: EdgeInsets.zero,
+        child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
         leading: Icon(icon, color: scheme.primary),
         title: Text(label, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: onTap,
       ),
-    );
+      ));
   }
 }

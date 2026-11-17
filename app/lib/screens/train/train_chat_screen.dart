@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -238,19 +240,14 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
             label: Text(notifLocalizeDigits(context, t.trCall999)),
             onPressed: () => launchUrl(trainTelUri('999')),
           ),
-          FilledButton.tonalIcon(
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-            icon: const Icon(Icons.train_rounded),
-            label: Text(notifLocalizeDigits(context, t.trCall131)),
-            onPressed: () => launchUrl(trainTelUri('131')),
-          ),
+          DsButton.secondary(onPressed: () => launchUrl(trainTelUri('131')), icon: Icons.train_rounded, label: notifLocalizeDigits(context, t.trCall131)),
         ]),
       ]),
     );
   }
 
   Widget _body(AppLocalizations t) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList(count: 4);
     if (_failed) {
       return Center(
         child: Padding(
@@ -258,10 +255,7 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Text(t.trLoadFailed, textAlign: TextAlign.center, style: AType.bodyLarge),
             const SizedBox(height: Gap.md),
-            FilledButton.icon(
-                onPressed: () => _load(full: true),
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(t.trRetry)),
+            DsButton(onPressed: () => _load(full: true), icon: Icons.refresh_rounded, label: t.trRetry),
           ]),
         ),
       );
@@ -281,8 +275,7 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
             decoration: InputDecoration(
                 labelText: t.trNickname,
                 helperText: t.trNickRule,
-                errorText: _error,
-                border: const OutlineInputBorder()),
+                errorText: _error),
           ),
           const SizedBox(height: Gap.sm),
           FilledButton.icon(
@@ -299,9 +292,7 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
     return Column(children: [
       if (_emergency) _hotlines(t),
       for (final r in _reqs)
-        Card(
-          margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
-          child: Padding(
+        Padding(padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.trRequestFrom('${r['nick']}'), style: AType.bodyMedium),
@@ -312,14 +303,10 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
                     style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
                     onPressed: () => _act(r, 'accept'),
                     child: Text(t.trAccept)),
-                OutlinedButton(
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                    onPressed: () => _act(r, 'decline'),
-                    child: Text(t.trDecline)),
+                DsButton.secondary(onPressed: () => _act(r, 'decline'), label: t.trDecline),
               ]),
             ]),
-          ),
-        ),
+          )),
       Expanded(
         child: _msgs.isEmpty
             ? Center(
@@ -346,7 +333,7 @@ class _TrainChatScreenState extends State<TrainChatScreen> {
               maxLines: 4,
               maxLength: 500,
               decoration: InputDecoration(
-                  hintText: t.trChatHint, counterText: '', border: const OutlineInputBorder()),
+                  hintText: t.trChatHint, counterText: ''),
             ),
           ),
           const SizedBox(width: Gap.sm),

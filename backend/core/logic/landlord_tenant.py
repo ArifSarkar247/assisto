@@ -61,7 +61,7 @@ payment = {
 Everything is plain stdlib and hand-verified in landlord_tenant_tests_snippets.py.
 """
 
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
 METHODS = ("cash", "bkash", "nagad", "bank", "other")
 
@@ -85,10 +85,15 @@ def to_poisha(value):
     if value is None:
         return 0
     try:
-        d = Decimal(str(value).strip())
+        # gap-money: "1,500" used to be 0 and 12.345 rounded half-even to
+        # 12.34; now commas are fine and the paisa rounds half-up like every
+        # other money path. Bangla digits work (Decimal reads them).
+        d = Decimal(str(value).strip().replace(",", ""))
     except (InvalidOperation, ValueError):
         return 0
-    return int((d * 100).to_integral_value())
+    if not d.is_finite():
+        return 0
+    return int((d * 100).quantize(Decimal(1), rounding=ROUND_HALF_UP))
 
 
 def _amount_of(obj, key_poisha, key_taka):

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../theme.dart';
@@ -261,19 +262,13 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
                   tint: Theme.of(context).colorScheme.error,
                   title: t.loadFailed,
                   message: honestFailText(t, _failCause, otherwise: t.loadFailedBody),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(t.retry)))
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry))
               : _subs.isEmpty
                   ? StateMessage(
                       icon: Icons.autorenew_rounded,
                       title: t.subscriptions,
                       message: t.subscriptionsEmpty,
-                      action: FilledButton.icon(
-                          onPressed: _add,
-                          icon: const Icon(Icons.add_rounded),
-                          label: Text(t.addSubscription)))
+                      action: DsButton(onPressed: _add, icon: Icons.add_rounded, label: t.addSubscription))
                   : RefreshIndicator(
                       onRefresh: _load,
                       child: _body(t),
@@ -443,10 +438,9 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
   Widget _breakdown(List<_Bucket> buckets,
       IconData Function(_Bucket) icon, String Function(_Bucket) label) {
     final max = buckets.first.monthly;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           children: [
             for (final b in buckets)
               SubsBreakdownRow(
@@ -458,7 +452,6 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
               ),
           ],
         ),
-      ),
     );
   }
 }

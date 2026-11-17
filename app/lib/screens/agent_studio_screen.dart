@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
@@ -179,7 +180,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
         // ra1: automations live on this phone (SharedPreferences), so the
         // internet is never the cause — don't tell the user to check it.
         message: t.notifErrorBody,
-        action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
+        action: DsButton.secondary(onPressed: _load, label: t.retry),
       );
     }
     if (_items.isEmpty) {
@@ -187,11 +188,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
         icon: Icons.bolt_rounded,
         title: t.studioEmptyTitle,
         message: t.studioEmptyBody,
-        action: FilledButton.tonalIcon(
-          onPressed: () => _tabs.animateTo(1),
-          icon: const Icon(Icons.auto_awesome_rounded, size: 18),
-          label: Text(t.studioBrowseTemplates),
-        ),
+        action: DsButton.secondary(onPressed: () => _tabs.animateTo(1), icon: Icons.auto_awesome_rounded, label: t.studioBrowseTemplates),
       );
     }
     return RefreshIndicator(
@@ -224,7 +221,7 @@ class _AgentStudioScreenState extends State<AgentStudioScreen>
       padding: const EdgeInsets.all(Gap.lg),
       children: [
         Text(t.studioTemplatesIntro,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 color: Theme.of(context).colorScheme.ds.muted,
                 height: 1.4)),
         const SizedBox(height: Gap.lg),
@@ -339,21 +336,13 @@ class _DetailSheetState extends State<_DetailSheet> {
               const SizedBox(height: Gap.lg),
               Row(children: [
                 Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () async {
+                  child: DsButton(onPressed: () async {
                       await widget.onRun();
                       if (mounted) setState(() {});
-                    },
-                    icon: const Icon(Icons.play_arrow_rounded),
-                    label: Text(t.studioRunNow),
-                  ),
+                    }, icon: Icons.play_arrow_rounded, label: t.studioRunNow),
                 ),
                 const SizedBox(width: Gap.sm),
-                OutlinedButton.icon(
-                  onPressed: widget.onEdit,
-                  icon: const Icon(Icons.edit_rounded, size: 18),
-                  label: Text(t.edit),
-                ),
+                DsButton.secondary(onPressed: widget.onEdit, icon: Icons.edit_rounded, label: t.edit),
               ]),
               if (a.needsAi) ...[
                 const SizedBox(height: Gap.md),
@@ -361,11 +350,11 @@ class _DetailSheetState extends State<_DetailSheet> {
               ],
               const SizedBox(height: Gap.xl),
               Text(t.studioHistoryTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
               const SizedBox(height: Gap.sm),
               if (a.history.isEmpty)
                 Text(t.studioHistoryEmpty,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         color: scheme.ds.muted, height: 1.4))
               else
                 for (final e in a.history) RunHistoryTile(e: e),
@@ -377,7 +366,7 @@ class _DetailSheetState extends State<_DetailSheet> {
                   icon: Icon(Icons.delete_outline_rounded,
                       size: 18, color: Brand.danger),
                   label: Text(t.delete,
-                      style: const TextStyle(color: Brand.danger)),
+                      style: AType.bodyMedium.copyWith(color: Brand.danger)),
                 ),
               ),
             ],

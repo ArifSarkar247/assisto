@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -197,8 +198,8 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
                   title: t.msgrModErrorTitle,
                   message: t.msgrModErrorBody,
                   tint: Brand.danger,
-                  action: FilledButton.tonal(
-                      onPressed: _load, child: Text(t.msgrModRetry)),
+                  action: DsButton(
+                      onPressed: _load, icon: Icons.refresh_rounded, label: t.msgrModRetry),
                 ),
               _Status.ok => rows.isEmpty
                   ? RefreshIndicator(
@@ -272,8 +273,8 @@ class _GroupHeader extends StatelessWidget {
       Icon(icon, size: 16, color: color),
       const SizedBox(width: 6),
       Text(label,
-          style: TextStyle(
-              color: color, fontWeight: FontWeight.w800, fontSize: 13)),
+          style: AType.bodySmall.copyWith(
+              color: color, fontWeight: FontWeight.w800, )),
     ]);
   }
 }
@@ -481,11 +482,11 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
                   ),
                   if (_busy) ...[
                     const SizedBox(height: Gap.md),
-                    const Center(child: CircularProgressIndicator()),
+                    const LinearProgressIndicator(),
                   ],
                   if (_error != null) ...[
                     const SizedBox(height: Gap.md),
-                    Text(_error!, style: const TextStyle(color: Brand.danger)),
+                    Text(_error!, style: AType.bodyMedium.copyWith(color: Brand.danger)),
                   ],
                   const SizedBox(height: Gap.xl),
                   Row(children: [
@@ -500,12 +501,12 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
                   ]),
                   const SizedBox(height: Gap.xs),
                   Text(t.msgrModAuditAppendOnlyNote,
-                      style: TextStyle(
-                          color: scheme.ds.muted, fontSize: 12)),
+                      style: AType.bodySmall.copyWith(
+                          color: scheme.ds.muted, )),
                   const SizedBox(height: Gap.sm),
                   if (_audit.isEmpty)
                     Text(t.msgrModAuditEmpty,
-                        style: TextStyle(color: scheme.ds.muted))
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.muted))
                   else
                     for (int i = 0; i < _audit.length; i++)
                       _AuditTimeline(
@@ -558,11 +559,11 @@ class _AppealBanner extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(t.msgrModAppealOpenTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
               const SizedBox(height: 2),
               Text(t.msgrModAppealOpenBody,
-                  style: TextStyle(
-                      color: scheme.ds.text, fontSize: 12.5, height: 1.35)),
+                  style: AType.bodySmall.copyWith(
+                      color: scheme.ds.text, height: 1.35)),
             ],
           ),
         ),
@@ -674,7 +675,7 @@ class _QueueCard extends StatelessWidget {
                 child: Text(
                   t.msgrModQueueItemHeader(
                       _kindLabel(t, kind), item['target_id'].toString()),
-                  style: const TextStyle(fontWeight: FontWeight.w800),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800),
                   maxLines: dense ? 1 : 3,
                   overflow: dense ? TextOverflow.ellipsis : TextOverflow.visible,
                 ),
@@ -713,7 +714,7 @@ class _QueueCard extends StatelessWidget {
             categories.isEmpty
                 ? t.msgrModNoReason
                 : categories.map((c) => _reasonLabel(t, c)).join('  •  '),
-            style: TextStyle(color: scheme.ds.muted, height: 1.35),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.35),
             maxLines: dense ? 2 : 10,
             overflow: dense ? TextOverflow.ellipsis : TextOverflow.visible,
           ),
@@ -721,10 +722,10 @@ class _QueueCard extends StatelessWidget {
             const SizedBox(height: Gap.sm),
             Text(
               t.msgrModLastDecision(item['decision'].toString()),
-              style: TextStyle(
+              style: AType.bodySmall.copyWith(
                   color: scheme.ds.muted,
                   fontStyle: FontStyle.italic,
-                  fontSize: 13),
+                  ),
             ),
           ],
         ],

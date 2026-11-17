@@ -72,6 +72,10 @@ def to_poisha(v):
     # string: strip currency markers / separators, allow Bangla digits
     import re
     t = normalize_digits(str(v))
+    # gap-money: "1e3" used to lose its "e" and become ৳13 — an exponent is
+    # never how a shop writes money; refuse it instead of guessing.
+    if re.search(r"\d\s*[eE]\s*[+\-]?\d", t):
+        return 0
     t = re.sub(r"[^\d.\-]", "", t)
     if t in ("", ".", "-", "-."):
         return 0

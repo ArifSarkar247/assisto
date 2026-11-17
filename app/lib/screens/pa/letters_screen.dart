@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -174,21 +175,14 @@ class _LettersScreenState extends State<LettersScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paLetLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : _saved.isEmpty
                   ? StateMessage(
                       icon: Icons.description_rounded,
                       title: tr.paLetWelcomeTitle,
                       message: tr.paLetWelcomeBody,
-                      action: FilledButton.icon(
-                        onPressed: () => _open(tr),
-                        icon: const Icon(Icons.add_rounded),
-                        label: Text(tr.paLetNew),
-                      ),
+                      action: DsButton(onPressed: () => _open(tr), icon: Icons.add_rounded, label: tr.paLetNew),
                     )
                   : RefreshIndicator(
                       onRefresh: _load,
@@ -199,15 +193,13 @@ class _LettersScreenState extends State<LettersScreen> {
                         itemBuilder: (_, i) {
                           final r = _saved[i];
                           final type = (r['type'] ?? _tLetter).toString();
-                          return Card(
-                            margin: EdgeInsets.zero,
+                          return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+                            padding: EdgeInsets.zero,
                             child: ListTile(
                               leading: Icon(_typeIcon(type), color: scheme.primary),
-                              title: Text((r['subject'] ?? '').toString(),
-                                  maxLines: 1, overflow: TextOverflow.ellipsis),
+                              title: Text((r['subject'] ?? '').toString()),
                               subtitle: Text(
-                                  '${_typeLabel(tr, type)} · ${(r['to'] ?? '').toString()}',
-                                  maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  '${_typeLabel(tr, type)} · ${(r['to'] ?? '').toString()}'),
                               trailing: PopupMenuButton<String>(
                                 onSelected: (v) {
                                   if (v == 'open') _open(tr, existing: r);
@@ -477,7 +469,6 @@ class _LetterEditorState extends State<_LetterEditor> {
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
               labelText: _type == _tNotice ? tr.paLetToOptional : tr.paLetToField,
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: Gap.md),
@@ -485,14 +476,14 @@ class _LetterEditorState extends State<_LetterEditor> {
             controller: _from,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-                labelText: tr.paLetFromField, border: const OutlineInputBorder()),
+                labelText: tr.paLetFromField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _subject,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-                labelText: tr.paLetSubjectField, border: const OutlineInputBorder()),
+                labelText: tr.paLetSubjectField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -500,8 +491,7 @@ class _LetterEditorState extends State<_LetterEditor> {
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
                 labelText: tr.paLetDateField,
-                helperText: tr.paLetDateHelp,
-                border: const OutlineInputBorder()),
+                helperText: tr.paLetDateHelp),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -513,7 +503,6 @@ class _LetterEditorState extends State<_LetterEditor> {
               labelText: tr.paLetBodyField,
               helperText: tr.paLetBodyHelp,
               helperMaxLines: 2,
-              border: const OutlineInputBorder(),
               alignLabelWithHint: true,
             ),
           ),
@@ -525,7 +514,7 @@ class _LetterEditorState extends State<_LetterEditor> {
             const SizedBox(width: 4),
             Expanded(
               child: Text(tr.f6BwTemplateMarker, // truth: template, not AI
-                  style: TextStyle(color: scheme.ds.muted, fontSize: 12.5)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted, )),
             ),
           ]),
           const SizedBox(height: Gap.sm),
@@ -545,41 +534,29 @@ class _LetterEditorState extends State<_LetterEditor> {
             ),
             child: SelectableText(
               rendered.trim().isEmpty ? tr.paLetPreviewEmpty : rendered,
-              style: const TextStyle(fontSize: 14, height: 1.5),
+              style: AType.bodyMedium.copyWith(height: 1.5),
             ),
           ),
           const SizedBox(height: Gap.md),
           Row(children: [
             Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () async {
+              child: DsButton.secondary(onPressed: () async {
                   await Clipboard.setData(ClipboardData(text: rendered));
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context)
                     ..clearSnackBars()
                     ..showSnackBar(SnackBar(content: Text(tr.copied)));
-                },
-                icon: const Icon(Icons.copy_rounded, size: 18),
-                label: Text(tr.copy),
-              ),
+                }, icon: Icons.copy_rounded, label: tr.copy),
             ),
             const SizedBox(width: Gap.md),
             Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => Share.share(rendered),
-                icon: const Icon(Icons.share_rounded, size: 18),
-                label: Text(tr.share),
-              ),
+              child: DsButton.secondary(onPressed: () => Share.share(rendered), icon: Icons.share_rounded, label: tr.share),
             ),
           ]),
           const SizedBox(height: Gap.sm),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: (problems.isEmpty && !_saving) ? () => _save(tr) : null,
-              icon: const Icon(Icons.save_rounded, size: 18),
-              label: Text(tr.save),
-            ),
+            child: DsButton(onPressed: (problems.isEmpty && !_saving) ? () => _save(tr) : null, icon: Icons.save_rounded, label: tr.save, expand: true),
           ),
           if (problems.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
@@ -587,7 +564,7 @@ class _LetterEditorState extends State<_LetterEditor> {
               problems.contains('empty_subject')
                   ? tr.paLetNeedSubject
                   : tr.paLetNeedRecipient,
-              style: TextStyle(color: scheme.error, fontSize: 12.5),
+              style: AType.bodySmall.copyWith(color: scheme.error, ),
             ),
           ],
         ],
@@ -609,10 +586,10 @@ class _LetterEditorState extends State<_LetterEditor> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(tr.paLetAiSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, height: 1.4)),
               const SizedBox(height: 2),
               Text(tr.paLetAiSeamBody,
-                  style: TextStyle(color: scheme.ds.muted, fontSize: 12.5, height: 1.4)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
             ]),
           ),
         ]),

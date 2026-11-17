@@ -10,7 +10,6 @@ library;
 
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +19,6 @@ import '../../ads/ad_moment.dart' show AdMomentOnShow; // adcontrol
 import '../../ads/ad_placements.dart' show AdExitPlacement; // adcontrol
 import '../../api.dart' show ApiException;
 import '../../widgets/rewarded_ad_sheet.dart';
-import '../../audio/audio_route_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/error_kind.dart' show honestFailText;
 import '../../state.dart';
@@ -35,10 +33,12 @@ import 'lp_companion.dart';
 import 'lp_data.dart';
 import 'lp_engine.dart';
 import 'lp_life.dart' show lpVoice;
+import 'lp_listen.dart';
 import 'lp_score.dart';
-import 'lp_track.dart' show LpTtsPlayer;
 import 'lp_ui.dart';
 import 'lp_vocab.dart';
+
+export 'lp_listen.dart' show debugLpPlay, debugLpEngine, LpAudioEngine;
 
 const List<String> kLpSections = ['listening', 'reading', 'writing', 'speaking'];
 
@@ -839,6 +839,7 @@ class _LrSection extends StatefulWidget {
 class _LrSectionState extends State<_LrSection> {
   int _part = 0;
   bool _showText = true;
+  bool _running = false; // lpaudio: exam-mode listening in progress
 
   @override
   Widget build(BuildContext context) {
@@ -864,18 +865,19 @@ class _LrSectionState extends State<_LrSection> {
             ChoiceChip(
               label: Text(listening ? tr.lp2PartN(ld(context, i + 1)) : tr.lp2PassageN(ld(context, i + 1))),
               selected: _part == i,
-              onSelected: (_) => setState(() => _part = i),
+              // exam mode: the recording leads, parts open as it reaches them
+              onSelected: _running ? null : (_) => setState(() => _part = i),
             ),
         ]),
         const SizedBox(height: Gap.md),
-        if (listening && '${p['audio_url'] ?? ''}'.isEmpty && p['tts'] is Map)
-          // lpfinish: no recorded audio yet -> the phone's own voice reads the script
-          LpTtsPlayer(
-              key: ValueKey('t$_part'),
-              tts: (p['tts'] as Map).cast<String, dynamic>(),
-              replay: widget.replay)
-        else if (listening)
-          _LpAudio(key: ValueKey('a$_part'), url: '${p['audio_url'] ?? ''}', replay: widget.replay)
+        if (listening)
+          // lpaudio: recorded audio, real-test flow (question time -> once -> check -> next part)
+          LpListenPanel(
+              parts: parts,
+              part: _part,
+              replay: widget.replay,
+              onPart: (i) => setState(() => _part = i),
+              onRunning: (r) => setState(() => _running = r))
         else ...[
           SegmentedButton<bool>(
             segments: [
@@ -901,107 +903,6 @@ class _LrSectionState extends State<_LrSection> {
         ] else
           ..._questionList(qs, widget.answers, () => setState(() {})),
       ],
-    );
-  }
-}
-
-/// Tests: replaces the real audio player (no plugin in widget tests).
-@visibleForTesting
-Future<void> Function(String url)? debugLpPlay;
-
-class _LpAudio extends StatefulWidget {
-  final String url;
-  final bool replay;
-  const _LpAudio({super.key, required this.url, required this.replay});
-  @override
-  State<_LpAudio> createState() => _LpAudioState();
-}
-
-class _LpAudioState extends State<_LpAudio> {
-  AudioPlayer? _p;
-  bool _playing = false, _played = false;
-  Duration _pos = Duration.zero;
-  final List<StreamSubscription> _subs = [];
-
-  @override
-  void dispose() {
-    for (final s in _subs) {
-      s.cancel();
-    }
-    _p?.dispose();
-    super.dispose();
-  }
-
-  Future<void> _toggle() async {
-    final tr = AppLocalizations.of(context);
-    try {
-      if (debugLpPlay != null) {
-        await debugLpPlay!(widget.url);
-        setState(() => _playing = !_playing);
-        return;
-      }
-      if (_playing) {
-        await _p?.pause();
-        setState(() => _playing = false);
-        return;
-      }
-      await AudioRouteService.instance.preparePlayback(AudioUse.media);
-      if (_p == null) {
-        _p = AudioPlayer();
-        _subs.add(_p!.onPositionChanged.listen((d) {
-          if (mounted) setState(() => _pos = d);
-        }));
-        _subs.add(_p!.onPlayerComplete.listen((_) {
-          if (mounted) {
-            setState(() {
-              _playing = false;
-              _played = true;
-            });
-          }
-        }));
-        await _p!.play(widget.url.startsWith('http') ? UrlSource(widget.url) : DeviceFileSource(widget.url));
-      } else {
-        if (_played) await _p!.seek(Duration.zero);
-        await _p!.resume();
-      }
-      setState(() => _playing = true);
-    } catch (_) {
-      if (mounted) lpToast(context, tr.lp2AudioFail);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final tr = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    if (widget.url.isEmpty) {
-      return DsCard(
-        padding: EdgeInsets.zero,
-        child: ListTile(leading: const Icon(Icons.volume_off_rounded), title: Text(tr.lp2AudioMissing)),
-      );
-    }
-    final locked = _played && !widget.replay;
-    return DsSurface(color: scheme.ds.cardHigh,
-      padding: const EdgeInsets.all(Gap.md),
-      child: Row(children: [
-          IconButton.filled(
-            key: const Key('lp2-play'),
-            tooltip: _playing ? tr.lp2Pause : tr.lp2PlayAudio,
-            constraints: const BoxConstraints(minWidth: 56, minHeight: 56),
-            onPressed: locked ? null : _toggle,
-            icon: Icon(_playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
-          ),
-          const SizedBox(width: Gap.md),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(locked ? tr.lp2AudioPlayedOnce : (_playing ? tr.lp2AudioPlaying : tr.lp2PlayAudio),
-                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
-              Text(widget.replay ? tr.lp2AudioPractice : tr.lp2AudioOnce,
-                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-              if (_pos > Duration.zero) Text(ld(context, clock(_pos.inSeconds)), style: AType.bodySmall),
-            ]),
-          ),
-        ]),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -154,7 +156,7 @@ class _MissingHubScreenState extends State<MissingHubScreen> {
               label: Text(t.maPostCta),
             ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _failed
               ? Center(child: MaError(onRetry: _load))
               : RefreshIndicator(onRefresh: _load, child: _list(context)),
@@ -200,21 +202,17 @@ class _MissingHubScreenState extends State<MissingHubScreen> {
     final t = AppLocalizations.of(context);
     final s = Theme.of(context).colorScheme;
     final child = a['is_child'] == true;
-    return Card(
-      key: ValueKey('ma-about-${a['id']}'),
-      color: s.ds.dangerBg,
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(key: ValueKey('ma-about-${a['id']}'), padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(tone: DsTone.danger,
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(child ? t.maAboutMeTitleChild : t.maAboutMeTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(color: s.ds.dangerInk)),
           const SizedBox(height: Gap.sm),
           Text(child ? t.maAboutMeBodyChild : t.maAboutMeBody,
-              style: TextStyle(color: s.ds.dangerInk)),
+              style: AType.bodyMedium.copyWith(color: s.ds.dangerInk)),
           if (a['safe_said'] == true) ...[
             const SizedBox(height: Gap.sm),
-            Text(t.maSafeAlreadySaid, style: TextStyle(color: s.ds.dangerInk, fontWeight: FontWeight.w600)),
+            Text(t.maSafeAlreadySaid, style: AType.bodyMedium.copyWith(color: s.ds.dangerInk, fontWeight: FontWeight.w600)),
           ],
           const SizedBox(height: Gap.md),
           ConstrainedBox(constraints: const BoxConstraints(minHeight: 56),
@@ -227,16 +225,12 @@ class _MissingHubScreenState extends State<MissingHubScreen> {
             ),
           ),
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _cosignCard(BuildContext context, Map<String, dynamic> a) {
     final t = AppLocalizations.of(context);
-    return Card(
-      key: ValueKey('ma-cosign-${a['id']}'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(key: ValueKey('ma-cosign-${a['id']}'), padding: const EdgeInsets.only(bottom: Gap.md), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(t.maCosignTitle, style: Theme.of(context).textTheme.titleMedium),
@@ -249,30 +243,26 @@ class _MissingHubScreenState extends State<MissingHubScreen> {
               onPressed: () => _cosign(a, true),
               child: Text(t.maCosignYes),
             ),
-            OutlinedButton(
-              onPressed: () => _cosign(a, false),
-              child: Text(t.maCosignNo),
-            ),
+            DsButton.secondary(onPressed: () => _cosign(a, false), label: t.maCosignNo),
             TextButton(onPressed: () => _open(a), child: Text(t.maOpen)),
           ]),
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _optinCard(BuildContext context, Map<String, dynamic> optin) {
     final t = AppLocalizations.of(context);
     final on = optin['enabled'] == true;
     final area = '${optin['district_name'] ?? ''}';
-    return Card(
-      margin: EdgeInsets.zero,
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: EdgeInsets.zero,
       child: ListTile(
         key: const ValueKey('ma-optin-tile'),
         leading: Icon(on ? Icons.notifications_active_rounded : Icons.notifications_off_rounded),
         title: Text(on ? t.maOptinOn : t.maOptinOffTitle),
         subtitle: Text(on ? (area.isEmpty ? t.maOptinOnNoArea : t.maOptinOnArea(area)) : t.maOptinOffBody),
         trailing: Text(on ? t.maChange : t.maTurnOn,
-            style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w600)),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w600)),
         onTap: _optin,
       ),
     );
@@ -291,12 +281,7 @@ class _MissingHubScreenState extends State<MissingHubScreen> {
         Text(t.maEmptyBody, textAlign: TextAlign.center),
         const SizedBox(height: Gap.md),
         ConstrainedBox(constraints: const BoxConstraints(minHeight: 52),
-          child: FilledButton.icon(
-            key: const ValueKey('ma-empty-post'),
-            onPressed: _post,
-            icon: const Icon(Icons.campaign_rounded),
-            label: Text(t.maPostCta),
-          ),
+          child: DsButton(buttonKey: const ValueKey('ma-empty-post'), onPressed: _post, icon: Icons.campaign_rounded, label: t.maPostCta),
         ),
         const SizedBox(height: Gap.md),
         Text(maD(context, t.maEmptyStepsV2), style: text.bodySmall),
@@ -317,30 +302,30 @@ class _MissingHubScreenState extends State<MissingHubScreen> {
       if (dist is int) maD(context, t.maDistance(dist)),
       if (mine && unread > 0) maD(context, t.maTipsUnread(unread)),
     ].join(' · ');
-    return Card(
+    // a flat bordered DS surface per alert (long list stays GPU-light)
+    return Padding(
       key: ValueKey('ma-alert-${a['id']}'),
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsSurface(
+        flat: true,
+        borderColor: s.ds.border,
         onTap: () => _open(a),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        padding: const EdgeInsets.all(Gap.md),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             MaPhoto(url: a['photo_url'] as String?, label: name),
             const SizedBox(width: Gap.md),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(t.maNameAge(name, age), style: Theme.of(context).textTheme.titleSmall),
+                Text(t.maNameAge(name, age), style: AType.titleSmall.copyWith(color: s.ds.text, fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.xs),
-                Text(sub, style: Theme.of(context).textTheme.bodySmall),
+                Text(sub, style: AType.bodySmall.copyWith(color: s.ds.muted)),
                 const SizedBox(height: Gap.xs),
                 Text(maStateLabel(t, state, safeSaid: a['safe_said'] == true),
-                    style: TextStyle(color: maStateColor(s, state), fontWeight: FontWeight.w600)),
+                    style: AType.bodyMedium.copyWith(color: maStateColor(s, state), fontWeight: FontWeight.w600)),
               ]),
             ),
-            const Icon(Icons.chevron_right_rounded),
+            Icon(Icons.chevron_right_rounded, color: s.ds.muted),
           ]),
-        ),
       ),
     );
   }

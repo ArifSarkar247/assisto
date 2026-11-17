@@ -281,3 +281,10 @@ Machine-readable list: `tools/lp/tts/VOICES_TRACKS.json` (a job with no cleared 
 | Meta MMS-TTS Arabic | CC BY-NC 4.0 | **NO** | Never |
 | Coqui XTTS-v2 (any language) | Coqui Public Model Licence (non-commercial); cloning model | **NO** | Never |
 | eSpeak NG Arabic | GPL-3.0 program, output is ours | Yes | Not for exam audio (robotic) — Arabic jobs stay **blocked**; app uses the phone's own TTS voice |
+
+## Language Partner IELTS listening audio (lpaudio, 17 Nov)
+| Voice / tool | Licence | Commercial OK? | Used? |
+|---|---|---|---|
+| Kokoro-82M v1.0 stock en-GB `bm_george` (narrator), `bf_emma`, `bf_isabella`, `bf_alice`, `bm_fable`, `bm_lewis`, `bm_daniel`; en-US `af_heart`, `af_bella`, `af_nicole`, `af_sarah`, `am_michael`, `am_fenrir`, `am_puck`, `am_eric` | Apache-2.0 | **Yes** | Yes — IELTS mock listening, rendered in CI (lp-audio.yml); no cloning |
+| Australian English | no licence-clean voice found | — | No — "au" parts use UK/US voices, labelled honestly |
+| Piper public-domain / CC0 / CC BY voices (cori, ljspeech, kristin, john, norman, joe, mike, kathleen, alba, jenny_dioco) | PD / CC0 / CC BY 4.0 / Jenny licence (commercial OK) | Yes | Not used (no British male); fallback option — see owner_actions/LP_AUDIO_LICENSE_BN.md |

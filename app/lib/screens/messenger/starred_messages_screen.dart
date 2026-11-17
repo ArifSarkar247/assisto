@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../widgets/msgr_channel_common.dart' show MsgrEmptyState;
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -7,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_hub_api.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../circle_chat_screen.dart';
 import '../../services/error_kind.dart' show serverFailText; // qa2
 
@@ -85,17 +89,18 @@ class _StarredMessagesScreenState extends State<StarredMessagesScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrStarredTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _failed
               ? _error()
               : _items.isEmpty
                   ? _empty()
                   : RefreshIndicator(
                       onRefresh: _load,
+                      // flat bordered DS rows (GPU-light for long lists)
                       child: ListView.separated(
+                        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
                         itemCount: _items.length,
-                        separatorBuilder: (_, __) =>
-                            const Divider(height: 1, indent: Gap.lg),
+                        separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
                         itemBuilder: (_, i) => _row(_items[i]),
                       ),
                     ),
@@ -106,14 +111,23 @@ class _StarredMessagesScreenState extends State<StarredMessagesScreen> {
     final t = _t;
     final peer = '${row['peer_name'] ?? ''}';
     final preview = '${row['preview'] ?? row['text'] ?? ''}';
-    return ListTile(
-      leading: const Icon(Icons.star_rounded, color: Colors.amber),
-      title: Text(peer.isEmpty ? '?' : peer,
-          maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(preview.isEmpty ? t.msgrStarredJump : preview,
-          maxLines: 2, overflow: TextOverflow.ellipsis),
-      trailing: const Icon(Icons.chevron_right_rounded),
-      onTap: () => _jump(row),
+    final ds = Theme.of(context).colorScheme.ds;
+    return DsSurface(
+      flat: true,
+      borderColor: ds.border,
+      padding: EdgeInsets.zero,
+      child: DsListRow(
+        leading: DsAvatar(
+            size: 40,
+            color: AssistoTokens.of(context).warning,
+            child: Icon(Icons.star_rounded, size: 20,
+                color: Brand.onTint(context, AssistoTokens.of(context).warning))),
+        title: peer.isEmpty ? '?' : peer,
+        // the message preview (two lines is a preview, the chat has it all)
+        subtitle: preview.isEmpty ? t.msgrStarredJump : preview,
+        trailing: Icon(Icons.chevron_right_rounded, color: ds.muted),
+        onTap: () => _jump(row),
+      ),
     );
   }
 
@@ -122,40 +136,17 @@ class _StarredMessagesScreenState extends State<StarredMessagesScreen> {
 
   Widget _error() {
     final t = _t;
-    return ListView(children: [
-      const SizedBox(height: 96),
-      _centeredState(Icons.cloud_off_rounded, t.msgrHubLoadFailed,
-          serverFailText(t, _failCause) ?? ''),
-      const SizedBox(height: Gap.md),
-      Center(
-        child: OutlinedButton.icon(
-          onPressed: _load,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(t.msgrRetry),
-        ),
+    return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      const SizedBox(height: Gap.xl),
+      MsgrEmptyState(
+        icon: Icons.cloud_off_rounded,
+        title: t.msgrHubLoadFailed,
+        body: serverFailText(t, _failCause) ?? '',
+        action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.msgrRetry),
       ),
     ]);
   }
 
-  Widget _centeredState(IconData icon, String title, String body) {
-    final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 52, color: scheme.primary.withValues(alpha: 0.7)),
-          const SizedBox(height: Gap.md),
-          Text(title,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium),
-          if (body.isNotEmpty) ...[
-            const SizedBox(height: Gap.sm),
-            Text(body,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.ds.muted, height: 1.4)),
-          ],
-        ]),
-      ),
-    );
-  }
+  Widget _centeredState(IconData icon, String title, String body) =>
+      MsgrEmptyState(icon: icon, title: title, body: body);
 }

@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -198,10 +199,7 @@ class _ProjectTrackingScreenState extends State<ProjectTrackingScreen> {
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paProjLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.retry)),
+          action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
         ),
       );
     }
@@ -277,11 +275,7 @@ class _ProjectTrackingScreenState extends State<ProjectTrackingScreen> {
               tint: Brand.blue,
               title: t.paProjWelcomeTitle,
               message: t.paProjWelcomeBody,
-              action: FilledButton.icon(
-                onPressed: () => _openProjectEditor(),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(t.paProjNewProject),
-              ),
+              action: DsButton(onPressed: () => _openProjectEditor(), icon: Icons.add_rounded, label: t.paProjNewProject),
             )
           : RefreshIndicator(
               onRefresh: _load,
@@ -341,10 +335,9 @@ class _PortfolioCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.insights_rounded, size: 18, color: scheme.primary),
             const SizedBox(width: Gap.sm),
@@ -378,10 +371,9 @@ class _PortfolioCard extends StatelessWidget {
             ),
             const SizedBox(width: Gap.sm),
             Text(t.paProjAvgProgress(avgPercent),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ]),
         ]),
-      ),
     );
   }
 
@@ -403,11 +395,9 @@ class _AiSeamCard extends StatelessWidget {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.successBg.withValues(alpha: 0.4),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: scheme.ds.successBg.withValues(alpha: 0.4),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.auto_awesome_rounded,
               size: 20, color: scheme.tertiary),
           const SizedBox(width: Gap.sm),
@@ -415,14 +405,13 @@ class _AiSeamCard extends StatelessWidget {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.paProjAiSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xxs),
               Text(t.paProjAiSeamBody,
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
             ]),
           ),
         ]),
-      ),
     );
   }
 }
@@ -494,8 +483,6 @@ class _ProjectCard extends StatelessWidget {
                 Row(children: [
                   Expanded(
                     child: Text('${project['name'] ?? ''}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                         style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
                   ),
                   Container(
@@ -692,8 +679,7 @@ class _ProjectDetailScreenState extends State<_ProjectDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.project['name'] ?? ''}',
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text('${widget.project['name'] ?? ''}'),
       ),
       body: _loading
           ? const SkeletonList()
@@ -727,7 +713,7 @@ class _ProjectDetailScreenState extends State<_ProjectDetailScreen> {
                         const SizedBox(width: Gap.sm),
                         Text(t.paProjMsProgress(msDone, milestones.length),
                             style:
-                                const TextStyle(fontWeight: FontWeight.w700)),
+                                AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                       ]),
                     ),
                   if (milestones.isEmpty)
@@ -832,10 +818,8 @@ class _MilestoneTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       dense: true,
       leading: Icon(icon, color: sc),
-      title: Text('${milestone['title'] ?? ''}',
-          maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text([statusLabel, if (date.isNotEmpty) date].join(' · '),
-          maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Text('${milestone['title'] ?? ''}'),
+      subtitle: Text([statusLabel, if (date.isNotEmpty) date].join(' · ')),
       trailing: PopupMenuButton<String>(
         onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
         itemBuilder: (_) => [
@@ -882,7 +866,7 @@ class _RiskTile extends StatelessWidget {
       title: Text('${risk['label'] ?? ''}',
           maxLines: 2, overflow: TextOverflow.ellipsis),
       subtitle: Text('$sevLabel · $statusText',
-          style: TextStyle(color: sc, fontWeight: FontWeight.w600)),
+          style: AType.bodyMedium.copyWith(color: sc, fontWeight: FontWeight.w600)),
       trailing: PopupMenuButton<String>(
         onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
         itemBuilder: (_) => [
@@ -1012,19 +996,17 @@ class _ProjectEditorState extends State<_ProjectEditor> {
                 controller: _name,
                 autofocus: true,
                 decoration: InputDecoration(
-                    labelText: t.paProjNameLabel,
-                    border: const OutlineInputBorder()),
+                    labelText: t.paProjNameLabel),
               ),
               const SizedBox(height: Gap.md),
               TextField(
                 controller: _owner,
                 decoration: InputDecoration(
-                    labelText: t.paProjOwnerLabel,
-                    border: const OutlineInputBorder()),
+                    labelText: t.paProjOwnerLabel),
               ),
               const SizedBox(height: Gap.md),
               Text(t.paProjStatusFieldLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Wrap(spacing: Gap.sm, children: [
                 for (final s in _projectStates)
@@ -1037,10 +1019,10 @@ class _ProjectEditorState extends State<_ProjectEditor> {
               const SizedBox(height: Gap.md),
               Row(children: [
                 Text(t.paProjPercentLabel,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                 const Spacer(),
                 Text('${_percent.round()}%',
-                    style: const TextStyle(fontWeight: FontWeight.w800, fontFeatures: AFonts.tabular)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, fontFeatures: AFonts.tabular)),
               ]),
               Slider(
                 value: _percent,
@@ -1060,8 +1042,7 @@ class _ProjectEditorState extends State<_ProjectEditor> {
                 controller: _note,
                 maxLines: 2,
                 decoration: InputDecoration(
-                    labelText: t.paProjNoteLabel,
-                    border: const OutlineInputBorder()),
+                    labelText: t.paProjNoteLabel),
               ),
               const SizedBox(height: Gap.lg),
               SizedBox(
@@ -1130,8 +1111,7 @@ class _MilestoneEditorState extends State<_MilestoneEditor> {
                   controller: _title,
                   autofocus: true,
                   decoration: InputDecoration(
-                      labelText: t.paProjMsTitleLabel,
-                      border: const OutlineInputBorder())),
+                      labelText: t.paProjMsTitleLabel)),
               const SizedBox(height: Gap.md),
               _DateField(
                   label: t.paProjMsDateLabel,
@@ -1139,7 +1119,7 @@ class _MilestoneEditorState extends State<_MilestoneEditor> {
                   onPick: (v) => setState(() => _date = v)),
               const SizedBox(height: Gap.md),
               Text(t.paProjMsStatusLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Wrap(spacing: Gap.sm, children: [
                 for (final s in _milestoneStates)
@@ -1218,11 +1198,10 @@ class _RiskEditorState extends State<_RiskEditor> {
                   autofocus: true,
                   maxLines: 2,
                   decoration: InputDecoration(
-                      labelText: t.paProjRiskLabelLabel,
-                      border: const OutlineInputBorder())),
+                      labelText: t.paProjRiskLabelLabel)),
               const SizedBox(height: Gap.md),
               Text(t.paProjSeverityLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Wrap(spacing: Gap.sm, children: [
                 for (final s in _riskSeverities)
@@ -1235,7 +1214,7 @@ class _RiskEditorState extends State<_RiskEditor> {
               const SizedBox(height: Gap.md),
               Row(children: [
                 Text(t.paProjRiskStatusLabel,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                 const Spacer(),
                 Switch(
                   value: _status == 'closed',

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -179,11 +180,7 @@ class _AppUpdateScreenState extends State<AppUpdateScreen> {
           title: t.updateCheckFailedTitle,
           message: t.updateCheckFailedBody,
           tint: Brand.warning,
-          action: FilledButton.icon(
-            onPressed: _check,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.updateRetry),
-          ),
+          action: DsButton(onPressed: _check, icon: Icons.refresh_rounded, label: t.updateRetry),
         );
       case _Phase.upToDate:
         return StateMessage(
@@ -234,7 +231,7 @@ class _Checking extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2)),
               const SizedBox(width: Gap.md),
               Flexible( // qa1: wraps at large font
-                  child: Text(label, style: TextStyle(color: scheme.ds.muted))),
+                  child: Text(label, style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
             ],
           ),
         ),
@@ -265,32 +262,25 @@ class _Available extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(Gap.lg),
       children: [
-        Container(
-          padding: const EdgeInsets.all(Gap.lg),
-          decoration: BoxDecoration(
-            gradient: Brand.gradient,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Row(
+        DsHeroCard(padding: const EdgeInsets.all(Gap.lg), child: Row(
             children: [
-              const Icon(Icons.system_update_rounded, color: Colors.white, size: 34),
+              Icon(Icons.system_update_rounded, color: Theme.of(context).colorScheme.ds.primaryInk, size: 34),
               const SizedBox(width: Gap.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(t.updateAvailableTitle,
-                        style: AType.titleMedium.copyWith(color: Colors.white,
+                        style: AType.titleMedium.copyWith(color: Theme.of(context).colorScheme.ds.text,
                             fontWeight: FontWeight.w700)),
                     const SizedBox(height: Gap.xxs),
                     Text(t.updateVersionLine(latest, current) /* (n=latest, v=current) */,
-                        style: AType.bodyMedium.copyWith(color: Colors.white)),
+                        style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.text)),
                   ],
                 ),
               ),
             ],
-          ),
-        ),
+          )),
         const SizedBox(height: Gap.lg),
         if (changelog.isNotEmpty) ...[
           Text(t.updateWhatsNew,
@@ -306,7 +296,7 @@ class _Available extends StatelessWidget {
               color: scheme.ds.cardHighest,
               borderRadius: BorderRadius.circular(Radii.md),
             ),
-            child: Text(changelog, style: const TextStyle(height: 1.5)),
+            child: Text(changelog, style: AType.bodyMedium.copyWith(height: 1.5)),
           ),
           const SizedBox(height: Gap.lg),
         ],

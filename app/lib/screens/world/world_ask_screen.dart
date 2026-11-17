@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -167,7 +168,7 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
           const SizedBox(height: Gap.sm),
           Text(t.uwAskWelcomeBody,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           if (widget.credits > 0)
             UwNote(
@@ -223,15 +224,13 @@ class _TurnCard extends StatelessWidget {
             decoration: BoxDecoration(
                 color: scheme.primary, borderRadius: BorderRadius.circular(18)),
             child:
-                Text(turn.question, style: TextStyle(color: scheme.onPrimary)),
+                Text(turn.question, style: AType.bodyMedium.copyWith(color: scheme.onPrimary)),
           ),
         ),
         const SizedBox(height: Gap.sm),
-        Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: turn.loading
+        DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+          padding: const EdgeInsets.all(Gap.lg),
+          child: turn.loading
                 ? Row(children: [
                     const SizedBox(
                         width: 20,
@@ -248,18 +247,15 @@ class _TurnCard extends StatelessWidget {
                             if (worldStatus(b ?? const {}) == 402)
                               Padding(
                                 padding: const EdgeInsets.only(top: Gap.sm),
-                                child: FilledButton.tonal(
-                                  onPressed: () => CreditsOut.offer(context,
-                                      screen: 'world'),
-                                  child: Text(t.uwGetCredits),
-                                ),
+                                child: DsButton.secondary(onPressed: () => CreditsOut.offer(context,
+                                      screen: 'world'), label: t.uwGetCredits),
                               ),
                           ])
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                             SelectableText('${b['answer'] ?? ''}',
-                                style: const TextStyle(height: 1.5)),
+                                style: AType.bodyMedium.copyWith(height: 1.5)),
                             if (sources.isNotEmpty) ...[
                               const SizedBox(height: Gap.md),
                               Text(t.uwSources,
@@ -282,13 +278,13 @@ class _TurnCard extends StatelessWidget {
                                           children: [
                                             Text(
                                                 '[${uwDigits(context, s['n'] ?? '')}] ',
-                                                style: TextStyle(
+                                                style: AType.bodyMedium.copyWith(
                                                     color: scheme.primary,
                                                     fontWeight: FontWeight.w700)),
                                             Expanded(
                                               child: Text(
                                                   '${s['title']} — ${s['site']}',
-                                                  style: TextStyle(
+                                                  style: AType.bodyMedium.copyWith(
                                                       color: scheme.primary,
                                                       decoration: TextDecoration
                                                           .underline,
@@ -337,7 +333,6 @@ class _TurnCard extends StatelessWidget {
                                     .bodySmall
                                     ?.copyWith(color: scheme.ds.muted)),
                           ]),
-          ),
         ),
       ]),
     );

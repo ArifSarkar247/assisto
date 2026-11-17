@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import 'package:provider/provider.dart';
 
@@ -87,33 +88,20 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
           padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
           children: [
             Text(t.uwIntro,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(color: scheme.ds.muted, height: 1.4)),
+                style: AType.bodyLarge.copyWith(color: scheme.ds.muted, height: 1.4)),
             const SizedBox(height: Gap.md),
-            for (final tile in tiles)
-              Padding(
-                padding: const EdgeInsets.only(bottom: Gap.sm),
-                child: Card(
-                  margin: EdgeInsets.zero,
-                  clipBehavior: Clip.antiAlias,
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: Gap.lg, vertical: Gap.xs),
-                    leading: CircleAvatar(
-                      backgroundColor: scheme.ds.primarySoft,
-                      foregroundColor: scheme.ds.primaryInk,
-                      child: Icon(tile.icon),
-                    ),
-                    title: Text(tile.title,
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
-                    subtitle: Text(tile.sub),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: tile.onTap,
-                  ),
+            // the tools = one DS group card (rows, not separate cards)
+            DsGroup(margin: EdgeInsets.zero, children: [
+              for (final tile in tiles)
+                DsListRow(
+                  leading: DsAvatar(
+                      child: Icon(tile.icon, color: scheme.ds.primaryInk)),
+                  title: tile.title,
+                  subtitle: tile.sub,
+                  trailing: Icon(Icons.chevron_right_rounded, color: scheme.ds.muted),
+                  onTap: tile.onTap,
                 ),
-              ),
+            ]),
             const SizedBox(height: Gap.sm),
             Row(children: [
               Icon(Icons.mic_none_rounded,
@@ -121,7 +109,7 @@ class _WorldHubScreenState extends State<WorldHubScreen> {
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(t.uwVoiceHint,
-                      style: TextStyle(color: scheme.ds.muted))),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
             ]),
           ],
         ),

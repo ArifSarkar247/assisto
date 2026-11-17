@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../widgets/msgr_channel_common.dart' show MsgrEmptyState;
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -262,7 +265,7 @@ class _CommunityMessageRequestsScreenState
     return Scaffold(
       appBar: AppBar(title: Text(_t.communityRequestsTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _loadError
               ? _errorRetry(scheme)
               : RefreshIndicator(
@@ -289,53 +292,24 @@ class _CommunityMessageRequestsScreenState
   }
 
   Widget _errorRetry(ColorScheme scheme) => ListView(
+        padding: const EdgeInsets.all(Gap.lg),
         children: [
-          const SizedBox(height: Gap.xxl * 2),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.xl),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.cloud_off_rounded,
-                      size: 56, color: scheme.ds.muted),
-                  const SizedBox(height: Gap.md),
-                  Text(_t.communityLoadError,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: Gap.lg),
-                  FilledButton.icon(
-                    onPressed: _load,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: Text(_t.retry),
-                  ),
-                ],
-              ),
-            ),
+          const SizedBox(height: Gap.xl),
+          MsgrEmptyState(
+            icon: Icons.cloud_off_rounded,
+            title: _t.communityLoadError,
+            body: '',
+            action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: _t.retry),
           ),
         ],
       );
 
   Widget _emptyState(ColorScheme scheme) => Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(
-          children: [
-            const SizedBox(height: Gap.xxl),
-            Icon(Icons.mark_email_read_rounded,
-                size: 56, color: scheme.primary.withValues(alpha: 0.7)),
-            const SizedBox(height: Gap.md),
-            Text(_t.communityRequestsEmptyTitle,
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.center),
-            const SizedBox(height: Gap.xs),
-            Text(
-              _backendReady
-                  ? _t.communityRequestsEmptyBody
-                  : _t.communityBackendPending,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.ds.muted, height: 1.4),
-            ),
-          ],
+        padding: const EdgeInsets.only(top: Gap.xl),
+        child: MsgrEmptyState(
+          icon: Icons.mark_email_read_rounded,
+          title: _t.communityRequestsEmptyTitle,
+          body: _backendReady ? _t.communityRequestsEmptyBody : _t.communityBackendPending,
         ),
       );
 }

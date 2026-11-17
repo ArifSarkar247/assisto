@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
@@ -361,30 +362,22 @@ class _VoiceAssistantSettingsScreenState
           const SizedBox(height: Gap.md),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () async {
+            child: DsButton.secondary(onPressed: () async {
                 if (!_native && !widget.debugStatic) return;
                 final ok = await VaNative.openAssistantSettings();
                 if (!ok) _snack(t.vaSettingsOpenFailed);
-              },
-              icon: const Icon(Icons.open_in_new_rounded),
-              label: Text(t.vaDefOpenSettings),
-            ),
+              }, icon: Icons.open_in_new_rounded, label: t.vaDefOpenSettings, expand: true),
           ),
           const SizedBox(height: Gap.sm),
           SizedBox(
             width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () async {
+            child: DsButton.secondary(onPressed: () async {
                 // gallery/tests: no native half -> the honest "could not open" note
                 final r = widget.debugStatic
                     ? null
                     : await VaNative.openPowerKeySettings();
                 if (r == null || r == 'none') _snack(t.vaDefOpenFailed);
-              },
-              icon: const Icon(Icons.power_settings_new_rounded),
-              label: Text(t.vaDefPowerKey),
-            ),
+              }, icon: Icons.power_settings_new_rounded, label: t.vaDefPowerKey, expand: true),
           ),
         ]);
   }

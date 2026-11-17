@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
 
@@ -405,7 +406,7 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
           TextField(
               controller: ctl,
               autofocus: true,
-              decoration: InputDecoration(labelText: t.trStopName, border: const OutlineInputBorder())),
+              decoration: InputDecoration(labelText: t.trStopName)),
           const SizedBox(height: Gap.sm),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
@@ -701,13 +702,11 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl)),
       children: [
         if (sent != null)
-          Card(
-            color: sent
+          DsSurface(color: sent
                 ? Theme.of(context).colorScheme.ds.primarySoft
                 : Theme.of(context).colorScheme.ds.dangerBg,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Semantics(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Semantics(
                 liveRegion: true,
                 child: Text(sent ? t.sjaArrivedSent : t.sjaArrivedFailed,
                     style: AType.bodyMedium.copyWith(
@@ -715,7 +714,6 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
                             ? Theme.of(context).colorScheme.ds.primaryInk
                             : Theme.of(context).colorScheme.ds.dangerInk)),
               ),
-            ),
           ),
         Text(t.trAlarmBenefit, style: AType.bodyMedium),
         const SizedBox(height: Gap.md),
@@ -739,7 +737,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
         else ...[
           Text(t.trAlarmWhere, style: AType.titleSmall),
           if (_target != null)
-            Card(
+            DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: const Icon(Icons.flag_rounded),
                 title: Text(_target!.name),
@@ -768,8 +767,7 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search_rounded),
-                  labelText: _mode == TransportMode.cityBus ? t.trBusStopSearch : t.trStationSearch,
-                  border: const OutlineInputBorder()),
+                  labelText: _mode == TransportMode.cityBus ? t.trBusStopSearch : t.trStationSearch),
             ),
             OutlinedButton.icon(
               style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
@@ -887,7 +885,7 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
         DropdownButtonFormField<int>(
           initialValue: v,
           isExpanded: true,
-          decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+          decoration: InputDecoration(labelText: label),
           items: [
             for (var i = 0; i < _metro.length; i++)
               DropdownMenuItem(value: i, child: Text(_metro[i].name(_bn)))
@@ -968,22 +966,12 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
       Text(t.trPersonalVoice, style: AType.titleSmall),
       Text(t.trPersonalVoiceSub, style: AType.bodySmall),
       Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-        OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-          icon: Icon(_recording ? Icons.stop_rounded : Icons.mic_rounded),
-          label: Text(_recording ? t.trRecordStop : (clip == null ? t.trRecord : t.trRecordAgain)),
-          onPressed: _record,
-        ),
+        DsButton.secondary(onPressed: _record, icon: _recording ? Icons.stop_rounded : Icons.mic_rounded, label: _recording ? t.trRecordStop : (clip == null ? t.trRecord : t.trRecordAgain)),
         if (clip != null && !_recording) ...[
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: Text(t.trPlay),
-            onPressed: () async {
+          DsButton.secondary(onPressed: () async {
               final s = NativeDestAlarmSound();
               await s.playClip(clip);
-            },
-          ),
+            }, icon: Icons.play_arrow_rounded, label: t.trPlay),
           TextButton.icon(
             style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
             icon: const Icon(Icons.delete_outline_rounded),

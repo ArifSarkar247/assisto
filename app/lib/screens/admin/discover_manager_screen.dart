@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -216,10 +217,7 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
             message:
                 honestFailText(t, _failCause, otherwise: t.loadFailedBody),
             tint: Brand.danger,
-            action: FilledButton.icon(
-                onPressed: _load,
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(t.retry)),
+            action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
           ),
         _St.ok => _list(t),
       },
@@ -272,7 +270,7 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
                       Text(title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
+                          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                       const SizedBox(height: Gap.xxs),
                       Wrap(spacing: Gap.xs, runSpacing: 2, children: [
                         _chip(_typeLabel(t, item.type), scheme.primary),
@@ -672,7 +670,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
             const SizedBox(height: Gap.sm),
             if (_isAdmob)
               Text(t.discoverMgrAdmobNote,
-                  style: TextStyle(color: scheme.ds.muted))
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted))
             else
               DiscoverCardTile(item: _previewItem),
             const SizedBox(height: Gap.xl),
@@ -707,7 +705,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
               _field(_descEn, t.discoverMgrDescEn, max: 200, lines: 2),
               const SizedBox(height: Gap.sm),
               Text(t.discoverMgrAction,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               SegmentedButton<bool>(
                 segments: [
@@ -761,11 +759,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
               ),
               const SizedBox(height: Gap.sm),
               Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-                OutlinedButton.icon(
-                  onPressed: _pickImage,
-                  icon: const Icon(Icons.image_rounded),
-                  label: Text(t.discoverMgrImagePick),
-                ),
+                DsButton.secondary(onPressed: _pickImage, icon: Icons.image_rounded, label: t.discoverMgrImagePick),
                 if ('${_card?['image_url'] ?? ''}'.isNotEmpty)
                   TextButton(
                     onPressed: () async {
@@ -820,7 +814,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.sm),
-                child: Text(_error!, style: TextStyle(color: scheme.error)),
+                child: Text(_error!, style: AType.bodyMedium.copyWith(color: scheme.error)),
               ),
             FilledButton.icon(
               onPressed: _saving ? null : _save,
@@ -970,10 +964,7 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
               message:
                   honestFailText(t, _failCause, otherwise: t.loadFailedBody),
               tint: Brand.danger,
-              action: FilledButton.icon(
-                  onPressed: _load,
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: Text(t.retry)),
+              action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
             )
           : d == null
               ? const SkeletonList()
@@ -987,7 +978,7 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
                         style: Theme.of(context).textTheme.titleMedium),
                     if ('${card['sponsor_name'] ?? ''}'.isNotEmpty)
                       Text('${t.discoverMgrSponsorName}: ${card['sponsor_name']}',
-                          style: TextStyle(color: scheme.ds.muted)),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                     const SizedBox(height: Gap.sm),
                     SegmentedButton<int>(
                       segments: [
@@ -1008,22 +999,14 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
                           t.discoverMgrStats(_i(totals['impressions']),
                               _i(totals['clicks']), '${totals['ctr'] ?? 0}'),
                           lang),
-                      style: const TextStyle(fontWeight: FontWeight.w800),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800),
                     ),
                     Text(t.discoverMgrUniqueNote,
                         style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     const SizedBox(height: Gap.sm),
                     Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-                      OutlinedButton.icon(
-                        onPressed: _exporting ? null : () => _export('csv'),
-                        icon: const Icon(Icons.table_view_rounded),
-                        label: Text(t.discoverMgrExportCsv),
-                      ),
-                      OutlinedButton.icon(
-                        onPressed: _exporting ? null : () => _export('pdf'),
-                        icon: const Icon(Icons.picture_as_pdf_rounded),
-                        label: Text(t.discoverMgrExportPdf),
-                      ),
+                      DsButton.secondary(onPressed: _exporting ? null : () => _export('csv'), icon: Icons.table_view_rounded, label: t.discoverMgrExportCsv),
+                      DsButton.secondary(onPressed: _exporting ? null : () => _export('pdf'), icon: Icons.picture_as_pdf_rounded, label: t.discoverMgrExportPdf),
                     ]),
                     const SizedBox(height: Gap.md),
                     // qa2: the table spans the full width (it stopped at
@@ -1055,7 +1038,7 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
                             ]),
                           DataRow(cells: [
                             DataCell(Text(t.discoverMgrTotal,
-                                style: const TextStyle(
+                                style: AType.bodyMedium.copyWith(
                                     fontWeight: FontWeight.w800))),
                             DataCell(Text(ld(totals['impressions']))),
                             DataCell(Text(ld(totals['clicks']))),

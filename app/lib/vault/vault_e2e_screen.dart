@@ -396,8 +396,8 @@ class _VaultE2EScreenState extends State<VaultE2EScreen> {
 
   Widget _bigButton(Key key, IconData icon, String label, VoidCallback? onTap, {bool tonal = false}) {
     final child = tonal
-        ? FilledButton.tonalIcon(key: key, onPressed: onTap, icon: Icon(icon), label: Text(label))
-        : FilledButton.icon(key: key, onPressed: onTap, icon: Icon(icon), label: Text(label));
+        ? DsButton.secondary(buttonKey: key, onPressed: onTap, icon: icon, label: label)
+        : DsButton(buttonKey: key, onPressed: onTap, icon: icon, label: label);
     return Padding(
       padding: const EdgeInsets.only(top: Gap.sm),
       child: SizedBox(width: double.infinity, child: ConstrainedBox(
@@ -407,11 +407,9 @@ class _VaultE2EScreenState extends State<VaultE2EScreen> {
 
   List<Widget> _inboxCards(AppLocalizations t) => [
         for (final r in _inbox)
-          Card(
-            key: Key('e2e_inbox_${r['id']}'),
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsSurface(key: Key('e2e_inbox_${r['id']}'), flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(t.vaultE2eInboxTitle('${r['owner_name'] ?? ''}'),
                     style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.xs),
@@ -421,12 +419,9 @@ class _VaultE2EScreenState extends State<VaultE2EScreen> {
                       key: Key('e2e_approve_${r['id']}'),
                       onPressed: _busy ? null : () => _decide(r, true),
                       child: Text(t.vaultE2eApprove)),
-                  OutlinedButton(
-                      onPressed: _busy ? null : () => _decide(r, false),
-                      child: Text(t.vaultE2eDecline)),
+                  DsButton.secondary(onPressed: _busy ? null : () => _decide(r, false), label: t.vaultE2eDecline),
                 ]),
               ]),
-            ),
           ),
       ];
 
@@ -456,11 +451,9 @@ class _VaultE2EScreenState extends State<VaultE2EScreen> {
       default:
         return null;
     }
-    return Card(
-      key: const Key('e2e_request'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(key: const Key('e2e_request'), flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(text, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           if (st == 'pending' || st == 'approved') ...[
             const SizedBox(height: Gap.xs),
@@ -473,7 +466,6 @@ class _VaultE2EScreenState extends State<VaultE2EScreen> {
             TextButton(onPressed: _busy ? null : _cancelHelp, child: Text(t.vaultE2eRequestCancel)),
           ],
         ]),
-      ),
     );
   }
 
@@ -528,7 +520,7 @@ class _VaultE2EScreenState extends State<VaultE2EScreen> {
         children.add(ListTile(
           contentPadding: EdgeInsets.zero,
           leading: Icon(_hasServerRecovery ? Icons.check_circle_rounded : Icons.error_outline_rounded,
-              color: _hasServerRecovery ? Colors.green.shade700 : Theme.of(context).colorScheme.error),
+              color: _hasServerRecovery ? Theme.of(context).colorScheme.ds.successInk : Theme.of(context).colorScheme.error),
           title: Text(_hasServerRecovery ? t.vaultE2eRecoveryOnServer : t.vaultE2eRecoveryMissing),
         ));
         children.add(_bigButton(const Key('e2e_new_code'), Icons.key_rounded, t.vaultE2eNewCode,

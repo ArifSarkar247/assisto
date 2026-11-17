@@ -37,7 +37,8 @@ class Command(BaseCommand):
         assets = opts["assets"] or os.path.join(root, "app", "assets", "lp")
         if not os.path.isdir(content):
             raise CommandError("content dir missing: %s" % content)
-        items = SD.all_items(content)
+        from core.management.commands.lp_audio import load_index
+        items = SD.all_items(content, load_index())   # lpaudio: keep attached listening audio
         out = {"items": len(items), "by_kind": {}}
         for it in items:
             out["by_kind"][it["kind"]] = out["by_kind"].get(it["kind"], 0) + 1

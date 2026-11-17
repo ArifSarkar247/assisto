@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -168,21 +169,14 @@ class _BoardPackScreenState extends State<BoardPackScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paBoardLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : _saved.isEmpty
                   ? StateMessage(
                       icon: Icons.groups_2_rounded,
                       title: tr.paBoardWelcomeTitle,
                       message: tr.paBoardWelcomeBody,
-                      action: FilledButton.icon(
-                        onPressed: () => _open(),
-                        icon: const Icon(Icons.add_rounded),
-                        label: Text(tr.paBoardNew),
-                      ),
+                      action: DsButton(onPressed: () => _open(), icon: Icons.add_rounded, label: tr.paBoardNew),
                     )
                   : RefreshIndicator(
                       onRefresh: _load,
@@ -197,13 +191,12 @@ class _BoardPackScreenState extends State<BoardPackScreen> {
                           final agenda = (r['agenda'] as List?) ?? const [];
                           final res = (r['resolutions'] as List?) ?? const [];
                           final date = _clean(r['date']?.toString());
-                          return Card(
-                            margin: EdgeInsets.zero,
+                          return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+                            padding: EdgeInsets.zero,
                             child: ListTile(
                               leading: Icon(Icons.groups_2_rounded,
                                   color: scheme.primary),
-                              title: Text(_clean(r['title']?.toString()),
-                                  maxLines: 1, overflow: TextOverflow.ellipsis),
+                              title: Text(_clean(r['title']?.toString())),
                               subtitle: Text(
                                   [
                                     if (date.isNotEmpty) date,
@@ -546,8 +539,7 @@ class _PackEditorState extends State<_PackEditor> {
             controller: _title,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-                labelText: tr.paBoardTitleField,
-                border: const OutlineInputBorder()),
+                labelText: tr.paBoardTitleField),
           ),
           const SizedBox(height: Gap.md),
           Row(children: [
@@ -558,8 +550,7 @@ class _PackEditorState extends State<_PackEditor> {
                 decoration: InputDecoration(
                     labelText: tr.paBoardDateField,
                     helperText: tr.paBoardDateHelp,
-                    helperMaxLines: 2,
-                    border: const OutlineInputBorder()),
+                    helperMaxLines: 2),
               ),
             ),
             const SizedBox(width: Gap.md),
@@ -570,8 +561,7 @@ class _PackEditorState extends State<_PackEditor> {
                 onChanged: (_) => setState(() {}),
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                    labelText: tr.paBoardQuorumField,
-                    border: const OutlineInputBorder()),
+                    labelText: tr.paBoardQuorumField),
               ),
             ),
           ]),
@@ -636,8 +626,8 @@ class _PackEditorState extends State<_PackEditor> {
             const SizedBox(width: 4),
             Expanded(
               child: Text(tr.f6BwTemplateMarker, // truth: template, not AI
-                  style: TextStyle(
-                      color: scheme.ds.muted, fontSize: 12.5)),
+                  style: AType.bodySmall.copyWith(
+                      color: scheme.ds.muted, )),
             ),
           ]),
           const SizedBox(height: Gap.sm),
@@ -657,42 +647,29 @@ class _PackEditorState extends State<_PackEditor> {
             ),
             child: SelectableText(
               rendered.trim().isEmpty ? tr.paBoardPreviewEmpty : rendered,
-              style: const TextStyle(fontSize: 14, height: 1.5),
+              style: AType.bodyMedium.copyWith(height: 1.5),
             ),
           ),
           const SizedBox(height: Gap.md),
           Row(children: [
             Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () async {
+              child: DsButton.secondary(onPressed: () async {
                   await Clipboard.setData(ClipboardData(text: rendered));
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context)
                     ..clearSnackBars()
                     ..showSnackBar(SnackBar(content: Text(tr.copied)));
-                },
-                icon: const Icon(Icons.copy_rounded, size: 18),
-                label: Text(tr.copy),
-              ),
+                }, icon: Icons.copy_rounded, label: tr.copy),
             ),
             const SizedBox(width: Gap.md),
             Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => Share.share(rendered),
-                icon: const Icon(Icons.share_rounded, size: 18),
-                label: Text(tr.share),
-              ),
+              child: DsButton.secondary(onPressed: () => Share.share(rendered), icon: Icons.share_rounded, label: tr.share),
             ),
           ]),
           const SizedBox(height: Gap.sm),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
-              onPressed:
-                  (problems.isEmpty && !_saving) ? () => _save(tr) : null,
-              icon: const Icon(Icons.save_rounded, size: 18),
-              label: Text(tr.save),
-            ),
+            child: DsButton(onPressed: (problems.isEmpty && !_saving) ? () => _save(tr) : null, icon: Icons.save_rounded, label: tr.save, expand: true),
           ),
           if (problems.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
@@ -700,7 +677,7 @@ class _PackEditorState extends State<_PackEditor> {
               problems.contains('empty_title')
                   ? tr.paBoardNeedTitle
                   : tr.paBoardNeedAgenda,
-              style: TextStyle(color: scheme.error, fontSize: 12.5),
+              style: AType.bodySmall.copyWith(color: scheme.error, ),
             ),
           ],
         ],
@@ -723,13 +700,12 @@ class _PackEditorState extends State<_PackEditor> {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(tr.paBoardAiSeamTitle,
-                  style: const TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       fontWeight: FontWeight.w700, height: 1.4)),
               const SizedBox(height: 2),
               Text(tr.paBoardAiSeamBody,
-                  style: TextStyle(
+                  style: AType.bodySmall.copyWith(
                       color: scheme.ds.muted,
-                      fontSize: 12.5,
                       height: 1.4)),
             ]),
           ),
@@ -777,7 +753,7 @@ class _SectionEditor extends StatelessWidget {
                     ?.copyWith(fontWeight: FontWeight.w700)),
           ),
           Text('${rows.length}',
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ]),
         for (var i = 0; i < rows.length; i++) ...[
           const SizedBox(height: Gap.sm),
@@ -827,8 +803,7 @@ class _AgendaRow extends StatelessWidget {
         },
         decoration: InputDecoration(
             isDense: true,
-            labelText: tr.paBoardAgendaItemField,
-            border: const OutlineInputBorder()),
+            labelText: tr.paBoardAgendaItemField),
       ),
       const SizedBox(height: Gap.xs),
       Row(children: [
@@ -842,8 +817,7 @@ class _AgendaRow extends StatelessWidget {
             },
             decoration: InputDecoration(
                 isDense: true,
-                labelText: tr.paBoardPresenterField,
-                border: const OutlineInputBorder()),
+                labelText: tr.paBoardPresenterField),
           ),
         ),
         const SizedBox(width: Gap.sm),
@@ -860,8 +834,7 @@ class _AgendaRow extends StatelessWidget {
             },
             decoration: InputDecoration(
                 isDense: true,
-                labelText: tr.paBoardMinutesField,
-                border: const OutlineInputBorder()),
+                labelText: tr.paBoardMinutesField),
           ),
         ),
       ]),
@@ -887,8 +860,7 @@ class _DocRow extends StatelessWidget {
           },
           decoration: InputDecoration(
               isDense: true,
-              labelText: tr.paBoardDocRefField,
-              border: const OutlineInputBorder()),
+              labelText: tr.paBoardDocRefField),
         ),
       ),
       const SizedBox(width: Gap.sm),
@@ -901,8 +873,7 @@ class _DocRow extends StatelessWidget {
           },
           decoration: InputDecoration(
               isDense: true,
-              labelText: tr.paBoardDocTitleField,
-              border: const OutlineInputBorder()),
+              labelText: tr.paBoardDocTitleField),
         ),
       ),
     ]);
@@ -937,8 +908,7 @@ class _AttendeeRow extends StatelessWidget {
             },
             decoration: InputDecoration(
                 isDense: true,
-                labelText: tr.paBoardAttendeeNameField,
-                border: const OutlineInputBorder()),
+                labelText: tr.paBoardAttendeeNameField),
           ),
         ),
         const SizedBox(width: Gap.sm),
@@ -952,8 +922,7 @@ class _AttendeeRow extends StatelessWidget {
             },
             decoration: InputDecoration(
                 isDense: true,
-                labelText: tr.paBoardAttendeeRoleField,
-                border: const OutlineInputBorder()),
+                labelText: tr.paBoardAttendeeRoleField),
           ),
         ),
       ]),
@@ -995,8 +964,7 @@ class _ResolutionRow extends StatelessWidget {
         },
         decoration: InputDecoration(
             isDense: true,
-            labelText: tr.paBoardResolutionField,
-            border: const OutlineInputBorder()),
+            labelText: tr.paBoardResolutionField),
       ),
       const SizedBox(height: Gap.xs),
       Row(children: [
@@ -1009,8 +977,7 @@ class _ResolutionRow extends StatelessWidget {
             },
             decoration: InputDecoration(
                 isDense: true,
-                labelText: tr.paBoardProposerField,
-                border: const OutlineInputBorder()),
+                labelText: tr.paBoardProposerField),
           ),
         ),
         const SizedBox(width: Gap.sm),
@@ -1023,8 +990,7 @@ class _ResolutionRow extends StatelessWidget {
             },
             decoration: InputDecoration(
                 isDense: true,
-                labelText: tr.paBoardSeconderField,
-                border: const OutlineInputBorder()),
+                labelText: tr.paBoardSeconderField),
           ),
         ),
       ]),

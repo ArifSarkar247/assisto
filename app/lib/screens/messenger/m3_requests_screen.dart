@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 
 import '../../l10n/app_localizations.dart';
 import '../../m3_circle_api.dart';
@@ -45,22 +47,16 @@ class _M3RequestsScreenState extends State<M3RequestsScreen>
     final out = requests.where((r) => !m3IsIncoming(r)).toList();
     Widget body;
     if (reqLoading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList(count: 4);
     } else if (reqError != null) {
       body = LoadErrorRetry(body: t.m3RequestsLoadFailed, onRetry: loadRequests);
     } else if (requests.isEmpty) {
-      body = Center(
+      body = ListView(
         key: const Key('m3-requests-empty'),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.xl),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.inbox_rounded, size: 48, color: scheme.primary),
-            const SizedBox(height: Gap.md),
-            Text(t.m3NoRequests,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium),
-          ]),
-        ),
+        padding: const EdgeInsets.all(Gap.lg),
+        children: [
+          DsEmptyState(icon: Icons.inbox_rounded, title: t.m3NoRequests),
+        ],
       );
     } else {
       body = RefreshIndicator(
@@ -92,10 +88,13 @@ class _M3RequestsScreenState extends State<M3RequestsScreen>
 
   Widget _header(String s) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xs),
-        child: Text(s,
-            style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: Theme.of(context).colorScheme.primary)),
+        child: Semantics(
+          header: true,
+          child: Text(s,
+              style: AType.titleSmall.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.ds.muted)),
+        ),
       );
 
   Widget _tile(Map<String, dynamic> r) => M3RequestTile(

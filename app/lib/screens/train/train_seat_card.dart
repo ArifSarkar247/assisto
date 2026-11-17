@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -107,7 +108,7 @@ class _TrainSeatCardState extends State<TrainSeatCard> {
             maxLength: 8,
             buildCounter: localCounter,
             textCapitalization: TextCapitalization.characters,
-            decoration: InputDecoration(labelText: t.sjtCoach, border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: t.sjtCoach),
           ),
           const SizedBox(height: Gap.sm),
           TextField(
@@ -115,7 +116,7 @@ class _TrainSeatCardState extends State<TrainSeatCard> {
             controller: s,
             maxLength: 8,
             buildCounter: localCounter,
-            decoration: InputDecoration(labelText: t.sjtSeatNo, border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: t.sjtSeatNo),
           ),
           const SizedBox(height: Gap.sm),
           FilledButton(
@@ -217,12 +218,9 @@ class _TrainSeatCardState extends State<TrainSeatCard> {
     final t = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     final v = _v;
-    return Card(
-      key: const ValueKey('sjt_seat_card'),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsSurface(key: const ValueKey('sjt_seat_card'), flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
             Icon(Icons.event_seat_rounded, color: cs.primary),
             const SizedBox(width: Gap.sm),
@@ -241,7 +239,6 @@ class _TrainSeatCardState extends State<TrainSeatCard> {
           else
             ..._facts(t, cs, v),
         ]),
-      ),
     );
   }
 

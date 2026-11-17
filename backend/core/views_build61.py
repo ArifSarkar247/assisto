@@ -1155,6 +1155,12 @@ def _journey_dict(j, lang="bn", traveller=True):
             out["train"] = _train_for_watcher(j, now)
     if traveller:
         out["pin_required"] = _pin_configured(j.traveller)
+        # gap-safejourney: the traveller sees WHO is watching this trip
+        # (the names they gave them in My Circle), like Life360's "seen by"
+        out["watcher_names"] = [
+            (w.member.name or "").strip()[:40]
+            for w in j.watchers.select_related("member").order_by("id")[:6]
+            if (w.member.name or "").strip()]
         # owner idea 1: the always-visible "<name> is watching — Stop" banner
         g = j.guardian_requests.select_related("requester").first()
         if g is not None:
@@ -1878,6 +1884,10 @@ class JourneyWatchingView(APIView):
                 "acc_m": SL.acc_of(j) if fx else None,
                 "share": SL.is_share(j),
                 "ride": JD.clean_vehicle(j.vehicle),
+                # gap-safejourney: the number-plate / ride photo in the app
+                # too (was only on the web page) — only while the trip is
+                # live or an SOS is open; a short-lived signed link
+                "ride_photo": _photo_url(j) if live else None,
                 **(JW.progress(j, fx) if fx and j.status == "active" else {}),
                 **_lost_fields(j, fx, now),
                 **({"train": _train_for_watcher(j, now)}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -257,10 +258,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: t.uwOffline,
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(t.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
                 )
               : RefreshIndicator(onRefresh: _load, child: _body(t, scheme)),
     );
@@ -290,7 +288,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                   size: 18, color: scheme.ds.muted),
               const SizedBox(width: Gap.xs),
               Text('${city['name']}',
-                  style: TextStyle(color: scheme.ds.muted)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ]),
           ),
         if (shown.isEmpty)
@@ -304,11 +302,9 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
         for (final id in shown)
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.md),
-            child: Card(
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.lg),
-                child: Column(
+            child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+              padding: const EdgeInsets.all(Gap.lg),
+              child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(children: [
@@ -331,15 +327,12 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                       const SizedBox(height: Gap.sm),
                       _cardBody(t, scheme, id, worldMap(cards[id])),
                     ]),
-              ),
             ),
           ),
         if (soon.isNotEmpty)
-          Card(
-            margin: EdgeInsets.zero,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.lg),
-              child: Column(
+          DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+            padding: const EdgeInsets.all(Gap.lg),
+            child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(children: [
@@ -366,13 +359,12 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                               Expanded(
                                   child: Text(
                                       '${_cardTitle(t, id)} — ${_hiddenReason(t, '${hidden[id]}')}',
-                                      style: TextStyle(
+                                      style: AType.bodyMedium.copyWith(
                                           color: scheme.ds.muted,
                                           height: 1.35))),
                             ]),
                       ),
                   ]),
-            ),
           ),
       ],
     );
@@ -384,7 +376,7 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
           Expanded(child: Text(a)),
           const SizedBox(width: Gap.sm),
           Text(b,
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   fontWeight: strong ? FontWeight.w700 : FontWeight.w500)),
         ]),
       );
@@ -563,13 +555,13 @@ class _WorldTodayScreenState extends State<WorldTodayScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('${it['title']}',
-                          style: const TextStyle(
+                          style: AType.bodyMedium.copyWith(
                               fontWeight: FontWeight.w600, height: 1.35)),
                       if ('${it['snippet'] ?? ''}'.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: Gap.xxs),
                           child: Text('${it['snippet']}',
-                              style: TextStyle(
+                              style: AType.bodyMedium.copyWith(
                                   color: scheme.ds.muted,
                                   height: 1.35)),
                         ),
