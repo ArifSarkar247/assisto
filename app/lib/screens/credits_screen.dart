@@ -97,6 +97,20 @@ class _CreditsScreenState extends State<CreditsScreen> {
     final api = app.api;
     final uid = _uid;
     final bill = BillingApi(api);
+    // speedproof: the four reads go out TOGETHER (they used to wait for each
+    // other: state -> usage -> packs -> payments config, four round trips
+    // before the screen could show; on a 2G/3G phone ~1-2 s each).
+    Object? usageErr;
+    final usageF = api.meUsageSummary().then<Map<String, dynamic>>((u) => u, onError: (Object e) {
+      usageErr = e;
+      return const <String, dynamic>{};
+    });
+    final packsF = api.creditsPacks().then<List<Map<String, dynamic>>>(
+        (l) => l.cast<Map<String, dynamic>>(),
+        onError: (Object _) => const <Map<String, dynamic>>[]);
+    final cfgF = ApiPaymentsBackend(api)
+        .config(payFlavour())
+        .then<PayConfig?>((c) => c, onError: (Object _) => null);
     // 1) the credit state — the heart of the screen (cache when offline)
     try {
       final s = await bill.state();
@@ -115,17 +129,9 @@ class _CreditsScreenState extends State<CreditsScreen> {
       }
     }
     // 2) usage + packs (optional: never blank the screen)
-    try {
-      _usage = await api.meUsageSummary();
-    } catch (e) {
-      _usage = const {};
-      _failCause ??= e;
-    }
-    try {
-      _packs = (await api.creditsPacks()).cast<Map<String, dynamic>>();
-    } catch (_) {
-      _packs = const [];
-    }
+    _usage = await usageF;
+    if (usageErr != null) _failCause ??= usageErr;
+    _packs = await packsF;
     if (_st == null && _usage.isEmpty) _error = true;
     // An older server without /credits/state: the plain balance, honestly.
     if (_st == null && _usage.isNotEmpty) {
@@ -133,11 +139,7 @@ class _CreditsScreenState extends State<CreditsScreen> {
       _st = CreditsState(balance: b, nowUsable: b < 0 ? 0 : b, debt: b < 0 ? -b : 0);
     }
     // NO SHOWPIECES: a pack is buyable only through a LIVE channel.
-    try {
-      _payCfg = await ApiPaymentsBackend(api).config(payFlavour());
-    } catch (_) {
-      _payCfg = null;
-    }
+    _payCfg = await cfgF;
     final cfg = _payCfg;
     _packs = cfg == null || (_st?.purchaseBlocked ?? false)
         ? const []
@@ -152,17 +154,20 @@ class _CreditsScreenState extends State<CreditsScreen> {
       _adsReady = await AdsService.instance.rewardedAvailable(app);
     }
     if (mounted) setState(() => _loading = false);
-    if (!_error && _cachedAt == null) await _loadHistory(reset: true);
+    if (mounted && !_error && _cachedAt == null) await _loadHistory(reset: true);
   }
 
   Future<void> _loadHistory({bool reset = false}) async {
-    if (_histLoading) return;
+    // speedproof: the screen may be closed while its first loads run (run
+    // 44002942576: setState after dispose -> "Null check operator" error)
+    if (_histLoading || !mounted) return;
+    final api = context.read<AppState>().api;
     setState(() {
       _histLoading = true;
       _histFailed = false;
     });
     try {
-      final page = await BillingApi(context.read<AppState>().api)
+      final page = await BillingApi(api)
           .history(offset: reset ? 0 : (_nextOffset ?? 0), limit: _pageSize);
       if (reset) _ledger.clear();
       _ledger.addAll(page.rows);

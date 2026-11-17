@@ -216,26 +216,44 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     } catch (_) {
       // best-effort: offline — the start form still loads below
     }
+    // speedproof: the form's reads go out TOGETHER — they used to wait for
+    // each other (places -> members -> habits -> maps/status -> map config:
+    // ~0.7 s of chained round trips in CI, several seconds on 3G).
+    final placesF = api
+        .savedPlaces()
+        .then<List<Map<String, dynamic>>?>((v) => v, onError: (Object _) => null);
+    final membersF = api.getJson('/circle/members')
+        .then<Map<String, dynamic>?>((v) => v, onError: (Object _) => null);
+    final memoryF = JourneyWatcherMemory.load().catchError((Object _) => <int>{});
+    final suggestF = JourneyHabits.enabled(); // sjstart2
+    final psModeF = placeSearchMode(api); // jsearch: never throws
+    final mapF = VehMapConfig.load(api); // never throws; empty = no map
+    final gmapsF = MapsSdk.available(); // mapscost: never throws
+    final places = await placesF; // best-effort: no saved places offline, form still works
+    if (places != null) {
+      _places = places;
+      try {
+        _places = sjgOrderPlaces(_places, await PlaceRecents.ranked()); // gap-safejourney
+      } catch (_) {} // best-effort: recents only reorder
+    }
     try {
-      _places = await api.savedPlaces();
-      _places = sjgOrderPlaces(_places, await PlaceRecents.ranked()); // gap-safejourney
-    } catch (_) {} // best-effort: no saved places offline, form still works
-    try {
-      final r = await api.getJson('/circle/members');
-      _watchers = journeyWatcherRows(r);
-      // sjstart2: the last watchers again (still in the circle only)
-      final again = JourneyWatcherMemory.stillThere(await JourneyWatcherMemory.load(), _watchers);
-      if (_selectedWatchers.isEmpty) _selectedWatchers.addAll(again);
+      final r = await membersF;
+      if (r != null) {
+        _watchers = journeyWatcherRows(r);
+        // sjstart2: the last watchers again (still in the circle only)
+        final again = JourneyWatcherMemory.stillThere(await memoryF, _watchers);
+        if (_selectedWatchers.isEmpty) _selectedWatchers.addAll(again);
+      }
     } catch (_) {} // best-effort: offline -> empty list shows the add-family step
-    _suggestOn = await JourneyHabits.enabled(); // sjstart2
+    _suggestOn = await suggestF;
     if (_suggestOn && widget.suggest == null) {
       try {
         _usual = sj2UsualTrips(await JourneyHabits.trips(), DateTime.now());
       } catch (_) {} // best-effort: a habit is only a hint
     }
-    _psMode = await placeSearchMode(api); // jsearch: never throws
-    _map = await VehMapConfig.load(api); // never throws; empty = no map
-    _gmaps = await MapsSdk.available(); // mapscost: never throws
+    _psMode = await psModeF;
+    _map = await mapF;
+    _gmaps = await gmapsF;
     if (mounted) setState(() => _loading = false);
     _lastKnown();
     _applySuggestion();

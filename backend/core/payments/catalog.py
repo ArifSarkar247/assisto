@@ -26,10 +26,18 @@ TIER = {"free": 0, "premium": 1, "family": 1, "annual": 1, "probashi": 1,
 
 
 def _cfg(cfg=None):
+    # speedproof: a config that is already normalize()'s output is used as is
+    # (pricing._n) — products() used to re-normalize it per helper per sku
     if cfg is not None:
-        return pricing.normalize(cfg)
+        return pricing._n(cfg)
     from .. import billing
     return billing.cfg()
+
+
+def current_cfg():
+    """speedproof: the normalized pricing config, registered so passing it to
+    the helpers below never normalizes it again (one read per request)."""
+    return _cfg()
 
 
 def pay_cfg(cfg=None):

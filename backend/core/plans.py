@@ -317,14 +317,21 @@ def plans_public(lang="bn"):
     from .i18n import pick
     from .logic import pricing
     from . import billing
-    out = pricing.plan_public(lang, billing.cfg())
+    try:
+        from .payments import catalog as _cat
+        cfg = _cat.current_cfg()
+    except Exception:  # noqa: BLE001
+        cfg = billing.cfg()
+    out = pricing.plan_public(lang, cfg)
     # pricing-40: a NEW plan (Plus, Premium Pro) is listed only once one of
     # its Play products is verified ACTIVE and it is for sale — never a plan
     # the user cannot buy.
     try:
         from .payments import catalog
-        sold = {s.rsplit("_", 1)[0] for s in catalog.all_skus()
-                if catalog.price(s, "play") or catalog.price(s, "gateway")}
+        # speedproof: ONE config for every sku (each bare call re-read the
+        # pricing row + normalized it: GET plans 1.6 s / 30 SQL in CI)
+        sold = {s.rsplit("_", 1)[0] for s in catalog.all_skus(cfg)
+                if catalog.price(s, "play", cfg) or catalog.price(s, "gateway", cfg)}
     except Exception:  # noqa: BLE001
         sold = set()
     out = [r for r in out if r.get("id") not in pricing.NEW_PLAN_ORDER or r.get("id") in sold]

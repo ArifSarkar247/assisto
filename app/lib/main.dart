@@ -510,6 +510,11 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       } else {
         if (PerfMarks.enabled) PerfMarks.mark('ao_open_$route'); // faststart
         ChatNav.push(context, route);
+        // speedproof: the pushed screen's first frame in a process-cold app
+        if (PerfMarks.enabled) {
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => PerfMarks.mark('ao_frame_$route'));
+        }
       }
     } catch (_) {}
   }
