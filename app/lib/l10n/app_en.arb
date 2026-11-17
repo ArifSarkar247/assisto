@@ -53182,5 +53182,29 @@
   "crfSkCodeDmss": "Password",
   "@crfSkCodeDmss": {
     "description": "imou-real: remove-from-vendor-app guide"
+  },
+  "signupOtpSpamHint": "Didn't get the code? Check your Spam or Promotions folder — it can take up to 2 minutes.",
+  "@signupOtpSpamHint": {
+    "description": "signup-otp: shown under an emailed code"
+  },
+  "signupOtpEmailNeutral": "If an account has this email verified, the code is on its way.",
+  "@signupOtpEmailNeutral": {
+    "description": "signup-otp: neutral email-code note (no account enumeration)"
+  },
+  "signupOtpNewHere": "New to Assisto? You don't need a code.",
+  "@signupOtpNewHere": {
+    "description": "signup-otp: code sign-in screens, for people who meant to sign up"
+  },
+  "signupOtpCreateAccount": "Create a profile",
+  "@signupOtpCreateAccount": {
+    "description": "signup-otp: button from code sign-in to sign-up"
+  },
+  "signupOtpUsePhone": "Use phone (SMS) instead",
+  "@signupOtpUsePhone": {
+    "description": "signup-otp: switch an emailed code to SMS"
+  },
+  "signupOtpUsePassword": "Sign in with password instead",
+  "@signupOtpUsePassword": {
+    "description": "signup-otp: email code failed and SMS is off"
   }
 }

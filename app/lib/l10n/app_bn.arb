@@ -26155,5 +26155,11 @@
   "crfSkDeleteShort": "Delete (মুছুন)",
   "crfSkCodeImou": "Safety Code (সেফটি কোড)",
   "crfSkCodeEzviz": "Verification Code (যাচাই কোড)",
-  "crfSkCodeDmss": "পাসওয়ার্ড"
+  "crfSkCodeDmss": "পাসওয়ার্ড",
+  "signupOtpSpamHint": "কোড পাননি? ইমেইলের Spam বা Promotions ফোল্ডার দেখুন — আসতে ২ মিনিট পর্যন্ত লাগতে পারে।",
+  "signupOtpEmailNeutral": "এই ইমেইল কোনো অ্যাকাউন্টে যাচাই করা থাকলে কোড আসছে।",
+  "signupOtpNewHere": "Assisto-তে নতুন? কোড লাগবে না।",
+  "signupOtpCreateAccount": "প্রোফাইল তৈরি করুন",
+  "signupOtpUsePhone": "এর বদলে ফোনে (SMS) কোড নিন",
+  "signupOtpUsePassword": "এর বদলে পাসওয়ার্ড দিয়ে ঢুকুন"
 }
