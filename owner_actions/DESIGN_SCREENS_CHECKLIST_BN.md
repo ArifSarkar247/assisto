@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ১২৯ / মোট ৪২০**
+**স্ক্রিন শেষ: ২৬৯ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -77,10 +77,10 @@
 ## ৬. সিসিটিভি
 
 - ✅ batch d2-5 (চলতি প্ল্যান = নরম হিরো, জীবন্ত কার্ড, DS বার্তা) — `billing/cctv_plan_screen.dart`
-- ⬜ — `bizai/cctv_accuracy_screen.dart`
+- ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `bizai/cctv_accuracy_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `cctvconnect/cctv_connect_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `cctvconnect/link_devices_screen.dart`
-- ⬜ — `cctvguard/vendor_live_screen.dart`
+- ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `cctvguard/vendor_live_screen.dart`
 - ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `phonecam/phone_camera_screen.dart`
 - ⬜ — `screens/camera/camera_preview_edit_screen.dart`
 - ⬜ — `screens/camera/camera_screen.dart`
@@ -89,7 +89,7 @@
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/activity_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/auto_guard_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/cash_guard_screen.dart`
-- ⬜ — `screens/watchman/cctv_alarm_call_screen.dart`
+- ✅ batch d2-13 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/watchman/cctv_alarm_call_screen.dart`
 - ✅ batch d2-5 (স্কেলেটন) — `screens/watchman/cctv_grid_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/watchman/cctv_recording_screen.dart`
 - ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `screens/watchman/cctv_watch_screen.dart`
@@ -99,7 +99,7 @@
 
 ## ৭. মাই সার্কেল চ্যাট
 
-- ⬜ — `bizai/shop_chat_screen.dart`
+- ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `bizai/shop_chat_screen.dart`
 - ⬜ — `carecall/carecall_new_screen.dart`
 - ⬜ — `carecall/carecall_ring_screen.dart`
 - ✅ batch 5 (DS খালি/ত্রুটি অবস্থা, স্কেলেটন, DS নতুন বোতাম) — `carecall/carecall_screen.dart`
@@ -122,30 +122,30 @@
 - ⬜ — `screens/circle_status_composer_screen.dart`
 - ⬜ — `screens/circle_status_screen.dart`
 - ⬜ — `screens/circle_status_viewer_screen.dart`
-- ⬜ — `screens/messenger/admin_moderation_screen.dart`
-- ⬜ — `screens/messenger/admin_users_screen.dart`
-- ⬜ — `screens/messenger/broadcast_lists_screen.dart`
-- ⬜ — `screens/messenger/channel_admin_screen.dart`
-- ⬜ — `screens/messenger/channel_detail_screen.dart`
-- ⬜ — `screens/messenger/channel_list_screen.dart`
-- ⬜ — `screens/messenger/communities_home_screen.dart`
-- ⬜ — `screens/messenger/community_detail_screen.dart`
-- ⬜ — `screens/messenger/community_list_screen.dart`
-- ⬜ — `screens/messenger/community_members_screen.dart`
-- ⬜ — `screens/messenger/community_message_requests_screen.dart`
-- ⬜ — `screens/messenger/community_settings_screen.dart`
-- ⬜ — `screens/messenger/connection_requests_screen.dart`
-- ⬜ — `screens/messenger/contact_info_screen.dart`
-- ⬜ — `screens/messenger/contacts_screen.dart`
-- ⬜ — `screens/messenger/discover_screen.dart`
-- ⬜ — `screens/messenger/linked_devices_screen.dart`
-- ⬜ — `screens/messenger/m3_add_to_circle_screen.dart`
-- ⬜ — `screens/messenger/m3_requests_screen.dart`
-- ⬜ — `screens/messenger/messenger_home_screen.dart`
-- ⬜ — `screens/messenger/messenger_profile_screen.dart`
-- ⬜ — `screens/messenger/messenger_settings_screen.dart`
-- ⬜ — `screens/messenger/moderation_appeal_screen.dart`
-- ⬜ — `screens/messenger/moderation_policy_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/admin_moderation_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/admin_users_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/broadcast_lists_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/channel_admin_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/channel_detail_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/channel_list_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/communities_home_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/community_detail_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/community_list_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/community_members_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/community_message_requests_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/community_settings_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/connection_requests_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/contact_info_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/contacts_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/discover_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/linked_devices_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/m3_add_to_circle_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/m3_requests_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/messenger_home_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/messenger_profile_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/messenger_settings_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/moderation_appeal_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/moderation_policy_screen.dart`
 - ⬜ — `screens/messenger/msgr_set_account_screen.dart`
 - ⬜ — `screens/messenger/msgr_set_calls_screen.dart`
 - ⬜ — `screens/messenger/msgr_set_change_number_screen.dart`
@@ -154,9 +154,9 @@
 - ⬜ — `screens/messenger/msgr_set_privacy_screen.dart`
 - ⬜ — `screens/messenger/msgr_set_storage_screen.dart`
 - ⬜ — `screens/messenger/msgr_set_twostep_screen.dart`
-- ⬜ — `screens/messenger/starred_messages_screen.dart`
-- ⬜ — `screens/pa/call_email_screen.dart`
-- ⬜ — `screens/train/train_chat_screen.dart`
+- ✅ batch d2-14 (মেসেঞ্জার: DS গ্রুপ কার্ড, স্কেলেটন, DS খালি/ত্রুটি অবস্থা) — `screens/messenger/starred_messages_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/call_email_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/train/train_chat_screen.dart`
 
 ## ৮. হিসাব ও ফাইন্যান্স
 
@@ -165,15 +165,15 @@
 - ⬜ — `safe_plans/safe_plans_screen.dart`
 - ✅ batch 6 (সাইন-ইন, ডিভাইস, হারালে — আলাদা কার্ড; DS ত্রুটি/স্কেলেটন) — `screens/account_security_screen.dart`
 - ⬜ — `screens/account_standing_screen.dart`
-- ⬜ — `screens/business/acct/acct_audit_screen.dart`
-- ⬜ — `screens/business/acct/acct_close_screen.dart`
-- ⬜ — `screens/business/acct/acct_entry_screen.dart`
+- ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/business/acct/acct_audit_screen.dart`
+- ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/business/acct/acct_close_screen.dart`
+- ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/business/acct/acct_entry_screen.dart`
 - ✅ batch d2-1 (হিসাবের ধরন জীবন্ত টাইল, টুলগুলো এক গ্রুপ কার্ডে) — `screens/business/acct/acct_home_screen.dart`
-- ⬜ — `screens/business/acct/acct_opening_screen.dart`
-- ⬜ — `screens/business/acct/acct_reports_screen.dart`
+- ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/business/acct/acct_opening_screen.dart`
+- ✅ batch d2-11 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/business/acct/acct_reports_screen.dart`
 - ✅ batch d2-5 (সুপারিশকৃত প্ল্যান হালকা নীল কার্ডে, AA লেখা, শিরোনাম ভাঙে না) — `screens/business/business_plans_screen.dart`
 - ⬜ — `screens/day_planner_screen.dart`
-- ⬜ — `screens/delete_account_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/delete_account_screen.dart`
 - ✅ batch 6 (পেজ নিয়ম: টুলগুলোই আগে, গ্রুপ = এক কার্ড, লম্বা ব্যানার বাদ) — `screens/finance_screen.dart`
 - ✅ batch d2-5 (DS খালি অবস্থা: ছবি, এক বড় বোতাম, ধাপগুলো) — `screens/mess_accounting_screen.dart`
 - ⬜ — `screens/money_budget_screen.dart`
@@ -238,45 +238,45 @@
 - ✅ batch d2-9 (DS কার্ড ও ক্রম) — `screens/business/supplier_market_screen.dart`
 - ✅ batch d2-9 (চলমান অবস্থা = হিরো) — `screens/business/tagada_send_screen.dart`
 - ✅ batch d2-9 (বিজনেস হাবের মোড়ক) — `screens/business_screen.dart`
-- ⬜ — `screens/crm/crm_aftersale_screen.dart`
-- ⬜ — `screens/crm/crm_automation_screen.dart`
-- ⬜ — `screens/crm/crm_bulk_send_screen.dart`
-- ⬜ — `screens/crm/crm_capture_screen.dart`
-- ⬜ — `screens/crm/crm_companies_screen.dart`
-- ⬜ — `screens/crm/crm_company_detail_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_aftersale_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_automation_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_bulk_send_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_capture_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_companies_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_company_detail_screen.dart`
 - ✅ batch d2-7 (ওজনযুক্ত পূর্বাভাস = নরম হিরো, লেবেল কাটা যায় না) — `screens/crm/crm_dashboard_screen.dart`
-- ⬜ — `screens/crm/crm_erp_handoff_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_erp_handoff_screen.dart`
 - ✅ batch d2-8 (স্বাগতম = নরম হিরো আঁকা ছবিসহ, ত্রুটি = লাল কার্ড) — `screens/crm/crm_firstrun_screen.dart`
-- ⬜ — `screens/crm/crm_home_screen.dart`
-- ⬜ — `screens/crm/crm_lead_detail_screen.dart`
-- ⬜ — `screens/crm/crm_lead_form_screen.dart`
-- ⬜ — `screens/crm/crm_leads_screen.dart`
-- ⬜ — `screens/crm/crm_pipeline_screen.dart`
-- ⬜ — `screens/crm/crm_proposal_advanced_screen.dart`
-- ⬜ — `screens/crm/crm_proposal_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_home_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_lead_detail_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_lead_form_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_leads_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_pipeline_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_proposal_advanced_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_proposal_screen.dart`
 - ✅ batch d2-7 (পূর্বাভাস = নরম হিরো, লেবেল কাটা যায় না) — `screens/crm/crm_reports_screen.dart`
-- ⬜ — `screens/crm/crm_team_advanced_screen.dart`
-- ⬜ — `screens/crm/crm_team_screen.dart`
-- ⬜ — `screens/crm/crm_today_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_team_advanced_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_team_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/crm_today_screen.dart`
 - ✅ batch d2-8 (গ্রাহক = নরম হিরো, DS অ্যাভাটার) — `screens/crm/customer_history_screen.dart`
-- ⬜ — `screens/crm/customer_list_screen.dart`
-- ⬜ — `screens/crm_contacts_screen.dart`
-- ⬜ — `screens/pa/biz_travel_events_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm/customer_list_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/crm_contacts_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/biz_travel_events_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/shop_box_mode_screen.dart`
-- ⬜ — `screens/shop_box_screen.dart`
-- ⬜ — `screens/shop_eod_screen.dart`
-- ⬜ — `screens/shop_live_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/shop_box_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/shop_eod_screen.dart`
+- ✅ batch d2-10 (DS কার্ড/হিরো, স্কেলেটন, DS খালি অবস্থা, এক জ্বলজ্বলে বোতাম) — `screens/shop_live_screen.dart`
 
 ## ১২. এআই চ্যাট
 
-- ⬜ — `screens/agent_core/agent_approvals_screen.dart`
-- ⬜ — `screens/agent_core/agent_core_screen.dart`
-- ⬜ — `screens/agent_core/agent_history_screen.dart`
-- ⬜ — `screens/agent_core/life_graph_screen.dart`
-- ⬜ — `screens/agent_studio_screen.dart`
-- ⬜ — `screens/agent_thread_screen.dart`
-- ⬜ — `screens/voice_assistant_screen.dart`
-- ⬜ — `screens/voice_assistant_settings_screen.dart`
+- ✅ batch d2-16 (DS হিরো/কার্ড, স্কেলেটন, এক জ্বলজ্বলে বোতাম) — `screens/agent_core/agent_approvals_screen.dart`
+- ✅ batch d2-16 (DS হিরো/কার্ড, স্কেলেটন, এক জ্বলজ্বলে বোতাম) — `screens/agent_core/agent_core_screen.dart`
+- ✅ batch d2-16 (DS হিরো/কার্ড, স্কেলেটন, এক জ্বলজ্বলে বোতাম) — `screens/agent_core/agent_history_screen.dart`
+- ✅ batch d2-16 (DS হিরো/কার্ড, স্কেলেটন, এক জ্বলজ্বলে বোতাম) — `screens/agent_core/life_graph_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/agent_studio_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/agent_thread_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/voice_assistant_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/voice_assistant_settings_screen.dart`
 
 ## ১৩. ল্যাঙ্গুয়েজ পার্টনার
 
@@ -300,28 +300,28 @@
 - ⬜ — `growth/invite_screen.dart`
 - ⬜ — `invite/invite_join_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `phonecam/phonecam_timeline_screen.dart`
-- ⬜ — `screens/about_screen.dart`
-- ⬜ — `screens/accessibility_mode_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/about_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/accessibility_mode_screen.dart`
 - ⬜ — `screens/action_center_screen.dart`
-- ⬜ — `screens/admin/cost_flags_screen.dart`
-- ⬜ — `screens/admin/discover_manager_screen.dart`
-- ⬜ — `screens/admin/owner_pnl_screen.dart`
-- ⬜ — `screens/admin/server_address_screen.dart`
-- ⬜ — `screens/ai_knowledge_screen.dart`
+- ✅ batch d2-16 (DS হিরো/কার্ড, স্কেলেটন, এক জ্বলজ্বলে বোতাম) — `screens/admin/cost_flags_screen.dart`
+- ✅ batch d2-16 (DS হিরো/কার্ড, স্কেলেটন, এক জ্বলজ্বলে বোতাম) — `screens/admin/discover_manager_screen.dart`
+- ✅ batch d2-16 (DS হিরো/কার্ড, স্কেলেটন, এক জ্বলজ্বলে বোতাম) — `screens/admin/owner_pnl_screen.dart`
+- ✅ batch d2-16 (DS হিরো/কার্ড, স্কেলেটন, এক জ্বলজ্বলে বোতাম) — `screens/admin/server_address_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/ai_knowledge_screen.dart`
 - ⬜ — `screens/always_on_protection_screen.dart`
-- ⬜ — `screens/app_update_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/app_update_screen.dart`
 - ⬜ — `screens/area_community_screen.dart`
 - ⬜ — `screens/assisto_chats_screen.dart`
-- ⬜ — `screens/battery_guidance_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/battery_guidance_screen.dart`
 - ⬜ — `screens/birthdays_screen.dart`
 - ⬜ — `screens/blog_writer_screen.dart`
 - ⬜ — `screens/booking/booking_detail_screen.dart`
 - ⬜ — `screens/booking/booking_setup_screen.dart`
 - ⬜ — `screens/booking/my_bookings_screen.dart`
 - ⬜ — `screens/car_mode_screen.dart`
-- ⬜ — `screens/career/cv_export_screen.dart`
-- ⬜ — `screens/career/interview_role_screen.dart`
-- ⬜ — `screens/career/job_find_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/career/cv_export_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/career/interview_role_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/career/job_find_screen.dart`
 - ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `screens/city/city_around_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/city/city_directory_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/city/city_metro_screen.dart`
@@ -332,16 +332,16 @@
 - ⬜ — `screens/cost_estimator_screen.dart`
 - ✅ batch 5 (জীবন্ত কার্ড, সতর্কতা = লাল কার্ড, বড় সংখ্যা ঘন) — `screens/credits_screen.dart`
 - ⬜ — `screens/cv_builder_screen.dart`
-- ⬜ — `screens/daily_brief_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/daily_brief_screen.dart`
 - ⬜ — `screens/daily_challenges_screen.dart`
 - ⬜ — `screens/daily_tools_screen.dart`
-- ⬜ — `screens/deletion_grace_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/deletion_grace_screen.dart`
 - ⬜ — `screens/dictionary_screen.dart`
 - ⬜ — `screens/doc_scanner_screen.dart`
 - ⬜ — `screens/doctor_serial_screen.dart`
 - ⬜ — `screens/domestic_staff_screen.dart`
-- ⬜ — `screens/e2_restore_screen.dart`
-- ⬜ — `screens/encrypted_backup_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/e2_restore_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/encrypted_backup_screen.dart`
 - ⬜ — `screens/exam_result_screen.dart`
 - ⬜ — `screens/expense_split_screen.dart`
 - ⬜ — `screens/farmer_mode_screen.dart`
@@ -358,18 +358,18 @@
 - ⬜ — `screens/kid_school_screen.dart`
 - ⬜ — `screens/landlord_tenant_screen.dart`
 - ⬜ — `screens/learn_cert_screen.dart`
-- ⬜ — `screens/legal_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/legal_screen.dart`
 - ⬜ — `screens/login_screen.dart`
 - ⬜ — `screens/lost_stolen_screen.dart`
 - ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `screens/market/market_need_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/market/market_screen.dart`
 - ⬜ — `screens/meetings_screen.dart`
-- ⬜ — `screens/memory_screen.dart`
-- ⬜ — `screens/missing/missing_detail_screen.dart`
-- ⬜ — `screens/missing/missing_hub_screen.dart`
-- ⬜ — `screens/missing/missing_optin_screen.dart`
-- ⬜ — `screens/missing/missing_post_screen.dart`
-- ⬜ — `screens/missing/missing_thread_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/memory_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/missing/missing_detail_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/missing/missing_hub_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/missing/missing_optin_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/missing/missing_post_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/missing/missing_thread_screen.dart`
 - ⬜ — `screens/mktengine/mkt_engine_screen.dart`
 - ⬜ — `screens/mock_interview_screen.dart`
 - ⬜ — `screens/my_lost_phone_screen.dart`
@@ -381,47 +381,47 @@
 - ✅ batch 5 (জীবন্ত কার্ড, না-পড়া = নীলচে + ডট, এক সারির ফিল্টার চিপ) — `screens/notification_centre_screen.dart`
 - ⬜ — `screens/offline_status_screen.dart`
 - ⬜ — `screens/onboarding_screen.dart`
-- ⬜ — `screens/otp/email_verify_screen.dart`
-- ⬜ — `screens/otp/otp_login_screen.dart`
-- ⬜ — `screens/otp/otp_verify_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/otp/email_verify_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/otp/otp_login_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/otp/otp_verify_screen.dart`
 - ⬜ — `screens/owner_analytics_screen.dart`
-- ⬜ — `screens/pa/board_pack_screen.dart`
-- ⬜ — `screens/pa/delegate_access_screen.dart`
-- ⬜ — `screens/pa/dept_update_screen.dart`
-- ⬜ — `screens/pa/expense_voucher_screen.dart`
-- ⬜ — `screens/pa/filing_screen.dart`
-- ⬜ — `screens/pa/letters_screen.dart`
-- ⬜ — `screens/pa/liaison_screen.dart`
-- ⬜ — `screens/pa/lifestyle_screen.dart`
-- ⬜ — `screens/pa/meeting_minutes_screen.dart`
-- ⬜ — `screens/pa/pa_hub_screen.dart`
-- ⬜ — `screens/pa/pa_meeting_brief_screen.dart`
-- ⬜ — `screens/pa/pa_schedule_screen.dart`
-- ⬜ — `screens/pa/pa_travel_screen.dart`
-- ⬜ — `screens/pa/personal_tasks_screen.dart`
-- ⬜ — `screens/pa/pr_press_screen.dart`
-- ⬜ — `screens/pa/project_tracking_screen.dart`
-- ⬜ — `screens/pa/ps_today_screen.dart`
-- ⬜ — `screens/pa/research_prep_screen.dart`
-- ⬜ — `screens/pa/shoot_logistics_screen.dart`
-- ⬜ — `screens/pa/social_inbox_screen.dart`
-- ⬜ — `screens/pa/star_deals_screen.dart`
-- ⬜ — `screens/pa/vip_stakeholder_screen.dart`
-- ⬜ — `screens/pa/visitor_filter_screen.dart`
-- ⬜ — `screens/password_reset_confirm_screen.dart`
-- ⬜ — `screens/password_reset_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/board_pack_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/delegate_access_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/dept_update_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/expense_voucher_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/filing_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/letters_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/liaison_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/lifestyle_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/meeting_minutes_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/pa_hub_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/pa_meeting_brief_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/pa_schedule_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/pa_travel_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/personal_tasks_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/pr_press_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/project_tracking_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/ps_today_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/research_prep_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/shoot_logistics_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/social_inbox_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/star_deals_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/vip_stakeholder_screen.dart`
+- ✅ batch d2-15 (পার্সোনাল সেক্রেটারি: হিরো + DS গ্রুপ কার্ড, এক জ্বলজ্বলে বোতাম) — `screens/pa/visitor_filter_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/password_reset_confirm_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/password_reset_screen.dart`
 - ⬜ — `screens/payment_ladder_screen.dart`
 - ✅ batch d2-2 (তিন-রঙা ব্লকের বদলে নরম হিরো, প্রতিটি অংশ জীবন্ত কার্ড) — `screens/photo_studio_screen.dart`
 - ⬜ — `screens/prepaid_meter_screen.dart`
 - ⬜ — `screens/price_radar_screen.dart`
-- ⬜ — `screens/proactive_ai_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/proactive_ai_screen.dart`
 - ⬜ — `screens/probashi/probashi_pool_screen.dart`
 - ⬜ — `screens/probashi/probashi_reports_screen.dart`
 - ⬜ — `screens/probashi_screen.dart`
 - ⬜ — `screens/quick_tools_screen.dart`
 - ⬜ — `screens/qurbani_screen.dart`
 - ⬜ — `screens/ramadan_screen.dart`
-- ⬜ — `screens/recovery_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/recovery_screen.dart`
 - ⬜ — `screens/referral_screen.dart`
 - ✅ batch 5 (জীবন্ত কার্ড, মিস হওয়া = লাল কার্ড) — `screens/reminders_screen.dart`
 - ⬜ — `screens/report_stolen_screen.dart`
@@ -433,21 +433,21 @@
 - ⬜ — `screens/saved_items_screen.dart`
 - ⬜ — `screens/savings_challenge_screen.dart`
 - ⬜ — `screens/scam_screen.dart`
-- ⬜ — `screens/security_checkup_screen.dart`
-- ⬜ — `screens/security_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/security_checkup_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/security_screen.dart`
 - ⬜ — `screens/sell_my_phone_screen.dart`
 - ⬜ — `screens/smartwatch_screen.dart`
 - ⬜ — `screens/social_compose_screen.dart`
 - ⬜ — `screens/spending_advice_screen.dart`
 - ⬜ — `screens/student_corner_screen.dart`
-- ⬜ — `screens/subscriptions_screen.dart`
-- ⬜ — `screens/support_center_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/subscriptions_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/support_center_screen.dart`
 - ⬜ — `screens/task_manager_screen.dart`
-- ⬜ — `screens/train/dest_alarm_screen.dart`
-- ⬜ — `screens/train/train_tracker_screen.dart`
-- ⬜ — `screens/train/trip_recorder_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/train/dest_alarm_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/train/train_tracker_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/train/trip_recorder_screen.dart`
 - ⬜ — `screens/transcription_screen.dart`
-- ⬜ — `screens/trust_page_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/trust_page_screen.dart`
 - ⬜ — `screens/unseen_world_screen.dart`
 - ⬜ — `screens/used_phone_check_screen.dart`
 - ⬜ — `screens/vault_screen.dart`
@@ -458,19 +458,19 @@
 - ⬜ — `screens/vehicle_tracker_screen.dart`
 - ⬜ — `screens/vehicle_tracking_screen.dart`
 - ⬜ — `screens/voice_mood_screen.dart`
-- ⬜ — `screens/wake_disclosure_screen.dart`
-- ⬜ — `screens/wake_oem_guide_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/wake_disclosure_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/wake_oem_guide_screen.dart`
 - ⬜ — `screens/watch_feed_screen.dart`
 - ⬜ — `screens/watched_phones_screen.dart`
 - ⬜ — `screens/web_photo_link_screen.dart`
 - ⬜ — `screens/wedding_events_screen.dart`
 - ⬜ — `screens/wellness_tracker_screen.dart`
-- ⬜ — `screens/world/world_ask_screen.dart`
-- ⬜ — `screens/world/world_guide_hub_screen.dart`
-- ⬜ — `screens/world/world_hub_screen.dart`
-- ⬜ — `screens/world/world_jobs_screen.dart`
-- ⬜ — `screens/world/world_mcq_screen.dart`
-- ⬜ — `screens/world/world_today_screen.dart`
-- ⬜ — `vault/vault_e2e_screen.dart`
-- ⬜ — `vault/vault_recovery_screen.dart`
-- ⬜ — `vault/vault_security_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/world/world_ask_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/world/world_guide_hub_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/world/world_hub_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/world/world_jobs_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/world/world_mcq_screen.dart`
+- ✅ batch d2-15 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `screens/world/world_today_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `vault/vault_e2e_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `vault/vault_recovery_screen.dart`
+- ✅ batch d2-16 (নরম DS হিরো, ফ্ল্যাট কার্ড, স্কেলেটন, টাইপ স্কেল) — `vault/vault_security_screen.dart`
