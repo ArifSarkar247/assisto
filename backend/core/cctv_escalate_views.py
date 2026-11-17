@@ -62,7 +62,10 @@ def ring_alarm(ev, user, n, now):
           {"call_id": cid, "caller_id": "", "caller_name": name, "video": False,
            "chat_id": "", "caller_photo": snap, "cctv_event_id": ev.id,
            "snapshot_url": snap, "site_name": site.name or "",
-           "camera_name": cam_name, "route": "watchman/inbox", "attempt": 0})
+           "camera_name": cam_name, "route": "watchman/inbox", "attempt": 0,
+           # design2-b13: the alarm page says WHEN and WHAT ("2 min ago · person")
+           "event_type": ev.type or "",
+           "event_at": ev.created.isoformat() if ev.created else ""})
     return cid
 
 
