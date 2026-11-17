@@ -1,0 +1,16 @@
+{
+ "en": {
+  "gapcEditTooLate": "It's too late to edit this message.",
+  "@gapcEditTooLate": {
+   "description": "gap-circle: group edit refused, outside the 15-minute window"
+  },
+  "gapcDeleteMeGroupConfirm": "This message is removed just for you; others in the group still keep it.",
+  "@gapcDeleteMeGroupConfirm": {
+   "description": "gap-circle: confirm delete-for-me in a group chat"
+  }
+ },
+ "bn": {
+  "gapcEditTooLate": "এই মেসেজ এডিট করার সময় পেরিয়ে গেছে।",
+  "gapcDeleteMeGroupConfirm": "মেসেজটি শুধু আপনার কাছ থেকে মুছবে; গ্রুপের অন্যদের কাছে থেকে যাবে।"
+ }
+}

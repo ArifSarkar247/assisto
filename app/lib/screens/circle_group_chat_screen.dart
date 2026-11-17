@@ -95,6 +95,7 @@ import '../offline/offline_store.dart'; // offline1st
 import '../widgets/mess_group_card.dart'; // messv2
 import '../messaging/outbox.dart'; // offline2
 import '../services/error_kind.dart'; // offline2
+import '../messaging/group_msg_actions.dart'; // gap-circle
 
 /// End-to-end-encrypted GROUP chat (M2 item 7).
 ///
@@ -169,6 +170,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   // resend without retyping. Null when the last send succeeded.
   String? _failedText;
   Map<String, dynamic>? _replyTo;
+  Map<String, dynamic>? _editing; // gap-circle: my text being edited
 
   // Group ⋮ driven UI modes.
   bool _searching = false;
@@ -843,6 +845,10 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
       return false;
     }
     if (text.isEmpty || _sending || !_canPost) return false;
+    // gap-circle: Send while editing = save the edit (re-sealed per member)
+    if (_editing != null && resendText == null && !asCard) {
+      return _applyEdit(_editing!, text);
+    }
     _rt.typing('group', _gid, 'stop');
     // p3: "@Assisto …" is a command to Assisto, never sent to the group.
     final p3i = (resendText == null && !asCard) ? parseAssisto(text) : null;
@@ -959,6 +965,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           'md2_plain': text,
           'sender_id': _myUserId,
           'status': 'sent',
+          if (_replyTo != null && !asCard) 'reply_to': '${_replyTo!['id']}', // gap-circle
           'created_at': DateTime.now().toUtc().toIso8601String(),
         });
       }
@@ -1928,6 +1935,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                       _failedSendBanner(),
                     if (_replyTo != null && !_searching && !_selecting)
                       _replyPreview(),
+                    if (_editing != null && !_searching && !_selecting)
+                      _editBanner(), // gap-circle
                     if (!_searching && !_selecting) _composer(),
                   ],
                 ),
@@ -2528,7 +2537,14 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                     onOpen: _selecting ? null : _openFile,
                   ),
                 ),
-              if (undecryptable)
+              if (_quoteOf(msg) case final q?) _quoteBox(msg, q), // gap-circle
+              if (groupMsgDeleted(msg))
+                Text(_t.circleDeletedPlaceholder,
+                    key: ValueKey('gapc-deleted-${msg['id']}'),
+                    style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant))
+              else if (undecryptable)
                 Text(e2rWaitingText(_t, msg['mine'] == true ? '' : senderName),
                     key: const Key('e2-cant-decrypt'),
                     style: TextStyle(
@@ -2551,15 +2567,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                       fg: Theme.of(context).colorScheme.onSurface),
                 ),
               _reactionRow(msg),
-              // c3-msg: ticks on my own messages (all members delivered /
-              // read → ✓✓ / blue ✓✓; long-press → Info per member).
-              if (msg['mine'] == true)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TickIcon(
-                      tick: tickFrom('${msg['status'] ?? 'sent'}'),
-                      baseColor: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
+              // gap-circle: time (+ "edited", star) on every text bubble —
+              // it was missing; c3-msg ticks on my own messages.
+              _metaLine(msg),
             ],
           ),
         ),
@@ -2677,6 +2687,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   }
 
   void _showActions(Map<String, dynamic> msg) {
+    if (groupMsgDeleted(msg)) return; // gap-circle: a tombstone has no menu (as 1:1)
     showAppSheet(
       context: context,
       builder: (ctx) => SafeArea(
@@ -2735,6 +2746,54 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                   unawaited(_forward(msg));
                 },
               ),
+            // gap-circle: star / edit / delete straight from the long-press
+            if (groupMsgOnServer(msg) && !groupMsgDeleted(msg))
+              ListTile(
+                key: const Key('gapc-group-star'),
+                leading: Icon(msg['starred'] == true
+                    ? Icons.star_rounded
+                    : Icons.star_outline_rounded),
+                title: Text(msg['starred'] == true
+                    ? _t.circleActionUnstar
+                    : _t.circleActionStar),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  unawaited(_toggleStarOne(msg));
+                },
+              ),
+            if (groupCanEdit(msg,
+                isSpecial: _controlOf(msg) != null || _p3Card(msg) != null))
+              ListTile(
+                key: const Key('gapc-group-edit'),
+                leading: const Icon(Icons.edit_rounded),
+                title: Text(_t.circleActionEdit),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _startEdit(msg);
+                },
+              ),
+            if (groupMsgOnServer(msg) && !groupMsgDeleted(msg))
+              ListTile(
+                key: const Key('gapc-group-delete-me'),
+                leading: const Icon(Icons.delete_outline_rounded),
+                title: Text(_t.circleActionDeleteMe),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  unawaited(_deleteOne(msg, 'me'));
+                },
+              ),
+            if (groupCanDeleteEveryone(msg))
+              ListTile(
+                key: const Key('gapc-group-delete-everyone'),
+                leading: Icon(Icons.delete_forever_rounded,
+                    color: Theme.of(ctx).colorScheme.error),
+                title: Text(_t.circleActionDeleteEveryone,
+                    style: TextStyle(color: Theme.of(ctx).colorScheme.error)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  unawaited(_deleteOne(msg, 'everyone'));
+                },
+              ),
             if (msg['mine'] == true)
               ListTile(
                 key: const Key('c3-group-info'),
@@ -2761,6 +2820,239 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------ gap-circle
+  void _startEdit(Map<String, dynamic> msg) {
+    final text = _decryptForMe(msg) ?? '';
+    setState(() {
+      _editing = msg;
+      _replyTo = null;
+      _input.text = text;
+      _input.selection = TextSelection.collapsed(offset: text.length);
+    });
+    _inputFocus.requestFocus();
+  }
+
+  void _cancelEdit() => setState(() {
+        _editing = null;
+        _input.clear();
+      });
+
+  /// gap-circle: the new text is sealed again to every member (ciphertext
+  /// only — the server never sees it) and replaces the old copies.
+  Future<bool> _applyEdit(Map<String, dynamic> msg, String text) async {
+    final id = '${msg['id']}';
+    if (text == (_decryptForMe(msg) ?? '').trim()) {
+      _cancelEdit(); // nothing changed
+      return false;
+    }
+    setState(() => _sending = true);
+    await _refreshRosterKeys();
+    if (!mounted) return false;
+    final per = <String, dynamic>{};
+    for (final r in _recipients) {
+      try {
+        final pub = Uint8List.fromList(base64Decode('${r['public_key']}'));
+        final ct = _e2e.encrypt(
+            self: widget.identity, recipientPublicKey: pub, plaintext: text);
+        per['${_idOf(r)}'] = {'ciphertext': ct.ciphertextB64, 'nonce': ct.nonceB64};
+      } catch (_) {} // same best-effort fan-out as a send
+    }
+    if (per.isEmpty) {
+      setState(() => _sending = false);
+      _toast(_t.grpActionFailed);
+      return false;
+    }
+    try {
+      await _api.postJson('/circle/groups/$_groupId/messages/$id/edit',
+          groupEditBody(per, widget.identity.keyId));
+    } catch (e) {
+      if (mounted) setState(() => _sending = false);
+      if (e is ApiException && e.status == 403) {
+        _toast(_t.gapcEditTooLate);
+      } else {
+        _fail(e);
+      }
+      return false;
+    }
+    PlainCache.instance.put(id, text);
+    if (!mounted) return true;
+    setState(() {
+      _sending = false;
+      _editing = null;
+      _input.clear();
+      _messages = [
+        for (final m in _messages)
+          '${m['id']}' == id
+              ? {
+                  ...m,
+                  'per_recipient': per,
+                  'edited_at': DateTime.now().toUtc().toIso8601String(),
+                }
+              : m,
+      ];
+    });
+    await _load();
+    return true;
+  }
+
+  Future<void> _deleteOne(Map<String, dynamic> msg, String scope) async {
+    final everyone = scope == 'everyone';
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
+        title: Text(everyone
+            ? _t.circleActionDeleteEveryone
+            : _t.circleActionDeleteMe),
+        content: Text(everyone
+            ? _t.msgrMsgDeleteEveryoneConfirm
+            : _t.gapcDeleteMeGroupConfirm),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(_t.cancel)),
+          FilledButton(
+            key: const Key('gapc-delete-confirm'),
+            style: everyone
+                ? FilledButton.styleFrom(
+                    backgroundColor: Theme.of(ctx).colorScheme.error,
+                    foregroundColor: Theme.of(ctx).colorScheme.onError)
+                : null,
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(_t.delete),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    final id = '${msg['id']}';
+    final before = _messages;
+    setState(() {
+      _messages = everyone
+          ? [
+              for (final m in _messages)
+                '${m['id']}' == id
+                    ? {...m, 'deleted': 'everyone', 'reactions': const {}}
+                    : m,
+            ]
+          : _messages.where((m) => '${m['id']}' != id).toList();
+    });
+    try {
+      await _api.postJson(
+          '/circle/groups/$_groupId/messages/$id/delete', {'scope': scope});
+      _toast(everyone ? _t.msgrMsgDeletedEveryone : _t.msgrMsgDeletedMe);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _messages = before);
+      _toast(everyone && e is ApiException && e.status == 403
+          ? _t.caDeleteTooLate
+          : _t.grpActionFailed);
+      return;
+    }
+    await _load();
+  }
+
+  Future<void> _toggleStarOne(Map<String, dynamic> msg) async {
+    final id = '${msg['id']}';
+    final want = msg['starred'] != true;
+    void mark(bool v) => setState(() => _messages = [
+          for (final m in _messages)
+            '${m['id']}' == id ? {...m, 'starred': v} : m,
+        ]);
+    mark(want);
+    try {
+      await _api.postJson(
+          '/circle/groups/$_groupId/messages/$id/star', {'starred': want});
+    } catch (_) {
+      if (mounted) {
+        mark(!want);
+        _toast(_t.grpActionFailed);
+      }
+    }
+  }
+
+  String? _quoteOf(Map<String, dynamic> msg) => groupMsgDeleted(msg)
+      ? null
+      : groupReplyQuote(msg, _messages, _decryptForMe,
+          deletedText: _t.circleDeletedPlaceholder,
+          mediaText: _t.msgrSetStorageMedia);
+
+  Widget _quoteBox(Map<String, dynamic> msg, String quote) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      key: ValueKey('gapc-quote-${msg['id']}'),
+      margin: const EdgeInsets.only(bottom: Gap.xs),
+      padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.xs),
+      decoration: BoxDecoration(
+        color: scheme.primary.withValues(alpha: 0.10),
+        border: Border(left: BorderSide(color: scheme.primary, width: 3)),
+        borderRadius: BorderRadius.circular(Radii.sm),
+      ),
+      child: Text(quote,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: AType.bodySmall.copyWith(color: scheme.onSurface)),
+    );
+  }
+
+  Widget _metaLine(Map<String, dynamic> msg) {
+    final meta = Theme.of(context).colorScheme.onSurfaceVariant;
+    final at = groupMsgAt(msg);
+    final lang = Localizations.localeOf(context).languageCode;
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: Gap.xs,
+        children: [
+          if (msg['starred'] == true)
+            Icon(Icons.star_rounded, size: 12, color: meta),
+          if ('${msg['edited_at'] ?? ''}'.isNotEmpty &&
+              '${msg['edited_at']}' != 'null' &&
+              !groupMsgDeleted(msg))
+            Text(_t.circleEdited,
+                key: ValueKey('gapc-edited-${msg['id']}'),
+                style: AType.bodySmall.copyWith(color: meta)),
+          if (at != null)
+            Text(
+                notifLocalizeDigits(
+                    context, DateFormat.Hm(lang).format(at.toLocal())),
+                key: ValueKey('gapc-time-${msg['id']}'),
+                style: AType.bodySmall.copyWith(color: meta)),
+          if (msg['mine'] == true)
+            TickIcon(tick: tickFrom('${msg['status'] ?? 'sent'}'), baseColor: meta),
+        ],
+      ),
+    );
+  }
+
+  Widget _editBanner() {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      key: const Key('gapc-edit-banner'),
+      color: scheme.surfaceContainerHighest,
+      padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+      child: Row(
+        children: [
+          const Icon(Icons.edit_rounded, size: 16),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+            child: Text(
+              '${_t.circleEditing}: ${_decryptForMe(_editing!) ?? ''}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close_rounded, size: 18),
+            tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+            onPressed: _cancelEdit,
+          ),
+        ],
       ),
     );
   }
@@ -3105,6 +3397,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   String? _decryptRaw(Map<String, dynamic> msg) {
     // mc-media2: a live location changes in place -> its nonce is in the key
     final ck = '${msg['id']}|${msg['deleted'] ?? ''}'
+        '|${msg['edited_at'] ?? ''}' // gap-circle: an edit re-opens
         '${'${msg['content_type']}' == 'location' ? '|${msg['nonce']}' : ''}';
     final hit = _ptCache[ck];
     if (hit != null) return hit;
