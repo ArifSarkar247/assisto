@@ -179,6 +179,24 @@ def is_busy(user, exclude_id=None, now=None, exclude_peer=None):
         if CS.is_truly_active(r.state, now, sess.connected_at,
                               sess.caller_seen_at, sess.callee_seen_at):
             return True
+    # group-calls: a seat in a LIVE group call (joined, phone still polling)
+    # is busy too — even before any leg connected (a host waiting while the
+    # others ring). A ring into that same group call is not "another call".
+    try:
+        from .models import GroupCallMember
+        seats = GroupCallMember.objects.filter(user=user, state="joined",
+                                               room__state="live")
+        if exclude_id:
+            same = CallRecord.objects.filter(pk=exclude_id) \
+                .values_list("room_id", flat=True).first()
+            if same:
+                seats = seats.exclude(room_id=same)
+        if seats.exists():
+            p = RtPresence.objects.filter(user=user).first()
+            if p is not None and CS.is_presence_fresh(p.seen_at, now):
+                return True
+    except Exception:
+        log.exception("group-calls is_busy")
     return False
 
 

@@ -293,6 +293,50 @@ class GroupCallTests(_Crowd, TestCase):
         self.assertEqual(r.status_code, 200, r.content)
         self.assertEqual(len(r.json()["legs"]), 2)
 
+    # ---- busy: a group call is "another call" ------------------------------
+    def test_in_a_group_call_means_busy_for_a_1to1_call(self):
+        cid = self.call(0, 1)
+        self.online(2)
+        room = self.c[0].post(f"{V}/circle/group-calls",
+                              {"from_call_id": cid,
+                               "user_ids": [self.u[2].pk]},
+                              format="json").json()["room_id"]
+        self.online(0, 1, 3)
+        # D calls B 1:1 while B is in the group call -> busy, never rings
+        r = self.c[3].post(f"{V}/circle/{self.edge(3, 1).id}/call",
+                           {"kind": "voice"}, format="json")
+        self.assertEqual(r.status_code, 201, r.content)
+        self.assertEqual(r.json()["end_reason"], "busy")
+        rec = CallRecord.objects.get(pk=r.json()["call_id"])
+        self.assertEqual(rec.state, "missed")
+        self.assertFalse(any(p.get("call_id") == rec.id
+                             for p in self.topics(1, "call.incoming")))
+        # a host alone while the others still ring is busy too
+        self.c[1].post(f"{V}/circle/group-calls/{room}/leave")
+        self.c[0].post(f"{V}/circle/group-calls/{room}/leave")
+        self.online(0, 1, 2, 3)
+        r = self.c[0].post(f"{V}/circle/group-calls",
+                           {"kind": "voice", "user_ids": [self.u[2].pk]},
+                           format="json")
+        self.assertEqual(r.status_code, 201, r.content)
+        r = self.c[3].post(f"{V}/circle/{self.edge(3, 0).id}/call",
+                           {"kind": "voice"}, format="json")
+        self.assertEqual(r.json()["end_reason"], "busy")
+
+    def test_ring_into_a_group_call_for_someone_in_another_is_busy(self):
+        cid = self.call(0, 1)          # A and B: a 1:1 that becomes a room
+        self.online(2)
+        self.c[0].post(f"{V}/circle/group-calls",
+                       {"from_call_id": cid, "user_ids": [self.u[2].pk]},
+                       format="json")
+        self.online(0, 1, 2, 3)
+        # D starts their own group call and rings B (in the other call)
+        r = self.c[3].post(f"{V}/circle/group-calls",
+                           {"kind": "voice", "user_ids": [self.u[1].pk]},
+                           format="json")
+        self.assertEqual(r.status_code, 201, r.content)
+        self.assertEqual(r.json()["results"][0]["code"], "busy")
+
     # ---- group chat call + late join -------------------------------------
     def _group(self, n):
         g = CircleGroup.objects.create(creator=self.u[0], name="Family")
@@ -401,3 +445,27 @@ class GroupRingPushTests(_Crowd, _PushBase):
             self.assertEqual(str(m["data"]["room_id"]), str(room))
             self.assertEqual(m["android"]["priority"], "HIGH")
         self.assertEqual(GroupCall.objects.get(pk=room).state, "live")
+
+    def test_busy_in_a_group_call_leaves_a_missed_call_notice(self):
+        # A and B in a group call (joined, polling); C (has a phone) calls B
+        CircleMember.objects.get_or_create(
+            user=self.u[2], peer_user=self.u[1],
+            defaults={"name": "Babu", "state": "accepted"})
+        g = GroupCall.objects.create(host=self.u[0])
+        for i in (0, 1):
+            GroupCallMember.objects.create(room=g, user=self.u[i],
+                                           state="joined",
+                                           joined_at=timezone.now())
+            RtPresence.objects.update_or_create(
+                user=self.u[i], defaults={"seen_at": timezone.now()})
+        edge = CircleMember.objects.get(user=self.u[2], peer_user=self.u[1])
+        self.fake.calls.clear()
+        r = self.c[2].post(f"{V}/circle/{edge.id}/call", {"kind": "voice"},
+                           format="json")
+        self.assertEqual(r.json()["end_reason"], "busy")
+        kinds = [p["message"]["data"]["kind"] for p in self.fake.sent_payloads()]
+        self.assertNotIn("call", kinds)          # never rang B
+        missed = [p["message"] for p in self.fake.sent_payloads()
+                  if p["message"]["data"]["kind"] == "missed_call"]
+        self.assertEqual(len(missed), 1)
+        self.assertEqual(missed[0]["data"]["reason"], "busy")

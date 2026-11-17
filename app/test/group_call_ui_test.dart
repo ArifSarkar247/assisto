@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:assisto/calls/call_runtime.dart' show ringIsBusy;
 import 'package:assisto/calls/group_add_people_sheet.dart';
 import 'package:assisto/calls/group_call_controller.dart';
 import 'package:assisto/calls/group_call_join_bar.dart';
@@ -129,6 +130,21 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
       await tester.runAsync(() async => c.dispose());
+    });
+
+    test('busy rule: a group call is "another call" for any other ring', () {
+      // not in any call -> rings
+      expect(ringIsBusy(callId: '5'), isFalse);
+      // in a 1:1 -> another ring is busy, the same call is not
+      expect(ringIsBusy(callId: '5', activeCallId: 4), isTrue);
+      expect(ringIsBusy(callId: '4', activeCallId: 4), isFalse);
+      // in group call 9 -> a 1:1 ring or a ring into group 8 is busy
+      expect(ringIsBusy(callId: '5', activeGroupRoomId: 9), isTrue);
+      expect(ringIsBusy(callId: '5', activeGroupRoomId: 9, ringRoomId: '8'),
+          isTrue);
+      // ...but a ring into the SAME group call is not
+      expect(ringIsBusy(callId: '5', activeGroupRoomId: 9, ringRoomId: '9'),
+          isFalse);
     });
 
     test('ended / error lines are honest', () {

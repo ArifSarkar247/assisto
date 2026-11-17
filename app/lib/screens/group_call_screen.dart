@@ -54,6 +54,11 @@ class GroupCallScreen extends StatefulWidget {
   final GroupCallController? controller;
   final GroupVideoSurface? surface;
 
+  /// The group call this phone's screen runs right now (e2e proof reads its
+  /// legs' stats; null when none).
+  @visibleForTesting
+  static GroupCallController? live;
+
   @override
   State<GroupCallScreen> createState() => _GroupCallScreenState();
 }
@@ -120,6 +125,10 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
 
   void _attach(GroupCallController c, GroupVideoSurface? s) {
     _c = c;
+    if (_owns) {
+      GroupCallScreen.live = c;
+      CallRuntime.instance.activeGroupRoomId = widget.roomId;
+    }
     _surface = s;
     c.addListener(_onChange);
     s?.videoChanged.addListener(_onChange);
@@ -142,12 +151,20 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
           onHangup: () async => c.leave()));
     }
     if (c.isEnded && _owns) {
+      _release();
       unawaited(CallNative.keepScreenOn(false));
       if (_keepAlive) unawaited(CallKeepAlive.stop());
       _keepAlive = false;
       _autoClose ??= Timer(const Duration(milliseconds: 2500), _close);
     }
     setState(() {});
+  }
+
+  /// This phone is no longer in the group call (busy rule + e2e handle).
+  void _release() {
+    final rt = CallRuntime.instance;
+    if (rt.activeGroupRoomId == widget.roomId) rt.activeGroupRoomId = null;
+    if (identical(GroupCallScreen.live, _c)) GroupCallScreen.live = null;
   }
 
   void _close() {
@@ -245,6 +262,7 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
     final c = _c;
     final s = _surface;
     s?.videoChanged.removeListener(_onChange);
+    if (_owns) _release();
     if (c != null) {
       c.removeListener(_onChange);
       if (_owns) {

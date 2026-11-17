@@ -60,6 +60,10 @@ class CallRuntime with WidgetsBindingObserver {
   /// The call this phone is in right now (call screen sets/clears it).
   int? activeCallId;
 
+  /// group-calls: the group call this phone is in (GroupCallScreen sets /
+  /// clears it). Any OTHER ring meanwhile is "on another call" (busy).
+  int? activeGroupRoomId;
+
   final StreamController<String> _ended = StreamController<String>.broadcast();
 
   /// call_id of every call that ended while ringing here (screen closes).
@@ -117,7 +121,10 @@ class CallRuntime with WidgetsBindingObserver {
   /// calls-a: a call is going on — full screen, minimized to the bar /
   /// floating window, or still connecting. Ads never show while true.
   bool get callActive {
-    if (ongoing.value != null || activeCallId != null) return true;
+    if (ongoing.value != null || activeCallId != null ||
+        activeGroupRoomId != null) {
+      return true;
+    }
     try {
       return _screenLive?.call() ?? false;
     } catch (_) {
@@ -617,9 +624,13 @@ class CallRuntime with WidgetsBindingObserver {
     final nav = _nav?.currentState;
     if (nav == null) return;
     _shown.add(id);
-    if (activeCallId != null && '$activeCallId' != id) {
-      // already in a call: the newcomer hears "busy" (WhatsApp-style
-      // call-waiting is a follow-up).
+    if (ringIsBusy(
+        callId: id,
+        activeCallId: activeCallId,
+        activeGroupRoomId: activeGroupRoomId,
+        ringRoomId: '${row['room_id'] ?? ''}')) {
+      // already in a call (1:1 or group): the newcomer hears "busy"
+      // (WhatsApp-style call-waiting is a follow-up).
       unawaited(_event(id, 'busy'));
       return;
     }
@@ -712,4 +723,21 @@ class CallRuntime with WidgetsBindingObserver {
     _app = null;
     _started = false;
   }
+}
+
+
+/// group-calls: is a new ring [callId] "on another call"? True while this
+/// phone is in a different 1:1 call, or in a group call that this ring is
+/// not part of.
+bool ringIsBusy({
+  required String callId,
+  int? activeCallId,
+  int? activeGroupRoomId,
+  String ringRoomId = '',
+}) {
+  if (activeCallId != null && '$activeCallId' != callId) return true;
+  if (activeGroupRoomId != null && ringRoomId != '$activeGroupRoomId') {
+    return true;
+  }
+  return false;
 }
