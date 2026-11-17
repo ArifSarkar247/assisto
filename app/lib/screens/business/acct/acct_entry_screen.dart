@@ -233,8 +233,8 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
           {Key? key}) =>
       Wrap(key: key, spacing: Gap.sm, runSpacing: Gap.sm, children: [
         for (final v in values)
-          ChoiceChip(
-            label: Text(label(v)),
+          DsChip(
+            label: label(v),
             selected: v == selected,
             onSelected: (_) => setState(() {
               on(v);
@@ -255,16 +255,41 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
         children: [
           _label(t.acuWhatHappened),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            for (final k in acctKinds)
-              ChoiceChip(
-                key: ValueKey('acct-kind-$k'),
-                avatar: Icon(acctKindIcon(k), size: 18),
-                label: Text(acctKindLabel(t, k)),
-                selected: _kind == k,
-                onSelected: (_) => _setKind(k),
-              ),
-          ]),
+          // the seven kinds as a 2-column grid of DS tiles (chips broke into
+          // odd rows); each tile grows with the font, the chosen one = the
+          // selected DS look
+          LayoutBuilder(builder: (context, c) {
+            final w = (c.maxWidth - Gap.sm) / 2;
+            final ds = DsTokens.of(context);
+            return Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+              for (final k in acctKinds)
+                SizedBox(
+                  width: w,
+                  child: Semantics(
+                    selected: _kind == k,
+                    button: true,
+                    child: DsSurface(
+                      key: ValueKey('acct-kind-$k'),
+                      onTap: () => _setKind(k),
+                      color: _kind == k ? ds.primarySoft : null,
+                      borderColor: _kind == k ? ds.primaryInk : null,
+                      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.md),
+                      child: Row(children: [
+                        Icon(acctKindIcon(k), size: 20,
+                            color: _kind == k ? ds.primaryInk : ds.muted),
+                        const SizedBox(width: Gap.sm),
+                        Expanded(
+                          child: Text(acctKindLabel(t, k),
+                              style: AType.bodyMedium.copyWith(
+                                  color: _kind == k ? ds.primaryInk : ds.text,
+                                  fontWeight: _kind == k ? FontWeight.w700 : FontWeight.w500)),
+                        ),
+                      ]),
+                    ),
+                  ),
+                ),
+            ]);
+          }),
           const SizedBox(height: Gap.sm),
           Text(acctKindHint(t, _kind),
               style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted, height: 1.4)),
@@ -277,7 +302,6 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
             decoration: InputDecoration(
               prefixText: '৳ ',
               hintText: localDigits('0', lang),
-              border: const OutlineInputBorder(),
             ),
             onChanged: (_) => setState(() => _error = null),
           ),
@@ -345,11 +369,10 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
           const SizedBox(height: Gap.lg),
           Semantics(
             liveRegion: true,
-            child: Container(
+            child: DsSurface(
+              flat: true,
+              color: DsTokens.of(context).primarySoft,
               padding: const EdgeInsets.all(Gap.md),
-              decoration: BoxDecoration(
-                  color: DsTokens.of(context).primarySoft,
-                  borderRadius: BorderRadius.circular(Radii.md)),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(Icons.lightbulb_outline_rounded, color: DsTokens.of(context).primaryInk),
                 const SizedBox(width: Gap.sm),
@@ -379,7 +402,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                 maxLength: 160,
                 buildCounter: localCounter,
                 decoration: InputDecoration(
-                    labelText: t.acuNote, hintText: t.acuNoteHint, border: const OutlineInputBorder()),
+                    labelText: t.acuNote, hintText: t.acuNoteHint),
               ),
               if (_kind == 'sale' || _kind == 'purchase') ...[
                 const SizedBox(height: Gap.sm),
@@ -390,8 +413,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                       prefixText: '৳ ',
                       labelText: t.acuVatAmount,
                       helperText: t.acuVatHelp,
-                      helperMaxLines: 3,
-                      border: const OutlineInputBorder()),
+                      helperMaxLines: 3),
                 ),
                 Align(
                   alignment: AlignmentDirectional.centerStart,
@@ -409,7 +431,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                   maxLength: 40,
                   buildCounter: localCounter,
                   decoration: InputDecoration(
-                      labelText: t.lg2BillNo, border: const OutlineInputBorder()),
+                      labelText: t.lg2BillNo),
                 ),
                 TextField(
                   key: const ValueKey('acct-supplier-bin'),
@@ -420,8 +442,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                   decoration: InputDecoration(
                       labelText: t.lg2SupplierBin,
                       helperText: t.lg2SupplierBinHelp,
-                      helperMaxLines: 3,
-                      border: const OutlineInputBorder()),
+                      helperMaxLines: 3),
                 ),
               ],
               if (_kind == 'sale' || _kind == 'due') ...[
@@ -433,8 +454,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                       prefixText: '৳ ',
                       labelText: t.acuCost,
                       helperText: t.acuCostHelp,
-                      helperMaxLines: 3,
-                      border: const OutlineInputBorder()),
+                      helperMaxLines: 3),
                 ),
               ],
               const SizedBox(height: Gap.md),
@@ -451,17 +471,13 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
               ),
             ),
           const SizedBox(height: Gap.lg),
-          SizedBox(
-            height: 56,
-            child: FilledButton.icon(
-              key: const ValueKey('acct-save'),
-              onPressed: _saving ? null : _save,
-              icon: _saving
-                  ? const SizedBox(
-                      width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.check_rounded),
-              label: Text(t.acuSave),
-            ),
+          DsButton(
+            buttonKey: const ValueKey('acct-save'),
+            onPressed: _saving ? null : _save,
+            busy: _saving,
+            icon: Icons.check_rounded,
+            label: t.acuSave,
+            expand: true,
           ),
         ],
       ),

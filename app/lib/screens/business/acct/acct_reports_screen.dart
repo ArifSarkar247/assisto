@@ -187,9 +187,9 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
             const SizedBox(height: Gap.md),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               for (final id in acctReportIds)
-                ChoiceChip(
+                DsChip(
                   key: ValueKey('acct-rep-$id'),
-                  label: Text(_reportName(t, id)),
+                  label: _reportName(t, id),
                   selected: _report == id,
                   onSelected: (_) {
                     setState(() => _report = id);
@@ -300,7 +300,19 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
           ),
         ),
       if (r.balanced != null) _balanced(t, r.balanced!, cashFlow: r.id == 'cf'),
-      if (empty) _empty(t) else ...r.rows.map((x) => _row(r, x)),
+      if (empty)
+        _empty(t)
+      else
+        // the report rows in one alive DS card
+        Padding(
+          padding: const EdgeInsets.only(top: Gap.sm),
+          child: DsCard(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [...r.rows.map((x) => _row(r, x))]),
+          ),
+        ),
       if (r.footnote != null && !empty) ...[
         const SizedBox(height: Gap.md),
         Text(r.footnote!,
@@ -332,37 +344,25 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
   }
 
   Widget _empty(AppLocalizations t) {
-    final scheme = Theme.of(context).colorScheme;
+    // DS empty state: benefit, one big button, how it works
     return Padding(
-      padding: const EdgeInsets.only(top: Gap.lg),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Icon(Icons.insights_rounded, size: 48, color: scheme.primary),
-        const SizedBox(height: Gap.sm),
-        Text(t.acuRepEmptyTitle,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: Gap.xs),
-        Text(t.acuRepEmptyBody, textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(height: 1.4)),
-        const SizedBox(height: Gap.lg),
-        SizedBox(
-          height: 52,
-          child: FilledButton.icon(
-            key: const ValueKey('acct-rep-empty-cta'),
-            onPressed: () async {
-              final saved = await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => AcctEntryScreen(businessId: widget.businessId)));
-              if (saved == true && mounted) {
-                _cache.clear();
-                await _load();
-              }
-            },
-            icon: const Icon(Icons.add_rounded),
-            label: Text(t.acuEmptyCta),
-          ),
-        ),
-        const SizedBox(height: Gap.md),
-        Text(t.acuRepEmptyHowTo, style: AType.bodyMedium.copyWith(height: 1.5, color: DsTokens.of(context).muted)),
-      ]),
+      padding: const EdgeInsets.only(top: Gap.md),
+      child: DsEmptyState(
+        icon: Icons.insights_rounded,
+        title: t.acuRepEmptyTitle,
+        benefit: t.acuRepEmptyBody,
+        actionKey: const ValueKey('acct-rep-empty-cta'),
+        actionLabel: t.acuEmptyCta,
+        onAction: () async {
+          final saved = await Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => AcctEntryScreen(businessId: widget.businessId)));
+          if (saved == true && mounted) {
+            _cache.clear();
+            await _load();
+          }
+        },
+        howTo: [t.acuRepEmptyHowTo],
+      ),
     );
   }
 
