@@ -3,12 +3,12 @@
 # upload them as an artifact. The design lane downloads the artifact and
 # commits the PNGs, so ds2_golden_test starts comparing. Re-run after an
 # intended visual change of a screen in ds2Screens.
-# Trigger: push a branch named ci/ds2-goldens* (or run manually).
+# Trigger: every design-lane push (ci/design3-*-arb) or a manual run.
 name: ds2-goldens
 
 on:
   push:
-    branches: ['ci/ds2-goldens*']
+    branches: ['ci/design3-*-arb']
   workflow_dispatch:
     inputs:
       ref:
