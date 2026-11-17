@@ -63,6 +63,24 @@ class CreditsOut {
     'credits',
   };
 
+  /// adwire (owner ads order 10 Nov, part D): an AI answer screen's
+  /// "Watch N ads for 1 answer" row plays under the registered placement
+  /// 'ai_chat_unlock' (Owner Admin -> Ad control switches it live); every
+  /// other screen keeps 'credits'. An old server without the registry
+  /// ([registry] false) keeps 'credits' so nothing goes dark.
+  static const aiAdScreens = {'ai_chat', 'home', 'chat_photo', 'world'};
+
+  static String adPlacement(String screen, {required bool registry}) =>
+      registry && aiAdScreens.contains(screen) ? 'ai_chat_unlock' : 'credits';
+
+  static String adPlacementNow(String screen) {
+    var registry = false;
+    try {
+      registry = AdsService.instance.config.control.loaded;
+    } catch (_) {}
+    return adPlacement(screen, registry: registry);
+  }
+
   static bool _open = false;
 
   /// Open the buy-credits sheet. True when credits were really added.
@@ -214,7 +232,7 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
             ? await f(context)
             : await AdsService.instance.rewardedAvailable(
                 context.read<AppState>(),
-                screen: 'credits');
+                screen: CreditsOut.adPlacementNow(widget.screen));
       } catch (_) {
         ads = false;
       }
@@ -448,7 +466,8 @@ class _CreditsOutSheetState extends State<CreditsOutSheet> {
     bool? ok;
     try {
       final f = widget.watchAd;
-      ok = f != null ? await f(context) : await RewardedAdSheet.show(context);
+      ok = f != null ? await f(context) : await RewardedAdSheet.show(context,
+              placement: CreditsOut.adPlacementNow(widget.screen));
     } catch (_) {
       ok = false;
     }

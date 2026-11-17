@@ -9,6 +9,7 @@ import '../../widgets/password_field.dart';
 import '../../messenger_setapi.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../widgets/msgr_set_tiles.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 import '../../widgets/num_input.dart'; // savesweep
@@ -153,7 +154,7 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrSetTwoStepTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _loadFailed
               ? Center(
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -165,7 +166,7 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
               : ListView(
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
-                Padding(
+Padding(
                   padding: const EdgeInsets.all(Gap.lg),
                   child: Text(t.msgrSetTwoStepIntro,
                       style: TextStyle(
@@ -174,7 +175,8 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
                               .onSurfaceVariant,
                           height: 1.35)),
                 ),
-                SwitchListTile(
+MsgrSetGroup([
+SwitchListTile(
                   secondary: const Icon(Icons.pin_rounded),
                   title: Text(t.msgrSetTwoStepEnable),
                   subtitle: Text(_enabled
@@ -185,16 +187,17 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
                       ? null
                       : (v) => v ? _setOrChange() : _turnOff(),
                 ),
-                if (_enabled)
+if (_enabled)
                   MsgrSetRow(
                     icon: Icons.password_rounded,
                     title: t.msgrSetTwoStepChange,
                     onTap: _busy ? null : _setOrChange,
                   ),
-                if (_lockedSec > 0) MsgrSetNote(t.msgTwoStepLocked),
-                MsgrSetNote(t.msgrSetTwoStepHashNote,
+]),
+if (_lockedSec > 0) MsgrSetNote(t.msgTwoStepLocked),
+MsgrSetNote(t.msgrSetTwoStepHashNote,
                     icon: Icons.verified_user_rounded),
-              ],
+],
             ),
     );
   }

@@ -261,7 +261,10 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
     final badge = unread + pending;
     // One alive DS card per chat: channel bubble, name (wraps, never "…"),
     // a two-line preview, then the status chip + channel.
-    return DsCard(
+    // long list: flat bordered rows (no per-row shadow — GPU-light)
+    return DsSurface(
+      flat: true,
+      borderColor: ds.border,
       padding: const EdgeInsets.all(Gap.md),
       onTap: () async {
         await Navigator.of(context).push(MaterialPageRoute(

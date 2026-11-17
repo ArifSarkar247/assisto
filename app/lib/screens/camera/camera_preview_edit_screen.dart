@@ -234,8 +234,12 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
             Icon(Icons.movie_rounded,
                 size: 72, color: Colors.white.withValues(alpha: 0.8)),
             const SizedBox(height: Gap.md),
-            Text(t.camVideoReady,
-                style: const TextStyle(color: Colors.white70)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
+              child: Text(t.camVideoReady,
+                  textAlign: TextAlign.center,
+                  style: AType.bodyLarge.copyWith(color: Colors.white)),
+            ),
           ],
         ),
       );
@@ -351,9 +355,15 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
   Widget _captionBar(AppLocalizations t) {
     return SafeArea(
       top: false,
+      // the caption as one rounded glass pill with the send button
       child: Container(
-        color: Colors.black45,
-        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.sm, Gap.sm),
+        margin: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.sm),
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.xs, Gap.xs),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(Radii.pill),
+          border: Border.all(color: Colors.white24),
+        ),
         child: Row(
           children: [
             Expanded(
@@ -362,13 +372,18 @@ class _CameraPreviewEditScreenState extends State<CameraPreviewEditScreen> {
                 maxLines: null,
                 minLines: 1,
                 maxLength: 300,
-                style: const TextStyle(color: Colors.white),
+                style: AType.bodyLarge.copyWith(color: Colors.white),
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   hintText: t.camCaptionHint,
-                  hintStyle: const TextStyle(color: Colors.white54),
+                  hintStyle: AType.bodyLarge.copyWith(color: Colors.white70),
                   counterText: '',
+                  // the theme fills inputs with a light colour: off here,
+                  // or the white caption sat on a light box (unreadable)
+                  filled: false,
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
                 ),
               ),
             ),

@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_setapi.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/msgr_set_tiles.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../widgets/local_counter.dart';
@@ -154,11 +155,17 @@ class _MsgrSetChangeNumberScreenState
                   : Icons.swap_horiz_rounded),
           const SizedBox(height: Gap.sm),
           if (_statusLoading)
-            const Center(child: CircularProgressIndicator())
+            const DsSkeleton(height: 120, radius: DsRadius.card)
           else if (_statusFailed) ...[
-            Text(t.msgLoadFailed),
-            const SizedBox(height: Gap.sm),
-            FilledButton(onPressed: _loadStatus, child: Text(t.retry)),
+            DsCard(
+              tone: DsTone.danger,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Text(t.msgLoadFailed,
+                    style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk)),
+                const SizedBox(height: Gap.sm),
+                DsButton(onPressed: _loadStatus, icon: Icons.refresh_rounded, label: t.retry),
+              ]),
+            ),
           ] else if (!_smsEnabled)
             // Honest disabled state: no SMS service on the server, so no code
             // can be sent. The form is not shown at all.
@@ -177,20 +184,17 @@ class _MsgrSetChangeNumberScreenState
                 labelText: widget.verifyOwn
                     ? t.tg2VerifyNumber
                     : t.msgrSetChangeNumberNew,
-                border: const OutlineInputBorder(),
                 errorText: _error,
                 prefixIcon: const Icon(Icons.phone_rounded),
               ),
             ),
             const SizedBox(height: Gap.lg),
-            FilledButton(
+            DsButton(
               onPressed: _busy ? null : _request,
-              child: _busy
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(t.msgrSetChangeNumberSendCode),
+              busy: _busy,
+              icon: Icons.sms_rounded,
+              label: t.msgrSetChangeNumberSendCode,
+              expand: true,
             ),
           ] else ...[
             Text(t.msgrSetChangeNumberCodeSent(_phone.text.trim())),
@@ -204,7 +208,6 @@ class _MsgrSetChangeNumberScreenState
               inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 labelText: t.msgrSetChangeNumberCode,
-                border: const OutlineInputBorder(),
                 errorText: _error,
               ),
             ),
@@ -219,19 +222,16 @@ class _MsgrSetChangeNumberScreenState
                 inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   labelText: t.msgTwoStepCurrentPin,
-                  border: const OutlineInputBorder(),
-                ),
+                  ),
               ),
             ],
             const SizedBox(height: Gap.sm),
-            FilledButton(
+            DsButton(
               onPressed: _busy ? null : _confirm,
-              child: _busy
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(t.msgrSetChangeNumberConfirm),
+              busy: _busy,
+              icon: Icons.check_rounded,
+              label: t.msgrSetChangeNumberConfirm,
+              expand: true,
             ),
             if (!widget.verifyOwn)
               TextButton(

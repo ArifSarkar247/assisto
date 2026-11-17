@@ -101,6 +101,12 @@ class ApiSponsorBackend implements SponsorBackend {
   Future<Map<String, dynamic>> rewardTicket() =>
       api.postJson('/credits/rewarded/ticket');
 
+  /// adwire: a ticket for a registered rewarded placement (e.g.
+  /// 'ai_chat_unlock') — the server re-checks the owner's Ad control switch
+  /// for it (reason 'placement_off' when switched off).
+  Future<Map<String, dynamic>> rewardTicketFor(String placement) =>
+      api.postJson('/credits/rewarded/ticket', {'placement': placement});
+
   @override
   Future<Map<String, dynamic>> rewardTicketState(String nonce) =>
       api.getJson('/credits/rewarded/ticket/$nonce');

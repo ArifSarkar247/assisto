@@ -199,7 +199,7 @@ void main() {
     await tester.longPress(find.text('Family'));
     await _settle(tester);
     expect(find.text('গ্রুপের তথ্য'), findsOneWidget);
-    for (final s in ['চ্যাট বাছাই করুন', 'চ্যাট খালি করুন', 'চ্যাট ডিলিট করুন', 'রিপোর্ট করুন']) {
+    for (final s in ['চ্যাট বাছাই করুন', 'চ্যাট খালি করুন', 'চ্যাট মুছুন', 'রিপোর্ট করুন']) {
       expect(await _inSheet(tester, find.text(s)), findsOneWidget, reason: s);
     }
     expect(find.byKey(const Key('ca-block')), findsNothing);
