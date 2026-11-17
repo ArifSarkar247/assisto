@@ -52301,5 +52301,17 @@
   "emailrelBouncingBanner": "Emails to your saved address are bouncing back. Please check your email address and verify it again.",
   "@emailrelBouncingBanner": {
     "description": "emailrel: banner on the sign-in email screen"
+  },
+  "sosgapStillTrying": "Your SOS has not reached your family yet. Assisto keeps trying every 15 seconds — it goes out as soon as the internet is back, even if you leave this screen.",
+  "@sosgapStillTrying": {
+    "description": "gap-sos: Emergency SOS offline, the app keeps retrying the same SOS"
+  },
+  "sosgapStopTrying": "Stop trying",
+  "@sosgapStopTrying": {
+    "description": "gap-sos: stop retrying an unsent SOS (does not close the screen)"
+  },
+  "sosgapOpenFull": "Who is on the way · live location · 30 s sound",
+  "@sosgapOpenFull": {
+    "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
   }
 }
