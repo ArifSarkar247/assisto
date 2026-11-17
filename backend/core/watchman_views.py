@@ -1065,7 +1065,7 @@ class WatchmanClipsView(_OwnerBase):
         ids = [c.id for c in cams]
         qs = (ShopEvent.objects.filter(site=s, pending=False, camera_id__in=ids,
                                        clip__status="ready", clip__expires_at__gt=now)
-              .select_related("camera", "clip").order_by("-created"))
+              .select_related("camera", "clip", "site").order_by("-created"))
         cam_f = request.query_params.get("camera")
         if cam_f and str(cam_f).isdigit():
             qs = qs.filter(camera_id=int(cam_f))

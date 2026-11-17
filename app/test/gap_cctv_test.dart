@@ -26,6 +26,7 @@ import 'package:assisto/screens/watchman/old_phone_hub.dart';
 import 'package:assisto/screens/watchman/cctv_clips_screen.dart';
 import 'package:assisto/widgets/sidebar_sections.dart';
 import 'package:assisto/screens/watchman/watchman_viewers.dart';
+import 'package:assisto/screens/watchman/watchman_alerts.dart';
 import 'package:assisto/theme.dart';
 
 import 'cctvact_fakes.dart' show FakeCctvAct;
@@ -33,6 +34,7 @@ import 'cctvconnect_fakes.dart' show FakeCctvConnect;
 import 'cctvescalate_fakes.dart' show FakeEscalate;
 import 'cctvx_fakes.dart' show FakeCctvx;
 import 'gap_cctv_shots.dart' show GapFakeClips;
+import 'cashguard_fakes.dart' show FakeCashGuard;
 import 'cctvprice_fakes.dart' show FakeCctvApi, cctvPlanPayload;
 import 'cctvteam_fakes.dart' show FakeCctvTeam;
 import 'cctv1_fakes.dart' show FakeWatchman;
@@ -121,6 +123,18 @@ class _GrowViewers extends FakeWatchman {
   Future<Map<String, dynamic>> addViewer(int siteId, String phone) async {
     added = true;
     return {'ok': true};
+  }
+}
+
+class _LiveEvents extends FakeWatchman {
+  @override
+  Future<Map<String, dynamic>> events(int siteId) async {
+    final d = await super.events(siteId);
+    final evs = [
+      for (final e in (d['events'] as List).cast<Map<String, dynamic>>())
+        {...e, 'live_path': e['id'] == 101 ? 'vendor' : null}
+    ];
+    return {...d, 'events': evs};
   }
 }
 
@@ -680,5 +694,31 @@ void main() {
       final iso = DateTime(2026, 11, 17, 0, 30).toUtc().toIso8601String();
       expect(gcvClipDayKey(iso), '2026-11-17');
     });
+  });
+
+  testWidgets('R1 alert card: Live and Call 999 on the card, the rest in More actions',
+      (tester) async {
+    _phone(tester, height: 2600);
+    final old = police999Launch;
+    Uri? dialed;
+    police999Launch = (u) async {
+      dialed = u;
+      return true;
+    };
+    addTearDown(() => police999Launch = old);
+    await tester.pumpWidget(_app(WatchmanAlertsScreen(
+        source: _LiveEvents(), siteId: 1, owner: true, cash: FakeCashGuard())));
+    await _settle(tester);
+    expect(find.byKey(const ValueKey('wm-alert-live-101')), findsOneWidget);
+    expect(find.byKey(const ValueKey('wm-alert-live-102')), findsNothing,
+        reason: 'no live route -> no dead Live button');
+    expect(find.byKey(const ValueKey('wm-alert-more-101')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('wm-alert-999-101')));
+    await tester.tap(find.byKey(const ValueKey('wm-alert-999-101')));
+    await _settle(tester);
+    expect(dialed, isNull, reason: 'asks first');
+    await tester.tap(find.byKey(const ValueKey('wm-alert-999-yes')));
+    await _settle(tester);
+    expect(dialed.toString(), 'tel:999');
   });
 }

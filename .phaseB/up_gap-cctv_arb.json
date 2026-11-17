@@ -152,7 +152,11 @@
   },
   "gcvClipsEmptyStep1": "Draw a zone on a camera so alerts send a clip.",
   "gcvClipsEmptyStep2": "Watched clips are deleted from the server; the photo stays in Alerts.",
-  "gcvClipsCameraUnknown": "Camera"
+  "gcvClipsCameraUnknown": "Camera",
+  "gcvMoreActions": "More actions",
+  "@gcvMoreActions": {
+   "description": "gap-cctv R1: alert card — siren, warning, thana, evidence, wrong"
+  }
  },
  "bn": {
   "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
@@ -205,6 +209,7 @@
   "gcvClipsEmptyBenefit": "সতর্কতার সাথে ছোট ক্লিপ এলে তা এখানে {hours} ঘণ্টা থাকে, যেকোনো জায়গা থেকে দেখতে পারবেন।",
   "gcvClipsEmptyStep1": "ক্যামেরায় একটি জোন আঁকুন, তাহলে সতর্কতার সাথে ক্লিপ আসবে।",
   "gcvClipsEmptyStep2": "দেখা ক্লিপ সার্ভার থেকে মুছে যায়; ছবিটি সতর্কতায় থাকে।",
-  "gcvClipsCameraUnknown": "ক্যামেরা"
+  "gcvClipsCameraUnknown": "ক্যামেরা",
+  "gcvMoreActions": "আরও কাজ"
  }
 }
