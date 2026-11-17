@@ -22,6 +22,14 @@
   "gcvPairOffline": "No internet right now. The code still works — we keep checking.",
   "@gcvPairOffline": {
    "description": "gap-cctv: pair sheet poll failed after the code is shown"
+  },
+  "gcvWarnRecordFirst": "Not recorded yet — tap to record your warning in your own voice",
+  "@gcvWarnRecordFirst": {
+   "description": "gap-cctv: box warning tile when no own-voice warning exists"
+  },
+  "gcvWarnDeleteAsk": "Delete your recorded warning?",
+  "@gcvWarnDeleteAsk": {
+   "description": "gap-cctv: confirm before deleting the own-voice warning"
   }
  },
  "bn": {
@@ -38,6 +46,8 @@
   "gcvGwBoxBody": "দোকানে রাখা ছোট একটি বক্স — Raspberry Pi, লিনাক্স মিনি পিসি বা Windows পিসি — যা নিজের AI দিয়ে নেটওয়ার্কের সব ক্যামেরা দেখে। Windows বাধ্যতামূলক নয়।",
   "gcvManageTitle": "মানুষ, শেয়ার ও নোটিশ",
   "gcvManageSub": "পরিবার, দেখার লিংক, কে দেখেছে, টেকনিশিয়ান, সিসিটিভি নোটিশ",
-  "gcvPairOffline": "এখন ইন্টারনেট নেই। কোডটি এখনও চলবে — আমরা দেখতে থাকছি।"
+  "gcvPairOffline": "এখন ইন্টারনেট নেই। কোডটি এখনও চলবে — আমরা দেখতে থাকছি।",
+  "gcvWarnRecordFirst": "এখনো রেকর্ড করা হয়নি — নিজের কণ্ঠে সতর্কবার্তা রেকর্ড করতে চাপুন",
+  "gcvWarnDeleteAsk": "রেকর্ড করা সতর্কবার্তাটি মুছবেন?"
  }
 }

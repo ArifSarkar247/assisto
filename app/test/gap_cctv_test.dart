@@ -12,10 +12,23 @@ import 'package:assisto/cctvguard/vendor_live_screen.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/messaging/media/video_ctl.dart';
 import 'package:assisto/phonecam/phonecam_pair_sheet.dart';
+import 'package:assisto/screens/watchman/cctv_act_tiles.dart';
+import 'package:assisto/screens/watchman/cctv_escalate.dart';
 import 'package:assisto/theme.dart';
 
+import 'cctvact_fakes.dart' show FakeCctvAct;
+import 'cctvescalate_fakes.dart' show FakeEscalate;
 import 'cctvguard_fakes.dart' show FakeVendorLive, FakeNetCtl;
 import 'phonecam_shots.dart' show pcFakePair;
+
+class _FailFirstEscalate extends FakeEscalate {
+  int n = 0;
+  @override
+  Future<Map<String, dynamic>> warnClip(int siteId) async {
+    if (n++ == 0) throw StateError('offline');
+    return super.warnClip(siteId);
+  }
+}
 
 /// start() waits until the test lets it answer.
 class _SlowVendorLive extends FakeVendorLive {
@@ -202,6 +215,80 @@ void main() {
       expect(find.textContaining('SocketException'), findsNothing);
       expect(find.text(bn.wmLoadErrorBody), findsOneWidget);
       expect(find.text(bn.retry), findsOneWidget);
+    });
+  });
+
+  group('G9 own-voice warning: never a dead end', () {
+    Map<String, dynamic> act(String role, {bool hasWarn = false}) => {
+          'site_id': 1, 'role': role, 'live': {'path': null},
+          'play': [{'target': 'box', 'camera_id': null}], 'has_warn': hasWarn,
+        };
+
+    testWidgets('owner with no recording: the tile says so and opens the recorder',
+        (tester) async {
+      _phone(tester);
+      final src = FakeCctvAct();
+      await tester.pumpWidget(_app(Scaffold(
+          body: SingleChildScrollView(
+              child: ActTiles(
+                  source: src, eventId: 201, act: act('owner'), escalate: FakeEscalate())))));
+      await _settle(tester);
+      expect(find.text(en.gcvWarnRecordFirst), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('cv3-box-warn')));
+      await _settle(tester);
+      expect(find.text(en.cescWarnTitle), findsOneWidget);
+      expect(src.calls.where((c) => c.startsWith('play')), isEmpty,
+          reason: 'no "Play?" confirm that ends in "record first"');
+    });
+
+    testWidgets('a recorded warning still plays after Yes', (tester) async {
+      _phone(tester);
+      await tester.pumpWidget(_app(Scaffold(
+          body: SingleChildScrollView(
+              child: ActTiles(
+                  source: FakeCctvAct(),
+                  eventId: 201,
+                  act: act('owner', hasWarn: true),
+                  escalate: FakeEscalate())))));
+      await _settle(tester);
+      expect(find.text(en.gcvWarnRecordFirst), findsNothing);
+      expect(find.text(en.cv3BoxWarnSub), findsOneWidget);
+    });
+
+    testWidgets('warning sheet: load failure is an error with Retry, not "none recorded"',
+        (tester) async {
+      _phone(tester);
+      final esc = _FailFirstEscalate();
+      await tester.pumpWidget(
+          _app(Scaffold(body: WarnClipSheet(source: esc, siteId: 1))));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('gcv-warn-load-failed')), findsOneWidget);
+      expect(find.text(en.cescWarnNone), findsNothing);
+      await tester.tap(find.text(en.wmRetry));
+      await _settle(tester);
+      expect(find.text(en.cescWarnNone), findsOneWidget);
+    });
+
+    testWidgets('deleting the warning asks first and reports the change', (tester) async {
+      _phone(tester);
+      final esc = FakeEscalate(hasClip: true);
+      final seen = <bool>[];
+      await tester.pumpWidget(_app(Scaffold(
+          body: WarnClipSheet(source: esc, siteId: 1, onResult: seen.add))));
+      await _settle(tester);
+      await tester.ensureVisible(find.text(en.cescWarnDelete));
+      await tester.tap(find.text(en.cescWarnDelete));
+      await _settle(tester);
+      expect(find.text(en.gcvWarnDeleteAsk), findsOneWidget);
+      await tester.tap(find.text(en.wmCancel));
+      await _settle(tester);
+      expect(esc.calls.where((c) => c.startsWith('delete')), isEmpty);
+      await tester.tap(find.text(en.cescWarnDelete));
+      await _settle(tester);
+      await tester.tap(find.byKey(const ValueKey('gcv-warn-del-yes')));
+      await _settle(tester);
+      expect(esc.calls.last, 'delete_clip:1');
+      expect(seen, [false], reason: 'a swipe-down still tells the caller');
     });
   });
 }

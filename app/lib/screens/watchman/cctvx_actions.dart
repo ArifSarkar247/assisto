@@ -190,7 +190,8 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
                       ? ApiCctvActSource((widget.source as ApiCctvxSource).api)
                       : null),
               eventId: widget.eventId,
-              act: wmMap(a['act'])),
+              act: wmMap(a['act']),
+              escalate: widget.escalate ?? escalateFor(widget.source)),
         if (wmMap(a['deter']).isNotEmpty)
           DeterTiles(
               escalate: widget.escalate ?? escalateFor(widget.source),

@@ -273,6 +273,9 @@ def act_actions(ev, role, user=None):
                             "stations": cache.get("stations") or [] if loc.get("lat") else [],
                             "emergency": "999"}
             out["play"] = play_targets(site)
+            # gap-cctv: is the owner's own warning recorded? (else the tile
+            # offers "record it first" instead of a 409 after confirming)
+            out["has_warn"] = bool(((site.guard or {}).get("_warn") or {}).get("name"))
         sig = ev.signals if isinstance(ev.signals, dict) else {}
         if sig.get("auto"):
             out["auto"] = sig["auto"]
