@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'booking_detail_screen.dart' show showBkMoveSheet;
 import 'booking_source.dart';
 import 'booking_widgets.dart';
@@ -100,12 +102,13 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           onPressed: () => setState(() => _showGuide = !_showGuide),
         ),
       ]),
-      floatingActionButton: _loading || _err != null
+      // empty: the state's big button is the one action (no second FAB)
+      floatingActionButton: _loading || _err != null || (_up.isEmpty && _past.isEmpty)
           ? null
           : FloatingActionButton.extended(
               onPressed: _bookNew, icon: const Icon(Icons.add_rounded), label: Text(t.bkgBookNew)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : _err != null
               ? bkErrorView(context, _err!, _load)
               : RefreshIndicator(
@@ -116,7 +119,12 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     if (_up.isEmpty && _past.isEmpty)
                       Padding(
                         padding: const EdgeInsets.all(Gap.lg),
-                        child: Text(t.bkgMyEmpty, textAlign: TextAlign.center),
+                        child: DsEmptyState(
+                          icon: Icons.event_available_rounded,
+                          title: t.bkgMyEmpty,
+                          actionLabel: t.bkgBookNew,
+                          onAction: _bookNew,
+                        ),
                       ),
                     if (_up.isNotEmpty) _h(t.bkgUpcoming),
                     for (final b in _up) BkBookingTile(b: b, business: false, onTap: () => _open(b)),
@@ -128,8 +136,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   }
 
   Widget _h(String s) => Padding(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xs),
-        child: Text(s, style: Theme.of(context).textTheme.titleMedium),
+        padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+        child: DsSectionHeader(s),
       );
 }
 
@@ -171,10 +179,11 @@ class _MyBookingSheetState extends State<MyBookingSheet> {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.xl),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(bkMap(_b['business'])['name']?.toString() ?? '', style: Theme.of(context).textTheme.titleLarge),
+        Text(bkMap(_b['business'])['name']?.toString() ?? '',
+            style: AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.xs),
-        Text((_b['service'] ?? '').toString(), style: const TextStyle(fontWeight: FontWeight.w700)),
-        Text((_b['when'] ?? '').toString()),
+        Text((_b['service'] ?? '').toString(), style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
+        Text((_b['when'] ?? '').toString(), style: AType.bodyMedium),
         const SizedBox(height: Gap.sm),
         Align(alignment: Alignment.centerLeft, child: BkStatusChip((_b['status'] ?? '').toString())),
         const SizedBox(height: Gap.md),

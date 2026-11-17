@@ -314,18 +314,39 @@ class _BooksScreenState extends State<BooksScreen> {
           t.lgrPeriodRange(_day(p['from']), _day(p['to'])),
           valueColor: net < 0 ? ds.dangerInk : ds.successInk),
       const SizedBox(height: Gap.md),
-      // three period chips on a Wrap (all visible, no side scroll)
-      Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-        for (final e in periods.entries)
-          DsChip(
-            label: e.value,
-            selected: _period == e.key,
-            onSelected: (_) {
-              setState(() => _period = e.key);
-              _load();
-            },
+      // the three periods as three equal DS pills in one row: never an odd
+      // chip row; labels wrap at 200% instead of overflowing
+      IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        for (final e in periods.entries) ...[
+          if (e.key != _Period.thisMonth) const SizedBox(width: Gap.sm),
+          Expanded(
+            child: Semantics(
+              button: true,
+              selected: _period == e.key,
+              child: DsSurface(
+                flat: true,
+                radius: DsRadius.button,
+                color: _period == e.key ? ds.primarySoft : ds.card,
+                borderColor: _period == e.key ? ds.primaryInk : ds.border,
+                padding: const EdgeInsets.symmetric(horizontal: Gap.xs, vertical: Gap.md),
+                onTap: () {
+                  setState(() => _period = e.key);
+                  _load();
+                },
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48 - 2 * Gap.md),
+                  child: Center(
+                  child: Text(e.value,
+                      textAlign: TextAlign.center,
+                      style: AType.labelLarge.copyWith(
+                          color: _period == e.key ? ds.primaryInk : ds.text,
+                          fontWeight: _period == e.key ? FontWeight.w700 : FontWeight.w500)),
+                )),
+              ),
+            ),
           ),
-      ]),
+        ],
+      ])),
       ..._section(t.lgrIncomeHeading, [
         ..._accountRows(p['sales']),
         if (((p['discounts_total'] as num?) ?? 0) != 0)

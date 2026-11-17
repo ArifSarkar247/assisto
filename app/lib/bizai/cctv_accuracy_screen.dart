@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../screens/business/bizagent/seller_agent_screen.dart' show baErrorText;
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/business_ui.dart';
 import '../widgets/skeleton.dart';
@@ -147,30 +148,41 @@ class _CctvAccuracyScreenState extends State<CctvAccuracyScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-        BizNote(text: t.bizaiCamExplain, icon: Icons.info_outline_rounded),
-        const SizedBox(height: Gap.md),
-        BizCard(
-          title: t.bizaiCamLiveTitle,
-          icon: Icons.science_rounded,
+        // page rule: the live test (the action) is the soft hero first;
+        // the reviews card next; the how-it-works note last
+        DsHeroCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(t.bizaiCamLiveHow),
+            Row(children: [
+              DsAvatar(child: Icon(Icons.science_rounded, size: 22, color: DsTokens.of(context).primaryInk)),
+              const SizedBox(width: Gap.md),
+              Expanded(
+                child: Semantics(
+                  header: true,
+                  child: Text(t.bizaiCamLiveTitle,
+                      style: AType.titleMedium.copyWith(
+                          color: DsTokens.of(context).text, fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ]),
+            const SizedBox(height: Gap.md),
+            Text(t.bizaiCamLiveHow, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).text)),
             const SizedBox(height: Gap.sm),
             if (site == null) ...[
               Text(t.bizaiCamPickSite),
               // qbiz: no dead end — the shop is added on the Shop Box screen
               const SizedBox(height: Gap.sm),
-              FilledButton.icon(
-                key: const ValueKey('qbiz-cam-back'),
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              DsButton(
+                buttonKey: const ValueKey('qbiz-cam-back'),
+                expand: true,
                 onPressed: () => Navigator.of(context).maybePop(),
-                icon: const Icon(Icons.storefront_rounded),
-                label: Text(t.qbizCamAddShop),
+                icon: Icons.storefront_rounded,
+                label: t.qbizCamAddShop,
               ),
             ]
             else if (_testId == null)
-              FilledButton.icon(
-                key: const ValueKey('bizai-cam-start'),
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              DsButton(
+                buttonKey: const ValueKey('bizai-cam-start'),
+                expand: true,
                 onPressed: _busy
                     ? null
                     : () => _do(() async {
@@ -180,30 +192,29 @@ class _CctvAccuracyScreenState extends State<CctvAccuracyScreen> {
                             _marks = 0;
                           });
                         }),
-                icon: const Icon(Icons.play_arrow_rounded),
-                label: Text(t.bizaiCamStart),
+                icon: Icons.play_arrow_rounded,
+                label: t.bizaiCamStart,
               )
             else ...[
               Text(t.bizaiCamMarks(fmtInt(context, _marks))),
               const SizedBox(height: Gap.sm),
               Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
                 for (final k in _kinds)
-                  OutlinedButton(
-                    key: ValueKey('bizai-cam-mark-$k'),
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                  DsButton.secondary(
+                    buttonKey: ValueKey('bizai-cam-mark-$k'),
                     onPressed: _busy
                         ? null
                         : () => _do(() async {
                               await _src.mark(_testId!, k);
                               setState(() => _marks++);
                             }),
-                    child: Text(_kind(t, k)),
+                    label: _kind(t, k),
                   ),
               ]),
               const SizedBox(height: Gap.sm),
-              FilledButton.icon(
-                key: const ValueKey('bizai-cam-stop'),
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              DsButton(
+                buttonKey: const ValueKey('bizai-cam-stop'),
+                expand: true,
                 onPressed: _busy
                     ? null
                     : () => _do(() async {
@@ -211,8 +222,8 @@ class _CctvAccuracyScreenState extends State<CctvAccuracyScreen> {
                           setState(() => _testId = null);
                           await _load();
                         }),
-                icon: const Icon(Icons.stop_rounded),
-                label: Text(t.bizaiCamStop),
+                icon: Icons.stop_rounded,
+                label: t.bizaiCamStop,
               ),
             ],
             const SizedBox(height: Gap.sm),
@@ -231,9 +242,9 @@ class _CctvAccuracyScreenState extends State<CctvAccuracyScreen> {
               Text(t.bizaiCamUnreviewed(fmtInt(context, (rev['unreviewed'] as num).toInt()))),
             if (site != null) ...[
               const SizedBox(height: Gap.sm),
-              OutlinedButton.icon(
-                key: const ValueKey('bizai-cam-missed'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              DsButton.secondary(
+                buttonKey: const ValueKey('bizai-cam-missed'),
+                expand: true,
                 onPressed: _busy
                     ? null
                     : () => _do(() async {
@@ -244,12 +255,14 @@ class _CctvAccuracyScreenState extends State<CctvAccuracyScreen> {
                                 SnackBar(content: Text(t.bizaiCamMissedDone)));
                           }
                         }),
-                icon: const Icon(Icons.report_rounded),
-                label: Text(t.bizaiCamMissed),
+                icon: Icons.report_rounded,
+                label: t.bizaiCamMissed,
               ),
             ],
           ]),
         ),
+        const SizedBox(height: Gap.md),
+        BizNote(text: t.bizaiCamExplain, icon: Icons.info_outline_rounded),
       ]),
     );
   }

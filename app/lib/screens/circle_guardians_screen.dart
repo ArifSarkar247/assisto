@@ -5,6 +5,8 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList, StateMessage;
 import '../widgets/app_sheet.dart';
 import 'guardian2_panel.dart'; // guardian2: two guardians
 import 'guardian_journey_screen.dart';
@@ -157,19 +159,15 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.cgaTitle)),
+      // DS skeleton while loading; the DS error card with one big retry
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : _failed
-              ? ListView(padding: const EdgeInsets.all(Gap.xl), children: [
-                  Text(t.cgaLoadFailed, textAlign: TextAlign.center),
-                  const SizedBox(height: Gap.md),
-                  Center(
-                    child: FilledButton.icon(
-                        onPressed: _load,
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: Text(t.retry)),
-                  ),
-                ])
+              ? StateMessage(
+                  icon: Icons.cloud_off_rounded,
+                  title: t.cgaLoadFailed,
+                  action: DsButton(
+                      onPressed: _load, icon: Icons.refresh_rounded, label: t.retry))
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
@@ -200,7 +198,9 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
         child: Padding(
           padding: const EdgeInsets.only(bottom: Gap.sm),
           child: Row(children: [
-            Icon(icon, color: Theme.of(context).colorScheme.primary),
+            DsAvatar(
+                size: 36,
+                child: Icon(icon, size: 18, color: Theme.of(context).colorScheme.ds.primaryInk)),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700))),
@@ -208,25 +208,18 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
         ),
       );
 
-  Widget _emptyMine(AppLocalizations t) => Card(
-        key: const Key('cga-mine-empty'),
-        margin: const EdgeInsets.only(bottom: Gap.sm),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Row(children: [
+  Widget _emptyMine(AppLocalizations t) => Padding(key: const Key('cga-mine-empty'), padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
             Icon(Icons.visibility_off_rounded, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(child: Text(t.cgaNobodySeesMe, style: AType.bodyMedium)),
           ]),
-        ),
-      );
+    ));
 
   Widget _pendingRow(AppLocalizations t, Map<String, dynamic> p) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      key: ValueKey('g2-pending-${p['id']}'),
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(key: ValueKey('g2-pending-${p['id']}'), padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
           Icon(Icons.hourglass_top_rounded, color: scheme.ds.muted),
@@ -239,36 +232,31 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
             ]),
           ),
         ]),
-      ),
-    );
+      ));
   }
 
-  Widget _emptyKids(AppLocalizations t) => Card(
-        key: const Key('cga-kids-empty'),
-        margin: const EdgeInsets.only(bottom: Gap.sm),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+  Widget _emptyKids(AppLocalizations t) => Padding(key: const Key('cga-kids-empty'), padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text(t.cgaKidsEmptyBenefit, style: AType.bodyLarge),
             const SizedBox(height: Gap.xs),
             Text(t.cgaKidsEmptyHow,
                 style: AType.bodyMedium
                     .copyWith(color: Theme.of(context).colorScheme.ds.muted)),
             const SizedBox(height: Gap.md),
-            FilledButton.icon(
-              key: const Key('cga-kids-start'),
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+            DsButton(
+              buttonKey: const Key('cga-kids-start'),
+              expand: true,
               onPressed: () async {
                 await Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const GuardianJourneyScreen()));
                 if (mounted) _load();
               },
-              icon: const Icon(Icons.route_rounded),
-              label: Text(t.cgaKidsStart),
+              icon: Icons.route_rounded,
+              label: t.cgaKidsStart,
             ),
           ]),
-        ),
-      );
+    ));
 
   Widget _chips(AppLocalizations t, List sources) => Wrap(
         spacing: Gap.xs,
@@ -277,6 +265,9 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
           for (final k in {for (final s in sources) if (s is Map) '${s['kind']}'})
             Chip(
               visualDensity: VisualDensity.compact,
+              backgroundColor: Theme.of(context).colorScheme.ds.primarySoft,
+              side: BorderSide.none,
+              labelStyle: AType.labelLarge.copyWith(color: Theme.of(context).colorScheme.ds.primaryInk),
               avatar: Icon(
                   switch (k) {
                     'kids_watch' => Icons.watch_rounded,
@@ -306,17 +297,16 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
           '${s['set_up_by'] ?? ''}'
     }..removeWhere((x) => x.isEmpty);
     final uid = (g['id'] as num?)?.toInt();
-    return Card(
-      key: ValueKey('cga-guardian-$uid'),
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(key: ValueKey('cga-guardian-$uid'), padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            CircleAvatar(
-                child: Text(name.trim().isEmpty ? '?' : name.trim().characters.first)),
-            const SizedBox(width: Gap.sm),
-            Expanded(child: Text(name, style: AType.titleMedium)),
+            DsAvatar(name: name.trim().isEmpty ? '?' : name),
+            const SizedBox(width: Gap.md),
+            Expanded(
+                child: Text(name,
+                    style: AType.titleMedium.copyWith(
+                        color: scheme.ds.text, fontWeight: FontWeight.w700))),
           ]),
           // guardian2: since when this person can see me
           if (g2Date(context, g['since']).isNotEmpty)
@@ -342,7 +332,9 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
               child: OutlinedButton.icon(
                 key: ValueKey('cga-remove-$uid'),
                 style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(48, 48), foregroundColor: scheme.error),
+                    minimumSize: const Size(48, 48),
+                    foregroundColor: scheme.ds.dangerInk,
+                    side: BorderSide(color: scheme.ds.dangerInk)),
                 onPressed: _busy != null || uid == null ? null : () => _remove(g),
                 icon: _busy == uid
                     ? const SizedBox(
@@ -353,8 +345,7 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
             ),
           ],
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _child(AppLocalizations t, Map<String, dynamic> k) {
@@ -363,16 +354,16 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
       for (final g in (k['co_guardians'] as List? ?? const []))
         if (g is Map) '${g['name'] ?? ''}'
     ]..removeWhere((x) => x.isEmpty);
-    return Card(
-      key: ValueKey('cga-child-${k['key']}'),
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(key: ValueKey('cga-child-${k['key']}'), padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            const Icon(Icons.child_care_rounded),
-            const SizedBox(width: Gap.sm),
-            Expanded(child: Text('${k['name'] ?? ''}', style: AType.titleMedium)),
+            DsAvatar(child: Icon(Icons.child_care_rounded, size: 22, color: scheme.ds.primaryInk)),
+            const SizedBox(width: Gap.md),
+            Expanded(
+                child: Text('${k['name'] ?? ''}',
+                    style: AType.titleMedium.copyWith(
+                        color: scheme.ds.text, fontWeight: FontWeight.w700))),
           ]),
           const SizedBox(height: Gap.xs),
           _chips(t, (k['sources'] as List?) ?? const []),
@@ -402,7 +393,6 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
             Text(t.g2NeedsAccount('${k['name'] ?? ''}'),
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ]),
-      ),
-    );
+      ));
   }
 }
