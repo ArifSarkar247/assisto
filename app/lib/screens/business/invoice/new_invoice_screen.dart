@@ -263,54 +263,59 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
         ),
       );
 
+  /// One form section: a DS header, then its fields in one alive card.
+  List<Widget> _section(String title, List<Widget> children) => [
+        DsSectionHeader(title),
+        DsCard(
+          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.sm),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+        ),
+      ];
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final tt = Theme.of(context).textTheme;
     const money = TextInputType.numberWithOptions(decimal: true);
     return Scaffold(
       appBar: AppBar(title: Text(t.invNewTitle)),
       body: ListView(
-        padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg)),
         children: [
-          Text(t.invSetBusinessType, style: tt.titleMedium),
-          const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          // Page rule: who the bill is for first (one tap from customers or
+          // My Circle), then the lines, then payment; the paper style is a
+          // single scrolling chip row (never odd wrapped rows).
+          DsSectionHeader(t.invSetBusinessType),
+          DsChipRow(padding: EdgeInsets.zero, children: [
             for (final k in _designs ? invoiceTemplates : classicTemplates)
-              ChoiceChip(
+              DsChip(
                 key: ValueKey('inv-new-tpl-$k'),
-                label: Text(templateLabel(t, k)),
+                label: templateLabel(t, k),
                 selected: _template == k,
                 onSelected: (_) => setState(() => _template = k),
               ),
           ]),
-          const SizedBox(height: Gap.lg),
-          Text(serviceTemplates.contains(_template) ? t.invClient : t.invBillTo, style: tt.titleMedium),
-          const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
-              onPressed: _fromCustomers,
-              icon: const Icon(Icons.storefront_rounded),
-              label: Text(t.invPickCustomer),
-            ),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
-              onPressed: _fromCircle,
-              icon: const Icon(Icons.diversity_3_rounded),
-              label: Text(t.invPickCircle),
-            ),
+          ..._section(serviceTemplates.contains(_template) ? t.invClient : t.invBillTo, [
+            Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+              DsButton.secondary(
+                onPressed: _fromCustomers,
+                icon: Icons.storefront_rounded,
+                label: t.invPickCustomer,
+              ),
+              DsButton.secondary(
+                onPressed: _fromCircle,
+                icon: Icons.diversity_3_rounded,
+                label: t.invPickCircle,
+              ),
+            ]),
+            const SizedBox(height: Gap.md),
+            _tf(_name, t.invClientName, key: const ValueKey('inv-client-name')),
+            _tf(_phone, t.invClientPhone, kb: TextInputType.phone),
+            _tf(_address, t.invClientAddress, maxLines: 3),
+            _tf(_bin, t.invClientBin, kb: TextInputType.number),
+            for (final k in templateFields[_template] ?? const <String>[])
+              _tf(_x(k), extraLabel(t, k), maxLines: k == 'delivery_address' ? 3 : 1),
           ]),
-          const SizedBox(height: Gap.sm),
-          _tf(_name, t.invClientName, key: const ValueKey('inv-client-name')),
-          _tf(_phone, t.invClientPhone, kb: TextInputType.phone),
-          _tf(_address, t.invClientAddress, maxLines: 3),
-          _tf(_bin, t.invClientBin, kb: TextInputType.number),
-          for (final k in templateFields[_template] ?? const <String>[])
-            _tf(_x(k), extraLabel(t, k), maxLines: k == 'delivery_address' ? 3 : 1),
-          const SizedBox(height: Gap.md),
-          Text(t.invLinesTitle, style: tt.titleMedium),
-          const SizedBox(height: Gap.sm),
+          DsSectionHeader(t.invLinesTitle),
           if (_designs)
             SwitchListTile(
               key: const ValueKey('ivd-by-hours'),
@@ -321,7 +326,9 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
               subtitle: Text(t.ivdByHoursHelp),
             ),
           for (var i = 0; i < _lines.length; i++)
-            DsCard(
+            Padding(
+              padding: const EdgeInsets.only(bottom: Gap.sm),
+              child: DsCard(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
               child: Column(children: [
                   Row(children: [
@@ -358,18 +365,17 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                               kb: TextInputType.number, key: ValueKey('inv-line-warranty-$i'))),
                     ]),
                 ]),
-            ),
+            )),
           TextButton.icon(
             style: TextButton.styleFrom(minimumSize: const Size(0, 48)),
             onPressed: () => setState(() => _lines.add(_LineCtl())),
             icon: const Icon(Icons.add_rounded),
             label: Text(t.invAddLine),
           ),
-          const SizedBox(height: Gap.sm),
+          ..._section(t.invHowPaid, [
           _tf(_discount, t.invDiscountTk, kb: money, prefix: '৳ '),
           _tf(_paid, t.invPaidTk, kb: money, prefix: '৳ '),
-          Text(t.invHowPaid, style: tt.titleSmall),
-          const SizedBox(height: Gap.sm),
+          const SizedBox(height: Gap.xs),
           Wrap(key: const ValueKey('inv-method'), spacing: Gap.sm, runSpacing: Gap.sm, children: [
             for (final m in const ['cash', 'bkash', 'nagad', 'bank'])
               ChoiceChip(
@@ -380,7 +386,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                 onSelected: (_) => setState(() => _method = m),
               ),
           ]),
-          const SizedBox(height: Gap.md),
+          const SizedBox(height: Gap.sm),
           if (_vatReady)
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -389,14 +395,14 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
               title: Text(t.invNoVat),
             ),
           _tf(_note, t.invNote, maxLines: 3),
-          const SizedBox(height: Gap.md),
-          FilledButton(
-            key: const ValueKey('inv-create'),
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+          ]),
+          const SizedBox(height: Gap.lg),
+          DsButton(
+            buttonKey: const ValueKey('inv-create'),
             onPressed: _busy ? null : _submit,
-            child: _busy
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : Text(t.invCreate),
+            busy: _busy,
+            label: t.invCreate,
+            expand: true,
           ),
         ],
       ),

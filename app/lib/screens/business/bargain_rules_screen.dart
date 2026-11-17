@@ -4,6 +4,8 @@ import '../../business_ai_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
+import '../../messaging/date_separators.dart' show localDigits;
 import '../../widgets/business_ui.dart';
 import '../../widgets/skeleton.dart';
 import '../../plans_v2/buy_inside.dart';
@@ -84,18 +86,17 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
     }
     return RefreshIndicator(
       onRefresh: _load,
-      child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      child: ListView(
+          padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+          children: [
         // The core rule, stated plainly.
         BizNote(text: tr.bizBelowMinImpossible, icon: Icons.lock_outline_rounded),
         const SizedBox(height: Gap.md),
         if (_rules.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: Gap.xl),
-            child: StateMessage(
-              icon: Icons.sell_rounded,
-              title: tr.bizBargainEmptyTitle,
-              message: tr.bizBargainEmptyBody,
-            ),
+          DsEmptyState(
+            icon: Icons.sell_rounded,
+            title: tr.bizBargainEmptyTitle,
+            benefit: tr.bizBargainEmptyBody,
           )
         else
           for (final r in _rules) ...[
@@ -114,6 +115,8 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
     final freeOver = r['free_delivery_over'];
     final bundle = r['bundle_min_qty'];
     final tone = (r['tone'] ?? '').toString();
+    final lang = Localizations.localeOf(context).languageCode;
+    String tk(Object? v) => localDigits('৳$v', lang);
     return BizCard(
       title: name,
       icon: Icons.sell_rounded,
@@ -124,11 +127,11 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Expanded(child: _kv(tr.bizListPrice, '৳$list')),
+          Expanded(child: _kv(tr.bizListPrice, tk(list))),
           // Minimum is READ-ONLY: the hard floor.
           Expanded(
             child: Row(children: [
-              Expanded(child: _kv(tr.bizMinPriceFloor, '৳$min')),
+              Expanded(child: _kv(tr.bizMinPriceFloor, tk(min))),
               Icon(Icons.lock_rounded, size: 14, color: Theme.of(context).colorScheme.ds.muted),
             ]),
           ),
@@ -138,12 +141,22 @@ class _BargainRulesScreenState extends State<BargainRulesScreen> {
           Text(tr.bizDiscountSteps, style: _label()),
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-            for (final s in steps) Chip(label: Text(s), visualDensity: VisualDensity.compact),
+            for (final s in steps)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.ds.primarySoft,
+                  borderRadius: BorderRadius.circular(Radii.pill),
+                ),
+                child: Text(localDigits(s, lang),
+                    style: AType.labelLarge.copyWith(
+                        color: Theme.of(context).colorScheme.ds.primaryInk)),
+              ),
           ]),
           const SizedBox(height: Gap.sm),
         ],
-        if (freeOver != null) _kv(tr.bizFreeDeliveryOver, '৳$freeOver'),
-        if (bundle != null) _kv(tr.bizBundleMinQty, '$bundle'),
+        if (freeOver != null) _kv(tr.bizFreeDeliveryOver, tk(freeOver)),
+        if (bundle != null) _kv(tr.bizBundleMinQty, localDigits('$bundle', lang)),
         if (tone.isNotEmpty) _kv(tr.bizTone, tone),
       ]),
     );

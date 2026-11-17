@@ -7,6 +7,8 @@ import '../../../bizagent_api.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../state.dart';
 import '../../../theme.dart';
+import '../../../ds/ds.dart';
+import '../../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
 import 'approvals_screen.dart' show ApprovalsScreen, baRiskLabel;
@@ -144,8 +146,8 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
       final sel = _status == status && _unread == unread;
       return Padding(
         padding: const EdgeInsetsDirectional.only(end: Gap.sm),
-        child: ChoiceChip(
-          label: Text(bd(context, label)),
+        child: DsChip(
+          label: bd(context, label),
           selected: sel,
           onSelected: (_) => _pick(status, unread),
         ),
@@ -168,25 +170,22 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
   /// First run: what the inbox gives (benefit), one button, one how-to line.
   Widget _empty(AppLocalizations t) {
     final connected = _features['inbox'] == true;
-    return StateMessage(
-      icon: Icons.forum_rounded,
-      title: connected ? t.baInboxEmptyTitle : t.s2InboxEmptyTitle,
-      message: connected
-          ? t.s2InboxNoChatsHow
-          : '${t.s2InboxEmptyBenefit}\n\n${t.s2InboxEmptyHow}',
-      action: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: Gap.sm,
-        runSpacing: Gap.sm,
-        children: [
-          FilledButton.icon(
-            onPressed: _openSetup,
-            icon: Icon(connected ? Icons.settings_rounded : Icons.add_link_rounded),
-            label: Text(connected ? t.s2InboxCheckChannels : t.s2InboxConnect),
-          ),
-          if (connected) TextButton(onPressed: _load, child: Text(t.bizRefresh)),
+    return ListView(
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+      children: [
+        DsEmptyState(
+          icon: Icons.forum_rounded,
+          title: connected ? t.baInboxEmptyTitle : t.s2InboxEmptyTitle,
+          benefit: connected ? t.s2InboxNoChatsHow : t.s2InboxEmptyBenefit,
+          actionLabel: connected ? t.s2InboxCheckChannels : t.s2InboxConnect,
+          onAction: _openSetup,
+          howTo: connected ? const [] : [t.s2InboxEmptyHow],
+        ),
+        if (connected) ...[
+          const SizedBox(height: Gap.sm),
+          Center(child: DsButton(kind: DsButtonKind.ghost, onPressed: _load, label: t.bizRefresh)),
         ],
-      ),
+      ],
     );
   }
 
@@ -224,8 +223,6 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
                         _onSearch('');
                       },
                     ),
-              border: const OutlineInputBorder(),
-              isDense: true,
             ),
           ),
         ),
@@ -235,19 +232,18 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
           child: RefreshIndicator(
             onRefresh: _load,
             child: _threads.isEmpty
-                ? ListView(children: [
-                    Padding(
-                      padding: const EdgeInsets.all(Gap.xl),
-                      child: Column(children: [
-                        Text(t.bv2NoMatch, textAlign: TextAlign.center),
-                        const SizedBox(height: Gap.sm),
-                        TextButton(onPressed: _showAll, child: Text(t.s2ShowAllChats)),
-                      ]),
+                ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+                    DsEmptyState(
+                      icon: Icons.search_off_rounded,
+                      title: t.bv2NoMatch,
+                      actionLabel: t.s2ShowAllChats,
+                      onAction: _showAll,
                     ),
                   ])
                 : ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.lg),
                     itemCount: _threads.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
                     itemBuilder: (_, i) => _row(t, _threads[i]),
                   ),
           ),
@@ -261,37 +257,50 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
     final unread = (th['unread'] as num?)?.toInt() ?? 0;
     final status = '${th['status'] ?? 'agent'}';
     final channel = '${th['channel']}';
-    final small = Theme.of(context).textTheme.bodySmall;
-    return ListTile(
-      leading: Tooltip(
-        message: baChannelLabel(t, channel),
-        child: CircleAvatar(child: Icon(baChannelIcon(channel), size: 20)),
-      ),
-      title: Text(bd(context, th['customer_name']),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: unread > 0 ? AType.bodyMedium.copyWith(fontWeight: FontWeight.w700) : null),
-      subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(bd(context, '${th['last_text'] ?? ''}'),
-            maxLines: 2, overflow: TextOverflow.ellipsis),
-        const SizedBox(height: Gap.xs),
-        Wrap(
-          spacing: Gap.sm,
-          runSpacing: Gap.xs,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            BizStatusChip(label: bv2StatusLabel(t, status), color: bv2StatusColor(context, status)),
-            Text(baChannelLabel(t, channel), style: small),
-          ],
-        ),
-      ]),
-      isThreeLine: true,
-      trailing: (unread + pending) > 0 ? Badge(label: Text(bd(context, unread + pending))) : null,
+    final ds = Theme.of(context).colorScheme.ds;
+    final badge = unread + pending;
+    // One alive DS card per chat: channel bubble, name (wraps, never "…"),
+    // a two-line preview, then the status chip + channel.
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
       onTap: () async {
         await Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => SellerChatScreen(threadId: (th['id'] as num).toInt())));
         if (mounted) _load();
       },
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Tooltip(
+          message: baChannelLabel(t, channel),
+          child: DsAvatar(child: Icon(baChannelIcon(channel), size: 20, color: ds.primaryInk)),
+        ),
+        const SizedBox(width: Gap.md),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(bd(context, th['customer_name']),
+                style: AType.bodyLarge.copyWith(
+                    color: ds.text,
+                    fontWeight: unread > 0 ? FontWeight.w800 : FontWeight.w600)),
+            Text(bd(context, '${th['last_text'] ?? ''}'),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AType.bodyMedium.copyWith(color: unread > 0 ? ds.text : ds.muted)),
+            const SizedBox(height: Gap.xs),
+            Wrap(
+              spacing: Gap.sm,
+              runSpacing: Gap.xs,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                BizStatusChip(label: bv2StatusLabel(t, status), color: bv2StatusColor(context, status)),
+                Text(baChannelLabel(t, channel), style: AType.bodySmall.copyWith(color: ds.muted)),
+              ],
+            ),
+          ]),
+        ),
+        if (badge > 0) ...[
+          const SizedBox(width: Gap.sm),
+          Badge(label: Text(bd(context, badge))),
+        ],
+      ]),
     );
   }
 }

@@ -103,11 +103,11 @@ void main() {
     await t.tap(find.text('Balance sheet'));
     await t.pumpAndSettle();
     expect(find.text('Debits equal credits: the books balance'), findsOneWidget);
-    expect(find.text('৳8,470'), findsNWidgets(2)); // total assets = total L + E
+    expect(find.text('৳8,470'), findsNWidgets(3)); // hero + total assets = total L + E
     await t.ensureVisible(find.text('Trial balance'));
     await t.tap(find.text('Trial balance'));
     await t.pumpAndSettle();
-    expect(find.text('৳10,770'), findsNWidgets(2));
+    expect(find.text('৳10,770'), findsNWidgets(3)); // hero + debit = credit
   });
 
   testWidgets('Bangla: Bangla digits and lakh grouping', (t) async {
@@ -118,7 +118,7 @@ void main() {
     expect(find.text('৳৩৭০'), findsOneWidget);
     await t.tap(find.text('ব্যালান্স শিট'));
     await t.pumpAndSettle();
-    expect(find.text('৳৮,৪৭০'), findsNWidgets(2));
+    expect(find.text('৳৮,৪৭০'), findsNWidgets(3));
   });
 
   testWidgets('empty: benefit + big button + how-to; the button syncs', (t) async {
