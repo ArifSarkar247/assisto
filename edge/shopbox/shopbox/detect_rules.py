@@ -78,14 +78,14 @@ MOVED_SHAPE_KEEP = 0.6       # ... vs still the same scene (slow update)
 TRACK_JUMP_CAP = 0.5         # a vehicle unseen for a few checks may move further
 TRACK_COAST_S = 3.0          # ... but only for this long (no stale-track jumps)
 CROSS_MARGIN = 0.02          # in / out counts only clear of the line (no jitter)
-DWELL_KEEP_SCORE = 0.25      # a visit already seen keeps going on a weaker box
-CROWD_SCORE = 0.25           # people counted for a crowd (box score floor)
-CROWD_KEEP_S = 10.0          # a crowd survives a short dip below crowd_n
+DWELL_KEEP_SCORE = 1.0       # a visit already seen keeps going on a weaker box (1.0 = off: no gain measured)
+CROWD_SCORE = 0.3            # people counted for a crowd (box score floor)
+CROWD_KEEP_S = 20.0          # a crowd survives a short dip below crowd_n
 VEH_START_SCORE = 0.0        # a parking stay / a line track counts only once one
                              # of its boxes reached this score (weak boxes keep it)
 VEH_PRESENT_FRAC = 0.0       # a parking alert needs the vehicle in this share of the
                              # checks since it arrived (a car that left + a stray box)
-POST_WEAK_HITS = 2           # a weak-only box must be seen this often in a row
+POST_WEAK_HITS = 1           # a weak-only box must be seen this often in a row (1 = stage 2)
                              # to count a post as manned again
 VEHICLE_CLASSES = {1: "cycle", 2: "car", 3: "motorbike", 5: "bus", 7: "truck"}
 

@@ -69,17 +69,17 @@
     "moved_shape_keep": 0.6,
     "track_jump_cap": 0.5,
     "cross_margin": 0.02,
-    "dwell_keep_score": 0.25,
-    "crowd_score": 0.25,
-    "crowd_keep_s": 10.0,
-    "post_weak_hits": 2,
+    "dwell_keep_score": 1.0,
+    "crowd_score": 0.3,
+    "crowd_keep_s": 20.0,
+    "post_weak_hits": 1,
     "track_coast_s": 3.0,
     "veh_start_score": 0.0,
     "veh_present_frac": 0.0
   },
   "measured": {
-    "_run": "42726621893",
-    "_set": "COCO val2017 licensed images, synthetic CCTV scenarios (tools/e2e/cctv_detect_accuracy.py, n=30/kind)",
+    "_run": "42726621893 (stage 2); cctvdet3 HELD-OUT 43967156868: vehicles on the real Bangladeshi set, crowd / post / loitering / gate on the old set",
+    "_set": "stage 2: COCO val2017 synthetic scenarios n=30/kind; cctvdet3: same + Sylhet street photos (CC BY 4.0), calibration/held-out split",
     "camera_health": {
       "n": 330,
       "p": 1.0,
@@ -87,8 +87,8 @@
     },
     "crowd": {
       "n": 240,
-      "p": 0.9873,
-      "r": 0.65
+      "p": 0.962,
+      "r": 0.842
     },
     "gate_open": {
       "n": 240,
@@ -97,33 +97,43 @@
     },
     "gate_person": {
       "n": 180,
-      "p": 0.9286,
-      "r": 0.8667
+      "p": 0.931,
+      "r": 0.9
     },
     "loitering": {
       "n": 180,
-      "p": 0.8913,
-      "r": 0.6833
+      "p": 0.889,
+      "r": 0.667
     },
     "parking_overstay": {
-      "n": 180,
-      "p": 0.9412,
-      "r": 0.2667
+      "n": 261,
+      "p": 0.78,
+      "r": 0.844
     },
     "post_empty": {
       "n": 120,
-      "p": 0.9318,
-      "r": 0.6833
+      "p": 0.941,
+      "r": 0.8
     },
     "vehicle_in_out": {
-      "n": 240,
-      "p": 1.0,
-      "r": 0.1833
+      "n": 300,
+      "p": 0.656,
+      "r": 0.667
     },
     "wrong_parking": {
-      "n": 180,
-      "p": 0.9333,
-      "r": 0.2333
+      "n": 265,
+      "p": 0.697,
+      "r": 0.964
     }
+  },
+  "_doc_vehicle": "cctvdet3: Shop Box vehicles. 'default' = the Bangladesh vehicle model's score (assisto_vehicle_bd, tools/e2e/cctv_vehicle_train.py); 'tiny_default' = YOLOX-Tiny's when that model is not published yet; zoom = second look on a parking zone's crop; union = + the person model's COCO vehicles; picked on CALIBRATION, reported on HELD-OUT (CI 43967156868).",
+  "vehicle": {
+    "default": 0.15,
+    "tiny_default": 0.35,
+    "zoom": true,
+    "zoom_max_area": 0.35,
+    "union": true,
+    "coco_score": 0.35,
+    "person_iou": 1.0
   }
 }

@@ -97,6 +97,17 @@ VEH_ZOOM = bool(_VCFG.get("zoom", False))           # second look on a parking z
 VEH_ZOOM_MAX_AREA = float(_VCFG.get("zoom_max_area", 0.35))
 VEH_UNION = bool(_VCFG.get("union", False))         # + the person model's COCO vehicles
 VEH_COCO_SCORE = float(_VCFG.get("coco_score", 0.35))
+VEH_TINY_SCORE = float(_VCFG.get("tiny_default", 0.35))   # YOLOX-Tiny until the BD model is out
+
+
+def veh_thr(det) -> float:
+    """cctvdet3: the vehicle score for this model (each measured on its own)."""
+    name = getattr(det, "name", "")
+    if name == "assisto_vehicle_bd":
+        return VEH_SCORE
+    if name == "yolox_tiny":
+        return VEH_TINY_SCORE
+    return VEH_COCO_SCORE
 # a "vehicle" box that is mostly a person box (a walker the vehicle model,
 # which never learnt people, calls a cycle) is dropped; 1.0 = off
 VEH_PERSON_IOU = float(_VCFG.get("person_iou", 1.0))
@@ -271,12 +282,12 @@ class CameraAnalyzer:
                     dets = self.detector.detect(img, score_thr=low)
                 try:
                     self._frame_veh = merge_vehicles(
-                        vdet.detect_vehicles(img, vehicle_thr=VEH_SCORE), coco)
+                        vdet.detect_vehicles(img, vehicle_thr=veh_thr(vdet)), coco)
                 except Exception:
                     self._frame_veh = coco or None
             elif self.zrules.wants_vehicles and hasattr(self.detector, "detect_all"):
                 dets, self._frame_veh = self.detector.detect_all(img, score_thr=low,
-                                                                 vehicle_thr=VEH_SCORE)
+                                                                 vehicle_thr=VEH_COCO_SCORE)
             else:
                 dets = self.detector.detect(img, score_thr=low)
         except TypeError:                # a detector without the override
@@ -402,7 +413,7 @@ class CameraAnalyzer:
                          int(x1 * w):max(int(x1 * w) + 2, int(x2 * w))]
             try:
                 img, _night = model_input(crop)
-                vs = det.detect_vehicles(img, vehicle_thr=VEH_SCORE)
+                vs = det.detect_vehicles(img, vehicle_thr=veh_thr(det))
             except Exception:
                 continue
             for v in vs:

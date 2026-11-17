@@ -112,6 +112,7 @@ def apply(cfg):
     AN.VEH_ZOOM = bool(cfg["veh_zoom"])
     AN.VEH_UNION = bool(cfg.get("veh_union"))
     AN.VEH_COCO_SCORE = 0.35
+    AN.VEH_TINY_SCORE = float(cfg["veh_thr"])
     AN.VEH_PERSON_IOU = float(cfg.get("veh_person_iou", 1.0))
     vd = VEH.get(cfg["veh_model"]) if cfg["veh_model"] != "nano" else None
 

@@ -41,7 +41,7 @@ jobs:
   detections:
     if: ${{ inputs.mode != 'train' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 340
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -82,6 +82,7 @@ jobs:
           github-token: ${{ github.token }}
       - name: Tune on calibration, report held-out (cctvdet3)
         if: ${{ inputs.mode == 'v3' }}
+        timeout-minutes: 120
         env:
           N: ${{ inputs.n || '30' }}
           GROUPS: ${{ inputs.groups || 'vehicles,post,loiter,crowd' }}
