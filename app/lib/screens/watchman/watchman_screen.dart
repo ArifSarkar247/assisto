@@ -43,6 +43,7 @@ import '../../phonecam/phonecam_api.dart'; // cctvphone
 import '../shop_live_screen.dart'; // cctvphone: phone-camera live view
 import '../../cctvguard/cctv_usage_card.dart'; // cctvguard: this month's use
 import 'old_phone_hub.dart'; // gap-cctv D3
+import 'cctv_clips_screen.dart'; // gap-cctv D4
 import '../../cctvguard/vendor_live_screen.dart'; // cctvguard: Imou/EZVIZ live
 import '../../cctvconnect/cctv_connect_screen.dart'; // cctvconnect: brand clouds
 import '../../cctvconnect/dvr_health_card.dart'; // cctvconnect: daily DVR check
@@ -652,6 +653,19 @@ class _SiteCard extends StatelessWidget {
                 await onChanged();
               },
             ),
+            // gap-cctv D4: every clip the server still keeps, by camera + day
+            if (cams.isNotEmpty)
+              OutlinedButton.icon(
+                key: const ValueKey('wm-past-clips'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.video_library_outlined),
+                label: Text(t.gcvClipsEntry),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => CctvClipsScreen(
+                        siteId: siteId,
+                        siteName: (site['name'] ?? '').toString(),
+                        owner: _owner))),
+              ),
             // cctvactivity (W10): the day in numbers, visitor log, time-lapse
             if (cams.isNotEmpty)
               OutlinedButton.icon(

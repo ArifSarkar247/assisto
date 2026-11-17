@@ -104,7 +104,55 @@
   "@gcvShopToolsTitle": {
    "description": "gap-cctv D3: Shop Box as a section of CCTV"
   },
-  "gcvShopToolsSub": "Shop Box: cash drawer and sales match, day-end check, camera accuracy"
+  "gcvShopToolsSub": "Shop Box: cash drawer and sales match, day-end check, camera accuracy",
+  "gcvClipsTitle": "Past clips",
+  "@gcvClipsTitle": {
+   "description": "gap-cctv D4: past clips page title"
+  },
+  "gcvClipsEntry": "Past clips",
+  "gcvClipsKeep": "Alert clips are kept {hours} hours, or {days} days with Premium AI. When the owner watches a clip, its server copy is deleted.",
+  "@gcvClipsKeep": {
+   "placeholders": {
+    "hours": {
+     "type": "String"
+    },
+    "days": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvClipsCamKeep": "{camera}: kept {days} days",
+  "@gcvClipsCamKeep": {
+   "placeholders": {
+    "camera": {
+     "type": "String"
+    },
+    "days": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvClipsUpsell": "Keep clips {days} days with Premium AI",
+  "@gcvClipsUpsell": {
+   "placeholders": {
+    "days": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvClipsAllCameras": "All cameras",
+  "gcvClipsEmptyTitle": "No clips kept right now",
+  "gcvClipsEmptyBenefit": "When an alert comes with a short clip, it waits here for {hours} hours so you can watch it from anywhere.",
+  "@gcvClipsEmptyBenefit": {
+   "placeholders": {
+    "hours": {
+     "type": "String"
+    }
+   }
+  },
+  "gcvClipsEmptyStep1": "Draw a zone on a camera so alerts send a clip.",
+  "gcvClipsEmptyStep2": "Watched clips are deleted from the server; the photo stays in Alerts.",
+  "gcvClipsCameraUnknown": "Camera"
  },
  "bn": {
   "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
@@ -146,6 +194,17 @@
   "gcvHubThisSub": "পুরনো ফোনটি আপনার হাতে থাকলে: এখনই এই ফোনকে ক্যামেরা বানান।",
   "gcvHubGuardBoxSub": "দোকানের ওয়াই-ফাইয়ে থাকা পুরনো ফোন আপনার IP ক্যামেরা দেখে আর ক্যাশের জায়গা পরীক্ষা করে।",
   "gcvShopToolsTitle": "দোকানের টুল: বিক্রি, দিনশেষ, রিপোর্ট",
-  "gcvShopToolsSub": "শপ বক্স: ক্যাশ ড্রয়ার ও বিক্রি মেলানো, দিনশেষের হিসাব, ক্যামেরার নির্ভুলতা"
+  "gcvShopToolsSub": "শপ বক্স: ক্যাশ ড্রয়ার ও বিক্রি মেলানো, দিনশেষের হিসাব, ক্যামেরার নির্ভুলতা",
+  "gcvClipsTitle": "আগের ক্লিপ",
+  "gcvClipsEntry": "আগের ক্লিপ",
+  "gcvClipsKeep": "সতর্কতার ক্লিপ {hours} ঘণ্টা রাখা হয়, Premium AI থাকলে {days} দিন। মালিক ক্লিপ দেখলে সার্ভারের কপি মুছে যায়।",
+  "gcvClipsCamKeep": "{camera}: {days} দিন রাখা হয়",
+  "gcvClipsUpsell": "Premium AI দিয়ে ক্লিপ {days} দিন রাখুন",
+  "gcvClipsAllCameras": "সব ক্যামেরা",
+  "gcvClipsEmptyTitle": "এখন কোনো ক্লিপ রাখা নেই",
+  "gcvClipsEmptyBenefit": "সতর্কতার সাথে ছোট ক্লিপ এলে তা এখানে {hours} ঘণ্টা থাকে, যেকোনো জায়গা থেকে দেখতে পারবেন।",
+  "gcvClipsEmptyStep1": "ক্যামেরায় একটি জোন আঁকুন, তাহলে সতর্কতার সাথে ক্লিপ আসবে।",
+  "gcvClipsEmptyStep2": "দেখা ক্লিপ সার্ভার থেকে মুছে যায়; ছবিটি সতর্কতায় থাকে।",
+  "gcvClipsCameraUnknown": "ক্যামেরা"
  }
 }

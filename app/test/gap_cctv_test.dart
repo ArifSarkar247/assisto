@@ -23,6 +23,7 @@ import 'package:assisto/screens/watchman/cctvx_actions.dart';
 import 'package:assisto/screens/watchman/cctv_watch_screen.dart';
 import 'package:assisto/screens/watchman/guard_box_screen.dart';
 import 'package:assisto/screens/watchman/old_phone_hub.dart';
+import 'package:assisto/screens/watchman/cctv_clips_screen.dart';
 import 'package:assisto/widgets/sidebar_sections.dart';
 import 'package:assisto/screens/watchman/watchman_viewers.dart';
 import 'package:assisto/theme.dart';
@@ -31,6 +32,7 @@ import 'cctvact_fakes.dart' show FakeCctvAct;
 import 'cctvconnect_fakes.dart' show FakeCctvConnect;
 import 'cctvescalate_fakes.dart' show FakeEscalate;
 import 'cctvx_fakes.dart' show FakeCctvx;
+import 'gap_cctv_shots.dart' show GapFakeClips;
 import 'cctvprice_fakes.dart' show FakeCctvApi, cctvPlanPayload;
 import 'cctvteam_fakes.dart' show FakeCctvTeam;
 import 'cctv1_fakes.dart' show FakeWatchman;
@@ -628,6 +630,55 @@ void main() {
       ];
       expect(labels, isNot(contains(en.shopBoxTitle)));
       expect(SidebarSections.filter(en, 'shop box'), isNotEmpty);
+    });
+  });
+
+  group('D4 past clips page', () {
+    testWidgets('kept clips by day, honest keep time, camera filter, owner upsell',
+        (tester) async {
+      _phone(tester, height: 2000);
+      final src = GapFakeClips();
+      await tester.pumpWidget(_app(CctvClipsScreen(source: src, siteId: 1, owner: true)));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('gcv-clips-keep')), findsOneWidget);
+      expect(find.text(en.gcvClipsKeep('24', '30')), findsOneWidget);
+      expect(find.text(en.gcvClipsCamKeep('Cash counter', '30')), findsOneWidget);
+      expect(find.byKey(const ValueKey('gcv-clips-upsell')), findsOneWidget);
+      expect(find.text(en.gcvReportToday), findsOneWidget);
+      expect(find.text(en.gcvReportYesterday), findsOneWidget);
+      expect(find.byKey(const ValueKey('gcv-clip-501')), findsOneWidget);
+      expect(find.byKey(const ValueKey('gcv-clip-503')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('gcv-clips-cam-12')));
+      await _settle(tester);
+      expect(src.asked.last, 12);
+      expect(find.byKey(const ValueKey('gcv-clip-501')), findsNothing);
+      expect(find.byKey(const ValueKey('gcv-clip-502')), findsOneWidget);
+    });
+
+    testWidgets('family / staff never see the upsell; Bangla digits', (tester) async {
+      _phone(tester, height: 2000);
+      await tester.pumpWidget(_app(
+          CctvClipsScreen(source: GapFakeClips(), siteId: 1, owner: false), lang: 'bn'));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('gcv-clips-upsell')), findsNothing);
+      expect(find.text(bn.gcvClipsKeep('২৪', '৩০')), findsOneWidget);
+    });
+
+    testWidgets('empty: benefit + how-to; failed load: Retry', (tester) async {
+      _phone(tester, height: 2000);
+      await tester.pumpWidget(
+          _app(CctvClipsScreen(source: GapFakeClips(empty: true), siteId: 1, owner: true)));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('gcv-clips-empty')), findsOneWidget);
+      await tester.pumpWidget(
+          _app(CctvClipsScreen(source: GapFakeClips(fail: true), siteId: 1, owner: true)));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('gcv-clips-retry')), findsOneWidget);
+    });
+
+    test('day grouping uses the phone\'s local date', () {
+      final iso = DateTime(2026, 11, 17, 0, 30).toUtc().toIso8601String();
+      expect(gcvClipDayKey(iso), '2026-11-17');
     });
   });
 }
