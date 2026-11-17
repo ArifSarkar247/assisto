@@ -2011,7 +2011,15 @@ class _Tr2Timeline extends StatelessWidget {
             alignment: AlignmentDirectional.centerStart,
             child: TrainFreshChip(fresh: TrainFresh(live ? 'live' : 'timetable'))),
         const SizedBox(height: 12),
-        TrainLineView(line: line, live: live, speedKmh: live ? 62 : null, riders: live ? 3 : 0, onStation: (_) {}),
+        TrainLineView(
+            line: line,
+            live: live,
+            speedKmh: live ? 62 : null,
+            riders: live ? 3 : 0,
+            // as on the train page: a station tap opens the check-in sheet
+            onStation: (st) => showTrainStationSheet(
+                context, trainLineName(st, Localizations.localeOf(context).languageCode == 'bn'),
+                alarm: false)),
       ]),
     );
   }
