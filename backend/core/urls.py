@@ -1733,8 +1733,23 @@ urlpatterns += [
 
 # ---- train ---- (owner priority C: Train Tracker; flag train_tracker, OFF)
 from . import train_views as trv  # noqa: E402
+from . import train_engine_views as tev  # noqa: E402  train-engine
 urlpatterns += [
     path("train/config", trv.ConfigView.as_view()),
+    # train-engine (Train Tracker V2): live engine API — core/train_engine_views.py
+    path("train/ping", tev.PingView.as_view()),
+    path("train/trip/stop", tev.TripStopView.as_view()),
+    path("train/text", tev.ShareTextView.as_view()),
+    path("train/share-text", tev.ShareTextView.as_view()),
+    path("train/sms16318", tev.ShareTextView.as_view()),
+    path("train/offline/meta", tev.OfflineMetaView.as_view()),
+    path("train/offline/pack", tev.OfflinePackView.as_view()),
+    path("train/points", tev.PointsView.as_view()),
+    path("train/<str:no>/trip", tev.TripOpenView.as_view()),
+    path("train/<str:no>/now", tev.NowView.as_view()),
+    path("train/<str:no>/checkin", tev.CheckinView.as_view()),
+    path("train/<str:no>/onboard", tev.OnboardView.as_view()),
+    # /train-engine
     path("train/search", trv.SearchView.as_view()),
     path("train/alarm/arrived", trv.AlarmArrivedView.as_view()),   # sjalarm
     path("train/trace", trv.TripTraceView.as_view()),              # sjalarm (owner-only)

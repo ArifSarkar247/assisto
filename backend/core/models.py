@@ -9401,3 +9401,124 @@ class TrainPassing(models.Model):
         indexes = [models.Index(fields=["train", "station", "weekday"], name="br_passing_learn_idx"),
                    models.Index(fields=["service_date"], name="br_passing_date_idx")]
 # ---- /train-data ----
+
+
+# ---- train-engine ---- (owner order 17 Nov, Train Tracker V2: the live engine).
+# Rules: core/logic/train_live.py; DB + Redis: core/train_engine.py.
+# PRIVACY: TrainTrip / TrainPing carry NO user id (an anonymous per-trip key);
+# TrainPing, TrainTrip, TrainObservation and TrainCheckin rows are deleted 24 h
+# after they were made (minute_jobs: train_engine_tick). Nothing is sold/exported.
+class TrainTrip(models.Model):
+    """One anonymous rider on one train for one service date. `key` is the
+    sha256 of a random token only the phone holds (or a keyed hash of a v1
+    share id) — never a user id."""
+    key = models.CharField(max_length=64, unique=True)
+    train_no = models.CharField(max_length=8)
+    service_date = models.DateField()
+    status = models.CharField(max_length=10, default="active")    # active|arrived|ended
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_at = models.DateTimeField(null=True, blank=True)         # newest accepted/placed point
+    trust = models.FloatField(default=0.6)
+    kf = models.JSONField(null=True, blank=True)                  # Kalman state
+    last = models.JSONField(null=True, blank=True)                # last accepted {ch, at, acc}
+    mode = models.CharField(max_length=6, default="gps")          # gps|cell
+    cells_ok = models.BooleanField(default=False)                 # rider opted in to tower learning
+    last_cell_bin = models.CharField(max_length=60, blank=True, default="")
+    accepted = models.IntegerField(default=0)
+    rejected = models.IntegerField(default=0)
+    reasons = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["train_no", "service_date", "last_at"],
+                                name="core_traintrip_live_idx"),
+                   models.Index(fields=["created_at"], name="core_traintrip_age_idx")]
+
+
+class TrainPing(models.Model):
+    """One ACCEPTED raw rider point (rejected ones are only counted). Deleted
+    after 24 h."""
+    trip = models.ForeignKey(TrainTrip, on_delete=models.CASCADE, related_name="pings")
+    at = models.DateTimeField()
+    lat = models.FloatField()
+    lng = models.FloatField()
+    acc = models.FloatField(default=0)
+    speed = models.FloatField(null=True, blank=True)              # m/s
+    heading = models.FloatField(null=True, blank=True)
+    chainage = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["created_at"], name="core_trainping_age_idx")]
+
+
+class TrainCellBin(models.Model):
+    """Learned tower -> track histogram: how often tower `cell`
+    (mcc-mnc-tac-cid) served a rider whose GPS matched the line in ~550 m bin
+    (bi, bj). Aggregate counts only — no rider, no time track."""
+    cell = models.CharField(max_length=48)
+    bi = models.IntegerField()
+    bj = models.IntegerField()
+    n = models.IntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["cell", "bi", "bj"],
+                                               name="core_traincell_bin_once")]
+        indexes = [models.Index(fields=["cell"], name="core_traincell_cell_idx")]
+
+
+class TrainObservation(models.Model):
+    """A non-GPS position report (accepted station check-in, pasted 16318
+    reply). No user id. Deleted after 24 h."""
+    train_no = models.CharField(max_length=8)
+    service_date = models.DateField()
+    source = models.CharField(max_length=8)                       # checkin|text
+    station = models.CharField(max_length=40, blank=True, default="")
+    kind = models.CharField(max_length=8, default="reached")      # reached|left
+    chainage = models.FloatField()
+    at = models.DateTimeField()
+    late_min = models.IntegerField(null=True, blank=True)
+    weight = models.FloatField(default=0.3)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["train_no", "service_date", "at"],
+                                name="core_trainobs_live_idx"),
+                   models.Index(fields=["created_at"], name="core_trainobs_age_idx")]
+
+
+class TrainCheckin(models.Model):
+    """'Train reached / left station X' — one tap. The phone's position is
+    used once to decide `near` and is NOT stored. Deleted after 24 h; the
+    points survive only in TrainPointLedger (no train, no station)."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_checkins")
+    train_no = models.CharField(max_length=8)
+    service_date = models.DateField()
+    station = models.CharField(max_length=40)
+    kind = models.CharField(max_length=8)                         # reached|left
+    at = models.DateTimeField()
+    near = models.BooleanField(default=False)
+    status = models.CharField(max_length=10, default="pending")   # pending|accepted
+    points = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=["user", "train_no", "service_date", "station", "kind"],
+            name="core_traincheckin_once")]
+        indexes = [models.Index(fields=["train_no", "service_date", "station", "kind"],
+                                name="core_traincheckin_st_idx"),
+                   models.Index(fields=["created_at"], name="core_traincheckin_age_idx")]
+
+
+class TrainPointLedger(models.Model):
+    """Append-only helper points (NOT money: no cash, no recharge — what
+    points buy is the owner's decision). No train, station or time trail."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_points")
+    points = models.IntegerField()
+    reason = models.CharField(max_length=24, default="checkin_match")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["user", "created_at"], name="core_trainpts_user_idx")]
+# ---- /train-engine ----

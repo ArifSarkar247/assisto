@@ -62,3 +62,4 @@ AGENT_RATE_PER_MIN = 0
 AGENT_RATE_PER_HOUR = 0
 
 SHOPBOX_RELEASE_FETCH = False   # cctvtoday: tests never fetch the GitHub release manifest
+TRAIN_LIVE_REDIS_URL = ""   # train-engine: tests use the Django cache, never a real Redis

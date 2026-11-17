@@ -2,13 +2,16 @@
 
 No Django, no DB: everything here is unit-tested with fixed coordinates.
 
-Data (bundled, built by tools/train/build_train_data.py — sources and dates
-inside each file's "_meta"):
-  core/data/train/rail_bd.json       OSM rail network, simplified 20 m (ODbL)
-  core/data/train/timetable_bd.json  intercity trains: stops, route path,
-                                     origin dep / destination arr (Bangla
-                                     Wikipedia, CC BY-SA), approved:false until
-                                     the owner checks the official timetable.
+Data:
+  core/data/train/rail_bd.json   OSM rail network, simplified 20 m (ODbL) —
+                                 the "is it on ANY rail line" check;
+  trains / stations / paths      train-engine (17 Nov): the OFFICIAL Bangladesh
+                                 Railway timetable (every train, both
+                                 directions) + OSM segments, read through
+                                 core.train_source (the data lane's br_*.json,
+                                 also loaded into PostgreSQL). The old
+                                 Wikipedia file timetable_bd.json is no longer
+                                 read. approved:false until the owner checks.
 
 A crowd fix is accepted only when ALL hold:
   1. GPS accuracy is usable (<= MAX_ACC_M);
@@ -50,6 +53,7 @@ AHEAD_SLACK_M = 2000.0
 OUTLIER_M = 2000.0
 FRESH_S = 180                 # a sharer's fix counts for live this long
 ARRIVE_M = 800.0              # within this of the end of the route = arrived
+LOWQ_TOL_M = 2500.0           # flagged OSM gap: matched by progress (train_source)
 _CELL = 0.02                  # grid cell (degrees) for the network index
 
 
@@ -167,22 +171,23 @@ class Route:
 
 
 # ------------------------------------------------------------ timetable
-@lru_cache(maxsize=1)
 def timetable():
-    with open(DATA / "timetable_bd.json", encoding="utf-8") as fh:
-        return json.load(fh)
+    """{"_meta", "stations", "trains"} — the official data (cached)."""
+    from core import train_source
+    return train_source.geo_timetable()
 
 
 def stations():
     return timetable()["stations"]
 
 
+@lru_cache(maxsize=1)
+def _by_no():
+    return {t["no"]: t for t in timetable()["trains"]}
+
+
 def train(no):
-    no = str(no or "").strip()
-    for t in timetable()["trains"]:
-        if t["no"] == no:
-            return t
-    return None
+    return _by_no().get(str(no or "").strip())
 
 
 @lru_cache(maxsize=256)
@@ -208,6 +213,7 @@ def times(t, service_date):
     ah, am = _hm(t["arr"])
     dep = datetime(service_date.year, service_date.month, service_date.day, dh, dm, tzinfo=DHAKA)
     arr = datetime(service_date.year, service_date.month, service_date.day, ah, am, tzinfo=DHAKA)
+    arr += timedelta(days=int(t.get("arr_day") or 0))
     if arr <= dep:
         arr += timedelta(days=1)
     return dep, arr
@@ -227,8 +233,20 @@ def sched_chainage(t, rt, service_date, now):
     return rt.length * (now - dep).total_seconds() / (arr - dep).total_seconds()
 
 
+def _official_times(t, service_date):
+    """{station: official scheduled time} when the stops carry times."""
+    if not any(s.get("arr") or s.get("dep") for s in t.get("stops") or []):
+        return {}
+    from core import train_source
+    return train_source.stop_times(t, service_date)
+
+
 def stop_etas(t, rt, service_date):
-    """Timetable time at each stop, interpolated by rail distance (estimate)."""
+    """Timetable time at each stop: official when the timetable lists it,
+    else interpolated by rail distance (estimate)."""
+    off = _official_times(t, service_date)
+    if off and all(off.get(s["st"]) for s in t["stops"]):
+        return [{"st": s["st"], "km": s["km"], "at": off[s["st"]]} for s in t["stops"]]
     dep, arr = times(t, service_date)
     total = (arr - dep).total_seconds()
     km_total = max(0.001, rt.length / 1000.0)
@@ -273,10 +291,12 @@ def validate_fix(t, service_date, fix, prev=None, net=None):
         return False, "bad_accuracy", None, None
     tol = ON_LINE_M + min(max(acc, 0.0), 150.0)
     net = net or network()
-    if net.distance_m(lat, lng) > tol:
-        return False, "off_line", None, None
     ch, off = rt.project(lat, lng)
-    if off > tol + ROUTE_SLACK_M:
+    # train-engine: a flagged OSM gap (straight chord) is matched by progress
+    lowq = any(a <= ch <= b for a, b in t.get("lowq") or ()) and off <= LOWQ_TOL_M
+    if not lowq and net.distance_m(lat, lng) > tol:
+        return False, "off_line", None, None
+    if not lowq and off > tol + ROUTE_SLACK_M:
         return False, "off_route", ch, off
     at = fix["at"]
     dep, arr = times(t, service_date)
@@ -380,7 +400,8 @@ def _line_data():
 def line_stations(t):
     """Every station the train passes, in order: [{id, bn, en, km, lat, lng,
     stop}] (stop = a timetable halt). Falls back to the timetable stops."""
-    rows = _line_data().get("trains", {}).get(t["no"])
+    from core import train_source
+    rows = train_source.geo_line_stations(t["no"])
     if rows:
         return rows
     st = stations()
@@ -402,10 +423,23 @@ def line_view(t, service_date, chainage, now, delay_min=None):
     total = (arr - dep).total_seconds()
     km_total = max(0.001, rt.length / 1000.0)
     shift = timedelta(minutes=delay_min or 0)
+    off = _official_times(t, service_date)
+    timed = sorted((float(s["km"]), off[s["st"]]) for s in t["stops"] if off.get(s["st"]))
     out, now_i, next_i = [], None, None
     for i, r in enumerate(rows):
         m = float(r["km"]) * 1000.0
-        sched = dep + timedelta(seconds=total * max(0.0, min(1.0, float(r["km"]) / km_total)))
+        official = bool(off.get(r["id"])) and any(
+            s["st"] == r["id"] and (s.get("arr") or s.get("dep")) for s in t["stops"])
+        if off.get(r["id"]):
+            sched = off[r["id"]]
+        elif len(timed) >= 2:
+            k = float(r["km"])
+            lo = max((x for x in timed if x[0] <= k), default=timed[0])
+            hi = min((x for x in timed if x[0] >= k), default=timed[-1])
+            f = 0.0 if hi[0] == lo[0] else (k - lo[0]) / (hi[0] - lo[0])
+            sched = lo[1] + (hi[1] - lo[1]) * f
+        else:
+            sched = dep + timedelta(seconds=total * max(0.0, min(1.0, float(r["km"]) / km_total)))
         passed = chainage is not None and m <= chainage + 150.0
         if passed:
             now_i = i
@@ -415,6 +449,8 @@ def line_view(t, service_date, chainage, now, delay_min=None):
                     "km": r["km"], "stop": bool(r.get("stop")),
                     "lat": r.get("lat"), "lng": r.get("lng"),
                     "sched": sched.isoformat(), "eta": (sched + shift).isoformat(),
+                    # official time from the timetable, or placed between known halts
+                    "sched_official": official,
                     "passed": passed})
     passing = None
     if now_i is not None and chainage is not None:
