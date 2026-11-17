@@ -53665,5 +53665,34 @@
   "qrnMeaningOffline": "Bangla meaning could not load (no internet or the source is down). The Arabic is always here.",
   "@qrnMeaningOffline": {
     "description": "gap-quranblood (17 Nov): Quran reader: meaning failed to load"
+  },
+  "gcvPbTitle": "Camera recordings",
+  "gcvPbEntry": "{camera}: its own recordings",
+  "gcvPbEntrySub": "Play back the camera's SD card or Imou cloud recording",
+  "gcvPbIntro": "Pick a day and an hour. Assisto plays the camera's own recording through Imou: from its SD card, else from Imou cloud storage.",
+  "gcvPbLowData": "Low data: recordings play in the smaller stream (about 19 MB per 5 minutes).",
+  "gcvPbPickHour": "Hour",
+  "gcvPbHasRec": "has a recording",
+  "gcvPbNoRec": "no recording",
+  "gcvPbHint": "Tap an hour to see what the camera recorded then.",
+  "gcvPbRecordsTitle": "Recorded in this hour",
+  "gcvPbFromSd": "Playing from the camera's SD card.",
+  "gcvPbFromCloud": "Playing from Imou cloud storage.",
+  "gcvPbNoRecording": "No recording for this hour. Recordings need an SD card in the camera or an Imou cloud plan — check in Imou Life that recording is on.",
+  "gcvPbSdkOnly": "The camera has recordings for this hour, but its firmware cannot send them to other apps. Watch them in the Imou Life app.",
+  "gcvPbNotConfigured": "Imou recordings are not switched on in Assisto yet.",
+  "gcvPbRevoked": "Assisto can no longer reach this camera — connect it again from \"Connect your DVR / camera brand\".",
+  "gcvPbNetwork": "Could not reach Imou right now. Check the internet and try again.",
+  "gcvPbPlayFailed": "The recording could not be played (the link lasts 10 minutes). Try again.",
+  "@gcvPbEntry": {
+    "description": "gap-cctv3: entry to a camera's own recordings",
+    "placeholders": {
+      "camera": {
+        "type": "String"
+      }
+    }
+  },
+  "@gcvPbTitle": {
+    "description": "gap-cctv3: Imou recording playback screen"
   }
 }
