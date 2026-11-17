@@ -38,7 +38,7 @@ import 'package:assisto/screens/lp2/lp_vocab.dart'; // lpapp
 import 'fake_account_security.dart'; // recovery
 import 'package:assisto/screens/account_security_screen.dart'; // recovery
 import 'package:assisto/screens/account_recovery_screens.dart'; // recovery
-import 'fake_train.dart' show trainLive701, trainOfflinePackJson; // sjalarm, train-app
+import 'fake_train.dart' show trainLive701, trainLine701, trainOfflinePackJson; // sjalarm, train-app
 import 'p2_shots.dart'; // p2-money
 import 'p5_shots.dart'; // p5-growth
 import 'invite_shots.dart'; // invite-join
@@ -81,6 +81,7 @@ import 'package:assisto/feature_flags.dart' show FeatureFlags; // sjlive
 import 'package:assisto/screens/train/dest_alarm_screen.dart'; // train
 import 'package:assisto/screens/train/train_chat_screen.dart'; // train
 import 'package:assisto/screens/train/train_tracker_screen.dart'; // train
+import 'package:assisto/screens/train/train_line_view.dart'; // train-app
 import 'package:assisto/screens/train/train_paste_screen.dart'; // train-app
 import 'package:assisto/screens/train/train_v2_widgets.dart'; // train-app
 import 'package:assisto/train/train_offline.dart'; // train-app
@@ -976,8 +977,11 @@ Map<String, GallerySpec> gallerySpecs() {
     // timetable estimate / offline tower, rider toggle + sharing, check-in,
     // "Are you on this train?", paste a 16318 reply, Share -> Assisto,
     // alarm "help other passengers?"
-    'tr2_timeline_live': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03')), mode: FakeMode.data, full: true),
-    'tr2_timeline_timetable': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03')), mode: FakeMode.empty, full: true),
+    'tr2_page_live': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03')), mode: FakeMode.data, full: true),
+    'tr2_page_timetable': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03')), mode: FakeMode.empty, full: true),
+    // the timeline itself (it sits below the fold on the page shots)
+    'tr2_timeline_live': (build: (_) => _tr2(const _Tr2Timeline(live: true)), mode: FakeMode.data, full: true),
+    'tr2_timeline_timetable': (build: (_) => _tr2(const _Tr2Timeline(live: false)), mode: FakeMode.data, full: true),
     'tr2_offline_tower': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), offline: true), mode: FakeMode.fail, full: true),
     'tr2_rider_consent': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), sheet: (c) => showTrainShareConsent(c)), mode: FakeMode.data, full: true),
     'tr2_rider_sharing': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), sharing: true), mode: FakeMode.data, full: true),
@@ -1969,4 +1973,26 @@ class _Tr2HostState extends State<_Tr2Host> {
 
   @override
   Widget build(BuildContext context) => KeyedSubtree(key: _key, child: widget.child);
+}
+
+/// train-app: the V2 timeline as on the train page (freshness chip + line),
+/// shown from the top so the owner sees every state on one shot.
+class _Tr2Timeline extends StatelessWidget {
+  const _Tr2Timeline({required this.live});
+  final bool live;
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final line = trainLine701(DateTime.now(), live: live);
+    return Scaffold(
+      appBar: AppBar(title: Text(t.sjtLineTitle)),
+      body: ListView(padding: const EdgeInsets.all(12), children: [
+        Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TrainFreshChip(fresh: TrainFresh(live ? 'live' : 'timetable'))),
+        const SizedBox(height: 12),
+        TrainLineView(line: line, live: live, speedKmh: live ? 62 : null, riders: live ? 3 : 0, onStation: (_) {}),
+      ]),
+    );
+  }
 }

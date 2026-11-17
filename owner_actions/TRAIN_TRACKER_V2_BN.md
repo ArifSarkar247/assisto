@@ -86,7 +86,7 @@ _(ইঞ্জিন লেন পূরণ করবে)_
 
    সব সময় একটি চিপ দেখায় তথ্য কতটা নতুন: **লাইভ / N মিনিট আগের / পূর্বাভাস — লাইভ নয় / সময়সূচি**। নিচে লেখা থাকে "কয়েক মিনিট এদিক-ওদিক হতে পারে"; কোথাও "১০০%" দাবি করা হয় না। স্ক্রিনে কোনো অ্যানিমেশন নেই, ডেটা ছোট, তাই 2G-তেও চলে।
 
-**স্ক্রিনশট (আপনার অনুমোদনের জন্য, শিপের আগে):** বাংলা ও ইংরেজি, আলো ও অন্ধকার — `tr2_timeline_live`, `tr2_timeline_timetable`, `tr2_offline_tower`, `tr2_rider_consent`, `tr2_rider_sharing`, `tr2_ask_onboard`, `tr2_checkin`, `tr2_paste_16318`, `tr2_share_in`, `tr2_alarm_ask`, `tr2_list_offline`।
+**স্ক্রিনশট (আপনার অনুমোদনের জন্য, শিপের আগে):** বাংলা ও ইংরেজি, আলো ও অন্ধকার — `tr2_timeline_live`, `tr2_timeline_timetable` (শুধু টাইমলাইন), `tr2_page_live`, `tr2_page_timetable` (পুরো পাতা), `tr2_offline_tower`, `tr2_rider_consent`, `tr2_rider_sharing`, `tr2_ask_onboard`, `tr2_checkin`, `tr2_paste_16318`, `tr2_share_in`, `tr2_alarm_ask`, `tr2_list_offline`।
 
 **সৎ সীমা:**
 - ফোনের উপরের নোটিফিকেশনটি গ্যালারির ছবিতে আসে না, কারণ এটি Android নিজে দেখায়। লেখা: "ট্রেনের লোকেশন শেয়ার হচ্ছে — শুধু আপনি এই ট্রেনে থাকা পর্যন্ত"। এটির প্রমাণ আসল ফোনের পরীক্ষায় দেখা যাবে।
