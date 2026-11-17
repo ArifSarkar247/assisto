@@ -219,3 +219,54 @@ class RemittanceHalfUpTests(SimpleTestCase):
             {"food": 200}, [{"kind": "expense", "date": "2026-11-05", "amount": "25",
                              "category": "food"}], "2026-11")}
         self.assertEqual(lines["food"]["pct"], 13)                           # 12.5 % -> 13
+
+
+class NetWorthInvariantTests(_Base):
+    """Net worth hero == assets + receivable − liabilities for the SAME as-of
+    date, on both pages, exact to the poisha (lead review of design3 shot)."""
+
+    def _setup_money(self):
+        from decimal import Decimal as Dm
+
+        from core.models import Account, Loan, SavingsGoal, Transaction
+        import datetime as dt
+        cash = Account.objects.create(user=self.a, name="Cash", opening_balance=Dm("10000.10"))
+        bk = Account.objects.create(user=self.a, name="bKash", acc_type="bkash",
+                                    opening_balance=Dm("5000.00"))
+        day = dt.date(2026, 11, 2)
+        Transaction.objects.create(user=self.a, account=cash, kind="income", amount=Dm("8000.45"), date=day)
+        Transaction.objects.create(user=self.a, account=cash, kind="expense", amount=Dm("2200.55"), date=day)
+        # my own money moved cash -> bKash: net worth must not change
+        Transaction.objects.create(user=self.a, account=cash, to_account=bk, kind="transfer",
+                                   amount=Dm("3000.00"), date=day)
+        Loan.objects.create(user=self.a, kind="given", person="Rafiq", amount=Dm("2500.00"),
+                            repayments=[{"amount": "500.00", "date": "2026-11-03"}])
+        Loan.objects.create(user=self.a, kind="taken", person="Shop", amount=Dm("6000.00"),
+                            repayments=[{"amount": "1000.00", "date": "2026-11-04"}])
+        SavingsGoal.objects.create(user=self.a, title="Eid", target_amount=Dm("9000"),
+                                   saved_amount=Dm("1200.25"))
+
+    def test_networth_page_hero_equals_its_parts_and_last_point(self):
+        from decimal import Decimal as Dm
+        self._setup_money()
+        d = self.get("a", "/money/networth")
+        # cash 10000.10 + 8000.45 − 2200.55 − 3000 + bKash 5000 + 3000 = 20800.00
+        self.assertEqual(Dm(d["assets"]), Dm("20800.00"))
+        self.assertEqual(Dm(d["receivable"]), Dm("2000.00"))       # 2500 − 500 repaid
+        self.assertEqual(Dm(d["liabilities"]), Dm("5000.00"))      # 6000 − 1000 repaid
+        self.assertEqual(Dm(d["net_worth"]),
+                         Dm(d["assets"]) + Dm(d["receivable"]) - Dm(d["liabilities"]))
+        self.assertEqual(Dm(d["net_worth"]), Dm("17800.00"))
+        if d["series"]:
+            self.assertEqual(Dm(d["series"][-1]["net_worth"]), Dm(d["net_worth"]))
+
+    def test_finance_tool_agrees_and_no_longer_crashes_on_a_savings_goal(self):
+        from decimal import Decimal as Dm
+        self._setup_money()
+        r = self.post("a", "/finance", {"tool": "net_worth"}, 200).json()   # was a 500
+        page = self.get("a", "/money/networth")
+        self.assertEqual(Dm(r["receivable"]), Dm(page["receivable"]))    # repayments counted
+        self.assertEqual(Dm(r["liabilities"]), Dm(page["liabilities"]))
+        self.assertEqual(Dm(r["assets"]), Dm(page["assets"]) + Dm("1200.25"))  # + savings goal
+        self.assertEqual(Dm(r["net_worth"]),
+                         Dm(r["assets"]) + Dm(r["receivable"]) - Dm(r["liabilities"]))

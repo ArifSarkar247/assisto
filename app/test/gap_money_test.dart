@@ -192,4 +192,17 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  test('net-worth fixtures obey hero = assets + receivable − liabilities', () async {
+    int p(Object? v) => takaToPoishaInput('$v')!;
+    for (final d in [await FakeApi(lang: 'en').moneyNetWorth(),
+                     await FakeApi(lang: 'en', mode: FakeMode.empty).moneyNetWorth()]) {
+      expect(p(d['net_worth']), p(d['assets']) + p(d['receivable']) - p(d['liabilities']));
+      final series = (d['series'] as List).cast<Map>();
+      if (series.isNotEmpty) expect(p(series.last['net_worth']), p(d['net_worth']));
+      for (var i = 1; i < series.length; i++) {
+        expect(p(series[i]['net_worth']) - p(series[i - 1]['net_worth']), p(series[i]['delta']));
+      }
+    }
+  });
 }
