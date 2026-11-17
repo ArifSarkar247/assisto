@@ -231,6 +231,17 @@ class _X(_Base):
         self.sobj = ShopSite.objects.get(pk=self.site["id"])
         self.m = APIClient()
         self.m.force_authenticate(self.mgr)
+        # gap-cctv (time-of-day flake, 17 Nov): the per-minute tick also sends
+        # the daily CLOSING REPORT from 22:15 local (cctvact default close
+        # 22:00 + 15 min), so between 16:15 and 18:00 UTC the guard tests saw
+        # one extra push. The report is not what these tests check — it has
+        # its own clock-pinned tests (tests_cctvact.ReportAskApiTests sets
+        # keep_closing_report) — so it is held still here; every asserted
+        # push stays exactly as strict, at every hour of the day.
+        if not getattr(self, "keep_closing_report", False):
+            p = mock.patch("core.cctv_act_views.run_closing", return_value=False)
+            p.start()
+            self.addCleanup(p.stop)
 
     def records(self):
         """The shop records its sales in Assisto (a sale 3 days ago)."""
@@ -252,7 +263,20 @@ class _X(_Base):
         return [" ".join(str(x) for x in a[2:6]) for a, k in self.pushes]
 
 
-class NoSaleTests(_X):
+
+class _MiddayClock:
+    """Run at 12:00 Dhaka today: tick() also sends the evening closing report
+    ('আজকের হিসাব') once the real clock passes the evening hour, which made
+    these window tests fail on CI runs after ~21:00 Dhaka (17 Nov)."""
+    def setUp(self):
+        noon = timezone.localtime(timezone.now()).replace(hour=12, minute=0, second=0, microsecond=0)
+        p = mock.patch("django.utils.timezone.now", return_value=noon)
+        p.start()
+        self.addCleanup(p.stop)
+        super().setUp()
+
+
+class NoSaleTests(_MiddayClock, _X):
     def test_no_sale_drawer_alert_after_the_window(self):
         from core.models import ShopEvent, ShopGuardTask
         self.records()
@@ -353,7 +377,27 @@ class NoSaleTests(_X):
         self.assertEqual(d["settings"]["nosale_min"], 2)
 
 
-class EscalationTests(_X):
+class GapCctvNightTickTests(_X):
+    def test_guard_pushes_are_the_same_at_22_30_dhaka(self):
+        # gap-cctv: the no-sale flow, pinned to 22:30 Asia/Dhaka (the hour the
+        # nightly CI saw an extra closing-report push): exactly one push
+        from datetime import datetime as _dt
+        from zoneinfo import ZoneInfo
+        from core.models import ShopEvent
+        self.records()
+        night = _dt(2026, 11, 17, 22, 30, tzinfo=ZoneInfo("Asia/Dhaka"))
+        with mock.patch("django.utils.timezone.now", return_value=night):
+            r = self.ingest(ref="cd" * 16)
+            self.assertEqual(r.status_code, 201, r.data)
+            from core import cctvx_views as CXV
+            CXV.tick(night + timedelta(minutes=1))
+            self.assertEqual(self.pushes, [])
+            CXV.tick(night + timedelta(minutes=4))
+        self.assertFalse(ShopEvent.objects.get(pk=r.data["event_id"]).pending)
+        self.assertEqual(len(self.pushes), 1, self.pushes)
+
+
+class EscalationTests(_MiddayClock, _X):
     def test_chain_only_from_the_circle(self):
         bad = self.client.put("/api/v1/shop/sites/%d/guard" % self.site["id"],
                               {"escalation": [self.family.id]}, format="json")

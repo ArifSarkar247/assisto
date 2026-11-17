@@ -652,7 +652,7 @@ def shot_names():
     return sorted(names)
 
 
-def jsonld(lang, site, url, page, faq_rows, crumbs=None, install_url=None):
+def jsonld(lang, site, url, page, faq_rows, crumbs=None, install_url=None, on_play=False):
     # seogrow (17 Nov): full Organization (legal name + postal address) and an
     # honest SoftwareApplication — Android, free to install with optional
     # in-app purchases, NO aggregateRating/review (we have no real reviews).
@@ -669,6 +669,10 @@ def jsonld(lang, site, url, page, faq_rows, crumbs=None, install_url=None):
            "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BDT",
                       "description": ("ইনস্টল ফ্রি; ঐচ্ছিক ইন-অ্যাপ কেনাকাটা আছে" if lang == "bn"
                                       else "Free to install; optional in-app purchases")}}
+    if on_play:   # seolive: the app is live on Google Play -> link the listing
+        app["installUrl"] = SC.play_url(lang)
+        app["downloadUrl"] = SC.PLAY_STORE_URL
+        app["sameAs"] = [SC.PLAY_STORE_URL]
     graph = [org, app]
     if faq_rows:
         graph.append({"@type": "FAQPage", "mainEntity": [

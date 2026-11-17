@@ -552,12 +552,11 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
             return ({"raise": False, "type": cam_event.get("type"),
                      "confidence": 0.0, "reason_signals": [why],
                      "possible": False, "pos_matched": False}, None)
-        # stage 2: a vehicle in / out is a LOG (silent) unless the owner asked
-        # to be told on that line
-        if cam_event.get("type") == CD.VEHICLE_IN_OUT:
-            z = CD.find_zone(v2, signals.get("zone"))
-            if not ((z or {}).get("opts") or {}).get("notify"):
-                quiet = True
+        # stage 2 + cctvdet3: vehicle in / out, parking overstay and wrong
+        # parking are a LOG (silent) unless the owner asked to be told on
+        # that zone (measured precision < 90 % — see cctv_thresholds.json)
+        if CD.report_only(v2, cam_event.get("type"), signals):
+            quiet = True
     cam_event = dict(cam_event, signals=signals)
     # cctvx: movement at the site -> "shop opened" (first movement after the
     # opening time, once a day). Cheap: reads the already-loaded site.

@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0169_emailrel'),
+        ('core', '0170_gap_familycare'),
     ]
 
     operations = [

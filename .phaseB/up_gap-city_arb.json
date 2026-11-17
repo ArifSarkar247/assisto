@@ -113,6 +113,27 @@
           "type": "String"
         }
       }
+    },
+    "cityGGetOffAtN": "Get off at: {stop} ({n, plural, =1{1 stop} other{{n} stops}})",
+    "@cityGGetOffAtN": {
+      "description": "gap-city: replaces cityGetOffAt (fixes '(1 stops)')",
+      "placeholders": {
+        "stop": {
+          "type": "String"
+        },
+        "n": {
+          "type": "int"
+        }
+      }
+    },
+    "cityGChangesN": "{n, plural, =1{1 change} other{{n} changes}}",
+    "@cityGChangesN": {
+      "description": "gap-city: replaces cityChanges (fixes '1 change(s)')",
+      "placeholders": {
+        "n": {
+          "type": "int"
+        }
+      }
     }
   },
   "bn": {
@@ -131,6 +152,8 @@
     "cityGAtNoon": "দুপুর {time}",
     "cityGAtAfternoon": "বিকাল {time}",
     "cityGAtEvening": "সন্ধ্যা {time}",
-    "cityGAtNight": "রাত {time}"
+    "cityGAtNight": "রাত {time}",
+    "cityGGetOffAtN": "নামবেন: {stop} ({n, plural, other{{n} স্টপ পরে}})",
+    "cityGChangesN": "{n, plural, other{{n} বার বদল}}"
   }
 }

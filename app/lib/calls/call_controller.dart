@@ -109,7 +109,9 @@ class MediaStats {
       this.bytesReceived,
       this.audioPacketsIn,
       this.audioBytesIn,
-      this.videoFramesDecoded});
+      this.videoFramesDecoded,
+      this.videoFramesEncoded,
+      this.videoPacketsSent});
   final double? rttMs;
   final double? lossPct;
   final double? jitterMs;
@@ -129,6 +131,10 @@ class MediaStats {
   final int? audioPacketsIn;
   final int? audioBytesIn;
   final int? videoFramesDecoded;
+
+  /// gatefix: my OUTBOUND video (outbound-rtp): frames encoded, packets sent.
+  final int? videoFramesEncoded;
+  final int? videoPacketsSent;
 
   CallQuality get quality => qualityFor();
 

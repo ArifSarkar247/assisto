@@ -96,6 +96,11 @@ def dashboard(request):
         ctx.update(stats_ctx(request))
     except Exception:
         ctx["as_tiles"] = None
+    try:   # livemon: read-only Live health card
+        from .views_livemon import live_ctx
+        ctx.update(live_ctx(request.owner_lang))
+    except Exception:
+        ctx["live"] = None
     return page(request, "owner/dashboard.html", ctx, nav="home")
 
 

@@ -407,6 +407,8 @@ class VendorSims:
             return ok({"count": len(rows), "deviceList": rows})
         if path == "/open-api/api-message/getAllCallbackConfigId":
             cbs = getattr(self, "dl_cbs", {})
+            if not cbs:      # the real cloud answers an EMPTY list as an error (live 17 Nov)
+                return err("BIZ054", "No new configuration callback ID is added to the product.")
             return ok({"currentPage": 1, "totalPage": 1, "pageSize": 100, "totalRows": len(cbs),
                        "pageData": [{"callbackConfigId": k, "callbackUrl": v} for k, v in cbs.items()]})
         if path == "/open-api/api-message/addCallbackConfig":

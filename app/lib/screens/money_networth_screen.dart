@@ -80,20 +80,20 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
           Text(t.moneyNetWorthLabel,
               style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.xs),
-          DsNumber(tkFmt(nw), color: nw < 0 ? DsTokens.of(context).dangerInk : null),
+          DsNumber(tkOf(context, nw), color: nw < 0 ? DsTokens.of(context).dangerInk : null),
         ]),
       ),
       const SizedBox(height: Gap.md),
-      statCard(context, t.moneyAssets, tkFmt(assets), AssistoTokens.of(context).success,
+      statCard(context, t.moneyAssets, tkOf(context, assets), AssistoTokens.of(context).success,
           Icons.account_balance_wallet_rounded),
       const SizedBox(height: Gap.md),
       Row(children: [
         Expanded(
-            child: statCard(context, t.moneyReceivable, tkFmt(receivable),
+            child: statCard(context, t.moneyReceivable, tkOf(context, receivable),
                 Theme.of(context).colorScheme.primary, Icons.call_received_rounded)),
         const SizedBox(width: Gap.md),
         Expanded(
-            child: statCard(context, t.moneyLiabilities, tkFmt(liabilities),
+            child: statCard(context, t.moneyLiabilities, tkOf(context, liabilities),
                 DsTokens.of(context).dangerInk, Icons.call_made_rounded)),
       ]),
       const SizedBox(height: Gap.xl),
@@ -116,7 +116,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
           dense: true,
           title: Text(moneyMonth(context, p['month'])),
           trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-            Text(tkFmt(p['net_worth']),
+            Text(tkOf(context, p['net_worth']),
                 style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w600)),
             const SizedBox(width: Gap.md),
             deltaChip(context, dbl(p['delta']), upIsBad: false),

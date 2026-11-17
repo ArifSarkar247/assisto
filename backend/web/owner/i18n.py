@@ -2531,3 +2531,39 @@ BN.update({
     "discms_rules": "নিজে থেকে মেয়াদ শেষ হয় না: আপনি না বদলানো বা না সরানো পর্যন্ত কার্ড থাকে (শেষ তারিখ ঐচ্ছিক)। হোমের টাইলে আগে থেকে থাকা ফিচারের কার্ড দেখানো হয় না। স্পনসর্ড কার্ড কখনো SOS, নিরাপত্তা, শিশু বা কুরআনের স্ক্রিন খোলে না। ইন্টারনেট না থাকলে ফোন শেষ কার্ডগুলো দেখায়।",
 })
 # ---- /discms ----
+# ---- livemon ---- Owner Admin home: Live health card (read-only, daily 06:00)
+EN.update({
+    "lh_h": "Live health (last 24 h)", "lh_p0": "P0 — fix first", "lh_all_ok": "All fine: no P0.",
+    "lh_crash": "Play crash rate (latest day)", "lh_crash_sub": "7 days / note",
+    "lh_anr": "Play ANR rate (latest day)", "lh_anr_sub": "7 days",
+    "lh_own": "App crash reports (yesterday)", "lh_own_sub": "Active users counted",
+    "lh_5xx": "Server errors (5xx)", "lh_5xx_sub": "Requests",
+    "lh_users": "New accounts", "lh_users_sub": "Active yesterday / 7 days",
+    "lh_signup": "Signup success", "lh_signup_sub": "Verified / got a code",
+    "lh_pay": "Payments verified", "lh_pay_sub": "Failed",
+    "lh_top_5xx": "Top failing endpoints", "lh_top_issues": "Google's top crash issues",
+    "lh_at": "Report made", "lh_note": "counts only, no personal data; P0 = crash over 1%, ANR over 0.47%, signup under 70%, 5xx spike",
+    "lh_empty": "No report yet. It is made every day at 06:00 (Dhaka) by the live monitor.",
+    "lh_p0_play_crash_1d": "Crash rate over 1% (latest day)", "lh_p0_play_crash_7d": "Crash rate over 1% (7 days)",
+    "lh_p0_play_anr_1d": "ANR over 0.47% (latest day)", "lh_p0_play_anr_7d": "ANR over 0.47% (7 days)",
+    "lh_p0_own_crash_1d": "App's own crash rate over 1%", "lh_p0_signup_broken": "Signup broken (success under 70%)",
+    "lh_p0_register_5xx": "Account creation failing with server errors", "lh_p0_server_5xx_spike": "Server error spike",
+})
+BN.update({
+    "lh_h": "লাইভ অবস্থা (শেষ ২৪ ঘণ্টা)", "lh_p0": "P0 — আগে ঠিক করতে হবে", "lh_all_ok": "সব ঠিক আছে: কোনো P0 নেই।",
+    "lh_crash": "Play ক্র্যাশ রেট (শেষ দিন)", "lh_crash_sub": "৭ দিন / নোট",
+    "lh_anr": "Play ANR রেট (শেষ দিন)", "lh_anr_sub": "৭ দিন",
+    "lh_own": "অ্যাপের ক্র্যাশ রিপোর্ট (গতকাল)", "lh_own_sub": "গোনা সক্রিয় ব্যবহারকারী",
+    "lh_5xx": "সার্ভার এরর (৫xx)", "lh_5xx_sub": "মোট অনুরোধ",
+    "lh_users": "নতুন অ্যাকাউন্ট", "lh_users_sub": "গতকাল সক্রিয় / ৭ দিনে",
+    "lh_signup": "সাইনআপ সফল", "lh_signup_sub": "যাচাই হয়েছে / কোড পেয়েছে",
+    "lh_pay": "সফল পেমেন্ট", "lh_pay_sub": "ব্যর্থ",
+    "lh_top_5xx": "সবচেয়ে বেশি এরর হওয়া এন্ডপয়েন্ট", "lh_top_issues": "Google-এর শীর্ষ ক্র্যাশ",
+    "lh_at": "রিপোর্ট তৈরি", "lh_note": "শুধু সংখ্যা, কোনো ব্যক্তিগত তথ্য নেই; P0 = ক্র্যাশ ১%-এর বেশি, ANR ০.৪৭%-এর বেশি, সাইনআপ ৭০%-এর কম, ৫xx হঠাৎ বেশি",
+    "lh_empty": "এখনো রিপোর্ট নেই। লাইভ মনিটর প্রতিদিন সকাল ৬টায় (ঢাকা) রিপোর্ট বানায়।",
+    "lh_p0_play_crash_1d": "ক্র্যাশ ১%-এর বেশি (শেষ দিন)", "lh_p0_play_crash_7d": "ক্র্যাশ ১%-এর বেশি (৭ দিন)",
+    "lh_p0_play_anr_1d": "ANR ০.৪৭%-এর বেশি (শেষ দিন)", "lh_p0_play_anr_7d": "ANR ০.৪৭%-এর বেশি (৭ দিন)",
+    "lh_p0_own_crash_1d": "অ্যাপের নিজের হিসাবে ক্র্যাশ ১%-এর বেশি", "lh_p0_signup_broken": "সাইনআপ ভাঙা (সফল ৭০%-এর কম)",
+    "lh_p0_register_5xx": "অ্যাকাউন্ট খোলায় সার্ভার এরর", "lh_p0_server_5xx_spike": "সার্ভার এরর হঠাৎ বেড়েছে",
+})
+# ---- /livemon ----

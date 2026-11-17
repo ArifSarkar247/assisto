@@ -777,6 +777,13 @@ Map<String, GallerySpec> gallerySpecs() {
     'mess_v2_empty': (build: (_) => const MessAccountingScreen(), mode: FakeMode.empty, full: true),
     'mess_v2_meals': (build: (_) => const MessDetailScreen(messId: 1), mode: FakeMode.data, full: true),
     'mess_v2_month': (build: (_) => const MessDetailScreen(messId: 1, initialTab: 3), mode: FakeMode.data, full: true),
+    // gap-money: edit history says WHAT changed (made-up sample rows)
+    'mess_v2_history': (build: (_) => Scaffold(body: SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.all(16), child: MessHistoryList(rows: const [
+      {'actor': 'Babu', 'action': 'bazar.edit', 'at': '2026-11-05T14:20:00+06:00', 'before': {'amount': 50000, 'date': '2026-11-05'}, 'after': {'amount': 500000, 'date': '2026-11-05'}},
+      {'actor': 'Amin', 'action': 'charge.add', 'at': '2026-11-03T09:05:00+06:00', 'before': {}, 'after': {'amount': 70000, 'date': '2026-11-03', 'kind': 'wifi'}},
+      {'actor': 'Chaya', 'action': 'meal.set', 'at': '2026-11-02T23:40:00+06:00', 'before': {'date': '2026-11-03'}, 'after': {'date': '2026-11-03', 'b': 0, 'l': 1, 'd': 1, 'offline_saved_at': '2026-11-02T21:30:00+06:00'}},
+      {'actor': 'Amin', 'action': 'deposit.delete', 'at': '2026-11-02T10:00:00+06:00', 'before': {'amount': 12345678, 'date': '2026-11-02'}, 'after': {}},
+    ])))), mode: FakeMode.data, full: true),
     'expense_split': (build: (_) => const ExpenseSplitScreen(), mode: FakeMode.data, full: true),
     'samity': (build: (_) => const SamityScreen(), mode: FakeMode.data, full: true),
     'landlord': (build: (_) => const LandlordTenantScreen(), mode: FakeMode.data, full: true),

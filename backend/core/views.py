@@ -1875,6 +1875,10 @@ class AgentStreamView(APIView):
     {message_id, text, cards, meta, + the /agent fields}). Errors (402 out
     of credits, 429 too fast) stay plain JSON, exactly like the AI chat
     stream. Stop = POST /chat/stop (core/chat_stop.py)."""
+    # gap-aichat2: accept `Accept: text/event-stream` (was 406 -> no streaming)
+    from .views_chat import STREAM_RENDERERS as _SR
+    renderer_classes = _SR
+
     def post(self, request):
         resp = AgentView().post(request)
         if getattr(resp, "status_code", 200) != 200:

@@ -15,7 +15,7 @@ from .views_site3 import _etag_response
 L = {
     "bn": {"html_lang": "bn", "blog": "ব্লগ", "home": "হোম", "features": "ফিচার",
            "index_title": "Assisto ব্লগ — বাংলায় কাজের গাইড",
-           "index_desc": "পরিবারের নিরাপত্তা, মেস ও দোকানের হিসাব, সিসিটিভি, IELTS, মেট্রো রেল, রক্তদান — বাংলাদেশের জন্য বাংলায় সহজ কাজের গাইড।",
+           "index_desc": "পরিবারের নিরাপত্তা, মেস ও দোকানের হিসাব, সিসিটিভি, IELTS, মেট্রো রেল, রাতে নিরাপদ যাত্রা — বাংলাদেশের জন্য বাংলায় সহজ কাজের গাইড।",
            "index_h1": "Assisto ব্লগ", "index_lead": "রোজকার কাজের সহজ গাইড — বাংলাদেশের মানুষের জন্য, সোজা বাংলায়।",
            "read": "পড়ুন", "reviewed": "সর্বশেষ যাচাই", "contents": "এই লেখায়",
            "try": "Assisto-তে চেষ্টা করুন", "try_lead": "এই লেখার কাজটা Assisto অ্যাপে আরও সহজে করা যায়:",
@@ -25,7 +25,7 @@ L = {
            "disclaimer": "এই লেখা সাধারণ তথ্যের জন্য; চিকিৎসা, আইন বা আর্থিক সিদ্ধান্তের আগে যোগ্য পেশাদার বা সরকারি উৎসে যাচাই করুন।"},
     "en": {"html_lang": "en", "blog": "Blog", "home": "Home", "features": "Features",
            "index_title": "Assisto Blog — practical guides for Bangladesh",
-           "index_desc": "Family safety, mess and shop accounts, CCTV, IELTS, Dhaka metro, blood donation — practical how-to guides for people in Bangladesh.",
+           "index_desc": "Family safety, mess and shop accounts, CCTV, IELTS, Dhaka metro, safe night travel — practical how-to guides for people in Bangladesh.",
            "index_h1": "Assisto Blog", "index_lead": "Practical everyday guides for people in Bangladesh, in plain words.",
            "read": "Read", "reviewed": "Last reviewed", "contents": "In this article",
            "try": "Try it in Assisto", "try_lead": "Assisto makes the job in this article easier:",
@@ -47,7 +47,23 @@ def _base_ctx(request, lang, path):
         "og_image": site + OLD.asset_url("og-%s.jpg" % lang),
         "font_bn": OLD.asset_url("noto-sans-bengali-var.woff2"),
         "year": 2026,
+        "play": _play(lang),
     }
+
+
+def _play(lang):
+    """seolive: the Google Play badge + link once the app is live on Play
+    (same rule as the rest of the site: owner said live AND listing public)."""
+    try:
+        from . import site_content as SC
+        from . import site_v3 as V3
+        from . import site_v3_dist as DIST
+        if not DIST.play_shown():
+            return None
+        return {"url": SC.play_url(lang), "badge": OLD.asset_url("google-play-badge-%s.png" % lang),
+                "alt": V3.COPY[lang]["cta_play"]}
+    except Exception:  # noqa: BLE001 — a blog page never breaks on the Play check
+        return None
 
 
 def blog_index(request):

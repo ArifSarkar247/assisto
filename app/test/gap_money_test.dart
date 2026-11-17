@@ -2,10 +2,14 @@
 // One test per fixed gap (owner_actions/gaps/money_BN.md).
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/api.dart';
+import 'package:assisto/l10n/app_localizations.dart';
+import 'package:assisto/screens/mess/mess_detail_screen.dart' show MessHistoryList;
 import 'package:assisto/screens/business/acct/acct_common.dart' show parseTakaToPoisha;
 import 'package:assisto/screens/business/business_common.dart' show takaToPoisha;
 import 'package:assisto/screens/business/invoice/new_invoice_screen.dart' show typedPoisha;
@@ -58,6 +62,8 @@ void main() {
       expect(r.sent, 1);
       expect(await MessOutbox.pending(7), 0);
       expect(api.sent.single['amount'], 50000);
+      // the phone's saved-at time rides along (offline meal cut-off rule)
+      expect(DateTime.tryParse('${api.sent.single['saved_at']}'), isNotNull);
     });
 
     test('a real refusal (409 closed month) is dropped and reported', () async {
@@ -155,5 +161,48 @@ void main() {
       expect(messPoishaText(102355000), '৳10,23,550.00');
       expect(messPoishaText(-5), '-৳0.05');
     });
+  });
+
+  for (final lang in ['en', 'bn']) {
+    testWidgets('history sheet shows what changed + the offline-sync note ($lang)', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        locale: Locale(lang),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: const Scaffold(body: SingleChildScrollView(child: MessHistoryList(rows: [
+          {'actor': 'Babu', 'action': 'bazar.edit', 'at': '2026-11-05T14:20:00+06:00',
+           'before': {'amount': 50000, 'date': '2026-11-05'},
+           'after': {'amount': 500000, 'date': '2026-11-05'}},
+          {'actor': 'Chaya', 'action': 'meal.set', 'at': '2026-11-02T23:40:00+06:00',
+           'before': {'date': '2026-11-03'},
+           'after': {'date': '2026-11-03', 'b': 0, 'l': 1, 'd': 1,
+                     'offline_saved_at': '2026-11-02T21:30:00+06:00'}},
+        ]))),
+      ));
+      await tester.pumpAndSettle();
+      final t = await AppLocalizations.delegate.load(Locale(lang));
+      final amounts = lang == 'en' ? '৳500.00 → ৳5,000.00' : '৳৫০০.০০ → ৳৫,০০০.০০';
+      expect(find.textContaining(amounts), findsOneWidget);
+      expect(find.textContaining(t.mv2SyncedLateNote), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  test('net-worth fixtures obey hero = assets + receivable − liabilities', () async {
+    int p(Object? v) => takaToPoishaInput('$v')!;
+    for (final d in [await FakeApi(lang: 'en').moneyNetWorth(),
+                     await FakeApi(lang: 'en', mode: FakeMode.empty).moneyNetWorth()]) {
+      expect(p(d['net_worth']), p(d['assets']) + p(d['receivable']) - p(d['liabilities']));
+      final series = (d['series'] as List).cast<Map>();
+      if (series.isNotEmpty) expect(p(series.last['net_worth']), p(d['net_worth']));
+      for (var i = 1; i < series.length; i++) {
+        expect(p(series[i]['net_worth']) - p(series[i - 1]['net_worth']), p(series[i]['delta']));
+      }
+    }
   });
 }

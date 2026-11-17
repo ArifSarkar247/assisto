@@ -118,7 +118,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
       for (final c in cats)
         ListTile(
             title: Text('${c['category']}'),
-            subtitle: Text(t.moneyVsLastMonth(tkFmt(c['previous']))),
+            subtitle: Text(t.moneyVsLastMonth(tkOf(context, c['previous']))),
             isThreeLine: MediaQuery.textScalerOf(context).scale(10) > 12, // qa1
             // qa1: scale down (never clip) the 2-line amount at large font
             trailing: FittedBox(fit: BoxFit.scaleDown, child: Column(
@@ -126,7 +126,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(tkFmt(c['current']),
+                  Text(tkOf(context, c['current']),
                       style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
                   deltaChip(context, dbl(c['delta'])),
                 ])),

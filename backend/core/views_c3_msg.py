@@ -161,6 +161,11 @@ def mark(user, msgs, seen=False, now=None, publish=True):
             CircleReceipt.objects.filter(user=user, message_id__in=ids)}
     create, changed = [], 0
     touched = []
+    # speedproof: existing receipts are updated in bulk (one UPDATE per field
+    # set) — opening a chat whose 200 messages were already delivered did 200
+    # single-row saves (CI run 44002942576: POST circle/<id>/seen = 418 SQL).
+    # No signal listens to CircleReceipt saves.
+    upd = {("delivered_at",): [], ("seen_at",): [], ("delivered_at", "seen_at"): []}
     for x in msgs:
         r = have.get(x.id)
         if r is None:
@@ -177,9 +182,12 @@ def mark(user, msgs, seen=False, now=None, publish=True):
             r.seen_at = now
             fields.append("seen_at")
         if fields:
-            r.save(update_fields=fields)
+            upd[tuple(fields)].append(r.pk)
             changed += 1
             touched.append(x)
+    for fields, pks in upd.items():
+        if pks:
+            CircleReceipt.objects.filter(pk__in=pks).update(**{f: now for f in fields})
     if create:
         CircleReceipt.objects.bulk_create(create, ignore_conflicts=True)
     # srvperf: one bulk UPDATE per field set instead of one save() per
@@ -251,6 +259,16 @@ def publish_receipts(msgs):
         if not by_sender:
             return 0
         senders = {u.id: u for u in User.objects.filter(id__in=list(by_sender))}
+        # speedproof: each message's edge in ONE query (was one per message
+        # inside _sender_chat_key)
+        need = {x.member_id for x in msgs if x.member_id and not x.group_id
+                and "member" not in x._state.fields_cache}
+        if need:
+            edges = CircleMember.objects.in_bulk(list(need))
+            for x in msgs:
+                e = edges.get(x.member_id)
+                if e is not None and "member" not in x._state.fields_cache:
+                    x.member = e
         n, cache = 0, {}
         st_all = _statuses_all(msgs)   # srvperf: one pass for every sender
         for sid, xs in by_sender.items():

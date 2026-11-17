@@ -267,7 +267,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
       eyebrow: t.wrappedSpentEyebrow,
       footer: monthLbl,
       child: WrappedBigStat(
-        value: tkFmt(d['total_spent']),
+        value: tkOf(context, d['total_spent']),
         caption: t.wrappedSpentCaption,
         icon: Icons.north_east_rounded,
       ),
@@ -283,8 +283,8 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
         child: WrappedLineStat(
           icon: Icons.south_west_rounded,
           title: t.wrappedEarnedTitle,
-          value: tkFmt(d['total_earned']),
-          note: t.wrappedSavedNote(tkFmt(d['total_saved'])),
+          value: tkOf(context, d['total_earned']),
+          note: t.wrappedSavedNote(tkOf(context, d['total_saved'])),
         ),
       ));
 
@@ -311,7 +311,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
         child: WrappedLineStat(
           icon: Icons.local_fire_department_rounded,
           title: topCat.toString(),
-          value: tkFmt(d['top_category_amount']),
+          value: tkOf(context, d['top_category_amount']),
           note: t.wrappedTopCategoryNote,
         ),
       ));
@@ -329,7 +329,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
           title: (biggest['category']?.toString().isNotEmpty == true)
               ? biggest['category'].toString()
               : t.wrappedBiggestTitle,
-          value: tkFmt(biggest['amount']),
+          value: tkOf(context, biggest['amount']),
           note: t.wrappedBiggestNote(_dateLabel(biggest['date'])),
         ),
       ));
@@ -346,7 +346,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
         child: WrappedTrend(
           up: up,
           pct: (trend['pct'] as num?)?.toInt() ?? 0,
-          deltaValue: tkSigned(dbl(trend['delta'])),
+          deltaValue: moneyDigitsOf(context, tkSigned(dbl(trend['delta']))),
           title: t.wrappedTrendTitle,
           caption:
               up ? t.wrappedTrendUp : t.wrappedTrendDown,
@@ -377,7 +377,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
     final busiest = d['busiest_day'] as Map?;
     if (busiest != null) {
       facts.add(t.wrappedFactBusiest(
-          _dateLabel(busiest['date']), tkFmt(busiest['amount'])));
+          _dateLabel(busiest['date']), tkOf(context, busiest['amount'])));
     }
     cards.add(WrappedCardFrame(
       index: idx++,

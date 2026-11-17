@@ -1,4 +1,5 @@
 import '../api.dart';
+import 'money_digits.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
@@ -120,7 +121,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
 
   @override
   Widget build(BuildContext context) {
-    syncMoneyDigits(context); // gap-familycare: ৳ amounts in Bangla digits
+    syncMoneyDigits(context); // design3: Bangla digits in bn
     if (loading) return const SkeletonList();
     if (errored) {
       return StateMessage(

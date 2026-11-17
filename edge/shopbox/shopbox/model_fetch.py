@@ -33,12 +33,12 @@ VEHICLE_MODEL_SHA256 = "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1
 # cctvdet3: the BANGLADESH vehicle model (YOLOX-Nano fine-tuned on CC BY 4.0
 # Bangladeshi street photos by tools/e2e/cctv_vehicle_train.py in CI; knows
 # CNG, rickshaw, leguna ...). Preferred when published at this URL with this
-# SHA-256; until the asset is published the download fails and YOLOX-Tiny
-# above is used.
+# SHA-256 (published by the accuracy workflow's train mode, release
+# shopbox-vehicle-bd-1, never overwritten).
 BD_VEHICLE_MODEL_FILENAME = "assisto_vehicle_bd_nano.onnx"
 BD_VEHICLE_MODEL_URL = ("https://github.com/ArifSarkar247/assisto/releases/download/"
                         "shopbox-vehicle-bd-1/assisto_vehicle_bd_nano.onnx")
-BD_VEHICLE_MODEL_SHA256 = "2792908189f104ecb2316ddc09b49c01067dc06e77f443ab52c0f3ff3f0981a7"  # CI run 42759490793
+BD_VEHICLE_MODEL_SHA256 = "c0189c8f9b8b16277e08cb0751c3744396887cd3eac4bab25a43032fbe220779"  # CI run 44021451977 (published)
 
 
 def sha256_of(path: str) -> str:

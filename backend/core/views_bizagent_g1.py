@@ -77,7 +77,8 @@ class FaqsView(APIView):
         if bad:
             return bad
         from .models import BizFaq
-        rows = BizFaq.objects.filter(business=prof).exclude(status="rejected")
+        rows = BizFaq.objects.filter(business=prof).exclude(
+            status__in=("rejected", S.UNKNOWN_STATUS))
         return Response({"faqs": [_faq_row(f) for f in rows[:300]],
                          "rules_enabled": a.rules_enabled})
 
@@ -92,13 +93,56 @@ class FaqsView(APIView):
         if len(q) < 3 or len(ans) < 2:
             return _err(lang, "প্রশ্ন ও উত্তর দুটোই লিখুন।", "Write both the question and the answer.",
                         status=422, code="empty")
-        if BizFaq.objects.filter(business=prof).count() >= 300:
+        if BizFaq.objects.filter(business=prof).exclude(status=S.UNKNOWN_STATUS).count() >= 300:
             return _err(lang, "সর্বোচ্চ ৩০০টি FAQ রাখা যায়।", "At most 300 FAQs.", status=409,
                         code="limit")
         from .logic import bizagent_rules as R
         f = BizFaq.objects.create(business=prof, question=q, answer=ans, status="approved",
                                   source="manual", has_price=R.has_money(ans))
         return Response({"ok": True, "faq": _faq_row(f)}, status=201)
+
+
+class UnknownListView(APIView):
+    """bizagent-iso (B) GET bizagent/unknown — "the AI didn't know": the
+    customer questions the AI could not answer from this shop's data, newest
+    first: {question, suggested (the AI's draft), at}. Owner only."""
+    def get(self, request):
+        prof, role, a, bad = _ctx(request)
+        if bad:
+            return bad
+        from .models import BizFaq
+        rows = BizFaq.objects.filter(business=prof, status=S.UNKNOWN_STATUS) \
+            .order_by("-updated_at", "-id")[:S.UNKNOWN_MAX_OPEN]
+        return Response({"items": [{"id": f.id, "question": f.question, "suggested": f.answer,
+                                    "asked": f.hits, "at": f.updated_at.isoformat()}
+                                   for f in rows]})
+
+
+class UnknownAnswerView(APIView):
+    """POST bizagent/unknown/<pk>/answer {answer} → saved as this shop's FAQ."""
+    def post(self, request, pk):
+        prof, role, a, bad = _ctx(request)
+        if bad:
+            return bad
+        lang = req_lang(request)
+        ans = str((request.data or {}).get("answer") or "").strip()
+        if len(ans) < 2:
+            return _err(lang, "উত্তর লিখুন।", "Write the answer.", status=422, code="empty")
+        f = S.answer_unknown(prof, pk, ans)
+        if f is None:
+            return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        return Response({"ok": True, "faq": _faq_row(f)})
+
+
+class UnknownIgnoreView(APIView):
+    """POST bizagent/unknown/<pk>/ignore."""
+    def post(self, request, pk):
+        prof, role, a, bad = _ctx(request)
+        if bad:
+            return bad
+        if not S.ignore_unknown(prof, pk):
+            return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
+        return Response({"ok": True})
 
 
 class FaqDetailView(APIView):
@@ -131,7 +175,9 @@ class FaqDeleteView(APIView):
             return bad
         from .models import BizFaq
         n, _ = BizFaq.objects.filter(business=prof, pk=pk).delete()
-        return Response({"ok": bool(n)})
+        if not n:   # bizagent-iso: a foreign / unknown id is a plain 404
+            return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
+        return Response({"ok": True})
 
 
 class FaqLearnView(APIView):
@@ -180,7 +226,9 @@ class PostLinkDeleteView(APIView):
         if bad:
             return bad
         n, _ = prof.biz_post_links.filter(pk=pk).delete()
-        return Response({"ok": bool(n)})
+        if not n:   # bizagent-iso: a foreign / unknown id is a plain 404
+            return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
+        return Response({"ok": True})
 
 
 class AgentReportView(APIView):
@@ -334,7 +382,7 @@ def widget_send(request, key):
           "event_id": eid, "text": text, "ts": int(now.timestamp()), "name": "",
           "kind": "message", "attachments": []}
     res = S.handle_message(ch, ev)
-    Message.objects.filter(external_id=eid).update(meta={"ip": iph})
+    Message.objects.filter(thread__seller_channel=ch, external_id=eid).update(meta={"ip": iph})
     t = ChatThread.objects.filter(seller_channel=ch, external_user_id=visitor).first()
     rows = [_out_row(m) for m in t.messages.filter(direction="out").exclude(
         status__in=("pending_approval", "rejected", "approved", "failed"))

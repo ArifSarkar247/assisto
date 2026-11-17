@@ -121,6 +121,7 @@ HINT = {"IDV001": "wrong_code", "IDV006": "wrong_code", "IDV0034": "wrong_code",
         "AUT004": "reauth", "BIZ061": "vendor"}
 TOKEN_CODES = ("AUT001", "AUT002", "AUT003", "PRM003")
 SIGN_ERROR = "PRM0016"
+CB_LIST_EMPTY = "BIZ054"
 
 # ---- events ("Message Subscription → Event message format definition")
 # msgType -> (kind, object). kind "" = a plain motion / intrusion alert.
@@ -462,7 +463,15 @@ class DolynkAdapter(B.Provider):
         c = self._client()
         cb_id = None
         try:
-            page = c.call(P["cb_list"], {"pageNum": 1, "pageSize": 100}) or {}
+            try:
+                page = c.call(P["cb_list"], {"pageNum": 1, "pageSize": 100}) or {}
+            except B.ConnectError as e:
+                # imou-real (live 17 Nov): an EMPTY list is answered as an error
+                # (BIZ054 "No new configuration callback ID is added to the
+                # product") — that means "none yet", so add ours
+                if e.code != CB_LIST_EMPTY:
+                    raise
+                page = {}
             for row in page.get("pageData") or []:
                 if str(row.get("callbackUrl") or "") == callback_url:
                     cb_id = row.get("callbackConfigId")

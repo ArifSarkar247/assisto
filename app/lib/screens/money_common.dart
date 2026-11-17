@@ -245,7 +245,7 @@ Widget deltaChip(BuildContext context, double delta, {bool upIsBad = true}) {
                 : Icons.arrow_downward_rounded,
         size: 13,
         color: color),
-    Text(tkFmt(delta.abs()),
+    Text(tkOf(context, delta.abs()),
         style: AType.labelMedium.copyWith(
             color: color, fontFeatures: AFonts.tabular)),
   ]);

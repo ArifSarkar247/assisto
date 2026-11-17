@@ -500,3 +500,22 @@ class ReregisterFlagsTests(TestCase):
             self.assertEqual(CL.reregister("imou"), "registered")
         flags = dict(h.calls)["setMessageCallback"]["callbackFlag"].split(",")
         self.assertEqual(set(flags), {"alarm", "deviceStatus", "capabilityEvent", "numberstat"})
+
+
+# ------------------------------------------------------------------ 10
+class DolynkCallbackEmptyListTests(SimpleTestCase):
+    """imou-real (live 17 Nov): DoLynk answers an EMPTY callback list with
+    BIZ054 — registration must then ADD our link, not give up."""
+
+    def test_biz054_means_add(self):
+        from core.logic.cctv_connect import mocks as M
+        DL._tokens.clear()
+        self.addCleanup(DL._tokens.clear)
+        sim = M.VendorSims()
+        a = DL.DolynkAdapter(sim.cfg("dolynk"), http=sim.http)
+        self.assertFalse(getattr(sim, "dl_cbs", {}))
+        self.assertIsNotNone(a.after_link({"serials": []}, "https://api.example.test/cb/x"))
+        self.assertEqual(list(sim.dl_cbs.values()), ["https://api.example.test/cb/x"])
+        # a second run finds it in the (now non-empty) list: no duplicate
+        a.after_link({"serials": []}, "https://api.example.test/cb/x")
+        self.assertEqual(len(sim.dl_cbs), 1)

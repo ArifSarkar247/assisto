@@ -371,6 +371,7 @@ class ShopHeartbeatView(APIView):
         body = {"ok": True, "config_version": cfg["version"],
                 "tasks_pending": WV.pending_task_count(site, now),
                 "server_time": now.isoformat(),
+                "live_poll_s": live_poll_s(),   # speedproof
                 "live_pending": [_live_device_row(s) for s in
                                  _pending_for(site, cams, now)],
                 # cctvbox: siren / the owner's warning for THIS camera
@@ -680,6 +681,18 @@ def _sweep_live(now):
         status="expired", ended_at=now, end_reason="max_duration")
 
 
+def live_poll_s():
+    """speedproof: how often a guarding phone asks shop/live/pending (seconds;
+    0 = only the 20 s heartbeat, as before). Server-side so it can be tuned
+    without an app update. Default 4 s: live view starts in ~2-4 s instead of
+    up to 20 s; ~1 KB per poll (about 20 MB a day on the shop's Wi-Fi)."""
+    from django.conf import settings
+    try:
+        return max(0, min(60, int(getattr(settings, "SHOP_LIVE_POLL_S", 4))))
+    except (TypeError, ValueError):
+        return 4
+
+
 def _pending_for(site, cams, now):
     from .models import ShopLiveSession
     qs = ShopLiveSession.objects.filter(site=site, status="pending",
@@ -823,14 +836,26 @@ class ShopLivePendingView(APIView):
     authentication_classes = []
 
     def get(self, request):
+        from .models import ShopLiveSession
         lang = req_lang(request)
         site, cam = SV._resolve_device_site(request)
         if site is None:
             return _bad_token(lang)
         now = timezone.now()
+        # speedproof: a Guard Box phone polls this every LIVE_POLL_S while it
+        # guards (live view used to wait for the 20 s heartbeat: 17.4 s to
+        # the first picture in CI). The usual answer is "nothing" -> one
+        # indexed EXISTS, no sweep, no ICE config.
+        cams = [cam] if cam else []
+        qs = ShopLiveSession.objects.filter(site=site, status="pending", expires_at__gt=now)
+        if cams:
+            qs = qs.filter(camera__in=cams)
+        if not qs.exists():
+            return Response({"sessions": [], "poll_s": live_poll_s()})
         _sweep_live(now)
         return Response({"sessions": [_live_device_row(s) for s in
-                                      _pending_for(site, [cam] if cam else [], now)]})
+                                      _pending_for(site, cams, now)],
+                         "poll_s": live_poll_s()})
 
 
 def _session_side(request, pk):

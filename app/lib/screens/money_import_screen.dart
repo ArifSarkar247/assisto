@@ -159,7 +159,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
             Expanded(
               child: Text(
                   parsed
-                      ? '${credit ? '+' : '-'}${tkFmt(p['amount'])}'
+                      ? '${credit ? '+' : '-'}${tkOf(context, p['amount'])}'
                       : t.moneyImportUnrecognised,
                   style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700,
                       color: !parsed

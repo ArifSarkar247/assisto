@@ -197,8 +197,14 @@ void registerBusinessFlows() {
     await f.home();
     final api = await f.h.backend();
     final site = 'Reality Shop s$_tag';
-    await f.step('open Shop Box', () async {
-      await f.openFeature(f.t.shopBoxTitle, 'shop_box');
+    // gap-cctv D3: Shop Box is no longer its own tile — a user opens the CCTV
+    // tile and its "Shop tools" section. NO route fallback here: a broken
+    // entry must fail this step, not hide behind ChatNav.
+    await f.step('open Shop Box (menu -> CCTV -> Shop tools)', () async {
+      await f.openFromDrawer(f.t.svcCctvWatch);
+      final tools = find.byKey(const ValueKey('wm-shop-tools'));
+      await f.scrollTo(tools);
+      await f.tap(tools, settleSeconds: 3);
       await f.shot('shop-box');
       if (find.text(f.t.shopBoxSeePlans).evaluate().isNotEmpty) {
         f.skip('Shop Box is plan-gated for the seeded user (paywall shown honestly)');
@@ -230,6 +236,15 @@ void registerBusinessFlows() {
       await f.shot('eod-result');
       f.expectHttp('POST', '/shop/sites/');
       f.needsKey('a real camera/NVR + Shop Box device for motion alerts and live view');
+    });
+    // gap-cctv D3: old links / shop alerts / the home shortcut still use the
+    // 'shop_box' route — checked on its own, never as the main path above
+    await f.step('old shop_box link still opens Shop Box', () async {
+      await f.openRoute('shop_box');
+      if (find.text(f.t.shopBoxTitle).evaluate().isEmpty) {
+        throw TestFailure('route shop_box did not open Shop Box');
+      }
+      await f.shot('shop-box-old-link');
     });
   }, timeout: const Duration(minutes: 5));
 }

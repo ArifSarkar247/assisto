@@ -10,6 +10,7 @@
   <div class="tile"><span>{{ T.nav_integrations }}</span>{% if integ %}<b>{{ integ.connected }}/{{ integ.total }}</b><small>{{ T.needs_fix }}: {{ integ.not_working }}</small>{% else %}<b class="mut">—</b>{% endif %}</div>
   <div class="tile"><span>{{ T.nav_discover }}</span><b>{{ discover_live }}/{{ discover_total }}</b><small>{{ T.live_cards }}</small></div>
 </div>
+{% include "owner/_live_health.html" %}
 <section class="card">
   <h2>{{ T.recent_activity }}</h2>
   {% if recent %}

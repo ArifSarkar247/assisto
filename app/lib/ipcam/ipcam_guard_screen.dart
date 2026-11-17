@@ -126,6 +126,12 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
   final _pace = LivePace();
   final _offline = OfflineQueue<({String type, Map<String, dynamic> signals, Uint8List? snap})>();
   Timer? _loop, _hb;
+  // speedproof: live view used to wait for the 20 s heartbeat (CI: 17.4 s to
+  // the first picture). While guarding, a light shop/live/pending poll every
+  // [_livePollS] s (server-tunable via the heartbeat's live_poll_s; 0 = off).
+  Timer? _lp;
+  int _livePollS = 4;
+  bool _lpBusy = false;
   bool _tickBusy = false;
   bool _modelLoading = false;
   bool _starting = false;
@@ -438,6 +444,7 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
     } catch (_) {} // best-effort helpers
     _loop = Timer.periodic(const Duration(milliseconds: 250), (_) => _tick());
     _hb = Timer.periodic(const Duration(seconds: 20), (_) => _heartbeat());
+    _armLivePoll();
     if (!mounted) return;
     setState(() {
       _running = true;
@@ -568,9 +575,40 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
         if (mounted && p.isNotEmpty) setState(() => _played = p.last);
       }));
     }
+    final ps = (r.body['live_poll_s'] as num?)?.toInt();
+    if (ps != null && ps != _livePollS) {
+      _livePollS = ps;
+      _armLivePoll();
+    }
     final pending = ((r.body['live_pending'] ?? const []) as List).whereType<Map>().toList();
     if (pending.isNotEmpty && !_inLive && _running) {
       unawaited(_answerLive(pending.first.cast<String, dynamic>()));
+    }
+  }
+
+  /// speedproof: (re)start the fast live-request poll.
+  void _armLivePoll() {
+    _lp?.cancel();
+    _lp = null;
+    final every = livePollEvery(_livePollS);
+    if (every == null || (!_running && _loop == null)) return;
+    _lp = Timer.periodic(every, (_) => _pollLive());
+  }
+
+  Future<void> _pollLive() async {
+    final dev = _dev;
+    if (dev == null || widget.preview != null || _inLive || _lpBusy) return;
+    if (!_running && _loop == null) return;
+    _lpBusy = true;
+    try {
+      final r = await dev.pending();
+      if (!mounted || !r.ok || _inLive) return;
+      final s = ((r.body['sessions'] ?? const []) as List).whereType<Map>().toList();
+      if (s.isNotEmpty) unawaited(_answerLive(s.first.cast<String, dynamic>()));
+    } catch (_) {
+      // offline: the heartbeat path still answers
+    } finally {
+      _lpBusy = false;
     }
   }
 
@@ -655,8 +693,10 @@ class _IpCamGuardScreenState extends State<IpCamGuardScreen> {
   void _stop({bool silent = false}) {
     _loop?.cancel();
     _hb?.cancel();
+    _lp?.cancel();
     _loop = null;
     _hb = null;
+    _lp = null;
     final p = _pipe;
     _pipe = null;
     if (p != null) unawaited(p.stop());
