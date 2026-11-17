@@ -23,8 +23,15 @@ class SosSmsContact {
 }
 
 /// Digits and a leading + only (what an sms: URI accepts everywhere).
+/// gap-sos (P0): Bangla digits (০-৯, typed on a Bangla keyboard) become
+/// 0-9 first — before, they were stripped and the SMS / call step of an SOS
+/// went to nobody.
 String cleanPhone(String s) {
-  final t = s.trim();
+  final b = StringBuffer();
+  for (final r in s.trim().runes) {
+    b.writeCharCode(r >= 0x09E6 && r <= 0x09EF ? 0x30 + (r - 0x09E6) : r);
+  }
+  final t = b.toString();
   final d = t.replaceAll(RegExp(r'[^0-9]'), '');
   if (d.length < 3 || d.length > 15) return '';
   return t.startsWith('+') ? '+$d' : d;

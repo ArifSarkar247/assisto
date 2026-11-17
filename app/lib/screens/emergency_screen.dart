@@ -21,6 +21,7 @@ import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../widgets/permission_reason.dart';
 import 'blood/blood_donor_entry.dart'; // finish1
+import '../family_sos/sos_sms.dart' show cleanPhone; // gap-sos
 
 /// ADVANCED Emergency + SOS screen.
 ///
@@ -41,12 +42,19 @@ class EmergencyScreen extends StatefulWidget {
   /// emhub: opened from the Emergency hub's "add numbers" step after an SOS —
   /// the My Circle picker opens as soon as the card has loaded.
   final bool startAddContact;
+
+  /// gap-sos (P1): '1' = the phone copy has edits the server has not got
+  /// yet (saved offline). The next open sends them instead of letting the
+  /// older server copy overwrite them.
+  static const dirtyKey = 'emergency_card_dirty';
+
   @override
   State<EmergencyScreen> createState() => _EmergencyScreenState();
 }
 
 class _EmergencyScreenState extends State<EmergencyScreen> {
   static const _cacheKey = 'emergency_card_cache';
+  static const dirtyKey = EmergencyScreen.dirtyKey;
 
   final _name = TextEditingController();
   final _blood = TextEditingController();
@@ -144,10 +152,18 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     }
     _sosCountdown = int.tryParse(await Settings.getString('safety_sos_cd') ?? '') ?? 5;
     try {
-      final c = await context.read<AppState>().api.getEmergency();
-      _apply(c);
-      _offline = false;
-      await prefs.setString(_cacheKey, jsonEncode(_collect()));
+      final api = context.read<AppState>().api;
+      if (cached != null && prefs.getString(dirtyKey) == '1') {
+        // offline edits first: the phone copy wins over the older server one
+        await api.putEmergency(_collect());
+        await prefs.remove(dirtyKey);
+        _offline = false;
+      } else {
+        final c = await api.getEmergency();
+        _apply(c);
+        _offline = false;
+        await prefs.setString(_cacheKey, jsonEncode(_collect()));
+      }
     } catch (_) {
       // best-effort: keep whatever cache we had; _offline stays true if we had cache,
       // and empty state shows if we didn't.
@@ -173,9 +189,11 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     await prefs.setString(_cacheKey, jsonEncode(body));
     try {
       await context.read<AppState>().api.putEmergency(body);
+      await prefs.remove(EmergencyScreen.dirtyKey);
       _offline = false;
       messenger.showSnackBar(SnackBar(content: Text(t.emergencySaved)));
     } catch (_) {
+      await prefs.setString(EmergencyScreen.dirtyKey, '1'); // gap-sos: sync on next open
       _offline = true;
       messenger.showSnackBar(SnackBar(content: Text(t.emergencySavedOffline)));
     } finally {
@@ -342,11 +360,22 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         ],
       ),
     );
-    if (ok == true && phone.text.trim().isNotEmpty) {
+    if (ok != true || phone.text.trim().isEmpty || !mounted) return;
+    // gap-sos (P1): Bangla digits -> 0-9, spaces/dashes dropped; a number
+    // that cannot be dialled (letters, too short) is refused with a reason
+    // instead of silently saved (it would break the SOS call/SMS step).
+    final clean = cleanPhone(phone.text);
+    if (clean.length < 5 || RegExp(r'[A-Za-z]').hasMatch(phone.text)) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.onbErrorPhoneInvalid)));
+      return;
+    }
+    if (_contacts.any((c) => cleanPhone('${c['phone'] ?? ''}') == clean)) return;
+    {
       setState(() {
         _contacts.add({
           'name': name.text.trim(),
-          'phone': phone.text.trim(),
+          'phone': clean,
           'relation': rel.text.trim()
         });
       });

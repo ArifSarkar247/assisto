@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/api.dart';
 import 'package:assisto/family_sos/sos_alarm_screen.dart';
+import 'package:assisto/family_sos/sos_retry.dart';
 import 'package:assisto/family_sos/sos_sender_screen.dart';
 import 'package:assisto/family_sos/sos_setup_card.dart';
 import 'package:assisto/family_sos/sos_sms.dart';
@@ -72,6 +73,7 @@ SosSenderScreen _sender(FakeFcSosApi api,
     );
 
 Future<void> _dispose(WidgetTester tester) async {
+  SosRetry.stop(); // gap-sos: the app-wide retry outlives the screen
   await tester.pumpWidget(const SizedBox());
   await tester.pump(const Duration(seconds: 1));
 }

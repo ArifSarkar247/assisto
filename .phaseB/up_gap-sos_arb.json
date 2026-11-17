@@ -1,0 +1,12 @@
+{
+  "en": {
+    "sosgapStillTrying": "Your SOS has not reached your family yet. Assisto keeps trying every 15 seconds — it goes out as soon as the internet is back, even if you leave this screen.",
+    "@sosgapStillTrying": {"description": "gap-sos: Emergency SOS offline, the app keeps retrying the same SOS"},
+    "sosgapStopTrying": "Stop trying",
+    "@sosgapStopTrying": {"description": "gap-sos: stop retrying an unsent SOS (does not close the screen)"}
+  },
+  "bn": {
+    "sosgapStillTrying": "আপনার SOS এখনো পরিবারের কাছে পৌঁছায়নি। Assisto প্রতি ১৫ সেকেন্ডে আবার চেষ্টা করছে — নেট ফিরলেই চলে যাবে, এই পাতা বন্ধ করলেও।",
+    "sosgapStopTrying": "চেষ্টা থামান"
+  }
+}

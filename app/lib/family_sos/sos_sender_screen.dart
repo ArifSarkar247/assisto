@@ -19,6 +19,7 @@ import '../widgets/permission_reason.dart';
 import '../widgets/sos_ladder_card.dart';
 import 'sos_api.dart';
 import 'sos_recorder.dart';
+import 'sos_retry.dart'; // gap-sos
 import 'sos_sms.dart';
 import 'sos_widgets.dart';
 
@@ -95,7 +96,7 @@ enum SosPhase { countdown, sending, sent, offline }
 class _SosSenderScreenState extends State<SosSenderScreen> {
   SosPhase _phase = SosPhase.countdown;
   late int _left = widget.countdownSeconds;
-  Timer? _tick, _retry, _poll, _live, _recTick;
+  Timer? _tick, _poll, _live, _recTick;
   final String _clientId = newSosClientId();
   (double, double)? _pos;
   Future<(double, double)?>? _posF;
@@ -162,12 +163,18 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
     if (mounted) setState(() => _cc = pickEmergencyCountry(network: p.network, sim: p.sim));
   }
 
-  Future<(double, double)?> _locate() async {
+  /// [ask]: may show the Android location prompt (the first read only —
+  /// gap-sos: the 15 s live updates never re-ask a person who said no).
+  Future<(double, double)?> _locate({bool ask = true}) async {
     if (widget.locate != null) return widget.locate!();
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return null;
       var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) perm = await Geolocator.requestPermission();
+      if (perm == LocationPermission.denied && ask) {
+        // bounded: an unanswered prompt never holds the SOS
+        perm = await Geolocator.requestPermission()
+            .timeout(const Duration(seconds: 10), onTimeout: () => LocationPermission.denied);
+      }
       if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
         return null;
       }
@@ -208,13 +215,22 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
     if (!mounted) return;
     if (!ok) {
       setState(() => _phase = SosPhase.offline);
-      _retry?.cancel();
-      _retry = Timer.periodic(widget.retryEvery, (_) async {
-        if (await _trySend() && mounted) {
-          _retry?.cancel();
+      // gap-sos (P1): the app-wide retry owns the unsent press, so Back or
+      // leaving this screen never silently drops the SOS; only "Stop trying"
+      // does. Same press id -> the family is rung once.
+      final api = _api;
+      final source = widget.source;
+      final id = _clientId;
+      SosRetry.start(
+        clientId: id,
+        every: widget.retryEvery,
+        send: () => api.send(lat: _pos?.$1, lng: _pos?.$2, source: source, clientId: id),
+        onSent: (r) {
+          if (!mounted) return;
+          _recipients = (r['recipients'] as num?)?.toInt() ?? 0;
           _afterSent();
-        }
-      });
+        },
+      );
       return;
     }
     _afterSent();
@@ -266,7 +282,7 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
 
   Future<void> _pushLocation() async {
     if (_state != 'active') return;
-    final p = (_pos != null && _live == null) ? _pos : await _locate();
+    final p = (_pos != null && _live == null) ? _pos : await _locate(ask: false);
     if (p == null) return;
     _pos = p;
     try {
@@ -397,7 +413,7 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
   @override
   void dispose() {
     _tick?.cancel();
-    _retry?.cancel();
+    // gap-sos: an unsent SOS keeps trying after this screen closes (SosRetry)
     _poll?.cancel();
     _live?.cancel();
     _recTick?.cancel();
@@ -707,7 +723,7 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
           TextButton(
             key: const ValueKey('fcs-offline-cancel'),
             onPressed: () {
-              _retry?.cancel();
+              SosRetry.stop();
               Navigator.of(context).maybePop();
             },
             child: Text(t.fcsStopTrying),

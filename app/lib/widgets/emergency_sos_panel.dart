@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../family_alerts_api.dart'; // family100
+import '../family_sos/sos_retry.dart'; // gap-sos
 import '../state.dart';
 import 'notif_models.dart' show notifLocalizeDigits;
 import '../l10n/app_localizations.dart';
@@ -69,6 +71,7 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
   bool _sent = false;
   bool _offline = false;
   bool _justHeld = false; // the release after a completed hold is not a tap
+  Offset? _downAt; // gap-sos: a finger that scrolls is not a hold
   String? _smsBody;
   Timer? _buzz;
   late final AnimationController _hold = AnimationController(
@@ -116,20 +119,45 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
   /// when the server could not be reached.
   Future<bool> _alertFamilyServer(
       AppLocalizations t, ScaffoldMessengerState m, (double, double)? pos) async {
+    // gap-sos: ONE press id for this SOS, re-used by every retry (the
+    // server makes a retry idempotent — the family is rung once).
+    final clientId = newSosClientId();
+    final Future<Map<String, dynamic>> Function(double? lat, double? lng) send;
     try {
-      final send = widget.sendSos ??
-          (double? la, double? ln) => context.read<AppState>().api.familySos(
-              lat: la, lng: ln, source: 'emergency', clientId: newSosClientId());
-      final r = await send(pos?.$1, pos?.$2)
-          .timeout(const Duration(seconds: 12));
+      final api = widget.sendSos == null ? context.read<AppState>().api : null;
+      send = widget.sendSos ??
+          (double? la, double? ln) => api!.familySos(
+              lat: la, lng: ln, source: 'emergency', clientId: clientId);
+    } catch (_) {
+      m.showSnackBar(SnackBar(content: Text(t.saSosOfflineSms)));
+      return false;
+    }
+    void sentNote(Map<String, dynamic> r) {
       final n = (r['recipients'] as num?)?.toInt() ?? 0;
-      if (!mounted) return true;
+      if (!mounted) return;
       final count = notifLocalizeDigits(context, '$n');
       m.showSnackBar(SnackBar(
           content: Text(n > 0 ? t.fa100SosSent(count) : t.fa100SosNoCircle)));
+    }
+
+    try {
+      final r = await send(pos?.$1, pos?.$2)
+          .timeout(const Duration(seconds: 12));
+      sentNote(r);
       return true;
     } catch (_) {
       m.showSnackBar(SnackBar(content: Text(t.saSosOfflineSms)));
+      // gap-sos (P0): before, an offline SOS from this screen was never sent
+      // when the internet came back. Now it keeps trying (also after the
+      // screen closes) until it goes through or the user stops it.
+      SosRetry.start(
+        clientId: clientId,
+        send: () => send(pos?.$1, pos?.$2),
+        onSent: (r) {
+          if (mounted) setState(() => _offline = false);
+          sentNote(r);
+        },
+      );
       return false;
     }
   }
@@ -209,10 +237,22 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
             child: Listener(
               onPointerDown: _busy
                   ? null
-                  : (_) {
+                  : (e) {
                       _justHeld = false;
+                      _downAt = e.position;
                       _hold.forward(from: 0);
                     },
+              // gap-sos (P2): scrolling the page with the finger on the
+              // button is not a hold — the ring stops filling.
+              onPointerMove: (e) {
+                final d = _downAt;
+                if (d != null &&
+                    (e.position - d).distance > kTouchSlop &&
+                    _hold.status != AnimationStatus.completed) {
+                  _downAt = null;
+                  _hold.reset();
+                }
+              },
               onPointerUp: (_) {
                 if (_hold.status != AnimationStatus.completed) _hold.reset();
               },
@@ -286,11 +326,41 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
       if (_sent) ...[
         const SizedBox(height: Gap.md),
         SosLadderCard(
+          // gap-sos: rebuilt when a retried SOS gets through
+          key: ValueKey('sos-ladder-$_offline'),
           contacts: widget.contacts,
           smsBody: _smsBody,
           offline: _offline,
           load: widget.ladderLoad,
         ),
+        if (_offline)
+          ValueListenableBuilder<bool>(
+            valueListenable: SosRetry.trying,
+            builder: (ctx, trying, _) => !trying
+                ? const SizedBox.shrink()
+                : Padding(
+                    key: const ValueKey('sos-still-trying'),
+                    padding: const EdgeInsets.only(top: Gap.sm),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(children: [
+                            const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2)),
+                            const SizedBox(width: Gap.sm),
+                            Expanded(child: Text(t.sosgapStillTrying)),
+                          ]),
+                          TextButton(
+                            key: const ValueKey('sos-stop-trying'),
+                            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                            onPressed: SosRetry.stop,
+                            child: Text(t.sosgapStopTrying),
+                          ),
+                        ]),
+                  ),
+          ),
         if (widget.contacts
             .every((c) => '${c['phone'] ?? ''}'.trim().isEmpty))
           TextButton.icon(
