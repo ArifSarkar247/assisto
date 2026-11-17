@@ -145,27 +145,33 @@ Map<String, dynamic>? fakeTrainGet(String path, {required bool bn, required bool
 }
 
 // ---------------------------------------------------------------- train-app
-/// train-app (V2): a tiny offline pack — 701 with made-up times and a
-/// learned tower near Cumilla (sample ids, no real data).
+/// train-app (V2): a tiny offline pack in the data lane's COMPACT format
+/// (train_data.offline_bundle(): st / tr / tw) — 701 with made-up times,
+/// a suspended cross-border train (km from coordinates), and two learned
+/// towers (sample ids and points, no real data).
 Map<String, dynamic> trainOfflinePackJson() => {
-      'version': '2026-11-17',
-      'off_day_base': 1,
-      'trains': [
-        {
-          'no': '701', 'name_bn': 'সুবর্ণ এক্সপ্রেস', 'name_en': 'Subarna Express', 'off_days': [],
-          'stops': [
-            {'id': 'n1', 'bn': 'চট্টগ্রাম', 'en': 'Chattogram', 'km': 0, 'lat': 22.334, 'lng': 91.829, 'dep': '07:00'},
-            {'id': 'o3', 'bn': 'ফেনী', 'en': 'Feni', 'km': 90.0, 'arr': '08:20', 'dep': '08:22'},
-            {'id': 'o5', 'bn': 'কুমিল্লা', 'en': 'Cumilla', 'km': 154.1, 'arr': '09:15', 'dep': '09:18'},
-            {'id': 'o9', 'bn': 'ভৈরব বাজার', 'en': 'Bhairab Bazar', 'km': 234.3, 'arr': '10:25', 'dep': '10:27'},
-            {'id': 'n3', 'bn': 'ঢাকা বিমানবন্দর', 'en': 'Dhaka Airport', 'km': 303.9, 'arr': '11:40', 'dep': '11:42'},
-            {'id': 'n2', 'bn': 'কমলাপুর', 'en': 'Kamalapur', 'km': 321.2, 'lat': 23.732, 'lng': 90.426, 'arr': '12:20'},
-          ],
-        },
+      'v': 1,
+      'ver': 'a1b2c3d4e5f6',
+      'st': [
+        ['CTG', 'চট্টগ্রাম', 'Chattogram', 2233402, 9182956],
+        ['FEN', 'ফেনী', 'Feni', 2301230, 9139760],
+        ['CML', 'কুমিল্লা', 'Cumilla', 2346070, 9118090],
+        ['BHB', 'ভৈরব বাজার', 'Bhairab Bazar', 2405250, 9097640],
+        ['APT', 'ঢাকা বিমানবন্দর', 'Dhaka Airport', 2385207, 9040838],
+        ['DHK', 'কমলাপুর', 'Kamalapur', 2373195, 9042627],
+        ['BNP', 'বেনাপোল', 'Benapole', 2304000, 8889000],
       ],
-      'towers': [
-        {'k': '470-1-1234-56789', 'no': '701', 'km': 160.0, 'n': 14},
-        {'k': '470-3-77-4242', 's': 'o9', 'n': 3},
+      'tr': [
+        ['701', 'সুবর্ণ এক্সপ্রেস', 'Subarna Express', 1, 1, 0, [
+          [0, -1, 420, 0], [1, 500, 502, 900], [2, 555, 558, 1541],
+          [3, 625, 627, 2343], [4, 700, 702, 3039], [5, 740, -1, 3212],
+        ]],
+        ['3109', 'মৈত্রী এক্সপ্রেস', 'Maitree Express', 5, 2, 0, [[5, -1, 495, 0], [6, 900, -1, -1]]],
+      ],
+      'tw': [
+        // learned 6 km after Cumilla on the way to Bhairab; one at Bhairab
+        [470, 1, 1234, 56789, 12, 640, 14, 2350426, 9116585],
+        ['470', '03', 77, 4242, 20, 0, 3, 2405250, 9097640],
       ],
     };
 

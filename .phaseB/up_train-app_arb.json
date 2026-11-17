@@ -334,6 +334,10 @@
         }
       }
     },
+    "tr2Suspended": "Suspended — not running now",
+    "@tr2Suspended": {
+      "description": "train-app (Train Tracker V2)"
+    },
     "tr2TextApplied": "Thank you — the train is updated for everyone",
     "@tr2TextApplied": {
       "description": "train-app (Train Tracker V2)"
@@ -413,6 +417,7 @@
     "tr2RidersLive": "{n} জন লাইভ",
     "tr2Saver": "ব্যাটারি সাশ্রয়: প্রতি ৬০ সেকেন্ডে একবার অবস্থান",
     "tr2Speed": "{speed} কিমি/ঘণ্টা",
+    "tr2Suspended": "স্থগিত — এখন চলছে না",
     "tr2TextApplied": "ধন্যবাদ — সবার জন্য ট্রেন হালনাগাদ হয়েছে",
     "tr2TextChecking": "ধন্যবাদ — অন্য তথ্যের সাথে মিললে দেখানো হবে",
     "tr2TextUnparsed": "এই লেখায় ট্রেন ও স্টেশন খুঁজে পাইনি"

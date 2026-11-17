@@ -73,7 +73,7 @@ class _Native extends TrainNative {
   Future<TrainPower> power() async => TrainPower(low ? 12 : 80, false);
 }
 
-const _cumillaCell = TrainCell(mcc: '470', mnc: '1', tac: 1234, cid: 56789, rat: 'lte');
+const _cumillaCell = TrainCell(mcc: '470', mnc: '01', tac: 1234, cid: 56789, rat: 'lte');
 
 Widget _app(Widget child, ApiClient api, {String lang = 'bn', bool dark = false, double scale = 1}) {
   final s = AppState();
@@ -209,15 +209,30 @@ void main() {
       expect(mid.km, lessThan(154.1));
       expect(timetablePosition(tr, _at(6, 0)).state, 'not_started');
       expect(timetablePosition(tr, _at(13, 0)).state, 'arrived');
-      final off = parseOffTrain({...trainOfflinePackJson()['trains'][0] as Map, 'off_days': [3]}, offDayBase: 1)!;
+      // compact bundle: off-day bitmask, bit0 = Monday -> bit 2 = Wednesday
+      final j = trainOfflinePackJson();
+      ((j['tr'] as List)[0] as List)[5] = 4;
+      final off = TrainOfflinePack.fromJson(j).trains['701']!;
+      expect(off.offDays, {3});
       expect(timetablePosition(off, _at(9, 0)).state, 'off_day'); // Wednesday off
     });
 
-    test('tower position: learned km for this train, else a station of its route', () {
+    test('compact bundle: suspended train labelled, km from coordinates when missing', () {
+      final p = _pack();
+      expect(p.version, 'a1b2c3d4e5f6');
+      final m = p.trains['3109']!;
+      expect(m.suspended, isTrue);
+      expect(timetablePosition(m, _at(12, 0)).state, 'suspended');
+      expect(m.stops.last.km, greaterThan(100)); // Dhaka -> Benapole, straight line
+      expect(p.trains['701']!.suspended, isFalse);
+      expect(p.trains['701']!.stops[2].lat, closeTo(23.4607, 1e-6));
+    });
+
+    test('tower position: the learned point projected on this train\'s route; "01" == "1"', () {
       final p = _pack(), tr = p.trains['701']!;
-      expect(towerPosition(p, tr, _cumillaCell, _at(9, 0))!.km, 160.0);
+      expect(towerPosition(p, tr, _cumillaCell, _at(9, 0))!.km, closeTo(160.0, 0.5));
       final st = towerPosition(p, tr, const TrainCell(mcc: '470', mnc: '3', tac: 77, cid: 4242), _at(9, 0))!;
-      expect(st.km, 234.3);
+      expect(st.km, closeTo(234.3, 0.5));
       expect(st.source, 'tower');
       expect(towerPosition(p, tr, const TrainCell(mcc: '470', mnc: '1', tac: 1, cid: 2), _at(9, 0)), isNull);
       expect(towerPosition(p, tr, null, _at(9, 0)), isNull);
@@ -238,7 +253,7 @@ void main() {
       final s = TrainOfflineStore(dir: dir);
       expect(await s.load(), isNull);
       expect(await s.download((have) async => trainOfflinePackJson()), isTrue);
-      expect(s.pack!.trains.keys, ['701']);
+      expect(s.pack!.trains.keys, containsAll(['701', '3109']));
       expect(s.pack!.sizeBytes, greaterThan(500));
       expect(s.pack!.stale, isFalse);
       final again = TrainOfflineStore(dir: dir);
@@ -290,7 +305,7 @@ void main() {
         sent.addAll(pts);
         return {'status': 'active'};
       }, stopRemote: (_) async {}, title: '', text: '', stopLabel: '', cell: true);
-      expect(sent.single['cell'], {'mcc': '470', 'mnc': '1', 'tac': 1234, 'cid': 56789, 'rat': 'lte'});
+      expect(sent.single['cell'], {'mcc': '470', 'mnc': '01', 'tac': 1234, 'cid': 56789, 'rat': 'lte'});
       await c.stop(remote: false);
     });
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
@@ -7,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api.dart';
 import 'train_api.dart';
+import 'train_share_service.dart' show trainDistM;
 import 'train_v2_native.dart';
 
 /// train-app (Train Tracker V2, D): OFFLINE like the best offline train apps.
@@ -44,12 +46,19 @@ class OffTrain {
   /// weekdays it does NOT run (DateTime.weekday: 1 = Monday .. 7 = Sunday)
   final Set<int> offDays;
   final List<OffStop> stops;
-  const OffTrain(this.no, this.nameBn, this.nameEn, this.depMin, this.offDays, this.stops);
+
+  /// suspended / not running now (e.g. the cross-border trains) — shown
+  /// with a clear label, never placed on the line
+  final bool suspended;
+  const OffTrain(this.no, this.nameBn, this.nameEn, this.depMin, this.offDays, this.stops,
+      {this.suspended = false});
 
   double get km => stops.isEmpty ? 0 : stops.last.km;
 }
 
+/// "HH:MM", or minutes after midnight (the compact bundle; -1 = none).
 int? _hm(Object? v) {
+  if (v is num) return v < 0 ? null : v.toInt();
   final m = RegExp(r'^(\d{1,2}):(\d{2})').firstMatch('${v ?? ''}');
   if (m == null) return null;
   return int.parse(m.group(1)!) * 60 + int.parse(m.group(2)!);
@@ -87,17 +96,27 @@ OffTrain? parseOffTrain(Map raw, {int offDayBase = 0}) {
       dd += 1440;
     }
     prev = dd;
+    final lat = (s['lat'] as num?)?.toDouble(), lng = (s['lng'] as num?)?.toDouble();
+    var km = (s['km'] as num?)?.toDouble();
+    if (km == null || km < 0) {
+      // no official km: the straight-line distance from the stop before
+      final b = stops.isEmpty ? null : stops.last;
+      km = b == null
+          ? 0
+          : b.km + (b.lat != null && lat != null ? trainDistM(b.lat!, b.lng!, lat, lng!) / 1000 : 0);
+    }
     stops.add(OffStop('${s['id']}', '${s['bn'] ?? ''}', '${s['en'] ?? ''}',
-        (s['km'] as num?)?.toDouble() ?? 0,
-        lat: (s['lat'] as num?)?.toDouble(),
-        lng: (s['lng'] as num?)?.toDouble(),
+        km,
+        lat: lat,
+        lng: lng,
         arrMin: aa - first,
         depMin: dd - first,
         stop: s['stop'] != false));
   }
   if (first == null || stops.length < 2) return null;
   return OffTrain('${raw['no']}', '${raw['name_bn'] ?? ''}', '${raw['name_en'] ?? ''}', first,
-      _offDays(raw['off_days'], offDayBase), stops);
+      _offDays(raw['off_days'], offDayBase), stops,
+      suspended: raw['suspended'] == true);
 }
 
 /// The learned tower -> track map entry: where on the line this tower was
@@ -106,8 +125,60 @@ OffTrain? parseOffTrain(Map raw, {int offDayBase = 0}) {
 class OffTower {
   final String? stationId, trainNo;
   final double? km;
+
+  /// compact bundle: where on the rail the tower was learned
+  final double? lat, lng;
   final int samples;
-  const OffTower({this.stationId, this.trainNo, this.km, this.samples = 0});
+  const OffTower({this.stationId, this.trainNo, this.km, this.lat, this.lng, this.samples = 0});
+}
+
+/// The data lane's compact bundle (train_data.offline_bundle(), plan doc
+/// "অফলাইন বান্ডেল"): `st` = [code, bn, en, lat*1e5, lng*1e5]; `tr` = [no,
+/// bn, en, kind, status (2 = suspended), off-day bitmask (bit0 = Monday),
+/// [[station index, arr min or -1, dep min or -1, km*10 or -1], ...]];
+/// `tw` = [mcc, mnc, tac, cid, segment, metres, samples, lat*1e5?, lng*1e5?].
+Map<String, dynamic> _fromCompact(Map<String, dynamic> j) {
+  final st = [for (final r in (j['st'] as List? ?? const [])) r is List ? r : const []];
+  double? e5(Object? v) => v is num ? v / 1e5 : null;
+  Map<String, dynamic> station(int i) {
+    final r = i >= 0 && i < st.length ? st[i] : const [];
+    return {
+      'id': r.isNotEmpty ? '${r[0]}' : '$i',
+      'bn': r.length > 1 ? '${r[1] ?? ''}' : '',
+      'en': r.length > 2 ? '${r[2] ?? ''}' : '',
+      'lat': r.length > 3 ? e5(r[3]) : null,
+      'lng': r.length > 4 ? e5(r[4]) : null,
+    };
+  }
+
+  final trains = <Map<String, dynamic>>[];
+  for (final r in (j['tr'] as List? ?? const [])) {
+    if (r is! List || r.length < 7) continue;
+    final mask = (r[5] as num?)?.toInt() ?? 0;
+    trains.add({
+      'no': '${r[0]}',
+      'name_bn': '${r[1] ?? ''}',
+      'name_en': '${r[2] ?? ''}',
+      'suspended': (r[4] as num?)?.toInt() != 1,
+      'off_days': [for (var d = 0; d < 7; d++) if (mask & (1 << d) != 0) d],
+      'stops': [
+        for (final s in (r[6] as List? ?? const []))
+          if (s is List && s.length >= 4)
+            {
+              ...station((s[0] as num).toInt()),
+              'arr': s[1],
+              'dep': s[2],
+              'km': (s[3] as num) < 0 ? null : (s[3] as num) / 10,
+            }
+      ],
+    });
+  }
+  final towers = <Map<String, dynamic>>[
+    for (final w in (j['tw'] as List? ?? const []))
+      if (w is List && w.length >= 9)
+        {'k': trainTowerKey(w[0], w[1], w[2], w[3]), 'lat': e5(w[7]), 'lng': e5(w[8]), 'n': w[6]}
+  ];
+  return {'version': j['ver'] ?? j['version'] ?? '', 'off_day_base': 0, 'trains': trains, 'towers': towers};
 }
 
 class TrainOfflinePack {
@@ -125,7 +196,8 @@ class TrainOfflinePack {
 
   bool get stale => savedAt == null || DateTime.now().difference(savedAt!).inDays >= 7;
 
-  static TrainOfflinePack fromJson(Map<String, dynamic> j, {DateTime? savedAt, int sizeBytes = 0}) {
+  static TrainOfflinePack fromJson(Map<String, dynamic> raw, {DateTime? savedAt, int sizeBytes = 0}) {
+    final j = raw.containsKey('tr') ? _fromCompact(raw) : raw;
     final base = (j['off_day_base'] as num?)?.toInt() ?? 0;
     final trains = <String, OffTrain>{};
     for (final t in (j['trains'] as List? ?? const [])) {
@@ -140,6 +212,8 @@ class TrainOfflinePack {
           stationId: w['s'] == null ? null : '${w['s']}',
           trainNo: w['no'] == null ? null : '${w['no']}',
           km: (w['km'] as num?)?.toDouble(),
+          lat: (w['lat'] as num?)?.toDouble(),
+          lng: (w['lng'] as num?)?.toDouble(),
           samples: (w['n'] as num?)?.toInt() ?? 0));
     }
     return TrainOfflinePack(
@@ -180,6 +254,7 @@ DateTime? _runStart(OffTrain t, DateTime now) {
 /// Timetable estimate: linear between the stops' times, standing still
 /// while the timetable says it stands at a station.
 OffPosition timetablePosition(OffTrain t, DateTime now) {
+  if (t.suspended) return OffPosition('timetable', 'suspended', 0, now);
   final start = _runStart(t, now);
   if (start == null) return OffPosition('timetable', 'off_day', 0, now);
   final m = now.difference(start).inSeconds / 60.0;
@@ -210,11 +285,40 @@ OffPosition? towerPosition(TrainOfflinePack p, OffTrain t, TrainCell? cell, Date
     if (h.trainNo == t.no && h.km != null && (best == null || h.samples > best.samples)) best = h;
   }
   if (best != null) return OffPosition('tower', 'running', best.km!.clamp(0, t.km).toDouble(), now);
+  // compact map: the tower's learned point, projected on this train's route
+  for (final h in hits) {
+    if (h.lat == null || h.lng == null) continue;
+    final km = trainKmAlong(t, h.lat!, h.lng!);
+    if (km != null) return OffPosition('tower', 'running', km, now);
+  }
   for (final h in hits) {
     final st = t.stops.where((s) => s.id == h.stationId);
     if (st.isNotEmpty) return OffPosition('tower', 'running', st.first.km, now);
   }
   return null;
+}
+
+/// km along [t]'s route of the point (lat, lng): projected on the straight
+/// lines between its stations; null when farther than 3 km from all.
+double? trainKmAlong(OffTrain t, double lat, double lng) {
+  final kx = 111320.0 * math.cos(lat * math.pi / 180), ky = 110540.0;
+  double? best, bestD;
+  for (var i = 0; i + 1 < t.stops.length; i++) {
+    final a = t.stops[i], b = t.stops[i + 1];
+    if (a.lat == null || a.lng == null || b.lat == null || b.lng == null) continue;
+    final ax = (a.lng! - lng) * kx, ay = (a.lat! - lat) * ky;
+    final bx = (b.lng! - lng) * kx, by = (b.lat! - lat) * ky;
+    final dx = bx - ax, dy = by - ay;
+    final len2 = dx * dx + dy * dy;
+    final f = len2 == 0 ? 0.0 : (-(ax * dx + ay * dy) / len2).clamp(0.0, 1.0);
+    final x = ax + f * dx, y = ay + f * dy;
+    final d = math.sqrt(x * x + y * y);
+    if (bestD == null || d < bestD) {
+      bestD = d;
+      best = a.km + (b.km - a.km) * f;
+    }
+  }
+  return bestD != null && bestD <= 3000 ? best : null;
 }
 
 /// The offline "line" in the server's line_view shape (+ "source"), so the

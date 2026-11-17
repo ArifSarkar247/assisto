@@ -4,6 +4,13 @@ import 'package:flutter/services.dart';
 /// while the rider shares the trip AND said yes to "also send the mobile
 /// tower" (opt-in), or on the train screen in offline mode. Needs only the
 /// location permission the trip already has (no READ_PHONE_STATE).
+/// "mcc-mnc-tac-cid" with leading zeros dropped ("470-01" == "470-1"), so
+/// the phone's key always matches the learned map's.
+String trainTowerKey(Object? mcc, Object? mnc, Object? tac, Object? cid) {
+  String n(Object? v) => '${int.tryParse('$v') ?? v}';
+  return '${n(mcc)}-${n(mnc)}-${n(tac)}-${n(cid)}';
+}
+
 class TrainCell {
   final String mcc, mnc, rat;
   final int tac, cid;
@@ -17,7 +24,7 @@ class TrainCell {
       this.dbm});
 
   /// The tower key used by the offline tower map: "mcc-mnc-tac-cid".
-  String get key => '$mcc-$mnc-$tac-$cid';
+  String get key => trainTowerKey(mcc, mnc, tac, cid);
 
   Map<String, dynamic> toJson() => {
         'mcc': mcc,

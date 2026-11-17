@@ -58,6 +58,10 @@ List<List<double>> trainPath(Map<String, dynamic>? v) => [
           [(p[0] as num).toDouble(), (p[1] as num).toDouble()]
     ];
 
+/// train-app: a suspended / not-running train (the data lane's status).
+bool trainSuspended(Map? tr) =>
+    tr != null && (tr['suspended'] == true || const {'suspended', 'withdrawn'}.contains('${tr['status']}'));
+
 /// train-app: the final station (lat, lng) — the rider share stops there.
 (double, double)? trainLastStop(Map<String, dynamic>? v) {
   final st = ((v?['line'] as Map?)?['stations'] as List?) ?? (v?['stops'] as List?) ?? const [];
@@ -271,6 +275,15 @@ class _TrainSearchPanelState extends State<TrainSearchPanel> {
             const SizedBox(height: Gap.xxs),
             Text(route, style: AType.bodyMedium),
             Text(d(t.trDepArr('${tr['dep']}', '${tr['arr']}')), style: AType.bodySmall),
+            // train-app: suspended trains (e.g. cross-border) say so clearly
+            if (trainSuspended(tr))
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: Text(t.tr2Suspended,
+                    key: const ValueKey('tr2_suspended'),
+                    style: AType.labelLarge.copyWith(
+                        color: Theme.of(context).colorScheme.ds.dangerInk, fontWeight: FontWeight.w700)),
+              ),
             if (tr['approved'] != true) ...[
               const SizedBox(height: Gap.xs),
               Text(t.trUnchecked, style: AType.bodySmall.copyWith(color: Brand.warnInk(context))),
@@ -574,6 +587,12 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
         if (now != null) ...[
           const SizedBox(height: Gap.sm),
           Text(_d(now), key: const ValueKey('sjt_now'), style: AType.titleMedium),
+        ] else if (line['state'] == 'suspended') ...[
+          const SizedBox(height: Gap.sm),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: _chip(t.tr2Suspended, cs.ds.dangerBg, cs.ds.dangerInk, Icons.block_rounded),
+          ),
         ] else if (line['state'] == 'off_day' || line['state'] == 'not_started') ...[
           const SizedBox(height: Gap.sm),
           Text(line['state'] == 'off_day' ? t.trOffDay : t.trEstNotStarted, style: AType.bodyMedium),
@@ -692,7 +711,9 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
               label: chipText,
               excludeSemantics: true,
               child: _chip(chipText, chipBg, chipFg, chipIcon)),
-          if (v['runs'] == false)
+          if (trainSuspended(tr))
+            _chip(t.tr2Suspended, cs.ds.dangerBg, cs.ds.dangerInk, Icons.block_rounded)
+          else if (v['runs'] == false)
             _chip(t.trOffDay, cs.ds.dangerBg, cs.ds.dangerInk, Icons.event_busy_rounded),
           // train-app: always how fresh it is (live / N min ago / predicted / timetable)
           TrainFreshChip(
