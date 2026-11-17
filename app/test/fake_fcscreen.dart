@@ -74,7 +74,13 @@ List<Map<String, dynamic>> fcFakeMembers({bool bn = false, String? scene, DateTi
       chip: {'kind': 'arrived', 'at': _iso(n.subtract(const Duration(minutes: 40))),
           'place': bn ? 'স্কুল' : 'School', 'auto': true},
       now: n);
-  if (s == 'ok') return [ammu, son, me];
+  if (s == 'paused') { // gap-familycare: Rafi paused sharing (not "no news")
+    final until = _iso(n.add(const Duration(hours: 2)));
+    (son['brain'] as Map)['paused_until'] = until;
+    son['status'] = {'state': 'paused', 'reason': 'paused', 'fresh_until': null};
+    son['chip'] = {'kind': 'paused', 'until': until};
+  }
+  if (s == 'ok' || s == 'paused') return [ammu, son, me];
   final abbu = fcFakeMember(4, bn ? 'করিম উদ্দিন' : 'Karim Uddin',
       label: bn ? 'আব্বু' : 'Abbu', relation: 'father', role: 'elder',
       ago: const Duration(hours: 5, minutes: 10), battery: 4, net: 'cell',
@@ -113,6 +119,10 @@ Map<String, dynamic> fcFakeBoard({bool bn = false, String? scene, DateTime? now}
             {'id': 72, 'title': bn ? 'ডেসকো বিদ্যুৎ বিল' : 'DESCO electricity bill', 'kind': 'bill',
              'due_date': '${n.year}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}',
              'taken_by': 5, 'taken_by_name': bn ? 'সাকিব' : 'Sakib', 'mine': false, 'done': false},
+            if (s == 'tasks') // gap-familycare: a done task can be taken back
+              {'id': 73, 'title': bn ? 'গ্যাস বিল দেওয়া' : 'Pay the gas bill', 'kind': 'bill',
+               'due_date': null, 'taken_by': 1, 'taken_by_name': bn ? 'রিনা' : 'Rina', 'mine': true,
+               'done': true, 'done_by_name': bn ? 'রিনা' : 'Rina', 'created_by': 1},
           ],
     'today': {
       'carecalls': s == 'empty' ? {'done': 0, 'missed': 0, 'pending': 0} : {'done': 1, 'missed': 0, 'pending': 1},

@@ -7,6 +7,7 @@ import '../famacct_api.dart';
 import '../l10n/app_localizations.dart';
 import 'skeleton.dart';
 import 'famacct_sheets.dart';
+import 'money_digits.dart'; // gap-familycare
 
 /// FAMILY ACCOUNTING section (#61, SPEC v2.1 §21) — a fully self-contained,
 /// clearly-bounded widget embedded as ONE tab inside FamilyScreen. Everything
@@ -93,6 +94,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // gap-familycare: ৳ amounts in Bangla digits
     if (loading) return const SkeletonList();
     if (errored) {
       return StateMessage(

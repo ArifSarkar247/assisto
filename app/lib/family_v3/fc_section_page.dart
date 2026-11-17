@@ -16,7 +16,7 @@ import '../widgets/skeleton.dart';
 /// More row of the v3 Family screen. Every feature of the 6 old tabs stays
 /// reachable (owner order i): Kids and school, Family ledger, Important
 /// papers (+ bazar list + privacy), Probashi, Family card, Members.
-enum FcSection { school, ledger, papers, probashi, card, members }
+enum FcSection { school, ledger, papers, probashi, card, members, bazar } // bazar: gap-familycare
 
 class FcSectionPage extends StatefulWidget {
   final FcSection section;
@@ -65,7 +65,9 @@ class _FcSectionPageState extends State<FcSectionPage> {
         return FamSchoolSection(items: _school, members: _members, onChanged: _load);
       case FcSection.ledger:
         return FamAcctSection(members: _members, onAddMember: _pick);
-      case FcSection.papers:
+      case FcSection.papers: // gap-familycare: papers open on the papers pane
+        return FamSharingHub(members: _members, onAddMember: _pick, initialPane: 'docs');
+      case FcSection.bazar:
         return FamSharingHub(members: _members, onAddMember: _pick);
       case FcSection.probashi:
         return const FamProbashiSection();

@@ -1,0 +1,46 @@
+{
+  "_comment": "gap-familycare (Family Care gap lane, 17 Nov): elder Talk answers, location preselect, paused line, task delete, stale banner, members subtitle. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_gap-familycare_arb.json",
+  "en": {
+    "fceYouAsked": "You asked: {q}",
+    "@fceYouAsked": {
+      "placeholders": {
+        "q": {
+          "type": "String"
+        }
+      }
+    },
+    "fceHearAgain": "Hear again",
+    "fceTalkOffline": "Talking to Assisto needs the internet. Calls and the Danger button still work without it.",
+    "fcgNotInCircle": "This person is not in your My Circle yet, so you cannot ask for their location. Add them in My Circle first, or pick someone below.",
+    "fcgLinePaused": "{name} has paused sharing for now",
+    "@fcgLinePaused": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    },
+    "fcgLinePausedSub": "This is their choice, not a problem. SOS still reaches everyone.",
+    "fcgTaskDeleteQ": "Delete this task for everyone?",
+    "fcgStaleBanner": "Couldn't get new news. What you see is from {time}.",
+    "@fcgStaleBanner": {
+      "placeholders": {
+        "time": {
+          "type": "String"
+        }
+      }
+    },
+    "fcgMembersSub": "Blood group, birthdays and medicine reminders — your own notes on this phone"
+  },
+  "bn": {
+    "fceYouAsked": "আপনি জিজ্ঞেস করেছেন: {q}",
+    "fceHearAgain": "আবার শুনুন",
+    "fceTalkOffline": "Assisto-র সাথে কথা বলতে ইন্টারনেট লাগে। কল আর বিপদ বোতাম ইন্টারনেট ছাড়াও চলে।",
+    "fcgNotInCircle": "এই মানুষটি এখনো আপনার My Circle-এ নেই, তাই তাঁর লোকেশন চাওয়া যাবে না। আগে My Circle-এ যোগ করুন, অথবা নিচে থেকে অন্য কাউকে বেছে নিন।",
+    "fcgLinePaused": "{name} এখন শেয়ারিং সাময়িক বন্ধ রেখেছেন",
+    "fcgLinePausedSub": "এটা তাঁর নিজের ইচ্ছা, বিপদের কিছু নয়। SOS তবুও সবার কাছে পৌঁছায়।",
+    "fcgTaskDeleteQ": "কাজটি সবার তালিকা থেকে মুছে ফেলবেন?",
+    "fcgStaleBanner": "নতুন খবর আনা যায়নি। যা দেখছেন তা {time}-এর।",
+    "fcgMembersSub": "রক্তের গ্রুপ, জন্মদিন, ওষুধের রিমাইন্ডার — এই ফোনে আপনার নিজের খাতা"
+  }
+}

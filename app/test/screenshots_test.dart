@@ -948,6 +948,10 @@ Map<String, GallerySpec> gallerySpecs() {
     // fcrest: Probashi both clocks (top of the board), member page settings
     // (Where I live / name / remove), area + 15 % battery last place
     'fcr_board_top_abroad': (build: (_) => const FamilyV3Screen(), mode: FakeMode.data, full: true), // fcrest
+    // gap-familycare: paused line, "could not refresh" banner, undo/delete tasks
+    'fcg_board_paused': (build: (_) { FcFake.scene = 'paused'; return const FamilyV3Screen(); }, mode: FakeMode.data, full: true), // gap-familycare
+    'fcg_board_stale': (build: (_) => FamilyV3Screen(debugStaleAt: DateTime(2026, 11, 17, 9, 40)), mode: FakeMode.data, full: true), // gap-familycare
+    'fcg_board_tasks': (build: (_) { FcFake.scene = 'tasks'; return const FamilyV3Screen(debugScrollOffset: 1400); }, mode: FakeMode.data, full: true), // gap-familycare
     'fcr_member_me': (build: (l) => FcMemberPage(familyId: 10, userId: 1, seed: fcFakeMembers(bn: l == 'bn').last, myRole: 'admin'), mode: FakeMode.data, full: true), // fcrest
     'fcr_member_admin': (build: (l) => FcMemberPage(familyId: 10, userId: 5, seed: fcFakeMembers(bn: l == 'bn')[1], myRole: 'admin'), mode: FakeMode.data, full: true), // fcrest
     // kidswatch (owner idea 2): parent hub, empty, error; the child's screen
