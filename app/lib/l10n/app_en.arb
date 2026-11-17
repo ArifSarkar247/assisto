@@ -52301,5 +52301,32 @@
   "emailrelBouncingBanner": "Emails to your saved address are bouncing back. Please check your email address and verify it again.",
   "@emailrelBouncingBanner": {
     "description": "emailrel: banner on the sign-in email screen"
+  },
+  "a11ySosSecondsLeft": "{seconds} seconds until the SOS is sent",
+  "@a11ySosSecondsLeft": {
+    "description": "TalkBack: the live SOS countdown number. seconds is already in the UI digits.",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "a11ySosTalkBackIntro": "SOS countdown. TalkBack is on, so you have {seconds} seconds. The first button is Cancel. Swipe right for Send now.",
+  "@a11ySosTalkBackIntro": {
+    "description": "Spoken once when an SOS countdown opens with TalkBack on.",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "a11yDirectionsTo": "Directions to {place}",
+  "@a11yDirectionsTo": {
+    "description": "Tooltip/TalkBack name of a directions icon next to a police station or hospital.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
   }
 }
