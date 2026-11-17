@@ -548,7 +548,10 @@ REGISTRY = {
                            secret=False),
                         # imou-real (owner 17 Nov): flips to "Login with Imou" first
                         # (no delete from Imou Life) once ticket 483 is approved
-                        _f("no_delete_default", "মুছে ফেলা ছাড়া পথ ডিফল্ট? (on = অনুমোদনের পর "Imou দিয়ে লগইন" প্রথমে; খালি = বন্ধ)", "No-delete path as default? (on = after approval "Login with Imou" comes first; empty = off)", secret=False)],
+                        _f("no_delete_default",
+                           "মুছে ফেলা ছাড়া পথ ডিফল্ট? (on = অনুমোদনের পর 'Imou দিয়ে লগইন' প্রথমে; খালি = বন্ধ)",
+                           "No-delete path as default? (on = after approval 'Login with Imou' comes first; empty = off)",
+                           secret=False)],
              "test": "test_imou"},
     # dolynkcard (owner 9 Nov 18:12) + dolynkreal (owner 9 Nov 20:00, real
     # Doc Center): Dahua DoLynk Open IoT — product "Assisto CCTV" (Singapore).
@@ -611,7 +614,10 @@ REGISTRY = {
                                  "Customers may also link shared devices? (on = yes; empty = owner/admin only)",
                                  secret=False),
                               # imou-real: "share from DMSS" first once Dahua approves ARC
-                              _f("no_delete_default", "মুছে ফেলা ছাড়া পথ ডিফল্ট? (on = অনুমোদনের পর "DMSS থেকে শেয়ার" প্রথমে; খালি = বন্ধ)", "No-delete path as default? (on = after approval "Share from DMSS" comes first; empty = off)", secret=False)],
+                              _f("no_delete_default",
+                                 "মুছে ফেলা ছাড়া পথ ডিফল্ট? (on = অনুমোদনের পর 'DMSS থেকে শেয়ার' প্রথমে; খালি = বন্ধ)",
+                                 "No-delete path as default? (on = after approval 'Share from DMSS' comes first; empty = off)",
+                                 secret=False)],
                    "test": "test_dolynk_arc"},
     # cashguard: EZVIZ cameras' OWN alarms (polled every minute until EZVIZ
     # approves real-time push). Without it EZVIZ cameras still work through
@@ -638,7 +644,10 @@ REGISTRY = {
                             "গ্রাহকরাও সিরিয়াল + কোড দিয়ে যুক্ত করতে পারবেন? (on = হ্যাঁ; খালি = শুধু মালিক/অ্যাডমিন)",
                             "Customers may also link by serial + code? (on = yes; empty = owner/admin only)",
                             secret=False),
-                         _f("no_delete_default", "মুছে ফেলা ছাড়া পথ ডিফল্ট? (on = অনুমোদনের পর "EZVIZ দিয়ে লগইন" প্রথমে; খালি = বন্ধ)", "No-delete path as default? (on = after approval "Login with EZVIZ" comes first; empty = off)", secret=False)],
+                         _f("no_delete_default",
+                            "মুছে ফেলা ছাড়া পথ ডিফল্ট? (on = অনুমোদনের পর 'EZVIZ দিয়ে লগইন' প্রথমে; খালি = বন্ধ)",
+                            "No-delete path as default? (on = after approval 'Login with EZVIZ' comes first; empty = off)",
+                            secret=False)],
               "test": "test_ezviz"},
     # quranview (owner 9 Nov 21:55): Quran Foundation Content API — per-ayah
     # audio + reciters, word-by-word (bn/en), transliteration. Server-side only;
