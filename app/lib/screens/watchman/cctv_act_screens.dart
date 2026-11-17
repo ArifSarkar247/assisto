@@ -243,12 +243,10 @@ class _ClosingState extends State<CctvClosingReportScreen> {
                     ButtonSegment(value: 1, label: Text(t.gcvReportYesterday)),
                   ],
                   selected: {_daysBack},
-                  onSelectionChanged: widget.preview != null
-                      ? null
-                      : (v) {
-                          setState(() => _daysBack = v.first);
-                          _load();
-                        },
+                  onSelectionChanged: (v) {
+                    setState(() => _daysBack = v.first);
+                    if (widget.preview == null) _load();
+                  },
                 ),
               ),
               DsSurface(color: ok

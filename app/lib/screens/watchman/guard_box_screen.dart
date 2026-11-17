@@ -403,14 +403,6 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
     );
     if (sure != true || !mounted) return;
     _stop(silent: true);
-    for (final k in [_kTok, _kCam, _kSite, _kCamName]) {
-      try {
-        await _secure.delete(key: k);
-      } catch (_) {
-        // best-effort: the in-memory pairing is cleared below anyway
-      }
-    }
-    if (!mounted) return;
     setState(() {
       _token = null;
       _cameraId = null;
@@ -419,6 +411,13 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
       _pairCams = const [];
       _lostLink = false;
     });
+    for (final k in [_kTok, _kCam, _kSite, _kCamName]) {
+      try {
+        await _secure.delete(key: k).timeout(const Duration(seconds: 5));
+      } catch (_) {
+        // best-effort: the pairing is already gone from this screen
+      }
+    }
   }
 
   Widget _pairCard(AppLocalizations t) {
@@ -507,6 +506,7 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
         ),
       const SizedBox(height: 8),
       DropdownButtonFormField<String>(
+        isExpanded: true, // gap-cctv: no overflow on 360 dp phones / 200% text
         initialValue: _vendor,
         decoration: InputDecoration(labelText: t.gbVendor, border: const OutlineInputBorder()),
         items: [
