@@ -382,7 +382,7 @@ void main() {
     Future<void> openGoals(WidgetTester t, _Api api, {String lang = 'en'}) async {
       await _pump(t, const Scaffold(body: FamAcctSection(
           familyId: 10, members: [{'id': 'u3', 'name': 'Rafi'}])), api, lang: lang);
-      await t.tap(find.byType(Tab).at(2));
+      await t.tap(find.byKey(const ValueKey('fcg-goals-tab')));
       await t.pumpAndSettle();
     }
 

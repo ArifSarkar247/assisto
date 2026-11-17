@@ -33,7 +33,7 @@ class FamAcctSection extends StatefulWidget {
   /// null = my own household ledger (unchanged).
   final int? familyId;
 
-  /// Gallery: which sub-tab opens first (0 expenses … 2 pool / goals).
+  /// Gallery: which sub-tab opens first (shared: 0 expenses, 1 goals; own: 2 pool).
   final int initialTab;
   const FamAcctSection(
       {super.key, required this.members, this.onAddMember, this.familyId, this.initialTab = 0});
@@ -137,23 +137,32 @@ class _FamAcctSectionState extends State<FamAcctSection> {
       initialIndex: widget.initialTab.clamp(0, 3),
       child: Column(children: [
         _brandHeader(),
+        // gap-familycare: in the shared family ledger Goals is the 2nd tab
+        // (the 3rd sat off-screen on a 360 dp phone)
         TabBar(isScrollable: true, tabs: [
           Tab(text: AppLocalizations.of(context).faTabExpenses),
+          if (_shared) Tab(key: const ValueKey('fcg-goals-tab'), text: AppLocalizations.of(context).fcgGoalsTab),
           Tab(text: AppLocalizations.of(context).faTabSettle),
-          Tab(text: _shared ? AppLocalizations.of(context).fcgGoalsTab : AppLocalizations.of(context).faTabPool),
+          if (!_shared) Tab(text: AppLocalizations.of(context).faTabPool),
           Tab(text: AppLocalizations.of(context).faTabMembers),
         ]),
         Expanded(
           child: TabBarView(children: [
             _expensesTab(),
+            if (_shared) _goalsTab(),
             _settleTab(),
-            _shared ? _goalsTab() : _poolTab(),
+            if (!_shared) _poolTab(),
             _membersTab(),
           ]),
         ),
       ]),
     );
   }
+
+  TextStyle? get _headerSub => Theme.of(context)
+      .textTheme
+      .titleSmall
+      ?.copyWith(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700);
 
   Widget _brandHeader() {
     return Container(
@@ -176,13 +185,14 @@ class _FamAcctSectionState extends State<FamAcctSection> {
                 AppLocalizations.of(context).faTotalSpent.replaceFirst('%s',
                     FamAcctLocal.fmtPoisha(
                         (summary['total_poisha'] as num?)?.toInt() ?? 0)),
-                style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                // gap-familycare: 14 bold white = large-text contrast on the brand gradient
+                style: _headerSub),
             if (_shared)
               Text(
                   AppLocalizations.of(context)
                       .fcgLedgerShared('${(summary['family'] as Map?)?['name'] ?? ''}'),
                   key: const ValueKey('fcg-ledger-shared'),
-                  style: const TextStyle(color: Colors.white, fontSize: 13)),
+                  style: _headerSub),
           ]),
         ),
         IconButton(
@@ -543,7 +553,8 @@ class _FamAcctSectionState extends State<FamAcctSection> {
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))),
             if (met)
               Text(t.fcgGoalReached,
-                  style: const TextStyle(color: Brand.success, fontWeight: FontWeight.w700)),
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Brand.success, fontWeight: FontWeight.w700)),
           ]),
           const SizedBox(height: Gap.sm),
           ClipRRect(
@@ -562,7 +573,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
           for (final b in gifts)
             Text('${b['member'] == 'self' ? _name('self') : (b['name'] ?? '')} · '
                 '${FamAcctLocal.fmtPoisha((b['amount_poisha'] as num?)?.toInt() ?? 0)}',
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             if (!closed)
