@@ -269,6 +269,10 @@ class Harness {
 // =============================================================== the flow API
 typedef FlowBody = Future<void> Function(RFlow f);
 
+// relgate: release gate (.github/workflows/release_gate.yml) bakes the exact
+// flow ids it requires into the test APK; every other flow is not registered.
+const _gateFlowIds = String.fromEnvironment('REALITY_FLOW_IDS');
+
 /// Registers one reality flow as an integration test.
 ///
 /// flutter_test tears the widget tree down after every test, so each flow
@@ -276,6 +280,7 @@ typedef FlowBody = Future<void> Function(RFlow f);
 /// closing and reopening it (storage, token and prefs survive).
 void realityFlow(String id, String section, String feature, FlowBody body,
     {Duration timeout = const Duration(minutes: 4), bool boot = true}) {
+  if (_gateFlowIds.isNotEmpty && !_gateFlowIds.split(',').contains(id)) return;
   testWidgets(id, (tester) async {
     final h = Harness.I;
     final skips = await tester.runAsync(() => h.skipIds()) ?? const <String>{};
