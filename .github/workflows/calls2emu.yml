@@ -18,7 +18,7 @@ name: Calls two emulators
 # emulators per case (calls2emu/videos), logcat of both, commands log.
 # Never the live server, never the owner account.
 #
-# Trigger: push to ci/calls-2emu**; by hand: gh workflow run calls2emu.yml -f ref=<sha|branch>;
+# Trigger: push to ci/calls-2emu-run**; by hand: gh workflow run calls2emu.yml -f ref=<sha|branch>;
 # from the release gate: uses: ./.github/workflows/calls2emu.yml (workflow_call).
 
 on:
@@ -35,7 +35,7 @@ on:
         required: false
         default: ""
   push:
-    branches: ['ci/calls-2emu**']
+    branches: ['ci/calls-2emu-run**']   # the emulator run on purpose; ci/calls-2emu-arb = checks only
 
 permissions:
   contents: read
