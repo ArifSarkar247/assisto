@@ -52301,5 +52301,42 @@
   "emailrelBouncingBanner": "Emails to your saved address are bouncing back. Please check your email address and verify it again.",
   "@emailrelBouncingBanner": {
     "description": "emailrel: banner on the sign-in email screen"
+  },
+  "lp2gDraftBack": "Your unfinished answers are back. Carry on from where you stopped.",
+  "@lp2gDraftBack": {
+    "description": "gap-lp: toast when a mock reopens with answers saved on the phone after the app closed"
+  },
+  "lp2gSubmitTitle": "Submit this section?",
+  "@lp2gSubmitTitle": {
+    "description": "gap-lp: title of the confirm sheet before a mock section is submitted"
+  },
+  "lp2gUnanswered": "{count} questions are not answered yet.",
+  "@lp2gUnanswered": {
+    "description": "gap-lp: confirm sheet line, count = unanswered questions or tasks (already in local digits)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2gNoReturn": "In a full mock you cannot come back to this section, like the real exam.",
+  "@lp2gNoReturn": {
+    "description": "gap-lp: confirm sheet line in a full mock"
+  },
+  "lp2gSubmitNow": "Submit",
+  "@lp2gSubmitNow": {
+    "description": "gap-lp: confirm sheet button that submits the section"
+  },
+  "lp2gCert": "Practice certificate (PDF)",
+  "@lp2gCert": {
+    "description": "gap-lp: button under a full mock result that opens the Assisto Practice Certificate PDF"
+  },
+  "lp2gCertFail": "The certificate did not open. Check the internet and try again.",
+  "@lp2gCertFail": {
+    "description": "gap-lp: toast when the certificate PDF could not be downloaded or opened"
+  },
+  "lp2gSavedOffline": "No internet. Tests saved on this phone are below — you can take them now; marking needs internet.",
+  "@lp2gSavedOffline": {
+    "description": "gap-lp: banner on the IELTS page when the mock list cannot load but downloaded mocks exist"
   }
 }
