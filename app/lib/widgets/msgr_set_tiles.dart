@@ -1,36 +1,46 @@
 import 'package:flutter/material.dart';
 
-import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 
 /// Shared building blocks for the expanded hub Settings sub-screens. Keeps the
 /// sub-screens tidy and visually consistent (Original Assisto look — our own
 /// icons/wording, never Meta assets). No Bangla literals here; every label is
 /// passed in from AppLocalizations by the caller.
 
-/// A section header inside a settings list.
+/// A section header inside a settings list (DS section header look).
 class MsgrSetSection extends StatelessWidget {
   final String label;
   const MsgrSetSection(this.label, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xs),
-      child: Text(
-        label,
-        style: Theme.of(context)
-            .textTheme
-            .labelLarge
-            ?.copyWith(color: scheme.primary),
+      child: Semantics(
+        header: true,
+        child: Text(
+          label,
+          style: AType.titleSmall.copyWith(color: ds.muted, fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }
 }
 
-/// A one-line navigation row with icon, title and optional subtitle/trailing.
-/// Labels @360dp: title up to 2 lines then ellipsises, never clips.
+/// designv2: the rows of one settings section inside ONE alive DS card
+/// (settings-style group, thin inset dividers).
+class MsgrSetGroup extends StatelessWidget {
+  final List<Widget> children;
+  const MsgrSetGroup(this.children, {super.key});
+
+  @override
+  Widget build(BuildContext context) => DsGroup(children: children);
+}
+
+/// A navigation row: tinted icon bubble, title (wraps — never "…"),
+/// optional subtitle / right-aligned value, chevron.
 class MsgrSetRow extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -50,33 +60,32 @@ class MsgrSetRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
+    final ink = color == null ? ds.primaryInk : Brand.onTint(context, color!);
     return ListTile(
-      leading: Icon(icon, color: color),
-      // QA a6: 2 lines — at large font one line cut titles to
-      // "Create chat backu…".
+      contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xxs),
+      leading: DsAvatar(size: 40, color: color, child: Icon(icon, size: 20, color: ink)),
       title: Text(title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: color == null ? null : TextStyle(color: color)),
+          style: AType.bodyLarge.copyWith(
+              color: color == null ? ds.text : ink, fontWeight: FontWeight.w600)),
       subtitle: subtitle == null
           ? null
-          : Text(subtitle!, maxLines: 3, overflow: TextOverflow.ellipsis),
+          : Text(subtitle!, style: AType.bodyMedium.copyWith(color: ds.muted)),
       trailing: value == null
-          ? (onTap == null ? null : const Icon(Icons.chevron_right_rounded))
-          : Text(value!,
-              style: TextStyle(color: scheme.onSurfaceVariant),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
+          ? (onTap == null ? null : Icon(Icons.chevron_right_rounded, color: ds.muted))
+          : ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 120),
+              child: Text(value!,
+                  textAlign: TextAlign.end,
+                  style: AType.bodyMedium.copyWith(color: ds.muted)),
+            ),
       onTap: onTap,
     );
   }
 }
 
-/// An HONEST "coming soon / needs key X" inline panel for surfaces that can't
-/// act yet (so the row that opens the screen is never a dead tap — it lands on
-/// a truthful state that explains exactly what's missing). [requirement] is an
-/// already-localized sentence naming the missing piece.
+/// An HONEST "coming soon / needs key X" panel (DS card with the drawn
+/// illustration) so the row that opens the screen is never a dead tap.
 class MsgrSetComingSoon extends StatelessWidget {
   final String title;
   final String requirement;
@@ -90,21 +99,24 @@ class MsgrSetComingSoon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.xxl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 52, color: scheme.primary),
-          const SizedBox(height: Gap.md),
-          Text(title,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: Gap.xs),
-          Text(requirement,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35)),
-        ]),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: DsCard(
+          padding: const EdgeInsets.all(Gap.xl),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            DsIllustration(icon: icon),
+            const SizedBox(height: Gap.lg),
+            Text(title,
+                textAlign: TextAlign.center,
+                style: AType.titleMedium.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
+            const SizedBox(height: Gap.xs),
+            Text(requirement,
+                textAlign: TextAlign.center,
+                style: AType.bodyMedium.copyWith(color: ds.muted, height: 1.4)),
+          ]),
+        ),
       ),
     );
   }
@@ -118,16 +130,14 @@ class MsgrSetNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     return Padding(
       padding: const EdgeInsets.all(Gap.lg),
-      child: Row(children: [
-        Icon(icon, size: 18, color: scheme.primary),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(icon, size: 18, color: ds.primaryInk),
         const SizedBox(width: Gap.sm),
         Expanded(
-          child: Text(text,
-              style: TextStyle(
-                  fontSize: 12, color: scheme.onSurfaceVariant, height: 1.3)),
+          child: Text(text, style: AType.bodySmall.copyWith(color: ds.muted, height: 1.4)),
         ),
       ]),
     );

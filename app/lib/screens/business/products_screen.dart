@@ -269,7 +269,10 @@ class _ProductTile extends StatelessWidget {
     final profit = sell - cost;
     final margin = sell > 0 ? (profit / sell * 100) : 0;
 
-    return DsCard(
+    // long list: flat bordered rows (no per-row shadow — GPU-light)
+    return DsSurface(
+      flat: true,
+      borderColor: scheme.ds.border,
       onTap: onTap,
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _thumb(scheme, photo),

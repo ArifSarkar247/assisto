@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_setapi.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../widgets/msgr_set_tiles.dart';
 import '../circle_privacy_screen.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -75,7 +76,7 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrSetCalls)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _loadFailed
               ? Center(
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -92,7 +93,8 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
               : ListView(
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
-                SwitchListTile(
+MsgrSetGroup([
+SwitchListTile(
                   secondary: const Icon(Icons.call_received_rounded),
                   title: Text(t.msgrSetCallsIncoming),
                   subtitle: Text(t.msgrSetCallsIncomingSub),
@@ -102,7 +104,7 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
                     _save();
                   },
                 ),
-                SwitchListTile(
+SwitchListTile(
                   secondary: const Icon(Icons.phone_disabled_rounded),
                   title: Text(t.msgrSetCallsSilenceUnknown),
                   subtitle: Text(t.msgrSetCallsSilenceUnknownSub),
@@ -112,21 +114,23 @@ class _MsgrSetCallsScreenState extends State<MsgrSetCallsScreen> {
                     _save();
                   },
                 ),
-                // callsbar: low-data calls (stored on this phone)
+]),
+// callsbar: low-data calls (stored on this phone)
                 const CallLowDataTile(),
-                const Divider(),
-                MsgrSetRow(
+MsgrSetGroup([
+MsgrSetRow(
                   icon: Icons.lock_outline_rounded,
                   title: t.msgrSetCallsWhoCanCall,
                   subtitle: t.msgrSetCallsWhoCanCallSub,
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => const CirclePrivacyScreen())),
                 ),
-                if (!_synced) MsgrSetNote(t.msgrSetNotSynced),
-                // c2-calls: ringtone / Assisto melody (message sound: Notifications)
+]),
+if (!_synced) MsgrSetNote(t.msgrSetNotSynced),
+// c2-calls: ringtone / Assisto melody (message sound: Notifications)
                 const Divider(),
-                const CallSoundsSection(),
-              ],
+const CallSoundsSection(),
+],
             ),
     );
   }
