@@ -286,11 +286,13 @@ void main() {
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(_app(
-          SosAlarmScreen(data: fcsPush('en'), api: api, sound: FakeAlarmSound()),
+          SosAlarmScreen(data: fcsPush('en'), api: api, sound: FakeAlarmSound(), country: 'BD'),
           scroll: false));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byKey(const ValueKey('fcs-where')), findsOneWidget);
+      // this phone is in Bangladesh: 999, never the generic 112
+      expect(find.text('Call 999'), findsOneWidget);
       expect(find.byKey(const ValueKey('fcs-open-map')), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 1));
