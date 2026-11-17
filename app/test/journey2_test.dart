@@ -195,7 +195,7 @@ void main() {
       ];
     await _open(tester, api, const JourneyStartScreen());
     expect(find.byKey(const ValueKey('j2_intro')), findsOneWidget);
-    expect(find.byKey(const ValueKey('j2_search')), findsNothing); // no geocoder
+    expect(find.byKey(const ValueKey('j2_search')), findsNothing); // design3: never a duplicate button
     expect(find.byKey(const ValueKey('j2_pick_map')), findsNothing); // no tiles
     expect(find.byKey(const ValueKey('j2_no_map')), findsNothing); // jsearch: no internal text
     await tester.enterText(find.byKey(const ValueKey('j100_dest')), 'Aunt');
@@ -228,18 +228,22 @@ void main() {
     expect(find.text('Gulshan 1'), findsWidgets); // the field + the confirm card
   });
 
-  testWidgets('search shows only with a geocoder, and picks a real row', (tester) async {
+  // design3 (lead 17 Nov): the destination field itself is the search — no
+  // second "Find a place" button; typing opens the place list, a row pins.
+  testWidgets('search: the field opens the place list and picks a real row', (tester) async {
     final api = _Api()..geocoder = true;
     await _open(tester, api, const JourneyStartScreen());
-    await tester.tap(find.byKey(const ValueKey('j2_search')));
-    await _settle(tester, 6);
-    await tester.enterText(find.byKey(const ValueKey('j2_search_field')), 'Bashundhara');
+    expect(find.byKey(const ValueKey('j2_search')), findsNothing);
+    await tester.enterText(find.byKey(const ValueKey('j100_dest')), 'Bashundhara');
     await tester.testTextInput.receiveAction(TextInputAction.search);
     await _settle(tester, 6);
-    await tester.tap(find.text('Bashundhara City'));
+    await tester.tap(find.text('Bashundhara City').last);
     await _settle(tester, 6);
-    await tester.tap(find.byKey(const ValueKey('ps_use'))); // jsearch: confirm card
-    await _settle(tester, 6);
+    final use = find.byKey(const ValueKey('ps_use')); // jsearch: confirm card
+    if (use.evaluate().isNotEmpty) {
+      await tester.tap(use);
+      await _settle(tester, 6);
+    }
     expect(find.byKey(const ValueKey('j2_pinned')), findsOneWidget);
   });
 

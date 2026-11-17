@@ -355,16 +355,6 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
             )
       ];
 
-  Future<void> _search() async {
-    final got = await showPlaceSearchSheet(context, context.read<AppState>().api,
-        lat: _here?.lat,
-        lng: _here?.lng,
-        mode: _psMode,
-        saved: _savedPicks(AppLocalizations.of(context)),
-        onMap: (_map.hasTiles || _gmaps) ? _mapPoint : null);
-    if (got != null && mounted) _setDest(got.name, got.lat, got.lng, address: got.address);
-  }
-
   Future<({double lat, double lng})?> _mapPoint() =>
       Navigator.of(context).push<({double lat, double lng})>(MaterialPageRoute(
           builder: (_) => JourneyMapPickScreen(
@@ -1104,12 +1094,8 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
               icon: const Icon(Icons.link_rounded),
               label: Text(t.j2PasteLink),
               onPressed: _pasteLink),
-          if (_psMode != PlaceSearchMode.off)
-            OutlinedButton.icon(
-                key: const ValueKey('j2_search'),
-                icon: const Icon(Icons.search_rounded),
-                label: Text(t.j2Search),
-                onPressed: _search),
+          // design3 (lead 17 Nov): no separate "Find a place" button — the
+          // field above IS the place search (it did the same thing twice).
           if (_map.hasTiles || _gmaps)
             OutlinedButton.icon(
                 key: const ValueKey('j2_pick_map'),

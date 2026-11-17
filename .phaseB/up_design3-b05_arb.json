@@ -1,0 +1,11 @@
+{
+ "en": {
+  "d3SendSmsShort": "Send SMS",
+  "@d3SendSmsShort": {
+   "description": "design3: short label of the Safe Journey live SMS button (fits one line beside Stop)"
+  }
+ },
+ "bn": {
+  "d3SendSmsShort": "এসএমএস পাঠান"
+ }
+}
