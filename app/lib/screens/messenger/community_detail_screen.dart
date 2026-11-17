@@ -534,7 +534,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                       padding: const EdgeInsets.fromLTRB(
                           Gap.lg, Gap.md, Gap.lg, 0),
                       child: Text('${widget.community['description']}',
-                          style: TextStyle(color: scheme.ds.muted)),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                     ),
                   if (!_backendReady) _pending(scheme),
                   if (_isAdmin && _joinRequests.isNotEmpty) ...[
@@ -550,7 +550,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                     Padding(
                       padding: const EdgeInsets.all(Gap.lg),
                       child: Text(_t.communityNoTopics,
-                          style: TextStyle(color: scheme.ds.muted)),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                     ),
                   for (final g in _topics) _groupCard(g),
                   // p2-money: "Sponsored" post at the end of a LARGE
@@ -639,9 +639,8 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                 const SizedBox(width: 4),
                 Flexible( // launchsweep: wraps at a big font
                   child: Text(_t.communityAdminsPostOnly,
-                      style: TextStyle(
+                      style: AType.labelSmall.copyWith(
                           color: Theme.of(context).colorScheme.tertiary,
-                          fontSize: 11,
                           fontWeight: FontWeight.w600)),
                 ),
               ],
@@ -673,7 +672,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   Widget _pending(ColorScheme scheme) => Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Text(_t.communityBackendPending,
-            style: TextStyle(color: scheme.ds.muted)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       );
 
   /// Honest, retryable error state (§21): a real request failed — never hide it
@@ -718,7 +717,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           child: Text(
             rules.isEmpty ? _t.communityRulesEmpty : rules,
             style: rules.isEmpty
-                ? TextStyle(color: Theme.of(ctx).colorScheme.ds.muted)
+                ? AType.bodyMedium.copyWith(color: Theme.of(ctx).colorScheme.ds.muted)
                 : null,
           ),
         ),

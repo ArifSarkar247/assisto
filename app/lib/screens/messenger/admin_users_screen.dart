@@ -166,7 +166,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         ?.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: Gap.md),
                 Text(t.msgrModUserPlan('').trim(),
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.xs),
                 Wrap(spacing: Gap.sm, children: [
                   ChoiceChip(
@@ -537,7 +537,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
                     ?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.xs),
             Text(t.msgrModUserPublicHint,
-                style: TextStyle(color: scheme.ds.muted, fontSize: 12)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, )),
             const SizedBox(height: Gap.sm),
             if (_publicLoading)
               const SkeletonList(count: 3)
@@ -545,14 +545,14 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
               Row(children: [
                 Expanded(
                   child: Text(t.msgrModErrorBody,
-                      style: TextStyle(color: scheme.ds.muted)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                 ),
                 TextButton(
                     onPressed: _loadPublic, child: Text(t.msgrModRetry)),
               ])
             else if (_channels.isEmpty && _communities.isEmpty)
               Text(t.msgrModUserNoPublic,
-                  style: TextStyle(color: scheme.ds.muted))
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted))
             else ...[
               for (final c in _channels)
                 _PublicRow(
@@ -658,7 +658,7 @@ class _UserCard extends StatelessWidget {
                 child: photo.isEmpty
                     ? Text(
                         name.isNotEmpty ? name.characters.first : '?',
-                        style: TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             color: scheme.ds.primaryInk,
                             fontWeight: FontWeight.w800),
                       )
@@ -671,12 +671,12 @@ class _UserCard extends StatelessWidget {
                   children: [
                     Text(
                       name.isEmpty ? t.msgrModUserNoName : name,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w800, fontSize: 15),
+                      style: AType.titleMedium.copyWith(
+                          fontWeight: FontWeight.w800, ),
                     ),
                     if (phone.isNotEmpty)
                       Text(_digits(phone, loc),
-                          style: TextStyle(color: scheme.ds.muted)),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                   ],
                 ),
               ),
@@ -733,7 +733,7 @@ class _UserCard extends StatelessWidget {
         Icon(icon, size: 14, color: scheme.ds.muted),
         const SizedBox(width: 4),
         Text(text,
-            style: TextStyle(color: scheme.ds.muted, fontSize: 12.5)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted, )),
       ],
     );
   }
@@ -756,7 +756,7 @@ class _PublicRow extends StatelessWidget {
         const SizedBox(width: Gap.md),
         Expanded(
           child: Text(name,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         ),
         if (status.isNotEmpty && status != 'visible')
           MsgrModStatusPill(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -411,11 +412,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           icon: Icons.cloud_off_rounded,
           title: t.channelLoadError,
           body: honestFailText(t, _failCause, otherwise: t.checkInternetRetry),
-          action: FilledButton.icon(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.retry),
-          ),
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
         ),
       ],
     );
@@ -437,10 +434,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.channelReplyDisabledNote,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(
+                        color: Theme.of(context).colorScheme.ds.muted)),
               ),
             ],
           ),
@@ -484,8 +479,10 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
     final desc = '${_channel['description'] ?? ''}';
     final verified = _channel['is_verified'] == true;
     final count = (_channel['follower_count'] as num?)?.toInt() ?? 0;
+    // the channel = the soft DS hero (avatar, name, followers, follow)
     return Padding(
-      padding: const EdgeInsets.all(Gap.lg),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.sm),
+      child: DsHeroCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -501,9 +498,9 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
                       children: [
                         Flexible(
                           child: Text(name,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge),
+                              style: AType.titleLarge.copyWith(
+                                  color: Theme.of(context).colorScheme.ds.text,
+                                  fontWeight: FontWeight.w800)),
                         ),
                         if (verified) ...[
                           const SizedBox(width: Gap.xs),
@@ -517,10 +514,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
                     Text(
                       msgrLocalizeDigits(
                           t.channelFollowerCount(count.toString()), bn),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant),
+                      style: AType.bodyMedium.copyWith(
+                          color: Theme.of(context).colorScheme.ds.muted),
                     ),
                   ],
                 ),
@@ -535,7 +530,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           _followRow(t),
         ],
       ),
-    );
+    ));
   }
 
   Widget _followRow(AppLocalizations t) {

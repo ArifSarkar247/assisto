@@ -320,7 +320,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
       key: const Key('m3-add-list'),
       padding: const EdgeInsets.all(Gap.lg),
       children: [
-        Text(t.m3AddLead, style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+        Text(t.m3AddLead, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
         const SizedBox(height: Gap.md),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
@@ -437,7 +437,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(_error ?? t.c1SearchFailed,
-                        style: TextStyle(color: scheme.ds.dangerInk))),
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk))),
                 TextButton(onPressed: _find, child: Text(t.retry)),
               ]),
           ),
@@ -459,12 +459,12 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(t.m3NotOnAssisto(local),
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                   ),
                 ]),
                 const SizedBox(height: Gap.xs),
                 Text(t.m3NotOnAssistoBody,
-                    style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
                 const SizedBox(height: Gap.sm),
                 Text(t.m3InviteThem, style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: Gap.xs),
@@ -494,7 +494,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                           style: AType.titleMedium
                               .copyWith(fontWeight: FontWeight.w700)),
                       Text(t.m3OnAssistoNumber(local),
-                          style: TextStyle(color: scheme.ds.muted)),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                     ]),
                   ),
                 ]),
@@ -502,14 +502,14 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                 if (st == 'accepted') ...[
                   Text(t.c1InYourCircle,
                       key: const Key('m3-already'),
-                      style: TextStyle(color: scheme.primary)),
+                      style: AType.bodyMedium.copyWith(color: scheme.primary)),
                   const SizedBox(height: Gap.sm),
                   // connect-flow: Message / Audio call / Video call at once
                   _connectedActions(u),
                 ] else if (st == 'pending') ...[
                   Text(t.m3AlreadyRequested,
                       key: const Key('m3-pending'),
-                      style: TextStyle(color: scheme.ds.muted)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                   const SizedBox(height: Gap.sm),
                   _messageButton(u),
                 ] else if (st == 'incoming') ...[
@@ -557,7 +557,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                       padding: const EdgeInsets.only(top: Gap.xs),
                       child: Text(_error!,
                           key: const Key('m3-send-error'),
-                          style: TextStyle(color: scheme.error)),
+                          style: AType.bodyMedium.copyWith(color: scheme.error)),
                     ),
                 ],
               ]),
@@ -637,7 +637,7 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
           const SizedBox(height: Gap.sm),
           Text(_accepted ? t.c1Accepted : t.m3RequestSentBody,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.lg),
           FilledButton(
             key: const Key('m3-done'),
