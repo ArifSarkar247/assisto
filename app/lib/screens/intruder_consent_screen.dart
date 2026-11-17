@@ -93,16 +93,16 @@ class IntruderConsentScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  FilledButton(
-                    key: const Key('at100-ic-agree'),
-                    style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+                  DsButton(
+                    buttonKey: const Key('at100-ic-agree'),
+                    expand: true,
                     onPressed: () => Navigator.pop(context, true),
-                    child: Text(tr.at100IcAgree, textAlign: TextAlign.center),
+                    label: tr.at100IcAgree,
                   ),
                   const SizedBox(height: Gap.sm),
                   OutlinedButton(
                     key: const Key('at100-ic-no'),
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 52)),
                     onPressed: () => Navigator.pop(context, false),
                     child: Text(tr.at100IcNo),
                   ),

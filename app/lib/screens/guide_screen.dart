@@ -285,12 +285,10 @@ class _GuideScreenState extends State<GuideScreen> {
       ),
       // ---- offline / cache banner (honest) ----
       if (_fromCache)
-        _Banner(
-          icon: Icons.offline_bolt_rounded,
-          text: tr.guideOfflineBanner,
-          action: context.watch<AppState>().online ? tr.retry : null,
-          onAction: _load,
-          scheme: scheme,
+        DsOfflineStrip(
+          label: tr.guideOfflineBanner,
+          retryLabel: context.watch<AppState>().online ? tr.retry : null,
+          onRetry: _load,
         ),
       // ---- results ----
       Expanded(
@@ -391,43 +389,6 @@ class _GuideScreenState extends State<GuideScreen> {
   }
 }
 
-class _Banner extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final String? action;
-  final VoidCallback onAction;
-  final ColorScheme scheme;
-  const _Banner({
-    required this.icon,
-    required this.text,
-    required this.onAction,
-    required this.scheme,
-    this.action,
-  });
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 0),
-      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-      decoration: BoxDecoration(
-        color: Brand.warning.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(Radii.md),
-      ),
-      child: Row(children: [
-        Icon(icon, size: 18, color: Brand.warning),
-        const SizedBox(width: Gap.sm),
-        Expanded(
-          child: Text(text,
-              style: AType.bodySmall.copyWith(color: scheme.ds.text, height: 1.3)),
-        ),
-        if (action != null)
-          TextButton(onPressed: onAction, child: Text(action!)),
-      ]),
-    );
-  }
-}
-
 class _DisclaimerStrip extends StatelessWidget {
   final String text;
   final ColorScheme scheme;
@@ -436,7 +397,7 @@ class _DisclaimerStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Icon(Icons.verified_rounded, size: 15, color: scheme.tertiary),
-      const SizedBox(width: 6),
+      const SizedBox(width: Gap.xs + Gap.xxs),
       Expanded(
         child: Text(text,
             style: AType.bodySmall.copyWith(height: 1.35,

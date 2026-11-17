@@ -316,10 +316,10 @@ class _PaymentLadderScreenState extends State<PaymentLadderScreen>
             icon: receivable ? Icons.volunteer_activism_rounded : Icons.receipt_long_rounded,
             title: receivable ? t.plEmptyReceivableTitle : t.plEmptyPayableTitle,
             message: receivable ? t.plEmptyReceivableBody : t.plEmptyPayablebody,
-            action: FilledButton.icon(
+            action: DsButton(
               onPressed: () => _addOrEdit(),
-              icon: const Icon(Icons.add_rounded),
-              label: Text(receivable ? t.plAddReceivable : t.plAddPayable),
+              icon: Icons.add_rounded,
+              label: receivable ? t.plAddReceivable : t.plAddPayable,
             ),
           ),
         ],
