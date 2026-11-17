@@ -286,8 +286,8 @@ def _geo_train(t):
 def geo_timetable():
     """{"_meta", "stations", "trains"} for core.logic.train_geo (v1 screens,
     search, Safe Journey train flow, destination alarm)."""
-    trains = [_geo_train(t) for t in trains() if len(t.get("path") or []) >= 2]
-    return {"_meta": _meta(), "stations": stations(), "trains": trains}
+    rows = [_geo_train(t) for t in trains() if len(t.get("path") or []) >= 2]
+    return {"_meta": _meta(), "stations": stations(), "trains": rows}
 
 
 @lru_cache(maxsize=1024)

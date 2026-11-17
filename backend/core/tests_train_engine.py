@@ -9,6 +9,7 @@ public 16318 / group-post style — no real message, no phone number of anyone.
 import gzip
 import json
 import math
+import unicodedata
 from datetime import date, datetime, timedelta
 from unittest import mock
 
@@ -603,7 +604,8 @@ class ShareTextEngineTests(EngineBase):
         self.assertEqual(body["status"], "pending")
         self.assertFalse(body["applied"])
         self.assertEqual(body["parsed"]["station_id"], BOGURA)
-        self.assertEqual(body["parsed"]["station_bn"], "বগুড়া")
+        self.assertEqual(unicodedata.normalize("NFC", body["parsed"]["station_bn"]),
+                         unicodedata.normalize("NFC", "বগুড়া"))
         self.assertEqual(body["parsed"]["late_min"], 4)
         code, body = self.send(self.b, "771 Bogra chere geche 15:42, 6 min let")
         self.assertTrue(body["applied"], body)

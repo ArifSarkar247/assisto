@@ -44,7 +44,7 @@ class MinuteJobsTests(_Base):
                            wraps=call_command) as cc:
             self.run_cmd()
         self.assertEqual([c.args[0] for c in cc.call_args_list],
-                         ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "family_brain_tick", "ai_usage_purge", "ai_exam", "market_pool_sweep", "bizai_weekly", "cctv_connect_tick", "nearby_import", "city_tick", "mess_tick", "gemini_probe", "ad_money_tick", "email_bounces", "agent_core_run"])
+                         ["journey_sweep", "antitheft_escalate", "school_mode_tick", "ezviz_poll_alarms", "vault_share_purge", "view_once_purge", "carecall_tick", "family_brain_tick", "ai_usage_purge", "ai_exam", "market_pool_sweep", "bizai_weekly", "cctv_connect_tick", "nearby_import", "city_tick", "mess_tick", "gemini_probe", "ad_money_tick", "email_bounces", "train_engine_tick", "agent_core_run"])
         self.assertTrue(cc.call_args_list[0].kwargs["quiet"])
         # every job's heartbeat recorded OK, as from its own cron line
         for name in ("journey_sweep", "antitheft_escalate", "school_mode_tick", "agent_core_run"):

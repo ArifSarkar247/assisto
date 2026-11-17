@@ -18,6 +18,7 @@ train number + name, the last station, arrived at / left, the clock time,
 often the date, late minutes. All samples in tests are MADE UP in that style.
 """
 import re
+import unicodedata
 from datetime import datetime, timedelta
 
 BN_DIGITS = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
@@ -64,7 +65,9 @@ _ALIASES = {"bogura": ("bogra",), "chattogram": ("chittagong", "ctg"),
 
 def _norm(s):
     s = str(s or "").translate(BN_DIGITS).replace("‌", "").replace("‍", "")
-    s = s.replace("ড়", "ড়").replace("ঢ়", "ঢ়").replace("য়", "য়")
+    # nukta letters (ড় ঢ় য়) come precomposed or as base + nukta: NFC makes both
+    # the same sequence (these letters are excluded from composition)
+    s = unicodedata.normalize("NFC", s)
     return re.sub(r"\s+", " ", s).strip()
 
 
