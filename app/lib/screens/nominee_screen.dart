@@ -9,6 +9,7 @@ import '../widgets/nominee_release_sheet.dart';
 import '../widgets/nominee_card.dart';
 import '../widgets/nominee_consent_banner.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -356,10 +357,10 @@ class _EmptyState extends StatelessWidget {
       icon: Icons.family_restroom_rounded,
       title: tr.noNomineesYet,
       message: tr.addATrustedPersonWho,
-      action: FilledButton.icon(
+      action: DsButton(
           onPressed: onAdd,
-          icon: const Icon(Icons.person_add_alt_rounded),
-          label: Text(tr.addNominee)),
+          icon: Icons.person_add_alt_rounded,
+          label: tr.addNominee),
     );
   }
 }
@@ -436,7 +437,7 @@ class _StepperField extends StatelessWidget {
           width: 36,
           child: Text(localeDigits(value, locale),
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular)),
         ),
         IconButton(
           tooltip: AppLocalizations.of(context).f2Increase,

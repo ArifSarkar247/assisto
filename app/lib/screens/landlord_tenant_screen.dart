@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/samity_rent_common.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../notifications.dart'; // moneybar: rent due-day reminder
 import '../widgets/money_circle_pick.dart'; // moneybar
@@ -385,7 +386,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style:
-                                  const TextStyle(fontWeight: FontWeight.w700)),
+                                  AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                           if ('${r['tenant_name'] ?? ''}'.isNotEmpty)
                             Text(moneyDigitsFor(context, '${r['tenant_name']}'),
                                 maxLines: 1,
@@ -400,7 +401,7 @@ class _LandlordTenantScreenState extends State<LandlordTenantScreen>
                         ]),
                   ),
                   Text(taka(context, r['outstanding_poisha'] as int),
-                      style: TextStyle(
+                      style: AType.bodyMedium.copyWith(
                           fontWeight: FontWeight.w800,
                           fontFeatures: AFonts.tabular,
                           color: Theme.of(context).colorScheme.error)),
@@ -425,18 +426,14 @@ class _MonthHero extends StatelessWidget {
     final collected = summary['collected_poisha'] as int;
     final outstanding = summary['outstanding_poisha'] as int;
     final pct = billed > 0 ? collected / billed : 0.0;
-    return Container(
-      padding: const EdgeInsets.all(Gap.lg),
-      decoration: BoxDecoration(
-        gradient: Brand.gradient,
-        borderRadius: BorderRadius.circular(Radii.lg),
-      ),
+    final ds = DsTokens.of(context);
+    return DsHeroCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.rentCollectedThisMonth,
-            style: AType.bodyMedium.copyWith(color: Colors.white70)),
+            style: AType.bodyMedium.copyWith(color: ds.muted)),
         const SizedBox(height: Gap.xs),
         Text(taka(context, collected),
-            style: AType.displaySmall.copyWith(color: Colors.white,
+            style: AType.displaySmall.copyWith(color: ds.text,
                 fontFeatures: AFonts.tabular, fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.sm),
         ClipRRect(
@@ -444,16 +441,16 @@ class _MonthHero extends StatelessWidget {
           child: LinearProgressIndicator(
             value: pct.clamp(0.0, 1.0),
             minHeight: 8,
-            backgroundColor: Colors.white24,
-            valueColor: const AlwaysStoppedAnimation(Colors.white),
+            backgroundColor: ds.primarySoft,
+            valueColor: AlwaysStoppedAnimation(ds.primary),
           ),
         ),
         const SizedBox(height: Gap.sm),
         Wrap(alignment: WrapAlignment.spaceBetween, spacing: Gap.md, children: [ // qa1
           Text(t.rentBilledLabel(taka(context, billed)),
-              style: AType.bodySmall.copyWith(color: Colors.white70)),
+              style: AType.bodySmall.copyWith(color: ds.muted)),
           Text(t.rentDueLabel(taka(context, outstanding)),
-              style: AType.bodySmall.copyWith(color: Colors.white,
+              style: AType.bodySmall.copyWith(color: ds.text,
                   fontWeight: FontWeight.w700)),
         ]),
         const SizedBox(height: Gap.xxs),
@@ -463,7 +460,7 @@ class _MonthHero extends StatelessWidget {
               fmtInt(context, summary['due_count'] as int),
               fmtInt(context, summary['paid_count'] as int),
               fmtInt(context, summary['partial_count'] as int)),
-          style: AType.bodySmall.copyWith(color: Colors.white70),
+          style: AType.bodySmall.copyWith(color: ds.muted),
         ),
       ]),
     );
@@ -491,7 +488,7 @@ class _MonthPicker extends StatelessWidget {
         Expanded(
           child: Text(monthLabel(context, month),
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         ),
         IconButton(tooltip: MaterialLocalizations.of(context).nextMonthTooltip, onPressed: onNext, icon: const Icon(Icons.chevron_right_rounded)),
       ]),
@@ -546,7 +543,7 @@ class _UnitCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style:
-                              const TextStyle(fontWeight: FontWeight.w700)),
+                              AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                       if ('${data['tenant_name'] ?? ''}'.isNotEmpty)
                         Text(moneyDigitsFor(context, '${data['tenant_name']}'),
                             maxLines: 1,
@@ -855,7 +852,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
         Align(
           alignment: Alignment.centerLeft,
           child: Text(t.rentMethod,
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   color: Theme.of(context).colorScheme.ds.muted)),
         ),
         const SizedBox(height: Gap.sm),

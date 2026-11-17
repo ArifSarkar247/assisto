@@ -213,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       liveRegion: true,
                       child: Text(_error!,
                           key: const Key('login-error'),
-                          style: TextStyle(
+                          style: AType.bodyMedium.copyWith(
                               color: Theme.of(context).colorScheme.error)),
                     ),
                   ],

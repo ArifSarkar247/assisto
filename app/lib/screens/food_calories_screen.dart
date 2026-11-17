@@ -19,6 +19,7 @@ import '../widgets/health_disclaimer_bar.dart';
 import '../widgets/local_counter.dart';
 import '../widgets/local_digits.dart';
 import '../widgets/skeleton.dart';
+import '../ds/ds.dart';
 import '../widgets/num_input.dart'; // savesweep
 
 /// FOOD PHOTO -> CALORIES (p2food, owner PART 2; flag `food_calories`).
@@ -418,21 +419,15 @@ class _FoodCaloriesScreenState extends State<FoodCaloriesScreen> {
   Widget _message(String text, {required bool retry}) {
     final t = AppLocalizations.of(context);
     return ListView(
-      padding: withNavBarInset(context, const EdgeInsets.all(Gap.xl)),
+      padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        Icon(retry ? Icons.cloud_off_rounded : Icons.lock_clock_rounded, size: 48),
-        const SizedBox(height: Gap.md),
-        Text(text, textAlign: TextAlign.center),
-        if (retry) ...[
-          const SizedBox(height: Gap.md),
-          Center(
-            child: FilledButton.icon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.foodRetry),
-            ),
-          ),
-        ],
+        DsEmptyState(
+          icon: retry ? Icons.cloud_off_rounded : Icons.lock_clock_rounded,
+          title: text,
+          danger: retry,
+          actionLabel: retry ? t.foodRetry : null,
+          onAction: retry ? _load : null,
+        ),
       ],
     );
   }
@@ -451,37 +446,29 @@ class _FoodCaloriesScreenState extends State<FoodCaloriesScreen> {
 
   Widget _empty(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      key: const Key('food-empty'),
-      margin: EdgeInsets.zero,
-      color: scheme.primaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.restaurant_rounded, size: 40, color: scheme.onPrimaryContainer),
+    return DsHeroCard(key: const Key('food-empty'), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(Icons.restaurant_rounded, size: 40, color: scheme.ds.primaryInk),
           const SizedBox(height: Gap.sm),
           Text(t.foodEmptyBenefit,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: scheme.onPrimaryContainer, fontWeight: FontWeight.w700)),
+                  color: scheme.ds.text, fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.xs),
           Text(t.foodEmptyHow,
-              style: TextStyle(color: scheme.onPrimaryContainer, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
-              key: const Key('food-empty-cta'),
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+            child: DsButton(
+              buttonKey: const Key('food-empty-cta'),
+              expand: true,
               onPressed: _photoReady ? _photo : _pickFromList,
-              icon: Icon(_photoReady
+              icon: _photoReady
                   ? Icons.photo_camera_rounded
-                  : Icons.list_alt_rounded),
-              label: Text(t.foodEmptyCta),
+                  : Icons.list_alt_rounded,
+              label: t.foodEmptyCta,
             ),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _todayCard(AppLocalizations t) {
@@ -491,12 +478,7 @@ class _FoodCaloriesScreenState extends State<FoodCaloriesScreen> {
     final goal = _goal;
     final left = goal - eaten;
     final ratio = (eaten / goal).clamp(0.0, 1.0);
-    return Card(
-      key: const Key('food-today'),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: const Key('food-today'), padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.foodToday, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.xs),
           Text(t.foodEatenOfGoal(_d(eaten), _d(goal)),
@@ -519,16 +501,16 @@ class _FoodCaloriesScreenState extends State<FoodCaloriesScreen> {
           ),
           const SizedBox(height: Gap.sm),
           Text(left >= 0 ? t.foodLeft(_d(left)) : t.foodOver(_d(-left)),
-              style: TextStyle(
-                  color: left < 0 ? scheme.error : scheme.onSurfaceVariant,
+              style: AType.bodyMedium.copyWith(
+                  color: left < 0 ? scheme.error : scheme.ds.muted,
                   fontWeight: FontWeight.w600)),
           const SizedBox(height: Gap.xs),
           Text(t.foodMacros(_n(d['protein']!), _n(d['fat']!), _n(d['carb']!)),
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           if (d['unknown']! > 0) ...[
             const SizedBox(height: Gap.xs),
             Text(t.foodUnknownCount(_d(d['unknown']!)),
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ],
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -540,9 +522,7 @@ class _FoodCaloriesScreenState extends State<FoodCaloriesScreen> {
               label: Text(t.foodSetGoal),
             ),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _actions(AppLocalizations t) {
@@ -561,7 +541,7 @@ class _FoodCaloriesScreenState extends State<FoodCaloriesScreen> {
           padding: const EdgeInsets.only(bottom: Gap.xs),
           child: Text(t.foodPhotoNotReady,
               key: const Key('food-photo-not-ready'),
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ),
       const SizedBox(height: Gap.sm),
       OutlinedButton.icon(
@@ -588,7 +568,7 @@ class _FoodCaloriesScreenState extends State<FoodCaloriesScreen> {
       if (job != null && job.done) ...[
         const SizedBox(height: Gap.sm),
         Text(found.isEmpty ? t.foodRecognisedNone : t.foodRecognised,
-            style: const TextStyle(fontWeight: FontWeight.w600)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: Gap.xs),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           for (final d in found)
@@ -613,67 +593,50 @@ class _FoodCaloriesScreenState extends State<FoodCaloriesScreen> {
       if (e['self'] == true) t.foodSelfTag,
       if (src.isNotEmpty && e['self'] != true) t.foodSourceLine(_d(src)),
     ];
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
         minVerticalPadding: Gap.sm,
         title: Text(_entryName(e)),
-        subtitle: Text(sub.join(' · '), style: TextStyle(color: scheme.onSurfaceVariant)),
+        subtitle: Text(sub.join(' · '), style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         trailing: IconButton(
           tooltip: t.delete,
           icon: const Icon(Icons.delete_outline_rounded),
           onPressed: () => _delete(e),
         ),
-      ),
-    );
+      )));
   }
 
   Widget _hints(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
     final hints = _table['hints'] is List ? _table['hints'] as List : const [];
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.secondaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _header(t.foodHintsTitle),
           for (final h in hints)
             if (h is Map)
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.sm),
                 child: Text(_d('• ${h['text'] ?? ''}\n   (${h['src'] ?? ''})'),
-                    style: TextStyle(color: scheme.onSecondaryContainer, height: 1.4)),
+                    style: AType.bodyMedium.copyWith(color: scheme.onSecondaryContainer, height: 1.4)),
               ),
           Text('${_table['disclaimer'] ?? ''}',
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   color: scheme.onSecondaryContainer, fontWeight: FontWeight.w600)),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _sources(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
     final src = _table['sources'] is Map ? _table['sources'] as Map : const {};
-    return Card(
-      key: const Key('food-sources'),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: const Key('food-sources'), padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _header(t.foodSourcesTitle),
-          Text(t.foodSourcesBody, style: const TextStyle(height: 1.4)),
+          Text(t.foodSourcesBody, style: AType.bodyMedium.copyWith(height: 1.4)),
           for (final s in src.values)
             if (s is Map)
               Padding(
                 padding: const EdgeInsets.only(top: Gap.sm),
                 child: SelectableText(_d('${s['short']}: ${s['cite']}'),
-                    style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
               ),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -725,7 +688,7 @@ class _DishPickerState extends State<_DishPicker> {
           child: Semantics(
             header: true,
             child: Text(_groupLabel(t, d.group),
-                style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(color: scheme.primary, fontWeight: FontWeight.w700)),
           ),
         ));
       }
@@ -736,7 +699,7 @@ class _DishPickerState extends State<_DishPicker> {
             d.hasValue
                 ? t.foodSourceLine(toLocalDigits(d.source, Localizations.localeOf(context).languageCode == 'bn'))
                 : t.foodNoValueTag,
-            style: TextStyle(color: scheme.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => Navigator.pop(context, d),
       ));
@@ -839,14 +802,14 @@ class _PortionSheetState extends State<_PortionSheet> {
           if (d.hasValue)
             Text(t.foodSourceLine(_d(d.source)),
                 key: const Key('food-source-line'),
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           if (d.note.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
-            Text(d.note, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            Text(d.note, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           ],
           if (d.hasValue) ...[
             const SizedBox(height: Gap.md),
-            Text(t.foodPortion, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(t.foodPortion, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.xs),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               for (final p in d.portions)
@@ -865,7 +828,7 @@ class _PortionSheetState extends State<_PortionSheet> {
             Row(children: [
               Expanded(
                   child: Text(t.foodQty,
-                      style: const TextStyle(fontWeight: FontWeight.w600))),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
               IconButton(
                 tooltip: t.foodQtyLess,
                 onPressed: _qty > 0.5
@@ -917,7 +880,7 @@ class _PortionSheetState extends State<_PortionSheet> {
               Text(
                   t.foodMacros(_n(n['protein'] ?? 0), _n(n['fat'] ?? 0),
                       _n(n['carb'] ?? 0)),
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ] else ...[
             const SizedBox(height: Gap.md),
             TextField(
@@ -1058,12 +1021,7 @@ class _WeekChart extends StatelessWidget {
     final kcal = [for (final d in days) FoodMath.day(rows, foodDateKey(d))['kcal']!.toInt()];
     final top = [goal, ...kcal].reduce((a, b) => a > b ? a : b).toDouble();
     final fmt = DateFormat.E(appDateLocale(context));
-    return Card(
-      key: const Key('food-week'),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: SizedBox(
+    return DsCard(key: const Key('food-week'), padding: const EdgeInsets.all(Gap.lg), child: SizedBox(
           height: 160,
           child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
             for (var i = 0; i < 7; i++)
@@ -1074,7 +1032,7 @@ class _WeekChart extends StatelessWidget {
                   child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
                     FittedBox(
                       child: Text(toLocalDigits('${kcal[i]}', bn),
-                          style: const TextStyle(fontSize: 11)),
+                          style: AType.labelSmall.copyWith(fontSize: 11)),
                     ),
                     const SizedBox(height: Gap.xxs),
                     Container(
@@ -1091,8 +1049,6 @@ class _WeekChart extends StatelessWidget {
                 ),
               ),
           ]),
-        ),
-      ),
-    );
+        ));
   }
 }

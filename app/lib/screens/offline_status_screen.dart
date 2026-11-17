@@ -5,6 +5,8 @@ import '../theme.dart';
 import '../widgets/offline_cache.dart';
 import '../widgets/offline_strings.dart';
 import '../widgets/offline_module_tile.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 
 /// "Offline & data" screen (feature #12, SPEC v2.1 §21 — good -> advanced).
 ///
@@ -117,7 +119,7 @@ class _OfflineStatusScreenState extends State<OfflineStatusScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
@@ -128,11 +130,8 @@ class _OfflineStatusScreenState extends State<OfflineStatusScreen> {
                   Text(oStr(context, 'offAvailableOffline'),
                       style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: Gap.sm),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: Gap.lg, vertical: Gap.sm),
-                      child: Column(
+                  DsCard(padding: const EdgeInsets.symmetric(
+                          horizontal: Gap.lg, vertical: Gap.sm), child: Column(
                         children: [
                           for (var i = 0; i < _statuses.length; i++) ...[
                             if (i > 0) const Divider(height: 1),
@@ -142,9 +141,7 @@ class _OfflineStatusScreenState extends State<OfflineStatusScreen> {
                             ),
                           ],
                         ],
-                      ),
-                    ),
-                  ),
+                      )),
                   const SizedBox(height: Gap.lg),
                   _DataUsageCard(
                     totalLabel: offlineSizeLabel(context, _totalBytes),
@@ -193,7 +190,7 @@ class _LiveStatusCard extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(
                 oStr(context, good ? 'offStatusOnline' : 'offStatusOffline'),
-                style: TextStyle(fontWeight: FontWeight.w700, color: fg)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: fg)),
             const SizedBox(height: Gap.xxs),
             Text(
                 oStr(context,
@@ -213,10 +210,7 @@ class _DataUsageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.data_usage_rounded, size: 18, color: scheme.primary),
             const SizedBox(width: Gap.sm),
@@ -225,7 +219,7 @@ class _DataUsageCard extends StatelessWidget {
           ]),
           const SizedBox(height: Gap.sm),
           Text(oStrS(context, 'offTotalCached', totalLabel),
-              style: TextStyle(fontWeight: FontWeight.w600, color: scheme.ds.text)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: scheme.ds.text)),
           const SizedBox(height: Gap.xs),
           Text(oStr(context, 'offDataUsageNote'),
               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
@@ -238,8 +232,6 @@ class _DataUsageCard extends StatelessWidget {
               label: Text(oStr(context, 'offClearAll')),
             ),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 }

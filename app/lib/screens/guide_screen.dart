@@ -12,6 +12,7 @@ import '../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import '../widgets/guide_data.dart';
 import '../widgets/guide_service_card.dart';
 import '../widgets/guide_need_sheet.dart';
+import '../ds/ds.dart';
 
 /// ADVANCED Government / Service Guide (feature 30, SPEC v2.1 §21).
 ///

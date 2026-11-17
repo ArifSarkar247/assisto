@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/local_digits.dart'; // lifebar
 
@@ -396,10 +397,7 @@ class _AnimalTab extends StatelessWidget {
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
         children: [
           // animal + cost card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.lg),
-              child: Column(
+          DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
@@ -425,15 +423,10 @@ class _AnimalTab extends StatelessWidget {
                       summary.costPerShareDisplay),
                   _kv(context, tr.qurbaniCollected, summary.collectedDisplay),
                 ],
-              ),
-            ),
-          ),
+              )),
           const SizedBox(height: Gap.md),
           // shares progress
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.lg),
-              child: Column(
+          DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(tr.qurbaniSharesTakenOfTotal(ld(context, taken), ld(context, total)),
@@ -455,12 +448,10 @@ class _AnimalTab extends StatelessWidget {
                     free > 0
                         ? tr.qurbaniSharesFree(ld(context, free))
                         : tr.qurbaniAllSharesTaken,
-                    style: TextStyle(color: scheme.ds.muted),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
                   ),
                 ],
-              ),
-            ),
-          ),
+              )),
           const SizedBox(height: Gap.md),
           Text(tr.qurbaniParticipants,
               style: Theme.of(context)
@@ -483,12 +474,11 @@ class _AnimalTab extends StatelessWidget {
               ),
             )
           else
-            ...summary.participants.map((p) => Card(
-                  child: ListTile(
+            ...summary.participants.map((p) => DsCard(padding: EdgeInsets.zero, child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: scheme.ds.primarySoft,
                       child: Text(ld(context, p.shares),
-                          style: TextStyle(
+                          style: AType.bodyMedium.copyWith(
                               color: scheme.ds.primaryInk,
                               fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular)),
                     ),
@@ -496,7 +486,7 @@ class _AnimalTab extends StatelessWidget {
                     subtitle: Text(tr.qurbaniSharesCount(ld(context, p.shares))),
                     trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                       Text(ld(context, p.costDisplay),
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
+                          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                       PopupMenuButton<String>(
                         onSelected: (v) {
                           final raw = participants
@@ -511,8 +501,7 @@ class _AnimalTab extends StatelessWidget {
                         ],
                       ),
                     ]),
-                  ),
-                )),
+                  ))),
         ],
       ),
     );
@@ -526,12 +515,12 @@ class _AnimalTab extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
-              child: Text(k, style: TextStyle(color: scheme.ds.muted))),
+              child: Text(k, style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
           const SizedBox(width: Gap.sm),
           Flexible(
             child: Text(ld(context, v),
                 textAlign: TextAlign.end,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -555,28 +544,20 @@ class _MeatTab extends StatelessWidget {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        Card(
-          color: scheme.ds.cardHighest,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Row(children: [
+        DsCard(padding: const EdgeInsets.all(Gap.lg), child: Row(children: [
               Icon(Icons.info_outline_rounded, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(child: Text(tr.qurbaniMeatNeutralNote)),
-            ]),
-          ),
-        ),
+            ])),
         const SizedBox(height: Gap.md),
-        Card(
-          child: ListTile(
+        DsCard(padding: EdgeInsets.zero, child: ListTile(
             title: Text(tr.qurbaniMeatTotal),
             trailing: Text(
               totalG > 0 ? tr.lbDKg(ld(context, summary.meatTotalKgDisplay)) : tr.qurbaniMeatNotSet,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
             ),
             onTap: onEdit,
-          ),
-        ),
+          )),
         const SizedBox(height: Gap.md),
         if (totalG <= 0)
           StateMessage(
@@ -590,14 +571,12 @@ class _MeatTab extends StatelessWidget {
             ),
           )
         else
-          ...meat.map((m) => Card(
-                child: ListTile(
+          ...meat.map((m) => DsCard(padding: EdgeInsets.zero, child: ListTile(
                   leading: Icon(_meatIcon(m.part), color: scheme.primary),
                   title: Text(_meatPartLabel(tr, m.part)),
                   trailing: Text(tr.lbDKg(ld(context, m.kgDisplay)),
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
-                ),
-              )),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+                ))),
       ],
     );
   }
@@ -643,10 +622,7 @@ class _ChecklistTab extends StatelessWidget {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(
+        DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(tr.qurbaniChecklistProgress(ld(context, pct)),
@@ -664,20 +640,16 @@ class _ChecklistTab extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ),
-        ),
+            )),
         const SizedBox(height: Gap.md),
         ..._checklistSteps.map((step) {
           final checked = done.contains(step);
-          return Card(
-            child: CheckboxListTile(
+          return DsCard(padding: EdgeInsets.zero, child: CheckboxListTile(
               value: checked,
               onChanged: (_) => onToggle(step),
               title: Text(_stepLabel(tr, step)),
               controlAffinity: ListTileControlAffinity.leading,
-            ),
-          );
+            ));
         }),
       ],
     );
@@ -985,7 +957,7 @@ Future<Map<String, dynamic>?> _planSheet(
                 ])
               else
                 Text(tr.qurbaniSingleShareNote,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         color: Theme.of(ctx).colorScheme.ds.muted)),
               const SizedBox(height: Gap.lg),
               SizedBox(
@@ -1067,7 +1039,7 @@ Future<Map<String, dynamic>?> _participantSheet(
               ),
             ]),
             Text(tr.qurbaniSharesFree(ld(context, free)),
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: Theme.of(ctx).colorScheme.ds.muted)),
             const SizedBox(height: Gap.lg),
             SizedBox(
@@ -1134,7 +1106,7 @@ Future<Map<String, dynamic>?> _meatSheet(
               const SizedBox(height: Gap.sm),
               Text(tr.qurbaniMeatNeutralNote,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: Theme.of(ctx).colorScheme.ds.muted)),
               const SizedBox(height: Gap.lg),
               TextField(

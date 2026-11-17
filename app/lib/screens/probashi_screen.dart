@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/probashi_reminders.dart'; // f6
 import 'dart:async' show Timer; // lifebar
@@ -372,10 +373,7 @@ class _RemitTab extends StatelessWidget {
               padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
               children: [
                 // totals card
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.lg),
-                    child: Column(
+                DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(tr.probashiTotals,
@@ -391,9 +389,7 @@ class _RemitTab extends StatelessWidget {
                         _kv(context, tr.probashiEffectiveRate,
                             summary.avgRateDisplay),
                       ],
-                    ),
-                  ),
-                ),
+                    )),
                 const SizedBox(height: Gap.sm),
                 // honest "never a wallet" note
                 _noteCard(context, tr.probashiNeverHolds),
@@ -404,8 +400,7 @@ class _RemitTab extends StatelessWidget {
                         .titleMedium
                         ?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.sm),
-                ...summary.rows.map((r) => Card(
-                      child: ListTile(
+                ...summary.rows.map((r) => DsCard(padding: EdgeInsets.zero, child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: scheme.ds.primarySoft,
                           child: Icon(Icons.arrow_upward_rounded,
@@ -414,7 +409,7 @@ class _RemitTab extends StatelessWidget {
                         title: Text(
                           tr.probashiSentReceived(
                               ld(context, r.amountDisplay), ld(context, r.bdtDisplay)),
-                          style: const TextStyle(fontWeight: FontWeight.w700),
+                          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
                         ),
                         subtitle: Text(tr.probashiRateOnDate(/* (date, rate) */
                             ld(context, r.dateDisplay), ld(context, r.rateDisplay))),
@@ -429,8 +424,7 @@ class _RemitTab extends StatelessWidget {
                                 value: 'delete', child: Text(tr.delete)),
                           ],
                         ),
-                      ),
-                    )),
+                      ))),
               ],
             ),
     );
@@ -444,12 +438,12 @@ class _RemitTab extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
-              child: Text(k, style: TextStyle(color: scheme.ds.muted))),
+              child: Text(k, style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
           const SizedBox(width: Gap.sm),
           Flexible(
             child: Text(ld(context, v),
                 textAlign: TextAlign.end,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -498,10 +492,7 @@ class _ClockTabState extends State<_ClockTab> {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(children: [
+        DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(children: [
               Row(children: [
                 Expanded(
                     child: _clock(context, tr.probashiAbroad,
@@ -522,17 +513,14 @@ class _ClockTabState extends State<_ClockTab> {
                 ),
                 child: Text(
                   _diffLabel(tr, pair),
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: scheme.ds.primaryInk,
                       fontWeight: FontWeight.w600),
                 ),
               ),
-            ]),
-          ),
-        ),
+            ])),
         const SizedBox(height: Gap.md),
-        Card(
-          child: ListTile(
+        DsCard(padding: EdgeInsets.zero, child: ListTile(
             leading: const Icon(Icons.public_rounded),
             title: Text(tr.probashiAbroadZone),
             subtitle: Text(ld(context, pair.abroadOffsetDisplay)),
@@ -540,8 +528,7 @@ class _ClockTabState extends State<_ClockTab> {
               onPressed: onPickOffset,
               child: Text(tr.probashiChangeZone),
             ),
-          ),
-        ),
+          )),
         const SizedBox(height: Gap.sm),
         _noteCard(context, tr.probashiClockNote),
         const SizedBox(height: Gap.sm),
@@ -617,10 +604,7 @@ class _DocsTab extends StatelessWidget {
           : ListView(
               padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
               children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.lg),
-                    child: Row(
+                DsCard(padding: const EdgeInsets.all(Gap.lg), child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _count(context, tr.probashiStatExpired,
@@ -630,21 +614,18 @@ class _DocsTab extends StatelessWidget {
                         _count(context, tr.probashiStatValid, overview.valid,
                             scheme.primary),
                       ],
-                    ),
-                  ),
-                ),
+                    )),
                 const SizedBox(height: Gap.sm),
                 _noteCard(context, tr.f6ProbashiDocsNote),
                 const SizedBox(height: Gap.md),
-                ...overview.rows.map((d) => Card(
-                      child: ListTile(
+                ...overview.rows.map((d) => DsCard(padding: EdgeInsets.zero, child: ListTile(
                         leading: Icon(_statusIcon(d.status),
                             color: _statusColor(context, d.status)),
                         title: Text(
                           d.label.isEmpty
                               ? _docKindLabel(tr, d.kind)
                               : d.label,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
+                          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
                         ),
                         subtitle: Text(_statusLabel(tr, d, Localizations.localeOf(context).languageCode == 'bn')),
                         trailing: PopupMenuButton<String>(
@@ -658,8 +639,7 @@ class _DocsTab extends StatelessWidget {
                                 value: 'delete', child: Text(tr.delete)),
                           ],
                         ),
-                      ),
-                    )),
+                      ))),
               ],
             ),
     );
@@ -720,19 +700,13 @@ class _DocsTab extends StatelessWidget {
 // shared card helpers ---------------------------------------------------------
 Widget _noteCard(BuildContext context, String text) {
   final scheme = Theme.of(context).colorScheme;
-  return Card(
-    color: scheme.ds.cardHighest,
-    child: Padding(
-      padding: const EdgeInsets.all(Gap.md),
-      child: Row(children: [
+  return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(children: [
         Icon(Icons.info_outline_rounded, size: 18, color: scheme.primary),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted))),
-      ]),
-    ),
-  );
+      ]));
 }
 
 // ===========================================================================

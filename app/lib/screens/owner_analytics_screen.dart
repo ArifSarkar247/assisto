@@ -10,6 +10,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/analytics_charts.dart';
 import '../widgets/skeleton.dart';
+import '../ds/ds.dart';
 
 /// Owner Analytics dashboard — ADVANCED (SPEC v2.1 §21, launch gap P15).
 ///
@@ -370,7 +371,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
           Text(
             '${t.analyticsViewToPaid}: '
             '${_pct(funnel['view_to_paid_pct'] as num?, loc)}',
-            style: const TextStyle(fontWeight: FontWeight.w700),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: Gap.xl),
 
@@ -431,7 +432,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
               const SizedBox(width: Gap.sm),
               Text(
                 '${t.analyticsPaidUsers}: ${_int(totalPaid, loc)}',
-                style: const TextStyle(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular),
               ),
             ],
           ),
@@ -441,7 +442,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
           if (known && totalRevenue != null)
             Text(
               '${t.analyticsRevenueTotal}: ${_int(totalRevenue, loc)}',
-              style: const TextStyle(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, fontFeatures: AFonts.tabular),
             )
           else
             _EstimateBadge(text: t.analyticsRevenueUnknown),
@@ -619,32 +620,30 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(Gap.lg),
-      decoration: const BoxDecoration(
-        gradient: Brand.gradient,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(Radii.lg)),
-      ),
+    final ds = DsTokens.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: Gap.md),
+      child: DsHeroCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            const Icon(Icons.insights_rounded, color: Colors.white),
+            Icon(Icons.insights_rounded, color: ds.primaryInk),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(
                 title,
-                style: AType.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.w800),
+                style: AType.titleLarge.copyWith(color: ds.text, fontWeight: FontWeight.w800),
               ),
             ),
           ]),
           const SizedBox(height: Gap.xs),
           Text(
             subtitle,
-            style: const TextStyle(color: Colors.white, height: 1.35),
+            style: AType.bodyMedium.copyWith(color: ds.muted, height: 1.35),
           ),
         ],
+      ),
       ),
     );
   }
@@ -775,7 +774,7 @@ class _FeatureRow extends StatelessWidget {
             child: Text(
               feature,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           Text(
