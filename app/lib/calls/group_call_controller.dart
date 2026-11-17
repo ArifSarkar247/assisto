@@ -854,6 +854,10 @@ class GroupCallController extends ChangeNotifier {
   }
 
   // ----------------------------------------------------------------- stats
+  /// Tests / the e2e proof: take one stats sample of every leg now.
+  @visibleForTesting
+  Future<void> sampleStatsNow() => _sampleStats();
+
   Future<void> _sampleStats() async {
     if (!isLive) return;
     final at = now();
