@@ -332,6 +332,8 @@ def _widget_gate(request, key):
     if not G1.origin_allowed(origin, a.widget_origins):
         return None, None, JsonResponse({"ok": False, "error": "origin_not_allowed"}, status=403)
     ch = G1S.widget_channel(a.business)
+    if ch is None:
+        return None, None, JsonResponse({"ok": False, "error": "unknown_widget"}, status=404)
     if not ch.enabled:
         return None, None, _cors(JsonResponse({"ok": False, "error": "disabled"}, status=403),
                                  origin, a)
