@@ -22,6 +22,8 @@ import 'package:assisto/screens/watchman/cctv_escalate.dart';
 import 'package:assisto/screens/watchman/cctvx_actions.dart';
 import 'package:assisto/screens/watchman/cctv_watch_screen.dart';
 import 'package:assisto/screens/watchman/guard_box_screen.dart';
+import 'package:assisto/screens/watchman/old_phone_hub.dart';
+import 'package:assisto/widgets/sidebar_sections.dart';
 import 'package:assisto/screens/watchman/watchman_viewers.dart';
 import 'package:assisto/theme.dart';
 
@@ -587,5 +589,45 @@ void main() {
     expect(en.gcvHowPriced('500', '250'), contains('A plan for more cameras adds 250 tk'));
     expect(en.gcvHowPriced('500', '250'), contains('uses credits'));
     expect(en.gcvHowPriced('500', '250'), isNot(contains('Each extra camera is')));
+  });
+
+  group('D3 one job = one tile', () {
+    testWidgets('one entry for every old-phone way, with sections inside', (tester) async {
+      _phone(tester, height: 2000);
+      await tester.pumpWidget(_app(const Scaffold(
+          body: OldPhoneHubSheet(siteId: 3, guardBoxOn: true))));
+      await _settle(tester);
+      expect(find.byKey(const Key('gcv-hub-pair')), findsOneWidget);
+      expect(find.byKey(const Key('gcv-hub-this')), findsOneWidget);
+      expect(find.byKey(const Key('gcv-hub-guardbox')), findsOneWidget);
+      expect(find.text(en.gcvLinuxTitle), findsOneWidget);
+      // on the old phone itself (no place yet) and Guard Box switched off
+      await tester.pumpWidget(_app(const Scaffold(body: OldPhoneHubSheet(guardBoxOn: false))));
+      await _settle(tester);
+      expect(find.byKey(const Key('gcv-hub-pair')), findsNothing);
+      expect(find.byKey(const Key('gcv-hub-guardbox')), findsNothing);
+      expect(find.byKey(const Key('gcv-hub-this')), findsOneWidget);
+    });
+
+    test('Shop Box is not a second tile; its old names find the CCTV tile', () {
+      final routes = [
+        for (final sec in SidebarSections.allModes)
+          for (final i in sec.items) i.route ?? ''
+      ];
+      expect(routes.where((r) => r == 'watchman').length, 1);
+      final cctv = [
+        for (final sec in SidebarSections.allModes)
+          for (final i in sec.items)
+            if (i.route == 'watchman') i
+      ].single;
+      expect(cctv.includes, contains('cctv_watchman'));
+      expect(cctv.synonyms, contains('shop box'));
+      final labels = [
+        for (final sec in SidebarSections.allModes)
+          for (final i in sec.items) i.label(en)
+      ];
+      expect(labels, isNot(contains(en.shopBoxTitle)));
+      expect(SidebarSections.filter(en, 'shop box'), isNotEmpty);
+    });
   });
 }

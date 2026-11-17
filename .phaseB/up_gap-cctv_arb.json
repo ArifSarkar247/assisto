@@ -9,7 +9,7 @@
   "gcvLinuxStep2": "On the box, open a terminal and run this one line (it checks the download's SHA-256 before installing):",
   "gcvLinuxStep3": "Then run the setup. It finds the cameras and keeps their passwords only on the box:",
   "gcvLinuxStep4": "When the box asks for a code, type the short code shown above. It turns green here when it joins.",
-  "gcvLinuxStep4Where": "When the box asks for a code, tap \"Use an old phone as a camera\" on this place card and type the short code it shows.",
+  "gcvLinuxStep4Where": "When the box asks for a code, open \"Old phone or small box\" on this place, tap \"Use an old phone as a camera\" and type the short code it shows.",
   "gcvLinuxPrivacy": "The video stays on the box. Only alert photos and short clips are sent. It restarts by itself after a power cut and updates once a day.",
   "gcvLinuxCopy": "Copy",
   "gcvLinuxCopied": "Copied",
@@ -87,7 +87,24 @@
      "type": "String"
     }
    }
-  }
+  },
+  "gcvPairPhone2": "Open menu → CCTV → Shop tools → Shop Box mode, then scan or paste the code below.",
+  "@gcvPairPhone2": {
+   "description": "gap-cctv D3: Shop Box now lives inside CCTV"
+  },
+  "gcvHubTitle": "Old phone or small box",
+  "@gcvHubTitle": {
+   "description": "gap-cctv D3: one entry for old phone / Guard Box / Linux box"
+  },
+  "gcvHubIntro": "No new camera needed. Pick how the old phone (or a small box) helps this place:",
+  "gcvHubPairSub": "The old phone's own camera watches a spot. Show its pairing code here.",
+  "gcvHubThisSub": "You are holding the old phone: turn this phone into the camera now.",
+  "gcvHubGuardBoxSub": "An old phone on the shop Wi-Fi reads your IP camera and checks the cash area.",
+  "gcvShopToolsTitle": "Shop tools: sales, day-end, reports",
+  "@gcvShopToolsTitle": {
+   "description": "gap-cctv D3: Shop Box as a section of CCTV"
+  },
+  "gcvShopToolsSub": "Shop Box: cash drawer and sales match, day-end check, camera accuracy"
  },
  "bn": {
   "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
@@ -96,7 +113,7 @@
   "gcvLinuxStep2": "বক্সে টার্মিনাল খুলে এই এক লাইন চালান (ইনস্টলের আগে ফাইলের SHA-256 মিলিয়ে নেয়):",
   "gcvLinuxStep3": "তারপর সেটআপ চালান। এটি ক্যামেরা খুঁজে নেয়, পাসওয়ার্ড শুধু বক্সেই রাখে:",
   "gcvLinuxStep4": "বক্স কোড চাইলে ওপরের ছোট কোডটি লিখুন। যুক্ত হলেই এখানে সবুজ দেখাবে।",
-  "gcvLinuxStep4Where": "বক্স কোড চাইলে এই জায়গার কার্ডে \"পুরনো ফোনকে ক্যামেরা বানান\" চাপুন, সেখানে দেখানো ছোট কোডটি লিখুন।",
+  "gcvLinuxStep4Where": "বক্স কোড চাইলে এই জায়গায় \"পুরনো ফোন বা ছোট বক্স\" খুলে \"পুরনো ফোনকে ক্যামেরা বানান\" চাপুন, সেখানে দেখানো ছোট কোডটি লিখুন।",
   "gcvLinuxPrivacy": "ভিডিও বক্সেই থাকে। শুধু সতর্কতার ছবি আর ছোট ক্লিপ পাঠানো হয়। বিদ্যুৎ গেলে নিজে আবার চালু হয়, দিনে একবার নিজে আপডেট নেয়।",
   "gcvLinuxCopy": "কপি",
   "gcvLinuxCopied": "কপি হয়েছে",
@@ -121,6 +138,14 @@
   "gcvGbLost": "সংযোগ নেই — মালিক এই ক্যামেরা বা জোড়া সরিয়েছেন। আবার জোড়া লাগান।",
   "gcvGbForget": "এই জোড়া ভুলে যান",
   "gcvGbForgetAsk": "এই জোড়া ভুলে যাবেন? নতুন কোড দিয়ে আবার জোড়া না লাগানো পর্যন্ত বক্স পাহারা দেবে না।",
-  "gcvHowPriced": "মাসে {base} টাকায় ২টি ক্যামেরা। বেশি ক্যামেরার প্ল্যানে প্রতি ক্যামেরায় মাসে {extra} টাকা যোগ হয়। ফোন-ক্যামেরাও ক্যামেরা হিসেবে গণ্য। বড় প্ল্যান না নিলে প্ল্যানের বাইরের ক্যামেরায় ক্রেডিট লাগে — ঠিক কত, তা যোগ করার সময় দেখানো হয়।"
+  "gcvHowPriced": "মাসে {base} টাকায় ২টি ক্যামেরা। বেশি ক্যামেরার প্ল্যানে প্রতি ক্যামেরায় মাসে {extra} টাকা যোগ হয়। ফোন-ক্যামেরাও ক্যামেরা হিসেবে গণ্য। বড় প্ল্যান না নিলে প্ল্যানের বাইরের ক্যামেরায় ক্রেডিট লাগে — ঠিক কত, তা যোগ করার সময় দেখানো হয়।",
+  "gcvPairPhone2": "মেনু → সিসিটিভি → দোকানের টুল → Shop Box মোড খুলে নিচের কোড স্ক্যান বা পেস্ট করুন।",
+  "gcvHubTitle": "পুরনো ফোন বা ছোট বক্স",
+  "gcvHubIntro": "নতুন ক্যামেরা লাগবে না। পুরনো ফোন (বা ছোট বক্স) কীভাবে এই জায়গায় কাজে লাগবে, বেছে নিন:",
+  "gcvHubPairSub": "পুরনো ফোনের নিজের ক্যামেরা একটি জায়গা দেখবে। এখানে তার জোড়া লাগানোর কোড দেখান।",
+  "gcvHubThisSub": "পুরনো ফোনটি আপনার হাতে থাকলে: এখনই এই ফোনকে ক্যামেরা বানান।",
+  "gcvHubGuardBoxSub": "দোকানের ওয়াই-ফাইয়ে থাকা পুরনো ফোন আপনার IP ক্যামেরা দেখে আর ক্যাশের জায়গা পরীক্ষা করে।",
+  "gcvShopToolsTitle": "দোকানের টুল: বিক্রি, দিনশেষ, রিপোর্ট",
+  "gcvShopToolsSub": "শপ বক্স: ক্যাশ ড্রয়ার ও বিক্রি মেলানো, দিনশেষের হিসাব, ক্যামেরার নির্ভুলতা"
  }
 }
