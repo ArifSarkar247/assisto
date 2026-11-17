@@ -91,6 +91,9 @@ _BN = {
                  "ফ্ল্যাট কিন", "বিনিয়োগ", "চুক্তি", "মামলা", "অপারেশন", "সার্জারি"),
 }
 _EN_RE = {k: re.compile(v, re.I) for k, v in _EN.items()}
+# NFC: য় / ড় / ঢ় are composition exclusions (NFC writes them as two code
+# points), so the word lists are normalized exactly like the incoming text.
+_BN = {k: tuple(dict.fromkeys(unicodedata.normalize("NFC", w) for w in v)) for k, v in _BN.items()}
 _BN_DIGITS = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
 
@@ -147,6 +150,7 @@ PHRASES = (
     "ঠিক আছে", "আচ্ছা", "জি", "জ্বি", "ওকে", "ভাই", "আপু", "ইনশাআল্লাহ", "আলহামদুলিল্লাহ",
     "আসসালামু আলাইকুম", "সালাম", "ধন্যবাদ", "হুম", "হাহা", "আসছি", "পরে কথা বলি",
 )
+PHRASES = tuple(unicodedata.normalize("NFC", p) for p in PHRASES)
 _FORMAL_BN = ("আপনি", "আপনার", "আপনাকে")
 _INFORMAL_BN = ("তুমি", "তোমার", "তোমাকে", "তুই", "তোর")
 _FORMAL_RO = re.compile(r"\b(apni|apnar|apnake|please|kindly|regards|sir|madam)\b", re.I)
@@ -156,7 +160,7 @@ _INFORMAL_RO = re.compile(r"\b(tumi|tomar|tomake|tui|tor|bro|dude|yaar)\b", re.I
 def style_profile(samples):
     """Compact profile from the user's OWN sent messages. Returns only numbers,
     shares and allow-listed phrases: no sentence of the input survives."""
-    msgs = [str(s or "")[:CONTEXT_LINE_MAX] for s in (samples or [])][:SAMPLES_MAX]
+    msgs = [_norm(s)[:CONTEXT_LINE_MAX] for s in (samples or [])][:SAMPLES_MAX]
     msgs = [m for m in msgs if m.strip()]
     n = len(msgs)
     if not n:

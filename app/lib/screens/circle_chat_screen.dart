@@ -1284,7 +1284,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
   Future<void> _send({String? textOverride, String? aiToken}) async {
     // ai-reply-core: a tapped suggestion / an AI reply is sent as given
     // (never touching what the user is typing); [aiToken] tags it.
-    final override = textOverride != null;
+    final isOverride = textOverride != null;
     final plain = (textOverride ?? _input.text).trim();
     // db1: Send on an empty box opens the keyboard instead of doing nothing.
     if (plain.isEmpty && !_sending) {
@@ -1295,7 +1295,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     if (_memberId != null) _rt.typing('member', _memberId!, 'stop');
 
     // p3: "@Assisto …" is a command to Assisto, never sent to the peer.
-    final p3i = (_editing == null && !override) ? parseAssisto(plain) : null;
+    final p3i = (_editing == null && !isOverride) ? parseAssisto(plain) : null;
     if (p3i != null) {
       setState(() => _input.clear());
       unawaited(_openAssisto(intent: p3i));
@@ -1303,7 +1303,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     }
 
     // Edit path: replace an existing message within the window.
-    if (_editing != null && !override) {
+    if (_editing != null && !isOverride) {
       await _applyEdit(_editing!, plain);
       return;
     }
@@ -1320,8 +1320,8 @@ class _CircleChatScreenState extends State<CircleChatScreen>
     // the send; with no key yet the message waits in the persistent outbox
     // (clock icon) and goes out by itself once the peer's phone publishes.
     final clientMsgId = 'local-${DateTime.now().microsecondsSinceEpoch}';
-    final replyId = override ? null : _replyTo?.id;
-    final replyPrev = override ? null : _replyTo?.text;
+    final replyId = isOverride ? null : _replyTo?.id;
+    final replyPrev = isOverride ? null : _replyTo?.text;
     final sentAt = DateTime.now();
 
     // Link preview is built HERE (sender device). We detect the URL locally;
@@ -1350,7 +1350,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
       _sending = true;
       _messages = [..._messages, echo];
       _aiChips = const []; // ai-reply-core: answered — chips go
-      if (!override) {
+      if (!isOverride) {
         _input.clear();
         _draftPreview = null; // circlea
         _draftUrl = null;
