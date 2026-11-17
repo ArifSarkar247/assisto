@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../cctvconnect/cctv_connect_screen.dart'; // gap-cctv
 import '../../ds/ds.dart';
 import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
@@ -356,6 +357,23 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
         const SizedBox(height: 8),
         Text(widget.imouCloud ? t.wmPhoneGwLanLater : t.wmPhoneGwLanLaterNoImou,
             style: Theme.of(context).textTheme.bodySmall),
+        // gap-cctv: an existing DVR works through its brand cloud on a
+        // phone gateway too (EZVIZ / Hik-Connect / DoLynk / Imou)
+        const SizedBox(height: 8),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: OutlinedButton.icon(
+            key: const ValueKey('wm-add-brand-cloud'),
+            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+            icon: const Icon(Icons.cloud_sync_rounded),
+            label: Text(t.ccnEntry),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => CctvConnectScreen(
+                    siteId: (widget.site['id'] as num?)?.toInt() ?? 0,
+                    siteName: (widget.site['name'] ?? '').toString(),
+                    lanGateway: false))),
+          ),
+        ),
       ],
       const Divider(height: 28),
       Text(t.wmCostLine(wmDigits(lang, included), wmDigits(lang, cost), wmDigits(lang, days),

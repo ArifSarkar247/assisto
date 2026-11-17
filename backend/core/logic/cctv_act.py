@@ -136,6 +136,10 @@ def learn_apply(row, now_ts, confidence, etype, kind, away):
 
 
 def learn_summary(row, now_ts, lang):
+    # gap-cctv: nothing answered yet for this pattern — invite, never thank
+    if not row or not (int(row.get("w", 0) or 0) or int(row.get("c", 0) or 0)):
+        return pick(lang, "ভুল সতর্কতা হলে জানান — Assisto এই দোকানের জন্য শিখবে।",
+                    "Tell us if this alert was wrong — Assisto learns for this shop.")
     n = net_wrong(row, now_ts)
     f = learn_factor(row, now_ts)
     if n >= QUIET_AT_NET:

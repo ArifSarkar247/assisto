@@ -85,7 +85,6 @@ import '../screens/guide_screen.dart';
 import '../screens/nearby_screen.dart';
 import '../screens/city/city_service_screen.dart'; // cityapp
 import '../screens/ride_food_screen.dart';
-import '../screens/shop_box_screen.dart';
 import '../screens/watchman/watchman_screen.dart'; // cctv1
 import '../screens/merged/phone_tiles.dart'; // svcclean
 import '../screens/fall_detect_screen.dart' show FallDetectScreen; // svcclean
@@ -469,10 +468,16 @@ class SidebarSections {
       SidebarItem(Icons.videocam_rounded, (t) => t.svcCctvWatch,
           route: 'watchman', // svcclean
           feature: 'home_watchman',
+          // gap-cctv D3: Shop Box (POS, day-end, reports) is a section inside
+          includes: const ['cctv_watchman'],
+          alsoLabels: [(t) => t.shopBoxTitle],
           (_) => const WatchmanScreen(),
           synonyms: ['cctv', 'camera', 'watchman', 'home camera', 'imou',
               'hikvision', 'dahua', 'tapo', 'ezviz', 'security camera',
-              'pahara', 'pahaladar']),
+              'pahara', 'pahaladar',
+              // gap-cctv D3: the old Shop Box tile's names find CCTV now
+              'shop box', 'loss prevention', 'shop security', 'theft', 'churi',
+              'dokan', 'store camera', 'surveillance', 'alert camera']),
     ]),
     // 5. Kids — svcclean: the children's features together
     SidebarSection('kids', Icons.child_care_rounded,
@@ -949,16 +954,9 @@ class SidebarSections {
           synonyms: ['marketing', 'marketing engine', 'marketing plan', 'content calendar',
               'facebook post', 'post ideas', 'reels ideas', 'caption', 'campaign', 'festival post',
               'eid offer', 'boishakh offer', 'ad budget', 'follow up sequence']),
-      // Part 4: Shop Box / CCTV loss-prevention (Business tier). Signals-only,
-      // privacy-first: NO video. ChatNav route 'shop_box'.
-      // svcclean: Shop Box (shop CCTV loss prevention) is a business tool —
-      // in Business, so Family & Safety keeps exactly 8 tiles.
-      SidebarItem(Icons.storefront_rounded, (t) => t.shopBoxTitle,
-          feature: 'cctv_watchman',
-          (_) => const ShopBoxScreen(),
-          synonyms: ['shop box', 'cctv', 'camera', 'loss prevention',
-              'shop security', 'theft', 'churi', 'dokan', 'store camera',
-              'surveillance', 'alert camera']),
+      // gap-cctv D3 (owner rule: one job = one tile): Shop Box is no longer a
+      // second tile — it is the "Shop tools" section inside CCTV (watchman).
+      // ChatNav route 'shop_box' still opens it (old links / alerts / shortcuts).
     ]),
   ];
 

@@ -129,11 +129,25 @@ def on_verdict(ev, before, after, reason=""):
     """The owner's Correct / Wrong on an alert -> this SITE's pattern.
     Called from shop_views.ShopEventMarkView. Never raises."""
     try:
+        reason = reason if reason in A.WRONG_REASONS else ""
         if before == after:
-            return None
+            # gap-cctv: Wrong on the card first, then the reason in the sheet —
+            # keep the reason (it is not counted as a second wrong)
+            if after != "false_alarm" or not reason:
+                return None
+            key = _event_key(ev)
+
+            def add_reason(learn):
+                learn = learn if isinstance(learn, dict) else {}
+                row = dict(learn.get(key) or {})
+                rs = dict(row.get("r") or {})
+                rs[reason] = int(rs.get(reason, 0) or 0) + 1
+                row["r"] = rs
+                learn[key] = row
+                return dict(row)
+            return guard_update(ev.site, A.LEARN_KEY, add_reason)
         key = _event_key(ev)
         ts = timezone.now().timestamp()
-        reason = reason if reason in A.WRONG_REASONS else ""
 
         def f(learn):
             if before == "false_alarm":
@@ -231,12 +245,36 @@ def thana_for(site, lang="bn", refresh=False, now=None):
             "lat": loc["lat"], "lng": loc["lng"]}
 
 
-def act_actions(ev, role):
+def live_for_role(cam, site, role, user):
+    """gap-cctv: the Live tile only for someone the live start will admit —
+    the owner, or a viewer whose role covers this camera and whom the owner
+    allowed live (brand-cloud live stays owner-only). Never logs access."""
+    live = live_path(cam, site)
+    if role == "owner" or live.get("path") is None:
+        return live
+    hidden = {"path": None, "reason": "owner_only"}
+    if live.get("path") != "webrtc" or user is None or cam is None:
+        return hidden
+    try:
+        from . import cctv_team_views as CTV
+        from .logic import cctv_team as CT
+        r, scope = CTV.scope_for(site, user)
+        if r is None or r == "owner" or not CT.camera_allowed(scope, cam.id):
+            return hidden
+        if not CTV.viewer_live_ok(cam, CTV.viewer_of(site, user)):
+            return hidden
+    except Exception:
+        log.exception("cctvact live role check failed")
+        return hidden
+    return live
+
+
+def act_actions(ev, role, user=None):
     """Extra alert actions for actions_for() (cctvx). Never raises."""
     try:
         site, cam = ev.site, ev.camera
         lang = "bn"
-        out = {"site_id": site.id, "role": role, "live": live_path(cam, site)}
+        out = {"site_id": site.id, "role": role, "live": live_for_role(cam, site, role, user)}
         pend = [{"id": p["id"], "name": p.get("name") or ""}
                 for p in _auto(site).get("pending") or [] if p.get("event_id") == ev.id]
         if role == "owner" and pend:
@@ -247,8 +285,16 @@ def act_actions(ev, role):
             cache = guard_get(site, "_thana") or {}
             out["thana"] = {"has_location": bool(loc.get("lat")),
                             "stations": cache.get("stations") or [] if loc.get("lat") else [],
+                            # gap-cctv: a failed lookup is never cached, so a
+                            # location with no cache = "could not look up"
+                            "state": ("no_location" if not loc.get("lat") else
+                                      (cache.get("state") or "ok") if cache.get("at")
+                                      else "unavailable"),
                             "emergency": "999"}
             out["play"] = play_targets(site)
+            # gap-cctv: is the owner's own warning recorded? (else the tile
+            # offers "record it first" instead of a 409 after confirming)
+            out["has_warn"] = bool(((site.guard or {}).get("_warn") or {}).get("name"))
         sig = ev.signals if isinstance(ev.signals, dict) else {}
         if sig.get("auto"):
             out["auto"] = sig["auto"]

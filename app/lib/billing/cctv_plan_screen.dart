@@ -375,7 +375,8 @@ class _CctvPlanScreenState extends State<CctvPlanScreen> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.cplHowManyCameras, style: tt.titleMedium),
           const SizedBox(height: 4),
-          Text(t.cplHowPriced(_n((d['base_price'] as num?)?.toInt() ?? 0),
+          Text(t.gcvHowPriced( // gap-cctv D2: a bigger PLAN, not a per-camera charge
+_n((d['base_price'] as num?)?.toInt() ?? 0),
               _n((d['extra_camera_price'] as num?)?.toInt() ?? 0))),
           const SizedBox(height: 10),
           Wrap(spacing: 8, runSpacing: 8, children: [

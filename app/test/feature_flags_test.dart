@@ -43,10 +43,11 @@ Future<({int status, Map<String, dynamic>? body, String? etag})> _offline(
         String? _) =>
     Future.error(Exception('offline'));
 
+// gap-cctv D3: a tile's sections count too (Shop Box is a section of CCTV)
 Set<String> _sidebarFeatures() => {
       for (final s in SidebarSections.all)
         for (final i in s.items)
-          if (i.feature != null) i.feature!,
+          if (i.visible) ...i.features,
     };
 
 Future<AppLocalizations> _pump(WidgetTester tester, Widget home) async {

@@ -46,6 +46,10 @@ final Map<String, Widget Function(String)> phonecamShots = {
           audio: true,
           warnings: const ['unplugged', 'hot'])),
   'pc_pair_sheet': (_) => const Scaffold(body: PhoneCamPairSheet(load: pcFakePair)),
+  // gap-cctv: the Raspberry Pi / Linux Guard Box steps, open
+  'gcv_linux_steps': (_) => const Scaffold(
+      body: SingleChildScrollView(
+          padding: EdgeInsets.all(16), child: GuardBoxLinuxSteps(initiallyExpanded: true))),
   'pc_health_pills': (_) => const Scaffold(
         body: Padding(
           padding: EdgeInsets.all(16),
