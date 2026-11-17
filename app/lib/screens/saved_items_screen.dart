@@ -4,6 +4,8 @@ import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/fade_chip_row.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/saved_logic.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -97,16 +99,16 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
     if (_error) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.savedTitle)),
-        body: StateMessage(
-          icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
-          title: tr.loadFailed,
-          message: honestFailText(tr, _failCause, otherwise: tr.savedLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry)),
-        ),
+        body: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+          DsEmptyState(
+            icon: Icons.cloud_off_rounded,
+            danger: true,
+            title: tr.loadFailed,
+            benefit: honestFailText(tr, _failCause, otherwise: tr.savedLoadError),
+            actionLabel: tr.retry,
+            onAction: _load,
+          ),
+        ]),
       );
     }
 
@@ -135,16 +137,15 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
 
   Widget _welcome(BuildContext context) {
     final tr = AppLocalizations.of(context);
-    return StateMessage(
-      icon: Icons.bookmarks_rounded,
-      title: tr.savedWelcomeTitle,
-      message: tr.savedWelcomeBody,
-      action: FilledButton.icon(
-        onPressed: _addItem,
-        icon: const Icon(Icons.bookmark_add_rounded),
-        label: Text(tr.savedAdd),
+    return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      DsEmptyState(
+        icon: Icons.bookmarks_rounded,
+        title: tr.savedWelcomeTitle,
+        benefit: tr.savedWelcomeBody,
+        actionLabel: tr.savedAdd,
+        onAction: _addItem,
       ),
-    );
+    ]);
   }
 
   Widget _searchBar(BuildContext context) {
@@ -168,9 +169,6 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
                     setState(() => _query = '');
                   },
                 ),
-          isDense: true,
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(Radii.md)),
         ),
       ),
     );
@@ -178,10 +176,8 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
 
   Widget _tagChips(BuildContext context, List<MapEntry<String, int>> counts) {
     final tr = AppLocalizations.of(context);
-    return SizedBox(
-      height: 44,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
+    // design3: grows with the font (the fixed 44 dp strip cut chips at 200%)
+    return FadeChipRow(
         padding: const EdgeInsets.symmetric(horizontal: Gap.md),
         children: [
           Padding(
@@ -202,29 +198,27 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
               ),
             ),
         ],
-      ),
     );
   }
 
   Widget _list(BuildContext context, SavedResult result) {
     final tr = AppLocalizations.of(context);
     if (result.noResults) {
-      return StateMessage(
-        icon: Icons.search_off_rounded,
-        title: tr.savedNoResultsTitle,
-        message: tr.savedNoResultsBody,
-        action: OutlinedButton.icon(
-          onPressed: () {
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: Icons.search_off_rounded,
+          title: tr.savedNoResultsTitle,
+          benefit: tr.savedNoResultsBody,
+          actionLabel: tr.savedClearFilters,
+          onAction: () {
             _searchCtl.clear();
             setState(() {
               _query = '';
               _tag = '';
             });
           },
-          icon: const Icon(Icons.clear_all_rounded),
-          label: Text(tr.savedClearFilters),
         ),
-      );
+      ]);
     }
     return RefreshIndicator(
       onRefresh: _load,
@@ -334,13 +328,11 @@ class _SavedCard extends StatelessWidget {
     final tag = SavedLogic.normaliseTag(item['tag']);
     final note = (item['note'] ?? '').toString();
     final ref = (item['ref'] ?? '').toString();
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsCard(
         onTap: onEdit,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
+        padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Icon(_kindIcon(kind), size: 18, color: scheme.primary),
@@ -381,10 +373,10 @@ class _SavedCard extends StatelessWidget {
               ]),
             ],
             const SizedBox(height: Gap.sm),
-            Row(children: [
+            // design3: wraps at a big font instead of overflowing
+            Wrap(spacing: Gap.xs, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
               _kindChip(context, kind),
               if (tag.isNotEmpty) ...[
-                const SizedBox(width: Gap.xs),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
@@ -396,15 +388,14 @@ class _SavedCard extends StatelessWidget {
                       style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ),
               ],
-              const Spacer(),
               if ((item['created'] ?? '').toString().isNotEmpty)
                 Text((item['created']).toString(),
                     style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
             ]),
           ]),
-        ),
       ),
     );
+
   }
 }
 
@@ -507,14 +498,14 @@ class _SavedFormState extends State<_SavedForm> {
                 decoration: InputDecoration(
                     labelText: tr.savedTitleLabel,
                     hintText: tr.savedTitleHint,
-                    border: const OutlineInputBorder()),
+                    ),
               ),
               const SizedBox(height: Gap.md),
               DropdownButtonFormField<String>(
                 initialValue: _kind,
                 decoration: InputDecoration(
                     labelText: tr.savedKindLabel,
-                    border: const OutlineInputBorder()),
+                    ),
                 items: [
                   for (final k in SavedLogic.kinds)
                     DropdownMenuItem(value: k, child: Text(_kindLabel(tr, k))),
@@ -536,7 +527,7 @@ class _SavedFormState extends State<_SavedForm> {
                       hintText: _kind == 'link'
                           ? tr.savedLinkHint
                           : tr.savedDocHint,
-                      border: const OutlineInputBorder()),
+                      ),
                 ),
               ],
               const SizedBox(height: Gap.md),
@@ -549,7 +540,7 @@ class _SavedFormState extends State<_SavedForm> {
                     labelText: tr.savedNoteLabel,
                     hintText: tr.savedNoteHint,
                     alignLabelWithHint: true,
-                    border: const OutlineInputBorder()),
+                    ),
               ),
               const SizedBox(height: Gap.md),
               TextField(
@@ -559,7 +550,7 @@ class _SavedFormState extends State<_SavedForm> {
                     labelText: tr.savedTagLabel,
                     hintText: tr.savedTagHint,
                     prefixText: '# ',
-                    border: const OutlineInputBorder()),
+                    ),
               ),
               const SizedBox(height: Gap.lg),
               Row(children: [
