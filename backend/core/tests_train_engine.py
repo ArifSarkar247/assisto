@@ -724,3 +724,28 @@ class TowerMapTests(TestCase):
         self.assertIsNotNone(m[0]["no"])
         self.assertIsNotNone(m[0]["km"])
         self.assertEqual(m[0]["n"], 5)
+
+
+class LoadTests(EngineBase):
+    """CI-only load check (never run against the live server): 60 riders x
+    20 points on one train + 20k projections stay well inside the budget."""
+
+    def test_projection_throughput(self):
+        import time
+        rt = _rt()
+        pts = [rt.point_at(i * 25.0) for i in range(20000)]
+        t0 = time.monotonic()
+        for lat, lng in pts:
+            rt.project(lat, lng)
+        self.assertLess(time.monotonic() - t0, 6.0)
+
+    def test_many_riders_one_train(self):
+        import time
+        t0 = time.monotonic()
+        for k in range(60):
+            tr = self.trip()
+            pts = [_pt(150000 + 500 * i + 7 * k, 240 + i * 0.5, speed=16.6) for i in range(20)]
+            TE.ingest(tr, pts, now=_at(250))
+        st = TE.recompute(self.t, DAY, now=_at(250))
+        self.assertEqual(st["contributors"], 60)
+        self.assertLess(time.monotonic() - t0, 60.0)
