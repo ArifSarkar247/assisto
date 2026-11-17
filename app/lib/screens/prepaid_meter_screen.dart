@@ -360,13 +360,15 @@ class _MeterCard extends StatelessWidget {
                             ?.copyWith(fontWeight: FontWeight.bold)),
                   ]),
             ),
-            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+            // design3 (2.0x): the state column may shrink and wrap
+            Flexible(child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Row(mainAxisSize: MainAxisSize.min, children: [
                 Icon(stateIcon, size: 16, color: stateColor),
                 const SizedBox(width: Gap.xs),
-                Text(stateLabel,
+                Flexible(child: Text(stateLabel,
+                    textAlign: TextAlign.end,
                     style: AType.bodyMedium.copyWith(
-                        color: stateColor, fontWeight: FontWeight.w600)),
+                        color: stateColor, fontWeight: FontWeight.w600))),
               ]),
               const SizedBox(height: Gap.xxs),
               Text(
@@ -378,7 +380,7 @@ class _MeterCard extends StatelessWidget {
                             notifLocalizeDigits(context, '${row.daysLeft}'))),
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted),
               ),
-            ]),
+            ])),
           ]),
         ),
         // Detail chips
@@ -456,8 +458,8 @@ class _MeterCard extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: scheme.ds.muted),
         const SizedBox(width: Gap.xs),
-        Text(label,
-            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+        Flexible(child: Text(label,
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted))),
       ]),
     );
   }

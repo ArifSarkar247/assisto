@@ -600,7 +600,8 @@ class _TodoTile extends StatelessWidget {
       Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 12, color: tint),
         const SizedBox(width: Gap.xxs),
-        Text(label, style: AType.labelSmall.copyWith(color: tint)),
+        // design3 (2.0x): wraps instead of overflowing the tile
+        Flexible(child: Text(label, style: AType.labelSmall.copyWith(color: tint))),
       ]);
 }
 
