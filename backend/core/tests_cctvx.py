@@ -233,13 +233,15 @@ class _X(_Base):
         self.m.force_authenticate(self.mgr)
         # gap-cctv (time-of-day flake, 17 Nov): the per-minute tick also sends
         # the daily CLOSING REPORT from 22:15 local (cctvact default close
-        # 22:00 + 15 min), so between 16:15 and 18:00 UTC these tests saw one
-        # extra push. The report has its own clock-pinned tests
-        # (tests_cctvact.ReportAskApiTests); here it is switched off the way
-        # an owner does (closing report push = off), so the asserted pushes
-        # are only the guard's own at every hour of the day.
-        from core import cctv_act_views as ACTV
-        ACTV.guard_update(self.sobj, "_act3", lambda st: st.__setitem__("push", False))
+        # 22:00 + 15 min), so between 16:15 and 18:00 UTC the guard tests saw
+        # one extra push. The report is not what these tests check — it has
+        # its own clock-pinned tests (tests_cctvact.ReportAskApiTests sets
+        # keep_closing_report) — so it is held still here; every asserted
+        # push stays exactly as strict, at every hour of the day.
+        if not getattr(self, "keep_closing_report", False):
+            p = mock.patch("core.cctv_act_views.run_closing", return_value=False)
+            p.start()
+            self.addCleanup(p.stop)
 
     def records(self):
         """The shop records its sales in Assisto (a sale 3 days ago)."""
