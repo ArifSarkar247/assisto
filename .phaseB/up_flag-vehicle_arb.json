@@ -1,0 +1,41 @@
+{
+ "en": {
+  "vehHoldTitle": "The vehicle is moving",
+  "@vehHoldTitle": {
+   "description": "flag-vehicle: engine cut asked while the vehicle moves"
+  },
+  "vehHoldBody": "For safety, Assisto never cuts the engine of a moving vehicle. We can send the engine cut automatically as soon as it has stopped. We wait up to {minutes} minutes, then cancel it and tell you. You can cancel it any time.",
+  "@vehHoldBody": {
+   "description": "flag-vehicle: explains the wait-until-stopped engine cut",
+   "placeholders": {
+    "minutes": {
+     "type": "String"
+    }
+   }
+  },
+  "vehHoldCta": "Send when stopped",
+  "@vehHoldCta": {
+   "description": "flag-vehicle: button, hold the engine cut until the vehicle stops"
+  },
+  "vehHoldQueued": "Waiting for the vehicle to stop. The engine cut goes out by itself then, and you get a notification.",
+  "@vehHoldQueued": {
+   "description": "flag-vehicle: snack after a held engine cut was confirmed"
+  },
+  "vehCmdStWaitStop": "waiting for the vehicle to stop",
+  "@vehCmdStWaitStop": {
+   "description": "flag-vehicle: command state, held until stopped"
+  },
+  "vehCmdStNeverStopped": "not sent: the vehicle did not stop",
+  "@vehCmdStNeverStopped": {
+   "description": "flag-vehicle: command state, hold expired"
+  }
+ },
+ "bn": {
+  "vehHoldTitle": "গাড়িটি চলছে",
+  "vehHoldBody": "নিরাপত্তার জন্য Assisto চলন্ত গাড়ির ইঞ্জিন কখনো বন্ধ করে না। গাড়ি থামার সাথে সাথে আমরা নিজে থেকেই ইঞ্জিন বন্ধের নির্দেশ পাঠাতে পারি। সর্বোচ্চ {minutes} মিনিট অপেক্ষা করব, তারপর বাতিল করে আপনাকে জানাব। আপনি যেকোনো সময় বাতিল করতে পারেন।",
+  "vehHoldCta": "থামলে পাঠান",
+  "vehHoldQueued": "গাড়ি থামার অপেক্ষায় আছি। থামলেই ইঞ্জিন বন্ধের নির্দেশ নিজে চলে যাবে, আর আপনি নোটিফিকেশন পাবেন।",
+  "vehCmdStWaitStop": "গাড়ি থামার অপেক্ষায়",
+  "vehCmdStNeverStopped": "পাঠানো হয়নি: গাড়ি থামেনি"
+ }
+}

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../api.dart' show ApiException; // flag-vehicle
 import '../l10n/app_localizations.dart';
 import '../payments/credits_out_sheet.dart'; // credout
 import '../services/security_guard.dart';
@@ -254,7 +255,24 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     setState(() => _sending = true);
     final api = context.read<AppState>().api;
     try {
-      var r = await api.vehSendCommand(widget.trackerId, kind, pin);
+      Map<String, dynamic> r;
+      try {
+        r = await api.vehSendCommand(widget.trackerId, kind, pin);
+      } on ApiException catch (e) {
+        // flag-vehicle: moving -> offer to send it once the vehicle has
+        // stopped. The server holds it and checks "stopped" again right
+        // before the relay is switched; it is never cut while moving.
+        if (!cut || (e.message != 'moving' && e.message != 'few_fixes')) rethrow;
+        if (mounted) setState(() => _sending = false);
+        final hold = mounted ? await _askHold(tr) : false;
+        if (!mounted) return;
+        if (hold != true) {
+          _snack(tr.v100CutNotSent);
+          return;
+        }
+        setState(() => _sending = true);
+        r = await api.vehSendCommand(widget.trackerId, kind, pin, whenStopped: true);
+      }
       final token = r['confirm_token'];
       if (token is String && token.isNotEmpty) {
         // veh100: the SECOND confirmation (the server re-checks that the
@@ -274,14 +292,37 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
         setState(() => _sending = true);
         r = await api.vehConfirmCommand(cid, token);
       }
-      final state = '${vehMap(r['command'])['state']}';
-      _snack(state == 'awaiting_approval' ? tr.vehCmdAwaitingApproval : tr.vehCmdQueued);
+      final cmd = vehMap(r['command']);
+      final state = '${cmd['state']}';
+      _snack(state == 'awaiting_approval'
+          ? tr.vehCmdAwaitingApproval
+          : (cmd['wait_stop'] == true ? tr.vehHoldQueued : tr.vehCmdQueued));
     } catch (e) {
       _snack(vehReasonText(tr, e));
     }
     if (mounted) setState(() => _sending = false);
     _refreshLive();
   }
+
+  /// flag-vehicle: the vehicle is moving — wait for it to stop? Default
+  /// focus is "Cancel"; the wait is capped by the server (30 min).
+  Future<bool?> _askHold(AppLocalizations tr) => showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          scrollable: true, // insets: 200% text / keyboard
+          icon: const Icon(Icons.pause_circle_outline_rounded),
+          title: Text(tr.vehHoldTitle),
+          content: Text(tr.vehHoldBody(vehNumStr(context, 30))),
+          actions: [
+            TextButton(
+                autofocus: true,
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(tr.cancel)),
+            FilledButton(
+                onPressed: () => Navigator.pop(ctx, true), child: Text(tr.vehHoldCta)),
+          ],
+        ),
+      );
 
   /// Final check, shown AFTER the PIN: what the tracker reports right now and
   /// a 60-second window. Default focus is "Do not cut".
@@ -714,7 +755,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
       case 'awaiting_approval':
         return tr.vehCmdStAwaiting;
       case 'queued':
-        return tr.vehCmdStQueued;
+        return c['wait_stop'] == true ? tr.vehCmdStWaitStop : tr.vehCmdStQueued;
       case 'sent':
         return tr.vehCmdStSent;
       case 'acked':
@@ -727,7 +768,9 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
       case 'rejected':
         return tr.vehCmdStCancelled;
       default:
-        return tr.vehCmdStExpired;
+        return '${c['fail_reason']}' == 'never_stopped'
+            ? tr.vehCmdStNeverStopped
+            : tr.vehCmdStExpired;
     }
   }
 

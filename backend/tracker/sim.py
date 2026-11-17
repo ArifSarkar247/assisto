@@ -206,6 +206,10 @@ class H02Device:
         self.imei = imei
         self.reply_result = reply_result
         self.commands = []
+        self.command_at = []          # monotonic time each command arrived
+        self.bytes_up = 0             # payload bytes device -> server
+        self.bytes_down = 0           # payload bytes server -> device
+        self.frames_up = 0
         self.reader = self.writer = None
         self._task = None
         self._eof = asyncio.Event()
@@ -214,16 +218,20 @@ class H02Device:
         self.reader, self.writer = await asyncio.open_connection(host, port)
         self._task = asyncio.create_task(self._listen())
 
+    async def _send(self, data):
+        self.bytes_up += len(data)
+        self.frames_up += 1
+        self.writer.write(data)
+        await self.writer.drain()
+
     async def fix(self, lat, lng, speed_kmh, ignition=True, at=None, course=90,
                   sos=False, valid=True):
         at = at or datetime.now(timezone.utc)
-        self.writer.write(h02.v1_packet(self.imei, at, lat, lng, speed_kmh, course,
-                                        valid=valid, ignition=ignition, sos=sos))
-        await self.writer.drain()
+        await self._send(h02.v1_packet(self.imei, at, lat, lng, speed_kmh, course,
+                                       valid=valid, ignition=ignition, sos=sos))
 
     async def heartbeat(self):
-        self.writer.write(h02.heartbeat_packet(self.imei))
-        await self.writer.drain()
+        await self._send(h02.heartbeat_packet(self.imei))
 
     async def closed(self, timeout=2.0):
         """True if the server hung up on us (refused IMEI)."""
@@ -241,14 +249,15 @@ class H02Device:
                 if not data:
                     self._eof.set()
                     return
+                self.bytes_down += len(data)
                 buf += data
                 frames, buf = h02.split_frames(buf)
                 for fr in frames:
                     code, params = h02.parse_server_command(fr)
                     self.commands.append(",".join([code] + params))
-                    self.writer.write(h02.reply_packet(
+                    self.command_at.append(asyncio.get_running_loop().time())
+                    await self._send(h02.reply_packet(
                         self.imei, code, self.reply_result, datetime.now(timezone.utc)))
-                    await self.writer.drain()
         except (ConnectionError, asyncio.CancelledError, h02.FrameError):
             return
 
@@ -535,8 +544,95 @@ def drive_path(start_lat, start_lng, n, speed_kmh=40.0, step_s=5, t0=None,
     return out
 
 
+# flag-vehicle: a realistic Dhaka commute for the scripted E2E and by hand.
+# Made-up sample trip along public roads (no real user's data): Dhanmondi 27 /
+# Mirpur Road -> Panthapath -> Karwan Bazar. (name, lat, lng)
+DHAKA_WAYPOINTS = [("Dhanmondi 27", 23.75600, 90.37400),
+                   ("Panthapath (west)", 23.75250, 90.38150),
+                   ("Panthapath (east)", 23.75100, 90.39000),
+                   ("Karwan Bazar", 23.75050, 90.39350)]
+# speed profile along the trip (from metre, km/h): city traffic, a fast empty
+# stretch (over a 60 km/h limit), then traffic again into Karwan Bazar.
+DHAKA_SPEEDS = [(0, 22.0), (700, 35.0), (1000, 72.0), (1250, 28.0), (1800, 15.0)]
+
+
+def _hav(lat1, lng1, lat2, lng2):
+    import math
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    a = (math.sin((p2 - p1) / 2) ** 2 + math.cos(p1) * math.cos(p2)
+         * math.sin(math.radians(lng2 - lng1) / 2) ** 2)
+    return 2 * 6371000.0 * math.asin(min(1.0, math.sqrt(a)))
+
+
+def dhaka_trip(t0, step_s=5, waypoints=None, speeds=None):
+    """Fixes every `step_s` seconds along the waypoints with the speed profile.
+    Pure; returns [{at, lat, lng, speed_kmh, course}] ending AT the last
+    waypoint (speed 0 there)."""
+    import math
+    wps = waypoints or DHAKA_WAYPOINTS
+    prof = speeds or DHAKA_SPEEDS
+    legs, total = [], 0.0
+    for (_, a1, o1), (_, a2, o2) in zip(wps, wps[1:]):
+        d = _hav(a1, o1, a2, o2)
+        legs.append((total, d, a1, o1, a2, o2))
+        total += d
+
+    def at_m(m):
+        for start, d, a1, o1, a2, o2 in legs:
+            if m <= start + d or (start, d) == legs[-1][:2]:
+                k = 0.0 if d == 0 else min(1.0, max(0.0, (m - start) / d))
+                y = math.radians(o2 - o1)
+                course = (math.degrees(math.atan2(
+                    math.sin(y) * math.cos(math.radians(a2)),
+                    math.cos(math.radians(a1)) * math.sin(math.radians(a2))
+                    - math.sin(math.radians(a1)) * math.cos(math.radians(a2)) * math.cos(y)))
+                    + 360) % 360
+                return a1 + (a2 - a1) * k, o1 + (o2 - o1) * k, course
+        return wps[-1][1], wps[-1][2], 0.0
+
+    def v_at(m):
+        v = prof[0][1]
+        for start, kmh in prof:
+            if m >= start:
+                v = kmh
+        return v
+
+    out, m, t = [], 0.0, t0
+    while m < total:
+        lat, lng, course = at_m(m)
+        v = v_at(m)
+        out.append({"at": t, "lat": lat, "lng": lng, "speed_kmh": v, "course": course})
+        m += v / 3.6 * step_s
+        t += timedelta(seconds=step_s)
+    lat, lng, course = at_m(total)
+    out.append({"at": t, "lat": lat, "lng": lng, "speed_kmh": 0.0, "course": course})
+    return out
+
+
+# TCP/IP over the mobile network: 20 B IPv4 + 20 B TCP + 12 B timestamps per
+# segment, and the server's ACK segment back (both count on a data SIM).
+TCP_SEG_OVERHEAD = 52
+
+
+def h02_data_per_day(imei, moving_h=2.0, moving_s=5, parked_s=180, sample=None):
+    """Bytes a Sinotrack ST-901 uses per day on its SIM, from REAL frame sizes
+    (h02.v1_packet) plus TCP/IP overhead: moving_h hours of driving at one fix
+    every moving_s seconds, the rest of the day parked at one fix every
+    parked_s seconds. Returns a dict (bytes / MB per day / MB per 30 days)."""
+    at = datetime(2026, 11, 17, 8, 30, 0, tzinfo=timezone.utc)
+    s = sample or {"lat": 23.751, "lng": 90.3935, "speed_kmh": 37.0, "course": 95}
+    frame = len(h02.v1_packet(imei, at, s["lat"], s["lng"], s["speed_kmh"], s["course"]))
+    fixes = int(moving_h * 3600 / moving_s) + int((24 - moving_h) * 3600 / parked_s)
+    per_fix = frame + 2 * TCP_SEG_OVERHEAD
+    total = fixes * per_fix
+    return {"frame_bytes": frame, "fixes_per_day": fixes, "bytes_per_day": total,
+            "mb_per_day": round(total / 1e6, 3), "mb_per_30_days": round(total * 30 / 1e6, 1)}
+
+
 async def _cli(a):
     path = drive_path(23.7808, 90.4130, a.fixes, a.speed, 5)
+    if getattr(a, "dhaka", False):
+        path = dhaka_trip(datetime.now(timezone.utc) - timedelta(minutes=10))
     if a.proto == "gt06":
         d = GT06Device(a.imei)
         await d.connect(a.host, a.port)
@@ -613,6 +709,8 @@ def main(argv=None):
     ap.add_argument("--fixes", type=int, default=10)
     ap.add_argument("--speed", type=float, default=40.0)
     ap.add_argument("--delay", type=float, default=0.2)
+    ap.add_argument("--dhaka", action="store_true",
+                    help="drive the scripted Dhaka commute (Dhanmondi -> Karwan Bazar)")
     ap.add_argument("--listen", type=float, default=5.0,
                     help="seconds to stay connected for commands")
     asyncio.run(_cli(ap.parse_args(argv)))

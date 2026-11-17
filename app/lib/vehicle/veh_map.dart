@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../api.dart';
+import '../city/map/assisto_map_view.dart'; // flag-vehicle: our own map tiles
+import '../city/map/city_map_data.dart' show CityLayerSet, hexOf;
 import '../theme.dart';
 import 'route_canvas.dart';
 import 'vehicle_api.dart';
@@ -66,6 +69,76 @@ String _withOsm(String a) {
 }
 
 LatLng _ll(GeoPt p) => LatLng(p.lat, p.lng);
+
+// ---------------------------------------------------------------- flag-vehicle
+
+/// GeoJSON [lng, lat] ring approximating a circle fence of [radiusM] metres
+/// (48 segments, closed). Pure.
+List<List<double>> vehCircleRing(double lat, double lng, double radiusM, {int n = 48}) {
+  final out = <List<double>>[];
+  final dLat = radiusM / 110574.0;
+  final dLng = radiusM / (111320.0 * math.cos(lat * math.pi / 180));
+  for (var i = 0; i <= n; i++) {
+    final a = 2 * math.pi * i / n;
+    out.add([lng + dLng * math.sin(a), lat + dLat * math.cos(a)]);
+  }
+  return out;
+}
+
+/// The vehicle overlay for our own MapLibre map (/maps/v1/ tiles): the
+/// speed-coloured route (or plain blue), the planned route, geofence outlines
+/// and the playback position. Colours come from the theme tokens. Pure.
+CityLayerSet vehOwnLayers({
+  required List<GeoPt> route,
+  List<GeoPt> planned = const [],
+  List<GeoFenceView> fences = const [],
+  int? playIndex,
+  bool speedColours = false,
+  int speedLimitKmh = 0,
+  required Color calm,
+  required Color near,
+  required Color over,
+  required Color plannedColor,
+  required Color fenceColor,
+}) {
+  List<List<double>> coords(List<GeoPt> pts) => [for (final p in pts) [p.lng, p.lat]];
+  Map<String, dynamic> line(List<List<double>> c, Color col, double w) => {
+        'type': 'Feature',
+        'properties': {'color': hexOf(col), 'width': w},
+        'geometry': {'type': 'LineString', 'coordinates': c},
+      };
+  final lines = <Map<String, dynamic>>[
+    for (final f in fences)
+      line(
+          f.isPolygon
+              ? [...coords(f.points), [f.points.first.lng, f.points.first.lat]]
+              : vehCircleRing(f.lat, f.lng, f.radiusM),
+          fenceColor,
+          2),
+    if (planned.length >= 2) line(coords(planned), plannedColor, 4),
+    if (route.length >= 2)
+      ...(speedColours
+          ? [
+              for (final r in vehSpeedRuns(route, speedLimitKmh))
+                line(coords(r.points), r.band == 2 ? over : (r.band == 1 ? near : calm), 5)
+            ]
+          : [line(coords(route), calm, 4)]),
+  ];
+  final pi = (playIndex != null && route.isNotEmpty) ? playIndex.clamp(0, route.length - 1) : null;
+  final points = <Map<String, dynamic>>[
+    if (pi != null)
+      {
+        'type': 'Feature',
+        'properties': {'color': hexOf(calm), 'radius': 8},
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [route[pi].lng, route[pi].lat]
+        },
+      },
+  ];
+  return CityLayerSet({'type': 'FeatureCollection', 'features': lines},
+      {'type': 'FeatureCollection', 'features': points}, const [], const []);
+}
 
 // ---------------------------------------------------------------- veh100 pure helpers
 
@@ -167,6 +240,12 @@ class VehMap extends StatefulWidget {
   /// Test seam for screens that build VehMap themselves (no network tiles).
   static TileProvider? debugTileProvider;
 
+  /// flag-vehicle: with no raster provider configured, show OUR OWN map
+  /// (MapLibre + the /maps/v1/ vector tiles, crash-guarded, list/canvas
+  /// fallback) instead of the tile-free canvas. Off under `flutter test`
+  /// (no GL / network there); tests flip it on with AssistoMapView.debugCanvas.
+  static bool ownMap = !Platform.environment.containsKey('FLUTTER_TEST');
+
   /// How long the live marker glides between two fixes.
   static const glide = Duration(milliseconds: 1400);
 
@@ -219,6 +298,62 @@ class _VehMapState extends State<VehMap> with SingleTickerProviderStateMixin {
     }
   }
 
+  CityLayerSet? _layers;
+  Object? _layersKey;
+
+  /// flag-vehicle: our own map. The overlay is rebuilt only when the data
+  /// changes (not on every marker-glide frame).
+  Widget _ownMap(BuildContext context, WidgetBuilder fallback) {
+    final w = widget;
+    final scheme = Theme.of(context).colorScheme;
+    final key = Object.hashAll([
+      w.route.length,
+      if (w.route.isNotEmpty) w.route.last.at,
+      w.plannedRoute.length,
+      w.fences.length,
+      for (final f in w.fences) Object.hash(f.lat, f.lng, f.radiusM, f.points.length),
+      w.playIndex,
+      w.speedColours,
+      w.speedLimitKmh,
+      scheme.brightness,
+    ]);
+    if (_layers == null || key != _layersKey) {
+      _layersKey = key;
+      _layers = vehOwnLayers(
+        route: w.route,
+        planned: w.plannedRoute,
+        fences: w.fences,
+        playIndex: w.playIndex,
+        speedColours: w.speedColours,
+        speedLimitKmh: w.speedLimitKmh,
+        calm: Brand.blue,
+        near: Brand.warning,
+        over: scheme.error,
+        plannedColor: Brand.purple,
+        fenceColor: Brand.cyan,
+      );
+    }
+    final live = w.live;
+    final at = live ?? (w.route.isNotEmpty ? w.route.last : null);
+    final lat = at?.lat ?? 23.8103, lng = at?.lng ?? 90.4125; // Dhaka
+    final bn = Localizations.localeOf(context).languageCode == 'bn';
+    return Semantics(
+      label: w.semanticsLabel,
+      container: true,
+      child: AssistoMapView(
+        key: const ValueKey('veh-own-map'),
+        lat: lat,
+        lon: lng,
+        night: scheme.brightness == Brightness.dark,
+        bn: bn,
+        show3d: false,
+        layers: _layers!,
+        pins: [if (live != null) (lat: live.lat, lon: live.lng, dest: false)],
+        fallback: fallback,
+      ),
+    );
+  }
+
   Color _bandColor(int band, ColorScheme scheme) => switch (band) {
         2 => scheme.error,
         1 => Brand.warning,
@@ -229,14 +364,17 @@ class _VehMapState extends State<VehMap> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     final w = widget;
     if (!w.config.hasTiles) {
-      return RouteCanvas(
-        route: w.route,
-        live: w.live,
-        playIndex: w.playIndex,
-        fences: w.fences,
-        semanticsLabel: w.semanticsLabel,
-        scaleLabel: (w.route.isEmpty && w.live == null) ? w.emptyLabel : null,
-      );
+      Widget canvas(BuildContext _) => RouteCanvas(
+            route: w.route,
+            live: w.live,
+            playIndex: w.playIndex,
+            fences: w.fences,
+            semanticsLabel: w.semanticsLabel,
+            scaleLabel: (w.route.isEmpty && w.live == null) ? w.emptyLabel : null,
+          );
+      // fence drawing needs map taps: the canvas keeps that job
+      if (!VehMap.ownMap || w.onTap != null) return canvas(context);
+      return _ownMap(context, canvas);
     }
     final scheme = Theme.of(context).colorScheme;
     final pts = w.route.map(_ll).toList();
