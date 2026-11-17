@@ -42,6 +42,7 @@ class _AlertSnapshotState extends State<AlertSnapshot> {
   Timer? _slowTimer;
   Timer? _retryTimer;
   _SnapState _state = _SnapState.loading;
+  ImageProvider? _last; // the exact (resized) provider on screen
 
   @override
   void initState() {
@@ -76,8 +77,8 @@ class _AlertSnapshotState extends State<AlertSnapshot> {
     if (!mounted) return;
     if (!auto) _autoTries = 0;
     // drop the failed copy from the image cache, then fetch again
-    final p = _provider();
-    unawaited(p.evict().then((_) {}, onError: (_) {}));
+    final p = _last;
+    if (p != null) unawaited(p.evict().then((_) {}, onError: (_) {}));
     setState(() {
       _attempt++;
       _state = _SnapState.loading;
@@ -111,13 +112,13 @@ class _AlertSnapshotState extends State<AlertSnapshot> {
     final cs = Theme.of(context).colorScheme;
     final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
     return LayoutBuilder(builder: (context, box) {
-      final w = box.maxWidth.isFinite ? (box.maxWidth * dpr).round().clamp(320, 1280) : 960;
+      final w = box.maxWidth.isFinite ? (box.maxWidth * dpr).round().clamp(320, 1280).toInt() : 960;
       return Semantics(
         label: t.wmSnapshotLabel,
         image: true,
         child: Image(
           key: ValueKey('wm-snap-img-$_attempt'),
-          image: ResizeImage.resizeIfNeeded(w, null, _provider()),
+          image: _last = ResizeImage.resizeIfNeeded(w, null, _provider()),
           fit: BoxFit.cover,
           gaplessPlayback: true,
           frameBuilder: (context, child, frame, sync) {
