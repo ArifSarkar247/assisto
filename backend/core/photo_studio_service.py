@@ -229,7 +229,7 @@ def quote(user, feature, c=None, device_key=""):
         guard_over=_guard_over() if plan == "free" else False,
         provider_ready=provider_ready, usage=usage,
         # photo-final: no "watch ads" route while AdMob serves TEST ids
-        ads_live=bool(_ad_units().get("_configured")) if plan == "free" else True)
+        ads_live=bool(_ad_units(user).get("_configured")) if plan == "free" else True)
     q["provider"] = slug
     q["feature"] = feature
     if (q.get("reason") == "provider_missing" and feature in PS.CLOUD_FEATURES
@@ -533,7 +533,7 @@ def issue_ticket(user, job, lang="bn"):
         # adcontrol: the owner switched this placement off (Ad control)
         return 409, {"ok": False, "reason": "ads_off",
                      "message": funding_message("ads_not_live", lang)}
-    units = _ad_units()
+    units = _ad_units(user)
     if not units.get("_configured"):
         # photo-final: AdMob on Google TEST ids -> Google's SSV never verifies
         # the ad, so no ticket (no ad that could never unlock, no fake unlock)
@@ -558,7 +558,7 @@ def issue_ticket(user, job, lang="bn"):
                  "job": job_state(job, lang)}
 
 
-def _ad_units():
+def _ad_units(user=None):
     from . import integrations
     from .logic import ads as A
     try:
@@ -573,7 +573,13 @@ def _ad_units():
     # admob (owner 25 Oct): REAL units only once the owner turned
     # `admob_real_ids` on; before that nothing here is "configured" (the
     # app shows Google TEST ads, which Google's SSV never verifies).
-    real, _app, units = A.serving_units(caps, conf, working)
+    # admob-connect (owner 17 Nov): the owner / testers never get a REAL
+    # unit (no invalid impressions or clicks) -> no rewarded ticket for them
+    test_only = False
+    if user is not None:
+        from .views_ads import test_ads_account
+        test_only = test_ads_account(user, conf)
+    real, _app, units = A.serving_units(caps, conf, working, force_test=test_only)
     out = {"_configured": real}
     for key in A.UNIT_FIELDS.values():
         out[key] = units.get(key, "") if real else ""
@@ -723,7 +729,7 @@ def entry_ad_state(user):
         "-created_at").first()
     gap = timedelta(minutes=ps["entry_interstitial_gap_min"])
     due = last is None or (timezone.now() - last.created_at) >= gap
-    units = _ad_units()
+    units = _ad_units(user)
     return {"due": bool(due), "gap_min": ps["entry_interstitial_gap_min"],
             "interstitial_unit": units.get("interstitial", ""),
             "ads_configured": units.get("_configured", False),

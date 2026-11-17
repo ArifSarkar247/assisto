@@ -276,7 +276,7 @@ def issue_ad_ticket(user, unlock):
         # adcontrol: the owner switched this placement off (Ad control)
         return 409, {"ok": False, "reason": "not_offered"}
     from .photo_studio_service import _ad_units
-    units = _ad_units()
+    units = _ad_units(user)
     if not units.get("_configured"):
         return 409, {"ok": False, "reason": "ads_not_live"}
     day = timezone.now() - datetime.timedelta(days=1)

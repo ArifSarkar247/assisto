@@ -136,7 +136,7 @@ class RewardTicketView(APIView):
             t = PhotoAdTicket.objects.create(user=user, kind="rewarded",
                                              placement="credits",
                                              nonce=secrets.token_urlsafe(24))
-        units = _ad_units()
+        units = _ad_units(request.user)
         return Response({"ok": True, "nonce": t.nonce, "custom_data": t.nonce,
                          "user_id": str(user.pk),
                          "rewarded_unit": units.get("rewarded", ""),

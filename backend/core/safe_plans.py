@@ -622,7 +622,7 @@ def ad_ticket(user, goal, now=None):
                                          nonce=secrets.token_urlsafe(24))
     from .photo_studio_service import _ad_units
     return {"ok": True, "nonce": t.nonce, "custom_data": t.nonce, "user_id": str(user.pk),
-            "rewarded_unit": _ad_units().get("rewarded", ""), "goal": goal}
+            "rewarded_unit": _ad_units(user).get("rewarded", ""), "goal": goal}
 
 
 def on_ad_verified(t, value_bdt, now=None):
