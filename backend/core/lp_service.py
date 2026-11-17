@@ -363,12 +363,10 @@ def section_questions(name, body):
 
 def public_section(name, body):
     if name == "listening":
+        parts = [p for p in body.get("parts") or [] if isinstance(p, dict)]
         return {"duration_sec": body.get("duration_sec"),
-                "parts": [dict({"n": p.get("n"), "audio_url": media_url(p.get("audio")),
-                                "accent": p.get("accent"),
-                                "questions": [public_question(q) for q in p.get("questions") or []]},
-                               **_phone_tts(p))
-                          for p in body.get("parts") or []]}
+                "audio_ready": bool(parts) and all(p.get("audio") for p in parts),
+                "parts": [_listening_part(p, i == len(parts) - 1) for i, p in enumerate(parts)]}
     if name == "reading":
         return {"duration_sec": body.get("duration_sec"),
                 "passages": [{"n": p.get("n"), "title": p.get("title"), "text": p.get("text"),
@@ -386,15 +384,21 @@ def public_section(name, body):
     return {}
 
 
-def _phone_tts(part):
-    """lpfinish: a part without recorded audio is read by the phone's own
-    voice — the app plays these lines and never displays them."""
-    if part.get("audio"):
-        return {}
-    lines = CK.tts_lines(part)
-    if not lines:
-        return {}
-    return {"tts": {"lang": part.get("tts_lang") or "en-GB", "lines": lines, "repeat": 1}}
+def _listening_part(p, last):
+    """lpaudio: a listening part as the phone sees it — the recorded audio (signed
+    link) + timings for the exam flow (question time -> audio -> check time ->
+    next part). NEVER the script, turns, transcript or answers; a part without
+    audio says so (audio_url null) and the phone does not read it aloud."""
+    meta = p.get("audio_meta") or {}
+    out = {"n": p.get("n"), "audio_url": media_url(p.get("audio")),
+           "preview_sec": int(meta.get("preview_sec") or 30),
+           "check_sec": int(meta.get("check_sec") or (120 if last else 30)),
+           "questions": [public_question(q) for q in p.get("questions") or []]}
+    if p.get("audio"):
+        out["duration_sec"] = round(float(meta.get("duration_sec") or 0), 1)
+        out["accents"] = list(meta.get("accents") or [])
+        out["bytes"] = int(meta.get("bytes") or 0)
+    return out
 
 
 def mock_sections(mock):

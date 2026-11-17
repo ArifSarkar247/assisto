@@ -1,0 +1,84 @@
+{
+ "en": {
+  "lp2ListenStart": "Start listening",
+  "@lp2ListenStart": {
+   "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenIntro": "Like the real test: time to read the questions, the recording plays once, time to check, then the next part starts by itself.",
+  "@lp2ListenIntro": {
+   "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenMinutes": "About {min} minutes of recording",
+  "@lp2ListenMinutes": {
+   "description": "lpaudio: IELTS recorded listening",
+   "placeholders": {
+    "min": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2ListenPreview": "Read questions {range}",
+  "@lp2ListenPreview": {
+   "description": "lpaudio: IELTS recorded listening",
+   "placeholders": {
+    "range": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2ListenCheck": "Check your answers",
+  "@lp2ListenCheck": {
+   "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenDone": "Listening finished. Check your answers, then tap Submit below.",
+  "@lp2ListenDone": {
+   "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenPartOf": "Part {n} of {total}",
+  "@lp2ListenPartOf": {
+   "description": "lpaudio: IELTS recorded listening",
+   "placeholders": {
+    "n": {
+     "type": "String"
+    },
+    "total": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2ListenNextPart": "Next part",
+  "@lp2ListenNextPart": {
+   "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenVoices": "Voices: {list}",
+  "@lp2ListenVoices": {
+   "description": "lpaudio: IELTS recorded listening",
+   "placeholders": {
+    "list": {
+     "type": "String"
+    }
+   }
+  },
+  "lp2AccentGb": "British English",
+  "@lp2AccentGb": {
+   "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2AccentUs": "American English",
+  "@lp2AccentUs": {
+   "description": "lpaudio: IELTS recorded listening"
+  }
+ },
+ "bn": {
+  "lp2ListenStart": "লিসেনিং শুরু করুন",
+  "lp2ListenIntro": "আসল পরীক্ষার মতো: প্রথমে প্রশ্ন পড়ার সময়, তারপর রেকর্ডিং একবার বাজবে, তারপর উত্তর মিলিয়ে নেওয়ার সময়, এরপর পরের পার্ট নিজে থেকেই শুরু হবে।",
+  "lp2ListenMinutes": "রেকর্ডিং প্রায় {min} মিনিট",
+  "lp2ListenPreview": "{range} নম্বর প্রশ্ন পড়ে নিন",
+  "lp2ListenCheck": "উত্তর মিলিয়ে নিন",
+  "lp2ListenDone": "লিসেনিং শেষ। উত্তরগুলো দেখে নিয়ে নিচের জমা দিন বোতাম চাপুন।",
+  "lp2ListenPartOf": "পার্ট {n} / {total}",
+  "lp2ListenNextPart": "পরের পার্ট",
+  "lp2ListenVoices": "কণ্ঠ: {list}",
+  "lp2AccentGb": "ব্রিটিশ ইংরেজি",
+  "lp2AccentUs": "আমেরিকান ইংরেজি"
+ }
+}
