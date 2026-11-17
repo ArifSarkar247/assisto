@@ -1,0 +1,2356 @@
+{
+"_meta": {
+"osm_stations_base": "2026-11-17T11:55:42Z",
+"osm_rail_base": "2026-11-17T11:58:48Z",
+"licence": "© OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright)",
+"built_by": "tools/train/br/build_network.py",
+"timetable": {
+"title": "Bangladesh Railway official passenger timetable (all zones)",
+"sources": {
+"east": {
+"page": "https://railway.gov.bd/pages/static-pages/691997bf933eb65569ddec51",
+"file": "https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-railway/2024/12/667d364484f84ac7b06d7e8e8804b2c9.pdf",
+"sha256": "d6e1af80252d98b45e8a07e7c30be1ec51f94ddf4b3c942daf4cc3a697137cc9",
+"title": "পূর্বাঞ্চলের ট্রেনের সময়সূচি (Bangladesh Railway, East zone; PDF modified 2025-03-12)",
+"edition": "2025-03-12"
+},
+"west": {
+"page": "https://railway.gov.bd/pages/static-pages/691997b8933eb65569dde71d",
+"file": "https://objectstorage.ap-dcc-gazipur-1.oraclecloud15.com/n/axvjbnqprylg/b/V2Ministry/o/office-railway/2024/12/59b5aa56840546f1a05b0741b8cca044.pdf",
+"sha256": "bc40965826c3f597469d1ddff402b5d78bd340ac3512c22aab944ec28d2de533",
+"title": "পশ্চিমাঞ্চলের ট্রেনের সময়সূচি (Bangladesh Railway, West zone; PDF modified 2025-03-12)",
+"edition": "2025-03-12"
+},
+"intl": {
+"page": "https://railway.gov.bd/pages/static-pages/691997c4933eb65569ddefc1",
+"title": "আন্তঃদেশীয় যাত্রীবাহী ট্রেনের সময়সূচি (বিগত ১৮.০৭.২০২৪ ইং তারিখ হতে যাত্রা স্থগিত রয়েছে)",
+"edition": "page as seen 2026-11-17"
+}
+},
+"fetched": "2026-11-17",
+"method": "west zone: text layer of the official PDF (legacy Bangla font decoded by tools/train/br/bijoy_fix.py, table grid by gridlib.py); east zone: hand transcription of the scanned official PDF; per-stop times are the official 'abbreviated schedule' (major stops) for intercity trains, mail/commuter/local trains have official origin + destination times only",
+"not_included": "freight/container trains (601-608), the 19 west-zone departmental/PNV services, unnumbered suspended DEMU commuters (Nazirhat, Chittagong University, Kaliakair, Narayanganj DEMU) — listed in owner_actions/TRAIN_TRACKER_V2_BN.md",
+"weekday": "off_days: 0=Monday … 6=Sunday",
+"built_by": "tools/train/br/compile_official.py",
+"cross_check": "station-page times that differ from the abbreviated schedule (kept: schedule)",
+"cross_check_diffs": [
+"706 পার্বতীপুর dep: schedule 23:55, station page 00:10",
+"731 পার্বতীপুর dep: schedule 19:45, station page 19:55",
+"764 ঈশ্বরদী dep: schedule 23:55, station page 00:05",
+"765 সান্তাহার arr: schedule 11:55, station page 12:00"
+]
+}
+},
+"stations": [
+{
+"code": "abdulpur",
+"name_bn": "আব্দুলপুর",
+"name_en": "Abdulpur",
+"district": "Natore",
+"lat": 24.259873,
+"lng": 88.971789,
+"coord_source": "osm:node/1472122431",
+"osm_id": "node/1472122431"
+},
+{
+"code": "aditmari",
+"name_bn": "আদিতমারী",
+"name_en": "Aditmari",
+"district": "Lalmonirhat",
+"lat": 25.924147,
+"lng": 89.348763,
+"coord_source": "osm:way/541868727",
+"osm_id": "way/541868727"
+},
+{
+"code": "ahsanganj",
+"name_bn": "আহসানগঞ্জ",
+"name_en": "Ahsanganj",
+"district": "Naogaon",
+"lat": 24.613819,
+"lng": 88.975252,
+"coord_source": "osm:node/2088158295",
+"osm_id": "node/2088158295"
+},
+{
+"code": "akhaura",
+"name_bn": "আখাউড়া",
+"name_en": "Akhaura",
+"district": "Brahmanbaria",
+"lat": 23.869232,
+"lng": 91.206019,
+"coord_source": "osm:node/5798480633",
+"osm_id": "node/5798480633"
+},
+{
+"code": "akkelpur",
+"name_bn": "আক্কেলপুর",
+"name_en": "Akkelpur",
+"district": "Joypurhat",
+"lat": 24.964594,
+"lng": 89.015757,
+"coord_source": "osm:node/1472108317",
+"osm_id": "node/1472108317"
+},
+{
+"code": "alamdanga",
+"name_bn": "আলমডাঙ্গা",
+"name_en": "Alamdanga",
+"district": "Chuadanga",
+"lat": 23.761411,
+"lng": 88.93651,
+"coord_source": "osm:node/4823956868",
+"osm_id": "node/4823956868"
+},
+{
+"code": "amirabad",
+"name_bn": "আমিরাবাদ",
+"name_en": "Amirabad",
+"district": "Faridpur",
+"lat": 23.639654,
+"lng": 89.744287,
+"coord_source": "osm:node/7517284168",
+"osm_id": "node/7517284168"
+},
+{
+"code": "arani",
+"name_bn": "আড়ানী",
+"name_en": "Arani",
+"district": "Rajshahi",
+"lat": 24.289764,
+"lng": 88.882573,
+"coord_source": "osm:node/7780059234",
+"osm_id": "node/7780059234"
+},
+{
+"code": "ashuganj",
+"name_bn": "আশুগঞ্জ",
+"name_en": "Ashuganj",
+"district": "Brahmanbaria",
+"lat": 24.038239,
+"lng": 91.001643,
+"coord_source": "osm:node/5174141702",
+"osm_id": "node/5174141702"
+},
+{
+"code": "atharabari",
+"name_bn": "আঠারোবাড়ী",
+"name_en": "Atharabari",
+"district": "Mymensingh",
+"lat": 24.640821,
+"lng": 90.712981,
+"coord_source": "osm:node/13723507943",
+"osm_id": "node/13723507943"
+},
+{
+"code": "azampur",
+"name_bn": "আজমপুর",
+"name_en": "Azampur",
+"district": "Brahmanbaria",
+"lat": 23.893321,
+"lng": 91.220797,
+"coord_source": "osm:node/399602854",
+"osm_id": "node/399602854"
+},
+{
+"code": "azimnagar",
+"name_bn": "আজিমনগর",
+"name_en": "Azimnagar",
+"district": "Natore",
+"lat": 24.206105,
+"lng": 89.006322,
+"coord_source": "osm:node/10925899530",
+"osm_id": "node/10925899530"
+},
+{
+"code": "badarganj",
+"name_bn": "বদরগঞ্জ",
+"name_en": "Badarganj",
+"district": "Rangpur",
+"lat": 25.672026,
+"lng": 89.058069,
+"coord_source": "osm:node/2381262696",
+"osm_id": "node/2381262696"
+},
+{
+"code": "badiakhali-road",
+"name_bn": "বাদিয়াখালী রোড",
+"name_en": "Badiakhali Road",
+"district": "Gaibandha",
+"lat": 25.236294,
+"lng": 89.542822,
+"coord_source": "osm:node/7521827328",
+"osm_id": "node/7521827328"
+},
+{
+"code": "baharpur",
+"name_bn": "বহরপুর",
+"name_en": "Baharpur",
+"district": "Rajbari",
+"lat": 23.68638,
+"lng": 89.561516,
+"coord_source": "osm:node/2577329862",
+"osm_id": "node/2577329862"
+},
+{
+"code": "bajitpur",
+"name_bn": "বাজিতপুর",
+"name_en": "Bajitpur",
+"district": "Kishoreganj",
+"lat": 24.199723,
+"lng": 90.913024,
+"coord_source": "osm:node/6153977598",
+"osm_id": "node/6153977598"
+},
+{
+"code": "bajra",
+"name_bn": "বজরা",
+"name_en": "Bajra",
+"district": "Noakhali",
+"lat": 22.992079,
+"lng": 91.100612,
+"coord_source": "osm:node/2571248397",
+"osm_id": "node/2571248397"
+},
+{
+"code": "bamandanga",
+"name_bn": "বামনডাঙ্গা",
+"name_en": "Bamandanga",
+"district": "Gaibandha",
+"lat": 25.533746,
+"lng": 89.445664,
+"coord_source": "osm:node/2571223722",
+"osm_id": "node/2571223722"
+},
+{
+"code": "bandherhat",
+"name_bn": "বাঁধেরহাট",
+"name_en": "Bandherhat",
+"district": "Pabna",
+"lat": 23.897441,
+"lng": 89.6368,
+"coord_source": "osm:node/7455967015",
+"osm_id": "node/7455967015"
+},
+{
+"code": "barakhata",
+"name_bn": "বড়খাতা",
+"name_en": "Barakhata",
+"district": "Lalmonirhat",
+"lat": 26.202349,
+"lng": 89.111238,
+"coord_source": "osm:way/542017027",
+"osm_id": "way/542017027"
+},
+{
+"code": "baral-bridge",
+"name_bn": "বড়াল ব্রিজ",
+"name_en": "Baral Bridge",
+"district": "Sirajganj",
+"lat": 24.215031,
+"lng": 89.380795,
+"coord_source": "osm:node/7520900159",
+"osm_id": "node/7520900159"
+},
+{
+"code": "baramchal",
+"name_bn": "বরমচাল",
+"name_en": "Baramchal",
+"district": "Moulvibazar",
+"lat": 24.587583,
+"lng": 91.978853,
+"coord_source": "osm:node/9846256978",
+"osm_id": "node/9846256978"
+},
+{
+"code": "barhatta",
+"name_bn": "বারহাট্টা",
+"name_en": "Barhatta",
+"district": "Netrokona",
+"lat": 24.897734,
+"lng": 90.881588,
+"coord_source": "osm:way/624469195",
+"osm_id": "way/624469195"
+},
+{
+"code": "baura",
+"name_bn": "বাউরা",
+"name_en": "Baura",
+"district": "Lalmonirhat",
+"lat": 26.252596,
+"lng": 89.079509,
+"coord_source": "estimated: timetable time between বড়খাতা and পাটগ্রাম along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "benapole",
+"name_bn": "বেনাপোল",
+"name_en": "Benapole",
+"district": "Jashore",
+"lat": 23.043099,
+"lng": 88.902778,
+"coord_source": "osm:node/5568566530",
+"osm_id": "node/5568566530"
+},
+{
+"code": "bhairab-bazar",
+"name_bn": "ভৈরব",
+"name_en": "Bhairab Bazar",
+"district": "Kishoreganj",
+"lat": 24.050259,
+"lng": 90.978195,
+"coord_source": "osm:node/540028581",
+"osm_id": "node/540028581"
+},
+{
+"code": "bhanga",
+"name_bn": "ভাঙ্গা",
+"name_en": "Bhanga",
+"district": "Faridpur",
+"lat": 23.400351,
+"lng": 89.984406,
+"coord_source": "osm:node/6036100757",
+"osm_id": "node/6036100757"
+},
+{
+"code": "bhanga-junction",
+"name_bn": "ভাঙ্গা জংশন",
+"name_en": "Bhanga Junction",
+"district": "Faridpur",
+"lat": 23.400351,
+"lng": 89.984406,
+"coord_source": "osm:node/6036100757",
+"osm_id": "node/6036100757"
+},
+{
+"code": "bhanugach",
+"name_bn": "ভানুগাছ",
+"name_en": "Bhanugach",
+"district": "Moulvibazar",
+"lat": 24.351743,
+"lng": 91.841292,
+"coord_source": "osm:node/2571271408",
+"osm_id": "node/2571271408"
+},
+{
+"code": "bhatiapara-ghat",
+"name_bn": "ভাটিয়াপাড়া ঘাট",
+"name_en": "Bhatiapara Ghat",
+"district": "Gopalganj",
+"lat": 23.213066,
+"lng": 89.699505,
+"coord_source": "osm:way/439041893",
+"osm_id": "way/439041893"
+},
+{
+"code": "bhatiary",
+"name_bn": "ভাটিয়ারী",
+"name_en": "Bhatiary",
+"district": "Chattogram",
+"lat": 22.429973,
+"lng": 91.748846,
+"coord_source": "osm:node/11147895677",
+"osm_id": "node/11147895677"
+},
+{
+"code": "bheramara",
+"name_bn": "ভেড়ামারা",
+"name_en": "Bheramara",
+"district": "Kushtia",
+"lat": 24.023205,
+"lng": 88.991867,
+"coord_source": "osm:node/2571238290",
+"osm_id": "node/2571238290"
+},
+{
+"code": "bhomradaha",
+"name_bn": "ভোমরাদহ",
+"name_en": "Bhomradaha",
+"district": "Thakurgaon",
+"lat": 25.925566,
+"lng": 88.364471,
+"coord_source": "estimated: timetable time between পীরগঞ্জ and ঠাকুরগাঁও রোড along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "bhuapur",
+"name_bn": "ভূঞাপুর",
+"name_en": "Bhuapur",
+"district": "Tangail",
+"lat": 24.467303,
+"lng": 89.866673,
+"coord_source": "osm:way/288039799",
+"osm_id": "way/288039799"
+},
+{
+"code": "bidyaganj",
+"name_bn": "বিদ্যাগঞ্জ",
+"name_en": "Bidyaganj",
+"district": "Mymensingh",
+"lat": 24.827546,
+"lng": 90.245829,
+"coord_source": "estimated: timetable time between ময়মনসিংহ and পিয়ারপুর along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "biral",
+"name_bn": "বিরল",
+"name_en": "Biral",
+"district": "Dinajpur",
+"lat": 25.635259,
+"lng": 88.539119,
+"coord_source": "osm:node/4958430927",
+"osm_id": "node/4958430927"
+},
+{
+"code": "birampur",
+"name_bn": "বিরামপুর",
+"name_en": "Birampur",
+"district": "Dinajpur",
+"lat": 25.397926,
+"lng": 88.994002,
+"coord_source": "osm:node/3537382505",
+"osm_id": "node/3537382505"
+},
+{
+"code": "boalmari",
+"name_bn": "বোয়ালমারী",
+"name_en": "Boalmari",
+"district": "Faridpur",
+"lat": 23.389801,
+"lng": 89.687563,
+"coord_source": "osm:node/2577347608",
+"osm_id": "node/2577347608"
+},
+{
+"code": "bogura",
+"name_bn": "বগুড়া",
+"name_en": "Bogura",
+"district": "Bogura",
+"lat": 24.848569,
+"lng": 89.366668,
+"coord_source": "osm:node/1472108318",
+"osm_id": "node/1472108318"
+},
+{
+"code": "bonarpara",
+"name_bn": "বোনারপাড়া",
+"name_en": "Bonarpara",
+"district": "Gaibandha",
+"lat": 25.164394,
+"lng": 89.523337,
+"coord_source": "osm:node/2543913699",
+"osm_id": "node/2543913699"
+},
+{
+"code": "brahmanbaria",
+"name_bn": "ব্রাহ্মণবাড়িয়া",
+"name_en": "Brahmanbaria",
+"district": "Brahmanbaria",
+"lat": 23.966798,
+"lng": 91.10862,
+"coord_source": "osm:node/318758616",
+"osm_id": "node/318758616"
+},
+{
+"code": "burimari",
+"name_bn": "বুড়িমারী",
+"name_en": "Burimari",
+"district": "Lalmonirhat",
+"lat": 26.39607,
+"lng": 88.935609,
+"coord_source": "osm:node/1132413811",
+"osm_id": "node/1132413811"
+},
+{
+"code": "chakaria",
+"name_bn": "চকরিয়া",
+"name_en": "Chakaria",
+"district": "Cox's Bazar",
+"lat": 21.790688,
+"lng": 92.028439,
+"coord_source": "estimated: timetable time between হারবাং and কক্সবাজার along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "chandpur",
+"name_bn": "চাঁদপুর",
+"name_en": "Chandpur",
+"district": "Chandpur",
+"lat": 23.23092,
+"lng": 90.643051,
+"coord_source": "osm:node/7752609038",
+"osm_id": "node/7752609038"
+},
+{
+"code": "chandpur-court",
+"name_bn": "চাঁদপুর কোর্ট",
+"name_en": "Chandpur Court",
+"district": "Chandpur",
+"lat": 23.225521,
+"lng": 90.655019,
+"coord_source": "osm:node/2389086138",
+"osm_id": "node/2389086138"
+},
+{
+"code": "chandradighalia",
+"name_bn": "চন্দ্রদিঘলিয়া",
+"name_en": "Chandradighalia",
+"district": "Gopalganj",
+"lat": 23.073528,
+"lng": 89.776878,
+"coord_source": "osm:node/7858222190",
+"osm_id": "node/7858222190"
+},
+{
+"code": "chapainawabganj",
+"name_bn": "চাঁপাইনবাবগঞ্জ",
+"name_en": "Chapainawabganj",
+"district": "Chapainawabganj",
+"lat": 24.59889,
+"lng": 88.280407,
+"coord_source": "osm:way/528317410",
+"osm_id": "way/528317410"
+},
+{
+"code": "chapta",
+"name_bn": "চাপতা",
+"name_en": "Chapta",
+"district": "Kushtia",
+"lat": 23.197893,
+"lng": 89.752076,
+"coord_source": "osm:node/6274328545",
+"osm_id": "node/6274328545"
+},
+{
+"code": "chatmohar",
+"name_bn": "চাটমোহর",
+"name_en": "Chatmohar",
+"district": "Pabna",
+"lat": 24.188753,
+"lng": 89.275573,
+"coord_source": "osm:node/2571279693",
+"osm_id": "node/2571279693"
+},
+{
+"code": "chattogram",
+"name_bn": "চট্টগ্রাম",
+"name_en": "Chattogram",
+"district": "Chattogram",
+"lat": 22.334021,
+"lng": 91.829558,
+"coord_source": "osm:node/9851701312",
+"osm_id": "node/9851701312"
+},
+{
+"code": "chhatak-bazar",
+"name_bn": "ছাতক বাজার",
+"name_en": "Chhatak Bazar",
+"district": "Sunamganj",
+"lat": 25.028717,
+"lng": 91.656596,
+"coord_source": "osm:node/1472175215",
+"osm_id": "node/1472175215"
+},
+{
+"code": "chhoto-bahirbagh",
+"name_bn": "ছোটবাহিরবাগ",
+"name_en": "Chhoto Bahirbagh",
+"district": "Kushtia",
+"lat": 23.140806,
+"lng": 89.781722,
+"coord_source": "osm:node/5998340998",
+"osm_id": "node/5998340998"
+},
+{
+"code": "chilahati",
+"name_bn": "চিলাহাটি",
+"name_en": "Chilahati",
+"district": "Nilphamari",
+"lat": 26.24314,
+"lng": 88.796305,
+"coord_source": "osm:node/2543961100",
+"osm_id": "node/2543961100"
+},
+{
+"code": "chirirbandar",
+"name_bn": "চিরিরবন্দর",
+"name_en": "Chirirbandar",
+"district": "Dinajpur",
+"lat": 25.645879,
+"lng": 88.775841,
+"coord_source": "osm:node/2571296118",
+"osm_id": "node/2571296118"
+},
+{
+"code": "chitoshi-road",
+"name_bn": "চিতোষী রোড",
+"name_en": "Chitoshi Road",
+"district": "Chandpur",
+"lat": 23.235726,
+"lng": 91.029358,
+"coord_source": "osm:node/2571319154",
+"osm_id": "node/2571319154"
+},
+{
+"code": "chowmuhani",
+"name_bn": "চৌমুহনী",
+"name_en": "Chowmuhani",
+"district": "Noakhali",
+"lat": 22.943912,
+"lng": 91.12069,
+"coord_source": "osm:node/2571330813",
+"osm_id": "node/2571330813"
+},
+{
+"code": "chuadanga",
+"name_bn": "চুয়াডাঙ্গা",
+"name_en": "Chuadanga",
+"district": "Chuadanga",
+"lat": 23.638038,
+"lng": 88.854628,
+"coord_source": "osm:node/2545403737",
+"osm_id": "node/2545403737"
+},
+{
+"code": "cox-s-bazar",
+"name_bn": "কক্সবাজার",
+"name_en": "Cox's Bazar",
+"district": "Cox's Bazar",
+"lat": 21.429361,
+"lng": 92.015037,
+"coord_source": "osm:node/11393830116",
+"osm_id": "node/11393830116"
+},
+{
+"code": "cumilla",
+"name_bn": "কুমিল্লা",
+"name_en": "Cumilla",
+"district": "Cumilla",
+"lat": 23.463641,
+"lng": 91.166733,
+"coord_source": "osm:node/6153037078",
+"osm_id": "node/6153037078"
+},
+{
+"code": "darshana-halt",
+"name_bn": "দর্শনা হল্ট",
+"name_en": "Darshana Halt",
+"district": "Chuadanga",
+"lat": 23.526468,
+"lng": 88.797129,
+"coord_source": "osm:node/1731369808",
+"osm_id": "node/1731369808"
+},
+{
+"code": "dashuria",
+"name_bn": "দাশুড়িয়া",
+"name_en": "Dashuria",
+"district": "Pabna",
+"lat": 24.112686,
+"lng": 89.130372,
+"coord_source": "osm:node/6018702590",
+"osm_id": "node/6018702590"
+},
+{
+"code": "daulatpur",
+"name_bn": "দৌলতপুর",
+"name_en": "Daulatpur",
+"district": "Khulna",
+"lat": 22.876632,
+"lng": 89.522307,
+"coord_source": "osm:node/3494309852",
+"osm_id": "node/3494309852"
+},
+{
+"code": "dewanganj-bazar",
+"name_bn": "দেওয়ানগঞ্জ বাজার",
+"name_en": "Dewanganj Bazar",
+"district": "Jamalpur",
+"lat": 25.156955,
+"lng": 89.756621,
+"coord_source": "osm:node/2311123761",
+"osm_id": "node/2311123761"
+},
+{
+"code": "dhaka-airport",
+"name_bn": "ঢাকা বিমানবন্দর",
+"name_en": "Dhaka Airport",
+"district": "Dhaka",
+"lat": 23.852071,
+"lng": 90.408379,
+"coord_source": "osm:node/5798601925",
+"osm_id": "node/5798601925"
+},
+{
+"code": "dhaka-cantonment",
+"name_bn": "ঢাকা ক্যান্টনমেন্ট",
+"name_en": "Dhaka Cantonment",
+"district": "Dhaka",
+"lat": 23.815652,
+"lng": 90.410481,
+"coord_source": "osm:node/5798586244",
+"osm_id": "node/5798586244"
+},
+{
+"code": "dhaka-kamalapur",
+"name_bn": "ঢাকা",
+"name_en": "Dhaka (Kamalapur)",
+"district": "Dhaka",
+"lat": 23.731951,
+"lng": 90.426275,
+"coord_source": "osm:node/4774174062",
+"osm_id": "node/4774174062"
+},
+{
+"code": "dhalarchar",
+"name_bn": "ঢালারচর",
+"name_en": "Dhalarchar",
+"district": "Pabna",
+"lat": 23.840702,
+"lng": 89.66799,
+"coord_source": "osm:node/7455967013",
+"osm_id": "node/7455967013"
+},
+{
+"code": "dinajpur",
+"name_bn": "দিনাজপুর",
+"name_en": "Dinajpur",
+"district": "Dinajpur",
+"lat": 25.62507,
+"lng": 88.632788,
+"coord_source": "osm:node/3941919938",
+"osm_id": "node/3941919938"
+},
+{
+"code": "dohazari",
+"name_bn": "দোহাজারী",
+"name_en": "Dohazari",
+"district": "Chattogram",
+"lat": 22.163351,
+"lng": 92.069168,
+"coord_source": "osm:node/2568281958",
+"osm_id": "node/2568281958"
+},
+{
+"code": "domar",
+"name_bn": "ডোমার",
+"name_en": "Domar",
+"district": "Nilphamari",
+"lat": 26.104638,
+"lng": 88.819977,
+"coord_source": "osm:node/2571355263",
+"osm_id": "node/2571355263"
+},
+{
+"code": "dublia",
+"name_bn": "দুবলিয়া",
+"name_en": "Dublia",
+"district": "Pabna",
+"lat": 23.977729,
+"lng": 89.368149,
+"coord_source": "osm:node/7455967020",
+"osm_id": "node/7455967020"
+},
+{
+"code": "dulahazara",
+"name_bn": "ডুলহাজারা",
+"name_en": "Dulahazara",
+"district": "Cox's Bazar",
+"lat": 21.666652,
+"lng": 92.068976,
+"coord_source": "estimated: timetable time between চকরিয়া and কক্সবাজার along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "faridpur",
+"name_bn": "ফরিদপুর",
+"name_en": "Faridpur",
+"district": "Faridpur",
+"lat": 23.610876,
+"lng": 89.84269,
+"coord_source": "osm:node/3615214048",
+"osm_id": "node/3615214048"
+},
+{
+"code": "feni",
+"name_bn": "ফেনী",
+"name_en": "Feni",
+"district": "Feni",
+"lat": 23.013103,
+"lng": 91.403182,
+"coord_source": "osm:node/540028232",
+"osm_id": "node/540028232"
+},
+{
+"code": "fulbari",
+"name_bn": "ফুলবাড়ী",
+"name_en": "Fulbari",
+"district": "Dinajpur",
+"lat": 25.49543,
+"lng": 88.968885,
+"coord_source": "osm:node/5209720258",
+"osm_id": "node/5209720258"
+},
+{
+"code": "gachihata",
+"name_bn": "গচিহাটা",
+"name_en": "Gachihata",
+"district": "Kishoreganj",
+"lat": 24.341929,
+"lng": 90.824569,
+"coord_source": "osm:node/2571356558",
+"osm_id": "node/2571356558"
+},
+{
+"code": "gafargaon",
+"name_bn": "গফরগাঁও",
+"name_en": "Gafargaon",
+"district": "Mymensingh",
+"lat": 24.453631,
+"lng": 90.547851,
+"coord_source": "osm:way/541640813",
+"osm_id": "way/541640813"
+},
+{
+"code": "gaibandha",
+"name_bn": "গাইবান্ধা",
+"name_en": "Gaibandha",
+"district": "Gaibandha",
+"lat": 25.332309,
+"lng": 89.542466,
+"coord_source": "osm:node/2544976621",
+"osm_id": "node/2544976621"
+},
+{
+"code": "gauripur-mymensingh",
+"name_bn": "গৌরীপুর ময়মনসিংহ",
+"name_en": "Gauripur Mymensingh",
+"district": "Mymensingh",
+"lat": 24.763809,
+"lng": 90.565645,
+"coord_source": "osm:node/2410010595",
+"osm_id": "node/2410010595"
+},
+{
+"code": "goalanda-ghat",
+"name_bn": "গোয়ালন্দ ঘাট",
+"name_en": "Goalanda Ghat",
+"district": "Rajbari",
+"lat": 23.761875,
+"lng": 89.780452,
+"coord_source": "osm:node/1472130093",
+"osm_id": "node/1472130093"
+},
+{
+"code": "gobra",
+"name_bn": "গোবরা",
+"name_en": "Gobra",
+"district": "Gopalganj",
+"lat": 22.947798,
+"lng": 89.82892,
+"coord_source": "osm:node/6026248103",
+"osm_id": "node/6026248103"
+},
+{
+"code": "gomdandi",
+"name_bn": "গোমদন্ডী",
+"name_en": "Gomdandi",
+"district": "Chattogram",
+"lat": 22.378175,
+"lng": 91.917169,
+"coord_source": "osm:node/7501325290",
+"osm_id": "node/7501325290"
+},
+{
+"code": "gopalganj",
+"name_bn": "গোপালগঞ্জ",
+"name_en": "Gopalganj",
+"district": "Gopalganj",
+"lat": 23.03408,
+"lng": 89.840106,
+"coord_source": "osm:node/6026248104",
+"osm_id": "node/6026248104"
+},
+{
+"code": "gunabati",
+"name_bn": "গুনবতী",
+"name_en": "Gunabati",
+"district": "Cumilla",
+"lat": 23.087673,
+"lng": 91.29743,
+"coord_source": "osm:node/6887820126",
+"osm_id": "node/6887820126"
+},
+{
+"code": "hajiganj",
+"name_bn": "হাজীগঞ্জ",
+"name_en": "Hajiganj",
+"district": "Chandpur",
+"lat": 23.258181,
+"lng": 90.84823,
+"coord_source": "osm:node/2571375836",
+"osm_id": "node/2571375836"
+},
+{
+"code": "harashpur",
+"name_bn": "হরষপুর",
+"name_en": "Harashpur",
+"district": "Brahmanbaria",
+"lat": 24.017093,
+"lng": 91.310613,
+"coord_source": "osm:node/399602849",
+"osm_id": "node/399602849"
+},
+{
+"code": "harbang",
+"name_bn": "হারবাং",
+"name_en": "Harbang",
+"district": "Cox's Bazar",
+"lat": 21.863713,
+"lng": 92.057034,
+"coord_source": "estimated: timetable time between সাতকানিয়া and কক্সবাজার along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "hasanpur",
+"name_bn": "হাসানপুর",
+"name_en": "Hasanpur",
+"district": "Cumilla",
+"lat": 23.135506,
+"lng": 91.237261,
+"coord_source": "osm:node/7740073824",
+"osm_id": "node/7740073824"
+},
+{
+"code": "hatibandha",
+"name_bn": "হাতীবান্ধা",
+"name_en": "Hatibandha",
+"district": "Lalmonirhat",
+"lat": 26.128335,
+"lng": 89.138693,
+"coord_source": "osm:node/4014790615",
+"osm_id": "node/4014790615"
+},
+{
+"code": "hemnagar",
+"name_bn": "হেমনগর",
+"name_en": "Hemnagar",
+"district": "Tangail",
+"lat": 24.567975,
+"lng": 89.859671,
+"coord_source": "osm:node/2522139441",
+"osm_id": "node/2522139441"
+},
+{
+"code": "hi-tech-city",
+"name_bn": "হাইটেক সিটি",
+"name_en": "Hi-Tech City",
+"district": "Gazipur",
+"lat": 24.062751,
+"lng": 90.220324,
+"coord_source": "osm:node/7743879735",
+"osm_id": "node/7743879735"
+},
+{
+"code": "hili",
+"name_bn": "হিলি",
+"name_en": "Hili",
+"district": "Dinajpur",
+"lat": 25.277513,
+"lng": 89.006992,
+"coord_source": "osm:node/1472108324",
+"osm_id": "node/1472108324"
+},
+{
+"code": "ibrahimabad",
+"name_bn": "ইব্রাহিমাবাদ",
+"name_en": "Ibrahimabad",
+"district": "Tangail",
+"lat": 24.389511,
+"lng": 89.820092,
+"coord_source": "osm:node/306469787",
+"osm_id": "node/306469787"
+},
+{
+"code": "ishwardi",
+"name_bn": "ঈশ্বরদী",
+"name_en": "Ishwardi",
+"district": "Pabna",
+"lat": 24.130246,
+"lng": 89.062786,
+"coord_source": "osm:node/1472122432",
+"osm_id": "node/1472122432"
+},
+{
+"code": "ishwardi-bypass",
+"name_bn": "ঈশ্বরদী বাইপাস",
+"name_en": "Ishwardi Bypass",
+"district": "Pabna",
+"lat": 24.155064,
+"lng": 89.057497,
+"coord_source": "osm:node/2571409241",
+"osm_id": "node/2571409241"
+},
+{
+"code": "islamabad",
+"name_bn": "ইসলামাবাদ",
+"name_en": "Islamabad",
+"district": "Cox's Bazar",
+"lat": 21.549498,
+"lng": 92.053178,
+"coord_source": "estimated: timetable time between রামু and ডুলহাজারা along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "islampur-bazar",
+"name_bn": "ইসলামপুর বাজার",
+"name_en": "Islampur Bazar",
+"district": "Jamalpur",
+"lat": 25.077801,
+"lng": 89.791623,
+"coord_source": "osm:node/2571427589",
+"osm_id": "node/2571427589"
+},
+{
+"code": "jafarshahi",
+"name_bn": "জাফরশাহী",
+"name_en": "Jafarshahi",
+"district": "Jamalpur",
+"lat": 24.834933,
+"lng": 89.874624,
+"coord_source": "estimated: timetable time between জামালপুর and সরিষাবাড়ী along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "jagannathganj-ghat",
+"name_bn": "জগন্নাথগঞ্জ ঘাট",
+"name_en": "Jagannathganj Ghat",
+"district": "Jamalpur",
+"lat": 24.644413,
+"lng": 89.82489,
+"coord_source": "estimated: timetable time between তারাকান্দি and হেমনগর along the OSM track (no OSM station point)",
+"osm_id": "node/2545018723"
+},
+{
+"code": "jamalganj",
+"name_bn": "জামালগঞ্জ",
+"name_en": "Jamalganj",
+"district": "Joypurhat",
+"lat": 25.030523,
+"lng": 89.02195,
+"coord_source": "osm:node/4000866140",
+"osm_id": "node/4000866140"
+},
+{
+"code": "jamalpur-town",
+"name_bn": "জামালপুর",
+"name_en": "Jamalpur Town",
+"district": "Jamalpur",
+"lat": 24.9153,
+"lng": 89.953953,
+"coord_source": "osm:node/2671771171",
+"osm_id": "node/2671771171"
+},
+{
+"code": "jamtoil",
+"name_bn": "জামতৈল",
+"name_en": "Jamtoil",
+"district": "Sirajganj",
+"lat": 24.361269,
+"lng": 89.660434,
+"coord_source": "osm:node/2571440313",
+"osm_id": "node/2571440313"
+},
+{
+"code": "janali-hat",
+"name_bn": "জানালীহাট",
+"name_en": "Janali Hat",
+"district": "Chattogram",
+"lat": 22.395867,
+"lng": 91.87195,
+"coord_source": "osm:node/2568274941",
+"osm_id": "node/2568274941"
+},
+{
+"code": "jaria-janjail",
+"name_bn": "ঝারিয়া ঝাঞ্জাইল",
+"name_en": "Jaria Janjail",
+"district": "Netrokona",
+"lat": 25.009533,
+"lng": 90.648785,
+"coord_source": "osm:node/1472157688",
+"osm_id": "node/1472157688"
+},
+{
+"code": "jashore",
+"name_bn": "যশোর",
+"name_en": "Jashore",
+"district": "Jashore",
+"lat": 23.154886,
+"lng": 89.206946,
+"coord_source": "estimated: timetable time between নোয়াপাড়া (যশোর) and কোটচাঁদপুর along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "jhikargachha",
+"name_bn": "ঝিকরগাছা",
+"name_en": "Jhikargachha",
+"district": "Jashore",
+"lat": 23.083943,
+"lng": 89.078321,
+"coord_source": "estimated: timetable time between বেনাপোল and যশোর along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "joydebpur",
+"name_bn": "জয়দেবপুর",
+"name_en": "Joydebpur",
+"district": "Gazipur",
+"lat": 23.998039,
+"lng": 90.420312,
+"coord_source": "osm:node/1472696992",
+"osm_id": "node/1472696992"
+},
+{
+"code": "joypurhat",
+"name_bn": "জয়পুরহাট",
+"name_en": "Joypurhat",
+"district": "Joypurhat",
+"lat": 25.098996,
+"lng": 89.026036,
+"coord_source": "osm:node/1472108338",
+"osm_id": "node/1472108338"
+},
+{
+"code": "kakina",
+"name_bn": "কাকিনা",
+"name_en": "Kakina",
+"district": "Lalmonirhat",
+"lat": 25.956043,
+"lng": 89.241679,
+"coord_source": "osm:node/7780472522",
+"osm_id": "node/7780472522"
+},
+{
+"code": "kalukhali",
+"name_bn": "কালুখালী",
+"name_en": "Kalukhali",
+"district": "Rajbari",
+"lat": 23.768146,
+"lng": 89.48041,
+"coord_source": "osm:node/2577322733",
+"osm_id": "node/2577322733"
+},
+{
+"code": "kaoraid",
+"name_bn": "কাওরাইদ",
+"name_en": "Kaoraid",
+"district": "Gazipur",
+"lat": 24.308315,
+"lng": 90.512447,
+"coord_source": "osm:node/9819630432",
+"osm_id": "node/9819630432"
+},
+{
+"code": "kasba",
+"name_bn": "কসবা",
+"name_en": "Kasba",
+"district": "Brahmanbaria",
+"lat": 23.74027,
+"lng": 91.15556,
+"coord_source": "osm:node/2571343421",
+"osm_id": "node/2571343421"
+},
+{
+"code": "kashiani",
+"name_bn": "কাশিয়ানী",
+"name_en": "Kashiani",
+"district": "Gopalganj",
+"lat": 23.233479,
+"lng": 89.72508,
+"coord_source": "osm:node/2577350772",
+"osm_id": "node/2577350772"
+},
+{
+"code": "kashinathpur",
+"name_bn": "কাশিনাথপুর",
+"name_en": "Kashinathpur",
+"district": "Pabna",
+"lat": 23.970006,
+"lng": 89.599087,
+"coord_source": "estimated: timetable time between বাঁধেরহাট and সাঁথিয়া রাজাপুর along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "kaunia",
+"name_bn": "কাউনিয়া",
+"name_en": "Kaunia",
+"district": "Rangpur",
+"lat": 25.77779,
+"lng": 89.423625,
+"coord_source": "osm:node/1430006596",
+"osm_id": "node/1430006596"
+},
+{
+"code": "kendua-bazar",
+"name_bn": "কেন্দুয়া বাজার",
+"name_en": "Kendua Bazar",
+"district": "Jamalpur",
+"lat": 24.862466,
+"lng": 89.911447,
+"coord_source": "estimated: timetable time between জামালপুর and সরিষাবাড়ী along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "khatra",
+"name_bn": "খাটরা",
+"name_en": "Khatra",
+"district": "Kushtia",
+"lat": 22.990653,
+"lng": 89.840563,
+"coord_source": "estimated: timetable time between গোবরা and গোপালগঞ্জ along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "khoksa",
+"name_bn": "খোকসা",
+"name_en": "Khoksa",
+"district": "Kushtia",
+"lat": 23.830885,
+"lng": 89.302974,
+"coord_source": "osm:node/2571451237",
+"osm_id": "node/2571451237"
+},
+{
+"code": "kholahati",
+"name_bn": "খোলাহাটি",
+"name_en": "Kholahati",
+"district": "Rangpur",
+"lat": 25.656449,
+"lng": 88.974947,
+"coord_source": "osm:node/2570858033",
+"osm_id": "node/2570858033"
+},
+{
+"code": "khulna",
+"name_bn": "খুলনা",
+"name_en": "Khulna",
+"district": "Khulna",
+"lat": 22.820304,
+"lng": 89.557947,
+"coord_source": "osm:way/1226487760",
+"osm_id": "way/1226487760"
+},
+{
+"code": "kishoreganj",
+"name_bn": "কিশোরগঞ্জ",
+"name_en": "Kishoreganj",
+"district": "Kishoreganj",
+"lat": 24.426305,
+"lng": 90.788662,
+"coord_source": "osm:way/591628993",
+"osm_id": "way/591628993"
+},
+{
+"code": "kismat",
+"name_bn": "কিসমত",
+"name_en": "Kismat",
+"district": "Thakurgaon",
+"lat": 26.222146,
+"lng": 88.44713,
+"coord_source": "osm:node/13447742825",
+"osm_id": "node/13447742825"
+},
+{
+"code": "kolkata-india",
+"name_bn": "কলকাতা",
+"name_en": "Kolkata (India)",
+"district": "India",
+"lat": null,
+"lng": null,
+"coord_source": null,
+"osm_id": null
+},
+{
+"code": "kotchandpur",
+"name_bn": "কোটচাঁদপুর",
+"name_en": "Kotchandpur",
+"district": "Jhenaidah",
+"lat": 23.415567,
+"lng": 89.014037,
+"coord_source": "osm:way/1408317377",
+"osm_id": "way/1408317377"
+},
+{
+"code": "kulaura",
+"name_bn": "কুলাউড়া",
+"name_en": "Kulaura",
+"district": "Moulvibazar",
+"lat": 24.522557,
+"lng": 92.036661,
+"coord_source": "osm:node/2338253014",
+"osm_id": "node/2338253014"
+},
+{
+"code": "kuliarchar",
+"name_bn": "কুলিয়ারচর",
+"name_en": "Kuliarchar",
+"district": "Kishoreganj",
+"lat": 24.151002,
+"lng": 90.928675,
+"coord_source": "osm:node/2571458092",
+"osm_id": "node/2571458092"
+},
+{
+"code": "kumarkhali",
+"name_bn": "কুমারখালী",
+"name_en": "Kumarkhali",
+"district": "Kushtia",
+"lat": 23.860576,
+"lng": 89.241024,
+"coord_source": "osm:node/2571469118",
+"osm_id": "node/2571469118"
+},
+{
+"code": "kumira",
+"name_bn": "কুমিরা",
+"name_en": "Kumira",
+"district": "Chattogram",
+"lat": 22.50517,
+"lng": 91.715814,
+"coord_source": "osm:way/517512359",
+"osm_id": "way/517512359"
+},
+{
+"code": "kurigram",
+"name_bn": "কুড়িগ্রাম",
+"name_en": "Kurigram",
+"district": "Kurigram",
+"lat": 25.807557,
+"lng": 89.621296,
+"coord_source": "osm:node/1478704276",
+"osm_id": "node/1478704276"
+},
+{
+"code": "kushtia-court",
+"name_bn": "কুষ্টিয়া কোর্ট",
+"name_en": "Kushtia Court",
+"district": "Kushtia",
+"lat": 23.907067,
+"lng": 89.128287,
+"coord_source": "osm:node/2571478484",
+"osm_id": "node/2571478484"
+},
+{
+"code": "laksam",
+"name_bn": "লাকসাম",
+"name_en": "Laksam",
+"district": "Cumilla",
+"lat": 23.254915,
+"lng": 91.123696,
+"coord_source": "osm:way/1205403453",
+"osm_id": "way/1205403453"
+},
+{
+"code": "lalmonirhat",
+"name_bn": "লালমনিরহাট",
+"name_en": "Lalmonirhat",
+"district": "Lalmonirhat",
+"lat": 25.911828,
+"lng": 89.445373,
+"coord_source": "osm:node/1430006598",
+"osm_id": "node/1430006598"
+},
+{
+"code": "lohagara-chattogram",
+"name_bn": "লোহাগাড়া",
+"name_en": "Lohagara (Chattogram)",
+"district": "Chattogram",
+"lat": 22.010686,
+"lng": 92.085607,
+"coord_source": "estimated: timetable time between হারবাং and সাতকানিয়া along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "lohagara-narail",
+"name_bn": "লোহাগড়া",
+"name_en": "Lohagara (Narail)",
+"district": "Narail",
+"lat": 23.203317,
+"lng": 89.622956,
+"coord_source": "estimated: timetable time between নড়াইল and কাশিয়ানী along the OSM track (no OSM station point)",
+"osm_id": "node/8737709419"
+},
+{
+"code": "madhnagar",
+"name_bn": "মাধনগর",
+"name_en": "Madhnagar",
+"district": "Natore",
+"lat": 24.535602,
+"lng": 88.961935,
+"coord_source": "osm:node/10796613077",
+"osm_id": "node/10796613077"
+},
+{
+"code": "madhu-road",
+"name_bn": "মধুরোড",
+"name_en": "Madhu Road",
+"district": "Chandpur",
+"lat": 23.244352,
+"lng": 90.756259,
+"coord_source": "osm:node/7752573779",
+"osm_id": "node/7752573779"
+},
+{
+"code": "madhukhali",
+"name_bn": "মধুখালী",
+"name_en": "Madhukhali",
+"district": "Faridpur",
+"lat": 23.546752,
+"lng": 89.630708,
+"coord_source": "osm:node/2577331355",
+"osm_id": "node/2577331355"
+},
+{
+"code": "maijdee-court",
+"name_bn": "মাইজদী কোর্ট",
+"name_en": "Maijdee Court",
+"district": "Noakhali",
+"lat": 22.860655,
+"lng": 91.104938,
+"coord_source": "osm:node/2571507697",
+"osm_id": "node/2571507697"
+},
+{
+"code": "maijgaon",
+"name_bn": "মাইজগাঁও",
+"name_en": "Maijgaon",
+"district": "Sylhet",
+"lat": 24.686185,
+"lng": 91.951553,
+"coord_source": "osm:node/2571513622",
+"osm_id": "node/2571513622"
+},
+{
+"code": "majhgram",
+"name_bn": "মাঝগ্রাম",
+"name_en": "Majhgram",
+"district": "Pabna",
+"lat": 24.162717,
+"lng": 89.094023,
+"coord_source": "osm:node/6018702589",
+"osm_id": "node/6018702589"
+},
+{
+"code": "manikkhali",
+"name_bn": "মানিকখালী",
+"name_en": "Manikkhali",
+"district": "Kishoreganj",
+"lat": 24.297937,
+"lng": 90.84649,
+"coord_source": "osm:node/2571694486",
+"osm_id": "node/2571694486"
+},
+{
+"code": "mantala",
+"name_bn": "মনতলা",
+"name_en": "Mantala",
+"district": "Habiganj",
+"lat": 24.069397,
+"lng": 91.345048,
+"coord_source": "osm:node/399602847",
+"osm_id": "node/399602847"
+},
+{
+"code": "mawa",
+"name_bn": "মাওয়া",
+"name_en": "Mawa",
+"district": "Munshiganj",
+"lat": 23.503729,
+"lng": 90.274483,
+"coord_source": "osm:node/8737668782",
+"osm_id": "node/8737668782"
+},
+{
+"code": "meher",
+"name_bn": "মেহের",
+"name_en": "Meher",
+"district": "Chandpur",
+"lat": 23.245199,
+"lng": 90.943317,
+"coord_source": "osm:node/2571324804",
+"osm_id": "node/2571324804"
+},
+{
+"code": "melandaha-bazar",
+"name_bn": "মেলান্দহ বাজার",
+"name_en": "Melandaha Bazar",
+"district": "Jamalpur",
+"lat": 24.978176,
+"lng": 89.853417,
+"coord_source": "osm:node/2571654830",
+"osm_id": "node/2571654830"
+},
+{
+"code": "methikanda",
+"name_bn": "মেথিকান্দা",
+"name_en": "Methikanda",
+"district": "Narsingdi",
+"lat": 23.992582,
+"lng": 90.867022,
+"coord_source": "osm:node/11738295269",
+"osm_id": "node/11738295269"
+},
+{
+"code": "mirpur-kushtia",
+"name_bn": "মিরপুর (কুষ্টিয়া)",
+"name_en": "Mirpur (Kushtia)",
+"district": "Kushtia",
+"lat": 23.941538,
+"lng": 88.997014,
+"coord_source": "osm:node/7455839040",
+"osm_id": "node/7455839040"
+},
+{
+"code": "mirzapur",
+"name_bn": "মির্জাপুর",
+"name_en": "Mirzapur",
+"district": "Tangail",
+"lat": 24.105532,
+"lng": 90.101413,
+"coord_source": "osm:node/5647374047",
+"osm_id": "node/5647374047"
+},
+{
+"code": "mobarakganj",
+"name_bn": "মোবারকগঞ্জ",
+"name_en": "Mobarakganj",
+"district": "Jhenaidah",
+"lat": 23.386568,
+"lng": 89.132173,
+"coord_source": "estimated: timetable time between যশোর and কোটচাঁদপুর along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "mohanganj",
+"name_bn": "মোহনগঞ্জ",
+"name_en": "Mohanganj",
+"district": "Netrokona",
+"lat": 24.870822,
+"lng": 90.973035,
+"coord_source": "osm:node/2409424649",
+"osm_id": "node/2409424649"
+},
+{
+"code": "mohimaganj",
+"name_bn": "মহিমাগঞ্জ",
+"name_en": "Mohimaganj",
+"district": "Gaibandha",
+"lat": 25.104468,
+"lng": 89.493806,
+"coord_source": "osm:node/7521827324",
+"osm_id": "node/7521827324"
+},
+{
+"code": "mongla",
+"name_bn": "মোংলা",
+"name_en": "Mongla",
+"district": "Bagerhat",
+"lat": 22.477415,
+"lng": 89.599633,
+"coord_source": "osm:node/6185330322",
+"osm_id": "node/6185330322"
+},
+{
+"code": "mukundapur",
+"name_bn": "মুকুন্দপুর",
+"name_en": "Mukundapur",
+"district": "Brahmanbaria",
+"lat": 23.963621,
+"lng": 91.264593,
+"coord_source": "osm:node/399602851",
+"osm_id": "node/399602851"
+},
+{
+"code": "muladuli",
+"name_bn": "মুলাডুলি",
+"name_en": "Muladuli",
+"district": "Pabna",
+"lat": 24.163822,
+"lng": 89.14328,
+"coord_source": "osm:node/6185338150",
+"osm_id": "node/6185338150"
+},
+{
+"code": "mymensingh",
+"name_bn": "ময়মনসিংহ",
+"name_en": "Mymensingh",
+"district": "Mymensingh",
+"lat": 24.753273,
+"lng": 90.410103,
+"coord_source": "osm:node/1167590094",
+"osm_id": "node/1167590094"
+},
+{
+"code": "naliagram",
+"name_bn": "নলিয়াগ্রাম",
+"name_en": "Naliagram",
+"district": "Narail",
+"lat": 23.602524,
+"lng": 89.605635,
+"coord_source": "osm:node/7472900665",
+"osm_id": "node/7472900665"
+},
+{
+"code": "nandina",
+"name_bn": "নান্দিনা",
+"name_en": "Nandina",
+"district": "Jamalpur",
+"lat": 24.867705,
+"lng": 90.035903,
+"coord_source": "osm:node/2571828149",
+"osm_id": "node/2571828149"
+},
+{
+"code": "nangalkot",
+"name_bn": "নাঙ্গলকোট",
+"name_en": "Nangalkot",
+"district": "Cumilla",
+"lat": 23.165343,
+"lng": 91.20123,
+"coord_source": "osm:node/2571837941",
+"osm_id": "node/2571837941"
+},
+{
+"code": "narail",
+"name_bn": "নড়াইল",
+"name_en": "Narail",
+"district": "Narail",
+"lat": 23.17697,
+"lng": 89.495664,
+"coord_source": "osm:node/8737709420",
+"osm_id": "node/8737709420"
+},
+{
+"code": "narayanganj",
+"name_bn": "নারায়ণগঞ্জ",
+"name_en": "Narayanganj",
+"district": "Narayanganj",
+"lat": 23.617983,
+"lng": 90.505575,
+"coord_source": "osm:node/4104184789",
+"osm_id": "node/4104184789"
+},
+{
+"code": "narsingdi",
+"name_bn": "নরসিংদী",
+"name_en": "Narsingdi",
+"district": "Narsingdi",
+"lat": 23.930824,
+"lng": 90.721158,
+"coord_source": "osm:way/610603355",
+"osm_id": "way/610603355"
+},
+{
+"code": "natherpetua",
+"name_bn": "নাথেরপেটুয়া",
+"name_en": "Natherpetua",
+"district": "Cumilla",
+"lat": 23.113221,
+"lng": 91.115424,
+"coord_source": "osm:node/9655483827",
+"osm_id": "node/9655483827"
+},
+{
+"code": "natore",
+"name_bn": "নাটোর",
+"name_en": "Natore",
+"district": "Natore",
+"lat": 24.410813,
+"lng": 88.96659,
+"coord_source": "osm:way/527251501",
+"osm_id": "way/527251501"
+},
+{
+"code": "nayaniburuj",
+"name_bn": "নয়নীবুরুজ",
+"name_en": "Nayaniburuj",
+"district": "Panchagarh",
+"lat": 26.277688,
+"lng": 88.496106,
+"coord_source": "osm:node/13447756292",
+"osm_id": "node/13447756292"
+},
+{
+"code": "netrokona",
+"name_bn": "নেত্রকোনা",
+"name_en": "Netrokona",
+"district": "Netrokona",
+"lat": 24.887351,
+"lng": 90.731244,
+"coord_source": "osm:node/5783958141",
+"osm_id": "node/5783958141"
+},
+{
+"code": "new-jalpaiguri-india",
+"name_bn": "নিউ জলপাইগুড়ি",
+"name_en": "New Jalpaiguri (India)",
+"district": "India",
+"lat": null,
+"lng": null,
+"coord_source": null,
+"osm_id": null
+},
+{
+"code": "nilphamari",
+"name_bn": "নীলফামারী",
+"name_en": "Nilphamari",
+"district": "Nilphamari",
+"lat": 25.949076,
+"lng": 88.835842,
+"coord_source": "osm:node/1412092716",
+"osm_id": "node/1412092716"
+},
+{
+"code": "noakhali",
+"name_bn": "নোয়াখালী",
+"name_en": "Noakhali",
+"district": "Noakhali",
+"lat": 22.827695,
+"lng": 91.101462,
+"coord_source": "osm:node/2544500337",
+"osm_id": "node/2544500337"
+},
+{
+"code": "noapara-habiganj",
+"name_bn": "নোয়াপাড়া (হবিগঞ্জ)",
+"name_en": "Noapara (Habiganj)",
+"district": "Habiganj",
+"lat": 24.180777,
+"lng": 91.356792,
+"coord_source": "osm:way/622008376",
+"osm_id": "way/622008376"
+},
+{
+"code": "noapara-jashore",
+"name_bn": "নোয়াপাড়া (যশোর)",
+"name_en": "Noapara (Jashore)",
+"district": "Jashore",
+"lat": 23.033193,
+"lng": 89.3953,
+"coord_source": "osm:way/534845794",
+"osm_id": "way/534845794"
+},
+{
+"code": "nurundi",
+"name_bn": "নুরুন্দি",
+"name_en": "Nurundi",
+"district": "Jamalpur",
+"lat": 24.865008,
+"lng": 90.119934,
+"coord_source": "osm:node/7959231811",
+"osm_id": "node/7959231811"
+},
+{
+"code": "pabna",
+"name_bn": "পাবনা",
+"name_en": "Pabna",
+"district": "Pabna",
+"lat": 24.015998,
+"lng": 89.256107,
+"coord_source": "osm:node/5153076681",
+"osm_id": "node/5153076681"
+},
+{
+"code": "pachuria",
+"name_bn": "পাচুরিয়া",
+"name_en": "Pachuria",
+"district": "Rajbari",
+"lat": 23.747539,
+"lng": 89.711715,
+"coord_source": "osm:node/2425716838",
+"osm_id": "node/2425716838"
+},
+{
+"code": "padma",
+"name_bn": "পদ্মা",
+"name_en": "Padma",
+"district": "Madaripur",
+"lat": 23.398367,
+"lng": 90.218818,
+"coord_source": "osm:node/9822264805",
+"osm_id": "node/9822264805"
+},
+{
+"code": "pakshi",
+"name_bn": "পাকশী",
+"name_en": "Pakshi",
+"district": "Pabna",
+"lat": 24.070877,
+"lng": 89.040686,
+"coord_source": "osm:node/3219870277",
+"osm_id": "node/3219870277"
+},
+{
+"code": "panchagarh",
+"name_bn": "পঞ্চগড়",
+"name_en": "Panchagarh",
+"district": "Panchagarh",
+"lat": 26.330084,
+"lng": 88.540448,
+"coord_source": "osm:node/1412090860",
+"osm_id": "node/1412090860"
+},
+{
+"code": "panchbibi",
+"name_bn": "পাঁচবিবি",
+"name_en": "Panchbibi",
+"district": "Joypurhat",
+"lat": 25.188518,
+"lng": 89.021565,
+"coord_source": "osm:node/1472108343",
+"osm_id": "node/1472108343"
+},
+{
+"code": "pangsha",
+"name_bn": "পাংশা",
+"name_en": "Pangsha",
+"district": "Rajbari",
+"lat": 23.786153,
+"lng": 89.417152,
+"coord_source": "osm:node/2429206696",
+"osm_id": "node/2429206696"
+},
+{
+"code": "parbatipur",
+"name_bn": "পার্বতীপুর",
+"name_en": "Parbatipur",
+"district": "Dinajpur",
+"lat": 25.653216,
+"lng": 88.915503,
+"coord_source": "osm:node/2509314541",
+"osm_id": "node/2509314541"
+},
+{
+"code": "patgram",
+"name_bn": "পাটগ্রাম",
+"name_en": "Patgram",
+"district": "Lalmonirhat",
+"lat": 26.343758,
+"lng": 89.021332,
+"coord_source": "osm:node/1430007276",
+"osm_id": "node/1430007276"
+},
+{
+"code": "patiya",
+"name_bn": "পটিয়া",
+"name_en": "Patiya",
+"district": "Chattogram",
+"lat": 22.297891,
+"lng": 91.982002,
+"coord_source": "osm:node/2412035423",
+"osm_id": "node/2412035423"
+},
+{
+"code": "pirgachha",
+"name_bn": "পীরগাছা",
+"name_en": "Pirgachha",
+"district": "Rangpur",
+"lat": 25.659328,
+"lng": 89.407802,
+"coord_source": "osm:node/2571898000",
+"osm_id": "node/2571898000"
+},
+{
+"code": "pirganj",
+"name_bn": "পীরগঞ্জ",
+"name_en": "Pirganj",
+"district": "Thakurgaon",
+"lat": 25.859262,
+"lng": 88.357827,
+"coord_source": "osm:node/1412090871",
+"osm_id": "node/1412090871"
+},
+{
+"code": "piyarpur",
+"name_bn": "পিয়ারপুর",
+"name_en": "Piyarpur",
+"district": "Jamalpur",
+"lat": 24.87908,
+"lng": 90.196603,
+"coord_source": "osm:node/2936302655",
+"osm_id": "node/2936302655"
+},
+{
+"code": "poradaha",
+"name_bn": "পোড়াদহ",
+"name_en": "Poradaha",
+"district": "Kushtia",
+"lat": 23.86468,
+"lng": 89.032612,
+"coord_source": "osm:node/1675547046",
+"osm_id": "node/1675547046"
+},
+{
+"code": "raghabpur",
+"name_bn": "রাঘবপুর",
+"name_en": "Raghabpur",
+"district": "Pabna",
+"lat": 23.995326,
+"lng": 89.304228,
+"coord_source": "osm:node/7455967021",
+"osm_id": "node/7455967021"
+},
+{
+"code": "rajbari",
+"name_bn": "রাজবাড়ী",
+"name_en": "Rajbari",
+"district": "Rajbari",
+"lat": 23.762848,
+"lng": 89.645345,
+"coord_source": "osm:node/7537269457",
+"osm_id": "node/7537269457"
+},
+{
+"code": "rajshahi",
+"name_bn": "রাজশাহী",
+"name_en": "Rajshahi",
+"district": "Rajshahi",
+"lat": 24.375003,
+"lng": 88.608568,
+"coord_source": "osm:node/1671923183",
+"osm_id": "node/1671923183"
+},
+{
+"code": "ramna-bazar",
+"name_bn": "রমনাবাজার",
+"name_en": "Ramna Bazar",
+"district": "Kurigram",
+"lat": 25.57646,
+"lng": 89.674933,
+"coord_source": "osm:way/438485879",
+"osm_id": "way/438485879"
+},
+{
+"code": "ramu",
+"name_bn": "রামু",
+"name_en": "Ramu",
+"district": "Cox's Bazar",
+"lat": 21.456667,
+"lng": 92.088449,
+"coord_source": "estimated: timetable time between ডুলহাজারা and কক্সবাজার along the OSM track (no OSM station point)",
+"osm_id": null
+},
+{
+"code": "rangpur",
+"name_bn": "রংপুর",
+"name_en": "Rangpur",
+"district": "Rangpur",
+"lat": 25.728403,
+"lng": 89.264018,
+"coord_source": "osm:node/1904544249",
+"osm_id": "node/1904544249"
+},
+{
+"code": "rohanpur",
+"name_bn": "রহনপুর",
+"name_en": "Rohanpur",
+"district": "Chapainawabganj",
+"lat": 24.820454,
+"lng": 88.319461,
+"coord_source": "osm:node/1429898632",
+"osm_id": "node/1429898632"
+},
+{
+"code": "ruhia",
+"name_bn": "রুহিয়া",
+"name_en": "Ruhia",
+"district": "Thakurgaon",
+"lat": 26.168245,
+"lng": 88.405464,
+"coord_source": "osm:node/13447738495",
+"osm_id": "node/13447738495"
+},
+{
+"code": "safdarpur",
+"name_bn": "সাফদারপুর",
+"name_en": "Safdarpur",
+"district": "Jhenaidah",
+"lat": 23.46241,
+"lng": 88.961449,
+"coord_source": "osm:node/6273553499",
+"osm_id": "node/6273553499"
+},
+{
+"code": "saidabad",
+"name_bn": "সয়দাবাদ",
+"name_en": "Saidabad",
+"district": "Sirajganj",
+"lat": 24.396119,
+"lng": 89.733473,
+"coord_source": "osm:node/306469779",
+"osm_id": "node/306469779"
+},
+{
+"code": "saidpur",
+"name_bn": "সৈয়দপুর",
+"name_en": "Saidpur",
+"district": "Nilphamari",
+"lat": 25.787029,
+"lng": 88.893148,
+"coord_source": "osm:node/1412090876",
+"osm_id": "node/1412090876"
+},
+{
+"code": "santahar",
+"name_bn": "সান্তাহার",
+"name_en": "Santahar",
+"district": "Bogura",
+"lat": 24.806194,
+"lng": 88.986057,
+"coord_source": "osm:node/1133342959",
+"osm_id": "node/1133342959"
+},
+{
+"code": "santhia-rajapur",
+"name_bn": "সাঁথিয়া রাজাপুর",
+"name_en": "Santhia Rajapur",
+"district": "Pabna",
+"lat": 23.972626,
+"lng": 89.486657,
+"coord_source": "osm:node/7455967018",
+"osm_id": "node/7455967018"
+},
+{
+"code": "sararchar",
+"name_bn": "সরারচর",
+"name_en": "Sararchar",
+"district": "Kishoreganj",
+"lat": 24.21848,
+"lng": 90.900866,
+"coord_source": "osm:way/395729040",
+"osm_id": "way/395729040"
+},
+{
+"code": "sardah-road",
+"name_bn": "সরদহ রোড",
+"name_en": "Sardah Road",
+"district": "Rajshahi",
+"lat": 24.337291,
+"lng": 88.752525,
+"coord_source": "osm:node/2572513555",
+"osm_id": "node/2572513555"
+},
+{
+"code": "sarishabari",
+"name_bn": "সরিষাবাড়ী",
+"name_en": "Sarishabari",
+"district": "Jamalpur",
+"lat": 24.760831,
+"lng": 89.840064,
+"coord_source": "osm:node/2312873589",
+"osm_id": "node/2312873589"
+},
+{
+"code": "satkania",
+"name_bn": "সাতকানিয়া",
+"name_en": "Satkania",
+"district": "Chattogram",
+"lat": 22.092123,
+"lng": 92.061975,
+"coord_source": "osm:way/1225154762",
+"osm_id": "way/1225154762"
+},
+{
+"code": "setabganj",
+"name_bn": "সেতাবগঞ্জ",
+"name_en": "Setabganj",
+"district": "Dinajpur",
+"lat": 25.800636,
+"lng": 88.459361,
+"coord_source": "osm:node/7757193547",
+"osm_id": "node/7757193547"
+},
+{
+"code": "shahaji-bazar",
+"name_bn": "শাহজীবাজার",
+"name_en": "Shahaji Bazar",
+"district": "Habiganj",
+"lat": 24.253205,
+"lng": 91.382114,
+"coord_source": "osm:node/2571998660",
+"osm_id": "node/2571998660"
+},
+{
+"code": "shahid-m-monsur-ali",
+"name_bn": "শহীদ এম মনসুর আলী",
+"name_en": "Shahid M. Monsur Ali",
+"district": "Sirajganj",
+"lat": 24.396119,
+"lng": 89.733473,
+"coord_source": "osm:node/306469779",
+"osm_id": "node/306469779"
+},
+{
+"code": "shaistaganj",
+"name_bn": "শায়েস্তাগঞ্জ",
+"name_en": "Shaistaganj",
+"district": "Habiganj",
+"lat": 24.278345,
+"lng": 91.449872,
+"coord_source": "osm:node/2441439299",
+"osm_id": "node/2441439299"
+},
+{
+"code": "shamshernagar",
+"name_bn": "শমশেরনগর",
+"name_en": "Shamshernagar",
+"district": "Moulvibazar",
+"lat": 24.382882,
+"lng": 91.900396,
+"coord_source": "osm:node/2572009861",
+"osm_id": "node/2572009861"
+},
+{
+"code": "shashidal",
+"name_bn": "শশীদল",
+"name_en": "Shashidal",
+"district": "Cumilla",
+"lat": 23.638528,
+"lng": 91.146879,
+"coord_source": "osm:node/13432204290",
+"osm_id": "node/13432204290"
+},
+{
+"code": "shibchar",
+"name_bn": "শিবচর",
+"name_en": "Shibchar",
+"district": "Madaripur",
+"lat": 23.386254,
+"lng": 90.129962,
+"coord_source": "osm:node/8737664414",
+"osm_id": "node/8737664414"
+},
+{
+"code": "shibganj",
+"name_bn": "শিবগঞ্জ",
+"name_en": "Shibganj",
+"district": "Thakurgaon",
+"lat": 25.998389,
+"lng": 88.403692,
+"coord_source": "osm:node/13676710276",
+"osm_id": "node/13676710276"
+},
+{
+"code": "sholashahar",
+"name_bn": "ষোলশহর",
+"name_en": "Sholashahar",
+"district": "Chattogram",
+"lat": 22.368514,
+"lng": 91.826526,
+"coord_source": "osm:node/2568262632",
+"osm_id": "node/2568262632"
+},
+{
+"code": "shyamganj",
+"name_bn": "শ্যামগঞ্জ",
+"name_en": "Shyamganj",
+"district": "Mymensingh",
+"lat": 24.838141,
+"lng": 90.579351,
+"coord_source": "osm:node/1472157684",
+"osm_id": "node/1472157684"
+},
+{
+"code": "singia",
+"name_bn": "সিঙ্গিয়া",
+"name_en": "Singia",
+"district": "Jashore",
+"lat": 23.121606,
+"lng": 89.346618,
+"coord_source": "osm:node/5187825081",
+"osm_id": "node/5187825081"
+},
+{
+"code": "sirajganj-bazar",
+"name_bn": "সিরাজগঞ্জ বাজার",
+"name_en": "Sirajganj Bazar",
+"district": "Sirajganj",
+"lat": 24.451041,
+"lng": 89.702328,
+"coord_source": "osm:node/5862118170",
+"osm_id": "node/5862118170"
+},
+{
+"code": "sirajganj-raypur",
+"name_bn": "সিরাজগঞ্জ রায়পুর",
+"name_en": "Sirajganj Raypur",
+"district": "Sirajganj",
+"lat": 24.438969,
+"lng": 89.701345,
+"coord_source": "osm:node/7472684596",
+"osm_id": "node/7472684596"
+},
+{
+"code": "sonaimuri",
+"name_bn": "সোনাইমুড়ি",
+"name_en": "Sonaimuri",
+"district": "Noakhali",
+"lat": 23.040598,
+"lng": 91.097944,
+"coord_source": "osm:node/2572038881",
+"osm_id": "node/2572038881"
+},
+{
+"code": "sonatala",
+"name_bn": "সোনাতলা",
+"name_en": "Sonatala",
+"district": "Bogura",
+"lat": 25.04222,
+"lng": 89.497449,
+"coord_source": "osm:node/2572045057",
+"osm_id": "node/2572045057"
+},
+{
+"code": "sreemangal",
+"name_bn": "শ্রীমঙ্গল",
+"name_en": "Sreemangal",
+"district": "Moulvibazar",
+"lat": 24.306613,
+"lng": 91.734825,
+"coord_source": "osm:node/317357840",
+"osm_id": "node/317357840"
+},
+{
+"code": "sreepur",
+"name_bn": "শ্রীপুর",
+"name_en": "Sreepur",
+"district": "Gazipur",
+"lat": 24.198986,
+"lng": 90.479557,
+"coord_source": "osm:node/10591782081",
+"osm_id": "node/10591782081"
+},
+{
+"code": "sylhet",
+"name_bn": "সিলেট",
+"name_en": "Sylhet",
+"district": "Sylhet",
+"lat": 24.881761,
+"lng": 91.867988,
+"coord_source": "osm:node/9846219004",
+"osm_id": "node/9846219004"
+},
+{
+"code": "talma",
+"name_bn": "তালমা",
+"name_en": "Talma",
+"district": "Faridpur",
+"lat": 23.490267,
+"lng": 89.876667,
+"coord_source": "osm:node/6372120710",
+"osm_id": "node/6372120710"
+},
+{
+"code": "talora",
+"name_bn": "তালোড়া",
+"name_en": "Talora",
+"district": "Bogura",
+"lat": 24.823787,
+"lng": 89.178578,
+"coord_source": "osm:node/7520976319",
+"osm_id": "node/7520976319"
+},
+{
+"code": "tangail",
+"name_bn": "টাঙ্গাইল",
+"name_en": "Tangail",
+"district": "Tangail",
+"lat": 24.273851,
+"lng": 89.937591,
+"coord_source": "osm:node/2545364919",
+"osm_id": "node/2545364919"
+},
+{
+"code": "tantibandha",
+"name_bn": "তাঁতীবান্ধা",
+"name_en": "Tantibandha",
+"district": "Pabna",
+"lat": 23.974951,
+"lng": 89.409457,
+"coord_source": "osm:node/7455967019",
+"osm_id": "node/7455967019"
+},
+{
+"code": "tarakandi",
+"name_bn": "তারাকান্দি",
+"name_en": "Tarakandi",
+"district": "Jamalpur",
+"lat": 24.685719,
+"lng": 89.824331,
+"coord_source": "osm:node/2277895704",
+"osm_id": "node/2277895704"
+},
+{
+"code": "tebunia",
+"name_bn": "টেবুনিয়া",
+"name_en": "Tebunia",
+"district": "Pabna",
+"lat": 24.074065,
+"lng": 89.206135,
+"coord_source": "osm:node/6043075832",
+"osm_id": "node/6043075832"
+},
+{
+"code": "thakurakona",
+"name_bn": "ঠাকুরাকোনা",
+"name_en": "Thakurakona",
+"district": "Netrokona",
+"lat": 24.907339,
+"lng": 90.81782,
+"coord_source": "osm:way/539948579",
+"osm_id": "way/539948579"
+},
+{
+"code": "thakurgaon-road",
+"name_bn": "ঠাকুরগাঁও রোড",
+"name_en": "Thakurgaon Road",
+"district": "Thakurgaon",
+"lat": 26.040688,
+"lng": 88.426635,
+"coord_source": "osm:node/13676714654",
+"osm_id": "node/13676714654"
+},
+{
+"code": "tista",
+"name_bn": "তিস্তা",
+"name_en": "Tista",
+"district": "Lalmonirhat",
+"lat": 25.808524,
+"lng": 89.440744,
+"coord_source": "osm:way/540961107",
+"osm_id": "way/540961107"
+},
+{
+"code": "tushbhandar",
+"name_bn": "তুষভান্ডার",
+"name_en": "Tushbhandar",
+"district": "Lalmonirhat",
+"lat": 25.967529,
+"lng": 89.202246,
+"coord_source": "osm:node/1430007005",
+"osm_id": "node/1430007005"
+},
+{
+"code": "ullapara",
+"name_bn": "উল্লাপাড়া",
+"name_en": "Ullapara",
+"district": "Sirajganj",
+"lat": 24.290074,
+"lng": 89.570121,
+"coord_source": "osm:node/2545379113",
+"osm_id": "node/2545379113"
+}
+]
+}

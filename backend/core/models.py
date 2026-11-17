@@ -9292,3 +9292,112 @@ class BlogPost(models.Model):
     class Meta:
         ordering = ["order", "-published_at", "id"]
 # ---- /seoblog ----
+
+
+# ---- train-data ---- (Train Tracker V2, owner order 17 Nov): the official
+# Bangladesh Railway timetable (every train) + OSM rail geometry, loaded by
+# `manage.py load_bd_trains` from backend/core/data/train/br_*.json. Static
+# data only; live positions are in Redis (engine lane), never here.
+class RailStation(models.Model):
+    """A Bangladesh Railway station in the official timetable."""
+    code = models.SlugField(max_length=60, unique=True)          # e.g. "rangpur"
+    name_bn = models.CharField(max_length=80)
+    name_en = models.CharField(max_length=80)
+    district = models.CharField(max_length=40, blank=True, default="")
+    lat = models.FloatField(null=True, blank=True)
+    lng = models.FloatField(null=True, blank=True)
+    coord_source = models.CharField(max_length=200, blank=True, default="")  # "osm:node/…" or "estimated: …"
+    osm_id = models.CharField(max_length=40, blank=True, default="")
+
+    class Meta:
+        db_table = "br_stations"
+        ordering = ["code"]
+
+
+class RailTrain(models.Model):
+    """One train (one direction) from the official BR timetable."""
+    number = models.CharField(max_length=8, unique=True)          # "771", "NG-1" (unnumbered commuters)
+    name_bn = models.CharField(max_length=80)
+    name_en = models.CharField(max_length=80)
+    kind = models.CharField(max_length=16)        # intercity|mail|commuter|local|international
+    zone = models.CharField(max_length=8)         # east|west|intl
+    status = models.CharField(max_length=12, default="running")  # running|suspended|proposed
+    status_note = models.CharField(max_length=200, blank=True, default="")
+    origin = models.ForeignKey(RailStation, on_delete=models.PROTECT, related_name="trains_from")
+    destination = models.ForeignKey(RailStation, on_delete=models.PROTECT, related_name="trains_to")
+    off_days = models.JSONField(default=list, blank=True)   # weekly off days, 0=Monday … 6=Sunday
+    bd_section_only = models.BooleanField(default=False)    # cross-border: Bangladesh part only
+    source_url = models.URLField(max_length=300)
+    source_file = models.URLField(max_length=300, blank=True, default="")
+    source_edition = models.CharField(max_length=40, blank=True, default="")
+    source_fetched = models.DateField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "br_trains"
+        ordering = ["number"]
+
+
+class RailTrainStop(models.Model):
+    """train_schedules: one stop of one train, in order. Times are local
+    (Asia/Dhaka) wall-clock; day_offset counts midnights since departure."""
+    train = models.ForeignKey(RailTrain, on_delete=models.CASCADE, related_name="stops")
+    seq = models.PositiveSmallIntegerField()
+    station = models.ForeignKey(RailStation, on_delete=models.PROTECT, related_name="stops")
+    arr_time = models.TimeField(null=True, blank=True)
+    dep_time = models.TimeField(null=True, blank=True)
+    arr_day = models.PositiveSmallIntegerField(default=0)
+    dep_day = models.PositiveSmallIntegerField(default=0)
+    km_from_origin = models.FloatField(null=True, blank=True)
+    time_source = models.CharField(max_length=12, default="official")  # official|corrected
+    note = models.CharField(max_length=200, blank=True, default="")
+
+    class Meta:
+        db_table = "br_train_schedules"
+        ordering = ["train_id", "seq"]
+        constraints = [models.UniqueConstraint(fields=("train", "seq"), name="br_sched_train_seq_uniq")]
+        indexes = [models.Index(fields=["station", "train"], name="br_sched_station_idx")]
+
+
+class RailSegment(models.Model):
+    """Rail line between two consecutive stops (OSM railway=rail, ODbL).
+    geometry = GeoJSON LineString coordinates [[lng, lat], …]."""
+    code = models.CharField(max_length=130, unique=True)        # "<from code>|<to code>"
+    from_station = models.ForeignKey(RailStation, on_delete=models.CASCADE, related_name="segments_out")
+    to_station = models.ForeignKey(RailStation, on_delete=models.CASCADE, related_name="segments_in")
+    km = models.FloatField()
+    geometry = models.JSONField(default=list)
+    source = models.CharField(max_length=120, default="© OpenStreetMap contributors (ODbL)")
+
+    class Meta:
+        db_table = "br_rail_segments"
+
+
+class TrainPassing(models.Model):
+    """Every CONFIRMED passing of a train at a station (arrived / left), the
+    history the learned delay model (owner order G) trains on. Anonymous:
+    no user, only how it was confirmed and by how many reports. Kept
+    (aggregate, not personal location) — raw rider points live elsewhere
+    and are deleted after 24 h."""
+    SOURCES = ("rider_gps", "tower", "checkin", "shared_text", "official")
+    train = models.ForeignKey(RailTrain, on_delete=models.CASCADE, related_name="passings")
+    service_date = models.DateField()           # the date the train left its origin
+    station = models.ForeignKey(RailStation, on_delete=models.CASCADE, related_name="passings")
+    seq = models.PositiveSmallIntegerField()    # stop/pass order on the route
+    arrived_at = models.DateTimeField(null=True, blank=True)
+    departed_at = models.DateTimeField(null=True, blank=True)
+    delay_min = models.IntegerField(null=True, blank=True)   # actual − scheduled (minutes), arrival if known
+    weekday = models.PositiveSmallIntegerField()   # of service_date, 0=Monday
+    source = models.CharField(max_length=12)       # one of SOURCES (the strongest that confirmed it)
+    confirmations = models.PositiveSmallIntegerField(default=1)
+    confidence = models.FloatField(default=0.5)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "br_train_passings"
+        constraints = [models.UniqueConstraint(fields=("train", "service_date", "station"),
+                                               name="br_passing_once")]
+        indexes = [models.Index(fields=["train", "station", "weekday"], name="br_passing_learn_idx"),
+                   models.Index(fields=["service_date"], name="br_passing_date_idx")]
+# ---- /train-data ----
