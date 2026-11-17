@@ -13,7 +13,7 @@ import '../state.dart' show Settings;
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/journey_api.dart';
-import '../widgets/journey_ride.dart' show jDistanceM;
+import '../widgets/journey_ride.dart' show jDistanceM, jPlaceKind;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../widgets/permission_reason.dart';
 import 'address_resolver.dart';
