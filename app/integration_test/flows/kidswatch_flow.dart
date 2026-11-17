@@ -10,7 +10,6 @@
 // number -> the watch RECEIVES the new SOS numbers over TCP and ACKs them.
 // Never: a listening command (the test fails if any MONITOR-type frame ever
 // reaches the watch).
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -135,7 +134,7 @@ void registerKidsWatchFlows() {
       final banner = find.byKey(ValueKey('kwg-sos-$wid'));
       await f.scrollTo(banner);
       await f.waitFor(banner, what: 'red SOS banner');
-      expect(find.descendant(of: banner, matching: find.byIcon(Icons.call_rounded)),
+      expect(find.descendant(of: banner, matching: find.byKey(ValueKey('kwg-sos-call-$wid'))),
           findsOneWidget);
       await f.shot('kidswatch_sos_banner');
     });
