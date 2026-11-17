@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../l10n/app_localizations.dart';
 import '../notifications.dart';
 import '../widgets/health_api.dart';
@@ -365,50 +367,28 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
     final scheme = Theme.of(context).colorScheme;
 
     if (_loading && _upcoming.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const SkeletonList(count: 5);
     }
     if (_error && _upcoming.isEmpty) {
-      return ListView(children: [
-        Padding(
-          padding: const EdgeInsets.all(Gap.xl),
-          child: Column(children: [
-            const SizedBox(height: 60),
-            Icon(Icons.cloud_off_rounded, size: 48, color: scheme.ds.muted),
-            const SizedBox(height: Gap.md),
-            Text(honestFailText(t, _failCause, otherwise: t.birthdaysLoadError), textAlign: TextAlign.center),
-            const SizedBox(height: Gap.md),
-            OutlinedButton.icon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.retry),
-            ),
-          ]),
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          danger: true,
+          title: honestFailText(t, _failCause, otherwise: t.birthdaysLoadError),
+          actionLabel: t.retry,
+          onAction: _load,
         ),
       ]);
     }
     if (_upcoming.isEmpty) {
-      return ListView(children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 72),
-          child: Column(children: [
-            Icon(Icons.cake_rounded, size: 56, color: scheme.primary),
-            const SizedBox(height: Gap.md),
-            Text(t.birthdaysEmptyTitle,
-                style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: Gap.sm),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
-              child: Text(t.birthdaysEmptyBody,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.ds.muted)),
-            ),
-            const SizedBox(height: Gap.lg),
-            OutlinedButton.icon(
-              onPressed: _importFromContacts,
-              icon: const Icon(Icons.contacts_rounded),
-              label: Text(bStr(context, 'bImportContacts')),
-            ),
-          ]),
+      // design3: DS empty state — benefit + one big import button
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: Icons.cake_rounded,
+          title: t.birthdaysEmptyTitle,
+          benefit: t.birthdaysEmptyBody,
+          actionLabel: bStr(context, 'bImportContacts'),
+          onAction: _importFromContacts,
         ),
       ]);
     }

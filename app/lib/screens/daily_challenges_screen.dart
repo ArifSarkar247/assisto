@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/chal_bank.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
@@ -109,10 +110,7 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.chalLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry)),
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
         ),
       );
     }
@@ -150,11 +148,7 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
                 icon: Icons.event_busy_rounded,
                 title: tr.chalNoneTitle,
                 message: tr.chalNoneBody,
-                action: FilledButton.tonalIcon(
-                  onPressed: _load,
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: Text(tr.retry),
-                ),
+                action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
               )
             else
               _TodayCard(
@@ -211,10 +205,7 @@ class _WelcomeBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      color: scheme.ds.primarySoft.withValues(alpha: 0.5),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSurface(color: scheme.ds.primarySoft.withValues(alpha: 0.5), padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Row(children: [
           Icon(Icons.emoji_events_rounded, size: 32, color: scheme.primary),
@@ -231,8 +222,7 @@ class _WelcomeBanner extends StatelessWidget {
                 ]),
           ),
         ]),
-      ),
-    );
+      )));
   }
 }
 
@@ -265,9 +255,7 @@ class _StatsStrip extends StatelessWidget {
   Widget _stat(BuildContext context, IconData icon, String label, String value,
       Color color) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.md, horizontal: Gap.sm),
         child: Column(children: [
           Icon(icon, color: color, size: 20),
@@ -281,8 +269,7 @@ class _StatsStrip extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis),
         ]),
-      ),
-    );
+      )));
   }
 }
 
@@ -310,8 +297,7 @@ class _TodayCardState extends State<_TodayCard> {
     final answeredIdx =
         done ? (widget.doneRow!['answer'] as num?)?.toInt() : null;
 
-    return Card(
-      child: Padding(
+    return DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -355,8 +341,7 @@ class _TodayCardState extends State<_TodayCard> {
             ),
           ],
         ]),
-      ),
-    );
+      ));
   }
 
   List<Widget> _quizOptions(
@@ -514,9 +499,7 @@ class _HistoryScreen extends StatelessWidget {
                         tr, (r['item_id'] ?? '').toString(), isBn);
                     final correct = r['correct'] == true;
                     final kind = (r['kind'] ?? '').toString();
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: Gap.sm),
-                      child: ListTile(
+                    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                         leading: Icon(
                           kind == 'task'
                               ? Icons.flag_circle_rounded
@@ -539,11 +522,10 @@ class _HistoryScreen extends StatelessWidget {
                               : DateFormat('d MMM yyyy', appDateLocale(context)).format(d);
                         }()),
                         trailing: Text(ld(context, '+${r['points'] ?? 0}'),
-                            style: TextStyle(
+                            style: AType.titleSmall.copyWith(
                                 fontWeight: FontWeight.w700,
                                 color: Brand.warning)),
-                      ),
-                    );
+                      )));
                   }(),
               ],
             ),
@@ -586,9 +568,7 @@ Widget _catChip(BuildContext context, String cat) {
 
 Widget _pointsNote(BuildContext context, String text) {
   final scheme = Theme.of(context).colorScheme;
-  return Card(
-    color: scheme.ds.cardHighest,
-    child: Padding(
+  return DsSurface(color: scheme.ds.cardHighest, padding: EdgeInsets.zero, child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
         Icon(Icons.info_outline_rounded, size: 18, color: scheme.ds.muted),
@@ -598,6 +578,5 @@ Widget _pointsNote(BuildContext context, String text) {
               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
       ]),
-    ),
-  );
+    ));
 }

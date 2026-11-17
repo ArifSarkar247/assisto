@@ -21,6 +21,8 @@ import '../widgets/at_disclosure.dart'; // at100
 import '../services/security_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../widgets/false_alarm_button.dart';
 import 'phone_safety_screen.dart';
 import 'nominee_screen.dart'; // theftalerts
@@ -228,9 +230,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(tr.atTurnOff)),
+          DsButton.danger(onPressed: () => Navigator.pop(ctx, true), label: tr.atTurnOff),
         ],
       ),
     );
@@ -356,7 +356,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
       body: RefreshIndicator(
         onRefresh: _load,
         child: _loading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList(count: 5)
             : _failed
                 ? _errorState(tr)
                 : _content(tr),
@@ -364,16 +364,19 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     );
   }
 
+  // design3: DS error card (illustration + one retry button), scrollable
+  // for pull-to-refresh
   Widget _errorState(AppLocalizations tr) => ListView(
         padding: const EdgeInsets.all(Gap.lg),
         children: [
-          const SizedBox(height: Gap.xxl),
-          const Icon(Icons.cloud_off_rounded, size: 48),
-          const SizedBox(height: Gap.md),
-          Text(honestFailText(tr, _failCause, otherwise: tr.mlpLoadFailed),
-              textAlign: TextAlign.center),
-          const SizedBox(height: Gap.md),
-          Center(child: FilledButton(onPressed: _load, child: Text(tr.retry))),
+          const SizedBox(height: Gap.xl),
+          DsEmptyState(
+            icon: Icons.cloud_off_rounded,
+            danger: true,
+            title: honestFailText(tr, _failCause, otherwise: tr.mlpLoadFailed),
+            actionLabel: tr.retry,
+            onAction: _load,
+          ),
         ],
       );
 
@@ -408,9 +411,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
   Widget _trustedContactCard(AppLocalizations tr, ColorScheme scheme) {
     final candidates = (_state['candidates'] as List?) ?? const [];
     final style = Theme.of(context).textTheme;
-    return Card(
-      color: scheme.ds.dangerBg,
-      child: Padding(
+    return DsSurface(color: scheme.ds.dangerBg, padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,8 +440,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             ],
           ],
         ),
-      ),
-    );
+      ));
   }
 
   Widget _locationCard(AppLocalizations tr) {
@@ -460,8 +460,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     }
     final fixAt = '${loc['last_fix_at'] ?? ''}';
     final acc = (loc['last_fix_acc'] as num?)?.round();
-    return Card(
-      child: Padding(
+    return DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -483,18 +482,11 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             if (perm == false)
               Padding(
                 padding: const EdgeInsets.all(Gap.sm),
-                child: FilledButton.icon(
-                  style: FilledButton.styleFrom(
-                      minimumSize: const Size(48, 48)),
-                  onPressed: _busy ? null : _askLocation,
-                  icon: const Icon(Icons.my_location_rounded),
-                  label: Text(tr.at2LocAllow, softWrap: true),
-                ),
+                child: DsButton(onPressed: _busy ? null : _askLocation, icon: Icons.my_location_rounded, label: tr.at2LocAllow),
               ),
           ],
         ),
-      ),
-    );
+      ));
   }
 
   String _fmtWhen(String iso) {
@@ -506,8 +498,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
 
   Widget _nightGuardCard(AppLocalizations tr) {
     final count = (_state['home_wifi_count'] as num?)?.toInt() ?? 0;
-    return Card(
-      child: Padding(
+    return DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -530,13 +521,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
                 spacing: Gap.sm,
                 runSpacing: Gap.xs,
                 children: [
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(48, 48)),
-                    onPressed: _busy ? null : _saveHomeWifi,
-                    icon: const Icon(Icons.wifi_rounded),
-                    label: Text(tr.at2HomeWifiSave, softWrap: true),
-                  ),
+                  DsButton.secondary(onPressed: _busy ? null : _saveHomeWifi, icon: Icons.wifi_rounded, label: tr.at2HomeWifiSave),
                   if (count > 0)
                     TextButton(
                       style: TextButton.styleFrom(
@@ -551,8 +536,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             ),
           ],
         ),
-      ),
-    );
+      ));
   }
 
   Widget _content(AppLocalizations tr) {
@@ -568,12 +552,10 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
           const SizedBox(height: Gap.md),
         ],
         if (FalseAlarmButton.shouldShow(_state)) ...[
-          Card(
-            child: Padding(
+          DsCard(padding: EdgeInsets.zero, child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: FalseAlarmButton(onCleared: _load),
-            ),
-          ),
+            )),
           const SizedBox(height: Gap.md),
         ],
         _intro(tr),
@@ -621,9 +603,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     final body = !on
         ? tr.atStateOffBody
         : (degraded ? tr.atStateDegradedBody : tr.atStateOnBody2);
-    return Card(
-      color: bg,
-      child: Padding(
+    return DsSurface(color: bg, padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -667,23 +647,15 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
                           child: CircularProgressIndicator(strokeWidth: 2)),
                     )
                   : (!on
-                      ? FilledButton.icon(
-                          onPressed: _enable,
-                          icon: const Icon(Icons.shield_rounded),
-                          label: Text(tr.atTurnOn))
-                      : OutlinedButton.icon(
-                          onPressed: _disable,
-                          icon: const Icon(Icons.lock_open_rounded),
-                          label: Text(tr.atTurnOff))),
+                      ? DsButton(onPressed: _enable, icon: Icons.shield_rounded, label: tr.atTurnOn)
+                      : DsButton.secondary(onPressed: _disable, icon: Icons.lock_open_rounded, label: tr.atTurnOff)),
             ),
           ],
         ),
-      ),
-    );
+      ));
   }
 
-  Widget _intro(AppLocalizations tr) => Card(
-        child: Padding(
+  Widget _intro(AppLocalizations tr) => DsCard(padding: EdgeInsets.zero, child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -701,8 +673,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
               _bullet(tr.atFeatIntruder),
             ],
           ),
-        ),
-      );
+        ));
 
   Widget _bullet(String t) => Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
@@ -714,8 +685,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
 
   Widget _optionsCard(AppLocalizations tr) {
     final canCamera = _caps['canCamera'] != false; // null/true → allow attempt
-    return Card(
-      child: Padding(
+    return DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -745,8 +715,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             ),
           ],
         ),
-      ),
-    );
+      ));
   }
 
   Widget _alertMembersCard(AppLocalizations tr) {
@@ -754,8 +723,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     final selected = ((_state['alert_member_ids'] as List?) ?? const [])
         .map((e) => int.tryParse('$e') ?? -1)
         .toSet();
-    return Card(
-      child: Padding(
+    return DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -792,8 +760,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
               }),
           ],
         ),
-      ),
-    );
+      ));
   }
 
   /// theftalerts: the three theft alerts can also reach the owner's
@@ -804,8 +771,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     final reach = (_state['nominees_reachable'] as num?)?.toInt() ?? 0;
     final on = _state['alert_nominee'] == true;
     final text = Theme.of(context).textTheme;
-    return Card(
-      child: Padding(
+    return DsCard(padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -830,20 +796,13 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             if (saved == 0)
               Padding(
                 padding: const EdgeInsets.all(Gap.sm),
-                child: FilledButton.icon(
-                  key: const Key('ta-nominee-add'),
-                  style: FilledButton.styleFrom(
-                      minimumSize: const Size(48, 48)),
-                  onPressed: () async {
+                child: DsButton(buttonKey: const Key('ta-nominee-add'), onPressed: () async {
                     await Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (_) => const NomineeScreen()));
                     if (mounted) await _load();
-                  },
-                  icon: const Icon(Icons.person_add_alt_1_rounded),
-                  label: Text(tr.taNomineeAdd, softWrap: true),
-                ),
+                  }, icon: Icons.person_add_alt_1_rounded, label: tr.taNomineeAdd),
               ),
             Padding(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
@@ -851,12 +810,10 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             ),
           ],
         ),
-      ),
-    );
+      ));
   }
 
-  Widget _timelineLink(AppLocalizations tr) => Card(
-        child: ListTile(
+  Widget _timelineLink(AppLocalizations tr) => DsCard(padding: EdgeInsets.zero, child: ListTile(
           leading: const Icon(Icons.timeline_rounded),
           title: Text(tr.atTimelineTitle),
           subtitle: Text(tr.atTimelineBody),
@@ -866,15 +823,12 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             MaterialPageRoute(
                 builder: (_) => const AntiTheftTimelineScreen()),
           ),
-        ),
-      );
+        ));
 
   Widget _limitsCard(AppLocalizations tr, ColorScheme scheme) {
     final sdk = int.tryParse('${_caps['sdk'] ?? ''}');
     final canReadSimNumber = _caps['canReadSimNumber'] == true;
-    return Card(
-      color: scheme.ds.cardHighest,
-      child: Padding(
+    return DsSurface(color: scheme.ds.cardHighest, padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -902,12 +856,10 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
               ),
           ],
         ),
-      ),
-    );
+      ));
   }
 
-  Widget _brandLockCard(AppLocalizations tr, ColorScheme scheme) => Card(
-        child: ListTile(
+  Widget _brandLockCard(AppLocalizations tr, ColorScheme scheme) => DsCard(padding: EdgeInsets.zero, child: ListTile(
           leading: const Icon(Icons.verified_user_rounded),
           title: Text(tr.atBrandLockTitle),
           subtitle: Text(tr.atBrandLockBody),
@@ -916,8 +868,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             context,
             MaterialPageRoute(builder: (_) => const PhoneSafetyScreen()),
           ),
-        ),
-      );
+        ));
 }
 
 /// The engine event timeline (owner or approved family). Honest empty/late
@@ -1042,15 +993,14 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: _loading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList(count: 5)
             : _failed
                 ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
                     const SizedBox(height: Gap.xxl),
                     Text(honestFailText(tr, _failCause, otherwise: tr.mlpLoadFailed), textAlign: TextAlign.center),
                     const SizedBox(height: Gap.md),
                     Center(
-                        child: FilledButton(
-                            onPressed: _load, child: Text(tr.retry))),
+                        child: DsButton(onPressed: _load, label: tr.retry)),
                   ])
                 : _content(tr),
       ),
@@ -1064,9 +1014,7 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
       padding: const EdgeInsets.all(Gap.md),
       children: [
         if (dark != null)
-          Card(
-            color: Brand.warning.withValues(alpha: 0.14),
-            child: Padding(
+          DsSurface(color: Brand.warning.withValues(alpha: 0.14), padding: EdgeInsets.zero, child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Row(children: [
                 Icon(Icons.visibility_off_rounded,
@@ -1074,8 +1022,7 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
                 const SizedBox(width: Gap.sm),
                 Expanded(child: Text(tr.atWentDarkBanner(_fmt(dark)))),
               ]),
-            ),
-          ),
+            )),
         if (dark != null) const SizedBox(height: Gap.md),
         if (events.isEmpty)
           Padding(
@@ -1107,8 +1054,7 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
     } else if (rc != null && rc > 0) {
       info = tr.at2SentTo(rc);
     }
-    return Card(
-      child: Column(
+    return DsCard(padding: EdgeInsets.zero, child: Column(
         children: [
           ListTile(
             leading: Icon(_icon(kind)),
@@ -1122,8 +1068,7 @@ class _AntiTheftTimelineScreenState extends State<AntiTheftTimelineScreen> {
               child: _IntruderThumb(eventId: id),
             ),
         ],
-      ),
-    );
+      ));
   }
 }
 
