@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../widgets/voice_input.dart';
 import 'remit_entry_screen.dart';
@@ -444,59 +445,19 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
 
   /// remhbud: an empty month = what the family gains + one big button + how.
   Widget _monthEmptyCard(AppLocalizations t) {
-    final scheme = Theme.of(context).colorScheme;
-    final lang = rmLang(context);
-    final steps = [t.rhbMonthHow1, t.rhbMonthHow2, t.rhbMonthHow3];
+    // design3: the DS empty state — illustration, benefit, one big glowing
+    // button, numbered how-to steps
     return Padding(
       key: const ValueKey('rhb_month_empty'),
       padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.sm),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(t.rhbMonthEmptyTitle(rmMonthLabel(context, _month)),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: Gap.xs),
-          Text(t.rhbMonthBenefit,
-              textAlign: TextAlign.center, style: TextStyle(color: DsTokens.of(context).muted)),
-          const SizedBox(height: Gap.md),
-          SizedBox(
-            height: 56,
-            child: FilledButton.icon(
-              key: const ValueKey('rhb_month_add'),
-              onPressed: () => _openEntry(),
-              icon: const Icon(Icons.add_rounded),
-              label: Text(t.rmtAddReceived, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            ),
-          ),
-          const SizedBox(height: Gap.md),
-          Card(
-            margin: EdgeInsets.zero,
-            color: DsTokens.of(context).cardHighest,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (var i = 0; i < steps.length; i++)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
-                      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        CircleAvatar(
-                          radius: 12,
-                          backgroundColor: scheme.primary,
-                          child: Text(rmDigits(lang, i + 1),
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: scheme.onPrimary)),
-                        ),
-                        const SizedBox(width: Gap.sm),
-                        Expanded(child: Text(steps[i])),
-                      ]),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
+      child: DsEmptyState(
+        icon: Icons.account_balance_wallet_rounded,
+        title: t.rhbMonthEmptyTitle(rmMonthLabel(context, _month)),
+        benefit: t.rhbMonthBenefit,
+        actionLabel: t.rmtAddReceived,
+        actionKey: const ValueKey('rhb_month_add'),
+        onAction: () => _openEntry(),
+        howTo: [t.rhbMonthHow1, t.rhbMonthHow2, t.rhbMonthHow3],
       ),
     );
   }
@@ -530,10 +491,10 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text('${r['name']}' == '?' ? t.rmtNoSender : '${r['name']}',
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
-                      Text(rmTaka(context, r['total']), style: const TextStyle(fontFeatures: AFonts.tabular)),
+                          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+                      Text(rmTaka(context, r['total']), style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular)),
                       Text('${rmDigits(lang, r['pct'] ?? 0)}%',
-                          style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700)),
+                          style: AType.bodyMedium.copyWith(color: DsTokens.of(context).primaryInk, fontWeight: FontWeight.w700)),
                       Text(t.rmtTimesN(rmDigits(lang, r['count'] ?? 0)),
                           style: Theme.of(context).textTheme.bodySmall),
                     ],
@@ -589,20 +550,20 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
     if (pend.isEmpty) return const [];
     final tokens = AssistoTokens.of(context);
     return [
-      Card(
+      Padding(
         key: const ValueKey('rmt_pending'),
-        color: tokens.infoContainer,
-        margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
-        child: Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
+        child: DsSurface(
+          color: tokens.infoContainer,
           padding: const EdgeInsets.all(Gap.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 t.rmtPendingTitle(rmDigits(rmLang(context), pend.length)),
-                style: TextStyle(color: tokens.onInfoContainer, fontWeight: FontWeight.w700),
+                style: AType.titleSmall.copyWith(color: tokens.onInfoContainer, fontWeight: FontWeight.w700),
               ),
-              Text(t.rmtPendingBody, style: TextStyle(color: tokens.onInfoContainer)),
+              Text(t.rmtPendingBody, style: AType.bodyMedium.copyWith(color: tokens.onInfoContainer)),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -644,12 +605,11 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
         const SizedBox(height: Gap.sm),
         Align(
           alignment: Alignment.centerRight,
-          child: FilledButton.tonalIcon(
-            key: const ValueKey('rmt_quick_go'),
-            style: FilledButton.styleFrom(minimumSize: const Size(96, 48)),
+          child: DsButton.secondary(
+            buttonKey: const ValueKey('rmt_quick_go'),
             onPressed: _understand,
-            icon: const Icon(Icons.auto_fix_high_rounded),
-            label: Text(t.rmtQuickGo),
+            icon: Icons.auto_fix_high_rounded,
+            label: t.rmtQuickGo,
           ),
         ),
       ],
@@ -691,31 +651,28 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
       'future' => (DsTokens.of(context).cardHighest, DsTokens.of(context).muted, Icons.event_rounded, t.rmtExpFuture),
       _ => (DsTokens.of(context).cardHighest, DsTokens.of(context).muted, Icons.event_repeat_rounded, t.rmtExpNone),
     };
-    return Card(
+    return Padding(
       key: ValueKey('rmt_expected_$status'),
-      color: bg,
-      margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
+      child: DsSurface(
+        color: bg,
         onTap: _editExpected,
+        padding: const EdgeInsets.all(Gap.md),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 56),
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Row(
+          constraints: const BoxConstraints(minHeight: 32),
+          child: Row(
               children: [
                 Icon(icon, color: fg),
                 const SizedBox(width: Gap.md),
                 Expanded(
                   child: Text(
                     text,
-                    style: TextStyle(color: fg, fontWeight: FontWeight.w600),
+                    style: AType.bodyMedium.copyWith(color: fg, fontWeight: FontWeight.w600),
                   ),
                 ),
                 Icon(Icons.edit_outlined, color: fg, size: 20, semanticLabel: t.rmtExpectedTitle),
               ],
             ),
-          ),
         ),
       ),
     );
@@ -730,16 +687,14 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
       rmDay(context, '${e['received_on'] ?? ''}'),
       if (cur != 'BDT') t.rmtForeignLine(rmNumText(context, e['amount']), cur, rmNumText(context, e['rate'])),
     ];
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
+      child: DsSurface(
         onTap: pending ? null : () => _openEntry(entry: e),
+        padding: const EdgeInsets.all(Gap.md),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 64),
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Row(
+          constraints: const BoxConstraints(minHeight: 40),
+          child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
@@ -751,7 +706,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(who, style: const TextStyle(fontWeight: FontWeight.w700)),
+                      Text(who, style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
                       Text(sub.join(' · '), style: Theme.of(context).textTheme.bodySmall),
                       const SizedBox(height: Gap.xs),
                       Wrap(
@@ -778,14 +733,13 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                 if (!pending) const Icon(Icons.chevron_right_rounded),
               ],
             ),
-          ),
         ),
       ),
     );
   }
 
   Widget _monthTab(AppLocalizations t) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList(count: 5);
     final off = _err != null && rmStatus(_err!) == 403;
     if (off) return rmErrorView(context, _err!, _load);
     final entries = rmList(_card['entries']);
@@ -800,10 +754,11 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
           if (_showGuide) RemitGuideCard(onClose: _closeGuide),
           _monthSwitcher(t),
           if (_err != null)
-            Card(
+            Padding(
               key: const ValueKey('rmt_offline'),
-              margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
-              child: Padding(
+              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
+              child: DsSurface(
+                tone: rmOffline(_err!) ? DsTone.normal : DsTone.danger,
                 padding: const EdgeInsets.all(Gap.md),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Row(children: [
@@ -811,7 +766,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                     const SizedBox(width: Gap.md),
                     Expanded(
                       child: Text(rmOffline(_err!) ? t.rmtOfflineTitle : t.rmtErrorTitle,
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
+                          style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
                     ),
                   ]),
                   const SizedBox(height: Gap.xs),
@@ -891,7 +846,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                   Icon(rmCategoryIcon(key), size: 20, color: DsTokens.of(context).muted),
                   const SizedBox(width: Gap.sm),
                   Expanded(
-                    child: Text(rmCategory(t, key), style: const TextStyle(fontWeight: FontWeight.w600)),
+                    child: Text(rmCategory(t, key), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
@@ -907,7 +862,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                   if (plan > 0)
                     Text(
                       status,
-                      style: TextStyle(color: color, fontWeight: FontWeight.w600),
+                      style: AType.bodyMedium.copyWith(color: color, fontWeight: FontWeight.w600),
                     ),
                 ],
               ),
@@ -941,12 +896,11 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
           const SizedBox(height: Gap.sm),
           Align(
             alignment: Alignment.centerLeft,
-            child: FilledButton.tonalIcon(
-              key: const ValueKey('rmt_goal_set'),
-              style: FilledButton.styleFrom(minimumSize: const Size(96, 48)),
+            child: DsButton.secondary(
+              buttonKey: const ValueKey('rmt_goal_set'),
               onPressed: _setGoal,
-              icon: const Icon(Icons.flag_outlined),
-              label: Text(t.rmtGoalSet),
+              icon: Icons.flag_outlined,
+              label: t.rmtGoalSet,
             ),
           ),
         ],
@@ -957,7 +911,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
       title: t.rmtGoalTitle,
       trailing: IconButton(tooltip: t.rmtGoalEdit, icon: const Icon(Icons.edit_outlined), onPressed: _setGoal),
       children: [
-        Text('${g['title'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700)),
+        Text('${g['title'] ?? ''}', style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xs),
         Text(
           t.rmtGoalProgress(rmTaka(context, g['saved']), rmTaka(context, g['target']), rmDigits(rmLang(context), pct)),
@@ -983,12 +937,11 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
         const SizedBox(height: Gap.sm),
         Align(
           alignment: Alignment.centerLeft,
-          child: FilledButton.tonalIcon(
-            key: const ValueKey('rmt_goal_add'),
-            style: FilledButton.styleFrom(minimumSize: const Size(96, 48)),
+          child: DsButton.secondary(
+            buttonKey: const ValueKey('rmt_goal_add'),
             onPressed: _addToGoal,
-            icon: const Icon(Icons.savings_outlined),
-            label: Text(t.rmtGoalAdd),
+            icon: Icons.savings_outlined,
+            label: t.rmtGoalAdd,
           ),
         ),
       ],
@@ -1022,7 +975,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${b['name'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                          Text('${b['name'] ?? ''}', style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
                           Text(
                             t.rmtBillLine(
                               rmTaka(context, b['amount']),
@@ -1054,10 +1007,9 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                     if (b['paid'] == true)
                       RmChip(t.rmtBillPaid, bg: tokens.successContainer, fg: tokens.onSuccessContainer)
                     else
-                      OutlinedButton(
-                        style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                      DsButton.secondary(
                         onPressed: () => _billPaid(b),
-                        child: Text(t.rmtBillMarkPaid),
+                        label: t.rmtBillMarkPaid,
                       ),
                     if ('${b['reminder_local_id'] ?? ''}'.isEmpty)
                       TextButton.icon(
@@ -1083,7 +1035,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
   }
 
   Widget _budgetTab(AppLocalizations t) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList(count: 5);
     if (_err != null) return rmErrorView(context, _err!, _load);
     final plan = rmMap(_card['plan']);
     final lines = rmList(plan['lines']);
@@ -1130,12 +1082,11 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
               const SizedBox(height: Gap.sm),
               Align(
                 alignment: Alignment.centerLeft,
-                child: FilledButton.tonalIcon(
-                  key: const ValueKey('rmt_spend_add'),
-                  style: FilledButton.styleFrom(minimumSize: const Size(96, 48)),
+                child: DsButton.secondary(
+                  buttonKey: const ValueKey('rmt_spend_add'),
                   onPressed: () => _addSpend(),
-                  icon: const Icon(Icons.add_shopping_cart_rounded),
-                  label: Text(t.rmtSpendAdd),
+                  icon: Icons.add_shopping_cart_rounded,
+                  label: t.rmtSpendAdd,
                 ),
               ),
               const SizedBox(height: Gap.xs),
@@ -1152,7 +1103,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
   // ------------------------------------------------------------ year tab
   Widget _yearTab(AppLocalizations t) {
     if (_yearLoading || _yearData == null && _yearErr == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const SkeletonList(count: 5);
     }
     if (_yearErr != null) return rmErrorView(context, _yearErr!, _loadYear);
     final y = _yearData!;
@@ -1234,7 +1185,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
                             Wrap(
                               spacing: Gap.sm,
                               children: [
-                                Text(rmShortMonth(context, i + 1), style: const TextStyle(fontWeight: FontWeight.w600)),
+                                Text(rmShortMonth(context, i + 1), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                                 Text(rmTaka(context, months[i])),
                               ],
                             ),
@@ -1279,7 +1230,7 @@ class _RemittanceScreenState extends State<RemittanceScreen> with SingleTickerPr
         spacing: Gap.sm,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(a, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(a, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           Text(b),
           Text(c, style: Theme.of(context).textTheme.bodySmall),
         ],

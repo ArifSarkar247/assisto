@@ -206,29 +206,30 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
       case _Phase.unavailable:
         return _message(Icons.mic_off_rounded, t.mvoiceUnavailableTitle,
             t.mvoiceUnavailableBody,
-            action: FilledButton(
+            action: DsButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(t.mvoiceGotIt)));
+                label: t.mvoiceGotIt));
       case _Phase.error:
         return _message(Icons.error_outline_rounded, t.mvoiceErrorTitle,
             t.mvoiceErrorBody,
-            action: FilledButton.icon(
+            action: DsButton(
                 onPressed: _startListening,
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(t.mvoiceRetry)));
+                icon: Icons.refresh_rounded,
+                label: t.mvoiceRetry));
       case _Phase.done:
         return _message(Icons.check_circle_outline_rounded, t.mvoiceDoneTitle,
             t.mvoiceDoneBody(_savedCount),
             tint: AssistoTokens.of(context).success,
             action: Column(mainAxisSize: MainAxisSize.min, children: [
-              FilledButton.icon(
+              DsButton(
                   onPressed: _reset,
-                  icon: const Icon(Icons.mic_rounded),
-                  label: Text(t.mvoiceSpeakAgain)),
+                  icon: Icons.mic_rounded,
+                  label: t.mvoiceSpeakAgain),
               const SizedBox(height: Gap.sm),
-              TextButton(
+              DsButton(
+                  kind: DsButtonKind.ghost,
                   onPressed: () => Navigator.pop(context),
-                  child: Text(t.mvoiceDoneClose)),
+                  label: t.mvoiceDoneClose),
             ]));
     }
   }
@@ -243,7 +244,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
         const SizedBox(height: Gap.lg),
         Text(listening ? t.mvoiceListeningHint : t.mvoiceSpeakHint,
             textAlign: TextAlign.center,
-            style: TextStyle(color: DsTokens.of(context).muted, height: 1.45)),
+            style: AType.bodyLarge.copyWith(color: DsTokens.of(context).muted, height: 1.45)),
         const SizedBox(height: Gap.xl),
         Center(
           child: Semantics(
@@ -263,7 +264,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: Brand.gradient,
-                    boxShadow: listening
+                    boxShadow: listening && !DsPerf.liteOf(context)
                         ? [
                             BoxShadow(
                                 color: Brand.blue.withValues(alpha: 0.45),
@@ -286,10 +287,10 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
               style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xl),
         if (listening)
-          FilledButton.icon(
+          DsButton.danger(
               onPressed: _stopTap,
-              icon: const Icon(Icons.stop_circle_rounded),
-              label: Text(t.mvoiceStop))
+              icon: Icons.stop_circle_rounded,
+              label: t.mvoiceStop)
         else ...[
           // Examples so a first-timer knows what to say (empty state).
           _ExampleCard(
@@ -317,7 +318,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
         child: Text(t.mvoiceReviewBody,
-            style: TextStyle(color: DsTokens.of(context).muted, height: 1.4)),
+            style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted, height: 1.4)),
       ),
       const SizedBox(height: Gap.md),
       Expanded(
@@ -337,7 +338,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text('"$_transcript"',
-                        style: const TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             fontStyle: FontStyle.italic,
                             fontWeight: FontWeight.w600))),
               ]),
@@ -353,11 +354,12 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
 
   Widget _draftCard(int i, _Draft d, ColorScheme scheme) {
     final complete = d.amount != null && d.type != null;
-    return Card(
-      child: Opacity(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsCard(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Opacity(
         opacity: d.skip ? 0.5 : 1,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Icon(_typeIcon(d.type), color: _typeColor(d.type, scheme)),
@@ -371,7 +373,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                 ),
               ),
               Text(d.amount != null ? tkOf(context, d.amount) : t.mvoiceNoAmount, // remhbud: Bangla digits
-                  style: TextStyle(fontFeatures: AFonts.tabular,
+                  style: AType.titleMedium.copyWith(fontFeatures: AFonts.tabular,
                       fontWeight: FontWeight.w800,
                       color: d.amount != null
                           ? _typeColor(d.type, scheme)
@@ -457,24 +459,20 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
       ),
       child: Row(children: [
         Expanded(
-          child: OutlinedButton.icon(
+          child: DsButton.secondary(
             onPressed: _saving ? null : _reset,
-            icon: const Icon(Icons.refresh_rounded, size: 18),
-            label: Text(t.mvoiceSpeakAgain),
+            icon: Icons.refresh_rounded,
+            label: t.mvoiceSpeakAgain,
           ),
         ),
         const SizedBox(width: Gap.md),
         Expanded(
           flex: 2,
-          child: FilledButton.icon(
-            onPressed: (_anyConfirmable && !_saving) ? _confirmAll : null,
-            icon: _saving
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.check_rounded, size: 18),
-            label: Text(t.mvoiceConfirmLog),
+          child: DsButton(
+            onPressed: _anyConfirmable ? _confirmAll : null,
+            busy: _saving,
+            icon: Icons.check_rounded,
+            label: t.mvoiceConfirmLog,
           ),
         ),
       ]),
@@ -559,7 +557,7 @@ class _ExampleCard extends StatelessWidget {
           Icon(icon, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Text(t.mvoiceExamplesTitle,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
         ]),
         const SizedBox(height: Gap.sm),
         for (final l in lines)
@@ -569,7 +567,7 @@ class _ExampleCard extends StatelessWidget {
               const Text('• '),
               Expanded(
                   child: Text('"$l"',
-                      style: TextStyle(color: DsTokens.of(context).muted))),
+                      style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted))),
             ]),
           ),
       ]),
