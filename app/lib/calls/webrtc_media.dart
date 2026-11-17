@@ -471,6 +471,7 @@ class WebRtcCallMedia
     var relayed = false;
     var lost = 0, recv = 0;
     int? sent, got;
+    int? aPk, aBy, vFr; // gatefix: inbound media actually received
     // x1-calls: the standard way to find the pair in use is
     // transport.selectedCandidatePairId (Android libwebrtc has no
     // `selected` flag on candidate-pair) — so `relayed` is reported right.
@@ -509,6 +510,15 @@ class WebRtcCallMedia
         final pr = v['packetsReceived'];
         if (pl is num) lost += pl.toInt();
         if (pr is num) recv += pr.toInt();
+        final mk = v['kind'] ?? v['mediaType'];
+        if (mk == 'audio') {
+          final by = v['bytesReceived'];
+          if (pr is num) aPk = (aPk ?? 0) + pr.toInt();
+          if (by is num) aBy = (aBy ?? 0) + by.toInt();
+        } else if (mk == 'video') {
+          final fd = v['framesDecoded'];
+          if (fd is num) vFr = (vFr ?? 0) + fd.toInt();
+        }
         // jitter (seconds) of the AUDIO stream — what people hear
         final j = v['jitter'];
         final kind = v['kind'] ?? v['mediaType'];
@@ -530,7 +540,10 @@ class WebRtcCallMedia
         availableKbps: avail,
         relayed: relayed,
         bytesSent: sent,
-        bytesReceived: got);
+        bytesReceived: got,
+        audioPacketsIn: aPk,
+        audioBytesIn: aBy,
+        videoFramesDecoded: vFr);
   }
 
   @override

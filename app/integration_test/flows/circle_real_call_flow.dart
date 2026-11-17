@@ -26,6 +26,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:assisto/api.dart';
 import 'package:assisto/calls/api_call_signaling.dart';
 import 'package:assisto/calls/call_controller.dart';
+import 'package:assisto/calls/call_runtime.dart';
 import 'package:assisto/calls/webrtc_media.dart';
 import 'package:assisto/push/incoming_call_screen.dart';
 import 'package:assisto/realtime/realtime_transport.dart';
@@ -63,6 +64,38 @@ String _status(RFlow f) {
   final w = find.byKey(const Key('call-status'));
   if (w.evaluate().isEmpty) return '';
   return (w.evaluate().first.widget as Text).data ?? '';
+}
+
+/// gatefix (lead, 17 Nov): ICE "connected" is not enough — prove MEDIA
+/// flows both ways. Two getStats() samples >= 6 s apart on BOTH peers (A =
+/// the app's live call, B = the second client): each side's inbound-rtp
+/// AUDIO packets and payload bytes must grow. Returns a note line; decoded
+/// video frames on the receiving side are reported (the gate's flow
+/// emulator runs with -camera-front none -noaudio, so there is no camera
+/// picture or mic signal to decode/measure — see the note).
+Future<String> _proveMediaFlows(RFlow f, String what, CallController b) async {
+  final a = CallRuntime.instance.currentCall;
+  if (a == null) throw TestFailure('$what: no live call on A to read stats from');
+  final a1 = await f.net(() => a.media.stats());
+  final b1 = await f.net(() => b.media.stats());
+  await f.pumpFor(const Duration(seconds: 6));
+  final a2 = await f.net(() => a.media.stats());
+  final b2 = await f.net(() => b.media.stats());
+  String grew(String who, MediaStats s1, MediaStats s2) {
+    final p1 = s1.audioPacketsIn, p2 = s2.audioPacketsIn;
+    final y1 = s1.audioBytesIn, y2 = s2.audioBytesIn;
+    if (p1 == null || p2 == null || y1 == null || y2 == null) {
+      throw TestFailure('$what: $who reported no inbound audio stats');
+    }
+    if (p2 <= p1 || y2 <= y1) {
+      throw TestFailure('$what: $who received no audio over 6 s '
+          '(packets $p1->$p2, bytes $y1->$y2)');
+    }
+    return '$who audio in +${p2 - p1} pkts/+${y2 - y1} B';
+  }
+  final na = grew('A', a1, a2), nb = grew('B', b1, b2);
+  return '$what media: $na, $nb; video frames decoded A=${a2.videoFramesDecoded} '
+      'B=${b2.videoFramesDecoded}';
 }
 
 void registerCircleRealCallFlows() {
@@ -160,6 +193,7 @@ void registerCircleRealCallFlows() {
       await f.tester.pump(const Duration(seconds: 2));
       await f.shot('voice-connected');
       f.note('voice: ICE connected both sides (host candidates, one emulator)');
+      f.note(await _proveMediaFlows(f, 'voice', callB!));
     });
 
     await f.step('B hangs up -> A shows "Call ended"; call log has the call', () async {
@@ -233,7 +267,12 @@ void registerCircleRealCallFlows() {
       }
       await f.tester.pump(const Duration(seconds: 2));
       await f.shot('video-connected');
-      f.note('video: ICE connected; A sends camera, B audio-only (one emulator camera)');
+      // gatefix: the gate emulator starts with -camera-front none, so A's
+      // camera track cannot open (logcat "getUserMedia(): Failed to create
+      // new track", gate run 44091251063) and the call carries audio only —
+      // say so; never claim a camera picture CI did not have.
+      f.note('video call: ICE connected; this emulator has no camera (A falls back to audio), B audio-only');
+      f.note(await _proveMediaFlows(f, 'video', callB!));
     });
 
     await f.step('A hangs up from the call screen', () async {
