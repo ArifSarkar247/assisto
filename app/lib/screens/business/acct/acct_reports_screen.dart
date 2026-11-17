@@ -390,7 +390,8 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: Gap.md,
           children: [
-            Text(x.label, style: style),
+            // bn: every digit in the row label (refs, dates, BIN) in Bangla
+            Text(acctDigits(context, x.label), style: style),
             if (amounts.isNotEmpty) Text(amounts, style: style),
           ],
         ),
