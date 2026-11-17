@@ -52503,5 +52503,21 @@
   "biCctvTrialNoEzviz": "EZVIZ cameras are not in the free trial.",
   "@biCctvTrialNoEzviz": {
     "description": "cctvprice: buy sheet line under the trial note"
+  },
+  "stagingUpdatesViaTester": "This is the Assisto Test app. A new test build arrives every day through the App Tester app — open App Tester to update.",
+  "@stagingUpdatesViaTester": {
+    "description": "Update screen in the owner's staging test app (com.assisto.assisto.staging): updates come from Firebase App Tester, not from the in-app updater."
+  },
+  "stagingPurchasesOffTitle": "Purchases are off in the test app",
+  "@stagingPurchasesOffTitle": {
+    "description": "Checkout sheet title in the staging test app: nothing can be bought there."
+  },
+  "stagingPurchasesOffBody": "Nothing can be bought in Assisto Test and no money is ever taken. To try a paid plan here, ask the Assisto team to turn on a test plan for your account. Real purchases work in the Assisto app from Google Play.",
+  "@stagingPurchasesOffBody": {
+    "description": "Checkout sheet body in the staging test app."
+  },
+  "stagingPurchasesOffOk": "OK",
+  "@stagingPurchasesOffOk": {
+    "description": "Closes the purchases-off sheet in the staging test app."
   }
 }

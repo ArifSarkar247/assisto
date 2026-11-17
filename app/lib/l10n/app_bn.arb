@@ -25982,5 +25982,9 @@
   "cplPremiumBuy": "Premium AI যোগ করুন — মাসে {total} টাকা",
   "cplPremiumActive": "Premium AI চালু আছে",
   "cplPremiumNeedsPlan": "আগে সিসিটিভি প্ল্যান কিনুন, তারপর Premium AI যোগ করুন।",
-  "biCctvTrialNoEzviz": "EZVIZ ক্যামেরা ফ্রি ট্রায়ালে নেই।"
+  "biCctvTrialNoEzviz": "EZVIZ ক্যামেরা ফ্রি ট্রায়ালে নেই।",
+  "stagingUpdatesViaTester": "এটি Assisto Test অ্যাপ। প্রতিদিন নতুন টেস্ট বিল্ড App Tester অ্যাপে আসে — আপডেট করতে App Tester খুলুন।",
+  "stagingPurchasesOffTitle": "টেস্ট অ্যাপে কেনাকাটা বন্ধ",
+  "stagingPurchasesOffBody": "Assisto Test-এ কিছুই কেনা যায় না, কোনো টাকাও কাটা হয় না। এখানে পেইড প্ল্যান পরীক্ষা করতে Assisto টিমকে আপনার অ্যাকাউন্টে টেস্ট প্ল্যান চালু করতে বলুন। আসল কেনাকাটা Google Play-এর Assisto অ্যাপে হয়।",
+  "stagingPurchasesOffOk": "ঠিক আছে"
 }
