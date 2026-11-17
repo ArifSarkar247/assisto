@@ -274,6 +274,9 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                       color: _kind == k ? ds.primarySoft : null,
                       borderColor: _kind == k ? ds.primaryInk : null,
                       padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.md),
+                      // 48 dp tap target (the tile was 47 dp at 1.0 font)
+                      child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 48 - 2 * Gap.md),
                       child: Row(children: [
                         Icon(acctKindIcon(k), size: 20,
                             color: _kind == k ? ds.primaryInk : ds.muted),
@@ -284,7 +287,7 @@ class _AcctEntryScreenState extends State<AcctEntryScreen> {
                                   color: _kind == k ? ds.primaryInk : ds.text,
                                   fontWeight: _kind == k ? FontWeight.w700 : FontWeight.w500)),
                         ),
-                      ]),
+                      ])),
                     ),
                   ),
                 ),

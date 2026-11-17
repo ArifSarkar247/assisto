@@ -333,13 +333,15 @@ class _BooksScreenState extends State<BooksScreen> {
                   setState(() => _period = e.key);
                   _load();
                 },
-                child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48 - 2 * Gap.md),
+                  child: Center(
                   child: Text(e.value,
                       textAlign: TextAlign.center,
                       style: AType.labelLarge.copyWith(
                           color: _period == e.key ? ds.primaryInk : ds.text,
                           fontWeight: _period == e.key ? FontWeight.w700 : FontWeight.w500)),
-                ),
+                )),
               ),
             ),
           ),
