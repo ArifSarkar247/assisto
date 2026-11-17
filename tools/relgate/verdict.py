@@ -32,6 +32,12 @@ def main():
                                          det.replace("|", "/").replace("\n", " ")[:180]))
         if not ok:
             print("::error::%s: %s %s %s" % (leg, fid, cls, det[:300]))
+    # gatefix (owner 17 Nov): two-phone items the owner checks on the closed-
+    # testing build before production. Printed, never part of the verdict.
+    checks = [(fid, c) for fid in ids for c in (rows.get(fid) or {}).get("owner_checks") or []]
+    if checks:
+        lines += ["", "Owner two-phone checklist (not provable on one CI emulator):"]
+        lines += ["- `%s`: %s" % (fid, c) for fid, c in checks]
     verdict = "PASS" if not bad and ids else "FAIL"
     lines += ["", "**%s: %s** (%d/%d required flows passed)" % (leg, verdict, len(ids) - bad, len(ids)), ""]
     text = "\n".join(lines) + "\n"
@@ -39,7 +45,8 @@ def main():
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
             f.write(text)
-    (out / "gate_leg.json").write_text(json.dumps({"leg": leg, "verdict": verdict, "failed": bad, "required": ids}))
+    (out / "gate_leg.json").write_text(json.dumps({"leg": leg, "verdict": verdict, "failed": bad, "required": ids,
+                                                  "owner_checks": [{"flow": f, "check": c} for f, c in checks]}))
     sys.exit(0 if verdict == "PASS" else 1)
 
 

@@ -167,6 +167,8 @@ def main():
                       if not shots_dir.exists() or (shots_dir / s).exists()
                       or (out / "device" / "reality" / "shots" / s).exists()],
             "needs_key": f.get("needs_key", []), "note": f.get("note", ""),
+            # gatefix: two-real-phone items for the owner (never change the class)
+            "owner_checks": f.get("owner_checks", []),
         })
     counts = {k: sum(1 for r in rows if r["class"] == k) for k in "ABCD"}
     (out / "reality_summary.json").write_text(json.dumps(

@@ -75,7 +75,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: tools/relgate
+          sparse-checkout: |
+            tools/relgate
+            tools/reality/summarize.py
+          sparse-checkout-cone-mode: false
+      - name: Verdict rules unit test (owner checklist never changes a class)
+        run: python3 tools/relgate/test_verdict.py -v
       - id: r
         name: Which release build? (+ commit status pending)
         env:
@@ -349,7 +354,7 @@ jobs:
           REALITY_FLOW_IDS: ${{ matrix.kind == 'flows' && matrix.ids || '' }}
           REALITY_TOTAL_SECONDS: "1800"
           REALITY_DRIVE_SECONDS: "1700"
-          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front ${{ matrix.leg == 'circle' && 'emulated' || 'none' }}
         with:
           api-level: 33
           arch: x86_64
@@ -362,7 +367,7 @@ jobs:
           ram-size: 4096M
           heap-size: 576M
           cores: 3
-          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front ${{ matrix.leg == 'circle' && 'emulated' || 'none' }}
           pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && [ "${{ matrix.kind }}" = flows ] && sed -i '/^hw.keyboard=/d' "$c" && echo 'hw.keyboard=yes' >> "$c"; done; true
           script: if [ "${{ matrix.kind }}" = np ]; then python3 tools/notifproof/np_driver.py; else bash tools/reality/run_flows.sh; fi
       - name: Stop servers
