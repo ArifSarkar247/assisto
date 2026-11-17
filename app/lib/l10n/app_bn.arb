@@ -25950,5 +25950,7 @@
   "emailrelSendFailed": "ইমেইল এখন পাঠানো যায়নি। SMS-এ কোড নিন, বা কয়েক মিনিট পরে আবার চেষ্টা করুন।",
   "emailrelBouncingBanner": "আপনার সেভ করা ঠিকানায় ইমেইল ফেরত আসছে। ইমেইল ঠিকানাটি দেখুন এবং আবার যাচাই করুন।",
   "adwireMoreRoutesGoogle": "আরও রুট (Google)",
-  "adGateWhatRoutes": "Google থেকে আরও রুট দেখতে"
+  "adGateWhatRoutes": "Google থেকে আরও রুট দেখতে",
+  "d2LeadScoreA11y": "লিড স্কোর {score}",
+  "d2LeadScoreHint": "রঙিন নম্বরটি লিড স্কোর: যত বেশি, কেনার সম্ভাবনা তত বেশি।"
 }
