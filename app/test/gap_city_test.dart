@@ -234,6 +234,7 @@ void main() {
           CityServiceScreen(
               debugTo: const (name: 'Motijheel', address: '', lat: 23.7284, lng: 90.4205),
               debugSimple: false,
+              debugLocate: () async => null, // location off
               store: CityStore(files: MemoryCityFiles())),
           _GapApi());
       expect(find.byKey(const ValueKey('city_need_start')), findsOneWidget);
