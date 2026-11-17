@@ -54245,5 +54245,225 @@
   "d3CctvSetupGroup": "Cameras & setup",
   "@d3CctvSetupGroup": {
     "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
+  },
+  "gcallAddPerson": "Add person",
+  "@gcallAddPerson": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickTitle": "Add people to this call",
+  "@gcallPickTitle": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickSearch": "Search My Circle",
+  "@gcallPickSearch": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickRing": "Ring {count}",
+  "@gcallPickRing": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallPickInCall": "In the call",
+  "@gcallPickInCall": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickSeatsLeft": "{count} more can join (8 at most)",
+  "@gcallPickSeatsLeft": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallPickEmptyTitle": "No one to add yet",
+  "@gcallPickEmptyTitle": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickEmptyBenefit": "Talk with family and friends together in one call.",
+  "@gcallPickEmptyBenefit": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickEmptyHow1": "Open My Circle and add the person.",
+  "@gcallPickEmptyHow1": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPickEmptyHow2": "When they accept, they show here.",
+  "@gcallPickEmptyHow2": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallNoMatch": "No one found",
+  "@gcallNoMatch": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallTitle": "Group call",
+  "@gcallTitle": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallPeople": "{count} people",
+  "@gcallPeople": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallRinging": "Ringing…",
+  "@gcallRinging": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallConnecting": "Connecting…",
+  "@gcallConnecting": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallYou": "You",
+  "@gcallYou": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallMicOff": "Mic off",
+  "@gcallMicOff": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallSpeaking": "Speaking",
+  "@gcallSpeaking": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallLeave": "Leave call",
+  "@gcallLeave": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallWaiting": "Waiting for others to join…",
+  "@gcallWaiting": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallEnded": "Call ended",
+  "@gcallEnded": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallEndedAll": "Everyone else left the call.",
+  "@gcallEndedAll": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallFull": "A call can have at most 8 people. This call is full.",
+  "@gcallFull": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallUnavailable": "You can't join this call.",
+  "@gcallUnavailable": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallMicDenied": "Allow the microphone to join the call.",
+  "@gcallMicDenied": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallMediaError": "Couldn't start the microphone. Please try again.",
+  "@gcallMediaError": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallNetwork": "Couldn't reach Assisto. Check the internet and try again.",
+  "@gcallNetwork": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallVideoPremium": "Group video calls need Premium. Group audio calls are free for everyone.",
+  "@gcallVideoPremium": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallRingingNames": "Ringing {names}",
+  "@gcallRingingNames": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallCouldNotAdd": "Couldn't add {names}",
+  "@gcallCouldNotAdd": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallLowData": "Low data",
+  "@gcallLowData": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallDataPerMin": "About {mb} MB a minute",
+  "@gcallDataPerMin": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallJoinBar": "Call going on · {count} in it",
+  "@gcallJoinBar": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallJoinBarVideo": "Video call going on · {count} in it",
+  "@gcallJoinBarVideo": {
+    "description": "group-calls: My Circle group calls",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gcallJoin": "Join",
+  "@gcallJoin": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallCameraOffData": "Camera is off to save mobile data. Tap the camera to turn it on.",
+  "@gcallCameraOffData": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallStarting": "Starting the group call…",
+  "@gcallStarting": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallNobodyReached": "Nobody could be reached right now. Try again later.",
+  "@gcallNobodyReached": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallDeclined": "Declined",
+  "@gcallDeclined": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallNoAnswer": "No answer",
+  "@gcallNoAnswer": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallMoving": "Moving to a group call…",
+  "@gcallMoving": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallSpeaker": "Speaker",
+  "@gcallSpeaker": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallMute": "Mute",
+  "@gcallMute": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallCamera": "Camera",
+  "@gcallCamera": {
+    "description": "group-calls: My Circle group calls"
+  },
+  "gcallFlip": "Flip",
+  "@gcallFlip": {
+    "description": "group-calls: My Circle group calls"
   }
 }
