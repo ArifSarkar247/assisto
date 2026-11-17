@@ -249,7 +249,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
             onPressed: _busy ? null : () => _run(() => api.bizAgentReject(id), t.baRejected),
             label: t.baReject,
           ),
-          DsButton(
+          DsButton.secondary(
             onPressed: _busy || _c.text.trim().isEmpty
                 ? null
                 : () => _run(

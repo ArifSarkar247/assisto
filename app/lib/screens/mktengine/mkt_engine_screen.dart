@@ -438,7 +438,7 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
     };
     final actions = <Widget>[
       if (status != 'approved')
-        DsButton(
+        DsButton.secondary(
           onPressed: busy ? null : () => _setStatus(it, 'approved'),
           icon: Icons.check_rounded,
           label: t.mktApprove,

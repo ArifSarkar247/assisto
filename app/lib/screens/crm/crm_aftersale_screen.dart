@@ -228,7 +228,7 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
             const SizedBox(height: Gap.xs),
             Align(
               alignment: Alignment.centerRight,
-              child: DsButton(
+              child: DsButton.secondary(
                   onPressed: () => _collect(t, inst),
                   icon: Icons.add_card_rounded,
                   label: t.crmRecordCollection),
@@ -338,7 +338,7 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             // renewing is the main action when one is due: it goes first
             if (state != 'active')
-              DsButton(
+              DsButton.secondary(
                   onPressed: () => _run(() => CrmAfterSaleApi.of(context)
                       .renewAmc((amc['id'] as num).toInt(), 365)),
                   icon: Icons.autorenew_rounded,
