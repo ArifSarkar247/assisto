@@ -3,6 +3,7 @@
 {% block content %}
 <p class="mut small">{{ L.intro }}</p>
 {% if not on %}<p class="warn">{{ L.off }}</p>{% endif %}
+{% if usage %}<p class="small" id="imou-usage">{{ usage }}</p>{% endif %}
 {% if err %}<p class="warn" id="imou-err">{{ err }}</p>{% endif %}
 <form method="post" class="card" id="imou-add">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="add">
 <label>{{ L.serial }} <input name="serial" maxlength="40" required autocomplete="off"></label>
@@ -12,8 +13,8 @@
 <button class="btn" {% if not on %}disabled{% endif %}>{{ L.add }}</button>
 </form>
 {% if rows %}
-<div class="card tbl"><table id="imou-devices"><thead><tr><th>{{ L.serial }}</th><th>{{ L.cams }}</th><th>{{ L.state }}</th><th></th></tr></thead><tbody>
-{% for r in rows %}<tr><td>{{ r.serial }}{% if r.test %} · <b>owner test</b>{% endif %}</td><td>{{ r.cameras }}</td><td>{{ r.status }}</td>
+<div class="card tbl"><table id="imou-devices"><thead><tr><th>{{ L.serial }}</th><th>{{ L.cams }}</th><th>{{ L.state }}</th><th>{{ L.lat }}</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ r.serial }}{% if r.test %} · <b>owner test</b>{% endif %}</td><td>{{ r.cameras }}</td><td>{{ r.status }}</td><td class="lat">{{ r.latency }}</td>
 <td><form method="post">{% include "owner/_csrf.html" %}<input type="hidden" name="action" value="unlink"><input type="hidden" name="link" value="{{ r.link }}"><button class="btn ghost">{{ L.unlink }}</button></form></td></tr>{% endfor %}
 </tbody></table></div>
 {% else %}<p class="empty">{{ L.none }}</p>{% endif %}

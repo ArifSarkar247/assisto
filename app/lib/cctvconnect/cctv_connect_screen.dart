@@ -17,6 +17,7 @@ import '../widgets/local_counter.dart';
 import 'cctv_connect_source.dart';
 import 'link_devices_screen.dart';
 import '../phonecam/phonecam_pair_sheet.dart' show GuardBoxLinuxSteps; // gap-cctv
+import 'remove_first_sheet.dart';
 
 /// cctvconnect (CCTV Guard V3 A1) — "Connect your DVR / camera brand":
 /// the brand clouds the owner switched on (EZVIZ, Imou, Hik-Connect,
@@ -126,6 +127,9 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
   }
 
   Future<void> _connect(Map<String, dynamic> p) async {
+    // imou-real: remove it from the vendor's own app FIRST (one account per camera)
+    if (!await showRemoveFirstSheet(context, (p['before'] ?? '').toString())) return;
+    if (!mounted) return;
     final res = await showAppSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
@@ -265,7 +269,12 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
                   minVerticalPadding: Gap.md,
                   leading: const Icon(Icons.videocam_rounded),
                   title: Text((p['name'] ?? '').toString()),
-                  subtitle: Text(t.ccnBrandSub),
+                  // imou-real: an approved no-delete path leads; others say "remove first"
+                  subtitle: Text(p['lead'] == true
+                      ? t.crfLeadChip
+                      : kRemoveFirstGuides.contains(p['before'])
+                          ? t.crfBrandSubRemove
+                          : t.ccnBrandSub),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => _connect(p),
                 ),

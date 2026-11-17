@@ -18,7 +18,7 @@ from django.conf import settings
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-LAST_UPDATED = "2026-10-27"   # AXON Dynamic details (24 Oct) + AdMob ads (25 Oct) + CCTV watchman snapshots + appointment booking + budget and remittance (26 Oct) + health & fitness section (27 Oct)
+LAST_UPDATED = "2026-11-17"   # legal name + address from the trade licence (17 Nov) + Axon Dynamics details (24 Oct) + AdMob ads (25 Oct) + CCTV watchman snapshots + appointment booking + budget and remittance (26 Oct) + health & fitness section (27 Oct)
 
 # env var -> what the owner must provide. Listed in the l1-launch report and
 # in owner_actions/PLAY_STORE_PACK.md.
@@ -37,16 +37,24 @@ _MISSING = ("(শিগগিরই যোগ করা হবে)", "(to be add
 # Owner-approved public facts (22 Oct 2026). A server setting / env var with the
 # same name still overrides them. The address is pending from the owner.
 _OWNER_DEFAULTS = {
-    "LEGAL_ENTITY_NAME": "AXON Dynamic",
-    "LEGAL_ADDRESS": "Cha-63, Uttar Badda, Dhaka 1212, Bangladesh",
+    "LEGAL_ENTITY_NAME": "Axon Dynamics",
+    "LEGAL_ADDRESS": "Cha-63/3, Uttar Badda, Badda, Dhaka 1212, Bangladesh",
     "LEGAL_CONTACT_EMAIL": "assistoaiagent@gmail.com",
-    "LEGAL_GRIEVANCE_OFFICER": "AXON Dynamic, assistoaiagent@gmail.com",
+    "LEGAL_GRIEVANCE_OFFICER": "Axon Dynamics, assistoaiagent@gmail.com",
     "LEGAL_GOVERNING_LAW": "Bangladesh",
     "LEGAL_HOSTING": "Amazon Web Services (AWS), ap-south-1 region (Mumbai, India)",
 }
 
 
+# Owner 17 Nov (trade licence in hand): the legal name, address and grievance
+# line are exactly what the licence says, so an older server setting or env
+# value can never show the old name/address again.
+_LICENSED = ("LEGAL_ENTITY_NAME", "LEGAL_ADDRESS", "LEGAL_GRIEVANCE_OFFICER")
+
+
 def _fact(key, lang):
+    if key in _LICENSED:
+        return escape(_OWNER_DEFAULTS[key])
     v = (getattr(settings, key, "") or os.getenv(key, "") or
          _OWNER_DEFAULTS.get(key, "") or "").strip()
     if v:

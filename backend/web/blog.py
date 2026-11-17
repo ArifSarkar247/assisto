@@ -32,9 +32,9 @@ FEATURES = {
     "blood-donor": ("/features/blood-donor", "রক্তদাতা", "Blood donor"),
 }
 
-ORG = {"@type": "Organization", "name": "AXON Dynamic", "url": "https://lifeassisto.com/",
+ORG = {"@type": "Organization", "name": "Axon Dynamics", "url": "https://lifeassisto.com/",
        "email": "assistoaiagent@gmail.com",
-       "address": {"@type": "PostalAddress", "streetAddress": "Cha-63 Uttar Badda",
+       "address": {"@type": "PostalAddress", "streetAddress": "Cha-63/3, Uttar Badda, Badda",
                    "addressLocality": "Dhaka", "postalCode": "1212", "addressCountry": "BD"}}
 
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -244,7 +244,7 @@ def jsonld_article(p, lang, site, url, image):
          "description": text(p, "summary", lang), "inLanguage": "en" if lang == "en" else "bn",
          "datePublished": when.date().isoformat(), "dateModified": mod,
          "image": [image], "mainEntityOfPage": {"@type": "WebPage", "@id": url},
-         "author": {"@type": "Organization", "name": "AXON Dynamic", "url": site + "/about"},
+         "author": {"@type": "Organization", "name": "Axon Dynamics", "url": site + "/about"},
          "publisher": dict(ORG, logo={"@type": "ImageObject", "url": site + "/apple-touch-icon.png"})},
         {"@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": i + 1, "name": n, "item": u} for i, (n, u) in enumerate(crumbs)]},
