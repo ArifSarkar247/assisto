@@ -18,7 +18,11 @@
   "@gcvManageTitle": {
    "description": "gap-cctv: fold-out on the CCTV place card for owner tools"
   },
-  "gcvManageSub": "Family, view links, who watched, technician, CCTV notice"
+  "gcvManageSub": "Family, view links, who watched, technician, CCTV notice",
+  "gcvPairOffline": "No internet right now. The code still works — we keep checking.",
+  "@gcvPairOffline": {
+   "description": "gap-cctv: pair sheet poll failed after the code is shown"
+  }
  },
  "bn": {
   "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
@@ -33,6 +37,7 @@
   "gcvLinuxCopied": "কপি হয়েছে",
   "gcvGwBoxBody": "দোকানে রাখা ছোট একটি বক্স — Raspberry Pi, লিনাক্স মিনি পিসি বা Windows পিসি — যা নিজের AI দিয়ে নেটওয়ার্কের সব ক্যামেরা দেখে। Windows বাধ্যতামূলক নয়।",
   "gcvManageTitle": "মানুষ, শেয়ার ও নোটিশ",
-  "gcvManageSub": "পরিবার, দেখার লিংক, কে দেখেছে, টেকনিশিয়ান, সিসিটিভি নোটিশ"
+  "gcvManageSub": "পরিবার, দেখার লিংক, কে দেখেছে, টেকনিশিয়ান, সিসিটিভি নোটিশ",
+  "gcvPairOffline": "এখন ইন্টারনেট নেই। কোডটি এখনও চলবে — আমরা দেখতে থাকছি।"
  }
 }

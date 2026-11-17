@@ -13,6 +13,7 @@ import '../widgets/app_sheet.dart';
 import '../widgets/local_digits.dart' show ld;
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'phonecam_api.dart';
+import '../screens/watchman/watchman_source.dart' show wmError; // gap-cctv
 
 /// gap-cctv: the one-line installer of the Linux / Raspberry Pi Guard Box
 /// (edge/shopbox/linux/install.sh, GitHub release `guardbox-linux`). The box
@@ -52,6 +53,7 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
   String? _error;
   Set<int>? _known; // camera ids present when the sheet opened
   Map<String, dynamic>? _paired;
+  bool _pollFailed = false; // gap-cctv: offline after the code is shown
   Timer? _poll;
   Timer? _tick;
   int _left = 0;
@@ -94,6 +96,7 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
       setState(() {
         _d = d;
         _error = null;
+        _pollFailed = false;
         _left = (d['valid_s'] as num?)?.toInt() ?? 0;
         if (fresh != null) {
           _paired = fresh;
@@ -102,7 +105,14 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.toString().replaceFirst('ApiException: ', ''));
+      // gap-cctv: a plain message in the user's language (never a raw
+      // "SocketException…"); once the code is on screen, a poll failure
+      // shows an offline line with Retry instead of an endless spinner.
+      final t = AppLocalizations.of(context);
+      setState(() {
+        _error = wmError(e) ?? t.wmLoadErrorBody;
+        _pollFailed = _d != null;
+      });
     }
   }
 
@@ -184,8 +194,13 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
               style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
               icon: const Icon(Icons.copy_rounded),
               label: Text(t.pcCopyCode),
-              onPressed: () =>
-                  Clipboard.setData(ClipboardData(text: (d['code'] ?? '').toString())),
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: (d['code'] ?? '').toString()));
+                if (context.mounted) {
+                  ScaffoldMessenger.maybeOf(context)
+                      ?.showSnackBar(SnackBar(content: Text(t.gcvLinuxCopied)));
+                }
+              },
             ),
             Text(t.pcCodeValid(_mmss(_left)),
                 textAlign: TextAlign.center,
@@ -206,12 +221,23 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
                   style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ],
             const SizedBox(height: 12),
-            Row(children: [
-              const SizedBox.square(
-                  dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-              const SizedBox(width: 10),
-              Expanded(child: Text(t.pcWaiting)),
-            ]),
+            if (_pollFailed)
+              Row(key: const Key('pcPairOffline'), children: [
+                Icon(Icons.cloud_off_rounded, color: scheme.error),
+                const SizedBox(width: 10),
+                Expanded(child: Text(t.gcvPairOffline)),
+                TextButton(
+                    style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                    onPressed: _load,
+                    child: Text(t.retry)),
+              ])
+            else
+              Row(children: [
+                const SizedBox.square(
+                    dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                const SizedBox(width: 10),
+                Expanded(child: Text(t.pcWaiting)),
+              ]),
             // gap-cctv: Windows is never required — the same code pairs a
             // Raspberry Pi / Linux mini PC Guard Box (spec V3 A4).
             const SizedBox(height: 12),

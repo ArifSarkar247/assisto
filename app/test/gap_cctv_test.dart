@@ -167,4 +167,41 @@ void main() {
       expect(players, 0, reason: 'no player (no mobile data) after leaving');
     });
   });
+
+  group('G6 pairing sheet: honest offline + plain error text', () {
+    testWidgets('offline after the code is shown: offline line + Retry, no endless spinner',
+        (tester) async {
+      _phone(tester);
+      var n = 0;
+      Future<Map<String, dynamic>> load() async {
+        n++;
+        if (n == 1) return pcFakePair();
+        throw StateError('SocketException: Failed host lookup');
+      }
+
+      await tester.pumpWidget(_app(Scaffold(
+          body: PhoneCamPairSheet(load: load, pollEvery: const Duration(milliseconds: 200)))));
+      await _settle(tester, 3);
+      expect(find.byKey(const Key('pcPairCode')), findsOneWidget);
+      expect(find.text(en.pcWaiting), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 250));
+      await _settle(tester, 3);
+      expect(find.byKey(const Key('pcPairOffline')), findsOneWidget);
+      expect(find.text(en.gcvPairOffline), findsOneWidget);
+      expect(find.text(en.pcWaiting), findsNothing);
+      expect(find.byKey(const Key('pcPairCode')), findsOneWidget, reason: 'the code stays');
+      expect(find.textContaining('SocketException'), findsNothing);
+    });
+
+    testWidgets('a raw exception is never shown (Bangla screen)', (tester) async {
+      _phone(tester);
+      await tester.pumpWidget(_app(
+          Scaffold(body: PhoneCamPairSheet(load: () async => throw StateError('SocketException: x'))),
+          lang: 'bn'));
+      await _settle(tester, 3);
+      expect(find.textContaining('SocketException'), findsNothing);
+      expect(find.text(bn.wmLoadErrorBody), findsOneWidget);
+      expect(find.text(bn.retry), findsOneWidget);
+    });
+  });
 }
