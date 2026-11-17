@@ -172,7 +172,7 @@ class DhakaCommuteE2E(_TcpBase):
                                       "when_stopped": True}, format="json")
                 self.assertEqual(r.status_code, 202, r.data)
                 self.assertTrue(r.data["wait_stop"])
-                cid = r.data["command"]["id"]
+                cid = m["cid"] = r.data["command"]["id"]
                 r = self.client.post("/api/v1/vehicle/commands/%d/confirm" % cid,
                                      {"confirm_token": r.data["confirm_token"]},
                                      format="json")
@@ -235,7 +235,7 @@ class DhakaCommuteE2E(_TcpBase):
                                                            action="alert_" + k).exists())
         self.assertNotIn("night_ignition", got)
         cut_push = [x["message"] for _, x in self.push_log
-                    if x["message"]["data"].get("command_id") == str(cid)]
+                    if x["message"]["data"].get("command_id") == str(m["cid"])]
         self.assertTrue(cut_push and cut_push[-1]["data"]["state"] == "acked")
         acts = list(VehicleAuditLog.objects.filter(tracker_id=tid)
                     .values_list("action", flat=True))
