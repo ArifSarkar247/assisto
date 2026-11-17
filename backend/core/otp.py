@@ -39,15 +39,21 @@ smsotp additions
 """
 import hashlib
 import hmac
+import logging
 import os
 import re
 import secrets
+import time
 from datetime import timedelta
 
 from django.conf import settings
 from django.utils import timezone
 
 from .i18n import pick
+
+# signup-otp: one structured line per send attempt — channel, purpose,
+# result, provider reason and latency. NEVER the phone, address or code.
+log = logging.getLogger("assisto.otp")
 
 PURPOSES = ("signup", "login", "password_reset", "delete_account", "section8",
             "change_number",
@@ -329,8 +335,10 @@ _MSG = {
                           "You have no verified email. Add and verify one in your profile."),
     "sent_email": ("ইমেইলে কোড পাঠানো হয়েছে। Spam ফোল্ডারও দেখুন।",
                    "Code sent by email. Check your Spam folder too."),
-    "sent_email_neutral": ("এই অ্যাকাউন্টে যাচাই-করা ইমেইল থাকলে সেখানে একটি কোড পাঠানো হয়েছে। Spam ফোল্ডারও দেখুন। ২ মিনিটে না এলে SMS-এ কোড নিন।",
-                           "If this account has a verified email, a code has been sent to it. Check Spam too. Not there in 2 minutes? Get the code by SMS."),
+    # signup-otp: new people read this as "your sign-up code is coming" —
+    # say plainly that sign-up needs no code
+    "sent_email_neutral": ("এই অ্যাকাউন্টে যাচাই-করা ইমেইল থাকলে সেখানে কোড গেছে — Spam ফোল্ডারও দেখুন। নতুন হলে কোড লাগবে না: ফিরে গিয়ে \"প্রোফাইল তৈরি করুন\" চাপুন। ২ মিনিটে না এলে পাসওয়ার্ড বা SMS দিয়ে ঢুকুন।",
+                           "If this account has a verified email, the code is on its way — check Spam too. New to Assisto? No code is needed: go back and tap Create a profile. Not there in 2 minutes? Sign in with your password or by SMS."),
     # emailrel: honest email failures, each with the way out
     "email_send_failed": ("ইমেইল এখন পাঠানো যায়নি (মেইল সার্ভারে সাময়িক সমস্যা)। SMS-এ কোড নিন, বা কয়েক মিনিট পরে আবার চেষ্টা করুন।",
                           "We couldn't send the email right now (the mail server had a temporary problem). Get the code by SMS, or try again in a few minutes."),
@@ -420,11 +428,58 @@ def _daily_phone_cap(canon, purpose, now):
         raise OtpError("rate_limited", 429, retry_after=3600)
 
 
+# ---- signup-otp: idempotent resend + no-PII send log -------------------
+def _rid_hash(rid):
+    """Short hash of the app's request id (a double tap / retry of the SAME
+    request carries the same id). Never the raw id."""
+    rid = str(rid or "").strip()[:80]
+    return hashlib.sha256(rid.encode()).hexdigest()[:12] if rid else ""
+
+
+def _tag_rid(ch, rid_h):
+    if rid_h:
+        ch.detail = ("%s rid=%s" % (ch.detail or "", rid_h)).strip()[:200]
+        ch.save(update_fields=["detail"])
+
+
+def log_send(channel, purpose, result, reason="", provider="", ms=None):
+    """One line per send attempt; no phone, address or code (asserted by
+    tests_signup_otp)."""
+    log.info("otp send channel=%s purpose=%s result=%s reason=%s provider=%s ms=%s",
+             channel, purpose, result, (reason or "-")[:40], (provider or "-")[:24],
+             "-" if ms is None else int(ms))
+
+
+def _replay(purpose, channel, now, lim, rid_h, phone="", email=""):
+    """Same request id inside the cooldown -> the earlier answer (no second
+    code, no second SMS/email, no 429 for a double tap). Only a request
+    whose first answer was 'sent' (or the neutral not-sent answer) replays;
+    a provider failure never replays as success."""
+    if not rid_h:
+        return None
+    from .models import OtpChallenge
+    last = (OtpChallenge.objects.filter(purpose=purpose, channel=channel,
+                                        **_ident(phone, email))
+            .order_by("-created_at").first())
+    if last is None or ("rid=%s" % rid_h) not in (last.detail or ""):
+        return None
+    age = (now - last.created_at).total_seconds()
+    cd = lim["resend_cooldown_seconds"]
+    if age >= cd:
+        return None
+    if not (last.sent or (last.detail or "").startswith("not sent")):
+        return None
+    return {"resend_in": max(1, int(cd - age)),
+            "expires_in": max(0, int((last.expires_at - now).total_seconds())),
+            "row": last}
+
+
 def _retry(dt, now):
     return max(1, int((dt - now).total_seconds()))
 
 
-def issue(phone, purpose, request=None, user=None, lang=None, send=True):
+def issue(phone, purpose, request=None, user=None, lang=None, send=True,
+          request_id=""):
     """Create + send a code. Returns {ok, sent, phone_masked, expires_in,
     resend_in, code_length}. `send=False` performs every check and counts
     against the limits but creates/sends nothing (anti-enumeration path for
@@ -437,6 +492,14 @@ def issue(phone, purpose, request=None, user=None, lang=None, send=True):
     lim = limits()
     now = timezone.now()
     lang = lang or "bn"
+    rid_h = _rid_hash(request_id)
+    rep = _replay(purpose, "sms", now, lim, rid_h, phone=canon)
+    if rep is not None:   # signup-otp: same request again -> same answer
+        log_send("sms", purpose, "replay")
+        return {"ok": True, "sms_enabled": True, "purpose": purpose,
+                "phone_masked": mask(canon), "expires_in": rep["expires_in"],
+                "resend_in": rep["resend_in"], "code_length": CODE_LENGTH,
+                "already_sent": True}
 
     ip, dev = _check_limits(purpose, now, lim, request, phone=canon, channel="sms")
     _daily_phone_cap(canon, purpose, now)
@@ -463,6 +526,8 @@ def issue(phone, purpose, request=None, user=None, lang=None, send=True):
     if not send:
         ch.detail = "not sent (no account)"
         ch.save(update_fields=["detail"])
+        _tag_rid(ch, rid_h)
+        log_send("sms", purpose, "not_sent", "no_account")
         return out
 
     if fixed:  # Play reviewer: no SMS, the reviewer already has the code
@@ -470,6 +535,7 @@ def issue(phone, purpose, request=None, user=None, lang=None, send=True):
         ch.sent = True
         ch.detail = "play reviewer (fixed code, no SMS)"
         ch.save(update_fields=["sent", "detail"])
+        _tag_rid(ch, rid_h)
         return out
 
     from . import sms_gateway, sms_service
@@ -477,17 +543,24 @@ def issue(phone, purpose, request=None, user=None, lang=None, send=True):
     if not ads:
         ch.consumed_at = now
         ch.save(update_fields=["consumed_at"])
+        log_send("sms", purpose, "failed", "sms_not_configured")
         raise OtpError("sms_not_configured", 503, sms_enabled=False)
     app_hash = (getattr(ads[0], "cfg", {}) or {}).get("app_hash", "") or ""
+    t0 = time.monotonic()
     r = sms_service.send_sms(canon, sms_text(code, lang, ttl, app_hash),
                              sms_purpose(purpose), user=user, secret=code, now=now)
     del code
+    ms = (time.monotonic() - t0) * 1000
     ok = r["ok"]
     ch.sent = bool(ok)
-    ch.detail = ("%s %s" % (r["reason"], r["provider"])).strip()[:200]
+    ch.detail = ("%s %s %dms" % (r["reason"], r["provider"], ms)).strip()[:180]
     if not ok:
         ch.consumed_at = now
     ch.save(update_fields=["sent", "detail", "consumed_at"])
+    log_send("sms", purpose, "sent" if ok else "failed", r.get("reason"),
+             r.get("provider"), ms)
+    if ok:
+        _tag_rid(ch, rid_h)
     if not ok:
         fb = email_available()
         if r["reason"] in ("phone_daily_cap", "user_daily_cap"):
@@ -502,7 +575,7 @@ def issue(phone, purpose, request=None, user=None, lang=None, send=True):
 
 
 def issue_email(purpose, *, phone=None, email=None, target=None, request=None,
-                lang=None, send=True):
+                lang=None, send=True, request_id="", notice_if_unknown=False):
     """smsotp: create + EMAIL a code. Identity = `phone` (any BD format; the
     code is delivered to `target`, the account's verified address) or `email`
     (email-only identity; delivered to that same address). `send=False`
@@ -531,6 +604,17 @@ def issue_email(purpose, *, phone=None, email=None, target=None, request=None,
     lim = purpose_limits(purpose)   # recovery: email_verify = 10 min / 45 s
     now = timezone.now()
     lang = lang or "bn"
+    rid_h = _rid_hash(request_id)
+    rep = _replay(purpose, "email", now, lim, rid_h, phone=canon, email=addr)
+    if rep is not None:   # signup-otp: same request again -> same answer
+        log_send("email", purpose, "replay")
+        out = {"ok": True, "channel": "email", "purpose": purpose,
+               "email_enabled": True, "expires_in": rep["expires_in"],
+               "resend_in": rep["resend_in"], "code_length": CODE_LENGTH,
+               "prefer_sms": bool(cap["near"]), "already_sent": True}
+        if rep["row"].sent and rep["row"].email:
+            out["email_masked"] = email_sender.mask_email(rep["row"].email)
+        return out
     ip, dev = _check_limits(purpose, now, lim, request, phone=canon, email=addr,
                             channel="email", target_email=tgt)
     ttl = lim["ttl_seconds"]
@@ -549,19 +633,34 @@ def issue_email(purpose, *, phone=None, email=None, target=None, request=None,
         ip=ip, device_id=dev, sent=False, consumed_at=None if send else now)
     if not send:
         ch.detail = "not sent (no verified email)"
+        # signup-otp (owner-found 17 Nov): a NEW person tapped "sign in with
+        # an email code", got the neutral "sent" answer and waited for a code
+        # that could never come. Now the typed address gets a short "no
+        # account uses this email yet — create one / sign in with password"
+        # note (no code). Same API answer either way (no enumeration).
+        if notice_if_unknown and addr and purpose in ("login", "password_reset"):
+            ch.detail += " · notice %s" % no_account_notice(addr, lang, purpose)
         ch.save(update_fields=["detail"])
+        _tag_rid(ch, rid_h)
+        log_send("email", purpose, "not_sent", "no_verified_email")
         return out
     subject, body, html = email_sender.otp_email_html(code, lang, ttl)
     del code
     # emailrel: a user (re)verifying an address may try a bounced one again
+    t0 = time.monotonic()
     r = email_sender.send_email(tgt, subject, body, purpose="otp", html=html,
                                 bypass_suppression=(purpose == "email_verify"))
+    ms = (time.monotonic() - t0) * 1000
     del subject, body, html
     ch.sent = bool(r["ok"])
-    ch.detail = ("email %s" % r["reason"])[:200]
+    ch.detail = ("email %s %dms" % (r["reason"], ms))[:180]
     if not r["ok"]:
         ch.consumed_at = now
     ch.save(update_fields=["sent", "detail", "consumed_at"])
+    log_send("email", purpose, "sent" if r["ok"] else "failed", r.get("reason"),
+             r.get("provider"), ms)
+    if r["ok"]:
+        _tag_rid(ch, rid_h)
     if not r["ok"]:
         # emailrel: an honest reason + the alternative (SMS / later) — the
         # old "send_failed" said "SMS could not be sent" for an email
@@ -574,6 +673,43 @@ def issue_email(purpose, *, phone=None, email=None, target=None, request=None,
         raise OtpError("email_send_failed", 502, prefer_sms=True, retry_later=True)
     out["email_masked"] = email_sender.mask_email(tgt)
     return out
+
+
+NOTICE_TEXTS = {
+    "title": ("এই ইমেইলে এখনো কোনো যাচাই-করা Assisto অ্যাকাউন্ট নেই",
+              "No Assisto account has this email verified yet"),
+    "body": ("কেউ (সম্ভবত আপনি) এই ইমেইলে Assisto-তে ঢোকার কোড চেয়েছেন। কোনো অ্যাকাউন্টে এই ইমেইল যাচাই করা নেই, তাই কোড পাঠানো হয়নি।\n\n"
+             "নতুন? অ্যাপে \"নতুন? প্রোফাইল তৈরি করুন\" চাপুন — নাম, ফোন নম্বর ও পাসওয়ার্ড দিলেই হবে, কোনো কোড লাগে না।\n\n"
+             "আগে থেকেই অ্যাকাউন্ট আছে? ফোন নম্বর ও পাসওয়ার্ড দিয়ে ঢুকুন, তারপর সেটিংস → অ্যাকাউন্টের নিরাপত্তা থেকে এই ইমেইল যাচাই করুন।\n\n"
+             "আপনি না চাইলে এই ইমেইলটি উপেক্ষা করুন — কিছুই বদলায়নি।",
+             "Someone (probably you) asked for an Assisto sign-in code for this email. No account has this email verified, so no code was sent.\n\n"
+             "New here? In the app tap \"New here? Create a profile\" — your name, phone number and a password are enough; no code is needed.\n\n"
+             "Already have an account? Sign in with your phone number and password, then verify this email in Settings → Account security.\n\n"
+             "If this wasn't you, ignore this email — nothing has changed."),
+}
+NOTICE_PURPOSE = "otp_noacct"
+
+
+def no_account_notice(addr, lang, purpose="login"):
+    """Send the 'no account uses this email yet' note at most once per
+    address per 24 h. Returns a short no-PII status for the challenge row:
+    sent | skipped_recent | <failure reason>."""
+    from .models import EmailLog
+    from . import email_sender, email_templates as T
+    since = timezone.now() - timedelta(hours=24)
+    if EmailLog.objects.filter(purpose=NOTICE_PURPOSE, to_hash=email_sender.email_hash(addr),
+                               status="sent", created_at__gte=since).exists():
+        return "skipped_recent"
+    subject, text, html = T.render_notice(
+        lang, NOTICE_TEXTS["title"][0], NOTICE_TEXTS["title"][1],
+        NOTICE_TEXTS["body"][0], NOTICE_TEXTS["body"][1])
+    t0 = time.monotonic()
+    r = email_sender.send_email(addr, subject, text, purpose=NOTICE_PURPOSE, html=html,
+                                category="normal")   # codes keep the cap first
+    ms = (time.monotonic() - t0) * 1000
+    log_send("email", purpose, "notice_sent" if r["ok"] else "notice_failed",
+             r.get("reason"), r.get("provider"), ms)
+    return "sent" if r["ok"] else (r.get("reason") or "failed")[:24]
 
 
 def verify(phone, purpose, code, email=None):
