@@ -23,8 +23,31 @@ from core import tests_e2e_cctv as E2E
 
 
 class CctvAlertActionTests(E2E._Base):
-    setUp = TC.ConnectApiE2ETests.setUp
     connect = TC.ConnectApiE2ETests.connect
+
+    def setUp(self):
+        # the same fixture as tests_cctvconnect.ConnectApiE2ETests (that
+        # setUp uses a zero-arg super(), so it cannot be borrowed)
+        from datetime import timedelta
+        from unittest import mock
+        from django.utils import timezone
+        from core.logic.cctv_connect import mocks as M
+        from core.models import ShopSite
+        super().setUp()
+        TC._clear_caches()
+        self.sim = M.VendorSims()
+        self.sim.add_device("dolynk", "SIMDODVR1", "ABC123", channels=4)
+        for target, kw in (("core.logic.cctv_connect.base.default_http", {"new": self.sim.http}),
+                           ("core.shop_views._included_cameras", {"return_value": 10}),
+                           ("core.cctv_connect_views._fetch_picture", {"return_value": E2E._jpeg()})):
+            p = mock.patch(target, **kw)
+            p.start()
+            self.addCleanup(p.stop)
+        self.sid = self.site["id"]
+        self.owner.is_staff = True
+        self.owner.save(update_fields=["is_staff"])
+        ShopSite.objects.filter(pk=self.sid).update(
+            away={"until": (timezone.now() + timedelta(days=1)).isoformat()})
 
     def _post(self, path, msg):
         return APIClient().post(path, json.dumps([msg]), content_type="application/json")
