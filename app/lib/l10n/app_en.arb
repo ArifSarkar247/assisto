@@ -52642,5 +52642,9 @@
   "gapcCallsRemoved": "Removed from your call history.",
   "@gapcCallsRemoved": {
     "description": "gap-circle: remove calls from my call history"
+  },
+  "sosgapSosButtonLine": "Emergency — alert my family",
+  "@sosgapSosButtonLine": {
+    "description": "gap-sos: line next to the SOS icon on the red SosButton (the icon already says SOS — never repeat it)"
   }
 }
