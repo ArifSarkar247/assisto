@@ -1194,7 +1194,7 @@ Map<String, GallerySpec> gallerySpecs() {
     'quran_reader_end': (build: (_) => QuranReaderScreen(data: realQuranData(), sura: 112, aya: 3), mode: FakeMode.data, full: true),
     // /gap-quranblood
     // quranread: learn to read Quran (real lessons + real Tanzil Uthmani text)
-    'quran_learn': (build: (_) => QuranLearnScreen(progress: qlShotProgress(), player: QvSilentPlayer()), mode: FakeMode.data, full: true),
+    'quran_learn': (build: (_) => QuranLearnScreen(progress: qlShotProgress()), mode: FakeMode.data, full: true),
     'quran_learn_letters': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress(), player: QvSilentPlayer()), mode: FakeMode.data, full: true),
     'quran_learn_harakat': (build: (_) => QuranLessonScreen(stage: kQlStages[1], lesson: kQlStages[1].lessons[0], progress: qlShotProgress(), player: QvSilentPlayer()), mode: FakeMode.data, full: true),
     'quran_learn_ayat': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons[1], progress: qlShotProgress(), player: QvSilentPlayer()); }, mode: FakeMode.data, full: true),
