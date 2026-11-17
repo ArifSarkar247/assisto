@@ -34,9 +34,14 @@ void registerCityFlows() {
       await f.shot('city_options');
     });
     await f.step('Offices -> Go by bus / metro -> trip planned to the office', () async {
-      final tile = find.byKey(const ValueKey('city_tile_offices')).last;
-      await f.scrollTo(tile);
-      await f.tap(tile, settleSeconds: 3);
+      // the City Service list itself (the generic scrollTo found no
+      // hit-testable Scrollable here: run 44074042981 step 3)
+      final list = find.descendant(
+          of: find.byKey(const ValueKey('city_list')).last, matching: find.byType(Scrollable)).first;
+      final tile = find.byKey(const ValueKey('city_tile_offices'));
+      await f.tester.dragUntilVisible(tile, list, const Offset(0, -300), maxIteration: 30);
+      await f.pumpFor(const Duration(milliseconds: 600));
+      await f.tap(tile.last, settleSeconds: 3);
       final here = find.byKey(const ValueKey('city_route_here_o-ci-passport'));
       await f.waitFor(here, seconds: 20, what: 'sample office with Go by bus / metro');
       await f.shot('city_offices_route_here');
