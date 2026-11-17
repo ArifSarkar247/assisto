@@ -75,6 +75,10 @@ class MapsTransitView(APIView):
     refusal answers state "none" + routes [] (the app then shows only our
     own results, never a limit message)."""
     def get(self, request):
+        # adwire: ?peek=1 = may one transit request run now? (counts nothing;
+        # the "More routes (Google)" button shows only on "ready")
+        if _q(request, "peek"):
+            return Response({"state": "ready" if MC.can_spend("routes", request.user) else "none"})
         return Response(PS.public(MC.transit(request.user, _q(request, "olat"), _q(request, "olng"),
                                              _q(request, "dlat"), _q(request, "dlng"),
                                              lang=req_lang(request))))

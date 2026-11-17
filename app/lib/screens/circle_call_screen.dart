@@ -13,6 +13,7 @@ import '../calls/call_avatar.dart';
 import '../calls/call_controller.dart';
 import '../calls/call_data_prefs.dart'; // callsbar
 import '../calls/call_rating.dart'; // callsbar
+import '../ads/after_call_ad.dart' show AfterCallReviewAd; // adwire
 import '../calls/call_keepalive.dart';
 import '../calls/call_launch.dart'; // calls-a
 import '../calls/call_mini_bar.dart' show CallPipLayout; // callpip
@@ -84,6 +85,11 @@ class CircleCallScreen extends StatefulWidget {
   /// callpip gallery/tests: show the "picture-in-picture is off" line.
   final bool previewPipOff;
 
+  /// adwire: where the call came from — 'circle' (default), or 'care_call' /
+  /// 'sos' / 'emergency' / 'kid_audio', which NEVER get the after-call ad
+  /// ([afterCallAdAllowed]).
+  final String origin;
+
   const CircleCallScreen({
     super.key,
     required this.member,
@@ -97,6 +103,7 @@ class CircleCallScreen extends StatefulWidget {
     this.previewFullscreen = false,
     this.previewAskRating = false,
     this.previewPipOff = false,
+    this.origin = 'circle',
   });
 
   /// circle2 test seam: the video gate's navigation ('voice' | 'video' |
@@ -216,6 +223,13 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   /// callsbar: the one-tap rating row is shown for this ended call.
   late bool _askRate = widget.previewAskRating;
   late bool _rateDecided = widget.previewAskRating;
+
+  /// adwire: the after-call review native card — wanted for this call
+  /// (null = not decided), its result (null = still loading) and whether the
+  /// person already rated (then the screen waits for the ad before closing).
+  bool? _adWanted;
+  bool? _adShown;
+  bool _rated = false;
 
   bool _screenLive() => mounted && !_closed && (_c == null || !_c!.isEnded);
 
@@ -521,6 +535,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     _claimed = false;
     _askRate = false;
     _rateDecided = false;
+    _adWanted = null; // adwire
+    _adShown = null;
+    _rated = false;
     _begin();
   }
 
@@ -1347,6 +1364,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
     final actions = _endedButtons(c);
     if (!rate) return actions;
     final id = c.callId!;
+    final ad = _adWanted ??= afterCallAdAllowed(
+        origin: widget.origin, talkTime: c.talkTime, endReason: c.endReason);
     return Column(mainAxisSize: MainAxisSize.min, children: [
       CallRatingRow(
         key: const Key('call-rating'),
@@ -1356,8 +1375,8 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           _autoClose = null;
         },
         onDone: () {
-          _autoClose?.cancel();
-          _autoClose = Timer(const Duration(milliseconds: 1500), _close);
+          _rated = true;
+          _closeAfterRating();
         },
         onSend: (rating, issue) => context
             .read<AppState>()
@@ -1368,8 +1387,42 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             })
             .then((_) {}, onError: (Object _) {}),
       ),
+      // adwire: the after-call review native card (Free users, owner switch
+      // 'after_call_review'); takes no space without an ad
+      if (ad)
+        AfterCallReviewAd(
+          key: const Key('after-call-ad'),
+          onResult: _onAfterCallAd,
+        ),
       actions,
     ]);
+  }
+
+  /// adwire: close after the rating — but keep the screen open until the
+  /// after-call ad has loaded or failed; a showing ad stays for 8 s.
+  void _closeAfterRating() {
+    _autoClose?.cancel();
+    final Duration wait;
+    if (_adWanted == true && _adShown == null) {
+      wait = const Duration(seconds: 20); // safety net; the card reports first
+    } else if (_adShown == true) {
+      wait = const Duration(seconds: 8);
+    } else {
+      wait = const Duration(milliseconds: 1500);
+    }
+    _autoClose = Timer(wait, _close);
+  }
+
+  void _onAfterCallAd(bool shown) {
+    if (!mounted || _closed) return;
+    _adShown = shown;
+    if (_rated) {
+      _closeAfterRating();
+    } else if (shown && _autoClose?.isActive == true) {
+      // not rated yet: give the card a fair look before the auto-close
+      _autoClose!.cancel();
+      _autoClose = Timer(const Duration(seconds: 8), _close);
+    }
   }
 
   /// callsbar: the network & data sheet (tap the quality bars).
