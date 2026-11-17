@@ -11,6 +11,9 @@ STRINGS = {
     "en": {
         "app_title": "Assisto Shop Box",
         "switch_lang": "বাংলা",
+        "about_btn": "About & licences",
+        "about_title": "About Assisto Shop Box: models and licences",
+        "close_btn": "Close",
         "sec_pair": "Pairing",
         "paired_yes": "Paired with your Assisto shop.",
         "paired_no": "Not paired yet. Enter the enrollment token from the Assisto app (Business > Shop Box).",
@@ -114,6 +117,9 @@ STRINGS = {
     "bn": {
         "app_title": "অ্যাসিস্টো শপ বক্স",
         "switch_lang": "English",
+        "about_btn": "পরিচিতি ও লাইসেন্স",
+        "about_title": "Assisto শপ বক্স: মডেল ও লাইসেন্স",
+        "close_btn": "বন্ধ করুন",
         "sec_pair": "যুক্ত করা (পেয়ারিং)",
         "paired_yes": "আপনার অ্যাসিস্টো দোকানের সাথে যুক্ত আছে।",
         "paired_no": "এখনো যুক্ত করা হয়নি। অ্যাসিস্টো অ্যাপ (বিজনেস > শপ বক্স) থেকে এনরোলমেন্ট টোকেন লিখুন।",
