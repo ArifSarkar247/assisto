@@ -2541,7 +2541,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
               if (groupMsgDeleted(msg))
                 Text(_t.circleDeletedPlaceholder,
                     key: ValueKey('gapc-deleted-${msg['id']}'),
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         fontStyle: FontStyle.italic,
                         color: Theme.of(context).colorScheme.onSurfaceVariant))
               else if (undecryptable)
@@ -2788,7 +2788,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 leading: Icon(Icons.delete_forever_rounded,
                     color: Theme.of(ctx).colorScheme.error),
                 title: Text(_t.circleActionDeleteEveryone,
-                    style: TextStyle(color: Theme.of(ctx).colorScheme.error)),
+                    style: AType.bodyLarge
+                        .copyWith(color: Theme.of(ctx).colorScheme.error)),
                 onTap: () {
                   Navigator.pop(ctx);
                   unawaited(_deleteOne(msg, 'everyone'));
@@ -2868,7 +2869,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
     try {
       await _api.postJson('/circle/groups/$_groupId/messages/$id/edit',
-          groupEditBody(per, widget.identity.keyId));
+          groupEditBody(per, widget.identity.keyId));  // ids = per keys
     } catch (e) {
       if (mounted) setState(() => _sending = false);
       if (e is ApiException && e.status == 403) {

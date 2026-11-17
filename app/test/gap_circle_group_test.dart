@@ -226,7 +226,7 @@ void main() {
 
   testWidgets('edit re-seals the new text to every member', (tester) async {
     final api = await _open(tester);
-    await tester.longPress(find.text('Yes, see you', findRichText: true).first);
+    await tester.longPress(find.byKey(const ValueKey('gapc-time-102')));
     await _settle(tester);
     await tester.tap(find.byKey(const Key('gapc-group-edit')));
     await _settle(tester);

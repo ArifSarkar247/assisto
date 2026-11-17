@@ -672,6 +672,7 @@ def _group_edit(x, g, uid, d):
     if not isinstance(first, dict):
         return _bad("bad per_recipient")
     check = {"content_type": "text", "group_id": g.id, "per_recipient": pr,
+             "recipient_ids": list(pr.keys()),
              "ciphertext": str(first.get("ciphertext", "")),
              "nonce": str(first.get("nonce", "")),
              "sender_key_id": str(d.get("sender_key_id", x.sender_key_id))}
