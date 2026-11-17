@@ -8117,6 +8117,34 @@ class CctvInstallerLink(models.Model):
         indexes = [models.Index(fields=["site", "status"], name="cctv_inst_site_idx")]
 
 
+class CctvCommissionEntry(models.Model):
+    """cctvprice (owner-decided 17 Nov 12:35): the installer-commission LEDGER.
+    ONE row per paid Premium AI Play order (order_id unique -> a renewal or a
+    replayed RTDN can never pay twice): 10 % of the NET Premium AI part only,
+    never the base plan (core/logic/plan_book.CCTV_DECIDED). Starts "owed";
+    a person marks it "paid" (or "void") in Owner Admin — never automatic."""
+    STATUSES = [("owed", "owed"), ("paid", "paid"), ("void", "void")]
+    partner = models.ForeignKey(CctvPartner, on_delete=models.CASCADE,
+                                related_name="commissions")
+    site = models.ForeignKey(ShopSite, null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name="+")
+    order_id = models.CharField(max_length=64, unique=True)
+    month = models.CharField(max_length=7, default="")        # "2026-12"
+    cameras = models.PositiveSmallIntegerField(default=0)
+    premium_ai_net_bdt = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    pct = models.PositiveSmallIntegerField(default=10)
+    amount_bdt = models.PositiveIntegerField(default=0)
+    paid_month_no = models.PositiveSmallIntegerField(default=1)
+    status = models.CharField(max_length=5, choices=STATUSES, default="owed")
+    created = models.DateTimeField(auto_now_add=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    paid_ref = models.CharField(max_length=80, blank=True, default="")
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["partner", "status"], name="cctv_comm_partner_idx")]
+
+
 class CctvWatchPost(models.Model):
     """Private neighbourhood watch: ONE still a user chose to share with a
     PRIVATE My Circle community group they belong to. Never public, never

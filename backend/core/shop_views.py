@@ -1067,6 +1067,12 @@ class ShopCamerasView(APIView):
         if s is None:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
 
+        # cctvprice (owner 17 Nov 12:35): EZVIZ is not in the free trial
+        from . import cctv_plan_service as _CPS
+        if _CPS.trial_refuses_vendor(request.user, request.data.get("vendor") or ""):
+            return _err(lang, _CPS.TRIAL_NO_EZVIZ_BN, _CPS.TRIAL_NO_EZVIZ_EN,
+                        status=402, code="cctv_trial_no_ezviz")
+
         # CAP: Business includes N edge cameras free; the N+1th costs credits.
         # NOTE: this is a HARDWARE/ENTITLEMENT charge, not an AI action — it is
         # priced on its own (shop_extra_camera) and debited directly here, not
