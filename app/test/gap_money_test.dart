@@ -108,6 +108,8 @@ void main() {
       expect(takaToPoishaInput(bn('15000') + '/-'), 1500000);
       expect(takaToPoishaInput('10,000 টাকা'), 1000000);
       expect(takaToPoishaInput('Tk. 500'), 50000);
+      expect(takaToPoishaInput('Tk500'), 50000);
+      expect(takaToPoishaInput('500tk'), 50000);
       expect(takaToPoishaInput('12abc'), isNull);
     });
 
