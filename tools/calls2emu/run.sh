@@ -33,9 +33,26 @@ timeout 900 sdkmanager --install emulator platform-tools "$IMG" > "$C2E/sdkmanag
   || { log "sdkmanager failed"; tail -20 "$C2E/sdkmanager.log"; }
 
 make_avd() {  # $1 = name
-  echo no | timeout 120 avdmanager create avd -n "$1" -k "$IMG" -d pixel_5 --force >/dev/null 2>&1
-  local c="$HOME/.android/avd/$1.avd/config.ini"
-  [ -f "$c" ] || { log "AVD $1 not created"; return 1; }
+  # avdmanager first; when it makes nothing (run 44165707378: the runner's old
+  # cmdline-tools vs SDK XML v4) the AVD is written by hand (same keys).
+  export ANDROID_AVD_HOME="$HOME/.android/avd"
+  mkdir -p "$ANDROID_AVD_HOME"
+  echo no | timeout 120 avdmanager create avd -n "$1" -k "$IMG" -d pixel_5 --force \
+    >> "$C2E/avdmanager.log" 2>&1 || true
+  local c="$ANDROID_AVD_HOME/$1.avd/config.ini"
+  if [ ! -f "$c" ]; then
+    log "avdmanager made no AVD $1 (calls2emu/avdmanager.log) - writing it by hand"
+    mkdir -p "$ANDROID_AVD_HOME/$1.avd"
+    printf 'avd.ini.encoding=UTF-8\npath=%s\npath.rel=avd/%s.avd\ntarget=android-33\n' \
+      "$ANDROID_AVD_HOME/$1.avd" "$1" > "$ANDROID_AVD_HOME/$1.ini"
+    printf '%s\n' "AvdId=$1" "avd.ini.displayname=$1" "abi.type=x86_64" "hw.cpu.arch=x86_64" \
+      "image.sysdir.1=system-images/android-33/default/x86_64/" "tag.id=default" \
+      "tag.display=Default Android System Image" "PlayStore.enabled=false" \
+      "hw.lcd.width=1080" "hw.lcd.height=2340" "hw.lcd.density=440" "hw.mainKeys=no" \
+      "hw.accelerometer=yes" "hw.sdCard=no" > "$c"
+  fi
+  [ -f "$SDK/system-images/android-33/default/x86_64/system.img" ] \
+    || { log "system image missing under $SDK"; return 1; }
   sed -i -E '/^(hw\.ramSize|hw\.keyboard|hw\.camera\.front|hw\.camera\.back|disk\.dataPartition\.size|hw\.gpu\.enabled|hw\.gpu\.mode|hw\.cpu\.ncore|vm\.heapSize)=/d' "$c"
   cat >> "$c" <<EOF
 hw.ramSize=2048
