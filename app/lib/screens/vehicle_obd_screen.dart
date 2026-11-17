@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../vehicle/elm327.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
@@ -150,7 +151,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
       ),
       title: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Text(value ?? tr.vehNotSupported,
-          style: TextStyle(
+          style: AType.bodyMedium.copyWith(
               fontWeight: FontWeight.w700,
               color: value == null ? scheme.ds.muted : scheme.ds.text)),
     );
@@ -173,7 +174,8 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
           padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
             color: scheme.ds.dangerBg,
-            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: scheme.ds.dangerBorder),
+            borderRadius: BorderRadius.circular(DsRadius.card),
           ),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk, size: 28),
@@ -185,7 +187,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                         color: scheme.ds.dangerInk, fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.xs),
                 Text(tr.vehEngineHotBody(temp),
-                    style: TextStyle(color: scheme.ds.dangerInk, height: 1.35)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk, height: 1.35)),
               ]),
             ),
           ]),
@@ -207,26 +209,17 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
     }
     return Column(children: [
       for (final d in dtc)
-        Card(
-          margin: const EdgeInsets.only(top: Gap.xs),
-          color: '${d['severity']}' == 'high'
-              ? scheme.ds.dangerBg
-              : scheme.ds.cardHighest,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(padding: const EdgeInsets.only(top: Gap.xs), child: DsCard(padding: const EdgeInsets.all(Gap.md), tone: '${d['severity']}' == 'high' ? DsTone.danger : DsTone.normal, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('${d['code']}',
                   style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
               if (d['bn'] != null || d['en'] != null) ...[
                 const SizedBox(height: Gap.xxs),
-                Text('${bn ? d['bn'] : d['en']}', style: const TextStyle(height: 1.35)),
+                Text('${bn ? d['bn'] : d['en']}', style: AType.bodyMedium.copyWith(height: 1.35)),
                 const SizedBox(height: Gap.xs),
                 Text('${bn ? d['advice_bn'] : d['advice_en']}',
                     style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ],
-            ]),
-          ),
-        ),
+            ]))),
     ]);
   }
 
@@ -242,18 +235,14 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
           if (widget.trackerId != null)
-            Card(
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(tr.vehObdFromTracker, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: Gap.xs),
                   if (_loadingTracker)
                     const LinearProgressIndicator()
                   else if (_tracker == null || _tracker!['available'] != true)
                     Text(tr.vehObdTrackerNone,
-                        style: TextStyle(color: scheme.ds.muted, height: 1.35))
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.35))
                   else ...[
                     if ((vehNum(obd['coolant_temp_c']) ?? 0) >= kEngineHotC)
                       _hotWarning(context, vehNum(obd['coolant_temp_c'])!),
@@ -280,33 +269,23 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                     Text(tr.vehDtcTitle, style: Theme.of(context).textTheme.labelLarge),
                     _dtcList(vehList(_tracker!['dtc'])),
                   ],
-                ]),
-              ),
-            ),
+                ])),
           if (widget.trackerId != null) const SizedBox(height: Gap.md),
-          Card(
-            margin: EdgeInsets.zero,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Text(tr.vehObdBtTitle, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: Gap.xs),
                 Text(tr.vehObdBtBody,
-                    style: TextStyle(color: scheme.ds.muted, height: 1.35)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.35)),
                 const SizedBox(height: Gap.sm),
-                FilledButton.icon(
-                  onPressed: _btBusy ? null : _readDongle,
-                  icon: _btBusy
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.bluetooth_searching_rounded),
-                  label: Text(_btBusy ? tr.vehBtReading : tr.vehBtRead),
+                DsButton(
+                  onPressed: _readDongle,
+                  busy: _btBusy,
+                  icon: Icons.bluetooth_searching_rounded,
+                  label: _btBusy ? tr.vehBtReading : tr.vehBtRead,
                 ),
                 if (_btMsg != null) ...[
                   const SizedBox(height: Gap.sm),
-                  Text(_btMsg!, style: TextStyle(color: scheme.error)),
+                  Text(_btMsg!, style: AType.bodyMedium.copyWith(color: scheme.error)),
                 ],
                 if (bt != null) ...[
                   const SizedBox(height: Gap.sm),
@@ -340,9 +319,7 @@ class _VehicleObdScreenState extends State<VehicleObdScreen> {
                 const SizedBox(height: Gap.sm),
                 Text(tr.vehObdHonest,
                     style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
-              ]),
-            ),
-          ),
+              ])),
         ],
       ),
     );

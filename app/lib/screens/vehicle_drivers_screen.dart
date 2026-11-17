@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../vehicle/veh_format.dart';
 import '../vehicle/vehicle_api.dart';
 import '../widgets/skeleton.dart';
@@ -148,29 +149,18 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
       body: _loading
           ? const SkeletonList()
           : _error
-              ? StateMessage(
-                  icon: Icons.cloud_off_rounded,
-                  tint: scheme.error,
-                  title: tr.loadFailed,
-                  message: tr.vehLoadError,
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
-                )
+              ? ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: tr.loadFailed, benefit: tr.vehLoadError, actionLabel: tr.retry, onAction: _load)])
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                       children: [
                     if (_list.isNotEmpty) ...[
                       Text(tr.v100DriversIntro,
-                          style: TextStyle(color: scheme.ds.muted, height: 1.35)),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.35)),
                       const SizedBox(height: Gap.md),
                     ],
                     if (widget.canAssign && widget.trackerId != null && _list.isNotEmpty)
-                      Card(
-                        margin: EdgeInsets.zero,
-                        child: RadioGroup<int?>(
+                      DsCard(padding: EdgeInsets.zero, child: RadioGroup<int?>(
                           groupValue: _current,
                           onChanged: (v) {
                             if (!_busy) _assign(v);
@@ -188,8 +178,7 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
                                     maxLines: 1, overflow: TextOverflow.ellipsis),
                               ),
                           ]),
-                        ),
-                      ),
+                        )),
                     if (_list.isEmpty)
                       CvEmptyBlock(
                         icon: Icons.badge_outlined,
@@ -220,9 +209,7 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
             ? tr.v100LicenceExpired
             : tr.v100LicenceIn(vehNumStr(context, days)),
     ].join(' · ');
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
         leading: Icon(Icons.badge_rounded,
             color: (days != null && days <= 30) ? scheme.error : scheme.primary),
         title: Text('${d['name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -236,8 +223,7 @@ class _VehicleDriversScreenState extends State<VehicleDriversScreen> {
             PopupMenuItem(value: 'delete', child: Text(tr.delete)),
           ],
         ),
-      ),
-    );
+      )));
   }
 }
 
@@ -392,20 +378,20 @@ class _DriverMonthSheetState extends State<_DriverMonthSheet> {
       child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
         Text(widget.name, style: Theme.of(context).textTheme.titleLarge),
-        Text(tr.v100DriverMonth, style: TextStyle(color: scheme.ds.muted)),
+        Text(tr.v100DriverMonth, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.md),
         if (_error)
-          Text(tr.vehLoadError, style: TextStyle(color: scheme.error))
+          Text(tr.vehLoadError, style: AType.bodyMedium.copyWith(color: scheme.error))
         else if (r == null)
-          const Center(child: CircularProgressIndicator())
+          const DsSkeleton(height: 96)
         else if ((vehNum(tot['km']) ?? 0) <= 0)
-          Text(tr.v100DriverNoTrips, style: TextStyle(color: scheme.ds.muted))
+          Text(tr.v100DriverNoTrips, style: AType.bodyMedium.copyWith(color: scheme.ds.muted))
         else ...[
           Text(
               '${tr.vehKm(vehNumStr(context, vehNum(tot['km']) ?? 0, decimals: 1))} · '
               '${tr.v100TripsN(vehNumStr(context, vehInt(tot['trips']) ?? 0))} · '
               '${tr.v100ScoreShort(sc == null ? '-' : vehNumStr(context, sc))}',
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.xs),
           Text(
               '${tr.v100HarshBrake}: ${vehNumStr(context, vehInt(tot['harsh_brake']) ?? 0)} · '
