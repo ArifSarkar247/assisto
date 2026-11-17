@@ -379,9 +379,9 @@
     "cplPremiumBody": "স্মার্ট সতর্কতা — কী ঘটেছে বাংলায় বলে দেয়, আর ইভেন্টের ক্লিপ থাকে {days} দিন। আপনার সিসিটিভি প্ল্যানের ওপর যোগ হয়।",
     "cplPremiumPrice": "প্রতি ক্যামেরা মাসে {price} টাকা",
     "cplPremiumTotal": "{cameras}টি ক্যামেরায়: মাসে বাড়তি {total} টাকা",
-    "cplPremiumBuy": "Premium AI যোগ করুন — মাসে {total} টাকা",
-    "cplPremiumActive": "Premium AI চালু আছে",
-    "cplPremiumNeedsPlan": "আগে সিসিটিভি প্ল্যান কিনুন, তারপর Premium AI যোগ করুন।",
+    "cplPremiumBuy": "প্রিমিয়াম AI যোগ করুন — মাসে {total} টাকা",
+    "cplPremiumActive": "প্রিমিয়াম AI চালু আছে",
+    "cplPremiumNeedsPlan": "আগে সিসিটিভি প্ল্যান কিনুন, তারপর প্রিমিয়াম AI যোগ করুন।",
     "biCctvTrialNoEzviz": "EZVIZ ক্যামেরা ফ্রি ট্রায়ালে নেই।"
   }
 }
