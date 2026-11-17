@@ -4,6 +4,7 @@ preview for them exactly like for the owner; everyone else sees nothing new.
 The owner adds testers by phone / email (resolved server-side to user ids),
 the page and the audit log never show a full phone or email, and every
 hidden feature has a "where in the app" line (core.feature_where)."""
+from django.utils.html import escape
 from rest_framework.test import APIClient
 
 from core import feature_flags as FF
@@ -145,9 +146,9 @@ class PreviewTesterOwnerPageTests(OwnerBase):
         self.ready()
         r = self.c.get("/owner/features?lang=en&q=train_tracker")
         self.assertContains(r, "Where in the app")
-        self.assertContains(r, FW.where("train_tracker", "en"))
+        self.assertContains(r, escape(FW.where("train_tracker", "en")))
         r = self.c.get("/owner/features?lang=bn&q=train_tracker")
-        self.assertContains(r, FW.where("train_tracker", "bn"))
+        self.assertContains(r, escape(FW.where("train_tracker", "bn")))
 
 
 class WhereTextTests(OwnerBase):
