@@ -139,6 +139,11 @@ net_mode() {  # $1 = off|on
         case "$cmd:$arg" in
           REALITY_NETSPEED:full) timeout 10 adb emu network speed full >/dev/null 2>&1 || true
                                  timeout 10 adb emu network delay none >/dev/null 2>&1 || true ;;
+          # block = the phone cannot reach the test backend at all (real TCP
+          # resets; airplane mode alone left 10.0.2.2 reachable in run
+          # 44181292975). Needs the debuggable image's su; unblock undoes it.
+          REALITY_NETSPEED:block)   timeout 10 adb shell "su 0 iptables -I OUTPUT -d 10.0.2.2 -p tcp --dport 8700 -j REJECT --reject-with tcp-reset" >/dev/null 2>&1 || true ;;
+          REALITY_NETSPEED:unblock) for _ in 1 2 3; do timeout 10 adb shell "su 0 iptables -D OUTPUT -d 10.0.2.2 -p tcp --dport 8700 -j REJECT --reject-with tcp-reset" >/dev/null 2>&1 || break; done ;;
           REALITY_NETSPEED:*)    timeout 10 adb emu network speed "$arg" >/dev/null 2>&1 || true
                                  timeout 10 adb emu network delay gprs >/dev/null 2>&1 || true ;;
           REALITY_SHADE:open)    timeout 10 adb shell cmd statusbar expand-notifications >/dev/null 2>&1 || true ;;

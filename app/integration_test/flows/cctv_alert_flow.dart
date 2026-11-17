@@ -359,10 +359,12 @@ Future<void> _flow(RFlow f) async {
     await f.step('offline: the alert list says so and loads BY ITSELF when back online', () async {
       await f.back(); // leave the alerts screen
       await _host(f, 'NET', 'off');
+      await _host(f, 'NETSPEED', 'block'); // the backend unreachable for real (TCP reset)
       await f.eventually('the backend is unreachable', () async => !(await f.net(_reachable)), seconds: 30);
       await f.pushScreen(WatchmanAlertsScreen(source: ApiWatchmanSource(f.app.api), siteId: site, owner: true));
       await f.waitFor(_k('wm-alerts-autoretry'), seconds: 40, what: 'the offline state');
       await _shotBoth(f, 'offline');
+      await _host(f, 'NETSPEED', 'unblock');
       await _host(f, 'NET', 'on');
       final t0 = DateTime.now();
       await f.waitFor(_k('wm-alert-999-$eventId'), seconds: 90, what: 'the alert, with no tap');
