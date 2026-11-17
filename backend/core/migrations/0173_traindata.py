@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0171_cctvprice'),
+        ('core', '0172_flag_antitheft'),
     ]
 
     operations = [
