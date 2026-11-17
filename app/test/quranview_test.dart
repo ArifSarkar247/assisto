@@ -28,6 +28,11 @@ Future<void> _pump(WidgetTester tester, Widget screen,
   // tall surface: the lazy ListView builds every block (no scroll needed)
   await tester.binding.setSurfaceSize(const Size(400, 4000));
   addTearDown(() => tester.binding.setSurfaceSize(null));
+  // Flutter 3.50: setSurfaceSize alone no longer sizes the test view -> set
+  // the view itself too, so the lazy list keeps every block built.
+  tester.view.physicalSize = const Size(400, 4000);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
   await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
     value: app,
     child: MaterialApp(
