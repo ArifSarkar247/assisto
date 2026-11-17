@@ -774,7 +774,7 @@ class ShareTests(_X):
         self.assertEqual(r.data["premium_days"], 30)
         self.assertTrue(all(c["keep_days"] == 1 for c in r.data["cameras"]))
         self.assertTrue(r.data["upsell"])                 # owner, 24-hour cameras
-        day = ev.created.date().isoformat()
+        day = timezone.localtime(ev.created).date().isoformat()   # the shop's local (Dhaka) day
         self.assertEqual(len(self.client.get(url + "&day=" + day).data["clips"]), 1)
         self.assertEqual(len(self.client.get(url + "&day=2001-01-01").data["clips"]), 0)
         # read-only: listing clips never marks the alert as seen
