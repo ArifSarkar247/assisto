@@ -25986,5 +25986,13 @@
   "stagingUpdatesViaTester": "এটি Assisto Test অ্যাপ। প্রতিদিন নতুন টেস্ট বিল্ড App Tester অ্যাপে আসে — আপডেট করতে App Tester খুলুন।",
   "stagingPurchasesOffTitle": "টেস্ট অ্যাপে কেনাকাটা বন্ধ",
   "stagingPurchasesOffBody": "Assisto Test-এ কিছুই কেনা যায় না, কোনো টাকাও কাটা হয় না। এখানে পেইড প্ল্যান পরীক্ষা করতে Assisto টিমকে আপনার অ্যাকাউন্টে টেস্ট প্ল্যান চালু করতে বলুন। আসল কেনাকাটা Google Play-এর Assisto অ্যাপে হয়।",
-  "stagingPurchasesOffOk": "ঠিক আছে"
+  "stagingPurchasesOffOk": "ঠিক আছে",
+  "lp2gDraftBack": "আপনার অসমাপ্ত উত্তরগুলো ফিরে এসেছে। যেখানে থেমেছিলেন সেখান থেকে চালিয়ে যান।",
+  "lp2gSubmitTitle": "এই অংশ জমা দেবেন?",
+  "lp2gUnanswered": "{count}টি প্রশ্নের উত্তর এখনো দেওয়া হয়নি।",
+  "lp2gNoReturn": "পূর্ণ মকে আসল পরীক্ষার মতো এই অংশে আর ফেরা যাবে না।",
+  "lp2gSubmitNow": "জমা দিন",
+  "lp2gCert": "অনুশীলন সনদ (PDF)",
+  "lp2gCertFail": "সনদ খোলেনি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "lp2gSavedOffline": "ইন্টারনেট নেই। এই ফোনে সেভ করা টেস্টগুলো নিচে আছে — এখনই দিতে পারবেন; মূল্যায়নের জন্য ইন্টারনেট লাগবে।"
 }
