@@ -17,6 +17,9 @@ PushPayload kFakeAlarmCall([String lang = 'bn']) => PushPayload.fromData({
       'video': 'false', 'cctv_event_id': '201', 'snapshot_url': '',
       'site_name': lang == 'en' ? 'Rahim Store' : 'রহিম স্টোর',
       'camera_name': lang == 'en' ? 'Door' : 'দরজা', 'lang': lang,
+      // design2-b13: when + what
+      'event_type': 'person_detected',
+      'event_at': DateTime.now().subtract(const Duration(minutes: 2)).toUtc().toIso8601String(),
     });
 
 final Map<String, Widget Function(String)> cctvescalateShots = {

@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -281,7 +283,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.maPostTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _failed
               ? Center(child: MaError(onRetry: _load))
               : ListView(
@@ -343,8 +345,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
           decoration: InputDecoration(
               labelText: t.maRelation,
               helperText: t.maRelationHelp,
-              errorText: _err('relation', t.maRequired),
-              border: const OutlineInputBorder()),
+              errorText: _err('relation', t.maRequired)),
         ),
       ],
       gap(),
@@ -365,12 +366,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            OutlinedButton.icon(
-              key: const ValueKey('ma-photo'),
-              onPressed: _addPhoto,
-              icon: const Icon(Icons.add_a_photo_rounded),
-              label: Text(_photo == null ? t.maAddPhoto : t.maChangePhoto),
-            ),
+            DsButton.secondary(buttonKey: const ValueKey('ma-photo'), onPressed: _addPhoto, icon: Icons.add_a_photo_rounded, label: _photo == null ? t.maAddPhoto : t.maChangePhoto),
             if (_photo != null)
               TextButton(onPressed: () => setState(() => _photo = null), child: Text(t.maRemovePhoto)),
             Text(t.maPhotoHelp, style: text.bodySmall),
@@ -384,7 +380,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         maxLength: 80,
         buildCounter: localCounter,
         decoration: InputDecoration(
-            labelText: t.maName, errorText: _err('name', t.maRequired), border: const OutlineInputBorder()),
+            labelText: t.maName, errorText: _err('name', t.maRequired)),
       ),
       gap(Gap.sm),
       TextField(
@@ -396,8 +392,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         decoration: InputDecoration(
             labelText: t.maAge,
             helperText: _ageVal == null ? null : (_isChild ? t.maAgeChild : t.maAgeAdultV2),
-            errorText: _err('age', t.maRequired),
-            border: const OutlineInputBorder()),
+            errorText: _err('age', t.maRequired)),
       ),
       gap(Gap.sm),
       TextField(
@@ -408,17 +403,12 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         maxLength: 500,
         buildCounter: localCounter,
         decoration: InputDecoration(
-            labelText: t.maDescription, helperText: t.maDescriptionHelp, border: const OutlineInputBorder()),
+            labelText: t.maDescription, helperText: t.maDescriptionHelp),
       ),
       gap(),
       Text(t.maLastSeenTitle, style: text.titleSmall),
       gap(Gap.sm),
-      OutlinedButton.icon(
-        key: const ValueKey('ma-seen'),
-        onPressed: _pickSeen,
-        icon: const Icon(Icons.schedule_rounded),
-        label: Text(maD(context, '${loc.formatMediumDate(_seen)}, ${loc.formatTimeOfDay(TimeOfDay.fromDateTime(_seen))}')),
-      ),
+      DsButton.secondary(buttonKey: const ValueKey('ma-seen'), onPressed: _pickSeen, icon: Icons.schedule_rounded, label: maD(context, '${loc.formatMediumDate(_seen)}, ${loc.formatTimeOfDay(TimeOfDay.fromDateTime(_seen))}')),
       gap(Gap.sm),
       TextField(
         key: const ValueKey('ma-area'),
@@ -429,8 +419,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
             labelText: t.maAreaLabel,
             helperText: t.maAreaHelp,
             helperMaxLines: 3,
-            errorText: _bad.contains('address') ? t.maErrAddress : _err('area_text', t.maRequired),
-            border: const OutlineInputBorder()),
+            errorText: _bad.contains('address') ? t.maErrAddress : _err('area_text', t.maRequired)),
       ),
       gap(Gap.sm),
       DropdownButtonFormField<String>(
@@ -438,7 +427,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         initialValue: _district.isEmpty ? null : _district,
         isExpanded: true,
         decoration: InputDecoration(
-            labelText: t.maDistrict, errorText: _err('district', t.maRequired), border: const OutlineInputBorder()),
+            labelText: t.maDistrict, errorText: _err('district', t.maRequired)),
         items: [
           for (final d in districts)
             DropdownMenuItem(value: '${d['code']}', child: Text('${d['name']}')),
@@ -467,11 +456,9 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
       gap(),
       if (_ageVal != null && !_isChild) ..._gdFields(context, adult: true),
       if (_isChild) ...[
-        Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.maGuardianTitle, style: text.titleSmall),
               gap(Gap.xs),
               Text(verifiedParent ? t.maGuardianVerified : t.maGuardianNeedsV2),
@@ -484,7 +471,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
                     key: const ValueKey('ma-cosigner'),
                     initialValue: _cosigner,
                     isExpanded: true,
-                    decoration: InputDecoration(labelText: t.maCosignerPick, border: const OutlineInputBorder()),
+                    decoration: InputDecoration(labelText: t.maCosignerPick),
                     items: [
                       for (final c in cosigners)
                         DropdownMenuItem(value: c['id'] as int, child: Text('${c['name']}')),
@@ -500,7 +487,6 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
                 ),
               ],
             ]),
-          ),
         ),
         gap(),
         if (_childGd && !verifiedParent) ..._gdFields(context, adult: false),
@@ -557,7 +543,7 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
       const SizedBox(height: Gap.xs),
       Text(adult ? t.maGdAdultWhyV2 : t.maGdHelpV2, style: Theme.of(context).textTheme.bodySmall),
       const SizedBox(height: Gap.xs),
-      Text(t.maGdUnverifiedV2, style: TextStyle(color: s.error, fontWeight: FontWeight.w600)),
+      Text(t.maGdUnverifiedV2, style: AType.bodyMedium.copyWith(color: s.error, fontWeight: FontWeight.w600)),
       const SizedBox(height: Gap.sm),
       TextField(
         key: const ValueKey('ma-gd-number'),
@@ -565,24 +551,19 @@ class _MissingPostScreenState extends State<MissingPostScreen> {
         decoration: InputDecoration(
             labelText: t.maGdNumberV2,
             helperText: t.maGdNumberHelp,
-            errorText: _err('gd_number', t.maErrGdV2),
-            border: const OutlineInputBorder()),
+            errorText: _err('gd_number', t.maErrGdV2)),
       ),
       const SizedBox(height: Gap.sm),
       TextField(
         key: const ValueKey('ma-gd-thana'),
         controller: _gdThana,
         decoration: InputDecoration(
-            labelText: t.maGdThana, errorText: _err('gd_thana', t.maRequired), border: const OutlineInputBorder()),
+            labelText: t.maGdThana, errorText: _err('gd_thana', t.maRequired)),
       ),
       const SizedBox(height: Gap.sm),
-      OutlinedButton.icon(
-        onPressed: _pickGdDate,
-        icon: const Icon(Icons.event_rounded),
-        label: Text(maD(context, t.maGdDateV2(loc.formatMediumDate(_gdDate)))),
-      ),
+      DsButton.secondary(onPressed: _pickGdDate, icon: Icons.event_rounded, label: maD(context, t.maGdDateV2(loc.formatMediumDate(_gdDate)))),
       if (_bad.contains('gd_date'))
-        Text(t.maErrGdDateV2, style: TextStyle(color: s.error)),
+        Text(t.maErrGdDateV2, style: AType.bodyMedium.copyWith(color: s.error)),
       const SizedBox(height: Gap.md),
     ];
   }

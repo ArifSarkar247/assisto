@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -165,10 +166,7 @@ class _PaTravelScreenState extends State<PaTravelScreen> {
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paTravelLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.retry)),
+          action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
         ),
       );
     }
@@ -186,11 +184,7 @@ class _PaTravelScreenState extends State<PaTravelScreen> {
               tint: Brand.blue,
               title: t.paTravelWelcomeTitle,
               message: t.paTravelWelcomeBody,
-              action: FilledButton.icon(
-                onPressed: () => _openTripEditor(),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(t.paTravelNewTrip),
-              ),
+              action: DsButton(onPressed: () => _openTripEditor(), icon: Icons.add_rounded, label: t.paTravelNewTrip),
             )
           : RefreshIndicator(
               onRefresh: _load,
@@ -242,22 +236,20 @@ class _TripCard extends StatelessWidget {
     } else {
       cdText = t.paTravelOngoingPast(-cd);
     }
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+        padding: EdgeInsets.zero,
+        child: ListTile(
         onTap: onOpen,
         leading: CircleAvatar(
           backgroundColor: scheme.ds.primarySoft,
           child: Icon(Icons.card_travel_rounded, color: scheme.ds.primaryInk),
         ),
-        title: Text('${trip['title'] ?? ''}',
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text('${trip['title'] ?? ''}'),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (start.isNotEmpty || end.isNotEmpty)
-              Text('$start → $end',
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text('$start → $end'),
             Wrap(spacing: 6, children: [
               if (days > 0)
                 _chip(t.paTravelDaysCount(days), scheme.secondary),
@@ -270,7 +262,7 @@ class _TripCard extends StatelessWidget {
             tooltip: t.edit,
             onPressed: onEdit),
       ),
-    );
+      ));
   }
 
   Widget _chip(String label, Color c) => Container(
@@ -368,8 +360,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.trip['title'] ?? ''}',
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text('${widget.trip['title'] ?? ''}'),
       ),
       body: _loading
           ? const SkeletonList()
@@ -462,7 +453,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
                         const SizedBox(width: Gap.sm),
                         Text(t.paTravelPackingProgress(checked, packing.length),
                             style:
-                                const TextStyle(fontWeight: FontWeight.w700)),
+                                AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                       ]),
                     ),
                   ],
@@ -485,10 +476,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
                   const SizedBox(height: Gap.xl),
 
                   // ---- printable summary ----
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.summarize_rounded),
-                    label: Text(t.paTravelSummaryButton),
-                    onPressed: () => showAppSheet(
+                  DsButton.secondary(onPressed: () => showAppSheet(
                       context: context,
                       isScrollControlled: true,
                       showDragHandle: true,
@@ -500,8 +488,7 @@ class _TripDetailScreenState extends State<_TripDetailScreen> {
                         checked: checked,
                         packTotal: packing.length,
                       ),
-                    ),
-                  ),
+                    ), icon: Icons.summarize_rounded, label: t.paTravelSummaryButton),
                 ],
               ),
             ),
@@ -584,25 +571,22 @@ class _BookingSeamCard extends StatelessWidget {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: scheme.ds.primarySoft.withValues(alpha: 0.4),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.confirmation_number_rounded,
               size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.paTravelBookingSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xxs),
               Text(t.paTravelBookingSeamBody,
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
             ]),
           ),
         ]),
-      ),
     );
   }
 }
@@ -660,7 +644,7 @@ class _TwoLineTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       dense: true,
       leading: Icon(icon),
-      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Text(title),
       subtitle: subtitle.trim().isEmpty
           ? null
           : Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -692,8 +676,7 @@ class _LegTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       dense: true,
       leading: const Icon(Icons.swap_horiz_rounded),
-      title: Text('${leg['from_place'] ?? ''} → ${leg['to_place'] ?? ''}',
-          maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Text('${leg['from_place'] ?? ''} → ${leg['to_place'] ?? ''}'),
       subtitle: Text(<String>[
         modeLabel,
         '${leg['depart'] ?? ''}',
@@ -766,8 +749,7 @@ class _TripEditorState extends State<_TripEditor> {
             controller: _title,
             autofocus: true,
             decoration: InputDecoration(
-                labelText: t.paTravelTripTitleLabel,
-                border: const OutlineInputBorder()),
+                labelText: t.paTravelTripTitleLabel),
           ),
           const SizedBox(height: Gap.md),
           _DateField(
@@ -784,8 +766,7 @@ class _TripEditorState extends State<_TripEditor> {
             controller: _note,
             maxLines: 2,
             decoration: InputDecoration(
-                labelText: t.paTravelNoteLabel,
-                border: const OutlineInputBorder()),
+                labelText: t.paTravelNoteLabel),
           ),
           const SizedBox(height: Gap.lg),
           SizedBox(
@@ -868,14 +849,12 @@ class _LegEditorState extends State<_LegEditor> {
               TextField(
                   controller: _from,
                   decoration: InputDecoration(
-                      labelText: t.paTravelFromLabel,
-                      border: const OutlineInputBorder())),
+                      labelText: t.paTravelFromLabel)),
               const SizedBox(height: Gap.md),
               TextField(
                   controller: _to,
                   decoration: InputDecoration(
-                      labelText: t.paTravelToLabel,
-                      border: const OutlineInputBorder())),
+                      labelText: t.paTravelToLabel)),
               const SizedBox(height: Gap.md),
               _DateField(
                   label: t.paTravelDepartLabel,
@@ -887,8 +866,7 @@ class _LegEditorState extends State<_LegEditor> {
                   controller: _ref,
                   decoration: InputDecoration(
                       labelText: t.paTravelRefFieldLabel,
-                      helperText: t.paTravelRefHelper,
-                      border: const OutlineInputBorder())),
+                      helperText: t.paTravelRefHelper)),
               const SizedBox(height: Gap.lg),
               SizedBox(
                   width: double.infinity,
@@ -953,14 +931,12 @@ class _StayEditorState extends State<_StayEditor> {
               controller: _name,
               autofocus: true,
               decoration: InputDecoration(
-                  labelText: t.paTravelStayNameLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paTravelStayNameLabel)),
           const SizedBox(height: Gap.md),
           TextField(
               controller: _addr,
               decoration: InputDecoration(
-                  labelText: t.paTravelStayAddressLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paTravelStayAddressLabel)),
           const SizedBox(height: Gap.md),
           _DateField(
               label: t.paTravelCheckInLabel,
@@ -1036,8 +1012,7 @@ class _MeetingEditorState extends State<_MeetingEditor> {
               controller: _title,
               autofocus: true,
               decoration: InputDecoration(
-                  labelText: t.paTravelMeetingTitleLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paTravelMeetingTitleLabel)),
           const SizedBox(height: Gap.md),
           _DateField(
               label: t.paTravelMeetingAtLabel,
@@ -1048,14 +1023,12 @@ class _MeetingEditorState extends State<_MeetingEditor> {
           TextField(
               controller: _place,
               decoration: InputDecoration(
-                  labelText: t.paTravelMeetingPlaceLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paTravelMeetingPlaceLabel)),
           const SizedBox(height: Gap.md),
           TextField(
               controller: _with,
               decoration: InputDecoration(
-                  labelText: t.paTravelMeetingWithLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paTravelMeetingWithLabel)),
           const SizedBox(height: Gap.lg),
           SizedBox(
               width: double.infinity,
@@ -1116,7 +1089,7 @@ class _ItinerarySummarySheet extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           if (packTotal > 0)
             Text(t.paTravelPackingProgress(checked, packTotal),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           if (kShowKeySeams) ...[ // truth: no key dead end
             const SizedBox(height: Gap.md),
             Text(t.paTravelBookingSeamBody,
@@ -1134,7 +1107,7 @@ class _ItinerarySummarySheet extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: Gap.sm),
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+        Text(title, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
         for (final l in lines) Text('• $l'),
       ],
     );

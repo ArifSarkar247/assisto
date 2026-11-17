@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
+import '../ds/ds.dart';
 import '../widgets/circle_people_filter.dart'; // circlea
 import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // sosat
 import 'package:intl/intl.dart';
@@ -191,7 +193,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     padding: const EdgeInsets.only(top: Gap.xs),
                     child: Text(error!,
                         style:
-                            TextStyle(color: Theme.of(ctx).colorScheme.error)),
+                            AType.bodyMedium.copyWith(color: Theme.of(ctx).colorScheme.error)),
                   ),
               ],
             ),
@@ -314,7 +316,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(tr.securityTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _error
               ? _errorState(tr)
               : RefreshIndicator(
@@ -365,11 +367,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
   Widget _frozenBanner(AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: Brand.danger.withValues(alpha: 0.14),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(
+    return DsSurface(color: Brand.danger.withValues(alpha: 0.14),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(
           children: [
             const Icon(Icons.ac_unit_rounded, color: Brand.danger, size: 28),
             const SizedBox(width: Gap.sm),
@@ -391,7 +391,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -399,10 +398,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
     final scheme = Theme.of(context).colorScheme;
     final armed = _armed;
     final fg = armed ? Brand.success : Brand.warning;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -458,7 +456,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
               ),
           ],
         ),
-      ),
     );
   }
 
@@ -476,10 +473,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
   }
 
   Widget _pinCard(AppLocalizations tr) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -517,7 +513,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -572,10 +567,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
   Widget _armCard(AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(tr.securityArmCardTitle,
@@ -588,16 +582,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
             SizedBox(
               width: double.infinity,
               child: _armed
-                  ? OutlinedButton.icon(
-                      icon: const Icon(Icons.lock_open_rounded),
-                      label: Text(tr.securityDisarm),
-                      onPressed: _busy ? null : _disarm,
-                    )
-                  : FilledButton.icon(
-                      icon: const Icon(Icons.shield_rounded),
-                      label: Text(tr.securityArm),
-                      onPressed: _busy ? null : _arm,
-                    ),
+                  ? DsButton.secondary(onPressed: _busy ? null : _disarm, icon: Icons.lock_open_rounded, label: tr.securityDisarm)
+                  : DsButton.secondary(onPressed: _busy ? null : _arm, icon: Icons.shield_rounded, label: tr.securityArm),
             ),
             if (_armed)
               Padding(
@@ -607,17 +593,14 @@ class _SecurityScreenState extends State<SecurityScreen> {
               ),
           ],
         ),
-      ),
     );
   }
 
   Widget _pendingCard(AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: Brand.warning.withValues(alpha: 0.10),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(color: Brand.warning.withValues(alpha: 0.10),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(tr.securityPendingCardTitle,
@@ -630,7 +613,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
             for (final p in _pending) _pendingRow(tr, p),
           ],
         ),
-      ),
     );
   }
 
@@ -648,7 +630,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(_actionLabel(tr, '${p['action'] ?? ''}'),
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                 if (eff != null)
                   Text(tr.securityEffectiveAt(_fmtDate(eff)),
                       style: Theme.of(context).textTheme.bodySmall),
@@ -656,11 +638,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
             ),
           ),
           const SizedBox(width: Gap.sm),
-          FilledButton.tonalIcon(
-            icon: const Icon(Icons.block_rounded, size: 18),
-            label: Text(tr.securityWasntMe),
-            onPressed: _busy ? null : () => _cancelPending(p),
-          ),
+          DsButton.secondary(onPressed: _busy ? null : () => _cancelPending(p), icon: Icons.block_rounded, label: tr.securityWasntMe),
         ],
       ),
     );
@@ -707,10 +685,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
     final cands = (_state['approver_candidates'] as List?) ?? const [];
     final current = _state['family_approver'] as Map?;
     final currentId = current?['id'];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -757,17 +734,14 @@ class _SecurityScreenState extends State<SecurityScreen> {
             ],
           ],
         ),
-      ),
     );
   }
 
   Widget _honestCard(AppLocalizations tr) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.primarySoft,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(color: scheme.ds.primarySoft,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -786,7 +760,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, height: 1.35)),
           ],
         ),
-      ),
     );
   }
 }

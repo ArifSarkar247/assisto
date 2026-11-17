@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/foundation.dart'
     show LicenseEntryWithLineBreaks, LicenseRegistry;
 import 'package:flutter/services.dart';
@@ -159,7 +160,7 @@ class _AboutScreenState extends State<AboutScreen> {
         const SizedBox(height: Gap.xxs),
         Text(t.aboutAppTagline,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ],
     );
@@ -202,7 +203,7 @@ class _AboutScreenState extends State<AboutScreen> {
           // framebar: at 200% font (Bangla, 360 dp) the label alone could
           // be wider than the row -> it now wraps instead of overflowing.
           Flexible(
-            child: Text(label, style: TextStyle(color: scheme.onSurfaceVariant)),
+            child: Text(label, style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           ),
           const SizedBox(width: Gap.md),
           // QA a6: Spacer+Flexible split the row 50/50, so values floated in
@@ -210,7 +211,7 @@ class _AboutScreenState extends State<AboutScreen> {
           Expanded(
             child: Text(value,
                 textAlign: TextAlign.right,
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           ),
           if (trailingIcon != null) ...[
             const SizedBox(width: Gap.sm),
@@ -267,7 +268,7 @@ class _AboutScreenState extends State<AboutScreen> {
             liveRegion: true,
             child: Text(note,
                 key: const Key('about-play-update-note'),
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           ),
         ],
       ],
@@ -402,7 +403,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 child: CircularProgressIndicator(strokeWidth: 2)),
             const SizedBox(width: Gap.md),
             Text(t.aboutChecking,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           ],
         );
       case _Chk.upToDate:
@@ -421,37 +422,26 @@ class _AboutScreenState extends State<AboutScreen> {
           icon: Icons.cloud_off_rounded,
           tint: Brand.warning,
           title: t.aboutCheckFailed,
-          action: FilledButton.icon(
-            onPressed: _check,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.updateRetry),
-          ),
+          action: DsButton(onPressed: _check, icon: Icons.refresh_rounded, label: t.updateRetry),
         );
       case _Chk.updateFound:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              padding: const EdgeInsets.all(Gap.lg),
-              decoration: BoxDecoration(
-                gradient: Brand.gradient,
-                borderRadius: BorderRadius.circular(Radii.lg),
-              ),
-              child: Column(
+            DsHeroCard(padding: const EdgeInsets.all(Gap.lg), child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(t.aboutUpdateFound('$_latestCode'),
-                      style: AType.titleMedium.copyWith(color: Colors.white,
+                      style: AType.titleMedium.copyWith(color: Theme.of(context).colorScheme.ds.text,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xs),
                   Text(
                       t.aboutCurrentToNew(
                           _build.isEmpty ? '$_buildCode' : _build,
                           '$_latestCode'),
-                      style: AType.bodyMedium.copyWith(color: Colors.white)),
+                      style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.text)),
                 ],
-              ),
-            ),
+              )),
             if (_changelog.isNotEmpty) ...[
               const SizedBox(height: Gap.lg),
               Text(t.updateWhatsNew,
@@ -467,7 +457,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   color: scheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(Radii.md),
                 ),
-                child: Text(_changelog, style: const TextStyle(height: 1.5)),
+                child: Text(_changelog, style: AType.bodyMedium.copyWith(height: 1.5)),
               ),
             ],
             const SizedBox(height: Gap.lg),
@@ -504,7 +494,7 @@ class _AboutScreenState extends State<AboutScreen> {
           const SizedBox(height: Gap.sm),
           Text(title,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600, height: 1.4)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, height: 1.4)),
           const SizedBox(height: Gap.sm),
           action,
         ],

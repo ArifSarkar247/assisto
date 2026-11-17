@@ -167,21 +167,19 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
         child: Row(children: [
           if (_step > 0)
             Expanded(
-              child: SizedBox(
-                height: 52,
-                child: OutlinedButton(
-                  onPressed: _saving ? null : () => setState(() => _step--),
-                  child: Text(t.acuBack),
-                ),
+              child: DsButton.secondary(
+                onPressed: _saving ? null : () => setState(() => _step--),
+                label: t.acuBack,
+                expand: true,
               ),
             ),
           if (_step > 0) const SizedBox(width: Gap.sm),
           Expanded(
             flex: 2,
-            child: SizedBox(
-              height: 52,
-              child: FilledButton(
-                key: const ValueKey('acct-opening-next'),
+            child: DsButton(
+                buttonKey: const ValueKey('acct-opening-next'),
+                expand: true,
+                busy: _saving,
                 onPressed: _saving
                     ? null
                     : last
@@ -190,8 +188,7 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
                               _step++;
                               _saveError = null;
                             }),
-                child: Text(last ? t.acuOpeningSave : t.acuNext),
-              ),
+                label: last ? t.acuOpeningSave : t.acuNext,
             ),
           ),
         ]),
@@ -211,7 +208,6 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
             labelText: label,
             helperText: help,
             helperMaxLines: 4,
-            border: const OutlineInputBorder(),
           ),
           onChanged: (_) => setState(() {}),
         ),
@@ -219,18 +215,19 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
 
   Widget _hint(String s) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
-      margin: const EdgeInsets.only(bottom: Gap.lg),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.lg),
+      child: DsSurface(
+      flat: true,
+      color: DsTokens.of(context).primarySoft,
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-          color: DsTokens.of(context).primarySoft, borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(Icons.info_outline_rounded, color: DsTokens.of(context).primaryInk),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(s, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).primaryInk, height: 1.4))),
       ]),
-    );
+    ));
   }
 
   Widget _body(AppLocalizations t) {
@@ -259,16 +256,30 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
             style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
       ),
       const SizedBox(height: Gap.xs),
-      LinearProgressIndicator(value: (_step + 1) / _steps),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(Radii.pill),
+        child: LinearProgressIndicator(
+            value: (_step + 1) / _steps,
+            minHeight: 8,
+            backgroundColor: DsTokens.of(context).cardHighest,
+            color: DsTokens.of(context).primary),
+      ),
       const SizedBox(height: Gap.lg),
     ];
     switch (_step) {
       case 0:
         children.addAll([
-          Text(t.acuOpeningIntroTitle,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-          const SizedBox(height: Gap.sm),
-          Text(t.acuOpeningIntroBody(start), style: AType.bodyMedium.copyWith(height: 1.5)),
+          // step 1: what this does, as the soft DS hero
+          DsHeroCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              DsAvatar(child: Icon(Icons.flag_rounded, size: 22, color: DsTokens.of(context).primaryInk)),
+              const SizedBox(height: Gap.md),
+              Text(t.acuOpeningIntroTitle,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+              const SizedBox(height: Gap.sm),
+              Text(t.acuOpeningIntroBody(start), style: AType.bodyMedium.copyWith(height: 1.5)),
+            ]),
+          ),
           const SizedBox(height: Gap.lg),
           _hint(t.acuOpeningIntroTip),
         ]);

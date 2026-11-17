@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -88,10 +89,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
             title: t.loadFailed,
             message: t.loadFailedBody,
             tint: Brand.danger,
-            action: FilledButton.icon(
-                onPressed: _load,
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(t.retry)),
+            action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
           ),
         _Status.ok => _body(t),
       },
@@ -224,7 +222,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(title, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             if (msg.isNotEmpty) ...[
               const SizedBox(height: Gap.xxs),
               Text(msg,
@@ -263,23 +261,28 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         ? _int(totals['profit'])
         : (rev - cost);
     final profitPositive = profit >= 0;
-    return Container(
-      decoration: BoxDecoration(
-          gradient: Brand.gradient,
-          borderRadius: BorderRadius.circular(Radii.lg)),
-      padding: const EdgeInsets.all(Gap.lg),
+    // the range totals = the soft DS hero; at a big font the three
+    // numbers stack instead of squeezing into one row
+    final ds = Theme.of(context).colorScheme.ds;
+    final cells = [
+      _totalCell(t.pnlRevenue, taka(context, rev), ds.text),
+      _totalCell(t.pnlCost, taka(context, cost), ds.text),
+      _totalCell(
+          t.pnlProfit,
+          '${profitPositive ? '' : '-'}${taka(context, profit.abs())}',
+          profitPositive ? ds.successInk : ds.dangerInk),
+    ];
+    final stack = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    return DsHeroCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(t.pnlRangeTotals(fmtInt(context, _days)),
-            style: AType.bodySmall.copyWith(color: Colors.white70)),
+            style: AType.bodySmall.copyWith(color: ds.muted)),
         const SizedBox(height: Gap.sm),
-        Row(children: [
-          _totalCell(t.pnlRevenue, taka(context, rev), Colors.white),
-          _totalCell(t.pnlCost, taka(context, cost), Colors.white),
-          _totalCell(
-              t.pnlProfit,
-              '${profitPositive ? '' : '-'}${taka(context, profit.abs())}',
-              profitPositive ? Colors.white : CallInk.failure),
-        ]),
+        if (stack)
+          for (final c in cells)
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: Row(children: [c]))
+        else
+          Row(children: cells),
       ]),
     );
   }
@@ -287,7 +290,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
   Widget _totalCell(String label, String value, Color valueColor) => Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label,
-              style: AType.labelSmall.copyWith(color: Colors.white70)),
+              style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.xxs),
           Text(value,
               style: AType.titleLarge.copyWith(color: valueColor,
@@ -395,7 +398,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.pnlBreakEvenTitle,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xxs),
             Text(
               atBreakEven
@@ -435,14 +438,12 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
           Row(children: [
             Expanded(
               child: Text(name,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             ),
             Text(
               '${positive ? '' : '-'}${taka(context, margin.abs())}'
               '${pct != null ? ' (${fmtInt(context, (pct * 100).round())}%)' : ''}',
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   fontWeight: FontWeight.w700,
                   fontFeatures: AFonts.tabular,
                   color: positive
@@ -483,7 +484,7 @@ class _OwnerPnlScreenState extends State<OwnerPnlScreen> {
         const <Map<String, dynamic>>[];
     if (feats.isEmpty) {
       return [
-        Text(t.psOwnerEmpty, style: TextStyle(color: scheme.ds.muted)),
+        Text(t.psOwnerEmpty, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       ];
     }
     return [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -169,10 +170,7 @@ class _GetHelpTabState extends State<_GetHelpTab> {
         title: t.supportSentTitle,
         message: t.supportSentBody,
         tint: Brand.success,
-        action: FilledButton(
-          onPressed: () => setState(() => _sent = false),
-          child: Text(t.supportSendAnother),
-        ),
+        action: DsButton(onPressed: () => setState(() => _sent = false), label: t.supportSendAnother),
       );
     }
 
@@ -207,7 +205,6 @@ class _GetHelpTabState extends State<_GetHelpTab> {
             labelText: t.supportMessageLabel,
             hintText: t.supportMessageHint,
             alignLabelWithHint: true,
-            border: const OutlineInputBorder(),
           ),
         ),
         if (_error != null) ...[
@@ -252,8 +249,8 @@ class _GetHelpTabState extends State<_GetHelpTab> {
                 .titleSmall
                 ?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.sm),
-        Card(
-          margin: EdgeInsets.zero,
+        DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+          padding: EdgeInsets.zero,
           child: Column(children: [
             ListTile(
               leading: Icon(Icons.email_rounded, color: scheme.primary),
@@ -329,11 +326,7 @@ class _MyTicketsTabState extends State<_MyTicketsTab> {
         title: t.supportTicketsErrorTitle,
         message: honestFailText(t, _failCause, otherwise: t.supportTicketsErrorBody),
         tint: Brand.warning,
-        action: FilledButton.icon(
-          onPressed: _load,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(t.updateRetry),
-        ),
+        action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.updateRetry),
       );
     }
     if (_tickets.isEmpty) {

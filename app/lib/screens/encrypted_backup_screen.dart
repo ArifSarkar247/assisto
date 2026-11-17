@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
@@ -400,7 +401,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
           Expanded(
             child: Text(
               t.bkPassWarning,
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   color: cs.ds.dangerInk, fontWeight: FontWeight.w600),
             ),
           ),
@@ -470,21 +471,15 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(Gap.lg),
-          decoration: BoxDecoration(
-            gradient: Brand.gradient,
-            borderRadius: BorderRadius.circular(Radii.lg),
-          ),
-          child: Column(
+        DsHeroCard(padding: const EdgeInsets.all(Gap.lg), child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(children: [
-                const Icon(Icons.verified_user_rounded, color: Colors.white),
+                Icon(Icons.verified_user_rounded, color: Theme.of(context).colorScheme.ds.primaryInk),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.bkReadyTitle,
-                      style: AType.titleLarge.copyWith(color: Colors.white,
+                      style: AType.titleLarge.copyWith(color: Theme.of(context).colorScheme.ds.text,
                           fontWeight: FontWeight.bold)),
                 ),
               ]),
@@ -493,11 +488,10 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
                 r.items != null
                     ? t.bkReadyMetaItems(r.items!, _fmtBytes(r.bytes))
                     : t.bkReadyMeta(_fmtBytes(r.bytes)),
-                style: const TextStyle(color: Colors.white),
+                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.text),
               ),
             ],
-          ),
-        ),
+          )),
         const SizedBox(height: Gap.lg),
         Text(t.bkTransferCodeLabel, style: _sectionStyle()),
         const SizedBox(height: 6),
@@ -529,16 +523,8 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
           spacing: 12,
           runSpacing: 12,
           children: [
-            FilledButton.icon(
-              onPressed: _saveBundle,
-              icon: const Icon(Icons.save_alt_rounded),
-              label: Text(t.bkSaveBtn),
-            ),
-            OutlinedButton.icon(
-              onPressed: _shareBundle,
-              icon: const Icon(Icons.ios_share_rounded),
-              label: Text(t.bkShareBtn),
-            ),
+            DsButton.secondary(onPressed: _saveBundle, icon: Icons.save_alt_rounded, label: t.bkSaveBtn),
+            DsButton.secondary(onPressed: _shareBundle, icon: Icons.ios_share_rounded, label: t.bkShareBtn),
           ],
         ),
         const SizedBox(height: Gap.lg),
@@ -583,7 +569,6 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
           maxLines: 6,
           decoration: InputDecoration(
             hintText: t.bkBundleHint,
-            border: const OutlineInputBorder(),
           ),
           style: AType.bodySmall.copyWith(fontFamily: 'monospace'),
         ),
@@ -644,7 +629,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
                 items != null
                     ? t.bkRestoreOkItems(items)
                     : t.bkRestoreOk,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     fontWeight: FontWeight.bold,
                     color: cs.ds.primaryInk),
               ),
@@ -652,7 +637,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
           ]),
           const SizedBox(height: 10),
           Text(t.bkRestorePreview,
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600, color: cs.ds.primaryInk)),
           const SizedBox(height: 6),
           Container(
@@ -738,7 +723,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
                 Text(title,
                     style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
-                Text(body, style: TextStyle(color: cs.ds.muted)),
+                Text(body, style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
               ],
             ),
           ),
@@ -776,7 +761,7 @@ class _EncryptedBackupScreenState extends State<EncryptedBackupScreen>
         Icon(Icons.error_outline_rounded, color: cs.error, size: 20),
         const SizedBox(width: Gap.sm),
         Expanded(
-            child: Text(msg, style: TextStyle(color: cs.error))),
+            child: Text(msg, style: AType.bodyMedium.copyWith(color: cs.error))),
       ],
     );
   }

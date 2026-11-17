@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -284,7 +285,7 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
         tint: Brand.danger,
         title: t.paLoadError,
         message: serverFailText(t, _failCause),
-        action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
+        action: DsButton.secondary(onPressed: _load, label: t.retry),
       );
     }
 
@@ -337,11 +338,7 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
         icon: Icons.event_available_rounded,
         title: t.paEmptyTitle,
         message: t.paEmptyBody,
-        action: FilledButton.icon(
-          onPressed: () => _addOrEdit(),
-          icon: const Icon(Icons.add_rounded, size: 18),
-          label: Text(t.paAddFirst),
-        ),
+        action: DsButton(onPressed: () => _addOrEdit(), icon: Icons.add_rounded, label: t.paAddFirst),
       ),
     );
   }
@@ -447,7 +444,7 @@ class _NextUpCard extends StatelessWidget {
           const SizedBox(width: Gap.md),
           Expanded(
               child: Text(t.paNothingNext,
-                  style: TextStyle(color: scheme.ds.muted))),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
         ]),
       );
     }
@@ -458,40 +455,31 @@ class _NextUpCard extends StatelessWidget {
     final sub = nextUp.inProgress
         ? t.paInProgress
         : t.paInMinutes(nextUp.minutesUntil ?? 0);
-    return Container(
-      padding: const EdgeInsets.all(Gap.lg),
-      decoration: BoxDecoration(
-        gradient: Brand.gradient,
-        borderRadius: BorderRadius.circular(Radii.md),
-      ),
+    // next meeting = the soft DS hero
+    final ds = Theme.of(context).colorScheme.ds;
+    return DsHeroCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const Icon(Icons.upcoming_rounded, color: Colors.white, size: 18),
-          const SizedBox(width: Gap.sm),
+        Wrap(spacing: Gap.sm, runSpacing: Gap.xs, crossAxisAlignment: WrapCrossAlignment.center, children: [
+          Icon(Icons.upcoming_rounded, color: ds.primaryInk, size: 18),
           Text(t.paNextUp,
-              style: AType.bodySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w800, letterSpacing: 0.3)),
-          const Spacer(),
+              style: AType.bodySmall.copyWith(color: ds.primaryInk, fontWeight: FontWeight.w800, letterSpacing: 0.3)),
           Container(
             padding:
                 const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.22),
+              color: ds.primarySoft,
               borderRadius: BorderRadius.circular(Radii.pill),
             ),
             child: Text(sub,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AType.bodySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+                style: AType.bodySmall.copyWith(color: ds.primaryInk, fontWeight: FontWeight.w700)),
           ),
         ]),
         const SizedBox(height: Gap.sm),
         Text('${slot['title'] ?? ''}',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AType.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
+            style: AType.titleLarge.copyWith(color: ds.text, fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.xxs),
         Text(timeStr,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.92))),
+            style: AType.bodyMedium.copyWith(color: ds.muted)),
       ]),
     );
   }
@@ -540,9 +528,7 @@ class _ScopeBar extends StatelessWidget {
             onTap: onToday,
             child: Text(rangeLabel,
                 textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ),
         ),
         IconButton(
@@ -662,8 +648,6 @@ class _SlotCard extends StatelessWidget {
             const SizedBox(width: Gap.xs),
             Flexible(
               child: Text(timeStr,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ),
             const SizedBox(width: Gap.sm),
@@ -677,8 +661,6 @@ class _SlotCard extends StatelessWidget {
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text('${slot['place']}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                     style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               ),
             ]),
@@ -691,8 +673,6 @@ class _SlotCard extends StatelessWidget {
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(people.join(', '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                     style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               ),
             ]),
@@ -956,15 +936,13 @@ class _SlotEditorState extends State<_SlotEditor> {
             controller: _title,
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
-                labelText: t.paFieldTitle,
-                border: const OutlineInputBorder()),
+                labelText: t.paFieldTitle),
           ),
           const SizedBox(height: Gap.md),
           DropdownButtonFormField<String>(
             initialValue: _kind,
             decoration: InputDecoration(
-                labelText: t.paFieldKind,
-                border: const OutlineInputBorder()),
+                labelText: t.paFieldKind),
             items: kKinds
                 .map((k) => DropdownMenuItem(
                     value: k, child: Text(kindLabel(t, k))))
@@ -974,30 +952,24 @@ class _SlotEditorState extends State<_SlotEditor> {
           const SizedBox(height: Gap.md),
           Row(children: [
             Expanded(
-              child: OutlinedButton.icon(
-                onPressed: _pickDate,
-                icon: const Icon(Icons.calendar_today_rounded, size: 16),
-                label: Text(DateFormat('d MMM yyyy', loc).format(_start),
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
-              ),
+              child: DsButton.secondary(onPressed: _pickDate, icon: Icons.calendar_today_rounded, label: DateFormat('d MMM yyyy', loc).format(_start)),
             ),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: _pickTime,
                 icon: const Icon(Icons.access_time_rounded, size: 16),
-                label: Text(DateFormat('HH:mm', loc).format(_start),
-                    maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontFeatures: AFonts.tabular)),
+                label: Text(DateFormat('HH:mm', loc).format(_start), style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular)),
               ),
             ),
           ]),
           const SizedBox(height: Gap.md),
           Row(children: [
             Text(t.paFieldDuration,
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             const Spacer(),
             Text(t.paMinutes(_duration),
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: Theme.of(context).colorScheme.ds.muted)),
           ]),
           Slider(
@@ -1014,8 +986,7 @@ class _SlotEditorState extends State<_SlotEditor> {
             controller: _place,
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
-                labelText: t.paFieldPlace,
-                border: const OutlineInputBorder()),
+                labelText: t.paFieldPlace),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -1023,8 +994,7 @@ class _SlotEditorState extends State<_SlotEditor> {
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
                 labelText: t.paFieldPeople,
-                hintText: t.paFieldPeopleHint,
-                border: const OutlineInputBorder()),
+                hintText: t.paFieldPeopleHint),
           ),
           // pssec: add people from My Circle in one tap
           const SizedBox(height: Gap.sm),
@@ -1053,15 +1023,12 @@ class _SlotEditorState extends State<_SlotEditor> {
             controller: _note,
             maxLines: 2,
             decoration: InputDecoration(
-                labelText: t.paFieldNote,
-                border: const OutlineInputBorder()),
+                labelText: t.paFieldNote),
           ),
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(
-              child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(t.cancel)),
+              child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: t.cancel),
             ),
             const SizedBox(width: Gap.md),
             Expanded(

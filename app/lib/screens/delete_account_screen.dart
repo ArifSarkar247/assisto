@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -370,7 +371,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       appBar: AppBar(title: Text(t.delAcctTitle)),
       body: SafeArea(
         child: _phase == _Phase.loading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList(count: 4)
             : SingleChildScrollView(
                 padding: const EdgeInsets.all(Gap.lg),
                 child: _body(t),
@@ -418,7 +419,8 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         else if (entries.isEmpty)
           Text(t.delAcctNothingToDelete)
         else
-          Card(
+          DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
                 for (final e in entries)
@@ -427,18 +429,14 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                     leading: const Icon(Icons.delete_outline_rounded, size: 20),
                     title: Text(e.key),
                     trailing: Text(fmtInt(context, e.value),
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
                   ),
               ],
             ),
           ),
         const SizedBox(height: Gap.lg),
         // Prominent "Download my data first" — always offered; nudge if not done.
-        OutlinedButton.icon(
-          onPressed: _busy ? null : _downloadMyData,
-          icon: const Icon(Icons.download_rounded),
-          label: Text(t.delAcctDownloadFirst),
-        ),
+        DsButton.secondary(onPressed: _busy ? null : _downloadMyData, icon: Icons.download_rounded, label: t.delAcctDownloadFirst),
         if (!_exportDownloaded) ...[
           const SizedBox(height: Gap.xs),
           Text(t.delAcctExportNudge,
@@ -470,11 +468,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         ],
         if (_inlineError != null)
           // Preview failed to load — offer a retry instead of continuing.
-          OutlinedButton.icon(
-            onPressed: _busy ? null : _loadPreview,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.delAcctTryAgain),
-          )
+          DsButton.secondary(onPressed: _busy ? null : _loadPreview, icon: Icons.refresh_rounded, label: t.delAcctTryAgain)
         else
           FilledButton(
             style: Brand.dangerButton(),
@@ -539,7 +533,8 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
         // Security PIN (only when the user HAS one): biometric + PIN.
         if (_hasPin) ...[
           const SizedBox(height: Gap.lg),
-          Card(
+          DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+            padding: EdgeInsets.zero,
             child: ListTile(
               leading: Icon(
                 _securityPin != null
@@ -599,11 +594,9 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Banner at the TOP: scheduled + "this wasn't me" cancel.
-        Card(
-          color: Brand.warning.withValues(alpha: 0.12),
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(
+        DsSurface(color: Brand.warning.withValues(alpha: 0.12),
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(children: [
@@ -625,7 +618,6 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                     style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
-          ),
         ),
         const SizedBox(height: Gap.xl),
         if (_inlineError != null) ...[
@@ -681,12 +673,9 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   // --- dl1: honest guidance before anyone deletes to "fix" a problem --------
   Widget _problemGuidance(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      key: const Key('del-acct-guidance'),
-      color: DsTokens.of(context).primarySoft,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(
+    return DsSurface(key: const Key('del-acct-guidance'), color: DsTokens.of(context).primarySoft,
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
@@ -708,7 +697,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                                   color: DsTokens.of(context).primaryInk)),
                       const SizedBox(height: Gap.xs),
                       Text(t.delAcctGuidanceBody,
-                          style: TextStyle(color: DsTokens.of(context).primaryInk)),
+                          style: AType.bodyMedium.copyWith(color: DsTokens.of(context).primaryInk)),
                     ],
                   ),
                 ),
@@ -744,7 +733,6 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -755,11 +743,9 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     required String title,
     required String body,
   }) {
-    return Card(
-      color: color.withValues(alpha: 0.10),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Row(
+    return DsSurface(color: color.withValues(alpha: 0.10),
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(icon, color: color),
@@ -780,7 +766,6 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -795,7 +780,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           const Icon(Icons.error_outline_rounded, color: Brand.danger, size: 18),
           const SizedBox(width: Gap.sm),
           Expanded(
-              child: Text(msg, style: const TextStyle(color: Brand.danger))),
+              child: Text(msg, style: AType.bodyMedium.copyWith(color: Brand.danger))),
         ]),
       );
 

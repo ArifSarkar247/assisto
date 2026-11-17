@@ -3,6 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../business/bizagent/seller_inbox_screen.dart' show SellerChatScreen;
 import 'booking_source.dart';
 import 'booking_widgets.dart';
@@ -131,7 +133,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       body: b == null
           ? (_loadErr != null
               ? bkErrorView(context, _loadErr!, _load)
-              : const Center(child: CircularProgressIndicator()))
+              : const SkeletonList())
           : _body(t, b),
     );
   }
@@ -143,26 +145,31 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     Widget btn(IconData icon, String label, VoidCallback? f, {bool filled = false}) => Padding(
           padding: const EdgeInsets.only(bottom: Gap.sm),
           child: filled
-              ? FilledButton.icon(
-                  style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-                  icon: Icon(icon),
-                  label: Text(label),
-                  onPressed: _busy ? null : f)
-              : OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 52)),
-                  icon: Icon(icon),
-                  label: Text(label),
-                  onPressed: _busy ? null : f),
+              ? DsButton(icon: icon, label: label, onPressed: _busy ? null : f, expand: true)
+              : DsButton.secondary(icon: icon, label: label, onPressed: _busy ? null : f, expand: true),
         );
-    return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
+    final ds = DsTokens.of(context);
+    // Page rule: who + what + when as the soft hero, then the next step
+    // (confirm / done) as the glowing button, then call / chat, then the rest.
+    return ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
+      DsHeroCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(name.isNotEmpty ? name : t.bkgNoName, style: Theme.of(context).textTheme.titleLarge),
-            if (phone.isNotEmpty) Text(bkDigits(bkLang(context), phone)),
-            const SizedBox(height: Gap.sm),
-            Text((b['service'] ?? '').toString(), style: const TextStyle(fontWeight: FontWeight.w700)),
+            Row(children: [
+              DsAvatar(name: name.isNotEmpty ? name : t.bkgNoName, size: 48),
+              const SizedBox(width: Gap.md),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(name.isNotEmpty ? name : t.bkgNoName,
+                      style: AType.titleLarge.copyWith(color: ds.text, fontWeight: FontWeight.w800)),
+                  if (phone.isNotEmpty)
+                    Text(bkDigits(bkLang(context), phone),
+                        style: AType.bodyMedium.copyWith(color: ds.muted)),
+                ]),
+              ),
+            ]),
+            const SizedBox(height: Gap.md),
+            Text((b['service'] ?? '').toString(),
+                style: AType.bodyLarge.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
             if ((b['staff'] ?? '').toString().isNotEmpty) Text(t.bkgWith(b['staff'].toString())),
             Text((b['when'] ?? '').toString()),
             const SizedBox(height: Gap.sm),
@@ -177,18 +184,17 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             ],
             if (b['stopped'] == true) ...[
               const SizedBox(height: Gap.sm),
-              Text(t.bkgCustomerStopped, style: Theme.of(context).textTheme.bodySmall),
+              Text(t.bkgCustomerStopped, style: AType.bodySmall.copyWith(color: ds.muted)),
             ],
           ]),
-        ),
       ),
       const SizedBox(height: Gap.md),
+      if (can.contains('confirmed')) btn(Icons.check_rounded, t.bkgConfirm, () => _act('confirmed'), filled: true),
+      if (can.contains('done')) btn(Icons.task_alt_rounded, t.bkgMarkDone, () => _act('done'), filled: true),
       if (phone.isNotEmpty) ...[
         btn(Icons.call_rounded, t.bkgCall, () => _call(phone)),
         btn(Icons.chat_rounded, t.bkgChat, () => _chat(b)),
       ],
-      if (can.contains('confirmed')) btn(Icons.check_rounded, t.bkgConfirm, () => _act('confirmed'), filled: true),
-      if (can.contains('done')) btn(Icons.task_alt_rounded, t.bkgMarkDone, () => _act('done'), filled: true),
       if (can.contains('no_show')) btn(Icons.person_off_outlined, t.bkgMarkNoShow, () => _act('no_show')),
       if (can.contains('reschedule')) btn(Icons.edit_calendar_rounded, t.bkgMove, _reschedule),
       if (can.contains('cancelled')) btn(Icons.event_busy_rounded, t.bkgCancelBooking, _cancel),

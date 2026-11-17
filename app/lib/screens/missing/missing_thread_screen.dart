@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -99,7 +100,7 @@ class _MissingThreadScreenState extends State<MissingThreadScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(_loading ? t.maTipsTitle : who)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _failed
               ? Center(child: MaError(onRetry: _load))
               : Column(children: [
@@ -137,7 +138,7 @@ class _MissingThreadScreenState extends State<MissingThreadScreen> {
               ),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('${m['text'] ?? ''}',
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         color: (m['by_family'] == true) == _family ? s.ds.primaryInk : s.ds.text)),
                 if (m['point'] is Map)
                   Text(t.maThreadPoint, style: Theme.of(context).textTheme.bodySmall),
@@ -170,7 +171,6 @@ class _MissingThreadScreenState extends State<MissingThreadScreen> {
             decoration: InputDecoration(
               hintText: t.maThreadHint,
               counterText: '',
-              border: const OutlineInputBorder(),
             ),
           ),
         ),

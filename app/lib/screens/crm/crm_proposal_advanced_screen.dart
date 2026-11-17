@@ -332,13 +332,13 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
           // the main next step first (convert / approve), then the rest
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             if (status == 'accepted' && !expired)
-              DsButton(
+              DsButton.secondary(
                   onPressed: () => _run(() => CrmAfterSaleApi.of(context)
                       .convertToOrder((p['id'] as num).toInt())),
                   icon: Icons.shopping_cart_checkout_rounded,
                   label: t.crmConvertToOrder),
             if (discountNeedsApproval && !discountApproved)
-              DsButton(
+              DsButton.secondary(
                   onPressed: () => _run(() => CrmAfterSaleApi.of(context)
                       .approveDiscount((p['id'] as num).toInt())),
                   icon: Icons.gavel_rounded,

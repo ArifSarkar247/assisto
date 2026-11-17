@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 
 import '../../l10n/app_localizations.dart';
 import '../../otp_api.dart';
@@ -172,29 +174,25 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
       appBar: AppBar(title: Text(t.smsotpEmailTitle)),
       body: SafeArea(
         child: s == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList(count: 4)
             : ListView(
                 padding: const EdgeInsets.all(Gap.lg),
                 children: [
                   Text(t.smsotpEmailIntro, style: text.bodyMedium),
                   const SizedBox(height: Gap.lg),
                   if (!s.enabled)
-                    Card(
-                      key: const Key('email-off'),
-                      color: scheme.ds.primarySoft,
-                      child: Padding(
-                        padding: const EdgeInsets.all(Gap.lg),
-                        child: Row(children: [
+                    DsSurface(key: const Key('email-off'), color: scheme.ds.primarySoft,
+                      padding: const EdgeInsets.all(Gap.lg),
+                      child: Row(children: [
                           Icon(Icons.info_outline_rounded,
                               color: scheme.ds.primaryInk),
                           const SizedBox(width: Gap.sm),
                           Expanded(
                             child: Text(t.smsotpEmailOff,
-                                style: TextStyle(
+                                style: AType.bodyMedium.copyWith(
                                     color: scheme.ds.primaryInk)),
                           ),
                         ]),
-                      ),
                     )
                   else ...[
                     // emailrel: mail to the saved address bounced
@@ -319,7 +317,7 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                           Expanded(
                             child: Text(_error!,
                                 key: const Key('email-error'),
-                                style: TextStyle(color: scheme.error)),
+                                style: AType.bodyMedium.copyWith(color: scheme.error)),
                           ),
                         ],
                       ),

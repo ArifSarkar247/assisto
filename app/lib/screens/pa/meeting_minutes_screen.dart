@@ -1,11 +1,13 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/local_digits.dart';
 import '../../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -179,10 +181,7 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paMinLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : _rows.isEmpty
                   ? _welcome(tr)
@@ -198,11 +197,7 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
             tint: Brand.blue,
             title: tr.paMinWelcomeTitle,
             message: tr.paMinWelcomeBody,
-            action: FilledButton.icon(
-              onPressed: () => _addOrEdit(tr),
-              icon: const Icon(Icons.note_add_rounded),
-              label: Text(tr.paMinAdd),
-            ),
+            action: DsButton(onPressed: () => _addOrEdit(tr), icon: Icons.note_add_rounded, label: tr.paMinAdd),
           ),
           const SizedBox(height: Gap.lg),
           _SttSeamCard(ready: _sttReady),
@@ -238,11 +233,9 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
     final open = s['open_actions'] as int;
     final done = s['done_actions'] as int;
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.groups_rounded, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
@@ -269,7 +262,7 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
             if (dateStr.isNotEmpty)
               _meta(Icons.event_rounded, _fmtDate(dateStr, tr), scheme),
             _meta(Icons.people_outline_rounded,
-                tr.paMinAttendeeCount('${s['attendee_count']}'), scheme),
+                tr.paMinAttendeeCount(ld(context, s['attendee_count'])), scheme),
             if (actions.isNotEmpty)
               _meta(Icons.task_alt_rounded,
                   tr.paMinActionCount(/* (done, open) */ '$done', '$open'), scheme),
@@ -292,7 +285,6 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
             for (final a in actions) _actionRow(a, tr, scheme),
           ],
         ]),
-      ),
     );
   }
 
@@ -414,12 +406,9 @@ class _SttSeamCard extends StatelessWidget {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: scheme.ds.primarySoft.withValues(alpha: 0.4),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(ready ? Icons.auto_awesome_rounded : Icons.lock_outline_rounded,
               size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
@@ -428,14 +417,13 @@ class _SttSeamCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(ready ? tr.paMinSttReadyTitle : tr.paMinSttSeamTitle,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xxs),
                   Text(ready ? tr.paMinSttReadyBody : tr.paMinSttSeamBody,
                       style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
                 ]),
           ),
         ]),
-      ),
     );
   }
 }
@@ -540,12 +528,10 @@ class _MinutesEditorState extends State<_MinutesEditor> {
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
                 labelText: tr.paMinTitleLabel,
-                hintText: tr.paMinTitleHint,
-                border: const OutlineInputBorder()),
+                hintText: tr.paMinTitleHint),
           ),
           const SizedBox(height: Gap.md),
-          OutlinedButton.icon(
-            onPressed: () async {
+          DsButton.secondary(onPressed: () async {
               final base = _date ?? DateTime.now();
               final d = await showDatePicker(
                 context: context,
@@ -554,10 +540,7 @@ class _MinutesEditorState extends State<_MinutesEditor> {
                 lastDate: DateTime(base.year + 5),
               );
               if (d != null) setState(() => _date = d);
-            },
-            icon: const Icon(Icons.event_rounded),
-            label: Text(_date == null ? tr.paMinSetDate : fmt.format(_date!)),
-          ),
+            }, icon: Icons.event_rounded, label: _date == null ? tr.paMinSetDate : fmt.format(_date!)),
           const SizedBox(height: Gap.md),
           _multiline(_attendees, tr.paMinAttendeesLabel, tr.paMinAttendeesHint),
           const SizedBox(height: Gap.md),
@@ -580,12 +563,12 @@ class _MinutesEditorState extends State<_MinutesEditor> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.sm),
               child: Text(tr.paMinNoActions,
-                  style: TextStyle(color: scheme.ds.muted)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ),
           for (final a in ordered)
-            Card(
-              margin: const EdgeInsets.only(bottom: Gap.sm),
-              child: ListTile(
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+                padding: EdgeInsets.zero,
+                child: ListTile(
                 title: Text((a['title'] ?? '').toString()),
                 subtitle: Text([
                   if ((a['owner'] ?? '').toString().trim().isNotEmpty)
@@ -601,7 +584,7 @@ class _MinutesEditorState extends State<_MinutesEditor> {
                   onPressed: () => setState(() => _actions.remove(a)),
                 ),
               ),
-            ),
+              )),
           const SizedBox(height: Gap.xl),
         ],
       ),
@@ -617,8 +600,7 @@ class _MinutesEditorState extends State<_MinutesEditor> {
         decoration: InputDecoration(
             labelText: label,
             hintText: hint,
-            alignLabelWithHint: true,
-            border: const OutlineInputBorder()),
+            alignLabelWithHint: true),
       );
 
   String _statusLabel(AppLocalizations tr, String s) {
@@ -686,20 +668,17 @@ class _ActionFormState extends State<_ActionForm> {
                 autofocus: true,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
-                    labelText: tr.paMinActionTitleLabel,
-                    border: const OutlineInputBorder()),
+                    labelText: tr.paMinActionTitleLabel),
               ),
               const SizedBox(height: Gap.md),
               TextField(
                 controller: _owner,
                 textCapitalization: TextCapitalization.words,
                 decoration: InputDecoration(
-                    labelText: tr.paMinOwnerLabel,
-                    border: const OutlineInputBorder()),
+                    labelText: tr.paMinOwnerLabel),
               ),
               const SizedBox(height: Gap.md),
-              OutlinedButton.icon(
-                onPressed: () async {
+              DsButton.secondary(onPressed: () async {
                   final base = _due ?? DateTime.now();
                   final d = await showDatePicker(
                     context: context,
@@ -708,10 +687,7 @@ class _ActionFormState extends State<_ActionForm> {
                     lastDate: DateTime(base.year + 5),
                   );
                   if (d != null) setState(() => _due = d);
-                },
-                icon: const Icon(Icons.event_rounded),
-                label: Text(_due == null ? tr.paMinSetDue : fmt.format(_due!)),
-              ),
+                }, icon: Icons.event_rounded, label: _due == null ? tr.paMinSetDue : fmt.format(_due!)),
               const SizedBox(height: Gap.md),
               SegmentedButton<String>(
                 segments: [
@@ -724,10 +700,7 @@ class _ActionFormState extends State<_ActionForm> {
               const SizedBox(height: Gap.lg),
               Row(children: [
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(tr.cancel),
-                  ),
+                  child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
                 ),
                 const SizedBox(width: Gap.md),
                 Expanded(

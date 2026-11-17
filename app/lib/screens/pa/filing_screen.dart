@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -7,6 +8,8 @@ import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
+import '../../widgets/fade_chip_row.dart';
+import '../../widgets/local_digits.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
@@ -181,10 +184,7 @@ class _FilingScreenState extends State<FilingScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paFileLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : _rows.isEmpty
                   ? _welcome(tr)
@@ -200,11 +200,7 @@ class _FilingScreenState extends State<FilingScreen> {
             tint: Brand.blue,
             title: tr.paFileWelcomeTitle,
             message: tr.paFileWelcomeBody,
-            action: FilledButton.icon(
-              onPressed: () => _addOrEdit(tr),
-              icon: const Icon(Icons.create_new_folder_rounded),
-              label: Text(tr.paFileAdd),
-            ),
+            action: DsButton(onPressed: () => _addOrEdit(tr), icon: Icons.create_new_folder_rounded, label: tr.paFileAdd),
           ),
           const SizedBox(height: Gap.lg),
           _OcrSeamCard(ready: _ocrReady),
@@ -249,32 +245,21 @@ class _FilingScreenState extends State<FilingScreen> {
 
   Widget _folderBar(AppLocalizations tr) {
     final c = _counts;
-    Widget chip(String label, bool selected, VoidCallback onTap) => Padding(
-          padding: const EdgeInsets.only(right: Gap.sm),
-          child: FilterChip(
-            label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
-            selected: selected,
-            onSelected: (_) => onTap(),
-          ),
-        );
-    return SizedBox(
-      height: 52,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding:
-            const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-        children: [
-          chip(tr.paFileFolderAll('${c['total'] ?? 0}'), _fCategory == null,
+    Widget chip(String label, bool selected, VoidCallback onTap) =>
+        DsChip(label: label, selected: selected, onSelected: (_) => onTap());
+    return FadeChipRow(
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+      children: [
+          chip(tr.paFileFolderAll(ld(context, c['total'] ?? 0)), _fCategory == null,
               () => setState(() => _fCategory = null)),
           for (final cat in _kCategories)
             chip(
-              '${_categoryLabel(tr, cat)} (${c[cat] ?? 0})',
+              '${_categoryLabel(tr, cat)} (${ld(context, c[cat] ?? 0)})',
               _fCategory == cat,
               () => setState(
                   () => _fCategory = _fCategory == cat ? null : cat),
             ),
         ],
-      ),
     );
   }
 
@@ -286,30 +271,21 @@ class _FilingScreenState extends State<FilingScreen> {
             isDense: true,
             prefixIcon: const Icon(Icons.search_rounded),
             hintText: tr.paFileSearchHint,
-            border: const OutlineInputBorder(),
           ),
         ),
       );
 
-  Widget _tagBar(AppLocalizations tr) => SizedBox(
-        height: 44,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: Gap.md),
-          children: [
-            for (final tg in _tags)
-              Padding(
-                padding: const EdgeInsets.only(right: Gap.sm),
-                child: FilterChip(
-                  avatar: const Icon(Icons.sell_rounded, size: 16),
-                  label: Text(tg),
-                  selected: _tag == tg,
-                  onSelected: (_) =>
-                      setState(() => _tag = _tag == tg ? '' : tg),
-                ),
-              ),
-          ],
-        ),
+  Widget _tagBar(AppLocalizations tr) => FadeChipRow(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+        children: [
+          for (final tg in _tags)
+            DsChip(
+              icon: Icons.sell_rounded,
+              label: tg,
+              selected: _tag == tg,
+              onSelected: (_) => setState(() => _tag = _tag == tg ? '' : tg),
+            ),
+        ],
       );
 
   Widget _card(
@@ -321,18 +297,16 @@ class _FilingScreenState extends State<FilingScreen> {
     final extracted = (r['extracted_text'] ?? '').toString().trim();
     final hasImage = (r['image_ref'] ?? '').toString().trim().isNotEmpty;
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(_categoryIcon(cat), size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text((r['title'] ?? '').toString(),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 15),
+                  style: AType.titleMedium.copyWith(
+                      fontWeight: FontWeight.w700, ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
             ),
@@ -359,7 +333,7 @@ class _FilingScreenState extends State<FilingScreen> {
           if (notes.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(notes,
-                style: TextStyle(color: scheme.ds.muted, height: 1.3),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.3),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis),
           ],
@@ -379,19 +353,17 @@ class _FilingScreenState extends State<FilingScreen> {
                   size: 15, color: scheme.secondary),
               const SizedBox(width: 4),
               Text(tr.paFileExtractedLabel,
-                  style: TextStyle(
-                      fontSize: 11.5,
+                  style: AType.labelMedium.copyWith(
                       fontWeight: FontWeight.w700,
                       color: scheme.secondary)),
             ]),
             const SizedBox(height: 2),
             Text(extracted,
-                style: TextStyle(fontSize: 12.5, color: scheme.ds.muted),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted),
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis),
           ],
         ]),
-      ),
     );
   }
 
@@ -438,8 +410,8 @@ class _FilingScreenState extends State<FilingScreen> {
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Text(text,
-            style: TextStyle(
-                color: c, fontSize: 11.5, fontWeight: FontWeight.w700)),
+            style: AType.labelMedium.copyWith(
+                color: c, fontWeight: FontWeight.w700)),
       );
 
   Widget _meta(IconData icon, String text, ColorScheme scheme) => Row(
@@ -449,7 +421,7 @@ class _FilingScreenState extends State<FilingScreen> {
           const SizedBox(width: 4),
           Text(text,
               style:
-                  TextStyle(fontSize: 12.5, color: scheme.ds.muted)),
+                  AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ],
       );
 }
@@ -468,12 +440,9 @@ class _OcrSeamCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
-      child: Card(
-        margin: EdgeInsets.zero,
-        color: scheme.ds.primarySoft.withValues(alpha: 0.4),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      child: DsSurface(color: scheme.ds.primarySoft.withValues(alpha: 0.4),
+        padding: const EdgeInsets.all(Gap.md),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(ready ? Icons.auto_awesome_rounded : Icons.lock_outline_rounded,
                 size: 20, color: scheme.secondary),
             const SizedBox(width: Gap.sm),
@@ -482,17 +451,15 @@ class _OcrSeamCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(ready ? tr.paFileOcrReadyTitle : tr.paFileOcrSeamTitle,
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
                     Text(ready ? tr.paFileOcrReadyBody : tr.paFileOcrSeamBody,
-                        style: TextStyle(
-                            fontSize: 12,
+                        style: AType.bodySmall.copyWith(
                             color: scheme.ds.muted,
                             height: 1.35)),
                   ]),
             ),
           ]),
-        ),
       ),
     );
   }
@@ -569,12 +536,11 @@ class _FilingFormState extends State<_FilingForm> {
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                     labelText: tr.paFileTitleLabel,
-                    hintText: tr.paFileTitleHint,
-                    border: const OutlineInputBorder()),
+                    hintText: tr.paFileTitleHint),
               ),
               const SizedBox(height: Gap.md),
               Text(tr.paFileFolderLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Wrap(spacing: Gap.sm, children: [
                 for (final cat in _kCategories)
@@ -593,12 +559,10 @@ class _FilingFormState extends State<_FilingForm> {
                 decoration: InputDecoration(
                     labelText: tr.paFileTagsLabel,
                     hintText: tr.paFileTagsHint,
-                    helperText: tr.paFileTagsHelper,
-                    border: const OutlineInputBorder()),
+                    helperText: tr.paFileTagsHelper),
               ),
               const SizedBox(height: Gap.md),
-              OutlinedButton.icon(
-                onPressed: () async {
+              DsButton.secondary(onPressed: () async {
                   final base = _date ?? DateTime.now();
                   final d = await showDatePicker(
                     context: context,
@@ -607,20 +571,16 @@ class _FilingFormState extends State<_FilingForm> {
                     lastDate: DateTime(base.year + 5),
                   );
                   if (d != null) setState(() => _date = d);
-                },
-                icon: const Icon(Icons.event_rounded),
-                label: Text(_date == null
+                }, icon: Icons.event_rounded, label: _date == null
                     ? tr.paFileSetDate
                     : fmt.format(_date!)),
-              ),
               const SizedBox(height: Gap.md),
               TextField(
                 controller: _notes,
                 onChanged: (_) => _maybeSuggest(),
                 maxLines: 3,
                 decoration: InputDecoration(
-                    labelText: tr.paFileNotesLabel,
-                    border: const OutlineInputBorder()),
+                    labelText: tr.paFileNotesLabel),
               ),
               const SizedBox(height: Gap.md),
               // Honest OCR seam inside the form: filing a scan is manual; an
@@ -629,10 +589,7 @@ class _FilingFormState extends State<_FilingForm> {
               const SizedBox(height: Gap.lg),
               Row(children: [
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(tr.cancel),
-                  ),
+                  child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
                 ),
                 const SizedBox(width: Gap.md),
                 Expanded(

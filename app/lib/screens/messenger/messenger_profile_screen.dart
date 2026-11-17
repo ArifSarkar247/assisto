@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList, StateMessage;
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -196,7 +198,9 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
           ],
           const SizedBox(height: Gap.lg),
 
-          // ---- name (validated) ----
+          // ---- who I am: name + about in one alive DS card ----
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(t.msgrDisplayName, style: titleStyle),
           const SizedBox(height: Gap.xs),
           TextFormField(
@@ -228,10 +232,14 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
           ),
           const SizedBox(height: Gap.xs),
           Text(AppLocalizations.of(context).pfNameVisibilityNote,
-              style: TextStyle(fontSize: 12, color: scheme.ds.muted)),
-          const SizedBox(height: Gap.lg),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+            ]),
+          ),
+          const SizedBox(height: Gap.md),
 
-          // ---- phone (shown per privacy) ----
+          // ---- phone + who sees what: a second DS card ----
+          DsCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(t.msgrPhone, style: titleStyle),
           const SizedBox(height: Gap.xs),
           if (_phone.isNotEmpty)
@@ -243,7 +251,7 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
             )
           else
             Text(AppLocalizations.of(context).pfPhoneHidden,
-                style: TextStyle(color: scheme.ds.muted)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.sm),
 
           // ---- per-field visibility (hint + link to Privacy hub) ----
@@ -263,24 +271,16 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
           const SizedBox(height: Gap.xs),
           _visibilityPicker(_communitiesWhoCanMsg,
               (v) => setState(() => _communitiesWhoCanMsg = v)),
+            ]),
+          ),
           const SizedBox(height: Gap.xl),
 
           // ---- save (honest saving state) ----
-          FilledButton(
+          DsButton(
             onPressed: _saving ? null : _save,
-            child: _saving
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2)),
-                      const SizedBox(width: Gap.sm),
-                      Text(AppLocalizations.of(context).pfSaving),
-                    ],
-                  )
-                : Text(t.msgrSaveProfile),
+            busy: _saving,
+            label: _saving ? AppLocalizations.of(context).pfSaving : t.msgrSaveProfile,
+            expand: true,
           ),
         ],
       ),
@@ -296,10 +296,11 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
     ];
     return Wrap(
       spacing: Gap.sm,
+      runSpacing: Gap.sm,
       children: [
         for (final o in opts)
-          ChoiceChip(
-            label: Text(o.$2),
+          DsChip(
+            label: o.$2,
             selected: value == o.$1,
             onSelected: (_) => onChanged(o.$1),
           ),
@@ -310,17 +311,7 @@ class _MessengerProfileScreenState extends State<MessengerProfileScreen> {
 
 class _LoadingState extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const CircularProgressIndicator(),
-        const SizedBox(height: Gap.md),
-        Text(AppLocalizations.of(context).pfLoading,
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.ds.muted)),
-      ]),
-    );
-  }
+  Widget build(BuildContext context) => const SkeletonList(count: 3);
 }
 
 class _LoadErrorState extends StatelessWidget {
@@ -330,27 +321,11 @@ class _LoadErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off_rounded, size: 48, color: scheme.error),
-          const SizedBox(height: Gap.md),
-          Text(AppLocalizations.of(context).pfLoadError,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: Gap.xs),
-          Text(honestFailText(t, error, otherwise: t.pfLoadErrorBody),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.ds.muted)),
-          const SizedBox(height: Gap.lg),
-          FilledButton.tonal(onPressed: onRetry, child: Text(t.retry)),
-        ]),
-      ),
+    return StateMessage(
+      icon: Icons.cloud_off_rounded,
+      title: t.pfLoadError,
+      message: honestFailText(t, error, otherwise: t.pfLoadErrorBody),
+      action: DsButton(onPressed: onRetry, icon: Icons.refresh_rounded, label: t.retry),
     );
   }
 }

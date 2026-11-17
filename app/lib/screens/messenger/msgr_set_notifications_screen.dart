@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_setapi.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../widgets/msgr_set_tiles.dart';
 import '../../messaging/msg_settings_section.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -104,7 +105,7 @@ class _MsgrSetNotificationsScreenState
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrSetNotifications)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _loadFailed
               ? Center(
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -121,28 +122,30 @@ class _MsgrSetNotificationsScreenState
               : ListView(
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
-                MsgrSetSection(t.msgrSetNotifMessagesSection),
-                _toggle(Icons.chat_bubble_outline_rounded, 'messages',
+MsgrSetSection(t.msgrSetNotifMessagesSection),
+MsgrSetGroup([
+_toggle(Icons.chat_bubble_outline_rounded, 'messages',
                     t.msgrSetNotifMessages, t.msgrSetNotifMessagesSub),
-                _toggle(Icons.groups_rounded, 'groups',
+_toggle(Icons.groups_rounded, 'groups',
                     t.msgrSetNotifGroups, t.msgrSetNotifGroupsSub),
-                _toggle(Icons.call_rounded, 'calls', t.msgrSetNotifCalls,
+_toggle(Icons.call_rounded, 'calls', t.msgrSetNotifCalls,
                     t.msgrSetNotifCallsSub),
-                const Divider(),
-                MsgrSetSection(t.msgrSetNotifInAppSection),
-                // f6 (no showpieces): in-app sound/vibration rows stay hidden
+]),
+MsgrSetSection(t.msgrSetNotifInAppSection),
+// f6 (no showpieces): in-app sound/vibration rows stay hidden
                 // until the app really plays them.
                 if (kInAppSoundBuilt) ...[
                   _deviceOnly(Icons.volume_up_rounded, t.msgrSetNotifSound),
                   _deviceOnly(Icons.vibration_rounded, t.msgrSetNotifVibrate),
                 ],
-                _toggle(Icons.remove_red_eye_rounded, 'show_preview',
+MsgrSetGroup([
+_toggle(Icons.remove_red_eye_rounded, 'show_preview',
                     t.msgrSetNotifPreview, t.msgrSetNotifPreviewSub),
-                if (!_synced) MsgrSetNote(t.msgrSetNotSynced),
-                const Divider(),
-                // c3-msg: hide content, message sound, bubbles (this phone).
+]),
+if (!_synced) MsgrSetNote(t.msgrSetNotSynced),
+// c3-msg: hide content, message sound, bubbles (this phone).
                 const MsgDeviceNotifSection(),
-              ],
+],
             ),
     );
   }

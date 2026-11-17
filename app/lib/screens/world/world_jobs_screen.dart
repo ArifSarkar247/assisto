@@ -1,5 +1,6 @@
 import '../../feature_flags.dart' show FeatureFlags; // feature-flags
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import 'package:provider/provider.dart';
 
@@ -110,10 +111,7 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: t.uwOffline,
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(t.retry)))
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry))
               : _body(t, scheme),
     );
   }
@@ -154,29 +152,25 @@ class _WorldJobsScreenState extends State<WorldJobsScreen> {
           ]),
           const SizedBox(height: Gap.md),
           for (final p in portals)
-            Card(
-              margin: const EdgeInsets.only(bottom: Gap.sm),
-              child: ListTile(
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+                padding: EdgeInsets.zero,
+                child: ListTile(
                 contentPadding:
                     const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.sm, Gap.xs),
                 leading: Icon(_catIcon('${p['cat']}'), color: scheme.primary),
                 title: Text('${p['name']}',
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                 subtitle: Text(
                     '${p['desc']}\n${Uri.tryParse('${p['url']}')?.host.replaceFirst('www.', '') ?? ''}'),
                 isThreeLine: true,
                 trailing: Icon(Icons.open_in_new_rounded, color: scheme.primary),
                 onTap: () => uwOpen(context, '${p['url']}'),
               ),
-            ),
+              )),
           const SizedBox(height: Gap.sm),
           if (FeatureFlags.instance.isOn('jobs')) // feature-flags
-          OutlinedButton.icon(
-            onPressed: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const JobsScreen())),
-            icon: const Icon(Icons.checklist_rtl_rounded),
-            label: Text(t.uwTrackApplications),
-          ),
+          DsButton.secondary(onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const JobsScreen())), icon: Icons.checklist_rtl_rounded, label: t.uwTrackApplications),
           if (alertsReady) ...[
             UwHeader(t.uwJobAlerts),
             SwitchListTile(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/msgr_set_tiles.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -76,69 +78,45 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(_t.communitySettingsTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : ListView(
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
-                _sectionHeader(_t.communityWhoCanMessageTitle, scheme),
-                RadioListTile<String>(
+MsgrSetSection(_t.communityWhoCanMessageTitle),
+MsgrSetGroup([
+RadioListTile<String>(
                   value: 'everyone',
                   groupValue: _whoCanMsg,
                   title: Text(_t.communityWhoEveryone),
                   subtitle: Text(_t.communityWhoEveryoneHint),
                   onChanged: (v) => _setWhoCanMsg(v!),
                 ),
-                RadioListTile<String>(
+RadioListTile<String>(
                   value: 'nobody',
                   groupValue: _whoCanMsg,
                   title: Text(_t.communityWhoNobody),
                   subtitle: Text(_t.communityWhoNobodyHint),
                   onChanged: (v) => _setWhoCanMsg(v!),
                 ),
-                const Divider(),
-                _sectionHeader(_t.communityPhoneTitle, scheme),
-                SwitchListTile(
+]),
+MsgrSetSection(_t.communityPhoneTitle),
+MsgrSetGroup([
+SwitchListTile(
                   secondary: const Icon(Icons.phone_rounded),
                   title: Text(_t.communityShowPhone),
                   subtitle: Text(_t.communityShowPhoneHint),
                   value: _showPhone,
                   onChanged: _setShowPhone,
                 ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.all(Gap.lg),
-                  child: Row(
-                    children: [
-                      Icon(Icons.verified_user_rounded,
-                          size: 18, color: scheme.primary),
-                      const SizedBox(width: Gap.sm),
-                      Expanded(
-                        child: Text(
-                          _t.communitySettingsServerNote,
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: scheme.ds.muted,
-                              height: 1.3),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+]),
+MsgrSetNote(_t.communitySettingsServerNote,
+                    icon: Icons.verified_user_rounded),
+],
             ),
     );
   }
 
-  Widget _sectionHeader(String text, ColorScheme scheme) => Padding(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xs),
-        child: Text(text,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: scheme.primary)),
-      );
 }

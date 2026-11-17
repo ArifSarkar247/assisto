@@ -1,5 +1,6 @@
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
@@ -269,7 +270,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
             ]),
             const SizedBox(height: Gap.md),
             Text(_reasonText(tr, s.reason),
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     height: 1.45,
                     color: Theme.of(ctx).colorScheme.ds.text)),
             const SizedBox(height: Gap.md),
@@ -298,10 +299,7 @@ class _ProactiveAiScreenState extends State<ProactiveAiScreen> {
           tint: scheme.error,
           title: tr.loadFailed,
           message: honestFailText(tr, _failCause, otherwise: tr.proLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry)),
+          action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
         ),
       );
     }
@@ -437,9 +435,7 @@ class _NudgeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.sm, Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -450,7 +446,7 @@ class _NudgeCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(sug.title,
-                        style: const TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             fontWeight: FontWeight.w700, height: 1.3)),
                     if (sug.text.isNotEmpty) ...[
                       const SizedBox(height: Gap.xxs),
@@ -484,8 +480,7 @@ class _NudgeCard extends StatelessWidget {
               ),
           ]),
         ]),
-      ),
-    );
+      ));
   }
 
   String _whenText(BuildContext context, AppLocalizations tr, int? days) {
@@ -505,12 +500,9 @@ class _HonestNote extends StatelessWidget {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: scheme.ds.cardHighest,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.auto_awesome_rounded, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -519,7 +511,6 @@ class _HonestNote extends StatelessWidget {
                     AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
         ]),
-      ),
     );
   }
 }

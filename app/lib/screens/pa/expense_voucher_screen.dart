@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -219,10 +220,7 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paVoucherLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.retry)),
+          action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
         ),
       );
     }
@@ -243,11 +241,7 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
               tint: Brand.blue,
               title: t.paVoucherWelcomeTitle,
               message: t.paVoucherWelcomeBody,
-              action: FilledButton.icon(
-                onPressed: () => _openVoucherEditor(),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(t.paVoucherNew),
-              ),
+              action: DsButton(onPressed: () => _openVoucherEditor(), icon: Icons.add_rounded, label: t.paVoucherNew),
             )
           : RefreshIndicator(
               onRefresh: _load,
@@ -257,9 +251,9 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
                   const _OcrSeamCard(),
                   const SizedBox(height: Gap.sm),
                   for (final v in vouchers)
-                    Card(
-                      margin: const EdgeInsets.only(bottom: Gap.sm),
-                      child: ListTile(
+                    Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+                        padding: EdgeInsets.zero,
+                        child: ListTile(
                         onTap: () async {
                           await Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => _VoucherDetailScreen(voucher: v),
@@ -272,8 +266,7 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
                           child: Icon(Icons.description_rounded,
                               color: _statusColor('${v['status']}')),
                         ),
-                        title: Text('${v['title'] ?? ''}',
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        title: Text('${v['title'] ?? ''}'),
                         subtitle: Text([
                           if ('${v['claimant'] ?? ''}'.trim().isNotEmpty)
                             '${v['claimant']}',
@@ -281,9 +274,9 @@ class _ExpenseVoucherScreenState extends State<ExpenseVoucherScreen> {
                         ].join(' · ')),
                         trailing: Text(_fmtBdt(_voucherTotal(v['id'] as int)),
                             style:
-                                const TextStyle(fontWeight: FontWeight.w800)),
+                                AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
                       ),
-                    ),
+                      )),
                 ],
               ),
             ),
@@ -299,28 +292,24 @@ class _OcrSeamCard extends StatelessWidget {
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: scheme.ds.primarySoft.withValues(alpha: 0.4),
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.document_scanner_rounded,
               size: 20, color: scheme.secondary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.paVoucherOcrSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 2),
               Text(t.paVoucherOcrSeamBody,
-                  style: TextStyle(
-                      fontSize: 12,
+                  style: AType.bodySmall.copyWith(
                       color: scheme.ds.muted,
                       height: 1.35)),
             ]),
           ),
         ]),
-      ),
     );
   }
 }
@@ -455,8 +444,7 @@ class _VoucherDetailScreenState extends State<_VoucherDetailScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.voucher['title'] ?? ''}',
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text('${widget.voucher['title'] ?? ''}'),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addOrEditLine(),
@@ -469,32 +457,24 @@ class _VoucherDetailScreenState extends State<_VoucherDetailScreen> {
               padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
               children: [
                 // total + status banner
-                Container(
-                  padding: const EdgeInsets.all(Gap.lg),
-                  decoration: BoxDecoration(
-                      gradient: Brand.gradient,
-                      borderRadius: BorderRadius.circular(Radii.lg)),
+                DsHeroCard(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(t.paVoucherTotalLabel,
-                            style: const TextStyle(
-                                color: Colors.white70, fontSize: 13)),
-                        Text(_fmtBdt(_totalPoisha),
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 26,
-                                fontWeight: FontWeight.w800)),
+                            style: AType.bodySmall.copyWith(
+                                color: Theme.of(context).colorScheme.ds.muted)),
+                        DsNumber(_fmtBdt(_totalPoisha)),
                         const SizedBox(height: Gap.sm),
                         Text(t.paVoucherLineCount(_lines.length),
-                            style: const TextStyle(color: Colors.white70)),
+                            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
                       ]),
                 ),
                 const SizedBox(height: Gap.lg),
 
                 // status flow
                 Text(t.paVoucherStatusLabel,
-                    style: const TextStyle(fontWeight: FontWeight.w800)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: Gap.xs),
                 Wrap(spacing: Gap.sm, children: [
                   for (final s in _statuses)
@@ -521,13 +501,13 @@ class _VoucherDetailScreenState extends State<_VoucherDetailScreen> {
 
                 // lines
                 Text(t.paVoucherLinesHeader,
-                    style: const TextStyle(fontWeight: FontWeight.w800)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: Gap.xs),
                 if (_lines.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: Gap.md),
                     child: Text(t.paVoucherNoLines,
-                        style: TextStyle(color: scheme.ds.muted)),
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                   )
                 else
                   for (final l in _lines)
@@ -536,7 +516,7 @@ class _VoucherDetailScreenState extends State<_VoucherDetailScreen> {
                       dense: true,
                       leading: const Icon(Icons.payments_rounded),
                       title: Text(_fmtBdt(_toPoisha(l['amount'])),
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
+                          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                       subtitle: Text([
                         _categoryLabel('${l['category'] ?? 'other'}'),
                         if ('${l['date'] ?? ''}'.trim().isNotEmpty)
@@ -608,20 +588,18 @@ class _VoucherEditorState extends State<_VoucherEditor> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(widget.existing == null ? t.paVoucherNew : t.edit,
               style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  AType.titleLarge.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.lg),
           TextField(
               controller: _title,
               autofocus: true,
               decoration: InputDecoration(
-                  labelText: t.paVoucherTitleLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paVoucherTitleLabel)),
           const SizedBox(height: Gap.md),
           TextField(
               controller: _claimant,
               decoration: InputDecoration(
-                  labelText: t.paVoucherClaimantLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paVoucherClaimantLabel)),
           const SizedBox(height: Gap.lg),
           SizedBox(
               width: double.infinity,
@@ -689,8 +667,8 @@ class _LineEditorState extends State<_LineEditor> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(t.paVoucherAddLine,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w800)),
+                  style: AType.titleLarge.copyWith(
+                      fontWeight: FontWeight.w800)),
               const SizedBox(height: Gap.md),
               TextField(
                 controller: _amount,
@@ -699,12 +677,11 @@ class _LineEditorState extends State<_LineEditor> {
                     const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                     labelText: t.paVoucherAmountLabel,
-                    prefixText: '৳ ',
-                    border: const OutlineInputBorder()),
+                    prefixText: '৳ '),
               ),
               const SizedBox(height: Gap.md),
               Text(t.paVoucherCategoryLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                 for (final c in _categories)
@@ -745,15 +722,13 @@ class _LineEditorState extends State<_LineEditor> {
                 controller: _ref,
                 decoration: InputDecoration(
                     labelText: t.paVoucherReceiptRefLabel,
-                    helperText: t.paVoucherReceiptRefHelper,
-                    border: const OutlineInputBorder()),
+                    helperText: t.paVoucherReceiptRefHelper),
               ),
               const SizedBox(height: Gap.md),
               TextField(
                 controller: _note,
                 decoration: InputDecoration(
-                    labelText: t.paVoucherLineNoteLabel,
-                    border: const OutlineInputBorder()),
+                    labelText: t.paVoucherLineNoteLabel),
               ),
               const SizedBox(height: Gap.lg),
               SizedBox(

@@ -166,13 +166,18 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         bottom: 0,
                         child: SafeArea(
                           top: false,
+                          // controls on a rounded glass bar above the bottom edge
                           child: Container(
-                            color: Colors.black54,
-                            padding: const EdgeInsets.symmetric(horizontal: Gap.sm),
+                            margin: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.md),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(Radii.pill),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: Gap.md),
                             child: Row(children: [
                               Text(localDigits(videoTimeLabel(Duration(milliseconds: posMs.round())), lang),
                                   key: const Key('mc2-video-pos'),
-                                  style: const TextStyle(color: Colors.white, fontSize: 12)),
+                                  style: AType.labelMedium.copyWith(color: Colors.white, fontFeatures: AFonts.tabular)),
                               Expanded(
                                 child: Slider(
                                   key: const Key('mc2-video-seek'),
@@ -189,7 +194,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                               ),
                               Text(localDigits(videoTimeLabel(s.duration), lang),
                                   key: const Key('mc2-video-dur'),
-                                  style: const TextStyle(color: Colors.white, fontSize: 12)),
+                                  style: AType.labelMedium.copyWith(color: Colors.white, fontFeatures: AFonts.tabular)),
                               IconButton(
                                 key: const Key('mc2-video-mute'),
                                 color: Colors.white,
@@ -213,7 +218,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           const CircularProgressIndicator(color: Colors.white),
           const SizedBox(height: Gap.md),
-          Text(t.mc2VideoLoading, style: const TextStyle(color: Colors.white70)),
+          Text(t.mc2VideoLoading, style: AType.bodyLarge.copyWith(color: Colors.white)),
         ]),
       );
 
@@ -225,7 +230,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             const Icon(Icons.videocam_off_rounded, color: Colors.white70, size: 48),
             const SizedBox(height: Gap.md),
             Text(t.mc2VideoFailed,
-                textAlign: TextAlign.center, style: const TextStyle(color: Colors.white)),
+                textAlign: TextAlign.center, style: AType.bodyLarge.copyWith(color: Colors.white)),
             const SizedBox(height: Gap.md),
             FilledButton.icon(
               key: const Key('mc2-video-open-with'),

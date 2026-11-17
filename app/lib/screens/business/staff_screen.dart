@@ -188,7 +188,7 @@ class _StaffScreenState extends State<StaffScreen> {
               numberButton,
             ]),
           ),
-          DsSectionHeader(t.bbStaffTitle),
+          const SizedBox(height: Gap.md),
           DsGroup(margin: EdgeInsets.zero, children: [
             for (final m in _rows)
               DsListRow(

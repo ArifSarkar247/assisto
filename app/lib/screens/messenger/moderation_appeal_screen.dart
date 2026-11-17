@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -98,34 +99,26 @@ class _ModerationAppealScreenState extends State<ModerationAppealScreen> {
           : ListView(
               padding: const EdgeInsets.all(Gap.lg),
               children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(Gap.lg),
-                  decoration: BoxDecoration(
-                    gradient: Brand.gradient,
-                    borderRadius: BorderRadius.circular(Radii.lg),
-                  ),
+                // what is being appealed = the soft DS hero (no white text
+                // on the brand gradient)
+                DsHeroCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.gavel_rounded, color: Colors.white),
-                      const SizedBox(height: Gap.sm),
+                      DsAvatar(child: Icon(Icons.gavel_rounded, color: scheme.ds.primaryInk)),
+                      const SizedBox(height: Gap.md),
                       Text(
                         widget.targetLabel?.trim().isNotEmpty == true
                             ? t.msgrModAppealHeaderNamed(widget.targetLabel!)
                             : t.msgrModAppealHeader,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          height: 1.3,
-                        ),
+                        style: AType.titleLarge.copyWith(
+                            color: scheme.ds.text, fontWeight: FontWeight.w800),
                       ),
                       if (widget.decisionLabel?.trim().isNotEmpty == true) ...[
                         const SizedBox(height: Gap.xs),
                         Text(
                           t.msgrModAppealDecisionLine(widget.decisionLabel!),
-                          style: const TextStyle(color: Colors.white),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
                         ),
                       ],
                     ],
@@ -134,7 +127,7 @@ class _ModerationAppealScreenState extends State<ModerationAppealScreen> {
                 const SizedBox(height: Gap.lg),
                 Text(
                   t.msgrModAppealIntro,
-                  style: TextStyle(color: scheme.ds.muted, height: 1.45),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.45),
                 ),
                 const SizedBox(height: Gap.lg),
                 TextField(
@@ -151,7 +144,7 @@ class _ModerationAppealScreenState extends State<ModerationAppealScreen> {
                 const SizedBox(height: Gap.sm),
                 Text(
                   t.msgrModAppealWindowNote,
-                  style: TextStyle(color: scheme.ds.muted, fontSize: 12),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted),
                 ),
                 const SizedBox(height: Gap.md),
                 // A human reviewer re-reads the decision; the outcome and its
@@ -160,34 +153,26 @@ class _ModerationAppealScreenState extends State<ModerationAppealScreen> {
                 AdminLegalNote(text: t.msgrModAppealRecordsNote),
                 if (_error != null) ...[
                   const SizedBox(height: Gap.md),
-                  Container(
+                  DsCard(
+                    tone: DsTone.danger,
                     padding: const EdgeInsets.all(Gap.md),
-                    decoration: BoxDecoration(
-                      color: Brand.danger.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(Radii.md),
-                    ),
                     child: Row(children: [
-                      const Icon(Icons.error_outline_rounded,
-                          color: Brand.danger, size: 20),
+                      Icon(Icons.error_outline_rounded, color: scheme.ds.dangerInk, size: 20),
                       const SizedBox(width: Gap.sm),
                       Expanded(
                         child: Text(_error!,
-                            style: const TextStyle(color: Brand.danger)),
+                            style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk)),
                       ),
                     ]),
                   ),
                 ],
                 const SizedBox(height: Gap.lg),
-                FilledButton.icon(
+                DsButton(
                   onPressed: canSend ? _submit : null,
-                  icon: _sending
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.outgoing_mail),
-                  label: Text(t.msgrModAppealSubmit),
+                  busy: _sending,
+                  icon: Icons.outgoing_mail,
+                  label: t.msgrModAppealSubmit,
+                  expand: true,
                 ),
               ],
             ),
@@ -201,46 +186,15 @@ class _Submitted extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.xxl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              height: 72,
-              width: 72,
-              decoration: BoxDecoration(
-                color: Brand.success.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.mark_email_read_rounded,
-                  size: 34, color: Brand.success),
-            ),
-            const SizedBox(height: Gap.lg),
-            Text(
-              t.msgrModAppealDoneTitle,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: Gap.sm),
-            Text(
-              t.msgrModAppealDoneBody,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.ds.muted, height: 1.4),
-            ),
-            const SizedBox(height: Gap.lg),
-            FilledButton.tonal(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(t.msgrModDone),
-            ),
-          ],
-        ),
+    return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      const SizedBox(height: Gap.xl),
+      DsEmptyState(
+        icon: Icons.mark_email_read_rounded,
+        title: t.msgrModAppealDoneTitle,
+        benefit: t.msgrModAppealDoneBody,
+        actionLabel: t.msgrModDone,
+        onAction: () => Navigator.of(context).pop(true),
       ),
-    );
+    ]);
   }
 }

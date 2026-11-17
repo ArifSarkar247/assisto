@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/bn_day_periods.dart' show appDateLocale;
 import 'booking_source.dart';
 
@@ -69,23 +70,22 @@ class BookingGuideCard extends StatelessWidget {
     Widget step(IconData icon, String title, String body) => Padding(
           padding: const EdgeInsets.symmetric(vertical: Gap.xs + 2),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            CircleAvatar(
-                radius: 18,
-                backgroundColor: scheme.primaryContainer,
-                child: Icon(icon, size: 20, color: scheme.onPrimaryContainer)),
+            DsAvatar(size: 36, child: Icon(icon, size: 18, color: scheme.ds.primaryInk)),
             const SizedBox(width: Gap.md),
             Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(title,
+                  style: AType.bodyLarge.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xxs),
-              Text(body),
+              Text(body, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ])),
           ]),
         );
-    return Card(
-      margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(Gap.lg, 14, Gap.lg, Gap.sm),
+    // the 30-second guide as the soft DS hero (steps with tinted bubbles)
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs),
+      child: DsHeroCard(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(business ? t.bkgGuideTitle : t.bkgMyGuideTitle,
               style: Theme.of(context).textTheme.titleMedium),
@@ -100,7 +100,7 @@ class BookingGuideCard extends StatelessWidget {
             step(Icons.notifications_active_outlined, t.bkgMyGuide3Title, t.bkgMyGuide3Body),
           ],
           const SizedBox(height: Gap.xs),
-          Text(t.bkgGuideRules, style: Theme.of(context).textTheme.bodySmall),
+          Text(t.bkgGuideRules, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           if (onClose != null)
             Align(
               alignment: Alignment.centerRight,
@@ -124,14 +124,24 @@ class BkMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(padding: const EdgeInsets.all(Gap.xxl), children: [
-      const SizedBox(height: Gap.xxl),
-      Icon(icon, size: 56, color: Theme.of(context).colorScheme.primary),
-      const SizedBox(height: Gap.lg),
-      Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
-      const SizedBox(height: Gap.sm),
-      Text(body, textAlign: TextAlign.center),
-      if (action != null) ...[const SizedBox(height: 20), Center(child: action!)],
+    // designv2: the DS card with the drawn illustration (same look as
+    // every empty / error state in the app)
+    final ds = DsTokens.of(context);
+    return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      const SizedBox(height: Gap.xl),
+      DsCard(
+        padding: const EdgeInsets.all(Gap.xl),
+        child: Column(children: [
+          DsIllustration(icon: icon),
+          const SizedBox(height: Gap.lg),
+          Text(title,
+              textAlign: TextAlign.center,
+              style: AType.titleLarge.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
+          const SizedBox(height: Gap.sm),
+          Text(body, textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: ds.muted)),
+          if (action != null) ...[const SizedBox(height: Gap.lg), Center(child: action!)],
+        ]),
+      ),
     ]);
   }
 }
@@ -139,10 +149,7 @@ class BkMessage extends StatelessWidget {
 /// The right state view for a failed load (feature off / offline / error).
 Widget bkErrorView(BuildContext context, Object e, VoidCallback retry) {
   final t = AppLocalizations.of(context);
-  final btn = FilledButton(
-      style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-      onPressed: retry,
-      child: Text(t.bkgRetry));
+  final btn = DsButton(onPressed: retry, icon: Icons.refresh_rounded, label: t.bkgRetry);
   if (bkStatus(e) == 403) {
     return BkMessage(icon: Icons.lock_clock_outlined, title: t.bkgOffTitle, body: t.bkgOffBody);
   }
@@ -164,17 +171,20 @@ class BkStatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
+    // DS tones: confirmed = success, requested = primary tint, done =
+    // neutral, cancelled / no-show = danger
+    final ds = scheme.ds;
     final (Color bg, Color fg) = switch (status) {
-      'confirmed' => (scheme.primaryContainer, scheme.onPrimaryContainer),
-      'requested' => (scheme.tertiaryContainer, scheme.onTertiaryContainer),
-      'done' => (scheme.secondaryContainer, scheme.onSecondaryContainer),
-      _ => (scheme.surfaceContainerHighest, scheme.onSurfaceVariant),
+      'confirmed' => (ds.successBg, ds.successInk),
+      'requested' => (ds.primarySoft, ds.primaryInk),
+      'cancelled' || 'no_show' => (ds.dangerBg, ds.dangerInk),
+      _ => (ds.cardHighest, ds.muted),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm + 2, vertical: Gap.xs),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
       child: Text(bkStatusText(t, status),
-          style: TextStyle(color: fg, fontWeight: FontWeight.w600, fontSize: 13)),
+          style: AType.labelMedium.copyWith(color: fg, fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -193,27 +203,31 @@ class BkBookingTile extends StatelessWidget {
         ? ((b['customer_name'] ?? '').toString().isNotEmpty ? b['customer_name'].toString() : t.bkgNoName)
         : bkMap(b['business'])['name']?.toString() ?? '';
     final staff = (b['staff'] ?? '').toString();
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
+    final ds = DsTokens.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
+      child: DsSurface(
         onTap: onTap,
+        padding: const EdgeInsets.all(Gap.md),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 64),
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
+          constraints: const BoxConstraints(minHeight: 40),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              SizedBox(
-                width: 76,
+              // the time, big and tight; grows with the font (was a fixed
+              // 76 dp box that cut "10:30 AM" at 200%)
+              ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 64, maxWidth: 110),
                 child: Text(bkTime(context, (b['start'] ?? '').toString()),
-                    style: Theme.of(context).textTheme.titleMedium),
+                    style: AType.titleMedium.copyWith(
+                        color: ds.primaryInk, fontWeight: FontWeight.w800, letterSpacing: -0.2)),
               ),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(who, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  Text([b['service'] ?? '', if (staff.isNotEmpty) staff].join(' · ')),
-                  if (!business) Text((b['when'] ?? '').toString(), style: Theme.of(context).textTheme.bodySmall),
+                  Text(who, style: AType.bodyLarge.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
+                  Text([b['service'] ?? '', if (staff.isNotEmpty) staff].join(' · '),
+                      style: AType.bodyMedium.copyWith(color: ds.muted)),
+                  if (!business)
+                    Text((b['when'] ?? '').toString(), style: AType.bodySmall.copyWith(color: ds.muted)),
                   const SizedBox(height: Gap.xs),
                   Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                     BkStatusChip((b['status'] ?? '').toString()),
@@ -223,9 +237,8 @@ class BkBookingTile extends StatelessWidget {
                   ]),
                 ]),
               ),
-              const Icon(Icons.chevron_right_rounded),
+              Icon(Icons.chevron_right_rounded, color: ds.muted),
             ]),
-          ),
         ),
       ),
     );

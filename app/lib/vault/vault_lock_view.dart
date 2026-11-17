@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
@@ -299,11 +300,7 @@ class _VaultLockViewState extends State<VaultLockView> {
                 SizedBox(
                   width: double.infinity,
                   height: 48,
-                  child: OutlinedButton.icon(
-                    onPressed: locked != null ? null : _tryBio,
-                    icon: const Icon(Icons.fingerprint_rounded),
-                    label: Text(t.vaultUseFingerprint),
-                  ),
+                  child: DsButton.secondary(onPressed: locked != null ? null : _tryBio, icon: Icons.fingerprint_rounded, label: t.vaultUseFingerprint),
                 ),
               ],
               if (!setting && widget.onForgot != null) ...[

@@ -200,10 +200,7 @@ class _BizTravelEventsScreenState extends State<BizTravelEventsScreen> {
           tint: scheme.error,
           title: t.loadFailed,
           message: honestFailText(t, _failCause, otherwise: t.paBizLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.retry)),
+          action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
         ),
       );
     }
@@ -678,10 +675,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                   const SizedBox(height: Gap.xl),
 
                   // ---- printable summary ----
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.summarize_rounded),
-                    label: Text(t.paBizSummaryButton),
-                    onPressed: () => showAppSheet(
+                  DsButton.secondary(onPressed: () => showAppSheet(
                       context: context,
                       isScrollControlled: true,
                       showDragHandle: true,
@@ -699,8 +693,7 @@ class _EventDetailScreenState extends State<_EventDetailScreen> {
                         statusLabel: _statusLabel,
                         modeLabel: _modeLabel,
                       ),
-                    ),
-                  ),
+                    ), icon: Icons.summarize_rounded, label: t.paBizSummaryButton),
                 ],
               ),
             ),
@@ -1112,8 +1105,7 @@ class _EventEditorState extends State<_EventEditor> {
             controller: _name,
             autofocus: true,
             decoration: InputDecoration(
-                labelText: t.paBizEventNameLabel,
-                border: const OutlineInputBorder()),
+                labelText: t.paBizEventNameLabel),
           ),
           const SizedBox(height: Gap.md),
           _DateField(
@@ -1129,23 +1121,20 @@ class _EventEditorState extends State<_EventEditor> {
           TextField(
             controller: _venue,
             decoration: InputDecoration(
-                labelText: t.paBizVenueLabel,
-                border: const OutlineInputBorder()),
+                labelText: t.paBizVenueLabel),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _city,
             decoration: InputDecoration(
-                labelText: t.paBizCityLabel,
-                border: const OutlineInputBorder()),
+                labelText: t.paBizCityLabel),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _note,
             maxLines: 2,
             decoration: InputDecoration(
-                labelText: t.paBizNoteLabel,
-                border: const OutlineInputBorder()),
+                labelText: t.paBizNoteLabel),
           ),
           const SizedBox(height: Gap.lg),
           SizedBox(
@@ -1237,14 +1226,12 @@ class _AttendeeEditorState extends State<_AttendeeEditor> {
                   controller: _name,
                   autofocus: true,
                   decoration: InputDecoration(
-                      labelText: t.paBizAttendeeNameLabel,
-                      border: const OutlineInputBorder())),
+                      labelText: t.paBizAttendeeNameLabel)),
               const SizedBox(height: Gap.md),
               TextField(
                   controller: _role,
                   decoration: InputDecoration(
-                      labelText: t.paBizAttendeeRoleLabel,
-                      border: const OutlineInputBorder())),
+                      labelText: t.paBizAttendeeRoleLabel)),
               const SizedBox(height: Gap.md),
               Text(t.paBizModeLabel,
                   style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
@@ -1261,8 +1248,7 @@ class _AttendeeEditorState extends State<_AttendeeEditor> {
               TextField(
                   controller: _from,
                   decoration: InputDecoration(
-                      labelText: t.paBizFromLabel,
-                      border: const OutlineInputBorder())),
+                      labelText: t.paBizFromLabel)),
               const SizedBox(height: Gap.md),
               _DateField(
                   label: t.paBizDepartLabel,
@@ -1274,8 +1260,7 @@ class _AttendeeEditorState extends State<_AttendeeEditor> {
                   controller: _ref,
                   decoration: InputDecoration(
                       labelText: t.paBizRefFieldLabel,
-                      helperText: t.paBizRefHelper,
-                      border: const OutlineInputBorder())),
+                      helperText: t.paBizRefHelper)),
               const SizedBox(height: Gap.md),
               TextField(
                   controller: _cost,
@@ -1284,8 +1269,7 @@ class _AttendeeEditorState extends State<_AttendeeEditor> {
                   decoration: InputDecoration(
                       labelText: t.paBizCostLabel,
                       helperText: t.paBizCostHelper,
-                      prefixText: '৳ ',
-                      border: const OutlineInputBorder())),
+                      prefixText: '৳ ')),
               const SizedBox(height: Gap.md),
               Text(t.paBizStatusLabel,
                   style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
@@ -1360,8 +1344,7 @@ class _AgendaEditorState extends State<_AgendaEditor> {
               controller: _title,
               autofocus: true,
               decoration: InputDecoration(
-                  labelText: t.paBizAgendaTitleLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paBizAgendaTitleLabel)),
           const SizedBox(height: Gap.md),
           _DateField(
               label: t.paBizAgendaAtLabel,
@@ -1372,8 +1355,7 @@ class _AgendaEditorState extends State<_AgendaEditor> {
           TextField(
               controller: _speaker,
               decoration: InputDecoration(
-                  labelText: t.paBizAgendaSpeakerLabel,
-                  border: const OutlineInputBorder())),
+                  labelText: t.paBizAgendaSpeakerLabel)),
           const SizedBox(height: Gap.lg),
           SizedBox(
               width: double.infinity,
@@ -1447,8 +1429,7 @@ class _BudgetEditorState extends State<_BudgetEditor> {
                   controller: _label,
                   autofocus: true,
                   decoration: InputDecoration(
-                      labelText: t.paBizBudgetLabelLabel,
-                      border: const OutlineInputBorder())),
+                      labelText: t.paBizBudgetLabelLabel)),
               const SizedBox(height: Gap.md),
               Text(t.paBizCategoryLabel,
                   style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
@@ -1468,8 +1449,7 @@ class _BudgetEditorState extends State<_BudgetEditor> {
                       decimal: true),
                   decoration: InputDecoration(
                       labelText: t.paBizEstimatedLabel,
-                      prefixText: '৳ ',
-                      border: const OutlineInputBorder())),
+                      prefixText: '৳ ')),
               const SizedBox(height: Gap.md),
               TextField(
                   controller: _act,
@@ -1477,8 +1457,7 @@ class _BudgetEditorState extends State<_BudgetEditor> {
                       decimal: true),
                   decoration: InputDecoration(
                       labelText: t.paBizActualLabel,
-                      prefixText: '৳ ',
-                      border: const OutlineInputBorder())),
+                      prefixText: '৳ ')),
               const SizedBox(height: Gap.lg),
               SizedBox(
                   width: double.infinity,

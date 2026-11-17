@@ -195,11 +195,11 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
             if (status == 'draft' || status == 'pending')
               DsButton.secondary(onPressed: reviewed ? () => _transition(t, p, 'approved') : null, label: t.crmApprove),
             if (status == 'approved')
-              DsButton(onPressed: () => _transition(t, p, 'sent'), icon: Icons.send_rounded, label: t.send),
+              DsButton.secondary(onPressed: () => _transition(t, p, 'sent'), icon: Icons.send_rounded, label: t.send),
             if (status == 'sent')
               DsButton.secondary(onPressed: () => _transition(t, p, 'viewed'), label: t.crmMarkViewed),
             if (status == 'sent' || status == 'viewed')
-              DsButton(onPressed: () => _transition(t, p, 'accepted'), label: t.crmMarkAccepted),
+              DsButton.secondary(onPressed: () => _transition(t, p, 'accepted'), label: t.crmMarkAccepted),
           ]),
         ]),
     );

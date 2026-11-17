@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/local_digits.dart';
 import '../../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -246,10 +248,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.starDealsLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : _rows.isEmpty
                   ? _welcome(tr)
@@ -263,11 +262,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
         // The arrow (U+2192) used as a stage separator renders as a tofu box in
         // the app font; swap it for the bullet the app already uses elsewhere.
         message: tr.starDealsWelcomeBody.replaceAll('\u2192', ' \u2022 '),
-        action: FilledButton.icon(
-          onPressed: () => _addOrEdit(tr),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(tr.starDealsAdd),
-        ),
+        action: DsButton(onPressed: () => _addOrEdit(tr), icon: Icons.add_rounded, label: tr.starDealsAdd),
       );
 
   Widget _bodyView(AppLocalizations tr, ColorScheme scheme) {
@@ -291,11 +286,9 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
     );
   }
 
-  Widget _pipelineCard(AppLocalizations tr, ColorScheme scheme) => Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _pipelineCard(AppLocalizations tr, ColorScheme scheme) => DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+    padding: const EdgeInsets.all(Gap.md),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(tr.starDealsPipeline,
                 style: Theme.of(context).textTheme.titleMedium
                     ?.copyWith(fontWeight: FontWeight.w700)),
@@ -309,7 +302,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
                 Icon(Icons.error_outline_rounded, size: 16, color: scheme.error),
                 const SizedBox(width: Gap.xs),
                 Flexible(
-                  child: Text(tr.starDealsOverdue('$_overdueCount'),
+                  child: Text(tr.starDealsOverdue(ld(context, _overdueCount)),
                       style: AType.bodyMedium.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
                 ),
               ]),
@@ -318,16 +311,14 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
             Text(tr.starDealsExpectedNote,
                 style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.3)),
           ]),
-        ),
-      );
+  );
 
   Widget _kv(String k, String v, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(children: [
           Expanded(
             child: Text(k,
-                style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ),
           const SizedBox(width: Gap.sm),
           Text(v,
@@ -369,11 +360,9 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
     final deadline = (r['deadline'] ?? '').toString().trim();
     final canAdvance = _stages.indexOf(stage) < _stages.length - 1;
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Text(brand,
@@ -408,8 +397,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
               Flexible(
                 child: Text(
                     overdue ? tr.starDealsDeadlineOverdue(deadline) : tr.starDealsDeadline(deadline),
-                    style: AType.bodySmall.copyWith(color: overdue ? scheme.error : scheme.ds.muted, fontWeight: overdue ? FontWeight.w700 : FontWeight.w400),
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                    style: AType.bodySmall.copyWith(color: overdue ? scheme.error : scheme.ds.muted, fontWeight: overdue ? FontWeight.w700 : FontWeight.w400)),
               ),
             ]),
           ],
@@ -417,12 +405,7 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
           Row(children: [
             if (canAdvance)
               Expanded(
-                child: FilledButton.tonalIcon(
-                  onPressed: () => _advance(r, tr),
-                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                  label: Text(tr.starDealsAdvance(_stageLabel(tr, _stages[_stages.indexOf(stage) + 1])),
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
-                ),
+                child: DsButton.secondary(onPressed: () => _advance(r, tr), icon: Icons.arrow_forward_rounded, label: tr.starDealsAdvance(_stageLabel(tr, _stages[_stages.indexOf(stage) + 1]))),
               )
             else
               Expanded(
@@ -442,7 +425,6 @@ class _StarDealsScreenState extends State<StarDealsScreen> {
             ),
           ]),
         ]),
-      ),
     );
   }
 
@@ -525,7 +507,7 @@ class _DealFormState extends State<_DealForm> {
             onChanged: (_) => setState(() {}),
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
-                labelText: tr.starDealsBrandField, border: const OutlineInputBorder()),
+                labelText: tr.starDealsBrandField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -533,8 +515,7 @@ class _DealFormState extends State<_DealForm> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
                 labelText: tr.starDealsValueField,
-                prefixText: '৳ ',
-                border: const OutlineInputBorder()),
+                prefixText: '৳ '),
           ),
           const SizedBox(height: Gap.md),
           Text(tr.starDealsStageLabel, style: Theme.of(context).textTheme.labelLarge),
@@ -554,7 +535,6 @@ class _DealFormState extends State<_DealForm> {
             decoration: InputDecoration(
                 labelText: tr.starDealsDeliverablesField,
                 helperText: tr.starDealsDeliverablesHelper,
-                border: const OutlineInputBorder(),
                 alignLabelWithHint: true),
           ),
           const SizedBox(height: Gap.md),
@@ -562,8 +542,7 @@ class _DealFormState extends State<_DealForm> {
             controller: _deadline,
             decoration: InputDecoration(
                 labelText: tr.starDealsDeadlineField,
-                hintText: 'YYYY-MM-DD',
-                border: const OutlineInputBorder()),
+                hintText: 'YYYY-MM-DD'),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -571,16 +550,12 @@ class _DealFormState extends State<_DealForm> {
             maxLines: 2,
             decoration: InputDecoration(
                 labelText: tr.starDealsNoteField,
-                border: const OutlineInputBorder(),
                 alignLabelWithHint: true),
           ),
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(tr.cancel),
-              ),
+              child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
             ),
             const SizedBox(width: Gap.md),
             Expanded(

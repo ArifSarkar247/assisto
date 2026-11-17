@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../otp_api.dart';
@@ -350,7 +351,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                             Expanded(
                               child: Text(_error!,
                                   key: const Key('otp-error'),
-                                  style: TextStyle(color: scheme.error)),
+                                  style: AType.bodyMedium.copyWith(color: scheme.error)),
                             ),
                           ],
                         ),
@@ -418,11 +419,9 @@ class _SmsOffCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Card(
-          color: scheme.ds.primarySoft,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(
+        DsSurface(color: scheme.ds.primarySoft,
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(children: [
@@ -430,17 +429,16 @@ class _SmsOffCard extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(t.otpSmsOffTitle,
-                        style: TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             fontWeight: FontWeight.w700,
                             color: scheme.ds.primaryInk)),
                   ),
                 ]),
                 const SizedBox(height: Gap.sm),
                 Text(t.otpSmsOffBody,
-                    style: TextStyle(color: scheme.ds.primaryInk)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
               ],
             ),
-          ),
         ),
         const SizedBox(height: Gap.lg),
         if (onEmail != null) ...[
