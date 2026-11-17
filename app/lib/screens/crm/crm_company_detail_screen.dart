@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset;
+import '../../widgets/ladder_common.dart' show fmtInt;
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_company_widgets.dart';
 import 'crm_common.dart';
@@ -106,12 +108,13 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
         appBar: AppBar(
           title: Text(c['name']?.toString() ?? t.crmCompany,
               maxLines: 1, overflow: TextOverflow.ellipsis),
-          bottom: TabBar(isScrollable: true, tabs: [
-            Tab(child: Text(t.crmTabOverview, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.crmPeople, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.crmTabTimeline, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.crmTabDeals, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.crmTabDocuments, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+          // scrollable tabs size to their label: nothing cut at any font size
+          bottom: TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: [
+            Tab(child: Text(t.crmTabOverview, softWrap: false)),
+            Tab(child: Text(t.crmPeople, softWrap: false)),
+            Tab(child: Text(t.crmTabTimeline, softWrap: false)),
+            Tab(child: Text(t.crmTabDeals, softWrap: false)),
+            Tab(child: Text(t.crmTabDocuments, softWrap: false)),
           ]),
         ),
         body: TabBarView(children: [
@@ -125,13 +128,53 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
     );
   }
 
+  /// The company at a glance: the soft DS hero — industry bubble, name, and
+  /// the real counts (contacts, deals and their total value).
+  Widget _hero(AppLocalizations t, Map<String, dynamic> c) {
+    final ds = Theme.of(context).colorScheme.ds;
+    final dealTotal = _deals.fold<num>(0, (a, d) => a + ((d['value'] as num?) ?? 0));
+    return DsHeroCard(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsAvatar(
+              size: 48,
+              child: Icon(industryIcon(c['industry']?.toString()), color: ds.primaryInk)),
+          const SizedBox(width: Gap.md),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(c['name']?.toString() ?? t.crmCompany,
+                  style: AType.titleLarge.copyWith(color: ds.text, fontWeight: FontWeight.w800)),
+              Text(_industryLabel(t, c['industry']?.toString()),
+                  style: AType.bodyMedium.copyWith(color: ds.muted)),
+            ]),
+          ),
+        ]),
+        const SizedBox(height: Gap.md),
+        Wrap(spacing: Gap.xl, runSpacing: Gap.sm, children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+            DsNumber(fmtInt(context, _contacts.length), small: true),
+            Text(t.crmPeople, style: AType.bodySmall.copyWith(color: ds.muted)),
+          ]),
+          if (_deals.isNotEmpty)
+            Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+              DsNumber(bdt(context, dealTotal), small: true),
+              Text('${t.crmTabDeals} · ${fmtInt(context, _deals.length)}',
+                  style: AType.bodySmall.copyWith(color: ds.muted)),
+            ]),
+        ]),
+      ]),
+    );
+  }
+
   // ---------------------------------------------------------------- OVERVIEW
   Widget _overview(AppLocalizations t, Map<String, dynamic> c) {
     final custom = (c['custom'] as Map?)?.cast<String, dynamic>() ?? {};
     final primary = _contacts.where((x) => x['is_primary'] == true).toList();
     return RefreshIndicator(
       onRefresh: _load,
-      child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
+      child: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)), children: [
+        _hero(t, c),
+        const SizedBox(height: Gap.md),
         CrmSectionHeader(t.crmCompanyProfile),
         DsCard(
           padding: const EdgeInsets.all(Gap.md),
@@ -139,7 +182,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
               KvRow(t.crmIndustry, _industryLabel(t, c['industry']?.toString()),
                   icon: Icons.category_rounded),
               if ((c['size'] as num?) != null && (c['size'] as num) > 0)
-                KvRow(t.crmHeadcount, '${c['size']}',
+                KvRow(t.crmHeadcount, fmtInt(context, (c['size'] as num).toInt()),
                     icon: Icons.badge_rounded),
               if ((c['phone'] ?? '').toString().isNotEmpty)
                 KvRow(t.crmPhone, c['phone'].toString(),
@@ -214,12 +257,17 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         CrmSectionHeader(t.crmCompanyTimeline,
             hint: t.crmTimelineAllContacts),
+        DsCard(
+          padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         for (final a in _activities)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: Gap.xs),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(activityKindIcon(a['kind']?.toString()),
-                  size: 18, color: scheme.primary),
+              DsAvatar(
+                  size: 32,
+                  child: Icon(activityKindIcon(a['kind']?.toString()),
+                      size: 16, color: scheme.ds.primaryInk)),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Column(
@@ -246,6 +294,8 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
               ),
             ]),
           ),
+          ]),
+        ),
         Padding(
           padding: const EdgeInsets.only(top: Gap.md),
           child: Text(t.crmCompanyTimelineClientNote,
@@ -278,18 +328,29 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                   ? Theme.of(context).colorScheme.error
                   : scheme.primary;
           return DsCard(
-              padding: EdgeInsets.zero,
-              child: ListTile(
-              leading: Icon(Icons.handshake_rounded, color: tint),
-              title: Text(d['title']?.toString() ?? '—',
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
-              subtitle: Text(
-                  '${d['stage_name'] ?? ''} · ${_stateLabel(t, state)}',
-                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-              trailing: Text(bdt(context, d['value'] as num?),
-                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
-            ),
-            );
+            padding: const EdgeInsets.all(Gap.md),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              DsAvatar(
+                  size: 40,
+                  color: tint,
+                  child: Icon(Icons.handshake_rounded, size: 20, color: Brand.onTint(context, tint))),
+              const SizedBox(width: Gap.md),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  // title wraps (never "…"), the value under it
+                  Text(d['title']?.toString() ?? '—',
+                      style: AType.bodyLarge.copyWith(
+                          color: scheme.ds.text, fontWeight: FontWeight.w700)),
+                  Text('${d['stage_name'] ?? ''} · ${_stateLabel(t, state)}',
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+                  const SizedBox(height: Gap.xxs),
+                  Text(bdt(context, d['value'] as num?),
+                      style: AType.titleMedium.copyWith(
+                          fontWeight: FontWeight.w800, fontFeatures: AFonts.tabular)),
+                ]),
+              ),
+            ]),
+          );
         },
       ),
     );
@@ -401,25 +462,18 @@ class _ContactTile extends StatelessWidget {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: scheme.ds.primarySoft,
-              child: Icon(Icons.person_outline_rounded,
-                  size: 18, color: scheme.ds.primaryInk),
-            ),
-            const SizedBox(width: Gap.sm),
+            DsAvatar(name: contact['name']?.toString() ?? '', size: 40),
+            const SizedBox(width: Gap.md),
             Expanded(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // name + job title wrap (never "…") at 200% font
                     Text(contact['name']?.toString() ?? '—',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+                        style: AType.bodyLarge.copyWith(
+                            color: scheme.ds.text, fontWeight: FontWeight.w700)),
                     if ((contact['title'] ?? '').toString().isNotEmpty)
                       Text(contact['title'].toString(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                           style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ]),
             ),
@@ -430,23 +484,20 @@ class _ContactTile extends StatelessWidget {
             ContactRoleChip(role),
           ]),
           const SizedBox(height: Gap.sm),
-          Row(children: [
+          // call + mail as DS buttons on a Wrap: a long e-mail drops to its
+          // own line instead of being cut
+          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             if (phone.isNotEmpty)
-              OutlinedButton.icon(
+              DsButton.secondary(
                 onPressed: () => onCall(phone),
-                icon: const Icon(Icons.call_rounded, size: 16),
-                label: Text(contact['phone']?.toString() ?? phone,
-                    overflow: TextOverflow.ellipsis),
+                icon: Icons.call_rounded,
+                label: contact['phone']?.toString() ?? phone,
               ),
-            if (phone.isNotEmpty && email.isNotEmpty) const SizedBox(width: Gap.sm),
             if (email.isNotEmpty)
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => onMail(email),
-                  icon: const Icon(Icons.mail_outline_rounded, size: 16),
-                  label: Text(email,
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
-                ),
+              DsButton.secondary(
+                onPressed: () => onMail(email),
+                icon: Icons.mail_outline_rounded,
+                label: email,
               ),
           ]),
         ]),

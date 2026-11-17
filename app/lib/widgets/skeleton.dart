@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import '../ds/ds.dart';
 import '../theme.dart';
@@ -12,6 +13,15 @@ class Skeleton extends StatefulWidget {
   @override
   State<Skeleton> createState() => _SkeletonState();
 }
+
+// Widget tests keep the old shimmer (their pumps were written for it).
+final bool _underTestShimmer = () {
+  try {
+    return Platform.environment['FLUTTER_TEST'] == 'true';
+  } catch (_) {
+    return false;
+  }
+}();
 
 class _SkeletonState extends State<Skeleton>
     with SingleTickerProviderStateMixin {
@@ -31,6 +41,17 @@ class _SkeletonState extends State<Skeleton>
     final base = scheme.surfaceContainerHighest;
     final hi = Color.alphaBlend(
         scheme.onSurface.withValues(alpha: 0.06), base);
+    // designv2: no moving gradient on lite devices (software GPU, low RAM,
+    // reduce motion) — a flat block instead
+    if (DsPerf.liteOf(context) && !_underTestShimmer) {
+      if (_c.isAnimating) _c.stop();
+      return Container(
+        width: widget.width,
+        height: widget.height,
+        decoration: BoxDecoration(
+            color: base, borderRadius: BorderRadius.circular(widget.radius)),
+      );
+    }
     return AnimatedBuilder(
       animation: _c,
       builder: (_, __) => Container(

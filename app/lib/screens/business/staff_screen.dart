@@ -131,22 +131,14 @@ class _StaffScreenState extends State<StaffScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    Widget addButtons() => Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-          FilledButton.icon(
-            key: const ValueKey('bb-staff-circle'),
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-            onPressed: _busy ? null : _fromCircle,
-            icon: const Icon(Icons.people_alt_rounded),
-            label: Text(t.bbStaffFromCircle),
-          ),
-          OutlinedButton.icon(
-            key: const ValueKey('bb-staff-number'),
-            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-            onPressed: _busy ? null : _byNumber,
-            icon: const Icon(Icons.dialpad_rounded),
-            label: Text(t.bbStaffByNumber),
-          ),
-        ]);
+    final ds = scheme.ds;
+    final numberButton = DsButton.secondary(
+      buttonKey: const ValueKey('bb-staff-number'),
+      onPressed: _busy ? null : _byNumber,
+      icon: Icons.dialpad_rounded,
+      label: t.bbStaffByNumber,
+      expand: true,
+    );
     Widget body;
     if (_loading) {
       body = const SkeletonList();
@@ -157,38 +149,61 @@ class _StaffScreenState extends State<StaffScreen> {
         message: honestFailText(t, _fail),
         action: FilledButton(onPressed: _load, child: Text(t.retry)),
       );
-    } else {
+    } else if (_rows.isEmpty) {
+      // DS empty state: benefit + one big button (My Circle in one tap) +
+      // the by-number fallback + how it works.
       body = ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          Text(t.bbStaffBenefit, style: AType.bodyLarge),
-          const SizedBox(height: Gap.sm),
-          Text(t.bbStaffHow, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-          const SizedBox(height: Gap.lg),
-          addButtons(),
-          const SizedBox(height: Gap.lg),
-          if (_rows.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: Gap.lg),
-              child: Text(t.bbStaffNone,
-                  textAlign: TextAlign.center,
-                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
-            )
-          else
+          DsEmptyState(
+            icon: Icons.badge_rounded,
+            title: t.bbStaffNone,
+            benefit: t.bbStaffBenefit,
+            actionKey: const ValueKey('bb-staff-circle'),
+            actionLabel: t.bbStaffFromCircle,
+            onAction: _busy ? null : _fromCircle,
+            howTo: [t.bbStaffHow],
+          ),
+          const SizedBox(height: Gap.md),
+          numberButton,
+        ],
+      );
+    } else {
+      // Page rule: adding staff first (soft hero), then the team list.
+      body = ListView(
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+        children: [
+          DsHeroCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Text(t.bbStaffBenefit, style: AType.bodyLarge.copyWith(color: ds.text)),
+              const SizedBox(height: Gap.md),
+              DsButton(
+                buttonKey: const ValueKey('bb-staff-circle'),
+                onPressed: _busy ? null : _fromCircle,
+                icon: Icons.people_alt_rounded,
+                label: t.bbStaffFromCircle,
+                expand: true,
+              ),
+              const SizedBox(height: Gap.sm),
+              numberButton,
+            ]),
+          ),
+          DsSectionHeader(t.bbStaffTitle),
+          DsGroup(margin: EdgeInsets.zero, children: [
             for (final m in _rows)
-              DsCard(
-                padding: EdgeInsets.zero,
-                child: ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.badge_rounded)),
-                  title: Text('${m['name'] ?? ''}'),
-                  subtitle: Text('${m['phone_masked'] ?? ''}'),
-                  trailing: IconButton(
-                    tooltip: t.bbStaffRemove,
-                    icon: Icon(Icons.person_remove_rounded, color: scheme.error),
-                    onPressed: () => _remove(m),
-                  ),
+              DsListRow(
+                leading: DsAvatar(name: '${m['name'] ?? ''}'),
+                title: '${m['name'] ?? ''}',
+                subtitle: '${m['phone_masked'] ?? ''}',
+                trailing: IconButton(
+                  tooltip: t.bbStaffRemove,
+                  icon: Icon(Icons.person_remove_rounded, color: ds.dangerInk),
+                  onPressed: () => _remove(m),
                 ),
               ),
+          ]),
+          const SizedBox(height: Gap.md),
+          Text(t.bbStaffHow, style: AType.bodySmall.copyWith(color: ds.muted)),
         ],
       );
     }

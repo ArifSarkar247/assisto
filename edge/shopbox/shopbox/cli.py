@@ -9,6 +9,14 @@
   AssistoShopBox.exe --fetch-model   download + verify the person model
   AssistoShopBox.exe --self-test     load the detector, run it once (used by CI)
 
+Guard Box on Linux / Raspberry Pi (gboxlinux; the .deb wraps these as
+`assisto-guardbox setup|status|pair CODE|...`, run as the service user):
+  --setup                          guided setup (cameras + pairing code)
+  --add-camera NAME --rtsp URL     add a camera (password: SHOPBOX_RTSP_PASSWORD
+                                   or inside the URL; stored encrypted)
+  --pair-code CODE [--camera ID]   pair a camera with the owner's app code
+  --status                         what the running service last reported
+
 The release ships two executables built from the same code:
 AssistoShopBox.exe (windowed: UI and --run) and AssistoShopBoxCLI.exe
 (console: for --pair / --verify / --list / --test-camera / --self-test).
@@ -63,28 +71,88 @@ def pair_token(cfg, store, token: str) -> str:
     return "offline"
 
 
-def run_headless(cfg, store) -> int:
+STATUS_FILE = "status.json"
+WATCHDOG_S = 20.0
+
+
+def write_status(eng) -> None:
+    """status.json for `assisto-guardbox status` (no secrets, no images)."""
+    import json
+    import time as _t
+    try:
+        st = eng.status()
+        st["at"] = _t.time()
+        st["version"] = __version__
+        st["cameras_named"] = {c.id: {"name": c.name, "paired": bool(c.guard),
+                                      "enabled": c.enabled} for c in eng.cfg.cameras}
+        tmp = paths.path(STATUS_FILE + ".tmp")
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(st, f, ensure_ascii=False, default=str)
+        os.replace(tmp, paths.path(STATUS_FILE))
+    except Exception:
+        log.debug("status file not written", exc_info=True)
+
+
+def _has_tokens(cfg, store) -> bool:
+    from .secure_store import SITE_TOKEN, cam_key
+    return bool(store.get(SITE_TOKEN) or any(
+        store.get(cam_key(c.id, "token")) for c in cfg.cameras))
+
+
+def _install_stop(done) -> None:
+    def _stop(*_):
+        done.set()
+    signal.signal(signal.SIGINT, _stop)
+    if hasattr(signal, "SIGTERM"):
+        signal.signal(signal.SIGTERM, _stop)
+
+
+def run_headless(cfg, store, cstore=None) -> int:
+    from . import resprofile, sysinfo
     from .engine import Engine
 
-    eng = Engine(cfg, store)
+    done = threading.Event()
+    if cstore is not None and not _has_tokens(cfg, store):
+        # a fresh box: stay up (no systemd restart loop) until the owner
+        # runs `assisto-guardbox setup`, then start by itself
+        sysinfo.sd_notify("READY=1\nSTATUS=not paired - run: sudo assisto-guardbox setup")
+        log.info("not paired yet - waiting for: sudo assisto-guardbox setup")
+        _install_stop(done)
+        while not done.wait(WATCHDOG_S):
+            sysinfo.sd_notify("WATCHDOG=1")
+            from .secure_store import SecretStore
+            cfg, store = cstore.load(), SecretStore()
+            if _has_tokens(cfg, store):
+                break
+        if done.is_set():
+            return 0
+    prof = resprofile.apply(cfg)
+    eng = Engine(cfg, store, cfg_store=cstore)
+    eng.profile = prof
     try:
         eng.start()
     except RuntimeError as exc:
         log.error("cannot start: %s", exc)
+        sysinfo.sd_notify("STATUS=not paired - run: assisto-guardbox setup")
         return 2
-    done = threading.Event()
+    sysinfo.sd_notify("READY=1\nSTATUS=guarding")
 
-    def _stop(*_):
-        done.set()
-
-    signal.signal(signal.SIGINT, _stop)
-    if hasattr(signal, "SIGTERM"):
-        signal.signal(signal.SIGTERM, _stop)
-    while not done.wait(60):
-        st = eng.status()
-        log.info("status: cameras=%s queued=%s online=%s detector=%s",
-                 st["cameras"], st["queued"], st["online"], st["detector"])
+    _install_stop(done)
+    rounds = 0
+    write_status(eng)
+    while not done.wait(WATCHDOG_S):
+        rounds += 1
+        # systemd restarts the box when these pings stop (WatchdogSec)
+        if eng.sender is None or eng.sender.is_alive():
+            sysinfo.sd_notify("WATCHDOG=1")
+        if rounds % 3 == 0:
+            st = eng.status()
+            write_status(eng)
+            log.info("status: cameras=%s queued=%s online=%s detector=%s",
+                     st["cameras"], st["queued"], st["online"], st["detector"])
+    sysinfo.sd_notify("STOPPING=1")
     eng.stop()
+    write_status(eng)
     return 0
 
 
@@ -108,6 +176,12 @@ def main(argv=None) -> int:
     p.add_argument("--live-check", action="store_true",
                    help="exit 0 if the optional live view (aiortc) is available")
     p.add_argument("--base-url", help="override server base URL (saved)")
+    p.add_argument("--setup", action="store_true", help="guided Guard Box setup")
+    p.add_argument("--add-camera", metavar="NAME")
+    p.add_argument("--rtsp", metavar="URL", help="with --add-camera")
+    p.add_argument("--pair-code", metavar="CODE")
+    p.add_argument("--camera", metavar="ID", help="with --pair-code")
+    p.add_argument("--status", action="store_true")
     p.add_argument("--version", action="version", version=__version__)
     a = p.parse_args(argv)
 
@@ -139,7 +213,18 @@ def main(argv=None) -> int:
         print("live_view=%s" % ("available" if ok else "unavailable"))
         return 0 if ok else 4
 
-    needs_store = a.run or a.pair or a.verify or a.test_camera
+    if a.status:
+        import json
+        try:
+            with open(paths.path(STATUS_FILE), "r", encoding="utf-8") as f:
+                print(json.dumps(json.load(f), ensure_ascii=False, indent=1))
+            return 0
+        except (OSError, ValueError):
+            print("no status yet (is the service running?)")
+            return 1
+
+    needs_store = (a.run or a.pair or a.verify or a.test_camera or a.setup
+                   or a.add_camera or a.pair_code)
     store = None
     if needs_store:
         from .secure_store import SecretStore
@@ -161,6 +246,35 @@ def main(argv=None) -> int:
         res = IngestClient(cfg.base_url).verify_pairing(tok)
         print("token ok" if res.outcome == SENT else "check failed: %s" % res.detail)
         return 0 if res.outcome == SENT else 1
+    if a.setup:
+        from . import setup_wizard
+        return setup_wizard.run(cfg, store, lambda: cstore.save(cfg))
+    if a.add_camera:
+        from . import pairing
+        if not a.rtsp:
+            print("--rtsp URL is required")
+            return 1
+        try:
+            cam = pairing.add_camera(cfg, store, a.add_camera, a.rtsp,
+                                     password=os.environ.get("SHOPBOX_RTSP_PASSWORD") or None)
+        except ValueError as exc:
+            print(str(exc))
+            return 1
+        cstore.save(cfg)
+        print("added %s" % cam.id)
+        return 0
+    if a.pair_code:
+        from . import pairing
+        cams = [c for c in cfg.cameras if (a.camera and c.id == a.camera)
+                or (not a.camera and not c.guard)]
+        if len(cams) != 1:
+            print("name the camera with --camera ID (see --list)")
+            return 1
+        res = pairing.pair_camera(cfg, store, cams[0], a.pair_code)
+        if res == "ok":
+            cstore.save(cfg)
+        print(pairing.message(res, cfg.language) + " / " + pairing.message(res, "en"))
+        return 0 if res == "ok" else 1
     if a.list:
         for c in cfg.cameras:
             print("%s  %-20s  zone=%s  enabled=%s  %s" % (
@@ -177,9 +291,14 @@ def main(argv=None) -> int:
         print(("ok " if ok else "failed ") + msg)
         return 0 if ok else 1
     if a.run:
-        return run_headless(cfg, store)
+        return run_headless(cfg, store, cstore)
 
-    from .ui import launch
+    try:
+        from .ui import launch
+    except Exception:
+        # a headless Linux build has no tkinter: say what to do instead
+        p.print_help()
+        return 0
     return launch(cfg, cstore)
 
 

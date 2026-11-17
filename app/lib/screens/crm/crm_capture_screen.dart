@@ -25,10 +25,12 @@ class CrmCaptureScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.crmCapture),
-          bottom: TabBar(tabs: [
-            Tab(icon: const Icon(Icons.badge_rounded), child: Text(t.crmScanCard, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(icon: const Icon(Icons.dynamic_form_rounded), child: Text(t.crmImportForm, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(icon: const Icon(Icons.merge_type_rounded), child: Text(t.crmDedupe, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+          // three tools; a scrolling tab row sized to each label, so no
+          // label is cut with "…" at 200% font (fixed thirds were)
+          bottom: TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: [
+            Tab(icon: const Icon(Icons.badge_rounded), child: Text(t.crmScanCard, softWrap: false)),
+            Tab(icon: const Icon(Icons.dynamic_form_rounded), child: Text(t.crmImportForm, softWrap: false)),
+            Tab(icon: const Icon(Icons.merge_type_rounded), child: Text(t.crmDedupe, softWrap: false)),
           ]),
         ),
         body: TabBarView(children: [

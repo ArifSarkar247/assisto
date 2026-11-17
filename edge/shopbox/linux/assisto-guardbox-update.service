@@ -1,0 +1,11 @@
+# gboxlinux — daily auto-update from the Guard Box release channel.
+[Unit]
+Description=Assisto Guard Box auto-update
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/assisto-guardbox
+ExecStart=/usr/lib/assisto-guardbox/assisto-guardbox-update
+Nice=10

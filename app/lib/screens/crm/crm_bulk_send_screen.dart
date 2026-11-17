@@ -173,12 +173,25 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
   }
 
   Widget _compose(AppLocalizations t) {
+    final ds = Theme.of(context).colorScheme.ds;
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-      Text(t.c100BulkIntro(_d(widget.customers.length)), style: AType.bodyMedium),
-      const SizedBox(height: Gap.xs),
-      Text(t.c100NeverAuto,
-          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
-      const SizedBox(height: Gap.md),
+      // who it goes to (the big count) as the soft hero, then the message
+      DsHeroCard(
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsAvatar(child: Icon(Icons.groups_rounded, size: 22, color: ds.primaryInk)),
+          const SizedBox(width: Gap.md),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              DsNumber(_d(widget.customers.length), small: true),
+              Text(t.c100BulkIntro(_d(widget.customers.length)),
+                  style: AType.bodyMedium.copyWith(color: ds.text)),
+              const SizedBox(height: Gap.xs),
+              Text(t.c100NeverAuto, style: AType.bodySmall.copyWith(color: ds.muted)),
+            ]),
+          ),
+        ]),
+      ),
+      const SizedBox(height: Gap.lg),
       TextField(
         controller: _text,
         minLines: 3,
@@ -188,8 +201,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
         decoration: InputDecoration(
             labelText: t.c100MessageLabel,
             helperText: t.c100NameHint('{name}'),
-            helperMaxLines: 2,
-            border: const OutlineInputBorder()),
+            helperMaxLines: 2),
       ),
       const SizedBox(height: Gap.md),
       if (_fail != null)
@@ -199,21 +211,23 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
               failKindOf(_fail!) == FailKind.network
                   ? t.c100Offline
                   : honestFailText(t, _fail, otherwise: t.c100PreviewFailed),
-              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
+              style: AType.bodyMedium.copyWith(color: ds.dangerInk)),
         ),
-      FilledButton.icon(
+      DsButton(
         onPressed: _busy ? null : _build,
-        icon: _busy
-            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(Icons.view_agenda_rounded),
-        label: Text(t.c100BulkMakeCards),
+        busy: _busy,
+        icon: Icons.view_agenda_rounded,
+        label: t.c100BulkMakeCards,
+        expand: true,
       ),
     ]);
   }
 
   Widget _cardsView(AppLocalizations t) {
     if (_cards.isEmpty) {
-      return StateMessage(icon: Icons.people_outline_rounded, title: t.c100BulkNoCards);
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(icon: Icons.people_outline_rounded, title: t.c100BulkNoCards),
+      ]);
     }
     final sent = _cards.where((c) => c.st == _St.sent || c.st == _St.opened).length;
     final skipped = _cards.where((c) => c.st == _St.skipped).length;
@@ -227,16 +241,33 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
             liveRegion: true,
             child: Padding(
               padding: const EdgeInsets.only(bottom: Gap.md),
-              child: Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-                Chip(label: Text(t.c100TallyDone(_d(sent)))),
-                Chip(label: Text(t.c100TallySkipped(_d(skipped)))),
-                Chip(label: Text(t.c100TallyWaiting(_d(waiting)))),
-              ]),
+              // the run's live tally as the soft hero
+              child: DsHeroCard(
+                child: Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+                  _tally(t.c100TallyDone(_d(sent)), Theme.of(context).colorScheme.ds.successInk),
+                  _tally(t.c100TallySkipped(_d(skipped)), null),
+                  _tally(t.c100TallyWaiting(_d(waiting)), Theme.of(context).colorScheme.ds.primaryInk),
+                ]),
+              ),
             ),
           );
         }
         return _card(t, _cards[i - 1]);
       },
+    );
+  }
+
+  Widget _tally(String label, Color? ink) {
+    final ds = Theme.of(context).colorScheme.ds;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+      decoration: BoxDecoration(
+        color: ink == null ? ds.cardHighest : ink.withValues(alpha: ds.isDark ? 0.22 : 0.12),
+        borderRadius: BorderRadius.circular(Radii.pill),
+      ),
+      child: Text(label,
+          style: AType.bodyMedium.copyWith(
+              fontWeight: FontWeight.w600, fontFeatures: AFonts.tabular, color: ink ?? ds.text)),
     );
   }
 
@@ -248,19 +279,34 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
     return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text('${c['name'] ?? ''}'.isEmpty ? _d('${c['phone'] ?? ''}') : '${c['name']}',
-              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: Gap.xs),
-          Text('${c['text'] ?? ''}', style: AType.bodyMedium),
+          Row(children: [
+            DsAvatar(name: '${c['name'] ?? ''}', size: 40),
+            const SizedBox(width: Gap.md),
+            Expanded(
+              child: Text('${c['name'] ?? ''}'.isEmpty ? _d('${c['phone'] ?? ''}') : '${c['name']}',
+                  style: AType.titleMedium.copyWith(
+                      color: scheme.ds.text, fontWeight: FontWeight.w700)),
+            ),
+          ]),
+          const SizedBox(height: Gap.sm),
+          // the exact message, as a soft quote
+          DsSurface(
+            flat: true,
+            color: scheme.ds.cardAlt,
+            borderColor: scheme.ds.border,
+            padding: const EdgeInsets.all(Gap.md),
+            child: Text('${c['text'] ?? ''}',
+                style: AType.bodyMedium.copyWith(color: scheme.ds.text)),
+          ),
           if (k.detail.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(k.detail,
                 style: AType.bodySmall
-                    .copyWith(color: k.st == _St.failed ? scheme.error : scheme.primary)),
+                    .copyWith(color: k.st == _St.failed ? scheme.ds.dangerInk : scheme.ds.primaryInk)),
           ],
           if (!phoneOk) ...[
             const SizedBox(height: Gap.xs),
-            Text(t.c100NoPhone, style: AType.bodySmall.copyWith(color: scheme.error)),
+            Text(t.c100NoPhone, style: AType.bodySmall.copyWith(color: scheme.ds.dangerInk)),
           ],
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [

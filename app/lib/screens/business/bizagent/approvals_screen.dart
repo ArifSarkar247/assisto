@@ -5,6 +5,8 @@ import '../../../bizagent_api.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../state.dart';
 import '../../../theme.dart';
+import '../../../ds/ds.dart';
+import '../../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
 import 'seller_agent_screen.dart' show baChannelLabel, baErrorText, bd;
@@ -108,16 +110,21 @@ class _ApprovalsScreenState extends State<ApprovalsScreen> {
       );
     }
     if (_items.isEmpty) {
-      return StateMessage(
-        icon: Icons.task_alt_rounded,
-        title: t.baApprovalsEmptyTitle,
-        message: t.baApprovalsEmptyBody,
+      return ListView(
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+        children: [
+          DsEmptyState(
+            icon: Icons.task_alt_rounded,
+            title: t.baApprovalsEmptyTitle,
+            benefit: t.baApprovalsEmptyBody,
+          ),
+        ],
       );
     }
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         itemCount: _items.length,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
         itemBuilder: (_, i) => _ApprovalCard(
@@ -233,26 +240,24 @@ class _ApprovalCardState extends State<_ApprovalCard> {
           minLines: 2,
           maxLines: 6,
           onChanged: (_) => setState(() {}),
-          decoration: InputDecoration(
-              labelText: t.baProposedReply, border: const OutlineInputBorder()),
+          // the one DS input style (from the theme)
+          decoration: InputDecoration(labelText: t.baProposedReply),
         ),
         const SizedBox(height: Gap.md),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.end, children: [
-          TextButton(
+          DsButton.secondary(
             onPressed: _busy ? null : () => _run(() => api.bizAgentReject(id), t.baRejected),
-            // a11y1: primary on the card tint was 4.48:1.
-            style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.ds.text),
-            child: Text(t.baReject),
+            label: t.baReject,
           ),
-          FilledButton.icon(
+          DsButton(
             onPressed: _busy || _c.text.trim().isEmpty
                 ? null
                 : () => _run(
                     () => api.bizAgentApprove(id, text: _edited ? _c.text.trim() : null),
                     t.baSent),
-            icon: const Icon(Icons.send_rounded, size: 18),
-            label: Text(_edited ? t.baSendEdited : t.baApprove),
+            busy: _busy,
+            icon: Icons.send_rounded,
+            label: _edited ? t.baSendEdited : t.baApprove,
           ),
         ]),
       ]),

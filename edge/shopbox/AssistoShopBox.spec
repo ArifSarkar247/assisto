@@ -10,6 +10,8 @@ from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs
 
 here = SPECPATH  # noqa: F821 (provided by PyInstaller)
 datas = collect_data_files("tzdata")
+# gboxlinux: the detection thresholds shared with the phone Guard Box
+datas.append((os.path.join(here, "shopbox", "guard_thresholds.json"), "shopbox"))
 model = os.path.join(here, "models", "yolox_nano.onnx")
 if os.path.exists(model):
     datas.append((model, "models"))

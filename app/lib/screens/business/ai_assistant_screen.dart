@@ -137,24 +137,25 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   Widget _channelTile(AppLocalizations tr, String name, IconData icon, String key) {
     final connected = (_channels?[key] as Map?)?['connected'] == true;
     final scheme = Theme.of(context).colorScheme;
-    return Container(
+    return DsSurface(
+      flat: true,
+      color: scheme.ds.cardAlt,
+      borderColor: scheme.ds.border,
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.ds.cardHighest,
-        borderRadius: BorderRadius.circular(Radii.sm),
-      ),
       child: Row(children: [
-        Icon(icon, color: scheme.primary),
+        DsAvatar(size: 40, child: Icon(icon, size: 20, color: scheme.ds.primaryInk)),
         const SizedBox(width: Gap.md),
-        Expanded(child: Text(name, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
+        Expanded(
+            child: Text(name,
+                style: AType.bodyMedium.copyWith(
+                    color: scheme.ds.text, fontWeight: FontWeight.w600))),
         if (connected)
           BizStatusChip(label: tr.bizConnected, color: AssistoTokens.of(context).success)
         else
-          OutlinedButton(
+          DsButton.secondary(
             // Mock: connecting needs real Meta keys; show the honest state.
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(tr.bizChannelsNeedKey))),
-            child: Text(tr.bizConnect),
+            onPressed: () => showDsToast(context, tr.bizChannelsNeedKey),
+            label: tr.bizConnect,
           ),
       ]),
     );
@@ -163,11 +164,15 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   // ---- inbox of threads ----
   Widget _inbox(AppLocalizations tr) {
     if (_threads.isEmpty) {
-      return StateMessage(
-        icon: Icons.forum_rounded,
-        title: tr.bizInboxEmptyTitle,
-        message: tr.bizInboxEmptyBody,
-      );
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: Icons.forum_rounded,
+          title: tr.bizInboxEmptyTitle,
+          benefit: tr.bizInboxEmptyBody,
+          actionLabel: tr.bizRefresh,
+          onAction: _load,
+        ),
+      ]);
     }
     return RefreshIndicator(
       onRefresh: _load,
@@ -197,44 +202,51 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     final name = (t['customer_name'] ?? t['customer_phone'] ?? '').toString();
     final last = (t['last_text'] ?? '').toString();
     final channel = (t['channel'] ?? '').toString();
+    // The chats that need the owner read first: a red-tinted card.
     return DsCard(
-      padding: EdgeInsets.zero,
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
-        leading: CircleAvatar(
-          backgroundColor: scheme.ds.primarySoft,
+      tone: needsHuman ? DsTone.danger : DsTone.normal,
+      padding: const EdgeInsets.all(Gap.md),
+      onTap: () async {
+        final changed = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(
+            builder: (_) => AiThreadScreen(threadId: (t['id'] as num).toInt()),
+          ),
+        );
+        if (changed == true) _load();
+      },
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        DsAvatar(
           child: Icon(
             channel == 'messenger' ? Icons.forum_rounded : Icons.chat_rounded,
             color: scheme.ds.primaryInk,
             size: 20,
           ),
         ),
-        title: Row(children: [
-          Expanded(
-            child: Text(name,
-                maxLines: 1,
+        const SizedBox(width: Gap.md),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            // name wraps (never "…"); the status chip drops under it at 200%
+            Wrap(
+                spacing: Gap.sm,
+                runSpacing: Gap.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(name,
+                      style: AType.bodyLarge.copyWith(
+                          color: scheme.ds.text, fontWeight: FontWeight.w700)),
+                  if (needsHuman)
+                    BizStatusChip(label: tr.bizNeedsYou, color: Theme.of(context).colorScheme.error)
+                  else if (takeover)
+                    BizStatusChip(label: tr.bizOwnerOn, color: AssistoTokens.of(context).warning),
+                ]),
+            const SizedBox(height: Gap.xs),
+            Text(last.isEmpty ? tr.bizNoMessagesYet : last,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-          ),
-          if (needsHuman)
-            BizStatusChip(label: tr.bizNeedsYou, color: Theme.of(context).colorScheme.error)
-          else if (takeover)
-            BizStatusChip(label: tr.bizOwnerOn, color: AssistoTokens.of(context).warning),
-        ]),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: Gap.xs),
-          child: Text(last.isEmpty ? tr.bizNoMessagesYet : last,
-              maxLines: 2, overflow: TextOverflow.ellipsis),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+          ]),
         ),
-        onTap: () async {
-          final changed = await Navigator.of(context).push<bool>(
-            MaterialPageRoute(
-              builder: (_) => AiThreadScreen(threadId: (t['id'] as num).toInt()),
-            ),
-          );
-          if (changed == true) _load();
-        },
-      ),
+      ]),
     );
   }
 }

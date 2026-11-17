@@ -1,0 +1,8 @@
+# /etc/default/assisto-guardbox — settings of the Assisto Guard Box.
+# AUTO_UPDATE=1 installs new versions from the release channel once a day
+# (SHA-256 checked; the previous version is put back if the new one fails).
+AUTO_UPDATE=1
+# CHANNEL is the GitHub release tag the box updates from.
+CHANNEL=guardbox-linux
+# lite = 2 GB Raspberry Pi settings, full = a bigger PC. Empty = automatic.
+SHOPBOX_PROFILE=

@@ -1,0 +1,46 @@
+#!/bin/sh
+# gboxlinux — `assisto-guardbox <command>`: runs the Guard Box program as its
+# service user with the service's data dir, so setup and the service share the
+# same (encrypted) settings.
+#   sudo assisto-guardbox setup        cameras + the pairing code (guided)
+#   assisto-guardbox status            what the running box reports
+#   sudo assisto-guardbox pair CODE    pair the one unpaired camera
+#   sudo assisto-guardbox restart | logs | update | version
+set -e
+BIN=/opt/assisto-guardbox/assisto-guardbox
+USR=assisto-guardbox
+export SHOPBOX_HOME=/var/lib/assisto-guardbox
+run_as() {
+  if [ "$(id -u)" = "0" ]; then
+    exec runuser -u "$USR" -- env SHOPBOX_HOME="$SHOPBOX_HOME" "$BIN" "$@"
+  elif [ "$(id -un)" = "$USR" ]; then
+    exec "$BIN" "$@"
+  else
+    echo "Please run with sudo:  sudo assisto-guardbox $*" >&2; exit 1
+  fi
+}
+cmd="${1:-help}"; [ $# -gt 0 ] && shift
+case "$cmd" in
+  setup)
+    if [ "$(id -u)" != "0" ]; then echo "Please run:  sudo assisto-guardbox setup" >&2; exit 1; fi
+    runuser -u "$USR" -- env SHOPBOX_HOME="$SHOPBOX_HOME" "$BIN" --setup "$@" || true
+    systemctl restart assisto-guardbox 2>/dev/null || true ;;
+  pair)
+    if [ "$(id -u)" != "0" ]; then echo "Please run:  sudo assisto-guardbox pair CODE" >&2; exit 1; fi
+    runuser -u "$USR" -- env SHOPBOX_HOME="$SHOPBOX_HOME" "$BIN" --pair-code "$@"
+    systemctl restart assisto-guardbox 2>/dev/null || true ;;
+  status)  run_as --status ;;
+  list)    run_as --list ;;
+  restart) systemctl restart assisto-guardbox ;;
+  logs)    journalctl -u assisto-guardbox -n 200 --no-pager ;;
+  update)  exec /usr/lib/assisto-guardbox/assisto-guardbox-update --now ;;
+  version) exec "$BIN" --version ;;
+  run)     run_as --run "$@" ;;
+  --*)     run_as "$cmd" "$@" ;;
+  *)
+    echo "Assisto Guard Box"
+    echo "  sudo assisto-guardbox setup     ক্যামেরা ও কোড দিয়ে চালু করুন / set up cameras + pairing code"
+    echo "  assisto-guardbox status         অবস্থা / status"
+    echo "  sudo assisto-guardbox logs      লগ / logs"
+    echo "  sudo assisto-guardbox update    এখনই আপডেট / update now" ;;
+esac

@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ১০২ / মোট ৪২০**
+**স্ক্রিন শেষ: ১২৯ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -206,38 +206,38 @@
 
 ## ১১. মাই বিজনেস
 
-- ⬜ — `bizai/my_shops_screen.dart`
-- ⬜ — `bizai/weekly_report_screen.dart`
-- ⬜ — `bizai/winback_screen.dart`
-- ⬜ — `screens/agent_core/biz_brief_screen.dart`
+- ✅ batch d2-9 (DS কার্ড ও ক্রম) — `bizai/my_shops_screen.dart`
+- ✅ batch d2-9 (DS কার্ড ও ক্রম) — `bizai/weekly_report_screen.dart`
+- ✅ batch d2-9 (DS কার্ড ও ক্রম) — `bizai/winback_screen.dart`
+- ✅ batch d2-9 (DS কার্ড ও ক্রম) — `screens/agent_core/biz_brief_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/booking/booking_biz_screen.dart`
-- ⬜ — `screens/business/ai_assistant_screen.dart`
-- ⬜ — `screens/business/bargain_rules_screen.dart`
-- ⬜ — `screens/business/bizagent/approvals_screen.dart`
-- ⬜ — `screens/business/bizagent/seller_activity_screen.dart`
-- ⬜ — `screens/business/bizagent/seller_agent_screen.dart`
-- ⬜ — `screens/business/bizagent/seller_inbox_screen.dart`
-- ⬜ — `screens/business/bizagent/seller_setup_screen.dart`
-- ⬜ — `screens/business/books_screen.dart`
+- ✅ batch d2-9 (DS কার্ড ও ক্রম) — `screens/business/ai_assistant_screen.dart`
+- ✅ batch d2-9 (DS খালি অবস্থা, বাংলা অঙ্ক) — `screens/business/bargain_rules_screen.dart`
+- ✅ batch d2-9 (DS কার্ড ও ক্রম) — `screens/business/bizagent/approvals_screen.dart`
+- ✅ batch d2-9 (DS কার্ড ও ক্রম) — `screens/business/bizagent/seller_activity_screen.dart`
+- ✅ batch d2-9 (অপেক্ষমাণ উত্তর আগে, এজেন্ট হিরো) — `screens/business/bizagent/seller_agent_screen.dart`
+- ✅ batch d2-9 (চ্যাট কার্ড) — `screens/business/bizagent/seller_inbox_screen.dart`
+- ✅ batch d2-9 (DS কার্ড ও ক্রম) — `screens/business/bizagent/seller_setup_screen.dart`
+- ✅ batch d2-9 (নিট লাভ = নরম হিরো, অংশগুলো DS কার্ডে) — `screens/business/books_screen.dart`
 - ✅ batch 3 (মাই বিজনেস হেডার) — `screens/business/business_hub_screen.dart`
-- ⬜ — `screens/business/business_setup_screen.dart`
-- ⬜ — `screens/business/cashbox_screen.dart`
-- ⬜ — `screens/business/customers_screen.dart`
-- ⬜ — `screens/business/demand_map_screen.dart`
+- ✅ batch d2-9 (হিরো, ধরন-টাইল বড় হয়) — `screens/business/business_setup_screen.dart`
+- ✅ batch d2-9 (প্রত্যাশিত নগদ = হিরো + দিন বদল, নিচে জমা/খরচ) — `screens/business/cashbox_screen.dart`
+- ✅ batch d2-9 (গ্রাহক সংখ্যা + বাকি = হিরো, অ্যাভাটার) — `screens/business/customers_screen.dart`
+- ✅ batch d2-9 (চাহিদার শীর্ষ পণ্য = হিরো) — `screens/business/demand_map_screen.dart`
 - ✅ batch d2-5 (স্কেলেটন) — `screens/business/invoice/invoice_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/business/invoice/invoice_settings_screen.dart`
 - ✅ batch d2-2 (নতুন ইনভয়েস বোতাম সবার আগে, অনুচ্ছেদ নেই) — `screens/business/invoice/invoices_screen.dart`
-- ⬜ — `screens/business/invoice/new_invoice_screen.dart`
+- ✅ batch d2-9 (DS অংশ) — `screens/business/invoice/new_invoice_screen.dart`
 - ✅ batch 6 (জীবন্ত অর্ডার কার্ড, DS খালি/ত্রুটি) — `screens/business/orders_screen.dart`
 - ✅ batch 6 (জীবন্ত BizCard, DS ত্রুটি অবস্থা, পূর্ণ-চওড়া বোতাম) — `screens/business/payments_screen.dart`
-- ⬜ — `screens/business/products_screen.dart`
-- ⬜ — `screens/business/quick_sell_screen.dart`
+- ✅ batch d2-9 (দ্বিগুণ শিরোনাম নেই, DS চিপ, নাম ভাঙে) — `screens/business/products_screen.dart`
+- ✅ batch d2-9 (DS টোস্ট, ফন্টের সাথে গ্রিড বড় হয়) — `screens/business/quick_sell_screen.dart`
 - ✅ batch 6 (বিক্রি = নরম হিরো (বড় সংখ্যা), সমান উচ্চতার লাভ/খরচ কার্ড) — `screens/business/reports_screen.dart`
-- ⬜ — `screens/business/sms_balance_screen.dart`
-- ⬜ — `screens/business/staff_screen.dart`
-- ⬜ — `screens/business/supplier_market_screen.dart`
-- ⬜ — `screens/business/tagada_send_screen.dart`
-- ⬜ — `screens/business_screen.dart`
+- ✅ batch d2-9 (ব্যালান্স = হিরো) — `screens/business/sms_balance_screen.dart`
+- ✅ batch d2-9 (সার্কেল থেকে যোগ = হিরো, DS খালি অবস্থা) — `screens/business/staff_screen.dart`
+- ✅ batch d2-9 (DS কার্ড ও ক্রম) — `screens/business/supplier_market_screen.dart`
+- ✅ batch d2-9 (চলমান অবস্থা = হিরো) — `screens/business/tagada_send_screen.dart`
+- ✅ batch d2-9 (বিজনেস হাবের মোড়ক) — `screens/business_screen.dart`
 - ⬜ — `screens/crm/crm_aftersale_screen.dart`
 - ⬜ — `screens/crm/crm_automation_screen.dart`
 - ⬜ — `screens/crm/crm_bulk_send_screen.dart`
@@ -246,7 +246,7 @@
 - ⬜ — `screens/crm/crm_company_detail_screen.dart`
 - ✅ batch d2-7 (ওজনযুক্ত পূর্বাভাস = নরম হিরো, লেবেল কাটা যায় না) — `screens/crm/crm_dashboard_screen.dart`
 - ⬜ — `screens/crm/crm_erp_handoff_screen.dart`
-- ⬜ — `screens/crm/crm_firstrun_screen.dart`
+- ✅ batch d2-8 (স্বাগতম = নরম হিরো আঁকা ছবিসহ, ত্রুটি = লাল কার্ড) — `screens/crm/crm_firstrun_screen.dart`
 - ⬜ — `screens/crm/crm_home_screen.dart`
 - ⬜ — `screens/crm/crm_lead_detail_screen.dart`
 - ⬜ — `screens/crm/crm_lead_form_screen.dart`
@@ -258,7 +258,7 @@
 - ⬜ — `screens/crm/crm_team_advanced_screen.dart`
 - ⬜ — `screens/crm/crm_team_screen.dart`
 - ⬜ — `screens/crm/crm_today_screen.dart`
-- ⬜ — `screens/crm/customer_history_screen.dart`
+- ✅ batch d2-8 (গ্রাহক = নরম হিরো, DS অ্যাভাটার) — `screens/crm/customer_history_screen.dart`
 - ⬜ — `screens/crm/customer_list_screen.dart`
 - ⬜ — `screens/crm_contacts_screen.dart`
 - ⬜ — `screens/pa/biz_travel_events_screen.dart`
@@ -282,7 +282,7 @@
 
 - ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `screens/language_pack_screen.dart`
 - ✅ batch d2-2 (আজকের লক্ষ্য = নরম হিরো, জীবন্ত কার্ড) — `screens/language_partner_screen.dart`
-- ⬜ — `screens/language_picker_screen.dart`
+- ✅ batch d2-8 (ভাষা = জীবন্ত কার্ড, বাছাই করা = নীল সীমানা, বড় চালিয়ে যান বোতাম) — `screens/language_picker_screen.dart`
 
 ## ১৪. কুরআন
 

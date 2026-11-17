@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+USR=assisto-guardbox
+DATA=/var/lib/assisto-guardbox
+if [ "$1" = "configure" ]; then
+  if ! getent passwd "$USR" >/dev/null; then
+    adduser --system --group --home "$DATA" --no-create-home --shell /usr/sbin/nologin "$USR" >/dev/null
+  fi
+  getent group audio >/dev/null && adduser "$USR" audio >/dev/null 2>&1 || true
+  mkdir -p "$DATA" /var/cache/assisto-guardbox
+  chown -R "$USR:$USR" "$DATA"
+  chmod 700 "$DATA"
+  chown root:root /var/cache/assisto-guardbox
+  chmod 700 /var/cache/assisto-guardbox
+  if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload >/dev/null 2>&1 || true
+    systemctl enable assisto-guardbox.service assisto-guardbox-update.timer >/dev/null 2>&1 || true
+    systemctl restart assisto-guardbox.service >/dev/null 2>&1 || true
+    systemctl start assisto-guardbox-update.timer >/dev/null 2>&1 || true
+  fi
+  echo ""
+  echo "  Assisto Guard Box installed / আসিস্টো পাহারা বক্স ইনস্টল হয়েছে"
+  echo "  Next / এরপর:  sudo assisto-guardbox setup"
+  echo ""
+fi
+exit 0

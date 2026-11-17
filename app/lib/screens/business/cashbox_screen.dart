@@ -179,43 +179,78 @@ class _CashboxScreenState extends State<CashboxScreen> {
                   child: ListView(
                     padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
                     children: [
-                      // Day stepper.
-                      Row(children: [
-                        IconButton(
-                            tooltip: AppLocalizations.of(context).f2PrevDay,
-                            onPressed: () => _stepDay(-1),
-                            icon: const Icon(Icons.chevron_left_rounded)),
-                        Expanded(
-                          child: Text(
-                              DateFormat.yMMMEd(Localizations.localeOf(context).toLanguageTag())
-                                  .format(_day),
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleMedium),
-                        ),
-                        IconButton(
-                            tooltip: AppLocalizations.of(context).f2NextDay,
-                            onPressed: _isToday ? null : () => _stepDay(1),
-                            icon: const Icon(Icons.chevron_right_rounded)),
-                      ]),
-                      const SizedBox(height: Gap.sm),
-
-                      // Expected-cash hero.
-                      BrandBand(
+                      // Expected-cash hero first (page rule), with the day
+                      // stepper on its top row — the number is what the
+                      // shopkeeper opens this screen for.
+                      DsHeroCard(
+                        padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.sm, Gap.sm, Gap.lg),
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(t.cashboxExpected,
-                                  style: AType.bodyMedium),
-                              const SizedBox(height: Gap.xxs),
-                              Text(
-                                  pair(context, s['expected_display'],
-                                      fallback: zero),
-                                  key: const ValueKey('bb-cb-expected'),
-                                  style: AType.headlineLarge.copyWith(fontWeight: FontWeight.w700)),
-                              const SizedBox(height: Gap.xs),
-                              Text(t.bbCbHowTo, style: AType.bodySmall),
+                              Row(children: [
+                                IconButton(
+                                    tooltip: AppLocalizations.of(context).f2PrevDay,
+                                    onPressed: () => _stepDay(-1),
+                                    icon: const Icon(Icons.chevron_left_rounded)),
+                                Expanded(
+                                  child: Text(
+                                      DateFormat.yMMMEd(Localizations.localeOf(context).toLanguageTag())
+                                          .format(_day),
+                                      textAlign: TextAlign.center,
+                                      style: AType.titleMedium.copyWith(
+                                          color: scheme.ds.text, fontWeight: FontWeight.w600)),
+                                ),
+                                IconButton(
+                                    tooltip: AppLocalizations.of(context).f2NextDay,
+                                    onPressed: _isToday ? null : () => _stepDay(1),
+                                    icon: const Icon(Icons.chevron_right_rounded)),
+                              ]),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+                                child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: Gap.xs),
+                                      Text(t.cashboxExpected,
+                                          style: AType.titleSmall.copyWith(color: scheme.ds.muted)),
+                                      const SizedBox(height: Gap.xxs),
+                                      DsNumber(
+                                          pair(context, s['expected_display'],
+                                              fallback: zero),
+                                          key: const ValueKey('bb-cb-expected')),
+                                      const SizedBox(height: Gap.xs),
+                                      Text(t.bbCbHowTo,
+                                          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+                                    ]),
+                              ),
                             ]),
                       ),
+                      const SizedBox(height: Gap.md),
+
+                      // Cash in / out right under the hero — the two things
+                      // done all day (always open: a row added after the
+                      // close re-computes the difference honestly).
+                      Row(children: [
+                        Expanded(
+                          child: FilledButton.icon(
+                            style: Brand.successButton(),
+                            icon: const Icon(Icons.add_rounded),
+                            label: Text(t.cashboxCashIn,
+                                maxLines: 2, textAlign: TextAlign.center),
+                            onPressed: () => _addEntry('in'),
+                          ),
+                        ),
+                        const SizedBox(width: Gap.md),
+                        Expanded(
+                          child: FilledButton.icon(
+                            style: Brand.dangerButton(),
+                            icon: const Icon(Icons.remove_rounded),
+                            label: Text(t.cashboxCashOut,
+                                maxLines: 2, textAlign: TextAlign.center),
+                            onPressed: () => _addEntry('out'),
+                          ),
+                        ),
+                      ]),
                       const SizedBox(height: Gap.lg),
 
                       // Breakdown: opening + what the shop already booked
@@ -273,71 +308,43 @@ class _CashboxScreenState extends State<CashboxScreen> {
                         ),
                       const SizedBox(height: Gap.md),
 
-                      // Cash in / out actions (always open: a row added after
-                      // the close re-computes the difference honestly).
-                      Row(children: [
-                        Expanded(
-                          child: FilledButton.icon(
-                            style: Brand.successButton(),
-                            icon: const Icon(Icons.add_rounded),
-                            label: Text(t.cashboxCashIn,
-                                maxLines: 2, textAlign: TextAlign.center),
-                            onPressed: () => _addEntry('in'),
-                          ),
-                        ),
-                        const SizedBox(width: Gap.md),
-                        Expanded(
-                          child: FilledButton.icon(
-                            style: Brand.dangerButton(),
-                            icon: const Icon(Icons.remove_rounded),
-                            label: Text(t.cashboxCashOut,
-                                maxLines: 2, textAlign: TextAlign.center),
-                            onPressed: () => _addEntry('out'),
-                          ),
-                        ),
-                      ]),
-                      const SizedBox(height: Gap.lg),
-
                       // Day close.
                       if (reconciled) ...[
                         _ReconciledCard(summary: s),
                         const SizedBox(height: Gap.sm),
                       ],
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          key: const ValueKey('bb-cb-close'),
-                          icon: const Icon(Icons.fact_check_rounded),
-                          label: Text(
-                              reconciled ? t.bbCbRecount : t.cashboxReconcile,
-                              maxLines: 2,
-                              textAlign: TextAlign.center),
-                          onPressed: _reconcile,
-                        ),
+                      DsButton.secondary(
+                        buttonKey: const ValueKey('bb-cb-close'),
+                        icon: Icons.fact_check_rounded,
+                        label: reconciled ? t.bbCbRecount : t.cashboxReconcile,
+                        onPressed: _reconcile,
+                        expand: true,
                       ),
-                      const SizedBox(height: Gap.lg),
 
-                      // Entries list.
-                      Text(t.stmtParticulars,
-                          style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: Gap.sm),
+                      // Entries list: one grouped DS card.
+                      DsSectionHeader(t.stmtParticulars),
                       ...(() {
                         final entries = ((s['entries'] ?? []) as List)
                             .cast<Map<String, dynamic>>();
                         if (entries.isEmpty) {
                           return [
-                            Padding(
-                              padding: const EdgeInsets.all(Gap.xl),
-                              child: Center(
-                                child: Text(t.cashboxNoEntries,
-                                    style: AType.bodyMedium.copyWith(
-                                        color: scheme.ds.muted)),
-                              ),
+                            DsCard(
+                              child: Row(children: [
+                                Icon(Icons.receipt_long_rounded, color: scheme.ds.muted),
+                                const SizedBox(width: Gap.md),
+                                Expanded(
+                                  child: Text(t.cashboxNoEntries,
+                                      style: AType.bodyMedium.copyWith(
+                                          color: scheme.ds.muted)),
+                                ),
+                              ]),
                             )
                           ];
                         }
                         return [
-                          for (final e in entries) _CashEntryTile(entry: e),
+                          DsGroup(margin: EdgeInsets.zero, children: [
+                            for (final e in entries) _CashEntryTile(entry: e),
+                          ]),
                         ];
                       })(),
                     ],
@@ -466,25 +473,21 @@ class _CashEntryTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final isIn = (entry['kind'] ?? '') == 'in';
     final note = (entry['note'] ?? '').toString();
-    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
-        padding: EdgeInsets.zero,
-        child: ListTile(
-        leading: Icon(isIn ? Icons.south_west_rounded : Icons.north_east_rounded,
-            color: isIn ? AssistoTokens.of(context).success : scheme.error),
-        title: Text(note.isEmpty
-            ? (isIn
-                ? AppLocalizations.of(context).cashboxCashIn
-                : AppLocalizations.of(context).cashboxCashOut)
-            : note),
-        subtitle: (entry['ref'] ?? '').toString().isEmpty
-            ? null
-            : Text(entry['ref'].toString()),
-        trailing: Text(pair(context, entry['amount_display']),
-            style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular,
-                fontWeight: FontWeight.w700,
-                color: isIn ? AssistoTokens.of(context).success : scheme.error)),
-      ),
-      ));
+    final colour = isIn ? scheme.ds.successInk : scheme.ds.dangerInk;
+    final ref = (entry['ref'] ?? '').toString();
+    return DsListRow(
+      leading: Icon(isIn ? Icons.south_west_rounded : Icons.north_east_rounded,
+          color: colour),
+      title: note.isEmpty
+          ? (isIn
+              ? AppLocalizations.of(context).cashboxCashIn
+              : AppLocalizations.of(context).cashboxCashOut)
+          : note,
+      subtitle: ref.isEmpty ? null : ref,
+      trailing: Text(pair(context, entry['amount_display']),
+          style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular,
+              fontWeight: FontWeight.w700, color: colour)),
+    );
   }
 }
 

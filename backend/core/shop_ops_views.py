@@ -360,6 +360,11 @@ class ShopHeartbeatView(APIView):
             from . import phonecam_views as PCV
             for c in cams:
                 PCV.note_health(c, d.get("health"), now)
+        # gboxlinux: a Guard Box's power-cut / internet-down events
+        box_ok = None
+        if isinstance(d.get("box_events"), list):
+            from . import phonecam_views as PCV
+            box_ok = PCV.note_box_events(site, cam, d.get("box_events"), now)
         _sweep_live(now)
         cfg = device_config(site, cam)
         from . import watchman_views as WV
@@ -371,7 +376,8 @@ class ShopHeartbeatView(APIView):
                 # cctvbox: siren / the owner's warning for THIS camera
                 # (a phone camera or a Guard Box phone holds only a
                 # camera token, so gateway tasks reach it here)
-                "play": _take_play_tasks(site, cam, now)}
+                "play": _take_play_tasks(site, cam, now),
+                **({"box_events_ok": box_ok} if box_ok is not None else {})}
         # cctvplay: a camera PHONE gets its clip recipients + video requests
         from . import phonecam_clips_views as PCCV
         pc = PCCV.heartbeat_block(site, cams, now)

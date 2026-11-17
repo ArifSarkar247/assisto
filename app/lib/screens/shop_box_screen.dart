@@ -145,7 +145,7 @@ class _ShopBoxScreenState extends State<ShopBoxScreen> {
                   builder: (_) => CctvAccuracyScreen(siteId: _siteId))),
             ),
           ],
-          bottom: TabBar(isScrollable: true, tabs: [
+          bottom: TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: [
             Tab(text: t.shopBoxTabSites),
             Tab(text: t.shopBoxTabCameras),
             Tab(text: t.shopBoxTabAlerts),
@@ -303,8 +303,6 @@ Widget _sitePickerBanner(BuildContext context, Map<String, dynamic>? site) {
           name.isEmpty ? t.shopBoxUnnamedSite : name,
           style: AType.labelMedium.copyWith(fontWeight: FontWeight.w600,
               color: scheme.ds.muted),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
       ),
     ]),
@@ -486,15 +484,16 @@ class _SitesTab extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
           children: [
-            // Honest, signals-only explainer at the top.
-            _privacyNote(context),
-            const SizedBox(height: Gap.md),
-            _shopModeEntry(context),
-            const SizedBox(height: Gap.md),
+            // page rule: the shops themselves first, then "use this phone",
+            // the honest signals-only note last
             for (final s in sites) ...[
               _siteCard(context, t, scheme, s),
               const SizedBox(height: Gap.sm),
             ],
+            const SizedBox(height: Gap.xs),
+            _shopModeEntry(context),
+            const SizedBox(height: Gap.md),
+            _privacyNote(context),
           ],
         ),
       ),
@@ -506,12 +505,11 @@ class _SitesTab extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return DsCard(
         padding: EdgeInsets.zero,
-        child: ListTile(
-        leading: Icon(Icons.phone_android_rounded, color: scheme.primary),
-        title: Text(t.shopModeEntryTitle,
-            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
-        subtitle: Text(t.shopModeEntrySub, maxLines: 2, overflow: TextOverflow.ellipsis),
-        trailing: const Icon(Icons.chevron_right_rounded),
+        child: DsListRow(
+        leading: DsAvatar(size: 40, child: Icon(Icons.phone_android_rounded, size: 20, color: scheme.ds.primaryInk)),
+        title: t.shopModeEntryTitle,
+        subtitle: t.shopModeEntrySub,
+        trailing: Icon(Icons.chevron_right_rounded, color: scheme.ds.muted),
         onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ShopBoxModeScreen())),
       ),
@@ -553,19 +551,12 @@ class _SitesTab extends StatelessWidget {
     final retention =
         (s['snapshot_retention_days'] ?? 0) is int ? s['snapshot_retention_days'] as int : 0;
     final selected = id != null && id == selectedId;
-    return Card(
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Radii.md),
-        side: selected
-            ? BorderSide(color: scheme.primary, width: 1.5)
-            : BorderSide.none,
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
+    // alive DS card; the selected shop = primary border on the soft tint
+    return DsSurface(
+        color: selected ? scheme.ds.primarySoft : null,
+        borderColor: selected ? scheme.ds.primaryInk : null,
         onTap: id == null ? null : () => onSelect(id),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
+        padding: const EdgeInsets.all(Gap.md),
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -580,18 +571,15 @@ class _SitesTab extends StatelessWidget {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // name + subtitle wrap (never "…") at 200% font
                           Text(name.isEmpty ? t.shopBoxUnnamedSite : name,
-                              style: AType.bodyMedium.copyWith(
-                                  fontWeight: FontWeight.w700),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis),
+                              style: AType.bodyLarge.copyWith(
+                                  color: scheme.ds.text, fontWeight: FontWeight.w700)),
                           Text(
                             t.shopBoxSiteSubtitle(
                                 fmtInt(context, cameras),
                                 fmtInt(context, retention)),
                             style: AType.bodySmall.copyWith(color: scheme.ds.muted),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ]),
                   ),
@@ -614,8 +602,6 @@ class _SitesTab extends StatelessWidget {
                   ),
                 ]),
               ]),
-        ),
-      ),
     );
   }
 }
@@ -1034,16 +1020,13 @@ class _CamerasTabState extends State<_CamerasTab> {
               color: scheme.ds.primaryInk),
         ),
         title: Text(name.isEmpty ? t.shopBoxUnnamedCamera : name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+            style: AType.bodyLarge.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w600)),
         subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('$kindLabel  ·  '
-                  '${enabled ? t.shopBoxCameraEnabled : t.shopBoxCameraDisabled}',
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
+                  '${enabled ? t.shopBoxCameraEnabled : t.shopBoxCameraDisabled}'),
               const SizedBox(height: Gap.xxs),
               ShopSeenPill(row: c),
             ]),
@@ -1451,13 +1434,11 @@ class _ReportTabState extends State<_ReportTab> {
           // a2-cctv: end-of-day cash vs Assisto POS sales
           DsCard(
               padding: EdgeInsets.zero,
-              child: ListTile(
-              leading: Icon(Icons.point_of_sale_rounded, color: scheme.primary),
-              title: Text(t.shopEodTitle,
-                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
-              subtitle: Text(t.shopEodEntrySub, maxLines: 2,
-                  overflow: TextOverflow.ellipsis),
-              trailing: const Icon(Icons.chevron_right_rounded),
+              child: DsListRow(
+              leading: DsAvatar(size: 40, child: Icon(Icons.point_of_sale_rounded, size: 20, color: scheme.ds.primaryInk)),
+              title: t.shopEodTitle,
+              subtitle: t.shopEodEntrySub,
+              trailing: Icon(Icons.chevron_right_rounded, color: scheme.ds.muted),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => ShopEodScreen(
                       siteId: widget.site!['id'] as int,
@@ -1466,10 +1447,10 @@ class _ReportTabState extends State<_ReportTab> {
             ),
           const SizedBox(height: Gap.md),
           // days selector
-          Wrap(spacing: Gap.sm, children: [
+          DsChipRow(padding: EdgeInsets.zero, children: [
             for (final d in [1, 7, 30, 90])
-              ChoiceChip(
-                label: Text(d == 1 ? t.shopQaOneDay : t.shopBoxReportDays(fmtInt(context, d))),
+              DsChip(
+                label: d == 1 ? t.shopQaOneDay : t.shopBoxReportDays(fmtInt(context, d)),
                 selected: _days == d,
                 onSelected: (_) {
                   setState(() => _days = d);
@@ -1500,10 +1481,8 @@ class _ReportTabState extends State<_ReportTab> {
           ]),
           const SizedBox(height: Gap.lg),
 
-          // Exception report (POS side).
-          Text(t.shopBoxExceptionTitle,
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: Gap.xs),
+          // Exception report (POS side) — rows in one DS card.
+          DsSectionHeader(t.shopBoxExceptionTitle),
           if (cameraOnly)
             DsSurface(color: scheme.ds.cardHighest,
                 padding: const EdgeInsets.all(Gap.md),
@@ -1521,28 +1500,35 @@ class _ReportTabState extends State<_ReportTab> {
                     ]),
               ),
           const SizedBox(height: Gap.sm),
-          _exceptionRow(context, t, t.shopBoxExcVoids,
-              _int(exceptions['voids']), cameraOnly),
-          _exceptionRow(context, t, t.shopBoxExcRefunds,
-              _int(exceptions['refunds']), cameraOnly),
-          _exceptionRow(context, t, t.shopBoxExcDiscounts,
-              _int(exceptions['discounts']), cameraOnly),
-          _exceptionRow(context, t, t.shopBoxExcDrawerOpens,
-              _int(exceptions['drawer_opens']), cameraOnly),
+          DsCard(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+            child: Column(children: [
+              _exceptionRow(context, t, t.shopBoxExcVoids,
+                  _int(exceptions['voids']), cameraOnly),
+              _exceptionRow(context, t, t.shopBoxExcRefunds,
+                  _int(exceptions['refunds']), cameraOnly),
+              _exceptionRow(context, t, t.shopBoxExcDiscounts,
+                  _int(exceptions['discounts']), cameraOnly),
+              _exceptionRow(context, t, t.shopBoxExcDrawerOpens,
+                  _int(exceptions['drawer_opens']), cameraOnly),
+            ]),
+          ),
 
           if (byType.isNotEmpty) ...[
-            const SizedBox(height: Gap.lg),
-            Text(t.shopBoxByTypeTitle,
-                style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: Gap.sm),
-            for (final entry in byType.entries)
-              _exceptionRow(
-                context,
-                t,
-                _eventTypeLabel(t, entry.key.toString()),
-                _int(entry.value),
-                false,
-              ),
+            DsSectionHeader(t.shopBoxByTypeTitle),
+            DsCard(
+              padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+              child: Column(children: [
+                for (final entry in byType.entries)
+                  _exceptionRow(
+                    context,
+                    t,
+                    _eventTypeLabel(t, entry.key.toString()),
+                    _int(entry.value),
+                    false,
+                  ),
+              ]),
+            ),
           ],
         ],
       ),
@@ -1556,7 +1542,8 @@ class _ReportTabState extends State<_ReportTab> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(value,
-              style: AType.headlineSmall.copyWith(fontWeight: FontWeight.w800, color: color)),
+              style: AType.headlineSmall.copyWith(
+                  fontWeight: FontWeight.w800, letterSpacing: -0.4, color: color)),
           const SizedBox(height: Gap.xxs),
           Text(label,
               style:
@@ -1569,8 +1556,8 @@ class _ReportTabState extends State<_ReportTab> {
       int count, bool greyed) {
     final scheme = Theme.of(context).colorScheme;
     final color = greyed ? scheme.ds.muted : scheme.ds.text;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 44),
       child: Row(children: [
         Expanded(
           child: Text(label,

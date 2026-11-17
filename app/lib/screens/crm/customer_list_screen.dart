@@ -7,6 +7,7 @@ import '../../messaging/date_separators.dart' show localDigits;
 import '../../services/error_kind.dart';
 import '../../services/error_report.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/skeleton.dart';
 import 'crm100_api.dart';
 import 'crm_bulk_send_screen.dart';
@@ -158,14 +159,12 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search_rounded),
             hintText: t.c100SearchHint,
-            border: const OutlineInputBorder(),
           ),
         ),
       ),
-      SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
-        child: Row(children: [
+      DsChipRow(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.xs),
+        children: [
           for (final e in {
             null: t.c100FAll,
             'due': t.c100OnlyDue,
@@ -173,30 +172,40 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
             'chat': t.c100FChats,
             'crm': t.c100FCrm,
           }.entries)
-            Padding(
-              padding: const EdgeInsets.only(right: Gap.xs),
-              child: ChoiceChip(
-                label: Text(e.value),
-                selected: _only == e.key,
-                onSelected: (_) {
-                  setState(() => _only = e.key);
-                  _load();
-                },
-              ),
+            DsChip(
+              label: e.value,
+              selected: _only == e.key,
+              onSelected: (_) {
+                setState(() => _only = e.key);
+                _load();
+              },
             ),
-        ]),
+        ],
       ),
+      // picked customers: one soft bar with the main action (wraps at 200%)
       if (_picked.isNotEmpty)
         Padding(
-          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, 0),
-          child: Row(children: [
-            Expanded(child: Text(t.c100Picked(_d(_picked.length)))),
-            TextButton(onPressed: () => setState(_picked.clear), child: Text(t.cancel)),
-            FilledButton.icon(
-                onPressed: _bulk,
-                icon: const Icon(Icons.send_rounded),
-                label: Text(t.c100MessageEach)),
-          ]),
+          padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.xs),
+          child: DsSurface(
+            color: Theme.of(context).colorScheme.ds.primarySoft,
+            borderColor: Theme.of(context).colorScheme.ds.primaryInk,
+            padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.sm, Gap.sm),
+            child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: Gap.sm,
+                runSpacing: Gap.xs,
+                children: [
+                  Text(t.c100Picked(_d(_picked.length)),
+                      style: AType.bodyMedium.copyWith(
+                          color: Theme.of(context).colorScheme.ds.primaryInk,
+                          fontWeight: FontWeight.w700)),
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    TextButton(onPressed: () => setState(_picked.clear), child: Text(t.cancel)),
+                    DsButton(onPressed: _bulk, icon: Icons.send_rounded, label: t.c100MessageEach),
+                  ]),
+                ]),
+          ),
         ),
       Expanded(child: _list(t)),
     ]);
@@ -215,11 +224,13 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     }
     if (_rows.isEmpty) {
       final searching = _search.text.trim().isNotEmpty || _only != null;
-      return StateMessage(
-        icon: searching ? Icons.search_off_rounded : Icons.people_outline_rounded,
-        title: searching ? t.c100NoMatch : t.c100NoCustomersTitle,
-        message: searching ? null : t.c100NoCustomersBody,
-      );
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+          icon: searching ? Icons.search_off_rounded : Icons.people_outline_rounded,
+          title: searching ? t.c100NoMatch : t.c100NoCustomersTitle,
+          benefit: searching ? null : t.c100NoCustomersBody,
+        ),
+      ]);
     }
     return RefreshIndicator(
       onRefresh: _load,
@@ -228,19 +239,38 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
         itemCount: _rows.length + 2,
         itemBuilder: (_, i) {
           if (i == 0) {
+            // everyone once (khata + shop + chats + CRM): the count as the
+            // soft hero's big number
             return Padding(
-              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
-              child: Text(t.c100CountLine(_d(_total)),
-                  style: AType.bodySmall
-                      .copyWith(color: Theme.of(context).colorScheme.ds.muted)),
+              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
+              child: DsHeroCard(
+                padding: const EdgeInsets.all(Gap.lg),
+                child: Row(children: [
+                  DsAvatar(
+                      child: Icon(Icons.people_alt_rounded,
+                          size: 22, color: Theme.of(context).colorScheme.ds.primaryInk)),
+                  const SizedBox(width: Gap.md),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      DsNumber(_d(_total), small: true),
+                      Text(t.c100CountLine(_d(_total)),
+                          style: AType.bodySmall
+                              .copyWith(color: Theme.of(context).colorScheme.ds.muted)),
+                    ]),
+                  ),
+                ]),
+              ),
             );
           }
           if (i == _rows.length + 1) {
             if (_nextOffset == null) return const SizedBox(height: Gap.lg);
             return Padding(
               padding: const EdgeInsets.all(Gap.lg),
-              child: OutlinedButton(
-                  onPressed: _more ? null : _loadMore, child: Text(t.c100LoadMore)),
+              child: DsButton.secondary(
+                  onPressed: _more ? null : _loadMore,
+                  busy: _more,
+                  label: t.c100LoadMore,
+                  expand: true),
             );
           }
           return _tile(t, _rows[i - 1]);
@@ -263,22 +293,37 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
       if (sources.contains('chat')) t.c100SrcChat,
       if (sources.contains('crm')) t.c100SrcCrm,
     ].join(' · ');
-    return ListTile(
-      minVerticalPadding: Gap.sm,
-      leading: Checkbox(
-        value: picked,
-        semanticLabel: t.c100PickA11y(name.isEmpty ? _d(phone) : name),
-        onChanged: (_) => _togglePick(r),
+    // one alive DS card per customer; picked = the selected DS look
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
+      child: DsSurface(
+        color: picked ? scheme.ds.primarySoft : null,
+        borderColor: picked ? scheme.ds.primaryInk : null,
+        padding: const EdgeInsets.fromLTRB(Gap.xs, Gap.sm, Gap.md, Gap.sm),
+        onTap: () => _open(r),
+        onLongPress: () => _togglePick(r),
+        child: Row(children: [
+          Checkbox(
+            value: picked,
+            semanticLabel: t.c100PickA11y(name.isEmpty ? _d(phone) : name),
+            onChanged: (_) => _togglePick(r),
+          ),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // name and details wrap (never "…") at 200% font
+              Text(name.isEmpty ? t.c100NoName : name,
+                  style: AType.bodyLarge.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w700)),
+              if (sub.isNotEmpty)
+                Text(sub, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+            ]),
+          ),
+          const SizedBox(width: Gap.sm),
+          due > 0
+              ? Text(bdt(context, due / 100),
+                  style: AType.titleSmall.copyWith(color: scheme.ds.dangerInk, fontWeight: FontWeight.w800))
+              : Icon(Icons.chevron_right_rounded, color: scheme.ds.muted),
+        ]),
       ),
-      title: Text(name.isEmpty ? t.c100NoName : name,
-          maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis),
-      trailing: due > 0
-          ? Text(bdt(context, due / 100),
-              style: AType.titleSmall.copyWith(color: scheme.error, fontWeight: FontWeight.w800))
-          : const Icon(Icons.chevron_right_rounded),
-      onTap: () => _open(r),
-      onLongPress: () => _togglePick(r),
     );
   }
 }

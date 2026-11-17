@@ -11,6 +11,7 @@ import '../../services/error_kind.dart' show honestFailText;
 import '../../services/error_report.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../widgets/skeleton.dart';
 
 /// tagada2 — the shop's Assisto SMS balance, said plainly:
@@ -99,10 +100,10 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          DsCard(
-              padding: const EdgeInsets.all(Gap.lg),
+          // The balance is what this screen is for: the soft DS hero.
+          DsHeroCard(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -110,10 +111,11 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
                       header: true,
                       child: Text(t.tg2BalTotal(_d(all)),
                           key: const ValueKey('tg2-bal-total'),
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(fontFeatures: AFonts.tabular)),
+                          style: AType.headlineSmall.copyWith(
+                              color: scheme.ds.text,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.3,
+                              fontFeatures: AFonts.tabular)),
                     ),
                     const SizedBox(height: Gap.md),
                     _line(Icons.event_repeat_rounded,
@@ -146,7 +148,8 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
                 key: const ValueKey('tg2-bal-empty'))
           else if (low)
             _banner(Icons.warning_amber_rounded, t.tg2BalLow,
-                scheme.ds.successBg, scheme.ds.successInk,
+                AssistoTokens.of(context).warning.withValues(alpha: 0.16),
+                Brand.onTint(context, AssistoTokens.of(context).warning),
                 key: const ValueKey('tg2-bal-low')),
           if (_b!['ready'] == false) ...[
             const SizedBox(height: Gap.sm),
@@ -157,12 +160,7 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
           _banner(Icons.volunteer_activism_rounded, t.tg2BalFreeFirst,
               scheme.ds.cardHighest, scheme.ds.text),
           const SizedBox(height: Gap.lg),
-          Semantics(
-            header: true,
-            child: Text(t.tg2BalPacksTitle,
-                style: Theme.of(context).textTheme.titleMedium),
-          ),
-          const SizedBox(height: Gap.sm),
+          DsSectionHeader(t.tg2BalPacksTitle),
           if (!onSale)
             Text(t.tg2BalSoon,
                 key: const ValueKey('tg2-bal-soon'), style: AType.bodyMedium),
@@ -187,10 +185,9 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
       Semantics(
         key: key,
         liveRegion: true,
-        child: Container(
+        child: DsSurface(
+          color: bg,
           padding: const EdgeInsets.all(Gap.md),
-          decoration: BoxDecoration(
-              color: bg, borderRadius: BorderRadius.circular(Radii.md)),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(icon, size: 20, color: fg),
             const SizedBox(width: Gap.sm),
