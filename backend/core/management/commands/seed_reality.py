@@ -173,7 +173,8 @@ class Command(BaseCommand):
                                "path": "feature_flags", "status": 200, "ok": row is not None})
         # qjourney: same allow-list for the Safe Journey cards 2 + 3 (default
         # OFF in a fresh DB) so flow 16c can open them as user A.
-        for key in ("dest_alarm", "train_tracker"):
+        # gap-kidswatch: + kids_watch (flow 18k pairs a simulated watch)
+        for key in ("dest_alarm", "train_tracker", "kids_watch"):
             ff = FeatureFlag.objects.filter(key=key).first()
             if ff is not None:
                 ids = [i for i in (ff.allow_user_ids or []) if i != users["a"].id] + [users["a"].id]

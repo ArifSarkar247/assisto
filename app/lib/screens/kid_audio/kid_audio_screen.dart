@@ -365,7 +365,16 @@ class _KidAudioScreenState extends State<KidAudioScreen> {
                 for (final w in watches)
                   DropdownMenuItem<int?>(value: w['id'] as int?, child: Text('${w['child_name'] ?? ''}')),
               ],
-              onChanged: (v) => setState(() => _watchId = v),
+              onChanged: (v) => setState(() {
+                _watchId = v;
+                // gap-kidswatch: the watch's SIM saved on the watch card fills
+                // this in (never overwrites what the parent typed)
+                final sim = watches.firstWhere((w) => w['id'] == v,
+                    orElse: () => const <String, dynamic>{})['sim_phone'];
+                if (_watchPhone.text.trim().isEmpty && sim is String && sim.isNotEmpty) {
+                  _watchPhone.text = sim;
+                }
+              }),
             ),
             if (_watchId != null) ...[
               const SizedBox(height: Gap.sm),

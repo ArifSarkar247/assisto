@@ -129,7 +129,13 @@ def _watch_json(w, user, now):
            "live": ({"lat": w.last_lat, "lng": w.last_lng, "at": _iso(w.last_fix_at),
                      "acc_m": w.last_acc_m, "source": w.last_source}
                     if w.last_lat is not None else None),
-           "school_plan_id": plan.id if plan else None}
+           "school_plan_id": plan.id if plan else None,
+           # gap-kidswatch: the watch's SIM (guardians CALL it — a normal,
+           # visible call), whether its SOS button calls anyone, an active SOS
+           "sim_phone": w.sim_phone or "",
+           "sos_ready": bool(w.sos_numbers),
+           "sos_at": KW.sos_active_at(w, now),
+           "child_user_id": w.child_user_id}
     if w.owner_id == user.id:
         from .models import User
         out["guardians"] = [{"id": u.id, "name": u.name or ""} for u in
@@ -153,15 +159,31 @@ def _load_watch(request, pk, manage=False):
     return w, None
 
 
+_BN_DIGITS = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
+
+
 def _clean_sos(raw):
+    """Up to 3 SOS numbers. gap-kidswatch: Bangla-keyboard digits become 0-9
+    (before, '০১৭…' passed — str.isdigit() is True for them — and the watch
+    got a number it cannot dial); any other script is refused."""
     out = []
+    if isinstance(raw, str):
+        raw = [raw]
     for p in raw or []:
-        s = "".join(ch for ch in str(p) if ch.isdigit() or ch == "+")
+        s = "".join(ch for ch in str(p) if ch.isdigit() or ch == "+").translate(_BN_DIGITS)
         if s:
-            if not PHONE_RE.match(s):
+            if not s.isascii() or not PHONE_RE.match(s):
                 raise ValueError("bad_phone")
             out.append(s)
     return out[:3]
+
+
+def _clean_phone(raw):
+    """One phone number (digits, optional +) or ''. ValueError if malformed."""
+    s = "".join(ch for ch in str(raw or "") if ch.isdigit() or ch == "+").translate(_BN_DIGITS)
+    if s and (not s.isascii() or not PHONE_RE.match(s)):
+        raise ValueError("bad_phone")
+    return s
 
 
 class ConfigView(APIView):
@@ -221,8 +243,19 @@ class WatchListView(APIView):
             return R({"ok": False, "reason": "limit"}, status=409)
         try:
             sos = _clean_sos(d.get("sos_numbers"))
+            sim = _clean_phone(d.get("sim_phone"))
         except ValueError:
             return R({"ok": False, "reason": "bad_phone"}, status=400)
+        # gap-kidswatch: a watch whose SOS button calls nobody is a broken
+        # safety device — with no numbers given, the parent's own phone is
+        # the first SOS number (they can change it any time)
+        sos_defaulted = False
+        if not sos:
+            try:
+                sos = _clean_sos([getattr(request.user, "phone", "") or ""])
+            except ValueError:
+                sos = []
+            sos_defaulted = bool(sos)
         child = None
         if d.get("child_user_id"):
             cid = int(d.get("child_user_id") or 0)
@@ -239,12 +272,14 @@ class WatchListView(APIView):
         w.child_user = child
         w.guardian_ids = KW.clean_guardians(request.user, d.get("guardian_ids"))
         w.sos_numbers = sos
+        w.sim_phone = sim
         if w.state != "paired":
             w.state = "pending"
             w.pair_expires_at = now + timedelta(minutes=KW.PAIR_WINDOW_MIN)
         w.save()
         srv = server_info()
         return R({"ok": True, "watch": _watch_json(w, request.user, now),
+                  "sos_defaulted": sos_defaulted,
                   "sms": sms_steps(srv["host"], srv["port"])}, status=201)
 
 
@@ -285,6 +320,27 @@ class WatchDetailView(APIView):
                 return R({"ok": False, "reason": "bad_phone"}, status=400)
             if w.state == "paired":
                 KW.queue(w, "sos_numbers", {"numbers": w.sos_numbers}, actor=request.user)
+        if "sim_phone" in d:
+            try:
+                w.sim_phone = _clean_phone(d.get("sim_phone"))
+            except ValueError:
+                return R({"ok": False, "reason": "bad_phone"}, status=400)
+        if "child_user_id" in d:
+            # gap-kidswatch: link / unlink the child's own Assisto account
+            # (a Circle peer) — the watch SOS then reaches the child's whole
+            # family, and emergency audio can offer "Call the watch"
+            from .models import User
+            cid = d.get("child_user_id")
+            if cid in (None, "", 0):
+                w.child_user = None
+            else:
+                try:
+                    cid = int(cid)
+                except (TypeError, ValueError):
+                    return R({"ok": False, "reason": "child_not_in_circle"}, status=400)
+                if not KW._peer_ok(request.user, cid):
+                    return R({"ok": False, "reason": "child_not_in_circle"}, status=400)
+                w.child_user = User.objects.filter(pk=cid).first()
         w.save()
         return R({"ok": True, "watch": _watch_json(w, request.user, timezone.now())})
 

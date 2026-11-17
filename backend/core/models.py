@@ -7276,6 +7276,9 @@ class KidsWatch(models.Model):
     billed_until = models.DateTimeField(null=True, blank=True)
     guardian_ids = models.JSONField(default=list, blank=True)
     sos_numbers = models.JSONField(default=list, blank=True)
+    # gap-kidswatch: the watch's own SIM number, so a guardian can CALL it in
+    # one tap (a normal, visible call: the watch rings and shows it)
+    sim_phone = models.CharField(max_length=20, blank=True, default="")
     tz_min = models.IntegerField(default=360)
     last_seen_at = models.DateTimeField(null=True, blank=True)
     last_fix_at = models.DateTimeField(null=True, blank=True)

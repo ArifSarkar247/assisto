@@ -20,6 +20,7 @@ import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../widgets/where_to_buy.dart';
 import 'chip_widgets.dart';
 import 'kw_recorder.dart';
+import 'kw_settings_sheet.dart'; // gap-kidswatch
 import 'school_plan_form.dart';
 import '../../safe_plans/safe_plans_screen.dart' show showSafeCreditsOutSheet; // safeplans
 import '../../widgets/num_input.dart'; // savesweep
@@ -170,6 +171,34 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
       builder: (_) => _VoiceSheet(watch: w),
     );
     await _load();
+  }
+
+  // gap-kidswatch: one tap to CALL the watch — a normal call through the
+  // phone's dialer (the watch rings and shows it; nothing silent, no
+  // permission). The honest "emergency audio" for a watch.
+  Future<void> _callWatch(Map<String, dynamic> w) async {
+    final n = '${w['sim_phone'] ?? ''}';
+    if (n.isEmpty) return;
+    try {
+      if (!await launchUrl(Uri(scheme: 'tel', path: n)) && mounted) {
+        _snack(AppLocalizations.of(context).kwActionFailed);
+      }
+    } catch (_) {
+      if (mounted) _snack(AppLocalizations.of(context).kwActionFailed);
+    }
+  }
+
+  Future<void> _settings(Map<String, dynamic> w) async {
+    final ok = await showAppSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => KwWatchSettingsSheet(watch: w),
+    );
+    if (ok == true) {
+      if (mounted) _snack(AppLocalizations.of(context).kwgSaved);
+      await _load();
+    }
   }
 
   Future<void> _sms(Map<String, dynamic> w) => showAppSheet<void>(
@@ -405,6 +434,10 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
                   full ? DsTokens.of(context).primarySoft : DsTokens.of(context).dangerBg,
                   full ? DsTokens.of(context).primaryInk : DsTokens.of(context).dangerInk),
           ]),
+          if (w['sos_at'] != null) ...[
+            const SizedBox(height: Gap.sm),
+            _sosBanner(t, w, live),
+          ],
           if (paired && !full) ...[
             const SizedBox(height: Gap.xs),
             Text(t.kwSafetyOnlyNote(_d('${_cfg['month_credits'] ?? ''}')),
@@ -424,8 +457,15 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
             Text(paired ? t.kwNoLocationYet : t.kwPairHint,
                 style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           if (plan != null && plan.isNotEmpty) _todayLine(t, plan),
+          if (mine) _sosLine(t, w),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+            if ('${w['sim_phone'] ?? ''}'.isNotEmpty)
+              FilledButton.tonalIcon(
+                  key: ValueKey('kwg-call-${w['id']}'),
+                  onPressed: () => _callWatch(w),
+                  icon: const Icon(Icons.call_rounded),
+                  label: Text(t.kwgCallWatch)),
             if (paired) ...[
               FilledButton.tonalIcon(
                   onPressed: () => _command(w, 'locate_now'),
@@ -445,6 +485,12 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
                   onPressed: () => _plan(plan != null && plan.isNotEmpty ? plan : null, watch: w),
                   icon: const Icon(Icons.school_rounded),
                   label: Text(plan != null && plan.isNotEmpty ? t.kwEditSchoolMode : t.kwSetSchoolMode)),
+            if (mine)
+              OutlinedButton.icon(
+                  key: ValueKey('kwg-settings-${w['id']}'),
+                  onPressed: () => _settings(w),
+                  icon: const Icon(Icons.tune_rounded),
+                  label: Text(t.kwgSettings)),
             if (mine && !paired)
               OutlinedButton.icon(
                   onPressed: () => _repair(w),
@@ -463,6 +509,69 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
           ]),
         ]),
       ),
+    );
+  }
+
+  // gap-kidswatch: an SOS from the watch in the last hour — red, first, with
+  // the two things a parent does next: call the watch, see where.
+  Widget _sosBanner(AppLocalizations t, Map<String, dynamic> w, Map<String, dynamic>? live) {
+    final tk = DsTokens.of(context);
+    final sim = '${w['sim_phone'] ?? ''}';
+    return Container(
+      key: ValueKey('kwg-sos-${w['id']}'),
+      padding: const EdgeInsets.all(Gap.md),
+      decoration: BoxDecoration(color: tk.dangerBg, borderRadius: BorderRadius.circular(12)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Icon(Icons.sos_rounded, color: tk.dangerInk),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+              child: Text(t.kwgSosNowTitle('${w['child_name']}', _d(kwClock(w['sos_at']))),
+                  style: AType.titleSmall.copyWith(color: tk.dangerInk))),
+        ]),
+        const SizedBox(height: Gap.xs),
+        Text(sim.isNotEmpty ? t.kwgSosNowBody : t.kwgSosNowNoSim,
+            style: AType.bodyMedium.copyWith(color: tk.dangerInk)),
+        const SizedBox(height: Gap.sm),
+        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          if (sim.isNotEmpty)
+            FilledButton.icon(
+                style: Brand.dangerButton(),
+                onPressed: () => _callWatch(w),
+                icon: const Icon(Icons.call_rounded),
+                label: Text(t.kwgCallWatch)),
+          if (live != null)
+            OutlinedButton.icon(
+                onPressed: () => _openMap(live),
+                icon: const Icon(Icons.place_rounded),
+                label: Text(t.kwgSeeWhere)),
+        ]),
+      ]),
+    );
+  }
+
+  // gap-kidswatch: say plainly who the SOS button calls — or that it calls
+  // nobody (then one tap to fix it).
+  Widget _sosLine(AppLocalizations t, Map<String, dynamic> w) {
+    final tk = DsTokens.of(context);
+    final nums = ((w['sos_numbers'] as List?) ?? const []).map((e) => '$e').toList();
+    if (nums.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(top: Gap.xs),
+        child: Text(t.kwgSosCalls(_d(nums.join(', '))),
+            key: ValueKey('kwg-sosline-${w['id']}'),
+            style: AType.bodySmall.copyWith(color: tk.muted)),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: Gap.xs),
+      child: Row(key: ValueKey('kwg-sosnone-${w['id']}'), children: [
+        Icon(Icons.warning_amber_rounded, color: tk.dangerInk),
+        const SizedBox(width: Gap.xs),
+        Expanded(
+            child: Text(t.kwgSosNone,
+                style: AType.bodyMedium.copyWith(color: tk.dangerInk))),
+      ]),
     );
   }
 
@@ -598,6 +707,7 @@ class _PairWatchSheetState extends State<_PairWatchSheet> {
   final _code = TextEditingController();
   final _name = TextEditingController();
   final _sos = TextEditingController();
+  final _sim = TextEditingController(); // gap-kidswatch
   List<Map<String, dynamic>> _people = const [];
   final Set<int> _guardians = {};
   bool _busy = false;
@@ -607,6 +717,9 @@ class _PairWatchSheetState extends State<_PairWatchSheet> {
   @override
   void initState() {
     super.initState();
+    // gap-kidswatch: the watch's SOS button must call SOMEONE — start with
+    // the parent's own number (they can change or add more)
+    _sos.text = context.read<AppState>().user?.phone ?? '';
     unawaited(_loadPeople());
   }
 
@@ -622,6 +735,7 @@ class _PairWatchSheetState extends State<_PairWatchSheet> {
     _code.dispose();
     _name.dispose();
     _sos.dispose();
+    _sim.dispose();
     super.dispose();
   }
 
@@ -636,20 +750,23 @@ class _PairWatchSheetState extends State<_PairWatchSheet> {
       setState(() => _error = t.kwNameRequired);
       return;
     }
+    // gap-kidswatch: every SOS number must be dialable (the server refuses
+    // the whole pairing otherwise, with a vaguer message)
+    final sosIn = kwSplitNumbers(_sos.text);
+    final simIn = kwLatinDigits(_sim.text);
+    if (sosIn.any((n) => !kwPhoneOk(n)) || (simIn.isNotEmpty && !kwPhoneOk(simIn))) {
+      setState(() => _error = t.kwgBadPhone);
+      return;
+    }
     setState(() {
       _busy = true;
       _error = '';
     });
     try {
-      final sos = _sos.text
-          .split(RegExp(r'[,\s]+'))
-          .map((s) => s.trim())
-          .where((s) => s.isNotEmpty)
-          .take(3)
-          .toList();
+      final sos = kwSplitNumbers(_sos.text);
       final r = await context.read<AppState>().api.kwPair(
           code: code, childName: _name.text.trim(), guardianIds: _guardians.toList(),
-          sosNumbers: sos);
+          sosNumbers: sos, simPhone: kwLatinDigits(_sim.text));
       if (mounted) setState(() => _done = r);
     } catch (e) {
       if (mounted) {
@@ -693,11 +810,25 @@ class _PairWatchSheetState extends State<_PairWatchSheet> {
         ),
         const SizedBox(height: Gap.md),
         TextField(
+          key: const ValueKey('kwg-pair-sos'),
           controller: _sos,
           keyboardType: TextInputType.phone,
+          inputFormatters: const [LatinDigitsFormatter()],
           decoration: InputDecoration(
               labelText: t.kwSosNumbers,
-              helperText: t.kwSosNumbersHelp,
+              helperText: t.kwgSosHelpDefault,
+              helperMaxLines: 4,
+              border: const OutlineInputBorder()),
+        ),
+        const SizedBox(height: Gap.md),
+        TextField(
+          key: const ValueKey('kwg-pair-sim'),
+          controller: _sim,
+          keyboardType: TextInputType.phone,
+          inputFormatters: const [LatinDigitsFormatter()],
+          decoration: InputDecoration(
+              labelText: t.kwgSimLabel,
+              helperText: t.kwgSimHelp,
               helperMaxLines: 3,
               border: const OutlineInputBorder()),
         ),

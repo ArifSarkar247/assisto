@@ -57,7 +57,8 @@ class ConfigView(APIView):
             Q(guardian=me) | Q(child=me)).select_related("guardian", "child")[:30]]
         children = _children(me) if on else []
         kids = {c["id"] for c in children}
-        watches = [{"id": w.pk, "child_name": w.child_name, "child_user_id": w.child_user_id}
+        watches = [{"id": w.pk, "child_name": w.child_name, "child_user_id": w.child_user_id,
+                    "sim_phone": w.sim_phone or ""}   # gap-kidswatch: prefill
                    for w in KidsWatch.objects.filter(owner=me, state="paired",
                                                      child_user_id__in=kids)[:10]] if on else []
         return Response({"enabled": on, "max_session_s": KA.MAX_SESSION_S,
