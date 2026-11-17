@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../widgets/skeleton.dart' show SkeletonList;
+import '../../widgets/msgr_set_tiles.dart' show MsgrSetGroup;
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList, StateMessage;
 import 'package:provider/provider.dart';
 
 import '../../widgets/msgr_avatar.dart';
@@ -222,28 +224,24 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
       body: _loading
           ? const SkeletonList(count: 4)
           : _loadFailed
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.xl),
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Text(honestFailText(_t, _failCause, otherwise: _t.msgLoadFailed), textAlign: TextAlign.center),
-                      const SizedBox(height: Gap.md),
-                      FilledButton.icon(
-                        icon: const Icon(Icons.refresh_rounded),
-                        label: Text(_t.retry),
-                        onPressed: () {
-                          setState(() => _loading = true);
-                          _load();
-                        },
-                      ),
-                    ]),
+              ? StateMessage(
+                  icon: Icons.cloud_off_rounded,
+                  title: _t.msgrChatContactInfo,
+                  message: honestFailText(_t, _failCause, otherwise: _t.msgLoadFailed),
+                  action: DsButton(
+                    icon: Icons.refresh_rounded,
+                    label: _t.retry,
+                    onPressed: () {
+                      setState(() => _loading = true);
+                      _load();
+                    },
                   ),
                 )
               : ListView(
               children: [
-                _header(scheme, about),
-                const SizedBox(height: Gap.sm),
-                // connect-flow: Message / Audio call / Video call right here
+_header(scheme, about),
+const SizedBox(height: Gap.sm),
+// connect-flow: Message / Audio call / Video call right here
                 // (accepted contacts; calls follow the usual free-call rules).
                 if (ConnectFlow.isAccepted(widget.member) && !_blocked)
                   Padding(
@@ -256,26 +254,25 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                           ConnectFlow.call(context, widget.member, 'video'),
                     ),
                   ),
-                const SizedBox(height: Gap.sm),
-
-                // p3: profile note (24 h)
+const SizedBox(height: Gap.sm),
+MsgrSetGroup([
+// p3: profile note (24 h)
                 if (_note != null)
                   _tile(Icons.sticky_note_2_rounded, _t.p3NoteOnProfile, _note!),
-                // About / phone
+// About / phone
                 if (about.isNotEmpty)
                   _tile(Icons.info_outline_rounded, _t.msgrContactAbout, about),
-                if (phone.isNotEmpty)
+if (phone.isNotEmpty)
                   _tile(Icons.phone_rounded, _t.msgrContactPhone, phone),
-
-                const Divider(),
-
-                // Media / links / docs
+]),
+MsgrSetGroup([
+// Media / links / docs
                 ListTile(
                   leading: const Icon(Icons.perm_media_rounded),
                   title: Text(_t.msgrContactMediaLinksDocs),
                   subtitle: Text(notifLocalizeDigits(context, '$mediaCount · $linkCount · $docCount')),
                 ),
-                // Starred
+// Starred
                 ListTile(
                   leading: const Icon(Icons.star_outline_rounded),
                   title: Text(_t.msgrContactStarred),
@@ -285,17 +282,16 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                       builder: (_) => StarredMessagesScreen(
                           members: [widget.member]))),
                 ),
-
-                const Divider(),
-
-                // Mute
+]),
+MsgrSetGroup([
+// Mute
                 SwitchListTile(
                   secondary: const Icon(Icons.notifications_off_rounded),
                   title: Text(_t.msgrChatMute),
                   value: _muted,
                   onChanged: _toggleMute,
                 ),
-                // Disappearing
+// Disappearing
                 ListTile(
                   leading: const Icon(Icons.timer_rounded),
                   title: Text(_t.msgrChatDisappearing),
@@ -303,10 +299,9 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: _editDisappearing,
                 ),
-
-                const Divider(),
-
-                // Encryption note
+]),
+MsgrSetGroup([
+// Encryption note
                 ListTile(
                   leading: Icon(Icons.verified_user_rounded,
                       color: scheme.primary),
@@ -315,63 +310,64 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                       ? _t.msgrContactEncryptionHint
                       : fingerprint),
                 ),
-
-                // Relationship (Connected circle)
+// Relationship (Connected circle)
                 _tile(
                   Icons.diversity_3_rounded,
                   _t.msgrContactRelationship,
                   CircleRelation.labelFor(_t, relation,
                       custom: '${_info['custom_label'] ?? widget.member['custom_label'] ?? ''}'),
                 ),
-
-                // Groups in common
+]),
+// Groups in common
                 if (groupsInCommon.isNotEmpty) ...[
-                  const Divider(),
-                  Padding(
+Padding(
                     padding: const EdgeInsets.fromLTRB(
                         Gap.lg, Gap.sm, Gap.lg, Gap.xs),
                     child: Text(_t.msgrContactGroupsInCommon,
                         style: Theme.of(context).textTheme.labelLarge),
                   ),
-                  for (final g in groupsInCommon)
+MsgrSetGroup([
+for (final g in groupsInCommon)
                     ListTile(
                       leading: const Icon(Icons.groups_rounded),
                       title: Text('${(g is Map ? g['name'] : g) ?? ''}'),
                     ),
-                ],
-
-                // c2-calls: per-contact ringtone (the phone's own picker)
+]),
+],
+// c2-calls: per-contact ringtone (the phone's own picker)
                 if (_peerId > 0) ...[
-                  const Divider(),
-                  SoundPickTile(
+MsgrSetGroup([
+SoundPickTile(
                       kind: SoundPickKind.contact, chatId: '$_peerId'),
-                ],
-
-                const Divider(),
-
-                // Block / Report
+]),
+],
+MsgrSetGroup([
+// Block / Report
                 ListTile(
                   leading: Icon(Icons.block_rounded, color: scheme.error),
                   title: Text(_blocked ? _t.circleUnblock : _t.circleBlock,
-                      style: TextStyle(color: scheme.error)),
+                      style: AType.bodyLarge.copyWith(color: scheme.ds.dangerInk, fontWeight: FontWeight.w600)),
                   onTap: _toggleBlock,
                 ),
-                ListTile(
+ListTile(
                   leading: Icon(Icons.flag_rounded, color: scheme.error),
                   title: Text(_t.circleReport,
-                      style: TextStyle(color: scheme.error)),
+                      style: AType.bodyLarge.copyWith(color: scheme.ds.dangerInk, fontWeight: FontWeight.w600)),
                   onTap: _report,
                 ),
-                const SizedBox(height: Gap.xl),
-              ],
+]),
+const SizedBox(height: Gap.xl),
+],
             ),
     );
   }
 
   Widget _header(ColorScheme scheme, String about) {
     final photo = '${widget.member['photo_link'] ?? widget.member['photo'] ?? ''}';
+    // the person = the soft DS hero (photo, name, nickname, last seen)
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Gap.lg),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
+      child: DsHeroCard(
       child: Column(
         children: [
           // x2-ticks (A3): cached real photo (signed link resolved,
@@ -385,7 +381,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
           ),
           const SizedBox(height: Gap.md),
           Text(_name,
-              style: Theme.of(context).textTheme.titleLarge,
+              style: AType.titleLarge.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w800),
               textAlign: TextAlign.center),
           // cde-chat: the REAL name stays the title; the chat's nickname
           // is shown under it.
@@ -395,7 +391,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
               child: Text(_t.cdeNickInfo(_nick),
                   key: const Key('cde-info-nickname'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.ds.muted)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ),
           // mr1: the same full last-seen line as the chat header (live;
           // hidden by privacy -> no line).
@@ -412,13 +408,13 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                 child: Text(p,
                     key: const Key('mr1-info-last-seen'),
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: scheme.ds.muted)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               );
             },
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _tile(IconData icon, String label, String value) => ListTile(

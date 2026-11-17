@@ -143,14 +143,12 @@ class MsgrChannelTile extends StatelessWidget {
     final followers =
         msgrLocalizeDigits(t.channelFollowerCount(count.toString()), bn);
     final sub = handle.isEmpty ? followers : '@$handle · $followers';
-    return ListTile(
-      onTap: onTap,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
-      leading: MsgrChannelAvatar(name: name),
-      // launchsweep: one text line with the badge inline, so a narrow title
-      // (big font + Follow button) ellipsizes instead of overflowing.
-      title: Text.rich(
+    final ds = DsTokens.of(context);
+    // designv2: the name wraps (never "…"); at a big font the actions move
+    // under the text instead of squeezing the name off a 360 dp screen
+    final big = MediaQuery.textScalerOf(context).scale(10) > 13;
+    final info = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text.rich(
         TextSpan(children: [
           TextSpan(text: name),
           if (verified) ...[
@@ -160,11 +158,28 @@ class MsgrChannelTile extends StatelessWidget {
                 child: MsgrVerifiedBadge()),
           ],
         ]),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
+        style: AType.bodyLarge.copyWith(color: ds.text, fontWeight: FontWeight.w700),
       ),
-      subtitle: Text(sub, maxLines: 1, overflow: TextOverflow.ellipsis),
-      trailing: trailing,
+      Text(sub, style: AType.bodyMedium.copyWith(color: ds.muted)),
+    ]);
+    return InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 56),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Row(children: [
+              MsgrChannelAvatar(name: name),
+              const SizedBox(width: Gap.md),
+              Expanded(child: info),
+              if (!big && trailing != null) ...[const SizedBox(width: Gap.sm), trailing!],
+            ]),
+            if (big && trailing != null)
+              Align(alignment: AlignmentDirectional.centerEnd, child: trailing!),
+          ]),
+        ),
+      ),
     );
   }
 }

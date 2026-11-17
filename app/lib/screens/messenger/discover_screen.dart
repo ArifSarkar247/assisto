@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/services.dart';
@@ -187,38 +188,50 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       return k;
     }
 
-    return SizedBox(
-      height: 48,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+    // one scrolling DS chip row; the end fades into the page so a cut chip
+    // reads as "scroll for more" (plain gradient strip, no shader mask)
+    final bg = Theme.of(context).colorScheme.ds.bg;
+    return Stack(children: [
+      DsChipRow(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.xl, Gap.xs),
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: Gap.sm),
-            child: FilterChip(
-              selected: _category.isEmpty,
-              label: Text(t.discoverAll),
+          DsChip(
+            selected: _category.isEmpty,
+            label: t.discoverAll,
+            onSelected: (_) {
+              setState(() => _category = '');
+              _search();
+            },
+          ),
+          for (final c in msgrChannelCategories)
+            DsChip(
+              selected: _category == c,
+              label: label(c),
               onSelected: (_) {
-                setState(() => _category = '');
+                setState(() => _category = (_category == c) ? '' : c);
                 _search();
               },
             ),
-          ),
-          for (final c in msgrChannelCategories)
-            Padding(
-              padding: const EdgeInsets.only(right: Gap.sm),
-              child: FilterChip(
-                selected: _category == c,
-                label: Text(label(c)),
-                onSelected: (_) {
-                  setState(() => _category = (_category == c) ? '' : c);
-                  _search();
-                },
-              ),
-            ),
         ],
       ),
-    );
+      PositionedDirectional(
+        end: 0,
+        top: 0,
+        bottom: 0,
+        width: Gap.xl,
+        child: IgnorePointer(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: AlignmentDirectional.centerStart,
+                end: AlignmentDirectional.centerEnd,
+                colors: [bg.withValues(alpha: 0), bg],
+              ),
+            ),
+          ),
+        ),
+      ),
+    ]);
   }
 
   Widget _body(AppLocalizations t) {
@@ -284,11 +297,12 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   Widget _sectionHeader(String label) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.sm),
-        child: Text(label,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: Theme.of(context).colorScheme.primary)),
+        child: Semantics(
+          header: true,
+          child: Text(label,
+              style: AType.titleSmall.copyWith(
+                  color: Theme.of(context).colorScheme.ds.muted, fontWeight: FontWeight.w700)),
+        ),
       );
 }
 
