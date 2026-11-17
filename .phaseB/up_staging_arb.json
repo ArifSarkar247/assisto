@@ -1,0 +1,18 @@
+{
+  "en": {
+    "stagingUpdatesViaTester": "This is the Assisto Test app. A new test build arrives every day through the App Tester app — open App Tester to update.",
+    "@stagingUpdatesViaTester": {"description": "Update screen in the owner's staging test app (com.assisto.assisto.staging): updates come from Firebase App Tester, not from the in-app updater."},
+    "stagingPurchasesOffTitle": "Purchases are off in the test app",
+    "@stagingPurchasesOffTitle": {"description": "Checkout sheet title in the staging test app: nothing can be bought there."},
+    "stagingPurchasesOffBody": "Nothing can be bought in Assisto Test and no money is ever taken. To try a paid plan here, ask the Assisto team to turn on a test plan for your account. Real purchases work in the Assisto app from Google Play.",
+    "@stagingPurchasesOffBody": {"description": "Checkout sheet body in the staging test app."},
+    "stagingPurchasesOffOk": "OK",
+    "@stagingPurchasesOffOk": {"description": "Closes the purchases-off sheet in the staging test app."}
+  },
+  "bn": {
+    "stagingUpdatesViaTester": "এটি Assisto Test অ্যাপ। প্রতিদিন নতুন টেস্ট বিল্ড App Tester অ্যাপে আসে — আপডেট করতে App Tester খুলুন।",
+    "stagingPurchasesOffTitle": "টেস্ট অ্যাপে কেনাকাটা বন্ধ",
+    "stagingPurchasesOffBody": "Assisto Test-এ কিছুই কেনা যায় না, কোনো টাকাও কাটা হয় না। এখানে পেইড প্ল্যান পরীক্ষা করতে Assisto টিমকে আপনার অ্যাকাউন্টে টেস্ট প্ল্যান চালু করতে বলুন। আসল কেনাকাটা Google Play-এর Assisto অ্যাপে হয়।",
+    "stagingPurchasesOffOk": "ঠিক আছে"
+  }
+}
