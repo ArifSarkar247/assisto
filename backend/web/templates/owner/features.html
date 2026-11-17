@@ -19,6 +19,22 @@
   <p class="mut small">{{ T.ff_legend }}</p>
 </section>
 
+<section class="card" id="preview-testers"><h2>{{ T.ff_pt_title }}</h2>
+  <p>{{ T.ff_pt_intro }}</p>
+  {% if testers %}<form method="post" action="/owner/features/preview-testers">{% include "owner/_csrf.html" %}
+    {% if lang == 'en' %}<input type="hidden" name="lang" value="en">{% endif %}
+    <ul>{% for t in testers %}<li><code>{{ t.masked }}</code> <small class="mut">#{{ t.id }}</small>
+      <label class="small"><input type="checkbox" name="remove" value="{{ t.id }}"> {{ T.ff_pt_remove }}</label></li>{% endfor %}</ul>
+    <button class="btn ghost">{{ T.ff_pt_remove_btn }}</button>
+  </form>{% else %}<p class="empty">{{ T.ff_pt_empty }}</p>{% endif %}
+  <form method="post" action="/owner/features/preview-testers" autocomplete="off">{% include "owner/_csrf.html" %}
+    {% if lang == 'en' %}<input type="hidden" name="lang" value="en">{% endif %}
+    <p><label>{{ T.ff_pt_add }}<br><textarea name="add" rows="2" placeholder="01XXXXXXXXX, name@example.com"></textarea></label><br>
+    <small class="mut">{{ T.ff_pt_add_note }} ({{ testers|length|bnd:lang }}/{{ max_testers|bnd:lang }})</small></p>
+    <button class="btn">{{ T.ff_pt_add_btn }}</button>
+  </form>
+</section>
+
 {% for s in sections %}
 <section class="card" id="sec-{{ s.id }}"><h2>{{ s.title }}</h2>
 <div class="tbl"><table><thead><tr>
@@ -29,6 +45,7 @@
 {% for it in s.items %}
 <tr id="ff-{{ it.key }}">
   <td><b>{{ it.label }}</b><br><small class="mut"><code>{{ it.key }}</code>{% if it.routes %} · {{ it.routes }}{% endif %}</small>
+    {% if it.where %}<br><small>{{ T.ff_where }}: {{ it.where }}</small>{% endif %}
     <details><summary class="small">{{ T.ff_edit }}</summary>
     <form method="post" action="/owner/features/{{ it.key }}">{% include "owner/_csrf.html" %}
       {% if lang == 'en' %}<input type="hidden" name="lang" value="en">{% endif %}

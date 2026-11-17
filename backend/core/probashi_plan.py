@@ -72,7 +72,7 @@ def flag_on(user, play=False):
         if (r["enabled_all"] and (r["enabled_play"] or not play)
                 and FF.in_rollout(FLAG, user.pk, r["rollout_pct"])):
             return True
-        return FF.is_privileged(user) or user.pk in r["allow_user_ids"]
+        return FF.is_preview_user(user) or user.pk in r["allow_user_ids"]
     except Exception:
         return False
 
@@ -84,7 +84,8 @@ def _flag_rows_on():
     try:
         from . import feature_flags as FF
         r = FF.rows().get(FLAG) or {}
-        return bool(r.get("enabled_all") or r.get("allow_user_ids"))
+        return bool(r.get("enabled_all") or r.get("allow_user_ids")
+                    or FF.preview_testers())   # preview-testers
     except Exception:
         return False
 

@@ -1281,6 +1281,15 @@ EN.update({
     "ff_before": "Before", "ff_after": "After", "ff_rejected": "Rejected",
     "ff_no_log": "No changes yet.",
     "m_ff_dod": "Not saved: DONE needs all 9 checks ticked.",
+    "ff_pt_title": "Preview testers (see every OFF feature)",
+    "ff_pt_intro": "Accounts on this list see every switched-off feature as a preview, exactly like you, on any phone. Everyone else does not. Remove an account to take the previews away.",
+    "ff_pt_empty": "No preview testers yet. Add a tester's phone number or email below.",
+    "ff_pt_remove": "remove", "ff_pt_remove_btn": "Remove ticked",
+    "ff_pt_add": "Add testers (phone number or email of their Assisto account)",
+    "ff_pt_add_note": "Separate several with commas or new lines. Only the account id is stored; the list shows a masked number or email.",
+    "ff_pt_add_btn": "Add testers",
+    "ff_where": "Where in the app",
+    "m_ff_pt_notfound": "Not saved: an entry matches no active Assisto account. Check the phone number or email and try again.",
 })
 BN.update({
     "nav_features": "ফিচার",
@@ -1309,6 +1318,15 @@ BN.update({
     "ff_before": "আগে", "ff_after": "পরে", "ff_rejected": "বাতিল",
     "ff_no_log": "এখনো কোনো পরিবর্তন নেই।",
     "m_ff_dod": "সংরক্ষণ হয়নি: সম্পন্ন রাখতে ৯টি শর্তেই টিক লাগবে।",
+    "ff_pt_title": "প্রিভিউ টেস্টার (সব বন্ধ ফিচার দেখেন)",
+    "ff_pt_intro": "এই তালিকার অ্যাকাউন্টগুলো ঠিক আপনার মতো সব বন্ধ ফিচার প্রিভিউ হিসেবে দেখেন, যেকোনো ফোনে। অন্য কেউ দেখেন না। কাউকে সরালে তাঁর প্রিভিউ বন্ধ হয়ে যায়।",
+    "ff_pt_empty": "এখনো কোনো প্রিভিউ টেস্টার নেই। নিচে টেস্টারের ফোন নম্বর বা ইমেইল যোগ করুন।",
+    "ff_pt_remove": "সরান", "ff_pt_remove_btn": "টিক দেওয়াগুলো সরান",
+    "ff_pt_add": "টেস্টার যোগ করুন (তাঁর Assisto অ্যাকাউন্টের ফোন নম্বর বা ইমেইল)",
+    "ff_pt_add_note": "একাধিক হলে কমা বা নতুন লাইনে লিখুন। শুধু অ্যাকাউন্ট নম্বর রাখা হয়; তালিকায় নম্বর বা ইমেইল ঢাকা অবস্থায় দেখায়।",
+    "ff_pt_add_btn": "টেস্টার যোগ করুন",
+    "ff_where": "অ্যাপে কোথায়",
+    "m_ff_pt_notfound": "সংরক্ষণ হয়নি: একটি লেখা কোনো চালু Assisto অ্যাকাউন্টের সাথে মেলেনি। ফোন নম্বর বা ইমেইল দেখে আবার চেষ্টা করুন।",
 })
 # ---- /feature-flags ----
 
