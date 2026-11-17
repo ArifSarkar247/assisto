@@ -213,7 +213,6 @@ void main() {
       'lib/messaging/media/media_bubble.dart', // view-once preview blur (static)
       'lib/messaging/media/album_viewer.dart',
       'lib/messaging/media/photo_album_view.dart',
-      'lib/screens/voice_assistant_screen.dart',
       'lib/voice/va_onboarding_step.dart',
     };
     final rx = RegExp(r'\bBackdropFilter\(|ImageFilter\.blur\(|\bShaderMask\(|\.saveLayer\(');
