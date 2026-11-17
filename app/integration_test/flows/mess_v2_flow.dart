@@ -98,6 +98,18 @@ void registerMessV2Flows() {
       await f.net(() => api.postJson('/mess/v2/$mid/edit', {'month_start_day': tomorrow.day}));
       await f.tap(find.text(f.t.mv2TabMeals));
       await f.tap(find.text(f.t.mv2TabMonth), settleSeconds: 3);
+      // gap-money (reality 44087305137): the start day was changed through
+      // the API, so the open screen still showed the old running month —
+      // pull to refresh like a user would, then find the close button.
+      final list = find.descendant(
+          of: find.byType(RefreshIndicator), matching: find.byType(Scrollable)).hitTestable().first;
+      await f.tester.fling(list, const Offset(0, 600), 1500);
+      await f.pumpFor(const Duration(seconds: 4));
+      final close = find.byKey(const ValueKey('mess-close-month'));
+      for (var i = 0; i < 12 && close.evaluate().isEmpty; i++) {
+        await f.tester.drag(list, const Offset(0, -350), warnIfMissed: false);
+        await f.pumpFor(const Duration(milliseconds: 400));
+      }
       await f.tap(find.byKey(const ValueKey('mess-close-month')));
       await f.tap(find.byKey(const ValueKey('mess-confirm-yes')), settleSeconds: 4);
       f.expectHttp('POST', '/mess/v2/$mid/close');
