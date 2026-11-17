@@ -193,7 +193,7 @@ class _SosLadderCardState extends State<SosLadderCard> {
         (c) => cleanPhone('${c['phone'] ?? ''}').isNotEmpty,
         orElse: () => const <String, dynamic>{});
     final rawName = '${first['name'] ?? ''}'.trim();
-    // gap-sos: a contact saved without a name reads "Call ০১৭…", never "Call "
+    // gap-sos: a contact saved without a name reads "Call <number>" (local digits), never "Call "
     final String? firstName = rawName.isNotEmpty
         ? rawName
         : (firstPhone == null ? null : notifLocalizeDigits(context, firstPhone));

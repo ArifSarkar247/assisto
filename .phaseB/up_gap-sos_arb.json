@@ -8,7 +8,7 @@
     "@sosgapStopTrying": {
       "description": "gap-sos: stop retrying an unsent SOS (does not close the screen)"
     },
-    "sosgapOpenFull": "Who is coming · live location · 30 s sound",
+    "sosgapOpenFull": "Who is on the way · live location · 30 s sound",
     "@sosgapOpenFull": {
       "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
     }
