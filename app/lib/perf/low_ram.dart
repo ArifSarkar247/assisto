@@ -47,6 +47,13 @@ class LowRamTuning {
   static int ramMb = 0;
   static bool lowRam = false;
 
+  /// designv2 (b323 swiftshader death): an emulator / software GPU — the
+  /// design system draws its cheap (lite) look there.
+  static bool emulator = false;
+
+  /// true once the Android device read finished (ok or failed).
+  static bool probed = false;
+
   static Future<void> apply({Future<AndroidDeviceInfo> Function()? read}) async {
     if (_done) return;
     _done = true;
@@ -56,6 +63,7 @@ class LowRamTuning {
           .timeout(const Duration(seconds: 3));
       ramMb = a.physicalRamSize;
       lowRam = a.isLowRamDevice;
+      emulator = !a.isPhysicalDevice;
       final b = budgetFor(ramMb: a.physicalRamSize, lowRam: a.isLowRamDevice);
       if (b == null) return;
       final cache = PaintingBinding.instance.imageCache;
@@ -64,6 +72,8 @@ class LowRamTuning {
       applied = b;
     } catch (_) {
       // plugin missing / slow / old OS: keep the defaults
+    } finally {
+      probed = true;
     }
   }
 
