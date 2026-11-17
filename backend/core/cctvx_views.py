@@ -877,7 +877,10 @@ def actions_for(ev, role):
     return {"siren": dict(siren, allowed=role in ("owner", "escalated")),
             "call_shop": s["shop_phone"] or None,
             "emergency": "999",
-            "share_clip": role == "owner" and clip in ("ready", "viewed"),
+            # gap-cctv: once the owner watched it the server copy is gone and
+            # only the clip screen (which kept the sealed bytes) can share it —
+            # the sheet tile would end in "clip gone"
+            "share_clip": role == "owner" and clip == "ready",
             "evidence": role == "owner",
             # cctvescalate C4-C6: the 999 card, the deterrence table
             **_escalate_actions(ev, role),
