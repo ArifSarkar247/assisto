@@ -28,6 +28,12 @@ class ElderHooks {
   /// existing emergency screen (SOS one tap) opens.
   static Future<void> Function(BuildContext context)? openSos;
 
+  /// gap-familycare: tests / gallery replace the mic sheet and the server
+  /// agent of "Talk to Assisto" (null = the real voice sheet + POST /agent).
+  static Future<String?> Function(BuildContext context)? listenOverride;
+  static Future<Map<String, dynamic>> Function(BuildContext context, String text)?
+      agentOverride;
+
   static SilentWatchApi? api(BuildContext context) {
     if (apiOverride != null) return apiOverride;
     try {
@@ -225,4 +231,43 @@ class ElderColors {
   static final callB = Color.lerp(Brand.purple, Brand.ink, 0.4)!; // deep purple
   static final talk = Color.lerp(Brand.cyan, Brand.ink, 0.6)!; // deep teal
   static const danger = Brand.dangerFill; // 5.6:1
+}
+
+/// gap-familycare: an AI answer made readable for an elder — markdown marks
+/// removed (headings, bold, bullets, code ticks), blank lines collapsed.
+String elderPlainReply(String raw) {
+  final lines = <String>[];
+  for (var l in raw.replaceAll('\r', '').split('\n')) {
+    l = l
+        .replaceAll(RegExp(r'^\s{0,3}#{1,6}\s*'), '')
+        .replaceAll(RegExp(r'^\s*[-*•]\s+'), '• ')
+        .replaceAll(RegExp(r'\*\*|__|`|\*'), '')
+        .trimRight();
+    if (l.trim().isEmpty) {
+      if (lines.isNotEmpty && lines.last.isNotEmpty) lines.add('');
+      continue;
+    }
+    lines.add(l);
+  }
+  while (lines.isNotEmpty && lines.last.isEmpty) {
+    lines.removeLast();
+  }
+  return lines.join('\n').trim();
+}
+
+/// gap-familycare: the part of an answer read OUT LOUD — the first sentences
+/// up to about [max] characters, always ending at a full sentence (never
+/// mid-word); the whole answer stays on screen.
+String elderSpokenPart(String plain, {int max = 320}) {
+  final flat = plain.replaceAll('•', '').replaceAll(RegExp(r'\s+'), ' ').trim();
+  if (flat.length <= max) return flat;
+  final ends = RegExp('[.!?\u0964](\\s|\$)');
+  var cut = -1;
+  for (final m in ends.allMatches(flat)) {
+    if (m.start + 1 > max) break;
+    cut = m.start + 1;
+  }
+  if (cut > 0) return flat.substring(0, cut).trim();
+  final sp = flat.lastIndexOf(' ', max);
+  return sp > 0 ? flat.substring(0, sp).trim() : flat.substring(0, max);
 }

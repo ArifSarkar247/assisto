@@ -1,4 +1,5 @@
 import 'api.dart';
+import 'widgets/money_digits.dart'; // gap-familycare
 import 'widgets/num_input.dart'; // savesweep
 
 /// FAMILY ACCOUNTING API surface (#61, SPEC v2.1 §21) — shared family money.
@@ -23,27 +24,28 @@ extension FamAcctApi on ApiClient {
   /// state,label{bn,en},breakdown:[{member,amount}]}}.
   /// Privacy: the server returns only items the caller participates in
   /// (shared==true); private spending is never included.
-  Future<Map<String, dynamic>> famAcctSummary({String? month}) =>
-      getJson('/family/accounting/summary${month != null ? '?month=$month' : ''}');
+  Future<Map<String, dynamic>> famAcctSummary({String? month, int? family}) =>
+      getJson('/family/accounting/summary${_famQ(month: month, family: family)}');
 
   /// GET /family/accounting/expenses?month=YYYY-MM ->
   /// {expenses:[{id, payer, payer_name, total_poisha, category, mode, note,
   /// date, shares:[{member, name, share_poisha}], ai_captured}]}.
   /// Shared-only (privacy honoured server-side).
-  Future<Map<String, dynamic>> famAcctExpenses({String? month}) =>
-      getJson('/family/accounting/expenses${month != null ? '?month=$month' : ''}');
+  Future<Map<String, dynamic>> famAcctExpenses({String? month, int? family}) =>
+      getJson('/family/accounting/expenses${_famQ(month: month, family: family)}');
 
   /// POST /family/accounting/expenses {payer, total_poisha, category, note,
   /// date, mode: equal|shares|exact, members:[id] (equal) | parts:[{member,
   /// weight|amount}]} -> the created expense (with its computed split).
   /// `shared` defaults true; set false for a private personal item.
-  Future<Map<String, dynamic>> famAcctAddExpense(Map<String, dynamic> body) =>
-      postJson('/family/accounting/expenses', body);
+  Future<Map<String, dynamic>> famAcctAddExpense(Map<String, dynamic> body, {int? family}) =>
+      postJson('/family/accounting/expenses', {...body, if (family != null) 'family': family});
 
   /// DELETE is modelled as POST .../delete {id} to avoid touching api.dart's
   /// verb set. -> {ok:true}.
-  Future<Map<String, dynamic>> famAcctDeleteExpense(int id) =>
-      postJson('/family/accounting/expenses/delete', {'id': id});
+  Future<Map<String, dynamic>> famAcctDeleteExpense(int id, {int? family}) =>
+      postJson('/family/accounting/expenses/delete',
+          {'id': id, if (family != null) 'family': family});
 
   /// GET /family/accounting/pool?month=YYYY-MM -> the pool block (see summary).
   Future<Map<String, dynamic>> famAcctPool({String? month}) =>
@@ -64,9 +66,33 @@ extension FamAcctApi on ApiClient {
   /// `from` actually owes `to` (400 exceeds_outstanding, max_poisha).
   /// -> {ok:true, remaining:[{from,to,amount_poisha}]}.
   Future<Map<String, dynamic>> famAcctSettle(
-          Object from, Object to, int amountPoisha) =>
-      postJson('/family/accounting/settle',
-          {'from': from, 'to': to, 'amount_poisha': amountPoisha});
+          Object from, Object to, int amountPoisha, {int? family}) =>
+      postJson('/family/accounting/settle', {
+        'from': from, 'to': to, 'amount_poisha': amountPoisha,
+        if (family != null) 'family': family,
+      });
+
+  // gap-familycare: named goals of a SHARED family ledger (Family Care v3).
+  // A goal: {id, name, target_poisha, collected_poisha, remaining_poisha,
+  // pct, state, closed, can_close, created_by_name, breakdown:[{member, name,
+  // amount_poisha}]}. Money is only RECORDED — Assisto never holds or moves it.
+  Future<Map<String, dynamic>> famGoalCreate(int family, String name, int targetPoisha) =>
+      postJson('/family/accounting/goals',
+          {'family': family, 'name': name, 'target_poisha': targetPoisha});
+
+  Future<Map<String, dynamic>> famGoalContribute(int goalId, Object member, int amountPoisha) =>
+      postJson('/family/accounting/goals/$goalId/contribute',
+          {'member': member, 'amount_poisha': amountPoisha});
+
+  /// close | reopen (who made it, or a family admin)
+  Future<Map<String, dynamic>> famGoalAction(int goalId, String action) =>
+      postJson('/family/accounting/goals/$goalId/$action');
+}
+
+/// ?month=…&family=… (either may be absent).
+String _famQ({String? month, int? family}) {
+  final q = [if (month != null) 'month=$month', if (family != null) 'family=$family'];
+  return q.isEmpty ? '' : '?${q.join('&')}';
 }
 
 /// On-device mirror of famacct_engine.py's integer-poisha helpers, used for
@@ -90,7 +116,8 @@ class FamAcctLocal {
     final taka = abs ~/ 100;
     final paisa = abs % 100;
     final body = '${_group(taka)}.${paisa.toString().padLeft(2, '0')}';
-    return '${neg ? '-' : ''}\u09F3$body'; // \u09F3 = BDT taka sign (currency glyph, not copy)
+    // gap-familycare: Bangla digits while the UI is Bangla (syncMoneyDigits)
+    return moneyDigits('${neg ? '-' : ''}\u09F3$body'); // \u09F3 = BDT taka sign (currency glyph, not copy)
   }
 
   static String _group(int n) {

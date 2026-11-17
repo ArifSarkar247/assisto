@@ -8,6 +8,7 @@ import '../services/action_feedback.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
+import '../screens/messenger/messenger_home_screen.dart'; // gap-familycare
 import 'fc_api.dart';
 import 'fc_text.dart';
 
@@ -157,8 +158,37 @@ class _FcAddMemberSheetState extends State<FcAddMemberSheet> {
             )
           else
             for (final r in _rows) _row(r, t),
+          // gap-familycare: never a dead end — add the person to My Circle
+          // here, then pick them (the list reloads on the way back)
+          if (!_loading && !_failed) ...[
+            const SizedBox(height: Gap.sm),
+            if (_rows.isEmpty)
+              FilledButton.icon(
+                key: const ValueKey('fcg-add-to-circle'),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                onPressed: _addToCircle,
+                icon: const Icon(Icons.person_add_alt_1_rounded),
+                label: Text(t.c1AddToCircle),
+              )
+            else
+              OutlinedButton.icon(
+                key: const ValueKey('fcg-add-to-circle'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: _addToCircle,
+                icon: const Icon(Icons.person_add_alt_1_rounded),
+                label: Text(t.c1AddToCircle),
+              ),
+          ],
         ],
     );
+  }
+
+  Future<void> _addToCircle() async {
+    await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const MessengerHomeScreen(startAdd: true)));
+    if (!mounted) return;
+    setState(() => _loading = true);
+    await _load();
   }
 
   Widget _row(Map<String, dynamic> r, AppLocalizations t) {

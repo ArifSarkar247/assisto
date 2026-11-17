@@ -4001,9 +4001,49 @@ class FamExpense(models.Model):
     shared = models.BooleanField(default=True)
     ai_captured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    # gap-familycare: a SHARED family ledger (Family Care v3 family). Null =
+    # the owner's own household ledger (members 'self' + FamilyMember ids);
+    # set = every active member of that family sees and adds rows, members
+    # are 'u<user id>'. created_by = who wrote the row (delete rights, audit).
+    family = models.ForeignKey("FcFamily", null=True, blank=True,
+                               on_delete=models.CASCADE, related_name="fam_expenses")
+    created_by = models.ForeignKey(User, null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name="+")
 
     class Meta:
         ordering = ["-date", "-id"]
+
+
+class FamGoal(models.Model):
+    """gap-familycare: a NAMED family savings goal ("Eid fund", "Hajj",
+    "school fees") of a Family Care v3 family. INTEGER POISHA. Money is never
+    held or moved by Assisto — gifts are records of what each person put in."""
+    family = models.ForeignKey("FcFamily", on_delete=models.CASCADE,
+                               related_name="fam_goals")
+    name = models.CharField(max_length=60)
+    target_poisha = models.BigIntegerField()
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["closed_at", "-id"]
+
+
+class FamGoalGift(models.Model):
+    """One recorded contribution to a FamGoal: `member` gave `amount_poisha`
+    (recorded by `added_by`)."""
+    goal = models.ForeignKey(FamGoal, on_delete=models.CASCADE, related_name="gifts")
+    member = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                               related_name="+")
+    amount_poisha = models.BigIntegerField()
+    added_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                                 related_name="+")
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
 
 
 class FamPool(models.Model):

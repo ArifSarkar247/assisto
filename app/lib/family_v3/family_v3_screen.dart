@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
 import '../carecall/carecall_new_screen.dart';
+import '../carecall/carecall_screen.dart'; // gap-familycare
 import '../feature_flags.dart';
 import '../feature_gates.dart' show kMedicalFeaturesAllowed;
 import '../l10n/app_localizations.dart';
@@ -52,12 +53,19 @@ class FamilyV3Screen extends StatefulWidget {
 
   /// Gallery: start scrolled (tasks / Today / More shots).
   final double debugScrollOffset;
-  const FamilyV3Screen({super.key, this.debugNow, this.debugScrollOffset = 0});
+  /// Gallery (gap-familycare): show the "could not refresh" banner as if the
+  /// last good fetch was at this time.
+  final DateTime? debugStaleAt;
+  const FamilyV3Screen({super.key, this.debugNow, this.debugScrollOffset = 0, this.debugStaleAt});
+
+  /// gap-familycare: how often an OPEN Family screen fetches fresh news
+  /// (emulator e2e shortens it; never changed in the app).
+  static Duration pollEvery = const Duration(minutes: 2);
   @override
   State<FamilyV3Screen> createState() => _FamilyV3ScreenState();
 }
 
-class _FamilyV3ScreenState extends State<FamilyV3Screen> {
+class _FamilyV3ScreenState extends State<FamilyV3Screen> with WidgetsBindingObserver {
   Map<String, dynamic>? _fams;
   Map<String, dynamic>? _board;
   int? _fid;
@@ -68,6 +76,11 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
   VoiceDictation? _voice;
   FcAskAnswer? _answer;
   bool _asking = false;
+  // gap-familycare: live board (auto refresh) + honest "could not refresh"
+  Timer? _poll;
+  bool _inFlight = false;
+  bool _refreshFailed = false;
+  DateTime? _loadedAt;
   late final ScrollController _scroll =
       ScrollController(initialScrollOffset: widget.debugScrollOffset);
 
@@ -89,12 +102,29 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
       _tick = Timer.periodic(const Duration(minutes: 1), (_) {
         if (mounted) setState(() {});
       });
+      // gap-familycare: fresh news while the screen is open (only when it is
+      // the top page) and whenever the app comes back to the front
+      _poll = Timer.periodic(FamilyV3Screen.pollEvery, (_) => _autoRefresh());
     }
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _autoRefresh();
+  }
+
+  void _autoRefresh() {
+    if (!mounted || _loading) return;
+    if (ModalRoute.of(context)?.isCurrent == false) return;
+    _load();
   }
 
   @override
   void dispose() {
     _tick?.cancel();
+    _poll?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     _scroll.dispose();
     _ask.dispose();
     _voice?.dispose();
@@ -104,6 +134,8 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
   ApiClient get _api => context.read<AppState>().api;
 
   Future<void> _load({int? switchTo}) async {
+    if (_inFlight && switchTo == null) return; // gap-familycare: no overlapping loads
+    _inFlight = true;
     try {
       final f = await _api.fcFamilies();
       final ids = [
@@ -118,9 +150,17 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
       _fid = fid;
       _board = board;
       _failed = false;
+      _refreshFailed = false;
+      _loadedAt = DateTime.now();
       if (board != null && mounted) FcWidgetSync.push(context, board);
     } catch (_) {
       _failed = _board == null;
+      _refreshFailed = _board != null; // gap-familycare: old data is labelled old
+    }
+    _inFlight = false;
+    if (widget.debugStaleAt != null && _board != null) {
+      _refreshFailed = true;
+      _loadedAt = widget.debugStaleAt;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -162,6 +202,10 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
       if (mounted) _load();
     });
   }
+
+  /// gap-familycare: Location from a card asks for THAT person (picked already).
+  void _openLocation(int userId) => Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => GuardianJourneyScreen(locationOnly: true, askForUserId: userId)));
 
   void _fix(Map<String, dynamic> m) {
     final st = fcRecheck(m, _now);
@@ -330,8 +374,7 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
         final p = '${m.first['phone'] ?? ''}';
         if (p.isNotEmpty) _call(p);
       case 'location':
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => const GuardianJourneyScreen(locationOnly: true)));
+        _openLocation((m.first['user_id'] as num).toInt());
       default:
         _openMember(m.first);
     }
@@ -356,10 +399,7 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
                     'initial': fcInitial(_nameOf(m)),
                   })))
           : null,
-      onLocation: !me
-          ? () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const GuardianJourneyScreen(locationOnly: true)))
-          : null,
+      onLocation: !me ? () => _openLocation((m['user_id'] as num).toInt()) : null,
     );
   }
 
@@ -451,7 +491,9 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
     final brain = m.isEmpty
         ? null
         : _members.firstWhere((x) => x['user_id'] == line.userId)['brain'] as Map?;
+    final paused = line.state == 'stale' && line.reason == 'paused'; // gap-familycare
     final (String title, String? sub, IconData icon) = switch (line.state) {
+      _ when paused => (t.fcgLinePaused(line.name), t.fcgLinePausedSub, Icons.pause_circle_rounded),
       'ok' => (t.fc3LineOk, t.fc3LineOkSub, Icons.check_circle_rounded),
       'sos' => (t.fc3LineSos(line.name), null, Icons.sos_rounded),
       'check' => (t.fc3LineCheck(line.name), fcReason(context, line.reason, brain), Icons.error_rounded),
@@ -584,6 +626,9 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
                 ? t.fc3TaskTakenBy('${x['taken_by_name']}')
                 : '';
     final id = (x['id'] as num).toInt();
+    // gap-familycare: the one who added it (or an admin) can delete it
+    final me = (_board?['me'] as Map?) ?? const {};
+    final canDelete = x['created_by'] == me['user_id'] || me['role'] == 'admin';
     return Card(
       key: ValueKey('fc3-task-$id'),
       margin: const EdgeInsets.only(bottom: Gap.sm),
@@ -605,6 +650,13 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
                   Text(who, style: TextStyle(color: fcInk(context, 'ok'), fontWeight: FontWeight.w600)),
               ]),
             ),
+            if (canDelete)
+              IconButton(
+                key: ValueKey('fcg-task-delete-$id'),
+                tooltip: t.delete,
+                onPressed: () => _deleteTask(id, '${x['title']}'),
+                icon: const Icon(Icons.delete_outline_rounded),
+              ),
           ]),
           if (!done) ...[
             const SizedBox(height: Gap.xs),
@@ -622,6 +674,17 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
                   icon: const Icon(Icons.check_rounded),
                   label: Text(t.fc3TaskDone)),
             ]),
+          ] else ...[
+            // gap-familycare: a "done" pressed by mistake can be taken back
+            const SizedBox(height: Gap.xs),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: OutlinedButton.icon(
+                  key: ValueKey('fcg-task-undo-$id'),
+                  onPressed: () => _taskAct(id, 'undo'),
+                  icon: const Icon(Icons.undo_rounded),
+                  label: Text(t.undo)),
+            ),
           ],
         ]),
       ),
@@ -646,6 +709,27 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
     } catch (e) {
       if (mounted) showActionFailed(context, 'fc3.task', e);
     }
+  }
+
+  Future<void> _deleteTask(int id, String title) async {
+    final t = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        scrollable: true,
+        title: Text(t.fcgTaskDeleteQ),
+        content: Text(title),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+          FilledButton(
+              key: const ValueKey('fcg-task-delete-ok'),
+              style: FilledButton.styleFrom(backgroundColor: Brand.danger),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.delete)),
+        ],
+      ),
+    );
+    if (ok == true && mounted) await _taskAct(id, 'delete');
   }
 
   Future<void> _addTask() async {
@@ -698,20 +782,42 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
               ? t.fc3TodayCareNone
               : t.fc3TodayCare(fcDigits(context, n(cc['done'])), fcDigits(context, n(cc['missed'])),
                   fcDigits(context, n(cc['pending']))),
-          ink: n(cc['missed']) > 0 ? fcInk(context, 'check') : null),
+          ink: n(cc['missed']) > 0 ? fcInk(context, 'check') : null,
+          // gap-familycare: the rows lead somewhere (no dead rows)
+          onTap: FeatureFlags.instance.isOn('care_call')
+              ? () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => const CareCallScreen()))
+                  .then((_) => _load())
+              : null),
       row(Icons.receipt_long_rounded,
           bills == 0 ? t.fc3TodayBillsNone : t.fc3TodayBills(fcDigits(context, bills)),
           ink: bills > 0 ? fcInk(context, 'check') : null),
       if (births.isNotEmpty) row(Icons.cake_rounded, t.fc3TodayBirthday(births.join(', '))),
       row(Icons.shopping_basket_rounded,
           bazar == 0 ? t.fc3TodayBazarNone : t.fc3TodayBazar(fcDigits(context, bazar)),
-          onTap: () => _openSection(FcSection.papers, t.fc3MorePapers)),
+          onTap: () => _openSection(FcSection.bazar, t.fcShopTab)), // gap-familycare
     ];
   }
 
-  void _openSection(FcSection s, String title) => Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => FcSectionPage(section: s, title: title)))
-      .then((_) => _load());
+
+  void _openSection(FcSection s, String title) {
+    // gap-familycare: the Probashi page shows the abroad members' own clocks
+    final abroad = [
+      for (final m in _members)
+        if (m['me'] != true && '${m['abroad_tz'] ?? ''}'.trim().isNotEmpty)
+          {'name': _nameOf(m), 'tz': '${m['abroad_tz']}'.trim()}
+    ];
+    // gap-familycare: the shared family ledger's other members
+    final others = [
+      for (final m in _members)
+        if (m['me'] != true) {'id': 'u${m['user_id']}', 'name': _nameOf(m)}
+    ];
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+            builder: (_) => FcSectionPage(
+                section: s, title: title, abroad: abroad, familyId: _fid, familyMembers: others)))
+        .then((_) => _load());
+  }
 
   List<Widget> _more() {
     final t = AppLocalizations.of(context);
@@ -744,7 +850,8 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
       row(const ValueKey('fc3-more-card'), Icons.badge_rounded, t.fc3MoreCard,
           () => _openSection(FcSection.card, t.fc3MoreCard)),
       row(const ValueKey('fc3-more-members'), Icons.groups_rounded, t.fc3MoreMembers,
-          () => _openSection(FcSection.members, t.fc3MoreMembers)),
+          () => _openSection(FcSection.members, t.fc3MoreMembers),
+          sub: t.fcgMembersSub), // gap-familycare: not the same as "Add member"
       if ((_board?['me'] as Map?)?['role'] == 'admin' && _fid != null) // fcrest
         row(const ValueKey('fcr-more-rename'), Icons.edit_rounded, t.fcrRename, () async {
           final fam = '${(_board?['family'] as Map?)?['name'] ?? ''}';
@@ -814,6 +921,50 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
         Text(t.fc3EmptyHow,
             textAlign: TextAlign.center,
             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      ]),
+    );
+  }
+
+  /// gap-familycare: a failed refresh never looks like fresh news.
+  Widget _staleBanner() {
+    final t = AppLocalizations.of(context);
+    final at = _loadedAt;
+    final when = at == null
+        ? ''
+        : fcDigits(context, MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(at)));
+    return Container(
+      key: const ValueKey('fcg-stale-banner'),
+      margin: const EdgeInsets.only(top: Gap.sm),
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.xs, Gap.xs),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xs),
+            child: Icon(Icons.cloud_off_rounded, color: fcInk(context, 'stale')),
+          ),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: Gap.xs, right: Gap.sm),
+              child: Text(t.fcgStaleBanner(when)),
+            ),
+          ),
+        ]),
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: TextButton(
+            key: const ValueKey('fcg-stale-retry'),
+            onPressed: () {
+              setState(() => _loading = true);
+              _load();
+            },
+            child: Text(t.retry),
+          ),
+        ),
       ]),
     );
   }
@@ -906,6 +1057,7 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> {
                     children: [
                       _switcher(),
                       ..._invites(),
+                      if (_refreshFailed) _staleBanner(),
                       const FamilyPushBanner(),
                       const SizedBox(height: Gap.sm),
                       _statusLine(),

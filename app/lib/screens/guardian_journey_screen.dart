@@ -33,7 +33,12 @@ class GuardianJourneyScreen extends StatefulWidget {
   /// sjlive: opened from Live Location's "Request Location" — the main
   /// button asks for the person's location only (no destination).
   final bool locationOnly;
-  const GuardianJourneyScreen({super.key, this.locationOnly = false});
+
+  /// gap-familycare: opened from a Family member card's "Location" — that
+  /// person is picked already and the ask form opens at once (unless a live
+  /// request to them is already in the list).
+  final int? askForUserId;
+  const GuardianJourneyScreen({super.key, this.locationOnly = false, this.askForUserId});
   @override
   State<GuardianJourneyScreen> createState() => _GuardianJourneyScreenState();
 }
@@ -76,6 +81,7 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
         _error = false;
       });
       _autoStart();
+      _autoAsk();
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -84,6 +90,22 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
         });
       }
     }
+  }
+
+  bool _askedFor = false;
+
+  /// gap-familycare: one tap from the member card = the form with them picked.
+  void _autoAsk() {
+    final uid = widget.askForUserId;
+    if (uid == null || _askedFor) return;
+    _askedFor = true;
+    final live = _list('outgoing').any((r) =>
+        (r['other_user_id'] as num?)?.toInt() == uid &&
+        (r['kind'] == 'location') == widget.locationOnly);
+    if (live) return; // already asked: the list shows it (no duplicate ask)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_ask());
+    });
   }
 
   /// The app is open and an accepted window has begun: start sharing now
@@ -358,7 +380,8 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
     final people = _list('people');
     final sent = await Navigator.of(context).push<bool>(
         MaterialPageRoute(builder: (_) => GuardianRequestScreen(
-            people: people, locationOnly: widget.locationOnly)));
+            people: people, locationOnly: widget.locationOnly,
+            preselectUserId: widget.askForUserId)));
     if (sent == true && mounted) await _load();
   }
 

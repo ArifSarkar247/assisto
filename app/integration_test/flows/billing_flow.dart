@@ -21,7 +21,11 @@ void registerBillingFlows() {
     final api = await f.h.backend();
     await f.step('open Plan & credits', () async {
       await f.pushScreen(const PlansScreen(), settleSeconds: 4);
-      await f.waitFor(find.byKey(const Key('plans-open-credits')), what: 'credits entry');
+      // gatefix: the trial/usage panel + "buy inside" (CCTV plan) cards now
+      // sit above the "Manage credits" button, so the lazy ListView does not
+      // BUILD it until the user scrolls (gate run 44061721110). Scroll like a
+      // finger until it is built, then require it.
+      await f.scrollToBuilt(find.byKey(const Key('plans-open-credits')), what: 'credits entry');
       await f.shot('plans');
       f.expectHttp('GET', '/credits/state');
     });

@@ -269,6 +269,10 @@ class Harness {
 // =============================================================== the flow API
 typedef FlowBody = Future<void> Function(RFlow f);
 
+// relgate: release gate (.github/workflows/release_gate.yml) bakes the exact
+// flow ids it requires into the test APK; every other flow is not registered.
+const _gateFlowIds = String.fromEnvironment('REALITY_FLOW_IDS');
+
 /// Registers one reality flow as an integration test.
 ///
 /// flutter_test tears the widget tree down after every test, so each flow
@@ -276,6 +280,7 @@ typedef FlowBody = Future<void> Function(RFlow f);
 /// closing and reopening it (storage, token and prefs survive).
 void realityFlow(String id, String section, String feature, FlowBody body,
     {Duration timeout = const Duration(minutes: 4), bool boot = true}) {
+  if (_gateFlowIds.isNotEmpty && !_gateFlowIds.split(',').contains(id)) return;
   testWidgets(id, (tester) async {
     final h = Harness.I;
     final skips = await tester.runAsync(() => h.skipIds()) ?? const <String>{};
@@ -492,11 +497,27 @@ class RFlow {
   /// run 40216392274, CRM lead form). Drags like a finger, 300 px a time.
   Future<void> scrollTo(Finder f, {int maxDrags = 25}) async {
     for (var i = 0; i < maxDrags && f.evaluate().isEmpty; i++) {
-      final sc = find.byType(Scrollable).hitTestable();
+      // gatefix: only VERTICAL scrollables — the drag is vertical, and a
+      // scrollable TabBar above the body (Mess detail, design2) used to be
+      // "first" and swallow every drag.
+      final sc = find.byWidgetPredicate((w) =>
+          w is Scrollable && axisDirectionToAxis(w.axisDirection) == Axis.vertical).hitTestable();
       if (sc.evaluate().isEmpty) break;
       await tester.drag(sc.first, const Offset(0, -300), warnIfMissed: false);
       await tester.pump(const Duration(milliseconds: 350));
     }
+  }
+
+  /// gatefix: [scrollTo] that also waits for the screen to load first — a
+  /// lazy list is not built (nothing to drag) until its data arrives. Then
+  /// requires [f] to be built ([waitFor] semantics, same failure text).
+  Future<Finder> scrollToBuilt(Finder f, {double seconds = 15, String? what}) async {
+    final end = DateTime.now().add(Duration(milliseconds: (seconds * 1000).round()));
+    while (f.evaluate().isEmpty && DateTime.now().isBefore(end)) {
+      await scrollTo(f, maxDrags: 6);
+      if (f.evaluate().isEmpty) await pumpFor(const Duration(milliseconds: 500));
+    }
+    return waitFor(f, seconds: 1, what: what);
   }
 
   /// The visible Send button (home chat, AI chat, My Circle chat all carry
