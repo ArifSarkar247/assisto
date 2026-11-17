@@ -338,7 +338,9 @@ def charge_wa_billable(channel, status_event):
         return 0
     try:
         with transaction.atomic():
-            WebhookReceipt.objects.create(source="wa_bill", message_id=key[:128])
+            # bizagent-iso: the dedupe key is scoped to the channel
+            WebhookReceipt.objects.create(source="wa_bill",
+                                          message_id=("%s:%s" % (channel.pk, key))[:128])
     except IntegrityError:
         return 0
     user = channel.business.user
@@ -1240,9 +1242,71 @@ def handoff_card(thread, risk, problems=None):
         return None
 
 
+# bizagent-iso (B): "the AI didn't know" — the customer's question the AI
+# could not answer from THIS shop's data goes to the owner's list (BizFaq
+# status="unknown", answer = the AI's suggested reply). The owner's answer
+# turns it into this shop's approved FAQ (used next time, cost 0); Ignore
+# rejects it. Never another shop's row: every query is business-scoped.
+UNKNOWN_STATUS = "unknown"
+UNKNOWN_RISKS = (BZ.RISK_LOW_CONF, BZ.RISK_NUMBERS, BZ.RISK_UNKNOWN_PRODUCT)
+UNKNOWN_MAX_OPEN = 200
+
+
+def record_unknown(thread, proposal="", risk=""):
+    from .models import BizFaq
+    biz = getattr(thread, "business", None)
+    if biz is None or risk not in UNKNOWN_RISKS:
+        return None
+    q = thread.messages.filter(direction="in").exclude(text="") \
+        .order_by("-created_at", "-id").first()
+    question = (q.text if q else "").strip()[:500]
+    if len(question) < 3 or question.startswith("["):
+        return None
+    sugg = (proposal or "").strip()[:1500]
+    rows = BizFaq.objects.filter(business=biz)
+    f = rows.filter(question=question).first()
+    if f is not None:
+        if f.status == UNKNOWN_STATUS:          # asked again: keep it fresh
+            if sugg:
+                f.answer = sugg
+            f.hits = (f.hits or 0) + 1
+            f.save(update_fields=["answer", "hits", "updated_at"])
+        return f
+    if rows.filter(status=UNKNOWN_STATUS).count() >= UNKNOWN_MAX_OPEN:
+        return None
+    from .logic import bizagent_rules as R
+    return BizFaq.objects.create(business=biz, question=question, answer=sugg,
+                                 status=UNKNOWN_STATUS, source="ai_unknown",
+                                 has_price=R.has_money(sugg), hits=1)
+
+
+def answer_unknown(business, pk, answer):
+    """Owner answers → this shop's approved FAQ forever. None = not found."""
+    from .models import BizFaq
+    from .logic import bizagent_rules as R
+    f = BizFaq.objects.filter(business=business, pk=pk, status=UNKNOWN_STATUS).first()
+    if f is None:
+        return None
+    f.answer = (answer or "").strip()[:1500]
+    f.status, f.source, f.has_price = "approved", "owner", R.has_money(f.answer)
+    f.save(update_fields=["answer", "status", "source", "has_price", "updated_at"])
+    return f
+
+
+def ignore_unknown(business, pk):
+    from .models import BizFaq
+    return BizFaq.objects.filter(business=business, pk=pk, status=UNKNOWN_STATUS) \
+        .update(status="rejected") > 0
+
+
 def _queue_approval(thread, proposal, risk, *, comment_id="", problems=None, confidence=0.0,
                     source="ai", meta=None):
     from .models import Message
+    if not comment_id:
+        try:
+            record_unknown(thread, proposal, risk)
+        except Exception:  # noqa: BLE001 — the owner list never blocks a handoff
+            log.exception("bizagent: record_unknown failed for thread %s", thread.pk)
     extra = {k: v for k, v in (meta or {}).items() if k in ("tox", "rule")}
     meta = {"comment_id": comment_id} if comment_id else {"problems": problems or []}
     meta["source"] = source
@@ -1795,17 +1859,31 @@ def _seller_comment_reply(thread, text):
 
 
 # ===================================================================== orders
-def _decrement_stock(item):
-    from .models import Product, ProductVariant
+def own_products(business):
+    """bizagent-iso: the ONE scoped Product queryset for a shop (its user's
+    products: this business's + the user's unassigned ones, like
+    catalog_for). Every id-based product lookup in the agent goes through it,
+    so a foreign product id can never be read or changed."""
+    from .models import Product
+    return Product.objects.filter(user=business.user).filter(
+        Q(business=business) | Q(business__isnull=True))
+
+
+def own_variants(business):
+    from .models import ProductVariant
+    return ProductVariant.objects.filter(product__in=own_products(business))
+
+
+def _decrement_stock(item, business):
     qty = int(item["qty"])
     if item.get("variant"):
-        n = ProductVariant.objects.filter(product_id=item["product_id"], vkey=item["variant"],
-                                          stock__gte=qty).update(stock=F("stock") - qty)
+        n = own_variants(business).filter(product_id=item["product_id"], vkey=item["variant"],
+                                           stock__gte=qty).update(stock=F("stock") - qty)
         if not n:
             return False
-        Product.objects.filter(pk=item["product_id"]).update(stock=F("stock") - qty)
+        own_products(business).filter(pk=item["product_id"]).update(stock=F("stock") - qty)
         return True
-    return bool(Product.objects.filter(pk=item["product_id"], stock__gte=qty)
+    return bool(own_products(business).filter(pk=item["product_id"], stock__gte=qty)
                 .update(stock=F("stock") - qty))
 
 
@@ -1838,7 +1916,7 @@ def confirm_order(thread, agent, lang):
                   source_ref=thread.source_ref or "",       # bizai: Prochar attribution
                   payment_status="pending_verification" if draft.get("payment_proof") else "")
     with transaction.atomic():
-        if not _decrement_stock(item):
+        if not _decrement_stock(item, biz):
             transaction.set_rollback(True)
             ok = False
         else:
@@ -1896,13 +1974,13 @@ def confirm_order(thread, agent, lang):
 
 def record_sale(order):
     """Delivered (cash collected by the courier) → a real Sale in the books."""
-    from .models import Product, Sale, SaleLine
+    from .models import Sale, SaleLine
     from .logic import business_selling as selling
     if order.sale_id or order.business is None:
         return order.sale
     lines, sub, profit = [], 0, 0
     for it in order.items or []:
-        p = Product.objects.filter(pk=it.get("product_id")).first()
+        p = own_products(order.business).filter(pk=it.get("product_id")).first()
         unit = selling.taka_to_poisha(it.get("price") or 0)
         qty = int(it.get("qty") or 1)
         cost = selling.taka_to_poisha(p.cost_price) if p else 0

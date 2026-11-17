@@ -769,9 +769,12 @@ class OrderStatusView(APIView):
             for it in o.items or []:   # give the reserved stock back
                 if it.get("product_id"):
                     q = int(it.get("qty") or 1)
-                    Product.objects.filter(pk=it["product_id"]).update(stock=F("stock") + q)
+                    # bizagent-iso: only THIS shop's own products
+                    Product.objects.filter(pk=it["product_id"], user=prof.user).update(
+                        stock=F("stock") + q)
                     if it.get("variant"):
                         ProductVariant.objects.filter(product_id=it["product_id"],
+                                                      product__user=prof.user,
                                                       vkey=it["variant"]).update(
                             stock=F("stock") + q)
         return Response({"ok": True, "status": o.status, "sale_id": o.sale_id})
