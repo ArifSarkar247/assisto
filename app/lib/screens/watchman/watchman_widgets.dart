@@ -7,6 +7,8 @@ import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
 import '../shop_box_mode_screen.dart';
 import 'watchman_source.dart';
+import '../../feature_flags.dart'; // gap-cctv
+import '../../phonecam/phonecam_pair_sheet.dart' show GuardBoxLinuxSteps; // gap-cctv
 import 'package:assisto/widgets/app_sheet.dart';
 
 /// cctv1 shared pieces: the 30-second guide, the honest gateway status line,
@@ -196,6 +198,13 @@ class WatchmanPairSheet extends StatelessWidget {
                 onPressed: () => Share.share(kShopBoxDownloadPage),
               ),
             ),
+            // gap-cctv: Windows is never required — a Raspberry Pi / Linux
+            // mini PC pairs with the old-phone camera code (only when that
+            // button exists on the place card).
+            if (FeatureFlags.instance.isOn('cctv_watchman')) ...[
+              const SizedBox(height: 8),
+              const GuardBoxLinuxSteps(codeAbove: false),
+            ],
           ],
           const SizedBox(height: 8),
           if (token.isNotEmpty) ...[

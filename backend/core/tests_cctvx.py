@@ -705,6 +705,18 @@ class ShareTests(_X):
         r = self.m.post("/api/v1/shop/events/%d/clip/viewed" % ev.id, {}, format="json")
         self.assertTrue(r.data["deleted"])
 
+    def test_gapcctv_sheet_share_tile_only_while_the_server_has_the_clip(self):
+        # gap-cctv: after the owner watched (server copy deleted) the alert's
+        # Actions sheet must not offer "Share clip" — it has no bytes to send
+        ev, clip, ct, priv, pub, v = self._clip()
+        clip.status = "ready"
+        clip.save(update_fields=["status"])
+        d = self.client.get("/api/v1/shop/events/%d" % ev.id)
+        self.assertTrue(d.data["actions"]["share_clip"])
+        self.client.post("/api/v1/shop/events/%d/clip/viewed" % ev.id, {}, format="json")
+        d = self.client.get("/api/v1/shop/events/%d" % ev.id)
+        self.assertFalse(d.data["actions"]["share_clip"])
+
     def test_share_after_delete_needs_the_same_ciphertext(self):
         from django.core.files.uploadedfile import SimpleUploadedFile
         ev, clip, ct, priv, pub, v = self._clip()

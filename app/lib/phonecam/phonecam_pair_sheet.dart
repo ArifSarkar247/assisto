@@ -13,6 +13,14 @@ import '../widgets/app_sheet.dart';
 import '../widgets/local_digits.dart' show ld;
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'phonecam_api.dart';
+import '../screens/watchman/watchman_source.dart' show wmError; // gap-cctv
+
+/// gap-cctv: the one-line installer of the Linux / Raspberry Pi Guard Box
+/// (edge/shopbox/linux/install.sh, GitHub release `guardbox-linux`). The box
+/// then asks for the SAME short code this sheet shows (shop/phonecam/claim).
+const kGuardBoxLinuxInstall =
+    'curl -fsSL https://github.com/ArifSarkar247/assisto/releases/download/guardbox-linux/install.sh | sudo sh';
+const kGuardBoxLinuxSetup = 'sudo assisto-guardbox setup';
 
 /// cctvphone — VIEWER side of pairing: show a QR (an https App Link) and the
 /// same code in big type. The old phone scans it with its own camera /
@@ -45,6 +53,7 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
   String? _error;
   Set<int>? _known; // camera ids present when the sheet opened
   Map<String, dynamic>? _paired;
+  bool _pollFailed = false; // gap-cctv: offline after the code is shown
   Timer? _poll;
   Timer? _tick;
   int _left = 0;
@@ -87,6 +96,7 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
       setState(() {
         _d = d;
         _error = null;
+        _pollFailed = false;
         _left = (d['valid_s'] as num?)?.toInt() ?? 0;
         if (fresh != null) {
           _paired = fresh;
@@ -95,7 +105,14 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.toString().replaceFirst('ApiException: ', ''));
+      // gap-cctv: a plain message in the user's language (never a raw
+      // "SocketException…"); once the code is on screen, a poll failure
+      // shows an offline line with Retry instead of an endless spinner.
+      final t = AppLocalizations.of(context);
+      setState(() {
+        _error = wmError(e) ?? t.wmLoadErrorBody;
+        _pollFailed = _d != null;
+      });
     }
   }
 
@@ -177,8 +194,13 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
               style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
               icon: const Icon(Icons.copy_rounded),
               label: Text(t.pcCopyCode),
-              onPressed: () =>
-                  Clipboard.setData(ClipboardData(text: (d['code'] ?? '').toString())),
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: (d['code'] ?? '').toString()));
+                if (context.mounted) {
+                  ScaffoldMessenger.maybeOf(context)
+                      ?.showSnackBar(SnackBar(content: Text(t.gcvLinuxCopied)));
+                }
+              },
             ),
             Text(t.pcCodeValid(_mmss(_left)),
                 textAlign: TextAlign.center,
@@ -199,14 +221,96 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
                   style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ],
             const SizedBox(height: 12),
-            Row(children: [
-              const SizedBox.square(
-                  dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-              const SizedBox(width: 10),
-              Expanded(child: Text(t.pcWaiting)),
-            ]),
+            if (_pollFailed)
+              Row(key: const Key('pcPairOffline'), children: [
+                Icon(Icons.cloud_off_rounded, color: scheme.error),
+                const SizedBox(width: 10),
+                Expanded(child: Text(t.gcvPairOffline)),
+                TextButton(
+                    style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                    onPressed: _load,
+                    child: Text(t.retry)),
+              ])
+            else
+              Row(children: [
+                const SizedBox.square(
+                    dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                const SizedBox(width: 10),
+                Expanded(child: Text(t.pcWaiting)),
+              ]),
+            // gap-cctv: Windows is never required — the same code pairs a
+            // Raspberry Pi / Linux mini PC Guard Box (spec V3 A4).
+            const SizedBox(height: 12),
+            const GuardBoxLinuxSteps(),
           ],
         ]),
+      ),
+    );
+  }
+}
+
+/// gap-cctv: "Use a Raspberry Pi or Linux mini PC instead" — folded by
+/// default; the install line and the setup line each have a Copy button.
+class GuardBoxLinuxSteps extends StatelessWidget {
+  /// true inside the pairing sheet (the code is just above); false elsewhere
+  /// (the step says where to get the code).
+  final bool codeAbove;
+  final bool initiallyExpanded; // gallery shot of the open steps
+  const GuardBoxLinuxSteps({super.key, this.codeAbove = true, this.initiallyExpanded = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    Widget cmd(String key, String text) => Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 4),
+          decoration: BoxDecoration(
+              color: scheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(10)),
+          child: Row(children: [
+            Expanded(
+              child: SelectableText(text,
+                  key: Key(key),
+                  textDirection: TextDirection.ltr,
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
+            ),
+            IconButton(
+              tooltip: t.gcvLinuxCopy,
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              icon: const Icon(Icons.copy_rounded),
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: text));
+                if (context.mounted) {
+                  ScaffoldMessenger.maybeOf(context)
+                      ?.showSnackBar(SnackBar(content: Text(t.gcvLinuxCopied)));
+                }
+              },
+            ),
+          ]),
+        );
+    return DsCard(
+      padding: EdgeInsets.zero,
+      child: ExpansionTile(
+        key: const Key('pcLinuxBox'),
+        initiallyExpanded: initiallyExpanded,
+        leading: const Icon(Icons.developer_board_rounded),
+        title: Text(t.gcvLinuxTitle),
+        subtitle: Text(t.gcvLinuxSub),
+        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('${fmtInt(context, 1)}. ${t.gcvLinuxStep1}'),
+          const SizedBox(height: 6),
+          Text('${fmtInt(context, 2)}. ${t.gcvLinuxStep2}'),
+          cmd('pcLinuxInstall', kGuardBoxLinuxInstall),
+          Text('${fmtInt(context, 3)}. ${t.gcvLinuxStep3}'),
+          cmd('pcLinuxSetup', kGuardBoxLinuxSetup),
+          Text('${fmtInt(context, 4)}. ${codeAbove ? t.gcvLinuxStep4 : t.gcvLinuxStep4Where}'),
+          const SizedBox(height: 6),
+          Text(t.gcvLinuxPrivacy,
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+        ],
       ),
     );
   }

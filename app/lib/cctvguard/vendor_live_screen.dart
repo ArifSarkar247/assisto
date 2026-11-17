@@ -103,6 +103,12 @@ class _VendorLiveScreenState extends State<VendorLiveScreen> {
     }
     final url = Uri.tryParse((r['url'] ?? '').toString());
     _id = (r['id'] ?? '').toString();
+    // gap-cctv: the user left while it was starting — end the server session
+    // now (dispose already ran with no id) and never start a player.
+    if (!mounted) {
+      await _close();
+      return;
+    }
     _kbps = (r['kbps'] as num?)?.toInt() ?? (_hd ? 2048 : 512);
     _note = (r['message'] ?? '').toString();
     _idle = VendorIdle(idleSeconds: (r['idle_seconds'] as num?)?.toInt() ?? 300);
@@ -117,6 +123,10 @@ class _VendorLiveScreenState extends State<VendorLiveScreen> {
       await ctl.setMuted(true);
       await ctl.play();
       if (ctl.state.value.error.isNotEmpty) throw StateError(ctl.state.value.error);
+      if (!mounted) {
+        await _close(); // gap-cctv: left during player start — stop the data
+        return;
+      }
     } catch (_) {
       await _close();
       _failed(t.cgVendorPlayFailed);
