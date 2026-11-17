@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -237,7 +238,7 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(_t.communityMembersTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _loadError
               ? _errorRetry(scheme)
               : RefreshIndicator(

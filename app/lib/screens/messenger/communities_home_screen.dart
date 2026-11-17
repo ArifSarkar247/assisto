@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -119,7 +120,7 @@ class CommunitiesHomeScreenState extends State<CommunitiesHomeScreen> {
         label: Text(t.chxNewCommunity),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : RefreshIndicator(onRefresh: _load, child: _body(t)),
     );
   }
@@ -515,7 +516,7 @@ class _SpaceLinkScreenState extends State<SpaceLinkScreen> {
     final scheme = Theme.of(context).colorScheme;
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList(count: 4);
     } else if (_signIn) {
       body = MsgrEmptyState(
         icon: Icons.login_rounded,

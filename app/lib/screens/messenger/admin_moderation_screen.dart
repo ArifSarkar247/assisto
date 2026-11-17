@@ -481,7 +481,7 @@ class _AdminModerationItemScreenState extends State<AdminModerationItemScreen> {
                   ),
                   if (_busy) ...[
                     const SizedBox(height: Gap.md),
-                    const Center(child: CircularProgressIndicator()),
+                    const LinearProgressIndicator(),
                   ],
                   if (_error != null) ...[
                     const SizedBox(height: Gap.md),

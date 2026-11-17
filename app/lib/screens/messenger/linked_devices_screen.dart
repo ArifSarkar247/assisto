@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -165,7 +166,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrLinkedTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : Column(children: [
               Material(
                 color: Theme.of(context).colorScheme.surface,
@@ -209,12 +210,10 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
     final last = '${d['last_active'] ?? d['linked_at'] ?? ''}';
     return ListTile(
       leading: const CircleAvatar(child: Icon(Icons.devices_rounded)),
-      title: Text(name.isEmpty ? '?' : name,
-          maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Text(name.isEmpty ? '?' : name),
       subtitle: last.isEmpty
           ? null
-          : Text('${t.msgrLinkedLastActive}: $last',
-              maxLines: 1, overflow: TextOverflow.ellipsis),
+          : Text('${t.msgrLinkedLastActive}: $last'),
       trailing: TextButton(
         onPressed: () => _logout(d),
         child: Text(t.msgrLinkedLogout),

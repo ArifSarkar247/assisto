@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -363,7 +364,8 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
         const SizedBox(height: Gap.lg),
         Text(t.m3OtherWays, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: Gap.xs),
-        Card(
+        DsCard(
+          padding: EdgeInsets.zero,
           child: Column(children: [
             // invite-join: the 2-tap link (WhatsApp / imo / Messenger / SMS /
             // QR) + who joined / not yet, with resend.
@@ -428,12 +430,9 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
         return const [];
       case _St.error:
         return [
-          Card(
-            key: const Key('m3-error'),
-            color: scheme.ds.dangerBg,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Row(children: [
+          DsCard(key: const Key('m3-error'), tone: DsTone.danger,
+            padding: const EdgeInsets.all(Gap.md),
+            child: Row(children: [
                 Icon(Icons.error_outline_rounded, color: scheme.ds.dangerInk),
                 const SizedBox(width: Gap.sm),
                 Expanded(
@@ -441,26 +440,20 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                         style: TextStyle(color: scheme.ds.dangerInk))),
                 TextButton(onPressed: _find, child: Text(t.retry)),
               ]),
-            ),
           ),
         ];
       case _St.self:
         return [
-          Card(
-            key: const Key('m3-self'),
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Text(t.c1SearchSelf),
-            ),
+          DsCard(key: const Key('m3-self'),
+            padding: const EdgeInsets.all(Gap.md),
+            child: Text(t.c1SearchSelf),
           ),
         ];
       case _St.notFound:
         return [
-          Card(
-            key: const Key('m3-notfound'),
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsCard(key: const Key('m3-notfound'),
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   Icon(Icons.person_off_rounded, color: scheme.primary),
                   const SizedBox(width: Gap.sm),
@@ -477,7 +470,6 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                 const SizedBox(height: Gap.xs),
                 M3InviteButtons(phone: _canon),
               ]),
-            ),
           ),
         ];
       case _St.found:
@@ -485,11 +477,9 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
         final name = '${u['name'] ?? ''}'.trim();
         final st = _circleState;
         return [
-          Card(
-            key: const Key('m3-found'),
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          DsCard(key: const Key('m3-found'),
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Row(children: [
                   MsgrAvatar(
                       name: name.isEmpty ? '?' : name,
@@ -571,7 +561,6 @@ class _M3AddToCircleScreenState extends State<M3AddToCircleScreen> {
                     ),
                 ],
               ]),
-            ),
           ),
         ];
     }

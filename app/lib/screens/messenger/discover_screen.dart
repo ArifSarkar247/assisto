@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -156,7 +157,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           _categoryBar(t),
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const SkeletonList(count: 4)
                 : RefreshIndicator(
                     onRefresh: _search, child: _body(t)),
           ),

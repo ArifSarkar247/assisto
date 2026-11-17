@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -386,7 +387,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _notFound
               ? ListView(children: [
                   const SizedBox(height: Gap.xxl * 2),
@@ -502,9 +503,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
                           child: Text(name,
                               style: Theme.of(context)
                                   .textTheme
-                                  .titleLarge,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis),
+                                  .titleLarge),
                         ),
                         if (verified) ...[
                           const SizedBox(width: Gap.xs),

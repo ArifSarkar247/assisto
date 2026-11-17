@@ -526,7 +526,7 @@ class _AdminUserDetailScreenState extends State<AdminUserDetailScreen> {
             ),
             if (_busy) ...[
               const SizedBox(height: Gap.md),
-              const Center(child: CircularProgressIndicator()),
+              const LinearProgressIndicator(),
             ],
             const SizedBox(height: Gap.xl),
 
@@ -673,8 +673,6 @@ class _UserCard extends StatelessWidget {
                       name.isEmpty ? t.msgrModUserNoName : name,
                       style: const TextStyle(
                           fontWeight: FontWeight.w800, fontSize: 15),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     if (phone.isNotEmpty)
                       Text(_digits(phone, loc),
@@ -758,9 +756,7 @@ class _PublicRow extends StatelessWidget {
         const SizedBox(width: Gap.md),
         Expanded(
           child: Text(name,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
+              style: const TextStyle(fontWeight: FontWeight.w600)),
         ),
         if (status.isNotEmpty && status != 'visible')
           MsgrModStatusPill(

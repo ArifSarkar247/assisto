@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -726,10 +727,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       );
     }
     final self = r['is_self'] == true;
-    return Card(
-      key: const Key('c1-search-notfound'),
-      margin: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
-      child: Padding(
+    return Padding(key: const Key('c1-search-notfound'), padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(self ? t.c1SearchSelf : t.c1SearchNotFound(local),
@@ -750,8 +748,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             ]),
           ],
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _foundRow(Map<String, dynamic> f) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 
 /// Assisto Messenger — CHANNELS shared UI pieces (Step 3).
 ///
@@ -236,30 +237,32 @@ class MsgrEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    // designv2: the DS card with the drawn illustration (same look as every
+    // empty state in the app)
+    final ds = DsTokens.of(context);
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 56, color: cs.primary),
-            const SizedBox(height: Gap.lg),
-            Text(title,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: Gap.sm),
-            Text(body,
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: cs.onSurfaceVariant)),
-            if (action != null) ...[
-              const SizedBox(height: Gap.xl),
-              action!,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: DsCard(
+          padding: const EdgeInsets.all(Gap.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DsIllustration(icon: icon),
+              const SizedBox(height: Gap.lg),
+              Text(title,
+                  textAlign: TextAlign.center,
+                  style: AType.titleLarge.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
+              const SizedBox(height: Gap.sm),
+              Text(body,
+                  textAlign: TextAlign.center,
+                  style: AType.bodyMedium.copyWith(color: ds.muted, height: 1.4)),
+              if (action != null) ...[
+                const SizedBox(height: Gap.lg),
+                action!,
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

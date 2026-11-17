@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../widgets/msgr_avatar.dart';
@@ -219,7 +220,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(_t.msgrChatContactInfo)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _loadFailed
               ? Center(
                   child: Padding(
@@ -335,8 +336,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                   for (final g in groupsInCommon)
                     ListTile(
                       leading: const Icon(Icons.groups_rounded),
-                      title: Text('${(g is Map ? g['name'] : g) ?? ''}',
-                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                      title: Text('${(g is Map ? g['name'] : g) ?? ''}'),
                     ),
                 ],
 

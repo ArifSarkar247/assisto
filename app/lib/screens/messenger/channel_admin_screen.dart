@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -93,7 +95,7 @@ class _ChannelAdminScreenState extends State<ChannelAdminScreen>
         ),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : TabBarView(
               controller: _tabs,
               children: [
@@ -771,7 +773,7 @@ class _AnalyticsTabState extends State<_AnalyticsTab> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final bn = msgrIsBn(context);
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList(count: 4);
     final views = (_data['total_views'] as num?)?.toInt() ?? 0;
     final reactions = (_data['total_reactions'] as num?)?.toInt() ?? 0;
     final growth = ((_data['follower_growth'] as List?) ?? const [])
@@ -832,10 +834,9 @@ class _AnalyticsTabState extends State<_AnalyticsTab> {
   }
 
   Widget _statCard(String label, String value, IconData icon) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(icon, color: Theme.of(context).colorScheme.primary),
@@ -844,7 +845,6 @@ class _AnalyticsTabState extends State<_AnalyticsTab> {
             Text(label, style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
-      ),
     );
   }
 }
@@ -963,7 +963,7 @@ class _AdminsTabState extends State<_AdminsTab> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList(count: 4);
     return Scaffold(
       floatingActionButton: widget.isOwner
           ? FloatingActionButton.extended(

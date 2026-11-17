@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 
 import '../../ads/ad_banner_slot.dart' show AdBannerSlot;
 import '../../calls/fullscreen_call_prompt.dart'; // play-fsi
@@ -387,7 +389,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : IndexedStack(index: _tab, children: [
               MsgrHubChatList(
                 identity: _identity,
@@ -519,14 +521,15 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Column(
       children: [
+        // my status first (the action), as a DS row on the card colour
         Material(
-          color: scheme.surface,
+          color: scheme.ds.card,
           child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: scheme.primaryContainer,
-              child: Icon(Icons.add_rounded, color: scheme.onPrimaryContainer),
+            leading: DsAvatar(
+              child: Icon(Icons.add_rounded, color: scheme.ds.primaryInk),
             ),
-            title: Text(t.statusTitle),
+            title: Text(t.statusTitle,
+                style: AType.bodyLarge.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w700)),
             trailing: IconButton(
               tooltip: t.discoverTitle,
               icon: const Icon(Icons.explore_rounded),
@@ -535,7 +538,7 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
             onTap: _openStatus,
           ),
         ),
-        const Divider(height: 1),
+        Divider(height: 1, color: scheme.ds.border),
         const Expanded(child: ChannelListScreen()),
       ],
     );
@@ -552,23 +555,24 @@ class _MessengerHomeScreenState extends State<MessengerHomeScreen> {
   }
 
   Widget _placeholder(IconData icon, String body) {
-    final scheme = Theme.of(context).colorScheme;
+    // honest waiting state (keys being set up) as the DS card with the
+    // drawn illustration
+    final ds = Theme.of(context).colorScheme.ds;
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 48, color: scheme.primary.withValues(alpha: 0.7)),
-            // f6: no "Preview" heading — this is an honest waiting state
-            // (keys being set up), not a feature preview.
-            const SizedBox(height: Gap.md),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: DsCard(
+          padding: const EdgeInsets.all(Gap.xl),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            DsIllustration(icon: icon),
+            const SizedBox(height: Gap.lg),
             Text(body,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
-          ],
+                style: AType.bodyMedium.copyWith(color: ds.muted, height: 1.4)),
+          ]),
         ),
       ),
     );
   }
+
 }
