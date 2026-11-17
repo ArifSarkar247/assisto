@@ -87,6 +87,7 @@ final Map<String, Widget Function(String)> cityShots = {
   'city_need_start': (l) => CityServiceScreen(
       debugTo: (name: l == 'bn' ? 'মতিঝিল' : 'Motijheel', address: '', lat: 23.7270, lng: 90.4180),
       debugSimple: false,
+      debugLocate: () async => null,
       store: _store(),
       debugNow: _now),
   'city_map_stop': (l) => const CityFieldScreen(debugHere: _here), // citycov

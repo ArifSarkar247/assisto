@@ -61,12 +61,17 @@ class CityServiceScreen extends StatefulWidget {
   /// Offline package store (prod: files on the phone).
   final CityStore? store;
 
+  /// Test (gap-city): the phone's GPS answer (null = location off) instead
+  /// of asking the platform.
+  @visibleForTesting
+  final Future<CityLatLon?> Function()? debugLocate;
+
   /// Test: "now" for the Safer-at-night default.
   @visibleForTesting
   final DateTime? debugNow;
 
   const CityServiceScreen(
-      {super.key, this.debugHere, this.debugTo, this.debugSimple, this.debugPick, this.store, this.debugNow});
+      {super.key, this.debugHere, this.debugTo, this.debugSimple, this.debugPick, this.store, this.debugNow, this.debugLocate});
 
   @override
   State<CityServiceScreen> createState() => _CityServiceScreenState();
@@ -114,6 +119,8 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     }
     if (widget.debugHere != null) {
       _here = widget.debugHere;
+    } else if (widget.debugLocate != null) {
+      _here = await widget.debugLocate!();
     } else if (mounted) {
       final p = await placeHereNow(context);
       if (p != null) _here = (lat: p.lat, lon: p.lng);
@@ -326,7 +333,9 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
   /// "Choose where you start" until one of the two works).
   Future<void> _retryHere() async {
     setState(() => _locating = true);
-    final p = await placeHereNow(context);
+    final p = widget.debugLocate != null
+        ? await widget.debugLocate!().then((h) => h == null ? null : (lat: h.lat, lng: h.lon))
+        : await placeHereNow(context);
     if (!mounted) return;
     setState(() {
       if (p != null) _here = (lat: p.lat, lon: p.lng);
@@ -837,7 +846,7 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     final m = d.minute.toString().padLeft(2, '0');
     final t = AppLocalizations.of(context);
     if (cityBn(context)) {
-      // gap-city: a real Bangla time of day ("রাত ৯:০০", not "বিকাল/রাত")
+      // gap-city: a real Bangla time of day (dawn ... night, from the ARB)
       final x = d.hour;
       final hm = '$h:$m';
       if (x >= 4 && x < 6) return t.cityGAtDawn(hm);
