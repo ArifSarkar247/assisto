@@ -52413,5 +52413,189 @@
   "sosgapOpenFull": "Who is on the way · live location · 30 s sound",
   "@sosgapOpenFull": {
     "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
+  },
+  "aiReplyMenu": "AI reply",
+  "@aiReplyMenu": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyTitle": "AI reply for {name}",
+  "@aiReplyTitle": {
+    "description": "ai-reply-core: My Circle AI reply",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "aiReplyGroupTitle": "AI reply in this group",
+  "@aiReplyGroupTitle": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyIntro": "Assisto writes short replies in your style. It never answers about money, addresses, meeting in person, health emergencies, promises or big decisions — those wait for you.",
+  "@aiReplyIntro": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeOff": "Off",
+  "@aiReplyModeOff": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeOffSub": "No AI in this chat",
+  "@aiReplyModeOffSub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeSuggest": "Suggest, I send",
+  "@aiReplyModeSuggest": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeSuggestSub": "Short replies above the keyboard; one tap sends",
+  "@aiReplyModeSuggestSub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeBusy": "Busy mode",
+  "@aiReplyModeBusy": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeBusySub": "Short replies on its own while you are busy",
+  "@aiReplyModeBusySub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeAuto": "Full auto",
+  "@aiReplyModeAuto": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyModeAutoSub": "Keeps the conversation going in your style",
+  "@aiReplyModeAutoSub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyGroupOnly": "In groups AI only suggests — you always send.",
+  "@aiReplyGroupOnly": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyBusyFor": "Busy for how long?",
+  "@aiReplyBusyFor": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReply30m": "30 minutes",
+  "@aiReply30m": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReply1h": "1 hour",
+  "@aiReply1h": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReply2h": "2 hours",
+  "@aiReply2h": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyUntilOff": "Until I turn it off",
+  "@aiReplyUntilOff": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyBusyUntil": "AI replies for you until {time}",
+  "@aiReplyBusyUntil": {
+    "description": "ai-reply-core: My Circle AI reply",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "aiReplyBusyOn": "AI replies for you until you turn it off",
+  "@aiReplyBusyOn": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyOnAuto": "AI is replying for you in your style",
+  "@aiReplyOnAuto": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyLabel": "Show the “Assisto AI reply” tag",
+  "@aiReplyLabel": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyLabelSub": "They see a small tag under messages AI sends for you",
+  "@aiReplyLabelSub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyStyle": "Learn my writing style",
+  "@aiReplyStyle": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyStyleSub": "Only from messages you send in My Circle. Assisto keeps a small style summary, never your messages. Turn off to delete it.",
+  "@aiReplyStyleSub": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyCost": "Each AI reply uses {n} credit.",
+  "@aiReplyCost": {
+    "description": "ai-reply-core: My Circle AI reply",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "aiReplyFreeLeft": "You have enough for {n} replies now.",
+  "@aiReplyFreeLeft": {
+    "description": "ai-reply-core: My Circle AI reply",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "aiReplyWatchAd": "Watch an ad for replies",
+  "@aiReplyWatchAd": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyNoCredits": "No credits left for AI replies.",
+  "@aiReplyNoCredits": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyChild": "AI reply is not available for child accounts.",
+  "@aiReplyChild": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyError": "Couldn't change it. Check the internet and try again.",
+  "@aiReplyError": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyRetry": "Try again",
+  "@aiReplyRetry": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyDone": "Done",
+  "@aiReplyDone": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyTag": "Assisto AI reply",
+  "@aiReplyTag": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyNeedsYou": "This one needs you — AI doesn't answer money, address, meeting, health or promises.",
+  "@aiReplyNeedsYou": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyHeldHere": "AI held a message here — it needs your own answer.",
+  "@aiReplyHeldHere": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyHeldOk": "OK",
+  "@aiReplyHeldOk": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyChange": "Change",
+  "@aiReplyChange": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplySuggesting": "AI is writing replies…",
+  "@aiReplySuggesting": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyTapToSend": "Tap to send this reply",
+  "@aiReplyTapToSend": {
+    "description": "ai-reply-core: My Circle AI reply"
+  },
+  "aiReplyHide": "Hide suggestions",
+  "@aiReplyHide": {
+    "description": "ai-reply-core: My Circle AI reply"
   }
 }
