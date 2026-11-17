@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/money_digits.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
@@ -116,6 +117,7 @@ class _QurbaniScreenState extends State<QurbaniScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -379,6 +381,7 @@ class _AnimalTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final summary = _QMath.planSummary(plan, participants);
@@ -536,6 +539,7 @@ class _MeatTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final summary = _QMath.planSummary(plan, const []);
@@ -612,6 +616,7 @@ class _ChecklistTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final done = _QMath.doneList(plan['done']);
@@ -750,7 +755,7 @@ class _QMath {
     p = p.abs();
     final taka = p ~/ 100;
     final paisa = p % 100;
-    return '${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}';
+    return moneyDigits('${neg ? '-' : ''}৳${_group(taka)}.${paisa.toString().padLeft(2, '0')}'); // design3: Bangla digits in bn
   }
 
   static String kg(int grams) {

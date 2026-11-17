@@ -11,6 +11,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/wrapped_cards.dart';
 import '../widgets/wrapped_share.dart';
 import 'money_common.dart';
+import '../widgets/money_digits.dart';
 import 'money_screen.dart' show MoneyScreen; // moneybar
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/bn_day_periods.dart' show appDateLocale;
@@ -130,6 +131,7 @@ class _MoneyWrappedScreenState extends State<MoneyWrappedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.wrappedTitle)),

@@ -1,4 +1,5 @@
 import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
+import '../widgets/money_digits.dart';
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -168,6 +169,7 @@ class _TravelPlannerScreenState extends State<TravelPlannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -234,6 +236,7 @@ class _Welcome extends StatelessWidget {
   const _Welcome({required this.onAdd});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     // design3: DS empty state — benefit + one big button
     return ListView(
@@ -260,6 +263,7 @@ class _TripCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final start = '${trip['start'] ?? ''}';
@@ -329,6 +333,7 @@ class _CountdownChip extends StatelessWidget {
   const _CountdownChip({required this.cd});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     String label;
@@ -362,6 +367,7 @@ class _CountChip extends StatelessWidget {
       {required this.icon, required this.label, required this.tint});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 14, color: tint),
       const SizedBox(width: 3),
@@ -457,6 +463,7 @@ class _TravelTripDetailScreenState extends State<TravelTripDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (_loading) {
@@ -570,6 +577,7 @@ class _ItineraryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     var totalActivities = 0;
@@ -630,6 +638,7 @@ class _DayCard extends StatelessWidget {
       {required this.day, required this.onEdit, required this.onDelete});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final acts = ((day['activities'] as List?) ?? const [])
@@ -745,6 +754,7 @@ class _PackingTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final rows =
@@ -860,7 +870,7 @@ String _fmtBdt(int poisha) {
     if (head.isNotEmpty) parts.insert(0, head);
     grouped = '${parts.join(',')},$tail';
   }
-  return '${neg ? '-' : ''}৳$grouped.${paisa.toString().padLeft(2, '0')}';
+  return moneyDigits('${neg ? '-' : ''}৳$grouped.${paisa.toString().padLeft(2, '0')}'); // design3: Bangla digits in bn
 }
 
 class _BudgetTab extends StatelessWidget {
@@ -893,6 +903,7 @@ class _BudgetTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     var totEst = 0, totAct = 0;
@@ -987,6 +998,7 @@ class _BudgetStat extends StatelessWidget {
   const _BudgetStat({required this.label, required this.value, this.tint});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final scheme = Theme.of(context).colorScheme;
     return Column(children: [
       Text(value,
@@ -1004,6 +1016,7 @@ class _AiSeamCard extends StatelessWidget {
   const _AiSeamCard();
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     return _SeamCard(
@@ -1018,6 +1031,7 @@ class _BookingSeamCard extends StatelessWidget {
   const _BookingSeamCard();
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     if (!kShowKeySeams) return const SizedBox.shrink(); // truth: no key dead end
     final tr = AppLocalizations.of(context);
     return _SeamCard(
@@ -1035,6 +1049,7 @@ class _SeamCard extends StatelessWidget {
       {required this.icon, required this.title, required this.body});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final scheme = Theme.of(context).colorScheme;
     return DsSurface(flat: true, color: DsTokens.of(context).primarySoft, padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(Gap.md),
@@ -1131,6 +1146,7 @@ class _TripEditorSheetState extends State<_TripEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.only(
@@ -1233,6 +1249,7 @@ class _DayEditorSheetState extends State<_DayEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.only(
@@ -1317,6 +1334,7 @@ class _ActivityRow extends StatelessWidget {
   const _ActivityRow({super.key, required this.activity, this.onRemove});
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
@@ -1416,6 +1434,7 @@ class _BudgetEditorSheetState extends State<_BudgetEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3
     final tr = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.only(

@@ -1,6 +1,7 @@
 // design3 (lead 17 Nov, a11y lane): the app honours the phone's font size up
 // to 2.0x app-wide, so EVERY gallery screen is checked at 2.0x, bn + en:
-// no cut text (maxLines / ellipsis hit), no overflow / layout exception.
+// no cut text (maxLines / ellipsis hit), no overflow / layout exception,
+// and in bn no Taka amount in Latin digits.
 //
 // Runs only with DS2_XL=1 (the ds2-goldens job on the design lane branches),
 // so the shared checks runners don't pay for ~1100 pumps.
@@ -61,6 +62,16 @@ void main() {
           if (ex != null) problems.add('exception: ${'$ex'.split('\n').first}');
           for (final c in cutTexts(tester)) {
             problems.add('cut: ${c.length > 80 ? c.substring(0, 80) : c}');
+          }
+          // lead 17 Nov: a Taka amount on a Bangla screen uses Bangla digits
+          if (lang == 'bn') {
+            final latinTaka = RegExp('\u09F3\\s?-?[0-9]');
+            for (final e in find.byType(RichText).evaluate()) {
+              final txt = (e.widget as RichText).text.toPlainText();
+              if (latinTaka.hasMatch(txt)) {
+                problems.add('latin-amount: ${txt.length > 60 ? txt.substring(0, 60) : txt}');
+              }
+            }
           }
         } finally {
           FlutterError.onError = old;

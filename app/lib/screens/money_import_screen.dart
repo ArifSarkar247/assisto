@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../ds/ds.dart';
 import 'money_common.dart';
+import '../widgets/money_digits.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
 /// Import transactions from a pasted/forwarded wallet or bank SMS. The raw text
@@ -93,6 +94,7 @@ class _MoneyImportScreenState extends State<MoneyImportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    syncMoneyDigits(context); // design3: amounts in Bangla digits in bn
     final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(t.moneyImportTitle)),
