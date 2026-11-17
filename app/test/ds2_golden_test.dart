@@ -87,7 +87,8 @@ Future<void> _png(WidgetTester tester, GlobalKey key, String name) async {
 
 Future<void> _golden(GlobalKey key, String name) async {
   final f = 'goldens/ds2/$name.png';
-  if (File('test/$f').existsSync()) {
+  // --update-goldens writes the baselines (design3: CI job ds2-goldens.yml)
+  if (autoUpdateGoldenFiles || File('test/$f').existsSync()) {
     await expectLater(find.byKey(key), matchesGoldenFile(f));
   }
 }
