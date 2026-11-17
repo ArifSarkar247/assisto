@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/fade_chip_row.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -215,8 +216,10 @@ class _CctvClipsScreenState extends State<CctvClipsScreen> {
                 ),
               ),
             if (cams.length > 1) ...[
-              const SizedBox(height: 12),
-              Wrap(spacing: 8, runSpacing: 8, children: [
+              const SizedBox(height: Gap.md),
+              // design3: one scrolling row of camera chips (a Wrap broke into
+              // two ragged rows at 360 dp), the end fades to show there is more
+              FadeChipRow(padding: EdgeInsets.zero, children: [
                 ChoiceChip(
                   key: const ValueKey('gcv-clips-cam-all'),
                   label: Text(t.gcvClipsAllCameras),

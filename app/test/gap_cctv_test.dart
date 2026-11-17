@@ -22,13 +22,19 @@ import 'package:assisto/screens/watchman/cctv_escalate.dart';
 import 'package:assisto/screens/watchman/cctvx_actions.dart';
 import 'package:assisto/screens/watchman/cctv_watch_screen.dart';
 import 'package:assisto/screens/watchman/guard_box_screen.dart';
+import 'package:assisto/screens/watchman/old_phone_hub.dart';
+import 'package:assisto/screens/watchman/cctv_clips_screen.dart';
+import 'package:assisto/widgets/sidebar_sections.dart';
 import 'package:assisto/screens/watchman/watchman_viewers.dart';
+import 'package:assisto/screens/watchman/watchman_alerts.dart';
 import 'package:assisto/theme.dart';
 
 import 'cctvact_fakes.dart' show FakeCctvAct;
 import 'cctvconnect_fakes.dart' show FakeCctvConnect;
 import 'cctvescalate_fakes.dart' show FakeEscalate;
 import 'cctvx_fakes.dart' show FakeCctvx;
+import 'gap_cctv_shots.dart' show GapFakeClips;
+import 'cashguard_fakes.dart' show FakeCashGuard;
 import 'cctvprice_fakes.dart' show FakeCctvApi, cctvPlanPayload;
 import 'cctvteam_fakes.dart' show FakeCctvTeam;
 import 'cctv1_fakes.dart' show FakeWatchman;
@@ -117,6 +123,18 @@ class _GrowViewers extends FakeWatchman {
   Future<Map<String, dynamic>> addViewer(int siteId, String phone) async {
     added = true;
     return {'ok': true};
+  }
+}
+
+class _LiveEvents extends FakeWatchman {
+  @override
+  Future<Map<String, dynamic>> events(int siteId) async {
+    final d = await super.events(siteId);
+    final evs = [
+      for (final e in (d['events'] as List).cast<Map<String, dynamic>>())
+        {...e, 'live_path': e['id'] == 101 ? 'vendor' : null}
+    ];
+    return {...d, 'events': evs};
   }
 }
 
@@ -579,10 +597,131 @@ void main() {
     await _settle(tester);
     expect(find.byKey(const ValueKey('gcv-gb-forget')), findsNothing);
     expect(find.text(en.gbPairHelp), findsOneWidget);
-    // the best-effort key deletes (4 keys) each give up after 5 s with no
-    // secure storage in tests -> let every one of them run out
-    for (var i = 0; i < 5; i++) {
-      await tester.pump(const Duration(seconds: 6));
-    }
+    // the best-effort key delete gives up after 5 s (no secure storage here)
+    await tester.pump(const Duration(seconds: 6));
+  });
+
+  test('D2 the plan line speaks of a bigger PLAN, not a per-camera Taka charge', () {
+    expect(en.gcvHowPriced('500', '250'), contains('A plan for more cameras adds 250 tk'));
+    expect(en.gcvHowPriced('500', '250'), contains('uses credits'));
+    expect(en.gcvHowPriced('500', '250'), isNot(contains('Each extra camera is')));
+  });
+
+  group('D3 one job = one tile', () {
+    testWidgets('one entry for every old-phone way, with sections inside', (tester) async {
+      _phone(tester, height: 2000);
+      await tester.pumpWidget(_app(const Scaffold(
+          body: OldPhoneHubSheet(siteId: 3, guardBoxOn: true))));
+      await _settle(tester);
+      expect(find.byKey(const Key('gcv-hub-pair')), findsOneWidget);
+      expect(find.byKey(const Key('gcv-hub-this')), findsOneWidget);
+      expect(find.byKey(const Key('gcv-hub-guardbox')), findsOneWidget);
+      expect(find.text(en.gcvLinuxTitle), findsOneWidget);
+      // on the old phone itself (no place yet) and Guard Box switched off
+      await tester.pumpWidget(_app(const Scaffold(body: OldPhoneHubSheet(guardBoxOn: false))));
+      await _settle(tester);
+      expect(find.byKey(const Key('gcv-hub-pair')), findsNothing);
+      expect(find.byKey(const Key('gcv-hub-guardbox')), findsNothing);
+      expect(find.byKey(const Key('gcv-hub-this')), findsOneWidget);
+    });
+
+    test('Shop Box is not a second tile; its old names find the CCTV tile', () {
+      final routes = [
+        for (final sec in SidebarSections.allModes)
+          for (final i in sec.items) i.route ?? ''
+      ];
+      expect(routes.where((r) => r == 'watchman').length, 1);
+      final cctv = [
+        for (final sec in SidebarSections.allModes)
+          for (final i in sec.items)
+            if (i.route == 'watchman') i
+      ].single;
+      expect(cctv.includes, contains('cctv_watchman'));
+      expect(cctv.synonyms, contains('shop box'));
+      final labels = [
+        for (final sec in SidebarSections.allModes)
+          for (final i in sec.items) i.label(en)
+      ];
+      expect(labels, isNot(contains(en.shopBoxTitle)));
+      expect(SidebarSections.filter(en, 'shop box'), isNotEmpty);
+    });
+  });
+
+  group('D4 past clips page', () {
+    testWidgets('kept clips by day, honest keep time, camera filter, owner upsell',
+        (tester) async {
+      _phone(tester, height: 2000);
+      final src = GapFakeClips();
+      await tester.pumpWidget(_app(CctvClipsScreen(source: src, siteId: 1, owner: true)));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('gcv-clips-keep')), findsOneWidget);
+      expect(find.text(en.gcvClipsKeep('24', '30')), findsOneWidget);
+      expect(find.text(en.gcvClipsCamKeep('Cash counter', '30')), findsOneWidget);
+      expect(find.byKey(const ValueKey('gcv-clips-upsell')), findsOneWidget);
+      expect(find.text(en.gcvReportToday), findsOneWidget);
+      expect(find.text(en.gcvReportYesterday), findsOneWidget);
+      expect(find.byKey(const ValueKey('gcv-clip-501')), findsOneWidget);
+      expect(find.byKey(const ValueKey('gcv-clip-503')), findsOneWidget);
+      // design3: the camera chips are one scrolling row — bring it into view
+      await tester.ensureVisible(find.byKey(const ValueKey('gcv-clips-cam-12')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('gcv-clips-cam-12')));
+      await _settle(tester);
+      expect(src.asked.last, 12);
+      expect(find.byKey(const ValueKey('gcv-clip-501')), findsNothing);
+      expect(find.byKey(const ValueKey('gcv-clip-502')), findsOneWidget);
+    });
+
+    testWidgets('family / staff never see the upsell; Bangla digits', (tester) async {
+      _phone(tester, height: 2000);
+      await tester.pumpWidget(_app(
+          CctvClipsScreen(source: GapFakeClips(), siteId: 1, owner: false), lang: 'bn'));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('gcv-clips-upsell')), findsNothing);
+      expect(find.text(bn.gcvClipsKeep('২৪', '৩০')), findsOneWidget);
+    });
+
+    testWidgets('empty: benefit + how-to; failed load: Retry', (tester) async {
+      _phone(tester, height: 2000);
+      await tester.pumpWidget(
+          _app(CctvClipsScreen(source: GapFakeClips(empty: true), siteId: 1, owner: true)));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('gcv-clips-empty')), findsOneWidget);
+      await tester.pumpWidget(
+          _app(CctvClipsScreen(source: GapFakeClips(fail: true), siteId: 1, owner: true)));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('gcv-clips-retry')), findsOneWidget);
+    });
+
+    test('day grouping uses the phone\'s local date', () {
+      final iso = DateTime(2026, 11, 17, 0, 30).toUtc().toIso8601String();
+      expect(gcvClipDayKey(iso), '2026-11-17');
+    });
+  });
+
+  testWidgets('R1 alert card: Live and Call 999 on the card, the rest in More actions',
+      (tester) async {
+    _phone(tester, height: 2600);
+    final old = police999Launch;
+    Uri? dialed;
+    police999Launch = (u) async {
+      dialed = u;
+      return true;
+    };
+    addTearDown(() => police999Launch = old);
+    await tester.pumpWidget(_app(WatchmanAlertsScreen(
+        source: _LiveEvents(), siteId: 1, owner: true, cash: FakeCashGuard())));
+    await _settle(tester);
+    expect(find.byKey(const ValueKey('wm-alert-live-101')), findsOneWidget);
+    expect(find.byKey(const ValueKey('wm-alert-live-102')), findsNothing,
+        reason: 'no live route -> no dead Live button');
+    expect(find.byKey(const ValueKey('wm-alert-more-101')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const ValueKey('wm-alert-999-101')));
+    await tester.tap(find.byKey(const ValueKey('wm-alert-999-101')));
+    await _settle(tester);
+    expect(dialed, isNull, reason: 'asks first');
+    await tester.tap(find.byKey(const ValueKey('wm-alert-999-yes')));
+    await _settle(tester);
+    expect(dialed.toString(), 'tel:999');
   });
 }

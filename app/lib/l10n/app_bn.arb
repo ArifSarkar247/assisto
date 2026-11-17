@@ -26391,5 +26391,7 @@
   "csshRemoteSharing": "{name} স্ক্রিন শেয়ার করছেন",
   "csshNotifTitle": "Assisto কলে আপনার স্ক্রিন শেয়ার হচ্ছে",
   "csshNotifBody": "অন্যজন আপনার স্ক্রিন দেখতে পাচ্ছেন।",
-  "csshNotifStop": "শেয়ার বন্ধ করুন"
+  "csshNotifStop": "শেয়ার বন্ধ করুন",
+  "d3GwShopboxTitle": "Shop Box (ছোট কম্পিউটার)",
+  "d3CctvSetupGroup": "ক্যামেরা ও সেটআপ"
 }

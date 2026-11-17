@@ -54237,5 +54237,13 @@
   "csshNotifStop": "Stop sharing",
   "@csshNotifStop": {
     "description": "Notification button that stops screen sharing."
+  },
+  "d3GwShopboxTitle": "Shop Box (small computer)",
+  "@d3GwShopboxTitle": {
+    "description": "design3: CCTV gateway choice — the Shop Box is now any small computer (Raspberry Pi, Linux mini PC or Windows PC), not only a Windows PC"
+  },
+  "d3CctvSetupGroup": "Cameras & setup",
+  "@d3CctvSetupGroup": {
+    "description": "design3: CCTV place card — header over the owner tools (cash guard, add camera, old phone, gateway, brand cloud)"
   }
 }
