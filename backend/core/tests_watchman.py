@@ -199,6 +199,16 @@ class SetupTests(_Base):
         self.assertIn("enrollment_token", site)
         self.assertTrue(site["gateway_state"]["never_seen"])
 
+    def test_gapcctv_shown_extra_camera_price_is_what_the_server_debits(self):
+        # gap-cctv D2: the add-camera screen shows the SAME number the add
+        # path debits (shop_views._extra_camera_credits) — one constant
+        from core import shop_views as SV
+        with mock.patch("core.logic.pricing.credits_for", return_value=33):
+            ov = self.client.get("/api/v1/shop/watchman")
+            self.assertEqual(ov.status_code, 200)
+            self.assertEqual(ov.data["limits"]["credits_per_extra_camera"], 33)
+            self.assertEqual(SV._extra_camera_credits(), 33)
+
     def test_gapcctv_active_cctv_plan_unlocks_a_shop_place(self):
         # gap-cctv: someone who bought (or is trialing) the CCTV plan is not
         # told "needs the Business plan"

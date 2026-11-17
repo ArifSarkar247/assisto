@@ -52778,7 +52778,7 @@
   "gcvLinuxStep2": "On the box, open a terminal and run this one line (it checks the download's SHA-256 before installing):",
   "gcvLinuxStep3": "Then run the setup. It finds the cameras and keeps their passwords only on the box:",
   "gcvLinuxStep4": "When the box asks for a code, type the short code shown above. It turns green here when it joins.",
-  "gcvLinuxStep4Where": "When the box asks for a code, tap \"Use an old phone as a camera\" on this place card and type the short code it shows.",
+  "gcvLinuxStep4Where": "When the box asks for a code, open \"Old phone or small box\" on this place, tap \"Use an old phone as a camera\" and type the short code it shows.",
   "gcvLinuxPrivacy": "The video stays on the box. Only alert photos and short clips are sent. It restarts by itself after a power cut and updates once a day.",
   "gcvLinuxCopy": "Copy",
   "gcvLinuxCopied": "Copied",
@@ -52922,5 +52922,86 @@
     }
   },
   "fcgLedgerFamily": "Family (shared)",
-  "fcgLedgerMine": "Only mine"
+  "fcgLedgerMine": "Only mine",
+  "gcvHowPriced": "{base} tk a month covers 2 cameras. A plan for more cameras adds {extra} tk a month per camera. Phone cameras count too. Without a bigger plan, a camera beyond your plan uses credits — the exact number is shown when you add it.",
+  "@gcvHowPriced": {
+    "description": "gap-cctv D2: CCTV plan pricing line (plan size price vs per-camera credits)",
+    "placeholders": {
+      "base": {
+        "type": "String"
+      },
+      "extra": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvPairPhone2": "Open menu → CCTV → Shop tools → Shop Box mode, then scan or paste the code below.",
+  "@gcvPairPhone2": {
+    "description": "gap-cctv D3: Shop Box now lives inside CCTV"
+  },
+  "gcvHubTitle": "Old phone or small box",
+  "@gcvHubTitle": {
+    "description": "gap-cctv D3: one entry for old phone / Guard Box / Linux box"
+  },
+  "gcvHubIntro": "No new camera needed. Pick how the old phone (or a small box) helps this place:",
+  "gcvHubPairSub": "The old phone's own camera watches a spot. Show its pairing code here.",
+  "gcvHubThisSub": "You are holding the old phone: turn this phone into the camera now.",
+  "gcvHubGuardBoxSub": "An old phone on the shop Wi-Fi reads your IP camera and checks the cash area.",
+  "gcvShopToolsTitle": "Shop tools: sales, day-end, reports",
+  "@gcvShopToolsTitle": {
+    "description": "gap-cctv D3: Shop Box as a section of CCTV"
+  },
+  "gcvShopToolsSub": "Shop Box: cash drawer and sales match, day-end check, camera accuracy",
+  "gcvClipsTitle": "Past clips",
+  "@gcvClipsTitle": {
+    "description": "gap-cctv D4: past clips page title"
+  },
+  "gcvClipsEntry": "Past clips",
+  "gcvClipsKeep": "Alert clips are kept {hours} hours, or {days} days with Premium AI. When the owner watches a clip, its server copy is deleted.",
+  "@gcvClipsKeep": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvClipsCamKeep": "{camera}: kept {days} days",
+  "@gcvClipsCamKeep": {
+    "placeholders": {
+      "camera": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvClipsUpsell": "Keep clips {days} days with Premium AI",
+  "@gcvClipsUpsell": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvClipsAllCameras": "All cameras",
+  "gcvClipsEmptyTitle": "No clips kept right now",
+  "gcvClipsEmptyBenefit": "When an alert comes with a short clip, it waits here for {hours} hours so you can watch it from anywhere.",
+  "@gcvClipsEmptyBenefit": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "gcvClipsEmptyStep1": "Draw a zone on a camera so alerts send a clip.",
+  "gcvClipsEmptyStep2": "Watched clips are deleted from the server; the photo stays in Alerts.",
+  "gcvClipsCameraUnknown": "Camera",
+  "gcvMoreActions": "More actions",
+  "@gcvMoreActions": {
+    "description": "gap-cctv R1: alert card — siren, warning, thana, evidence, wrong"
+  }
 }

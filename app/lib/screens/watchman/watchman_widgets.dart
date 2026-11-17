@@ -169,7 +169,7 @@ class WatchmanPairSheet extends StatelessWidget {
     final token = (site['enrollment_token'] ?? '').toString();
     final gw = (site['gateway'] ?? '').toString();
     final steps = gw == 'phone'
-        ? [t.wmPairPhone1, t.wmPairPhone2, t.wmPairPhone3]
+        ? [t.wmPairPhone1, t.gcvPairPhone2, t.wmPairPhone3] // gap-cctv D3: Shop Box is inside CCTV
         : [t.wmPairPc1, t.wmPairPc2, t.wmPairPc3];
     return SafeArea(
       child: ListView(

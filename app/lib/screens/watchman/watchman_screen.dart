@@ -39,11 +39,11 @@ import '../../widgets/cv_empty.dart';
 import '../shop_box_screen.dart';
 import '../../widgets/where_to_buy.dart'; // chipbuy
 import '../../feature_flags.dart'; // cctvphone
-import '../../phonecam/phone_camera_screen.dart'; // cctvphone
 import '../../phonecam/phonecam_api.dart'; // cctvphone
-import '../../phonecam/phonecam_pair_sheet.dart'; // cctvphone
 import '../shop_live_screen.dart'; // cctvphone: phone-camera live view
 import '../../cctvguard/cctv_usage_card.dart'; // cctvguard: this month's use
+import 'old_phone_hub.dart'; // gap-cctv D3
+import 'cctv_clips_screen.dart'; // gap-cctv D4
 import '../../cctvguard/vendor_live_screen.dart'; // cctvguard: Imou/EZVIZ live
 import '../../cctvconnect/cctv_connect_screen.dart'; // cctvconnect: brand clouds
 import '../../cctvconnect/dvr_health_card.dart'; // cctvconnect: daily DVR check
@@ -305,18 +305,37 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
               ),
             ),
           // cctvphone: on the OLD phone — become a camera (code / QR link)
+          // gap-cctv D3: ONE entry for every old-phone / small-box way
           if (pcOn())
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: OutlinedButton.icon(
               key: const ValueKey('wm-phonecam-this'),
               style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-              icon: const Icon(Icons.videocam_outlined),
-              label: Text(t.pcThisPhoneButton),
-              onPressed: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (_) => const PhoneCameraScreen())),
+              icon: const Icon(Icons.phone_android_rounded),
+              label: Text(t.gcvHubTitle),
+              onPressed: () => showOldPhoneHub(context),
             ),
           ),
+          // gap-cctv D3: Shop Box is no longer a second tile — its POS,
+          // day-end and reports live here as one section of CCTV
+          if (pcOn() && (owned.isNotEmpty || sites.isEmpty))
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: DsCard(
+                padding: EdgeInsets.zero,
+                child: ListTile(
+                  key: const ValueKey('wm-shop-tools'),
+                  minVerticalPadding: 12,
+                  leading: const Icon(Icons.storefront_rounded),
+                  title: Text(t.gcvShopToolsTitle),
+                  subtitle: Text(t.gcvShopToolsSub),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => const ShopBoxScreen())),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -597,8 +616,8 @@ class _SiteCard extends StatelessWidget {
                 key: const ValueKey('wm-phonecam-pair-empty'),
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                 icon: const Icon(Icons.phone_android_rounded),
-                label: Text(t.pcOwnerButton),
-                onPressed: () => showPhoneCamPairSheet(context, siteId, onPaired: onChanged),
+                label: Text(t.gcvHubTitle), // gap-cctv D3: one old-phone entry
+                onPressed: () => showOldPhoneHub(context, siteId: siteId, onChanged: onChanged),
               ),
             ),
           if (cams.isEmpty && _owner) const WhereToBuyLink(product: BuyProduct.cctv),
@@ -634,6 +653,19 @@ class _SiteCard extends StatelessWidget {
                 await onChanged();
               },
             ),
+            // gap-cctv D4: every clip the server still keeps, by camera + day
+            if (cams.isNotEmpty)
+              OutlinedButton.icon(
+                key: const ValueKey('wm-past-clips'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.video_library_outlined),
+                label: Text(t.gcvClipsEntry),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => CctvClipsScreen(
+                        siteId: siteId,
+                        siteName: (site['name'] ?? '').toString(),
+                        owner: _owner))),
+              ),
             // cctvactivity (W10): the day in numbers, visitor log, time-lapse
             if (cams.isNotEmpty)
               OutlinedButton.icon(
@@ -706,8 +738,8 @@ class _SiteCard extends StatelessWidget {
                   key: const ValueKey('wm-phonecam-pair'),
                   style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                   icon: const Icon(Icons.phone_android_rounded),
-                  label: Text(t.pcOwnerButton),
-                  onPressed: () => showPhoneCamPairSheet(context, siteId, onPaired: onChanged),
+                  label: Text(t.gcvHubTitle), // gap-cctv D3: one old-phone entry
+                  onPressed: () => showOldPhoneHub(context, siteId: siteId, onChanged: onChanged),
                 ),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
@@ -799,17 +831,8 @@ class _SiteCard extends StatelessWidget {
                 label: Text(t.wmNotice),
                 onPressed: () => showWatchmanNoticeSheet(context, notice),
               ),
-              // cctvveh: the same shop in Shop Box (POS, day-end, reports) —
-              // one tap instead of a second sidebar hunt.
-              if (!home)
-                OutlinedButton.icon(
-                  key: const ValueKey('wm-open-shopbox'),
-                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                  icon: const Icon(Icons.storefront_rounded),
-                  label: Text(t.cvvOpenShopBox),
-                  onPressed: () => Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (_) => const ShopBoxScreen())),
-                ),
+              // gap-cctv D3: Shop Box (POS, day-end, reports) is the "Shop tools"
+              // section at the bottom of this screen — not repeated per place
                   ]),
                 ],
               ),

@@ -1480,7 +1480,18 @@ def _event_row(e, request):
             "ai_check": _ai_check_label(e, request),
             # cctvdet: zone detection title / detail / measured accuracy
             "detect": _detect_fields(e, request),
+            # gap-cctv R1: how Live opens for this camera (the card's own
+            # button; the live start still checks who may watch)
+            "live_path": _live_path_of(e),
             "created": e.created.isoformat()}
+
+
+def _live_path_of(e):
+    try:
+        from . import cctv_act_views as ACTV
+        return ACTV.live_path(e.camera if e.camera_id else None, e.site).get("path")
+    except Exception:
+        return None
 
 
 def _detect_fields(e, request):

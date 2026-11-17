@@ -881,6 +881,7 @@ from . import cashguard_views as cg  # noqa: E402
 urlpatterns += [
     path("shop/watchman", wm.WatchmanOverviewView.as_view()),
     path("shop/watchman/setup", wm.WatchmanSetupView.as_view()),
+    path("shop/watchman/clips", wm.WatchmanClipsView.as_view()),  # gap-cctv D4
     path("shop/cameras/<int:pk>/check", wm.CameraCheckView.as_view()),
     path("shop/cameras/<int:pk>/zones", wm.CameraZonesView.as_view()),
     # cctvalerts (W3): per-camera alert-type switches + honest vendor support
