@@ -225,10 +225,19 @@ Future<void> _brandFlow(RFlow f, _Brand b) async {
         if (!trail.any((x) => x.contains('/cctv/imou/oauth/callback'))) {
           throw TestFailure('never reached our redirect URI: $trail');
         }
-        // back from the browser: the screen reloads by itself
-        f.tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-        await f.pumpFor(const Duration(milliseconds: 600));
-        f.tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+        // back from the browser: the screen reloads by itself.
+        // flag-cctv-e2e: NEVER pump while paused — a paused app schedules no
+        // frames, so pump() waited forever (run 44174170213: this step hung
+        // 7 min, then the next flow died on '!inTest'). Walk the real
+        // Android order and wait in real time while in the background.
+        final b = f.tester.binding;
+        for (final s in [AppLifecycleState.inactive, AppLifecycleState.hidden, AppLifecycleState.paused]) {
+          b.handleAppLifecycleStateChanged(s);
+        }
+        await f.tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 600)));
+        for (final s in [AppLifecycleState.hidden, AppLifecycleState.inactive, AppLifecycleState.resumed]) {
+          b.handleAppLifecycleStateChanged(s);
+        }
         await f.pumpFor(const Duration(seconds: 2));
       } finally {
         CctvConnectScreen.debugOpenUrl = null;
