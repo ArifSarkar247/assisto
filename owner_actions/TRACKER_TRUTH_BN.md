@@ -38,7 +38,7 @@
 ### ১ক. কোন ট্র্যাকার কিনবেন — আমাদের কোড যা **আজই** পড়ে (মালিকের অনুমোদন ছাড়া খরচ নয়)
 | পছন্দ | মডেল | প্রোটোকল ও কোডের প্রমাণ | দাম (আনুমানিক) | কোথায় |
 |---|---|---|---|---|
-| ১ (সবচেয়ে সস্তা, কোডে নাম ধরে আছে) | **SinoTrack ST-901** (৪-তার, রিলে-তার সাথে; বিক্রেতা 4G সিম সমর্থন লিখেছে — কেনার আগে "ST-901L / 4G" নিশ্চিত করুন) | **H02** — `backend/tracker/protocols/h02.py:2` (ST-901/906/907 নাম ধরে), টেক্সট `parse_frame` :213, বাইনারি `$` `parse_binary` :114, রিলে কমান্ড S20 :28–29, চেনা `server.py:354` | ৳২,৫৯০–২,৭৯৯ | [bdstall ST-901](https://www.bdstall.com/details/sinotrack-st-901-4-wire-mini-gps-tracker-87040/) |
+| ১ (সবচেয়ে সস্তা, কোডে নাম ধরে আছে) | **SinoTrack ST-901** (৪-তার, রিলে-তার সাথে; বিক্রেতা 4G সিম সমর্থন লিখেছে — কেনার আগে "ST-901L / 4G" নিশ্চিত করুন) | **H02** — `backend/tracker/protocols/h02.py:2` (ST-901/906/907 নাম ধরে), টেক্সট `parse_frame` :213, বাইনারি `$` `parse_binary` :114, রিলে কমান্ড S20 :27–28, :296, চেনা `server.py:354` | ৳২,৫৯০–২,৭৯৯ | [bdstall ST-901](https://www.bdstall.com/details/sinotrack-st-901-4-wire-mini-gps-tracker-87040/) |
 | ২ (4G নিশ্চিত) | **SinoTrack ST-906 4G** | **H02** — একই `h02.py:2` | ~৳৫,০০০ | [bdstall ST-906 4G](https://www.bdstall.com/details/sinotrack-st-906-4g-vehicle-gps-tracker-117343/) |
 | সাথে | GP/Robi ডেটা সিম | — | ৳৩০০–৪০০ + মাসে ~৳১০০–১৫০ | যেকোনো দোকান |
 
