@@ -73,7 +73,7 @@ jobs:
           disable-animations: true
           emulator-boot-timeout: 480
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
-          script: bash tools/staging_side_by_side.sh "$(ls stg/*.apk | head -1)" "$(ls prod/*.apk | head -1)"
+          script: bash tools/ci/staging/side_by_side.sh "$(ls stg/*.apk | head -1)" "$(ls prod/*.apk | head -1)"
       - name: Upload side-by-side evidence (always)
         if: always()
         continue-on-error: true
@@ -119,4 +119,4 @@ jobs:
             exit 0
           fi
           python3 -m pip install -q google-auth requests
-          python3 tools/appdist_upload.py "$(ls stg/*.apk | head -1)" notes.txt
+          python3 tools/ci/staging/appdist_upload.py "$(ls stg/*.apk | head -1)" notes.txt

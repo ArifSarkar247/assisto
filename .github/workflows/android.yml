@@ -231,7 +231,7 @@ jobs:
         if: inputs.flavor == 'staging'
         run: |
           python3 -m pip install -q pillow
-          python3 tools/staging_icon_badge.py app/assets/icon
+          python3 tools/ci/staging/icon_badge.py app/assets/icon
 
       - name: Generate launcher icons (adaptive)
         working-directory: app
