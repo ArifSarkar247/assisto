@@ -2700,7 +2700,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     showAppSheet(
       context: context,
       builder: (ctx) => SafeArea(
-        child: Column(
+        // gap-circle: more actions now -> scrolls on small phones / 200% text
+        child: SingleChildScrollView(
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
@@ -2829,6 +2831,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                 },
               ),
           ],
+        ),
         ),
       ),
     );
