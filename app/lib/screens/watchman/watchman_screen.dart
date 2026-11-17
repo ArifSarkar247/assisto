@@ -660,15 +660,16 @@ class _SiteCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          // design3: tools as rows of ONE DS group (ragged button widths before)
+          DsGroup(margin: EdgeInsets.zero, flat: true, children: [
             // gap-cctv D4: every clip the server still keeps, by camera + day
             if (cams.isNotEmpty)
-              OutlinedButton.icon(
+              DsListRow(
                 key: const ValueKey('wm-past-clips'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.video_library_outlined),
-                label: Text(t.gcvClipsEntry),
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                leading: Icon(Icons.video_library_outlined, color: DsTokens.of(context).primaryInk),
+                title: t.gcvClipsEntry,
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => CctvClipsScreen(
                         siteId: siteId,
                         siteName: (site['name'] ?? '').toString(),
@@ -676,12 +677,12 @@ class _SiteCard extends StatelessWidget {
               ),
             // cctvactivity (W10): the day in numbers, visitor log, time-lapse
             if (cams.isNotEmpty)
-              OutlinedButton.icon(
+              DsListRow(
                 key: const ValueKey('wm-activity'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.insights_rounded),
-                label: Text(t.cactEntry),
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                leading: Icon(Icons.insights_rounded, color: DsTokens.of(context).primaryInk),
+                title: t.cactEntry,
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (ctx) => ActivityScreen(
                         source: ApiActivitySource(ctx.read<AppState>().api),
                         siteId: siteId,
@@ -690,12 +691,12 @@ class _SiteCard extends StatelessWidget {
               ),
             // cctvact (V3 E/G/F/D): closing report, ask, sales match, automations
             if (cams.isNotEmpty)
-              OutlinedButton.icon(
+              DsListRow(
                 key: const ValueKey('wm-cv3-hub'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.summarize_rounded),
-                label: Text(t.cv3HubEntry),
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                leading: Icon(Icons.summarize_rounded, color: DsTokens.of(context).primaryInk),
+                title: t.cv3HubEntry,
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (ctx) => CctvActHubScreen(
                         source: ApiCctvActSource(ctx.read<AppState>().api),
                         events: ApiCctvxSource(ctx.read<AppState>().api),
@@ -704,14 +705,14 @@ class _SiteCard extends StatelessWidget {
                         owner: _owner))),
               ),
             // cctvarm: auto guard (owner settings / a member's own consent)
-            OutlinedButton.icon(
-              key: const ValueKey('wm-auto-guard'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-              icon: const Icon(Icons.shield_moon_outlined),
-              label: Text(t.carmTitle),
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+            DsListRow(
+                key: const ValueKey('wm-auto-guard'),
+                leading: Icon(Icons.shield_moon_outlined, color: DsTokens.of(context).primaryInk),
+                title: t.carmTitle,
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => AutoGuardScreen(siteId: siteId, owner: _owner))),
-            ),
+              ),
           ]),
           if (_owner) ...[
             Padding(
@@ -720,12 +721,12 @@ class _SiteCard extends StatelessWidget {
                   style: AType.titleSmall.copyWith(
                       fontWeight: FontWeight.w700, color: DsTokens.of(context).muted)),
             ),
-            Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.point_of_sale_rounded),
-                label: Text(t.cgTitle),
-                onPressed: () async {
+            DsGroup(margin: EdgeInsets.zero, flat: true, children: [
+              DsListRow(
+                leading: Icon(Icons.point_of_sale_rounded, color: DsTokens.of(context).primaryInk),
+                title: t.cgTitle,
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () async {
                   final api = context.read<AppState>().api;
                   await Navigator.of(context).push(MaterialPageRoute(
                       builder: (ctx) => CashGuardScreen(
@@ -752,33 +753,33 @@ class _SiteCard extends StatelessWidget {
                 },
               ),
               if (cams.isNotEmpty) // empty: the big button above
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                  icon: const Icon(Icons.add_a_photo_outlined),
-                  label: Text(t.wmAddCamera),
-                  onPressed: onAddCamera,
-                ),
+                DsListRow(
+                leading: Icon(Icons.add_a_photo_outlined, color: DsTokens.of(context).primaryInk),
+                title: t.wmAddCamera,
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: onAddCamera,
+              ),
               if (cams.isNotEmpty && pcOn()) // cctvphone
-                OutlinedButton.icon(
-                  key: const ValueKey('wm-phonecam-pair'),
-                  style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                  icon: const Icon(Icons.phone_android_rounded),
-                  label: Text(t.gcvHubTitle), // gap-cctv D3: one old-phone entry
-                  onPressed: () => showOldPhoneHub(context, siteId: siteId, onChanged: onChanged),
-                ),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.link_rounded),
-                label: Text(t.wmConnectGateway),
-                onPressed: () => showWatchmanPairSheet(context, site),
+                DsListRow(
+                key: const ValueKey('wm-phonecam-pair'),
+                leading: Icon(Icons.phone_android_rounded, color: DsTokens.of(context).primaryInk),
+                title: t.gcvHubTitle,
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => showOldPhoneHub(context, siteId: siteId, onChanged: onChanged),
+              ),
+              DsListRow(
+                leading: Icon(Icons.link_rounded, color: DsTokens.of(context).primaryInk),
+                title: t.wmConnectGateway,
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => showWatchmanPairSheet(context, site),
               ),
               // cctvconnect (Guard V3 A1): existing DVR / camera through its brand cloud
-              OutlinedButton.icon(
+              DsListRow(
                 key: const ValueKey('wm-brand-cloud'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                icon: const Icon(Icons.cloud_sync_rounded),
-                label: Text(t.ccnEntry),
-                onPressed: () async {
+                leading: Icon(Icons.cloud_sync_rounded, color: DsTokens.of(context).primaryInk),
+                title: t.ccnEntry,
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () async {
                   await Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => CctvConnectScreen(
                           siteId: siteId,
