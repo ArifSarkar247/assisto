@@ -86,7 +86,7 @@ def segments(business, now=None, members=20):
                 "high_value_min_poisha": None}
     cut = value_cut([int(r["spend"] or 0) for r in rows])
     ids = [r["customer_id"] for r in rows]
-    custs = {c.id: c for c in Customer.objects.filter(id__in=ids)}
+    custs = {c.id: c for c in Customer.objects.filter(id__in=ids, user=business.user)}
     fav = defaultdict(lambda: defaultdict(int))
     for cid, name, qty in SaleLine.objects.filter(
             sale__customer_id__in=ids, sale__voided_at__isnull=True,

@@ -44,15 +44,22 @@ class FakeGraph:
     def __init__(self):
         self.calls = []
         self.fail = False
+        self.me_id = PAGE          # bizagent-iso: the id the token really owns
+        self.ig_id = IG
 
     def __call__(self, method, url, headers, body):
         self.calls.append((method, url, body))
         if self.fail:
             return 400, {"error": {"message": "(#10) not allowed", "code": 10}}
         if url.endswith("/me?fields=id,name"):
-            return 200, {"id": PAGE, "name": "Test Page"}
+            return 200, {"id": self.me_id, "name": "Test Page"}
+        if url.endswith("/me?fields=id,name,instagram_business_account"):
+            return 200, {"id": self.me_id, "name": "Test Page",
+                         "instagram_business_account": {"id": self.ig_id}}
         if "fields=display_phone_number" in url:
-            return 200, {"display_phone_number": "+880 000", "verified_name": "Test WA"}
+            pnid = url.split("?")[0].rsplit("/", 1)[-1]
+            return 200, {"display_phone_number": "+880 000", "verified_name": "Test WA",
+                         "id": pnid}
         if url.endswith("/subscribed_apps"):
             return 200, {"success": True}
         if url.endswith("/comments") or url.endswith("/replies"):
@@ -686,6 +693,7 @@ class SetupApiTests(Base):
         self.assertEqual(r.data["catalog"]["low_stock"][0]["name"], "Saree")
         self.assertTrue(r.data["meta_ready"]["secret"])
         self.assertNotIn("PAGE_TOKEN", json.dumps(r.data))     # tokens never returned
+        self.fake.me_id = "4000000004"
         r = self.c.post("/api/v1/bizagent/channels", {"kind": "messenger", "external_id": "4000000004",
                                                        "token": "NEWTOKEN"}, format="json")
         self.assertEqual(r.status_code, 201)
@@ -694,8 +702,10 @@ class SetupApiTests(Base):
         r = self.c.post("/api/v1/bizagent/channels", {"kind": "whatsapp_cloud",
                                                        "external_id": "5000000005", "token": "BAD"},
                         format="json")
-        self.assertEqual(r.data["channel"]["status"], "error")
-        self.assertIn("not allowed", r.data["channel"]["status_detail"])
+        # bizagent-iso: a Graph error is a 422 and NO row is saved
+        self.assertEqual((r.status_code, r.data["error"]), (422, "token_invalid"))
+        self.assertFalse(SellerChannel.objects.filter(external_id="5000000005").exists())
+        self.fake.fail = False
         r = self.c.post("/api/v1/bizagent/settings", {"tone": "formal", "delivery_inside": "70",
                                                        "hours": {"start": "10:00", "end": "22:00"}},
                         format="json")
