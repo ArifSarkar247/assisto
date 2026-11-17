@@ -12,13 +12,11 @@ name: Assisto Test (staging app, daily)
 # FIREBASE_APPDIST_SA_JSON + FIREBASE_STAGING_APP_ID (distribution; owner),
 # STAGING_GOOGLE_SERVICES_JSON (push in the test app; owner, optional).
 
+# Owner 17 Nov: staging / Assisto Test / App Distribution STOPPED. Manual
+# dispatch only (no daily schedule, no branch pushes); nothing requires the
+# Firebase App Distribution secrets unless someone runs it by hand.
 on:
-  schedule:
-    - cron: '30 20 * * *'      # 02:30 Dhaka every day -> ready by morning
   workflow_dispatch:
-  push:
-    # proof runs from agent branches only (build + side-by-side, NO upload)
-    branches: [ 'ci/staging', 'ci/staging-arb' ]
 
 concurrency:
   group: staging-${{ github.ref }}
