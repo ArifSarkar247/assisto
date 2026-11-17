@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/msgr_channel_common.dart' show MsgrEmptyState;
+import '../../ds/ds.dart';
 import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
@@ -168,13 +170,17 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
       body: _loading
           ? const SkeletonList(count: 4)
           : Column(children: [
-              Material(
-                color: Theme.of(context).colorScheme.surface,
+              // linking a device = the main action, as the soft DS hero
+              Padding(
+                padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.sm),
+                child: DsHeroCard(
+                padding: const EdgeInsets.symmetric(vertical: Gap.sm),
                 child: ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.qr_code_2_rounded)),
-                  title: Text(t.msgrLinkDevice),
-                  subtitle: Text(t.msgrLinkScanHint,
-                      maxLines: 2, overflow: TextOverflow.ellipsis),
+                  leading: DsAvatar(child: Icon(Icons.qr_code_2_rounded,
+                      color: Theme.of(context).colorScheme.ds.primaryInk)),
+                  title: Text(t.msgrLinkDevice,
+                      style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+                  subtitle: Text(t.msgrLinkScanHint),
                   trailing: _linkBusy
                       ? const SizedBox(
                           width: 20,
@@ -183,8 +189,7 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
                       : const Icon(Icons.chevron_right_rounded),
                   onTap: _linkBusy ? null : _startLink,
                 ),
-              ),
-              const Divider(height: 1),
+              )),
               Expanded(
                 child: _failed
                     ? _error()
@@ -192,12 +197,10 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
                         ? _empty()
                         : RefreshIndicator(
                             onRefresh: _load,
-                            child: ListView.separated(
-                              itemCount: _devices.length,
-                              separatorBuilder: (_, __) =>
-                                  const Divider(height: 1, indent: Gap.lg),
-                              itemBuilder: (_, i) => _row(_devices[i]),
-                            ),
+                            // the linked devices as one DS group
+                            child: ListView(children: [
+                              DsGroup(children: [for (final d in _devices) _row(d)]),
+                            ]),
                           ),
               ),
             ]),
@@ -209,7 +212,8 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
     final name = '${d['name'] ?? d['platform'] ?? ''}';
     final last = '${d['last_active'] ?? d['linked_at'] ?? ''}';
     return ListTile(
-      leading: const CircleAvatar(child: Icon(Icons.devices_rounded)),
+      leading: DsAvatar(size: 40, child: Icon(Icons.devices_rounded, size: 20,
+          color: Theme.of(context).colorScheme.ds.primaryInk)),
       title: Text(name.isEmpty ? '?' : name),
       subtitle: last.isEmpty
           ? null
@@ -226,40 +230,17 @@ class _LinkedDevicesScreenState extends State<LinkedDevicesScreen> {
 
   Widget _error() {
     final t = _t;
-    return ListView(children: [
-      const SizedBox(height: 80),
-      _centeredState(Icons.cloud_off_rounded, t.msgrHubLoadFailed,
-          serverFailText(t, _failCause) ?? ''),
-      const SizedBox(height: Gap.md),
-      Center(
-        child: OutlinedButton.icon(
-          onPressed: _load,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(t.msgrRetry),
-        ),
+    return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      const SizedBox(height: Gap.xl),
+      MsgrEmptyState(
+        icon: Icons.cloud_off_rounded,
+        title: t.msgrHubLoadFailed,
+        body: serverFailText(t, _failCause) ?? '',
+        action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.msgrRetry),
       ),
     ]);
   }
 
-  Widget _centeredState(IconData icon, String title, String body) {
-    final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 52, color: scheme.primary.withValues(alpha: 0.7)),
-          const SizedBox(height: Gap.md),
-          Text(title,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium),
-          if (body.isNotEmpty) ...[
-            const SizedBox(height: Gap.sm),
-            Text(body,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.ds.muted, height: 1.4)),
-          ],
-        ]),
-      ),
-    );
-  }
+  Widget _centeredState(IconData icon, String title, String body) =>
+      MsgrEmptyState(icon: icon, title: title, body: body);
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/msgr_channel_common.dart' show MsgrEmptyState;
+import '../../ds/ds.dart';
 import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
@@ -175,28 +177,20 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
   Widget _list(List<Map<String, dynamic>> items, {required bool incoming}) {
     final t = _t;
     if (items.isEmpty) {
-      // QA a6: bare text -> icon + text like the other messenger empties.
-      return Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(incoming ? Icons.mark_email_unread_rounded : Icons.outbox_rounded,
-              size: 44,
-              color: Theme.of(context)
-                  .colorScheme
-                  .primary
-                  .withValues(alpha: 0.7)),
-          const SizedBox(height: Gap.md),
-          Text(incoming ? t.msgrNoIncomingRequests : t.msgrNoSentRequests,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.ds.muted)),
-        ]),
-      );
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        MsgrEmptyState(
+          icon: incoming ? Icons.mark_email_unread_rounded : Icons.outbox_rounded,
+          title: incoming ? t.msgrNoIncomingRequests : t.msgrNoSentRequests,
+          body: '',
+        ),
+      ]);
     }
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         itemCount: items.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
         itemBuilder: (_, i) => _tile(items[i], incoming: incoming),
       ),
     );
@@ -210,37 +204,54 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
         const {};
     final name = '${peer['name'] ?? r['name'] ?? ''}';
     final note = '${r['note'] ?? ''}';
-    return ListTile(
-      leading: MsgrAvatar(
-          name: name,
-          photoUrl: '${peer['photo_link'] ?? peer['photo'] ?? ''}',
-          radius: 22),
-      title: Text(name.isEmpty ? '?' : name),
-      subtitle: note.isEmpty
-          ? Text(t.msgrPending,
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.ds.muted))
-          : Text(note, maxLines: 2, overflow: TextOverflow.ellipsis),
-      trailing: incoming
-          ? Row(mainAxisSize: MainAxisSize.min, children: [
-              IconButton(
-                tooltip: t.msgrReport,
-                icon: const Icon(Icons.flag_rounded),
-                onPressed: () => _report(r),
-              ),
-              TextButton(
-                onPressed: () => _act(r, 'decline'),
-                child: Text(t.msgrDecline),
-              ),
-              FilledButton(
-                onPressed: () => _act(r, 'accept'),
-                child: Text(t.msgrAccept),
-              ),
-            ])
-          : OutlinedButton(
-              onPressed: () => _act(r, 'cancel'),
-              child: Text(t.msgrCancel),
+    final ds = Theme.of(context).colorScheme.ds;
+    // one flat DS card per request: who + note on top, the actions on their
+    // own row (three buttons beside the name overflowed at 200% font)
+    return DsSurface(
+      flat: true,
+      borderColor: ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          MsgrAvatar(
+              name: name,
+              photoUrl: '${peer['photo_link'] ?? peer['photo'] ?? ''}',
+              radius: 22),
+          const SizedBox(width: Gap.md),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(name.isEmpty ? '?' : name,
+                  style: AType.bodyLarge.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
+              Text(note.isEmpty ? t.msgrPending : note,
+                  style: AType.bodyMedium.copyWith(color: ds.muted)),
+            ]),
+          ),
+          if (incoming)
+            IconButton(
+              tooltip: t.msgrReport,
+              icon: Icon(Icons.flag_rounded, color: ds.muted),
+              onPressed: () => _report(r),
             ),
+        ]),
+        const SizedBox(height: Gap.sm),
+        Wrap(alignment: WrapAlignment.end, spacing: Gap.sm, runSpacing: Gap.xs, children: incoming
+            ? [
+                DsButton.secondary(
+                  onPressed: () => _act(r, 'decline'),
+                  label: t.msgrDecline,
+                ),
+                DsButton(
+                  onPressed: () => _act(r, 'accept'),
+                  label: t.msgrAccept,
+                ),
+              ]
+            : [
+                DsButton.secondary(
+                  onPressed: () => _act(r, 'cancel'),
+                  label: t.msgrCancel,
+                ),
+              ]),
+      ]),
     );
   }
 }
