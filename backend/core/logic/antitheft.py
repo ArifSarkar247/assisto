@@ -573,7 +573,58 @@ def location_text(loc, ev_at):
 # The owner's phone asks "Are you OK?" first; with no answer in this window
 # the grab is escalated to the trusted contacts (server-side, so a thief who
 # switches the phone off cannot stop it).
-CONFIRM_WINDOW_S = 60
+# flag-antitheft (owner 17 Nov): 15 s (was 60 s) — the family hears fast;
+# the owner cancels by unlocking with the phone's own secure lock or with
+# the Security PIN in the app.
+CONFIRM_WINDOW_S = 15
+
+# flag-antitheft: the owner's grab sensitivity (mirror of the Dart/Kotlin
+# SnatchSensitivity + GaitRules). low = never while unlocked in the hand.
+SNATCH_SENSITIVITIES = ("low", "normal", "high")
+SENSITIVITY_DEFAULT = "normal"
+
+
+def clean_sensitivity(v):
+    v = str(v or "").strip().lower()
+    return v if v in SNATCH_SENSITIVITIES else None
+
+
+def min_rhythm(sensitivity):
+    return 0.35 if sensitivity == "high" else 0.5
+
+
+def grab_motion_check(data, sensitivity=SENSITIVITY_DEFAULT):
+    """Second line behind the phone (flag-antitheft): re-check a v3 grab's
+    motion numbers with the owner's CURRENT sensitivity. Pure. Returns a
+    suppression reason or None. Older engines (no "v") are not judged here.
+      * "in_hand_low"  — grabbed while unlocked in the hand, sensitivity low;
+      * "weak_rhythm"  — no steady running rhythm after the grab;
+      * "not_sustained"— the motion did not last through all three thirds."""
+    d = data if isinstance(data, dict) else {}
+    try:
+        v = int(d.get("v") or 0)
+    except (TypeError, ValueError):
+        v = 0
+    if v < 3:
+        return None
+    sens = clean_sensitivity(sensitivity) or SENSITIVITY_DEFAULT
+    if sens == "low" and d.get("in_use") is True and d.get("profile") == "day":
+        return "in_hand_low"
+    try:
+        rhythm = float(d.get("rhythm"))
+    except (TypeError, ValueError):
+        rhythm = None
+    if rhythm is not None and rhythm < min_rhythm(sens):
+        return "weak_rhythm"
+    thirds = d.get("thirds")
+    if isinstance(thirds, list) and len(thirds) == 3:
+        need = 0.6 if d.get("profile") == "night" else 0.5
+        try:
+            if any(float(x) < need for x in thirds):
+                return "not_sustained"
+        except (TypeError, ValueError):
+            pass
+    return None
 NIGHT_START_HOUR, NIGHT_END_HOUR = 23, 6
 HOME_WIFI_MAX = 3
 WIFI_SEEN_FRESH_MIN = 30
@@ -593,7 +644,8 @@ def wifi_hash_ok(h):
             and all(c in "0123456789abcdef" for c in h))
 
 
-def grab_suppression(data, ev_at, night_guard=False, home_wifi=None):
+def grab_suppression(data, ev_at, night_guard=False, home_wifi=None,
+                     sensitivity=SENSITIVITY_DEFAULT):
     """Why a detected grab is NOT a theft signal, or None (= alert). Pure.
       * "charging"         — the phone was on the charger;
       * "face_down_still"  — it lay face-down and still right before;
@@ -606,6 +658,9 @@ def grab_suppression(data, ev_at, night_guard=False, home_wifi=None):
         return "charging"
     if d.get("face_down_still") is True:
         return "face_down_still"
+    why = grab_motion_check(d, sensitivity)
+    if why:
+        return why
     hour = d.get("hour")
     if hour is None and ev_at is not None:
         try:

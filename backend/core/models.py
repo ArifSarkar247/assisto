@@ -5070,6 +5070,9 @@ class AntiTheftEngine(models.Model):
     # SIM change, protection turn-off) also go to the owner's nominee(s)
     # who have an Assisto account. Off by default; the owner's switch.
     alert_nominee = models.BooleanField(default=False)
+    # flag-antitheft: the owner's grab sensitivity: low (never while in the
+    # hand) / normal / high. Sent to the engine; re-checked on the server.
+    snatch_sensitivity = models.CharField(max_length=8, default="normal")
     updated_at = models.DateTimeField(auto_now=True)
 
 
