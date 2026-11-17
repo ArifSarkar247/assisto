@@ -14,6 +14,7 @@ import 'package:assisto/cctvguard/vendor_live_screen.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/messaging/media/video_ctl.dart';
 import 'package:assisto/phonecam/phonecam_pair_sheet.dart';
+import 'package:assisto/plans_v2/cctv_locked_sheet.dart';
 import 'package:assisto/screens/watchman/cctv_act_screens.dart'
     show gcvLocalStamp, CctvClosingReportScreen;
 import 'package:assisto/screens/watchman/cctv_act_tiles.dart';
@@ -27,6 +28,7 @@ import 'cctvact_fakes.dart' show FakeCctvAct;
 import 'cctvconnect_fakes.dart' show FakeCctvConnect;
 import 'cctvescalate_fakes.dart' show FakeEscalate;
 import 'cctvx_fakes.dart' show FakeCctvx;
+import 'cctvprice_fakes.dart' show FakeCctvApi, cctvPlanPayload;
 import 'cctvteam_fakes.dart' show FakeCctvTeam;
 import 'cctv1_fakes.dart' show FakeWatchman;
 import 'cctvguard_fakes.dart' show FakeVendorLive, FakeNetCtl;
@@ -548,5 +550,17 @@ void main() {
     await tester.tap(find.text(en.wmFamilyAdd));
     await _settle(tester, 16);
     expect(find.byKey(const ValueKey('ctm-role-save')), findsOneWidget);
+  });
+
+  testWidgets('R6 plan sheet: Play works but not on sale yet says "opens soon"', (tester) async {
+    _phone(tester, height: 1600);
+    await tester.pumpWidget(_app(Scaffold(
+        body: SingleChildScrollView(
+            child: CctvLockedSheet(
+                api: FakeCctvApi(),
+                preview: cctvPlanPayload(onSale: false),
+                previewOffers: const {})))));
+    await _settle(tester);
+    expect(find.text(en.cplSaleSoon), findsOneWidget);
   });
 }
