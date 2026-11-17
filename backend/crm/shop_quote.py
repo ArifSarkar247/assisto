@@ -230,7 +230,7 @@ def accept(q, name="", address="", now=None):
             items = _order_items(locked)
             sid = transaction.savepoint()
             for it in items:
-                if not BS._decrement_stock(it):
+                if not BS._decrement_stock(it, locked.business):
                     transaction.savepoint_rollback(sid)
                     err = QuoteError("out_of_stock", item=it["name"])
                     break
