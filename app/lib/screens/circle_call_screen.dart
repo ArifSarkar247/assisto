@@ -1386,7 +1386,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     onTap: c.switchToVoice,
                   ),
                 // group-calls: add people (My Circle) -> a group call
-                if (live && widget.origin == 'circle')
+                if (live && widget.origin == 'circle' && _owns)
                   _CtlButton(
                     key: const Key('call-add-person'),
                     icon: Icons.person_add_alt_1_rounded,

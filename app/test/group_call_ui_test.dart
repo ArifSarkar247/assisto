@@ -174,7 +174,7 @@ void main() {
     for (final lang in ['en', 'bn']) {
       testWidgets('search + checkboxes + limit; in-call locked ($lang)',
           (tester) async {
-        phone(tester);
+        phone(tester, h: 1600);
         List<int>? done;
         await tester.pumpWidget(app(
             Scaffold(

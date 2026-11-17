@@ -274,7 +274,7 @@ class _GroupCallScreenState extends State<GroupCallScreen> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF0B1A3A), Brand.ink],
+              colors: [Brand.navyInk, Brand.ink],
             ),
           ),
           child: SafeArea(
