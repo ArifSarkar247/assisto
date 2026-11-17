@@ -36,7 +36,12 @@ Map<String, dynamic> _today(String state, {Map<String, dynamic> ask = const {}})
       'home_due': DateTime.now().toUtc().add(const Duration(hours: 6)).toIso8601String(),
     };
 
-Map<String, dynamic>? fakeKidsWatchGet(String path, {required bool bn, required bool empty}) {
+// gap-kidswatch: the gallery's "SOS now" shot turns this on while it is shown
+bool fakeKwSosActive = false;
+
+Map<String, dynamic>? fakeKidsWatchGet(String path,
+    {required bool bn, required bool empty, bool sos = false /* gap-kidswatch */}) {
+  sos = sos || fakeKwSosActive;
   final rina = bn ? 'রিনা' : 'Rina';
   final rafi = bn ? 'রাফি' : 'Rafi';
   final abba = bn ? 'আব্বু' : 'Dad';
@@ -57,6 +62,9 @@ Map<String, dynamic>? fakeKidsWatchGet(String path, {required bool bn, required 
                          'source': 'gps'},
                 'school_plan_id': 5, 'code': '8800000015', 'sos_numbers': ['01711000001'],
                 'guardians': [{'id': 2, 'name': ammu}], 'commands': const [],
+                // gap-kidswatch
+                'sim_phone': '01911000008', 'sos_ready': true,
+                'sos_at': sos ? _ago(3) : null, 'child_user_id': null,
               },
               {
                 'id': 2, 'child_name': rafi, 'code_tail': '0099', 'state': 'paired',
@@ -64,6 +72,7 @@ Map<String, dynamic>? fakeKidsWatchGet(String path, {required bool bn, required 
                 'battery': 18, 'last_seen_at': _ago(95), 'live': null,
                 'school_plan_id': null, 'code': '8800000099', 'sos_numbers': const [],
                 'guardians': const [], 'commands': const [],
+                'sim_phone': '', 'sos_ready': false, 'sos_at': null, // gap-kidswatch
               },
             ],
     };

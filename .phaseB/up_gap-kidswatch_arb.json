@@ -1,0 +1,109 @@
+{
+ "en": {
+  "kwgSosNowTitle": "{name} pressed SOS at {time}",
+  "@kwgSosNowTitle": {
+   "description": "gap-kidswatch: kids watch card / settings",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    },
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "kwgSosNowBody": "The watch also calls its SOS numbers: answer it. Or call the watch now: it rings and shows your call.",
+  "@kwgSosNowBody": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosNowNoSim": "The watch calls its SOS numbers: answer it. Add the watch's SIM number in Watch settings to call it back in one tap.",
+  "@kwgSosNowNoSim": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgCallWatch": "Call the watch",
+  "@kwgCallWatch": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSeeWhere": "See where",
+  "@kwgSeeWhere": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosCalls": "SOS button calls: {numbers}",
+  "@kwgSosCalls": {
+   "description": "gap-kidswatch: kids watch card / settings",
+   "placeholders": {
+    "numbers": {
+     "type": "String"
+    }
+   }
+  },
+  "kwgSosNone": "The SOS button calls nobody yet. Add a number in Watch settings.",
+  "@kwgSosNone": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSettings": "Watch settings",
+  "@kwgSettings": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSimLabel": "Watch's SIM number (optional)",
+  "@kwgSimLabel": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSimHelp": "So you and the family can call the watch in one tap. A normal call: the watch rings and shows it.",
+  "@kwgSimHelp": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosHelpDefault": "Your number is filled in, so the SOS button always calls someone. Add up to 3, separated by commas.",
+  "@kwgSosHelpDefault": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgChildAccount": "Child's own Assisto account (optional)",
+  "@kwgChildAccount": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgChildAccountHelp": "Link it so the watch SOS also reaches the child's whole family.",
+  "@kwgChildAccountHelp": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgChildNone": "Not linked",
+  "@kwgChildNone": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSaved": "Saved. The watch gets the new SOS numbers when it next connects.",
+  "@kwgSaved": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosNeedOne": "Add at least one SOS number.",
+  "@kwgSosNeedOne": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgBadPhone": "This doesn't look like a phone number.",
+  "@kwgBadPhone": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgNoListen": "Assisto can never switch on the watch's microphone in secret. A call always rings and shows on the watch.",
+  "@kwgNoListen": {
+   "description": "gap-kidswatch: kids watch card / settings"
+  }
+ },
+ "bn": {
+  "kwgSosNowTitle": "{name} {time}-এ SOS চেপেছে",
+  "kwgSosNowBody": "ঘড়ি নিজেও SOS নম্বরগুলোতে ফোন করবে: ধরুন। অথবা এখনই ঘড়িতে ফোন করুন: ঘড়ি বাজবে আর আপনার কল দেখাবে।",
+  "kwgSosNowNoSim": "ঘড়ি SOS নম্বরগুলোতে ফোন করবে: ধরুন। এক চাপে ঘড়িতে ফোন করতে ঘড়ির সেটিং-এ ঘড়ির সিম নম্বর দিন।",
+  "kwgCallWatch": "ঘড়িতে ফোন করুন",
+  "kwgSeeWhere": "কোথায় দেখুন",
+  "kwgSosCalls": "SOS বোতাম ফোন করবে: {numbers}",
+  "kwgSosNone": "SOS বোতাম এখনো কাউকে ফোন করবে না। ঘড়ির সেটিং-এ একটা নম্বর দিন।",
+  "kwgSettings": "ঘড়ির সেটিং",
+  "kwgSimLabel": "ঘড়ির সিম নম্বর (ঐচ্ছিক)",
+  "kwgSimHelp": "যাতে আপনি ও পরিবার এক চাপে ঘড়িতে ফোন করতে পারেন। সাধারণ কল: ঘড়ি বাজে আর কল দেখায়।",
+  "kwgSosHelpDefault": "আপনার নম্বর আগেই দেওয়া আছে, যাতে SOS বোতাম সবসময় কাউকে ফোন করে। কমা দিয়ে ৩টি পর্যন্ত দিন।",
+  "kwgChildAccount": "সন্তানের নিজের Assisto অ্যাকাউন্ট (ঐচ্ছিক)",
+  "kwgChildAccountHelp": "যুক্ত করলে ঘড়ির SOS সন্তানের পুরো পরিবারের কাছেও যাবে।",
+  "kwgChildNone": "যুক্ত নয়",
+  "kwgSaved": "সেভ হয়েছে। ঘড়ি পরের বার যুক্ত হলে নতুন SOS নম্বর পাবে।",
+  "kwgSosNeedOne": "অন্তত একটি SOS নম্বর দিন।",
+  "kwgBadPhone": "এটি ফোন নম্বর মনে হচ্ছে না।",
+  "kwgNoListen": "Assisto কখনো গোপনে ঘড়ির মাইক চালু করতে পারে না। কল সবসময় ঘড়িতে বাজে ও দেখায়।"
+ }
+}

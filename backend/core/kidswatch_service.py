@@ -26,7 +26,7 @@ import hashlib
 import logging
 import os
 import secrets
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone as dt_timezone
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
@@ -338,7 +338,8 @@ def watch_sos(w, lat=None, lng=None, now=None):
     circle = None
     if w.child_user_id:
         circle = FA.alert(w.child_user, "sos", "kw%d:%d" % (w.id, bucket),
-                          payload={"source": "watch", "watch_id": w.id},
+                          payload={"source": "watch", "watch_id": w.id,
+                                   "watch_phone": w.sim_phone or ""},
                           texts=texts, lat=lat, lng=lng, now=now)
         reached = {u.pk for u, _m in FA.consenting_members(w.child_user)}
         try:   # guardian2: approved co-guardians got the circle alert too
@@ -350,14 +351,20 @@ def watch_sos(w, lat=None, lng=None, now=None):
         others = [u for u in guardians(w.owner, w.guardian_ids) if u.pk != w.owner_id]
         if others:
             circle = FA.alert(w.owner, "sos", "kw%d:%d" % (w.id, bucket),
-                              payload={"source": "watch", "watch_id": w.id},
+                              payload={"source": "watch", "watch_id": w.id,
+                                       "watch_phone": w.sim_phone or ""},
                               recipients=others, texts=texts, lat=lat, lng=lng, now=now)
             reached = {u.pk for u, _m in FA.consenting_members(w.owner)} & \
                 {u.pk for u in others}
     direct = []
     key = "sos_direct:%d" % bucket
     st = dict(w.alert_state or {})
+    # gap-kidswatch: the watch card shows a red "SOS now" banner (Call the
+    # watch + where) for SOS_ACTIVE_S after the LAST press
+    st["sos_at"] = now.isoformat()
     if st.get("sos_direct") == key:
+        type(w).objects.filter(pk=w.pk).update(alert_state=st)
+        w.alert_state = st
         return {"circle": circle, "direct": direct}
     st["sos_direct"] = key
     type(w).objects.filter(pk=w.pk).update(alert_state=st)
@@ -370,6 +377,7 @@ def watch_sos(w, lat=None, lng=None, now=None):
         te, be = texts(name, "en")
         data = {"route": "safety/sos", "alert_kind": "sos", "event": "sos",
                 "source": "watch", "watch_id": w.id, "from_name": name,
+                "watch_phone": w.sim_phone or "",
                 "lat": lat if lat is not None else "", "lng": lng if lng is not None else "",
                 "silent": False}
         try:
@@ -380,7 +388,8 @@ def watch_sos(w, lat=None, lng=None, now=None):
             NotifEvent.objects.create(user=u, type="security", title_bn=tb, title_en=te,
                                       body_bn=bb, body_en=be, route="kids_watch",
                                       meta={"watch_id": w.id, "event": "sos",
-                                            "lat": lat, "lng": lng})
+                                            "lat": lat, "lng": lng,
+                                            "watch_phone": w.sim_phone or ""})
         except Exception:
             pass
         push.safe_push(u, "sos", tb, te, bb, be, data=data, high_priority=True)
@@ -391,6 +400,68 @@ def watch_sos(w, lat=None, lng=None, now=None):
                       now, lat, lng)
     audit(w, "sos", circle=bool(circle), direct=len(direct))
     return {"circle": circle, "direct": direct}
+
+
+SOS_ACTIVE_S = 3600            # gap-kidswatch: red SOS banner on the watch card
+
+# gap-kidswatch: a paired watch that stops talking to us (battery dead, data
+# pack over, switched off, SIM out) is told to its guardians ONCE per silence,
+# in the daytime only (07:00-21:59 Dhaka) — a silence that began at night is
+# told at 07:00. Watches send a heartbeat (LK) every few minutes whatever the
+# position interval, so 90 minutes of nothing is a real silence.
+QUIET_AFTER_S = 90 * 60
+QUIET_HOURS = (7, 22)
+
+
+def sos_active_at(w, now=None):
+    """ISO time of the last watch SOS if it is still 'active', else None."""
+    now = now or timezone.now()
+    raw = (w.alert_state or {}).get("sos_at")
+    if not raw:
+        return None
+    try:
+        at = datetime.fromisoformat(raw)
+    except (TypeError, ValueError):
+        return None
+    if at.tzinfo is None:
+        at = at.replace(tzinfo=dt_timezone.utc)
+    return raw if 0 <= (now - at).total_seconds() <= SOS_ACTIVE_S else None
+
+
+def quiet_check(now=None):
+    """Tell guardians once when a paired watch has gone silent. Returns count."""
+    from .models import KidsWatch
+    now = now or timezone.now()
+    local = now.astimezone(LOCAL_TZ)
+    if not (QUIET_HOURS[0] <= local.hour < QUIET_HOURS[1]):
+        return 0
+    told = 0
+    for w in KidsWatch.objects.filter(state="paired", last_seen_at__isnull=False,
+                                      last_seen_at__lt=now - timedelta(seconds=QUIET_AFTER_S)) \
+            .select_related("owner", "child_user")[:2000]:
+        st = dict(w.alert_state or {})
+        mark = w.last_seen_at.isoformat()
+        if st.get("quiet_for") == mark:
+            continue
+        st["quiet_for"] = mark
+        type(w).objects.filter(pk=w.pk).update(alert_state=st)
+        n = w.child_name or "?"
+        mins = int((now - w.last_seen_at).total_seconds() // 60)
+        hb = _bn("%d:%02d" % (mins // 60, mins % 60))
+        he = "%d:%02d" % (mins // 60, mins % 60)
+        _send(watch_audience(w),
+              "%s-এর ঘড়ি যোগাযোগ করছে না" % n,
+              "%s's watch is not connecting" % n,
+              ("%s ঘণ্টা ধরে ঘড়ি থেকে কোনো খবর নেই। চার্জ, সিমের ডাটা প্যাক আর ঘড়ি চালু "
+               "আছে কিনা দেখুন। এর মধ্যে SOS ও অবস্থান কাজ করবে না।" % hb),
+              ("No contact from the watch for %s hours. Check its charge, the SIM's "
+               "data pack and that it is switched on. Until then SOS and location "
+               "do not work." % he),
+              {"watch_id": w.id, "event": "watch_quiet",
+               "last_seen_at": mark}, high=False)
+        audit(w, "quiet", minutes=mins)
+        told += 1
+    return told
 
 
 ALARM_TEXT = {
@@ -1019,6 +1090,10 @@ def tick(now=None):
             out["plans"] += 1
         except Exception:
             log.exception("school plan %s tick failed", plan.pk)
+    try:
+        out["quiet_told"] = quiet_check(now)      # gap-kidswatch
+    except Exception:
+        log.exception("kids watch quiet check failed")
     out["voice_purged"] = purge_voice(now)
     out["cmds_expired"] = expire_commands(now)
     out["pruned"] = KidsWatchPosition.objects.filter(

@@ -239,7 +239,8 @@ class Command(BaseCommand):
         # flagproof: + the hidden features whose reality flows prove them
         # (vault_e2e -> flow 21; ps_secretary / ai_daily_planner /
         # booking_bot / official_corners / blood_donors -> flows 31-36).
-        for key in ("dest_alarm", "train_tracker"):
+        # gap-kidswatch: + kids_watch (flow 18k pairs a simulated watch)
+        for key in ("dest_alarm", "train_tracker", "kids_watch"):
             ff = FeatureFlag.objects.filter(key=key).first()
             if ff is not None:
                 ids = [i for i in (ff.allow_user_ids or []) if i != users["a"].id] + [users["a"].id]

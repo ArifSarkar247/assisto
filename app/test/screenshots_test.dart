@@ -72,6 +72,7 @@ import 'package:assisto/screens/used_phone_check_screen.dart';
 import 'package:assisto/screens/always_on_protection_screen.dart';
 import 'package:assisto/screens/my_vehicles_screen.dart';
 import 'package:assisto/screens/kids_watch/kids_watch_screen.dart'; // kidswatch
+import 'package:assisto/screens/kids_watch/kw_settings_sheet.dart'; // gap-kidswatch
 import 'package:assisto/screens/safe_journey/sj_hub_screen.dart'; // sjlive
 import 'package:assisto/screens/safe_journey/sj_share_screen.dart'; // sjlive
 import 'package:assisto/screens/safe_journey/sj_child_school_screen.dart'; // sjlive
@@ -1043,6 +1044,18 @@ Map<String, GallerySpec> gallerySpecs() {
     'kids_watch': (build: (_) => const KidsWatchScreen(), mode: FakeMode.data, full: true),
     'kids_watch_empty': (build: (_) => const KidsWatchScreen(), mode: FakeMode.empty, full: true),
     'kids_watch_error': (build: (_) => const KidsWatchScreen(), mode: FakeMode.fail, full: false),
+    // gap-kidswatch: a watch SOS in the last hour (red banner: call the watch
+    // + see where; the second watch says its SOS calls nobody) + Watch settings
+    'kids_watch_sos': (build: (_) => const _KwSosShot(), mode: FakeMode.data, full: true),
+    'kids_watch_settings': (
+      build: (l) => Scaffold(
+          body: SafeArea(
+              child: KwWatchSettingsSheet(watch: (((fakeKidsWatchGet('/kids-watch/watches',
+                      bn: l == 'bn', empty: false)!['watches']) as List)[1] as Map)
+                  .cast<String, dynamic>()))),
+      mode: FakeMode.data,
+      full: true
+    ),
     // chipbuy: add a tracker chip (bag / shoe) + "where to buy" link
     'chip_pair': (build: (_) => const Scaffold(body: ChipPairSheet()), mode: FakeMode.data, full: true),
     // chipbuy2: chip card — find now (acked), left-behind spot + safe place,
@@ -2044,4 +2057,28 @@ class _Tr2Timeline extends StatelessWidget {
       ]),
     );
   }
+
+// gap-kidswatch: shows KidsWatchScreen with a live watch SOS, then turns the
+// fake back to normal (no other shot sees the SOS)
+class _KwSosShot extends StatefulWidget {
+  const _KwSosShot();
+  @override
+  State<_KwSosShot> createState() => _KwSosShotState();
+}
+
+class _KwSosShotState extends State<_KwSosShot> {
+  @override
+  void initState() {
+    fakeKwSosActive = true;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    fakeKwSosActive = false;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => const KidsWatchScreen();
 }

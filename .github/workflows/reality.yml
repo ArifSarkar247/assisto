@@ -136,6 +136,20 @@ jobs:
             sleep 2
           done
           echo "::error::Django did not come up"; tail -50 "$REALITY_OUT/django.log"; exit 1
+      # gap-kidswatch: the real tracker server (GT06 / H02 / kids-watch "3G"
+      # TCP) on :5023 = 10.0.2.2:5023 from the emulator; flow 18k drives a
+      # simulated kids watch into it. Same DB as Django (settings_ci).
+      - name: Start the tracker server on :5023 (kids-watch flow)
+        working-directory: backend
+        run: |
+          nohup python -m tracker --host 0.0.0.0 --port 5023 --settings=assisto_backend.settings_ci \
+            > "$REALITY_OUT/tracker.log" 2>&1 &
+          echo $! > "$REALITY_OUT/tracker.pid"
+          for i in $(seq 1 30); do
+            (exec 3<>/dev/tcp/127.0.0.1/5023) 2>/dev/null && { echo "tracker up"; exit 0; }
+            sleep 1
+          done
+          echo "::warning::tracker did not come up (flow 18k will fail)"; tail -30 "$REALITY_OUT/tracker.log"
 
       # ------------------------------------------------ app (same build prep as android.yml)
       - uses: actions/setup-java@v4

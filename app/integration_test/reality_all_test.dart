@@ -37,6 +37,7 @@ import 'flows/remmeter_flow.dart';
 import 'flows/safe_journey_flow.dart';
 import 'flows/sos_journey_flow.dart'; // qjourney
 import 'flows/journey_v2_flow.dart'; // qjourney
+import 'flows/kidswatch_flow.dart'; // gap-kidswatch
 import 'flows/sj_proof_flow.dart'; // sjproof
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
@@ -63,6 +64,7 @@ void main() {
   if (on('family')) registerSosJourneyFlows(); // qjourney
   if (on('family')) registerJourneyV2Flows(); // qjourney
   if (on('family')) registerAntiTheftSnatchFlows(); // at100: two-phone snatch proof
+  if (on('family')) registerKidsWatchFlows(); // gap-kidswatch: simulated watch over TCP
   // rt2: My Circle is its own CI group (its own runner + emulator), so a
   // device death in the long family+circle run can no longer cost both.
   if (on('circle')) registerMyCircleAddFlows(); // m3-circle

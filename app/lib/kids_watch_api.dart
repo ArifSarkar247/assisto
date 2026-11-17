@@ -17,12 +17,14 @@ extension KidsWatchApi on ApiClient {
           required String childName,
           List<int> guardianIds = const [],
           List<String> sosNumbers = const [],
+          String simPhone = '', // gap-kidswatch: the watch's own SIM
           int? childUserId}) =>
       postJson('/kids-watch/watches', {
         'code': code,
         'child_name': childName,
         'guardian_ids': guardianIds,
         'sos_numbers': sosNumbers,
+        if (simPhone.isNotEmpty) 'sim_phone': simPhone,
         if (childUserId != null) 'child_user_id': childUserId,
       });
 
@@ -127,3 +129,26 @@ String kwClock(Object? iso) {
   final h = l.hour % 12 == 0 ? 12 : l.hour % 12;
   return '$h:${l.minute.toString().padLeft(2, '0')}';
 }
+
+// gap-kidswatch: phone numbers typed on a Bangla keyboard (U+09E6..U+09EF)
+// reach the watch as 0-9 (the watch cannot dial Bangla digits).
+String kwLatinDigits(String s) {
+  final b = StringBuffer();
+  for (final r in s.runes) {
+    b.write(r >= 0x09E6 && r <= 0x09EF ? '${r - 0x09E6}' : String.fromCharCode(r));
+  }
+  return b.toString().replaceAll(RegExp(r'[^0-9+]'), '');
+}
+
+/// Up to 3 numbers from "017…, 018…" (commas, semicolons or new lines; spaces
+/// and dashes INSIDE a number are dropped — before, "01711 000001" became two
+/// broken numbers and pairing failed).
+List<String> kwSplitNumbers(String raw) => raw
+    .split(RegExp(r'[,;\n]+'))
+    .map(kwLatinDigits)
+    .where((s) => s.isNotEmpty)
+    .take(3)
+    .toList();
+
+/// A plausible phone number (6-15 digits, optional leading +).
+bool kwPhoneOk(String s) => RegExp(r'^\+?\d{6,15}$').hasMatch(s);
