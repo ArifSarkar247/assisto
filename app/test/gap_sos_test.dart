@@ -248,6 +248,10 @@ void main() {
     testWidgets('startSent: opens on the sent page, sends nothing again, mistake works',
         (tester) async {
       final api = FakeFcSosApi();
+      // a tall phone: the sent page is a lazy list
+      tester.view.physicalSize = const Size(1080, 9000);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
       await tester.pumpWidget(_app(
           SosSenderScreen(
             api: api,
