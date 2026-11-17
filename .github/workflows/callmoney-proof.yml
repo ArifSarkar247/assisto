@@ -1,0 +1,119 @@
+name: callmoney native proof (money from notifications)
+
+# gap-callmoney (17 Nov) — board row 18, proof rule owner_actions/E2E_PROOF_BN.md.
+# The REAL debug APK on the API-33 Google-APIs emulator: SMS arrive at the
+# emulator modem, the phone's SMS app posts its notification, Assisto's
+# NotificationListenerService (allow-list -> OTP filter -> on-phone queue ->
+# "save to khata?" prompt) does the rest. tools/callmoney_proof/cm_driver.py.
+# No backend, no server, no real user data.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['ci/callmoney-proof**', 'ci/gap-callmoney-arb']
+    paths:
+      - "tools/callmoney_proof/**"
+      - "app/android_overlay/app/src/main/kotlin/com/assisto/assisto/notiflisten/**"
+      - ".github/workflows/callmoney-proof.yml"
+
+concurrency:
+  group: callmoney-proof-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CM_OUT: ${{ github.workspace }}/cm_out
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free runner disk (the emulator image needs ~8 GB)
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/share/swift "$AGENT_TOOLSDIRECTORY/PyPy" || true
+          df -h / | tail -1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build deps (replay script)
+        run: python -m pip install -q pyyaml
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Firebase config (the app's real google-services.json from the secret; else a dummy)
+        working-directory: app
+        env:
+          GSJ_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+        run: |
+          mkdir -p android/app
+          if [ -n "${GSJ_B64:-}" ]; then
+            printf '%s' "$GSJ_B64" | base64 -d > android/app/google-services.json
+            echo "real Firebase config"
+          else
+            echo "::warning::no GOOGLE_SERVICES_JSON_B64 - dummy Firebase config (the FCM token will be synthetic)"
+            python3 - <<'PY'
+          import json
+          json.dump({"project_info": {"project_number": "100000000001", "project_id": "notifproof-dummy",
+                                      "storage_bucket": "notifproof-dummy.appspot.com"},
+                     "client": [{"client_info": {"mobilesdk_app_id": "1:100000000001:android:0000000000000001",
+                                                 "android_client_info": {"package_name": "com.assisto.assisto"}},
+                                 "oauth_client": [], "api_key": [{"current_key": "AIzaSyD-notifproof-dummy-key-000000000"}],
+                                 "services": {"appinvite_service": {"other_platform_oauth_client": []}}}],
+                     "configuration_version": "1"}, open("android/app/google-services.json", "w"))
+          PY
+          fi
+      - name: Real build number
+        working-directory: app
+        run: |
+          n=$((9000 + GITHUB_RUN_NUMBER))
+          sed -i -E "0,/^version: .*/s//version: 1.0.$n+$n/" pubspec.yaml
+          grep -m1 '^version:' pubspec.yaml
+      - name: Replay android.yml build prep
+        run: python3 tools/reality/replay_android_steps.py
+      - name: Build the x86_64 debug APK (the real app, lib/main.dart)
+        working-directory: app
+        run: |
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
+          timeout 1800 flutter build apk --debug --target-platform=android-x64
+          cp build/app/outputs/flutter-apk/app-debug.apk "$RUNNER_TEMP/cm-app-debug.apk"
+          echo "CM_APK=$RUNNER_TEMP/cm-app-debug.apk" >> "$GITHUB_ENV"
+          (cd android && timeout 60 ./gradlew --stop) || true
+          pkill -f 'KotlinCompileDaemon' || true
+          pkill -f 'GradleDaemon' || true
+          rm -rf build/app/intermediates ~/.gradle/caches/transforms-* ~/.gradle/caches/build-cache-* || true
+          free -m; df -h / | tail -1
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Money-notification cases on API 33 (Google APIs)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          emulator-boot-timeout: 600
+          ram-size: 4096M
+          heap-size: 576M
+          cores: 3
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: mkdir -p "$CM_OUT" && timeout 1500 python3 tools/callmoney_proof/cm_driver.py
+      - name: Upload evidence
+        continue-on-error: true  # ghstore: storage quota never fails a green build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: callmoney-proof
+          path: cm_out/
+          retention-days: 7
+          if-no-files-found: warn
