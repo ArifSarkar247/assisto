@@ -337,9 +337,13 @@ Future<void> _brandFlow(RFlow f, _Brand b) async {
     await _reveal(f, find.text(f.t.wmAlerts).evaluate().isEmpty ? _sees('Alerts (') : find.text(f.t.wmAlerts));
     final btn = find.text(f.t.wmAlerts).evaluate().isNotEmpty ? find.text(f.t.wmAlerts) : _sees('Alerts (');
     await f.tap(btn, settleSeconds: 4);
-    await f.waitFor(find.bySemanticsLabel(f.t.wmSnapshotLabel), seconds: 20, what: 'alert photo');
-    await f.pumpFor(const Duration(seconds: 3));
-    if (find.text(f.t.wmSnapshotGone).evaluate().isNotEmpty) {
+    // flag-cctv-e2e: the photo DRAWN (AlertSnapshot's first frame), not a
+    // semantics label (semantics are off in the reality harness, so
+    // bySemanticsLabel never matched); a failed / deleted photo is a failure
+    await f.waitFor(find.byKey(const ValueKey('wm-snap-ok')), seconds: 30, what: 'alert photo');
+    await f.pumpFor(const Duration(seconds: 1));
+    if (find.byKey(const ValueKey('wm-snap-error')).evaluate().isNotEmpty ||
+        find.text(f.t.wmSnapshotGone).evaluate().isNotEmpty) {
       throw TestFailure('the alert photo did not load on the phone');
     }
     await f.shot('alert-with-photo');
@@ -354,6 +358,39 @@ Future<void> _brandFlow(RFlow f, _Brand b) async {
     await f.shot('daily-count');
     await f.back();
   });
+
+  // gap-cctv3: the camera's own recording (Imou devbind only — the OAuth
+  // project path has no record API in the simulator): Past clips -> the
+  // camera's recordings -> an hour of today -> the server's HLS answer
+  if (b.pid == 'imou' && !b.oauth) {
+    await f.step('Past clips -> camera recordings -> play an hour', () async {
+      await _tapK(f, 'wm-past-clips', settle: 4);
+      await f.waitFor(_k('gcv-clips-rec-$camId'), seconds: 20, what: 'the recordings entry');
+      await f.shot('past-clips-recordings-entry');
+      await _tapK(f, 'gcv-clips-rec-$camId', settle: 3);
+      await f.waitFor(_k('gcv-pb-timeline'), seconds: 15, what: 'the day timeline');
+      final h = DateTime.now().hour;
+      await _tapK(f, 'gcv-pb-hour-$h', settle: 6);
+      // the simulated Imou cloud lists the recording but (like an old
+      // firmware) gives no HLS address -> the honest "watch it in Imou Life"
+      // card; a real HLS answer opens the player instead. Never a blank.
+      await f.eventually('the player or an honest message', () async =>
+          _k('gcv-pb-player').evaluate().isNotEmpty ||
+          _k('gcv-pb-play-error').evaluate().isNotEmpty ||
+          _k('gcv-pb-problem-sdkOnly').evaluate().isNotEmpty, seconds: 30);
+      if (find.text(f.t.gcvPbRecordsTitle).evaluate().isEmpty) {
+        throw TestFailure('the hour\'s recording list did not show');
+      }
+      f.note(_k('gcv-pb-player').evaluate().isNotEmpty
+          ? 'HLS player opened'
+          : _k('gcv-pb-problem-sdkOnly').evaluate().isNotEmpty
+              ? 'recording listed; no HLS from the simulated cloud (honest Imou Life message)'
+              : 'player could not reach the video host (honest message shown)');
+      await f.shot('camera-recording-hour');
+      await f.back();
+      await f.back();
+    });
+  }
 
   await f.step('unlink -> the camera keeps its history, no cloud live, the vendor lets go', () async {
     await _tapK(f, 'wm-brand-cloud', settle: 3);
