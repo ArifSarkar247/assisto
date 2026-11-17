@@ -813,8 +813,11 @@ def learn_faqs(business, limit=20):
 def widget_channel(business, create=True):
     from .models import SellerChannel
     ext = "web%d" % business.pk
-    ch = SellerChannel.objects.filter(kind="website", external_id=ext).first()
-    if ch is None and create:
+    # bizagent-iso3: the website channel is looked up by its OWNER too — a
+    # row with this id that belongs to any other business is never returned
+    ch = SellerChannel.objects.filter(kind="website", external_id=ext, business=business).first()
+    if ch is None and create and not SellerChannel.objects.filter(
+            kind="website", external_id=ext).exists():
         ch = SellerChannel.objects.create(business=business, kind="website", external_id=ext,
                                           display_name=(business.shop_name or "Website")[:120],
                                           status="connected", connected_at=timezone.now())
