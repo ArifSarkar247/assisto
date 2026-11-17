@@ -154,7 +154,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                         color: given ? AssistoTokens.of(context).warning : scheme.primary),
                     const SizedBox(width: Gap.sm),
                     Text(given ? t.moneyLoanGiven : t.moneyLoanTaken,
-                        style: TextStyle(color: DsTokens.of(context).muted)),
+                        style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
                     const Spacer(),
                     if (_settled)
                       Chip(
@@ -164,7 +164,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                   ]),
                   const SizedBox(height: Gap.md),
                   Text(t.moneyLoanBalance,
-                      style: TextStyle(color: DsTokens.of(context).muted)),
+                      style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
                   Text(tkFmt(_balance),
                       style: AType.headlineLarge.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.bold)),
                   const SizedBox(height: Gap.sm),
@@ -220,7 +220,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(tkFmt(e['amount']),
-                        style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
+                        style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
                     Text(t.moneyLoanBalanceLabel(tkFmt(e['balance'])),
                         style:
                             AType.labelSmall.copyWith(fontFeatures: AFonts.tabular, color: DsTokens.of(context).muted)),

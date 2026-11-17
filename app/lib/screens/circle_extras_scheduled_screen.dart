@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../api.dart';
@@ -175,7 +176,7 @@ class _CircleExtrasScheduledScreenState
     return Scaffold(
       appBar: AppBar(title: Text(t.circleExtrasScheduled)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : Column(
               children: [
                 Expanded(
@@ -183,7 +184,7 @@ class _CircleExtrasScheduledScreenState
                       ? Center(
                           child: Text(t.circleExtrasNoScheduled,
                               style:
-                                  TextStyle(color: DsTokens.of(context).muted)))
+                                  AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)))
                       : ListView.builder(
                           itemCount: pending.length,
                           itemBuilder: (_, i) {
@@ -223,7 +224,7 @@ class _CircleExtrasScheduledScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.circleExtrasScheduleHint,
-                style: TextStyle(fontSize: 11, color: DsTokens.of(context).muted)),
+                style: AType.labelSmall.copyWith(color: DsTokens.of(context).muted)),
             const SizedBox(height: Gap.xs),
             TextField(
               controller: _compose,

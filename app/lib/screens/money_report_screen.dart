@@ -148,7 +148,7 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
             title: Text(t.moneyBiggestExpense),
             subtitle: Text('${biggest['category']} · ${moneyDay(context, biggest['date'])}'),
             trailing: Text(tkFmt(biggest['amount']),
-                style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
+                style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
           ),
         ),
       ],
@@ -161,7 +161,7 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
           dense: true,
           title: Text('${c['category']}'),
           trailing: Text(tkFmt(c['amount']),
-              style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w600)),
+              style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w600)),
         ),
       if (budgets.isNotEmpty) ...[
         const SizedBox(height: Gap.xl),
@@ -172,7 +172,7 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
           ListTile(
             dense: true,
             title: Text('${b['category']}'),
-            subtitle: Text('${tkFmt(b['spent'])} / ${tkFmt(b['limit'])}', style: const TextStyle(fontFeatures: AFonts.tabular)),
+            subtitle: Text('${tkFmt(b['spent'])} / ${tkFmt(b['limit'])}', style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular)),
             trailing: Icon(
                 b['state'] == 'over'
                     ? Icons.error_outline_rounded

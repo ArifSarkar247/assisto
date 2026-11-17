@@ -58,6 +58,10 @@ class Brand {
   /// Fill for positive FILLED buttons (white text 5.3:1; Brand.success is
   /// 3.4:1 with white — below AA for button text).
   static const successFill = Color(0xFF1E7A50);
+  // design3: Elderly home tile fills (white ink AAA at the tile sizes)
+  static const elderPurple = Color(0xFF4A148C);
+  static const elderTeal = Color(0xFF004D40);
+  static const elderSlate = Color(0xFF37474F);
 
   /// The one positive FilledButton style (white text, both themes).
   static ButtonStyle successButton() => FilledButton.styleFrom(

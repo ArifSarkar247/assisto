@@ -72,18 +72,13 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
     final series =
         (_data?['series'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-      Container(
-        decoration: BoxDecoration(
-            gradient: Brand.gradient,
-            borderRadius: BorderRadius.circular(Radii.lg)),
-        padding: const EdgeInsets.all(Gap.xl),
+      // design3: net worth = the soft DS hero, big tight number
+      DsHeroCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(t.moneyNetWorthLabel,
-              style: const TextStyle(color: Colors.white70)),
+              style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.xs),
-          Text(tkFmt(nw),
-              style: AType.displaySmall.copyWith(fontFeatures: AFonts.tabular, color: Colors.white,
-                  fontWeight: FontWeight.bold)),
+          DsNumber(tkFmt(nw), color: nw < 0 ? DsTokens.of(context).dangerInk : null),
         ]),
       ),
       const SizedBox(height: Gap.md),
@@ -105,8 +100,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
       const SizedBox(height: Gap.md),
       if (series.isEmpty)
         Text(t.moneyNoTransactionsHint,
-            style: TextStyle(
-                color: DsTokens.of(context).muted))
+            style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted))
       else
         Card(
           child: Padding(
@@ -121,7 +115,7 @@ class _MoneyNetWorthScreenState extends State<MoneyNetWorthScreen> {
           title: Text(moneyMonth(context, p['month'])),
           trailing: Row(mainAxisSize: MainAxisSize.min, children: [
             Text(tkFmt(p['net_worth']),
-                style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w600)),
+                style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w600)),
             const SizedBox(width: Gap.md),
             deltaChip(context, dbl(p['delta']), upIsBad: false),
           ]),

@@ -1093,7 +1093,7 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
                     if (mounted) setState(() => _pipAllowed = v);
                   },
                   child: Text(t.callpipPipTurnOn,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                      style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
                 ),
               ],
             ),

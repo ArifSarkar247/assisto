@@ -82,12 +82,12 @@ class _JourneyFakeCallScreenState extends State<JourneyFakeCallScreen> {
             const Icon(Icons.phone_in_talk_rounded, color: Colors.white54, size: 48),
             const SizedBox(height: Gap.lg),
             Text(t.fakeCallArmed(notifLocalizeDigits(context, '${widget.delaySeconds}')),
-                style: const TextStyle(color: Colors.white70)),
+                style: AType.bodyMedium.copyWith(color: Colors.white70)),
             const SizedBox(height: Gap.lg),
             TextButton(
                 onPressed: () => Navigator.of(context).maybePop(),
                 child: Text(t.cancel,
-                    style: const TextStyle(color: Colors.white54))),
+                    style: AType.bodyMedium.copyWith(color: Colors.white54))),
           ]),
         ),
       );
@@ -168,7 +168,7 @@ class _CallBtn extends StatelessWidget {
             radius: 36, backgroundColor: color, child: Icon(icon, color: Colors.white, size: 32)),
       ),
       const SizedBox(height: Gap.sm),
-      Text(label, style: const TextStyle(color: Colors.white70)),
+      Text(label, style: AType.bodyMedium.copyWith(color: Colors.white70)),
     ])));
   }
 }

@@ -189,7 +189,7 @@ class _DayPlannerScreenState extends State<DayPlannerScreen> {
             const SizedBox(height: Gap.lg),
             _section(dpStr(context, 'dpNoFit'), [
               Text(dpStr(context, 'dpNoFitBody'),
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
               const SizedBox(height: Gap.sm),
               for (final u in unscheduled)
                 _bullet('${u['title']} · ${ld(context, dpFill(context, 'dpMin', {'n': '${u['minutes']}'}))}'),
@@ -242,7 +242,7 @@ class _DayPlannerScreenState extends State<DayPlannerScreen> {
         const SizedBox(height: Gap.sm),
         Text(dpStr(context, 'dpEmptyBody'),
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.45)),
+            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.45)),
         const SizedBox(height: Gap.xl),
         SizedBox(
           height: 52,
@@ -255,7 +255,7 @@ class _DayPlannerScreenState extends State<DayPlannerScreen> {
         const SizedBox(height: Gap.md),
         Text(dpStr(context, 'dpEmptyHow'),
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
       ],
     );
   }
@@ -282,7 +282,7 @@ class _DayPlannerScreenState extends State<DayPlannerScreen> {
                   'm': '${c['meetings'] ?? 0}',
                   'r': '${c['reminders'] ?? 0}',
                 })),
-            style: TextStyle(color: scheme.onSurface)),
+            style: AType.bodyMedium.copyWith(color: scheme.onSurface)),
       ]),
     );
   }
@@ -298,7 +298,7 @@ class _DayPlannerScreenState extends State<DayPlannerScreen> {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(dpStr(context, 'dpAiNote'),
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
         const SizedBox(height: Gap.md),
         FilledButton.tonalIcon(
           onPressed: _aiBusy ? null : _polish,
@@ -311,11 +311,11 @@ class _DayPlannerScreenState extends State<DayPlannerScreen> {
         ),
         if (_aiMessage != null) ...[
           const SizedBox(height: Gap.sm),
-          Text(_aiMessage!, style: TextStyle(color: scheme.error)),
+          Text(_aiMessage!, style: AType.bodyMedium.copyWith(color: scheme.error)),
         ],
         if (_advice.isNotEmpty) ...[
           const SizedBox(height: Gap.md),
-          Text(dpStr(context, 'dpAiTitle'), style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(dpStr(context, 'dpAiTitle'), style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.xs),
           for (final a in _advice) _bullet(ld(context, a)),
         ],
@@ -344,7 +344,7 @@ class _DayPlannerScreenState extends State<DayPlannerScreen> {
             padding: EdgeInsets.only(top: 7, right: Gap.sm),
             child: Icon(Icons.circle, size: 6),
           ),
-          Expanded(child: Text(text, style: const TextStyle(height: 1.4))),
+          Expanded(child: Text(text, style: AType.bodyMedium.copyWith(height: 1.4))),
         ]),
       );
 }
@@ -388,7 +388,7 @@ class _BlockRow extends StatelessWidget {
         SizedBox(
           width: 64,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(ld(context, block['start']), style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(ld(context, block['start']), style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
             Text(ld(context, block['end']),
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
           ]),
@@ -401,8 +401,7 @@ class _BlockRow extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(title,
-                style: TextStyle(
-                    fontWeight: FontWeight.w600,
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w600,
                     color: past ? scheme.onSurfaceVariant : scheme.onSurface)),
             const SizedBox(height: 2),
             Wrap(spacing: Gap.sm, runSpacing: 2, children: [
@@ -491,14 +490,14 @@ class _PrefsSheetState extends State<_PrefsSheet> {
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.wb_sunny_outlined),
           title: Text(dpStr(context, 'dpDayStart')),
-          trailing: Text(ld(context, _start), style: const TextStyle(fontWeight: FontWeight.w700)),
+          trailing: Text(ld(context, _start), style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
           onTap: () => _pick(true),
         ),
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.nightlight_outlined),
           title: Text(dpStr(context, 'dpDayEnd')),
-          trailing: Text(ld(context, _end), style: const TextStyle(fontWeight: FontWeight.w700)),
+          trailing: Text(ld(context, _end), style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
           onTap: () => _pick(false),
         ),
         SwitchListTile(
@@ -511,7 +510,7 @@ class _PrefsSheetState extends State<_PrefsSheet> {
         if (_error != null)
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
-            child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            child: Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           ),
         FilledButton(
           onPressed: _busy ? null : _save,

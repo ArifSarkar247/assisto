@@ -459,7 +459,7 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
               TextButton.icon(
                   onPressed: () => _remove(w),
                   icon: Icon(Icons.delete_outline_rounded, color: DsTokens.of(context).dangerInk),
-                  label: Text(t.kwRemove, style: TextStyle(color: DsTokens.of(context).dangerInk))),
+                  label: Text(t.kwRemove, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk))),
           ]),
         ]),
       ),
@@ -545,7 +545,7 @@ class _KidsWatchScreenState extends State<KidsWatchScreen> {
               TextButton.icon(
                   onPressed: () => _deletePlan(p),
                   icon: Icon(Icons.delete_outline_rounded, color: DsTokens.of(context).dangerInk),
-                  label: Text(t.kwRemove, style: TextStyle(color: DsTokens.of(context).dangerInk))),
+                  label: Text(t.kwRemove, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk))),
           ]),
         ]),
       ),
@@ -723,7 +723,7 @@ class _PairWatchSheetState extends State<_PairWatchSheet> {
         ],
         if (_error.isNotEmpty) ...[
           const SizedBox(height: Gap.sm),
-          Text(_error, style: TextStyle(color: DsTokens.of(context).dangerInk)),
+          Text(_error, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk)),
         ],
         const SizedBox(height: Gap.lg),
         FilledButton(
@@ -769,7 +769,7 @@ class _SmsSheet extends StatelessWidget {
               leading: CircleAvatar(child: Text(notifLocalizeDigits(context, '${i + 1}'))),
               title: Text(labels[steps[i]['step']] ?? ''),
               subtitle: SelectableText('${steps[i]['sms']}',
-                  style: const TextStyle(fontFamily: 'monospace')),
+                  style: AType.bodyMedium.copyWith(fontFamily: 'monospace')),
               trailing: IconButton(
                 tooltip: t.kwCopy,
                 icon: const Icon(Icons.copy_rounded),
@@ -910,7 +910,7 @@ class _VoiceSheetState extends State<_VoiceSheet> {
         ),
         const SizedBox(height: Gap.md),
         if (_loading)
-          const Center(child: CircularProgressIndicator())
+          const SkeletonList(count: 2)
         else if (_notes.isEmpty)
           Text(t.kwVoiceEmpty, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted))
         else
