@@ -42,7 +42,11 @@ String normalizeNumInput(String? input) {
   // currency words / taka sign, grouping commas (Latin, Arabic, full-width),
   // spaces incl. NBSP / narrow NBSP, underscores
   s = s.replaceAll(RegExp(r'\b(bdt|tk|taka)\b\.?', caseSensitive: false), '');
+  // gap-money: the Bangla word "taka" (code points, no glyph literal) and
+  // the everyday Bangladeshi endings "500/-" and "500/=".
+  s = s.replaceAll('\u099F\u09BE\u0995\u09BE', '');
   s = s.replaceAll(RegExp('[,\\u066C\\uFF0C\\u09F3\\s\\u00A0\\u202F_]'), '');
+  s = s.replaceAll(RegExp(r'/[-=]$'), '');
   if (!RegExp(r'^[+-]?(\d+\.?\d*|\.\d+)$').hasMatch(s)) return '';
   if (s.startsWith('+')) s = s.substring(1);
   return s;

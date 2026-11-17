@@ -354,7 +354,12 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text('${h['actor']}: ${_actionLabel(t, '${h['action']}')}'),
-                subtitle: Text(messDigits(ctx, _when('${h['at']}'))),
+                // gap-money: show WHAT changed (amount / meals / date), not
+                // only who and when — the point of an edit history is trust.
+                subtitle: Text(messDigits(ctx, [
+                  messHistoryDetail(h['before'], h['after']),
+                  _when('${h['at']}'),
+                ].where((x) => x.isNotEmpty).join('\n'))),
               ),
           ]),
         ),

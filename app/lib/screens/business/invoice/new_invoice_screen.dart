@@ -12,6 +12,7 @@ import '../../../state.dart';
 import '../../../theme.dart';
 import '../../../widgets/app_sheet.dart';
 import '../../../widgets/cv_empty.dart' show pickCirclePerson;
+import '../../../widgets/num_input.dart' show takaToPoishaInput;
 import '../selling_common.dart' show showApiError;
 import 'invoice_api.dart';
 import 'invoice_design.dart';
@@ -22,12 +23,12 @@ import 'invoice_screen.dart';
 
 /// Typed money ("1,250.50", Bangla digits ok) → poisha; null when invalid.
 int? typedPoisha(String raw) {
-  final s = raw.trim().replaceAll(',', '').replaceAllMapped(
-      RegExp('[\u09E6-\u09EF]'), (m) => '${m[0]!.codeUnitAt(0) - 0x09E6}');
-  if (s.isEmpty) return 0;
-  final v = double.tryParse(s);
-  if (v == null || v < 0) return null;
-  return (v * 100).round();
+  // gap-money: the shared strict parser, so "৳500", "500 taka" and "500/-"
+  // are read too (they used to be refused as invalid).
+  if (raw.trim().isEmpty) return 0;
+  final p = takaToPoishaInput(raw);
+  if (p == null || p < 0) return null;
+  return p;
 }
 
 /// invdesign: hours may be fractional ("1.5", Bangla digits too), 2 decimals.
