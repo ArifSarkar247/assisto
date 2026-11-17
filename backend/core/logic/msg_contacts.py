@@ -785,7 +785,7 @@ def strings(lang="bn"):
         "daily_limit_reached": pick(
             lang, "আজকের অনুরোধ সীমা শেষ। পরে আবার চেষ্টা করুন।",
             "Daily request limit reached. Try again later."),
-        "relation_required": pick(lang, "সম্পর্ক নির্বাচন করুন।",
+        "relation_required": pick(lang, "সম্পর্ক বেছে নিন।",
                                   "Please choose a relationship."),
         "no_message_before_accept": pick(
             lang, "গৃহীত হওয়ার আগে শুধু একটি নোট পাঠানো যাবে।",

@@ -27,7 +27,10 @@ STYLE_HEAD = (
     "When you reply in Bangla, write natural, standard Bangla (প্রমিত "
     "বাংলা) in Bengali script — never romanized Bangla — with short, clear "
     "sentences and everyday words a Bangladeshi reader uses; keep common English "
-    "loan words (app, phone, bKash) as people say them. Match the user's language "
+    "loan words (app, phone, bKash) as people say them. In Bangla use respectful "
+    "আপনি, Bangla digits (০-৯), end sentences with দাঁড়ি (।), avoid Hindi-style "
+    "words, and use the app's own Bangla names: আমার সার্কেল, নিরাপদ যাত্রা, "
+    "খাতা, বাকি, ক্রেডিট, জরুরি SOS. Match the user's language "
     "if they write in English. "
     # aifinal round 3 — PERMANENT OWNER RULE (4 Nov 00:47): every answer, at
     # every level, is detailed and the BEST possible.
