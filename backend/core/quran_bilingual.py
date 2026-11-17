@@ -37,19 +37,19 @@ QE_BOOKS = {
         "lang": "bn", "role": "meaning",
         "title_bn": "বাংলা অনুবাদ — আবু বকর মুহাম্মাদ যাকারিয়া",
         "title_en": "Bengali Translation — Abu Bakr Zakaria",
-        "publisher": "QuranEnc.com (Encyclopedia of the Noble Quran)",
+        "publisher": "Encyclopedia of the Noble Quran",
     },
     "english_saheeh": {
         "lang": "en", "role": "meaning",
         "title_bn": "ইংরেজি অনুবাদ — Saheeh International",
         "title_en": "English Translation — Saheeh International",
-        "publisher": "Noor International Center · QuranEnc.com",
+        "publisher": "Noor International Center",
     },
     "bengali_mokhtasar": {
         "lang": "bn", "role": "tafsir",
         "title_bn": "আল-মুখতাসার ফী তাফসীরিল কুরআন (বাংলা)",
         "title_en": "Al-Mukhtasar in Interpreting the Noble Quran (Bengali)",
-        "publisher": "Tafsir Center for Quranic Studies · QuranEnc.com",
+        "publisher": "Tafsir Center for Quranic Studies",
     },
 }
 

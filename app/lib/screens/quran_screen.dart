@@ -672,10 +672,10 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
       String src(Map<String, dynamic> b) =>
           t.qvSourceQe('${b['publisher'] ?? ''}', ld(context, '${b['version'] ?? ''}'));
       if (bn != null && _on(QvLine.bn)) {
-        lines.add(Text('${t.qvLineBn}: ${src(bn)}', key: const Key('quran-src-bn'), style: muted));
+        lines.add(Text('${t.qvLineBn} · ${src(bn)}', key: const Key('quran-src-bn'), style: muted));
       }
       if (_on(QvLine.en)) {
-        lines.add(Text(en != null ? '${t.qvLineEn}: ${src(en)}' : t.qrnEnOffline,
+        lines.add(Text(en != null ? '${t.qvLineEn} · ${src(en)}' : t.qrnEnOffline,
             key: const Key('quran-src-en'), style: muted));
       }
       if (_hasPron && _on(QvLine.pron)) {
@@ -781,10 +781,14 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
           ]),
           InkWell(
             onTap: () => _openAyah(aya),
-            child: Text(widget.data.ar(ref),
+            // Amiri's marks reach below the line box: keep the next line clear
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: Gap.sm),
+              child: Text(widget.data.ar(ref),
                 textDirection: TextDirection.rtl,
                 textAlign: TextAlign.right,
                 style: TextStyle(fontFamily: kQvArabicFont, fontSize: _size, height: 1.9)),
+            ),
           ),
           if (_on(QvLine.pron) && pronText.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),

@@ -27,9 +27,9 @@ class QvSilentPlayer implements QvPlayer {
   Future<void> dispose() async {}
 }
 
-const _zakPub = 'QuranEnc.com (Encyclopedia of the Noble Quran)';
-const _sahPub = 'Noor International Center · QuranEnc.com';
-const _mukPub = 'Tafsir Center for Quranic Studies · QuranEnc.com';
+const _zakPub = 'Encyclopedia of the Noble Quran';
+const _sahPub = 'Noor International Center';
+const _mukPub = 'Tafsir Center for Quranic Studies';
 
 Map<String, dynamic> _book(String key, String lang, String tbn, String ten,
         String pub, String ver, List<Map<String, dynamic>> items) =>
