@@ -33,6 +33,7 @@ import 'safe_journey/sj_during_panel.dart'; // sjduring
 import 'safe_journey/sj_danger_audio.dart' show sjRecordDangerClip; // sjproof
 import 'journey_sos_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// journey100 — the LIVE journey screen.
 ///
@@ -58,7 +59,7 @@ class JourneyLiveScreen extends StatefulWidget {
 }
 
 class _JourneyLiveScreenState extends State<JourneyLiveScreen>
-    with WidgetsBindingObserver {
+    with AdBlockedState<JourneyLiveScreen>, WidgetsBindingObserver {
   late final JourneyTracker _tr = widget.tracker ?? JourneyTracker.I;
   Map<String, dynamic> _journey = {};
   bool _asked = false; // "Are you OK?" showing

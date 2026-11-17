@@ -11,6 +11,7 @@ import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'blood_thread_screen.dart';
 import 'bp_common.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// blood (owner 2 Nov) — my private blood-panel conversations (as donor and
 /// as seeker). First names + blood group only; no numbers.
@@ -21,7 +22,8 @@ class BloodThreadsScreen extends StatefulWidget {
   State<BloodThreadsScreen> createState() => _BloodThreadsScreenState();
 }
 
-class _BloodThreadsScreenState extends State<BloodThreadsScreen> {
+class _BloodThreadsScreenState extends State<BloodThreadsScreen>
+    with AdBlockedState<BloodThreadsScreen> {
   bool _loading = true;
   bool _failed = false;
   List<Map<String, dynamic>> _rows = const [];

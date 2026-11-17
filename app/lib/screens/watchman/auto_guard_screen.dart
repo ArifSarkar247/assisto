@@ -17,6 +17,7 @@ import '../../widgets/permission_reason.dart';
 import '../shop_live_screen.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// cctvarm (owner CCTV order 3 Nov, W5) — AUTO GUARD for one place.
 ///
@@ -607,7 +608,8 @@ class SosLiveScreen extends StatefulWidget {
   State<SosLiveScreen> createState() => _SosLiveScreenState();
 }
 
-class _SosLiveScreenState extends State<SosLiveScreen> {
+class _SosLiveScreenState extends State<SosLiveScreen>
+    with AdBlockedState<SosLiveScreen> {
   AutoGuardSource? _src;
   bool _loading = true;
   String? _error;

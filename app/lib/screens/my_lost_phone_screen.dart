@@ -13,6 +13,7 @@ import '../theme.dart';
 import '../widgets/false_alarm_button.dart';
 import 'recovery_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 import 'watched_phones_screen.dart'; // at100
 import '../antitheft_api.dart'; // at100
 import '../services/action_feedback.dart'; // db1
@@ -39,7 +40,8 @@ class MyLostPhoneScreen extends StatefulWidget {
   State<MyLostPhoneScreen> createState() => _MyLostPhoneScreenState();
 }
 
-class _MyLostPhoneScreenState extends State<MyLostPhoneScreen> {
+class _MyLostPhoneScreenState extends State<MyLostPhoneScreen>
+    with AdBlockedState<MyLostPhoneScreen> {
   bool _loading = true;
   bool _failed = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)

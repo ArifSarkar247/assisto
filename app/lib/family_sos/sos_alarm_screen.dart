@@ -19,6 +19,7 @@ import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'sos_api.dart';
 import 'sos_widgets.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// fcsos — Family Care v3 SCREEN 3: the SOS RECEIVER. Opens full screen from
 /// the SOS push (also over the lock screen, for that one launch — the same
@@ -95,7 +96,8 @@ class SosAlarmScreen extends StatefulWidget {
   State<SosAlarmScreen> createState() => _SosAlarmScreenState();
 }
 
-class _SosAlarmScreenState extends State<SosAlarmScreen> {
+class _SosAlarmScreenState extends State<SosAlarmScreen>
+    with AdBlockedState<SosAlarmScreen> {
   late final DestAlarmSound _sound = widget.sound ?? NativeDestAlarmSound();
   Map<String, dynamic>? _d;
   bool _failed = false;

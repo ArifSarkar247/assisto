@@ -15,6 +15,7 @@ import 'admob_platform.dart';
 import 'ads_service.dart';
 import 'hero_ad.dart';
 import 'hero_binding.dart';
+import 'ad_block_context.dart' show AdBlockGate;
 
 /// One loaded banner. [view] renders AdMob's own banner view.
 abstract class BannerAdHandle {
@@ -307,8 +308,13 @@ class _AdBannerSlotState extends State<AdBannerSlot> {
     Navigator.of(context).push(MaterialPageRoute(builder: b));
   }
 
+  // ads-guard: the whole slot (frame + "Remove ads") disappears at once on
+  // a call / safety screen / plan change
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      AdBlockGate(child: Builder(builder: _buildSlot));
+
+  Widget _buildSlot(BuildContext context) {
     final ad = _ad;
     // never next to an open keyboard; hidden tab = no banner
     if (MediaQuery.viewInsetsOf(context).bottom > 0) {

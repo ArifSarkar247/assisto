@@ -16,6 +16,7 @@ import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'kw_recorder.dart';
 import 'school_plan_form.dart' show SchoolEventsSheet;
 import '../../widgets/permission_reason.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// kidswatch — the CHILD's side of School Mode (route `school_mode`, never
 /// hidden by a flag: transparency and the one-tap stop must always work).
@@ -37,7 +38,8 @@ class SchoolModeChildScreen extends StatefulWidget {
   State<SchoolModeChildScreen> createState() => _SchoolModeChildScreenState();
 }
 
-class _SchoolModeChildScreenState extends State<SchoolModeChildScreen> {
+class _SchoolModeChildScreenState extends State<SchoolModeChildScreen>
+    with AdBlockedState<SchoolModeChildScreen> {
   ApiClient get _api => context.read<AppState>().api;
   bool _loading = true;
   bool _failed = false;

@@ -22,6 +22,7 @@ import 'sos_recorder.dart';
 import 'sos_retry.dart'; // gap-sos
 import 'sos_sms.dart';
 import 'sos_widgets.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// fcsos — Family Care v3 SCREEN 2: the SOS SENDER.
 ///
@@ -101,7 +102,8 @@ class SosSenderScreen extends StatefulWidget {
 
 enum SosPhase { countdown, sending, sent, offline }
 
-class _SosSenderScreenState extends State<SosSenderScreen> {
+class _SosSenderScreenState extends State<SosSenderScreen>
+    with AdBlockedState<SosSenderScreen> {
   SosPhase _phase = SosPhase.countdown;
   late int _left = widget.countdownSeconds;
   Timer? _tick, _poll, _live, _recTick;

@@ -1,3 +1,4 @@
+import '../ads/ad_block_context.dart' show AdBlockContext;
 import '../api.dart';
 import '../plans_v2/buy_inside.dart' show BuyOrigin;
 import '../config.dart';
@@ -202,7 +203,8 @@ class ApiPaymentsBackend implements PaymentsBackend {
   @override
   Future<PayResult> order(int id) async {
     try {
-      return PayResult.fromRaw(await api.getJson('/payments/orders/$id'));
+      return _afterPay(
+          PayResult.fromRaw(await api.getJson('/payments/orders/$id')));
     } catch (_) {
       return PayResult.network;
     }
@@ -215,6 +217,14 @@ class ApiPaymentsBackend implements PaymentsBackend {
         if (BuyOrigin.current.isNotEmpty) 'origin': BuyOrigin.current,
       });
 
+  /// ads-guard (owner 17 Nov): a verified purchase / paid order may have
+  /// made this user Premium / Plus / Business — every ad stops at once and
+  /// /ads/config is re-read (no ad request for a paid plan, not even one).
+  static PayResult _afterPay(PayResult r) {
+    if (r.ok) AdBlockContext.planMaybeChanged();
+    return r;
+  }
+
   @override
   Future<PayResult> playVerify(
           {required String kind,
@@ -226,5 +236,5 @@ class ApiPaymentsBackend implements PaymentsBackend {
         'purchase_token': purchaseToken,
         // buyinside: where this purchase started (a feature key, no personal data)
         if (BuyOrigin.current.isNotEmpty) 'origin': BuyOrigin.current,
-      });
+      }).then(_afterPay);
 }

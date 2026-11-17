@@ -22,7 +22,12 @@
 {% if stats %}<div class="tbl"><table><thead><tr><th>{{ T.adm_placement }}</th><th>{{ T.adm_format }}</th><th>{{ T.adm_impressions }}</th><th>{{ T.adm_clicks }}</th><th>{{ T.adm_ctr }}</th><th>{{ T.adm_revenue }}</th></tr></thead><tbody>
 {% for r in stats %}<tr><th>{{ r.placement }}</th><td>{{ r.format }}</td><td class="num">{{ r.impressions|bnd:lang }}</td><td class="num">{{ r.clicks|bnd:lang }}</td><td class="num">{{ r.ctr_pct|bnd:lang }}%</td><td class="num">{{ r.revenue_text }}</td></tr>{% endfor %}
 </tbody></table></div>{% else %}<p class="mut">{{ T.adm_stats_none }}</p>{% endif %}
-<p class="mut small">{{ T.adm_stats_note }}</p></section>
+<p class="mut small">{{ T.adm_stats_note }}</p>
+<div id="ads-source" class="note"><p><b>{{ T.ads_src_label }}</b> {% if source.api_connected %}{{ T.ads_src_api }}{% else %}{{ T.ads_src_events }}{% endif %}</p>
+<p class="small">{{ T.ads_src_real }}: {{ source.real_impressions|default:0|bnd:lang }} · {{ T.ads_src_test }}: {{ source.test_impressions|default:0|bnd:lang }} · {{ T.ads_src_last }}: {% if source.last_event_at %}{{ source.last_event_at|date:"Y-m-d H:i" }}{% else %}—{% endif %}</p>
+{% if not source.real_ids_on %}<p class="small">{{ T.ads_src_ids_off }}</p>{% endif %}
+{% if not source.api_connected %}<p class="small">{{ T.ads_src_no_api }}</p><ol class="small"><li>{{ T.ads_src_step1 }}</li><li>{{ T.ads_src_step2 }}</li><li>{{ T.ads_src_step3 }}</li><li>{{ T.ads_src_step4 }}</li></ol>{% endif %}
+</div></section>
 <section class="card" id="ad-impact"><h2>{{ T.adm_impact_title }}</h2>
 <div class="tbl"><table><thead><tr><th>{{ T.adm_placement }}</th><th>{{ T.adm_impressions }}</th><th>{{ T.adm_revenue }}</th><th>{{ T.adm_impact_exits }}</th></tr></thead><tbody>
 {% for r in impact %}<tr><th>{{ r.placement }}</th><td class="num">{{ r.impressions|bnd:lang }}</td><td class="num">{{ r.revenue_text }}</td><td class="num">{{ r.exits|bnd:lang }} ({{ r.exit_pct|bnd:lang }}%)</td></tr>{% endfor %}

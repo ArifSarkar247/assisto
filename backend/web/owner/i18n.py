@@ -2531,3 +2531,31 @@ BN.update({
     "discms_rules": "নিজে থেকে মেয়াদ শেষ হয় না: আপনি না বদলানো বা না সরানো পর্যন্ত কার্ড থাকে (শেষ তারিখ ঐচ্ছিক)। হোমের টাইলে আগে থেকে থাকা ফিচারের কার্ড দেখানো হয় না। স্পনসর্ড কার্ড কখনো SOS, নিরাপত্তা, শিশু বা কুরআনের স্ক্রিন খোলে না। ইন্টারনেট না থাকলে ফোন শেষ কার্ডগুলো দেখায়।",
 })
 # ---- /discms ----
+# ---- ads-guard ---- Ads page: where the numbers come from (owner 17 Nov)
+EN.update({
+    "ads_src_label": "Source of these numbers:",
+    "ads_src_events": "app events — estimated (each phone reports the impression, click and Google's estimated value per impression). Not the AdMob payout.",
+    "ads_src_api": "AdMob Reporting API",
+    "ads_src_real": "Real-ad impressions", "ads_src_test": "Test-ad impressions (not income)",
+    "ads_src_last": "Last event",
+    "ads_src_ids_off": "Real AdMob ids are OFF: every ad is a Google test ad and earns nothing; nothing here is income.",
+    "ads_src_no_api": "No AdMob Reporting API sync is connected, so there is no last-sync time; AdMob's own Reports page is the true payout figure. To connect it later (needs your Google login once):",
+    "ads_src_step1": "Google Cloud Console → a project → APIs & Services → Library → enable “AdMob API”.",
+    "ads_src_step2": "OAuth consent screen → External → add your AdMob Google account as a test user.",
+    "ads_src_step3": "Credentials → Create credentials → OAuth client ID (type: Web application, redirect https://lifeassisto.com/owner/admob/oauth) → copy the client ID and secret.",
+    "ads_src_step4": "Send them to the developer; you then sign in once with the AdMob account (scope admob.readonly). Service accounts are not supported by the AdMob API.",
+})
+BN.update({
+    "ads_src_label": "এই সংখ্যাগুলো কোথা থেকে:",
+    "ads_src_events": "অ্যাপের ইভেন্ট — আনুমানিক (প্রতিটি ফোন ইমপ্রেশন, ক্লিক ও প্রতি ইমপ্রেশনে Google-এর আনুমানিক মান পাঠায়)। এটি AdMob-এর আসল পেমেন্ট নয়।",
+    "ads_src_api": "AdMob Reporting API",
+    "ads_src_real": "আসল বিজ্ঞাপনের ইমপ্রেশন", "ads_src_test": "টেস্ট বিজ্ঞাপনের ইমপ্রেশন (আয় নয়)",
+    "ads_src_last": "শেষ ইভেন্ট",
+    "ads_src_ids_off": "আসল AdMob আইডি বন্ধ: সব বিজ্ঞাপন Google-এর টেস্ট বিজ্ঞাপন, কোনো আয় হয় না; এখানে কিছুই আয় নয়।",
+    "ads_src_no_api": "AdMob Reporting API সংযুক্ত নেই, তাই “শেষ সিঙ্ক” সময় নেই; আসল আয় AdMob-এর Reports পাতায়। পরে সংযোগ করতে (একবার আপনার Google লগইন লাগবে):",
+    "ads_src_step1": "Google Cloud Console → একটি প্রজেক্ট → APIs & Services → Library → “AdMob API” চালু করুন।",
+    "ads_src_step2": "OAuth consent screen → External → আপনার AdMob-এর Google অ্যাকাউন্টকে test user হিসেবে যোগ করুন।",
+    "ads_src_step3": "Credentials → Create credentials → OAuth client ID (ধরন: Web application, redirect https://lifeassisto.com/owner/admob/oauth) → client ID ও secret কপি করুন।",
+    "ads_src_step4": "এগুলো ডেভেলপারকে দিন; তারপর AdMob অ্যাকাউন্ট দিয়ে একবার সাইন-ইন (scope admob.readonly)। AdMob API-তে service account চলে না।",
+})
+# ---- /ads-guard ----

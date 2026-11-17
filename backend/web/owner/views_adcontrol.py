@@ -40,7 +40,9 @@ def _stats(stored, days):
     from core.models import AdPlacementStat
     today = timezone.localdate()
     dates = [(today - timedelta(days=i)).isoformat() for i in range(days)]
-    rows = (AdPlacementStat.objects.filter(date__gte=today - timedelta(days=days - 1))
+    # ads-guard: real ads only — Google TEST-ad events are never income
+    rows = (AdPlacementStat.objects.filter(date__gte=today - timedelta(days=days - 1),
+                                           test=False)
             .values("date", "placement", "currency")
             .annotate(impressions=Sum("impressions"), paid_events=Sum("paid_events"),
                       revenue_micros=Sum("revenue_micros")))

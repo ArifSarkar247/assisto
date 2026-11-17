@@ -31,6 +31,7 @@ import 'recite_sheet.dart';
 import 'shikhi_widgets.dart'; // quranshikhi
 import '../l10n/quran_shikhi_text.dart'; // quranshikhi
 import 'uthmani_text.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 bool _bn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
 
@@ -50,7 +51,8 @@ class QuranLearnScreen extends StatefulWidget {
   State<QuranLearnScreen> createState() => _QuranLearnScreenState();
 }
 
-class _QuranLearnScreenState extends State<QuranLearnScreen> {
+class _QuranLearnScreenState extends State<QuranLearnScreen>
+    with AdBlockedState<QuranLearnScreen> {
   QlProgress? _p;
   bool _certBusy = false; // learnwire
 
@@ -408,7 +410,8 @@ class QuranLessonScreen extends StatefulWidget {
   State<QuranLessonScreen> createState() => _QuranLessonScreenState();
 }
 
-class _QuranLessonScreenState extends State<QuranLessonScreen> {
+class _QuranLessonScreenState extends State<QuranLessonScreen>
+    with AdBlockedState<QuranLessonScreen> {
   QlProgress? _p;
   UthmaniText? _u;
   Object? _err;
@@ -820,7 +823,8 @@ class QuranLearnAboutScreen extends StatefulWidget {
   State<QuranLearnAboutScreen> createState() => _QuranLearnAboutScreenState();
 }
 
-class _QuranLearnAboutScreenState extends State<QuranLearnAboutScreen> {
+class _QuranLearnAboutScreenState extends State<QuranLearnAboutScreen>
+    with AdBlockedState<QuranLearnAboutScreen> {
   String? _notice;
 
   @override

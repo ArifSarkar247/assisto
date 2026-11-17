@@ -25,6 +25,7 @@ import '../train/train_tracker_screen.dart';
 import 'sj_child_school_screen.dart';
 import 'sj_share_screen.dart';
 import 'sj_where_now.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// The three Safe Journey cards, in order. Card 0 (Live Location) is the
 /// default. Cards 1 and 2 are owned by their own screens (agent/sjalarm) and
@@ -53,7 +54,8 @@ class SafeJourneyHubScreen extends StatefulWidget {
   State<SafeJourneyHubScreen> createState() => _SafeJourneyHubScreenState();
 }
 
-class _SafeJourneyHubScreenState extends State<SafeJourneyHubScreen> {
+class _SafeJourneyHubScreenState extends State<SafeJourneyHubScreen>
+    with AdBlockedState<SafeJourneyHubScreen> {
   late SjCard _card = widget.initial;
   Map<String, dynamic>? _active; // my own live journey / share, if any
   OemInfo? _oem;

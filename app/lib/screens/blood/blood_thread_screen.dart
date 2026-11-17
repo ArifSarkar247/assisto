@@ -12,6 +12,7 @@ import '../../theme.dart';
 import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// blood (owner 2 Nov) — a private donor <-> seeker conversation. No phone
 /// numbers are exchanged by the app (Call / SMS appear only when the donor
@@ -26,7 +27,8 @@ class BloodThreadScreen extends StatefulWidget {
   State<BloodThreadScreen> createState() => _BloodThreadScreenState();
 }
 
-class _BloodThreadScreenState extends State<BloodThreadScreen> {
+class _BloodThreadScreenState extends State<BloodThreadScreen>
+    with AdBlockedState<BloodThreadScreen> {
   ApiClient get _api => context.read<AppState>().api;
   final _ctrl = TextEditingController();
   bool _loading = true;

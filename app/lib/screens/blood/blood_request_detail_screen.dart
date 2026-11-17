@@ -14,6 +14,7 @@ import '../../widgets/success_share.dart';
 import 'blood_thread_screen.dart';
 import 'bp_common.dart';
 import '../../widgets/local_counter.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// blood (owner 2 Nov) — one urgent request, by role.
 ///  * requester: reach (pushed / listed), the donors who said "I can donate"
@@ -31,7 +32,8 @@ class BloodRequestDetailScreen extends StatefulWidget {
   State<BloodRequestDetailScreen> createState() => _BloodRequestDetailScreenState();
 }
 
-class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen> {
+class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen>
+    with AdBlockedState<BloodRequestDetailScreen> {
   ApiClient get _api => context.read<AppState>().api;
   bool _loading = true;
   bool _failed = false;

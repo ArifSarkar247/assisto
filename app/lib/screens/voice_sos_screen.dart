@@ -14,6 +14,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/permission_reason.dart';
 import '../widgets/voice_sos_config.dart';
 import '../widgets/voice_sos_service.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// Hands-free Voice SOS opt-in screen (feature #79).
 ///
@@ -32,7 +33,7 @@ class VoiceSosScreen extends StatefulWidget {
 }
 
 class _VoiceSosScreenState extends State<VoiceSosScreen>
-    with WidgetsBindingObserver {
+    with AdBlockedState<VoiceSosScreen>, WidgetsBindingObserver {
   bool _loading = true;
   bool _enabled = false;
   bool _running = false;

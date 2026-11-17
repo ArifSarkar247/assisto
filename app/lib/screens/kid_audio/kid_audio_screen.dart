@@ -12,6 +12,7 @@ import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../messenger/messenger_home_screen.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// kidaudio (owner 2 Nov PART 1 b) — Child emergency audio: the advance
 /// consent (parent sets it, the child agrees on their own phone), the
@@ -91,7 +92,8 @@ List<Map<String, dynamic>> _rows(Map<String, dynamic> r, String key) => [
         if (x is Map) Map<String, dynamic>.from(x),
     ];
 
-class _KidAudioScreenState extends State<KidAudioScreen> {
+class _KidAudioScreenState extends State<KidAudioScreen>
+    with AdBlockedState<KidAudioScreen> {
   ApiClient get _api => context.read<AppState>().api;
   bool _loading = true;
   bool _failed = false;

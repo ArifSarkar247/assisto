@@ -37,6 +37,7 @@ import '../widgets/robo_id.dart';
 import '../widgets/paywall_sheet.dart'; // circle2
 import 'referral_screen.dart'; // circle2
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // qa1
 
 /// My Circle 1:1 voice / video call — REAL media (c2-calls).
@@ -131,7 +132,8 @@ class CircleCallScreen extends StatefulWidget {
   State<CircleCallScreen> createState() => _CircleCallScreenState();
 }
 
-class _CircleCallScreenState extends State<CircleCallScreen> {
+class _CircleCallScreenState extends State<CircleCallScreen>
+    with AdBlockedState<CircleCallScreen> {
   CallController? _c;
   CallVideoSurface? _surface;
   bool _owns = false;

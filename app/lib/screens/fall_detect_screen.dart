@@ -16,6 +16,7 @@ import '../widgets/app_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'always_on_protection_screen.dart';
 import 'emergency_screen.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// sosat — EXPERIMENTAL fall detection (elders), for real now.
 ///
@@ -47,7 +48,8 @@ class FallDetectScreen extends StatefulWidget {
   State<FallDetectScreen> createState() => _FallDetectScreenState();
 }
 
-class _FallDetectScreenState extends State<FallDetectScreen> {
+class _FallDetectScreenState extends State<FallDetectScreen>
+    with AdBlockedState<FallDetectScreen> {
   SosTriggerSettings? _s;
   bool _running = false;
   Map<String, dynamic>? _pending;

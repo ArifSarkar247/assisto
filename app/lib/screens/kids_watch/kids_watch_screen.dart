@@ -21,6 +21,7 @@ import '../../widgets/where_to_buy.dart';
 import 'chip_widgets.dart';
 import 'kw_recorder.dart';
 import 'school_plan_form.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 import '../../safe_plans/safe_plans_screen.dart' show showSafeCreditsOutSheet; // safeplans
 import '../../widgets/num_input.dart'; // savesweep
 
@@ -41,7 +42,8 @@ class KidsWatchScreen extends StatefulWidget {
   State<KidsWatchScreen> createState() => _KidsWatchScreenState();
 }
 
-class _KidsWatchScreenState extends State<KidsWatchScreen> {
+class _KidsWatchScreenState extends State<KidsWatchScreen>
+    with AdBlockedState<KidsWatchScreen> {
   ApiClient get _api => context.read<AppState>().api;
   bool _loading = true;
   bool _failed = false;

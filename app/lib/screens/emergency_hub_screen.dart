@@ -21,6 +21,7 @@ import 'fall_detect_screen.dart'; // svcclean
 import '../services/sos_trigger_settings.dart'; // svcclean
 import 'journey_fake_call_screen.dart';
 import 'nearby_screen.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 
 /// emhub (owner order 2 Nov 17:40) — ONE Emergency hub (Bangla title from the ARB), like Safe
 /// Journey is a hub. Route `emergency_hub` (flag `emergency`).
@@ -93,7 +94,8 @@ class EmergencyHubScreen extends StatefulWidget {
 /// A dialable number: digits only, optional leading +, 3–15 long.
 final _numRx = RegExp(r'^\+?[0-9]{3,15}$');
 
-class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
+class _EmergencyHubScreenState extends State<EmergencyHubScreen>
+    with AdBlockedState<EmergencyHubScreen> {
   List<Map<String, dynamic>> _contacts = const [];
   int _countdown = 5;
   Map<String, dynamic> _fam = const {};

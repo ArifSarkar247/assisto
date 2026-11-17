@@ -12,6 +12,7 @@ import 'ad_rules.dart';
 import 'ads_service.dart';
 import 'hero_ad.dart';
 import 'hero_binding.dart';
+import 'ad_block_context.dart' show AdBlockGate;
 
 /// adcontrol (owner 10 Nov 03:45) — ONE in-page native ad card for a
 /// registered placement ([AdControl]): the Account & Finance main page,
@@ -141,8 +142,13 @@ class _AdSpotCardState extends State<AdSpotCard> {
   void _openPlans() =>
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlansScreen()));
 
+  // ads-guard: the whole slot (frame + "Remove ads") disappears at once on
+  // a call / safety screen / plan change
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      AdBlockGate(child: Builder(builder: _buildSlot));
+
+  Widget _buildSlot(BuildContext context) {
     final ad = _ad;
     if (ad == null) return const SizedBox.shrink();
     return Padding(

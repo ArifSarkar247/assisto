@@ -5,6 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// KID'S SCHOOL CORNER — ADVANCED (#27, SPEC v2.1 §21).
@@ -83,7 +84,8 @@ String _today() {
   return '${n.year.toString().padLeft(4, '0')}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}';
 }
 
-class _KidSchoolScreenState extends State<KidSchoolScreen> {
+class _KidSchoolScreenState extends State<KidSchoolScreen>
+    with AdBlockedState<KidSchoolScreen> {
   List<Map<String, dynamic>> _children = [];
   List<Map<String, dynamic>> _notices = [];
   bool _loading = true, _error = false;

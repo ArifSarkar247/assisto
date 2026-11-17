@@ -3030,9 +3030,12 @@ class AdPlacementStat(models.Model):
     paid_events = models.PositiveIntegerField(default=0)
     precise_events = models.PositiveIntegerField(default=0)
     revenue_micros = models.BigIntegerField(default=0)
+    # ads-guard (owner 17 Nov): a Google TEST ad (real ids off, or an owner /
+    # staff / tester / Play-reviewer account) — never counted as revenue
+    test = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = [("date", "placement", "fmt", "currency")]
+        unique_together = [("date", "placement", "fmt", "currency", "test")]
         indexes = [models.Index(fields=["date", "placement"])]
 
 
