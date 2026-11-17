@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../l10n/app_localizations.dart';
 import '../services/oem_guide.dart';
 import '../theme.dart';
@@ -115,21 +116,18 @@ class _BatteryGuidanceScreenState extends State<BatteryGuidanceScreen>
       ),
       body: SafeArea(
         child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-          Card(
-            color: scheme.ds.successBg,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.lg),
-              child: Text(t.oemGuideIntro,
-                  style: TextStyle(color: scheme.ds.successInk)),
-            ),
+          DsCard(tone: DsTone.success,
+            padding: const EdgeInsets.all(Gap.lg),
+            child: Text(t.oemGuideIntro,
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.successInk)),
           ),
           const SizedBox(height: Gap.md),
           if (info != null && info.label.isNotEmpty)
             Text(t.oemGuideYourPhone(info.label),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.sm),
           Text(t.oemGuidePickBrand,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             for (final b in brands)
@@ -149,13 +147,13 @@ class _BatteryGuidanceScreenState extends State<BatteryGuidanceScreen>
             )
           else ...[
             if (allDone)
-              Card(
-                margin: const EdgeInsets.only(bottom: Gap.md),
-                child: ListTile(
+              Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
                   leading: Icon(Icons.check_circle_rounded, color: scheme.primary),
                   title: Text(t.oemGuideAllSet),
                 ),
-              ),
+                )),
             for (var i = 0; i < steps.length; i++)
               _StepCard(
                 index: i + 1,
@@ -228,9 +226,7 @@ class _StepCard extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final note = AType.bodyMedium.copyWith(color: scheme.ds.muted);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           ExcludeSemantics(
@@ -253,7 +249,7 @@ class _StepCard extends StatelessWidget {
               const SizedBox(height: Gap.sm),
               if (done)
                 Text(t.oemGuideDoneState,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         color: scheme.primary, fontWeight: FontWeight.w700))
               else ...[
                 if (!checkable && !byHandOnly) Text(t.oemGuideCantCheck, style: note),
@@ -262,11 +258,7 @@ class _StepCard extends StatelessWidget {
                   Text(t.oemGuideNoScreen, style: note),
                 if (!byHandOnly && open != OemOpen.none) ...[
                   const SizedBox(height: Gap.xs),
-                  FilledButton.tonalIcon(
-                    onPressed: onOpen,
-                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                    label: Text(open == OemOpen.oem ? t.open : t.oemGuideOpenAppInfo),
-                  ),
+                  DsButton.secondary(onPressed: onOpen, icon: Icons.open_in_new_rounded, label: open == OemOpen.oem ? t.open : t.oemGuideOpenAppInfo),
                 ],
                 if (result == OemOpen.details) ...[
                   const SizedBox(height: Gap.xs),
@@ -280,8 +272,7 @@ class _StepCard extends StatelessWidget {
             ]),
           ),
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -319,7 +310,7 @@ class _BrandPill extends StatelessWidget {
                   Icon(Icons.check_rounded, size: 18, color: fg),
                   const SizedBox(width: Gap.xs),
                 ],
-                Flexible(child: Text(label, style: TextStyle(color: fg))),
+                Flexible(child: Text(label, style: AType.bodyMedium.copyWith(color: fg))),
               ]),
             ),
           ),

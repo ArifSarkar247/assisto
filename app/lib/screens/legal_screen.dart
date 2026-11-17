@@ -96,7 +96,8 @@ class _LegalScreenState extends State<LegalScreen> {
                             Gap.md, 0, Gap.md, Gap.md),
                         children: [
                           for (final p in filtered)
-                            Card(
+                            DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+                              padding: EdgeInsets.zero,
                               child: ListTile(
                                 leading:
                                     const Icon(Icons.description_rounded),

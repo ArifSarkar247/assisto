@@ -220,7 +220,7 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
         Icon(Icons.error_outline_rounded, color: scheme.ds.dangerInk, size: 18),
         const SizedBox(width: Gap.sm),
         Expanded(
-            child: Text(msg, style: TextStyle(color: scheme.ds.dangerInk))),
+            child: Text(msg, style: AType.bodyMedium.copyWith(color: scheme.ds.dangerInk))),
       ]),
     );
   }
@@ -236,10 +236,9 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
             t.dlGraceTitle, t.dlGraceBody(_when(_app.deletionGraceAt))),
         const SizedBox(height: Gap.xl),
         // Choice 1 — Restore (the safe, primary choice).
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(
+        DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(t.dlGraceRestoreHint, style: tt.bodyMedium),
@@ -254,14 +253,12 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
                 ),
               ],
             ),
-          ),
         ),
         const SizedBox(height: Gap.md),
         // Choice 2 — Delete now and start fresh (explicit second step).
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(
+        DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+          padding: const EdgeInsets.all(Gap.lg),
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(t.dlGraceFreshHint, style: tt.bodyMedium),
@@ -276,14 +273,13 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
                           }),
                   icon: Icon(Icons.delete_forever_rounded, color: scheme.error),
                   label: Text(t.dlGraceFresh,
-                      style: TextStyle(color: scheme.error)),
+                      style: AType.bodyMedium.copyWith(color: scheme.error)),
                   style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(52),
                       side: BorderSide(color: scheme.error)),
                 ),
               ],
             ),
-          ),
         ),
         if (_error != null) ...[
           const SizedBox(height: Gap.md),

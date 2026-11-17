@@ -129,7 +129,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
 
   Widget _intro(BuildContext context, AppLocalizations t) => Text(
         t.aiKnowIntro,
-        style: TextStyle(
+        style: AType.bodyMedium.copyWith(
             height: 1.45,
             color: Theme.of(context).colorScheme.ds.muted),
       );
@@ -159,11 +159,11 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
           m.isAi ? Brand.cyan : Brand.blue),
       if (f.excludeFromAi) _badge(t.memPrivacyExcludeShort, Brand.danger),
       if (f.sensitive) _badge(t.memPrivacySensitive, Brand.warning),
-      if (f.private) _badge(t.memPrivacyPrivate, Colors.blueGrey),
+      if (f.private) _badge(t.memPrivacyPrivate, Theme.of(context).colorScheme.ds.muted),
     ];
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ExpansionTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+        padding: EdgeInsets.zero,
+        child: ExpansionTile(
         tilePadding:
             const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xxs),
         childrenPadding:
@@ -178,7 +178,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
           if (m.detail.trim().isNotEmpty)
             Align(
               alignment: Alignment.centerLeft,
-              child: Text(m.detail, style: const TextStyle(height: 1.4)),
+              child: Text(m.detail, style: AType.bodyMedium.copyWith(height: 1.4)),
             ),
           const SizedBox(height: Gap.sm),
           // provenance line — honest "where this came from"
@@ -201,12 +201,12 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
               icon: const Icon(Icons.delete_outline_rounded,
                   size: 18, color: Brand.danger),
               label: Text(t.delete,
-                  style: const TextStyle(color: Brand.danger)),
+                  style: AType.bodyMedium.copyWith(color: Brand.danger)),
             ),
           ),
         ],
       ),
-    );
+      ));
   }
 
   Widget _badge(String text, Color color) => Container(

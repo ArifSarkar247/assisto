@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // sosat
 import 'package:provider/provider.dart';
 
@@ -255,10 +256,9 @@ class _SecScoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _gradeColor(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Row(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Row(
           children: [
             SizedBox(
               width: 96,
@@ -303,7 +303,7 @@ class _SecScoreCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(Radii.pill),
                     ),
                     child: Text(_gradeLabel(),
-                        style: TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             color: color, fontWeight: FontWeight.w700)),
                   ),
                   const SizedBox(height: Gap.sm),
@@ -323,7 +323,6 @@ class _SecScoreCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }
@@ -369,11 +368,9 @@ class _WeakAreasCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final top = score.weak.take(3).toList();
-    return Card(
-      color: Brand.warning.withValues(alpha: 0.10),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(
+    return DsSurface(color: Brand.warning.withValues(alpha: 0.10),
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
@@ -397,14 +394,13 @@ class _WeakAreasCard extends StatelessWidget {
                     const Text('•  '),
                     Expanded(
                       child: Text(secItemTitle(t, id),
-                          style: TextStyle(color: cs.ds.text)),
+                          style: AType.bodyMedium.copyWith(color: cs.ds.text)),
                     ),
                   ],
                 ),
               ),
           ],
         ),
-      ),
     );
   }
 }
@@ -442,7 +438,7 @@ class _SecItemTile extends StatelessWidget {
             color: done ? Brand.success : cs.ds.muted,
           ),
           title: Text(secItemTitle(t, item.id),
-              style: const TextStyle(fontWeight: FontWeight.w600)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           subtitle: Text(
             done ? t.secMarkedDone : t.secTapToExpand,
             style: Theme.of(context).textTheme.bodySmall,
@@ -490,7 +486,7 @@ class _ErrorState extends StatelessWidget {
             const SizedBox(height: Gap.md),
             Text(t.secLoadFailed, textAlign: TextAlign.center),
             const SizedBox(height: Gap.lg),
-            FilledButton.tonal(onPressed: onRetry, child: Text(t.retry)),
+            DsButton.secondary(onPressed: onRetry, label: t.retry),
           ],
         ),
       ),

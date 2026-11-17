@@ -116,20 +116,17 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
 
           // ---- success (neutral, anti-enumeration) ----
           if (_neutralMessage != null) ...[
-            Card(
-              color: scheme.ds.primarySoft,
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Row(children: [
+            DsSurface(color: scheme.ds.primarySoft,
+              padding: const EdgeInsets.all(14),
+              child: Row(children: [
                   Icon(Icons.mark_email_read_rounded,
                       color: scheme.ds.primaryInk),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(_neutralMessage!,
-                        style: TextStyle(color: scheme.ds.primaryInk)),
+                        style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
                   ),
                 ]),
-              ),
             ),
             const SizedBox(height: Gap.md),
             OutlinedButton.icon(
@@ -147,7 +144,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
 
             // ---- channel chooser ----
             Text(t.resetChooseChannel,
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.sm),
             ResetChannelTile(
               channel: RecoveryChannel.email,
@@ -179,7 +176,6 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
               },
               decoration: InputDecoration(
                 labelText: t.resetEmailLabel,
-                border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.email_rounded),
                 errorText: _emailError,
               ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../widgets/ai_action_buttons.dart'; // aifinal
@@ -661,7 +662,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         const SizedBox(height: Gap.sm),
         Text(t.welcomeBody,
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
       ],
     );
   }
@@ -749,16 +750,10 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
     final cut = m.meta['cut'] == true;
     return Wrap(spacing: 4, children: [
       if (cut)
-        FilledButton.tonalIcon(
-          key: const ValueKey('ai-continue'),
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-          onPressed: () {
+        DsButton.secondary(buttonKey: const ValueKey('ai-continue'), onPressed: () {
             _follow = 'continue';
             _send(t.aiContinue);
-          },
-          icon: const Icon(Icons.play_arrow_rounded, size: 18),
-          label: Text(t.aiContinue),
-        ),
+          }, icon: Icons.play_arrow_rounded, label: t.aiContinue),
       if (m.meta['source'] == 'ai' && !cut)
         TextButton.icon(
           key: const ValueKey('ai-more'),
@@ -818,7 +813,7 @@ class _AgentThreadScreenState extends State<AgentThreadScreen>
         if (m.text.isNotEmpty)
           m.user
               ? Text(m.text,
-                  style: TextStyle(color: scheme.onPrimary, height: 1.4))
+                  style: AType.bodyMedium.copyWith(color: scheme.onPrimary, height: 1.4))
               // aifinal round 2 item 7: safe markdown (no raw ** in answers)
               : AiMarkdown(
                   text: m.text, color: scheme.ds.text, linkColor: scheme.primary),
