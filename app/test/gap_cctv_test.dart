@@ -579,7 +579,10 @@ void main() {
     await _settle(tester);
     expect(find.byKey(const ValueKey('gcv-gb-forget')), findsNothing);
     expect(find.text(en.gbPairHelp), findsOneWidget);
-    // let the 5 s confirmation timer run out before the tree is disposed
-    await tester.pump(const Duration(seconds: 6));
+    // the best-effort key deletes (4 keys) each give up after 5 s with no
+    // secure storage in tests -> let every one of them run out
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(seconds: 6));
+    }
   });
 }
