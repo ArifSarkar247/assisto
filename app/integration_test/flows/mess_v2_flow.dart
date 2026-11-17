@@ -77,6 +77,17 @@ void registerMessV2Flows() {
       f.expectHttp('POST', '/mess/v2/$mid/entries');
       await f.shot('wifi_added');
     });
+    // gap-money: the edit history says WHAT changed, not only who and when
+    await f.step('A opens edit history -> sees the Wi-Fi amount (৳700)', () async {
+      await f.tapTooltip(f.t.mv2History, settleSeconds: 3);
+      f.expectHttp('GET', '/mess/v2/$mid/history');
+      await f.waitFor(find.textContaining(RegExp('700|\u09ed\u09e6\u09e6')),
+          what: 'history row with the Wi-Fi amount');
+      await f.shot('history_what_changed');
+      // close the sheet by its barrier (top of the screen), not Back
+      await f.tester.tapAt(const Offset(24, 96));
+      await f.pumpFor(const Duration(milliseconds: 1200));
+    });
     await f.step('A closes the month (UI) -> math checked', () async {
       final tomorrow = DateTime.now().add(const Duration(days: 1));
       if (tomorrow.day > 28) {
