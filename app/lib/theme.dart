@@ -987,11 +987,27 @@ class DsPerf {
   /// Test / diag override (null = follow the device).
   static bool? debugLite;
 
+  /// Lite = the cheap look: one small static shadow, no glow, no top
+  /// highlight, no press lift, no looping animation. On for tests, low-RAM
+  /// phones (≤ 3.25 GB, common Mali/PowerVR GPUs in Bangladesh), emulators /
+  /// software GPUs (b323: swiftshader died under the full look), and on
+  /// Android until the device probe has answered (first-run screens draw
+  /// cheap on the very first frames).
   static bool get lite =>
       debugLite ??
       (_underTest ||
           LowRamTuning.lowRam ||
+          LowRamTuning.emulator ||
+          (_android && !LowRamTuning.probed) ||
           (LowRamTuning.ramMb > 0 && LowRamTuning.ramMb <= 3328));
+
+  static final bool _android = () {
+    try {
+      return Platform.isAndroid;
+    } catch (_) {
+      return false;
+    }
+  }();
 
   /// Widget tests run still (no endless pulse → pumpAndSettle settles);
   /// a test that checks the motion sets [debugLite] = false.
