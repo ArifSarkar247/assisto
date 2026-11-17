@@ -278,19 +278,16 @@ class _OtpResetScreenState extends State<OtpResetScreen> {
           padding: const EdgeInsets.all(Gap.xl),
           children: [
             if (_done != null) ...[
-              Card(
-                color: scheme.ds.primarySoft,
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.lg),
-                  child: Row(children: [
+              DsSurface(color: scheme.ds.primarySoft,
+                padding: const EdgeInsets.all(Gap.lg),
+                child: Row(children: [
                     Icon(Icons.check_circle_outline_rounded,
                         color: scheme.ds.primaryInk),
                     const SizedBox(width: 10),
                     Expanded(
                         child: Text(_done!,
-                            style: TextStyle(color: scheme.ds.primaryInk))),
+                            style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk))),
                   ]),
-                ),
               ),
               const SizedBox(height: Gap.lg),
               FilledButton(

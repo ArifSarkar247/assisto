@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
@@ -105,7 +106,7 @@ class AcPill extends StatelessWidget {
           const SizedBox(width: Gap.xs),
           Flexible(
               child: Text(text,
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: fg))),
+                  style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: fg))),
         ]),
       );
 }
@@ -157,13 +158,10 @@ class AcMessage extends StatelessWidget {
         ],
         Text(body,
             textAlign: TextAlign.center,
-            style: TextStyle(color: s.onSurfaceVariant, height: 1.4)),
+            style: AType.bodyMedium.copyWith(color: s.onSurfaceVariant, height: 1.4)),
         if (action != null && onAction != null) ...[
           const SizedBox(height: Gap.lg),
-          FilledButton.tonal(
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: onAction,
-              child: Text(action!)),
+          DsButton.secondary(onPressed: onAction, label: action!),
         ],
       ]),
     );
@@ -206,7 +204,7 @@ class AcApprovalCard extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           if (fromNotification) ...[
             Text(t.acApFromNotif,
-                style: TextStyle(color: s.primary, fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(color: s.primary, fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.md),
           ],
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [AcRiskChip(ap.risk)]),
@@ -216,11 +214,11 @@ class AcApprovalCard extends StatelessWidget {
               child: Text(ap.title, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700))),
           if (ap.goal.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
-            Text(t.acApForGoal(ap.goal), style: TextStyle(color: s.onSurfaceVariant)),
+            Text(t.acApForGoal(ap.goal), style: AType.bodyMedium.copyWith(color: s.onSurfaceVariant)),
           ],
           if (ap.toolLabel.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
-            Text(t.acApStep(ap.toolLabel), style: TextStyle(color: s.onSurfaceVariant)),
+            Text(t.acApStep(ap.toolLabel), style: AType.bodyMedium.copyWith(color: s.onSurfaceVariant)),
           ],
           if (ap.details.isNotEmpty) ...[
             const SizedBox(height: Gap.md),
@@ -237,14 +235,14 @@ class AcApprovalCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
                     child: Text('${d.key}: ${acDigits(d.value, acBn(context))}',
-                        style: TextStyle(color: s.onSurface)),
+                        style: AType.bodyMedium.copyWith(color: s.onSurface)),
                   ),
               ]),
             ),
             if (ap.hasMasked) ...[
               const SizedBox(height: Gap.xs),
               Text(t.acApMaskedNote,
-                  style: TextStyle(fontSize: 12, color: s.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: s.onSurfaceVariant)),
             ],
           ],
           const SizedBox(height: Gap.md),
@@ -264,7 +262,7 @@ class AcApprovalCard extends StatelessWidget {
             Expanded(
                 child: Text(
                     expired ? t.acApExpired : t.acApExpires(acTime(context, ap.expiresAt)),
-                    style: TextStyle(color: expired ? s.error : null))),
+                    style: AType.bodyMedium.copyWith(color: expired ? s.error : null))),
           ]),
           const SizedBox(height: Gap.lg),
           Wrap(
@@ -272,13 +270,7 @@ class AcApprovalCard extends StatelessWidget {
             spacing: Gap.sm,
             runSpacing: Gap.sm,
             children: [
-              OutlinedButton.icon(
-                key: ValueKey('ac_reject_${ap.id}'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                onPressed: busy ? null : onReject,
-                icon: const Icon(Icons.close_rounded),
-                label: Text(t.acReject),
-              ),
+              DsButton.secondary(buttonKey: ValueKey('ac_reject_${ap.id}'), onPressed: busy ? null : onReject, icon: Icons.close_rounded, label: t.acReject),
               FilledButton.icon(
                 key: ValueKey('ac_approve_${ap.id}'),
                 style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),

@@ -8,6 +8,7 @@
 // Only the proof / password goes to the server; the PIN and the recovery code
 // never do. Documents are never lost: they are not encrypted with the PIN.
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../ds/ds.dart';
 
 import '../l10n/app_localizations.dart';
@@ -216,7 +217,8 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
       required String title,
       String? subtitle,
       required VoidCallback? onTap}) {
-    return Card(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: EdgeInsets.zero,
       child: ListTile(
         key: key,
         minVerticalPadding: Gap.md,
@@ -241,7 +243,7 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.vaultForgotPin)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : ListView(padding: const EdgeInsets.all(Gap.lg), children: [
               Container(
                 padding: const EdgeInsets.all(Gap.md),
@@ -299,11 +301,9 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
                 ),
               ],
               if (!_offline && !anyServer && !_hasCode)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.md),
-                    child: Text(t.vaultRecoverNone, style: AType.bodyMedium),
-                  ),
+                DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+                  padding: const EdgeInsets.all(Gap.md),
+                  child: Text(t.vaultRecoverNone, style: AType.bodyMedium),
                 ),
               if ((_status?['resets_left_today'] as num?) == 0)
                 Padding(
@@ -321,7 +321,7 @@ class _VaultRecoveryScreenState extends State<VaultRecoveryScreen> {
               ],
               if (_busy) ...[
                 const SizedBox(height: Gap.md),
-                const Center(child: CircularProgressIndicator()),
+                const LinearProgressIndicator(),
               ],
               const SizedBox(height: Gap.lg),
               Text(t.vaultRecoverNeverPin,

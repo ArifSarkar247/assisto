@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -223,7 +224,7 @@ class _LifeGraphScreenState extends State<LifeGraphScreen> {
                     key: const ValueKey('lg_delete_all'),
                     value: 'delete_all',
                     child: Text(t.lgDeleteAll,
-                        style: TextStyle(color: Theme.of(context).colorScheme.error))),
+                        style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error))),
               ],
             ),
         ],
@@ -279,7 +280,7 @@ class _LifeGraphScreenState extends State<LifeGraphScreen> {
                   style: Theme.of(context).textTheme.titleMedium),
             ),
             const SizedBox(height: Gap.xs),
-            Text(t.lgSuggestionsHint, style: TextStyle(color: s.ds.muted)),
+            Text(t.lgSuggestionsHint, style: AType.bodyMedium.copyWith(color: s.ds.muted)),
             const SizedBox(height: Gap.sm),
             for (final f in _suggestions)
               _SuggestionCard(
@@ -354,7 +355,7 @@ class _PrivacyNote extends StatelessWidget {
         Icon(Icons.lock_rounded, size: 20, color: s.ds.primaryInk),
         const SizedBox(width: Gap.sm),
         Expanded(
-            child: Text(text, style: TextStyle(color: s.ds.primaryInk, height: 1.4))),
+            child: Text(text, style: AType.bodyMedium.copyWith(color: s.ds.primaryInk, height: 1.4))),
       ]),
     );
   }
@@ -432,7 +433,7 @@ class _FactTile extends StatelessWidget {
                       Text(sub),
                     ],
                     const SizedBox(height: Gap.xs),
-                    Text(meta, style: TextStyle(color: s.ds.muted, fontSize: 12.5)),
+                    Text(meta, style: AType.bodySmall.copyWith(color: s.ds.muted, )),
                   ]),
                 ),
                 Semantics(
@@ -494,7 +495,7 @@ class _Badge extends StatelessWidget {
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 14, color: fg),
           const SizedBox(width: Gap.xs),
-          Flexible(child: Text(text, style: TextStyle(color: fg, fontSize: 12.5))),
+          Flexible(child: Text(text, style: AType.bodySmall.copyWith(color: fg, ))),
         ]),
       );
 }
@@ -511,11 +512,7 @@ class _SuggestionCard extends StatelessWidget {
     final s = Theme.of(context).colorScheme;
     final f = fact;
     final title = f.relation.isEmpty ? f.label : '${f.label} (${f.relation})';
-    return Card(
-      key: ValueKey('lg_sugg_${f.id}'),
-      color: s.ds.cardHigh,
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(key: ValueKey('lg_sugg_${f.id}'), padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(color: s.ds.cardHigh,
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -529,7 +526,7 @@ class _SuggestionCard extends StatelessWidget {
           ],
           const SizedBox(height: Gap.xs),
           Text('${lgTypeLabel(t, f.type)} · ${lgOriginLabel(t, f.origin)}',
-              style: TextStyle(color: s.ds.muted, fontSize: 12.5)),
+              style: AType.bodySmall.copyWith(color: s.ds.muted, )),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             FilledButton(
@@ -537,15 +534,10 @@ class _SuggestionCard extends StatelessWidget {
                 style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
                 onPressed: onKeep,
                 child: Text(t.lgKeep)),
-            OutlinedButton(
-                key: ValueKey('lg_reject_${f.id}'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                onPressed: onReject,
-                child: Text(t.lgReject)),
+            DsButton.secondary(buttonKey: ValueKey('lg_reject_${f.id}'), onPressed: onReject, label: t.lgReject),
           ]),
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -559,11 +551,9 @@ class _LearningCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final s = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: Gap.sm),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.symmetric(vertical: Gap.sm),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SwitchListTile(
             key: const ValueKey('lg_pause'),
             title: Text(t.lgPauseLearning),
@@ -591,10 +581,9 @@ class _LearningCard extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
-            child: Text(t.lgRetentionHint, style: TextStyle(color: s.ds.muted)),
+            child: Text(t.lgRetentionHint, style: AType.bodyMedium.copyWith(color: s.ds.muted)),
           ),
         ]),
-      ),
     );
   }
 }
@@ -668,7 +657,7 @@ class _FactEditorState extends State<_FactEditor> {
                   lgOriginLabel(t, f.origin),
                   if (f.createdAt != null) acTime(context, f.createdAt),
                 ].join(' · '),
-                style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
+                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           ],
           const SizedBox(height: Gap.md),
           DropdownButtonFormField<String>(
@@ -759,10 +748,9 @@ class LifeGraphEntryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final s = Theme.of(context).colorScheme;
-    return Card(
-      key: const ValueKey('lg_entry'),
-      margin: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
-      child: ListTile(
+    return Padding(key: const ValueKey('lg_entry'), padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+        padding: EdgeInsets.zero,
+        child: ListTile(
         minVerticalPadding: Gap.md,
         leading: Icon(Icons.hub_rounded, color: s.primary),
         title: Text(t.lgEntryTitle),
@@ -771,6 +759,6 @@ class LifeGraphEntryCard extends StatelessWidget {
         onTap: () => Navigator.of(context)
             .push(MaterialPageRoute(builder: (_) => const LifeGraphScreen())),
       ),
-    );
+      ));
   }
 }
