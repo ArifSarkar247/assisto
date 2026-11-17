@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest import mock
 
 from django.db import connection
-from django.test import RequestFactory, SimpleTestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.http import HttpResponse
 
@@ -154,3 +154,61 @@ class SpeedGuardTests(SimpleTestCase):
         self.assertEqual(b["slack_pct"], 20)
         self.assertTrue(b["screens"])
         self.assertTrue(all(isinstance(v, int) and v > 0 for v in b["screens"].values()))
+
+
+# ---------------------------------------------------------------- chat seen
+from core.tests_c3_msg import _Base as _C3Base  # noqa: E402
+
+
+class ChatSeenBulkTests(_C3Base):
+    def test_opening_a_delivered_chat_is_a_few_queries_not_one_per_message(self):
+        from core.models import CircleReceipt
+        from core.views_c3_msg import sync_delivered
+        ids = [self.send(self.cb, self.ba, "sp%d" % i) for i in range(60)]
+        sync_delivered(self.a)       # A's phone got them: delivered, not seen
+        self.assertEqual(CircleReceipt.objects.filter(
+            user=self.a, message_id__in=ids, seen_at__isnull=True).count(), 60)
+        with CaptureQueriesContext(connection) as q:
+            r = self.ca.post("/api/v1/circle/%d/seen" % self.ab.id, format="json")
+        self.assertEqual(r.status_code, 200, r.content)
+        self.assertEqual(r.json()["updated"], 60)
+        self.assertLess(len(q.captured_queries), 45, len(q.captured_queries))
+        self.assertEqual(CircleReceipt.objects.filter(
+            user=self.a, message_id__in=ids, seen_at__isnull=True).count(), 0)
+        # B (the sender) sees read ticks
+        self.assertEqual(self.status_of(self.cb, self.ba, ids[-1]), "read")
+
+    def test_query_count_does_not_grow_with_messages(self):
+        from core.views_c3_msg import sync_delivered
+        for i in range(10):
+            self.send(self.cb, self.ba, "a%d" % i)
+        sync_delivered(self.a)
+        with CaptureQueriesContext(connection) as q1:
+            self.ca.post("/api/v1/circle/%d/seen" % self.ab.id, format="json")
+        for i in range(50):
+            self.send(self.cb, self.ba, "b%d" % i)
+        sync_delivered(self.a)
+        with CaptureQueriesContext(connection) as q2:
+            self.ca.post("/api/v1/circle/%d/seen" % self.ab.id, format="json")
+        self.assertLessEqual(len(q2.captured_queries), len(q1.captured_queries) + 3)
+
+
+# ---------------------------------------------------------------- payments catalog
+class CatalogMemoTests(TestCase):
+    def test_products_normalizes_the_config_once(self):
+        from core.logic import pricing
+        from core.payments import catalog
+        c = pricing.normalize({})
+        real = pricing.normalize
+        with mock.patch.object(pricing, "normalize", side_effect=real) as n:
+            out = catalog.products("gateway", "en", cfg=c)
+        # was one normalize per helper call per sku (dozens); now the given
+        # dict once (+ at most a couple inside pricing helpers)
+        self.assertLessEqual(n.call_count, 3, n.call_count)
+        self.assertEqual(out, catalog.products("gateway", "en", cfg=pricing.normalize({})))
+
+    def test_a_raw_dict_is_still_normalized(self):
+        from core.payments import catalog
+        raw = {"plans": {"premium": {"price": "123"}}}
+        self.assertEqual(catalog._cfg(raw)["plans"]["premium"]["price"], 123)
+        self.assertNotIn("payments", raw)   # never mutated

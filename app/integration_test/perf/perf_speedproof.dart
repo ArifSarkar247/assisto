@@ -19,6 +19,7 @@ import 'package:assisto/screens/circle_chat_screen.dart';
 import 'package:assisto/screens/city/city_service_screen.dart';
 import 'package:assisto/screens/credits_screen.dart';
 import 'package:assisto/screens/journey_live_screen.dart';
+import 'package:assisto/screens/journey_start_screen.dart';
 import 'package:assisto/screens/language_partner_screen.dart';
 import 'package:assisto/screens/mess_accounting_screen.dart';
 import 'package:assisto/screens/quran_screen.dart';
@@ -74,7 +75,15 @@ Future<void> _push(PerfFlowCtx p, String label, Widget Function() screen, {Finde
 /// honest "needs the AI key" answer — the model's own time is not in it).
 Future<void> _askTimed(PerfFlowCtx p, String label, String q) async {
   final f = p.f;
-  await f.enter(q, label: f.t.inputHint);
+  // the CHAT's own box: the home's ask box (same hint) stays in the tree
+  // behind the pushed chat — run 44002942576 typed into that one
+  final box = find
+      .ancestor(of: find.text(f.t.inputHint), matching: find.byType(TextField))
+      .hitTestable();
+  await f.waitFor(box, what: 'chat input');
+  await f.tester.tap(box.last, warnIfMissed: false);
+  await f.tester.pump();
+  await f.tester.enterText(box.last, q);
   await f.pumpFor(const Duration(milliseconds: 300));
   final before = find.byType(AiMarkdown).evaluate().length;
   final httpFrom = f.h.recorder.hits.length;
@@ -148,10 +157,15 @@ void registerSpeedproofFlows() {
       final a = await api.getJson('/journey/active');
       if (a['id'] != null) await api.postJson('/journey/${a['id']}/arrived');
     });
-    await _route(p, 'journey_start', 'journey', ready: find.byKey(const ValueKey('j100_dest')));
+    // the Safe Journey hub (what the home tile opens), then the start form
+    await _route(p, 'journey_start', 'journey');
+    await _push(p, 'journey_form', () => const JourneyStartScreen(),
+        ready: find.byKey(const ValueKey('j100_dest')));
     int? jid;
     await f.net(() async {
-      final r = await api.postJson('/journey/start', {'destination': {'name': 'Perf Home'}});
+      final r = await api.postJson('/journey/start', {
+        'destination': {'name': 'Perf Home', 'lat': 23.7806, 'lng': 90.4070}
+      });
       jid = (r['id'] ?? (r['journey'] as Map?)?['id']) as int?;
     });
     if (jid == null) {

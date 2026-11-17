@@ -16,12 +16,29 @@ import 'feature_gates.dart' show kMedicalFeaturesAllowed, kMedicalRoutes;
 /// Localisation: ApiClient already sends `Accept-Language: bn|en`; on top of
 /// that `homeSuggestions` passes an explicit `?lang=` so the engine returns
 /// prompts in the ACTIVE language ONLY (strict — never mixed).
+/// speedproof: the one in-flight GET /home/badges per client.
+final Expando<Future<HomeBadges>> _badgesInFlight = Expando('homeBadges');
+
 extension HomeApi on ApiClient {
   /// GET /home/badges -> { my_circle_unread: int, notif_unseen: int }.
   ///
   /// Both counts drive the top-right badge bubbles. Missing / non-int values
   /// are coerced to 0 so a partial response never crashes the bar.
-  Future<HomeBadges> homeBadges() async {
+  ///
+  /// speedproof: callers that ask while a fetch is already on the way share
+  /// it (CI run 44002942576: opening My Circle fired the same request 3-4
+  /// times at once, each ~1 s on the server).
+  Future<HomeBadges> homeBadges() {
+    final pending = _badgesInFlight[this];
+    if (pending != null) return pending;
+    final f = _fetchBadges();
+    _badgesInFlight[this] = f;
+    f.then((_) => _badgesInFlight[this] = null,
+        onError: (Object _) => _badgesInFlight[this] = null);
+    return f;
+  }
+
+  Future<HomeBadges> _fetchBadges() async {
     final j = await getJson('/home/badges');
     return HomeBadges(
       myCircleUnread: _asInt(j['my_circle_unread']),
