@@ -53,6 +53,10 @@ class LadderGapTests(_Base):
         self.assertEqual(r.status_code, 400)
         self.assertEqual(r.data["reason"], "unknown_variable")
         self.assertIn("{name}", r.data["detail"])
+        # a Bangla word in braces is caught too (the customer never gets "{দাম}")
+        r = self.oc.post(API + "bizai/crm/ladder",
+                         {"drafts": {"wb30": {"bn": "{name}, {দাম} কমেছে"}}}, format="json")
+        self.assertEqual((r.status_code, r.data["reason"]), (400, "unknown_variable"))
 
 
 class DailyGapTests(APITestCase):
