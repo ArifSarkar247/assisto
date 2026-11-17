@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../widgets/msgr_set_tiles.dart' show MsgrSetNote;
+import '../../widgets/msgr_channel_common.dart' show MsgrEmptyState;
+import '../../ds/ds.dart';
 import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
@@ -246,35 +249,21 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
               child: ListView(
                 padding: const EdgeInsets.only(bottom: Gap.xxl),
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        Gap.lg, Gap.md, Gap.lg, Gap.xs),
-                    child: Row(
-                      children: [
-                        Icon(Icons.lock_outline_rounded,
-                            size: 15, color: scheme.ds.muted),
-                        const SizedBox(width: Gap.xs),
-                        Expanded(
-                          child: Text(_t.communityPhonePrivacyNote,
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: scheme.ds.muted)),
-                        ),
-                      ],
-                    ),
-                  ),
                   if (_members.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.all(Gap.xl),
-                      child: Text(
-                        _backendReady
+                      padding: const EdgeInsets.only(top: Gap.lg),
+                      child: MsgrEmptyState(
+                        icon: Icons.groups_2_rounded,
+                        title: _backendReady
                             ? _t.communityNoMembers
                             : _t.communityBackendPending,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: scheme.ds.muted),
+                        body: '',
                       ),
-                    ),
-                  for (final m in _members) _tile(m),
+                    )
+                  else
+                    // the members as one DS group card
+                    DsGroup(children: [for (final m in _members) _tile(m)]),
+                  MsgrSetNote(_t.communityPhonePrivacyNote, icon: Icons.lock_outline_rounded),
                 ],
               ),
             ),
@@ -282,29 +271,14 @@ class _CommunityMembersScreenState extends State<CommunityMembersScreen> {
   }
 
   Widget _errorRetry(ColorScheme scheme) => ListView(
+        padding: const EdgeInsets.all(Gap.lg),
         children: [
-          const SizedBox(height: Gap.xxl * 2),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.xl),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.cloud_off_rounded,
-                      size: 56, color: scheme.ds.muted),
-                  const SizedBox(height: Gap.md),
-                  Text(_t.communityLoadError,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: Gap.lg),
-                  FilledButton.icon(
-                    onPressed: _load,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: Text(_t.retry),
-                  ),
-                ],
-              ),
-            ),
+          const SizedBox(height: Gap.xl),
+          MsgrEmptyState(
+            icon: Icons.cloud_off_rounded,
+            title: _t.communityLoadError,
+            body: '',
+            action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: _t.retry),
           ),
         ],
       );
