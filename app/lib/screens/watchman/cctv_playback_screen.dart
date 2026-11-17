@@ -263,7 +263,7 @@ class _CctvPlaybackScreenState extends State<CctvPlaybackScreen> {
                         onTap: future || _busy ? null : () => _open(h),
                         child: Center(
                           child: Text(wmDigits(lang, h.toString().padLeft(2, '0')),
-                              style: TextStyle(
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: future ? scheme.outline : fg,
                                   decoration: st == PbHour.empty
                                       ? TextDecoration.lineThrough
