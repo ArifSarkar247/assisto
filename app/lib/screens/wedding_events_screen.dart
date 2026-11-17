@@ -4,6 +4,7 @@ import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/wedding_engine.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -114,32 +115,13 @@ class _WeddingEventsScreenState extends State<WeddingEventsScreen> {
     if (_error) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.weddingTitle)),
-        body: StateMessage(
-          icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
-          title: tr.loadFailed,
-          message: honestFailText(tr, _failCause, otherwise: tr.weddingLoadError),
-          action: FilledButton.tonalIcon(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(tr.retry),
-          ),
-        ),
+        body: ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: tr.loadFailed, benefit: honestFailText(tr, _failCause, otherwise: tr.weddingLoadError), actionLabel: tr.retry, onAction: _load)]),
       );
     }
     if (_empty) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.weddingTitle)),
-        body: StateMessage(
-          icon: Icons.celebration_rounded,
-          title: tr.weddingWelcomeTitle,
-          message: tr.weddingWelcomeBody,
-          action: FilledButton.icon(
-            onPressed: _editEvent,
-            icon: const Icon(Icons.event_rounded),
-            label: Text(tr.weddingSetEvent),
-          ),
-        ),
+        body: ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.celebration_rounded, title: tr.weddingWelcomeTitle, benefit: tr.weddingWelcomeBody, actionLabel: tr.weddingSetEvent, onAction: _editEvent)]),
       );
     }
     final ev = _eventRow;
@@ -389,31 +371,25 @@ class _OverviewTab extends StatelessWidget {
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl)),
       children: [
         // countdown hero
-        Card(
-          color: scheme.primaryContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.xl),
-            child: Column(children: [
+        DsHeroCard(padding: const EdgeInsets.all(Gap.xl), child: Column(children: [
               Text(
                   eventName.isEmpty ? tr.weddingYourEvent : eventName,
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      color: scheme.onPrimaryContainer,
+                  style: AType.bodyMedium.copyWith(
+                      color: scheme.ds.primaryInk,
                       fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.sm),
               Text(ld(context, _countdownBig(tr, cd)),
                   style: AFonts.figures(Theme.of(context).textTheme.displaySmall?.copyWith(
-                      color: scheme.onPrimaryContainer,
+                      color: scheme.ds.primaryInk,
                       fontWeight: FontWeight.w800))),
               const SizedBox(height: Gap.xs),
               Text(ld(context, _countdownSub(tr, cd)),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onPrimaryContainer)),
-            ]),
-          ),
-        ),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
+            ])),
         const SizedBox(height: Gap.md),
         Row(children: [
           Expanded(
@@ -439,14 +415,11 @@ class _OverviewTab extends StatelessWidget {
         ]),
         const SizedBox(height: Gap.md),
         // budget snapshot
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(
+        DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(tr.weddingBudgetSnapshot,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.sm),
                 _kv(context, tr.weddingEstimated,
                     WeddingEngine.fmtPoisha(bs.totalEstimated)),
@@ -464,9 +437,7 @@ class _OverviewTab extends StatelessWidget {
                 Text(tr.weddingNoMoneyNote,
                     style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
               ],
-            ),
-          ),
-        ),
+            )),
       ],
     );
   }
@@ -476,12 +447,12 @@ class _OverviewTab extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Flexible(child: Text(k, style: TextStyle(color: scheme.onSurfaceVariant))),
+        Flexible(child: Text(k, style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant))),
         const SizedBox(width: Gap.sm),
         Flexible(
           child: Text(ld(context, v),
               textAlign: TextAlign.end,
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   fontWeight: FontWeight.w700,
                   color: good ? scheme.primary : null)),
         ),
@@ -503,7 +474,7 @@ class _OverviewTab extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(ld(context, msg),
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   color: scheme.onErrorContainer, fontWeight: FontWeight.w600)),
         ),
       ]),
@@ -553,10 +524,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, color: tint ?? scheme.primary),
           const SizedBox(height: Gap.sm),
           Text(ld(context, value),
@@ -567,15 +535,13 @@ class _StatCard extends StatelessWidget {
           Text(label,
               maxLines: 2, // lifebar: 200% font
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.xxs),
           Text(ld(context, hint),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: AType.bodySmall.copyWith(color: tint ?? scheme.onSurfaceVariant)),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -597,25 +563,13 @@ class _GuestsTab extends StatelessWidget {
         label: Text(tr.weddingAddGuest),
       ),
       body: guests.isEmpty
-          ? StateMessage(
-              icon: Icons.groups_2_rounded,
-              title: tr.weddingGuestsEmptyTitle,
-              message: tr.weddingGuestsEmptyBody,
-              action: FilledButton.tonalIcon( // lifebar
-                onPressed: () => _edit(context, null),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tr.weddingAddGuest),
-              ),
-            )
+          ? ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.groups_2_rounded, title: tr.weddingGuestsEmptyTitle, benefit: tr.weddingGuestsEmptyBody, actionLabel: tr.weddingAddGuest, onAction: () => _edit(context, null))])
           : RefreshIndicator(
               onRefresh: onChanged,
               child: ListView(
                 padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                 children: [
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(Gap.md),
-                      child: Wrap(
+                  DsCard(padding: const EdgeInsets.all(Gap.md), child: Wrap(
                         spacing: Gap.sm,
                         runSpacing: Gap.sm,
                         children: [
@@ -625,14 +579,10 @@ class _GuestsTab extends StatelessWidget {
                           _chip(context, tr.weddingRsvpInvited,
                               s.counts['invited']!),
                         ],
-                      ),
-                    ),
-                  ),
+                      )),
                   const SizedBox(height: Gap.sm),
                   for (final g in guests)
-                    Card(
-                      margin: const EdgeInsets.only(bottom: Gap.sm),
-                      child: ListTile(
+                    Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                         title: Text(
                             (g['name'] ?? '').toString().isEmpty
                                 ? tr.weddingUnnamed
@@ -664,8 +614,7 @@ class _GuestsTab extends StatelessWidget {
                           ),
                         ]),
                         onTap: () => _edit(context, g),
-                      ),
-                    ),
+                      ))),
                 ],
               ),
             ),
@@ -860,16 +809,7 @@ class _BudgetTab extends StatelessWidget {
         label: Text(tr.weddingAddBudget),
       ),
       body: rows.isEmpty
-          ? StateMessage(
-              icon: Icons.account_balance_wallet_rounded,
-              title: tr.weddingBudgetEmptyTitle,
-              message: tr.weddingBudgetEmptyBody,
-              action: FilledButton.tonalIcon( // lifebar
-                onPressed: () => _edit(context, null),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tr.weddingAddBudget),
-              ),
-            )
+          ? ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.account_balance_wallet_rounded, title: tr.weddingBudgetEmptyTitle, benefit: tr.weddingBudgetEmptyBody, actionLabel: tr.weddingAddBudget, onAction: () => _edit(context, null))])
           : RefreshIndicator(
               onRefresh: onChanged,
               child: ListView(
@@ -887,7 +827,7 @@ class _BudgetTab extends StatelessWidget {
                             children: [
                               Text(tr.weddingEstimated),
                               Text(ld(context, WeddingEngine.fmtPoisha(s.totalEstimated)),
-                                  style: const TextStyle(
+                                  style: AType.bodyMedium.copyWith(
                                       fontWeight: FontWeight.w700)),
                             ],
                           ),
@@ -896,7 +836,7 @@ class _BudgetTab extends StatelessWidget {
                             children: [
                               Text(tr.weddingActual),
                               Text(ld(context, WeddingEngine.fmtPoisha(s.totalActual)),
-                                  style: const TextStyle(
+                                  style: AType.bodyMedium.copyWith(
                                       fontWeight: FontWeight.w700)),
                             ],
                           ),
@@ -918,7 +858,7 @@ class _BudgetTab extends StatelessWidget {
                                     : tr.weddingRemainingAmt(
                                         WeddingEngine.fmtPoisha(
                                             -s.totalVariance)),
-                                style: TextStyle(
+                                style: AType.bodyMedium.copyWith(
                                     fontWeight: FontWeight.w700,
                                     color: s.overBudget
                                         ? scheme.onErrorContainer
@@ -932,9 +872,7 @@ class _BudgetTab extends StatelessWidget {
                   ),
                   const SizedBox(height: Gap.sm),
                   for (final c in s.categories)
-                    Card(
-                      margin: const EdgeInsets.only(bottom: Gap.sm),
-                      child: ListTile(
+                    Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                         title: Text(_catLabel(tr, c.category)),
                         subtitle: Text(ld(context, tr.weddingEstVsAct(/* (actual, estimated) */
                             WeddingEngine.fmtPoisha(c.actual),
@@ -955,8 +893,7 @@ class _BudgetTab extends StatelessWidget {
                           ),
                         ]),
                         onTap: () => _edit(context, _rawOf(c.category)),
-                      ),
-                    ),
+                      ))),
                 ],
               ),
             ),
@@ -1139,40 +1076,24 @@ class _TasksTab extends StatelessWidget {
         label: Text(tr.weddingAddTask),
       ),
       body: board.all.isEmpty
-          ? StateMessage(
-              icon: Icons.checklist_rounded,
-              title: tr.weddingTasksEmptyTitle,
-              message: tr.weddingTasksEmptyBody,
-              action: FilledButton.tonalIcon( // lifebar
-                onPressed: () => _edit(context, null),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tr.weddingAddTask),
-              ),
-            )
+          ? ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.checklist_rounded, title: tr.weddingTasksEmptyTitle, benefit: tr.weddingTasksEmptyBody, actionLabel: tr.weddingAddTask, onAction: () => _edit(context, null))])
           : RefreshIndicator(
               onRefresh: onChanged,
               child: ListView(
                 padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                 children: [
                   if (board.overdueCount > 0)
-                    Card(
-                      color: scheme.errorContainer,
-                      margin: const EdgeInsets.only(bottom: Gap.md),
-                      child: Padding(
-                        padding: const EdgeInsets.all(Gap.md),
-                        child: Row(children: [
+                    Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(padding: const EdgeInsets.all(Gap.md), tone: DsTone.danger, child: Row(children: [
                           Icon(Icons.warning_amber_rounded,
                               color: scheme.onErrorContainer),
                           const SizedBox(width: Gap.md),
                           Expanded(
                             child: Text(
                                 ld(context, tr.weddingOverdueBanner(board.overdueCount)),
-                                style: TextStyle(
+                                style: AType.bodyMedium.copyWith(
                                     color: scheme.onErrorContainer)),
                           ),
-                        ]),
-                      ),
-                    ),
+                        ]))),
                   for (final s in board.all)
                     _TaskCard(
                       status: s,
@@ -1243,15 +1164,13 @@ class _TaskCard extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final (label, color) = _badge(tr, scheme, status);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
         leading: Checkbox(value: status.done, onChanged: (_) => onToggle()),
         title: Text(
           status.title.isEmpty ? tr.weddingUntitledTask : status.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
+          style: AType.bodyMedium.copyWith(
             decoration:
                 status.done ? TextDecoration.lineThrough : TextDecoration.none,
           ),
@@ -1272,7 +1191,7 @@ class _TaskCard extends StatelessWidget {
               child: Text(status.vendor,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
             ),
           ],
         ]),
@@ -1282,8 +1201,7 @@ class _TaskCard extends StatelessWidget {
           onPressed: onDelete,
         ),
         onTap: onTap,
-      ),
-    );
+      )));
   }
 
   (String, Color) _badge(

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/health_disclaimer_bar.dart'; // healthfit
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -98,16 +99,7 @@ class _WellnessTrackerScreenState extends State<WellnessTrackerScreen> {
       return Scaffold(
         bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
         appBar: AppBar(title: Text(tr.wellTitle)),
-        body: StateMessage(
-          icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
-          title: tr.loadFailed,
-          message: honestFailText(tr, _failCause, otherwise: tr.wellLoadError),
-          action: FilledButton.tonalIcon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(tr.retry)),
-        ),
+        body: ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: tr.loadFailed, benefit: honestFailText(tr, _failCause, otherwise: tr.wellLoadError), actionLabel: tr.retry, onAction: _load)]),
       );
     }
     if (_rows.isEmpty) {
@@ -115,17 +107,7 @@ class _WellnessTrackerScreenState extends State<WellnessTrackerScreen> {
         bottomNavigationBar: const HealthDisclaimerBar(), // healthfit
         appBar: AppBar(title: Text(tr.wellTitle)),
         body: ListView(padding: withNavBarInset(context, EdgeInsets.zero), children: [
-          StateMessage(
-            icon: Icons.favorite_outline_rounded,
-            tint: Brand.blue,
-            title: tr.wellWelcomeTitle,
-            message: tr.wellWelcomeBody,
-            action: FilledButton.icon(
-              onPressed: _logToday,
-              icon: const Icon(Icons.add_rounded),
-              label: Text(tr.wellLogToday),
-            ),
-          ),
+          ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.favorite_outline_rounded, title: tr.wellWelcomeTitle, benefit: tr.wellWelcomeBody, actionLabel: tr.wellLogToday, onAction: _logToday)]),
           const Padding(
             padding: EdgeInsets.fromLTRB(Gap.lg, Gap.xl, Gap.lg, Gap.lg),
             child: _Disclaimer(),
@@ -202,11 +184,7 @@ class _TodayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Text(tr.wellToday,
                 style: Theme.of(context)
@@ -242,9 +220,7 @@ class _TodayCard extends StatelessWidget {
               ),
             ),
           ]),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -289,7 +265,7 @@ class _Ring extends StatelessWidget {
       const SizedBox(height: Gap.sm),
       Text(ld(context, valueLabel),
           textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.w700)),
+          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
       Text(caption,
           style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
     ]);
@@ -343,11 +319,7 @@ class _StreakCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(icon, size: 16, color: color),
             const SizedBox(width: 6),
@@ -366,9 +338,7 @@ class _StreakCard extends StatelessWidget {
                   ?.copyWith(fontWeight: FontWeight.bold, color: color)),
           Text(ld(context, tr.wellBestStreak(best)),
               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -380,11 +350,7 @@ class _TrendCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr.wellTrend7d,
               style: Theme.of(context)
                   .textTheme
@@ -417,9 +383,7 @@ class _TrendCard extends StatelessWidget {
             _goalPill(context, Brand.purple, tr.wellSleep,
                 tr.wellGoalDays(trend.sleepGoalDays, trend.days)),
           ]),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _goalPill(
@@ -523,22 +487,16 @@ class _DietCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.restaurant_rounded, size: 16, color: Brand.success),
             const SizedBox(width: 6),
             Text(tr.wellDietToday,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ]),
           const SizedBox(height: Gap.xs),
-          Text(diet, style: TextStyle(color: scheme.ds.text, height: 1.4)),
-        ]),
-      ),
-    );
+          Text(diet, style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.4)),
+        ]));
   }
 }
 
@@ -548,12 +506,7 @@ class _Disclaimer extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Row(children: [
           Icon(Icons.info_outline_rounded, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
@@ -561,9 +514,7 @@ class _Disclaimer extends StatelessWidget {
                 style:
                     AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
-        ]),
-      ),
-    );
+        ]));
   }
 }
 
@@ -676,8 +627,7 @@ class _LogFormState extends State<_LogForm> {
                   labelText: tr.wellDietNotes,
                   hintText: tr.wellDietHint,
                   alignLabelWithHint: true,
-                  prefixIcon: const Icon(Icons.restaurant_rounded),
-                  border: const OutlineInputBorder()),
+                  prefixIcon: const Icon(Icons.restaurant_rounded)),
             ),
             const SizedBox(height: Gap.lg),
             Row(children: [
@@ -722,7 +672,7 @@ class _StepperRow extends StatelessWidget {
       const SizedBox(width: Gap.sm),
       Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(label, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           Text(ld(context, valueLabel),
               style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         ]),
