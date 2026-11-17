@@ -31,12 +31,9 @@ import 'recite_sheet.dart';
 import 'shikhi_widgets.dart'; // quranshikhi
 import '../l10n/quran_shikhi_text.dart'; // quranshikhi
 import 'uthmani_text.dart';
-<<<<<<< HEAD
 import '../quran/quran_ayah_audio.dart'; // gap-quranblood Q6
 import '../quran/quran_bilingual_api.dart';
-=======
 import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
->>>>>>> b329i
 
 bool _bn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
 
