@@ -1,8 +1,8 @@
-# lpaudio: IELTS listening audio, rendered here (never on the server) with
-# Kokoro-82M v1.0 (Apache-2.0, stock voices, no cloning), published as assets of
-# the GitHub release "lp-audio" (content-addressed names; parts already in the
-# release are not rendered again). The server attaches them with
-# `manage.py lp_audio` (sha256-checked, private media, signed links).
+# lpaudio: IELTS + course listening audio, rendered here (never on the server) with
+# Kokoro-82M v1.0 (Apache-2.0, stock voices, no cloning), published to a DRAFT
+# (non-public) release lp-audio-staging-<run> (content-addressed names; parts already
+# in the newest draft are not rendered again). The server fetches it with its
+# authenticated gh: `manage.py lp_audio` (sha256 + script check, private media, signed links).
 name: lp-audio
 
 on:
@@ -39,10 +39,18 @@ jobs:
         run: |
           python tools/lp/audio/render.py --out out/plan --plan-only
           python -m unittest discover -s tools/lp/audio -p 'test_*.py' -v
-      - name: Previous release manifest (skip parts already rendered)
+      - name: Previous audio (newest DRAFT staging release; never re-render a part that exists)
         run: |
-          mkdir -p prev
-          gh release download lp-audio -p manifest.json -D prev --clobber 2>/dev/null || echo "no release yet"
+          mkdir -p prev out/lp_audio
+          prev=$(gh release list --limit 50 --json tagName,isDraft,createdAt \
+            -q '[.[] | select(.isDraft and (.tagName|startswith("lp-audio-staging-")))] | sort_by(.createdAt) | last | .tagName // ""')
+          # one-time seed: the first render went to a public release "lp-audio" (deleted after the move)
+          [ -z "$prev" ] && gh release view lp-audio >/dev/null 2>&1 && prev=lp-audio
+          echo "previous: ${prev:-none}"
+          if [ -n "$prev" ]; then
+            gh release download "$prev" -D out/lp_audio --clobber
+            cp out/lp_audio/manifest.json prev/manifest.json
+          fi
       - name: System packages (ffmpeg = AAC encoder; eSpeak NG = Kokoro G2P fallback)
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg espeak-ng libsndfile1
       - uses: actions/cache@v4
@@ -90,14 +98,17 @@ jobs:
           name: lp-audio
           path: out/lp_audio
           retention-days: 14
-      - name: Publish to the lp-audio release
+      - name: Publish to a NON-PUBLIC draft release lp-audio-staging-<run> (server fetches it with gh)
         if: ${{ github.event_name == 'push' || inputs.publish }}
         run: |
-          gh release view lp-audio >/dev/null 2>&1 || gh release create lp-audio \
-            --prerelease --latest=false --target "$GITHUB_SHA" \
-            --title "Language Partner listening audio (original IELTS practice tests)" \
-            --notes "Synthetic speech by Kokoro-82M v1.0 (Apache-2.0) stock voices; no voice cloning. Original Assisto practice content — not official IELTS material."
-          new=$(sed 's#^#out/lp_audio/#' out/lp_audio/rendered.txt)
-          if [ -n "$new" ]; then gh release upload lp-audio $new --clobber; fi
-          gh release upload lp-audio out/lp_audio/manifest.json --clobber
-          head -c 3000 out/lp_audio/manifest.json
+          tag="lp-audio-staging-${GITHUB_RUN_ID}"
+          gh release create "$tag" --draft --target "$GITHUB_SHA" \
+            --title "Language Partner listening audio (staging, not public)" \
+            --notes "Draft = not public. Kokoro-82M v1.0 (Apache-2.0) stock voices; no voice cloning. Server: manage.py lp_audio"
+          files=$(python3 -c 'import json; m=json.load(open("out/lp_audio/manifest.json")); print(" ".join("out/lp_audio/"+e["file"] for e in m["parts"]))')
+          gh release upload "$tag" $files out/lp_audio/manifest.json --clobber
+          echo "published draft $tag ($(echo $files | wc -w) clips)"
+          # keep the two newest drafts (rollback), drop older ones
+          gh release list --limit 50 --json tagName,isDraft,createdAt \
+            -q '[.[] | select(.isDraft and (.tagName|startswith("lp-audio-staging-")))] | sort_by(.createdAt) | reverse | .[2:] | .[].tagName' \
+            | while read -r old; do [ -n "$old" ] && gh release delete "$old" -y || true; done

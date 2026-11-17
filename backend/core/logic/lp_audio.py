@@ -3,7 +3,7 @@ lp_audio.py — lpaudio: the recorded IELTS listening audio (PURE: dicts in,
 dicts out; no Django, no network). Used by three places:
 
   tools/lp/audio/render.py        CI: plan -> Kokoro-82M TTS -> AAC .m4a + manifest.json
-                                  -> GitHub release "lp-audio" (never rendered on the server)
+                                  -> DRAFT (non-public) release lp-audio-staging-<run> (never rendered on the server)
   manage.py lp_audio              server: download the release, verify sha256, store the
                                   files in private media (signed links), attach them
   core.logic.lp_seed.ielts_item   keeps the attached audio when the content is re-seeded
@@ -24,7 +24,7 @@ import json
 import re
 
 FORMAT = "assisto.lp.audio/1"
-RELEASE_TAG = "lp-audio"
+RELEASE_TAG = "lp-audio-staging-"   # + CI run id; drafts are not public
 ENGINE = "kokoro-82m-v1.0"
 SPEED = 0.96          # a little slower than default: IELTS recordings are clear, not rushed
 SAMPLE_RATE = 24000

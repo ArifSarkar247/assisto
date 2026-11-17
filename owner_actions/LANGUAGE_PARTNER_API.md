@@ -133,8 +133,8 @@ level (reading passage length by level), timing (L 30 min, R 60, W 60, S 11-14 m
 
 ## 10. lpaudio — recorded IELTS listening (17 Nov)
 - Audio: rendered in CI (`.github/workflows/lp-audio.yml`, Kokoro-82M v1.0, Apache-2.0 stock voices, narrator +
-  one voice per speaker) -> release `lp-audio` (`<bundle>-p<n>-<plan12>.m4a`, AAC mono 40 kbit/s, faststart + manifest.json).
-- Server: `manage.py lp_audio` (post-deploy; `--dir` for a local folder, `--dry-run`) downloads, checks sha256 and the
+  one voice per speaker) -> DRAFT (non-public) release `lp-audio-staging-<run>` (`<bundle>-p<n>-<plan12>.m4a`, AAC mono 40 kbit/s, faststart + manifest.json).
+- Server: `manage.py lp_audio` (post-deploy; server gh fetches the newest draft, `--tag` for a given one, `--dir` local, `--dry-run`) downloads, checks sha256 and the
   PLAN HASH against the current script (`core/logic/lp_audio.py`), stores private media `lp/<sha>.m4a`, writes
   `lp/audio_index.json`, re-seeds the IELTS mocks; `lp_seed` keeps the audio via the index.
 - `GET /lp/mocks/<id>?section=listening` -> `listening:{duration_sec, audio_ready, parts:[{n, audio_url (signed),

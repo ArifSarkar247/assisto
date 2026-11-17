@@ -253,3 +253,35 @@ class TrackAudioTests(TestCase):
         with open(os.path.join(CONTENT, "ko", sorted(f for f in os.listdir(os.path.join(CONTENT, "ko"))
                                                      if f.startswith("eps"))[0]), encoding="utf-8") as fh:
             self.assertEqual(AU.track_plans(json.load(fh), "ko"), [])
+
+
+class DraftFetchTests(SimpleTestCase):
+    """lpaudio: clips live in a NON-public draft release, fetched with the server's gh."""
+
+    def test_newest_draft_only_staging_drafts(self):
+        rows = [{"tagName": "lp-audio", "isDraft": False, "createdAt": "2026-11-17T09:00:00Z"},
+                {"tagName": "lp-audio-staging-1", "isDraft": True, "createdAt": "2026-11-17T01:00:00Z"},
+                {"tagName": "lp-audio-staging-2", "isDraft": True, "createdAt": "2026-11-17T02:00:00Z"},
+                {"tagName": "lp-audio-staging-3", "isDraft": False, "createdAt": "2026-11-17T03:00:00Z"},
+                {"tagName": "map-tiles-staging-9", "isDraft": True, "createdAt": "2026-11-17T04:00:00Z"}]
+        self.assertEqual(CMD.newest_draft(rows), "lp-audio-staging-2")
+        self.assertEqual(CMD.newest_draft([]), "")
+
+    def test_fetch_uses_gh_release_download(self):
+        done = mock.Mock(returncode=0, stdout=b"blob", stderr=b"")
+        with mock.patch.object(CMD.subprocess, "run", return_value=done) as run:
+            self.assertEqual(CMD.gh_fetcher("lp-audio-staging-7")("x/manifest.json"), b"blob")
+        args = run.call_args[0][0]
+        self.assertEqual(args[1:4], ["release", "download", "lp-audio-staging-7"])
+        self.assertIn("manifest.json", args)
+
+    def test_no_public_download_path_left(self):
+        with open(CMD.__file__, encoding="utf-8") as fh:
+            src = fh.read()
+        self.assertNotIn("releases/download", src)
+        self.assertNotIn("urllib", src)
+
+    def test_missing_draft_is_an_honest_error(self):
+        with mock.patch.object(CMD, "find_tag", return_value=""):
+            with self.assertRaises(CommandError):
+                call_command("lp_audio", stdout=io.StringIO(), stderr=io.StringIO())

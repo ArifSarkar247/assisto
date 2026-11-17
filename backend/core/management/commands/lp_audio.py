@@ -1,6 +1,7 @@
 """lpaudio: attach the CI-rendered IELTS listening audio (post-deploy).
 
-    python manage.py lp_audio                 # GitHub release "lp-audio" -> private media -> re-seed IELTS
+    python manage.py lp_audio                 # newest DRAFT release lp-audio-staging-* -> private media -> re-seed
+    python manage.py lp_audio --tag lp-audio-staging-<run>   # a given draft (rollback)
     python manage.py lp_audio --dir <folder>  # same from a local folder (manifest.json + .m4a)
     python manage.py lp_audio --dry-run       # only say what would change
 
@@ -13,7 +14,7 @@ the audio on later runs. Safe to run again: unchanged parts are not re-downloade
 import hashlib
 import json
 import os
-import urllib.request
+import subprocess
 
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -22,37 +23,44 @@ from django.core.management.base import BaseCommand, CommandError
 
 INDEX = "lp/audio_index.json"
 MAX_BYTES = 8 * 1024 * 1024
-BASE = "https://github.com/ArifSarkar247/assisto/releases/download/lp-audio/"
-_UA = "AssistoLpAudio/1.0 (+https://lifeassisto.com)"
+REPO = "ArifSarkar247/assisto"
+STAGING = "lp-audio-staging-"
 
 
-def release_base():
-    return getattr(settings, "LP_AUDIO_BASE", "") or BASE
+def gh_bin():
+    """The server's authenticated gh (drafts are not public: no anonymous download)."""
+    return getattr(settings, "LP_AUDIO_GH", "") or os.path.expanduser("~/assisto/bin/gh")
 
 
-def load_index():
-    try:
-        if default_storage.exists(INDEX):
-            with default_storage.open(INDEX, "rb") as fh:
-                return json.loads(fh.read().decode("utf-8"))
-    except Exception:  # noqa: BLE001 — a broken index = no audio, never a crash
-        pass
-    return {}
+def _gh(args, timeout=180):
+    r = subprocess.run([gh_bin()] + list(args), capture_output=True, timeout=timeout)  # noqa: S603
+    if r.returncode != 0:
+        raise RuntimeError("gh %s: %s" % (args[:2], r.stderr.decode("utf-8", "replace")[:200]))
+    return r.stdout
 
 
-def save_index(idx):
-    if default_storage.exists(INDEX):
-        default_storage.delete(INDEX)
-    default_storage.save(INDEX, ContentFile(json.dumps(idx, ensure_ascii=False, indent=1).encode("utf-8")))
+def newest_draft(rows):
+    """[{tagName, isDraft, createdAt}] -> the newest lp-audio-staging-* draft tag ('' = none)."""
+    ds = [r for r in rows or [] if r.get("isDraft") and str(r.get("tagName", "")).startswith(STAGING)]
+    return max(ds, key=lambda r: r.get("createdAt") or "")["tagName"] if ds else ""
 
 
-def _get(url):
-    req = urllib.request.Request(url, headers={"User-Agent": _UA})
-    with urllib.request.urlopen(req, timeout=120) as r:  # noqa: S310 — fixed https release URL
-        blob = r.read(MAX_BYTES + 1)
-    if len(blob) > MAX_BYTES:
-        raise ValueError("file too large")
-    return blob
+def gh_fetcher(tag):
+    repo = getattr(settings, "LP_AUDIO_REPO", "") or REPO
+
+    def fetch(name):
+        blob = _gh(["release", "download", tag, "-R", repo, "-p", os.path.basename(name), "-O", "-"])
+        if len(blob) > MAX_BYTES:
+            raise ValueError("file too large")
+        return blob
+    return fetch
+
+
+def find_tag():
+    repo = getattr(settings, "LP_AUDIO_REPO", "") or REPO
+    rows = json.loads(_gh(["release", "list", "-R", repo, "--limit", "50",
+                           "--json", "tagName,isDraft,createdAt"]).decode("utf-8") or "[]")
+    return newest_draft(rows)
 
 
 def current_plans(content):
@@ -113,6 +121,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--dir", default="", help="local folder with manifest.json + .m4a files")
+        parser.add_argument("--tag", default="", help="draft release tag (default: newest lp-audio-staging-*)")
         parser.add_argument("--content", default="", help="content dir (default <repo>/tools/lp/content)")
         parser.add_argument("--dry-run", action="store_true")
 
@@ -126,8 +135,14 @@ class Command(BaseCommand):
                 with open(os.path.join(opts["dir"], os.path.basename(f)), "rb") as fh:
                     return fh.read()
         else:
-            def fetch(f):
-                return _get(release_base() + os.path.basename(f))
+            try:
+                tag = opts["tag"] or find_tag()
+            except Exception as e:  # noqa: BLE001
+                raise CommandError("gh release list failed: %s" % str(e)[:160])
+            if not tag:
+                raise CommandError("no lp-audio-staging-* draft release found")
+            self.stderr.write("lp_audio: fetching draft release %s" % tag)
+            fetch = gh_fetcher(tag)
         try:
             manifest = json.loads(fetch("manifest.json").decode("utf-8"))
         except Exception as e:  # noqa: BLE001
