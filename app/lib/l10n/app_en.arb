@@ -52401,5 +52401,17 @@
   "gapAichatCutHintPaid": "This answer was long, so it paused here. Tap Continue for the rest.",
   "@gapAichatCutHintPaid": {
     "description": "gap-aichat: under a cut AI answer after the free Continue limit (the next Continue is a normal answer)"
+  },
+  "sosgapStillTrying": "Your SOS has not reached your family yet. Assisto keeps trying every 15 seconds — it goes out as soon as the internet is back, even if you leave this screen.",
+  "@sosgapStillTrying": {
+    "description": "gap-sos: Emergency SOS offline, the app keeps retrying the same SOS"
+  },
+  "sosgapStopTrying": "Stop trying",
+  "@sosgapStopTrying": {
+    "description": "gap-sos: stop retrying an unsent SOS (does not close the screen)"
+  },
+  "sosgapOpenFull": "Who is on the way · live location · 30 s sound",
+  "@sosgapOpenFull": {
+    "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
   }
 }

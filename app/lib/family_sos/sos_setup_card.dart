@@ -30,7 +30,11 @@ class SosSetupCard extends StatefulWidget {
     this.fullScreen,
     this.fixFullScreen,
     this.sms,
+    this.onSmsChanged,
   });
+
+  /// gap-sos: the SMS people changed (the Emergency SOS re-reads them).
+  final VoidCallback? onSmsChanged;
 
   final FcSosApi? api;
   final Future<bool?> Function()? dndGranted;
@@ -102,7 +106,10 @@ class _SosSetupCardState extends State<SosSetupCard> with WidgetsBindingObserver
 
   Future<void> _pick() async {
     final l = await showSosSmsPicker(context, current: _sms);
-    if (l != null && mounted) setState(() => _sms = l);
+    if (l != null && mounted) {
+      setState(() => _sms = l);
+      widget.onSmsChanged?.call();
+    }
   }
 
   Future<void> _share(bool v) async {
