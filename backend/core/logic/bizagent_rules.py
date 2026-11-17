@@ -405,18 +405,32 @@ def _money(v):
     return BZ._fmt_money(v)
 
 
-def delivery_line(lang, delivery):
-    dl = delivery or {}
-    inside, outside = BZ._dec(dl.get("inside_dhaka")), BZ._dec(dl.get("outside_dhaka"))
-    if not inside and not outside:
+def _dl_amount(lang, v):
+    """bizagent-guard: a set charge as ৳N; unset (0 / blank) = the shop confirms."""
+    return f"৳{_money(v)}" if v is not None else pick(lang, "দোকান নিশ্চিত করে জানাবে",
+                                                       "the shop will confirm")
+
+
+def _free_line(lang, dl):
+    free = BZ.delivery_set(dl, "free_over")
+    if not free:
         return ""
-    free = BZ._dec(dl.get("free_over"))
-    s = pick(lang, f"ডেলিভারি চার্জ: ঢাকার ভিতরে ৳{_money(inside)}, ঢাকার বাইরে ৳{_money(outside)}।",
-             f"Delivery charge: inside Dhaka ৳{_money(inside)}, outside Dhaka ৳{_money(outside)}.")
-    if free:
-        s += pick(lang, f" ৳{_money(free)} বা তার বেশি অর্ডারে ডেলিভারি ফ্রি।",
-                  f" Free delivery on orders of ৳{_money(free)} or more.")
-    return s
+    return pick(lang, f" ৳{_money(free)} বা তার বেশি অর্ডারে ডেলিভারি ফ্রি।",
+                f" Free delivery on orders of ৳{_money(free)} or more.")
+
+
+def delivery_line(lang, delivery):
+    """Every number from the seller's delivery settings. An unset charge
+    (0 / blank) is never shown as ৳0 or "free": the shop confirms it."""
+    dl = delivery or {}
+    inside, outside = BZ.delivery_set(dl, "inside_dhaka"), BZ.delivery_set(dl, "outside_dhaka")
+    if inside is None and outside is None:
+        return BZ.delivery_confirm_line(lang) + _free_line(lang, dl)
+    s = pick(lang, f"ডেলিভারি চার্জ: ঢাকার ভিতরে {_dl_amount(lang, inside)}, ঢাকার বাইরে "
+                   f"{_dl_amount(lang, outside)}।",
+             f"Delivery charge: inside Dhaka {_dl_amount(lang, inside)}, outside Dhaka "
+             f"{_dl_amount(lang, outside)}.")
+    return s + _free_line(lang, dl)
 
 
 def _area_label(lang, word):
@@ -427,27 +441,26 @@ def _area_label(lang, word):
 
 def area_delivery_line(lang, delivery, area, word=None):
     """'Mirpur is inside Dhaka — delivery ৳60 (outside Dhaka ৳120).' Every
-    number from the seller's delivery settings."""
+    number from the seller's delivery settings; unset = the shop confirms."""
     dl = delivery or {}
-    inside, outside = BZ._dec(dl.get("inside_dhaka")), BZ._dec(dl.get("outside_dhaka"))
-    if not inside and not outside or area not in ("inside", "outside"):
+    inside, outside = BZ.delivery_set(dl, "inside_dhaka"), BZ.delivery_set(dl, "outside_dhaka")
+    if area not in ("inside", "outside"):
         return ""
+    if inside is None and outside is None:
+        return BZ.delivery_confirm_line(lang) + _free_line(lang, dl)
     nm = _area_label(lang, word)
+    i_t, o_t = _dl_amount(lang, inside), _dl_amount(lang, outside)
     if area == "inside":
         s = pick(lang, (f"{nm} ঢাকার ভিতরে — " if nm else "ঢাকার ভিতরে ") +
-                 f"ডেলিভারি চার্জ ৳{_money(inside)}। (ঢাকার বাইরে ৳{_money(outside)})",
+                 f"ডেলিভারি চার্জ {i_t}। (ঢাকার বাইরে {o_t})",
                  (f"{nm} is inside Dhaka — " if nm else "Inside Dhaka ") +
-                 f"delivery charge ৳{_money(inside)}. (Outside Dhaka ৳{_money(outside)})")
+                 f"delivery charge {i_t}. (Outside Dhaka {o_t})")
     else:
         s = pick(lang, (f"{nm} ঢাকার বাইরে — " if nm else "ঢাকার বাইরে ") +
-                 f"ডেলিভারি চার্জ ৳{_money(outside)}। (ঢাকার ভিতরে ৳{_money(inside)})",
+                 f"ডেলিভারি চার্জ {o_t}। (ঢাকার ভিতরে {i_t})",
                  (f"{nm} is outside Dhaka — " if nm else "Outside Dhaka ") +
-                 f"delivery charge ৳{_money(outside)}. (Inside Dhaka ৳{_money(inside)})")
-    free = BZ._dec(dl.get("free_over"))
-    if free:
-        s += pick(lang, f" ৳{_money(free)} বা তার বেশি অর্ডারে ডেলিভারি ফ্রি।",
-                  f" Free delivery on orders of ৳{_money(free)} or more.")
-    return s
+                 f"delivery charge {o_t}. (Inside Dhaka {i_t})")
+    return s + _free_line(lang, dl)
 
 
 def delivery_time_line(lang, delivery):
