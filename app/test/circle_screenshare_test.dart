@@ -250,7 +250,7 @@ void main() {
       c.dispose();
     });
 
-    test('a build without the service: honest line, never the consent sheet',
+    test('a build without the service (Play until declared): no button, no sheet',
         () async {
       final m = ShareMedia(), s = FakeSignaling();
       final c = await live(m, s);
@@ -258,8 +258,10 @@ void main() {
         ..isAvailable = false;
       final ss = ScreenShareController.of(c)!;
       await ss.request();
+      expect(ss.buildSupports, isFalse);
+      expect(ss.available, isFalse);
       expect(ss.state, ScreenShareState.idle);
-      expect(ss.notice, ScreenShareNotice.notInThisVersion);
+      expect(m.log, isNot(contains('ss:consent')));
       c.dispose();
     });
 
@@ -495,6 +497,7 @@ void main() {
         ),
       ));
       await tester.pump();
+      await tester.pump(); // the build check (service available) lands
     }
 
     CallController liveVideo(ShareMedia m) {
@@ -532,7 +535,6 @@ void main() {
         expect(find.byKey(const Key('cssh-share')), findsOneWidget);
         expect(svc.log.last, 'stop');
         expect(tester.takeException(), isNull);
-        c.dispose();
         await tester.pumpWidget(const SizedBox());
       });
     }
@@ -545,7 +547,6 @@ void main() {
       expect(find.byKey(const Key('test-remote-screen')), findsOneWidget);
       expect(find.byKey(const Key('cssh-remote-chip')), findsOneWidget);
       expect(find.text('Nadia is sharing their screen'), findsOneWidget);
-      c.dispose();
       await tester.pumpWidget(const SizedBox());
     });
 
@@ -556,20 +557,17 @@ void main() {
       await pump(tester, c);
       expect(find.byKey(const Key('test-remote-screen')), findsNothing);
       expect(find.byKey(const Key('cssh-remote-chip')), findsNothing);
-      c.dispose();
       await tester.pumpWidget(const SizedBox());
     });
 
-    testWidgets('refused / not in this version -> honest line', (tester) async {
+    testWidgets('a build without the service shows NO share button',
+        (tester) async {
       ScreenShareController.serviceOverride = FakeShareService()
         ..isAvailable = false;
       final c = liveVideo(ShareMedia());
       await pump(tester, c);
-      await tester.tap(find.byKey(const Key('cssh-share')));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('cssh-consent')), findsNothing);
-      expect(find.byKey(const Key('cssh-notice')), findsOneWidget);
-      c.dispose();
+      expect(find.byKey(const Key('cssh-share')), findsNothing);
       await tester.pumpWidget(const SizedBox());
     });
 
@@ -583,11 +581,12 @@ void main() {
       final ss = ScreenShareController.of(c)!;
       await ss.request();
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('cssh-consent-go')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('cssh-consent-go')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('cssh-sharing-bar')), findsOneWidget);
       expect(tester.takeException(), isNull);
-      c.dispose();
       await tester.pumpWidget(const SizedBox());
     });
 
@@ -599,7 +598,6 @@ void main() {
       c.connectedAt = DateTime.now();
       await pump(tester, c);
       expect(find.byKey(const Key('cssh-share')), findsNothing);
-      c.dispose();
       await tester.pumpWidget(const SizedBox());
     });
   });

@@ -33,9 +33,6 @@ enum ScreenShareNotice {
   denied,
   failed,
   stoppedBySystem,
-
-  /// this build has no screen-share service (Play, until its declaration)
-  notInThisVersion,
 }
 
 /// The native side ("com.assisto/screenshare"): the mediaProjection
@@ -59,6 +56,7 @@ class ScreenShareController extends ChangeNotifier {
     required this.call,
     required this.service,
   }) {
+    _buildCheck = _checkBuild();
     _stopSub = service.stopRequests.listen((why) {
       log.add('stop-request:$why');
       unawaited(stop(system: why == 'system'));
@@ -111,7 +109,27 @@ class ScreenShareController extends ChangeNotifier {
 
   /// The share button is offered: a live VIDEO call (sharing replaces the
   /// video; a voice call switches to video first).
-  bool get available => call.isLive && call.videoOn && _media != null;
+  bool get available =>
+      buildSupports == true && call.isLive && call.videoOn && _media != null;
+
+  /// This build has the screen-share service (false on a Play build until
+  /// the media-projection declaration is filed: NO button there — never a
+  /// dead button or a "coming later" line). null = still asking.
+  bool? buildSupports;
+  late final Future<void> _buildCheck;
+
+  Future<void> _checkBuild() async {
+    bool ok;
+    try {
+      ok = await service.available();
+    } catch (e) {
+      callLog('screen_share#9', e);
+      ok = false;
+    }
+    buildSupports = ok;
+    log.add('build:$ok');
+    if (!_disposed) notifyListeners();
+  }
 
   void _set(ScreenShareState s) {
     if (state == s) return;
@@ -138,22 +156,10 @@ class ScreenShareController extends ChangeNotifier {
     if (!call.videoOn && state != ScreenShareState.idle) unawaited(stop());
   }
 
-  /// "Share screen" tapped: OUR consent sheet first (or the honest line
-  /// when this build cannot share).
+  /// "Share screen" tapped: OUR consent sheet first.
   Future<void> request() async {
-    if (!available || state != ScreenShareState.idle) return;
-    bool ok;
-    try {
-      ok = await service.available();
-    } catch (e) {
-      callLog('screen_share#9', e);
-      ok = false;
-    }
-    if (_disposed || state != ScreenShareState.idle) return;
-    if (!ok) {
-      _notice(ScreenShareNotice.notInThisVersion);
-      return;
-    }
+    await _buildCheck;
+    if (_disposed || !available || state != ScreenShareState.idle) return;
     _set(ScreenShareState.consent);
   }
 

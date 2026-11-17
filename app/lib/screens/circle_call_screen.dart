@@ -1109,6 +1109,9 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
   Widget _screenShareRow(CallController c) {
     final ss = _ss;
     if (ss == null || !c.isLive || !_isVideo) return const SizedBox.shrink();
+    // a build without the screen-share service (Play, until its
+    // declaration) shows no button at all — never a dead end
+    if (!ss.sharing && ss.buildSupports != true) return const SizedBox.shrink();
     final t = _t;
     // the notification's words, captured now (the controller may start the
     // service after this screen went to the mini bar)
@@ -1187,7 +1190,6 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
       ScreenShareNotice.denied => t.csshDenied,
       ScreenShareNotice.failed => t.csshFailed,
       ScreenShareNotice.stoppedBySystem => t.csshStoppedBySystem,
-      ScreenShareNotice.notInThisVersion => t.csshNotInThisVersion,
     };
     if (text == null) return const SizedBox.shrink();
     return Padding(
