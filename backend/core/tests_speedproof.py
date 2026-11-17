@@ -212,3 +212,24 @@ class CatalogMemoTests(TestCase):
         raw = {"plans": {"premium": {"price": "123"}}}
         self.assertEqual(catalog._cfg(raw)["plans"]["premium"]["price"], 123)
         self.assertNotIn("payments", raw)   # never mutated
+
+
+# ---------------------------------------------------------------- Family night preview
+from core.tests_fcbrain import V as _FV, cl as _fcl, Base as _FcBase  # noqa: E402
+
+
+class NightPreviewCacheTests(_FcBase):
+    def test_second_open_reuses_the_preview(self):
+        from core import family_brain as FB
+        FB.ping(self.kid, {"battery": 60})
+        r1 = _fcl(self.mom).get("%s/family/brain/night-news" % _FV)
+        self.assertEqual(r1.status_code, 200)
+        self.assertEqual(r1.json()["card"]["source"], "preview")
+        with CaptureQueriesContext(connection) as q1:
+            _fcl(self.mom).get("%s/family/brain/night-news" % _FV)
+        from django.core.cache import cache
+        cache.clear()
+        with CaptureQueriesContext(connection) as q2:
+            r3 = _fcl(self.mom).get("%s/family/brain/night-news" % _FV)
+        self.assertLess(len(q1.captured_queries), len(q2.captured_queries))
+        self.assertEqual(r3.json()["card"], r1.json()["card"])

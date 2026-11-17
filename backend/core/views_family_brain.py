@@ -104,9 +104,18 @@ class BrainNightNewsView(APIView):
         lang = _lang(request)
         card = FB.night_card(request.user, lang=lang, build=False)
         if card is None:
-            facts = FB.night_facts(request.user, lang=lang)
-            card = {"text": FB.night_template(facts, lang), "source": "preview",
-                    "members": len(facts)}
+            # speedproof: the preview walks every member's day (~8 SQL each:
+            # live p50 314 ms / p95 584 ms, 10-17 Nov) on EVERY open of
+            # Family Care; it is a preview of tonight's card, so 5 minutes old
+            # is fine.
+            from django.core.cache import cache
+            key = "fb_night_preview:%d:%s" % (request.user.pk, lang)
+            card = cache.get(key)
+            if card is None:
+                facts = FB.night_facts(request.user, lang=lang)
+                card = {"text": FB.night_template(facts, lang), "source": "preview",
+                        "members": len(facts)}
+                cache.set(key, card, 300)
         p = FB.prefs_of(FB.state_of(request.user))["night"]
         return Response({"card": card, "night": p})
 
