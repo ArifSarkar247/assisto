@@ -1,3 +1,4 @@
-- Clearer, more natural Bangla across the whole app (one word for one thing).
-- Fair ads for free users: AI answer unlock, Discover, after-call review, City "More routes".
-- New look for more screens.
+- Money amounts now save exactly (e.g. "Tk. 500"), and Mess entries made offline are never lost.
+- SOS sent without internet is retried automatically until it reaches your family.
+- Safe Journey: "Going to Office?" one-tap start, plate photo for family, one clear distance.
+- Better AI answers and many design improvements.
