@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ৪১৭ / মোট ৪২০**
+**স্ক্রিন শেষ: ৪১৯ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -63,10 +63,10 @@
 
 - ✅ batch 7 (আঁকা খালি অবস্থা, DS ত্রুটি, ইতিহাস এক কার্ডে) — `screens/guardian_journey_screen.dart`
 - ✅ batch design3-b01 (কল স্টেজ কালো রাখা, টাইপ স্কেল) — `screens/journey_fake_call_screen.dart`
-- ⬜ — `screens/journey_live_screen.dart`
+- ✅ batch design3-b05 (ছোট 'এসএমএস পাঠান' লেবেল, বোতাম জোড়া সমান উঁচু) — `screens/journey_live_screen.dart`
 - ✅ batch design3-b01 (টাইপ স্কেল, মানচিত্র অপরিবর্তিত) — `screens/journey_map_pick_screen.dart`
 - ✅ batch 7 (প্রতিটি অংশ আলাদা DS কার্ডে, স্কেলেটন) — `screens/journey_settings_screen.dart`
-- ⬜ — `screens/journey_start_screen.dart`
+- ✅ batch design3-b05 (এক খোঁজার ঘর (ডুপ্লিকেট বোতাম বাদ), শুরু = এক জ্বলজ্বলে DS বোতাম, স্কেলেটন) — `screens/journey_start_screen.dart`
 - ✅ batch 5 (DS খালি অবস্থা (সুবিধা+কীভাবে+বড় বোতাম), স্কেলেটন) — `screens/journey_watch_screen.dart`
 - ✅ batch design3-b01 (স্কেলেটন, DS ত্রুটি কার্ড + এক রিট্রাই বোতাম) — `screens/safe_journey/sj_child_school_screen.dart`
 - ✅ batch 5 (চলমান যাত্রা সবার ওপরে, বাছাই করা মোড = নীল কার্ড, অ্যাকশন টাইল) — `screens/safe_journey/sj_hub_screen.dart`

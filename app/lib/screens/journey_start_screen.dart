@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../widgets/skeleton.dart' show SkeletonList;
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -929,7 +930,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         subtitle: Text(line,
             key: const ValueKey('sj2_from_text'),
             style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w600, color: cs.onSurface)),
-        trailing: Text(t.sj2FromChange, style: TextStyle(color: cs.primary)),
+        trailing: Text(t.sj2FromChange, style: AType.bodyMedium.copyWith(color: cs.primary)),
         onTap: _pickFrom,
       ),
     );
@@ -1025,7 +1026,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     if (_loading) {
       return Scaffold(
           appBar: AppBar(title: Text(t.journeyStartTitle)),
-          body: const Center(child: CircularProgressIndicator()));
+          body: const SkeletonList());
     }
     final d = _distM;
     final rough = d == null ? null : jRoughMinutes(d, _mode);
@@ -1252,7 +1253,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         // truth: no watcher = nobody can be alerted. Not a dead end: one tap
         // to add a family member, then the list reloads on return.
         if (_watchers.isEmpty) ...[
-          Text(t.journeyNoWatchers, style: TextStyle(color: DsTokens.of(context).muted)),
+          Text(t.journeyNoWatchers, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.sm),
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -1438,19 +1439,13 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
-          child: FilledButton.icon(
-            key: const ValueKey('j100_start'),
-            style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: Gap.lg)),
-            onPressed: _starting ? null : _start,
-            icon: _starting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.navigation_rounded),
-            label: Text(t.journeyStartButton,
-                style: AType.titleLarge),
+          // design3: Start = the one glowing DS button (key on the inner button)
+          child: DsButton(
+            buttonKey: const ValueKey('j100_start'),
+            onPressed: _start,
+            busy: _starting,
+            icon: Icons.navigation_rounded,
+            label: t.journeyStartButton,
           ),
         ),
       ]),
