@@ -5,6 +5,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'registry_imei.dart';
 import 'used_phone_check_screen.dart' show openOnlineGd;
 import 'package:assisto/widgets/app_sheet.dart';
@@ -146,18 +147,19 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          Text(t.upReportIntro, style: const TextStyle(height: 1.35)),
-          const SizedBox(height: Gap.md),
-          // File-GD-first affordance.
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.open_in_new_rounded, size: 18),
-              label: Text(t.upReportGdOpen),
-              onPressed: openOnlineGd,
-            ),
+          DsHeroCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(t.upReportIntro, style: AType.bodyMedium.copyWith(height: 1.35)),
+              const SizedBox(height: Gap.md),
+              // File-GD-first affordance.
+              DsButton.secondary(
+                icon: Icons.open_in_new_rounded,
+                label: t.upReportGdOpen,
+                onPressed: openOnlineGd,
+              ),
+            ]),
           ),
-          const SizedBox(height: Gap.md),
+          const SizedBox(height: Gap.lg),
           TextField(
             controller: _imei,
             keyboardType: TextInputType.number,
@@ -165,7 +167,6 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
               labelText: t.upImeiLabel,
               helperText: t.upImeiHint,
               helperMaxLines: 3,
-              border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.smartphone_rounded),
             ),
           ),
@@ -185,7 +186,6 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
               labelText: t.upReportGdLabel,
               helperText: t.upReportGdHint,
               helperMaxLines: 3,
-              border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.description_rounded),
             ),
           ),
@@ -194,7 +194,6 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
             controller: _model,
             decoration: InputDecoration(
               labelText: t.upFieldModel,
-              border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.phone_android_rounded),
             ),
           ),
@@ -205,35 +204,25 @@ class _ReportStolenScreenState extends State<ReportStolenScreen> {
               labelText: t.upReportAreaLabel,
               helperText: t.upReportAreaHint,
               helperMaxLines: 2,
-              border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.place_rounded),
             ),
           ),
           const SizedBox(height: Gap.lg),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              style: Brand.dangerButton(),
-              icon: _busy
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : const Icon(Icons.report_rounded),
-              label: Text(t.upReportButton),
-              onPressed: _busy ? null : _report,
-            ),
+          DsButton.danger(
+            icon: Icons.report_rounded,
+            label: t.upReportButton,
+            busy: _busy,
+            expand: true,
+            onPressed: _report,
           ),
           const SizedBox(height: Gap.sm),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.check_circle_outline_rounded),
-              label: Text(t.upRecoverButton),
-              onPressed: _busy ? null : _recover,
-            ),
+          DsButton.secondary(
+            icon: Icons.check_circle_outline_rounded,
+            label: t.upRecoverButton,
+            expand: true,
+            onPressed: _busy ? null : _recover,
           ),
+
           const SizedBox(height: Gap.lg),
           Text(t.upHonestFooter,
               style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
