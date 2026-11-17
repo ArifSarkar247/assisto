@@ -18,6 +18,12 @@ in core/logic/cctv_plan.py; this file only reads/writes rows.
     from OUR Imou/EZVIZ developer account, keep 30 days, delete.
   * Video add-on: video_addon_days(camera) is the seam the evidence/clip
     code reads (7 / 30 / 0). Storage itself is not here.
+  * Owner decisions 17 Nov 12:35 (plan_book.CCTV_DECIDED): EZVIZ cameras are
+    NOT in the free trial (trial_block() -> "ezviz"; an EZVIZ trial gets no
+    free service and an EZVIZ camera cannot be added during a trial);
+    Premium AI (product cctv_premium_ai, base plans ai-c01..ai-c10, 400 Tk a
+    camera) and the 10 % installer commission ledger on each paid Premium AI
+    order (accrue_commission).
 """
 import logging
 from datetime import datetime, timedelta, timezone as dt_tz
@@ -48,7 +54,8 @@ def cfg():
 
 def is_cctv_product(product_id, c=None):
     c = c or cfg()
-    return bool(product_id) and product_id in (c["product_id"], c["addon_product_id"])
+    return bool(product_id) and product_id in (c["product_id"], c["addon_product_id"],
+                                               c["premium_ai_product_id"])
 
 
 def feature_on(user, play=False):
@@ -104,10 +111,18 @@ def sync_from_play(js, token, line, product_id, base_plan, user=None, now=None, 
     now = now or timezone.now()
     cc = cfg()
     is_addon = product_id == cc["addon_product_id"]
-    parsed = CP.parse_addon_plan(base_plan) if is_addon else CP.parse_base_plan(base_plan)
+    is_premium = product_id == cc["premium_ai_product_id"]
+    if is_premium:
+        n_ai = CP.parse_premium_plan(base_plan)
+        parsed = (n_ai,) if n_ai else None
+    else:
+        parsed = CP.parse_addon_plan(base_plan) if is_addon else CP.parse_base_plan(base_plan)
     if not parsed:
         raise P.PlayError("unknown_product", 400)
-    sku = CP.addon_sku(*parsed) if is_addon else CP.plan_sku(*parsed)
+    if is_premium:
+        sku = CP.premium_sku(parsed[0])
+    else:
+        sku = CP.addon_sku(*parsed) if is_addon else CP.plan_sku(*parsed)
     aid = (js.get("externalAccountIdentifiers") or {}).get("obfuscatedExternalAccountId", "")
     owner = P._owner_for(token, aid, user)
     state = str(js.get("subscriptionState") or "")
@@ -160,11 +175,18 @@ def sync_from_play(js, token, line, product_id, base_plan, user=None, now=None, 
         else:
             TG.claim("cctv_trial", owner, **kw)
             raw["trial_claimed"] = True
-    if raw.get("trial_dup") and in_trial:
+    # owner 17 Nov 12:35: EZVIZ cameras are not in the free trial. The app
+    # never offers the trial to an EZVIZ owner (trial_block); if a trial
+    # starts anyway, it gives no free CCTV service (the paid period works).
+    if in_trial and not raw.get("trial_ezviz") and has_trial_excluded_camera(owner):
+        raw["trial_ezviz"] = True
+    if (raw.get("trial_dup") or raw.get("trial_ezviz")) and in_trial:
         entitled = False
     pp.raw = raw
     price, cur = P._money((line.get("autoRenewingPlan") or {}).get("recurringPrice"))
-    if is_addon:
+    if is_premium:
+        catalog_price = CP.premium_ai_price(parsed[0])
+    elif is_addon:
         catalog_price = CP.addon_price(*parsed)
     else:
         catalog_price = CP.price(*parsed)
@@ -191,6 +213,11 @@ def sync_from_play(js, token, line, product_id, base_plan, user=None, now=None, 
     # revenue: once per paid Play order (a free-trial period is not revenue)
     if entitled and pp.order_id and not in_trial and not is_test:
         P._charge_once(owner, pp.order_id, sku, amount, "subs")
+        if is_premium:
+            try:
+                accrue_commission(owner, pp.order_id, parsed[0], amount, now, cc)
+            except Exception:
+                log.exception("cctv plan: commission ledger failed")
     # a purchase / renewal / recovery brings an ended account straight back
     try:
         lifecycle_for(owner, now)
@@ -218,8 +245,8 @@ def _current(user, product_id, now):
     live = [r for r in rows if r.token_hash not in gone and not r.revoked]
     for r in live:
         rr = r.raw or {}
-        if rr.get("trial_dup") and rr.get("in_trial"):
-            continue  # buyinside: a second free trial of the same shop/person
+        if (rr.get("trial_dup") or rr.get("trial_ezviz")) and rr.get("in_trial"):
+            continue  # buyinside: a 2nd free trial / an EZVIZ trial (owner 17 Nov)
         if r.state in ENTITLED and r.expires_at and r.expires_at > now:
             return r, "active"
     for r in live:
@@ -238,6 +265,47 @@ def trial_used(user):
         return True
     from . import trial_guard as TG  # buyinside: once per shop / person
     return TG.claimed("cctv_trial", user)
+
+
+def has_trial_excluded_camera(user):
+    """True when the owner has a camera of a brand that is NOT in the free
+    trial (EZVIZ — owner 17 Nov 12:35)."""
+    try:
+        from .models import ShopCamera
+        return ShopCamera.objects.filter(
+            site__owner=user, vendor__in=CP.TRIAL_EXCLUDED_VENDORS).exists()
+    except Exception:
+        return False
+
+
+TRIAL_NO_EZVIZ_BN = ("EZVIZ ক্যামেরা ফ্রি ট্রায়ালে নেই। ট্রায়াল চলার সময় EZVIZ ক্যামেরা যোগ "
+                     "করা যায় না — প্ল্যান কিনে নিলে যোগ করতে পারবেন। অন্য সব ব্র্যান্ডের "
+                     "ক্যামেরা ট্রায়ালে চলবে।")
+TRIAL_NO_EZVIZ_EN = ("EZVIZ cameras are not in the free trial. You can't add an EZVIZ "
+                     "camera during the trial — buy the plan to add it. Cameras of every "
+                     "other brand work in the trial.")
+
+
+def trial_refuses_vendor(user, vendor):
+    """True when `vendor` (EZVIZ) may not be added because the owner's CCTV
+    plan is in its free-trial days (owner 17 Nov 12:35)."""
+    if CP.trial_vendor_ok(vendor):
+        return False
+    try:
+        return in_trial_owner(getattr(user, "pk", user))
+    except Exception:
+        return False
+
+
+def trial_block(user):
+    """'' = the CCTV free trial can be offered; 'used' = this account / shop /
+    person had it; 'ezviz' = the owner has an EZVIZ camera (not in the
+    trial — buy the plan directly)."""
+    if trial_used(user):
+        return "used"
+    if has_trial_excluded_camera(user):
+        return "ezviz"
+    return ""
 
 
 def in_trial_owner(owner_id, now=None):
@@ -273,6 +341,15 @@ def status(user, now=None):
                    auto_renew=bool(row.auto_renewing),
                    in_trial=bool((row.raw or {}).get("in_trial")) and st == "active",
                    grace=row.state == "SUBSCRIPTION_STATE_IN_GRACE_PERIOD")
+    out["trial_block"] = "used" if out["trial_used"] else (
+        "ezviz" if has_trial_excluded_camera(user) else "")
+    prow, pst = _current(user, c["premium_ai_product_id"], now)
+    out["premium_ai"] = {"status": pst, "cameras": 0}
+    if prow is not None:
+        pn = CP.parse_premium_plan(prow.base_plan_id)
+        out["premium_ai"].update(cameras=pn or 0, base_plan=prow.base_plan_id,
+                                 expires_at=prow.expires_at.isoformat()
+                                 if prow.expires_at else None)
     arow, ast = _current(user, c["addon_product_id"], now)
     out["addon"] = {"status": ast, "days": 0, "cameras": 0}
     if arow is not None:
@@ -574,3 +651,64 @@ def notice_for(user, now=None):
     else:
         return None
     return {"bn": t[2], "en": t[3], "title_bn": t[0], "title_en": t[1]}
+
+
+# ---------------------------------------------------------------- Premium AI
+def premium_ai_active(user, now=None):
+    """Is the owner on Premium AI right now (an entitled Premium AI token)?"""
+    try:
+        _row, st = _current(user, cfg()["premium_ai_product_id"], now or timezone.now())
+        return st == "active"
+    except Exception:
+        return False
+
+
+def commission_partner(owner):
+    """(partner, site) who earns the commission for this owner: the FIRST
+    approved installer (earliest accepted active link) on any of the owner's
+    sites — one commission per paid order, never split or doubled."""
+    from .models import CctvInstallerLink
+    link = (CctvInstallerLink.objects
+            .filter(site__owner=owner, status="active", partner__status="approved",
+                    accepted_at__isnull=False)
+            .select_related("partner", "site").order_by("accepted_at", "id").first())
+    return (link.partner, link.site) if link else (None, None)
+
+
+def accrue_commission(owner, order_id, cameras, amount_bdt, now=None, c=None):
+    """ONE ledger row per paid Premium AI order: 10 % of the NET Premium AI
+    part (never the base plan), first 12 paid months of the site. Never a
+    payout — the row starts "owed". Returns the entry or None."""
+    from decimal import Decimal
+    from .logic import cctv_partner as CPT
+    from .logic import plan_book as PB
+    from .models import CctvCommissionEntry
+    if not order_id:
+        return None
+    hit = CctvCommissionEntry.objects.filter(order_id=order_id[:64]).first()
+    if hit is not None:
+        return hit
+    partner, site = commission_partner(owner)
+    if partner is None:
+        return None
+    c = c or cfg()
+    now = now or timezone.now()
+    rules = CPT.COMMISSION_RULES
+    n_paid = CctvCommissionEntry.objects.filter(partner=partner, site=site) \
+        .exclude(status="void").count() + 1
+    if n_paid > rules["months"]:
+        return None
+    net = float(amount_bdt or 0) * CP.net_share(c)
+    amt = PB.cctv_commission_bdt(net)
+    if amt <= 0:
+        return None
+    from django.db import IntegrityError, transaction
+    try:
+        with transaction.atomic():
+            return CctvCommissionEntry.objects.create(
+                partner=partner, site=site, order_id=order_id[:64],
+                month=now.strftime("%Y-%m"), cameras=int(cameras or 0),
+                premium_ai_net_bdt=Decimal("%.2f" % net), pct=rules["pct_of_net"],
+                amount_bdt=amt, paid_month_no=n_paid)
+    except IntegrityError:
+        return CctvCommissionEntry.objects.filter(order_id=order_id[:64]).first()

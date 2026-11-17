@@ -63,6 +63,47 @@ APPROVED_PROBASHI = (4.99, 120.0, 210)
 APPROVED_LEVEL_CREDITS = {"normal": 1, "better": 1, "best": 11}
 HAIKU_PROMPT_MAX_TOKENS = 90000     # owner: above 100k Haiku costs 5x
 
+# cctvprice (OWNER-DECIDED 17 Nov 2026 12:35 — all 4 CCTV recommendations
+# approved; owner_actions/CCTV_PRICING_V3_BN.md). The CCTV numbers that are
+# owner decisions live HERE; core/logic/cctv_plan.py, cctv_premium_ai.py and
+# cctv_partner.py read them (never a second copy). Change only on a written
+# owner order. The base plan (500 Tk = 2 cameras, 250 Tk each extra) is
+# unchanged and stays in cctv_plan.py.
+CCTV_DECIDED_AT = "2026-11-17 12:35 Asia/Dhaka"
+CCTV_DECIDED = {
+    # (1) Premium AI: per camera per month, on top of the base plan
+    "premium_ai_bdt_per_camera": 400,
+    "premium_ai_clip_days": 30,          # event clips kept 30 days + smart alerts
+    # (2) the free trial stays 7 days (base plan, once per shop / account)
+    "trial_days": 7,
+    # (4) EZVIZ cameras are NOT in the free trial (EZVIZ customers buy
+    #     directly; every other brand keeps the 7-day trial)
+    "trial_excluded_vendors": ("ezviz",),
+    # (3) installer commission: 10 % ONLY on Premium AI sites, of the NET
+    #     Premium AI part (after Play fee + VAT) — NEVER on the base plan
+    "installer_commission_pct": 10,
+    "installer_commission_applies_to": "premium_ai",
+    "installer_commission_months": 12,   # first 12 paid Premium AI months
+    "base_plan_commission_pct": 0,
+}
+
+
+def cctv_trial_vendor_ok(vendor):
+    """False for a camera brand that is not in the CCTV free trial (EZVIZ)."""
+    return str(vendor or "").lower() not in CCTV_DECIDED["trial_excluded_vendors"]
+
+
+def cctv_commission_bdt(premium_ai_net_bdt):
+    """10 % of the NET Premium AI part, rounded down to whole taka. The base
+    plan part never earns a commission (pass only the Premium AI net)."""
+    try:
+        net = float(premium_ai_net_bdt)
+    except (TypeError, ValueError):
+        return 0
+    if net <= 0:
+        return 0
+    return int(net * CCTV_DECIDED["installer_commission_pct"] / 100.0)
+
 
 def block_defaults():
     return {"on": False}

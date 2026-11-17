@@ -164,12 +164,15 @@ class RecommendViewTests(TestCase):
 
 # ------------------------------------------------------------ 40 % with trial
 class TrialCostFortyPercentTests(SimpleTestCase):
-    def test_cctv_trial_cost_keeps_40_percent_except_the_owner_decision_row(self):
+    def test_cctv_trial_cost_keeps_40_percent_on_every_row(self):
         t = CP.trial_profit_rows()
         self.assertTrue(t["ok"], t["below"])
-        # every row under 40 % is EXACTLY the documented owner decision —
-        # a new failure (other vendor / count) breaks CI
-        self.assertEqual(set(t["below"]), set(CP.TRIAL_OWNER_DECISION))
+        # cctvprice (owner 17 Nov 12:35): EZVIZ is out of the trial, so the
+        # one owner-decision row (EZVIZ 2 cameras, 38.2 %) is gone and NO row
+        # may be under 40 % any more
+        self.assertEqual(t["below"], [])
+        self.assertEqual(CP.TRIAL_OWNER_DECISION, set())
+        self.assertNotIn("ezviz", {r["vendor"] for r in t["rows"]})
         for r in t["rows"]:
             self.assertGreater(r["trial_cost"], 0)
             if not r["owner_decision"]:

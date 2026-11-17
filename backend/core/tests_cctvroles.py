@@ -5,10 +5,10 @@ I  roles: owner / manager / family / guard / STAFF (view only, never
    AND every export / share / change / delete / role / installer step.
 J  installer partners: apply -> Owner Admin approves -> the site owner's
    code / QR -> the partner sees ONLY setup status (never video, photos,
-   alerts); commission is a PROPOSAL, nothing pays out.
+   alerts); commission 10 % of Premium AI only (owner 17 Nov), never auto-paid.
 K  privacy wall: no Assisto admin / staff path reaches any camera media;
    export only by the site owner; printable sticker PDF.
-L  Premium AI proposal passes the 40 % worst-case check from the ONE source
+L  Premium AI (owner-decided) passes the 40 % worst-case check from the ONE source
    of numbers (cctv_plan + ai_config), base prices unchanged.
 """
 import re
@@ -76,14 +76,16 @@ class PureTests(SimpleTestCase):
         with self.assertRaises(CPT.PartnerError):
             CPT.clean_apply("A", "Mirpur")
 
-    def test_commission_is_a_proposal_only(self):
-        p = CPT.COMMISSION_PROPOSAL
-        self.assertFalse(p["approved"])
+    def test_commission_is_owner_decided_10pct_premium_ai_only(self):
+        # cctvprice: owner-decided 17 Nov 12:35 (was a 5 % proposal)
+        p = CPT.COMMISSION_RULES
+        self.assertTrue(p["approved"])
+        self.assertEqual((p["pct_of_net"], p["applies_to"]), (10, "premium_ai"))
         self.assertFalse(p["auto_payout"])
         self.assertEqual(CPT.proposed_commission(1000, 1, in_trial=True), 0)
         self.assertEqual(CPT.proposed_commission(1000, 0, in_trial=False), 0)
         self.assertEqual(CPT.proposed_commission(1000, 13, in_trial=False), 0)
-        self.assertEqual(CPT.proposed_commission(1000, 3, in_trial=False), 50)
+        self.assertEqual(CPT.proposed_commission(1000, 3, in_trial=False), 100)
         self.assertEqual(CPT.proposed_commission(1000, 3, False, premium_ai=False), 0)
 
     def test_base_prices_unchanged_one_source(self):
@@ -99,10 +101,11 @@ class PureTests(SimpleTestCase):
         t = PA.profit_table()
         self.assertTrue(t["ok"], t["min_pct"])
         self.assertGreaterEqual(t["min_pct"], 40.0)
-        # ... with the proposed 5 % installer commission too
-        self.assertGreaterEqual(
-            PA.profit_table(commission_pct_of_net=CPT.COMMISSION_PROPOSAL["pct_of_net"])["min_pct"],
-            40.0)
+        # ... with the owner-decided 10 % commission on the Premium AI part
+        self.assertGreaterEqual(PA.decided_table()["min_pct"], 40.0)
+        # 10 % of the WHOLE site net would break the rule -> the base is the
+        # Premium AI part only (cctvprice, owner 17 Nov 12:35)
+        self.assertLess(PA.profit_table(commission_pct_of_net=10)["min_pct"], 40.0)
         # the commission can NOT go on the base plan (honest: no headroom)
         self.assertFalse(PA.base_with_commission(commission_pct_of_net=10)["ok"])
         # Claude prices come from ai_config: a dearer Haiku makes AI cost more
@@ -111,7 +114,7 @@ class PureTests(SimpleTestCase):
         self.assertGreater(PA.ai_cost_per_camera_bdt(prices=dear)["total"],
                            PA.ai_cost_per_camera_bdt()["total"])
         self.assertNotIn("gemini", PA.DESCRIBE_MODEL + PA.ASK_MODEL + PA.REPORT_MODEL)
-        self.assertEqual(PA.TRIAL_DAYS_PROPOSED, 14)
+        self.assertEqual(CP.TRIAL_DAYS, 7)          # owner 17 Nov: trial stays 7 days
 
 
 class NoAdsOnCctvTests(SimpleTestCase):
@@ -245,7 +248,9 @@ class PartnerTests(_Base):
         self.assertEqual(len(me["sites"]), 1)
         site = me["sites"][0]
         self.assertEqual((site["cameras"], site["online"]), (2, 2))
-        self.assertEqual(me["commission"], {"status": "proposal", "approved": False})
+        self.assertEqual(me["commission"]["status"], "decided")
+        self.assertTrue(me["commission"]["approved"])
+        self.assertEqual((me["commission"]["pct"], me["commission"]["owed_bdt"]), (10, 0))
         # NOTHING but setup facts: no url, no photo, no alert, no token
         blob = repr({k: v for k, v in me.items() if k != "note"}).lower()
         for word in ("url", "still", "snapshot", "clip", "event", "token", "alert", "phone"):

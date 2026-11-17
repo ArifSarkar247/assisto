@@ -56,7 +56,11 @@ def plan_payload(user, lang="bn"):
         "trial_offer_id": c["trial_offer_id"],
         "trial_days": CP.TRIAL_DAYS,
         "trial_base_plan": CP.base_plan_id(CP.BASE_CAMERAS, "monthly"),
-        "trial_available": not st["trial_used"],
+        # owner 17 Nov 12:35: once per shop / account AND never with an
+        # EZVIZ camera (EZVIZ customers buy directly; other brands keep 7 days)
+        "trial_available": not st["trial_block"],
+        "trial_block": st["trial_block"],
+        "trial_excluded_vendors": list(CP.TRIAL_EXCLUDED_VENDORS),
         "base_cameras": CP.BASE_CAMERAS,
         "base_price": CP.BASE_PRICE_BDT,
         "extra_camera_price": CP.EXTRA_CAMERA_BDT,
@@ -67,6 +71,11 @@ def plan_payload(user, lang="bn"):
                   "plans": {str(d): [CP.addon_plan_id(d, n)
                                      for n in range(1, CP.MAX_CAMERAS + 1)]
                             for d in CP.ADDON_DAYS}},
+        "premium_ai": {"on_sale": bool(c["on_sale"] and c["premium_ai_on_sale"]),
+                       "product_id": c["premium_ai_product_id"],
+                       "price_per_camera": CP.PREMIUM_AI_BDT_PER_CAMERA,
+                       "clip_days": CP._PB.CCTV_DECIDED["premium_ai_clip_days"],
+                       "plans": CP.all_premium_plans()},
         "status": st,
         "cameras_used": used,
         "over_by": max(0, used - st["cameras"]) if st["status"] == "active" else 0,

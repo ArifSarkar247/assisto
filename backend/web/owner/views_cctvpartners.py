@@ -1,9 +1,10 @@
 """cctvroles (CCTV Guard V3 J): Owner Admin -> CCTV installer partners.
 Partners (approve / suspend), the sites each one set up (setup status only),
-the PROPOSED commission per paying site and payouts. The commission rules
-are a PROPOSAL marked "needs owner approval" — this page pays nothing, queues
-nothing and promises nothing (core/logic/cctv_partner.COMMISSION_PROPOSAL).
-Never a photo, a clip or an alert of any site (CCTV Guard V3 K)."""
+this month's commission per Premium AI site and the commission LEDGER
+(cctvprice, owner-decided 17 Nov 12:35: 10 % of the net Premium AI part only,
+never the base plan — core/logic/cctv_partner.COMMISSION_RULES). The page
+never pays: a person marks a ledger row paid (with a reference) after paying
+by hand. Never a photo, a clip or an alert of any site (CCTV Guard V3 K)."""
 from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -14,35 +15,44 @@ from .base import owner_view, page
 L = {
     "bn": {"title": "সিসিটিভি ইনস্টলার পার্টনার",
            "intro": "এলাকার সিসিটিভি মিস্ত্রি যাঁরা জায়গার মালিকের QR/কোড দিয়ে সেটআপ করেন। তাঁরা শুধু সেটআপের অবস্থা দেখেন — কখনো ভিডিও, ছবি বা সতর্কতা নয়। এই পাতাতেও কারো ক্যামেরার কিছু দেখা যায় না।",
-           "rules": "কমিশনের নিয়ম — প্রস্তাব, মালিকের অনুমোদন লাগবে",
-           "rules_line": "শুধু Premium AI জায়গায়: নেট মাসিক Premium AI দামের %(pct)s%%, প্রথম %(months)s মাস; ফ্রি ট্রায়ালের মাস গোনা হয় না। Premium AI এখনো বিক্রি হয় না, তাই আজ প্রস্তাবিত কমিশন ০। কিছুই নিজে থেকে দেওয়া হয় না।",
+           "rules": "কমিশনের নিয়ম — মালিকের সিদ্ধান্ত (১৭ নভেম্বর ১২:৩৫)",
+           "rules_line": "শুধু Premium AI জায়গায়: নেট মাসিক Premium AI অংশের %(pct)s%%, প্রথম %(months)s মাস; মূল ৫০০ টাকার (২ ক্যামেরা) প্ল্যানে কখনো কমিশন নয়; ফ্রি ট্রায়ালের মাস গোনা হয় না। প্রতিটি পরিশোধিত Premium AI মাসে খাতায় একটি লাইন \"পাওনা\" হয়; কিছুই নিজে থেকে দেওয়া হয় না।",
            "partners": "পার্টনার", "name": "নাম", "area": "এলাকা", "status": "অবস্থা",
-           "sites": "জায়গা", "paying": "টাকা দিচ্ছে", "proposed": "প্রস্তাবিত কমিশন (এই মাস, টাকা)",
+           "sites": "জায়গা", "paying": "টাকা দিচ্ছে", "proposed": "এই মাসের কমিশন (টাকা)",
            "approve": "অনুমোদন", "suspend": "স্থগিত", "reason": "কারণ (লগে থাকবে)",
            "none": "এখনো কোনো পার্টনার আবেদন নেই।",
-           "payouts": "পেমেন্ট", "payouts_none": "কোনো পেমেন্ট হয়নি। কমিশনের নিয়ম মালিক অনুমোদন করার আগে কোনো পেমেন্ট হবে না।",
+           "payouts": "কমিশনের খাতা", "payouts_none": "এখনো কোনো লাইন নেই — কোনো Premium AI জায়গা এখনো টাকা দেয়নি।",
+           "ledger_cols": ["তারিখ", "পার্টনার", "জায়গা", "মাস নং", "নেট Premium AI", "কমিশন", "অবস্থা", ""],
+           "owed": "পাওনা", "paid": "দেওয়া হয়েছে", "void": "বাতিল",
+           "mark_paid": "দেওয়া হয়েছে চিহ্ন দিন", "mark_void": "বাতিল", "paid_ref": "রেফারেন্স (bKash/ব্যাংক)",
+           "sum_owed": "মোট পাওনা", "sum_paid": "মোট দেওয়া",
            "setup_done": "সেটআপ শেষ", "setup_todo": "সেটআপ বাকি",
            "st": {"pending": "অপেক্ষায়", "approved": "অনুমোদিত", "suspended": "স্থগিত"},
-           "yes": "হ্যাঁ", "no": "না", "total": "মোট (প্রস্তাব)"},
+           "yes": "হ্যাঁ", "no": "না", "total": "এই মাসে মোট"},
     "en": {"title": "CCTV installer partners",
            "intro": "Local CCTV technicians who set up a place with its owner's QR / code. They see only the setup status — never video, photos or alerts. Nothing of anyone's cameras is shown on this page either.",
-           "rules": "Commission rules — PROPOSAL, needs owner approval",
-           "rules_line": "Premium AI places only: %(pct)s%% of the net monthly Premium AI price, for the first %(months)s months; free-trial months do not count. Premium AI is not on sale yet, so the proposed commission is 0 today. Nothing is paid automatically.",
+           "rules": "Commission rules — OWNER-DECIDED (17 Nov 12:35)",
+           "rules_line": "Premium AI places only: %(pct)s%% of the net monthly Premium AI part, for the first %(months)s months; never on the base 500 Tk (2-camera) plan; free-trial months do not count. Each paid Premium AI month adds one \"owed\" line to the ledger; nothing is paid automatically.",
            "partners": "Partners", "name": "Name", "area": "Area", "status": "Status",
-           "sites": "Places", "paying": "Paying", "proposed": "Proposed commission (this month, Tk)",
+           "sites": "Places", "paying": "Paying", "proposed": "Commission this month (Tk)",
            "approve": "Approve", "suspend": "Suspend", "reason": "Reason (kept in the log)",
            "none": "No partner applications yet.",
-           "payouts": "Payouts", "payouts_none": "No payouts. No payout happens before the owner approves the commission rules.",
+           "payouts": "Commission ledger", "payouts_none": "No lines yet — no Premium AI place has paid yet.",
+           "ledger_cols": ["Date", "Partner", "Place", "Month no.", "Net Premium AI", "Commission", "Status", ""],
+           "owed": "owed", "paid": "paid", "void": "void",
+           "mark_paid": "Mark paid", "mark_void": "Void", "paid_ref": "Reference (bKash / bank)",
+           "sum_owed": "Total owed", "sum_paid": "Total paid",
            "setup_done": "setup done", "setup_todo": "setup pending",
            "st": {"pending": "pending", "approved": "approved", "suspended": "suspended"},
-           "yes": "yes", "no": "no", "total": "Total (proposal)"},
+           "yes": "yes", "no": "no", "total": "Total this month"},
 }
 
 
 def premium_ai(site):
-    """Seam: is this site on the Premium AI tier? The tier is a PROPOSAL
-    (owner_actions/CCTV_PRICING_V3_BN.md) — nothing sells it yet."""
-    return False
+    """Is this site's owner on Premium AI (an entitled cctv_premium_ai
+    token)? Owner-decided 17 Nov; sold once the Play product exists."""
+    from core import cctv_plan_service as CPS
+    return CPS.premium_ai_active(site.owner)
 
 
 def _ai_net_month(cameras):
@@ -57,7 +67,7 @@ def _ai_net_month(cameras):
 
 
 def rows(now=None):
-    """Partner rows with their places' setup + the PROPOSED commission."""
+    """Partner rows with their places' setup + this month's commission."""
     from core.cctv_partner_views import paying, site_setup
     from core.logic import cctv_partner as CPT
     from core.models import CctvPartner
@@ -71,8 +81,7 @@ def rows(now=None):
             months = 0
             if link.accepted_at:
                 months = max(1, (now - link.accepted_at).days // 30)
-            # the Premium AI tier is a proposal, not on sale: no site is on
-            # it yet, so the proposal gives 0 today (shown honestly)
+            # 10 % of the NET Premium AI part only (never the base plan)
             prem = premium_ai(s)
             prop = CPT.proposed_commission(_ai_net_month(cams), months, trial,
                                            premium_ai=prem) if pay else 0
@@ -86,6 +95,20 @@ def rows(now=None):
     return out, total
 
 
+def ledger_rows(limit=300):
+    """The commission ledger (newest first) + totals owed / paid."""
+    from django.db.models import Sum
+    from core.models import CctvCommissionEntry
+    qs = CctvCommissionEntry.objects.select_related("partner")
+    out = [{"id": e.id, "created": e.created, "partner": e.partner.name or "#%d" % e.partner_id,
+            "partner_id": e.partner_id, "site_id": e.site_id, "month": e.month,
+            "no": e.paid_month_no, "net": e.premium_ai_net_bdt, "amount": e.amount_bdt,
+            "status": e.status, "paid_ref": e.paid_ref} for e in qs[:limit]]
+    sums = {k: int(qs.filter(status=k).aggregate(s=Sum("amount_bdt"))["s"] or 0)
+            for k in ("owed", "paid")}
+    return out, sums
+
+
 @require_http_methods(["GET", "POST"])
 @owner_view()
 def cctv_partners(request):
@@ -97,6 +120,20 @@ def cctv_partners(request):
         act = request.POST.get("action", "")
         reason = request.POST.get("reason", "").strip()[:200]
         p = CctvPartner.objects.filter(pk=request.POST.get("partner") or 0).first()
+        if act in ("mark_paid", "mark_void") and reason:
+            from core.models import CctvCommissionEntry
+            e = CctvCommissionEntry.objects.filter(pk=request.POST.get("entry") or 0,
+                                                   status="owed").first()
+            ref = request.POST.get("paid_ref", "").strip()[:80]
+            if e is not None and (act == "mark_void" or ref):
+                e.status = "paid" if act == "mark_paid" else "void"
+                e.paid_at = timezone.now()
+                e.paid_ref = ref
+                e.save(update_fields=["status", "paid_at", "paid_ref"])
+                S.audit(request, request.owner, "cctv_commission." + act, "commission:%s" % e.pk,
+                        before={"status": "owed"},
+                        after={"status": e.status, "amount_bdt": e.amount_bdt, "_reason": reason})
+            return HttpResponseRedirect("/owner/cctv-partners")
         if p is not None and act in ("approve", "suspend") and reason:
             before = p.status
             p.status = "approved" if act == "approve" else "suspended"
@@ -106,11 +143,14 @@ def cctv_partners(request):
                     before={"status": before}, after={"status": p.status, "_reason": reason})
         return HttpResponseRedirect("/owner/cctv-partners")
     data, total = rows()
+    ledger, sums = ledger_rows()
+    for e in ledger:
+        e["status_label"] = lab.get(e["status"], e["status"])
     for r in data:
         r["status_label"] = lab["st"].get(r["status"], r["status"])
     prop = CPT.COMMISSION_PROPOSAL
     return page(request, "owner/cctv_partners.html",
-                {"rows": data, "total": total, "L": lab,
+                {"rows": data, "total": total, "L": lab, "ledger": ledger, "sums": sums,
                  "rules_line": lab["rules_line"] % {"pct": prop["pct_of_net"],
                                                     "months": prop["months"]},
                  "approved": prop["approved"]},
