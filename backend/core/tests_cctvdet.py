@@ -304,7 +304,7 @@ class Stage2IngestE2ETests(E2E._Base):
                                        "seconds": 1900, "minutes": 31})
         self.assertTrue(ShopEvent.objects.filter(type="parking_overstay").exists())
         loud = [k for k in self.shop_pushes() if not (k.get("data") or {}).get("quiet")]
-        self.assertEqual(len(loud), 1)
+        self.assertTrue(loud)                  # rings (to each person of the site)
 
     def test_report_only_rule_and_notify_option(self):
         v2 = {"zones": [{"id": "np", "type": "no_parking", "opts": {}},
