@@ -25,10 +25,22 @@ from rest_framework.views import APIView
 
 from . import train_engine as TE
 from . import train_service as TS
-from .logic import train_geo as TG
-from .train_views import _bad, _off, _train_date, flag_on
+from . import train_source as SRC
+from .train_views import _bad, _off, flag_on
 
 R = Response
+
+
+def _train_date(no, raw_date):
+    """The OFFICIAL train (all 322 directions) + a service date (yesterday ..
+    tomorrow, Dhaka)."""
+    t = SRC.train(no)
+    if t is None:
+        return None, None, _bad("unknown_train", 404)
+    d = TS.parse_date(raw_date)
+    if d is None:
+        return t, None, _bad("bad_date")
+    return t, d, None
 
 
 def _date_or_today(raw):
@@ -151,7 +163,7 @@ class ShareTextView(APIView):
             d = TS.parse_date(q.get("date"))
             if d is None:
                 return _bad("bad_date")
-        if no and TG.train(no) is None:
+        if no and SRC.train(no) is None:
             no = None
         code, body = TE.share_text(request.user, text, no=no, date=d, lat=q.get("lat"),
                                    lng=q.get("lng"), acc=q.get("acc"))

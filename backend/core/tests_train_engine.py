@@ -17,22 +17,29 @@ from django.utils import timezone
 from rest_framework.test import APIClient
 
 from core import ops_health as H
+from core import train_data
 from core import train_engine as TE
+from core import train_source as SRC
 from core.logic import train_geo as TG
 from core.logic import train_live as L
 from core.logic import train_text as TX
-from core.models import (TrainCellBin, TrainCheckin, TrainObservation, TrainPassing,
-                         TrainPing, TrainPointLedger, TrainTrip, User)
+from core.models import (RailStation, RailTrain, TrainCellBin, TrainCheckin, TrainObservation,
+                         TrainPassing, TrainPing, TrainPointLedger, TrainTrip, User)
 
 V = "/api/v1"
-NO = "705"                       # Ekota: Kamalapur 10:15 -> Panchagarh 21:00 (bundled data)
-DAY = date(2026, 11, 3)
-TANGAIL = "n2800913640"          # km 96.62 on 705
-JOYDEBPUR = "n7674279624"        # km 33.57
+NO = "771"                       # Rangpur Express: Dhaka 09:10 -> Rangpur 19:00 (official)
+DAY = date(2026, 11, 3)          # a Tuesday (771 is off on Mondays)
+IBRAHIMABAD = "ibrahimabad"      # 11:33, km 117.1
+CHATMOHAR = "chatmohar"          # 12:31, km 182.1
+BOGURA = "bogura"                # 15:36, km 320.3
 
 
 def _dep():
-    return TG.times(TG.train(NO), DAY)[0]
+    return SRC.times(SRC.train(NO), DAY)[0]
+
+
+def _ch(code):
+    return next(s["ch"] for s in TE.stops(SRC.train(NO)) if s["id"] == code)
 
 
 def _at(minutes):
@@ -52,7 +59,8 @@ def _pt(ch, minutes, **kw):
 
 def _side(p, ch, metres):
     """Move point p `metres` sideways (perpendicular to the line at ch)."""
-    h = math.radians(TG.route(NO).heading_at(ch) + 90.0)
+    a, b = _rt().point_at(ch), _rt().point_at(ch + 30.0)
+    h = math.radians(TG.bearing_deg(a[0], a[1], b[0], b[1]) + 90.0)
     lat = p["lat"] + metres * math.cos(h) / 111320.0
     lng = p["lng"] + metres * math.sin(h) / (111320.0 * math.cos(math.radians(p["lat"])))
     return lat, lng
@@ -64,13 +72,31 @@ def _user(i):
 
 # ====================================================================== pure
 class RouteIndexTests(SimpleTestCase):
-    def test_matches_the_reference_projection(self):
-        rt, ref = _rt(), TG.route(NO)
+    def test_point_at_and_project_agree(self):
+        rt = _rt()
+        self.assertGreater(rt.length, 400000)            # Dhaka -> Rangpur by rail
         for ch in (1000, 50000, 200000, 400000):
-            lat, lng = ref.point_at(ch)
+            lat, lng = rt.point_at(ch)
             got, off = rt.project(lat, lng)
             self.assertAlmostEqual(got, ch, delta=5)
             self.assertLess(off, 1)
+
+    def test_halts_sit_on_the_path_in_order(self):
+        ss = TE.stops(SRC.train(NO))
+        self.assertEqual([s["id"] for s in ss][:2], ["dhaka-kamalapur", "dhaka-airport"])
+        chs = [s["ch"] for s in ss]
+        self.assertEqual(chs, sorted(chs))
+        st = SRC.stations()
+        for s in ss:
+            if st[s["id"]]["lat"] is not None:
+                _, off = _rt().project(st[s["id"]]["lat"], st[s["id"]]["lng"], radius_cells=3)
+                self.assertLess(off, 1500, s["id"])
+
+    def test_official_times_and_ch_to_km(self):
+        t = SRC.train(NO)
+        sched = TE.sched_times(t, DAY)
+        self.assertEqual(sched[BOGURA].strftime("%H:%M"), "15:36")
+        self.assertAlmostEqual(TE.ch_to_km(t, _ch(BOGURA)), 320.3, delta=0.01)
 
     def test_far_point_is_not_on_the_route(self):
         ch, off = _rt().project(22.0, 92.5)          # the sea near Cox's Bazar
@@ -333,11 +359,15 @@ class SharedTextTests(SimpleTestCase):
 
 # ====================================================================== DB / Redis
 class EngineBase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        train_data.load()          # official trains/stations: TrainPassing needs them
+
     def setUp(self):
         from django.core.cache import cache
         cache.clear()
         TE.STORE.delete(TE.live_key(NO))
-        self.t = TG.train(NO)
+        self.t = SRC.train(NO)
 
     def trip(self, cells=False):
         return TrainTrip.objects.create(key="k%d" % TrainTrip.objects.count(), train_no=NO,
@@ -429,7 +459,7 @@ class IngestTests(EngineBase):
         tr = self.trip(cells=True)
         self.feed(tr, 150000, 240, n=2, cell={"mcc": 470, "mnc": 1, "tac": 5, "cid": 9})
         TrainObservation.objects.create(train_no=NO, service_date=DAY, source="text",
-                                        station=TANGAIL, chainage=96620, at=_at(100))
+                                        station=IBRAHIMABAD, chainage=117000, at=_at(100))
         later = timezone.now() + timedelta(hours=25)
         with mock.patch("django.utils.timezone.now", return_value=later):
             out = TE.tick(later)
@@ -477,12 +507,13 @@ class ReadTests(EngineBase):
         self.assertGreater(r["freshness"]["age_s"], 180)
 
     def test_predicted_from_learned_delays_never_live(self):
+        tr = RailTrain.objects.get(number=NO)
         for i in range(4):
             sd = DAY - timedelta(days=7 * (i + 1))
-            for sid in (JOYDEBPUR, TANGAIL):
-                TrainPassing.objects.create(train_no=NO, station=sid, service_date=sd,
-                                            weekday=DAY.weekday(), delay_min=40 + i,
-                                            source="gps")
+            for seq, sid in ((2, IBRAHIMABAD), (3, CHATMOHAR)):
+                TrainPassing.objects.create(train=tr, station=RailStation.objects.get(code=sid),
+                                            seq=seq, service_date=sd, weekday=DAY.weekday(),
+                                            delay_min=40 + i, source="rider_gps")
         with mock.patch("django.utils.timezone.now", return_value=_at(150)):
             r = TE.read(self.t, DAY, _at(150))
         self.assertEqual(r["mode"], "predicted")
@@ -495,23 +526,26 @@ class ReadTests(EngineBase):
 
     def test_recompute_records_confirmed_passings(self):
         tr = self.trip()
-        self.feed(tr, 94000, 120, n=2)                 # before Tangail (96.62 km)
-        TE.ingest(tr, [_pt(97500, 123, speed=16)], now=_at(123) + timedelta(seconds=5))
-        TE.maybe_recompute(self.t, DAY, _at(123) + timedelta(seconds=6), force=True)
-        p = TrainPassing.objects.filter(train_no=NO, station=TANGAIL).first()
+        c = _ch(IBRAHIMABAD)
+        self.feed(tr, c - 2600, 140, n=2)              # just before Ibrahimabad
+        TE.ingest(tr, [_pt(c + 900, 143, speed=16)], now=_at(143) + timedelta(seconds=5))
+        TE.maybe_recompute(self.t, DAY, _at(143) + timedelta(seconds=6), force=True)
+        p = TrainPassing.objects.filter(train__number=NO, station__code=IBRAHIMABAD).first()
         self.assertIsNotNone(p)
-        self.assertEqual(p.source, "gps")
+        self.assertEqual(p.source, "rider_gps")
+        self.assertIsNotNone(p.arrived_at)
+        self.assertEqual(p.weekday, DAY.weekday())
 
 
 class CheckinTests(EngineBase):
     def setUp(self):
         super().setUp()
         self.a, self.b, self.c = _user(1), _user(2), _user(3)
-        self.st = TG.stations()[TANGAIL]
+        self.st = SRC.stations()[IBRAHIMABAD]
 
     def ci(self, u, near=True, minutes=125, kind="reached"):
         lat, lng = (self.st["lat"], self.st["lng"]) if near else (23.0, 90.0)
-        return TE.checkin(u, self.t, DAY, TANGAIL, kind, _at(minutes).isoformat(), lat, lng, 20,
+        return TE.checkin(u, self.t, DAY, IBRAHIMABAD, kind, _at(minutes).isoformat(), lat, lng, 20,
                           now=_at(minutes) + timedelta(seconds=30))
 
     def test_near_alone_accepted_but_no_points_until_matched(self):
@@ -538,7 +572,7 @@ class CheckinTests(EngineBase):
         self.assertEqual(r["status"], "pending")
 
     def test_station_must_be_on_this_train_and_once_per_user(self):
-        r = TE.checkin(self.a, self.t, DAY, "n7760863774", "reached", now=_at(100))  # Chattogram
+        r = TE.checkin(self.a, self.t, DAY, "chattogram", "reached", now=_at(100))  # not on 771
         self.assertEqual(r["reason"], "not_on_this_train")
         self.ci(self.a)
         self.assertEqual(self.ci(self.a)["reason"], "already")
@@ -559,39 +593,46 @@ class ShareTextEngineTests(EngineBase):
         super().setUp()
         self.a, self.b = _user(11), _user(12)
 
-    def send(self, u, text, minutes=140, **kw):
+    def send(self, u, text, minutes=395, **kw):      # 15:45, Bogura is due 15:36
         return TE.share_text(u, text, now=_at(minutes), **kw)
 
     def test_one_report_waits_two_agree_then_applied(self):
-        msg = "Ekota Express (705) left Tangail at 12:30 PM, late 13 min"
+        msg = "Rangpur Express (771) left Bogura at 3:40 PM, late 4 min"
         code, body = self.send(self.a, msg)
         self.assertEqual(code, 200)
         self.assertEqual(body["status"], "pending")
         self.assertFalse(body["applied"])
-        self.assertEqual(body["parsed"]["station_id"], TANGAIL)
-        self.assertEqual(body["parsed"]["station_bn"], "টাঙ্গাইল")
-        code, body = self.send(self.b, "705 Tangail chere geche 12:33, 15 min let")
+        self.assertEqual(body["parsed"]["station_id"], BOGURA)
+        self.assertEqual(body["parsed"]["station_bn"], "বগুড়া")
+        self.assertEqual(body["parsed"]["late_min"], 4)
+        code, body = self.send(self.b, "771 Bogra chere geche 15:42, 6 min let")
         self.assertTrue(body["applied"], body)
         st = TE.STORE.get(TE.live_key(NO))
         self.assertEqual(st["mode"], "reported")
         self.assertLess(st["confidence"], 0.5)
-        self.assertTrue(TrainPassing.objects.filter(station=TANGAIL, source="text").exists())
+        p = TrainPassing.objects.get(station__code=BOGURA)
+        self.assertEqual((p.source, p.departed_at is not None), ("shared_text", True))
+
+    def test_train_name_only_picks_the_right_direction(self):
+        # "Rangpur Express" is 771 (Dhaka -> Rangpur) and 772 (back): the time decides
+        _, body = self.send(self.a, "Rangpur Express Bogura chere geche 3.40 bikal")
+        self.assertEqual(body["parsed"]["no"], "771")
 
     def test_same_person_twice_is_not_two_reports(self):
-        self.send(self.a, "705 left Tangail at 12:30")
-        _, body = self.send(self.a, "705 left Tangail at 12:31")
+        self.send(self.a, "771 left Bogura at 15:40")
+        _, body = self.send(self.a, "771 left Bogura at 15:41")
         self.assertFalse(body["applied"])
 
     def test_near_the_station_applies_alone(self):
-        st = TG.stations()[TANGAIL]
-        _, body = self.send(self.a, "705 left Tangail at 12:30", lat=st["lat"], lng=st["lng"],
+        st = SRC.stations()[BOGURA]
+        _, body = self.send(self.a, "771 left Bogura at 15:40", lat=st["lat"], lng=st["lng"],
                             acc=15)
         self.assertTrue(body["applied"])
 
     def test_implausible_time_and_wrong_route(self):
-        _, body = self.send(self.a, "705 left Tangail at 03:00 AM", minutes=140)
+        _, body = self.send(self.a, "771 left Bogura at 03:00 AM")
         self.assertEqual(body["reason"], "time_not_plausible")
-        code, body = self.send(self.a, "701 left Tangail at 12:30")
+        _, body = self.send(self.a, "701 left Bogura at 15:40")
         self.assertEqual(body.get("reason"), "not_on_route")
 
     def test_unparsed(self):
@@ -599,8 +640,8 @@ class ShareTextEngineTests(EngineBase):
         self.assertEqual((code, body["reason"]), (400, "unparsed"))
 
     def test_nothing_about_the_sender_is_stored(self):
-        self.send(self.a, "705 left Tangail at 12:30 from 01712000000")
-        self.send(self.b, "705 left Tangail at 12:32")
+        self.send(self.a, "771 left Bogura at 15:40 from 01712000000")
+        self.send(self.b, "771 left Bogura at 15:42")
         for o in TrainObservation.objects.all():
             blob = json.dumps({f.name: str(getattr(o, f.name)) for f in o._meta.fields})
             self.assertNotIn("01712000000", blob)
@@ -616,7 +657,7 @@ class PrivacyTests(TestCase):
 
     def test_token_is_stored_hashed(self):
         u = _user(21)
-        token, trip = TE.open_trip(u, TG.train(NO), DAY)
+        token, trip = TE.open_trip(u, SRC.train(NO), DAY)
         self.assertNotEqual(trip.key, token)
         self.assertEqual(TE.trip_by_token(token), trip)
 
@@ -674,7 +715,7 @@ class ApiTests(TestCase):
 
     def test_checkin_and_onboard_and_sms(self, _):
         r = self.c.post(V + "/train/%s/checkin" % NO,
-                        {"date": self.day, "station_id": TANGAIL, "kind": "flew"}, format="json")
+                        {"date": self.day, "station_id": IBRAHIMABAD, "kind": "flew"}, format="json")
         self.assertEqual(r.status_code, 400)
         r = self.c.post(V + "/train/%s/onboard" % NO, {"date": self.day, "points": []},
                         format="json")
@@ -700,10 +741,11 @@ class ApiTests(TestCase):
         r = self.c.get(V + "/train/offline/pack", HTTP_ACCEPT_ENCODING="gzip")
         self.assertEqual(r["Content-Encoding"], "gzip")
         body = json.loads(gzip.decompress(r.content))
-        self.assertEqual(body["version"], meta["version"])
-        self.assertTrue(any(t["no"] == NO for t in body["trains"]))
-        stop = body["trains"][0]["stops"][0]
-        self.assertTrue({"id", "km", "lat", "lng", "arr", "dep"} <= set(stop))
+        self.assertEqual(body["ver"], meta["version"])
+        self.assertTrue(any(t[0] == NO for t in body["tr"]))     # data lane's compact format
+        self.assertIn("st", body)
+        self.assertEqual(body["tw"], [])                         # nothing learned yet
+        self.assertLess(meta["size_bytes"], 200 * 1024)
         self.assertEqual(self.c.get(V + "/train/offline/pack?have=%s" % meta["version"])
                          .json()["same"], True)
 
@@ -713,17 +755,17 @@ class ApiTests(TestCase):
 
 
 class TowerMapTests(TestCase):
-    def test_tower_map_names_station_train_and_km(self):
-        lat, lng = _rt().point_at(96620)              # at Tangail
+    def test_tower_map_rows_snap_to_a_rail_segment(self):
+        lat, lng = _rt().point_at(_ch(IBRAHIMABAD))
         bi, bj = L.cell_bin(lat, lng)
         TrainCellBin.objects.create(cell="470-1-9-9", bi=bi, bj=bj, n=5)
-        TrainCellBin.objects.create(cell="470-1-9-8", bi=bi, bj=bj, n=1)   # too few
+        TrainCellBin.objects.create(cell="470-1-9-8", bi=bi, bj=bj, n=1)   # too few samples
         m = TE.tower_map()
         self.assertEqual(len(m), 1)
-        self.assertEqual(m[0]["k"], "470-1-9-9")
-        self.assertIsNotNone(m[0]["no"])
-        self.assertIsNotNone(m[0]["km"])
-        self.assertEqual(m[0]["n"], 5)
+        mcc, mnc, tac, cid, seg, metres, n = m[0]
+        self.assertEqual((mcc, mnc, tac, cid, n), (470, 1, 9, 9, 5))
+        self.assertTrue(0 <= seg < len(SRC.segment_index()))
+        self.assertGreaterEqual(metres, 0)
 
 
 class LoadTests(EngineBase):

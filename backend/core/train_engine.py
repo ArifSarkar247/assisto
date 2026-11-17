@@ -41,6 +41,7 @@ from django.core.cache import cache
 from django.db import transaction
 from django.utils import timezone
 
+from . import train_source as SRC
 from .logic import train_geo as TG
 from .logic import train_live as L
 from .logic import train_text as TX
@@ -173,57 +174,49 @@ def _limited(user, what, limit, ttl):
 
 
 # ------------------------------------------------------------ train data adapter
-@lru_cache(maxsize=512)
+@lru_cache(maxsize=1024)
 def route_index(no):
-    t = TG.train(no)
+    t = SRC.train(no)
     if not t or len(t.get("path") or []) < 2:
         return None
     return L.RouteIndex(t["path"])
 
 
-def _hm(s):
-    try:
-        h, m = str(s).split(":")
-        return int(h), int(m)
-    except (ValueError, AttributeError):
-        return None
-
-
 def stops(t):
-    """Timetable halts in order: [{id, bn, en, km, lat, lng, arr?, dep?, max_kmh?}]."""
-    st = TG.stations()
+    """Timetable halts in order: [{id, bn, en, km (official), ch (metres on
+    the path), lat, lng, arr?, dep?, max_kmh?}]."""
+    st = SRC.stations()
     out = []
     for s in t.get("stops") or []:
         info = st.get(s["st"]) or {}
         out.append(dict(id=s["st"], bn=info.get("bn", ""), en=info.get("en", ""),
-                        km=float(s["km"]), lat=info.get("lat"), lng=info.get("lng"),
+                        km=float(s["km"]), ch=float(s.get("ch") if s.get("ch") is not None
+                                                    else s["km"] * 1000.0),
+                        lat=info.get("lat"), lng=info.get("lng"),
                         arr=s.get("arr"), dep=s.get("dep"), max_kmh=s.get("max_kmh")))
     return out
 
 
 def sched_times(t, d):
-    """{station id: scheduled aware datetime} — the official arr/dep when the
-    data has it, else interpolated by rail distance (an estimate)."""
-    dep, arr = TG.times(t, d)
-    rt = route_index(t["no"])
-    km_total = max(0.001, (rt.length if rt else float(t.get("km") or 1) * 1000) / 1000.0)
-    total = (arr - dep).total_seconds()
-    out, prev = {}, dep
-    for s in stops(t):
-        hm = _hm(s.get("arr") or s.get("dep"))
-        if hm:
-            at = datetime(d.year, d.month, d.day, hm[0], hm[1], tzinfo=TG.DHAKA)
-            while at < prev - timedelta(hours=1):
-                at += timedelta(days=1)
-        else:
-            at = dep + timedelta(seconds=total * max(0.0, min(1.0, s["km"] / km_total)))
-        out[s["id"]] = at
-        prev = at
-    return out
+    """{station code: scheduled aware datetime} — official times; halts
+    without one are interpolated between timed halts (an estimate)."""
+    return SRC.stop_times(t, d)
+
+
+def ch_to_km(t, x):
+    """Path metres -> official km (for display; linear between halts)."""
+    ss = stops(t)
+    if not ss:
+        return x / 1000.0
+    for a, b in zip(ss, ss[1:]):
+        if a["ch"] <= x <= b["ch"]:
+            f = 0.0 if b["ch"] == a["ch"] else (x - a["ch"]) / (b["ch"] - a["ch"])
+            return a["km"] + f * (b["km"] - a["km"])
+    return ss[-1]["km"] if x > ss[-1]["ch"] else ss[0]["km"]
 
 
 def standard_kmh(t, d):
-    dep, arr = TG.times(t, d)
+    dep, arr = SRC.times(t, d)
     rt = route_index(t["no"])
     h = max(0.25, (arr - dep).total_seconds() / 3600.0)
     return (rt.length / 1000.0 if rt else float(t.get("km") or 0)) / h
@@ -236,23 +229,24 @@ def _seg_max(t, d, ch):
     sched = sched_times(t, d)
     a = b = None
     for s in ss:
-        if s["km"] * 1000.0 <= ch:
+        if s["ch"] <= ch:
             a = s
         elif b is None:
             b = s
     avg = None
-    if a and b and b["km"] > a["km"]:
+    if a and b and b["ch"] > a["ch"] and sched.get(a["id"]) and sched.get(b["id"]):
         h = (sched[b["id"]] - sched[a["id"]]).total_seconds() / 3600.0
         if h > 0:
-            avg = (b["km"] - a["km"]) / h
-    return L.seg_max_kmh(ss, ch, avg)
+            avg = (b["ch"] - a["ch"]) / 1000.0 / h
+    return L.seg_max_kmh([dict(km=s["ch"] / 1000.0, max_kmh=s.get("max_kmh")) for s in ss],
+                         ch, avg)
 
 
 def service_date_for(t, at):
     """Which service date a moment belongs to (overnight trains)."""
     local = at.astimezone(TG.DHAKA).date()
-    for d in (local, local - timedelta(days=1)):
-        dep, arr = TG.times(t, d)
+    for d in (local, local - timedelta(days=1), local - timedelta(days=2)):
+        dep, arr = SRC.times(t, d)
         if dep - timedelta(hours=1) <= at <= arr + timedelta(hours=TG.LATE_END_H):
             return d
     return local
@@ -363,7 +357,7 @@ def ingest(trip, points, now=None):
     """Validate + filter a batch for one anonymous trip.
     -> {accepted, rejected, placed_by_cell, learned_cells, reasons, status}."""
     now = now or timezone.now()
-    t = TG.train(trip.train_no)
+    t = SRC.train(trip.train_no)
     rt = route_index(trip.train_no)
     res = {"accepted": 0, "rejected": 0, "placed_by_cell": 0, "learned_cells": 0,
            "reasons": {}, "status": trip.status}
@@ -377,7 +371,7 @@ def ingest(trip, points, now=None):
     kf = L.Kalman1D.from_state(trip.kf)
     last = trip.last
     rows = []
-    dep, arr = TG.times(t, trip.service_date)
+    dep, arr = SRC.times(t, trip.service_date)
     win = ((dep - timedelta(minutes=TG.EARLY_START_MIN)).timestamp(),
            (arr + timedelta(hours=TG.LATE_END_H)).timestamp())
     for p in sorted([p for p in pts if p], key=lambda p: p["at"]):
@@ -448,9 +442,9 @@ def ingest(trip, points, now=None):
 
 # ------------------------------------------------------------ observations
 def _station_ch(t, sid):
-    for s in TG.line_stations(t):
+    for s in SRC.line_stations(t):
         if s["id"] == sid:
-            return float(s["km"]) * 1000.0, s
+            return float(s["ch"]), s
     return None, None
 
 
@@ -487,7 +481,7 @@ def _gps_agrees(t, sid, at):
         return False
     age = abs(_parse(st.get("updated_at")).timestamp() - at.timestamp()) if \
         st.get("updated_at") else 1e9
-    return age <= 300 and abs(float(st["km"]) * 1000.0 - ch) <= 1500.0
+    return age <= 300 and abs(float(st.get("ch", 0)) - ch) <= 1500.0
 
 
 def _parse(s):
@@ -533,7 +527,7 @@ def checkin(user, t, d, sid, kind, at=None, lat=None, lng=None, acc=None, now=No
                 c.status = "accepted"
                 c.save(update_fields=["status"])
             _add_obs(t, d, "checkin", sid, kind, at, weight=0.6 if near else 0.5)
-            record_passing(t, d, sid, at, "checkin")
+            record_passing(t, d, sid, at, "checkin", kind, 0.6 if near else 0.5)
         if matched:
             for c in [me] + others:
                 if c.points == 0:
@@ -547,17 +541,48 @@ def checkin(user, t, d, sid, kind, at=None, lat=None, lng=None, acc=None, now=No
 
 
 # ------------------------------------------------------------ G: confirmed passings
-def record_passing(t, d, sid, at, source):
-    """Store one confirmed passing (delay vs the schedule) for learning."""
+PASS_SOURCE = {"gps": "rider_gps", "cell": "tower", "checkin": "checkin",
+               "text": "shared_text"}
+_SOURCE_RANK = ("shared_text", "checkin", "tower", "rider_gps", "official")
+
+
+def record_passing(t, d, sid, at, source, kind="reached", confidence=0.5):
+    """Store one confirmed passing in the DATA lane's TrainPassing (anonymous:
+    train, station, date, times, delay, how confirmed). Needs the official
+    data loaded (load_bd_trains); a second confirmation only adds to it."""
+    from .models import RailStation, RailTrain
+    ss = stops(t)
+    seq = next((i for i, s in enumerate(ss) if s["id"] == sid), None)
     sched = sched_times(t, d).get(sid)
-    if sched is None:
+    if seq is None or sched is None:
         return None
+    if kind == "left" and ss[seq].get("dep"):
+        sched = SRC.stop_dep(t, d, sid) or sched
     delay = int(round((at - sched).total_seconds() / 60.0))
     if not (-60 <= delay <= 900):
         return None
-    obj, _ = TrainPassing.objects.get_or_create(
-        train_no=t["no"], service_date=d, station=sid,
-        defaults={"weekday": d.weekday(), "delay_min": delay, "source": source})
+    tr = RailTrain.objects.filter(number=t["no"]).only("id").first()
+    st = RailStation.objects.filter(code=sid).only("id").first()
+    if tr is None or st is None:
+        return None
+    src = PASS_SOURCE.get(source, source)
+    field = "departed_at" if kind == "left" else "arrived_at"
+    obj, created = TrainPassing.objects.get_or_create(
+        train=tr, service_date=d, station=st,
+        defaults={"seq": seq, "weekday": d.weekday(), "delay_min": delay, "source": src,
+                  field: at, "confidence": round(confidence, 2)})
+    if not created:
+        obj.confirmations += 1
+        if getattr(obj, field) is None:
+            setattr(obj, field, at)
+        if kind != "left" or obj.delay_min is None:
+            obj.delay_min = delay if kind != "left" or obj.arrived_at is None else obj.delay_min
+        if _SOURCE_RANK.index(src) > _SOURCE_RANK.index(obj.source) \
+                if obj.source in _SOURCE_RANK and src in _SOURCE_RANK else False:
+            obj.source = src
+        obj.confidence = round(max(obj.confidence, confidence), 2)
+        obj.save()
+    cache.delete("train:delays:%s:%d" % (t["no"], d.weekday()))
     return obj
 
 
@@ -570,8 +595,9 @@ def learned_delays(t, weekday, today=None):
         return hit
     today = today or timezone.now().astimezone(TG.DHAKA).date()
     rows = TrainPassing.objects.filter(
-        train_no=t["no"], service_date__gte=today - timedelta(days=LEARN_DAYS)).values_list(
-        "station", "service_date", "weekday", "delay_min")
+        train__number=t["no"], service_date__gte=today - timedelta(days=LEARN_DAYS),
+        delay_min__isnull=False).values_list(
+        "station__code", "service_date", "weekday", "delay_min")
     by_wd, by_any = {}, {}
     for sid, sd, wd, dl in rows:
         age = (today - sd).days
@@ -603,27 +629,33 @@ def predicted(t, d, now=None):
     sched = sched_times(t, d)
     rows = []
     for i, s in enumerate(ss):
+        if sched.get(s["id"]) is None:
+            continue
         j = min(known, key=lambda k: (abs(k - i), k < i))   # nearest learned halt
         dl = ld[ss[j]["id"]]["delay_min"]
         rows.append((s, dl, sched[s["id"]] + timedelta(minutes=dl)))
+    if not rows:
+        return None
     first, last = rows[0][2], rows[-1][2]
     if now < first - timedelta(minutes=30) or now > last + timedelta(hours=1):
         return None
-    x = L.predict_chainage([(s["km"], at.timestamp()) for s, _, at in rows], now.timestamp())
+    x = L.predict_chainage([(s["ch"] / 1000.0, at.timestamp()) for s, _, at in rows],
+                           now.timestamp())
     rt = route_index(t["no"])
     lat, lng = rt.point_at(x) if rt else (None, None)
-    nxt = next((r for r in rows if r[0]["km"] * 1000.0 > x + 1), None)
+    nxt = next((r for r in rows if r[0]["ch"] > x + 1), None)
     cover = len(known) / float(len(ss))
     return {"v": 1, "no": t["no"], "date": d.isoformat(), "mode": "predicted", "src": "learned",
             "freshness": {"state": "predicted", "updated_at": None, "age_s": None},
-            "km": round(x / 1000.0, 2), "lat": round(lat, 5) if lat else None,
+            "km": round(ch_to_km(t, x), 2), "ch": round(x),
+            "lat": round(lat, 5) if lat else None,
             "lng": round(lng, 5) if lng else None, "speed_kmh": None,
             "next": ({"id": nxt[0]["id"], "bn": nxt[0]["bn"], "en": nxt[0]["en"],
                       "km": nxt[0]["km"], "eta": nxt[2].isoformat(),
                       "sched": sched[nxt[0]["id"]].isoformat(), "delay_min": nxt[1]}
                      if nxt else None),
             "etas": [[s["id"], at.astimezone(TG.DHAKA).isoformat()[11:16], dl]
-                     for s, dl, at in rows if s["km"] * 1000.0 > x + 1],
+                     for s, dl, at in rows if s["ch"] > x + 1],
             "delay_min": nxt[1] if nxt else rows[-1][1],
             "confidence": round(L.PREDICT_CONF * (0.5 + 0.5 * cover), 2), "contributors": 0,
             "shift": {s["id"]: dl for s, dl, _ in rows},
@@ -633,14 +665,14 @@ def predicted(t, d, now=None):
 # ------------------------------------------------------------ F: shared / pasted text
 def train_names():
     out = {}
-    for x in TG.timetable()["trains"]:
+    for x in SRC.trains():
         out[x["no"]] = [n for n in (x.get("name_bn"), x.get("name_en"), x.get("name"))
                         if n]
     return out
 
 
 def known_trains():
-    return {x["no"] for x in TG.timetable()["trains"]}
+    return {x["no"] for x in SRC.trains()}
 
 
 def _pick_train(cands, sid, at):
@@ -648,14 +680,14 @@ def _pick_train(cands, sid, at):
     station and whose timetable there is nearest to the reported time."""
     best = None
     for no in cands:
-        t = TG.train(no)
+        t = SRC.train(no)
         if t is None or _station_ch(t, sid)[0] is None:
             continue
         d = service_date_for(t, at)
         st = sched_times(t, d).get(sid)
         if st is None:
             _, ss = _station_ch(t, sid)
-            dep, arr = TG.times(t, d)
+            dep, arr = SRC.times(t, d)
             st = dep + (arr - dep) * 0.5
         gap = abs((at - st).total_seconds())
         if best is None or gap < best[0]:
@@ -666,7 +698,7 @@ def _pick_train(cands, sid, at):
 def _time_ok(t, d, sid, at, now):
     if at > now + timedelta(minutes=10) or at < now - timedelta(hours=TEXT_PAST_H):
         return False
-    dep, arr = TG.times(t, d)
+    dep, arr = SRC.times(t, d)
     return dep - timedelta(minutes=60) <= at <= arr + timedelta(hours=TG.LATE_END_H)
 
 
@@ -695,14 +727,14 @@ def share_text(user, text, no=None, date=None, lat=None, lng=None, acc=None, now
     now = now or timezone.now()
     if _limited(user, "text", TEXT_PER_HOUR, 3600):
         return 429, {"ok": False, "reason": "rate_limited"}
-    t_hint = TG.train(no) if no else None
-    line = {s["id"] for s in TG.line_stations(t_hint)} if t_hint else None
-    p = TX.parse(text, TG.stations(), now, TG.DHAKA, train_no=no, line_ids=line,
+    t_hint = SRC.train(no) if no else None
+    line = {s["id"] for s in SRC.line_stations(t_hint)} if t_hint else None
+    p = TX.parse(text, SRC.stations(), now, TG.DHAKA, train_no=no, line_ids=line,
                  known_trains=known_trains(), train_names=train_names())
     if not p or not p.get("candidates"):
         return 400, {"ok": False, "reason": "unparsed"}
     t = _pick_train(p["candidates"], p["station_id"], p["at"])
-    sinfo = TG.stations().get(p["station_id"]) or {}
+    sinfo = SRC.stations().get(p["station_id"]) or {}
     parsed = {"no": t["no"] if t else p["no"], "station_id": p["station_id"],
               "station_bn": sinfo.get("bn", ""), "station_en": sinfo.get("en", ""),
               "kind": p["kind"], "at": p["at"].isoformat(), "late_min": p["late_min"]}
@@ -724,7 +756,7 @@ def share_text(user, text, no=None, date=None, lat=None, lng=None, acc=None, now
                      "reason": "waiting_for_second_report"}
     _add_obs(t, d, "text", p["station_id"], p["kind"], p["at"], p["late_min"],
              weight=0.4 if near else 0.3)
-    record_passing(t, d, p["station_id"], p["at"], "text")
+    record_passing(t, d, p["station_id"], p["at"], "text", p["kind"], 0.4 if near else 0.3)
     maybe_recompute(t, d, now, force=True)
     return 200, {"ok": True, "parsed": parsed, "applied": True, "status": "accepted"}
 
@@ -748,7 +780,7 @@ def onboard_check(t, d, points, now=None):
         ch, _ = rt.project(p["lat"], p["lng"]) if p["lat"] is not None else (None, None)
         hint = ch if ch is not None else hint
     out = L.onboard_signal(pts, rt, _seg_max(t, d, hint or 0.0))
-    dep, arr = TG.times(t, d)
+    dep, arr = SRC.times(t, d)
     running = dep - timedelta(minutes=TG.EARLY_START_MIN) <= now <= \
         arr + timedelta(hours=TG.LATE_END_H)
     out["running"] = running
@@ -855,20 +887,22 @@ def recompute(t, d, now=None):
     spd = L.eta_speed_kmh(now_kmh, hist, standard_kmh(t, d))
     sched = sched_times(t, d)
     passed = dict((prev or {}).get("passed") or {})
-    prev_x = float((prev or {}).get("km", 0)) * 1000.0 if prev else None
+    prev_x = float(prev["ch"]) if prev and prev.get("ch") is not None else None
     ss = stops(t)
     last_s = next_s = None
     etas = []
     for s in ss:
-        m = s["km"] * 1000.0
+        m = s["ch"]
+        if sched.get(s["id"]) is None:
+            continue
         if m <= x + 150.0:
             last_s = s
             if s["id"] not in passed and prev_x is not None and prev_x < m - 150.0:
                 passed[s["id"]] = now.isoformat()
                 if src == "gps" and conf >= PASS_CONF:
-                    record_passing(t, d, s["id"], now, "gps")
+                    record_passing(t, d, s["id"], now, "gps", "reached", conf)
             continue
-        eta = now + timedelta(minutes=L.eta_minutes((m - x) / 1000.0, spd))
+        eta = (now + timedelta(minutes=L.eta_minutes((m - x) / 1000.0, spd))).astimezone(TG.DHAKA)
         delay = int(round((eta - sched[s["id"]]).total_seconds() / 60.0))
         etas.append({"id": s["id"], "eta": eta.isoformat(), "sched": sched[s["id"]].isoformat(),
                      "delay_min": delay})
@@ -876,7 +910,8 @@ def recompute(t, d, now=None):
             next_s = s
     lat, lng = rt.point_at(x)
     delay = etas[0]["delay_min"] if etas else (
-        int(round((now - sched[ss[-1]["id"]]).total_seconds() / 60.0)) if ss else None)
+        int(round((now - sched[ss[-1]["id"]]).total_seconds() / 60.0))
+        if ss and sched.get(ss[-1]["id"]) else None)
 
     def _st(s, extra=None):
         if s is None:
@@ -886,7 +921,8 @@ def recompute(t, d, now=None):
     state = {
         "v": 1, "no": t["no"], "date": d.isoformat(), "mode": "live" if src in ("gps", "cell")
         else "reported", "src": src,
-        "km": round(x / 1000.0, 2), "lat": round(lat, 5), "lng": round(lng, 5),
+        "km": round(ch_to_km(t, x), 2), "ch": round(x), "lat": round(lat, 5),
+        "lng": round(lng, 5),
         "speed_kmh": round(now_kmh) if src in ("gps", "cell") else None,
         "avg_kmh": round(spd),
         "last": _st(last_s, {"at": passed.get(last_s["id"]) if last_s else None}),
@@ -916,7 +952,7 @@ def read(t, d, now=None):
         acts = _actuals(t, d)
         return {"v": 1, "no": t["no"], "date": st["date"], "mode": st["mode"], "src": st["src"],
                 "freshness": {"state": fresh, "updated_at": st["updated_at"], "age_s": age},
-                "km": st["km"], "lat": st["lat"], "lng": st["lng"],
+                "km": st["km"], "ch": st.get("ch"), "lat": st["lat"], "lng": st["lng"],
                 "speed_kmh": st["speed_kmh"], "avg_kmh": st["avg_kmh"],
                 "last": st["last"], "next": st["next"],
                 "etas": [[e["id"], e["eta"][11:16], e["delay_min"]] for e in st["etas"]],
@@ -929,22 +965,57 @@ def read(t, d, now=None):
 
 
 def timetable_payload(t, d, now):
-    est = TG.estimate(t, d, now)
+    """No live data and nothing learned: where the timetable says it is."""
     sched = sched_times(t, d)
-    ss = stops(t)
-    ch = float(est["chainage_m"]) if est else 0.0
-    nxt = next((s for s in ss if s["km"] * 1000.0 > ch + 1), None)
+    ss = [s for s in stops(t) if sched.get(s["id"])]
+    if not ss:
+        return {"v": 1, "no": t["no"], "date": d.isoformat(), "mode": "timetable",
+                "src": "timetable", "note_bn": NOTE_BN, "note_en": NOTE_EN,
+                "freshness": {"state": "timetable", "updated_at": None, "age_s": None},
+                "state": None, "km": None, "ch": None, "lat": None, "lng": None,
+                "speed_kmh": None, "next": None, "etas": [], "delay_min": None,
+                "confidence": 0.1, "contributors": 0}
+    first, last = sched[ss[0]["id"]], sched[ss[-1]["id"]]
+    state = "not_started" if now < first else ("arrived" if now >= last else "running")
+    ch = L.predict_chainage([(s["ch"] / 1000.0, sched[s["id"]].timestamp()) for s in ss],
+                            now.timestamp())
+    rt = route_index(t["no"])
+    lat, lng = rt.point_at(ch) if rt else (None, None)
+    nxt = next((s for s in ss if s["ch"] > ch + 1), None)
     return {"v": 1, "no": t["no"], "date": d.isoformat(), "mode": "timetable", "src": "timetable",
             "note_bn": NOTE_BN, "note_en": NOTE_EN,
             "freshness": {"state": "timetable", "updated_at": None, "age_s": None},
-            "state": est["state"] if est else None,
-            "km": round(ch / 1000.0, 2), "lat": est["lat"] if est else None,
-            "lng": est["lng"] if est else None, "speed_kmh": None,
+            "state": state, "runs": SRC.runs_on(t, d),
+            "km": round(ch_to_km(t, ch), 2), "ch": round(ch),
+            "lat": round(lat, 5) if lat is not None else None,
+            "lng": round(lng, 5) if lng is not None else None, "speed_kmh": None,
             "next": ({"id": nxt["id"], "bn": nxt["bn"], "en": nxt["en"], "km": nxt["km"],
                       "eta": sched[nxt["id"]].isoformat()} if nxt else None),
             "etas": [[s["id"], sched[s["id"]].isoformat()[11:16], None] for s in ss
-                     if s["km"] * 1000.0 > ch + 1],
+                     if s["ch"] > ch + 1],
             "delay_min": None, "confidence": 0.1, "contributors": 0}
+
+
+@lru_cache(maxsize=1)
+def _code_by_name():
+    out = {}
+    for code, st in SRC.stations().items():
+        for n in (st.get("bn"), st.get("en")):
+            if n:
+                out.setdefault(n.strip().lower(), code)
+    return out
+
+
+def _code_for(row):
+    """A v1 line row (old OSM id) -> the official station code (by id, else name)."""
+    sid = row.get("id")
+    if sid in SRC.stations():
+        return sid
+    names = _code_by_name()
+    for n in (row.get("bn"), row.get("en")):
+        if n and n.strip().lower() in names:
+            return names[n.strip().lower()]
+    return sid
 
 
 def enrich_live_view(view, t, d, now=None):
@@ -952,6 +1023,9 @@ def enrich_live_view(view, t, d, now=None):
     freshness, live.{speed_kmh, confidence, contributors, eta_next},
     line.stations[i].{actual, delay_min, checkins}."""
     now = now or timezone.now()
+    t = SRC.train(t["no"])          # the official data (v1 still reads the old file)
+    if t is None:
+        return view
     r = read(t, d, now)
     view["freshness"] = r["freshness"]
     view["engine"] = r
@@ -959,12 +1033,12 @@ def enrich_live_view(view, t, d, now=None):
         view["freshness"] = dict(r["freshness"], note_bn=NOTE_BN, note_en=NOTE_EN)
         return view
     if r["mode"] == "predicted":           # learned usual delay — never "live"
-        view["predicted"] = {"delay_min": r["delay_min"], "chainage_m": round(r["km"] * 1000),
+        view["predicted"] = {"delay_min": r["delay_min"], "chainage_m": r.get("ch"),
                              "basis_n": r.get("learned_from", 0), "lat": r["lat"],
                              "lng": r["lng"], "next": r["next"], "confidence": r["confidence"]}
         shift = {sid: dl for sid, dl in (r.get("shift") or {}).items()}
         for s in (view.get("line") or {}).get("stations") or []:
-            sid = s.get("id")
+            sid = _code_for(s)
             dl = shift.get(sid, r["delay_min"])
             if dl is not None and s.get("sched"):
                 try:
@@ -982,7 +1056,7 @@ def enrich_live_view(view, t, d, now=None):
     if not live and r["mode"] != "live":
         live = {}
     elif not live:
-        live = {"label": "live", "chainage_m": round(r["km"] * 1000), "lat": r["lat"],
+        live = {"label": "live", "chainage_m": r.get("ch"), "lat": r["lat"],
                 "lng": r["lng"], "sharers": r["contributors"], "dropped": 0,
                 "age_s": r["freshness"]["age_s"], "arrived": False}
         view["live"] = live
@@ -997,7 +1071,7 @@ def enrich_live_view(view, t, d, now=None):
         view["delay_min"] = r["delay_min"]
     delays = {e[0]: e[2] for e in r["etas"]}
     for s in (view.get("line") or {}).get("stations") or []:
-        sid = s.get("id")
+        sid = _code_for(s)
         if r["actual"].get(sid):
             s["actual"] = r["actual"][sid]
         if sid in delays:
@@ -1008,74 +1082,73 @@ def enrich_live_view(view, t, d, now=None):
 
 
 # ------------------------------------------------------------ offline pack (towers)
+@lru_cache(maxsize=1)
+def _segment_indexes():
+    """[(RouteIndex, bbox)] per rail segment, in br_segments.geojson order."""
+    out = []
+    for a, b in SRC.segment_index():
+        path = SRC.segment_path(a, b)
+        if len(path) < 2:
+            out.append((None, None))
+            continue
+        lats, lngs = [p[0] for p in path], [p[1] for p in path]
+        out.append((L.RouteIndex(path), (min(lats) - 0.02, max(lats) + 0.02,
+                                         min(lngs) - 0.02, max(lngs) + 0.02)))
+    return out
+
+
 def tower_map():
-    """Learned towers for the offline pack: [{k, s, no, km, n}] — the
-    strongest bin per tower, the nearest station (<= 3 km) and one train whose
-    line it serves with the km there. Aggregates only."""
+    """Learned towers for the offline bundle's `tw` (format in the plan doc,
+    "অফলাইন বান্ডেল"): [mcc, mnc, tac, cid, segment index, metres into that
+    segment, samples] — the strongest bin per tower snapped to the nearest
+    rail segment (<= 1.5 km). Aggregate counts only, no rider, no time."""
     best = {}
     for cell, bi, bj, n in TrainCellBin.objects.values_list("cell", "bi", "bj", "n"):
         tot = best.setdefault(cell, [0, None])
         tot[0] += n
         if tot[1] is None or n > tot[1][2]:
             tot[1] = (bi, bj, n)
-    stations = TG.stations()
-    trains = TG.timetable()["trains"]
+    segs = _segment_indexes()
     out = []
-    for cell, (total, (bi, bj, _)) in best.items():
+    for cell, (total, (bi, bj, _)) in sorted(best.items()):
         if total < L.CELL_MIN_N:
             continue
         lat, lng = L.bin_center(bi, bj)
-        sid, dmin = None, 3000.0
-        for k, s in stations.items():
-            if s.get("lat") is None:
-                continue
-            dd = L.haversine_m(lat, lng, s["lat"], s["lng"])
-            if dd < dmin:
-                sid, dmin = k, dd
-        no = km = None
-        for tr in trains:
-            ri = route_index(tr["no"])
-            if ri is None:
+        hit = None
+        for i, (ri, bb) in enumerate(segs):
+            if ri is None or not (bb[0] <= lat <= bb[1] and bb[2] <= lng <= bb[3]):
                 continue
             ch, off = ri.project(lat, lng, radius_cells=2)
-            if ch is not None and off <= L.CELL_ON_ROUTE_M:
-                no, km = tr["no"], round(ch / 1000.0, 2)
-                break
-        out.append({"k": cell, "s": sid, "no": no, "km": km, "n": total})
+            if ch is not None and off <= L.CELL_ON_ROUTE_M and (hit is None or off < hit[2]):
+                hit = (i, ch, off)
+        if hit is None:
+            continue
+        mcc, mnc, tac, cid = (int(x) for x in cell.split("-"))
+        out.append([mcc, mnc, tac, cid, hit[0], int(round(hit[1])), int(total)])
     return out
 
 
 def offline_pack(force=False):
-    """-> (meta, gz bytes). Cached 6 h in the live store."""
-    key = "train:offline:meta"
-    meta = None if force else STORE.get(key)
+    """The DATA lane's offline bundle (train_data.offline_bundle()) with the
+    learned tower map filled into `tw`. -> (meta, gzip bytes); cached 6 h."""
+    meta = None if force else STORE.get("train:offline:meta")
     blob = None if force else cache.get("train:offline:gz")
     if meta and blob:
         return meta, blob
-    tt = TG.timetable()
-    trains = []
-    for tr in tt["trains"]:
-        d = timezone.now().astimezone(TG.DHAKA).date()
-        sched = sched_times(tr, d)
-        trains.append({"no": tr["no"], "name_bn": tr.get("name_bn", ""),
-                       "name_en": tr.get("name_en", ""), "off_days": tr.get("off_days") or [],
-                       "stops": [{"id": s["id"], "bn": s["bn"], "en": s["en"], "km": s["km"],
-                                  "lat": s["lat"], "lng": s["lng"],
-                                  "arr": s.get("arr") or sched[s["id"]].strftime("%H:%M"),
-                                  "dep": s.get("dep") or sched[s["id"]].strftime("%H:%M"),
-                                  "official": bool(s.get("arr") or s.get("dep"))}
-                                 for s in stops(tr)]})
-    towers = tower_map()
-    body = {"trains": trains, "towers": towers}
+    from . import train_data
+    raw, _gz, _ver = train_data.offline_bundle()
+    body = json.loads(raw)
+    body.pop("ver", None)
+    body["tw"] = tower_map()
     raw = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode()
     version = hashlib.sha256(raw).hexdigest()[:12]
-    body["version"] = version
+    body["ver"] = version
     raw = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode()
-    blob = gzip.compress(raw, 6)
+    blob = gzip.compress(raw, 9, mtime=0)
     meta = {"version": version, "size_bytes": len(blob), "raw_bytes": len(raw),
-            "updated_at": timezone.now().isoformat(), "trains": len(trains),
-            "towers": len(towers)}
-    STORE.set(key, meta, OFFLINE_TTL_S)
+            "updated_at": timezone.now().isoformat(), "trains": len(body.get("tr") or []),
+            "towers": len(body["tw"])}
+    STORE.set("train:offline:meta", meta, OFFLINE_TTL_S)
     cache.set("train:offline:gz", blob, OFFLINE_TTL_S)
     return meta, blob
 
@@ -1107,7 +1180,7 @@ def tick(now=None):
                   .values_list("train_no", "service_date")[:200])
     n = 0
     for no, d in active:
-        t = TG.train(no)
+        t = SRC.train(no)
         if t is not None and maybe_recompute(t, d, now, force=True) is not None:
             n += 1
     out["recomputed"] = n
