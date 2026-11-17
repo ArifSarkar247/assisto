@@ -210,3 +210,26 @@ class E2EFakeTests(TestCase):
         task = VC.chat_task_text("bn", None, minor=False, tools=False, follow="continue")
         nxt = fakes.answer_for("চালিয়ে যাও", "", [], task)
         self.assertTrue(nxt.startswith("২. সরঞ্জাম কিনুন"))
+
+
+class HomeContinueTests(TestCase):
+    def test_home_continue_gets_the_home_session_and_is_free(self):
+        from core import views as V
+        u = _u("+8801311990006")
+        hs = ChatSession.objects.create(user=u, source="home")
+        ChatMessage.objects.create(session=hs, role="user", text="explain")
+        ChatMessage.objects.create(session=hs, role="assistant", text="part one.",
+                                   meta={"cut": True, "credits": 2, "ad": True})
+        c = APIClient()
+        c.force_authenticate(u)
+        with mock.patch.object(V.ai, "available", return_value=True), \
+                mock.patch("core.views_chat._produce_reply",
+                           return_value=("And the rest.", {"source": "ai", "credits": 0,
+                                                            "follow": "continue"}, [])) as pr:
+            r = c.post("/api/v1/agent", {"text": "Continue", "follow": "continue",
+                                         "session_id": hs.id}, format="json")
+        self.assertEqual(r.status_code, 200, r.content[:300])
+        args, kw = pr.call_args
+        self.assertEqual(args[1], hs)                 # session reaches the engine
+        self.assertTrue(kw["follow_free"])
+        self.assertEqual(r.json().get("follow"), "continue")

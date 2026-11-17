@@ -1770,8 +1770,11 @@ class AgentView(APIView):
                     _hs = None
                 fk, ffree = VC.follow_kind(request, text, _hs)
                 try:
+                    # gap-aichat: the home session goes in too (an ad-paid
+                    # answer's free Continue stays at Normal; "Continue is
+                    # free" is known before the tap)
                     reply, rmeta, rcards = VC._produce_reply(
-                        u, None, text, lang, hist,
+                        u, _hs, text, lang, hist,
                         credout=credits_out.supported(request),
                         mode=VC._chat_mode(request),
                         photo=VC._photo_context(request), level=VC._chat_level(request),
@@ -1784,7 +1787,7 @@ class AgentView(APIView):
                     ai_meta = {k: rmeta[k] for k in (
                         "credits", "balance", "money_grounding", "free_quota", "level",
                         "refunded", "hint_better", "actions", "ai_generated", "pro_topic",
-                        "safe_mode", "text_cut", "cut", "follow", "continue_free",
+                        "safe_mode", "text_cut", "cut", "follow", "continue_free", "ad",
                         "spend_ref") if k in rmeta}   # aileft: spend_ref stays server-side
                     ai_meta["credits"] = int(rmeta.get("credits") or 0)
                 else:
