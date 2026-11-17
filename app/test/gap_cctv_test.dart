@@ -15,11 +15,13 @@ import 'package:assisto/phonecam/phonecam_pair_sheet.dart';
 import 'package:assisto/screens/watchman/cctv_act_tiles.dart';
 import 'package:assisto/screens/watchman/cctv_escalate.dart';
 import 'package:assisto/screens/watchman/cctvx_actions.dart';
+import 'package:assisto/screens/watchman/cctv_watch_screen.dart';
 import 'package:assisto/theme.dart';
 
 import 'cctvact_fakes.dart' show FakeCctvAct;
 import 'cctvescalate_fakes.dart' show FakeEscalate;
 import 'cctvx_fakes.dart' show FakeCctvx;
+import 'cctvteam_fakes.dart' show FakeCctvTeam;
 import 'cctvguard_fakes.dart' show FakeVendorLive, FakeNetCtl;
 import 'phonecam_shots.dart' show pcFakePair;
 
@@ -41,6 +43,13 @@ class _SlowEvidence extends FakeCctvx {
     await gate.future;
     return {'created': '2026-11-17T10:00:00+06:00', 'facts': const {}};
   }
+}
+
+class _DelTeam extends FakeCctvTeam {
+  _DelTeam([super.mode = 'data']);
+  final deleted = <int>[];
+  @override
+  Future<void> watchDelete(int postId) async => deleted.add(postId);
 }
 
 /// start() waits until the test lets it answer.
@@ -336,5 +345,35 @@ void main() {
   test('G13 clip expiry text never claims a fixed 24 hours (add-on keeps 7/30 days)', () {
     expect(en.gcvClipExpiredGone, isNot(contains('24')));
     expect(bn.gcvClipExpiredGone, isNot(contains('২৪')));
+  });
+
+  group('G14 neighbourhood watch: delete asks first, load error has Retry', () {
+    testWidgets('delete my post: Cancel keeps it, Yes removes it', (tester) async {
+      _phone(tester, height: 2000);
+      final src = _DelTeam();
+      await tester.pumpWidget(
+          _app(CctvWatchGroupScreen(source: src, groupId: 21, name: 'Road 3 watch')));
+      await _settle(tester);
+      await tester.ensureVisible(find.text(en.ctmWatchDelete));
+      await tester.tap(find.text(en.ctmWatchDelete));
+      await _settle(tester);
+      expect(find.text(en.gcvWatchDeleteAsk), findsOneWidget);
+      await tester.tap(find.text(en.wmCancel));
+      await _settle(tester);
+      expect(src.deleted, isEmpty);
+      await tester.tap(find.text(en.ctmWatchDelete));
+      await _settle(tester);
+      await tester.tap(find.byKey(const ValueKey('gcv-watch-del-yes')));
+      await _settle(tester);
+      expect(src.deleted, [32]);
+    });
+
+    testWidgets('a failed load offers Retry', (tester) async {
+      _phone(tester);
+      await tester.pumpWidget(_app(
+          CctvWatchGroupScreen(source: _DelTeam('fail'), groupId: 21, name: 'Road 3 watch')));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('gcv-watch-retry')), findsOneWidget);
+    });
   });
 }

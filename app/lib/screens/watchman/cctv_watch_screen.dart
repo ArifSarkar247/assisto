@@ -190,6 +190,21 @@ class _CctvWatchGroupScreenState extends State<CctvWatchGroupScreen> {
 
   Future<void> _delete(Map<String, dynamic> p) async {
     final t = AppLocalizations.of(context);
+    // gap-cctv: removing a shared post asks first
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.gcvWatchDeleteAsk),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.wmCancel)),
+          FilledButton(
+              key: const ValueKey('gcv-watch-del-yes'),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.ctmWatchDelete)),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
     try {
       await widget.source.watchDelete((p['id'] as num).toInt());
       _snack(t.ctmWatchDeleted);
@@ -212,9 +227,18 @@ class _CctvWatchGroupScreenState extends State<CctvWatchGroupScreen> {
               child: ListView(
                 padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 12, 16, 32)),
                 children: [
-                  if (_error != null)
-                    Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!)
-                  else if (_posts.isEmpty)
+                  if (_error != null) ...[
+                    Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: FilledButton(
+                          key: const ValueKey('gcv-watch-retry'),
+                          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                          onPressed: _load,
+                          child: Text(t.wmRetry)),
+                    ),
+                  ] else if (_posts.isEmpty)
                     CvEmptyBlock(
                       compact: true,
                       icon: Icons.photo_library_outlined,
