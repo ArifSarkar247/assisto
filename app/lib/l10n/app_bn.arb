@@ -26122,5 +26122,7 @@
   "d3BizCustomers": "ক্রেতা ও বিক্রি",
   "d3BizMoney": "টাকা ও রিপোর্ট",
   "d3BizStock": "মাল ও সরবরাহকারী",
-  "d3BizTeam": "কর্মী ও সেটিং"
+  "d3BizTeam": "কর্মী ও সেটিং",
+  "cityGGetOffAtN": "নামবেন: {stop} ({n, plural, other{{n} স্টপ পরে}})",
+  "cityGChangesN": "{n, plural, other{{n} বার বদল}}"
 }

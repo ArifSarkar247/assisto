@@ -53027,5 +53027,26 @@
   "d3BizTeam": "Team & settings",
   "@d3BizTeam": {
     "description": "design3: My Business hub section header"
+  },
+  "cityGGetOffAtN": "Get off at: {stop} ({n, plural, =1{1 stop} other{{n} stops}})",
+  "@cityGGetOffAtN": {
+    "description": "gap-city: replaces cityGetOffAt (fixes '(1 stops)')",
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "cityGChangesN": "{n, plural, =1{1 change} other{{n} changes}}",
+  "@cityGChangesN": {
+    "description": "gap-city: replaces cityChanges (fixes '1 change(s)')",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
   }
 }
