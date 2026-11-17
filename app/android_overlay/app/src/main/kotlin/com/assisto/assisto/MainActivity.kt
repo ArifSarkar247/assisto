@@ -344,6 +344,15 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // circle-screenshare: screen share in a My Circle video call
+        // ("com.assisto/screenshare"). Handler only — the mediaProjection
+        // foreground service starts ONLY after the user's consent.
+        try {
+            com.assisto.assisto.calls.ScreenShareChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         // CCTV Part 4 Shop Box mode: keep-screen-on + charging state. Handler
         // registration only — nothing runs until Dart calls it (lazy).
         try {

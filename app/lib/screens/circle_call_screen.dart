@@ -19,9 +19,15 @@ import '../calls/call_launch.dart'; // calls-a
 import '../calls/call_mini_bar.dart' show CallPipLayout; // callpip
 import '../calls/call_pip.dart' show showPipOffHint; // callpip
 import '../calls/fullscreen_call_prompt.dart'; // play-fsi
+import '../calls/group_add_people_sheet.dart'; // group-calls
+import '../calls/group_call_api.dart'; // group-calls
+import '../calls/group_call_controller.dart' show GroupCallError; // group-calls
+import 'group_call_screen.dart'; // group-calls
 import '../calls/call_native.dart';
 import '../calls/call_runtime.dart';
 import '../calls/call_video.dart';
+import '../calls/media_ext.dart' show ScreenShareSurface; // circle-screenshare
+import '../calls/screen_share.dart'; // circle-screenshare
 import '../calls/video_stage.dart'; // cde-chat
 import '../messaging/chat_decor/decor_store.dart';
 import '../api.dart' show ApiClient; // bubbles2
@@ -154,10 +160,22 @@ class _CircleCallScreenState extends State<CircleCallScreen>
   /// b1: the live call went to the mini bar (minimized) — this screen must
   /// not hang it up or stop its foreground service when it is disposed.
   bool _handedOff = false;
+
+  /// group-calls: this 1:1 call moved to the group call screen (Add person,
+  /// or the other side added someone) — nothing here may end it.
+  bool _groupHandover = false;
   int _noticeSeq = 0;
   CallNotice _noticeShown = CallNotice.none;
   Timer? _noticeTimer;
   bool? _screenOnSent;
+
+  // circle-screenshare: the call's ONE screen-share controller (it outlives
+  // this screen: minimize / PiP) + its sheet and notice on this screen.
+  ScreenShareController? _ss;
+  bool _ssSheetOpen = false;
+  int _ssNoticeSeq = 0;
+  ScreenShareNotice _ssNoticeShown = ScreenShareNotice.none;
+  Timer? _ssNoticeTimer;
 
   /// Direction of the CURRENT controller: an incoming call that failed can
   /// be called back ("Call again" places a new outgoing call).
@@ -326,6 +344,7 @@ class _CircleCallScreenState extends State<CircleCallScreen>
     _c = c;
     _surface = s;
     c.addListener(_onChange);
+    _attachScreenShare(c); // circle-screenshare
     s?.hasRemoteVideo.addListener(_onChange);
     _ticker?.cancel();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -383,7 +402,11 @@ class _CircleCallScreenState extends State<CircleCallScreen>
 
   void _onChange() {
     final c = _c;
-    if (c == null || !mounted) return;
+    if (c == null || !mounted || _groupHandover) return;
+    if (_owns && c.roomId != null && !c.isEnded) {
+      unawaited(_toGroup(c));
+      return;
+    }
     _syncNotice(c);
     if (_owns) {
       // b1: video mode keeps the screen on and allows Home -> PiP
@@ -495,6 +518,8 @@ class _CircleCallScreenState extends State<CircleCallScreen>
     _ticker?.cancel();
     _autoClose?.cancel();
     _noticeTimer?.cancel();
+    _ssNoticeTimer?.cancel(); // circle-screenshare
+    _ss?.removeListener(_onScreenShare);
     _surface?.hasRemoteVideo.removeListener(_onChange);
     final c = _c;
     if (_handedOff) {
@@ -513,7 +538,7 @@ class _CircleCallScreenState extends State<CircleCallScreen>
         c.dispose(); // hangs up if still live
       }
     }
-    if (_owns) {
+    if (_owns && !_groupHandover) {
       unawaited(CallNative.keepScreenOn(false));
       unawaited(CallKeepAlive.stop());
     }
@@ -715,6 +740,7 @@ class _CircleCallScreenState extends State<CircleCallScreen>
             ),
           const Spacer(flex: 2),
           if (live) _noticeBanner(c),
+          if (live) _screenShareNotice(), // circle-screenshare
           if (live) _upgradeCard(c),
           if (c == null || !c.isEnded) _controls(c),
             ]);
@@ -739,7 +765,7 @@ class _CircleCallScreenState extends State<CircleCallScreen>
         backgroundColor: Brand.ink,
         body: VideoStage(
           key: const Key('call-video-stage'),
-          remote: remoteVideo ? surface.remoteView() : gradient,
+          remote: remoteVideo ? _remoteVideoView(c, surface) : gradient,
           local: c.cameraOn && !c.cameraPausedBg
               ? surface.localView(mirror: c.frontCamera)
               : Center(
@@ -793,7 +819,7 @@ class _CircleCallScreenState extends State<CircleCallScreen>
         fit: StackFit.expand,
         children: [
           if (remoteVideo)
-            Positioned.fill(child: surface.remoteView())
+            Positioned.fill(child: _remoteVideoView(c, surface))
           else
             gradient,
           if (dim != null) dim,
@@ -1025,6 +1051,232 @@ class _CircleCallScreenState extends State<CircleCallScreen>
       );
 
   /// b1: the honest one-line notice (declined, no answer, camera, …).
+  // ------------------------------------------------- circle-screenshare
+  void _attachScreenShare(CallController c) {
+    _ss?.removeListener(_onScreenShare);
+    final ss = ScreenShareController.of(c);
+    _ss = ss;
+    if (ss == null) return;
+    ss.addListener(_onScreenShare);
+    _ssNoticeSeq = ss.noticeSeq;
+  }
+
+  void _onScreenShare() {
+    final ss = _ss;
+    if (ss == null || !mounted) return;
+    if (ss.noticeSeq != _ssNoticeSeq) {
+      _ssNoticeSeq = ss.noticeSeq;
+      _ssNoticeShown = ss.notice;
+      _ssNoticeTimer?.cancel();
+      _ssNoticeTimer = Timer(const Duration(seconds: 6), () {
+        if (mounted) setState(() => _ssNoticeShown = ScreenShareNotice.none);
+      });
+    }
+    if (ss.state == ScreenShareState.consent && !_ssSheetOpen) {
+      unawaited(_showScreenShareConsent(ss));
+    }
+    setState(() {});
+  }
+
+  /// OUR explanation before Android's own dialog: what the other person
+  /// will see, that it stops with one tap. Continue / Not now.
+  Future<void> _showScreenShareConsent(ScreenShareController ss) async {
+    _ssSheetOpen = true;
+    final go = await showAppSheet<bool>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (ctx) {
+        final t = AppLocalizations.of(ctx);
+        return SingleChildScrollView(
+          key: const Key('cssh-consent'),
+          padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Icon(Icons.screen_share_rounded, size: 40),
+              const SizedBox(height: Gap.md),
+              Text(t.csshConsentTitle(_name),
+                  textAlign: TextAlign.center, style: AType.titleMedium),
+              const SizedBox(height: Gap.sm),
+              Text(t.csshConsentBody(_name), style: AType.bodyMedium),
+              const SizedBox(height: Gap.sm),
+              Text(t.csshConsentTip, style: AType.bodySmall),
+              const SizedBox(height: Gap.lg),
+              FilledButton.icon(
+                key: const Key('cssh-consent-go'),
+                style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48)),
+                onPressed: () => Navigator.of(ctx).pop(true),
+                icon: const Icon(Icons.screen_share_rounded),
+                label: Text(t.csshConsentGo),
+              ),
+              const SizedBox(height: Gap.sm),
+              TextButton(
+                key: const Key('cssh-consent-no'),
+                style: TextButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48)),
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(t.csshConsentNo),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    _ssSheetOpen = false;
+    if (go == true) {
+      await ss.confirm();
+    } else {
+      ss.cancel();
+    }
+  }
+
+  /// "Share screen" (a live video call) / the red "You're sharing your
+  /// screen · Stop" bar while sharing / "Starting…" while Android asks.
+  Widget _screenShareRow(CallController c) {
+    final ss = _ss;
+    if (ss == null || !c.isLive || !_isVideo) return const SizedBox.shrink();
+    // a build without the screen-share service (Play, until its
+    // declaration) shows no button at all — never a dead end
+    if (!ss.sharing && ss.buildSupports != true) return const SizedBox.shrink();
+    final t = _t;
+    // the notification's words, captured now (the controller may start the
+    // service after this screen went to the mini bar)
+    final nTitle = t.csshNotifTitle, nBody = t.csshNotifBody;
+    final nStop = t.csshNotifStop;
+    ss.texts = () => (nTitle, nBody, nStop);
+    if (ss.sharing) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: Gap.sm),
+        child: Semantics(
+          liveRegion: true,
+          container: true,
+          child: Container(
+            key: const Key('cssh-sharing-bar'),
+            padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.xs, Gap.xs),
+            decoration: BoxDecoration(
+              color: Brand.dangerFill,
+              borderRadius: BorderRadius.circular(Radii.xl),
+            ),
+            child: Row(children: [
+              const Icon(Icons.screen_share_rounded, color: CallInk.text),
+              const SizedBox(width: Gap.sm),
+              Expanded(
+                child: Text(t.csshSharingBar,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AType.bodyMedium.copyWith(color: CallInk.text)),
+              ),
+              TextButton(
+                key: const Key('cssh-stop'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Brand.dangerFill,
+                  backgroundColor: CallInk.text,
+                  minimumSize: const Size(64, 48),
+                ),
+                onPressed: () => unawaited(ss.stop()),
+                child: Text(t.csshStop),
+              ),
+            ]),
+          ),
+        ),
+      );
+    }
+    final busy = ss.busy;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: Align(
+        child: OutlinedButton.icon(
+          key: const Key('cssh-share'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: CallInk.text,
+            side: const BorderSide(color: CallInk.textHint),
+            minimumSize: const Size(48, 48),
+          ),
+          onPressed: busy || ss.state != ScreenShareState.idle
+              ? null
+              : () => unawaited(ss.request()),
+          icon: busy
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: CallInk.text))
+              : const Icon(Icons.screen_share_rounded),
+          label: Text(busy ? t.csshStarting : t.csshShare,
+              maxLines: 2, overflow: TextOverflow.ellipsis),
+        ),
+      ),
+    );
+  }
+
+  Widget _screenShareNotice() {
+    final t = _t;
+    final String? text = switch (_ssNoticeShown) {
+      ScreenShareNotice.none => null,
+      ScreenShareNotice.denied => t.csshDenied,
+      ScreenShareNotice.failed => t.csshFailed,
+      ScreenShareNotice.stoppedBySystem => t.csshStoppedBySystem,
+    };
+    if (text == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
+      child: Semantics(
+        liveRegion: true,
+        child: Container(
+          key: const Key('cssh-notice'),
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(
+              horizontal: Gap.md, vertical: Gap.sm),
+          decoration: BoxDecoration(
+            color: CallInk.notice,
+            borderRadius: BorderRadius.circular(Radii.lg),
+          ),
+          child: Text(text,
+              textAlign: TextAlign.center,
+              style: AType.bodyMedium.copyWith(color: CallInk.text)),
+        ),
+      ),
+    );
+  }
+
+  /// Their video: a shared SCREEN is drawn whole (contain, never cropped)
+  /// with a "{name} is sharing their screen" chip; a camera fills the stage.
+  Widget _remoteVideoView(CallController c, CallVideoSurface surface) {
+    if (!c.remoteScreen || surface is! ScreenShareSurface) {
+      return surface.remoteView();
+    }
+    return Stack(fit: StackFit.expand, children: [
+      const ColoredBox(color: Colors.black),
+      (surface as ScreenShareSurface).remoteScreenView(),
+      Positioned(
+        left: Gap.md,
+        right: Gap.md,
+        bottom: MediaQuery.paddingOf(context).bottom + 260,
+        child: IgnorePointer(
+          child: Center(
+            child: Container(
+              key: const Key('cssh-remote-chip'),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: Gap.md, vertical: Gap.xs),
+              decoration: BoxDecoration(
+                color: CallInk.glassHigh,
+                borderRadius: BorderRadius.circular(Radii.xl),
+              ),
+              child: Text(_t.csshRemoteSharing(_name),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AType.bodySmall.copyWith(color: CallInk.text)),
+            ),
+          ),
+        ),
+      ),
+    ]);
+  }
+
   Widget _noticeBanner(CallController c) {
     final t = _t;
     final String? text = switch (_noticeShown) {
@@ -1274,6 +1526,59 @@ class _CircleCallScreenState extends State<CircleCallScreen>
     if (picked != null) await c.setRoute(picked);
   }
 
+  /// group-calls: Add person — pick people from My Circle; this call
+  /// becomes a group call (the server keeps it as one leg) and this screen
+  /// hands over to the group call screen.
+  Future<void> _addPerson(CallController c) async {
+    final id = c.callId;
+    if (id == null || !c.isLive || !_owns) return;
+    final app = context.read<AppState>();
+    final api = GroupCallApi(app.api);
+    final ids = await showGroupAddPeopleSheet(context,
+        load: () => api.candidates(), free: 6);
+    if (ids == null || ids.isEmpty || !mounted || !c.isLive) return;
+    try {
+      final body = await api.addToCall(id, ids);
+      if (!mounted) return;
+      await _toGroup(c, initial: body);
+    } on GroupCallError catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          key: const Key('call-add-person-error'),
+          content: Text(groupErrorLine(_t, e))));
+    }
+  }
+
+  /// group-calls: hand this live call to the group call screen (no hang-up:
+  /// the same call goes on as one leg of the group call).
+  Future<void> _toGroup(CallController c,
+      {Map<String, dynamic>? initial}) async {
+    if (_groupHandover) return;
+    final roomId =
+        (initial?['room_id'] as num?)?.toInt() ?? c.roomId;
+    if (roomId == null) return;
+    _groupHandover = true;
+    final app = context.read<AppState>();
+    final seq = CallRuntime.instance.transportFor(app).seq;
+    final callId = c.callId;
+    final video = c.videoOn || _isVideo;
+    await c.handover();
+    if (CallRuntime.instance.activeCallId == callId) {
+      CallRuntime.instance.activeCallId = null;
+    }
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(instantCallRoute<void>(
+      (_) => GroupCallScreen(
+        roomId: roomId,
+        initial: initial,
+        video: video,
+        title: _name,
+        adoptCallId: callId,
+        sinceSeq: seq,
+      ),
+    ));
+  }
+
   Widget _controls(CallController? c) {
     final t = _t;
     final live = c != null && c.isLive;
@@ -1285,6 +1590,7 @@ class _CircleCallScreenState extends State<CircleCallScreen>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (c != null) _screenShareRow(c), // circle-screenshare
           Container(
             padding: const EdgeInsets.symmetric(
                 vertical: Gap.md, horizontal: Gap.sm),
@@ -1336,6 +1642,15 @@ class _CircleCallScreenState extends State<CircleCallScreen>
                     label: t.b1CallToVoice,
                     active: false,
                     onTap: c.switchToVoice,
+                  ),
+                // group-calls: add people (My Circle) -> a group call
+                if (live && widget.origin == 'circle' && _owns)
+                  _CtlButton(
+                    key: const Key('call-add-person'),
+                    icon: Icons.person_add_alt_1_rounded,
+                    label: t.gcallAddPerson,
+                    active: false,
+                    onTap: () => unawaited(_addPerson(c)),
                   ),
                 _CtlButton(
                   key: const Key('call-mute'),

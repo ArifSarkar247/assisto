@@ -636,16 +636,14 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     // When the server says ON but the native service is NOT running, say so
     // honestly (battery optimisation can kill it — guidance below).
     final degraded = on && !_running;
-    final bg = !on
-        ? Brand.warning.withValues(alpha: 0.14)
-        : (degraded
-            ? Brand.warning.withValues(alpha: 0.14)
-            : Brand.success.withValues(alpha: 0.12));
+    // design3: OPAQUE tinted surfaces (a translucent tint let the card's
+    // blue shadow through — the "on" card looked muddy) + AA inks
+    final ds = DsTokens.of(context);
+    final warnBg = Color.alphaBlend(Brand.warning.withValues(alpha: 0.14), ds.card);
+    final bg = !on ? warnBg : (degraded ? warnBg : ds.successBg);
     final fg = !on
         ? Brand.warnInk(context)
-        : (degraded
-            ? Brand.warnInk(context)
-            : AssistoTokens.of(context).success);
+        : (degraded ? Brand.warnInk(context) : ds.successInk);
     final title = !on
         ? tr.atStateOff
         : (degraded ? tr.atStateDegraded : tr.atStateOn);
@@ -671,11 +669,20 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(color: fg, fontWeight: FontWeight.w700)),
+                      Row(children: [
+                        Flexible(
+                          child: Text(title,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(color: fg, fontWeight: FontWeight.w700)),
+                        ),
+                        // design3: a gently pulsing dot while protection runs
+                        if (on && !degraded) ...[
+                          const SizedBox(width: Gap.sm),
+                          DsStatusDot(color: ds.success),
+                        ],
+                      ]),
                       const SizedBox(height: Gap.xxs),
                       Text(body,
                           style: Theme.of(context).textTheme.bodySmall),
@@ -687,17 +694,9 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             const SizedBox(height: Gap.sm),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: _busy
-                  ? const Padding(
-                      padding: EdgeInsets.all(Gap.sm),
-                      child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2)),
-                    )
-                  : (!on
-                      ? DsButton(onPressed: _enable, icon: Icons.shield_rounded, label: tr.atTurnOn)
-                      : DsButton.secondary(onPressed: _disable, icon: Icons.lock_open_rounded, label: tr.atTurnOff)),
+              child: !on
+                  ? DsButton(busy: _busy, onPressed: _enable, icon: Icons.shield_rounded, label: tr.atTurnOn)
+                  : DsButton.secondary(busy: _busy, onPressed: _disable, icon: Icons.lock_open_rounded, label: tr.atTurnOff),
             ),
           ],
         ),

@@ -771,7 +771,7 @@ class _SmsSheet extends StatelessWidget {
               leading: CircleAvatar(child: Text(notifLocalizeDigits(context, '${i + 1}'))),
               title: Text(labels[steps[i]['step']] ?? ''),
               subtitle: SelectableText('${steps[i]['sms']}',
-                  style: AType.bodyMedium.copyWith(fontFamily: 'monospace')),
+                  style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular, letterSpacing: 1.2 /* design3: the app font (monospace is not bundled) */)),
               trailing: IconButton(
                 tooltip: t.kwCopy,
                 icon: const Icon(Icons.copy_rounded),

@@ -210,6 +210,7 @@ class CallRuntime with WidgetsBindingObserver {
         'video': p.isVideo,
         'chat_id': p.chatId,
         'lang': p.lang,
+        if (p.data['room_id'] != null) 'room_id': p.data['room_id'], // group-calls
       });
 
   void onPushCancel(PushPayload p) {
@@ -632,6 +633,9 @@ class CallRuntime with WidgetsBindingObserver {
           row['video'] == true || row['kind'] == 'video' ? 'true' : 'false',
       'chat_id': '${row['chat_id'] ?? ''}',
       'lang': _app?.locale?.languageCode == 'en' ? 'en' : 'bn',
+      // group-calls: a ring into a group call
+      if (row['room_id'] != null && '${row['room_id']}'.isNotEmpty)
+        'room_id': '${row['room_id']}',
     });
     CallLaunchRouter.instance.claim(id, CallLaunch.actionOpen);
     try {

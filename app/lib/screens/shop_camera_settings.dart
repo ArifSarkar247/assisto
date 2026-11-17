@@ -368,7 +368,7 @@ class ShopWebhookCard extends StatelessWidget {
             child: Row(children: [
               Expanded(
                 child: SelectableText(u.isEmpty ? '…' : u,
-                    style: AType.bodySmall.copyWith(fontFamily: 'monospace')),
+                    style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, letterSpacing: 1.2 /* design3: the app font (monospace is not bundled) */)),
               ),
               IconButton(
                 tooltip: t.copy,

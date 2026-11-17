@@ -160,7 +160,7 @@ class _VehShareSheetState extends State<VehShareSheet> {
                   Text(tr.v100ShareReady, style: const TextStyle(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xs),
                   SelectableText(_newUrl!,
-                      style: AType.bodyMedium.copyWith(fontFamily: 'monospace')),
+                      style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular, letterSpacing: 1.2 /* design3: the app font (monospace is not bundled) */)),
                   const SizedBox(height: Gap.xs),
                   Text(tr.v100ShareOnce,
                       style: AType.bodySmall.copyWith(color: scheme.onPrimaryContainer)),

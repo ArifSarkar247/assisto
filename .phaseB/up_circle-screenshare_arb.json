@@ -1,0 +1,101 @@
+{
+ "en": {
+  "csshShare": "Share screen",
+  "@csshShare": {
+   "description": "Video call: button that starts sharing this phone's screen."
+  },
+  "csshStarting": "Starting…",
+  "@csshStarting": {
+   "description": "Video call: share button while Android asks for permission."
+  },
+  "csshStop": "Stop",
+  "@csshStop": {
+   "description": "Video call: red sharing bar, stops screen sharing."
+  },
+  "csshSharingBar": "You're sharing your screen",
+  "@csshSharingBar": {
+   "description": "Video call: red bar while this phone shares its screen."
+  },
+  "csshConsentTitle": "Show your screen to {name}?",
+  "@csshConsentTitle": {
+   "description": "Sheet title before screen sharing.",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "csshConsentBody": "{name} will see everything on your screen, including messages and notifications that pop up. Your voice keeps going. Android will ask you once more — tap Start.",
+  "@csshConsentBody": {
+   "description": "Sheet body before screen sharing.",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "csshConsentTip": "Tip: stop any time with the red Stop bar or the Stop sharing button in your notifications. Don't open bank apps or passwords while sharing.",
+  "@csshConsentTip": {
+   "description": "Sheet tip before screen sharing."
+  },
+  "csshConsentGo": "Continue",
+  "@csshConsentGo": {
+   "description": "Sheet button: go on to Android's screen-share dialog."
+  },
+  "csshConsentNo": "Not now",
+  "@csshConsentNo": {
+   "description": "Sheet button: do not share the screen."
+  },
+  "csshDenied": "Screen sharing was not allowed. You can try again any time.",
+  "@csshDenied": {
+   "description": "Call notice: Android dialog was refused."
+  },
+  "csshFailed": "Couldn't start screen sharing. Your call goes on — please try again.",
+  "@csshFailed": {
+   "description": "Call notice: screen sharing failed to start."
+  },
+  "csshStoppedBySystem": "Screen sharing stopped. Your camera is back.",
+  "@csshStoppedBySystem": {
+   "description": "Call notice: Android ended the screen share (status bar chip, screen lock)."
+  },
+  "csshRemoteSharing": "{name} is sharing their screen",
+  "@csshRemoteSharing": {
+   "description": "Video call: chip over the other person's shared screen.",
+   "placeholders": {
+    "name": {
+     "type": "String"
+    }
+   }
+  },
+  "csshNotifTitle": "Sharing your screen in an Assisto call",
+  "@csshNotifTitle": {
+   "description": "Notification title while sharing the screen."
+  },
+  "csshNotifBody": "The other person can see your screen.",
+  "@csshNotifBody": {
+   "description": "Notification body while sharing the screen."
+  },
+  "csshNotifStop": "Stop sharing",
+  "@csshNotifStop": {
+   "description": "Notification button that stops screen sharing."
+  }
+ },
+ "bn": {
+  "csshShare": "স্ক্রিন শেয়ার",
+  "csshStarting": "শুরু হচ্ছে…",
+  "csshStop": "বন্ধ",
+  "csshSharingBar": "আপনি স্ক্রিন শেয়ার করছেন",
+  "csshConsentTitle": "{name}-কে আপনার স্ক্রিন দেখাবেন?",
+  "csshConsentBody": "আপনার স্ক্রিনে যা আছে সব {name} দেখতে পাবেন — হঠাৎ আসা মেসেজ ও নোটিফিকেশনও। কথা চলতেই থাকবে। Android আরেকবার জিজ্ঞেস করবে — Start চাপুন।",
+  "csshConsentTip": "টিপস: লাল Stop বার বা নোটিফিকেশনের শেয়ার বন্ধ করুন বোতাম দিয়ে যেকোনো সময় বন্ধ করুন। শেয়ারের সময় ব্যাংক অ্যাপ বা পাসওয়ার্ড খুলবেন না।",
+  "csshConsentGo": "চালিয়ে যান",
+  "csshConsentNo": "এখন না",
+  "csshDenied": "স্ক্রিন শেয়ারের অনুমতি দেওয়া হয়নি। যেকোনো সময় আবার চেষ্টা করতে পারেন।",
+  "csshFailed": "স্ক্রিন শেয়ার শুরু করা যায়নি। কল চলছে — আবার চেষ্টা করুন।",
+  "csshStoppedBySystem": "স্ক্রিন শেয়ার বন্ধ হয়েছে। ক্যামেরা আবার চালু।",
+  "csshRemoteSharing": "{name} স্ক্রিন শেয়ার করছেন",
+  "csshNotifTitle": "Assisto কলে আপনার স্ক্রিন শেয়ার হচ্ছে",
+  "csshNotifBody": "অন্যজন আপনার স্ক্রিন দেখতে পাচ্ছেন।",
+  "csshNotifStop": "শেয়ার বন্ধ করুন"
+ }
+}

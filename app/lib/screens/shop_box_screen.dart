@@ -638,7 +638,7 @@ class _EnrollmentSheet extends StatelessWidget {
               ),
               child: SelectableText(
                 token,
-                style: AType.titleSmall.copyWith(fontFamily: 'monospace',
+                style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular, letterSpacing: 1.2 /* design3: the app font (monospace is not bundled) */,
                     fontWeight: FontWeight.w600),
               ),
             ),
