@@ -516,7 +516,9 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> with WidgetsBindingObse
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16)),
         child: Row(children: [
-          Icon(icon, color: ink, size: 32),
+          Icon(icon,
+              key: paused ? const ValueKey('fcg-line-paused') : null, // sosfam-crm-proof
+              color: ink, size: 32),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
