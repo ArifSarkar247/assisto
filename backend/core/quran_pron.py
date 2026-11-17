@@ -3,7 +3,7 @@ script pronunciation with tajweed. NO AI anywhere: the same input always
 gives the same output, and every rule is a plain, documented function.
 
 Input: one ayah of the Tanzil Quran Text (Uthmani 1.1, CC BY 3.0, stored
-verbatim at app/assets/quran/quran-uthmani.txt.gz — licence in SOURCES.txt and
+verbatim at app/assets/quran/quran-uthmani.txt.gzip — licence in SOURCES.txt and
 owner_actions/QURAN_BILINGUAL_SPEC_BN.md). The Arabic text is never changed;
 this module only *reads* it.
 
@@ -883,7 +883,7 @@ def _text_path():
     if p:
         return p
     return os.path.join(os.path.dirname(str(settings.BASE_DIR)), "app", "assets", "quran",
-                        "quran-uthmani.txt.gz")
+                        "quran-uthmani.txt.gzip")
 
 
 @lru_cache(maxsize=1)

@@ -4,6 +4,7 @@
 // Quran texts come from the REAL bundled Tanzil files and the verbatim
 // QuranEnc fixture — nothing invented.
 import 'dart:async';
+import 'dart:io' show Directory, File;
 
 import 'package:assisto/api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
@@ -148,6 +149,17 @@ void main() {
     FlutterSecureStorage.setMockInitialValues({});
     ReviewPrompt.debugRequest = null;
     QuranBilingualApi.clearForTest();
+  });
+
+  // P0 found by reality qb1 (run 44194087656): Android's asset packager
+  // strips ".gz" files, so "assets/quran/*.txt.gz" did not exist in the APK
+  // and the Quran screen showed "could not open" on every phone.
+  test('no bundled asset ends in .gz (Android drops them from the APK)', () {
+    final bad = [
+      for (final e in Directory('assets').listSync(recursive: true))
+        if (e is File && e.path.endsWith('.gz')) e.path
+    ];
+    expect(bad, isEmpty);
   });
 
   group('Quran Q3 names, digits, jump', () {

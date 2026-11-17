@@ -165,14 +165,14 @@ void main() {
   group('Tanzil Uthmani file (licensed, verbatim)', () {
     test('bundled file is the exact Tanzil download, notice kept', () {
       final raw = utf8.decode(
-          gzip.decode(File('assets/quran/quran-uthmani.txt.gz').readAsBytesSync()));
+          gzip.decode(File('assets/quran/quran-uthmani.txt.gzip').readAsBytesSync()));
       expect(sha256.convert(utf8.encode(raw)).toString(),
           '7f30c647331a61100ebf24a80507dc0fcdd9f2df97f1312b5b2dfcb982a7f326');
       final u = realUthmani();
       expect(u.notice, contains('Tanzil Quran Text (Uthmani, Version 1.1)'));
       expect(u.notice, contains('Creative Commons Attribution 3.0'));
       expect(File('assets/quran/SOURCES.txt').readAsStringSync(),
-          contains('quran-uthmani.txt.gz'));
+          contains('quran-uthmani.txt.gzip'));
       expect(File('assets/fonts/AmiriQuran-OFL.txt').readAsStringSync(),
           contains('SIL Open Font License'));
     });

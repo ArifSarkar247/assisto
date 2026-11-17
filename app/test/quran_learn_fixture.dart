@@ -10,7 +10,7 @@ import 'package:assisto/quran_learn/uthmani_text.dart';
 UthmaniText? _cached;
 
 UthmaniText realUthmani() => _cached ??= UthmaniText.parse(utf8.decode(
-    gzip.decode(File('assets/quran/quran-uthmani.txt.gz').readAsBytesSync())));
+    gzip.decode(File('assets/quran/quran-uthmani.txt.gzip').readAsBytesSync())));
 
 /// Make UthmaniText.load() return the real data immediately.
 void preloadRealUthmani() => UthmaniText.debugPreload(realUthmani());

@@ -1,6 +1,6 @@
 // quranread: the Tanzil Quran Text (Uthmani, v1.1), Copyright (C) 2007-2026
 // Tanzil Project, CC BY 3.0 - bundled VERBATIM (gzip only, notice kept) as
-// assets/quran/quran-uthmani.txt.gz. Tanzil's text follows the Medina mushaf
+// assets/quran/quran-uthmani.txt.gzip. Tanzil's text follows the Medina mushaf
 // (King Fahd Complex), riwayah Hafs 'an 'Asim. We only READ it: a lesson item
 // names sura:ayah (+ a word range) and we show those words as they are.
 // Attribution ("Tanzil Project" + tanzil.net link) is on the lessons' source
@@ -14,7 +14,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'qaida_model.dart';
 
 class UthmaniText {
-  static const asset = 'assets/quran/quran-uthmani.txt.gz';
+  static const asset = 'assets/quran/quran-uthmani.txt.gzip';
   static const totalAyas = 6236;
 
   final Map<int, List<String>> _ayat; // key sura*1000+ayah -> words

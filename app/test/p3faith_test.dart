@@ -61,13 +61,13 @@ void main() {
   group('Quran data (licensed, verbatim)', () {
     test('bundled files are the exact Tanzil downloads (no change)', () {
       expect(
-          sha256.convert(utf8.encode(_gunzip('assets/quran/quran-simple.txt.gz'))).toString(),
+          sha256.convert(utf8.encode(_gunzip('assets/quran/quran-simple.txt.gzip'))).toString(),
           'b3638f5cf03e2b05e4000efc0e4b656aafb3cf6ed28f8770b6497c5b43c46089');
       expect(
-          sha256.convert(utf8.encode(_gunzip('assets/quran/en.pickthall.txt.gz'))).toString(),
+          sha256.convert(utf8.encode(_gunzip('assets/quran/en.pickthall.txt.gzip'))).toString(),
           '4aabbfa9d96796f5a6b0217d2c39dce1a3084f772bf6f2650e37082a774e3cc7');
       expect(
-          sha256.convert(utf8.encode(_gunzip('assets/quran/quran-uthmani.txt.gz'))).toString(),
+          sha256.convert(utf8.encode(_gunzip('assets/quran/quran-uthmani.txt.gzip'))).toString(),
           '7f30c647331a61100ebf24a80507dc0fcdd9f2df97f1312b5b2dfcb982a7f326');
       expect(File('assets/quran/SOURCES.txt').readAsStringSync(),
           contains('Creative Commons Attribution 3.0'));

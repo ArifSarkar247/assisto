@@ -10,11 +10,11 @@ QuranData? _cached;
 QuranData realQuranData() => _cached ??= QuranStore.fromRaw(
       File('assets/quran/quran_meta.json').readAsStringSync(),
       utf8.decode(gzip.decode(
-          File('assets/quran/quran-simple.txt.gz').readAsBytesSync())),
+          File('assets/quran/quran-simple.txt.gzip').readAsBytesSync())),
       utf8.decode(gzip.decode(
-          File('assets/quran/en.pickthall.txt.gz').readAsBytesSync())),
+          File('assets/quran/en.pickthall.txt.gzip').readAsBytesSync())),
       uthmaniRaw: utf8.decode(gzip.decode(
-          File('assets/quran/quran-uthmani.txt.gz').readAsBytesSync())),
+          File('assets/quran/quran-uthmani.txt.gzip').readAsBytesSync())),
     );
 
 /// Make QuranStore.load() return the real data immediately.

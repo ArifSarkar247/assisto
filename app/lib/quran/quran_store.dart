@@ -223,9 +223,9 @@ class QuranStore {
   static Future<QuranData>? _loading;
 
   static const metaAsset = 'assets/quran/quran_meta.json';
-  static const arabicAsset = 'assets/quran/quran-simple.txt.gz';
-  static const uthmaniAsset = 'assets/quran/quran-uthmani.txt.gz';
-  static const englishAsset = 'assets/quran/en.pickthall.txt.gz';
+  static const arabicAsset = 'assets/quran/quran-simple.txt.gzip';
+  static const uthmaniAsset = 'assets/quran/quran-uthmani.txt.gzip';
+  static const englishAsset = 'assets/quran/en.pickthall.txt.gzip';
   static const totalAyas = 6236;
 
   /// Loads once (offline, from the app bundle).
