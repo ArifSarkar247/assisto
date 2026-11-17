@@ -242,8 +242,8 @@ LANDINGS = {
         "points": [
             P(("ডিজিটাল খাতা, চিরকাল ফ্রি", "কার কাছে কত বাকি আর কে কত দিল — এক পাতায়। খাতার জন্য কখনো টাকা লাগবে না।"),
               ("A digital khata, free forever", "Who owes what and who paid — on one page. The khata will never cost money.")),
-            P(("সময়মতো বাকির তাগাদা", "আপনার ঠিক করা সময়ে Assisto তাগাদার মেসেজ তৈরি করে আপনাকে জানায় — এক চাপে WhatsApp বা SMS-এ পাঠান; বাকি শোধ হলে তাগাদা থামে।"),
-              ("Due reminders on your schedule", "On the schedule you set, Assisto prepares the reminder and tells you — send it by WhatsApp or SMS in one tap; it stops once the due is paid.")),
+            P(("সময়মতো বাকির তাগাদা", "আপনার ঠিক করা সময়ে Assisto তাগাদার মেসেজ তৈরি করে আপনাকে জানায় — এক চাপে চ্যাট অ্যাপ বা SMS-এ পাঠান; বাকি শোধ হলে তাগাদা থামে।"),
+              ("Due reminders on your schedule", "On the schedule you set, Assisto prepares the reminder and tells you — send it by a chat app or SMS in one tap; it stops once the due is paid.")),
             P(("থার্মাল ও A4 ইনভয়েস", "৫৮ বা ৮০ মিমি থার্মাল প্রিন্টার বা A4 — বাংলা বা ইংরেজিতে, VAT ও QR-সহ ইনভয়েস, এক চাপে।"),
               ("Thermal and A4 invoices", "58 or 80 mm thermal or A4 — an invoice in Bangla or English with VAT and a QR code, in one tap.")),
             P(("বিক্রি ও লাভের রিপোর্ট", "বিক্রি, লাভ আর সবচেয়ে বেশি বিক্রি হওয়া পণ্য — এক নজরে।"),
@@ -257,10 +257,10 @@ LANDINGS = {
                   S("acct_home", "ব্যবসার পূর্ণ হিসাব", "Full business accounts", ("accounting_v2",), pt=4)],
         "faq": {
             "bn": [("খাতা কি সত্যিই ফ্রি?", "হ্যাঁ। ডিজিটাল খাতা চিরকাল ফ্রি — এটা আমাদের লিখিত প্রতিশ্রুতি।"),
-                   ("গ্রাহক কীভাবে তাগাদা পান?", "আপনি এক চাপে WhatsApp বা SMS-এ তাগাদা পাঠান; মেসেজে বাকির একটা লিংক থাকে, যেখানে গ্রাহক তাঁর হিসাব দেখতে পান। বাকি শোধ হলে তাগাদা থেমে যায়।"),
+                   ("গ্রাহক কীভাবে তাগাদা পান?", "আপনি এক চাপে চ্যাট অ্যাপ বা SMS-এ তাগাদা পাঠান; মেসেজে বাকির একটা লিংক থাকে, যেখানে গ্রাহক তাঁর হিসাব দেখতে পান। বাকি শোধ হলে তাগাদা থেমে যায়।"),
                    ("কোন প্রিন্টারে ইনভয়েস ছাপা যায়?", "৫৮ মিমি ও ৮০ মিমি থার্মাল প্রিন্টার আর সাধারণ A4 কাগজ।")],
             "en": [("Is the khata really free?", "Yes. The digital khata is free forever — that is our written promise."),
-                   ("How does the customer get the reminder?", "You send it by WhatsApp or SMS in one tap; the message carries a link where the customer can see what they owe. The reminders stop once they pay."),
+                   ("How does the customer get the reminder?", "You send it by a chat app or SMS in one tap; the message carries a link where the customer can see what they owe. The reminders stop once they pay."),
                    ("Which printers can print the invoice?", "58 mm and 80 mm thermal printers and ordinary A4 paper.")],
         },
     },

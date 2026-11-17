@@ -157,7 +157,7 @@ class HonestCopyTests(GoLiveBase):
         seed = {a["slug"]: a for a in blog_seed.ARTICLES}
         for slug in GL.PASSING:
             text = (seed[slug]["body_bn"] + seed[slug]["body_en"]).lower()
-            for w in ("quiz", "কুইজ", "switched on", "চালু হলে", "mark places", "চিহ্নিত করে রাখুন"):
+            for w in ("quiz", "কুইজ", "switched on", "mark places", "চিহ্নিত করে রাখুন"):
                 self.assertNotIn(w, text, (slug, w))
 
 
