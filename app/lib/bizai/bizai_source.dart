@@ -69,7 +69,7 @@ class ApiBizaiSource implements BizaiSource {
     final tok = api.token;
     if (tok != null) req.headers['Authorization'] = 'Token $tok';
     req.headers['Accept-Language'] = api.lang ?? 'bn';
-    if (AppConfig.playStore) req.headers['X-Assisto-Flavour'] = 'play';
+    if (AppConfig.playLike) req.headers['X-Assisto-Flavour'] = 'play';
     req.fields['type'] = kind;
     req.files.add(await http.MultipartFile.fromPath('file', path));
     final r = await http.Response.fromStream(await req.send());

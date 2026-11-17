@@ -27,6 +27,20 @@ class AppConfig {
   /// ships without REQUEST_INSTALL_PACKAGES. The website APK keeps its updater.
   static const bool playStore = bool.fromEnvironment('PLAY_STORE');
 
+  /// staging (owner order 17 Nov): true ONLY in the "Assisto Test" app
+  /// (applicationId com.assisto.assisto.staging, delivered daily through
+  /// Firebase App Distribution — never Google Play). It talks to the LIVE
+  /// server but: no self-update (new builds arrive through App Tester), no
+  /// purchases (Play Billing does not exist outside Play and the gateway is
+  /// switched off — plans are tested with the server's allow-listed test
+  /// entitlement), Google TEST ad units only, and the same feature set as
+  /// the Play build ([playLike]).
+  static const bool staging = bool.fromEnvironment('ASSISTO_STAGING');
+
+  /// The feature set Google Play users get: the Play build itself, and the
+  /// owner's test app (so the owner tests what Play users will see).
+  static const bool playLike = playStore || staging;
+
   /// UTC build timestamp, injected by CI (--dart-define=BUILD_TIME=...). Empty
   /// on local/dev builds. Shown only in Settings → About.
   static const String buildTime = String.fromEnvironment('BUILD_TIME', defaultValue: '');

@@ -131,7 +131,7 @@ class _AboutScreenState extends State<AboutScreen> {
             // l1-launch: the Play build updates through Google Play only.
             if (AppConfig.playStore)
               _playUpdateSection(t)
-            else
+            else if (!AppConfig.staging) // staging: updates via App Tester
               _updateSection(t),
             const SizedBox(height: Gap.xl),
             // framebar: licences + data credits (OSM ODbL etc.) — Play and
