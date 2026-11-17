@@ -75,8 +75,8 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
 
     // Page rule: the day at a glance first — the soft hero counts what is
     // waiting in each list (real counts), then each list as one DS group.
-    Widget stat(int n, String label, Color tint) => SizedBox(
-          width: 148,
+    Widget stat(int n, String label, Color tint, double w) => SizedBox(
+          width: w,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             DsNumber(fmtInt(context, n), small: true, color: tint),
             Text(label, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
@@ -86,14 +86,18 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
       onRefresh: _load,
       child: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)), children: [
         DsHeroCard(
-          child: Wrap(spacing: Gap.md, runSpacing: Gap.md, children: [
-            if (high.isNotEmpty) stat(high.length, t.crmTodayHotLeads, scheme.ds.dangerInk),
-            if (fu.isNotEmpty) stat(fu.length, t.crmTodayFollowups, scheme.ds.text),
-            if (tasks.isNotEmpty) stat(tasks.length, t.bbCrmDueTasks, scheme.ds.text),
-            if (overdue.isNotEmpty) stat(overdue.length, t.crmTodayOverdueSteps, scheme.ds.dangerInk),
-            if (missing.isNotEmpty) stat(missing.length, t.crmTodayMissingStep, scheme.ds.text),
-            if (stuck.isNotEmpty) stat(stuck.length, t.crmTodayStuck, scheme.ds.text),
-          ]),
+          // two stats per row (a fixed width put one per row on 360 dp)
+          child: LayoutBuilder(builder: (context, c) {
+            final w = (c.maxWidth - Gap.md) / 2;
+            return Wrap(spacing: Gap.md, runSpacing: Gap.md, children: [
+            if (high.isNotEmpty) stat(high.length, t.crmTodayHotLeads, scheme.ds.dangerInk, w),
+            if (fu.isNotEmpty) stat(fu.length, t.crmTodayFollowups, scheme.ds.text, w),
+            if (tasks.isNotEmpty) stat(tasks.length, t.bbCrmDueTasks, scheme.ds.text, w),
+            if (overdue.isNotEmpty) stat(overdue.length, t.crmTodayOverdueSteps, scheme.ds.dangerInk, w),
+            if (missing.isNotEmpty) stat(missing.length, t.crmTodayMissingStep, scheme.ds.text, w),
+            if (stuck.isNotEmpty) stat(stuck.length, t.crmTodayStuck, scheme.ds.text, w),
+          ]);
+          }),
         ),
         if (high.isNotEmpty) ...[
           _header(t.crmTodayHotLeads, Icons.local_fire_department_rounded, Theme.of(context).colorScheme.error),
