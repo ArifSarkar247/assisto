@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ১২৯ / মোট ৪২০**
+**স্ক্রিন শেষ: ১৫২ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -238,34 +238,34 @@
 - ✅ batch d2-9 (DS কার্ড ও ক্রম) — `screens/business/supplier_market_screen.dart`
 - ✅ batch d2-9 (চলমান অবস্থা = হিরো) — `screens/business/tagada_send_screen.dart`
 - ✅ batch d2-9 (বিজনেস হাবের মোড়ক) — `screens/business_screen.dart`
-- ⬜ — `screens/crm/crm_aftersale_screen.dart`
-- ⬜ — `screens/crm/crm_automation_screen.dart`
-- ⬜ — `screens/crm/crm_bulk_send_screen.dart`
-- ⬜ — `screens/crm/crm_capture_screen.dart`
-- ⬜ — `screens/crm/crm_companies_screen.dart`
-- ⬜ — `screens/crm/crm_company_detail_screen.dart`
+- ✅ batch d2-10 (বাকি = হিরো, বাংলা পয়সা) — `screens/crm/crm_aftersale_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/crm/crm_automation_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/crm/crm_bulk_send_screen.dart`
+- ✅ batch d2-10 (কার্ড স্ক্যান/ফর্ম DS কার্ডে) — `screens/crm/crm_capture_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/crm/crm_companies_screen.dart`
+- ✅ batch d2-10 (কোম্পানি = হিরো) — `screens/crm/crm_company_detail_screen.dart`
 - ✅ batch d2-7 (ওজনযুক্ত পূর্বাভাস = নরম হিরো, লেবেল কাটা যায় না) — `screens/crm/crm_dashboard_screen.dart`
-- ⬜ — `screens/crm/crm_erp_handoff_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/crm/crm_erp_handoff_screen.dart`
 - ✅ batch d2-8 (স্বাগতম = নরম হিরো আঁকা ছবিসহ, ত্রুটি = লাল কার্ড) — `screens/crm/crm_firstrun_screen.dart`
-- ⬜ — `screens/crm/crm_home_screen.dart`
-- ⬜ — `screens/crm/crm_lead_detail_screen.dart`
-- ⬜ — `screens/crm/crm_lead_form_screen.dart`
-- ⬜ — `screens/crm/crm_leads_screen.dart`
-- ⬜ — `screens/crm/crm_pipeline_screen.dart`
-- ⬜ — `screens/crm/crm_proposal_advanced_screen.dart`
-- ⬜ — `screens/crm/crm_proposal_screen.dart`
+- ✅ batch d2-10 (ট্যাব কাটা যায় না) — `screens/crm/crm_home_screen.dart`
+- ✅ batch d2-10 (লিড = হিরো) — `screens/crm/crm_lead_detail_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/crm/crm_lead_form_screen.dart`
+- ✅ batch d2-10 (লিড কার্ড, বাংলা অঙ্ক) — `screens/crm/crm_leads_screen.dart`
+- ✅ batch d2-10 (ধাপে সংখ্যা + মোট) — `screens/crm/crm_pipeline_screen.dart`
+- ✅ batch d2-10 (অবস্থা ব্যবহারকারীর ভাষায়) — `screens/crm/crm_proposal_advanced_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/crm/crm_proposal_screen.dart`
 - ✅ batch d2-7 (পূর্বাভাস = নরম হিরো, লেবেল কাটা যায় না) — `screens/crm/crm_reports_screen.dart`
-- ⬜ — `screens/crm/crm_team_advanced_screen.dart`
-- ⬜ — `screens/crm/crm_team_screen.dart`
-- ⬜ — `screens/crm/crm_today_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/crm/crm_team_advanced_screen.dart`
+- ✅ batch d2-10 (আমন্ত্রণ কোড = হিরো) — `screens/crm/crm_team_screen.dart`
+- ✅ batch d2-10 (দিনের সারাংশ = হিরো, DS গ্রুপ) — `screens/crm/crm_today_screen.dart`
 - ✅ batch d2-8 (গ্রাহক = নরম হিরো, DS অ্যাভাটার) — `screens/crm/customer_history_screen.dart`
-- ⬜ — `screens/crm/customer_list_screen.dart`
-- ⬜ — `screens/crm_contacts_screen.dart`
-- ⬜ — `screens/pa/biz_travel_events_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/crm/customer_list_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/crm_contacts_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/pa/biz_travel_events_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/shop_box_mode_screen.dart`
-- ⬜ — `screens/shop_box_screen.dart`
-- ⬜ — `screens/shop_eod_screen.dart`
-- ⬜ — `screens/shop_live_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/shop_box_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/shop_eod_screen.dart`
+- ✅ batch d2-10 (DS কার্ড ও ক্রম) — `screens/shop_live_screen.dart`
 
 ## ১২. এআই চ্যাট
 
