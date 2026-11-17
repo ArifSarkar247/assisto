@@ -482,3 +482,21 @@ class CustomerPathTests(TestCase):
         self.assertEqual((r["no_delete"], r["lead"]), (False, False))
         for slug in ("imou", "ezviz", "dolynk_arc"):
             self.assertIn("no_delete_default", [f["key"] for f in I.REGISTRY[slug]["fields"]])
+
+
+# ------------------------------------------------------------------ 9
+class ReregisterFlagsTests(TestCase):
+    """imou-real: `cctv_callback_rotate --vendor imou` (callback_links.
+    reregister) must subscribe capabilityEvent too (person / motion on
+    current Imou models), keeping numberstat when the account offers it."""
+
+    def test_rotate_registers_capability_event(self):
+        from core import callback_links as CL
+        I.save("imou", {"app_id": "imid", "app_secret": "ims"})
+        IM._token_cache.clear()
+        h = _ImouHttp({"setMessageCallback": ok()})
+        with mock.patch.object(IMA.ImouAdapter, "client",
+                               lambda self: IM.ImouClient("imid", "ims", http=h)):
+            self.assertEqual(CL.reregister("imou"), "registered")
+        flags = dict(h.calls)["setMessageCallback"]["callbackFlag"].split(",")
+        self.assertEqual(set(flags), {"alarm", "deviceStatus", "capabilityEvent", "numberstat"})
