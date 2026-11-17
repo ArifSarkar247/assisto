@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../widgets/skeleton.dart' show SkeletonList;
 import 'dart:convert';
 import 'dart:io';
 
@@ -13,6 +14,7 @@ import '../plans_v2/buy_inside.dart';
 import '../messaging/media/voice_player.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/chatnav.dart';
 import '../widgets/local_counter.dart';
@@ -520,13 +522,13 @@ class _CareCallNewScreenState extends State<CareCallNewScreen> {
           padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.md)),
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 56),
-            child: FilledButton.icon(
-              onPressed: _saving || _recording ? null : _save,
-              icon: _saving
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.phone_callback_rounded),
-              label: Text(_isEdit ? t.ccSave : t.ccTurnOn,
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+            // design3: the one glowing DS button (busy spinner built in)
+            child: DsButton(
+              onPressed: _recording ? null : _save,
+              busy: _saving,
+              expand: true,
+              icon: Icons.phone_callback_rounded,
+              label: _isEdit ? t.ccSave : t.ccTurnOn,
             ),
           ),
         ),
@@ -653,7 +655,7 @@ class _PeoplePickerState extends State<_PeoplePicker> {
         FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.retry)),
       ]);
     } else if (_rows == null) {
-      body = const Padding(padding: EdgeInsets.all(Gap.xl), child: Center(child: CircularProgressIndicator()));
+      body = const SkeletonList(count: 3);
     } else if (_rows!.isEmpty) {
       body = Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Icon(Icons.diversity_1_rounded, size: 48, color: s.primary),

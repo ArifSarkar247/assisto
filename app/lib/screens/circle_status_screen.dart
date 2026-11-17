@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../crypto/e2e.dart';
@@ -253,7 +254,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
         label: Text(t.statusAdd),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : _errored
               ? _ErrorRetry(message: t.statusLoadFailed, onRetry: _load)
               : RefreshIndicator(
@@ -332,7 +333,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                             const SizedBox(height: Gap.md),
                             Text(t.statusNoUpdates,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: DsTokens.of(context).muted)),
+                                style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
                           ]),
                         ),
                       if (unseen.isNotEmpty) _header(t.statusRecentUpdates, scheme),
@@ -355,7 +356,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                           const SizedBox(width: Gap.sm),
                           Expanded(
                             child: Text(t.p3StoriesE2e,
-                                style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted)),
+                                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
                           ),
                         ]),
                       ),
@@ -367,7 +368,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
 
   Widget _header(String s, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
-        child: Text(s, style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted)),
+        child: Text(s, style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
       );
 }
 
@@ -414,9 +415,7 @@ class _NoteBubble extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 11,
-                    height: 1.2,
+                style: AType.labelSmall.copyWith(height: 1.2,
                     color: placeholder ? DsTokens.of(context).muted : DsTokens.of(context).text)),
           ),
           const SizedBox(height: 4),
@@ -425,13 +424,13 @@ class _NoteBubble extends StatelessWidget {
             backgroundColor: DsTokens.of(context).primarySoft,
             child: placeholder
                 ? Icon(Icons.add_rounded, color: DsTokens.of(context).primaryInk)
-                : Text(initials, style: TextStyle(color: DsTokens.of(context).primaryInk)),
+                : Text(initials, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).primaryInk)),
           ),
           const SizedBox(height: 2),
           Text(name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11)),
+              style: AType.labelSmall),
         ]),
       ),
     );
@@ -521,7 +520,7 @@ class _NoteSheetState extends State<NoteSheet> {
             children: [
               Text(t.p3NoteTitle, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: Gap.xs),
-              Text(t.p3NoteSub, style: TextStyle(fontSize: 13, color: DsTokens.of(context).muted)),
+              Text(t.p3NoteSub, style: AType.bodySmall.copyWith(fontSize: 13, color: DsTokens.of(context).muted)),
               const SizedBox(height: Gap.md),
               TextField(
                 key: const ValueKey('p3-note-field'),
@@ -579,7 +578,7 @@ class _ErrorRetry extends StatelessWidget {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.cloud_off_rounded, size: 48, color: DsTokens.of(context).border),
           const SizedBox(height: Gap.md),
-          Text(message, textAlign: TextAlign.center, style: TextStyle(color: DsTokens.of(context).muted)),
+          Text(message, textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.lg),
           FilledButton.tonalIcon(
               onPressed: onRetry, icon: const Icon(Icons.refresh_rounded), label: Text(s.retry)),

@@ -1,4 +1,5 @@
 import '../plans_v2/buy_inside.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../calls/call_reply.dart';
 import 'dart:async';
 import 'dart:io';
@@ -2850,7 +2851,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
           Expanded(
             child: Stack(children: [
             Positioned.fill(child: _themed(_loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const SkeletonList()
                 : rows.isEmpty
                     ? Column(children: [ // t1-ticks: E2E notice first
                         if (!_searching) const E2eNoticeChip(),
@@ -3490,7 +3491,7 @@ class _CircleChatScreenState extends State<CircleChatScreen>
               const SizedBox(height: Gap.md),
               Text(_searching ? _t.circleSearchNoResults : _t.circleChatEmpty,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
             ],
           ),
         ),

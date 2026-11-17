@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList, StateMessage;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -371,20 +372,21 @@ class _SjChildSchoolScreenState extends State<SjChildSchoolScreen> {
     final cs = Theme.of(context).colorScheme;
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList(count: 4);
     } else if (_error) {
-      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-        Text(t.sjlWhereError, style: AType.bodyMedium),
-        const SizedBox(height: Gap.sm),
-        OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(t.sjlRetry),
+      // design3: DS error state (illustration card + one retry button)
+      body = StateMessage(
+        icon: Icons.cloud_off_rounded,
+        title: t.sjlWhereError,
+        tint: cs.ds.danger,
+        action: DsButton(
+            label: t.sjlRetry,
+            icon: Icons.refresh_rounded,
             onPressed: () {
               setState(() => _loading = true);
               _load();
             }),
-      ]);
+      );
     } else {
       body = ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
