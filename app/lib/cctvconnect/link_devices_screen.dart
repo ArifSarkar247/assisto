@@ -8,6 +8,7 @@ import '../screens/watchman/watchman_widgets.dart' show wmLang, wmOk, wmWarn, Wm
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import 'cctv_connect_source.dart';
+import '../billing/cctv_plan_screen.dart'; // gap-cctv
 
 /// cctvconnect (A1): the DVR / camera channels of one brand-cloud link —
 /// tick the ones to watch and add them as cameras of this place (within the
@@ -30,6 +31,7 @@ class _CctvLinkDevicesScreenState extends State<CctvLinkDevicesScreen> {
   List<Map<String, dynamic>> _devices = const [];
   final Set<String> _picked = {};
   String _result = '';
+  bool _planFull = false; // gap-cctv: some channels skipped — plan is full
 
   @override
   void initState() {
@@ -78,6 +80,7 @@ class _CctvLinkDevicesScreenState extends State<CctvLinkDevicesScreen> {
       final r = await widget.source.importChannels(widget.linkId, items);
       final added = wmList(r['added']).length;
       final msg = (r['message'] ?? '').toString();
+      _planFull = wmList(r['skipped']).any((x) => x['why'] == 'plan_full');
       _result = [t.ccnAddedN(wmDigits(lang, added)), if (msg.isNotEmpty) msg].join('\n');
       _picked.clear();
       await _load();
@@ -179,7 +182,21 @@ class _CctvLinkDevicesScreenState extends State<CctvLinkDevicesScreen> {
                   if (_result.isNotEmpty)
                     DsCard(key: const Key('ccnResult'),
                       padding: const EdgeInsets.all(Gap.md),
-                      child: Text(_result),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(_result),
+                        // gap-cctv: the plan is full — the way to more cameras
+                        if (_planFull) ...[
+                          const SizedBox(height: Gap.sm),
+                          FilledButton.icon(
+                            key: const Key('ccnGetPlan'),
+                            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                            icon: const Icon(Icons.workspace_premium_outlined),
+                            label: Text(t.cplEntryTitle),
+                            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => const CctvPlanScreen())),
+                          ),
+                        ],
+                      ]),
                     ),
                 ],
               ),

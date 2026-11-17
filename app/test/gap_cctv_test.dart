@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:assisto/cctvconnect/cctv_connect_screen.dart';
+import 'package:assisto/cctvconnect/link_devices_screen.dart';
 import 'package:assisto/cctvguard/vendor_live_screen.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/messaging/media/video_ctl.dart';
@@ -52,6 +53,18 @@ class _DelTeam extends FakeCctvTeam {
   final deleted = <int>[];
   @override
   Future<void> watchDelete(int postId) async => deleted.add(postId);
+}
+
+class _FullConnect extends FakeCctvConnect {
+  @override
+  Future<Map<String, dynamic>> importChannels(int linkId, List<Map<String, dynamic>> items) async {
+    calls.add('import:$linkId:${items.length}');
+    return {
+      'added': const [],
+      'skipped': [for (final i in items) {...i, 'why': 'plan_full'}],
+      'message': 'Your plan has no room for more cameras.',
+    };
+  }
 }
 
 /// start() waits until the test lets it answer.
@@ -401,5 +414,18 @@ void main() {
       await _settle(tester);
       expect(find.byKey(const Key('ccnPhoneGwNote')), findsNothing);
     });
+  });
+
+  testWidgets('G17 brand-cloud import with a full plan offers the CCTV plan', (tester) async {
+    _phone(tester, height: 2000);
+    final src = _FullConnect();
+    await tester.pumpWidget(_app(CctvLinkDevicesScreen(source: src, linkId: 5)));
+    await _settle(tester);
+    await tester.ensureVisible(find.byKey(const Key('ccnImport')));
+    await tester.tap(find.byKey(const Key('ccnImport')));
+    await _settle(tester);
+    expect(src.calls, contains('import:5:2'));
+    expect(find.byKey(const Key('ccnGetPlan')), findsOneWidget);
+    expect(find.text(en.cplEntryTitle), findsOneWidget);
   });
 }
