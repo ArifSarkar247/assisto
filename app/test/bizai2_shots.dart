@@ -68,16 +68,17 @@ class FakeWinbackFree extends FakeWinback {
 // gap-bizai: win-back with an honest in-app reach (2 of 4 use Assisto)
 class FakeWinbackReach extends FakeWinback {
   FakeWinbackReach({super.bn});
+  Map<String, dynamic> _reach(Map<String, dynamic> r) => {
+        'stages': [
+          for (final s in (r['stages'] as List).cast<Map<String, dynamic>>())
+            {...s, 'on_assisto': s['stage'] == 'wb30' ? 2 : 0}
+        ]
+      };
   @override
-  Future<Map<String, dynamic>> ladder() async {
-    final r = await super.ladder();
-    return {
-      'stages': [
-        for (final s in (r['stages'] as List).cast<Map<String, dynamic>>())
-          {...s, 'on_assisto': s['stage'] == 'wb30' ? 2 : 0}
-      ]
-    };
-  }
+  Future<Map<String, dynamic>> ladder() async => _reach(await super.ladder());
+  @override
+  Future<Map<String, dynamic>> approve(Map<String, dynamic> body) async =>
+      _reach(await super.approve(body));
 }
 
 final Map<String, Widget Function(String)> bizai2Shots = {
