@@ -12,6 +12,7 @@
 //  8 a paused member: "paused sharing", not "no news"
 // 13 Add member with an empty My Circle: a big "Add to My Circle", no dead end
 // 14 Probashi page on a phone in Bangladesh: THEIR clock, not "my time" twice
+// 11 shared family ledger + named goals (family=<id> on every call)
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,6 +34,7 @@ import 'package:assisto/screens/guardian_request_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 import 'package:assisto/widgets/fam_probashi_section.dart';
+import 'package:assisto/widgets/famacct_section.dart';
 import 'package:assisto/widgets/money_digits.dart';
 
 import 'fake_api.dart';
@@ -58,12 +60,32 @@ class _Api extends ApiClient {
     }
     if (p.startsWith('family/v3/members/')) return fcFakeMemberPage(4);
     if (p == 'family/circle-pick') return {'results': []};
+    gets.add(p);
+    if (p.startsWith('family/accounting/summary')) return _ledger;
+    if (p.startsWith('family/accounting/expenses')) return {'expenses': []};
     return {};
   }
+
+  static final Map<String, dynamic> _ledger = {
+    'total_poisha': 125000, 'members': [
+      {'member': 'self', 'name': 'Rina', 'net_poisha': 0},
+      {'member': 'u3', 'name': 'Rafi', 'net_poisha': 0},
+    ],
+    'settlements': [], 'family': {'id': 10, 'name': 'My family'}, 'pool': {},
+    'goals': [
+      {'id': 5, 'name': 'Eid fund', 'target_poisha': 1000000, 'collected_poisha': 300001,
+       'remaining_poisha': 699999, 'pct': 30, 'state': 'open', 'closed': false, 'can_close': true,
+       'breakdown': [{'member': 'u3', 'name': 'Rafi', 'amount_poisha': 300001}]},
+    ],
+  };
+
+  final List<Map<String, dynamic>> bodies = [];
+  final List<String> gets = [];
 
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
     posts.add(path);
+    bodies.add(body);
     return {'ok': true, 'text': ''};
   }
 
@@ -347,6 +369,52 @@ void main() {
       await t.tap(find.byKey(const ValueKey('fcg-probashi-who-1')));
       await t.pumpAndSettle();
       expect(find.text("Mitu's time"), findsWidgets);
+    });
+  });
+
+  group('11 shared family ledger + goals', () {
+    Future<void> openGoals(WidgetTester t, _Api api, {String lang = 'en'}) async {
+      await _pump(t, const Scaffold(body: FamAcctSection(
+          familyId: 10, members: [{'id': 'u3', 'name': 'Rafi'}])), api, lang: lang);
+      await t.tap(find.byType(Tab).at(2));
+      await t.pumpAndSettle();
+    }
+
+    testWidgets('every call carries the family; goal shows progress; Add money posts', (t) async {
+      final api = _Api();
+      await openGoals(t, api);
+      expect(api.gets.where((g) => g.startsWith('family/accounting/') && !g.contains('family=10')),
+          isEmpty, reason: '${api.gets}');
+      expect(find.text('Shared with everyone in My family'), findsOneWidget);
+      expect(find.text('Eid fund'), findsOneWidget);
+      expect(find.byKey(const ValueKey('fcg-goal-progress-5')), findsOneWidget);
+      await t.tap(find.byKey(const ValueKey('fcg-goal-add-5')));
+      await t.pumpAndSettle();
+      await t.tap(find.text('Rafi').last);
+      await t.pumpAndSettle();
+      await t.enterText(find.byKey(const ValueKey('fa-amount-field')), '500');
+      await t.tap(find.byKey(const ValueKey('fa-amount-save')));
+      await t.pumpAndSettle();
+      expect(api.posts, contains('/family/accounting/goals/5/contribute'));
+      expect(api.bodies.last, {'member': 'u3', 'amount_poisha': 50000});
+    });
+
+    testWidgets('close asks first', (t) async {
+      final api = _Api();
+      await openGoals(t, api);
+      await t.tap(find.byKey(const ValueKey('fcg-goal-close-5')));
+      await t.pumpAndSettle();
+      expect(api.posts.where((p) => p.endsWith('/close')), isEmpty);
+      await t.tap(find.byKey(const ValueKey('fcg-goal-close-ok')));
+      await t.pumpAndSettle();
+      expect(api.posts, contains('/family/accounting/goals/5/close'));
+    });
+
+    testWidgets('Bangla: goal money in Bangla digits', (t) async {
+      await openGoals(t, _Api(), lang: 'bn');
+      final txt = t.widget<Text>(find.byKey(const ValueKey('fcg-goal-progress-5'))).data!;
+      expect(RegExp(r'[0-9]').hasMatch(txt), isFalse, reason: txt);
+      expect(txt, contains('৳'));
     });
   });
 }

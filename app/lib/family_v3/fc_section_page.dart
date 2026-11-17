@@ -24,8 +24,18 @@ class FcSectionPage extends StatefulWidget {
 
   /// gap-familycare: members abroad [{name, tz}] for the Probashi page.
   final List<Map<String, String>> abroad;
+
+  /// gap-familycare: the v3 family for the SHARED ledger, and its other
+  /// members as picker rows [{id: 'u<user id>', name}].
+  final int? familyId;
+  final List<Map<String, dynamic>> familyMembers;
   const FcSectionPage(
-      {super.key, required this.section, required this.title, this.abroad = const []});
+      {super.key,
+      required this.section,
+      required this.title,
+      this.abroad = const [],
+      this.familyId,
+      this.familyMembers = const []});
   @override
   State<FcSectionPage> createState() => _FcSectionPageState();
 }
@@ -35,6 +45,7 @@ class _FcSectionPageState extends State<FcSectionPage> {
   List<Map<String, dynamic>> _school = [];
   bool _loading = true;
   bool _failed = false;
+  bool _sharedLedger = true; // gap-familycare: the family's ledger first
 
   @override
   void initState() {
@@ -68,7 +79,36 @@ class _FcSectionPageState extends State<FcSectionPage> {
       case FcSection.school:
         return FamSchoolSection(items: _school, members: _members, onChanged: _load);
       case FcSection.ledger:
-        return FamAcctSection(members: _members, onAddMember: _pick);
+        final fid = widget.familyId;
+        if (fid == null) return FamAcctSection(members: _members, onAddMember: _pick);
+        final t = AppLocalizations.of(context);
+        return Column(children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<bool>(
+                key: const ValueKey('fcg-ledger-scope'),
+                showSelectedIcon: false,
+                segments: [
+                  ButtonSegment(value: true, label: Text(t.fcgLedgerFamily, maxLines: 2, textAlign: TextAlign.center)),
+                  ButtonSegment(value: false, label: Text(t.fcgLedgerMine, maxLines: 2, textAlign: TextAlign.center)),
+                ],
+                selected: {_sharedLedger},
+                onSelectionChanged: (v) => setState(() => _sharedLedger = v.first),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _sharedLedger
+                ? FamAcctSection(
+                    key: ValueKey('fcg-ledger-family-$fid'),
+                    members: widget.familyMembers,
+                    familyId: fid)
+                : FamAcctSection(
+                    key: const ValueKey('fcg-ledger-mine'), members: _members, onAddMember: _pick),
+          ),
+        ]);
       case FcSection.papers: // gap-familycare: papers open on the papers pane
         return FamSharingHub(members: _members, onAddMember: _pick, initialPane: 'docs');
       case FcSection.bazar:

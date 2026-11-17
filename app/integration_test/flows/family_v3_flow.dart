@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:assisto/family_v3/family_v3_screen.dart';
+import 'package:assisto/family_v3/fc_section_page.dart'; // gap-familycare
 import 'package:assisto/screens/guardian_request_screen.dart'; // gap-familycare
 
 import '../support/harness.dart';
@@ -160,6 +161,36 @@ void registerFamilyV3Flows() {
       await f.shot('paused_line');
       await f.net(() => apiB.postJson('/family/brain/pause', {'resume': true}));
       FamilyV3Screen.pollEvery = const Duration(minutes: 2);
+    });
+    await f.step('shared ledger: B\'s spend + goal show on A\'s phone; A adds money', () async {
+      final note = 'gap e2e bazar $title';
+      final board = await f.net(() => api.getJson('/family/v3/families/$fid/board'));
+      final aId = ((board['me'] as Map)['user_id'] as num).toInt();
+      await f.net(() => apiB.postJson('/family/accounting/expenses', {
+            'family': fid, 'payer': 'self', 'total_poisha': 90001,
+            'members': ['self', 'u$aId'], 'note': note,
+          }));
+      final g = await f.net(() => apiB.postJson('/family/accounting/goals',
+          {'family': fid, 'name': 'Eid $title', 'target_poisha': 1000000}));
+      final gid = (g['id'] as num).toInt();
+      await f.pushScreen(FcSectionPage(section: FcSection.ledger, title: f.t.fc3MoreLedger,
+          familyId: fid, familyMembers: [{'id': 'u$bId', 'name': Seed.nameB}]), settleSeconds: 4);
+      await f.waitFor(find.text(note), seconds: 20, what: 'B\'s expense on A\'s ledger');
+      await f.shot('ledger_shared');
+      await f.tap(find.text(f.t.fcgGoalsTab), settleSeconds: 2);
+      await f.waitFor(find.text('Eid $title'), what: 'B\'s goal');
+      await f.tap(find.byKey(ValueKey('fcg-goal-add-$gid')));
+      await f.tapText(f.t.medForSelf);
+      await f.waitFor(find.byKey(const ValueKey('fa-amount-field')), what: 'amount field');
+      await f.tester.enterText(find.byKey(const ValueKey('fa-amount-field')), '250');
+      await f.pumpFor(const Duration(milliseconds: 500));
+      await f.tap(find.byKey(const ValueKey('fa-amount-save')), settleSeconds: 3);
+      await f.eventually('A\'s 250 taka on the goal', () async {
+        final s = await apiB.getJson('/family/accounting/goals?family=$fid');
+        final mine = (s['goals'] as List).cast<Map>().firstWhere((x) => x['id'] == gid);
+        return mine['collected_poisha'] == 25000;
+      });
+      await f.shot('goal_added');
     });
   });
 }

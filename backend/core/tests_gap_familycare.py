@@ -66,3 +66,118 @@ class LocationPreselectTest(GBase):
         self.assertEqual(out[0]["other_user_id"], self.a.id)
         inc = self.ca.get(U).json()["incoming"]
         self.assertEqual(inc[0]["other_user_id"], self.b.id)
+
+
+class SharedLedgerTest(Base):
+    """gap-familycare slice 3: one family ledger every member sees; exact
+    integer poisha; the personal ledger stays separate; strangers locked out."""
+
+    def setUp(self):
+        super().setUp()
+        self.fid = self.fam()["families"][0]["id"]       # Rina = admin
+        self.join(self.ab, self.cb, self.fid)            # Ammu
+        self.join(self.ac, self.cc, self.fid)            # Rafi
+        self.ub, self.uc = "u%d" % self.b.id, "u%d" % self.c.id
+
+    def add(self, client, payer, total, members, **kw):
+        return client.post(f"{V}/family/accounting/expenses", {
+            "family": self.fid, "payer": payer, "total_poisha": total,
+            "category": "groceries", "mode": "equal", "members": members, **kw},
+            format="json")
+
+    def summary(self, client):
+        r = client.get(f"{V}/family/accounting/summary?family={self.fid}")
+        self.assertEqual(r.status_code, 200, r.content)
+        return r.json()
+
+    def test_everyone_sees_one_ledger_with_exact_poisha(self):
+        r = self.add(self.ca, "self", 1000, ["self", self.ub, self.uc])
+        self.assertEqual(r.status_code, 201, r.content)
+        self.assertEqual([s["share_poisha"] for s in r.json()["shares"]], [334, 333, 333])
+        # Ammu sees it on HER phone; for her, Rina is "u<id>" and she is "self"
+        s = self.summary(self.cb)
+        self.assertEqual(s["total_poisha"], 1000)
+        nets = {m["member"]: m["net_poisha"] for m in s["members"]}
+        self.assertEqual(nets["self"], -333)
+        self.assertEqual(nets["u%d" % self.a.id], 666)
+        self.assertEqual(sum(nets.values()), 0)
+        self.assertEqual(s["family"]["id"], self.fid)
+        # Ammu adds her own spend: Rafi owes both, sums stay exact
+        self.assertEqual(self.add(self.cb, "self", 701, ["self", self.uc]).status_code, 201)
+        s = self.summary(self.cc)
+        nets = {m["member"]: m["net_poisha"] for m in s["members"]}
+        self.assertEqual(sum(nets.values()), 0)
+        owed = sum(t["amount_poisha"] for t in s["settlements"] if t["from"] == "self")
+        self.assertEqual(owed, 333 + 350)  # 701 = 351 (Ammu) + 350 (Rafi)
+
+    def test_personal_ledger_stays_separate(self):
+        self.add(self.ca, "self", 5000, ["self", self.ub])
+        mine = self.ca.get(f"{V}/family/accounting/summary").json()
+        self.assertEqual(mine["total_poisha"], 0)
+        self.assertIn("pool", mine)
+        self.assertNotIn("goals", mine)
+
+    def test_strangers_and_bad_members(self):
+        self.assertEqual(self.cx.get(f"{V}/family/accounting/summary?family={self.fid}")
+                         .status_code, 404)
+        r = self.cx.post(f"{V}/family/accounting/expenses",
+                         {"family": self.fid, "payer": "self", "total_poisha": 100,
+                          "members": ["self"]}, format="json")
+        self.assertEqual(r.status_code, 404)
+        stranger = "u%d" % self.x.id
+        self.assertEqual(self.add(self.ca, "self", 100, ["self", stranger]).status_code, 400)
+        self.assertEqual(self.add(self.ca, "self", 100, ["self", "12"]).status_code, 400)
+
+    def test_delete_only_who_added_or_admin_and_settle(self):
+        eid = self.add(self.cb, "self", 900, ["self", self.uc]).json()["id"]
+        r = self.cc.post(f"{V}/family/accounting/expenses/delete",
+                         {"family": self.fid, "id": eid}, format="json")
+        self.assertEqual(r.status_code, 403)
+        # Rafi pays Ammu back 450 -> nothing left
+        r = self.cc.post(f"{V}/family/accounting/settle",
+                         {"family": self.fid, "from": "self", "to": self.ub,
+                          "amount_poisha": 451}, format="json")
+        self.assertEqual(r.status_code, 400)          # more than he owes
+        r = self.cc.post(f"{V}/family/accounting/settle",
+                         {"family": self.fid, "from": "self", "to": self.ub,
+                          "amount_poisha": 450}, format="json")
+        self.assertEqual(r.status_code, 200, r.content)
+        self.assertEqual(r.json()["remaining"], [])
+        # the admin may delete anyone's row
+        r = self.ca.post(f"{V}/family/accounting/expenses/delete",
+                         {"family": self.fid, "id": eid}, format="json")
+        self.assertEqual(r.status_code, 200)
+
+    def test_named_goals(self):
+        r = self.cb.post(f"{V}/family/accounting/goals",
+                         {"family": self.fid, "name": "Eid fund", "target_poisha": 1000000},
+                         format="json")
+        self.assertEqual(r.status_code, 201, r.content)
+        gid = r.json()["id"]
+        self.ca.post(f"{V}/family/accounting/goals",
+                     {"family": self.fid, "name": "School fees", "target_poisha": 300000},
+                     format="json")
+        for client, amt in ((self.ca, 250000), (self.cc, 50001)):
+            r = client.post(f"{V}/family/accounting/goals/{gid}/contribute",
+                            {"member": "self", "amount_poisha": amt}, format="json")
+            self.assertEqual(r.status_code, 200, r.content)
+        g = r.json()
+        self.assertEqual((g["collected_poisha"], g["remaining_poisha"], g["pct"]),
+                         (300001, 699999, 30))
+        self.assertEqual(sum(b["amount_poisha"] for b in g["breakdown"]), 300001)
+        names = [x["name"] for x in self.summary(self.cc)["goals"]]
+        self.assertEqual(sorted(names), ["Eid fund", "School fees"])
+        # only who made it / admin can close; closed takes no more money
+        self.assertEqual(self.cc.post(f"{V}/family/accounting/goals/{gid}/close").status_code, 403)
+        self.assertEqual(self.ca.post(f"{V}/family/accounting/goals/{gid}/close").status_code, 200)
+        r = self.cb.post(f"{V}/family/accounting/goals/{gid}/contribute",
+                         {"member": "self", "amount_poisha": 100}, format="json")
+        self.assertEqual(r.status_code, 400)
+        # validation + strangers
+        for bad in ({"name": "", "target_poisha": 100}, {"name": "X", "target_poisha": 0},
+                    {"name": "X", "target_poisha": "abc"}):
+            r = self.cb.post(f"{V}/family/accounting/goals", {"family": self.fid, **bad},
+                             format="json")
+            self.assertEqual(r.status_code, 400, bad)
+        self.assertEqual(self.cx.post(f"{V}/family/accounting/goals/{gid}/reopen").status_code, 404)
+        self.assertEqual(self.ca.get(f"{V}/family/accounting/goals").status_code, 400)

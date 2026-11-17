@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import 'skeleton.dart';
 import 'famacct_sheets.dart';
 import 'money_digits.dart'; // gap-familycare
+import '../family_v3/fc_manage.dart' show fcrTextSheet; // gap-familycare
 
 /// FAMILY ACCOUNTING section (#61, SPEC v2.1 §21) — a fully self-contained,
 /// clearly-bounded widget embedded as ONE tab inside FamilyScreen. Everything
@@ -26,7 +27,12 @@ class FamAcctSection extends StatefulWidget {
 
   /// famcare: the empty Members sub-tab opens the My Circle picker.
   final VoidCallback? onAddMember;
-  const FamAcctSection({super.key, required this.members, this.onAddMember});
+
+  /// gap-familycare: a Family Care v3 family id = the SHARED family ledger
+  /// (every member sees and adds; named goals instead of the monthly pool).
+  /// null = my own household ledger (unchanged).
+  final int? familyId;
+  const FamAcctSection({super.key, required this.members, this.onAddMember, this.familyId});
 
   @override
   State<FamAcctSection> createState() => _FamAcctSectionState();
@@ -48,9 +54,21 @@ class _FamAcctSectionState extends State<FamAcctSection> {
 
   ApiClient get _api => context.read<AppState>().api;
 
+  int? get _fam => widget.familyId;
+  bool get _shared => widget.familyId != null;
+  List<Map<String, dynamic>> goals = [];
+
   String _name(dynamic memberId) {
     for (final m in widget.members) {
       if (m['id'] == memberId) return (m['name'] ?? '').toString();
+    }
+    // gap-familycare: names the server knows (members of the shared ledger)
+    if (memberId != 'self') {
+      for (final m in (summary['members'] as List? ?? const [])) {
+        if (m is Map && m['member'] == memberId && '${m['name'] ?? ''}'.isNotEmpty) {
+          return '${m['name']}';
+        }
+      }
     }
     // 'self' is the account owner; everything else is a family member id.
     if (memberId == 'self' || memberId == null) {
@@ -65,13 +83,17 @@ class _FamAcctSectionState extends State<FamAcctSection> {
       errored = false;
     });
     try {
-      final s = await _api.famAcctSummary();
-      final e = await _api.famAcctExpenses();
+      final s = await _api.famAcctSummary(family: _fam);
+      final e = await _api.famAcctExpenses(family: _fam);
       if (!mounted) return;
       setState(() {
         summary = s;
         expenses = (e['expenses'] as List? ?? []).cast<Map<String, dynamic>>();
         pool = (s['pool'] as Map?)?.cast<String, dynamic>() ?? {};
+        goals = [
+          for (final g in (s['goals'] as List? ?? const []))
+            if (g is Map) g.cast<String, dynamic>()
+        ];
         loading = false;
       });
     } catch (_) {
@@ -113,14 +135,14 @@ class _FamAcctSectionState extends State<FamAcctSection> {
         TabBar(isScrollable: true, tabs: [
           Tab(text: AppLocalizations.of(context).faTabExpenses),
           Tab(text: AppLocalizations.of(context).faTabSettle),
-          Tab(text: AppLocalizations.of(context).faTabPool),
+          Tab(text: _shared ? AppLocalizations.of(context).fcgGoalsTab : AppLocalizations.of(context).faTabPool),
           Tab(text: AppLocalizations.of(context).faTabMembers),
         ]),
         Expanded(
           child: TabBarView(children: [
             _expensesTab(),
             _settleTab(),
-            _poolTab(),
+            _shared ? _goalsTab() : _poolTab(),
             _membersTab(),
           ]),
         ),
@@ -150,6 +172,12 @@ class _FamAcctSectionState extends State<FamAcctSection> {
                     FamAcctLocal.fmtPoisha(
                         (summary['total_poisha'] as num?)?.toInt() ?? 0)),
                 style: const TextStyle(color: Colors.white70, fontSize: 13)),
+            if (_shared)
+              Text(
+                  AppLocalizations.of(context)
+                      .fcgLedgerShared('${(summary['family'] as Map?)?['name'] ?? ''}'),
+                  key: const ValueKey('fcg-ledger-shared'),
+                  style: const TextStyle(color: Colors.white, fontSize: 13)),
           ]),
         ),
         IconButton(
@@ -209,10 +237,11 @@ class _FamAcctSectionState extends State<FamAcctSection> {
               ),
               Text(FamAcctLocal.fmtPoisha(totalP),
                   style: const TextStyle(fontWeight: FontWeight.w700)),
-              IconButton(
-                  tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                  icon: const Icon(Icons.delete_outline_rounded),
-                  onPressed: () => _deleteExpense(e)),
+              if (!_shared || e['can_delete'] == true) // gap-familycare
+                IconButton(
+                    tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    onPressed: () => _deleteExpense(e)),
             ]),
             if (aiCaptured) ...[
               const SizedBox(height: Gap.xs),
@@ -259,7 +288,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     final body = await showAddExpenseSheet(context, widget.members);
     if (body == null) return;
     try {
-      await _api.famAcctAddExpense(body);
+      await _api.famAcctAddExpense(body, family: _fam);
       await _load();
     } catch (e) {
       if (mounted) _failSnack(e);
@@ -285,7 +314,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     final id = e['id'];
     if (id is! int) return;
     try {
-      await _api.famAcctDeleteExpense(id);
+      await _api.famAcctDeleteExpense(id, family: _fam);
       await _load();
     } catch (err) {
       if (mounted) _failSnack(err);
@@ -320,7 +349,8 @@ class _FamAcctSectionState extends State<FamAcctSection> {
         ? (s['message'] as Map)[
             Localizations.localeOf(context).languageCode == 'bn' ? 'bn' : 'en']
         : null;
-    final line = serverMsg?.toString() ?? _owesLine(from, to, amt);
+    // gap-familycare: the server's amount digits follow the app language
+    final line = serverMsg != null ? moneyDigits(serverMsg.toString()) : _owesLine(from, to, amt);
     return Card(
       child: ListTile(
         leading: const CircleAvatar(child: Icon(Icons.swap_horiz_rounded)),
@@ -349,7 +379,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     try {
       // 'self' (the account owner) or a family-member id; the server checks
       // the amount against what is actually outstanding.
-      await _api.famAcctSettle(from, to, amt);
+      await _api.famAcctSettle(from, to, amt, family: _fam);
       await _load();
       messenger.showSnackBar(SnackBar(content: Text(done)));
     } catch (e) {
@@ -440,6 +470,164 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     if (p == null) return;
     try {
       await _api.famAcctContribute(member, p);
+      await _load();
+    } catch (e) {
+      if (mounted) _failSnack(e);
+    }
+  }
+
+  // ----------------------------- GOALS (shared family) -------------------
+  Widget _goalsTab() {
+    final t = AppLocalizations.of(context);
+    if (goals.isEmpty) {
+      return StateMessage(
+        icon: Icons.savings_rounded,
+        title: t.fcgGoalsEmpty,
+        message: t.fcgGoalsEmptySub,
+        action: FilledButton.icon(
+            key: const ValueKey('fcg-goal-new'),
+            onPressed: _newGoal,
+            icon: const Icon(Icons.flag_rounded),
+            label: Text(t.fcgGoalNew)),
+      );
+    }
+    final open = goals.where((g) => g['closed'] != true).toList();
+    final closed = goals.where((g) => g['closed'] == true).toList();
+    return ListView(padding: const EdgeInsets.all(Gap.md), children: [
+      Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: FilledButton.tonalIcon(
+            key: const ValueKey('fcg-goal-new'),
+            onPressed: _newGoal,
+            icon: const Icon(Icons.flag_rounded),
+            label: Text(t.fcgGoalNew)),
+      ),
+      const SizedBox(height: Gap.sm),
+      for (final g in open) _goalCard(g),
+      if (closed.isNotEmpty) ...[
+        Padding(
+          padding: const EdgeInsets.only(top: Gap.md, bottom: Gap.xs),
+          child: Text(t.fcgGoalDone, style: Theme.of(context).textTheme.titleSmall),
+        ),
+        for (final g in closed) _goalCard(g),
+      ],
+    ]);
+  }
+
+  Widget _goalCard(Map<String, dynamic> g) {
+    final t = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final id = (g['id'] as num).toInt();
+    final target = (g['target_poisha'] as num?)?.toInt() ?? 0;
+    final got = (g['collected_poisha'] as num?)?.toInt() ?? 0;
+    final pct = (g['pct'] as num?)?.toInt() ?? 0;
+    final closed = g['closed'] == true;
+    final met = g['state'] == 'met';
+    final gifts = (g['breakdown'] as List? ?? const []).whereType<Map>().toList();
+    return Card(
+      key: ValueKey('fcg-goal-$id'),
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Row(children: [
+            Icon(met ? Icons.emoji_events_rounded : Icons.savings_rounded,
+                color: met ? Brand.success : scheme.primary),
+            const SizedBox(width: Gap.sm),
+            Expanded(
+                child: Text('${g['name'] ?? ''}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))),
+            if (met)
+              Text(t.fcgGoalReached,
+                  style: const TextStyle(color: Brand.success, fontWeight: FontWeight.w700)),
+          ]),
+          const SizedBox(height: Gap.sm),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(Radii.pill),
+            child: LinearProgressIndicator(
+              value: (pct.clamp(0, 100)) / 100.0,
+              minHeight: 10,
+              backgroundColor: scheme.surfaceContainerHighest,
+            ),
+          ),
+          const SizedBox(height: Gap.xs),
+          Text(
+              t.fcgGoalProgress(FamAcctLocal.fmtPoisha(got), FamAcctLocal.fmtPoisha(target),
+                  moneyDigits('$pct')),
+              key: ValueKey('fcg-goal-progress-$id')),
+          for (final b in gifts)
+            Text('${b['member'] == 'self' ? _name('self') : (b['name'] ?? '')} · '
+                '${FamAcctLocal.fmtPoisha((b['amount_poisha'] as num?)?.toInt() ?? 0)}',
+                style: TextStyle(color: scheme.onSurfaceVariant)),
+          const SizedBox(height: Gap.sm),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            if (!closed)
+              FilledButton.icon(
+                  key: ValueKey('fcg-goal-add-$id'),
+                  onPressed: () => _giveToGoal(id),
+                  icon: const Icon(Icons.add_rounded),
+                  label: Text(t.fcgGoalAdd)),
+            if (g['can_close'] == true)
+              OutlinedButton(
+                  key: ValueKey('fcg-goal-close-$id'),
+                  onPressed: () => _closeGoal(id, reopen: closed),
+                  child: Text(closed ? t.fcgGoalReopen : t.fcgGoalClose)),
+          ]),
+        ]),
+      ),
+    );
+  }
+
+  Future<void> _newGoal() async {
+    final t = AppLocalizations.of(context);
+    final fam = _fam;
+    if (fam == null) return;
+    final name = await fcrTextSheet(context,
+        title: t.fcgGoalNew, hint: t.fcgGoalNameHint, max: 60,
+        fieldKey: const ValueKey('fcg-goal-name'), action: t.save);
+    if (name == null || name.trim().isEmpty || !mounted) return;
+    final target = await showAmountSheet(context, t.fcgGoalTarget);
+    if (target == null || !mounted) return;
+    try {
+      await _api.famGoalCreate(fam, name.trim(), target);
+      await _load();
+    } catch (e) {
+      if (mounted) _failSnack(e);
+    }
+  }
+
+  Future<void> _giveToGoal(int id) async {
+    final member = await showMemberPicker(context, widget.members);
+    if (member == null || !mounted) return;
+    final p = await showAmountSheet(context, AppLocalizations.of(context).fcgGoalAdd);
+    if (p == null) return;
+    try {
+      await _api.famGoalContribute(id, member, p);
+      await _load();
+    } catch (e) {
+      if (mounted) _failSnack(e);
+    }
+  }
+
+  Future<void> _closeGoal(int id, {bool reopen = false}) async {
+    final t = AppLocalizations.of(context);
+    if (!reopen) {
+      final ok = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                scrollable: true,
+                content: Text(t.fcgGoalCloseQ),
+                actions: [
+                  TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+                  FilledButton(
+                      key: const ValueKey('fcg-goal-close-ok'),
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(t.fcgGoalClose)),
+                ],
+              ));
+      if (ok != true) return;
+    }
+    try {
+      await _api.famGoalAction(id, reopen ? 'reopen' : 'close');
       await _load();
     } catch (e) {
       if (mounted) _failSnack(e);

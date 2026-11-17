@@ -827,9 +827,15 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> with WidgetsBindingObse
         if (m['me'] != true && '${m['abroad_tz'] ?? ''}'.trim().isNotEmpty)
           {'name': _nameOf(m), 'tz': '${m['abroad_tz']}'.trim()}
     ];
+    // gap-familycare: the shared family ledger's other members
+    final others = [
+      for (final m in _members)
+        if (m['me'] != true) {'id': 'u${m['user_id']}', 'name': _nameOf(m)}
+    ];
     Navigator.of(context)
         .push(MaterialPageRoute(
-            builder: (_) => FcSectionPage(section: s, title: title, abroad: abroad)))
+            builder: (_) => FcSectionPage(
+                section: s, title: title, abroad: abroad, familyId: _fid, familyMembers: others)))
         .then((_) => _load());
   }
 
