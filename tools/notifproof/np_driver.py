@@ -443,8 +443,11 @@ def case_reminder(A, Ah, tokens):
     m = wait_fcm(tokens, "reminder", n0, pred=lambda d: title in (d.get("title", "") + d.get("body", "")))
     if m is None:
         m = wait_fcm(tokens, "reminder", n0, timeout=5)
-    if not c.check("backend sent the FCM 'reminder' (notification + reminders channel)", m is not None
-                   and ((m.get("android") or {}).get("notification") or {}).get("channel_id") == "reminders", m):
+    # remmeter: the reminder push is DATA-ONLY + high priority — the app's own
+    # background isolate draws it (and stays silent when its local alarm rang)
+    if not c.check("backend sent a high-priority FCM 'reminder' (reminders channel, app draws it)",
+                   m is not None and (m.get("data") or {}).get("channel") == "reminders"
+                   and (m.get("android") or {}).get("priority") == "HIGH", m):
         return c.done()
     ex, out = deliver(m)
     c.r["broadcast"] = out
@@ -493,13 +496,16 @@ def case_sos(A, B, tokens):
     c = Case("np3_sos_dnd_closed", [10, 6],
              "B presses SOS; A's phone: app killed, screen off, Do Not Disturb ON")
     closed_precheck(c)
-    sh("cmd notification set_dnd on")
+    # `set_dnd on` gave zen_mode=2 (TOTAL silence) on API 33 (run
+    # 43996012933): there Android blocks every sound, alarms included, for
+    # every app. The normal DND a user switches on is "priority only" (1).
+    sh("cmd notification set_dnd priority")
     time.sleep(1)
     zen = sh("settings get global zen_mode").strip()
-    c.check("Do Not Disturb is ON (zen_mode=1, priority only)", zen == "1", zen)
+    c.check("Do Not Disturb is ON (zen_mode=1, priority only — the phone's normal DND)", zen == "1", zen)
     sh("input keyevent KEYCODE_SLEEP")
     time.sleep(3)
-    wk = sh("dumpsys power | grep -m1 mWakefulness=").strip()
+    wk = sh("dumpsys power | grep mWakefulness= | head -1").strip()
     c.check("screen is OFF before the SOS", "Awake" not in wk, wk)
     if pid():
         kill_app()
@@ -535,7 +541,7 @@ def case_sos(A, B, tokens):
     save("np3_dumpsys_audio.txt", au)
     c.r["audio_alarm_players"] = au.strip()[:600]
     time.sleep(4)
-    wk = sh("dumpsys power | grep -m1 mWakefulness=").strip()
+    wk = sh("dumpsys power | grep mWakefulness= | head -1").strip()
     c.check("the full-screen alarm WOKE the screen", "Awake" in wk, wk)
     ra = resumed_activity()
     c.r["resumed"] = ra
