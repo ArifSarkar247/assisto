@@ -109,6 +109,7 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
   bool _playing = false;
   Timer? _poll;
   String? _cc; // gap-sos: this phone's country, when the page cannot load
+  bool _ccAsked = false;
 
   int get _id => SosAlarmScreen.deliveryOf(widget.data);
   FcSosApi get _api => widget.api ?? HttpFcSosApi(context.read<AppState>().api);
@@ -121,7 +122,6 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
     // alarm (STREAM_ALARM, loud on silent) takes over until the person acts
     unawaited(PushNotifier.cancelFor(widget.data));
     if (widget.autoAlarm) unawaited(_startAlarm());
-    unawaited(_loadCountry());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_api.seen(_id).catchError((_) {}));
       _load();
@@ -170,7 +170,15 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
         unawaited(_stopAlarm());
       }
     } catch (_) {
-      if (mounted && _d == null) setState(() => _failed = true);
+      if (mounted && _d == null) {
+        setState(() => _failed = true);
+        // gap-sos: only now (the page could not load) is this phone's own
+        // country needed for the emergency number
+        if (_cc == null && !_ccAsked) {
+          _ccAsked = true;
+          unawaited(_loadCountry());
+        }
+      }
     }
   }
 
