@@ -310,6 +310,8 @@ class SendPreviewView(CrmErrorMixin, APIView):
         stopped = SP.opted_out(scope, p)
         out = {"name": p.name, "phone": p.phone, "known": _known(p),
                **SP.links(p, text, stopped=stopped)}
+        if stopped:
+            out["stop"] = SP.stop_info(scope, p)  # sosfam-crm-proof: how + when (the reason)
         if text:
             out["sms"] = SP.sms_offer(request, scope, p, text, _lang(request))
             if not _known(p):
@@ -362,6 +364,8 @@ class SendSmsView(CrmErrorMixin, APIView):
             return _sms_err(request, "owner_only")
         if not _known(p):
             return _sms_err(request, "not_your_customer")
+        if SP.opted_out(scope, p):  # sosfam-crm-proof: STOP first, before price / gateway
+            return _sms_err(request, "opted_out")
         lang = _lang(request)
         final = SP.sms_text(scope, text, lang, p.key or p.phone)
         q = SP.sms_quote(final)

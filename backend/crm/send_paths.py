@@ -126,6 +126,16 @@ def opted_out(scope, person):
         return False
 
 
+def stop_info(scope, person):
+    """sosfam-crm-proof: {"source", "at"} of this customer's STOP, for the
+    owner's "why" line; None when unknown."""
+    try:
+        from core.logic import msg_guard as MG
+        return MG.opt_out_info(scope.business.pk, getattr(person, "key", "") or "")
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def links(person, text, stopped=False):
     K = _khata()
     phone = person.phone or person.key

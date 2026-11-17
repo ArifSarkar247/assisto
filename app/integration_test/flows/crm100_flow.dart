@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:assisto/api.dart' show ApiException;
 import 'package:assisto/config.dart';
 import 'package:assisto/screens/crm/crm100_api.dart';
 import 'package:assisto/screens/crm/customer_history_screen.dart';
@@ -89,6 +90,124 @@ void registerCrm100Flows() {
       f.expectHttp('POST', '/crm/send/preview');
       if (!await f.appears(find.text(f.t.c100WayWa))) throw TestFailure('no WhatsApp way');
       await f.tap(find.byType(OutlinedButton).last, settleSeconds: 2); // Cancel
+    });
+  }, timeout: const Duration(minutes: 5));
+
+  // sosfam-crm-proof (board row 15): a customer who said STOP can never be
+  // messaged — no WhatsApp link, no phone SMS, no Assisto SMS, no bulk card,
+  // nothing logged; the owner sees HOW and WHEN; the customer's own
+  // re-consent (the same SMS link) opens the paths again.
+  realityFlow('18d_crm_stop_consent', 'Business',
+      'CRM STOP: customer taps the SMS stop link -> no path anywhere + owner sees why -> customer turns it back on',
+      (f) async {
+    await f.home();
+    final api = await f.h.backend();
+    late int bizId;
+    late String link;
+    const phone = '01700000021'; // the seeded khata customer "Selim (khata)"
+    Future<Map<String, dynamic>> preview() => f.net(() => api.postJson('/crm/send/preview',
+        {'phone': phone, 'business': bizId, 'text': 'Eid offer', 'lang': 'en'}));
+    Future<void> openSheet() async {
+      await f.pushScreen(CustomerHistoryScreen(
+          target: const CustomerTarget(phone: phone), name: 'Selim', business: bizId));
+      await f.scrollTo(find.text(f.t.c100ActMessage));
+      await f.tap(find.text(f.t.c100ActMessage), settleSeconds: 2);
+      await f.tap(find.text(f.t.c100ChooseHow), settleSeconds: 3);
+    }
+    Future<void> closeSheet() async {
+      await f.tap(find.byType(OutlinedButton).last, settleSeconds: 2); // Cancel
+      await f.back();
+    }
+    await f.step('before: every path is open; the SMS carries a stop link', () async {
+      final b = await f.net(() => api.getJson('/business/profiles'));
+      bizId = (b['selected_id'] as num).toInt();
+      final pv = await preview();
+      if (pv['opted_out'] != false || '${pv['wa_url']}'.isEmpty) {
+        throw TestFailure('not open before STOP: $pv');
+      }
+      final m = RegExp(r'https?://\S+/retention/u/[A-Za-z0-9-]+')
+          .firstMatch('${(pv['sms'] as Map)['text']}');
+      if (m == null) throw TestFailure('no stop link in the SMS text: ${pv['sms']}');
+      link = m.group(0)!;
+      f.note('stop link: ${link.replaceAll(RegExp(r'u/.*'), 'u/<token>')}');
+    });
+    await f.step('the customer opens the link (no app, no login) and taps Stop', () async {
+      final g = await f.net(() => http.get(Uri.parse('$link?lang=en')));
+      if (g.statusCode != 200 || !g.body.contains('Stop messages')) {
+        throw TestFailure('stop page ${g.statusCode}');
+      }
+      final p = await f.net(() => http.post(Uri.parse('$link?lang=en')));
+      if (p.statusCode != 200 || !p.body.contains('Turn messages back on')) {
+        throw TestFailure('stop answered ${p.statusCode}');
+      }
+    });
+    await f.step('server: no path at all — WhatsApp, phone SMS, Assisto SMS, bulk, log', () async {
+      final pv = await preview();
+      if (pv['opted_out'] != true || '${pv['wa_url']}${pv['sms_uri']}'.isNotEmpty) {
+        throw TestFailure('a path is still open: $pv');
+      }
+      if ((pv['sms'] as Map)['available'] == true) throw TestFailure('Assisto SMS offered');
+      if ((pv['stop'] as Map?)?['source'] != 'sms_link') throw TestFailure('no reason: $pv');
+      final bulk = await f.net(() => api.postJson('/crm/send/bulk', {
+            'business': bizId, 'targets': [{'phone': phone}], 'text': '{name}, Eid offer'}));
+      if ((bulk['cards'] as List).isNotEmpty || bulk['opted_out'] != 1) {
+        throw TestFailure('bulk made a card for a STOP customer: $bulk');
+      }
+      for (final call in [
+        ['/crm/send/sms', {'phone': phone, 'business': bizId, 'text': 'Eid offer'}],
+        ['/crm/send/log', {'phone': phone, 'business': bizId, 'text': 'Eid offer',
+          'channel': 'whatsapp_link'}],
+      ]) {
+        Object? err;
+        try {
+          await f.net(() => api.postJson(call[0] as String, call[1] as Map<String, dynamic>));
+        } on ApiException catch (e) {
+          err = e;
+        }
+        if (err is! ApiException) throw TestFailure('${call[0]} was accepted for a STOP customer');
+        if (err.status != 409) throw TestFailure('${call[0]} answered ${err.status}: $err');
+        f.note('${call[0]} refused 409 ${err.reason ?? ''}');
+      }
+      final list = await f.net(() => api.getJson('/retention/opt-outs'));
+      f.note('owner STOP list: ${list['count']} (${(list['opt_outs'] as List).map((o) => (o as Map)['source']).join(',')})');
+    });
+    await f.step('app: the send sheet says STOP, how + when, and offers no way', () async {
+      await openSheet();
+      f.expectHttp('POST', '/crm/send/preview');
+      await f.waitFor(find.byKey(const ValueKey('gbz-send-optedout')), what: 'STOP note');
+      if (!await f.appears(find.textContaining(f.t.gbzStopUndo), seconds: 4)) {
+        throw TestFailure('the note does not say who can undo it');
+      }
+      final how = (f.t.gbzStopByLink('§').split('§').map((x) => x.trim()).toList()
+            ..sort((a, b) => b.length.compareTo(a.length)))
+          .first;
+      if (!await f.appears(find.textContaining(how), seconds: 2)) {
+        throw TestFailure('the note does not say how they stopped');
+      }
+      await f.shot('stop-reason');
+      final mark = f.httpMark;
+      await f.tap(find.text(f.t.c100WayWa), settleSeconds: 1);
+      if (f.h.recorder.hits.skip(mark).any((x) => x.path.startsWith('/crm/send/log'))) {
+        throw TestFailure('the WhatsApp way was opened for a STOP customer');
+      }
+      await closeSheet();
+    });
+    await f.step('the customer turns messages back on (same link) -> paths open again', () async {
+      final p = await f.net(() => http.post(Uri.parse('$link?lang=en'), body: {'action': 'start'}));
+      if (p.statusCode != 200 || !p.body.contains('Messages are on again')) {
+        throw TestFailure('re-consent answered ${p.statusCode}');
+      }
+      final pv = await preview();
+      if (pv['opted_out'] != false || '${pv['wa_url']}'.isEmpty) {
+        throw TestFailure('still blocked after re-consent: $pv');
+      }
+      await openSheet();
+      if (find.byKey(const ValueKey('gbz-send-optedout')).evaluate().isNotEmpty) {
+        throw TestFailure('STOP note still shown after re-consent');
+      }
+      if (!await f.appears(find.text(f.t.c100WayWa))) throw TestFailure('no WhatsApp way');
+      await f.shot('reconsent-open');
+      await closeSheet();
     });
   }, timeout: const Duration(minutes: 5));
 }

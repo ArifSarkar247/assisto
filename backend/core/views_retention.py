@@ -484,6 +484,11 @@ class InboxReplyView(_Gated):
         if MG.is_stop_text(text):
             S.opt_out_send(s, "in_app")
             return Response({"ok": True, "stopped": True})
+        # sosfam-crm-proof: START after a STOP = the customer's own re-consent
+        from .logic import bizagent_g1 as G1
+        if G1.is_opt_in(text) and MG.is_opted_out(s.business_id, s.audience_key):
+            MG.record_opt_in(s.business_id, s.audience_key)
+            return Response({"ok": True, "stopped": False, "started": True})
         s.replied_at, s.reply_text = now, text
         if not s.read_at:
             s.read_at = now
@@ -550,10 +555,22 @@ class PublicStopView(APIView):
         return self._page("bn", "লিংক ঠিক নয় / Link not valid",
                           "এই লিংকটি আর কাজ করে না। / This link does not work.", status=404)
 
-    def _done(self, lang, shop):
+    def _done(self, lang, shop, again=True):
+        # sosfam-crm-proof: re-consent is the customer's own choice — the
+        # same link turns messages back on (one button, POST only)
+        form = ('<form method="post"><input type="hidden" name="action" value="start">'
+                '<button type="submit" style="background:#1B6E3A">%s</button></form>'
+                % escape(pick(lang, "আবার মেসেজ চালু করুন", "Turn messages back on"))) if again else ""
         return self._page(lang, pick(lang, "বন্ধ করা হয়েছে", "Stopped"),
                           pick(lang, "%s আর নিজে থেকে মেসেজ পাঠাবে না।" % shop,
-                               "%s will not message you first again." % shop))
+                               "%s will not message you first again." % shop), form)
+
+    def _started(self, lang, shop):
+        form = ('<form method="post"><button type="submit">%s</button></form>'
+                % escape(pick(lang, "মেসেজ বন্ধ করুন", "Stop messages")))
+        return self._page(lang, pick(lang, "মেসেজ আবার চালু", "Messages are on again"),
+                          pick(lang, "%s আবার দরকারি খবর পাঠাতে পারবে। বন্ধ করতে নিচে চাপুন।" % shop,
+                               "%s may message you again. Tap below any time to stop." % shop), form)
 
     def get(self, request, token):
         r = self._resolve(token)
@@ -564,7 +581,7 @@ class PublicStopView(APIView):
             lang = "en"
         shop = S.shop_name(biz)
         if MG.is_opted_out(biz.pk, key):
-            return self._done(lang, shop)
+            return self._done(lang, shop, again=True)
         form = ('<form method="post"><button type="submit">%s</button></form>'
                 % escape(pick(lang, "মেসেজ বন্ধ করুন", "Stop messages")))
         return self._page(lang, pick(lang, "মেসেজ বন্ধ করবেন?", "Stop messages?"),
@@ -576,6 +593,11 @@ class PublicStopView(APIView):
         if r is None:
             return self._bad()
         biz, key, lang, s = r
+        if request.GET.get("lang") == "en":
+            lang = "en"
+        if str(request.data.get("action") or "") == "start":
+            MG.record_opt_in(biz.pk, key)          # sosfam-crm-proof: re-consent
+            return self._started(lang, S.shop_name(biz))
         if s is not None:
             S.opt_out_send(s, "sms_link")
         else:
