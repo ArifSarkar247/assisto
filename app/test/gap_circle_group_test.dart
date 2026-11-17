@@ -204,6 +204,9 @@ void main() {
     expect(find.descendant(of: quote, matching: find.text('Yes, see you')), findsOneWidget);
     expect(find.byKey(const ValueKey('gapc-deleted-104')), findsOneWidget);
     expect(find.text(en.circleDeletedPlaceholder), findsOneWidget);
+    // my own messages carry no sender name (they sit on the right)
+    expect(find.byKey(const ValueKey('wa2-sender-101')), findsOneWidget);
+    expect(find.byKey(const ValueKey('wa2-sender-102')), findsNothing);
     await _dispose(tester);
   });
 

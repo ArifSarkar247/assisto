@@ -2465,6 +2465,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             kShareKinds.contains('${msg['content_type']}')) // mc-media2
         ? ScamVerdict.none
         : _p3Scam.putIfAbsent('${msg['id']}', () => checkScam(text));
+    final mineMsg = msg['mine'] == true; // gap-circle
     final bubble = GestureDetector(
       onLongPress: _selecting ? null : () => _showActions(msg),
       onTap: _selecting ? () => _toggleSelect(msg) : null,
@@ -2473,23 +2474,31 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
             ? Theme.of(context).colorScheme.primaryContainer
             : announcement
                 ? Theme.of(context).colorScheme.tertiaryContainer
-                : null,
-        // wa-polish2: tight inside a run, air above a new sender's run
+                // gap-circle: my own messages look like mine (as in 1:1)
+                : mineMsg
+                    ? MsgPalette.outBubble(context)
+                    : null,
+        // wa-polish2: tight inside a run, air above a new sender's run;
+        // gap-circle: mine sit on the right, others on the left
         margin: EdgeInsets.only(
-            top: continued ? Gap.xxs / 2 : Gap.sm, bottom: Gap.xxs / 2),
+            top: continued ? Gap.xxs / 2 : Gap.sm,
+            bottom: Gap.xxs / 2,
+            left: mineMsg ? Gap.xxxl : 0,
+            right: mineMsg ? 0 : Gap.xxxl),
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!continued || msg['pinned'] == true) ...[
+              if ((!continued && (!mineMsg || announcement)) ||
+                  msg['pinned'] == true) ...[
               Row(
                 children: [
                   if (announcement) ...[
                     const Icon(Icons.campaign_rounded, size: 16),
                     const SizedBox(width: Gap.xs),
                   ],
-                  if (!continued)
+                  if (!continued && !mineMsg)
                   Flexible(
                     child: Text(senderName,
                       key: ValueKey('wa2-sender-${msg['id']}'),
