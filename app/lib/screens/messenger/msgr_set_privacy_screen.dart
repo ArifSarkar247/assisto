@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messenger_setapi.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../widgets/chat_menu_pickers.dart';
 import '../../widgets/msgr_avatar.dart';
 import '../../widgets/msgr_set_tiles.dart';
@@ -39,8 +40,9 @@ class MsgrSetPrivacyScreen extends StatelessWidget {
       appBar: AppBar(title: Text(t.msgrSetPrivacy)),
       body: ListView(
         children: [
-          MsgrSetSection(t.msgrSetPrivacyVisibilitySection),
-          MsgrSetRow(
+MsgrSetSection(t.msgrSetPrivacyVisibilitySection),
+MsgrSetGroup([
+MsgrSetRow(
             icon: Icons.visibility_rounded,
             title: t.msgrSetPrivacyWhoCanSee,
             // last seen / online / profile photo / about / status all live in
@@ -48,46 +50,48 @@ class MsgrSetPrivacyScreen extends StatelessWidget {
             subtitle: t.msgrSetPrivacyWhoCanSeeSub,
             onTap: () => _open(context, const CirclePrivacyScreen()),
           ),
-          MsgrSetRow(
+MsgrSetRow(
             icon: Icons.done_all_rounded,
             title: t.msgrSetPrivacyReadReceipts,
             subtitle: t.msgrSetPrivacyReadReceiptsSub,
             onTap: () => _open(context, const CirclePrivacyScreen()),
           ),
-          MsgrSetRow(
+MsgrSetRow(
             icon: Icons.call_rounded,
             title: t.msgrSetPrivacyWhoCanCall,
             subtitle: t.msgrSetPrivacyWhoCanCallSub,
             onTap: () => _open(context, const CirclePrivacyScreen()),
           ),
-          const Divider(),
-          MsgrSetSection(t.msgrSetPrivacyContactsSection),
-          // NEW (#96): who-can-message default + phone-number-hidden default.
+]),
+MsgrSetSection(t.msgrSetPrivacyContactsSection),
+// NEW (#96): who-can-message default + phone-number-hidden default.
           MsgrSetRow(
             icon: Icons.forum_rounded,
             title: t.msgrSetPrivacyMessageDefaults,
             subtitle: t.msgrSetPrivacyMessageDefaultsSub,
             onTap: () => _open(context, const MsgrSetMessagePrivacyScreen()),
           ),
-          MsgrSetRow(
+MsgrSetGroup([
+MsgrSetRow(
             icon: Icons.message_rounded,
             title: t.msgrSetPrivacyWhoCanMessage,
             subtitle: t.msgrSetPrivacyWhoCanMessageSub,
             onTap: () => _open(context, const MsgrSetMessageRequestsScreen()),
           ),
-          MsgrSetRow(
+MsgrSetRow(
             icon: Icons.block_rounded,
             title: t.msgrSetPrivacyBlocked,
             subtitle: t.msgrSetPrivacyBlockedSub,
             onTap: () => _open(context, const MsgrSetBlockedListScreen()),
           ),
-          // chat-actions: default disappearing timer for NEW chats
+]),
+// chat-actions: default disappearing timer for NEW chats
           const Divider(),
-          MsgrSetSection(t.msgrChatDisappearing),
-          const DefaultTimerRow(),
-          MsgrSetNote(t.msgrSetPrivacyServerNote,
+MsgrSetSection(t.msgrChatDisappearing),
+const DefaultTimerRow(),
+MsgrSetNote(t.msgrSetPrivacyServerNote,
               icon: Icons.verified_user_rounded),
-        ],
+],
       ),
     );
   }
@@ -246,14 +250,15 @@ class _MsgrSetMessagePrivacyScreenState
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _errored
               ? _ErrorRetry(message: t.msgrMsgPrivacyLoadFailed, onRetry: _load)
               : ListView(
                   padding: const EdgeInsets.only(bottom: Gap.xxl),
                   children: [
-                    MsgrSetSection(t.msgrMsgPrivacyWhoSection),
-                    for (final v in _WhoMsg.all)
+MsgrSetSection(t.msgrMsgPrivacyWhoSection),
+MsgrSetGroup([
+for (final v in _WhoMsg.all)
                       RadioListTile<String>(
                         value: v,
                         groupValue: _whoCanMessage,
@@ -266,9 +271,10 @@ class _MsgrSetMessagePrivacyScreenState
                           if (nv != null) _onWhoChanged(nv);
                         },
                       ),
-                    const Divider(),
-                    MsgrSetSection(t.msgrMsgPrivacyPhoneSection),
-                    SwitchListTile(
+]),
+MsgrSetSection(t.msgrMsgPrivacyPhoneSection),
+MsgrSetGroup([
+SwitchListTile(
                       secondary: const Icon(Icons.phone_disabled_rounded),
                       // qa1: the Bangla hint was cut with "…" at 3 lines;
                       // explanatory text must never be clipped.
@@ -280,10 +286,10 @@ class _MsgrSetMessagePrivacyScreenState
                         _dirty = true;
                       }),
                     ),
-                    const Divider(),
-                    MsgrSetNote(t.msgrMsgPrivacyServerNote,
+]),
+MsgrSetNote(t.msgrMsgPrivacyServerNote,
                         icon: Icons.verified_user_rounded),
-                  ],
+],
                 ),
     );
   }
@@ -373,7 +379,7 @@ class _MsgrSetBlockedListScreenState extends State<MsgrSetBlockedListScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrSetPrivacyBlocked)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _failed
               ? _ErrorRetry(message: t.msgrSetBlockedLoadFailed, onRetry: _load)
               : (_items.isEmpty
@@ -534,7 +540,7 @@ class _MsgrSetMessageRequestsScreenState
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrSetPrivacyWhoCanMessage)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _failed
               ? _ErrorRetry(message: t.msgrSetRequestsLoadFailed, onRetry: _load)
               : (_items.isEmpty
