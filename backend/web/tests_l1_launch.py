@@ -125,11 +125,15 @@ class LegalPagesTests(TestCase):
         self.assertIn("Uttar Badda", dl)
         self.assertIn("Axon Dynamics", dl)
         self.assertNotIn("AXON ERP", dl)
+        # Owner 17 Nov (trade licence): the licensed name / address are fixed
+        # in code and an env value can NOT replace them; other facts (e.g.
+        # the contact email) still take an env override, escaped.
         with mock.patch.dict("os.environ", {"LEGAL_ENTITY_NAME": "Example <Ltd>",
-                                            "LEGAL_CONTACT_EMAIL": "privacy@example.com"}):
+                                            "LEGAL_CONTACT_EMAIL": "privacy@<example>.com"}):
             html = self.c.get("/privacy?lang=en").content.decode()
-            self.assertIn("Example &lt;Ltd&gt;", html)   # escaped
-            self.assertIn("privacy@example.com", html)
+            self.assertNotIn("Example", html)
+            self.assertIn("Axon Dynamics", html)
+            self.assertIn("privacy@&lt;example&gt;.com", html)   # escaped
             self.assertNotIn("LEGAL_ENTITY_NAME", LC.missing_facts())
 
     def test_footer_links_on_existing_pages(self):
