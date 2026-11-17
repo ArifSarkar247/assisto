@@ -605,7 +605,7 @@ class _TxnsTabState extends State<_TxnsTab> {
                         child: Text(t.save)),
                   ],
                 )));
-    // relgate: '৮৫' / '1,250' typed on a Bangla keyboard used to give 0 and
+    // relgate: 85 in Bangla digits or '1,250' typed on a Bangla keyboard used to give 0 and
     // the expense was silently dropped (save sweep SV_money_txn red).
     final amt = normalizeNumInput(amount.text);
     if (ok == true && dbl(amt) > 0) {
