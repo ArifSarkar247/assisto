@@ -130,14 +130,12 @@ String kwClock(Object? iso) {
   return '$h:${l.minute.toString().padLeft(2, '0')}';
 }
 
-// gap-kidswatch: phone numbers typed on a Bangla keyboard ('০১৭…') reach the
-// watch as 0-9 (the watch cannot dial Bangla digits).
+// gap-kidswatch: phone numbers typed on a Bangla keyboard (U+09E6..U+09EF)
+// reach the watch as 0-9 (the watch cannot dial Bangla digits).
 String kwLatinDigits(String s) {
-  const bn = '০১২৩৪৫৬৭৮৯';
   final b = StringBuffer();
-  for (final ch in s.split('')) {
-    final i = bn.indexOf(ch);
-    b.write(i >= 0 ? '$i' : ch);
+  for (final r in s.runes) {
+    b.write(r >= 0x09E6 && r <= 0x09EF ? '${r - 0x09E6}' : String.fromCharCode(r));
   }
   return b.toString().replaceAll(RegExp(r'[^0-9+]'), '');
 }
