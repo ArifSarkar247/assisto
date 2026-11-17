@@ -1,4 +1,3 @@
-- Our own Bangladesh map in City Service, with Bangla labels and an offline Dhaka pack.
-- Smoother on low-end phones: lighter card style.
-- Smaller download and more ad partners for free users.
-- New look for more business and CRM screens.
+- Clearer, more natural Bangla across the whole app (one word for one thing).
+- Fair ads for free users: AI answer unlock, Discover, after-call review, City "More routes".
+- New look for more screens.
