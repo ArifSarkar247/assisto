@@ -777,9 +777,11 @@ def ingest_cloud_event(link, ev, now=None, fetch=None):
     etype = CA.vendor_type(etype, {"kind": ev.get("kind")})
     decision, row = SV._ingest_event(link.site, cam, {"type": etype, "at": ev["at"],
                                                       "signals": sig}, now, snap)
-    if row is not None:
-        return "raised"
-    return "grouped" if decision.get("grouped") else "muted"
+    # flag-cctv-e2e: a repeat inside the group window comes back WITH the
+    # earlier alert row — it was merged (count +1, no new push), not raised
+    if decision.get("grouped"):
+        return "grouped"
+    return "raised" if row is not None else "muted"
 
 
 def _note_error(link, e):

@@ -1,3 +1,4 @@
+import 'dart:async'; // flag-cctv-e2e: offline auto-retry
 import 'package:flutter/material.dart';
 import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
@@ -17,6 +18,7 @@ import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/cv_empty.dart';
+import 'alert_snapshot.dart'; // flag-cctv-e2e
 
 /// cctv1 ALERTS: every alert reads "Suspicious — please check" (never an
 /// accusation), with its ONE snapshot, what was seen, how many times
@@ -147,7 +149,21 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     _load();
   }
 
+  /// flag-cctv-e2e: offline when the alert came -> the list retries BY
+  /// ITSELF (5 s, 10 s, 20 s, then every 30 s) until the network is back;
+  /// the Try again button still works at once.
+  static List<int> autoRetryS = const [5, 10, 20, 30];
+  Timer? _retryTimer;
+  int _fails = 0;
+
+  @override
+  void dispose() {
+    _retryTimer?.cancel();
+    super.dispose();
+  }
+
   Future<void> _load() async {
+    _retryTimer?.cancel();
     setState(() {
       _loading = true;
       _error = null;
@@ -156,8 +172,14 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
       final r = await widget.source.events(widget.siteId);
       _events = wmList(r['events']);
       _held = (r['held_today'] as num?)?.toInt() ?? 0;
+      _fails = 0;
     } catch (e) {
       _error = wmError(e) ?? '';
+      final wait = autoRetryS[_fails < autoRetryS.length ? _fails : autoRetryS.length - 1];
+      _fails++;
+      _retryTimer = Timer(Duration(seconds: wait), () {
+        if (mounted && _error != null) _load();
+      });
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -199,6 +221,13 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
           benefit: _error!.isEmpty ? t.wmLoadErrorBody : _error!,
           actionLabel: t.wmRetry,
           onAction: _load,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(t.caeAutoRetry,
+              key: const ValueKey('wm-alerts-autoretry'),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall),
         ),
       ]);
     } else {
@@ -300,17 +329,8 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
         if (snap.isNotEmpty)
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: Semantics(
-              label: t.wmSnapshotLabel,
-              image: true,
-              child: Image.network(snap, fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.all(12),
-                        child: Text(t.wmSnapshotGone, textAlign: TextAlign.center),
-                      )),
-            ),
+            // flag-cctv-e2e: loading / slow 2G / retry / really-gone states
+            child: AlertSnapshot(key: ValueKey('wm-snap-$id'), url: snap),
           ),
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),

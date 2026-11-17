@@ -201,7 +201,10 @@ def live_path(cam, site):
     v = (cam.vendor or "").lower()
     if v == "phone":
         return {"path": "webrtc", "camera_id": cam.id, "name": cam.name or ""}
-    if v in ("imou", "ezviz") and cam.vendor_ref:
+    # flag-cctv-e2e: a camera imported from the Dahua DoLynk / Hik-Connect
+    # cloud (vendor dahua / hikvision + a cloud ref) plays its vendor stream
+    # too (cctv_traffic_views.CLOUD_LIVE_VENDORS) — it had no Live button
+    if v in ("imou", "ezviz", "dahua", "hikvision") and cam.vendor_ref:
         return {"path": "vendor", "camera_id": cam.id, "name": cam.name or ""}
     if site.gateway:
         return {"path": "webrtc", "camera_id": cam.id, "name": cam.name or ""}

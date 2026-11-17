@@ -160,6 +160,10 @@ class PushPayload {
     } else if (kind == 'sos' && _s('delivery_id').isNotEmpty) {
       // fcsos: one alarm per received SOS (its page cancels exactly this one)
       key = 'sos-${_s('delivery_id')}';
+    } else if (kind == 'shop_alert' && _s('event_id').isNotEmpty) {
+      // flag-cctv-e2e: ONE notification per CCTV alert — a resend / repeat
+      // of the same alert replaces it, never a second buzz
+      key = 'shopev-${_s('event_id')}';
     } else if (kind == 'carecall' && _s('slot_key').isNotEmpty) {
       // carecall: the SAME id as the phone's own alarm for this ring
       // (carecall_plan.dart ccNotifId), so the two never show twice

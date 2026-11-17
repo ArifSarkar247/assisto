@@ -117,6 +117,7 @@ net_mode() {  # $1 = off|on
     timeout 20 adb shell cmd connectivity airplane-mode disable >/dev/null 2>&1 || true
     timeout 10 adb shell svc wifi enable >/dev/null 2>&1 || true
     timeout 10 adb shell svc data enable >/dev/null 2>&1 || true
+    timeout 10 adb emu network speed full >/dev/null 2>&1 || true  # flag-cctv-e2e
   fi
 }
 ( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
@@ -125,6 +126,26 @@ net_mode() {  # $1 = off|on
         net_mode "$mode"
         timeout 10 adb shell "mkdir -p $DEV/acks && touch $DEV/acks/$f" >/dev/null 2>&1 || true
         echo "$(date +%T) net $mode $f" >> "$OUT/net.log"
+      done ) &
+
+# flag-cctv-e2e: the CCTV alert flow asks for a slow network and for the
+# notification shade. `REALITY_NETSPEED <gprs|edge|full> <file>` sets the
+# emulator's modem speed + latency (adb emu; adb itself is not throttled);
+# `REALITY_SHADE <open|close> <file>` pulls the shade down / up so the next
+# REALITY_SHOT shows the real notification. Both ack like a screenshot.
+( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+    | grep --line-buffered -oE 'REALITY_(NETSPEED|SHADE) [a-z]+ [A-Za-z0-9_.-]+' \
+    | while read -r cmd arg f; do
+        case "$cmd:$arg" in
+          REALITY_NETSPEED:full) timeout 10 adb emu network speed full >/dev/null 2>&1 || true
+                                 timeout 10 adb emu network delay none >/dev/null 2>&1 || true ;;
+          REALITY_NETSPEED:*)    timeout 10 adb emu network speed "$arg" >/dev/null 2>&1 || true
+                                 timeout 10 adb emu network delay gprs >/dev/null 2>&1 || true ;;
+          REALITY_SHADE:open)    timeout 10 adb shell cmd statusbar expand-notifications >/dev/null 2>&1 || true ;;
+          REALITY_SHADE:close)   timeout 10 adb shell cmd statusbar collapse >/dev/null 2>&1 || true ;;
+        esac
+        timeout 10 adb shell "mkdir -p $DEV/acks && touch $DEV/acks/$f" >/dev/null 2>&1 || true
+        echo "$(date +%T) $cmd $arg $f" >> "$OUT/net.log"
       done ) &
 
 # sjproof: FAKE GPS for the Safe Journey proof. The app prints

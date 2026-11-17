@@ -7,7 +7,7 @@ POST /api/v1/ci-e2e/tick {job, advance_min}
         job = push_due_reminders | carecall_tick | journey_sweep
               | ezviz_poll_alarms | cctv_connect_tick (camflows)
 camflows (E2E_VENDOR_SIM=1, see vendor_sim.py):
-POST /api/v1/ci-e2e/vendor-sim {op: add_device|push_alarm|state, vendor, serial, ...}
+POST /api/v1/ci-e2e/vendor-sim {op: add_device|push_alarm|repush|state, vendor, serial, ...}
 GET  /api/v1/ci-e2e/hls/<vendor>/<serial>/<file>   the fake vendor HLS (phone plays it)
 GET  /api/v1/ci-e2e/imou/h5?state=                 the fake Imou consent page
 GET  /api/v1/ci-e2e/imou/h5/allow?state=           "Allow" -> our real redirect URI
@@ -93,6 +93,12 @@ class VendorSimView(APIView):
                                     str(d.get("kind") or "human"), str(d.get("deliver") or "store"))
             except KeyError:
                 return Response({"ok": False, "reason": "unknown_device"}, status=404)
+        elif op == "repush" and vendor == "dolynk":
+            # flag-cctv-e2e: the vendor re-sends a message it thinks we missed
+            try:
+                out = VS.dolynk_repush(serial, str(d.get("msg_id") or ""))
+            except (KeyError, IndexError):
+                return Response({"ok": False, "reason": "unknown_device"}, status=404)
         elif op == "state":
             out = VS.state(vendor, serial)
         else:
@@ -122,6 +128,9 @@ class FakeHlsView(APIView):
         VS.HITS["hls"].append("%s/%s/%s" % (vendor, serial.upper(), name))
         with open(path, "rb") as fh:
             body = fh.read()
+        # flag-cctv-e2e: data use per live minute (what the phone downloaded)
+        with VS._LOCK:
+            VS.HITS["hls_bytes"][serial.upper()] = VS.HITS["hls_bytes"].get(serial.upper(), 0) + len(body)
         ctype = "application/vnd.apple.mpegurl" if fn.endswith(".m3u8") else "video/mp2t"
         resp = HttpResponse(body, content_type=ctype)
         resp["Cache-Control"] = "no-store"
