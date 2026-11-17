@@ -1,0 +1,41 @@
+{
+ "en": {
+  "gapcEditTooLate": "It's too late to edit this message.",
+  "@gapcEditTooLate": {
+   "description": "gap-circle: group edit refused, outside the 15-minute window"
+  },
+  "gapcDeleteMeGroupConfirm": "This message is removed just for you; others in the group still keep it.",
+  "@gapcDeleteMeGroupConfirm": {
+   "description": "gap-circle: confirm delete-for-me in a group chat"
+  },
+  "gapcCallsClear": "Clear call history",
+  "@gapcCallsClear": {
+   "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallsClearBody": "All calls are removed from your call history. The other person keeps theirs.",
+  "@gapcCallsClearBody": {
+   "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallRemove": "Remove from call history",
+  "@gapcCallRemove": {
+   "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallRemoveBody": "This call is removed from your call history only. The other person keeps theirs.",
+  "@gapcCallRemoveBody": {
+   "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallsRemoved": "Removed from your call history.",
+  "@gapcCallsRemoved": {
+   "description": "gap-circle: remove calls from my call history"
+  }
+ },
+ "bn": {
+  "gapcEditTooLate": "এই মেসেজ এডিট করার সময় পেরিয়ে গেছে।",
+  "gapcDeleteMeGroupConfirm": "মেসেজটি শুধু আপনার কাছ থেকে মুছবে; গ্রুপের অন্যদের কাছে থেকে যাবে।",
+  "gapcCallsClear": "কলের তালিকা মুছুন",
+  "gapcCallsClearBody": "আপনার কলের তালিকা থেকে সব কল মুছে যাবে। অন্যজনের তালিকায় থেকে যাবে।",
+  "gapcCallRemove": "কলের তালিকা থেকে মুছুন",
+  "gapcCallRemoveBody": "এই কলটি শুধু আপনার কলের তালিকা থেকে মুছবে। অন্যজনের তালিকায় থেকে যাবে।",
+  "gapcCallsRemoved": "আপনার কলের তালিকা থেকে মুছে গেছে।"
+ }
+}
