@@ -107,18 +107,21 @@ lifeassisto.com/owner → **Integrations** → কার্ড **"EZVIZ Open Pla
 
 ## ৩. Dahua DoLynk (সিরিয়াল + ডিভাইসের পাসওয়ার্ড)
 
-### ৩ক. আগে এই একটি ক্লিক (টোকেন ত্রুটি PRM0016-এর সমাধান)
+### ৩ক. সই-পদ্ধতি (PRM0016) — ✅ ঠিক হয়েছে (১৭ নভে সন্ধ্যা: টোকেন OK)
 লাইভ চেকে DoLynk টোকেন কল **PRM0016 = "Sign error" (সই ভুল)** দিচ্ছিল। চাবি ঠিক আছে; DoLynk আপনার অ্যাকাউন্টে **"full" সই-পদ্ধতি** চায়
 (শুধু-পড়া পরীক্ষায়: simple → PRM0016, full → টোকেন OK)। চাবি বদলাতে হবে না।
 1. lifeassisto.com/owner → **Integrations** → কার্ড **"Dahua DoLynk (CCTV — Dahua / DMSS cameras)"**।
 2. ঘর **"সিগনেচার (খালি = simple…)"** → লিখুন **full** → **Save** → **Test**।
 3. ✅ লেখা আসবে **"DoLynk sign-in OK"**। (পরের বিল্ড থেকে Assisto নিজেই simple ব্যর্থ হলে full চেষ্টা করে সেভ করবে।)
 
-### ৩খ. Callback লিংক DoLynk কনসোলে দিন (publicurl ঠিক হওয়ার পরে)
+### ৩খ. Callback লিংক DoLynk কনসোলে দিন — **এখনই হাতে করুন** (লিংক এখন https)
+কেন হাতে: সার্ভার নিজে লিংক বসাতে গিয়ে "failed" পেয়েছে। শুধু-পড়া পরীক্ষায় কারণ পাওয়া গেছে: DoLynk-এ এখনো **কোনো** callback নেই, আর খালি তালিকাকে DoLynk
+ত্রুটি হিসেবে ফেরত দেয় (**BIZ054** "No new configuration callback ID is added to the product")। আমাদের কোড এটাকে ব্যর্থতা ধরছিল — ঠিক করা হয়েছে
+(পরের সার্ভার-আপডেটে Assisto নিজেই বসাবে)। ক্যামেরা যুক্ত না থাকা বা অঞ্চল/অনুমতি সমস্যা নয় — টোকেন ও API ঠিক আছে। আজই চালাতে নিচের ধাপগুলো করুন:
 1. lifeassisto.com/owner → **Integrations** → **Dahua DoLynk** কার্ড → ঘর **"কলব্যাক লিংক"** → পুরো লিংকটি কপি করুন।
-   এটি `https://api.lifeassisto.com/api/v1/cctv/dolynk/callback/` দিয়ে শুরু হয়। `http://localhost` বা `127.0.0.1` দেখালে এখনো দেবেন না — publicurl চালু হওয়া পর্যন্ত অপেক্ষা করুন।
+   এটি `https://api.lifeassisto.com/api/v1/cctv/dolynk/callback/` দিয়ে শুরু হয় (লাইভ চেকে ✅ https)।
 2. open.dolynkcloud.com → লগইন → **Open IoT** → প্রোডাক্ট **"Assisto CCTV"** → **Message Subscription** → **Callback configuration**।
-3. পুরনো `127.0.0.1` / localhost লাইন থাকলে **Delete** → **Add** → লিংক পেস্ট → **Push = On** → **Save**।
+3. তালিকা এখন খালি (পুরনো লাইন থাকলে **Delete**) → **Add** → লিংক পেস্ট → **Push = On** → **Save**।
 4. একই পাতায় মেসেজের ধরন টিক দিন: **মানুষ / নড়াচড়া (human / motion)**, **online / offline**, **SD কার্ড** → **Save**।
 5. লিংকের শেষের অংশটি গোপন — শুধু DoLynk কনসোলে দিন, চ্যাটে বা গিটে নয়।
 (Imou-র লিংক Assisto নিজেই Imou-তে বসায়; Imou কার্ডে শুধু দেখার জন্য থাকে — আপনাকে কিছু করতে হবে না।)

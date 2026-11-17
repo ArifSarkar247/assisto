@@ -19,7 +19,7 @@ L = {
                     "কোডটি একবারই ব্যবহার হয়, কোথাও রাখা হয় না। ক্যামেরাটি আপনার নিজের CCTV জায়গায় \"মালিকের পরীক্ষার ডিভাইস\" হিসেবে আসবে — "
                     "লাইভ, সতর্কতা ও ছবি অ্যাপে দেখুন। গ্রাহকের ক্যামেরা তাঁর উপস্থিতি ও সম্মতি ছাড়া কখনো এভাবে যুক্ত করবেন না।",
            "off": "Imou চাবি এখনো সবুজ নয় — Integrations → Imou → Test আগে চাপুন।",
-           "state": "অবস্থা", "cams": "ক্যামেরা", "ok": "যুক্ত হয়েছে", "removed": "সরানো হয়েছে"},
+           "state": "অবস্থা", "cams": "ক্যামেরা", "lat": "সতর্কতা পৌঁছাতে", "ok": "যুক্ত হয়েছে", "removed": "সরানো হয়েছে"},
     "en": {"title": "Imou test cameras", "serial": "Serial number (SN)",
            "code": "Safety Code (on the sticker)", "name": "Name (optional)", "add": "Link",
            "unlink": "Unlink (unbind)", "none": "No test camera yet.",
@@ -28,7 +28,7 @@ L = {
                     "\"owner test device\" — watch live, alerts and snapshots in the app. Never link a "
                     "customer's camera this way without them present and agreeing.",
            "off": "The Imou keys are not green yet — press Integrations → Imou → Test first.",
-           "state": "State", "cams": "Cameras", "ok": "Linked", "removed": "Unlinked"},
+           "state": "State", "cams": "Cameras", "lat": "Alert delay", "ok": "Linked", "removed": "Unlinked"},
 }
 
 
@@ -40,15 +40,21 @@ def _owner_site(user):
     return site
 
 
-def rows_for(user):
+def rows_for(user, lang="en"):
     from core.models import CctvCloudLink
     out = []
     for l in CctvCloudLink.objects.filter(site__owner=user, provider="imou",
                                           mode="device_code").exclude(status="revoked"):
         for s in l.serials or []:
-            cams = l.site.cameras.filter(vendor_ref__startswith="%s:" % s).count()
+            qs = l.site.cameras.filter(vendor_ref__startswith="%s:" % s)
+            cams = qs.count()
+            # imou-real: alarm push latency (camera -> Assisto), last + median
+            lats = sorted(x for c in qs.only("compat") for x in
+                          ((c.compat or {}).get("imou_latency_s") or []) if isinstance(x, (int, float)))
+            last = [x for c in qs.only("compat") for x in ((c.compat or {}).get("imou_latency_s") or [])[-1:]]
             out.append({"link": l.id, "serial": s, "site": l.site.name, "status": l.status,
                         "cameras": cams,
+                        "latency": _lat_text(last[-1], lats, lang) if lats and last else "—",
                         "test": s in ((l.state or {}).get("owner_test") or [])})
     return out
 
@@ -87,6 +93,23 @@ def imou_devices(request):
         if not err:
             return HttpResponseRedirect("/owner/imou-devices?m=" + msg)
     return page(request, "owner/imou_devices.html",
-                {"L": lab, "rows": rows_for(request.owner), "on": CC.enabled("imou"),
+                {"L": lab, "rows": rows_for(request.owner, lang), "on": CC.enabled("imou"),
                  "consent": V.CONSENT_TEXT[0] if lang == "bn" else V.CONSENT_TEXT[1],
-                 "err": err}, nav="imou_devices")
+                 "err": err, "usage": _usage(lang)}, nav="imou_devices")
+
+
+def _lat_text(last, lats, lang):
+    if lang == "bn":
+        bd = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+        return ("শেষ %.1f সে. · মাঝামাঝি %.1f সে. · %dটি সতর্কতা" % (
+            last, lats[len(lats) // 2], len(lats))).translate(bd)
+    return "last %.1f s · median %.1f s · %d alerts" % (last, lats[len(lats) // 2], len(lats))
+
+
+def _usage(lang):
+    """imou-real: this month's free-quota use (requests / pushes / data)."""
+    try:
+        from core.logic.cctv_connect import quota as Q
+        return Q.text("imou", lang)
+    except Exception:  # noqa: BLE001
+        return ""
