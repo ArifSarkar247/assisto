@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
@@ -158,10 +159,9 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
         onRefresh: _load,
         child: ListView(padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96), children: [ // clear the FAB
           // ---- smart profile + score ----
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   ScoreBadge((l['score'] as num?)?.toInt() ?? 0),
                   const SizedBox(width: Gap.sm),
@@ -173,7 +173,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                 const SizedBox(height: Gap.sm),
                 if ((l['score_reason'] ?? '').toString().isNotEmpty)
                   Text('${t.crmScoreReason}: ${crmScoreReasonText(context, t, '${l['score_reason']}')}',
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 const SizedBox(height: Gap.sm),
                 Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                   _pill(t.status, l['status_display']),
@@ -183,7 +183,6 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                   if ((l['decision_maker'] ?? '').toString().isNotEmpty) _pill(t.crmDecisionMaker, l['decision_maker']),
                 ]),
               ]),
-            ),
           ),
           // ---- quick actions (each logged) ----
           const SizedBox(height: Gap.sm),
@@ -237,10 +236,9 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
           // ---- next step / follow-up suggestion ----
           const SizedBox(height: Gap.md),
           _sectionTitle(t.crmNextStep),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsCard(
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 // Tap to set/change the next follow-up date (drives Today).
                 InkWell(
                   onTap: _logActivity,
@@ -255,7 +253,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                             ? '${t.crmNextFollowUp}: ${crmDate(context, l['next_follow_up'])}'
                             : t.crmNextFollowUp),
                       ),
-                      Icon(Icons.edit_rounded, size: 14, color: scheme.onSurfaceVariant),
+                      Icon(Icons.edit_rounded, size: 14, color: scheme.ds.muted),
                     ]),
                   ),
                 ),
@@ -272,17 +270,16 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                   ),
                 if (_followup?['ok'] == true) ...[
                   Text('${t.crmSuggestedContact}: ${crmDate(context, _followup!['suggested_contact_date'])}',
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                   const SizedBox(height: Gap.xs),
-                  Text(_followup!['draft'] ?? '', style: const TextStyle(height: 1.4)),
+                  Text(_followup!['draft'] ?? '', style: AType.bodyMedium.copyWith(height: 1.4)),
                   const SizedBox(height: Gap.xs),
                   Text(
                     _followup!['draft_source'] == 'ai' ? t.crmDraftAi : t.crmDraftTemplate,
-                    style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant),
+                    style: AType.labelSmall.copyWith(color: scheme.ds.muted),
                   ),
                 ],
               ]),
-            ),
           ),
           // ---- proposals ----
           const SizedBox(height: Gap.md),
@@ -328,7 +325,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Icon(Icons.auto_awesome_rounded, size: 16),
                 const SizedBox(width: Gap.xs),
-                Expanded(child: Text(insight, style: TextStyle(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant))),
+                Expanded(child: Text(insight, style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted))),
               ]),
             ),
           for (final a in acts)
@@ -338,7 +335,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
               title: Text(a['subject']?.toString().isNotEmpty == true ? a['subject'] : (a['kind_display'] ?? '')),
               subtitle: (a['body'] ?? '').toString().isNotEmpty ? Text(a['body']) : null,
               trailing: Text(crmDate(context, (a['created_at'] ?? '').toString().split('T').first),
-                  style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
             ),
           for (final m in msgs)
             ListTile(
@@ -475,7 +472,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
   Widget _pill(String k, dynamic v) => Container(
         padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: Theme.of(context).colorScheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Text(moneyDigitsFor(context, '$k: $v'), style: AType.bodySmall),
@@ -483,7 +480,7 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
 
   Widget _sectionTitle(String s) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs),
-        child: Text(s, style: const TextStyle(fontWeight: FontWeight.w800)),
+        child: Text(s, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
       );
 
   IconData _kindIcon(String? k) {

@@ -11,6 +11,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
+import 'package:assisto/payments/credits_out_sheet.dart' show CreditsOut;
 import 'package:assisto/cctvx/evidence_pack.dart';
 import 'package:assisto/cctvx/evidence_pdf.dart';
 import 'package:assisto/l10n/app_localizations.dart';
@@ -236,8 +237,15 @@ void main() {
       expect(find.text('Add a month'), findsOneWidget);
     });
 
-    testWidgets('no credits: the server reason, nothing turned on', (tester) async {
+    testWidgets('no credits: the credits sheet opens in place, nothing turned on', (tester) async {
       _phone(tester);
+      // buyinside: out of credits opens the credits sheet right here
+      final offered = <String>[];
+      CreditsOut.debugOffer = (ctx, {required screen, required draftKept}) async {
+        offered.add(screen);
+        return false; // closed without buying
+      };
+      addTearDown(() => CreditsOut.debugOffer = null);
       final src = FakeCctvEvidence('nocredit');
       await tester.pumpWidget(_app(CctvRecordingScreen(source: src, cameraId: 11)));
       await _settle(tester);
@@ -245,7 +253,7 @@ void main() {
       await _settle(tester);
       await tester.tap(find.widgetWithText(FilledButton, 'Get').last);
       await _settle(tester);
-      expect(find.text('Not enough credits.'), findsOneWidget);
+      expect(offered, ['cctv_video_addon']);
       expect(find.textContaining('Off — only alert photos'), findsOneWidget);
     });
 

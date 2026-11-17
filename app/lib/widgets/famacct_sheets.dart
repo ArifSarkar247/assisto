@@ -46,6 +46,8 @@ Future<Map<String, dynamic>?> showAddExpenseSheet(
   String category = 'groceries';
   String mode = 'equal';
   final selected = <dynamic>{for (final p in pickable) p['id']}; // default: all
+  String? amountError; // savesweep: never a silent dead Save
+  String? membersError;
 
   return showDialog<Map<String, dynamic>>(
     context: context,
@@ -64,10 +66,13 @@ Future<Map<String, dynamic>?> showAddExpenseSheet(
               onChanged: (v) => setD(() => payer = v),
             ),
             TextField(
+              key: const ValueKey('fa-expense-amount'),
               controller: amount,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(labelText: AppLocalizations.of(context).faAmount),
+              decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).faAmount,
+                  errorText: amountError),
             ),
             DropdownButtonFormField<String>(
               initialValue: category,
@@ -122,6 +127,10 @@ Future<Map<String, dynamic>?> showAddExpenseSheet(
                   }
                 }),
               ),
+            if (membersError != null)
+              Text(membersError!,
+                  key: const ValueKey('fa-members-error'),
+                  style: DefaultTextStyle.of(ctx).style.copyWith(color: Theme.of(ctx).colorScheme.error)),
           ]),
         ),
         actions: [
@@ -129,9 +138,22 @@ Future<Map<String, dynamic>?> showAddExpenseSheet(
               onPressed: () => Navigator.pop(ctx),
               child: Text(AppLocalizations.of(context).cancel)),
           FilledButton(
+            key: const ValueKey('fa-expense-save'),
             onPressed: () {
               final total = FamAcctLocal.takaToPoisha(amount.text);
-              if (total <= 0 || selected.isEmpty) return;
+              // savesweep: Bangla digits parse now; anything still invalid
+              // says why instead of a silent return (owner 10 Nov).
+              if (total <= 0 || selected.isEmpty) {
+                setD(() {
+                  amountError = total <= 0
+                      ? AppLocalizations.of(context).ssAmountInvalid
+                      : null;
+                  membersError = selected.isEmpty
+                      ? AppLocalizations.of(context).faSelectMembers
+                      : null;
+                });
+                return;
+              }
               final body = <String, dynamic>{
                 'payer': payer,
                 'total_poisha': total,
@@ -167,30 +189,41 @@ Future<Map<String, dynamic>?> showAddExpenseSheet(
 /// cancelled or non-positive.
 Future<int?> showAmountSheet(BuildContext context, String title) {
   final ctrl = TextEditingController();
+  String? error; // savesweep: never a silent dead Save
   return showDialog<int>(
     context: context,
-    builder: (ctx) => AlertDialog(
-      scrollable: true, // insets: 200% text / keyboard
-      title: Text(title),
-      content: TextField(
-        controller: ctrl,
-        autofocus: true,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(labelText: AppLocalizations.of(context).faAmount),
-      ),
-      actions: [
-        TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(context).cancel)),
-        FilledButton(
-          onPressed: () {
-            final p = FamAcctLocal.takaToPoisha(ctrl.text);
-            if (p <= 0) return;
-            Navigator.pop(ctx, p);
-          },
-          child: Text(AppLocalizations.of(context).save),
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setD) => AlertDialog(
+        scrollable: true, // insets: 200% text / keyboard
+        title: Text(title),
+        content: TextField(
+          key: const ValueKey('fa-amount-field'),
+          controller: ctrl,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+              labelText: AppLocalizations.of(context).faAmount,
+              errorText: error),
         ),
-      ],
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(AppLocalizations.of(context).cancel)),
+          FilledButton(
+            key: const ValueKey('fa-amount-save'),
+            onPressed: () {
+              // savesweep: Bangla digits / "15,000" parse via the shared parser.
+              final p = FamAcctLocal.takaToPoisha(ctrl.text);
+              if (p <= 0) {
+                setD(() => error = AppLocalizations.of(context).ssAmountInvalid);
+                return;
+              }
+              Navigator.pop(ctx, p);
+            },
+            child: Text(AppLocalizations.of(context).save),
+          ),
+        ],
+      ),
     ),
   );
 }

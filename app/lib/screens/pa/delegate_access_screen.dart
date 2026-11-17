@@ -284,7 +284,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
         Container(
           padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
-            color: scheme.secondaryContainer.withValues(alpha: 0.45),
+            color: scheme.ds.primarySoft.withValues(alpha: 0.45),
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(children: [
@@ -311,7 +311,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
         const SizedBox(height: Gap.lg),
         Text(t.paDelegateServerNote,
             style: TextStyle(
-                fontSize: 12, color: scheme.onSurfaceVariant)),
+                fontSize: 12, color: scheme.ds.muted)),
       ],
     );
   }
@@ -338,7 +338,7 @@ class _DelegateAccessScreenState extends State<DelegateAccessScreen>
           return Container(
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              color: scheme.ds.cardHighest.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(Radii.md),
             ),
             child: Text(
@@ -432,7 +432,7 @@ class _ScopeTile extends StatelessWidget {
           padding: const EdgeInsets.only(top: 2),
           child: Text(exposes,
               style: TextStyle(
-                  fontSize: 12.5, color: scheme.onSurfaceVariant)),
+                  fontSize: 12.5, color: scheme.ds.muted)),
         ),
       ),
     );

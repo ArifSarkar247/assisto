@@ -199,7 +199,7 @@ def normalize_code(raw):
     """'alc-abcd efgh-wxyz' -> 'ALC-ABCD-EFGH-WXYZ' when the HMAC matches,
     else None (no DB lookup for a guessed / mistyped code)."""
     s = re.sub(r"[^A-Za-z]", "", str(raw or "")).upper()
-    if s.startswith("ALC"):
+    if len(s) == 15 and s.startswith("ALC"):   # only the prefix: a body may start with ALC too
         s = s[3:]
     if len(s) != 12 or any(ch not in _ALPHA for ch in s):
         return None
@@ -466,25 +466,15 @@ def public_view(row, lang):
 # ---------------------------------------------------------------- PDF
 
 def pdf_bytes(row, lang):
-    """A one-page landscape A4 certificate (reportlab, the same tooling as the
-    doctor-visit PDF). Honest limit: reportlab joins Bangla conjuncts only
-    with uharfbuzz (not installed today); the app card is always right."""
+    """A one-page landscape A4 certificate (reportlab + core.pdf_bn: Bangla
+    shaped with HarfBuzz, so conjuncts match the app card)."""
     import io
     from reportlab.lib.pagesizes import A4, landscape
     from reportlab.pdfgen import canvas
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
+    from . import pdf_bn
 
-    font = "Helvetica"
-    try:
-        from .views import _NOTO_BN_TTF
-        if "NotoBn" not in pdfmetrics.getRegisteredFontNames():
-            pdfmetrics.registerFont(TTFont("NotoBn", _NOTO_BN_TTF))
-        font = "NotoBn"
-    except Exception:  # noqa: BLE001 — Latin fallback, never a 500
-        font = "Helvetica"
-    if font == "Helvetica" and lang == "bn":
-        lang = "en"
+    if not pdf_bn.ensure_fonts() and lang == "bn":
+        lang = "en"  # fonts missing: Latin fallback, never a 500
     t = card_text(row, lang)
     code = (row.data or {}).get("code") or ""
     buf = io.BytesIO()
@@ -500,15 +490,14 @@ def pdf_bytes(row, lang):
         c.rect(24 + i * 6, 24 + i * 6, w - 48 - i * 12, h - 48 - i * 12)
     c.setFillColorRGB(0.07, 0.09, 0.15)
 
-    def put(size, x, y, text, center=True):
-        # Bangla text -> Noto Bengali; Latin -> Helvetica (always has Latin glyphs)
-        c.setFont(font if _BN_RE.search(text) else "Helvetica", size)
-        (c.drawCentredString if center else c.drawString)(x, y, text)
+    def put(size, x, y, text, center=True, bold=False):
+        # Bangla runs -> Noto Sans Bengali (shaped); Latin runs -> Inter
+        pdf_bn.draw(c, x, y, text, size, bold=bold, align="center" if center else "left")
 
     y = h - 110
-    put(30, w / 2, y, t["title"]); y -= 50
+    put(30, w / 2, y, t["title"], bold=True); y -= 50
     put(14, w / 2, y, t["awarded"]); y -= 42
-    put(28, w / 2, y, t["name"][:NAME_MAX]); y -= 40
+    put(28, w / 2, y, t["name"][:NAME_MAX], bold=True); y -= 40
     put(14, w / 2, y, t["completed"]); y -= 28
     put(20, w / 2, y, t["course"]); y -= 34
     put(16, w / 2, y, "%s: %s" % (t["level_label"], t["level"])); y -= 24

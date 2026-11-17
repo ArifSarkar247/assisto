@@ -425,7 +425,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
       constraints: const BoxConstraints(minWidth: 96),
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.sm),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -438,7 +438,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
             Text(label,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
           ]),
@@ -465,7 +465,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
               width: 10,
               height: 10,
               decoration: BoxDecoration(
-                  color: online ? Brand.success : scheme.outline, shape: BoxShape.circle),
+                  color: online ? Brand.success : scheme.ds.muted, shape: BoxShape.circle),
             ),
             const SizedBox(width: Gap.sm),
             Expanded(
@@ -485,7 +485,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(tr.vehFixAge(vehAgo(context, tr, vehDate(live['at']))),
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -597,7 +597,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AType.bodySmall.copyWith(
-                          color: scheme.onSurfaceVariant, fontFeatures: AFonts.tabular)),
+                          color: scheme.ds.muted, fontFeatures: AFonts.tabular)),
                 ),
                 Expanded(
                   child: Text(vehTime(context, pts.last.at),
@@ -605,7 +605,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                       textAlign: TextAlign.end,
                       overflow: TextOverflow.ellipsis,
                       style: AType.bodySmall.copyWith(
-                          color: scheme.onSurfaceVariant, fontFeatures: AFonts.tabular)),
+                          color: scheme.ds.muted, fontFeatures: AFonts.tabular)),
                 ),
               ]),
             ),
@@ -613,7 +613,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
             Text(
               tr.vehPlaybackAt(vehTime(context, playAt.at),
                   tr.vehKmh(vehNumStr(context, playAt.speed))),
-              style: TextStyle(color: scheme.onSurfaceVariant),
+              style: TextStyle(color: scheme.ds.muted),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -631,7 +631,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                       tr.e2eVehPlanInfo(vehNumStr(context,
                           vehInt(vehList(vehMap(t['settings'])['routes']).first['corridor_m']) ??
                               300)),
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                      style: TextStyle(color: scheme.ds.muted)),
                 ),
               ]),
               Align(
@@ -684,7 +684,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           if (trips.isEmpty)
             Padding(
               padding: const EdgeInsets.only(top: Gap.sm),
-              child: Text(tr.vehNoTrips, style: TextStyle(color: scheme.onSurfaceVariant)),
+              child: Text(tr.vehNoTrips, style: TextStyle(color: scheme.ds.muted)),
             ),
           for (final tp in trips.reversed.take(8))
             ListTile(
@@ -832,11 +832,11 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           ),
           const SizedBox(height: Gap.xs),
           Text(tr.vehEngineRules,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
           const SizedBox(height: Gap.xs),
           // veh100: honest safety + legal note, always visible
           Text(tr.v100CutSafetyNote,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
           if (t['engine_cut_enabled'] != true) ...[
             const SizedBox(height: Gap.sm),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -919,7 +919,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           const SizedBox(height: Gap.xs),
           if (ai == null)
             Text(tr.vehAiBody,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35))
+                style: TextStyle(color: scheme.ds.muted, height: 1.35))
           else ...[
             Text('${ai['text'] ?? ''}', style: const TextStyle(height: 1.4)),
             const SizedBox(height: Gap.xs),
@@ -929,7 +929,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                   : ('${ai['reason']}' == 'nothing_unusual'
                       ? tr.vehAiNothing
                       : tr.vehAiNoKey),
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted),
             ),
           ],
           const SizedBox(height: Gap.sm),
@@ -999,7 +999,7 @@ class _CutFinalDialogState extends State<_CutFinalDialog> {
               style: const TextStyle(height: 1.4)),
           const SizedBox(height: Gap.sm),
           Text(tr.v100CutFinalLeft(vehNumStr(context, _left < 0 ? 0 : _left)),
-              style: TextStyle(color: scheme.onSurfaceVariant, fontFeatures: AFonts.tabular)),
+              style: TextStyle(color: scheme.ds.muted, fontFeatures: AFonts.tabular)),
         ]),
       ),
       actions: [

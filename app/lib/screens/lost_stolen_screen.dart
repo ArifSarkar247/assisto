@@ -498,7 +498,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.phonelink_lock_rounded,
-                size: 56, color: scheme.onSurfaceVariant),
+                size: 56, color: scheme.ds.muted),
             const SizedBox(height: Gap.md),
             Text(
               tr.iosAndroidOnlyTitle,
@@ -515,7 +515,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
-                  ?.copyWith(color: scheme.onSurfaceVariant, height: 1.4),
+                  ?.copyWith(color: scheme.ds.muted, height: 1.4),
             ),
           ],
         ),
@@ -882,7 +882,7 @@ class _LostStolenScreenState extends State<LostStolenScreen>
 
   Widget _uninstallCard(AppLocalizations tr, ColorScheme scheme) {
     return Card(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(

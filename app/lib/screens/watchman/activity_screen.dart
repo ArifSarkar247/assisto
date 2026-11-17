@@ -3,6 +3,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../theme.dart' show AType;
+import '../../ds/ds.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -164,16 +167,17 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
   // ------------------------------------------------------------- summary
   Widget _summaryTab(BuildContext context, AppLocalizations t, String lang) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_error != null) {
-      return ListView(padding: const EdgeInsets.all(32), children: [
-        Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),
-        const SizedBox(height: 16),
-        Center(
-            child: FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-                onPressed: _load,
-                child: Text(t.wmRetry))),
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        // design2: DS error state (drawn illustration + one big retry)
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.wmLoadErrorTitle,
+          benefit: _error!.isEmpty ? t.wmLoadErrorBody : _error!,
+          actionLabel: t.wmRetry,
+          onAction: _load,
+        ),
       ]);
     }
     final lines = (_day['lines'] as List?)?.map((e) => e.toString()).toList() ?? const <String>[];
@@ -208,9 +212,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   Widget _card(BuildContext context, IconData icon, String title, List<Widget> children) {
-    return Card(
-      margin: const EdgeInsets.only(top: 12),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(top: 12), child: DsCard(
         padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -221,8 +223,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           const SizedBox(height: 8),
           ...children,
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _openClose(BuildContext context, AppLocalizations t, String lang) {
@@ -307,9 +308,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     final rows = wmList(f['rows']);
     final src = (_day['foot_src'] ?? 'none').toString();
     if (src == 'none' && (f['sales'] ?? 0) == 0) {
-      return Card(
-        margin: const EdgeInsets.only(top: 12),
-        child: Padding(
+      return Padding(padding: const EdgeInsets.only(top: 12), child: DsCard(
           padding: const EdgeInsets.all(8),
           child: CvEmptyBlock(
             compact: true,
@@ -318,8 +317,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             benefit: t.cactFootEmptyBenefit,
             steps: [t.cactFootStep1, t.cactFootStep2, t.cactFootStep3],
           ),
-        ),
-      );
+        ));
     }
     final conv = f['conversion'];
     var maxV = 1;
@@ -377,7 +375,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         borderRadius: BorderRadius.circular(4),
         child: Container(
           height: 8,
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: Theme.of(context).colorScheme.ds.cardHighest,
           alignment: Alignment.centerLeft,
           child: FractionallySizedBox(widthFactor: frac.clamp(0.0, 1.0), child: Container(color: c)),
         ),
@@ -845,7 +843,7 @@ class _VisitorLogState extends State<_VisitorLog> with AutomaticKeepAliveClientM
             aspectRatio: 4 / 3,
             child: snap.isEmpty
                 ? Container(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(context).colorScheme.ds.cardHighest,
                     child: const Icon(Icons.no_photography_rounded))
                 : Semantics(
                     label: t.wmSnapshotLabel,
@@ -853,7 +851,7 @@ class _VisitorLogState extends State<_VisitorLog> with AutomaticKeepAliveClientM
                     child: Image.network(snap,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(
-                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              color: Theme.of(context).colorScheme.ds.cardHighest,
                               alignment: Alignment.center,
                               child: const Icon(Icons.broken_image_rounded),
                             )),
@@ -987,16 +985,17 @@ class _TimelapseState extends State<_Timelapse> with AutomaticKeepAliveClientMix
     final t = AppLocalizations.of(context);
     final lang = wmLang(context);
     final loc = MaterialLocalizations.of(context);
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_error != null) {
-      return ListView(padding: const EdgeInsets.all(32), children: [
-        Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),
-        const SizedBox(height: 16),
-        Center(
-            child: FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-                onPressed: _load,
-                child: Text(t.wmRetry))),
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        // design2: DS error state (drawn illustration + one big retry)
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.wmLoadErrorTitle,
+          benefit: _error!.isEmpty ? t.wmLoadErrorBody : _error!,
+          actionLabel: t.wmRetry,
+          onAction: _load,
+        ),
       ]);
     }
     final frames = wmList(_data['frames']);
@@ -1036,7 +1035,7 @@ class _TimelapseState extends State<_Timelapse> with AutomaticKeepAliveClientMix
           if (_failed)
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Text(t.cactTlFailed, style: TextStyle(color: wmBad())),
+              child: Text(t.cactTlFailed, style: AType.bodyMedium.copyWith(color: wmBad())),
             ),
           const SizedBox(height: 12),
           Wrap(spacing: 8, runSpacing: 8, children: [

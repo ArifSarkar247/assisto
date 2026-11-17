@@ -1,15 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../theme.dart' show AType;
 import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../api.dart' show ApiException;
+import '../../plans_v2/buy_inside.dart';
 import 'camera_label.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import 'watchman_zones.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../widgets/local_counter.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// cctv1 camera onboarding + COMPATIBILITY CHECK. The phone cannot reach LAN
 /// cameras from the internet, so the GATEWAY runs the check (reachable? auth
@@ -56,7 +61,20 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
   Map<String, dynamic>? _camera;
   Map<String, dynamic>? _task;
   String? _error;
+  // buyinside: the camera limit of the CCTV plan — buy / grow it right here
+  bool _capHit = false;
+
+  Future<void> _buyPlan() async {
+    final ok = await BuyInside.open(context, 'cctv_camera_cap');
+    if (!ok || !mounted) return;
+    setState(() {
+      _capHit = false;
+      _error = null;
+    });
+    await _submit(); // everything typed is kept; add the camera now
+  }
   bool _busy = false;
+  bool _imouConsent = false; // cctvconnect: the camera owner's consent (owner 9 Nov)
   bool _scanning = false;
   List<Map<String, dynamic>> _found = const [];
   Timer? _timer;
@@ -163,7 +181,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
     try {
       var cam = _camera;
       if (cam == null) {
-        final ch = int.tryParse(_channel.text.trim()) ?? 1;
+        final ch = parseIntInput(_channel.text.trim()) ?? 1;
         cam = await widget.source.addCamera((widget.site['id'] as num).toInt(), {
           'name': _name.text.trim().isEmpty ? wmVendorName(t, _vendor) : _name.text.trim(),
           'kind': 'shopbox',
@@ -187,7 +205,8 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
         return;
       }
       if (_phoneGw && _vendor == 'imou') {
-        await widget.source.linkImou(camId, _serial.text.trim(), _secret.text.trim());
+        await widget.source.linkImou(camId, _serial.text.trim(), _secret.text.trim(),
+            consent: _imouConsent);
         setState(() {
           _busy = false;
           _stage = _Stage.cloudDone;
@@ -198,7 +217,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
         'secret': _secret.text.trim(),
         if (!_fixedAdmin) 'username': _user.text.trim(),
         if (_host.text.trim().isNotEmpty) 'host': _host.text.trim(),
-        'channel': int.tryParse(_channel.text.trim()) ?? 1,
+        'channel': parseIntInput(_channel.text.trim()) ?? 1,
         'stream': _stream,
         if (_vendor == 'rtsp') 'rtsp_url': _rtsp.text.trim(),
       });
@@ -214,6 +233,9 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
       setState(() {
         _busy = false;
         _error = wmError(e) ?? t.wmGenericError;
+        _capHit = e is ApiException &&
+            e.status == 402 &&
+            (e.reason == 'camera_cap' || e.reason == 'cctv_plan_full');
       });
     }
   }
@@ -376,6 +398,16 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
             label: Text(t.wmPasteLabel),
           ),
         ),
+        // cctvconnect: binding to Assisto's Imou account needs the camera
+        // owner's explicit consent (the server refuses without it)
+        CheckboxListTile(
+          key: const Key('wmImouConsent'),
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          value: _imouConsent,
+          onChanged: (v) => setState(() => _imouConsent = v == true),
+          title: Text(t.ccnConsent),
+        ),
         const SizedBox(height: 12),
       ],
       if (needsHost) ...[
@@ -473,12 +505,23 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
       ],
       if (_error != null) ...[
         const SizedBox(height: 12),
-        Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+        Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
+      ],
+      if (_capHit) ...[
+        const SizedBox(height: 8),
+        FilledButton.tonalIcon(
+          key: const Key('bi-wm-cap-buy'),
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: _busy ? null : _buyPlan,
+          icon: const Icon(Icons.videocam_rounded),
+          label: Text(AppLocalizations.of(context).biGetCctvPlan,
+              textAlign: TextAlign.center),
+        ),
       ],
       const SizedBox(height: 18),
       FilledButton(
         style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-        onPressed: _busy ? null : _submit,
+        onPressed: _busy || (_phoneGw && _vendor == 'imou' && !_imouConsent) ? null : _submit,
         child: _busy
             ? const SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2.5))
             : Text(_vendor == 'phone'
@@ -541,10 +584,9 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
     final info = wmMap(res['info']);
     final cam = _camera;
     return ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 16, 16, 24)), children: [
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      DsCard(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Icon(ok ? Icons.check_circle_rounded : Icons.error_outline_rounded,
                   color: ok ? wmOk() : wmBad(), size: 30),
@@ -581,7 +623,7 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text(_stepName(t, (s['key'] ?? '').toString()),
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                       if (s['ok'] == false && _fix(t, s['key'].toString(), (s['code'] ?? '').toString()) != null)
                         Text(_fix(t, s['key'].toString(), (s['code'] ?? '').toString())!),
                       if (s['ok'] == null)
@@ -592,7 +634,6 @@ class _WatchmanAddCameraScreenState extends State<WatchmanAddCameraScreen> {
                 ]),
               ),
           ]),
-        ),
       ),
       const SizedBox(height: 12),
       if (ok && cam != null)

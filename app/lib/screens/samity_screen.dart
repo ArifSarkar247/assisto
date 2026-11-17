@@ -197,7 +197,7 @@ class _SamityCard extends StatelessWidget {
     final active = samityActiveMembers(members);
     final per = samityPerMember(group);
     return Material(
-      color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+      color: scheme.ds.cardHighest.withValues(alpha: 0.4),
       borderRadius: BorderRadius.circular(Radii.md),
       child: InkWell(
         borderRadius: BorderRadius.circular(Radii.md),
@@ -251,9 +251,9 @@ class _SamityCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(Radii.pill),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 14, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 14, color: scheme.ds.muted),
         const SizedBox(width: 5),
-        Text(text, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+        Text(text, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ]),
     );
   }
@@ -524,7 +524,7 @@ class _SamityDetailScreenState extends State<SamityDetailScreen> {
           const SizedBox(height: Gap.sm),
           Text(t.samityNextTurn('${nextTurn['name'] ?? ''}'),
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  color: Theme.of(context).colorScheme.ds.muted)),
         ] else ...[
           const SizedBox(height: Gap.sm),
           Text(t.samityRoundComplete,
@@ -597,7 +597,7 @@ class _CyclePicker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        color: scheme.ds.cardHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
@@ -685,7 +685,7 @@ class _PayoutCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        color: scheme.ds.cardHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
@@ -695,7 +695,7 @@ class _PayoutCard extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.samityTurnLabel,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.xxs),
             Text('${recipient?['name'] ?? ''}',
                 maxLines: 1,
@@ -758,13 +758,13 @@ class _MemberRow extends StatelessWidget {
               paid
                   ? t.samityPaidFull(taka(context, row['paid_poisha'] as int))
                   : t.samityDueAmount(taka(context, row['due_poisha'] as int)),
-              style: AType.bodySmall.copyWith(color: paid ? Brand.success : scheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: paid ? Brand.success : scheme.ds.muted),
             ),
           ]),
         ),
         IconButton(
           onPressed: onRemove,
-          icon: Icon(Icons.close_rounded, size: 18, color: scheme.onSurfaceVariant),
+          icon: Icon(Icons.close_rounded, size: 18, color: scheme.ds.muted),
           tooltip: t.delete,
         ),
       ]),
@@ -790,7 +790,7 @@ class _RotationList extends StatelessWidget {
             child: Row(children: [
               CircleAvatar(
                 radius: 13,
-                backgroundColor: scheme.surfaceContainerHighest,
+                backgroundColor: scheme.ds.cardHighest,
                 child: Text(fmtInt(context, i + 1),
                     style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
               ),
@@ -880,7 +880,7 @@ class _SamityEditSheetState extends State<_SamityEditSheet> {
           alignment: Alignment.centerLeft,
           child: Text(t.samityFieldPeriod,
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  color: Theme.of(context).colorScheme.ds.muted)),
         ),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, children: [
@@ -927,7 +927,7 @@ class _OfflineBar extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: AType.bodySmall.copyWith(color: scheme.onSurface))),
+                style: AType.bodySmall.copyWith(color: scheme.ds.text))),
       ]),
     );
   }

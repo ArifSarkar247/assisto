@@ -38,7 +38,11 @@ ROUND_TO = 10
 
 LEGACY_PACKS = ("p20", "p50", "p100", "p200")
 # the three packs the owner approved (prices unchanged; credits by formula)
-V2_PACKS = ({"id": "c50", "price": 179, "valid_months": 12},
+# adcontrol (owner 10 Nov 03:45 part F): a small pack ৳49 = 15 credits
+# (Play product credits_c15; not sold until the owner creates it in Play
+# Console and the server's PlaySkuCheck sees it ACTIVE).
+V2_PACKS = ({"id": "c15", "price": 49, "valid_months": 12},
+            {"id": "c50", "price": 179, "valid_months": 12},
             {"id": "c120", "price": 399, "valid_months": 12},
             {"id": "c300", "price": 949, "valid_months": 12})
 PACK_EXPIRY_MONTHS = 12
@@ -51,6 +55,10 @@ PAID_PLANS = ("plus", "premium", "premium_pro", "business")
 APPROVED = {"plus": (199, 70), "premium": (449, 160), "premium_pro": (999, 350),
             "business": (1299, 440), "c50": (179, 60), "c120": (399, 140),
             "c300": (949, 330)}
+# adcontrol (owner 10 Nov 03:45 part F): the owner's EXPLICIT exception —
+# ৳49 = 15 credits (the formula's round-to-10 would give 10). 15 x ৳2.80 =
+# ৳42 <= ৳49, so it stays inside the per-credit cap (40 % rule; aimoney CI).
+PACK_CREDIT_OVERRIDES = {"c15": 15}
 APPROVED_PROBASHI = (4.99, 120.0, 210)
 APPROVED_LEVEL_CREDITS = {"normal": 1, "better": 1, "best": 11}
 HAIKU_PROMPT_MAX_TOKENS = 90000     # owner: above 100k Haiku costs 5x
@@ -132,6 +140,9 @@ def derive(out, legacy_floor_fn=None):
             out["topup_packs"].append(dict(p, credits=0))
     for p in out["topup_packs"]:
         p["credits"] = credits_for_price(p["price"])
+        o = PACK_CREDIT_OVERRIDES.get(p["id"])
+        if o and o * MIN_BDT_PER_CREDIT <= float(p["price"] or 0):
+            p["credits"] = o
         p["valid_months"] = PACK_EXPIRY_MONTHS
     out["pricing_v2"]["packs_off"] = [p["id"] for p in out["topup_packs"]
                                       if p["id"] in LEGACY_PACKS]
@@ -180,27 +191,54 @@ V2_LEVELS = {
     "best": {"provider": "anthropic", "model": "claude-sonnet-5-5",
              "in_cap": 12000, "out_cap": 2500, "history_turns": 20},
 }
+# geminioff (owner 9 Nov 13:30): while the Gemini prepaid credit is empty
+# (402 breaker open) Better = Claude Haiku 5.5 with the LARGER budget: more
+# input + history than Normal and the long answer (2500). Worst case
+# 8000 x $0.125 + 2500 x $0.50 per 1M = $0.00225 = ৳0.28 at ৳125/USD, under
+# the ৳0.67 one-credit AI cap -> still ONE credit, ~54 % profit at ৳2.80.
+V2_BETTER_GEMINI_OFF = {"provider": "anthropic", "model": "claude-haiku-5-5",
+                        "in_cap": 8000, "out_cap": 2500, "history_turns": 16,
+                        "fallback_out_cap": 0}
 V2_CARECALL = {"free": {"schedules": 3, "rings_month": 90},
                "child": {"schedules": 5, "rings_month": 0},
                "family": {"schedules": 20, "rings_month": 0}}
 
 
-def v2_settings_patch():
+def v2_levels(gemini_off=False):
+    """The V2 level rows; Better on Claude Haiku while Gemini is off."""
+    rows = {k: dict(v) for k, v in V2_LEVELS.items()}
+    if gemini_off:
+        rows["better"] = dict(V2_BETTER_GEMINI_OFF)
+    return rows
+
+
+def v2_settings_patch(gemini_off=False):
     """The non-derived settings the apply command merges into the live row."""
     return {
         "pricing_v2": {"on": True},
         "ai_levels": {
             "enabled": True,
-            "levels": {k: dict(v) for k, v in V2_LEVELS.items()},
+            "levels": v2_levels(gemini_off),
             "free_credit_levels": ["normal", "better"],
-            "welcome_on": True, "welcome_credits": 30,
+            # aimoney (owner 10 Nov 03:45, part G): NO free welcome AI
+            # credits for new users from now on (balances already granted
+            # stay); live row: `manage.py pricing_welcome_off --apply`
+            "welcome_on": False, "welcome_credits": 30,
+            # ads per answer: the floor 2; the DAILY number is computed by
+            # core/ad_money_service.py (ad_dynamic) from real cost + income
             "ad_answers_per_ad": 1, "ads_per_answer": 2,
+            "ad_dynamic": True, "ad_out_cap": 900,
             # web search ON: free Gemini grounding quota first, then Claude
             # web search; +credits (formula: 3) only when a search really ran
             "web_on": True, "web_usd_per_prompt": 0.015, "web_free_per_day": 1500,
         },
         "ad_rewards": {"rewarded_daily_cap": 5},
     }
+
+
+# aimoney: what `pricing_welcome_off --apply` merges into the live row
+WELCOME_OFF_PATCH = {"ai_levels": {"welcome_on": False, "ad_dynamic": True,
+                                   "ad_out_cap": 900}}
 
 
 def deep_merge(base, patch):
@@ -304,3 +342,84 @@ def plan_pnl(revenue, ai_cost, users, net_pct=NET_PCT):
                     "profit_bdt": round(profit, 2),
                     "margin_pct": round(100.0 * profit / g, 1) if g > 0 else None}
     return out
+
+
+# ------------------------------------------------------------ buyinside
+# The free-trial cost inside the 40 % check (owner order 10 Nov). The server
+# trial (no card) gives `trial_credits` for `trial_days` of `trial_plan`;
+# worst case every trial credit is spent at the per-credit AI cap, plus the
+# plan's other costs pro rata. Only TRIAL_CONV_WORST of the trials pay, for
+# TRIAL_PAID_MONTHS_WORST months, so each paid month carries
+# trial_cost / (conv x months).
+TRIAL_CONV_WORST = 0.25
+TRIAL_PAID_MONTHS_WORST = 12
+
+
+def trial_rows(cfg, trial_plan="business", trial_days=7, trial_credits=0):
+    """[{id, price, trial_cost_bdt, carry_bdt, profit_pct}] — the trial plan's
+    worst-case row with the trial cost carried (pricing_40 rule A)."""
+    p = (cfg.get("plans") or {}).get(trial_plan) or {}
+    price, credits = float(p.get("price") or 0), int(p.get("credits") or 0)
+    if price <= 0:
+        return []
+    f = max(0, int(trial_days)) / 30.0
+    trial_cost = (max(0, int(trial_credits)) * CREDIT_AI_CAP_BDT
+                  + OTHER_COST_BDT.get(trial_plan, 0.0) * f)
+    carry = trial_cost / (TRIAL_CONV_WORST * TRIAL_PAID_MONTHS_WORST)
+    ai = credits * CREDIT_AI_CAP_BDT
+    keep = (price * NET_PCT - price * OVERHEAD_PCT - ai
+            - OTHER_COST_BDT.get(trial_plan, 0.0) - carry)
+    return [{"id": "trial:%s" % trial_plan, "kind": "trial", "price": price,
+             "credits": credits, "trial_cost_bdt": round(trial_cost, 2),
+             "carry_bdt": round(carry, 2),
+             "profit_pct": round(100.0 * keep / price, 1)}]
+
+
+# Plans whose ONLY difference is the credit amount (a recommendation never
+# moves a user off Business: CRM / shop tools are not about credits).
+CREDIT_LADDER = ("plus", "premium", "premium_pro")
+RECOMMEND_MIN_SAVING_BDT = 50
+
+
+def recommend(current, plans, used_30d, spent_packs_30d, account_days):
+    """A plan recommendation from REAL usage, only when it truly saves money.
+
+    current          the user's plan id ("free", "plus", ...)
+    plans            {plan_id: (price_bdt, monthly_credits)}
+    used_30d         credits really spent in the last 30 days
+    spent_packs_30d  taka really paid for credit packs in the last 30 days
+    account_days     age of the account (under 30 days = not enough data)
+
+    Returns None or {plan, price, credits, saves_bdt, now_bdt, kind}:
+      kind "cheaper_plan": a plan that covers the real use for less than the
+      current plan + the packs bought; "smaller_plan": the current plan is
+      far above the real use (a cheaper ladder plan still covers it twice
+      over the last month). Never recommends from no data or a saving under
+      RECOMMEND_MIN_SAVING_BDT.
+    """
+    used = max(0, int(used_30d or 0))
+    spent = max(0.0, float(spent_packs_30d or 0))
+    if int(account_days or 0) < 30 or used <= 0:
+        return None
+    if current not in ("free",) + CREDIT_LADDER:
+        return None  # Business / Probashi / founder: not a credits question
+    cur_price = float(plans.get(current, (0, 0))[0]) if current in plans else 0.0
+    now_bdt = cur_price + spent
+    best = None
+    for pid in CREDIT_LADDER:
+        if pid not in plans or pid == current:
+            continue
+        price, credits = float(plans[pid][0]), int(plans[pid][1])
+        if price <= 0 or credits < used:
+            continue
+        save = now_bdt - price
+        if save < RECOMMEND_MIN_SAVING_BDT:
+            continue
+        if current in CREDIT_LADDER and price < cur_price and credits < 2 * used:
+            continue  # going smaller only with a clear margin of credits
+        if best is None or price < best["price"]:
+            kind = "smaller_plan" if price < cur_price else "cheaper_plan"
+            best = {"plan": pid, "price": int(price), "credits": credits,
+                    "saves_bdt": int(save), "now_bdt": int(now_bdt), "kind": kind,
+                    "used_30d": used, "spent_packs_30d": int(spent)}
+    return best

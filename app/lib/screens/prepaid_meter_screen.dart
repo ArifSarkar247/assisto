@@ -285,7 +285,7 @@ class _MeterCard extends StatelessWidget {
       'low' => (Brand.warning, Icons.warning_amber_rounded, tr.meterStateLow),
       'ok' => (Brand.success, Icons.check_circle_outline_rounded, tr.meterStateOk),
       _ => (
-          scheme.onSurfaceVariant,
+          scheme.ds.muted,
           Icons.help_outline_rounded,
           tr.meterStateUnknown
         ),
@@ -324,7 +324,7 @@ class _MeterCard extends StatelessWidget {
                     ].join(' · '),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ]),
             ),
             PopupMenuButton<String>(
@@ -352,7 +352,7 @@ class _MeterCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(tr.meterEstBalance,
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     const SizedBox(height: Gap.xxs),
                     Text(notifLocalizeDigits(context, row.balanceDisplay),
                         style: Theme.of(context)
@@ -377,7 +377,7 @@ class _MeterCard extends StatelessWidget {
                         ? tr.meterRanOut
                         : tr.meterDaysLeft(
                             notifLocalizeDigits(context, '${row.daysLeft}'))),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted),
               ),
             ]),
           ]),
@@ -423,7 +423,7 @@ class _MeterCard extends StatelessWidget {
             ),
           ),
           Container(
-              width: 1, height: 24, color: scheme.outlineVariant),
+              width: 1, height: 24, color: scheme.ds.border),
           Expanded(
             child: TextButton.icon(
               onPressed: onRecharge,
@@ -452,14 +452,14 @@ class _MeterCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xs),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 13, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 13, color: scheme.ds.muted),
         const SizedBox(width: Gap.xs),
         Text(label,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ]),
     );
   }
@@ -472,16 +472,16 @@ class _TrackerNote extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.meterTrackerNote,
                 style:
-                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
         ]),
       ),
@@ -649,7 +649,7 @@ class _MeterFormState extends State<_MeterForm> {
             ),
             const SizedBox(height: Gap.xs),
             Text(tr.meterReadingOptional,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.md),
             TextField(
               controller: _dailyUse,
@@ -770,7 +770,7 @@ class _RechargeFormState extends State<_RechargeForm> {
           const SizedBox(height: Gap.xs),
           Text(widget.meterName,
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.lg),
           TextField(
             controller: _amount,
@@ -901,7 +901,7 @@ class _RechargeHistorySheet extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.lg),
               child: Text(tr.meterNoRecharges,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
             )
           else
             Flexible(
@@ -1254,10 +1254,10 @@ class PayPathSheet extends StatelessWidget {
             ExcludeSemantics(
               child: CircleAvatar(
                 radius: 11,
-                backgroundColor: scheme.primaryContainer,
+                backgroundColor: scheme.ds.primarySoft,
                 child: Text(notifLocalizeDigits(context, '$n'),
                     style: AType.bodySmall
-                        .copyWith(color: scheme.onPrimaryContainer)),
+                        .copyWith(color: scheme.ds.primaryInk)),
               ),
             ),
             const SizedBox(width: Gap.sm),
@@ -1334,16 +1334,16 @@ class PayPathSheet extends StatelessWidget {
                   company ?? tr.mtrUtilUnset,
                   if (meterNo.isNotEmpty) notifLocalizeDigits(context, meterNo),
                 ].join(' · '),
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.md),
             if (isGas)
               Card(
-                color: scheme.errorContainer,
+                color: scheme.ds.dangerBg,
                 child: Padding(
                   padding: const EdgeInsets.all(Gap.md),
                   child: Text(tr.mtrGasWarning,
                       style: AType.bodyMedium
-                          .copyWith(color: scheme.onErrorContainer)),
+                          .copyWith(color: scheme.ds.dangerInk)),
                 ),
               )
             else if (u == null || u.id == 'other')
@@ -1364,7 +1364,7 @@ class PayPathSheet extends StatelessWidget {
                     style: AType.bodyMedium),
               ),
             Text(tr.mtrPayHonest,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ],
         ),
       ),

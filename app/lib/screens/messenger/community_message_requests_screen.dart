@@ -298,7 +298,7 @@ class _CommunityMessageRequestsScreenState
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.cloud_off_rounded,
-                      size: 56, color: scheme.onSurfaceVariant),
+                      size: 56, color: scheme.ds.muted),
                   const SizedBox(height: Gap.md),
                   Text(_t.communityLoadError,
                       textAlign: TextAlign.center,
@@ -333,7 +333,7 @@ class _CommunityMessageRequestsScreenState
                   ? _t.communityRequestsEmptyBody
                   : _t.communityBackendPending,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
+              style: TextStyle(color: scheme.ds.muted, height: 1.4),
             ),
           ],
         ),

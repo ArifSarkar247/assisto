@@ -49,5 +49,6 @@ jobs:
             backend/core/wakeword_models /tmp/clips /tmp/proof.json > /dev/null
           python3 tools/wakeword/proof/gate.py /tmp/proof.json | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
-        with: { name: wakeword-proof, path: /tmp/proof.json, retention-days: 30 }
+        with: { name: wakeword-proof, path: /tmp/proof.json, retention-days: 2 }

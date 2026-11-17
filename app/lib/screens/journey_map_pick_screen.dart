@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../vehicle/veh_map.dart' show VehMap, VehMapConfig;
 import '../widgets/journey_ride.dart';
 
@@ -60,7 +61,7 @@ class _JourneyMapPickScreenState extends State<JourneyMapPickScreen> {
             initialZoom: widget.lat != null ? 16 : 12,
             maxZoom: widget.config.maxZoom.toDouble(),
             minZoom: 4,
-            backgroundColor: cs.surfaceContainerHighest,
+            backgroundColor: DsTokens.of(context).cardHighest,
             interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all & ~InteractiveFlag.rotate),
             onPositionChanged: (cam, _) => _center = cam.center,
@@ -88,7 +89,7 @@ class _JourneyMapPickScreenState extends State<JourneyMapPickScreen> {
           child: Center(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 40),
-              child: Icon(Icons.location_on_rounded, size: 48, color: cs.error,
+              child: Icon(Icons.location_on_rounded, size: 48, color: DsTokens.of(context).dangerInk,
                   semanticLabel: t.j2PickMapTitle),
             ),
           ),

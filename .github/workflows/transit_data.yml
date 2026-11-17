@@ -1,0 +1,65 @@
+# citydata (owner 9 Nov 11:45): Assisto's own city transit dataset (Dhaka,
+# Chattogram) in GTFS form + the compact network the server imports.
+# ALL downloading, crawling and OSM processing happens here, never on the
+# server (owner: 7.8 GB RAM box, no heavy jobs). The server's
+# `manage.py city_import` pulls only the small release assets.
+#   * Geofabrik Bangladesh extract (monthly, one download), osmium extract to
+#     city boxes, pyosmium reads route relations / stops / metro entrances;
+#   * polite crawl of public pages (robots.txt, identified bot, 3 s delay):
+#     deploy/transit/crawl_public.py;
+#   * build + cross-match (Verified = 2+ independent sources) + top-50
+#     Dhaka trip measurement with the server's own router.
+# Data (c) OpenStreetMap contributors, ODbL 1.0.
+name: transit-data
+
+on:
+  schedule:
+    - cron: '41 3 5 * *'      # monthly, the 5th, 03:41 UTC
+  workflow_dispatch: {}
+  push:
+    branches: ['ci/citydata', 'ci/citydata2', 'ci/citycov', 'ci/citycov-arb', 'ci/citycov3-arb']
+    paths: ['deploy/transit/**', 'backend/core/citytransit/**', '.github/workflows/transit_data.yml']
+
+concurrency:
+  group: transit-data
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Tools (osmium-tool, pyosmium)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q osmium-tool
+          python -m pip install -q 'osmium==3.7.0'
+          osmium --version | head -1
+      - name: Build
+        run: bash deploy/transit/ci_run.sh "$PWD/transit_work"
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
+        with:
+          name: transit-data
+          path: transit_work/out/
+          retention-days: 5
+      - name: Publish release assets (manifest last)
+        # agent branches other than ci/citydata only build + upload the artifact
+        # (the integrator decides when a new data release goes out)
+        if: github.event_name != 'push' || github.ref == 'refs/heads/ci/citydata'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view transit-data >/dev/null 2>&1 || gh release create transit-data \
+            --prerelease --title "City transit data (OpenStreetMap ODbL + public sources)" \
+            --notes "Assisto city transit dataset (GTFS + compact network) for Dhaka and Chattogram. Map data (c) OpenStreetMap contributors, Open Database License (ODbL 1.0): https://www.openstreetmap.org/copyright. Facts from public pages are cited per item."
+          cd transit_work/out
+          gh release upload transit-data transit_*.json.gz directory_*.json.gz gtfs_*.zip report_*.json --clobber
+          gh release upload transit-data manifest.json --clobber

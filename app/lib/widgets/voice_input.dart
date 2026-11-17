@@ -13,6 +13,8 @@ import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../l10n/app_localizations.dart';
+import '../plans_v2/buy_inside.dart';
+import '../payments/credits_out_sheet.dart' show isOutOfCreditsBody;
 import '../state.dart';
 import '../theme.dart';
 import 'permission_reason.dart';
@@ -396,7 +398,27 @@ class VoiceDictation extends ChangeNotifier {
   static Future<String?> Function(BuildContext context, Uint8List wav, String lang)?
       debugTranscribe;
 
+  /// geminioff: the server said its voice typing is paused ({use_phone});
+  /// for 6 h the mic shows that honest message at once (with the free
+  /// keyboard-mic tip) instead of recording a clip nobody can write down.
+  static String? serverOffMessage;
+  static DateTime? _serverOffAt;
+  static bool get serverOff =>
+      serverOffMessage != null &&
+      _serverOffAt != null &&
+      DateTime.now().difference(_serverOffAt!) < const Duration(hours: 6);
+
+  /// Tests: mark the server path as paused with [msg] (null = clear).
+  static void debugSetServerOff(String? msg) {
+    serverOffMessage = msg;
+    _serverOffAt = msg == null ? null : DateTime.now();
+  }
+
   Future<void> _startServer(BuildContext context) async {
+    if (serverOff) {
+      _showMessage(context, serverOffMessage!, settings: false, help: true);
+      return;
+    }
     try {
       // the in-app disclosure first (same as the phone engine path), then
       // Android's own prompt
@@ -465,7 +487,8 @@ class VoiceDictation extends ChangeNotifier {
         _target?.value = TextEditingValue(
             text: live, selection: TextSelection.collapsed(offset: live.length));
       } else if (ctx.mounted) {
-        _showMessage(ctx, AppLocalizations.of(ctx).voiceServerFailed, settings: false);
+        _showMessage(ctx, serverOff ? serverOffMessage! : AppLocalizations.of(ctx).voiceServerFailed,
+            settings: false, help: serverOff);
       }
     } catch (_) {
       if (ctx != null && ctx.mounted) {
@@ -478,11 +501,29 @@ class VoiceDictation extends ChangeNotifier {
   }
 
   static Future<String?> _upload(BuildContext context, Uint8List wav, String lang) async {
-    final r = await context.read<AppState>().api.postJson('/voice/transcribe', {
+    // geminioff: raw = the 503 body (honest message + use_phone) is readable
+    final r = await context.read<AppState>().api.postJsonRaw('/voice/transcribe', {
       'audio_b64': base64Encode(wav),
       'mime': 'audio/wav',
       'lang': lang,
     });
+    if (r['use_phone'] == true && '${r['message'] ?? ''}'.isNotEmpty) {
+      debugSetServerOff('${r['message']}'); // geminioff: honest, no retry loop
+    }
+    // buyinside: out of credits -> the credits sheet right here; after a
+    // purchase the same recording is transcribed once (nothing is lost)
+    if (r['ok'] != true &&
+        isOutOfCreditsBody(r) &&
+        context.mounted &&
+        await BuyInside.open(context, 'voice_input', draftKept: true) &&
+        context.mounted) {
+      final r2 = await context.read<AppState>().api.postJsonRaw('/voice/transcribe', {
+        'audio_b64': base64Encode(wav),
+        'mime': 'audio/wav',
+        'lang': lang,
+      });
+      return r2['ok'] == true ? (r2['text'] ?? '').toString() : null;
+    }
     return r['ok'] == true ? (r['text'] ?? '').toString() : null;
   }
 

@@ -1,6 +1,7 @@
 {% load site %}{% site_copy lang as C %}<!doctype html>
 <html lang="{% if lang == 'en' %}en{% else %}bn{% endif %}">
 <head>
+  <meta name="google-site-verification" content="iw1F-H9KhnjCYuwZ5nA-cmDZbrrLRpu7scUk98S1OKQ" />
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}{{ C.og_title_default }}{% endblock %}</title>
@@ -9,6 +10,7 @@
 {% include "web/_icons.html" %}
 {% if lang != 'en' %}<link rel="preload" href="{% site_asset 'noto-sans-bengali-var.woff2' %}" as="font" type="font/woff2" crossorigin>{% endif %}
 {% block og %}{% include "web/_og.html" %}{% endblock %}
+{% auto_seo %}
 {% block head %}{% endblock %}
 <style>
 @font-face{font-family:"Taka3";font-style:normal;font-weight:400 800;font-display:swap;src:url({% site_asset 'taka.woff2' %}) format("woff2");unicode-range:U+09F3}
@@ -126,7 +128,7 @@ img.result{max-width:100%;border-radius:12px;border:1px solid var(--line)}
       <div>
         <a class="brand" href="/{{ qlang }}"><img src="{% site_asset 'logo-96.webp' %}" width="36" height="36" alt="" loading="lazy">Assisto</a>
         <p class="muted" style="margin:6px 0 12px">{{ C.company_line }}</p>
-        <a class="play" href="{% if lang == 'en' %}https://play.google.com/store/apps/details?id=com.assisto.assisto&amp;hl=en{% else %}https://play.google.com/store/apps/details?id=com.assisto.assisto&amp;hl=bn{% endif %}" rel="noopener"><img src="{% if lang == 'en' %}{% site_asset 'google-play-badge-en.png' %}{% else %}{% site_asset 'google-play-badge-bn.png' %}{% endif %}" width="155" height="60" alt="{{ C.badge_alt }}" loading="lazy"></a>
+        {% play_shown as play_on %}{% if play_on %}<a class="play" href="{% if lang == 'en' %}https://play.google.com/store/apps/details?id=com.assisto.assisto&amp;hl=en{% else %}https://play.google.com/store/apps/details?id=com.assisto.assisto&amp;hl=bn{% endif %}" rel="noopener"><img src="{% if lang == 'en' %}{% site_asset 'google-play-badge-en.png' %}{% else %}{% site_asset 'google-play-badge-bn.png' %}{% endif %}" width="155" height="60" alt="{{ C.badge_alt }}" loading="lazy"></a>{% endif %}
       </div>
       <div><h2>{{ C.footer_product }}</h2><ul>
         <li><a href="/{{ qlang }}#features">{{ C.nav_features }}</a></li>

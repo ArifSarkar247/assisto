@@ -9,9 +9,13 @@ from . import views_f1 as F1
 from . import views_pay1 as PAY1   # pay1
 from . import views_t9 as T9
 from . import views_cctvtraffic as CCTVT   # cctvguard
+from . import views_imoudev as IMOUDEV   # cctvconnect
+from . import views_cctvpartners as CCTVP  # cctvroles
 from . import views_mapsusage as MAPSU   # mapscost
+from . import views_emailhealth as EMAILH   # emailrel
 from . import views_safeplans as SAFEP   # safeplans
 from . import views_plans as PLANSV      # plansprep: Plans & prices
+from . import views_money as MONEYV      # aimoney: Money (daily)
 from . import views_aiusage as AIU     # aifinal
 from . import views_ailevels as AILV   # aifinal PART 3
 from . import views_sc1 as SC1   # sc1 app errors
@@ -29,12 +33,17 @@ from . import views_ai as AIRT       # ai-router
 from . import views_ops as OPS       # ops-watch
 from . import views_agent as AGR     # agent-core
 from . import views_train as TRS     # flagprep: train timetable check
+from . import views_adcontrol as ADC  # adcontrol: per-placement ad control
 from . import views_crisis as CRH    # af-crisis
 from . import views_missing as MIS   # missing
 from . import views_boards as BRD    # adminboards
 from . import views_blood as BLD     # blood
+from . import views_quranpron as QPR  # quranpron
+from . import views_lp as LPR        # lpcore
 from . import views_nearby as NBY    # nearby
+from . import views_city as CTY      # citydata
 from . import views_site3 as WS3     # sitev3: website go-live switch
+from . import views_blog as BLOG     # seoblog
 from . import views_market as MKT     # amarket
 from . import views_safety as SAF    # adminsafe: stats, actions, appeals, staff
 from . import views_buylinks as BUY   # chipbuy2: own-shop buy links
@@ -112,9 +121,13 @@ urlpatterns = [
     path("payments/unverified", B2.unverified),  # billing-v2
     path("calls", T9.calls),          # t9-turnscale: Call relay (TURN)
     path("cctv-traffic", CCTVT.cctv_traffic),   # cctvguard: CCTV live traffic
+    path("imou-devices", IMOUDEV.imou_devices),   # cctvconnect: owner's Imou test cameras
+    path("cctv-partners", CCTVP.cctv_partners),   # cctvroles: installer partners
     path("maps-usage", MAPSU.maps_usage),       # mapscost: Maps usage + caps
+    path("email-health", EMAILH.email_health),  # emailrel: sent / failures / bounces / cap
     path("safe-plans", SAFEP.safe_plans),       # safeplans: Safety plans
     path("plans", PLANSV.plans),                # plansprep: Plans & prices
+    path("money", MONEYV.money),                # aimoney: Money (daily)
     path("sellers", P1.sellers),      # p1-bizagent: Sellers (AI agent)
     # ---- p2-money ---- direct sponsors, campaigns, reports, ad impact
     path("sponsors", P2.sponsors),
@@ -133,6 +146,11 @@ urlpatterns = [
     path("vitals/issues/<int:pk>/known", PV1.issue_known),       # play-vitals
     path("features", FF1.features),                              # feature-flags
     path("website", WS3.website),                                # sitev3
+    path("blog", BLOG.blog_list),                                # seoblog
+    path("blog/new", BLOG.blog_new),                             # seoblog
+    path("blog/<int:pk>", BLOG.blog_edit),                       # seoblog
+    path("blog/<int:pk>/toggle", BLOG.blog_toggle),              # seoblog
+    path("blog/<int:pk>/delete", BLOG.blog_delete),              # seoblog
     path("ai", AIRT.ai_page),                                     # ai-router
     path("ai-usage", AIU.ai_usage),                              # aifinal: AI usage log
     path("ai-levels", AILV.ai_levels),                           # aifinal: answer levels
@@ -150,6 +168,8 @@ urlpatterns = [
     path("agent-runs/thresholds", AGR.agent_obs_save),           # af-8
     path("agent-runs/brief-rollout", AGR.agent_brief_rollout_save),  # flagprep
     path("train-schedule", TRS.train_schedule),                  # flagprep
+    path("ad-control", ADC.ad_control),                          # adcontrol
+    path("ad-control/<slug:key>", ADC.ad_control_detail),        # adcontrol
     path("buy-links", BUY.buy_links),                            # chipbuy2
     path("agent-runs/feedback", AGR.agent_feedback_queue),       # af-12
     path("agent-runs/feedback/<int:pk>", AGR.agent_feedback_decide),  # af-12
@@ -163,6 +183,8 @@ urlpatterns = [
     path("blood", BLD.blood),                                      # blood
     path("blood/<int:pk>/act", BLD.blood_action),                  # blood
     path("blood/slip/<int:pk>", BLD.blood_slip),                   # blood
+    path("quran-pron", QPR.quran_pron),                            # quranpron
+    path("quran-pron/act", QPR.quran_pron_act),                    # quranpron
     path("nearby", NBY.nearby),                                    # nearby
     path("nearby/add", NBY.nearby_add),                            # nearby
     path("nearby/dataset", NBY.nearby_dataset),                    # nearby
@@ -170,4 +192,12 @@ urlpatterns = [
     path("nearby/report/<int:pk>", NBY.nearby_report),             # nearby
     path("vision", BRD.vision),                                    # adminboards
     path("quality", BRD.quality),                                  # adminboards
+    path("city", CTY.city),                                        # citydata
+    path("city/fix/<int:pk>", CTY.city_fix),                       # citydata
+    path("city/change", CTY.city_change),                          # citydata
+    path("city/live/<int:pk>", CTY.city_live),                     # citydata
+    path("city/dataset", CTY.city_dataset),                        # citydata
+    path("city/learned/<int:pk>", CTY.city_learned),               # citydata
+    path("lp", LPR.lp_review),                                     # lpcore
+    path("lp/<int:pk>/act", LPR.lp_review_action),                 # lpcore
 ]

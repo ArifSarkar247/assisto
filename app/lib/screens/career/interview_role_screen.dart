@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -171,15 +172,15 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
         if (_busy) const LinearProgressIndicator(),
         Text(t.crrRolePick, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
-        Text(t.crrRoleEntrySub, style: TextStyle(color: scheme.onSurfaceVariant)),
+        Text(t.crrRoleEntrySub, style: TextStyle(color: scheme.ds.muted)),
         const SizedBox(height: 12),
         for (final r in _roles)
           Card(
             margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
               leading: CircleAvatar(
-                  backgroundColor: scheme.primaryContainer,
-                  child: Icon(Icons.work_outline_rounded, color: scheme.onPrimaryContainer)),
+                  backgroundColor: scheme.ds.primarySoft,
+                  child: Icon(Icons.work_outline_rounded, color: scheme.ds.primaryInk)),
               title: Text('${r['name'] ?? ''}'),
               subtitle: Text(t.crrRoleQuestions(ld(context, r['count'] ?? 0))),
               trailing: const Icon(Icons.chevron_right_rounded),
@@ -287,7 +288,7 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
                   Text('${_ai!['text'] ?? ''}')
                 else
                   Text('${_ai!['message'] ?? t.crrAiNotReady}',
-                      style: TextStyle(color: scheme.onSurfaceVariant)),
+                      style: TextStyle(color: scheme.ds.muted)),
               ]),
             ),
           ),

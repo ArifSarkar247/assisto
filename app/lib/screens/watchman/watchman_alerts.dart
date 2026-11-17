@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../cashguard/cashguard_source.dart';
 import '../../cctvx/cctvx_source.dart';
 import '../../l10n/app_localizations.dart';
+import '../../phonecam/phonecam_clips.dart';
 import '../../state.dart';
 import 'cash_guard_clip.dart';
 import 'cctvx_actions.dart';
@@ -27,6 +30,9 @@ class WatchmanAlertsScreen extends StatefulWidget {
   /// cctvx: alert actions (siren, call the shop, share, evidence, 999).
   final CctvxSource? extras;
 
+  /// cctvplay: phone-camera full video on demand (tests inject a fake).
+  final PhoneCamClipSource? phoneSource;
+
   /// cctvveh: does this place have a camera yet (empty-state wording), and
   /// the first real step from an empty list (zones, or add a camera).
   final bool hasCamera;
@@ -38,6 +44,7 @@ class WatchmanAlertsScreen extends StatefulWidget {
       required this.owner,
       this.cash,
       this.extras,
+      this.phoneSource,
       this.hasCamera = true,
       this.onSetup});
 
@@ -61,6 +68,15 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     }
   }
 
+  PhoneCamClipSource? _phoneSrc() {
+    if (widget.phoneSource != null) return widget.phoneSource;
+    try {
+      return ApiPhoneCamClipSource(context.read<AppState>().api);
+    } catch (_) {
+      return null;
+    }
+  }
+
   CctvxSource? _extras() {
     if (widget.extras != null) return widget.extras;
     try {
@@ -73,9 +89,13 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
   Future<void> _openClip(Map<String, dynamic> e) async {
     final src = _cashSrc();
     if (src == null) return;
+    final clip = wmMap(e['clip']);
     await CashClipSheet.show(context, src, (e['id'] as num).toInt(), widget.owner,
         extras: widget.owner ? _extras() : null,
-        photoUrl: (e['snapshot_url'] ?? '').toString());
+        photoUrl: (e['snapshot_url'] ?? '').toString(),
+        // cctvplay: a phone camera's alert can fetch the full video
+        phoneSource: clip['phonecam'] == true ? _phoneSrc() : null,
+        previewStatus: (clip['status'] ?? '').toString());
     if (mounted) await _load();
   }
 
@@ -133,16 +153,16 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     final lang = wmLang(context);
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else if (_error != null) {
-      body = ListView(padding: const EdgeInsets.all(32), children: [
-        Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),
-        const SizedBox(height: 16),
-        Center(
-          child: FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-              onPressed: _load,
-              child: Text(t.wmRetry)),
+      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        // design2: DS error state (drawn illustration + one big retry)
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.wmLoadErrorTitle,
+          benefit: _error!.isEmpty ? t.wmLoadErrorBody : _error!,
+          actionLabel: t.wmRetry,
+          onAction: _load,
         ),
       ]);
     } else {
@@ -155,11 +175,9 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
               child: Text(t.wmViewerReadOnly, style: Theme.of(context).textTheme.bodySmall),
             ),
           if (_held > 0)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(t.wmHeldToday(wmDigits(lang, _held))),
-              ),
+            DsCard(
+              padding: const EdgeInsets.all(12),
+              child: Text(t.wmHeldToday(wmDigits(lang, _held))),
             ),
           // cctvveh: benefit + the first real step + how-to (owner)
           if (_events.isEmpty)
@@ -200,6 +218,29 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
                 : Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
+  }
+
+  List<Widget> _detectLines(AppLocalizations t, Map<String, dynamic> e) {
+    final d = wmMap(e['detect']);
+    if (d.isEmpty) return const [];
+    final small = Theme.of(context).textTheme.bodySmall;
+    final detail = (d['detail'] ?? '').toString();
+    final desc = (d['desc'] ?? '').toString();
+    final measured = (d['measured_text'] ?? '').toString();
+    return [
+      if (detail.isNotEmpty) Text(detail),
+      if (desc.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(d['desc_src'] == 'ai' ? t.cdetDescAi(desc) : t.cdetDescTemplate(desc)),
+        ),
+      if (d['review_only'] == true) Text(t.cdetReviewOnly, style: small),
+      if (measured.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(measured, style: small),
+        ),
+    ];
   }
 
   Widget _alertCard(AppLocalizations t, String lang, Map<String, dynamic> e) {
@@ -262,9 +303,13 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
               when,
             ].join(' · ')),
             const SizedBox(height: 2),
+            // cctvdet: zone name / minutes, the photo described in words
+            // (Claude's, or the plain template — labelled) and the accuracy
+            // MEASURED in tests instead of a guessed confidence
+            ..._detectLines(t, e),
             Text(
               [
-                t.wmConfidence(wmDigits(lang, pct)),
+                if (wmMap(e['detect'])['measured_text'] == null) t.wmConfidence(wmDigits(lang, pct)),
                 if (count > 1) t.wmSeenTimes(wmDigits(lang, count)),
               ].join(' · '),
               style: Theme.of(context).textTheme.bodySmall,
@@ -283,11 +328,15 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
               ),
             if (clip.isNotEmpty) ...[
               const SizedBox(height: 8),
-              if (clipSt == 'ready' || clipSt == 'pending')
+              if (clipSt == 'ready' || clipSt == 'pending' || clip['phonecam'] == true)
                 FilledButton.tonalIcon(
                   style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
                   icon: const Icon(Icons.play_circle_outline_rounded),
-                  label: Text(clipSt == 'pending' ? t.cgClipComing : t.cgWatchClip),
+                  label: Text(clip['phonecam'] == true
+                      ? t.pcpWatchVideo
+                      : clipSt == 'pending'
+                          ? t.cgClipComing
+                          : t.cgWatchClip),
                   onPressed: () => _openClip(e),
                 )
               else

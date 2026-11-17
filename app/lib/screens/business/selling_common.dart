@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../api.dart';
 import '../../state.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../business_selling_api.dart';
 import '../../l10n/app_localizations.dart';
@@ -69,15 +70,8 @@ class SellCard extends StatelessWidget {
       this.padding = const EdgeInsets.all(Gap.lg)});
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(Radii.md),
-      ),
-      child: child,
-    );
+    // designv2: the alive DS card (selling screens, customers, cashbox…)
+    return DsCard(padding: padding, child: child);
   }
 }
 

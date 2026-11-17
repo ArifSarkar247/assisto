@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
@@ -417,15 +418,15 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
 
   Widget _offlineBanner(ColorScheme scheme) => Container(
         width: double.infinity,
-        color: scheme.secondaryContainer,
+        color: scheme.ds.primarySoft,
         padding: const EdgeInsets.symmetric(
             horizontal: Gap.lg, vertical: Gap.sm),
         child: Row(children: [
-          Icon(Icons.cloud_off_rounded, size: 18, color: scheme.onSecondaryContainer),
+          Icon(Icons.cloud_off_rounded, size: 18, color: scheme.ds.primaryInk),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(cStr(context, 'cOfflineShowingCached'),
-                style: TextStyle(color: scheme.onSecondaryContainer)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
           ),
         ]),
       );
@@ -560,16 +561,16 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
       if (c.phones.isNotEmpty) c.phones.first,
     ];
     final due = c.touchDue();
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: Gap.xs),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.symmetric(vertical: Gap.xs), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         onTap: () => _openDetail(c),
         leading: Stack(children: [
           CircleAvatar(
-            backgroundColor: scheme.primaryContainer,
+            backgroundColor: scheme.ds.primarySoft,
             child: Text(c.initial(context),
-                style: TextStyle(
-                    color: scheme.onPrimaryContainer,
+                style: AType.bodyMedium.copyWith(
+                    color: scheme.ds.primaryInk,
                     fontWeight: FontWeight.w700)),
           ),
           if (due)
@@ -604,14 +605,14 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
                 tooltip: cStr(context, 'cFavourite'),
                 icon: Icon(
                     c.favourite ? Icons.star_rounded : Icons.star_border_rounded,
-                    color: c.favourite ? AssistoTokens.of(context).warning : scheme.outline),
+                    color: c.favourite ? AssistoTokens.of(context).warning : scheme.ds.muted),
                 onPressed: () {
                   c.favourite = !c.favourite;
                   _upsert(c);
                 },
               ),
       ),
-    );
+      ));
   }
 
   Future<void> _pickSort() async {
@@ -673,14 +674,12 @@ class _DedupeSheet extends StatelessWidget {
                     ?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xs),
             Text(cStrNum(context, 'cDuplicatesFound', groups.length),
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ]),
         ),
         for (final g in groups)
-          Card(
-            margin: const EdgeInsets.symmetric(
-                horizontal: Gap.md, vertical: Gap.xs),
-            child: Padding(
+          Padding(padding: const EdgeInsets.symmetric(
+                horizontal: Gap.md, vertical: Gap.xs), child: DsCard(
               padding: const EdgeInsets.all(Gap.md),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -691,9 +690,9 @@ class _DedupeSheet extends StatelessWidget {
                         contentPadding: EdgeInsets.zero,
                         leading: CircleAvatar(
                           radius: 16,
-                          backgroundColor: scheme.primaryContainer,
+                          backgroundColor: scheme.ds.primarySoft,
                           child: Text(c.initial(context),
-                              style: AType.bodyMedium.copyWith(color: scheme.onPrimaryContainer)),
+                              style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
                         ),
                         title: Text(c.displayName(context)),
                         subtitle: Text(
@@ -701,7 +700,7 @@ class _DedupeSheet extends StatelessWidget {
                             maxLines: 1, overflow: TextOverflow.ellipsis),
                       ),
                     Text(cStr(context, 'cMergePreview'),
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     const SizedBox(height: Gap.sm),
                     Align(
                       alignment: AlignmentDirectional.centerEnd,
@@ -712,8 +711,7 @@ class _DedupeSheet extends StatelessWidget {
                       ),
                     ),
                   ]),
-            ),
-          ),
+            )),
         const SizedBox(height: Gap.lg),
       ]),
     );

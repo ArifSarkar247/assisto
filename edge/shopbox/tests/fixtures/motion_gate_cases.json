@@ -1,0 +1,681 @@
+{
+ "_doc": "cctvacc: shared motion-gate cases. Grid 32x24; cell = base*gain, rect [x,y,w,h,v] cells = v*gain; mask [x,y,w,h] = cells that count. Run by edge/shopbox/tests/test_motion_gate.py AND app/test/cctv_gate_parity_test.dart \u2014 the phone and the Shop Box must give the same answers.",
+ "cases": [
+  {
+   "name": "static scene never moves",
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60
+    },
+    {
+     "base": 60
+    },
+    {
+     "base": 60
+    },
+    {
+     "base": 60
+    },
+    {
+     "base": 60
+    }
+   ],
+   "candidate": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "confirmed": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "name": "walking blob: candidate every frame, confirmed on the 3rd",
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       5,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       8,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       11,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       14,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       17,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    }
+   ],
+   "candidate": [
+    false,
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "confirmed": [
+    false,
+    false,
+    false,
+    true,
+    true,
+    true
+   ]
+  },
+  {
+   "name": "lamp switched on in a corner: one candidate, never confirmed",
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       0,
+       0,
+       8,
+       6,
+       120
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       0,
+       0,
+       8,
+       6,
+       120
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       0,
+       0,
+       8,
+       6,
+       120
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       0,
+       0,
+       8,
+       6,
+       120
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       0,
+       0,
+       8,
+       6,
+       120
+      ]
+     ]
+    }
+   ],
+   "candidate": [
+    false,
+    true,
+    false,
+    false,
+    false,
+    false
+   ],
+   "confirmed": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "name": "all lights switched: scene change + hold, no motion",
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 200
+    },
+    {
+     "base": 200
+    },
+    {
+     "base": 200
+    },
+    {
+     "base": 200
+    }
+   ],
+   "candidate": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "confirmed": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "scene": [
+    false,
+    true,
+    true,
+    true,
+    false
+   ]
+  },
+  {
+   "name": "auto exposure +30%: compensated, no motion",
+   "frames": [
+    {
+     "base": 60,
+     "gain": 1.0
+    },
+    {
+     "base": 60,
+     "gain": 1.3
+    },
+    {
+     "base": 60,
+     "gain": 1.3
+    },
+    {
+     "base": 60,
+     "gain": 1.3
+    }
+   ],
+   "candidate": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "confirmed": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "scene": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "name": "isolated noise cells (rain / insects) are too small",
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       2,
+       2,
+       1,
+       1,
+       200
+      ],
+      [
+       10,
+       10,
+       1,
+       1,
+       200
+      ],
+      [
+       20,
+       5,
+       1,
+       1,
+       200
+      ],
+      [
+       30,
+       20,
+       1,
+       1,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       5,
+       15,
+       1,
+       1,
+       200
+      ],
+      [
+       15,
+       3,
+       1,
+       1,
+       200
+      ],
+      [
+       25,
+       12,
+       1,
+       1,
+       200
+      ],
+      [
+       28,
+       1,
+       1,
+       1,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       2,
+       2,
+       1,
+       1,
+       200
+      ],
+      [
+       10,
+       10,
+       1,
+       1,
+       200
+      ],
+      [
+       20,
+       5,
+       1,
+       1,
+       200
+      ],
+      [
+       30,
+       20,
+       1,
+       1,
+       200
+      ]
+     ]
+    }
+   ],
+   "candidate": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "confirmed": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "name": "motion area excludes the walker",
+   "mask": [
+    20,
+    0,
+    12,
+    24
+   ],
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       5,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       8,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       11,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       14,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       17,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    }
+   ],
+   "candidate": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "confirmed": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  {
+   "name": "motion area includes the walker",
+   "mask": [
+    0,
+    0,
+    20,
+    24
+   ],
+   "frames": [
+    {
+     "base": 60
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       5,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       8,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       11,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       14,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       17,
+       8,
+       3,
+       6,
+       200
+      ]
+     ]
+    }
+   ],
+   "candidate": [
+    false,
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "confirmed": [
+    false,
+    false,
+    false,
+    true,
+    true,
+    true
+   ]
+  },
+  {
+   "name": "walking blob under +-5% flicker",
+   "frames": [
+    {
+     "base": 60,
+     "gain": 1.0
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       5,
+       8,
+       3,
+       6,
+       200
+      ]
+     ],
+     "gain": 1.05
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       8,
+       8,
+       3,
+       6,
+       200
+      ]
+     ],
+     "gain": 0.95
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       11,
+       8,
+       3,
+       6,
+       200
+      ]
+     ],
+     "gain": 1.05
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       14,
+       8,
+       3,
+       6,
+       200
+      ]
+     ],
+     "gain": 0.95
+    },
+    {
+     "base": 60,
+     "rects": [
+      [
+       17,
+       8,
+       3,
+       6,
+       200
+      ]
+     ],
+     "gain": 1.05
+    }
+   ],
+   "candidate": [
+    false,
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "confirmed": [
+    false,
+    false,
+    false,
+    true,
+    true,
+    true
+   ]
+  }
+ ]
+}

@@ -353,7 +353,7 @@ class _PortfolioCard extends StatelessWidget {
                   style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
             ),
             Text(t.paProjPortfolioCount(total),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ]),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: 6, runSpacing: 6, children: [
@@ -363,7 +363,7 @@ class _PortfolioCard extends StatelessWidget {
             _stat(t.paProjStatOnTrack(onTrack), Brand.success),
             if (done > 0) _stat(t.paProjStatDone(done), scheme.secondary),
             if (cancelled > 0)
-              _stat(t.paProjStatCancelled(cancelled), scheme.outline),
+              _stat(t.paProjStatCancelled(cancelled), scheme.ds.muted),
           ]),
           const SizedBox(height: Gap.md),
           Row(children: [
@@ -373,7 +373,7 @@ class _PortfolioCard extends StatelessWidget {
                 child: LinearProgressIndicator(
                     value: avgPercent / 100,
                     minHeight: 8,
-                    backgroundColor: scheme.surfaceContainerHighest),
+                    backgroundColor: scheme.ds.cardHighest),
               ),
             ),
             const SizedBox(width: Gap.sm),
@@ -404,7 +404,7 @@ class _AiSeamCard extends StatelessWidget {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Card(
-      color: scheme.tertiaryContainer.withValues(alpha: 0.4),
+      color: scheme.ds.successBg.withValues(alpha: 0.4),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -418,7 +418,7 @@ class _AiSeamCard extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xxs),
               Text(t.paProjAiSeamBody,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
             ]),
           ),
         ]),
@@ -464,7 +464,7 @@ class _ProjectCard extends StatelessWidget {
         hLabel = t.paProjHealthDone;
         break;
       case 'cancelled':
-        hc = scheme.outline;
+        hc = scheme.ds.muted;
         hLabel = t.paProjHealthCancelled;
         break;
       default:
@@ -524,7 +524,7 @@ class _ProjectCard extends StatelessWidget {
                         ].join(' · '),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ),
                 Row(children: [
                   Expanded(
@@ -533,7 +533,7 @@ class _ProjectCard extends StatelessWidget {
                       child: LinearProgressIndicator(
                           value: pct / 100,
                           minHeight: 7,
-                          backgroundColor: scheme.surfaceContainerHighest),
+                          backgroundColor: scheme.ds.cardHighest),
                     ),
                   ),
                   const SizedBox(width: Gap.sm),
@@ -721,7 +721,7 @@ class _ProjectDetailScreenState extends State<_ProjectDetailScreen> {
                                 value: msPct / 100,
                                 minHeight: 8,
                                 backgroundColor:
-                                    scheme.surfaceContainerHighest),
+                                    scheme.ds.cardHighest),
                           ),
                         ),
                         const SizedBox(width: Gap.sm),
@@ -874,7 +874,7 @@ class _RiskTile extends StatelessWidget {
       default:
         sc = Brand.warning;
     }
-    if (closed) sc = scheme.outline;
+    if (closed) sc = scheme.ds.muted;
     return ListTile(
       contentPadding: EdgeInsets.zero,
       dense: true,
@@ -925,7 +925,7 @@ class _EmptyLine extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Text(text,
-            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
       );
 }
 

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
 import '../screens/crm/crm_advanced_api.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// OWNER-REVIEW COMMISSION configuration (CRM spec #8).
 ///
@@ -63,7 +65,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
   Map<String, dynamic> _buildConfig() {
     final cfg = <String, dynamic>{'kind': _kind};
     if (_kind == 'flat') {
-      cfg['flat_pct'] = double.tryParse(_flatPct.text.trim()) ?? 0;
+      cfg['flat_pct'] = parseNumInput(_flatPct.text.trim()) ?? 0;
     } else if (_kind == 'tiered') {
       cfg['tiers'] = [
         for (final tr in _tiers)
@@ -71,12 +73,12 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
             {
               'upto': tr.upto.text.trim().isEmpty
                   ? null
-                  : double.tryParse(tr.upto.text.trim()),
-              'pct': double.tryParse(tr.pct.text.trim()) ?? 0,
+                  : parseNumInput(tr.upto.text.trim()),
+              'pct': parseNumInput(tr.pct.text.trim()) ?? 0,
             }
       ];
     }
-    final bonus = double.tryParse(_bonus.text.trim()) ?? 0;
+    final bonus = parseNumInput(_bonus.text.trim()) ?? 0;
     if (bonus > 0) cfg['per_deal_bonus'] = bonus;
     return cfg;
   }
@@ -107,7 +109,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
         // Loud, honest "owner must set" banner — never a guessed rate.
         NeedsKeyBanner(t.crmCommissionOwnerNote, icon: Icons.verified_user_rounded),
         const SizedBox(height: Gap.sm),
-        Text(t.crmCommissionPlan, style: const TextStyle(fontWeight: FontWeight.w800)),
+        Text(t.crmCommissionPlan, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.xs),
         SegmentedButton<String>(
           segments: [
@@ -131,8 +133,8 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
           ),
         if (_kind == 'tiered') ...[
           Text(t.crmCommTieredHint,
-              style: TextStyle(
-                  fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(
+                  fontSize: 12, color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           for (int i = 0; i < _tiers.length; i++) _tierRow(t, i),
           TextButton.icon(
@@ -154,7 +156,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
         ],
         if (_err != null) ...[
           const SizedBox(height: Gap.sm),
-          Text(_err!, style: const TextStyle(color: Brand.danger)),
+          Text(_err!, style: AType.bodyMedium.copyWith(color: Brand.danger)),
         ],
         const SizedBox(height: Gap.md),
         FilledButton.icon(
@@ -164,7 +166,7 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
         ),
         const SizedBox(height: Gap.lg),
         if (preview.isNotEmpty) ...[
-          Text(t.crmCommissionPreview, style: const TextStyle(fontWeight: FontWeight.w800)),
+          Text(t.crmCommissionPreview, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
           for (final p in preview) _previewRow(context, t, p),
         ],
@@ -211,15 +213,16 @@ class _CrmCommissionConfigState extends State<CrmCommissionConfig> {
   Widget _previewRow(
       BuildContext context, AppLocalizations t, Map<String, dynamic> p) {
     final set = p['config_set'] == true;
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         title: Text(p['member_name']?.toString() ?? ''),
         subtitle: Text('${t.crmWon}: ${bdt(context, p['won_amount'] as num?)}'),
         trailing: set
             ? Text(bdt(context, p['payout'] as num?),
-                style: const TextStyle(fontWeight: FontWeight.w800, color: Brand.success))
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, color: Brand.success))
             : Text(t.crmOwnerMustSet,
-                style: const TextStyle(fontSize: 11, color: Brand.warning)),
+                style: AType.bodyMedium.copyWith(fontSize: 11, color: Brand.warning)),
       ),
     );
   }

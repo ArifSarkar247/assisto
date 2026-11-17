@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../theme.dart' show AType;
+import '../../ds/ds.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
@@ -140,16 +143,17 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
     final t = AppLocalizations.of(context);
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else if (_error != null) {
-      body = ListView(padding: const EdgeInsets.all(32), children: [
-        Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),
-        const SizedBox(height: 16),
-        Center(
-            child: FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-                onPressed: _load,
-                child: Text(t.wmRetry))),
+      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        // design2: DS error state (drawn illustration + one big retry)
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.wmLoadErrorTitle,
+          benefit: _error!.isEmpty ? t.wmLoadErrorBody : _error!,
+          actionLabel: t.wmRetry,
+          onAction: _load,
+        ),
       ]);
     } else {
       body = ListView(
@@ -178,10 +182,9 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
     }
     final yes = m['consent'] == true;
     return [
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      DsCard(
+        padding: const EdgeInsets.all(16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.carmAskTitle((m['owner_name'] ?? '').toString()),
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
@@ -220,7 +223,6 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
             const SizedBox(height: 4),
             Text(t.carmStaleRule(wmDigits(lang, 30)), style: Theme.of(context).textTheme.bodySmall),
           ]),
-        ),
       ),
     ];
   }
@@ -253,25 +255,22 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
     final privacy = _st['privacy'] == true;
     final sos = _st['sos_until'] != null;
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      key: const ValueKey('carm-status'),
-      color: on ? scheme.primaryContainer : null,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(key: const ValueKey('carm-status'), color: on ? scheme.ds.primarySoft : null,
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(on ? Icons.shield_rounded : Icons.shield_outlined,
-                color: on ? scheme.onPrimaryContainer : null),
+                color: on ? scheme.ds.primaryInk : null),
             const SizedBox(width: 8),
             Expanded(
                 child: Text(on ? t.carmStatusOn : t.carmStatusOff,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: on ? scheme.onPrimaryContainer : null))),
+                        color: on ? scheme.ds.primaryInk : null))),
           ]),
           if (reason.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(reason == 'family_away' ? t.carmReasonFamily : t.carmReasonClosed,
-                style: TextStyle(color: on ? scheme.onPrimaryContainer : null)),
+                style: AType.bodyMedium.copyWith(color: on ? scheme.ds.primaryInk : null)),
           ],
           if (_cfg['family_on'] == true) ...[
             const SizedBox(height: 4),
@@ -280,7 +279,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
               'all_away' => t.carmSumAway,
               'unknown' => t.carmSumUnknown,
               _ => t.carmSumOff,
-            }, style: TextStyle(color: on ? scheme.onPrimaryContainer : null)),
+            }, style: AType.bodyMedium.copyWith(color: on ? scheme.ds.primaryInk : null)),
           ],
           if (privacy) ...[
             const SizedBox(height: 8),
@@ -294,10 +293,9 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
           ],
           if (sos) ...[
             const SizedBox(height: 8),
-            Text(t.carmSosActive, style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600)),
+            Text(t.carmSosActive, style: AType.bodyMedium.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
           ],
         ]),
-      ),
     );
   }
 
@@ -305,7 +303,7 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
       SwitchListTile(
         key: ValueKey(key),
         contentPadding: EdgeInsets.zero,
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(title, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(body),
         value: value,
         onChanged: on,
@@ -322,16 +320,15 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
     final exit = (_cfg['exit_m'] as num?)?.toInt() ?? radius + 150;
     final me = members.where((m) => m['is_me'] == true).firstOrNull;
     final others = members.where((m) => m['is_me'] != true).toList();
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _switchTile('carm-family', t.carmFamilyTitle, t.carmFamilyBenefit, on,
               (v) => _save({'family_on': v})),
           Text(t.carmFamilyRules(wmDigits(lang, 30)), style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
           if (places.isEmpty && home.isEmpty)
-            Text(t.carmHomeMissing, style: TextStyle(color: wmBad()))
+            Text(t.carmHomeMissing, style: AType.bodyMedium.copyWith(color: wmBad()))
           else
             Text(t.carmHomeLabel((home['name'] ?? places.first['name'] ?? '').toString())),
           if (on) ...[
@@ -411,7 +408,6 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
             ],
           ],
         ]),
-      ),
     );
   }
 
@@ -456,17 +452,15 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
     }
   }
 
-  Widget _closedCard(AppLocalizations t) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _closedCard(AppLocalizations t) => DsCard(
+    padding: const EdgeInsets.all(16),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             _switchTile('carm-closed', t.carmClosedTitle, t.carmClosedBody, _cfg['closed_on'] == true,
                 (v) => _save({'closed_on': v})),
             if (_cfg['closed_on'] == true && _d['hours_set'] != true)
-              Text(t.carmHoursMissing, style: TextStyle(color: wmWarn())),
+              Text(t.carmHoursMissing, style: AType.bodyMedium.copyWith(color: wmWarn())),
           ]),
-        ),
-      );
+  );
 
   String _hhmm(TimeOfDay v) =>
       '${v.hour.toString().padLeft(2, '0')}:${v.minute.toString().padLeft(2, '0')}';
@@ -486,11 +480,10 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
         if (m['is_me'] != true) (m['uid'] as num).toInt(): (m['name'] ?? '').toString(),
       for (final c in wmList(_d['candidates'])) (c['uid'] as num).toInt(): (c['name'] ?? '').toString(),
     };
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(t.carmNomoveTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+    return DsCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(t.carmNomoveTitle, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           Text(t.carmNomoveBody),
           if (cams.isEmpty) ...[const SizedBox(height: 8), Text(t.carmNoCameras)],
@@ -499,7 +492,6 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
             _nomoveRow(t, lang, c, people),
           ],
         ]),
-      ),
     );
   }
 
@@ -572,23 +564,20 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
   Widget _sosCard(AppLocalizations t) {
     final lang = wmLang(context);
     final min = (wmMap(_d['rules'])['sos_live_min'] as num?)?.toInt() ?? 30;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: _switchTile('carm-sos', t.carmSosTitle, t.carmSosBody(wmDigits(lang, min)),
+    return DsCard(
+      padding: const EdgeInsets.all(16),
+      child: _switchTile('carm-sos', t.carmSosTitle, t.carmSosBody(wmDigits(lang, min)),
             _cfg['sos_live'] == true, (v) => _save({'sos_live': v})),
-      ),
     );
   }
 
   Widget _logCard(AppLocalizations t) {
     final rows = wmList(_d['log']);
     final lang = wmLang(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(t.carmLogTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+    return DsCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(t.carmLogTitle, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
           if (rows.isEmpty) Text(t.carmLogEmpty),
           for (final r in rows)
@@ -597,7 +586,6 @@ class _AutoGuardScreenState extends State<AutoGuardScreen> {
               child: Text('${_when(lang, (r['at'] ?? '').toString())} · ${r['text'] ?? ''}'),
             ),
         ]),
-      ),
     );
   }
 
@@ -655,16 +643,17 @@ class _SosLiveScreenState extends State<SosLiveScreen> {
     final t = AppLocalizations.of(context);
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else if (_error != null) {
-      body = ListView(padding: const EdgeInsets.all(32), children: [
-        Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),
-        const SizedBox(height: 16),
-        Center(
-            child: FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-                onPressed: _load,
-                child: Text(t.wmRetry))),
+      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        // design2: DS error state (drawn illustration + one big retry)
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.wmLoadErrorTitle,
+          benefit: _error!.isEmpty ? t.wmLoadErrorBody : _error!,
+          actionLabel: t.wmRetry,
+          onAction: _load,
+        ),
       ]);
     } else if (_grants.isEmpty) {
       body = ListView(padding: withNavBarInset(context, const EdgeInsets.all(16)), children: [
@@ -683,15 +672,14 @@ class _SosLiveScreenState extends State<SosLiveScreen> {
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(16, 8, 16, 32)),
         children: [
           for (final g in _grants)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            DsCard(
+              padding: const EdgeInsets.all(16),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(t.carmSosFrom((g['by_name'] ?? '').toString()),
                       style: Theme.of(context).textTheme.titleMedium),
                   Text((g['name'] ?? '').toString()),
                   const SizedBox(height: 4),
-                  Text(t.carmCall999, style: TextStyle(color: wmBad(), fontWeight: FontWeight.w600)),
+                  Text(t.carmCall999, style: AType.bodyMedium.copyWith(color: wmBad(), fontWeight: FontWeight.w600)),
                   for (final c in wmList(g['cameras']))
                     ListTile(
                       contentPadding: EdgeInsets.zero,
@@ -712,7 +700,6 @@ class _SosLiveScreenState extends State<SosLiveScreen> {
                       ),
                     ),
                 ]),
-              ),
             ),
         ],
       );

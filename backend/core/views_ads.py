@@ -33,12 +33,19 @@ class AdsConfigView(APIView):
             hero_refresh = (c.get("home_hero") or {}).get("refresh_sec", 90)
         except Exception:
             caps, hero_refresh = {}, 90
+        try:
+            ad_control = c.get("ad_control")
+        except Exception:
+            ad_control = None
         out = A.client_config(
             plan=plan, paid=paid or minor, admob_cfg=admob_cfg, admob_working=working,
             flag_rewarded=billing.flag_on("ads_rewarded"),
             flag_app_open=billing.flag_on("ads_app_open"),
-            ad_caps=caps, hero_refresh=hero_refresh)
+            ad_caps=caps, hero_refresh=hero_refresh,
+            ad_control=ad_control)
         if minor:
             out["ads_enabled"] = False
             out["ads_off_reason"] = "minor"
+            for row in (out.get("control") or {}).get("placements", {}).values():
+                row["on"] = False
         return Response(out)

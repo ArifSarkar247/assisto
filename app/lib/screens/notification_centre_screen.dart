@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../api.dart';
 import '../notif_api.dart';
@@ -214,7 +215,7 @@ class _OfflineNote extends StatelessWidget {
           Expanded(
             child: Text(
               t.notifOfflineNote,
-              style: TextStyle(color: scheme.onSurface, height: 1.3),
+              style: TextStyle(color: scheme.ds.text, height: 1.3),
             ),
           ),
         ],
@@ -470,7 +471,7 @@ class _Section extends StatelessWidget {
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: overdue ? scheme.error : scheme.onSurface, // a11y1: AA red
+                  color: overdue ? scheme.error : scheme.ds.text, // a11y1: AA red
                 ),
           ),
         ),
@@ -655,32 +656,20 @@ class _FeedTabState extends State<_FeedTab>
           ),
         ),
         // Filter chips by type.
-        SizedBox(
-          height: Gap.xxxl,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: Gap.sm),
-                child: ChoiceChip(
-                  label: Text(t.notifFilterAll),
-                  selected: _filter == null,
-                  onSelected: (_) => setState(() => _filter = null),
-                ),
-              ),
-              for (final type in _presentTypes)
-                Padding(
-                  padding: const EdgeInsets.only(right: Gap.sm),
-                  child: ChoiceChip(
-                    label: Text(notifTypeLabel(t, type)),
-                    selected: _filter == type,
-                    onSelected: (_) => setState(() => _filter = type),
-                  ),
-                ),
-            ],
+        // designv2: one scrolling DS chip row (grows with the font)
+        DsChipRow(children: [
+          DsChip(
+            label: t.notifFilterAll,
+            selected: _filter == null,
+            onSelected: (_) => setState(() => _filter = null),
           ),
-        ),
+          for (final type in _presentTypes)
+            DsChip(
+              label: notifTypeLabel(t, type),
+              selected: _filter == type,
+              onSelected: (_) => setState(() => _filter = type),
+            ),
+        ]),
         Expanded(
           child: RefreshIndicator(
             onRefresh: _load,

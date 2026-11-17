@@ -218,7 +218,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
             Text(t.disTitle),
             Text(t.disSubtitle,
                 style: AType.bodySmall.copyWith(fontWeight: FontWeight.w400,
-                    color: scheme.onSurfaceVariant)),
+                    color: scheme.ds.muted)),
           ],
         ),
         actions: [
@@ -268,7 +268,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
         _emergencyContacts(t, scheme),
         const SizedBox(height: Gap.xl),
         Text(t.disOfficialOnlyFooter,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ],
     );
   }
@@ -369,7 +369,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
       Padding(
         padding: const EdgeInsets.only(left: 26, bottom: Gap.sm),
         child: Text(t.disFamilyHint,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ),
       if (_family.isEmpty)
         _tile(Icons.person_add_alt_rounded, t.disFamilyNone, scheme,
@@ -436,14 +436,14 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
                 padding: const EdgeInsets.only(bottom: Gap.xs),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Icon(Icons.check_box_outline_blank_rounded,
-                      size: 18, color: scheme.onSurfaceVariant),
+                      size: 18, color: scheme.ds.muted),
                   const SizedBox(width: Gap.sm),
                   Expanded(child: Text(it, style: const TextStyle(height: 1.4))),
                 ]),
               ),
             const SizedBox(height: Gap.xs),
             Text(t.disSourceLine(t.disPrepSource),
-                style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
           ]),
         ),
       ),
@@ -467,8 +467,8 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
           margin: const EdgeInsets.only(bottom: Gap.sm),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: h.primary ? Brand.danger : scheme.secondaryContainer,
-              foregroundColor: h.primary ? Colors.white : scheme.onSecondaryContainer,
+              backgroundColor: h.primary ? Brand.danger : scheme.ds.primarySoft,
+              foregroundColor: h.primary ? Colors.white : scheme.ds.primaryInk,
               child: Icon(h.icon),
             ),
             title: Text(h.label,
@@ -487,7 +487,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
           ),
         ),
       Text(t.disContactsSource,
-          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
     ]);
   }
 
@@ -505,7 +505,7 @@ class _DisasterAlertsScreenState extends State<DisasterAlertsScreen> {
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.sm),
       child: ListTile(
-        leading: Icon(icon, color: tint ?? scheme.onSurfaceVariant),
+        leading: Icon(icon, color: tint ?? scheme.ds.muted),
         title: Text(text),
         trailing: onTap == null ? null : const Icon(Icons.chevron_right_rounded),
         onTap: onTap,

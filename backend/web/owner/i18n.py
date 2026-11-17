@@ -1561,6 +1561,7 @@ EN.update({
     "pf_safety_global_day": "Safety SMS: all users per day",
     "pf_provider": "Email sender (smtp; ses later)", "pf_daily_cap": "Emails per 24 hours (Gmail ≈500, keep below)",
     "pf_near_cap_pct": "From this % of the email cap, prefer SMS",
+    "pf_bulk_cap_pct": "Reports / bulk email stop at this % of the cap (codes + security keep the rest)",
     "pf_per_email_per_hour": "OTP codes per email address per hour",
 })
 BN.update({
@@ -1588,6 +1589,7 @@ BN.update({
     "pf_safety_global_day": "সেফটি SMS: সবার মিলে দিনে",
     "pf_provider": "ইমেইল প্রেরক (smtp; পরে ses)", "pf_daily_cap": "২৪ ঘণ্টায় ইমেইল (Gmail ≈৫০০, এর নিচে রাখুন)",
     "pf_near_cap_pct": "ইমেইল সীমার এত % থেকে SMS-কে অগ্রাধিকার",
+    "pf_bulk_cap_pct": "সীমার এত %-এ রিপোর্ট/বাল্ক ইমেইল বন্ধ (বাকিটা কোড ও নিরাপত্তার জন্য)",
     "pf_per_email_per_hour": "প্রতি ইমেইলে ঘণ্টায় OTP কোড",
 })
 
@@ -2033,7 +2035,56 @@ BN.update({
     "ws_apk_none": "সার্ভারে কোনো APK ফাইল পাওয়া যায়নি।",
     "ws_apk_note": "উৎস: সেটিং WEBSITE_APK_FILE (খালি = সর্বশেষ প্রকাশিত APK)। আকার ও SHA-256 এই ফাইল থেকেই হিসাব হয়।",
 })
+# ---- seogrow (17 Nov): feature landing pages + Play badge switch ----
+EN.update({
+    "ws_seo_title": "Feature landing pages (SEO) — go live",
+    "ws_seo_live": "LIVE for Google (in sitemap and site menus)",
+    "ws_seo_hidden": "Preview only (noindex, not in sitemap or menus)",
+    "ws_seo_golive": "Make the landing pages live",
+    "ws_seo_hide": "Hide them from Google again",
+    "ws_seo_note": "The pages always open at their final address so you can check them first. A page whose app feature is OFF does not exist (404). One tap, audited.",
+    "ws_badge_title": "Google Play badge on the website",
+    "ws_badge_on": "Shown (once the Play listing is public)",
+    "ws_badge_off": "Hidden — no Play badge or Play link anywhere on the site",
+    "ws_badge_show": "Show the Play badge (the app is live on Play)",
+    "ws_badge_hide": "Hide the Play badge",
+    "ws_badge_note": "Turn this on only after the app is LIVE on Google Play. The Install APK path stays the same either way.",
+})
+BN.update({
+    "ws_seo_title": "ফিচারের ল্যান্ডিং পাতা (SEO) — লাইভ করুন",
+    "ws_seo_live": "Google-এর জন্য লাইভ (সাইটম্যাপ ও মেনুতে আছে)",
+    "ws_seo_hidden": "শুধু প্রিভিউ (noindex, সাইটম্যাপ বা মেনুতে নেই)",
+    "ws_seo_golive": "ল্যান্ডিং পাতাগুলো লাইভ করুন",
+    "ws_seo_hide": "আবার Google থেকে লুকান",
+    "ws_seo_note": "পাতাগুলো সবসময় আসল ঠিকানাতেই খোলে, যাতে আগে দেখে নিতে পারেন। অ্যাপে যে ফিচার বন্ধ, তার পাতা থাকে না (৪০৪)। এক চাপেই, অডিট লগে থাকে।",
+    "ws_badge_title": "ওয়েবসাইটে Google Play ব্যাজ",
+    "ws_badge_on": "দেখাচ্ছে (Play পাতা প্রকাশিত হলে)",
+    "ws_badge_off": "লুকানো — সাইটের কোথাও Play ব্যাজ বা Play লিংক নেই",
+    "ws_badge_show": "Play ব্যাজ দেখান (অ্যাপ Play-তে লাইভ)",
+    "ws_badge_hide": "Play ব্যাজ লুকান",
+    "ws_badge_note": "অ্যাপ Google Play-তে লাইভ হওয়ার পরেই এটা চালু করুন। APK ইনস্টলের পথ যেমন আছে তেমনই থাকবে।",
+})
+# ---- /seogrow ----
 # ---- /sitev3 ----
+# ---- privacyupd: privacy policy v2 go-live (Owner Admin → Website) ----
+EN.update({
+    "ws_pp_title": "Privacy policy — updated text (9 Nov)",
+    "ws_pp_now": "At /privacy now:",
+    "ws_pp_live_new": "UPDATED policy (9 Nov)",
+    "ws_pp_live_old": "previous policy (update not live)",
+    "ws_pp_golive": "Publish the updated policy",
+    "ws_pp_rollback": "Go back to the previous policy",
+    "ws_pp_note": "Covers AI providers, money from notifications, Care Call recordings, train sharing, City Service trips and Silent Watch. Read the preview first; one tap, audited.",
+})
+BN.update({
+    "ws_pp_title": "গোপনীয়তা নীতি — হালনাগাদ লেখা (৯ নভেম্বর)",
+    "ws_pp_now": "/privacy-তে এখন:",
+    "ws_pp_live_new": "হালনাগাদ নীতি (৯ নভেম্বর)",
+    "ws_pp_live_old": "আগের নীতি (হালনাগাদ লাইভ নয়)",
+    "ws_pp_golive": "হালনাগাদ নীতি প্রকাশ করুন",
+    "ws_pp_rollback": "আগের নীতিতে ফিরে যান",
+    "ws_pp_note": "AI প্রদানকারী, নোটিফিকেশন থেকে টাকার হিসাব, কেয়ার কলের রেকর্ড, ট্রেন শেয়ারিং, সিটি সার্ভিসের যাত্রা ও নীরব পাহারা যোগ হয়েছে। আগে প্রিভিউ পড়ুন; এক চাপেই, অডিট লগে থাকে।",
+})
 # ---- amarket: Owner Admin -> Market ----
 EN.update({
     "nav_market": "Market",
@@ -2284,3 +2335,183 @@ BN.update({
     "bd_total_score": "সর্বমোট", "bd_none": "এই খোঁজ বা ফিল্টারে কিছু মেলেনি।",
     "bd_source": "উৎস:", "bd_live_note": "ফাইলে বদল হলে পরের বার পাতা খুললেই দেখা যাবে",
 })
+# ---- citydata: Owner Admin -> City data (City Service) ----
+EN.update({
+    "nav_city": "City data",
+    "cty_intro": "Assisto's own city transit data (bus, metro, leguna, water) built monthly in GitHub Actions from OpenStreetMap and public pages. Review users' fixes, live reports, coverage, fares and what trip learning found. Every change reaches all phones at once.",
+    "cty_t_fixes": "Open fixes", "cty_t_live": "Live reports now", "cty_t_data": "Cities with data",
+    "cty_t_learned": "Confirmed from trips",
+    "cty_tab_fixes": "Corrections", "cty_tab_live": "Live reports", "cty_tab_data": "Data",
+    "cty_tab_coverage": "Coverage", "cty_tab_fares": "Fares", "cty_tab_learned": "Learned from trips",
+    "cty_city": "City", "cty_open_only": "Open only", "cty_all": "All",
+    "cty_what": "What", "cty_text": "Details", "cty_change": "Change to make",
+    "cty_no_change": "No data change", "cty_name": "Name (English)", "cty_name_bn": "Name (Bangla)",
+    "cty_accept": "Accept", "cty_reject": "Reject", "cty_none": "Nothing here.",
+    "cty_count": "Reported by", "cty_ago": "Last report", "cty_flags": "flags",
+    "cty_hidden": "hidden", "cty_hide": "Hide", "cty_show": "Show",
+    "cty_check_now": "Check for new data now", "cty_last_check": "Last check",
+    "cty_on": "On", "cty_off": "Off", "cty_turn_on": "Turn on", "cty_turn_off": "Turn off",
+    "cty_version": "Version", "cty_imported": "Imported", "cty_routes": "Routes",
+    "cty_verified": "verified", "cty_stops": "Stops", "cty_stations": "Metro stations",
+    "cty_gates": "Gates", "cty_coverage": "Coverage", "cty_top50": "Top-50 trips with a sensible route",
+    "cty_gaps": "Gaps", "cty_no_data": "No data imported for this city yet.",
+    "cty_cov_note": "Areas of about 2 km; areas with no stop come first (where to collect data). Empty areas:",
+    "cty_area": "Area (busiest stop)", "cty_checked": "Checked", "cty_save": "Save",
+    "cty_complaint": "Overcharge complaint number (BRTA)",
+    "cty_complaint_none": "Not confirmed yet — the app offers",
+    "cty_learn_note": "found from consented, name-free bus trips; confirmed after 3 different people.",
+    "cty_people": "People / trips",
+})
+BN.update({
+    "nav_city": "শহরের তথ্য",
+    "cty_intro": "Assisto-র নিজের শহরের যাতায়াত তথ্য (বাস, মেট্রো, লেগুনা, নৌপথ) — প্রতি মাসে GitHub Actions-এ OpenStreetMap ও পাবলিক পেজ থেকে তৈরি। ব্যবহারকারীদের সংশোধন, লাইভ রিপোর্ট, কভারেজ, ভাড়া আর যাত্রা থেকে শেখা তথ্য এখানে দেখুন। যেকোনো পরিবর্তন সব ফোনে একসাথে পৌঁছায়।",
+    "cty_t_fixes": "খোলা সংশোধন", "cty_t_live": "এখনকার লাইভ রিপোর্ট", "cty_t_data": "তথ্য আছে এমন শহর",
+    "cty_t_learned": "যাত্রা থেকে নিশ্চিত",
+    "cty_tab_fixes": "সংশোধন", "cty_tab_live": "লাইভ রিপোর্ট", "cty_tab_data": "তথ্য",
+    "cty_tab_coverage": "কভারেজ", "cty_tab_fares": "ভাড়া", "cty_tab_learned": "যাত্রা থেকে শেখা",
+    "cty_city": "শহর", "cty_open_only": "শুধু খোলা", "cty_all": "সব",
+    "cty_what": "কী", "cty_text": "বিস্তারিত", "cty_change": "যে পরিবর্তন করবেন",
+    "cty_no_change": "তথ্যে কোনো পরিবর্তন নয়", "cty_name": "নাম (ইংরেজি)", "cty_name_bn": "নাম (বাংলা)",
+    "cty_accept": "গ্রহণ", "cty_reject": "বাতিল", "cty_none": "এখানে কিছু নেই।",
+    "cty_count": "যতজন জানিয়েছেন", "cty_ago": "শেষ রিপোর্ট", "cty_flags": "আপত্তি",
+    "cty_hidden": "লুকানো", "cty_hide": "লুকান", "cty_show": "দেখান",
+    "cty_check_now": "এখনই নতুন তথ্য খুঁজুন", "cty_last_check": "শেষ খোঁজ",
+    "cty_on": "চালু", "cty_off": "বন্ধ", "cty_turn_on": "চালু করুন", "cty_turn_off": "বন্ধ করুন",
+    "cty_version": "ভার্সন", "cty_imported": "আমদানি", "cty_routes": "রুট",
+    "cty_verified": "যাচাই করা", "cty_stops": "স্টপ", "cty_stations": "মেট্রো স্টেশন",
+    "cty_gates": "গেট", "cty_coverage": "কভারেজ", "cty_top50": "শীর্ষ ৫০ যাত্রায় ঠিকঠাক রুট",
+    "cty_gaps": "ঘাটতি", "cty_no_data": "এই শহরের তথ্য এখনো আমদানি হয়নি।",
+    "cty_cov_note": "প্রায় ২ কিমি করে এলাকা; যেখানে কোনো স্টপ নেই সেগুলো আগে (কোথায় তথ্য সংগ্রহ দরকার)। ফাঁকা এলাকা:",
+    "cty_area": "এলাকা (সবচেয়ে ব্যস্ত স্টপ)", "cty_checked": "যাচাইয়ের তারিখ", "cty_save": "সংরক্ষণ",
+    "cty_complaint": "বাড়তি ভাড়ার অভিযোগের নম্বর (বিআরটিএ)",
+    "cty_complaint_none": "এখনো নিশ্চিত নয় — অ্যাপ দেখাচ্ছে",
+    "cty_learn_note": "অনুমতি দেওয়া, নামহীন বাস যাত্রা থেকে পাওয়া; ৩ জন আলাদা মানুষের পরে নিশ্চিত।",
+    "cty_people": "মানুষ / যাত্রা",
+})
+# ---- citycov: users' stops (field collection + trip learning) ----
+EN.update({
+    "cty_tab_stops": "Users' stops", "cty_t_stops": "Stops waiting",
+    "cty_stops_note": "\"Add a stop here\" / \"This bus stops here\" taps from the app (no names, one tap at the phone's own location) and stops found by trip learning. A tap report goes live after 3 different people; a trip stop after 3 separate trips. Both show as Reported by users. Reject removes it for everyone; Accept adds it now.",
+    "cty_src_field": "Tap report", "cty_src_trips": "Trip learning", "cty_bus": "Bus",
+    "cty_any_bus": "not named (routes passing within 150 m)", "cty_live_cov": "Coverage now (with users' stops)",
+    "cty_cov_stops": "stop within 700 m (headline)", "cty_cov_corr": "separate measure: a bus / leguna route passes within 700 m",
+    "cty_cov_built": "built-up areas only", "cty_user_stops": "users' stops in the network",
+    "cty_map": "Map",
+})
+BN.update({
+    "cty_tab_stops": "যাত্রীদের স্টপ", "cty_t_stops": "অপেক্ষায় স্টপ",
+    "cty_stops_note": "অ্যাপের \"এখানে স্টপ যোগ করুন\" / \"এই বাস এখানে থামে\" (নাম ছাড়া, ফোনের নিজের জায়গায় এক ট্যাপ) আর যাত্রা থেকে শেখা স্টপ। ট্যাপের রিপোর্ট ৩ জন আলাদা মানুষ জানালে চালু হয়; যাত্রার স্টপ ৩টি আলাদা যাত্রার পরে। দুটোই \"যাত্রীদের জানানো\" লেবেলে দেখায়। বাতিল করলে সবার কাছ থেকে সরে যায়; গ্রহণ করলে এখনই যোগ হয়।",
+    "cty_src_field": "ট্যাপের রিপোর্ট", "cty_src_trips": "যাত্রা থেকে শেখা", "cty_bus": "বাস",
+    "cty_any_bus": "বলা হয়নি (১৫০ মি.-এর মধ্যে দিয়ে যাওয়া রুট)", "cty_live_cov": "এখনকার কভারেজ (যাত্রীদের স্টপসহ)",
+    "cty_cov_stops": "৭০০ মি.-এর মধ্যে স্টপ (মূল মাপ)", "cty_cov_corr": "আলাদা মাপ: ৭০০ মি.-এর মধ্যে দিয়ে বাস/লেগুনার রুট যায়",
+    "cty_cov_built": "শুধু বসতির এলাকা", "cty_user_stops": "নেটওয়ার্কে যাত্রীদের স্টপ",
+    "cty_map": "মানচিত্র",
+})
+# ---- /citycov ----
+# ---- /citydata ----
+# ---- quranpron ----
+EN.update({
+    "nav_quran_pron": "Quran pronunciation",
+    "qpr_intro": "Bangla pronunciation of every ayah, made by fixed tajweed rules (no AI) from the unchanged Tanzil Uthmani text. The app shows it as 'under review' until an alem or qari approves it here. Approve, reject with a note, or ask for a rule correction. If a rule later changes an ayah's text, its old approval stops counting and it comes back here.",
+    "qpr_unavailable": "The Quran text file could not be read on the server.",
+    "qpr_t_approved": "Approved", "qpr_t_review": "Under review", "qpr_t_rejected": "Rejected",
+    "qpr_t_fix": "Rule fix requested", "qpr_surah": "Surah", "qpr_engine": "Rules version",
+    "qpr_legend": "Signs: '-' = 2 counts, '--' = 4, '---' = 6; 'ঁ' = ghunnah; 'ং' = ikhfa; '্' = no vowel; '।' = stop; ',' = may continue; '—' = sakt.",
+    "qpr_bismillah": "Bismillah (shown separately)", "qpr_ayah": "Ayah", "qpr_text": "Arabic and Bangla pronunciation",
+    "qpr_history": "Review history", "qpr_suggestion": "Correct pronunciation (optional)",
+    "qpr_note": "Note (needed to reject or ask for a fix)", "qpr_approve": "Approve",
+    "qpr_reject": "Reject", "qpr_rule": "Ask for a rule fix", "qpr_none": "Nothing here.",
+})
+BN.update({
+    "nav_quran_pron": "কুরআন উচ্চারণ",
+    "qpr_intro": "প্রতিটি আয়াতের বাংলা উচ্চারণ — অপরিবর্তিত Tanzil উসমানী লেখা থেকে নির্দিষ্ট তাজবীদ নিয়মে তৈরি (AI নয়)। একজন আলেম বা ক্বারি এখানে অনুমোদন না দেওয়া পর্যন্ত অ্যাপে 'যাচাই চলছে' লেখা থাকে। অনুমোদন দিন, নোটসহ বাতিল করুন, অথবা নিয়ম ঠিক করতে বলুন। পরে কোনো নিয়ম বদলে কোনো আয়াতের লেখা বদলালে আগের অনুমোদন আর গণ্য হয় না, আয়াতটি আবার এখানে আসে।",
+    "qpr_unavailable": "সার্ভারে কুরআনের লেখার ফাইল পড়া যায়নি।",
+    "qpr_t_approved": "অনুমোদিত", "qpr_t_review": "যাচাই চলছে", "qpr_t_rejected": "বাতিল",
+    "qpr_t_fix": "নিয়ম ঠিক করতে বলা হয়েছে", "qpr_surah": "সূরা", "qpr_engine": "নিয়মের ভার্সন",
+    "qpr_legend": "চিহ্ন: '-' = ২ হরকত, '--' = ৪, '---' = ৬; 'ঁ' = গুন্নাহ; 'ং' = ইখফা; '্' = স্বরহীন; '।' = থামুন; ',' = না থেমেও পড়া যায়; '—' = সাকতা।",
+    "qpr_bismillah": "বিসমিল্লাহ (আলাদা দেখানো হয়)", "qpr_ayah": "আয়াত", "qpr_text": "আরবি ও বাংলা উচ্চারণ",
+    "qpr_history": "যাচাইয়ের ইতিহাস", "qpr_suggestion": "সঠিক উচ্চারণ (ইচ্ছা হলে)",
+    "qpr_note": "নোট (বাতিল বা নিয়ম ঠিক করতে বললে লাগবে)", "qpr_approve": "অনুমোদন",
+    "qpr_reject": "বাতিল", "qpr_rule": "নিয়ম ঠিক করতে বলুন", "qpr_none": "এখানে কিছু নেই।",
+})
+# ---- /quranpron ----
+
+# ---- lpcore: Owner Admin -> Language content (review queue) ----
+EN.update({
+    "nav_lp": "Language content",
+    "lp_intro": "Language Partner content: mocks, sections, questions, life scenarios and vocabulary. Every import runs the automatic checks (format, one right answer, word limits, level, timing, no copyrighted or Cambridge text, no duplicates). Items that pass are shown to learners with a BETA label until a reviewer approves them here. Editing saves a new version; old versions stay for the record.",
+    "lp_queue": "Waiting for review", "lp_kind": "Kind", "lp_key": "Key / version",
+    "lp_checks": "Automatic checks", "lp_checks_ok": "All checks passed", "lp_log": "History",
+    "lp_content": "Content (JSON)", "lp_save_edit": "Save as new version",
+    "lp_beta": "shown as BETA", "lp_note": "Note (optional)", "lp_approve": "Approve",
+    "lp_reject": "Reject", "lp_recheck": "Run checks again",
+    "lp_fix_first": "Fix the failed checks first", "lp_none": "Nothing here.",
+})
+BN.update({
+    "nav_lp": "ভাষা কনটেন্ট",
+    "lp_intro": "Language Partner-এর কনটেন্ট: মক, সেকশন, প্রশ্ন, জীবনের পরিস্থিতি ও শব্দ। প্রতিটি আমদানিতে স্বয়ংক্রিয় যাচাই চলে (গঠন, একটাই সঠিক উত্তর, শব্দসীমা, লেভেল, সময়, কপিরাইট বা Cambridge-এর লেখা নেই, ডুপ্লিকেট নেই)। যেগুলো পাস করে সেগুলো শিক্ষার্থীরা 'বেটা' লেবেলসহ দেখেন, যতক্ষণ না রিভিউয়ার এখানে অনুমোদন দেন। সম্পাদনা নতুন ভার্সন হিসেবে সেভ হয়; পুরোনো ভার্সন রেকর্ডে থাকে।",
+    "lp_queue": "রিভিউয়ের অপেক্ষায়", "lp_kind": "ধরন", "lp_key": "কী / ভার্সন",
+    "lp_checks": "স্বয়ংক্রিয় যাচাই", "lp_checks_ok": "সব যাচাই পাস", "lp_log": "ইতিহাস",
+    "lp_content": "কনটেন্ট (JSON)", "lp_save_edit": "নতুন ভার্সন হিসেবে সেভ",
+    "lp_beta": "বেটা হিসেবে দেখানো হচ্ছে", "lp_note": "নোট (ঐচ্ছিক)", "lp_approve": "অনুমোদন",
+    "lp_reject": "বাতিল", "lp_recheck": "আবার যাচাই",
+    "lp_fix_first": "আগে ব্যর্থ যাচাইগুলো ঠিক করুন", "lp_none": "এখানে কিছু নেই।",
+})
+# ---- /lpcore ----
+
+# ---- adcontrol: Owner Admin -> Ad control (owner order 10 Nov 03:45) ----
+EN.update({
+    "nav_ad_control": "Ad control",
+    "adc_intro": "Every ad placement in the app, grouped by feature. Turn each one on or off and pick its ad type (only the types that fit that spot). AdMob is shown to FREE users only — Premium and Plus never see AdMob; your own Discover / brand cards are separate.",
+    "adc_live": "Changes apply live: the app re-reads this on start and on every return to the app (no new build). If the app cannot reach the server, emergency and safety placements stay OFF.",
+    "adc_on_count": "Placements on", "adc_days": "days",
+    "adc_estimate_note": "Income and eCPM come from Google's own per-impression values when AdMob sends them; until then they are an ESTIMATE (impressions x your eCPM guess below) and are marked 'estimate'. Exact AdMob reports need AdMob API access (owner item).",
+    "adc_caps": "Global caps", "adc_cap_gap": "Interstitial: minimum gap (seconds, at least 180 = 3 minutes)",
+    "adc_cap_daily": "Interstitial: daily cap per user (0-12)", "adc_cap_every": "List native: one card every N rows (15-20)",
+    "adc_cap_train": "Train live location: free minutes after one rewarded ad",
+    "adc_ecpm": "Estimated eCPM (Tk per 1,000 impressions, used only until real AdMob values exist)",
+    "adc_blocked": "Blocked ad categories (set in the AdMob console too)", "adc_rating": "Max ad content rating in the app",
+    "adc_on": "On", "adc_place": "Placement", "adc_type": "Ad type", "adc_default": "Default",
+    "adc_impr": "Impressions", "adc_income": "Income", "adc_est": "estimate", "adc_date": "Date",
+    "adc_safety": "Emergency / safety screen",
+    "adc_warn_title": "This is an emergency or safety screen — are you sure?",
+    "adc_warn_body": "People use these screens when they are in danger, worried, paying, or at a sensitive moment. An ad here can distract them or break trust. Nothing has been saved yet. Tick each screen you really want ads on, then confirm.",
+    "adc_warn_yes": "Yes, show ads on", "adc_warn_go": "Confirm and save", "adc_warn_cancel": "Cancel",
+})
+BN.update({
+    "nav_ad_control": "বিজ্ঞাপন নিয়ন্ত্রণ",
+    "adc_intro": "অ্যাপের প্রতিটি বিজ্ঞাপনের জায়গা, ফিচার অনুযায়ী সাজানো। প্রতিটি চালু/বন্ধ করুন আর বিজ্ঞাপনের ধরন বেছে নিন (শুধু যে ধরন ওই জায়গায় মানায়)। AdMob শুধু ফ্রি ব্যবহারকারীরা দেখেন — Premium ও Plus কখনো AdMob দেখেন না; আপনার নিজের ডিসকভার / ব্র্যান্ড কার্ড আলাদা।",
+    "adc_live": "পরিবর্তন সঙ্গে সঙ্গে চালু হয়: অ্যাপ খোলার সময় ও প্রতিবার অ্যাপে ফিরলে এটা আবার পড়ে (নতুন বিল্ড লাগে না)। অ্যাপ সার্ভারে পৌঁছাতে না পারলে জরুরি ও নিরাপত্তার জায়গা বন্ধই থাকে।",
+    "adc_on_count": "চালু জায়গা", "adc_days": "দিন",
+    "adc_estimate_note": "আয় ও eCPM আসে Google-এর নিজের প্রতি-ইমপ্রেশন মান থেকে, যখন AdMob তা পাঠায়; তার আগে এটা আনুমানিক (ইমপ্রেশন × নিচের আপনার eCPM অনুমান) এবং 'আনুমানিক' লেখা থাকে। AdMob-এর হুবহু রিপোর্টের জন্য AdMob API অ্যাক্সেস লাগবে (মালিকের কাজ)।",
+    "adc_caps": "সব জায়গার সীমা", "adc_cap_gap": "পূর্ণ পর্দার বিজ্ঞাপন: দুটির মাঝে কমপক্ষে (সেকেন্ড, অন্তত ১৮০ = ৩ মিনিট)",
+    "adc_cap_daily": "পূর্ণ পর্দার বিজ্ঞাপন: একজনের দিনে সর্বোচ্চ (০–১২)", "adc_cap_every": "তালিকার নেটিভ: প্রতি কত সারিতে একটি কার্ড (১৫–২০)",
+    "adc_cap_train": "ট্রেনের লাইভ অবস্থান: একটি বিজ্ঞাপনের পর কত মিনিট ফ্রি",
+    "adc_ecpm": "আনুমানিক eCPM (প্রতি ১,০০০ ইমপ্রেশনে টাকা; আসল AdMob মান আসা পর্যন্ত)",
+    "adc_blocked": "বন্ধ করা বিজ্ঞাপন বিভাগ (AdMob কনসোলেও সেট করুন)", "adc_rating": "অ্যাপে সর্বোচ্চ বিজ্ঞাপন রেটিং",
+    "adc_on": "চালু", "adc_place": "জায়গা", "adc_type": "বিজ্ঞাপনের ধরন", "adc_default": "ডিফল্ট",
+    "adc_impr": "ইমপ্রেশন", "adc_income": "আয়", "adc_est": "আনুমানিক", "adc_date": "তারিখ",
+    "adc_safety": "জরুরি / নিরাপত্তার পাতা",
+    "adc_warn_title": "এটা জরুরি বা নিরাপত্তার পাতা — আপনি কি নিশ্চিত?",
+    "adc_warn_body": "মানুষ এই পাতাগুলো ব্যবহার করেন বিপদে, দুশ্চিন্তায়, টাকা দেওয়ার সময় বা খুব সংবেদনশীল মুহূর্তে। এখানে বিজ্ঞাপন মনোযোগ নষ্ট করতে পারে বা আস্থা ভাঙতে পারে। এখনো কিছু সংরক্ষণ হয়নি। যে পাতায় সত্যিই বিজ্ঞাপন চান, প্রতিটিতে টিক দিয়ে নিশ্চিত করুন।",
+    "adc_warn_yes": "হ্যাঁ, বিজ্ঞাপন দেখাও", "adc_warn_go": "নিশ্চিত করে সংরক্ষণ", "adc_warn_cancel": "বাতিল",
+})
+# ---- /adcontrol ----
+# ---- discms ---- Discover = the owner's ads + updates slot (10 Nov)
+EN.update({
+    "dtype_feature": "Feature", "dtype_our_product": "Our product",
+    "dtype_sponsored": "Sponsored ad (labelled Ad)", "dtype_admob": "AdMob native ad slot",
+    "dtype_whats_new": "What's new (app update)", "dtype_offer": "Offer / promotion",
+    "dtype_ad_label": "Ad",
+    "discover_note": "Everyone sees your cards, free and Premium / Plus. Sponsored cards always carry the “Ad” label. The AdMob slot shows to Free users only (switch it in Ads → placements, “discover_native”). A Sponsored card and the AdMob ad are never side by side.",
+    "discms_rules": "No automatic expiry: a card stays until you change or remove it (End is optional). A card for a feature already on the Home tiles is not shown. A Sponsored card can never open an SOS, safety, child or Quran screen. Phones keep the last cards offline.",
+})
+BN.update({
+    "dtype_feature": "ফিচার", "dtype_our_product": "আমাদের পণ্য",
+    "dtype_sponsored": "স্পনসর্ড বিজ্ঞাপন (“বিজ্ঞাপন” লেবেলসহ)", "dtype_admob": "AdMob নেটিভ বিজ্ঞাপনের জায়গা",
+    "dtype_whats_new": "নতুন কী (অ্যাপ আপডেট)", "dtype_offer": "অফার / প্রচার",
+    "dtype_ad_label": "বিজ্ঞাপন",
+    "discover_note": "আপনার কার্ড সবাই দেখেন — ফ্রি ও প্রিমিয়াম / প্লাস। স্পনসর্ড কার্ডে সবসময় “বিজ্ঞাপন” লেবেল থাকে। AdMob-এর জায়গা শুধু ফ্রি ব্যবহারকারীরা দেখেন (বিজ্ঞাপন → জায়গা, “discover_native” থেকে চালু/বন্ধ)। স্পনসর্ড কার্ড আর AdMob বিজ্ঞাপন কখনো পাশাপাশি বসে না।",
+    "discms_rules": "নিজে থেকে মেয়াদ শেষ হয় না: আপনি না বদলানো বা না সরানো পর্যন্ত কার্ড থাকে (শেষ তারিখ ঐচ্ছিক)। হোমের টাইলে আগে থেকে থাকা ফিচারের কার্ড দেখানো হয় না। স্পনসর্ড কার্ড কখনো SOS, নিরাপত্তা, শিশু বা কুরআনের স্ক্রিন খোলে না। ইন্টারনেট না থাকলে ফোন শেষ কার্ডগুলো দেখায়।",
+})
+# ---- /discms ----

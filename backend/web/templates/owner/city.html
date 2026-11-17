@@ -1,0 +1,77 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_city }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ T.cty_intro }} <span class="mut">{{ attribution }}</span></p>
+<div class="tiles">{% for k, n in tiles %}<a class="tile" href="?tab={{ k }}"><span>{% if k == 'fixes' %}{{ T.cty_t_fixes }}{% elif k == 'live' %}{{ T.cty_t_live }}{% elif k == 'data' %}{{ T.cty_t_data }}{% elif k == 'stops' %}{{ T.cty_t_stops }}{% else %}{{ T.cty_t_learned }}{% endif %}</span><b>{{ n }}</b></a>{% endfor %}</div>
+<div class="row">
+  <a class="btn {% if tab == 'fixes' %}primary{% else %}ghost{% endif %}" href="?tab=fixes">{{ T.cty_tab_fixes }}</a>
+  <a class="btn {% if tab == 'live' %}primary{% else %}ghost{% endif %}" href="?tab=live">{{ T.cty_tab_live }}</a>
+  <a class="btn {% if tab == 'data' %}primary{% else %}ghost{% endif %}" href="?tab=data">{{ T.cty_tab_data }}</a>
+  <a class="btn {% if tab == 'coverage' %}primary{% else %}ghost{% endif %}" href="?tab=coverage&city={{ city }}">{{ T.cty_tab_coverage }}</a>
+  <a class="btn {% if tab == 'fares' %}primary{% else %}ghost{% endif %}" href="?tab=fares&city={{ city }}">{{ T.cty_tab_fares }}</a>
+  <a class="btn {% if tab == 'learned' %}primary{% else %}ghost{% endif %}" href="?tab=learned&city={{ city }}">{{ T.cty_tab_learned }}</a>
+  <a class="btn {% if tab == 'stops' %}primary{% else %}ghost{% endif %}" href="?tab=stops&city={{ city }}">{{ T.cty_tab_stops }}</a>
+</div>
+{% if tab == 'coverage' or tab == 'fares' or tab == 'learned' or tab == 'stops' %}<form method="get" class="inline"><input type="hidden" name="tab" value="{{ tab }}"><select name="city" aria-label="{{ T.cty_city }}">{% for c in cities %}<option value="{{ c }}" {% if c == city %}selected{% endif %}>{{ c }}</option>{% endfor %}</select> <button class="btn ghost">{{ T.show }}</button></form>{% endif %}
+{% if tab == 'fixes' %}
+<p class="small"><a href="?tab=fixes&st={% if st == 'all' %}open{% else %}all{% endif %}">{% if st == 'all' %}{{ T.cty_open_only }}{% else %}{{ T.cty_all }}{% endif %}</a> · {{ total }}</p>
+{% if fixes %}<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.time }}</th><th>{{ T.cty_what }}</th><th>{{ T.cty_text }}</th><th></th></tr></thead><tbody>
+{% for c in fixes %}<tr><td>#{{ c.id }}</td><td>{{ c.created_at|date:"Y-m-d H:i" }}</td>
+<td>{{ c.city }} · {{ c.target }} <code>{{ c.target_id }}</code> · {{ c.kind }}{% if c.lat %}<div class="small"><a href="https://www.openstreetmap.org/?mlat={{ c.lat }}&mlon={{ c.lon }}#map=18/{{ c.lat }}/{{ c.lon }}" target="_blank" rel="noopener noreferrer">{{ c.lat|floatformat:5 }}, {{ c.lon|floatformat:5 }}</a></div>{% endif %}</td>
+<td>{{ c.text }}<div class="small mut">{{ c.status }}{% if c.patch %} · {{ c.patch }}{% endif %}</div></td>
+<td>{% if c.status == 'open' %}<form method="post" action="/owner/city/fix/{{ c.id }}">{% include "owner/_csrf.html" %}
+<select name="action" aria-label="{{ T.cty_change }}"><option value="">{{ T.cty_no_change }}</option>{% for a in actions %}<option value="{{ a }}">{{ a }}</option>{% endfor %}</select>
+<input name="id" value="{{ c.target_id }}" size="12" aria-label="id"><input name="name" size="12" placeholder="{{ T.cty_name }}"><input name="name_bn" size="12" placeholder="{{ T.cty_name_bn }}">
+<input name="lat" size="8" placeholder="lat" value="{{ c.lat|default_if_none:'' }}"><input name="lon" size="8" placeholder="lon" value="{{ c.lon|default_if_none:'' }}">
+<button class="btn primary" name="decision" value="accept">{{ T.cty_accept }}</button>
+<button class="btn ghost" name="decision" value="reject">{{ T.cty_reject }}</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+<div class="row">{% if page_no > 1 %}<a class="btn ghost" href="?tab=fixes&st={{ st }}&page={{ page_no|add:'-1' }}">←</a>{% endif %}{% if has_next %}<a class="btn ghost" href="?tab=fixes&st={{ st }}&page={{ page_no|add:'1' }}">→</a>{% endif %}</div>
+{% else %}<p class="empty">{{ T.cty_none }}</p>{% endif %}
+{% elif tab == 'live' %}
+{% if live %}<div class="card tbl"><table><thead><tr><th>ID</th><th>{{ T.cty_what }}</th><th>{{ T.cty_count }}</th><th>{{ T.cty_ago }}</th><th></th></tr></thead><tbody>
+{% for r in live %}<tr><td>#{{ r.id }}</td><td>{{ r.city }} · {{ r.kind }}{% if r.route_id %} · {{ r.route_id }}{% endif %} · <a href="https://www.openstreetmap.org/?mlat={{ r.lat }}&mlon={{ r.lon }}#map=17/{{ r.lat }}/{{ r.lon }}" target="_blank" rel="noopener noreferrer">{{ r.lat|floatformat:4 }}, {{ r.lon|floatformat:4 }}</a>{% if r.hidden %} <span class="pill spons">{{ T.cty_hidden }}</span>{% endif %}</td>
+<td>{{ r.count }} · {{ T.cty_flags }} {{ r.flags }}</td><td>{{ r.ago }} min</td>
+<td><form method="post" action="/owner/city/live/{{ r.id }}">{% include "owner/_csrf.html" %}{% if r.hidden %}<button class="btn ghost" name="action" value="show">{{ T.cty_show }}</button>{% else %}<button class="btn ghost" name="action" value="hide">{{ T.cty_hide }}</button>{% endif %}</form></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.cty_none }}</p>{% endif %}
+{% elif tab == 'data' %}
+<form method="post" action="/owner/city/dataset" class="inline">{% include "owner/_csrf.html" %}<button class="btn ghost" name="action" value="check">{{ T.cty_check_now }}</button>
+{% if meta %}<span class="small mut">{{ T.cty_last_check }} {{ meta.last_check_at|date:"Y-m-d H:i" }}{% if meta.last_error %} · {{ meta.last_error }}{% endif %}</span>{% endif %}</form>
+{% for d in datasets %}<div class="card"><h3>{{ d.city }} {% if d.enabled %}<span class="pill">{{ T.cty_on }}</span>{% else %}<span class="pill spons">{{ T.cty_off }}</span>{% endif %}</h3>
+<p>{{ T.cty_version }} <code>{{ d.version }}.{{ d.ov_version }}</code> · {{ T.cty_imported }} {{ d.imported_at|date:"Y-m-d H:i" }}{% if d.last_error %} · <b>{{ d.last_error }}</b>{% endif %}</p>
+<p>{{ T.cty_routes }} <b>{{ d.counts.routes }}</b> ({{ T.cty_verified }} {{ d.counts.verified_routes }}) · {{ T.cty_stops }} <b>{{ d.counts.stops }}</b> · {{ T.cty_stations }} <b>{{ d.counts.stations }}</b> · {{ T.cty_gates }} {{ d.counts.gates }} · {{ T.cty_coverage }} <b>{{ d.counts.coverage_pct }}%</b></p>
+{% if d.live_cov %}<p>{{ T.cty_live_cov }}: <b>{{ d.live_cov.all.stops_pct }}%</b> {{ T.cty_cov_stops }}{% if d.live_cov.built %} · {{ T.cty_cov_built }} <b>{{ d.live_cov.built.stops_pct }}%</b>{% endif %}<br><span class="small mut">{{ T.cty_cov_corr }}: {{ d.live_cov.all.corridor_pct }}%{% if d.live_cov.built %} · {{ T.cty_cov_built }} {{ d.live_cov.built.corridor_pct }}%{% endif %} · {{ T.cty_user_stops }} {{ d.live_cov.user_stops }}</span></p>{% endif %}
+{% if d.top %}<p>{{ T.cty_top50 }}: <b>{{ d.top.pass }}/{{ d.top.total }}</b> · p95 {{ d.top.p95_ms }} ms</p>{% for t in d.fails %}<div class="small">✗ {{ t.trip }} — {{ t.why }}</div>{% endfor %}{% endif %}
+{% if d.gaps %}<p class="small mut">{{ T.cty_gaps }}: {% for k, v in d.gaps.items %}{{ k }} {{ v }}{% if not forloop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+<form method="post" action="/owner/city/dataset" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="city" value="{{ d.city }}">{% if d.enabled %}<button class="btn ghost" name="action" value="off">{{ T.cty_turn_off }}</button>{% else %}<button class="btn ghost" name="action" value="on">{{ T.cty_turn_on }}</button>{% endif %}</form></div>{% endfor %}
+{% for c in missing %}<div class="card"><h3>{{ c }}</h3><p class="mut">{{ T.cty_no_data }}</p></div>{% endfor %}
+{% elif tab == 'coverage' %}
+<p>{{ T.cty_cov_note }} {{ cells_empty }}/{{ cells_total }}</p>
+{% if cells %}<div class="card tbl"><table><thead><tr><th>lat, lon</th><th>{{ T.cty_area }}</th><th>{{ T.cty_stops }}</th><th>{{ T.cty_routes }}</th></tr></thead><tbody>
+{% for r in cells %}<tr><td><a href="https://www.openstreetmap.org/#map=15/{{ r.lat }}/{{ r.lon }}" target="_blank" rel="noopener noreferrer">{{ r.lat }}, {{ r.lon }}</a></td><td>{{ r.name|default:"—" }}</td><td>{% if r.stops %}{{ r.stops }}{% else %}<b>0</b>{% endif %}</td><td>{{ r.routes }}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.cty_no_data }}</p>{% endif %}
+{% elif tab == 'fares' %}
+{% if not has_ds %}<p class="empty">{{ T.cty_no_data }}</p>{% endif %}
+{% for r in rates %}<div class="card"><h3>{{ r.mode }} · {{ r.label }}</h3><p class="small">{{ r.source }}{% if r.source_url %} · <a href="{{ r.source_url }}" target="_blank" rel="noopener noreferrer">{{ r.source_url }}</a>{% endif %} · {{ T.cty_checked }} {{ r.checked }}</p>
+{% if has_ds %}<form method="post" action="/owner/city/change" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="city" value="{{ city }}"><input type="hidden" name="action" value="rate"><input type="hidden" name="mode" value="{{ r.mode }}"><input type="hidden" name="back" value="/owner/city?tab=fares&city={{ city }}">
+{% for k, v in r.values %}<label>{{ k }} <input name="v_{{ k }}" value="{{ v }}" size="6"></label> {% endfor %}
+<label>{{ T.cty_checked }} <input name="checked" value="{{ r.checked }}" size="10"></label> <button class="btn primary">{{ T.cty_save }}</button></form>{% endif %}</div>{% endfor %}
+<div class="card"><h3>{{ T.cty_complaint }}</h3><p>{% if complaint.number %}<b>{{ complaint.number }}</b>{% else %}{{ T.cty_complaint_none }} <b>{{ complaint.fallback }}</b>{% endif %} · {{ T.cty_checked }} {{ complaint.checked }}</p>
+{% if has_ds %}<form method="post" action="/owner/city/change" class="inline">{% include "owner/_csrf.html" %}<input type="hidden" name="city" value="{{ city }}"><input type="hidden" name="action" value="complaint"><input type="hidden" name="back" value="/owner/city?tab=fares&city={{ city }}"><input name="number" value="{{ complaint.number }}" maxlength="20" size="10" aria-label="{{ T.cty_complaint }}"> <button class="btn primary">{{ T.cty_save }}</button></form>{% endif %}</div>
+{% elif tab == 'stops' %}
+<p class="small">{{ T.cty_stops_note }}</p>
+<p class="small"><a href="?tab=stops&city={{ city }}&st=reported">reported</a> · <a href="?tab=stops&city={{ city }}&st=confirmed">confirmed</a> · <a href="?tab=stops&city={{ city }}&st=rejected">rejected</a></p>
+{% if ustops %}<div class="card tbl"><table><thead><tr><th>{{ T.cty_map }}</th><th>{{ T.cty_what }}</th><th>{{ T.cty_bus }}</th><th>{{ T.cty_people }}</th><th></th></tr></thead><tbody>
+{% for u in ustops %}<tr><td><a href="https://www.openstreetmap.org/?mlat={{ u.lat }}&mlon={{ u.lon }}#map=18/{{ u.lat }}/{{ u.lon }}" target="_blank" rel="noopener noreferrer">{{ u.lat|floatformat:5 }}, {{ u.lon|floatformat:5 }}</a></td>
+<td>{% if u.src == 'field' %}{{ T.cty_src_field }}{% else %}{{ T.cty_src_trips }}{% endif %}{% if u.stop %} · <code>{{ u.stop }}</code>{% endif %}<div class="small mut">{{ u.updated|date:"Y-m-d H:i" }}</div></td>
+<td>{% if u.route %}{{ u.route }}{% else %}<span class="mut">{{ T.cty_any_bus }}</span>{% endif %}</td><td>{{ u.people }} / {{ u.trips }}</td>
+<td><form method="post" action="/owner/city/learned/{{ u.id }}">{% include "owner/_csrf.html" %}<input type="hidden" name="back" value="/owner/city?tab=stops&city={{ city }}&st={{ st }}"><button class="btn ghost" name="action" value="confirm">{{ T.cty_accept }}</button><button class="btn ghost" name="action" value="reject">{{ T.cty_reject }}</button></form></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.cty_none }}</p>{% endif %}
+{% else %}
+<p class="small"><a href="?tab=learned&city={{ city }}&st=reported">reported</a> · <a href="?tab=learned&city={{ city }}&st=confirmed">confirmed</a> · <a href="?tab=learned&city={{ city }}&st=rejected">rejected</a> — {{ T.cty_learn_note }}</p>
+{% if learned %}<div class="card tbl"><table><thead><tr><th>{{ T.cty_what }}</th><th>{{ T.cty_people }}</th><th>{{ T.cty_text }}</th><th></th></tr></thead><tbody>
+{% for l in learned %}<tr><td>{{ l.kind }} · <code>{{ l.key }}</code> · {{ l.status }}</td><td>{{ l.n }} / {{ l.trips }}</td><td class="small">{{ l.short }}</td>
+<td><form method="post" action="/owner/city/learned/{{ l.id }}">{% include "owner/_csrf.html" %}<button class="btn ghost" name="action" value="confirm">{{ T.cty_accept }}</button><button class="btn ghost" name="action" value="reject">{{ T.cty_reject }}</button></form></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty">{{ T.cty_none }}</p>{% endif %}
+{% endif %}
+{% endblock %}

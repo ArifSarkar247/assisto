@@ -360,7 +360,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
         child: Container(
           padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            color: scheme.ds.cardHighest.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(children: [
@@ -371,7 +371,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
                 tr.paVisSummary(/* (expired, needs, pending) */
                     '${_countFor(_stExpired)}', '$_needsAttention',
                     '${_countFor(_stPending)}'),
-                style: AType.bodyMedium.copyWith(color: scheme.onSurface, height: 1.3),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.3),
               ),
             ),
           ]),
@@ -479,7 +479,7 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
           if ((r['reason'] ?? '').toString().trim().isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text((r['reason']).toString(),
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.3),
+                style: TextStyle(color: scheme.ds.muted, height: 1.3),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis),
           ],
@@ -561,9 +561,9 @@ class _VisitorFilterScreenState extends State<VisitorFilterScreen> {
   Widget _meta(IconData icon, String text, ColorScheme scheme) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 15, color: scheme.onSurfaceVariant),
+          Icon(icon, size: 15, color: scheme.ds.muted),
           const SizedBox(width: Gap.xs),
-          Text(text, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          Text(text, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ],
       );
 

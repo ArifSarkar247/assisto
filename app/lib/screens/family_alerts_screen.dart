@@ -5,6 +5,7 @@ import '../family_alerts_api.dart';
 import '../l10n/app_localizations.dart';
 import '../services/action_feedback.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/chatnav.dart';
@@ -162,14 +163,15 @@ class _FamilyAlertsScreenState extends State<FamilyAlertsScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final children = <Widget>[
       FamilyPushBanner(isEnabled: widget.pushEnabled),
     ];
     if (_loading && _received.isEmpty && _sent.isEmpty) {
-      children.add(const Padding(
-          padding: EdgeInsets.all(Gap.xxl),
-          child: Center(child: CircularProgressIndicator())));
+      for (var i = 0; i < 2; i++) {
+        children.add(Padding(
+            padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSkeleton.card(lines: 3)));
+      }
     } else if (_failed) {
       children.add(_ErrorCard(onRetry: _load));
     } else {
@@ -194,20 +196,20 @@ class _FamilyAlertsScreenState extends State<FamilyAlertsScreen> {
           padding: const EdgeInsets.symmetric(vertical: Gap.lg),
           child: Text(t.fa100Empty,
               key: const ValueKey('fa100-empty'),
-              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: ds.muted)),
         ));
         // sosat checklist: an empty state gets a primary action + how-to
         if (_sent.isEmpty) {
           children.add(Text(t.saAlertsHowTo,
               key: const ValueKey('sosat-alerts-howto'),
-              style: AType.bodyMedium));
+              style: AType.bodyMedium.copyWith(color: ds.text)));
           children.add(const SizedBox(height: Gap.md));
-          children.add(FilledButton.icon(
+          children.add(DsButton(
             key: const ValueKey('sosat-alerts-circle'),
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+            expand: true,
             onPressed: () => ChatNav.push(context, 'circle'),
-            icon: const Icon(Icons.group_add_rounded),
-            label: Text(t.saAlertsAddFamily),
+            icon: Icons.group_add_rounded,
+            label: t.saAlertsAddFamily,
           ));
         }
       }
@@ -227,9 +229,9 @@ class _FamilyAlertsScreenState extends State<FamilyAlertsScreen> {
             for (final r in (e['recipients'] as List? ?? const []))
               if (r is Map) r
           ];
-          children.add(Card(
-            margin: const EdgeInsets.only(bottom: Gap.sm),
-            child: Padding(
+          children.add(Padding(
+            padding: const EdgeInsets.only(bottom: Gap.sm),
+            child: DsCard(
               padding: const EdgeInsets.all(Gap.md),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,7 +239,7 @@ class _FamilyAlertsScreenState extends State<FamilyAlertsScreen> {
                     Text(
                         '${_kindLabel(t, '${e['kind']}')} · ${notifWhen(context, '${e['at'] ?? ''}')}',
                         style: AType.titleSmall
-                            .copyWith(fontWeight: FontWeight.w700)),
+                            .copyWith(fontWeight: FontWeight.w700, color: ds.text)),
                     const SizedBox(height: Gap.xs),
                     for (final r in rec)
                       Padding(
@@ -251,13 +253,13 @@ class _FamilyAlertsScreenState extends State<FamilyAlertsScreen> {
                                       : Icons.done_rounded,
                                   size: 18,
                                   color: r['seen'] == true
-                                      ? Brand.success
-                                      : scheme.onSurfaceVariant),
+                                      ? ds.successInk
+                                      : ds.muted),
                               const SizedBox(width: Gap.sm),
                               Expanded(
                                   child: Text(
                                       '${r['name']}: ${_statusLabel(t, r)}',
-                                      style: AType.bodyMedium)),
+                                      style: AType.bodyMedium.copyWith(color: ds.text))),
                             ]),
                       ),
                   ]),
@@ -289,7 +291,8 @@ class _Header extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.only(bottom: Gap.sm),
           child: Text(text,
-              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+              style: AType.titleMedium.copyWith(
+                  fontWeight: FontWeight.w700, color: DsTokens.of(context).text)),
         ),
       );
 }
@@ -300,21 +303,14 @@ class _ErrorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    return Padding(
+    return KeyedSubtree(
       key: const ValueKey('fa100-error'),
-      padding: const EdgeInsets.symmetric(vertical: Gap.xl),
-      child: Column(children: [
-        Icon(Icons.cloud_off_rounded,
-            size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
-        const SizedBox(height: Gap.sm),
-        Text(t.fa100Error, textAlign: TextAlign.center),
-        const SizedBox(height: Gap.md),
-        OutlinedButton(
-          style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-          onPressed: onRetry,
-          child: Text(t.fa100Retry),
-        ),
-      ]),
+      child: DsEmptyState(
+        icon: Icons.cloud_off_rounded,
+        title: t.fa100Error,
+        actionLabel: t.fa100Retry,
+        onAction: onRetry,
+      ),
     );
   }
 }
@@ -333,23 +329,24 @@ class _AlertCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final isSos = alert['kind'] == 'sos' && alert['active'] == true;
     final seen = alert['seen'] == true;
     final lat = alert['lat'];
     final lng = alert['lng'];
     final hasLoc = lat != null && lng != null && '$lat' != '' && '$lng' != '';
-    final fg = isSos ? scheme.onErrorContainer : scheme.onSurface;
-    return Card(
+    final fg = isSos ? ds.dangerInk : ds.text;
+    // designv2: an active SOS is the red card; others the calm card
+    return Padding(
       key: ValueKey('fa100-alert-${alert['id']}'),
-      color: isSos ? scheme.errorContainer : null,
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsCard(
+        tone: isSos ? DsTone.danger : DsTone.normal,
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(isSos ? Icons.sos_rounded : Icons.notifications_rounded,
-                color: isSos ? Brand.danger : scheme.primary),
+                color: isSos ? ds.dangerInk : ds.primaryInk),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(kindLabel,
@@ -357,7 +354,7 @@ class _AlertCard extends StatelessWidget {
                       .copyWith(fontWeight: FontWeight.w700, color: fg)),
             ),
             Text(notifWhen(context, '${alert['at'] ?? ''}'),
-                style: AType.bodySmall.copyWith(color: fg)),
+                style: AType.bodySmall.copyWith(color: isSos ? fg : ds.muted)),
           ]),
           const SizedBox(height: Gap.xs),
           Text('${alert['title'] ?? ''}',
@@ -393,28 +390,20 @@ class _AlertCard extends StatelessWidget {
                       key: ValueKey('g2-you-responding-${alert['id']}'),
                       avatar: const Icon(Icons.directions_run_rounded, size: 18),
                       label: Text(t.g2YouResponding))
-                  : FilledButton.icon(
+                  : DsButton.danger(
                       key: ValueKey('g2-responding-${alert['id']}'),
-                      style: FilledButton.styleFrom(
-                          minimumSize: const Size(48, 48),
-                          backgroundColor: Brand.dangerFill,
-                          foregroundColor: Colors.white),
                       onPressed: onResponding,
-                      icon: const Icon(Icons.directions_run_rounded),
-                      label: Text(t.g2Responding),
+                      icon: Icons.directions_run_rounded,
+                      label: t.g2Responding,
                     ),
             if (hasLoc)
-              OutlinedButton.icon(
-                // guardian2/a11y: on the red SOS card the map button uses the
-                // card's own text colour (primary on errorContainer = 4.48:1)
-                style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(48, 48), foregroundColor: isSos ? fg : null),
+              DsButton.secondary(
                 onPressed: () => openForUser(
                     context,
                     Uri.parse('https://maps.google.com/?q=$lat,$lng'),
                     where: 'family_alert.map'),
-                icon: const Icon(Icons.map_rounded),
-                label: Text(t.fa100OpenMap),
+                icon: Icons.map_rounded,
+                label: t.fa100OpenMap,
               ),
             if (seen)
               Semantics(
@@ -425,11 +414,10 @@ class _AlertCard extends StatelessWidget {
                 ),
               )
             else
-              FilledButton(
+              DsButton(
                 key: ValueKey('fa100-seen-${alert['id']}'),
-                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
                 onPressed: onSeen,
-                child: Text(t.fa100MarkSeen),
+                label: t.fa100MarkSeen,
               ),
           ]),
         ]),

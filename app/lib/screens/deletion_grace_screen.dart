@@ -213,14 +213,14 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.errorContainer,
+        color: scheme.ds.dangerBg,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(children: [
-        Icon(Icons.error_outline_rounded, color: scheme.onErrorContainer, size: 18),
+        Icon(Icons.error_outline_rounded, color: scheme.ds.dangerInk, size: 18),
         const SizedBox(width: Gap.sm),
         Expanded(
-            child: Text(msg, style: TextStyle(color: scheme.onErrorContainer))),
+            child: Text(msg, style: TextStyle(color: scheme.ds.dangerInk))),
       ]),
     );
   }
@@ -311,7 +311,7 @@ class _DeletionGraceScreenState extends State<DeletionGraceScreen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.sms_rounded, size: 18, color: scheme.onSurfaceVariant),
+            Icon(Icons.sms_rounded, size: 18, color: scheme.ds.muted),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(

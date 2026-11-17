@@ -204,16 +204,31 @@ JOBS = (
     Job("view_once_purge", MIN, "* * * * *", via="minute_jobs"),
     # carecall: Care Call ring ladder (ring, retry after 10 min, tell setter)
     Job("carecall_tick", MIN, "* * * * *", via="minute_jobs"),
+    Job("family_brain_tick", MIN, "* * * * *", via="minute_jobs"),  # fcbrain
     Job("ai_usage_purge", MIN, "* * * * *", via="minute_jobs"),   # aifinal
+    # geminioff: idle = one indexed read; ONE Gemini request a day while off
+    Job("gemini_probe", MIN, "* * * * *", via="minute_jobs"),
+    # aimoney: ads per AI answer recomputed once a local day (idle = one read)
+    Job("ad_money_tick", MIN, "* * * * *", via="minute_jobs"),
+    # emailrel: Gmail bounce reports over IMAP, gated inside to every 15 min
+    Job("email_bounces", MIN, "* * * * *", via="minute_jobs"),
     Job("ai_exam", MIN, "* * * * *", via="minute_jobs"),          # aifinal nightly exam
     # bizai: Market group-buy expiry (gated inside: every 30 min) and the
     # weekly Bangla business report (gated: Friday from 10:00 Dhaka, once per
     # ISO week) — both ride minute_jobs (owner: no new cron lines)
     Job("market_pool_sweep", MIN, "* * * * *", via="minute_jobs"),
     Job("bizai_weekly", MIN, "* * * * *", via="minute_jobs"),
+    # cctvconnect: brand-cloud events + cloud DVR health + the daily CCTV
+    # green check; idle (no key / no link / not 09:00) = two cheap reads
+    Job("cctv_connect_tick", MIN, "* * * * *", via="minute_jobs"),
     # nearby: pulls the monthly OSM emergency files (GitHub release assets);
     # idle = one DB read, manifest every 6 h, one country per run
     Job("nearby_import", MIN, "* * * * *", via="minute_jobs"),
+    # citydata: City Service data import (6-hourly manifest) + hourly trip
+    # learning / crowd fares; idle = two small reads
+    Job("city_tick", MIN, "* * * * *", via="minute_jobs"),
+    # messv2: night-before bazar turn reminder (gated 20:00+, once per turn)
+    Job("mess_tick", MIN, "* * * * *", via="minute_jobs"),
     # moneybar: TCB (govt) market prices, once a day (19:40 Dhaka)
     Job("tcb_prices_fetch", DAY, "40 13 * * *", "nice -n15 ionice -c3", lock=True,
         max_s=5 * MIN),
@@ -230,6 +245,9 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("view_once_purge", {"quiet": True}),
                # carecall: a scheduled ring is safety-adjacent -> before nearby
                ("carecall_tick", {"quiet": True}),
+               # fcbrain: night news at each member's time + monthly
+               # "who can see you" card; one indexed scan, cheap
+               ("family_brain_tick", {"quiet": True}),
                # aifinal: AI usage log retention (90 days), bounded batch
                ("ai_usage_purge", {"quiet": True}),
                # aifinal: nightly AI exam — idle unless the owner switched it on
@@ -238,9 +256,20 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                # bizai: gated, so idle minutes are one indexed stamp read
                ("market_pool_sweep", {"tick": True}),
                ("bizai_weekly", {"tick": True}),
+               # cctvconnect: idle = one indexed read (no active link / key)
+               ("cctv_connect_tick", {"quiet": True}),
                # nearby: after the safety jobs; idle = one DB read, a monthly
                # import is one country per run
                ("nearby_import", {"quiet": True}),
+               # citydata: after nearby; idle = two small reads
+               ("city_tick", {"quiet": True}),
+               ("mess_tick", {"quiet": True}),   # messv2
+               # geminioff: Gemini 24 h breaker — one check a day while off
+               ("gemini_probe", {"quiet": True}),
+               # aimoney: ads per AI answer, once a day; idle = one read
+               ("ad_money_tick", {"quiet": True}),
+               # emailrel: idle = one indexed read (every 15 min, email set up)
+               ("email_bounces", {"tick": True, "quiet": True}),
                # flagprep: LAST, 20 s budget — never delays the safety jobs above
                ("agent_core_run", {"seconds": 20.0}))
 

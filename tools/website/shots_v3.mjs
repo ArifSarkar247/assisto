@@ -10,7 +10,12 @@ const [base, out] = process.argv.slice(2);
 const groups = ['ai', 'circle', 'safety', 'cctv', 'business', 'work', 'daily'];
 const pages = [['home', '/preview/'], ['features', '/preview/features'], ['pricing', '/preview/pricing'],
   ['security', '/preview/security'], ['help', '/preview/help'],
-  ...groups.map(g => [`group_${g}`, `/preview/features/${g}`])];
+  ...groups.map(g => [`group_${g}`, `/preview/features/${g}`]),
+  // privacyupd: the updated privacy policy (preview) next to the live one
+  ['privacy_preview', '/preview/privacy'], ['privacy_live', '/privacy'],
+  // seogrow: the feature landing pages (owner preview at the final URLs)
+  ...['family-care', 'safe-journey', 'cctv-app', 'my-circle', 'ai-assistant', 'business-khata', 'mess',
+    'language-partner', 'quran', 'city-service', 'blood-donor'].map(s => [`landing_${s}`, `/features/${s}`])];
 fs.mkdirSync(out, { recursive: true });
 const browser = await chromium.launch();
 for (const lang of ['bn', 'en']) {

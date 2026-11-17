@@ -36,6 +36,9 @@ import 'screenshots_test.dart' as gallery;
 /// Gallery spec name prefixes of the 2 Nov launch features.
 const _launchPrefixes = <String>[
   'emergency_hub', // emergency hub
+  'fcb_', // fcbrain: Family privacy & alerts + night news
+  'fcs_', // fcsos: Family Care v3 SOS sender / receiver / setup
+  'city_', // cityapp: City Service (9 Nov)
   'p3g_', // p3guides: service guide card, Probashi Help, Student timer/official
   'blood_', // blood donor list / profile / request / share
   'missing_', // missing alert
@@ -60,19 +63,23 @@ const _launchPrefixes = <String>[
   'cev_', // CCTV evidence (SD clip / recording)
   'recov_', // recovery: Account & security + account recovery (owner Part 8)
   'cesc_', // CCTV escalation (alarm call, police card)
+  'cv3_', // cctvact: CCTV V3 act / report / ask / sales / automations
   'cpl_', // CCTV pricing / add-on
   'cg_', // CCTV cost guard
   'lostsim_', // lost phone: intruder-photo notice on the Vault PIN (3 Nov)
   'carm_', // CCTV auto guard (arm / SOS)
+  'fc3_', // fcscreen: Family Care v3 screen (9 Nov)
   'ctm_', // CCTV team (guards, links, access log)
   'dp_', 'task_mgr', 'cost_est', // p2plan: daily planner, task manager, estimator (3 Nov)
   'sjl_', 'trip_', // Safe Journey Live Location + trip recorder
+  'sjkids_', // sjkids: Children Corner (Safe Journey v2)
   'bbl2_', 'bbl_', // chat bubbles
   'psec_', // Personal Secretary
   'amk_', // Market
   'p3feed_', // Today feed: BB official rate, notices, not-connected list (3 Nov)
   'food_cal', // p2food: food photo -> calories
   'ielts_', // p2lang: IELTS practice (Language Partner)
+  'lp2_', // lpapp: Language Partner V2 (start, result, role-play, book companion, hub)
   'vde2e_', // p3docs: Documents end-to-end lock + share link
   'lk_', // langkoja: Korea/Japan work-language paths + phone-voice listening
   // 3 Nov bndigits6: screens the website bn sweep found with ASCII digits
@@ -83,6 +90,7 @@ const _launchPrefixes = <String>[
   'ramadan', 'quran_',
   // quranread (3 Nov): learn to read Quran
   'quran_learn',
+  'qv_', // quranview (9 Nov): bilingual ayah view + tafsir sheet
   'p3l_', // p3life: travel transport/documents, wedding programme/vendors/gifts/card, food diary
   // launchsweep3 (3 Nov): My Circle search + Farmer mode main screen (Help tab).
   'circle_search', 'farmer',
@@ -102,6 +110,18 @@ const Map<String, String> _allow = {
   // quranread: same Tanzil notice (Uthmani file) on the lessons' source page.
   'quran_learn_about|digit|Tanzil': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',
   'quran_learn_about|digit|Copyright': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',
+  // lpapp: exam / level names are written the same in Bangla (CEFR A1, IELTS).
+  'lp2_*|digit|A1': 'CEFR level name (Germany A1 visa), written the same in Bangla',
+  'lp2_*|english|"IELTS"': 'exam name, written the same in Bangla',
+  // quranview: the owner's ONE exception to language separation — Quran shows
+  // Bangla AND English together; publisher texts are verbatim (QuranEnc terms:
+  // no modification), so English meaning/notes keep their own [n] note marks.
+  'qv_*|digit|CC BY 3.0': 'Tanzil licence name in the source line (CC BY 3.0 attribution)',
+  'qv_*|digit|Allāh,[2]': 'Saheeh International English meaning, verbatim (QuranEnc terms)',
+  'qv_*|digit|[2] Allāh is a proper name': 'Saheeh International English note, verbatim (QuranEnc terms)',
+  // quranshikhi: owner exception (9 Nov 21:55) - Quran Shikhi shows Bangla and
+  // English together; the line toggle chip names each language in its own script.
+  'quran_learn*|english|"English"': 'line toggle বাংলা / English, each in its own script (owner bilingual exception)',
   // Paper size / device model trade names are written the same in Bangla.
   'inv_*|digit|A4': 'paper size trade name (A4), same on Bangla printers and in shops',
   'chip_pair|digit|GT06': 'tracker model name printed on the box (Concox GT06)',
@@ -210,6 +230,11 @@ List<String> _texts(WidgetTester tester) {
 }
 
 final _ascii = RegExp(r'[0-9]');
+// Official exam / level codes keep their Latin form in Bangla too (CEFR
+// A1–C2, JLPT N1–N5, HSK 1–6, TOPIK I/II/1–6). Whole tokens only: they are
+// removed before the digit check, so real numbers (prices, counts, dates,
+// IELTS band scores) next to them still fail.
+final _levelCode = RegExp(r'\b(?:[ABC][12]|N[1-5]|HSK ?[1-6]|TOPIK ?(?:I{1,2}|[1-6]))\b');
 // URLs / app links / invite codes are not reading text.
 final _urlish = RegExp(r'(https?://|lifeassisto\.com|\.com/|www\.)');
 
@@ -250,7 +275,7 @@ Set<String> _bnFindings(WidgetTester tester, String name,
   final open = <String>{};
   for (final s in _texts(tester)) {
     final one = s.replaceAll('\n', ' ');
-    if (_ascii.hasMatch(one) && !_urlish.hasMatch(one)) {
+    if (_ascii.hasMatch(one.replaceAll(_levelCode, '')) && !_urlish.hasMatch(one)) {
       final d = 'digit: "$one"';
       if (!_allowed(name, 'digit', d)) open.add(d);
     }

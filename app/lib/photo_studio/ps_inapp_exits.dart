@@ -141,7 +141,7 @@ class _CatalogSheetState extends State<_CatalogSheet> {
             children: [
               Text(t.aileftCatalogTitle, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: Gap.xs),
-              Text(t.aileftCatalogBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+              Text(t.aileftCatalogBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               const SizedBox(height: Gap.md),
               TextField(
                 key: const Key('psCatName'),

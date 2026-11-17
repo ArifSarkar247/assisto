@@ -243,7 +243,7 @@ class _PrPressScreenState extends State<PrPressScreen>
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               _chip(tr.prPressSentPositive('${_countSent('positive')}'), Brand.success),
-              _chip(tr.prPressSentNeutral('${_countSent('neutral')}'), scheme.onSurfaceVariant),
+              _chip(tr.prPressSentNeutral('${_countSent('neutral')}'), scheme.ds.muted),
               _chip(tr.prPressSentNegative('${_countSent('negative')}'), scheme.error),
             ]),
             const SizedBox(height: Gap.sm),
@@ -284,10 +284,10 @@ class _PrPressScreenState extends State<PrPressScreen>
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, children: [
             Text(_typeLabel(tr, _type(r)),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             if (date.isNotEmpty)
               Text('· $date',
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ]),
           if (link.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
@@ -298,7 +298,7 @@ class _PrPressScreenState extends State<PrPressScreen>
           if (note.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(note,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.3),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.3),
                 maxLines: 3, overflow: TextOverflow.ellipsis),
           ],
           Align(
@@ -373,14 +373,14 @@ class _PrPressScreenState extends State<PrPressScreen>
           Row(children: [
             Expanded(
               child: Text(outlet,
-                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: past ? scheme.onSurfaceVariant : scheme.onSurface),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: past ? scheme.ds.muted : scheme.ds.text),
                   maxLines: 2, overflow: TextOverflow.ellipsis),
             ),
             _rowMenu(r, tr, _kInterview),
           ]),
           if (topic.isNotEmpty)
             Text(topic,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
                 maxLines: 2, overflow: TextOverflow.ellipsis),
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, children: [
@@ -434,7 +434,7 @@ class _PrPressScreenState extends State<PrPressScreen>
                 ]),
                 if (text.isNotEmpty)
                   Text(text,
-                      style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.35)),
               ]),
             ),
           );
@@ -460,14 +460,14 @@ class _PrPressScreenState extends State<PrPressScreen>
   Widget _sectionLabel(String text, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm, top: Gap.xxs),
         child: Text(text,
-            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted, fontWeight: FontWeight.w700)),
       );
 
   Widget _iconText(IconData icon, String text, ColorScheme scheme) =>
       Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 14, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 14, color: scheme.ds.muted),
         const SizedBox(width: 3),
-        Text(text, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+        Text(text, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ]);
 
   Widget _chip(String text, Color c) => Container(
@@ -490,7 +490,7 @@ class _PrPressScreenState extends State<PrPressScreen>
       case 'negative':
         return scheme.error;
       default:
-        return scheme.onSurfaceVariant;
+        return scheme.ds.muted;
     }
   }
 

@@ -60,17 +60,27 @@ start_box "" ""
 log "box running; waiting for the person alert"
 "$PY" "$HERE/guardbox_ctl.py" wait_alert $((900 * SLOW / 2 + 300))
 
-# ---- internet down: stop the backend for 200 s, alerts wait on the box
+# ---- internet down: stop the backend for 240 s (> the 180 s alert cool-down),
+#      alerts must wait on the box (outbox) and arrive after reconnect
 log "internet down (backend stopped)"
 "$PY" "$HERE/guardbox_ctl.py" mark
 pkill -f "runserver 0.0.0.0:18700" || true
-sleep 200
-docker exec gbox sh -c 'ls /var/lib/assisto-guardbox/outbox | wc -l' | sed 's/^/[gbox-e2e] alerts waiting on the box: /'
+sleep 240
+outbox() { n="$(docker exec gbox sh -c 'ls /var/lib/assisto-guardbox/outbox 2>/dev/null | grep -c "\.json$" || true' 2>/dev/null)"; echo "${n:-0}"; }
+WAITING="$(outbox)"
+log "alerts waiting on the box: $WAITING"
+if [ "${WAITING:-0}" -lt 1 ]; then
+  echo "GBOX_E2E FAIL: no alert queued on the box while the internet was down"; exit 1; fi
 (cd "$ROOT/backend" && DJANGO_SETTINGS_MODULE=assisto_backend.settings_e2e \
   E2E_DB="$E2E_DIR/e2e.sqlite3" E2E_MEDIA="$E2E_DIR/media" \
   nohup "$PY" manage.py runserver 0.0.0.0:18700 --noreload >> "$E2E_DIR/django.log" 2>&1 &)
 log "internet back"
 "$PY" "$HERE/guardbox_ctl.py" wait_more $((300 * SLOW))
+for _i in $(seq 1 $((24 * SLOW))); do [ "$(outbox)" -eq 0 ] && break; sleep 5; done
+LEFT="$(outbox)"
+log "alerts still waiting on the box after reconnect: $LEFT"
+if [ "${LEFT:-1}" -ne 0 ]; then
+  echo "GBOX_E2E FAIL: the box outbox did not drain after reconnect"; exit 1; fi
 "$PY" "$HERE/guardbox_ctl.py" wait_notif net_back $((180 * SLOW))
 
 # ---- power cut: no clean stop, then the machine "boots again"

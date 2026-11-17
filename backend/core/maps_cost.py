@@ -181,13 +181,53 @@ def _plan_note(user):
         pass
 
 
-def allow(api, user, now=None):
+def _session_mark(session):
+    """sjp0: a search SESSION's marker row in MapsUsage (api 's:<hash>', 16
+    chars). DB-backed so every gunicorn worker sees the same session."""
+    import hashlib
+    session = str(session or "")
+    if not _TOKEN.match(session):
+        return None
+    return "s:" + hashlib.sha1(session.encode()).hexdigest()[:14]
+
+
+def allow(api, user, now=None, session=None):
     """(ok, reason) — reason '' | 'user_cap' | 'plan_cap' | 'global_cap'. Counts the call
-    when allowed, counts the refusal when not. Day = Bangladesh local date."""
+    when allowed, counts the refusal when not. Day = Bangladesh local date.
+
+    sjp0 (owner P0 9 Nov): with a search session token (autocomplete +
+    the Place Details that ends it) the WHOLE session counts once — one
+    search, never one keystroke — against the user, plan and global limits
+    and safe_plans.note_paid_maps. Later calls in an admitted session pass
+    (Details is still counted under its own API for the cost card); a refused
+    session stays refused without counting again."""
     from .models import MapsUsage
     day = timezone.localdate(now or timezone.now())
-    c = config()["apis"][api]
     uid = _uid(user)
+    mark = _session_mark(session) if api in ("autocomplete", "place_details") else None
+    if mark:
+        row = MapsUsage.objects.filter(day=day, api=mark, user_id=uid) \
+            .values_list("count", "capped").first()
+        if row is not None:
+            if row[0]:
+                if api != "autocomplete":
+                    _bump(day, api, uid, "count")
+                return True, ""
+            return False, "user_cap"
+    ok, why = _allow_once(api, user, uid, day)
+    if mark:
+        try:
+            with transaction.atomic():
+                MapsUsage.objects.create(day=day, api=mark, user_id=uid,
+                                         count=1 if ok else 0, capped=0 if ok else 1)
+        except IntegrityError:
+            pass
+    return ok, why
+
+
+def _allow_once(api, user, uid, day):
+    from .models import MapsUsage
+    c = config()["apis"][api]
     if uid:
         mine = MapsUsage.objects.filter(day=day, api=api, user_id=uid) \
             .values_list("count", flat=True).first() or 0
@@ -243,12 +283,12 @@ def _http_json(url, body=None, headers=None):
 HTTP = _http_json      # tests replace this — CI never makes a real call
 
 
-def _paid(api, user, fn):
+def _paid(api, user, fn, session=None):
     """Run fn(key) under the limits. -> (state, result) with state in
     ok | off | user_cap | global_cap | failed."""
     if not ready():
         return "off", None
-    ok, why = allow(api, user)
+    ok, why = allow(api, user, session=session)
     if not ok:
         return why, None
     try:
@@ -365,7 +405,7 @@ def autocomplete(user, q, session, lat=None, lng=None, lang="bn"):
                 out.append(row)
         return out
 
-    state, rows = _paid("autocomplete", user, call)
+    state, rows = _paid("autocomplete", user, call, session=session)
     if state != "ok":
         return {"state": state, "results": []}
     return {"state": "ok" if rows else "none", "results": rows}
@@ -396,7 +436,7 @@ def place_details(user, place_id, session, lang="bn"):
         return {"lat": round(float(loc["latitude"]), 6), "lng": round(float(loc["longitude"]), 6),
                 "address": str(d.get("formattedAddress") or "")[:300]}
 
-    state, got = _paid("place_details", user, call)
+    state, got = _paid("place_details", user, call, session=session)
     if state != "ok":
         return {"state": state}
     if not got:
@@ -449,6 +489,106 @@ def route_eta(user, o_lat, o_lng, d_lat, d_lng, mode=""):
         return {"state": "none", "gmaps_url": gm}
     cache.set(ck, got, ROUTE_CACHE_S)
     return dict(got, state="ok", gmaps_url=gm)
+
+
+# ------------------------------------------------------------------ transit (mapapp)
+# Owner order 10 Nov 00:35 (Google view): Routes TRANSIT (Dhaka bus, metro,
+# Bangladesh Railway) fetched LIVE per request and passed through to the
+# phone's Google view only. NOTHING is stored or cached (Google terms; our
+# own City Service data stays separate) — the only Google value the app may
+# keep is a place ID. Same "routes" daily caps; any refusal -> state "none"
+# and the app silently shows only our results (never a limit message).
+TRANSIT_MASK = ("routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,"
+                "routes.travelAdvisory.transitFare,routes.legs.steps.travelMode,"
+                "routes.legs.steps.staticDuration,routes.legs.steps.distanceMeters,"
+                "routes.legs.steps.transitDetails")
+TRANSIT_VEHICLES = {"BUS": "bus", "INTERCITY_BUS": "bus", "TROLLEYBUS": "bus", "SHARE_TAXI": "leguna",
+                    "SUBWAY": "metro", "METRO_RAIL": "metro", "LIGHT_RAIL": "metro", "MONORAIL": "metro",
+                    "HEAVY_RAIL": "train", "COMMUTER_TRAIN": "train", "HIGH_SPEED_TRAIN": "train",
+                    "LONG_DISTANCE_TRAIN": "train", "RAIL": "train", "TRAM": "metro", "FERRY": "water"}
+
+
+def _secs(v):
+    try:
+        return int(float(str(v or "0s").rstrip("s") or 0))
+    except ValueError:
+        return 0
+
+
+def _transit_step(st):
+    mode = str(st.get("travelMode") or "")
+    mins = max(1, int(round(_secs(st.get("staticDuration")) / 60.0)))
+    if mode != "TRANSIT":
+        return {"mode": "walk", "minutes": mins, "meters": int(st.get("distanceMeters") or 0)}
+    td = st.get("transitDetails") or {}
+    line = td.get("transitLine") or {}
+    veh = ((line.get("vehicle") or {}).get("type")) or ""
+    stops = td.get("stopDetails") or {}
+    ag = [a.get("name", "") for a in (line.get("agencies") or []) if isinstance(a, dict)]
+    return {"mode": TRANSIT_VEHICLES.get(veh, "bus"), "minutes": mins,
+            "meters": int(st.get("distanceMeters") or 0),
+            "line": str(line.get("nameShort") or line.get("name") or "")[:80],
+            "line_name": str(line.get("name") or "")[:120],
+            "color": str(line.get("color") or "")[:9],
+            "agency": (ag[0] if ag else "")[:80],
+            "headsign": str(td.get("headsign") or "")[:80],
+            "from": str(((stops.get("departureStop") or {}).get("name")) or "")[:80],
+            "to": str(((stops.get("arrivalStop") or {}).get("name")) or "")[:80],
+            "stops": int(td.get("stopCount") or 0)}
+
+
+def _transit_parse(r):
+    out = []
+    for rt in (r or {}).get("routes") or []:
+        steps = []
+        for leg in rt.get("legs") or []:
+            for st in leg.get("steps") or []:
+                s = _transit_step(st)
+                if s["mode"] == "walk" and steps and steps[-1]["mode"] == "walk":
+                    steps[-1]["minutes"] += s["minutes"]
+                    steps[-1]["meters"] += s["meters"]
+                else:
+                    steps.append(s)
+        if not any(s["mode"] != "walk" for s in steps):
+            continue
+        fare = ((rt.get("travelAdvisory") or {}).get("transitFare")) or {}
+        tk = None
+        if str(fare.get("currencyCode") or "") == "BDT":
+            try:
+                tk = int(fare.get("units") or 0) or None
+            except (TypeError, ValueError):
+                tk = None
+        out.append({"minutes": max(1, int(round(_secs(rt.get("duration")) / 60.0))),
+                    "distance_m": int(rt.get("distanceMeters") or 0),
+                    "fare_bdt": tk,
+                    "polyline": str(((rt.get("polyline") or {}).get("encodedPolyline")) or "")[:20000],
+                    "steps": steps[:20]})
+    return out[:5]
+
+
+def transit(user, o_lat, o_lng, d_lat, d_lng, lang="bn"):
+    """Live Google transit options for the Google view. -> {state, routes,
+    attribution, gmaps_url}. Never cached, never stored."""
+    o, d = _ok_coord(o_lat, o_lng), _ok_coord(d_lat, d_lng)
+    if not o or not d:
+        return {"state": "bad"}
+    gm = ("https://www.google.com/maps/dir/?api=1&origin=%.6f,%.6f&destination=%.6f,%.6f"
+          "&travelmode=transit" % (o[0], o[1], d[0], d[1]))
+    body = {"origin": {"location": {"latLng": {"latitude": o[0], "longitude": o[1]}}},
+            "destination": {"location": {"latLng": {"latitude": d[0], "longitude": d[1]}}},
+            "travelMode": "TRANSIT", "computeAlternativeRoutes": True,
+            "languageCode": "bn" if lang == "bn" else "en", "regionCode": "bd"}
+
+    def call(key):
+        return _transit_parse(HTTP("https://routes.googleapis.com/directions/v2:computeRoutes", body,
+                                   {"X-Goog-Api-Key": key, "X-Goog-FieldMask": TRANSIT_MASK}))
+
+    state, got = _paid("routes", user, call)
+    if state != "ok":
+        return {"state": state, "routes": [], "gmaps_url": gm}
+    if not got:
+        return {"state": "none", "routes": [], "gmaps_url": gm}
+    return {"state": "ok", "routes": got, "attribution": "Google", "gmaps_url": gm}
 
 
 # ------------------------------------------------------------------ owner card

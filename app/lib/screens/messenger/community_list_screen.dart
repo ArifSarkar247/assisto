@@ -231,7 +231,7 @@ class _CommunityListScreenState extends State<CommunityListScreen> {
                   ? _t.communityEmptyBody
                   : _t.communityBackendPending,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
+              style: TextStyle(color: scheme.ds.muted, height: 1.4),
             ),
           ],
         ),

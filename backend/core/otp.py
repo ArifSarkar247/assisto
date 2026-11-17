@@ -329,8 +329,15 @@ _MSG = {
                           "You have no verified email. Add and verify one in your profile."),
     "sent_email": ("ইমেইলে কোড পাঠানো হয়েছে। Spam ফোল্ডারও দেখুন।",
                    "Code sent by email. Check your Spam folder too."),
-    "sent_email_neutral": ("এই অ্যাকাউন্টে যাচাই-করা ইমেইল থাকলে সেখানে একটি কোড পাঠানো হয়েছে। Spam ফোল্ডারও দেখুন।",
-                           "If this account has a verified email, a code has been sent to it. Check Spam too."),
+    "sent_email_neutral": ("এই অ্যাকাউন্টে যাচাই-করা ইমেইল থাকলে সেখানে একটি কোড পাঠানো হয়েছে। Spam ফোল্ডারও দেখুন। ২ মিনিটে না এলে SMS-এ কোড নিন।",
+                           "If this account has a verified email, a code has been sent to it. Check Spam too. Not there in 2 minutes? Get the code by SMS."),
+    # emailrel: honest email failures, each with the way out
+    "email_send_failed": ("ইমেইল এখন পাঠানো যায়নি (মেইল সার্ভারে সাময়িক সমস্যা)। SMS-এ কোড নিন, বা কয়েক মিনিট পরে আবার চেষ্টা করুন।",
+                          "We couldn't send the email right now (the mail server had a temporary problem). Get the code by SMS, or try again in a few minutes."),
+    "email_bouncing": ("এই ঠিকানায় ইমেইল পৌঁছায় না (ফেরত এসেছে)। ইমেইল ঠিকানাটি ঠিক আছে কি না দেখুন, অথবা SMS-এ কোড নিন।",
+                       "Emails to this address bounce back. Please check your email address, or get the code by SMS."),
+    "email_rejected": ("আপনার ইমেইল সার্ভার মেইলটি নেয়নি (ইনবক্স ভরা বা ব্লক)। ইনবক্স দেখুন, অথবা SMS-এ কোড নিন।",
+                       "Your email provider refused the message (inbox full or blocked). Check your inbox, or get the code by SMS."),
     "email_verified": ("ইমেইল যাচাই হয়েছে।", "Email verified."),
 }
 
@@ -544,19 +551,27 @@ def issue_email(purpose, *, phone=None, email=None, target=None, request=None,
         ch.detail = "not sent (no verified email)"
         ch.save(update_fields=["detail"])
         return out
-    subject, body = email_sender.otp_email(code, lang, ttl)
+    subject, body, html = email_sender.otp_email_html(code, lang, ttl)
     del code
-    r = email_sender.send_email(tgt, subject, body, purpose="otp")
-    del subject, body
+    # emailrel: a user (re)verifying an address may try a bounced one again
+    r = email_sender.send_email(tgt, subject, body, purpose="otp", html=html,
+                                bypass_suppression=(purpose == "email_verify"))
+    del subject, body, html
     ch.sent = bool(r["ok"])
     ch.detail = ("email %s" % r["reason"])[:200]
     if not r["ok"]:
         ch.consumed_at = now
     ch.save(update_fields=["sent", "detail", "consumed_at"])
     if not r["ok"]:
+        # emailrel: an honest reason + the alternative (SMS / later) — the
+        # old "send_failed" said "SMS could not be sent" for an email
         if r["reason"] == "email_daily_cap":
             raise OtpError("email_daily_cap", 503, prefer_sms=True)
-        raise OtpError("send_failed", 502)
+        if r["reason"] == "email_bouncing":
+            raise OtpError("email_bouncing", 400, prefer_sms=True)
+        if r["reason"] == "email_rejected":
+            raise OtpError("email_rejected", 502, prefer_sms=True)
+        raise OtpError("email_send_failed", 502, prefer_sms=True, retry_later=True)
     out["email_masked"] = email_sender.mask_email(tgt)
     return out
 
@@ -704,6 +719,11 @@ def mark_email_verified(user, addr):
     from .models import EmailVerification
     EmailVerification.objects.update_or_create(
         user=user, defaults={"email": addr, "verified_at": timezone.now()})
+    try:                      # emailrel: a proven address is not "bouncing"
+        from .email_sender import unsuppress
+        unsuppress(addr)
+    except Exception:  # noqa: BLE001
+        pass
     if (user.email or "").lower() != addr and not email_taken_by_other(user, addr):
         user.email = addr
         user.save(update_fields=["email"])

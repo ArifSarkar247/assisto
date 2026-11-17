@@ -121,7 +121,16 @@ def _legacy_used(owner_id, month):
 
 def ai_cap(owner_id, doc=None, now=None):
     doc = doc if doc is not None else CT.month_doc(_oid(owner_id), now)
-    base = max(0, ai_per_camera()) * max(0, CT.n_cameras(_oid(owner_id)))
+    per = ai_per_camera()
+    # buyinside: the 7-day free trial has its own lower guard (the trial's
+    # worst-case cost is inside the 40 % check, cctv_plan.trial_profit_rows)
+    try:
+        from . import cctv_plan_service as CPS
+        if CPS.in_trial_owner(_oid(owner_id), now):
+            per = min(per, int(plan_cfg()["trial_ai_checks_per_camera"]))
+    except Exception:
+        pass
+    base = max(0, per) * max(0, CT.n_cameras(_oid(owner_id)))
     return base + C.extra(doc)["ai"]
 
 

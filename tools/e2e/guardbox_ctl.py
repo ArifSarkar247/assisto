@@ -53,7 +53,7 @@ def _wait(pred, timeout, what):
             try:
                 cams, ours, notifs, _i = _state()
                 print("progress: cameras=%d events=%s notifs=%s" % (
-                    len(cams), [(e["type"], e["source"], e["snapshot"]) for e in ours][-5:],
+                    len(cams), [(e["type"], e["source"], e["snapshot"], e["count"]) for e in ours][-5:],
                     [n["kind"] for n in notifs]), flush=True)
             except Exception as e:  # noqa: BLE001
                 print("progress error: %s" % e, flush=True)
@@ -81,15 +81,18 @@ def wait_alert(timeout):
 
 def mark():
     _c, ours, _n, _i = _state()
+    # repeat alerts inside the group window bump an open alert's `count`
+    # (no new row, no second push) — so "arrived" = the total count grew
+    total = sum(e["count"] for e in ours)
     with open(MARK, "w") as f:
-        json.dump({"events": len(ours)}, f)
-    print("marked", len(ours))
+        json.dump({"events": len(ours), "count": total}, f)
+    print("marked", len(ours), "alerts, count", total)
 
 
 def wait_more(timeout):
     with open(MARK) as f:
-        base = json.load(f)["events"]
-    return _wait(lambda: len(_state()[1]) > base, timeout,
+        base = json.load(f)["count"]
+    return _wait(lambda: sum(e["count"] for e in _state()[1]) > base, timeout,
                  "alerts made while offline arrived after reconnect")
 
 

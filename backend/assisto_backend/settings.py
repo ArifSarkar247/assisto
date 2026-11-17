@@ -155,6 +155,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # seo (17 Nov): web pages on api./track. hosts -> X-Robots-Tag noindex
+    "web.seo.DuplicateHostNoindexMiddleware",
 ]
 
 ROOT_URLCONF = "assisto_backend.urls"

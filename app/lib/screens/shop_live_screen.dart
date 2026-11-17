@@ -369,7 +369,7 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
             child: Text(
                 _phase == _Phase.starting ? t.shopLiveStarting : t.shopLiveConnecting,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white)),
+                style: AType.bodyMedium.copyWith(color: Colors.white)),
           ),
         ]);
       case _Phase.ended:
@@ -380,12 +380,12 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
             const SizedBox(height: Gap.md),
             Text(t.shopLiveEnded,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
             if (_charged > 0) ...[
               const SizedBox(height: Gap.sm),
               Text(t.shopLiveCharged(fmtInt(context, _charged)),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white70)),
+                  style: AType.bodyMedium.copyWith(color: Colors.white70)),
             ],
             const SizedBox(height: Gap.md),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center,
@@ -414,7 +414,7 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
             const SizedBox(height: Gap.md),
             Text(_error,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white, height: 1.4)),
+                style: AType.bodyMedium.copyWith(color: Colors.white, height: 1.4)),
             const SizedBox(height: Gap.md),
             // cctv100: never a dead end — try again right here, or close
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center,
@@ -474,24 +474,24 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
               ? t.shopLiveCostNote(fmtInt(context, _relayPerMin))
               : t.shopLiveNoRelayNote,
           textAlign: TextAlign.center,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35),
         ),
         if (active && _idle < _maxSeconds)
           Text(t.pcLiveIdleNote(fmtInt(context, (_idle / 60).round())),
               key: const Key('shopLiveIdleNote'),
               textAlign: TextAlign.center,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
         if (_trafficMsg.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: Gap.xs),
             child: Text(_trafficMsg,
                 key: const Key('shopLiveTraffic'),
                 textAlign: TextAlign.center,
-                style: AType.bodySmall.copyWith(color: scheme.onSurface, height: 1.35)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.text, height: 1.35)),
           ),
         Text(t.shopLiveNoRecording,
             textAlign: TextAlign.center,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
         const SizedBox(height: Gap.sm),
         if (active)
           SizedBox(

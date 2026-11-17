@@ -60,12 +60,12 @@ class _MorningSummaryCardState extends State<MorningSummaryCard> {
         const SizedBox(width: Gap.md),
         Expanded(
           child: Text(text,
-              style: const TextStyle(color: Colors.white, height: 1.4, fontWeight: FontWeight.w600)),
+              style: AType.bodyMedium.copyWith(color: Colors.white, height: 1.4, fontWeight: FontWeight.w600)),
         ),
         if (widget.onOpenInbox != null)
           TextButton(
             onPressed: widget.onOpenInbox,
-            child: Text(tr.bizOpen, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            child: Text(tr.bizOpen, style: AType.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
           ),
       ]),
     );
@@ -241,7 +241,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
         title: tr.bizReviewDraft,
         icon: Icons.fact_check_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          if (text.isNotEmpty) Text(text, style: const TextStyle(height: 1.4)),
+          if (text.isNotEmpty) Text(text, style: AType.bodyMedium.copyWith(height: 1.4)),
           for (final row in rows)
             Padding(
               padding: const EdgeInsets.only(top: Gap.sm),

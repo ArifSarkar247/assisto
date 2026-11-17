@@ -5,6 +5,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/circle_privacy_controls.dart';
 
 /// Connected Circle privacy & controls hub (M1 item 6).
@@ -182,44 +183,34 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+              for (var i = 0; i < 3; i++)
+                Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSkeleton.card(lines: 3)),
+            ])
           : _errored
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.xxl),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.cloud_off_rounded,
-                            size: 48, color: scheme.outline),
-                        const SizedBox(height: Gap.md),
-                        Text(
-                          _t.circlePrivacyLoadFailed,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: scheme.onSurfaceVariant),
-                        ),
-                        const SizedBox(height: Gap.lg),
-                        FilledButton.tonalIcon(
-                          onPressed: _load,
-                          icon: const Icon(Icons.refresh_rounded),
-                          label: Text(_t.retry),
-                        ),
-                      ],
-                    ),
+              ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+                  DsEmptyState(
+                    icon: Icons.cloud_off_rounded,
+                    title: _t.circlePrivacyLoadFailed,
+                    actionLabel: _t.retry,
+                    onAction: _load,
                   ),
-                )
+                ])
               : ListView(
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
+                // designv2: each section is its own card under its header
                 _sectionHeader(_t.circlePrivacyWhoCanSee, scheme),
+                _card([
                 for (final f in CirclePrivacyCodes.visFields)
                   CircleVisibilityRow(
                     field: f,
                     value: _visibility[f]!,
                     onChanged: (v) => _mark(() => _visibility[f] = v),
                   ),
-                const Divider(),
+                ]),
                 _sectionHeader(_t.circlePrivacyReceipts, scheme),
+                _card([
                 CirclePrivacyToggle(
                   icon: Icons.done_all_rounded,
                   title: _t.circlePrivacyReadReceipts,
@@ -234,14 +225,16 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                   value: _typing,
                   onChanged: (v) => _mark(() => _typing = v),
                 ),
-                const Divider(),
+                ]),
                 _sectionHeader(_t.circlePrivacyIncomingCalls, scheme),
+                _card([
                 CircleCallPolicySelector(
                   value: _callPolicy,
                   onChanged: _onCallPolicyChanged,
                 ),
-                const Divider(),
+                ]),
                 _sectionHeader(_t.circlePrivacyDnd, scheme),
+                _card([
                 CirclePrivacyToggle(
                   icon: Icons.do_not_disturb_on_rounded,
                   title: _t.circlePrivacyDndEnable,
@@ -278,7 +271,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                     onChanged: (v) => _mark(() => _dndFamilyException = v),
                   ),
                 ],
-                const Divider(),
+                ]),
                 Padding(
                   padding: const EdgeInsets.all(Gap.lg),
                   child: Row(
@@ -291,7 +284,7 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
                           _t.circlePrivacyServerEnforcedNote,
                           style: TextStyle(
                               fontSize: 12,
-                              color: scheme.onSurfaceVariant,
+                              color: DsTokens.of(context).muted,
                               height: 1.3),
                         ),
                       ),
@@ -305,10 +298,19 @@ class _CirclePrivacyScreenState extends State<CirclePrivacyScreen> {
 
   Widget _sectionHeader(String text, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xs),
-        child: Text(text,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: scheme.primary)),
+        child: Semantics(
+          header: true,
+          child: Text(text,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: DsTokens.of(context).text, fontWeight: FontWeight.w700)),
+        ),
+      );
+
+  Widget _card(List<Widget> children) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+        child: DsCard(
+          padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+        ),
       );
 }

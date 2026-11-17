@@ -159,9 +159,9 @@ class CrmUsageBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
+        color: scheme.ds.card,
         borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.ds.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Semantics(
@@ -173,7 +173,7 @@ class CrmUsageBanner extends StatelessWidget {
               Expanded(
                   child: Text(label,
                       key: const Key('pv2-contact-usage'),
-                      style: const TextStyle(fontWeight: FontWeight.w700))),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700))),
             ]),
           ),
         ),
@@ -184,7 +184,7 @@ class CrmUsageBanner extends StatelessWidget {
             child: LinearProgressIndicator(
               value: frac,
               minHeight: 6,
-              backgroundColor: scheme.surfaceContainerHighest,
+              backgroundColor: scheme.ds.cardHighest,
               color: frac >= 1 ? scheme.error : scheme.primary,
             ),
           ),
@@ -192,7 +192,7 @@ class CrmUsageBanner extends StatelessWidget {
         if (viewOnly) ...[
           const SizedBox(height: Gap.xs),
           Text(t.pv2CrmViewOnlyNote,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.ds.muted)),
         ],
       ]),
     );
@@ -289,7 +289,7 @@ class _AddContactSheetState extends State<_AddContactSheet> {
             TextField(controller: _title, decoration: dec(t.pv2ContactTitle)),
             if (_err != null) ...[
               const SizedBox(height: Gap.sm),
-              Text(_err!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              Text(_err!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
             ],
             const SizedBox(height: Gap.md),
             FilledButton(

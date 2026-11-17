@@ -181,15 +181,28 @@ PERMISSIONS = [
     {
         "id": "fullscreen",
         "perm": "USE_FULL_SCREEN_INTENT",
-        "name": ("ফুল-স্ক্রিন নোটিফিকেশন (কল)", "Full-screen notifications (calls)"),
-        "why": ("ফোন লক থাকলেও ইনকামিং ভয়েস/ভিডিও কলের স্ক্রিন দেখানো — শুধু বাজতে থাকা কলের জন্য। এর মাধ্যমে "
-                "লক স্ক্রিনে আপনার চ্যাট বা ভল্ট কখনো দেখানো হয় না।",
-                "Showing the incoming voice/video call screen when the phone is locked — only for a ringing "
-                "call. It never shows your chats or vault on the lock screen."),
+        "name": ("ফুল-স্ক্রিন নোটিফিকেশন (কল ও পরিবারের SOS)", "Full-screen notifications (calls and family SOS)"),
+        "why": ("ফোন লক থাকলেও ইনকামিং ভয়েস/ভিডিও কলের স্ক্রিন বা পরিবারের কারো SOS অ্যালার্ম পাতা দেখানো — শুধু ঐ "
+                "কল বা অ্যালার্মের জন্য। এর মাধ্যমে লক স্ক্রিনে আপনার চ্যাট বা ভল্ট কখনো দেখানো হয় না।",
+                "Showing the incoming voice/video call screen, or a family member's SOS alarm page, when the "
+                "phone is locked — only for that call or alarm. It never shows your chats or vault on the lock screen."),
         "when": ("Android 14+-এ এটি একটি বিশেষ অনুমতি; সেটিংস → নোটিফিকেশন ও কল থেকে আপনি চালু করেন।",
                  "On Android 14+ it is a special permission you turn on from Settings → Notifications & calls."),
         "revoke": ("Android সেটিংস → অ্যাপ → বিশেষ অ্যাপ অ্যাক্সেস → ফুল-স্ক্রিন নোটিফিকেশন → Assisto।",
                    "Android Settings → Apps → Special app access → Full-screen notifications → Assisto."),
+    },
+    {
+        "id": "dnd",
+        "perm": "ACCESS_NOTIFICATION_POLICY",
+        "name": ("\"বিরক্ত করবেন না\" অ্যাক্সেস (পরিবারের SOS)", "Do Not Disturb access (family SOS)"),
+        "why": ("শুধু আপনি অনুমতি দিলে: পরিবারের কেউ SOS পাঠালে আপনার ফোনে \"বিরক্ত করবেন না\" চালু থাকলেও অ্যালার্ম "
+                "বাজানো। Assisto আপনার DND সেটিং বদলায় না, শুধু SOS অ্যালার্ম ওপারে যেতে দেয়।",
+                "Only if you allow it: ringing a family member's SOS alarm on your phone even when Do Not "
+                "Disturb is on. Assisto never changes your Do Not Disturb settings; it only lets SOS alarms through."),
+        "when": ("জরুরি পাতার \"SOS তৈরি রাখুন\" কার্ডে \"অনুমতি দিন\" চাপলে Android-এর তালিকা খোলে; সেখানে আপনি চালু করেন।",
+                 "When you tap Allow on the \"Get SOS ready\" card (Emergency page), Android's list opens and you turn it on."),
+        "revoke": ("Android সেটিংস → অ্যাপ → বিশেষ অ্যাপ অ্যাক্সেস → \"বিরক্ত করবেন না\" অ্যাক্সেস → Assisto।",
+                   "Android Settings → Apps → Special app access → Do Not Disturb access → Assisto."),
     },
     {
         "id": "fgs",
@@ -769,11 +782,280 @@ REFUND = [
 ]
 
 
+# ------------------------------------------------------- privacy v2 (preview)
+# privacyupd (owner Play decision 7, 9 Nov): the NEXT privacy policy. It is
+# served ONLY at /preview/privacy (noindex) until the owner says OK and flips
+# the AdminFlagState switch "privacy_classic" OFF (Owner Admin → Website); then
+# /privacy serves it. Built FROM the live PRIVACY above, so the live text stays
+# byte-for-byte unchanged. Facts checked against the code (see
+# owner_actions/PRIVACY_POLICY_PREVIEW_BN.md for sources and open questions).
+LAST_UPDATED_V2 = "2026-11-09"   # AI providers, money from notifications, Care Call, train sharing, City Service trips, Silent Watch
+
+_NOTIF_PERM = {
+    "id": "notif_access",
+    "perm": "BIND_NOTIFICATION_LISTENER_SERVICE",
+    "name": ("নোটিফিকেশন অ্যাক্সেস (Notification access)", "Notification access"),
+    "why": ("শুধু দুটি ঐচ্ছিক ফিচারের জন্য: \"নোটিফিকেশন থেকে টাকার হিসাব\" (ওয়ালেট/ব্যাংক অ্যাপের ও ব্যাংক/ওয়ালেট "
+            "প্রেরকের SMS নোটিফিকেশন থেকে লেনদেন চেনা) এবং \"কলের পরে নোট\" (কল শেষ হয়েছে কি না — শুধু কল-নোটিফিকেশনের "
+            "ধরন থেকে, নাম বা নম্বর না পড়ে)। অন্য সব নোটিফিকেশন খোলা হয় না, পড়াও হয় না। Assisto কখনো SMS-এর অনুমতি "
+            "(READ_SMS) চায় না।",
+            "Only for two optional features: \"Money from notifications\" (spotting transactions in notifications from "
+            "wallet/bank apps and in SMS notifications from bank/wallet senders) and \"After-call note\" (noticing that a "
+            "call ended — from the call notification's type only, without reading a name or number). Every other "
+            "notification is ignored unread. Assisto never asks for the SMS permission (READ_SMS)."),
+    "when": ("আপনি অ্যাপে এই ফিচার চালু করে ছোট ব্যাখ্যায় রাজি হলে Android নিজের সেটিংস পাতা খোলে, সেখানে আপনি অনুমতি দেন।",
+             "Only after you turn one of these features on in the app and agree to a short explanation; Android then "
+             "opens its own Settings page where you allow it."),
+    "revoke": ("অ্যাপে ফিচারটি বন্ধ করুন, অথবা Android সেটিংস → অ্যাপ → বিশেষ অ্যাপ অ্যাক্সেস → নোটিফিকেশন অ্যাক্সেস → Assisto বন্ধ করুন।",
+               "Turn the feature off in the app, or Android Settings → Apps → Special app access → Notification access "
+               "→ Assisto."),
+}
+PERMISSIONS_V2 = PERMISSIONS + [_NOTIF_PERM]
+
+_AI_V2 = S("ai", "AI ফিচার", "AI features",
+    P("আপনি AI ফিচার (AI চ্যাট, ডকুমেন্ট/বিল পড়া, CV/স্ক্যাম বিশ্লেষণ, ফটো স্টুডিওর AI এডিট ইত্যাদি) ব্যবহার করলে শুধু সেই "
+      "কাজের জন্য দরকারি লেখা বা ছবি আমাদের সার্ভার থেকে একটি AI প্রদানকারীর কাছে পাঠানো হয় এবং উত্তর ফেরত আসে।",
+      "When you use an AI feature (AI chat, reading a document or bill, CV/scam analysis, Photo Studio AI edits and so "
+      "on), only the text or image needed for that task is sent from our server to an AI provider, and the answer "
+      "comes back."),
+    UL(("<b>এখন:</b> Anthropic (Claude) — লেখা উত্তর ও ছবি বোঝার জন্য।",
+        "<b>Now:</b> Anthropic (Claude) — for text answers and for understanding images."),
+       ("<b>শুধু চালু করলে:</b> Google (Gemini) — এখন বন্ধ; আমরা চালু করলেই কেবল ব্যবহার হবে। আমাদের সার্ভার OpenAI ও "
+        "ছবি এডিটের জন্য Replicate-ও সমর্থন করে, কিন্তু সেগুলোও শুধু আমরা চালু করলে ব্যবহার হয়। কোনো প্রদানকারী চালু বা "
+        "বন্ধ হলে এই পাতা হালনাগাদ করা হবে।",
+        "<b>Only when switched on:</b> Google (Gemini) — switched off now; it is used only if we switch it on. Our "
+        "server also supports OpenAI and, for image edits, Replicate, but they too are used only if we switch them on. "
+        "When a provider is switched on or off, this page is updated."),
+       ("প্রদানকারীরা তাদের API শর্ত অনুযায়ী তথ্য প্রক্রিয়া করে। আপনার end-to-end এনক্রিপ্টেড বার্তা, কেয়ার কলের রেকর্ড "
+        "করা গলা এবং নোটিফিকেশন থেকে পড়া লেনদেনের লেখা AI-তে কখনো যায় না।",
+        "Providers process the data under their API terms. Your end-to-end encrypted messages, Care Call voice "
+        "recordings and the text of notifications read for money are never sent to AI."),
+       ("AI ভুল করতে পারে — গুরুত্বপূর্ণ সিদ্ধান্তের আগে যাচাই করুন। কোনো AI উত্তর আপত্তিকর, ক্ষতিকর বা ভুল মনে হলে অ্যাপে "
+        "উত্তরের পাশের পতাকা চিহ্ন বা লম্বা চাপ দিয়ে সেটি রিপোর্ট করতে পারেন। রিপোর্টে থাকে শুধু উত্তরের লেখা (কোনো ছবি নয়), "
+        "কারণ, আপনার ঐচ্ছিক মন্তব্য, আপনার অ্যাকাউন্ট ও সময়; Assisto টিম রিপোর্ট করা উত্তরগুলো পর্যালোচনা করে AI-এর ভুল ঠিক "
+        "করতে ও অপব্যবহার ঠেকাতে।",
+        "AI can be wrong — check before important decisions. If an AI answer seems offensive, harmful or wrong, you "
+        "can report it in the app with the flag next to the answer or by long-pressing it. A report keeps only the "
+        "text of the answer (never a photo), the reason, your optional note, your account and the time; the Assisto "
+        "team reviews reported answers to fix AI mistakes and prevent misuse.")))
+
+_MONEY_NOTIF = S("money_notif", "নোটিফিকেশন থেকে টাকার হিসাব", "Money from notifications",
+    P("এটি বন্ধ থাকে, যতক্ষণ না আপনি অ্যাপে (\"কলের নোট ও টাকার হিসাব\") চালু করে ছোট ব্যাখ্যায় রাজি হন এবং Android সেটিংসে "
+      "Assisto-কে \"নোটিফিকেশন অ্যাক্সেস\" দেন। Assisto কখনো SMS-এর অনুমতি (READ_SMS) চায় না এবং আপনার SMS ইনবক্স খোলে না।",
+      "It stays off until you turn it on in the app (\"Call notes & money alerts\"), agree to a short explanation and "
+      "give Assisto \"Notification access\" in Android settings. Assisto never asks for the SMS permission (READ_SMS) "
+      "and never opens your SMS inbox."),
+    UL(("<b>কী পড়া হয়:</b> শুধু এই ওয়ালেট ও ব্যাংক অ্যাপের নোটিফিকেশন — বিকাশ, নগদ, রকেট (DBBL), DBBL NexusPay, "
+        "ইসলামী ব্যাংক CellFin, সিটি ব্যাংক Citytouch; এবং আপনার SMS অ্যাপ যে নোটিফিকেশন দেখায়, শুধু তখন যখন প্রেরক একটি "
+        "নির্দিষ্ট ব্যাংক/ওয়ালেট প্রেরক আইডি (যেমন BKASH, NAGAD, 16216 বা কোনো ব্যাংকের নাম) — প্রেরক আগে মেলানো হয়। অন্য প্রেরক বা অন্য অ্যাপের "
+        "নোটিফিকেশনের লেখা পড়াই হয় না। OTP, PIN ও প্রচারের বার্তা বাদ দেওয়া হয়।",
+        "<b>What is read:</b> only notifications from these wallet and bank apps — bKash, Nagad, Rocket (DBBL), DBBL "
+        "NexusPay, Islami Bank CellFin, City Bank Citytouch; and notifications your SMS app shows, only when the "
+        "sender is one of a fixed list of bank/wallet sender ids (for example BKASH, NAGAD, 16216 or a bank's name) — the sender is checked first. "
+        "The text of any other sender's or app's notification is never read. OTP, PIN and promotional messages are "
+        "dropped."),
+       ("<b>ফোনেই বোঝা হয়:</b> লেখা থেকে টাকার পরিমাণ, আয় না খরচ, ওয়ালেট, অন্য পক্ষ, TrxID ও তারিখ আপনার ফোনেই বের করা হয়। "
+        "অপেক্ষমাণ বার্তা শুধু এই ফোনে অ্যাপের নিজস্ব জায়গায় থাকে — সর্বোচ্চ ৪০টি, ৩০ দিনের পুরনো হলে মুছে যায় — যতক্ষণ না আপনি "
+        "সেভ বা বাদ দেন।",
+        "<b>Understood on your phone:</b> the amount, income or expense, wallet, the other party, TrxID and date are "
+        "worked out on your phone. Waiting messages stay only in the app's private storage on this phone — at most 40, "
+        "removed once older than 30 days — until you save or dismiss them."),
+       ("<b>কী পাঠানো হয়:</b> আপনি \"সেভ\" না চাপা পর্যন্ত (বা নিজে স্বয়ংক্রিয় সেভ চালু না করা পর্যন্ত) কিছুই না। তখন শুধু "
+        "খাতার একটি এন্ট্রি আমাদের সার্ভারে যায়: পরিমাণ, আয়/খরচ, তারিখ, ওয়ালেট অ্যাকাউন্ট, ওয়ালেটের নাম ও অন্য পক্ষের নাম বা "
+        "নম্বরসহ একটি নোট, এবং TrxID। পুরো বার্তার লেখা কখনো আমাদের সার্ভারে যায় না, AI-তে যায় না, বিজ্ঞাপনে ব্যবহার হয় না।",
+        "<b>What is sent:</b> nothing until you tap Save (or turn on automatic saving yourself). Then only one khata "
+        "entry goes to our server: amount, income/expense, date, the wallet account, a note with the wallet name and "
+        "the other party's name or number, and the TrxID. The full message text is never sent to our server, never "
+        "given to AI and never used for ads."),
+       ("<b>সার্ভারের সুইচ:</b> ব্যাংক/ওয়ালেট প্রেরকের SMS নোটিফিকেশন পড়ার অংশটি আমরা সবার জন্য বন্ধ করতে পারি। বন্ধ থাকলে "
+        "ফোন এগুলো না পড়েই উপেক্ষা করে এবং অপেক্ষমাণগুলো কিছু না পাঠিয়ে মুছে দেয় — পরের বার অ্যাপ খুললেই (খোলা থাকলে প্রতি "
+        "৩ ঘণ্টায়ও দেখে) কার্যকর হয়। ওয়ালেট অ্যাপের নিজের নোটিফিকেশনে এর প্রভাব নেই।",
+        "<b>Server switch:</b> we can turn off, for everyone, the part that reads SMS notifications from bank/wallet "
+        "senders. While it is off, phones ignore them unread and delete waiting ones without sending anything — this "
+        "takes effect the next time the app opens (and is re-checked every 3 hours while it is open). Notifications "
+        "from the wallet apps themselves are not affected."),
+       ("<b>আপনার নিয়ন্ত্রণ:</b> অ্যাপে যেকোনো সময় বন্ধ করুন (অপেক্ষমাণ বার্তা তখনই ফোন থেকে মুছে যায়) বা Android সেটিংসে "
+        "নোটিফিকেশন অ্যাক্সেস তুলে নিন। সেভ করা এন্ট্রি অন্য যেকোনো এন্ট্রির মতো বদলানো বা মোছা যায়।",
+        "<b>Your control:</b> turn it off in the app any time (waiting messages are deleted from the phone at once) "
+        "or remove Notification access in Android settings. Saved entries can be edited or deleted like any other "
+        "entry."),
+       ("<b>কলের পরে নোট:</b> একই অ্যাক্সেস দিয়ে এই ঐচ্ছিক ফিচার শুধু বোঝে একটি কল শেষ হয়েছে (কল-নোটিফিকেশনের ধরন থেকে, নাম "
+        "বা নম্বর না পড়ে) এবং নোট লেখার প্রস্তাব দেয়। কলের অডিও কখনো রেকর্ড হয় না।",
+        "<b>After-call note:</b> with the same access this optional feature only notices that a call ended (from the "
+        "call notification's type, without reading a name or number) and offers to write a note. Call audio is never "
+        "recorded.")))
+
+_CARECALL = S("carecall", "কেয়ার কল", "Care Call",
+    P("কেয়ার কলে পরিবারের একজন (যিনি সেট করেন) প্রিয়জনের জন্য রিমাইন্ডার কল ঠিক করেন; প্রিয়জন একবার রাজি হলে তবেই তাঁর ফোনে "
+      "কল বাজে, এবং তিনি যেকোনো সময় বন্ধ করতে পারেন।",
+      "With Care Call a family member (the setter) schedules reminder calls for a loved one; the loved one's phone "
+      "rings only after they have accepted Care Calls from that person once, and they can stop them any time."),
+    UL(("<b>কী রেকর্ড হয়:</b> শুধু সেটার কেয়ার কল স্ক্রিনে ইচ্ছা করে যে ছোট বার্তা নিজের গলায় রেকর্ড করেন (ডিফল্ট সর্বোচ্চ "
+        "৩০ সেকেন্ড)। প্রিয়জনের ফোন কিছুই রেকর্ড করে না, কলটিও রেকর্ড হয় না — তিনি শুধু \"হয়ে গেছে\" বা \"পরে মনে করাও\" "
+        "চাপেন। রেকর্ড থেকে কোনো AI কণ্ঠ বানানো হয় না, রেকর্ড AI-তে যায় না।",
+        "<b>What is recorded:</b> only the short message the setter records on purpose in their own voice on the Care "
+        "Call screen (up to 30 seconds by default). The loved one's phone records nothing and the call itself is not "
+        "recorded — they only tap Done or Snooze. No AI voice is made from the recording and it is never sent to AI."),
+       ("<b>কে শোনেন:</b> শুধু সেটার নিজে এবং প্রিয়জন (যতক্ষণ তিনি সেই সেটারের কেয়ার কল গ্রহণ করে রেখেছেন)। আমাদের সার্ভার "
+        "রেকর্ডটি শুধু এই দুজন সাইন-ইন করা মানুষকেই দেয়।",
+        "<b>Who hears it:</b> only the setter and the loved one (while they accept Care Calls from that setter). Our "
+        "server gives the recording only to these two signed-in people."),
+       ("<b>কী রাখা হয়:</b> সময়সূচি, লেখা, রেকর্ড এবং প্রতিটি কলের ফল (হয়ে গেছে, পরে, ধরেননি) — যাতে সেটার \"নিশ্চিত\" বা "
+        "\"ধরেননি\" দেখতে পান। ইন্টারনেট ছাড়াও যেন বাজে, তাই প্রিয়জনের ফোনে রেকর্ডটির একটি কপি অ্যাপের নিজস্ব জায়গায় থাকে।",
+        "<b>What is kept:</b> the schedule, the text, the recording and each ring's result (done, snoozed, missed) — "
+        "so the setter can see \"confirmed\" or \"did not answer\". So that it can ring without internet, the loved "
+        "one's phone keeps a copy of the recording in the app's private storage."),
+       ("<b>কতদিন:</b> সেটার রেকর্ড বদলানো বা মোছা, কেয়ার কলটি মোছা, বা দুজনের কেউ অ্যাকাউন্ট মোছা পর্যন্ত। প্রিয়জন কেয়ার কল "
+        "বন্ধ করলে অপেক্ষমাণ কল তখনই বাতিল হয়।",
+        "<b>How long:</b> until the setter replaces or deletes the recording, deletes the Care Call, or either person "
+        "deletes their account. If the loved one stops Care Calls, waiting rings are cancelled at once.")))
+
+_TRAIN = S("train", "ট্রেন শেয়ারিং (ট্রেন ট্র্যাকার)", "Train sharing (Train Tracker)",
+    P("যাত্রীরা \"আমি এই ট্রেনে আছি\" শেয়ার করলে পথের সবাই ট্রেনটি কোথায় আছে দেখতে পান।",
+      "When passengers share \"I am on this train\", everyone on the route can see where the train is."),
+    UL(("<b>সম্মতি:</b> আপনি \"শেয়ার\" চেপে রাজি হলে তবেই শুরু হয়; শুধু শেয়ার চালু থাকা অবস্থায় চলে, একটি নোটিফিকেশন ও "
+        "\"বন্ধ\" বোতামসহ, এবং পৌঁছালে বা যাত্রা শেষে নিজে থেকে থেমে যায়।",
+        "<b>Consent:</b> it starts only when you tap Share and agree; it runs only while sharing is on, with a "
+        "notification and a Stop button, and stops by itself on arrival or at the end of the trip."),
+       ("<b>কী পাঠানো হয়:</b> ফোনের GPS অবস্থান, গতি ও সময়, ছোট ছোট দলে। সার্ভার প্রতিটি অবস্থান রেললাইন ও সময়সূচির সাথে "
+        "মিলিয়ে দেখে এবং শুধু আপনার শেষ গ্রহণযোগ্য অবস্থানটি রাখে — কোনো পথরেখা নয়।",
+        "<b>What is sent:</b> your phone's GPS position, speed and time, in small batches. The server checks each fix "
+        "against the rail line and the timetable and keeps only your latest accepted position — no track."),
+       ("<b>বেনামি:</b> অন্যরা দেখেন একটি মিলিত ট্রেন-অবস্থান ও কতজন শেয়ার করছেন — আপনি কে, তা কখনো না। ট্রেনের চ্যাটে শুধু "
+        "ডাকনাম দেখা যায়; নাম, নম্বর বা প্রোফাইল নয়।",
+        "<b>Anonymous:</b> others see one combined train position and how many people share — never who you are. The "
+        "train chat shows nicknames only; no name, number or profile."),
+       ("<b>কতদিন:</b> আপনার শেয়ার, ট্রেনের চ্যাট ও রুম সময়সূচি অনুযায়ী পৌঁছানোর ৬ ঘণ্টা পরে মুছে যায়। অপব্যবহার সামলাতে "
+        "রিপোর্ট করা চ্যাট-বার্তা ৩০ দিন রাখা হয়।",
+        "<b>How long:</b> your share, the train's chat and its room are deleted 6 hours after the timetable arrival. "
+        "Reported chat messages are kept for 30 days to deal with abuse.")))
+
+_CITY_TRIPS = S("city_trips", "সিটি সার্ভিস: যাত্রা থেকে শেখা", "City Service: learning from trips",
+    P("বাসের রুট, স্টপ ও আসল যাত্রার সময় জানতে সিটি সার্ভিস যাত্রীদের যাত্রা থেকে শেখে — শুধু আপনি রাজি হলে।",
+      "To learn bus routes, stops and real travel times, City Service learns from passengers' trips — only if you "
+      "agree."),
+    UL(("<b>কখন:</b> শুধু আপনি সম্মতির পাতায় রাজি হলে, শুধু সিটি সার্ভিস থেকে শুরু করা যাত্রায়, শুধু বাস বা লেগুনার অংশে, এবং "
+        "শুধু যাত্রার পাতা খোলা থাকা অবস্থায়। ব্যাকগ্রাউন্ডে কখনো নয়, কোনো নতুন অনুমতি লাগে না।",
+        "<b>When:</b> only after you agree on the consent sheet, only on a journey started from City Service, only on "
+        "its bus or leguna part, and only while the journey screen is open. Never in the background; no extra "
+        "permission is used."),
+       ("<b>কী পাঠানো হয়:</b> সেই যাত্রার GPS বিন্দু — প্রতি ১৫ সেকেন্ডে একটি (সময় ও অবস্থান), যাত্রা শেষে একবারে। আপনার বাসা ও "
+        "গন্তব্য যেন না থাকে, তাই প্রথম ও শেষ ৩০০ মিটার সার্ভারে পৌঁছানোর সাথে সাথেই কেটে ফেলা হয়।",
+        "<b>What is sent:</b> the GPS points of that trip — one every 15 seconds (time and position), sent together. "
+        "So that your home and destination are not kept, the first and last 300 m are cut off as soon as the trip "
+        "reaches our server."),
+       ("<b>নাম ছাড়া:</b> যাত্রা রাখা হয় আপনার অ্যাকাউন্ট থেকে বানানো একটি এলোমেলো-দেখতে কোডে — নাম বা নম্বরে নয় — এবং কাউকে "
+        "দেখানো হয় না।",
+        "<b>No names:</b> a trip is stored under a random-looking code made from your account — not your name or "
+        "number — and is never shown to anyone."),
+       ("<b>কতদিন:</b> যাত্রা প্রক্রিয়া হলেই (সাধারণত এক ঘণ্টার মধ্যে) GPS বিন্দু মুছে যায়, আর প্রতিটি যাত্রার রেকর্ড সর্বোচ্চ "
+        "৭ দিনে মুছে যায়। থাকে শুধু যা শেখা হলো — একটি স্টপ, রাস্তার অংশ বা যাত্রার সময় — এবং অন্তত ৩ জন আলাদা মানুষের যাত্রা "
+        "না মেলা পর্যন্ত তা \"যাত্রীদের জানানো\" হিসেবেই থাকে।",
+        "<b>How long:</b> the GPS points are erased as soon as the trip has been processed (normally within an hour), "
+        "and every trip record is deleted within 7 days. What remains is only what was learned — a stop, a road "
+        "segment, a travel time — and it stays \"Reported by users\" until trips of at least 3 different people "
+        "confirm it."),
+       ("<b>কখনো নয়:</b> লোকেশন ডেটা বিক্রি বা শেয়ার করা হয় না। যেকোনো সময় বন্ধ করতে পারেন।",
+        "<b>Never:</b> location data is never sold or shared. You can switch it off any time.")))
+
+_SILENT_WATCH = S("silent_watch", "বয়স্কদের নীরব পাহারা (Silent Watch)", "Silent Watch for elders",
+    P("ঐচ্ছিক। সন্তান সামনে বসে QR দিয়ে বয়স্ক মানুষের ফোন সেট করেন, আর বয়স্ক মানুষটি নিজে বাংলায় বলা সম্মতির পর্দায় "
+      "\"হ্যাঁ\" বললে তবেই তাঁর ফোনে চালু হয়। এটি সবসময় ফ্রি, কোনো বিজ্ঞাপন নেই।",
+      "Optional. A son or daughter sets up the elder's phone in person with a QR code, and it starts only after the "
+      "elder says \"Yes\" on a spoken Bangla consent screen. Always free, never any ads."),
+    UL(("<b>কোন সংকেত (শুধু ফোনে):</b> দিনের নির্ধারিত সময়ে প্রায় প্রতি ১৫ মিনিটে ফোন দেখে — স্ক্রিন জ্বলে আনলক আছে কি না, "
+        "চার্জার লাগানো বা খোলা হয়েছে কি না, Assisto চলেছে কি না, এবং (যেখানে Android অনুমতি ছাড়াই দেয়) ফোন নড়েছে কি না। "
+        "লোকেশন, মাইক্রোফোন, ক্যামেরা, বার্তা বা অন্য অ্যাপের ব্যবহার দেখা হয় না; কোনো নতুন অনুমতি লাগে না।",
+        "<b>Which signals (on the phone only):</b> about every 15 minutes inside the elder's day window the phone checks "
+        "whether it is in use (screen on and unlocked), whether the charger was plugged in or pulled out, whether "
+        "Assisto ran and — where Android allows it without a permission — whether the phone moved. Location, "
+        "microphone, camera, messages and other apps' use are not looked at; no extra permission is used."),
+       ("<b>ফোনেই থাকে:</b> এই সংকেতের লগ (৮ দিন) আর বয়স্ক মানুষটির স্বাভাবিক দিন (৭ দিনে শেখা) শুধু ফোনেই থাকে। আমাদের "
+        "সার্ভারে আনলকের সময়, অ্যাপ ব্যবহার বা কোনো নিয়মিত সংকেত যায় না।",
+        "<b>Stays on the phone:</b> the signal log (8 days) and the elder's normal day (learned over 7 days) stay only "
+        "on the phone. Our server never receives unlock times, app use or any regular check-in."),
+       ("<b>কখন কী যায়:</b> অস্বাভাবিক নীরবতা হলে প্রথমে বয়স্ক মানুষটির ফোনে \"আপনি ঠিক আছেন?\" ৪ বার বাজে (৫ মিনিট পরপর)। "
+        "কেউ সাড়া না দিলে তবেই ফোন সার্ভারে একটি খবর পাঠায় — কত মিনিট নীরব। কেয়ার কল বারবার না ধরলেও সার্ভার আগে বয়স্ক "
+        "মানুষটিকে জিজ্ঞেস করে। তারপর ১৫ মিনিট পরপর: যে সন্তান সেট করেছেন → পুরো পরিবার → বেছে নেওয়া কাছের একজন।",
+        "<b>What is sent and when:</b> after an unusual silence the elder's own phone first rings \"Are you OK?\" 4 "
+        "times, 5 minutes apart. Only if nobody answers does the phone send one alert to our server — how many "
+        "minutes it has been quiet. If Care Calls go unanswered, the server also asks the elder first. Then, 15 "
+        "minutes apart: the child who set it up → all family → the chosen nearby person."),
+       ("<b>নিয়ন্ত্রণ ও সংরক্ষণ:</b> \"আমি ঠিক আছি\" বা পরিবারের \"আমি দেখছি\" এক চাপেই থামায়; বয়স্ক মানুষটি বা সন্তান যেকোনো "
+        "সময় বন্ধ করতে পারেন। সতর্কতার রেকর্ড (কখন, কতক্ষণ নীরব, কাকে জানানো হলো, কে সাড়া দিলেন) ৯০ দিন রাখা হয়, "
+        "যাতে পরিবার ইতিহাস দেখতে পারে; নীরব পাহারা বন্ধ করলে বা পরিবার ছাড়লে সঙ্গে সঙ্গে মুছে যায়।",
+        "<b>Control and retention:</b> \"I am OK\" or a family member's \"I am checking\" stops it in one tap; the elder "
+        "or the child can turn it off any time. Alert records (when, how long it was quiet, who was told, who "
+        "answered) are kept 90 days so the family can see the history, and are deleted at once when Silent Watch is "
+        "turned off or the setter leaves the family.")))
+
+_SUMMARY_V2 = (
+    "Assisto কখনো SMS-এর অনুমতি চায় না। \"নোটিফিকেশন থেকে টাকার হিসাব\" আপনি চালু করলে তবেই শুধু ওয়ালেট/ব্যাংকের বার্তা "
+    "পড়ে, ফোনেই বোঝে, আর আপনি সেভ না করা পর্যন্ত কিছুই পাঠায় না।",
+    "Assisto never asks for the SMS permission. \"Money from notifications\" reads only wallet/bank alerts, only after "
+    "you turn it on, understands them on your phone and sends nothing until you save an entry.")
+
+_SHARING_AI_V2 = ("<b>AI প্রদানকারী:</b> এখন Anthropic (Claude); Google Gemini, OpenAI বা Replicate শুধু আমরা চালু করলে — "
+                  "এবং শুধু আপনি AI ফিচার ব্যবহার করলে।",
+                  "<b>AI providers:</b> Anthropic (Claude) now; Google Gemini, OpenAI or Replicate only if we switch "
+                  "them on — and only when you use an AI feature.")
+
+_RETENTION_V2 = (
+    ("নোটিফিকেশন থেকে টাকার হিসাব: অপেক্ষমাণ বার্তা শুধু ফোনে, সর্বোচ্চ ৪০টি ও ৩০ দিন; সেভ করা এন্ট্রি অন্য হিসাবের মতোই।",
+     "Money from notifications: waiting messages only on the phone, at most 40 and 30 days; saved entries like any "
+     "other record."),
+    ("কেয়ার কলের রেকর্ড: সেটার মোছা, কেয়ার কল মোছা বা কারও অ্যাকাউন্ট মোছা পর্যন্ত।",
+     "Care Call recordings: until the setter deletes it or the Care Call, or either account is deleted."),
+    ("ট্রেন শেয়ার, চ্যাট ও রুম: সময়সূচি অনুযায়ী পৌঁছানোর ৬ ঘণ্টা পরে মুছে যায়; রিপোর্ট করা চ্যাট-বার্তা ৩০ দিন।",
+     "Train shares, chat and rooms: deleted 6 hours after the timetable arrival; reported chat messages 30 days."),
+    ("সিটি সার্ভিসের যাত্রা: GPS বিন্দু প্রক্রিয়ার পরেই (সাধারণত এক ঘণ্টার মধ্যে) মোছে; যাত্রার রেকর্ড সর্বোচ্চ ৭ দিন।",
+     "City Service trips: GPS points erased right after processing (normally within an hour); trip records at most "
+     "7 days."),
+    ("নীরব পাহারা: সংকেতের লগ শুধু ফোনে ৮ দিন; সতর্কতার রেকর্ড ৯০ দিন, বন্ধ করলেই সঙ্গে সঙ্গে মোছা।",
+     "Silent Watch: the signal log only on the phone, 8 days; alert records kept 90 days, deleted at once when Silent Watch is turned off."),
+)
+
+
+def _privacy_v2():
+    """PRIVACY with the 9 Nov changes; PRIVACY itself is never modified."""
+    out = []
+    for s in PRIVACY:
+        sid = s["id"]
+        if sid == "ai":
+            out.append(_AI_V2)
+            continue
+        blocks = [dict(b) for b in s["blocks"]]
+        if sid == "summary":
+            blocks[0]["items"] = blocks[0]["items"][:3] + [_SUMMARY_V2] + blocks[0]["items"][3:]
+        elif sid == "permissions":
+            blocks = [{"t": "perms", "v2": True} if b["t"] == "perms" else b for b in blocks]
+        elif sid == "sharing":
+            for b in blocks:
+                if b["t"] == "ul":
+                    b["items"] = [_SHARING_AI_V2 if "<b>AI providers</b>" in it[1] else it for it in b["items"]]
+        elif sid == "retention":
+            for b in blocks:
+                if b["t"] == "ul":
+                    b["items"] = b["items"][:-1] + list(_RETENTION_V2) + b["items"][-1:]
+        out.append({"id": sid, "h": s["h"], "blocks": blocks})
+        if sid == "remittance":
+            out += [_MONEY_NOTIF, _CARECALL, _TRAIN, _CITY_TRIPS, _SILENT_WATCH]
+    return out
+
+
+PRIVACY_V2 = _privacy_v2()
+
+
 PAGES = {
     "privacy": {"path": "/privacy", "sections": PRIVACY,
                 "title": ("গোপনীয়তা নীতি", "Privacy Policy"),
                 "desc": ("Assisto কী তথ্য রাখে, কেন, কার সাথে শেয়ার হয়, প্রতিটি অ্যাপ অনুমতির কারণ, বিজ্ঞাপন, সংরক্ষণকাল ও মোছার উপায়।",
                          "What Assisto stores, why, who it is shared with, the reason for every app permission, ads, retention and how to delete.")},
+    # privacyupd: preview-only until the owner turns privacy_classic OFF
+    "privacy_v2": {"path": "/privacy", "sections": PRIVACY_V2, "updated": LAST_UPDATED_V2,
+                   "title": ("গোপনীয়তা নীতি", "Privacy Policy"),
+                   "desc": ("Assisto কী তথ্য রাখে, কেন, কার সাথে শেয়ার হয়, প্রতিটি অ্যাপ অনুমতির কারণ, বিজ্ঞাপন, সংরক্ষণকাল ও মোছার উপায়।",
+                            "What Assisto stores, why, who it is shared with, the reason for every app permission, ads, retention and how to delete.")},
     "terms": {"path": "/terms", "sections": TERMS,
               "title": ("ব্যবহারের শর্তাবলী", "Terms of Service"),
               "desc": ("Assisto অ্যাপ ও lifeassisto.com ব্যবহারের শর্তাবলী।", "The terms for using the Assisto app and lifeassisto.com.")},
@@ -815,6 +1097,6 @@ def render_sections(key, lang):
                 blocks.append({"t": "perms", "rows": [
                     {"id": p["id"], "perm": p["perm"], "name": p["name"][i],
                      "why": p["why"][i], "when": p["when"][i], "revoke": p["revoke"][i]}
-                    for p in PERMISSIONS]})
+                    for p in (PERMISSIONS_V2 if b.get("v2") else PERMISSIONS)]})
         out.append({"id": s["id"], "heading": s["h"][i], "blocks": blocks})
     return out

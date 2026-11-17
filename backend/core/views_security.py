@@ -75,9 +75,18 @@ def _notify_owner_and_circle(user, title, body, kind="security", ntype="security
                 emails.append(m.peer_user.email)
     emails = [e for e in dict.fromkeys(emails) if e]
     if emails:
+        # emailrel: company sender (retry, bounce list, logged) or Django mail;
+        # a failure is logged for Owner Admin → Email health, never silent
         try:
-            send_mail(title, body, settings.DEFAULT_FROM_EMAIL, emails,
-                      fail_silently=True)
+            from . import email_sender, email_templates as ET
+            subj, text, html = ET.render_notice("bn", title, title, body, body,
+                                                subject="Assisto: %s" % title)
+            if email_sender.configured():
+                email_sender.send_notice(emails, subj, text, html=html,
+                                         purpose="security_alert")
+            else:
+                send_mail(title, body, settings.DEFAULT_FROM_EMAIL, emails,
+                          fail_silently=True)
         except Exception:
             pass
     # FCM to the owner's other devices + accepted circle (key-gated, never raises)

@@ -78,6 +78,22 @@ class _SafetySosCountdownState extends State<SafetySosCountdown> {
           Text(notifLocalizeDigits(context, '$_remaining'),
               style: const TextStyle(color: Colors.white, fontSize: 64, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
+          // fcsos: "Send now" — do not wait the remaining seconds
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const ValueKey('sos-countdown-send-now'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white, width: 2),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              onPressed: _fire,
+              child: Text(t.fcsSendNow,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+          ),
+          const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: FilledButton(

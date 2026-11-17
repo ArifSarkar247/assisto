@@ -360,14 +360,14 @@ class RefCodeChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.tag_rounded, size: 14, color: scheme.onSurfaceVariant),
+        Icon(Icons.tag_rounded, size: 14, color: scheme.ds.muted),
         const SizedBox(width: 6),
         Text('${t.crmRefCode}: ',
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         SelectableText(code,
             style: AType.labelMedium.copyWith(fontWeight: FontWeight.w800,
                 letterSpacing: 1.0)),
@@ -396,12 +396,12 @@ class ScoreBadge extends StatelessWidget {
         ? Theme.of(context).colorScheme.error
         : warm
             ? AssistoTokens.of(context).warning
-            : Theme.of(context).colorScheme.surfaceContainerHighest;
+            : Theme.of(context).colorScheme.ds.cardHighest;
     final fg = hot
         ? Theme.of(context).colorScheme.onError
         : warm
             ? AssistoTokens.of(context).onWarning
-            : Theme.of(context).colorScheme.onSurfaceVariant;
+            : Theme.of(context).colorScheme.ds.muted;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
@@ -424,15 +424,15 @@ class NeedsKeyBanner extends StatelessWidget {
       margin: const EdgeInsets.all(Gap.md),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.secondaryContainer.withValues(alpha: 0.5),
+        color: scheme.ds.primarySoft.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Row(children: [
-        Icon(icon, size: 20, color: scheme.onSecondaryContainer),
+        Icon(icon, size: 20, color: scheme.ds.primaryInk),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(message,
-                style: TextStyle(color: scheme.onSecondaryContainer, height: 1.35))),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk, height: 1.35))),
       ]),
     );
   }

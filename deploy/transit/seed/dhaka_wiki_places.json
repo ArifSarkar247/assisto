@@ -1,0 +1,192 @@
+{
+ "_note": "citydata2: stop names OpenStreetMap does not carry (report gaps) -> public Wikipedia articles whose page coordinates the CI crawl reads (one page each, robots.txt honoured). Upazila/town coordinates are the town centre; the build only uses them when they fit the route path, and they stay Reported.",
+ "Savar": [
+  "Savar_Upazila",
+  "Savar,_Dhaka"
+ ],
+ "Hemayetpur": [
+  "Hemayetpur"
+ ],
+ "Ashulia": [
+  "Ashulia",
+  "Ashulia_Thana"
+ ],
+ "Asulia Bazar": [
+  "Ashulia"
+ ],
+ "Tongi": [
+  "Tongi"
+ ],
+ "Gazipur Chourasta": [
+  "Gazipur",
+  "Gazipur_City"
+ ],
+ "Board Bazar": [
+  "Board_Bazar"
+ ],
+ "Konabari": [
+  "Konabari"
+ ],
+ "Dhamrai": [
+  "Dhamrai_Upazila",
+  "Dhamrai"
+ ],
+ "Nandan Park": [
+  "Nandan_Park"
+ ],
+ "Fantasy Kingdom": [
+  "Fantasy_Kingdom"
+ ],
+ "Chiriyakhana": [
+  "Bangladesh_National_Zoo"
+ ],
+ "Nobinagar": [
+  "National_Martyrs'_Memorial",
+  "Nabinagar,_Savar"
+ ],
+ "Baipayl": [
+  "Baipayl"
+ ],
+ "Zirabo": [
+  "Zirabo"
+ ],
+ "Zirani Bazar": [
+  "Zirani"
+ ],
+ "Chandra": [
+  "Chandra,_Gazipur",
+  "Kaliakair_Upazila"
+ ],
+ "Sadarghat": [
+  "Sadarghat"
+ ],
+ "Khilkhet": [
+  "Khilkhet_Thana",
+  "Khilkhet"
+ ],
+ "Jatrabari": [
+  "Jatrabari_Thana"
+ ],
+ "Demra Staff Quarter": [
+  "Demra_Thana"
+ ],
+ "Madanpur": [
+  "Madanpur,_Narayanganj"
+ ],
+ "Kanchan Bridge": [
+  "Kanchan_Bridge",
+  "Kanchan_Municipality"
+ ],
+ "Vulta": [
+  "Bhulta"
+ ],
+ "Keraniganj": [
+  "Keraniganj_Model_Upazila",
+  "Keraniganj_Upazila"
+ ],
+ "Birulia": [
+  "Birulia_Union",
+  "Birulia"
+ ],
+ "Abdullahpur": [
+  "Abdullahpur,_Dhaka"
+ ],
+ "Airport": [
+  "Hazrat_Shahjalal_International_Airport"
+ ],
+ "Kuril Bishwa Road": [
+  "Kuril_Flyover"
+ ],
+ "Rupnagar": [
+  "Rupnagar_Thana"
+ ],
+ "Vashantek": [
+  "Bhasan_Tek_Thana",
+  "Vashantek"
+ ],
+ "Cantonment": [
+  "Dhaka_Cantonment"
+ ],
+ "Shonir Akhra": [
+  "Shonir_Akhra"
+ ],
+ "Sign Board": [
+  "Signboard,_Narayanganj"
+ ],
+ "Tarabo": [
+  "Tarabo_Municipality",
+  "Tarabo"
+ ],
+ "Kadamtali": [
+  "Kadamtali_Thana"
+ ],
+ "Purobi": [
+  "Pallabi_Thana"
+ ],
+ "Chittagong Road": [
+  "Siddhirganj_Thana"
+ ],
+ "Shib Bari": [
+  "Shibbari"
+ ],
+ "Kamarpara": [
+  "Kamarpara"
+ ],
+ "Jalkuri": [
+  "Jalkuri"
+ ],
+ "Chasara": [
+  "Chashara"
+ ],
+ "Shibu Market": [
+  "Fatullah_Thana"
+ ],
+ "Meghna Ghat": [
+  "Meghna_Ghat"
+ ],
+ "Purbachal": [
+  "Purbachal_New_Town"
+ ],
+ "300 Feet": [
+  "Purbachal_Expressway"
+ ],
+ "Rajlakshmi": [
+  "Uttara"
+ ],
+ "Kawlar": [
+  "Kawla"
+ ],
+ "Baitul Mukarram": [
+  "Baitul_Mukarram"
+ ],
+ "Victoria Park": [
+  "Bahadur_Shah_Park"
+ ],
+ "Secretariat": [
+  "Bangladesh_Secretariat"
+ ],
+ "Kamrangirchar": [
+  "Kamrangirchar_Thana"
+ ],
+ "Uttarkhan": [
+  "Uttarkhan_Thana"
+ ],
+ "Dakshinkhan": [
+  "Dakshinkhan_Thana"
+ ],
+ "Beraid": [
+  "Beraid_Union"
+ ],
+ "Satarkul": [
+  "Satarkul"
+ ],
+ "Demra": [
+  "Demra_Thana"
+ ],
+ "Shyampur": [
+  "Shyampur_Thana"
+ ],
+ "Hazaribagh": [
+  "Hazaribagh_Thana"
+ ]
+}

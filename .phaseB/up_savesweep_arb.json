@@ -1,0 +1,17 @@
+{
+ "_comment": "savesweep (owner P0 10 Nov): visible reasons instead of silent dead Save buttons",
+ "en": {
+  "ssAmountInvalid": "Enter an amount above 0. Bangla or English digits both work.",
+  "@ssAmountInvalid": {
+   "description": "Shown under an amount field when Save is tapped with no valid amount"
+  },
+  "ssNameRequired": "Type a name, or pick someone from My Circle.",
+  "@ssNameRequired": {
+   "description": "Shown when Save is tapped on an empty name field"
+  }
+ },
+ "bn": {
+  "ssAmountInvalid": "০-এর বেশি টাকার পরিমাণ লিখুন। বাংলা বা ইংরেজি দুই সংখ্যাই চলবে।",
+  "ssNameRequired": "একটি নাম লিখুন, অথবা মাই সার্কেল থেকে কাউকে বেছে নিন।"
+ }
+}

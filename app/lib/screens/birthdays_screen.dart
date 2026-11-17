@@ -316,13 +316,13 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: Gap.xs),
           Text(bStr(context, 'bImportSubtitle'),
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.xl),
           Center(
             child: Column(children: [
               Icon(Icons.contacts_rounded,
                   size: 48,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  color: Theme.of(context).colorScheme.ds.muted),
               const SizedBox(height: Gap.sm),
               Text(bStr(context, 'bImportNone'), textAlign: TextAlign.center),
             ]),
@@ -373,7 +373,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
           padding: const EdgeInsets.all(Gap.xl),
           child: Column(children: [
             const SizedBox(height: 60),
-            Icon(Icons.cloud_off_rounded, size: 48, color: scheme.onSurfaceVariant),
+            Icon(Icons.cloud_off_rounded, size: 48, color: scheme.ds.muted),
             const SizedBox(height: Gap.md),
             Text(honestFailText(t, _failCause, otherwise: t.birthdaysLoadError), textAlign: TextAlign.center),
             const SizedBox(height: Gap.md),
@@ -400,7 +400,7 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
               padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
               child: Text(t.birthdaysEmptyBody,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
             ),
             const SizedBox(height: Gap.lg),
             OutlinedButton.icon(
@@ -453,15 +453,15 @@ class _BirthdaysScreenState extends State<BirthdaysScreen> {
         margin: const EdgeInsets.only(bottom: Gap.md),
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
-          color: scheme.secondaryContainer,
+          color: scheme.ds.primarySoft,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(children: [
-          Icon(Icons.cloud_off_rounded, size: 18, color: scheme.onSecondaryContainer),
+          Icon(Icons.cloud_off_rounded, size: 18, color: scheme.ds.primaryInk),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(bStr(context, 'bOffline'),
-                style: AType.bodySmall.copyWith(color: scheme.onSecondaryContainer)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.primaryInk)),
           ),
         ]),
       );

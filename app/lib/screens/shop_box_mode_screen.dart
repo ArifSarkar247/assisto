@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import '../widgets/skeleton.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -524,7 +526,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
     return Scaffold(
       appBar: AppBar(title: Text(t.shopModeTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : ListView(
               padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
               children: _token == null ? _pairView(t) : _runView(t),
@@ -534,25 +536,21 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
 
   Widget _infoCard(IconData icon, String title, String body, {Color? tint}) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.surfaceContainerHighest,
-      child: Padding(
+    return DsSurface(color: scheme.ds.cardHighest,
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, size: 20, color: tint ?? scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(title, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Text(body,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
             ]),
           ),
         ]),
-      ),
-    );
+      );
   }
 
   List<Widget> _pairView(AppLocalizations t) {
@@ -565,7 +563,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
       Text(t.shopModePairTitle, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: Gap.xs),
       Text(t.shopModePairHelp,
-          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+          style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
       const SizedBox(height: Gap.md),
       TextField(
         controller: _tokenField,
@@ -596,7 +594,7 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
       ),
       const SizedBox(height: Gap.sm),
       Text(t.shopModeNoScan,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
     ];
   }
 
@@ -604,15 +602,13 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
     final scheme = Theme.of(context).colorScheme;
     final z = _detector.zone;
     return [
-      Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
+      DsCard(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               CircleAvatar(
-                backgroundColor: scheme.primaryContainer,
-                child: Icon(Icons.videocam_rounded, color: scheme.onPrimaryContainer),
+                backgroundColor: scheme.ds.primarySoft,
+                child: Icon(Icons.videocam_rounded, color: scheme.ds.primaryInk),
               ),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -620,11 +616,11 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                   Text(_cameraName.isEmpty ? t.shopBoxUnnamedCamera : _cameraName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   Text(t.shopModePairedTo(_siteName.isEmpty ? '—' : _siteName),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ]),
               ),
             ]),
@@ -643,13 +639,13 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text(_status,
-                        style: TextStyle(
+                        style: AType.bodyMedium.copyWith(
                             color: _statusIsError ? scheme.error : null, height: 1.35))),
               ]),
             if (_running) ...[
               const SizedBox(height: Gap.sm),
               Text(_online ? t.shopModeServerOk : t.shopModeServerOffline,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               Text(
                   _lastEventAt == null
                       ? t.shopModeNoEvents
@@ -657,11 +653,10 @@ class _ShopBoxModeScreenState extends State<ShopBoxModeScreen>
                           fmtInt(context, _sentCount),
                           MaterialLocalizations.of(context)
                               .formatTimeOfDay(TimeOfDay.fromDateTime(_lastEventAt!))),
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ],
           ]),
         ),
-      ),
       if (_running && _cam != null && _cam!.value.isInitialized) ...[
         const SizedBox(height: Gap.md),
         ClipRRect(
@@ -764,7 +759,7 @@ class _ZoneDialogState extends State<_ZoneDialog> {
               final ok = r > l && b > tp;
               return DecoratedBox(
                 decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(context).colorScheme.ds.cardHighest,
                     borderRadius: BorderRadius.circular(Radii.sm)),
                 child: Stack(children: [
                   if (ok)

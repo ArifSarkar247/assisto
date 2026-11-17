@@ -1,0 +1,32 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ T.nav_ad_control }}{% endblock %}
+{% block content %}
+<div class="card"><p>{{ T.adc_intro }}</p>
+<p class="mut small">{{ T.adc_live }}</p>
+<p><b>{{ T.adc_on_count }}: {{ n_on }} / {{ n }}</b> ·
+{% for d in day_options %}<a href="?days={{ d }}" {% if d == days %}style="font-weight:700"{% endif %}>{{ d }} {{ T.adc_days }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</p>
+<p class="mut small">{{ T.adc_estimate_note }}</p></div>
+
+<form method="post" action="/owner/ad-control">{% include "owner/_csrf.html" %}
+<input type="hidden" name="what" value="caps">
+<div class="card"><h3>{{ T.adc_caps }}</h3>
+{% for k, v in caps.items %}<p><label>{% if k == "interstitial_min_gap_sec" %}{{ T.adc_cap_gap }}{% elif k == "interstitial_daily_cap" %}{{ T.adc_cap_daily }}{% elif k == "list_native_every" %}{{ T.adc_cap_every }}{% else %}{{ T.adc_cap_train }}{% endif %}
+<input type="number" name="{{ k }}" value="{{ v }}"></label></p>{% endfor %}
+<h3>{{ T.adc_ecpm }}</h3>
+{% for t, v in ecpm.items %}<label>{{ t }} <input type="number" step="0.5" name="ecpm_{{ t }}" value="{{ v }}" style="width:7em"></label> {% endfor %}
+<p class="mut small">{{ T.adc_blocked }}: {{ blocked|join:", " }} · {{ T.adc_rating }}: {{ rating }}</p>
+<p><button class="btn">{{ T.save }}</button></p></div></form>
+
+<form method="post" action="/owner/ad-control">{% include "owner/_csrf.html" %}
+{% for g in groups %}<div class="card tbl"><h3>{{ g.title }}</h3>
+<table><thead><tr><th>{{ T.adc_on }}</th><th>{{ T.adc_place }}</th><th>{{ T.adc_type }}</th><th>{{ T.adc_default }}</th><th>{{ T.adc_impr }} ({{ days }} {{ T.adc_days }})</th><th>eCPM</th><th>{{ T.adc_income }}</th></tr></thead><tbody>
+{% for r in g.rows %}<tr><td><input type="hidden" name="seen_{{ r.key }}" value="1"><label><input type="checkbox" name="on_{{ r.key }}" value="1" {% if r.on %}checked{% endif %}> {% if r.on %}ON{% else %}OFF{% endif %}</label></td>
+<td>{% if r.safety %}<b style="color:#b00020">⚠ {{ T.adc_safety }}</b><br>{% endif %}<a href="/owner/ad-control/{{ r.key }}">{{ r.label }}</a><br><span class="mut small">{{ r.key }}{% if r.rule %} — {{ r.rule }}{% endif %}</span></td>
+<td>{% if r.allowed|length > 1 %}<select name="t_{{ r.key }}">{% for t in r.allowed %}<option value="{{ t }}" {% if t == r.type %}selected{% endif %}>{{ t }}</option>{% endfor %}</select>{% else %}{{ r.type }}<input type="hidden" name="t_{{ r.key }}" value="{{ r.type }}">{% endif %}</td>
+<td class="mut small">{{ r.default }}</td>
+<td>{{ r.rep.impressions }}</td>
+<td>{% if r.rep.ecpm_is_estimate %}৳{{ r.rep.ecpm }} <span class="mut small">({{ T.adc_est }})</span>{% else %}{{ r.rep.currency }} {{ r.rep.ecpm }}{% endif %}</td>
+<td>{% if r.rep.income_real %}{{ r.rep.currency }} {{ r.rep.income_real }}<br>{% endif %}{% if r.rep.income_estimate_bdt %}৳{{ r.rep.income_estimate_bdt }} <span class="mut small">({{ T.adc_est }})</span>{% elif not r.rep.income_real %}—{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% endfor %}
+<p><button class="btn">{{ T.save }}</button></p></form>
+{% endblock %}

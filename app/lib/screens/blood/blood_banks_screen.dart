@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../messaging/link_open.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
 
@@ -123,7 +124,10 @@ class _BloodBanksScreenState extends State<BloodBanksScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.bpBanksTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? ListView(
+              padding: const EdgeInsets.all(Gap.lg),
+              children: [for (var i = 0; i < 3; i++) Padding(
+                  padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSkeleton.card(lines: 2))])
           : _failed
               ? Center(child: BpError(onRetry: _load))
               : ListView(
@@ -146,23 +150,26 @@ class _BloodBanksScreenState extends State<BloodBanksScreen> {
 
   List<Widget> _list(BuildContext context, AppLocalizations t) {
     final text = Theme.of(context).textTheme;
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final banks = bpRows(_d, 'banks');
     final src = bpMap(_d['source']);
     final districts = bpRows(_d, 'districts');
     final url = '${src['url'] ?? ''}';
     return [
       // where the list comes from — always above the list
-      Card(
+      DsCard(
         key: const ValueKey('bp-banks-source'),
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(bpD(context, t.bpBanksSource('${src['name'] ?? ''}', bpDate(context, src['date'] as String?))),
-                style: text.titleSmall),
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(Icons.fact_check_rounded, color: ds.primaryInk, size: 20),
+              const SizedBox(width: Gap.sm),
+              Expanded(child: Text(
+                  bpD(context, t.bpBanksSource('${src['name'] ?? ''}', bpDate(context, src['date'] as String?))),
+                  style: text.titleSmall?.copyWith(color: ds.text, fontWeight: FontWeight.w700))),
+            ]),
             const SizedBox(height: Gap.xs),
-            Text(t.bpBanksCallFirst, style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+            Text(t.bpBanksCallFirst, style: text.bodySmall?.copyWith(color: ds.muted)),
             if (url.isNotEmpty)
               Align(
                 alignment: AlignmentDirectional.centerStart,
@@ -175,7 +182,6 @@ class _BloodBanksScreenState extends State<BloodBanksScreen> {
                 ),
               ),
           ]),
-        ),
       ),
       const SizedBox(height: Gap.md),
       // filters: district, search, near me
@@ -212,12 +218,11 @@ class _BloodBanksScreenState extends State<BloodBanksScreen> {
       const SizedBox(height: Gap.sm),
       Align(
         alignment: AlignmentDirectional.centerStart,
-        child: FilterChip(
+        child: DsChip(
           key: const ValueKey('bp-banks-near'),
-          materialTapTargetSize: MaterialTapTargetSize.padded,
           selected: _here != null,
-          avatar: const Icon(Icons.near_me_rounded, size: 18),
-          label: Text(t.bpBanksNearMe),
+          icon: Icons.near_me_rounded,
+          label: t.bpBanksNearMe,
           onSelected: (_) => unawaited(_nearMe()),
         ),
       ),
@@ -225,26 +230,23 @@ class _BloodBanksScreenState extends State<BloodBanksScreen> {
       Semantics(
         liveRegion: true,
         child: Text(bpD(context, t.bpBanksCount((_d['total'] as num?)?.toInt() ?? banks.length)),
-            style: text.bodySmall),
+            style: text.bodySmall?.copyWith(color: ds.muted)),
       ),
       const SizedBox(height: Gap.sm),
       if (banks.isEmpty)
-        Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Text(t.bpBanksNoMatch, style: text.titleSmall, textAlign: TextAlign.center),
-              const SizedBox(height: Gap.md),
-              ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 52),
-                child: FilledButton(
-                    key: const ValueKey('bp-banks-show-all'),
-                    onPressed: _showAll,
-                    child: Text(t.bpBanksShowAll)),
-              ),
-            ]),
-          ),
+        DsCard(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Icon(Icons.search_off_rounded, color: ds.muted, size: 32),
+            const SizedBox(height: Gap.sm),
+            Text(t.bpBanksNoMatch, textAlign: TextAlign.center,
+                style: text.titleSmall?.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
+            const SizedBox(height: Gap.md),
+            DsButton(
+                key: const ValueKey('bp-banks-show-all'),
+                expand: true,
+                onPressed: _showAll,
+                label: t.bpBanksShowAll),
+          ]),
         ),
       for (final b in banks) _bank(context, t, b),
     ];
@@ -267,21 +269,26 @@ class _BloodBanksScreenState extends State<BloodBanksScreen> {
             ? t.bpBanksKmDistrict(km.toStringAsFixed(km < 10 ? 1 : 0))
             : t.bpBanksKm(km.toStringAsFixed(km < 10 ? 1 : 0)),
     ].where((x) => x.isNotEmpty).toList();
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
-        minVerticalPadding: Gap.md,
-        leading: const Icon(Icons.local_hospital_rounded),
-        title: Text('${b['name'] ?? ''}'),
-        subtitle: Text(bpD(context, lines.join('\n'))),
-        trailing: first.isEmpty
-            ? null
-            : IconButton(
-                tooltip: t.bpCall,
-                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-                onPressed: () => bpLaunch(context, 'tel', first),
-                icon: const Icon(Icons.call_rounded),
-              ),
+    final ds = DsTokens.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsCard(
+        padding: EdgeInsets.zero,
+        child: DsListRow(
+          leading: DsAvatar(
+              color: ds.dangerInk,
+              child: Icon(Icons.local_hospital_rounded, color: ds.dangerInk, size: 22)),
+          title: '${b['name'] ?? ''}',
+          subtitle: bpD(context, lines.join('\n')),
+          trailing: first.isEmpty
+              ? null
+              : DsIconAction(
+                  tooltip: t.bpCall,
+                  color: ds.successInk,
+                  onPressed: () => bpLaunch(context, 'tel', first),
+                  icon: Icons.call_rounded,
+                ),
+        ),
       ),
     );
   }

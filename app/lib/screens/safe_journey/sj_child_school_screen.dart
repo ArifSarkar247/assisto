@@ -7,11 +7,13 @@ import '../../l10n/app_localizations.dart';
 import '../../services/action_feedback.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/journey_ride.dart' show jDigits;
 import '../kids_watch/school_mode_child_screen.dart';
 import '../kids_watch/school_plan_form.dart';
 import 'sj_live_api.dart';
+import 'kids_corner.dart'; // sjkids
 
 /// The four moments of a school day, in order: (today-key, event for the
 /// gate camera). Pure, shared with the tests.
@@ -302,7 +304,7 @@ class _SjChildSchoolScreenState extends State<SjChildSchoolScreen> {
                       size: 20,
                       color: today[kSjSchoolSteps[i].$1] != null
                           ? Brand.successFill
-                          : cs.onSurfaceVariant),
+                          : DsTokens.of(context).muted),
                   const SizedBox(width: Gap.sm),
                   Expanded(child: Text(labels[i], style: AType.bodyMedium)),
                   Text(_time(today[kSjSchoolSteps[i].$1] as String?),
@@ -313,14 +315,14 @@ class _SjChildSchoolScreenState extends State<SjChildSchoolScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs),
                 child: Text(t.sjlAlertBy(_time(today['arrive_due'] as String?)),
-                    style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
               ),
           ],
           if (names.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(t.sjlParents(names),
-                  style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
             ),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -356,6 +358,8 @@ class _SjChildSchoolScreenState extends State<SjChildSchoolScreen> {
                 onPressed: () => _linkCamera(p),
               ),
           ]),
+          // sjkids: Children Corner — safe / watch places + the guardian question
+          KidsCornerSection(plan: p, onChanged: _load),
         ]),
       ),
     );
@@ -388,7 +392,7 @@ class _SjChildSchoolScreenState extends State<SjChildSchoolScreen> {
           if (_mine.isNotEmpty)
             Card(
               key: const ValueKey('sjl_school_me'),
-              color: cs.secondaryContainer,
+              color: DsTokens.of(context).primarySoft,
               margin: const EdgeInsets.only(bottom: Gap.md),
               child: ListTile(
                 minVerticalPadding: Gap.md,
@@ -420,7 +424,7 @@ class _SjChildSchoolScreenState extends State<SjChildSchoolScreen> {
           ),
           const SizedBox(height: Gap.sm),
           Text(t.sjlSchoolHow,
-              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
         ],
       );
     }

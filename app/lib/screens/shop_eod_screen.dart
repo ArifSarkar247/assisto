@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ import '../widgets/ladder_common.dart' show taka, fmtInt;
 import '../widgets/skeleton.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 import '../widgets/local_counter.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// END-OF-DAY CASH CHECK. The owner counts the drawer; the server compares it
 /// with today's NON-voided Assisto POS cash sales (paid - change) + the opening
@@ -132,31 +134,27 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
               : ListView(
                   padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.xxl),
                   children: [
-                    Card(
-                      margin: EdgeInsets.zero,
-                      color: scheme.surfaceContainerHighest,
-                      child: Padding(
+                    DsSurface(color: scheme.ds.cardHighest,
                         padding: const EdgeInsets.all(Gap.md),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text(t.shopEodTodayCash,
-                              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                           const SizedBox(height: Gap.xs),
                           Text(taka(context, _todayCash),
                               style: Theme.of(context).textTheme.headlineSmall
                                   ?.copyWith(fontWeight: FontWeight.w700)),
                           Text(t.shopEodTodayCount(fmtInt(context, _todayCount)),
-                              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                           const SizedBox(height: Gap.sm),
                           Text(t.shopEodExplain(taka(context, _tolerance)),
-                              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+                              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
                         ]),
                       ),
-                    ),
                     const SizedBox(height: Gap.lg),
                     TextField(
                       controller: _counted,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+                      inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
                       decoration: InputDecoration(
                           labelText: t.shopEodCounted,
                           prefixText: '৳ ',
@@ -166,7 +164,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                     TextField(
                       controller: _opening,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+                      inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
                       decoration: InputDecoration(
                           labelText: t.shopEodOpening,
                           helperText: t.shopEodOpeningHelp,
@@ -201,7 +199,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
                     const SizedBox(height: Gap.sm),
                     if (_checks.isEmpty)
                       Text(t.shopEodHistoryEmpty,
-                          style: TextStyle(color: scheme.onSurfaceVariant))
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted))
                     else
                       for (final c in _checks) _historyTile(context, t, scheme, c),
                   ],
@@ -237,10 +235,10 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(label,
-                    style: TextStyle(fontWeight: FontWeight.w700, color: color))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: color))),
           ]),
           const SizedBox(height: Gap.sm),
-          Text((r['message'] ?? '').toString(), style: const TextStyle(height: 1.4)),
+          Text((r['message'] ?? '').toString(), style: AType.bodyMedium.copyWith(height: 1.4)),
           const SizedBox(height: Gap.sm),
           _kv(t.shopEodExpected, taka(context, _i(r['expected']))),
           _kv(t.shopEodCountedShort, taka(context, _i(r['counted']))),
@@ -255,7 +253,7 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
         padding: const EdgeInsets.only(top: Gap.xs),
         child: Row(children: [
           Expanded(child: Text(k)),
-          Text(v, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(v, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         ]),
       );
 
@@ -268,9 +266,9 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
     }
     final (color, icon, label) = _statusLook(t, scheme, (c['status'] ?? 'ok').toString());
     final diff = _i(c['difference']);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         leading: Icon(icon, color: color),
         // qa1: localized day (was ISO "2026-10-20" in both languages)
         title: Text('${dayLabel(context, c['day'])}  ·  $label',
@@ -281,6 +279,6 @@ class _ShopEodScreenState extends State<ShopEodScreen> {
             '${taka(context, diff.abs())}',
             maxLines: 2),
       ),
-    );
+      ));
   }
 }

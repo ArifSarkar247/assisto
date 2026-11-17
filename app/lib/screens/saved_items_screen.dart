@@ -360,7 +360,7 @@ class _SavedCard extends StatelessWidget {
             if (note.isNotEmpty) ...[
               const SizedBox(height: Gap.xs),
               Text(note,
-                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis),
             ],
@@ -368,7 +368,7 @@ class _SavedCard extends StatelessWidget {
               const SizedBox(height: Gap.xs),
               Row(children: [
                 Icon(kind == 'link' ? Icons.link_rounded : Icons.description_rounded,
-                    size: 14, color: scheme.onSurfaceVariant),
+                    size: 14, color: scheme.ds.muted),
                 const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text(ref,
@@ -389,17 +389,17 @@ class _SavedCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
                   decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest,
+                    color: scheme.ds.cardHighest,
                     borderRadius: BorderRadius.circular(Radii.pill),
                   ),
                   child: Text('#$tag',
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 ),
               ],
               const Spacer(),
               if ((item['created'] ?? '').toString().isNotEmpty)
                 Text((item['created']).toString(),
-                    style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
             ]),
           ]),
         ),
@@ -440,11 +440,11 @@ Widget _kindChip(BuildContext context, String kind) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
     decoration: BoxDecoration(
-      color: scheme.secondaryContainer.withValues(alpha: 0.5),
+      color: scheme.ds.primarySoft.withValues(alpha: 0.5),
       borderRadius: BorderRadius.circular(Radii.pill),
     ),
     child: Text(_kindLabel(tr, kind),
-        style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: scheme.onSecondaryContainer)),
+        style: AType.bodySmall.copyWith(fontWeight: FontWeight.w600, color: scheme.ds.primaryInk)),
   );
 }
 

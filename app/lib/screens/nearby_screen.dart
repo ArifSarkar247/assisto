@@ -525,14 +525,14 @@ class _NearbyScreenState extends State<NearbyScreen> {
           child: Text(t.truthNearbySource(_area!.attribution),
               key: const ValueKey('truth_nearby_attribution'),
               style: AType.bodySmall.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  color: Theme.of(context).colorScheme.ds.muted)),
         ),
       if (_offline)
         Padding(
           padding: const EdgeInsets.only(bottom: Gap.sm),
           child: Row(children: [
             Icon(Icons.cloud_off_rounded,
-                size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                size: 18, color: Theme.of(context).colorScheme.ds.muted),
             const SizedBox(width: Gap.xs),
             Expanded(
                 child: Text(t.nearbyOfflineNote,
@@ -585,6 +585,14 @@ class _NearbyScreenState extends State<NearbyScreen> {
         icon: Icons.star_border_rounded,
         title: t.nearbyNoFavourites,
         message: t.nearbyNoFavouritesHint,
+        // qjourney: an empty state always has a way forward (no dead end)
+        action: FilledButton.tonalIcon(
+          key: const ValueKey('qj_nearby_fav_browse'),
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          onPressed: () => setState(() => _showFav = false),
+          icon: const Icon(Icons.place_rounded),
+          label: Text(t.qjNearbyFavBrowse),
+        ),
       );
     }
     return ListView(
@@ -623,7 +631,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
               const SizedBox(height: Gap.xs),
               Text(t.nearbyGeneralBody,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
               const SizedBox(height: Gap.md),
               FilledButton.icon(
                 key: const ValueKey('nearby_open_in_maps'),
@@ -667,12 +675,12 @@ class _NearbyScreenState extends State<NearbyScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
               decoration: BoxDecoration(
-                  color: scheme.secondaryContainer,
+                  color: scheme.ds.primarySoft,
                   borderRadius: BorderRadius.circular(Radii.pill)),
               child: Text(
                   _sponsoredLabel.isNotEmpty ? _sponsoredLabel : t.nearbySponsored,
                   style: TextStyle(
-                      color: scheme.onSecondaryContainer,
+                      color: scheme.ds.primaryInk,
                       fontWeight: FontWeight.w700)),
             ),
           ]),

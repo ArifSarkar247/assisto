@@ -346,7 +346,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
                     ? AppLocalizations.of(ctx).a1MeetCountOne
                     : mStrNum(ctx, 'mCount', list.length),
                 // a11y1: outline is a border token (4.29:1 as text).
-                style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: Theme.of(ctx).colorScheme.ds.muted)),
           );
         }
         final a = list[i - 1];
@@ -391,7 +391,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
             ? Center(
                 child: Text(mStr(context, 'mNoneToday'),
                     style: TextStyle(
-                        color: Theme.of(context).colorScheme.outline)),
+                        color: Theme.of(context).colorScheme.ds.muted)),
               )
             : ListView(
                 padding:
@@ -602,7 +602,7 @@ class _AgendaRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(Gap.sm),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest.withOpacity(0.5),
+          color: scheme.ds.cardHighest.withOpacity(0.5),
           borderRadius: BorderRadius.circular(10),
           border: Border(left: BorderSide(color: scheme.primary, width: 3)),
         ),
@@ -618,10 +618,10 @@ class _AgendaRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     decoration: done ? TextDecoration.lineThrough : null,
-                    color: done ? scheme.outline : null)),
+                    color: done ? scheme.ds.muted : null)),
           ),
           if (recurring)
-            Icon(Icons.repeat_rounded, size: 14, color: scheme.outline),
+            Icon(Icons.repeat_rounded, size: 14, color: scheme.ds.muted),
         ]),
       ),
     );
@@ -676,7 +676,7 @@ class _MeetingCard extends StatelessWidget {
           Row(children: [
             Expanded(
               child: Text('${appt['title']}',
-                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold, decoration: done ? TextDecoration.lineThrough : null, color: done ? scheme.outline : null)),
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold, decoration: done ? TextDecoration.lineThrough : null, color: done ? scheme.ds.muted : null)),
             ),
             if (done)
               _Chip(
@@ -698,29 +698,29 @@ class _MeetingCard extends StatelessWidget {
                 child: Text(whenLabel, style: TextStyle(color: scheme.primary))),
             if (recurring) ...[
               const SizedBox(width: 6),
-              Icon(Icons.repeat_rounded, size: 14, color: scheme.outline),
+              Icon(Icons.repeat_rounded, size: 14, color: scheme.ds.muted),
               const SizedBox(width: Gap.xxs),
               Text(freqLabel(context, freqOf(appt)),
-                  style: AType.labelSmall.copyWith(color: scheme.outline)),
+                  style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
             ],
           ]),
           if (place.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Row(children: [
-              Icon(Icons.place_rounded, size: 15, color: scheme.outline),
+              Icon(Icons.place_rounded, size: 15, color: scheme.ds.muted),
               const SizedBox(width: 6),
               Expanded(
-                  child: Text(place, style: TextStyle(color: scheme.outline))),
+                  child: Text(place, style: TextStyle(color: scheme.ds.muted))),
             ]),
           ],
           if (people.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.group_rounded, size: 15, color: scheme.outline),
+              Icon(Icons.group_rounded, size: 15, color: scheme.ds.muted),
               const SizedBox(width: 6),
               Expanded(
                   child: Text('${mStr(context, "mWith")}: ${people.join(", ")}',
-                      style: AType.bodyMedium.copyWith(color: scheme.outline))),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
             ]),
           ],
           if (note.isNotEmpty) ...[
@@ -1137,7 +1137,7 @@ class _EmptyPast extends StatelessWidget {
           const Icon(Icons.history_rounded, size: 48, color: Colors.grey),
           const SizedBox(height: Gap.md),
           Text(mStr(context, 'mPast'),
-              style: TextStyle(color: Theme.of(context).colorScheme.outline)),
+              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
         ]),
       ),
     );

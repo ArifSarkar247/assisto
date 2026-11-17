@@ -1,5 +1,6 @@
 import 'crm_erp_handoff_screen.dart';
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/ladder_common.dart';
@@ -139,7 +140,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
         onAcceptWithDetails: (d) => _move(t, d.data, stage),
         builder: (ctx, cand, rej) => Container(
           decoration: BoxDecoration(
-            color: cand.isNotEmpty ? scheme.primaryContainer.withValues(alpha: 0.4) : scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+            color: cand.isNotEmpty ? scheme.ds.primarySoft.withValues(alpha: 0.4) : scheme.ds.cardHighest.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           padding: const EdgeInsets.all(Gap.sm),
@@ -147,8 +148,8 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
             Padding(
               padding: const EdgeInsets.all(Gap.xs),
               child: Row(children: [
-                Expanded(child: Text(stage['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w800))),
-                Text('${fmtInt(context, (stage['probability'] as num?)?.toInt() ?? 0)}%', style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                Expanded(child: Text(stage['name'] ?? '', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
+                Text('${fmtInt(context, (stage['probability'] as num?)?.toInt() ?? 0)}%', style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ]),
             ),
             Expanded(
@@ -157,7 +158,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
                 if (deals.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(Gap.md),
-                    child: Text(t.crmNoDealsHere, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    child: Text(t.crmNoDealsHere, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ),
               ]),
             ),
@@ -169,17 +170,15 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
 
   Widget _dealCard(AppLocalizations t, Map<String, dynamic> d, Map<String, dynamic> stage) {
     final stuckDays = _stuckAge(d, stage);
-    final card = Card(
-      margin: const EdgeInsets.symmetric(vertical: Gap.xs),
-      child: Padding(
+    final card = Padding(padding: const EdgeInsets.symmetric(vertical: Gap.xs), child: DsCard(
         padding: const EdgeInsets.all(Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(d['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
+          Text(d['title'] ?? '', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
           const SizedBox(height: Gap.xs),
-          Text(bdt(context, (d['value'] as num?)), style: const TextStyle(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(bdt(context, (d['value'] as num?)), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
           Text('${fmtInt(context, (d['probability'] as num?)?.toInt() ?? 0)}% · ${_closeDate(d['expected_close'])}',
               maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           if (stuckDays != null)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
@@ -194,8 +193,7 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
               ]),
             ),
         ]),
-      ),
-    );
+      ));
     return LongPressDraggable<Map<String, dynamic>>(
       data: d,
       feedback: Material(color: Colors.transparent, child: SizedBox(width: 240, child: card)),

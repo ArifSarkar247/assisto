@@ -12,6 +12,7 @@ import '../services/error_kind.dart' show honestFailText;
 import '../services/error_report.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../voice/va_native.dart' show VaNative;
 import '../widgets/skeleton.dart';
 import 'business/business_common.dart' show pair;
@@ -181,7 +182,7 @@ class _MyDuesShopScreenState extends State<MyDuesShopScreen> {
                                 fontFeatures: AFonts.tabular,
                                 fontWeight: FontWeight.w700,
                                 color: owes
-                                    ? scheme.error
+                                    ? DsTokens.of(context).dangerInk
                                     : AssistoTokens.of(context).success)),
                     const SizedBox(height: Gap.md),
                     Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -198,7 +199,7 @@ class _MyDuesShopScreenState extends State<MyDuesShopScreen> {
                       const SizedBox(height: Gap.sm),
                       Text(t.tg2BlockedNote,
                           style: AType.bodySmall
-                              .copyWith(color: scheme.onSurfaceVariant)),
+                              .copyWith(color: DsTokens.of(context).muted)),
                     ],
                   ]),
             ),
@@ -212,7 +213,7 @@ class _MyDuesShopScreenState extends State<MyDuesShopScreen> {
             ),
             const SizedBox(height: Gap.xs),
             Text(t.tg2PayNever,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
             const SizedBox(height: Gap.sm),
             if (methods.isEmpty)
               Text(t.tg2PayNoNumber,
@@ -275,7 +276,7 @@ class _MyDuesShopScreenState extends State<MyDuesShopScreen> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(due ? Icons.add_circle_outline_rounded : Icons.payments_rounded,
-          color: due ? scheme.error : AssistoTokens.of(context).success),
+          color: due ? DsTokens.of(context).dangerInk : AssistoTokens.of(context).success),
       title: Text(due ? t.tg2EntryDue : t.tg2EntryPaid),
       subtitle: sub.isEmpty ? null : Text(_dg(sub)),
       trailing: Text(pair(context, e['amount_display']),
@@ -374,10 +375,10 @@ class _PayCard extends StatelessWidget {
                 ExcludeSemantics(
                   child: CircleAvatar(
                     radius: 11,
-                    backgroundColor: scheme.primaryContainer,
+                    backgroundColor: DsTokens.of(context).primarySoft,
                     child: Text(localDigits('${i + 1}', lang),
                         style: AType.bodySmall
-                            .copyWith(color: scheme.onPrimaryContainer)),
+                            .copyWith(color: DsTokens.of(context).primaryInk)),
                   ),
                 ),
                 const SizedBox(width: Gap.sm),

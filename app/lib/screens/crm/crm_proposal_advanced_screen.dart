@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
@@ -6,6 +7,7 @@ import '../../widgets/crm_aftersale_api.dart';
 import '../../widgets/crm_aftersale_widgets.dart';
 import 'crm_common.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// q1-seams: true only once a customer-facing acceptance PAGE exists (an
 /// absolute https link that renders accept / decline), not a JSON API path.
@@ -89,7 +91,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
       ),
     );
     if (ok != true) return;
-    final days = int.tryParse(ctl.text.trim()) ?? 30;
+    final days = parseIntInput(ctl.text.trim()) ?? 30;
     _run(() => CrmAfterSaleApi.of(context)
         .setValidity((p['id'] as num).toInt(), days));
   }
@@ -110,7 +112,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
             Text(t.crmAcceptanceLinkHint),
             const SizedBox(height: Gap.sm),
             SelectableText(link.isEmpty ? '—' : link,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.sm),
             CrmStatusPill(_acceptLabel(t, state),
                 tone: state == 'accepted'
@@ -190,7 +192,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
               ],
               const SizedBox(height: Gap.sm),
               Text((m['brand']?['name'] ?? '').toString(),
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
               Text((m['title'] ?? '').toString(),
                   style: Theme.of(context).textTheme.bodyMedium),
               const Divider(),
@@ -254,14 +256,13 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
     final total = (p['total_poisha'] as num?) ??
         (((p['total'] as num?) ?? 0) * 100);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text('v${p['version']} · ${p['title'] ?? ''}',
-                    style: const TextStyle(fontWeight: FontWeight.w800))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             CrmStatusPill(status, tone: _statusTone(status)),
           ]),
           const SizedBox(height: Gap.xs),
@@ -272,7 +273,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
             padding: const EdgeInsets.only(top: Gap.xs),
             child: Row(children: [
               Icon(Icons.event_rounded,
-                  size: 16, color: expired ? Theme.of(context).colorScheme.error : scheme.onSurfaceVariant),
+                  size: 16, color: expired ? Theme.of(context).colorScheme.error : scheme.ds.muted),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(
@@ -281,7 +282,7 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
                       : daysLeft == null
                           ? t.crmQuoteNoExpiry
                           : t.crmQuoteDaysLeft(daysLeft.toString()),
-                  style: AType.labelMedium.copyWith(color: expired ? Theme.of(context).colorScheme.error : scheme.onSurfaceVariant,
+                  style: AType.labelMedium.copyWith(color: expired ? Theme.of(context).colorScheme.error : scheme.ds.muted,
                       fontWeight: FontWeight.w700),
                 ),
               ),
@@ -350,7 +351,6 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
                   label: Text(t.crmConvertToOrder)),
           ]),
         ]),
-      ),
     );
   }
 

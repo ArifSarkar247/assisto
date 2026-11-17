@@ -3,6 +3,7 @@ import 'circle_people_filter.dart'; // circlea
 
 import '../l10n/app_localizations.dart';
 import '../screens/messenger/messenger_home_screen.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import 'app_sheet.dart';
 import 'fam_empty.dart' show famDigits;
@@ -50,21 +51,13 @@ class CvEmptyBlock extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(height: compact ? Gap.xs : Gap.xl),
-        Center(
-          child: Container(
-            height: compact ? 52 : 72,
-            width: compact ? 52 : 72,
-            decoration: BoxDecoration(
-              color: scheme.primary.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: compact ? 26 : 34, color: scheme.primary),
-          ),
-        ),
+        // designv2: the drawn DS illustration (no image files)
+        Center(child: DsIllustration(icon: icon, size: compact ? 52 : 72)), // same height as before
         const SizedBox(height: Gap.md),
         Text(title,
             textAlign: TextAlign.center,
-            style: (compact ? tt.titleMedium : tt.titleLarge)?.copyWith(fontWeight: FontWeight.w700)),
+            style: (compact ? tt.titleMedium : tt.titleLarge)
+                ?.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.text)),
         const SizedBox(height: Gap.xs),
         Text(benefit,
             key: const ValueKey('cv-empty-benefit'),
@@ -101,8 +94,8 @@ class CvEmptyBlock extends StatelessWidget {
             key: const ValueKey('cv-empty-steps'),
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
+              color: scheme.ds.primarySoft,
+              borderRadius: BorderRadius.circular(DsRadius.card),
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               for (var i = 0; i < steps.length; i++)

@@ -1,0 +1,174 @@
+{
+ "format": "assisto.lp.syllabus/1",
+ "lang": "ja",
+ "track": "jft_basic",
+ "exam": "JFT-Basic",
+ "level": "A2",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "Japanese for JFT-Basic (work in Japan)",
+  "bn": "JFT-Basic-এর জন্য জাপানি (জাপানে কাজ)"
+ },
+ "practice_label": {
+  "en": "Practice course by Assisto — not an official JLPT/JFT material; practice scores are not official results.",
+  "bn": "Assisto-র অনুশীলন কোর্স — অফিসিয়াল JLPT/JFT উপকরণ নয়; প্র্যাকটিস স্কোর অফিসিয়াল ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "jlpt.jp public test-section summary; Japan Foundation JFT-Basic public overview",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "summary_bn": "জাপানে স্পেসিফায়েড স্কিলড ওয়ার্কার (特定技能) হিসেবে কাজের জন্য JFT-Basic-এ A2 স্তর লাগে। এই কোর্স বাংলায় বুঝিয়ে দৈনন্দিন জীবন আর কাজের জাপানি শেখায়: কেনাকাটা, যাতায়াত, কর্মস্থলের নির্দেশ, নিরাপত্তা, নোটিশ পড়া।",
+ "who_for_bn": "যাঁরা কেয়ারগিভিং, নির্মাণ, কৃষি, খাদ্য প্রক্রিয়াকরণ, রেস্টুরেন্ট বা কারখানার কাজে জাপানে যেতে চান এবং কম্পিউটারে নেওয়া JFT-Basic পরীক্ষা দিতে চান।",
+ "can_do_bn": [
+  "কাজের জায়গায় সহজ নির্দেশ বুঝে উত্তর দিতে পারবেন।",
+  "দোকান, স্টেশন, অফিসে প্রয়োজনীয় কথা বলতে পারবেন।",
+  "ময়লা ফেলার নিয়ম, শিফট-তালিকা, নিরাপত্তা সাইনের মতো লেখা থেকে তথ্য বের করতে পারবেন।",
+  "ঘোষণা আর ছোট কথোপকথন শুনে জরুরি তথ্য ধরতে পারবেন।"
+ ],
+ "exam_format": {
+  "total_minutes": 60,
+  "sections": [
+   {
+    "id": "script_vocab",
+    "title": {
+     "en": "Script and Vocabulary",
+     "bn": "অক্ষর ও শব্দভান্ডার"
+    },
+    "minutes": 15,
+    "questions": 12
+   },
+   {
+    "id": "conversation",
+    "title": {
+     "en": "Conversation and Expression",
+     "bn": "কথোপকথন ও প্রকাশভঙ্গি"
+    },
+    "minutes": 15,
+    "questions": 12
+   },
+   {
+    "id": "listening",
+    "title": {
+     "en": "Listening Comprehension",
+     "bn": "শুনে বোঝা"
+    },
+    "minutes": 15,
+    "questions": 12
+   },
+   {
+    "id": "reading",
+    "title": {
+     "en": "Reading Comprehension",
+     "bn": "পড়ে বোঝা"
+    },
+    "minutes": 15,
+    "questions": 12
+   }
+  ],
+  "scoring_bn": "আসল JFT-Basic কম্পিউটারে হয়, ৬০ মিনিটে প্রায় ৫০টি প্রশ্ন; স্কোর ১০–২৫০, ২০০ বা বেশি হলে A2 স্তর ধরা হয়। প্রতি অংশের সময় এখানে শুধু নির্দেশনা — আসল পরীক্ষায় পুরো ৬০ মিনিট একসাথে। Assisto-র স্কোর আনুমানিক প্র্যাকটিস স্কোর — অফিসিয়াল ফল নয়।",
+  "official_info_bn": "JFT-Basic (Japan Foundation Test for Basic Japanese) প্রায় সারা বছর কম্পিউটার-ভিত্তিক কেন্দ্রে হয়। বাংলাদেশে তারিখ, ফি ও বুকিং পরীক্ষার অফিসিয়াল ওয়েবসাইট থেকে মিলিয়ে নিন। কাঠামো Japan Foundation-এর প্রকাশ্য পরীক্ষা-পরিচিতি অনুযায়ী।"
+ },
+ "weeks": [
+  {
+   "week": 1,
+   "goal_bn": "শুভেচ্ছা, নিজের পরিচয়, সংখ্যা, সময় আর সপ্তাহের দিন — হিরাগানায়।",
+   "lessons": [
+    "ja-w01-l1",
+    "ja-w01-l2",
+    "ja-w01-l3",
+    "ja-w01-l4",
+    "ja-w01-l5"
+   ]
+  },
+  {
+   "week": 2,
+   "goal_bn": "কাতাকানা, কেনাকাটা ও দাম, জায়গা খোঁজা, あります／います, যাতায়াত।",
+   "lessons": [
+    "ja-w02-l1",
+    "ja-w02-l2",
+    "ja-w02-l3",
+    "ja-w02-l4",
+    "ja-w02-l5"
+   ]
+  },
+  {
+   "week": 3,
+   "goal_bn": "ます-ক্রিয়া (বর্তমান ও অতীত), রুটিন, কর্মস্থলের শব্দ, て-রূপে অনুরোধ, দাওয়াত।",
+   "lessons": [
+    "ja-w03-l1",
+    "ja-w03-l2",
+    "ja-w03-l3",
+    "ja-w03-l4",
+    "ja-w03-l5"
+   ]
+  },
+  {
+   "week": 4,
+   "goal_bn": "い／な বিশেষণ, অনুমতি ও নিষেধ, নিরাপত্তা সাইন, প্রথম কাঞ্জি।",
+   "lessons": [
+    "ja-w04-l1",
+    "ja-w04-l2",
+    "ja-w04-l3",
+    "ja-w04-l4",
+    "ja-w04-l5"
+   ]
+  },
+  {
+   "week": 5,
+   "goal_bn": "কর্মস্থলের কথোপকথন: শিফট, ছুটি চাওয়া, রিপোর্ট দেওয়া।",
+   "lessons": [],
+   "planned": true
+  },
+  {
+   "week": 6,
+   "goal_bn": "স্বাস্থ্য ও হাসপাতাল: শরীরের অংশ, অসুস্থতা বলা, ওষুধের নির্দেশ।",
+   "lessons": [],
+   "planned": true
+  },
+  {
+   "week": 7,
+   "goal_bn": "বাসা ও প্রতিবেশী: ময়লার নিয়ম, ভাড়া, সিটি অফিসের ফর্ম।",
+   "lessons": [],
+   "planned": true
+  },
+  {
+   "week": 8,
+   "goal_bn": "ঘোষণা শোনা: স্টেশন, দোকান, কারখানার লাউডস্পিকার।",
+   "lessons": [],
+   "planned": true
+  },
+  {
+   "week": 9,
+   "goal_bn": "নোটিশ ও ফর্ম পড়া: সময়সূচি, মেনু, নিরাপত্তা নির্দেশিকা।",
+   "lessons": [],
+   "planned": true
+  },
+  {
+   "week": 10,
+   "goal_bn": "কাঞ্জি বাড়ানো: প্রায় ২৫০ কাজের কাঞ্জি, রুবি (ফুরিগানা) সহ পড়া।",
+   "lessons": [],
+   "planned": true
+  },
+  {
+   "week": 11,
+   "goal_bn": "পূর্ণ প্র্যাকটিস টেস্ট ১ ও ভুল বিশ্লেষণ।",
+   "lessons": [],
+   "planned": true
+  },
+  {
+   "week": 12,
+   "goal_bn": "পূর্ণ প্র্যাকটিস টেস্ট ২ ও কম্পিউটার-পরীক্ষার কৌশল।",
+   "lessons": [],
+   "planned": true
+  }
+ ],
+ "probashi": {
+  "country": "JP",
+  "work_path_lang": "ja",
+  "note_bn": "প্রবাসী অংশে 'জাপানে কাজ → JFT-Basic পথ' থেকে সরাসরি এই কোর্স খোলে। স্পেসিফায়েড স্কিলড ওয়ার্কার ভিসায় ভাষার পাশাপাশি কাজের দক্ষতা পরীক্ষাও লাগে — অফিসিয়াল ধাপ BMET ও দূতাবাসের নোটিশে মিলিয়ে নিন।"
+ }
+}

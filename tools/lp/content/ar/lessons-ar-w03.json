@@ -1,0 +1,1341 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "ar",
+ "week": 3,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "ar_work"
+ ],
+ "title": {
+  "en": "Week 3: Daily life in the Gulf",
+  "bn": "সপ্তাহ ৩: উপসাগরীয় দেশে প্রতিদিনের জীবন"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not an official course, exam material or result.",
+  "bn": "Assisto-র অনুশীলন পাঠ — এটি অফিসিয়াল কোর্স, পরীক্ষার উপকরণ বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "public CEFR A1 global-scale descriptors; Gulf workplace usage (structure/level only)",
+  "notes": "All sentences written for Assisto; no textbook text."
+ },
+ "lessons": [
+  {
+   "id": "ar-w03-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Directions and taking a taxi",
+    "bn": "রাস্তা চেনা আর ট্যাক্সি নেওয়া"
+   },
+   "goal_bn": "ডানে, বাঁয়ে, সোজা, থামুন — রাস্তার নির্দেশ বুঝবেন আর ট্যাক্সিচালককে ঠিকানা ও ভাড়া নিয়ে কথা বলতে পারবেন।",
+   "vocab": [
+    {
+     "target": "يَمِين",
+     "roman": "yameen",
+     "bn_pron": "ইয়ামীন",
+     "register": "both",
+     "bn": "ডান দিক",
+     "pos": "noun",
+     "example": {
+      "target": "عند الإشارة لف يمين.",
+      "roman": "'ind al-ishaara liff yameen.",
+      "bn": "সিগন্যালে ডানে ঘোরো।"
+     }
+    },
+    {
+     "target": "يَسَار",
+     "roman": "yasaar",
+     "bn_pron": "ইয়াসার",
+     "register": "both",
+     "bn": "বাঁ দিক",
+     "pos": "noun",
+     "example": {
+      "target": "المسجد على اليسار.",
+      "roman": "al-masjid 'ala al-yasaar.",
+      "bn": "মসজিদ বাঁ দিকে।"
+     }
+    },
+    {
+     "target": "سِيدَا",
+     "roman": "seeda",
+     "bn_pron": "সীদা",
+     "register": "gulf",
+     "bn": "সোজা",
+     "pos": "adverb",
+     "example": {
+      "target": "روح سيدا لين الدوار.",
+      "roman": "rooh seeda leen ad-duwwaar.",
+      "bn": "গোলচত্বর পর্যন্ত সোজা যাও।"
+     }
+    },
+    {
+     "target": "وَقِّف هِنَا",
+     "roman": "waggif hina",
+     "bn_pron": "ওয়াগ্গিফ হিনা",
+     "register": "gulf",
+     "bn": "এখানে থামুন",
+     "pos": "expression",
+     "example": {
+      "target": "لو سمحت، وقف هنا.",
+      "roman": "law samaht, waggif hina.",
+      "bn": "দয়া করে এখানে থামুন।"
+     }
+    },
+    {
+     "target": "قَرِيب",
+     "roman": "gareeb",
+     "bn_pron": "গারীব",
+     "register": "both",
+     "bn": "কাছে (শুদ্ধ উচ্চারণ: কারীব)",
+     "pos": "adjective",
+     "example": {
+      "target": "السوق قريب من السكن.",
+      "roman": "as-soog gareeb min as-sakan.",
+      "bn": "বাজারটা থাকার জায়গার কাছে।"
+     }
+    },
+    {
+     "target": "بَعِيد",
+     "roman": "ba'eed",
+     "bn_pron": "বাঈদ",
+     "register": "both",
+     "bn": "দূরে",
+     "pos": "adjective",
+     "example": {
+      "target": "المطار بعيد شوي.",
+      "roman": "al-mataar ba'eed shwayy.",
+      "bn": "বিমানবন্দর একটু দূরে।"
+     }
+    },
+    {
+     "target": "دُوَّار",
+     "roman": "duwwaar",
+     "bn_pron": "দুওয়ার",
+     "register": "gulf",
+     "bn": "গোলচত্বর (রাউন্ডঅ্যাবাউট)",
+     "pos": "noun",
+     "example": {
+      "target": "بعد الدوار الثاني يمين.",
+      "roman": "ba'd ad-duwwaar ath-thaani yameen.",
+      "bn": "দ্বিতীয় গোলচত্বরের পরে ডানে।"
+     }
+    },
+    {
+     "target": "إِشَارَة",
+     "roman": "ishaara",
+     "bn_pron": "ইশারা",
+     "register": "both",
+     "bn": "ট্রাফিক সিগন্যাল",
+     "pos": "noun",
+     "example": {
+      "target": "الإشارة حمرا، وقف.",
+      "roman": "al-ishaara hamra, waggif.",
+      "bn": "সিগন্যাল লাল, থামো।"
+     }
+    },
+    {
+     "target": "تَاكْسِي",
+     "roman": "taksi",
+     "bn_pron": "তাকসি",
+     "register": "both",
+     "bn": "ট্যাক্সি",
+     "pos": "noun",
+     "example": {
+      "target": "أبي تاكسي للمستشفى.",
+      "roman": "abi taksi lil-mustashfa.",
+      "bn": "হাসপাতালে যাওয়ার জন্য ট্যাক্সি চাই।"
+     }
+    },
+    {
+     "target": "عِدَّاد",
+     "roman": "'addaad",
+     "bn_pron": "আদ্দাদ",
+     "register": "both",
+     "bn": "মিটার (ট্যাক্সির)",
+     "pos": "noun",
+     "example": {
+      "target": "شغل العداد لو سمحت.",
+      "roman": "shaghghil al-'addaad law samaht.",
+      "bn": "দয়া করে মিটার চালু করুন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "وين + জায়গা? / على + দিক",
+     "explain_bn": "জায়গা জিজ্ঞেস করতে وين + জায়গা? (শুদ্ধ: أين)। উত্তরে على اليمين (ডানে), على اليسار (বাঁয়ে), جنب (পাশে), قدام (সামনে), ورا (পেছনে)।",
+     "examples": [
+      {
+       "target": "وين البنك؟ — على اليمين جنب الصيدلية.",
+       "roman": "wein al-bank? — 'ala al-yameen jamb as-saydaliyya.",
+       "bn": "ব্যাংক কোথায়? — ডানে, ফার্মেসির পাশে।"
+      },
+      {
+       "target": "المحطة قدام المسجد.",
+       "roman": "al-mahatta giddaam al-masjid.",
+       "bn": "স্টেশন মসজিদের সামনে।"
+      }
+     ]
+    },
+    {
+     "pattern": "ট্যাক্সিতে: إلى/لـ + জায়গা, بكم؟",
+     "explain_bn": "ট্যাক্সিতে উঠে বলুন: أبي أروح + জায়গা। ভাড়া জানতে: بكم؟ (কত?)। সম্ভব হলে মিটার বা অ্যাপের ট্যাক্সি নিন — ভাড়া আগে ঠিক করে নিন।",
+     "examples": [
+      {
+       "target": "أبي أروح المنطقة الصناعية، بكم؟",
+       "roman": "abi arooh al-mantiqa as-sinaa'iyya, b-kam?",
+       "bn": "ইন্ডাস্ট্রিয়াল এরিয়ায় যেতে চাই, কত লাগবে?"
+      },
+      {
+       "target": "للمطار لو سمحت.",
+       "roman": "lil-mataar law samaht.",
+       "bn": "বিমানবন্দরে, দয়া করে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w03-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "worker"
+        },
+        "B": {
+         "gender": "M",
+         "role": "shopkeeper"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "لو سمحت، وين الصيدلية؟"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "روح سيدا، وبعد الإشارة لف يسار. الصيدلية جنب البنك."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "সিগন্যালের পরে কোন দিকে যেতে হবে?",
+      "options": [
+       "ডানে",
+       "বাঁয়ে",
+       "পেছনে",
+       "সোজা"
+      ],
+      "answer": "B",
+      "explain_bn": "'لف يسار' — বাঁয়ে ঘুরুন।",
+      "skill": "place"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w03-l1-r1",
+      "passage": "إلى السكن: من المصنع روح سيدا ٢ كيلو، بعد الدوار لف يمين. السكن على اليسار.",
+      "prompt_bn": "গোলচত্বরের পরে কোন দিকে?",
+      "options": [
+       "বাঁয়ে",
+       "সোজা",
+       "ডানে",
+       "ফিরে আসুন"
+      ],
+      "answer": "C",
+      "explain_bn": "'بعد الدوار لف يمين' — গোলচত্বরের পরে ডানে।",
+      "skill": "place"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w03-l1-w1",
+      "prompt_bn": "আরবিতে লিখুন: ট্যাক্সিচালককে বলুন আপনি বিমানবন্দরে যেতে চান আর ভাড়া কত জিজ্ঞেস করুন।",
+      "model": {
+       "target": "أبي أروح المطار، بكم؟",
+       "roman": "abi arooh al-mataar, b-kam?",
+       "bn": "আমি বিমানবন্দরে যেতে চাই, কত লাগবে?"
+      },
+      "check": "ai",
+      "min_words": 3,
+      "max_words": 8
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w03-l1-s1",
+      "prompt_bn": "জোরে বলুন: চালককে বলুন সোজা যান, সিগন্যালে ডানে ঘুরুন, তারপর এখানে থামুন।",
+      "model": {
+       "target": "روح سيدا، عند الإشارة يمين، ووقف هنا لو سمحت.",
+       "roman": "rooh seeda, 'ind al-ishaara yameen, w-waggif hina law samaht.",
+       "bn": "সোজা যান, সিগন্যালে ডানে, আর দয়া করে এখানে থামুন।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w03-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Shopping and prices",
+    "bn": "কেনাকাটা আর দাম"
+   },
+   "goal_bn": "দোকানে দাম জিজ্ঞেস, দামাদামি আর জিনিস চাওয়া — বাকালা (মুদি দোকান) আর বাজারে আরবিতে কেনাকাটা করতে পারবেন।",
+   "vocab": [
+    {
+     "target": "بِكَم",
+     "roman": "b-kam",
+     "bn_pron": "বিকাম",
+     "register": "both",
+     "bn": "দাম কত?",
+     "pos": "question",
+     "example": {
+      "target": "بكم هذا؟",
+      "roman": "b-kam haadha?",
+      "bn": "এটার দাম কত?"
+     }
+    },
+    {
+     "target": "غَالِي",
+     "roman": "ghaali",
+     "bn_pron": "গালি",
+     "register": "both",
+     "bn": "দামি",
+     "pos": "adjective",
+     "example": {
+      "target": "هذا غالي واجد.",
+      "roman": "haadha ghaali waajid.",
+      "bn": "এটা খুব দামি।"
+     }
+    },
+    {
+     "target": "رَخِيص",
+     "roman": "rakhees",
+     "bn_pron": "রাখীস",
+     "register": "both",
+     "bn": "সস্তা",
+     "pos": "adjective",
+     "example": {
+      "target": "عندك شي أرخص؟",
+      "roman": "'indak shay arkhas?",
+      "bn": "এর চেয়ে সস্তা কিছু আছে?"
+     }
+    },
+    {
+     "target": "وَاجِد",
+     "roman": "waajid",
+     "bn_pron": "ওয়াজিদ",
+     "register": "gulf",
+     "bn": "অনেক / খুব",
+     "pos": "adverb",
+     "example": {
+      "target": "الزحمة واجد اليوم.",
+      "roman": "az-zahma waajid al-yom.",
+      "bn": "আজ ভিড় অনেক।"
+     }
+    },
+    {
+     "target": "بَقَالَة",
+     "roman": "bagaala",
+     "bn_pron": "বাগালা",
+     "register": "gulf",
+     "bn": "মুদি দোকান",
+     "pos": "noun",
+     "example": {
+      "target": "البقالة مفتوحة لين الساعة ١٢.",
+      "roman": "al-bagaala maftooha leen as-saa'a ithna'sh.",
+      "bn": "মুদি দোকান ১২টা পর্যন্ত খোলা।"
+     }
+    },
+    {
+     "target": "كِيس",
+     "roman": "kees",
+     "bn_pron": "কীস",
+     "register": "both",
+     "bn": "ব্যাগ / প্যাকেট",
+     "pos": "noun",
+     "example": {
+      "target": "أبي كيس لو سمحت.",
+      "roman": "abi kees law samaht.",
+      "bn": "দয়া করে একটা ব্যাগ দিন।"
+     }
+    },
+    {
+     "target": "كِيلُو",
+     "roman": "keelo",
+     "bn_pron": "কীলো",
+     "register": "both",
+     "bn": "কেজি",
+     "pos": "noun",
+     "example": {
+      "target": "كيلو طماط بكم؟",
+      "roman": "keelo tamaat b-kam?",
+      "bn": "এক কেজি টমেটো কত?"
+     }
+    },
+    {
+     "target": "خُبْز",
+     "roman": "khubz",
+     "bn_pron": "খুবয",
+     "register": "both",
+     "bn": "রুটি",
+     "pos": "noun",
+     "example": {
+      "target": "عطني خبز ولبن.",
+      "roman": "'atni khubz w-laban.",
+      "bn": "আমাকে রুটি আর লাবান (দই-পানীয়) দিন।"
+     }
+    },
+    {
+     "target": "دَجَاج",
+     "roman": "dajaaj",
+     "bn_pron": "দাজাজ",
+     "register": "both",
+     "bn": "মুরগি",
+     "pos": "noun",
+     "example": {
+      "target": "الدجاج طازج اليوم؟",
+      "roman": "ad-dajaaj taazaj al-yom?",
+      "bn": "আজকের মুরগি কি তাজা?"
+     }
+    },
+    {
+     "target": "خَصْم شْوَيّ",
+     "roman": "khasm shwayy",
+     "bn_pron": "খাসম শুয়াই",
+     "register": "gulf",
+     "bn": "একটু কম রাখুন (ডিসকাউন্ট)",
+     "pos": "expression",
+     "example": {
+      "target": "خصم شوي يا صديقي.",
+      "roman": "khasm shwayy ya sadeeqi.",
+      "bn": "বন্ধু, একটু কম রাখুন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "عطني / أبي + জিনিস",
+     "explain_bn": "দোকানে জিনিস চাইতে عطني (আমাকে দিন — কথ্য) বা أبي (আমি চাই)। সংখ্যা জিনিসের আগে বসে: اثنين كيلو رز (দুই কেজি চাল)। শুদ্ধ ভাষায় 'দিন' = أعطني।",
+     "examples": [
+      {
+       "target": "عطني كيلو رز.",
+       "roman": "'atni keelo ruzz.",
+       "bn": "আমাকে এক কেজি চাল দিন।"
+      },
+      {
+       "target": "أبي اثنين ماي.",
+       "roman": "abi ithnayn maay.",
+       "bn": "আমি দুই বোতল পানি চাই।"
+      }
+     ]
+    },
+    {
+     "pattern": "তুলনা: أرخص، أغلى، أكبر",
+     "explain_bn": "'আরও সস্তা/দামি/বড়' বোঝাতে أفعل রূপ: رخيص → أرخص, غالي → أغلى, كبير → أكبر, صغير → أصغر। নারী-পুরুষ সবার জন্য একই রূপ।",
+     "examples": [
+      {
+       "target": "هذا أرخص من ذاك.",
+       "roman": "haadha arkhas min dhaak.",
+       "bn": "এটা ওটার চেয়ে সস্তা।"
+      },
+      {
+       "target": "عندك مقاس أكبر؟",
+       "roman": "'indak magaas akbar?",
+       "bn": "আরও বড় মাপ আছে?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w03-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "customer"
+        },
+        "B": {
+         "gender": "M",
+         "role": "shopkeeper"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "كيلو الدجاج بكم؟"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "كيلو الدجاج بخمسطعش ريال."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "A",
+         "text": "غالي شوي، خصم شوي؟"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "زين، خذه بأربعطعش."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "শেষে দাম কত ঠিক হলো?",
+      "options": [
+       "১৫ রিয়াল",
+       "১৩ রিয়াল",
+       "১০ রিয়াল",
+       "১৪ রিয়াল"
+      ],
+      "answer": "D",
+      "explain_bn": "প্রথমে ১৫ (خمسطعش), দামাদামির পরে ১৪ (أربعطعش)।",
+      "skill": "number"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w03-l2-r1",
+      "passage": "عرض اليوم: رز ٥ كيلو بـ ٢٠ ريال. خبز بريال واحد. ماء ١٢ حبة بـ ١٠ ريال.",
+      "prompt_bn": "৫ কেজি চালের দাম কত?",
+      "options": [
+       "২০ রিয়াল",
+       "১০ রিয়াল",
+       "১২ রিয়াল",
+       "১ রিয়াল"
+      ],
+      "answer": "A",
+      "explain_bn": "'رز ٥ كيلو بـ ٢٠ ريال' — ৫ কেজি চাল ২০ রিয়াল।",
+      "skill": "number"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w03-l2-w1",
+      "prompt_bn": "আরবিতে লিখুন: দোকানদারকে দুই কেজি চাল আর একটি রুটি চান, তারপর দাম জিজ্ঞেস করুন।",
+      "model": {
+       "target": "عطني اثنين كيلو رز وخبز واحد. بكم؟",
+       "roman": "'atni ithnayn keelo ruzz w-khubz waahid. b-kam?",
+       "bn": "আমাকে দুই কেজি চাল আর একটা রুটি দিন। কত হলো?"
+      },
+      "check": "ai",
+      "min_words": 5,
+      "max_words": 12
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w03-l2-s1",
+      "prompt_bn": "জোরে বলুন: দাম বেশি বলুন আর ভদ্রভাবে একটু কম রাখতে বলুন।",
+      "model": {
+       "target": "غالي واجد، خصم شوي لو سمحت.",
+       "roman": "ghaali waajid, khasm shwayy law samaht.",
+       "bn": "অনেক দামি, দয়া করে একটু কম রাখুন।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w03-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Health and the clinic",
+    "bn": "অসুখ আর ক্লিনিক"
+   },
+   "goal_bn": "অসুস্থ হলে কোথায় ব্যথা, কবে থেকে — ডাক্তার ও ফার্মেসিতে আরবিতে বলতে পারবেন; জরুরি অবস্থায় সাহায্য চাইতে পারবেন।",
+   "vocab": [
+    {
+     "target": "أَنَا مَرِيض",
+     "roman": "ana mareedh",
+     "bn_pron": "আনা মারীদ",
+     "register": "both",
+     "bn": "আমি অসুস্থ (নারী: আনা মারীদা)",
+     "pos": "expression",
+     "example": {
+      "target": "أنا مريض، ما أقدر أشتغل اليوم.",
+      "roman": "ana mareedh, ma agdar ashtaghil al-yom.",
+      "bn": "আমি অসুস্থ, আজ কাজ করতে পারব না।"
+     }
+    },
+    {
+     "target": "يُوجِعْنِي",
+     "roman": "yooj'ani",
+     "bn_pron": "ইয়ূজানি",
+     "register": "gulf",
+     "bn": "…-এ ব্যথা করছে",
+     "pos": "verb",
+     "example": {
+      "target": "يوجعني راسي.",
+      "roman": "yooj'ani raasi.",
+      "bn": "আমার মাথা ব্যথা করছে।"
+     }
+    },
+    {
+     "target": "مُسْتَشْفَى",
+     "roman": "mustashfa",
+     "bn_pron": "মুসতাশফা",
+     "register": "both",
+     "bn": "হাসপাতাল",
+     "pos": "noun",
+     "example": {
+      "target": "ودني المستشفى لو سمحت.",
+      "roman": "waddini al-mustashfa law samaht.",
+      "bn": "দয়া করে আমাকে হাসপাতালে নিয়ে চলুন।"
+     }
+    },
+    {
+     "target": "دَكْتُور",
+     "roman": "diktoor",
+     "bn_pron": "দিকতূর",
+     "register": "gulf",
+     "bn": "ডাক্তার (শুদ্ধ: তাবীব طبيب)",
+     "pos": "noun",
+     "example": {
+      "target": "أبي أشوف الدكتور.",
+      "roman": "abi ashoof ad-diktoor.",
+      "bn": "আমি ডাক্তার দেখাতে চাই।"
+     }
+    },
+    {
+     "target": "صَيْدَلِيَّة",
+     "roman": "saydaliyya",
+     "bn_pron": "সাইদালিয়্যা",
+     "register": "both",
+     "bn": "ফার্মেসি",
+     "pos": "noun",
+     "example": {
+      "target": "الصيدلية مفتوحة ٢٤ ساعة.",
+      "roman": "as-saydaliyya maftooha arba'a w-'ishreen saa'a.",
+      "bn": "ফার্মেসি ২৪ ঘণ্টা খোলা।"
+     }
+    },
+    {
+     "target": "دَوَاء",
+     "roman": "dawa",
+     "bn_pron": "দাওয়া",
+     "register": "both",
+     "bn": "ওষুধ",
+     "pos": "noun",
+     "example": {
+      "target": "خذ الدواء بعد الأكل.",
+      "roman": "khudh ad-dawa ba'd al-akil.",
+      "bn": "খাওয়ার পরে ওষুধ খান।"
+     }
+    },
+    {
+     "target": "حَرَارَة",
+     "roman": "haraara",
+     "bn_pron": "হারারা",
+     "register": "both",
+     "bn": "জ্বর / তাপমাত্রা",
+     "pos": "noun",
+     "example": {
+      "target": "عندي حرارة من أمس.",
+      "roman": "'indi haraara min ams.",
+      "bn": "গতকাল থেকে আমার জ্বর।"
+     }
+    },
+    {
+     "target": "بَطْن",
+     "roman": "batn",
+     "bn_pron": "বাতন",
+     "register": "both",
+     "bn": "পেট",
+     "pos": "noun",
+     "example": {
+      "target": "يوجعني بطني.",
+      "roman": "yooj'ani batni.",
+      "bn": "আমার পেট ব্যথা করছে।"
+     }
+    },
+    {
+     "target": "ظَهْر",
+     "roman": "dhahar",
+     "bn_pron": "যাহার",
+     "register": "both",
+     "bn": "পিঠ / কোমর",
+     "pos": "noun",
+     "example": {
+      "target": "شلت شي ثقيل ويوجعني ظهري.",
+      "roman": "shilt shay thageel w-yooj'ani dhahri.",
+      "bn": "ভারী জিনিস তুলেছি, এখন কোমর ব্যথা।"
+     }
+    },
+    {
+     "target": "إِسْعَاف",
+     "roman": "is'aaf",
+     "bn_pron": "ইসআফ",
+     "register": "both",
+     "bn": "অ্যাম্বুলেন্স / জরুরি চিকিৎসা",
+     "pos": "noun",
+     "example": {
+      "target": "اتصل بالإسعاف بسرعة.",
+      "roman": "ittasil bil-is'aaf b-sur'a.",
+      "bn": "তাড়াতাড়ি অ্যাম্বুলেন্স ডাকো।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "يوجعني + শরীরের অঙ্গ + ي",
+     "explain_bn": "ব্যথা বলতে يوجعني (আমাকে ব্যথা দিচ্ছে) + অঙ্গ + ـي (আমার): يوجعني راسي (মাথা), بطني (পেট), ظهري (কোমর), ضرسي (দাঁত)। শুদ্ধ ভাষায় ডাক্তার লিখবেন: ألم في الرأس (মাথায় ব্যথা)।",
+     "examples": [
+      {
+       "target": "يوجعني ضرسي من يومين.",
+       "roman": "yooj'ani dirsi min yomayn.",
+       "bn": "দুই দিন ধরে আমার দাঁত ব্যথা।"
+      },
+      {
+       "target": "يوجعني رجلي.",
+       "roman": "yooj'ani rijli.",
+       "bn": "আমার পা ব্যথা করছে।"
+      }
+     ]
+    },
+    {
+     "pattern": "من + সময় = কবে থেকে",
+     "explain_bn": "কবে থেকে অসুখ বলতে من: من أمس (গতকাল থেকে), من يومين (দুই দিন ধরে), من أسبوع (এক সপ্তাহ ধরে)। ডাক্তার প্রায়ই জিজ্ঞেস করবেন: من متى؟ (কবে থেকে?)",
+     "examples": [
+      {
+       "target": "من متى الحرارة؟ — من ثلاثة أيام.",
+       "roman": "min mata al-haraara? — min thalaatha ayyaam.",
+       "bn": "জ্বর কবে থেকে? — তিন দিন ধরে।"
+      },
+      {
+       "target": "عندي كحة من أسبوع.",
+       "roman": "'indi kuhha min usboo'.",
+       "bn": "এক সপ্তাহ ধরে আমার কাশি।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w03-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "doctor"
+        },
+        "B": {
+         "gender": "M",
+         "role": "patient"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "شو فيك؟ وين يوجعك؟"
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "يوجعني بطني، وعندي حرارة من أمس."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "রোগীর কী সমস্যা?",
+      "options": [
+       "মাথা ব্যথা আর কাশি",
+       "পিঠ ব্যথা",
+       "পেট ব্যথা আর জ্বর",
+       "দাঁত ব্যথা"
+      ],
+      "answer": "C",
+      "explain_bn": "'يوجعني بطني' = পেট ব্যথা, 'عندي حرارة' = জ্বর।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w03-l3-r1",
+      "passage": "الدواء: حبة واحدة ثلاث مرات في اليوم بعد الأكل لمدة خمسة أيام.",
+      "prompt_bn": "ওষুধ কতবার খেতে হবে?",
+      "options": [
+       "দিনে তিনবার, খাওয়ার পরে",
+       "দিনে একবার",
+       "খাওয়ার আগে পাঁচবার",
+       "রাতে দুইবার"
+      ],
+      "answer": "A",
+      "explain_bn": "'ثلاث مرات في اليوم بعد الأكل' — দিনে তিনবার খাওয়ার পরে, পাঁচ দিন। ওষুধের লেখা সবসময় ফার্মাসিস্টকে দিয়ে মিলিয়ে নিন।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w03-l3-w1",
+      "prompt_bn": "আরবিতে সুপারভাইজারকে মেসেজ লিখুন: আপনি অসুস্থ, জ্বর আছে, আজ ডাক্তারের কাছে যাবেন।",
+      "model": {
+       "target": "أنا مريض وعندي حرارة. اليوم أروح الدكتور.",
+       "roman": "ana mareedh w-'indi haraara. al-yom arooh ad-diktoor.",
+       "bn": "আমি অসুস্থ, জ্বর আছে। আজ ডাক্তারের কাছে যাব।"
+      },
+      "check": "ai",
+      "min_words": 5,
+      "max_words": 15
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w03-l3-s1",
+      "prompt_bn": "জোরে বলুন: ডাক্তারকে বলুন দুই দিন ধরে আপনার কোমর ব্যথা।",
+      "model": {
+       "target": "يوجعني ظهري من يومين.",
+       "roman": "yooj'ani dhahri min yomayn.",
+       "bn": "দুই দিন ধরে আমার কোমর ব্যথা।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w03-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "Housing and repairs",
+    "bn": "থাকার জায়গা আর মেরামত"
+   },
+   "goal_bn": "থাকার জায়গা (সাকান), রুম, এসি, পানি-বিদ্যুতের সমস্যা — আরবিতে জানাতে আর মেরামত চাইতে পারবেন।",
+   "vocab": [
+    {
+     "target": "سَكَن",
+     "roman": "sakan",
+     "bn_pron": "সাকান",
+     "register": "both",
+     "bn": "থাকার জায়গা / শ্রমিক আবাস",
+     "pos": "noun",
+     "example": {
+      "target": "السكن بعيد عن الموقع.",
+      "roman": "as-sakan ba'eed 'an al-mawqi'.",
+      "bn": "থাকার জায়গা সাইট থেকে দূরে।"
+     }
+    },
+    {
+     "target": "غُرْفَة",
+     "roman": "ghurfa",
+     "bn_pron": "গুরফা",
+     "register": "both",
+     "bn": "রুম / কক্ষ",
+     "pos": "noun",
+     "example": {
+      "target": "في الغرفة أربعة أشخاص.",
+      "roman": "fil-ghurfa arba'a ashkhaas.",
+      "bn": "রুমে চারজন থাকে।"
+     }
+    },
+    {
+     "target": "مُكَيِّف",
+     "roman": "mukayyif",
+     "bn_pron": "মুকাইয়িফ",
+     "register": "both",
+     "bn": "এসি (এয়ার কন্ডিশনার)",
+     "pos": "noun",
+     "example": {
+      "target": "المكيف خربان.",
+      "roman": "al-mukayyif kharbaan.",
+      "bn": "এসি নষ্ট।"
+     }
+    },
+    {
+     "target": "خَرْبَان",
+     "roman": "kharbaan",
+     "bn_pron": "খারবান",
+     "register": "gulf",
+     "bn": "নষ্ট / বিকল",
+     "pos": "adjective",
+     "example": {
+      "target": "الثلاجة خربانة من أمس.",
+      "roman": "ath-thallaaja kharbaana min ams.",
+      "bn": "ফ্রিজটা গতকাল থেকে নষ্ট।"
+     }
+    },
+    {
+     "target": "كَهْرَبَاء",
+     "roman": "kahraba",
+     "bn_pron": "কাহরাবা",
+     "register": "both",
+     "bn": "বিদ্যুৎ",
+     "pos": "noun",
+     "example": {
+      "target": "ما في كهرباء في الغرفة.",
+      "roman": "ma fi kahraba fil-ghurfa.",
+      "bn": "রুমে বিদ্যুৎ নেই।"
+     }
+    },
+    {
+     "target": "مَاي",
+     "roman": "maay",
+     "bn_pron": "মাই",
+     "register": "gulf",
+     "bn": "পানি (শুদ্ধ: মা' ماء)",
+     "pos": "noun",
+     "example": {
+      "target": "الماي الحار ما يشتغل.",
+      "roman": "al-maay al-haarr ma yishtaghil.",
+      "bn": "গরম পানি আসছে না।"
+     }
+    },
+    {
+     "target": "حَمَّام",
+     "roman": "hammaam",
+     "bn_pron": "হাম্মাম",
+     "register": "both",
+     "bn": "বাথরুম / টয়লেট",
+     "pos": "noun",
+     "example": {
+      "target": "الحمام يحتاج تنظيف.",
+      "roman": "al-hammaam yihtaaj tanzeef.",
+      "bn": "বাথরুম পরিষ্কার দরকার।"
+     }
+    },
+    {
+     "target": "سِرِير",
+     "roman": "sareer",
+     "bn_pron": "সারীর",
+     "register": "both",
+     "bn": "খাট / বিছানা",
+     "pos": "noun",
+     "example": {
+      "target": "السرير مكسور.",
+      "roman": "as-sareer maksoor.",
+      "bn": "খাটটা ভাঙা।"
+     }
+    },
+    {
+     "target": "مَطْبَخ",
+     "roman": "matbakh",
+     "bn_pron": "মাতবাখ",
+     "register": "both",
+     "bn": "রান্নাঘর",
+     "pos": "noun",
+     "example": {
+      "target": "المطبخ مشترك.",
+      "roman": "al-matbakh mushtarak.",
+      "bn": "রান্নাঘর সবার জন্য একটাই।"
+     }
+    },
+    {
+     "target": "صَلِّح",
+     "roman": "sallih",
+     "bn_pron": "সাল্লিহ",
+     "register": "gulf",
+     "bn": "মেরামত করো / ঠিক করো",
+     "pos": "verb",
+     "example": {
+      "target": "لو سمحت صلح المكيف.",
+      "roman": "law samaht sallih al-mukayyif.",
+      "bn": "দয়া করে এসিটা ঠিক করুন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "ما في + জিনিস = … নেই",
+     "explain_bn": "কিছু না থাকলে ما في (কথ্য; শুদ্ধ: لا يوجد): ما في ماي (পানি নেই), ما في كهرباء (বিদ্যুৎ নেই)। আছে বললে: في (ফী) — في مشكلة (একটা সমস্যা আছে)।",
+     "examples": [
+      {
+       "target": "في مشكلة في الحمام.",
+       "roman": "fi mushkila fil-hammaam.",
+       "bn": "বাথরুমে একটা সমস্যা আছে।"
+      },
+      {
+       "target": "لا يوجد ماء ساخن.",
+       "roman": "la yoojad maa' saakhin.",
+       "bn": "গরম পানি নেই (শুদ্ধ/লিখিত রূপ)।"
+      }
+     ]
+    },
+    {
+     "pattern": "বিশেষণ বিশেষ্যের পরে, লিঙ্গ মিলিয়ে",
+     "explain_bn": "আরবিতে বিশেষণ বসে বিশেষ্যের পরে এবং লিঙ্গ মেলে: المكيف خربان (এসি — পুরুষবাচক), الثلاجة خربانة (ফ্রিজ — স্ত্রীবাচক, ة দিয়ে শেষ)।",
+     "examples": [
+      {
+       "target": "الغرفة نظيفة.",
+       "roman": "al-ghurfa nazeefa.",
+       "bn": "রুমটা পরিষ্কার।"
+      },
+      {
+       "target": "السرير جديد.",
+       "roman": "as-sareer jadeed.",
+       "bn": "খাটটা নতুন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w03-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "worker"
+        },
+        "B": {
+         "gender": "M",
+         "role": "camp boss"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "لو سمحت، المكيف في غرفة ١٤ خربان، والحر واجد."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "زين، الفني يجي بكرة الصبح."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "মিস্ত্রি কবে আসবে?",
+      "options": [
+       "আজ রাতে",
+       "কাল সকালে",
+       "এখনই",
+       "শুক্রবার"
+      ],
+      "answer": "B",
+      "explain_bn": "'الفني يجي بكرة الصبح' — টেকনিশিয়ান কাল সকালে আসবে।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w03-l4-r1",
+      "passage": "تنبيه للسكان: الماي يتقطع يوم الثلاثاء من ٩ الصبح إلى ١٢ الظهر للصيانة.",
+      "prompt_bn": "মঙ্গলবার কী হবে?",
+      "options": [
+       "বিদ্যুৎ বন্ধ থাকবে",
+       "রুম বদলাবে",
+       "পানি বন্ধ থাকবে",
+       "এসি বসানো হবে"
+      ],
+      "answer": "C",
+      "explain_bn": "'الماي يتقطع' — মেরামতের জন্য সকাল ৯টা থেকে দুপুর ১২টা পানি বন্ধ।",
+      "skill": "detail"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w03-l4-w1",
+      "prompt_bn": "আরবিতে ক্যাম্প বসকে মেসেজ লিখুন: আপনার রুমের এসি নষ্ট, দয়া করে ঠিক করুন।",
+      "model": {
+       "target": "المكيف في غرفتي خربان، لو سمحت صلحه.",
+       "roman": "al-mukayyif fi ghurfati kharbaan, law samaht sallihuh.",
+       "bn": "আমার রুমের এসি নষ্ট, দয়া করে ঠিক করুন।"
+      },
+      "check": "ai",
+      "min_words": 5,
+      "max_words": 15
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w03-l4-s1",
+      "prompt_bn": "জোরে বলুন: জানান যে বাথরুমে পানি নেই আর রুমে বিদ্যুৎ নেই।",
+      "model": {
+       "target": "ما في ماي في الحمام، وما في كهرباء في الغرفة.",
+       "roman": "ma fi maay fil-hammaam, w-ma fi kahraba fil-ghurfa.",
+       "bn": "বাথরুমে পানি নেই, আর রুমে বিদ্যুৎ নেই।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ar-w03-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Phone calls and messages",
+    "bn": "ফোন কল আর মেসেজ"
+   },
+   "goal_bn": "ফোনে হ্যালো বলা, কে বলছেন জিজ্ঞেস, নম্বর বলা আর ছোট ভয়েস/টেক্সট মেসেজ — আরবিতে করতে পারবেন।",
+   "vocab": [
+    {
+     "target": "أَلُو",
+     "roman": "aloo",
+     "bn_pron": "আলো",
+     "register": "both",
+     "bn": "হ্যালো (ফোনে)",
+     "pos": "expression",
+     "example": {
+      "target": "ألو، مين معي؟",
+      "roman": "aloo, meen ma'i?",
+      "bn": "হ্যালো, কে বলছেন?"
+     }
+    },
+    {
+     "target": "مِين",
+     "roman": "meen",
+     "bn_pron": "মীন",
+     "register": "gulf",
+     "bn": "কে? (শুদ্ধ: মান من)",
+     "pos": "question",
+     "example": {
+      "target": "مين هذا؟",
+      "roman": "meen haadha?",
+      "bn": "ইনি কে?"
+     }
+    },
+    {
+     "target": "جَوَّال",
+     "roman": "jawwaal",
+     "bn_pron": "জাওয়াল",
+     "register": "both",
+     "bn": "মোবাইল ফোন (সৌদি/উপসাগর)",
+     "pos": "noun",
+     "example": {
+      "target": "جوالي ما فيه شحن.",
+      "roman": "jawwaali ma feeh shahn.",
+      "bn": "আমার মোবাইলে চার্জ নেই।"
+     }
+    },
+    {
+     "target": "رَقْم التِّلِفُون",
+     "roman": "raqm at-tilifoon",
+     "bn_pron": "রাকম আত-তিলিফূন",
+     "register": "both",
+     "bn": "ফোন নম্বর",
+     "pos": "noun",
+     "example": {
+      "target": "عطني رقم تلفونك.",
+      "roman": "'atni raqm tilifoonak.",
+      "bn": "আপনার ফোন নম্বরটা দিন।"
+     }
+    },
+    {
+     "target": "اِتَّصِل",
+     "roman": "ittasil",
+     "bn_pron": "ইত্তাসিল",
+     "register": "both",
+     "bn": "ফোন করো",
+     "pos": "verb",
+     "example": {
+      "target": "اتصل فيني بعد الدوام.",
+      "roman": "ittasil feeni ba'd ad-dawaam.",
+      "bn": "ডিউটির পরে আমাকে ফোন কোরো।"
+     }
+    },
+    {
+     "target": "رِسَالَة",
+     "roman": "risaala",
+     "bn_pron": "রিসালা",
+     "register": "both",
+     "bn": "মেসেজ / চিঠি",
+     "pos": "noun",
+     "example": {
+      "target": "أرسلت لك رسالة.",
+      "roman": "arsalt lak risaala.",
+      "bn": "আপনাকে একটা মেসেজ পাঠিয়েছি।"
+     }
+    },
+    {
+     "target": "مَشْغُول",
+     "roman": "mashghool",
+     "bn_pron": "মাশগূল",
+     "register": "both",
+     "bn": "ব্যস্ত",
+     "pos": "adjective",
+     "example": {
+      "target": "أنا مشغول الحين، أتصل بعدين.",
+      "roman": "ana mashghool al-heen, attasil ba'deen.",
+      "bn": "এখন ব্যস্ত, পরে ফোন করব।"
+     }
+    },
+    {
+     "target": "بَعْدَيْن",
+     "roman": "ba'deen",
+     "bn_pron": "বাদেইন",
+     "register": "gulf",
+     "bn": "পরে",
+     "pos": "adverb",
+     "example": {
+      "target": "نتكلم بعدين.",
+      "roman": "nitkallam ba'deen.",
+      "bn": "পরে কথা বলব।"
+     }
+    },
+    {
+     "target": "صَوْت",
+     "roman": "soot",
+     "bn_pron": "সাউত",
+     "register": "both",
+     "bn": "আওয়াজ / কণ্ঠ",
+     "pos": "noun",
+     "example": {
+      "target": "الصوت ما يوصل زين.",
+      "roman": "as-soot ma yoosal zein.",
+      "bn": "আওয়াজ ঠিকমতো আসছে না।"
+     }
+    },
+    {
+     "target": "مَرَّة ثَانِيَة",
+     "roman": "marra thaanya",
+     "bn_pron": "মাররা সানিয়া",
+     "register": "both",
+     "bn": "আরেকবার",
+     "pos": "expression",
+     "example": {
+      "target": "لو سمحت، قول مرة ثانية.",
+      "roman": "law samaht, gool marra thaanya.",
+      "bn": "দয়া করে আরেকবার বলুন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "না বুঝলে: شوي شوي / مرة ثانية",
+     "explain_bn": "ফোনে না বুঝলে লজ্জা নেই — বলুন: لو سمحت، شوي شوي (আস্তে বলুন) বা مرة ثانية (আরেকবার)। ما فهمت = বুঝিনি। এই তিনটি কথা আপনাকে অনেক ভুল থেকে বাঁচাবে।",
+     "examples": [
+      {
+       "target": "ما فهمت، قول مرة ثانية.",
+       "roman": "ma fihimt, gool marra thaanya.",
+       "bn": "বুঝিনি, আরেকবার বলুন।"
+      },
+      {
+       "target": "تكلم شوي شوي لو سمحت.",
+       "roman": "takallam shwayy shwayy law samaht.",
+       "bn": "দয়া করে আস্তে বলুন।"
+      }
+     ]
+    },
+    {
+     "pattern": "ফোন নম্বর অঙ্ক ধরে বলা",
+     "explain_bn": "ফোন নম্বর সাধারণত একটা একটা অঙ্ক করে বলা হয়: ٠٥٠ = সিফর খামসা সিফর। শূন্য = صفر (সিফর)। শোনার পরে নম্বরটা আবার বলে মিলিয়ে নিন।",
+     "examples": [
+      {
+       "target": "رقمي صفر خمسة خمسة، واحد اثنين ثلاثة.",
+       "roman": "raqmi sifr khamsa khamsa, waahid ithnayn thalaatha.",
+       "bn": "আমার নম্বর ০৫৫, ১২৩…"
+      },
+      {
+       "target": "أعيد الرقم: صفر خمسة صفر.",
+       "roman": "a'eed ar-raqam: sifr khamsa sifr.",
+       "bn": "নম্বরটা আবার বলছি: ০৫০।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "ar-w03-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "supervisor"
+        },
+        "B": {
+         "gender": "M",
+         "role": "worker"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "ألو، وين أنت؟ الباص ينتظر."
+        },
+        {
+         "pause": 0.8
+        },
+        {
+         "spk": "B",
+         "text": "آسف، أنا قريب، بعد خمس دقايق أوصل."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "শ্রমিক কত মিনিটে পৌঁছাবে?",
+      "options": [
+       "২ মিনিট",
+       "১৫ মিনিট",
+       "১০ মিনিট",
+       "৫ মিনিট"
+      ],
+      "answer": "D",
+      "explain_bn": "'بعد خمس دقايق' — পাঁচ মিনিট পরে।",
+      "skill": "time"
+     }
+    ],
+    "reading": [
+     {
+      "id": "ar-w03-l5-r1",
+      "passage": "رسالة من المشرف: بكرة لا تروح الموقع. تعال المكتب الساعة ٨ مع الإقامة.",
+      "prompt_bn": "কাল কোথায় যেতে হবে?",
+      "options": [
+       "সাইটে",
+       "বিমানবন্দরে",
+       "হাসপাতালে",
+       "অফিসে, ইকামা নিয়ে"
+      ],
+      "answer": "D",
+      "explain_bn": "'تعال المكتب الساعة ٨ مع الإقامة' — সকাল ৮টায় ইকামা নিয়ে অফিসে।",
+      "skill": "message"
+     }
+    ],
+    "writing": [
+     {
+      "id": "ar-w03-l5-w1",
+      "prompt_bn": "আরবিতে সহকর্মীকে মেসেজ লিখুন: আপনি এখন ব্যস্ত, ডিউটির পরে ফোন করবেন।",
+      "model": {
+       "target": "أنا مشغول الحين، أتصل فيك بعد الدوام.",
+       "roman": "ana mashghool al-heen, attasil feek ba'd ad-dawaam.",
+       "bn": "আমি এখন ব্যস্ত, ডিউটির পরে তোমাকে ফোন করব।"
+      },
+      "check": "ai",
+      "min_words": 5,
+      "max_words": 12
+     }
+    ],
+    "speaking": [
+     {
+      "id": "ar-w03-l5-s1",
+      "prompt_bn": "জোরে বলুন: ফোনে বলুন আওয়াজ ঠিক আসছে না, আরেকবার আস্তে বলতে।",
+      "model": {
+       "target": "الصوت ما يوصل زين، قول مرة ثانية شوي شوي.",
+       "roman": "as-soot ma yoosal zein, gool marra thaanya shwayy shwayy.",
+       "bn": "আওয়াজ ঠিক আসছে না, আরেকবার আস্তে বলুন।"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

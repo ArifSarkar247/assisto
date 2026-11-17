@@ -62,7 +62,7 @@ class _SaleVoidDialogState extends State<SaleVoidDialog> {
       title: Text(t.shopVoidTitle),
       content: SingleChildScrollView(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(t.shopVoidBody, style: const TextStyle(height: 1.4)),
+          Text(t.shopVoidBody, style: AType.bodyMedium.copyWith(height: 1.4)),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _reason,

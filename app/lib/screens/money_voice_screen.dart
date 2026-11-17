@@ -26,6 +26,7 @@ import '../audio/audio_route_service.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/permission_reason.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/moneyvoice_parse.dart';
@@ -242,7 +243,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
         const SizedBox(height: Gap.lg),
         Text(listening ? t.mvoiceListeningHint : t.mvoiceSpeakHint,
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.45)),
+            style: TextStyle(color: DsTokens.of(context).muted, height: 1.45)),
         const SizedBox(height: Gap.xl),
         Center(
           child: Semantics(
@@ -316,7 +317,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
         child: Text(t.mvoiceReviewBody,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            style: TextStyle(color: DsTokens.of(context).muted, height: 1.4)),
       ),
       const SizedBox(height: Gap.md),
       Expanded(
@@ -327,12 +328,12 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
               margin: const EdgeInsets.only(bottom: Gap.md),
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest,
+                color: DsTokens.of(context).cardHighest,
                 borderRadius: BorderRadius.circular(Radii.md),
               ),
               child: Row(children: [
                 Icon(Icons.hearing_rounded,
-                    size: 16, color: scheme.onSurfaceVariant),
+                    size: 16, color: DsTokens.of(context).muted),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text('"$_transcript"',
@@ -374,7 +375,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
                       fontWeight: FontWeight.w800,
                       color: d.amount != null
                           ? _typeColor(d.type, scheme)
-                          : scheme.error)),
+                          : DsTokens.of(context).dangerInk)),
               IconButton(
                 tooltip: d.skip ? t.mvoiceInclude : t.mvoiceSkip,
                 icon: Icon(d.skip
@@ -432,12 +433,12 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
               Padding(
                 padding: const EdgeInsets.only(top: Gap.sm),
                 child: Row(children: [
-                  Icon(Icons.info_outline_rounded, size: 14, color: scheme.error),
+                  Icon(Icons.info_outline_rounded, size: 14, color: DsTokens.of(context).dangerInk),
                   const SizedBox(width: Gap.xs),
                   Expanded(
                       child: Text(t.mvoiceNeedsInfo,
                           style:
-                              AType.bodySmall.copyWith(color: scheme.error))),
+                              AType.bodySmall.copyWith(color: DsTokens.of(context).dangerInk))),
                 ]),
               ),
           ]),
@@ -452,7 +453,7 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
           MediaQuery.of(context).viewInsets.bottom + Gap.lg),
       decoration: BoxDecoration(
         color: scheme.surface,
-        border: Border(top: BorderSide(color: scheme.outlineVariant)),
+        border: Border(top: BorderSide(color: DsTokens.of(context).border)),
       ),
       child: Row(children: [
         Expanded(
@@ -501,10 +502,10 @@ class _MoneyVoiceScreenState extends State<MoneyVoiceScreen>
 
   Color _typeColor(MoneyVoiceType? ty, ColorScheme scheme) => switch (ty) {
         MoneyVoiceType.income => AssistoTokens.of(context).success,
-        MoneyVoiceType.expense => Theme.of(context).colorScheme.error,
+        MoneyVoiceType.expense => DsTokens.of(context).dangerInk,
         MoneyVoiceType.dueIn => Brand.blue,
         MoneyVoiceType.dueOut => AssistoTokens.of(context).warning,
-        null => scheme.onSurfaceVariant,
+        null => DsTokens.of(context).muted,
       };
 
   String _typeLabel(MoneyVoiceType ty) => switch (ty) {
@@ -550,7 +551,7 @@ class _ExampleCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.lg),
       decoration: BoxDecoration(
-        color: scheme.primaryContainer.withValues(alpha: 0.35),
+        color: DsTokens.of(context).primarySoft.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(Radii.md),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -568,7 +569,7 @@ class _ExampleCard extends StatelessWidget {
               const Text('• '),
               Expanded(
                   child: Text('"$l"',
-                      style: TextStyle(color: scheme.onSurfaceVariant))),
+                      style: TextStyle(color: DsTokens.of(context).muted))),
             ]),
           ),
       ]),

@@ -109,8 +109,6 @@ class _FakePicker extends ImagePickerPlatform {
       [for (final p in paths) XFile(p)];
 }
 
-/// Dhaka local time (the server's TIME_ZONE) for Care Call slots.
-DateTime _dhaka(DateTime utc) => utc.toUtc().add(const Duration(hours: 6));
 String _hhmm(DateTime d) =>
     '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 String _ymd(DateTime d) =>
@@ -376,11 +374,20 @@ void registerE2eProofFlows() {
       }
       await f.waitFor(dest, what: 'destination search');
       await f.tester.tap(dest, warnIfMissed: false);
-      await f.tester.enterText(dest, 'Chandra');
-      await f.waitFor(find.byKey(const ValueKey('ps_row_0')), seconds: 20, what: 'Places suggestions');
+      // sjproof: since the qjourney/sjp0 P0 change the app asks ONE merged
+      // /maps/search (our free BD list first); the SERVER adds Google
+      // Autocomplete only when fewer than 5 good local matches. "Chandra"
+      // alone is in our own list (no Google needed); "Chandra Bus" is not ->
+      // the Google row (fake Places) must appear, then ONE Place Details.
+      await f.tester.enterText(dest, 'Chandra Bus');
+      final gRow = find.ancestor(
+          of: find.textContaining('Chandra Bus Stand'),
+          matching: find.byWidgetPredicate((w) =>
+              w.key is ValueKey<String> && (w.key as ValueKey<String>).value.startsWith('ps_row_')));
+      await f.waitFor(gRow, seconds: 20, what: 'Google row in the merged suggestions');
       await f.shot('suggestions');
-      f.expectHttp('GET', '/maps/autocomplete');
-      await f.tap(find.byKey(const ValueKey('ps_row_0')), settleSeconds: 4);
+      f.expectHttp('GET', '/maps/search');
+      await f.tap(gRow.first, settleSeconds: 4);
       final use = find.byKey(const ValueKey('ps_use'));
       if (await f.appears(use, seconds: 6)) {
         await f.shot('confirm-place');
@@ -614,10 +621,17 @@ void registerE2eProofFlows() {
     final aId = _uid(await f.net(() => api.getJson('/me')));
     late int ccId;
     await f.step('A sets quiet hours away from now; B creates a once Care Call for A', () async {
-      final q = _dhaka(DateTime.now().add(const Duration(hours: 12)));
+      // carecallfix: a Care Call time is on the RECEIVER's clock (fcbrain
+      // Probashi) = the zone A's phone reports on every app open. The CI
+      // emulator runs on UTC (real BD phones on +06:00), so the slot is
+      // "in 2 min" on THIS phone's clock — never an assumed Dhaka clock
+      // (that put it 6 h away: nightly 43783087111 'carecall_tick made 0').
+      await f.net(() => api.postJson('/family/brain/ping',
+          {'tz_offset_min': DateTime.now().timeZoneOffset.inMinutes}));
+      final q = DateTime.now().add(const Duration(hours: 12));
       await f.net(() => api.postJson('/carecall/quiet',
           {'start': _hhmm(q), 'end': _hhmm(q.add(const Duration(minutes: 1)))}));
-      final at = _dhaka(DateTime.now().add(const Duration(minutes: 2)));
+      final at = DateTime.now().add(const Duration(minutes: 2));
       final r = await f.net(() => apiB.postJson('/carecall', {
             'receiver_id': aId,
             'text': 'ওষুধ খাওয়ার সময় (CI $_tag)',
@@ -626,6 +640,13 @@ void registerE2eProofFlows() {
             'date': _ymd(at),
           }));
       ccId = ((r['care_call'] as Map)['id'] as num).toInt();
+      // the server must agree: the slot is ~2 min ahead (not hours)
+      final next = DateTime.tryParse('${(r['care_call'] as Map)['next_at'] ?? ''}');
+      final ahead = next?.difference(DateTime.now()).inSeconds ?? -1;
+      if (ahead < 0 || ahead > 5 * 60) {
+        throw StateError('Care Call slot not ~2 min ahead on A\'s clock: next_at=$next '
+            'receiver_tz=${(r['care_call'] as Map)['receiver_tz']} phone=${DateTime.now().timeZoneOffset}');
+      }
     });
     await f.step('A opens Care Call -> sees the invite -> Accept (consent)', () async {
       await f.openRoute('carecall');

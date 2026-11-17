@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
+import '../plans_v2/buy_inside.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
@@ -205,33 +206,21 @@ class _StorageMeterState extends State<StorageMeter> {
         ),
         if (full) ...[
           const SizedBox(height: Gap.sm),
-          Row(children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  // Deleting items lives in the Documents/Vault — we point there
-                  // without navigating (keeps this widget dependency-free); the
-                  // honest message already tells the user to delete items.
+          // buyinside: buy more storage RIGHT HERE (the Premium buy screen,
+          // back to this meter after buying). The old "delete items" button
+          // did nothing (a dead button) — the line above already says it.
+          FilledButton.icon(
+            key: const Key('bi-storage-buy'),
+            onPressed: widget.onBuyStorage ??
+                () async {
+                  if (await BuyInside.open(context, 'storage') && mounted) {
+                    await _load();
+                  }
                 },
-                icon: const Icon(Icons.delete_outline_rounded, size: 18),
-                label: Text(t.storageDeleteItems),
-                style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(42)),
-              ),
-            ),
-            if (widget.onBuyStorage != null) ...[
-              const SizedBox(width: Gap.sm),
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: widget.onBuyStorage,
-                  icon: const Icon(Icons.add_shopping_cart_rounded, size: 18),
-                  label: Text(t.storageBuyMore),
-                  style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(42)),
-                ),
-              ),
-            ],
-          ]),
+            icon: const Icon(Icons.add_shopping_cart_rounded, size: 18),
+            label: Text(t.storageBuyMore),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          ),
         ],
       ]),
     );

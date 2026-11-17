@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -9,6 +10,7 @@ import '../../blood_panel_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
 
@@ -72,47 +74,67 @@ class _BloodVerifyScreenState extends State<BloodVerifyScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final ds = DsTokens.of(context);
     final text = Theme.of(context).textTheme;
+    // designv2: hero (what + privacy) → photo slot → two pick buttons → send
     return Scaffold(
       appBar: AppBar(title: Text(t.bpVerifyCta)),
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
-          Text(t.bpVerifyLead, style: text.bodyMedium),
+          DsHeroCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Row(children: [
+                Icon(Icons.verified_rounded, color: ds.primaryInk, size: 28),
+                const SizedBox(width: Gap.sm),
+                Expanded(child: Text(t.bpVerifyLead,
+                    style: text.bodyLarge?.copyWith(color: ds.text, fontWeight: FontWeight.w600))),
+              ]),
+              const SizedBox(height: Gap.sm),
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Icon(Icons.lock_rounded, color: ds.muted, size: 18),
+                const SizedBox(width: Gap.sm),
+                Expanded(child: Text(t.bpVerifyPrivacy,
+                    style: text.bodySmall?.copyWith(color: ds.muted))),
+              ]),
+            ]),
+          ),
           const SizedBox(height: Gap.md),
-          Text(t.bpVerifyPrivacy, style: text.bodySmall),
-          const SizedBox(height: Gap.lg),
-          if (_photo != null)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(Radii.md),
-              child: Image.memory(_photo!, height: 220, fit: BoxFit.contain),
-            ),
-          const SizedBox(height: Gap.md),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            ConstrainedBox(constraints: const BoxConstraints(minHeight: 48),
-              child: OutlinedButton.icon(
-                key: const ValueKey('bp-verify-camera'),
-                onPressed: () => _pick(ImageSource.camera),
-                icon: const Icon(Icons.photo_camera_outlined),
-                label: Text(t.bpVerifyCamera),
+          if (_photo != null) ...[
+            DsCard(
+              padding: const EdgeInsets.all(Gap.sm),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(DsRadius.small),
+                child: Image.memory(_photo!, height: 220, fit: BoxFit.contain),
               ),
             ),
-            ConstrainedBox(constraints: const BoxConstraints(minHeight: 48),
-              child: OutlinedButton.icon(
-                key: const ValueKey('bp-verify-gallery'),
-                onPressed: () => _pick(ImageSource.gallery),
-                icon: const Icon(Icons.photo_library_outlined),
-                label: Text(t.bpVerifyGallery),
-              ),
-            ),
+            const SizedBox(height: Gap.md),
+          ],
+          Row(children: [
+            Expanded(child: DsButton.secondary(
+              key: const ValueKey('bp-verify-camera'),
+              label: t.bpVerifyCamera,
+              icon: Icons.photo_camera_outlined,
+              expand: true,
+              onPressed: () => unawaited(_pick(ImageSource.camera)),
+            )),
+            const SizedBox(width: Gap.sm),
+            Expanded(child: DsButton.secondary(
+              key: const ValueKey('bp-verify-gallery'),
+              label: t.bpVerifyGallery,
+              icon: Icons.photo_library_outlined,
+              expand: true,
+              onPressed: () => unawaited(_pick(ImageSource.gallery)),
+            )),
           ]),
           const SizedBox(height: Gap.lg),
-          ConstrainedBox(constraints: const BoxConstraints(minHeight: 56),
-            child: FilledButton(
-              key: const ValueKey('bp-verify-send'),
-              onPressed: _photo == null || _busy ? null : _send,
-              child: Text(t.bpVerifySend),
-            ),
+          DsButton(
+            key: const ValueKey('bp-verify-send'),
+            label: t.bpVerifySend,
+            icon: Icons.send_rounded,
+            expand: true,
+            busy: _busy,
+            onPressed: _photo == null ? null : _send,
           ),
         ],
       ),

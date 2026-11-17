@@ -57,6 +57,10 @@ jobs:
           fi
           echo "backend=$B app=$A shards=$SH"
           { echo "backend=$B"; echo "app=$A"; echo "shards=$SH"; } >> "$GITHUB_OUTPUT"
+      # ghstore (owner 17 Nov): every upload-artifact step must set
+      # retention-days 1-30 (test 2, screenshots/reports 5, release 30).
+      - name: Artifact retention guard
+        run: python3 tools/ci/check_artifact_retention.py
 
   backend:
     needs: changes
@@ -74,7 +78,7 @@ jobs:
           cache-dependency-path: backend/requirements.txt
       # tblib: Django's --parallel runner needs it to report a failing test;
       # without it one failure crashes the whole run ("cannot pickle traceback").
-      - run: python -m pip install -q -r backend/requirements.txt tblib==3.0.0
+      - run: python -m pip install -q -r backend/requirements.txt tblib==3.0.0 pypdfium2==5.14.0
       - name: makemigrations --check
         working-directory: backend
         run: python manage.py makemigrations --check --dry-run --settings=assisto_backend.settings_test
@@ -140,10 +144,11 @@ jobs:
       # gallery screenshots (before/after proof for the owner) — whatever the
       # shard's screenshot tests wrote; nothing uploaded when none ran
       - name: upload screenshots
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: shots-${{ matrix.shard }}
           path: ${{ runner.temp }}/shots
           if-no-files-found: ignore
-          retention-days: 14
+          retention-days: 5

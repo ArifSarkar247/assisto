@@ -222,7 +222,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
             Text(
               '${t.analyticsDataRange}: '
               '${_digits(rangeStart, loc)} - ${_digits(rangeEnd, loc)}',
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted),
             ),
           const SizedBox(height: Gap.md),
 
@@ -399,7 +399,7 @@ class _OwnerAnalyticsScreenState extends State<OwnerAnalyticsScreen> {
           Center(
             child: Text(
               '${t.analyticsTotalEvents}: ${_int(totalEvents, loc)}',
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted),
             ),
           ),
         ],
@@ -536,16 +536,16 @@ class _ChartCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: scheme.ds.cardHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
+        border: Border.all(color: scheme.ds.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (title != null) ...[
             Text(title!,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.sm),
           ],
           child,
@@ -568,11 +568,11 @@ class _NoChartData extends StatelessWidget {
       child: Row(
         children: [
           Icon(Icons.timeline_rounded,
-              size: 18, color: scheme.onSurfaceVariant),
+              size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(text,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ),
         ],
       ),
@@ -602,7 +602,7 @@ class _EstimateBadge extends StatelessWidget {
           const SizedBox(width: Gap.xs),
           Flexible(
             child: Text(text,
-                style: AType.bodySmall.copyWith(color: scheme.onSurface, fontWeight: FontWeight.w600)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -672,7 +672,7 @@ class _SectionTitle extends StatelessWidget {
           const SizedBox(height: Gap.xxs),
           Text(
             hint!,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted),
           ),
         ],
       ],
@@ -719,9 +719,9 @@ class _Metric extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: scheme.ds.cardHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.5)),
+        border: Border.all(color: scheme.ds.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -742,7 +742,7 @@ class _Metric extends StatelessWidget {
             label,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.2),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.2),
           ),
         ],
       ),
@@ -780,7 +780,7 @@ class _FeatureRow extends StatelessWidget {
           ),
           Text(
             trailing,
-            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted),
           ),
         ],
       ),

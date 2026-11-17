@@ -20,7 +20,7 @@ DEFAULTS: Dict[str, float] = {
     "motion_cooldown_s": 180,
     "check_every_s": 5,
     "cam_lost_s": 120,
-    "confirm_frames": 2,
+    "confirm_frames": 3,
     "live_fps": 4,
     "offline_queue_max": 20,
 }

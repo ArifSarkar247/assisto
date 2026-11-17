@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../business_khata_api.dart';
@@ -100,9 +101,7 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
       child: ListView(
         padding: const EdgeInsets.all(Gap.lg),
         children: [
-          Card(
-            margin: EdgeInsets.zero,
-            child: Padding(
+          DsCard(
               padding: const EdgeInsets.all(Gap.lg),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,27 +136,26 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
                     const SizedBox(height: Gap.sm),
                     Text(t.tg2BalNoExpiry,
                         style: AType.bodySmall
-                            .copyWith(color: scheme.onSurfaceVariant)),
+                            .copyWith(color: scheme.ds.muted)),
                   ]),
             ),
-          ),
           const SizedBox(height: Gap.md),
           if (all <= 0)
-            _banner(Icons.block_rounded, t.tg2BalEmpty, scheme.errorContainer,
-                scheme.onErrorContainer,
+            _banner(Icons.block_rounded, t.tg2BalEmpty, scheme.ds.dangerBg,
+                scheme.ds.dangerInk,
                 key: const ValueKey('tg2-bal-empty'))
           else if (low)
             _banner(Icons.warning_amber_rounded, t.tg2BalLow,
-                scheme.tertiaryContainer, scheme.onTertiaryContainer,
+                scheme.ds.successBg, scheme.ds.successInk,
                 key: const ValueKey('tg2-bal-low')),
           if (_b!['ready'] == false) ...[
             const SizedBox(height: Gap.sm),
             _banner(Icons.sms_failed_outlined, t.tg2BalNotReady,
-                scheme.surfaceContainerHighest, scheme.onSurface),
+                scheme.ds.cardHighest, scheme.ds.text),
           ],
           const SizedBox(height: Gap.md),
           _banner(Icons.volunteer_activism_rounded, t.tg2BalFreeFirst,
-              scheme.surfaceContainerHighest, scheme.onSurface),
+              scheme.ds.cardHighest, scheme.ds.text),
           const SizedBox(height: Gap.lg),
           Semantics(
             header: true,
@@ -171,7 +169,7 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
           for (final p in packs) _packRow(t, p),
           const SizedBox(height: Gap.lg),
           Text(t.tg2BalParts,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ],
       ),
     );
@@ -207,9 +205,7 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
     final price = (p['price_bdt'] as num?)?.toInt() ?? 0;
     final sku = '${p['sku'] ?? ''}';
     final sale = p['on_sale'] == true && sku.isNotEmpty;
-    return Card(
-      margin: const EdgeInsets.only(top: Gap.sm),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(top: Gap.sm), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Wrap(
           alignment: WrapAlignment.spaceBetween,
@@ -237,10 +233,9 @@ class _SmsBalanceScreenState extends State<SmsBalanceScreen> {
             else
               Text(t.tg2BalSoonShort,
                   style: AType.bodySmall.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      color: Theme.of(context).colorScheme.ds.muted)),
           ],
         ),
-      ),
-    );
+      ));
   }
 }

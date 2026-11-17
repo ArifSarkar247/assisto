@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -122,7 +124,7 @@ class _MarketScreenState extends State<MarketScreen> {
           ]),
         ),
         body: _loading && _ov == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList()
             : _err != null && _ov == null
                 ? MkError(error: _err!, onRetry: _load)
                 : TabBarView(children: [
@@ -175,7 +177,7 @@ class _NeedsTab extends StatelessWidget {
             label: Text(t.amkPostNeed),
           ),
           const SizedBox(height: Gap.sm),
-          Text(t.amkCodNote, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+          Text(t.amkCodNote, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted, fontSize: 13)),
           const SizedBox(height: Gap.sm),
           for (final n in needs) MkNeedTile(need: n, onTap: () => onOpen(n['id'] as int)),
         ],
@@ -202,7 +204,8 @@ class MkNeedTile extends StatelessWidget {
       if ((n['joiners'] ?? 0) as int > 0) t.amkJoinersN(mkNum(context, n['joiners'])),
       if (n['km'] != null) t.amkKmAway(mkNum(context, n['km'])),
     ].join(' · ');
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         minVerticalPadding: Gap.md,
         onTap: onTap,
@@ -256,7 +259,7 @@ class _GroupTabState extends State<_GroupTab> with AutomaticKeepAliveClientMixin
     super.build(context);
     final t = AppLocalizations.of(context);
     if (_err != null && _rows == null) return MkError(error: _err!, onRetry: _load);
-    if (_rows == null) return const Center(child: CircularProgressIndicator());
+    if (_rows == null) return const SkeletonList();
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
@@ -374,7 +377,7 @@ class _SellTabState extends State<_SellTab> with AutomaticKeepAliveClientMixin {
     final t = AppLocalizations.of(context);
     if (_err != null && _d == null) return MkError(error: _err!, onRetry: _load);
     final d = _d;
-    if (d == null) return const Center(child: CircularProgressIndicator());
+    if (d == null) return const SkeletonList();
     final seller = (d['seller'] as Map?)?.cast<String, dynamic>();
     final status = '${seller?['status'] ?? ''}';
     if (d['has_business'] != true && seller == null) {
@@ -419,8 +422,8 @@ class _SellTabState extends State<_SellTab> with AutomaticKeepAliveClientMixin {
       child: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
-          Card(
-            color: status == 'approved' ? cs.primaryContainer : cs.secondaryContainer,
+          DsSurface(color: status == 'approved' ? cs.ds.primarySoft : cs.ds.primarySoft,
+            padding: EdgeInsets.zero,
             child: ListTile(
               key: const Key('amk-seller-card'),
               leading: Icon(status == 'approved' ? Icons.verified_rounded : Icons.hourglass_top_rounded),
@@ -457,7 +460,7 @@ class _SellTabState extends State<_SellTab> with AutomaticKeepAliveClientMixin {
                   _load();
                 },
                 trailing: n['my_bid'] != null
-                    ? MkBadge(t.amkYourOffer, color: cs.tertiaryContainer, onColor: cs.onTertiaryContainer)
+                    ? MkBadge(t.amkYourOffer, color: cs.ds.successBg, onColor: cs.ds.successInk)
                     : null,
               ),
         ],
@@ -637,7 +640,7 @@ class _DealsTabState extends State<_DealsTab> with AutomaticKeepAliveClientMixin
     final t = AppLocalizations.of(context);
     if (_err != null && _rows == null) return MkError(error: _err!, onRetry: _load);
     final rows = _rows;
-    if (rows == null) return const Center(child: CircularProgressIndicator());
+    if (rows == null) return const SkeletonList();
     if (rows.isEmpty) {
       return ListView(children: [
         MkEmpty(
@@ -658,11 +661,9 @@ class _DealsTabState extends State<_DealsTab> with AutomaticKeepAliveClientMixin
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
         children: [
           for (final d in rows)
-            Card(
-              key: Key('amk-deal-${d['id']}'),
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            DsCard(key: Key('amk-deal-${d['id']}'),
+              padding: const EdgeInsets.all(Gap.md),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('${d['title']}', style: Theme.of(context).textTheme.titleSmall),
                   const SizedBox(height: Gap.xs),
                   Text([
@@ -672,10 +673,10 @@ class _DealsTabState extends State<_DealsTab> with AutomaticKeepAliveClientMixin
                   ].join(' · ')),
                   const SizedBox(height: Gap.xs),
                   Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-                    MkBadge(t.amkCod, color: cs.secondaryContainer, onColor: cs.onSecondaryContainer),
-                    MkBadge(mkStatusLabel(t, '${d['status']}'), color: cs.surfaceContainerHighest, onColor: cs.onSurface),
+                    MkBadge(t.amkCod, color: cs.ds.primarySoft, onColor: cs.ds.primaryInk),
+                    MkBadge(mkStatusLabel(t, '${d['status']}'), color: cs.ds.cardHighest, onColor: cs.ds.text),
                     if (d['rating'] != null)
-                      MkBadge(t.amkStarsN(mkNum(context, d['rating'])), color: cs.tertiaryContainer, onColor: cs.onTertiaryContainer),
+                      MkBadge(t.amkStarsN(mkNum(context, d['rating'])), color: cs.ds.successBg, onColor: cs.ds.successInk),
                   ]),
                   const SizedBox(height: Gap.sm),
                   Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -723,7 +724,6 @@ class _DealsTabState extends State<_DealsTab> with AutomaticKeepAliveClientMixin
                       ),
                   ]),
                 ]),
-              ),
             ),
         ],
       ),

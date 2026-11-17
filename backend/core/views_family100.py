@@ -40,9 +40,11 @@ class FamilySosView(APIView):
 
 
 class FamilySosResolveView(APIView):
-    """POST /family/sos/resolve — 'I'm safe now'."""
+    """POST /family/sos/resolve {reason?} — 'I'm safe now'; fcsos: reason
+    "mistake" = cancel after sending (everyone told it was a mistake)."""
     def post(self, request):
-        st = FA.sos_resolved(request.user)
+        reason = "mistake" if str((request.data or {}).get("reason") or "") == "mistake" else "safe"
+        st = FA.sos_resolved(request.user, reason=reason)
         return Response({"ok": True, "recipients": st.get("recipients", 0),
                          "sent": st.get("sent", 0)})
 

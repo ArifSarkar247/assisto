@@ -13,8 +13,9 @@ SERVER-ENFORCED RULES (the app never decides who sees what):
     always labelled "Sponsored"; the per-card audience can still narrow them;
   * Premium and Business users NEVER receive ADMOB cards (no AdMob ads is a
     paid-plan benefit), whatever the card's audience says;
-  * the ADMOB slot is for FREE users only, at most ONE, and only when no active
-    SPONSORED card is booked for that user (a sponsor always wins the slot);
+  * the ADMOB slot is for FREE users only, at most ONE; discms (lead decision
+    10 Nov): a booked SPONSORED card and the ADMOB slot are BOTH shown, never
+    next to each other (at least one owner card between any two ads);
   * homeorder (owner 2 Nov): a card whose in-app route belongs to a feature
     flag that is OFF for this user is hidden (preview-only = off, so the
     owner's home matches normal users');
@@ -24,7 +25,9 @@ SERVER-ENFORCED RULES (the app never decides who sees what):
     after its own filtering (home_suggestions.dart `separateDiscoverAds`).
 
 LABELS (not editable — derived from the type, so a sponsor can never hide it):
-  OUR_PRODUCT -> "our_products",  SPONSORED -> "sponsored", others -> "".
+  OUR_PRODUCT -> "our_products",  SPONSORED -> "sponsored" (the app shows
+  "Ad"), WHATS_NEW -> "whats_new", OFFER -> "offer", others -> "".
+  NO AUTO-EXPIRY (owner 10 Nov): a card has no end unless the owner sets one.
 
 CONTENT SAFETY (on every admin save): rejects gambling / adult / scam or fake-
 claim wording in bn + en, reuses the Scam-check engine (core.logic.scam) on the
@@ -40,7 +43,14 @@ FEATURE = "FEATURE"
 OUR_PRODUCT = "OUR_PRODUCT"
 SPONSORED = "SPONSORED"
 ADMOB = "ADMOB"
-TYPES = (FEATURE, OUR_PRODUCT, SPONSORED, ADMOB)
+# discms (owner 10 Nov 01:53): the owner runs Discover as his ads + updates
+# slot — "What's new" (app updates) and "Offer / promotion" cards.
+WHATS_NEW = "WHATS_NEW"
+OFFER = "OFFER"
+TYPES = (FEATURE, OUR_PRODUCT, SPONSORED, ADMOB, WHATS_NEW, OFFER)
+# Owner cards (everything but the AdMob slot) reach EVERY plan, Premium and
+# Plus included (owner answer 10 Nov 01:56).
+OWNER_TYPES = (FEATURE, OUR_PRODUCT, SPONSORED, WHATS_NEW, OFFER)
 
 AUDIENCES = ("all", "free", "premium", "business")
 
@@ -51,7 +61,18 @@ SOS_ROUTE = "emergency_hub"   # owner 2 Nov: SOS opens the Emergency hub
 BLOOD_ROUTE = "blood_panel"
 # Cards an ad may never sit next to (SOS — old screen and new hub — and Blood donor).
 PROTECTED_ROUTES = frozenset({"emergency", "emergency_hub", "voice_sos", BLOOD_ROUTE,
-                              "blood_donor"})   # ownerfix: old-link alias
+                              "blood_donor",   # ownerfix: old-link alias
+                              # discms (lead note 10 Nov): no ad next to a
+                              # safety, child or Quran card either
+                              "quran", "quran_learn", "kids_watch", "school_mode",
+                              "kid_audio", "missing_alert", "carecall",
+                              "elder_watch", "family_alerts"})
+# discms: a SPONSORED card may never OPEN a safety / SOS / child / Quran screen
+# (owner: never ads on SOS / safety; lead: never on child or Quran topics).
+SAFETY_TOPIC_ROUTES = PROTECTED_ROUTES | frozenset({
+    "journey", "journey_watch", "safety", "fall_detect", "lost_stolen", "my_lost_phone", "recovery",
+    "guardians", "journey_settings", "journey_requests", "watchman_sos_live",
+    "disaster", "safe_plans"})
 AD_TYPES = (SPONSORED, ADMOB)
 SEGMENTS = ("free", "premium", "business")
 
@@ -62,6 +83,7 @@ ROUTE_KEYS = (
     "emergency_hub",   # emhub: the Emergency hub (ChatNav mirror in lock-step)
     "family_alerts",   # family100 route (keeps the ChatNav mirror in lock-step)
     "carecall",   # carecall: Care Call home (ChatNav mirror in lock-step)
+    "elder_watch",  # fcelder: Silent Watch (family view; ChatNav mirror)
     "day_planner",     # p2plan: AI daily planner (flag ai_daily_planner)
     "task_manager",    # p2plan: Task manager (push "tasks" target)
     "my_dues",         # tagada2: the customer's My Dues (push tap target)
@@ -75,6 +97,7 @@ ROUTE_KEYS = (
     "acct",            # acctui: accounting home (flag accounting_v2)
     "market",          # amarket: Assisto Market (flag assisto_market)
     "safe_plans",      # safeplans: Safety plans (flag safe_plans)
+    "city",            # cityapp: City Service (flag city_service)
     "money", "documents", "family", "reminders", "vehicles", "vehicle_tracking",
     "car_mode", "emergency", "plans", "scam", "safety", "voice_sos", "crm",
     "medicine_db", "health_tips", "birthdays", "meetings", "dictionary",
@@ -98,6 +121,7 @@ ROUTE_KEYS = (
     "probashi_plan",  # probashi-plan (flag probashi_plan)
     "retention_auto", "retention_inbox",  # retention1: Retention automation
     "marketing_engine",  # mktengine: Marketing Engine v1
+    "biz_daily",  # bizai2: owner daily shop summary
     "khata", "sales_agent", "prepaid_meter", "contract",  # home_v2 shortcut routes
     "agent_core", "agent_approvals",  # agent-core WP-APP (flag agent_core)
     "daily_today",  # p3feed: Daily info "Today" feed (flag daily_info)
@@ -116,10 +140,16 @@ ICONS = (
 
 
 def label_for(card_type):
+    """The badge the app draws. discms (owner 10 Nov): a SPONSORED card is
+    labelled "Ad" ("sponsored" code kept so old builds still badge it)."""
     if card_type == OUR_PRODUCT:
         return "our_products"
     if card_type == SPONSORED:
         return "sponsored"
+    if card_type == WHATS_NEW:
+        return "whats_new"
+    if card_type == OFFER:
+        return "offer"
     return ""
 
 
@@ -163,6 +193,8 @@ def separate_ads(cards):
     n = len(plain)
 
     def ok(g):   # gap g sits between plain[g-1] and plain[g]
+        if g in slots:   # discms: one ad per gap = never two ads side by side
+            return False
         return not ((g > 0 and is_protected(plain[g - 1])) or
                     (g < n and is_protected(plain[g])))
 
@@ -212,13 +244,12 @@ def visible_cards(cards, segment, build, now, hero_ad=False, route_on=None):
             continue
         base.append(c)
     base.sort(key=lambda c: (int(c.get("order") or 0), int(c.get("id") or 0)))
-    has_sponsor = any(c.get("type") == SPONSORED for c in base)
     out, admob_used = [], False
     for c in base:
         if c.get("type") == ADMOB:
             # h1-home: only ONE AdMob ad on home — while the home hero is
             # showing a native ad the Discover AdMob slot is dropped.
-            if paid or has_sponsor or admob_used or hero_ad:
+            if paid or admob_used or hero_ad:
                 continue
             admob_used = True
         out.append(c)
@@ -349,10 +380,11 @@ def validate(fields):
         err["action"] = "route_or_url"
     if route and route not in ROUTE_KEYS:
         err["route"] = "unknown_route"
-    if t in (OUR_PRODUCT, SPONSORED) and not (route or url):
+    # every owner card opens something (no dead buttons)
+    if t in OWNER_TYPES and not (route or url):
         err["action"] = "required"
-    if t == FEATURE and not (route or url):
-        err["action"] = "required"
+    if t == SPONSORED and route in SAFETY_TOPIC_ROUTES:
+        err["route"] = "safety_topic"
     icon = (fields.get("icon") or "").strip()
     if icon and icon not in ICONS:
         err["icon"] = "unknown_icon"

@@ -184,7 +184,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
           padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
           children: [
             Text(widget.locationOnly ? t.sjlReqIntro : t.gjAskIntro,
-                style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
             h(widget.locationOnly ? t.sjlReqWho : t.gjWho),
             if (widget.people.isEmpty) ...[
               Text(t.journeyNoWatchers),
@@ -319,7 +319,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
                 buildCounter: localCounter,
                 decoration: InputDecoration(labelText: t.gjNote)),
             Text(widget.locationOnly ? t.sjlReqRules : t.gjRulesNote,
-                style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: cs.ds.muted)),
             const SizedBox(height: Gap.lg),
             FilledButton.icon(
               key: const ValueKey('gj_send'),

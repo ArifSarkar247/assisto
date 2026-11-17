@@ -12,6 +12,7 @@
 //                      standing, appeal_token}; no session — refresh / appeal
 //                      go through account/*/blocked with the token.
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../api.dart';
@@ -223,12 +224,12 @@ class _StandingList extends StatelessWidget {
       icon = Icons.block;
       title = t.astdBannedTitle;
       sub = t.astdBannedBody;
-      tone = cs.error;
+      tone = DsTokens.of(context).dangerInk;
     } else if (status == 'suspended') {
       icon = Icons.pause_circle_outline;
       title = until.isEmpty ? t.astdSuspendedTitle : t.astdSuspendedUntil(until);
       sub = t.astdSuspendedBody;
-      tone = cs.error;
+      tone = DsTokens.of(context).dangerInk;
     } else if (limits.isNotEmpty) {
       icon = Icons.do_not_disturb_on_outlined;
       title = t.astdLimitedTitle;

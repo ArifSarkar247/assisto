@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
+import '../theme.dart' show AType;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -169,7 +171,7 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
             SelectableText(ld(context, d['code'] ?? ''),
                 key: const Key('pcPairCode'),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: AType.bodyMedium.copyWith(
                     fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: 3)),
             TextButton.icon(
               style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
@@ -180,7 +182,7 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
             ),
             Text(t.pcCodeValid(_mmss(_left)),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: 16),
             Text(t.pcStepsTitle, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 4),
@@ -194,7 +196,7 @@ class _PhoneCamPairSheetState extends State<PhoneCamPairSheet> {
               Text(
                   t.pcExtraCameraNote(
                       fmtInt(context, (d['extra_camera_credits'] as num?)?.toInt() ?? 0)),
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ],
             const SizedBox(height: 12),
             Row(children: [

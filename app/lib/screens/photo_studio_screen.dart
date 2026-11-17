@@ -19,6 +19,7 @@ import '../photo_studio/ps_report.dart';
 import '../photo_studio/ps_tools.dart';
 import '../photo_studio/ps_web_import.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import '../widgets/photo_compare.dart';
@@ -395,6 +396,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
             // one users see nothing (never a dead button), the owner a note.
             if (_c.config.providerReady)
               _promptCard(t)
+            // geminioff: honest "paused for now" + the free on-phone tools
+            else if (_c.config.aiEditComingSoon)
+              _aiEditSoonCard(t)
             else if (_c.config.isOwner)
               _ownerKeyNote(t),
           ],
@@ -432,10 +436,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     final eta = p?.etaMs;
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 340),
-      child: Card(
-        key: const Key('psProgress'),
-        margin: const EdgeInsets.symmetric(horizontal: Gap.lg),
-        child: Padding(
+      child: Padding(key: const Key('psProgress'), padding: const EdgeInsets.symmetric(horizontal: Gap.lg), child: DsCard(
           padding: const EdgeInsets.all(Gap.lg),
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Row(children: [
@@ -445,7 +446,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
               Expanded(
                   child: Text(
                       _c.cancelling ? t.d1psStopping : (p == null ? t.psWorking : _stageText(t, p)),
-                      style: const TextStyle(fontWeight: FontWeight.w600))),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
             ]),
             if (p?.fraction != null) ...[
               const SizedBox(height: Gap.md),
@@ -454,7 +455,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
             if (eta != null && eta > 0) ...[
               const SizedBox(height: Gap.xs),
               Text(t.d1psLeft(_dur(t, eta)),
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ],
             if (canCancel) ...[
               const SizedBox(height: Gap.sm),
@@ -469,8 +470,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
               ),
             ],
           ]),
-        ),
-      ),
+        )),
     );
   }
 
@@ -482,7 +482,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     final dl = (av.needsUpscaleModel ? _c.enhance.aiBytes : 0) +
         (av.needsMaskModel ? (_c.config.aiModel.segment?.size ?? 0) : 0);
     return _card(icon: Icons.handyman_rounded, title: t.d1psToolsTitle, children: [
-      Text(t.d1psToolsBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      Text(t.d1psToolsBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.md),
       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
         for (final tool in list)
@@ -511,7 +511,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     final ready = [for (final f in feats) if (_c.config.restoreReady(f)) f];
     final owner = _c.config.isOwner;
     return _card(icon: Icons.auto_fix_normal_rounded, title: t.d1psRestoreTitle, children: [
-      Text(t.d1psRestoreBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      Text(t.d1psRestoreBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       if (ready.isNotEmpty) ...[
         const SizedBox(height: Gap.md),
         for (final f in ready) ...[
@@ -568,7 +568,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     final cap = _c.config.enhanceCap;
     final gate = SheetGateUi(context, forRun: true, onPremium: _c.free ? _openPlans : null);
     return _card(icon: Icons.hd_rounded, title: t.pfTitle, children: [
-      Text(t.pfBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      Text(t.pfBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.md),
       SizedBox(
         width: double.infinity,
@@ -638,7 +638,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     final lim = _c.config.limits, use = _c.config.usage;
     final gifts = ((lim['free_gen_lifetime'] ?? 0) - (use['gen_lifetime'] ?? 0)).clamp(0, 99);
     return _card(icon: Icons.bolt_rounded, title: t.d1psTemplatesTitle, children: [
-      Text(t.d1psTemplatesBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      Text(t.d1psTemplatesBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.md),
       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
         for (final tp in _templates)
@@ -737,7 +737,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         icon: Icons.burst_mode_rounded,
         title: t.d1psBatchTitle(fmtInt(context, _c.batch.length)),
         children: [
-          Text(t.d1psBatchBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(t.d1psBatchBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           _infoLine(Icons.info_outline_rounded, t.d1psBatchLimit(fmtInt(context, PhotoStudioController.batchMax))),
           const SizedBox(height: Gap.md),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -802,21 +802,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
   // ------------------------------------------------------------------ hero
   Widget _hero(AppLocalizations t) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
+    // design2: the DS soft hero (light: white -> #F2F7FF; dark: card -> page)
+    return DsHeroCard(
       padding: const EdgeInsets.all(Gap.xl),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Radii.lg),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Brand.cyan.withValues(alpha: 0.18),
-            Brand.blue.withValues(alpha: 0.16),
-            Brand.purple.withValues(alpha: 0.20),
-          ],
-        ),
-        border: Border.all(color: scheme.outlineVariant),
-      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(
           width: 52,
@@ -833,12 +821,12 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
                 ?.copyWith(fontWeight: FontWeight.w800, height: 1.25)),
         const SizedBox(height: Gap.sm),
         Text(_c.config.providerReady ? t.psEmptyBody : t.psEmptyBodyNoPrompt,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
         const SizedBox(height: Gap.sm),
         // photobar: say what people can make here (they did not know)
         Text(t.psbHeroCan,
             key: const Key('psbHeroCan'),
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
         const SizedBox(height: Gap.lg),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           FilledButton.icon(
@@ -849,7 +837,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           ),
           OutlinedButton.icon(
             // a11y1: primary on the tinted hero was 4.45:1.
-            style: OutlinedButton.styleFrom(foregroundColor: scheme.onPrimaryContainer),
+            style: OutlinedButton.styleFrom(foregroundColor: scheme.ds.primaryInk),
             onPressed: () => _c.pick(camera: true),
             icon: const Icon(Icons.photo_camera_rounded),
             label: Text(t.psPickCamera),
@@ -858,7 +846,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
             OutlinedButton.icon(
               key: const Key('psPickBatch'),
               // a11y: primary on the tinted hero was 4.45:1 (as the camera button)
-              style: OutlinedButton.styleFrom(foregroundColor: scheme.onPrimaryContainer),
+              style: OutlinedButton.styleFrom(foregroundColor: scheme.ds.primaryInk),
               onPressed: _c.busy ? null : _c.pickBatch,
               icon: const Icon(Icons.burst_mode_rounded),
               label: Text(t.d1psBatchButton),
@@ -911,7 +899,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         ? ClipRRect(
             borderRadius: BorderRadius.circular(Radii.md),
             child: ColoredBox(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              color: Theme.of(context).colorScheme.ds.cardHighest,
               child: SizedBox(
                   height: 300,
                   width: double.infinity,
@@ -1023,11 +1011,11 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           if (_c.webLabel.isNotEmpty) ...[
             Text(_c.webLabel,
                 key: const Key('psWebLabel'),
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.xs),
           ],
           Text(t.psWebBody,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           OutlinedButton.icon(
             key: const Key('psWebPickOriginal'),
@@ -1043,11 +1031,11 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     return Padding(
       padding: const EdgeInsets.only(top: Gap.xs),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, size: 16, color: scheme.onSurfaceVariant),
+        Icon(icon, size: 16, color: scheme.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted,
                     height: 1.35))),
       ]),
     );
@@ -1059,18 +1047,21 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
       required String title,
       required List<Widget> children}) {
     final scheme = Theme.of(context).colorScheme;
-    return Material(
-      color: scheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Radii.lg),
-        side: BorderSide(color: scheme.outlineVariant),
-      ),
-      child: Padding(
+    // design2: every studio section is an alive DS card with a tinted icon bubble
+    return DsCard(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(icon, color: scheme.primary),
-            const SizedBox(width: Gap.sm),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: scheme.ds.primarySoft,
+                borderRadius: BorderRadius.circular(DsRadius.card),
+              ),
+              child: Icon(icon, color: scheme.ds.primaryInk),
+            ),
+            const SizedBox(width: Gap.md),
             Expanded(
                 child: Text(title,
                     style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
@@ -1078,7 +1069,6 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           const SizedBox(height: Gap.md),
           ...children,
         ]),
-      ),
     );
   }
 
@@ -1090,10 +1080,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         title: t.psEnhanceTitle,
         children: [
           Text(t.psEnhanceBody,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           Text(t.psStrength,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: Gap.xs),
           SizedBox(
             width: double.infinity,
@@ -1170,9 +1160,9 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         key: const Key('psAiSwitch'),
         contentPadding: EdgeInsets.zero,
         secondary: Icon(Icons.auto_fix_high_rounded, color: scheme.primary),
-        title: Text(t.psAiTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(t.psAiTitle, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(planLine == null ? sub : '$sub\n$planLine',
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.3)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.3)),
         value: _c.aiOn,
         onChanged: (_c.busy || av.ai == AiState.downloading) ? null : _c.setAi,
       ),
@@ -1197,10 +1187,23 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
   }
 
   /// p2-photo d): owner-only note when no cloud image-AI key is connected.
+  // geminioff: no button here on purpose — nothing to press until it ships
+  Widget _aiEditSoonCard(AppLocalizations t) => Container(
+        key: const Key('psAiEditSoon'),
+        child: Semantics(
+          container: true,
+          label: '${t.psAiEditSoonTitle}. ${t.psAiEditSoonBody}',
+          excludeSemantics: true,
+          child: _statusBox(Icons.auto_awesome_rounded,
+              '${t.psAiEditSoonTitle}\n${t.psAiEditSoonBody}',
+              Theme.of(context).colorScheme.primary),
+        ),
+      );
+
   Widget _ownerKeyNote(AppLocalizations t) => Container(
         key: const Key('psOwnerKeyNote'),
         child: _statusBox(Icons.key_rounded, t.psOwnerAddKey,
-            Theme.of(context).colorScheme.onSurfaceVariant),
+            Theme.of(context).colorScheme.ds.muted),
       );
 
   Widget _statusBox(IconData icon, String text, Color color) => Container(
@@ -1213,7 +1216,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, size: 20, color: color),
           const SizedBox(width: Gap.sm),
-          Expanded(child: Text(text, style: const TextStyle(height: 1.35))),
+          Expanded(child: Text(text, style: AType.bodyMedium.copyWith(height: 1.35))),
         ]),
       );
 
@@ -1234,12 +1237,12 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     }
     if (parts.isEmpty) return const SizedBox.shrink();
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Icon(Icons.toll_rounded, size: 16, color: scheme.onSurfaceVariant),
+      Icon(Icons.toll_rounded, size: 16, color: scheme.ds.muted),
       const SizedBox(width: Gap.sm),
       Expanded(
           child: Text(parts.join('  ·  '),
               style:
-                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
+                  AType.bodySmall.copyWith(color: scheme.ds.muted))),
     ]);
   }
 
@@ -1285,11 +1288,11 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Text(t.psGenerateNoPhoto,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ),
           if (hasPhoto) ...[
             Text(t.psChatHint,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             const SizedBox(height: Gap.xs),
             for (var i = 0; i < _turns.length; i++)
               Align(
@@ -1299,14 +1302,14 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
                   margin: const EdgeInsets.only(bottom: Gap.xs),
                   padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
                   decoration: BoxDecoration(
-                      color: scheme.primaryContainer,
+                      color: scheme.ds.primarySoft,
                       borderRadius: BorderRadius.circular(Radii.md)),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.check_circle_rounded, size: 16, color: scheme.onPrimaryContainer),
+                    Icon(Icons.check_circle_rounded, size: 16, color: scheme.ds.primaryInk),
                     const SizedBox(width: Gap.xs),
                     Flexible(
                         child: Text(_turns[i],
-                            style: TextStyle(color: scheme.onPrimaryContainer))),
+                            style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk))),
                   ]),
                 ),
               ),
@@ -1329,7 +1332,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           if (hasPhoto) ...[
             const SizedBox(height: Gap.md),
             Text(t.psReadyOptions,
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               for (final id in PsOptions.ready)
@@ -1378,7 +1381,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
             const SizedBox(height: Gap.xs),
             Text(t.psTrialsLeft(fmtInt(context, _c.config.trialsLeft!)),
                 style:
-                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ],
           const SizedBox(height: Gap.md),
           SizedBox(
@@ -1439,10 +1442,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.psRefusedTitle,
-                style: const TextStyle(fontWeight: FontWeight.w800)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: Gap.xs),
             Text(r.message.isNotEmpty ? r.message : t.psSafetyNote,
-                style: const TextStyle(height: 1.35)),
+                style: AType.bodyMedium.copyWith(height: 1.35)),
           ]),
         ),
       ]),
@@ -1553,7 +1556,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           label: Text(label),
         );
     return _card(icon: Icons.tune_rounded, title: t.psbEditTitle, children: [
-      Text(t.psbEditBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      Text(t.psbEditBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.md),
       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
         b('psbOpenCrop', Icons.crop_rotate_rounded, t.psbCrop, _openCrop),
@@ -1619,10 +1622,10 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
     final cur = _c.currentId;
     final sheetDone = _c.session?.current.feature == 'id_sheet';
     return _card(icon: Icons.badge_rounded, title: t.psbIdTitle, children: [
-      Text(t.psbIdBody, style: TextStyle(color: scheme.onSurfaceVariant)),
+      Text(t.psbIdBody, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.md),
       if (_c.tools.bgBlur) ...[
-        Text(t.psbIdBgLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+        Text(t.psbIdBgLabel, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: Gap.xs),
         SizedBox(
           width: double.infinity,
@@ -1648,7 +1651,7 @@ class _PhotoStudioScreenState extends State<PhotoStudioScreen>
           minTileHeight: 56,
           leading: Icon(p.jpg && !p.printable ? Icons.upload_file_rounded : Icons.portrait_rounded,
               color: scheme.primary),
-          title: Text(_idName(t, p.id), style: const TextStyle(fontWeight: FontWeight.w600)),
+          title: Text(_idName(t, p.id), style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
           subtitle: Text(_idLine(t, p)),
           trailing: const Icon(Icons.chevron_right_rounded),
           onTap: _c.busy ? null : () => _openId(p),
@@ -1740,7 +1743,7 @@ class _ExportTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final on = enabled;
     return Material(
-      color: scheme.surfaceContainerHighest.withValues(alpha: on ? 1 : 0.5),
+      color: scheme.ds.cardHighest.withValues(alpha: on ? 1 : 0.5),
       borderRadius: BorderRadius.circular(Radii.md),
       child: InkWell(
         borderRadius: BorderRadius.circular(Radii.md),
@@ -1751,13 +1754,13 @@ class _ExportTile extends StatelessWidget {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Icon(icon,
                 color: on
-                    ? (available ? scheme.primary : scheme.onSurfaceVariant)
-                    : scheme.outline),
+                    ? (available ? scheme.primary : scheme.ds.muted)
+                    : scheme.ds.muted),
             const SizedBox(height: Gap.xs),
             Text(label,
                 textAlign: TextAlign.center,
                 maxLines: 2,
-                style: AType.bodySmall.copyWith(color: on ? scheme.onSurface : scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: on ? scheme.ds.text : scheme.ds.muted)),
           ]),
         ),
       ),

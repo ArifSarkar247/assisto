@@ -109,6 +109,9 @@ BLOCKED_TOKENS = (
     "money", "prepaid", "khata", "business", "sales", "invoice", "crm",
     "quran", "ramadan", "calorie", "food", "health", "medicine", "reminder",
     "note", "todo", "task", "school", "child",
+    # cctvroles (CCTV Guard V3 L): NO ad on any CCTV screen, whatever its key
+    "watchman", "shop_box", "shop_camera", "shop_eod", "installer", "camera",
+    "phonecam",
 )
 BANNER_MIN_REFRESH_SEC = 60
 
@@ -135,6 +138,9 @@ BANNER_SCREENS = (
     "photo_gallery", "circle_list", "settings",
     # owner fix 3 Nov 02:55: Train Tracker search + detail (live map) only
     "train_search", "train_detail",
+    # lpapp (owner 10 Nov PART B): Language Partner home + lists only
+    "lp_home", "lp_hub", "lp_life", "lp_vocab",
+    "mess_home",  # messv2 (adcontrol registry key): Mess and bachelor V2 screens (never the mess group chat)
 )
 # OWNER ADS FINAL (2 Nov): interstitials ONLY on the EXIT after a finished
 # task — the ONE registry (mirrors AdExitPlacement in ad_placements.dart).
@@ -143,12 +149,17 @@ INTERSTITIAL_MOMENTS = (
     "lesson_after_finish", "interview_after_feedback", "student_after_practice",
     "article_after_read", "job_after_apply", "plan_after_save",
     "estimate_after_finish", "quick_tool_exit",
+    # adcontrol (owner 10 Nov): owner-approved TRANSITION moments
+    "exam_after_submit", "finance_after_export", "finance_month_report",
+    "mess_month_report",
 )
 # pre-2-Nov ids (photo_saved / task_done): a stored list made only of these
 # means "the defaults" (task_done is on the never list now)
 LEGACY_INTERSTITIAL_MOMENTS = ("photo_saved", "task_done")
-INTERSTITIAL_MIN_GAP_SEC = 800
-INTERSTITIAL_MAX_PER_DAY = 4
+# adcontrol (owner 10 Nov 03:45, replaces the 2 Nov 800 s / 4 a day): max 1
+# per 3 minutes; the daily cap is owner-editable (Owner Admin -> Ad control)
+INTERSTITIAL_MIN_GAP_SEC = 180
+INTERSTITIAL_MAX_PER_DAY = 12
 
 
 def _s(v):
@@ -266,7 +277,7 @@ def serving_units(caps, admob_cfg=None, admob_working=False):
 
 
 def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
-                  flag_app_open, ad_caps, hero_refresh=90):
+                  flag_app_open, ad_caps, hero_refresh=90, ad_control=None):
     """The /ads/config payload.
 
     `configured` (= `real_ids`) is True only after the owner turned
@@ -278,22 +289,29 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
     paid = bool(paid)
     real, app_id, units = serving_units(caps, admob_cfg, admob_working)
     gap = int(caps.get("appopen_min_gap_sec", 10800) or 0)
-    i_gap = int(caps.get("interstitial_min_gap_sec", INTERSTITIAL_MIN_GAP_SEC) or 0)
+    from . import ad_control as AC
+    ctl = AC.normalize(ad_control)
+    i_gap = int(ctl["caps"]["interstitial_min_gap_sec"])
 
     def on(key):
         return bool(caps.get(key, True)) and not paid
 
     app_open_cap = int(caps.get("appopen_daily_cap", 0) or 0)
     inter_cap = min(INTERSTITIAL_MAX_PER_DAY,
-                    int(caps.get("interstitial_daily_cap", 0) or 0))
+                    int(ctl["caps"]["interstitial_daily_cap"]))
     rew_cap = int(caps.get("rewarded_daily_cap", 0) or 0)
-    hero = bool(caps.get("hero_enabled", False)) and not paid
+    # adcontrol: the owner's per-placement switches (home native, app open)
+    hero = (bool(caps.get("hero_enabled", False)) and not paid
+            and ctl["placements"]["home"]["on"])
     # banners-everywhere: allowlist first, then the hard never-fence
     banner_screens = [b for b in _csv(caps.get("banner_screens", ",".join(BANNER_SCREENS)),
                                       BANNER_SCREENS) if not is_blocked_screen(b)]
-    moments = interstitial_placements(caps.get("interstitial_moments"))
+    # adcontrol: the owner's per-placement switches decide (Ad control page)
+    # (replaces the old ad_rewards.interstitial_moments list)
+    moments = [m for m in AC.moments_on(ad_control) if m in INTERSTITIAL_MOMENTS]
     placements = {
-        "app_open": bool(flag_app_open) and on("place_app_open") and app_open_cap > 0,
+        "app_open": (bool(flag_app_open) and on("place_app_open") and app_open_cap > 0
+                     and ctl["placements"]["app_open"]["on"]),
         "native_home": hero,
         "banner": on("place_banner") and bool(banner_screens),
         "interstitial": on("place_interstitial") and inter_cap > 0 and bool(moments),
@@ -354,6 +372,10 @@ def client_config(*, plan, paid, admob_cfg, admob_working, flag_rewarded,
         "offers_enabled": bool(caps.get("offers_enabled", True)),
         "offer_notif_daily_cap": int(caps.get("offer_notif_daily_cap", 2) or 0),
         "blocked_entries": list(BLOCKED_ENTRIES),
+        # adcontrol (owner 10 Nov): THE per-placement registry state. The app
+        # shows an ad only where this says on (safety rows: only when on
+        # explicitly; no config = no ad). Paid plans: every row off.
+        "control": AC.client_payload(ad_control, paid),
     }
 
 

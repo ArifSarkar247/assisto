@@ -63,6 +63,13 @@ def _down_min(conf=None):
 
 def mark_down(provider, model, kind, code="", reason="", conf=None):
     """Book a hard error. Returns True when the pair is now skipped."""
+    if provider == "gemini":
+        # geminioff: a billing error opens the 24 h Gemini breaker
+        try:
+            from . import gemini_breaker as GB
+            GB.note_failure(code, reason, kind)
+        except Exception:  # noqa: BLE001
+            pass
     if kind not in HARD_KINDS:
         return False
     from .models import AIProviderState
@@ -86,6 +93,10 @@ def mark_down(provider, model, kind, code="", reason="", conf=None):
 
 def is_down(provider, model=""):
     from .models import AIProviderState
+    if provider == "gemini":
+        from . import gemini_breaker as GB
+        if GB.is_open():
+            return True        # geminioff: prepaid credit empty -> 24 h off
     slugs = [_slug(provider, "*")] + ([_slug(provider, model)] if model else [])
     try:
         return AIProviderState.objects.filter(slug__in=slugs,
@@ -146,7 +157,19 @@ def alert_lines(provider):
 def alerts():
     """Every provider's active red line: [{"provider", "bn", "en", "reason", "at"}]."""
     out = []
+    try:
+        from . import gemini_breaker as GB
+        gs = GB.state()
+    except Exception:  # noqa: BLE001
+        gs = {"open": False}
+    if gs.get("open"):
+        # geminioff: ONE clear line while the 24 h breaker is open
+        out.append({"provider": "gemini", "bn": gs["bn"], "en": gs["en"],
+                    "reason": gs.get("reason", ""), "at": gs.get("last_check"),
+                    "breaker": True})
     for p in ("gemini", "anthropic", "openai"):
+        if p == "gemini" and gs.get("open"):
+            continue
         lines = alert_lines(p)
         if lines:
             e = last_error(p) or {}

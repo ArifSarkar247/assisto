@@ -11,6 +11,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/msgr_set_tiles.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
+import '../../widgets/num_input.dart'; // savesweep
 
 /// Two-step verification PIN (set / change / turn off). The PIN lives ONLY on
 /// the server, as a Django password hash ([MessengerSettingsApi.twoStepSet]);
@@ -78,7 +79,7 @@ class _MsgrSetTwoStepScreenState extends State<MsgrSetTwoStepScreen> {
           autofocus: true,
           keyboardType: TextInputType.number,
           maxLength: 6,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          inputFormatters: [const LatinDigitsFormatter(), FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(hintText: _t.msgrSetTwoStepPinHint),
         ),
         actions: [

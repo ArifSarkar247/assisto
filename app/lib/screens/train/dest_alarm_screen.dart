@@ -9,7 +9,9 @@ import '../../feature_flags.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../push/lock_screen_guard.dart'; // sjtrain
 import '../../train/dest_alarm_decide.dart';
+import '../../train/dest_alarm_fullscreen.dart'; // sjtrain
 import '../../train/dest_alarm_math.dart';
 import '../../train/dest_alarm_service.dart';
 import '../../train/dest_alarm_sound.dart';
@@ -104,6 +106,12 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
 
   /// sjalarm: "Custom" open (slider) / family notice.
   bool _custom = false, _notify = false;
+
+  /// sjtrain: ring N minutes before (instead of a distance); remembered.
+  bool _byMin = false;
+  int _min = 5;
+  static const List<int> kMinutes = [2, 5, 10, 15, 20];
+  static const String _kByMinKey = 'dest_alarm_by_min_v1';
   List<({int id, String name})> _people = const [];
 
   DestAlarmController get _c => DestAlarmController.I;
@@ -114,6 +122,7 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
     _c.addListener(_onChange);
     _mode = widget.suggested.isNotEmpty ? TransportMode.train : TransportMode.cityBus;
     unawaited(_loadAll());
+    unawaited(_loadByMin());
   }
 
   @override
@@ -270,6 +279,72 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
 
   Future<void> _remember() => DestModeMemory.save(_mode, _setM, _alerts);
 
+  Future<void> _loadByMin() async {
+    try {
+      final raw = await Settings.getString(_kByMinKey);
+      if (raw == null || raw.isEmpty || !mounted) return;
+      final j = jsonDecode(raw) as Map<String, dynamic>;
+      final m = (j['min'] as num?)?.toInt() ?? 5;
+      setState(() {
+        _byMin = j['by'] == true;
+        _min = kMinutes.contains(m) ? m : 5;
+      });
+    } catch (_) {
+      // best-effort: distance mode
+    }
+  }
+
+  Future<void> _saveByMin() =>
+      Settings.setString(_kByMinKey, jsonEncode({'by': _byMin, 'min': _min}));
+
+  /// sjtrain: "How early?" — by distance (km / m) or by minutes.
+  List<Widget> _byMinControls(AppLocalizations t) => [
+        Text(t.sjtHowEarly, style: AType.titleSmall),
+        const SizedBox(height: Gap.xs),
+        Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+          ChoiceChip(
+            key: const ValueKey('sjt_by_dist'),
+            avatar: const Icon(Icons.straighten_rounded, size: 18),
+            label: Text(t.sjtByDistance),
+            selected: !_byMin,
+            onSelected: (_) {
+              setState(() => _byMin = false);
+              unawaited(_saveByMin());
+            },
+          ),
+          ChoiceChip(
+            key: const ValueKey('sjt_by_min'),
+            avatar: const Icon(Icons.timer_outlined, size: 18),
+            label: Text(t.sjtByMinutes),
+            selected: _byMin,
+            onSelected: (_) {
+              setState(() => _byMin = true);
+              unawaited(_saveByMin());
+            },
+          ),
+        ]),
+        if (_byMin) ...[
+          const SizedBox(height: Gap.sm),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            for (final m in kMinutes)
+              ChoiceChip(
+                label: Text(_d(t.sjtMinutesBefore('$m'))),
+                selected: _min == m,
+                onSelected: (_) {
+                  setState(() => _min = m);
+                  unawaited(_saveByMin());
+                },
+              ),
+          ]),
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xs),
+            child: Text(_d(t.sjtMinutesNote(_dist(t, clampFor(_mode, _setM).toDouble()))),
+                style: AType.bodySmall),
+          ),
+        ],
+        const SizedBox(height: Gap.sm),
+      ];
+
   bool get _bn => Localizations.localeOf(context).languageCode == 'bn';
   String _d(String s) => notifLocalizeDigits(context, s);
 
@@ -370,11 +445,14 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
       final api = context.read<AppState>().api;
       // only after "I am awake" — the alarm itself never uses the network
       DestAlarmController.arrivedNotifier = (plan) async {
+        // sjtrain: "Time to get off" (never "arrived" — Safe Journey V2)
         final r = await api.postJson('/train/alarm/arrived',
-            {'stop': plan.target.name, 'circle_ids': plan.notifyCircleIds});
+            {'stop': plan.target.name, 'circle_ids': plan.notifyCircleIds, 'kind': 'get_off'});
         return r['ok'] == true;
       };
     }
+    // sjtrain: full screen over the lock screen when it rings
+    DestAlarmController.ringNotice ??= DestAlarmFullScreen();
     if (_mode == TransportMode.metro) {
       if (_metro.length < 2 || _metroFrom == _metroTo) return;
       final to = _metro[_metroTo];
@@ -402,7 +480,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
             setM: clampFor(_mode, _setM),
             alerts: _alerts,
             prevStation: _mode == TransportMode.train ? _prev : null,
-            notifyCircleIds: ids),
+            notifyCircleIds: ids,
+            etaMin: _byMin ? _min : null),
         _texts(t, tg.name));
   }
 
@@ -505,7 +584,10 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
                 textStyle: AType.headlineSmall),
             icon: const Icon(Icons.check_circle_rounded, size: 36),
             label: Text(t.trImAwake),
-            onPressed: () => _c.confirmAwake(),
+            onPressed: () {
+              unawaited(_c.confirmAwake());
+              unawaited(LockScreenGuard.release()); // sjtrain: hand the lock screen back
+            },
           ),
           const SizedBox(height: Gap.md),
           if (s.snoozedUntil == null)
@@ -621,8 +703,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
         if (sent != null)
           Card(
             color: sent
-                ? Theme.of(context).colorScheme.secondaryContainer
-                : Theme.of(context).colorScheme.errorContainer,
+                ? Theme.of(context).colorScheme.ds.primarySoft
+                : Theme.of(context).colorScheme.ds.dangerBg,
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Semantics(
@@ -630,8 +712,8 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
                 child: Text(sent ? t.sjaArrivedSent : t.sjaArrivedFailed,
                     style: AType.bodyMedium.copyWith(
                         color: sent
-                            ? Theme.of(context).colorScheme.onSecondaryContainer
-                            : Theme.of(context).colorScheme.onErrorContainer)),
+                            ? Theme.of(context).colorScheme.ds.primaryInk
+                            : Theme.of(context).colorScheme.ds.dangerInk)),
               ),
             ),
           ),
@@ -725,6 +807,7 @@ class _DestAlarmScreenState extends State<DestAlarmScreen> {
               ),
           ],
           const SizedBox(height: Gap.md),
+          ..._byMinControls(t), // sjtrain
           Text(_mode == TransportMode.train ? t.trTrainFallbackDist : t.trAlarmRadius,
               style: AType.titleSmall),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [

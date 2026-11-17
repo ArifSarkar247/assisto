@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/num_input.dart'; // savesweep
 
 /// CALL & VOICE-NOTE TRANSCRIPTION — ADVANCED, KEY-GATED (#92, SPEC v2.1 §21).
 ///
@@ -508,8 +509,8 @@ class _NoteEditorSheetState extends State<_NoteEditorSheet> {
         ..showSnackBar(SnackBar(content: Text(tr.tnTitleRequired)));
       return;
     }
-    final mins = int.tryParse(_minutes.text.trim()) ?? 0;
-    final secs = int.tryParse(_seconds.text.trim()) ?? 0;
+    final mins = parseIntInput(_minutes.text.trim()) ?? 0;
+    final secs = parseIntInput(_seconds.text.trim()) ?? 0;
     final transcript = _transcript.text.trim();
     // Source rule mirrors transcription.normalize_note: text present + no key
     // path means a human typed it => 'manual'. Empty => '' (no claim).

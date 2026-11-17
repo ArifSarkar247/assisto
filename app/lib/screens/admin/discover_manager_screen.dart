@@ -45,6 +45,8 @@ String _typeLabel(AppLocalizations t, String type) => switch (type) {
       DiscoverItem.ourProduct => t.discoverMgrTypeProduct,
       DiscoverItem.sponsored => t.discoverMgrTypeSponsored,
       DiscoverItem.admob => t.discoverMgrTypeAdmob,
+      DiscoverItem.whatsNew => t.discmsTypeWhatsNew, // discms
+      DiscoverItem.offer => t.discmsTypeOffer, // discms
       _ => t.discoverMgrTypeFeature,
     };
 
@@ -235,7 +237,7 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
       header: Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
         child: Text('${t.discoverMgrReorderHint}\n${t.qa2DiscoverPaidNote}',
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ),
       itemCount: _cards.length,
       onReorderItem: _reorder,
@@ -280,14 +282,14 @@ class _DiscoverManagerScreenState extends State<DiscoverManagerScreen> {
                             !enabled
                                 ? t.discoverMgrOff
                                 : (live ? t.discoverMgrLive : t.discoverMgrNotLive),
-                            live ? Brand.success : scheme.onSurfaceVariant),
+                            live ? Brand.success : scheme.ds.muted),
                       ]),
                       const SizedBox(height: Gap.xxs),
                       Text(
                         t.discoverMgrStats(_i(stats['impressions']),
                             _i(stats['clicks']), '${stats['ctr'] ?? 0}'),
                         maxLines: 2,
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted),
                       ),
                     ],
                   ),
@@ -665,12 +667,12 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
           padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
           children: [
             Text(t.discoverMgrPreview,
-                style: AType.titleSmall.copyWith(color: scheme.onSurfaceVariant,
+                style: AType.titleSmall.copyWith(color: scheme.ds.muted,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.sm),
             if (_isAdmob)
               Text(t.discoverMgrAdmobNote,
-                  style: TextStyle(color: scheme.onSurfaceVariant))
+                  style: TextStyle(color: scheme.ds.muted))
             else
               DiscoverCardTile(item: _previewItem),
             const SizedBox(height: Gap.xl),
@@ -680,6 +682,8 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
               decoration: InputDecoration(labelText: t.discoverMgrType),
               items: [
                 for (final ty in const [
+                  DiscoverItem.whatsNew, // discms
+                  DiscoverItem.offer, // discms
                   DiscoverItem.feature,
                   DiscoverItem.ourProduct,
                   DiscoverItem.sponsored,
@@ -693,7 +697,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: Gap.xs),
                 child: Text(t.qa2DiscoverPaidNote,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ),
             if (!_isAdmob) ...[
               const SizedBox(height: Gap.lg + Gap.xs),
@@ -805,7 +809,7 @@ class _DiscoverCardEditScreenState extends State<DiscoverCardEditScreen> {
                   keyboard: const TextInputType.numberWithOptions(decimal: true)),
               Text(t.discoverMgrSponsorNote,
                   style:
-                      AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ],
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -983,7 +987,7 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
                         style: Theme.of(context).textTheme.titleMedium),
                     if ('${card['sponsor_name'] ?? ''}'.isNotEmpty)
                       Text('${t.discoverMgrSponsorName}: ${card['sponsor_name']}',
-                          style: TextStyle(color: scheme.onSurfaceVariant)),
+                          style: TextStyle(color: scheme.ds.muted)),
                     const SizedBox(height: Gap.sm),
                     SegmentedButton<int>(
                       segments: [
@@ -1007,7 +1011,7 @@ class _DiscoverReportScreenState extends State<DiscoverReportScreen> {
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                     Text(t.discoverMgrUniqueNote,
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     const SizedBox(height: Gap.sm),
                     Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                       OutlinedButton.icon(

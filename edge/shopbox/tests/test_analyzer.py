@@ -28,7 +28,7 @@ class FakePersonDetector:
 def make(detector, zone=ZONE):
     cam = CameraConfig(id="c1", name="Counter", rtsp_url="rtsp://x", zone=zone)
     return CameraAnalyzer(cam, Hours(open="09:00", close="22:00"),
-                          DetectionConfig(confirm_frames=2), detector)
+                          DetectionConfig(confirm_frames=2, night_confirm=1), detector)
 
 
 def run(an, frames, t0):

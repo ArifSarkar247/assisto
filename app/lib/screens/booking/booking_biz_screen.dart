@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -9,6 +11,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import 'booking_detail_screen.dart';
 import 'booking_setup_screen.dart';
+import '../../plans_v2/buy_inside.dart';
 import 'booking_source.dart';
 import 'booking_widgets.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -147,7 +150,7 @@ class _BookingBizScreenState extends State<BookingBizScreen> {
   }
 
   Widget _body(AppLocalizations t, bool setUp) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_err != null) return bkErrorView(context, _err!, _load);
     if (!setUp) {
       return ListView(padding: const EdgeInsets.only(bottom: Gap.xxl), children: [
@@ -155,7 +158,7 @@ class _BookingBizScreenState extends State<BookingBizScreen> {
         _Welcome(owner: _page['is_owner'] == true, onStart: _setup),
       ]);
     }
-    final header = _Header(page: _page, ready: _ready, onSetup: _setup);
+    final header = _Header(page: _page, ready: _ready, onSetup: _setup, onReload: _load);
     return TabBarView(children: [
       _BookingList(
           key: ValueKey('today$_rev'),
@@ -200,7 +203,12 @@ class _Header extends StatelessWidget {
   final Map<String, dynamic> page;
   final bool ready;
   final VoidCallback onSetup;
-  const _Header({required this.page, required this.ready, required this.onSetup});
+  final Future<void> Function() onReload;
+  const _Header(
+      {required this.page,
+      required this.ready,
+      required this.onSetup,
+      required this.onReload});
 
   @override
   Widget build(BuildContext context) {
@@ -209,23 +217,36 @@ class _Header extends StatelessWidget {
     final counts = bkMap(page['counts']);
     final on = page['enabled'] == true;
     final url = (page['public_url'] ?? '').toString();
-    return Card(
-      margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xs), child: DsCard(
         padding: const EdgeInsets.all(Gap.lg),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(on ? Icons.check_circle_rounded : Icons.pause_circle_outline_rounded,
-                color: on ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline),
+                color: on ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.ds.muted),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(on ? t.bkgTakingOn : t.bkgTakingOff,
-                    style: const TextStyle(fontWeight: FontWeight.w700))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700))),
           ]),
           if (!on && page['is_owner'] == true)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(page['plan_ok'] == false ? t.bkgNeedsPlan : t.bkgTurnOnHint),
+            ),
+          // buyinside: Business right here; back on this screen, unlocked
+          if (!on && page['is_owner'] == true && page['plan_ok'] == false)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.sm),
+              child: FilledButton.tonalIcon(
+                key: const Key('bi-booking-biz-buy'),
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: () async {
+                  final ok = await BuyInside.open(context, 'booking_bot');
+                  if (ok) await onReload();
+                },
+                icon: const Icon(Icons.workspace_premium_rounded),
+                label: Text(t.biGetBusinessHere, textAlign: TextAlign.center),
+              ),
             ),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.lg, runSpacing: Gap.xs, children: [
@@ -257,8 +278,7 @@ class _Header extends StatelessWidget {
             ]),
           ],
         ]),
-      ),
-    );
+      ));
   }
 }
 
@@ -307,7 +327,7 @@ class _BookingListState extends State<_BookingList> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_err != null) return bkErrorView(context, _err!, _fetch);
     return RefreshIndicator(
       onRefresh: _fetch,
@@ -410,7 +430,7 @@ class _DayViewState extends State<_DayView> {
       ),
       Expanded(
         child: _loading
-            ? const Center(child: CircularProgressIndicator())
+            ? const SkeletonList()
             : _err != null
                 ? bkErrorView(context, _err!, _fetch)
                 : RefreshIndicator(
@@ -535,7 +555,7 @@ class _BkManualSheetState extends State<BkManualSheet> {
           if (_err != null)
             Padding(
               padding: const EdgeInsets.only(top: Gap.sm),
-              child: Text(_err!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              child: Text(_err!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
             ),
           const SizedBox(height: Gap.lg),
           FilledButton(

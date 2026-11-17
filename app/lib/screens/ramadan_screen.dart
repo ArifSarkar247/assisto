@@ -347,10 +347,10 @@ class _RamadanScreenState extends State<RamadanScreen> {
       if ('${tm['method']}' == 'ifb')
         Text(t.rmd2MethodIfb,
             key: const Key('ramadan-ifb-note'),
-            style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))
+            style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.ds.muted))
       else
         Text(t.ramadanMethodNote(_methodName(t, '${tm['method'] ?? 'karachi'}')),
-            style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
       const SizedBox(height: Gap.sm),
       Wrap(
         spacing: Gap.sm,
@@ -443,7 +443,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.ramadanWakeCallComing,
-                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
             ),
           ]),
         ),
@@ -510,7 +510,7 @@ class _RamadanScreenState extends State<RamadanScreen> {
         Expanded(
             child: Text(msg,
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface))),
+                    color: Theme.of(context).colorScheme.ds.text))),
       ]),
     );
   }

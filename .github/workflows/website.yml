@@ -22,7 +22,7 @@ name: website
 
 on:
   push:
-    branches: ['ci/website*', 'ci/sitev3*', 'ci/sitefix*']
+    branches: ['ci/website*', 'ci/sitev3*', 'ci/sitefix*', 'ci/seogrow*']
   workflow_dispatch:
     inputs:
       shots_run_id:
@@ -76,7 +76,9 @@ jobs:
             (cd "$DIR" && python manage.py migrate -v0 --settings=assisto_backend.settings_webci --noinput)
             if [ $side = after ]; then
               # sitev3: v3 live in this CI-only database
-              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import AdminFlagState as A; r,_=A.objects.get_or_create(key='global'); r.state=dict(r.state or {}, website_classic=False); r.save(); print('website v3 live (classic OFF)')")
+              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import AdminFlagState as A; r,_=A.objects.get_or_create(key='global'); r.state=dict(r.state or {}, website_classic=False, site_seo_growth_preview=False); r.save(); print('website v3 live (classic OFF), seogrow landing pages live')")
+              # seogrow: the landing pages exist only while their app feature is on -> turn on the ones that default OFF (CI database only)
+              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import FeatureFlag as F; [F.objects.update_or_create(key=k, defaults={'enabled_all': True, 'enabled_play': True, 'rollout_pct': 100}) for k in ('quran', 'quran_learn', 'dest_alarm')]")
             fi
             (cd "$DIR" && nohup python manage.py runserver 127.0.0.1:$PORT --noreload --insecure \
                --settings=assisto_backend.settings_webci > "$RUNNER_TEMP/$side.log" 2>&1 &)
@@ -104,10 +106,12 @@ jobs:
           python tools/website/site_shots.py "$RUNNER_TEMP/gallery"
           python tools/website/site_shots.py --check
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: github.event.inputs.shots_run_id != ''
         with:
           name: website-shots3
           path: backend/web/site_assets/shots3
+          retention-days: 5
 
       - name: screenshots (before + after)
         run: |
@@ -121,17 +125,23 @@ jobs:
           cp "$GITHUB_WORKSPACE/tools/website/shots_v3.mjs" .
           node shots_v3.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/v3"
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         with:
           name: website-before
           path: ${{ runner.temp }}/shots/before
+          retention-days: 5
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         with:
           name: website-after
           path: ${{ runner.temp }}/shots/after
+          retention-days: 5
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         with:
           name: website-v3-preview
           path: ${{ runner.temp }}/shots/v3
+          retention-days: 5
 
       - name: screenshot clip check (v3 fails; BEFORE = live site at 360 px, report only)
         if: always()
@@ -155,25 +165,33 @@ jobs:
           node uxcheck.mjs http://127.0.0.1:8001 "$RUNNER_TEMP/shots/uxcheck" before || true
           node uxcheck.mjs http://127.0.0.1:8000 "$RUNNER_TEMP/shots/uxcheck" after
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-uxcheck
           path: ${{ runner.temp }}/shots/uxcheck
+          retention-days: 5
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-livelocal
           path: ${{ runner.temp }}/shots/livelocal
+          retention-days: 5
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-before-360
           path: ${{ runner.temp }}/shots/before360
+          retention-days: 5
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-clipcheck
           path: ${{ runner.temp }}/shots/clipcheck
+          retention-days: 5
 
       - name: Lighthouse CI (fails under 95)
         if: always()
@@ -181,9 +199,16 @@ jobs:
       - name: Lighthouse CI desktop (fails under 95)
         if: always()
         run: npx -y @lhci/cli@0.14.0 autorun --config=tools/website/lighthouserc-desktop.json
+      - name: Lighthouse CI seogrow landing pages (mobile; SEO and performance >= 90)
+        if: always()
+        run: npx -y @lhci/cli@0.14.0 autorun --config=tools/website/lighthouserc-seogrow.json
       - name: Lighthouse scores
         if: always()
         run: |
+          if [ -f lhci-report-seogrow/manifest.json ]; then
+            echo "### mobile — feature landing pages (seogrow)" | tee -a "$GITHUB_STEP_SUMMARY"
+            python tools/website/lh_summary.py lhci-report-seogrow/manifest.json | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
           if [ -f lhci-report/manifest.json ]; then
             echo "### mobile" | tee -a "$GITHUB_STEP_SUMMARY"
             python tools/website/lh_summary.py lhci-report/manifest.json | tee -a "$GITHUB_STEP_SUMMARY"
@@ -193,18 +218,21 @@ jobs:
             python tools/website/lh_summary.py lhci-report-desktop/manifest.json | tee -a "$GITHUB_STEP_SUMMARY"
           fi
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-lighthouse
           path: |
             lhci-report
             lhci-report-desktop
+            lhci-report-seogrow
+          retention-days: 5
       - name: website Django tests
         if: always()
         working-directory: backend
         run: |
           export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
-          python manage.py test web.tests_site_v3 web.tests_website web.tests_l1_launch web.tests web.tests_dl1_owner --settings=assisto_backend.settings_test --noinput
+          python manage.py test web.tests_site_v3 web.tests_seogrow web.tests_website web.tests_l1_launch web.tests web.tests_dl1_owner --settings=assisto_backend.settings_test --noinput
       - name: server logs
         if: failure()
         run: tail -n 60 "$RUNNER_TEMP/after.log" "$RUNNER_TEMP/before.log" || true
@@ -247,7 +275,9 @@ jobs:
             cp -r lhci-report-live "$RUNNER_TEMP/live/" || true
           fi
       - uses: actions/upload-artifact@v4
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         with:
           name: website-live
           path: ${{ runner.temp }}/live
+          retention-days: 5

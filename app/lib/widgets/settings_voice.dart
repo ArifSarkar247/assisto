@@ -75,9 +75,9 @@ class _SettingsVoiceSectionState extends State<SettingsVoiceSection> {
             RadioListTile<String>(
               key: ValueKey('voice_mode_${o.$1}'),
               value: o.$1,
-              secondary: Icon(o.$2, color: cs.onSurfaceVariant),
+              secondary: Icon(o.$2, color: cs.ds.muted),
               title: Text(o.$3,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
               subtitle: Text(o.$4),
             ),
         ]),
@@ -85,7 +85,7 @@ class _SettingsVoiceSectionState extends State<SettingsVoiceSection> {
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
         child: Text(t.p1VoiceNote,
-            style: TextStyle(fontSize: 12.5, color: cs.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(fontSize: 12.5, color: cs.ds.muted)),
       ),
     ]);
   }

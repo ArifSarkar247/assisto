@@ -91,6 +91,10 @@ import '../messaging/share/share_payload.dart'
     show kShareKinds, mc2ForwardKind, mc2ForwardText, shareFallback;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'package:assisto/widgets/app_sheet.dart';
+import '../offline/offline_store.dart'; // offline1st
+import '../widgets/mess_group_card.dart'; // messv2
+import '../messaging/outbox.dart'; // offline2
+import '../services/error_kind.dart'; // offline2
 
 /// End-to-end-encrypted GROUP chat (M2 item 7).
 ///
@@ -130,7 +134,12 @@ class CircleGroupChatScreen extends StatefulWidget {
     required this.identity,
     this.circleMembers = const [],
     this.bubble = false,
+    this.initialDraft, // messv2: a mess month report to send (E2E)
   });
+
+  /// messv2: prefilled composer text (the user reviews and taps Send; it is
+  /// sealed like every group message).
+  final String? initialDraft;
 
   @override
   State<CircleGroupChatScreen> createState() => _CircleGroupChatScreenState();
@@ -200,6 +209,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
   void initState() {
     super.initState();
     _input.addListener(_onDraftForPreview); // finish1
+    if ((widget.initialDraft ?? '').isNotEmpty) _input.text = widget.initialDraft!; // messv2
     DecorStore.instance.revision.addListener(_onDecor); // cde-chat
     if (_gid > 0) unawaited(_decor.load());
     MsgActiveChat.current = _chatKey;
@@ -220,6 +230,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     // md1: media sends of this group (progress ring) + decrypted-file dir.
     MediaOutbox.instance.identity ??= () async => widget.identity;
     MediaOutbox.instance.changes.addListener(_onMediaJobs);
+    Outbox.instance.changes.addListener(_onOutbox); // offline2
+    unawaited(_reloadQueued()); // offline2
     _mediaSentSub = MediaOutbox.instance.sent.listen((s) {
       if (s.chatKind == 'group' && s.chatId == _gid) unawaited(_pollMessages());
     });
@@ -343,6 +355,42 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           '${m['id']}',
           if ('${m['client_msg_id'] ?? ''}'.isNotEmpty) '${m['client_msg_id']}',
         ]
+      };
+
+  // ---- offline2: group messages written offline ----------------------------
+  // Encrypted per recipient when written, kept in the encrypted outbox, drawn
+  // with the clock until the network is back; then sent in order (same
+  // client_msg_id -> the server never stores one twice).
+  List<OutboxItem> _queued = const [];
+
+  void _onOutbox() => unawaited(_reloadQueued());
+
+  Future<void> _reloadQueued() async {
+    final now = await Outbox.instance.forChat('group', _gid);
+    if (!mounted) return;
+    final ids = now.map((i) => i.id).toSet();
+    var sentSome = false;
+    setState(() {
+      for (final q in _queued) {
+        if (ids.contains(q.id) || !Outbox.instance.recentlySent.contains(q.id)) continue;
+        sentSome = true;
+        // sent: an ordinary "sent" bubble until the server copy is listed
+        _addEcho(_queuedRow(q, 'sent'));
+      }
+      _queued = now;
+    });
+    if (sentSome) unawaited(_pollMessages());
+  }
+
+  Map<String, dynamic> _queuedRow(OutboxItem q, String status) => {
+        'id': q.id,
+        'client_msg_id': q.id,
+        'mine': true,
+        'content_type': 'text',
+        'md2_plain': q.text,
+        'sender_id': _myUserId,
+        'status': status,
+        'created_at': q.at.toUtc().toIso8601String(),
       };
 
   void _addEcho(Map<String, dynamic> e) {
@@ -543,6 +591,7 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     if (MsgActiveChat.current == _chatKey) MsgActiveChat.current = null;
     _poll?.cancel();
     MediaOutbox.instance.changes.removeListener(_onMediaJobs);
+    Outbox.instance.changes.removeListener(_onOutbox); // offline2
     _mediaSentSub?.cancel();
     _rcptSub?.cancel(); // x2-ticks
     _newSub?.cancel();
@@ -668,9 +717,31 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
     _ringWait ??= Timer(const Duration(seconds: 4), ready);
     unawaited(ringF.then((_) => ready(), onError: (_) => ready()));
+    // offline1st: the newest page + members open AT ONCE from this phone's
+    // encrypted copy (group E2E ciphertext as relayed); the network replaces it.
+    final slot = OfflineStore.chatSlot('group', _groupId);
+    var cachedShown = false; // offline2: a saved copy (even an empty one)
+    if (!_loadedOnce && _messages.isEmpty) {
+      final c = await OfflineStore.instance.read(uid, slot);
+      if (c is Map && c['page'] is List && mounted && _messages.isEmpty) {
+        List<Map<String, dynamic>> rows(Object? l) => (l is List ? l : const [])
+            .whereType<Map>()
+            .map((e) => e.cast<String, dynamic>())
+            .toList();
+        cachedShown = true;
+        setState(() {
+          _members = rows(c['members']);
+          _messages = rows(c['page']);
+          _hasMore = c['has_more'] == true;
+          _loading = false;
+        });
+      }
+    }
     // Spinner only on the very first load — a reload after send/react/pin
     // keeps the list on screen (no flash, no jump).
-    if (mounted && !_loading && !_loadedOnce) setState(() => _loading = true);
+    if (mounted && !_loading && !_loadedOnce && _messages.isEmpty) {
+      setState(() => _loading = true);
+    }
     try {
       final mem = await _api.getJson('/circle/groups/$_groupId/members');
       _members = ((mem['results'] ?? mem['members'] ?? []) as List)
@@ -679,6 +750,8 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           .getJson('/circle/groups/$_groupId/messages?limit=$_pageSize');
       final page = ((msg['results'] ?? msg['messages'] ?? []) as List)
           .cast<Map<String, dynamic>>();
+      unawaited(OfflineStore.instance.write(uid, slot,
+          {'members': _members, 'page': page, 'has_more': msg['has_more'] == true}));
       if (!_loadedOnce) {
         _messages = page;
         _hasMore = msg['has_more'] == true;
@@ -698,7 +771,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     } catch (_) {
       // Keep any already-loaded messages visible; only flag the error so the
       // UI can offer Retry instead of silently showing an empty chat.
-      _loadFailed = _messages.isEmpty;
+      // offline2: a saved copy is on screen (a new group may have no
+      // messages yet) -> the composer stays, the Offline strip says the rest
+      _loadFailed = _messages.isEmpty && !cachedShown;
     }
     if (mounted) {
       setState(() => _loading = false);
@@ -858,17 +933,19 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     }
     final mentions = asCard ? const <int>[] : _parseMentions(text);
     var ok = true;
+    var queued = false; // offline2
     final cmid = 'local-${DateTime.now().microsecondsSinceEpoch}';
+    final body = <String, dynamic>{
+      'recipient_ids': recipientIds,
+      'per_recipient': perRecipient,
+      'sender_key_id': widget.identity.keyId,
+      'scheme': _e2e.scheme,
+      if (mentions.isNotEmpty) 'mentions': mentions,
+      if (_replyTo != null && !asCard) 'reply_to': '${_replyTo!['id']}',
+      'client_msg_id': cmid,
+    };
     try {
-      final res = await _api.postJson('/circle/groups/$_groupId/messages', {
-        'recipient_ids': recipientIds,
-        'per_recipient': perRecipient,
-        'sender_key_id': widget.identity.keyId,
-        'scheme': _e2e.scheme,
-        if (mentions.isNotEmpty) 'mentions': mentions,
-        if (_replyTo != null && !asCard) 'reply_to': '${_replyTo!['id']}',
-        'client_msg_id': cmid,
-      });
+      final res = await _api.postJson('/circle/groups/$_groupId/messages', body);
       // md2: the sent text stays on screen (my bubble) until the reload /
       // poll lists its server copy — never a frame where it is missing.
       final sid = '${res['id'] ?? ''}';
@@ -885,8 +962,39 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
           'created_at': DateTime.now().toUtc().toIso8601String(),
         });
       }
-    } catch (_) {
+    } catch (e) {
       ok = false;
+      // offline2: NO ANSWER (offline, Wi-Fi <-> data, 5xx) is not the user's
+      // problem — like the 1:1 chat the message waits with its clock in the
+      // encrypted outbox and goes by itself. Only a REFUSAL (4xx) stays red.
+      if (!asCard && failKindOf(e) != FailKind.refused) {
+        final item = OutboxItem(
+            id: cmid,
+            chatKind: 'group',
+            chatId: _gid,
+            text: text,
+            at: DateTime.now(),
+            envelope: body);
+        await Outbox.instance.add(item);
+        queued = true;
+        if (mounted) {
+          setState(() {
+            if (!_queued.any((q) => q.id == cmid)) _queued = [..._queued, item];
+          });
+          _toast(_t.circle2QueuedOffline);
+        }
+        unawaited(Outbox.instance.kick(onlyGroup: _gid));
+      }
+    }
+    if (queued) {
+      // the draft is done: it is in the queue (clock), not failed
+      _input.clear();
+      _replyTo = null;
+      _failedText = null;
+      _draftPreview = null;
+      _dismissedUrl = null;
+      if (mounted) setState(() => _sending = false);
+      return true;
     }
     if (ok && !asCard) {
       _input.clear();
@@ -1793,6 +1901,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
                     // t1-ticks: min-version gate (never blocks sending).
                     if (!_searching && _gid > 0)
                       McVersionBanner(api: _api, kind: 'group', chatId: _gid),
+                    // messv2: the mess "Today" card (only on an active mess group)
+                    if (!_searching && !_selecting && _gid > 0)
+                      MessGroupCard(groupId: _gid),
                     if (pinned.isNotEmpty && !_searching && !_selecting)
                       _pinnedBar(pinned),
                     Expanded(
@@ -1920,6 +2031,9 @@ class _CircleGroupChatScreenState extends State<CircleGroupChatScreen> {
     final items = [
       ..._visible,
       if (!searching) ...echoes,
+      if (!searching) // offline2: written offline, waiting (clock)
+        for (final q in _queued)
+          if (!have.contains(q.id) && !echoed.contains(q.id)) _queuedRow(q, 'pending'),
       if (!searching)
         for (final j in _mediaJobs)
           if (!have.contains(j.id) && !echoed.contains(j.id))

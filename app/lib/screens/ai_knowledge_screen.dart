@@ -131,7 +131,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
         t.aiKnowIntro,
         style: TextStyle(
             height: 1.45,
-            color: Theme.of(context).colorScheme.onSurfaceVariant),
+            color: Theme.of(context).colorScheme.ds.muted),
       );
 
   Widget _catHeader(
@@ -145,7 +145,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(width: Gap.xs),
           Text(moneyDigitsFor(context, '($n)'),
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         ]),
       );
 
@@ -170,7 +170,7 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
             const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.md),
         leading: Icon(
             m.isAi ? Icons.auto_awesome_rounded : Icons.edit_note_rounded,
-            color: m.isAi ? Brand.cyan : scheme.onSurfaceVariant),
+            color: m.isAi ? Brand.cyan : scheme.ds.muted),
         title: Text(m.title,
             maxLines: 2, overflow: TextOverflow.ellipsis),
         subtitle: Wrap(spacing: 6, runSpacing: 4, children: badges),
@@ -184,12 +184,12 @@ class _AiKnowledgeScreenState extends State<AiKnowledgeScreen> {
           // provenance line — honest "where this came from"
           Row(children: [
             Icon(m.isAi ? Icons.auto_awesome_rounded : Icons.person_outline_rounded,
-                size: 14, color: scheme.onSurfaceVariant),
+                size: 14, color: scheme.ds.muted),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
                 m.isAi ? t.aiKnowSourceAi : t.aiKnowSourceManual,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted),
               ),
             ),
           ]),

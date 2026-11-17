@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../phonecam/phonecam_timeline_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../../billing/cctv_plan_screen.dart'; // cctvprice
+import '../../billing/cctv_plan_source.dart' show ApiCctvPlanApi;
+import '../../plans_v2/buy_inside.dart';
 import '../../state.dart';
 import '../shop_camera_settings.dart' show ShopWebhookCard, shopSeenLabel;
 import '../../cashguard/cashguard_source.dart';
@@ -17,6 +22,8 @@ import 'auto_guard_screen.dart'; // cctvarm
 import 'cctvx_inbox.dart';
 import 'activity_screen.dart'; // cctvactivity
 import '../../cctvx/activity_source.dart'; // cctvactivity
+import '../../cctvact/cctvact_source.dart'; // cctvact
+import 'cctv_act_screens.dart'; // cctvact
 import 'watchman_add_camera.dart';
 import 'watchman_alerts.dart';
 import 'watchman_setup.dart';
@@ -38,6 +45,9 @@ import '../../phonecam/phonecam_pair_sheet.dart'; // cctvphone
 import '../shop_live_screen.dart'; // cctvphone: phone-camera live view
 import '../../cctvguard/cctv_usage_card.dart'; // cctvguard: this month's use
 import '../../cctvguard/vendor_live_screen.dart'; // cctvguard: Imou/EZVIZ live
+import '../../cctvconnect/cctv_connect_screen.dart'; // cctvconnect: brand clouds
+import '../../cctvconnect/dvr_health_card.dart'; // cctvconnect: daily DVR check
+import 'cctv_installer_screens.dart'; // cctvroles: installer partners
 
 /// cctv1 — HOME & SHOP WATCHMAN: the entry for business AND personal users
 /// (not tied to the POS). Behind the server flag `cctv_watchman`; the server
@@ -103,6 +113,28 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
     } catch (_) {}
   }
 
+  /// buyinside: no active CCTV plan -> the locked CCTV screen (7 days free /
+  /// 500 Tk for 2 cameras) right here, then back on this screen, unlocked;
+  /// an active plan -> the full plan screen (cameras, yearly, manage).
+  Future<void> _openPlan() async {
+    var active = false;
+    try {
+      final d = await ApiCctvPlanApi(context.read<AppState>().api).load();
+      final st = d['status'];
+      active = st is Map && st['status'] == 'active';
+    } catch (_) {
+      active = true; // offline: the plan screen shows its own honest state
+    }
+    if (!mounted) return;
+    if (active) {
+      await Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const CctvPlanScreen()));
+      return;
+    }
+    final ok = await BuyInside.open(context, 'cctv');
+    if (ok && mounted) await _load();
+  }
+
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -164,6 +196,15 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => CctvGridScreen(source: _team, onSetup: () => Navigator.of(context).pop()))),
             ),
+          // cctvroles (V3 J): CCTV technicians — installer partner
+          if (!_loading && !_featureOff)
+            IconButton(
+              key: const ValueKey('wm-partner'),
+              tooltip: t.ctrPartTitle,
+              icon: const Icon(Icons.handyman_outlined),
+              onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => CctvPartnerScreen(source: _team))),
+            ),
           // cctvx: alerts other owners passed to me / clips shared with me
           IconButton(
             tooltip: t.cxInboxTitle,
@@ -219,21 +260,6 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
           if (_showGuide || sites.isEmpty)
             WatchmanGuideCard(onClose: sites.isEmpty ? null : _closeGuide),
           if (sites.isEmpty) _Welcome(onStart: _startSetup),
-          // cctvprice: the CCTV plan (price per camera count, trial, add-on)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Card(
-              child: ListTile(
-                minVerticalPadding: 12,
-                leading: const Icon(Icons.workspace_premium_outlined),
-                title: Text(t.cplEntryTitle),
-                subtitle: Text(t.cplEntrySub),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => const CctvPlanScreen())),
-              ),
-            ),
-          ),
           if (sites.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -252,6 +278,22 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
           // (an injected test source never reaches the network: tests pass usageLoader)
           if (owned.isNotEmpty && (widget.usageLoader != null || widget.source == null))
             CctvUsageCard(load: widget.usageLoader),
+          // design2 (page rule): live places first, the plan (a setting) after them
+          // cctvprice: the CCTV plan (price per camera count, trial, add-on)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: DsCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
+                minVerticalPadding: 12,
+                leading: const Icon(Icons.workspace_premium_outlined),
+                title: Text(t.cplEntryTitle),
+                subtitle: Text(t.cplEntrySub),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: _openPlan,
+              ),
+            ),
+          ),
           if (owned.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -289,14 +331,21 @@ class _Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(padding: const EdgeInsets.all(32), children: [
-      const SizedBox(height: 40),
-      Icon(icon, size: 56, color: Theme.of(context).colorScheme.primary),
-      const SizedBox(height: 16),
-      Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
-      const SizedBox(height: 8),
-      Text(body, textAlign: TextAlign.center),
-      if (action != null) ...[const SizedBox(height: 20), Center(child: action!)],
+    // design2: the DS message card (drawn illustration, title, body, action)
+    return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      DsCard(
+        padding: const EdgeInsets.all(Gap.xl),
+        child: Column(children: [
+          DsIllustration(icon: icon),
+          const SizedBox(height: Gap.lg),
+          Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: Gap.sm),
+          Text(body,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
+          if (action != null) ...[const SizedBox(height: Gap.lg), Center(child: action!)],
+        ]),
+      ),
     ]);
   }
 }
@@ -354,6 +403,13 @@ class _SiteCard extends StatelessWidget {
             builder: (_) => ShopLiveScreen(
                 cameraId: (cam['id'] as num).toInt(),
                 cameraName: (cam['name'] ?? '').toString())));
+      // cctvplay: the phone camera's recordings (timeline + on-demand minute)
+      case 'pcrec':
+        await nav.push(MaterialPageRoute(
+            builder: (_) => PhoneCamTimelineScreen(
+                cameraId: (cam['id'] as num).toInt(),
+                cameraName: (cam['name'] ?? '').toString(),
+                source: ApiPhoneCamRecSource(context.read<AppState>().api))));
       case 'viewers_live':
         // order I: OFF by default; turning it on says plainly who will see
         final turnOn = cam['viewers_live'] != true;
@@ -469,18 +525,30 @@ class _SiteCard extends StatelessWidget {
     final held = (site['held_today'] as num?)?.toInt() ?? 0;
     final home = site['kind'] == 'home';
     final siteId = (site['id'] as num).toInt();
-    return Card(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Padding(
+    // design2: each place is an alive DS card; a gently pulsing dot shows the
+    // recorder / gateway is live (static in lite mode)
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: DsCard(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Icon(home ? Icons.home_rounded : Icons.storefront_rounded),
-            const SizedBox(width: 8),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: DsTokens.of(context).primarySoft,
+                borderRadius: BorderRadius.circular(DsRadius.card),
+              ),
+              child: Icon(home ? Icons.home_rounded : Icons.storefront_rounded,
+                  color: DsTokens.of(context).primaryInk),
+            ),
+            const SizedBox(width: 10),
             Expanded(
               child: Text((site['name'] ?? '').toString(),
-                  style: Theme.of(context).textTheme.titleMedium),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
             ),
+            if (online) DsStatusDot(color: DsTokens.of(context).success),
           ]),
           if (!_owner)
             Padding(
@@ -540,6 +608,8 @@ class _SiteCard extends StatelessWidget {
               child: Text(t.cvvNoCamViewer),
             ),
           for (final c in cams) _CameraRow(cam: c, owner: _owner, onAction: (a) => _cameraAction(context, a, c)),
+          // cctvconnect (Guard V3 B): the daily green check (hidden until a DVR reports)
+          DvrHealthCard(key: ValueKey('dvr-health-$siteId'), siteId: siteId, owner: _owner),
           const Divider(height: 20),
           Wrap(spacing: 8, runSpacing: 8, children: [
             FilledButton.tonalIcon(
@@ -574,6 +644,21 @@ class _SiteCard extends StatelessWidget {
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (ctx) => ActivityScreen(
                         source: ApiActivitySource(ctx.read<AppState>().api),
+                        siteId: siteId,
+                        siteName: (site['name'] ?? '').toString(),
+                        owner: _owner))),
+              ),
+            // cctvact (V3 E/G/F/D): closing report, ask, sales match, automations
+            if (cams.isNotEmpty)
+              OutlinedButton.icon(
+                key: const ValueKey('wm-cv3-hub'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.summarize_rounded),
+                label: Text(t.cv3HubEntry),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (ctx) => CctvActHubScreen(
+                        source: ApiCctvActSource(ctx.read<AppState>().api),
+                        events: ApiCctvxSource(ctx.read<AppState>().api),
                         siteId: siteId,
                         siteName: (site['name'] ?? '').toString(),
                         owner: _owner))),
@@ -630,6 +715,21 @@ class _SiteCard extends StatelessWidget {
                 label: Text(t.wmConnectGateway),
                 onPressed: () => showWatchmanPairSheet(context, site),
               ),
+              // cctvconnect (Guard V3 A1): existing DVR / camera through its brand cloud
+              OutlinedButton.icon(
+                key: const ValueKey('wm-brand-cloud'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.cloud_sync_rounded),
+                label: Text(t.ccnEntry),
+                onPressed: () async {
+                  await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => CctvConnectScreen(
+                          siteId: siteId,
+                          siteName: (site['name'] ?? '').toString(),
+                          onFindOnWifi: onAddCamera)));
+                  await onChanged();
+                },
+              ),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                 icon: const Icon(Icons.family_restroom_rounded),
@@ -653,9 +753,18 @@ class _SiteCard extends StatelessWidget {
                 key: const ValueKey('wm-access-log'),
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                 icon: const Icon(Icons.manage_search_rounded),
-                label: Text(t.ctmLogTitle),
+                label: Text(t.ctrLogTitle),
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => CctvAccessLogScreen(source: team, siteId: siteId))),
+              ),
+              // cctvroles (V3 J): a local technician checks the setup — never video
+              OutlinedButton.icon(
+                key: const ValueKey('wm-installer'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.handyman_outlined),
+                label: Text(t.ctrInstTitle),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => CctvInstallerScreen(source: team, siteId: siteId))),
               ),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
@@ -736,7 +845,7 @@ class _CameraRow extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const SizedBox(height: 10),
             Text((cam['name'] ?? '').toString().isEmpty ? t.wmUnnamedCamera : cam['name'].toString(),
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: 2),
             Text('${wmVendorName(t, vendor)} · ${shopSeenLabel(t, context, cam)}',
                 style: Theme.of(context).textTheme.bodySmall),
@@ -749,6 +858,17 @@ class _CameraRow extends StatelessWidget {
               const SizedBox(height: 4),
               WmPill(label: checkLabel, icon: checkIcon, color: checkColor),
             ],
+            // cctvconnect: bound to Assisto's Imou developer account for the
+            // owner's own test (owner 9 Nov 17:20) — always visible
+            if (wmMap(cam['compat'])['owner_test'] == true)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: WmPill(
+                    key: ValueKey('wm-owner-test-${cam['id']}'),
+                    label: t.ccnOwnerTest,
+                    icon: Icons.science_rounded,
+                    color: wmWarn()),
+              ),
           ]),
         ),
         // cctvphone: one-tap live view of a phone camera
@@ -760,8 +880,19 @@ class _CameraRow extends StatelessWidget {
             icon: const Icon(Icons.live_tv_rounded),
             onPressed: () => onAction('live'),
           ),
-        // cctvguard: one-tap cloud live of a linked Imou / EZVIZ camera
-        if (owner && (vendor == 'imou' || vendor == 'ezviz') && cam['cloud_alarms'] == true)
+        // cctvplay: recordings of a phone camera (same rule as live)
+        if (vendor == 'phone' && (owner || cam['viewers_live'] == true))
+          IconButton(
+            key: ValueKey('wm-pcrec-${cam['id']}'),
+            tooltip: t.pcrTimelineTitle,
+            icon: const Icon(Icons.video_library_outlined),
+            onPressed: () => onAction('pcrec'),
+          ),
+        // cctvguard: one-tap cloud live of a linked Imou / EZVIZ camera;
+        // camflows: also a Dahua / Hikvision camera added through its brand cloud
+        if (owner &&
+            const {'imou', 'ezviz', 'dahua', 'hikvision'}.contains(vendor) &&
+            cam['cloud_alarms'] == true)
           IconButton(
             key: ValueKey('wm-vlive-${cam['id']}'),
             tooltip: t.cgVendorLiveTitle,
@@ -910,7 +1041,7 @@ class _EzvizSheetState extends State<_EzvizSheet> {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(_msg,
-                style: TextStyle(color: _ok || _info ? null : Theme.of(context).colorScheme.error)),
+                style: AType.bodyMedium.copyWith(color: _ok || _info ? null : Theme.of(context).colorScheme.error)),
           ),
       ]),
     );

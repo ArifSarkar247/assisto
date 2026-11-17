@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../ds/ds.dart';
 
 import '../../cashguard/cashguard_source.dart';
 import '../../cctvx/cctvx_source.dart';
@@ -167,16 +169,17 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
     final t = AppLocalizations.of(context);
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList();
     } else if (_error != null) {
-      body = ListView(padding: const EdgeInsets.all(32), children: [
-        Text(_error!.isEmpty ? t.wmLoadErrorBody : _error!, textAlign: TextAlign.center),
-        const SizedBox(height: 16),
-        Center(
-            child: FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-                onPressed: _load,
-                child: Text(t.wmRetry))),
+      body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        // design2: DS error state (drawn illustration + one big retry)
+        DsEmptyState(
+          icon: Icons.cloud_off_rounded,
+          title: t.wmLoadErrorTitle,
+          benefit: _error!.isEmpty ? t.wmLoadErrorBody : _error!,
+          actionLabel: t.wmRetry,
+          onAction: _load,
+        ),
       ]);
     } else {
       body = RefreshIndicator(
@@ -195,13 +198,10 @@ class _CashGuardScreenState extends State<CashGuardScreen> {
     return Scaffold(appBar: AppBar(title: Text(t.cgTitle)), body: body);
   }
 
-  Widget _card(List<Widget> children) => Card(
-        margin: const EdgeInsets.only(top: 12),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
-        ),
-      );
+  Widget _card(List<Widget> children) => Padding(padding: const EdgeInsets.only(top: 12), child: DsCard(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+    ));
 
   Widget _awayCard(AppLocalizations t) {
     final loc = MaterialLocalizations.of(context);

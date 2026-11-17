@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../push/lock_screen_guard.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../train/dest_alarm_sound.dart';
 import 'carecall_alarms.dart';
 import 'carecall_api.dart';
@@ -163,7 +164,7 @@ class _CareCallRingScreenState extends State<CareCallRingScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [s.primaryContainer.withValues(alpha: 0.55), s.surface],
+            colors: [DsTokens.of(context).primarySoft.withValues(alpha: 0.55), s.surface],
           ),
         ),
         child: SafeArea(
@@ -179,12 +180,12 @@ class _CareCallRingScreenState extends State<CareCallRingScreen> {
                       Semantics(
                         header: true,
                         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Icon(Icons.phone_in_talk_rounded, size: 20, color: s.onSurfaceVariant),
+                          Icon(Icons.phone_in_talk_rounded, size: 20, color: DsTokens.of(context).muted),
                           const SizedBox(width: Gap.xs),
                           Flexible(
                             child: Text(t.ccRingTopLabel,
                                 textAlign: TextAlign.center,
-                                style: tt.titleSmall?.copyWith(color: s.onSurfaceVariant)),
+                                style: tt.titleSmall?.copyWith(color: DsTokens.of(context).muted)),
                           ),
                         ]),
                       ),
@@ -212,12 +213,12 @@ class _CareCallRingScreenState extends State<CareCallRingScreen> {
                       Text(t.ccRingTitle(_name),
                           textAlign: TextAlign.center,
                           style: tt.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.w700, color: s.onSurface, fontSize: 30, height: 1.25)),
+                              fontWeight: FontWeight.w700, color: DsTokens.of(context).text, fontSize: 30, height: 1.25)),
                       if (_text.isNotEmpty) ...[
                         const SizedBox(height: Gap.lg),
                         Text('“$_text”',
                             textAlign: TextAlign.center,
-                            style: tt.headlineSmall?.copyWith(color: s.onSurface, fontSize: 25, height: 1.35)),
+                            style: tt.headlineSmall?.copyWith(color: DsTokens.of(context).text, fontSize: 25, height: 1.35)),
                       ],
                       const SizedBox(height: Gap.lg),
                       Center(
@@ -267,8 +268,8 @@ class _CareCallRingScreenState extends State<CareCallRingScreen> {
                         child: OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(36)),
-                            side: BorderSide(color: s.outline, width: 2),
-                            foregroundColor: s.onSurface,
+                            side: BorderSide(color: DsTokens.of(context).border, width: 2),
+                            foregroundColor: DsTokens.of(context).text,
                             textStyle: tt.titleMedium?.copyWith(fontSize: 20, fontWeight: FontWeight.w600),
                           ),
                           onPressed: _busy ? null : () => _answer('snooze'),

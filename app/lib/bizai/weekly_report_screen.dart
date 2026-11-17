@@ -113,7 +113,7 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
                           fmtInt(context, (p['chats'] as num?)?.toInt() ?? 0),
                           fmtInt(context, (p['orders'] as num?)?.toInt() ?? 0))),
                       trailing: Text(bizaiTaka(context, p['bdt']),
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
+                          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                     ),
                 ]),
         ),

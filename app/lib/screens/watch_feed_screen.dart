@@ -428,7 +428,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
           children: [
             Text(t.watchFeedTitle2),
             Text(t.watchFeedSubtitle,
-                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w400, color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(fontWeight: FontWeight.w400, color: scheme.ds.muted)),
           ],
         ),
         actions: [
@@ -461,7 +461,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
                   const SizedBox(width: Gap.sm),
                   Flexible( // qa1: wraps at large font
                     child: Text(t.watchLoadingTitle,
-                        style: TextStyle(color: scheme.onSurfaceVariant)),
+                        style: TextStyle(color: scheme.ds.muted)),
                   ),
                 ]),
               ),
@@ -524,7 +524,7 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
           _n(needs.length),
           _n(todayItems.length),
           _n(upcoming.length),
-        ), style: TextStyle(color: scheme.onSurfaceVariant)),
+        ), style: TextStyle(color: scheme.ds.muted)),
         const SizedBox(height: Gap.md),
         // Always show the three groups so the digest structure is legible;
         // empty groups show honest per-group copy.
@@ -559,12 +559,12 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
               padding: const EdgeInsets.only(bottom: Gap.xs),
               child: Row(children: [
                 Icon(Icons.visibility_off_rounded,
-                    size: 16, color: scheme.onSurfaceVariant),
+                    size: 16, color: scheme.ds.muted),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(
                     t.watchEnableToSee(watchSourceLabel(t, s)),
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted),
                   ),
                 ),
                 TextButton(
@@ -595,14 +595,14 @@ class _WatchFeedScreenState extends State<WatchFeedScreen> {
         Padding(
           padding: const EdgeInsets.only(left: 26, bottom: Gap.sm),
           child: Text(hint,
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
         ),
         if (items.isEmpty)
           Padding(
             padding: const EdgeInsets.only(left: 26, bottom: Gap.sm),
             child: Text(AppLocalizations.of(context).watchNoneInGroup,
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    color: Theme.of(context).colorScheme.ds.muted)),
           )
         else
           for (final it in items)

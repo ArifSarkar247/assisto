@@ -1,0 +1,1218 @@
+{
+ "_note": "citydata: public stop spellings -> names used in OpenStreetMap. Only adds candidates; the build picks the one that fits the route's path (Viterbi), so a wrong alias cannot pull a stop across the city. citydata2 (9 Nov): + spellings for every stop the first run could not place (report gaps). citycov3 (16 Nov): + spellings used by the official BRTA / RTC fare chart.",
+ "Airport": [
+  "Airport Bus Stop",
+  "Airport Bus Stand",
+  "Hazrat Shahjalal International Airport",
+  "Dhaka Airport Railway Station",
+  "Biman Bandar",
+  "Airport Railway Station",
+  "Kawla"
+ ],
+ "Kakali": [
+  "Kakoli",
+  "Kakoli Bus Stop",
+  "Kakoli Bus Stand",
+  "Kakali Bus Stop",
+  "Banani Kakoli",
+  "Kakoli Mor"
+ ],
+ "Rajlakshmi": [
+  "Rajlakshmi Complex",
+  "Rajlokkhi",
+  "Rajlaxmi",
+  "Rajlakshmi Bus Stop",
+  "Rajlakshmi Uttara"
+ ],
+ "Jashimuddin (Uttara)": [
+  "Jashimuddin",
+  "Jasimuddin",
+  "Jasim Uddin",
+  "Jashim Uddin Road",
+  "Jasimuddin Avenue"
+ ],
+ "GPO": [
+  "General Post Office",
+  "Dhaka GPO",
+  "GPO Bus Stop"
+ ],
+ "Matsya Bhaban": [
+  "Matsya Bhaban Bus Stop",
+  "Matshya Bhaban",
+  "Motsho Bhaban"
+ ],
+ "City College": [
+  "Dhaka City College"
+ ],
+ "Jamuna Future Park": [
+  "Jamuna Future Park Bus Stop"
+ ],
+ "Bashundhara": [
+  "Bashundhara R/A",
+  "Bashundhara Residential Area",
+  "Bashundhara Gate",
+  "Bashundhara Bus Stop",
+  "Basundhara",
+  "Bashundhara Gate Bus Stop",
+  "Jamuna Future Park"
+ ],
+ "Sony Cinema Hall": [
+  "Sony Cinema",
+  "Sony Square",
+  "Sony Hall"
+ ],
+ "New Market": [
+  "Dhaka New Market",
+  "New Market Bus Stop",
+  "Nilkhet"
+ ],
+ "Purobi": [
+  "Purobi Cinema Hall",
+  "Purabi",
+  "Purbi",
+  "Purobi Cinema",
+  "Purabi Cinema Hall",
+  "Pallabi Purobi",
+  "Purobi Bus Stop"
+ ],
+ "Badda Link Road": [
+  "Link Road",
+  "Badda Link Road Bus Stop",
+  "Gulshan Link Road",
+  "Link Road Badda"
+ ],
+ "Staff Road": [
+  "Staff Road Bus Stop"
+ ],
+ "Dhanmondi 32": [
+  "Dhanmondi 32 Bus Stop",
+  "Road 32"
+ ],
+ "ECB Square": [
+  "ECB Chattar",
+  "ECB Chottor",
+  "ECB"
+ ],
+ "Rampura Bazar": [
+  "Rampura",
+  "Rampura Bridge"
+ ],
+ "Sayapabad": [
+  "Sayedabad",
+  "Sayedabad Bus Terminal",
+  "Saidabad",
+  "Sayedabad Bus Stand"
+ ],
+ "Zia Uddyan": [
+  "Zia Udyan",
+  "Chandrima Uddan",
+  "Chandrima Udyan",
+  "Sangsad Bhaban"
+ ],
+ "Mill Gate": [
+  "Mil Gate"
+ ],
+ "Malibagh Railgate": [
+  "Malibagh Rail Gate",
+  "Malibagh"
+ ],
+ "Gazipur Chourasta": [
+  "Gazipur Chowrasta",
+  "Chowrasta",
+  "Chourasta",
+  "Gazipur Chowrasta Bus Stand",
+  "Joydebpur Chowrasta"
+ ],
+ "Naya Bazar": [
+  "Nayabazar",
+  "Naya Bazar Bus Stop"
+ ],
+ "Nabisco": [
+  "Nabisco Bus Stop",
+  "Nabisco Mor"
+ ],
+ "Chiriyakhana": [
+  "National Zoo",
+  "Bangladesh National Zoo",
+  "Dhaka Zoo",
+  "Mirpur Zoo",
+  "Chiriakhana"
+ ],
+ "Babubazar": [
+  "Babu Bazar",
+  "Babubazar Bridge"
+ ],
+ "Kallyanpur": [
+  "Kalyanpur"
+ ],
+ "Technical": [
+  "Technical Mor",
+  "Technical More",
+  "Technical Bus Stop"
+ ],
+ "Shishu Mela": [
+  "Shishu Mela Bus Stop",
+  "Shishumela"
+ ],
+ "Abdullahpur": [
+  "Abdullahpur Bus Stop",
+  "Abdullahpur Bus Stand",
+  "Abdullahpur Bridge",
+  "Abdullapur"
+ ],
+ "Vashantek": [
+  "Bhashantek",
+  "Vasantek"
+ ],
+ "Kuril Chourasta": [
+  "Kuril",
+  "Kuril Bishwa Road",
+  "Kuril Flyover"
+ ],
+ "Baitul Mukarram": [
+  "Baitul Mukarram National Mosque",
+  "Baitul Mukarram Mosque"
+ ],
+ "Eden College": [
+  "Eden Mohila College"
+ ],
+ "Bijoy Sarani": [
+  "Bijoy Sarani"
+ ],
+ "Songsod Bhaban": [
+  "Jatiya Sangsad Bhaban",
+  "Sangsad Bhaban"
+ ],
+ "Khejur Bagan": [
+  "Khejurbagan"
+ ],
+ "Kawlar": [
+  "Kawla",
+  "Kaola"
+ ],
+ "300 Feet": [
+  "Purbachal Expressway",
+  "300 Feet Road"
+ ],
+ "House Building": [
+  "House Building Bus Stop",
+  "Housebuilding"
+ ],
+ "Azampur": [
+  "Azampur Bus Stop",
+  "Azampur Bus Stand"
+ ],
+ "Savar": [
+  "Savar Bus Stand",
+  "Savar Bazar",
+  "Savar Bus Stop",
+  "Savar Thana",
+  "Savar Upazila"
+ ],
+ "Hemayetpur": [
+  "Hemayetpur Bus Stand",
+  "Hemayetpur Bus Stop",
+  "Hemayetpur Bazar",
+  "Hemayatpur"
+ ],
+ "Board Bazar": [
+  "Boardbazar",
+  "Board Bazar Bus Stop",
+  "Board Bazaar"
+ ],
+ "Nobinagar": [
+  "Nabinagar",
+  "Nabinagar Bus Stand",
+  "Nobinagar Bus Stand",
+  "Jatiyo Smriti Soudho"
+ ],
+ "Gazipur Bypass": [
+  "Bypass",
+  "Bypass Mor",
+  "Gazipur Bypass Road"
+ ],
+ "Chandra": [
+  "Chandra Bus Stand",
+  "Chandra Mor",
+  "Chandra Trimor",
+  "Chandra Bus Stop"
+ ],
+ "Zirabo": [
+  "Jirabo",
+  "Zirabo Bazar",
+  "Jirabo Bus Stand"
+ ],
+ "Zirani Bazar": [
+  "Jirani Bazar",
+  "Zirani",
+  "Jirani"
+ ],
+ "Chittagong Road": [
+  "Chittagong Road Bus Stand",
+  "Chattogram Road",
+  "Shimrail",
+  "Chittagong Road Mor"
+ ],
+ "Nandan Park": [
+  "Nandan Amusement Park",
+  "Nandan"
+ ],
+ "Baipayl": [
+  "Baipail",
+  "Baipayl Bus Stand",
+  "Baipail Bus Stand",
+  "Baipail Bus Stop"
+ ],
+ "Birulia": [
+  "Birulia Bridge",
+  "Birulia Bus Stand"
+ ],
+ "Ashulia": [
+  "Ashulia Bazar",
+  "Ashulia Bus Stand",
+  "Asulia",
+  "Asulia Bazar"
+ ],
+ "Asulia Bazar": [
+  "Ashulia Bazar",
+  "Ashulia"
+ ],
+ "Demra Staff Quarter": [
+  "Staff Quarter",
+  "Demra Staff Quarter Bus Stand",
+  "Staff Quarter Demra"
+ ],
+ "Konabari": [
+  "Konabari Bus Stand",
+  "Konabari Bus Stop"
+ ],
+ "Dhamrai": [
+  "Dhamrai Bus Stand",
+  "Dhamrai Bazar"
+ ],
+ "Jatrabari": [
+  "Jatrabari Bus Stand",
+  "Jatrabari Mor",
+  "Jatrabari Chowrasta",
+  "Jatrabari Bus Stop"
+ ],
+ "Fantasy Kingdom": [
+  "Fantasy Kingdom Bus Stand",
+  "Fantasy Kingdom Complex"
+ ],
+ "Madanpur": [
+  "Madanpur Bus Stand",
+  "Madanpur Chowrasta"
+ ],
+ "Chasara": [
+  "Chashara",
+  "Chasara Mor",
+  "Chashara Bus Stand",
+  "Narayanganj Chashara"
+ ],
+ "Mazar Road": [
+  "Mazar Road Bus Stop",
+  "Mazar Road Gabtoli"
+ ],
+ "Rupnagar": [
+  "Rupnagar R/A",
+  "Rupnagar Abashik",
+  "Rupnagar Residential Area"
+ ],
+ "Rupnagar Abashik": [
+  "Rupnagar",
+  "Rupnagar R/A"
+ ],
+ "Beribadh": [
+  "Beri Badh",
+  "Beribadh Road",
+  "Dhaka Beribadh"
+ ],
+ "Shia Masjid": [
+  "Shia Mosque",
+  "Shia Masjid Bus Stop",
+  "Mohammadpur Shia Masjid",
+  "Mohammadpur Shia Mosque",
+  "Shia Masjid Mor",
+  "Shia Moshjid"
+ ],
+ "Ring Road": [
+  "Mohammadpur Ring Road",
+  "Ring Road Bus Stop"
+ ],
+ "Khilkhet": [
+  "Khilkhet Bus Stop",
+  "Khilkhet Bus Stand",
+  "Khilkhet Bazar"
+ ],
+ "Tongi": [
+  "Tongi Bus Stand",
+  "Tongi Station Road",
+  "Tongi Bridge",
+  "Tongi Bus Stop"
+ ],
+ "Banani": [
+  "Banani Bus Stop",
+  "Banani Rail Station",
+  "Banani Chairmanbari"
+ ],
+ "Shib Bari": [
+  "Shibbari",
+  "Shibbari Mor",
+  "Gazipur Shibbari"
+ ],
+ "Kuril Bishwa Road": [
+  "Kuril Bishwa Road Bus Stop",
+  "Kuril",
+  "Kuril Chourasta",
+  "Kuril Flyover",
+  "Bishwa Road"
+ ],
+ "Shibu Market": [
+  "Shibu Market Bus Stop",
+  "Shibu Market Narayanganj"
+ ],
+ "Jalkuri": [
+  "Jalkuri Bus Stand"
+ ],
+ "Elevated Express Way": [
+  "Dhaka Elevated Expressway",
+  "Elevated Expressway"
+ ],
+ "Mirpur 1": [
+  "Mirpur-1",
+  "Mirpur 1 Bus Stop",
+  "Mirpur 1 Bus Stand",
+  "Mirpur Section 1"
+ ],
+ "Mirpur 2": [
+  "Mirpur-2",
+  "Mirpur 2 Bus Stop",
+  "Mirpur Stadium"
+ ],
+ "Narsinghapur": [
+  "Narasinghapur",
+  "Narsingpur"
+ ],
+ "Surabari": [
+  "Shurabari",
+  "Surabari Bus Stand"
+ ],
+ "Jarun": [
+  "Jarun Bus Stand",
+  "Zarun"
+ ],
+ "Shewrapara": [
+  "Shewrapara Bus Stop",
+  "Shewrapara Metro Station",
+  "Sheorapara"
+ ],
+ "Sadarghat": [
+  "Sadarghat Launch Terminal",
+  "Sadarghat Bus Stand",
+  "Sadar Ghat"
+ ],
+ "Kadamtali": [
+  "Kadamtoli",
+  "Kadamtali Bus Stand"
+ ],
+ "Kalshi": [
+  "Kalshi Bus Stop",
+  "Kalshi Mor",
+  "Kalshi Flyover"
+ ],
+ "Sign Board": [
+  "Signboard",
+  "Sign Board Mor",
+  "Signboard Bus Stand"
+ ],
+ "Shonir Akhra": [
+  "Shanir Akhra",
+  "Shonir Akhra Bus Stand",
+  "Shanir Akhra Bus Stop"
+ ],
+ "Nadda": [
+  "Nadda Bus Stop",
+  "Natun Bazar Nadda"
+ ],
+ "Duairipara": [
+  "Duaripara"
+ ],
+ "Tarabo": [
+  "Tarabo Bus Stand",
+  "Tarabo Bishwa Road"
+ ],
+ "Arambagh Notre Dame College": [
+  "Notre Dame College",
+  "Arambagh"
+ ],
+ "TT Para": [
+  "TT Para Bus Stop",
+  "Titipara"
+ ],
+ "Manik Mia Avenue": [
+  "Manik Mia Avenue Bus Stop"
+ ],
+ "Maowa": [
+  "Mawa",
+  "Mawa Ghat"
+ ],
+ "Dia Bari": [
+  "Diabari",
+  "Diyabari",
+  "Uttara North"
+ ],
+ "Kamarpara": [
+  "Kamarpara Bus Stand"
+ ],
+ "Balughat": [
+  "Balughat Bus Stop",
+  "Balughat Cantonment"
+ ],
+ "Cantonment": [
+  "Dhaka Cantonment",
+  "Cantonment Railway Station",
+  "Cantonment Bus Stop"
+ ],
+ "Uttara": [
+  "Uttara House Building",
+  "House Building",
+  "Uttara Bus Stop"
+ ],
+ "Tajmahal Road": [
+  "Taj Mahal Road",
+  "Tajmahal Road Bus Stop"
+ ],
+ "Salimullah Road": [
+  "Salimullah Road Mohammadpur"
+ ],
+ "Jakir Hossain Road": [
+  "Zakir Hossain Road"
+ ],
+ "Gulshan 1": [
+  "Gulshan-1",
+  "Gulshan 1 Circle",
+  "Gulshan Circle 1",
+  "Gulshan 1 Bus Stop"
+ ],
+ "Golap Shah Mazar": [
+  "Golap Shah Mazar Bus Stop",
+  "Golapshah Mazar"
+ ],
+ "Metro Hall": [
+  "Metro Cinema Hall"
+ ],
+ "Palashi": [
+  "Palashi Mor",
+  "Polashi",
+  "Polashi Mor"
+ ],
+ "Sonargao": [
+  "Sonargaon",
+  "Sonargaon Hotel",
+  "Pan Pacific Sonargaon",
+  "Sonargaon Crossing"
+ ],
+ "Tejgaon College (Farmgate)": [
+  "Tejgaon College",
+  "Farmgate"
+ ],
+ "Vulta": [
+  "Bhulta",
+  "Vulta Bus Stand",
+  "Bhulta Bus Stand"
+ ],
+ "Kanchan Bridge": [
+  "Kanchan",
+  "Kanchan Bridge Bus Stand"
+ ],
+ "Nila Market": [
+  "Nila Market Purbachal",
+  "Nilamarket"
+ ],
+ "Bashundhara (300 Feet Gate)": [
+  "Bashundhara Gate",
+  "300 Feet",
+  "Purbachal Expressway"
+ ],
+ "Gulistan": [
+  "Gulistan Bus Stand",
+  "Gulistan Bus Stop",
+  "Gulistan Crossing",
+  "Fulbaria"
+ ],
+ "Keraniganj": [
+  "Keraniganj Bus Stand",
+  "Kodomtoli Keraniganj"
+ ],
+ "Bangladesh Bank": [
+  "Bangladesh Bank Bus Stop",
+  "Motijheel Bangladesh Bank"
+ ],
+ "Mogbazar": [
+  "Moghbazar",
+  "Mogbazar Mor",
+  "Moghbazar Bus Stop"
+ ],
+ "Press Club": [
+  "National Press Club",
+  "Jatiya Press Club",
+  "Press Club Bus Stop"
+ ],
+ "Motijheel": [
+  "Motijheel Bus Stop",
+  "Shapla Chattar",
+  "Motijheel Shapla Chattar"
+ ],
+ "MES": [
+  "MES Bus Stop",
+  "Shewra MES"
+ ],
+ "Merul Badda": [
+  "Merul",
+  "Merul Badda Bus Stop"
+ ],
+ "Rampura Bridge": [
+  "Rampura",
+  "Rampura Bridge Bus Stop",
+  "Rampura TV Center"
+ ],
+ "Banasree": [
+  "Banasree Bus Stop",
+  "Banashree"
+ ],
+ "Meghna Ghat": [
+  "Meghna Ghat Bus Stand",
+  "Meghnaghat"
+ ],
+ "Khilgaon Khidmah Hospital": [
+  "Khidmah Hospital",
+  "Khilgaon"
+ ],
+ "Palton": [
+  "Paltan",
+  "Paltan Mor"
+ ],
+ "Kashi": [
+  "Kalshi"
+ ],
+ "Duyaripara": [
+  "Duaripara",
+  "Duairipara"
+ ],
+ "Bonoshri": [
+  "Banasree",
+  "Banasree Bus Stop"
+ ],
+ "Bonsree": [
+  "Banasree"
+ ],
+ "Rampura (Bonsree)": [
+  "Banasree"
+ ],
+ "Bonsree (Meradia)": [
+  "Meradia",
+  "Banasree"
+ ],
+ "Meradia Bazar": [
+  "Meradia"
+ ],
+ "Meradia (New Road)": [
+  "Meradia"
+ ],
+ "Dhaur": [
+  "Dhour",
+  "Dhour Bridge"
+ ],
+ "Dhowr": [
+  "Dhour"
+ ],
+ "Dhaur Morh": [
+  "Dhour"
+ ],
+ "Dhowr Bridge": [
+  "Dhour Bridge",
+  "Dhour"
+ ],
+ "Kamarpada": [
+  "Kamarpara"
+ ],
+ "Kamar Para": [
+  "Kamarpara"
+ ],
+ "Ghatarchor": [
+  "Ghatarchar",
+  "Ghatar Char"
+ ],
+ "Ghater Char": [
+  "Ghatarchar",
+  "Ghatar Char"
+ ],
+ "Postgola": [
+  "Postogola",
+  "Postogola Bridge"
+ ],
+ "Postgola Bridge": [
+  "Postogola Bridge",
+  "Postogola"
+ ],
+ "Kajla": [
+  "Kazla"
+ ],
+ "Kajli": [
+  "Kazla"
+ ],
+ "Kazlail": [
+  "Kazla"
+ ],
+ "Purbi": [
+  "Purobi",
+  "Purabi"
+ ],
+ "Shanir Akhra": [
+  "Shonir Akhra"
+ ],
+ "Sheora Bazar": [
+  "Sheora",
+  "Sheora Bus Stop"
+ ],
+ "Shaora Bazar": [
+  "Sheora"
+ ],
+ "Sheorapara": [
+  "Shewrapara"
+ ],
+ "Sheora Para": [
+  "Shewrapara"
+ ],
+ "Kochukhet": [
+  "Kachukhet"
+ ],
+ "Kochukshet": [
+  "Kachukhet",
+  "Kochukhet"
+ ],
+ "Kakoli": [
+  "Kakali"
+ ],
+ "Soni Cinema Hall": [
+  "Sony Cinema Hall",
+  "Sony Square"
+ ],
+ "Intefak": [
+  "Ittefaq",
+  "Ittefaq Mor"
+ ],
+ "Kawran Bazar": [
+  "Karwan Bazar"
+ ],
+ "Original-10": [
+  "Mirpur 10"
+ ],
+ "Mirpur(1)": [
+  "Mirpur 1"
+ ],
+ "Mirpur(10)": [
+  "Mirpur 10"
+ ],
+ "Mirpur(14)": [
+  "Mirpur 14"
+ ],
+ "Mirpur Sade 11": [
+  "Mirpur 11"
+ ],
+ "Bijay Smarani": [
+  "Bijoy Sarani"
+ ],
+ "Urojahaj Junction": [
+  "Bijoy Sarani"
+ ],
+ "Daily Bangla": [
+  "Dainik Bangla",
+  "Dainik Bangla Mor"
+ ],
+ "Shishumela": [
+  "Shishu Mela"
+ ],
+ "Jonopoth": [
+  "Janapath",
+  "Janapath Mor"
+ ],
+ "Jonopoth Mor": [
+  "Janapath",
+  "Janapath Mor"
+ ],
+ "Gausia/Chandnichok": [
+  "Gausia",
+  "Chandni Chowk"
+ ],
+ "Natun Bazar": [
+  "Notun Bazar"
+ ],
+ "Bishwo Road": [
+  "Kuril Bishwa Road",
+  "Kuril"
+ ],
+ "Kuril Biswa Road": [
+  "Kuril Bishwa Road",
+  "Kuril",
+  "Kuril Flyover"
+ ],
+ "Zirab": [
+  "Zirabo"
+ ],
+ "Jirabo": [
+  "Zirabo"
+ ],
+ "Jirani Bazar": [
+  "Zirani Bazar",
+  "Zirani"
+ ],
+ "Nabinagar": [
+  "Nobinagar"
+ ],
+ "Nobinagar (Savar)": [
+  "Nobinagar"
+ ],
+ "Baipail": [
+  "Baipayl"
+ ],
+ "Kumitola General Hospital": [
+  "Kurmitola General Hospital"
+ ],
+ "Raysaheb Bazar": [
+  "Ray Saheb Bazar",
+  "Roy Shaheb Bazar"
+ ],
+ "Nayabazar": [
+  "Naya Bazar"
+ ],
+ "T&T Para": [
+  "TT Para"
+ ],
+ "Rayerbag": [
+  "Rayer Bag"
+ ],
+ "Basila": [
+  "Bosila"
+ ],
+ "Basila Bridge": [
+  "Bosila Bridge",
+  "Bosila"
+ ],
+ "Basila CNG Stand": [
+  "Bosila"
+ ],
+ "Bhabantek": [
+  "Bhashantek"
+ ],
+ "Kamrangirchar (Beribadh)": [
+  "Kamrangirchar"
+ ],
+ "Amin Bazar": [
+  "Aminbazar"
+ ],
+ "Gabtoli Bridge Par": [
+  "Aminbazar",
+  "Amin Bazar"
+ ],
+ "Mohammadpur Shia Mosque": [
+  "Shia Masjid",
+  "Shia Mosque"
+ ],
+ "Kalshi Morh": [
+  "Kalshi"
+ ],
+ "Kalshir Mor": [
+  "Kalshi"
+ ],
+ "Kalashi Mor": [
+  "Kalshi"
+ ],
+ "ECB Chattar": [
+  "ECB Square",
+  "ECB Chattar"
+ ],
+ "ECB Morh": [
+  "ECB Square"
+ ],
+ "Manikdi (ECB Mor)": [
+  "Manikdi",
+  "ECB Square"
+ ],
+ "Mohakhali Amtali": [
+  "Amtali",
+  "Mohakhali"
+ ],
+ "Mohakhali Amtoli": [
+  "Amtali",
+  "Mohakhali"
+ ],
+ "Fulbaria": [
+  "Fulbaria Bus Stand",
+  "Gulistan"
+ ],
+ "Golapshah Mazar": [
+  "Golap Shah Mazar",
+  "Gulistan"
+ ],
+ "Hanif Flyover": [
+  "Mayor Mohammad Hanif Flyover",
+  "Jatrabari"
+ ],
+ "Md. Zillur Rahman Flyover": [
+  "Zillur Rahman Flyover",
+  "Bijoy Sarani"
+ ],
+ "Shapla Chattar": [
+  "Shapla Chattar",
+  "Motijheel"
+ ],
+ "Mirpur-11 1/2": [
+  "Mirpur 11.5",
+  "Mirpur 11"
+ ],
+ "Rajlaxmi": [
+  "Rajlakshmi"
+ ],
+ "Jasim Uddin": [
+  "Jashimuddin"
+ ],
+ "Jasimuddin": [
+  "Jashimuddin"
+ ],
+ "Dhakeswari Mandir": [
+  "Dhakeshwari Temple",
+  "Dhakeshwari"
+ ],
+ "Dhakeshwari Etimkhana": [
+  "Dhakeshwari"
+ ],
+ "Azimpur (Dhakeswari)": [
+  "Azimpur",
+  "Dhakeshwari"
+ ],
+ "Chasara Bus Stand": [
+  "Chashara"
+ ],
+ "Narayanganj Chasara": [
+  "Chashara"
+ ],
+ "Chankharpul": [
+  "Chankharpul"
+ ],
+ "Bakshibazar": [
+  "Bakshi Bazar"
+ ],
+ "Kadamtoli": [
+  "Kadamtali"
+ ],
+ "Chun Kutia": [
+  "Chunkutia"
+ ],
+ "Chunkutia Bazar": [
+  "Chunkutia"
+ ],
+ "Babu Bazar Bridge": [
+  "Babubazar Bridge",
+  "Babu Bazar"
+ ],
+ "Babubazar Bridge": [
+  "Babu Bazar Bridge",
+  "Babu Bazar"
+ ],
+ "Nayabazar (No. 2 Buriganga Bridge)": [
+  "Babu Bazar Bridge",
+  "Naya Bazar"
+ ],
+ "Gulistan (Hanif Flyover)": [
+  "Gulistan"
+ ],
+ "Gulistan Morh": [
+  "Gulistan"
+ ],
+ "Uttara (Raniganj)": [
+  "Uttara"
+ ],
+ "Uttara Diabari": [
+  "Diabari"
+ ],
+ "Diabari Morh": [
+  "Diabari"
+ ],
+ "Diabari Chourasta": [
+  "Diabari"
+ ],
+ "Diabari (Beribadh)": [
+  "Diabari"
+ ],
+ "Tongi Bastuhara": [
+  "Tongi"
+ ],
+ "Tongi (Bastuhara)": [
+  "Tongi"
+ ],
+ "Sadarghat Victoria Park": [
+  "Victoria Park",
+  "Bahadur Shah Park"
+ ],
+ "Victoria Park": [
+  "Bahadur Shah Park"
+ ],
+ "Gazipur Crossroad": [
+  "Gazipur Chourasta"
+ ],
+ "Signboard": [
+  "Sign Board"
+ ],
+ "Kuril Flyover": [
+  "Kuril"
+ ],
+ "Rampura TV Center": [
+  "Rampura",
+  "TV Center"
+ ],
+ "Mirpur Mazar Road": [
+  "Mazar Road"
+ ],
+ "Mirpur (Zoo)": [
+  "Zoo",
+  "Chiriyakhana"
+ ],
+ "Zoo": [
+  "Chiriyakhana",
+  "Bangladesh National Zoo"
+ ],
+ "Mirpur Rupnagar": [
+  "Rupnagar"
+ ],
+ "Japan Garden City": [
+  "Japan Garden City"
+ ],
+ "Mohammadpur (Japan Garden City)": [
+  "Japan Garden City"
+ ],
+ "Mohammadpur (Basila Road)": [
+  "Mohammadpur",
+  "Bosila"
+ ],
+ "Mohammadpur (Asad Avenue)": [
+  "Mohammadpur",
+  "Asad Avenue"
+ ],
+ "Mohammadpur Town Hall": [
+  "Town Hall"
+ ],
+ "Khilgaon Taltala": [
+  "Taltola",
+  "Khilgaon"
+ ],
+ "Khilgaon Khidma Hospital": [
+  "Khilgaon"
+ ],
+ "Malibagh Choudhurypara": [
+  "Chowdhurypara",
+  "Malibagh"
+ ],
+ "Badda Link Road/Madhy Badda": [
+  "Badda Link Road",
+  "Middle Badda"
+ ],
+ "Middle Badda": [
+  "Madhya Badda"
+ ],
+ "Uttar Badda": [
+  "North Badda"
+ ],
+ "Pallabi (Ceramic)": [
+  "Pallabi"
+ ],
+ "Pallabi (Mirpur-12)": [
+  "Pallabi",
+  "Mirpur 12"
+ ],
+ "Cantonment Signal Gate": [
+  "Signal Gate",
+  "Kurmitola"
+ ],
+ "Demra Bridge": [
+  "Demra"
+ ],
+ "Staff Quarter": [
+  "Demra Staff Quarter"
+ ],
+ "Bhulta (Gausia)": [
+  "Bhulta",
+  "Gausia"
+ ],
+ "Mawa Ferryghat": [
+  "Mawa"
+ ],
+ "Mawa Ghat": [
+  "Mawa"
+ ],
+ "Khilgaon Railgate": [
+  "Khilgaon Rail Gate",
+  "Khilgaon Railway Crossing",
+  "Khilgaon Railgate Bus Stop",
+  "Khilgaon"
+ ],
+ "Khilgaon Rail Gate": [
+  "Khilgaon Railgate",
+  "Khilgaon"
+ ],
+ "Secretariat": [
+  "Bangladesh Secretariat",
+  "Secretariat Bus Stop"
+ ],
+ "IDB": [
+  "IDB Bhaban",
+  "IDB Bhabon"
+ ],
+ "Mayor Hanif Flyover": [
+  "Mayor Mohammad Hanif Flyover",
+  "Jatrabari"
+ ],
+ "Mirpur Zoo": [
+  "Chiriyakhana",
+  "Bangladesh National Zoo",
+  "Zoo"
+ ],
+ "Dhour Bridge": [
+  "Dhour"
+ ],
+ "Bosila CNG Station": [
+  "Bosila"
+ ],
+ "Elephant Road": [
+  "Elephant Road Bus Stop",
+  "Bata Signal"
+ ],
+ "Azimpur / Dhakeshwari Temple": [
+  "Azimpur",
+  "Dhakeshwari Temple"
+ ],
+ "Uttarkhan": [
+  "Uttar Khan"
+ ],
+ "Dakshinkhan": [
+  "Dakshin Khan",
+  "Dokkhinkhan",
+  "Dakkhinkhan"
+ ],
+ "Bawnia": [
+  "Baunia"
+ ],
+ "Jhauchar (Kamrangirchar)": [
+  "Jhau Char",
+  "Kamrangirchor",
+  "Kamrangirchar"
+ ],
+ "Kamrangirchar": [
+  "Kamrangirchor"
+ ],
+ "Atibazar": [
+  "Ati Bazar"
+ ],
+ "Ati Bazar": [
+  "Atibazar"
+ ],
+ "Shahjahanpur Amtala": [
+  "Shahjahanpur",
+  "Amtala"
+ ],
+ "Purba Tejturi Bazar": [
+  "Tejturi Bazar",
+  "Tejkunipara"
+ ],
+ "Tongi College Gate": [
+  "College Gate, Tongi",
+  "Tongi"
+ ],
+ "Chalantika Mor": [
+  "Chalantika"
+ ],
+ "Signal": [
+  "Signal Gate"
+ ],
+ "CMH": [
+  "Combined Military Hospital"
+ ],
+ "Bansher Pul": [
+  "Basher Pul"
+ ],
+ "Beraid": [
+  "Beraid Bazar",
+  "Beraid Union"
+ ],
+ "Nandipara": [
+  "Middle Nandipara",
+  "East Nandipara"
+ ],
+ "Manda": [
+  "South Manda",
+  "North Manda"
+ ],
+ "Goran": [
+  "North Goran"
+ ],
+ "Dhaka Udyan": [
+  "Dhaka Uddan"
+ ],
+ "Matikata": [
+  "Matikata Bus Stop"
+ ],
+ "Sipahibagh": [
+  "Sipahibag",
+  "Sepahibag"
+ ],
+ "Madartek": [
+  "Madartek Bazar"
+ ],
+ "Stadium": [
+  "Bangabandhu National Stadium",
+  "National Stadium",
+  "Gulistan"
+ ],
+ "Russell Square": [
+  "Russel Square",
+  "Panthapath"
+ ],
+ "Shyamoli Ring Road": [
+  "Ring Road",
+  "Shyamoli"
+ ],
+ "Baikali Hotel": [
+  "Gulistan"
+ ],
+ "TV Center": [
+  "Rampura TV Center",
+  "Rampura"
+ ],
+ "Pirjangi Mazar": [
+  "Kamalapur"
+ ],
+ "Kalapani": [
+  "Kalapani Bus Stop",
+  "Mirpur 11"
+ ],
+ "Bijoy Smriti": [
+  "Bijoy Sarani"
+ ],
+ "Mirpur Thana": [
+  "Mirpur Model Thana",
+  "Mirpur 2"
+ ],
+ "Manda Crossroad": [
+  "Manda",
+  "South Manda"
+ ],
+ "Bangabandhu Avenue": [
+  "Gulistan",
+  "Bangabandhu Avenue"
+ ],
+ "Narayanganj Link Road": [
+  "Link Road",
+  "Signboard"
+ ]
+}

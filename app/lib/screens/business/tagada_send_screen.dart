@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -522,7 +523,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
           const SizedBox(height: Gap.xs),
           Text(t.ldgNeverAuto,
               style: AType.bodySmall.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  color: Theme.of(context).colorScheme.ds.muted)),
           const SizedBox(height: Gap.md),
           _tones(t),
           const SizedBox(height: Gap.md),
@@ -571,7 +572,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
+          color: scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Icon(icon, size: 20),
@@ -583,7 +584,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
 
   Widget _tally(String label, Color? c) => Chip(
         label: Text(label,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w600,
                 color: c)),
@@ -614,11 +615,9 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
         ],
       );
 
-  Widget _payBox(AppLocalizations t) => Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _payBox(AppLocalizations t) => DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.ldgPayInfo, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: Gap.sm),
             Wrap(
@@ -657,8 +656,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
               ),
             ),
           ]),
-        ),
-      );
+    );
 
   Widget _smsLine(AppLocalizations t) {
     final String line;
@@ -713,14 +711,11 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
     final enough = _balance >= row.credits;
     final statusColor = switch (row.st) {
       _St.failed => scheme.error,
-      _St.skipped => scheme.onSurfaceVariant,
-      _St.waiting => scheme.onSurfaceVariant,
+      _St.skipped => scheme.ds.muted,
+      _St.waiting => scheme.ds.muted,
       _ => AssistoTokens.of(context).success,
     };
-    return Card(
-      key: ValueKey('ldg-row-${row.partyId}'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(key: ValueKey('ldg-row-${row.partyId}'), padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -731,7 +726,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
                     overflow: TextOverflow.ellipsis)),
             const SizedBox(width: Gap.sm),
             Text(amount,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     fontFeatures: AFonts.tabular,
                     fontWeight: FontWeight.w700,
                     color: AssistoTokens.of(context).success)),
@@ -741,7 +736,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(Gap.sm),
             decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest,
+                color: scheme.ds.cardHighest,
                 borderRadius: BorderRadius.circular(Radii.sm)),
             child: Text(msg, style: AType.bodySmall),
           ),
@@ -761,7 +756,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
                 const SizedBox(width: Gap.xs),
                 Expanded(
                     child: Text(row.detail,
-                        style: TextStyle(color: statusColor))),
+                        style: AType.bodyMedium.copyWith(color: statusColor))),
               ]),
             ),
           ],
@@ -808,11 +803,10 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
           if (wa.isEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(t.ldgNoPhone,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ],
         ]),
-      ),
-    );
+      ));
   }
 
   /// tagada2: the buttons in the server's send order — (1) Assisto, free,
@@ -824,7 +818,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
     if (!row.reachable) {
       return Text(t.tg2NotReachable,
           key: ValueKey('tg2-unreach-${row.partyId}'),
-          style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant));
+          style: AType.bodyMedium.copyWith(color: scheme.ds.muted));
     }
     final blocked = row.sentToday || row.st == _St.sentAssisto ||
         row.st == _St.sentWa || row.st == _St.sentSms;
@@ -833,7 +827,7 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
     final free = row.assistoUser;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(free ? t.tg2RouteAssistoNote('${row.r['name'] ?? ''}') : t.tg2RouteShareNote,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.sm),
       Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
         if (free)

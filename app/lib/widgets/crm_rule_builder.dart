@@ -5,6 +5,7 @@ import '../screens/crm/crm_common.dart';
 import '../plans_v2/plans_v2.dart';
 import '../plans_v2/upgrade_sheet.dart';
 import '../screens/crm/crm_advanced_api.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// Builder sheet for ONE owner automation rule (CRM spec #11), in the shape
 /// logic_automation expects: {trigger, condition, delay_days, action}. The UI
@@ -110,7 +111,7 @@ class _CrmRuleBuilderState extends State<CrmRuleBuilder> {
       'name': _name.text.trim(),
       'trigger': _trigger,
       'condition': {if (_noReply) 'no_reply': true},
-      'delay_days': int.tryParse(_delay.text.trim()) ?? 0,
+      'delay_days': parseIntInput(_delay.text.trim()) ?? 0,
       'action': {'kind': _action, 'subject': _subject.text.trim()},
       'active': true,
     };
@@ -148,7 +149,7 @@ class _CrmRuleBuilderState extends State<CrmRuleBuilder> {
       child: SingleChildScrollView(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(widget.existing == null ? t.crmNewRule : t.crmEditRule,
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, fontSize: 18)),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _name,
@@ -208,21 +209,21 @@ class _CrmRuleBuilderState extends State<CrmRuleBuilder> {
           Container(
             padding: const EdgeInsets.all(Gap.sm),
             decoration: BoxDecoration(
-              color: scheme.secondaryContainer.withValues(alpha: 0.4),
+              color: scheme.ds.primarySoft.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(Radii.sm),
             ),
             child: Row(children: [
-              Icon(Icons.info_outline_rounded, size: 16, color: scheme.onSecondaryContainer),
+              Icon(Icons.info_outline_rounded, size: 16, color: scheme.ds.primaryInk),
               const SizedBox(width: Gap.xs),
               Expanded(
                   child: Text(t.crmNoAutoSendNote,
-                      style: TextStyle(
-                          fontSize: 12, color: scheme.onSecondaryContainer))),
+                      style: AType.bodyMedium.copyWith(
+                          fontSize: 12, color: scheme.ds.primaryInk))),
             ]),
           ),
           if (_err != null) ...[
             const SizedBox(height: Gap.sm),
-            Text(_err!, style: const TextStyle(color: Brand.danger)),
+            Text(_err!, style: AType.bodyMedium.copyWith(color: Brand.danger)),
           ],
           const SizedBox(height: Gap.md),
           Row(children: [
@@ -248,7 +249,7 @@ class _CrmRuleBuilderState extends State<CrmRuleBuilder> {
         child: Padding(
           padding: const EdgeInsets.only(bottom: 4),
           child: Text(s,
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, fontSize: 13)),
         ),
       );
 }

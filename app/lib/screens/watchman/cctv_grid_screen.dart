@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../theme.dart' show AType;
+import '../../ds/ds.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../widgets/app_sheet.dart';
@@ -109,7 +112,7 @@ class _CctvGridScreenState extends State<CctvGridScreen> {
   }
 
   Widget _body(AppLocalizations t) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_featureOff) {
       return _Msg(icon: Icons.lock_clock_outlined, title: t.wmFeatureOffTitle, body: t.wmFeatureOffBody);
     }
@@ -223,6 +226,7 @@ String ctmRoleName(AppLocalizations t, String role) => switch (role) {
       'owner' => t.ctmRoleOwner,
       'manager' => t.ctmRoleManager,
       'guard' => t.ctmRoleGuard,
+      'staff' => t.ctrRoleStaff, // cctvroles
       _ => t.ctmRoleFamily,
     };
 
@@ -283,7 +287,7 @@ class CctvTile extends StatelessWidget {
                       radius: 13,
                       backgroundColor: wmBad(),
                       child: Text(wmDigits(lang, open),
-                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
+                          style: AType.bodyMedium.copyWith(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
                     ),
                   ),
               ]),
@@ -322,8 +326,8 @@ class CctvStill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ph = ColoredBox(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: Center(child: Icon(Icons.videocam_outlined, size: 36, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      color: Theme.of(context).colorScheme.ds.cardHighest,
+      child: Center(child: Icon(Icons.videocam_outlined, size: 36, color: Theme.of(context).colorScheme.ds.muted)),
     );
     if (inlineJpeg != null && inlineJpeg!.isNotEmpty) {
       try {

@@ -4,7 +4,9 @@ import 'package:intl/intl.dart';
 import '../services/bangla_calendar.dart' show BanglaDate; // remhbar
 import '../l10n/app_localizations.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
+import '../ads/ad_banner_slot.dart'; // adcontrol
 import '../notifications.dart';
 import '../services/home_widget_service.dart';
 import '../widgets/reminders_nlp.dart';
@@ -98,7 +100,9 @@ class _RemindersScreenState extends State<RemindersScreen>
         ));
 
     return Scaffold(
-      // banners-everywhere (owner 26 Oct): one bottom banner, Free only
+      // adcontrol (owner 10 Nov): one bottom banner on the reminders LIST
+      // (Free only) — never on the alarm moment (another screen, no slot)
+      bottomNavigationBar: const AdBannerSlot(screen: 'reminders_list'),
       appBar: AppBar(
         title: Text(t.navReminders),
         actions: [
@@ -259,7 +263,7 @@ class _RemindersScreenState extends State<RemindersScreen>
       _Group('overdue', overdue, Theme.of(context).colorScheme.error),
       _Group('today', today, Brand.blue),
       _Group('upcoming', upcoming, Brand.purple),
-      _Group('nodate', noDate, Theme.of(context).colorScheme.onSurfaceVariant),
+      _Group('nodate', noDate, Theme.of(context).colorScheme.ds.muted),
       _Group('done', done, AssistoTokens.of(context).success),
     ];
   }
@@ -451,13 +455,13 @@ class _ReminderCard extends StatelessWidget {
     final rule = ruleFromData(d);
     final link = d['link'] is Map ? d['link'] as Map : null;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: Gap.xs),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
+    // designv2: alive DS card; a missed (overdue) reminder is the danger card
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+      child: DsSurface(
+        tone: group == 'overdue' && !done ? DsTone.danger : DsTone.normal,
         onTap: () => editReminder(context, item: item),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.xs),
+        padding: const EdgeInsets.fromLTRB(Gap.sm, Gap.xs, Gap.sm, Gap.xs),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -489,7 +493,7 @@ class _ReminderCard extends StatelessWidget {
                           ? Theme.of(context).textTheme.bodyLarge?.copyWith(
                               decoration: TextDecoration.lineThrough,
                               // remnotes: readable (AA), not disabled grey
-                              color: Theme.of(context).colorScheme.onSurfaceVariant)
+                              color: Theme.of(context).colorScheme.ds.muted)
                           : Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: Gap.xxs),
@@ -504,7 +508,7 @@ class _ReminderCard extends StatelessWidget {
                             label: _whenLabel(context, next, d),
                             tint: group == 'overdue'
                                 ? Theme.of(context).colorScheme.error
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                                : Theme.of(context).colorScheme.ds.muted,
                           ),
                         if (rule != null)
                           _MetaChip(
@@ -587,7 +591,6 @@ class _ReminderCard extends StatelessWidget {
               ),
             ],
           ),
-        ),
       ),
     );
   }
@@ -795,14 +798,14 @@ class _NotifPermBanner extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.sm),
         decoration: BoxDecoration(
-          color: scheme.errorContainer,
+          color: scheme.ds.dangerBg,
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(Icons.notifications_off_rounded,
-                size: 18, color: scheme.onErrorContainer),
+                size: 18, color: scheme.ds.dangerInk),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Column(
@@ -811,10 +814,10 @@ class _NotifPermBanner extends StatelessWidget {
                   const SizedBox(height: Gap.xxs),
                   Text(t.remNotifBannerTitle,
                       style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700,
-                          color: scheme.onErrorContainer)),
+                          color: scheme.ds.dangerInk)),
                   const SizedBox(height: Gap.xxs),
                   Text(t.remNotifBannerBody,
-                      style: AType.bodySmall.copyWith(color: scheme.onErrorContainer)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.dangerInk)),
                   const SizedBox(height: Gap.xs),
                   Align(
                     alignment: Alignment.centerLeft,
@@ -836,7 +839,7 @@ class _NotifPermBanner extends StatelessWidget {
               tooltip: t.close,
               visualDensity: VisualDensity.compact,
               iconSize: 18,
-              color: scheme.onErrorContainer,
+              color: scheme.ds.dangerInk,
               onPressed: onDismiss,
               icon: const Icon(Icons.close_rounded),
             ),

@@ -115,11 +115,11 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
             if ((vehInt(tot['alerts_today']) ?? 0) > 0)
               Card(
                 margin: EdgeInsets.zero,
-                color: scheme.errorContainer,
+                color: scheme.ds.dangerBg,
                 child: ListTile(
-                  leading: Icon(Icons.notifications_active_rounded, color: scheme.onErrorContainer),
+                  leading: Icon(Icons.notifications_active_rounded, color: scheme.ds.dangerInk),
                   title: Text(tr.vehFleetAlerts(vehNumStr(context, vehInt(tot['alerts_today'])!)),
-                      style: TextStyle(color: scheme.onErrorContainer)),
+                      style: TextStyle(color: scheme.ds.dangerInk)),
                 ),
               ),
             const SizedBox(height: Gap.sm),
@@ -155,7 +155,7 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
                 Text(label,
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
               ]),
@@ -177,8 +177,8 @@ class _FleetDashboardScreenState extends State<FleetDashboardScreen> {
       margin: const EdgeInsets.only(top: Gap.sm),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: (online ? Brand.success : scheme.outline).withValues(alpha: 0.16),
-          child: Icon(Icons.directions_car_rounded, color: online ? Brand.success : scheme.outline),
+          backgroundColor: (online ? Brand.success : scheme.ds.muted).withValues(alpha: 0.16),
+          child: Icon(Icons.directions_car_rounded, color: online ? Brand.success : scheme.ds.muted),
         ),
         title: Text(name.isEmpty ? tr.vehUnnamedTracker : name,
             maxLines: 1, overflow: TextOverflow.ellipsis),

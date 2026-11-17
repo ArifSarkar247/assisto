@@ -79,6 +79,13 @@ extension BusinessKhataApi on ApiClient {
       getJson('/business/khata/parties/$partyId/statement'
           '${businessId != null ? '?business=$businessId' : ''}');
 
+  /// qbiz: POST /business/khata/parties/<id>/due-link -> {url, text,
+  /// expires_days}. A signed, expiring, read-only web page of THIS customer's
+  /// own due + entries (no notes, no phone). The owner shares it by hand.
+  Future<Map<String, dynamic>> khataDueLink(int partyId, {int? businessId}) =>
+      postJson('/business/khata/parties/$partyId/due-link'
+          '${businessId != null ? '?business=$businessId' : ''}', const {});
+
   /// POST /business/khata/parties/<id>/entries -> {entry, balance_poisha,
   /// balance_display{bn,en}, balance_status{bn,en}, entry_added_message{bn,en}?}.
   /// direction is owner-POV: 'gave' | 'got'. amountPoisha > 0. If

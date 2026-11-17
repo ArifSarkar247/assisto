@@ -409,7 +409,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     final candidates = (_state['candidates'] as List?) ?? const [];
     final style = Theme.of(context).textTheme;
     return Card(
-      color: scheme.errorContainer,
+      color: scheme.ds.dangerBg,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
@@ -418,24 +418,24 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
             Row(
               children: [
                 Icon(Icons.person_add_alt_1_rounded,
-                    color: scheme.onErrorContainer),
+                    color: scheme.ds.dangerInk),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(tr.at2NoContactTitle,
                       style: style.titleMedium
-                          ?.copyWith(color: scheme.onErrorContainer)),
+                          ?.copyWith(color: scheme.ds.dangerInk)),
                 ),
               ],
             ),
             const SizedBox(height: Gap.xs),
             Text(tr.at2NoContactBody,
                 style: style.bodyMedium
-                    ?.copyWith(color: scheme.onErrorContainer)),
+                    ?.copyWith(color: scheme.ds.dangerInk)),
             if (candidates.isEmpty) ...[
               const SizedBox(height: Gap.xs),
               Text(tr.at2NoContactCircle,
                   style: style.bodyMedium
-                      ?.copyWith(color: scheme.onErrorContainer)),
+                      ?.copyWith(color: scheme.ds.dangerInk)),
             ],
           ],
         ),
@@ -873,7 +873,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     final sdk = int.tryParse('${_caps['sdk'] ?? ''}');
     final canReadSimNumber = _caps['canReadSimNumber'] == true;
     return Card(
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(

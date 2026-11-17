@@ -3,6 +3,7 @@ import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
 import '../screens/crm/crm_advanced_api.dart';
+import '../widgets/num_input.dart'; // savesweep
 
 /// Bottom-sheet editor for a monthly TARGET (CRM spec #8). The owner sets the
 /// amount + deal-count target for a member & period. Amounts are OWNER inputs —
@@ -62,8 +63,8 @@ class _CrmTargetEditorState extends State<CrmTargetEditor> {
         'org': widget.org,
         if (_memberId != null) 'member': _memberId,
         'period': _period.text.trim(),
-        'amount': double.tryParse(_amount.text.trim()) ?? 0,
-        'deals_target': int.tryParse(_deals.text.trim()) ?? 0,
+        'amount': parseNumInput(_amount.text.trim()) ?? 0,
+        'deals_target': parseIntInput(_deals.text.trim()) ?? 0,
       });
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -83,7 +84,7 @@ class _CrmTargetEditorState extends State<CrmTargetEditor> {
           top: Gap.md,
           bottom: MediaQuery.of(context).viewInsets.bottom + Gap.md),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(t.crmSetTarget, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+        Text(t.crmSetTarget, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, fontSize: 18)),
         const SizedBox(height: Gap.md),
         DropdownButtonFormField<int?>(
           initialValue: _memberId,
@@ -124,7 +125,7 @@ class _CrmTargetEditorState extends State<CrmTargetEditor> {
         ),
         if (_err != null) ...[
           const SizedBox(height: Gap.sm),
-          Text(_err!, style: const TextStyle(color: Brand.danger)),
+          Text(_err!, style: AType.bodyMedium.copyWith(color: Brand.danger)),
         ],
         const SizedBox(height: Gap.md),
         Row(children: [

@@ -1,0 +1,296 @@
+{
+ "en": {
+  "svcEmergency": "Emergency",
+  "@svcEmergency": {
+   "description": "svcclean: All Services tile + Emergency screen title (one place for every emergency job)"
+  },
+  "svcLostPhone": "Lost phone",
+  "@svcLostPhone": {
+   "description": "svcclean: Tile: Lost or Stolen Pro + My lost phone"
+  },
+  "svcPhoneSafety": "Phone safety",
+  "@svcPhoneSafety": {
+   "description": "svcclean: Tile: check-up + ownership + sell safely + used phone check"
+  },
+  "svcCctvWatch": "CCTV watch",
+  "@svcCctvWatch": {
+   "description": "svcclean: Tile: home and shop CCTV watchman"
+  },
+  "svcTileBirthdays": "Birthdays",
+  "@svcTileBirthdays": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileMeetings": "Meetings",
+  "@svcTileMeetings": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileBudgetRemit": "Budget & remit",
+  "@svcTileBudgetRemit": {
+   "description": "svcclean: Short tile label: budget with remittance"
+  },
+  "svcTileMess": "Mess accounts",
+  "@svcTileMess": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileStaff": "Staff & driver",
+  "@svcTileStaff": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTilePriceRadar": "Price radar",
+  "@svcTilePriceRadar": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileKidsWatch": "Kids watch",
+  "@svcTileKidsWatch": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileMissing": "Missing alert",
+  "@svcTileMissing": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileChildAudio": "Child SOS audio",
+  "@svcTileChildAudio": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileDoctor": "Doctor serial",
+  "@svcTileDoctor": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileMedicine": "Medicines",
+  "@svcTileMedicine": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileDailyInfo": "Daily info",
+  "@svcTileDailyInfo": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileUnseen": "Unseen BD",
+  "@svcTileUnseen": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileLearnQuran": "Learn Quran",
+  "@svcTileLearnQuran": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileQurbani": "Qurbani & Eid",
+  "@svcTileQurbani": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileWellness": "Water & sleep",
+  "@svcTileWellness": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileSmartwatch": "Smartwatch",
+  "@svcTileSmartwatch": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileCerts": "Certificates",
+  "@svcTileCerts": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileVoiceNotes": "Voice notes",
+  "@svcTileVoiceNotes": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileMood": "Mood journal",
+  "@svcTileMood": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileCommunity": "Community",
+  "@svcTileCommunity": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileEstimator": "Estimator",
+  "@svcTileEstimator": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileBlog": "Blog writer",
+  "@svcTileBlog": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileSecretary": "Secretary",
+  "@svcTileSecretary": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileBizBookings": "Bookings",
+  "@svcTileBizBookings": {
+   "description": "svcclean: Short tile label (business side)"
+  },
+  "svcTileRetention": "Retention",
+  "@svcTileRetention": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcTileShopMsgs": "Shop messages",
+  "@svcTileShopMsgs": {
+   "description": "svcclean: Short tile label (customer side)"
+  },
+  "svcTileAccounts": "Accounts",
+  "@svcTileAccounts": {
+   "description": "svcclean: Short tile label"
+  },
+  "svcCatSaveShare": "Savings & sharing",
+  "@svcCatSaveShare": {
+   "description": "svcclean: All Services category"
+  },
+  "svcCatHomeLife": "Home & life",
+  "@svcCatHomeLife": {
+   "description": "svcclean: All Services category"
+  },
+  "svcCatKids": "Kids",
+  "@svcCatKids": {
+   "description": "svcclean: All Services category"
+  },
+  "svcCatTravel": "Travel & city",
+  "@svcCatTravel": {
+   "description": "svcclean: All Services category"
+  },
+  "svcCatFaith": "Faith",
+  "@svcCatFaith": {
+   "description": "svcclean: All Services category"
+  },
+  "svcCatToday": "Today & news",
+  "@svcCatToday": {
+   "description": "svcclean: All Services category"
+  },
+  "svcCatTools": "Tools",
+  "@svcCatTools": {
+   "description": "svcclean: All Services category"
+  },
+  "svcCatShopping": "Shopping",
+  "@svcCatShopping": {
+   "description": "svcclean: All Services category"
+  },
+  "svcCatLearn": "Jobs & learning",
+  "@svcCatLearn": {
+   "description": "svcclean: All Services category"
+  },
+  "svcLostIntro": "Phone gone? Open the first card now. Turn on protection today so you are ready.",
+  "@svcLostIntro": {
+   "description": "svcclean: Lost phone screen intro"
+  },
+  "svcLostNowTitle": "My phone is lost: act now",
+  "@svcLostNowTitle": {
+   "description": "svcclean: Lost phone section"
+  },
+  "svcLostNowSub": "Lost mode, last place, SIM-change alert and intruder photos while it is online",
+  "@svcLostNowSub": {
+   "description": "svcclean: Lost phone section"
+  },
+  "svcLostProtTitle": "Protect it before it is lost",
+  "@svcLostProtTitle": {
+   "description": "svcclean: Lost phone section"
+  },
+  "svcLostProtSub": "Lock, loud alarm and location from this phone",
+  "@svcLostProtSub": {
+   "description": "svcclean: Lost phone section"
+  },
+  "svcSafetyIntro": "Everything that keeps this phone yours, in one place.",
+  "@svcSafetyIntro": {
+   "description": "svcclean: Phone safety screen intro"
+  },
+  "svcSafetyCheckSub": "Step-by-step check of your locks and settings",
+  "@svcSafetyCheckSub": {
+   "description": "svcclean: Phone safety section"
+  },
+  "svcSafetyOwnSub": "A delay and an alert before anyone can sell, wipe or switch off protection",
+  "@svcSafetyOwnSub": {
+   "description": "svcclean: Phone safety section"
+  },
+  "svcSafetySellSub": "Hand over your phone without leaving your data on it",
+  "@svcSafetySellSub": {
+   "description": "svcclean: Phone safety section"
+  },
+  "svcSafetyUsedSub": "Check a used phone before you pay for it",
+  "@svcSafetyUsedSub": {
+   "description": "svcclean: Phone safety section"
+  },
+  "svcEmFire": "Nearest fire station",
+  "@svcEmFire": {
+   "description": "svcclean: Emergency screen row"
+  },
+  "svcEmContacts": "Emergency contacts",
+  "@svcEmContacts": {
+   "description": "svcclean: Emergency screen row (opens the emergency card)"
+  },
+  "svcEmContactsSub": "Who gets your SOS, and your emergency card",
+  "@svcEmContactsSub": {
+   "description": "svcclean: Emergency screen row"
+  },
+  "svcEmFallOn": "On: your family is told if you fall",
+  "@svcEmFallOn": {
+   "description": "svcclean: Emergency screen fall row"
+  },
+  "svcEmFallOff": "Off: tap to turn on",
+  "@svcEmFallOff": {
+   "description": "svcclean: Emergency screen fall row"
+  },
+  "svcFamNomineeSub": "Who can reach your things if something happens to you",
+  "@svcFamNomineeSub": {
+   "description": "svcclean: Family page row under Nominee access"
+  },
+  "svcSosCardDesc": "One press sends help and your location to family.",
+  "@svcSosCardDesc": {
+   "description": "svcclean: SOS Discover card line; fits 2 lines at 360 dp in bn + en (the longer server text was cut)"
+  }
+ },
+ "bn": {
+  "svcEmergency": "জরুরি",
+  "svcLostPhone": "হারানো ফোন",
+  "svcPhoneSafety": "ফোন নিরাপত্তা",
+  "svcCctvWatch": "CCTV পাহারা",
+  "svcTileBirthdays": "জন্মদিন",
+  "svcTileMeetings": "মিটিং",
+  "svcTileBudgetRemit": "বাজেট ও রেমিট্যান্স",
+  "svcTileMess": "মেসের হিসাব",
+  "svcTileStaff": "গৃহকর্মী ও ড্রাইভার",
+  "svcTilePriceRadar": "দাম রাডার",
+  "svcTileKidsWatch": "বাচ্চার ঘড়ি",
+  "svcTileMissing": "নিখোঁজ সতর্কতা",
+  "svcTileChildAudio": "শিশুর জরুরি অডিও",
+  "svcTileDoctor": "ডাক্তার সিরিয়াল",
+  "svcTileMedicine": "ওষুধের তথ্য",
+  "svcTileDailyInfo": "আজকের তথ্য",
+  "svcTileUnseen": "অদেখা বাংলাদেশ",
+  "svcTileLearnQuran": "কুরআন শিখি",
+  "svcTileQurbani": "কোরবানি ও ঈদ",
+  "svcTileWellness": "পানি, ঘুম ও খাবার",
+  "svcTileSmartwatch": "স্মার্টওয়াচ",
+  "svcTileCerts": "আমার সনদ",
+  "svcTileVoiceNotes": "কল ও ভয়েস নোট",
+  "svcTileMood": "মনের ডায়েরি",
+  "svcTileCommunity": "এলাকার কমিউনিটি",
+  "svcTileEstimator": "খরচ ও সময় হিসাব",
+  "svcTileBlog": "ব্লগ লেখা",
+  "svcTileSecretary": "সেক্রেটারি",
+  "svcTileBizBookings": "বুকিং",
+  "svcTileRetention": "রিটেনশন",
+  "svcTileShopMsgs": "দোকানের মেসেজ",
+  "svcTileAccounts": "হিসাব ও অর্থ",
+  "svcCatSaveShare": "সঞ্চয় ও ভাগাভাগি",
+  "svcCatHomeLife": "ঘর ও জীবন",
+  "svcCatKids": "শিশু",
+  "svcCatTravel": "যাতায়াত ও শহর",
+  "svcCatFaith": "ইবাদত",
+  "svcCatToday": "আজকের খবর",
+  "svcCatTools": "টুলস",
+  "svcCatShopping": "কেনাকাটা",
+  "svcCatLearn": "চাকরি ও শেখা",
+  "svcLostIntro": "ফোন হারিয়েছে? এখনই প্রথম কার্ডটি খুলুন। আজই সুরক্ষা চালু রাখুন, যাতে আগে থেকেই তৈরি থাকেন।",
+  "svcLostNowTitle": "ফোন হারিয়েছে: এখনই ব্যবস্থা নিন",
+  "svcLostNowSub": "লস্ট মোড, শেষ অবস্থান, সিম বদলের খবর ও অচেনা মানুষের ছবি, ফোন অনলাইনে থাকলে",
+  "svcLostProtTitle": "হারানোর আগেই সুরক্ষা",
+  "svcLostProtSub": "এই ফোনে লক, জোরে অ্যালার্ম ও অবস্থান",
+  "svcSafetyIntro": "ফোনটা আপনার হাতেই রাখতে যা দরকার, সব এক জায়গায়।",
+  "svcSafetyCheckSub": "লক ও সেটিংস ধাপে ধাপে যাচাই",
+  "svcSafetyOwnSub": "কেউ বিক্রি, মুছে ফেলা বা সুরক্ষা বন্ধ করার আগে দেরি ও সতর্কবার্তা",
+  "svcSafetySellSub": "নিজের তথ্য না রেখে ফোন হস্তান্তর করুন",
+  "svcSafetyUsedSub": "টাকা দেওয়ার আগে পুরনো ফোন যাচাই করুন",
+  "svcEmFire": "কাছের ফায়ার স্টেশন",
+  "svcEmContacts": "জরুরি নম্বর",
+  "svcEmContactsSub": "SOS কারা পাবেন ও আপনার জরুরি কার্ড",
+  "svcEmFallOn": "চালু: পড়ে গেলে পরিবার খবর পাবে",
+  "svcEmFallOff": "বন্ধ: চালু করতে চাপুন",
+  "svcFamNomineeSub": "আপনার কিছু হলে কে আপনার জিনিস দেখতে পারবেন",
+  "svcSosCardDesc": "এক চাপে পরিবার পায় বিপদের খবর ও লোকেশন।"
+ }
+}

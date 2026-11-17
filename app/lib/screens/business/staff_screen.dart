@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart' show ApiException;
@@ -162,7 +163,7 @@ class _StaffScreenState extends State<StaffScreen> {
         children: [
           Text(t.bbStaffBenefit, style: AType.bodyLarge),
           const SizedBox(height: Gap.sm),
-          Text(t.bbStaffHow, style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+          Text(t.bbStaffHow, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.lg),
           addButtons(),
           const SizedBox(height: Gap.lg),
@@ -171,11 +172,12 @@ class _StaffScreenState extends State<StaffScreen> {
               padding: const EdgeInsets.symmetric(vertical: Gap.lg),
               child: Text(t.bbStaffNone,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             )
           else
             for (final m in _rows)
-              Card(
+              DsCard(
+                padding: EdgeInsets.zero,
                 child: ListTile(
                   leading: const CircleAvatar(child: Icon(Icons.badge_rounded)),
                   title: Text('${m['name'] ?? ''}'),

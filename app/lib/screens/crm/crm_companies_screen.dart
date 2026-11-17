@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_company_widgets.dart';
@@ -125,32 +126,32 @@ class _CompanyRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final ind = company['industry']?.toString();
     final size = (company['size'] as num?)?.toInt() ?? 0;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: ListTile(
+    return DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
-          backgroundColor: scheme.primaryContainer,
-          child: Icon(industryIcon(ind), color: scheme.onPrimaryContainer),
+          backgroundColor: scheme.ds.primarySoft,
+          child: Icon(industryIcon(ind), color: scheme.ds.primaryInk),
         ),
         title: Text(company['name']?.toString() ?? '—',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         subtitle: Row(children: [
-          Icon(Icons.people_alt_rounded, size: 13, color: scheme.onSurfaceVariant),
+          Icon(Icons.people_alt_rounded, size: 13, color: scheme.ds.muted),
           const SizedBox(width: 3),
           Text(t.crmContactCount(contactCount),
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           if (size > 0) ...[
             const SizedBox(width: 10),
-            Icon(Icons.badge_rounded, size: 13, color: scheme.onSurfaceVariant),
+            Icon(Icons.badge_rounded, size: 13, color: scheme.ds.muted),
             const SizedBox(width: 3),
-            Text('$size', style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            Text('$size', style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ],
         ]),
         trailing: const Icon(Icons.chevron_right_rounded),
       ),
-    );
+      );
   }
 }

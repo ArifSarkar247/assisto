@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 
 import '../api.dart';
 import '../l10n/app_localizations.dart';
-import '../screens/credits_screen.dart';
+import '../plans_v2/buy_inside.dart';
 import '../screens/watchman/watchman_source.dart' show wmDigits, wmList;
 import '../screens/watchman/watchman_widgets.dart' show wmLang, wmWarn, wmBad, WmPill;
 import '../theme.dart';
@@ -145,7 +146,10 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
   String? _error;
   bool _noCredits = false;
 
+  String? _lastKind; // buyinside: the pack to buy again once credits land
+
   Future<void> _go(String kind) async {
+    _lastKind = kind;
     setState(() {
       _busy = kind;
       _error = null;
@@ -196,13 +200,22 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
     }
   }
 
-  void _credits() {
+  /// buyinside: the credits sheet right here (no trip to another screen);
+  /// once credits land the same pack is bought again, once.
+  Future<void> _credits() async {
     final cb = widget.onGetCredits;
     if (cb != null) {
       cb();
       return;
     }
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CreditsScreen()));
+    final ok = await BuyInside.open(context, 'cctv_extra_pack');
+    if (!ok || !mounted) return;
+    setState(() {
+      _noCredits = false;
+      _error = null;
+    });
+    final k = _lastKind;
+    if (k != null) await _go(k);
   }
 
   @override
@@ -232,9 +245,7 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
         ],
         for (final p in packs) ...[
           const SizedBox(height: Gap.sm),
-          Card(
-            margin: EdgeInsets.zero,
-            child: Padding(
+          DsCard(
               padding: const EdgeInsets.all(Gap.md),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
@@ -243,7 +254,7 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
                   Expanded(
                     child: Text(
                         p['kind'] == 'relay' ? t.capPackRelay(gb(p['mb'])) : t.capPackAi(n(p['checks'])),
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   ),
                 ]),
                 const SizedBox(height: Gap.xs),
@@ -281,7 +292,6 @@ class _ExtraPackSheetState extends State<ExtraPackSheet> {
                 ],
               ]),
             ),
-          ),
         ],
         if (_error != null) ...[
           const SizedBox(height: Gap.sm),

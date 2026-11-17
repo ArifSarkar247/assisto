@@ -217,7 +217,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
         if ('${it['customer_text'] ?? ''}'.isNotEmpty) ...[
           Text(t.baCustomerSaid, style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: Gap.xs),
-          Text(bd(context, it['customer_text']), style: const TextStyle(height: 1.4)),
+          Text(bd(context, it['customer_text']), style: AType.bodyMedium.copyWith(height: 1.4)),
           const SizedBox(height: Gap.md),
         ],
         if (problems.isNotEmpty) ...[
@@ -242,7 +242,7 @@ class _ApprovalCardState extends State<_ApprovalCard> {
             onPressed: _busy ? null : () => _run(() => api.bizAgentReject(id), t.baRejected),
             // a11y1: primary on the card tint was 4.48:1.
             style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.onSurface),
+                foregroundColor: Theme.of(context).colorScheme.ds.text),
             child: Text(t.baReject),
           ),
           FilledButton.icon(

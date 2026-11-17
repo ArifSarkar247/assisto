@@ -8,6 +8,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import '../../../widgets/skeleton.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -259,7 +260,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : d == null
               ? _ErrorBody(onRetry: _load, error: _error)
               : ListView(
@@ -267,7 +268,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   children: [
                     if (!d.consistent)
                       _Banner(icon: Icons.warning_amber_rounded, text: t.invInconsistent,
-                          color: scheme.errorContainer, onColor: scheme.onErrorContainer),
+                          color: scheme.ds.dangerBg, onColor: scheme.ds.dangerInk),
                     Text(t.invPaperLabel, style: Theme.of(context).textTheme.titleSmall),
                     const SizedBox(height: Gap.xs),
                     SegmentedButton<InvoicePaper>(
@@ -436,7 +437,7 @@ class _Banner extends StatelessWidget {
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(icon, color: onColor),
           const SizedBox(width: Gap.sm),
-          Expanded(child: Text(text, style: TextStyle(color: onColor))),
+          Expanded(child: Text(text, style: AType.bodyMedium.copyWith(color: onColor))),
         ]),
       );
 }

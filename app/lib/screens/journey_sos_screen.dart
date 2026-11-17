@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // sosat
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:geolocator/geolocator.dart';
 import '../state.dart';
 import '../l10n/app_localizations.dart';
 import '../api.dart';
@@ -12,6 +11,7 @@ import '../services/action_feedback.dart';
 import '../services/journey_tracker.dart';
 import '../widgets/password_field.dart';
 import '../widgets/journey_api.dart';
+import '../widgets/sos_location.dart'; // qjourney
 import 'package:assisto/widgets/app_sheet.dart';
 
 /// Discreet SOS flow (item 7 + 8 + 11 + 12), fully working IN-APP today.
@@ -93,30 +93,17 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
     super.dispose();
   }
 
-  Future<Position?> _position() async {
-    try {
-      if (!await Geolocator.isLocationServiceEnabled()) return null;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
-      if (perm == LocationPermission.denied ||
-          perm == LocationPermission.deniedForever) {
-        return null;
-      }
-      return await Geolocator.getCurrentPosition();
-    } catch (_) {
-      return null;
-    }
-  }
+  // qjourney: bounded (it used to wait forever for a GPS fix indoors, so
+  // the SOS never left the phone); falls back to the last known position.
+  Future<SosPosition?> _position() => sosQuickPosition();
 
   Future<void> _fire({bool silent = false}) async {
     _timer?.cancel();
     if (mounted) setState(() => _phase = _Phase.fired);
     final api = context.read<AppState>().api;
     final pos = await _position();
-    _lat = pos?.latitude ?? widget.lastLat;
-    _lng = pos?.longitude ?? widget.lastLng;
+    _lat = pos?.lat ?? widget.lastLat;
+    _lng = pos?.lng ?? widget.lastLng;
     await _send(api, silent: silent);
     if (_lat == null || _lng == null) {
       if (mounted) setState(() => _helpState = 'no_location');
@@ -406,7 +393,7 @@ class _JourneySosScreenState extends State<JourneySosScreen> {
                 'failed' || 'no_location' => t.j100NearbyFailed,
                 _ => t.j100NearbyNone,
               },
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
         if (_help.isEmpty && _helpState != 'loading')
           Wrap(spacing: Gap.sm, children: [
             OutlinedButton.icon(

@@ -77,7 +77,7 @@ Widget _emptyState(BuildContext context,
   return _centered(Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icon, size: 48, color: cs.onSurfaceVariant),
+      Icon(icon, size: 48, color: cs.ds.muted),
       const SizedBox(height: Gap.md),
       Text(title,
           textAlign: TextAlign.center,
@@ -85,7 +85,7 @@ Widget _emptyState(BuildContext context,
       const SizedBox(height: Gap.xs),
       Text(body,
           textAlign: TextAlign.center,
-          style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
+          style: TextStyle(color: cs.ds.muted, height: 1.4)),
       if (action != null) ...[
         const SizedBox(height: Gap.md),
         action,

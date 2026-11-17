@@ -152,7 +152,7 @@ class _StarredMessagesScreenState extends State<StarredMessagesScreen> {
             const SizedBox(height: Gap.sm),
             Text(body,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                style: TextStyle(color: scheme.ds.muted, height: 1.4)),
           ],
         ]),
       ),

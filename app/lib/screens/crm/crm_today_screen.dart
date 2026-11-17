@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/ladder_common.dart';
@@ -77,7 +78,8 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
         if (high.isNotEmpty) ...[
           _header(t.crmTodayHotLeads, Icons.local_fire_department_rounded, Theme.of(context).colorScheme.error),
           for (final l in high)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: ScoreBadge((l['score'] as num).toInt()),
                 title: Text(l['name']?.toString().isNotEmpty == true
@@ -94,7 +96,8 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
         if (fu.isNotEmpty) ...[
           _header(t.crmTodayFollowups, Icons.event_rounded, AssistoTokens.of(context).warning),
           for (final l in fu)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: const Icon(Icons.schedule_rounded),
                 title: Text(l['name']?.toString().isNotEmpty == true
@@ -109,7 +112,8 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
         if (tasks.isNotEmpty) ...[
           _header(t.bbCrmDueTasks, Icons.task_alt_rounded, AssistoTokens.of(context).warning),
           for (final s in tasks)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: const Icon(Icons.checklist_rounded),
                 title: Text('${s['subject'] ?? ''}'),
@@ -125,7 +129,8 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
         if (overdue.isNotEmpty) ...[
           _header(t.crmTodayOverdueSteps, Icons.warning_amber_rounded, Theme.of(context).colorScheme.error),
           for (final s in overdue)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: const Icon(Icons.flag_rounded),
                 title: Text(s['title'] ?? ''),
@@ -136,9 +141,10 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
             ),
         ],
         if (missing.isNotEmpty) ...[
-          _header(t.crmTodayMissingStep, Icons.help_outline_rounded, scheme.onSurfaceVariant),
+          _header(t.crmTodayMissingStep, Icons.help_outline_rounded, scheme.ds.muted),
           for (final s in missing)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: const Icon(Icons.remove_circle_outline_rounded),
                 title: Text(s['title'] ?? ''),
@@ -151,7 +157,8 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
         if (stuck.isNotEmpty) ...[
           _header(t.crmTodayStuck, Icons.hourglass_bottom_rounded, AssistoTokens.of(context).warning),
           for (final s in stuck)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: const Icon(Icons.timelapse_rounded),
                 title: Text(s['title'] ?? ''),
@@ -245,7 +252,7 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
         child: Row(children: [
           Icon(icon, size: 18, color: tint),
           const SizedBox(width: Gap.sm),
-          Expanded(child: Text(text, style: const TextStyle(fontWeight: FontWeight.w800))),
+          Expanded(child: Text(text, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
         ]),
       );
 }

@@ -44,6 +44,7 @@ import 'low_stock_card.dart'; // bizbar
 import '../../bizai/outcome_card.dart' show OutcomeCard; // bizai
 import '../../bizai/winback_screen.dart' show WinbackScreen; // bizai
 import '../../bizai/weekly_report_screen.dart' show WeeklyReportScreen; // bizai
+import '../../bizai/biz_daily_screen.dart' show BizDailyScreen; // bizai2
 import 'staff_screen.dart'; // bizbar
 import 'invoice/invoices_screen.dart'; // invoices
 
@@ -218,16 +219,16 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
     final t = AppLocalizations.of(context);
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: Text(t.business)),
+        appBar: AppBar(title: Text(t.myBusinessTitle)),
         body: const SkeletonList(),
       );
     }
     if (_error) {
       return Scaffold(
-        appBar: AppBar(title: Text(t.business)),
+        appBar: AppBar(title: Text(t.myBusinessTitle)),
         body: StateMessage(
           icon: Icons.cloud_off_rounded,
-          title: t.business,
+          title: t.myBusinessTitle,
           message: honestFailText(t, _failCause, otherwise: t.businessLoadFailed),
           action: FilledButton(onPressed: _load, child: Text(t.retry)),
         ),
@@ -235,7 +236,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
     }
     if (_businesses.isEmpty || _selected == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(t.business)),
+        appBar: AppBar(title: Text(t.myBusinessTitle)),
         body: StateMessage(
           icon: Icons.storefront_rounded,
           title: t.businessWelcomeTitle,
@@ -262,7 +263,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
     return Scaffold(
       // banners-everywhere (owner 26 Oct): one bottom banner, Free only
       appBar: AppBar(
-        title: Text(t.business),
+        title: Text(t.myBusinessTitle),
         actions: [
           IconButton(
             tooltip: t.businessSetupTitle,
@@ -284,7 +285,7 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
             BrandBand(
               child: Row(children: [
                 _TypeAvatar(
-                    type: (biz['type'] ?? '').toString(), onGradient: true),
+                    type: (biz['type'] ?? '').toString()), // designv2: soft hero
                 const SizedBox(width: Gap.md),
                 Expanded(
                   child: Column(
@@ -301,12 +302,24 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 ),
                 if (_businesses.length > 1)
                   TextButton.icon(
-                    style: TextButton.styleFrom(foregroundColor: Colors.white),
                     icon: const Icon(Icons.unfold_more_rounded, size: 18),
                     label: Text(t.businessSwitch),
                     onPressed: _showSwitcher,
                   ),
               ]),
+            ),
+            const SizedBox(height: Gap.lg),
+
+            // homeshort (owner 9 Nov 11:25): Digital Ledger left the home
+            // shortcuts and is the FIRST tile in My Business — same name and
+            // icon as the old home tile so people find it at once.
+            _HubCard(
+              key: const ValueKey('biz_hub_ledger'),
+              icon: Icons.description_outlined,
+              tint: scheme.primary,
+              title: t.hv2TileLedger,
+              subtitle: t.businessKhataSub,
+              onTap: () => _go(KhataScreen(business: biz)),
             ),
             const SizedBox(height: Gap.lg),
 
@@ -328,14 +341,6 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: Gap.md),
 
-            _HubCard(
-              icon: Icons.menu_book_rounded,
-              tint: scheme.primary,
-              title: t.khataTitle,
-              subtitle: t.businessKhataSub,
-              onTap: () => _go(KhataScreen(business: biz)),
-            ),
-            const SizedBox(height: Gap.md),
             _HubCard(
               icon: Icons.point_of_sale_rounded,
               tint: scheme.secondary,
@@ -494,6 +499,17 @@ class _BusinessHubScreenState extends State<BusinessHubScreen> {
                 title: t.bizaiWeeklyTitle,
                 subtitle: t.bizaiWeeklyHubSub,
                 onTap: () => _go(WeeklyReportScreen(businessId: bizId)),
+              ),
+              const SizedBox(height: Gap.md),
+            ],
+            // bizai2: today's shop summary (owner; every plan, no AI)
+            if (!isStaff) ...[
+              _HubCard(
+                icon: Icons.today_rounded,
+                tint: Brand.blue,
+                title: t.bizai2DailyTitle,
+                subtitle: t.bizai2DailyHubSub,
+                onTap: () => _go(BizDailyScreen(businessId: bizId)),
               ),
               const SizedBox(height: Gap.md),
             ],
@@ -677,6 +693,7 @@ class _HubCard extends StatelessWidget {
   final bool locked;
   final String? lockedLabel;
   const _HubCard({
+    super.key,
     required this.icon,
     required this.tint,
     required this.title,

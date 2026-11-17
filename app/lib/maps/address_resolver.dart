@@ -42,6 +42,31 @@ class AddressResolver {
     return parts.isEmpty ? null : parts.take(3).join(', ');
   }
 
+  /// fcrest — the AREA only (sub-locality, locality: "Dhanmondi, Dhaka"),
+  /// from the PHONE's own Geocoder (free; never our server, never Google
+  /// billing). For the Family card when a member is in none of their saved
+  /// places. null when the phone has no answer. Tests replace [debugArea].
+  static PhoneGeocoder? debugArea;
+
+  static Future<String?> phoneArea(double lat, double lng, String lang) async {
+    try {
+      final f = debugArea;
+      if (f != null) return await f(lat, lng, lang).timeout(phoneTimeout);
+      await geo.setLocaleIdentifier(lang == 'bn' ? 'bn_BD' : 'en_US');
+      final rows = await geo.placemarkFromCoordinates(lat, lng).timeout(phoneTimeout);
+      if (rows.isEmpty) return null;
+      final p = rows.first;
+      final parts = <String>[];
+      for (final s in [p.subLocality, p.locality, p.subAdministrativeArea]) {
+        final v = (s ?? '').trim();
+        if (v.isNotEmpty && !parts.contains(v) && !RegExp(r'^[\d\s+,.-]+$').hasMatch(v)) parts.add(v);
+      }
+      return parts.isEmpty ? null : parts.take(2).join(', ');
+    } catch (_) {
+      return null; // no Geocoder / no network: the card simply shows no area
+    }
+  }
+
   static Future<ResolvedAddress> resolve(ApiClient api, double lat, double lng,
       {String lang = 'bn'}) async {
     try {

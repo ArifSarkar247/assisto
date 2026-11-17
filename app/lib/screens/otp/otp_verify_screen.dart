@@ -150,6 +150,13 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
         return t.smsotpEmailOff;
       case 'email_daily_cap':
         return t.smsotpEmailCap;
+      // emailrel: honest email failures, each naming the way out (SMS / later)
+      case 'email_bouncing':
+        return t.emailrelBouncing;
+      case 'email_rejected':
+        return t.emailrelRejected;
+      case 'email_send_failed':
+        return t.emailrelSendFailed;
       case 'no_verified_email':
         return t.smsotpEmailNoVerified;
       default:
@@ -229,7 +236,12 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
       return;
     }
     setState(() {
-      if (r.emailOff || r.reason == 'email_daily_cap') _emailAvailable = false;
+      if (r.emailOff ||
+          r.reason == 'email_daily_cap' ||
+          r.reason == 'email_bouncing' ||
+          r.reason == 'email_rejected') {
+        _emailAvailable = false; // emailrel: offer SMS, not a dead email button
+      }
       if (_phase == _Phase.smsOff || _phase == _Phase.sending) {
         _phase = _Phase.entering;
       }
@@ -313,12 +325,12 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                             key: const Key('otp-email-note'),
                             textAlign: TextAlign.center,
                             style: textTheme.bodyMedium
-                                ?.copyWith(color: scheme.onSurfaceVariant))
+                                ?.copyWith(color: scheme.ds.muted))
                       else if (_sent && _masked.isNotEmpty)
                         Text(t.otpSentTo(_masked),
                             textAlign: TextAlign.center,
                             style: textTheme.bodyMedium
-                                ?.copyWith(color: scheme.onSurfaceVariant)),
+                                ?.copyWith(color: scheme.ds.muted)),
                       const SizedBox(height: Gap.xl),
                       OtpCodeInput(
                         controller: _code,
@@ -381,7 +393,7 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                       Text(t.otpNeverShare,
                           textAlign: TextAlign.center,
                           style: textTheme.bodySmall
-                              ?.copyWith(color: scheme.onSurfaceVariant)),
+                              ?.copyWith(color: scheme.ds.muted)),
                     ],
                   ),
               },
@@ -407,25 +419,25 @@ class _SmsOffCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Card(
-          color: scheme.secondaryContainer,
+          color: scheme.ds.primarySoft,
           child: Padding(
             padding: const EdgeInsets.all(Gap.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(children: [
-                  Icon(Icons.sms_failed_rounded, color: scheme.onSecondaryContainer),
+                  Icon(Icons.sms_failed_rounded, color: scheme.ds.primaryInk),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(t.otpSmsOffTitle,
                         style: TextStyle(
                             fontWeight: FontWeight.w700,
-                            color: scheme.onSecondaryContainer)),
+                            color: scheme.ds.primaryInk)),
                   ),
                 ]),
                 const SizedBox(height: Gap.sm),
                 Text(t.otpSmsOffBody,
-                    style: TextStyle(color: scheme.onSecondaryContainer)),
+                    style: TextStyle(color: scheme.ds.primaryInk)),
               ],
             ),
           ),

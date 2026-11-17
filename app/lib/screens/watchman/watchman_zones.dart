@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import 'camera_alert_types.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
+import 'zone_options_sheet.dart';
 
 /// cctv1 ZONES DRAWN ON SCREEN: on the camera's check still (or its latest
 /// alert photo, else a plain grid) the owner taps points to draw a
@@ -25,7 +26,13 @@ class WatchmanZonesScreen extends StatefulWidget {
 class _Zone {
   String type;
   List<Offset> points;
-  _Zone(this.type, this.points);
+  // cctvdet: kept across edits (the box remembers a gate's picture by id)
+  String? id;
+  String label;
+  Map<String, dynamic>? schedule;
+  Map<String, dynamic> opts;
+  _Zone(this.type, this.points, {this.id, this.label = '', this.schedule, Map<String, dynamic>? opts})
+      : opts = opts ?? {};
 }
 
 class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
@@ -78,12 +85,17 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
       _zones
         ..clear()
         ..addAll(wmList(cfg['zones']).map((m) => _Zone(
-            (m['type'] ?? 'restricted').toString(),
-            [
-              for (final p in (m['points'] as List? ?? const []))
-                if (p is List && p.length >= 2)
-                  Offset((p[0] as num).toDouble(), (p[1] as num).toDouble())
-            ])));
+              (m['type'] ?? 'restricted').toString(),
+              [
+                for (final p in (m['points'] as List? ?? const []))
+                  if (p is List && p.length >= 2)
+                    Offset((p[0] as num).toDouble(), (p[1] as num).toDouble())
+              ],
+              id: m['id']?.toString(),
+              label: (m['label'] ?? '').toString(),
+              schedule: m['schedule'] is Map ? Map<String, dynamic>.from(m['schedule'] as Map) : null,
+              opts: m['opts'] is Map ? Map<String, dynamic>.from(m['opts'] as Map) : null,
+            )));
       final s = cfg['schedule'];
       _always = s == null;
       if (s is Map) {
@@ -122,7 +134,14 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
   void _finish() {
     final need = _tool == 'entry_line' ? 2 : 3;
     if (_draft.length < need) return;
-    _zones.add(_Zone(_tool, _draft));
+    _zones.add(_Zone(_tool, _draft,
+        schedule: _tool == 'post' ? Map<String, dynamic>.from(kPostDefaultSchedule) : null,
+        opts: switch (_tool) {
+          'post' => {'absent_min': 5},
+          'parking' => {'overstay_min': 60},
+          'no_parking' => {'wrong_s': 120},
+          _ => null,
+        }));
     _draft = [];
   }
 
@@ -132,16 +151,31 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
       _saving = true;
       _saveError = null;
     });
+    // cctvdet: a zone keeps its id (the box remembers a gate's picture by
+    // it); new zones get the next free one
+    final used = {for (final z in _zones) if (z.id != null) z.id!};
+    var n = 1;
+    for (final z in _zones) {
+      if (z.id != null) continue;
+      while (used.contains('z$n')) {
+        n++;
+      }
+      z.id = 'z$n';
+      used.add(z.id!);
+    }
     final cfg = {
       'zones': [
         for (var i = 0; i < _zones.length; i++)
           {
-            'id': 'z${i + 1}',
+            'id': _zones[i].id,
             'type': _zones[i].type,
             'points': [
               for (final p in _zones[i].points)
                 [double.parse(p.dx.toStringAsFixed(4)), double.parse(p.dy.toStringAsFixed(4))]
             ],
+            if (_zones[i].label.isNotEmpty) 'label': _zones[i].label,
+            if (_zones[i].schedule != null) 'schedule': _zones[i].schedule,
+            if (_zones[i].opts.isNotEmpty) 'opts': _zones[i].opts,
           }
       ],
       'schedule': _always ? null : {'days': _days.toList()..sort(), 'start': _hhmm(_start), 'end': _hhmm(_end)},
@@ -165,8 +199,25 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
   String _zoneName(AppLocalizations t, String type) => switch (type) {
         'cash' => t.wmZoneCash,
         'entry_line' => t.wmZoneLine,
+        'gate' => t.cdetZoneGate,
+        'post' => t.cdetZonePost,
+        'parking' => t.cdetZoneParking,
+        'no_parking' => t.cdetZoneNoParking,
         _ => t.wmZoneRestricted,
       };
+
+  Future<void> _options(int i) async {
+    final z = _zones[i];
+    final r = await showZoneOptions(context,
+        type: z.type, name: _zoneName(AppLocalizations.of(context), z.type),
+        label: z.label, schedule: z.schedule, opts: z.opts);
+    if (r == null || !mounted) return;
+    setState(() {
+      z.label = r.label;
+      z.schedule = r.schedule;
+      z.opts = r.opts;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,7 +235,7 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
               Text(t.wmZonesHowTo),
               const SizedBox(height: 8),
               Wrap(spacing: 8, runSpacing: 4, children: [
-                for (final z in const ['restricted', 'cash', 'entry_line'])
+                for (final z in const ['restricted', 'gate', 'post', 'parking', 'no_parking', 'cash', 'entry_line'])
                   ChoiceChip(
                     label: Text(_zoneName(t, z)),
                     selected: _tool == z,
@@ -246,12 +297,29 @@ class _WatchmanZonesScreenState extends State<WatchmanZonesScreen> {
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(_zones[i].type == 'entry_line' ? Icons.horizontal_rule_rounded : Icons.pentagon_outlined,
                       color: _ZonePainter.colorOf(_zones[i].type)),
-                  title: Text('${_zoneName(t, _zones[i].type)} ${wmDigits(lang, i + 1)}'),
-                  trailing: IconButton(
-                    tooltip: t.wmDeleteZone,
-                    icon: const Icon(Icons.delete_outline_rounded),
-                    onPressed: () => setState(() => _zones.removeAt(i)),
-                  ),
+                  title: Text(_zones[i].label.isNotEmpty
+                      ? _zones[i].label
+                      : '${_zoneName(t, _zones[i].type)} ${wmDigits(lang, i + 1)}'),
+                  // cctvdet: what this zone will alert about, in one line
+                  subtitle: zoneSummary(context, _zones[i].type, _zones[i].opts, _zones[i].schedule),
+                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                    if (_zones[i].type != 'cash')
+                      IconButton(
+                        tooltip: t.cdetOptionsTooltip,
+                        icon: const Icon(Icons.tune_rounded),
+                        onPressed: () => _options(i),
+                      ),
+                    IconButton(
+                      tooltip: t.wmDeleteZone,
+                      icon: const Icon(Icons.delete_outline_rounded),
+                      onPressed: () => setState(() => _zones.removeAt(i)),
+                    ),
+                  ]),
+                ),
+              if (_zones.any((z) => const {'gate', 'post', 'parking', 'no_parking'}.contains(z.type)))
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(t.cdetZoneHelp, style: Theme.of(context).textTheme.bodySmall),
                 ),
               const Divider(height: 28),
               Text(t.wmScheduleTitle, style: Theme.of(context).textTheme.titleMedium),
@@ -403,6 +471,10 @@ class _ZonePainter extends CustomPainter {
   static Color colorOf(String type) => switch (type) {
         'cash' => Brand.warning,
         'entry_line' => Brand.cyan,
+        'gate' => Brand.purple,
+        'post' => Brand.info,
+        'parking' => Brand.success,
+        'no_parking' => Brand.warning,
         _ => Brand.danger,
       };
 

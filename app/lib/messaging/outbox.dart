@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../crypto/e2e.dart';
 import '../crypto/key_service.dart';
+import '../offline/net_status.dart'; // offline1st
 import '../security/secret_store.dart';
 
 /// e2-keys — the persistent LOCAL outbox (owner PRODUCT RULE: the sender is
@@ -36,6 +37,11 @@ class OutboxItem {
   // encrypted for the peer; the blob is already on the server, no re-upload).
   final String contentType;
   final String? blobRef;
+  // offline2: a GROUP message (chatKind 'group', chatId = group id) is
+  // encrypted per recipient when it is WRITTEN (the roster this phone knew);
+  // this is that ready envelope (ciphertext only + client_msg_id). Sent
+  // as-is when the network is back; the server dedupes on client_msg_id.
+  final Map<String, dynamic>? envelope;
 
   const OutboxItem({
     required this.id,
@@ -48,6 +54,7 @@ class OutboxItem {
     this.forwardHops = 0,
     this.contentType = 'text',
     this.blobRef,
+    this.envelope,
   });
 
   Map<String, dynamic> toJson() => {
@@ -61,6 +68,7 @@ class OutboxItem {
         'at': at.toUtc().toIso8601String(),
         if (contentType != 'text') 'ct': contentType,
         if (blobRef != null) 'blob': blobRef,
+        if (envelope != null) 'env': envelope,
       };
 
   static OutboxItem? fromJson(Map<String, dynamic> j) {
@@ -78,6 +86,7 @@ class OutboxItem {
       at: DateTime.tryParse('${j['at'] ?? ''}')?.toLocal() ?? DateTime.now(),
       contentType: '${j['ct'] ?? 'text'}',
       blobRef: j['blob'] == null ? null : '${j['blob']}',
+      envelope: j['env'] is Map ? (j['env'] as Map).cast<String, dynamic>() : null,
     );
   }
 }
@@ -86,6 +95,50 @@ class OutboxItem {
 abstract class OutboxStore {
   Future<List<Map<String, dynamic>>> load();
   Future<void> save(List<Map<String, dynamic>> rows);
+}
+
+/// offline1st: the outbox ENCRYPTED AT REST — one [SecretStore] slot
+/// (ChaCha20-Poly1305, no_backup dir). It holds messages typed offline in
+/// PLAINTEXT (they are encrypted for the peer only when sent), so it must not
+/// sit in SharedPreferences. Read from disk on every use (no memory cache),
+/// so the FCM background isolate's flushes are seen. A queue an older build
+/// left in SharedPreferences is moved here once (merged by id).
+class SecretOutboxStore implements OutboxStore {
+  const SecretOutboxStore({SecretStore? store}) : _store = store;
+  static const slot = 'e2_outbox_v2';
+  final SecretStore? _store;
+  SecretStore get _s => _store ?? SecretStore.instance;
+
+  @override
+  Future<List<Map<String, dynamic>>> load() async {
+    final rows = <Map<String, dynamic>>[];
+    try {
+      final raw = await _s.read(slot);
+      if (raw != null && raw.isNotEmpty) {
+        rows.addAll((jsonDecode(raw) as List)
+            .whereType<Map>()
+            .map((m) => m.cast<String, dynamic>()));
+      }
+    } catch (_) {}
+    // one-time move of an older build's plaintext queue
+    try {
+      final old = await const PrefsOutboxStore().load();
+      if (old.isNotEmpty) {
+        final have = rows.map((r) => '${r['id']}').toSet();
+        rows.addAll(old.where((r) => !have.contains('${r['id']}')));
+        if (await _s.write(slot, jsonEncode(rows))) {
+          final p = await SharedPreferences.getInstance();
+          await p.remove(PrefsOutboxStore.key);
+        }
+      }
+    } catch (_) {}
+    return rows;
+  }
+
+  @override
+  Future<void> save(List<Map<String, dynamic>> rows) async {
+    await _s.write(slot, jsonEncode(rows));
+  }
 }
 
 class PrefsOutboxStore implements OutboxStore {
@@ -127,7 +180,13 @@ abstract class OutboxTransport {
   Future<Map<String, dynamic>> send(int memberId, Map<String, dynamic> env);
 }
 
-class FnOutboxTransport implements OutboxTransport {
+/// offline2: transports that can also post a ready GROUP envelope.
+abstract class GroupOutboxTransport {
+  /// POST /circle/groups/<groupId>/messages
+  Future<Map<String, dynamic>> sendGroup(int groupId, Map<String, dynamic> env);
+}
+
+class FnOutboxTransport implements OutboxTransport, GroupOutboxTransport {
   FnOutboxTransport({required this.get, required this.post});
   final Future<Map<String, dynamic>> Function(String path) get;
   final Future<Map<String, dynamic>> Function(String path, Map<String, dynamic> body)
@@ -140,6 +199,10 @@ class FnOutboxTransport implements OutboxTransport {
   @override
   Future<Map<String, dynamic>> send(int memberId, Map<String, dynamic> env) =>
       post('/circle/$memberId/messages', env);
+
+  @override
+  Future<Map<String, dynamic>> sendGroup(int groupId, Map<String, dynamic> env) =>
+      post('/circle/groups/$groupId/messages', env);
 }
 
 class FlushResult {
@@ -149,7 +212,11 @@ class FlushResult {
 }
 
 class Outbox {
-  Outbox({OutboxStore? store}) : store = store ?? const PrefsOutboxStore();
+  Outbox({OutboxStore? store}) : store = store ?? defaultStore;
+
+  /// offline1st: encrypted at rest in the app. Unit tests keep the
+  /// SharedPreferences store (reset per test) via test/flutter_test_config.
+  static OutboxStore defaultStore = const SecretOutboxStore();
 
   static Outbox instance = Outbox();
 
@@ -205,6 +272,7 @@ class Outbox {
     required OutboxTransport transport,
     required Future<IdentityKeyPair?> Function() identity,
     int? onlyChat,
+    int? onlyGroup, // offline2
     void Function(String)? log,
   }) async {
     if (_flushing) return const FlushResult([], -1);
@@ -212,14 +280,54 @@ class Outbox {
     final sent = <String>[];
     var waiting = 0;
     try {
-      final items = (await all())
+      final everything = await all();
+      // offline2: ready GROUP envelopes first-in-first-out per group (no key
+      // lookup needed: encrypted when written). Stops at the first failure
+      // of a group so the order is kept.
+      if (onlyChat == null) {
+        final groups = everything
+            .where((i) => i.chatKind == 'group' && i.envelope != null)
+            .where((i) => onlyGroup == null || i.chatId == onlyGroup)
+            .toList()
+          ..sort((a, b) => a.at.compareTo(b.at));
+        final byGroup = <int, List<OutboxItem>>{};
+        for (final i in groups) {
+          byGroup.putIfAbsent(i.chatId, () => []).add(i);
+        }
+        final gt = _asGroup(transport);
+        for (final e in byGroup.entries) {
+          if (gt == null) {
+            waiting += e.value.length;
+            continue;
+          }
+          for (final i in e.value) {
+            try {
+              await gt.sendGroup(e.key, i.envelope!);
+              sent.add(i.id);
+            } catch (_) {
+              waiting += 1;
+              break; // keep order within the group
+            }
+          }
+        }
+      }
+      final items = everything
           .where((i) => i.chatKind == 'member')
+          .where((i) => onlyGroup == null)
           .where((i) => onlyChat == null || i.chatId == onlyChat)
           .toList()
         ..sort((a, b) => a.at.compareTo(b.at));
-      if (items.isEmpty) return const FlushResult([], 0);
+      if (items.isEmpty) {
+        await remove(sent);
+        if (sent.isNotEmpty) _noteSent(sent, waiting, log);
+        return FlushResult(sent, waiting);
+      }
       final me = await identity();
-      if (me == null) return FlushResult(const [], items.length);
+      if (me == null) {
+        await remove(sent);
+        if (sent.isNotEmpty) _noteSent(sent, waiting, log);
+        return FlushResult(sent, waiting + items.length);
+      }
       final byChat = <int, List<OutboxItem>>{};
       for (final i in items) {
         byChat.putIfAbsent(i.chatId, () => []).add(i);
@@ -258,18 +366,23 @@ class Outbox {
         }
       }
       await remove(sent);
-      if (sent.isNotEmpty) {
-        recentlySent
-          ..addAll(sent)
-          ..removeRange(0, recentlySent.length > 50 ? recentlySent.length - 50 : 0);
-        log?.call('outbox sent=${sent.length} waiting=$waiting');
-      }
+      if (sent.isNotEmpty) _noteSent(sent, waiting, log);
       return FlushResult(sent, waiting);
     } catch (_) {
       return FlushResult(sent, waiting);
     } finally {
       _flushing = false;
     }
+  }
+
+  static GroupOutboxTransport? _asGroup(Object t) =>
+      t is GroupOutboxTransport ? t : null;
+
+  void _noteSent(List<String> sent, int waiting, void Function(String)? log) {
+    recentlySent
+      ..addAll(sent)
+      ..removeRange(0, recentlySent.length > 50 ? recentlySent.length - 50 : 0);
+    log?.call('outbox sent=${sent.length} waiting=$waiting');
   }
 
   // ------------------------------------------------------------ driver
@@ -298,6 +411,9 @@ class Outbox {
     _transport = transport;
     _identity = identity;
     _sub?.cancel();
+    // offline1st: the moment the server is reachable again, send what was
+    // typed offline (in order, same client_msg_id -> the server dedupes).
+    NetStatus.instance.onBackOnline(_onNetBack);
     _sub = keyEvents?.listen((ev) {
       final chat = '${ev['chat'] ?? ''}';
       final id = chat.startsWith('member:') ? int.tryParse(chat.substring(7)) : null;
@@ -306,13 +422,18 @@ class Outbox {
     unawaited(kick());
   }
 
+  void _onNetBack() {
+    _step = 0;
+    unawaited(kick());
+  }
+
   /// Flush now (chat open, app resume, key event, key_ready push) and keep
   /// the retry timer running while items still wait.
-  Future<FlushResult> kick({int? onlyChat}) async {
+  Future<FlushResult> kick({int? onlyChat, int? onlyGroup}) async {
     final t = _transport, id = _identity;
     if (t == null || id == null) return const FlushResult([], 0);
     final r = await flush(transport: t, identity: id, onlyChat: onlyChat,
-        log: KeyService.instance.log.add);
+        onlyGroup: onlyGroup, log: KeyService.instance.log.add);
     if (r.sent.isNotEmpty) _step = 0;
     final left = (await all()).length;
     _timer?.cancel();

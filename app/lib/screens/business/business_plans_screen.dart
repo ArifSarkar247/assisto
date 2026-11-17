@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/business_ui.dart';
 import '../plans_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -44,7 +45,7 @@ class BusinessPlansScreen extends StatelessWidget {
         const SizedBox(height: Gap.sm),
         Text(tr.ldgFreePaidSms,
             style: AType.bodySmall.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                color: DsTokens.of(context).muted)),
         const SizedBox(height: Gap.lg),
         _planCard(
           context,
@@ -82,51 +83,43 @@ class BusinessPlansScreen extends StatelessWidget {
     required String priceLine,
     Widget? cta,
   }) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        gradient: highlighted ? Brand.gradient : null,
-        color: highlighted ? null : scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(Radii.lg),
-        border: highlighted ? null : Border.all(color: scheme.outlineVariant),
-      ),
+    final ds = DsTokens.of(context);
+    // design2: the recommended plan is a selected DS surface (primary border on
+    // the soft primary tint, AA ink) instead of white text on the brand
+    // gradient (cyan end failed AA); the other plan is a plain alive card.
+    return DsSurface(
       padding: const EdgeInsets.all(Gap.xl),
+      color: highlighted ? ds.primarySoft : null,
+      borderColor: highlighted ? ds.primary : null,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Icon(highlighted ? Icons.workspace_premium_rounded : Icons.check_circle_outline_rounded,
-              color: highlighted ? Colors.white : scheme.primary),
+              color: ds.primaryInk),
           const SizedBox(width: Gap.sm),
-          Text(title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: highlighted ? Colors.white : scheme.onSurface)),
+          Expanded(
+            child: Text(title,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800, color: ds.text)),
+          ),
         ]),
         const SizedBox(height: Gap.xs),
-        Text(subtitle,
-            style: TextStyle(
-                height: 1.4,
-                color: highlighted ? Colors.white : scheme.onSurfaceVariant)),
+        Text(subtitle, style: AType.bodyMedium.copyWith(height: 1.4, color: ds.muted)),
         const SizedBox(height: Gap.lg),
         for (final b in benefits)
           Padding(
             padding: const EdgeInsets.only(bottom: Gap.sm),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.check_rounded,
-                  size: 18, color: highlighted ? Colors.white : scheme.primary),
+              Icon(Icons.check_rounded, size: 18, color: ds.successInk),
               const SizedBox(width: Gap.sm),
               Expanded(
-                child: Text(b,
-                    style: TextStyle(
-                        height: 1.4,
-                        color: highlighted ? Colors.white : scheme.onSurface)),
+                child: Text(b, style: AType.bodyMedium.copyWith(height: 1.4, color: ds.text)),
               ),
             ]),
           ),
         const SizedBox(height: Gap.md),
         Text(priceLine,
-            style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: highlighted ? Colors.white : scheme.onSurface)),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800, letterSpacing: -0.2, color: ds.text)),
         if (cta != null) ...[
           const SizedBox(height: Gap.lg),
           SizedBox(width: double.infinity, child: cta),

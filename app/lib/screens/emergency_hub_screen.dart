@@ -8,12 +8,16 @@ import '../feature_flags.dart';
 import '../l10n/app_localizations.dart';
 import '../services/action_feedback.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/chatnav.dart';
 import '../widgets/emergency_sos_panel.dart';
 import '../widgets/fam_card_section.dart' show FamCardScreen, FamCardStore;
+import '../family_sos/sos_setup_card.dart'; // fcsos
 import 'emergency_screen.dart';
+import 'fall_detect_screen.dart'; // svcclean
+import '../services/sos_trigger_settings.dart'; // svcclean
 import 'journey_fake_call_screen.dart';
 import 'nearby_screen.dart';
 
@@ -43,7 +47,17 @@ class EmergencyHubScreen extends StatefulWidget {
     this.locate,
     this.ladderLoad,
     this.famCard,
+    this.open,
+    this.fallOn,
   });
+
+  /// svcclean: an OLD route that now lives inside Emergency ('fall_detect')
+  /// lands here and opens that section on top (Back returns here).
+  final String? open;
+
+  /// svcclean test seam: is accident & fall detection on (default: the
+  /// phone setting [SosTriggerSettings]).
+  final Future<bool> Function()? fallOn;
 
   /// Route name (ChatNav / feature_registry / ad never-list).
   static const route = 'emergency_hub';
@@ -80,6 +94,32 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
   List<Map<String, String>> _crisis = const [];
   bool _crisisLoaded = false;
   String? _lang;
+  bool? _fallOn; // svcclean: null = not read yet
+
+  @override
+  void initState() {
+    super.initState();
+    _readFall();
+    if (widget.open == 'fall_detect') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _openFall();
+      });
+    }
+  }
+
+  Future<void> _readFall() async {
+    bool on = false;
+    try {
+      on = await (widget.fallOn ??
+          () async => (await SosTriggerSettings.load()).fallOn)();
+    } catch (_) {/* best-effort: the row just says Off */}
+    if (mounted) setState(() => _fallOn = on);
+  }
+
+  Future<void> _openFall() async {
+    await _push(const FallDetectScreen(), 'fall_detect');
+    if (mounted) await _readFall();
+  }
 
   @override
   void didChangeDependencies() {
@@ -265,25 +305,23 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final ff = FeatureFlags.instance;
-    final scheme = Theme.of(context).colorScheme;
     final nearbyOn = ff.isOn('nearby');
+    // designv2 page rule: nearby help as three one-tap tiles (no
+    // explanation lines); the offline note at the bottom covers "no internet".
+    final ds = DsTokens.of(context);
+    Widget near(String id, IconData icon, String label, String type) => Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.xs),
+            child: DsTile(
+              key: ValueKey('emh-$id'),
+              icon: icon,
+              label: label,
+              accent: ds.dangerInk,
+              onTap: () => _push(NearbyScreen(placeType: type), 'nearby'),
+            ),
+          ),
+        );
     final tiles = <Widget>[
-      if (nearbyOn) ...[
-        _HubTile(
-          id: 'hospital',
-          icon: Icons.local_hospital_rounded,
-          title: t.emhHospital,
-          subtitle: t.emhNearbySub,
-          onTap: () => _push(const NearbyScreen(placeType: 'hospital'), 'nearby'),
-        ),
-        _HubTile(
-          id: 'police',
-          icon: Icons.local_police_rounded,
-          title: t.emhPolice,
-          subtitle: t.emhNearbySub,
-          onTap: () => _push(const NearbyScreen(placeType: 'police'), 'nearby'),
-        ),
-      ],
       _HubTile(
         id: 'famcard',
         icon: Icons.badge_rounded,
@@ -294,12 +332,33 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           if (mounted) await _loadLocal(); // show the card's new blood group / numbers
         },
       ),
+      // svcclean: the old "Emergency" tile (contacts + emergency card) is a
+      // section of this one Emergency screen now.
+      _HubTile(
+        id: 'contacts',
+        icon: Icons.contact_phone_rounded,
+        title: t.svcEmContacts,
+        subtitle: null,
+        onTap: () async {
+          await _push(const EmergencyScreen(), 'emergency');
+          if (mounted) await _loadLocal();
+        },
+      ),
+      // svcclean: the old "Accident / fall detection" tile, with its state
+      if (FallDetectScreen.engineShipped && ff.isOn('fall_detect'))
+        _HubTile(
+          id: 'fall',
+          icon: Icons.monitor_heart_rounded,
+          title: t.fallDetectTitle,
+          subtitle: _fallOn == true ? t.svcEmFallOn : t.svcEmFallOff,
+          onTap: _openFall,
+        ),
       if (ff.routeAllowed('blood_panel'))
         _HubTile(
           id: 'blood',
           icon: Icons.bloodtype_rounded,
           title: t.emhBlood,
-          subtitle: t.emhBloodSub,
+          subtitle: null,
           onTap: () => ChatNav.push(context, 'blood_panel'),
         ),
       if (ff.routeAllowed('missing_alert'))
@@ -307,7 +366,7 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           id: 'missing',
           icon: Icons.person_search_rounded,
           title: t.emhMissing,
-          subtitle: t.emhMissingSub,
+          subtitle: null,
           onTap: () => ChatNav.push(context, 'missing_alert'),
         ),
     ];
@@ -317,21 +376,22 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
           id: 'lost',
           icon: Icons.phonelink_lock_rounded,
           title: t.emhLost,
-          subtitle: t.emhLostSub,
-          onTap: () => ChatNav.push(context, 'lost_stolen'),
+          subtitle: null,
+          // svcclean: straight to "act now" inside the one Lost phone tile
+          onTap: () => ChatNav.push(context, 'my_lost_phone'),
         ),
       if (ff.isOn('safe_journey'))
         _HubTile(
           id: 'fake',
           icon: Icons.phone_callback_rounded,
           title: t.emhFake,
-          subtitle: t.emhFakeSub,
+          subtitle: null,
           onTap: _fakeCall,
         ),
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.emhTitle)),
+      appBar: AppBar(title: Text(t.svcEmergency)),
       body: ListView(
         key: const ValueKey('emh-list'),
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
@@ -352,11 +412,21 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
             sub: t.emh999Sub,
             onTap: () => _dial('999'),
           ),
-          const SizedBox(height: Gap.xl),
+          if (nearbyOn) ...[
+            const SizedBox(height: Gap.md),
+            // equal-height tiles (a 2-line label must not make one taller)
+            IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              near('hospital', Icons.local_hospital_rounded, t.emhHospital, 'hospital'),
+              near('police', Icons.local_police_rounded, t.emhPolice, 'police'),
+              // svcclean: fire station from the same Nearby list
+              near('fire', Icons.local_fire_department_rounded, t.svcEmFire, 'fire'),
+            ])),
+          ],
+          const SizedBox(height: Gap.lg),
           Semantics(
             header: true,
             child: Text(t.emhMoreHelp,
-                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+                style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700, color: ds.text)),
           ),
           const SizedBox(height: Gap.sm),
           ...tiles,
@@ -368,14 +438,19 @@ class _EmergencyHubScreenState extends State<EmergencyHubScreen> {
             onCall: _dial,
           ),
           ...later,
+          // fcsos: get SOS ready (SMS people, info share, DND, full screen)
+          const Padding(
+            padding: EdgeInsets.only(top: Gap.md),
+            child: SosSetupCard(),
+          ),
           const SizedBox(height: Gap.md),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.offline_bolt_rounded, size: 18, color: scheme.onSurfaceVariant),
+            Icon(Icons.offline_bolt_rounded, size: 18, color: ds.muted),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.emhOfflineNote,
                   key: const ValueKey('emh-offline-note'),
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: ds.muted)),
             ),
           ]),
         ],
@@ -394,9 +469,17 @@ class _Call999 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      FilledButton.icon(
+    final lite = DsPerf.liteOf(context);
+    final ds = DsTokens.of(context);
+    // designv2: the 999 button with the danger glow; its explanation line is
+    // read by TalkBack (hint), not printed under it (page rule).
+    return Semantics(
+      hint: sub,
+      child: DecoratedBox(
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(DsRadius.button),
+          boxShadow: lite ? null : ds.dangerGlow),
+      child: FilledButton.icon(
         key: const ValueKey('emh-999'),
         style: FilledButton.styleFrom(
           backgroundColor: Brand.dangerFill,
@@ -415,11 +498,8 @@ class _Call999 extends StatelessWidget {
                 .titleLarge
                 ?.copyWith(fontWeight: FontWeight.w800, color: Colors.white)),
       ),
-      const SizedBox(height: Gap.xs),
-      Text(sub,
-          textAlign: TextAlign.center,
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
-    ]);
+      ),
+    );
   }
 }
 
@@ -435,28 +515,26 @@ class _HubTile extends StatelessWidget {
   final String id;
   final IconData icon;
   final String title;
-  final String subtitle;
+  final String? subtitle; // only a live state (card filled, fall on/off)
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      clipBehavior: Clip.antiAlias,
-      child: ListTile(
-        key: ValueKey('emh-$id'),
-        minVerticalPadding: Gap.sm,
-        contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
-        leading: CircleAvatar(
-          backgroundColor: scheme.secondaryContainer,
-          foregroundColor: scheme.onSecondaryContainer,
-          child: Icon(icon),
+    final ds = DsTokens.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsCard(
+        padding: EdgeInsets.zero,
+        child: DsListRow(
+          key: ValueKey('emh-$id'),
+          // svcclean: red accent — this is the ONE Emergency screen
+          leading: DsAvatar(
+              color: ds.dangerInk, child: Icon(icon, color: ds.dangerInk, size: 22)),
+          title: title,
+          subtitle: subtitle,
+          trailing: Icon(Icons.chevron_right_rounded, color: ds.muted),
+          onTap: onTap,
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right_rounded),
-        onTap: onTap,
       ),
     );
   }
@@ -487,11 +565,10 @@ class _CrisisCard extends StatelessWidget {
             {'key': 'emergency', 'number': '999', 'label': t.emhCrisis999Label}
           ];
     final onlyEmergency = rows.every((r) => r['number'] == '999');
-    return Card(
-      key: const ValueKey('emh-crisis'),
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      child: DsCard(
+        key: const ValueKey('emh-crisis'),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
             CircleAvatar(

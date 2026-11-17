@@ -188,7 +188,7 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
                       const SizedBox(height: Gap.md),
                       Text(t.cgaFree,
                           style: AType.bodySmall
-                              .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                              .copyWith(color: Theme.of(context).colorScheme.ds.muted)),
                     ],
                   ),
                 ),
@@ -229,13 +229,13 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
-          Icon(Icons.hourglass_top_rounded, color: scheme.onSurfaceVariant),
+          Icon(Icons.hourglass_top_rounded, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.g2PendingTitle, style: AType.titleMedium),
               Text(t.g2PendingBody('${p['name'] ?? ''}'),
-                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ]),
           ),
         ]),
@@ -253,7 +253,7 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
             const SizedBox(height: Gap.xs),
             Text(t.cgaKidsEmptyHow,
                 style: AType.bodyMedium
-                    .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    .copyWith(color: Theme.of(context).colorScheme.ds.muted)),
             const SizedBox(height: Gap.md),
             FilledButton.icon(
               key: const Key('cga-kids-start'),
@@ -322,18 +322,18 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
           if (g2Date(context, g['since']).isNotEmpty)
             Text(t.g2Since(g2Date(context, g['since'])),
                 key: ValueKey('g2-since-$uid'),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.xs),
           _chips(t, sources),
           if (watchOwners.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(t.cgaWatchOnlyOwner(watchOwners.join(', ')),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ],
           if (chipOwners.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(t.cgaChipOnlyOwner(chipOwners.join(', ')),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ],
           if (g['removable'] == true) ...[
             const SizedBox(height: Gap.sm),
@@ -380,7 +380,7 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
           Text(co.isEmpty ? t.cgaOnlyYou : t.cgaAlsoWatching(co.join(', ')),
               key: ValueKey('cga-co-${k['key']}'),
               style: AType.bodyMedium.copyWith(
-                  color: co.isEmpty ? scheme.onSurfaceVariant : scheme.onSurface)),
+                  color: co.isEmpty ? scheme.ds.muted : scheme.ds.text)),
           // guardian2: invite a second guardian (needs the child's own account)
           const SizedBox(height: Gap.sm),
           if (k['child_user_id'] is num)
@@ -400,7 +400,7 @@ class _CircleGuardiansScreenState extends State<CircleGuardiansScreen> {
             )
           else
             Text(t.g2NeedsAccount('${k['name'] ?? ''}'),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ]),
       ),
     );

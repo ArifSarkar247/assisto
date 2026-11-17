@@ -526,7 +526,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
               const SizedBox(height: Gap.xs),
               Text(m.title,
                   style: TextStyle(
-                      color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                      color: Theme.of(ctx).colorScheme.ds.muted)),
               const SizedBox(height: Gap.md),
               MemSwitchRow(
                 icon: Icons.visibility_off_rounded,
@@ -626,12 +626,12 @@ class _MemoryScreenState extends State<MemoryScreen> {
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Text(t.memExportCopied,
                   style: TextStyle(
-                      color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                      color: Theme.of(ctx).colorScheme.ds.muted)),
               const SizedBox(height: Gap.md),
               Container(
                 padding: const EdgeInsets.all(Gap.sm),
                 decoration: BoxDecoration(
-                  color: Theme.of(ctx).colorScheme.surfaceContainerHighest,
+                  color: Theme.of(ctx).colorScheme.ds.cardHighest,
                   borderRadius: BorderRadius.circular(Radii.sm),
                 ),
                 child: SelectableText(text,

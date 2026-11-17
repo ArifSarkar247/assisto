@@ -509,6 +509,9 @@ _EMAIL_DEFAULTS = {
     # ~2000): stay under it so Google never suspends the company mailbox.
     "daily_cap": 400,
     "near_cap_pct": 90,            # from here the app is told to prefer SMS
+    # emailrel: priority under the cap — reports / marketing (bulk) stop at
+    # this %, notices at near_cap_pct, codes + security mail use the rest
+    "bulk_cap_pct": 70,
 }
 
 
@@ -531,7 +534,9 @@ def _norm_email(raw, base):
     return {"provider": prov if prov in ("smtp",) else "smtp",
             "daily_cap": max(0, min(2000, _int(raw.get("daily_cap"), base["daily_cap"]))),
             "near_cap_pct": max(50, min(100, _int(raw.get("near_cap_pct"),
-                                                  base["near_cap_pct"])))}
+                                                  base["near_cap_pct"]))),
+            "bulk_cap_pct": max(0, min(100, _int(raw.get("bulk_cap_pct"),
+                                                 base.get("bulk_cap_pct", 70))))}
 
 
 def sms_cfg(cfg):
@@ -886,6 +891,8 @@ def normalize(data):
                                                base["gateway_fee"]))),
         "vat": max(0.0, min(0.95, _num(d.get("vat"), base["vat"]))),
         "ad_rewards": _norm_ad_rewards(d.get("ad_rewards"), base["ad_rewards"]),
+        # adcontrol (owner 10 Nov): per-placement on/off + type + caps
+        "ad_control": _ad_control_norm(d.get("ad_control")),
         "profit_guard": _norm_profit_guard(d.get("profit_guard"),
                                            base["profit_guard"]),
         "fixed_cost_per_day": max(0.0, _num(d.get("fixed_cost_per_day"),
@@ -1124,6 +1131,11 @@ def _norm_ad_list(raw, allowed, fallback):
         if p in allowed and p not in out:
             out.append(p)
     return ",".join(out)
+
+
+def _ad_control_norm(raw):
+    from .ad_control import normalize as _n
+    return _n(raw)
 
 
 def _norm_ad_rewards(raw, base):

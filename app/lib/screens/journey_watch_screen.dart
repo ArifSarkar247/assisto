@@ -11,9 +11,12 @@ import '../services/action_feedback.dart';
 import '../services/journey_tracker.dart' show journeyMapsLink;
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/journey_ride.dart';
 import 'journey_start_screen.dart';
+import 'safe_journey/sj_during_api.dart'; // sjduring
+import 'safe_journey/sj_watch_board.dart'; // sjduring
 import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset;
 
 /// journey100 — "Journeys I'm watching": the in-app side for a WATCHER (a
@@ -31,6 +34,8 @@ class JourneyWatchScreen extends StatefulWidget {
 
 class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
   List<Map<String, dynamic>> _rows = [];
+  // sjduring: V2 state / level / badges per journey id (GET /journey/watch-board)
+  Map<int, Map<String, dynamic>> _board = {};
   bool _loading = true;
   bool _error = false;
   Timer? _timer;
@@ -50,10 +55,25 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
 
   Future<void> _load() async {
     try {
-      final r = await context.read<AppState>().api.journeysWatching();
+      final api = context.read<AppState>().api;
+      final r = await api.journeysWatching();
+      final board = <int, Map<String, dynamic>>{};
+      try {
+        final b = await api.sjWatchBoard();
+        for (final list in [b['active'], b['finished']]) {
+          for (final c in (list as List? ?? const [])) {
+            if (c is Map && c['id'] is num) {
+              board[(c['id'] as num).toInt()] = c.cast<String, dynamic>();
+            }
+          }
+        }
+      } catch (_) {
+        // best-effort: older server — the journey100 card still shows
+      }
       if (!mounted) return;
       setState(() {
         _rows = r;
+        _board = board;
         _loading = false;
         _error = false;
       });
@@ -72,7 +92,7 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
     final cs = Theme.of(context).colorScheme;
     final age = (j['fix_age_s'] as num?)?.toInt();
     if (j['sos'] == true) {
-      return (label: t.j100StSos, color: cs.error, icon: Icons.sos_rounded);
+      return (label: t.j100StSos, color: DsTokens.of(context).dangerInk, icon: Icons.sos_rounded);
     }
     switch (j['status']) {
       case 'arrived':
@@ -80,7 +100,7 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
       case 'active':
         break;
       default:
-        return (label: t.j100StEnded, color: cs.onSurfaceVariant, icon: Icons.flag_rounded);
+        return (label: t.j100StEnded, color: DsTokens.of(context).muted, icon: Icons.flag_rounded);
     }
     if (age == null) {
       return (label: t.j100StWaiting, color: Brand.warnInk(context), icon: Icons.gps_not_fixed_rounded);
@@ -92,22 +112,42 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
       return (label: t.j100StStale(jDigits(context, (age / 60).round())), color: Brand.warnInk(context),
           icon: Icons.schedule_rounded);
     }
-    return (label: t.j100StLost(jDigits(context, (age / 60).round())), color: cs.error, icon: Icons.location_off_rounded);
+    return (label: t.j100StLost(jDigits(context, (age / 60).round())), color: DsTokens.of(context).dangerInk, icon: Icons.location_off_rounded);
   }
 
   Widget _card(AppLocalizations t, Map<String, dynamic> j) {
-    final st = _state(t, j);
-    final late = j['overdue_state'] == 'ask' || j['overdue_state'] == 'alert';
+    final b = _board[(j['id'] as num?)?.toInt() ?? -1];
+    var st = _state(t, j);
+    // sjduring: the V2 state (late while moving = Slow in traffic, never
+    // "late" in red); SOS stays the SOS look
+    if (b != null && j['status'] == 'active' && j['sos'] != true) {
+      final v = sjStateLook(context, t, b);
+      st = (label: v.label, color: v.color, icon: v.icon);
+    }
+    final late = b == null && (j['overdue_state'] == 'ask' || j['overdue_state'] == 'alert');
+    final level = '${b?['level'] ?? ''}';
     final lat = (j['lat'] as num?)?.toDouble();
     final lng = (j['lng'] as num?)?.toDouble();
     final eta = DateTime.tryParse('${j['eta'] ?? ''}')?.toLocal();
     final dest = (j['destination'] ?? '').toString();
     final url = (j['url'] ?? '').toString();
+    final cs = Theme.of(context).colorScheme;
     return Card(
+      key: ValueKey('sjd_card_${j['id']}'),
+      shape: level.isEmpty
+          ? null
+          : RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(Radii.md),
+              side: BorderSide(
+                  width: 2, color: level == 'red' ? DsTokens.of(context).dangerInk : Brand.warnInk(context))),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
+            if (b != null) ...[
+              Icon(sjModeIcon('${b['mode'] ?? ''}'), color: cs.primary),
+              const SizedBox(width: Gap.xs),
+            ],
             Icon(st.icon, color: st.color),
             const SizedBox(width: Gap.sm),
             Expanded(
@@ -116,25 +156,30 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
           ]),
           const SizedBox(height: Gap.xs),
           Text(st.label, style: AType.bodyMedium.copyWith(color: st.color, fontWeight: FontWeight.w600)),
+          if (b != null) SjBoardExtras(card: b), // sjduring
           if (late && j['status'] == 'active')
             Text(t.j100StLate,
-                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
+                style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk)),
           if (dest.isNotEmpty) Text(t.journeyToward(dest), style: AType.bodyMedium),
           if (eta != null && j['status'] == 'active')
             Text(t.journeyEtaBy(TimeOfDay.fromDateTime(eta).format(context)),
                 style: AType.bodyMedium),
-          if (j['distance_m'] is num && j['status'] == 'active')
+          // sjp0 (owner P0 9 Nov): with an arrival window (SjBoardExtras shows
+          // "Arrive between A and B" + the earliest time) there is no
+          // straight-line distance / typical-speed guess; without one they
+          // stay as a small, honestly labelled fallback.
+          if (j['distance_m'] is num && j['status'] == 'active' && !_hasWindow(b))
             Text(t.j2ToGo(jKm(context, j['distance_m'] as num)),
-                style: AType.bodyMedium),
+                style: AType.bodySmall),
           // journey100b: rough time left — from their own recent speed when
           // the server had enough fixes, else a typical speed (never traffic)
-          if (j['rough_min'] is num && j['status'] == 'active')
+          if (j['rough_min'] is num && j['status'] == 'active' && !_hasWindow(b))
             Text(
                 j['eta_basis'] == 'speed'
                     ? t.j100bRoughSpeed(jDigits(context, (j['rough_min'] as num).toInt()))
                     : t.j100bRoughTypical(jDigits(context, (j['rough_min'] as num).toInt())),
                 key: const ValueKey('j100b_rough'),
-                style: AType.bodyMedium),
+                style: AType.bodySmall),
           // journey100b: the honest likely reason when no location comes in
           if (j['why'] == 'killed' || j['why'] == 'battery')
             Text(
@@ -142,7 +187,7 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
                     ? t.j100bWhyBattery(jDigits(context, (j['why_battery'] as num? ?? 0).toInt()))
                     : t.j100bWhyKilled,
                 key: const ValueKey('j100b_why'),
-                style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
+                style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk)),
           if (j['ride'] is Map && jRideLine(t, j['ride'] as Map).isNotEmpty)
             Text(jRideLine(t, j['ride'] as Map), style: AType.bodyMedium),
           if (j['ride'] is Map && '${(j['ride'] as Map)['driver_name'] ?? ''}'.isNotEmpty)
@@ -156,6 +201,7 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
                   onOpen: jmTrainOn
                       ? () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => TrainLiveScreen(
+                              showAds: false,
                               no: '${(j['train'] as Map)['no']}',
                               date: '${(j['train'] as Map)['date']}')))
                       : null),
@@ -180,7 +226,7 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
                   label: Text(t.j100LivePage),
                   onPressed: () => openForUser(context, Uri.parse(url),
                       where: 'journeyWatch.page', mode: LaunchMode.externalApplication)),
-            if (j['sos'] == true || late)
+            if (j['sos'] == true || late || level == 'red')
               OutlinedButton.icon(
                   icon: const Icon(Icons.call_rounded),
                   label: Text(t.sosCallNow),
@@ -197,52 +243,61 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
     final t = AppLocalizations.of(context);
     Widget body;
     if (_loading) {
-      body = const Center(child: CircularProgressIndicator());
+      body = ListView(padding: const EdgeInsets.all(Gap.md), children: [
+        for (var i = 0; i < 2; i++)
+          Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSkeleton.card(lines: 3)),
+      ]);
     } else if (_error && _rows.isEmpty) {
       body = ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-        Text(t.j100WatchError, style: AType.bodyLarge),
-        const SizedBox(height: Gap.md),
-        Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: FilledButton(onPressed: _load, child: Text(t.retry))),
+        DsEmptyState(
+            icon: Icons.cloud_off_rounded, title: t.j100WatchError, actionLabel: t.retry, onAction: _load),
       ]);
     } else if (_rows.isEmpty) {
       // journey2: an empty state with the benefit, how it works and one
       // big action — not a dead end
-      final cs = Theme.of(context).colorScheme;
       body = ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-        Icon(Icons.family_restroom_rounded, size: 56, color: cs.primary),
-        const SizedBox(height: Gap.md),
-        Text(t.j100WatchEmpty,
-            key: const ValueKey('j2_watch_empty'),
-            textAlign: TextAlign.center,
-            style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
-        const SizedBox(height: Gap.sm),
-        Text(t.j2WatchEmptyBenefit, textAlign: TextAlign.center, style: AType.bodyLarge),
-        const SizedBox(height: Gap.sm),
-        Text(t.j2WatchEmptyHow,
-            textAlign: TextAlign.center,
-            style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
-        const SizedBox(height: Gap.lg),
-        FilledButton.icon(
-          key: const ValueKey('j2_watch_start_own'),
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-          icon: const Icon(Icons.navigation_rounded),
-          label: Text(t.j2WatchStartOwn),
-          onPressed: () {
-            final nav = Navigator.of(context);
-            if (widget.fromStart && nav.canPop()) {
-              nav.pop(); // back to the start form it was opened from
-            } else {
-              nav.pushReplacement(
-                  MaterialPageRoute(builder: (_) => const JourneyStartScreen()));
-            }
-          },
+        KeyedSubtree(
+          key: const ValueKey('j2_watch_empty'),
+          child: DsEmptyState(
+            icon: Icons.family_restroom_rounded,
+            title: t.j100WatchEmpty,
+            benefit: t.j2WatchEmptyBenefit,
+            howTo: [t.j2WatchEmptyHow],
+            actionLabel: t.j2WatchStartOwn,
+            actionKey: const ValueKey('j2_watch_start_own'),
+            onAction: () {
+              final nav = Navigator.of(context);
+              if (widget.fromStart && nav.canPop()) {
+                nav.pop(); // back to the start form it was opened from
+              } else {
+                nav.pushReplacement(
+                    MaterialPageRoute(builder: (_) => const JourneyStartScreen()));
+              }
+            },
+          ),
         ),
       ]);
     } else {
+      // sjduring: Active journeys (with a count) and Finished journeys
+      bool live(Map<String, dynamic> j) =>
+          j['status'] == 'active' ||
+          _board[(j['id'] as num?)?.toInt() ?? -1]?['status'] == 'active';
+      final act = [for (final j in _rows) if (live(j)) j];
+      final done = [for (final j in _rows) if (!live(j)) j];
+      Widget head(String s, Key k) => Padding(
+            padding: const EdgeInsets.fromLTRB(Gap.xs, Gap.sm, Gap.xs, Gap.xs),
+            child: Semantics(
+                header: true,
+                child: Text(s,
+                    key: k,
+                    style: AType.titleMedium.copyWith(
+                        fontWeight: FontWeight.w700, color: DsTokens.of(context).text))),
+          );
       body = ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)), children: [
-        for (final j in _rows) _card(t, j),
+        head(t.sjdActiveCount(jDigits(context, act.length)), const ValueKey('sjd_active_head')),
+        for (final j in act) _card(t, j),
+        if (done.isNotEmpty) head(t.sjdFinished, const ValueKey('sjd_finished_head')),
+        for (final j in done) _card(t, j),
       ]);
     }
     return Scaffold(
@@ -251,3 +306,7 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
     );
   }
 }
+
+/// sjp0: does this watcher-board card carry an arrival window?
+bool _hasWindow(Map? b) =>
+    b != null && '${b['window_from'] ?? ''}'.isNotEmpty && '${b['window_to'] ?? ''}'.isNotEmpty;

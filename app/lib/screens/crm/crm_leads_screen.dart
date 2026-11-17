@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
@@ -156,7 +157,8 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
       if (size > 0) '$size ${t.crmHeadcount}',
       l['status_display'],
     ].where((e) => (e ?? '').toString().isNotEmpty).join(' · ');
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         leading: _scoreBadge((l['score'] as num?)?.toInt() ?? 0),
         title: Row(children: [
@@ -165,9 +167,9 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
                   l['name']?.toString().isNotEmpty == true ? l['name'] : (l['company'] ?? t.crmLead),
                   maxLines: 2, // long Bangla names were cut at 360 px
                   overflow: TextOverflow.ellipsis)),
-          Icon(industryIcon(l['industry']), size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          Icon(industryIcon(l['industry']), size: 16, color: Theme.of(context).colorScheme.ds.muted),
           const SizedBox(width: 6),
-          Icon(sourceIcon(l['source']), size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          Icon(sourceIcon(l['source']), size: 16, color: Theme.of(context).colorScheme.ds.muted),
         ]),
         subtitle: Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis),
         trailing: _inlineActions(t, l),
@@ -224,12 +226,12 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
         ? Theme.of(context).colorScheme.error
         : warm
             ? AssistoTokens.of(context).warning
-            : scheme.primaryContainer;
+            : scheme.ds.primarySoft;
     final fg = hot
         ? scheme.onError
         : warm
             ? AssistoTokens.of(context).onWarning
-            : scheme.onPrimaryContainer;
+            : scheme.ds.primaryInk;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),

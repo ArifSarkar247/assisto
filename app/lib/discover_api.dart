@@ -110,6 +110,9 @@ class DiscoverItem {
   static const ourProduct = 'OUR_PRODUCT';
   static const sponsored = 'SPONSORED';
   static const admob = 'ADMOB';
+  // discms (owner 10 Nov): the owner's app-update and offer cards
+  static const whatsNew = 'WHATS_NEW';
+  static const offer = 'OFFER';
 
   /// Server id (null for the built-in fallback cards — those are not tracked).
   final int? id;
@@ -178,6 +181,22 @@ class DiscoverItem {
   bool get isSponsored => type == sponsored;
   bool get isProduct => type == ourProduct;
   bool get isAdmob => type == admob;
+  bool get isWhatsNew => type == whatsNew;
+  bool get isOffer => type == offer;
+
+  /// discms: the badge drawn on the card — derived from the TYPE only, so a
+  /// sponsor can never hide it. Sponsored = "Ad" (owner 10 Nov).
+  String? badge(AppLocalizations t) => isProduct
+      ? t.discoverOurProducts
+      : isSponsored
+          ? t.discoverAdBadge
+          : isWhatsNew
+              ? t.discmsWhatsNewBadge
+              : isOffer
+                  ? t.discmsOfferBadge
+                  : null;
+
+  bool get hasBadge => isProduct || isSponsored || isWhatsNew || isOffer;
   bool get isExternal => url.isNotEmpty;
 
   /// Title in the UI language, falling back to the other language when the
@@ -190,6 +209,9 @@ class DiscoverItem {
 
   String description(AppLocalizations t, String lang) {
     if (tDesc != null) return tDesc!(t);
+    // svcclean (owner 10 Nov): the SOS card's line is the app's own short
+    // text so it always fits (the server's longer line was cut with "...").
+    if (key == 'sos') return t.svcSosCardDesc;
     final a = lang == 'bn' ? descBn : descEn;
     return a.isNotEmpty ? a : (lang == 'bn' ? descEn : descBn);
   }

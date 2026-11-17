@@ -308,7 +308,7 @@ class _OptInGate extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           Text(tr.moodOptInBody2,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.45)),
+              style: TextStyle(color: scheme.ds.muted, height: 1.45)),
           const SizedBox(height: Gap.lg),
           _Bullet(icon: Icons.phonelink_lock_rounded, text: tr.moodOptInPoint1),
           _Bullet(icon: Icons.mic_off_rounded, text: tr.moodOptInPoint2),
@@ -342,7 +342,7 @@ class _Bullet extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
-              style: TextStyle(color: scheme.onSurface, height: 1.4)),
+              style: TextStyle(color: scheme.ds.text, height: 1.4)),
         ),
       ]),
     );
@@ -373,7 +373,7 @@ class _TodayCard extends StatelessWidget {
           const SizedBox(height: Gap.md),
           if (mood == null)
             Text(tr.moodNotLoggedYet,
-                style: TextStyle(color: scheme.onSurfaceVariant))
+                style: TextStyle(color: scheme.ds.muted))
           else
             Row(children: [
               Text(_Mood.emoji(mood), style: AType.displayLarge),
@@ -386,14 +386,14 @@ class _TodayCard extends StatelessWidget {
                           style: AType.titleLarge.copyWith(fontWeight: FontWeight.w700)),
                       if (energy > 0)
                         Text(tr.moodEnergyValue(/* (max, value) */ 5, energy),
-                            style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                            style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
                       if (note.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: Gap.xs),
                           child: Text(note,
                               style: AType.bodyMedium.copyWith(
                                   fontStyle: FontStyle.italic,
-                                  color: scheme.onSurface)),
+                                  color: scheme.ds.text)),
                         ),
                     ]),
               ),
@@ -427,7 +427,7 @@ class _TrendCard extends StatelessWidget {
             trend.loggedDays == 0
                 ? tr.moodTrendEmpty
                 : tr.moodTrendSummary(/* (days, logged) */ trend.days, trend.loggedDays),
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted),
           ),
           const SizedBox(height: Gap.md),
           SizedBox(
@@ -457,7 +457,7 @@ class _TrendCard extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: d.logged
                                         ? _Mood.colorFor(d.score)
-                                        : scheme.outlineVariant
+                                        : scheme.ds.border
                                             .withValues(alpha: 0.4),
                                     borderRadius: const BorderRadius.vertical(
                                         top: Radius.circular(Radii.xs)),
@@ -468,7 +468,7 @@ class _TrendCard extends StatelessWidget {
                           ),
                           const SizedBox(height: Gap.xs),
                           Text(_dayLetter(context, d.date),
-                              style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                              style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
                         ],
                       ),
                     ),
@@ -517,17 +517,17 @@ class _SuggestionsCard extends StatelessWidget {
               child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.circle_rounded, size: 7, color: scheme.onSurfaceVariant),
+                    Icon(Icons.circle_rounded, size: 7, color: scheme.ds.muted),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                         child: Text(_suggestionText(tr, k),
                             style: TextStyle(
-                                color: scheme.onSurface, height: 1.4))),
+                                color: scheme.ds.text, height: 1.4))),
                   ]),
             ),
           const SizedBox(height: Gap.xs),
           Text(tr.moodSuggestionsNote,
-              style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted)),
         ]),
       ),
     );
@@ -548,11 +548,11 @@ class _SupportCard extends StatelessWidget {
     return Card(
       key: const Key('mood-support-card'),
       margin: EdgeInsets.zero,
-      color: scheme.secondaryContainer,
+      color: scheme.ds.primarySoft,
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.volunteer_activism_rounded, color: scheme.onSecondaryContainer),
+          Icon(Icons.volunteer_activism_rounded, color: scheme.ds.primaryInk),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Column(
@@ -561,11 +561,11 @@ class _SupportCard extends StatelessWidget {
                   Text(tr.moodSupportTitle,
                       style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          color: scheme.onSecondaryContainer)),
+                          color: scheme.ds.primaryInk)),
                   const SizedBox(height: Gap.xs),
                   Text(tr.moodSupportBody,
                       style: TextStyle(
-                          color: scheme.onSecondaryContainer, height: 1.4)),
+                          color: scheme.ds.primaryInk, height: 1.4)),
                   const SizedBox(height: Gap.sm),
                   FilledButton.tonalIcon(
                     onPressed: () => openForUser(context, Uri.parse('tel:999'),
@@ -654,7 +654,7 @@ class _BreathingCardState extends State<_BreathingCard> {
           ]),
           const SizedBox(height: Gap.xs),
           Text(_done ? tr.moodBreathDone : tr.moodBreathBody,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: TextStyle(color: scheme.ds.muted, height: 1.4)),
           if (_running) ...[
             const SizedBox(height: Gap.md),
             Center(
@@ -678,7 +678,7 @@ class _BreathingCardState extends State<_BreathingCard> {
             ),
             Center(
               child: Text(tr.moodBreathLeft(notifLocalizeDigits(context, '$left')),
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ),
           ],
           const SizedBox(height: Gap.md),
@@ -706,7 +706,7 @@ class _PrivacyNote extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -715,7 +715,7 @@ class _PrivacyNote extends StatelessWidget {
           Expanded(
             child: Text(tr.moodPrivacyNote,
                 style:
-                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
         ]),
       ),
@@ -731,16 +731,16 @@ class _SafetyNote extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
-      color: scheme.surfaceContainerHighest,
+      color: scheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.info_outline_rounded, size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.moodSafetyNote2,
                 style:
-                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ),
         ]),
       ),
@@ -784,7 +784,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: Gap.xs),
             Text(tr.moodPickPrompt,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: TextStyle(color: scheme.ds.muted)),
             const SizedBox(height: Gap.md),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -832,7 +832,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
             if (_voiceExpanded) ...[
               const SizedBox(height: Gap.xs),
               Text(tr.moodVoiceExplain,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               const SizedBox(height: Gap.sm),
               Row(children: [
                 Expanded(
@@ -844,7 +844,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
                         ? tr.moodEnergyUnrated
                         : tr.moodEnergyValue(/* (max, value) */ 5, _energy),
                     style:
-                        AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                        AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               ]),
               Slider(
                 value: _energy.toDouble(),
@@ -857,7 +857,7 @@ class _CheckInSheetState extends State<_CheckInSheet> {
                 onChanged: (v) => setState(() => _energy = v.round()),
               ),
               Text(tr.moodVoicePrivacy,
-                  style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted)),
             ],
             const SizedBox(height: Gap.lg),
             Row(children: [
@@ -911,7 +911,7 @@ class _MoodChoice extends StatelessWidget {
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(Radii.md),
             border: Border.all(
-                color: selected ? Brand.purple : scheme.outlineVariant,
+                color: selected ? Brand.purple : scheme.ds.border,
                 width: selected ? 2 : 1),
           ),
           child: Column(children: [
@@ -921,7 +921,7 @@ class _MoodChoice extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2, // lifebar: was clipped at 200% font
                 overflow: TextOverflow.ellipsis,
-                style: AType.labelSmall.copyWith(fontWeight: selected ? FontWeight.w700 : FontWeight.w500, color: selected ? Brand.purple : scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(fontWeight: selected ? FontWeight.w700 : FontWeight.w500, color: selected ? Brand.purple : scheme.ds.muted)),
           ]),
         ),
       ),

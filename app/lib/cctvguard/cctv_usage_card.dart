@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
@@ -100,10 +101,7 @@ class _CctvUsageCardState extends State<CctvUsageCard> {
     final msg = (d['message'] ?? '').toString();
     final scheme = Theme.of(context).colorScheme;
     final pillColor = level == 'paused' ? wmBad() : level == 'notice' ? wmWarn() : wmOk();
-    return Card(
-      key: const Key('cctvUsageCard'),
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: Padding(
+    return Padding(key: const Key('cctvUsageCard'), padding: const EdgeInsets.fromLTRB(16, 8, 16, 0), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           InkWell(
@@ -116,7 +114,7 @@ class _CctvUsageCardState extends State<CctvUsageCard> {
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(t.cgUsageTitle,
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
                     Text(
                       enforced
@@ -159,7 +157,7 @@ class _CctvUsageCardState extends State<CctvUsageCard> {
             for (final c in cams) ...[
               const Divider(height: Gap.lg),
               Text((c['name'] ?? '').toString().isEmpty ? t.wmUnnamedCamera : c['name'].toString(),
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
               Text(t.cgUsageCamLine(n(c['live_min']), n(c['relay_mb']), n(c['direct_mb'])),
                   style: Theme.of(context).textTheme.bodySmall),
               if (((c['vendor_min'] as num?) ?? 0) > 0)
@@ -168,9 +166,8 @@ class _CctvUsageCardState extends State<CctvUsageCard> {
             ],
           const SizedBox(height: Gap.xs),
           Text(t.cgUsageFreeNote,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
         ]),
-      ),
-    );
+      ));
   }
 }

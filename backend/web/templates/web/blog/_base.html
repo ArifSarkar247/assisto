@@ -1,0 +1,85 @@
+{% load site %}<!doctype html>
+<html lang="{{ T.html_lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{ title }}</title>
+<meta name="description" content="{{ desc }}">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="{{ seo.canonical }}">
+<link rel="alternate" hreflang="bn" href="{{ seo.alt_bn }}">
+<link rel="alternate" hreflang="en" href="{{ seo.alt_en }}">
+<link rel="alternate" hreflang="x-default" href="{{ seo.alt_bn }}">
+<meta name="color-scheme" content="light dark">
+{% if lang == 'bn' %}<link rel="preload" href="{{ font_bn }}" as="font" type="font/woff2" crossorigin>{% endif %}
+{% include "web/_icons.html" %}
+<meta property="og:site_name" content="Assisto">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:title" content="{{ h1|default:title }}">
+<meta property="og:description" content="{{ desc }}">
+<meta property="og:url" content="{{ seo.canonical }}">
+<meta property="og:image" content="{{ og_image }}">
+<meta property="og:locale" content="{% if lang == 'en' %}en_US{% else %}bn_BD{% endif %}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ h1|default:title }}">
+<meta name="twitter:description" content="{{ desc }}">
+<meta name="twitter:image" content="{{ og_image }}">
+<script type="application/ld+json">{{ jsonld|safe }}</script>
+<style>
+@font-face{font-family:"Bangla3";font-style:normal;font-weight:400 800;font-display:swap;src:url({{ font_bn }}) format("woff2");unicode-range:U+0951-0952,U+0964-0965,U+0980-09FE,U+200C-200D,U+25CC}
+:root{--bg:#fff;--bg2:#F5F6FA;--card:#fff;--ink:#0B1020;--ink2:#475069;--line:#E3E6EE;--link:#3730A3;--note:#EEF2FF;
+--grad:linear-gradient(135deg,#06B6D4 0%,#4F46E5 55%,#7C3AED 100%);--font:"Bangla3",system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Bengali",sans-serif;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--bg:#070A14;--bg2:#0C1120;--card:#10172B;--ink:#E9ECF5;--ink2:#A6AECA;--line:#1D2541;--link:#C7D2FE;--note:#151C35}}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);font-size:18px;line-height:1.75;-webkit-text-size-adjust:100%}
+a{color:var(--link);text-underline-offset:3px}
+img{max-width:100%;height:auto;display:block}
+h1,h2,h3{line-height:1.35;margin:1.4em 0 .5em}
+h1{font-size:clamp(1.6rem,4.6vw,2.3rem);margin-top:.4em}
+h2{font-size:1.35rem}h3{font-size:1.12rem}
+p,ul,ol{margin:0 0 1em}li{margin:.25em 0}
+html:lang(bn) ol{list-style-type:bengali}
+:focus-visible{outline:3px solid #818CF8;outline-offset:3px;border-radius:6px}
+.skip{position:absolute;left:-9999px;top:8px;background:#fff;color:#0B1020;padding:10px 16px;border-radius:10px;z-index:9}.skip:focus{left:12px}
+.hd{background:#0B1020;color:#EEF1FA}
+.hd-in,.wrap{max-width:760px;margin:0 auto;padding:0 18px}
+.hd-in{display:flex;align-items:center;gap:14px;min-height:60px;flex-wrap:wrap}
+.hd a{color:#EEF1FA;text-decoration:none;min-height:48px;display:inline-flex;align-items:center}
+.brand{font-weight:800;font-size:1.15rem;margin-right:auto}
+.brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.crumbs{font-size:.92rem;color:var(--ink2);margin:14px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.crumbs li+li:before{content:"›";margin-right:6px}
+.meta{color:var(--ink2);font-size:.95rem}
+.lead{font-size:1.1rem;color:var(--ink2)}
+.cover{border-radius:16px;margin:12px 0 20px;aspect-ratio:1200/630;object-fit:cover;width:100%;background:var(--bg2)}
+.toc{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px 18px;margin:18px 0}
+.toc b{display:block}.toc ol{margin:.4em 0 0;padding-left:1.3em}
+.note{background:var(--note);border-left:4px solid #4F46E5;border-radius:10px;padding:12px 16px;margin:0 0 1em}.note p{margin:0}
+.tbl{overflow-x:auto;margin:0 0 1em}table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}th{background:var(--bg2)}
+.cta{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:18px;margin:28px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 20px;border-radius:12px;background:var(--grad);color:#fff;font-weight:700;text-decoration:none}
+.cards{list-style:none;padding:0;display:grid;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.card h2{margin:0 0 .3em;font-size:1.15rem}.card h2 a{text-decoration:none}.card p{margin:0 0 .4em;color:var(--ink2)}
+.small{font-size:.9rem;color:var(--ink2)}
+.ft{border-top:1px solid var(--line);margin-top:40px;padding:20px 0 40px;font-size:.95rem}
+.ft a{display:inline-flex;min-height:48px;align-items:center;margin-right:16px}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">{{ T.skip }}</a>
+<header class="hd"><div class="hd-in">
+  <a class="brand" href="/{{ q }}"><span>Assisto</span></a>
+  <a href="/blog{{ q }}">{{ T.blog }}</a>
+  <a href="{{ other_url }}" hreflang="{% if lang == 'en' %}bn{% else %}en{% endif %}" lang="{% if lang == 'en' %}bn{% else %}en{% endif %}">{{ T.lang_other }}</a>
+</div></header>
+<main id="main" class="wrap">
+{% block main %}{% endblock %}
+</main>
+<footer class="ft wrap">
+  <a href="/about{{ q }}">{{ T.about }}</a><a href="/help{{ q }}">{{ T.help }}</a><a href="/privacy{{ q }}">{{ T.privacy }}</a><a href="/terms{{ q }}">{{ T.terms }}</a>
+  <p class="small">© {{ year }} AXON Dynamic · Cha-63 Uttar Badda, Dhaka 1212 · assistoaiagent@gmail.com</p>
+</footer>
+</body>
+</html>

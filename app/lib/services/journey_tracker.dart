@@ -411,6 +411,22 @@ class JourneyTracker extends ValueNotifier<JourneyTrackState> {
   }
 
   /// One cycle: take a fix (if location is on), queue it, flush the queue.
+  /// sjproof: ONE fresh position for an "I've arrived" tap (never queued,
+  /// never throttled). The tap used to carry the last tracked fix (up to 2
+  /// min old): on a bus that is up to ~2 km back, so a real arrival looked
+  /// "far" and asked the PIN. null = no fix in [timeout] (the caller falls
+  /// back to the last fix / the server's stored one).
+  Future<JourneyFix?> freshFix({Duration timeout = const Duration(seconds: 8)}) async {
+    try {
+      journeyLastAccM = null;
+      final pos = await _position().timeout(timeout);
+      if (pos == null) return null;
+      return JourneyFix(pos.lat, pos.lng, _clock(), null, 'app', journeyLastAccM);
+    } catch (_) {
+      return null; // best-effort: the last fix is used instead
+    }
+  }
+
   Future<void> tick() async {
     final id = value.journeyId;
     final send = _send;

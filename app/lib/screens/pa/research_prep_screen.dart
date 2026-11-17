@@ -9,6 +9,7 @@ import '../../theme.dart';
 import '../../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
+import '../../widgets/num_input.dart'; // savesweep
 
 /// PA SECRETARY MODE — RESEARCH & PRESENTATION organizer (#114, §14, ADVANCED).
 ///
@@ -822,7 +823,7 @@ class _SectionEditorState extends State<_SectionEditor> {
     Navigator.pop(context, {
       'kind': 'section',
       'heading': _heading.text.trim(),
-      'order': int.tryParse(_order.text.trim()) ?? widget.nextOrder,
+      'order': parseIntInput(_order.text.trim()) ?? widget.nextOrder,
       'bullets': _bullets.text,
     });
   }

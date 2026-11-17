@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
@@ -132,10 +133,9 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         CrmSectionHeader(t.crmCompanyProfile),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(children: [
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(children: [
               KvRow(t.crmIndustry, _industryLabel(t, c['industry']?.toString()),
                   icon: Icons.category_rounded),
               if ((c['size'] as num?) != null && (c['size'] as num) > 0)
@@ -151,7 +151,6 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                 KvRow(t.crmAddress, c['address'].toString(),
                     icon: Icons.place_rounded),
             ]),
-          ),
         ),
         if (primary.isNotEmpty) ...[
           const SizedBox(height: Gap.md),
@@ -160,20 +159,18 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
         ],
         const SizedBox(height: Gap.md),
         CrmSectionHeader(t.crmCustomFields),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: custom.isEmpty
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: custom.isEmpty
                 ? Text(t.crmNoCustomFields,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant))
+                    style: AType.bodyMedium.copyWith(
+                        color: Theme.of(context).colorScheme.ds.muted))
                 : Column(
                     children: [
                       for (final e in custom.entries)
                         KvRow(e.key, e.value?.toString() ?? '—'),
                     ],
                   ),
-          ),
         ),
       ]),
     );
@@ -232,18 +229,18 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                         (a['subject']?.toString().isNotEmpty == true
                             ? a['subject']
                             : (a['kind_display'] ?? a['kind'] ?? '—')).toString(),
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600),
                       ),
                       if ((a['body'] ?? '').toString().isNotEmpty)
                         Text(a['body'].toString(),
-                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                       Text(
                         [
                           if ((a['actor_name'] ?? '').toString().isNotEmpty)
                             a['actor_name'].toString(),
                           _date(a['created_at']?.toString()),
                         ].where((s) => s.isNotEmpty).join(' · '),
-                        style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant),
+                        style: AType.labelSmall.copyWith(color: scheme.ds.muted),
                       ),
                     ]),
               ),
@@ -253,7 +250,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
           padding: const EdgeInsets.only(top: Gap.md),
           child: Text(t.crmCompanyTimelineClientNote,
               style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic,
-                  color: scheme.onSurfaceVariant)),
+                  color: scheme.ds.muted)),
         ),
       ]),
     );
@@ -280,19 +277,19 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
               : state == 'lost'
                   ? Theme.of(context).colorScheme.error
                   : scheme.primary;
-          return Card(
-            margin: EdgeInsets.zero,
-            child: ListTile(
+          return DsCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
               leading: Icon(Icons.handshake_rounded, color: tint),
               title: Text(d['title']?.toString() ?? '—',
                   maxLines: 1, overflow: TextOverflow.ellipsis),
               subtitle: Text(
                   '${d['stage_name'] ?? ''} · ${_stateLabel(t, state)}',
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               trailing: Text(bdt(context, d['value'] as num?),
-                  style: const TextStyle(fontWeight: FontWeight.w800)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
             ),
-          );
+            );
         },
       ),
     );
@@ -316,12 +313,12 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
     }
     return ListView(padding: const EdgeInsets.all(Gap.md), children: [
       Text(t.crmDocumentsClientNote,
-          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+          style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
       const SizedBox(height: Gap.sm),
       for (final a in withDocs)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
             leading: const Icon(Icons.attach_file_rounded),
             title: Text(
                 (a['subject']?.toString().isNotEmpty == true
@@ -330,7 +327,7 @@ class _CrmCompanyDetailScreenState extends State<CrmCompanyDetailScreen> {
                     .toString()),
             subtitle: Text(_date(a['created_at']?.toString())),
           ),
-        ),
+          )),
     ]);
   }
 
@@ -400,17 +397,15 @@ class _ContactTile extends StatelessWidget {
         isPrimary: isPrimary);
     final phone = (contact['phone'] ?? contact['whatsapp'] ?? '').toString();
     final email = (contact['email'] ?? '').toString();
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             CircleAvatar(
               radius: 18,
-              backgroundColor: scheme.secondaryContainer,
+              backgroundColor: scheme.ds.primarySoft,
               child: Icon(Icons.person_outline_rounded,
-                  size: 18, color: scheme.onSecondaryContainer),
+                  size: 18, color: scheme.ds.primaryInk),
             ),
             const SizedBox(width: Gap.sm),
             Expanded(
@@ -420,12 +415,12 @@ class _ContactTile extends StatelessWidget {
                     Text(contact['name']?.toString() ?? '—',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                     if ((contact['title'] ?? '').toString().isNotEmpty)
                       Text(contact['title'].toString(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ]),
             ),
             if (isPrimary) const PrimaryContactBadge(),
@@ -455,7 +450,6 @@ class _ContactTile extends StatelessWidget {
               ),
           ]),
         ]),
-      ),
-    );
+      );
   }
 }

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'package:share_plus/share_plus.dart';
 import '../l10n/app_localizations.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -166,7 +167,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.circleExtrasHubTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [DsSkeleton.card(lines: 3)])
           : ListView(
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
@@ -174,27 +175,26 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
 
                 // --- disappearing (server-enforced) ---
                 _sectionHeader(t.circleExtrasDisappearing, scheme),
-                ListTile(
-                  leading: const Icon(Icons.timer_rounded),
-                  title: Text(t.circleExtrasDisappearing),
-                  subtitle: Text(t.circleExtrasDisappearingHint,
-                      style: const TextStyle(fontSize: 12)),
-                  trailing: Text(_timerLabel(t),
-                      style: TextStyle(color: scheme.primary)),
-                  onTap: () => _openTimerSheet(t),
-                ),
-                const Divider(),
-
-                // --- export (on-device, real share sheet) ---
-                ListTile(
-                  key: const ValueKey('q1-extras-export'),
-                  leading: const Icon(Icons.ios_share_rounded),
-                  title: Text(t.circleExtrasExportChat),
-                  subtitle: Text(t.circleExtrasExportHint,
-                      style: const TextStyle(fontSize: 12)),
-                  onTap: () => _exportChat(t),
-                ),
-                const Divider(),
+                // designv2: the two tools in one grouped card
+                DsGroup(children: [
+                  DsListRow(
+                    leading: DsAvatar(child: Icon(Icons.timer_rounded, color: DsTokens.of(context).primaryInk)),
+                    title: t.circleExtrasDisappearing,
+                    subtitle: t.circleExtrasDisappearingHint,
+                    trailing: Text(_timerLabel(t),
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: DsTokens.of(context).primaryInk)),
+                    onTap: () => _openTimerSheet(t),
+                  ),
+                  // --- export (on-device, real share sheet) ---
+                  DsListRow(
+                    key: const ValueKey('q1-extras-export'),
+                    leading: DsAvatar(child: Icon(Icons.ios_share_rounded, color: DsTokens.of(context).primaryInk)),
+                    title: t.circleExtrasExportChat,
+                    subtitle: t.circleExtrasExportHint,
+                    onTap: () => _exportChat(t),
+                  ),
+                ]),
 
                 // NO SHOWPIECES: tools that don't work yet are simply not
                 // listed (no "not available yet" row).
@@ -210,7 +210,7 @@ class _CircleExtrasHubScreenState extends State<CircleExtrasHubScreen> {
                         child: Text(t.circleExtrasE2eNote,
                             style: TextStyle(
                                 fontSize: 12,
-                                color: scheme.onSurfaceVariant,
+                                color: DsTokens.of(context).muted,
                                 height: 1.3)),
                       ),
                     ],

@@ -1,0 +1,168 @@
+{
+ "_comment": "fcbrain (Family Care v3 BRAIN 2-7): Family privacy & alerts screen, night news card, watch notification. All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_fcbrain_arb.json",
+ "en": {
+  "fcbSettingsTitle": "Family privacy & alerts",
+  "fcbSettingsIntro": "You decide what your family sees about you. Everything here is on your own phone and you can change it any time.",
+  "fcbArriveHead": "Arrival news",
+  "fcbArriveSwitch": "Tell my family when I arrive",
+  "fcbArriveHow": "Off. When on, your family gets \"Reached Home 8:05\" by itself when you reach Home, School or Office. Never your route.",
+  "fcbArriveRunning": "On. A small notification shows while it works.",
+  "fcbArriveNotRunning": "On, but not running now. Open Assisto once, allow location, and save Home or School.",
+  "fcbLeaveNews": "Also tell them when I leave",
+  "fcbDiscloseTitle": "Use your location for arrival news?",
+  "fcbDiscloseBody": "Assisto checks this phone's location only while this switch is on, to see when you reach a place you saved (Home, School, Office). Your family gets only \"arrived\" or \"left\" with the time, never your route or a map. When your battery is at 15%, your last location is shared once. Turn it off here any time.",
+  "fcbDiscloseYes": "Yes, turn on",
+  "fcbNotNow": "Not now",
+  "fcbWatchNotifTitle": "Family arrival news is on",
+  "fcbWatchNotifBody": "Your family is told when you reach a saved place.",
+  "fcbNeedLocation": "Allow location for Assisto to use arrival news.",
+  "fcbNeedPlaces": "Saved. Add Home or School in Safe Journey places to start.",
+  "fcbPauseHead": "Pause sharing",
+  "fcbPauseHint": "Your family will see \"Paused\", never a wrong place. SOS still works.",
+  "fcbPauseHours": "{hours} h",
+  "@fcbPauseHours": {
+   "placeholders": {
+    "hours": {
+     "type": "String"
+    }
+   }
+  },
+  "fcbPausedUntil": "Paused until {time}. SOS still works.",
+  "@fcbPausedUntil": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "fcbResume": "Share again now",
+  "fcbNightTitle": "Night news",
+  "fcbNightSwitch": "Send me tonight's family news",
+  "fcbNightHow": "One short card each night, free. Written only from family status, never from your messages.",
+  "fcbNightTime": "Time",
+  "fcbNightVoice": "Read it aloud too",
+  "fcbNightAboutMe": "What about me goes into the family's night news:",
+  "fcbItemPlace": "Where I am",
+  "fcbItemArrivals": "When I arrived or left",
+  "fcbItemBattery": "My phone battery",
+  "fcbItemCarecall": "My Care Calls",
+  "fcbItemTasks": "Family tasks I took",
+  "fcbNightOff": "Off. Turn it on to get one short card each night.",
+  "fcbNightOffline": "Could not load. Check the internet.",
+  "fcbNightPreview": "Tonight's card comes at {time}. So far:",
+  "@fcbNightPreview": {
+   "placeholders": {
+    "time": {
+     "type": "String"
+    }
+   }
+  },
+  "fcbListen": "Listen",
+  "fcbChange": "Change",
+  "fcbWhoHead": "Who can see me",
+  "fcbWhoNobody": "Nobody yet. Only family members you accept can see you.",
+  "fcbWhoCount": "{count} family members can see your status:",
+  "@fcbWhoCount": {
+   "placeholders": {
+    "count": {
+     "type": "String"
+    }
+   }
+  },
+  "fcbWhoAdminNever": "Assisto staff and admins never see your location.",
+  "fcbBudgetHead": "Fewer notifications",
+  "fcbBudgetBody": "Assisto sends at most {limit} non-safety notifications a day. Today: {used}. Safety alerts always come through.",
+  "@fcbBudgetBody": {
+   "placeholders": {
+    "limit": {
+     "type": "String"
+    },
+    "used": {
+     "type": "String"
+    }
+   }
+  },
+  "fcbBatteryHead": "Battery use",
+  "fcbBatteryNone": "Arrival news is off, so Assisto takes no location in the background.",
+  "fcbBatteryToday": "Today on this phone: {gps} precise fixes, {net} network fixes, {pings} updates sent.",
+  "@fcbBatteryToday": {
+   "placeholders": {
+    "gps": {
+     "type": "String"
+    },
+    "net": {
+     "type": "String"
+    },
+    "pings": {
+     "type": "String"
+    }
+   }
+  },
+  "fcbBatteryHow": "The real percent is in your phone's Settings > Battery > Assisto. Our target is under 3% a day.",
+  "fcbLeaveTitle": "Leave this family",
+  "fcbLeaveHint": "You can leave any time. They will stop seeing you at once.",
+  "fcbLeaveBody": "Leave this family? Its members will stop seeing your status, place and news right away. You can be invited again later.",
+  "fcbLeaveYes": "Leave",
+  "fcbSaveFailed": "Could not save. Check the internet and try again.",
+  "fcbLoadFailed": "Could not load your family settings.",
+  "fcbRetry": "Try again",
+  "fcbArriveForeground": "On while Assisto is open: your family hears when you arrive. When Assisto is closed, they see \"No news\" instead of a guess."
+ },
+ "bn": {
+  "fcbSettingsTitle": "পরিবারের গোপনীয়তা ও খবর",
+  "fcbSettingsIntro": "আপনার সম্পর্কে পরিবার কী দেখবে, তা আপনিই ঠিক করেন। সব কিছু আপনার নিজের ফোনে, যেকোনো সময় বদলাতে পারবেন।",
+  "fcbArriveHead": "পৌঁছানোর খবর",
+  "fcbArriveSwitch": "আমি পৌঁছালে পরিবারকে জানাও",
+  "fcbArriveHow": "বন্ধ আছে। চালু করলে বাড়ি, স্কুল বা অফিসে পৌঁছালেই পরিবার নিজে থেকে খবর পাবে, যেমন \"বাড়ি পৌঁছেছে ৮:০৫\"। কোন পথে গেছেন, তা কখনো নয়।",
+  "fcbArriveRunning": "চালু আছে। কাজ করার সময় একটা ছোট নোটিফিকেশন দেখা যাবে।",
+  "fcbArriveNotRunning": "চালু, কিন্তু এখন চলছে না। একবার Assisto খুলুন, লোকেশনের অনুমতি দিন, আর বাড়ি বা স্কুল সেভ করুন।",
+  "fcbLeaveNews": "বের হলেও জানাও",
+  "fcbDiscloseTitle": "পৌঁছানোর খবরের জন্য লোকেশন ব্যবহার করবেন?",
+  "fcbDiscloseBody": "এই সুইচ চালু থাকলেই শুধু Assisto এই ফোনের লোকেশন দেখে, আপনি সেভ করা জায়গায় (বাড়ি, স্কুল, অফিস) পৌঁছালেন কি না বুঝতে। পরিবার পাবে শুধু \"পৌঁছেছেন\" বা \"বের হয়েছেন\" আর সময় — আপনার পথ বা ম্যাপ কখনো নয়। চার্জ ১৫% হলে আপনার শেষ অবস্থান একবার জানানো হবে। যেকোনো সময় এখান থেকে বন্ধ করতে পারবেন।",
+  "fcbDiscloseYes": "হ্যাঁ, চালু করুন",
+  "fcbNotNow": "এখন না",
+  "fcbWatchNotifTitle": "পরিবারকে পৌঁছানোর খবর চালু আছে",
+  "fcbWatchNotifBody": "সেভ করা জায়গায় পৌঁছালে পরিবারকে জানানো হয়।",
+  "fcbNeedLocation": "পৌঁছানোর খবর পেতে Assisto-কে লোকেশনের অনুমতি দিন।",
+  "fcbNeedPlaces": "সেভ হয়েছে। শুরু করতে Safe Journey-র জায়গায় বাড়ি বা স্কুল যোগ করুন।",
+  "fcbPauseHead": "শেয়ারিং বিরতি",
+  "fcbPauseHint": "পরিবার দেখবে \"বিরতি\" — কখনো ভুল জায়গা নয়। SOS তখনও কাজ করবে।",
+  "fcbPauseHours": "{hours} ঘণ্টা",
+  "fcbPausedUntil": "{time} পর্যন্ত বিরতি। SOS তখনও কাজ করবে।",
+  "fcbResume": "এখনই আবার শেয়ার করুন",
+  "fcbNightTitle": "রাতের খবর",
+  "fcbNightSwitch": "প্রতি রাতে পরিবারের খবর দিন",
+  "fcbNightHow": "প্রতি রাতে একটা ছোট কার্ড, বিনা খরচে। শুধু পরিবারের অবস্থা থেকে লেখা — আপনার মেসেজ থেকে কখনো নয়।",
+  "fcbNightTime": "সময়",
+  "fcbNightVoice": "পড়েও শোনাও",
+  "fcbNightAboutMe": "পরিবারের রাতের খবরে আমার কী কী যাবে:",
+  "fcbItemPlace": "আমি কোথায় আছি",
+  "fcbItemArrivals": "কখন পৌঁছালাম বা বের হলাম",
+  "fcbItemBattery": "আমার ফোনের চার্জ",
+  "fcbItemCarecall": "আমার কেয়ার কল",
+  "fcbItemTasks": "আমি যে পারিবারিক কাজ নিয়েছি",
+  "fcbNightOff": "বন্ধ আছে। চালু করলে প্রতি রাতে একটা ছোট কার্ড পাবেন।",
+  "fcbNightOffline": "লোড হয়নি। ইন্টারনেট দেখুন।",
+  "fcbNightPreview": "আজকের কার্ড আসবে {time}-এ। এখন পর্যন্ত:",
+  "fcbListen": "শুনুন",
+  "fcbChange": "বদলান",
+  "fcbWhoHead": "কে আমাকে দেখতে পারেন",
+  "fcbWhoNobody": "এখনো কেউ না। আপনি যাঁদের পরিবারে নেন, শুধু তাঁরাই দেখতে পারেন।",
+  "fcbWhoCount": "পরিবারের {count} জন আপনার অবস্থা দেখতে পারেন:",
+  "fcbWhoAdminNever": "Assisto-র কর্মী বা অ্যাডমিন কখনো আপনার লোকেশন দেখেন না।",
+  "fcbBudgetHead": "কম নোটিফিকেশন",
+  "fcbBudgetBody": "নিরাপত্তা ছাড়া অন্য নোটিফিকেশন Assisto দিনে সর্বোচ্চ {limit}টি পাঠায়। আজ: {used}টি। নিরাপত্তার খবর সবসময় আসবে।",
+  "fcbBatteryHead": "ব্যাটারি খরচ",
+  "fcbBatteryNone": "পৌঁছানোর খবর বন্ধ, তাই Assisto পেছনে কোনো লোকেশন নিচ্ছে না।",
+  "fcbBatteryToday": "আজ এই ফোনে: {gps}বার নিখুঁত লোকেশন, {net}বার নেটওয়ার্ক লোকেশন, {pings}বার খবর পাঠানো।",
+  "fcbBatteryHow": "আসল শতাংশ দেখুন ফোনের Settings > Battery > Assisto-তে। আমাদের লক্ষ্য দিনে ৩%-এর কম।",
+  "fcbLeaveTitle": "এই পরিবার ছেড়ে দিন",
+  "fcbLeaveHint": "যেকোনো সময় ছাড়তে পারেন। তখনই তাঁরা আর আপনাকে দেখবেন না।",
+  "fcbLeaveBody": "এই পরিবার ছাড়বেন? সদস্যরা সঙ্গে সঙ্গে আপনার অবস্থা, জায়গা আর খবর দেখা বন্ধ হবে। পরে আবার আমন্ত্রণ পেতে পারেন।",
+  "fcbLeaveYes": "ছেড়ে দিন",
+  "fcbSaveFailed": "সেভ হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+  "fcbLoadFailed": "পরিবারের সেটিংস লোড হয়নি।",
+  "fcbRetry": "আবার চেষ্টা করুন",
+  "fcbArriveForeground": "Assisto খোলা থাকলে চালু: আপনি পৌঁছালে পরিবার জানবে। Assisto বন্ধ থাকলে তারা অনুমান নয়, \"খবর নেই\" দেখবে।"
+ }
+}

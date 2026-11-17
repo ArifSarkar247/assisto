@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_aftersale_api.dart';
@@ -78,10 +79,9 @@ class _CrmErpHandoffScreenState extends State<CrmErpHandoffScreen> {
     return ListView(padding: const EdgeInsets.all(Gap.md), children: [
       if (!erpLinked)
         NeedsKeyBanner(t.crmErpNotLinked, icon: Icons.link_off_rounded),
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      DsCard(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(
                   child: Text((_rec['company'] ?? '').toString(),
@@ -100,7 +100,6 @@ class _CrmErpHandoffScreenState extends State<CrmErpHandoffScreen> {
                   bdtFromPoisha(_rec['order_total_poisha'] as num?),
                   bold: true),
           ]),
-        ),
       ),
       if (actions.isNotEmpty) ...[
         const SizedBox(height: Gap.sm),
@@ -113,7 +112,7 @@ class _CrmErpHandoffScreenState extends State<CrmErpHandoffScreen> {
       ],
       const SizedBox(height: Gap.md),
       Text(t.crmErpDesignOnlyNote,
-          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
     ]);
   }
 

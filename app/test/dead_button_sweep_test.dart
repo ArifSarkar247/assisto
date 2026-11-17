@@ -76,6 +76,10 @@ import 'screenshots_test.dart' as gallery;
 /// real screen that wires it is swept separately), (B) the effect needs real
 /// device machinery a widget test cannot run (raster capture, OS settings).
 const Map<String, String> _allowDead = {
+  // fcelder: "Listen again" speaks the text aloud (phone TTS on the alarm
+  // stream) — an audible effect the sweep cannot see; fcelder_test proves it.
+  'fce_are_you_ok|key=fce-ask-listen': 'B: speaks "Are you OK?" aloud (TTS); fcelder_test checks the spoken text',
+  'fce_consent|key=fce-consent-listen': 'B: reads the consent aloud (TTS); fcelder_test checks the spoken text',
   // (A) gallery fixtures with `() {}` callbacks — not app code.
   't1_*|IconButton "tip:': 'A: t1_ticks_shots.dart header icons use onPressed: () {}',
   'mr1_last_seen_*|IconButton "tip:': 'A: mr1_shots.dart header call icons use onPressed: () {}; the real chat header wires calls',

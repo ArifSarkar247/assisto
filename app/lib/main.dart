@@ -1,3 +1,4 @@
+import 'family_v3/family_entry.dart'; // fcscreen
 import 'messaging/bubble_card.dart' show maybeAskBubblesOnInstallDay; // bubbles2
 import 'audio/audio_route_service.dart' show AudioRouteService;
 import 'feature_flags.dart' show FeatureFlags; // feature-flags
@@ -24,6 +25,7 @@ import 'screens/family_alerts_screen.dart'; // sosat
 import 'media/photo_picker_setup.dart'; // play-perm
 import 'play_update.dart'; // ota1
 import 'calls/call_native.dart'; // ring-everywhere: smoke ring hook
+import 'family_sos/sos_alarm_screen.dart'; // fcsos
 import 'calls/fullscreen_call_prompt.dart'; // play-fsi
 import 'notifications.dart';
 import 'reminders/reminder_alarms.dart' show ReminderAlarms; // remmeter
@@ -37,6 +39,7 @@ import 'services/security_guard.dart' show SecurityHeartbeat;
 import 'services/startup_guard.dart';
 import 'home_api.dart';
 import 'widgets/a11y_prefs.dart';
+import 'offline/offline_strip.dart'; // offline1st
 import 'screens/login_screen.dart';
 import 'crypto/key_wiring.dart';
 import 'growth/install_ping.dart';
@@ -45,7 +48,10 @@ import 'diag/crash_reporter.dart';
 import 'screens/home_v2/home_v2_screen.dart'; // home_v2
 import 'screens/language_picker_screen.dart';
 import 'screens/onboarding_screen.dart';
-import 'screens/elderly_home_screen.dart';
+import 'eldercare/elder_easy_home.dart'; // fcelder
+import 'eldercare/elder_join_screen.dart'; // fcelder
+import 'eldercare/silent_watch_api.dart'; // fcelder
+import 'eldercare/silent_watch_client.dart'; // fcelder
 import 'widgets/elderly_mode.dart';
 import 'widgets/chatnav.dart';
 import 'widgets/bn_day_periods.dart';
@@ -63,12 +69,16 @@ import 'device_id.dart'; // own-device
 import 'screens/deletion_grace_screen.dart';
 import 'perf/perf_marks.dart'; // perf2gb (CI-only define)
 import 'perf/low_ram.dart'; // perf2gb: image-cache cap on 2-3 GB phones
+import 'perf/low_data.dart' show LowDataMode; // faststart
+import 'perf/circle_warm.dart'; // faststart
 import 'invite/invite_link.dart'; // invite-join
 import 'invite/space_link.dart'; // channels: /ch/ + /cm/ links
 import 'screens/messenger/communities_home_screen.dart' show SpaceLinkScreen; // channels
 import 'invite/invite_router.dart'; // invite-join
 import 'services/missing_nearby_sync.dart'; // missing
+import 'services/journey_habits.dart'; // sjstart2
 import 'cctvx/home_presence_sync.dart'; // cctvarm
+import 'family_v3/brain/fc_watch.dart'; // fcbrain
 import 'calls/kid_audio_child.dart'; // kidaudio
 import 'phonecam/phonecam_link.dart'; // cctvphone
 import 'carecall/carecall_screen.dart' show careCallResume; // carecall
@@ -169,6 +179,10 @@ void main() {
       // perf2gb: cap the decoded-image cache on 2-3 GB phones (one guarded,
       // time-boxed device_info read, after the first frame; never throws).
       unawaited(LowRamTuning.apply());
+      unawaited(LowDataMode.load()); // faststart: one prefs read
+      // faststart: signed in -> load the chat key + previews in the
+      // background once Home is up, so My Circle opens at once on the tap
+      CircleWarm.start(appState);
       final safe = await StartupGuard.isSafeMode();
       // sc1 crash reporting: 4 s after the first frame, guarded; Crashlytics
       // (Firebase) only outside safe mode, our own server sink always.
@@ -177,7 +191,9 @@ void main() {
       }));
       // Notifications (local scheduling) — self-guarded, not a startup blocker.
       // Time-boxed: a hang here must not delay key publishing below.
+      PerfMarks.once('post_frame_begin'); // faststart
       try { await Notifications.init().timeout(const Duration(seconds: 5)); } catch (_) {}
+      PerfMarks.once('notifications_ready'); // faststart
       // remmeter: re-arm reminder alarms (exact when allowed) after an app
       // update / reboot / permission change; guarded, after the first frame.
       unawaited(Future<void>.delayed(const Duration(seconds: 5), () {
@@ -204,11 +220,14 @@ void main() {
         // #196 home-widget plugin — only touch the native widget bridge when the
         // last launch was healthy; never at cold start.
         try { await HomeWidgetService.init(); } catch (_) {}
+        PerfMarks.once('home_widget_ready'); // faststart
         // Push (FCM) — lazy, after the first frame and after local
         // notifications are initialised; silently off when this build has no
         // Firebase config. Never blocks or crashes the launch.
         unawaited(Future<void>.delayed(const Duration(seconds: 2), () async {
+          PerfMarks.once('push_begin'); // faststart
           try { await PushService.instance.start(appState); } catch (_) {}
+          PerfMarks.once('push_ready'); // faststart
         }));
       } else {
         // ty1: safe mode still rings My Circle calls in-app and shows
@@ -303,7 +322,9 @@ class AssistoApp extends StatelessWidget {
                 key: AppShot.boundaryKey,
                 // b1-calls: "tap to return to the call" bar while a call is
                 // minimized (nothing extra is drawn otherwise).
-                child: CallMiniBarHost(child: child ?? const SizedBox.shrink()),
+                // offline1st: the small "Offline" strip (nothing while online)
+                child: CallMiniBarHost(
+                    child: OfflineStrip(child: child ?? const SizedBox.shrink())),
               ),
             );
           },
@@ -318,7 +339,9 @@ class AssistoApp extends StatelessWidget {
           onGenerateRoute: (s) =>
               CallLaunchRouter.instance.onGenerateRoute(s) ??
               CareCallRingScreen.onGenerateRoute(s) ?? // carecall: cold-start ring
+              SosAlarmScreen.onGenerateRoute(s) ?? // fcsos: cold-start SOS alarm
               InviteRouter.route(s) ??
+              ElderJoinScreen.route(s) ?? // fcelder: /e/<code> elder-setup QR
               SpaceLink.route(s, (l) => SpaceLinkScreen(link: l)) ??
               PhoneCamLink.route(s) ?? // cctvphone: /pc/<code> pairing link
               ShopChatLink.route(s) ?? // bizai: /shop/<code> shop chat
@@ -365,6 +388,10 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       unawaited(NotifListenService.maybeOpen(context));
       // invite-join: cold-start /i/<CODE>, saved code, Play install referrer
       InviteRouter.start(PlatformDispatcher.instance.defaultRouteName);
+      // fcelder: cold-start elder-setup QR link (/e/<code>)
+      unawaited(ElderJoinScreen.maybeOpenColdStart(
+          context, PlatformDispatcher.instance.defaultRouteName,
+          loggedIn: context.read<AppState>().loggedIn));
       // cctvphone: cold-start phone-camera pairing link (/pc/<code>)
       PhoneCamLink.maybeOpenColdStart(
           context, PlatformDispatcher.instance.defaultRouteName);
@@ -414,6 +441,12 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
                 : const FamilyAlertsScreen()));
         return;
       }
+      // fcscreen: a tap on the Family home-screen widget opens Family.
+      if (v == 'family') {
+        appNavigatorKey.currentState?.push(
+            MaterialPageRoute<void>(builder: (_) => const FamilyEntry()));
+        return;
+      }
       if (v != 'antitheft_off') return;
       appNavigatorKey.currentState?.push(MaterialPageRoute<void>(
           builder: (_) => const AlwaysOnProtectionScreen()));
@@ -423,7 +456,9 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
   }
 
   Future<void> _maybeSmokeOpen() async {
-    if (!kDebugMode && !_smokeBuild) return;
+    // faststart: the CI start-speed run (PERF profile APK) opens My Circle
+    // via `am start --es ao_open circle` to time it — inert elsewhere.
+    if (!kDebugMode && !_smokeBuild && !PerfMarks.enabled) return;
     if (_smokeBuild) {
       // ring-everywhere CI proof (job ring-proof): arm the adb-only native
       // ring-test hook. ONLY the CI smoke APK ever does this.
@@ -433,8 +468,17 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     try {
       const ch = MethodChannel('com.assisto/device_admin');
-      final route = await ch.invokeMethod<String>('aoSmokeOpen');
+      var route = await ch.invokeMethod<String>('aoSmokeOpen');
       if (route == null || route.isEmpty || !mounted) return;
+      // faststart (CI start-speed only): "circle@3000" = a user tapping My
+      // Circle 3 s after the app opened (not at the very first frame)
+      if (PerfMarks.enabled && route.contains('@')) {
+        final at = route.indexOf('@');
+        final ms = int.tryParse(route.substring(at + 1)) ?? 0;
+        route = route.substring(0, at);
+        await Future<void>.delayed(Duration(milliseconds: ms));
+        if (!mounted) return;
+      }
       if (route == '__ring__') return; // ring-proof: arming above is all
       if (route == '__fsi__') {
         // play-fsi CI proof (Android 14 emulator job fsi-proof-api34)
@@ -460,6 +504,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
           } catch (_) {}
         }
       } else {
+        if (PerfMarks.enabled) PerfMarks.mark('ao_open_$route'); // faststart
         ChatNav.push(context, route);
       }
     } catch (_) {}
@@ -490,6 +535,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     if (state == AppLifecycleState.paused) {
       PlayUpdate.onBackground(); // ota1: install a downloaded Play update
+      JourneyHabits.onBackground(); // sjstart2: suggestions only while open
     }
     if (state == AppLifecycleState.resumed) {
       // feature-flags: pick up an owner switch (throttled, ETag, offline-safe).
@@ -525,15 +571,33 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // missing: an opted-in user's coarse area while the app is OPEN only
       // (flag + opt-in + permission already granted; throttled 2 h; never throws).
       unawaited(MissingNearbySync.maybeSend(app.api));
+      // sjstart2: "Going to Office? Tell family?" — only while Assisto is
+      // open, location already allowed (never asks), habits on the phone.
+      JourneyHabits.onForeground(app);
       // cctvarm: a consenting member's "near Home?" for the camera guard
       // (flag + consent + permission already granted; 10 min; never throws).
       unawaited(HomePresenceSync.maybeSend(app.api));
+      // fcbrain: Family Care heartbeat (battery / network / background
+      // limits so the family card is honest), the 15 % last location once,
+      // and the arrival watch brought back if the member left it on
+      // (throttled 10 min; never throws; nothing at launch).
+      try {
+        final ft = AppLocalizations.of(context);
+        unawaited(FcWatch.onAppOpen(app.api,
+            notif: FcWatch.texts(title: ft.fcbWatchNotifTitle, body: ft.fcbWatchNotifBody)));
+      } catch (_) {}
       // kidaudio: a granted emergency-audio session waiting for this phone
       // (flag + server grant; visible notice first; never throws).
       unawaited(KidAudioChild.maybeStart(app.api));
       // carecall: flush the offline answer queue + keep this phone's own
       // Care Call alarms in step (flag + throttled 2 min; never throws).
       unawaited(careCallResume(app, enabled: FeatureFlags.instance.isOn('care_call')));
+      // fcelder: Silent Watch (opted-in elder only): a sign of life on the
+      // phone, an "Are you OK?" waiting, the daily re-learn; a pending
+      // elder-setup code from before sign-in. Never throws.
+      unawaited(SilentWatchClient.onResume(HttpSilentWatchApi(app.api),
+          context: context, lang: app.locale?.languageCode == 'en' ? 'en' : 'bn'));
+      unawaited(ElderJoinScreen.maybeOpenPending(context));
     }
     _resumeProtection();
   }
@@ -692,7 +756,8 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
     }
     if (_elderly) {
       AdsService.instance.rootScreen = 'elderly_home';
-      return ElderlyHomeScreen(onExit: () => setState(() => _elderly = false));
+      // fcelder: Family Care V3 Screen 4 — Elder Easy Home
+      return ElderEasyHome(onExit: () => setState(() => _elderly = false));
     }
     AdsService.instance.rootScreen = 'home';
     // home_v2 (owner 26 Oct): the new home behind its flag, read from the

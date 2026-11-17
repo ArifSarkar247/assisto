@@ -123,9 +123,11 @@ class PlacesTests(Base):
         self.assertEqual(r.status_code, 200, r.content)
         self.assertEqual((r.json()["lat"], r.json()["lng"]), (23.71, 90.41))
 
-    def test_geocode_is_honestly_off_without_a_key(self):
-        r = self.ca.get("%s/journey/geocode?q=Bashundhara" % V).json()
-        self.assertEqual(r, {"available": False, "results": [], "state": "off"})
+    def test_geocode_without_a_key_still_answers_from_our_place_list(self):
+        # sjp0 (owner P0 9 Nov): never "off" / a limit — our free BD list answers
+        r = self.ca.get("%s/journey/geocode?q=Gaibandha" % V).json()
+        self.assertEqual((r["available"], r["state"]), (True, "ok"))
+        self.assertTrue(all(isinstance(x["lat"], float) for x in r["results"]))
 
     def test_geocode_with_key_returns_real_rows_only(self):
         rows = [{"name": "Bashundhara City", "address": "Panthapath", "lat": 23.75, "lng": 90.39}]
@@ -134,7 +136,8 @@ class PlacesTests(Base):
                            side_effect=lambda k: {"api_key": "k"}), \
                 mock.patch("core.journey_geo._places_text",
                            side_effect=lambda q, key, lang, near: list(rows)):
-            r = self.ca.get("%s/journey/geocode?q=Bashundhara" % V).json()
+            # sjp0: the paid Text Search runs only when our list has nothing
+            r = self.ca.get("%s/journey/geocode?q=Zzqx Bashundhara" % V).json()
         self.assertEqual(r["state"], "ok")
         self.assertEqual(r["results"], rows)
 
@@ -202,13 +205,13 @@ class RevokeRideProgressTests(Base):
         self.assertEqual(w["distance_m"], d["distance_m"])
         live = self.ca.get("%s/journey/active" % V).json()
         self.assertEqual(live["distance_m"], d["distance_m"])
-        # name only (no pin): no distance, no time — never a guess
-        j2, body2 = self.start(destination={"name": "Aunt's house"})
-        self.assertFalse(body2["has_pin"])
-        self.fix(j2, 23.7550, 90.4000)
-        d2 = self.data(JW.web_token(j2)).json()
-        self.assertNotIn("distance_m", d2)
-        self.assertNotIn("rough_min", d2)
+        # name only (no pin): qjourney (owner V2, 9 Nov) — such a trip can
+        # never check its arrival, so it no longer starts at all
+        r = self.ca.post("%s/journey/start" % V, {
+            "destination": {"name": "Aunt's house"}, "watcher_ids": [self.ab.id]},
+            format="json")
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(r.json()["detail"], "destination_coords_required")
 
     def test_bangla_page_has_no_raw_codes(self):
         j, _ = self.start(vehicle={"plate": "DHA-1", "mode": "bike", "app": "uber"})

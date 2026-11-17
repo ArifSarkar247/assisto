@@ -1511,6 +1511,9 @@ class Journey(models.Model):
     vehicle_photo = models.FileField(upload_to="journey/", blank=True, default="")
     # journey2: watcher-link generation; bumping it turns every shared link off
     web_gen = models.IntegerField(default=0)
+    # sjduring: the DURING-the-trip state + private alert ladder
+    # (core/journey_during.py): ask / amber / red, abnormal flags, PIN outcome
+    during = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -1639,6 +1642,8 @@ class DuressPin(models.Model):
     normal_hash = models.CharField(max_length=128, blank=True, default="")
     duress_hash = models.CharField(max_length=128, blank=True, default="")
     salt = models.CharField(max_length=64, blank=True, default="")
+    # sjduring: ask the PIN on EVERY arrival (else only abnormal ones)
+    arrive_always = models.BooleanField(default=False)
 
 
 # ===========================================================================
@@ -3031,6 +3036,22 @@ class AdPlacementStat(models.Model):
         indexes = [models.Index(fields=["date", "placement"])]
 
 
+class AdMoneyDay(models.Model):
+    """aimoney (owner 10 Nov, part G): the DAILY ads-per-AI-answer number and
+    the inputs it came from (core/ad_money_service.recompute, inside
+    minute_jobs). One row per local date; the newest row is what the app
+    shows ("Watch N ads for 1 answer") and what one rewarded ad credits.
+    data = {real_cost_bdt, cost_samples, cost_source, income_bdt, ad_events,
+    income_source, worst_bdt, profit_pct}. Aggregates only, no user id."""
+    date = models.DateField(unique=True)
+    ads_per_answer = models.PositiveSmallIntegerField(default=2)
+    data = models.JSONField(default=dict, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-date"]
+
+
 class AdEventSeen(models.Model):
     """ads check 28 Oct: server-side dedupe of the AdMob tuning log. One row
     per COUNTED (user, placement, kind, ad instance id) — or, for old builds
@@ -3518,7 +3539,8 @@ class ShopSiteViewer(models.Model):
     # `cameras` [] means every camera (family / manager); a guard always has
     # at least one. `live_ok` = the owner lets this person open live view of
     # the cameras they may see (counts toward the owner's 2-live cap).
-    ROLES = [("family", "family"), ("manager", "manager"), ("guard", "guard")]
+    ROLES = [("family", "family"), ("manager", "manager"), ("guard", "guard"),
+             ("staff", "staff")]   # cctvroles: staff = view only, never deletes
     role = models.CharField(max_length=8, choices=ROLES, default="family")
     cameras = models.JSONField(default=list, blank=True)
     live_ok = models.BooleanField(default=False)
@@ -3592,7 +3614,10 @@ class ShopGatewayTask(models.Model):
     ACTIONS = [("discover", "discover"), ("check", "check"),
                # cctvx: sound a LAN camera's own siren / alarm output
                # (Hikvision ISAPI) on the owner's tap from an alert
-               ("siren", "siren")]
+               ("siren", "siren"),
+               # cctvact (V3 D): the Guard Box / phone camera plays the siren
+               # or the owner's recorded warning through its own speaker
+               ("play", "play sound")]
     STATUS = [("pending", "pending"), ("running", "running"), ("done", "done"),
               ("expired", "expired")]
     site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
@@ -3636,6 +3661,19 @@ class ShopEvent(models.Model):
         # ---- cctvalerts (W3) ----
         ("loitering", "loitering at night"),
         ("camera_health", "camera covered / moved / dark / SD"),
+        # ---- cctvdet (Guard V3 part C) ----
+        ("gate_person", "person at the shutter / gate"),
+        ("post_empty", "counter / post left empty"),
+        ("gate_open", "gate / shutter left open"),
+        ("crowd", "crowd / queue"),
+        ("vehicle_in_out", "vehicle in / out"),
+        ("parking_overstay", "parking overstay"),
+        ("wrong_parking", "wrong parking"),
+        ("smoke_fire", "smoke / fire (possible)"),
+        ("fight", "scuffle (possible)"),
+        ("fall", "fall (possible)"),
+        ("weapon_review", "weapon-like object (review only)"),
+        ("loud_sound", "loudness level (opt-in)"),
     ]
     STATUS = [("open", "open"), ("checked", "checked"),
               ("false_alarm", "false alarm")]
@@ -3783,11 +3821,23 @@ class ShopPosEvent(models.Model):
     kind = models.CharField(max_length=12, choices=KINDS)
     amount = models.BigIntegerField(default=0)   # poisha (or 0 for drawer_open)
     at = models.DateTimeField(default=timezone.now)
+    # ---- cctvact (V3 F): partner POS webhook / CSV import. `source` names the
+    # feed (asalify | pos | csv; '' = Assisto / Shop Box), `ext_id` is the
+    # partner's event id — unique per site + source, so a replayed or
+    # re-imported event is a duplicate, never a second row. `meta` keeps only
+    # amount in poisha, payment method, register and receipt ref — never a
+    # cashier's or a customer's name.
+    source = models.CharField(max_length=12, blank=True, default="")
+    ext_id = models.CharField(max_length=64, blank=True, default="")
+    meta = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ["-at"]
         indexes = [models.Index(fields=["site", "kind", "at"]),
                    models.Index(fields=["site", "at"])]
+        constraints = [models.UniqueConstraint(
+            fields=["site", "source", "ext_id"], condition=~models.Q(ext_id=""),
+            name="shoppos_site_source_ext_uniq")]
 
 
 # ===========================================================================
@@ -4078,8 +4128,27 @@ class EmailLog(models.Model):
     to_hash = models.CharField(max_length=64, db_index=True)
     to_masked = models.CharField(max_length=80, blank=True, default="")
     provider = models.CharField(max_length=16, blank=True, default="smtp")
-    status = models.CharField(max_length=10, default="sent")   # sent|failed|blocked
+    status = models.CharField(max_length=10, default="sent")   # sent|failed|blocked|suppressed|poll
     detail = models.CharField(max_length=200, blank=True, default="")
+    # emailrel: why it failed (temp|quota|bounce|policy|auth|config|cap|
+    # unsub), the class of mail (critical|normal|bulk) and the attempt count
+    error_kind = models.CharField(max_length=10, blank=True, default="")
+    category = models.CharField(max_length=10, blank=True, default="critical")
+    attempts = models.PositiveSmallIntegerField(default=1)
+
+
+class EmailSuppression(models.Model):
+    """emailrel: an address we must not mail — hard bounce (SMTP 5xx 5.1.x
+    or a mailer-daemon report), complaint, or 'unsubscribe' (bulk mail only).
+    Only the hash + mask of the address; cleared when the user re-verifies."""
+    to_hash = models.CharField(max_length=64, unique=True)
+    to_masked = models.CharField(max_length=80, blank=True, default="")
+    reason = models.CharField(max_length=12, default="hard_bounce")  # hard_bounce|complaint|unsubscribed
+    code = models.CharField(max_length=12, blank=True, default="")
+    detail = models.CharField(max_length=200, blank=True, default="")
+    hits = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    last_at = models.DateTimeField(default=timezone.now)
 
 
 class EmailVerification(models.Model):
@@ -4357,7 +4426,8 @@ class DiscoverCard(models.Model):
     (Settings -> Discover manager). Visibility rules live in
     core/logic/discover.py and are enforced server-side."""
     TYPES = [("FEATURE", "Feature"), ("OUR_PRODUCT", "Our product"),
-             ("SPONSORED", "Sponsored"), ("ADMOB", "AdMob slot")]
+             ("SPONSORED", "Sponsored"), ("ADMOB", "AdMob slot"),
+             ("WHATS_NEW", "What's new"), ("OFFER", "Offer")]   # discms
     AUDIENCES = [("all", "all"), ("free", "free"), ("premium", "premium"),
                  ("business", "business")]
     key = models.SlugField(max_length=60, unique=True)
@@ -7786,6 +7856,28 @@ class TrainChatReport(models.Model):
     text = models.CharField(max_length=520)
     reason = models.CharField(max_length=30, default="other")
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+# sjtrain (Safe Journey V2, 9 Nov): crowd-sourced SEAT CARD. There is no
+# official seat-orientation data, so passengers answer one-tap questions after
+# a trip. One row per user per train+coach+seat (re-answering replaces it).
+# Shown as "unverified" until enough DIFFERENT people agree. No names shown.
+class TrainSeatAnswer(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="train_seat_answers")
+    train_no = models.CharField(max_length=8)
+    coach = models.CharField(max_length=8)          # as printed on the ticket (ঝ, KA, ...)
+    seat = models.CharField(max_length=8)
+    facing = models.CharField(max_length=10, blank=True, default="")    # forward|backward
+    place = models.CharField(max_length=10, blank=True, default="")     # window|aisle|middle
+    side = models.CharField(max_length=10, blank=True, default="")      # left|right (facing the engine)
+    coach_pos = models.PositiveSmallIntegerField(null=True, blank=True)  # coach no. from the engine
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "train_no", "coach", "seat"],
+                                               name="core_trainseat_once")]
+        indexes = [models.Index(fields=["train_no", "coach"], name="core_trainseat_coach_idx")]
 # ---- /train ----
 
 
@@ -7960,7 +8052,12 @@ class CctvAccessLog(models.Model):
     owner. The owner's own views are not logged. Kept 30 days."""
     ACTIONS = [("alerts", "alert list"), ("alert", "one alert / clip / evidence"),
                ("still", "camera photo"), ("live", "live view"),
-               ("link", "share link opened")]
+               ("link", "share link opened"),
+               # cctvroles (V3 I): every export / share / change / delete /
+               # installer step, the owner's own included (never deduped)
+               ("export", "evidence exported"), ("share", "clip or link shared"),
+               ("change", "setting changed"), ("delete", "something deleted"),
+               ("role", "role changed"), ("installer", "installer step")]
     site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
                              related_name="access_logs")
     user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
@@ -7969,12 +8066,55 @@ class CctvAccessLog(models.Model):
                              on_delete=models.SET_NULL, related_name="+")
     camera = models.ForeignKey(ShopCamera, null=True, blank=True,
                                on_delete=models.SET_NULL, related_name="+")
-    action = models.CharField(max_length=8, choices=ACTIONS)
+    action = models.CharField(max_length=10, choices=ACTIONS)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
+    # cctvroles: short server-made text ("role: staff", "evidence #12")
+    detail = models.CharField(max_length=120, blank=True, default="")
 
     class Meta:
         ordering = ["-created"]
         indexes = [models.Index(fields=["site", "-created"], name="cctv_access_site_idx")]
+
+
+class CctvPartner(models.Model):
+    """cctvroles (V3 J): a local CCTV technician (installer partner). Applies
+    in the app, the Assisto owner approves in Owner Admin. A partner NEVER
+    sees video, photos or alerts — only the setup status of the sites whose
+    owner invited them (core/cctv_partner_views.py). Commission rules are a
+    PROPOSAL (core/logic/cctv_partner.py) — nothing pays out automatically."""
+    STATUSES = [("pending", "pending"), ("approved", "approved"),
+                ("suspended", "suspended")]
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name="cctv_partner")
+    name = models.CharField(max_length=80, blank=True, default="")
+    area = models.CharField(max_length=80, blank=True, default="")
+    status = models.CharField(max_length=10, choices=STATUSES, default="pending")
+    created = models.DateTimeField(auto_now_add=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created"]
+
+
+class CctvInstallerLink(models.Model):
+    """cctvroles (V3 J): the SITE OWNER's invite (QR / code) for one
+    installer, and — once an approved partner used it — the link between
+    them. Only the code's SHA-256 is stored. The owner ends it any time."""
+    STATUSES = [("invited", "invited"), ("active", "active"), ("ended", "ended")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="installer_links")
+    partner = models.ForeignKey(CctvPartner, null=True, blank=True,
+                                on_delete=models.CASCADE, related_name="links")
+    code_hash = models.CharField(max_length=64, unique=True)
+    status = models.CharField(max_length=8, choices=STATUSES, default="invited")
+    created = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created"]
+        indexes = [models.Index(fields=["site", "status"], name="cctv_inst_site_idx")]
 
 
 class CctvWatchPost(models.Model):
@@ -8634,3 +8774,453 @@ class RecoveryRequest(models.Model):
         ordering = ["-id"]
         indexes = [models.Index(fields=["state", "id"], name="core_recreq_state_idx")]
 # ---- /recovery ----
+
+
+# ---- cctvconnect (CCTV Guard V3 A1 + B, 9 Nov) ----
+class CctvCloudLink(models.Model):
+    """One brand-cloud authorization for ONE site (EZVIZ / Imou /
+    Hik-Connect / DoLynk). `grant_blob` is Fernet-sealed and bound to the site
+    id (logic/cctv_connect.seal) — never sent to any client, never logged.
+    `serials` (not secret) route vendor events to the site and stop two
+    sites claiming the same device. Revoking releases the devices at the
+    vendor and wipes the grant."""
+    STATUS = [("active", "active"), ("error", "error"), ("revoked", "revoked")]
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="cloud_links")
+    provider = models.CharField(max_length=16, db_index=True)
+    label = models.CharField(max_length=80, blank=True, default="")
+    mode = models.CharField(max_length=12, default="device_code")
+    grant_blob = models.TextField(blank=True, default="")
+    serials = models.JSONField(default=list, blank=True)
+    status = models.CharField(max_length=8, choices=STATUS, default="active")
+    # sync cursor + small dedupe list {"since": epoch, "seen": [ids]}
+    state = models.JSONField(default=dict, blank=True)
+    last_sync = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=80, blank=True, default="")
+    created = models.DateTimeField(auto_now_add=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["created", "id"]
+        indexes = [models.Index(fields=["provider", "status"], name="core_cctvcl_prov_st_idx")]
+
+
+class CctvDvrHealth(models.Model):
+    """The latest health report of one DVR / NVR / cloud camera of a site
+    (logic/dvr_health.py) + which problems were already alerted. device
+    "_daily" is the site's daily green-check bookkeeping row."""
+    site = models.ForeignKey(ShopSite, on_delete=models.CASCADE,
+                             related_name="dvr_health")
+    device = models.CharField(max_length=60)
+    source = models.CharField(max_length=16, blank=True, default="")
+    report = models.JSONField(default=dict, blank=True)
+    evaluation = models.JSONField(default=dict, blank=True)
+    alerted = models.JSONField(default=dict, blank=True)
+    updated = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["device"]
+        constraints = [models.UniqueConstraint(fields=["site", "device"],
+                                               name="uniq_cctv_dvr_health")]
+
+
+class CctvVendorUsage(models.Model):
+    """Monthly use of a brand cloud's FREE quota (Imou: 30K API calls, 30K
+    messages, 2 GB traffic) — counted by us so the owner sees it in Owner
+    Admin and gets ONE warning at 80 % (logic/cctv_connect/quota.py)."""
+    provider = models.CharField(max_length=16)
+    month = models.CharField(max_length=7)               # "YYYY-MM"
+    api_calls = models.PositiveIntegerField(default=0)
+    messages = models.PositiveIntegerField(default=0)
+    traffic_mb = models.FloatField(default=0.0)
+    warned = models.JSONField(default=dict, blank=True)  # {"api_calls": 80, ...}
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["provider", "month"],
+                                               name="uniq_cctv_vendor_usage")]
+# ---- /cctvconnect ----
+
+# ---- citydata ----
+# citydata (owner 9 Nov 11:45, City Service): Assisto's own city transit data
+# (GitHub Actions builds it; the server imports the small result), user
+# corrections, live road reports (60-min expiry), crowd fares, night safety
+# ratings and consented, name-free trip learning.
+class CityDataset(models.Model):
+    """One row per city: the compact network (gzip JSON) + directory, the
+    owner's overrides (rates, hidden/edited stops & routes, approved user
+    facts), counts and the build report. `ov_version` bumps on every owner
+    edit so every phone's offline package refreshes."""
+    city = models.CharField(max_length=24, unique=True)
+    enabled = models.BooleanField(default=True)
+    version = models.CharField(max_length=40, blank=True, default="")
+    sha256 = models.CharField(max_length=64, blank=True, default="")
+    blob = models.BinaryField(blank=True, default=b"")
+    dir_blob = models.BinaryField(blank=True, default=b"")
+    counts = models.JSONField(default=dict, blank=True)
+    report = models.JSONField(default=dict, blank=True)
+    overrides = models.JSONField(default=dict, blank=True)
+    ov_version = models.PositiveIntegerField(default=1)
+    imported_at = models.DateTimeField(null=True, blank=True)
+    last_check_at = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=300, blank=True, default="")
+
+
+class CityCorrection(models.Model):
+    """One-tap 'Suggest a fix' from the app -> Owner Admin review."""
+    TARGETS = ("stop", "route", "gate", "station", "fare", "terminal", "ghat", "office", "other")
+    city = models.CharField(max_length=24, default="dhaka")
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    target = models.CharField(max_length=12, default="other")
+    target_id = models.CharField(max_length=80, blank=True, default="")
+    kind = models.CharField(max_length=24, blank=True, default="")
+    text = models.CharField(max_length=500, blank=True, default="")
+    lat = models.FloatField(null=True, blank=True)
+    lon = models.FloatField(null=True, blank=True)
+    status = models.CharField(max_length=10, default="open")     # open | accepted | rejected
+    patch = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["status", "id"], name="core_cityfix_status_idx")]
+
+
+class CityLiveReport(models.Model):
+    """One tap: jam / road closed / waterlogging / bus not coming / crowded /
+    seats free. Shown with a count + minutes ago; gone after 60 minutes."""
+    KINDS = ("jam", "road_closed", "waterlogging", "bus_not_coming", "bus_crowded", "seats_free")
+    city = models.CharField(max_length=24, default="dhaka")
+    kind = models.CharField(max_length=16)
+    lat = models.FloatField()
+    lon = models.FloatField()
+    route_id = models.CharField(max_length=80, blank=True, default="")
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    count = models.PositiveIntegerField(default=1)
+    voters = models.JSONField(default=list, blank=True)        # user ids (dedupe), never shown
+    flags = models.PositiveIntegerField(default=0)
+    hidden = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+    last_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField(db_index=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["city", "expires_at"], name="core_citylive_exp_idx")]
+
+
+class CityFareReport(models.Model):
+    """'What did you pay?' -> rickshaw / leguna fares become Reported by users."""
+    city = models.CharField(max_length=24, default="dhaka")
+    mode = models.CharField(max_length=12)
+    km = models.FloatField()
+    paid = models.PositiveIntegerField()
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        indexes = [models.Index(fields=["city", "mode", "created_at"], name="core_cityfare_idx")]
+
+
+class CityNightRating(models.Model):
+    city = models.CharField(max_length=24, default="dhaka")
+    route_id = models.CharField(max_length=80)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    stars = models.PositiveSmallIntegerField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["route_id", "user"], name="core_citynight_uniq")]
+
+
+class CityTripConsent(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="+")
+    on = models.BooleanField(default=False)
+    changed_at = models.DateTimeField(default=timezone.now)
+
+
+class CityTrip(models.Model):
+    """A consented bus/leguna/water trip trace — NO user link: `anon` is a
+    keyed hash (counts distinct contributors, cannot be reversed to a name);
+    the first/last 300 m are cut off; raw points are deleted after
+    processing (<= 7 days). Never sold or shared."""
+    city = models.CharField(max_length=24, default="dhaka")
+    anon = models.CharField(max_length=24, db_index=True)
+    mode = models.CharField(max_length=12, default="bus")
+    points = models.JSONField(default=list, blank=True)       # [[t, lat, lon], ...]
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    processed = models.BooleanField(default=False)
+
+
+class CityLearned(models.Model):
+    """What trips taught us: a stop (dwell cluster), a stop-to-stop segment
+    time by hour, or a new route (stop sequence). Stays Reported until
+    `anons` distinct contributors confirm it."""
+    city = models.CharField(max_length=24, default="dhaka")
+    kind = models.CharField(max_length=10)          # stop | segment | route
+    key = models.CharField(max_length=120)
+    data = models.JSONField(default=dict, blank=True)
+    trips = models.PositiveIntegerField(default=0)
+    anons = models.JSONField(default=list, blank=True)
+    status = models.CharField(max_length=10, default="reported")   # reported | confirmed | rejected
+    updated_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["city", "kind", "key"], name="core_citylearn_uniq")]
+# ---- /citydata ----
+# ---- fcscreen ---- Family Care v3 (owner order 9 Nov 10:50): multi-family
+# membership + shared family tasks. Member status (heartbeat, battery, place,
+# pause) lives in fcbrain's store; the pure status rules are in
+# core.logic.family_status. Interface: owner_actions/FAMILY_CARE_V3_API.md.
+class FcFamily(models.Model):
+    """One family a person belongs to ("My family", "Parents' home"...). A user
+    can be an active member of several (core.family_v3.MAX_FAMILIES)."""
+    name = models.CharField(max_length=60)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name="fc_families_created")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+
+
+class FcMembership(models.Model):
+    """A person in a family. Adults join ONLY by accepting on their own phone
+    (state invited -> active); a child is added active by an approved guardian.
+    `alert` = an amber status another module raised (silent watch, missed Care
+    Call) — {state, reason, source, at, until}; mirrored on all the user's
+    memberships by core.family_v3.set_member_status."""
+    ROLES = [("admin", "admin"), ("adult", "adult"), ("child", "child"), ("elder", "elder")]
+    STATES = [("invited", "invited"), ("active", "active"),
+              ("declined", "declined"), ("left", "left")]
+    family = models.ForeignKey(FcFamily, on_delete=models.CASCADE, related_name="memberships")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="fc_memberships")
+    role = models.CharField(max_length=8, choices=ROLES, default="adult")
+    state = models.CharField(max_length=8, choices=STATES, default="invited")
+    label = models.CharField(max_length=40, blank=True, default="")
+    relation = models.CharField(max_length=20, blank=True, default="")
+    alert = models.JSONField(default=dict, blank=True)
+    abroad_tz = models.CharField(max_length=40, blank=True, default="")
+    invited_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    joined_at = models.DateTimeField(null=True, blank=True)
+    left_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        unique_together = [("family", "user")]
+        indexes = [models.Index(fields=["user", "state"], name="core_fcmem_user_state_idx")]
+
+
+class FcTask(models.Model):
+    """A shared family task (medicine running out, doctor visit, bill): anyone
+    adds it, someone taps "I will do it", everyone sees who took it."""
+    KINDS = [("medicine", "medicine"), ("doctor", "doctor"), ("bill", "bill"),
+             ("other", "other")]
+    family = models.ForeignKey(FcFamily, on_delete=models.CASCADE, related_name="tasks")
+    title = models.CharField(max_length=120)
+    kind = models.CharField(max_length=8, choices=KINDS, default="other")
+    due_date = models.DateField(null=True, blank=True)
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,
+                                   related_name="+")
+    taken_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                 related_name="+")
+    taken_at = models.DateTimeField(null=True, blank=True)
+    done_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name="+")
+    done_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [models.Index(fields=["family", "done_at"], name="core_fctask_fam_done_idx")]
+# ---- /fcscreen ----
+
+
+# ---- lpcore ----
+# Language Partner V2 (owner 9 Nov 21:45): versioned content items with a
+# review pipeline (draft -> ai_checked -> human_approved | rejected), the
+# review audit trail, and the learner's attempts (marks, AI scores, Cambridge
+# companion sheets, finished mocks). Cambridge material is NEVER stored: a
+# companion sheet keeps only the user's own typed answers + own typed key.
+class LpItem(models.Model):
+    KINDS = ("mock", "section", "question", "scenario", "vocab", "syllabus", "lesson")
+    STATUSES = ("draft", "ai_checked", "human_approved", "rejected")
+    LIVE = ("ai_checked", "human_approved")
+    kind = models.CharField(max_length=10, db_index=True)
+    key = models.CharField(max_length=80, db_index=True)
+    version = models.PositiveIntegerField(default=1)
+    track = models.CharField(max_length=16, blank=True, default="", db_index=True)
+    level = models.CharField(max_length=12, blank=True, default="")
+    tag = models.CharField(max_length=40, blank=True, default="", db_index=True)
+    status = models.CharField(max_length=16, default="draft", db_index=True)
+    data = models.JSONField(default=dict, blank=True)
+    checks = models.JSONField(default=dict, blank=True)     # {ok, failures:[...], ran_at}
+    content_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    source = models.CharField(max_length=12, blank=True, default="ai")   # ai | human | app
+    bundle = models.CharField(max_length=80, blank=True, default="")
+    reviewed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                                    related_name="+")
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now, db_index=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["key", "version"], name="core_lpitem_key_ver")]
+
+
+class LpReviewLog(models.Model):
+    item = models.ForeignKey(LpItem, on_delete=models.CASCADE, related_name="reviews")
+    action = models.CharField(max_length=16)        # import | check | approve | reject | edit
+    actor = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                              related_name="+")
+    note = models.CharField(max_length=500, blank=True, default="")
+    before = models.CharField(max_length=16, blank=True, default="")
+    after = models.CharField(max_length=16, blank=True, default="")
+    at = models.DateTimeField(default=timezone.now)
+
+
+class LpAttempt(models.Model):
+    # open (a free weekly section slot) | mark | practice | writing | speaking
+    # | companion | result (finished mock)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
+    kind = models.CharField(max_length=12, db_index=True)
+    item_key = models.CharField(max_length=80, blank=True, default="")
+    section = models.CharField(max_length=12, blank=True, default="")
+    band = models.FloatField(null=True, blank=True)
+    data = models.JSONField(default=dict, blank=True)
+    credits = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+# ---- /lpcore ----
+
+
+# ---- messv2 ----
+# MESS AND BACHELOR V2 (owner order 10 Nov 01:20, Part 2 A–L). A SHARED mess:
+# members are real users from the creator's My Circle, each enters own meals
+# from own phone; one My Circle group (E2E like every group) per mess. All
+# money INTEGER POISHA, meals INTEGER MILLI-MEALS. Math: core/logic/mess_v2.py.
+class Mess(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="messes_created")
+    name = models.CharField(max_length=80)
+    address = models.CharField(max_length=200, blank=True, default="")
+    month_start_day = models.PositiveSmallIntegerField(default=1)      # 1-28
+    breakfast_milli = models.PositiveSmallIntegerField(default=500)    # 500 | 1000
+    cutoff_hour = models.PositiveSmallIntegerField(default=22)         # day before, Dhaka
+    group = models.ForeignKey("CircleGroup", null=True, blank=True,
+                              on_delete=models.SET_NULL, related_name="messes")
+    status = models.CharField(max_length=8, default="active")          # active | closed
+    legacy = models.JSONField(default=dict, blank=True)                # V1 import snapshot
+    created_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class MessMember(models.Model):
+    """user is null only for a V1-imported name the admin has not yet linked
+    to a My Circle person (status 'legacy' members still count in math)."""
+    mess = models.ForeignKey(Mess, on_delete=models.CASCADE, related_name="members")
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="mess_memberships")
+    name = models.CharField(max_length=120, blank=True, default="")
+    role = models.CharField(max_length=8, default="member")            # admin | member
+    is_manager = models.BooleanField(default=False)
+    seat_share = models.PositiveSmallIntegerField(default=1)
+    status = models.CharField(max_length=8, default="active")          # active | left
+    joined_on = models.DateField()
+    left_on = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [models.Index(fields=["user", "status"], name="core_messmem_user_st_idx")]
+
+
+class MessMonth(models.Model):
+    """A CLOSED mess month (open months are computed live). Immutable once
+    written: its summary + carry are the frozen record."""
+    mess = models.ForeignKey(Mess, on_delete=models.CASCADE, related_name="months")
+    key = models.CharField(max_length=7)                                # YYYY-MM of start
+    start = models.DateField()
+    end = models.DateField()
+    counted_until = models.DateField()
+    summary = models.JSONField(default=dict, blank=True)
+    carry = models.JSONField(default=dict, blank=True)                  # {member_id: poisha}
+    closed_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="+")
+    closed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("mess", "key")]
+        ordering = ["-start"]
+
+
+class MessEntry(models.Model):
+    """One row per meal-day / bazar / deposit / service charge / bazar turn.
+    kind: meal | bazar | deposit | charge | turn. `client_id` makes offline
+    re-sends idempotent. Soft delete keeps the trust trail."""
+    mess = models.ForeignKey(Mess, on_delete=models.CASCADE, related_name="entries")
+    kind = models.CharField(max_length=8)
+    member = models.ForeignKey(MessMember, null=True, blank=True,
+                               on_delete=models.SET_NULL, related_name="entries")
+    date = models.DateField()
+    amount = models.BigIntegerField(default=0)                          # poisha
+    data = models.JSONField(default=dict, blank=True)
+    photo = models.FileField(upload_to="mess/", null=True, blank=True)  # signed media
+    client_id = models.CharField(max_length=64, blank=True, default="")
+    deleted = models.BooleanField(default=False)
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="+")
+    updated_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="+")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["date", "id"]
+        indexes = [models.Index(fields=["mess", "kind", "date"], name="core_messent_kind_dt_idx")]
+
+
+class MessEditLog(models.Model):
+    """Trust trail: who changed what and when (append-only)."""
+    mess = models.ForeignKey(Mess, on_delete=models.CASCADE, related_name="edit_log")
+    actor = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="+")
+    action = models.CharField(max_length=24)
+    entry_id = models.IntegerField(null=True, blank=True)
+    before = models.JSONField(default=dict, blank=True)
+    after = models.JSONField(default=dict, blank=True)
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-at", "-id"]
+# ---- /messv2 ----
+
+
+# ---- seoblog ---- (owner order 17 Nov 00:32, item 6): lifeassisto.com/blog
+class BlogPost(models.Model):
+    """One how-to article on the public website blog. Edited in Owner Admin
+    (/owner/blog); Markdown bodies in Bangla + English; the cover image is a
+    private upload served through a signed link. Starts UNPUBLISHED — only a
+    published post is reachable, listed and in the sitemap."""
+    slug = models.SlugField(max_length=80, unique=True)
+    title_bn = models.CharField(max_length=120)
+    title_en = models.CharField(max_length=120, blank=True, default="")
+    summary_bn = models.CharField(max_length=200, blank=True, default="")
+    summary_en = models.CharField(max_length=200, blank=True, default="")
+    body_bn = models.TextField(blank=True, default="")
+    body_en = models.TextField(blank=True, default="")
+    feature = models.CharField(max_length=40, blank=True, default="")
+    keywords = models.CharField(max_length=300, blank=True, default="")
+    cover = models.ImageField(upload_to="blog/", null=True, blank=True)
+    cover_alt_bn = models.CharField(max_length=160, blank=True, default="")
+    cover_alt_en = models.CharField(max_length=160, blank=True, default="")
+    published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+    last_reviewed = models.DateField(null=True, blank=True)
+    order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["order", "-published_at", "id"]
+# ---- /seoblog ----

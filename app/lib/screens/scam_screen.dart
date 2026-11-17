@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/scam_result_card.dart';
 import '../widgets/scam_safety_api.dart';
 import '../theme.dart';
+import '../ads/ad_reward_gate.dart'; // adcontrol
 import '../services/action_feedback.dart'; // db1
 import '../services/error_kind.dart' show honestFailText; // qa2
 
@@ -42,6 +43,17 @@ class _ScamScreenState extends State<ScamScreen> {
       return;
     }
     FocusScope.of(context).unfocus();
+    // adcontrol (owner 10 Nov): one rewarded ad per manual check for a Free
+    // user — never blocks (no ad / Premium / Plus -> the check just runs)
+    await AdRewardGate.run(context,
+        placement: 'security_scan',
+        grant: AdGateGrant.perUse,
+        what: AppLocalizations.of(context).adGateWhatScan,
+        action: () => _runCheck(text));
+  }
+
+  Future<void> _runCheck(String text) async {
+    if (!mounted) return;
     setState(() {
       _checking = true;
       _error = false;
@@ -127,7 +139,7 @@ class _ScamScreenState extends State<ScamScreen> {
         Container(
           padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            color: Theme.of(context).colorScheme.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Row(children: [

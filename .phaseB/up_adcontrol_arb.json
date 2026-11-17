@@ -1,0 +1,65 @@
+{
+ "_comment": "adcontrol (owner 10 Nov 03:45): rewarded gate sheet",
+ "en": {
+  "adGateTitle": "Watch one short ad?",
+  "@adGateTitle": {
+   "description": "adcontrol rewarded gate"
+  },
+  "adGateBody": "Watch one short ad {what}. It keeps this free for you.",
+  "@adGateBody": {
+   "placeholders": {
+    "what": {
+     "type": "String"
+    }
+   }
+  },
+  "adGateOnceNote": "Only once. After this it stays free on this phone.",
+  "@adGateOnceNote": {
+   "description": "adcontrol rewarded gate"
+  },
+  "adGateWindowNote": "After the ad it stays free for {minutes} minutes.",
+  "@adGateWindowNote": {
+   "placeholders": {
+    "minutes": {
+     "type": "String"
+    }
+   }
+  },
+  "adGatePerUseNote": "One ad for each check. Premium and Plus have no ads.",
+  "@adGatePerUseNote": {
+   "description": "adcontrol rewarded gate"
+  },
+  "adGateWatch": "Watch the ad and continue",
+  "@adGateWatch": {
+   "description": "adcontrol rewarded gate"
+  },
+  "adGateNotNow": "Not now",
+  "@adGateNotNow": {
+   "description": "adcontrol rewarded gate"
+  },
+  "adGateWhatTrain": "to see this train's live location",
+  "@adGateWhatTrain": {
+   "description": "adcontrol rewarded gate"
+  },
+  "adGateWhatScan": "to run this check",
+  "@adGateWhatScan": {
+   "description": "adcontrol rewarded gate"
+  },
+  "adGateWhatSecurity": "to switch this security feature on",
+  "@adGateWhatSecurity": {
+   "description": "adcontrol rewarded gate"
+  }
+ },
+ "bn": {
+  "adGateTitle": "একটি ছোট বিজ্ঞাপন দেখবেন?",
+  "adGateBody": "{what} একটি ছোট বিজ্ঞাপন দেখুন। এতে এটি আপনার জন্য ফ্রি থাকে।",
+  "adGateOnceNote": "শুধু একবার। এরপর এই ফোনে এটি সবসময় ফ্রি।",
+  "adGateWindowNote": "বিজ্ঞাপনের পর {minutes} মিনিট ফ্রি।",
+  "adGatePerUseNote": "প্রতিটি যাচাইয়ে একটি বিজ্ঞাপন। Premium ও Plus-এ কোনো বিজ্ঞাপন নেই।",
+  "adGateWatch": "বিজ্ঞাপন দেখে এগিয়ে যান",
+  "adGateNotNow": "এখন না",
+  "adGateWhatTrain": "ট্রেনটির লাইভ অবস্থান দেখতে",
+  "adGateWhatScan": "এই যাচাই চালাতে",
+  "adGateWhatSecurity": "এই নিরাপত্তা ফিচার চালু করতে"
+ }
+}

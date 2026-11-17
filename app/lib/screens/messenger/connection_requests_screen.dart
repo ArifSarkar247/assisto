@@ -187,7 +187,7 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
           Text(incoming ? t.msgrNoIncomingRequests : t.msgrNoSentRequests,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  color: Theme.of(context).colorScheme.ds.muted)),
         ]),
       );
     }
@@ -218,7 +218,7 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
       subtitle: note.isEmpty
           ? Text(t.msgrPending,
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant))
+                  color: Theme.of(context).colorScheme.ds.muted))
           : Text(note, maxLines: 2, overflow: TextOverflow.ellipsis),
       trailing: incoming
           ? Row(mainAxisSize: MainAxisSize.min, children: [

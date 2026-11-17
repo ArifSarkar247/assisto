@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import 'remit_parser.dart';
 import 'remit_source.dart';
 import 'remit_widgets.dart';
@@ -262,7 +263,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
               if (widget.draft != null) ...[
                 Card(
                   key: const ValueKey('rmt_understood'),
-                  color: scheme.secondaryContainer,
+                  color: DsTokens.of(context).primarySoft,
                   margin: EdgeInsets.zero,
                   child: Padding(
                     padding: const EdgeInsets.all(Gap.md),
@@ -271,10 +272,10 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
                       children: [
                         Text(
                           widget.draft!.isEmpty ? t.rmtNotUnderstood : t.rmtUnderstoodCheck,
-                          style: TextStyle(color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700),
+                          style: TextStyle(color: DsTokens.of(context).primaryInk, fontWeight: FontWeight.w700),
                         ),
                         if ((widget.said ?? '').isNotEmpty)
-                          Text('"${widget.said}"', style: TextStyle(color: scheme.onSecondaryContainer)),
+                          Text('"${widget.said}"', style: TextStyle(color: DsTokens.of(context).primaryInk)),
                       ],
                     ),
                   ),
@@ -431,7 +432,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
               if (_err != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: Gap.sm),
-                  child: Text(_err!, style: TextStyle(color: scheme.error)),
+                  child: Text(_err!, style: TextStyle(color: DsTokens.of(context).dangerInk)),
                 ),
               FilledButton.icon(
                 key: const ValueKey('rmt_save'),
@@ -445,7 +446,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
               if (_edit) ...[
                 const SizedBox(height: Gap.sm),
                 TextButton.icon(
-                  style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48), foregroundColor: scheme.error),
+                  style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48), foregroundColor: DsTokens.of(context).dangerInk),
                   onPressed: _busy ? null : _delete,
                   icon: const Icon(Icons.delete_outline_rounded),
                   label: Text(t.rmtDeleteEntry),
@@ -490,16 +491,16 @@ class _ConversionLine extends StatelessWidget {
           margin: const EdgeInsets.only(top: Gap.sm),
           padding: const EdgeInsets.all(Gap.md),
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest,
+            color: DsTokens.of(context).cardHighest,
             borderRadius: BorderRadius.circular(Radii.md),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for (final l in lines)
-                Text(l, style: TextStyle(fontWeight: FontWeight.w600, color: scheme.onSurface, fontFeatures: AFonts.tabular)),
+                Text(l, style: TextStyle(fontWeight: FontWeight.w600, color: DsTokens.of(context).text, fontFeatures: AFonts.tabular)),
               const SizedBox(height: Gap.xxs),
-              Text(t.rhbConvHonest, style: TextStyle(color: scheme.onSurfaceVariant)),
+              Text(t.rhbConvHonest, style: TextStyle(color: DsTokens.of(context).muted)),
             ],
           ),
         );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -219,7 +220,8 @@ class _CashboxScreenState extends State<CashboxScreen> {
 
                       // Breakdown: opening + what the shop already booked
                       // today (read-only) + hand-written rows.
-                      Card(
+                      DsCard(
+                        padding: EdgeInsets.zero,
                         child: Column(children: [
                           _Line(
                               label: t.cashboxOpening,
@@ -267,7 +269,7 @@ class _CashboxScreenState extends State<CashboxScreen> {
                           padding: const EdgeInsets.only(top: Gap.sm),
                           child: Text(t.bbCbDuesHint,
                               style: AType.bodySmall
-                                  .copyWith(color: scheme.onSurfaceVariant)),
+                                  .copyWith(color: scheme.ds.muted)),
                         ),
                       const SizedBox(height: Gap.md),
 
@@ -328,8 +330,8 @@ class _CashboxScreenState extends State<CashboxScreen> {
                               padding: const EdgeInsets.all(Gap.xl),
                               child: Center(
                                 child: Text(t.cashboxNoEntries,
-                                    style: TextStyle(
-                                        color: scheme.onSurfaceVariant)),
+                                    style: AType.bodyMedium.copyWith(
+                                        color: scheme.ds.muted)),
                               ),
                             )
                           ];
@@ -378,12 +380,12 @@ class _Line extends StatelessWidget {
             if (sub != null)
               Text(sub!,
                   style: AType.bodySmall.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      color: Theme.of(context).colorScheme.ds.muted)),
           ]),
         ),
         const SizedBox(width: Gap.sm),
         Text(sign.isEmpty ? value : '$sign $value',
-            style: TextStyle(fontFeatures: AFonts.tabular,
+            style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w700, color: valueColor)),
         if (trailing != null) trailing!,
       ]),
@@ -406,17 +408,15 @@ class _ReconciledCard extends StatelessWidget {
         : (variancePoisha > 0
             ? Icons.trending_up_rounded
             : Icons.trending_down_rounded);
-    return Card(
-      color: color.withValues(alpha: 0.10),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: color.withValues(alpha: 0.10),
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(icon, color: color),
             const SizedBox(width: Gap.sm),
             Text(pair(context, summary['variance_status'],
                 fallback: t.cashboxBalanced),
-                style: TextStyle(fontWeight: FontWeight.w700, color: color)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: color)),
           ]),
           const SizedBox(height: Gap.md),
           _MiniRow(
@@ -433,7 +433,6 @@ class _ReconciledCard extends StatelessWidget {
                   fallback: '৳0'),
               color: color),
         ]),
-      ),
     );
   }
 }
@@ -450,10 +449,10 @@ class _MiniRow extends StatelessWidget {
       child: Row(children: [
         Expanded(
             child: Text(label,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant))),
+                style: AType.bodyMedium.copyWith(
+                    color: Theme.of(context).colorScheme.ds.muted))),
         Text(value,
-            style: TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
+            style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700, color: color)),
       ]),
     );
   }
@@ -467,9 +466,9 @@ class _CashEntryTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final isIn = (entry['kind'] ?? '') == 'in';
     final note = (entry['note'] ?? '').toString();
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         leading: Icon(isIn ? Icons.south_west_rounded : Icons.north_east_rounded,
             color: isIn ? AssistoTokens.of(context).success : scheme.error),
         title: Text(note.isEmpty
@@ -481,11 +480,11 @@ class _CashEntryTile extends StatelessWidget {
             ? null
             : Text(entry['ref'].toString()),
         trailing: Text(pair(context, entry['amount_display']),
-            style: TextStyle(fontFeatures: AFonts.tabular,
+            style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular,
                 fontWeight: FontWeight.w700,
                 color: isIn ? AssistoTokens.of(context).success : scheme.error)),
       ),
-    );
+      ));
   }
 }
 

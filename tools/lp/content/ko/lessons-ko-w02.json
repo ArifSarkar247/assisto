@@ -1,0 +1,1121 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "ko",
+ "week": 2,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "eps_topik"
+ ],
+ "title": {
+  "en": "Korean for EPS-TOPIK — Week 2: numbers, money, time",
+  "bn": "EPS-TOPIK কোরিয়ান — সপ্তাহ ২: সংখ্যা, টাকা, সময়"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not official EPS-TOPIK material or result.",
+  "bn": "Assisto-র নিজের লেখা অনুশীলন পাঠ — এটি অফিসিয়াল EPS-TOPIK বই, প্রশ্ন বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "HRD Korea EPS-TOPIK public test overview"
+ },
+ "lessons": [
+  {
+   "id": "ko-w02-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "Sino-Korean numbers and phone numbers",
+    "bn": "চীনা-কোরিয়ান সংখ্যা ও ফোন নম্বর"
+   },
+   "goal_bn": "일 থেকে 만 পর্যন্ত সংখ্যা পড়া, ফোন নম্বর ও রুম নম্বর বলা-শোনা।",
+   "vocab": [
+    {
+     "target": "일",
+     "roman": "il",
+     "bn": "এক (১) — চীনা-কোরিয়ান; আবার 'কাজ' অর্থেও",
+     "pos": "number",
+     "example": {
+      "target": "일 층에 식당이 있어요.",
+      "roman": "il cheunge sikdangi isseoyo.",
+      "bn": "এক তলায় ক্যান্টিন আছে।"
+     }
+    },
+    {
+     "target": "삼",
+     "roman": "sam",
+     "bn": "তিন (৩)",
+     "pos": "number",
+     "example": {
+      "target": "삼 번 기계를 보세요.",
+      "roman": "sam beon gigyereul boseyo.",
+      "bn": "৩ নম্বর মেশিন দেখুন।"
+     }
+    },
+    {
+     "target": "오",
+     "roman": "o",
+     "bn": "পাঁচ (৫)",
+     "pos": "number",
+     "example": {
+      "target": "오 층으로 올라가세요.",
+      "roman": "o cheungeuro ollagaseyo.",
+      "bn": "পাঁচ তলায় উঠুন।"
+     }
+    },
+    {
+     "target": "십",
+     "roman": "sip",
+     "bn": "দশ (১০)",
+     "pos": "number",
+     "example": {
+      "target": "십오 분 쉬어요.",
+      "roman": "sibo bun swieoyo.",
+      "bn": "১৫ মিনিট বিরতি।"
+     }
+    },
+    {
+     "target": "백",
+     "roman": "baek",
+     "bn": "একশো (১০০)",
+     "pos": "number",
+     "example": {
+      "target": "상자가 백 개 있어요.",
+      "roman": "sangjaga baek gae isseoyo.",
+      "bn": "১০০টা বাক্স আছে।"
+     }
+    },
+    {
+     "target": "천",
+     "roman": "cheon",
+     "bn": "এক হাজার (১,০০০)",
+     "pos": "number",
+     "example": {
+      "target": "천 원이에요.",
+      "roman": "cheon wonieyo.",
+      "bn": "এক হাজার ওন।"
+     }
+    },
+    {
+     "target": "만",
+     "roman": "man",
+     "bn": "দশ হাজার (১০,০০০)",
+     "pos": "number",
+     "example": {
+      "target": "만 원짜리 있어요?",
+      "roman": "man wonjjari isseoyo?",
+      "bn": "দশ হাজার ওনের নোট আছে?"
+     }
+    },
+    {
+     "target": "전화번호",
+     "roman": "jeonhwa beonho",
+     "bn": "ফোন নম্বর",
+     "pos": "noun",
+     "example": {
+      "target": "전화번호가 몇 번이에요?",
+      "roman": "jeonhwa beonhoga myeot beonieyo?",
+      "bn": "আপনার ফোন নম্বর কত?"
+     }
+    },
+    {
+     "target": "층",
+     "roman": "cheung",
+     "bn": "তলা",
+     "pos": "noun",
+     "example": {
+      "target": "기숙사는 이 층이에요.",
+      "roman": "gisuksaneun i cheungieyo.",
+      "bn": "ডরমিটরি দোতলায়।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "চীনা-কোরিয়ান সংখ্যা গঠন",
+     "explain_bn": "১–১০: 일 이 삼 사 오 육 칠 팔 구 십। ১১ = 십일, ২০ = 이십, ৩৫ = 삼십오, ১০০ = 백, ১,০০০ = 천, ১০,০০০ = 만। ১০, ১০০, ১০০০, ১০০০০ এর আগে '일' লাগে না (শুধু 십, 백, 천, 만)। টাকা, ফোন, তলা, মিনিট, তারিখে এগুলো চলে।",
+     "examples": [
+      {
+       "target": "이십칠",
+       "roman": "isipchil",
+       "bn": "২৭"
+      },
+      {
+       "target": "삼만 오천",
+       "roman": "samman ocheon",
+       "bn": "৩৫,০০০"
+      }
+     ]
+    },
+    {
+     "pattern": "ফোন নম্বর পড়া",
+     "explain_bn": "প্রতিটা অঙ্ক আলাদা পড়ুন; শূন্য = 공; ড্যাশকে 에 (e) পড়া হয়: 010-2345 → 공일공에 이삼사오।",
+     "examples": [
+      {
+       "target": "공일공에 오칠팔구에 일이삼사",
+       "roman": "gong-il-gong-e o-chil-pal-gu-e il-i-sam-sa",
+       "bn": "০১০-৫৭৮৯-১২৩৪"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "অফিস কর্মী"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "제 전화번호는 공일공에 칠사이일에 육팔공삼이에요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "কোন নম্বরটা শুনলেন?",
+      "options": [
+       "০১০-৭৪১২-৬৮০৩",
+       "০১০-৪৭২১-৬৮০৩",
+       "০১০-৭৪২১-৬৮০৩",
+       "০১০-৭৪২১-৮৬০৩"
+      ],
+      "answer": "C",
+      "explain_bn": "칠사이일 = ৭৪২১, 육팔공삼 = ৬৮০৩। 공 = শূন্য।",
+      "skill": "number",
+      "id": "ko-w02-l1-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "기숙사 방은 삼 층 삼백이 호예요.",
+      "prompt_bn": "ডরমের রুম নম্বর কত?",
+      "options": [
+       "২০৩",
+       "৩২০",
+       "৩০৩",
+       "৩০২"
+      ],
+      "answer": "D",
+      "explain_bn": "삼백이 = ৩০২। 호 = রুম নম্বর।",
+      "skill": "number",
+      "id": "ko-w02-l1-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "হাঙ্গুলে লিখুন: ১৫, ৪৮, ২৫০।",
+      "model": {
+       "target": "십오, 사십팔, 이백오십",
+       "roman": "sibo, sasippal, ibaegosip",
+       "bn": "১৫, ৪৮, ২৫০"
+      },
+      "check": "self",
+      "id": "ko-w02-l1-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "কোরিয়ানে নিজের (কাল্পনিক) ফোন নম্বর বলুন: 010-3456-7890।",
+      "model": {
+       "target": "제 전화번호는 공일공에 삼사오육에 칠팔구공이에요.",
+       "roman": "je jeonhwa beonhoneun gong-il-gong-e sam-sa-o-yuk-e chil-pal-gu-gong-ieyo.",
+       "bn": "আমার ফোন নম্বর ০১০-৩৪৫৬-৭৮৯০।"
+      },
+      "id": "ko-w02-l1-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w02-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "Money and shopping",
+    "bn": "টাকা-পয়সা ও কেনাকাটা"
+   },
+   "goal_bn": "দোকানে দাম জিজ্ঞেস করা, জিনিস চাওয়া আর ওন (₩) এর হিসাব বোঝা।",
+   "vocab": [
+    {
+     "target": "원",
+     "roman": "won",
+     "bn": "ওন (কোরিয়ার মুদ্রা)",
+     "pos": "noun",
+     "example": {
+      "target": "이거 오천 원이에요.",
+      "roman": "igeo ocheon wonieyo.",
+      "bn": "এটা পাঁচ হাজার ওন।"
+     }
+    },
+    {
+     "target": "얼마예요",
+     "roman": "eolmayeyo",
+     "bn": "দাম কত?",
+     "pos": "phrase",
+     "example": {
+      "target": "이 장갑 얼마예요?",
+      "roman": "i janggap eolmayeyo?",
+      "bn": "এই গ্লাভসের দাম কত?"
+     }
+    },
+    {
+     "target": "돈",
+     "roman": "don",
+     "bn": "টাকা, পয়সা",
+     "pos": "noun",
+     "example": {
+      "target": "돈을 집에 보내요.",
+      "roman": "doneul jibe bonaeyo.",
+      "bn": "টাকা বাড়িতে পাঠাই।"
+     }
+    },
+    {
+     "target": "비싸요",
+     "roman": "bissayo",
+     "bn": "দামি",
+     "pos": "adjective",
+     "example": {
+      "target": "과일이 너무 비싸요.",
+      "roman": "gwairi neomu bissayo.",
+      "bn": "ফল খুব দামি।"
+     }
+    },
+    {
+     "target": "싸요",
+     "roman": "ssayo",
+     "bn": "সস্তা",
+     "pos": "adjective",
+     "example": {
+      "target": "시장 채소가 싸요.",
+      "roman": "sijang chaesoga ssayo.",
+      "bn": "বাজারের সবজি সস্তা।"
+     }
+    },
+    {
+     "target": "가게",
+     "roman": "gage",
+     "bn": "দোকান",
+     "pos": "noun",
+     "example": {
+      "target": "가게가 몇 시에 열어요?",
+      "roman": "gagega myeot sie yeoreoyo?",
+      "bn": "দোকান কয়টায় খোলে?"
+     }
+    },
+    {
+     "target": "카드",
+     "roman": "kadeu",
+     "bn": "কার্ড (ব্যাংক)",
+     "pos": "noun",
+     "example": {
+      "target": "카드로 계산해도 돼요?",
+      "roman": "kadeuro gyesanhaedo dwaeyo?",
+      "bn": "কার্ডে বিল দেওয়া যাবে?"
+     }
+    },
+    {
+     "target": "현금",
+     "roman": "hyeongeum",
+     "bn": "নগদ টাকা",
+     "pos": "noun",
+     "example": {
+      "target": "현금만 받아요.",
+      "roman": "hyeongeumman badayo.",
+      "bn": "শুধু নগদ নেয়।"
+     }
+    },
+    {
+     "target": "영수증",
+     "roman": "yeongsujeung",
+     "bn": "রসিদ",
+     "pos": "noun",
+     "example": {
+      "target": "영수증 주세요.",
+      "roman": "yeongsujeung juseyo.",
+      "bn": "রসিদ দিন।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N 주세요",
+     "explain_bn": "কিছু চাইতে: জিনিস + 주세요 = '… দিন'। সংখ্যা দিলে: 라면 두 개 주세요।",
+     "examples": [
+      {
+       "target": "물 주세요.",
+       "roman": "mul juseyo.",
+       "bn": "পানি দিন।"
+      },
+      {
+       "target": "이거 주세요.",
+       "roman": "igeo juseyo.",
+       "bn": "এটা দিন।"
+      }
+     ]
+    },
+    {
+     "pattern": "이거 / 그거 / 저거",
+     "explain_bn": "이거 = এটা (আমার কাছে), 그거 = ওটা (আপনার কাছে), 저거 = ওই যে (দুজনের থেকেই দূরে)।",
+     "examples": [
+      {
+       "target": "저거 얼마예요?",
+       "roman": "jeogeo eolmayeyo?",
+       "bn": "ওই যে ওটার দাম কত?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "ক্রেতা"
+        },
+        "B": {
+         "gender": "F",
+         "role": "দোকানদার"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "이 양말 얼마예요?"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "삼천 원이에요."
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "두 개 주세요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ক্রেতা মোট কত দেবে?",
+      "options": [
+       "육천 원",
+       "삼천 원",
+       "오천 원",
+       "구천 원"
+      ],
+      "answer": "A",
+      "explain_bn": "এক জোড়া মোজা ৩,০০০ ওন, দুটো চাইল → ৬,০০০ ওন (육천 원)।",
+      "skill": "number",
+      "id": "ko-w02-l2-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "[편의점] 컵라면 1,500원 / 생수 800원 / 빵 2,000원",
+      "prompt_bn": "পানি আর রুটি একসাথে কত?",
+      "options": [
+       "이천 원",
+       "이천팔백 원",
+       "삼천오백 원",
+       "천오백 원"
+      ],
+      "answer": "B",
+      "explain_bn": "생수 ৮০০ + 빵 ২,০০০ = ২,৮০০ ওন (이천팔백 원)।",
+      "skill": "info_search",
+      "id": "ko-w02-l2-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "দোকানে কী বলবেন লিখুন: 'এটার দাম কত? দুটো দিন।'",
+      "model": {
+       "target": "이거 얼마예요? 두 개 주세요.",
+       "roman": "igeo eolmayeyo? du gae juseyo.",
+       "bn": "এটার দাম কত? দুটো দিন।"
+      },
+      "check": "ai",
+      "id": "ko-w02-l2-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "দোকানদারকে জিজ্ঞেস করুন কার্ডে দেওয়া যায় কি না, আর রসিদ চান।",
+      "model": {
+       "target": "카드로 계산해도 돼요? 영수증도 주세요.",
+       "roman": "kadeuro gyesanhaedo dwaeyo? yeongsujeungdo juseyo.",
+       "bn": "কার্ডে দিতে পারি? রসিদও দিন।"
+      },
+      "id": "ko-w02-l2-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w02-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Native Korean numbers and counters",
+    "bn": "খাঁটি কোরিয়ান সংখ্যা ও গণনা-শব্দ"
+   },
+   "goal_bn": "하나–열 আর 개/명/병/장 দিয়ে জিনিস ও মানুষ গোনা।",
+   "vocab": [
+    {
+     "target": "하나",
+     "roman": "hana",
+     "bn": "এক (খাঁটি কোরিয়ান)",
+     "pos": "number",
+     "example": {
+      "target": "질문이 하나 있어요.",
+      "roman": "jilmuni hana isseoyo.",
+      "bn": "একটা প্রশ্ন আছে।"
+     }
+    },
+    {
+     "target": "둘",
+     "roman": "dul",
+     "bn": "দুই",
+     "pos": "number",
+     "example": {
+      "target": "우리 팀은 둘이에요.",
+      "roman": "uri timeun durieyo.",
+      "bn": "আমাদের দলে দুজন।"
+     }
+    },
+    {
+     "target": "셋",
+     "roman": "set",
+     "bn": "তিন",
+     "pos": "number",
+     "example": {
+      "target": "하나, 둘, 셋! 같이 들어요.",
+      "roman": "hana, dul, set! gachi deureoyo.",
+      "bn": "এক, দুই, তিন! একসাথে তুলি।"
+     }
+    },
+    {
+     "target": "다섯",
+     "roman": "daseot",
+     "bn": "পাঁচ",
+     "pos": "number",
+     "example": {
+      "target": "다섯 시에 끝나요.",
+      "roman": "daseot sie kkeunnayo.",
+      "bn": "পাঁচটায় শেষ হয়।"
+     }
+    },
+    {
+     "target": "열",
+     "roman": "yeol",
+     "bn": "দশ",
+     "pos": "number",
+     "example": {
+      "target": "상자 열 개를 옮겨요.",
+      "roman": "sangja yeol gaereul omgyeoyo.",
+      "bn": "দশটা বাক্স সরাই।"
+     }
+    },
+    {
+     "target": "개",
+     "roman": "gae",
+     "bn": "টা/টি (জিনিস গোনা)",
+     "pos": "counter",
+     "example": {
+      "target": "사과 세 개 주세요.",
+      "roman": "sagwa se gae juseyo.",
+      "bn": "তিনটা আপেল দিন।"
+     }
+    },
+    {
+     "target": "명",
+     "roman": "myeong",
+     "bn": "জন (মানুষ গোনা)",
+     "pos": "counter",
+     "example": {
+      "target": "외국인이 다섯 명 있어요.",
+      "roman": "oegugini daseot myeong isseoyo.",
+      "bn": "পাঁচজন বিদেশি আছে।"
+     }
+    },
+    {
+     "target": "병",
+     "roman": "byeong",
+     "bn": "বোতল",
+     "pos": "counter",
+     "example": {
+      "target": "물 두 병 사요.",
+      "roman": "mul du byeong sayo.",
+      "bn": "দুই বোতল পানি কিনি।"
+     }
+    },
+    {
+     "target": "장",
+     "roman": "jang",
+     "bn": "খানা (কাগজ, কার্ড গোনা)",
+     "pos": "counter",
+     "example": {
+      "target": "사진 두 장이 필요해요.",
+      "roman": "sajin du jangi piryohaeyo.",
+      "bn": "দুটো ছবি লাগবে।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "সংখ্যা + গণনা-শব্দ",
+     "explain_bn": "জিনিস/মানুষ গুনতে খাঁটি কোরিয়ান সংখ্যা + counter। কাউন্টারের আগে রূপ বদলায়: 하나→한, 둘→두, 셋→세, 넷→네, 스물→스무। যেমন 한 개, 두 명, 세 병।",
+     "examples": [
+      {
+       "target": "한 명",
+       "roman": "han myeong",
+       "bn": "একজন"
+      },
+      {
+       "target": "네 개",
+       "roman": "ne gae",
+       "bn": "চারটা"
+      }
+     ]
+    },
+    {
+     "pattern": "N이/가 몇 개예요?",
+     "explain_bn": "'কয়টা?' = 몇 개, 'কয়জন?' = 몇 명। উত্তরে সংখ্যা + counter + 예요/이에요।",
+     "examples": [
+      {
+       "target": "사람이 몇 명이에요? — 여섯 명이에요.",
+       "roman": "sarami myeot myeongieyo? — yeoseot myeongieyo.",
+       "bn": "কয়জন লোক? — ছয়জন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "সুপারভাইজার"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "장갑 세 개하고 마스크 두 개 가져오세요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "সুপারভাইজার কয়টা গ্লাভস চাইলেন?",
+      "options": [
+       "한 개",
+       "두 개",
+       "세 개",
+       "네 개"
+      ],
+      "answer": "C",
+      "explain_bn": "장갑 세 개 = তিনটা গ্লাভস; 마스크 두 개 = দুটো মাস্ক।",
+      "skill": "number",
+      "id": "ko-w02-l3-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "우리 방에는 침대가 네 개 있어요. 사람은 세 명이에요.",
+      "prompt_bn": "রুমে কতজন মানুষ থাকে?",
+      "options": [
+       "দুজন",
+       "চারজন",
+       "পাঁচজন",
+       "তিনজন"
+      ],
+      "answer": "D",
+      "explain_bn": "세 명 = তিনজন; 침대 네 개 = চারটা খাট।",
+      "skill": "number",
+      "id": "ko-w02-l3-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "লিখুন: 'দুই বোতল পানি আর একটা রুটি দিন।'",
+      "model": {
+       "target": "물 두 병하고 빵 한 개 주세요.",
+       "roman": "mul du byeonghago ppang han gae juseyo.",
+       "bn": "দুই বোতল পানি আর একটা রুটি দিন।"
+      },
+      "check": "ai",
+      "id": "ko-w02-l3-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "আপনার রুমে কয়জন থাকে আর কয়টা খাট আছে বলুন।",
+      "model": {
+       "target": "방에 사람이 두 명 있어요. 침대도 두 개 있어요.",
+       "roman": "bange sarami du myeong isseoyo. chimdaedo du gae isseoyo.",
+       "bn": "রুমে দুজন মানুষ। খাটও দুটো।"
+      },
+      "id": "ko-w02-l3-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w02-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "Telling the time",
+    "bn": "সময় বলা"
+   },
+   "goal_bn": "কাজ শুরু, বিরতি, ছুটির সময় বলা ও শোনা।",
+   "vocab": [
+    {
+     "target": "시",
+     "roman": "si",
+     "bn": "টা/ঘটিকা (ঘণ্টা)",
+     "pos": "counter",
+     "example": {
+      "target": "여덟 시에 시작해요.",
+      "roman": "yeodeol sie sijakaeyo.",
+      "bn": "আটটায় শুরু হয়।"
+     }
+    },
+    {
+     "target": "분",
+     "roman": "bun",
+     "bn": "মিনিট",
+     "pos": "counter",
+     "example": {
+      "target": "삼십 분 쉬어요.",
+      "roman": "samsip bun swieoyo.",
+      "bn": "৩০ মিনিট বিশ্রাম।"
+     }
+    },
+    {
+     "target": "반",
+     "roman": "ban",
+     "bn": "সাড়ে (আধা)",
+     "pos": "noun",
+     "example": {
+      "target": "한 시 반에 만나요.",
+      "roman": "han si bane mannayo.",
+      "bn": "দেড়টায় দেখা হবে।"
+     }
+    },
+    {
+     "target": "오전",
+     "roman": "ojeon",
+     "bn": "সকাল / দুপুর ১২টার আগে (AM)",
+     "pos": "noun",
+     "example": {
+      "target": "오전에 회의가 있어요.",
+      "roman": "ojeone hoeuiga isseoyo.",
+      "bn": "সকালে মিটিং আছে।"
+     }
+    },
+    {
+     "target": "오후",
+     "roman": "ohu",
+     "bn": "দুপুরের পরে (PM)",
+     "pos": "noun",
+     "example": {
+      "target": "오후 여섯 시에 퇴근해요.",
+      "roman": "ohu yeoseot sie toegeunhaeyo.",
+      "bn": "সন্ধ্যা ৬টায় ছুটি।"
+     }
+    },
+    {
+     "target": "지금",
+     "roman": "jigeum",
+     "bn": "এখন",
+     "pos": "adverb",
+     "example": {
+      "target": "지금 몇 시예요?",
+      "roman": "jigeum myeot siyeyo?",
+      "bn": "এখন কয়টা বাজে?"
+     }
+    },
+    {
+     "target": "점심",
+     "roman": "jeomsim",
+     "bn": "দুপুর; দুপুরের খাবার",
+     "pos": "noun",
+     "example": {
+      "target": "점심시간은 열두 시예요.",
+      "roman": "jeomsimsiganeun yeoldu siyeyo.",
+      "bn": "লাঞ্চ ১২টায়।"
+     }
+    },
+    {
+     "target": "저녁",
+     "roman": "jeonyeok",
+     "bn": "সন্ধ্যা; রাতের খাবার",
+     "pos": "noun",
+     "example": {
+      "target": "저녁 먹었어요?",
+      "roman": "jeonyeok meogeosseoyo?",
+      "bn": "রাতের খাবার খেয়েছেন?"
+     }
+    },
+    {
+     "target": "야간",
+     "roman": "yagan",
+     "bn": "রাতের শিফট",
+     "pos": "noun",
+     "example": {
+      "target": "다음 주는 야간 근무예요.",
+      "roman": "daeum juneun yagan geunmuyeyo.",
+      "bn": "পরের সপ্তাহে নাইট ডিউটি।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "ঘণ্টা খাঁটি, মিনিট চীনা",
+     "explain_bn": "সময়ে ঘণ্টা খাঁটি কোরিয়ান (한 시, 두 시, 세 시…), মিনিট চীনা-কোরিয়ান (십 분, 이십 분…)। 3:20 = 세 시 이십 분।",
+     "examples": [
+      {
+       "target": "일곱 시 사십 분",
+       "roman": "ilgop si sasip bun",
+       "bn": "৭:৪০"
+      },
+      {
+       "target": "열 시 반",
+       "roman": "yeol si ban",
+       "bn": "১০:৩০"
+      }
+     ]
+    },
+    {
+     "pattern": "সময় + 에",
+     "explain_bn": "'… টায়' বোঝাতে সময়ের পরে 에: 아홉 시에 와요 = নয়টায় আসি। 지금, 오늘-এর পরে 에 লাগে না।",
+     "examples": [
+      {
+       "target": "내일 아침 일곱 시에 출근해요.",
+       "roman": "naeil achim ilgop sie chulgeunhaeyo.",
+       "bn": "কাল সকাল সাতটায় কাজে যাই।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "অফিস কর্মী"
+        },
+        "B": {
+         "gender": "M",
+         "role": "কর্মী"
+        }
+       },
+       "turns": [
+        {
+         "spk": "B",
+         "text": "점심시간이 몇 시예요?"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "A",
+         "text": "열두 시 반이에요. 한 시 반까지 쉬어요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "লাঞ্চ বিরতি কখন শুরু?",
+      "options": [
+       "১২:৩০",
+       "১২:০০",
+       "১:০০",
+       "১:৩০"
+      ],
+      "answer": "A",
+      "explain_bn": "열두 시 반 = ১২:৩০; 한 시 반까지 = দেড়টা পর্যন্ত।",
+      "skill": "time",
+      "id": "ko-w02-l4-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "[근무 시간] 주간: 오전 8:00 – 오후 5:00 / 야간: 오후 8:00 – 오전 5:00",
+      "prompt_bn": "রাতের শিফট কখন শেষ হয়?",
+      "options": [
+       "오후 다섯 시",
+       "오전 다섯 시",
+       "오후 여덟 시",
+       "오전 여덟 시"
+      ],
+      "answer": "B",
+      "explain_bn": "야간 = রাতের শিফট, শেষ 오전 5:00 = ভোর ৫টা।",
+      "skill": "info_search",
+      "id": "ko-w02-l4-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "লিখুন: 'আমি সকাল সাড়ে আটটায় কাজ শুরু করি।'",
+      "model": {
+       "target": "저는 오전 여덟 시 반에 일을 시작해요.",
+       "roman": "jeoneun ojeon yeodeol si bane ireul sijakaeyo.",
+       "bn": "আমি সকাল সাড়ে আটটায় কাজ শুরু করি।"
+      },
+      "check": "ai",
+      "id": "ko-w02-l4-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "আপনার রোজকার কাজের সময় বলুন: কখন শুরু, কখন শেষ।",
+      "model": {
+       "target": "아침 여덟 시에 시작해요. 저녁 다섯 시에 끝나요.",
+       "roman": "achim yeodeol sie sijakaeyo. jeonyeok daseot sie kkeunnayo.",
+       "bn": "সকাল আটটায় শুরু। বিকেল পাঁচটায় শেষ।"
+      },
+      "id": "ko-w02-l4-s1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ko-w02-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "There is / there isn't: 있어요 / 없어요",
+    "bn": "আছে / নেই: 있어요 / 없어요"
+   },
+   "goal_bn": "জিনিস কোথায় আছে বলা, কিছু না থাকলে জানানো।",
+   "vocab": [
+    {
+     "target": "물",
+     "roman": "mul",
+     "bn": "পানি",
+     "pos": "noun",
+     "example": {
+      "target": "정수기에 물이 없어요.",
+      "roman": "jeongsugie muri eopseoyo.",
+      "bn": "পানির মেশিনে পানি নেই।"
+     }
+    },
+    {
+     "target": "화장실",
+     "roman": "hwajangsil",
+     "bn": "টয়লেট",
+     "pos": "noun",
+     "example": {
+      "target": "화장실이 어디에 있어요?",
+      "roman": "hwajangsiri eodie isseoyo?",
+      "bn": "টয়লেট কোথায়?"
+     }
+    },
+    {
+     "target": "방",
+     "roman": "bang",
+     "bn": "রুম, ঘর",
+     "pos": "noun",
+     "example": {
+      "target": "방이 따뜻해요.",
+      "roman": "bangi ttatteutaeyo.",
+      "bn": "রুমটা গরম/আরামদায়ক।"
+     }
+    },
+    {
+     "target": "침대",
+     "roman": "chimdae",
+     "bn": "খাট",
+     "pos": "noun",
+     "example": {
+      "target": "침대 밑에 가방이 있어요.",
+      "roman": "chimdae mite gabangi isseoyo.",
+      "bn": "খাটের নিচে ব্যাগ আছে।"
+     }
+    },
+    {
+     "target": "냉장고",
+     "roman": "naengjanggo",
+     "bn": "ফ্রিজ",
+     "pos": "noun",
+     "example": {
+      "target": "냉장고 안에 김치가 있어요.",
+      "roman": "naengjanggo ane gimchiga isseoyo.",
+      "bn": "ফ্রিজের ভিতরে কিমচি আছে।"
+     }
+    },
+    {
+     "target": "시간",
+     "roman": "sigan",
+     "bn": "সময়",
+     "pos": "noun",
+     "example": {
+      "target": "지금 시간 있어요?",
+      "roman": "jigeum sigan isseoyo?",
+      "bn": "এখন সময় আছে?"
+     }
+    },
+    {
+     "target": "휴대폰",
+     "roman": "hyudaepon",
+     "bn": "মোবাইল ফোন",
+     "pos": "noun",
+     "example": {
+      "target": "휴대폰이 책상 위에 있어요.",
+      "roman": "hyudaeponi chaeksang wie isseoyo.",
+      "bn": "ফোন টেবিলের ওপর।"
+     }
+    },
+    {
+     "target": "여권",
+     "roman": "yeogwon",
+     "bn": "পাসপোর্ট",
+     "pos": "noun",
+     "example": {
+      "target": "여권은 사무실에 있어요.",
+      "roman": "yeogwoneun samusire isseoyo.",
+      "bn": "পাসপোর্ট অফিসে আছে।"
+     }
+    },
+    {
+     "target": "옆",
+     "roman": "yeop",
+     "bn": "পাশে",
+     "pos": "noun",
+     "example": {
+      "target": "식당 옆에 편의점이 있어요.",
+      "roman": "sikdang yeope pyeonuijeomi isseoyo.",
+      "bn": "ক্যান্টিনের পাশে কনভিনিয়েন্স স্টোর।"
+     }
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "N이/가 있어요 / 없어요",
+     "explain_bn": "'N আছে / নেই'। 받침 থাকলে 이, না থাকলে 가: 물이 있어요, 시계가 없어요। প্রশ্ন: … 있어요?",
+     "examples": [
+      {
+       "target": "돈이 없어요.",
+       "roman": "doni eopseoyo.",
+       "bn": "টাকা নেই।"
+      },
+      {
+       "target": "질문 있어요?",
+       "roman": "jilmun isseoyo?",
+       "bn": "প্রশ্ন আছে?"
+      }
+     ]
+    },
+    {
+     "pattern": "জায়গা + 에 있어요",
+     "explain_bn": "কোথায় আছে: জায়গা + 에 있어요। অবস্থান শব্দ: 위 (ওপর), 밑/아래 (নিচ), 안 (ভিতর), 앞 (সামনে), 뒤 (পিছনে), 옆 (পাশে)।",
+     "examples": [
+      {
+       "target": "열쇠는 문 앞에 있어요.",
+       "roman": "yeolsoeneun mun ape isseoyo.",
+       "bn": "চাবি দরজার সামনে।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "কর্মী"
+        },
+        "B": {
+         "gender": "F",
+         "role": "রুমমেট"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "제 여권 어디에 있어요?"
+        },
+        {
+         "pause": 0.6
+        },
+        {
+         "spk": "B",
+         "text": "가방 안에 없어요. 침대 위에 있어요."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "পাসপোর্ট কোথায়?",
+      "options": [
+       "ব্যাগের ভিতরে",
+       "খাটের নিচে",
+       "খাটের ওপরে",
+       "অফিসে"
+      ],
+      "answer": "C",
+      "explain_bn": "침대 위에 있어요 = খাটের ওপর আছে। 가방 안에 없어요 = ব্যাগে নেই।",
+      "skill": "place",
+      "id": "ko-w02-l5-l1"
+     }
+    ],
+    "reading": [
+     {
+      "passage": "기숙사 1층에는 식당이 있어요. 세탁실은 지하에 있어요. 2층에는 방이 있어요.",
+      "prompt_bn": "কাপড় ধোয়ার রুম কোথায়?",
+      "options": [
+       "এক তলায়",
+       "দোতলায়",
+       "ছাদে",
+       "মাটির নিচের তলায়"
+      ],
+      "answer": "D",
+      "explain_bn": "세탁실 = লন্ড্রি রুম; 지하 = মাটির নিচের তলা (বেসমেন্ট)।",
+      "skill": "place",
+      "id": "ko-w02-l5-r1"
+     }
+    ],
+    "writing": [
+     {
+      "prompt_bn": "লিখুন: 'আমার রুমে ফ্রিজ নেই। খাট আছে।'",
+      "model": {
+       "target": "제 방에 냉장고가 없어요. 침대는 있어요.",
+       "roman": "je bange naengjanggoga eopseoyo. chimdaeneun isseoyo.",
+       "bn": "আমার রুমে ফ্রিজ নেই। খাট আছে।"
+      },
+      "check": "ai",
+      "id": "ko-w02-l5-w1"
+     }
+    ],
+    "speaking": [
+     {
+      "prompt_bn": "নতুন কর্মীকে বলুন টয়লেট কোথায়: ক্যান্টিনের পাশে।",
+      "model": {
+       "target": "화장실은 식당 옆에 있어요.",
+       "roman": "hwajangsireun sikdang yeope isseoyo.",
+       "bn": "টয়লেট ক্যান্টিনের পাশে।"
+      },
+      "id": "ko-w02-l5-s1"
+     }
+    ]
+   }
+  }
+ ]
+}

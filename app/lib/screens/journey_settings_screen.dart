@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/password_field.dart';
 import '../widgets/journey_api.dart';
+import '../widgets/journey_ride.dart' show jDigits; // qjourney
 import '../widgets/subs_common.dart' show fmtInt;
 import '../services/action_feedback.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -217,7 +219,7 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
         Text(t.wellnessSection,
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         Text(t.wellnessIntro,
-            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
         const SizedBox(height: Gap.xs),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
@@ -234,7 +236,7 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
               padding: const EdgeInsets.only(bottom: Gap.xs),
               child: Text(t.j100WellnessAsk,
                   style: AType.bodyMedium.copyWith(
-                      color: Theme.of(context).colorScheme.error,
+                      color: DsTokens.of(context).dangerInk,
                       fontWeight: FontWeight.w600)),
             ),
           FilledButton.icon(
@@ -258,19 +260,19 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
           ),
           ListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(t.wellnessPeriod(_periodHours))),
+              title: Text(t.wellnessPeriod(jDigits(context, _periodHours)))), // qjourney
           Slider(
               value: _periodHours.toDouble(),
               min: 2,
               max: 48,
               divisions: 23,
-              label: '$_periodHours',
+              label: jDigits(context, _periodHours), // qjourney: Bangla digits
               onChanged: (v) => setState(() => _periodHours = v.round()),
               onChangeEnd: (_) => _saveWellness()),
           ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(t.wellnessQuietHours),
-            subtitle: Text('$_quietStart – $_quietEnd'),
+            subtitle: Text(jDigits(context, '$_quietStart – $_quietEnd')), // qjourney
             trailing: TextButton(
               onPressed: () async {
                 final s = await _pickTime(_quietStart);
@@ -296,7 +298,7 @@ class _JourneySettingsScreenState extends State<JourneySettingsScreen> {
             style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         Text(t.journeyPrivacyStatement,
-            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
       ]),
     );
   }

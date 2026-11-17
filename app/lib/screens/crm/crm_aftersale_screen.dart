@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_aftersale_api.dart';
 import '../../widgets/crm_aftersale_widgets.dart';
 import 'crm_common.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// AFTER-SALE hub (CRM_SPEC §7): four tabs — Collections, AMC/Renewals,
 /// Complaints, Upsell. All money is integer POISHA from the server (no float).
@@ -130,7 +132,7 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
       ),
     );
     if (ok != true) return;
-    final taka = double.tryParse(amtCtl.text.trim()) ?? 0;
+    final taka = parseNumInput(amtCtl.text.trim()) ?? 0;
     final poisha = (taka * 100).round();
     try {
       await CrmAfterSaleApi.of(context).recordCollection(
@@ -165,10 +167,9 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(children: [
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(children: [
               CrmProgressBar(
                 booked > 0 ? collected / booked : 0,
                 t.crmCollectedOfBooked(
@@ -181,7 +182,6 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
                 CrmMoneyRow(t.crmOverdue, bdtFromPoisha(overdue),
                     bold: true, valueColor: Theme.of(context).colorScheme.error),
             ]),
-          ),
         ),
         const SizedBox(height: Gap.sm),
         CrmSectionHeader(t.crmInstallments, icon: Icons.receipt_long_rounded),
@@ -195,14 +195,13 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
     final due = (inst['amount_poisha'] as num?) ?? 0;
     final collected = (inst['collected_poisha'] as num?) ?? 0;
     final done = status == 'collected' || status == 'overpaid';
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text('${t.crmInstallment} #${inst['seq']}',
-                    style: const TextStyle(fontWeight: FontWeight.w800))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             CrmStatusPill(_statusLabel(t, status),
                 tone: done
                     ? CrmStatusTone.success
@@ -223,7 +222,6 @@ class _CrmCollectionsTabState extends State<CrmCollectionsTab> {
             ),
           ],
         ]),
-      ),
     );
   }
 
@@ -304,14 +302,13 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
         : (state == 'due_soon' || state == 'due_today')
             ? CrmStatusTone.warning
             : CrmStatusTone.success;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text((amc['company'] ?? amc['title'] ?? '').toString(),
-                    style: const TextStyle(fontWeight: FontWeight.w800))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             CrmStatusPill(_stateLabel(t, state), tone: tone),
           ]),
           const SizedBox(height: Gap.xs),
@@ -321,7 +318,7 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
                 : (daysTo as num) >= 0
                     ? t.crmRenewalInDays(daysTo.toString())
                     : t.crmRenewalOverdueDays((-daysTo).toString()),
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted),
           ),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.xs, children: [
@@ -338,7 +335,6 @@ class _CrmAmcTabState extends State<CrmAmcTab> {
                   label: Text(t.crmRenew)),
           ]),
         ]),
-      ),
     );
   }
 
@@ -503,21 +499,20 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
     final state = (c['state'] ?? 'open').toString();
     final breached = c['sla_breached'] == true;
     final actions = _nextActions(state);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text((c['subject'] ?? '').toString(),
-                    style: const TextStyle(fontWeight: FontWeight.w800))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             CrmStatusPill(_stateLabel(t, state), tone: _stateTone(state)),
           ]),
           if ((c['details'] ?? '').toString().isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(c['details'].toString(),
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(
+                    color: Theme.of(context).colorScheme.ds.muted)),
           ],
           if (breached)
             Padding(
@@ -541,7 +536,6 @@ class _CrmComplaintsTabState extends State<CrmComplaintsTab> {
             ]),
           ],
         ]),
-      ),
     );
   }
 
@@ -694,7 +688,8 @@ class _CrmUpsellTabState extends State<CrmUpsellTab> {
   Widget _signalCard(AppLocalizations t, Map<String, dynamic> s) {
     final kind = (s['kind'] ?? '').toString();
     final isRenewal = kind == 'amc_renewal';
-    return Card(
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         leading: Icon(
             isRenewal ? Icons.autorenew_rounded : Icons.add_business_rounded,

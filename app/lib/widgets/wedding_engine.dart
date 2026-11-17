@@ -98,7 +98,7 @@ class WeddingEngine {
       frac = '';
     }
     if (whole.isEmpty) whole = '0';
-    frac = (frac + '00');
+    frac = (frac + '000'); // savesweep: '00' -> RangeError on whole amounts
     frac = frac.substring(0, 3);
     final taka = int.tryParse(whole);
     final milli = int.tryParse(frac);

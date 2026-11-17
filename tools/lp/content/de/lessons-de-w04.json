@@ -1,0 +1,983 @@
+{
+ "format": "assisto.lp.lessons/1",
+ "lang": "de",
+ "week": 4,
+ "version": 1,
+ "status": "draft",
+ "tracks": [
+  "de_a1"
+ ],
+ "title": {
+  "en": "Week 4: Modal verbs, work, transport, health, messages",
+  "bn": "সপ্তাহ ৪: মডাল ক্রিয়া, কাজ, যাতায়াত, স্বাস্থ্য, মেসেজ"
+ },
+ "practice_label": {
+  "en": "Practice lesson by Assisto — not official exam material or result.",
+  "bn": "Assisto-র নিজের লেখা অনুশীলন পাঠ — এটি অফিসিয়াল পরীক্ষার প্রশ্ন বা ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "public Start Deutsch 1 / A1 exam format description"
+ },
+ "lessons": [
+  {
+   "id": "de-w04-l1",
+   "day": 1,
+   "minutes": 20,
+   "title": {
+    "en": "können and möchten",
+    "bn": "können (পারা) আর möchten (চাওয়া)"
+   },
+   "goal_bn": "কী পারেন আর কী চান — মডাল ক্রিয়া দিয়ে বলবেন; মূল ক্রিয়া বাক্যের শেষে বসাবেন।",
+   "vocab": [
+    {
+     "target": "können",
+     "bn": "পারা",
+     "pos": "modal verb",
+     "example": {
+      "target": "Ich kann gut kochen und ein bisschen nähen.",
+      "bn": "আমি ভালো রাঁধতে পারি আর একটু সেলাই পারি।"
+     },
+     "say_bn": "ক্যোনেন"
+    },
+    {
+     "target": "möchten",
+     "bn": "চাওয়া (ভদ্রভাবে)",
+     "pos": "modal verb",
+     "example": {
+      "target": "Wir möchten im nächsten Jahr eine Ausbildung machen.",
+      "bn": "আমরা আগামী বছর একটা আউসবিল্ডুং (বৃত্তিমূলক প্রশিক্ষণ) করতে চাই।"
+     },
+     "say_bn": "ম্যোখটেন"
+    },
+    {
+     "target": "Auto fahren",
+     "bn": "গাড়ি চালানো",
+     "pos": "phrase",
+     "example": {
+      "target": "Kannst du Auto fahren? — Ja, ich habe einen Führerschein.",
+      "bn": "তুমি গাড়ি চালাতে পারো? — হ্যাঁ, আমার লাইসেন্স আছে।"
+     },
+     "say_bn": "আউটো ফারেন"
+    },
+    {
+     "target": "schwimmen",
+     "bn": "সাঁতার কাটা",
+     "pos": "verb",
+     "example": {
+      "target": "Meine Kinder können noch nicht schwimmen.",
+      "bn": "আমার বাচ্চারা এখনো সাঁতার পারে না।"
+     },
+     "say_bn": "শ্‌ভিমেন"
+    },
+    {
+     "target": "helfen",
+     "bn": "সাহায্য করা",
+     "pos": "verb",
+     "example": {
+      "target": "Können Sie mir bitte helfen? Ich finde den Eingang nicht.",
+      "bn": "আমাকে একটু সাহায্য করবেন? প্রবেশপথটা খুঁজে পাচ্ছি না।"
+     },
+     "say_bn": "হেলফেন"
+    },
+    {
+     "target": "die Ausbildung",
+     "bn": "বৃত্তিমূলক প্রশিক্ষণ (জার্মানির কাজ-শেখা পথ)",
+     "pos": "noun",
+     "example": {
+      "target": "Die Ausbildung zum Koch dauert drei Jahre.",
+      "bn": "রাঁধুনির আউসবিল্ডুং তিন বছর।"
+     },
+     "say_bn": "ডি আউসবিল্ডুং"
+    },
+    {
+     "target": "ein bisschen",
+     "bn": "একটু",
+     "pos": "phrase",
+     "example": {
+      "target": "Ich verstehe schon ein bisschen Deutsch.",
+      "bn": "আমি এখন একটু জার্মান বুঝি।"
+     },
+     "say_bn": "আইন বিসখেন"
+    },
+    {
+     "target": "gut / nicht so gut",
+     "bn": "ভালো / অত ভালো না",
+     "pos": "adverb",
+     "example": {
+      "target": "Er kann gut rechnen, aber nicht so gut schreiben.",
+      "bn": "সে ভালো হিসাব করতে পারে, কিন্তু লেখায় অত ভালো না।"
+     },
+     "say_bn": "গুট"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "Modalverb (Position 2) … Infinitiv (Ende)",
+     "explain_bn": "মডাল ক্রিয়া দ্বিতীয় স্থানে বসে আর তার রূপ বদলায়; মূল ক্রিয়া মূল রূপে (Infinitiv) একদম শেষে যায়: 'Ich kann Deutsch sprechen.' 'Möchten Sie einen Tee trinken?' — যেন একটা 'ফ্রেম': kann … sprechen।",
+     "examples": [
+      {
+       "target": "Sie kann am Wochenende arbeiten.",
+       "bn": "সে সপ্তাহান্তে কাজ করতে পারে।"
+      },
+      {
+       "target": "Ich möchte ein Konto eröffnen.",
+       "bn": "আমি একটা ব্যাংক অ্যাকাউন্ট খুলতে চাই।"
+      }
+     ]
+    },
+    {
+     "pattern": "ich kann · du kannst · er kann · wir können · Sie können",
+     "explain_bn": "können-এ ich আর er রূপে কোনো শেষাংশ নেই: ich kann, er kann। möchten: ich möchte, du möchtest, er möchte, wir möchten।",
+     "examples": [
+      {
+       "target": "Kann er morgen kommen? — Nein, aber seine Frau kann kommen.",
+       "bn": "সে কি কাল আসতে পারবে? — না, কিন্তু তার স্ত্রী আসতে পারবেন।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w04-l1-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "employer"
+        },
+        "B": {
+         "gender": "F",
+         "role": "job applicant"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Was können Sie gut?"
+        },
+        {
+         "spk": "B",
+         "text": "Ich kann gut mit Kindern und alten Menschen arbeiten. Und ich kann kochen."
+        },
+        {
+         "spk": "A",
+         "text": "Können Sie auch Auto fahren?"
+        },
+        {
+         "spk": "B",
+         "text": "Nein, leider nicht. Aber ich möchte bald den Führerschein machen."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "আবেদনকারী কী পারেন না?",
+      "options": [
+       "রান্না করতে",
+       "গাড়ি চালাতে",
+       "শিশুদের সাথে কাজ করতে",
+       "বয়স্কদের সাথে কাজ করতে"
+      ],
+      "answer": "B",
+      "explain_bn": "'Können Sie auch Auto fahren? — Nein, leider nicht.' — গাড়ি চালাতে পারেন না, তবে শিগগিরই লাইসেন্স নিতে চান।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w04-l1-r1",
+      "passage": "Wir suchen eine Küchenhilfe (m/w/d) für unser Restaurant in Leipzig. Sie können schnell und sauber arbeiten und sprechen ein bisschen Deutsch. Arbeitszeit: Dienstag bis Sonntag, 16 bis 23 Uhr.",
+      "prompt_bn": "এই কাজের জন্য কী দরকার?",
+      "options": [
+       "ভালো ইংরেজি",
+       "গাড়ির লাইসেন্স",
+       "দ্রুত ও পরিষ্কারভাবে কাজ আর একটু জার্মান",
+       "সকালে কাজ করার সময়"
+      ],
+      "answer": "C",
+      "explain_bn": "'Sie können schnell und sauber arbeiten und sprechen ein bisschen Deutsch' — দ্রুত ও পরিষ্কার কাজ আর একটু জার্মান। কাজ বিকেল ৪টা থেকে রাত ১১টা।",
+      "skill": "workplace"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w04-l1-w1",
+      "prompt_bn": "নিজের সম্পর্কে ৪টি বাক্য লিখুন: দুটি কাজ যা আপনি পারেন, একটি যা পারেন না, আর একটি যা আপনি করতে চান।",
+      "model": {
+       "target": "Ich kann gut kochen. Ich kann auch schnell tippen. Ich kann nicht schwimmen. Ich möchte in Deutschland als Koch arbeiten.",
+       "bn": "আমি ভালো রাঁধতে পারি। দ্রুত টাইপও করতে পারি। সাঁতার পারি না। আমি জার্মানিতে রাঁধুনি হিসেবে কাজ করতে চাই।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w04-l1-s1",
+      "prompt_bn": "ইন্টারভিউতে প্রশ্ন: 'Was können Sie gut? Was möchten Sie in Deutschland machen?' — জোরে উত্তর দিন।",
+      "model": {
+       "target": "Ich kann gut mit Maschinen arbeiten. Ich möchte in Deutschland eine Ausbildung als Mechatroniker machen.",
+       "bn": "আমি ভালো মেশিন নিয়ে কাজ করতে পারি। আমি জার্মানিতে মেকাট্রনিক্স টেকনিশিয়ানের আউসবিল্ডুং করতে চাই।"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w04-l2",
+   "day": 2,
+   "minutes": 20,
+   "title": {
+    "en": "müssen at work",
+    "bn": "কাজের জায়গায় müssen (করতে হবে)"
+   },
+   "goal_bn": "কাজের নিয়ম আর দায়িত্ব বলবেন ও বুঝবেন — müssen দিয়ে কী করতেই হবে।",
+   "vocab": [
+    {
+     "target": "müssen",
+     "bn": "করতেই হবে / বাধ্য",
+     "pos": "modal verb",
+     "example": {
+      "target": "Wir müssen um sechs Uhr in der Halle sein.",
+      "bn": "আমাদের ছয়টায় হলে থাকতেই হবে।"
+     },
+     "say_bn": "মুসেন"
+    },
+    {
+     "target": "die Arbeit",
+     "bn": "কাজ",
+     "pos": "noun",
+     "example": {
+      "target": "Die Arbeit im Lager ist körperlich schwer.",
+      "bn": "গুদামের কাজ শারীরিকভাবে কঠিন।"
+     },
+     "say_bn": "ডি আরবাইট"
+    },
+    {
+     "target": "der Kollege / die Kollegin",
+     "bn": "সহকর্মী (পুরুষ / নারী)",
+     "pos": "noun",
+     "example": {
+      "target": "Mein Kollege zeigt mir die Maschine.",
+      "bn": "আমার সহকর্মী আমাকে মেশিনটা দেখাচ্ছেন।"
+     },
+     "say_bn": "কলেগে / কলেগিন"
+    },
+    {
+     "target": "pünktlich",
+     "bn": "সময়মতো",
+     "pos": "adjective",
+     "example": {
+      "target": "In Deutschland müssen Sie immer pünktlich sein.",
+      "bn": "জার্মানিতে সবসময় সময়মতো থাকতে হয়।"
+     },
+     "say_bn": "পুংক্টলিখ"
+    },
+    {
+     "target": "die Pause",
+     "bn": "বিরতি",
+     "pos": "noun",
+     "example": {
+      "target": "Um zwölf haben wir dreißig Minuten Pause.",
+      "bn": "বারোটায় আমাদের ত্রিশ মিনিট বিরতি।"
+     },
+     "say_bn": "ডি পাউজে"
+    },
+    {
+     "target": "die Schicht",
+     "bn": "শিফট",
+     "pos": "noun",
+     "example": {
+      "target": "Diese Woche habe ich die Frühschicht.",
+      "bn": "এই সপ্তাহে আমার সকালের শিফট।"
+     },
+     "say_bn": "ডি শিখট"
+    },
+    {
+     "target": "der Chef / die Chefin",
+     "bn": "বস (পুরুষ / নারী)",
+     "pos": "noun",
+     "example": {
+      "target": "Die Chefin möchte uns um drei sprechen.",
+      "bn": "বস (নারী) তিনটায় আমাদের সাথে কথা বলতে চান।"
+     },
+     "say_bn": "শেফ / শেফিন"
+    },
+    {
+     "target": "die Sicherheitsschuhe (Pl.)",
+     "bn": "নিরাপত্তা জুতা",
+     "pos": "noun",
+     "example": {
+      "target": "In der Werkstatt müssen alle Sicherheitsschuhe tragen.",
+      "bn": "ওয়ার্কশপে সবাইকে নিরাপত্তা জুতা পরতে হবে।"
+     },
+     "say_bn": "জিখারহাইটসশুয়ে"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "ich muss · du musst · er muss · wir müssen · Sie müssen",
+     "explain_bn": "müssen-ও মডাল: ich/er রূপে শেষাংশ নেই (ich muss)। মূল ক্রিয়া শেষে: 'Ich muss heute länger arbeiten.' 'nicht müssen' মানে 'করতে হবে না' (নিষেধ নয়!): 'Sie müssen nicht warten' = আপনাকে অপেক্ষা করতে হবে না।",
+     "examples": [
+      {
+       "target": "Du musst den Helm tragen.",
+       "bn": "তোমাকে হেলমেট পরতে হবে।"
+      },
+      {
+       "target": "Am Sonntag muss ich nicht arbeiten.",
+       "bn": "রবিবারে আমাকে কাজ করতে হয় না।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w04-l2-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "M",
+         "role": "shift leader"
+        },
+        "B": {
+         "gender": "F",
+         "role": "new employee"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Willkommen! Hier im Lager müssen Sie immer Sicherheitsschuhe und Handschuhe tragen."
+        },
+        {
+         "spk": "B",
+         "text": "Muss ich auch einen Helm tragen?"
+        },
+        {
+         "spk": "A",
+         "text": "Nein, einen Helm brauchen Sie hier nicht. Aber die Weste ist Pflicht."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "গুদামে কোনটা পরতে হবে না?",
+      "options": [
+       "Sicherheitsschuhe",
+       "Handschuhe",
+       "Helm",
+       "Weste"
+      ],
+      "answer": "C",
+      "explain_bn": "'einen Helm brauchen Sie hier nicht' — হেলমেট লাগবে না। জুতা, গ্লাভস আর ভেস্ট বাধ্যতামূলক।",
+      "skill": "safety"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w04-l2-r1",
+      "passage": "Hinweis für alle Mitarbeiter: Ab Montag beginnt die Frühschicht schon um 5:30 Uhr. Bitte seien Sie pünktlich. Bei Krankheit müssen Sie bis 5 Uhr Ihre Schichtleitung anrufen.",
+      "prompt_bn": "অসুস্থ হলে কী করতে হবে?",
+      "options": [
+       "ভোর ৫টার মধ্যে শিফট লিডারকে ফোন করতে হবে",
+       "পরদিন ডাক্তারের কাগজ আনতে হবে",
+       "সাড়ে পাঁচটায় আসতে হবে",
+       "সোমবার ইমেল লিখতে হবে"
+      ],
+      "answer": "A",
+      "explain_bn": "'Bei Krankheit müssen Sie bis 5 Uhr Ihre Schichtleitung anrufen' — অসুস্থ হলে ৫টার মধ্যে শিফট লিডারকে ফোন।",
+      "skill": "workplace"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w04-l2-w1",
+      "prompt_bn": "নতুন সহকর্মীর জন্য কাজের ৩টি নিয়ম লিখুন (müssen দিয়ে)।",
+      "model": {
+       "target": "Du musst um sieben Uhr hier sein. Du musst Handschuhe tragen. Du musst die Maschine nach der Arbeit sauber machen.",
+       "bn": "তোমাকে সাতটায় এখানে থাকতে হবে। গ্লাভস পরতে হবে। কাজের পর মেশিনটা পরিষ্কার করতে হবে।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w04-l2-s1",
+      "prompt_bn": "বসকে জোরে বলুন: আজ আপনাকে আগে যেতে হবে কারণ ডাক্তারের অ্যাপয়েন্টমেন্ট আছে; জিজ্ঞেস করুন এটা ঠিক আছে কি না।",
+      "model": {
+       "target": "Entschuldigung, ich muss heute um drei Uhr gehen. Ich habe einen Termin beim Arzt. Ist das in Ordnung?",
+       "bn": "মাফ করবেন, আজ আমাকে তিনটায় যেতে হবে। ডাক্তারের কাছে অ্যাপয়েন্টমেন্ট আছে। এটা কি ঠিক আছে?"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w04-l3",
+   "day": 3,
+   "minutes": 20,
+   "title": {
+    "en": "Directions and public transport",
+    "bn": "পথনির্দেশ আর গণপরিবহন"
+   },
+   "goal_bn": "রাস্তা জিজ্ঞেস করবেন, বাম-ডান-সোজা বুঝবেন, টিকিট কিনবেন আর ট্রেন বদলের ঘোষণা বুঝবেন।",
+   "vocab": [
+    {
+     "target": "der Bahnhof",
+     "bn": "রেলস্টেশন",
+     "pos": "noun",
+     "example": {
+      "target": "Der Hauptbahnhof ist zehn Minuten zu Fuß von hier.",
+      "bn": "প্রধান রেলস্টেশন এখান থেকে হেঁটে দশ মিনিট।"
+     },
+     "say_bn": "ডের বানহোফ"
+    },
+    {
+     "target": "die Haltestelle",
+     "bn": "বাস/ট্রাম স্টপ",
+     "pos": "noun",
+     "example": {
+      "target": "An der nächsten Haltestelle müssen Sie aussteigen.",
+      "bn": "পরের স্টপে আপনাকে নামতে হবে।"
+     },
+     "say_bn": "ডি হাল্টেশটেলে"
+    },
+    {
+     "target": "links / rechts",
+     "bn": "বামে / ডানে",
+     "pos": "adverb",
+     "example": {
+      "target": "Gehen Sie hier links und dann die zweite Straße rechts.",
+      "bn": "এখান থেকে বামে যান, তারপর দ্বিতীয় রাস্তা ডানে।"
+     },
+     "say_bn": "লিংক্স / রেখটস"
+    },
+    {
+     "target": "geradeaus",
+     "bn": "সোজা",
+     "pos": "adverb",
+     "example": {
+      "target": "Fahren Sie immer geradeaus bis zur Ampel.",
+      "bn": "সিগন্যাল পর্যন্ত সোজা চালিয়ে যান।"
+     },
+     "say_bn": "গেরাডেআউস"
+    },
+    {
+     "target": "die Fahrkarte",
+     "bn": "টিকিট",
+     "pos": "noun",
+     "example": {
+      "target": "Die Fahrkarte kaufen Sie am Automaten oder in der App.",
+      "bn": "টিকিট মেশিনে বা অ্যাপে কিনবেন।"
+     },
+     "say_bn": "ডি ফারকার্টে"
+    },
+    {
+     "target": "umsteigen",
+     "bn": "যানবাহন বদলানো",
+     "pos": "verb",
+     "example": {
+      "target": "In Hannover steigen wir in den ICE um.",
+      "bn": "হ্যানোভারে আমরা আইসিই ট্রেনে বদলাব।"
+     },
+     "say_bn": "উমশটাইগেন"
+    },
+    {
+     "target": "das Gleis",
+     "bn": "প্ল্যাটফর্ম (রেললাইন নম্বর)",
+     "pos": "noun",
+     "example": {
+      "target": "Der Zug nach Hamburg fährt heute von Gleis sieben.",
+      "bn": "হামবুর্গের ট্রেন আজ সাত নম্বর প্ল্যাটফর্ম থেকে ছাড়বে।"
+     },
+     "say_bn": "দাস গ্লাইস"
+    },
+    {
+     "target": "die Verspätung",
+     "bn": "দেরি (ট্রেন/বাস)",
+     "pos": "noun",
+     "example": {
+      "target": "Der Bus hat heute zwanzig Minuten Verspätung.",
+      "bn": "বাসটা আজ বিশ মিনিট দেরিতে।"
+     },
+     "say_bn": "ডি ফেয়ারশপেটুং"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "mit dem Bus · mit der U-Bahn · zu Fuß",
+     "explain_bn": "কোন যানবাহনে যাচ্ছেন বলতে 'mit' + dem (der/das শব্দে) বা der (die শব্দে): mit dem Bus, mit dem Auto, mit der S-Bahn, mit der Straßenbahn। হেঁটে = zu Fuß। এখন এগুলো বাক্যাংশ হিসেবে মুখস্থ করুন (Dativ পরে শিখবেন)।",
+     "examples": [
+      {
+       "target": "Ich fahre mit der U-Bahn zum Sprachkurs.",
+       "bn": "আমি ইউ-বানে ভাষা কোর্সে যাই।"
+      }
+     ]
+    },
+    {
+     "pattern": "Wie komme ich zum/zur …?",
+     "explain_bn": "রাস্তা জিজ্ঞেস করার সবচেয়ে কাজের বাক্য: 'Entschuldigung, wie komme ich zum Bahnhof?' (der/das → zum), 'zur Post' (die → zur)।",
+     "examples": [
+      {
+       "target": "Wie komme ich zur Ausländerbehörde?",
+       "bn": "বিদেশি নাগরিক অফিসে কীভাবে যাব?"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w04-l3-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "station announcer"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Achtung an Gleis drei: Der Regionalexpress nach Bremen hat heute etwa fünfzehn Minuten Verspätung. Reisende nach Oldenburg steigen bitte in Bremen in die Regionalbahn um."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "ব্রেমেনের ট্রেন সম্পর্কে কোনটি ঠিক?",
+      "options": [
+       "ট্রেনটি বাতিল",
+       "প্রায় ১৫ মিনিট দেরিতে",
+       "প্ল্যাটফর্ম ৫-এ এসেছে",
+       "সময়মতো ছাড়বে"
+      ],
+      "answer": "B",
+      "explain_bn": "'hat heute etwa fünfzehn Minuten Verspätung' — আজ প্রায় ১৫ মিনিট দেরি, প্ল্যাটফর্ম ৩।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w04-l3-r1",
+      "passage": "Weg zur Sprachschule: Vom Bahnhof nehmen Sie den Bus 12 bis zur Haltestelle \"Rathaus\". Dort gehen Sie geradeaus über den Platz. Die Schule ist links neben der Apotheke.",
+      "prompt_bn": "স্কুলটা কোথায়?",
+      "options": [
+       "ফার্মেসির বামে পাশে",
+       "রেলস্টেশনের ভেতরে",
+       "টাউন হলের ডানে",
+       "বাস ১২-এর ডিপোতে"
+      ],
+      "answer": "A",
+      "explain_bn": "'Die Schule ist links neben der Apotheke' — স্কুলটা ফার্মেসির পাশে, বাম দিকে।",
+      "skill": "place"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w04-l3-w1",
+      "prompt_bn": "এক বন্ধুকে মেসেজে লিখুন কীভাবে আপনার বাসায় আসবে: কোন বাস, কোন স্টপ, তারপর হেঁটে কোন দিকে।",
+      "model": {
+       "target": "Nimm die Straßenbahn 4 bis zur Haltestelle \"Parkstraße\". Dann geh geradeaus und die erste Straße links. Ich wohne in Haus Nummer 9.",
+       "bn": "৪ নম্বর ট্রাম নিয়ে 'পার্কস্ট্রাসে' স্টপে নামো। তারপর সোজা গিয়ে প্রথম রাস্তা বামে। আমি ৯ নম্বর বাড়িতে থাকি।"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w04-l3-s1",
+      "prompt_bn": "রাস্তায় একজনকে জোরে জিজ্ঞেস করুন কীভাবে রেলস্টেশনে যাবেন, আর উত্তরটা আবার বলে নিশ্চিত হন।",
+      "model": {
+       "target": "Entschuldigung, wie komme ich zum Bahnhof? … Also geradeaus und dann rechts? Vielen Dank!",
+       "bn": "মাফ করবেন, রেলস্টেশনে কীভাবে যাব? … তাহলে সোজা গিয়ে তারপর ডানে? অনেক ধন্যবাদ!"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w04-l4",
+   "day": 4,
+   "minutes": 20,
+   "title": {
+    "en": "At the doctor's",
+    "bn": "ডাক্তারের কাছে"
+   },
+   "goal_bn": "শরীরের অংশ আর সাধারণ অসুখের কথা বলবেন, ডাক্তারের অ্যাপয়েন্টমেন্ট নেবেন, ফার্মেসিতে ওষুধ চাইবেন।",
+   "vocab": [
+    {
+     "target": "der Arzt / die Ärztin",
+     "bn": "ডাক্তার (পুরুষ / নারী)",
+     "pos": "noun",
+     "example": {
+      "target": "Die Ärztin hat heute Sprechstunde bis 18 Uhr.",
+      "bn": "ডাক্তার (নারী) আজ সন্ধ্যা ৬টা পর্যন্ত রোগী দেখেন।"
+     },
+     "say_bn": "আর্ৎস্ট / এয়ার্ৎস্টিন"
+    },
+    {
+     "target": "krank",
+     "bn": "অসুস্থ",
+     "pos": "adjective",
+     "example": {
+      "target": "Ich bin krank und kann heute nicht zur Arbeit kommen.",
+      "bn": "আমি অসুস্থ, আজ কাজে আসতে পারব না।"
+     },
+     "say_bn": "ক্রাংক"
+    },
+    {
+     "target": "der Kopf",
+     "bn": "মাথা",
+     "pos": "noun",
+     "example": {
+      "target": "Seit gestern tut mir der Kopf weh.",
+      "bn": "গতকাল থেকে আমার মাথা ব্যথা।"
+     },
+     "say_bn": "ডের কপফ"
+    },
+    {
+     "target": "der Bauch",
+     "bn": "পেট",
+     "pos": "noun",
+     "example": {
+      "target": "Das Kind hat Bauchschmerzen und isst nichts.",
+      "bn": "বাচ্চাটার পেটব্যথা, কিছু খাচ্ছে না।"
+     },
+     "say_bn": "ডের বাউখ"
+    },
+    {
+     "target": "wehtun",
+     "bn": "ব্যথা করা",
+     "pos": "verb",
+     "example": {
+      "target": "Mein Rücken tut nach der Schicht immer weh.",
+      "bn": "শিফটের পর আমার পিঠ সবসময় ব্যথা করে।"
+     },
+     "say_bn": "ভেয়টুন"
+    },
+    {
+     "target": "das Fieber",
+     "bn": "জ্বর",
+     "pos": "noun",
+     "example": {
+      "target": "Er hat 39 Grad Fieber.",
+      "bn": "তার ৩৯ ডিগ্রি জ্বর।"
+     },
+     "say_bn": "দাস ফিবার"
+    },
+    {
+     "target": "die Apotheke",
+     "bn": "ফার্মেসি",
+     "pos": "noun",
+     "example": {
+      "target": "Die Apotheke am Markt hat heute Notdienst.",
+      "bn": "বাজারের ফার্মেসিটা আজ জরুরি সেবায় খোলা।"
+     },
+     "say_bn": "ডি আপোটেকে"
+    },
+    {
+     "target": "die Krankenversicherungskarte",
+     "bn": "স্বাস্থ্য বীমা কার্ড",
+     "pos": "noun",
+     "example": {
+      "target": "Bringen Sie bitte Ihre Krankenversicherungskarte mit.",
+      "bn": "দয়া করে আপনার স্বাস্থ্য বীমা কার্ড সাথে আনবেন।"
+     },
+     "say_bn": "ক্রাংকেনফেয়ারজিখারুংসকার্টে"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "Mein Kopf tut weh. / Meine Füße tun weh. · Ich habe Kopfschmerzen.",
+     "explain_bn": "ব্যথা বলার দুই উপায়: (১) '[শরীরের অংশ] tut weh' — বহুবচনে 'tun weh': Meine Augen tun weh। (২) 'Ich habe …schmerzen': Kopfschmerzen (মাথাব্যথা), Bauchschmerzen (পেটব্যথা), Zahnschmerzen (দাঁতব্যথা)।",
+     "examples": [
+      {
+       "target": "Mein Hals tut weh und ich habe Husten.",
+       "bn": "আমার গলা ব্যথা আর কাশি।"
+      },
+      {
+       "target": "Haben Sie auch Fieber? — Nein, nur Halsschmerzen.",
+       "bn": "আপনার কি জ্বরও আছে? — না, শুধু গলাব্যথা।"
+      }
+     ]
+    },
+    {
+     "pattern": "Notruf 112",
+     "explain_bn": "জার্মানিতে জরুরি অ্যাম্বুলেন্স/ফায়ার: 112; রাতে বা সপ্তাহান্তে সাধারণ ডাক্তার দরকার হলে 116 117। ডাক্তারের কাছে গেলে বীমা কার্ড সাথে নিন।",
+     "examples": [
+      {
+       "target": "Bitte schnell, mein Kollege ist umgefallen! Wir sind in der Fabrikstraße 5.",
+       "bn": "জলদি আসুন, আমার সহকর্মী পড়ে গেছেন! আমরা ফাব্রিক্সট্রাসে ৫-এ আছি।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w04-l4-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "doctor"
+        },
+        "B": {
+         "gender": "M",
+         "role": "patient"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Was fehlt Ihnen denn?"
+        },
+        {
+         "spk": "B",
+         "text": "Ich habe seit drei Tagen Halsschmerzen und Husten. Fieber habe ich nicht."
+        },
+        {
+         "spk": "A",
+         "text": "Ich schreibe Ihnen ein Rezept. Bleiben Sie zwei Tage zu Hause und trinken Sie viel Tee."
+        }
+       ],
+       "repeat": 1
+      },
+      "prompt_bn": "রোগীর কী সমস্যা নেই?",
+      "options": [
+       "Halsschmerzen",
+       "Husten",
+       "Fieber",
+       "সব আছে"
+      ],
+      "answer": "C",
+      "explain_bn": "'Fieber habe ich nicht' — জ্বর নেই; তিন দিন ধরে গলাব্যথা আর কাশি।",
+      "skill": "detail"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w04-l4-r1",
+      "passage": "Praxis Dr. Yilmaz – Allgemeinmedizin\nSprechzeiten: Mo, Di, Do 8–12 und 15–18 Uhr, Mi und Fr 8–12 Uhr\nTermine bitte telefonisch: 0421 33 90 12\nIn Notfällen außerhalb der Sprechzeiten: 116 117",
+      "prompt_bn": "বুধবার বিকেল ৪টায় অসুস্থ হলে এই চেম্বারের নোটিশ অনুযায়ী কী করবেন?",
+      "options": [
+       "চেম্বারে চলে যাবেন",
+       "116 117-এ ফোন করবেন",
+       "বৃহস্পতিবার সকালে আসবেন বলে ইমেল করবেন",
+       "112-এ এসএমএস পাঠাবেন"
+      ],
+      "answer": "B",
+      "explain_bn": "বুধবার (Mi) শুধু ৮–১২টা খোলা। সময়ের বাইরে জরুরি হলে নোটিশে বলা আছে 116 117।",
+      "skill": "info_search"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w04-l4-w1",
+      "prompt_bn": "কাজের বসকে ছোট মেসেজ লিখুন: আপনি অসুস্থ, কী সমস্যা, আজ আসতে পারবেন না, ডাক্তারের কাছে যাচ্ছেন।",
+      "model": {
+       "target": "Guten Morgen Herr Wolf, ich bin leider krank. Ich habe Fieber und Kopfschmerzen. Ich kann heute nicht kommen. Ich gehe um zehn Uhr zum Arzt. Viele Grüße, Monir",
+       "bn": "সুপ্রভাত জনাব ভোল্ফ, দুঃখিত আমি অসুস্থ। জ্বর আর মাথাব্যথা। আজ আসতে পারব না। দশটায় ডাক্তারের কাছে যাচ্ছি। শুভেচ্ছা, মনির"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w04-l4-s1",
+      "prompt_bn": "ফার্মেসিতে জোরে বলুন আপনার কী সমস্যা আর কী চান।",
+      "model": {
+       "target": "Guten Tag, ich habe Halsschmerzen und Schnupfen. Haben Sie etwas dagegen?",
+       "bn": "শুভ দিন, আমার গলাব্যথা আর সর্দি। এর জন্য কিছু আছে?"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "de-w04-l5",
+   "day": 5,
+   "minutes": 20,
+   "title": {
+    "en": "Short messages and e-mails",
+    "bn": "ছোট মেসেজ আর ইমেল"
+   },
+   "goal_bn": "পরীক্ষার Schreiben Teil 2-এর মতো ৩টি তথ্য দিয়ে ৩০ শব্দের ছোট মেসেজ লিখবেন — বন্ধুকে (du) আর অফিসকে (Sie)।",
+   "vocab": [
+    {
+     "target": "die Nachricht",
+     "bn": "মেসেজ / বার্তা",
+     "pos": "noun",
+     "example": {
+      "target": "Ich schreibe dir später eine Nachricht.",
+      "bn": "আমি পরে তোমাকে একটা মেসেজ লিখব।"
+     },
+     "say_bn": "ডি নাখরিখট"
+    },
+    {
+     "target": "die E-Mail",
+     "bn": "ইমেল",
+     "pos": "noun",
+     "example": {
+      "target": "Bitte schicken Sie die Unterlagen per E-Mail.",
+      "bn": "দয়া করে কাগজপত্র ইমেলে পাঠান।"
+     },
+     "say_bn": "ডি ইমেল"
+    },
+    {
+     "target": "Liebe … / Lieber …",
+     "bn": "প্রিয় … (নারী / পুরুষ — বন্ধুকে)",
+     "pos": "phrase",
+     "example": {
+      "target": "Lieber Tarek, liebe Mitu, danke für die Einladung!",
+      "bn": "প্রিয় তারেক, প্রিয় মিতু, দাওয়াতের জন্য ধন্যবাদ!"
+     },
+     "say_bn": "লীবে / লীবার"
+    },
+    {
+     "target": "Sehr geehrte Damen und Herren",
+     "bn": "জনাব/জনাবা (অফিসিয়াল সম্বোধন)",
+     "pos": "phrase",
+     "example": {
+      "target": "Sehr geehrte Damen und Herren, ich habe eine Frage zum Kurs.",
+      "bn": "জনাব/জনাবা, কোর্স নিয়ে আমার একটা প্রশ্ন আছে।"
+     },
+     "say_bn": "জের গেএয়ার্টে ডামেন উন্ট হেরেন"
+    },
+    {
+     "target": "Viele Grüße",
+     "bn": "শুভেচ্ছান্তে (চিঠির শেষে)",
+     "pos": "phrase",
+     "example": {
+      "target": "Bis bald und viele Grüße aus Dhaka!",
+      "bn": "শিগগিরই দেখা হবে, ঢাকা থেকে শুভেচ্ছা!"
+     },
+     "say_bn": "ফিলে গ্রুসে"
+    },
+    {
+     "target": "die Einladung",
+     "bn": "দাওয়াত / নিমন্ত্রণ",
+     "pos": "noun",
+     "example": {
+      "target": "Vielen Dank für die Einladung zum Grillfest.",
+      "bn": "বারবিকিউ পার্টির দাওয়াতের জন্য অনেক ধন্যবাদ।"
+     },
+     "say_bn": "ডি আইনলাডুং"
+    },
+    {
+     "target": "leider",
+     "bn": "দুঃখের বিষয় / দুর্ভাগ্যবশত",
+     "pos": "adverb",
+     "example": {
+      "target": "Leider habe ich am Samstag keine Zeit.",
+      "bn": "দুঃখিত, শনিবার আমার সময় নেই।"
+     },
+     "say_bn": "লাইডার"
+    },
+    {
+     "target": "der Geburtstag",
+     "bn": "জন্মদিন",
+     "pos": "noun",
+     "example": {
+      "target": "Am Sonntag feiert meine Nichte Geburtstag.",
+      "bn": "রবিবার আমার ভাগ্নির জন্মদিন।"
+     },
+     "say_bn": "ডের গেবুর্টসটাক"
+    }
+   ],
+   "grammar": [
+    {
+     "pattern": "Anrede – 3 Punkte – Gruß",
+     "explain_bn": "পরীক্ষায় Schreiben Teil 2: প্রশ্নে তিনটি বিষয় থাকে — তিনটিই লিখতে হবে, প্রতিটি ১–২ বাক্যে, মোট প্রায় ৩০ শব্দ। কাঠামো: সম্বোধন (Liebe Anna, / Sehr geehrte Frau Berg,) → তিন পয়েন্ট → সমাপ্তি (Viele Grüße / Mit freundlichen Grüßen) + নাম। বন্ধুকে du, অফিসকে Sie।",
+     "examples": [
+      {
+       "target": "Liebe Anna, danke für deine Nachricht. Leider kann ich am Freitag nicht kommen. Ich muss arbeiten. Können wir am Sonntag Tee trinken? Viele Grüße, Polash",
+       "bn": "প্রিয় আনা, তোমার মেসেজের জন্য ধন্যবাদ। দুঃখিত, শুক্রবার আসতে পারব না, কাজ আছে। রবিবার কি চা খেতে পারি? শুভেচ্ছা, পলাশ"
+      }
+     ]
+    },
+    {
+     "pattern": "leider + Modalverb: absagen",
+     "explain_bn": "দাওয়াত বা অ্যাপয়েন্টমেন্ট না নিতে পারলে: 'Leider kann ich nicht kommen.' তারপর কারণ আলাদা বাক্যে: 'Ich habe einen Termin.' তারপর বিকল্প প্রস্তাব: 'Geht es auch am …?'",
+     "examples": [
+      {
+       "target": "Leider kann ich morgen nicht zum Kurs kommen. Mein Sohn ist krank.",
+       "bn": "দুঃখিত, কাল কোর্সে আসতে পারব না। আমার ছেলে অসুস্থ।"
+      }
+     ]
+    }
+   ],
+   "practice": {
+    "listening": [
+     {
+      "id": "de-w04-l5-l1",
+      "script": {
+       "speakers": {
+        "A": {
+         "gender": "F",
+         "role": "friend leaving a voicemail"
+        }
+       },
+       "turns": [
+        {
+         "spk": "A",
+         "text": "Hallo Sabbir, hier ist Julia. Am Samstag ist mein Geburtstag. Wir feiern ab sieben Uhr bei mir zu Hause. Kannst du kommen? Bring bitte keine Geschenke mit, nur gute Laune! Ruf mich an. Tschüss!"
+        }
+       ],
+       "repeat": 2
+      },
+      "prompt_bn": "জুলিয়া কী আনতে নিষেধ করলেন?",
+      "options": [
+       "খাবার",
+       "উপহার",
+       "বন্ধু",
+       "পানীয়"
+      ],
+      "answer": "B",
+      "explain_bn": "'Bring bitte keine Geschenke mit' — দয়া করে কোনো উপহার এনো না, শুধু ভালো মেজাজ!",
+      "skill": "message"
+     }
+    ],
+    "reading": [
+     {
+      "id": "de-w04-l5-r1",
+      "passage": "Sehr geehrte Frau Hoffmann,\nich bin im Kurs A1 am Abend. Nächste Woche muss ich abends arbeiten. Kann ich in dieser Woche in den Vormittagskurs kommen?\nMit freundlichen Grüßen\nAnwar Hossain",
+      "prompt_bn": "আনোয়ার হোসেন কী চাইছেন?",
+      "options": [
+       "কোর্স বাতিল করতে",
+       "এক সপ্তাহ সকালের কোর্সে আসতে",
+       "সন্ধ্যার কোর্সের টাকা ফেরত",
+       "নতুন বই"
+      ],
+      "answer": "B",
+      "explain_bn": "আগামী সপ্তাহে সন্ধ্যায় কাজ, তাই জিজ্ঞেস করছেন সেই সপ্তাহে সকালের কোর্সে (Vormittagskurs) আসতে পারবেন কি না।",
+      "skill": "message"
+     }
+    ],
+    "writing": [
+     {
+      "id": "de-w04-l5-w1",
+      "prompt_bn": "বন্ধু ক্লারাকে প্রায় ৩০ শব্দে লিখুন: (১) দাওয়াতের জন্য ধন্যবাদ, (২) শনিবার আসতে পারবেন না — কেন, (৩) অন্য দিন দেখা করার প্রস্তাব।",
+      "model": {
+       "target": "Liebe Clara, vielen Dank für die Einladung! Leider kann ich am Samstag nicht kommen, denn ich habe Spätschicht. Hast du am Sonntag Zeit? Wir können zusammen frühstücken. Viele Grüße, Nayeem",
+       "bn": "প্রিয় ক্লারা, দাওয়াতের জন্য অনেক ধন্যবাদ! দুঃখিত, শনিবার আসতে পারব না, কারণ আমার রাতের শিফট। রবিবার কি তোমার সময় আছে? একসাথে নাস্তা করতে পারি। শুভেচ্ছা, নাঈম"
+      },
+      "check": "ai"
+     }
+    ],
+    "speaking": [
+     {
+      "id": "de-w04-l5-s1",
+      "prompt_bn": "জোরে একটা ভয়েস মেসেজ দিন: সহকর্মীকে বলুন আপনি আজ ১৫ মিনিট দেরি করবেন, কারণ বাস দেরিতে আসছে।",
+      "model": {
+       "target": "Hallo Markus, hier ist Rakib. Mein Bus hat Verspätung. Ich komme heute fünfzehn Minuten später. Bis gleich!",
+       "bn": "হ্যালো মার্কুস, আমি রাকিব। আমার বাস দেরিতে আসছে। আজ পনেরো মিনিট দেরি হবে। একটু পরে দেখা হবে!"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

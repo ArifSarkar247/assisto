@@ -69,6 +69,8 @@ const Map<String, bool> kFeatureDefaults = {
   'documents': true,
   'service_guide': true,
   'nearby': true,
+  // cityapp (owner 9 Nov 11:45): City Service — launches ON.
+  'city_service': true,
   // nearby (owner 3 Nov): Sponsored business listings — OFF by default.
   'nearby_sponsored': false,
   // unseen-rename (owner 27 Oct): the daily info hub (was `unseen_world`).
@@ -159,11 +161,15 @@ const Map<String, bool> kFeatureDefaults = {
   'safe_plans': false,
   // carecall (4 Nov): Care Call - family care reminder call, LIVE for 8 Nov.
   'care_call': true,
+  // fcbrain (9 Nov): background arrival watch - OFF until the owner approves Play.
+  'family_auto_arrival': false,
   // amarket (3 Nov): Assisto Market v1 - hidden until a real pilot.
   'assisto_market': false,
   // The REAL Unseen World travel feature (owner 27 Oct) - not built yet.
   'unseen_world': false,
   'home_v2': true,
+  // smsswitch: SMS-app money notifications (server kill switch, no route)
+  'money_notif_sms': true,
 };
 
 /// truth (owner FINAL ORDER 27 Oct): features whose only content is a data
@@ -245,6 +251,8 @@ const Map<String, String> kRouteFeature = {
   // p3feed: Today feed (a Discover card on Home can open it)
   'daily_today': 'daily_info',
   'nearby': 'nearby',
+  // cityapp: City Service
+  'city': 'city_service',
   'unseen': 'unseen_bangladesh',
   'dictionary': 'dictionary',
   'ramadan': 'ramadan',

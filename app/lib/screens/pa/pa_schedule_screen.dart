@@ -371,7 +371,7 @@ class _PaScheduleScreenState extends State<PaScheduleScreen> {
                 style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800, color: scheme.primary)),
             const SizedBox(width: Gap.sm),
             Text(t.paSlotCount(d.items.length),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ]),
         ),
         ...d.items.map((it) => Padding(
@@ -438,7 +438,7 @@ class _NextUpCard extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(Gap.lg),
         decoration: BoxDecoration(
-          color: scheme.surfaceContainerHighest,
+          color: scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Row(children: [
@@ -447,7 +447,7 @@ class _NextUpCard extends StatelessWidget {
           const SizedBox(width: Gap.md),
           Expanded(
               child: Text(t.paNothingNext,
-                  style: TextStyle(color: scheme.onSurfaceVariant))),
+                  style: TextStyle(color: scheme.ds.muted))),
         ]),
       );
     }
@@ -631,7 +631,7 @@ class _SlotCard extends StatelessWidget {
         border: Border.all(
           color: clash
               ? Brand.danger.withValues(alpha: 0.6)
-              : scheme.outlineVariant,
+              : scheme.ds.border,
           width: clash ? 1.4 : 1,
         ),
       ),
@@ -647,7 +647,7 @@ class _SlotCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800, decoration: (done || cancelled)
                           ? TextDecoration.lineThrough
-                          : null, color: cancelled ? scheme.onSurfaceVariant : null)),
+                          : null, color: cancelled ? scheme.ds.muted : null)),
             ),
             _MenuButton(
               status: status,
@@ -658,13 +658,13 @@ class _SlotCard extends StatelessWidget {
           ]),
           const SizedBox(height: Gap.xs),
           Row(children: [
-            Icon(Icons.schedule_rounded, size: 14, color: scheme.onSurfaceVariant),
+            Icon(Icons.schedule_rounded, size: 14, color: scheme.ds.muted),
             const SizedBox(width: Gap.xs),
             Flexible(
               child: Text(timeStr,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ),
             const SizedBox(width: Gap.sm),
             _StatusChip(status: status),
@@ -673,13 +673,13 @@ class _SlotCard extends StatelessWidget {
             const SizedBox(height: Gap.xs),
             Row(children: [
               Icon(Icons.place_rounded,
-                  size: 14, color: scheme.onSurfaceVariant),
+                  size: 14, color: scheme.ds.muted),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text('${slot['place']}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               ),
             ]),
           ],
@@ -687,13 +687,13 @@ class _SlotCard extends StatelessWidget {
             const SizedBox(height: Gap.xs),
             Row(children: [
               Icon(Icons.group_rounded,
-                  size: 14, color: scheme.onSurfaceVariant),
+                  size: 14, color: scheme.ds.muted),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(people.join(', '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               ),
             ]),
           ],
@@ -998,7 +998,7 @@ class _SlotEditorState extends State<_SlotEditor> {
             const Spacer(),
             Text(t.paMinutes(_duration),
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    color: Theme.of(context).colorScheme.ds.muted)),
           ]),
           Slider(
             value: _duration.toDouble().clamp(

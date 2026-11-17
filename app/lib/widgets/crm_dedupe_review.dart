@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/crm/crm_common.dart';
@@ -70,15 +71,14 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
 
   Widget _groupCard(AppLocalizations t, Map<String, dynamic> g) {
     final ids = ((g['lead_ids'] as List?) ?? []).map((e) => (e as num).toInt()).toList();
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             const Icon(Icons.content_copy_rounded, size: 18),
             const SizedBox(width: Gap.xs),
             Text('${t.crmMatchedOn}: ${g['match_on']}',
-                style: const TextStyle(fontWeight: FontWeight.w800)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
           ]),
           const SizedBox(height: Gap.xs),
           for (final id in ids) _leadLine(t, id),
@@ -92,7 +92,6 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
             ),
           ),
         ]),
-      ),
     );
   }
 
@@ -102,7 +101,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(children: [
-        Icon(Icons.person_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
+        Icon(Icons.person_outline_rounded, size: 16, color: scheme.ds.muted),
         const SizedBox(width: Gap.xs),
         Expanded(
           child: Text(
@@ -113,7 +112,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        Text('#$id', style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+        Text('#$id', style: AType.bodyMedium.copyWith(fontSize: 11, color: scheme.ds.muted)),
       ]),
     );
   }
@@ -129,7 +128,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
           title: Text(t.crmPickSurvivor),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             Text(t.crmPickSurvivorHint,
-                style: TextStyle(fontSize: 12, color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(fontSize: 12, color: Theme.of(ctx).colorScheme.ds.muted)),
             for (final id in ids)
               RadioListTile<int>(
                 value: id,
@@ -176,7 +175,7 @@ class _CrmDedupeReviewState extends State<CrmDedupeReview> {
                   safe
                       ? '${t.crmNoDataLoss} ($before → $after ${t.crmActivitiesWord})'
                       : t.crmMergeUnsafe,
-                  style: TextStyle(color: safe ? Brand.success : Brand.danger),
+                  style: AType.bodyMedium.copyWith(color: safe ? Brand.success : Brand.danger),
                 ),
               ),
             ]),

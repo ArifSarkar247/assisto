@@ -321,7 +321,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
         Expanded(
           child: Text(
             _attribution ?? t.unseenAttribution,
-            style: AType.bodySmall.copyWith(color: scheme.onSurface, height: 1.3),
+            style: AType.bodySmall.copyWith(color: scheme.ds.text, height: 1.3),
           ),
         ),
       ]),
@@ -340,7 +340,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
         Expanded(
           child: Text(t.unseenLocationBanner,
               style:
-                  AType.bodySmall.copyWith(color: scheme.onSurface, height: 1.3)),
+                  AType.bodySmall.copyWith(color: scheme.ds.text, height: 1.3)),
         ),
         TextButton(
             onPressed: () async {
@@ -449,7 +449,7 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
             style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(
             '${t.unseenTripDays(toLocalDigits('${trip.days}', bnUi))}  •  ${t.unseenApproxCost}: ${t.unseenCostRange(toLocalDigits('$lo', bnUi), toLocalDigits('$hi', bnUi))}',
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         childrenPadding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.md, Gap.sm),
         children: [
           for (final s in stops)
@@ -461,12 +461,12 @@ class _UnseenWorldScreenState extends State<UnseenWorldScreen> {
               title: Text(uwText(t, s, bnUi).name, style: AType.bodyMedium),
               subtitle: Text('${uwText(t, s, bnUi).best}  •  ${s.source.label}',
                   style:
-                      AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                      AType.labelSmall.copyWith(color: scheme.ds.muted)),
             ),
           Align(
             alignment: Alignment.centerLeft,
             child: Text(t.unseenApproxNote,
-                style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted)),
           ),
         ],
       ),

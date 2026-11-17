@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -50,14 +51,14 @@ class _LowStockCardState extends State<LowStockCard> {
     final warn = AssistoTokens.of(context).warning;
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.lg),
-      child: Card(
-        color: warn.withValues(alpha: 0.12),
+      child: DsSurface(color: warn.withValues(alpha: 0.12),
+        padding: EdgeInsets.zero,
         child: ListTile(
           key: const ValueKey('bb-low-stock-card'),
           minVerticalPadding: Gap.md,
           leading: Icon(Icons.warning_amber_rounded, color: warn),
           title: Text(t.bbLowStockTitle(fmtInt(context, _n)),
-              style: const TextStyle(fontWeight: FontWeight.w700)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           subtitle: Text(t.bbLowStockSub),
           trailing: const Icon(Icons.chevron_right_rounded),
           onTap: widget.onOpen,

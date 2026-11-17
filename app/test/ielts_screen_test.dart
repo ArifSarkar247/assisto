@@ -10,7 +10,6 @@ import 'package:assisto/feature_flags.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/screens/ielts_screen.dart';
 import 'package:assisto/screens/language_pack_screen.dart';
-import 'package:assisto/screens/language_partner_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 
@@ -71,24 +70,8 @@ void main() {
     expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
   });
 
-  testWidgets('Language Partner home shows the 8 language cards only when language_packs is on',
-      (t) async {
-    FeatureFlags.instance.debugOverride = {'language_packs': false};
-    await t.pumpWidget(_app(const LanguagePartnerScreen(), FakeApi(mode: FakeMode.data, lang: 'en')));
-    await t.pumpAndSettle();
-    expect(find.text('Learn a language'), findsNothing);
-    FeatureFlags.instance.debugOverride = {'language_packs': true};
-    await t.pumpWidget(_app(const LanguagePartnerScreen(key: ValueKey(2)), FakeApi(mode: FakeMode.data, lang: 'en')));
-    await t.pumpAndSettle();
-    expect(find.text('Learn a language'), findsOneWidget);
-    expect(find.text('For work in Korea'), findsOneWidget);
-    // a language without a pack is an honest disabled card, never a promise
-    expect(find.text('Lessons for this language are not added yet.'), findsNWidgets(7));
-    await t.tap(find.text('English · English'));
-    await t.pumpAndSettle();
-    expect(find.text('Placement test'), findsOneWidget);
-    expect(find.text('IELTS practice'), findsOneWidget);
-  });
+  // lpfinish: the start-screen language chips now open the real course with
+  // or without language_packs — covered in lp2_track_test.dart.
 
   testWidgets('catalog order and exam names follow the owner order', (t) async {
     await t.pumpWidget(_app(const Scaffold(body: SingleChildScrollView(child: LanguageCatalogSection())),

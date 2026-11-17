@@ -1,11 +1,12 @@
 {% load site %}<!doctype html>
 <html lang="{{ C.html_lang }}" class="v3">
 <head>
+  <meta name="google-site-verification" content="iw1F-H9KhnjCYuwZ5nA-cmDZbrrLRpu7scUk98S1OKQ" />
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{{ title }}</title>
 <meta name="description" content="{{ desc }}">
-{% if preview %}<meta name="robots" content="noindex, nofollow">{% else %}<meta name="robots" content="index, follow, max-image-preview:large">{% endif %}
+{% if preview or noindex %}<meta name="robots" content="noindex, nofollow">{% else %}<meta name="robots" content="index, follow, max-image-preview:large">{% endif %}
 <link rel="canonical" href="{{ seo.canonical }}">
 <link rel="alternate" hreflang="bn" href="{{ seo.alt_bn }}">
 <link rel="alternate" hreflang="en" href="{{ seo.alt_en }}">
@@ -80,12 +81,17 @@
       <h2 class="ft-h">{{ C.nav_features }}</h2>
       <ul>{% for g in groups %}<li><a href="{{ g.url }}">{{ g.name }}</a></li>{% endfor %}</ul>
     </div>
+    {% if landing_nav %}<div class="ft-col">
+      <h2 class="ft-h">{% if lang == 'en' %}Popular{% else %}জনপ্রিয়{% endif %}</h2>
+      <ul>{% for l in landing_nav %}<li><a href="{{ l.url }}">{{ l.name }}</a></li>{% endfor %}</ul>
+    </div>{% endif %}
     <div class="ft-col">
       <h2 class="ft-h">Assisto</h2>
       <ul>
         <li><a href="{{ U.pricing }}">{{ C.nav_pricing }}</a></li>
         <li><a href="{{ U.security }}">{{ C.nav_security }}</a></li>
         <li><a href="{{ U.help }}">{{ C.f_help }}</a></li>
+        <li><a href="/about{{ U.q }}">{{ A.f_about }}</a></li>
         <li><a href="/privacy{{ U.q }}">{{ C.f_privacy }}</a></li>
         <li><a href="/terms{{ U.q }}">{{ C.f_terms }}</a></li>
         <li><a href="/delete-account{{ U.q }}">{{ C.f_delete }}</a></li>

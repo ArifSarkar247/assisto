@@ -112,14 +112,14 @@ class _RingChecklistScreenState extends State<RingChecklistScreen>
       body: SafeArea(
         child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
           Card(
-            color: allOk ? scheme.primaryContainer : scheme.tertiaryContainer,
+            color: allOk ? scheme.ds.primarySoft : scheme.ds.successBg,
             child: Padding(
               padding: const EdgeInsets.all(Gap.lg),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(allOk ? Icons.check_circle_rounded : Icons.ring_volume_rounded,
                     color: allOk
-                        ? scheme.onPrimaryContainer
-                        : scheme.onTertiaryContainer),
+                        ? scheme.ds.primaryInk
+                        : scheme.ds.successInk),
                 const SizedBox(width: Gap.md),
                 Expanded(
                   child: Text(
@@ -127,8 +127,8 @@ class _RingChecklistScreenState extends State<RingChecklistScreen>
                     allOk ? t.ringCheckAllOk : t.ringCheckIntro,
                     style: TextStyle(
                         color: allOk
-                            ? scheme.onPrimaryContainer
-                            : scheme.onTertiaryContainer),
+                            ? scheme.ds.primaryInk
+                            : scheme.ds.successInk),
                   ),
                 ),
               ]),
@@ -139,7 +139,7 @@ class _RingChecklistScreenState extends State<RingChecklistScreen>
             Text(f!.oem!.label,
                 style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    color: scheme.onSurfaceVariant)),
+                    color: scheme.ds.muted)),
           ],
           const SizedBox(height: Gap.md),
           if (_loading)
@@ -160,7 +160,7 @@ class _RingChecklistScreenState extends State<RingChecklistScreen>
               ),
           const SizedBox(height: Gap.sm),
           Text(t.ringCheckFooter,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           if (widget.firstRun) ...[
             const SizedBox(height: Gap.lg),
             FilledButton(
@@ -202,7 +202,7 @@ class _RowCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final note = AType.bodySmall.copyWith(color: scheme.onSurfaceVariant);
+    final note = AType.bodySmall.copyWith(color: scheme.ds.muted);
     final (IconData icon, Color color, String label) = switch (row.state) {
       RingCheckState.ok => (Icons.check_circle_rounded, scheme.primary, t.ringCheckStatusOk),
       RingCheckState.missing => (Icons.error_rounded, scheme.error, t.ringCheckStatusMissing),
@@ -313,17 +313,17 @@ class _RingCheckBannerState extends State<RingCheckBanner> {
         return Card(
           key: const Key('ring-check-banner'),
           margin: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.xs),
-          color: scheme.errorContainer,
+          color: scheme.ds.dangerBg,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.xs),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(Icons.notifications_off_rounded,
-                    color: scheme.onErrorContainer, size: 20),
+                    color: scheme.ds.dangerInk, size: 20),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.ringCheckBanner,
-                      style: TextStyle(color: scheme.onErrorContainer)),
+                      style: TextStyle(color: scheme.ds.dangerInk)),
                 ),
               ]),
               Wrap(alignment: WrapAlignment.end, spacing: Gap.xs, children: [
@@ -334,7 +334,7 @@ class _RingCheckBannerState extends State<RingCheckBanner> {
                     if (mounted) setState(() => _allowed = false);
                   },
                   child: Text(t.ringCheckLater,
-                      style: TextStyle(color: scheme.onErrorContainer)),
+                      style: TextStyle(color: scheme.ds.dangerInk)),
                 ),
                 FilledButton(
                   key: const Key('ring-banner-fix'),

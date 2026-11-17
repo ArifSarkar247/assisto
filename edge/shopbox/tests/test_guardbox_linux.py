@@ -38,8 +38,10 @@ def test_shared_thresholds_match_json_defaults_and_the_phone():
     assert DetectionConfig().confirm_frames == js["confirm_frames"]
 
     model = _dart("cashguard/guard_box_model.dart")
-    assert float(re.search(r"guardPersonDetector\(\{double threshold = ([0-9.]+)\}",
-                           model).group(1)) == js["person_score"]
+    motion = _dart("shop_motion.dart")
+    assert "guardPersonDetector({double threshold = kPersonScoreDay})" in model
+    assert float(re.search(r"const kPersonScoreDay = ([0-9.]+);",
+                           motion).group(1)) == js["person_score"]
     logic = _dart("ipcam/ipcam_logic.dart")
     assert int(re.search(r"personCooldown = const Duration\(seconds: (\d+)\)",
                          logic).group(1)) == js["person_cooldown_s"]
@@ -52,8 +54,9 @@ def test_shared_thresholds_match_json_defaults_and_the_phone():
     assert int(re.search(r"LivePace\(\{this\.fps = (\d+)\}", logic).group(1)) == js["live_fps"]
     assert int(re.search(r"OfflineQueue\(\{this\.max = (\d+)\}", logic).group(1)) == \
         js["offline_queue_max"]
-    motion = _dart("shop_motion.dart")
-    assert int(re.search(r"this\.confirmFrames = (\d+)", motion).group(1)) == js["confirm_frames"]
+    assert "this.confirmFrames = kGateConfirmFrames" in motion
+    assert int(re.search(r"const kGateConfirmFrames = (\d+);", motion).group(1)) == \
+        js["confirm_frames"]
 
 
 # ------------------------------------------------------------ sysinfo

@@ -15,7 +15,7 @@ name: Guard Box (Linux amd64 + arm64)
 # No secrets except the default GITHUB_TOKEN (release job only).
 on:
   push:
-    branches: ["main", "ci/gboxlinux", "ci/gboxlinux-arb", "ci/b*"]
+    branches: ["main", "ci/gboxlinux", "ci/gboxlinux-arb", "ci/gboxfix-arb", "ci/b*"]
     paths:
       - "edge/shopbox/**"
       - "tools/e2e/guardbox_*"

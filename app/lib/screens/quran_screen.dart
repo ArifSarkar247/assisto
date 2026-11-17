@@ -8,7 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
+import '../quran/ayah_view_screen.dart'; // quranview
 import '../quran/quran_store.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList;
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/local_digits.dart';
@@ -133,7 +136,7 @@ class _QuranScreenState extends State<QuranScreen> {
       );
     }
     final d = _data;
-    if (d == null) return const Center(child: CircularProgressIndicator());
+    if (d == null) return const SkeletonList();
     return TabBarView(children: [_surasTab(t, d), _bookmarksTab(t, d)]);
   }
 
@@ -183,7 +186,9 @@ class _QuranScreenState extends State<QuranScreen> {
             ),
           ),
         if (hits != null) ..._hitList(t, d, hits),
-        for (final s in suras) _suraTile(t, s),
+        // designv2 (calm): the suras in one quiet card — no glow, no motion
+        if (suras.isNotEmpty)
+          DsGroup(margin: EdgeInsets.zero, children: [for (final s in suras) _suraTile(t, s)]),
       ],
     );
   }
@@ -239,10 +244,12 @@ class _QuranScreenState extends State<QuranScreen> {
 
   Widget _continueCard(AppLocalizations t, QuranData d, AyaRef r) {
     final s = d.suras[r.sura - 1];
-    return Card(
+    // designv2 (calm): continue reading is the soft hero
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.md),
+      child: DsHeroCard(
       key: const Key('quran-continue'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      color: _accent(context).withOpacity(0.08),
+      padding: EdgeInsets.zero,
       child: ListTile(
         minTileHeight: 56,
         leading: Icon(Icons.auto_stories_rounded, color: _accent(context)),
@@ -252,6 +259,7 @@ class _QuranScreenState extends State<QuranScreen> {
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => _open(r.sura, r.aya),
       ),
+      ),
     );
   }
 
@@ -260,7 +268,7 @@ class _QuranScreenState extends State<QuranScreen> {
     return ListTile(
       key: Key('quran-sura-${s.index}'),
       minTileHeight: 56,
-      contentPadding: const EdgeInsets.symmetric(horizontal: Gap.xs),
+      contentPadding: const EdgeInsets.symmetric(horizontal: Gap.md),
       leading: CircleAvatar(
         backgroundColor: _accent(context).withOpacity(0.12),
         child: FittedBox(
@@ -292,20 +300,25 @@ class _QuranScreenState extends State<QuranScreen> {
         key: const Key('quran-bookmarks-empty'),
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          Icon(Icons.bookmark_add_outlined, size: 56, color: _accent(context)),
-          const SizedBox(height: Gap.md),
-          Text(t.qrnBookmarksEmpty,
-              textAlign: TextAlign.center,
-              style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
-          const SizedBox(height: Gap.sm),
-          Text(t.qrnBookmarksEmptyHow, textAlign: TextAlign.center),
-          const SizedBox(height: Gap.lg),
-          Center(
-            child: FilledButton.icon(
-              icon: const Icon(Icons.menu_book_rounded),
-              label: Text(t.qrnStartReading),
-              onPressed: () => _open(1),
-            ),
+          // designv2 (calm): drawn illustration, a plain primary button (no glow)
+          DsCard(
+            padding: const EdgeInsets.all(Gap.xl),
+            child: Column(children: [
+              DsIllustration(icon: Icons.bookmark_add_outlined, color: _accent(context), size: 88),
+              const SizedBox(height: Gap.md),
+              Text(t.qrnBookmarksEmpty,
+                  textAlign: TextAlign.center,
+                  style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
+              const SizedBox(height: Gap.sm),
+              Text(t.qrnBookmarksEmptyHow, textAlign: TextAlign.center),
+              const SizedBox(height: Gap.lg),
+              // the big primary button (empty-state rule) — plain, no glow (calm)
+              FilledButton.icon(
+                icon: const Icon(Icons.menu_book_rounded),
+                label: Text(t.qrnStartReading),
+                onPressed: () => _open(1),
+              ),
+            ]),
           ),
         ],
       );
@@ -467,7 +480,7 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
                       QuranTrans.bn => t.qrnTransBn,
                       QuranTrans.none => t.qrnTransNone,
                     }),
-                    subtitle: v == QuranTrans.bn ? Text(t.qrnBnNotIncluded) : null,
+                    subtitle: v == QuranTrans.bn ? Text(t.qvBnHereTitle) : null,
                   ),
               ]),
             ),
@@ -558,10 +571,12 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t.qrnBnNotIncluded,
+          // quranview: Bangla meaning (QuranEnc, Abu Bakr Zakaria) now lives
+          // in the ayah view; say so honestly here.
+          Text(t.qvBnHereTitle,
               style: AType.titleSmall.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: Gap.xs),
-          Text(t.qrnBnPendingBody),
+          Text(t.qvBnHereBody),
           const SizedBox(height: Gap.sm),
           TextButton(
             key: const Key('quran-show-english'),
@@ -575,6 +590,11 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
       ),
     );
   }
+
+  // quranview
+  void _openAyah(int aya) => Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) =>
+          AyahViewScreen(data: widget.data, sura: widget.sura, aya: aya)));
 
   Widget _ayaTile(AppLocalizations t, int aya, QuranTrans tr) {
     final ref = AyaRef(widget.sura, aya);
@@ -601,6 +621,13 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
                   style: AType.labelMedium.copyWith(color: _accent(context))),
             ),
             const Spacer(),
+            // quranview: bilingual ayah view (meaning, tafsir, audio)
+            IconButton(
+              key: Key('quran-ayah-$aya'),
+              tooltip: t.qvOpenAyah(ld(context, aya)),
+              icon: const Icon(Icons.auto_stories_rounded),
+              onPressed: () => _openAyah(aya),
+            ),
             IconButton(
               key: Key('quran-bm-$aya'),
               tooltip: marked
@@ -613,10 +640,13 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
               onPressed: () => _toggle(aya),
             ),
           ]),
-          Text(widget.data.ar(ref),
-              textDirection: TextDirection.rtl,
-              textAlign: TextAlign.right,
-              style: TextStyle(fontSize: _size, height: 1.9)),
+          InkWell(
+            onTap: () => _openAyah(aya),
+            child: Text(widget.data.ar(ref),
+                textDirection: TextDirection.rtl,
+                textAlign: TextAlign.right,
+                style: TextStyle(fontSize: _size, height: 1.9)),
+          ),
           if (tr == QuranTrans.en) ...[
             const SizedBox(height: Gap.sm),
             Text(widget.data.en(ref),
@@ -689,8 +719,12 @@ class QuranAboutScreen extends StatelessWidget {
         children: [
           item(Icons.menu_book_rounded, t.qrnAboutArabic),
           item(Icons.translate_rounded, t.qrnAboutEnglish),
-          item(Icons.hourglass_top_rounded, t.qrnAboutBangla),
-          item(Icons.headphones_rounded, t.qrnAboutAudio),
+          // quranview: Bangla + English meaning, tafsir (QuranEnc), audio +
+          // word-by-word (Quran Foundation) — credits required by both.
+          item(Icons.translate_rounded, t.qvAboutQe),
+          item(Icons.headphones_rounded, t.qvQfCredit),
+          item(Icons.hourglass_top_rounded, t.qvTafsirPendingNote),
+          item(Icons.verified_user_rounded, t.qvNoAi),
           item(Icons.wifi_off_rounded, t.qrnOffline),
           item(Icons.update_rounded, t.qrnAboutUpdates),
           Align(

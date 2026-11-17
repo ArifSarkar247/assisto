@@ -496,7 +496,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
       Container(
         padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
         decoration: BoxDecoration(
-          color: s.surfaceContainerHigh,
+          color: s.ds.cardHigh,
           borderRadius: BorderRadius.circular(Radii.md),
         ),
         child: Text(maStateLabel(t, _state, safeSaid: _a['safe_said'] == true),
@@ -552,7 +552,7 @@ class _MissingDetailScreenState extends State<MissingDetailScreen> {
   Widget _row(BuildContext context, IconData icon, String text) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          Icon(icon, size: 20, color: Theme.of(context).colorScheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(child: Text(text)),
         ]),

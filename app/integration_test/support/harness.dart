@@ -195,11 +195,32 @@ class Harness {
   /// Independent API client logged in as seeded user A (or B) — the
   /// round-trip assertions read the server through this, not through the UI.
   Future<ApiClient> backend({bool userB = false}) async {
+    // e2eproof: A = the phone under test. Reuse the APP's own session token
+    // instead of a second password sign-in: on servers that replace a
+    // session with the same X-Device-Id, that second sign-in logged the app
+    // out (nightly 42537131260 / run 42570716523: every flow after the first
+    // backend() call got 401 on /me).
+    final appTok = app?.api.token;
+    if (!userB && app != null && app!.loggedIn && appTok != null && appTok.isNotEmpty) {
+      return ApiClient.detached(appTok)..lang = 'en';
+    }
     if (!userB && _backendA != null) return _backendA!;
     if (userB && _backendB != null) return _backendB!;
     final c = ApiClient();
-    final res = await c.login(identifier: userB ? Seed.phoneB : Seed.phoneA, password: Seed.password);
-    c.token = res.token;
+    // qbiz: per-device sessions — a sign-in from the SAME X-Device-Id revokes
+    // that device's older session ("replaced"). The harness ran on the app's
+    // own device id, so its login signed the app out: every flow after the
+    // first backend() call got 401 (run 42567594886). Sign in as a separate
+    // harness device; later requests may carry the app's id (harmless).
+    final appDevice = AppConfig.deviceId;
+    AppConfig.deviceId = userB ? 'reality-harness-b' : 'reality-harness-a';
+    final String tok;
+    try {
+      tok = (await c.login(identifier: userB ? Seed.phoneB : Seed.phoneA, password: Seed.password)).token;
+    } finally {
+      AppConfig.deviceId = appDevice;
+    }
+    c.token = tok;
     c.lang = 'en';
     if (userB) {
       _backendB = c;
@@ -537,6 +558,7 @@ class RFlow {
   /// The home chat: on the old home it IS the home; on home_v2 the Ask
   /// Assisto card opens it on its own screen (same thread, same input).
   Future<void> openHomeChat() async {
+    await dismissNudges();
     if (isHomeV2) {
       final ask = find.byKey(const ValueKey('hv2_ask'));
       await tester.ensureVisible(ask);
@@ -623,6 +645,17 @@ class RFlow {
             (w is Text && w.data == t.inputHint)),
         seconds: 25,
         what: 'home screen');
+    await dismissNudges();
+  }
+
+  /// qboard: the one-time "Add an email to protect your account" sheet
+  /// (EmailNudge, shown after a phone sign-up) covers home and the chat
+  /// input — e2e6 failed nightly from 11 Nov on it (run 42936984108).
+  /// Tap its "Later" like a user would; no-op when it is not showing.
+  Future<void> dismissNudges() async {
+    final later = find.byKey(const Key('rec-nudge-later'));
+    if (later.evaluate().isEmpty) return;
+    await tap(later, settleSeconds: 1);
   }
 
   // ------------------------------------------------------------ asserts

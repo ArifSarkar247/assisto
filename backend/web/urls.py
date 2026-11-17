@@ -2,11 +2,13 @@ from django.urls import include, path
 from . import views
 from .owner.urls import site_robots
 from . import views_legal
+from . import views_eldersetup   # fcelder
 from . import views_pay1   # pay1
 from . import views_booking   # booking-bot
 from . import views_journey   # journey100
 from . import views_quote   # crm100
 from . import views_invoice   # invoices
+from . import views_khata_due   # qbiz
 from . import views_vehicle_share   # veh100
 from . import views_vault_share   # p3docs
 from . import views_phonecam   # cctvphone
@@ -18,6 +20,7 @@ from . import views_channels_web   # channels
 from . import views_learncert   # learncert
 from . import views_site3  # sitev3: website v3 behind the go-live switch
 from . import views_lifeshare  # p3life
+from . import views_blog  # seoblog
 
 urlpatterns = [
     # sitev3: the go-live switch picks the current site (OFF) or v3 (ON)
@@ -27,6 +30,7 @@ urlpatterns = [
     path("help", views_site3.help_page),
     path("features", views_site3.features_index),
     path("features/<str:gid>", views_site3.feature_group),
+    path("about", views_site3.about),                            # seo: real About page
     path("preview/", views_site3.preview),                       # noindex review
     path("download/apk", views_site3.download_apk),               # sitev3: owner-chosen APK
     path("preview/features", views_site3.preview, {"page": "features"}),
@@ -38,6 +42,10 @@ urlpatterns = [
     path("favicon.ico", views_site.favicon_ico),
     path("apple-touch-icon.png", views_site.apple_touch_icon),
     path("site.webmanifest", views_site.webmanifest),
+    # seoblog: public blog (only published posts; unpublished = 404)
+    path("blog", views_blog.blog_index),
+    path("blog/<slug:slug>", views_blog.blog_article),
+    path("blog/<slug:slug>/cover", views_blog.blog_cover),
     path("get", views.get_app),
     path("khata-free", views.khata_free),   # ledger100
     # antitheft2: a trusted contact's signed web view of a protected phone
@@ -72,6 +80,7 @@ urlpatterns = [
 
     # ---- l1-launch: Play/AdMob legal pages, app-ads.txt, sitemap ----
     path("privacy", views_legal.privacy),
+    path("preview/privacy", views_legal.privacy_preview),   # privacyupd: owner review, noindex
     path("terms", views_legal.terms),
     path("refund-policy", views_legal.refund_policy),   # billing-v2
     path("delete-account", views_legal.delete_account),
@@ -102,6 +111,7 @@ urlpatterns = [
     # link, no login, noindex, rate-limited, bn/en)
     path("r/<str:token>", views_invoice.verify_page),   # invoices QR check
     path("q/<str:token>", views_quote.quote_page),
+    path("kh/<str:token>", views_khata_due.due_page),   # qbiz: customer due link
     # learncert: Assisto learning certificate QR check (minimal data, noindex)
     path("verify/", views_learncert.verify_form),
     path("verify/<str:code>", views_learncert.verify_page),
@@ -114,6 +124,8 @@ urlpatterns = [
     path("v/<str:token>", views_vehicle_share.share_page),
     # cctvphone: phone-camera pairing QR fallback (App Link opens the app)
     path("pc/<str:code>", views_phonecam.pair_landing),
+    # fcelder: elder-setup QR fallback (App Link opens the app's consent screen)
+    path("e/<str:code>", views_eldersetup.setup_landing),
     # bizai: a shop's chat link (App Link opens the shop chat in the app)
     path("shop/<str:code>", views_shoplink.shop_landing),
     # cctvteam: view-only, time-limited CCTV share link (stills, no audio)

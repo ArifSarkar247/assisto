@@ -10,6 +10,7 @@ import '../../services/journey_tracker.dart' show kPhonesKey;
 import '../../services/oem_guide.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/circle_people_filter.dart';
 import '../../widgets/journey_ride.dart' show jDigits;
@@ -275,7 +276,7 @@ class _SjShareScreenState extends State<SjShareScreen> {
                   ]),
                 const SizedBox(height: Gap.lg),
                 Text(t.sjlShareRules,
-                    style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
                 const SizedBox(height: Gap.md),
                 FilledButton.icon(
                   key: const ValueKey('sjl_share_start'),

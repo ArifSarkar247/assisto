@@ -137,10 +137,20 @@ def in_quiet(local_dt, qs, qe):
     return in_quiet_hours(local_dt.time(), qs, qe)
 
 
-def after_quiet(dt, qs, qe):
+def rtz(receiver):
+    """fcbrain Probashi: the receiver's own clock (a parent abroad -> their
+    zone; default Asia/Dhaka). Care Call times are ALWAYS the receiver's."""
+    try:
+        from . import family_brain
+        return family_brain.receiver_tz(receiver) if receiver is not None else TZ
+    except Exception:  # noqa: BLE001
+        return TZ
+
+
+def after_quiet(dt, qs, qe, tz=TZ):
     """`dt` (aware) moved to the end of the receiver's quiet window when it
     falls inside it; unchanged otherwise."""
-    loc = dt.astimezone(TZ)
+    loc = dt.astimezone(tz)
     if not in_quiet(loc, qs, qe):
         return dt
     e = hhmm_min(qe)
@@ -161,25 +171,25 @@ def slot_dt(slot):
         return None
 
 
-def next_slot(repeat, time_hhmm, days, once_date, after):
+def next_slot(repeat, time_hhmm, days, once_date, after, tz=TZ):
     """The first scheduled ring strictly after `after` (aware), or None.
     days: 0 = Monday ... 6 = Sunday (Python weekday)."""
     m = hhmm_min(time_hhmm)
     if m is None:
         return None
     t = time(m // 60, m % 60)
-    loc = after.astimezone(TZ)
+    loc = after.astimezone(tz)
     if repeat == "once":
         if not once_date:
             return None
-        d = datetime.combine(once_date, t).replace(tzinfo=TZ)
+        d = datetime.combine(once_date, t).replace(tzinfo=tz)
         return d if d > loc else None
     wanted = None if repeat == "daily" else {int(x) for x in (days or []) if str(x).isdigit() and 0 <= int(x) <= 6}
     if repeat == "days" and not wanted:
         return None
     for i in range(0, 8):
         day = loc.date() + timedelta(days=i)
-        d = datetime.combine(day, t).replace(tzinfo=TZ)
+        d = datetime.combine(day, t).replace(tzinfo=tz)
         if d <= loc:
             continue
         if wanted is None or day.weekday() in wanted:
@@ -187,9 +197,9 @@ def next_slot(repeat, time_hhmm, days, once_date, after):
     return None
 
 
-def time_label(dt, lang):
-    """'9:02 AM' / 'সকাল ৯:০২' (Dhaka time)."""
-    loc = dt.astimezone(TZ)
+def time_label(dt, lang, tz=TZ):
+    """'9:02 AM' / 'সকাল ৯:০২' (the receiver's time; Dhaka by default)."""
+    loc = dt.astimezone(tz)
     h, mi = loc.hour, loc.minute
     h12 = h % 12 or 12
     if lang == "en":
@@ -320,7 +330,8 @@ def _status_push(ring, what):
     cc = ring.care_call
     r_name = name_for(cc.setter, cc.receiver)
     at = ring.answered_at if what in ("done", "late") else (ring.escalated_at or timezone.now())
-    tbn_t, ten_t = time_label(at, "bn"), time_label(at, "en")
+    _tz = rtz(cc.receiver)
+    tbn_t, ten_t = time_label(at, "bn", _tz), time_label(at, "en", _tz)
     if what == "missed":
         tbn = "কেয়ার কল %s — %s দুবার ধরেননি" % (tbn_t, r_name)
         ten = "Care Call %s — %s did not answer twice" % (ten_t, r_name)
@@ -351,8 +362,9 @@ def _link_push(link, what):
 
 
 # --------------------------------------------------------------- schedules
-def _clean(data, lim):
-    """(fields, error). The text is kept EXACTLY as written (only outer
+def _clean(data, lim, tz=TZ):
+    """(fields, error). `tz` = the receiver's clock (a "once" with no date
+    means today on THEIR clock, not Dhaka's). The text is kept EXACTLY as written (only outer
     whitespace trimmed) — never filtered, blocked or rewritten."""
     text = str((data or {}).get("text") or "").strip()
     has_voice = bool((data or {}).get("voice_b64")) or bool((data or {}).get("keep_voice"))
@@ -377,7 +389,7 @@ def _clean(data, lim):
         try:
             once = date.fromisoformat(str((data or {}).get("date") or "")[:10])
         except ValueError:
-            once = timezone.localtime(timezone.now(), TZ).date()
+            once = timezone.localtime(timezone.now(), tz).date()
     return {"text": text, "time_hhmm": t, "repeat": repeat, "days": days, "once_date": once}, None
 
 
@@ -421,7 +433,7 @@ def create(setter, data):
         return None, link, "receiver_stopped"
     if active_count(setter) >= lim["carecall_active_per_setter"]:
         return None, link, "limit_active"
-    fields, err = _clean(data, lim)
+    fields, err = _clean(data, lim, rtz(receiver))
     if err:
         return None, link, err
     raw, sec, err = _voice(data, lim)
@@ -442,7 +454,8 @@ def create(setter, data):
         else:
             new_link = False
         cc = CareCall(setter=setter, receiver=receiver, **fields)
-        cc.next_at = next_slot(cc.repeat, cc.time_hhmm, cc.days, cc.once_date, now)
+        cc.next_at = next_slot(cc.repeat, cc.time_hhmm, cc.days, cc.once_date, now,
+                               rtz(receiver))
         if raw:
             cc.voice.save("cc_%s_%s.m4a" % (setter.pk, int(now.timestamp())), ContentFile(raw), save=False)
             cc.voice_rev, cc.voice_sec = 1, sec
@@ -459,7 +472,8 @@ def update(setter, cc_id, data):
     if cc is None:
         return None, "not_found"
     lim = limits(setter)
-    fields, err = _clean(dict(data or {}, keep_voice=bool(cc.voice) and not (data or {}).get("delete_voice")), lim)
+    fields, err = _clean(dict(data or {}, keep_voice=bool(cc.voice) and not (data or {}).get("delete_voice")), lim,
+                         rtz(cc.receiver))
     if err:
         return None, err
     raw, sec, err = _voice(data, lim)
@@ -479,7 +493,8 @@ def update(setter, cc_id, data):
         if want and not cc.active and active_count(setter) >= lim["carecall_active_per_setter"]:
             return None, "limit_active"
         cc.active = want
-    cc.next_at = next_slot(cc.repeat, cc.time_hhmm, cc.days, cc.once_date, timezone.now()) if cc.active else None
+    cc.next_at = next_slot(cc.repeat, cc.time_hhmm, cc.days, cc.once_date, timezone.now(),
+                           rtz(cc.receiver)) if cc.active else None
     cc.save()
     return cc, None
 
@@ -513,7 +528,8 @@ def decide(receiver, setter_id, accept):
         from .models import CareCall
         now = timezone.now()
         for cc in CareCall.objects.filter(setter_id=setter_id, receiver=receiver, active=True):
-            cc.next_at = next_slot(cc.repeat, cc.time_hhmm, cc.days, cc.once_date, now)
+            cc.next_at = next_slot(cc.repeat, cc.time_hhmm, cc.days, cc.once_date, now,
+                                   rtz(receiver))
             cc.save(update_fields=["next_at"])
         _link_push(link, "accepted")
     elif not accept and was == "accepted":
@@ -571,7 +587,7 @@ def ack(receiver, cc_id, slot, action, now=None):
 # --------------------------------------------------------------- the tick
 def _rings_today(receiver, now):
     from .models import CareCallRing
-    start = timezone.localtime(now, TZ).replace(hour=0, minute=0, second=0, microsecond=0)
+    start = timezone.localtime(now, rtz(receiver)).replace(hour=0, minute=0, second=0, microsecond=0)
     return CareCallRing.objects.filter(care_call__receiver=receiver, scheduled_at__gte=start).count()
 
 
@@ -593,11 +609,13 @@ def tick(now=None):
             _, made = CareCallRing.objects.get_or_create(
                 care_call=cc, slot=slot_of(sched),
                 defaults={"scheduled_at": sched, "status": "pending",
-                          "due_at": after_quiet(sched, link.quiet_start, link.quiet_end)})
+                          "due_at": after_quiet(sched, link.quiet_start, link.quiet_end,
+                                                rtz(cc.receiver))})
             out["made"] += int(made)
         else:
             out["skipped"] += 1
-        cc.next_at = next_slot(cc.repeat, cc.time_hhmm, cc.days, cc.once_date, sched)
+        cc.next_at = next_slot(cc.repeat, cc.time_hhmm, cc.days, cc.once_date, sched,
+                               rtz(cc.receiver))
         if cc.repeat == "once" and cc.next_at is None:
             cc.active = False
         cc.save(update_fields=["next_at", "active", "updated_at"])
@@ -611,7 +629,7 @@ def tick(now=None):
             ring.status, ring.due_at = "off", None
             ring.save(update_fields=["status", "due_at"])
             continue
-        later = after_quiet(now, link.quiet_start, link.quiet_end)
+        later = after_quiet(now, link.quiet_start, link.quiet_end, rtz(cc.receiver))
         if later > now:
             ring.due_at = later
             ring.save(update_fields=["due_at"])
@@ -632,15 +650,29 @@ def tick(now=None):
             ring.save(update_fields=["misses", "status", "escalated_at", "due_at"])
             _status_push(ring, "missed")
             out["escalated"] += 1
+            try:  # fcelder: Silent Watch asks the elder first, then the ladder
+                from .silent_watch import on_carecall_missed
+                on_carecall_missed(cc_receiver(ring), now)
+            except Exception:  # noqa: BLE001
+                pass
             continue
         link = CareCallLink.objects.filter(setter_id=ring.care_call.setter_id,
                                            receiver_id=ring.care_call.receiver_id).first()
         nxt = (ring.last_ring_at or now) + timedelta(minutes=RETRY_MIN)
         if link is not None:
-            nxt = after_quiet(nxt, link.quiet_start, link.quiet_end)
+            nxt = after_quiet(nxt, link.quiet_start, link.quiet_end, rtz(ring.care_call.receiver))
         ring.status, ring.due_at = "pending", nxt
         ring.save(update_fields=["misses", "status", "due_at"])
+    try:  # fcelder: Silent Watch ladder steps (setter -> family -> nearby)
+        from .silent_watch import tick as sw_tick
+        out["silent_watch"] = sw_tick(now)
+    except Exception:  # noqa: BLE001
+        pass
     return out
+
+
+def cc_receiver(ring):
+    return ring.care_call.receiver
 
 
 # --------------------------------------------------------------- views data
@@ -657,7 +689,25 @@ def cc_dict(cc, viewer):
         "other_name": name, "other_initial": initial(name),
         "link": link.status if link else "none",
         "quiet_start": link.quiet_start if link else "", "quiet_end": link.quiet_end if link else "",
+        # fcbrain Probashi: the time is the RECEIVER's; both clocks shown
+        **_clocks(cc, viewer),
     }
+
+
+def _clocks(cc, viewer):
+    try:
+        rz, vz = rtz(cc.receiver), rtz(viewer)
+        lang = getattr(viewer, "language", "bn") or "bn"
+        out = {"receiver_tz": str(getattr(rz, "key", "") or rz), "two_clocks": False}
+        if cc.next_at is not None and rz is not None and vz is not None:
+            a, b = cc.next_at.astimezone(rz), cc.next_at.astimezone(vz)
+            if a.utcoffset() != b.utcoffset():
+                out.update(two_clocks=True,
+                           receiver_time=time_label(cc.next_at, lang, rz),
+                           my_time=time_label(cc.next_at, lang, vz))
+        return out
+    except Exception:  # noqa: BLE001
+        return {"two_clocks": False}
 
 
 class CareCallLinkCache:

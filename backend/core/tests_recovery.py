@@ -38,7 +38,7 @@ class Mail:
     sent = []
 
     @classmethod
-    def send(cls, to, subject, body, purpose="otp"):
+    def send(cls, to, subject, body, purpose="otp", **_kw):   # emailrel: html=…
         cls.sent.append({"to": to, "subject": subject, "body": body, "purpose": purpose})
         return {"ok": True, "reason": "ok", "provider": "smtp"}
 

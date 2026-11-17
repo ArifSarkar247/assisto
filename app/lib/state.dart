@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart' show ThemeMode, Locale;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleListener; // offline1st
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
@@ -21,6 +22,10 @@ import 'services/own_device_guard.dart'; // grab-guard
 import 'crypto/e2e.dart';
 import 'crypto/key_service.dart';
 import 'crypto/identity_vault.dart';
+import 'perf/perf_marks.dart'; // faststart: startup step marks (CI-only define)
+import 'offline/net_status.dart'; // offline1st
+import 'offline/offline_store.dart'; // offline1st
+import 'dart:io' show Platform; // offline1st
 
 class AppState extends ChangeNotifier {
   ApiClient api = ApiClient(); // non-final so tests/previews can inject a fake
@@ -155,7 +160,19 @@ class AppState extends ChangeNotifier {
     if (se != null) prefsError ??= 'prefs read theme: $se';
   }
 
-  AppUser? user;
+  // offline1st: every profile the server gives us is also kept on THIS phone
+  // (encrypted, no_backup) so the next start opens signed in with no network.
+  AppUser? _user;
+  AppUser? get user => _user;
+  set user(AppUser? u) {
+    _user = u;
+    OfflineStore.instance.currentUid = u?.id;
+    if (u != null) unawaited(CachedSession.writeUser(u.toJson()));
+  }
+
+  /// offline1st: true while [user] came from this phone's cache and the
+  /// server has not confirmed the session yet in this run.
+  bool sessionFromCache = false;
   List<MemoryItem> memory = [];
 
   late final SyncedRepo reminders = SyncedRepo('reminder', 'reminders', api, db);
@@ -261,46 +278,67 @@ class AppState extends ChangeNotifier {
     // Startup must ALWAYS finish (loading=false) even if storage/db/network
     // misbehave — otherwise the app hangs on the splash spinner. Each piece is
     // guarded independently so one failure never blocks the rest.
+    PerfMarks.once('init_begin'); // faststart
     try {
       await _loadPrefs();
     } catch (_) {}
+    PerfMarks.once('init_prefs'); // faststart
     // feature-flags: last known visible-feature set (offline = last known;
     // first run = registry defaults), then a background refresh.
     try {
       await FeatureFlags.instance.load();
     } catch (_) {}
+    PerfMarks.once('init_flags'); // faststart
     String? t;
     try {
       t = await SecretStore.instance.read('token');
       api.token = t;
     } catch (_) {}
+    PerfMarks.once('init_token'); // faststart
     try {
-      memory = await db.allMemory();
-      for (final r in _repos) {
-        await r.load();
-      }
+      // faststart: the 9 local reads run together (one wait, not nine
+      // platform round trips in a row — ~100-150 ms on a 2 GB phone)
+      await Future.wait<void>([
+        db.allMemory().then((m) => memory = m),
+        for (final r in _repos) r.load(),
+      ]);
     } catch (_) {}
+    PerfMarks.once('init_db'); // faststart
+    _wireNetStatus(); // offline1st
     if (t != null) {
+      // offline1st (owner order 10 Nov): open on THIS phone's copy of the
+      // profile — never wait for the network, a token refresh or remote
+      // config. /me runs in the background; only a real server "revoked"
+      // (401 with the server's JSON answer) signs out, never "offline".
+      final cached = await CachedSession.readUser();
+      AppUser? cu;
       try {
-        user = await api.me();
-        unawaited(OwnDeviceGuard.rememberUser(user?.id)); // grab-guard
-        await reconcileLanguage();
-        // perf2gb: the memory sync (pending uploads + a full server list)
-        // no longer holds the cold start — home opens on the local copy
-        // loaded above and the list refreshes when it lands. sync() never
-        // throws (it records online/lastError itself).
-        unawaited(sync());
-        _syncAll();
-        // Background poller must never block or crash startup.
-        unawaited(Background.start());
-      } catch (e) {
-        // offline or token issue — stay with whatever we have locally
-        online = false;
-        if (e is ApiException && e.status == 401) {
-          await _clearSession();
+        if (cached != null) cu = AppUser.fromJson(cached);
+      } catch (_) {
+        cu = null;
+      }
+      if (cu != null) {
+        _user = cu;
+        OfflineStore.instance.currentUid = cu.id;
+        sessionFromCache = true;
+        unawaited(_refreshSession());
+      } else {
+        // First start after an update from a build without the cache: one
+        // SHORT bounded wait for /me (online it answers well inside it).
+        await _refreshSession(timeout: const Duration(milliseconds: 1500));
+        // offline2: no answer (offline, slow network, server down) is not
+        // a sign-out — open Home on a MINIMAL profile and refresh quietly.
+        // Only a real 401 with the server's JSON (handled above) logs out.
+        if (_user == null && api.token != null) {
+          _user = await minimalUser(lang: locale?.languageCode);
+          final mid = _user!.id;
+          OfflineStore.instance.currentUid = mid == 0 ? null : mid;
+          sessionFromCache = true;
+          if (!_refreshing) unawaited(_refreshSession());
         }
       }
     }
+    PerfMarks.once('init_auth'); // faststart: after the /me wait (if any)
     loading = false;
     notifyListeners();
     unawaited(FeatureFlags.instance.refreshWith(api)); // feature-flags
@@ -310,6 +348,95 @@ class AppState extends ChangeNotifier {
     if (pe != null && loggedIn) {
       unawaited(api.reportStartupCrash('[prefs] $pe').catchError((_) {}));
     }
+  }
+
+  /// offline1st: confirm the session with the server and refresh the
+  /// profile, quietly. Offline / server down -> keep the cached profile (the
+  /// app stays usable) and retry when the network is back. Never throws.
+  Future<void> _refreshSession({Duration? timeout}) async {
+    if (api.token == null || _refreshing) return;
+    _refreshing = true;
+    try {
+      final f = api.me();
+      final fresh = await (timeout == null ? f : f.timeout(timeout));
+      user = fresh;
+      sessionFromCache = false;
+      online = true;
+      unawaited(OwnDeviceGuard.rememberUser(fresh.id)); // grab-guard
+      await reconcileLanguage();
+      if (!_startedOnline) {
+        _startedOnline = true;
+        // perf2gb: the memory sync (pending uploads + a full server list)
+        // never holds the cold start. sync() never throws.
+        unawaited(sync());
+        _syncAll();
+        // Background poller must never block or crash startup.
+        unawaited(Background.start());
+      }
+    } catch (e) {
+      if (isRevoked(e)) {
+        await _clearSession();
+      } else {
+        online = false;
+      }
+    } finally {
+      _refreshing = false;
+    }
+    if (!loading) notifyListeners();
+  }
+
+  /// offline2: the profile used when a session token exists but this phone
+  /// has no cached profile yet (first start after an app update, offline).
+  /// The id is the account this phone last confirmed (grab-guard keeps it;
+  /// 0 when unknown); everything else is a neutral default until /me
+  /// answers. Never written to the profile cache.
+  @visibleForTesting
+  static Future<AppUser> minimalUser({String? lang}) async {
+    var id = 0;
+    try {
+      final p = await SharedPreferences.getInstance().timeout(_ioTimeout);
+      id = p.getInt('own_guard_uid') ?? 0;
+    } catch (_) {}
+    return AppUser(
+        id: id, name: '', autonomyLevel: 2, language: lang == 'en' ? 'en' : 'bn');
+  }
+
+  bool _refreshing = false;
+  bool _startedOnline = false;
+  bool _netWired = false;
+  // ignore: unused_field
+  AppLifecycleListener? _netLife;
+
+  /// offline1st: a REAL server sign-out — 401 carrying the server's own JSON
+  /// answer (DRF `{"detail": ...}`: token revoked, account blocked/deleted).
+  /// A 401 page from a Wi-Fi login portal or proxy is not that.
+  static bool isRevoked(Object e) =>
+      e is ApiException && e.status == 401 && e.body != null;
+
+  void _wireNetStatus() {
+    if (_netWired) return;
+    _netWired = true;
+    final ns = NetStatus.instance;
+    // The tiny /health probe only runs while offline (never in unit tests:
+    // a pending timer would fail them).
+    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+      ns.probe = () => api.health();
+      try {
+        // probe only while the app is on screen (no background data/battery)
+        _netLife = AppLifecycleListener(onResume: ns.resume, onPause: ns.pause);
+      } catch (_) {}
+    }
+    ns.online.addListener(() {
+      final on = ns.online.value;
+      if (online == on) return;
+      online = on;
+      notifyListeners();
+    });
+    ns.onBackOnline(() {
+      // back online: confirm the session (a revoked one signs out NOW) and
+      // sync what waited.
+      if (api.token != null) unawaited(_refreshSession());
+    });
   }
 
   /// bubbles (owner 2 Nov): the floating chat window's OWN engine needs only
@@ -380,6 +507,8 @@ class AppState extends ChangeNotifier {
       {bool checkGrace = true}) async {
     api.token = token;
     user = signedIn;
+    sessionFromCache = false; // offline1st
+    _startedOnline = true; // offline1st: the steps below start sync + poller
     unawaited(OwnDeviceGuard.rememberUser(signedIn.id)); // grab-guard
     if (!await SecretStore.instance.write('token', token)) {
       reportNonFatal('auth.token_write', SecretStore.instance.lastError);
@@ -450,8 +579,11 @@ class AppState extends ChangeNotifier {
   /// Clear this phone's session + local data. Every step is independent and
   /// time-boxed; the UI is told first so the login screen appears at once.
   Future<void> _signOutLocally() async {
+    final oldUid = _user?.id; // offline1st
     api.token = null;
-    user = null;
+    _user = null;
+    sessionFromCache = false;
+    _startedOnline = false;
     unawaited(OwnDeviceGuard.forget()); // grab-guard
     deletionGraceAt = null;
     deletionGraceOtp = false;
@@ -459,6 +591,9 @@ class AppState extends ChangeNotifier {
     FeatureFlags.instance.forgetUser(); // feature-flags
     notifyListeners();
     await _step('logout.token', SecretStore.instance.delete('token'));
+    // offline1st: the cached profile + this account's offline copies go too
+    await _step('logout.offline_me', CachedSession.clear());
+    await _step('logout.offline', OfflineStore.instance.clearAccount(oldUid));
     await _step('logout.background', Background.stop());
     await _step('logout.db', db.clearAll());
     for (final r in _repos) {

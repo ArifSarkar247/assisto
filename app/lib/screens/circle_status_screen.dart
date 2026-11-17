@@ -9,6 +9,7 @@ import '../p3/story_crypto.dart';
 import '../p3/story_privacy_sheet.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/circle_status_ring.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'circle_status_composer_screen.dart';
@@ -327,11 +328,11 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                         Padding(
                           padding: const EdgeInsets.all(Gap.xxl),
                           child: Column(children: [
-                            Icon(Icons.auto_awesome_rounded, size: 48, color: scheme.outline),
+                            Icon(Icons.auto_awesome_rounded, size: 48, color: DsTokens.of(context).border),
                             const SizedBox(height: Gap.md),
                             Text(t.statusNoUpdates,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: scheme.onSurfaceVariant)),
+                                style: TextStyle(color: DsTokens.of(context).muted)),
                           ]),
                         ),
                       if (unseen.isNotEmpty) _header(t.statusRecentUpdates, scheme),
@@ -354,7 +355,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
                           const SizedBox(width: Gap.sm),
                           Expanded(
                             child: Text(t.p3StoriesE2e,
-                                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+                                style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted)),
                           ),
                         ]),
                       ),
@@ -366,7 +367,7 @@ class _CircleStatusScreenState extends State<CircleStatusScreen> {
 
   Widget _header(String s, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xs),
-        child: Text(s, style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant)),
+        child: Text(s, style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted)),
       );
 }
 
@@ -405,9 +406,9 @@ class _NoteBubble extends StatelessWidget {
             width: 88,
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
+              color: DsTokens.of(context).cardHighest,
               borderRadius: BorderRadius.circular(Radii.sm),
-              border: Border.all(color: scheme.outlineVariant),
+              border: Border.all(color: DsTokens.of(context).border),
             ),
             child: Text(text,
                 maxLines: 2,
@@ -416,15 +417,15 @@ class _NoteBubble extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 11,
                     height: 1.2,
-                    color: placeholder ? scheme.onSurfaceVariant : scheme.onSurface)),
+                    color: placeholder ? DsTokens.of(context).muted : DsTokens.of(context).text)),
           ),
           const SizedBox(height: 4),
           CircleAvatar(
             radius: 20,
-            backgroundColor: scheme.primaryContainer,
+            backgroundColor: DsTokens.of(context).primarySoft,
             child: placeholder
-                ? Icon(Icons.add_rounded, color: scheme.onPrimaryContainer)
-                : Text(initials, style: TextStyle(color: scheme.onPrimaryContainer)),
+                ? Icon(Icons.add_rounded, color: DsTokens.of(context).primaryInk)
+                : Text(initials, style: TextStyle(color: DsTokens.of(context).primaryInk)),
           ),
           const SizedBox(height: 2),
           Text(name,
@@ -520,7 +521,7 @@ class _NoteSheetState extends State<NoteSheet> {
             children: [
               Text(t.p3NoteTitle, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: Gap.xs),
-              Text(t.p3NoteSub, style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+              Text(t.p3NoteSub, style: TextStyle(fontSize: 13, color: DsTokens.of(context).muted)),
               const SizedBox(height: Gap.md),
               TextField(
                 key: const ValueKey('p3-note-field'),
@@ -576,9 +577,9 @@ class _ErrorRetry extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.xxl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.cloud_off_rounded, size: 48, color: scheme.outline),
+          Icon(Icons.cloud_off_rounded, size: 48, color: DsTokens.of(context).border),
           const SizedBox(height: Gap.md),
-          Text(message, textAlign: TextAlign.center, style: TextStyle(color: scheme.onSurfaceVariant)),
+          Text(message, textAlign: TextAlign.center, style: TextStyle(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.lg),
           FilledButton.tonalIcon(
               onPressed: onRetry, icon: const Icon(Icons.refresh_rounded), label: Text(s.retry)),

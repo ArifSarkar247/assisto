@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart';
+import '../../theme.dart' show AType;
+import '../../ds/ds.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../widgets/app_sheet.dart';
@@ -57,7 +60,7 @@ class _CctvWatchScreenState extends State<CctvWatchScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.ctmWatchTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
@@ -84,9 +87,9 @@ class _CctvWatchScreenState extends State<CctvWatchScreen> {
                     Text(t.ctmWatchIntro),
                     const SizedBox(height: 8),
                     for (final g in _groups)
-                      Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
+                      Padding(padding: const EdgeInsets.only(bottom: 8), child: DsCard(
+                          padding: EdgeInsets.zero,
+                          child: ListTile(
                           key: ValueKey('ctm-watch-group-${g['id']}'),
                           minVerticalPadding: 12,
                           leading: const CircleAvatar(child: Icon(Icons.lock_rounded)),
@@ -100,7 +103,7 @@ class _CctvWatchScreenState extends State<CctvWatchScreen> {
                                   groupId: (g['id'] as num).toInt(),
                                   name: (g['name'] ?? '').toString()))),
                         ),
-                      ),
+                        )),
                   ],
                   if (_note.isNotEmpty) ...[
                     const SizedBox(height: 12),
@@ -119,16 +122,13 @@ class _PrivacyNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: Theme.of(context).colorScheme.ds.cardHighest,
+      padding: const EdgeInsets.all(12),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Icon(Icons.privacy_tip_outlined),
           const SizedBox(width: 8),
           Expanded(child: Text(text)),
         ]),
-      ),
     );
   }
 }
@@ -206,7 +206,7 @@ class _CctvWatchGroupScreenState extends State<CctvWatchGroupScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.name)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
@@ -420,7 +420,7 @@ class _CctvWatchShareSheetState extends State<CctvWatchShareSheet> {
     final t = AppLocalizations.of(context);
     final lang = wmLang(context);
     if (_loading) {
-      return const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator()));
+      return const SkeletonList(count: 3);
     }
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 8, 16, 16 + MediaQuery.viewInsetsOf(context).bottom),
@@ -479,7 +479,7 @@ class _CctvWatchShareSheetState extends State<CctvWatchShareSheet> {
             onChanged: (v) => setState(() => _confirm = v ?? false),
           ),
           if (_error != null && _error!.isNotEmpty)
-            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            Text(_error!, style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           const SizedBox(height: 8),
           FilledButton.icon(
             key: const ValueKey('ctm-watch-send'),

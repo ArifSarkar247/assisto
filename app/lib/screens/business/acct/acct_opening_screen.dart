@@ -7,6 +7,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../services/error_kind.dart' show honestFailText;
 import '../../../state.dart';
 import '../../../theme.dart';
+import '../../../ds/ds.dart';
 import '../../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../../widgets/skeleton.dart';
 import '../business_common.dart' show pair;
@@ -222,12 +223,12 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
       margin: const EdgeInsets.only(bottom: Gap.lg),
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-          color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(Radii.md)),
+          color: DsTokens.of(context).primarySoft, borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.info_outline_rounded, color: scheme.onSecondaryContainer),
+        Icon(Icons.info_outline_rounded, color: DsTokens.of(context).primaryInk),
         const SizedBox(width: Gap.sm),
         Expanded(
-            child: Text(s, style: TextStyle(color: scheme.onSecondaryContainer, height: 1.4))),
+            child: Text(s, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).primaryInk, height: 1.4))),
       ]),
     );
   }
@@ -255,7 +256,7 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
       Semantics(
         liveRegion: true,
         child: Text(t.acuStepOf(acctDigits(context, _step + 1), acctDigits(context, _steps)),
-            style: TextStyle(color: scheme.onSurfaceVariant)),
+            style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
       ),
       const SizedBox(height: Gap.xs),
       LinearProgressIndicator(value: (_step + 1) / _steps),
@@ -267,7 +268,7 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
           Text(t.acuOpeningIntroTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.sm),
-          Text(t.acuOpeningIntroBody(start), style: const TextStyle(height: 1.5)),
+          Text(t.acuOpeningIntroBody(start), style: AType.bodyMedium.copyWith(height: 1.5)),
           const SizedBox(height: Gap.lg),
           _hint(t.acuOpeningIntroTip),
         ]);
@@ -321,7 +322,7 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
       children.add(Semantics(
         liveRegion: true,
         child: Text(_saveError!,
-            style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600)),
+            style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk, fontWeight: FontWeight.w600)),
       ));
     }
     return ListView(
@@ -346,7 +347,7 @@ class _AcctOpeningScreenState extends State<AcctOpeningScreen> {
           child: Wrap(
             alignment: WrapAlignment.spaceBetween,
             spacing: Gap.md,
-            children: [Text(label), Text(value, style: const TextStyle(fontWeight: FontWeight.w700))],
+            children: [Text(label), Text(value, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700))],
           ),
         ),
       );

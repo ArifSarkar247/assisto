@@ -167,7 +167,12 @@ class PsConfig {
     this.usage = const {},
     this.enhanceCap = EnhanceCapability.none,
     this.idSizes = const {},
+    this.aiEditComingSoon = false,
   });
+
+  /// geminioff: AI create / edit is paused (the image AI is off) — the
+  /// screen shows an honest "paused for now" card, never a dead prompt box.
+  final bool aiEditComingSoon;
 
   /// photobar: Bangladesh ID / passport / visa sizes from the server
   /// (`bd_sizes`; the app keeps a built-in copy — PsIdPreset.resolve).
@@ -228,6 +233,7 @@ class PsConfig {
       adsConfigured: entry['ads_configured'] == true,
       features: feats,
       providerReady: prov['ready'] == true,
+      aiEditComingSoon: j['ai_edit_coming_soon'] == true, // geminioff
       providerNeeds: _s(prov['needs']),
       trialsLeft: j['trials_left_today'] is num ? _i(j['trials_left_today']) : null,
       previewMaxPx: _i(j['preview_max_px']) == 0 ? 1024 : _i(j['preview_max_px']),

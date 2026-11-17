@@ -8,6 +8,7 @@ import '../../business_ai_api.dart';
 import '../../business_selling_api.dart' show MoneyX;
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../widgets/business_ui.dart';
 import '../../widgets/skeleton.dart';
@@ -108,16 +109,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget _body(AppLocalizations tr) {
     if (_loading) return const SkeletonList();
     if (_error != null) {
-      return StateMessage(
-        icon: Icons.cloud_off_rounded,
-        title: tr.bizLoadFailed,
-        message: _error,
-        action: FilledButton(onPressed: _load, child: Text(tr.bizRetry)),
-      );
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(
+            icon: Icons.cloud_off_rounded,
+            title: tr.bizLoadFailed,
+            benefit: _error,
+            actionLabel: tr.bizRetry,
+            onAction: _load),
+      ]);
     }
     if (_orders.isEmpty) {
-      return StateMessage(
-          icon: Icons.receipt_long_rounded, title: tr.noOrdersYet);
+      return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+        DsEmptyState(icon: Icons.receipt_long_rounded, title: tr.noOrdersYet),
+      ]);
     }
     return RefreshIndicator(
       onRefresh: _load,
@@ -133,15 +137,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget _orderTile(AppLocalizations tr, Map<String, dynamic> o) {
     final status = (o['status'] ?? 'new').toString();
     final cod = o['payment'] == 'cod';
-    return Card(
+    // designv2: alive DS card
+    return DsCard(
+      padding: EdgeInsets.zero,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
+        leading: DsAvatar(
+            size: 40,
+            child: Icon(Icons.receipt_long_rounded, size: 20, color: DsTokens.of(context).primaryInk)),
         // name gets the full width; status/amount/COD wrap below it so a
         // long Bangla status never squeezes the customer's name to "…".
         title: Text('#${localDigits('${o['id']}', Localizations.localeOf(context).languageCode)} · ${o['customer_name'] ?? ''}',
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w700, color: DsTokens.of(context).text)),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: Gap.xs),
           child: Wrap(
@@ -149,7 +158,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
               runSpacing: Gap.xs,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-            Text(_takaFmt(context, o['total']), style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(_takaFmt(context, o['total']),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: DsTokens.of(context).text)),
             BizStatusChip(label: statusChipLabel(tr, status), color: statusColor(status)),
             if (cod) BizStatusChip(label: tr.bizCod, color: AssistoTokens.of(context).warning),
           ]),
@@ -333,7 +343,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               tr.parcelTracking(
                   _courierName((_order['courier'] ?? '').toString()),
                   (_order['tracking']).toString()),
-              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted),
             ),
           ],
           if (_order['courier_live'] == false && _status == 'shipped') ...[
@@ -400,7 +410,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         if (isTerminal)
           Text(tr.bizOrderClosed,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
       ]),
     );
   }

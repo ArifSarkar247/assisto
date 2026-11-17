@@ -140,7 +140,7 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
         title: Text(t.crmPasteTitle),
         content: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(t.crmPasteHint, style: TextStyle(color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+            Text(t.crmPasteHint, style: AType.bodyMedium.copyWith(color: Theme.of(ctx).colorScheme.ds.muted)),
             const SizedBox(height: Gap.sm),
             TextField(controller: box, maxLines: 6, decoration: const InputDecoration(border: OutlineInputBorder())),
           ]),
@@ -208,7 +208,7 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
           'email': t.email,
         }, (v) => setState(() => _source = v)),
         const SizedBox(height: Gap.sm),
-        Text(t.crmHeadcount, style: const TextStyle(fontWeight: FontWeight.w700)),
+        Text(t.crmHeadcount, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         Slider(
           value: _size.clamp(0, 1000).toDouble(),
           min: 0,
@@ -218,7 +218,7 @@ class _CrmLeadFormScreenState extends State<CrmLeadFormScreen> {
           onChanged: (v) => setState(() => _size = v.round()),
         ),
         const SizedBox(height: Gap.sm),
-        Text(t.crmRequiredModules, style: const TextStyle(fontWeight: FontWeight.w700)),
+        Text(t.crmRequiredModules, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xs),
         Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
           for (final m in moduleOptions(t))

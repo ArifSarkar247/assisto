@@ -172,6 +172,15 @@ class _CallMoneySettingsScreenState extends State<CallMoneySettingsScreen>
                       value: _money,
                       onChanged: (v) => _set(money: v),
                     ),
+                    // privacyupd: the server switch money_notif_sms is OFF -> say so honestly
+                    if (_money && !NotifListenService.smsAllowed()) ...[
+                      const Divider(height: 1),
+                      ListTile(
+                        key: const ValueKey('cmn_sms_paused'),
+                        leading: const Icon(Icons.info_outline_rounded),
+                        title: Text(t.clnSmsPaused),
+                      ),
+                    ],
                     if (_money) ...[
                       const Divider(height: 1),
                       SwitchListTile(
@@ -442,7 +451,7 @@ class _MoneyNotifReviewScreenState extends State<MoneyNotifReviewScreen> {
     final s = await NotifListenService.load();
     final rows = <_Row>[];
     final drop = <int>[];
-    for (final q in await NotifListenService.bridge.takeMoneyQueue()) {
+    for (final q in await NotifListenService.takeQueue(api: app.api)) {
       final p = MoneyNotifParser.parse(q.text, wallet: q.wallet, postedAt: q.at);
       if (!p.ok && (p.reason == 'otp' || p.reason == 'promo' || p.reason == 'no_proof')) {
         drop.add(q.id); // not a transaction: never shown, never saved

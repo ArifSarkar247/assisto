@@ -13,6 +13,7 @@ import '../widgets/local_counter.dart'; // p3life
 import '../widgets/money_circle_pick.dart' show CirclePickButton; // p3life
 import 'life/life_common.dart' show shareLifeLink; // p3life
 import 'life/life_wedding.dart'; // p3life
+import '../widgets/num_input.dart'; // savesweep
 
 /// WEDDING & EVENTS — ADVANCED (#189, SPEC v2.1 §20).
 ///
@@ -821,7 +822,7 @@ class _GuestEditorState extends State<_GuestEditor> {
     final body = {
       'name': name,
       'rsvp': _rsvp,
-      'plus_ones': int.tryParse(_plus.text.trim()) ?? 0,
+      'plus_ones': parseIntInput(_plus.text.trim()) ?? 0,
       'phone': _phone.text.trim(), // p3life
     };
     try {

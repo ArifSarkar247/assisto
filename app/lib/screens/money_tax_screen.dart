@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/finance_common.dart';
 import '../widgets/tax_calc.dart' as tax;
 import '../widgets/tax_widgets.dart';
@@ -172,22 +173,22 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
       // in this calculator yet (not verified from NBR's own text) — say so.
       Card(
         key: const ValueKey('mb-tax-year-warning'),
-        color: scheme.errorContainer,
+        color: DsTokens.of(context).dangerBg,
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.mbTaxNewYearTitle,
                 style: TextStyle(
-                    fontWeight: FontWeight.w800, color: scheme.onErrorContainer)),
+                    fontWeight: FontWeight.w800, color: DsTokens.of(context).dangerInk)),
             const SizedBox(height: Gap.xs),
             Text(t.mbTaxNewYearBody,
-                style: TextStyle(height: 1.4, color: scheme.onErrorContainer)),
+                style: TextStyle(height: 1.4, color: DsTokens.of(context).dangerInk)),
             const SizedBox(height: Gap.sm),
             OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
                   minimumSize: const Size(48, 48),
-                  foregroundColor: scheme.onErrorContainer,
-                  side: BorderSide(color: scheme.onErrorContainer)),
+                  foregroundColor: DsTokens.of(context).dangerInk,
+                  side: BorderSide(color: DsTokens.of(context).dangerInk)),
               onPressed: () => openExternal(context, mbNbrCircularUrl, t.taxLinkCopied),
               icon: const Icon(Icons.open_in_new_rounded),
               label: Text(t.mbTaxOpenCircular),
@@ -254,7 +255,7 @@ class _IncomeTaxTabState extends State<_IncomeTaxTab> {
       if (r != null) ...[
         const SizedBox(height: Gap.lg),
         Card(
-          color: scheme.secondaryContainer,
+          color: DsTokens.of(context).primarySoft,
           child: Padding(
             padding: const EdgeInsets.all(Gap.lg),
             child: Column(
@@ -359,7 +360,7 @@ class _BandsTable extends StatelessWidget {
         dataRowMaxHeight: 40,
         columnSpacing: Gap.xl,
         headingTextStyle: TextStyle(
-            fontWeight: FontWeight.w700, color: scheme.onSecondaryContainer),
+            fontWeight: FontWeight.w700, color: DsTokens.of(context).primaryInk),
         columns: [
           DataColumn(label: Text(t.taxBandSlab)),
           DataColumn(label: Text(t.taxBandRate)),
@@ -461,7 +462,7 @@ class _ZakatTabState extends State<_ZakatTab> {
       const TaxDisclaimerBanner(),
       TaxSectionTitle(t.zakatNisabTitle),
       Text(t.zakatNisabHint,
-          style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+          style: TextStyle(color: DsTokens.of(context).muted, height: 1.4)),
       const SizedBox(height: Gap.md),
       SwitchListTile(
         key: const ValueKey('mb-zakat-per-vori'),
@@ -496,7 +497,7 @@ class _ZakatTabState extends State<_ZakatTab> {
       if (n != null) ...[
         const SizedBox(height: Gap.md),
         Card(
-          color: scheme.surfaceContainerHighest,
+          color: DsTokens.of(context).cardHighest,
           child: Padding(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(children: [
@@ -536,7 +537,7 @@ class _ZakatTabState extends State<_ZakatTab> {
       if (r != null) ...[
         const SizedBox(height: Gap.lg),
         Card(
-          color: scheme.secondaryContainer,
+          color: DsTokens.of(context).primarySoft,
           child: Padding(
             padding: const EdgeInsets.all(Gap.lg),
             child: Column(
@@ -557,14 +558,14 @@ class _ZakatTabState extends State<_ZakatTab> {
                     t.zakatResultAboveNisab,
                     r.aboveNisab ? t.zakatYes : t.zakatNo,
                     valueColor:
-                        r.aboveNisab ? AssistoTokens.of(context).success : scheme.onSurface),
+                        r.aboveNisab ? AssistoTokens.of(context).success : DsTokens.of(context).text),
                 const Divider(),
                 FinanceResultRow(t.zakatResultDue, fmtTaka(r.due),
                     emphasise: true, valueColor: Theme.of(context).colorScheme.primary),
                 Padding(
                   padding: const EdgeInsets.only(top: Gap.xs),
                   child: Text(t.zakatRateNote,
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
                 ),
                 const SizedBox(height: Gap.md),
                 Align(
@@ -610,7 +611,7 @@ class _FileReturnTab extends StatelessWidget {
       Text(t.taxFileHonestNote,
           style: TextStyle(
               height: 1.4,
-              color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              color: DsTokens.of(context).muted)),
     ]);
   }
 }

@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../notifications.dart';
 import '../screens/battery_guidance_screen.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 import 'push_api.dart';
 import 'push_notifier.dart';
@@ -61,7 +62,6 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: Text(t.pushSetTitle)),
       body: ValueListenableBuilder<bool>(
@@ -79,65 +79,67 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
             deliveryBody = t.pushSetDeliveryOn;
             deliveryOk = true;
           }
+          final ds = DsTokens.of(context);
+          final perm = _Card(
+                icon: _permOn == false
+                    ? Icons.notifications_off_rounded
+                    : Icons.check_circle_outline_rounded,
+                tint: _permOn == false ? ds.dangerInk : ds.successInk,
+                title: t.pushSetPermTitle,
+                body: _permOn == false ? t.pushSetPermOff : t.pushSetPermOn,
+                action: _permOn == false
+                    ? DsButton(onPressed: _allow, label: t.pushSetAllow)
+                    : null,
+              );
           return ListView(
             padding: const EdgeInsets.all(Gap.lg),
             children: [
+              // designv2 page rule: a blocked permission is the urgent thing — first
+              if (_permOn == false) ...[perm, const SizedBox(height: Gap.md)],
               _Card(
                 icon: deliveryOk
                     ? Icons.notifications_active_rounded
                     : Icons.notifications_paused_rounded,
-                tint: deliveryOk ? Brand.success : Brand.warning,
+                tint: deliveryOk ? ds.successInk : Brand.warnInk(context),
                 title: t.pushSetDeliveryTitle,
                 body: deliveryBody,
               ),
               const SizedBox(height: Gap.md),
-              _Card(
-                icon: _permOn == false
-                    ? Icons.notifications_off_rounded
-                    : Icons.check_circle_outline_rounded,
-                tint: _permOn == false ? Brand.danger : scheme.primary,
-                title: t.pushSetPermTitle,
-                body: _permOn == false ? t.pushSetPermOff : t.pushSetPermOn,
-                action: _permOn == false
-                    ? FilledButton(
-                        onPressed: _allow, child: Text(t.pushSetAllow))
-                    : null,
-              ),
-              const SizedBox(height: Gap.md),
+              if (_permOn != false) ...[perm, const SizedBox(height: Gap.md)],
               _Card(
                 icon: Icons.ring_volume_rounded,
-                tint: scheme.tertiary,
+                tint: ds.primaryInk,
                 title: t.pushSetFsiTitle,
                 body: t.pushSetFsiBody,
-                action: OutlinedButton.icon(
+                action: DsButton.secondary(
                   onPressed: () async {
                     if (!widget.probe) return;
                     if (Platform.isAndroid) {
                       await PushNotifier.requestFullScreenIntent();
                     }
                   },
-                  icon: const Icon(Icons.open_in_new_rounded),
-                  label: Text(t.pushSetFsiOpen),
+                  icon: Icons.open_in_new_rounded,
+                  label: t.pushSetFsiOpen,
                 ),
               ),
               const SizedBox(height: Gap.md),
               _Card(
                 icon: Icons.battery_alert_rounded,
-                tint: scheme.secondary,
+                tint: Brand.warnInk(context),
                 title: t.pushSetBatteryTitle,
                 body: t.pushSetBatteryBody,
-                action: OutlinedButton(
+                action: DsButton.secondary(
                   onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (_) => const BatteryGuidanceScreen())),
-                  child: Text(t.pushSetBatteryOpen),
+                  label: t.pushSetBatteryOpen,
                 ),
               ),
               const SizedBox(height: Gap.md),
               _Card(
                 icon: Icons.tune_rounded,
-                tint: scheme.primary,
+                tint: ds.primaryInk,
                 title: t.pushSetChannelsTitle,
                 body: t.pushSetChannelsBody,
                 action: TextButton(
@@ -171,15 +173,18 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(Gap.lg),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(Radii.md),
-      ),
+    final ds = DsTokens.of(context);
+    return DsCard(
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, color: tint, size: 26),
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: tint.withValues(alpha: ds.isDark ? 0.22 : 0.12),
+            borderRadius: BorderRadius.circular(DsRadius.card),
+          ),
+          child: Icon(icon, color: tint, size: 24),
+        ),
         const SizedBox(width: Gap.md),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -187,11 +192,10 @@ class _Card extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700)),
+                    ?.copyWith(fontWeight: FontWeight.w700, color: ds.text)),
             const SizedBox(height: Gap.xs),
             Text(body,
-                style:
-                    TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: ds.muted, height: 1.4)),
             if (action != null) ...[
               const SizedBox(height: Gap.md),
               Align(alignment: AlignmentDirectional.centerStart, child: action!),

@@ -78,9 +78,11 @@ jobs:
           sys.exit("below threshold: %s" % bad if bad else 0)
           PY
       - name: upload eval report
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent-eval-report
           path: ${{ runner.temp }}/agent_eval_*.json
           if-no-files-found: ignore
+          retention-days: 5

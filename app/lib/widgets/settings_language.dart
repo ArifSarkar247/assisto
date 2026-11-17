@@ -59,20 +59,20 @@ class SettingsLanguageSection extends StatelessWidget {
             padding: const EdgeInsets.symmetric(
                 horizontal: Gap.md, vertical: Gap.sm),
             decoration: BoxDecoration(
-              color: cs.primaryContainer,
+              color: cs.ds.primarySoft,
               borderRadius: BorderRadius.circular(Radii.sm),
             ),
             child: Row(
               children: [
                 Icon(Icons.check_circle_rounded,
-                    size: 18, color: cs.onPrimaryContainer),
+                    size: 18, color: cs.ds.primaryInk),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(
                     t.languageCurrentLabel(
                         isBn ? t.languageBangla : t.languageEnglish),
-                    style: TextStyle(
-                        color: cs.onPrimaryContainer,
+                    style: AType.bodyMedium.copyWith(
+                        color: cs.ds.primaryInk,
                         fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -112,7 +112,7 @@ class SettingsLanguageSection extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.md),
           child: Text(
             t.languageAppliesNote,
-            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+            style: AType.bodyMedium.copyWith(fontSize: 12, color: cs.ds.muted),
           ),
         ),
       ],
@@ -141,7 +141,7 @@ class _LangCard extends StatelessWidget {
       selected: selected,
       label: subLabel,
       child: Material(
-        color: selected ? cs.primaryContainer : cs.surfaceContainerHighest,
+        color: selected ? cs.ds.primarySoft : cs.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.md),
         child: InkWell(
           onTap: onTap,
@@ -153,7 +153,7 @@ class _LangCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Radii.md),
               border: Border.all(
-                color: selected ? cs.primary : cs.outlineVariant,
+                color: selected ? cs.primary : cs.ds.border,
                 width: selected ? 2 : 1,
               ),
             ),
@@ -172,12 +172,12 @@ class _LangCard extends StatelessWidget {
                         child: Text(
                           nativeLabel,
                           maxLines: 1,
-                          style: TextStyle(
+                          style: AType.bodyMedium.copyWith(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                             color: selected
-                                ? cs.onPrimaryContainer
-                                : cs.onSurface,
+                                ? cs.ds.primaryInk
+                                : cs.ds.text,
                           ),
                         ),
                       ),
@@ -188,7 +188,7 @@ class _LangCard extends StatelessWidget {
                           ? Icons.radio_button_checked_rounded
                           : Icons.radio_button_unchecked_rounded,
                       size: 20,
-                      color: selected ? cs.primary : cs.onSurfaceVariant,
+                      color: selected ? cs.primary : cs.ds.muted,
                     ),
                   ],
                 ),
@@ -197,11 +197,11 @@ class _LangCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   subLabel,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                     fontSize: 12,
                     color: selected
-                        ? cs.onPrimaryContainer
-                        : cs.onSurfaceVariant,
+                        ? cs.ds.primaryInk
+                        : cs.ds.muted,
                   ),
                 ),
                 ],

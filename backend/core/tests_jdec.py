@@ -116,8 +116,11 @@ class GuardianLateTailTests(GBase):
             r = self.ca.post("%s/journey/%d/arrived" % (V, req.journey_id), {}, format="json")
             self.assertEqual(r.json()["status"], "arrived", late)
             self.assert_ended_now(req, "arrived", "arrived")
-            self.assertTrue(any(c["data"].get("event") == "arrived"
-                                for c in self.spy.to(self.b)), late)
+            # qjourney (owner V2): the phone is far AWAY from the destination,
+            # so the requester is told "Unusual arrival", never "arrived safely"
+            ev = [c["data"].get("event") for c in self.spy.to(self.b)]
+            self.assertIn("arrival_unusual", ev, late)
+            self.assertNotIn("arrived", ev, late)
 
     # ---- one-tap stop during the +45 grace
     def test_one_tap_stop_in_the_late_tail_stops_at_once(self):

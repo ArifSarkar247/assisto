@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../budget_api.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/budget_card.dart';
@@ -499,7 +500,7 @@ class _PlanTabState extends State<_PlanTab> {
                   AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: Gap.xs),
           Text(t.budgetPlanBody,
-              style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.sm),
           if (_loading)
             const SkeletonList(count: 3)
@@ -623,17 +624,17 @@ class _CategoryHistoryState extends State<_CategoryHistory> {
                   const SizedBox(height: Gap.md),
                   if (rollover)
                     Card(
-                      color: scheme.secondaryContainer,
+                      color: DsTokens.of(context).primarySoft,
                       child: ListTile(
                         leading: Icon(Icons.savings_rounded,
-                            color: scheme.onSecondaryContainer),
+                            color: DsTokens.of(context).primaryInk),
                         title: Text(t.budgetCarryForward,
                             style: TextStyle(
-                                color: scheme.onSecondaryContainer)),
+                                color: DsTokens.of(context).primaryInk)),
                         trailing: Text(tkOf(context, carry),
                             style: TextStyle(fontFeatures: AFonts.tabular,
                                 fontWeight: FontWeight.bold,
-                                color: scheme.onSecondaryContainer)),
+                                color: DsTokens.of(context).primaryInk)),
                       ),
                     ),
                   const SizedBox(height: Gap.md),

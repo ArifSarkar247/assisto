@@ -68,6 +68,9 @@ class _JApi extends ApiClient {
     }
     // the start form test only checks what is SENT; failing here keeps the
     // real live screen (tracker, plugins) out of the widget test
+    if (path == '/journey/parse-link') { // qjourney: pin a destination
+      return {'ok': true, 'lat': 23.7806, 'lng': 90.407, 'name': 'Gulshan 1'};
+    }
     if (path == '/journey/start') throw ApiException('test: not started', 500);
     if (path.endsWith('/stop') && stopError != null) throw stopError!;
     if (path.endsWith('/stop')) return {'ok': true, 'outcome': 'cancel', 'status': 'stopped'};
@@ -421,7 +424,7 @@ void main() {
     await _settle(tester);
     // journey2: the form is taller (intro + destination picker) — rows can
     // sit below the fold, so look past it and scroll to them
-    final karim = find.widgetWithText(CheckboxListTile, 'Reality Karim', skipOffstage: false);
+    final karim = find.widgetWithText(FilterChip, 'Reality Karim', skipOffstage: false); // sjstart2: chips
     expect(karim, findsOneWidget);
     expect(find.text('Pending Pal'), findsNothing);
     expect(find.byKey(const ValueKey('truth_journey_add_watcher'), skipOffstage: false),
@@ -429,11 +432,11 @@ void main() {
     await tester.ensureVisible(karim);
     await tester.tap(karim);
     await _settle(tester, 3);
-    expect(tester.widget<CheckboxListTile>(karim).value, isTrue);
+    expect(tester.widget<FilterChip>(karim).selected, isTrue);
     // sjfix: the ETA goes out as an absolute UTC instant. A naive local
     // time was read by the server as Asia/Dhaka, so any phone on another
     // timezone started its journey already overdue.
-    await tester.enterText(find.byKey(const ValueKey('j100_dest')), 'Home');
+    await _pinViaLink(tester); // qjourney
     await tester.ensureVisible(find.byKey(const ValueKey('j100_start'), skipOffstage: false));
     await _settle(tester, 3);
     await tester.tap(find.byKey(const ValueKey('j100_start')));
@@ -458,7 +461,7 @@ void main() {
     await tester.pumpWidget(_app(api));
     unawaited(_nav.currentState!.push(MaterialPageRoute(builder: (_) => const JourneyStartScreen())));
     await _settle(tester);
-    expect(find.byType(CheckboxListTile), findsNothing);
+    expect(find.byType(FilterChip), findsNothing); // sjstart2: chips
     expect(find.byKey(const ValueKey('truth_journey_add_watcher'), skipOffstage: false),
         findsOneWidget);
   });
@@ -476,4 +479,16 @@ void main() {
     await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
     await tr.stop();
   });
+}
+
+/// qjourney (owner V2): a journey needs a destination WITH coordinates — a
+/// typed name alone no longer starts one. Pin it through "Paste a Maps link".
+Future<void> _pinViaLink(WidgetTester tester) async {
+  await tester.ensureVisible(find.byKey(const ValueKey('j2_paste_link')));
+  await tester.tap(find.byKey(const ValueKey('j2_paste_link')));
+  await _settle(tester, 6);
+  await tester.enterText(
+      find.byKey(const ValueKey('j2_link_field')), 'https://maps.app.goo.gl/x');
+  await tester.tap(find.byKey(const ValueKey('j2_link_use')));
+  await _settle(tester, 8);
 }

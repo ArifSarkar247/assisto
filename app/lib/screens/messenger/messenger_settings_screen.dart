@@ -143,7 +143,7 @@ class MessengerSettingsScreen extends StatelessWidget {
                   ],
                 ),
                 trailing:
-                    Icon(Icons.edit_rounded, color: scheme.onSurfaceVariant),
+                    Icon(Icons.edit_rounded, color: scheme.ds.muted),
                 onTap: () => _open(context, const MessengerProfileScreen()),
               ),
             ),

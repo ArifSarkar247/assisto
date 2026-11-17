@@ -85,6 +85,7 @@ EOF
 sleep 1
 PYTHONPATH="$E2E_CACHE/pydeps" "$PY" "$HERE/rtsp_publisher.py" \
   --url rtsp://pub:pubpw@127.0.0.1:18554/cam1 --person "$E2E_CACHE/astronaut.png" \
+  --events-log "$E2E_DIR/person_events.log" \
   > "$E2E_DIR/publisher.log" 2>&1 & PIDS+=($!)
 
 # ---- simulated ONVIF camera + mock FCM
@@ -103,6 +104,7 @@ export E2E_FCM_TOKEN_URI="http://127.0.0.1:$FCM_PORT/token"
 export E2E_FCM_SEND_URL="http://127.0.0.1:$FCM_PORT/v1/projects/{project_id}/messages:send"
 export SHOPBOX_HOME="$E2E_DIR/shopbox" SHOPBOX_MODEL="$E2E_CACHE/yolox_nano.onnx"
 export SHOPBOX_DISCOVERY_IFACES=127.0.0.1
+export E2E_PERSON_EVENTS="$E2E_DIR/person_events.log"   # cctvacc: alert latency
 # migrated-DB template cached per migration set (first run ~minutes, then instant)
 MIG_HASH=$(cat "$ROOT"/backend/*/migrations/*.py | sha256sum | cut -c1-16)
 TPL="$E2E_CACHE/db_template_$MIG_HASH.sqlite3"

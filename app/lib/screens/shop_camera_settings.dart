@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -33,7 +34,7 @@ class ShopSeenPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final on = row['online'] == true;
-    final c = on ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.onSurfaceVariant;
+    final c = on ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.ds.muted;
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(Icons.circle_rounded, size: 9, color: c),
       const SizedBox(width: Gap.xs),
@@ -103,7 +104,7 @@ class ShopHoursField extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top: Gap.xs),
           child: Text(emptyLabel,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
     ]);
   }
@@ -271,7 +272,7 @@ class _ShopCameraSettingsSheetState extends State<ShopCameraSettingsSheet> {
             // cctvalerts (W3): person / vehicle / line / covered / SD ... switches
             CameraAlertTypesTile(cameraId: _id, cameraName: _name.text.trim()),
             const SizedBox(height: Gap.xs),
-            Text(t.shopCamHours, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(t.shopCamHours, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.xs),
             ShopHoursField(
               value: _hours,
@@ -357,7 +358,7 @@ class ShopWebhookCard extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.only(top: Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(label, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: Gap.xs),
           Container(
             width: double.infinity,
@@ -389,10 +390,7 @@ class ShopWebhookCard extends StatelessWidget {
       );
     }
 
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.surfaceContainerHighest,
-      child: Padding(
+    return DsSurface(color: scheme.ds.cardHighest,
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -400,25 +398,24 @@ class ShopWebhookCard extends StatelessWidget {
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(t.shopHookTitle,
-                    style: const TextStyle(fontWeight: FontWeight.w700))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700))),
           ]),
           const SizedBox(height: Gap.xs),
           Text(t.shopHookIntro,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
           row(t.shopHookHikvision, 'hikvision'),
           row(t.shopHookDahua, 'dahua'),
           const SizedBox(height: Gap.sm),
           Text(t.shopHookGuideHik,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.xs),
           Text(t.shopHookGuideDahua,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.xs),
           Text(t.shopHookSecret,
               style: AType.bodySmall.copyWith(color: scheme.error, height: 1.4)),
         ]),
-      ),
-    );
+      );
   }
 }
 
@@ -469,7 +466,7 @@ class _ShopSiteHoursSheetState extends State<ShopSiteHoursSheet> {
         Text(t.shopSiteHoursTitle, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: Gap.sm),
         Text(t.shopSiteHoursExplain,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4)),
+            style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted, height: 1.4)),
         const SizedBox(height: Gap.md),
         ShopHoursField(
           value: _hours,

@@ -153,11 +153,11 @@ class _OfflineStatusScreenState extends State<OfflineStatusScreen> {
                   const SizedBox(height: Gap.md),
                   Row(children: [
                     Icon(Icons.lock_outline_rounded,
-                        size: 14, color: scheme.onSurfaceVariant),
+                        size: 14, color: scheme.ds.muted),
                     const SizedBox(width: Gap.xs),
                     Expanded(
                       child: Text(oStr(context, 'offServerSafeNote'),
-                          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
                     ),
                   ]),
                 ],
@@ -176,8 +176,8 @@ class _LiveStatusCard extends StatelessWidget {
     final online = context.select<AppState, bool>((s) => s.online);
     final scheme = Theme.of(context).colorScheme;
     final good = online;
-    final bg = good ? scheme.secondaryContainer : scheme.tertiaryContainer;
-    final fg = good ? scheme.onSecondaryContainer : scheme.onTertiaryContainer;
+    final bg = good ? scheme.ds.primarySoft : scheme.ds.successBg;
+    final fg = good ? scheme.ds.primaryInk : scheme.ds.successInk;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(Gap.lg),
@@ -225,10 +225,10 @@ class _DataUsageCard extends StatelessWidget {
           ]),
           const SizedBox(height: Gap.sm),
           Text(oStrS(context, 'offTotalCached', totalLabel),
-              style: TextStyle(fontWeight: FontWeight.w600, color: scheme.onSurface)),
+              style: TextStyle(fontWeight: FontWeight.w600, color: scheme.ds.text)),
           const SizedBox(height: Gap.xs),
           Text(oStr(context, 'offDataUsageNote'),
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           SizedBox(
             width: double.infinity,

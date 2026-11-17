@@ -9,6 +9,7 @@ import '../../../messaging/date_separators.dart' show fmtDate;
 import '../../../services/error_kind.dart' show honestFailText;
 import '../../../state.dart';
 import '../../../theme.dart';
+import '../../../ds/ds.dart';
 import '../../../widgets/app_sheet.dart';
 import '../../../widgets/skeleton.dart';
 import '../business_common.dart' show pair;
@@ -96,16 +97,16 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
             const SizedBox(height: Gap.md),
             if (pl != null)
               Text(t.acuCloseMonthProfit(acctMoney(ctx, pl['net_profit'])),
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             if (tb != null)
               Text(tb['balanced'] == true ? t.acuBalanced : t.acuNotBalanced,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: tb['balanced'] == true
                           ? Theme.of(ctx).colorScheme.primary
                           : Theme.of(ctx).colorScheme.error,
                       fontWeight: FontWeight.w600)),
             const SizedBox(height: Gap.md),
-            Text(t.acuCloseExplain(acctDay(ctx, acctIso(end))), style: const TextStyle(height: 1.5)),
+            Text(t.acuCloseExplain(acctDay(ctx, acctIso(end))), style: AType.bodyMedium.copyWith(height: 1.5)),
             const SizedBox(height: Gap.sm),
             CheckboxListTile(
               key: const ValueKey('acct-close-understood'),
@@ -154,7 +155,7 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Text(t.acuReopenTitle(month), style: Theme.of(ctx).textTheme.titleLarge),
               const SizedBox(height: Gap.sm),
-              Text(t.acuReopenExplain, style: const TextStyle(height: 1.5)),
+              Text(t.acuReopenExplain, style: AType.bodyMedium.copyWith(height: 1.5)),
               const SizedBox(height: Gap.md),
               TextField(
                 key: const ValueKey('acct-reopen-reason'),
@@ -224,23 +225,21 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        Card(
-          color: lock == null ? scheme.surfaceContainerHighest : scheme.primaryContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        DsSurface(color: lock == null ? DsTokens.of(context).cardHighest : DsTokens.of(context).primarySoft,
+          padding: const EdgeInsets.all(Gap.md),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Row(children: [
                 Icon(lock == null ? Icons.lock_open_rounded : Icons.lock_rounded,
-                    color: lock == null ? scheme.onSurfaceVariant : scheme.onPrimaryContainer),
+                    color: lock == null ? DsTokens.of(context).muted : DsTokens.of(context).primaryInk),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(
                       lock == null
                           ? t.acuCloseNone
                           : t.acuClosedUpTo(acctDay(context, acctIso(lock))),
-                      style: TextStyle(
+                      style: AType.bodyMedium.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: lock == null ? null : scheme.onPrimaryContainer)),
+                          color: lock == null ? null : DsTokens.of(context).primaryInk)),
                 ),
               ]),
               if (lock != null) ...[
@@ -251,8 +250,8 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
                     // on the primaryContainer card: onPrimaryContainer keeps
                     // >= 4.5:1 (the default primary was 3.62:1 in dark)
                     style: OutlinedButton.styleFrom(
-                        foregroundColor: scheme.onPrimaryContainer,
-                        side: BorderSide(color: scheme.onPrimaryContainer)),
+                        foregroundColor: DsTokens.of(context).primaryInk,
+                        side: BorderSide(color: DsTokens.of(context).primaryInk)),
                     key: const ValueKey('acct-reopen'),
                     onPressed: _busy ? null : _reopen,
                     icon: const Icon(Icons.lock_open_rounded),
@@ -261,13 +260,12 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
                 ),
               ],
             ]),
-          ),
         ),
         const SizedBox(height: Gap.lg),
-        Text(t.acuCloseWhy, style: const TextStyle(height: 1.5)),
+        Text(t.acuCloseWhy, style: AType.bodyMedium.copyWith(height: 1.5)),
         const SizedBox(height: Gap.lg),
         if (months.isEmpty)
-          Text(t.acuCloseNothing, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4))
+          Text(t.acuCloseNothing, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted, height: 1.4))
         else ...[
           Semantics(
             header: true,
@@ -276,19 +274,19 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
           ),
           const SizedBox(height: Gap.sm),
           for (final m in months.reversed)
-            Card(
-              margin: const EdgeInsets.only(bottom: Gap.sm),
-              child: ListTile(
+            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
+                padding: EdgeInsets.zero,
+                child: ListTile(
                 key: ValueKey('acct-close-${acctIso(m)}'),
                 minVerticalPadding: Gap.sm,
                 leading: const Icon(Icons.calendar_month_rounded),
-                title: Text(fmtMonth(m, lang), style: const TextStyle(fontWeight: FontWeight.w700)),
+                title: Text(fmtMonth(m, lang), style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                 subtitle: Text(t.acuCloseUpTo(acctDay(context, acctIso(m)))),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 enabled: !_busy,
                 onTap: () => _close(m),
               ),
-            ),
+              )),
         ],
         // ledger2: year-end close (income & expenses -> retained earnings)
         const SizedBox(height: Gap.xl),

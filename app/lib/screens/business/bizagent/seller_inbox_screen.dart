@@ -270,7 +270,7 @@ class _SellerInboxScreenState extends State<SellerInboxScreen> {
       title: Text(bd(context, th['customer_name']),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: unread > 0 ? const TextStyle(fontWeight: FontWeight.w700) : null),
+          style: unread > 0 ? AType.bodyMedium.copyWith(fontWeight: FontWeight.w700) : null),
       subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(bd(context, '${th['last_text'] ?? ''}'),
             maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -511,7 +511,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
     return Material(
       color: handover || pausedUntil.isNotEmpty
           ? AssistoTokens.of(context).warning.withValues(alpha: 0.12)
-          : Theme.of(context).colorScheme.surfaceContainerHighest,
+          : Theme.of(context).colorScheme.ds.cardHighest,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -586,7 +586,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
         for (final l in lines)
           Padding(
             padding: const EdgeInsets.only(top: Gap.xxs),
-            child: Text(bd(context, '$l'), style: const TextStyle(height: 1.4)),
+            child: Text(bd(context, '$l'), style: AType.bodyMedium.copyWith(height: 1.4)),
           ),
         const SizedBox(height: Gap.xs),
         Text(
@@ -647,7 +647,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
               Text(bd(context, t.bv2DraftLine('${it['name'] ?? ''}', '${it['qty'] ?? 1}',
                   '${it['price'] ?? ''}'))),
             const SizedBox(height: Gap.xs),
-            Text(t.bv2DraftBody, style: const TextStyle(height: 1.4)),
+            Text(t.bv2DraftBody, style: AType.bodyMedium.copyWith(height: 1.4)),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               FilledButton.tonal(
@@ -664,7 +664,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
           title: bd(context, t.g1PaymentPendingTitle('${o['id']}')),
           icon: Icons.receipt_long_rounded,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(t.g1PaymentPendingBody, style: const TextStyle(height: 1.4)),
+            Text(t.g1PaymentPendingBody, style: AType.bodyMedium.copyWith(height: 1.4)),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               FilledButton.tonal(
@@ -854,8 +854,8 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
             color: pending
                 ? AssistoTokens.of(context).warning.withValues(alpha: 0.14)
                 : out
-                    ? scheme.primaryContainer
-                    : scheme.surfaceContainerHighest,
+                    ? scheme.ds.primarySoft
+                    : scheme.ds.cardHighest,
             borderRadius: BorderRadius.circular(Radii.md),
             border: failed ? Border.all(color: Theme.of(context).colorScheme.error) : null,
           ),
@@ -865,7 +865,7 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
                 padding: const EdgeInsets.only(bottom: Gap.xs),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Icon(kind == 'image' ? Icons.image_rounded : Icons.mic_none_rounded,
-                      size: 16, color: scheme.onSurfaceVariant),
+                      size: 16, color: scheme.ds.muted),
                   const SizedBox(width: Gap.xs),
                   Flexible(
                     child: Text(kind == 'image' ? t.g1PhotoFromCustomer : t.g1VoiceFromCustomer,
@@ -884,14 +884,14 @@ class _SellerChatScreenState extends State<SellerChatScreen> {
               ),
             if ('${m['text'] ?? ''}'.isNotEmpty || kind != 'image')
               Text(bd(context, m['text']),
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       height: 1.4,
-                      color: out ? scheme.onPrimaryContainer : scheme.onSurface)),
+                      color: out ? scheme.ds.primaryInk : scheme.ds.text)),
             if (meta.isNotEmpty) ...[
               const SizedBox(height: Gap.xs),
               Text(bd(context, meta),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: out ? scheme.onPrimaryContainer : scheme.onSurfaceVariant)),
+                      color: out ? scheme.ds.primaryInk : scheme.ds.muted)),
             ],
           ]),
         ),

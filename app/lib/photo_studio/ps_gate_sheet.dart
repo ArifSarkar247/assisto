@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../plans_v2/buy_inside.dart';
+
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
@@ -65,7 +67,7 @@ class PsGateSheet extends StatelessWidget {
               Text(
                   t.psGateProgress(fmtInt(context, need.adsTotal - need.adsRemaining),
                       fmtInt(context, need.adsTotal)),
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             ],
             if (need.lastAdFailed) ...[
               const SizedBox(height: Gap.md),
@@ -73,7 +75,7 @@ class PsGateSheet extends StatelessWidget {
             ],
             if (adsBlocked) ...[
               const SizedBox(height: Gap.md),
-              _note(context, Icons.info_outline_rounded, t.psGateAdsNotLinked, scheme.onSurfaceVariant),
+              _note(context, Icons.info_outline_rounded, t.psGateAdsNotLinked, scheme.ds.muted),
             ],
             const SizedBox(height: Gap.lg),
             if (adsPossible)
@@ -106,7 +108,7 @@ class PsGateSheet extends StatelessWidget {
             const SizedBox(height: Gap.sm),
             Text(t.psGateNoFillNote,
                 textAlign: TextAlign.center,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ],
         ),
       ),
@@ -118,7 +120,7 @@ class PsGateSheet extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: color),
           const SizedBox(width: Gap.sm),
-          Expanded(child: Text(text, style: TextStyle(color: color))),
+          Expanded(child: Text(text, style: AType.bodyMedium.copyWith(color: color))),
         ],
       );
 }
@@ -145,5 +147,11 @@ class SheetGateUi extends GateUi {
   Future<bool> outOfCredits() {
     if (!context.mounted) return Future.value(false);
     return CreditsOut.offer(context, screen: 'photo_studio', draftKept: true);
+  }
+
+  @override
+  Future<bool> needsPremium() {
+    if (!context.mounted) return Future.value(false);
+    return BuyInside.open(context, 'photo_ultra_hd');
   }
 }

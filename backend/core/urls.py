@@ -7,6 +7,7 @@ from . import views_aileft_catalog as aileft_cat   # aileft
 from . import invoice_views as invv   # invoices
 from . import views_module5 as m5
 from . import views_build61 as b61
+from . import views_sjduring as sjd  # sjduring
 from . import views_maps as vmaps   # mapscost
 from . import views_guardian as vg
 from . import views_m2 as m2
@@ -17,6 +18,7 @@ from . import ledger_entry_views as lev  # acctui
 from . import account_mode as acctmode   # acctmode
 from . import ledger2_views as l2v  # ledger2
 from . import views_tagada2 as tg2   # tagada2
+from . import khata_duelink   # qbiz
 from . import views_messenger as msg
 from . import views_security as secv
 from . import views_registry as reg
@@ -27,12 +29,16 @@ from . import shop_views as shop
 from . import views_push as pushv
 from . import views_family100 as fam100
 from . import views_famcare as famc  # famcare
+from . import views_family_brain as fcb  # fcbrain
+from . import views_family_v3 as f3  # fcscreen
 from . import views_moneybar  # moneybar
 from . import views_ads as ads_views
 from . import vault_recovery as vaultrec  # vault100
 from . import vault_e2e as vaulte2e  # p3docs
 from . import views_voice as voicev
 from . import views_nearby as nearbyv  # nearby
+from . import views_city as cityv  # citydata
+from . import views_fcsos as fcsosv  # fcsos
 
 router = DefaultRouter()
 router.register("memory", views.MemoryViewSet, basename="memory")
@@ -221,6 +227,32 @@ urlpatterns = [
     path("nearby/area", nearbyv.nearby_area),            # nearby
     path("nearby/report", nearbyv.nearby_report),        # nearby
     path("nearby/sponsored", nearbyv.nearby_sponsored),  # nearby
+    # citydata: City Service (owner_actions/CITY_SERVICE_API.md)
+    path("city/where", cityv.city_where),
+    path("city/plan", cityv.city_plan),
+    path("city/package", cityv.city_package),
+    path("city/stations", cityv.city_stations),
+    path("city/station/<str:stop_id>", cityv.city_station),
+    path("city/metro", cityv.city_metro),
+    path("city/route/<str:route_id>", cityv.city_route),
+    path("city/search", cityv.city_search),
+    path("city/stops/near", cityv.city_stops_near),
+    path("city/terminals", cityv.city_terminals),
+    path("city/ghats", cityv.city_ghats),
+    path("city/offices", cityv.city_offices),
+    path("city/reports", cityv.city_reports),
+    path("city/reports/<int:rid>/flag", cityv.city_report_flag),
+    path("city/correction", cityv.city_correction),
+    path("city/fare-report", cityv.city_fare_report),
+    path("city/night-rating", cityv.city_night_rating),
+    path("city/trips/consent", cityv.city_trip_consent),
+    path("city/trips", cityv.city_trip),
+    path("city/trips/confirm", cityv.city_trip_confirm_ride),  # mapapp (renamed: citycov owns city_trip_confirm(tid))
+    path("city/trips/mine", cityv.city_trip_mine),  # mapapp
+    path("city/map", cityv.city_map),  # mapapp
+    path("city/women", cityv.city_women),
+    path("city/field-stops", cityv.city_field_stops),  # citycov
+    path("city/trips/<int:tid>/confirm", cityv.city_trip_confirm),  # citycov
     path("artist/favourite", views.FavouriteArtistView.as_view()),
     path("finance", views.FinanceView.as_view()),
     path("prices/official", views_moneybar.OfficialPricesView.as_view()),  # moneybar
@@ -317,6 +349,7 @@ urlpatterns = [
     path("business/khata/tagada/send/<int:pk>", tg2.TagadaSendView.as_view()),
     path("business/khata/parties/<int:pk>/chat", tg2.KhataChatView.as_view()),
     path("business/khata/parties/<int:pk>/invite", tg2.KhataInviteView.as_view()),
+    path("business/khata/parties/<int:pk>/due-link", khata_duelink.KhataDueLinkView.as_view()),   # qbiz
     path("business/sms/balance", tg2.SmsBalanceView.as_view()),
     path("me/dues", tg2.MyDuesView.as_view()),
     path("me/dues/<int:bid>", tg2.MyDuesShopView.as_view()),
@@ -364,6 +397,18 @@ urlpatterns = [
     # famcare (owner 28 Oct): pick from My Circle, limits (safety free = 5),
     # shared reminders, family shopping list, shared vault documents.
     # MUST precede router.urls (family/<pk>).
+    # fcscreen: Family Care v3 (multi-family board, tasks, member page)
+    path("family/v3/families", f3.FamiliesView.as_view()),
+    path("family/v3/families/<int:fid>/board", f3.FamilyBoardView.as_view()),
+    path("family/v3/families/<int:fid>/rename", f3.FamilyRenameView.as_view()),
+    path("family/v3/families/<int:fid>/invite", f3.FamilyInviteView.as_view()),
+    path("family/v3/families/<int:fid>/leave", f3.FamilyLeaveView.as_view()),
+    path("family/v3/families/<int:fid>/remove/<int:uid>", f3.FamilyRemoveView.as_view()),
+    path("family/v3/families/<int:fid>/members/<int:uid>", f3.FamilyMemberEditView.as_view()),
+    path("family/v3/families/<int:fid>/tasks", f3.FamilyTasksView.as_view()),
+    path("family/v3/invites/<int:mid>/<str:answer>", f3.InviteAnswerView.as_view()),
+    path("family/v3/members/<int:uid>", f3.MemberPageView.as_view()),
+    path("family/v3/tasks/<int:tid>/<str:action>", f3.FamilyTaskActionView.as_view()),
     path("family/limits", famc.FamilyLimitsView.as_view()),
     path("family/limits/", famc.FamilyLimitsView.as_view()),
     path("family/circle-pick", famc.FamilyCirclePickView.as_view()),
@@ -394,9 +439,27 @@ urlpatterns = [
     path("family/sos", fam100.FamilySosView.as_view()),
     path("family/sos/resolve", fam100.FamilySosResolveView.as_view()),
     path("family/sos/ladder", fam100.FamilySosLadderView.as_view()),  # sosat
+    # fcsos: Family Care v3 SOS sender / receiver
+    path("family/sos/location", fcsosv.SosLocationView.as_view()),
+    path("family/sos/audio", fcsosv.SosAudioView.as_view()),
+    path("family/sos/status", fcsosv.SosStatusView.as_view()),
+    path("family/sos/settings", fcsosv.SosSettingsView.as_view()),
+    path("family/sos/event/<int:pk>", fcsosv.SosEventView.as_view()),
+    path("family/sos/event/<int:pk>/audio", fcsosv.SosEventAudioView.as_view()),
     path("family/fall/pending", fam100.FallPendingView.as_view()),   # sosat
     path("family/fall/ok", fam100.FallOkView.as_view()),             # sosat
     path("family/alerts", fam100.FamilyAlertsView.as_view()),
+    # fcbrain (Family Care v3 BRAIN 2-7, MUST precede router.urls)
+    path("family/brain/ping", fcb.BrainPingView.as_view()),
+    path("family/brain/prefs", fcb.BrainPrefsView.as_view()),
+    path("family/brain/pause", fcb.BrainPauseView.as_view()),
+    path("family/brain/visibility", fcb.BrainVisibilityView.as_view()),
+    path("family/brain/leave", fcb.BrainLeaveView.as_view()),
+    path("family/brain/night-news", fcb.BrainNightNewsView.as_view()),
+    path("family/brain/ask", fcb.BrainAskView.as_view()),
+    path("family/brain/member/<int:uid>", fcb.BrainMemberView.as_view()),
+    path("family/brain/watch", fcb.BrainWatchTokenView.as_view()),
+    path("family/brain/watch-ping", fcb.BrainWatchPingView.as_view()),
     path("family/alerts/received", fam100.FamilyAlertReceivedView.as_view()),
     path("family/alerts/<int:pk>/seen", fam100.FamilyAlertSeenView.as_view()),
     path("family/sharing/consent/", views.FamilySharingConsentView.as_view()),
@@ -571,8 +634,11 @@ urlpatterns = [
     path("maps/status", vmaps.MapsStatusView.as_view()),
     path("maps/reverse", vmaps.MapsReverseView.as_view()),
     path("maps/autocomplete", vmaps.MapsAutocompleteView.as_view()),
+    path("maps/search", vmaps.MapsSearchView.as_view()),  # qjourney
+    path("maps/area", vmaps.MapsAreaView.as_view()),  # sjstart2
     path("maps/place", vmaps.MapsPlaceView.as_view()),
     path("maps/eta", vmaps.MapsEtaView.as_view()),
+    path("maps/transit", vmaps.MapsTransitView.as_view()),  # mapapp
     path("journey/places/<int:pk>", b61.SavedPlaceDetailView.as_view()),
     # owner idea 1: guardian-requested journeys (core/guardian_journey.py)
     path("journey/requests", vg.JourneyRequestsView.as_view()),
@@ -592,6 +658,13 @@ urlpatterns = [
     path("journey/watching", b61.JourneyWatchingView.as_view()),
     path("journey/where-now", b61.JourneyWhereNowView.as_view()),  # sjlive
     path("journey/routines/<int:pk>", b61.JourneyRoutineDetailView.as_view()),
+    # sjduring: DURING the trip — private ask, PIN arrival, watcher board
+    path("journey/<int:pk>/during", sjd.DuringView.as_view()),
+    path("journey/<int:pk>/answer", sjd.AnswerView.as_view()),
+    path("journey/<int:pk>/arrive-pin", sjd.ArrivePinView.as_view()),
+    path("journey/<int:pk>/danger-audio", sjd.DangerAudioView.as_view()),
+    path("journey/arrive-pin-pref", sjd.ArrivePinPrefView.as_view()),
+    path("journey/watch-board", sjd.WatchBoardView.as_view()),
 
     # ===== Messenger STEP 3 =====
     # 1. Contacts & invites + personal connection request (msg_contacts)
@@ -778,6 +851,18 @@ urlpatterns += [
     path("shop/phonecam/claim", phonecam.PhoneCamClaimView.as_view()),
     path("shop/phonecam/unbind", phonecam.PhoneCamUnbindView.as_view()),
     path("shop/phonecam/<int:pk>", phonecam.PhoneCamSettingsView.as_view()),
+    path("shop/shopbox/download", phonecam.ShopBoxDownloadView.as_view()),  # cctvtoday
+]
+
+# cctvplay: remote playback of phone-camera clips (+ continuous recording)
+from . import phonecam_clips_views as pcclips  # noqa: E402
+urlpatterns += [
+    path("shop/events/<int:pk>/clip/full", pcclips.EventFullClipView.as_view()),
+    path("shop/phonecam/video", pcclips.PhoneCamVideoUploadView.as_view()),
+    path("shop/phonecam/timeline", pcclips.PhoneCamTimelineView.as_view()),
+    path("shop/phonecam/<int:pk>/recording", pcclips.PhoneCamRecordingView.as_view()),
+    path("shop/phonecam/<int:pk>/recording/clip",
+         pcclips.PhoneCamRecordingClipView.as_view()),
 ]
 
 # ---- cctvprice ---- CCTV plan on Google Play (flag cctv_watchman)
@@ -807,6 +892,7 @@ urlpatterns += [
     path("shop/gateway/tasks/<int:pk>/status", wm.TaskStatusView.as_view()),
     path("shop/gateway/tasks/<int:pk>/result", wm.GatewayTaskResultView.as_view()),
     path("shop/imou/callback/<str:token>", wm.ImouCallbackView.as_view()),
+    path("cctv/imou/oauth/callback", wm.ImouOAuthCallbackView.as_view()),
     # cashguard (Smart Cash Guard, owner 28 Oct)
     path("shop/clips", cg.ShopClipUploadView.as_view()),
     path("shop/events/<int:pk>/clip", cg.EventClipView.as_view()),
@@ -965,6 +1051,9 @@ urlpatterns += [
     path("auth/otp/email/me", otpv.OtpEmailMeView.as_view()),
 ]
 # ---- /o1-otp ----
+# emailrel: one-click unsubscribe for bulk email (reports); public, signed token
+from . import views_email as emailv  # noqa: E402
+urlpatterns += [path("email/unsubscribe", emailv.unsubscribe)]
 
 # ---- v1-vehicle ---- Vehicle tracking: GT06/Teltonika trackers, live map,
 # 24h route + trips, engine cut (PIN + speed gate + approval), grants, OBD,
@@ -1040,6 +1129,20 @@ urlpatterns += [
 ]
 # ---- /mr1 ----
 
+# ---- fcelder ---- Silent Watch + Elder setup by a child (MUST precede router.urls: family/<pk>)
+from . import views_silent_watch as swv  # noqa: E402
+urlpatterns += [
+    path("family/silent-watch", swv.SilentWatchView.as_view()),
+    path("family/silent-watch/token", swv.SilentWatchTokenView.as_view()),
+    path("family/silent-watch/ok", swv.SilentWatchOkView.as_view()),
+    path("family/silent-watch/alert", swv.SilentWatchAlertView.as_view()),
+    path("family/silent-watch/alerts/<int:pk>/ack", swv.SilentWatchAckView.as_view()),
+    path("family/silent-watch/test", swv.SilentWatchTestView.as_view()),
+    path("family/elder-setup", swv.ElderSetupView.as_view()),
+    path("family/elder-setup/<str:code>", swv.ElderSetupCodeView.as_view()),
+    path("family/elder-setup/<str:code>/accept", swv.ElderSetupAcceptView.as_view()),
+]
+# ---- /fcelder ----
 urlpatterns += router.urls
 
 # ---- ps1-photo ---- Photo Studio: config, safety, entry ad, jobs (funding taken
@@ -1551,6 +1654,7 @@ urlpatterns += [
     path("school-mode/plans/<int:pk>/events", kwv.PlanEventsView.as_view()),
     path("school-mode/plans/<int:pk>/events/clear", kwv.PlanEventsView.as_view()),
     path("school-mode/plans/<int:pk>/gate-snapshot", kwv.GateSnapshotView.as_view()),  # sjlive
+    path("school-mode/plans/<int:pk>/kc-answer", kwv.KidsCornerAnswerView.as_view()),  # sjkids
     path("school-mode/plans/<int:pk>/<str:action>", kwv.PlanActionView.as_view()),
 ]
 # ---- /kidswatch ----
@@ -1634,6 +1738,7 @@ urlpatterns += [
     path("train/chat/request/<int:pk>/<str:action>", trv.RequestActView.as_view()),
     path("train/<str:no>/live", trv.LiveView.as_view()),
     path("train/<str:no>/share", trv.ShareStartView.as_view()),
+    path("train/<str:no>/seat", trv.SeatView.as_view()),               # sjtrain
     path("train/<str:no>/chat", trv.ChatView.as_view()),
     path("train/<str:no>/chat/join", trv.ChatJoinView.as_view()),
     path("train/<str:no>/chat/leave", trv.ChatLeaveView.as_view()),
@@ -1868,9 +1973,126 @@ urlpatterns += [
     path("bizai/crm/draft", bzai.CrmDraftView.as_view()),
     path("bizai/prochar", bzai.ProcharView.as_view()),
     path("bizai/prochar/tracked/<str:item_id>", bzai.ProcharTrackedView.as_view()),
+    path("bizai/daily", bzai.BizDailyView.as_view()),   # bizai2
     path("bizai/cctv/accuracy", bzai.CctvAccuracyView.as_view()),
     path("bizai/cctv/missed", bzai.CctvMissedView.as_view()),
     path("bizai/cctv/test", bzai.CctvTestView.as_view()),
     path("bizai/cctv/test/<int:pk>/<str:action>", bzai.CctvTestView.as_view()),
 ]
 # ---- /bizai ----
+# ---- quranview (lane 14): bilingual ayah view ----
+from . import views_quranview as qvv  # noqa: E402
+
+urlpatterns += [
+    path("quran/meaning/<int:surah>", qvv.MeaningView.as_view()),
+    path("quran/tafsir/<int:surah>/<int:ayah>", qvv.TafsirView.as_view()),
+    path("quran/qf/<int:surah>/<int:ayah>", qvv.QfAyahView.as_view()),
+    path("quran/reciters", qvv.RecitersView.as_view()),
+]
+# ---- cctvconnect (CCTV Guard V3 A1 brand clouds + B DVR health) ----
+from . import cctv_connect_views as ccv  # noqa: E402
+urlpatterns += [
+    path("cctv/connect/providers", ccv.ProvidersView.as_view()),
+    path("cctv/connect/oauth/callback", ccv.OAuthCallbackView.as_view()),
+    path("cctv/connect/oauth/go", ccv.OAuthGoView.as_view()),
+    path("cctv/connect/<str:pid>/link", ccv.LinkDeviceView.as_view()),
+    path("cctv/connect/<str:pid>/oauth/start", ccv.OAuthStartView.as_view()),
+    path("cctv/connect/links/<int:pk>", ccv.LinkRevokeView.as_view()),
+    path("cctv/connect/links/<int:pk>/devices", ccv.LinkDevicesView.as_view()),
+    path("cctv/connect/links/<int:pk>/import", ccv.LinkImportView.as_view()),
+    path("cctv/connect/cameras/<int:pk>/stream", ccv.CameraStreamView.as_view()),
+    path("cctv/health/sites/<int:pk>", ccv.SiteHealthView.as_view()),
+    path("shop/gateway/dvr-health", ccv.GatewayHealthView.as_view()),
+    path("cctv/dolynk/callback/<str:token>", ccv.DolynkCallbackView.as_view()),
+    path("cctv/dolynk/arc/<str:token>", ccv.DolynkArcCallbackView.as_view()),  # dolynkreal
+]
+# ---- /cctvconnect ----
+# ---- cctvroles ---- CCTV Guard V3 J (installer partners)
+from . import cctv_partner_views as cpv  # noqa: E402
+urlpatterns += [
+    path("shop/sites/<int:pk>/installer", cpv.SiteInstallerView.as_view()),
+    path("shop/installer/<int:pk>/end", cpv.InstallerEndView.as_view()),
+    path("shop/partner/me", cpv.PartnerMeView.as_view()),
+    path("shop/partner/apply", cpv.PartnerApplyView.as_view()),
+    path("shop/partner/join", cpv.PartnerJoinView.as_view()),
+]
+# ---- cctvact ---- CCTV GUARD V3 D/E/F/G (owner 9 Nov 15:15): act from an
+# alert, Tuya automations, closing report, POS webhook + CSV, sales match, ask
+from . import cctv_act_views as cact3  # noqa: E402
+urlpatterns += [
+    path("shop/sites/<int:pk>/location", cact3.SiteLocationView.as_view()),
+    path("shop/sites/<int:pk>/thana", cact3.SiteThanaView.as_view()),
+    path("shop/events/<int:pk>/play", cact3.EventPlayView.as_view()),
+    path("shop/device/warn-clip", cact3.DeviceWarnClipView.as_view()),
+    path("shop/device/daily-stats", cact3.DeviceDailyStatsView.as_view()),
+    path("shop/sites/<int:pk>/automations", cact3.AutomationsView.as_view()),
+    path("shop/sites/<int:pk>/automations/link", cact3.AutomationsLinkView.as_view()),
+    path("shop/sites/<int:pk>/automations/test", cact3.AutomationsTestView.as_view()),
+    path("shop/sites/<int:pk>/automations/lock", cact3.AutomationsLockView.as_view()),
+    path("shop/sites/<int:pk>/closing-report", cact3.ClosingReportView.as_view()),
+    path("shop/sites/<int:pk>/pos-key", cact3.PosKeyView.as_view()),
+    path("shop/pos/webhook", cact3.PosWebhookView.as_view()),
+    path("shop/sites/<int:pk>/pos-csv", cact3.PosCsvView.as_view()),
+    path("shop/sites/<int:pk>/sales-match", cact3.SalesMatchView.as_view()),
+    path("shop/sites/<int:pk>/ask", cact3.AskView.as_view()),
+]
+# ---- /cctvact ----
+# ---- quranpron ---- rule-based Bangla pronunciation (no AI), under review
+from . import views_quranpron as qpron  # noqa: E402
+urlpatterns += [
+    path("quran/pron/<int:surah>", qpron.QuranPronView.as_view()),
+]
+# ---- /quranpron ----
+# ---- lpcore ---- Language Partner V2 (owner_actions/LANGUAGE_PARTNER_API.md)
+from . import lp_views as lpv  # noqa: E402
+urlpatterns += [
+    path("lp/mocks", lpv.LpMocksView.as_view()),
+    path("lp/mocks/<str:mid>", lpv.LpMockView.as_view()),
+    path("lp/mocks/<str:mid>/mark", lpv.LpMarkView.as_view()),
+    path("lp/mocks/<str:mid>/finish", lpv.LpFinishView.as_view()),
+    path("lp/weak/practice", lpv.LpWeakPracticeView.as_view()),
+    path("lp/practice/mark", lpv.LpPracticeMarkView.as_view()),
+    path("lp/score/writing", lpv.LpScoreWritingView.as_view()),
+    path("lp/score/speaking", lpv.LpScoreSpeakingView.as_view()),
+    path("lp/score/price", lpv.LpScorePriceView.as_view()),
+    path("lp/gates", lpv.LpGatesView.as_view()),
+    path("lp/ads/ticket", lpv.LpAdTicketView.as_view()),
+    path("lp/content/version", lpv.LpContentVersionView.as_view()),
+    path("lp/content/<str:kind>", lpv.LpContentView.as_view()),
+    path("lp/life/roleplay", lpv.LpRoleplayView.as_view()),
+    path("lp/companion/books", lpv.LpCompanionBooksView.as_view()),
+    path("lp/companion/mark", lpv.LpCompanionMarkView.as_view()),
+    path("lp/companion/sheets", lpv.LpCompanionSheetsView.as_view()),
+    path("lp/certificate/<int:pk>", lpv.LpCertificateView.as_view()),
+]
+# ---- /lpcore ----
+
+# ---- buyinside ---- plan recommendation from real usage + purchase origins
+from . import views_buyinside as buyv  # noqa: E402
+urlpatterns += [
+    path("plans/recommend", buyv.PlanRecommendView.as_view()),
+    path("owner/buy-origins", buyv.BuyOriginsView.as_view()),
+]
+# ---- messv2 ---- Mess and bachelor V2 (shared mess, owner order 10 Nov)
+from . import views_mess as messv  # noqa: E402
+
+urlpatterns += [
+    path("mess/v2", messv.MessListView.as_view()),
+    path("mess/v2/import-legacy", messv.MessImportLegacyView.as_view()),
+    path("mess/v2/by-group/<int:gid>", messv.MessByGroupView.as_view()),
+    path("mess/v2/<int:pk>", messv.MessDetailView.as_view()),
+    path("mess/v2/<int:pk>/edit", messv.MessEditView.as_view()),
+    path("mess/v2/<int:pk>/circle-pick", messv.MessCirclePickView.as_view()),
+    path("mess/v2/<int:pk>/members", messv.MessMembersView.as_view()),
+    path("mess/v2/<int:pk>/members/<int:mid>", messv.MessMemberActionView.as_view()),
+    path("mess/v2/<int:pk>/meals", messv.MessMealsView.as_view()),
+    path("mess/v2/<int:pk>/meals/off", messv.MessMealsOffView.as_view()),
+    path("mess/v2/<int:pk>/entries", messv.MessEntriesView.as_view()),
+    path("mess/v2/<int:pk>/entries/<int:eid>", messv.MessEntryActionView.as_view()),
+    path("mess/v2/<int:pk>/close", messv.MessCloseMonthView.as_view()),
+    path("mess/v2/<int:pk>/remind", messv.MessRemindView.as_view()),
+    path("mess/v2/<int:pk>/history", messv.MessHistoryView.as_view()),
+    path("mess/v2/<int:pk>/report", messv.MessReportView.as_view()),
+    path("mess/v2/<int:pk>/close-mess", messv.MessCloseMessView.as_view()),
+]
+# ---- /messv2 ----

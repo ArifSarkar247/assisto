@@ -137,7 +137,7 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
                   child: Text(t.boPickSupplier, style: Theme.of(ctx).textTheme.titleMedium)),
               const SizedBox(height: Gap.sm),
               if (list.isEmpty) ...[
-                Text(t.boNoSupplier, style: TextStyle(color: s.onSurfaceVariant, height: 1.4)),
+                Text(t.boNoSupplier, style: TextStyle(color: s.ds.muted, height: 1.4)),
                 const SizedBox(height: Gap.md),
                 FilledButton.icon(
                   key: const ValueKey('bo_open_khata'),
@@ -229,7 +229,7 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           const OfflineBanner(),
-          Text(t.boIntro, style: TextStyle(color: s.onSurfaceVariant, height: 1.4)),
+          Text(t.boIntro, style: TextStyle(color: s.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           if (c.empty)
             Card(
@@ -239,7 +239,7 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(t.boEmptyTitle, style: tt.titleMedium),
                   const SizedBox(height: Gap.sm),
-                  Text(t.boEmptyBody, style: TextStyle(color: s.onSurfaceVariant, height: 1.4)),
+                  Text(t.boEmptyBody, style: TextStyle(color: s.ds.muted, height: 1.4)),
                   const SizedBox(height: Gap.md),
                   FilledButton.icon(
                     key: const ValueKey('bo_open_shop'),
@@ -263,7 +263,7 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
             const SizedBox(height: Gap.lg),
             Semantics(header: true, child: Text(t.boActions, style: tt.titleSmall)),
             const SizedBox(height: Gap.xs),
-            Text(t.boNeedsOk, style: TextStyle(color: s.onSurfaceVariant, fontSize: 13)),
+            Text(t.boNeedsOk, style: TextStyle(color: s.ds.muted, fontSize: 13)),
             const SizedBox(height: Gap.sm),
             for (final a in c.actions) _actionButton(context, a),
           ],
@@ -294,24 +294,24 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
             ]),
             if (!c.aiReady) ...[
               const SizedBox(height: Gap.xs),
-              Text(t.boNoAiNote, style: TextStyle(color: s.onSurfaceVariant, fontSize: 13)),
+              Text(t.boNoAiNote, style: TextStyle(color: s.ds.muted, fontSize: 13)),
             ],
           ],
           if (c.costLines.isNotEmpty) ...[
             const SizedBox(height: Gap.lg),
             Card(
               key: const ValueKey('bo_cost'),
-              color: s.surfaceContainerHighest,
+              color: s.ds.cardHighest,
               child: ExpansionTile(
-                leading: Icon(Icons.calculate_outlined, color: s.onSurface),
-                title: Text(t.boCost, style: TextStyle(color: s.onSurface)),
+                leading: Icon(Icons.calculate_outlined, color: s.ds.text),
+                title: Text(t.boCost, style: TextStyle(color: s.ds.text)),
                 childrenPadding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
                 expandedCrossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   for (final l in c.costLines)
                     Padding(
                       padding: const EdgeInsets.only(bottom: Gap.xs),
-                      child: Text('• $l', style: TextStyle(color: s.onSurface, height: 1.4)),
+                      child: Text('• $l', style: TextStyle(color: s.ds.text, height: 1.4)),
                     ),
                 ],
               ),

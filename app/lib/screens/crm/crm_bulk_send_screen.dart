@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../api.dart';
@@ -176,7 +177,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
       Text(t.c100BulkIntro(_d(widget.customers.length)), style: AType.bodyMedium),
       const SizedBox(height: Gap.xs),
       Text(t.c100NeverAuto,
-          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
       const SizedBox(height: Gap.md),
       TextField(
         controller: _text,
@@ -198,7 +199,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
               failKindOf(_fail!) == FailKind.network
                   ? t.c100Offline
                   : honestFailText(t, _fail, otherwise: t.c100PreviewFailed),
-              style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.error)),
         ),
       FilledButton.icon(
         onPressed: _busy ? null : _build,
@@ -244,9 +245,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
     final c = k.c;
     final phoneOk = c['phone_ok'] == true;
     final smsOk = k.sms['available'] == true;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text('${c['name'] ?? ''}'.isEmpty ? _d('${c['phone'] ?? ''}') : '${c['name']}',
@@ -295,7 +294,6 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
             ),
           ]),
         ]),
-      ),
-    );
+      ));
   }
 }

@@ -533,7 +533,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                       padding: const EdgeInsets.fromLTRB(
                           Gap.lg, Gap.md, Gap.lg, 0),
                       child: Text('${widget.community['description']}',
-                          style: TextStyle(color: scheme.onSurfaceVariant)),
+                          style: TextStyle(color: scheme.ds.muted)),
                     ),
                   if (!_backendReady) _pending(scheme),
                   if (_isAdmin && _joinRequests.isNotEmpty) ...[
@@ -549,7 +549,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                     Padding(
                       padding: const EdgeInsets.all(Gap.lg),
                       child: Text(_t.communityNoTopics,
-                          style: TextStyle(color: scheme.onSurfaceVariant)),
+                          style: TextStyle(color: scheme.ds.muted)),
                     ),
                   for (final g in _topics) _groupCard(g),
                   // p2-money: "Sponsored" post at the end of a LARGE
@@ -672,7 +672,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   Widget _pending(ColorScheme scheme) => Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Text(_t.communityBackendPending,
-            style: TextStyle(color: scheme.onSurfaceVariant)),
+            style: TextStyle(color: scheme.ds.muted)),
       );
 
   /// Honest, retryable error state (§21): a real request failed — never hide it
@@ -687,7 +687,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.cloud_off_rounded,
-                      size: 56, color: scheme.onSurfaceVariant),
+                      size: 56, color: scheme.ds.muted),
                   const SizedBox(height: Gap.md),
                   Text(_t.communityLoadError,
                       textAlign: TextAlign.center,
@@ -717,7 +717,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           child: Text(
             rules.isEmpty ? _t.communityRulesEmpty : rules,
             style: rules.isEmpty
-                ? TextStyle(color: Theme.of(ctx).colorScheme.onSurfaceVariant)
+                ? TextStyle(color: Theme.of(ctx).colorScheme.ds.muted)
                 : null,
           ),
         ),

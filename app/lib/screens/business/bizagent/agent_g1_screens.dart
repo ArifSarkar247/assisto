@@ -10,6 +10,7 @@ import '../../../theme.dart';
 import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
 import 'seller_agent_screen.dart' show asciiDigits, baErrorText, bd;
+import '../../../widgets/num_input.dart'; // savesweep
 
 /// G1 — the advanced Business AI Agent ("Night Salesman") seller screens:
 ///
@@ -181,7 +182,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
           FilledButton(
             onPressed: _busy
                 ? null
-                : () => _save({key: int.tryParse(asciiDigits(c.text.trim())) ?? fallback}),
+                : () => _save({key: parseIntInput(asciiDigits(c.text.trim())) ?? fallback}),
             child: Text(t.g1Save),
           ),
         ]),
@@ -274,7 +275,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
         title: t.g1ResumeTitle,
         icon: Icons.support_agent_rounded,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(bd(context, t.g1ResumeSub(resumeMin)), style: const TextStyle(height: 1.4)),
+          Text(bd(context, t.g1ResumeSub(resumeMin)), style: AType.bodyMedium.copyWith(height: 1.4)),
           const SizedBox(height: Gap.md),
           Row(children: [
             Expanded(
@@ -289,7 +290,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
             FilledButton(
               onPressed: _busy
                   ? null
-                  : () => _save({'resume_minutes': int.tryParse(asciiDigits(_resume.text)) ?? 15}),
+                  : () => _save({'resume_minutes': parseIntInput(asciiDigits(_resume.text)) ?? 15}),
               child: Text(t.g1Save),
             ),
           ]),
@@ -345,7 +346,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
           _switch('upsell_enabled', t.g1UpsellTitle, t.g1UpsellSub),
           _switch('auto_courier', t.g1AutoCourierTitle, t.g1AutoCourierSub),
           const SizedBox(height: Gap.sm),
-          Text(t.g1BundleTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(t.g1BundleTitle, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           Text(t.g1BundleSub, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: Gap.sm),
           Row(children: [
@@ -372,8 +373,8 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
             onPressed: _busy
                 ? null
                 : () {
-                    final q = int.tryParse(asciiDigits(_bundleQty.text));
-                    final p = double.tryParse(asciiDigits(_bundlePct.text));
+                    final q = parseIntInput(asciiDigits(_bundleQty.text));
+                    final p = parseNumInput(asciiDigits(_bundlePct.text));
                     _save({
                       'bundle_rules': (q == null || p == null)
                           ? []
@@ -444,7 +445,7 @@ class _AgentBehaviourScreenState extends State<AgentBehaviourScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                color: Theme.of(context).colorScheme.ds.cardHighest,
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: SelectableText(snippet,
@@ -688,7 +689,7 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
               label: Text(t.g1FaqLearn),
             ),
             const SizedBox(height: Gap.sm),
-            if (_faqs.isEmpty) Text(t.g1FaqEmpty, style: const TextStyle(height: 1.4)),
+            if (_faqs.isEmpty) Text(t.g1FaqEmpty, style: AType.bodyMedium.copyWith(height: 1.4)),
             for (final f in suggested) _faqTile(t, f, suggested: true),
             for (final f in approved) _faqTile(t, f),
           ]),
@@ -703,7 +704,7 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
             icon: const Icon(Icons.add_link_rounded),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(t.g1PostLinksSub, style: const TextStyle(height: 1.4)),
+            Text(t.g1PostLinksSub, style: AType.bodyMedium.copyWith(height: 1.4)),
             for (final l in _links)
               ListTile(
                 contentPadding: EdgeInsets.zero,
@@ -739,13 +740,13 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
       decoration: BoxDecoration(
         color: suggested
             ? AssistoTokens.of(context).warning.withValues(alpha: 0.12)
-            : Theme.of(context).colorScheme.surfaceContainerHighest,
+            : Theme.of(context).colorScheme.ds.cardHighest,
         borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(bd(context, '${f['question']}'), style: const TextStyle(fontWeight: FontWeight.w700)),
+        Text(bd(context, '${f['question']}'), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xs),
-        Text(bd(context, '${f['answer']}'), style: const TextStyle(height: 1.4)),
+        Text(bd(context, '${f['answer']}'), style: AType.bodyMedium.copyWith(height: 1.4)),
         const SizedBox(height: Gap.xs),
         if (suggested) Text(t.g1FaqSuggested, style: Theme.of(context).textTheme.bodySmall),
         if (f['has_price'] == true)
@@ -776,7 +777,7 @@ class _AgentAnswersScreenState extends State<AgentAnswersScreen> {
                     }),
             // a11y1: primary on the card tint was 4.48:1.
             style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.onSurface),
+                foregroundColor: Theme.of(context).colorScheme.ds.text),
             child: Text(suggested ? t.g1Reject : t.g1Delete),
           ),
         ]),

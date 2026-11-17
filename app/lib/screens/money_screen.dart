@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
+import '../ads/ad_spot_card.dart'; // adcontrol
 import '../widgets/ladder_common.dart';
 import '../widgets/skeleton.dart';
 import 'money_common.dart';
@@ -171,7 +173,7 @@ class _OverviewTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
+    final ds = DsTokens.of(context);
     final app = context.watch<AppState>();
     if (loading && summary == null) return const SkeletonList(count: 5);
     final s = summary;
@@ -184,57 +186,62 @@ class _OverviewTab extends StatelessWidget {
       child: ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         // acctmode: reached while "Business only" hides this from the menu.
         const AccountModeHiddenCard(area: AcctArea.personal),
-        // Hero balance card
-        Container(
-          decoration: BoxDecoration(
-            gradient: Brand.gradient,
-            borderRadius: BorderRadius.circular(Radii.lg),
-          ),
-          padding: const EdgeInsets.all(Gap.xl),
+        // designv2: soft V2 hero — the balance first (big, tight), then this
+        // month in ONE card (label left, amount right — labels wrap, amounts
+        // never cut), then the drill-downs in one grouped card.
+        DsHeroCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.moneyTotalBalance,
-                style: const TextStyle(color: Colors.white70)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: ds.muted)),
             const SizedBox(height: Gap.xs),
-            Text(tk(context, s?['total_balance'] ?? nw['assets']),
-                style: AType.displaySmall.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontFeatures: AFonts.tabular)),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(tk(context, s?['total_balance'] ?? nw['assets']),
+                  style: AType.displaySmall.copyWith(
+                      color: ds.text,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.8,
+                      fontFeatures: AFonts.tabular)),
+            ),
             const SizedBox(height: Gap.md),
-            Row(children: [
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               _heroPill(Icons.trending_up_rounded, t.moneyNetWorthLabel,
                   tk(context, nw['net_worth'])),
-              const SizedBox(width: Gap.md),
+              const SizedBox(width: Gap.sm),
               _heroPill(Icons.account_balance_rounded, t.moneyAccountsCount,
                   fmtInt(context, app.accounts.items.length)),
             ]),
           ]),
         ),
         const SizedBox(height: Gap.md),
-        // income / expense / net — stacked full-width so the longer EN labels
-        // ("Income This Month" / "Expenses This Month") fit without clipping.
-        statCard(context, t.moneyMonthIncome,
-            tk(context, s?['month_income'] ?? '0'), AssistoTokens.of(context).success, Icons.south_west_rounded),
-        const SizedBox(height: Gap.md),
-        statCard(context, t.moneyMonthExpense,
-            tk(context, s?['month_expense'] ?? '0'), Theme.of(context).colorScheme.error, Icons.north_east_rounded),
-        const SizedBox(height: Gap.md),
-        statCard(
-            context,
-            t.moneyMonthNet,
-            tk(context, s?['month_net'] ?? '0'),
-            (dbl(s?['month_net']) >= 0) ? scheme.secondary : Theme.of(context).colorScheme.error,
-            Icons.savings_rounded),
-        const SizedBox(height: Gap.lg),
+        DsCard(
+          padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+          child: Column(children: [
+            _monthRow(context, Icons.south_west_rounded, t.moneyMonthIncome,
+                tk(context, s?['month_income'] ?? '0'), ds.successInk),
+            Divider(height: 1, indent: Gap.lg, endIndent: Gap.lg, color: ds.border),
+            _monthRow(context, Icons.north_east_rounded, t.moneyMonthExpense,
+                tk(context, s?['month_expense'] ?? '0'), ds.dangerInk),
+            Divider(height: 1, indent: Gap.lg, endIndent: Gap.lg, color: ds.border),
+            _monthRow(context, Icons.savings_rounded, t.moneyMonthNet,
+                tk(context, s?['month_net'] ?? '0'),
+                (dbl(s?['month_net']) >= 0) ? ds.primaryInk : ds.dangerInk),
+          ]),
+        ),
         // quick links to drill-down screens
-        _navTile(context, Icons.insights_rounded, t.moneyTrendsTitle,
-            t.moneyTrendsSubtitle,
-            () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const MoneyTrendsScreen()))),
-        _navTile(context, Icons.pie_chart_outline_rounded, t.moneyNetWorthTitle,
-            t.moneyNetWorthSubtitle,
-            () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const MoneyNetWorthScreen()))),
+        DsGroup(margin: const EdgeInsets.only(top: Gap.md), children: [
+          _navTile(context, Icons.insights_rounded, t.moneyTrendsTitle,
+              t.moneyTrendsSubtitle,
+              () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const MoneyTrendsScreen()))),
+          _navTile(context, Icons.pie_chart_outline_rounded, t.moneyNetWorthTitle,
+              t.moneyNetWorthSubtitle,
+              () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const MoneyNetWorthScreen()))),
+        ]),
+        // adcontrol (owner 10 Nov): main page — one native card (Free only)
+        const AdSpotCard(placement: 'finance_home', padding: EdgeInsets.only(top: Gap.md)),
         const SizedBox(height: Gap.lg),
         // expense breakdown
         _breakdown(context, s),
@@ -243,43 +250,77 @@ class _OverviewTab extends StatelessWidget {
   }
 
   Widget _heroPill(IconData icon, String label, String value) => Expanded(
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: Gap.md, vertical: Gap.sm),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.18),
-            borderRadius: BorderRadius.circular(Radii.md),
-          ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Icon(icon, size: 14, color: Colors.white70),
-              const SizedBox(width: Gap.xs),
-              Flexible(
-                  child: Text(label,
-                      style: AType.labelSmall.copyWith(color: Colors.white70),
-                      overflow: TextOverflow.ellipsis)),
+        child: Builder(builder: (context) {
+          final ds = DsTokens.of(context);
+          final tx = Theme.of(context).textTheme;
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+            decoration: BoxDecoration(
+              color: ds.primarySoft,
+              borderRadius: BorderRadius.circular(DsRadius.button),
+            ),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Icon(icon, size: 16, color: ds.primaryInk),
+                const SizedBox(width: Gap.xs),
+                Expanded(
+                    child: Text(label,
+                        style: tx.labelMedium?.copyWith(color: ds.text))),
+              ]),
+              const SizedBox(height: Gap.xxs),
+              Text(value,
+                  style: tx.titleMedium?.copyWith(
+                      color: ds.text,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                      fontFeatures: AFonts.tabular)),
             ]),
-            const SizedBox(height: Gap.xxs),
-            Text(value,
-                style: AType.titleMedium.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontFeatures: AFonts.tabular)),
-          ]),
-        ),
+          );
+        }),
       );
+
+  /// designv2: one "this month" row — label wraps, the amount never cuts.
+  Widget _monthRow(BuildContext context, IconData icon, String label,
+      String value, Color color) {
+    final ds = DsTokens.of(context);
+    final tx = Theme.of(context).textTheme;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 56),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+        child: Row(children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: ds.isDark ? 0.2 : 0.1),
+              borderRadius: BorderRadius.circular(DsRadius.button),
+            ),
+            child: Icon(icon, size: 20, color: color),
+          ),
+          const SizedBox(width: Gap.md),
+          Expanded(child: Text(label, style: tx.bodyLarge?.copyWith(color: ds.text))),
+          const SizedBox(width: Gap.sm),
+          Text(value,
+              style: tx.titleMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
+                  fontFeatures: AFonts.tabular)),
+        ]),
+      ),
+    );
+  }
 
   Widget _navTile(BuildContext context, IconData icon, String title,
           String subtitle, VoidCallback onTap) =>
-      Card(
-        child: ListTile(
-          leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-          title: Text(title,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
-          subtitle: Text(subtitle),
-          trailing: const Icon(Icons.chevron_right_rounded),
-          onTap: onTap,
-        ),
+      ListTile(
+        leading: Icon(icon, color: DsTokens.of(context).primaryInk),
+        title: Text(title,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right_rounded),
+        onTap: onTap,
       );
 
   Widget _breakdown(BuildContext context, Map<String, dynamic>? s) {
@@ -647,8 +688,9 @@ class _TxnsTabState extends State<_TxnsTab> {
               : ListView(
                   padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, 88),
                   children: [
-                    for (final it in items)
-                      Card(
+                    // adcontrol: one native card every 15-20 rows (Free only)
+                    for (final (i, it) in items.indexed)
+                      AdSpotCard.afterRow(i, items.length, 'finance_list', Card(
                         child: ListTile(
                           leading: Icon(
                               it['data']['kind'] == 'income'
@@ -696,7 +738,7 @@ class _TxnsTabState extends State<_TxnsTab> {
                           onLongPress: () => confirmDelete(
                               context, () => app.txns.remove(it)),
                         ),
-                      ),
+                      )),
                   ],
                 ),
         ),

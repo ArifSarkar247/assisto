@@ -7,6 +7,7 @@ import '../../api.dart';
 import '../../blood_panel_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/success_share.dart';
@@ -301,6 +302,7 @@ class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen> {
     final t = AppLocalizations.of(context);
     final s = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    final ds = DsTokens.of(context);
     final r = _r;
     final mine = r['role'] == 'requester';
     final live = r['state'] == 'active' || r['state'] == 'hidden';
@@ -308,20 +310,24 @@ class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen> {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
       children: [
-        Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        // designv2: an open request is the red urgent hero; a closed one the
+        // calm V2 hero.
+        DsHeroCard(
+          danger: live,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Row(children: [
                 BpGroupBadge('${r['blood_group'] ?? ''}', size: 56),
                 const SizedBox(width: Gap.md),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(bpD(context, t.bpUnits('${r['blood_group']}', r['units'] as int? ?? 1)),
-                        style: text.titleLarge),
+                        style: text.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: live ? ds.onDangerHero : ds.text)),
                     Text(bpStateLabel(t, '${r['state']}'),
-                        style: TextStyle(color: live ? s.error : s.onSurfaceVariant, fontWeight: FontWeight.w600)),
+                        style: text.bodyMedium?.copyWith(
+                            color: live ? ds.onDangerHeroSoft : s.onSurfaceVariant,
+                            fontWeight: FontWeight.w600)),
                   ]),
                 ),
               ]),
@@ -336,8 +342,7 @@ class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen> {
               if ('${r['note'] ?? ''}'.isNotEmpty) _line(Icons.notes_rounded, '${r['note']}'),
               if (!mine && '${r['requester_name'] ?? ''}'.isNotEmpty)
                 _line(Icons.person_outline_rounded, t.bpAskedBy('${r['requester_name']}')),
-            ]),
-          ),
+          ]),
         ),
         const SizedBox(height: Gap.md),
         if (mine) ..._requesterPart(context, live) else ..._donorPart(context, live),
@@ -381,7 +386,9 @@ class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen> {
           constraints: const BoxConstraints(minHeight: 56),
           child: FilledButton.icon(
             key: const ValueKey('bp-found'),
-            style: FilledButton.styleFrom(backgroundColor: Brand.successFill, foregroundColor: Colors.white),
+            style: FilledButton.styleFrom(
+                backgroundColor: DsTokens.of(context).successInk,
+                foregroundColor: DsTokens.of(context).isDark ? DsTokens.of(context).bg : Colors.white),
             onPressed: _busy ? null : _found,
             icon: const Icon(Icons.check_circle_rounded),
             label: Text(t.bpFound),

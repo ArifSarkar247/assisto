@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_company_widgets.dart';
@@ -89,7 +90,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
         Text(t.crmReportsSubtitle,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.md),
 
         // ---- KPI strip ----
@@ -124,10 +125,10 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         // ---- weighted forecast (ESTIMATE) ----
         CrmSectionHeader(t.crmReportForecast,
             trailing: _estimateBadge(t)),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: forecast['has_data'] == true
+        // design2: the forecast is the soft hero
+        DsHeroCard(
+          padding: const EdgeInsets.all(Gap.lg),
+          child: forecast['has_data'] == true
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -142,24 +143,22 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                       // (the server text is English and uses a Σ glyph the
                       // Bengali font lacks)
                       Text('${t.crmMethodLabel}: ${t.shopQaForecastMethod}',
-                          style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
                       const SizedBox(height: Gap.xs),
                       Text(t.crmForecastEstimateNote,
                           style: AType.labelSmall.copyWith(fontStyle: FontStyle.italic,
-                              color: scheme.onSurfaceVariant)),
+                              color: scheme.ds.muted)),
                     ],
                   )
                 : _notEnough(lang, forecast),
-          ),
         ),
         const SizedBox(height: Gap.md),
 
         // ---- win / loss ----
         CrmSectionHeader(t.crmReportWinRate),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: winLoss['has_data'] == true
+        DsCard(
+          padding: const EdgeInsets.all(Gap.md),
+          child: winLoss['has_data'] == true
                 ? Column(children: [
                     _line(t.crmWon, '${winLoss['won'] ?? 0}'),
                     _line(t.crmLost, '${winLoss['lost'] ?? 0}'),
@@ -182,8 +181,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                     })(),
                   ])
                 : Text(t.crmNotEnoughData,
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
-          ),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         ),
         const SizedBox(height: Gap.md),
 
@@ -249,7 +247,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
         const SizedBox(width: Gap.xs),
         Text(t.crmReportForecastEstimate,
             style: AType.labelSmall.copyWith(fontWeight: FontWeight.w700,
-                color: scheme.onSurface)),
+                color: scheme.ds.text)),
       ]),
     );
   }
@@ -258,7 +256,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     return Row(children: [
-      Icon(Icons.info_outline_rounded, color: scheme.onSurfaceVariant, size: 18),
+      Icon(Icons.info_outline_rounded, color: scheme.ds.muted, size: 18),
       const SizedBox(width: Gap.sm),
       Expanded(
         child: Text(lang == 'bn'
@@ -270,18 +268,16 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
 
   Widget _unavailable(String message) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Row(children: [
           Icon(Icons.cloud_queue_rounded,
-              size: 18, color: scheme.onSurfaceVariant),
+              size: 18, color: scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
               child: Text(message,
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant))),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted))),
         ]),
-      ),
     );
   }
 
@@ -291,22 +287,19 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     if (funnel == null) return _unavailable(t.crmReportUnavailable);
     final rows = ((funnel['rows'] as List?) ?? []).cast<Map<String, dynamic>>();
     if (funnel['has_data'] != true || rows.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Text(t.crmNotEnoughData,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
-        ),
+      return DsCard(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Text(t.crmNotEnoughData,
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       );
     }
     final maxReached = rows.fold<int>(
         0, (m, r) => ((r['reached'] as num?)?.toInt() ?? 0) > m
             ? ((r['reached'] as num?)?.toInt() ?? 0)
             : m);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(children: [
           for (final r in rows)
             FunnelBar(
               stage: r['stage']?.toString() ?? '—',
@@ -316,7 +309,6 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                   (r['conversion_from_prev'] as num?)?.toDouble(),
             ),
         ]),
-      ),
     );
   }
 
@@ -324,22 +316,18 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (cycle == null) return _unavailable(t.crmReportUnavailable);
     if (cycle['has_data'] != true) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Text(t.crmNotEnoughData,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
-        ),
+      return DsCard(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Text(t.crmNotEnoughData,
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       );
     }
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(children: [
           _line(t.crmAvgDays, '${cycle['avg_days']} ${t.crmDays}'),
           _line(t.crmSampleSize, '${cycle['sample'] ?? 0}'),
         ]),
-      ),
     );
   }
 
@@ -348,14 +336,12 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final rows = ((block['rows'] as List?) ?? []).cast<Map<String, dynamic>>();
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: block['has_data'] == true && rows.isNotEmpty
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: block['has_data'] == true && rows.isNotEmpty
             ? Column(children: [for (final r in rows) row(r)])
             : Text(t.crmNotEnoughData,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
-      ),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
     );
   }
 
@@ -363,21 +349,17 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
     final scheme = Theme.of(context).colorScheme;
     final rows = ((block['rows'] as List?) ?? []).cast<Map<String, dynamic>>();
     if (block['has_data'] != true || rows.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Text(t.crmNotEnoughData,
-              style: TextStyle(color: scheme.onSurfaceVariant)),
-        ),
+      return DsCard(
+        padding: const EdgeInsets.all(Gap.md),
+        child: Text(t.crmNotEnoughData,
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       );
     }
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(children: [
           for (final r in rows) _repRow(r, t),
         ]),
-      ),
     );
   }
 
@@ -392,15 +374,15 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
             child: Text(r['name']?.toString() ?? '—',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ),
           Text(bdt(context, r['won_value'] as num?),
-              style: const TextStyle(fontWeight: FontWeight.w800)),
+              style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
         ]),
         const SizedBox(height: Gap.xxs),
         Text(
           '${t.crmOpen} ${r['open'] ?? 0} · ${t.crmWon} ${r['won'] ?? 0} · ${t.crmLost} ${r['lost'] ?? 0}',
-          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+          style: AType.bodySmall.copyWith(color: scheme.ds.muted),
         ),
         if (attain != null) ...[
           const SizedBox(height: 6),
@@ -411,7 +393,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
                 child: LinearProgressIndicator(
                   value: (attain / 100).clamp(0.0, 1.0),
                   minHeight: 8,
-                  backgroundColor: scheme.surfaceContainerHighest,
+                  backgroundColor: scheme.ds.cardHighest,
                   valueColor: AlwaysStoppedAnimation(
                       attain >= 100 ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.primary),
                 ),
@@ -425,7 +407,7 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
           Padding(
             padding: const EdgeInsets.only(top: Gap.xxs),
             child: Text(t.crmNoTarget,
-                style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
           ),
       ]),
     );
@@ -444,9 +426,11 @@ class _CrmReportsScreenState extends State<CrmReportsScreen> {
 
   Widget _line(String k, String v) => Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Flexible(child: Text(k, maxLines: 1, overflow: TextOverflow.ellipsis)),
-          Text(v, style: const TextStyle(fontWeight: FontWeight.w700)),
+        // design2: labels wrap (never cut with "…")
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: Text(k)),
+          const SizedBox(width: Gap.sm),
+          Text(v, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         ]),
       );
 }

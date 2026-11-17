@@ -49,6 +49,9 @@ String wmVendorName(AppLocalizations t, String v) => switch (v) {
 /// cctvalerts: the server's own words for WHAT the alert is about (vehicle,
 /// animal, line A → B, covered camera ...) when it sent them, else by type.
 String wmEventWhatOf(AppLocalizations t, Map e) {
+  // cctvdet: a zone detection's own title (server words, viewer's language)
+  final d = e['detect'];
+  if (d is Map && (d['title'] ?? '').toString().isNotEmpty) return d['title'].toString();
   final w = (e['what'] ?? '').toString();
   return w.isNotEmpty ? w : wmEventWhat(t, (e['type'] ?? '').toString());
 }
@@ -67,6 +70,14 @@ String wmEventWhat(AppLocalizations t, String type) => switch (type) {
       'pose_possible' => t.wmEvMaybe,
       'eod_mismatch' => t.wmEvEod,
       'void_spike' || 'refund_spike' || 'discount_spike' => t.wmEvPos,
+      // cctvdet
+      'gate_person' => t.cdetEvGate,
+      'post_empty' => t.cdetEvPost,
+      'gate_open' => t.cdetEvGateOpen,
+      'crowd' => t.cdetEvCrowd,
+      'vehicle_in_out' => t.cdetEvVehicle,
+      'parking_overstay' => t.cdetEvOverstay,
+      'wrong_parking' => t.cdetEvWrongParking,
       _ => t.wmEvMotion,
     };
 
@@ -121,6 +132,10 @@ class WatchmanGuideCard extends StatelessWidget {
   }
 }
 
+/// cctvtoday: lifeassisto.com/get#shopbox — download link, version, SHA-256
+/// and the SmartScreen note for the Windows PC program.
+const kShopBoxDownloadPage = 'https://lifeassisto.com/get#shopbox';
+
 /// Pairing: the site code (+ QR) and what to do on the chosen gateway.
 /// [onNext] (first-run setup): the sheet ends in a big "Next: add a camera"
 /// button that closes it and calls [onNext] — never a dead end.
@@ -167,6 +182,21 @@ class WatchmanPairSheet extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 8),
               child: Text('${wmDigits(wmLang(context), i + 1)}. ${steps[i]}'),
             ),
+          // cctvtoday: the PC program's real download page (version + SHA-256)
+          if (gw != 'phone') ...[
+            Text(t.wmPcDownloadHint, style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 4),
+            const SelectableText(kShopBoxDownloadPage, textAlign: TextAlign.center),
+            Align(
+              child: OutlinedButton.icon(
+                key: const ValueKey('wm-pc-download'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.download_rounded),
+                label: Text(t.wmPcDownloadShare),
+                onPressed: () => Share.share(kShopBoxDownloadPage),
+              ),
+            ),
+          ],
           const SizedBox(height: 8),
           if (token.isNotEmpty) ...[
             Center(

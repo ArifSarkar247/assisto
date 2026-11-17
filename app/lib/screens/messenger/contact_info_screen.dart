@@ -395,7 +395,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
               child: Text(_t.cdeNickInfo(_nick),
                   key: const Key('cde-info-nickname'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
             ),
           // mr1: the same full last-seen line as the chat header (live;
           // hidden by privacy -> no line).
@@ -412,7 +412,7 @@ class _ContactInfoScreenState extends State<ContactInfoScreen> {
                 child: Text(p,
                     key: const Key('mr1-info-last-seen'),
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: scheme.onSurfaceVariant)),
+                    style: TextStyle(color: scheme.ds.muted)),
               );
             },
           ),

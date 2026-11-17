@@ -27,6 +27,7 @@
 /// (test/ads_never_list_guard_test.dart).
 library;
 
+import 'ad_control.dart';
 import 'ad_rules.dart';
 
 enum AdSurface { appOpen, homeNative, banner, interstitial, rewarded }
@@ -73,6 +74,12 @@ class AdPlacements {
     // train chat (fence: 'chat'), never Safe Journey's train picker, never
     // the destination alarm (fence: 'destination'), no interstitial.
     'train_search', 'train_detail',
+    // lpapp (owner 10 Nov 00:35 PART B): Language Partner home + its lists
+    // (IELTS mock list, Life English list, vocabulary topics). Never the
+    // timed mock, listening audio, speaking recording, role-play, book
+    // companion sheet or a certificate (those screens have no slot).
+    'lp_home', 'lp_hub', 'lp_life', 'lp_vocab',
+    'mess_home', // messv2 (adcontrol registry key): Mess and bachelor V2 screens (never the mess group chat)
   };
 
   /// Interstitial: the registered EXIT placements -> the screen they leave.
@@ -137,11 +144,26 @@ class AdPlacements {
     return _allow(slot).contains(s);
   }
 
+  /// adcontrol (owner 10 Nov): the in-page ad at [screen] — a bottom banner
+  /// or a native card, whichever type the owner picked in Owner Admin -> Ad
+  /// control — or null. With a registry-aware server the registry decides;
+  /// an old server keeps the earlier banner rules below.
+  static AdKind? inline(String screen, AdConfig cfg, {required bool loggedIn}) {
+    if (cfg.control.loaded) {
+      final k = AdControl.kindFor(screen, cfg, loggedIn: loggedIn);
+      return (k == AdKind.banner || k == AdKind.native) ? k : null;
+    }
+    return banner(screen, cfg, loggedIn: loggedIn).allowed ? AdKind.banner : null;
+  }
+
   /// Banner on [screen] right now: Free user, server switch on, the screen
   /// in BOTH the app allowlist and the server's `banner_screens`.
   static AdDecision banner(String screen, AdConfig cfg, {required bool loggedIn}) {
     if (!loggedIn) return const AdDecision(false, 'logged_out');
     if (cfg.paid || !cfg.adsEnabled) return const AdDecision(false, 'paid_plan');
+    if (cfg.control.loaded) {
+      return AdControl.decide(screen, AdKind.banner, cfg, loggedIn: loggedIn);
+    }
     final s = screen.trim().toLowerCase();
     if (!screenAllowed(AdSurface.banner, s)) {
       return const AdDecision(false, 'screen_not_allowed');
@@ -173,12 +195,20 @@ class AdPlacements {
     final m = moment.trim().toLowerCase();
     final placement = AdExitPlacement.byId(m);
     final screen = interstitialMoments[m];
-    if (screen == null || !screenAllowed(AdSurface.interstitial, screen)) {
-      return const AdDecision(false, 'moment_not_allowed');
-    }
-    if (!cfg.interstitialEnabled) return const AdDecision(false, 'disabled');
-    if (!cfg.interstitialMoments.contains(m)) {
-      return const AdDecision(false, 'server_off');
+    if (screen == null) return const AdDecision(false, 'moment_not_allowed');
+    if (cfg.control.loaded) {
+      // adcontrol: the owner's per-placement switch decides
+      if (!cfg.interstitialEnabled) return const AdDecision(false, 'disabled');
+      final d = AdControl.decide(m, AdKind.interstitial, cfg, loggedIn: loggedIn);
+      if (!d.allowed) return d;
+    } else {
+      if (!screenAllowed(AdSurface.interstitial, screen)) {
+        return const AdDecision(false, 'moment_not_allowed');
+      }
+      if (!cfg.interstitialEnabled) return const AdDecision(false, 'disabled');
+      if (!cfg.interstitialMoments.contains(m)) {
+        return const AdDecision(false, 'server_off');
+      }
     }
     // never on the user's first day of use (local calendar day)
     final first = firstUseDay;
@@ -254,9 +284,27 @@ enum AdExitPlacement {
   estimateAfterFinish('estimate_after_finish', 'estimator'),
 
   /// 11. Quick tools — leaving a tool after using it; max ONCE a day.
-  quickToolExit('quick_tool_exit', 'quick_tools', dailyMax: 1);
+  quickToolExit('quick_tool_exit', 'quick_tools', dailyMax: 1),
 
-  const AdExitPlacement(this.id, this.screen, {this.dailyMax = 0});
+  // adcontrol (owner 10 Nov 03:45): owner-approved TRANSITION moments — the
+  // ad comes right after the finished action ([AdExit.transition]).
+  /// 12. Exams — after Submit, before the result appears.
+  examAfterSubmit('exam_after_submit', 'exam', transition: true),
+
+  /// 13. Account & Finance — after a PDF export or share.
+  financeAfterExport('finance_after_export', 'finance_reports', transition: true),
+
+  /// 14. Account & Finance — the month-end full report.
+  financeMonthReport('finance_month_report', 'finance_reports', transition: true),
+
+  /// 15. Mess — the month-end report.
+  messMonthReport('mess_month_report', 'mess_home', transition: true);
+
+  const AdExitPlacement(this.id, this.screen,
+      {this.dailyMax = 0, this.transition = false});
+
+  /// adcontrol: may use [AdExit.transition] (ad right after the action).
+  final bool transition;
 
   /// The id the server switches (`interstitial_moments`) and reports use.
   final String id;
@@ -307,6 +355,18 @@ class AdExit {
   }
 
   static bool pending(AdExitPlacement p) => _done.containsKey(p);
+
+  /// adcontrol (owner 10 Nov): an owner-approved TRANSITION moment (exam
+  /// Submit before the result, finance PDF export / share, month-end
+  /// report): the task just finished, the ad may come now. Only for
+  /// placements marked `transition`; all global caps still apply. Never
+  /// throws; true = handed to the ad service.
+  static bool transition(AdExitPlacement p, [DateTime? now]) {
+    if (!p.transition) return false;
+    final t = now ?? DateTime.now();
+    taskDone(p, t);
+    return maybeShow(p, t);
+  }
 
   static void resetForTest() => _done.clear();
 }

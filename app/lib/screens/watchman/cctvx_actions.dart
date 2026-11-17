@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate'; // cctvact: watermark off the UI thread
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
+import '../../theme.dart' show AType;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,6 +16,9 @@ import '../../cctvx/cctvx_source.dart';
 import '../../cctvx/escalate_source.dart';
 import '../../cctvx/evidence_pack.dart';
 import '../../cctvx/evidence_pdf.dart';
+import '../../cctvx/evidence_watermark.dart'; // cctvact
+import '../../cctvact/cctvact_source.dart'; // cctvact
+import 'cctv_act_tiles.dart'; // cctvact
 import '../../messaging/media/video_player_screen.dart' show openVideoPlayer;
 import '../../l10n/app_localizations.dart';
 import 'watchman_source.dart';
@@ -36,13 +42,18 @@ class AlertActionsSheet extends StatefulWidget {
 
   /// cctvescalate: light / recorded warning (null -> from [source]).
   final EscalateSource? escalate;
+
+  /// cctvact (V3 D): live / box play / thana / wrong alert / lock (null ->
+  /// from [source]; a fake source gets none -> those rows stay hidden).
+  final CctvActSource? act;
   const AlertActionsSheet(
       {super.key,
       required this.source,
       required this.eventId,
       this.cash,
       this.preview,
-      this.escalate});
+      this.escalate,
+      this.act});
 
   static Future<void> show(BuildContext context, CctvxSource source, int eventId,
           {CashGuardSource? cash}) =>
@@ -171,6 +182,15 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
             sub: siren['supported'] == true ? t.cxSirenSub : (why ?? t.cxSirenNotSupported),
             onTap: (siren['supported'] == true && !_busy) ? _siren : null,
           ),
+        // cctvact (V3 D): live, box siren / own warning, thana, wrong, lock
+        if (wmMap(a['act']).isNotEmpty)
+          ActTiles(
+              source: widget.act ??
+                  (widget.source is ApiCctvxSource
+                      ? ApiCctvActSource((widget.source as ApiCctvxSource).api)
+                      : null),
+              eventId: widget.eventId,
+              act: wmMap(a['act'])),
         if (wmMap(a['deter']).isNotEmpty)
           DeterTiles(
               escalate: widget.escalate ?? escalateFor(widget.source),
@@ -270,9 +290,9 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
       VoidCallback? onTap,
       bool danger = false}) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: 8), child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         minTileHeight: 56,
         enabled: onTap != null,
         leading: Icon(icon, color: danger ? scheme.error : null),
@@ -280,7 +300,7 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
         subtitle: Text(sub),
         onTap: onTap,
       ),
-    );
+      ));
   }
 }
 
@@ -397,15 +417,15 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                  color: Theme.of(ctx).colorScheme.errorContainer,
+                  color: Theme.of(ctx).colorScheme.ds.dangerBg,
                   borderRadius: BorderRadius.circular(12)),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(Icons.privacy_tip_rounded,
-                    color: Theme.of(ctx).colorScheme.onErrorContainer),
+                    color: Theme.of(ctx).colorScheme.ds.dangerInk),
                 const SizedBox(width: 8),
                 Expanded(
                     child: Text(t.cevPrivacyWarn,
-                        style: TextStyle(color: Theme.of(ctx).colorScheme.onErrorContainer))),
+                        style: AType.bodyMedium.copyWith(color: Theme.of(ctx).colorScheme.ds.dangerInk))),
               ]),
             ),
           ]),
@@ -451,6 +471,15 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
     if (media.isEmpty) {
       say(t.cxEvidenceNothing);
       return;
+    }
+    // cctvact (V3 D): a timestamp-watermarked COPY of every picture; the
+    // originals stay untouched and both are in the SHA-256 manifest
+    try {
+      final cam = (wmMap(ev['facts'])['camera'] ?? '').toString();
+      final src = List<EvidenceFile>.of(media);
+      media.addAll(await Isolate.run(() => watermarkedCopies(src, eventId, camera: cam)));
+    } catch (_) {
+      // best-effort: the pack is complete and verifiable without the copies
     }
     final now = DateTime.now();
     final facts = <String, Object?>{

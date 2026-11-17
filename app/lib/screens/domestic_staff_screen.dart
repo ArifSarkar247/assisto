@@ -226,9 +226,9 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               CircleAvatar(
-                backgroundColor: scheme.primaryContainer,
+                backgroundColor: scheme.ds.primarySoft,
                 child: Text(_initial(s.name),
-                    style: TextStyle(color: scheme.onPrimaryContainer)),
+                    style: TextStyle(color: scheme.ds.primaryInk)),
               ),
               const SizedBox(width: Gap.md),
               Expanded(
@@ -242,7 +242,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
                           overflow: TextOverflow.ellipsis),
                       Text(
                           '${_roleLabel(tr, s.role)} · ${_StaffMath.fmtPoisha(s.salary.toDouble())}${tr.staffPerMonthSuffix}',
-                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                          style: AType.bodySmall.copyWith(color: scheme.ds.muted),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                     ]),
@@ -268,7 +268,7 @@ class _DomesticStaffScreenState extends State<DomesticStaffScreen> {
                 Text(
                     tr.staffAdvanceHeld(
                         _StaffMath.fmtPoisha(s.advanceBalance.toDouble())),
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ]),
           ]),
         ),
@@ -405,11 +405,11 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
                     const SizedBox(height: Gap.xs),
                     Text(_StaffMath.fmtPoisha(s.netDues.abs().toDouble()),
                         style: AType.headlineLarge.copyWith(fontWeight: FontWeight.bold,
-                            fontFeatures: AFonts.tabular, color: scheme.onSurface)),
+                            fontFeatures: AFonts.tabular, color: scheme.ds.text)),
                     const SizedBox(height: Gap.xs),
                     Text(
                         '${_roleLabel(tr, (widget.person['role'] ?? '').toString())} · ${_StaffMath.fmtPoisha(s.salary.toDouble())}${tr.staffPerMonthSuffix}',
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ]),
             ),
           ),
@@ -439,7 +439,7 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.sm),
               child: Text(tr.staffNoMonthsYet,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
             ),
           for (final m in s.months) _monthCard(context, m),
           const SizedBox(height: Gap.lg),
@@ -505,13 +505,13 @@ class _PersonDetailScreenState extends State<_PersonDetailScreen> {
     final scheme = Theme.of(context).colorScheme;
     return RichText(
       text: TextSpan(
-        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+        style: AType.bodySmall.copyWith(color: scheme.ds.muted),
         children: [
           TextSpan(text: '$k '),
           TextSpan(
               text: v,
               style: TextStyle(
-                  color: scheme.onSurface, fontWeight: FontWeight.w600)),
+                  color: scheme.ds.text, fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -787,7 +787,7 @@ class _PaymentFormState extends State<_PaymentForm> {
                 const SizedBox(height: Gap.md),
                 Text(tr.staffAttendanceOptional,
                     style: AType.bodySmall.copyWith(color:
-                            Theme.of(context).colorScheme.onSurfaceVariant)),
+                            Theme.of(context).colorScheme.ds.muted)),
                 const SizedBox(height: Gap.sm),
                 Row(children: [
                   Expanded(
@@ -862,7 +862,7 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
           Expanded(
             child: Text(label,
                 style:
-                    AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                    AType.bodySmall.copyWith(color: scheme.ds.muted),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis),
           ),
@@ -880,16 +880,16 @@ Widget _statCard(BuildContext context, String label, String value, Color color,
 Widget _noMoneyNote(BuildContext context, String text) {
   final scheme = Theme.of(context).colorScheme;
   return Card(
-    color: scheme.surfaceContainerHighest,
+    color: scheme.ds.cardHighest,
     child: Padding(
       padding: const EdgeInsets.all(Gap.md),
       child: Row(children: [
-        Icon(Icons.shield_rounded, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.shield_rounded, size: 18, color: scheme.ds.muted),
         const SizedBox(width: Gap.sm),
         Expanded(
           child: Text(text,
               style:
-                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ),
       ]),
     ),
@@ -969,7 +969,7 @@ class _StaffMath {
       frac = '';
     }
     if (whole.isEmpty) whole = '0';
-    frac = '${frac}00'.substring(0, 3);
+    frac = '${frac}000'.substring(0, 3); // savesweep: was RangeError on whole amounts
     final taka = int.tryParse(whole);
     final milli = int.tryParse(frac);
     if (taka == null || milli == null) return 0;

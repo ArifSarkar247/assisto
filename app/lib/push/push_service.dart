@@ -1,9 +1,14 @@
+import '../services/journey_habits.dart'; // sjstart2
+import '../screens/journey_start_screen.dart' show JourneyStartScreen; // sjstart2
 import '../audio/msg_open_tick.dart'; // circlebub
 import '../messaging/in_call_bubbles.dart' show InCallBubbles; // bubbles2
 import '../messaging/msg_push_done.dart'; // notifs
 import '../carecall/carecall_alarms.dart' show CareCallActions, CareCallAlarms; // carecall
 import '../carecall/carecall_api.dart' show HttpCareCallApi; // carecall
 import '../carecall/carecall_ring_screen.dart'; // carecall
+import '../screens/train/dest_alarm_screen.dart' show DestAlarmScreen; // sjtrain
+import '../train/dest_alarm_fullscreen.dart' show DestAlarmFullScreen; // sjtrain
+import '../train/dest_alarm_service.dart' show DestAlarmController; // sjtrain
 import '../reminders/reminder_actions.dart' show ReminderActions; // remnotes
 import '../screens/business/khata_chat_screen.dart' show ChatSide, KhataChatScreen; // tagada2
 import '../crypto/key_wiring.dart';
@@ -50,6 +55,7 @@ import '../messaging/receipt_ack.dart';
 import '../messaging/receipt_bus.dart';
 import '../realtime/realtime_channel.dart';
 import '../family_alerts_api.dart'; // family100
+import '../family_sos/sos_alarm_screen.dart'; // fcsos
 import 'family_alert_receipt.dart'; // family100
 import '../screens/agent_core/agent_core_push.dart'; // agent-core WP-APP
 
@@ -570,12 +576,30 @@ class PushService {
       return;
     }
     AgentCorePush.onForegroundPush(p); // agent-core: refresh an open inbox
+    // fcsos: an SOS / fall alarm while Assisto is open -> the alarm page at
+    // once (it sounds the alarm itself); no second, insistent notification.
+    if (p.isSos &&
+        SosAlarmScreen.openOnce(_nav?.currentState, Map<String, String>.from(p.data))) {
+      return;
+    }
     // Foreground: draw it ourselves (FCM shows nothing while we're open).
     unawaited(PushNotifier.show(p));
   }
 
   void _onLocalResponse(NotificationResponse r) {
     AppEntry.mark('notification'); // p2-money: no app-open ad for this entry
+    // sjstart2: "Going to Office? Tell family?" -> Safe Journey filled in;
+    // the "Start" button starts it at once (watchers remembered).
+    if (JourneyHabits.isOurs(r)) {
+      final s = JourneyHabits.parse(r.payload);
+      final nav = (_nav ?? appNavigatorKey).currentState;
+      if (s != null && nav != null) {
+        unawaited(nav.push(MaterialPageRoute(
+            builder: (_) => JourneyStartScreen(
+                suggest: s, autoStart: r.actionId == JourneyHabits.actionGo))));
+      }
+      return;
+    }
     // remnotes: our own reminder alarm (payload 'remalarm:<key>'): Done /
     // Snooze apply at once; a plain tap opens the Reminders screen (it used
     // to open nothing — the payload is not a push JSON).
@@ -591,6 +615,17 @@ class PushService {
         unawaited(CareCallActions.answer(
             d, r.actionId == CareCallAlarms.actionDone ? 'done' : 'snooze',
             api: app != null && app.loggedIn ? HttpCareCallApi(app.api) : null));
+      }
+      return;
+    }
+    // sjtrain: the destination alarm's full-screen ring (tap / lock screen /
+    // its "I am awake" button) -> the alarm screen, never a chat
+    if (DestAlarmFullScreen.isOurs(r)) {
+      if (r.actionId == DestAlarmFullScreen.actionAwake) {
+        unawaited(DestAlarmController.I.confirmAwake());
+      } else if (DestAlarmController.I.on) {
+        unawaited(_nav?.currentState?.push(MaterialPageRoute<void>(
+            fullscreenDialog: true, builder: (_) => const DestAlarmScreen())));
       }
       return;
     }
@@ -667,6 +702,12 @@ class PushService {
       if (CallLaunchRouter.instance.openWarm(l, nav: _nav?.currentState)) {
         return;
       }
+    }
+    // fcsos: an SOS / fall alarm tap / full-screen launch -> the receiver
+    // alarm page (once per delivery; the cold-start route may already show it)
+    if (p.isSos && action == null &&
+        SosAlarmScreen.openOnce(_nav?.currentState, Map<String, String>.from(p.data))) {
+      return; // the page marks it seen
     }
     final app = _app;
     if (app == null || app.loading || !app.loggedIn) {

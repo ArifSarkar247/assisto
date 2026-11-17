@@ -19,6 +19,27 @@ from core.logic import cctv_brief as CB
 from core.logic import cctv_extras as CX
 
 
+def _clear_of_midnight():
+    """Now, or 01:00 local when the real clock is in the first hour after
+    Dhaka midnight (these tests look at "today" and at minutes before now;
+    CI runs that cross 00:00 Dhaka failed, 16 Nov)."""
+    n = timezone.localtime(timezone.now())
+    return n.replace(hour=1, minute=0, second=0, microsecond=0) if n.hour < 1 else n
+
+
+def _midnight_safe(fn):
+    """Run the test with the clock frozen at _clear_of_midnight() (computed
+    when the test starts)."""
+    import functools
+
+    @functools.wraps(fn)
+    def run(*a, **k):
+        n = _clear_of_midnight()
+        with mock.patch("django.utils.timezone.now", return_value=n):
+            return fn(*a, **k)
+    return run
+
+
 def at(y, mo, d, h, mi=0):
     return timezone.make_aware(datetime(y, mo, d, h, mi), timezone.get_current_timezone())
 
@@ -331,6 +352,7 @@ class ActivityApiTests(E2E._Base):
         self.assertEqual([x["type"] for x in r.data["rows"]], ["line_crossing"])
         self.assertEqual(self.client.get(self.base + "/visitors", {"date": "2099-01-01"}).status_code, 400)
 
+    @_midnight_safe
     def test_ai_description_only_with_key_and_inside_cap(self):
         from core import cctv_activity as A
         ev = self.event("person_detected", timezone.now() - timedelta(minutes=5))

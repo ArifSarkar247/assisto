@@ -29,6 +29,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .i18n import req_lang, pick
+from .logic import cctv_detect as _CD
 from .logic import shop_guard as SG
 
 
@@ -384,6 +385,8 @@ EVENT_WORDS = {
     "loitering": ("রাতে ২ মিনিটের বেশি সময় কেউ একই জায়গায় আছেন",
                   "Someone has stayed in view for over 2 minutes at night"),
     "camera_health": ("ক্যামেরায় সমস্যা দেখা যাচ্ছে", "The camera seems to have a problem"),
+    # cctvdet (Guard V3 part C): zone detections + the later-stage types
+    **_CD.WORDS,
 }
 
 _BN_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
@@ -539,6 +542,21 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
                      "possible": False, "pos_matched": False}, None)
         signals["armed"] = armed
         quiet = WM.in_window(v2.get("quiet_hours"), local) and not away
+    # cctvdet: a zone detection follows the ZONE's schedule (server's call)
+    if cam is not None and not away:
+        from .logic import cctv_detect as CD
+        why = CD.zone_gate(v2, cam_event.get("type"), signals,
+                           timezone.localtime(now), WM.is_armed)
+        if why:
+            return ({"raise": False, "type": cam_event.get("type"),
+                     "confidence": 0.0, "reason_signals": [why],
+                     "possible": False, "pos_matched": False}, None)
+        # stage 2: a vehicle in / out is a LOG (silent) unless the owner asked
+        # to be told on that line
+        if cam_event.get("type") == CD.VEHICLE_IN_OUT:
+            z = CD.find_zone(v2, signals.get("zone"))
+            if not ((z or {}).get("opts") or {}).get("notify"):
+                quiet = True
     cam_event = dict(cam_event, signals=signals)
     # cctvx: movement at the site -> "shop opened" (first movement after the
     # opening time, once a day). Cheap: reads the already-loaded site.
@@ -551,6 +569,19 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
     decision = SG.combine(cam_event, pos_rows, now=now.timestamp())
     if not decision["raise"]:
         return decision, None
+    # cctvdet: the honest confidence = the precision measured in CI
+    from .logic import cctv_detect as CD
+    if decision.get("type") in CD.LONG_CLIP_TYPES:
+        decision = dict(decision, confidence=CD.confidence(decision["type"],
+                                                           decision.get("confidence", 0.0)))
+    # cctvact (V3 D): the owner's "Wrong alert" answers for THIS site pattern
+    # lower its confidence; after many it is saved quietly (safety never)
+    try:
+        from . import cctv_act_views as ACTV
+        decision, quiet = ACTV.apply_learning(site, cam, cam_event, decision, now,
+                                              quiet, away)
+    except Exception:
+        pass
 
     from .models import ShopEvent
     # GROUPING: the same camera + type still open inside the group window ->
@@ -650,6 +681,12 @@ def _ingest_event(site, cam, cam_event, now, snapshot=None, pos_rows=None,
     try:
         from . import cctvx_views as CXV
         CXV.after_notify(site, ev, quiet, now)
+    except Exception:
+        pass
+    # cctvact (V3 D): Tuya / Smart Life automations + box warning (never raises)
+    try:
+        from . import cctv_act_views as ACTV
+        ACTV.after_alert(site, cam, ev, now, decision)
     except Exception:
         pass
     return decision, ev
@@ -762,6 +799,10 @@ def clip_wanted(site, ev):
     try:
         if hasattr_clip(ev):
             return False
+        if ev.camera_id and ev.camera is not None and ev.camera.vendor == "phone":
+            # cctvplay: phone-camera previews have their own per-camera cap
+            from . import phonecam_clips_views as PCCV
+            return PCCV.preview_left(ev.camera) > 0 and bool(clip_recipients(site))
         if clips_today(site) >= owner_caps(site.owner)["clips_day"]:
             return False
         return bool(clip_recipients(site))
@@ -1000,6 +1041,9 @@ class ShopSiteDetailView(APIView):
             changed.append("gateway")
         if changed:
             s.save(update_fields=changed)
+            # cctvroles (V3 I): owner setting changes are audited
+            from . import cctv_team_views as CTV
+            CTV.audit(s, "change", request.user, CTV.CT.pack(place=",".join(changed)))
         return Response(_site_row(s, reveal_token=True))
 
 
@@ -1166,12 +1210,24 @@ class ShopEventMarkView(APIView):
         before = e.status
         e.status = status_v
         e.save(update_fields=["status"])
+        # cctvact (V3 D): the verdict teaches THIS site's pattern (+ reason)
+        try:
+            from . import cctv_act_views as ACTV
+            ACTV.on_verdict(e, before, status_v,
+                            str(request.data.get("reason") or "")[:16])
+        except Exception:
+            pass
         if before != status_v:
             try:
                 from . import cctvx_views as CXV
                 CXV.nosale_feedback(e, "wrong" if status_v == "false_alarm" else "correct")
             except Exception:
                 pass
+            # cctvroles (V3 I): the owner sees what a manager marked
+            if e.site.owner_id != request.user.pk:
+                from . import cctv_team_views as CTV
+                CTV.audit(e.site, "change", request.user,
+                          CTV.CT.pack(alert=e.id, st=status_v), camera_id=e.camera_id)
         tuning = None
         # adapt this camera's thresholds ONCE per verdict change (bounded)
         if e.camera_id and before != status_v:
@@ -1416,7 +1472,31 @@ def _event_row(e, request):
             "opened_at": _iso(getattr(e, "opened_at", None)),
             # cctvaicheck: AI label of the photo (never hides the alert)
             "ai_check": _ai_check_label(e, request),
+            # cctvdet: zone detection title / detail / measured accuracy
+            "detect": _detect_fields(e, request),
             "created": e.created.isoformat()}
+
+
+def _detect_fields(e, request):
+    """cctvdet: title / detail / measured accuracy + the Bangla (or English)
+    description of the photo — Claude's when it came, else the labelled
+    template (src says which; never passed off as AI)."""
+    try:
+        from .logic import cctv_detect as CD
+        lang = req_lang(request) if request is not None else "bn"
+        out = CD.event_fields(e.type, e.signals, lang)
+        if out is None:
+            return None
+        try:
+            from . import cctv_activity as CACT
+            d = CACT.desc_of(e, lang) or {}
+            out["desc"] = d.get(lang) or d.get("bn")
+            out["desc_src"] = d.get("src")
+        except Exception:
+            out["desc"], out["desc_src"] = None, None
+        return out
+    except Exception:
+        return None
 
 
 def _ai_check_label(e, request):
@@ -1458,6 +1538,10 @@ def _cash_fields(e):
                 "size": c.size}
     elif sig.get("clip_ref"):
         clip = {"status": "pending"}
+    # cctvplay: a phone camera's alert can always ask for the full video
+    if e.camera_id and e.camera is not None and e.camera.vendor == "phone":
+        clip = dict(clip or {"status": "none"}, phonecam=True,
+                    has_ref=bool(sig.get("clip_ref")))
     return {"cash": CG.is_cash_event(e.type, inputs),
             "away": bool(inputs.get("away")), "clip": clip}
 

@@ -9,11 +9,47 @@ NAMES = {"normal": ("সাধারণ", "Normal"), "better": ("ভালো", 
          "best": ("সেরা", "Best")}
 
 
-def cfg(c=None):
-    """(levels block, full PricingConfig dict)."""
+def cfg(c=None, raw=False):
+    """(levels block, full PricingConfig dict). geminioff: while the Gemini
+    breaker is open every Gemini level row is served as its Claude twin
+    (effective_levels) — prices, fallbacks and availability follow it."""
     from . import billing
     c = c or billing.cfg()
-    return AL.normalize(c.get("ai_levels")), c
+    lv = AL.normalize(c.get("ai_levels"))
+    if raw:
+        return lv, c        # the owner's SAVED rows (Owner Admin form)
+    try:
+        from . import gemini_breaker as GB
+        if GB.is_open():
+            lv["levels"] = effective_levels(lv["levels"])
+    except Exception:  # noqa: BLE001 — routing never breaks the answer
+        pass
+    return lv, c
+
+
+# geminioff (owner 9 Nov 13:30): Normal + Better = Claude Haiku 5.5, Best =
+# Claude Sonnet 5.5 while Gemini is off. Better keeps its LARGER budget: the
+# Haiku answer cap (fallback_out_cap, else 2500) and at least 8000 in.
+CLAUDE_TWIN = {"normal": "claude-haiku-5-5", "better": "claude-haiku-5-5",
+               "best": "claude-sonnet-5-5"}
+
+
+def effective_levels(levels):
+    out = {}
+    for lid, row in levels.items():
+        r = dict(row)
+        if r.get("provider") == "gemini":
+            r["provider"] = "anthropic"
+            r["model"] = CLAUDE_TWIN.get(lid, "claude-haiku-5-5")
+            if lid == "better":
+                r["out_cap"] = max(int(r.get("out_cap") or 0),
+                                   int(r.get("fallback_out_cap") or 0) or 2500)
+                r["in_cap"] = max(int(r.get("in_cap") or 0), 8000)
+                r["history_turns"] = max(int(r.get("history_turns") or 0), 16)
+            r["fallback_out_cap"] = 0
+            r["gemini_off"] = True
+        out[lid] = r
+    return out
 
 
 def enabled(c=None):
@@ -141,8 +177,15 @@ def app_payload(user, lang="bn", c=None):
                      "available": ok, "free_credits_ok": lid in lv["free_credit_levels"],
                      **({} if ok else {"why": "temporarily_unavailable"})})
     from . import ai_chat_guard as G
-    return {"enabled": True, "default": lv["default"], "levels": rows,
-            "balance": G.balance(user)}
+    out = {"enabled": True, "default": lv["default"], "levels": rows,
+           "balance": G.balance(user)}
+    try:
+        n = ads_per_answer(c)          # aimoney: "Watch N ads for 1 answer"
+        if n:
+            out["ads_per_answer"] = n
+    except Exception:  # noqa: BLE001
+        pass
+    return out
 
 
 # ---------------------------------------------------------------- PART 4
@@ -210,8 +253,26 @@ def ad_paisa(c=None):
     lv, c = cfg(c)
     if not lv["enabled"]:
         return None
-    per = max(1, int(lv.get("ads_per_answer") or 1))
-    return int(int(lv["ad_answers_per_ad"]) * credits("normal", c) * 100 // per)
+    # aimoney (owner 10 Nov, part G): N is the DAILY dynamic number (or the
+    # fixed config one with ad_dynamic off); paisa rounded UP so N ads always
+    # make the whole answer
+    from . import ad_money_service as AMS
+    from .logic import ad_money as AM
+    answer = int(lv["ad_answers_per_ad"]) * credits("normal", c)
+    if answer <= 0:
+        return 0
+    return AM.paisa_per_ad(AMS.ads_per_answer(c), answer)
+
+
+def ads_per_answer(c=None):
+    """aimoney: ads a user watches for ONE AI answer (None = levels off)."""
+    lv, c = cfg(c)
+    if not lv["enabled"] or int(lv["ad_answers_per_ad"]) <= 0:
+        return None
+    if not lv.get("ad_dynamic") and int(lv["ad_answers_per_ad"]) != 1:
+        return None          # an old "1 ad = N answers" row: no such line
+    from . import ad_money_service as AMS
+    return int(AMS.ads_per_answer(c))
 
 
 def over_daily_limit(user, lid, now=None):
@@ -236,7 +297,16 @@ FREE_EXEMPT = {
     "w1_cv": "public website CV tips, per-IP rate limited, no account",
     "w2_scam": "public website scam check (safety), per-IP rate limited, no account",
     "learn.roleplay": "Learn hub daily free practice quota; beyond it the user pays",
+    # lpcore: Language Partner Writing/Speaking scores are charged BEFORE the call by
+    # lp_service.run_score (exact worst-case credits) and refunded on fail / cut
+    "lp.score": "Language Partner score: credits taken first by lp_service.run_score, refunded on failure",
     "chat.continue": "continues an answer that was CUT at its output limit — already paid once",
+    # fcbrain (owner 9 Nov): Family Care is safety — never charged
+    "brain.night_news": "Family Care night news card from structured facts, once per member per night",
+    "brain.ask": "Family ask bar fallback when the offline parser cannot answer (family status only)",
+    # sjtrain: safety is never paywalled; one cheap call per train-chat message
+    # (already rate-limited per user: train_chat.PER_MIN / PER_DAY)
+    "train.chat_mod": "train chat safety moderation (one cheap check per message, rate-limited)",
 }
 
 
@@ -261,10 +331,28 @@ def ad_table(c=None):
 
 # ---------------------------------------------------------------- web search
 import re as _re
-RECENT = _re.compile(
-    r"\b(today|latest|news|current(?:ly)?|right now|this week|price (?:now|today)|score|"
-    r"weather|exchange rate|dollar rate|20[2-3]\d)\b|আজ|আজকের|সর্বশেষ|খবর|এখন(?:কার)? দাম|"
-    r"আবহাওয়া|ডলারের রেট|ajker|aj ke|latest", _re.I)
+# aiqual (exam): a time word alone ("আজ মনটা খুব খারাপ", "What should I cook
+# today?", "remind me today at 5") opened Claude web search (+3 credits when
+# it ran). A search now needs a time word AND a changing fact, or a phrase
+# that is a changing fact on its own (news, weather, exchange rate, score).
+_WEB_STRONG = _re.compile(
+    r"\b(news|headlines?|weather|forecast|exchange rate|dollar rate|live score|breaking)\b|"
+    r"খবর|সংবাদ|আবহাওয়া|ডলারের (?:রেট|দাম)|লাইভ স্কোর|ম্যাচের স্কোর|\bmatch score|khobor|abohawa|"
+    r"dollar(?:er)? rate", _re.I)
+_WEB_WHEN = _re.compile(
+    r"\b(today|tonight|now|right now|latest|current(?:ly)?|this (?:week|month)|recent(?:ly)?|"
+    r"20[2-3]\d|ajke|ajker|aj|ekhon|ekhonkar)\b|আজ|এখন|সর্বশেষ|চলতি|এই সপ্তাহ|এ বছর", _re.I)
+_WEB_FACT = _re.compile(
+    r"\b(price|prices|rate|rates|score|match|result|results|election|update|traffic|flight|"
+    r"train|schedule|stock|share|gold|dollar|petrol|fuel|won|winner|world cup|release|launch|"
+    r"dam|daam|rate|khela|match|result|fol|sona|tel|news)\b|দাম|রেট|স্কোর|খেলা|ম্যাচ|ফলাফল|"
+    r"ফল প্রকাশ|নির্বাচন|যানজট|ট্রেনের সময়|ফ্লাইট|সোনা|ডলার|শেয়ার|জ্বালানি|তেলের|জিতেছে|"
+    r"চ্যাম্পিয়ন|বাজারদর", _re.I)
+
+
+def needs_web(text):
+    t = text or ""
+    return bool(_WEB_STRONG.search(t) or (_WEB_WHEN.search(t) and _WEB_FACT.search(t)))
 
 
 def web_credits(c=None):
@@ -283,7 +371,7 @@ def wants_web(text, lid, c=None):
     the free daily Gemini grounding quota is used first (web_route), then
     Claude web search; the user pays web_credits() only when a search ran."""
     lv, _ = cfg(c)
-    if not lv.get("web_on") or not RECENT.search(text or ""):
+    if not lv.get("web_on") or not needs_web(text):
         return False
     return lid in lv["levels"]
 
@@ -308,6 +396,9 @@ def gemini_web_left(now=None, c=None):
     cap = int(lv.get("web_free_per_day") or 0)
     if cap <= 0:
         return 0
+    from . import gemini_breaker as GB
+    if GB.is_open():
+        return 0          # geminioff: web search = Claude web search only
     used = AIUsage.objects.filter(created_at__gte=R.day_start(now), provider="gemini",
                                   attempts__contains="gemini:ok:web").count()
     return max(0, cap - used)

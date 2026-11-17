@@ -167,7 +167,7 @@ class _WorldAskScreenState extends State<WorldAskScreen> {
           const SizedBox(height: Gap.sm),
           Text(t.uwAskWelcomeBody,
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+              style: TextStyle(color: scheme.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           if (widget.credits > 0)
             UwNote(
@@ -319,7 +319,7 @@ class _TurnCard extends StatelessWidget {
                                       .textTheme
                                       .bodySmall
                                       ?.copyWith(
-                                          color: scheme.onSurfaceVariant),
+                                          color: scheme.ds.muted),
                                 ),
                               ),
                               UwSpeakButton(
@@ -335,7 +335,7 @@ class _TurnCard extends StatelessWidget {
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(color: scheme.onSurfaceVariant)),
+                                    ?.copyWith(color: scheme.ds.muted)),
                           ]),
           ),
         ),

@@ -200,6 +200,11 @@ class ShopCameraDetailView(APIView):
 
         if fields:
             cam.save(update_fields=sorted(fields))
+            # cctvroles (V3 I): every camera setting change is audited
+            from . import cctv_team_views as CTV
+            CTV.audit(cam.site, "change", request.user,
+                      CTV.CT.pack(cam=cam.name or "#%s" % cam.pk, f=",".join(sorted(fields))),
+                      camera_id=cam.pk)
         out = SV._camera_row(cam, reveal_token=reveal)
         out["charged_credits"] = charged
         return Response(out)
@@ -209,7 +214,11 @@ class ShopCameraDetailView(APIView):
         cam = self._cam(request, pk)
         if cam is None:
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
+        site, label = cam.site, (cam.name or "#%s" % cam.pk)[:40]
         cam.delete()
+        # cctvroles (V3 I): only the owner can delete (self._cam is owner-only)
+        from . import cctv_team_views as CTV
+        CTV.audit(site, "delete", request.user, CTV.CT.pack(camera=label))
         return Response({"ok": True, "deleted": int(pk)})
 
 
@@ -359,16 +368,22 @@ class ShopHeartbeatView(APIView):
         _sweep_live(now)
         cfg = device_config(site, cam)
         from . import watchman_views as WV
-        return Response({"ok": True, "config_version": cfg["version"],
-                         "tasks_pending": WV.pending_task_count(site, now),
-                         "server_time": now.isoformat(),
-                         "live_pending": [_live_device_row(s) for s in
-                                          _pending_for(site, cams, now)],
-                         # cctvbox: siren / the owner's warning for THIS camera
-                         # (a phone camera or a Guard Box phone holds only a
-                         # camera token, so gateway tasks reach it here)
-                         "play": _take_play_tasks(site, cam, now),
-                         **({"box_events_ok": box_ok} if box_ok is not None else {})})
+        body = {"ok": True, "config_version": cfg["version"],
+                "tasks_pending": WV.pending_task_count(site, now),
+                "server_time": now.isoformat(),
+                "live_pending": [_live_device_row(s) for s in
+                                 _pending_for(site, cams, now)],
+                # cctvbox: siren / the owner's warning for THIS camera
+                # (a phone camera or a Guard Box phone holds only a
+                # camera token, so gateway tasks reach it here)
+                "play": _take_play_tasks(site, cam, now),
+                **({"box_events_ok": box_ok} if box_ok is not None else {})}
+        # cctvplay: a camera PHONE gets its clip recipients + video requests
+        from . import phonecam_clips_views as PCCV
+        pc = PCCV.heartbeat_block(site, cams, now)
+        if pc is not None:
+            body["phonecam"] = pc
+        return Response(body)
 
 
 def _take_play_tasks(site, cam, now):

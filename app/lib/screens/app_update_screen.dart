@@ -234,7 +234,7 @@ class _Checking extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2)),
               const SizedBox(width: Gap.md),
               Flexible( // qa1: wraps at large font
-                  child: Text(label, style: TextStyle(color: scheme.onSurfaceVariant))),
+                  child: Text(label, style: TextStyle(color: scheme.ds.muted))),
             ],
           ),
         ),
@@ -303,7 +303,7 @@ class _Available extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
+              color: scheme.ds.cardHighest,
               borderRadius: BorderRadius.circular(Radii.md),
             ),
             child: Text(changelog, style: const TextStyle(height: 1.5)),
@@ -311,7 +311,7 @@ class _Available extends StatelessWidget {
           const SizedBox(height: Gap.lg),
         ],
         Text(t.updateManualNotice,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
         const SizedBox(height: Gap.lg),
         FilledButton.icon(
           onPressed: onUpdate,

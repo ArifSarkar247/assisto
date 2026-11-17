@@ -166,10 +166,15 @@ class TrialStartView(APIView):
                              pick(lang, "এই ফোন, নম্বর বা ইমেইলে আগেই একটি ফ্রি ট্রায়াল নেওয়া হয়েছে। ট্রায়াল প্রতি ব্যক্তি একবার।",
                                   "A free trial was already used on this phone, number or email. The trial is once per person.")
                              if why == "trial_used_person" else
+                             pick(lang, "আপনার দোকানে আগেই একটি ফ্রি ট্রায়াল নেওয়া হয়েছে। ট্রায়াল প্রতি দোকানে একবার।",
+                                  "Your shop already used its free trial. The trial is once per shop.")
+                             if why == "trial_used_shop" else
                              pick(lang, "আপনার প্ল্যানে ট্রায়াল প্রযোজ্য নয়।",
                                   "The trial isn't available on your plan.")},
                             status=status.HTTP_409_CONFLICT)
         u = request.user
+        from . import buy_origin  # buyinside: where the trial started
+        buy_origin.record((request.data or {}).get("origin"), "trial", "completed")
         return Response({"ok": True, "trial_until": u.trial_until.isoformat(),
                          "days": plans.trial_days(u), "credits": u.ai_credits,
                          "plan": plans.effective_plan(u),

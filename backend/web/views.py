@@ -260,7 +260,14 @@ def get_app(request):
             data = json.load(f)
     except Exception:
         pass
-    return render(request, "web/get_app.html", _ctx(request, apk=data))
+    # cctvtoday: the Shop Box PC program (CCTV gateway) download + SHA-256
+    try:
+        from core.logic import shopbox_release as SBR
+        shopbox = SBR.latest()
+    except Exception:
+        shopbox = {}
+    from . import site_v3_dist as DIST   # seogrow item 7: Play card hidden until the owner says live
+    return render(request, "web/get_app.html", _ctx(request, apk=data, shopbox=shopbox, play_on=DIST.play_shown()))
 
 
 # ---------------- W1: CV score ----------------

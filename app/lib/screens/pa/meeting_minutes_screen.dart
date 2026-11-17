@@ -302,17 +302,17 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
       padding: const EdgeInsets.only(top: Gap.sm),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(icon, size: 15, color: scheme.onSurfaceVariant),
+          Icon(icon, size: 15, color: scheme.ds.muted),
           const SizedBox(width: Gap.xs),
           Text(label,
-              style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, color: scheme.ds.muted)),
         ]),
         const SizedBox(height: Gap.xxs),
         for (final it in items)
           Padding(
             padding: const EdgeInsets.only(left: 19, top: 1),
             child: Text('•  $it',
-                style: AType.bodyMedium.copyWith(color: scheme.onSurface, height: 1.3)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.3)),
           ),
       ]),
     );
@@ -344,14 +344,14 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text((a['title'] ?? '').toString(),
-                style: AType.bodyMedium.copyWith(height: 1.3, decoration: done ? TextDecoration.lineThrough : null, color: done ? scheme.onSurfaceVariant : scheme.onSurface)),
+                style: AType.bodyMedium.copyWith(height: 1.3, decoration: done ? TextDecoration.lineThrough : null, color: done ? scheme.ds.muted : scheme.ds.text)),
             if (owner.isNotEmpty || due.isNotEmpty)
               Text(
                 [
                   if (owner.isNotEmpty) tr.paMinOwnerHint(owner),
                   if (due.isNotEmpty) tr.paMinDueHint(_fmtDate(due, tr)),
                 ].join('  ·  '),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted),
               ),
           ]),
         ),
@@ -393,11 +393,11 @@ class _MeetingMinutesScreenState extends State<MeetingMinutesScreen> {
   Widget _meta(IconData icon, String text, ColorScheme scheme) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 15, color: scheme.onSurfaceVariant),
+          Icon(icon, size: 15, color: scheme.ds.muted),
           const SizedBox(width: Gap.xs),
           Text(text,
               style:
-                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ],
       );
 }
@@ -416,7 +416,7 @@ class _SttSeamCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
-      color: scheme.secondaryContainer.withValues(alpha: 0.4),
+      color: scheme.ds.primarySoft.withValues(alpha: 0.4),
       child: Padding(
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -431,7 +431,7 @@ class _SttSeamCard extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.w700)),
                   const SizedBox(height: Gap.xxs),
                   Text(ready ? tr.paMinSttReadyBody : tr.paMinSttSeamBody,
-                      style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
                 ]),
           ),
         ]),
@@ -580,7 +580,7 @@ class _MinutesEditorState extends State<_MinutesEditor> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: Gap.sm),
               child: Text(tr.paMinNoActions,
-                  style: TextStyle(color: scheme.onSurfaceVariant)),
+                  style: TextStyle(color: scheme.ds.muted)),
             ),
           for (final a in ordered)
             Card(

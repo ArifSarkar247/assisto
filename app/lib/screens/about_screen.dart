@@ -293,6 +293,16 @@ class _AboutScreenState extends State<AboutScreen> {
                 'Place photos, where shown: Wikimedia Commons contributors, '
                 'CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0/). '
                 'The author and licence of each photo are named next to it.'),
+            // quranview: Quran credits (Tanzil CC BY 3.0, QuranEnc terms,
+            // Quran Foundation developer terms).
+            LicenseEntryWithLineBreaks(['Quran text and meanings'],
+                'Quran Arabic text: Tanzil Project (tanzil.net), Uthmani 1.1, '
+                'CC BY 3.0, shown unchanged. Bangla meaning (Abu Bakr Zakaria), '
+                'English meaning (Saheeh International, Noor International '
+                'Center) and Al-Mukhtasar tafsir (Bengali): QuranEnc.com, shown '
+                'unchanged with publisher and version. Recitation audio, '
+                'word-by-word meaning and transliteration: Quran Foundation '
+                '(quran.foundation).'),
           ]));
     } catch (_) {}
   }

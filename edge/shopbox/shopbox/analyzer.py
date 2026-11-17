@@ -47,14 +47,34 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from . import detect_rules as DR
 from . import payload
 from .config import CameraConfig, DetectionConfig
-from .hours import Hours, Schedule
+from .hours import Hours, Schedule, get_tz
 from .motion import MotionDetector, MotionResult
+from .night import NIGHT_SPREAD_MAX, NightConfirm, frame_stats, model_input
 from .zone import (SENSITIVITY_MULT, box_centroid, box_zone_overlap,
                    normalize_polygon, point_in_polygon, segments_cross, zone_mask)
 
 TRACK_MAX_JUMP = 0.25        # normalised distance a centroid may move per frame
+GATE_PATCH_EVERY_S = 5.0     # cctvdet: "gate left open" is minutes, not frames
+SMALL_W = 160                # cctvdet: the grey picture the zone / tamper checks use
+
+
+def _measured():
+    """cctvdet: the per-detection precision measured in CI (shared file)."""
+    import json
+    import os
+    try:
+        with open(os.path.join(os.path.dirname(__file__), "cctv_thresholds.json"),
+                  encoding="utf-8") as f:
+            m = json.load(f).get("measured") or {}
+        return {k: v for k, v in m.items() if isinstance(v, dict)}
+    except (OSError, ValueError):
+        return {}
+
+
+MEASURED = _measured()
 
 
 @dataclass
@@ -98,7 +118,25 @@ class CameraAnalyzer:
         self._prev_pts: List[Tuple[float, float]] = []
         self._prev_age = 0
         self.last_people = 0             # for the UI "test" view
+        self.last_night = False          # cctvacc: last person check used night mode
+        # cctvacc2: night frames are enhanced (night.model_input) and a night
+        # person must be seen in NIGHT_CONFIRM checks in a row
+        self._night_confirm = NightConfirm(frames=getattr(cfg, "night_confirm", None))
+        self._now: Optional[float] = None
+        self._after_defer = 0
         self.last_motion_at: Optional[float] = None   # cctvx (heartbeat)
+        # cctvdet: zone detections (gate / post / dwell), camera tamper
+        self.zrules = DR.ZoneRules()
+        self.tamper = DR.TamperCheck()
+        self.extra: List[Trigger] = []
+        self._last_pcheck: Optional[float] = None
+        self._last_patch: Optional[float] = None
+        self._frame_dets = None
+        self._frame_raw = None
+        self._frame_veh = None
+        self._frame_thr = None
+        self.on_refs_changed: Optional[Callable[[dict], None]] = None
+        self.plates = None               # cctvdet: plates.PlateReader (engine sets it)
         self.reconfigure()
 
     def reconfigure(self, cam: Optional[CameraConfig] = None,
@@ -126,9 +164,19 @@ class CameraAnalyzer:
         self.motion.min_area_frac = self.cfg.motion_min_area_frac * mult
         self.zone_motion_frac = self.cfg.zone_motion_frac * mult
         self.person_conf = tuning.get("person_conf")
+        # cctvacc: optional owner-drawn motion area (normalised polygon)
+        self.motion.set_area(tuning.get("motion_area"))
         self.cooldown_s = tuning.get("cooldown_s")
         self._restricted_hits = {zid: self._restricted_hits.get(zid, 0)
                                  for zid, _ in self.restricted}
+        # cctvdet: the zone detections keep their per-zone state across edits
+        self.zrules.configure([z for z in zones
+                               if z.get("type") in ("gate", "post", "parking", "no_parking")
+                               or (z.get("opts") or {}).get("dwell_s")
+                               or (z.get("opts") or {}).get("crowd_n")
+                               or (z.get("type") == "entry_line"
+                                   and (z.get("opts") or {}).get("vehicles"))],
+                              (v2 or {}).get("schedule"))
 
     @property
     def detector_name(self) -> str:
@@ -146,16 +194,38 @@ class CameraAnalyzer:
         return self._zmask_cache[1]
 
     def _detect(self, frame):
+        # cctvacc: IR / grey / dark frame -> the night threshold (same rule
+        # and values as the phone app; measured in CI). cctvacc2: the night
+        # frame is fit to 416 px and enhanced first, exactly as the phone.
+        img, self.last_night = model_input(frame)
         thr = self.person_conf
         if thr is None:
-            dets = self.detector.detect(frame)
-        else:
-            try:
-                dets = self.detector.detect(frame, score_thr=thr)
-            except TypeError:            # a detector without the override
-                dets = self.detector.detect(frame)
-            dets = [d for d in dets if d.score >= thr]
+            thr = (self.cfg.person_score_night if self.last_night
+                   else self.cfg.person_score)
+        # cctvdet stage 2: a post zone counts as manned on a weaker box
+        # (POST_PRESENCE_SCORE) and parking / entry-line zones need vehicles
+        # from the SAME model pass (COCO classes; no second model)
+        low = min(thr, DR.POST_PRESENCE_SCORE) if self.zrules.has_post else thr
+        self._frame_thr = thr
+        self._frame_veh = None
+        try:
+            if self.zrules.wants_vehicles and hasattr(self.detector, "detect_all"):
+                dets, self._frame_veh = self.detector.detect_all(img, score_thr=low)
+            else:
+                dets = self.detector.detect(img, score_thr=low)
+        except TypeError:                # a detector without the override
+            dets = self.detector.detect(img)
+        # cctvdet: the zone rules confirm over their own checks (gate: 2 in a
+        # row; post: minutes of absence) — they take the boxes BEFORE the
+        # 2-s night confirm, which would otherwise hide a still guard at a
+        # post checked every 30 s and raise a false "post empty"
+        self._frame_raw = [d for d in dets if d.score >= low]
+        dets = [d for d in dets if d.score >= thr]
+        now = self._now if self._now is not None else self.clock()
+        if not self._night_confirm.check(bool(dets), self.last_night, now):
+            dets = []
         self.last_people = len(dets)
+        self._frame_dets = dets          # cctvdet: one model run per frame
         return dets
 
     def _person_in_zone(self, frame, dets=None) -> bool:
@@ -177,8 +247,137 @@ class CameraAnalyzer:
         self._restricted_hits = {k: 0 for k in self._restricted_hits}
         self._prev_pts, self._prev_age = [], 0
 
+    def take_extra(self) -> List[Trigger]:
+        """cctvdet: zone detections / tamper of the last frame(s) — the engine
+        sends each (process() still returns the classic one)."""
+        out, self.extra = self.extra, []
+        return out
+
+    def _det_trigger(self, d: dict, frame, now, m) -> Trigger:
+        etype = d["type"]
+        det = dict(d)
+        # cctvdet stage 2: the plate of the vehicle, read on the box when the
+        # optional open-source reader is installed (the server's AI reads the
+        # photo otherwise) — plates are not faces
+        if etype in payload.VEHICLE_TYPES and det.get("box") and self.plates is not None:
+            try:
+                p = self.plates.read(frame, det["box"])
+                if p:
+                    det["plate"] = p
+            except Exception:
+                pass
+        mp = (MEASURED.get(etype) or {}).get("p")
+        if mp is not None:
+            det["mp"] = mp
+        sig = payload.build_signals(etype, detector=self.detector_name, det=det)
+        return Trigger(etype, sig, frame, now, m)
+
+    def _zoom_boxes(self, frame, boxes):
+        """cctvdet stage 2 (recall): a post / gate zone with NO person box
+        gets a second look on its own crop (zoomed to the model's input),
+        so a small or half-hidden person at a far counter is still seen.
+        Boxes come back in full-frame coordinates."""
+        out = []
+        h, w = frame.shape[:2]
+        for z in self.zrules.zones:
+            if z["type"] not in ("post", "gate"):
+                continue
+            if any(DR.box_in_zone(b, z["points"]) for b in boxes):
+                continue
+            x1, y1, x2, y2 = DR.poly_bbox(z["points"])
+            if (x2 - x1) * (y2 - y1) > 0.35:
+                continue                   # a big zone gains nothing from a crop
+            px, py = (x2 - x1) * 0.15, (y2 - y1) * 0.15
+            x1, y1 = max(0.0, x1 - px), max(0.0, y1 - py)
+            x2, y2 = min(1.0, x2 + px), min(1.0, y2 + py)
+            crop = frame[int(y1 * h):max(int(y1 * h) + 2, int(y2 * h)),
+                         int(x1 * w):max(int(x1 * w) + 2, int(x2 * w))]
+            try:
+                img, _night = model_input(crop)
+                dets = self.detector.detect(img, score_thr=DR.POST_PRESENCE_SCORE)
+            except Exception:
+                continue
+            for d in dets:
+                out.append([x1 + d.x1 * (x2 - x1), y1 + d.y1 * (y2 - y1),
+                            x1 + d.x2 * (x2 - x1), y1 + d.y2 * (y2 - y1), d.score])
+        return out
+
+    def _small_gray(self, frame):
+        import cv2
+
+        g = frame if frame.ndim == 2 else cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        h, w = g.shape[:2]
+        if w > SMALL_W:
+            g = cv2.resize(g, (SMALL_W, max(1, int(round(h * SMALL_W / w)))),
+                           interpolation=cv2.INTER_AREA)
+        return g
+
+    def _zone_detections(self, frame, m, now, when) -> None:
+        """cctvdet: gate / post / dwell zones + camera tamper (detect_rules)."""
+        local = when.astimezone(get_tz(self.hours.timezone))
+        wd, minute = local.weekday(), local.hour * 60 + local.minute
+        small = None
+        # camera tamper (covered / moved), every TAMPER_EVERY_S, model-free
+        if self.tamper.due(now):
+            small = self._small_gray(frame)
+            spread, _luma = frame_stats(frame)
+            grid, mean, std = DR.still_stats(small.ravel().tolist(), small.shape[1],
+                                             small.shape[0])
+            shape = DR.zone_patch(small.ravel().tolist(), small.shape[1], small.shape[0],
+                                  [[0, 0], [1, 0], [1, 1], [0, 1]])
+            kind = self.tamper.check(grid, mean, std, spread < NIGHT_SPREAD_MAX, now, shape)
+            if kind:
+                self.extra.append(self._det_trigger(
+                    {"type": DR.CAMERA_HEALTH, "kind": kind}, frame, now, m))
+        if not self.zrules.zones:
+            return
+        boxes = None
+        vehicles = None
+        if self.has_model and (m.motion or self.zrules.needs_person_check(
+                now, wd, minute, self._last_pcheck)
+                or self.zrules.needs_vehicle_check(now, self._last_pcheck)):
+            if self._frame_dets is None:
+                self._detect(frame)
+            boxes = [[d.x1, d.y1, d.x2, d.y2, d.score] for d in (self._frame_raw or [])]
+            boxes += self._zoom_boxes(frame, boxes)
+            if self._frame_veh is not None:
+                vehicles = [[v.x1, v.y1, v.x2, v.y2, v.score, v.cls] for v in self._frame_veh]
+            self._last_pcheck = now
+        patches = None
+        gates = self.zrules.gate_zones()
+        if gates and (self._last_patch is None or now - self._last_patch >= GATE_PATCH_EVERY_S):
+            self._last_patch = now
+            small = self._small_gray(frame) if small is None else small
+            flat, h, w = small.ravel().tolist(), small.shape[0], small.shape[1]
+            patches = {}
+            night = self.last_night if boxes is not None else \
+                frame_stats(frame)[0] < NIGHT_SPREAD_MAX
+            changed = False
+            for z in gates:
+                zid = str(z["id"])
+                patches[zid] = DR.zone_patch(flat, w, h, z["points"])
+                busy = boxes is not None and any(DR.box_in_zone(b, z["points"]) for b in boxes)
+                if self.zrules.wants_ref(zid) and not busy:
+                    self.zrules.set_ref(zid, patches[zid], night, now)
+                    changed = True
+            if changed and self.on_refs_changed:
+                try:
+                    self.on_refs_changed(self.zrules.refs())
+                except Exception:
+                    pass
+        else:
+            night = self.last_night
+        for d in self.zrules.step(now, wd, minute, boxes, night, patches,
+                                  min_score=getattr(self, "_frame_thr", 0.0) or 0.0,
+                                  vehicles=vehicles):
+            self.extra.append(self._det_trigger(d, frame, now, m))
+
     def process(self, frame_bgr, now: Optional[float] = None) -> Optional[Trigger]:
         now = self.clock() if now is None else now
+        self._now = now
+        self._frame_dets = None
+        self._frame_raw = None
+        self._frame_veh = None
         frame = downscale(frame_bgr, self.cfg.frame_width)
         m = self.motion.update(frame, self.zone or None)
         if m.motion and not m.warming_up and not m.scene_change:
@@ -187,15 +386,27 @@ class CameraAnalyzer:
             self.last_motion_at = now
         confirm = max(1, int(self.cfg.confirm_frames))
         when = datetime.fromtimestamp(now, tz=timezone.utc)
+        try:
+            self._zone_detections(frame, m, now, when)
+        except Exception:                 # never let a new rule stop the old ones
+            pass
 
         if self.hours.is_after_hours(when):
             self._reset_open_state()
             self._after_hits = self._after_hits + 1 if m.motion else 0
             if self._after_hits < confirm:
+                self._after_defer = 0
                 return None
             person_in_zone = False
             if self.has_model and self.zone:
-                person_in_zone = self._person_in_zone(frame)
+                person_in_zone = self._person_in_zone(frame, self._frame_dets)
+                # cctvacc2: a night person seen once waits for the next frame
+                # (2-frame check) instead of losing the person flag
+                if (not person_in_zone and self._night_confirm.pending
+                        and self._after_defer < self._night_confirm.frames - 1):
+                    self._after_defer += 1
+                    return None
+            self._after_defer = 0
             sig = payload.build_signals(
                 payload.AFTER_HOURS, detector=self.detector_name,
                 frames=self._after_hits, person_in_zone=person_in_zone)
@@ -206,8 +417,8 @@ class CameraAnalyzer:
             self._reset_open_state()
             return None
 
-        dets = None
-        if self.v2 and self.has_model and m.motion:
+        dets = self._frame_dets          # cctvdet: already run this frame?
+        if dets is None and self.v2 and self.has_model and m.motion:
             dets = self._detect(frame)       # once per frame, shared below
         cash = self._cash_rule(frame, m, now, confirm, dets)
         if not self.v2:

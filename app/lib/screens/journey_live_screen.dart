@@ -17,6 +17,7 @@ import '../services/action_feedback.dart'; // db1
 import '../services/journey_tracker.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/adaptive_button_pair.dart';
 import '../widgets/journey_api.dart';
 import '../maps/road_eta_button.dart'; // mapscost
@@ -28,6 +29,8 @@ import '../widgets/password_field.dart';
 import '../widgets/sos_button.dart';
 import 'journey_fake_call_screen.dart';
 import 'safe_journey/sj_where_now.dart' show sjAccText;
+import 'safe_journey/sj_during_panel.dart'; // sjduring
+import 'safe_journey/sj_danger_audio.dart' show sjRecordDangerClip; // sjproof
 import 'journey_sos_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 
@@ -68,6 +71,9 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
   OemInfo? _oemInfo;
 
   ApiClient get _api => context.read<AppState>().api;
+
+  /// sjduring: the injected test tracker = no 30 s poll timer left behind.
+  bool get _underTestPoll => widget.tracker != null;
 
   @override
   void initState() {
@@ -247,7 +253,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           ]),
           const SizedBox(height: Gap.xs),
           if (empty)
-            Text(t.j2RideEmpty, style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant))
+            Text(t.j2RideEmpty, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted))
           else ...[
             if (line.isNotEmpty) Text(line, style: AType.bodyMedium),
             if (driver.isNotEmpty) Text(t.j2Driver(driver), style: AType.bodyMedium),
@@ -306,7 +312,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     setState(() {});
     if (s.journeyId != widget.journeyId) return;
     if (s.status == 'arrived') {
-      _closeWith(AppLocalizations.of(context).journeyArrivedSafely);
+      _closeWith(_arrivalMsg ?? AppLocalizations.of(context).journeyArrivedSafely);
     } else if (s.status != 'active') {
       _closeWith(null);
     } else if ((s.overdue == 'ask' || s.overdue == 'alert') && !_asked) {
@@ -369,16 +375,53 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
     }
   }
 
-  Future<void> _markArrived() async {
+  String? _arrivalMsg; // qjourney: the honest closing line for a manual arrival
+
+  Future<void> _markArrived({String? pin}) async {
+    final t = AppLocalizations.of(context);
+    // qjourney (owner V2): the tap carries the phone's fresh fix; the server
+    // checks distance + the earliest possible time. Far away / too early =
+    // "unusual": never "arrived safely", and the safety PIN is asked.
+    // sjproof: a fresh position at the tap (the last tracked fix can be 2 min
+    // and ~2 km old on a bus -> a real arrival looked "far")
+    final f = await _tr.freshFix(timeout: const Duration(seconds: 4)) ?? _tr.value.lastFix;
+    if (!mounted) return;
+    final fresh = f != null && DateTime.now().difference(f.at).inMinutes < 2;
+    Map<String, dynamic> r;
     try {
-      await _api.journeyArrived(widget.journeyId);
+      r = await _api.journeyArrivedChecked(widget.journeyId,
+          lat: fresh ? f.lat : null, lng: fresh ? f.lng : null,
+          acc: fresh ? f.acc : null, pin: pin);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      final why = '${e.body?['pin'] ?? ''}';
+      if (e.status == 429) {
+        _snack(t.j100PinLocked);
+      } else if (e.status == 400 && why == 'required') {
+        final p = await _askPin(t);
+        if (p != null && p.isNotEmpty && mounted) await _markArrived(pin: p);
+      } else if (e.status == 400 && why == 'wrong') {
+        _snack(t.sosPinWrong);
+      } else {
+        _snack(t.realityArrivedNotSent);
+      }
+      return;
     } catch (_) {
       // q1-seams: never a false "arrived safely" — the server did not hear it.
-      if (mounted) _snack(AppLocalizations.of(context).realityArrivedNotSent);
+      if (mounted) _snack(t.realityArrivedNotSent);
       return;
     }
-    await _tr.finished('arrived');
-    if (mounted) _closeWith(AppLocalizations.of(context).journeyArrivedSafely);
+    _arrivalMsg = r['arrival'] == 'unusual' ? t.qjArrivedUnusual : t.journeyArrivedSafely;
+    // sjproof: k=1 = the danger PIN — the SAME Arrived here, but the location
+    // service goes on for the watchers and 30 s of audio is recorded quietly
+    // (exactly like the PIN banner); the server ends the cover itself.
+    if (r['k'] == 1) {
+      unawaited(sjRecordDangerClip(_api, widget.journeyId));
+    } else {
+      await _tr.finished('arrived');
+    }
+    if (!mounted) return;
+    _closeWith(_arrivalMsg);
   }
 
   Future<String?> _askPin(AppLocalizations t) {
@@ -693,7 +736,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
       body = t.j100LastSent(TimeOfDay.fromDateTime(s.lastSentAt!).format(context));
     } else {
       icon = Icons.gps_not_fixed_rounded;
-      color = cs.onSurfaceVariant;
+      color = DsTokens.of(context).muted;
       title = t.j100Locating;
     }
     final dest = (_journey['destination'] as Map?)?['name']?.toString();
@@ -753,11 +796,11 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(t.j100Late,
                   style: AType.bodyMedium.copyWith(
-                      color: cs.error, fontWeight: FontWeight.w700)),
+                      color: DsTokens.of(context).dangerInk, fontWeight: FontWeight.w700)),
             ),
           const SizedBox(height: Gap.xs),
           Text(s.serviceOn ? t.j100BackgroundOn : t.j100KeepOpen,
-              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
           if (action != null) ...[
             const SizedBox(height: Gap.sm),
             action,
@@ -791,6 +834,20 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           const SizedBox(height: Gap.md),
         ],
         _statusCard(t, s),
+        // sjduring: state (Moving / Slow in traffic / ...), the PRIVATE ask,
+        // the PIN on an abnormal arrival, "also watching"
+        if (!_share)
+          SjDuringPanel(
+            journeyId: widget.journeyId,
+            poll: !_underTestPoll,
+            onDanger: _openSos,
+            onArrived: (keep) async {
+              // danger PIN: the same Arrived here; the location service goes
+              // on for the watchers until the server ends it
+              if (!keep) await _tr.finished('arrived');
+              if (mounted) _closeWith(AppLocalizations.of(context).journeyArrivedSafely);
+            },
+          ),
         // journeymode: the alarm this trip armed + where the train is
         JourneyAlarmStatus(journeyId: widget.journeyId, link: JourneyAlarmLink.I),
         if (_journey['train'] case final Map tr) ...[
@@ -799,7 +856,8 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
               train: tr,
               onOpen: jmTrainOn
                   ? () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => TrainLiveScreen(no: '${tr['no']}', date: '${tr['date']}')))
+                      builder: (_) => TrainLiveScreen(
+                          no: '${tr['no']}', date: '${tr['date']}', showAds: false)))
                   : null),
         ],
         if (_bgRisk) ...[
@@ -821,7 +879,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
                 foregroundColor: Colors.white,
                 minimumSize: const Size.fromHeight(52),
                 padding: const EdgeInsets.symmetric(vertical: Gap.md)),
-            onPressed: _markArrived,
+            onPressed: () => _markArrived(),
             icon: const Icon(Icons.check_circle_rounded),
             label: Text(t.journeyImSafe, style: AType.bodyLarge),
           ),
@@ -857,7 +915,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
         const SizedBox(height: 20),
         Text(t.j100Footer,
             style: AType.bodySmall
-                .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                .copyWith(color: DsTokens.of(context).muted)),
       ]),
     );
   }

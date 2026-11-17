@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../family_alerts_api.dart'; // family100
 import '../state.dart';
@@ -10,6 +9,7 @@ import '../l10n/app_localizations.dart';
 import '../theme.dart';
 import 'safety_sos_countdown.dart';
 import 'sos_ladder_card.dart'; // sosat
+import 'sos_location.dart'; // qjourney
 
 /// Emergency-screen SOS (sosat: hold-to-send + escalation ladder).
 ///
@@ -105,22 +105,9 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
 
   Future<(double, double)?> _maybePosition() async {
     if (widget.locate != null) return widget.locate!();
-    try {
-      if (!await Geolocator.isLocationServiceEnabled()) return null;
-      var perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
-      if (perm == LocationPermission.denied ||
-          perm == LocationPermission.deniedForever) {
-        return null;
-      }
-      final p = await Geolocator.getCurrentPosition()
-          .timeout(const Duration(seconds: 8));
-      return (p.latitude, p.longitude);
-    } catch (_) {
-      return null;
-    }
+    // qjourney: bounded — an SOS never waits on a GPS fix or a prompt
+    final p = await sosQuickPosition();
+    return p == null ? null : (p.lat, p.lng);
   }
 
   /// family100: the SERVER alerts every consenting family member at once
@@ -216,7 +203,7 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
           Semantics(
             button: true,
             label: t.emergencySosBigButton,
-            hint: t.saHoldHint,
+            hint: t.saSosExplainer,
             onTap: _busy ? null : _onSos,
             excludeSemantics: true,
             child: Listener(
@@ -270,10 +257,12 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
             ),
           ),
           const SizedBox(height: Gap.sm),
-          Text(t.saSosExplainer,
+          // designv2 page rule: one short line, not a paragraph (the full
+          // explanation stays in TalkBack via the button's hint)
+          Text(t.ds2SosHoldLine,
+              key: const ValueKey('sosat-hold-line'),
               textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 12,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   // a11y1: black54 on the SOS tint was 4.45:1.
                   color: Theme.of(context).colorScheme.onSurfaceVariant)),
           // Wrapped in a transparent Material so the tile's ink splash paints
@@ -288,9 +277,8 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
               secondary: Icon(_loud ? Icons.vibration_rounded : Icons.mobile_off_rounded,
                   color: Brand.danger),
               title: Text(t.emergencyLoudMode,
+                  semanticsLabel: '${t.emergencyLoudMode}. ${t.emergencyLoudModeDesc}',
                   style: const TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: Text(t.emergencyLoudModeDesc,
-                  style: const TextStyle(fontSize: 12)),
             ),
           ),
         ]),

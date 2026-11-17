@@ -1,0 +1,893 @@
+{
+ "format": "assisto.lp.test/1",
+ "bundle_id": "de-a1-002",
+ "lang": "de",
+ "track": "de_a1",
+ "exam": "German A1",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "German A1 (visa level) Practice Test 2",
+  "bn": "জার্মান A1 (ভিসা লেভেল) প্র্যাকটিস টেস্ট ২"
+ },
+ "practice_label": {
+  "en": "Practice test written by Assisto — not an official A1 certificate result.",
+  "bn": "Assisto-র নিজের লেখা প্র্যাকটিস টেস্ট — এটি অফিসিয়াল A1 সার্টিফিকেটের ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage2",
+  "created": "2026-11-09",
+  "format_source": "public Start Deutsch 1 (A1) exam format description: Hören 3 parts/15 items, Lesen 3 parts/15 items, Schreiben 2 parts, Sprechen 3 parts"
+ },
+ "scoring": {
+  "max": 100,
+  "per_section": {
+   "hoeren": 25,
+   "lesen": 25,
+   "schreiben": 25,
+   "sprechen": 25
+  },
+  "pass_hint_bn": "মোটামুটি ৬০/১০০ পেলে পাসের কাছাকাছি ধরা যায় — এটা শুধু প্র্যাকটিস অনুমান (practice estimate)।",
+  "note_bn": "প্র্যাকটিস স্কোর — অফিসিয়াল ফল নয়। আসল পরীক্ষার নিয়ম ও তারিখ পরীক্ষা কেন্দ্রের ওয়েবসাইটে দেখে নিন।"
+ },
+ "sections": [
+  {
+   "id": "hoeren",
+   "kind": "listening",
+   "title": {
+    "en": "Listening",
+    "bn": "শোনা (হ্যোরেন)"
+   },
+   "minutes": 20,
+   "parts": [
+    {
+     "part": "teil1",
+     "type": "teil1",
+     "instructions": {
+      "target": "Hören Sie sechs kurze Gespräche. Jedes Gespräch hören Sie zweimal. Welche Antwort passt? Wählen Sie a, b oder c.",
+      "bn": "ছয়টি ছোট কথোপকথন শুনবেন, প্রতিটি দুইবার। সঠিক উত্তর বাছুন: a, b বা c।"
+     },
+     "questions": [
+      {
+       "n": 1,
+       "prompt": "Wo treffen sich die beiden morgen?",
+       "options": [
+        "Vor dem Kino",
+        "Am Bahnhof",
+        "Auf dem Marktplatz"
+       ],
+       "answer": "C",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "friend"
+         },
+         "B": {
+          "gender": "M",
+          "role": "friend"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Wo treffen wir uns morgen? Vor dem Kino?"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Nein, vor dem Kino ist es abends immer so voll. Lieber am Brunnen auf dem Marktplatz."
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "A",
+          "text": "Gut, am Brunnen. Um wie viel Uhr?"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Um Viertel nach sieben."
+         }
+        ],
+        "repeat": 2
+       },
+       "explain_bn": "সিনেমার সামনে ভিড় থাকে বলে ছেলেটি বাজার-চত্বরের (Marktplatz) ফোয়ারার কাছে দেখা করতে বলে।",
+       "skill": "place"
+      },
+      {
+       "n": 2,
+       "prompt": "Was trinkt der Mann?",
+       "options": [
+        "Tee mit Zitrone",
+        "Kaffee mit Milch",
+        "Kaffee ohne Milch"
+       ],
+       "answer": "A",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "waitress"
+         },
+         "B": {
+          "gender": "M",
+          "role": "guest"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Guten Abend. Was möchten Sie trinken?"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Einen Kaffee mit Milch, bitte. Ach nein, lieber einen Tee mit Zitrone. Kaffee trinke ich abends nicht."
+         }
+        ],
+        "repeat": 2
+       },
+       "explain_bn": "প্রথমে কফি বললেও পরে মত বদলান: „lieber einen Tee mit Zitrone“ — লেবু চা। শেষ সিদ্ধান্তটাই উত্তর।",
+       "skill": "detail"
+      },
+      {
+       "n": 3,
+       "prompt": "Wie fährt die Frau jetzt zur Arbeit?",
+       "options": [
+        "Mit dem Auto",
+        "Mit dem Fahrrad",
+        "Mit der U-Bahn"
+       ],
+       "answer": "C",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "neighbour"
+         },
+         "B": {
+          "gender": "F",
+          "role": "neighbour"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Fährst du eigentlich immer mit dem Auto zur Arbeit?"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Nein, das Parken ist zu teuer. Im Sommer fahre ich Fahrrad, im Winter nehme ich die U-Bahn."
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "A",
+          "text": "Und jetzt im Januar?"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Jetzt natürlich mit der U-Bahn."
+         }
+        ],
+        "repeat": 2
+       },
+       "explain_bn": "জানুয়ারি শীতকাল, আর শীতে তিনি পাতাল রেলে (U-Bahn) যান।",
+       "skill": "detail"
+      },
+      {
+       "n": 4,
+       "prompt": "Welches Zimmer hat Herr Alam?",
+       "options": [
+        "Zimmer 204",
+        "Zimmer 214",
+        "Zimmer 240"
+       ],
+       "answer": "B",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "hotel guest"
+         },
+         "B": {
+          "gender": "F",
+          "role": "hotel receptionist"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Guten Abend, ich habe ein Zimmer reserviert. Mein Name ist Alam."
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Herzlich willkommen, Herr Alam. Sie haben Zimmer zweihundertvierzehn im zweiten Stock. Frühstück gibt es von halb sieben bis zehn Uhr."
+         }
+        ],
+        "repeat": 2
+       },
+       "explain_bn": "zweihundertvierzehn = দুইশো চোদ্দো = ২১৪। জার্মান সংখ্যায় vierzehn (১৪) আর vierzig (৪০) গুলিয়ে ফেলবেন না।",
+       "skill": "number"
+      },
+      {
+       "n": 5,
+       "prompt": "Wie viele Eintrittskarten kauft die Frau?",
+       "options": [
+        "Vier Karten",
+        "Fünf Karten",
+        "Drei Karten"
+       ],
+       "answer": "A",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "mother at a ticket desk"
+         },
+         "B": {
+          "gender": "M",
+          "role": "cashier"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Zwei Erwachsene und drei Kinder, bitte. Ach, Moment, mein Mann kommt doch nicht mit."
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Also ein Erwachsener und drei Kinder. Das macht vierzehn Euro."
+         }
+        ],
+        "repeat": 2
+       },
+       "explain_bn": "স্বামী আসছেন না, তাই ১ জন বড় + ৩ শিশু = ৪টি টিকিট।",
+       "skill": "number"
+      },
+      {
+       "n": 6,
+       "prompt": "Wann ist die Geburtstagsfeier?",
+       "options": [
+        "Am Samstagabend",
+        "Am Sonntag um 15 Uhr",
+        "Am Sonntag um 13 Uhr"
+       ],
+       "answer": "B",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "colleague"
+         },
+         "B": {
+          "gender": "F",
+          "role": "colleague"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Ist deine Geburtstagsfeier am Samstag?"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "Nein, am Samstag muss ich arbeiten. Wir feiern am Sonntagnachmittag, ab drei Uhr."
+         }
+        ],
+        "repeat": 2
+       },
+       "explain_bn": "শনিবার কাজ, তাই রবিবার বিকেল তিনটা থেকে — ১৫টা = বিকেল ৩টা।",
+       "skill": "time"
+      }
+     ]
+    },
+    {
+     "part": "teil2",
+     "type": "teil2",
+     "instructions": {
+      "target": "Hören Sie vier Durchsagen. Jede Durchsage hören Sie nur einmal. Ist die Aussage richtig oder falsch?",
+      "bn": "চারটি ঘোষণা শুনবেন, প্রতিটি মাত্র একবার। বাক্যটি ঠিক (Richtig) না ভুল (Falsch)?"
+     },
+     "questions": [
+      {
+       "n": 7,
+       "prompt": "Der Zug nach Mainz fährt von Gleis 9 ab.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "A",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "train announcer"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Sehr geehrte Fahrgäste, in wenigen Minuten erreichen wir Frankfurt Hauptbahnhof. Sie haben Anschluss an den Zug nach Mainz auf Gleis neun."
+         }
+        ],
+        "repeat": 1
+       },
+       "explain_bn": "Anschluss = সংযোগ ট্রেন। মাইনৎসের ট্রেন ৯ নম্বর প্ল্যাটফর্মে (Gleis neun) — ঠিক।",
+       "skill": "detail"
+      },
+      {
+       "n": 8,
+       "prompt": "Der Zoo ist heute bis 17 Uhr geöffnet.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "B",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "zoo announcer"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Liebe Besucherinnen und Besucher, der Zoo schließt heute schon um sechzehn Uhr. Das Restaurant am Eingang ist bis siebzehn Uhr geöffnet."
+         }
+        ],
+        "repeat": 1
+       },
+       "explain_bn": "চিড়িয়াখানা আজ ১৬টায় বন্ধ; ১৭টা পর্যন্ত খোলা শুধু রেস্টুরেন্ট। তাই ভুল।",
+       "skill": "time"
+      },
+      {
+       "n": 9,
+       "prompt": "Morgen regnet es im Norden.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "B",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "radio weather presenter"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Und nun das Wetter für morgen: Im Norden wird es sonnig und warm, bis sechsundzwanzig Grad. Im Süden regnet es am Nachmittag."
+         }
+        ],
+        "repeat": 1
+       },
+       "explain_bn": "উত্তরে (Norden) রোদ, বৃষ্টি দক্ষিণে (Süden)। তাই ভুল।",
+       "skill": "detail"
+      },
+      {
+       "n": 10,
+       "prompt": "Tom wartet an der Information.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "A",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "shopping centre announcer"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Achtung, eine Durchsage: Der kleine Tom, fünf Jahre alt, sucht seine Mutter. Tom wartet an der Information im Erdgeschoss."
+         }
+        ],
+        "repeat": 1
+       },
+       "explain_bn": "ছোট টম মাকে খুঁজছে আর নিচতলার তথ্যকেন্দ্রে (Information) অপেক্ষা করছে — ঠিক।",
+       "skill": "place"
+      }
+     ]
+    },
+    {
+     "part": "teil3",
+     "type": "teil3",
+     "instructions": {
+      "target": "Hören Sie fünf Nachrichten auf dem Anrufbeantworter. Jede Nachricht hören Sie zweimal. Wählen Sie a, b oder c.",
+      "bn": "ফোনের আনসারিং মেশিনে পাঁচটি মেসেজ শুনবেন, প্রতিটি দুইবার। সঠিক উত্তর বাছুন: a, b বা c।"
+     },
+     "questions": [
+      {
+       "n": 11,
+       "prompt": "Was möchte Jana morgen machen?",
+       "options": [
+        "Ins Kino gehen",
+        "Auf den Flohmarkt gehen",
+        "Sport machen"
+       ],
+       "answer": "B",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "friend on the phone"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Hallo Shila, hier ist Jana. Ich gehe morgen auf den Flohmarkt. Kommst du mit? Ich hole dich um zehn Uhr mit dem Auto ab. Schreib mir bitte kurz eine Nachricht, ja?"
+         }
+        ],
+        "repeat": 2
+       },
+       "explain_bn": "Flohmarkt = পুরোনো জিনিসের হাট/সাপ্তাহিক বাজার। ইয়ানা কাল সেখানে যাবে।",
+       "skill": "message"
+      },
+      {
+       "n": 12,
+       "prompt": "Wie viel kostet die Reparatur?",
+       "options": [
+        "240 Euro",
+        "140 Euro",
+        "214 Euro"
+       ],
+       "answer": "A",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "car garage"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Guten Tag, hier ist das Autohaus Berger. Ihr Auto ist fertig. Sie können es heute bis achtzehn Uhr oder morgen ab acht Uhr abholen. Die Reparatur kostet zweihundertvierzig Euro."
+         }
+        ],
+        "repeat": 2
+       },
+       "explain_bn": "zweihundertvierzig = দুইশো চল্লিশ = ২৪০ ইউরো। vierzig = ৪০, vierzehn = ১৪।",
+       "skill": "number"
+      },
+      {
+       "n": 13,
+       "prompt": "Wann ist das Vorstellungsgespräch?",
+       "options": [
+        "Am Montag um 11 Uhr",
+        "Am Dienstag um 10 Uhr",
+        "Am Dienstag um 11 Uhr"
+       ],
+       "answer": "C",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "company HR"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Hallo Herr Karim, hier ist Petra Lang von der Firma Nordbau. Wir möchten Sie gern zu einem Vorstellungsgespräch einladen, am Dienstag um elf Uhr. Bitte rufen Sie uns kurz zurück."
+         }
+        ],
+        "repeat": 2
+       },
+       "explain_bn": "চাকরির ইন্টারভিউ (Vorstellungsgespräch) মঙ্গলবার (Dienstag) এগারোটায় (elf Uhr)।",
+       "skill": "workplace"
+      },
+      {
+       "n": 14,
+       "prompt": "Wo liegt das Geld?",
+       "options": [
+        "Im Büro",
+        "Auf dem Küchentisch",
+        "In der Tasche"
+       ],
+       "answer": "B",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "mother"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Hallo, hier ist Mama. Ich bin noch im Büro. Kannst du bitte Milch und Eier kaufen? Das Geld liegt auf dem Küchentisch. Bis später!"
+         }
+        ],
+        "repeat": 2
+       },
+       "explain_bn": "মা অফিসে আছেন, কিন্তু টাকা রান্নাঘরের টেবিলে (Küchentisch)।",
+       "skill": "place"
+      },
+      {
+       "n": 15,
+       "prompt": "Was soll die Person machen?",
+       "options": [
+        "Die Bücher zurückbringen",
+        "Neue Bücher bestellen",
+        "Eine Woche warten"
+       ],
+       "answer": "A",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "city library"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "Guten Tag, hier ist die Stadtbibliothek. Ihre zwei Bücher sind schon eine Woche zu spät. Bitte bringen Sie die Bücher bald zurück. Wir sind von Montag bis Freitag geöffnet."
+         }
+        ],
+        "repeat": 2
+       },
+       "explain_bn": "বই এক সপ্তাহ দেরি — দ্রুত ফেরত দিতে (zurückbringen) বলা হয়েছে।",
+       "skill": "message"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lesen",
+   "kind": "reading",
+   "title": {
+    "en": "Reading",
+    "bn": "পড়া (লেজেন)"
+   },
+   "minutes": 25,
+   "parts": [
+    {
+     "part": "teil1",
+     "type": "teil1",
+     "instructions": {
+      "target": "Lesen Sie den Text und die Aussagen. Ist die Aussage richtig oder falsch?",
+      "bn": "লেখাটি আর বাক্যগুলো পড়ুন। প্রতিটি বাক্য ঠিক (Richtig) না ভুল (Falsch)?"
+     },
+     "passage": "Hallo Tarek,\ndanke für deine Nachricht! Leider kann ich am Freitag nicht beim Umzug helfen, denn ich habe eine Prüfung im Deutschkurs. Aber am Samstag habe ich Zeit. Ich kann ab neun Uhr kommen und meinen Bruder mitbringen. Er hat ein großes Auto. Brauchst du noch Kartons? Ich habe zehn Stück im Keller.\nBis bald\nJonas",
+     "questions": [
+      {
+       "n": 16,
+       "prompt": "Jonas hilft am Freitag beim Umzug.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "B",
+       "explain_bn": "„Leider kann ich am Freitag nicht … helfen“ — শুক্রবার সাহায্য করতে পারবে না। ভুল।",
+       "skill": "detail"
+      },
+      {
+       "n": 17,
+       "prompt": "Jonas hat am Freitag eine Prüfung.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "A",
+       "explain_bn": "শুক্রবার তার জার্মান কোর্সে পরীক্ষা (Prüfung) — ঠিক।",
+       "skill": "detail"
+      },
+      {
+       "n": 18,
+       "prompt": "Am Samstag kommt Jonas ab 9 Uhr.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "A",
+       "explain_bn": "„Ich kann ab neun Uhr kommen“ — শনিবার নয়টা থেকে আসতে পারে। ঠিক।",
+       "skill": "time"
+      },
+      {
+       "n": 19,
+       "prompt": "Der Bruder von Jonas hat kein Auto.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "B",
+       "explain_bn": "„Er hat ein großes Auto“ — ভাইয়ের বড় গাড়ি আছে। ভুল।",
+       "skill": "detail"
+      },
+      {
+       "n": 20,
+       "prompt": "Jonas hat Kartons im Keller.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "A",
+       "explain_bn": "বেসমেন্টে (Keller) তার দশটি কার্টন আছে — ঠিক।",
+       "skill": "detail"
+      }
+     ]
+    },
+    {
+     "part": "teil2",
+     "type": "teil2",
+     "instructions": {
+      "target": "Lesen Sie die Situationen und die Anzeigen. Welche Anzeige passt: a oder b?",
+      "bn": "পরিস্থিতি আর দুটি বিজ্ঞাপন পড়ুন। কোনটি মেলে: a না b?"
+     },
+     "questions": [
+      {
+       "n": 21,
+       "prompt": "Sie möchten am Abend mit Freunden essen gehen. Sie essen kein Fleisch.",
+       "passage": "a: Gasthaus Zum Hirsch – Schnitzel, Braten und Würstchen, täglich 11 bis 22 Uhr.\nb: Restaurant Grünes Blatt – nur vegetarische Küche, Dienstag bis Sonntag 17 bis 23 Uhr.",
+       "options": [
+        "Anzeige a",
+        "Anzeige b"
+       ],
+       "answer": "B",
+       "explain_bn": "মাংস খান না, তাই শুধু নিরামিষ (vegetarisch) রেস্টুরেন্ট b।",
+       "skill": "info_search"
+      },
+      {
+       "n": 22,
+       "prompt": "Sie suchen eine Wohnung für Ihre Familie mit zwei Kindern.",
+       "passage": "a: 3-Zimmer-Wohnung, 78 m², Balkon, Spielplatz im Hof, 950 Euro warm.\nb: 1-Zimmer-Apartment, 28 m², möbliert, ideal für Studenten, 480 Euro warm.",
+       "options": [
+        "Anzeige a",
+        "Anzeige b"
+       ],
+       "answer": "A",
+       "explain_bn": "চারজনের পরিবারের জন্য ৩ রুমের বাসা, উঠানে খেলার মাঠ — a। b ছাত্রদের এক রুম।",
+       "skill": "info_search"
+      },
+      {
+       "n": 23,
+       "prompt": "Ihr Handy ist kaputt. Sie möchten es reparieren lassen.",
+       "passage": "a: Handy-Shop Mitte – neue Smartphones und Verträge, Beratung Montag bis Samstag.\nb: Handy-Werkstatt Schnell – Reparatur von Display und Akku, oft in einer Stunde fertig.",
+       "options": [
+        "Anzeige a",
+        "Anzeige b"
+       ],
+       "answer": "B",
+       "explain_bn": "মেরামত (Reparatur) করে b; a শুধু নতুন ফোন ও চুক্তি বিক্রি করে।",
+       "skill": "info_search"
+      },
+      {
+       "n": 24,
+       "prompt": "Sie möchten am Wochenende Fußball spielen.",
+       "passage": "a: Sportverein Blau-Weiß – Fußball für Erwachsene, jeden Samstag um 10 Uhr, neue Spieler willkommen.\nb: Fitnessstudio Kraftwerk – Kurse von Montag bis Freitag, 6 bis 21 Uhr.",
+       "options": [
+        "Anzeige a",
+        "Anzeige b"
+       ],
+       "answer": "A",
+       "explain_bn": "শনিবার ফুটবল খেলা হয় a-তে; জিম (b) শুধু সোম-শুক্র আর ফুটবল নেই।",
+       "skill": "info_search"
+      },
+      {
+       "n": 25,
+       "prompt": "Sie brauchen einen Arzt für Ihren kleinen Sohn.",
+       "passage": "a: Dr. med. Petra Hahn, Augenärztin – Termine nach Vereinbarung.\nb: Dr. med. Ali Demir, Kinder- und Jugendarzt – Sprechstunde Montag bis Freitag 8 bis 12 Uhr.",
+       "options": [
+        "Anzeige a",
+        "Anzeige b"
+       ],
+       "answer": "B",
+       "explain_bn": "শিশু-বিশেষজ্ঞ (Kinderarzt) b; a চোখের ডাক্তার (Augenärztin)।",
+       "skill": "info_search"
+      }
+     ]
+    },
+    {
+     "part": "teil3",
+     "type": "teil3",
+     "instructions": {
+      "target": "Lesen Sie die Schilder und Aushänge. Ist die Aussage richtig oder falsch?",
+      "bn": "সাইনবোর্ড ও নোটিশ পড়ুন। বাক্যটি ঠিক (Richtig) না ভুল (Falsch)?"
+     },
+     "questions": [
+      {
+       "n": 26,
+       "prompt": "Am Sonntag kann man Bücher zurückgeben.",
+       "passage": "Stadtbibliothek\nRückgabe auch am Sonntag möglich:\nBitte nutzen Sie den Rückgabekasten neben der Eingangstür.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "A",
+       "explain_bn": "রবিবারও বই ফেরত দেওয়া যায় — দরজার পাশের বাক্সে। ঠিক।",
+       "skill": "detail"
+      },
+      {
+       "n": 27,
+       "prompt": "Die erste Stunde im Parkhaus kostet 1,50 Euro.",
+       "passage": "Parkhaus Zentrum\nDie erste Stunde ist kostenlos.\nJede weitere Stunde: 1,50 Euro.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "B",
+       "explain_bn": "প্রথম ঘণ্টা বিনা পয়সায় (kostenlos); ১.৫০ ইউরো পরের প্রতি ঘণ্টা। ভুল।",
+       "skill": "number"
+      },
+      {
+       "n": 28,
+       "prompt": "Heute kann man den Aufzug benutzen.",
+       "passage": "Achtung!\nAufzug außer Betrieb.\nBitte benutzen Sie die Treppe rechts.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "B",
+       "explain_bn": "„außer Betrieb“ = নষ্ট/বন্ধ। লিফট চলছে না, সিঁড়ি ব্যবহার করতে হবে। ভুল।",
+       "skill": "detail"
+      },
+      {
+       "n": 29,
+       "prompt": "Am Freitag gibt es in der Kantine Fisch.",
+       "passage": "Kantine\nMittagessen von 11:30 bis 14 Uhr.\nFreitags gibt es Fisch.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "A",
+       "explain_bn": "„Freitags gibt es Fisch“ — প্রতি শুক্রবার মাছ। ঠিক।",
+       "skill": "detail"
+      },
+      {
+       "n": 30,
+       "prompt": "Glas kommt in die blaue Tonne.",
+       "passage": "Hausordnung\nBitte den Müll trennen!\nPapier in die blaue Tonne, Glas zum Container an der Ecke.",
+       "options": [
+        "Richtig",
+        "Falsch"
+       ],
+       "answer": "B",
+       "explain_bn": "নীল বিনে কাগজ; কাচ রাস্তার কোণের কন্টেইনারে। জার্মানিতে ময়লা আলাদা করা (Müll trennen) বাধ্যতামূলক। ভুল।",
+       "skill": "culture"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "schreiben",
+   "kind": "writing",
+   "title": {
+    "en": "Writing",
+    "bn": "লেখা (শ্রাইবেন)"
+   },
+   "minutes": 20,
+   "tasks": [
+    {
+     "id": "de-a1-002-s1",
+     "points": 5,
+     "prompt": {
+      "target": "Ihr Kollege Sumon Roy möchte eine Stadtrundfahrt machen. Er fährt am Sonntag mit seiner Frau. Die beiden möchten die Führung auf Englisch hören. Sumon wohnt im Hotel Seeblick und bezahlt bar. Füllen Sie die Buchung für ihn aus.",
+      "bn": "আপনার সহকর্মী সুমন রায় শহর-ভ্রমণের বাস ট্যুরে যেতে চান। লেখাটা পড়ে বুকিং ফর্মের ৫টি ঘর পূরণ করুন।"
+     },
+     "fields": [
+      {
+       "label": "Name",
+       "answer": "Sumon Roy"
+      },
+      {
+       "label": "Tag",
+       "answer": "Sonntag"
+      },
+      {
+       "label": "Anzahl der Personen",
+       "answer": "2"
+      },
+      {
+       "label": "Sprache der Führung",
+       "answer": "Englisch"
+      },
+      {
+       "label": "Zahlung",
+       "answer": "bar"
+      }
+     ],
+     "model": {
+      "target": "Name: Sumon Roy – Tag: Sonntag – Anzahl der Personen: 2 – Sprache der Führung: Englisch – Zahlung: bar",
+      "bn": "নাম: সুমন রায়; দিন: রবিবার; মানুষ: ২ জন (স্ত্রীসহ); গাইডের ভাষা: ইংরেজি; পেমেন্ট: নগদে (bar)।"
+     }
+    },
+    {
+     "id": "de-a1-002-s2",
+     "points": 10,
+     "prompt": {
+      "target": "Ihre Nachbarin, Frau Schneider, lädt Sie zu einem Grillfest am Samstag ein. Schreiben Sie ihr eine kurze Nachricht (circa 30 Wörter). Bedanken Sie sich. Sagen Sie: Sie kommen gern. Fragen Sie: Was soll ich mitbringen?",
+      "bn": "প্রতিবেশী শনিবারের বারবিকিউ পার্টিতে দাওয়াত দিয়েছেন। প্রায় ৩০ শব্দে লিখুন: ধন্যবাদ, আপনি আসবেন, আর কী নিয়ে আসবেন জিজ্ঞেস করুন।"
+     },
+     "model": {
+      "target": "Liebe Frau Schneider, vielen Dank für die Einladung zum Grillfest! Ich komme am Samstag sehr gern. Was soll ich mitbringen? Ich kann einen Salat machen oder Getränke kaufen. Viele Grüße, Rumana",
+      "bn": "নমুনা: দাওয়াতের জন্য অনেক ধন্যবাদ! শনিবার অবশ্যই আসব। কী আনব? আমি সালাদ বানাতে বা পানীয় কিনতে পারি। — তিনটি বিষয়ই আছে।"
+     }
+    }
+   ]
+  },
+  {
+   "id": "sprechen",
+   "kind": "speaking",
+   "title": {
+    "en": "Speaking",
+    "bn": "বলা (শ্প্রেশেন)"
+   },
+   "minutes": 15,
+   "tasks": [
+    {
+     "id": "de-a1-002-p1",
+     "points": 3,
+     "prompt": {
+      "target": "Erzählen Sie etwas über sich. Stichwörter: Name – Alter – Herkunft – Wohnort – Sprachen – Arbeit – Freizeit.",
+      "bn": "শব্দগুলো দেখে নিজের সম্পর্কে বলুন: নাম, বয়স, কোথা থেকে, কোথায় থাকেন, ভাষা, কাজ, অবসর।"
+     },
+     "model": {
+      "target": "Mein Name ist Shirin Akter. Ich bin dreiunddreißig Jahre alt. Ich komme aus Sylhet in Bangladesch und wohne jetzt in Dhaka. Ich spreche Bengalisch und Englisch, und ich lerne Deutsch. Ich arbeite als Krankenschwester. In meiner Freizeit lese ich gern.",
+      "bn": "নমুনা: আমার নাম শিরিন আক্তার, বয়স ৩৩, সিলেটের মেয়ে, এখন ঢাকায় থাকি, বাংলা-ইংরেজি জানি আর জার্মান শিখছি, নার্স হিসেবে কাজ করি, অবসরে বই পড়ি।"
+     }
+    },
+    {
+     "id": "de-a1-002-p2",
+     "points": 6,
+     "prompt": {
+      "target": "Thema: Freizeit. Ziehen Sie eine Karte, fragen Sie Ihren Partner und antworten Sie auf seine Frage. Karten: Wochenende – Sport – Musik – Kino.",
+      "bn": "বিষয়: অবসর। একটি কার্ড তুলে সঙ্গীকে প্রশ্ন করুন, তারপর তার প্রশ্নের উত্তর দিন।"
+     },
+     "model": {
+      "target": "Frage: Was machst du am Wochenende? – Antwort: Am Wochenende besuche ich meine Freunde. Frage: Welche Musik hörst du gern? – Antwort: Ich höre gern Popmusik.",
+      "bn": "নমুনা: „সপ্তাহান্তে কী করো?“ — „বন্ধুদের সঙ্গে দেখা করি।“ „কোন গান শুনতে ভালো লাগে?“ — „পপ গান।“"
+     }
+    },
+    {
+     "id": "de-a1-002-p3",
+     "points": 6,
+     "prompt": {
+      "target": "Bitten Sie Ihren Partner um etwas und reagieren Sie auf seine Bitte. Situationskarten: Tür öffnen – Fahrkarte kaufen – Zucker – Weg zum Bahnhof.",
+      "bn": "কার্ডের পরিস্থিতি দেখে ভদ্র অনুরোধ করুন, আর সঙ্গীর অনুরোধে „Ja, gern“ / „Natürlich“ দিয়ে সাড়া দিন।"
+     },
+     "model": {
+      "target": "Öffnen Sie bitte die Tür. – Ja, gern. Können Sie mir bitte eine Fahrkarte kaufen? Geben Sie mir bitte den Zucker. Entschuldigung, wie komme ich bitte zum Bahnhof?",
+      "bn": "নমুনা: „দরজাটা খুলে দিন, প্লিজ।“ „আমার জন্য একটা টিকিট কিনে দেবেন?“ „চিনিটা দিন, প্লিজ।“ „মাফ করবেন, স্টেশনে কীভাবে যাব?“"
+     }
+    }
+   ]
+  }
+ ]
+}

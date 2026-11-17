@@ -11,6 +11,7 @@ import '../services/action_feedback.dart';
 import '../services/journey_tracker.dart' show journeyMapsLink;
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/journey_ride.dart';
 import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset;
@@ -209,10 +210,10 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
           const SizedBox(height: Gap.xs),
           Text('${_dest(t, r)} · ${_window(t, r)}', style: AType.bodyMedium),
           if (note.isNotEmpty)
-            Text('"$note"', style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
+            Text('"$note"', style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
           const SizedBox(height: Gap.xs),
           Text(st == 'pending' ? t.gjConsentNote : t.gjBannerNote2,
-              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
           // owner decision 2 Nov: BEFORE accepting, say plainly that a late
           // trip stays on up to N minutes after the end time and stops at
           // once on arrival / Stop. The server writes this line (bn digits in
@@ -220,12 +221,12 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
           if (st == 'pending' && '${r['late_note'] ?? ''}'.trim().isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.schedule_rounded, size: 18, color: cs.onSurfaceVariant),
+              Icon(Icons.schedule_rounded, size: 18, color: DsTokens.of(context).muted),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text('${r['late_note']}'.trim(),
                     key: ValueKey('gj_late_note_$id'),
-                    style: AType.bodySmall.copyWith(color: cs.onSurface)),
+                    style: AType.bodySmall.copyWith(color: DsTokens.of(context).text)),
               ),
             ]),
           ],
@@ -266,7 +267,7 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
             OutlinedButton.icon(
                 key: ValueKey('gj_stop_$id'),
                 style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48), foregroundColor: cs.error),
+                    minimumSize: const Size.fromHeight(48), foregroundColor: DsTokens.of(context).dangerInk),
                 icon: const Icon(Icons.stop_circle_rounded),
                 label: Text(st == 'active' ? t.gjStopSharing : t.gjWithdraw),
                 onPressed: _busy ? null : () => _act(id, 'stop')),
@@ -373,7 +374,7 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
       const SizedBox(height: Gap.sm),
       Text(t.gjEmptyHow,
           textAlign: TextAlign.center,
-          style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant)),
+          style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
     ]);
   }
 
@@ -402,7 +403,7 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
               Text(t.gjAskedOfMe, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: Gap.xs),
               Text(t.gjAutoStartNote,
-                  style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
               for (final r in inc) _incoming(t, r),
               const SizedBox(height: Gap.md),
             ],
@@ -424,7 +425,7 @@ class _GuardianJourneyScreenState extends State<GuardianJourneyScreen> {
             const SizedBox(height: Gap.sm),
             Text(t.gjFreeNote,
                 textAlign: TextAlign.center,
-                style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
             if (hist.isNotEmpty) ...[
               const SizedBox(height: Gap.lg),
               Text(t.gjHistory, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),

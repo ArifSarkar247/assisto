@@ -15,6 +15,7 @@ import 'vehicle_drivers_screen.dart'; // veh100
 import '../vehicle/vehicle_api.dart'; // veh100
 import '../vehicle/veh_format.dart' show vehNumStr; // veh100
 import '../services/error_kind.dart' show honestFailText; // qa2
+import '../widgets/num_input.dart'; // savesweep
 
 /// MY VEHICLES — anti-theft module Batch 2 (vehicle profile + expiry reminders
 /// + an HONEST buying guide). CODE ONLY.
@@ -481,7 +482,7 @@ class _VehicleFormState extends State<_VehicleForm> {
       context: context,
       builder: (_) => _RuleDialog(
           initial: index == null ? const {} : _rules[index],
-          odometerKm: double.tryParse(_odo.text.trim())),
+          odometerKm: parseNumInput(_odo.text.trim())),
     );
     if (r == null) return;
     setState(() {
@@ -666,8 +667,8 @@ class _VehicleFormState extends State<_VehicleForm> {
       if (iso(_fitness) != null) 'fitness_expiry': iso(_fitness),
       if (iso(_insurance) != null) 'insurance_expiry': iso(_insurance),
       if (iso(_permit) != null) 'route_permit_expiry': iso(_permit),
-      if (double.tryParse(_odo.text.trim()) != null)
-        'odometer_km': double.parse(_odo.text.trim()),
+      if (parseNumInput(_odo.text.trim()) != null)
+        'odometer_km': parseNumInput(_odo.text.trim())!,
       if (_rules.isNotEmpty) 'maintenance': _rules,
     });
   }
@@ -910,7 +911,7 @@ class _RuleDialogState extends State<_RuleDialog> {
       (tr.v100SvcBrakes, 10000, 365),
     ];
     final ok = _name.text.trim().isNotEmpty &&
-        ((int.tryParse(_km.text.trim()) ?? 0) > 0 || (int.tryParse(_days.text.trim()) ?? 0) > 0);
+        ((parseIntInput(_km.text.trim()) ?? 0) > 0 || (parseIntInput(_days.text.trim()) ?? 0) > 0);
     return AlertDialog(
       title: Text(tr.v100ServiceAdd),
       content: SingleChildScrollView(
@@ -974,12 +975,12 @@ class _RuleDialogState extends State<_RuleDialog> {
               : () => Navigator.pop(context, <String, dynamic>{
                     'id': '${widget.initial['id'] ?? 's${DateTime.now().millisecondsSinceEpoch % 100000}'}',
                     'name': _name.text.trim(),
-                    if ((int.tryParse(_km.text.trim()) ?? 0) > 0)
-                      'every_km': int.parse(_km.text.trim()),
-                    if ((int.tryParse(_days.text.trim()) ?? 0) > 0)
-                      'every_days': int.parse(_days.text.trim()),
-                    if ((int.tryParse(_lastKm.text.trim()) ?? -1) >= 0)
-                      'last_km': int.parse(_lastKm.text.trim()),
+                    if ((parseIntInput(_km.text.trim()) ?? 0) > 0)
+                      'every_km': parseIntInput(_km.text.trim())!,
+                    if ((parseIntInput(_days.text.trim()) ?? 0) > 0)
+                      'every_days': parseIntInput(_days.text.trim())!,
+                    if ((parseIntInput(_lastKm.text.trim()) ?? -1) >= 0)
+                      'last_km': parseIntInput(_lastKm.text.trim())!,
                     if (_lastDate != null)
                       'last_date': DateFormat('yyyy-MM-dd').format(_lastDate!),
                   }),

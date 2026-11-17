@@ -188,12 +188,15 @@ class AudioRouteService extends ChangeNotifier {
     'lib/messaging/media/voice_player.dart': AudioUse.voiceNotePlay,
     'lib/messaging/media/video_player_impl.dart': AudioUse.media,
     'lib/screens/shop_live_rtc.dart': AudioUse.media,
+    'lib/screens/lp2/lp_mock.dart': AudioUse.media, // lpapp: IELTS listening audio
     'lib/voice/va_native.dart': AudioUse.assistantSpeak,
     'lib/widgets/voice_input.dart': AudioUse.assistantListen,
     'lib/widgets/voice_command_sheet.dart': AudioUse.assistantListen,
     'lib/screens/money_voice_screen.dart': AudioUse.assistantListen,
     // quranread: "I read, check me" (speech-to-text, Arabic)
     'lib/quran_learn/recite_listener.dart': AudioUse.assistantListen,
+    // quranview: per-ayah recitation (Quran Foundation audio, streamed)
+    'lib/quran/quran_ayah_audio.dart': AudioUse.media,
     // SOS: the documented exception — the voice-SOS listener never moves
     // audio, and sirens play on STREAM_ALARM on the loudspeaker by design.
     'lib/widgets/voice_sos_service.dart': AudioUse.sos,
@@ -209,6 +212,11 @@ class AudioRouteService extends ChangeNotifier {
     'lib/cctvx/warn_recorder.dart': AudioUse.cctvWarnRecord,
     // carecall: the setter's own-voice Care Call recording
     'lib/carecall/cc_recorder.dart': AudioUse.voiceNoteRecord,
+    // fcsos: the 30 s SOS sound clip (MicRouteHold, headset mic when present)
+    'lib/family_sos/sos_recorder.dart': AudioUse.voiceNoteRecord,
+    // sjduring: the quiet 30 s clip after a danger PIN (the SOS exception:
+    // never moves audio, never asks for the mic)
+    'lib/screens/safe_journey/sj_danger_audio.dart': AudioUse.sos,
   };
 
 

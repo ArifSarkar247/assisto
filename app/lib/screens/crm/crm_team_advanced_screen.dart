@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
@@ -129,16 +130,15 @@ class _TargetsTabState extends State<_TargetsTab> {
     final set = tg['target_set'] == true;
     final pct = (tg['pct'] as num?)?.toDouble();
     final onPace = tg['on_pace'];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text(tg['member_name']?.toString() ?? t.crmWholeTeam,
-                    style: const TextStyle(fontWeight: FontWeight.w800))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             Text(tg['period']?.toString() ?? '',
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             IconButton(
                 tooltip: AppLocalizations.of(context).edit,
                 icon: const Icon(Icons.edit_rounded, size: 18),
@@ -151,13 +151,13 @@ class _TargetsTabState extends State<_TargetsTab> {
             const SizedBox(height: Gap.xs),
             Row(children: [
               Text('${bdt(context, tg['won_amount'] as num?)} / ${bdt(context, tg['target_amount'] as num?)}',
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const Spacer(),
               if (pct != null)
                 Text('${pct.toStringAsFixed(1)}%',
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         fontWeight: FontWeight.w800,
-                        color: pct >= 100 ? AssistoTokens.of(context).success : scheme.onSurface)),
+                        color: pct >= 100 ? AssistoTokens.of(context).success : scheme.ds.text)),
             ]),
             const SizedBox(height: Gap.xs),
             ClipRRect(
@@ -181,7 +181,6 @@ class _TargetsTabState extends State<_TargetsTab> {
             ],
           ],
         ]),
-      ),
     );
   }
 }

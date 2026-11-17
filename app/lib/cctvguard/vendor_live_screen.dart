@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../messaging/media/video_ctl.dart';
+import '../plans_v2/buy_inside.dart';
 import '../screens/watchman/watchman_source.dart' show wmDigits;
 import '../shop_api.dart';
 import '../state.dart';
@@ -55,6 +56,7 @@ class _VendorLiveScreenState extends State<VendorLiveScreen> {
   late final VendorLiveApi _api;
   _VPhase _phase = _VPhase.starting;
   String _error = '';
+  bool _relayCap = false; // buyinside: the plan's relay limit was reached
   String _note = '';
   String? _id;
   bool _hd = false;
@@ -91,6 +93,7 @@ class _VendorLiveScreenState extends State<VendorLiveScreen> {
     try {
       r = await _api.start(widget.cameraId, hd: _hd);
     } on ApiException catch (e) {
+      _relayCap = e.status == 402 && e.reason == 'relay_cap';
       _failed(e.message.isNotEmpty ? e.message : t.cgVendorFailed);
       return;
     } catch (_) {
@@ -245,7 +248,7 @@ class _VendorLiveScreenState extends State<VendorLiveScreen> {
         Text(text,
             key: const Key('vendorLiveMsg'),
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white, height: 1.4)),
+            style: AType.bodyMedium.copyWith(color: Colors.white, height: 1.4)),
         if (_phase != _VPhase.starting) ...[
           const SizedBox(height: Gap.md),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center, children: [
@@ -256,6 +259,20 @@ class _VendorLiveScreenState extends State<VendorLiveScreen> {
               icon: const Icon(Icons.play_arrow_rounded),
               label: Text(_phase == _VPhase.error ? t.retry : t.shopLiveOpen),
             ),
+            if (_phase == _VPhase.error && _relayCap)
+              FilledButton.tonalIcon(
+                key: const Key('bi-vendor-relay-buy'),
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: () async {
+                  final ok = await BuyInside.open(context, 'cctv_relay');
+                  if (ok && mounted) {
+                    _relayCap = false;
+                    await _open();
+                  }
+                },
+                icon: const Icon(Icons.videocam_rounded),
+                label: Text(t.biGetCctvPlan),
+              ),
             OutlinedButton(
               style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.white, minimumSize: const Size(48, 48)),
@@ -309,13 +326,13 @@ class _VendorLiveScreenState extends State<VendorLiveScreen> {
           Text(_note,
               key: const Key('vendorLiveNote'),
               textAlign: TextAlign.center,
-              style: AType.bodySmall.copyWith(color: scheme.onSurface, height: 1.35)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.text, height: 1.35)),
         Text(t.cgVendorIdleNote(wmDigits(lang, _idle.idleSeconds ~/ 60)),
             textAlign: TextAlign.center,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
         Text(t.cgVendorNoRecording,
             textAlign: TextAlign.center,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.35)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
         const SizedBox(height: Gap.sm),
         if (live)
           SizedBox(

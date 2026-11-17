@@ -13,6 +13,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../services/error_kind.dart' show honestFailText;
 import '../../../state.dart';
 import '../../../theme.dart';
+import '../../../ds/ds.dart';
 import '../../../widgets/app_sheet.dart';
 import '../../../widgets/skeleton.dart';
 import 'acct_common.dart';
@@ -198,7 +199,7 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
             ]),
             const SizedBox(height: Gap.sm),
             Text(_reportWhat(t, _report),
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4)),
+                style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted, height: 1.4)),
             const SizedBox(height: Gap.md),
             ..._content(t),
           ],
@@ -271,7 +272,7 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
     final empty = !r.rows.any((x) => (x.amount ?? 0) != 0 || (x.debit ?? 0) != 0 || (x.credit ?? 0) != 0);
     final gaps = d['cost_gaps'];
     return [
-      Text(r.period, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      Text(r.period, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
       if (r.id == 'pl' && gaps is Map)
         AcctCostGapBanner(
             gaps: gaps,
@@ -303,7 +304,7 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
       if (r.footnote != null && !empty) ...[
         const SizedBox(height: Gap.md),
         Text(r.footnote!,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4)),
+            style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted, height: 1.4)),
       ],
     ];
   }
@@ -316,14 +317,14 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
         liveRegion: true,
         child: Row(children: [
           Icon(ok ? Icons.verified_rounded : Icons.error_outline_rounded,
-              size: 20, color: ok ? scheme.primary : scheme.error),
+              size: 20, color: ok ? scheme.primary : DsTokens.of(context).dangerInk),
           const SizedBox(width: Gap.xs),
           Expanded(
             child: Text(
                 cashFlow
                     ? (ok ? t.acuCfReconciles : t.acuCfNotReconciles)
                     : (ok ? t.acuBalanced : t.acuNotBalanced),
-                style: TextStyle(fontWeight: FontWeight.w600, color: ok ? scheme.primary : scheme.error)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: ok ? scheme.primary : DsTokens.of(context).dangerInk)),
           ),
         ]),
       ),
@@ -341,7 +342,7 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.xs),
-        Text(t.acuRepEmptyBody, textAlign: TextAlign.center, style: const TextStyle(height: 1.4)),
+        Text(t.acuRepEmptyBody, textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(height: 1.4)),
         const SizedBox(height: Gap.lg),
         SizedBox(
           height: 52,
@@ -360,7 +361,7 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
           ),
         ),
         const SizedBox(height: Gap.md),
-        Text(t.acuRepEmptyHowTo, style: TextStyle(height: 1.5, color: scheme.onSurfaceVariant)),
+        Text(t.acuRepEmptyHowTo, style: AType.bodyMedium.copyWith(height: 1.5, color: DsTokens.of(context).muted)),
       ]),
     );
   }
@@ -371,7 +372,7 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
     final base = strong
         ? Theme.of(context).textTheme.titleMedium
         : Theme.of(context).textTheme.bodyMedium;
-    final style = (base ?? const TextStyle()).copyWith(
+    final style = (base ?? AType.bodyMedium).copyWith(
         fontWeight: heading || strong ? FontWeight.w800 : FontWeight.w400, height: 1.35);
     final amounts = r.twoColumns
         ? [
@@ -403,7 +404,7 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
       child: strong
           ? DecoratedBox(
               decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant))),
+                  border: Border(top: BorderSide(color: DsTokens.of(context).border))),
               child: row)
           : row,
     );
@@ -421,7 +422,7 @@ class _AcctReportsScreenState extends State<AcctReportsScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(t.acuExportTitle, style: Theme.of(ctx).textTheme.titleLarge),
           const SizedBox(height: Gap.xs),
-          Text(t.acuExportBody(_period.label(acctLang(ctx))), style: const TextStyle(height: 1.4)),
+          Text(t.acuExportBody(_period.label(acctLang(ctx))), style: AType.bodyMedium.copyWith(height: 1.4)),
           const SizedBox(height: Gap.md),
           ListTile(
             key: const ValueKey('acct-export-xlsx'),

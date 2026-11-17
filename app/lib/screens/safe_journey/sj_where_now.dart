@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/journey_tracker.dart' show journeyAccBand, journeyMapsLink;
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../vehicle/veh_map.dart';
 import '../../widgets/journey_ride.dart' show jDigits;
 import 'sj_live_api.dart';
@@ -128,7 +129,7 @@ class SjWhereNowState extends State<SjWhereNow> {
                 : null,
             maxZoom: _map.maxZoom.toDouble(),
             minZoom: 3,
-            backgroundColor: cs.surfaceContainerHighest,
+            backgroundColor: DsTokens.of(context).cardHighest,
             interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all & ~InteractiveFlag.rotate),
           ),
@@ -148,9 +149,9 @@ class SjWhereNowState extends State<SjWhereNow> {
                   child: Semantics(
                     label: '${pts[i]['name'] ?? ''}',
                     child: CircleAvatar(
-                      backgroundColor: pts[i]['sos'] == true ? cs.error : cs.primary,
+                      backgroundColor: pts[i]['sos'] == true ? DsTokens.of(context).dangerInk : cs.primary,
                       foregroundColor:
-                          pts[i]['sos'] == true ? cs.onError : cs.onPrimary,
+                          pts[i]['sos'] == true ? DsTokens.of(context).onDangerFill : cs.onPrimary,
                       child: Text(_initial(pts[i]),
                           style: const TextStyle(fontWeight: FontWeight.w700)),
                     ),
@@ -200,8 +201,8 @@ class SjWhereNowState extends State<SjWhereNow> {
           padding: const EdgeInsets.all(Gap.md),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             CircleAvatar(
-              backgroundColor: sos ? cs.error : cs.primaryContainer,
-              foregroundColor: sos ? cs.onError : cs.onPrimaryContainer,
+              backgroundColor: sos ? DsTokens.of(context).dangerInk : DsTokens.of(context).primarySoft,
+              foregroundColor: sos ? DsTokens.of(context).onDangerFill : DsTokens.of(context).primaryInk,
               child: Icon(switch ('${r['kind']}') {
                 'school' => Icons.school_rounded,
                 'share' => Icons.share_location_rounded,
@@ -217,7 +218,7 @@ class SjWhereNowState extends State<SjWhereNow> {
                 const SizedBox(height: 2),
                 Text(bits.join(' · '),
                     style: AType.bodySmall.copyWith(
-                        color: sos ? cs.error : cs.onSurfaceVariant)),
+                        color: sos ? DsTokens.of(context).dangerInk : DsTokens.of(context).muted)),
               ]),
             ),
             if (hasFix)
@@ -260,7 +261,7 @@ class SjWhereNowState extends State<SjWhereNow> {
         key: const ValueKey('sjl_where_empty'),
         padding: const EdgeInsets.all(Gap.md),
         decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
+            color: DsTokens.of(context).cardHighest.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(Radii.md)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(t.sjlWhereEmptyTitle,
@@ -277,7 +278,7 @@ class SjWhereNowState extends State<SjWhereNow> {
           ),
           const SizedBox(height: Gap.xs),
           Text(t.sjlWhereEmptyHow,
-              style: AType.bodySmall.copyWith(color: cs.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
         ]),
       );
     }

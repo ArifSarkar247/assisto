@@ -1,1 +1,3 @@
-Build 317: My Circle quiet hours and correct message sounds when the app is closed; signing in on a second phone no longer signs out the first; one source of plan numbers with Owner Admin "Plans & prices"; Owner Admin quality and vision boards; end-to-end proof tests.
+- Email now really arrives: security alerts, password reset and account notices; clear messages and an SMS option if an email can't be sent.
+- City Service: more Dhaka bus and leguna routes with official BRTA fares; Chattogram started.
+- New look for CRM and more screens.

@@ -44,16 +44,39 @@ MOTION = "motion"
 PERSON_DETECTED = "person_detected"
 ZONE_INTRUSION = "zone_intrusion"
 LINE_CROSSING = "line_crossing"
+# cctvdet (Guard V3 part C, stage 1): zone detections (shopbox/detect_rules.py)
+GATE_PERSON = "gate_person"
+LOITERING = "loitering"
+POST_EMPTY = "post_empty"
+GATE_OPEN = "gate_open"
+CAMERA_HEALTH = "camera_health"
+# stage 2
+CROWD = "crowd"
+VEHICLE_IN_OUT = "vehicle_in_out"
+PARKING_OVERSTAY = "parking_overstay"
+WRONG_PARKING = "wrong_parking"
+# later stages (server types exist already; the edge does not emit them yet)
+LATER_TYPES = (CROWD, VEHICLE_IN_OUT, PARKING_OVERSTAY, WRONG_PARKING,
+               "smoke_fire", "fight", "fall", "weapon_review", "loud_sound")
 EVENT_TYPES = frozenset({
     HAND_IN_CASH_ZONE, "drawer_open", "void_spike", "refund_spike",
     "discount_spike", "eod_mismatch", MOTION, AFTER_HOURS, "pose_possible",
     PERSON_DETECTED, ZONE_INTRUSION, LINE_CROSSING, "camera_alarm",
-    # cctvalerts server types (raised server-side; mirrored so the contract
-    # test keeps the two lists equal)
+    # cctvalerts (server-side types; the edge never emits them itself)
     "loitering", "camera_health",
-})
+    # cctvdet
+    GATE_PERSON, POST_EMPTY, GATE_OPEN,
+}) | frozenset(LATER_TYPES)
 EDGE_EMITTED_TYPES = frozenset({HAND_IN_CASH_ZONE, AFTER_HOURS, MOTION,
-                                PERSON_DETECTED, ZONE_INTRUSION, LINE_CROSSING})
+                                PERSON_DETECTED, ZONE_INTRUSION, LINE_CROSSING,
+                                GATE_PERSON, LOITERING, POST_EMPTY, GATE_OPEN,
+                                CAMERA_HEALTH, CROWD, VEHICLE_IN_OUT,
+                                PARKING_OVERSTAY, WRONG_PARKING})
+# cctvdet: the zone detections (one per zone per visit / state change)
+ZONE_DETECTION_TYPES = frozenset({GATE_PERSON, LOITERING, POST_EMPTY, GATE_OPEN,
+                                  CROWD, VEHICLE_IN_OUT, PARKING_OVERSTAY,
+                                  WRONG_PARKING})
+VEHICLE_TYPES = frozenset({VEHICLE_IN_OUT, PARKING_OVERSTAY, WRONG_PARKING})
 
 # person_detected / zone_intrusion / line_crossing go multipart (snapshot kept):
 # the server parses the JSON-string `signals` of a multipart upload.
@@ -70,7 +93,8 @@ def build_signals(etype: str, *, detector: str, after_hours: bool = False,
                   motion_in_zone: bool = False, person_in_zone: bool = False,
                   frames: int = 1, lingering: bool = False,
                   conf: Optional[float] = None, zone_id: Optional[str] = None,
-                  line_id: Optional[str] = None) -> Dict[str, object]:
+                  line_id: Optional[str] = None,
+                  det: Optional[dict] = None) -> Dict[str, object]:
     """Build the `signals` dict for one edge event, shaped for shop_guard.
 
     Only TRUE observations are included (a key with a false value would be
@@ -111,6 +135,53 @@ def build_signals(etype: str, *, detector: str, after_hours: bool = False,
     elif etype == LINE_CROSSING:
         s["zone_breach"] = True
         s["line"] = str(line_id or "")[:32]
+    elif etype in ZONE_DETECTION_TYPES or etype == CAMERA_HEALTH:
+        s.update(detection_signals(etype, det or {}))
+    return s
+
+
+def detection_signals(etype: str, det: dict) -> Dict[str, object]:
+    """cctvdet: signals of one zone detection (detect_rules output). Only
+    true observations; never identity — "a person box", never who."""
+    s: Dict[str, object] = {"source": "edge"}
+    zone = str(det.get("zone") or "")[:32]
+    if zone:
+        s["zone"] = zone
+    label = str(det.get("label") or "")[:40]
+    if label:
+        s["zone_label"] = label
+    if det.get("conf") is not None:
+        s["conf"] = round(float(det["conf"]), 3)
+    if etype == GATE_PERSON:
+        s.update({"person": True, "zone_breach": True, "kind": "gate"})
+    elif etype == LOITERING:
+        s.update({"kind": "loiter", "object": "person", "human": True,
+                  "zone_dwell": True, "seconds": int(det.get("seconds") or 0)})
+    elif etype == POST_EMPTY:
+        s.update({"absent": True, "minutes": int(det.get("minutes") or 0)})
+    elif etype == GATE_OPEN:
+        s.update({"gate_open": True, "minutes": int(det.get("minutes") or 0)})
+        if det.get("sim") is not None:
+            s["sim"] = round(float(det["sim"]), 3)
+    elif etype == CAMERA_HEALTH:
+        s.update({"kind": str(det.get("kind") or ""), "health": True})
+    elif etype == CROWD:
+        s.update({"crowd": True, "count": int(det.get("count") or 0)})
+    elif etype in VEHICLE_TYPES:
+        s.update({"vehicle": True, "object": "vehicle",
+                  "cls": str(det.get("cls") or "vehicle")[:12]})
+        if etype == VEHICLE_IN_OUT:
+            s["dir"] = "in" if det.get("dir") == "in" else "out"
+        if det.get("minutes") is not None:
+            s["minutes"] = int(det["minutes"])
+        if det.get("seconds") is not None:
+            s["seconds"] = int(det["seconds"])
+        plate = det.get("plate")
+        if isinstance(plate, dict) and plate.get("number"):
+            # a vehicle's registration number (plates are not faces)
+            s["plate"] = {k: plate.get(k) for k in ("bn", "en", "number", "partial", "source")}
+    if det.get("mp") is not None:
+        s["mp"] = round(float(det["mp"]), 3)     # measured precision (CI)
     return s
 
 

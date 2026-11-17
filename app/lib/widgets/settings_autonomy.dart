@@ -60,7 +60,7 @@ class SettingsAutonomySection extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(Gap.lg, 2, Gap.lg, 0),
           child: Text(
             t.autonomyDialHint,
-            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+            style: AType.bodyMedium.copyWith(fontSize: 12, color: cs.ds.muted),
           ),
         ),
         // Stepped dial with a tick label under each notch.
@@ -91,14 +91,14 @@ class SettingsAutonomySection extends StatelessWidget {
                                   : Alignment.center,
                           child: Text(
                             '$i',
-                            style: TextStyle(
+                            style: AType.bodyMedium.copyWith(
                               fontSize: 12,
                               fontWeight: i == level
                                   ? FontWeight.w800
                                   : FontWeight.w400,
                               color: i == level
                                   ? cs.primary
-                                  : cs.onSurfaceVariant,
+                                  : cs.ds.muted,
                             ),
                           ),
                         ),
@@ -116,7 +116,7 @@ class SettingsAutonomySection extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
-              color: cs.primaryContainer,
+              color: cs.ds.primarySoft,
               borderRadius: BorderRadius.circular(Radii.md),
             ),
             child: Column(
@@ -124,15 +124,15 @@ class SettingsAutonomySection extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.tune_rounded, size: 18, color: cs.onPrimaryContainer),
+                    Icon(Icons.tune_rounded, size: 18, color: cs.ds.primaryInk),
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(
                         current[0],
-                        style: TextStyle(
+                        style: AType.bodyMedium.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 15,
-                          color: cs.onPrimaryContainer,
+                          color: cs.ds.primaryInk,
                         ),
                       ),
                     ),
@@ -141,8 +141,8 @@ class SettingsAutonomySection extends StatelessWidget {
                 const SizedBox(height: Gap.xs),
                 Text(
                   current[1],
-                  style: TextStyle(
-                      fontSize: 13, color: cs.onPrimaryContainer, height: 1.4),
+                  style: AType.bodyMedium.copyWith(
+                      fontSize: 13, color: cs.ds.primaryInk, height: 1.4),
                 ),
               ],
             ),
@@ -155,12 +155,12 @@ class SettingsAutonomySection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(Icons.dashboard_customize_rounded,
-                  size: 16, color: cs.onSurfaceVariant),
+                  size: 16, color: cs.ds.muted),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(
                   t.autonomyPerModuleHint,
-                  style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                  style: AType.bodyMedium.copyWith(fontSize: 12, color: cs.ds.muted),
                 ),
               ),
             ],
@@ -177,7 +177,7 @@ class SettingsAutonomySection extends StatelessWidget {
               Expanded(
                 child: Text(
                   t.autonomyInControlNote,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       fontSize: 12,
                       color: cs.primary,
                       fontWeight: FontWeight.w600),

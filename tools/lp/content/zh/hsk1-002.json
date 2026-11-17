@@ -1,0 +1,1259 @@
+{
+ "format": "assisto.lp.test/1",
+ "bundle_id": "hsk1-002",
+ "lang": "zh",
+ "track": "hsk1",
+ "exam": "HSK 1",
+ "version": 1,
+ "status": "draft",
+ "title": {
+  "en": "HSK 1 Practice Test 2",
+  "bn": "HSK ১ প্র্যাকটিস টেস্ট ২"
+ },
+ "practice_label": {
+  "en": "Practice test written by Assisto — not an official HSK result.",
+  "bn": "Assisto-র নিজের লেখা প্র্যাকটিস টেস্ট — এটি অফিসিয়াল HSK ফল নয়।"
+ },
+ "authoring": {
+  "source": "original",
+  "author": "assisto-lpstage3",
+  "created": "2026-11-09",
+  "format_source": "Chinese Testing International public HSK 1 test description (sections, item counts, timing; structure only)",
+  "notes": "All sentences written for Assisto; no textbook or past-paper text."
+ },
+ "scoring": {
+  "max": 200,
+  "per_question": 5,
+  "per_section": {
+   "listening": 100,
+   "reading": 100
+  },
+  "pass_hint_bn": "আসল HSK ১-এ ২০০-র মধ্যে ১২০ পেলে পাস — এখানে ১২০+ মানে আপনি পাসের কাছাকাছি, এটা শুধু অনুমান।",
+  "note_bn": "প্র্যাকটিস স্কোর — অফিসিয়াল ফল নয়। আসল পরীক্ষার তারিখ ও নিয়ম অফিসিয়াল HSK কেন্দ্রের নোটিশে দেখে নিন।"
+ },
+ "sections": [
+  {
+   "id": "listening",
+   "kind": "listening",
+   "title": {
+    "en": "Listening",
+    "bn": "শোনা (听力)"
+   },
+   "minutes": 15,
+   "parts": [
+    {
+     "part": "picture_judge",
+     "type": "picture_judge",
+     "instructions": {
+      "target": "第一部分：听录音，看图片，判断对错。",
+      "bn": "প্রথম অংশ: প্রতিটি শব্দ দুইবার শুনবেন। ছবির সাথে মিললে 对 (ঠিক), না মিললে 错 (ভুল) বাছুন।"
+     },
+     "questions": [
+      {
+       "n": 1,
+       "prompt": "ছবি: একজন মহিলা ফোনে কথা বলছেন।",
+       "options": [
+        "对",
+        "错"
+       ],
+       "options_roman": [
+        "duì",
+        "cuò"
+       ],
+       "answer": "A",
+       "explain_bn": "'打电话' (dǎ diànhuà) মানে ফোন করা — ছবির সাথে মেলে, 对।",
+       "skill": "vocab",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "打电话"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 2,
+       "prompt": "ছবি: টেবিলে তিনটি বই।",
+       "options": [
+        "对",
+        "错"
+       ],
+       "options_roman": [
+        "duì",
+        "cuò"
+       ],
+       "answer": "B",
+       "explain_bn": "'五本书' মানে পাঁচটি বই; ছবিতে তিনটি — তাই 错। 五 (wǔ) = ৫, 本 = বইয়ের মাপ-শব্দ।",
+       "skill": "number",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "五本书"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 3,
+       "prompt": "ছবি: রান্নাঘরে একজন রান্না করছেন।",
+       "options": [
+        "对",
+        "错"
+       ],
+       "options_roman": [
+        "duì",
+        "cuò"
+       ],
+       "answer": "A",
+       "explain_bn": "'做饭' (zuò fàn) মানে রান্না করা — ছবির সাথে মেলে, 对।",
+       "skill": "vocab",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "做饭"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 4,
+       "prompt": "ছবি: বরফ পড়ছে, সবাই মোটা শীতের জামা পরে।",
+       "options": [
+        "对",
+        "错"
+       ],
+       "options_roman": [
+        "duì",
+        "cuò"
+       ],
+       "answer": "B",
+       "explain_bn": "'天气很热' মানে আবহাওয়া খুব গরম; ছবিতে বরফ আর শীতের জামা — তাই 错। 热 (rè) = গরম, 冷 (lěng) = ঠান্ডা।",
+       "skill": "vocab",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "天气很热"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 5,
+       "prompt": "ছবি: একটি ছেলে খাতায় লিখছে।",
+       "options": [
+        "对",
+        "错"
+       ],
+       "options_roman": [
+        "duì",
+        "cuò"
+       ],
+       "answer": "A",
+       "explain_bn": "'写字' (xiě zì) মানে অক্ষর লেখা — ছেলেটি খাতায় লিখছে, 对।",
+       "skill": "vocab",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "写字"
+         }
+        ],
+        "repeat": 2
+       }
+      }
+     ]
+    },
+    {
+     "part": "picture_choice",
+     "type": "picture_choice",
+     "instructions": {
+      "target": "第二部分：听句子，选择正确的图片。",
+      "bn": "দ্বিতীয় অংশ: একটি বাক্য দুইবার শুনবেন। তিনটি ছবির মধ্যে যেটি মেলে সেটি বাছুন।"
+     },
+     "questions": [
+      {
+       "n": 6,
+       "prompt": "শুনুন, তারপর সঠিক ছবি বাছুন।",
+       "options": [
+        "ছবি: একজন বাসে বসে আছেন",
+        "ছবি: একজন ট্যাক্সিতে বসে আছেন",
+        "ছবি: একজন হেঁটে যাচ্ছেন"
+       ],
+       "answer": "B",
+       "explain_bn": "'我坐出租车去公司' — আমি ট্যাক্সিতে অফিসে যাই। 出租车 (chūzūchē) = ট্যাক্সি।",
+       "skill": "detail",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "office worker"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "我坐出租车去公司。"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 7,
+       "prompt": "শুনুন, তারপর সঠিক ছবি বাছুন।",
+       "options": [
+        "ছবি: টেবিলের উপর একটি কাপ",
+        "ছবি: চেয়ারের নিচে একটি বিড়াল",
+        "ছবি: টেবিলের উপর তিনটি বই"
+       ],
+       "answer": "A",
+       "explain_bn": "'桌子上有一个杯子' — টেবিলের উপর একটি কাপ আছে। 上 = উপরে, 杯子 = কাপ।",
+       "skill": "place",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "桌子上有一个杯子。"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 8,
+       "prompt": "শুনুন, তারপর সঠিক ছবি বাছুন।",
+       "options": [
+        "ছবি: একজন মহিলা ডাক্তার রোগী দেখছেন",
+        "ছবি: একজন মহিলা দোকানে বিক্রি করছেন",
+        "ছবি: একজন মহিলা ক্লাসে পড়াচ্ছেন"
+       ],
+       "answer": "C",
+       "explain_bn": "'我妈妈是老师' — আমার মা শিক্ষক। 老师 (lǎoshī) = শিক্ষক, তাই ক্লাসে পড়ানোর ছবি।",
+       "skill": "vocab",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "boy"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "我妈妈是老师。"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 9,
+       "prompt": "শুনুন, তারপর সঠিক ছবি বাছুন।",
+       "options": [
+        "ছবি: চেয়ারের নিচে একটি ছোট কুকুর",
+        "ছবি: চেয়ারের উপর একটি বিড়াল",
+        "ছবি: গাছের নিচে একটি কুকুর"
+       ],
+       "answer": "A",
+       "explain_bn": "'小狗在椅子下面' — ছোট কুকুরটা চেয়ারের নিচে। 狗 = কুকুর, 下面 = নিচে।",
+       "skill": "place",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "小狗在椅子下面。"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 10,
+       "prompt": "শুনুন, তারপর সঠিক ছবি বাছুন।",
+       "options": [
+        "ছবি: অফিসে কম্পিউটারে কাজ",
+        "ছবি: ক্লাসে একজন ছাত্র চীনা অক্ষর লিখছে",
+        "ছবি: হাসপাতালের বিছানা"
+       ],
+       "answer": "B",
+       "explain_bn": "'拉希德在学校学习汉语' — রশিদ স্কুলে চীনা ভাষা শেখে। 学校 = স্কুল, 汉语 = চীনা ভাষা।",
+       "skill": "detail",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "拉希德在学校学习汉语。"
+         }
+        ],
+        "repeat": 2
+       }
+      }
+     ]
+    },
+    {
+     "part": "dialogue_picture",
+     "type": "dialogue_picture",
+     "instructions": {
+      "target": "第三部分：听对话，选择正确的图片。",
+      "bn": "তৃতীয় অংশ: ছোট কথোপকথন দুইবার শুনবেন। ছয়টি ছবির তালিকা থেকে মিলিয়ে নিন (একটি ছবি বাড়তি)।"
+     },
+     "questions": [
+      {
+       "n": 11,
+       "prompt": "শুনুন, তারপর সঠিক ছবি বাছুন।",
+       "options": [
+        "ছবি: রাস্তায় একজন আঙুল দিয়ে দূরের স্টেশন দেখাচ্ছেন",
+        "ছবি: একজন মহিলা একটি বিড়াল কোলে নিয়ে আছেন",
+        "ছবি: ঘড়িতে রাত ১১টা, পাশে বিছানা",
+        "ছবি: দুজন বাজারে মাছ কিনছেন",
+        "ছবি: টিভিতে মেঘ আর বৃষ্টির চিহ্ন",
+        "ছবি: টেবিলে দুই কাপ চা, দুজন বসে আছেন"
+       ],
+       "answer": "B",
+       "explain_bn": "লোকটি বলছে '你的猫真漂亮' — আপনার বিড়ালটা খুব সুন্দর। তাই বিড়াল কোলে মহিলার ছবি।",
+       "skill": "detail",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "neighbour"
+         },
+         "B": {
+          "gender": "F",
+          "role": "neighbour"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "你的猫真漂亮！"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "谢谢，这是我女儿的猫。"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 12,
+       "prompt": "শুনুন, তারপর সঠিক ছবি বাছুন।",
+       "options": [
+        "ছবি: রাস্তায় একজন আঙুল দিয়ে দূরের স্টেশন দেখাচ্ছেন",
+        "ছবি: একজন মহিলা একটি বিড়াল কোলে নিয়ে আছেন",
+        "ছবি: ঘড়িতে রাত ১১টা, পাশে বিছানা",
+        "ছবি: দুজন বাজারে মাছ কিনছেন",
+        "ছবি: টিভিতে মেঘ আর বৃষ্টির চিহ্ন",
+        "ছবি: টেবিলে দুই কাপ চা, দুজন বসে আছেন"
+       ],
+       "answer": "F",
+       "explain_bn": "'你想喝什么？' — কী খাবেন? '我想喝茶' — চা খাব। তাই চায়ের কাপের ছবি।",
+       "skill": "expression",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "host"
+         },
+         "B": {
+          "gender": "M",
+          "role": "guest"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "你想喝什么？"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "我想喝茶。"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 13,
+       "prompt": "শুনুন, তারপর সঠিক ছবি বাছুন।",
+       "options": [
+        "ছবি: রাস্তায় একজন আঙুল দিয়ে দূরের স্টেশন দেখাচ্ছেন",
+        "ছবি: একজন মহিলা একটি বিড়াল কোলে নিয়ে আছেন",
+        "ছবি: ঘড়িতে রাত ১১টা, পাশে বিছানা",
+        "ছবি: দুজন বাজারে মাছ কিনছেন",
+        "ছবি: টিভিতে মেঘ আর বৃষ্টির চিহ্ন",
+        "ছবি: টেবিলে দুই কাপ চা, দুজন বসে আছেন"
+       ],
+       "answer": "E",
+       "explain_bn": "'明天天气怎么样？' — কালকের আবহাওয়া কেমন? '明天会下雨' — কাল বৃষ্টি হবে। তাই আবহাওয়ার খবরের ছবি।",
+       "skill": "detail",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "wife"
+         },
+         "B": {
+          "gender": "M",
+          "role": "husband"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "明天天气怎么样？"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "明天会下雨。"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 14,
+       "prompt": "শুনুন, তারপর সঠিক ছবি বাছুন।",
+       "options": [
+        "ছবি: রাস্তায় একজন আঙুল দিয়ে দূরের স্টেশন দেখাচ্ছেন",
+        "ছবি: একজন মহিলা একটি বিড়াল কোলে নিয়ে আছেন",
+        "ছবি: ঘড়িতে রাত ১১টা, পাশে বিছানা",
+        "ছবি: দুজন বাজারে মাছ কিনছেন",
+        "ছবি: টিভিতে মেঘ আর বৃষ্টির চিহ্ন",
+        "ছবি: টেবিলে দুই কাপ চা, দুজন বসে আছেন"
+       ],
+       "answer": "A",
+       "explain_bn": "'火车站在哪儿？' — ট্রেন স্টেশন কোথায়? '在那儿，你看' — ওই যে, দেখুন। তাই আঙুল দিয়ে দেখানোর ছবি।",
+       "skill": "place",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "traveller"
+         },
+         "B": {
+          "gender": "M",
+          "role": "local man"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "请问，火车站在哪儿？"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "在那儿，你看。"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 15,
+       "prompt": "শুনুন, তারপর সঠিক ছবি বাছুন।",
+       "options": [
+        "ছবি: রাস্তায় একজন আঙুল দিয়ে দূরের স্টেশন দেখাচ্ছেন",
+        "ছবি: একজন মহিলা একটি বিড়াল কোলে নিয়ে আছেন",
+        "ছবি: ঘড়িতে রাত ১১টা, পাশে বিছানা",
+        "ছবি: দুজন বাজারে মাছ কিনছেন",
+        "ছবি: টিভিতে মেঘ আর বৃষ্টির চিহ্ন",
+        "ছবি: টেবিলে দুই কাপ চা, দুজন বসে আছেন"
+       ],
+       "answer": "C",
+       "explain_bn": "'我晚上十一点睡觉' — আমি রাত ১১টায় ঘুমাই। তাই ঘড়িতে রাত ১১টার ছবি। D বাড়তি।",
+       "skill": "time",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "friend"
+         },
+         "B": {
+          "gender": "M",
+          "role": "friend"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "你几点睡觉？"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "我晚上十一点睡觉。"
+         }
+        ],
+        "repeat": 2
+       }
+      }
+     ]
+    },
+    {
+     "part": "short_question",
+     "type": "short_question",
+     "instructions": {
+      "target": "第四部分：听句子和问题，选择正确的答案。",
+      "bn": "চতুর্থ অংশ: একটি কথা আর একটি প্রশ্ন দুইবার শুনবেন। তিনটি উত্তরের মধ্যে সঠিকটি বাছুন।"
+     },
+     "questions": [
+      {
+       "n": 16,
+       "prompt": "শুনুন, তারপর প্রশ্নের সঠিক উত্তর বাছুন।",
+       "options": [
+        "开出租车",
+        "在医院工作",
+        "在学校工作"
+       ],
+       "options_roman": [
+        "kāi chūzūchē",
+        "zài yīyuàn gōngzuò",
+        "zài xuéxiào gōngzuò"
+       ],
+       "answer": "A",
+       "explain_bn": "লোকটি বলছে '我在达卡开出租车' — আমি ঢাকায় ট্যাক্সি চালাই।",
+       "skill": "workplace",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "taxi driver"
+         },
+         "Q": {
+          "gender": "F",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "我在达卡开出租车，我很喜欢这个工作。"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "Q",
+          "text": "问：他做什么工作？"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 17,
+       "prompt": "শুনুন, তারপর প্রশ্নের সঠিক উত্তর বাছুন।",
+       "options": [
+        "十号",
+        "十二号",
+        "二十号"
+       ],
+       "options_roman": [
+        "shí hào",
+        "shí'èr hào",
+        "èrshí hào"
+       ],
+       "answer": "B",
+       "explain_bn": "'我女儿九月十二号去中国' — মেয়ে ১২ সেপ্টেম্বর চীনে যাবে। 十二号 = ১২ তারিখ।",
+       "skill": "time",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "mother"
+         },
+         "Q": {
+          "gender": "M",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "我女儿九月十二号去中国。"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "Q",
+          "text": "问：她女儿几号去中国？"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 18,
+       "prompt": "শুনুন, তারপর প্রশ্নের সঠিক উত্তর বাছুন।",
+       "options": [
+        "十块",
+        "三十块",
+        "二十块"
+       ],
+       "options_roman": [
+        "shí kuài",
+        "sānshí kuài",
+        "èrshí kuài"
+       ],
+       "answer": "C",
+       "explain_bn": "'这个三十块，那个二十块，我买那个' — সে দ্বিতীয়টি (২০ ইউয়ান) কিনছে।",
+       "skill": "number",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "customer"
+         },
+         "Q": {
+          "gender": "F",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "这个杯子三十块，那个杯子二十块，我买那个。"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "Q",
+          "text": "问：他买的杯子多少钱？"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 19,
+       "prompt": "শুনুন, তারপর প্রশ্নের সঠিক উত্তর বাছুন।",
+       "options": [
+        "一年",
+        "两年",
+        "三年"
+       ],
+       "options_roman": [
+        "yì nián",
+        "liǎng nián",
+        "sān nián"
+       ],
+       "answer": "C",
+       "explain_bn": "'我在中国住了三年' — আমি চীনে তিন বছর ছিলাম। 三年 = তিন বছর।",
+       "skill": "number",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "F",
+          "role": "returnee"
+         },
+         "Q": {
+          "gender": "M",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "我在中国住了三年，我会说汉语。"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "Q",
+          "text": "问：她在中国住了几年？"
+         }
+        ],
+        "repeat": 2
+       }
+      },
+      {
+       "n": 20,
+       "prompt": "শুনুন, তারপর প্রশ্নের সঠিক উত্তর বাছুন।",
+       "options": [
+        "苹果",
+        "米饭",
+        "菜"
+       ],
+       "options_roman": [
+        "píngguǒ",
+        "mǐfàn",
+        "cài"
+       ],
+       "answer": "A",
+       "explain_bn": "মহিলা উত্তর দিয়েছেন '我想吃苹果' — আমি আপেল খেতে চাই।",
+       "skill": "detail",
+       "script": {
+        "speakers": {
+         "A": {
+          "gender": "M",
+          "role": "husband"
+         },
+         "B": {
+          "gender": "F",
+          "role": "wife"
+         },
+         "Q": {
+          "gender": "F",
+          "role": "narrator"
+         }
+        },
+        "turns": [
+         {
+          "spk": "A",
+          "text": "下午我去商店买水果，你想吃什么？"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "B",
+          "text": "我想吃苹果。"
+         },
+         {
+          "pause": 0.6
+         },
+         {
+          "spk": "Q",
+          "text": "问：女的想吃什么？"
+         }
+        ],
+        "repeat": 2
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "reading",
+   "kind": "reading",
+   "title": {
+    "en": "Reading",
+    "bn": "পড়া (阅读)"
+   },
+   "minutes": 17,
+   "parts": [
+    {
+     "part": "picture_judge",
+     "type": "picture_judge",
+     "instructions": {
+      "target": "第一部分：看图片和词语，判断对错。",
+      "bn": "প্রথম অংশ: শব্দটি পড়ুন। ছবির সাথে মিললে 对, না মিললে 错 বাছুন।"
+     },
+     "questions": [
+      {
+       "n": 21,
+       "prompt": "ছবি: তিনটি লাল আপেল।",
+       "passage": "苹果",
+       "passage_roman": "píngguǒ",
+       "options": [
+        "对",
+        "错"
+       ],
+       "options_roman": [
+        "duì",
+        "cuò"
+       ],
+       "answer": "A",
+       "explain_bn": "苹果 (píngguǒ) = আপেল — মেলে, 对।",
+       "skill": "vocab"
+      },
+      {
+       "n": 22,
+       "prompt": "ছবি: রাস্তায় একটি বাস।",
+       "passage": "飞机",
+       "passage_roman": "fēijī",
+       "options": [
+        "对",
+        "错"
+       ],
+       "options_roman": [
+        "duì",
+        "cuò"
+       ],
+       "answer": "B",
+       "explain_bn": "飞机 (fēijī) = বিমান; ছবিতে বাস — তাই 错।",
+       "skill": "vocab"
+      },
+      {
+       "n": 23,
+       "prompt": "ছবি: একটি কুকুর ঘেউ ঘেউ করছে।",
+       "passage": "猫",
+       "passage_roman": "māo",
+       "options": [
+        "对",
+        "错"
+       ],
+       "options_roman": [
+        "duì",
+        "cuò"
+       ],
+       "answer": "B",
+       "explain_bn": "猫 (māo) = বিড়াল; ছবিতে কুকুর (狗) — তাই 错।",
+       "skill": "vocab"
+      },
+      {
+       "n": 24,
+       "prompt": "ছবি: একটি হাসপাতাল ভবন, সামনে অ্যাম্বুলেন্স।",
+       "passage": "医院",
+       "passage_roman": "yīyuàn",
+       "options": [
+        "对",
+        "错"
+       ],
+       "options_roman": [
+        "duì",
+        "cuò"
+       ],
+       "answer": "A",
+       "explain_bn": "医院 (yīyuàn) = হাসপাতাল — মেলে, 对।",
+       "skill": "vocab"
+      },
+      {
+       "n": 25,
+       "prompt": "ছবি: সিনেমা হলে মানুষ পর্দার দিকে তাকিয়ে আছে।",
+       "passage": "看电影",
+       "passage_roman": "kàn diànyǐng",
+       "options": [
+        "对",
+        "错"
+       ],
+       "options_roman": [
+        "duì",
+        "cuò"
+       ],
+       "answer": "A",
+       "explain_bn": "看电影 = সিনেমা দেখা — মেলে, 对।",
+       "skill": "vocab"
+      }
+     ]
+    },
+    {
+     "part": "picture_match",
+     "type": "picture_match",
+     "instructions": {
+      "target": "第二部分：读句子，选择正确的图片。",
+      "bn": "দ্বিতীয় অংশ: বাক্য পড়ে ছয়টি ছবির তালিকা থেকে মিলিয়ে নিন (একটি ছবি বাড়তি)।"
+     },
+     "questions": [
+      {
+       "n": 26,
+       "prompt": "这是我爸爸、妈妈和我女儿。",
+       "prompt_roman": "Zhè shì wǒ bàba, māma hé wǒ nǚ'ér.",
+       "options": [
+        "ছবি: একজন লোক ঘড়ির দিকে তাকিয়ে আছেন, সকাল ৮টা",
+        "ছবি: বাবা, মা আর মেয়ে একসাথে ছবি তুলছেন",
+        "ছবি: দোকানে একজন ফল কিনছেন",
+        "ছবি: রাস্তায় অনেক গাড়ি",
+        "ছবি: শিক্ষক বোর্ডে লিখছেন",
+        "ছবি: একটি মেয়ে বিছানায় শুয়ে আছে"
+       ],
+       "answer": "B",
+       "explain_bn": "爸爸 = বাবা, 妈妈 = মা, 女儿 = মেয়ে — পরিবারের ছবি।",
+       "skill": "vocab"
+      },
+      {
+       "n": 27,
+       "prompt": "现在八点了，我要去工作了。",
+       "prompt_roman": "Xiànzài bā diǎn le, wǒ yào qù gōngzuò le.",
+       "options": [
+        "ছবি: একজন লোক ঘড়ির দিকে তাকিয়ে আছেন, সকাল ৮টা",
+        "ছবি: বাবা, মা আর মেয়ে একসাথে ছবি তুলছেন",
+        "ছবি: দোকানে একজন ফল কিনছেন",
+        "ছবি: রাস্তায় অনেক গাড়ি",
+        "ছবি: শিক্ষক বোর্ডে লিখছেন",
+        "ছবি: একটি মেয়ে বিছানায় শুয়ে আছে"
+       ],
+       "answer": "A",
+       "explain_bn": "八点 = ৮টা, 去工作 = কাজে যাওয়া — ঘড়িতে সকাল ৮টার ছবি।",
+       "skill": "time"
+      },
+      {
+       "n": 28,
+       "prompt": "老师在写汉字。",
+       "prompt_roman": "Lǎoshī zài xiě Hànzì.",
+       "options": [
+        "ছবি: একজন লোক ঘড়ির দিকে তাকিয়ে আছেন, সকাল ৮টা",
+        "ছবি: বাবা, মা আর মেয়ে একসাথে ছবি তুলছেন",
+        "ছবি: দোকানে একজন ফল কিনছেন",
+        "ছবি: রাস্তায় অনেক গাড়ি",
+        "ছবি: শিক্ষক বোর্ডে লিখছেন",
+        "ছবি: একটি মেয়ে বিছানায় শুয়ে আছে"
+       ],
+       "answer": "E",
+       "explain_bn": "老师 = শিক্ষক, 写汉字 = চীনা অক্ষর লেখা — বোর্ডে লেখার ছবি।",
+       "skill": "detail"
+      },
+      {
+       "n": 29,
+       "prompt": "她今天不太好，在家睡觉。",
+       "prompt_roman": "Tā jīntiān bú tài hǎo, zài jiā shuìjiào.",
+       "options": [
+        "ছবি: একজন লোক ঘড়ির দিকে তাকিয়ে আছেন, সকাল ৮টা",
+        "ছবি: বাবা, মা আর মেয়ে একসাথে ছবি তুলছেন",
+        "ছবি: দোকানে একজন ফল কিনছেন",
+        "ছবি: রাস্তায় অনেক গাড়ি",
+        "ছবি: শিক্ষক বোর্ডে লিখছেন",
+        "ছবি: একটি মেয়ে বিছানায় শুয়ে আছে"
+       ],
+       "answer": "F",
+       "explain_bn": "不太好 = তেমন ভালো নেই, 睡觉 = ঘুমানো — বিছানায় শোয়া মেয়ের ছবি।",
+       "skill": "detail"
+      },
+      {
+       "n": 30,
+       "prompt": "我在商店买水果。",
+       "prompt_roman": "Wǒ zài shāngdiàn mǎi shuǐguǒ.",
+       "options": [
+        "ছবি: একজন লোক ঘড়ির দিকে তাকিয়ে আছেন, সকাল ৮টা",
+        "ছবি: বাবা, মা আর মেয়ে একসাথে ছবি তুলছেন",
+        "ছবি: দোকানে একজন ফল কিনছেন",
+        "ছবি: রাস্তায় অনেক গাড়ি",
+        "ছবি: শিক্ষক বোর্ডে লিখছেন",
+        "ছবি: একটি মেয়ে বিছানায় শুয়ে আছে"
+       ],
+       "answer": "C",
+       "explain_bn": "商店 = দোকান, 水果 = ফল — ফল কেনার ছবি। D বাড়তি।",
+       "skill": "place"
+      }
+     ]
+    },
+    {
+     "part": "qa_match",
+     "type": "qa_match",
+     "instructions": {
+      "target": "第三部分：读问题，选择正确的回答。",
+      "bn": "তৃতীয় অংশ: প্রতিটি প্রশ্নের উপযুক্ত উত্তর ছয়টি উত্তরের তালিকা থেকে বাছুন (একটি বাড়তি)।"
+     },
+     "questions": [
+      {
+       "n": 31,
+       "prompt": "你今年多大？",
+       "prompt_roman": "Nǐ jīnnián duō dà?",
+       "options": [
+        "明天上午。",
+        "我会说一点儿。",
+        "她在睡觉。",
+        "我二十五岁。",
+        "坐出租车，二十分钟。",
+        "是，我很喜欢。"
+       ],
+       "options_roman": [
+        "Míngtiān shàngwǔ.",
+        "Wǒ huì shuō yìdiǎnr.",
+        "Tā zài shuìjiào.",
+        "Wǒ èrshíwǔ suì.",
+        "Zuò chūzūchē, èrshí fēnzhōng.",
+        "Shì, wǒ hěn xǐhuan."
+       ],
+       "answer": "D",
+       "explain_bn": "'এ বছর আপনার বয়স কত?' — উত্তর বয়স: '我二十五岁' (আমার বয়স ২৫)।",
+       "skill": "number"
+      },
+      {
+       "n": 32,
+       "prompt": "你会说汉语吗？",
+       "prompt_roman": "Nǐ huì shuō Hànyǔ ma?",
+       "options": [
+        "明天上午。",
+        "我会说一点儿。",
+        "她在睡觉。",
+        "我二十五岁。",
+        "坐出租车，二十分钟。",
+        "是，我很喜欢。"
+       ],
+       "options_roman": [
+        "Míngtiān shàngwǔ.",
+        "Wǒ huì shuō yìdiǎnr.",
+        "Tā zài shuìjiào.",
+        "Wǒ èrshíwǔ suì.",
+        "Zuò chūzūchē, èrshí fēnzhōng.",
+        "Shì, wǒ hěn xǐhuan."
+       ],
+       "answer": "B",
+       "explain_bn": "'আপনি কি চীনা বলতে পারেন?' — '我会说一点儿' (একটু পারি)।",
+       "skill": "response"
+      },
+      {
+       "n": 33,
+       "prompt": "你喜欢中国菜吗？",
+       "prompt_roman": "Nǐ xǐhuan Zhōngguó cài ma?",
+       "options": [
+        "明天上午。",
+        "我会说一点儿。",
+        "她在睡觉。",
+        "我二十五岁。",
+        "坐出租车，二十分钟。",
+        "是，我很喜欢。"
+       ],
+       "options_roman": [
+        "Míngtiān shàngwǔ.",
+        "Wǒ huì shuō yìdiǎnr.",
+        "Tā zài shuìjiào.",
+        "Wǒ èrshíwǔ suì.",
+        "Zuò chūzūchē, èrshí fēnzhōng.",
+        "Shì, wǒ hěn xǐhuan."
+       ],
+       "answer": "F",
+       "explain_bn": "吗-প্রশ্নের উত্তর হ্যাঁ/না দিয়ে: '是，我很喜欢' (হ্যাঁ, খুব পছন্দ করি)।",
+       "skill": "response"
+      },
+      {
+       "n": 34,
+       "prompt": "你怎么去学校？",
+       "prompt_roman": "Nǐ zěnme qù xuéxiào?",
+       "options": [
+        "明天上午。",
+        "我会说一点儿。",
+        "她在睡觉。",
+        "我二十五岁。",
+        "坐出租车，二十分钟。",
+        "是，我很喜欢。"
+       ],
+       "options_roman": [
+        "Míngtiān shàngwǔ.",
+        "Wǒ huì shuō yìdiǎnr.",
+        "Tā zài shuìjiào.",
+        "Wǒ èrshíwǔ suì.",
+        "Zuò chūzūchē, èrshí fēnzhōng.",
+        "Shì, wǒ hěn xǐhuan."
+       ],
+       "answer": "E",
+       "explain_bn": "怎么去 = কীভাবে যান — উত্তর: ট্যাক্সিতে, ২০ মিনিট।",
+       "skill": "response"
+      },
+      {
+       "n": 35,
+       "prompt": "你女儿呢？",
+       "prompt_roman": "Nǐ nǚ'ér ne?",
+       "options": [
+        "明天上午。",
+        "我会说一点儿。",
+        "她在睡觉。",
+        "我二十五岁。",
+        "坐出租车，二十分钟。",
+        "是，我很喜欢。"
+       ],
+       "options_roman": [
+        "Míngtiān shàngwǔ.",
+        "Wǒ huì shuō yìdiǎnr.",
+        "Tā zài shuìjiào.",
+        "Wǒ èrshíwǔ suì.",
+        "Zuò chūzūchē, èrshí fēnzhōng.",
+        "Shì, wǒ hěn xǐhuan."
+       ],
+       "answer": "C",
+       "explain_bn": "'আপনার মেয়ে কোথায়/কী করছে?' — '她在睡觉' (সে ঘুমাচ্ছে)। A বাড়তি।",
+       "skill": "response"
+      }
+     ]
+    },
+    {
+     "part": "word_bank",
+     "type": "word_bank",
+     "instructions": {
+      "target": "第四部分：选词填空。",
+      "bn": "চতুর্থ অংশ: ফাঁকা ঘরে (  ) কোন শব্দ বসবে, ছয়টি শব্দের তালিকা থেকে বাছুন (একটি বাড়তি)।"
+     },
+     "questions": [
+      {
+       "n": 36,
+       "prompt": "你家在（　）？",
+       "prompt_roman": "Nǐ jiā zài (　)?",
+       "options": [
+        "工作",
+        "下面",
+        "喝",
+        "些",
+        "哪儿",
+        "岁"
+       ],
+       "options_roman": [
+        "gōngzuò",
+        "xiàmiàn",
+        "hē",
+        "xiē",
+        "nǎr",
+        "suì"
+       ],
+       "answer": "E",
+       "explain_bn": "'আপনার বাসা কোথায়?' — 在 + 哪儿 (nǎr) = কোথায়।",
+       "skill": "place"
+      },
+      {
+       "n": 37,
+       "prompt": "我儿子今年三（　）了。",
+       "prompt_roman": "Wǒ érzi jīnnián sān (　) le.",
+       "options": [
+        "工作",
+        "下面",
+        "喝",
+        "些",
+        "哪儿",
+        "岁"
+       ],
+       "options_roman": [
+        "gōngzuò",
+        "xiàmiàn",
+        "hē",
+        "xiē",
+        "nǎr",
+        "suì"
+       ],
+       "answer": "F",
+       "explain_bn": "বয়স বলতে সংখ্যা + 岁: '三岁' = ৩ বছর বয়স।",
+       "skill": "number"
+      },
+      {
+       "n": 38,
+       "prompt": "我想（　）一杯茶。",
+       "prompt_roman": "Wǒ xiǎng (　) yì bēi chá.",
+       "options": [
+        "工作",
+        "下面",
+        "喝",
+        "些",
+        "哪儿",
+        "岁"
+       ],
+       "options_roman": [
+        "gōngzuò",
+        "xiàmiàn",
+        "hē",
+        "xiē",
+        "nǎr",
+        "suì"
+       ],
+       "answer": "C",
+       "explain_bn": "চা 'খাওয়া' চীনায় 喝 (hē) — পানীয়ের জন্য 喝, খাবারের জন্য 吃।",
+       "skill": "vocab"
+      },
+      {
+       "n": 39,
+       "prompt": "猫在桌子（　）睡觉。",
+       "prompt_roman": "Māo zài zhuōzi (　) shuìjiào.",
+       "options": [
+        "工作",
+        "下面",
+        "喝",
+        "些",
+        "哪儿",
+        "岁"
+       ],
+       "options_roman": [
+        "gōngzuò",
+        "xiàmiàn",
+        "hē",
+        "xiē",
+        "nǎr",
+        "suì"
+       ],
+       "answer": "B",
+       "explain_bn": "জিনিস + 下面 = …র নিচে: 'বিড়ালটা টেবিলের নিচে ঘুমাচ্ছে।'",
+       "skill": "place"
+      },
+      {
+       "n": 40,
+       "prompt": "我在一家中国公司（　）。",
+       "prompt_roman": "Wǒ zài yì jiā Zhōngguó gōngsī (　).",
+       "options": [
+        "工作",
+        "下面",
+        "喝",
+        "些",
+        "哪儿",
+        "岁"
+       ],
+       "options_roman": [
+        "gōngzuò",
+        "xiàmiàn",
+        "hē",
+        "xiē",
+        "nǎr",
+        "suì"
+       ],
+       "answer": "A",
+       "explain_bn": "在 + জায়গা + 工作 = …তে কাজ করি: 'আমি একটি চীনা কোম্পানিতে কাজ করি।' D (些) বাড়তি।",
+       "skill": "workplace"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

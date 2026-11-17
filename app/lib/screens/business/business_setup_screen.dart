@@ -199,7 +199,7 @@ class _BusinessSetupScreenState extends State<BusinessSetupScreen> {
             value: _hasStaff,
             title: Text(t.businessHasStaff),
             subtitle: Text(t.businessHasStaffHelp,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
             onChanged: (v) => setState(() => _hasStaff = v),
           ),
           const SizedBox(height: Gap.xl),
@@ -244,8 +244,8 @@ class _TypeTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: Gap.md),
         decoration: BoxDecoration(
           color: selected
-              ? scheme.primaryContainer
-              : scheme.surfaceContainerHighest,
+              ? scheme.ds.primarySoft
+              : scheme.ds.cardHighest,
           borderRadius: BorderRadius.circular(Radii.md),
           border: Border.all(
             color: selected ? scheme.primary : Colors.transparent,
@@ -254,16 +254,16 @@ class _TypeTile extends StatelessWidget {
         ),
         child: Row(children: [
           Icon(icon,
-              color: selected ? scheme.primary : scheme.onSurfaceVariant),
+              color: selected ? scheme.primary : scheme.ds.muted),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(label,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     color:
-                        selected ? scheme.onPrimaryContainer : scheme.onSurface)),
+                        selected ? scheme.ds.primaryInk : scheme.ds.text)),
           ),
         ]),
       ),

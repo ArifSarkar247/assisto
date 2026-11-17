@@ -314,10 +314,17 @@ void main() {
       await t.pumpWidget(_app(const BloodHubScreen(), api, lang: 'bn', scale: scale));
       await t.pumpAndSettle();
       expect(t.takeException(), isNull);
-      final bar = find.byKey(const ValueKey('bp-request-fab'));
-      expect(bar, findsOneWidget);
-      final barRect = t.getRect(bar);
-      expect(barRect.bottom, lessThanOrEqualTo(760 - 48 + 0.5)); // clear of the nav bar
+      // designv2: the Find tab starts with the red "Need blood urgently"
+      // hero (its Send request button), so the fixed bar is on the other tabs.
+      expect(find.byKey(const ValueKey('bp-hero-request')), findsOneWidget);
+      expect(find.byKey(const ValueKey('bp-request-fab')), findsNothing);
+      var barRect = const Rect.fromLTWH(0, 760 - 48, 360, 0); // the nav bar
+      void readBar() {
+        final bar = find.byKey(const ValueKey('bp-request-fab'));
+        expect(bar, findsOneWidget);
+        barRect = t.getRect(bar);
+        expect(barRect.bottom, lessThanOrEqualTo(760 - 48 + 0.5)); // clear of the nav bar
+      }
       Future<void> check(List<String> keys) async {
         // the list is lazy: at 200% text the card starts below the fold
         Finder? hit;
@@ -351,9 +358,11 @@ void main() {
       await check(['bp-nodonor-cta', 'bp-find-cta']);
       await _tap(t, 'bp-tab-requests');
       await t.pumpAndSettle();
+      readBar();
       await check(['bp-req-empty-cta']);
       await _tap(t, 'bp-tab-me');
       await t.pumpAndSettle();
+      readBar();
       await check(['bp-become']);
       expect(t.takeException(), isNull);
     });

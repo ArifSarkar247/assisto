@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -74,22 +75,20 @@ class _KhataEntryScreenState extends State<KhataEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
           title: Text(t.khataTitle,
               maxLines: 1, overflow: TextOverflow.ellipsis)),
       body: _error
-          ? StateMessage(
-              icon: Icons.cloud_off_rounded,
-              tint: scheme.error,
-              title: t.loadFailed,
-              message: honestFailText(t, _cause),
-              action: FilledButton.tonalIcon(
-                  onPressed: _open,
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: Text(t.retry)),
-            )
+          ? ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+              DsEmptyState(
+                icon: Icons.cloud_off_rounded,
+                title: t.loadFailed,
+                benefit: honestFailText(t, _cause),
+                actionLabel: t.retry,
+                onAction: _open,
+              ),
+            ])
           : const SkeletonList(),
     );
   }

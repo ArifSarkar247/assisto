@@ -7,6 +7,7 @@ import '../api.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ads/ad_reward_gate.dart'; // adcontrol
 import '../widgets/imei_tools.dart';
 import 'report_stolen_screen.dart';
 import 'registry_imei.dart';
@@ -166,6 +167,18 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
       setState(() => _error = t.upImeiEmpty);
       return;
     }
+    // adcontrol (owner 10 Nov): one rewarded ad per manual check for a Free
+    // user — never blocks (no ad / Premium / Plus -> the check just runs)
+    await AdRewardGate.run(context,
+        placement: 'security_scan',
+        grant: AdGateGrant.perUse,
+        what: t.adGateWhatScan,
+        action: () => _runCheck(imei));
+  }
+
+  Future<void> _runCheck(String imei) async {
+    if (!mounted) return;
+    final t = AppLocalizations.of(context);
     setState(() {
       _busy = true;
       _error = null;
@@ -236,7 +249,7 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
               style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.xs),
           Text(t.upTamperIntro,
-              style: AType.bodyMedium.copyWith(height: 1.35, color: scheme.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(height: 1.35, color: scheme.ds.muted)),
           const SizedBox(height: Gap.md),
           _ImeiField(
             controller: _imei,
@@ -323,16 +336,16 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
           const SizedBox(height: Gap.lg),
           // Honest info: what changing an IMEI does (and doesn't) defeat.
           Card(
-            color: scheme.surfaceContainerHighest,
+            color: scheme.ds.cardHighest,
             child: Padding(
               padding: const EdgeInsets.all(Gap.md),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(Icons.info_outline_rounded,
-                    size: 20, color: scheme.onSurfaceVariant),
+                    size: 20, color: scheme.ds.muted),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                   child: Text(t.imeiHonestNote,
-                      style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
+                      style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
                 ),
               ]),
             ),
@@ -343,16 +356,16 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
           // returns when the official NEIR check is really wired.
           if (kNeirCheckWired) ...[
             Card(
-              color: scheme.surfaceContainerHighest,
+              color: scheme.ds.cardHighest,
               child: Padding(
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(children: [
                   Icon(Icons.policy_rounded,
-                      size: 20, color: scheme.onSurfaceVariant),
+                      size: 20, color: scheme.ds.muted),
                   const SizedBox(width: Gap.sm),
                   Expanded(
                     child: Text(_neirMessage ?? t.upNeirNotAvailable,
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                   ),
                 ]),
               ),
@@ -395,10 +408,10 @@ class _UsedPhoneCheckScreenState extends State<UsedPhoneCheckScreen> {
           ),
           const SizedBox(height: Gap.lg),
           Text(t.upCheckFooter,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           const SizedBox(height: Gap.sm),
           Text(t.upHonestFooter,
-              style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ],
       ),
     );
@@ -606,15 +619,15 @@ class _TacCard extends StatelessWidget {
     if (!available) {
       // HONEST: no TAC data source yet — never guess a brand/model.
       return Card(
-        color: scheme.surfaceContainerHighest,
+        color: scheme.ds.cardHighest,
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.help_outline_rounded, size: 20, color: scheme.onSurfaceVariant),
+            Icon(Icons.help_outline_rounded, size: 20, color: scheme.ds.muted),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(t.upTacUnavailable,
-                  style: AType.bodySmall.copyWith(height: 1.4, color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(height: 1.4, color: scheme.ds.muted)),
             ),
           ]),
         ),

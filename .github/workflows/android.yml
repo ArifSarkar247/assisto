@@ -42,12 +42,13 @@ jobs:
           python -m pip install -q -r backend/requirements.txt
           timeout 600 python tools/route_check.py --md route_check.md
       - name: Upload API contract report
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: api-contract-report
           path: route_check.md
-          retention-days: 14
+          retention-days: 5
           if-no-files-found: ignore
 
       - uses: actions/setup-java@v4
@@ -436,6 +437,23 @@ jobs:
           )
           if '.AssistoWidgetProvider' not in s:
               s = s.replace('</application>', native_components + '    </application>', 1)
+          # ---- fcscreen ---- Family home-screen widget (Family Care v3):
+          # no periodic update, no service; the provider re-colours stale
+          # members itself with one inexact non-wakeup alarm (explicit intent).
+          fc_widget = (
+              '\n        <receiver android:name=".FamilyWidgetProvider"'
+              ' android:label="@string/fc_widget_label"'
+              ' android:exported="false">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>'
+              '\n            </intent-filter>'
+              '\n            <meta-data android:name="android.appwidget.provider"'
+              ' android:resource="@xml/fc_family_widget_info"/>'
+              '\n        </receiver>\n'
+          )
+          if '.FamilyWidgetProvider' not in s:
+              s = s.replace('</application>', fc_widget + '    </application>', 1)
+          # ---- /fcscreen ----
           # ---- callmoney ---- after-call note + money from notifications: ONE
           # NotificationListenerService, bound by Android only after the user
           # turns on Notification access for Assisto (the BIND_ permission
@@ -454,6 +472,23 @@ jobs:
           if 'notiflisten.AssistoNotifListener' not in s:
               s = s.replace('</application>', notif_listen + '    </application>', 1)
           # ---- /callmoney ----
+          # ---- fcelder ---- Silent Watch: ONE explicit, non-exported receiver
+          # for its own AlarmManager alarms + the "I am OK" button + re-arming
+          # after a reboot / app update. No service, no provider, no new
+          # permission (RECEIVE_BOOT_COMPLETED is already declared).
+          sw_rx = (
+              '\n        <receiver android:name="com.assisto.assisto.silentwatch.SilentWatchReceiver"'
+              ' android:exported="false">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.intent.action.BOOT_COMPLETED"/>'
+              '\n                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>'
+              '\n                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>'
+              '\n            </intent-filter>'
+              '\n        </receiver>\n'
+          )
+          if 'silentwatch.SilentWatchReceiver' not in s:
+              s = s.replace('</application>', sw_rx + '    </application>', 1)
+          # ---- /fcelder ----
           # LAUNCH-ANR FIX: disable androidx.startup auto-initialization. This
           # phone (Realme/ColorOS) ANR'd at process start on the androidx
           # WorkManager startup ContentProvider before; androidx.camera (CameraX)
@@ -508,6 +543,12 @@ jobs:
               s = re.sub(r'(<manifest[^>]*>)', r'\1' +
                   '\n    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>'
                   '\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>\n',
+                  s, count=1)
+          # fcsos: SOS alarm through Do Not Disturb, only after the user grants
+          # "Do Not Disturb access" (NORMAL permission: no prompt, no Play form).
+          if 'ACCESS_NOTIFICATION_POLICY' not in s:
+              s = re.sub(r'(<manifest[^>]*>)', r'\1' +
+                  '\n    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>\n',
                   s, count=1)
           # NO android:showWhenLocked / turnScreenOn on MainActivity: that would
           # show the whole app (chats, vault) on a locked phone. MainActivity
@@ -657,6 +698,23 @@ jobs:
                   j = s.find('</activity>', i) if i != -1 else -1
                   if j != -1:
                       s = s[:j] + spacelink + s[j:]
+          # ---- fcelder ---- https://lifeassisto.com/e/<CODE> (elder-setup QR
+          # scanned with the elder phone's own camera) opens the consent screen.
+          elderlink = (
+              '\n            <intent-filter android:autoVerify="true">'
+              '\n                <action android:name="android.intent.action.VIEW"/>'
+              '\n                <category android:name="android.intent.category.DEFAULT"/>'
+              '\n                <category android:name="android.intent.category.BROWSABLE"/>'
+              '\n                <data android:scheme="https" android:host="lifeassisto.com"'
+              ' android:pathPrefix="/e/"/>'
+              '\n            </intent-filter>\n        '
+          )
+          if 'android:pathPrefix="/e/"' not in s:
+              i = s.find('android:name=".MainActivity"')
+              j = s.find('</activity>', i) if i != -1 else -1
+              if j != -1:
+                  s = s[:j] + elderlink + s[j:]
+          # ---- /fcelder ----
           # ---- c3-msg ---- chat bubbles (Android 11+ Bubbles API): the bubble
           # expands this activity, so it must be embeddable + resizeable and
           # launch as its own document (several bubbles at once). Not
@@ -744,6 +802,16 @@ jobs:
           if 'antitheft.AntiTheftService' not in s:
               s = s.replace('</application>', antitheft_components + '    </application>', 1)
           # ---- /b6-antitheft ----
+          # ---- fcbrain ---- Family Care v3: the opt-in family arrival watch.
+          # Started ONLY from the open app after the member said yes on their
+          # own phone; type location (while-in-use, NO background location);
+          # a permanent low notification the whole time; no new permission.
+          if 'family.FamilyWatchService' not in s:
+              s = s.replace('</application>',
+                            '\n        <service android:name="com.assisto.assisto.family.FamilyWatchService"'
+                            ' android:foregroundServiceType="location"'
+                            ' android:exported="false"/>\n    </application>', 1)
+          # ---- /fcbrain ----
           open(p, "w").write(s)
           print("manifest patched: label, permissions, queries, UCropActivity, native components, androidx.startup removed, FCM push, chat bubbles, PiP, b6 anti-theft engine")
           PY
@@ -993,6 +1061,32 @@ jobs:
               json.dump({"android_key": True}, f)
           print("Maps SDK key added (value not printed)")
           PY
+      # ---- mapapp ---- MapLibre (City map, owner order 10 Nov 00:35): the
+      # plugin's unused offline-download Service + Activity are removed (no
+      # extra service in the Play manifest), and its GLES 3 uses-feature is
+      # required=false so Play never filters phones out (the app checks at
+      # runtime: crash guard + list view). No new permission.
+      - name: MapLibre manifest guards (mapapp)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          m = "android/app/src/main/AndroidManifest.xml"
+          x = open(m).read()
+          if 'xmlns:tools=' not in x:
+              x = x.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
+          if 'OfflineDownloadService' not in x:
+              x = x.replace('</application>',
+                  '\n        <service android:name="org.maplibre.android.plugins.offline.offline.OfflineDownloadService"'
+                  ' tools:node="remove"/>'
+                  '\n        <activity android:name="org.maplibre.android.plugins.offline.ui.OfflineActivity"'
+                  ' tools:node="remove"/>\n    </application>', 1)
+          if 'glEsVersion="0x00030000"' not in x:
+              x = x.replace('<application', '<uses-feature android:glEsVersion="0x00030000" android:required="false"'
+                            ' tools:replace="android:required"/>\n    <application', 1)
+          open(m, "w").write(x)
+          print("MapLibre: offline service/activity removed, GLES3 not required")
+          PY
+      # ---- /mapapp ----
 
       # ---- crash-map ---- native debug symbols (symbol table) inside the AAB, so
       # Play Vitals symbolicates native crashes too (Flutter engine, onnxruntime)
@@ -1054,6 +1148,52 @@ jobs:
               print("MlKitInitProvider removed (lazy MlKit.initialize in PhotoFaces.kt)")
           PY
       # ---- /p2-photo ----
+      # ---- adcontrol ---- (owner order 10 Nov 03:45 part F) AdMob MEDIATION:
+      # Meta Audience Network through AdMob BIDDING (AppLovin deferred: the
+      # faststart download-size guard) — max 2 extra SDKs. Adapter pinned to
+      # the build made for play-services-ads 25.4.0 (the google_mobile_ads
+      # 9.1.0 pin). NO startup ContentProvider: Audience Network's init
+      # provider is REMOVED (the AdMob adapter initialises it from
+      # MobileAds.initialize, which Dart already runs lazily, Free users only,
+      # after consent). No new permission (INTERNET / ACCESS_NETWORK_STATE /
+      # AD_ID are already in the app). Size: +~2.5 MB (its runtime dex asset).
+      # The owner turns mediation on in the AdMob console
+      # (owner_actions/AD_MEDIATION_SETUP_BN.md) — until then they serve nothing.
+      - name: AdMob mediation adapters (adcontrol)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          kts = "android/app/build.gradle.kts"
+          p, is_kts = (kts, True) if os.path.exists(kts) else ("android/app/build.gradle", False)
+          s = open(p).read()
+          deps = []
+          if "com.google.ads.mediation:facebook" not in s:
+              deps.append("com.google.ads.mediation:facebook:6.22.0.1")
+          # AppLovin is DEFERRED (lead 10 Nov): it breaks the faststart
+          # download-size guard on armeabi-v7a even with its native crash
+          # reporter excluded (its consumer rule keeps the whole 1.6 MB jar).
+          # Re-add com.google.ads.mediation:applovin:13.6.4.2 in a later build
+          # only when the guard has room (never by raising the guard).
+          if deps:
+              body = "".join(('    implementation("%s")\n' if is_kts else "    implementation '%s'\n") % d
+                             for d in deps)
+              s += "\n\ndependencies {\n" + body + "}\n"
+              open(p, "w").write(s)
+          print("mediation deps:", deps or "already present", "in", p)
+          m = "android/app/src/main/AndroidManifest.xml"
+          x = open(m).read()
+          if 'xmlns:tools' not in x:
+              x = x.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
+          if "AudienceNetworkContentProvider" not in x:
+              x = x.replace('</application>',
+                  '\n        <provider android:name="com.facebook.ads.AudienceNetworkContentProvider"'
+                  ' android:authorities="${applicationId}.AudienceNetworkContentProvider"'
+                  ' tools:node="remove"/>\n    </application>', 1)
+          open(m, "w").write(x)
+          print("mediation: Meta Audience Network only; its init provider removed")
+          PY
+      # ---- /adcontrol ----
       # ---- pay1 ---- the website APK never uses Google Play Billing: drop the
       # BILLING permission the in_app_purchase plugin merges in (the Play AAB
       # step below puts it back). Nothing calls Play Billing on this build
@@ -1075,17 +1215,78 @@ jobs:
           PY
       # ---- /pay1 ----
 
+      # faststart (owner 10 Nov, item 6): per-build native-ABI filter. The
+      # Dart --target-platform covers only Flutter's own code; plugin AARs
+      # (onnxruntime, WebRTC, MapLibre, ML Kit) still packed x86_64 +
+      # armeabi-v7a into the "arm64" APK (202 MB universal). A build that
+      # writes android/app/abi_filters.txt gets exactly those ABIs; no file =
+      # unchanged (the x86_64 CI smoke APK keeps x86_64).
+      - name: Native ABI filter hook (faststart)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os
+          kts = "android/app/build.gradle.kts"
+          p, is_kts = (kts, True) if os.path.exists(kts) else ("android/app/build.gradle", False)
+          s = open(p).read()
+          if "abi_filters.txt" not in s:
+              if is_kts:
+                  s += (
+                      "\n\n// faststart: per-build ABI filter (android.yml writes abi_filters.txt)\n"
+                      "val fsAbi = file(\"abi_filters.txt\")\n"
+                      "if (fsAbi.exists()) {\n"
+                      "    android { defaultConfig { ndk {\n"
+                      "        abiFilters.clear()\n"
+                      "        abiFilters.addAll(fsAbi.readText().split(\",\").map { it.trim() }.filter { it.isNotEmpty() })\n"
+                      "    } } }\n"
+                      "}\n")
+              else:
+                  s += (
+                      "\n\n// faststart: per-build ABI filter (android.yml writes abi_filters.txt)\n"
+                      "def fsAbi = file('abi_filters.txt')\n"
+                      "if (fsAbi.exists()) {\n"
+                      "    android { defaultConfig { ndk {\n"
+                      "        abiFilters.clear()\n"
+                      "        abiFilters.addAll(fsAbi.text.split(',').collect { it.trim() }.findAll { it })\n"
+                      "    } } }\n"
+                      "}\n")
+              open(p, "w").write(s)
+          print("ABI filter hook in", p)
+          # b320 (lead 16 Nov): the runner's Android lint crashes inside
+          # camera_android_camerax lintVitalAnalyzeRelease (List.removeLast(),
+          # a Java-21 API, on JDK 17). Skip only the release lint-vital pass;
+          # our own analyze / static checks stay (checks.yml flutter-static).
+          s = open(p).read()
+          if "checkReleaseBuilds" not in s:
+              s += ("\n\n// b320: no lint-vital in release builds (runner lint crash on JDK 17)\n"
+                    + ("android { lint { checkReleaseBuilds = false } }\n" if is_kts
+                       else "android { lint { checkReleaseBuilds false } }\n"))
+              open(p, "w").write(s)
+          print("release lint-vital off in", p)
+          PY
+
       - name: Build release APK (arm64 only)
         working-directory: app
         run: |
           API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}"
           BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
+          # faststart: the website APK carries ONLY arm64 native code (it had
+          # x86_64 + armeabi-v7a plugin libs but no 32-bit Flutter engine, so
+          # a 32-bit phone could install it and then crash). 32-bit phones
+          # get Play (AAB keeps armeabi-v7a) or the Play universal APK.
+          echo "arm64-v8a" > android/app/abi_filters.txt
           flutter build apk --release \
             --target-platform=android-arm64 \
             --build-number=${{ github.run_number }} \
             --build-name=1.0.${{ github.run_number }} \
             --dart-define=API_BASE="$API_BASE" \
             --dart-define=BUILD_TIME="$BUILD_TIME"
+          rm -f android/app/abi_filters.txt
+          REL=build/app/outputs/flutter-apk/app-release.apk
+          unzip -l "$REL" | grep -q "lib/arm64-v8a/libflutter.so" || { echo "::error::no arm64 Flutter engine in the APK"; exit 1; }
+          if unzip -l "$REL" | grep -qE "lib/(x86_64|x86|armeabi-v7a)/"; then
+            echo "::error::website APK still carries non-arm64 native libs"; exit 1
+          fi
 
       - name: R8 keeps Gson generics for scheduled notifications (gate)
         working-directory: app
@@ -1136,21 +1337,56 @@ jobs:
           # aside and restored, so the signing step still ships arm64.
           REL=build/app/outputs/flutter-apk/app-release.apk
           cp "$REL" /tmp/arm64-release.apk
+          echo "x86_64" > android/app/abi_filters.txt   # faststart: test APK = x86_64 only
           flutter build apk --release --target-platform=android-x64 \
             --dart-define=ASSISTO_SMOKE=true \
             --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}" \
             --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)"
+          rm -f android/app/abi_filters.txt
           cp "$REL" emu-x64.apk
           cp /tmp/arm64-release.apk "$REL"
           unzip -l "$REL" | grep -q "lib/arm64-v8a/" || { echo "::error::shipped APK is not arm64"; exit 1; }
           unzip -l emu-x64.apk | grep -q "lib/x86_64/" || { echo "::error::smoke APK is not x86_64"; exit 1; }
 
+      # faststart (owner 10 Nov, item 6): website APK size report. Biggest
+      # entries go to the run summary on every build. Hard cap 140 MB (it
+      # was 202 MB with stray x86_64/v7a plugin libs; arm64-only ~101-112 MB).
+      # What a PHONE downloads is guarded on the AAB below (bundletool).
+      - name: APK size report (faststart)
+        working-directory: app
+        run: |
+          REL=build/app/outputs/flutter-apk/app-release.apk
+          python3 - "$REL" <<'PY'
+          import os, sys, zipfile
+          p = sys.argv[1]
+          mb = os.path.getsize(p) / 1048576
+          z = zipfile.ZipFile(p)
+          groups = {}
+          for i in z.infolist():
+              top = i.filename.split("/")[0]
+              if top == "lib":
+                  key = i.filename
+              elif top == "assets":
+                  key = "/".join(i.filename.split("/")[:4])
+              else:
+                  key = top if "/" in i.filename else ("dex" if i.filename.endswith(".dex") else "other")
+              groups[key] = groups.get(key, 0) + i.compress_size
+          rows = sorted(groups.items(), key=lambda kv: -kv[1])[:25]
+          out = ["### APK size (arm64 release): %.1f MB" % mb, "", "| entry | MB (compressed) |", "|---|---|"]
+          out += ["| %s | %.2f |" % (k, v / 1048576) for k, v in rows]
+          txt = "\n".join(out) + "\n"
+          print(txt)
+          open(os.environ["GITHUB_STEP_SUMMARY"], "a").write(txt)
+          if mb > 140:
+              print("::error::website APK %.1f MB > 140 MB cap" % mb); sys.exit(1)
+          PY
       - name: Upload emulator smoke APK
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         uses: actions/upload-artifact@v4
         with:
           name: assisto-apk-emu
           path: app/emu-x64.apk
-          retention-days: 3
+          retention-days: 2
 
       - name: Sign APK with permanent release key
         working-directory: app
@@ -1216,7 +1452,7 @@ jobs:
         with:
           name: assisto-apk
           path: app/out/*.apk
-          retention-days: 14
+          retention-days: 30
 
       # ---- l1-launch: Google Play release bundle ----
       # Runs AFTER the website APK is built, signed and uploaded, so nothing
@@ -1269,12 +1505,19 @@ jobs:
           #    (owner order), still rising with every release.
           PLAY_VC=$(( ${{ github.run_number }} + 10000 ))
           echo "Play versionCode: $PLAY_VC"
+          # faststart: phones only — arm64-v8a + armeabi-v7a (32-bit BD
+          # phones keep working); x86_64 lives only in the CI test APK. Play
+          # serves each phone its own ABI split; the Play universal APK (the
+          # website /dl/play copy) loses ~35 MB of x86_64 code.
+          echo "armeabi-v7a,arm64-v8a" > android/app/abi_filters.txt
           flutter build appbundle --release \
+            --target-platform=android-arm,android-arm64 \
             --build-number=$PLAY_VC \
             --build-name=1.0.${{ github.run_number }} \
             --dart-define=API_BASE="${{ github.event.inputs.api_base || 'https://api.lifeassisto.com' }}" \
             --dart-define=BUILD_TIME="$(date -u +%Y-%m-%dT%H:%MZ)" \
             --dart-define=PLAY_STORE=true
+          rm -f android/app/abi_filters.txt
           AAB=build/app/outputs/bundle/release/app-release.aab
           # the bundle's own (protobuf) manifest keeps permission names as text
           unzip -p "$AAB" base/manifest/AndroidManifest.xml > /tmp/play-manifest.pb
@@ -1300,7 +1543,7 @@ jobs:
               echo "::error::$P is in the Play bundle manifest (not declared for the 8 Nov launch)"; exit 1
             fi
           done
-          for C in GeolocatorLocationService; do
+          for C in GeolocatorLocationService OfflineDownloadService; do
             if grep -a -q "$C" /tmp/play-manifest.pb; then
               echo "::error::$C is in the Play bundle manifest (unused foreground service)"; exit 1
             fi
@@ -1343,6 +1586,55 @@ jobs:
           MAP=build/app/outputs/mapping/release/mapping.txt
           if [ -s "$MAP" ]; then cp "$MAP" "out/assisto-play-build${{ github.run_number }}.mapping.txt"; else echo "::warning::no R8 mapping.txt for the AAB"; fi
           ls -la out/
+
+      # faststart (owner 10 Nov, item 6): what a PHONE really downloads from
+      # Play — bundletool `get-size total` for an arm64 and a 32-bit
+      # (armeabi-v7a) Bangladesh phone (bn, 320 dpi). Guard: > 5 % (+1 MB)
+      # above tools/startspeed/size_baseline.json fails; no baseline yet =
+      # report only (the first numbers are then committed as the baseline).
+      - name: Phone download size per ABI (bundletool, faststart)
+        if: steps.aab.outcome == 'success'
+        working-directory: app
+        run: |
+          # tool trouble (download / bundletool) = a warning, never a red ship;
+          # only a real size regression fails
+          skip() { echo "::warning::download-size check skipped: $1"; exit 0; }
+          curl -fsSL -o /tmp/bundletool.jar \
+            https://github.com/google/bundletool/releases/download/1.17.2/bundletool-all-1.17.2.jar || skip "bundletool download"
+          AAB=$(ls out/*.aab 2>/dev/null | head -1)
+          [ -n "$AAB" ] || skip "no AAB"
+          java -jar /tmp/bundletool.jar build-apks --bundle "$AAB" --output /tmp/fs.apks --overwrite || skip "build-apks"
+          echo '{"supportedAbis":["arm64-v8a"],"supportedLocales":["bn"],"screenDensity":320,"sdkVersion":33}' > /tmp/spec_arm64.json
+          echo '{"supportedAbis":["armeabi-v7a"],"supportedLocales":["bn"],"screenDensity":320,"sdkVersion":28}' > /tmp/spec_v7a.json
+          for a in arm64 v7a; do
+            java -jar /tmp/bundletool.jar get-size total --apks /tmp/fs.apks --device-spec /tmp/spec_$a.json > /tmp/size_$a.csv || skip "get-size $a"
+            echo "$a: $(tail -1 /tmp/size_$a.csv)"
+          done
+          python3 - <<'PY'
+          import json, os, sys
+          base_p = os.path.join(os.environ["GITHUB_WORKSPACE"], "tools/startspeed/size_baseline.json")
+          base = json.load(open(base_p)) if os.path.exists(base_p) else {}
+          rows, bad = [], []
+          for a in ("arm64", "v7a"):
+              mx = int(open("/tmp/size_%s.csv" % a).read().strip().splitlines()[-1].split(",")[-1])
+              mb = mx / 1048576
+              b = base.get(a + "_download_mb")
+              lim = None if b is None else b * 1.05 + 1
+              ok = lim is None or mb <= lim
+              rows.append("| %s | %.1f MB | %s | %s |" % (a, mb, "-" if b is None else "%.1f MB" % b,
+                          "PASS" if ok else "FAIL"))
+              if not ok:
+                  bad.append("%s %.1f MB > %.1f MB (baseline %.1f + 5%% + 1)" % (a, mb, lim, b))
+          txt = ("### Phone download size from Play (bundletool get-size, MAX)\n\n"
+                 "| phone | download | baseline | result |\n|---|---|---|---|\n" + "\n".join(rows) + "\n")
+          if not base:
+              txt += "\n(no baseline yet: report only)\n"
+          print(txt)
+          open(os.environ["GITHUB_STEP_SUMMARY"], "a").write(txt)
+          for m in bad:
+              print("::error::download-size regression: " + m)
+          sys.exit(1 if bad else 0)
+          PY
 
       - name: Upload AAB artifact (Google Play)
         if: steps.aab.outcome == 'success'
@@ -1429,6 +1721,7 @@ jobs:
             test -s pid.txt || { echo "::error::app NOT running 30 s after a release cold start on API ${{ matrix.api }}"; exit 1; }
             echo "RELEASE COLD START OK on API ${{ matrix.api }} pid=$(cat pid.txt)"
       - name: Upload smoke logcat (always)
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -1436,7 +1729,54 @@ jobs:
           path: |
             live_logcat.txt
             logcat.txt
-          retention-days: 7
+          retention-days: 2
+          if-no-files-found: warn
+
+  # ---- faststart ---- CI START-TIME GUARD (owner 10 Nov 00:55): every build,
+  # the release x86_64 APK on a 2 GB / 2-core emulator in AIRPLANE MODE
+  # (offline; no traffic to the live server): cold-start median < 2.5 s
+  # (2 s target + 25 % emulator tolerance) and hot-start median < 1 s, median
+  # of 5 after a warm-up, one re-measure batch before failing
+  # (tools/startspeed/guard.sh). Not named launch-smoke-test: a red guard
+  # shows the regression without blocking the ship (ship_watch).
+  start-time-guard:
+    needs: build-apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/startspeed
+      - uses: actions/download-artifact@v4
+        with:
+          name: assisto-apk-emu
+          path: apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Start-time guard (API 33, 2 GB, offline)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          ram-size: 2048M
+          cores: 2
+          disable-animations: false
+          emulator-boot-timeout: 480
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: bash tools/startspeed/guard.sh apk/emu-x64.apk
+      - name: Upload guard evidence (always)
+        continue-on-error: true  # ghstore: storage quota never fails a green build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: start-time-guard
+          path: start_guard/
+          retention-days: 5
           if-no-files-found: warn
 
   # ---- play-fsi ---- Proof on a real Android 14 (API 34) emulator that the
@@ -1496,6 +1836,7 @@ jobs:
             grep -q "FSI_PROBE can=true" fsi_allowed_logcat.txt || { echo "::error::allowed case did not report can=true"; exit 1; }
             echo "FSI PROOF OK on API 34"
       - name: Upload FSI proof (always)
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -1503,7 +1844,7 @@ jobs:
           path: |
             fsi_*.png
             fsi_*.txt
-          retention-days: 30
+          retention-days: 2
           if-no-files-found: warn
   # ---- /play-fsi ----
 
@@ -1555,6 +1896,7 @@ jobs:
             sleep 60
             bash tools/ringproof/ring_proof.sh "$(ls apk/*.apk | head -1)" ${{ matrix.api }}; r=$?; bash tools/ringproof/accept_proof.sh "$(ls apk/*.apk | head -1)" ${{ matrix.api }}; a=$?; exit $((r | a))
       - name: Upload ring proof (always)
+        continue-on-error: true  # ghstore: storage quota never fails a green build
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -1564,6 +1906,6 @@ jobs:
             ring_*.txt
             accept_*.png
             accept_*.txt
-          retention-days: 30
+          retention-days: 2
           if-no-files-found: warn
   # ---- /ring-everywhere ----

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
@@ -74,13 +75,14 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
         NeedsKeyBanner(t.crmTeamAlertNote, icon: Icons.notifications_active_rounded),
         // Invite code (owner/manager): share so teammates can "Join a team".
         if (_inviteCode != null && _inviteCode!.isNotEmpty) ...[
-          Card(
+          DsCard(
+            padding: EdgeInsets.zero,
             child: ListTile(
               leading: const Icon(Icons.vpn_key_rounded),
               title: Text(t.crmInviteCode),
               subtitle: Text(t.crmInviteCodeHint),
               trailing: SelectableText(_inviteCode!,
-                  style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, letterSpacing: 1.2)),
             ),
           ),
           const SizedBox(height: Gap.sm),
@@ -90,12 +92,13 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
           Padding(padding: const EdgeInsets.all(Gap.md), child: Text(t.crmNoTeam))
         else
           for (final m in _members)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: scheme.primaryContainer,
+                  backgroundColor: scheme.ds.primarySoft,
                   child: Text(((m['user_name'] ?? '?').toString().isNotEmpty ? m['user_name'][0] : '?').toUpperCase(),
-                      style: TextStyle(color: scheme.onPrimaryContainer)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
                 ),
                 title: Text(m['user_name'] ?? ''),
                 subtitle: Text(_roleLabel(t, m['role'])),
@@ -107,7 +110,8 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
           Padding(padding: const EdgeInsets.all(Gap.md), child: Text(t.crmNoRouting))
         else
           for (final r in _rules)
-            Card(
+            DsCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 leading: const Icon(Icons.alt_route_rounded),
                 title: Text([
@@ -125,7 +129,7 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
 
   Widget _sectionTitle(String s) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs, top: Gap.sm),
-        child: Text(s, style: const TextStyle(fontWeight: FontWeight.w800)),
+        child: Text(s, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
       );
 
   String _memberName(Object? id) {

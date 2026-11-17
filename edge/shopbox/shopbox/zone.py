@@ -132,7 +132,34 @@ def box_centroid(box) -> Point:
     return ((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)
 
 
-ZONE_TYPES = ("restricted", "cash", "entry_line")
+ZONE_TYPES = ("restricted", "cash", "entry_line", "gate", "post",
+              "parking", "no_parking")   # cctvdet: + gate, post (+ parking: stage 2)
+# cctvdet: per-zone options the box understands (numbers clamped like the
+# server's core/logic/watchman.py; anything else is dropped)
+ZONE_OPTS = {"dwell_s": (0, 3600), "absent_min": (1, 240), "open_min": (1, 720),
+             "closed_at": (0, 4102444800), "crowd_n": (0, 50), "crowd_s": (10, 1800),
+             "overstay_min": (5, 1440), "wrong_s": (30, 3600)}
+
+
+def _zone_opts(raw) -> dict:
+    out: dict = {}
+    if not isinstance(raw, dict):
+        return out
+    for k, (lo, hi) in ZONE_OPTS.items():
+        try:
+            v = float(raw[k])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if np.isfinite(v):
+            out[k] = min(max(v, lo), hi)
+    if raw.get("watch_open") is True:
+        out["watch_open"] = True
+    for k in ("vehicles", "notify"):
+        if raw.get(k) is True:
+            out[k] = True
+    if raw.get("in_side") in ("left", "right"):
+        out["in_side"] = raw["in_side"]
+    return out
 SENSITIVITY_MULT = {"low": 1.5, "medium": 1.0, "high": 0.7}
 
 
@@ -156,8 +183,16 @@ def normalize_zones_v2(d) -> Optional[dict]:
         pts = normalize_line(z.get("points")) if z["type"] == "entry_line" \
             else normalize_polygon(z.get("points"))
         if pts:
-            zones.append({"id": zid, "type": z["type"],
-                          "points": [list(p) for p in pts]})
+            zz = {"id": zid, "type": z["type"], "points": [list(p) for p in pts]}
+            # cctvdet: label, the zone's own schedule, options
+            if z.get("label"):
+                zz["label"] = str(z["label"])[:40]
+            if isinstance(z.get("schedule"), dict):
+                zz["schedule"] = z["schedule"]
+            opts = _zone_opts(z.get("opts"))
+            if opts:
+                zz["opts"] = opts
+            zones.append(zz)
     sens = d.get("sensitivity") if d.get("sensitivity") in SENSITIVITY_MULT \
         else "medium"
     sched = d.get("schedule") if isinstance(d.get("schedule"), dict) else None
@@ -179,4 +214,8 @@ def normalize_tuning(d) -> Optional[dict]:
             continue
         if np.isfinite(v):
             out[key] = min(max(v, lo), hi)
+    # cctvacc: optional owner-drawn motion area (only motion inside counts)
+    area = normalize_polygon(d.get("motion_area")) if d.get("motion_area") else []
+    if len(area) >= 3:
+        out["motion_area"] = area
     return out or None

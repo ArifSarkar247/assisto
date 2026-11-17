@@ -14,7 +14,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:assisto/ads/ad_control.dart';
 import 'package:assisto/ads/ad_placements.dart';
+import 'package:assisto/ads/ad_rules.dart' show AdKind;
 import 'package:assisto/ads/ad_telemetry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -166,9 +168,17 @@ void main() {
         r'call|chat_screen|conversation|thread|chat_lock|vault|'
         r'login|otp|sign_?up|password|permission|onboarding|language_pick)');
 
-    test('every banner key is on the allowlist and shown by exactly one file', () {
-      expect(banners.keys.toSet(), AdPlacements.bannerScreens,
-          reason: 'used banner keys must equal the allowlist');
+    // adcontrol (owner 10 Nov 03:45): the placement REGISTRY decides
+    test('every banner key is a registered in-page placement shown by exactly one file', () {
+      for (final k in banners.keys) {
+        final spot = AdControl.spot(k);
+        expect(spot, isNotNull, reason: '$k is not in the AdControl registry');
+        expect(spot!.allowed.contains(AdKind.banner), isTrue, reason: k);
+        expect(spot.safety, isFalse, reason: '$k is a safety screen');
+      }
+      for (final k in AdPlacements.bannerScreens) {
+        expect(AdControl.isRegistered(k), isTrue, reason: k);
+      }
       banners.forEach((k, files) => expect(files.length, 1, reason: '$k: $files'));
     });
 
@@ -190,12 +200,9 @@ void main() {
       expect(bad, isEmpty, reason: bad.join('\n'));
     });
 
-    test('OWNER ADS FINAL: money / budget / reminders / notes / health / CRM / '
-        'khata / prepaid / Ramadan pages carry no banner any more', () {
-      for (final k in ['money', 'budget', 'money_report', 'money_trends',
-          'money_networth', 'money_tax', 'reminders', 'notes_todos',
-          'health_tips', 'medicine_db', 'crm', 'business', 'prepaid_meter',
-          'ramadan']) {
+    test('adcontrol: health / CRM / khata / prepaid / Ramadan pages carry no banner', () {
+      for (final k in ['health_tips', 'medicine_db', 'crm', 'business',
+          'prepaid_meter', 'ramadan', 'quran', 'sos', 'blood_donor']) {
         expect(banners.containsKey(k), isFalse, reason: k);
         expect(AdPlacements.bannerScreens.contains(k), isFalse, reason: k);
       }
@@ -240,6 +247,7 @@ void main() {
         'lib/ads/admob_ads_bridge.dart',
         'lib/ads/ads_bridge.dart',
         'lib/widgets/rewarded_ad_sheet.dart', // the opt-in sheet
+        'lib/ads/ad_reward_gate.dart', // adcontrol: "watch one ad to continue"
         'lib/screens/credits_screen.dart', // "watch a short ad" on Credits
         'lib/payments/credits_out_sheet.dart', // the opt-in row (Free only)
         'lib/photo_studio/admob_photo_bridge.dart',
@@ -247,6 +255,9 @@ void main() {
         'lib/photo_studio/ps_export.dart', // Photo Studio unlock
         'lib/chat_vision/cv_controller.dart', // photo question to Assisto AI
         'lib/safe_plans/safe_ad_unlock_screen.dart', // safeplans: owner order 3 Nov PART 4, guardians only
+        // lpapp (owner 10 Nov PART B): opt-in "watch an ad to earn credits" for an extra
+        // mock section / AI score — never inside a timed mock (test/lp2_ads_test.dart)
+        'lib/screens/lp2/lp_mock.dart', 'lib/screens/lp2/lp_score.dart',
       };
       expect(rewarded.difference(allowed), isEmpty,
           reason: 'new rewarded entry point: ${rewarded.difference(allowed)}');

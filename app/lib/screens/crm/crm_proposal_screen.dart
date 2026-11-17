@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../payments/credits_out_sheet.dart' show isOutOfCreditsBody;
+import '../../plans_v2/buy_inside.dart';
 import 'crm_common.dart';
+import '../../widgets/num_input.dart'; // savesweep
 
 /// Proposal screen (CRM_SPEC): build from requirement sheet + the configured
 /// module price list (NEVER invent prices or tax — show "TO REVIEW BY OWNER"
@@ -61,14 +65,24 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
     );
     if (go != true) return;
     try {
-      final r = await CrmApi.of(context).leadProposal((widget.lead['id'] as num).toInt(), req.text.trim());
+      var r = await CrmApi.of(context).leadProposal((widget.lead['id'] as num).toInt(), req.text.trim());
       if (!mounted) return;
+      // buyinside: out of credits -> the credits sheet here; the typed
+      // requirements are kept and the draft is made once after buying
+      if (r['ok'] != true &&
+          isOutOfCreditsBody(r) &&
+          await BuyInside.open(context, 'crm_proposal', draftKept: true) &&
+          mounted) {
+        r = await CrmApi.of(context).leadProposal((widget.lead['id'] as num).toInt(), req.text.trim());
+        if (!mounted) return;
+      }
       if (r['ok'] != true) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((r['message'] ?? t.crmAiLocked).toString())));
       } else {
         _load();
       }
     } catch (e) {
+      if (mounted && await BuyInside.handle(context, e, 'crm_proposal')) return;
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(CrmError.from(e).textFor(context))));
     }
   }
@@ -131,12 +145,11 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
     final status = (p['status'] ?? 'draft').toString();
     final reviewed = p['prices_reviewed'] == true;
     final total = _dec(p['total']) ?? 0;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Expanded(child: Text(p['title']?.toString().isNotEmpty == true ? p['title'] : '${t.crmProposals} v${p['version']}', style: const TextStyle(fontWeight: FontWeight.w800))),
+            Expanded(child: Text(p['title']?.toString().isNotEmpty == true ? p['title'] : '${t.crmProposals} v${p['version']}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
             _statusChip(status),
           ]),
           const SizedBox(height: Gap.xs),
@@ -158,7 +171,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
             ),
           if ((p['body'] ?? '').toString().isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
-            Text(p['body'], maxLines: 6, overflow: TextOverflow.ellipsis, style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            Text(p['body'], maxLines: 6, overflow: TextOverflow.ellipsis, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           ],
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.xs, children: [
@@ -172,7 +185,6 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
               OutlinedButton(onPressed: () => _transition(t, p, 'accepted'), child: Text(t.crmMarkAccepted)),
           ]),
         ]),
-      ),
     );
   }
 
@@ -180,7 +192,7 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text(k),
-          Text(v, style: TextStyle(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
+          Text(v, style: AType.bodyMedium.copyWith(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
         ]),
       );
 
@@ -203,8 +215,8 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
-      decoration: BoxDecoration(color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(Radii.pill)),
-      child: Text(_statusLabel(status), style: AType.labelSmall.copyWith(color: scheme.onSecondaryContainer, fontWeight: FontWeight.w700)),
+      decoration: BoxDecoration(color: scheme.ds.primarySoft, borderRadius: BorderRadius.circular(Radii.pill)),
+      child: Text(_statusLabel(status), style: AType.labelSmall.copyWith(color: scheme.ds.primaryInk, fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -255,7 +267,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
   }
 
   double _pct(TextEditingController c) {
-    final v = double.tryParse(c.text.trim());
+    final v = parseNumInput(c.text.trim());
     if (v == null || v < 0) return 0;
     return v;
   }
@@ -321,10 +333,9 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
               for (final p in _active) _productRow(t, p),
               const SizedBox(height: Gap.md),
               _sectionTitle(t.crmQuoteTotals),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(Gap.md),
-                  child: Column(children: [
+              DsCard(
+                padding: const EdgeInsets.all(Gap.md),
+                child: Column(children: [
                     Row(children: [
                       Expanded(
                         child: TextField(
@@ -360,7 +371,6 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
                         ]),
                       ),
                   ]),
-                ),
               ),
               const SizedBox(height: Gap.md),
               FilledButton.icon(
@@ -371,7 +381,7 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
                 label: Text(t.crmCreateProposal),
               ),
               const SizedBox(height: Gap.xs),
-              Text(t.crmQuotePriceBookNote, style: AType.labelSmall.copyWith(color: scheme.onSurfaceVariant)),
+              Text(t.crmQuotePriceBookNote, style: AType.labelSmall.copyWith(color: scheme.ds.muted)),
             ]),
     );
   }
@@ -381,15 +391,14 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
     final sku = p['sku']?.toString() ?? '';
     final q = _qty[sku] ?? 0;
     final reviewed = p['price_reviewed'] == true;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.sm),
-        child: Row(children: [
+    return DsCard(
+      padding: const EdgeInsets.all(Gap.sm),
+      child: Row(children: [
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(p['name']?.toString() ?? sku, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(p['name']?.toString() ?? sku, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               Text('${bdt(context, (_dec(p['unit_price'])))} · $sku',
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               if (!reviewed)
                 Text(t.crmToReview, style: AType.labelSmall.copyWith(color: AssistoTokens.of(context).warning, fontWeight: FontWeight.w700)),
             ]),
@@ -399,14 +408,13 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
             icon: const Icon(Icons.remove_circle_outline_rounded),
             onPressed: q > 0 ? () => setState(() => _qty[sku] = q - 1) : null,
           ),
-          Text('$q', style: const TextStyle(fontWeight: FontWeight.w800)),
+          Text('$q', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
           IconButton(
             tooltip: AppLocalizations.of(context).f2Increase,
             icon: const Icon(Icons.add_circle_outline_rounded),
             onPressed: () => setState(() => _qty[sku] = q + 1),
           ),
         ]),
-      ),
     );
   }
 
@@ -414,13 +422,13 @@ class _QuoteBuilderScreenState extends State<QuoteBuilderScreen> {
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Flexible(child: Text(k)),
-          Text(v, style: TextStyle(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
+          Text(v, style: AType.bodyMedium.copyWith(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
         ]),
       );
 
   Widget _sectionTitle(String s) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.xs, top: Gap.sm),
-        child: Text(s, style: const TextStyle(fontWeight: FontWeight.w800)),
+        child: Text(s, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
       );
 }
 

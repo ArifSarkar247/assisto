@@ -63,6 +63,24 @@ def play_public():
     return v == "1"
 
 
+# seogrow (owner order 17 Nov, item 7): the Google Play badge + links stay
+# HIDDEN until the owner says the app is live on Play — Owner Admin ->
+# Website ("site_play_badge_live", default OFF; stored inverted as the flag
+# `site_play_badge_hidden`, default ON). While hidden no Play badge or
+# Play link is shown anywhere on the site (even if the listing check above
+# finds the page); the "Install APK" path stays as it is.
+PLAY_BADGE_HIDDEN_FLAG = "site_play_badge_hidden"   # ON (default) = hidden
+
+
+def play_badge_on():
+    return not _flag(PLAY_BADGE_HIDDEN_FLAG, True)
+
+
+def play_shown():
+    """Show Play badges/links: the owner said live AND the listing is public."""
+    return play_badge_on() and play_public()
+
+
 def play_mode():
     if _flag("website_play_auto", True):
         return "auto"

@@ -662,6 +662,9 @@ void main() {
     expect(
         tester.getSemantics(find.text(t.aivConvThinking)),
         containsSemantics(label: t.aivConvThinking, isLiveRegion: true));
+    // designv2: the note sits under the starting points — scroll to it
+    await tester.ensureVisible(find.text(t.aivNoKeyTitle));
+    await tester.pump();
     expect(tester.getSemantics(find.text(t.aivNoKeyTitle)),
         containsSemantics(label: t.aivNoKeyTitle, isHeader: true));
     h.dispose();

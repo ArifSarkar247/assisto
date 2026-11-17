@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import '../bizai/cctv_accuracy_screen.dart' show CctvAccuracyScreen; // bizai
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/cv_empty.dart';
 import '../cctvx/cctv_evidence_source.dart';
 import 'credits_screen.dart';
+import '../plans_v2/buy_inside.dart';
 import 'watchman/cctv_recording_screen.dart';
 import 'plans_screen.dart';
 import 'shop_box_mode_screen.dart';
@@ -202,26 +204,23 @@ class _UpsellBody extends StatelessWidget {
         const SizedBox(height: Gap.sm),
         Text(t.shopBoxUpsellBody,
             textAlign: TextAlign.center,
-            style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
         const SizedBox(height: Gap.lg),
         _bullet(context, Icons.privacy_tip_rounded, t.shopBoxWhatSignals),
         _bullet(context, Icons.notifications_active_rounded,
             t.shopBoxWhatAlerts),
         _bullet(context, Icons.assessment_rounded, t.shopBoxWhatReport),
         const SizedBox(height: Gap.lg),
-        Card(
-          color: scheme.surfaceContainerHighest,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Row(children: [
+        DsSurface(color: scheme.ds.cardHighest,
+          padding: const EdgeInsets.all(Gap.md),
+          child: Row(children: [
               Icon(Icons.verified_rounded, size: 20, color: scheme.primary),
               const SizedBox(width: Gap.sm),
               Expanded(
                 child: Text(t.shopBoxUpsellPlanNote,
-                    style: AType.bodyMedium.copyWith(color: scheme.onSurface, height: 1.4)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.text, height: 1.4)),
               ),
             ]),
-          ),
         ),
         const SizedBox(height: Gap.lg),
         FilledButton.icon(
@@ -242,7 +241,7 @@ class _UpsellBody extends StatelessWidget {
         const SizedBox(width: Gap.sm),
         Expanded(
             child: Text(text,
-                style: AType.bodyMedium.copyWith(color: scheme.onSurface))),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.text))),
       ]),
     );
   }
@@ -294,16 +293,16 @@ Widget _sitePickerBanner(BuildContext context, Map<String, dynamic>? site) {
   final name = (site?['name'] ?? '').toString().trim();
   return Container(
     width: double.infinity,
-    color: scheme.surfaceContainerHighest,
+    color: scheme.ds.cardHighest,
     padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
     child: Row(children: [
-      Icon(Icons.store_rounded, size: 16, color: scheme.onSurfaceVariant),
+      Icon(Icons.store_rounded, size: 16, color: scheme.ds.muted),
       const SizedBox(width: Gap.sm),
       Expanded(
         child: Text(
           name.isEmpty ? t.shopBoxUnnamedSite : name,
           style: AType.labelMedium.copyWith(fontWeight: FontWeight.w600,
-              color: scheme.onSurfaceVariant),
+              color: scheme.ds.muted),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -505,18 +504,18 @@ class _SitesTab extends StatelessWidget {
   Widget _shopModeEntry(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: ListTile(
+    return DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         leading: Icon(Icons.phone_android_rounded, color: scheme.primary),
         title: Text(t.shopModeEntryTitle,
-            style: const TextStyle(fontWeight: FontWeight.w600)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(t.shopModeEntrySub, maxLines: 2, overflow: TextOverflow.ellipsis),
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ShopBoxModeScreen())),
       ),
-    );
+      );
   }
 
   Future<void> _editHours(BuildContext context, Map<String, dynamic> s) async {
@@ -532,22 +531,18 @@ class _SitesTab extends StatelessWidget {
   Widget _privacyNote(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.surfaceContainerHighest,
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return DsSurface(color: scheme.ds.cardHighest,
         padding: const EdgeInsets.all(Gap.md),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.privacy_tip_rounded, size: 18, color: scheme.primary),
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(t.shopBoxPrivacyNote,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted,
                     height: 1.4)),
           ),
         ]),
-      ),
-    );
+      );
   }
 
   Widget _siteCard(BuildContext context, AppLocalizations t, ColorScheme scheme,
@@ -576,9 +571,9 @@ class _SitesTab extends StatelessWidget {
               children: [
                 Row(children: [
                   CircleAvatar(
-                    backgroundColor: scheme.primaryContainer,
+                    backgroundColor: scheme.ds.primarySoft,
                     child: Icon(Icons.storefront_rounded,
-                        color: scheme.onPrimaryContainer),
+                        color: scheme.ds.primaryInk),
                   ),
                   const SizedBox(width: Gap.md),
                   Expanded(
@@ -586,7 +581,7 @@ class _SitesTab extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(name.isEmpty ? t.shopBoxUnnamedSite : name,
-                              style: const TextStyle(
+                              style: AType.bodyMedium.copyWith(
                                   fontWeight: FontWeight.w700),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis),
@@ -594,7 +589,7 @@ class _SitesTab extends StatelessWidget {
                             t.shopBoxSiteSubtitle(
                                 fmtInt(context, cameras),
                                 fmtInt(context, retention)),
-                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                            style: AType.bodySmall.copyWith(color: scheme.ds.muted),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -645,14 +640,14 @@ class _EnrollmentSheet extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: Gap.sm),
             Text(t.shopBoxEnrollExplain,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant, height: 1.4)),
+                style: AType.bodyMedium.copyWith(
+                    color: scheme.ds.muted, height: 1.4)),
             const SizedBox(height: Gap.lg),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(Gap.md),
               decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest,
+                color: scheme.ds.cardHighest,
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: SelectableText(
@@ -751,7 +746,7 @@ class _ShopSiteFormState extends State<ShopSiteForm> {
                 days == 0
                     ? t.shopBoxRetentionZero
                     : t.shopBoxRetentionHint,
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted),
               ),
               Slider(
                 value: _retention,
@@ -767,7 +762,7 @@ class _ShopSiteFormState extends State<ShopSiteForm> {
               if (_max < 30) ...[
                 // cctvevidence: why the slider stops here + the way to 30
                 Text(t.cevRetentionCap(fmtInt(context, _max)),
-                    style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                 if (widget.addonCameraId != null)
                   Align(
                     alignment: AlignmentDirectional.centerStart,
@@ -900,6 +895,10 @@ class _CamerasTabState extends State<_CamerasTab> {
     final detail = (r['detail'] ?? '').toString();
     final needed = (r['credits_needed'] ?? 0) is int ? r['credits_needed'] as int : 0;
     final balance = (r['balance'] ?? 0) is int ? r['balance'] as int : 0;
+    // buyinside: more cameras come with the CCTV plan — buy it right here
+    // (never for "more than 10", which is "contact us")
+    final planOffer = '${r['code'] ?? ''}' != 'cctv_contact_us';
+    var wantPlan = false;
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -913,13 +912,22 @@ class _CamerasTabState extends State<_CamerasTab> {
               const SizedBox(height: Gap.md),
               Text(t.shopBoxCapNeeded(fmtInt(ctx, needed))),
               Text(t.shopBoxCapBalance(fmtInt(ctx, balance)),
-                  style: TextStyle(
-                      color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                  style: AType.bodyMedium.copyWith(
+                      color: Theme.of(ctx).colorScheme.ds.muted)),
             ]),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx),
               child: Text(t.close)),
+          if (planOffer)
+            TextButton(
+              key: const Key('bi-shopbox-plan'),
+              onPressed: () {
+                wantPlan = true;
+                Navigator.pop(ctx);
+              },
+              child: Text(t.biGetCctvPlan),
+            ),
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);
@@ -931,6 +939,10 @@ class _CamerasTabState extends State<_CamerasTab> {
         ],
       ),
     );
+    if (wantPlan && mounted) {
+      final ok = await BuyInside.open(context, 'cctv_camera_cap');
+      if (ok && mounted) await _load();
+    }
   }
 
   @override
@@ -967,10 +979,7 @@ class _CamerasTabState extends State<_CamerasTab> {
             _sitePickerBanner(context, widget.site),
             const SizedBox(height: Gap.md),
             // used / included meter
-            Card(
-              margin: EdgeInsets.zero,
-              color: scheme.surfaceContainerHighest,
-              child: Padding(
+            DsSurface(color: scheme.ds.cardHighest,
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(children: [
                   Icon(Icons.videocam_rounded,
@@ -980,12 +989,11 @@ class _CamerasTabState extends State<_CamerasTab> {
                     child: Text(
                       t.shopBoxUsedIncluded(
                           fmtInt(context, _used), fmtInt(context, _included)),
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ]),
               ),
-            ),
             const SizedBox(height: Gap.md),
             if (_cameras.isEmpty)
               CvEmptyBlock(
@@ -1016,19 +1024,19 @@ class _CamerasTabState extends State<_CamerasTab> {
     final kindLabel = kind == 'shopbox'
         ? t.shopBoxCameraKindShopbox
         : t.shopBoxCameraKindEdge;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: ListTile(
+    return DsCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
         onTap: () => _openSettings(c),
         leading: CircleAvatar(
-          backgroundColor: scheme.primaryContainer,
+          backgroundColor: scheme.ds.primarySoft,
           child: Icon(Icons.videocam_rounded,
-              color: scheme.onPrimaryContainer),
+              color: scheme.ds.primaryInk),
         ),
         title: Text(name.isEmpty ? t.shopBoxUnnamedCamera : name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w600)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -1041,10 +1049,10 @@ class _CamerasTabState extends State<_CamerasTab> {
             ]),
         trailing: Icon(
           enabled ? Icons.tune_rounded : Icons.pause_circle_outline_rounded,
-          color: enabled ? scheme.primary : scheme.onSurfaceVariant,
+          color: enabled ? scheme.primary : scheme.ds.muted,
         ),
       ),
-    );
+      );
   }
 }
 
@@ -1247,7 +1255,7 @@ class _AlertsTabState extends State<_AlertsTab> {
         statusLabel = t.shopBoxStatusChecked;
         break;
       case 'false_alarm':
-        statusColor = scheme.onSurfaceVariant;
+        statusColor = scheme.ds.muted;
         statusLabel = t.shopBoxStatusFalseAlarm;
         break;
       default:
@@ -1255,9 +1263,7 @@ class _AlertsTabState extends State<_AlertsTab> {
         statusLabel = t.shopBoxStatusOpen;
     }
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1275,7 +1281,7 @@ class _AlertsTabState extends State<_AlertsTab> {
                             style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
                         const SizedBox(height: Gap.xxs),
                         Text(_eventTypeLabel(t, type),
-                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                       ]),
                 ),
                 _pill(statusLabel, statusColor),
@@ -1288,7 +1294,7 @@ class _AlertsTabState extends State<_AlertsTab> {
               ]),
               const SizedBox(height: Gap.xs),
               Text(_fmtDateTime(context, e['created']),
-                  style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               if (snapshotUrl.isNotEmpty) ...[
                 const SizedBox(height: Gap.sm),
                 ClipRRect(
@@ -1300,16 +1306,16 @@ class _AlertsTabState extends State<_AlertsTab> {
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
                       height: 160,
-                      color: scheme.surfaceContainerHighest,
+                      color: scheme.ds.cardHighest,
                       alignment: Alignment.center,
                       child: Icon(Icons.image_not_supported_rounded,
-                          color: scheme.onSurfaceVariant),
+                          color: scheme.ds.muted),
                     ),
                     loadingBuilder: (c, child, p) => p == null
                         ? child
                         : Container(
                             height: 160,
-                            color: scheme.surfaceContainerHighest,
+                            color: scheme.ds.cardHighest,
                             alignment: Alignment.center,
                             child: const CircularProgressIndicator(),
                           ),
@@ -1343,8 +1349,7 @@ class _AlertsTabState extends State<_AlertsTab> {
                 }),
               ],
             ]),
-      ),
-    );
+      );
   }
 
   Widget _pill(String text, Color c) => Container(
@@ -1444,12 +1449,12 @@ class _ReportTabState extends State<_ReportTab> {
           _sitePickerBanner(context, widget.site),
           const SizedBox(height: Gap.md),
           // a2-cctv: end-of-day cash vs Assisto POS sales
-          Card(
-            margin: EdgeInsets.zero,
-            child: ListTile(
+          DsCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
               leading: Icon(Icons.point_of_sale_rounded, color: scheme.primary),
               title: Text(t.shopEodTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
               subtitle: Text(t.shopEodEntrySub, maxLines: 2,
                   overflow: TextOverflow.ellipsis),
               trailing: const Icon(Icons.chevron_right_rounded),
@@ -1458,7 +1463,7 @@ class _ReportTabState extends State<_ReportTab> {
                       siteId: widget.site!['id'] as int,
                       siteName: (widget.site!['name'] ?? '').toString()))),
             ),
-          ),
+            ),
           const SizedBox(height: Gap.md),
           // days selector
           Wrap(spacing: Gap.sm, children: [
@@ -1487,7 +1492,7 @@ class _ReportTabState extends State<_ReportTab> {
           Row(children: [
             Expanded(
                 child: _stat(context, t.shopBoxStatFalseAlarms,
-                    fmtInt(context, falseAlarms), scheme.onSurfaceVariant)),
+                    fmtInt(context, falseAlarms), scheme.ds.muted)),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: _stat(context, t.shopBoxStatAfterHours,
@@ -1500,25 +1505,21 @@ class _ReportTabState extends State<_ReportTab> {
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.xs),
           if (cameraOnly)
-            Card(
-              margin: EdgeInsets.zero,
-              color: scheme.surfaceContainerHighest,
-              child: Padding(
+            DsSurface(color: scheme.ds.cardHighest,
                 padding: const EdgeInsets.all(Gap.md),
                 child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(Icons.info_outline_rounded,
-                          size: 18, color: scheme.onSurfaceVariant),
+                          size: 18, color: scheme.ds.muted),
                       const SizedBox(width: Gap.sm),
                       Expanded(
                         child: Text(t.shopBoxCameraOnlyNote,
-                            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant,
+                            style: AType.bodySmall.copyWith(color: scheme.ds.muted,
                                 height: 1.4)),
                       ),
                     ]),
               ),
-            ),
           const SizedBox(height: Gap.sm),
           _exceptionRow(context, t, t.shopBoxExcVoids,
               _int(exceptions['voids']), cameraOnly),
@@ -1551,9 +1552,7 @@ class _ReportTabState extends State<_ReportTab> {
   Widget _stat(
       BuildContext context, String label, String value, Color color) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
+    return DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(value,
@@ -1561,31 +1560,30 @@ class _ReportTabState extends State<_ReportTab> {
           const SizedBox(height: Gap.xxs),
           Text(label,
               style:
-                  AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                  AType.bodySmall.copyWith(color: scheme.ds.muted)),
         ]),
-      ),
-    );
+      );
   }
 
   Widget _exceptionRow(BuildContext context, AppLocalizations t, String label,
       int count, bool greyed) {
     final scheme = Theme.of(context).colorScheme;
-    final color = greyed ? scheme.onSurfaceVariant : scheme.onSurface;
+    final color = greyed ? scheme.ds.muted : scheme.ds.text;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Gap.xs),
       child: Row(children: [
         Expanded(
           child: Text(label,
-              style: TextStyle(
+              style: AType.bodyMedium.copyWith(
                   color: color,
                   fontStyle:
                       greyed ? FontStyle.italic : FontStyle.normal)),
         ),
         Text(
           greyed ? t.shopBoxNoPos : fmtInt(context, count),
-          style: TextStyle(
+          style: AType.bodyMedium.copyWith(
               fontWeight: FontWeight.w700,
-              color: greyed ? scheme.onSurfaceVariant : scheme.primary),
+              color: greyed ? scheme.ds.muted : scheme.primary),
         ),
       ]),
     );

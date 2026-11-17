@@ -566,7 +566,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           Text(_t.msgrInviteSmsNote,
               style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                  color: Theme.of(ctx).colorScheme.ds.muted)),
         ]),
         actions: [
           TextButton(
@@ -733,7 +733,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(self ? t.c1SearchSelf : t.c1SearchNotFound(local),
-              style: TextStyle(color: scheme.onSurface, height: 1.4)),
+              style: TextStyle(color: scheme.ds.text, height: 1.4)),
           if (!self) ...[
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -808,12 +808,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
             padding: const EdgeInsets.symmetric(
                 horizontal: Gap.md, vertical: Gap.sm),
             child: Text(t.c1NoneOnAssisto,
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: TextStyle(color: scheme.ds.muted)),
           ),
         for (final f in found) _foundRow(f),
         C1SectionHeader(t.c1InviteTitle,
             key: const Key('c1-section-invite'),
-            color: scheme.onSurfaceVariant),
+            color: scheme.ds.muted),
         for (final e in others)
           C1InviteRow(
             name: e.name,
@@ -823,7 +823,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       ],
       if (_inviteCard != null) ...[
         if (!_synced)
-          C1SectionHeader(t.c1InviteTitle, color: scheme.onSurfaceVariant),
+          C1SectionHeader(t.c1InviteTitle, color: scheme.ds.muted),
         CmInviteCardView(
           card: _inviteCard!,
           onShare: _shareInvite,
@@ -838,7 +838,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           child: Text(
             '${t.c1CheckedCount(cmNum(context, _phonebook.length))} '
             '${t.c1PullToRefresh}',
-            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+            style: TextStyle(color: scheme.ds.muted, fontSize: 12),
           ),
         ),
       const SizedBox(height: Gap.xl),

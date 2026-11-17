@@ -158,7 +158,10 @@ def _providers():
     try:
         from . import integrations
         gk = integrations.get("gemini").get("api_key")
-        if gk and integrations.is_enabled("gemini"):
+        from . import gemini_breaker as GB
+        # geminioff: while the prepaid credit is empty (402) Gemini is not a
+        # usable provider for ANY feature — no call until the daily check
+        if gk and integrations.is_enabled("gemini") and not GB.is_open():
             out.append(("gemini", gk))
         ok = integrations.get("openai").get("api_key")
         if ok and integrations.is_enabled("openai"):
@@ -454,6 +457,9 @@ def _post(url, body, headers):
 
 
 def _call_gemini(key, model, system, prompt, max_tokens, history=None):
+    from . import gemini_breaker as GB
+    if GB.is_open():
+        raise ProviderError("billing", "http_402: gemini off (breaker)")
     contents = []
     for m in _messages(history, prompt):
         contents.append({"role": "model" if m["role"] == "assistant" else "user",
@@ -572,6 +578,9 @@ def health_probe(name, key, timeout=10):
             r = rq.get("https://api.openai.com/v1/models",
                        headers={"authorization": "Bearer %s" % key}, timeout=timeout)
         else:
+            from . import gemini_breaker as GB
+            if GB.is_open():
+                return False, "billing_off"     # geminioff: daily probe only
             r = rq.get("https://generativelanguage.googleapis.com/v1beta/models?pageSize=1",
                        headers={"x-goog-api-key": key}, timeout=timeout)
         if r.status_code == 200:
@@ -710,8 +719,20 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
     charged = 0
     spend_ref = ""
     web_extra = 0
+    ad_fund = False
     if user is not None and lvl is not None:
         from . import billing
+        # aimoney (owner 10 Nov, part G): an answer paid with rewarded-ad
+        # credits runs at Normal with the shorter output, no web search
+        try:
+            from . import ad_money_service as AMS
+            lvl, ad_fund = AMS.ad_level(user, lvl)
+        except Exception:  # noqa: BLE001 — never breaks the answer
+            ad_fund = False
+        if ad_fund:
+            web = False
+            if isinstance(out_meta, dict):
+                out_meta["ad_funded"] = True
         if web:
             # plansprep: the search is paid AFTER the answer and only when a
             # search really ran; no search for a balance that cannot pay it
@@ -852,6 +873,11 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             if err.kind in AH.HARD_KINDS:
                 code, _, why = (err.detail or "").partition(": ")
                 AH.mark_down(name, model, err.kind, code, why, conf)
+            elif name == "gemini":
+                # geminioff: "prepayment credits depleted" can come as a 429
+                from . import gemini_breaker as GB
+                code, _, why = (err.detail or "").partition(": ")
+                GB.note_failure(code, why)
             if not err.failover:
                 log.error("ai: %s %s bad request (no failover): %s", name, model,
                           _safe_detail(err.detail))
@@ -881,12 +907,17 @@ def generate(task, data="", tier="cheap", max_tokens=800, feature="", user=None,
             user=user, feature=(feature or "")[:40], model=used[:40],
             input_tokens=itok, output_tokens=otok, cost_usd=cost,
             provider=name, tier=tier, task_class=klass, latency_ms=latency,
-            ok=True, hops=hops, attempts="|".join(attempts)[:240],
+            ok=True, hops=hops,
+            attempts="|".join(attempts + (["adfund"] if ad_fund else []))[:240],
             cache_read_tokens=cr, cache_write_tokens=cw, credits_charged=charged,
             level=(level or "")[:10])
         if isinstance(out_meta, dict):
             out_meta.update({"charged": charged, "mode": mode or "", "upgraded": upgraded,
                              "truncated": truncated,
+                             # aiqual: what really answered (the AI exam
+                             # checks Claude-only while Gemini is off, and
+                             # the +web credits only when a search ran)
+                             "provider": name, "model": used, "web_ran": web_ran,
                              "spend_ref": spend_ref})   # aileft: Stop returns the same lots
         try:
             from . import billing

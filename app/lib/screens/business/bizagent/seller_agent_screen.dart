@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../ds/ds.dart';
 import '../../../bizai/outcome_card.dart' show ShopLinkCard; // bizai
 import '../../../plans_v2/upgrade_sheet.dart'; // plans-v2
 import 'package:provider/provider.dart';
@@ -262,7 +263,8 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
         // bizai: the in-app shop chat link (no Meta needed) + COD-risk switch
         const ShopLinkCard(),
         const SizedBox(height: Gap.md),
-        Card(
+        DsCard(
+          padding: EdgeInsets.zero,
           child: Column(children: [
             ListTile(
               leading: const Icon(Icons.fact_check_rounded),
@@ -366,7 +368,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
               borderRadius: BorderRadius.circular(Radii.pill)),
           const SizedBox(height: Gap.sm),
         ] else
-          Text(t.baNoPlanLine, style: const TextStyle(height: 1.4)),
+          Text(t.baNoPlanLine, style: AType.bodyMedium.copyWith(height: 1.4)),
         Text(bd(context, t.baCreditReplies(creditReplies)),
             style: Theme.of(context).textTheme.bodySmall),
         // credout: no plan replies AND no credit replies -> the agent cannot
@@ -434,7 +436,7 @@ class _SellerAgentScreenState extends State<SellerAgentScreen> {
         ]),
         if (low.isNotEmpty) ...[
           const SizedBox(height: Gap.md),
-          Text(t.baLowStockTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(t.baLowStockTitle, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.xs),
           for (final x in low.take(5))
             Text(bd(context, t.baLowStockLine('${x['name']}', (x['stock'] as num?)?.toInt() ?? 0))),

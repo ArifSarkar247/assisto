@@ -66,7 +66,8 @@ class MainActivity : FlutterFragmentActivity() {
     // notification (flutter_local_notifications puts our payload JSON in the
     // "payload" extra) starts or re-enters this activity, and is taken back
     // when the call screen closes (Dart "release") or the app leaves the
-    // screen (onStop). SOS alerts ring loudly but need an unlock to open.
+    // screen (onStop). fcsos: a family SOS alarm launch shows over the lock
+    // screen the same way (its alarm page only; released when it closes).
     // calls-a: a re-created activity (savedInstanceState) must never answer
     // the original call intent a second time.
     private var restored = false
@@ -77,7 +78,7 @@ class MainActivity : FlutterFragmentActivity() {
         // first window frame (not after the engine started).
         try {
             if (!restored && (com.assisto.assisto.calls.CallLaunch.parse(intent) != null ||
-                    careCallPayload(intent) != null)) {
+                    careCallPayload(intent) != null || sosPayload(intent) != null || isDestAlarmLaunch(intent))) {
                 setOverLockScreen(true)
             }
         } catch (e: Throwable) {
@@ -106,6 +107,14 @@ class MainActivity : FlutterFragmentActivity() {
                 val raw = careCallPayload(intent)
                 if (raw != null && intent?.getStringExtra("actionId").isNullOrEmpty()) {
                     return "/carecall_ring?p=" + java.net.URLEncoder.encode(raw, "UTF-8")
+                }
+            } catch (e: Throwable) {
+            }
+            // fcsos: an SOS alarm's full-screen / tap launch -> the alarm page
+            try {
+                val raw = sosPayload(intent)
+                if (raw != null && intent?.getStringExtra("actionId").isNullOrEmpty()) {
+                    return "/sos_alarm?p=" + java.net.URLEncoder.encode(raw, "UTF-8")
                 }
             } catch (e: Throwable) {
             }
@@ -242,7 +251,14 @@ class MainActivity : FlutterFragmentActivity() {
         } catch (e: Throwable) {
             false
         }
-        setOverLockScreen(isCall || isCareCall)
+        // fcsos: an SOS alarm launch too (same per-launch rule)
+        val isSos = try {
+            sosPayload(i) != null
+        } catch (e: Throwable) {
+            false
+        }
+        // sjtrain: the destination alarm's full-screen ring — same per-launch rule
+        setOverLockScreen(isCall || isCareCall || isSos || isDestAlarmLaunch(i))
         // calls-a: ONLY Accept takes over from the native ring (Telecom marked
         // answered + the ring notification cancelled on the tap). A tap /
         // full-screen launch just SHOWS the ringing screen: the native ring
@@ -279,6 +295,37 @@ class MainActivity : FlutterFragmentActivity() {
         }
     }
 
+    /** fcsos: the payload JSON when this launch is a family SOS / fall alarm
+     *  (push kind "sos" with a delivery id), else null. Same per-launch rule
+     *  as calls / Care Call: shown over the lock screen for that one launch,
+     *  handed back when the alarm page closes (Dart LockScreenGuard). */
+    private fun sosPayload(i: Intent?): String? {
+        return try {
+            if (i == null) return null
+            if ((i.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return null
+            val raw = i.getStringExtra("payload") ?: return null
+            val js = JSONObject(raw)
+            val ak = js.optString("alert_kind", "sos")
+            if (js.optString("kind") == "sos" && js.optString("delivery_id").isNotEmpty() &&
+                (ak == "sos" || ak == "fall")) raw else null
+        } catch (e: Throwable) {
+            null
+        }
+    }
+
+    /** sjtrain: a destination-alarm ring launch (payload kind "dest_alarm").
+     *  Never throws; Recents re-deliveries never count. */
+    private fun isDestAlarmLaunch(i: Intent?): Boolean {
+        return try {
+            if (i == null) return false
+            if ((i.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return false
+            val raw = i.getStringExtra("payload") ?: return false
+            JSONObject(raw).optString("kind") == "dest_alarm"
+        } catch (e: Throwable) {
+            false
+        }
+    }
+
     private fun setOverLockScreen(on: Boolean) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -301,6 +348,12 @@ class MainActivity : FlutterFragmentActivity() {
         // registration only — nothing runs until Dart calls it (lazy).
         try {
             com.assisto.assisto.shopbox.ShopBoxChannel.register(flutterEngine, this)
+        } catch (e: Throwable) {
+        }
+        // fcsos: SOS alarm through Do Not Disturb (only with the user's DND
+        // access). Handler registration only — lazy.
+        try {
+            com.assisto.assisto.sos.SosDndChannel.register(flutterEngine, this)
         } catch (e: Throwable) {
         }
         // v1-vehicle: ELM327 OBD over classic Bluetooth. Registering is free;
@@ -385,6 +438,14 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // fcbrain: family arrival watch ("com.assisto/family_watch"). Handler
+        // only — the location service starts when Dart asks (user consent).
+        try {
+            com.assisto.assisto.family.FamilyWatchChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         // journey100: Safe Journey battery % ("com.assisto/journey"). Handler
         // only — BatteryManager is read when Dart asks, never at launch.
         try {
@@ -423,6 +484,14 @@ class MainActivity : FlutterFragmentActivity() {
         // after the user grants Notification access; nothing runs at launch.
         try {
             com.assisto.assisto.notiflisten.NotifListenChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
+        // fcelder: Silent Watch ("com.assisto/silent_watch"). Handler only —
+        // alarms exist only after an elder opted in on the consent screen.
+        try {
+            com.assisto.assisto.silentwatch.SilentWatch.register(
                 this, flutterEngine.dartExecutor.binaryMessenger
             )
         } catch (e: Throwable) {

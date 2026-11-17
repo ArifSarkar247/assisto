@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import '../ds/ds.dart';
 import '../theme.dart';
 
 /// Shared building blocks for the Business v2 screens so every surface in the
@@ -26,22 +27,34 @@ class BizCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
+    // designv2: the alive DS card with a soft icon badge (all My Business)
+    final ds = DsTokens.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+      child: DsCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             if (icon != null) ...[
-              Icon(icon, size: 18, color: scheme.primary),
-              const SizedBox(width: Gap.sm),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: ds.primarySoft,
+                  borderRadius: BorderRadius.circular(DsRadius.small),
+                ),
+                child: Icon(icon, size: 20, color: ds.primaryInk),
+              ),
+              const SizedBox(width: Gap.md),
             ],
             Expanded(
-              child: Text(title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700)),
+              child: Semantics(
+                header: true,
+                child: Text(title,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700, color: ds.text)),
+              ),
             ),
             if (trailing != null) trailing!,
           ]),
@@ -68,8 +81,9 @@ class BizNote extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Gap.md),
       decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(Radii.sm),
+        // designv2: tint over the card colour (keeps body text AA)
+        color: Color.alphaBlend(c.withValues(alpha: 0.08), DsTokens.of(context).card),
+        borderRadius: BorderRadius.circular(DsRadius.card),
         border: Border.all(color: c.withValues(alpha: 0.30)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [

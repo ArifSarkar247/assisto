@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../../theme.dart' show AType;
 
 import '../../cashguard/cashguard_source.dart';
 import '../../cashguard/clip_crypto.dart';
@@ -11,6 +12,8 @@ import 'cctvx_actions.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 import '../../widgets/app_sheet.dart';
+import '../../phonecam/phonecam_clips.dart' show PhoneCamClipSource;
+import '../../phonecam/phonecam_full_video.dart';
 
 /// cashguard — the 3-5 s clip of a cash alert, opened ON THIS PHONE.
 ///
@@ -37,6 +40,12 @@ class CashClipSheet extends StatefulWidget {
   /// the evidence pack while the clip is open on this phone.
   final CctvxSource? extras;
   final String photoUrl;
+
+  /// cctvplay: an alert of a PHONE camera — the preview is kept 24 h for the
+  /// family too, and the full video can be fetched from the camera phone.
+  /// [previewStatus] 'none' = no preview for this alert (skip loading it).
+  final PhoneCamClipSource? phoneSource;
+  final String previewStatus;
   const CashClipSheet(
       {super.key,
       required this.source,
@@ -45,10 +54,16 @@ class CashClipSheet extends StatefulWidget {
       this.preview,
       this.reportsView = false,
       this.extras,
-      this.photoUrl = ''});
+      this.photoUrl = '',
+      this.phoneSource,
+      this.previewStatus = ''});
 
   static Future<void> show(BuildContext context, CashGuardSource source, int eventId, bool owner,
-          {bool reportsView = false, CctvxSource? extras, String photoUrl = ''}) =>
+          {bool reportsView = false,
+          CctvxSource? extras,
+          String photoUrl = '',
+          PhoneCamClipSource? phoneSource,
+          String previewStatus = ''}) =>
       showAppSheet<void>(
         context: context,
         isScrollControlled: true,
@@ -59,14 +74,16 @@ class CashClipSheet extends StatefulWidget {
             owner: owner,
             reportsView: reportsView,
             extras: extras,
-            photoUrl: photoUrl),
+            photoUrl: photoUrl,
+            phoneSource: phoneSource,
+            previewStatus: previewStatus),
       );
 
   @override
   State<CashClipSheet> createState() => _CashClipSheetState();
 }
 
-enum _St { loading, pending, gone, notSealed, failed, ready }
+enum _St { loading, pending, gone, notSealed, failed, ready, none }
 
 class _CashClipSheetState extends State<CashClipSheet> {
   _St _st = _St.loading;
@@ -81,6 +98,9 @@ class _CashClipSheetState extends State<CashClipSheet> {
   // open, so the owner can share the clip even after the server deleted it
   Uint8List? _ct;
   Map<String, dynamic>? _meta;
+  // cctvplay: the phone camera's extras from the envelope (limits + full video)
+  Map<String, dynamic>? _pc;
+  bool _keptForAll = false;
 
   @override
   void initState() {
@@ -88,6 +108,8 @@ class _CashClipSheetState extends State<CashClipSheet> {
     if (widget.preview != null) {
       _clip = widget.preview;
       _st = _St.ready;
+    } else if (widget.previewStatus == 'none') {
+      _st = _St.none; // a phone-camera alert without a preview: full video only
     } else {
       _load();
     }
@@ -110,6 +132,12 @@ class _CashClipSheetState extends State<CashClipSheet> {
     try {
       final env = await widget.source.clip(widget.eventId);
       final status = (env['status'] ?? '').toString();
+      if (env['phonecam'] is Map && mounted) {
+        setState(() {
+          _pc = wmMap(env['phonecam']);
+          _keptForAll = env['delete_on_view'] == false;
+        });
+      }
       if (status == 'pending') {
         if (mounted) setState(() => _st = _St.pending);
         return;
@@ -209,6 +237,8 @@ class _CashClipSheetState extends State<CashClipSheet> {
         body = _note(context, Icons.delete_sweep_outlined, _msg.isNotEmpty ? _msg : t.cgClipGone);
       case _St.notSealed:
         body = _note(context, Icons.key_off_outlined, t.cgClipNotSealed);
+      case _St.none:
+        body = _note(context, Icons.photo_outlined, t.pcpNoPreview);
       case _St.failed:
         body = _note(context, Icons.error_outline_rounded, _msg.isNotEmpty ? _msg : t.cgClipFailed,
             action: OutlinedButton(
@@ -230,7 +260,7 @@ class _CashClipSheetState extends State<CashClipSheet> {
                     ? const SizedBox.shrink()
                     : Image.memory(c.frames[_i], fit: BoxFit.contain, gaplessPlayback: true,
                         errorBuilder: (_, __, ___) => Center(
-                            child: Text(t.cgClipFailed, style: const TextStyle(color: Colors.white)))),
+                            child: Text(t.cgClipFailed, style: AType.bodyMedium.copyWith(color: Colors.white)))),
               ),
             ),
           ),
@@ -256,9 +286,11 @@ class _CashClipSheetState extends State<CashClipSheet> {
           ]),
           const SizedBox(height: 6),
           Text(
-            widget.owner || widget.reportsView
-                ? (_deletedOnServer ? t.cgClipDeletedNow : t.cgClipDeleteOnView)
-                : t.cgClipViewerNote,
+            _keptForAll
+                ? t.pcpPreviewNote(wmDigits(lang, ((_pc?['preview_keep_h'] as num?) ?? 24).toInt()))
+                : widget.owner || widget.reportsView
+                    ? (_deletedOnServer ? t.cgClipDeletedNow : t.cgClipDeleteOnView)
+                    : t.cgClipViewerNote,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           if (widget.owner && widget.extras != null) ...[
@@ -295,6 +327,21 @@ class _CashClipSheetState extends State<CashClipSheet> {
           ]),
           const SizedBox(height: 12),
           body,
+          // cctvplay: the full video from the camera phone, on demand
+          if (widget.phoneSource != null && (_pc != null || _st == _St.none || _st == _St.failed)) ...[
+            const Divider(height: 28),
+            PhoneCamFullVideo(
+              source: widget.phoneSource!,
+              eventId: widget.eventId,
+              initial: _pc == null
+                  ? null
+                  : {
+                      ...wmMap(_pc!['full']),
+                      'clip_s': _pc!['clip_s'],
+                      'keep_h': _pc!['full_keep_h'],
+                    },
+            ),
+          ],
         ]),
       ),
     );

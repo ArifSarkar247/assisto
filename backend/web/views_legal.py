@@ -32,7 +32,7 @@ def _page(request, key, extra=None, status=200):
     i = 0 if lang == "bn" else 1
     ctx = _ctx(request, page_key=key, page_title=meta["title"][i],
                page_desc=meta["desc"][i], sections=LC.render_sections(key, lang),
-               updated=LC.LAST_UPDATED, seo=_seo(meta["path"], lang),
+               updated=meta.get("updated", LC.LAST_UPDATED), seo=_seo(meta["path"], lang),
                self_path=meta["path"])
     ctx.update(extra or {})
     resp = render(request, "web/legal_page.html", ctx, status=status)
@@ -40,8 +40,40 @@ def _page(request, key, extra=None, status=200):
     return resp
 
 
+# privacyupd (owner Play decision 7, 9 Nov): the updated policy goes live only
+# when the owner turns AdminFlagState "privacy_classic" OFF (Owner Admin → Website);
+# until then it is served only at /preview/privacy (noindex, never in the sitemap).
+PRIVACY_V2_FLAG = "privacy_classic"   # ON = classic text; OFF = v2 live
+PRIVACY_PREVIEW = "/preview/privacy"
+
+
+def privacy_v2_live():
+    """Missing row / key / DB trouble -> the current policy (never the preview)."""
+    try:
+        from core.models import AdminFlagState
+        row = AdminFlagState.objects.filter(key="global").first()
+        return bool(row and (row.state or {}).get(PRIVACY_V2_FLAG) is False)
+    except Exception:  # noqa: BLE001 — DB trouble keeps the current policy
+        return False
+
+
 def privacy(request):
-    return _page(request, "privacy")
+    return _page(request, "privacy_v2" if privacy_v2_live() else "privacy")
+
+
+def privacy_preview(request):
+    resp = _page(request, "privacy_v2", extra={"preview": True, "self_path": PRIVACY_PREVIEW})
+    resp["X-Robots-Tag"] = "noindex, nofollow"
+    resp["Cache-Control"] = "no-store"
+    return resp
+
+
+def privacy_flip(actor_id, value):
+    """Go live (True) / roll back (False) through the audited flags engine."""
+    from core.views_build61 import flags_flip
+    reason = ("privacy policy v2 go-live (owner, Owner Admin → Website)" if value else
+              "privacy policy v2 rollback to the previous text (owner, Owner Admin → Website)")
+    return flags_flip(actor_id, PRIVACY_V2_FLAG, not bool(value), reason)
 
 
 def terms(request):
@@ -95,6 +127,32 @@ def admob_publisher_id():
     return ""
 
 
+_APP_ADS_RE = None
+
+
+def app_ads_extra_lines():
+    """Valid app-ads.txt records from the admob integration's
+    `app_ads_extra` (max 20): `domain, account id, DIRECT|RESELLER[, cert]`.
+    Anything else (comments, junk, Google's own test publisher) is dropped."""
+    import re
+    global _APP_ADS_RE
+    if _APP_ADS_RE is None:
+        _APP_ADS_RE = re.compile(
+            r"^[a-z0-9.-]+\.[a-z]{2,}\s*,\s*[A-Za-z0-9._-]{3,64}\s*,\s*(DIRECT|RESELLER)"
+            r"(\s*,\s*[A-Za-z0-9]{6,32})?$", re.I)
+    try:
+        from core import integrations
+        raw = str((integrations.get("admob") or {}).get("app_ads_extra") or "")
+    except Exception:
+        return []
+    out = []
+    for line in re.split(r"[\r\n;]+", raw):
+        line = line.strip()
+        if _APP_ADS_RE.match(line) and "3940256099942544" not in line and line not in out:
+            out.append(line)
+    return out[:20]
+
+
 def app_ads_txt(request):
     """lifeassisto.com/app-ads.txt (nginx proxies every path to Django).
     text/plain, short cache. No publisher id stored -> 404 (not an empty
@@ -107,6 +165,11 @@ def app_ads_txt(request):
         return resp
     body = ("# app-ads.txt for lifeassisto.com (Assisto)\n"
             + APP_ADS_LINE.format(pub=pub) + "\n")
+    # adcontrol (owner 10 Nov part F): the mediation partners' lines the
+    # owner pasted (Owner Admin -> Integrations -> Google AdMob)
+    extra = app_ads_extra_lines()
+    if extra:
+        body += "# mediation partners (AdMob bidding)\n" + "\n".join(extra) + "\n"
     resp = HttpResponse(body, content_type="text/plain; charset=utf-8")
     # short: a publisher id changed in Owner Admin shows within 10 minutes
     resp["Cache-Control"] = "public, max-age=600"
@@ -114,23 +177,27 @@ def app_ads_txt(request):
 
 
 # ---------------------------------------------------------------- sitemap
-SITEMAP_PATHS = ["/", "/pricing", "/security", "/help", "/khata-free", "/cv", "/scam", "/photo", "/festival", "/made30", "/get",
-                 "/privacy", "/terms", "/delete-account", "/refund-policy"]
+# seo (17 Nov): one public-page list for sitemap + canonical (web/seo.py);
+# /features* only once v3 is live (sitemap_extra).
+from .seo import PUBLIC_PATHS
+SITEMAP_PATHS = [p for p in PUBLIC_PATHS if not p.startswith("/features")]
 
 
 def sitemap_xml(request):
     site = _site()
     rows = []
     from .views_site3 import sitemap_extra   # sitev3: only once v3 is live
-    for p in SITEMAP_PATHS + sitemap_extra():
+    from .blog import sitemap_paths as blog_paths   # seoblog: published posts only
+    for p in SITEMAP_PATHS + sitemap_extra() + blog_paths():
         bn = site + p
         en = site + p + "?lang=en"
         for loc in (bn, en):
             rows.append(
                 "  <url><loc>%s</loc>"
                 "<xhtml:link rel=\"alternate\" hreflang=\"bn\" href=\"%s\"/>"
-                "<xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"%s\"/></url>"
-                % (loc.replace("&", "&amp;"), bn, en.replace("&", "&amp;")))
+                "<xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"%s\"/>"
+                "<xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"%s\"/></url>"
+                % (loc.replace("&", "&amp;"), bn, en.replace("&", "&amp;"), bn))
     body = ('<?xml version="1.0" encoding="UTF-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
             'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
