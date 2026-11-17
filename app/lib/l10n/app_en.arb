@@ -52413,5 +52413,29 @@
   "sosgapOpenFull": "Who is on the way · live location · 30 s sound",
   "@sosgapOpenFull": {
     "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
+  },
+  "d3SendSmsShort": "Send SMS",
+  "@d3SendSmsShort": {
+    "description": "design3: short label of the Safe Journey live SMS button (fits one line beside Stop)"
+  },
+  "d3BizDaily": "Every day",
+  "@d3BizDaily": {
+    "description": "design3: My Business hub section header"
+  },
+  "d3BizCustomers": "Customers & selling",
+  "@d3BizCustomers": {
+    "description": "design3: My Business hub section header"
+  },
+  "d3BizMoney": "Money & reports",
+  "@d3BizMoney": {
+    "description": "design3: My Business hub section header"
+  },
+  "d3BizStock": "Stock & suppliers",
+  "@d3BizStock": {
+    "description": "design3: My Business hub section header"
+  },
+  "d3BizTeam": "Team & settings",
+  "@d3BizTeam": {
+    "description": "design3: My Business hub section header"
   }
 }
