@@ -207,8 +207,19 @@ class Peer extends ChangeNotifier {
         media?.cameraBlocked = false;
         if (!c.cameraOn || (media?.cameraUnavailable ?? false)) await c.toggleCamera();
         await _until('B camera on', () => c.cameraOn ? true : null, 15);
-        _set('camera ON');
-        return {'cameraOn': c.cameraOn, 'cameraUnavailable': media?.cameraUnavailable};
+        // calls-2emu run 44181263539: the emulated camera needs ~3 s to deliver
+        // its first frame; report when B's encoder really produces frames so
+        // A times the TRANSPORT (and the warm-up is a number of its own).
+        final sw = Stopwatch()..start();
+        var enc = 0;
+        while (sw.elapsed < const Duration(seconds: 12)) {
+          enc = (await c.media.stats()).videoFramesEncoded ?? 0;
+          if (enc > 0) break;
+          await Future<void>.delayed(const Duration(milliseconds: 250));
+        }
+        _set('camera ON (first encoded frame after ${sw.elapsedMilliseconds} ms)');
+        return {'cameraOn': c.cameraOn, 'cameraUnavailable': media?.cameraUnavailable,
+            'framesEncoded': enc, 'firstFrameMs': enc > 0 ? sw.elapsedMilliseconds : null};
       }
       case 'cameraOff': {
         final c = _need();

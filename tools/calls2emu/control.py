@@ -49,12 +49,15 @@ def _rec(case, on):
     case = SAFE.sub("_", case)[:40] or "case"
     if on:
         procs = []
-        for s in SERIALS:
-            # screenrecord stops by itself after 170 s; stop() ends it earlier
+        os.makedirs(os.path.join(OUT, "videos"), exist_ok=True)
+        for s, side in zip(SERIALS, "AB"):
+            # screenrecord stops by itself after 170 s; stop() ends it earlier.
+            # Its own output is kept (run 44181263539 produced no video, no reason).
+            lg = open(os.path.join(OUT, "videos", "rec_%s_%s.log" % (case, side)), "w")
             procs.append(subprocess.Popen(
-                ["timeout", "200", "adb", "-s", s, "shell", "screenrecord", "--time-limit", "170",
-                 "--size", "540x1200", "--bit-rate", "2000000", "/sdcard/c2e_%s.mp4" % case],
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL))
+                ["timeout", "200", "adb", "-s", s, "shell", "screenrecord", "--verbose",
+                 "--time-limit", "170", "/sdcard/c2e_%s.mp4" % case],
+                stdout=lg, stderr=subprocess.STDOUT))
         REC[case] = procs
         return {"recording": case}
     for s in SERIALS:
@@ -70,8 +73,9 @@ def _rec(case, on):
     for s, side in zip(SERIALS, "AB"):
         dst = os.path.join(OUT, "videos", "%s_%s.mp4" % (case, side))
         time.sleep(1)
-        subprocess.run(["timeout", "60", "adb", "-s", s, "pull", "/sdcard/c2e_%s.mp4" % case, dst],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        with open(os.path.join(OUT, "videos", "rec_%s_%s.log" % (case, side)), "a") as lg:
+            subprocess.run(["timeout", "60", "adb", "-s", s, "pull", "/sdcard/c2e_%s.mp4" % case, dst],
+                           stdout=lg, stderr=subprocess.STDOUT)
         subprocess.run(["timeout", "15", "adb", "-s", s, "shell", "rm", "-f", "/sdcard/c2e_%s.mp4" % case],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         if os.path.exists(dst) and os.path.getsize(dst) > 0:

@@ -217,6 +217,31 @@ class _TwoEmu {
     if (!audioOk) throw TestFailure('audio NOT flowing both ways. $line');
   }
 
+  /// B just turned its camera on: B's encoder must produce frames within 12 s
+  /// and A must decode B's first frame within 12 s of B's camera tap (the
+  /// time a user waits for the other person's picture). Numbers in the note.
+  Future<void> bCameraOnAndFirstFrame(String kase) async {
+    final sw = Stopwatch()..start();
+    final r = await b('cameraOn', const {}, 30);
+    if (r['cameraOn'] != true || r['cameraUnavailable'] == true) {
+      throw TestFailure('$kase: B camera did not turn on: $r');
+    }
+    if (((r['framesEncoded'] as num?) ?? 0) <= 0) {
+      throw TestFailure('$kase: B camera on but its encoder made no frame in 12 s: $r');
+    }
+    int dec = 0;
+    while (sw.elapsed < const Duration(seconds: 12)) {
+      dec = (await f.net(() => a.media.stats())).videoFramesDecoded ?? 0;
+      if (dec > 0) break;
+      await f.tester.pump(const Duration(milliseconds: 300));
+    }
+    f.note('$kase: B camera on -> B first encoded frame ${r['firstFrameMs']} ms, '
+        'A first decoded frame ${dec > 0 ? '${sw.elapsedMilliseconds} ms' : 'NONE in 12 s'}');
+    if (dec <= 0) {
+      throw TestFailure('$kase: B turned its camera on but A decoded no frame of it in 12 s ($r)');
+    }
+  }
+
   Future<void> aHangsUp() async {
     await f.tap(find.byKey(const Key('call-hangup')), settleSeconds: 3);
     await b('waitEnded', const {}, 30);
@@ -266,10 +291,8 @@ void registerCallsTwoEmuFlows() {
         await f.shot('b-caller-camera-off');
       });
       await f.step('camera off: A\'s video still reaches B', () => e.prove('b_off', bToA: false));
-      await f.step('B turns its camera ON mid-call', () async {
-        final r = await e.b('cameraOn', const {}, 30);
-        if (r['cameraOn'] != true) throw TestFailure('B camera did not turn on: $r');
-      });
+      await f.step('B turns its camera ON mid-call; A sees B\'s first frame within 12 s',
+          () => e.bCameraOnAndFirstFrame('b_on'));
       await f.step('video both ways after camera on', () => e.prove('b_on'));
       await f.step('B hangs up', () async {
         await e.b('hangup', const {}, 30);
@@ -330,12 +353,8 @@ void registerCallsTwoEmuFlows() {
         await f.shot('d-b-no-camera');
       });
       await f.step('no camera on B: A->B video + audio both ways still flow', () => e.prove('d_nocam', bToA: false));
-      await f.step('B\'s camera becomes available and turns on', () async {
-        final r = await e.b('cameraOn', const {}, 30);
-        if (r['cameraOn'] != true || r['cameraUnavailable'] == true) {
-          throw TestFailure('B camera did not recover: $r');
-        }
-      });
+      await f.step('B\'s camera becomes available and turns on; A sees it within 12 s',
+          () => e.bCameraOnAndFirstFrame('d_back'));
       await f.step('video both ways after the camera came back', () => e.prove('d_back'));
       await f.step('A hangs up', e.aHangsUp);
     });
