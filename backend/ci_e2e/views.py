@@ -335,3 +335,30 @@ class SjSimView(APIView):
         return {"no": t["no"], "name": t.get("name", ""), "date": day.isoformat(),
                 "accepted": acc, "sharers": v.get("sharers"), "mode": v.get("mode"),
                 "true_chainage_m": round(true_ch), "error_m": None if err is None else round(err)}
+
+
+# ---------------------------------------------------------------- train-e2e
+class TrainSimView(APIView):
+    """train-e2e: fake clock + scripted riders for the Train Tracker E2E
+    (ci_e2e/train_sim.py). Every rider point still goes through the real
+    /train endpoints; this only generates points and reads back state."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from . import train_sim as TSIM
+        d = request.data or {}
+        op = str(d.get("op") or "")
+        fn = TSIM.OPS.get(op)
+        if fn is None:
+            return Response({"ok": False, "reason": "unknown_op", "ops": sorted(TSIM.OPS)},
+                            status=400)
+        try:
+            with _TICK_LOCK:
+                out = fn(d)
+        except (ValueError, KeyError) as e:
+            return Response({"ok": False, "reason": str(e)[:200]}, status=400)
+        if out.get("ok") is False:
+            return Response(out, status=409)
+        fakes.record("train_sim", op=op, out={k: v for k, v in out.items()
+                                              if k not in ("riders", "outlier", "stations")})
+        return Response(dict(out, ok=True))

@@ -548,3 +548,56 @@ class TrainOutbox extends ValueNotifier<int> {
     return sent;
   }
 }
+
+/// train-e2e: the train list with NO internet. Before, the list said "could
+/// not load" and the offline pack's timetables were unreachable (a dead
+/// end); now the same rows come from the pack on the phone. [q] matches the
+/// number (Bangla digits too), either name or any stop, like the server.
+List<Map<String, dynamic>> trainOfflineSearch(TrainOfflinePack p, String q, {int limit = 60}) {
+  const bnDigits = '০১২৩৪৫৬৭৮৯';
+  final norm = q.trim().toLowerCase().split('').map((c) {
+    final i = bnDigits.indexOf(c);
+    return i >= 0 ? '$i' : c;
+  }).join();
+  String hm(int m) {
+    final x = ((m % 1440) + 1440) % 1440;
+    return '${(x ~/ 60).toString().padLeft(2, '0')}:${(x % 60).toString().padLeft(2, '0')}';
+  }
+
+  final out = <Map<String, dynamic>>[];
+  for (final t in p.trains.values) {
+    if (t.stops.isEmpty) continue;
+    final names = [
+      t.no.toLowerCase(),
+      t.nameBn.toLowerCase(),
+      t.nameEn.toLowerCase(),
+      for (final s in t.stops) ...[s.bn.toLowerCase(), s.en.toLowerCase()],
+    ];
+    if (norm.isNotEmpty && !names.any((n) => n.isNotEmpty && n.contains(norm))) continue;
+    final a = t.stops.first, b = t.stops.last;
+    out.add({
+      'no': t.no,
+      'name_bn': t.nameBn,
+      'name_en': t.nameEn,
+      'from': {'id': a.id, 'bn': a.bn, 'en': a.en},
+      'to': {'id': b.id, 'bn': b.bn, 'en': b.en},
+      'dep': hm(t.depMin + a.depMin),
+      'arr': hm(t.depMin + b.arrMin),
+      // back to the server's numbers (0 = Monday) for the same row widget
+      'off_days': [for (final d in t.offDays) d - 1]..sort(),
+      'suspended': t.suspended,
+      'approved': true,
+      'offline': true,
+    });
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+/// train-e2e: the train's name in the reader's language (the list and the
+/// header showed the Bangla name in the English app).
+String trainNameOf(Map? tr, bool bn) {
+  if (tr == null) return '';
+  final b = '${tr['name_bn'] ?? ''}', e = '${tr['name_en'] ?? ''}';
+  return bn && b.isNotEmpty ? b : (e.isNotEmpty ? e : b);
+}

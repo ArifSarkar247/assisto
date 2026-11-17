@@ -14,4 +14,5 @@ urlpatterns = [
     path("api/v1/ci-e2e/imou/h5", views.FakeImouH5View.as_view()),
     path("api/v1/ci-e2e/imou/h5/allow", views.FakeImouAllowView.as_view()),
     path("api/v1/ci-e2e/sj-sim", views.SjSimView.as_view()),   # sjproof
+    path("api/v1/ci-e2e/train-sim", views.TrainSimView.as_view()),   # train-e2e
 ] + list(_base)

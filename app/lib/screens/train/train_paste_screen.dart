@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../api.dart'; // train-e2e: ApiException
 import '../../ds/ds.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
@@ -120,6 +121,16 @@ class _TrainPasteScreenState extends State<TrainPasteScreen> {
       } else {
         ok = true;
         msg = r['applied'] == true ? t.tr2TextApplied : t.tr2TextChecking;
+      }
+    } on ApiException catch (e) {
+      // train-e2e: the server answered "no" (too many reports, switch off) —
+      // never "saved, sent later" for a report the outbox would then drop
+      if ((e.status ?? 500) >= 500) {
+        await TrainOutbox.I.add(TrainOutItem('text', widget.no ?? _preview?.no ?? '', body));
+        ok = true;
+        msg = t.tr2Queued;
+      } else {
+        msg = t.tr2ReportNotTaken;
       }
     } catch (_) {
       // no internet: kept on the phone, sent later (never lost)

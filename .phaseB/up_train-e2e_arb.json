@@ -1,0 +1,11 @@
+{
+ "en": {
+  "tr2ReportNotTaken": "Not counted — please try again later",
+  "@tr2ReportNotTaken": {
+   "description": "train-e2e: the server refused a station report or a shared train text (too many reports, wrong station); shown instead of 'saved, sent later'"
+  }
+ },
+ "bn": {
+  "tr2ReportNotTaken": "গণনা হয়নি — একটু পরে আবার চেষ্টা করুন"
+ }
+}

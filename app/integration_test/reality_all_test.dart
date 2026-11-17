@@ -37,6 +37,7 @@ import 'flows/safe_journey_flow.dart';
 import 'flows/sos_journey_flow.dart'; // qjourney
 import 'flows/journey_v2_flow.dart'; // qjourney
 import 'flows/sj_proof_flow.dart'; // sjproof
+import 'flows/train_proof_flow.dart'; // train-e2e
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
 import 'flows/lp_flow.dart'; // gap-lp
@@ -85,6 +86,8 @@ void main() {
   if (only.split(',').contains('camflows')) registerCamflowsFlows();
   // sjproof: Safe Journey V2 proof needs settings_e2eproof's sj-sim + fakes -> opt-in (e2e.yml start+sjproof)
   if (only.split(',').contains('sjproof')) registerSjProofFlows();
+  // train-e2e: Train Tracker E2E needs settings_e2eproof's train-sim + Redis -> opt-in (train-e2e.yml)
+  if (only.split(',').contains('trainproof')) registerTrainProofFlows();
   // ai-reply-core: My Circle AI reply needs the e2e fake AI + flag -> opt-in (REALITY_ONLY=aireply)
   if (only.split(',').contains('aireply')) registerAiReplyFlows();
   // offline1st: the offline proof (real airplane mode) — nightly with the

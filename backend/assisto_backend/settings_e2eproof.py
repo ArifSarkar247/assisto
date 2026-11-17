@@ -47,3 +47,7 @@ if os.getenv("E2E_REAL_FCM") == "1":
     FCM_TOKEN_URI = os.environ["E2E_FCM_TOKEN_URI"]
     FCM_SEND_URL = os.environ["E2E_FCM_SEND_URL"]
     PUSH_SYNC = True
+
+# train-e2e: the Train Tracker E2E (train-e2e.yml) runs a real Redis service
+# for the live state (`train:live:<no>`); every other e2e keeps the cache.
+TRAIN_LIVE_REDIS_URL = os.getenv("TRAIN_LIVE_REDIS_URL", "")

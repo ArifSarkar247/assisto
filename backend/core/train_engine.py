@@ -58,6 +58,10 @@ FUTURE_SLACK_S = 60
 RECOMPUTE_EVERY_S = 10
 OBS_FRESH_MIN = 30
 NEAR_STATION_M = 500.0
+# train-e2e: a phone whose own good fix is this far from the station cannot
+# have seen the train there (40 km = ~30 min of a fast train, more than the
+# 30-minute report window) -> "not counted", and it never helps others agree.
+FAR_STATION_M = 40000.0
 CHECKIN_MATCH_MIN = 10
 CHECKIN_PER_DAY = 20
 CHECKIN_POINTS = 5
@@ -78,13 +82,25 @@ NOTE_EN = "Estimated from timetable"
 # ------------------------------------------------------------ live store (Redis)
 class LiveStore:
     """Redis (settings.TRAIN_LIVE_REDIS_URL, redis-py) with a fallback to the
-    Django cache when the URL is empty (tests) or Redis is unreachable."""
+    Django cache when the URL is empty (tests) or Redis is unreachable.
+    train-e2e: after a Redis failure the store uses the cache for
+    DOWN_FOR_S (a breaker) — before, every call waited for the 0.5 s socket
+    timeout again, so a stopped Redis made each ping/read seconds slower."""
     _client = None
     _url = None
+    _down_until = 0.0
+    DOWN_FOR_S = 30.0
+
+    def _failed(self):
+        import time  # noqa: PLC0415
+        LiveStore._down_until = time.monotonic() + self.DOWN_FOR_S
 
     def _redis(self):
         url = getattr(settings, "TRAIN_LIVE_REDIS_URL", "") or ""
         if not url:
+            return None
+        import time  # noqa: PLC0415
+        if LiveStore._down_until and time.monotonic() < LiveStore._down_until:
             return None
         if LiveStore._client is None or LiveStore._url != url:
             try:
@@ -103,6 +119,7 @@ class LiveStore:
                 raw = r.get(key)
                 return json.loads(raw) if raw else None
             except Exception:   # noqa: BLE001
+                self._failed()
                 log.warning("train-engine: redis get failed, using the cache")
         return cache.get(key)
 
@@ -114,6 +131,7 @@ class LiveStore:
                 r.set(key, raw, ex=int(ttl))
                 return
             except Exception:   # noqa: BLE001
+                self._failed()
                 log.warning("train-engine: redis set failed, using the cache")
         cache.set(key, json.loads(raw), int(ttl))
 
@@ -124,7 +142,7 @@ class LiveStore:
             try:
                 return bool(r.set(key, b"1", nx=True, ex=int(ttl)))
             except Exception:   # noqa: BLE001
-                pass
+                self._failed()
         return cache.add(key, 1, int(ttl))
 
     def incr(self, key, ttl):
@@ -136,7 +154,7 @@ class LiveStore:
                     r.expire(key, int(ttl))
                 return int(n)
             except Exception:   # noqa: BLE001
-                pass
+                self._failed()
         if cache.add(key, 1, int(ttl)):
             return 1
         try:
@@ -151,7 +169,7 @@ class LiveStore:
             try:
                 r.delete(key)
             except Exception:   # noqa: BLE001
-                pass
+                self._failed()
         cache.delete(key)
 
 
@@ -509,17 +527,23 @@ def checkin(user, t, d, sid, kind, at=None, lat=None, lng=None, acc=None, now=No
         return {"ok": True, "status": old.status, "reason": "already", "points": old.points}
     if _limited(user, "checkin", CHECKIN_PER_DAY, 86400):
         return {"ok": False, "status": "rejected", "reason": "rate_limited", "points": 0}
-    near = False
+    near = far = False
     la, ln, ac = _num(lat), _num(lng), _num(acc)
     if la is not None and ln is not None and st.get("lat") is not None and (ac or 0) <= 200:
-        near = L.haversine_m(la, ln, float(st["lat"]), float(st["lng"])) <= NEAR_STATION_M
+        dist = L.haversine_m(la, ln, float(st["lat"]), float(st["lng"]))
+        near = dist <= NEAR_STATION_M
+        far = dist > FAR_STATION_M
+    if far:
+        TrainCheckin.objects.create(user=user, train_no=t["no"], service_date=d, station=sid,
+                                    kind=kind, at=at, near=False, status="rejected")
+        return {"ok": True, "status": "rejected", "reason": "far_from_station", "points": 0}
     win = timedelta(minutes=CHECKIN_MATCH_MIN)
     with transaction.atomic():
         me = TrainCheckin.objects.create(user=user, train_no=t["no"], service_date=d,
                                          station=sid, kind=kind, at=at, near=near)
         others = list(TrainCheckin.objects.select_for_update().filter(
             train_no=t["no"], service_date=d, station=sid, kind=kind,
-            at__gte=at - win, at__lte=at + win).exclude(user=user))
+            at__gte=at - win, at__lte=at + win).exclude(user=user).exclude(status="rejected"))
         matched = bool(others) or _gps_agrees(t, sid, at)
         if near or others:
             newly = [me] + [o for o in others if o.status != "accepted"]
@@ -791,13 +815,35 @@ def onboard_check(t, d, points, now=None):
 
 
 # ------------------------------------------------------------ H: live state
+def _dirty_key(no):
+    return "train:dirty:%s" % no
+
+
 def maybe_recompute(t, d, now=None, force=False):
     if force or STORE.add("train:lock:%s" % t["no"], RECOMPUTE_EVERY_S):
         try:
             return recompute(t, d, now)
         except Exception:   # noqa: BLE001 — the live state must never break ingest
             log.exception("train-engine: recompute failed for %s", t["no"])
+        return None
+    # train-e2e: a point inside the 10 s lock window used to wait for the
+    # next ping or the minute tick (up to ~60 s ping-to-live); now the next
+    # READ of this train recomputes once (see _catch_up).
+    STORE.set(_dirty_key(t["no"]), d.isoformat(), 2 * L.FRESH_S)
     return None
+
+
+def _catch_up(t, d, now):
+    """Recompute once when points arrived inside the lock window (one reader
+    at a time does it; the rest read the state as it is)."""
+    k = _dirty_key(t["no"])
+    if STORE.get(k) != d.isoformat() or not STORE.add(k + ":go", 5):
+        return
+    try:
+        STORE.delete(k)
+        maybe_recompute(t, d, now, force=True)
+    finally:
+        STORE.delete(k + ":go")
 
 
 def _riders(t, d, now):
@@ -950,6 +996,7 @@ def _age(state, now):
 def read(t, d, now=None):
     """The tiny public payload for the app (no rider data, no ids)."""
     now = now or timezone.now()
+    _catch_up(t, d, now)
     st = STORE.get(live_key(t["no"]))
     if st and st.get("date") == d.isoformat():
         age = _age(st, now)
@@ -1040,6 +1087,7 @@ def enrich_live_view(view, t, d, now=None):
         view["freshness"] = dict(r["freshness"], note_bn=NOTE_BN, note_en=NOTE_EN)
         return view
     if r["mode"] == "predicted":           # learned usual delay — never "live"
+        _engine_line(view, t, d, r.get("ch"), now, r["delay_min"])
         view["predicted"] = {"delay_min": r["delay_min"], "chainage_m": r.get("ch"),
                              "basis_n": r.get("learned_from", 0), "lat": r["lat"],
                              "lng": r["lng"], "next": r["next"], "confidence": r["confidence"]}
@@ -1055,6 +1103,11 @@ def enrich_live_view(view, t, d, now=None):
                 except ValueError:
                     pass
         return view
+    # train-e2e: the station line follows the ENGINE (riders' consensus with
+    # outliers dropped, or a check-in / shared text) — before, it stayed at
+    # the v1 timetable estimate when the riders came through /train/ping,
+    # so the chip said "Live" while the train icon sat somewhere else.
+    _engine_line(view, t, d, r.get("ch"), now, r["delay_min"])
     if r["mode"] == "reported":            # check-ins / shared text only: low confidence
         view["reported"] = {"km": r["km"], "lat": r["lat"], "lng": r["lng"], "source": r["src"],
                             "confidence": r["confidence"], "age_s": r["freshness"]["age_s"],
@@ -1074,6 +1127,13 @@ def enrich_live_view(view, t, d, now=None):
     live.update(speed_kmh=r["speed_kmh"], confidence=r["confidence"],
                 contributors=r["contributors"], source=r["src"],
                 eta_next=(r["next"] or {}).get("eta"))
+    if r["mode"] == "live":
+        # one position and one rider count everywhere on the screen: the
+        # engine's (a v1 share the engine rejected as an outlier no longer
+        # counts as "N passengers sharing live")
+        live.update(chainage_m=r.get("ch"), lat=r["lat"], lng=r["lng"],
+                    sharers=r["contributors"], age_s=r["freshness"]["age_s"])
+        view["sharers"] = r["contributors"]
     if r["delay_min"] is not None:
         view["delay_min"] = r["delay_min"]
     delays = {e[0]: e[2] for e in r["etas"]}
@@ -1086,6 +1146,18 @@ def enrich_live_view(view, t, d, now=None):
         if r["checkins"].get(sid):
             s["checkins"] = r["checkins"][sid]
     return view
+
+
+def _engine_line(view, t, d, ch, now, delay):
+    if ch is None:
+        return
+    tg = TG.train(t["no"])
+    if tg is None:
+        return
+    try:
+        view["line"] = TG.line_view(tg, d, float(ch), now, delay_min=delay)
+    except Exception:   # noqa: BLE001 — never break the v1 view
+        log.exception("train-engine: line rebuild failed for %s", t["no"])
 
 
 # ------------------------------------------------------------ offline pack (towers)

@@ -545,7 +545,10 @@ class CheckinTests(EngineBase):
         self.st = SRC.stations()[IBRAHIMABAD]
 
     def ci(self, u, near=True, minutes=125, kind="reached"):
-        lat, lng = (self.st["lat"], self.st["lng"]) if near else (23.0, 90.0)
+        # not near = ~5 km away (still a plausible eyewitness; train-e2e:
+        # 40+ km away is "not counted", see TrainE2EFixTests)
+        lat, lng = (self.st["lat"], self.st["lng"]) if near else (self.st["lat"] + 0.045,
+                                                                  self.st["lng"])
         return TE.checkin(u, self.t, DAY, IBRAHIMABAD, kind, _at(minutes).isoformat(), lat, lng, 20,
                           now=_at(minutes) + timedelta(seconds=30))
 
