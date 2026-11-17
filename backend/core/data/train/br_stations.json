@@ -31,7 +31,14 @@
 "method": "west zone: text layer of the official PDF (legacy Bangla font decoded by tools/train/br/bijoy_fix.py, table grid by gridlib.py); east zone: hand transcription of the scanned official PDF; per-stop times are the official 'abbreviated schedule' (major stops) for intercity trains, mail/commuter/local trains have official origin + destination times only",
 "not_included": "freight/container trains (601-608), the 19 west-zone departmental/PNV services, unnumbered suspended DEMU commuters (Nazirhat, Chittagong University, Kaliakair, Narayanganj DEMU) — listed in owner_actions/TRAIN_TRACKER_V2_BN.md",
 "weekday": "off_days: 0=Monday … 6=Sunday",
-"built_by": "tools/train/br/compile_official.py"
+"built_by": "tools/train/br/compile_official.py",
+"cross_check": "station-page times that differ from the abbreviated schedule (kept: schedule)",
+"cross_check_diffs": [
+"706 পার্বতীপুর dep: schedule 23:55, station page 00:10",
+"731 পার্বতীপুর dep: schedule 19:45, station page 19:55",
+"764 ঈশ্বরদী dep: schedule 23:55, station page 00:05",
+"765 সান্তাহার arr: schedule 11:55, station page 12:00"
+]
 }
 },
 "stations": [

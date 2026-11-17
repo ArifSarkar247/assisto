@@ -31,7 +31,14 @@
 "method": "west zone: text layer of the official PDF (legacy Bangla font decoded by tools/train/br/bijoy_fix.py, table grid by gridlib.py); east zone: hand transcription of the scanned official PDF; per-stop times are the official 'abbreviated schedule' (major stops) for intercity trains, mail/commuter/local trains have official origin + destination times only",
 "not_included": "freight/container trains (601-608), the 19 west-zone departmental/PNV services, unnumbered suspended DEMU commuters (Nazirhat, Chittagong University, Kaliakair, Narayanganj DEMU) — listed in owner_actions/TRAIN_TRACKER_V2_BN.md",
 "weekday": "off_days: 0=Monday … 6=Sunday",
-"built_by": "tools/train/br/compile_official.py"
+"built_by": "tools/train/br/compile_official.py",
+"cross_check": "station-page times that differ from the abbreviated schedule (kept: schedule)",
+"cross_check_diffs": [
+"706 পার্বতীপুর dep: schedule 23:55, station page 00:10",
+"731 পার্বতীপুর dep: schedule 19:45, station page 19:55",
+"764 ঈশ্বরদী dep: schedule 23:55, station page 00:05",
+"765 সান্তাহার arr: schedule 11:55, station page 12:00"
+]
 }
 },
 "trains": [
@@ -9729,12 +9736,30 @@
 "km": 0.0
 },
 {
+"st": "ঈশ্বরদী",
+"arr": "18:00",
+"dep": "18:20",
+"src": "official",
+"note": "official station timetable (ঈশ্বরদী)",
+"station": "ishwardi",
+"km": 206.8
+},
+{
+"st": "রাজশাহী",
+"arr": "19:55",
+"dep": "20:05",
+"src": "official",
+"note": "official station timetable (রাজশাহী)",
+"station": "rajshahi",
+"km": 265.5
+},
+{
 "st": "চাঁপাইনবাবগঞ্জ",
 "arr": "22:00",
 "dep": null,
 "src": "official",
 "station": "chapainawabganj",
-"km": 308.8
+"km": 314.8
 }
 ],
 "source": {
@@ -9766,12 +9791,21 @@
 "km": 0.0
 },
 {
+"st": "রাজশাহী",
+"arr": "10:00",
+"dep": "10:30",
+"src": "official",
+"note": "official station timetable (রাজশাহী)",
+"station": "rajshahi",
+"km": 49.2
+},
+{
 "st": "ঈশ্বরদী",
 "arr": "12:40",
 "dep": null,
 "src": "official",
 "station": "ishwardi",
-"km": 107.2
+"km": 108.0
 }
 ],
 "source": {
@@ -9803,12 +9837,30 @@
 "km": 0.0
 },
 {
+"st": "ঈশ্বরদী",
+"arr": "16:45",
+"dep": "17:05",
+"src": "official",
+"note": "official station timetable (ঈশ্বরদী)",
+"station": "ishwardi",
+"km": 204.3
+},
+{
+"st": "রাজশাহী",
+"arr": "18:55",
+"dep": "19:15",
+"src": "official",
+"note": "official station timetable (রাজশাহী)",
+"station": "rajshahi",
+"km": 263.1
+},
+{
 "st": "চাঁপাইনবাবগঞ্জ",
 "arr": "21:00",
 "dep": null,
 "src": "official",
 "station": "chapainawabganj",
-"km": 311.5
+"km": 312.3
 }
 ],
 "source": {
@@ -9840,12 +9892,30 @@
 "km": 0.0
 },
 {
+"st": "রাজশাহী",
+"arr": "07:55",
+"dep": "08:05",
+"src": "official",
+"note": "official station timetable (রাজশাহী)",
+"station": "rajshahi",
+"km": 63.6
+},
+{
+"st": "ঈশ্বরদী",
+"arr": "09:45",
+"dep": "10:05",
+"src": "official",
+"note": "official station timetable (ঈশ্বরদী)",
+"station": "ishwardi",
+"km": 122.3
+},
+{
 "st": "খুলনা",
 "arr": "16:40",
 "dep": null,
 "src": "official",
 "station": "khulna",
-"km": 325.9
+"km": 326.6
 }
 ],
 "source": {
@@ -10025,6 +10095,24 @@
 "km": 0.0
 },
 {
+"st": "ঈশ্বরদী",
+"arr": "15:25",
+"dep": "15:45",
+"src": "official",
+"note": "official station timetable (ঈশ্বরদী)",
+"station": "ishwardi",
+"km": 204.3
+},
+{
+"st": "সান্তাহার",
+"arr": "18:20",
+"dep": "18:30",
+"src": "official",
+"note": "official station timetable (সান্তাহার)",
+"station": "santahar",
+"km": 283.3
+},
+{
 "st": "পার্বতীপুর",
 "arr": "21:10",
 "dep": null,
@@ -10060,6 +10148,24 @@
 "src": "official",
 "station": "parbatipur",
 "km": 0.0
+},
+{
+"st": "সান্তাহার",
+"arr": "11:45",
+"dep": "12:15",
+"src": "official",
+"note": "official station timetable (সান্তাহার)",
+"station": "santahar",
+"km": 96.2
+},
+{
+"st": "ঈশ্বরদী",
+"arr": "17:00",
+"dep": "17:20",
+"src": "official",
+"note": "official station timetable (ঈশ্বরদী)",
+"station": "ishwardi",
+"km": 175.3
 },
 {
 "st": "খুলনা",
@@ -10245,6 +10351,15 @@
 "src": "official",
 "station": "parbatipur",
 "km": 0.0
+},
+{
+"st": "সান্তাহার",
+"arr": "06:00",
+"dep": "06:10",
+"src": "official",
+"note": "official station timetable (সান্তাহার)",
+"station": "santahar",
+"km": 96.2
 },
 {
 "st": "রাজশাহী",
@@ -10438,12 +10553,21 @@
 "km": 0.0
 },
 {
+"st": "রাজশাহী",
+"arr": "09:00",
+"dep": "09:10",
+"src": "official",
+"note": "official station timetable (রাজশাহী)",
+"station": "rajshahi",
+"km": 58.8
+},
+{
 "st": "রহনপুর",
 "arr": "11:10",
 "dep": null,
 "src": "official",
 "station": "rohanpur",
-"km": 121.6
+"km": 122.3
 }
 ],
 "source": {
@@ -10477,12 +10601,21 @@
 "km": 0.0
 },
 {
+"st": "রাজশাহী",
+"arr": "18:40",
+"dep": "19:00",
+"src": "official",
+"note": "official station timetable (রাজশাহী)",
+"station": "rajshahi",
+"km": 63.6
+},
+{
 "st": "ঈশ্বরদী",
 "arr": "20:40",
 "dep": null,
 "src": "official",
 "station": "ishwardi",
-"km": 121.6
+"km": 122.3
 }
 ],
 "source": {
@@ -10588,12 +10721,21 @@
 "km": 0.0
 },
 {
+"st": "পার্বতীপুর",
+"arr": "08:45",
+"dep": "09:20",
+"src": "official",
+"note": "official station timetable (পার্বতীপুর)",
+"station": "parbatipur",
+"km": 70.8
+},
+{
 "st": "বিরল",
 "arr": "10:50",
 "dep": null,
 "src": "official",
 "station": "biral",
-"km": 110.1
+"km": 111.1
 }
 ],
 "source": {
@@ -10625,12 +10767,21 @@
 "km": 0.0
 },
 {
+"st": "পার্বতীপুর",
+"arr": "12:25",
+"dep": "12:45",
+"src": "official",
+"note": "official station timetable (পার্বতীপুর)",
+"station": "parbatipur",
+"km": 40.3
+},
+{
 "st": "লালমনিরহাট",
 "arr": "14:50",
 "dep": null,
 "src": "official",
 "station": "lalmonirhat",
-"km": 110.1
+"km": 111.1
 }
 ],
 "source": {
@@ -11907,6 +12058,15 @@
 "km": 0.0
 },
 {
+"st": "পার্বতীপুর",
+"arr": "17:15",
+"dep": "17:35",
+"src": "official",
+"note": "official station timetable (পার্বতীপুর)",
+"station": "parbatipur",
+"km": 96.2
+},
+{
 "st": "পঞ্চগড়",
 "arr": "22:05",
 "dep": null,
@@ -11942,6 +12102,15 @@
 "src": "official",
 "station": "panchagarh",
 "km": 0.0
+},
+{
+"st": "পার্বতীপুর",
+"arr": "13:55",
+"dep": "14:25",
+"src": "official",
+"note": "official station timetable (পার্বতীপুর)",
+"station": "parbatipur",
+"km": 133.0
 },
 {
 "st": "সান্তাহার",
@@ -12610,12 +12779,21 @@
 "km": 0.0
 },
 {
+"st": "সান্তাহার",
+"arr": "12:00",
+"dep": "12:50",
+"src": "official",
+"note": "official station timetable (সান্তাহার)",
+"station": "santahar",
+"km": 79.0
+},
+{
 "st": "পার্বতীপুর",
 "arr": "17:15",
 "dep": null,
 "src": "official",
 "station": "parbatipur",
-"km": 175.2
+"km": 175.3
 }
 ],
 "source": {
@@ -12647,12 +12825,21 @@
 "km": 0.0
 },
 {
+"st": "সান্তাহার",
+"arr": "15:55",
+"dep": "16:05",
+"src": "official",
+"note": "official station timetable (সান্তাহার)",
+"station": "santahar",
+"km": 96.2
+},
+{
 "st": "ঈশ্বরদী",
 "arr": "21:20",
 "dep": null,
 "src": "official",
 "station": "ishwardi",
-"km": 175.2
+"km": 175.3
 }
 ],
 "source": {

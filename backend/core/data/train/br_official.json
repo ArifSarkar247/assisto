@@ -26,7 +26,14 @@
   "method": "west zone: text layer of the official PDF (legacy Bangla font decoded by tools/train/br/bijoy_fix.py, table grid by gridlib.py); east zone: hand transcription of the scanned official PDF; per-stop times are the official 'abbreviated schedule' (major stops) for intercity trains, mail/commuter/local trains have official origin + destination times only",
   "not_included": "freight/container trains (601-608), the 19 west-zone departmental/PNV services, unnumbered suspended DEMU commuters (Nazirhat, Chittagong University, Kaliakair, Narayanganj DEMU) — listed in owner_actions/TRAIN_TRACKER_V2_BN.md",
   "weekday": "off_days: 0=Monday … 6=Sunday",
-  "built_by": "tools/train/br/compile_official.py"
+  "built_by": "tools/train/br/compile_official.py",
+  "cross_check": "station-page times that differ from the abbreviated schedule (kept: schedule)",
+  "cross_check_diffs": [
+   "706 পার্বতীপুর dep: schedule 23:55, station page 00:10",
+   "731 পার্বতীপুর dep: schedule 19:45, station page 19:55",
+   "764 ঈশ্বরদী dep: schedule 23:55, station page 00:05",
+   "765 সান্তাহার arr: schedule 11:55, station page 12:00"
+  ]
  },
  "trains": [
   {
@@ -7539,6 +7546,20 @@
      "src": "official"
     },
     {
+     "st": "ঈশ্বরদী",
+     "arr": "18:00",
+     "dep": "18:20",
+     "src": "official",
+     "note": "official station timetable (ঈশ্বরদী)"
+    },
+    {
+     "st": "রাজশাহী",
+     "arr": "19:55",
+     "dep": "20:05",
+     "src": "official",
+     "note": "official station timetable (রাজশাহী)"
+    },
+    {
      "st": "চাঁপাইনবাবগঞ্জ",
      "arr": "22:00",
      "dep": null,
@@ -7568,6 +7589,13 @@
      "arr": null,
      "dep": "08:30",
      "src": "official"
+    },
+    {
+     "st": "রাজশাহী",
+     "arr": "10:00",
+     "dep": "10:30",
+     "src": "official",
+     "note": "official station timetable (রাজশাহী)"
     },
     {
      "st": "ঈশ্বরদী",
@@ -7601,6 +7629,20 @@
      "src": "official"
     },
     {
+     "st": "ঈশ্বরদী",
+     "arr": "16:45",
+     "dep": "17:05",
+     "src": "official",
+     "note": "official station timetable (ঈশ্বরদী)"
+    },
+    {
+     "st": "রাজশাহী",
+     "arr": "18:55",
+     "dep": "19:15",
+     "src": "official",
+     "note": "official station timetable (রাজশাহী)"
+    },
+    {
      "st": "চাঁপাইনবাবগঞ্জ",
      "arr": "21:00",
      "dep": null,
@@ -7630,6 +7672,20 @@
      "arr": null,
      "dep": "06:00",
      "src": "official"
+    },
+    {
+     "st": "রাজশাহী",
+     "arr": "07:55",
+     "dep": "08:05",
+     "src": "official",
+     "note": "official station timetable (রাজশাহী)"
+    },
+    {
+     "st": "ঈশ্বরদী",
+     "arr": "09:45",
+     "dep": "10:05",
+     "src": "official",
+     "note": "official station timetable (ঈশ্বরদী)"
     },
     {
      "st": "খুলনা",
@@ -7787,6 +7843,20 @@
      "src": "official"
     },
     {
+     "st": "ঈশ্বরদী",
+     "arr": "15:25",
+     "dep": "15:45",
+     "src": "official",
+     "note": "official station timetable (ঈশ্বরদী)"
+    },
+    {
+     "st": "সান্তাহার",
+     "arr": "18:20",
+     "dep": "18:30",
+     "src": "official",
+     "note": "official station timetable (সান্তাহার)"
+    },
+    {
      "st": "পার্বতীপুর",
      "arr": "21:10",
      "dep": null,
@@ -7816,6 +7886,20 @@
      "arr": null,
      "dep": "08:55",
      "src": "official"
+    },
+    {
+     "st": "সান্তাহার",
+     "arr": "11:45",
+     "dep": "12:15",
+     "src": "official",
+     "note": "official station timetable (সান্তাহার)"
+    },
+    {
+     "st": "ঈশ্বরদী",
+     "arr": "17:00",
+     "dep": "17:20",
+     "src": "official",
+     "note": "official station timetable (ঈশ্বরদী)"
     },
     {
      "st": "খুলনা",
@@ -7971,6 +8055,13 @@
      "arr": null,
      "dep": "03:20",
      "src": "official"
+    },
+    {
+     "st": "সান্তাহার",
+     "arr": "06:00",
+     "dep": "06:10",
+     "src": "official",
+     "note": "official station timetable (সান্তাহার)"
     },
     {
      "st": "রাজশাহী",
@@ -8134,6 +8225,13 @@
      "src": "official"
     },
     {
+     "st": "রাজশাহী",
+     "arr": "09:00",
+     "dep": "09:10",
+     "src": "official",
+     "note": "official station timetable (রাজশাহী)"
+    },
+    {
      "st": "রহনপুর",
      "arr": "11:10",
      "dep": null,
@@ -8165,6 +8263,13 @@
      "arr": null,
      "dep": "17:10",
      "src": "official"
+    },
+    {
+     "st": "রাজশাহী",
+     "arr": "18:40",
+     "dep": "19:00",
+     "src": "official",
+     "note": "official station timetable (রাজশাহী)"
     },
     {
      "st": "ঈশ্বরদী",
@@ -8260,6 +8365,13 @@
      "src": "official"
     },
     {
+     "st": "পার্বতীপুর",
+     "arr": "08:45",
+     "dep": "09:20",
+     "src": "official",
+     "note": "official station timetable (পার্বতীপুর)"
+    },
+    {
      "st": "বিরল",
      "arr": "10:50",
      "dep": null,
@@ -8289,6 +8401,13 @@
      "arr": null,
      "dep": "11:10",
      "src": "official"
+    },
+    {
+     "st": "পার্বতীপুর",
+     "arr": "12:25",
+     "dep": "12:45",
+     "src": "official",
+     "note": "official station timetable (পার্বতীপুর)"
     },
     {
      "st": "লালমনিরহাট",
@@ -9369,6 +9488,13 @@
      "src": "official"
     },
     {
+     "st": "পার্বতীপুর",
+     "arr": "17:15",
+     "dep": "17:35",
+     "src": "official",
+     "note": "official station timetable (পার্বতীপুর)"
+    },
+    {
      "st": "পঞ্চগড়",
      "arr": "22:05",
      "dep": null,
@@ -9398,6 +9524,13 @@
      "arr": null,
      "dep": "09:20",
      "src": "official"
+    },
+    {
+     "st": "পার্বতীপুর",
+     "arr": "13:55",
+     "dep": "14:25",
+     "src": "official",
+     "note": "official station timetable (পার্বতীপুর)"
     },
     {
      "st": "সান্তাহার",
@@ -9958,6 +10091,13 @@
      "src": "official"
     },
     {
+     "st": "সান্তাহার",
+     "arr": "12:00",
+     "dep": "12:50",
+     "src": "official",
+     "note": "official station timetable (সান্তাহার)"
+    },
+    {
      "st": "পার্বতীপুর",
      "arr": "17:15",
      "dep": null,
@@ -9987,6 +10127,13 @@
      "arr": null,
      "dep": "11:40",
      "src": "official"
+    },
+    {
+     "st": "সান্তাহার",
+     "arr": "15:55",
+     "dep": "16:05",
+     "src": "official",
+     "note": "official station timetable (সান্তাহার)"
     },
     {
      "st": "ঈশ্বরদী",

@@ -99,6 +99,10 @@ def hhmm(v):
     return "%02d:%02d" % (h, m)
 
 
+def mins_(v):
+    return int(v[:2]) * 60 + int(v[3:])
+
+
 def kind_of(no, name):
     if str(no).startswith("31") and len(str(no)) == 4:
         return "international"
@@ -239,6 +243,32 @@ def west_abbr():
             res.append([c, hhmm(s[1]), hhmm(s[2])])
         by.setdefault(b["no"], []).extend(res)
     return by
+
+
+# ---------------------------------------------------------------- west station pages
+STATION_PAGES = {"4": "খুলনা", "5": "রাজশাহী", "6": "সান্তাহার", "7": "পার্বতীপুর", "8": "লালমনিরহাট"}
+
+
+def west_station_pages():
+    """Rows of the official 'trains from station X' tables: an extra
+    official time at a junction for trains that otherwise have only their
+    origin + destination times (mail / commuter / local)."""
+    pages = json.load(open(os.path.join(SRC, "west_stations.json"), encoding="utf-8"))
+    out = []
+    for pg in sorted(pages, key=int):
+        station = STATION_PAGES[pg]
+        for row in pages[pg]:
+            cells = [c.strip() for c in row if c.strip()]
+            if any("হতে" in c for c in cells) and any(canon(c) for c in cells):
+                station = next(canon(c) for c in cells if canon(c))
+                continue
+            if not cells or not cells[0].endswith("।") or len(cells) < 9:
+                continue
+            no = re.sub(r"\D", "", cells[1].translate(BN))
+            vals = cells[-6:]
+            arr, dep = (None if re.fullmatch(r"[-.]+", v) else hhmm(v) for v in vals[:2])
+            out.append((no, nuk(station), arr, dep))
+    return out
 
 
 # ---------------------------------------------------------------- east files
@@ -393,6 +423,10 @@ def build():
         t["zone"] = "east"
         trains.append(t)
     # ---- stops
+    extra = {}
+    for no, st_name, a_, d_ in west_station_pages():
+        extra.setdefault(no, []).append((st_name, a_, d_))
+    xcheck = []
     seen = set()
     final = []
     for t in trains:
@@ -420,6 +454,26 @@ def build():
         else:
             stops = [{"st": t["origin"], "arr": None, "dep": t["dep"], "src": "official"},
                      {"st": t["dest"], "arr": t["arr"], "dep": None, "src": "official"}]
+        # official junction times from the station pages
+        for st_name, a_, d_ in extra.get(t["no"], []):
+            have = next((s for s in stops if s["st"] == st_name), None)
+            if have is not None:
+                for f, v in (("arr", a_), ("dep", d_)):
+                    if v and have.get(f) and have[f] != v:
+                        xcheck.append("%s %s %s: schedule %s, station page %s" % (t["no"], st_name, f, have[f], v))
+                continue
+            if t["status"] != "running" or not (a_ or d_) or not stops[0]["dep"]:
+                continue
+            t0 = mins_(stops[0]["dep"])
+            off = (mins_(a_ or d_) - t0) % 1440
+            pos = len(stops) - 1
+            for j in range(1, len(stops)):
+                v = stops[j]["arr"] or stops[j]["dep"]
+                if v and (mins_(v) - t0) % 1440 > off:
+                    pos = j
+                    break
+            stops.insert(pos, {"st": st_name, "arr": a_ or d_, "dep": d_ or a_, "src": "official",
+                               "note": "official station timetable (%s)" % st_name})
         # cross-check terminals against the train list
         if abbr and t["status"] != "suspended":
             if stops[0]["st"] != t["origin"] or stops[-1]["st"] != t["dest"]:
@@ -440,7 +494,7 @@ def build():
                     d = mins - prev
                     if d < 0:
                         d += 1440
-                    if d > 300 and len(stops) > 2:
+                    if d > (300 if t["kind"] == "intercity" else 600) and len(stops) > 2:
                         problem("%s: %d-minute gap before %s %s" % (t["no"], d, s["st"], f))
                     total += d
                 prev = mins
@@ -474,7 +528,11 @@ def build():
             "stops": stops, "bd_section_only": True,
             "source": {"url": src["page"], "file": None, "edition": src["edition"], "fetched": FETCHED},
         })
+    XCHECK[:] = xcheck
     return final
+
+
+XCHECK = []
 
 
 def main():
@@ -491,6 +549,8 @@ def main():
             "not_included": "freight/container trains (601-608), the 19 west-zone departmental/PNV services, unnumbered suspended DEMU commuters (Nazirhat, Chittagong University, Kaliakair, Narayanganj DEMU) — listed in owner_actions/TRAIN_TRACKER_V2_BN.md",
             "weekday": "off_days: 0=Monday … 6=Sunday",
             "built_by": "tools/train/br/compile_official.py",
+            "cross_check": "station-page times that differ from the abbreviated schedule (kept: schedule)",
+            "cross_check_diffs": XCHECK,
         },
         "trains": trains,
     }
