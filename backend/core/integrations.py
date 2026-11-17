@@ -452,9 +452,9 @@ REGISTRY = {
                  "unlocks_bn": "টেলিগ্রাম বট: রিমাইন্ডার/অ্যালার্ট পাঠানো, বেসিক কমান্ড (/help, /balance, /remind) — টোকেন ছাড়া নিষ্ক্রিয় (sandbox)।",
                  "unlocks_en": "Telegram bot: push reminders/alerts, basic commands (/help, /balance, /remind) — inert until a token is set (sandbox).",
                  "guide_bn": ["@BotFather → /newbot → bot token কপি করুন → পেস্ট → Save",
-                              "ওয়েবহুক: https://assisto.asalify.com/api/v1/telegram/webhook"],
+                              "ওয়েবহুক: https://api.lifeassisto.com/api/v1/telegram/webhook"],
                  "guide_en": ["@BotFather → /newbot → copy the bot token → paste → Save",
-                              "Webhook: https://assisto.asalify.com/api/v1/telegram/webhook"],
+                              "Webhook: https://api.lifeassisto.com/api/v1/telegram/webhook"],
                  "fields": [_f("bot_token", "Bot Token", "Bot Token")],
                  "test": None},
     "google_oauth": {"name": "Gmail / Google OAuth", "category": "Email",
@@ -545,6 +545,12 @@ REGISTRY = {
                         _f("devbind_customers",
                            "গ্রাহকরাও সিরিয়াল + কোড দিয়ে যুক্ত করতে পারবেন? (on = হ্যাঁ; খালি = শুধু মালিক/অ্যাডমিন)",
                            "Customers may also link by serial + code? (on = yes; empty = owner/admin only)",
+                           secret=False),
+                        # imou-real (owner 17 Nov): flips to "Login with Imou" first
+                        # (no delete from Imou Life) once ticket 483 is approved
+                        _f("no_delete_default",
+                           "মুছে ফেলা ছাড়া পথ ডিফল্ট? (on = অনুমোদনের পর 'Imou দিয়ে লগইন' প্রথমে; খালি = বন্ধ)",
+                           "No-delete path as default? (on = after approval 'Login with Imou' comes first; empty = off)",
                            secret=False)],
              "test": "test_imou"},
     # dolynkcard (owner 9 Nov 18:12) + dolynkreal (owner 9 Nov 20:00, real
@@ -606,6 +612,11 @@ REGISTRY = {
                               _f("devbind_customers",
                                  "গ্রাহকরাও শেয়ার করা ডিভাইস যুক্ত করতে পারবেন? (on = হ্যাঁ; খালি = শুধু মালিক/অ্যাডমিন)",
                                  "Customers may also link shared devices? (on = yes; empty = owner/admin only)",
+                                 secret=False),
+                              # imou-real: "share from DMSS" first once Dahua approves ARC
+                              _f("no_delete_default",
+                                 "মুছে ফেলা ছাড়া পথ ডিফল্ট? (on = অনুমোদনের পর 'DMSS থেকে শেয়ার' প্রথমে; খালি = বন্ধ)",
+                                 "No-delete path as default? (on = after approval 'Share from DMSS' comes first; empty = off)",
                                  secret=False)],
                    "test": "test_dolynk_arc"},
     # cashguard: EZVIZ cameras' OWN alarms (polled every minute until EZVIZ
@@ -626,7 +637,17 @@ REGISTRY = {
                            "Details: owner_actions/CCTV_VENDOR_ACCOUNTS_BN.md"],
               "fields": [_f("app_key", "AppKey", "AppKey", secret=False),
                          _f("app_secret", "Secret", "Secret"),
-                         _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False)],
+                         _f("api_base", "API ঠিকানা (ঐচ্ছিক)", "API base (optional)", secret=False),
+                         # imou-real (owner 17 Nov): EZVIZ had no customer switch —
+                         # serial + code stayed owner/admin only with no way to open it
+                         _f("devbind_customers",
+                            "গ্রাহকরাও সিরিয়াল + কোড দিয়ে যুক্ত করতে পারবেন? (on = হ্যাঁ; খালি = শুধু মালিক/অ্যাডমিন)",
+                            "Customers may also link by serial + code? (on = yes; empty = owner/admin only)",
+                            secret=False),
+                         _f("no_delete_default",
+                            "মুছে ফেলা ছাড়া পথ ডিফল্ট? (on = অনুমোদনের পর 'EZVIZ দিয়ে লগইন' প্রথমে; খালি = বন্ধ)",
+                            "No-delete path as default? (on = after approval 'Login with EZVIZ' comes first; empty = off)",
+                            secret=False)],
               "test": "test_ezviz"},
     # quranview (owner 9 Nov 21:55): Quran Foundation Content API — per-ayah
     # audio + reciters, word-by-word (bn/en), transliteration. Server-side only;
@@ -672,10 +693,10 @@ REGISTRY = {
                   "unlocks_en": "Business mode: Facebook Page/Messenger sales assistant; inbox→CRM lead.",
                   "guide_bn": ["developers.facebook.com → App → Messenger → Page যুক্ত করুন",
                                "Page access token + Page ID + verify token কপি",
-                               "webhook: https://assisto.asalify.com/webhooks/messenger", "পেস্ট → Save"],
+                               "webhook: https://api.lifeassisto.com/api/v1/bizagent/webhook/meta", "পেস্ট → Save"],
                   "guide_en": ["developers.facebook.com → App → Messenger → add your Page",
                                "Copy Page access token + Page ID + verify token",
-                               "webhook: https://assisto.asalify.com/webhooks/messenger", "Paste → Save"],
+                               "webhook: https://api.lifeassisto.com/api/v1/bizagent/webhook/meta", "Paste → Save"],
                   "fields": [_f("page_id", "Page ID", "Page ID", secret=False),
                              _f("page_name", "Page name", "Page name", secret=False),
                              _f("access_token", "Page access token", "Page access token"),
@@ -1120,11 +1141,93 @@ def test(slug: str, test_to: str = "") -> tuple:
             status = "working" if ok else "failing"
         except Exception as e:  # noqa: BLE001
             status, detail = ("failing", str(e)[:280])
+    detail = redact(slug, detail, cfg)
     obj.status = status
     obj.detail = detail[:300]
     obj.last_tested = timezone.now()
     obj.save(update_fields=["status", "detail", "last_tested", "updated_at"])
     return (status, detail)
+
+
+def redact(slug, text, cfg=None):
+    """imou-real: no saved secret value (or its last 4+ characters run) ever
+    reaches a test detail, a log line or an exception text shown in Owner
+    Admin — replaced by '***'."""
+    text = str(text or "")
+    meta = REGISTRY.get(slug) or {}
+    cfg = cfg if cfg is not None else get(slug)
+    for f in meta.get("fields") or []:
+        v = str((cfg or {}).get(f["key"]) or "")
+        if f.get("secret") and len(v) >= 6 and v in text:
+            text = text.replace(v, "***")
+    return text
+
+
+# imou-real: the result of a REAL vendor call outside the Test button (a
+# token refresh while working, the readiness check) — shown on the card so
+# an old green never hides a key that stopped working. Never changes
+# `status` (the feature gate): a passing call later clears it.
+RUNTIME_FAIL = "runtime FAIL "
+RUNTIME_OK = "runtime OK"
+_RUNTIME_REPEAT_S = 300
+
+
+def _code_of(detail):
+    m = re.search(r"\b([A-Z]{2,4}\d{3,4}|http_\d{3}|\d{5}|no_token|bad_json|not_configured|"
+                  r"missing keys|token_expired|network)\b", str(detail or ""))
+    return m.group(1) if m else ""
+
+
+def record_check(slug, ok, code="", source="token"):
+    """Remember a real call's outcome on the integration card. ok=False with a
+    short vendor code (never a message that could echo a key). Network
+    blips are not the key's fault -> ignored. Never raises."""
+    try:
+        if slug not in REGISTRY:
+            return None
+        code = re.sub(r"[^A-Za-z0-9_]", "", str(code or ""))[:24]
+        if not ok and (code in ("network", "") or code.startswith("http_5")):
+            return None
+        from .models import Integration
+        obj = Integration.objects.filter(slug=slug).first()
+        if obj is None:
+            return None
+        now = timezone.now()
+        if ok:
+            if not obj.detail.startswith(RUNTIME_FAIL):
+                return None                    # nothing red to clear: no write
+            detail = "%s · %s" % (RUNTIME_OK, source)
+        else:
+            detail = "%s%s · %s" % (RUNTIME_FAIL, code, source)
+            if (obj.detail == detail and obj.last_tested and
+                    (now - obj.last_tested).total_seconds() < _RUNTIME_REPEAT_S):
+                return None
+        Integration.objects.filter(pk=obj.pk).update(detail=detail[:300], last_tested=now)
+        return detail
+    except Exception:  # noqa: BLE001 - bookkeeping never breaks a camera call
+        return None
+
+
+def card_state(obj, lang="bn"):
+    """(display status, badge) for the card: the LAST real result with its
+    time — "১২:০৮ · OK" / "১২:০৮ · ব্যর্থ PRM0016"."""
+    if obj is None:
+        return "not_set", ""
+    status, detail = obj.status, obj.detail or ""
+    failed = status == "failing" or detail.startswith(RUNTIME_FAIL)
+    if status == "working" and detail.startswith(RUNTIME_FAIL):
+        status = "failing"
+    if not obj.last_tested:
+        return status, ""
+    hm = timezone.localtime(obj.last_tested).strftime("%H:%M")
+    if lang == "bn":
+        hm = hm.translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯"))
+    if status == "not_set":
+        return status, ""
+    code = _code_of(detail) if failed else ""
+    if failed:
+        return status, ("%s · ব্যর্থ %s" % (hm, code) if lang == "bn" else "%s · failed %s" % (hm, code)).strip()
+    return status, "%s · OK" % hm
 
 
 def _status_label(status, lang):
@@ -1158,7 +1261,7 @@ def list_all(lang="bn") -> list:
                 "set": has,
                 "masked": "•••• " + str(cfg.get(f["key"]))[-4:] if (has and f["secret"]) else (cfg.get(f["key"]) if has else ""),
             })
-        status = obj.status if obj else "not_set"
+        status, badge = card_state(obj, lang)
         last = obj.last_tested if obj else None
         out.append({
             "slug": slug,
@@ -1172,6 +1275,7 @@ def list_all(lang="bn") -> list:
             "connected": status == "working",
             "any_key_saved": any_set,
             "detail": obj.detail if obj else "",
+            "badge": badge,
             "last_tested": last.isoformat() if last else "",
             "last_tested_human": (timezone.localtime(last).strftime("%Y-%m-%d %H:%M")
                                   if last else ("কখনো পরীক্ষা হয়নি / never checked"
@@ -1179,6 +1283,8 @@ def list_all(lang="bn") -> list:
             "doc": _DOC,
             # cctvconnect: brand-cloud free-quota use this month ("" = none)
             "usage": _vendor_usage(slug, lang),
+            # publicurl: the public https callback link + "Rotate" (owner only)
+            "callback_url": _callback_url(slug, cfg),
             "testable": bool(meta.get("test")),
             # smsotp: entries with a "Send test SMS / email" box
             "test_to_kind": ("email" if meta.get("test") == "test_smtp_email" else
@@ -1623,12 +1729,20 @@ IMOU_OAUTH_PENDING = ("OAuth (এক ট্যাপে গ্রাহকের
                       "(ticket 483) — when approved, fill the three OAuth fields and press Test")
 
 
+def _callback_url(slug, cfg):
+    try:
+        from . import callback_links as CL
+        return CL.url(slug, cfg) if slug in CL.CALLBACK_SLUGS else ""
+    except Exception:
+        return ""
+
+
 def _vendor_usage(slug, lang):
     if slug in ("dolynk", "dolynk_arc"):
         # the message-callback URL to paste into the DoLynk console (Message Subscription)
         try:
-            from . import cctv_connect_views as CCV
-            url = CCV.dolynk_callback_url((get(slug) or {}).get("access_key"), arc=slug == "dolynk_arc")
+            from . import callback_links as CL
+            url = CL.url(slug)                  # publicurl: the public https link
         except Exception:
             url = ""
         if not url:
@@ -1650,6 +1764,10 @@ def _vendor_usage(slug, lang):
         cfg = get(slug) or {}
         if slug == "imou" and not all(cfg.get(k) for k in ("oauth_ak", "oauth_sk", "oauth_h5_url")):
             out.append(IMOU_OAUTH_PENDING[0] if lang == "bn" else IMOU_OAUTH_PENDING[1])
+        if slug == "imou" and cfg.get("app_id"):
+            # publicurl: Assisto registers this alarm link with Imou itself
+            out.append("Imou অ্যালার্ম লিংক (Assisto নিজেই Imou-তে বসায়) নিচে দেখুন" if lang == "bn"
+                       else "Imou alarm link (Assisto sets it in Imou itself): see below")
     except Exception:
         pass
     try:

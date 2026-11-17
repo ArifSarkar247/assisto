@@ -452,7 +452,7 @@ class ProviderNeutralityTests(RouterBase):
         self.assertNotIn("I am Claude", text)
         self.assertNotIn("আমি Claude", text)
         self.assertIn("Assisto", text)
-        self.assertIn("AXON Dynamic", text)
+        self.assertIn("Axon Dynamics", text)
 
     def test_status_and_labels_are_neutral(self):
         blob = repr(ai.status()).lower() + repr(ai.TIER_MODEL).lower()
@@ -497,7 +497,7 @@ class ProviderNeutralityTests(RouterBase):
         systems = {s for _, s in seen}
         self.assertEqual(len(systems), 1)
         sp = systems.pop()
-        self.assertIn("AXON Dynamic", sp)        # owner identity rule 4 Nov 01:12
+        self.assertIn("Axon Dynamics", sp)        # owner identity rule 4 Nov 01:12
         self.assertIn("EXTRA", sp)
 
 

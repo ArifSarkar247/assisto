@@ -35,7 +35,10 @@ class ElderEasyHome extends StatefulWidget {
   final List<ElderContact>? debugFamily;
   final String? debugName;
 
-  const ElderEasyHome({super.key, this.onExit, this.debugFamily, this.debugName});
+  /// Gallery (gap-familycare): open the answer sheet for (question, answer).
+  final (String, String)? debugReply;
+
+  const ElderEasyHome({super.key, this.onExit, this.debugFamily, this.debugName, this.debugReply});
 
   @override
   State<ElderEasyHome> createState() => _ElderEasyHomeState();
@@ -57,6 +60,12 @@ class _ElderEasyHomeState extends State<ElderEasyHome> with WidgetsBindingObserv
       if (mounted) setState(() => _now = clock.now());
     });
     _load();
+    final dr = widget.debugReply;
+    if (dr != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_showReply(dr.$1, elderPlainReply(dr.$2)));
+      });
+    }
   }
 
   @override
@@ -177,19 +186,85 @@ class _ElderEasyHomeState extends State<ElderEasyHome> with WidgetsBindingObserv
 
   Future<void> _talk() async {
     unawaited(_pressed(_t.fceTalk));
-    final text = await showVoiceCommandSheet(context);
-    if (text == null || !mounted) return;
+    final listen = ElderHooks.listenOverride;
+    final text = listen != null ? await listen(context) : await showVoiceCommandSheet(context);
+    if (text == null || text.trim().isEmpty || !mounted) return;
     final local = ChatNav.detectRoute(text);
     if (local != null && ChatNav.push(context, local)) return;
+    Map<String, dynamic>? r;
     try {
-      final r = await context.read<AppState>().api.agent(text);
-      if (!mounted) return;
-      if (ChatNav.push(context, r['route'] as String?)) return;
+      final ask = ElderHooks.agentOverride;
+      r = ask != null ? await ask(context, text) : await context.read<AppState>().api.agent(text);
     } catch (_) {
-      // best-effort: offline / AI down -> the honest "could not" snackbar below
+      r = null; // offline / AI down -> the honest offline line below
     }
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_t.sendFailed)));
+    if (r != null && ChatNav.push(context, r['route'] as String?)) return;
+    // gap-familycare: a real question gets a real answer — shown big and
+    // read out loud (before: every answer was dropped as "could not").
+    final reply = r == null ? '' : elderPlainReply('${r['reply'] ?? ''}');
+    if (reply.isNotEmpty) {
+      await _showReply(text.trim(), reply);
+      return;
+    }
+    final msg = r == null ? _t.fceTalkOffline : _t.sendFailed;
+    unawaited(ElderHooks.say(context, msg));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(msg, style: AType.titleMedium.copyWith(color: Colors.white))));
+  }
+
+  Future<void> _showReply(String asked, String reply) async {
+    final t = _t;
+    final spoken = elderSpokenPart(reply);
+    unawaited(ElderHooks.say(context, spoken));
+    await showAppSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.85),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(t.fceYouAsked(asked),
+                    style: AType.titleMedium.copyWith(
+                        color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+                const SizedBox(height: Gap.sm),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Text(reply,
+                        key: const Key('fce-reply'),
+                        style: AType.headlineSmall.copyWith(height: 1.45)),
+                  ),
+                ),
+                const SizedBox(height: Gap.md),
+                ElderBigButton(
+                  key: const Key('fce-reply-again'),
+                  icon: Icons.volume_up_rounded,
+                  label: t.fceHearAgain,
+                  color: ElderColors.talk,
+                  minHeight: 72,
+                  onTap: () => unawaited(ElderHooks.say(ctx, spoken)),
+                ),
+                const SizedBox(height: Gap.sm),
+                ElderBigButton(
+                  key: const Key('fce-reply-close'),
+                  icon: Icons.close_rounded,
+                  label: t.close,
+                  color: ElderColors.callA,
+                  minHeight: 72,
+                  onTap: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _danger() async {

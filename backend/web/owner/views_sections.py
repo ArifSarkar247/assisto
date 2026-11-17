@@ -722,6 +722,24 @@ def integrations(request):
             S.audit(request, request.owner, "integration.test", "integration:%s" % slug,
                     after={"status": st}, ok=(st == "working"))
             return done("/owner/integrations#i-%s" % slug, "tested")
+        if action == "rotate_cb":
+            # publicurl: a new callback link; the old one stops at once, then
+            # Assisto tells the vendor the new one where it can
+            from core import callback_links as CL
+            if slug not in CL.CALLBACK_SLUGS:
+                raise Http404
+            if request.POST.get("rotate_ok") != "1":
+                return done("/owner/integrations#i-%s" % slug, "rotate_confirm")
+            try:
+                if not CL.rotate(slug):
+                    return done("/owner/integrations#i-%s" % slug, "nothing")
+            except RuntimeError:
+                return done("/owner/integrations", "no_fernet")
+            reg = CL.reregister(slug)
+            S.audit(request, request.owner, "integration.rotate_callback",
+                    "integration:%s" % slug, after={"registered": reg})
+            return done("/owner/integrations#i-%s" % slug,
+                        "rotated" if reg == "registered" else "rotated_manual")
         raise Http404
     try:
         rows = I.list_all(lang)

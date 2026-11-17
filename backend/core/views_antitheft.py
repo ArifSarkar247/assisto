@@ -37,6 +37,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .public_url import public_base_url  # publicurl
 from .logic import antitheft as at
 from .logic import security as sec
 from . import sos_triggers as _sos_triggers  # sosat
@@ -159,7 +160,7 @@ def _photo_url_for(event_id, user):
     try:
         from django.conf import settings
         return at.push_photo_url(
-            getattr(settings, "ASSISTO_BASE_URL", ""), event_id,
+            public_base_url(), event_id,
             at.photo_link_params(event_id, user.pk,
                                  ttl_s=at.PUSH_PHOTO_LINK_TTL_S))
     except Exception:

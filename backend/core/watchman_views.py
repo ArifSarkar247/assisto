@@ -41,6 +41,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .public_url import public_base_url  # publicurl
 from .i18n import req_lang, pick
 from . import shop_views as SV
 from .logic import watchman as WM
@@ -584,10 +585,13 @@ IMOU_ERRORS = {
 
 
 def imou_callback_url(app_id):
-    from .logic import imou as IM
-    tok = IM.callback_token(app_id, settings.SECRET_KEY)
+    """publicurl: the PUBLIC https link with the rotatable token
+    (core/callback_links.py)."""
+    from . import callback_links as CL
+    if not app_id:
+        return ""
     return "%s/api/v1/shop/imou/callback/%s" % (
-        getattr(settings, "ASSISTO_BASE_URL", "").rstrip("/"), tok)
+        public_base_url(), CL.token("imou", app_id, CL.salt("imou")))
 
 
 # ShopCamera.compat keys the SERVER owns (never replaced by a gateway check)
@@ -612,16 +616,20 @@ class ImouCallbackView(APIView):
         from .logic import imou as IM
         from .models import ShopCamera
         from . import integrations as I
+        from . import callback_links as CL
         cfg = I.get("imou") if imou_cloud_on() else {}
-        app_id = cfg.get("app_id") or ""
-        expect = IM.callback_token(app_id, settings.SECRET_KEY) if app_id else ""
-        if not expect or not hmac.compare_digest(expect, str(token)):
+        if not CL.token_ok("imou", cfg, token):
             return Response({"ok": False}, status=404)
         try:
             body = json.loads(request.body[:256 * 1024] or b"{}")
         except ValueError:
             return Response({"ok": True, "ignored": "bad_json"})
         msgs = body if isinstance(body, list) else [body]
+        # publicurl: the owner's self-test proves the public link, never an alert
+        if msgs and all(CL.is_selftest(m) for m in msgs[:20]):
+            return Response({"ok": True, "events": [CL.selftest_answer("imou", m)
+                                                    for m in msgs[:20]]})
+        msgs = [m for m in msgs if not CL.is_selftest(m)]
         out = []
         now = timezone.now()
         from . import cctv_alerts as CA
@@ -648,6 +656,12 @@ class ImouCallbackView(APIView):
                     continue
             except Exception:
                 pass
+            # imou-real: Imou documents no signature on pushes, so besides the
+            # unguessable URL a message naming ANOTHER appId is refused
+            if isinstance(m, dict) and m.get("appId") and \
+                    str(m.get("appId")) != str((cfg or {}).get("app_id") or ""):
+                out.append({"ignored": "other_app"})
+                continue
             a = IM.parse_alarm(m)
             if a is None:
                 out.append({"ignored": "not_alarm"})
@@ -670,6 +684,12 @@ class ImouCallbackView(APIView):
                 continue
             if aid:
                 compat["imou_seen_ids"] = (seen + [aid])[-30:]
+            # imou-real: camera saw it -> our server got it, in seconds (the
+            # "within seconds" proof for the real-camera test); last 20 kept
+            lat = IM.push_latency(a.get("at"), now.timestamp())
+            if lat is not None:
+                compat["imou_latency_s"] = (list(compat.get("imou_latency_s") or []) + [lat])[-20:]
+                log.info("imou push latency_s=%.1f camera=%s human=%s", lat, cam.pk, a["human"])
             # honest diagnostics: a picture on a host outside our SSRF
             # allow-list is NOT downloaded — remember the host (never the
             # signed query) so the real-camera test shows it at once.
@@ -692,7 +712,7 @@ class ImouCallbackView(APIView):
                 cam.site, cam, {"type": etype, "at": now.timestamp(),
                                 "signals": sig}, now, snap)
             out.append({"raised": ev is not None,
-                        "grouped": bool(decision.get("grouped"))})
+                        "grouped": bool(decision.get("grouped")), "latency_s": lat})
         return Response({"ok": True, "events": out})
 
 

@@ -29,8 +29,11 @@ class GuardianRequestScreen extends StatefulWidget {
   /// the time you pick (1 h / 3 h from now, or a window). In Bangladesh or
   /// abroad; they must accept, always see it and can stop any time.
   final bool locationOnly;
+  /// gap-familycare: the person to pick already (their user id; matched to
+  /// the My Circle row's peer_user_id). Not in My Circle = a plain note.
+  final int? preselectUserId;
   const GuardianRequestScreen(
-      {super.key, required this.people, this.locationOnly = false});
+      {super.key, required this.people, this.locationOnly = false, this.preselectUserId});
   @override
   State<GuardianRequestScreen> createState() => _GuardianRequestScreenState();
 }
@@ -50,6 +53,23 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
   int? _quickH = 1; // sjlive: "now for 1 h / 3 h"; null = the window below
 
   static const _week = ['sat', 'sun', 'mon', 'tue', 'wed', 'thu', 'fri'];
+
+  @override
+  void initState() {
+    super.initState();
+    final uid = widget.preselectUserId;
+    if (uid != null) {
+      for (final p in widget.people) {
+        if ((p['peer_user_id'] as num?)?.toInt() == uid) {
+          _member = (p['member_id'] as num?)?.toInt();
+          break;
+        }
+      }
+    }
+  }
+
+  /// gap-familycare: asked for someone who is not in my My Circle.
+  bool get _preselectMissing => widget.preselectUserId != null && _member == null;
 
   @override
   void dispose() {
@@ -185,6 +205,12 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
             Text(widget.locationOnly ? t.sjlReqIntro : t.gjAskIntro,
                 style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
             h(widget.locationOnly ? t.sjlReqWho : t.gjWho),
+            if (_preselectMissing && widget.people.isNotEmpty)
+              Padding(
+                key: const ValueKey('gj_preselect_missing'),
+                padding: const EdgeInsets.only(bottom: Gap.sm),
+                child: Text(t.fcgNotInCircle, style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
+              ),
             if (widget.people.isEmpty) ...[
               Text(t.journeyNoWatchers),
               const SizedBox(height: Gap.sm),

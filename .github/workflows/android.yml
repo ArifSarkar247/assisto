@@ -1614,6 +1614,37 @@ jobs:
       # removed from the merged manifest. Signed with the Play UPLOAD key when
       # the PLAY_UPLOAD_* secrets exist, else with the existing release key
       # (see owner_actions/PLAY_APP_SIGNING.md for which to choose).
+      # gatefix (lead, 17 Nov): the runner died silently INSIDE the AAB step
+      # 3x (b325, b326 first try, b327: steps null, no log, rerun passes) since
+      # the bundle became arm+arm64 with --split-debug-info. Before it: stop
+      # the Gradle/Kotlin daemons the APK builds above left resident (8 GB
+      # template heap each), free disk the build never uses (the emulator legs
+      # are separate jobs), cap Gradle for this task, and log RAM/disk so a
+      # next death is diagnosable. Nothing is skipped or loosened.
+      - name: Room for the AAB (stop daemons, free disk, cap Gradle, log RAM/disk)
+        working-directory: app
+        run: |
+          echo "== before"; free -m; df -h / "$RUNNER_TEMP" | sed 1d || true
+          (cd android && ./gradlew --stop >/dev/null 2>&1) || true
+          pkill -f 'KotlinCompileDaemon' 2>/dev/null || true
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL \
+            /usr/local/share/boost /usr/share/swift /usr/local/lib/node_modules \
+            "$AGENT_TOOLSDIRECTORY/PyPy" "$AGENT_TOOLSDIRECTORY/go" "$AGENT_TOOLSDIRECTORY/Ruby" || true
+          if [ -n "${ANDROID_HOME:-}" ]; then
+            sudo rm -rf "$ANDROID_HOME/system-images" "$ANDROID_HOME/emulator" || true
+          fi
+          sudo fallocate -l 6G /mnt/aab.swap 2>/dev/null \
+            && sudo chmod 600 /mnt/aab.swap && sudo mkswap /mnt/aab.swap >/dev/null \
+            && sudo swapon /mnt/aab.swap || echo "swap not added"
+          f=android/gradle.properties
+          sed -i '/^org.gradle.jvmargs=/d;/^kotlin.daemon.jvm.options=/d;/^org.gradle.workers.max=/d;/^kotlin.compiler.execution.strategy=/d' "$f"
+          printf '%s\n' 'org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError' \
+            'org.gradle.workers.max=2' 'kotlin.compiler.execution.strategy=in-process' >> "$f"
+          cat "$f"
+          echo "== after"; free -m; df -h / "$RUNNER_TEMP" | sed 1d || true
+          # sample RAM/disk every 30 s while the AAB builds (ends with the job)
+          nohup sh -c 'while :; do echo "$(date -u +%H:%M:%S) $(free -m | awk "/Mem:/{print \"mem used \"\$3\" avail \"\$7}") $(free -m | awk "/Swap:/{print \"swap used \"\$3}") disk $(df -h / | awk "NR==2{print \$4}") free"; sleep 30; done' > "$RUNNER_TEMP/aab_res.log" 2>&1 &
+
       - name: Build + sign release AAB (Google Play)
         if: inputs.flavor != 'staging'
         id: aab
@@ -1759,6 +1790,13 @@ jobs:
       # (armeabi-v7a) Bangladesh phone (bn, 320 dpi). Guard: > 5 % (+1 MB)
       # above tools/startspeed/size_baseline.json fails; no baseline yet =
       # report only (the first numbers are then committed as the baseline).
+      - name: RAM/disk during the AAB build (gatefix diagnostics)
+        if: always()
+        run: |
+          echo "aab step outcome: ${{ steps.aab.outcome }}"
+          tail -n 60 "$RUNNER_TEMP/aab_res.log" 2>/dev/null || echo "no sampler log"
+          free -m; df -h / | sed 1d
+
       - name: Phone download size per ABI (bundletool, faststart)
         if: steps.aab.outcome == 'success'
         working-directory: app

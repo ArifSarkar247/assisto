@@ -52414,237 +52414,268 @@
   "@sosgapOpenFull": {
     "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
   },
-  "a11ySosSecondsLeft": "{seconds} seconds until the SOS is sent",
-  "@a11ySosSecondsLeft": {
-    "description": "TalkBack: the live SOS countdown number. seconds is already in the UI digits.",
+  "gcvLinuxTitle": "Raspberry Pi or Linux mini PC instead",
+  "@gcvLinuxTitle": {
+    "description": "gap-cctv: fold-out title — the Guard Box on Linux (Windows never required)"
+  },
+  "gcvLinuxSub": "No Windows needed — the box watches all cameras on the shop's router",
+  "gcvLinuxStep1": "Use a 64-bit Raspberry Pi OS (Pi 4 or 5, 2 GB is enough) or an Ubuntu / Debian mini PC, on the same router as the cameras.",
+  "gcvLinuxStep2": "On the box, open a terminal and run this one line (it checks the download's SHA-256 before installing):",
+  "gcvLinuxStep3": "Then run the setup. It finds the cameras and keeps their passwords only on the box:",
+  "gcvLinuxStep4": "When the box asks for a code, type the short code shown above. It turns green here when it joins.",
+  "gcvLinuxStep4Where": "When the box asks for a code, tap \"Use an old phone as a camera\" on this place card and type the short code it shows.",
+  "gcvLinuxPrivacy": "The video stays on the box. Only alert photos and short clips are sent. It restarts by itself after a power cut and updates once a day.",
+  "gcvLinuxCopy": "Copy",
+  "gcvLinuxCopied": "Copied",
+  "gcvGwBoxBody": "A small box at the shop — a Raspberry Pi, a Linux mini PC or a Windows PC — that watches all your network cameras with on-device AI. Windows is not required.",
+  "gcvManageTitle": "People, sharing and notice",
+  "@gcvManageTitle": {
+    "description": "gap-cctv: fold-out on the CCTV place card for owner tools"
+  },
+  "gcvManageSub": "Family, view links, who watched, technician, CCTV notice",
+  "gcvPairOffline": "No internet right now. The code still works — we keep checking.",
+  "@gcvPairOffline": {
+    "description": "gap-cctv: pair sheet poll failed after the code is shown"
+  },
+  "gcvWarnRecordFirst": "Not recorded yet — tap to record your warning in your own voice",
+  "@gcvWarnRecordFirst": {
+    "description": "gap-cctv: box warning tile when no own-voice warning exists"
+  },
+  "gcvWarnDeleteAsk": "Delete your recorded warning?",
+  "@gcvWarnDeleteAsk": {
+    "description": "gap-cctv: confirm before deleting the own-voice warning"
+  },
+  "gcvEvidenceMaking": "Making the evidence pack… (photos, clip, SHA-256 list, PDF)",
+  "@gcvEvidenceMaking": {
+    "description": "gap-cctv: progress while building the evidence pack"
+  },
+  "gcvEvidencePartial": "Part of the pack could not be made (watermarked copies or PDF). The originals and the SHA-256 list are complete.",
+  "@gcvEvidencePartial": {
+    "description": "gap-cctv: evidence pack built without watermark copies or PDF"
+  },
+  "gcvThanaUnavailable": "Could not look up the nearest thana right now — tap to try again. 999 always works.",
+  "@gcvThanaUnavailable": {
+    "description": "gap-cctv: thana lookup failed (not 'none nearby')"
+  },
+  "gcvClipExpiredGone": "The clip's keep time ended, so it was deleted. The photo stays.",
+  "@gcvClipExpiredGone": {
+    "description": "gap-cctv: clip expired (24 h or the add-on's days)"
+  },
+  "gcvWatchDeleteAsk": "Remove this post for everyone in the group?",
+  "@gcvWatchDeleteAsk": {
+    "description": "gap-cctv: confirm before deleting a neighbourhood watch post"
+  },
+  "gcvPhoneGwNoScan": "This place uses an old phone as its gateway, so it cannot search the Wi-Fi for a DVR or IP cameras. Connect a brand cloud above, or add a small Guard Box (Raspberry Pi, Linux mini PC or PC) at the place:",
+  "@gcvPhoneGwNoScan": {
+    "description": "gap-cctv: brand-cloud screen on a phone-gateway place"
+  },
+  "gcvPosUrl": "Address (URL)",
+  "@gcvPosUrl": {
+    "description": "gap-cctv: POS webhook key dialog label"
+  },
+  "gcvPosKeyId": "Key ID",
+  "gcvPosSecret": "Secret key",
+  "gcvUnlinkAsk": "Unlink the smart plugs and lights? Automations stop until you link again.",
+  "@gcvUnlinkAsk": {
+    "description": "gap-cctv: confirm before unlinking Tuya / Smart Life"
+  },
+  "gcvReportToday": "Today",
+  "@gcvReportToday": {
+    "description": "gap-cctv: closing report day switch"
+  },
+  "gcvReportYesterday": "Yesterday",
+  "gcvGbLost": "Not connected — the owner removed this camera or the pairing. Pair again.",
+  "@gcvGbLost": {
+    "description": "gap-cctv: Guard Box token refused by the server"
+  },
+  "gcvGbForget": "Forget this pairing",
+  "gcvGbForgetAsk": "Forget this pairing? The box stops watching until you pair it again with a new code.",
+  "cityGRouteHere": "Go by bus / metro",
+  "@cityGRouteHere": {
+    "description": "gap-city: button on a place (office, terminal, hospital...) that plans the trip there in City Service"
+  },
+  "cityGLoadFailed": "Could not load right now. Check the internet and try again.",
+  "@cityGLoadFailed": {
+    "description": "gap-city: a City Service list failed to load; a Try again button follows"
+  },
+  "cityGNoMatch": "Nothing matches \"{q}\". Try a shorter name.",
+  "@cityGNoMatch": {
+    "description": "gap-city: search in offices / terminals found nothing",
     "placeholders": {
-      "seconds": {
+      "q": {
         "type": "String"
       }
     }
   },
-  "a11ySosTalkBackIntro": "SOS countdown. TalkBack is on, so you have {seconds} seconds. The first button is Cancel. Swipe right for Send now.",
-  "@a11ySosTalkBackIntro": {
-    "description": "Spoken once when an SOS countdown opens with TalkBack on.",
-    "placeholders": {
-      "seconds": {
-        "type": "String"
-      }
-    }
+  "cityGNeedStart": "Where are you starting from? Location is off, so choose your start point or turn location on.",
+  "@cityGNeedStart": {
+    "description": "gap-city: destination chosen but no GPS and no start point"
   },
-  "a11yDirectionsTo": "Directions to {place}",
-  "@a11yDirectionsTo": {
-    "description": "Tooltip/TalkBack name of a directions icon next to a police station or hospital.",
+  "cityGUseMyLocation": "Use my location",
+  "@cityGUseMyLocation": {
+    "description": "gap-city: button: ask for the phone's location again"
+  },
+  "cityGSearchAll": "Search all places for \"{place}\"",
+  "@cityGSearchAll": {
+    "description": "gap-city: voice ask: the name is not in our bus/metro data; open the full place search",
     "placeholders": {
       "place": {
         "type": "String"
       }
     }
   },
-  "cplTrialNoEzviz": "EZVIZ cameras are not in the free trial — with an EZVIZ camera, buy the plan directly. Every other brand gets 7 days free.",
-  "@cplTrialNoEzviz": {
-    "description": "cctvprice: owner 17 Nov 12:35 — honest trial copy, EZVIZ excluded"
+  "cityGOfflineAlarmOnly": "No internet, so your family was not told. The get-off alarm is on and the steps are below.",
+  "@cityGOfflineAlarmOnly": {
+    "description": "gap-city: Start as Safe Journey failed offline; only the on-phone get-off alarm started"
   },
-  "cplTrialEzvizYou": "You have an EZVIZ camera, so the free trial doesn't apply. Buy the plan directly — you can cancel any time in Google Play.",
-  "@cplTrialEzvizYou": {
-    "description": "cctvprice: shown when the server says trial_block = ezviz"
+  "cityGLeaveNow": "Leave now",
+  "@cityGLeaveNow": {
+    "description": "gap-city: chip: plan for leaving now"
   },
-  "cplPremiumTitle": "Premium AI",
-  "@cplPremiumTitle": {
-    "description": "cctvprice: Premium AI tier card title"
-  },
-  "cplPremiumBody": "Smart alerts that say in Bangla what happened, and event clips kept for {days} days. Added on top of your CCTV plan.",
-  "@cplPremiumBody": {
-    "description": "cctvprice: Premium AI card body",
+  "cityGLeaveAt": "Leave at {time}",
+  "@cityGLeaveAt": {
+    "description": "gap-city: chip: the chosen later departure time",
     "placeholders": {
-      "days": {
+      "time": {
         "type": "String"
       }
     }
   },
-  "cplPremiumPrice": "{price} tk per camera per month",
-  "@cplPremiumPrice": {
-    "description": "cctvprice: Premium AI per-camera price",
+  "cityGForLeaving": "Fare and time if you leave at {time}",
+  "@cityGForLeaving": {
+    "description": "gap-city: results are for a later departure",
     "placeholders": {
-      "price": {
+      "time": {
         "type": "String"
       }
     }
   },
-  "cplPremiumTotal": "For {cameras} cameras: {total} tk a month extra",
-  "@cplPremiumTotal": {
-    "description": "cctvprice: Premium AI total for the camera count",
+  "cityGAtDawn": "{time} AM",
+  "@cityGAtDawn": {
+    "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
     "placeholders": {
-      "cameras": {
-        "type": "String"
-      },
-      "total": {
+      "time": {
         "type": "String"
       }
     }
   },
-  "cplPremiumBuy": "Add Premium AI — {total} tk / month",
-  "@cplPremiumBuy": {
-    "description": "cctvprice: Premium AI buy button",
+  "cityGAtMorning": "{time} AM",
+  "@cityGAtMorning": {
+    "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
     "placeholders": {
-      "total": {
+      "time": {
         "type": "String"
       }
     }
   },
-  "cplPremiumActive": "Premium AI is on",
-  "@cplPremiumActive": {
-    "description": "cctvprice: Premium AI active chip"
-  },
-  "cplPremiumNeedsPlan": "Buy the CCTV plan first, then add Premium AI.",
-  "@cplPremiumNeedsPlan": {
-    "description": "cctvprice: Premium AI needs the base plan"
-  },
-  "biCctvTrialNoEzviz": "EZVIZ cameras are not in the free trial.",
-  "@biCctvTrialNoEzviz": {
-    "description": "cctvprice: buy sheet line under the trial note"
-  },
-  "stagingUpdatesViaTester": "This is the Assisto Test app. A new test build arrives every day through the App Tester app — open App Tester to update.",
-  "@stagingUpdatesViaTester": {
-    "description": "Update screen in the owner's staging test app (com.assisto.assisto.staging): updates come from Firebase App Tester, not from the in-app updater."
-  },
-  "stagingPurchasesOffTitle": "Purchases are off in the test app",
-  "@stagingPurchasesOffTitle": {
-    "description": "Checkout sheet title in the staging test app: nothing can be bought there."
-  },
-  "stagingPurchasesOffBody": "Nothing can be bought in Assisto Test and no money is ever taken. To try a paid plan here, ask the Assisto team to turn on a test plan for your account. Real purchases work in the Assisto app from Google Play.",
-  "@stagingPurchasesOffBody": {
-    "description": "Checkout sheet body in the staging test app."
-  },
-  "stagingPurchasesOffOk": "OK",
-  "@stagingPurchasesOffOk": {
-    "description": "Closes the purchases-off sheet in the staging test app."
-  },
-  "lp2gDraftBack": "Your unfinished answers are back. Carry on from where you stopped.",
-  "@lp2gDraftBack": {
-    "description": "gap-lp: toast when a mock reopens with answers saved on the phone after the app closed"
-  },
-  "lp2gSubmitTitle": "Submit this section?",
-  "@lp2gSubmitTitle": {
-    "description": "gap-lp: title of the confirm sheet before a mock section is submitted"
-  },
-  "lp2gUnanswered": "{count} questions are not answered yet.",
-  "@lp2gUnanswered": {
-    "description": "gap-lp: confirm sheet line, count = unanswered questions or tasks (already in local digits)",
+  "cityGAtNoon": "{time} PM",
+  "@cityGAtNoon": {
+    "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
     "placeholders": {
-      "count": {
+      "time": {
         "type": "String"
       }
     }
   },
-  "lp2gNoReturn": "In a full mock you cannot come back to this section, like the real exam.",
-  "@lp2gNoReturn": {
-    "description": "gap-lp: confirm sheet line in a full mock"
-  },
-  "lp2gSubmitNow": "Submit",
-  "@lp2gSubmitNow": {
-    "description": "gap-lp: confirm sheet button that submits the section"
-  },
-  "lp2gCert": "Practice certificate (PDF)",
-  "@lp2gCert": {
-    "description": "gap-lp: button under a full mock result that opens the Assisto Practice Certificate PDF"
-  },
-  "lp2gCertFail": "The certificate did not open. Check the internet and try again.",
-  "@lp2gCertFail": {
-    "description": "gap-lp: toast when the certificate PDF could not be downloaded or opened"
-  },
-  "lp2gSavedOffline": "No internet. Tests saved on this phone are below — you can take them now; marking needs internet.",
-  "@lp2gSavedOffline": {
-    "description": "gap-lp: banner on the IELTS page when the mock list cannot load but downloaded mocks exist"
-  },
-  "gbzChaseTapHint": "Tap a name to send that customer a reminder now. The message carries their due link and how to pay.",
-  "gbzChaseSendOne": "Send the reminder",
-  "gbzChaseSendAll": "Send reminders to these {count}",
-  "@gbzChaseSendAll": {
+  "cityGAtAfternoon": "{time} PM",
+  "@cityGAtAfternoon": {
+    "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
     "placeholders": {
-      "count": {
+      "time": {
         "type": "String"
       }
     }
   },
-  "gbzOpenProducts": "Open products and stock",
-  "gbzWbEdit": "Edit",
-  "gbzWbEditTitle": "Write the message your way",
-  "gbzWbEditHint": "Keep {name} and {shop} as they are — they fill in for each customer.",
-  "@gbzWbEditHint": {
+  "cityGAtEvening": "{time} PM",
+  "@cityGAtEvening": {
+    "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "cityGAtNight": "{time} PM",
+  "@cityGAtNight": {
+    "description": "gap-city: clock time with the Bangla time of day (the Bangla UI only)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fceYouAsked": "You asked: {q}",
+  "@fceYouAsked": {
+    "placeholders": {
+      "q": {
+        "type": "String"
+      }
+    }
+  },
+  "fceHearAgain": "Hear again",
+  "fceTalkOffline": "Talking to Assisto needs the internet. Calls and the Danger button still work without it.",
+  "fcgNotInCircle": "This person is not in your My Circle yet, so you cannot ask for their location. Add them in My Circle first, or pick someone below.",
+  "fcgLinePaused": "{name} has paused sharing for now",
+  "@fcgLinePaused": {
     "placeholders": {
       "name": {
         "type": "String"
+      }
+    }
+  },
+  "fcgLinePausedSub": "This is their choice, not a problem. SOS still reaches everyone.",
+  "fcgTaskDeleteQ": "Delete this task for everyone?",
+  "fcgStaleBanner": "Couldn't get new news. What you see is from {time}.",
+  "@fcgStaleBanner": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcgMembersSub": "Blood group, birthdays and medicine reminders — your own notes on this phone",
+  "fcgTimeOf": "{name}'s time",
+  "@fcgTimeOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcgGoalsTab": "Goals",
+  "fcgGoalsEmpty": "No savings goal yet",
+  "fcgGoalsEmptySub": "Save together for Eid, a wedding, school fees or a hospital fund. Everyone in the family sees it and can add what they gave.",
+  "fcgGoalNew": "New goal",
+  "fcgGoalNameHint": "Goal name, like Eid fund",
+  "fcgGoalTarget": "How much do you want to save?",
+  "fcgGoalAdd": "Add money",
+  "fcgGoalClose": "Close goal",
+  "fcgGoalReopen": "Open again",
+  "fcgGoalCloseQ": "Close this goal? What everyone gave stays in the record.",
+  "fcgGoalReached": "Reached!",
+  "fcgGoalDone": "Closed goals",
+  "fcgGoalProgress": "{collected} of {target} · {pct}%",
+  "@fcgGoalProgress": {
+    "placeholders": {
+      "collected": {
+        "type": "String"
       },
-      "shop": {
-        "type": "String"
-      }
-    }
-  },
-  "gbzWbSave": "Save",
-  "gbzWbReach": "In the app now: {on} of {total} — only customers who use Assisto get it here.",
-  "@gbzWbReach": {
-    "placeholders": {
-      "on": {
+      "target": {
         "type": "String"
       },
-      "total": {
+      "pct": {
         "type": "String"
       }
     }
   },
-  "gbzWbMessageOthers": "Message the others on your WhatsApp",
-  "gbzBulkStopped": "{count} left out — they said STOP.",
-  "@gbzBulkStopped": {
+  "fcgLedgerShared": "{family} — everyone sees and adds",
+  "@fcgLedgerShared": {
     "placeholders": {
-      "count": {
+      "family": {
         "type": "String"
       }
     }
   },
-  "gbzCrmMore": "More",
-  "gbzCrmMoreSub": "Every other CRM tool — tap one to open it.",
-  "gbzRemindPost": "Remind me to post at the best time",
-  "gbzRemindDone": "Reminder set.",
-  "gbzRemindFailed": "Could not set the reminder — please try again.",
-  "gbzBulkNotFound": "{count} could not be found — check their number.",
-  "@gbzBulkNotFound": {
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "gapcEditTooLate": "It's too late to edit this message.",
-  "@gapcEditTooLate": {
-    "description": "gap-circle: group edit refused, outside the 15-minute window"
-  },
-  "gapcDeleteMeGroupConfirm": "This message is removed just for you; others in the group still keep it.",
-  "@gapcDeleteMeGroupConfirm": {
-    "description": "gap-circle: confirm delete-for-me in a group chat"
-  },
-  "gapcCallsClear": "Clear call history",
-  "@gapcCallsClear": {
-    "description": "gap-circle: remove calls from my call history"
-  },
-  "gapcCallsClearBody": "All calls are removed from your call history. The other person keeps theirs.",
-  "@gapcCallsClearBody": {
-    "description": "gap-circle: remove calls from my call history"
-  },
-  "gapcCallRemove": "Remove from call history",
-  "@gapcCallRemove": {
-    "description": "gap-circle: remove calls from my call history"
-  },
-  "gapcCallRemoveBody": "This call is removed from your call history only. The other person keeps theirs.",
-  "@gapcCallRemoveBody": {
-    "description": "gap-circle: remove calls from my call history"
-  },
-  "gapcCallsRemoved": "Removed from your call history.",
-  "@gapcCallsRemoved": {
-    "description": "gap-circle: remove calls from my call history"
-  },
-  "sosgapSosButtonLine": "Emergency — alert my family",
-  "@sosgapSosButtonLine": {
-    "description": "gap-sos: line next to the SOS icon on the red SosButton (the icon already says SOS — never repeat it)"
-  }
+  "fcgLedgerFamily": "Family (shared)",
+  "fcgLedgerMine": "Only mine"
 }

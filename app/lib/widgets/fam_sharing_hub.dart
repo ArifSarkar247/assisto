@@ -26,7 +26,11 @@ import 'local_counter.dart';
 /// consent grid — what of mine each member may see).
 class FamSharingHub extends StatefulWidget {
   const FamSharingHub({super.key, required this.members, required this.onAddMember,
-      this.vaultLock});
+      this.vaultLock, this.initialPane = 'list'});
+
+  /// gap-familycare: which pane opens first — 'list' (bazar), 'docs'
+  /// (Important papers) or 'privacy'.
+  final String initialPane;
 
   final List<Map<String, dynamic>> members;
   final VoidCallback onAddMember;
@@ -39,7 +43,8 @@ class FamSharingHub extends StatefulWidget {
 }
 
 class _FamSharingHubState extends State<FamSharingHub> {
-  String _pane = 'list';
+  late String _pane =
+      const {'list', 'docs', 'privacy'}.contains(widget.initialPane) ? widget.initialPane : 'list';
 
   @override
   Widget build(BuildContext context) {
