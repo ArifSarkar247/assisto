@@ -23,6 +23,7 @@ import 'carecall_api.dart';
 import 'carecall_plan.dart';
 import 'carecall_ui.dart';
 import 'cc_recorder.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// carecall SCREEN 1 — the setter's "New Care Call", built exactly as the
 /// owner's order describes: Who (first-letter avatar + name, from My Circle
@@ -55,7 +56,8 @@ class CareCallNewScreen extends StatefulWidget {
   State<CareCallNewScreen> createState() => _CareCallNewScreenState();
 }
 
-class _CareCallNewScreenState extends State<CareCallNewScreen> {
+class _CareCallNewScreenState extends State<CareCallNewScreen>
+    with AdBlockedState<CareCallNewScreen> {
   final _text = TextEditingController();
   Map<String, dynamic>? _who;
   TimeOfDay _time = const TimeOfDay(hour: 9, minute: 0);

@@ -15,6 +15,7 @@ import '../widgets/skeleton.dart' show SkeletonList;
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/local_digits.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 bool _isBn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
 
@@ -27,7 +28,8 @@ class QuranScreen extends StatefulWidget {
   State<QuranScreen> createState() => _QuranScreenState();
 }
 
-class _QuranScreenState extends State<QuranScreen> {
+class _QuranScreenState extends State<QuranScreen>
+    with AdBlockedState<QuranScreen> {
   QuranData? _data;
   Object? _error;
   AyaRef? _last;
@@ -371,7 +373,8 @@ class QuranReaderScreen extends StatefulWidget {
   State<QuranReaderScreen> createState() => _QuranReaderScreenState();
 }
 
-class _QuranReaderScreenState extends State<QuranReaderScreen> {
+class _QuranReaderScreenState extends State<QuranReaderScreen>
+    with AdBlockedState<QuranReaderScreen> {
   late int _from; // first aya shown (jump target); "show earlier" resets to 1
   QuranTrans? _trans;
   double _size = QuranPrefs.defaultSize;

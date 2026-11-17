@@ -30,6 +30,7 @@ import 'battery_guidance_screen.dart';
 import '../train/journey_transit.dart';
 import '../widgets/journey_mode_section.dart';
 import 'train/journey_train_pick_screen.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../maps/address_resolver.dart'; // mapscost
 import '../maps/maps_sdk.dart'; // mapscost
 import '../maps/maps_api.dart'; // jsearch
@@ -91,7 +92,8 @@ class JourneyStartScreen extends StatefulWidget {
   State<JourneyStartScreen> createState() => _JourneyStartScreenState();
 }
 
-class _JourneyStartScreenState extends State<JourneyStartScreen> {
+class _JourneyStartScreenState extends State<JourneyStartScreen>
+    with AdBlockedState<JourneyStartScreen> {
   List<Map<String, dynamic>> _places = [];
   List<Map<String, dynamic>> _watchers = [];
   final Set<int> _selectedWatchers = {};

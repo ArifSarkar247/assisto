@@ -11,6 +11,7 @@ import '../widgets/elderly_tile.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/voice_command_sheet.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// SPEC v2.1 feature 29 — ELDERLY SIMPLE-MODE home.
@@ -50,7 +51,7 @@ class ElderlyHomeScreen extends StatefulWidget {
 }
 
 class _ElderlyHomeScreenState extends State<ElderlyHomeScreen>
-    with WidgetsBindingObserver {
+    with AdBlockedState<ElderlyHomeScreen>, WidgetsBindingObserver {
   bool _loading = true;
   bool _error = false;
   Object? _failCause; // qa2: why it failed (5xx = our server, not the internet)

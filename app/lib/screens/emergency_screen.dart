@@ -20,6 +20,7 @@ import 'safety_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../services/action_feedback.dart'; // db1
 import '../widgets/permission_reason.dart';
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import 'blood/blood_donor_entry.dart'; // finish1
 import '../family_sos/sos_sms.dart' show cleanPhone; // gap-sos
 
@@ -52,7 +53,8 @@ class EmergencyScreen extends StatefulWidget {
   State<EmergencyScreen> createState() => _EmergencyScreenState();
 }
 
-class _EmergencyScreenState extends State<EmergencyScreen> {
+class _EmergencyScreenState extends State<EmergencyScreen>
+    with AdBlockedState<EmergencyScreen> {
   static const _cacheKey = 'emergency_card_cache';
   static const dirtyKey = EmergencyScreen.dirtyKey;
 

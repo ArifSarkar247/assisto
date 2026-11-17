@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import '../safety/ad_block_context.dart';
 import 'ad_rules.dart' show AdIds;
 import 'consent.dart';
 
@@ -45,6 +46,10 @@ class AdmobSdk {
   }
 
   static Future<bool> ensureReady() async {
+    // ads-guard: never for Premium / Plus / Business (or before /ads/config
+    // confirmed Free), never on a safety / call screen or during a call —
+    // the SDK is not even initialised then.
+    if (!AdBlockContext.sdkAllowed) return false;
     if (!_settled.isCompleted) {
       try {
         await _settled.future.timeout(const Duration(seconds: 30));
@@ -54,6 +59,7 @@ class AdmobSdk {
     }
     // Google UMP consent BEFORE MobileAds.initialize and any ad request.
     if (!await AdConsent.instance.allowsAds()) return false;
+    if (!AdBlockContext.sdkAllowed) return false; // changed while waiting
     if (_ready) return true;
     return _inFlight ??= _init().whenComplete(() => _inFlight = null);
   }
@@ -95,11 +101,16 @@ class AdmobSdk {
     if (!AdConsent.instance.canServe) {
       throw StateError('ad request before the UMP consent gate');
     }
+    if (!AdBlockContext.sdkAllowed) {
+      throw StateError('ad request blocked: ${AdBlockContext.reason()}');
+    }
     return AdRequest(nonPersonalizedAds: !personalisedNow);
   }
 
   @visibleForTesting
   static void resetForTest() {
+    // a confirmed Free plan, no safety screen, no call
+    AdBlockContext.resetForTest();
     _ready = false;
     _inFlight = null;
     personalized = false;
