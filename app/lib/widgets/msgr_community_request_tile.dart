@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 
 /// One incoming community message request — a first contact from someone
 /// OUTSIDE the recipient's circle. It never lands in the normal inbox: the
@@ -42,9 +43,12 @@ class MsgrCommunityRequestTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     final hasPhoto = senderPhoto != null && senderPhoto!.isNotEmpty;
-    return Card(
-      margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.xs),
-      child: Padding(
+    // designv2: a flat bordered DS card (request lists can be long)
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.xs),
+      child: DsSurface(
+        flat: true,
+        borderColor: scheme.ds.border,
         padding: const EdgeInsets.all(Gap.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,7 +58,7 @@ class MsgrCommunityRequestTile extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 22,
-                  backgroundColor: scheme.primaryContainer,
+                  backgroundColor: scheme.ds.primarySoft,
                   backgroundImage: hasPhoto ? NetworkImage(senderPhoto!) : null,
                   child: hasPhoto
                       ? null
@@ -63,7 +67,7 @@ class MsgrCommunityRequestTile extends StatelessWidget {
                               ? senderName.characters.first.toUpperCase()
                               : '?',
                           style:
-                              TextStyle(color: scheme.onPrimaryContainer)),
+                              AType.titleSmall.copyWith(color: scheme.ds.primaryInk)),
                 ),
                 const SizedBox(width: Gap.md),
                 Expanded(
@@ -74,8 +78,8 @@ class MsgrCommunityRequestTile extends StatelessWidget {
                           style: text.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w600)),
                       Text(t.communityRequestFromCommunity(communityName),
-                          style: text.labelSmall
-                              ?.copyWith(color: scheme.onSurfaceVariant)),
+                          style: text.bodySmall
+                              ?.copyWith(color: scheme.ds.muted)),
                     ],
                   ),
                 ),
@@ -87,17 +91,17 @@ class MsgrCommunityRequestTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                   horizontal: Gap.sm, vertical: Gap.xs),
               decoration: BoxDecoration(
-                color: scheme.tertiary.withValues(alpha: 0.10),
+                color: scheme.ds.primarySoft,
                 borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: Row(
                 children: [
                   Icon(Icons.mark_email_unread_rounded,
-                      size: 15, color: scheme.tertiary),
+                      size: 15, color: scheme.ds.primaryInk),
                   const SizedBox(width: Gap.xs),
                   Expanded(
                     child: Text(t.communityRequestBanner,
-                        style: text.labelSmall?.copyWith(color: scheme.tertiary)),
+                        style: text.labelMedium?.copyWith(color: scheme.ds.primaryInk)),
                   ),
                 ],
               ),
@@ -106,14 +110,15 @@ class MsgrCommunityRequestTile extends StatelessWidget {
             Text(preview,
                 style: text.bodyMedium, maxLines: 3, overflow: TextOverflow.ellipsis),
             const SizedBox(height: Gap.sm),
+            // Wrap-safe action row: buttons can wrap at 200% font
             Row(
               children: [
-                FilledButton(
-                    onPressed: onAccept, child: Text(t.communityRequestAccept)),
-                const SizedBox(width: Gap.sm),
-                OutlinedButton(
-                    onPressed: onDecline, child: Text(t.communityRequestDecline)),
-                const Spacer(),
+                Expanded(
+                  child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+                    DsButton.secondary(onPressed: onAccept, label: t.communityRequestAccept),
+                    DsButton.secondary(onPressed: onDecline, label: t.communityRequestDecline),
+                  ]),
+                ),
                 PopupMenuButton<String>(
                   tooltip: t.communityMemberMore,
                   onSelected: (v) {

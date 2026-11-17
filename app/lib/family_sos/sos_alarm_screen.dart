@@ -368,8 +368,15 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
 
   Widget _where(AppLocalizations t, DsTokens ds, Map<String, dynamic>? d) {
     final loc = d?['location'] as Map?;
-    final lat = (loc?['lat'] as num?)?.toDouble();
-    final lng = (loc?['lng'] as num?)?.toDouble();
+    var lat = (loc?['lat'] as num?)?.toDouble();
+    var lng = (loc?['lng'] as num?)?.toDouble();
+    // gap-sos (P1): the page could not load (weak internet on THIS phone) —
+    // the push itself carried the place at send time; show it, never "no
+    // location" while we have one.
+    if ((lat == null || lng == null) && loc == null) {
+      lat = double.tryParse(widget.data['lat'] ?? '');
+      lng = double.tryParse(widget.data['lng'] ?? '');
+    }
     if (lat == null || lng == null) {
       return SosBanner(
         icon: Icons.location_off_rounded,

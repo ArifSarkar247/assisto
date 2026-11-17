@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
@@ -222,10 +223,9 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
   }
 
   Widget _gdCard(AppLocalizations t) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
@@ -260,15 +260,13 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 
   Widget _spCard(AppLocalizations t) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
@@ -295,15 +293,13 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 
   Widget _evidenceCard(AppLocalizations t) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
@@ -333,16 +329,14 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 
   Widget _stationsCard(AppLocalizations t) {
     final stations = _stations;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
@@ -424,16 +418,13 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
               ),
           ],
         ),
-      ),
     );
   }
 
   Widget _esimCard(AppLocalizations t) {
-    return Card(
-      color: Theme.of(context).colorScheme.ds.cardHighest,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(color: Theme.of(context).colorScheme.ds.cardHighest,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(children: [
@@ -448,7 +439,6 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
             Text(t.recEsimBody, style: Theme.of(context).textTheme.bodyMedium),
           ],
         ),
-      ),
     );
   }
 
@@ -463,10 +453,9 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
       _Chance(t.recChanceNoGd, t.recChanceNoGdNote, t.recChanceLow,
           Brand.danger),
     ];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.recChancesTitle,
@@ -478,7 +467,6 @@ class _RecoveryScreenState extends State<RecoveryScreen> {
             for (final r in rows) _chanceRow(r),
           ],
         ),
-      ),
     );
   }
 

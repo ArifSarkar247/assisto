@@ -189,6 +189,9 @@ class AlarmCallTests(_X):
         self.assertTrue(CD.is_alarm_call_id(data["call_id"]))
         self.assertIn("snapshot_url", data)
         self.assertEqual(data["caller_photo"], data["snapshot_url"])
+        # design2-b13: when + what for the alarm page
+        self.assertTrue(data["event_type"])
+        self.assertTrue(data["event_at"])
         self.assertFalse(data["video"])
         self.assertEqual(data["route"], "watchman/inbox")
         self.assertFalse(ShopGuardTask.objects.get(kind="escalate").done)

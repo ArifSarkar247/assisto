@@ -164,26 +164,19 @@ class _MyDuesShopScreenState extends State<MyDuesShopScreen> {
       child: ListView(
         padding: const EdgeInsets.all(Gap.lg),
         children: [
-          Card(
-            margin: EdgeInsets.zero,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.lg),
+          // what I owe this shop = the soft DS hero, the big number first
+          DsHeroCard(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(pair(context, d['status']), style: AType.bodyMedium),
+                    Text(pair(context, d['status']),
+                        style: AType.titleSmall.copyWith(color: DsTokens.of(context).muted)),
                     const SizedBox(height: Gap.xs),
-                    Text(pair(context, d['balance_display']),
+                    DsNumber(pair(context, d['balance_display']),
                         key: const ValueKey('tg2-shop-balance'),
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(
-                                fontFeatures: AFonts.tabular,
-                                fontWeight: FontWeight.w700,
-                                color: owes
-                                    ? DsTokens.of(context).dangerInk
-                                    : AssistoTokens.of(context).success)),
+                        color: owes
+                            ? DsTokens.of(context).dangerInk
+                            : DsTokens.of(context).successInk),
                     const SizedBox(height: Gap.md),
                     Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
                       FilledButton.tonalIcon(
@@ -202,16 +195,9 @@ class _MyDuesShopScreenState extends State<MyDuesShopScreen> {
                               .copyWith(color: DsTokens.of(context).muted)),
                     ],
                   ]),
-            ),
           ),
           if (owes) ...[
-            const SizedBox(height: Gap.lg),
-            Semantics(
-              header: true,
-              child: Text(t.tg2PayTitle,
-                  style: Theme.of(context).textTheme.titleMedium),
-            ),
-            const SizedBox(height: Gap.xs),
+            DsSectionHeader(t.tg2PayTitle),
             Text(t.tg2PayNever,
                 style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
             const SizedBox(height: Gap.sm),
@@ -224,20 +210,19 @@ class _MyDuesShopScreenState extends State<MyDuesShopScreen> {
                     method: m.cast<String, dynamic>(),
                     amount: pair(context, d['balance_display'])),
           ],
-          const SizedBox(height: Gap.lg),
-          Semantics(
-            header: true,
-            child: Text(t.tg2ShopEntries,
-                style: Theme.of(context).textTheme.titleMedium),
-          ),
-          const SizedBox(height: Gap.sm),
+          DsSectionHeader(t.tg2ShopEntries),
           if (entries.isEmpty)
-            Text(t.tg2ShopNoEntries, style: AType.bodyMedium)
+            DsCard(
+                child: Text(t.tg2ShopNoEntries,
+                    style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)))
           else
-            for (final e in entries) _entry(t, e),
+            // the shop's entries as one DS group
+            DsGroup(margin: EdgeInsets.zero, children: [
+              for (final e in entries) _entry(t, e),
+            ]),
           const SizedBox(height: Gap.lg),
-          Card(
-            margin: EdgeInsets.zero,
+          DsCard(
+            padding: EdgeInsets.zero,
             child: Column(children: [
               SwitchListTile(
                 key: const ValueKey('tg2-mute'),
@@ -274,14 +259,14 @@ class _MyDuesShopScreenState extends State<MyDuesShopScreen> {
       if (note.isNotEmpty) note,
     ].join(' · ');
     return ListTile(
-      contentPadding: EdgeInsets.zero,
+      contentPadding: const EdgeInsets.symmetric(horizontal: Gap.lg),
       leading: Icon(due ? Icons.add_circle_outline_rounded : Icons.payments_rounded,
           color: due ? DsTokens.of(context).dangerInk : AssistoTokens.of(context).success),
       title: Text(due ? t.tg2EntryDue : t.tg2EntryPaid),
       subtitle: sub.isEmpty ? null : Text(_dg(sub)),
       trailing: Text(pair(context, e['amount_display']),
-          style: const TextStyle(
-              fontFeatures: AFonts.tabular, fontWeight: FontWeight.w600)),
+          style: AType.bodyMedium.copyWith(
+              fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -353,10 +338,7 @@ class _PayCard extends StatelessWidget {
       t.tg2PayStepPin,
       t.tg2PayStepTell,
     ];
-    return Card(
-      key: ValueKey('tg2-pay-$provider'),
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(key: ValueKey('tg2-pay-$provider'), padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Semantics(
@@ -402,7 +384,6 @@ class _PayCard extends StatelessWidget {
             ),
           ]),
         ]),
-      ),
-    );
+      ));
   }
 }

@@ -52301,5 +52301,117 @@
   "emailrelBouncingBanner": "Emails to your saved address are bouncing back. Please check your email address and verify it again.",
   "@emailrelBouncingBanner": {
     "description": "emailrel: banner on the sign-in email screen"
+  },
+  "adwireMoreRoutesGoogle": "More routes (Google)",
+  "@adwireMoreRoutesGoogle": {
+    "description": "adwire: City Service results button — one Google transit request (Free users watch one short ad first)"
+  },
+  "adGateWhatRoutes": "to see more routes from Google",
+  "@adGateWhatRoutes": {
+    "description": "adwire: rewarded gate line for More routes (Google) on City Service"
+  },
+  "d2LeadScoreA11y": "Lead score {score}",
+  "@d2LeadScoreA11y": {
+    "description": "design2: TalkBack label of the coloured lead score badge in CRM leads",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "d2LeadScoreHint": "The coloured number is the lead score: higher means more likely to buy.",
+  "@d2LeadScoreHint": {
+    "description": "design2: one-line legend above the CRM leads list explaining the score badge"
+  },
+  "lp2ListenStart": "Start listening",
+  "@lp2ListenStart": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenIntro": "Like the real test: time to read the questions, the recording plays once, time to check, then the next part starts by itself.",
+  "@lp2ListenIntro": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenMinutes": "About {min} minutes of recording",
+  "@lp2ListenMinutes": {
+    "description": "lpaudio: IELTS recorded listening",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2ListenPreview": "Read questions {range}",
+  "@lp2ListenPreview": {
+    "description": "lpaudio: IELTS recorded listening",
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2ListenCheck": "Check your answers",
+  "@lp2ListenCheck": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenDone": "Listening finished. Check your answers, then tap Submit below.",
+  "@lp2ListenDone": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenPartOf": "Part {n} of {total}",
+  "@lp2ListenPartOf": {
+    "description": "lpaudio: IELTS recorded listening",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2ListenNextPart": "Next part",
+  "@lp2ListenNextPart": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenVoices": "Voices: {list}",
+  "@lp2ListenVoices": {
+    "description": "lpaudio: IELTS recorded listening",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2AccentGb": "British English",
+  "@lp2AccentGb": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2AccentUs": "American English",
+  "@lp2AccentUs": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenRecorded": "Recorded voices (made for Assisto, not a real person)",
+  "@lp2ListenRecorded": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "gapAichatCutHint": "This answer was long, so it paused here. Tap Continue for the rest — no credits are used.",
+  "@gapAichatCutHint": {
+    "description": "gap-aichat: under an AI answer cut at its length limit; the Continue is free"
+  },
+  "gapAichatCutHintPaid": "This answer was long, so it paused here. Tap Continue for the rest.",
+  "@gapAichatCutHintPaid": {
+    "description": "gap-aichat: under a cut AI answer after the free Continue limit (the next Continue is a normal answer)"
+  },
+  "sosgapStillTrying": "Your SOS has not reached your family yet. Assisto keeps trying every 15 seconds — it goes out as soon as the internet is back, even if you leave this screen.",
+  "@sosgapStillTrying": {
+    "description": "gap-sos: Emergency SOS offline, the app keeps retrying the same SOS"
+  },
+  "sosgapStopTrying": "Stop trying",
+  "@sosgapStopTrying": {
+    "description": "gap-sos: stop retrying an unsent SOS (does not close the screen)"
+  },
+  "sosgapOpenFull": "Who is on the way · live location · 30 s sound",
+  "@sosgapOpenFull": {
+    "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
   }
 }

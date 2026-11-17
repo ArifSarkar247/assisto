@@ -9,6 +9,7 @@ import '../../../acct_api.dart';
 import '../../../api.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../messaging/date_separators.dart' show fmtDate, localDigits;
+import '../../../widgets/num_input.dart' show takaToPoishaInput;
 
 /// acctui — shared bits of the accounting UI: money / date formatting,
 /// labels for the plain-word entry kinds, the period maths (mirror of
@@ -31,19 +32,17 @@ String acctMoneyFor(Object? poisha, String lang, {bool signed = false}) {
 String acctMoney(BuildContext context, Object? poisha, {bool signed = false}) =>
     acctMoneyFor(poisha, acctLang(context), signed: signed);
 
-/// "1,250.50" / Bangla-digit amounts / "1,250.5" -> poisha. Null when not a positive number.
+/// "1,250.50" / Bangla-digit amounts / "1,250.5" / "Tk. 500" / "500/-" ->
+/// poisha. Null when not a positive number.
+///
+/// gap-money: this used to keep only digits and dots, so "Tk. 500" became
+/// ".500" = 50 POISHA (100x too small) and "12abc" became 12 taka. Now the
+/// app's one strict parser (widgets/num_input.dart): half-up on the paisa,
+/// no binary float, junk is refused.
 int? parseTakaToPoisha(String raw) {
-  final b = StringBuffer();
-  for (final r in raw.runes) {
-    if (r >= 0x09E6 && r <= 0x09EF) {
-      b.writeCharCode(0x30 + r - 0x09E6);
-    } else if ((r >= 0x30 && r <= 0x39) || r == 0x2E) {
-      b.writeCharCode(r);
-    }
-  }
-  final v = double.tryParse(b.toString());
-  if (v == null || v <= 0 || v > 1e11) return null;
-  return (v * 100).round();
+  final p = takaToPoishaInput(raw);
+  if (p == null || p <= 0 || p > 10000000000000) return null;
+  return p;
 }
 
 /// Poisha -> plain "1250" / "1250.5" for a text field (latin digits; the

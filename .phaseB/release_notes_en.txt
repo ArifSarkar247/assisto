@@ -1,4 +1,4 @@
-- Our own Bangladesh map in City Service, with Bangla labels and an offline Dhaka pack.
-- Smoother on low-end phones: lighter card style.
-- Smaller download and more ad partners for free users.
-- New look for more business and CRM screens.
+- Money amounts now save exactly (e.g. "Tk. 500"), and Mess entries made offline are never lost.
+- SOS sent without internet is retried automatically until it reaches your family.
+- Safe Journey: "Going to Office?" one-tap start, plate photo for family, one clear distance.
+- Better AI answers and many design improvements.

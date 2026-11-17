@@ -104,34 +104,38 @@ class MsgrSetAccountScreen extends StatelessWidget {
       appBar: AppBar(title: Text(t.msgrSetAccount)),
       body: ListView(
         children: [
-          MsgrSetRow(
+MsgrSetGroup([
+MsgrSetRow(
             icon: Icons.pin_rounded,
             title: t.msgrSetTwoStepTitle,
             subtitle: t.msgrSetTwoStepRowSub,
             onTap: () => _open(context, const MsgrSetTwoStepScreen()),
           ),
-          MsgrSetRow(
+MsgrSetRow(
             icon: Icons.swap_horiz_rounded,
             title: t.msgrSetChangeNumberTitle,
             subtitle: t.msgrSetChangeNumberRowSub,
             onTap: () => _open(context, const MsgrSetChangeNumberScreen()),
           ),
-          const Divider(),
-          MsgrSetRow(
+]),
+MsgrSetGroup([
+MsgrSetRow(
             icon: Icons.download_rounded,
             title: t.msgrSetRequestData,
             subtitle: t.msgrSetRequestDataSub,
             onTap: () => _exportData(context),
           ),
-          const Divider(),
-          MsgrSetRow(
+]),
+MsgrSetGroup([
+MsgrSetRow(
             icon: Icons.delete_forever_rounded,
             title: t.msgrSetDeleteTitle,
             subtitle: t.msgrSetDeleteRowSub,
             color: scheme.error,
             onTap: () => _deleteAccount(context),
           ),
-        ],
+]),
+],
       ),
     );
   }

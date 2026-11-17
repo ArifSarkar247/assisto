@@ -971,7 +971,7 @@ class FakeApi extends ApiClient {
           'decision_maker': '', 'notes': '', 'next_follow_up': null,
         },
         {
-          'id': 3, 'org': 1, 'name': _bn ? 'শপ ৩৬৫' : 'Shop 365',
+          'id': 3, 'org': 1, 'name': 'Shop 365', // design2-b12: a brand name stays as saved (never transliterated)
           'company': 'Shop 365', 'industry': 'retail', 'industry_display': _bn ? 'রিটেইল' : 'Retail',
           'company_size': 40, 'source': 'manual', 'source_display': _bn ? 'ম্যানুয়াল' : 'Manual',
           'phone': '01912345678', 'whatsapp': '', 'email': '', 'designation': '',

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
+import '../../ds/ds.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
@@ -161,7 +163,7 @@ class _MissingOptinScreenState extends State<MissingOptinScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.maOptinTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _failed
               ? Center(child: MaError(onRetry: _load))
               : ListView(
@@ -192,7 +194,7 @@ class _MissingOptinScreenState extends State<MissingOptinScreen> {
                         initialValue: _district.isEmpty ? null : _district,
                         isExpanded: true,
                         decoration: InputDecoration(
-                            labelText: t.maOptinDistrict, border: const OutlineInputBorder()),
+                            labelText: t.maOptinDistrict),
                         items: [
                           for (final d in _districts)
                             DropdownMenuItem(value: '${d['code']}', child: Text('${d['name']}')),
@@ -200,12 +202,7 @@ class _MissingOptinScreenState extends State<MissingOptinScreen> {
                         onChanged: (v) => setState(() => _district = v ?? ''),
                       ),
                       const SizedBox(height: Gap.sm),
-                      OutlinedButton.icon(
-                        key: const ValueKey('ma-optin-here'),
-                        onPressed: _useHere,
-                        icon: const Icon(Icons.my_location_rounded),
-                        label: Text(_newPoint != null || _hasPoint ? t.maOptinPointUpdate : t.maOptinPointSetCta),
-                      ),
+                      DsButton.secondary(buttonKey: const ValueKey('ma-optin-here'), onPressed: _useHere, icon: Icons.my_location_rounded, label: _newPoint != null || _hasPoint ? t.maOptinPointUpdate : t.maOptinPointSetCta),
                       Text(t.maOptinPointHelp, style: text.bodySmall),
                       const SizedBox(height: Gap.sm),
                       SwitchListTile(

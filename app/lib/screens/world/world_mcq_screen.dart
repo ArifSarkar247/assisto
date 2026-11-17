@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset; // lifebar
 import 'package:provider/provider.dart';
 
@@ -110,10 +111,7 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
                   tint: scheme.error,
                   title: t.loadFailed,
                   message: t.uwOffline,
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(t.retry)))
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry))
               : ListView(
                   padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.xl)),
                   children: [
@@ -164,11 +162,9 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
     final opts =
         (q['options'] as List?)?.map((e) => '$e').toList() ?? const <String>[];
     final last = _i == _qs.length - 1;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(
               t.uwMcqProgress(
                   uwDigits(context, _i + 1), uwDigits(context, _qs.length)),
@@ -228,7 +224,6 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
             ),
           ]),
         ]),
-      ),
     );
   }
 
@@ -236,12 +231,9 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
     final r = _result!;
     final res = worldList(r['results']);
     return [
-      Card(
-        margin: EdgeInsets.zero,
-        color: scheme.ds.primarySoft,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Row(children: [
+      DsSurface(color: scheme.ds.primarySoft,
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Row(children: [
             Icon(Icons.emoji_events_rounded,
                 color: scheme.ds.primaryInk, size: 36),
             const SizedBox(width: Gap.md),
@@ -255,25 +247,21 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
                       ?.copyWith(color: scheme.ds.primaryInk)),
             ),
           ]),
-        ),
       ),
       const SizedBox(height: Gap.md),
       for (final x in res)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: Padding(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
             padding: const EdgeInsets.all(Gap.md),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Icon(x['correct'] == true ? Icons.check_circle_rounded : Icons.cancel_rounded,
                     color: x['correct'] == true
-                        ? Colors.green.shade600
+                        ? scheme.ds.successInk
                         : scheme.error),
                 const SizedBox(width: Gap.sm),
                 Expanded(
                     child: Text('${x['q']}',
-                        style: const TextStyle(fontWeight: FontWeight.w600))),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
               ]),
               const SizedBox(height: Gap.xs),
               Text(t.uwMcqRightAnswer(
@@ -281,14 +269,10 @@ class _WorldMcqScreenState extends State<WorldMcqScreen> {
               const SizedBox(height: Gap.xxs),
               Text('${x['why'] ?? ''}',
                   style:
-                      TextStyle(color: scheme.ds.muted, height: 1.4)),
+                      AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
             ]),
-          ),
-        ),
-      FilledButton.icon(
-          onPressed: _load,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(t.uwMcqAgain)),
+          )),
+      DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.uwMcqAgain),
     ];
   }
 }

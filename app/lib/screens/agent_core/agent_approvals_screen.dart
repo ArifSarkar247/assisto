@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -101,7 +102,7 @@ class _AgentApprovalsScreenState extends State<AgentApprovalsScreen> {
     final items = _items;
     Widget body;
     if (items == null && _error == null) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const SkeletonList(count: 4);
     } else if (items == null) {
       body = Center(
           child: AcMessage(
@@ -130,7 +131,7 @@ class _AgentApprovalsScreenState extends State<AgentApprovalsScreen> {
                 padding: const EdgeInsets.only(bottom: Gap.md),
                 child: Text(t.acApGone,
                     key: const ValueKey('ac_focus_gone'),
-                    style: TextStyle(color: Theme.of(context).colorScheme.ds.muted)),
+                    style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
               ),
             if (ordered.isEmpty)
               AcMessage(icon: Icons.verified_user_outlined, body: t.acApprovalsEmpty),

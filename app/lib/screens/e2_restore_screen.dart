@@ -108,7 +108,7 @@ class _E2RestoreScreenState extends State<E2RestoreScreen> {
                   padding: const EdgeInsets.only(top: Gap.xs),
                   child: Text(_error!,
                       key: const Key('e2r-error'),
-                      style: TextStyle(color: scheme.error)),
+                      style: AType.bodyMedium.copyWith(color: scheme.error)),
                 ),
               const SizedBox(height: Gap.md),
               FilledButton(

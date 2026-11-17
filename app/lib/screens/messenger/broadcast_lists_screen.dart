@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../widgets/msgr_channel_common.dart' show MsgrEmptyState;
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -8,6 +11,7 @@ import '../../messenger_hub_api.dart';
 import '../../messaging/broadcast_send.dart'; // f6
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../circle_extras_broadcast_screen.dart';
 import '../../services/error_kind.dart' show serverFailText; // qa2
 
@@ -98,7 +102,7 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
         label: Text(t.msgrBroadcastNew),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           // QA a6: the note sat at the bottom where the FAB covered it —
           // now a header strip.
           : Column(children: [
@@ -110,10 +114,12 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
                         ? _empty()
                         : RefreshIndicator(
                             onRefresh: _load,
+                            // flat bordered DS rows; room for the FAB
                             child: ListView.separated(
+                              padding: withNavBarInset(context,
+                                  const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 96)),
                               itemCount: _lists.length,
-                              separatorBuilder: (_, __) =>
-                                  const Divider(height: 1, indent: Gap.lg),
+                              separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
                               itemBuilder: (_, i) => _row(_lists[i]),
                             ),
                           ),
@@ -125,14 +131,18 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
   Widget _row(Map<String, dynamic> l) {
     final t = _t;
     final count = (l['count'] as int?) ?? (l['recipients'] as List?)?.length ?? 0;
-    return ListTile(
-      leading: const CircleAvatar(child: Icon(Icons.campaign_rounded)),
-      title: Text('${l['name'] ?? ''}',
-          maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text('${t.msgrBroadcastRecipients}: ${_digits(count)}',
-          maxLines: 1, overflow: TextOverflow.ellipsis),
-      trailing: const Icon(Icons.chevron_right_rounded),
-      onTap: _compose,
+    final ds = Theme.of(context).colorScheme.ds;
+    return DsSurface(
+      flat: true,
+      borderColor: ds.border,
+      padding: EdgeInsets.zero,
+      child: DsListRow(
+        leading: DsAvatar(size: 40, child: Icon(Icons.campaign_rounded, size: 20, color: ds.primaryInk)),
+        title: '${l['name'] ?? ''}',
+        subtitle: '${t.msgrBroadcastRecipients}: ${_digits(count)}',
+        trailing: Icon(Icons.chevron_right_rounded, color: ds.muted),
+        onTap: _compose,
+      ),
     );
   }
 
@@ -147,8 +157,7 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(_t.msgrBroadcastNote,
-                style: TextStyle(
-                    fontSize: 12, color: scheme.ds.muted, height: 1.3)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
           ),
         ]),
       ),
@@ -161,43 +170,19 @@ class _BroadcastListsScreenState extends State<BroadcastListsScreen> {
 
   Widget _error() {
     final t = _t;
-    return ListView(children: [
-      const SizedBox(height: 96),
-      _centeredState(Icons.cloud_off_rounded, t.msgrHubLoadFailed,
-          serverFailText(t, _failCause) ?? ''),
-      const SizedBox(height: Gap.md),
-      Center(
-        child: OutlinedButton.icon(
-          onPressed: _load,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(t.msgrRetry),
-        ),
+    return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
+      const SizedBox(height: Gap.xl),
+      MsgrEmptyState(
+        icon: Icons.cloud_off_rounded,
+        title: t.msgrHubLoadFailed,
+        body: serverFailText(t, _failCause) ?? '',
+        action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.msgrRetry),
       ),
     ]);
   }
 
-  Widget _centeredState(IconData icon, String title, String body) {
-    final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 52, color: scheme.primary.withValues(alpha: 0.7)),
-          const SizedBox(height: Gap.md),
-          Text(title,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium),
-          if (body.isNotEmpty) ...[
-            const SizedBox(height: Gap.sm),
-            Text(body,
-                textAlign: TextAlign.center,
-                style:
-                    TextStyle(color: scheme.ds.muted, height: 1.4)),
-          ],
-        ]),
-      ),
-    );
-  }
+  Widget _centeredState(IconData icon, String title, String body) =>
+      MsgrEmptyState(icon: icon, title: title, body: body);
 
   String _digits(int n) {
     final bn = Localizations.localeOf(context).languageCode == 'bn';

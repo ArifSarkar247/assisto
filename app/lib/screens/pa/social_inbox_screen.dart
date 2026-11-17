@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -193,7 +194,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
             ]),
             const SizedBox(height: Gap.md),
             Text(tr.socialInboxConnectBody,
-                style: TextStyle(color: scheme.ds.muted, height: 1.4)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
             const SizedBox(height: Gap.md),
             Container(
               padding: const EdgeInsets.all(Gap.md),
@@ -256,10 +257,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.socialInboxLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : _rows.isEmpty
                   ? _welcome(tr)
@@ -275,11 +273,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
             icon: Icons.forum_rounded,
             title: tr.socialInboxWelcomeTitle,
             message: tr.socialInboxWelcomeBody,
-            action: FilledButton.icon(
-              onPressed: () => _addOrEdit(tr),
-              icon: const Icon(Icons.add_rounded),
-              label: Text(tr.socialInboxAdd),
-            ),
+            action: DsButton(onPressed: () => _addOrEdit(tr), icon: Icons.add_rounded, label: tr.socialInboxAdd),
           ),
           const SizedBox(height: Gap.lg),
           if (kShowKeySeams)
@@ -304,7 +298,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(tr.socialInboxConnectTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, height: 1.4)),
               const SizedBox(height: Gap.xxs),
               Text(tr.socialInboxConnectBody,
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
@@ -328,10 +322,12 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
       Padding(
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
         child: Row(children: [
-          FilterChip(
-            label: Text(tr.socialInboxHideHandled),
-            selected: _hideHandled,
-            onSelected: (_) => setState(() => _hideHandled = !_hideHandled),
+          Flexible(
+            child: DsChip(
+              label: tr.socialInboxHideHandled,
+              selected: _hideHandled,
+              onSelected: (_) => setState(() => _hideHandled = !_hideHandled),
+            ),
           ),
         ]),
       ),
@@ -368,7 +364,6 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
             const SizedBox(width: Gap.xs),
             Flexible(
               child: Text(text,
-                  maxLines: 1, overflow: TextOverflow.ellipsis,
                   style: AType.bodySmall.copyWith(color: tint ?? scheme.ds.text)),
             ),
           ]),
@@ -438,18 +433,15 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
     final message = (r['message'] ?? '').toString().trim();
     final handled = status != _stNew;
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(_platformIcon(platform), size: 18, color: scheme.ds.muted),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(from.isEmpty ? _platformLabel(tr, platform) : from,
-                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: handled ? scheme.ds.muted : scheme.ds.text),
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: handled ? scheme.ds.muted : scheme.ds.text)),
             ),
             _pill(_priorityLabel(tr, priority), _priorityColor(priority, scheme)),
           ]),
@@ -466,12 +458,7 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
           Row(children: [
             if (status == _stNew)
               Expanded(
-                child: FilledButton.tonalIcon(
-                  onPressed: () => _setStatus(r, _stReplied),
-                  icon: const Icon(Icons.reply_rounded, size: 18),
-                  label: Text(tr.socialInboxMarkReplied,
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
-                ),
+                child: DsButton.secondary(onPressed: () => _setStatus(r, _stReplied), icon: Icons.reply_rounded, label: tr.socialInboxMarkReplied),
               )
             else
               Expanded(
@@ -498,7 +485,6 @@ class _SocialInboxScreenState extends State<SocialInboxScreen> {
             ),
           ]),
         ]),
-      ),
     );
   }
 
@@ -598,7 +584,7 @@ class _TriageFormState extends State<_TriageForm> {
             controller: _from,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-                labelText: tr.socialInboxFromField, border: const OutlineInputBorder()),
+                labelText: tr.socialInboxFromField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -607,7 +593,6 @@ class _TriageFormState extends State<_TriageForm> {
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
                 labelText: tr.socialInboxMessageField,
-                border: const OutlineInputBorder(),
                 alignLabelWithHint: true),
           ),
           const SizedBox(height: Gap.md),
@@ -626,16 +611,12 @@ class _TriageFormState extends State<_TriageForm> {
             controller: _at,
             decoration: InputDecoration(
                 labelText: tr.socialInboxAtField,
-                hintText: 'YYYY-MM-DD HH:MM',
-                border: const OutlineInputBorder()),
+                hintText: 'YYYY-MM-DD HH:MM'),
           ),
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(tr.cancel),
-              ),
+              child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
             ),
             const SizedBox(width: Gap.md),
             Expanded(

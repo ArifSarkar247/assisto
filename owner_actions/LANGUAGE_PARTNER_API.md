@@ -130,3 +130,14 @@ level (reading passage length by level), timing (L 30 min, R 60, W 60, S 11-14 m
   Track tests: every listening question/part with a script gets `tts {lang: ja-JP|ko-KR|de-DE|zh-CN|fr-FR|ar-SA, lines, repeat}`.
   Recorded audio, when the CI TTS job ships it, replaces this automatically (`audio_url` wins).
 - Track choice questions may have 2–6 options (true/false items of German A1 Hören and HSK 1 picture judge).
+
+## 10. lpaudio — recorded IELTS listening (17 Nov)
+- Audio: rendered in CI (`.github/workflows/lp-audio.yml`, Kokoro-82M v1.0, Apache-2.0 stock voices, narrator +
+  one voice per speaker) -> release `lp-audio` (`<bundle>-p<n>-<plan12>.m4a`, AAC mono 40 kbit/s, faststart + manifest.json).
+- Server: `manage.py lp_audio` (post-deploy; `--dir` for a local folder, `--dry-run`) downloads, checks sha256 and the
+  PLAN HASH against the current script (`core/logic/lp_audio.py`), stores private media `lp/<sha>.m4a`, writes
+  `lp/audio_index.json`, re-seeds the IELTS mocks; `lp_seed` keeps the audio via the index.
+- `GET /lp/mocks/<id>?section=listening` -> `listening:{duration_sec, audio_ready, parts:[{n, audio_url (signed),
+  duration_sec, accents:["en-GB"|"en-US"], bytes, preview_sec:30, check_sec:30|120 (last), questions:[Q]}]}`.
+  **IELTS parts never carry `tts`, turns, intro, transcript or answers any more** (§9's phone-TTS is gone for IELTS;
+  track tests keep §9 until their audio exists). A part without audio -> `audio_url:null`, the app shows "not ready".

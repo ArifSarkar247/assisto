@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
+import '../../ds/ds.dart';
 
 import '../../config.dart';
 import '../../l10n/app_localizations.dart';
@@ -118,11 +120,11 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.srvConfirmBody(norm), style: const TextStyle(height: 1.4)),
+            Text(t.srvConfirmBody(norm), style: AType.bodyMedium.copyWith(height: 1.4)),
             if (!reachable) ...[
               const SizedBox(height: Gap.sm),
               Text(t.srvConfirmUnverified,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: Brand.warning, fontWeight: FontWeight.w600)),
             ],
             const SizedBox(height: Gap.sm),
@@ -186,7 +188,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
     if (!_loaded) {
       return Scaffold(
         appBar: AppBar(title: Text(t.srvTitle)),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const SkeletonList(count: 4),
       );
     }
     return Scaffold(
@@ -209,7 +211,6 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
             onChanged: (_) => setState(() => _probe = null),
             decoration: InputDecoration(
               hintText: t.srvHint,
-              border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.dns_rounded),
             ),
           ),
@@ -231,11 +232,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
             ),
             const SizedBox(width: Gap.md),
             Expanded(
-              child: FilledButton.icon(
-                onPressed: _probing ? null : _save,
-                icon: const Icon(Icons.save_rounded),
-                label: Text(t.srvSaveButton),
-              ),
+              child: DsButton(onPressed: _probing ? null : _save, icon: Icons.save_rounded, label: t.srvSaveButton),
             ),
           ]),
           const SizedBox(height: Gap.lg),
@@ -272,7 +269,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(isDefault ? t.srvCurrentDefault : t.srvCurrentCustom,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ),
         ]),
         const SizedBox(height: Gap.sm),
@@ -320,7 +317,7 @@ class _ServerAddressScreenState extends State<ServerAddressScreen> {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(title,
-                style: TextStyle(fontWeight: FontWeight.w600, color: color)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: color)),
             if (sub != null)
               Text(sub,
                   style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),

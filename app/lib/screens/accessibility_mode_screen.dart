@@ -224,7 +224,7 @@ class _ToggleTile extends StatelessWidget {
       hint: subtitle,
       child: SwitchListTile(
         secondary: Icon(icon),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(title, style: AType.titleMedium.copyWith(fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle,
             style: Theme.of(context).textTheme.bodySmall),
         isThreeLine: subtitle.length > 40,
@@ -258,10 +258,10 @@ class _TextScaleTile extends StatelessWidget {
             const SizedBox(width: Gap.md),
             Expanded(
               child: Text(t.a11yLargeText,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             ),
             Text(notifLocalizeDigits(context, '${(prefs.textScale * 100).round()}%'),
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: cs.primary, fontWeight: FontWeight.w700)),
           ]),
           Padding(

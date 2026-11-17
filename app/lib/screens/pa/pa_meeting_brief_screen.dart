@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -151,18 +152,10 @@ class _PaMeetingBriefScreenState extends State<PaMeetingBriefScreen> {
             const SizedBox(height: Gap.lg),
             Row(children: [
               Expanded(
-                child: FilledButton.icon(
-                  onPressed: _share,
-                  icon: const Icon(Icons.ios_share_rounded, size: 18),
-                  label: Text(t.paShare),
-                ),
+                child: DsButton(onPressed: _share, icon: Icons.ios_share_rounded, label: t.paShare),
               ),
               const SizedBox(width: Gap.sm),
-              OutlinedButton.icon(
-                onPressed: _copy,
-                icon: const Icon(Icons.copy_rounded, size: 18),
-                label: Text(t.copy),
-              ),
+              DsButton.secondary(onPressed: _copy, icon: Icons.copy_rounded, label: t.copy),
             ]),
           ],
 
@@ -175,8 +168,7 @@ class _PaMeetingBriefScreenState extends State<PaMeetingBriefScreen> {
             maxLines: 2,
             decoration: InputDecoration(
                 labelText: t.paBriefWhat,
-                hintText: t.paBriefWhatHint,
-                border: const OutlineInputBorder()),
+                hintText: t.paBriefWhatHint),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -187,8 +179,7 @@ class _PaMeetingBriefScreenState extends State<PaMeetingBriefScreen> {
             decoration: InputDecoration(
                 labelText: t.paBriefAgenda,
                 hintText: t.paBriefBulletHint,
-                alignLabelWithHint: true,
-                border: const OutlineInputBorder()),
+                alignLabelWithHint: true),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -199,8 +190,7 @@ class _PaMeetingBriefScreenState extends State<PaMeetingBriefScreen> {
             decoration: InputDecoration(
                 labelText: t.paBriefPrep,
                 hintText: t.paBriefBulletHint,
-                alignLabelWithHint: true,
-                border: const OutlineInputBorder()),
+                alignLabelWithHint: true),
           ),
 
           const SizedBox(height: Gap.xl),
@@ -271,7 +261,7 @@ class _IncompleteCore extends StatelessWidget {
         const SizedBox(height: Gap.md),
         Text(text,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 color: Theme.of(context).colorScheme.ds.muted,
                 height: 1.4)),
       ]),

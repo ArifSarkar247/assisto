@@ -112,6 +112,12 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   final _plate = TextEditingController();
   Uint8List? _platePhoto; // sjstart2: optional, sent to watchers after start
   bool _suggestOn = true; // sjstart2: "Going to Office?" suggestions
+  // gap-safejourney: usual trips for right now, offered on this screen too
+  List<JourneySuggestion> _usual = const [];
+  bool _usualClosed = false;
+  // gap-safejourney: "pick at least one" turns red only after Start was
+  // pressed without anyone — not before the user has done anything
+  bool _askedWatcher = false;
   final _driverName = TextEditingController();
   final _driverPhone = TextEditingController();
   int _graceMin = 10;
@@ -211,6 +217,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     }
     try {
       _places = await api.savedPlaces();
+      _places = sjgOrderPlaces(_places, await PlaceRecents.ranked()); // gap-safejourney
     } catch (_) {} // best-effort: no saved places offline, form still works
     try {
       final r = await api.getJson('/circle/members');
@@ -220,6 +227,11 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       if (_selectedWatchers.isEmpty) _selectedWatchers.addAll(again);
     } catch (_) {} // best-effort: offline -> empty list shows the add-family step
     _suggestOn = await JourneyHabits.enabled(); // sjstart2
+    if (_suggestOn && widget.suggest == null) {
+      try {
+        _usual = sj2UsualTrips(await JourneyHabits.trips(), DateTime.now());
+      } catch (_) {} // best-effort: a habit is only a hint
+    }
     _psMode = await placeSearchMode(api); // jsearch: never throws
     _map = await VehMapConfig.load(api); // never throws; empty = no map
     _gmaps = await MapsSdk.available(); // mapscost: never throws
@@ -230,13 +242,13 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
 
   /// sjstart2: the suggested usual trip -> destination + mode filled in;
   /// its "Start" button starts at once once the road time is known.
-  Future<void> _applySuggestion() async {
-    final s = widget.suggest;
+  Future<void> _applySuggestion([JourneySuggestion? own]) async {
+    final s = own ?? widget.suggest;
     if (s == null || !mounted) return;
     _pendingKind = s.kind;
     if (s.mode != null) setState(() => _mode = s.mode);
     _setDest(s.name, s.dLat, s.dLng);
-    if (!widget.autoStart) return;
+    if (own == null && !widget.autoStart) return;
     // the ONE road-time answer usually lands within a second or two; without
     // it _start asks for the arrival time (never a dead end)
     for (var i = 0; i < 20 && mounted && _eta == null; i++) {
@@ -434,7 +446,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         'lng': lng,
         'theft_safe': pick.theftSafe,
       });
-      final rows = await api.savedPlaces();
+      final rows = sjgOrderPlaces(await api.savedPlaces(), await PlaceRecents.ranked());
       if (!mounted) return;
       setState(() => _places = rows);
       _snack(t.j2SavePlaceDone);
@@ -575,6 +587,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       return;
     }
     if (_selectedWatchers.isEmpty) {
+      setState(() => _askedWatcher = true);
       messenger.showSnackBar(SnackBar(content: Text(t.journeyNeedWatcher)));
       return;
     }
@@ -851,6 +864,63 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     if (got != null && mounted) _setFrom(got);
   }
 
+  /// gap-safejourney: "Going to Office?" right on the form — only before a
+  /// destination is chosen, never when the notification already filled it.
+  JourneySuggestion? _screenSuggestion() {
+    if (_usualClosed || widget.suggest != null || _dest != null) return null;
+    if (_destName.text.trim().isNotEmpty) return null;
+    return sjgScreenSuggestion(_usual, _origin);
+  }
+
+  Widget _usualCard(AppLocalizations t, ColorScheme cs, JourneySuggestion s) {
+    return Container(
+      key: const ValueKey('gsj_usual_card'),
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.xs, Gap.md),
+      decoration: BoxDecoration(
+          color: cs.secondaryContainer, borderRadius: BorderRadius.circular(Radii.md)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.sm),
+            child: Icon(Icons.auto_awesome_rounded, color: cs.onSecondaryContainer),
+          ),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: Gap.sm),
+              child: Text(t.sj2SuggestTitle(s.name),
+                  style: AType.titleSmall
+                      .copyWith(fontWeight: FontWeight.w700, color: cs.onSecondaryContainer)),
+            ),
+          ),
+          IconButton(
+              key: const ValueKey('gsj_usual_close'),
+              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+              icon: Icon(Icons.close_rounded, color: cs.onSecondaryContainer),
+              onPressed: () => setState(() => _usualClosed = true)),
+        ]),
+        Padding(
+          padding: const EdgeInsets.only(right: Gap.sm),
+          child: Text(t.sj2SuggestBody,
+              style: AType.bodyMedium.copyWith(color: cs.onSecondaryContainer)),
+        ),
+        const SizedBox(height: Gap.sm),
+        FilledButton.icon(
+          key: const ValueKey('gsj_usual_go'),
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+          icon: const Icon(Icons.play_arrow_rounded),
+          label: Text(t.sj2SuggestGo),
+          onPressed: _starting
+              ? null
+              : () {
+                  setState(() => _usualClosed = true);
+                  unawaited(_applySuggestion(s));
+                },
+        ),
+      ]),
+    );
+  }
+
   Widget _fromRow(AppLocalizations t, ColorScheme cs) {
     final p = _fromPick;
     final here = p == null;
@@ -1015,6 +1085,10 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                       style: AType.bodyMedium.copyWith(color: cs.onSecondaryContainer))),
             ]),
           ),
+        ],
+        if (_screenSuggestion() case final s?) ...[
+          const SizedBox(height: Gap.sm),
+          _usualCard(t, cs, s),
         ],
         const SizedBox(height: Gap.md),
         _fromRow(t, cs), // sjstart2 (owner V2 START 1)
@@ -1227,7 +1301,9 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                   : t.sj2WatchCount(jDigits(context, _selectedWatchers.length)),
               key: const ValueKey('sj2_w_count'),
               style: AType.bodySmall.copyWith(
-                  color: _selectedWatchers.isEmpty ? cs.error : cs.onSurfaceVariant)),
+                  color: _selectedWatchers.isEmpty && _askedWatcher
+                      ? cs.error
+                      : cs.onSurfaceVariant)),
         ],
         Text(t.j2NoAppPeople,
             style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),

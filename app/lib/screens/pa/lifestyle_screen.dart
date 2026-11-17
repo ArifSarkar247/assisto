@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/local_digits.dart';
 import '../../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -175,10 +177,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.lifestyleLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : TabBarView(controller: _tabs, children: [
                   _apptsTab(tr, scheme),
@@ -212,12 +211,12 @@ class _LifestyleScreenState extends State<LifestyleScreen>
           _privacyNote(tr, scheme),
           const SizedBox(height: Gap.md),
           if (upcoming.isNotEmpty) ...[
-            _sectionLabel(tr.lifestyleUpcoming('${upcoming.length}'), scheme),
+            _sectionLabel(tr.lifestyleUpcoming(ld(context, upcoming.length)), scheme),
             for (final r in upcoming) _apptCard(r, tr, scheme, false),
           ],
           if (past.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
-            _sectionLabel(tr.lifestylePast('${past.length}'), scheme),
+            _sectionLabel(tr.lifestylePast(ld(context, past.length)), scheme),
             for (final r in past) _apptCard(r, tr, scheme, true),
           ],
         ],
@@ -236,7 +235,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(tr.lifestylePrivacyNote,
-                style: TextStyle(color: scheme.ds.muted, fontSize: 12, height: 1.3)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.3)),
           ),
         ]),
       );
@@ -247,9 +246,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
     final place = (r['place'] ?? '').toString().trim();
     final at = (r['at'] ?? '').toString().trim();
     final note = (r['note'] ?? '').toString().trim();
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -258,9 +255,8 @@ class _LifestyleScreenState extends State<LifestyleScreen>
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(title,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 14,
-                      color: past ? scheme.ds.muted : scheme.ds.text),
+                  style: AType.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w700, color: past ? scheme.ds.muted : scheme.ds.text),
                   maxLines: 2, overflow: TextOverflow.ellipsis),
             ),
             _pill(_catLabel(tr, cat), scheme.primary),
@@ -274,12 +270,11 @@ class _LifestyleScreenState extends State<LifestyleScreen>
           if (note.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(note,
-                style: TextStyle(color: scheme.ds.muted, fontSize: 12.5, height: 1.3),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.3),
                 maxLines: 2, overflow: TextOverflow.ellipsis),
           ],
         ]),
-      ),
-    );
+      ));
   }
 
   // ---- preferences tab -----------------------------------------------------
@@ -304,15 +299,15 @@ class _LifestyleScreenState extends State<LifestyleScreen>
           for (final k in keys) ...[
             _sectionLabel(k.isEmpty ? tr.lifestyleTopicGeneral : k, scheme),
             for (final r in topics[k]!)
-              Card(
-                margin: const EdgeInsets.only(bottom: Gap.xs),
-                child: ListTile(
+              Padding(padding: const EdgeInsets.only(bottom: Gap.xs), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
                   dense: true,
                   leading: const Icon(Icons.check_circle_outline_rounded),
                   title: Text((r['text'] ?? '').toString()),
                   trailing: _menu(r, tr, _kPref),
                 ),
-              ),
+                )),
           ],
         ],
       ),
@@ -349,19 +344,18 @@ class _LifestyleScreenState extends State<LifestyleScreen>
             if (buckets[s]!.isNotEmpty) ...[
               _sectionLabel(_slotLabel(tr, s), scheme),
               for (final r in buckets[s]!)
-                Card(
-                  margin: const EdgeInsets.only(bottom: Gap.xs),
-                  child: ListTile(
+                Padding(padding: const EdgeInsets.only(bottom: Gap.xs), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+                    padding: EdgeInsets.zero,
+                    child: ListTile(
                     dense: true,
                     leading: Text((r['time'] ?? '').toString().trim().isEmpty
                         ? '—'
                         : (r['time']).toString().trim(),
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                    title: Text((r['label'] ?? '').toString(),
-                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                        style: AType.bodySmall.copyWith(fontWeight: FontWeight.w700, )),
+                    title: Text((r['label'] ?? '').toString()),
                     trailing: _menu(r, tr, _kRoutine),
                   ),
-                ),
+                  )),
             ],
         ],
       ),
@@ -379,11 +373,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
             icon: icon,
             title: title,
             message: body,
-            action: FilledButton.icon(
-              onPressed: () => _addOrEdit(tr, kind),
-              icon: const Icon(Icons.add_rounded),
-              label: Text(tr.lifestyleAdd),
-            ),
+            action: DsButton(onPressed: () => _addOrEdit(tr, kind), icon: Icons.add_rounded, label: tr.lifestyleAdd),
           ),
           if (withPrivacy) ...[
             const SizedBox(height: Gap.lg),
@@ -408,8 +398,8 @@ class _LifestyleScreenState extends State<LifestyleScreen>
   Widget _sectionLabel(String text, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm, top: 2),
         child: Text(text,
-            style: TextStyle(
-                color: scheme.ds.muted, fontWeight: FontWeight.w700, fontSize: 13)),
+            style: AType.bodySmall.copyWith(
+                color: scheme.ds.muted, fontWeight: FontWeight.w700, )),
       );
 
   Widget _meta(IconData icon, String text, ColorScheme scheme) =>
@@ -418,8 +408,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
         const SizedBox(width: 3),
         Flexible(
           child: Text(text,
-              style: TextStyle(color: scheme.ds.muted, fontSize: 12.5),
-              maxLines: 1, overflow: TextOverflow.ellipsis),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, )),
         ),
       ]);
 
@@ -430,7 +419,7 @@ class _LifestyleScreenState extends State<LifestyleScreen>
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Text(text,
-            style: TextStyle(color: c, fontSize: 11, fontWeight: FontWeight.w700)),
+            style: AType.labelSmall.copyWith(color: c, fontWeight: FontWeight.w700)),
       );
 
   IconData _catIcon(String c) {
@@ -587,37 +576,37 @@ class _LifestyleFormState extends State<_LifestyleForm> {
               controller: _c['title'],
               onChanged: (_) => setState(() {}),
               textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(labelText: tr.lifestyleApptTitleField, border: const OutlineInputBorder()),
+              decoration: InputDecoration(labelText: tr.lifestyleApptTitleField),
             ),
             const SizedBox(height: Gap.md),
             TextField(
               controller: _c['place'],
               textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(labelText: tr.lifestylePlaceField, border: const OutlineInputBorder()),
+              decoration: InputDecoration(labelText: tr.lifestylePlaceField),
             ),
             const SizedBox(height: Gap.md),
             TextField(
               controller: _c['at'],
-              decoration: InputDecoration(labelText: tr.lifestyleAtField, hintText: 'YYYY-MM-DD HH:MM', border: const OutlineInputBorder()),
+              decoration: InputDecoration(labelText: tr.lifestyleAtField, hintText: 'YYYY-MM-DD HH:MM'),
             ),
             const SizedBox(height: Gap.md),
             TextField(
               controller: _c['note'],
               maxLines: 2,
-              decoration: InputDecoration(labelText: tr.lifestyleNoteField, border: const OutlineInputBorder(), alignLabelWithHint: true),
+              decoration: InputDecoration(labelText: tr.lifestyleNoteField, alignLabelWithHint: true),
             ),
           ] else if (isPref) ...[
             TextField(
               controller: _c['topic'],
               textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(labelText: tr.lifestyleTopicField, border: const OutlineInputBorder()),
+              decoration: InputDecoration(labelText: tr.lifestyleTopicField),
             ),
             const SizedBox(height: Gap.md),
             TextField(
               controller: _c['text'],
               maxLines: 3,
               onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(labelText: tr.lifestylePrefTextField, border: const OutlineInputBorder(), alignLabelWithHint: true),
+              decoration: InputDecoration(labelText: tr.lifestylePrefTextField, alignLabelWithHint: true),
             ),
           ] else ...[
             Text(tr.lifestyleSlotLabel, style: Theme.of(context).textTheme.labelLarge),
@@ -635,21 +624,18 @@ class _LifestyleFormState extends State<_LifestyleForm> {
               controller: _c['label'],
               onChanged: (_) => setState(() {}),
               textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(labelText: tr.lifestyleRoutineLabelField, border: const OutlineInputBorder()),
+              decoration: InputDecoration(labelText: tr.lifestyleRoutineLabelField),
             ),
             const SizedBox(height: Gap.md),
             TextField(
               controller: _c['time'],
-              decoration: InputDecoration(labelText: tr.lifestyleTimeField, hintText: 'HH:MM', border: const OutlineInputBorder()),
+              decoration: InputDecoration(labelText: tr.lifestyleTimeField, hintText: 'HH:MM'),
             ),
           ],
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(tr.cancel),
-              ),
+              child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
             ),
             const SizedBox(width: Gap.md),
             Expanded(

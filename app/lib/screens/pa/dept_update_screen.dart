@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -197,21 +198,14 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paDeptLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : _saved.isEmpty
                   ? StateMessage(
                       icon: Icons.insights_rounded,
                       title: tr.paDeptWelcomeTitle,
                       message: tr.paDeptWelcomeBody,
-                      action: FilledButton.icon(
-                        onPressed: () => _open(),
-                        icon: const Icon(Icons.add_rounded),
-                        label: Text(tr.paDeptNew),
-                      ),
+                      action: DsButton(onPressed: () => _open(), icon: Icons.add_rounded, label: tr.paDeptNew),
                     )
                   : RefreshIndicator(
                       onRefresh: _load,
@@ -273,31 +267,23 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
           const SizedBox(width: 4),
           Expanded(
             child: Text(tr.f6BwTemplateMarker, // truth: template, not AI
-                style: TextStyle(color: scheme.ds.muted, fontSize: 12)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, )),
           ),
         ]),
         const SizedBox(height: Gap.sm),
         Row(children: [
           Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () async {
+            child: DsButton.secondary(onPressed: () async {
                 await Clipboard.setData(ClipboardData(text: rendered));
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context)
                   ..clearSnackBars()
                   ..showSnackBar(SnackBar(content: Text(tr.copied)));
-              },
-              icon: const Icon(Icons.copy_rounded, size: 18),
-              label: Text(tr.copy),
-            ),
+              }, icon: Icons.copy_rounded, label: tr.copy),
           ),
           const SizedBox(width: Gap.md),
           Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () => Share.share(rendered),
-              icon: const Icon(Icons.share_rounded, size: 18),
-              label: Text(tr.share),
-            ),
+            child: DsButton.secondary(onPressed: () => Share.share(rendered), icon: Icons.share_rounded, label: tr.share),
           ),
         ]),
         const SizedBox(height: Gap.sm),
@@ -319,8 +305,8 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
         Icon(icon, size: 15, color: c),
         const SizedBox(width: 5),
         Text(label,
-            style: TextStyle(
-                color: c, fontSize: 12.5, fontWeight: FontWeight.w600)),
+            style: AType.bodySmall.copyWith(
+                color: c, fontWeight: FontWeight.w600)),
       ]),
     );
   }
@@ -335,11 +321,9 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
         .whereType<Map>()
         .where((m) => _clean(m['label']?.toString()).isNotEmpty)
         .toList();
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Column(
@@ -352,8 +336,8 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
                             ?.copyWith(fontWeight: FontWeight.w700)),
                     if (lead.isNotEmpty)
                       Text(lead,
-                          style: TextStyle(
-                              color: scheme.ds.muted, fontSize: 12.5)),
+                          style: AType.bodySmall.copyWith(
+                              color: scheme.ds.muted, )),
                   ]),
             ),
             if (b.isNotEmpty)
@@ -365,9 +349,8 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
                   borderRadius: BorderRadius.circular(Radii.pill),
                 ),
                 child: Text(tr.paDeptBlockedBadge,
-                    style: TextStyle(
+                    style: AType.labelMedium.copyWith(
                         color: scheme.error,
-                        fontSize: 11.5,
                         fontWeight: FontWeight.w700)),
               ),
             PopupMenuButton<String>(
@@ -392,9 +375,8 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
           if (metrics.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(tr.paDeptSecMetrics,
-                style: TextStyle(
+                style: AType.bodySmall.copyWith(
                     color: scheme.ds.muted,
-                    fontSize: 12,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: 2),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -404,7 +386,6 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
             ]),
           ],
         ]),
-      ),
     );
   }
 
@@ -412,9 +393,8 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
       ColorScheme scheme, String label, List<String> items, Color accent) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(label,
-          style: TextStyle(
+          style: AType.bodySmall.copyWith(
               color: scheme.ds.muted,
-              fontSize: 12,
               fontWeight: FontWeight.w700)),
       for (final x in items)
         Padding(
@@ -428,7 +408,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
                   decoration:
                       BoxDecoration(color: accent, shape: BoxShape.circle)),
             ),
-            Expanded(child: Text(x, style: const TextStyle(fontSize: 13.5))),
+            Expanded(child: Text(x, style: AType.bodyMedium)),
           ]),
         ),
     ]);
@@ -443,7 +423,7 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
         border: Border.all(color: scheme.ds.border),
       ),
       child: Text(value.isNotEmpty ? '$label: $value' : label,
-          style: const TextStyle(fontSize: 12.5)),
+          style: AType.bodySmall),
     );
   }
 
@@ -463,13 +443,12 @@ class _DeptUpdateScreenState extends State<DeptUpdateScreen> {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(tr.paDeptAiSeamTitle,
-                  style: const TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       fontWeight: FontWeight.w700, height: 1.4)),
               const SizedBox(height: 2),
               Text(tr.paDeptAiSeamBody,
-                  style: TextStyle(
+                  style: AType.bodySmall.copyWith(
                       color: scheme.ds.muted,
-                      fontSize: 12.5,
                       height: 1.4)),
             ]),
           ),
@@ -567,15 +546,13 @@ class _DeptEditorState extends State<_DeptEditor> {
             controller: _dept,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-                labelText: tr.paDeptNameField,
-                border: const OutlineInputBorder()),
+                labelText: tr.paDeptNameField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _lead,
             decoration: InputDecoration(
-                labelText: tr.paDeptLeadField,
-                border: const OutlineInputBorder()),
+                labelText: tr.paDeptLeadField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -587,7 +564,6 @@ class _DeptEditorState extends State<_DeptEditor> {
               helperText: tr.paDeptLinesHelp,
               helperMaxLines: 2,
               alignLabelWithHint: true,
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: Gap.md),
@@ -600,7 +576,6 @@ class _DeptEditorState extends State<_DeptEditor> {
               helperText: tr.paDeptLinesHelp,
               helperMaxLines: 2,
               alignLabelWithHint: true,
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: Gap.lg),
@@ -627,7 +602,7 @@ class _DeptEditorState extends State<_DeptEditor> {
               const SizedBox(height: 2),
               Text(tr.paDeptMetricHelp,
                   style:
-                      TextStyle(color: scheme.ds.muted, fontSize: 12)),
+                      AType.bodySmall.copyWith(color: scheme.ds.muted, )),
               for (var i = 0; i < _metrics.length; i++) ...[
                 const SizedBox(height: Gap.sm),
                 Row(children: [
@@ -638,8 +613,7 @@ class _DeptEditorState extends State<_DeptEditor> {
                       onChanged: (v) => _metrics[i]['label'] = v,
                       decoration: InputDecoration(
                           isDense: true,
-                          labelText: tr.paDeptMetricLabelField,
-                          border: const OutlineInputBorder()),
+                          labelText: tr.paDeptMetricLabelField),
                     ),
                   ),
                   const SizedBox(width: Gap.sm),
@@ -650,8 +624,7 @@ class _DeptEditorState extends State<_DeptEditor> {
                       onChanged: (v) => _metrics[i]['value'] = v,
                       decoration: InputDecoration(
                           isDense: true,
-                          labelText: tr.paDeptMetricValueField,
-                          border: const OutlineInputBorder()),
+                          labelText: tr.paDeptMetricValueField),
                     ),
                   ),
                   IconButton(
@@ -679,24 +652,19 @@ class _DeptEditorState extends State<_DeptEditor> {
             const SizedBox(width: 4),
             Expanded(
               child: Text(tr.paDeptMetricReportedNote,
-                  style: TextStyle(
-                      color: scheme.ds.muted, fontSize: 12.5)),
+                  style: AType.bodySmall.copyWith(
+                      color: scheme.ds.muted, )),
             ),
           ]),
           const SizedBox(height: Gap.lg),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
-              onPressed:
-                  (problems.isEmpty && !_saving) ? () => _save(tr) : null,
-              icon: const Icon(Icons.save_rounded, size: 18),
-              label: Text(tr.save),
-            ),
+            child: DsButton(onPressed: (problems.isEmpty && !_saving) ? () => _save(tr) : null, icon: Icons.save_rounded, label: tr.save, expand: true),
           ),
           if (problems.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(tr.paDeptNeedName,
-                style: TextStyle(color: scheme.error, fontSize: 12.5)),
+                style: AType.bodySmall.copyWith(color: scheme.error, )),
           ],
         ],
       ),

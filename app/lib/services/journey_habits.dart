@@ -190,6 +190,23 @@ bool sj2JustLeft(JourneySuggestion s, double lat, double lng, DateTime now,
   return seen || fromO <= 2500;
 }
 
+/// gap-safejourney: the usual trip to offer ON the start screen when the
+/// user opens Safe Journey themselves at the usual time (the notification
+/// only fires while Assisto is open AND after leaving — most people simply
+/// open the screen). With a known position: only near the usual start
+/// (<= 2.5 km) and not already at the destination (<= 1 km). Pure (tests).
+JourneySuggestion? sjgScreenSuggestion(
+    List<JourneySuggestion> usual, ({double lat, double lng})? here) {
+  for (final s in usual) {
+    if (here != null) {
+      if (jDistanceM(s.oLat, s.oLng, here.lat, here.lng) > 2500) continue;
+      if (jDistanceM(s.dLat, s.dLng, here.lat, here.lng) <= 1000) continue;
+    }
+    return s;
+  }
+  return null;
+}
+
 class JourneyHabits {
   JourneyHabits._();
   static const kTripsKey = 'sj2_habit_trips';

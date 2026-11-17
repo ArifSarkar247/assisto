@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/fade_chip_row.dart';
 import '../../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -230,10 +232,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.shootLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : _sheets.isEmpty
                   ? _welcome(tr)
@@ -245,11 +244,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
         icon: Icons.video_camera_front_rounded,
         title: tr.shootWelcomeTitle,
         message: tr.shootWelcomeBody,
-        action: FilledButton.icon(
-          onPressed: () => _newSheet(tr),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(tr.shootNewSheet),
-        ),
+        action: DsButton(onPressed: () => _newSheet(tr), icon: Icons.add_rounded, label: tr.shootNewSheet),
       );
 
   Widget _sheetView(AppLocalizations tr, ColorScheme scheme) {
@@ -314,23 +309,16 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
   Widget _sheetPicker(List<Map<String, dynamic>> sheets, ColorScheme scheme) =>
       Padding(
         padding: const EdgeInsets.only(bottom: Gap.sm),
-        child: SizedBox(
-          height: 40,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              for (final s in sheets)
-                Padding(
-                  padding: const EdgeInsets.only(right: Gap.sm),
-                  child: ChoiceChip(
-                    label: Text((s['title'] ?? '').toString(),
-                        overflow: TextOverflow.ellipsis),
-                    selected: s['id'] == _activeSheetId,
-                    onSelected: (_) => setState(() => _activeSheetId = s['id'] as int?),
-                  ),
-                ),
-            ],
-          ),
+        child: FadeChipRow(
+          padding: EdgeInsets.zero,
+          children: [
+            for (final s in sheets)
+              DsChip(
+                label: (s['title'] ?? '').toString(),
+                selected: s['id'] == _activeSheetId,
+                onSelected: (_) => setState(() => _activeSheetId = s['id'] as int?),
+              ),
+          ],
         ),
       );
 
@@ -339,11 +327,9 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
     final date = (s['date'] ?? '').toString().trim();
     final callTime = (s['call_time'] ?? '').toString().trim();
     final location = (s['location'] ?? '').toString().trim();
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Text(title,
@@ -370,7 +356,6 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
             if (location.isNotEmpty) _meta(Icons.place_rounded, location, scheme),
           ]),
         ]),
-      ),
     );
   }
 
@@ -389,8 +374,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(title,
-                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           ),
           IconButton(
             tooltip: AppLocalizations.of(context).add,
@@ -413,16 +397,15 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
     final end = (b['end'] ?? '').toString().trim();
     final kind = (b['block_kind'] ?? 'other').toString();
     final time = [start, end].where((e) => e.isNotEmpty).join(' – ');
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.xs),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.xs), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+        padding: EdgeInsets.zero,
+        child: ListTile(
         dense: true,
         leading: Text(start.isEmpty ? '—' : start,
             style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-        title: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text(label),
         subtitle: Text(
-            [_blockKindLabel(tr, kind), if (time.isNotEmpty) time].join(' · '),
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+            [_blockKindLabel(tr, kind), if (time.isNotEmpty) time].join(' · ')),
         trailing: PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert_rounded),
           onSelected: (v) {
@@ -435,25 +418,24 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           ],
         ),
       ),
-    );
+      ));
   }
 
   Widget _checkTile(Map<String, dynamic> c, AppLocalizations tr, ColorScheme scheme) {
     final label = (c['label'] ?? '').toString();
     final checked = c['checked'] == true;
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.xs),
-      child: CheckboxListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.xs), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+        padding: EdgeInsets.zero,
+        child: CheckboxListTile(
         dense: true,
         value: checked,
         onChanged: (v) {
           if (c['id'] is int) _update(c['id'] as int, {'checked': v == true});
         },
         title: Text(label,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 decoration: checked ? TextDecoration.lineThrough : null,
-                color: checked ? scheme.ds.muted : scheme.ds.text),
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+                color: checked ? scheme.ds.muted : scheme.ds.text)),
         secondary: IconButton(
           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
           icon: const Icon(Icons.delete_outline_rounded),
@@ -463,21 +445,20 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
         ),
         controlAffinity: ListTileControlAffinity.leading,
       ),
-    );
+      ));
   }
 
   Widget _contactTile(Map<String, dynamic> c, AppLocalizations tr, ColorScheme scheme) {
     final name = (c['name'] ?? '').toString();
     final role = (c['role'] ?? '').toString().trim();
     final phone = (c['phone'] ?? '').toString().trim();
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.xs),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.xs), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+        padding: EdgeInsets.zero,
+        child: ListTile(
         dense: true,
         leading: const Icon(Icons.person_outline_rounded),
-        title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: Text([role, phone].where((e) => e.isNotEmpty).join(' · '),
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text(name),
+        subtitle: Text([role, phone].where((e) => e.isNotEmpty).join(' · ')),
         trailing: PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert_rounded),
           onSelected: (v) {
@@ -490,7 +471,7 @@ class _ShootLogisticsScreenState extends State<ShootLogisticsScreen> {
           ],
         ),
       ),
-    );
+      ));
   }
 
   String _blockKindLabel(AppLocalizations tr, String k) {
@@ -561,23 +542,23 @@ class _SheetFormState extends State<_SheetForm> {
             controller: _title,
             onChanged: (_) => setState(() {}),
             textCapitalization: TextCapitalization.words,
-            decoration: InputDecoration(labelText: tr.shootTitleField, border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: tr.shootTitleField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _date,
-            decoration: InputDecoration(labelText: tr.shootDateField, hintText: 'YYYY-MM-DD', border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: tr.shootDateField, hintText: 'YYYY-MM-DD'),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _callTime,
-            decoration: InputDecoration(labelText: tr.shootCallTimeField, hintText: 'HH:MM', border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: tr.shootCallTimeField, hintText: 'HH:MM'),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _location,
             textCapitalization: TextCapitalization.words,
-            decoration: InputDecoration(labelText: tr.shootLocationField, border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: tr.shootLocationField),
           ),
           const SizedBox(height: Gap.lg),
           _formButtons(context, tr, valid, () => <String, dynamic>{
@@ -646,7 +627,7 @@ class _BlockFormState extends State<_BlockForm> {
           TextField(
             controller: _label,
             onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(labelText: tr.shootBlockLabelField, border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: tr.shootBlockLabelField),
           ),
           const SizedBox(height: Gap.md),
           Text(tr.shootBlockKindLabel, style: Theme.of(context).textTheme.labelLarge),
@@ -664,14 +645,14 @@ class _BlockFormState extends State<_BlockForm> {
             Expanded(
               child: TextField(
                 controller: _start,
-                decoration: InputDecoration(labelText: tr.shootStartField, hintText: 'HH:MM', border: const OutlineInputBorder()),
+                decoration: InputDecoration(labelText: tr.shootStartField, hintText: 'HH:MM'),
               ),
             ),
             const SizedBox(width: Gap.md),
             Expanded(
               child: TextField(
                 controller: _end,
-                decoration: InputDecoration(labelText: tr.shootEndField, hintText: 'HH:MM', border: const OutlineInputBorder()),
+                decoration: InputDecoration(labelText: tr.shootEndField, hintText: 'HH:MM'),
               ),
             ),
           ]),
@@ -723,19 +704,19 @@ class _ContactFormState extends State<_ContactForm> {
             controller: _name,
             onChanged: (_) => setState(() {}),
             textCapitalization: TextCapitalization.words,
-            decoration: InputDecoration(labelText: tr.shootContactNameField, border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: tr.shootContactNameField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _role,
             textCapitalization: TextCapitalization.words,
-            decoration: InputDecoration(labelText: tr.shootContactRoleField, border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: tr.shootContactRoleField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _phone,
             keyboardType: TextInputType.phone,
-            decoration: InputDecoration(labelText: tr.shootContactPhoneField, border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: tr.shootContactPhoneField),
           ),
           const SizedBox(height: Gap.lg),
           _formButtons(context, tr, valid, () => <String, dynamic>{
@@ -804,7 +785,7 @@ class _CheckFormState extends State<_CheckForm> {
           TextField(
             controller: _label,
             onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(labelText: tr.shootCheckLabelField, border: const OutlineInputBorder()),
+            decoration: InputDecoration(labelText: tr.shootCheckLabelField),
           ),
           const SizedBox(height: Gap.lg),
           _formButtons(context, tr, valid, () => <String, dynamic>{
@@ -822,10 +803,7 @@ Widget _formButtons(BuildContext context, AppLocalizations tr, bool valid,
     Map<String, dynamic> Function() payload) {
   return Row(children: [
     Expanded(
-      child: OutlinedButton(
-        onPressed: () => Navigator.pop(context),
-        child: Text(tr.cancel),
-      ),
+      child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
     ),
     const SizedBox(width: Gap.md),
     Expanded(

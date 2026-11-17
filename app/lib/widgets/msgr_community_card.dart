@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
+import '../ds/ds.dart';
 
 /// A community / group card — name, photo (or branded fallback), description.
 /// ORIGINAL identity: uses only Assisto brand tokens and Material icons; no
@@ -39,13 +40,15 @@ class MsgrCommunityCard extends StatelessWidget {
     // launchsweep: at a big font the action button moves under the text
     // (beside it, it squeezed the name off a 360 dp screen).
     final big = MediaQuery.textScalerOf(context).scale(10) > 13;
-    return Card(
-      margin: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.xs),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
+    // designv2: a flat bordered DS surface (community lists can be long —
+    // one shadow less per row keeps them GPU-light)
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.xs, Gap.lg, Gap.xs),
+      child: DsSurface(
+        flat: true,
+        borderColor: scheme.ds.border,
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
+        padding: const EdgeInsets.all(Gap.md),
           child: LayoutBuilder(builder: (context, box) => Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -59,24 +62,23 @@ class MsgrCommunityCard extends StatelessWidget {
                       badge!,
                       const SizedBox(height: Gap.xs),
                     ],
+                    // the name wraps (never "…")
                     Text(name,
                         style: text.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis),
+                            ?.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w700)),
                     if (description.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(description,
                           style: text.bodySmall
-                              ?.copyWith(color: scheme.onSurfaceVariant),
+                              ?.copyWith(color: scheme.ds.muted),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis),
                     ],
                     if (countLabel != null) ...[
                       const SizedBox(height: Gap.xs),
                       Text(countLabel!,
-                          style: text.labelSmall
-                              ?.copyWith(color: scheme.onSurfaceVariant)),
+                          style: text.labelMedium
+                              ?.copyWith(color: scheme.ds.muted)),
                     ],
                     if (big && trailing != null) ...[
                       const SizedBox(height: Gap.sm),
@@ -96,7 +98,6 @@ class MsgrCommunityCard extends StatelessWidget {
               ],
             ],
           )),
-        ),
       ),
     );
   }
@@ -108,8 +109,7 @@ class MsgrCommunityCard extends StatelessWidget {
       height: 52,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Radii.md),
-        gradient: hasPhoto ? null : Brand.gradient,
-        color: hasPhoto ? scheme.surfaceContainerHighest : null,
+        color: hasPhoto ? scheme.ds.cardHighest : scheme.ds.primarySoft,
         image: hasPhoto
             ? DecorationImage(
                 image: NetworkImage(photoRef!), fit: BoxFit.cover)
@@ -118,7 +118,7 @@ class MsgrCommunityCard extends StatelessWidget {
       alignment: Alignment.center,
       child: hasPhoto
           ? null
-          : const Icon(Icons.groups_2_rounded, color: Colors.white),
+          : Icon(Icons.groups_2_rounded, color: scheme.ds.primaryInk),
     );
   }
 }
@@ -147,8 +147,8 @@ class MsgrActionChip extends StatelessWidget {
       return Chip(
         avatar: Icon(icon, size: 16, color: scheme.onSurfaceVariant),
         label: Text(label),
-        labelStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
-        backgroundColor: scheme.surfaceContainerHighest,
+        labelStyle: AType.labelMedium.copyWith(color: scheme.ds.muted),
+        backgroundColor: scheme.ds.cardHighest,
         side: BorderSide.none,
         visualDensity: VisualDensity.compact,
       );

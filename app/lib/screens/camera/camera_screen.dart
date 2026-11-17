@@ -318,14 +318,21 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const CircularProgressIndicator(),
+                  // no camera = an honest icon, not an endless spinner
+                  if (_cameras.isEmpty && !_initializing)
+                    const Icon(Icons.no_photography_rounded, color: Colors.white70, size: 48)
+                  else
+                    const CircularProgressIndicator(color: Colors.white),
                   const SizedBox(height: Gap.md),
-                  Text(
-                    _cameras.isEmpty && !_initializing
-                        ? t.camNoCamera
-                        : t.camStarting,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white70),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
+                    child: Text(
+                      _cameras.isEmpty && !_initializing
+                          ? t.camNoCamera
+                          : t.camStarting,
+                      textAlign: TextAlign.center,
+                      style: AType.bodyLarge.copyWith(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
@@ -429,28 +436,49 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
   }
 
   Widget _modeToggle(AppLocalizations t) {
+    // one glass pill with the active mode in a white pill (48 dp targets,
+    // the label grows with the font instead of being cut)
     Widget chip(String label, bool active, VoidCallback onTap) {
-      return GestureDetector(
-        onTap: _recording ? null : onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AType.bodyMedium.copyWith(color: active ? Brand.cyan : Colors.white70,
-              fontWeight: active ? FontWeight.w700 : FontWeight.w500),
+      return Semantics(
+        button: true,
+        selected: active,
+        child: InkWell(
+          onTap: _recording ? null : onTap,
+          borderRadius: BorderRadius.circular(Radii.pill),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48, minWidth: 72),
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
+              decoration: BoxDecoration(
+                color: active ? Colors.white : Colors.transparent,
+                borderRadius: BorderRadius.circular(Radii.pill),
+              ),
+              child: Text(
+                label,
+                style: AType.bodyMedium.copyWith(
+                    color: active ? Brand.ink : Colors.white,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w500),
+              ),
+            ),
           ),
         ),
       );
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        chip(t.camModePhoto, !_videoMode, () => setState(() => _videoMode = false)),
-        chip(t.camModeVideo, _videoMode, () => setState(() => _videoMode = true)),
-      ],
+    return Container(
+      padding: const EdgeInsets.all(Gap.xxs),
+      decoration: BoxDecoration(
+        color: Colors.black45,
+        borderRadius: BorderRadius.circular(Radii.pill),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          chip(t.camModePhoto, !_videoMode, () => setState(() => _videoMode = false)),
+          chip(t.camModeVideo, _videoMode, () => setState(() => _videoMode = true)),
+        ],
+      ),
     );
   }
 

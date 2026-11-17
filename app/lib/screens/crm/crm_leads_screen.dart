@@ -96,7 +96,10 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
             },
           ),
         ),
-        // one scrolling DS chip row (grows with the font, never cut)
+        // one scrolling DS chip row (grows with the font); the end fades into
+        // the page so a chip at the edge reads as "scroll for more" (a plain
+        // gradient strip on top — no ShaderMask / saveLayer)
+        Stack(children: [
         DsChipRow(
           padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
           children: [
@@ -116,8 +119,26 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
               _industry = _industry == 'retail' ? null : 'retail';
               _load();
             }),
+            const SizedBox(width: Gap.xl),
           ],
         ),
+        Positioned(
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: Gap.xl,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+                  Theme.of(context).colorScheme.ds.bg.withValues(alpha: 0),
+                  Theme.of(context).colorScheme.ds.bg,
+                ]),
+              ),
+            ),
+          ),
+        ),
+        ]),
         Expanded(
           child: _loading
               ? const CrmStateView.loading()
@@ -135,8 +156,16 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
                           child: ListView.builder(
                             // bottom room so "Add lead" never covers a card
                             padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96)),
-                            itemCount: _list.length,
-                            itemBuilder: (context, i) => _leadTile(t, _list[i]),
+                            itemCount: _list.length + 1,
+                            // first row: what the coloured number means
+                            itemBuilder: (context, i) => i == 0
+                                ? Padding(
+                                    padding: const EdgeInsets.only(bottom: Gap.sm),
+                                    child: Text(t.d2LeadScoreHint,
+                                        style: AType.bodySmall.copyWith(
+                                            color: Theme.of(context).colorScheme.ds.muted)),
+                                  )
+                                : _leadTile(t, _list[i - 1]),
                           ),
                         ),
         ),
@@ -159,7 +188,10 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
     // the full company line under it, call / WhatsApp at the bottom right.
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
-      child: DsCard(
+      // long list: flat bordered rows (no per-row shadow — GPU-light)
+      child: DsSurface(
+        flat: true,
+        borderColor: ds.border,
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.xs, Gap.xs),
         onTap: () async {
           await Navigator.push(context,
@@ -250,12 +282,17 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
         : warm
             ? AssistoTokens.of(context).onWarning
             : scheme.ds.primaryInk;
-    return Container(
+    final t = AppLocalizations.of(context);
+    // TalkBack reads "Lead score 95" (the bare number meant nothing)
+    return Semantics(
+      label: t.d2LeadScoreA11y(fmtInt(context, score)),
+      excludeSemantics: true,
+      child: Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
       child: Text(fmtInt(context, score),
           style: AType.labelMedium.copyWith(color: fg, fontWeight: FontWeight.w800)),
-    );
+    ));
   }
 
   Widget _chip(String label, bool on, VoidCallback onTap) => DsChip(
