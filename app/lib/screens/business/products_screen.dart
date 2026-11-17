@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
 import '../../api.dart';
 import '../../business_selling_api.dart';
 import '../../widgets/skeleton.dart';
@@ -125,10 +126,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               label: Text(t.shopQaAddProduct),
             ),
       body: Column(children: [
-        SellHeader(
-            icon: Icons.inventory_2_rounded,
-            title: t.shopQaProducts,
-            subtitle: null),
+        // (the app bar already says "Products" — no second header block)
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.sm),
           child: TextField(
@@ -152,12 +150,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 // bizbar: one tap to what needs re-ordering
                 Padding(
                   padding: const EdgeInsets.only(right: Gap.sm),
-                  child: FilterChip(
+                  child: DsChip(
                     key: const ValueKey('bb-low-chip'),
-                    avatar: Icon(Icons.warning_amber_rounded,
-                        size: 18, color: AssistoTokens.of(context).warning),
-                    label: Text(t.bbLowStockChip(
-                        fmtInt(context, _items.where(isLow).length))),
+                    icon: Icons.warning_amber_rounded,
+                    label: t.bbLowStockChip(
+                        fmtInt(context, _items.where(isLow).length)),
                     selected: _lowOnly,
                     onSelected: (v) => setState(() => _lowOnly = v),
                   ),
@@ -179,8 +176,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
     final selected = _category == value;
     return Padding(
       padding: const EdgeInsets.only(right: Gap.sm),
-      child: ChoiceChip(
-        label: Text(label),
+      child: DsChip(
+        label: label,
         selected: selected,
         onSelected: (_) {
           setState(() => _category = value);
@@ -205,32 +202,39 @@ class _ProductsScreenState extends State<ProductsScreen> {
       );
     }
     if (_items.isNotEmpty && _shown.isEmpty) {
-      return StateMessage(
-        icon: Icons.check_circle_outline_rounded,
-        title: t.bbLowStockNone,
-        message: t.bbLowStockHow,
-        action: FilledButton.tonal(
-            onPressed: () => setState(() => _lowOnly = false),
-            child: Text(t.bbShowAllProducts)),
+      return ListView(
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+        children: [
+          DsEmptyState(
+            icon: Icons.check_circle_outline_rounded,
+            title: t.bbLowStockNone,
+            benefit: t.bbLowStockHow,
+            actionLabel: t.bbShowAllProducts,
+            onAction: () => setState(() => _lowOnly = false),
+          ),
+        ],
       );
     }
     if (_items.isEmpty) {
-      return StateMessage(
-        icon: Icons.inventory_2_rounded,
-        title: t.shopQaNoProductsTitle,
-        message: t.shopQaNoProductsBody,
-        action: _role.isStaff
-            ? null
-            : FilledButton.icon(
-                onPressed: () => _openSheet(),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(t.shopQaAddProduct)),
+      // DS empty state: benefit line + one big button.
+      return ListView(
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+        children: [
+          DsEmptyState(
+            icon: Icons.inventory_2_rounded,
+            title: t.shopQaNoProductsTitle,
+            benefit: t.shopQaNoProductsBody,
+            actionLabel: _role.isStaff ? null : t.shopQaAddProduct,
+            onAction: _role.isStaff ? null : () => _openSheet(),
+          ),
+        ],
       );
     }
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.all(Gap.lg),
+        // bottom room so the "Add product" button never covers the last card
+        padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, 96)),
         itemCount: _shown.length,
         separatorBuilder: (_, __) => const SizedBox(height: Gap.md),
         itemBuilder: (_, i) => _ProductTile(
@@ -265,20 +269,18 @@ class _ProductTile extends StatelessWidget {
     final profit = sell - cost;
     final margin = sell > 0 ? (profit / sell * 100) : 0;
 
-    return InkWell(
+    return DsCard(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(Radii.md),
-      child: SellCard(
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           _thumb(scheme, photo),
           const SizedBox(width: Gap.md),
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // wraps at 200% instead of being cut with "…"
               Text(name,
-                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis),
+                  style: AType.bodyLarge.copyWith(
+                      color: scheme.ds.text, fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
               Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
                 _tag('${t.biz_sell_price}: ${sell.takaIn(context)}',
@@ -295,14 +297,14 @@ class _ProductTile extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   '${t.biz_profit}: ${profit.takaIn(context)}  ·  ${t.biz_margin}: ${fmtInt(context, margin.round())}%',
-                  style: AType.labelMedium.copyWith(color: profit >= 0 ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error,
+                  style: AType.labelMedium.copyWith(
+                      color: profit >= 0 ? scheme.ds.successInk : scheme.ds.dangerInk,
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ]),
           ),
         ]),
-      ),
     );
   }
 
@@ -336,12 +338,12 @@ class _ProductTile extends StatelessWidget {
   Widget _stockTag(BuildContext ctx, AppLocalizations t, num stock, num lowAt) {
     final scheme = Theme.of(ctx).colorScheme;
     if (stock <= 0) {
-      return _tag(t.biz_out_of_stock,
-          Theme.of(ctx).colorScheme.error.withValues(alpha: 0.15), Theme.of(ctx).colorScheme.error);
+      return _tag(t.biz_out_of_stock, scheme.ds.dangerBg, scheme.ds.dangerInk);
     }
     if (stock <= lowAt) {
       return _tag('${t.biz_low_stock} (${fmtInt(ctx, stock.toInt())})',
-          AssistoTokens.of(ctx).warning.withValues(alpha: 0.18), AssistoTokens.of(ctx).warning);
+          AssistoTokens.of(ctx).warning.withValues(alpha: 0.18),
+          Brand.onTint(ctx, AssistoTokens.of(ctx).warning));
     }
     return _tag('${t.biz_stock}: ${fmtInt(ctx, stock.toInt())}', scheme.ds.cardHighest,
         scheme.ds.muted);

@@ -9,6 +9,8 @@ import '../../api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../widgets/app_sheet.dart';
 import '../../widgets/chatnav.dart';
 import '../../widgets/offline_banner.dart';
@@ -188,9 +190,8 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
     final t = AppLocalizations.of(context);
     switch (_st) {
       case _St.loading:
-        return Center(
-            child: Semantics(
-                label: t.boLoading, child: const CircularProgressIndicator()));
+        // card-shaped DS skeleton (not a bare spinner)
+        return Semantics(label: t.boLoading, child: const SkeletonList());
       case _St.off:
         return Center(
             child: AcMessage(
@@ -221,7 +222,6 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
               onAction: () => ChatNav.push(context, 'business')));
     }
     final s = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
@@ -229,41 +229,28 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
           const OfflineBanner(),
-          Text(t.boIntro, style: TextStyle(color: s.ds.muted, height: 1.4)),
+          Text(t.boIntro, style: AType.bodyMedium.copyWith(color: s.ds.muted, height: 1.4)),
           const SizedBox(height: Gap.md),
           if (c.empty)
-            Card(
+            DsEmptyState(
               key: const ValueKey('bo_empty'),
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.lg),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(t.boEmptyTitle, style: tt.titleMedium),
-                  const SizedBox(height: Gap.sm),
-                  Text(t.boEmptyBody, style: TextStyle(color: s.ds.muted, height: 1.4)),
-                  const SizedBox(height: Gap.md),
-                  FilledButton.icon(
-                    key: const ValueKey('bo_open_shop'),
-                    style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-                    onPressed: () => ChatNav.push(context, 'business'),
-                    icon: const Icon(Icons.point_of_sale_rounded),
-                    label: Text(t.boOpenShop),
-                  ),
-                ]),
-              ),
+              icon: Icons.point_of_sale_rounded,
+              title: t.boEmptyTitle,
+              benefit: t.boEmptyBody,
+              actionKey: const ValueKey('bo_open_shop'),
+              actionLabel: t.boOpenShop,
+              onAction: () => ChatNav.push(context, 'business'),
             ),
+          // today's brief = the soft DS hero, each line with a tinted icon
           if (c.lines.isNotEmpty)
-            Card(
+            DsHeroCard(
               key: const ValueKey('bo_lines'),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: Gap.sm),
-                child: Column(children: [for (final l in c.lines) _line(context, l)]),
-              ),
+              padding: const EdgeInsets.symmetric(vertical: Gap.sm),
+              child: Column(children: [for (final l in c.lines) _line(context, l)]),
             ),
           if (c.actions.isNotEmpty) ...[
-            const SizedBox(height: Gap.lg),
-            Semantics(header: true, child: Text(t.boActions, style: tt.titleSmall)),
-            const SizedBox(height: Gap.xs),
-            Text(t.boNeedsOk, style: TextStyle(color: s.ds.muted, fontSize: 13)),
+            DsSectionHeader(t.boActions),
+            Text(t.boNeedsOk, style: AType.bodySmall.copyWith(color: s.ds.muted)),
             const SizedBox(height: Gap.sm),
             for (final a in c.actions) _actionButton(context, a),
           ],
@@ -271,12 +258,11 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.sm),
               child: Text(_actError!,
-                  key: const ValueKey('bo_act_error'), style: TextStyle(color: s.error)),
+                  key: const ValueKey('bo_act_error'),
+                  style: AType.bodyMedium.copyWith(color: s.ds.dangerInk)),
             ),
           if (c.questions.isNotEmpty) ...[
-            const SizedBox(height: Gap.lg),
-            Semantics(header: true, child: Text(t.boAsk, style: tt.titleSmall)),
-            const SizedBox(height: Gap.sm),
+            DsSectionHeader(t.boAsk),
             Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               for (final q in c.questions)
                 ActionChip(
@@ -294,24 +280,29 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
             ]),
             if (!c.aiReady) ...[
               const SizedBox(height: Gap.xs),
-              Text(t.boNoAiNote, style: TextStyle(color: s.ds.muted, fontSize: 13)),
+              Text(t.boNoAiNote, style: AType.bodySmall.copyWith(color: s.ds.muted)),
             ],
           ],
           if (c.costLines.isNotEmpty) ...[
             const SizedBox(height: Gap.lg),
-            Card(
+            DsSurface(
               key: const ValueKey('bo_cost'),
-              color: s.ds.cardHighest,
+              flat: true,
+              color: s.ds.cardAlt,
+              borderColor: s.ds.border,
+              padding: EdgeInsets.zero,
               child: ExpansionTile(
+                shape: const Border(),
+                collapsedShape: const Border(),
                 leading: Icon(Icons.calculate_outlined, color: s.ds.text),
-                title: Text(t.boCost, style: TextStyle(color: s.ds.text)),
+                title: Text(t.boCost, style: AType.bodyLarge.copyWith(color: s.ds.text)),
                 childrenPadding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.md),
                 expandedCrossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   for (final l in c.costLines)
                     Padding(
                       padding: const EdgeInsets.only(bottom: Gap.xs),
-                      child: Text('• $l', style: TextStyle(color: s.ds.text, height: 1.4)),
+                      child: Text('• $l', style: AType.bodyMedium.copyWith(color: s.ds.text, height: 1.4)),
                     ),
                 ],
               ),
@@ -337,9 +328,15 @@ class _BizBriefScreenState extends State<BizBriefScreen> {
       key: ValueKey('bo_line_${l.key}'),
       padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(_icons[l.key] ?? Icons.circle_outlined, color: s.primary),
+        DsAvatar(
+            size: 36,
+            child: Icon(_icons[l.key] ?? Icons.circle_outlined, size: 18, color: s.ds.primaryInk)),
         const SizedBox(width: Gap.md),
-        Expanded(child: Text(l.text, style: const TextStyle(height: 1.45))),
+        Expanded(
+            child: Padding(
+          padding: const EdgeInsets.only(top: Gap.xs),
+          child: Text(l.text, style: AType.bodyLarge.copyWith(color: s.ds.text, height: 1.45)),
+        )),
       ]),
     );
   }

@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Assisto Guard Box update check
+
+[Timer]
+OnBootSec=15min
+OnCalendar=daily
+RandomizedDelaySec=3h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

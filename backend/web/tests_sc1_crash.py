@@ -61,6 +61,14 @@ class ScrubTests(TestCase):
         self.assertNotIn("01712345678", m)
         self.assertEqual(CS.frames_from_text(log)[0], "AppState.init (package:assisto/state.dart:197)")
 
+    def test_non_symbolic_trace_keeps_pc_and_build_id(self):
+        # applovin: Play builds use --split-debug-info
+        log = ("*** *** ***\nbuild_id: 'a1b2c3d4e5f60718293a4b5c6d7e8f90'\n"
+               "    #00 abs 0000007a001ee2a7 virt 00000000001ee2a7 _kDartIsolateSnapshotInstructions+0x1902a7\n")
+        self.assertEqual(CS.frames_from_text(log), ["pc+0x1ee2a7 (dart:aot/a1b2c3d4)"])
+        # the app sends the same shape in "frames"; the server keeps it
+        self.assertEqual(CS.frames(["pc+0x1ee2a7 (dart:aot/a1b2c3d4)"]), ["pc+0x1ee2a7 (dart:aot/a1b2c3d4)"])
+
     def test_fingerprint_ignores_line_numbers(self):
         moved = [f.replace(":171)", ":180)") for f in FRAMES]
         self.assertEqual(CS.fingerprint("E", FRAMES), CS.fingerprint("E", moved))

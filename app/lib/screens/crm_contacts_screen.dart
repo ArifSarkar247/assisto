@@ -387,9 +387,10 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
                   onRefresh: _load,
                   child: Column(children: [
                     if (_offline) _offlineBanner(scheme),
+                    // page rule: people to reach out to (the nudge) first
+                    if (dueCount > 0) _reachOutBanner(scheme, dueCount),
                     _searchBar(scheme),
                     _filterChips(counts),
-                    if (dueCount > 0) _reachOutBanner(scheme, dueCount),
                     Expanded(child: _listBody(tr)),
                   ]),
                 ),
@@ -440,11 +441,6 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search_rounded),
             hintText: cStr(context, 'cSearchHint'),
-            isDense: true,
-            filled: true,
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(Radii.pill),
-                borderSide: BorderSide.none),
             suffixIcon: _query.isEmpty
                 ? null
                 : IconButton(
@@ -464,22 +460,17 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
       final text = count != null && count > 0
           ? '$label (${localeNum(context, count)})'
           : label;
-      return Padding(
-        padding: const EdgeInsets.only(right: Gap.sm),
-        child: FilterChip(
-          avatar: icon == null ? null : Icon(icon, size: 16),
-          label: Text(text),
-          selected: selected,
-          onSelected: (_) => onTap(),
-        ),
+      return DsChip(
+        icon: icon,
+        label: text,
+        selected: selected,
+        onSelected: (_) => onTap(),
       );
     }
 
-    return SizedBox(
-      height: 48,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md),
+    // one scrolling DS chip row (grows with the font, never odd rows)
+    return DsChipRow(
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
         children: [
           chip(cStr(context, 'cAll'), _group.isEmpty && !_favOnly, () {
             setState(() {
@@ -497,54 +488,51 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
               setState(() => _group = _group == g ? '' : g);
             }, icon: groupIcon(g), count: counts[g]),
         ],
-      ),
     );
   }
 
   Widget _reachOutBanner(ColorScheme scheme, int n) => Padding(
         padding:
             const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
-        child: Material(
+        child: DsSurface(
+          onTap: _showReachOut,
           color: AssistoTokens.of(context).warning.withValues(alpha: 0.14),
-          borderRadius: BorderRadius.circular(Radii.md),
-          child: InkWell(
-            onTap: _showReachOut,
-            borderRadius: BorderRadius.circular(Radii.md),
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Row(children: [
-                Icon(Icons.favorite_rounded, color: AssistoTokens.of(context).warning),
-                const SizedBox(width: Gap.md),
-                Expanded(
-                    child: Text(
-                        '${cStr(context, 'cReachOutTitle')} · ${localeNum(context, n)}')),
-                const Icon(Icons.chevron_right_rounded),
-              ]),
-            ),
-          ),
+          padding: const EdgeInsets.all(Gap.md),
+          child: Row(children: [
+            Icon(Icons.favorite_rounded,
+                color: Brand.onTint(context, AssistoTokens.of(context).warning)),
+            const SizedBox(width: Gap.md),
+            Expanded(
+                child: Text(
+                    '${cStr(context, 'cReachOutTitle')} · ${localeNum(context, n)}',
+                    style: AType.bodyMedium.copyWith(
+                        color: scheme.ds.text, fontWeight: FontWeight.w600))),
+            Icon(Icons.chevron_right_rounded, color: scheme.ds.muted),
+          ]),
         ),
       );
 
   Widget _listBody(AppLocalizations tr) {
     if (_all.isEmpty) {
-      return StateMessage(
-        icon: Icons.contacts_rounded,
-        title: tr.noContactsYet,
-        message: cStr(context, 'cEmptyBody'),
-        action: FilledButton.icon(
-          onPressed: () => _openEditor(),
-          icon: const Icon(Icons.person_add_alt_rounded),
-          label: Text(tr.addContact),
+      return ListView(padding: const EdgeInsets.all(Gap.md), children: [
+        DsEmptyState(
+          icon: Icons.contacts_rounded,
+          title: tr.noContactsYet,
+          benefit: cStr(context, 'cEmptyBody'),
+          actionLabel: tr.addContact,
+          onAction: () => _openEditor(),
         ),
-      );
+      ]);
     }
     final list = _visible;
     if (list.isEmpty) {
-      return StateMessage(
-        icon: Icons.search_off_rounded,
-        title: cStr(context, 'cNoSearchResults'),
-        message: cStr(context, 'cSearchHint'),
-      );
+      return ListView(padding: const EdgeInsets.all(Gap.md), children: [
+        DsEmptyState(
+          icon: Icons.search_off_rounded,
+          title: cStr(context, 'cNoSearchResults'),
+          benefit: cStr(context, 'cSearchHint'),
+        ),
+      ]);
     }
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, 96),
@@ -587,9 +575,10 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
             ),
         ]),
         title: Row(children: [
+          // the name wraps (never "…") at 200% font
           Flexible(
               child: Text(c.displayName(context),
-                  maxLines: 1, overflow: TextOverflow.ellipsis)),
+                  style: AType.bodyLarge.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w600))),
           if (c.favourite) ...[
             const SizedBox(width: Gap.xs),
             Icon(Icons.star_rounded, size: 16, color: AssistoTokens.of(context).warning),
@@ -598,7 +587,7 @@ class _CrmContactsScreenState extends State<CrmContactsScreen> {
         subtitle: subtitleBits.isEmpty
             ? null
             : Text(subtitleBits.join(' · '),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         trailing: inSheet
             ? null
             : IconButton(

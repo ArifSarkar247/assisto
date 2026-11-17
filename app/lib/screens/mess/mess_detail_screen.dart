@@ -513,25 +513,41 @@ class _MessDetailScreenState extends State<MessDetailScreen> with WidgetsBinding
           // clipped label
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(kTextTabBarHeight),
-            child: ShaderMask(
-              blendMode: BlendMode.dstIn,
-              shaderCallback: (r) => LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [Colors.white, Colors.white, Colors.white.withValues(alpha: 0)],
-                stops: const [0, 0.9, 1],
-              ).createShader(r),
-              child: TabBar(isScrollable: true, tabAlignment: TabAlignment.start,
-                  // room after the last tab so, scrolled to the end, it sits clear of the fade
-                  padding: const EdgeInsetsDirectional.only(end: Gap.xxl),
-                  labelPadding: const EdgeInsets.symmetric(horizontal: Gap.md), tabs: [
-            Tab(text: t.mv2TabMeals),
-            Tab(text: t.mv2TabBazar),
-            Tab(text: t.mv2TabMoney),
-            Tab(text: t.mv2TabMonth),
-            Tab(text: t.mv2TabMembers),
-          ]),
-            ),
+            // GPU-light (perf guard): a plain gradient strip over the end
+            // edge instead of a shader mask (no offscreen layer)
+            child: Builder(builder: (context) {
+              final bar = Theme.of(context).appBarTheme.backgroundColor ??
+                  Theme.of(context).colorScheme.ds.bg;
+              return Stack(children: [
+                TabBar(isScrollable: true, tabAlignment: TabAlignment.start,
+                    // room after the last tab so, scrolled to the end, it sits clear of the fade
+                    padding: const EdgeInsetsDirectional.only(end: Gap.xxl),
+                    labelPadding: const EdgeInsets.symmetric(horizontal: Gap.md), tabs: [
+                  Tab(text: t.mv2TabMeals),
+                  Tab(text: t.mv2TabBazar),
+                  Tab(text: t.mv2TabMoney),
+                  Tab(text: t.mv2TabMonth),
+                  Tab(text: t.mv2TabMembers),
+                ]),
+                PositionedDirectional(
+                  end: 0,
+                  top: 0,
+                  bottom: 2,
+                  width: Gap.xxl,
+                  child: IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: AlignmentDirectional.centerStart,
+                          end: AlignmentDirectional.centerEnd,
+                          colors: [bar.withValues(alpha: 0), bar],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ]);
+            }),
           ),
         ),
         body: Column(children: [

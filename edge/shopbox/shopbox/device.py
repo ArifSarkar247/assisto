@@ -80,7 +80,8 @@ class DeviceClient:
     def heartbeat(self, token: str, caps: List[str],
                   camera_ids: Optional[List[int]] = None,
                   extra: Optional[dict] = None):
-        body = {"caps": list(caps), "platform": "windows", "version": __version__}
+        from .sysinfo import platform_name
+        body = {"caps": list(caps), "platform": platform_name(), "version": __version__}
         if camera_ids:
             body["camera_ids"] = [int(x) for x in camera_ids][:64]
         if extra:
@@ -89,6 +90,12 @@ class DeviceClient:
                 body["live_ids"] = [int(x) for x in extra["live_ids"]][:64]
             if extra.get("motion_at"):
                 body["motion_at"] = float(extra["motion_at"])
+            # gboxlinux: camera state of a code-paired camera (cam_lost) and
+            # the box's power-cut / internet-down events
+            if isinstance(extra.get("health"), dict):
+                body["health"] = extra["health"]
+            if isinstance(extra.get("box_events"), list):
+                body["box_events"] = extra["box_events"][:10]
         return self._call("POST", HEARTBEAT_PATH, token, body)
 
     def config(self, token: str):
@@ -158,7 +165,9 @@ def apply_server_camera(local_cam, server_cam: dict, site_hours: Optional[dict] 
         if t != local_cam.tuning:
             local_cam.tuning = t
             changed = True
-    if "source" in server_cam:
+    # gboxlinux: a code-paired camera is a "phone" camera on the server; its
+    # real brand / DVR address (for DVR health, sub-stream) stays the local one
+    if "source" in server_cam and not getattr(local_cam, "guard", False):
         src = clean_source(server_cam.get("source"))
         if src and src != local_cam.source:
             local_cam.source = src
@@ -189,7 +198,10 @@ class DeviceSync(threading.Thread):
                  on_live: Optional[Callable[[str, dict], None]] = None,
                  every_s: float = 20.0, tasks=None,
                  camera_ids: Optional[Callable[[], List[int]]] = None,
-                 extra: Optional[Callable[[], dict]] = None):
+                 extra: Optional[Callable[[], dict]] = None,
+                 health: Optional[Callable[[str], Optional[dict]]] = None,
+                 box=None,
+                 on_play: Optional[Callable[[str, str, list], None]] = None):
         super().__init__(name="device-sync", daemon=True)
         self.client = client
         self.tokens = tokens        # () -> {local_camera_id or "": token}
@@ -200,6 +212,9 @@ class DeviceSync(threading.Thread):
         self.tasks = tasks          # tasks.GatewayTasks (camera checks) or None
         self.camera_ids = camera_ids  # () -> server camera ids captured here
         self.extra = extra            # () -> cctvx heartbeat extras
+        self.health = health          # gboxlinux: local camera id -> health dict
+        self.box = box                # gboxlinux: boxstate.BoxMonitor
+        self.on_play = on_play        # gboxlinux: (token, cam_id, play tasks)
         self._halt = threading.Event()
         self._versions: Dict[str, str] = {}
         self.online: Optional[bool] = None
@@ -218,6 +233,8 @@ class DeviceSync(threading.Thread):
                 ids = list(self.camera_ids() or [])
             except Exception:
                 ids = []
+        box_sent: List[str] = []
+        box_events = self.box.pending() if self.box is not None else []
         for cam_id, tok in (self.tokens() or {}).items():
             if not tok:
                 continue
@@ -228,6 +245,16 @@ class DeviceSync(threading.Thread):
                     ext = self.extra() or None
                 except Exception:
                     ext = None
+            if self.health is not None and cam_id:
+                try:
+                    h = self.health(cam_id)
+                except Exception:
+                    h = None
+                if h:
+                    ext = dict(ext or {}, health=h)
+            if box_events and not box_sent:
+                ext = dict(ext or {}, box_events=box_events)
+                box_sent = [str(e.get("id")) for e in box_events]
             st, d = (self.client.heartbeat(tok, self.caps, ids if not cam_id else None,
                                            ext) if ext else
                      self.client.heartbeat(tok, self.caps, ids if not cam_id else None))
@@ -238,6 +265,15 @@ class DeviceSync(threading.Thread):
                 continue
             any_ok = True
             self.unauthorized = False
+            if box_sent and ext and "box_events" in ext and "box_events_ok" in d:
+                # only a server that knows box events confirms them; an
+                # older one keeps them waiting here (bounded, 7 days)
+                self.box.ack(box_sent)
+            if self.on_play is not None and isinstance(d.get("play"), list) and d["play"]:
+                try:
+                    self.on_play(tok, cam_id, list(d["play"]))
+                except Exception:
+                    log.exception("play task handler failed")
             try:
                 pending = max(pending, int(d.get("tasks_pending") or 0))
             except (TypeError, ValueError):
@@ -258,6 +294,8 @@ class DeviceSync(threading.Thread):
                     except Exception:
                         log.exception("live session handler failed")
         self.online = any_ok if self.tokens() else None
+        if self.box is not None:
+            self.box.tick(self.online)
         if self.tasks is not None and any_ok:
             try:
                 self.tasks.maybe_poll(pending)

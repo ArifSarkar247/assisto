@@ -1,0 +1,18 @@
+Package: assisto-guardbox
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: Assisto <support@lifeassisto.com>
+Section: video
+Priority: optional
+Depends: libc6 (>= 2.31), adduser, ca-certificates, curl
+Recommends: alsa-utils
+Installed-Size: @SIZE@
+Homepage: https://lifeassisto.com
+Description: Assisto Guard Box - AI guard for the CCTV cameras you already have
+ Watches the shop's or home's own IP cameras / DVR on the local network,
+ runs person and motion detection ON THIS BOX, and sends only alerts with
+ one small picture and short clips to the owner's Assisto app. Works on slow
+ or no internet (alerts wait and are sent later), reports power cuts and
+ internet outages, plays the owner's siren or recorded warning on this
+ box's speaker, and checks the DVR's health. Camera passwords stay on
+ this box, encrypted. No face recognition.

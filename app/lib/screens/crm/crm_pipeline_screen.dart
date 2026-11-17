@@ -140,16 +140,39 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
         onAcceptWithDetails: (d) => _move(t, d.data, stage),
         builder: (ctx, cand, rej) => Container(
           decoration: BoxDecoration(
-            color: cand.isNotEmpty ? scheme.ds.primarySoft.withValues(alpha: 0.4) : scheme.ds.cardHighest.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(Radii.md),
+            // a soft lane; the drop target lights up in the primary tint
+            color: cand.isNotEmpty ? scheme.ds.primarySoft : scheme.ds.cardAlt,
+            border: Border.all(color: cand.isNotEmpty ? scheme.ds.primaryInk : scheme.ds.border),
+            borderRadius: BorderRadius.circular(DsRadius.card),
           ),
           padding: const EdgeInsets.all(Gap.sm),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Padding(
               padding: const EdgeInsets.all(Gap.xs),
-              child: Row(children: [
-                Expanded(child: Text(stage['name'] ?? '', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
-                Text('${fmtInt(context, (stage['probability'] as num?)?.toInt() ?? 0)}%', style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+              // lane header: stage name + deal count, then the lane's real
+              // total value (big, tight) and the stage probability
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Expanded(
+                      child: Text(stage['name'] ?? '',
+                          style: AType.bodyMedium.copyWith(
+                              color: scheme.ds.text, fontWeight: FontWeight.w800))),
+                  const SizedBox(width: Gap.xs),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
+                    decoration: BoxDecoration(
+                        color: scheme.ds.primarySoft,
+                        borderRadius: BorderRadius.circular(Radii.pill)),
+                    child: Text(fmtInt(context, deals.length),
+                        style: AType.labelMedium.copyWith(
+                            color: scheme.ds.primaryInk, fontWeight: FontWeight.w800)),
+                  ),
+                ]),
+                const SizedBox(height: Gap.xxs),
+                Text(
+                    '${bdt(context, deals.fold<num>(0, (a, d) => a + ((d['value'] as num?) ?? 0)))}'
+                    ' · ${fmtInt(context, (stage['probability'] as num?)?.toInt() ?? 0)}%',
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
               ]),
             ),
             Expanded(
@@ -173,12 +196,14 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
     final card = Padding(padding: const EdgeInsets.symmetric(vertical: Gap.xs), child: DsCard(
         padding: const EdgeInsets.all(Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(d['title'] ?? '', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
+          // wraps (never "…") at 200% font
+          Text(d['title'] ?? '', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.xs),
-          Text(bdt(context, (d['value'] as num?)), style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(bdt(context, (d['value'] as num?)),
+              style: AType.titleMedium.copyWith(
+                  fontWeight: FontWeight.w800, letterSpacing: -0.2, fontFeatures: AFonts.tabular)),
           Text('${fmtInt(context, (d['probability'] as num?)?.toInt() ?? 0)}% · ${_closeDate(d['expected_close'])}',
-              maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: AType.labelSmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
+              style: AType.labelMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
           if (stuckDays != null)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
@@ -187,8 +212,9 @@ class _CrmPipelineScreenState extends State<CrmPipelineScreen> {
                 const SizedBox(width: Gap.xs),
                 Expanded(
                   child: Text('${t.crmStuck} ${fmtInt(context, stuckDays)}${t.crmDaysShort}',
-                      maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: AType.labelSmall.copyWith(color: AssistoTokens.of(context).warning)),
+                      style: AType.labelMedium.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: Brand.onTint(context, AssistoTokens.of(context).warning))),
                 ),
               ]),
             ),

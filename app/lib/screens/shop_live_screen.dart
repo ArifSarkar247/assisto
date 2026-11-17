@@ -11,6 +11,7 @@ import '../l10n/app_localizations.dart';
 import '../shop_api.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'shop_live_rtc.dart' deferred as rtc;
 
@@ -440,9 +441,13 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
 
   Widget _bottomBar(AppLocalizations t, ColorScheme scheme) {
     final active = _phase == _Phase.live || _phase == _Phase.connecting;
+    // the controls sit on a DS card sheet under the black video stage
     return Container(
-      color: scheme.surface,
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.md),
+      decoration: BoxDecoration(
+        color: scheme.ds.card,
+        border: Border(top: BorderSide(color: scheme.ds.border)),
+      ),
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.md),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center, children: [
           if (_phase == _Phase.live &&
@@ -494,15 +499,11 @@ class _ShopLiveScreenState extends State<ShopLiveScreen> {
             style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
         const SizedBox(height: Gap.sm),
         if (active)
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              style: FilledButton.styleFrom(backgroundColor: scheme.error,
-                  foregroundColor: scheme.onError),
-              onPressed: () => _end(),
-              icon: const Icon(Icons.stop_circle_rounded),
-              label: Text(t.shopLiveStop),
-            ),
+          DsButton.danger(
+            onPressed: () => _end(),
+            icon: Icons.stop_circle_rounded,
+            label: t.shopLiveStop,
+            expand: true,
           ),
       ]),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart';
+import '../../messaging/date_separators.dart' show localDigits;
 import '../../l10n/app_localizations.dart';
 import '../../payments/credits_out_sheet.dart' show isOutOfCreditsBody;
 import '../../plans_v2/buy_inside.dart';
@@ -126,16 +127,21 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
                   if (_products.any((p) => p['price_reviewed'] != true))
                     NeedsKeyBanner(t.crmPricesToReview, icon: Icons.price_change_rounded),
                   // G6: in-app quote builder — select products → line items → totals.
-                  OutlinedButton.icon(
+                  // page rule: building a quote is the main action — first,
+                  // full width, glowing
+                  DsButton(
                     onPressed: () => _openQuoteBuilder(t),
-                    icon: const Icon(Icons.calculate_rounded),
-                    label: Text(t.crmBuildQuote),
+                    icon: Icons.calculate_rounded,
+                    label: t.crmBuildQuote,
+                    expand: true,
                   ),
-                  const SizedBox(height: Gap.sm),
+                  const SizedBox(height: Gap.md),
                   if (_proposals.isEmpty)
-                    CrmStateView.empty(icon: Icons.description_rounded, title: t.crmNoProposals, message: t.crmNoProposalsHint)
+                    DsEmptyState(icon: Icons.description_rounded, title: t.crmNoProposals, benefit: t.crmNoProposalsHint)
                   else
-                    for (final p in _proposals) _proposalCard(t, p),
+                    for (final p in _proposals)
+                      Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: _proposalCard(t, p)),
+                  const SizedBox(height: 72), // clear the AI draft button
                 ]),
     );
   }
@@ -149,15 +155,21 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
       padding: const EdgeInsets.all(Gap.md),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Expanded(child: Text(p['title']?.toString().isNotEmpty == true ? p['title'] : '${t.crmProposals} v${p['version']}', style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
+            Expanded(
+                child: Text(
+                    p['title']?.toString().isNotEmpty == true
+                        ? p['title']
+                        : localDigits('${t.crmProposals} v${p['version']}', Localizations.localeOf(context).languageCode),
+                    style: AType.bodyLarge.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w800))),
             _statusChip(status),
           ]),
           const SizedBox(height: Gap.xs),
           if (total > 0) ...[
             _line(t.crmSubtotal, bdt(context, _dec(p['subtotal']))),
             if ((_dec(p['discount_amount']) ?? 0) > 0) _line(t.crmDiscount, '- ${bdt(context, _dec(p['discount_amount']))}'),
-            _line('${t.crmTax} (${p['tax_pct']}%)', bdt(context, _dec(p['tax_amount']))),
-            const Divider(),
+            _line(localDigits('${t.crmTax} (${p['tax_pct']}%)', Localizations.localeOf(context).languageCode),
+                bdt(context, _dec(p['tax_amount']))),
+            Divider(color: scheme.ds.border),
             _line(t.crmTotal, bdt(context, total), bold: true),
           ],
           if (!reviewed)
@@ -166,7 +178,12 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
               child: Row(children: [
                 Icon(Icons.flag_rounded, size: 16, color: AssistoTokens.of(context).warning),
                 const SizedBox(width: Gap.xs),
-                Text(t.crmToReview, style: AType.labelMedium.copyWith(color: AssistoTokens.of(context).warning, fontWeight: FontWeight.w700)),
+                Expanded(
+                  child: Text(t.crmToReview,
+                      style: AType.labelMedium.copyWith(
+                          color: Brand.onTint(context, AssistoTokens.of(context).warning),
+                          fontWeight: FontWeight.w700)),
+                ),
               ]),
             ),
           if ((p['body'] ?? '').toString().isNotEmpty) ...[
@@ -174,15 +191,15 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
             Text(p['body'], maxLines: 6, overflow: TextOverflow.ellipsis, style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
           ],
           const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.xs, children: [
+          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             if (status == 'draft' || status == 'pending')
-              OutlinedButton(onPressed: reviewed ? () => _transition(t, p, 'approved') : null, child: Text(t.crmApprove)),
+              DsButton.secondary(onPressed: reviewed ? () => _transition(t, p, 'approved') : null, label: t.crmApprove),
             if (status == 'approved')
-              FilledButton.tonal(onPressed: () => _transition(t, p, 'sent'), child: Text(t.send)),
+              DsButton(onPressed: () => _transition(t, p, 'sent'), icon: Icons.send_rounded, label: t.send),
             if (status == 'sent')
-              OutlinedButton(onPressed: () => _transition(t, p, 'viewed'), child: Text(t.crmMarkViewed)),
+              DsButton.secondary(onPressed: () => _transition(t, p, 'viewed'), label: t.crmMarkViewed),
             if (status == 'sent' || status == 'viewed')
-              OutlinedButton(onPressed: () => _transition(t, p, 'accepted'), child: Text(t.crmMarkAccepted)),
+              DsButton(onPressed: () => _transition(t, p, 'accepted'), label: t.crmMarkAccepted),
           ]),
         ]),
     );
@@ -190,9 +207,14 @@ class _CrmProposalScreenState extends State<CrmProposalScreen> {
 
   Widget _line(String k, String v, {bool bold = false}) => Padding(
         padding: const EdgeInsets.symmetric(vertical: Gap.xxs),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(k),
-          Text(v, style: AType.bodyMedium.copyWith(fontWeight: bold ? FontWeight.w800 : FontWeight.w500)),
+        // label wraps; the amount keeps its place (no overflow at 200%)
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: Text(k)),
+          const SizedBox(width: Gap.sm),
+          Text(v,
+              style: (bold ? AType.titleMedium : AType.bodyMedium).copyWith(
+                  fontWeight: bold ? FontWeight.w800 : FontWeight.w500,
+                  fontFeatures: AFonts.tabular)),
         ]),
       );
 

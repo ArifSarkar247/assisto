@@ -131,10 +131,10 @@ class BizStatusChip extends StatelessWidget {
         // of overflowing at 360 px
         Flexible(
           child: Text(label,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.w700, color: Brand.onTint(context, color))),
+              style: AType.labelMedium.copyWith(
+                  fontWeight: FontWeight.w700, color: Brand.onTint(context, color))),
         ),
       ]),
     );
@@ -158,7 +158,6 @@ class BizPremiumGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
     // Paid Business benefits — from plan §8 (ARB keys, no prices).
     final benefits = <String>[
       tr.bizPlanBenefitAi,
@@ -168,22 +167,29 @@ class BizPremiumGate extends StatelessWidget {
       tr.bizPlanBenefitPaperKhata,
       tr.bizPlanBenefitInsights,
     ];
+    final ds = DsTokens.of(context);
+    // designv2: the soft DS hero (no white-on-gradient text), the benefits in
+    // one alive card, one glowing upgrade button.
     return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
-      Container(
-        padding: const EdgeInsets.all(Gap.xl),
-        decoration: BoxDecoration(
-          gradient: Brand.gradient,
-          borderRadius: BorderRadius.circular(Radii.lg),
-        ),
+      DsHeroCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 30),
+          DsAvatar(
+              size: 48,
+              child: Icon(Icons.auto_awesome_rounded, color: ds.primaryInk, size: 26)),
           const SizedBox(height: Gap.md),
           Text(tr.bizPlanPaidTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white, fontWeight: FontWeight.w800)),
+                  color: ds.text, fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.sm),
           Text(featureLine,
-              style: const TextStyle(color: Colors.white, height: 1.4)),
+              style: AType.bodyMedium.copyWith(color: ds.muted, height: 1.4)),
+          const SizedBox(height: Gap.lg),
+          DsButton(
+            onPressed: onUpgrade,
+            icon: Icons.arrow_forward_rounded,
+            label: tr.bizPlanUpgradeCta,
+            expand: true,
+          ),
         ]),
       ),
       const SizedBox(height: Gap.lg),
@@ -195,9 +201,11 @@ class BizPremiumGate extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.check_circle_rounded, size: 18, color: scheme.primary),
+                Icon(Icons.check_circle_rounded, size: 18, color: ds.successInk),
                 const SizedBox(width: Gap.sm),
-                Expanded(child: Text(b, style: const TextStyle(height: 1.4))),
+                Expanded(
+                    child: Text(b,
+                        style: AType.bodyMedium.copyWith(color: ds.text, height: 1.4))),
               ]),
             ),
         ]),
@@ -205,12 +213,6 @@ class BizPremiumGate extends StatelessWidget {
       const SizedBox(height: Gap.md),
       // Honest: pricing is owner-review (placeholder, no invented numbers).
       BizNote(text: tr.f6BizPlanPriceOnPlans, icon: Icons.sell_rounded), // f6: real prices live on Plans
-      const SizedBox(height: Gap.lg),
-      FilledButton.icon(
-        onPressed: onUpgrade,
-        icon: const Icon(Icons.arrow_forward_rounded),
-        label: Text(tr.bizPlanUpgradeCta),
-      ),
     ]);
   }
 }

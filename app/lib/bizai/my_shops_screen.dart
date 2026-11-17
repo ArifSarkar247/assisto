@@ -143,46 +143,40 @@ class _MyShopsScreenState extends State<MyShopsScreen> {
       );
     }
     if (_rows.isEmpty) {
+      // DS empty state: drawn illustration, benefit, one big button.
       return ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-        Icon(Icons.storefront_rounded, size: 56, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(height: Gap.md),
-        Text(t.bizaiMyShopsEmpty,
-            textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: Gap.sm),
-        Text(t.bizaiMyShopsHow, textAlign: TextAlign.center),
-        const SizedBox(height: Gap.lg),
-        FilledButton.icon(
-          key: const ValueKey('bizai-open-link'),
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-          onPressed: _enterLink,
-          icon: const Icon(Icons.link_rounded),
-          label: Text(t.bizaiOpenLink),
+        DsEmptyState(
+          icon: Icons.storefront_rounded,
+          title: t.bizaiMyShopsEmpty,
+          benefit: t.bizaiMyShopsHow,
+          actionKey: const ValueKey('bizai-open-link'),
+          actionLabel: t.bizaiOpenLink,
+          onAction: _enterLink,
         ),
       ]);
     }
+    final ds = DsTokens.of(context);
     return RefreshIndicator(
       onRefresh: _load,
-      child: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)), children: [
-        for (final r in _rows)
-          DsCard(
-            padding: EdgeInsets.zero,
-            child: ListTile(
-              minVerticalPadding: Gap.md,
-              leading: const CircleAvatar(child: Icon(Icons.storefront_rounded)),
-              title: Text('${r['shop'] ?? ''}', maxLines: 2, overflow: TextOverflow.ellipsis),
-              subtitle: Text(r['circle'] == true ? t.bizaiFromCircle : bd(context, r['last']),
-                  maxLines: 2, overflow: TextOverflow.ellipsis),
-              trailing: const Icon(Icons.chevron_right_rounded),
+      child: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
+        // one grouped DS card: shop avatar, name (wraps), where it came from
+        DsGroup(margin: EdgeInsets.zero, children: [
+          for (final r in _rows)
+            DsListRow(
+              leading: DsAvatar(name: '${r['shop'] ?? ''}'),
+              title: '${r['shop'] ?? ''}',
+              subtitle: r['circle'] == true ? t.bizaiFromCircle : bd(context, r['last']),
+              trailing: Icon(Icons.chevron_right_rounded, color: ds.muted),
               onTap: () => _open('${r['code']}'),
             ),
-          ),
-        const SizedBox(height: Gap.md),
-        OutlinedButton.icon(
-          key: const ValueKey('bizai-open-link'),
-          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        ]),
+        const SizedBox(height: Gap.lg),
+        DsButton.secondary(
+          buttonKey: const ValueKey('bizai-open-link'),
           onPressed: _enterLink,
-          icon: const Icon(Icons.link_rounded),
-          label: Text(t.bizaiOpenLink),
+          icon: Icons.link_rounded,
+          label: t.bizaiOpenLink,
+          expand: true,
         ),
       ]),
     );

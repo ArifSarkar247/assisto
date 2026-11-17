@@ -94,10 +94,16 @@ def _events():
         "id", "name", "device_info"))
     evs = []
     for e in ShopEvent.objects.filter(site_id=site).order_by("id"):
+        # the server keeps what the device sent under signals["inputs"]
+        # (shop_views._ingest_event); top level = older rows / server keys
+        sig = e.signals if isinstance(e.signals, dict) else {}
+        inp = sig.get("inputs") if isinstance(sig.get("inputs"), dict) else {}
+        pick = lambda k: inp.get(k) if inp.get(k) is not None else sig.get(k)  # noqa: E731
         evs.append({"id": e.id, "type": e.type, "camera": e.camera_id,
-                    "source": (e.signals or {}).get("source"),
-                    "detector": (e.signals or {}).get("detector"),
-                    "conf": (e.signals or {}).get("conf"),
+                    "source": pick("source"),
+                    "detector": pick("detector"),
+                    "conf": pick("conf"),
+                    "count": int(e.count or 1),
                     "snapshot": bool(e.snapshot), "created": e.created.isoformat()})
     return cams, evs
 

@@ -72,65 +72,70 @@ class _CrmTeamScreenState extends State<CrmTeamScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
-        NeedsKeyBanner(t.crmTeamAlertNote, icon: Icons.notifications_active_rounded),
-        // Invite code (owner/manager): share so teammates can "Join a team".
+        // Page rule: the invite code first (the one thing to share), as the
+        // soft hero with the code big; then the team and the routing rules
+        // as DS groups; the alerts note last.
         if (_inviteCode != null && _inviteCode!.isNotEmpty) ...[
-          DsCard(
-            padding: EdgeInsets.zero,
-            child: ListTile(
-              leading: const Icon(Icons.vpn_key_rounded),
-              title: Text(t.crmInviteCode),
-              subtitle: Text(t.crmInviteCodeHint),
-              trailing: SelectableText(_inviteCode!,
-                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800, letterSpacing: 1.2)),
-            ),
-          ),
-          const SizedBox(height: Gap.sm),
-        ],
-        _sectionTitle(t.crmTeam),
-        if (_members.isEmpty)
-          Padding(padding: const EdgeInsets.all(Gap.md), child: Text(t.crmNoTeam))
-        else
-          for (final m in _members)
-            DsCard(
-              padding: EdgeInsets.zero,
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: scheme.ds.primarySoft,
-                  child: Text(((m['user_name'] ?? '?').toString().isNotEmpty ? m['user_name'][0] : '?').toUpperCase(),
-                      style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
+          DsHeroCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                DsAvatar(child: Icon(Icons.vpn_key_rounded, size: 20, color: scheme.ds.primaryInk)),
+                const SizedBox(width: Gap.md),
+                Expanded(
+                  child: Text(t.crmInviteCode,
+                      style: AType.titleMedium.copyWith(
+                          color: scheme.ds.text, fontWeight: FontWeight.w700)),
                 ),
-                title: Text(m['user_name'] ?? ''),
-                subtitle: Text(_roleLabel(t, m['role'])),
-              ),
-            ),
-        const SizedBox(height: Gap.md),
-        _sectionTitle(t.crmRouting),
-        if (_rules.isEmpty)
-          Padding(padding: const EdgeInsets.all(Gap.md), child: Text(t.crmNoRouting))
+              ]),
+              const SizedBox(height: Gap.md),
+              SelectableText(_inviteCode!,
+                  style: AType.headlineSmall.copyWith(
+                      color: scheme.ds.text,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 2,
+                      fontFeatures: AFonts.tabular)),
+              const SizedBox(height: Gap.xs),
+              Text(t.crmInviteCodeHint,
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+            ]),
+          ),
+        ],
+        DsSectionHeader(t.crmTeam),
+        if (_members.isEmpty)
+          DsCard(child: Text(t.crmNoTeam, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)))
         else
-          for (final r in _rules)
-            DsCard(
-              padding: EdgeInsets.zero,
-              child: ListTile(
-                leading: const Icon(Icons.alt_route_rounded),
-                title: Text([
+          DsGroup(margin: EdgeInsets.zero, children: [
+            for (final m in _members)
+              DsListRow(
+                leading: DsAvatar(name: '${m['user_name'] ?? ''}'),
+                title: '${m['user_name'] ?? ''}',
+                subtitle: _roleLabel(t, m['role']),
+              ),
+          ]),
+        DsSectionHeader(t.crmRouting),
+        if (_rules.isEmpty)
+          DsCard(child: Text(t.crmNoRouting, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)))
+        else
+          DsGroup(margin: EdgeInsets.zero, children: [
+            for (final r in _rules)
+              DsListRow(
+                leading: DsAvatar(
+                    size: 40,
+                    child: Icon(Icons.alt_route_rounded, size: 20, color: scheme.ds.primaryInk)),
+                title: [
                   if ((r['match_industry'] ?? '').toString().isNotEmpty)
                     crmIndustryLabel(t, r['match_industry'].toString()),
                   if ((r['match_source'] ?? '').toString().isNotEmpty) r['match_source'],
-                ].join(' · ')),
+                ].join(' · '),
                 // show the member's NAME, not their internal id
-                subtitle: Text('${t.crmAssignTo} ${_memberName(r['assign_to'])}'),
+                subtitle: '${t.crmAssignTo} ${_memberName(r['assign_to'])}',
               ),
-            ),
+          ]),
+        const SizedBox(height: Gap.sm),
+        NeedsKeyBanner(t.crmTeamAlertNote, icon: Icons.notifications_active_rounded),
       ]),
     );
   }
-
-  Widget _sectionTitle(String s) => Padding(
-        padding: const EdgeInsets.only(bottom: Gap.xs, top: Gap.sm),
-        child: Text(s, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
-      );
 
   String _memberName(Object? id) {
     for (final m in _members) {
