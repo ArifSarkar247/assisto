@@ -559,6 +559,16 @@ def reminder_guard(b, now, max_reminders=None):
         return None, False
     c = contact(b.business, b.customer_phone)
     stopped = bool(c and c.stop) or bool(b.thread and b.thread.opted_out)
+    if not stopped:
+        # gap-bizai: a STOP given on ANY path of this shop (an SMS stop link,
+        # an in-app Stop, a retention reply) also stops booking reminders
+        try:
+            from .logic import msg_guard as MG
+            from .logic.business_selling import normalize_phone
+            key = normalize_phone(b.customer_phone or "")
+            stopped = bool(key) and MG.is_opted_out(b.business_id, key)
+        except Exception:  # noqa: BLE001 — the guard never breaks the sweep
+            log.exception("booking reminder: opt-out check")
     return kind, not stopped
 
 

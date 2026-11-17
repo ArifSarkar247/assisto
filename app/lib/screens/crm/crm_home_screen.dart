@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
-import '../../theme.dart' show Gap;
+import '../../theme.dart' show Gap, AType;
+import '../../ds/ds.dart'; // gap-bizai
+import '../../widgets/app_sheet.dart' show withNavBarInset; // gap-bizai
 import 'crm_common.dart';
 import 'crm_firstrun_screen.dart';
 import 'crm_today_screen.dart';
@@ -89,16 +91,15 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
     }
 
     final org = _org!;
-    final tabs = [
-      (icon: Icons.today_rounded, label: t.crmTabToday, child: CrmTodayScreen(org: org)),
-      // crm100: every customer once (khata + shop + orders + AI chats + leads)
-      (icon: Icons.person_search_rounded, label: t.c100CustomersTab, child: const CustomerListScreen(embedded: true)),
-      (icon: Icons.people_alt_rounded, label: t.crmTabLeads, child: CrmLeadsScreen(org: org)),
+    // gap-bizai (owner card "CRM tabs simple"): 13 tabs in one row lost a
+    // small shop owner. The four used every day stay as tabs; every other
+    // tool is one tap away under "More" in the top bar — always on screen,
+    // even on a narrow phone (nothing removed, nothing hidden).
+    final more = <({IconData icon, String label, Widget child})>[
       // plans-v2: CRM contacts (Free can add these up to the owner's limit)
       if (FeatureFlags.instance.isOn('plans_v2'))
         (icon: Icons.contacts_rounded, label: t.pv2TabContacts, child: CrmContactsTab(org: org)),
       (icon: Icons.domain_rounded, label: t.crmTabCompanies, child: CrmCompaniesScreen(org: org)),
-      (icon: Icons.view_kanban_rounded, label: t.crmTabPipeline, child: CrmPipelineScreen(org: org)),
       (icon: Icons.insights_rounded, label: t.crmTabDashboard, child: CrmDashboardScreen(org: org)),
       (icon: Icons.bar_chart_rounded, label: t.crmTabReports, child: CrmReportsScreen(org: org)),
       (icon: Icons.groups_rounded, label: t.crmTabTeam, child: CrmTeamScreen(org: org)),
@@ -106,6 +107,13 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
       (icon: Icons.support_agent_rounded, label: t.crmAfterSale, child: CrmAfterSaleScreen(org: org)),
       (icon: Icons.leaderboard_rounded, label: t.crmTeamManage, child: CrmTeamAdvancedScreen(org: org)),
       (icon: Icons.bolt_rounded, label: t.crmAutomation, child: CrmAutomationScreen(org: org)),
+    ];
+    final tabs = [
+      (icon: Icons.today_rounded, label: t.crmTabToday, child: CrmTodayScreen(org: org)),
+      // crm100: every customer once (khata + shop + orders + AI chats + leads)
+      (icon: Icons.person_search_rounded, label: t.c100CustomersTab, child: const CustomerListScreen(embedded: true)),
+      (icon: Icons.people_alt_rounded, label: t.crmTabLeads, child: CrmLeadsScreen(org: org)),
+      (icon: Icons.view_kanban_rounded, label: t.crmTabPipeline, child: CrmPipelineScreen(org: org)),
     ];
 
     return DefaultTabController(
@@ -115,6 +123,15 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
         appBar: AppBar(
           title: Text(t.crmTitle),
           actions: [
+            // gap-bizai: every other CRM tool, one tap away
+            IconButton(
+              key: const ValueKey('gbz-crm-more'),
+              tooltip: t.gbzCrmMore,
+              icon: const Icon(Icons.apps_rounded),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => Scaffold(
+                      appBar: AppBar(title: Text(t.gbzCrmMore)), body: CrmMoreTab(items: more)))),
+            ),
             if (_orgs.length > 1)
               PopupMenuButton<int>(
                 icon: const Icon(Icons.business_rounded),
@@ -125,9 +142,8 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
                 ],
               ),
           ],
-          // 13 tools: one scrolling tab row that starts at the screen edge
-          // (no centred first tab); a scrollable tab sizes to its label, so
-          // nothing is cut with "…" at any font size.
+          // four tabs: still a scrolling row that starts at the screen edge,
+          // so nothing is cut with "…" at 200 % font.
           bottom: TabBar(
             isScrollable: true,
             tabAlignment: TabAlignment.start,
@@ -137,6 +153,40 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
         ),
         body: TabBarView(children: [for (final tb in tabs) tb.child]),
       ),
+    );
+  }
+}
+
+
+/// gap-bizai: the CRM tools that are not used every day, one tap each.
+/// Each opens full screen with its own title and back arrow.
+class CrmMoreTab extends StatelessWidget {
+  final List<({IconData icon, String label, Widget child})> items;
+  const CrmMoreTab({super.key, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final ds = DsTokens.of(context);
+    return ListView(
+      padding: withNavBarInset(context, const EdgeInsets.symmetric(vertical: Gap.md)),
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Gap.lg),
+          child: Text(t.gbzCrmMoreSub, style: AType.bodyMedium.copyWith(color: ds.muted)),
+        ),
+        DsGroup(children: [
+          for (final it in items)
+            DsListRow(
+              key: ValueKey('gbz-crm-more-${it.icon.codePoint}'),
+              title: it.label,
+              leading: DsAvatar(child: Icon(it.icon, size: 22, color: ds.primaryInk)),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => Scaffold(appBar: AppBar(title: Text(it.label)), body: it.child))),
+            ),
+        ]),
+      ],
     );
   }
 }
