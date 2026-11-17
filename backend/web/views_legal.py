@@ -188,16 +188,20 @@ def sitemap_xml(request):
     rows = []
     from .views_site3 import sitemap_extra   # sitev3: only once v3 is live
     from .blog import sitemap_paths as blog_paths   # seoblog: published posts only
+    from .blog import sitemap_lastmod
+    from .seo import SITE_LASTMOD
+    mods = sitemap_lastmod()   # seolive: every URL carries <lastmod>
     for p in SITEMAP_PATHS + sitemap_extra() + blog_paths():
         bn = site + p
         en = site + p + "?lang=en"
+        mod = mods[p].isoformat() if p in mods else SITE_LASTMOD
         for loc in (bn, en):
             rows.append(
-                "  <url><loc>%s</loc>"
+                "  <url><loc>%s</loc><lastmod>%s</lastmod>"
                 "<xhtml:link rel=\"alternate\" hreflang=\"bn\" href=\"%s\"/>"
                 "<xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"%s\"/>"
                 "<xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"%s\"/></url>"
-                % (loc.replace("&", "&amp;"), bn, en.replace("&", "&amp;"), bn))
+                % (loc.replace("&", "&amp;"), mod, bn, en.replace("&", "&amp;"), bn))
     body = ('<?xml version="1.0" encoding="UTF-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
             'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'

@@ -23,7 +23,9 @@
         "http://127.0.0.1:8000/features/city-service",
         "http://127.0.0.1:8000/features/city-service?lang=en",
         "http://127.0.0.1:8000/features/blood-donor",
-        "http://127.0.0.1:8000/features/blood-donor?lang=en"
+        "http://127.0.0.1:8000/features/blood-donor?lang=en",
+        "http://127.0.0.1:8000/blog",
+        "http://127.0.0.1:8000/blog/safe-journey-night-travel-tips?lang=en"
       ],
       "numberOfRuns": 1,
       "settings": {
