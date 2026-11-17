@@ -1,0 +1,132 @@
+// gap-cctv: the CCTV feature-gap lane (owner gap sweep 17 Nov) — one test per
+// fixed gap (owner_actions/gaps/cctv_BN.md).
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:assisto/l10n/app_localizations.dart';
+import 'package:assisto/phonecam/phonecam_pair_sheet.dart';
+import 'package:assisto/theme.dart';
+
+import 'phonecam_shots.dart' show pcFakePair;
+
+Widget _app(Widget home, {String lang = 'en', double scale = 1.0, bool dark = false}) =>
+    MaterialApp(
+      key: UniqueKey(),
+      locale: Locale(lang),
+      theme: dark ? AssistoTheme.dark : AssistoTheme.light,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      builder: (ctx, child) => MediaQuery(
+          data: MediaQuery.of(ctx).copyWith(textScaler: TextScaler.linear(scale)), child: child!),
+      home: home,
+    );
+
+Future<void> _settle(WidgetTester tester, [int n = 10]) async {
+  for (var i = 0; i < n; i++) {
+    await tester.pump(const Duration(milliseconds: 60));
+  }
+}
+
+void _phone(WidgetTester tester, {double height = 1600}) {
+  tester.view.physicalSize = Size(360 * 3, height * 3);
+  tester.view.devicePixelRatio = 3.0;
+  addTearDown(tester.view.reset);
+}
+
+late AppLocalizations en;
+late AppLocalizations bn;
+
+void main() {
+  setUpAll(() async {
+    en = await AppLocalizations.delegate.load(const Locale('en'));
+    bn = await AppLocalizations.delegate.load(const Locale('bn'));
+  });
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  group('G1 Guard Box on Linux / Raspberry Pi (Windows never required)', () {
+    testWidgets('the pairing sheet offers the Linux box: install line + setup + copy',
+        (tester) async {
+      _phone(tester);
+      final copied = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform,
+          (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied.add((call.arguments as Map)['text'] as String);
+        }
+        return null;
+      });
+      await tester.pumpWidget(
+          _app(const Scaffold(body: PhoneCamPairSheet(load: pcFakePair))));
+      await _settle(tester, 3);
+      expect(find.text(en.gcvLinuxTitle), findsOneWidget);
+      // folded by default: the pairing code stays the first thing seen
+      expect(find.byKey(const Key('pcLinuxInstall')), findsNothing);
+      await tester.ensureVisible(find.text(en.gcvLinuxTitle));
+      await tester.tap(find.text(en.gcvLinuxTitle));
+      await _settle(tester, 8);
+      expect(find.byKey(const Key('pcLinuxInstall')), findsOneWidget);
+      expect(find.byKey(const Key('pcLinuxSetup')), findsOneWidget);
+      expect(find.text(kGuardBoxLinuxInstall), findsOneWidget);
+      expect(kGuardBoxLinuxInstall, contains('releases/download/guardbox-linux/install.sh'));
+      expect(kGuardBoxLinuxInstall, startsWith('curl -fsSL https://'));
+      expect(find.textContaining(en.gcvLinuxStep4), findsOneWidget);
+      final copy = find.byTooltip(en.gcvLinuxCopy);
+      expect(copy, findsNWidgets(2));
+      await tester.ensureVisible(copy.first);
+      await tester.tap(copy.first);
+      await _settle(tester, 3);
+      expect(copied, [kGuardBoxLinuxInstall]);
+      expect(find.text(en.gcvLinuxCopied), findsOneWidget);
+      // every tap target is at least 48 dp
+      for (final e in copy.evaluate()) {
+        expect(tester.getSize(find.byWidget(e.widget)).height, greaterThanOrEqualTo(48));
+      }
+      tester.binding.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null);
+    });
+
+    testWidgets('outside the pairing sheet the last step says where the code is', (tester) async {
+      _phone(tester);
+      await tester.pumpWidget(_app(
+          const Scaffold(body: SingleChildScrollView(child: GuardBoxLinuxSteps(codeAbove: false))),
+          lang: 'bn'));
+      await tester.tap(find.text(bn.gcvLinuxTitle));
+      await _settle(tester, 8);
+      expect(find.textContaining(bn.gcvLinuxStep4Where), findsOneWidget);
+      expect(find.textContaining('৪. '), findsOneWidget, reason: 'Bangla digits in Bangla');
+    });
+
+    test('the wizard no longer says the box must be a Windows PC', () {
+      expect(en.gcvGwBoxBody, contains('Raspberry Pi'));
+      expect(en.gcvGwBoxBody, contains('Windows is not required'));
+      expect(bn.gcvGwBoxBody, contains('Windows বাধ্যতামূলক নয়'));
+    });
+
+    for (final lang in ['bn', 'en']) {
+      for (final dark in [false, true]) {
+        testWidgets('Linux steps at 200% text, open — $lang ${dark ? 'dark' : 'light'}',
+            (tester) async {
+          _phone(tester, height: 900);
+          await tester.pumpWidget(_app(
+              const Scaffold(body: SingleChildScrollView(child: GuardBoxLinuxSteps())),
+              lang: lang, scale: 2.0, dark: dark));
+          final t = lang == 'bn' ? bn : en;
+          await tester.tap(find.text(t.gcvLinuxTitle));
+          await _settle(tester, 8);
+          expect(tester.takeException(), isNull);
+          unawaited(Future<void>.value());
+        });
+      }
+    }
+  });
+}

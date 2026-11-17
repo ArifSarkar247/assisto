@@ -1,0 +1,29 @@
+{
+  "en": {
+    "gcvLinuxTitle": "Raspberry Pi or Linux mini PC instead",
+    "@gcvLinuxTitle": {"description": "gap-cctv: fold-out title — the Guard Box on Linux (Windows never required)"},
+    "gcvLinuxSub": "No Windows needed — the box watches all cameras on the shop's router",
+    "gcvLinuxStep1": "Use a 64-bit Raspberry Pi OS (Pi 4 or 5, 2 GB is enough) or an Ubuntu / Debian mini PC, on the same router as the cameras.",
+    "gcvLinuxStep2": "On the box, open a terminal and run this one line (it checks the download's SHA-256 before installing):",
+    "gcvLinuxStep3": "Then run the setup. It finds the cameras and keeps their passwords only on the box:",
+    "gcvLinuxStep4": "When the box asks for a code, type the short code shown above. It turns green here when it joins.",
+    "gcvLinuxStep4Where": "When the box asks for a code, tap \"Use an old phone as a camera\" on this place card and type the short code it shows.",
+    "gcvLinuxPrivacy": "The video stays on the box. Only alert photos and short clips are sent. It restarts by itself after a power cut and updates once a day.",
+    "gcvLinuxCopy": "Copy",
+    "gcvLinuxCopied": "Copied",
+    "gcvGwBoxBody": "A small box at the shop — a Raspberry Pi, a Linux mini PC or a Windows PC — that watches all your network cameras with on-device AI. Windows is not required."
+  },
+  "bn": {
+    "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
+    "gcvLinuxSub": "Windows লাগে না — বক্সটি দোকানের রাউটারের সব ক্যামেরা দেখে",
+    "gcvLinuxStep1": "৬৪-বিট Raspberry Pi OS (Pi ৪ বা ৫, ২ জিবি RAM-ই যথেষ্ট) অথবা Ubuntu / Debian মিনি পিসি নিন, ক্যামেরার একই রাউটারে।",
+    "gcvLinuxStep2": "বক্সে টার্মিনাল খুলে এই এক লাইন চালান (ইনস্টলের আগে ফাইলের SHA-256 মিলিয়ে নেয়):",
+    "gcvLinuxStep3": "তারপর সেটআপ চালান। এটি ক্যামেরা খুঁজে নেয়, পাসওয়ার্ড শুধু বক্সেই রাখে:",
+    "gcvLinuxStep4": "বক্স কোড চাইলে ওপরের ছোট কোডটি লিখুন। যুক্ত হলেই এখানে সবুজ দেখাবে।",
+    "gcvLinuxStep4Where": "বক্স কোড চাইলে এই জায়গার কার্ডে \"পুরনো ফোনকে ক্যামেরা বানান\" চাপুন, সেখানে দেখানো ছোট কোডটি লিখুন।",
+    "gcvLinuxPrivacy": "ভিডিও বক্সেই থাকে। শুধু সতর্কতার ছবি আর ছোট ক্লিপ পাঠানো হয়। বিদ্যুৎ গেলে নিজে আবার চালু হয়, দিনে একবার নিজে আপডেট নেয়।",
+    "gcvLinuxCopy": "কপি",
+    "gcvLinuxCopied": "কপি হয়েছে",
+    "gcvGwBoxBody": "দোকানে রাখা ছোট একটি বক্স — Raspberry Pi, লিনাক্স মিনি পিসি বা Windows পিসি — যা নিজের AI দিয়ে নেটওয়ার্কের সব ক্যামেরা দেখে। Windows বাধ্যতামূলক নয়।"
+  }
+}
