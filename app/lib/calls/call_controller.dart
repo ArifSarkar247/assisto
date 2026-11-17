@@ -1816,7 +1816,7 @@ class CallController extends ChangeNotifier {
     _screenCapTimer = null;
     final m = media, p = appliedPlan;
     if (m is! AdaptiveCallMedia || p == null || isEnded) return;
-    unawaited(m.applyPlan(p).catchError((Object e) {
+    unawaited((m as AdaptiveCallMedia).applyPlan(p).catchError((Object e) {
       callLog('call_controller#ss1', e);
     }));
   }
