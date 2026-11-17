@@ -27,6 +27,19 @@ VEHICLE_TYPES = (VEHICLE_IN_OUT, PARKING_OVERSTAY, WRONG_PARKING)
 
 # the zone detections (one per zone per visit / state change): stage 1 + 2
 ZONE_TYPES = (GATE_PERSON, POST_EMPTY, GATE_OPEN, CROWD) + VEHICLE_TYPES
+# cctvdet3 (lead decision, reversible): vehicle detections are a LOG + daily
+# report (saved, no ringing push) until the owner's own clips confirm >= 90/90
+# precision / recall; the owner turns ringing on per zone (opts.notify).
+# Person / gate alerts are unchanged.
+REPORT_ONLY_TYPES = VEHICLE_TYPES
+
+
+def report_only(v2, etype, signals):
+    """True when this detection is saved quietly (no ringing push)."""
+    if etype not in REPORT_ONLY_TYPES:
+        return False
+    z = find_zone(v2, _inputs(signals).get("zone"))
+    return not ((z or {}).get("opts") or {}).get("notify")
 # alert types whose box clip is the 10 s detection clip (ACG1 preview envelope)
 LONG_CLIP_TYPES = (GATE_PERSON, LOITERING, POST_EMPTY, GATE_OPEN, CAMERA_HEALTH,
                    CROWD) + VEHICLE_TYPES
@@ -289,6 +302,8 @@ def clean_opts(raw, ztype):
         out.pop("crowd_n", None)
         out.pop("crowd_s", None)
     if ztype in ("parking", "no_parking"):
+        if raw.get("notify") is True:
+            out["notify"] = True
         out.pop("crowd_n", None)
         out.pop("crowd_s", None)
         out.pop("dwell_s", None)

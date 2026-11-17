@@ -140,6 +140,8 @@ class ZoneOptionsBodyState extends State<ZoneOptionsBody> {
     if (_crowdN > 0 && poly) opts['crowd_n'] = _crowdN;
     if (widget.type == 'parking') opts['overstay_min'] = _overstayMin;
     if (widget.type == 'no_parking') opts['wrong_s'] = _wrongMin * 60;
+    // cctvdet3: parking alerts are a log + daily report unless the owner asks
+    if ((widget.type == 'parking' || widget.type == 'no_parking') && _notify) opts['notify'] = true;
     if (widget.type == 'entry_line' && _vehicles) {
       opts['vehicles'] = true;
       if (_notify) opts['notify'] = true;
@@ -267,12 +269,24 @@ class ZoneOptionsBodyState extends State<ZoneOptionsBody> {
             Text(t.cdetOverstayTitle, style: theme.textTheme.titleSmall),
             const SizedBox(height: 4),
             _chips(_overstayChoices, _overstayMin, (v) => _overstayMin = v),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t.cdetLineNotify),
+              value: _notify,
+              onChanged: (v) => setState(() => _notify = v),
+            ),
           ],
           if (widget.type == 'no_parking') ...[
             const SizedBox(height: 8),
             Text(t.cdetWrongTitle, style: theme.textTheme.titleSmall),
             const SizedBox(height: 4),
             _chips(_wrongChoices, _wrongMin, (v) => _wrongMin = v),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t.cdetLineNotify),
+              value: _notify,
+              onChanged: (v) => setState(() => _notify = v),
+            ),
           ],
           if (widget.type == 'entry_line') ...[
             SwitchListTile(
