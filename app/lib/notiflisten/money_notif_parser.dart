@@ -79,17 +79,17 @@ class MoneyNotifParser {
       caseSensitive: false);
 
   // gap-callmoney: a SAFETY TIP inside a real alert ("Never share your
-  // PIN/OTP", "... কাউকে বলবেন না") is not an OTP — bank debit alerts carry it,
+  // PIN/OTP", the Bangla "tell no one" line) is not an OTP — bank debit alerts carry it,
   // and they were dropped as OTPs. A sentence that itself gives a code
   // ("OTP 482913. Never share it") still counts as an OTP. Same rule as the
   // native pre-filter (NotifListenCore.withoutSafetyTips).
   static final _warn = RegExp(
       r"(?:never|do\s*not|don't|dont|not\s+to)\s+(?:share|disclose|tell|give)"
-      r'|শে(?:য়|য়)ার করবেন না'
-      r'|কাউকে (?:বলবেন|দেবেন|জানাবেন) না',
+      r'|\u09B6\u09C7(?:\u09DF|\u09AF\u09BC)\u09BE\u09B0 \u0995\u09B0\u09AC\u09C7\u09A8 \u09A8\u09BE'
+      r'|\u0995\u09BE\u0989\u0995\u09C7 (?:\u09AC\u09B2\u09AC\u09C7\u09A8|\u09A6\u09C7\u09AC\u09C7\u09A8|\u099C\u09BE\u09A8\u09BE\u09AC\u09C7\u09A8) \u09A8\u09BE',
       caseSensitive: false);
-  static final _codeGiven = RegExp(r'(?:otp|code|pin|কোড)\D{0,5}\d{4,8}', caseSensitive: false);
-  static final _sentence = RegExp(r'(?<=[.!?])\s+|।|\n');
+  static final _codeGiven = RegExp(r'(?:otp|code|pin|\u0995\u09CB\u09A1)\D{0,5}\d{4,8}', caseSensitive: false);
+  static final _sentence = RegExp(r'(?<=[.!?])\s+|\u0964|\n');
 
   /// [norm] without its safety-tip sentences (used only for the OTP check).
   static String withoutSafetyTips(String norm) => norm
