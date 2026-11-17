@@ -25969,5 +25969,11 @@
   "gapAichatCutHintPaid": "উত্তরটি লম্বা, তাই এখানে থেমেছে। বাকিটা পেতে “চালিয়ে যাও” চাপুন।",
   "sosgapStillTrying": "আপনার SOS এখনো পরিবারের কাছে পৌঁছায়নি। Assisto প্রতি ১৫ সেকেন্ডে আবার চেষ্টা করছে — নেট ফিরলেই চলে যাবে, এই পাতা বন্ধ করলেও।",
   "sosgapStopTrying": "চেষ্টা থামান",
-  "sosgapOpenFull": "কে আসছেন · লাইভ লোকেশন · ৩০ সে শব্দ"
+  "sosgapOpenFull": "কে আসছেন · লাইভ লোকেশন · ৩০ সে শব্দ",
+  "signupOtpSpamHint": "কোড পাননি? ইমেইলের Spam বা Promotions ফোল্ডার দেখুন — আসতে ২ মিনিট পর্যন্ত লাগতে পারে।",
+  "signupOtpEmailNeutral": "এই ইমেইল কোনো অ্যাকাউন্টে যাচাই করা থাকলে কোড আসছে।",
+  "signupOtpNewHere": "Assisto-তে নতুন? কোড লাগবে না।",
+  "signupOtpCreateAccount": "প্রোফাইল তৈরি করুন",
+  "signupOtpUsePhone": "এর বদলে ফোনে (SMS) কোড নিন",
+  "signupOtpUsePassword": "এর বদলে পাসওয়ার্ড দিয়ে ঢুকুন"
 }
