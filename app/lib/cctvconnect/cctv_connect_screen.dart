@@ -289,9 +289,11 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
             title: t.ccnNoCloudTitle,
             benefit: t.ccnNoCloudBenefit,
             primaryIcon: Icons.wifi_find_rounded,
-            primaryLabel: widget.onFindOnWifi == null ? null : t.ccnFindOnWifi,
-            onPrimary: widget.onFindOnWifi,
-            steps: [t.ccnStep1, t.ccnStep2, t.ccnStep3],
+            // gap-cctv: a phone gateway cannot scan — no Wi-Fi promise here,
+            // the honest note + Guard Box way follow below
+            primaryLabel: widget.onFindOnWifi == null || !widget.lanGateway ? null : t.ccnFindOnWifi,
+            onPrimary: widget.lanGateway ? widget.onFindOnWifi : null,
+            steps: widget.lanGateway ? [t.ccnStep1, t.ccnStep2, t.ccnStep3] : const [],
           ),
         if (!widget.lanGateway) ...[
           const SizedBox(height: Gap.md),
