@@ -93,7 +93,6 @@ const Map<String, String> _allowDead = {
   'mr1_requests_list|TextButton "See all"':'A: mr1_shots.dart passes onSeeAll: () {}; MessengerHome wires it to _openRequests',
   'cbar_group_call_sheet|key=group-call-v': 'A: callsbar_shots.dart passes onCall: (_, __) {}; showGroupCallSheet pops and pushes CircleCallScreen (callsbar_ui_test proves the tap hands member + kind to onCall)',
   // group-calls
-  'gcall_video_4_low_data|key=gcall-flip': 'A: group_call_shots.dart uses FakeGroupMedia (no camera); GroupMeshMedia.switchCamera flips the real camera track (Helper.switchCamera)',
   'gcall_add_person|key=gcall-pick-ring': 'A: group_call_shots.dart passes onDone: (_) {}; showGroupAddPeopleSheet pops with the ids and the call rings them (group_call_ui_test proves the ids)',
   'bb_low_stock_card|ListTile': 'A: spec passes LowStockCard(onOpen: () {}); the business hub wires it to the low-stock product list',
   'm3_new_chat|key=m3-new-': 'A: spec passes M3NewChatActions(onAdd: () {}, …); the real header in MessengerHome._openNewChat is wired',

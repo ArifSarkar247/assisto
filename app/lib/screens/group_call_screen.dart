@@ -705,18 +705,21 @@ class GroupCtlButton extends StatelessWidget {
     final fg =
         active ? Brand.ink : CallInk.text.withValues(alpha: enabled ? 1 : 0.45);
     return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
+      // one labelled button for TalkBack (icon + label are one target)
+      child: Semantics(
+        button: true,
+        enabled: enabled,
+        toggled: active,
+        label: label,
         onTap: onTap,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Semantics(
-              button: true,
-              toggled: active,
-              enabled: enabled,
-              label: label,
-              child: Material(
+        excludeSemantics: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Material(
                 color: bg,
                 shape: const CircleBorder(),
                 child: InkWell(
@@ -726,16 +729,14 @@ class GroupCtlButton extends StatelessWidget {
                       width: 52, height: 52, child: Icon(icon, color: fg)),
                 ),
               ),
-            ),
-            const SizedBox(height: Gap.xs),
-            ExcludeSemantics(
-              child: Text(label,
+              const SizedBox(height: Gap.xs),
+              Text(label,
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AType.bodySmall.copyWith(color: CallInk.textSoft)),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

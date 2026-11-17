@@ -58,8 +58,12 @@ GroupCallController _ctl(Map<String, dynamic> snap, {bool mobile = false}) {
 Widget _grid8(String l) =>
     GroupCallScreen(roomId: 1, controller: _ctl(_snap(l, 8, ringingFrom: 7)));
 
-Widget _video4(String l) => GroupCallScreen(
-    roomId: 1, controller: _ctl(_snap(l, 4, kind: 'video'), mobile: true));
+// on mobile data: my camera starts off (Flip is off until it is on)
+Widget _video4(String l) {
+  final c = _ctl(_snap(l, 4, kind: 'video'), mobile: true);
+  c.cameraOn = false;
+  return GroupCallScreen(roomId: 1, controller: c);
+}
 
 Widget _pick(String l) {
   final names = l == 'bn' ? _bn : _en;
