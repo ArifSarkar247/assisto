@@ -160,7 +160,8 @@ void main() {
     final sweepCombo = combos[i++ % combos.length];
     final flow = kTopFlows.entries.where((e) => e.value.hasMatch(name)).map((e) => e.key).firstOrNull;
     if (flow == null) return;
-    if (_only != null && !_only.contains(name)) return;
+    final only = _only;
+    if (only != null && !only.contains(name)) return;
 
     for (final (lang, b) in combos) {
       final combo = '$lang-${b.name}';
