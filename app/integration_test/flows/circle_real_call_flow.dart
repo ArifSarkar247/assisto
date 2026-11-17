@@ -90,6 +90,12 @@ void registerCircleRealCallFlows() {
     // -------------------------------------------------------------- 1 voice
     await f.step('A voice-calls B: "Calling…" until B\'s phone rings', () async {
       await f.openRoute('circle');
+      // gatefix: first open of My Circle offers chat bubbles (bubbles2 sheet)
+      // over the list — tap "Later" like a user (key, not text).
+      if (await f.appears(find.byKey(const Key('bbl2-later')), seconds: 4)) {
+        await f.tap(find.byKey(const Key('bbl2-later')), settleSeconds: 2);
+      }
+      await f.waitFor(find.text(Seed.nameB), what: 'B in the chat list');
       await f.tap(find.text(Seed.nameB), settleSeconds: 3);
       final mark = f.httpMark;
       await f.tap(find.byTooltip(f.t.circleVoiceCall), settleSeconds: 2);
@@ -158,8 +164,18 @@ void registerCircleRealCallFlows() {
 
     await f.step('B hangs up -> A shows "Call ended"; call log has the call', () async {
       await f.net(() => callB!.hangup());
-      await f.waitFor(find.text(f.t.circleCallEnded), seconds: 10,
-          what: 'Call ended on A');
+      // gatefix: wa-polish ends a CONNECTED call with its talk time
+      // ("Call ended · 0:03", WhatsApp-style), so the status line (Key
+      // call-status) must read exactly waCallEndedAfter(<m:ss>) — this voice
+      // call connected in the step above, so the talk time is required.
+      final endedRe = RegExp('^${RegExp.escape(f.t.waCallEndedAfter('@T@')).replaceAll('@T@', '[0-9০-৯]+:[0-9০-৯]{2}')}\$');
+      await f.waitFor(
+          find.byWidgetPredicate((w) =>
+              w is Text &&
+              w.key == const Key('call-status') &&
+              endedRe.hasMatch(w.data ?? '')),
+          seconds: 10,
+          what: 'Call ended · <talk time> on A');
       await f.shot('voice-ended');
       await f.tester.pump(const Duration(seconds: 2));
       final hist = await f.net(() => f.h.backend().then((a) => a.getJson('/circle/calls')));

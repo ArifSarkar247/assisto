@@ -70,6 +70,13 @@ void registerMyCircleTicksFlows() {
     final textA = 'Tick test a$_tag';
     await f.step('A sends → ✓ (sent)', () async {
       await f.openRoute('circle');
+      // gatefix: first open of My Circle offers chat bubbles (bubbles2 sheet)
+      // over the list; the tap on B landed on the sheet (gate run
+      // 44061721110). Tap "Later" like a user, by its Key.
+      if (await f.appears(find.byKey(const Key('bbl2-later')), seconds: 4)) {
+        await f.shot('bubbles-offer');
+        await f.tap(find.byKey(const Key('bbl2-later')), settleSeconds: 2);
+      }
       await f.waitFor(find.text(Seed.nameB), what: 'B in the chat list');
       await f.tap(find.text(Seed.nameB), settleSeconds: 3);
       await f.waitFor(find.byType(CircleChatScreen), what: 'chat');

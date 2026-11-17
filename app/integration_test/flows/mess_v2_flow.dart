@@ -98,7 +98,11 @@ void registerMessV2Flows() {
       await f.net(() => api.postJson('/mess/v2/$mid/edit', {'month_start_day': tomorrow.day}));
       await f.tap(find.text(f.t.mv2TabMeals));
       await f.tap(find.text(f.t.mv2TabMonth), settleSeconds: 3);
-      await f.tap(find.byKey(const ValueKey('mess-close-month')));
+      // gatefix: the per-member cards (design2) push "Close month" below the
+      // fold of the lazy list — scroll to it like a finger (run 44061721110)
+      final close = find.byKey(const ValueKey('mess-close-month'));
+      await f.scrollToBuilt(close, what: 'Close month button');
+      await f.tap(close);
       await f.tap(find.byKey(const ValueKey('mess-confirm-yes')), settleSeconds: 4);
       f.expectHttp('POST', '/mess/v2/$mid/close');
       // the closed period started on start-day of the PREVIOUS month

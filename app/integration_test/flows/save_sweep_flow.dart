@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:assisto/family_v3/family_v3_screen.dart';
 import 'package:assisto/screens/business/products_screen.dart';
 import 'package:assisto/screens/mess_accounting_screen.dart';
 
@@ -38,9 +39,12 @@ Finder _tab(RFlow f, String label) =>
 
 class _Form {
   const _Form(this.id, this.section, this.feature,
-      {required this.open, required this.fill, required this.shown, this.post});
+      {required this.open, required this.fill, required this.shown, this.post, this.reopen});
   final String id, section, feature;
   final Future<void> Function(RFlow f) open;
+  /// gatefix: how the _reopen flow opens the screen when [open] also does
+  /// test setup that must not run again (default: [open]).
+  final Future<void> Function(RFlow f)? reopen;
   final Future<void> Function(RFlow f) fill; // fill + tap Save
   final Finder Function(RFlow f) shown;
   final String? post; // path prefix the save must POST
@@ -48,9 +52,67 @@ class _Form {
 
 Future<void> _openFamAcct(RFlow f, String inner) async {
   await f.openFeature(f.t.moduleFamily, 'family');
-  await f.tap(_tab(f, f.t.faTitle), settleSeconds: 3);
+  // gatefix: Family v3 (switch family_v3, default ON) has no tab bar — family
+  // accounting is the "More" row fc3-more-ledger (same FamAcctSection). The
+  // old 6-tab screen (switch off) keeps its "Family accounting" tab.
+  final v3 = find.byType(FamilyV3Screen);
+  final oldTab = _tab(f, f.t.faTitle);
+  await f.waitFor(find.byWidgetPredicate((w) => w is FamilyV3Screen || w is TabBar),
+      what: 'Family screen');
+  if (v3.evaluate().isNotEmpty) {
+    final row = find.byKey(const ValueKey('fc3-more-ledger'));
+    await f.scrollToBuilt(row, what: 'Family accounting row (fc3-more-ledger)');
+    await f.tap(row, settleSeconds: 3);
+  } else {
+    await f.tap(oldTab, settleSeconds: 3);
+  }
   await f.tap(_tab(f, inner), settleSeconds: 2);
 }
+
+// gatefix: Mess V2 adds members ONLY from My Circle (no name-only member,
+// no POST /mess/members any more — the V1 form this row used is gone). Setup
+// by API: A has a mess (free plan: one), and B is not an ACTIVE member (the
+// 41_mess_v2 flow added B earlier in the same leg). The add itself is UI.
+int? _messId;
+int? _messPickB;
+
+Future<void> _openMessMembers(RFlow f, int mid) async {
+  await f.pushScreen(const MessAccountingScreen());
+  final row = find.byKey(ValueKey('mess-$mid'));
+  await f.scrollToBuilt(row, what: 'the mess in the list');
+  await f.tap(row, settleSeconds: 3);
+  await f.tap(find.text(f.t.mv2TabMembers), settleSeconds: 2);
+}
+
+Future<void> _messSetup(RFlow f) async {
+  final api = await f.h.backend();
+  await f.net(() async {
+    var list = ((await api.getJson('/mess/v2'))['messes'] as List).cast<Map>();
+    if (list.isEmpty) {
+      await api.postJson('/mess/v2', {'name': 'Sweep Mess s$_tag'});
+      list = ((await api.getJson('/mess/v2'))['messes'] as List).cast<Map>();
+    }
+    final mid = (list.first['id'] as num).toInt();
+    _messId = mid;
+    final d = await api.getJson('/mess/v2/$mid');
+    for (final m in (d['members'] as List).cast<Map>()) {
+      if (m['name'] == Seed.nameB && m['status'] == 'active') {
+        await api.postJson('/mess/v2/$mid/members/${m['id']}', {'action': 'remove'});
+      }
+    }
+    final pick = await api.getJson('/mess/v2/$mid/circle-pick');
+    final rows = ((pick['results'] ?? pick['members'] ?? pick['rows'] ?? const []) as List).cast<Map>();
+    final b = rows.firstWhere((r) => r['name'] == Seed.nameB,
+        orElse: () => throw TestFailure('B not offered by circle-pick: $pick'));
+    if (b['in_mess'] == true) throw TestFailure('B still in the mess after setup: $b');
+    _messPickB = (b['circle_member_id'] as num).toInt();
+  });
+}
+
+Finder _messMemberRow(String name) => find.descendant(
+    of: find.byWidgetPredicate((w) =>
+        w.key is ValueKey && '${(w.key as ValueKey).value}'.startsWith('mess-member-')),
+    matching: find.text(name));
 
 Future<int> _bizId(RFlow f) async {
   final api = await f.h.backend();
@@ -86,14 +148,32 @@ final List<_Form> _forms = [
       shown: (f) => find.textContaining('bazar s$_tag'),
       post: '/family/accounting/expenses'),
   _Form('mess_member', 'Money', 'Mess and bachelor: Add member',
-      open: (f) => f.pushScreen(const MessAccountingScreen()),
-      fill: (f) async {
-        await f.tap(find.text(f.t.messAddMember));
-        await f.enter('Mess Rafiq s$_tag', label: f.t.messMemberName);
-        await f.tapSave(); // the VISIBLE + hit-testable Save (owner's dead Save)
+      open: (f) async {
+        await _messSetup(f);
+        await _openMessMembers(f, _messId!);
       },
-      shown: (f) => find.textContaining('Mess Rafiq s$_tag'),
-      post: '/mess/members'),
+      reopen: (f) async {
+        final api = await f.h.backend();
+        final list = await f.net(() => api.getJson('/mess/v2'));
+        await _openMessMembers(f, ((list['messes'] as List).first['id'] as num).toInt());
+      },
+      fill: (f) async {
+        final mark = f.httpMark;
+        await f.tap(find.byKey(const ValueKey('mess-add-member')), settleSeconds: 3);
+        final add = find.descendant(
+            of: find.byKey(ValueKey('mess-pick-$_messPickB')), matching: find.text(f.t.mv2Add));
+        await f.tap(add, settleSeconds: 3);
+        f.expectHttp('POST', '/mess/v2/$_messId/members', since: mark);
+        await f.tap(find.byKey(const ValueKey('mess-pick-done')), settleSeconds: 3);
+        final api = await f.h.backend();
+        await f.eventually('server: B is an active member again', () async {
+          final d = await api.getJson('/mess/v2/$_messId');
+          return (d['members'] as List).cast<Map>()
+              .any((m) => m['name'] == Seed.nameB && m['status'] == 'active');
+        });
+      },
+      shown: (f) => _messMemberRow(Seed.nameB),
+      post: '/mess/v2/'),
   _Form('money_txn', 'Money', 'Money: expense with Bangla amount',
       open: (f) async {
         await f.openFeature(f.t.moduleMoney, 'money');
@@ -127,7 +207,11 @@ final List<_Form> _forms = [
   _Form('khata_party', 'Business', 'Khata: add a party',
       open: (f) async {
         await f.openFeature(f.t.business, 'business');
-        await f.tap(find.text(f.t.khataTitle), settleSeconds: 3);
+        // gatefix: homeshort moved the ledger into My Business as the FIRST
+        // tile, titled "Digital Ledger" (hv2TileLedger) — tap it by its Key.
+        final ledger = find.byKey(const ValueKey('biz_hub_ledger'));
+        await f.scrollToBuilt(ledger, what: 'Digital Ledger tile (biz_hub_ledger)');
+        await f.tap(ledger, settleSeconds: 3);
       },
       fill: (f) async {
         await f.tap(find.byTooltip(f.t.khataAddCustomer));
@@ -175,7 +259,7 @@ void registerSaveSweepFlows() {
     realityFlow('SV_${form.id}_reopen', form.section,
         '${form.feature}: still there after reopen', (f) async {
       await f.home();
-      await f.step('open after a fresh boot', () => form.open(f));
+      await f.step('open after a fresh boot', () => (form.reopen ?? form.open)(f));
       await f.step('item still there', () async {
         await f.waitFor(form.shown(f), what: 'item after reopen');
         await f.shot('after-reopen');
