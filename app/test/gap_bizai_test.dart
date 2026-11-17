@@ -164,6 +164,9 @@ void main() {
   group('daily summary is actionable', () {
     testWidgets('a chase row opens that customer\'s tagada; one button for all',
         (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.5;
+      addTearDown(tester.view.reset);
       final opened = <List<Map<String, dynamic>>>[];
       int? productsFor = -1;
       await tester.pumpWidget(_app(BizDailyScreen(
@@ -186,8 +189,11 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('bizai2-chase-open')));
       await _settle(tester);
       expect(opened.length, 2);
-      await tester.scrollUntilVisible(find.byKey(const ValueKey('gbz-stock-open')), 200);
-      await tester.tap(find.byKey(const ValueKey('gbz-stock-open')));
+      final stockBtn = find.byKey(const ValueKey('gbz-stock-open'));
+      await tester.scrollUntilVisible(stockBtn, 200);
+      await tester.ensureVisible(stockBtn);
+      await _settle(tester);
+      await tester.tap(stockBtn);
       await _settle(tester);
       expect(productsFor, 7);
     });
@@ -201,7 +207,9 @@ void main() {
           scale: 2.0));
       await _settle(tester);
       expect(tester.takeException(), isNull);
+      await tester.scrollUntilVisible(find.byKey(const ValueKey('bizai2-chase-open')), 200);
       expect(find.text('তাগাদা পাঠান'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 
@@ -242,11 +250,11 @@ void main() {
   });
 
   group('CRM: four daily tabs + More', () {
-    testWidgets('five tabs; every other tool opens from More with its title', (tester) async {
+    testWidgets('four tabs; every other tool opens from More with its title', (tester) async {
       final t = await _pumpApi(tester, const CrmHomeScreen(previewOrg: 1), FakeApi(),
           settle: false);
-      expect(find.byType(Tab), findsNWidgets(5));
-      await tester.tap(find.text(t.gbzCrmMore));
+      expect(find.byType(Tab), findsNWidgets(4));
+      await tester.tap(find.byKey(const ValueKey('gbz-crm-more')));
       await _settle(tester, 20);
       expect(find.text(t.gbzCrmMoreSub), findsOneWidget);
       for (final l in [t.crmTabCompanies, t.crmTabReports, t.crmAutomation, t.crmAfterSale]) {

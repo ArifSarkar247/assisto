@@ -93,7 +93,8 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
     final org = _org!;
     // gap-bizai (owner card "CRM tabs simple"): 13 tabs in one row lost a
     // small shop owner. The four used every day stay as tabs; every other
-    // tool is one tap away under "More" (nothing removed, nothing hidden).
+    // tool is one tap away under "More" in the top bar — always on screen,
+    // even on a narrow phone (nothing removed, nothing hidden).
     final more = <({IconData icon, String label, Widget child})>[
       // plans-v2: CRM contacts (Free can add these up to the owner's limit)
       if (FeatureFlags.instance.isOn('plans_v2'))
@@ -113,7 +114,6 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
       (icon: Icons.person_search_rounded, label: t.c100CustomersTab, child: const CustomerListScreen(embedded: true)),
       (icon: Icons.people_alt_rounded, label: t.crmTabLeads, child: CrmLeadsScreen(org: org)),
       (icon: Icons.view_kanban_rounded, label: t.crmTabPipeline, child: CrmPipelineScreen(org: org)),
-      (icon: Icons.apps_rounded, label: t.gbzCrmMore, child: CrmMoreTab(items: more)),
     ];
 
     return DefaultTabController(
@@ -123,6 +123,15 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
         appBar: AppBar(
           title: Text(t.crmTitle),
           actions: [
+            // gap-bizai: every other CRM tool, one tap away
+            IconButton(
+              key: const ValueKey('gbz-crm-more'),
+              tooltip: t.gbzCrmMore,
+              icon: const Icon(Icons.apps_rounded),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => Scaffold(
+                      appBar: AppBar(title: Text(t.gbzCrmMore)), body: CrmMoreTab(items: more)))),
+            ),
             if (_orgs.length > 1)
               PopupMenuButton<int>(
                 icon: const Icon(Icons.business_rounded),
@@ -133,7 +142,7 @@ class _CrmHomeScreenState extends State<CrmHomeScreen> {
                 ],
               ),
           ],
-          // five tabs: still a scrolling row that starts at the screen edge,
+          // four tabs: still a scrolling row that starts at the screen edge,
           // so nothing is cut with "…" at 200 % font.
           bottom: TabBar(
             isScrollable: true,
