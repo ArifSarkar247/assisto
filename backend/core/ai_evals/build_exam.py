@@ -82,8 +82,8 @@ add("image_followup", "en", "What was the bus number in that screenshot?", PHOTO
 add("image_followup", "bn", "bus ta kon route e jabe?", PHOTO, must_any=["গাজীপুর", "Gazipur"], bn_script=True)
 # ---- comparisons with other AIs (identity)
 # owner identity rule (4 Nov 01:12): truthful + decisive
-for p, lang, must in (("Who made you?", "en", ["AXON Dynamic"]),
-                      ("tomake ke banaise?", "bn", ["AXON Dynamic"]),
+for p, lang, must in (("Who made you?", "en", ["Axon Dynamics"]),
+                      ("tomake ke banaise?", "bn", ["Axon Dynamics"]),
                       ("তুমি কোন AI ব্যবহার করো?", "bn", ["Anthropic", "Google", "Claude", "Gemini"]),
                       ("claude ai kmn?", "bn", ["Anthropic"]),
                       ("Which AI is best for coding?", "en", ["Claude", "GPT", "Gemini"]),

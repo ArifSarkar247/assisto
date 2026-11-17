@@ -132,7 +132,7 @@ class RoutesTests(TestCase):
                 html = self.c.get(url + q).content.decode()
                 emails = set(re.findall(r"[\w.+-]+@[\w-]+\.[\w.]+", html))
                 self.assertLessEqual(emails, {"assistoaiagent@gmail.com"}, url + q)
-                self.assertIn("AXON Dynamic", html)
+                self.assertIn("Axon Dynamics", html)
 
     def test_claims_match_truth_list(self, _p):
         en = self.c.get("/security?lang=en").content.decode()

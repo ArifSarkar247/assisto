@@ -113,7 +113,7 @@ class LegalPagesTests(TestCase):
 
     def test_owner_approved_facts_then_env_override(self):
         html = self.c.get("/privacy?lang=en").content.decode()
-        self.assertIn("AXON Dynamic", html)
+        self.assertIn("Axon Dynamics", html)
         self.assertIn("assistoaiagent@gmail.com", html)
         self.assertIn("Mumbai", html)
         self.assertNotIn("Singapore", html)
@@ -123,7 +123,7 @@ class LegalPagesTests(TestCase):
         self.assertEqual(LC.missing_facts(), [])
         dl = self.c.get("/delete-account?lang=en").content.decode()
         self.assertIn("Uttar Badda", dl)
-        self.assertIn("AXON Dynamic", dl)
+        self.assertIn("Axon Dynamics", dl)
         self.assertNotIn("AXON ERP", dl)
         with mock.patch.dict("os.environ", {"LEGAL_ENTITY_NAME": "Example <Ltd>",
                                             "LEGAL_CONTACT_EMAIL": "privacy@example.com"}):
