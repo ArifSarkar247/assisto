@@ -47,6 +47,10 @@ class AssistoNotifListener : NotificationListenerService() {
             unregisterAudioMode()
         } catch (_: Throwable) {
         }
+        try {
+            AiReplyCore.cancelAll(applicationContext) // ai-reply-notif: access gone -> cards gone
+        } catch (_: Throwable) {
+        }
     }
 
     override fun onDestroy() {
@@ -73,6 +77,13 @@ class AssistoNotifListener : NotificationListenerService() {
 
     private fun handlePosted(sbn: StatusBarNotification) {
         val ctx: Context = applicationContext
+        // ai-reply-notif: its OWN gate (flag + AI-reply consent + master switch
+        // + this chat app switched on) inside AiReplyCore.shouldRead — the
+        // callmoney access/consent never opens it. Package + channel first.
+        try {
+            AiReplyCore.onPosted(ctx, sbn)
+        } catch (_: Throwable) {
+        }
         if (!NotifListenCore.anyOn(ctx)) return
         val pkg = sbn.packageName ?: return
         if (pkg == ctx.packageName) return
@@ -117,6 +128,10 @@ class AssistoNotifListener : NotificationListenerService() {
     }
 
     private fun handleRemoved(sbn: StatusBarNotification) {
+        try {
+            if (AiReplyCore.masterOn(applicationContext)) AiReplyCore.onRemoved(applicationContext, sbn)
+        } catch (_: Throwable) {
+        }
         val key = sbn.key ?: return
         val e = calls.remove(key) ?: return
         val ctx = applicationContext

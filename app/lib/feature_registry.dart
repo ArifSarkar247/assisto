@@ -170,6 +170,9 @@ const Map<String, bool> kFeatureDefaults = {
   'home_v2': true,
   // smsswitch: SMS-app money notifications (server kill switch, no route)
   'money_notif_sms': true,
+  // ai-reply-core: AI reply (My Circle modes / notification suggestions)
+  'ai_reply': false,
+  'ai_reply_notif': false,
 };
 
 /// truth (owner FINAL ORDER 27 Oct): features whose only content is a data
