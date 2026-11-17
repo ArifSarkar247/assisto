@@ -384,8 +384,12 @@ def notify_seller(business, kind, title_bn, title_en, body_bn="", body_en="", da
 
 # ===================================================================== ingest
 def find_channel(kind, account_id):
+    """bizagent-iso: inbound is routed ONLY to a verified, live channel
+    (status connected + enabled). A pending / error / disabled / switched-off
+    claim on an id never receives customers' messages."""
     from .models import SellerChannel
-    return SellerChannel.objects.filter(kind=kind, external_id=str(account_id)).select_related(
+    return SellerChannel.objects.filter(kind=kind, external_id=str(account_id),
+                                        status="connected", enabled=True).select_related(
         "business", "business__user").first()
 
 
@@ -495,6 +499,8 @@ def process_pending(limit=200):
 def process_event(e):
     ch = find_channel(e.get("channel"), e.get("account_id"))
     if ch is None:
+        # ids/counts only — never the customer's text, name or number
+        log.info("bizagent inbound dropped: no live channel kind=%s", e.get("channel"))
         return "no_channel"
     kind = e.get("kind")
     if kind == "status":
@@ -1665,7 +1671,7 @@ def handle_echo(ch, e):
     24/7 by default, human takeover any time)."""
     from . import bizagent_g1_service as G1S
     from .models import Message
-    if Message.objects.filter(external_id=e["event_id"]).exists():
+    if Message.objects.filter(thread__seller_channel=ch, external_id=e["event_id"]).exists():
         return "skipped"
     app_id = str((e.get("raw") or {}).get("app_id") or "")
     if app_id and app_id == str(meta_app().get("app_id") or ""):
@@ -1684,7 +1690,9 @@ def handle_status(ch, e):
     wamid = raw.get("wamid") or ""
     order = {"sent": 1, "delivered": 2, "read": 3, "failed": 9}
     st = e.get("status")
-    m = Message.objects.filter(external_id=wamid).first()
+    # bizagent-iso: only THIS channel's own messages (never another shop's)
+    m = Message.objects.filter(thread__seller_channel=ch, external_id=wamid).first() \
+        if wamid else None
     if m is not None and st in order:
         cur = order.get(m.status, 0)
         if st == "failed" or order[st] > cur:

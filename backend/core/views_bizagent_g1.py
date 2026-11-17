@@ -334,7 +334,7 @@ def widget_send(request, key):
           "event_id": eid, "text": text, "ts": int(now.timestamp()), "name": "",
           "kind": "message", "attachments": []}
     res = S.handle_message(ch, ev)
-    Message.objects.filter(external_id=eid).update(meta={"ip": iph})
+    Message.objects.filter(thread__seller_channel=ch, external_id=eid).update(meta={"ip": iph})
     t = ChatThread.objects.filter(seller_channel=ch, external_user_id=visitor).first()
     rows = [_out_row(m) for m in t.messages.filter(direction="out").exclude(
         status__in=("pending_approval", "rejected", "approved", "failed"))
