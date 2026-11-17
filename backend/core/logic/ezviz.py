@@ -110,15 +110,30 @@ class EzvizClient:
             raise EzvizError(code or "unknown", res.get("msg"))
         return res.get("data")
 
+    def _record(self, ok, code=""):
+        """imou-real: a real token result on the Owner Admin EZVIZ card (only
+        for the saved app key). Never raises."""
+        try:
+            from .. import integrations as I
+            if (I.get("ezviz") or {}).get("app_key") == self.app_key:
+                I.record_check("ezviz", ok, code, "token")
+        except Exception:  # noqa: BLE001
+            pass
+
     def token(self):
         hit = _token_cache.get(self.app_key)
         if hit and hit[2] > self.now() + 60:
             return hit[0], hit[1]
-        data = self._post(self.api_base, "/api/lapp/token/get",
-                          {"appKey": self.app_key, "appSecret": self.app_secret}) or {}
-        tok = data.get("accessToken")
-        if not tok:
-            raise EzvizError("no_token")
+        try:
+            data = self._post(self.api_base, "/api/lapp/token/get",
+                              {"appKey": self.app_key, "appSecret": self.app_secret}) or {}
+            tok = data.get("accessToken")
+            if not tok:
+                raise EzvizError("no_token")
+        except EzvizError as e:
+            self._record(False, e.code)
+            raise
+        self._record(True)
         area = str(data.get("areaDomain") or self.api_base).rstrip("/")
         if not _domain_ok(area + "/"):
             area = self.api_base       # never follow a foreign host

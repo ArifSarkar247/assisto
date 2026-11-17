@@ -670,7 +670,7 @@ class ImouOAuthE2ETests(E2E._Base):
         g = CC.unseal(self.sid, link.grant_blob)
         self.assertEqual(g["access_token"], "Ot_sim")
         self.assertGreater(g["auth_until"], time.time() + 89 * 86400)
-        self.assertIn(("imou", "alarm,deviceStatus,numberstat"), self.sim.callbacks)
+        self.assertIn(("imou", "alarm,deviceStatus,capabilityEvent,numberstat"), self.sim.callbacks)
         # the state is one-time: a replay links nothing new
         browser.get("/api/v1/cctv/imou/oauth/callback", {"code": "good-code", "state": state})
         self.assertEqual(CctvCloudLink.objects.filter(site_id=self.sid).count(), 1)

@@ -32,6 +32,12 @@ MAX_SNAPSHOT_BYTES = 2 * 1024 * 1024
 TIMEOUT_S = 8
 
 _token_cache = {}   # appId -> (token, expires_epoch)
+# imou-real: alarm (legacy), deviceStatus, capabilityEvent (person / motion on
+# current models: msgType e.g. "detection.motion.detected", labelType "humanAlarm")
+CALLBACK_FLAGS = "alarm,deviceStatus,capabilityEvent"
+# iotEvent content.event codes (open.imoulife.com message format)
+IOT_PERSON_EVENTS = ("33000",)
+IOT_MOTION_EVENTS = ("32000", "312200")
 
 
 class ImouError(Exception):
@@ -91,6 +97,22 @@ class ImouClient:
                    http=http)
 
     def call(self, method, params=None):
+        """imou-real: a cached access token Imou says is expired / invalid
+        (TK1002) is dropped and fetched again ONCE, then the call retried."""
+        try:
+            return self._call_once(method, params)
+        except ImouError as e:
+            p = params or {}
+            if (e.code != "TK1002" or method == "accessToken" or "token" not in p
+                    or type(self).token is not ImouClient.token):
+                raise
+            hit = _token_cache.get(self.app_id)
+            if not hit or hit[0] != p.get("token"):
+                raise
+            _token_cache.pop(self.app_id, None)
+            return self._call_once(method, dict(p, token=self.token()))
+
+    def _call_once(self, method, params=None):
         method = self.method_map.get(method, method)
         ts = int(self.now())
         nonce = uuid.uuid4().hex
@@ -123,13 +145,30 @@ class ImouClient:
         hit = _token_cache.get(self.app_id)
         if hit and hit[1] > self.now() + 60:
             return hit[0]
-        data = self.call("accessToken")
-        tok = data.get("accessToken")
-        if not tok:
-            raise ImouError("no_token")
+        try:
+            data = self.call("accessToken")
+            tok = data.get("accessToken")
+            if not tok:
+                raise ImouError("no_token")
+        except ImouError as e:
+            self._record(False, e.code)
+            raise
+        self._record(True)
         ttl = int(data.get("expireTime") or 3600)
         _token_cache[self.app_id] = (tok, self.now() + ttl)
         return tok
+
+    def _record(self, ok, code=""):
+        """imou-real: a real token result shows on the Owner Admin card (only
+        for the saved developer app, never an end user's OAuth project)."""
+        if self.quota_provider != "imou" or type(self).token is not ImouClient.token:
+            return
+        try:
+            from .. import integrations as I
+            if (I.get("imou") or {}).get("app_id") == self.app_id:
+                I.record_check("imou", ok, code, "token")
+        except Exception:  # noqa: BLE001
+            pass
 
     def bind_device(self, device_id, safety_code):
         return self.call("bindDevice", {"token": self.token(),
@@ -148,7 +187,10 @@ class ImouClient:
         return self.call("deviceOnline", {"token": self.token(),
                                           "deviceId": device_id})
 
-    def set_callback(self, url, flags="alarm,deviceStatus"):
+    def set_callback(self, url, flags=None):
+        # imou-real: newer cameras push person / motion as capabilityEvent
+        # (open.imoulife.com setMessageCallback callbackFlag table)
+        flags = flags or CALLBACK_FLAGS
         return self.call("setMessageCallback", {
             "token": self.token(), "callbackFlag": flags,
             "callbackUrl": url, "status": "on"})
@@ -216,6 +258,22 @@ class ImouClient:
         return data.get("records") or []
 
 
+    def record_hls(self, device_id, channel_id, begin_str, end_str, record_type="localRecord",
+                   hd=False):
+        """imou-real: createDeviceRecordHls (open.imoulife.com, module "Device
+        live broadcast") — an HLS playback address for a recorded window of
+        ONE day (begin/end "yyyy-MM-dd HH:mm:ss", device time); recordType
+        localRecord (SD card) | cloudRecord. SD stream (1) by default.
+        Returns the URL (it expires: use it at once) or raises."""
+        data = self.call("createDeviceRecordHls", {
+            "token": self.token(), "deviceId": device_id, "channelId": str(channel_id),
+            "streamId": 0 if hd else 1, "beginTime": begin_str, "endTime": end_str,
+            "recordType": record_type}) or {}
+        url = str(data.get("url") or "")
+        if not url:
+            raise ImouError("no_stream")
+        return url
+
     def live_hls(self, device_id, channel_id="0", hd=False):
         """cctvguard (order G): an HLS live address — SD = sub stream
         (streamId 1) by default, HD = main stream (0) only on tap. Imou Open
@@ -279,10 +337,18 @@ def parse_alarm(msg):
               else msg.get("channelId") if msg.get("channelId") is not None
               else "0")
     blob = json.dumps({k: msg.get(k) for k in
-                       ("labelType", "type", "msgType", "name", "alarmType")},
+                       ("labelType", "type", "msgType", "name", "alarmType", "aiTag")},
                       default=str).lower()
     human = any(w in blob for w in _HUMAN_WORDS)
-    pics = msg.get("picurlArray") or msg.get("picUrls") or []
+    content = msg.get("content") if isinstance(msg.get("content"), dict) else {}
+    ev_code = str(content.get("event") or "")
+    if mtype == "iotevent":
+        # imou-real: model devices — only the documented person / motion codes alert
+        if ev_code not in IOT_PERSON_EVENTS + IOT_MOTION_EVENTS:
+            return None
+        human = human or ev_code in IOT_PERSON_EVENTS
+    pics = (msg.get("picUrlArray") or msg.get("picurlArray") or msg.get("picUrls")
+            or [])
     if isinstance(pics, str):
         pics = [pics]
     pic = None
@@ -292,7 +358,44 @@ def parse_alarm(msg):
             break
     return {"device_id": did[:64], "channel": cid[:8], "human": human,
             "alarm_id": str(msg.get("alarmId") or msg.get("id") or "")[:64],
-            "pic": pic}
+            "pic": pic, "at": event_epoch(msg)}
+
+
+def push_latency(at, now_epoch):
+    """imou-real: seconds from the camera's event to our callback, or None
+    when the event time is missing / not believable (clock > 1 day off)."""
+    try:
+        d = float(now_epoch) - float(at)
+    except (TypeError, ValueError):
+        return None
+    if at is None or d < -120 or d > 86400:
+        return None
+    return round(max(0.0, d), 1)
+
+
+def event_epoch(msg):
+    """imou-real: when the camera saw it (epoch seconds) or None. Documented
+    forms: "time" Unix seconds (ms tolerated); iotEvent "utcTime"
+    "yyyyMMddTHHmmss" (UTC). Used for the push latency only."""
+    if not isinstance(msg, dict):
+        return None
+    t = msg.get("time")
+    try:
+        v = float(t)
+        if v > 1e12:
+            v /= 1000.0
+        if 1e9 < v < 1e10:          # a 14-digit "yyyyMMddHHmmss" is NOT epoch
+            return v
+    except (TypeError, ValueError):
+        pass
+    u = str(msg.get("utcTime") or "").replace("T", "")
+    if len(u) == 14 and u.isdigit():
+        try:
+            from datetime import timezone as _tz
+            return datetime.strptime(u, "%Y%m%d%H%M%S").replace(tzinfo=_tz.utc).timestamp()
+        except ValueError:
+            return None
+    return None
 
 
 def snapshot_url_allowed(url):

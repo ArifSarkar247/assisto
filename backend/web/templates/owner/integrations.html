@@ -20,7 +20,7 @@
   <details><summary class="small">{{ T.how_to }}</summary><ol class="small">{% for g in r.guide %}<li>{{ g }}</li>{% endfor %}</ol></details>
   {% for f in r.fields %}<label>{{ f.label }}{% if f.set %} <span class="pos small">✓ {% if f.secret %}{{ f.masked }}{% else %}{{ T.saved_value }}: {{ f.masked }}{% endif %}</span>{% endif %}
     <input name="{{ f.key }}" {% if f.secret %}type="password"{% endif %} autocomplete="off" placeholder="{% if f.set %}{{ T.replace_ph }}{% else %}{{ T.paste_ph }}{% endif %}"></label>{% endfor %}
-  <p class="mut small">{{ T.last_checked }}: {{ r.last_tested_human }}</p>
+  <p class="mut small">{{ T.last_checked }}: {{ r.last_tested_human }}{% if r.badge %} · <b class="{% if r.status == 'failing' %}neg{% else %}pos{% endif %}" data-test-badge="{{ r.slug }}">{{ r.badge }}</b>{% endif %}</p>
   {% if r.usage %}<p class="small" data-cctvconnect-usage>{{ r.usage }}</p>{% endif %}
   {% if r.callback_url %}<div class="small" data-publicurl-callback><label>{{ T.cb_link }}
     <input type="text" readonly value="{{ r.callback_url }}" aria-label="{{ T.cb_link }}"></label>

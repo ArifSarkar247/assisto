@@ -39,11 +39,14 @@ import calendar
 import hashlib
 import hmac
 import json
+import logging
 import time
 import uuid
 from datetime import datetime, timedelta
 
 from . import base as B
+
+log = logging.getLogger("assisto.shop")
 
 DEFAULT_BASE = "https://open-api-sg.dolynkcloud.com"   # Singapore data center
 DEFAULT_PRODUCT = "212808822"                          # "Assisto CCTV" (owner 9 Nov)
@@ -117,6 +120,7 @@ HINT = {"IDV001": "wrong_code", "IDV006": "wrong_code", "IDV0034": "wrong_code",
         "BIZ048": "unsupported", "IDV0039": "unsupported", "BIZ004": "reauth",
         "AUT004": "reauth", "BIZ061": "vendor"}
 TOKEN_CODES = ("AUT001", "AUT002", "AUT003", "PRM003")
+SIGN_ERROR = "PRM0016"
 
 # ---- events ("Message Subscription → Event message format definition")
 # msgType -> (kind, object). kind "" = a plain motion / intrusion alert.
@@ -244,7 +248,7 @@ class Client:
     """One signed DoLynk HTTPS POST. `http(url, body, timeout, headers)`."""
 
     def __init__(self, ak, sk, product, base, http, now=time.time, mode="simple",
-                 user=None, quota="dolynk"):
+                 user=None, quota="dolynk", auto_mode=False, on_mode=None, slug=None):
         self.ak, self.sk = str(ak or "").strip(), str(sk or "").strip()
         self.product = str(product or DEFAULT_PRODUCT).strip()
         self.base = base
@@ -253,6 +257,12 @@ class Client:
         self.mode = mode if mode in ("simple", "full") else "simple"
         self.user = user          # ARC: callable -> UserAccessToken
         self.quota = quota
+        # imou-real (live check 17 Nov): an account that wants the FAQ "full"
+        # signature answers PRM0016 (Sign error) to the simple one. With no
+        # sign mode saved, one retry in full; on success on_mode("full").
+        self.auto_mode = bool(auto_mode)
+        self.on_mode = on_mode
+        self.slug = slug          # integration whose card shows token results
 
     def _headers(self, body_text, app_token=None, user_token=None):
         ts = str(int(self.now() * 1000))
@@ -295,10 +305,16 @@ class Client:
         hit = _tokens.get(key)
         if hit and not fresh and hit[1] > self.now():
             return hit[0]
-        data = self._post(TOKEN_PATH, {}, self._headers("{}")) or {}
+        try:
+            data = self._token_data()
+        except B.ConnectError as e:
+            self._record(False, e.code)
+            raise
         tok = str(data.get("appAccessToken") or "")
         if not tok:
+            self._record(False, "no_token")
             raise B.ConnectError("no_token", "", "not_configured")
+        self._record(True)
         try:
             ttl = int(data.get("validitySeconds") or 3600)
         except (TypeError, ValueError):
@@ -306,6 +322,31 @@ class Client:
         # refresh a day early (the token lives 7 days — FAQ Authentication)
         _tokens[key] = (tok, self.now() + max(300, min(ttl - 86400, ttl * 0.9)))
         return tok
+
+    def _record(self, ok, code=""):
+        """imou-real: the real token result on the Owner Admin card."""
+        if self.slug:
+            from ... import integrations as I
+            I.record_check(self.slug, ok, code, "token")
+
+    def _token_data(self):
+        try:
+            data = self._post(TOKEN_PATH, {}, self._headers("{}")) or {}
+        except B.ConnectError as e:
+            if e.code != SIGN_ERROR or self.mode != "simple" or not self.auto_mode:
+                raise
+            self.mode = "full"
+            try:
+                data = self._post(TOKEN_PATH, {}, self._headers("{}")) or {}
+            except B.ConnectError:
+                self.mode = "simple"
+                raise e
+            if self.on_mode is not None:
+                try:
+                    self.on_mode("full")
+                except Exception:  # noqa: BLE001 - saving the mode never breaks a call
+                    log.warning("dolynk: could not save the sign mode", exc_info=False)
+        return data
 
     def call(self, path, body=None, user=True, _retry=True):
         body = dict(body or {})
@@ -348,11 +389,33 @@ class DolynkAdapter(B.Provider):
     def _client(self):
         if not self.configured():
             raise B.ConnectError("not_configured")
-        mode = str(self.cfg.get("sign_mode") or "simple").strip().lower()
+        mode = str(self.cfg.get("sign_mode") or "").strip().lower()
         return Client(self.cfg.get("access_key"), self.cfg.get("secret_key"),
                       self.cfg.get("product_id") or DEFAULT_PRODUCT, _base(self.cfg),
                       lambda url, body, t, h: self.http(url, body, t, h), self.now,
-                      mode="full" if mode == "full" else "simple")
+                      mode="full" if mode == "full" else "simple",
+                      auto_mode=mode not in ("simple", "full"), on_mode=self._save_mode,
+                      slug=self._card_slug())
+
+    def _card_slug(self):
+        """The saved integration these keys are (tests pass their own cfg)."""
+        try:
+            from ... import integrations as I
+            saved = I.get(self.integration) or {}
+        except Exception:  # noqa: BLE001
+            return None
+        return self.integration if saved.get("access_key") == self.cfg.get("access_key") else None
+
+    def _save_mode(self, mode):
+        """imou-real: remember the sign mode that worked — only into the saved
+        integration whose Access Key this is (never a secret in the log)."""
+        self.cfg = dict(self.cfg, sign_mode=mode)
+        from ... import integrations as I
+        saved = I.get(self.integration) or {}
+        if saved and saved.get("access_key") == self.cfg.get("access_key") \
+                and not str(saved.get("sign_mode") or "").strip():
+            I.save(self.integration, {"sign_mode": mode})
+            log.info("dolynk: %s sign mode auto-set to %s", self.integration, mode)
 
     def client(self):
         return self._client()
