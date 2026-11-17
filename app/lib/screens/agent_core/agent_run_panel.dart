@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -252,10 +253,10 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
       const SizedBox(height: Gap.xs),
       Wrap(spacing: Gap.md, runSpacing: Gap.xs, children: [
         if (r.topicLabel.isNotEmpty)
-          Text(t.acTopic(r.topicLabel), style: TextStyle(color: s.onSurfaceVariant)),
+          Text(t.acTopic(r.topicLabel), style: AType.bodyMedium.copyWith(color: s.onSurfaceVariant)),
         if (r.createdAt != null)
           Text(t.acStarted(acTime(context, r.createdAt)),
-              style: TextStyle(color: s.onSurfaceVariant)),
+              style: AType.bodyMedium.copyWith(color: s.onSurfaceVariant)),
       ]),
       // ---- AF-11: what the agent may / may not do, per topic (server text)
       if (r.scopes.isNotEmpty)
@@ -302,7 +303,7 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
         Padding(
           padding: const EdgeInsets.only(top: Gap.md),
           child: Text(r.errorText,
-              key: const ValueKey('ac_error_text'), style: TextStyle(color: s.error)),
+              key: const ValueKey('ac_error_text'), style: AType.bodyMedium.copyWith(color: s.error)),
         ),
       // ---- approvals waiting inside this run
       for (final ap in r.approvals)
@@ -322,7 +323,7 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
           decoration: BoxDecoration(
               color: s.primaryContainer, borderRadius: BorderRadius.circular(Radii.md)),
           child: SelectableText(acDigits(r.answer, bn),
-              style: TextStyle(color: s.onPrimaryContainer, height: 1.45)),
+              style: AType.bodyMedium.copyWith(color: s.onPrimaryContainer, height: 1.45)),
         ),
       ],
       // ---- bizops: a prepared message the owner sends himself (no dead end)
@@ -330,21 +331,9 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
         for (final sh in r.shares) ...[
           const SizedBox(height: Gap.md),
           if (sh.url.isNotEmpty)
-            FilledButton.icon(
-              key: ValueKey('ac_share_wa_${sh.tool}'),
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: () => launchUrl(Uri.parse(sh.url), mode: LaunchMode.externalApplication),
-              icon: const Icon(Icons.send_rounded),
-              label: Text(t.boOpenWhatsApp),
-            ),
+            DsButton(buttonKey: ValueKey('ac_share_wa_${sh.tool}'), onPressed: () => launchUrl(Uri.parse(sh.url), mode: LaunchMode.externalApplication), icon: Icons.send_rounded, label: t.boOpenWhatsApp),
           const SizedBox(height: Gap.xs),
-          OutlinedButton.icon(
-            key: ValueKey('ac_share_other_${sh.tool}'),
-            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-            onPressed: () => Share.share(sh.text),
-            icon: const Icon(Icons.ios_share_rounded),
-            label: Text(t.boShareOther),
-          ),
+          DsButton.secondary(buttonKey: ValueKey('ac_share_other_${sh.tool}'), onPressed: () => Share.share(sh.text), icon: Icons.ios_share_rounded, label: t.boShareOther),
         ],
       if (r.sources.isNotEmpty) ...[
         const SizedBox(height: Gap.md),
@@ -357,7 +346,7 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
               const SizedBox(width: Gap.sm),
               Expanded(
                   child: Text(widget.tools?.label(st.tool, bn) ?? st.tool,
-                      style: const TextStyle(fontWeight: FontWeight.w600))),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
             ]),
           ),
       ],
@@ -369,7 +358,7 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
       ],
       const SizedBox(height: Gap.md),
       Text(t.acSpent(acNum(context, r.credits)),
-          key: const ValueKey('ac_spent'), style: TextStyle(color: s.onSurfaceVariant)),
+          key: const ValueKey('ac_spent'), style: AType.bodyMedium.copyWith(color: s.onSurfaceVariant)),
       if (_gaveUp && r.isWorking) ...[
         const SizedBox(height: Gap.md),
         Text(t.acStillWorking, key: const ValueKey('ac_still_working')),
@@ -386,12 +375,7 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
         const SizedBox(height: Gap.md),
         Align(
           alignment: AlignmentDirectional.centerStart,
-          child: OutlinedButton.icon(
-              key: const ValueKey('ac_cancel'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: _busy ? null : _cancel,
-              icon: const Icon(Icons.stop_circle_outlined),
-              label: Text(t.acCancel)),
+          child: DsButton.secondary(buttonKey: const ValueKey('ac_cancel'), onPressed: _busy ? null : _cancel, icon: Icons.stop_circle_outlined, label: t.acCancel),
         ),
       ],
       if (finished && r.state != 'cancelled') ...[
@@ -418,15 +402,15 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(label, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                 Text(
                     [
                       state,
                       if (st.credits > 0) t.acStepCredits(acNum(context, st.credits)),
                     ].join(' · '),
-                    style: TextStyle(color: s.onSurfaceVariant, fontSize: 13)),
+                    style: AType.bodySmall.copyWith(color: s.onSurfaceVariant, )),
                 if (st.kind == 'tool' && st.state == 'done' && st.summary.isNotEmpty)
-                  Text(acDigits(st.summary, bn), style: TextStyle(color: s.onSurface)),
+                  Text(acDigits(st.summary, bn), style: AType.bodyMedium.copyWith(color: s.onSurface)),
               ]),
             ),
           ]),
@@ -440,7 +424,7 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
     final s = Theme.of(context).colorScheme;
     if (_fbSent) {
       return Text(t.acFeedbackThanks,
-          key: const ValueKey('ac_fb_thanks'), style: TextStyle(color: s.primary));
+          key: const ValueKey('ac_fb_thanks'), style: AType.bodyMedium.copyWith(color: s.primary));
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Text(t.acFeedbackAsk, style: Theme.of(context).textTheme.titleSmall),
@@ -473,15 +457,11 @@ class AcRunPanelState extends State<AcRunPanel> with WidgetsBindingObserver {
           minLines: 1,
           maxLines: 3,
           decoration: InputDecoration(
-              labelText: t.acFeedbackNote, border: const OutlineInputBorder()),
+              labelText: t.acFeedbackNote),
         ),
         Align(
           alignment: AlignmentDirectional.centerEnd,
-          child: FilledButton.tonal(
-              key: const ValueKey('ac_fb_send'),
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: _busy ? null : _sendFeedback,
-              child: Text(t.acFeedbackSend)),
+          child: DsButton.secondary(buttonKey: const ValueKey('ac_fb_send'), onPressed: _busy ? null : _sendFeedback, label: t.acFeedbackSend),
         ),
       ],
     ]);

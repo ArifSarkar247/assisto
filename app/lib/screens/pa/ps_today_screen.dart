@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -152,27 +153,9 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
   Widget _actions(AppLocalizations t) => Padding(
         padding: const EdgeInsets.only(bottom: Gap.md),
         child: Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-          FilledButton.tonalIcon(
-            key: const ValueKey('ps-act-pickup'),
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-            onPressed: _pickup,
-            icon: const Icon(Icons.content_paste_go_rounded),
-            label: Text(t.psecPickupTitle),
-          ),
-          OutlinedButton.icon(
-            key: const ValueKey('ps-act-meeting'),
-            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-            onPressed: () => _open(const PaScheduleScreen()),
-            icon: const Icon(Icons.event_rounded),
-            label: Text(t.psecAddMeeting),
-          ),
-          OutlinedButton.icon(
-            key: const ValueKey('ps-act-followup'),
-            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-            onPressed: () => _open(const LiaisonScreen()),
-            icon: const Icon(Icons.forward_to_inbox_rounded),
-            label: Text(t.psecAddFollowup),
-          ),
+          DsButton.secondary(buttonKey: const ValueKey('ps-act-pickup'), onPressed: _pickup, icon: Icons.content_paste_go_rounded, label: t.psecPickupTitle),
+          DsButton.secondary(buttonKey: const ValueKey('ps-act-meeting'), onPressed: () => _open(const PaScheduleScreen()), icon: Icons.event_rounded, label: t.psecAddMeeting),
+          DsButton.secondary(buttonKey: const ValueKey('ps-act-followup'), onPressed: () => _open(const LiaisonScreen()), icon: Icons.forward_to_inbox_rounded, label: t.psecAddFollowup),
         ]),
       );
 
@@ -181,11 +164,7 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
         child: Column(children: [
           Text(t.psecLoadFailed, textAlign: TextAlign.center),
           const SizedBox(height: Gap.md),
-          FilledButton.icon(
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.retry)),
+          DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
         ]),
       );
 
@@ -210,46 +189,34 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
         const SizedBox(height: Gap.sm),
         Text(t.psecEmptyHow,
             textAlign: TextAlign.center,
-            style: TextStyle(color: cs.ds.muted)),
+            style: AType.bodyMedium.copyWith(color: cs.ds.muted)),
         const SizedBox(height: Gap.md),
-        FilledButton.icon(
-          key: const ValueKey('ps-empty-add'),
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-          onPressed: () => _open(const PaScheduleScreen()),
-          icon: const Icon(Icons.event_rounded),
-          label: Text(t.psecAddMeeting),
-        ),
+        DsButton(buttonKey: const ValueKey('ps-empty-add'), onPressed: () => _open(const PaScheduleScreen()), icon: Icons.event_rounded, label: t.psecAddMeeting),
       ]),
     );
   }
 
   Widget _nextCard(Map next) {
     final cs = Theme.of(context).colorScheme;
-    return Card(
-      color: cs.ds.primarySoft,
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSurface(color: cs.ds.primarySoft,
         padding: const EdgeInsets.all(Gap.md),
         child: Row(children: [
           Icon(Icons.schedule_rounded, color: cs.ds.primaryInk),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Text(_line(next),
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: cs.ds.primaryInk, fontWeight: FontWeight.w700)),
           ),
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _section(AppLocalizations t, Map s) {
     final cs = Theme.of(context).colorScheme;
     final key = '${s['key']}';
     final lines = (s['lines'] as List? ?? const []).whereType<Map>().toList();
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Semantics(
@@ -261,8 +228,7 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
           const SizedBox(height: Gap.sm),
           for (final l in lines) _lineTile(t, key, l),
         ]),
-      ),
-    );
+      ));
   }
 
   Widget _lineTile(AppLocalizations t, String section, Map l) {
@@ -273,23 +239,11 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
     final buttons = <Widget>[];
     if (section == 'meetings') {
       for (final p in people) {
-        buttons.add(OutlinedButton.icon(
-          key: ValueKey('ps-tell-${p['id']}'),
-          style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-          onPressed: () => _tell(l, p),
-          icon: const Icon(Icons.chat_rounded, size: 18),
-          label: Text(t.psecTell('${p['name']}')),
-        ));
+        buttons.add(DsButton.secondary(buttonKey: ValueKey('ps-tell-${p['id']}'), onPressed: () => _tell(l, p), icon: Icons.chat_rounded, label: t.psecTell('${p['name']}')));
       }
     } else if (section == 'followups') {
       for (final p in people) {
-        buttons.add(OutlinedButton.icon(
-          key: ValueKey('ps-remind-${p['id']}'),
-          style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-          onPressed: () => _remind(l, p),
-          icon: const Icon(Icons.chat_rounded, size: 18),
-          label: Text(t.psecRemind('${p['name']}')),
-        ));
+        buttons.add(DsButton.secondary(buttonKey: ValueKey('ps-remind-${p['id']}'), onPressed: () => _remind(l, p), icon: Icons.chat_rounded, label: t.psecRemind('${p['name']}')));
       }
       buttons.add(TextButton.icon(
         key: ValueKey('ps-done-${(l['src'] as Map?)?['id']}'),
@@ -317,7 +271,7 @@ class _PsTodayScreenState extends State<PsTodayScreen> {
           const SizedBox(width: Gap.sm),
           Expanded(
             child: Text(_line(l),
-                style: TextStyle(
+                style: AType.bodyMedium.copyWith(
                     color: late ? cs.error : cs.ds.text,
                     fontWeight: late ? FontWeight.w600 : FontWeight.normal)),
           ),

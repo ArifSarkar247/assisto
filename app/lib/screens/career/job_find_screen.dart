@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -167,10 +168,7 @@ class _JobFindScreenState extends State<JobFindScreen> {
             const SizedBox(height: 16),
             Wrap(alignment: WrapAlignment.end, spacing: 8, runSpacing: 8, children: [
               TextButton(onPressed: () => Navigator.pop(c, false), child: Text(t.crrJobsDeadlineSkip)),
-              FilledButton.icon(
-                  onPressed: () => Navigator.pop(c, true),
-                  icon: const Icon(Icons.event_rounded),
-                  label: Text(t.crrJobsDeadlinePick)),
+              DsButton(onPressed: () => Navigator.pop(c, true), icon: Icons.event_rounded, label: t.crrJobsDeadlinePick),
             ]),
           ],
         ),
@@ -240,8 +238,7 @@ class _JobFindScreenState extends State<JobFindScreen> {
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
                   title: honestFailText(t, _failCause),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.retry)))
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry))
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
@@ -264,14 +261,8 @@ class _JobFindScreenState extends State<JobFindScreen> {
                             labelText: t.crrJobsLocation, prefixIcon: const Icon(Icons.place_outlined)),
                       ),
                       Wrap(spacing: 8, runSpacing: 8, children: [
-                        FilledButton.icon(
-                            onPressed: _searching ? null : _search,
-                            icon: const Icon(Icons.search_rounded),
-                            label: Text(t.crrJobsSearch)),
-                        OutlinedButton.icon(
-                            onPressed: _saveSearch,
-                            icon: const Icon(Icons.bookmark_add_outlined),
-                            label: Text(t.crrJobsSaveSearch)),
+                        DsButton(onPressed: _searching ? null : _search, icon: Icons.search_rounded, label: t.crrJobsSearch),
+                        DsButton.secondary(onPressed: _saveSearch, icon: Icons.bookmark_add_outlined, label: t.crrJobsSaveSearch),
                       ]),
                       if (_status['careerjet_ready'] != true) ...[
                         const SizedBox(height: 12),
@@ -317,10 +308,7 @@ class _JobFindScreenState extends State<JobFindScreen> {
                           ),
                       Align(
                         alignment: AlignmentDirectional.centerStart,
-                        child: OutlinedButton.icon(
-                            onPressed: _addSource,
-                            icon: const Icon(Icons.add_business_rounded),
-                            label: Text(t.crrCompanyAdd)),
+                        child: DsButton.secondary(onPressed: _addSource, icon: Icons.add_business_rounded, label: t.crrCompanyAdd),
                       ),
                       _header(context, t.crrPortals),
                       if ('${_status['feeds_note'] ?? ''}'.isNotEmpty)
@@ -363,9 +351,7 @@ class _JobFindScreenState extends State<JobFindScreen> {
         ),
       if (res.isEmpty) _note(context, Icons.search_off_rounded, t.crrJobsNoResults),
       for (final j in res)
-        Card(
-          margin: const EdgeInsets.only(top: 8),
-          child: Padding(
+        Padding(padding: const EdgeInsets.only(top: 8), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
             padding: const EdgeInsets.all(12),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('${j['title'] ?? ''}', style: Theme.of(context).textTheme.titleMedium),
@@ -376,18 +362,11 @@ class _JobFindScreenState extends State<JobFindScreen> {
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(color: scheme.primary)),
               const SizedBox(height: 8),
               Wrap(spacing: 8, runSpacing: 8, children: [
-                FilledButton.tonalIcon(
-                    onPressed: () => _track(j),
-                    icon: const Icon(Icons.playlist_add_rounded),
-                    label: Text(t.crrJobsTrack)),
-                OutlinedButton.icon(
-                    onPressed: () => _open('${j['url'] ?? ''}'),
-                    icon: const Icon(Icons.open_in_new_rounded),
-                    label: Text(t.crrJobsOpen)),
+                DsButton.secondary(onPressed: () => _track(j), icon: Icons.playlist_add_rounded, label: t.crrJobsTrack),
+                DsButton.secondary(onPressed: () => _open('${j['url'] ?? ''}'), icon: Icons.open_in_new_rounded, label: t.crrJobsOpen),
               ]),
             ]),
-          ),
-        ),
+          )),
     ];
   }
 
@@ -396,17 +375,14 @@ class _JobFindScreenState extends State<JobFindScreen> {
         child: Text(s, style: Theme.of(context).textTheme.titleMedium),
       );
 
-  Widget _note(BuildContext context, IconData icon, String s) => Card(
-        color: Theme.of(context).colorScheme.ds.cardHighest,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _note(BuildContext context, IconData icon, String s) => DsSurface(color: Theme.of(context).colorScheme.ds.cardHighest,
+    padding: const EdgeInsets.all(12),
+    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(icon),
             const SizedBox(width: 10),
             Expanded(child: Text(s)),
           ]),
-        ),
-      );
+  );
 }
 
 class _AddSourceSheet extends StatefulWidget {
@@ -518,17 +494,14 @@ class _AddSourceSheetState extends State<_AddSourceSheet> {
           ),
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: OutlinedButton.icon(
-                onPressed: _testing || _value.text.trim().isEmpty ? null : _test,
-                icon: const Icon(Icons.wifi_tethering_rounded),
-                label: Text(t.crrCompanyTest)),
+            child: DsButton.secondary(onPressed: _testing || _value.text.trim().isEmpty ? null : _test, icon: Icons.wifi_tethering_rounded, label: t.crrCompanyTest),
           ),
           if (_testing) const Padding(padding: EdgeInsets.only(top: 8), child: LinearProgressIndicator()),
           if (_result != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(_result!,
-                  style: TextStyle(color: _ok ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error)),
+                  style: AType.bodyMedium.copyWith(color: _ok ? AssistoTokens.of(context).success : Theme.of(context).colorScheme.error)),
             ),
         ],
       ),

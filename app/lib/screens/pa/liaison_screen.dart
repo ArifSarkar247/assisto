@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/local_digits.dart';
 import '../../widgets/skeleton.dart';
+import '../../widgets/fade_chip_row.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 import '../../widgets/rn_bits.dart' show pickCircleMember; // pssec
@@ -298,10 +301,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paLiaLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : _rows.isEmpty
                   ? _welcome(tr, scheme)
@@ -313,11 +313,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
         icon: Icons.contact_mail_rounded,
         title: tr.paLiaWelcomeTitle,
         message: tr.paLiaWelcomeBody,
-        action: FilledButton.icon(
-          onPressed: () => _addOrEdit(tr),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(tr.paLiaAdd),
-        ),
+        action: DsButton(onPressed: () => _addOrEdit(tr), icon: Icons.add_rounded, label: tr.paLiaAdd),
       );
 
   Widget _body(AppLocalizations tr, ColorScheme scheme) {
@@ -363,34 +359,25 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
           const Icon(Icons.warning_amber_rounded, size: 20, color: Brand.warning),
           const SizedBox(width: Gap.sm),
           Expanded(
-            child: Text(tr.paLiaOverdueBanner('$_overdueCount'),
-                style: TextStyle(color: scheme.ds.text, fontSize: 13, height: 1.3)),
+            child: Text(tr.paLiaOverdueBanner(ld(context, _overdueCount)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.text, height: 1.3)),
           ),
           TextButton(
             onPressed: () => setState(() {
               _onlyOverdue = true;
               _fStatus = null;
             }),
-            child: Text(tr.paLiaViewOverdue, maxLines: 1, overflow: TextOverflow.ellipsis),
+            child: Text(tr.paLiaViewOverdue),
           ),
         ]),
       );
 
   Widget _filterBar(AppLocalizations tr, ColorScheme scheme) {
-    Widget chip(String label, bool selected, VoidCallback onTap) => Padding(
-          padding: const EdgeInsets.only(right: Gap.sm),
-          child: FilterChip(
-            label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
-            selected: selected,
-            onSelected: (_) => onTap(),
-          ),
-        );
-    return SizedBox(
-      height: 52,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-        children: [
+    Widget chip(String label, bool selected, VoidCallback onTap) =>
+        DsChip(label: label, selected: selected, onSelected: (_) => onTap());
+    return FadeChipRow(
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+      children: [
           chip(tr.paLiaFilterAll, _fStatus == null && !_onlyOverdue, () {
             setState(() {
               _fStatus = null;
@@ -418,7 +405,6 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
                     _onlyOverdue = false;
                   })),
         ],
-      ),
     );
   }
 
@@ -463,25 +449,22 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
     String? dueText;
     if (due != null) {
       if (overdue && days != null) {
-        dueText = tr.paLiaOverdueBy('${-days}');
+        dueText = tr.paLiaOverdueBy(ld(context, -days));
       } else if (urgency == 'due_soon' && days != null) {
-        dueText = tr.paLiaDueInDays('$days');
+        dueText = tr.paLiaDueInDays(ld(context, days));
       } else {
         dueText = dfDate.format(due.toLocal());
       }
     }
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Text((r['title'] ?? '').toString(),
-                  style: TextStyle(
+                  style: AType.titleMedium.copyWith(
                       fontWeight: FontWeight.w700,
-                      fontSize: 15,
                       decoration: status == _stDone ? TextDecoration.lineThrough : null,
                       color: status == _stDone ? scheme.ds.muted : scheme.ds.text),
                   maxLines: 2,
@@ -491,9 +474,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
           ]),
           const SizedBox(height: 4),
           Text(tr.paLiaWith((r['counterpart'] ?? '').toString()),
-              style: TextStyle(color: scheme.ds.muted, fontSize: 13),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, )),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.md, runSpacing: 4, children: [
             if (dueText != null)
@@ -515,13 +496,13 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
               TextButton.icon(
                 onPressed: () => _setStatus(r, _stReplied, tr),
                 icon: const Icon(Icons.reply_rounded, size: 18),
-                label: Text(tr.paLiaMarkReplied, maxLines: 1, overflow: TextOverflow.ellipsis),
+                label: Text(tr.paLiaMarkReplied),
               ),
             if (status == _stReplied)
               TextButton.icon(
                 onPressed: () => _setStatus(r, _stWaiting, tr),
                 icon: const Icon(Icons.hourglass_empty_rounded, size: 18),
-                label: Text(tr.paLiaMarkWaiting, maxLines: 1, overflow: TextOverflow.ellipsis),
+                label: Text(tr.paLiaMarkWaiting),
               ),
             const Spacer(),
             PopupMenuButton<String>(
@@ -547,26 +528,15 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
                 padding: const EdgeInsets.only(bottom: Gap.sm),
                 child: SizedBox(
                   width: double.infinity,
-                  child: OutlinedButton.icon(
-                    key: ValueKey('ps-lia-remind-${p['id']}'),
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                    onPressed: () => _remindInChat(r, p, tr),
-                    icon: const Icon(Icons.chat_rounded, size: 18),
-                    label: Text(tr.psecRemind('${p['name']}')),
-                  ),
+                  child: DsButton.secondary(buttonKey: ValueKey('ps-lia-remind-${p['id']}'), onPressed: () => _remindInChat(r, p, tr), icon: Icons.chat_rounded, label: tr.psecRemind('${p['name']}'), expand: true),
                 ),
               ),
           if (status != _stDone)
             SizedBox(
               width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: () => _setStatus(r, _stDone, tr),
-                icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
-                label: Text(tr.paLiaMarkDone),
-              ),
+              child: DsButton.secondary(onPressed: () => _setStatus(r, _stDone, tr), icon: Icons.check_circle_outline_rounded, label: tr.paLiaMarkDone, expand: true),
             ),
         ]),
-      ),
     );
   }
 
@@ -577,7 +547,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Text(text,
-            style: TextStyle(color: c, fontSize: 11.5, fontWeight: FontWeight.w700)),
+            style: AType.labelMedium.copyWith(color: c, fontWeight: FontWeight.w700)),
       );
 
   Widget _meta(IconData icon, String text, Color color) => Row(
@@ -585,7 +555,7 @@ class _LiaisonScreenState extends State<LiaisonScreen> {
         children: [
           Icon(icon, size: 15, color: color),
           const SizedBox(width: 4),
-          Text(text, style: TextStyle(fontSize: 12.5, color: color)),
+          Text(text, style: AType.bodySmall.copyWith(color: color)),
         ],
       );
 
@@ -672,7 +642,7 @@ class _FollowupFormState extends State<_FollowupForm> {
             controller: _title,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-                labelText: tr.paLiaTitleField, border: const OutlineInputBorder()),
+                labelText: tr.paLiaTitleField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
@@ -683,7 +653,7 @@ class _FollowupFormState extends State<_FollowupForm> {
             }),
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
-                labelText: tr.paLiaCounterpart, border: const OutlineInputBorder()),
+                labelText: tr.paLiaCounterpart),
           ),
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -717,12 +687,10 @@ class _FollowupFormState extends State<_FollowupForm> {
             decoration: InputDecoration(
                 labelText: tr.paLiaContactOptional,
                 helperText: tr.paLiaContactPrivacyNote,
-                helperMaxLines: 2,
-                border: const OutlineInputBorder()),
+                helperMaxLines: 2),
           ),
           const SizedBox(height: Gap.md),
-          OutlinedButton.icon(
-            onPressed: () async {
+          DsButton.secondary(onPressed: () async {
               final base = _due ?? DateTime.now().add(const Duration(days: 2));
               final d = await showDatePicker(
                 context: context,
@@ -732,11 +700,7 @@ class _FollowupFormState extends State<_FollowupForm> {
               );
               if (d == null) return;
               setState(() => _due = DateTime(d.year, d.month, d.day, 9));
-            },
-            icon: const Icon(Icons.event_rounded),
-            label: Text(_due == null ? tr.paLiaPickDue : fmt.format(_due!),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
-          ),
+            }, icon: Icons.event_rounded, label: _due == null ? tr.paLiaPickDue : fmt.format(_due!)),
           if (_due != null)
             Align(
               alignment: Alignment.centerLeft,
@@ -761,10 +725,7 @@ class _FollowupFormState extends State<_FollowupForm> {
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(tr.cancel),
-              ),
+              child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
             ),
             const SizedBox(width: Gap.md),
             Expanded(

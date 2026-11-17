@@ -1,6 +1,7 @@
 import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -244,8 +245,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
                   icon: Icons.cloud_off_rounded,
                   tint: Brand.danger,
                   title: t.dbLoadError,
-                  action: FilledButton.tonal(
-                      onPressed: _load, child: Text(t.retry)),
+                  action: DsButton.secondary(onPressed: _load, label: t.retry),
                 )
               : TabBarView(
                   controller: _tabs,
@@ -346,7 +346,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
           Container(width: 8, height: 8,
               decoration: BoxDecoration(color: tint, shape: BoxShape.circle)),
           const SizedBox(width: Gap.sm),
-          Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w800))),
+          Expanded(child: Text(label, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
         ]),
       );
 
@@ -372,16 +372,16 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
         kindLabel = t.dbKindReminder;
     }
     final time = _timeOf(it.when);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+        padding: EdgeInsets.zero,
+        child: ListTile(
         leading: Icon(icon, color: scheme.primary),
         title: Text(it.title,
             maxLines: 2, overflow: TextOverflow.ellipsis),
         subtitle: Text(time == null ? kindLabel : '$kindLabel · $time',
             style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ),
-    );
+      ));
   }
 
   String? _timeOf(String? iso) {
@@ -432,11 +432,7 @@ class _DailyBriefScreenState extends State<DailyBriefScreen>
     );
   }
 
-  Widget _shareButton(DailyBrief b) => OutlinedButton.icon(
-        onPressed: b.empty ? null : () => _share(b),
-        icon: const Icon(Icons.ios_share_rounded, size: 18),
-        label: Text(t.share),
-      );
+  Widget _shareButton(DailyBrief b) => DsButton.secondary(onPressed: b.empty ? null : () => _share(b), icon: Icons.ios_share_rounded, label: t.share);
 }
 
 class _Header extends StatelessWidget {
@@ -453,7 +449,7 @@ class _Header extends StatelessWidget {
               .headlineSmall
               ?.copyWith(fontWeight: FontWeight.w800)),
       const SizedBox(height: Gap.xxs),
-      Text(subtitle, style: TextStyle(color: scheme.ds.muted)),
+      Text(subtitle, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
     ]);
   }
 }

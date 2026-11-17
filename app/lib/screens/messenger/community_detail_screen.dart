@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../widgets/msgr_channel_common.dart' show MsgrEmptyState;
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -520,7 +523,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : _loadError
               ? _errorRetry(scheme)
               : RefreshIndicator(
@@ -528,17 +531,31 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
               child: ListView(
                 padding: const EdgeInsets.only(bottom: Gap.xxl),
                 children: [
-                  if ('${widget.community['description'] ?? ''}'.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                          Gap.lg, Gap.md, Gap.lg, 0),
-                      child: Text('${widget.community['description']}',
-                          style: TextStyle(color: scheme.ds.muted)),
+                  // the community = the soft DS hero (name + what it is)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, 0),
+                    child: DsHeroCard(
+                      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        DsAvatar(child: Icon(Icons.diversity_3_rounded, color: scheme.ds.primaryInk)),
+                        const SizedBox(width: Gap.md),
+                        Expanded(
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            Text('${widget.community['name'] ?? _t.communityTitle}',
+                                style: AType.titleLarge.copyWith(
+                                    color: scheme.ds.text, fontWeight: FontWeight.w800)),
+                            if ('${widget.community['description'] ?? ''}'.isNotEmpty)
+                              Text('${widget.community['description']}',
+                                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+                          ]),
+                        ),
+                      ]),
                     ),
+                  ),
                   if (!_backendReady) _pending(scheme),
+                  // join requests waiting for the admin come first
                   if (_isAdmin && _joinRequests.isNotEmpty) ...[
                     _header(_t.communityPendingRequests, scheme),
-                    for (final req in _joinRequests) _requestRow(req),
+                    DsGroup(children: [for (final req in _joinRequests) _requestRow(req)]),
                   ],
                   if (_announcements != null) ...[
                     _header(_t.communityAnnouncementsGroup, scheme),
@@ -547,9 +564,11 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                   _header(_t.communityTopicGroups, scheme),
                   if (_topics.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.all(Gap.lg),
-                      child: Text(_t.communityNoTopics,
-                          style: TextStyle(color: scheme.ds.muted)),
+                      padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.xs),
+                      child: DsCard(
+                        child: Text(_t.communityNoTopics,
+                            style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+                      ),
                     ),
                   for (final g in _topics) _groupCard(g),
                   // p2-money: "Sponsored" post at the end of a LARGE
@@ -565,16 +584,16 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
 
   Widget _header(String text, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xs),
-        child: Text(text,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(color: scheme.primary)),
+        child: Semantics(
+          header: true,
+          child: Text(text,
+              style: AType.titleSmall.copyWith(color: scheme.ds.muted, fontWeight: FontWeight.w700)),
+        ),
       );
 
   Widget _requestRow(Map<String, dynamic> req) {
     return ListTile(
-      leading: const CircleAvatar(child: Icon(Icons.person_add_alt_1_rounded)),
+      leading: DsAvatar(name: '${req['requester_name'] ?? ''}', size: 40),
       title: Text('${req['requester_name'] ?? ''}'),
       subtitle: Text(_t.communityWantsToJoin('${req['group_name'] ?? ''}')),
       trailing: Row(
@@ -583,13 +602,13 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           IconButton(
             tooltip: _t.communityApprove,
             icon: const Icon(Icons.check_circle_outline_rounded),
-            color: Brand.success,
+            color: Theme.of(context).colorScheme.ds.successInk,
             onPressed: () => _approve(req),
           ),
           IconButton(
             tooltip: _t.communityReject,
             icon: const Icon(Icons.cancel_rounded),
-            color: Brand.danger,
+            color: Theme.of(context).colorScheme.ds.dangerInk,
             onPressed: () => _reject(req),
           ),
         ],
@@ -634,14 +653,13 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.campaign_rounded,
-                    size: 13, color: Theme.of(context).colorScheme.tertiary),
+                    size: 14, color: Theme.of(context).colorScheme.ds.primaryInk),
                 const SizedBox(width: 4),
                 Flexible( // launchsweep: wraps at a big font
                   child: Text(_t.communityAdminsPostOnly,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.tertiary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600)),
+                      style: AType.labelMedium.copyWith(
+                          color: Theme.of(context).colorScheme.ds.primaryInk,
+                          fontWeight: FontWeight.w700)),
                 ),
               ],
             )
@@ -672,35 +690,20 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
   Widget _pending(ColorScheme scheme) => Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Text(_t.communityBackendPending,
-            style: TextStyle(color: scheme.ds.muted)),
+            style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
       );
 
   /// Honest, retryable error state (§21): a real request failed — never hide it
   /// behind an empty list.
   Widget _errorRetry(ColorScheme scheme) => ListView(
+        padding: const EdgeInsets.all(Gap.lg),
         children: [
-          const SizedBox(height: Gap.xxl * 2),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.xl),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.cloud_off_rounded,
-                      size: 56, color: scheme.ds.muted),
-                  const SizedBox(height: Gap.md),
-                  Text(_t.communityLoadError,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: Gap.lg),
-                  FilledButton.icon(
-                    onPressed: _load,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: Text(_t.retry),
-                  ),
-                ],
-              ),
-            ),
+          const SizedBox(height: Gap.xl),
+          MsgrEmptyState(
+            icon: Icons.cloud_off_rounded,
+            title: _t.communityLoadError,
+            body: '',
+            action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: _t.retry),
           ),
         ],
       );
@@ -717,7 +720,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           child: Text(
             rules.isEmpty ? _t.communityRulesEmpty : rules,
             style: rules.isEmpty
-                ? TextStyle(color: Theme.of(ctx).colorScheme.ds.muted)
+                ? AType.bodyMedium.copyWith(color: Theme.of(ctx).colorScheme.ds.muted)
                 : null,
           ),
         ),

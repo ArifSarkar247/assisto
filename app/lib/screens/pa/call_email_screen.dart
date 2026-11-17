@@ -1,5 +1,6 @@
 import '../../feature_gates.dart' show kShowKeySeams;
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -7,7 +8,9 @@ import 'package:share_plus/share_plus.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/local_digits.dart';
 import '../../widgets/skeleton.dart';
+import '../../widgets/fade_chip_row.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
 
@@ -260,10 +263,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paCeLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : _rows.isEmpty
                   ? _welcome(tr)
@@ -275,11 +275,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
         icon: Icons.contact_phone_rounded,
         title: tr.paCeWelcomeTitle,
         message: tr.paCeWelcomeBody,
-        action: FilledButton.icon(
-          onPressed: () => _addOrEdit(tr),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(tr.paCeAdd),
-        ),
+        action: DsButton(onPressed: () => _addOrEdit(tr), icon: Icons.add_rounded, label: tr.paCeAdd),
       );
 
   Widget _bodyView(AppLocalizations tr, ColorScheme scheme) {
@@ -317,11 +313,11 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
   Widget _countsBar(AppLocalizations tr, ColorScheme scheme) => Padding(
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
         child: Row(children: [
-          _stat(Icons.call_rounded, tr.paCeStatCalls('$_openCalls'), scheme),
+          _stat(Icons.call_rounded, tr.paCeStatCalls(ld(context, _openCalls)), scheme),
           const SizedBox(width: Gap.sm),
-          _stat(Icons.mail_outline_rounded, tr.paCeStatEmails('$_openEmails'), scheme),
+          _stat(Icons.mail_outline_rounded, tr.paCeStatEmails(ld(context, _openEmails)), scheme),
           const SizedBox(width: Gap.sm),
-          _stat(Icons.check_circle_outline_rounded, tr.paCeStatDone('$_doneCount'), scheme),
+          _stat(Icons.check_circle_outline_rounded, tr.paCeStatDone(ld(context, _doneCount)), scheme),
         ]),
       );
 
@@ -337,29 +333,18 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
             const SizedBox(width: 4),
             Flexible(
               child: Text(text,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12.5, color: scheme.ds.text)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.text)),
             ),
           ]),
         ),
       );
 
   Widget _filterBar(AppLocalizations tr) {
-    Widget chip(String label, bool selected, VoidCallback onTap) => Padding(
-          padding: const EdgeInsets.only(right: Gap.sm),
-          child: FilterChip(
-            label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
-            selected: selected,
-            onSelected: (_) => onTap(),
-          ),
-        );
-    return SizedBox(
-      height: 52,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
-        children: [
+    Widget chip(String label, bool selected, VoidCallback onTap) =>
+        DsChip(label: label, selected: selected, onSelected: (_) => onTap());
+    return FadeChipRow(
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.sm),
+      children: [
           chip(tr.paCeFilterAll, _fChannel == null,
               () => setState(() => _fChannel = null)),
           chip(tr.paCeFilterCalls, _fChannel == _chCall,
@@ -369,7 +354,6 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
           chip(tr.paCeHideDone, _hideDone,
               () => setState(() => _hideDone = !_hideDone)),
         ],
-      ),
     );
   }
 
@@ -403,20 +387,17 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
     final subject = (r['subject'] ?? '').toString();
     final notes = (r['notes'] ?? '').toString().trim();
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(channel == _chCall ? Icons.call_rounded : Icons.mail_outline_rounded,
                 size: 18, color: scheme.ds.muted),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(subject.isEmpty ? contact : subject,
-                  style: TextStyle(
+                  style: AType.titleMedium.copyWith(
                       fontWeight: FontWeight.w700,
-                      fontSize: 15,
                       decoration: done ? TextDecoration.lineThrough : null,
                       color: done ? scheme.ds.muted : scheme.ds.text),
                   maxLines: 2,
@@ -427,14 +408,12 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
           if (contact.isNotEmpty && subject.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(tr.paCeWith(contact),
-                style: TextStyle(color: scheme.ds.muted, fontSize: 13),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, )),
           ],
           if (notes.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
             Text(notes,
-                style: TextStyle(color: scheme.ds.muted, fontSize: 12.5, height: 1.3),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.3),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis),
           ],
@@ -443,8 +422,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
             TextButton.icon(
               onPressed: () => _openDraft(r, tr),
               icon: const Icon(Icons.auto_awesome_rounded, size: 18),
-              label: Text(tr.paCeDraftReply,
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              label: Text(tr.paCeDraftReply),
             ),
             const Spacer(),
             PopupMenuButton<String>(
@@ -462,19 +440,10 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
           SizedBox(
             width: double.infinity,
             child: done
-                ? OutlinedButton.icon(
-                    onPressed: () => _toggleDone(r, tr),
-                    icon: const Icon(Icons.undo_rounded, size: 18),
-                    label: Text(tr.paCeMarkTodo),
-                  )
-                : FilledButton.icon(
-                    onPressed: () => _toggleDone(r, tr),
-                    icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
-                    label: Text(tr.paCeMarkDone),
-                  ),
+                ? DsButton.secondary(onPressed: () => _toggleDone(r, tr), icon: Icons.undo_rounded, label: tr.paCeMarkTodo)
+                : DsButton.secondary(onPressed: () => _toggleDone(r, tr), icon: Icons.check_circle_outline_rounded, label: tr.paCeMarkDone),
           ),
         ]),
-      ),
     );
   }
 
@@ -485,7 +454,7 @@ class _CallEmailScreenState extends State<CallEmailScreen> {
           borderRadius: BorderRadius.circular(Radii.pill),
         ),
         child: Text(text,
-            style: TextStyle(color: c, fontSize: 11.5, fontWeight: FontWeight.w700)),
+            style: AType.labelMedium.copyWith(color: c, fontWeight: FontWeight.w700)),
       );
 }
 
@@ -563,7 +532,6 @@ class _DraftSheetState extends State<_DraftSheet> {
             minLines: 5,
             decoration: InputDecoration(
               labelText: tr.paCeDraftEditable,
-              border: const OutlineInputBorder(),
               alignLabelWithHint: true,
             ),
           ),
@@ -572,30 +540,22 @@ class _DraftSheetState extends State<_DraftSheet> {
           const SizedBox(height: Gap.md),
           Row(children: [
             Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () async {
+              child: DsButton.secondary(onPressed: () async {
                   await Clipboard.setData(ClipboardData(text: _body.text));
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context)
                     ..clearSnackBars()
                     ..showSnackBar(SnackBar(content: Text(tr.copied)));
-                },
-                icon: const Icon(Icons.copy_rounded, size: 18),
-                label: Text(tr.copy),
-              ),
+                }, icon: Icons.copy_rounded, label: tr.copy),
             ),
             const SizedBox(width: Gap.md),
             Expanded(
-              child: FilledButton.icon(
-                onPressed: () => Share.share(_body.text),
-                icon: const Icon(Icons.share_rounded, size: 18),
-                label: Text(tr.share),
-              ),
+              child: DsButton(onPressed: () => Share.share(_body.text), icon: Icons.share_rounded, label: tr.share),
             ),
           ]),
           const SizedBox(height: Gap.sm),
           Text(tr.paCeNeverSends,
-              style: TextStyle(color: scheme.ds.muted, fontSize: 12, height: 1.3)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.3)),
         ]),
       ),
     );
@@ -606,7 +566,7 @@ class _DraftSheetState extends State<_DraftSheet> {
         const SizedBox(width: 4),
         Expanded(
           child: Text(tr.f6BwTemplateMarker, // truth: template, not AI
-              style: TextStyle(color: scheme.ds.muted, fontSize: 12.5)),
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted, )),
         ),
       ]);
 
@@ -624,10 +584,10 @@ class _DraftSheetState extends State<_DraftSheet> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(tr.paCeAiSeamTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700, height: 1.4)),
               const SizedBox(height: 2),
               Text(tr.paCeAiSeamBody,
-                  style: TextStyle(color: scheme.ds.muted, fontSize: 12.5, height: 1.4)),
+                  style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.4)),
             ]),
           ),
         ]),
@@ -706,14 +666,14 @@ class _TaskFormState extends State<_TaskForm> {
             onChanged: (_) => setState(() {}),
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
-                labelText: tr.paCeContactField, border: const OutlineInputBorder()),
+                labelText: tr.paCeContactField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _subject,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-                labelText: tr.paCeSubjectField, border: const OutlineInputBorder()),
+                labelText: tr.paCeSubjectField),
           ),
           const SizedBox(height: Gap.md),
           Text(tr.paCePriorityLabel, style: Theme.of(context).textTheme.labelLarge),
@@ -732,16 +692,12 @@ class _TaskFormState extends State<_TaskForm> {
             maxLines: 3,
             decoration: InputDecoration(
                 labelText: tr.paCeNotesField,
-                border: const OutlineInputBorder(),
                 alignLabelWithHint: true),
           ),
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(tr.cancel),
-              ),
+              child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
             ),
             const SizedBox(width: Gap.md),
             Expanded(

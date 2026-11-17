@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:assisto/ds/ds.dart' show DsSurface;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -351,7 +352,7 @@ void main() {
       await t.tap(here); // Dhaka Airport
       await t.pumpAndSettle();
       expect(find.byType(DestAlarmScreen), findsOneWidget);
-      expect(find.widgetWithText(Card, 'Dhaka Airport Railway Station'), findsOneWidget);
+      expect(find.widgetWithText(DsSurface, 'Dhaka Airport Railway Station'), findsOneWidget);
       final start = find.text(l.trAlarmStart);
       await t.ensureVisible(start);
       final btn = t.widget<ButtonStyleButton>(find

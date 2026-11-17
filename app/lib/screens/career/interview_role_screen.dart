@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme.dart';
 import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
@@ -154,8 +155,7 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
                   title: honestFailText(t, _failCause),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _loadRoles, icon: const Icon(Icons.refresh_rounded), label: Text(t.retry)))
+                  action: DsButton.secondary(onPressed: _loadRoles, icon: Icons.refresh_rounded, label: t.retry))
               : _role == null
                   ? _rolePicker(context)
                   : _done
@@ -172,12 +172,12 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
         if (_busy) const LinearProgressIndicator(),
         Text(t.crrRolePick, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
-        Text(t.crrRoleEntrySub, style: TextStyle(color: scheme.ds.muted)),
+        Text(t.crrRoleEntrySub, style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: 12),
         for (final r in _roles)
-          Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
+          Padding(padding: const EdgeInsets.only(bottom: 8), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+              padding: EdgeInsets.zero,
+              child: ListTile(
               leading: CircleAvatar(
                   backgroundColor: scheme.ds.primarySoft,
                   child: Icon(Icons.work_outline_rounded, color: scheme.ds.primaryInk)),
@@ -186,7 +186,7 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: _busy ? null : () => _pickRole('${r['id']}'),
             ),
-          ),
+            )),
       ],
     );
   }
@@ -223,28 +223,20 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
           buildCounter: localCounter,
           decoration: InputDecoration(
             hintText: t.crrAnswerHint,
-            border: const OutlineInputBorder(),
             suffixIcon: VoiceMicButton(voice: _voice, input: _answer),
           ),
         ),
         const SizedBox(height: 8),
         Wrap(spacing: 8, runSpacing: 8, children: [
-          FilledButton.icon(
-              onPressed: _busy ? null : () => _submit(),
-              icon: const Icon(Icons.fact_check_rounded),
-              label: Text(t.crrSubmit)),
+          DsButton(onPressed: _busy ? null : () => _submit(), icon: Icons.fact_check_rounded, label: t.crrSubmit),
           if (r != null)
-            OutlinedButton.icon(
-                onPressed: _busy ? null : _next,
-                icon: const Icon(Icons.arrow_forward_rounded),
-                label: Text(_index + 1 >= _questions.length ? t.crrFinish : t.crrNext)),
+            DsButton.secondary(onPressed: _busy ? null : _next, icon: Icons.arrow_forward_rounded, label: _index + 1 >= _questions.length ? t.crrFinish : t.crrNext),
         ]),
         if (r != null) ...[
           const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+            padding: const EdgeInsets.all(16),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(t.crrScore(ld(context, r['score'] ?? 0)),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
                 Text(t.crrRubricLabel, style: Theme.of(context).textTheme.bodySmall),
@@ -267,30 +259,24 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
                             (r['missing'] as List? ?? const []).length)),
                     style: Theme.of(context).textTheme.labelLarge),
               ]),
-            ),
           ),
           const SizedBox(height: 8),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+            padding: const EdgeInsets.all(16),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Text(t.crrAiFeedback, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 if (_ai == null)
                   Align(
                     alignment: AlignmentDirectional.centerStart,
-                    child: OutlinedButton.icon(
-                        onPressed: _busy ? null : () => _submit(ai: true),
-                        icon: const Icon(Icons.auto_awesome_rounded),
-                        label: Text(t.crrAiFeedbackBtn)),
+                    child: DsButton.secondary(onPressed: _busy ? null : () => _submit(ai: true), icon: Icons.auto_awesome_rounded, label: t.crrAiFeedbackBtn),
                   )
                 else if (_ai!['ai_used'] == true)
                   Text('${_ai!['text'] ?? ''}')
                 else
                   Text('${_ai!['message'] ?? t.crrAiNotReady}',
-                      style: TextStyle(color: scheme.ds.muted)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               ]),
-            ),
           ),
         ],
       ],
@@ -310,15 +296,9 @@ class _InterviewRoleScreenState extends State<InterviewRoleScreen> {
         Text(t.crrDoneAvg(ld(context, avg)),
             textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 20),
-        FilledButton.icon(
-            onPressed: () => _pickRole('${_role!['id']}'),
-            icon: const Icon(Icons.replay_rounded),
-            label: Text(t.crrAgain)),
+        DsButton(onPressed: () => _pickRole('${_role!['id']}'), icon: Icons.replay_rounded, label: t.crrAgain),
         const SizedBox(height: 8),
-        OutlinedButton.icon(
-            onPressed: () => setState(() => _role = null),
-            icon: const Icon(Icons.list_rounded),
-            label: Text(t.crrRolePick)),
+        DsButton.secondary(onPressed: () => setState(() => _role = null), icon: Icons.list_rounded, label: t.crrRolePick),
       ],
     );
   }

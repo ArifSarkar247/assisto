@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -212,7 +213,7 @@ class _PsPickupSheetState extends State<PsPickupSheet> {
             const SizedBox(width: Gap.xs),
             Expanded(
                 child: Text(t.psecStaysOnPhone,
-                    style: TextStyle(color: cs.onSurfaceVariant))),
+                    style: AType.bodyMedium.copyWith(color: cs.onSurfaceVariant))),
           ]),
           const SizedBox(height: Gap.md),
           TextField(
@@ -221,24 +222,12 @@ class _PsPickupSheetState extends State<PsPickupSheet> {
             minLines: 3,
             maxLines: 6,
             decoration: InputDecoration(
-                labelText: t.psecPasteHint, border: const OutlineInputBorder()),
+                labelText: t.psecPasteHint),
           ),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-            OutlinedButton.icon(
-              key: const ValueKey('ps-pickup-paste'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: _paste,
-              icon: const Icon(Icons.content_paste_rounded),
-              label: Text(t.psecPasteBtn),
-            ),
-            FilledButton.icon(
-              key: const ValueKey('ps-pickup-find'),
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: _find,
-              icon: const Icon(Icons.manage_search_rounded),
-              label: Text(t.psecFindBtn),
-            ),
+            DsButton.secondary(buttonKey: const ValueKey('ps-pickup-paste'), onPressed: _paste, icon: Icons.content_paste_rounded, label: t.psecPasteBtn),
+            DsButton(buttonKey: const ValueKey('ps-pickup-find'), onPressed: _find, icon: Icons.manage_search_rounded, label: t.psecFindBtn),
           ]),
           if (f != null) ...[
             const Divider(height: Gap.xl),
@@ -263,7 +252,7 @@ class _PsPickupSheetState extends State<PsPickupSheet> {
               controller: _title,
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
-                  labelText: t.psecFieldTitle, border: const OutlineInputBorder()),
+                  labelText: t.psecFieldTitle),
             ),
             const SizedBox(height: Gap.sm),
             ListTile(
@@ -274,7 +263,7 @@ class _PsPickupSheetState extends State<PsPickupSheet> {
                   ? t.psecNoDateFound
                   : psWhen(context, at, dateOnly: false)),
               subtitle: (at != null && at.isBefore(now))
-                  ? Text(t.psecPastWarn, style: TextStyle(color: cs.error))
+                  ? Text(t.psecPastWarn, style: AType.bodyMedium.copyWith(color: cs.error))
                   : null,
               trailing: TextButton(
                   style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
@@ -289,7 +278,7 @@ class _PsPickupSheetState extends State<PsPickupSheet> {
                 controller: _who,
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
-                    labelText: t.psecFieldWho, border: const OutlineInputBorder()),
+                    labelText: t.psecFieldWho),
               ),
               Align(
                 alignment: AlignmentDirectional.centerStart,
@@ -303,13 +292,7 @@ class _PsPickupSheetState extends State<PsPickupSheet> {
               ),
             ],
             const SizedBox(height: Gap.md),
-            FilledButton.icon(
-              key: const ValueKey('ps-pickup-add'),
-              style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-              onPressed: (_ready && !_busy) ? _save : null,
-              icon: const Icon(Icons.check_rounded),
-              label: Text(t.psecConfirmAdd),
-            ),
+            DsButton(buttonKey: const ValueKey('ps-pickup-add'), onPressed: (_ready && !_busy) ? _save : null, icon: Icons.check_rounded, label: t.psecConfirmAdd),
           ],
         ]),
       ),

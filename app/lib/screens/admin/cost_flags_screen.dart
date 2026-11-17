@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -9,6 +10,7 @@ import '../../state.dart';
 import '../../theme.dart';
 import '../../widgets/admin_notes.dart';
 import '../../widgets/skeleton.dart';
+import '../../widgets/local_digits.dart';
 
 /// COST KILL-SWITCH & FEATURE FLAGS (owner/superuser) — SPEC v2.1 §21 #178,
 /// ADVANCED.
@@ -237,7 +239,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(body, style: const TextStyle(height: 1.4)),
+                Text(body, style: AType.bodyMedium.copyWith(height: 1.4)),
                 const SizedBox(height: Gap.md),
                 TextField(
                   controller: ctrl,
@@ -249,7 +251,6 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
                     labelText: t.flagReasonLabel,
                     hintText: t.flagReasonHint,
                     alignLabelWithHint: true,
-                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: Gap.sm),
@@ -308,11 +309,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
             title: t.flagLoadErrorTitle,
             message: _error.isEmpty ? t.flagLoadErrorBody : _error,
             tint: Brand.danger,
-            action: FilledButton.icon(
-              onPressed: _load,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(t.retry),
-            ),
+            action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry),
           ),
         _Status.ok => _buildBody(t),
       },
@@ -325,11 +322,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
         icon: Icons.toggle_off_rounded,
         title: t.flagEmptyTitle,
         message: t.flagEmptyBody,
-        action: FilledButton.icon(
-          onPressed: _load,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(t.refresh),
-        ),
+        action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.refresh),
       );
     }
     // Group flags by their group, preserving server order.
@@ -367,21 +360,17 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
     final costOn = _summary['cost_on'] ?? 0;
     final costTotal = _summary['cost_total'] ?? 0;
     final featOff = _summary['features_off'] ?? 0;
-    return Container(
-      padding: const EdgeInsets.all(Gap.lg),
-      decoration: BoxDecoration(
-        gradient: Brand.gradient,
-        borderRadius: BorderRadius.circular(Radii.lg),
-      ),
+    final ds = Theme.of(context).colorScheme.ds;
+    return DsHeroCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(t.flagSummaryCostLine('$costOn', '$costTotal'),
-            style: AType.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+        Text(t.flagSummaryCostLine(ld(context, costOn), ld(context, costTotal)),
+            style: AType.titleMedium.copyWith(color: ds.text, fontWeight: FontWeight.w800)),
         const SizedBox(height: Gap.xs),
         Text(
             featOff == 0
                 ? t.flagSummaryAllFeaturesOn
-                : t.flagSummaryFeaturesOff('$featOff'),
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.92))),
+                : t.flagSummaryFeaturesOff(ld(context, featOff)),
+            style: AType.bodyMedium.copyWith(color: ds.muted)),
       ]),
     );
   }
@@ -422,7 +411,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(_flagLabel(t, id),
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: Gap.xs),
                 Row(children: [
                   Container(
@@ -485,7 +474,7 @@ class _CostFlagsScreenState extends State<CostFlagsScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: Gap.lg),
           child: Text(t.flagAuditEmpty,
-              style: TextStyle(color: scheme.ds.muted)),
+              style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
         )
       else
         for (int i = 0; i < _audit.length; i++)
