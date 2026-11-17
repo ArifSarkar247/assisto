@@ -185,6 +185,10 @@
   },
   "@gcvPbTitle": {
    "description": "gap-cctv3: Imou recording playback screen"
+  },
+  "gcvShopBoxPlanNote": "Shop Box comes with the CCTV plan (2 cameras and up, with a free trial — prices on the CCTV plan page) or the Business plan. A camera beyond your plan uses credits — the exact number is shown when you add it.",
+  "@gcvShopBoxPlanNote": {
+   "description": "gap-cctv: Shop Box lock — which plans unlock it (same rule as the server)"
   }
  },
  "bn": {
@@ -257,6 +261,7 @@
   "gcvPbNotConfigured": "Assisto-তে Imou রেকর্ডিং এখনো চালু হয়নি।",
   "gcvPbRevoked": "Assisto এই ক্যামেরায় আর পৌঁছাতে পারছে না — \"DVR / ক্যামেরা ব্র্যান্ড যুক্ত করুন\" থেকে আবার যুক্ত করুন।",
   "gcvPbNetwork": "এখন Imou-তে পৌঁছানো গেল না। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
-  "gcvPbPlayFailed": "রেকর্ডিং চালানো গেল না (লিংক ১০ মিনিট থাকে)। আবার চেষ্টা করুন।"
+  "gcvPbPlayFailed": "রেকর্ডিং চালানো গেল না (লিংক ১০ মিনিট থাকে)। আবার চেষ্টা করুন।",
+  "gcvShopBoxPlanNote": "শপ বক্স পাওয়া যায় সিসিটিভি প্ল্যানে (২টি ক্যামেরা থেকে, ফ্রি ট্রায়ালসহ — দাম সিসিটিভি প্ল্যানের পাতায়) বা বিজনেস প্ল্যানে। প্ল্যানের বাইরের ক্যামেরায় ক্রেডিট লাগে — ঠিক কত, তা যোগ করার সময় দেখানো হয়।"
  }
 }
