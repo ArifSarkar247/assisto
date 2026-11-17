@@ -105,6 +105,7 @@ const Map<String, String> _allow = {
   // bKash / Nagad / the bank sent them, so the user can match them.
   'cmn_review|digit|TrxID': 'wallet transaction id / original wallet message, shown verbatim',
   'cmn_review|digit|TxnID': 'Nagad transaction id inside the original wallet message, shown verbatim',
+  'cmn_review_gaps|digit|TrxID': 'wallet transaction id inside the original wallet message, shown verbatim', // gap-callmoney
   // p3faith: CC BY 3.0 requires the Tanzil notice VERBATIM (years, version).
   'quran_about|digit|Tanzil': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',
   'quran_about|digit|Copyright': 'Tanzil copyright notice must be reproduced verbatim (CC BY 3.0 terms)',

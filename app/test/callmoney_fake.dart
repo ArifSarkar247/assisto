@@ -78,3 +78,26 @@ List<MoneyQueueItem> fakeMoneyQueue() => [
           text: 'Dear Customer, your A/C XXXX1234 has been debited by BDT 850.00 on 02-Nov-2026 (POS purchase at SHWAPNO). Available Balance BDT 20,150.00. TrxID 88POS1902',
           at: DateTime(2026, 11, 2, 19, 2)),
     ];
+
+/// gap-callmoney: the SMS twin of a wallet-app payment (same TrxID -> one
+/// card) + a bank alert whose amount cannot be read (the user types it).
+List<MoneyQueueItem> fakeMoneyQueueGaps() => [
+      MoneyQueueItem(
+          id: 11,
+          wallet: 'bkash',
+          kind: 'app',
+          text: 'আপনি ০১৭১২৩৪৫৬৭৮ থেকে ৳৫০০.০০ পেয়েছেন। ফি ৳০.০০। ব্যালেন্স ৳১,২৫০.৫০। TrxID 9JK7AB12CD ০৩/১১/২০২৬ ১৪:২২',
+          at: DateTime(2026, 11, 3, 14, 22)),
+      MoneyQueueItem(
+          id: 12,
+          wallet: 'bkash',
+          kind: 'sms',
+          text: 'You have received Tk. 500.00 from 01712345678. Fee Tk. 0.00. Balance Tk. 1,250.50. TrxID 9JK7AB12CD at 03/11/2026 14:22',
+          at: DateTime(2026, 11, 3, 14, 22)),
+      MoneyQueueItem(
+          id: 13,
+          wallet: 'bank',
+          kind: 'sms',
+          text: 'আপনার হিসাব ...৯৮৭৬ এ বেতন জমা হয়েছে। ব্যালেন্স ৳৬০,৫০০.০০। পিন/ওটিপি কাউকে বলবেন না।',
+          at: DateTime(2026, 11, 1, 9, 30)),
+    ];

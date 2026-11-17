@@ -78,22 +78,42 @@ class MoneyNotifParser {
       r'|\d+\s*%|\u0985\u09AB\u09BE\u09B0|\u09AA\u09B0\u09CD\u09AF\u09A8\u09CD\u09A4|\u099C\u09BF\u09A4\u09C1\u09A8|\u099B\u09BE\u09A1\u09BC',
       caseSensitive: false);
 
+  // gap-callmoney: a SAFETY TIP inside a real alert ("Never share your
+  // PIN/OTP", "... কাউকে বলবেন না") is not an OTP — bank debit alerts carry it,
+  // and they were dropped as OTPs. A sentence that itself gives a code
+  // ("OTP 482913. Never share it") still counts as an OTP. Same rule as the
+  // native pre-filter (NotifListenCore.withoutSafetyTips).
+  static final _warn = RegExp(
+      r"(?:never|do\s*not|don't|dont|not\s+to)\s+(?:share|disclose|tell|give)"
+      r'|শে(?:য়|য়)ার করবেন না'
+      r'|কাউকে (?:বলবেন|দেবেন|জানাবেন) না',
+      caseSensitive: false);
+  static final _codeGiven = RegExp(r'(?:otp|code|pin|কোড)\D{0,5}\d{4,8}', caseSensitive: false);
+  static final _sentence = RegExp(r'(?<=[.!?])\s+|।|\n');
+
+  /// [norm] without its safety-tip sentences (used only for the OTP check).
+  static String withoutSafetyTips(String norm) => norm
+      .split(_sentence)
+      .where((s) => !(_warn.hasMatch(s) && !_codeGiven.hasMatch(s)))
+      .join(' ');
+
   // ---- proof that this is a real transaction --------------------------
   static final _trx = RegExp(
       r'(?:trx\s*id|txn\s*id|trxid|txnid|transaction\s*id)\s*[:.#]?\s*([A-Za-z0-9]{6,})',
       caseSensitive: false);
   static final _balance = RegExp(
-      r'(?:avl\.?\s*bal(?:ance)?|available\s*balance|balance|\bbal\b|\u09AC\u09CD\u09AF\u09BE\u09B2\u09C7\u09A8\u09CD\u09B8)\s*(?:is)?\s*[:.]?\s*(?:tk\.?|bdt|৳)?\s*([\d,]+(?:\.\d+)?)',
+      r'(?:avl\.?\s*bal(?:ance)?|available\s*balance|balance|\bbal\b|\u09AC\u09CD\u09AF\u09BE\u09B2\u09C7\u09A8\u09CD\u09B8)\s*(?:is)?\s*[:.]?\s*(?:tk|bdt|৳)?\.?\s*:?\s*([\d,]+(?:\.\d+)?)',
       caseSensitive: false);
   static final _fee = RegExp(
-      r'(?:\bfee|\bcharge|\bchrg|\u09AB\u09BF|\u099A\u09BE\u09B0\u09CD\u099C)\s*[:.]?\s*(?:tk\.?|bdt|৳)?\s*([\d,]+(?:\.\d+)?)',
+      r'(?:\bfee|\bcharge|\bchrg|\u09AB\u09BF|\u099A\u09BE\u09B0\u09CD\u099C)\s*[:.]?\s*(?:tk|bdt|৳)?\.?\s*:?\s*([\d,]+(?:\.\d+)?)',
       caseSensitive: false);
   static final _account = RegExp(r'\ba/?c\b|account|\u09B9\u09BF\u09B8\u09BE\u09AC|\u0985\u09CD\u09AF\u09BE\u0995\u09BE\u0989\u09A8\u09CD\u099F',
       caseSensitive: false);
 
   // ---- amount: a currency marker hugging a number, either order -------
   static final _amount = RegExp(
-      r'(?:tk\.?|bdt|taka|৳)\s*([\d,]+(?:\.\d+)?)|([\d,]+(?:\.\d+)?)\s*(?:tk\b|bdt|taka|\u099F\u09BE\u0995\u09BE|৳)',
+      // gap-callmoney: "BDT. 500", "Tk: 500", "Tk.:500" too (a dot / colon after the word)
+      r'(?:tk|bdt|taka|৳)\.?\s*:?\s*([\d,]+(?:\.\d+)?)|([\d,]+(?:\.\d+)?)\s*(?:tk\b|bdt|taka|\u099F\u09BE\u0995\u09BE|৳)',
       caseSensitive: false);
 
   // ---- type cues (earliest cue wins; strong phrases first) -------------
@@ -191,7 +211,7 @@ class MoneyNotifParser {
     final raw = text.trim();
     if (raw.isEmpty) return MoneyNotif(ok: false, wallet: wallet, reason: 'empty');
     final norm = normalizeDigits(raw);
-    if (_otp.hasMatch(norm)) return MoneyNotif(ok: false, wallet: wallet, reason: 'otp');
+    if (_otp.hasMatch(withoutSafetyTips(norm))) return MoneyNotif(ok: false, wallet: wallet, reason: 'otp');
     final trx = _trx.firstMatch(norm);
     final bal = _balance.firstMatch(norm);
     final hasProof = trx != null || bal != null || _account.hasMatch(norm);

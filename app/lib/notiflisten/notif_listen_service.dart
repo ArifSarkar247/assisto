@@ -242,6 +242,15 @@ class NotifListenService {
     return app.txns.items.any((x) => '${(x['data'] as Map?)?['ref'] ?? ''}'.toUpperCase() == ref);
   }
 
+  /// gap-callmoney (privacy): a person's full mobile number never goes to the
+  /// server in the khata note — "01712345678" -> "017*****678" (enough to
+  /// recognise, not enough to dial). Shop / biller names stay as they are.
+  static String maskPhone(String who) {
+    final m = RegExp(r'^(?:\+?88)?(01[3-9])(\d{5})(\d{3})$').firstMatch(who.replaceAll(RegExp(r'[\s-]'), ''));
+    if (m == null) return who;
+    return '${m.group(1)}*****${m.group(3)}';
+  }
+
   /// The txn row written for a CONFIRMED entry — parsed fields only, never the
   /// raw message (tested: no 'raw' / 'text' key, ref = TrxID only).
   static Map<String, dynamic> txnPayload(MoneyNotif p, int account, String kind, String note) => {
@@ -263,7 +272,7 @@ class NotifListenService {
     final name = walletLabel(t, p.wallet);
     final acc = await walletAccount(app, p.wallet, name);
     if (acc == null) return false;
-    final who = (p.counterparty ?? '').trim();
+    final who = maskPhone((p.counterparty ?? '').trim());
     final note = who.isEmpty ? name : '$name · $who';
     await app.txns.add(txnPayload(p, acc, kind, note));
     await _rememberKey(p.dedupeKey);

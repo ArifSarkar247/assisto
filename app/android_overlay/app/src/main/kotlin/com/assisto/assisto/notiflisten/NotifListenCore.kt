@@ -222,26 +222,55 @@ object NotifListenCore {
         }
     }
 
-    /** A first amount for the prompt only (Dart re-parses everything). */
-    private val AMOUNT_RX = Regex("(?:tk|bdt|taka|৳)\\s*([\\d,০-৯]+(?:\\.\\d+)?)", RegexOption.IGNORE_CASE)
+    // gap-callmoney (17 Nov): the native pre-filter used to DROP real payments:
+    //  * "Tk. 500", "BDT: 500", "৫০০ টাকা", "500 Tk" had no amount for it (only
+    //    "Tk 500" worked), so Bangla bKash/bank alerts never reached the user;
+    //  * bank alerts that end with "Never share your PIN/OTP" were taken as OTPs.
+    // test/gap_callmoney_test.dart runs THESE regexes (read from this file) on
+    // real-format samples, so the native filter and the Dart parser cannot drift.
+    /** Amount next to a currency word, either order. Group 1 or 2 = the number. */
+    private val AMOUNT_RX = Regex("(?:tk|bdt|taka|৳)\\.?\\s*:?\\s*([\\d,০-৯]+(?:\\.[\\d০-৯]+)?)|([\\d,০-৯]+(?:\\.[\\d০-৯]+)?)\\s*(?:tk\\b|bdt|taka|টাকা|৳)", RegexOption.IGNORE_CASE)
 
-    private val PROOF_RX = Regex("trx|txn|balance|\\bbal\\b|a/c|account|\u09AC\u09CD\u09AF\u09BE\u09B2\u09C7\u09A8\u09CD\u09B8|\u09B9\u09BF\u09B8\u09BE\u09AC", RegexOption.IGNORE_CASE)
-    private val SECRET_RX = Regex("otp|verification|\\bcode\\b|\\bpin\\b|password|\u0995\u09CB\u09A1", RegexOption.IGNORE_CASE)
+    /** Fee / balance words right before an amount: never the prompt's amount. */
+    private val NOT_AMOUNT_RX = Regex("(?:fee|charge|chrg|bal|balance|ফি|চার্জ|ব্যালেন্স)\\s*(?:is)?\\s*[:.]?\\s*(?:tk|bdt|৳)?\\.?\\s*:?\\s*$", RegexOption.IGNORE_CASE)
+
+    private val PROOF_RX = Regex("trx|txn|balance|\\bbal\\b|a/c|account|ব্যালেন্স|হিসাব", RegexOption.IGNORE_CASE)
+    private val SECRET_RX = Regex("otp|verification|\\bcode\\b|\\bpin\\b|password|কোড", RegexOption.IGNORE_CASE)
+
+    /** A safety tip ("Never share your PIN/OTP", "কাউকে বলবেন না") is not an OTP. */
+    private val WARN_RX = Regex("(?:never|do\\s*not|don't|dont|not\\s+to)\\s+(?:share|disclose|tell|give)|শে(?:য়|য়)ার করবেন না|কাউকে (?:বলবেন|দেবেন|জানাবেন) না", RegexOption.IGNORE_CASE)
+    /** ...unless that sentence itself carries a code ("OTP 482913"). */
+    private val CODE_GIVEN_RX = Regex("(?:otp|code|pin|কোড)\\D{0,5}[0-9০-৯]{4,8}", RegexOption.IGNORE_CASE)
+    private val SENTENCE_RX = Regex("(?<=[.!?])\\s+|।|\\n")
+
+    fun withoutSafetyTips(text: String): String = try {
+        text.split(SENTENCE_RX)
+            .filterNot { WARN_RX.containsMatchIn(it) && !CODE_GIVEN_RX.containsMatchIn(it) }
+            .joinToString(" ")
+    } catch (_: Throwable) { text }
 
     /** Cheap pre-filter: only something that looks like a real transaction
      *  (an amount + a TrxID / balance / account line, never an OTP) is kept. */
     fun looksLikeTxn(text: String): Boolean = try {
-        amountHint(text) != null && PROOF_RX.containsMatchIn(text) && !SECRET_RX.containsMatchIn(text)
+        AMOUNT_RX.containsMatchIn(text) && PROOF_RX.containsMatchIn(text) &&
+            !SECRET_RX.containsMatchIn(withoutSafetyTips(text))
     } catch (_: Throwable) { false }
 
+    /** A first amount for the prompt only (Dart re-parses everything): never
+     *  the fee or the balance; null = the prompt shows no amount. */
     fun amountHint(text: String): String? = try {
-        val m = AMOUNT_RX.find(text)
-        if (m == null) null else {
+        var out: String? = null
+        for (m in AMOUNT_RX.findAll(text)) {
+            val before = text.substring(maxOf(0, m.range.first - 24), m.range.first)
+            if (NOT_AMOUNT_RX.containsMatchIn(before)) continue
+            val raw = m.groups[1]?.value ?: m.groups[2]?.value ?: continue
             val sb = StringBuilder()
-            for (c in m.groupValues[1]) {
+            for (c in raw) {
                 if (c in '০'..'৯') sb.append('0' + (c - '০')) else sb.append(c)
             }
-            sb.toString().trimEnd('.', ',')
+            val v = sb.toString().trimEnd('.', ',')
+            if (v.replace(",", "").toDoubleOrNull()?.let { it > 0 } == true) { out = v; break }
         }
+        out
     } catch (_: Throwable) { null }
 }
