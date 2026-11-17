@@ -148,6 +148,12 @@ def rule_answer(business, agent, thread, text, lang, catalog, post_id=""):
     is post-checked like an AI draft; an FAQ answer that states a price the
     catalog does not have is skipped (a stale price never goes out)."""
     if not agent.rules_enabled:
+        # bizagent-iso (C): the off-topic decline is a SAFETY rule — it runs
+        # even when the seller switched the answer rules off
+        if R.find_product(text, catalog, None) is None and R.is_off_topic(text, catalog):
+            return {"text": R.off_topic_line(lang, business.shop_name), "kind": "text",
+                    "risk": None, "confidence": 1.0, "source": "rule",
+                    "rule": R.R_OFF_TOPIC, "product_id": None}
         return None
     ctx = rules_ctx(business, agent, thread, lang, catalog, post_id)
     r = R.answer(text, ctx)
@@ -163,7 +169,7 @@ def rule_answer(business, agent, thread, text, lang, catalog, post_id=""):
         return None
     if r.get("faq_id"):
         from .models import BizFaq
-        BizFaq.objects.filter(pk=r["faq_id"]).update(hits=F("hits") + 1)
+        BizFaq.objects.filter(pk=r["faq_id"], business=business).update(hits=F("hits") + 1)
     return {"text": r["text"], "kind": "text", "risk": None, "confidence": 1.0,
             "source": "rule", "rule": r["rule"], "product_id": r.get("product_id")}
 
@@ -547,9 +553,8 @@ def _remember_product(thread, p):
 
 def send_photos(thread, product_ids, lang):
     """The 2-3 closest products WITH photos (one image message each)."""
-    from .models import Product
     sent = 0
-    for p in Product.objects.filter(pk__in=list(product_ids or [])[:3]):
+    for p in S().own_products(thread.business).filter(pk__in=list(product_ids or [])[:3]):
         url = _photo_url(p) if p.photo else ""
         if not url:
             continue
@@ -691,7 +696,7 @@ def in_quiet(agent, now=None):
 def agent_report(business, days=30, now=None):
     """Chats, orders, revenue the AGENT brought (orders it took in chat,
     cancelled excluded), AI cost the seller paid, profit."""
-    from .models import ChatThread, Message, Order, Product
+    from .models import ChatThread, Message, Order
     from . import billing
     now = now or timezone.now()
     since = now - timedelta(days=days)
@@ -700,7 +705,8 @@ def agent_report(business, days=30, now=None):
     revenue = sum((o.total or 0) for o in orders)
     gp, known = Decimal(0), True
     pids = {it.get("product_id") for o in orders for it in (o.items or [])}
-    costs = {p.id: p.cost_price for p in Product.objects.filter(pk__in=[x for x in pids if x])}
+    costs = {p.id: p.cost_price for p in S().own_products(business).filter(
+        pk__in=[x for x in pids if x])}
     for o in orders:
         for it in o.items or []:
             c = costs.get(it.get("product_id"))
@@ -778,11 +784,21 @@ def learn_faqs(business, limit=20):
             .order_by("-created_at", "-id").first()
         if q:
             pairs.append((q.text, m.text))
-    existing = list(BizFaq.objects.filter(business=business).values_list("question", flat=True))
+    # an open "AI didn't know" question is not a real FAQ yet: the owner's
+    # own reply to it becomes the suggestion (same row, no duplicate)
+    existing = list(BizFaq.objects.filter(business=business).exclude(
+        status=S().UNKNOWN_STATUS).values_list("question", flat=True))
     made = 0
     for s in R.learn_faq(pairs, existing_q=existing, limit=limit):
-        BizFaq.objects.create(business=business, question=s["q"], answer=s["a"],
-                              status="suggested", source="learned", has_price=s["has_price"])
+        open_q = BizFaq.objects.filter(business=business, question=s["q"],
+                                       status=S().UNKNOWN_STATUS).first()
+        if open_q is not None:
+            open_q.answer, open_q.status, open_q.source = s["a"], "suggested", "learned"
+            open_q.has_price = s["has_price"]
+            open_q.save(update_fields=["answer", "status", "source", "has_price", "updated_at"])
+        else:
+            BizFaq.objects.create(business=business, question=s["q"], answer=s["a"],
+                                  status="suggested", source="learned", has_price=s["has_price"])
         made += 1
     sample = R.tone_sample([m.text for m in outs])
     if sample and sample != (business.style_sample or ""):
