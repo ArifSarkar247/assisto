@@ -216,7 +216,7 @@ def enhance_usage(user, dkey=""):
     return {"lifetime_free": g.filter(flags__free_kind="lifetime").count(),
             "week_free": g.filter(flags__free_kind="week", created_at__gte=week_ago).count(),
             "enhance_today": today,
-            "ads_live": bool(S._ad_units().get("_configured"))}
+            "ads_live": bool(S._ad_units(user).get("_configured"))}
 
 
 def _month_start():

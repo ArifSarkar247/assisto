@@ -132,3 +132,16 @@ class ConfigApiTests(APITestCase):
             self.assertFalse(any(j["placements"].values()))
             self.assertFalse(any(r.get("on") for r in
                                  (j.get("control") or {}).get("placements", {}).values()))
+
+    def test_rewarded_ticket_units_are_never_real_for_testers(self):
+        """Photo Studio / Language Partner / Safe Plans / credits tickets carry
+        the rewarded unit from _ad_units(user): empty for the owner/testers."""
+        from core.photo_studio_service import _ad_units
+        cfg = {"ad_test_phones": "01999000402"}
+        with mock.patch("core.integrations.get", return_value=cfg):
+            self.assertTrue(_ad_units(self.free)["_configured"])
+            self.assertFalse(A.is_test_id(_ad_units(self.free)["rewarded"]))
+            for u in (self.owner, self.tester):
+                got = _ad_units(u)
+                self.assertFalse(got["_configured"], u.phone)
+                self.assertEqual(got["rewarded"], "")
