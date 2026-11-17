@@ -29,7 +29,8 @@ def invite_base():
     explicit = (getattr(settings, "APP_DEEP_LINK_BASE_HTTPS", "") or "").strip()
     if explicit:
         return explicit.rstrip("/")
-    base = (getattr(settings, "ASSISTO_BASE_URL", "") or "").strip()
+    from .public_url import public_base_url
+    base = public_base_url()
     if base.startswith("https://"):
         return base.rstrip("/")
     return "https://lifeassisto.com"

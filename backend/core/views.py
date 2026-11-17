@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 
 from datetime import timedelta
 
+from .public_url import public_base_url  # publicurl
 from .models import (User, MemoryItem, AuditLog, PendingAction, Reminder, Note,
                      Todo, SourcePermission, SupportTicket, Document, EmergencyCard,
                      Account, Transaction, Budget, Loan, SavingsGoal, Subscription,
@@ -106,7 +107,7 @@ def version(request):
         "app": "Assisto",
         "api": API_VERSION,
         "part": BUILD_PART,
-        "base_url": settings.ASSISTO_BASE_URL,
+        "base_url": public_base_url(),
         "features": {
             "sms_otp": _sms_otp_on(),
             "ai": settings.AI_ENABLED,
@@ -1542,7 +1543,7 @@ def wrapped(request):
         "title": pick(lang, f"{today.strftime('%B')} — আমার Assisto",
                       f"{today.strftime('%B')} — My Assisto"),
         "badges": badges,
-        "card_url": f"{settings.ASSISTO_BASE_URL}/wrapped/card.png?{q}",
+        "card_url": f"{public_base_url()}/wrapped/card.png?{q}",
         "note": pick(lang, "শেয়ার কার্ডে টাকার অঙ্ক থাকে না — শুধু ব্যাজ/শতাংশ।",
                      "The share card never shows amounts — only badges and percentages."),
     })

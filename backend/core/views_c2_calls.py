@@ -243,7 +243,8 @@ def photo_of(user, request=None):
             if request is not None:
                 url = request.build_absolute_uri(url)
             else:
-                base = (getattr(settings, "ASSISTO_BASE_URL", "") or "").rstrip("/")
+                from .public_url import public_base_url
+                base = public_base_url()
                 url = base + url if base.startswith("http") else url
         return url, ver
     except Exception:

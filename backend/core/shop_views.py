@@ -404,7 +404,8 @@ def _abs_snapshot_url(ev):
         from django.conf import settings
         url = ev.snapshot.url
         if url.startswith("/"):
-            url = getattr(settings, "ASSISTO_BASE_URL", "").rstrip("/") + url
+            from .public_url import public_base_url
+            url = public_base_url() + url
         return url
     except Exception:
         return None
