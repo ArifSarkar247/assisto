@@ -180,7 +180,9 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
         _searching = false;
         _searched = true;
         _donors = const [];
-        _searchErr = e.reason;
+        // gap-quranblood B5: a failure without a server reason is still a
+        // failure (it used to read as "no donors near you")
+        _searchErr = e.reason ?? 'error';
       });
     } catch (_) {
       if (!mounted) return;

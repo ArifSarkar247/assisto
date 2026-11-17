@@ -145,6 +145,9 @@ void main() {
       await tester.tap(find.byKey(const Key('quran-sura-1')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('quran-reader')), findsOneWidget);
+      // gap-quranblood: verses now carry inline meaning lines (taller rows)
+      await tester.scrollUntilVisible(find.byKey(const Key('quran-bm-2')), 200,
+          scrollable: find.byType(Scrollable).last);
       await tester.tap(find.byKey(const Key('quran-bm-2')));
       await tester.pump(const Duration(milliseconds: 300));
       expect(await QuranPrefs.bookmarks(), [const AyaRef(1, 2)]);

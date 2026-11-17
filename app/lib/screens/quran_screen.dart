@@ -116,7 +116,7 @@ class _QuranScreenState extends State<QuranScreen> {
           ],
           bottom: _data == null
               ? null
-              : TabBar(isScrollable: true, tabs: [
+              : TabBar(tabs: [
                   Tab(text: t.qrnTabSuras),
                   Tab(key: const Key('quran-tab-juz'), text: t.qrnTabJuz),
                   Tab(text: t.qrnTabBookmarks),
@@ -679,11 +679,14 @@ class _QuranReaderScreenState extends State<QuranReaderScreen> {
             key: const Key('quran-src-en'), style: muted));
       }
       if (_hasPron && _on(QvLine.pron)) {
-        lines.add(Row(children: [
-          QvReviewChip(label: t.qvUnderReview),
-          const SizedBox(width: Gap.xs),
-          Expanded(child: Text(t.qvSourcePron, style: muted)),
-        ]));
+        lines.add(Wrap(
+            spacing: Gap.xs,
+            runSpacing: Gap.xxs,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              QvReviewChip(label: t.qvUnderReview),
+              Text(t.qvSourcePron, style: muted),
+            ]));
       }
       if (bn == null && (_on(QvLine.bn) || _on(QvLine.en))) {
         lines.add(Row(key: const Key('quran-meaning-retry'), children: [
