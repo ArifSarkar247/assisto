@@ -46,7 +46,15 @@ _OWNER_DEFAULTS = {
 }
 
 
+# Owner 17 Nov (trade licence in hand): the legal name, address and grievance
+# line are exactly what the licence says, so an older server setting or env
+# value can never show the old name/address again.
+_LICENSED = ("LEGAL_ENTITY_NAME", "LEGAL_ADDRESS", "LEGAL_GRIEVANCE_OFFICER")
+
+
 def _fact(key, lang):
+    if key in _LICENSED:
+        return escape(_OWNER_DEFAULTS[key])
     v = (getattr(settings, key, "") or os.getenv(key, "") or
          _OWNER_DEFAULTS.get(key, "") or "").strip()
     if v:

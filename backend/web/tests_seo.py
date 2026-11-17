@@ -132,6 +132,22 @@ class LegalNameTests(Base):
         self.assertIn("Cha-63/3, Uttar Badda, Badda, Dhaka 1212, Bangladesh", Client().get("/").content.decode())
 
 
+class LicensedFactsTests(Base):
+    def test_old_env_override_cannot_bring_back_old_name(self):
+        import os
+        from unittest import mock
+        from web import legal_content as L
+        with mock.patch.dict(os.environ, {"LEGAL_ENTITY_NAME": "AXON Dynamic",
+                                          "LEGAL_ADDRESS": "Cha-63, Uttar Badda, Dhaka 1212, Bangladesh"}):
+            self.assertEqual(L._fact("LEGAL_ENTITY_NAME", "en"), "Axon Dynamics")
+            self.assertEqual(L._fact("LEGAL_ADDRESS", "bn"), "Cha-63/3, Uttar Badda, Badda, Dhaka 1212, Bangladesh")
+            set_live(True)
+            for path in ("/privacy", "/terms", "/delete-account"):
+                html = Client().get(path).content.decode()
+                self.assertNotIn("AXON Dynamic", html, path)
+                self.assertNotIn("Cha-63, Uttar", html, path)
+
+
 class AboutPageTests(Base):
     def test_about_bn_and_en(self):
         set_live(True)
