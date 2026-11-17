@@ -3,6 +3,7 @@
 library;
 
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -133,13 +134,33 @@ class _LpTimerState extends State<LpTimer> {
   late int _left = widget.seconds;
   Timer? _t;
   bool _fired = false;
+  // gap-lp: the exam clock follows the real clock too — a phone that froze
+  // the app in the background must not hand out extra exam time
+  final DateTime _wallStart = DateTime.now();
+  DateTime? _pausedAt;
+  Duration _pausedFor = Duration.zero;
+
+  int get _wallLeft =>
+      widget.seconds - (DateTime.now().difference(_wallStart) - _pausedFor - _pausedNow).inSeconds;
+  Duration get _pausedNow => _pausedAt == null ? Duration.zero : DateTime.now().difference(_pausedAt!);
+
+  @override
+  void didUpdateWidget(LpTimer old) {
+    super.didUpdateWidget(old);
+    if (widget.paused && !old.paused) _pausedAt = DateTime.now();
+    if (!widget.paused && old.paused && _pausedAt != null) {
+      _pausedFor += DateTime.now().difference(_pausedAt!);
+      _pausedAt = null;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    if (widget.paused) _pausedAt = DateTime.now();
     _t = Timer.periodic(const Duration(seconds: 1), (_) {
       if (widget.paused || _fired) return;
-      setState(() => _left--);
+      setState(() => _left = math.min(_left - 1, _wallLeft));
       widget.onTick?.call(_left);
       if (_left <= 0 && !_fired) {
         _fired = true;

@@ -123,6 +123,42 @@ def _ladder_autos(business):
     return by
 
 
+def _on_assisto(keys, owner_id=None, cap=500):
+    """gap-bizai: how many of these phone keys belong to an active Assisto
+    account (the in-app channel reaches ONLY them). One batched query."""
+    from . import phone as PH
+    from .models import User
+    var = {}
+    for k in list(keys)[:cap]:
+        c = PH.canonical_phone(k)
+        if c:
+            for v in PH.variants(c):
+                var[v] = k
+    if not var:
+        return 0
+    hit = set(var.get(ph) for ph in User.objects.filter(phone__in=list(var), is_active=True)
+              .exclude(pk=owner_id).values_list("phone", flat=True))
+    hit.discard(None)
+    return len(hit)
+
+
+def _stage_reach(business, a, now):
+    """(due keys checked, of them on Assisto) for an in-app stage."""
+    from . import retention_service as RS
+    from .logic import msg_guard as MG
+    try:
+        now = now or timezone.now()
+        events = RS._events(a, now, RS.cfg()["max_audience_scan"])
+        stop = MG.opted_out_keys(business.pk)
+        done = set(RS._done_refs(a, events))
+        keys = {e["key"] for e in events
+                if e["key"] and e["key"] not in stop and (e["key"], e["ref"]) not in done}
+        return len(keys), _on_assisto(keys, owner_id=business.user_id)
+    except Exception:  # noqa: BLE001
+        log.exception("bizai.ladder reach")
+        return 0, 0
+
+
 def _stage_audience(business, a, text, now, lang):
     """(due now, cost, sample) for one stage. A stage not created yet has no
     sends to subtract: who WOULD get it right now."""
@@ -155,10 +191,16 @@ def ladder(business, lang="bn", now=None):
             template_bn=DRAFTS[st][0], template_en=DRAFTS[st][1])
         text = a.template_bn if lang == "bn" else a.template_en
         n, cost, sample = _stage_audience(business, a, text, now, lang)
+        # gap-bizai: the in-app channel reaches only customers who use
+        # Assisto — say how many, never imply that all N get it.
+        reach = None
+        if a.channel == "in_app":
+            _checked, reach = _stage_reach(business, a, now)
+            reach = min(reach, n)
         stages.append({"stage": st, "days_without": lo, "days_until": hi,
                        "enabled": bool(a.pk and a.enabled), "id": a.pk,
                        "channel": a.channel, "draft": text, "sample": sample,
-                       "audience": n, "cost": cost,
+                       "audience": n, "on_assisto": reach, "cost": cost,
                        "results": RS.summary(a) if a.pk else None})
     return {"stages": stages}
 
@@ -179,13 +221,17 @@ def approve_ladder(business, actor, drafts=None, channel="in_app"):
         return False, "too_many"
     for st, lo, hi in LADDER:
         d = drafts.get(st) or {}
-        bn = str(d.get("bn") or DRAFTS[st][0])[:R.MAX_TEMPLATE]
-        en = str(d.get("en") or DRAFTS[st][1])[:R.MAX_TEMPLATE]
+        a = autos.get(st)
+        # gap-bizai: a draft sent in one language never resets the owner's
+        # earlier text in the other language back to the default.
+        bn = str(d.get("bn") or (a.template_bn if a is not None else "") or DRAFTS[st][0]
+                 ).strip()[:R.MAX_TEMPLATE]
+        en = str(d.get("en") or (a.template_en if a is not None else "") or DRAFTS[st][1]
+                 ).strip()[:R.MAX_TEMPLATE]
         for txt in (bn, en):
             probs = R.template_problems("winback", txt)
             if probs:
                 return False, probs[0]
-        a = autos.get(st)
         before = None
         if a is None:
             a = RetentionAutomation(business=business, kind="winback")
@@ -258,4 +304,11 @@ def problem_text(code, lang):
                          "You have the most automations allowed — delete one and try again."),
         "ai_changed_numbers": pick(lang, "AI নতুন সংখ্যা যোগ করেছিল, তাই নেওয়া হয়নি — আগের লেখা আছে।",
                                    "The AI added a number, so it was not used — your text stays."),
+        # gap-bizai: the owner's own edit gets a reason they can fix
+        "unknown_variable": pick(lang, "বাঁকা বন্ধনীতে শুধু {name}, {shop} বা {days} লেখা যায় — "
+                                       "অন্যটা মুছে আবার চেষ্টা করুন।",
+                                 "Only {name}, {shop} or {days} can go in curly brackets — "
+                                 "remove the other one and try again."),
+        "template_too_long": pick(lang, "মেসেজটা বেশি লম্বা — ৪০০ অক্ষরের মধ্যে রাখুন।",
+                                  "The message is too long — keep it under 400 characters."),
     }.get(code, pick(lang, "কাজটি করা যায়নি।", "That did not work."))

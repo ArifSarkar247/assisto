@@ -36,6 +36,7 @@ import 'flows/journey_v2_flow.dart'; // qjourney
 import 'flows/sj_proof_flow.dart'; // sjproof
 import 'flows/sweep_flow.dart';
 import 'flows/save_sweep_flow.dart'; // savesweep
+import 'flows/lp_flow.dart'; // gap-lp
 import 'support/harness.dart';
 
 void main() {
@@ -66,6 +67,7 @@ void main() {
   if (on('business')) registerCrm100Flows(); // crm100
   if (on('business')) registerBizQualityFlows(); // qbiz
   if (on('docs')) registerDocsVoiceSettingsFlows();
+  if (on('lp')) registerLpFlows(); // gap-lp: Language Partner (seed allow-lists A + lp_seed)
   // savesweep: per-form fill -> Save -> reopen -> still there (group 'save')
   if (on('save')) registerSaveSweepFlows();
   if (on('sweep')) registerSweepFlow();

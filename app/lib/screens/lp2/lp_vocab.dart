@@ -34,7 +34,7 @@ class LpVocabScreen extends StatefulWidget {
 class _LpVocabScreenState extends State<LpVocabScreen> {
   List<Map<String, dynamic>> _topics = const [];
   List<Map<String, dynamic>> _rows = const [];
-  bool _loading = true;
+  bool _loading = true, _offline = false;
   Object? _fail;
   String _group = 'ielts';
 
@@ -54,11 +54,10 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
     } catch (e) {
       _fail = e;
     }
-    try {
-      _rows = await context.read<AppState>().api.listItems(kLpVocab);
-    } catch (_) {
-      _rows = const []; // offline: study still works, progress saves when back online
-    }
+    // gap-lp: offline = the phone copy + queued moves (sent when back online)
+    final (rows, offline) = await LpVocabStore.load(context.read<AppState>().api);
+    _rows = rows;
+    _offline = offline;
     if (mounted) setState(() => _loading = false);
   }
 
@@ -89,7 +88,9 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
     final st = _state;
     final today = ieltsToday();
     final all = [for (final t in _topics) ...lpList(t['words'])];
-    final due = dueWords([for (final w in all) '${w['id']}'], st, today, newPerDay: kLpNewWordsPerDay);
+    final due = dueWords([for (final w in all) '${w['id']}'], st, today,
+        newPerDay: kLpNewWordsPerDay,
+        introducedToday: _rows.where((r) => (r['first_day'] as num?)?.toInt() == today).length);
     final byId = {for (final w in all) '${w['id']}': w};
     final shown = _topics.where((t) => t['group'] == _group).toList();
     return Scaffold(
@@ -98,6 +99,19 @@ class _LpVocabScreenState extends State<LpVocabScreen> {
       body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxl)),
         children: [
+          if (_offline)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Gap.md),
+              child: DsCard(
+                key: const Key('lp2-vocab-offline'),
+                padding: EdgeInsets.zero,
+                child: ListTile(
+                  leading: Icon(Icons.cloud_off_rounded, color: DsTokens.of(context).dangerInk),
+                  title: Text(tr.lp2ProgressOffline),
+                  trailing: TextButton(onPressed: _load, child: Text(tr.retry)),
+                ),
+              ),
+            ),
           DsSurface(color: scheme.ds.primarySoft,
             padding: const EdgeInsets.all(Gap.lg),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -192,7 +206,14 @@ class _LpVocabSessionState extends State<LpVocabSession> {
         old == null ? null : VocabState((old['box'] as num?)?.toInt() ?? 1, (old['due'] as num?)?.toInt() ?? 0),
         knew,
         today);
-    final body = {'card_id': id, 'box': next.box, 'due': next.due, 'last_day': today};
+    final body = {
+      'card_id': id,
+      'box': next.box,
+      'due': next.due,
+      'last_day': today,
+      // gap-lp: the day a word was first studied (the 10-new-words-a-day goal)
+      'first_day': old?['first_day'] ?? (old == null ? today : null),
+    }..removeWhere((_, v) => v == null);
     setState(() {
       if (knew) _knew++;
       _i++;
@@ -207,8 +228,11 @@ class _LpVocabSessionState extends State<LpVocabSession> {
         final r = await api.createItem(kLpVocab, body);
         _rowById[id] = {...body, 'id': r['id']};
       }
+      unawaited(LpVocabStore.remember(_rowById[id]!));
     } catch (_) {
-      // best-effort: offline — the word comes back next time; only this box move is lost.
+      // gap-lp: offline — the move waits on the phone and is sent on the next load
+      _rowById[id] = {...?old, ...body};
+      unawaited(LpVocabStore.queue(id, body));
     }
     if (_i >= widget.words.length && !_logged) {
       _logged = true;

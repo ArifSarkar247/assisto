@@ -131,6 +131,58 @@ def best_hours(business, days=30, now=None, top=2):
     return [h for h, _ in c.most_common(top)]
 
 
+DEFAULT_POST_HOUR = 20     # 8 pm Dhaka when the shop has too few chats to say
+
+
+def hour_label(h, lang):
+    """20 -> "রাত ৮টা" / "8 pm" — never a bare 24-hour "20:00" for Bangla."""
+    h = int(h) % 24
+    if lang == "en":
+        return "%s %s" % (12 if h % 12 == 0 else h % 12, "am" if h < 12 else "pm")
+    part = ("রাত" if h < 4 or h >= 20 else "ভোর" if h < 6 else "সকাল" if h < 12
+            else "দুপুর" if h < 15 else "বিকেল" if h < 18 else "সন্ধ্যা")
+    return "%s %sটা" % (part, _bn(12 if h % 12 == 0 else h % 12))
+
+
+def remind(business, user, item_id, lang="bn", now=None, hour=None):
+    """gap-bizai — the honest Prochar scheduler (no Meta page-publish yet):
+    a reminder at the shop's best posting hour carrying the post's tracked
+    text, so the owner posts it in one tap at the right time. One pending
+    reminder per post (asking again moves it). -> dict or None."""
+    from .logic import msg_guard as MG
+    from .models import Reminder
+    d = tracked(business, item_id, lang)
+    if d is None:
+        return None
+    now = now or timezone.now()
+    hours = best_hours(business, now=now)
+    basis = "customers" if hours else "default"
+    h = int(hour) if hour is not None and 0 <= int(hour) <= 23 else \
+        (hours[0] if hours else DEFAULT_POST_HOUR)
+    loc = MG.local(now)
+    at = loc.replace(hour=h, minute=0, second=0, microsecond=0)
+    if at <= loc + timedelta(minutes=10):
+        at += timedelta(days=1)
+    title = (pick(lang, "পোস্ট দিন: %s", "Post now: %s") % (d["title"] or "Prochar"))[:200]
+    link = {"type": "prochar", "id": str(item_id)[:64], "label": pick(lang, "প্রচার", "Prochar")}
+    r = (Reminder.objects.filter(user=user, done=False, link__type="prochar",
+                                 link__id=link["id"]).order_by("-id").first())
+    if r is None:
+        r = Reminder(user=user, source="manual", category="prochar")
+    r.title, r.notes, r.due_at, r.link = title, d["text"][:4000], at, link
+    r.save()
+    when = pick(lang, "%s, %s" % ("আজ" if at.date() == loc.date() else "কাল", hour_label(h, "bn")),
+                "%s, %s" % ("today" if at.date() == loc.date() else "tomorrow", hour_label(h, "en")))
+    why = pick(lang, "আপনার গ্রাহকেরা এই সময়ে সবচেয়ে বেশি মেসেজ করেন।",
+               "Your customers message you most at this time.") if basis == "customers" else \
+        pick(lang, "এখনো যথেষ্ট চ্যাট নেই, তাই সন্ধ্যার পরের সময় — রিমাইন্ডারে বদলাতে পারবেন।",
+             "Not enough chats yet to tell, so the evening — you can change it in Reminders.")
+    return {"ok": True, "reminder_id": r.pk, "due_at": at.isoformat(), "hour": h,
+            "basis": basis, "when": when, "why": why,
+            "detail": pick(lang, "মনে করিয়ে দেব %s — লেখা আর লিংক রিমাইন্ডারে থাকবে।" % when,
+                           "I'll remind you %s — the text and link are in the reminder." % when)}
+
+
 def _bn(v):
     return str(v).translate(str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯"))
 
@@ -198,7 +250,7 @@ def weekly_report(business, lang="bn", now=None):
         plan.append(L("%s নিয়ে একটা পোস্ট দিন — এটাই বেশি চলছে।" % top["product_name"],
                       "Post about %s — it is selling most." % top["product_name"]))
     if hours:
-        hs = ", ".join("%s:00" % D(h) for h in hours)
+        hs = ", ".join(hour_label(h, lang) for h in hours)   # gap-bizai: "রাত ৮টা", not "২০:০০"
         plan.append(L("পোস্টের সেরা সময় (আপনার গ্রাহকেরা তখন মেসেজ করেন): %s।" % hs,
                       "Best time to post (when your customers message): %s." % hs))
     if not plan:

@@ -871,7 +871,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           _bgCard(t),
         ],
         const SizedBox(height: Gap.lg),
-        SosButton(label: t.emergencySosButton, onPressed: _openSos),
+        SosButton(label: t.sosgapSosButtonLine, onPressed: _openSos),
         const SizedBox(height: Gap.lg),
         // sjlive: a "share for a while" has no destination to arrive at
         if (!_share)

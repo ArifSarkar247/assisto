@@ -8,7 +8,7 @@ import '../../services/action_feedback.dart';
 import '../../services/error_kind.dart';
 import '../../state.dart';
 import '../../theme.dart';
-import '../../widgets/adaptive_button_pair.dart';
+import '../../widgets/a11y_prefs.dart' show a11yMaxLines; // a11ysweep
 import 'package:assisto/widgets/app_sheet.dart';
 
 /// ledger100 — schedule a tagada for ONE customer: a date + time, once or
@@ -189,22 +189,27 @@ class _TagadaScheduleSheetState extends State<TagadaScheduleSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(t.ldgSchedWhen, style: Theme.of(context).textTheme.titleSmall),
-            // design3 (2.0x): date + time side by side, stacked at big text;
-            // the labels wrap, never cut
-            AdaptiveButtonPair(
-              first: OutlinedButton.icon(
-                icon: const Icon(Icons.event_rounded),
-                label: Text(fmtDate('d MMM y', _when, _lang), textAlign: TextAlign.center),
-                onPressed: _pickDate,
+            Row(children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.event_rounded),
+                  label: Text(fmtDate('d MMM y', _when, _lang),
+                      maxLines: a11yMaxLines(context, 1), overflow: TextOverflow.ellipsis),
+                  onPressed: _pickDate,
+                ),
               ),
-              second: OutlinedButton.icon(
-                icon: const Icon(Icons.schedule_rounded),
-                label: Text(
-                    localDigits(TimeOfDay.fromDateTime(_when).format(context), _lang),
-                    textAlign: TextAlign.center),
-                onPressed: _pickTime,
+              const SizedBox(width: Gap.sm),
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.schedule_rounded),
+                  label: Text(
+                      localDigits(TimeOfDay.fromDateTime(_when).format(context), _lang),
+                      maxLines: a11yMaxLines(context, 1),
+                      overflow: TextOverflow.ellipsis),
+                  onPressed: _pickTime,
+                ),
               ),
-            ),
+            ]),
             if (_inQuiet) ...[
               const SizedBox(height: Gap.xs),
               Text(t.ldgSchedQuiet,

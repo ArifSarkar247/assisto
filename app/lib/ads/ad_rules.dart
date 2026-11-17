@@ -40,7 +40,9 @@ class AdIds {
   /// serves real ids (AdMob policy: never real ads on a development build).
   /// `dart.vm.product` is Flutter's kReleaseMode (this file stays pure Dart).
   /// Tests that cover the release path set this to true.
-  static bool realUnitsAllowed = const bool.fromEnvironment('dart.vm.product');
+  /// staging: the owner's test app (ASSISTO_STAGING) NEVER loads real ads.
+  static bool realUnitsAllowed = const bool.fromEnvironment('dart.vm.product') &&
+      !const bool.fromEnvironment('ASSISTO_STAGING');
 
   /// Google's public sample publisher (every TEST unit belongs to it).
   static const testPublisher = 'ca-app-pub-3940256099942544';

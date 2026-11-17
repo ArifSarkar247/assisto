@@ -1,5 +1,4 @@
 import 'dart:async';
-import '../../widgets/adaptive_button_pair.dart';
 import 'dart:io' show File;
 
 import 'package:flutter/material.dart';
@@ -29,6 +28,7 @@ import '../../services/error_kind.dart'
 import '../../services/khata_offline.dart'; // ledger100
 import 'package:path_provider/path_provider.dart' show getTemporaryDirectory;
 import 'statement_pdf.dart'; // bizbar
+import '../../widgets/a11y_prefs.dart' show a11yMaxLines; // a11ysweep
 import 'khata_backup_sheet.dart'; // bizbar
 
 /// Digital Khata (plan §2): two-sided dues — customer receivables +
@@ -849,6 +849,13 @@ class _PartyTile extends StatelessWidget {
         Text(t.ldgSyncFailed(_d(context, ops.length - pending.length)),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
     ];
+    final big = a11yMaxLines(context, 1) > 1; // a11ysweep
+    final amount = Text(balanceDisplay,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontFeatures: AFonts.tabular,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.3,
+            color: color));
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.md),
       child: ListTile(
@@ -867,23 +874,23 @@ class _PartyTile extends StatelessWidget {
         title: Row(children: [
           Flexible(
             child: Text((party['name'] ?? '').toString(),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
+                maxLines: a11yMaxLines(context, 1), overflow: TextOverflow.ellipsis),
           ),
           if (vip) ...[
             const SizedBox(width: Gap.xs),
             Icon(Icons.star_rounded, size: 14, color: AssistoTokens.of(context).warning),
           ],
         ]),
-        subtitle: sub.isEmpty
+        // a11ysweep: at large text the amount moves under the name, so the
+        // name keeps the row's width instead of being cut to "Kar…"
+        subtitle: sub.isEmpty && !big
             ? null
-            : Column(crossAxisAlignment: CrossAxisAlignment.start, children: sub),
+            : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                if (big) amount,
+                ...sub,
+              ]),
         // designv2: the amount reads first — bigger, bold, tight figures.
-        trailing: Text(balanceDisplay,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontFeatures: AFonts.tabular,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
-                color: color)),
+        trailing: big ? null : amount,
       ),
     );
   }
@@ -1350,23 +1357,27 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
-          // design3 (2.0x): equal height side by side, stacked at big text;
-          // labels wrap fully (maxLines 2 cut them at 2.0x)
-          child: AdaptiveButtonPair(
-            gap: Gap.md,
-            first: OutlinedButton.icon(
-              icon: const Icon(Icons.add_rounded),
-              label: Text(t.entryAddCredit, textAlign: TextAlign.center),
-              onPressed: () => _addEntry(isDue: true),
+          child: Row(children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.add_rounded),
+                label: Text(t.entryAddCredit,
+                    maxLines: a11yMaxLines(context, 2), textAlign: TextAlign.center),
+                onPressed: () => _addEntry(isDue: true),
+              ),
             ),
-            second: FilledButton.icon(
-              icon: const Icon(Icons.payments_rounded),
-              label: Text(
-                  _isCustomer ? t.entryReceivePayment : t.entryMakePayment,
-                  textAlign: TextAlign.center),
-              onPressed: () => _addEntry(isDue: false),
+            const SizedBox(width: Gap.md),
+            Expanded(
+              child: FilledButton.icon(
+                icon: const Icon(Icons.payments_rounded),
+                label: Text(
+                    _isCustomer ? t.entryReceivePayment : t.entryMakePayment,
+                    maxLines: a11yMaxLines(context, 2),
+                    textAlign: TextAlign.center),
+                onPressed: () => _addEntry(isDue: false),
+              ),
             ),
-          ),
+          ]),
         ),
       ),
       body: _loading

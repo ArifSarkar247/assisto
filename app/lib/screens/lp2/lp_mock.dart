@@ -9,8 +9,10 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
@@ -29,6 +31,7 @@ import '../../widgets/local_digits.dart';
 import '../../widgets/skeleton.dart';
 import '../../widgets/voice_input.dart';
 import '../plans_screen.dart' show PlansScreen;
+import 'lp_cert.dart';
 import 'lp_companion.dart';
 import 'lp_data.dart';
 import 'lp_engine.dart';
@@ -118,6 +121,8 @@ class _LpIeltsHubState extends State<LpIeltsHub> {
   Set<String> _offline = {};
   String? _downloading;
   List<String> _weak = const [];
+  // gap-lp: no internet -> the mocks saved on this phone still open
+  List<Map<String, dynamic>> _saved = const [];
 
   @override
   void initState() {
@@ -139,8 +144,11 @@ class _LpIeltsHubState extends State<LpIeltsHub> {
         if (await LpOffline.has(id)) off.add(id);
       }
       _offline = off;
+      _saved = const [];
     } catch (e) {
       _fail = e;
+      _saved = [for (final m in await LpOffline.list()) if ('${m['kind']}' == _kind) m];
+      _offline = {for (final m in _saved) '${m['id']}'};
     }
     try {
       final res = await api.listItems(kLpResults);
@@ -246,7 +254,28 @@ class _LpIeltsHubState extends State<LpIeltsHub> {
               ),
             if (_loading)
               const Padding(padding: EdgeInsets.all(Gap.xl), child: Center(child: CircularProgressIndicator()))
-            else if (_fail != null)
+            else if (_fail != null && _saved.isNotEmpty) ...[
+              DsCard(
+                key: const Key('lp2-saved-offline'),
+                padding: EdgeInsets.zero,
+                child: ListTile(
+                  leading: Icon(Icons.cloud_off_rounded, color: DsTokens.of(context).dangerInk),
+                  title: Text(tr.lp2gSavedOffline),
+                  trailing: TextButton(onPressed: _load, child: Text(tr.retry)),
+                ),
+              ),
+              const SizedBox(height: Gap.md),
+              for (final m in _saved)
+                _MockCard(
+                  m: m,
+                  premium: true,
+                  offline: true,
+                  downloading: false,
+                  onFull: () => _open(LpMockRunner(mock: m, sections: kLpSections, full: true)),
+                  onSection: (s) => _open(LpMockRunner(mock: m, sections: [s], full: false)),
+                  onDownload: () => _download(m),
+                ),
+            ] else if (_fail != null)
               StateMessage(
                 icon: Icons.cloud_off_rounded,
                 tint: scheme.error,
@@ -367,7 +396,7 @@ class LpMockRunner extends StatefulWidget {
   State<LpMockRunner> createState() => _LpMockRunnerState();
 }
 
-class _LpMockRunnerState extends State<LpMockRunner> {
+class _LpMockRunnerState extends State<LpMockRunner> with WidgetsBindingObserver {
   Map<String, dynamic>? _m;
   bool _loading = true;
   Object? _fail;
@@ -379,6 +408,15 @@ class _LpMockRunnerState extends State<LpMockRunner> {
   final Map<int, TextEditingController> _speaking = {};
   final Map<int, Duration> _spoken = {};
   final List<String> _progress = [];
+  // gap-lp: what the server already marked / scored in THIS attempt — a retry
+  // after a network failure never marks or charges a part twice
+  final Map<String, Map<String, dynamic>> _done = {};
+  // gap-lp: time left per section + the unfinished answers on the phone, so a
+  // call, a low-RAM kill or a crash does not lose an hour of writing
+  final Map<String, int> _left = {};
+  int _ticks = 0;
+
+  String get _draftKey => 'lp2_draft_${_id}_${widget.full ? 'full' : widget.sections.join('_')}';
 
   String get _id => '${widget.mock['id']}';
   String get _kind => '${widget.mock['kind'] ?? 'academic'}';
@@ -387,11 +425,87 @@ class _LpMockRunnerState extends State<LpMockRunner> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _load();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) unawaited(_saveDraft());
+  }
+
+  Future<void> _saveDraft() async {
+    if (_m == null || _scoring) return;
+    final d = {
+      'at': DateTime.now().millisecondsSinceEpoch,
+      'i': _i,
+      'left': _left,
+      'ans': {for (final e in _ans.entries) e.key: {for (final a in e.value.entries) '${a.key}': a.value}},
+      'w': {for (final e in _writing.entries) '${e.key}': e.value.text},
+      'sp': {for (final e in _speaking.entries) '${e.key}': e.value.text},
+      'spoken': {for (final e in _spoken.entries) '${e.key}': e.value.inSeconds},
+    };
+    try {
+      await (await SharedPreferences.getInstance()).setString(_draftKey, jsonEncode(d));
+    } catch (_) {
+      // best-effort: the answers are still on screen
+    }
+  }
+
+  Future<void> _clearDraft() async {
+    try {
+      await (await SharedPreferences.getInstance()).remove(_draftKey);
+    } catch (_) {
+      // best-effort: an old draft is dropped after 12 h anyway
+    }
+  }
+
+  /// true when unfinished answers (< 12 h old) were put back.
+  Future<bool> _restoreDraft() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      final raw = p.getString(_draftKey);
+      if (raw == null) return false;
+      final d = Map<String, dynamic>.from(jsonDecode(raw) as Map);
+      final at = (d['at'] as num?)?.toInt() ?? 0;
+      if (DateTime.now().millisecondsSinceEpoch - at > const Duration(hours: 12).inMilliseconds) {
+        await p.remove(_draftKey);
+        return false;
+      }
+      int? n(Object? k) => int.tryParse('$k');
+      _i = ((d['i'] as num?)?.toInt() ?? 0).clamp(0, widget.sections.length - 1);
+      (d['left'] as Map?)?.forEach((k, v) {
+        if (v is num) _left['$k'] = v.toInt().clamp(1, 4 * 3600);
+      });
+      (d['ans'] as Map?)?.forEach((s, m) {
+        if (_ans[s] != null && m is Map) {
+          m.forEach((k, v) {
+            if (n(k) != null) _ans[s]![n(k)!] = '$v';
+          });
+        }
+      });
+      for (final (key, ctrl) in [('w', _writing), ('sp', _speaking)]) {
+        (d[key] as Map?)?.forEach((k, v) {
+          if (n(k) != null) ctrl.putIfAbsent(n(k)!, TextEditingController.new).text = '$v';
+        });
+      }
+      (d['spoken'] as Map?)?.forEach((k, v) {
+        if (n(k) != null && v is num) _spoken[n(k)!] = Duration(seconds: v.toInt());
+      });
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _onTick(String s, int left) {
+    _left[s] = left;
+    if (++_ticks % 15 == 0) unawaited(_saveDraft());
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     for (final c in [..._writing.values, ..._speaking.values]) {
       c.dispose();
     }
@@ -428,7 +542,10 @@ class _LpMockRunnerState extends State<LpMockRunner> {
         _fail = e;
       }
     }
-    if (mounted) setState(() => _loading = false);
+    final restored = _m != null && _fail == null && await _restoreDraft();
+    if (!mounted) return;
+    setState(() => _loading = false);
+    if (restored) lpToast(context, AppLocalizations.of(context).lp2gDraftBack);
   }
 
   int _duration(String s) =>
@@ -457,6 +574,7 @@ class _LpMockRunnerState extends State<LpMockRunner> {
             style: TextButton.styleFrom(minimumSize: const Size.fromHeight(kMinTap)),
             onPressed: () {
               leave = true;
+              unawaited(_clearDraft()); // the sheet says the answers are lost
               Navigator.of(ctx).pop();
             },
             child: Text(tr.lp2LeaveTest),
@@ -473,9 +591,72 @@ class _LpMockRunnerState extends State<LpMockRunner> {
         _i++;
         _paused = false;
       });
+      unawaited(_saveDraft());
     } else {
       _finish();
     }
+  }
+
+  /// gap-lp: questions / tasks of the current section still empty.
+  int _unanswered() {
+    final s = _section;
+    final data = (_m?[s] as Map?) ?? const {};
+    if (s == 'listening' || s == 'reading') {
+      final parts = lpList(s == 'listening' ? data['parts'] : data['passages']);
+      final total = parts.fold<int>(0, (a, p) => a + lpList(p['questions']).length);
+      final done = _ans[s]!.values.where((v) => v.trim().isNotEmpty).length;
+      return (total - done).clamp(0, total);
+    }
+    if (s == 'writing') {
+      return lpList(data['tasks'])
+          .where((t) => (_writing[(t['n'] as num?)?.toInt() ?? 1]?.text.trim() ?? '').isEmpty)
+          .length;
+    }
+    return lpList(data['parts'])
+        .where((p) => (_speaking[(p['n'] as num?)?.toInt() ?? 1]?.text.trim() ?? '').isEmpty)
+        .length;
+  }
+
+  /// gap-lp: the Submit button asks first when answers are missing or (full
+  /// mock) the section can never be opened again — a mis-tap no longer ends
+  /// a section. Time-up still submits by itself, like the real exam.
+  Future<void> _submitTapped() async {
+    final missing = _unanswered();
+    if (missing == 0 && !widget.full) {
+      _next();
+      return;
+    }
+    final tr = AppLocalizations.of(context);
+    var go = false;
+    await showAppSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.lg),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(tr.lp2gSubmitTitle, style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: Gap.sm),
+          if (missing > 0) Text(tr.lp2gUnanswered(ld(ctx, missing))),
+          if (widget.full) Text(tr.lp2gNoReturn),
+          const SizedBox(height: Gap.lg),
+          FilledButton(
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(kMinTap)),
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(tr.lp2KeepGoing),
+          ),
+          TextButton(
+            key: const Key('lp2-submit-confirm'),
+            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(kMinTap)),
+            onPressed: () {
+              go = true;
+              Navigator.of(ctx).pop();
+            },
+            child: Text(tr.lp2gSubmitNow),
+          ),
+        ]),
+      ),
+    );
+    if (go && mounted) _next();
   }
 
   Future<void> _finish() async {
@@ -493,7 +674,7 @@ class _LpMockRunnerState extends State<LpMockRunner> {
       for (final s in widget.sections) {
         setState(() => _progress.add(tr.lp2Marking(lpSectionName(tr, s))));
         if (s == 'listening' || s == 'reading') {
-          final r = await api.postJson('/lp/mocks/$_id/mark', {
+          final r = _done[s] ??= await api.postJson('/lp/mocks/$_id/mark', {
             'section': s,
             'answers': {for (final e in _ans[s]!.entries) '${e.key}': e.value},
           });
@@ -508,13 +689,14 @@ class _LpMockRunnerState extends State<LpMockRunner> {
             final n = (t['n'] as num?)?.toInt() ?? 1;
             final text = _writing[n]?.text.trim() ?? '';
             if (text.isEmpty) continue;
-            final r = await api.postJson('/lp/score/writing', {
+            final r = _done['w$n|$text'] ?? await api.postJson('/lp/score/writing', {
               'mock_id': _id,
               'task': n,
               'variant': _kind,
               'prompt': '${t['prompt']}',
               'text': text,
             });
+            if (r['ai_state'] == 'used') _done['w$n|$text'] = r;
             out.add({...r, 'n': n});
             final b = lpScoreBand(r);
             if (b != null) tb[n] = b;
@@ -538,13 +720,14 @@ class _LpMockRunnerState extends State<LpMockRunner> {
             final text = _speaking[n]?.text.trim() ?? '';
             if (text.isEmpty) continue;
             final prompt = n == 2 ? '${p['cue_card']}' : lpStrs(p['questions']).join('\n');
-            final r = await api.postJson('/lp/score/speaking', {
+            final r = _done['s$n|$text'] ?? await api.postJson('/lp/score/speaking', {
               'mock_id': _id,
               'part': n,
               'prompt': prompt,
               'transcript': text,
               'seconds': (_spoken[n] ?? Duration.zero).inSeconds,
             });
+            if (r['ai_state'] == 'used') _done['s$n|$text'] = r;
             out.add({...r, 'n': n});
             final b = lpScoreBand(r);
             if (b != null) pb.add(b);
@@ -577,6 +760,7 @@ class _LpMockRunnerState extends State<LpMockRunner> {
         // the comment is optional; the phone already has every band
       }
     }
+    unawaited(_clearDraft());
     final mins = DateTime.now().difference(_start).inMinutes.clamp(1, 180);
     unawaited(lpLogPractice(api, 'mock', mins));
     unawaited(lpSaveResult(api, {
@@ -653,8 +837,9 @@ class _LpMockRunnerState extends State<LpMockRunner> {
                 child: Center(
                   child: LpTimer(
                     key: ValueKey('timer-$s'),
-                    seconds: _duration(s),
+                    seconds: _left[s] ?? _duration(s),
                     paused: _paused,
+                    onTick: (v) => _onTick(s, v),
                     onDone: () {
                       lpToast(context, tr.lp2TimeUp);
                       _next();
@@ -702,7 +887,7 @@ class _LpMockRunnerState extends State<LpMockRunner> {
             child: FilledButton.icon(
               key: const Key('lp2-submit'),
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-              onPressed: _next,
+              onPressed: _submitTapped,
               icon: Icon(last ? Icons.done_all_rounded : Icons.arrow_forward_rounded),
               label: Text(last ? tr.lp2SubmitFinish : tr.lp2SubmitNext),
             ),
@@ -1237,6 +1422,7 @@ class LpMockResultScreen extends StatelessWidget {
             label: Text(tr.lp2PracticeWeak),
           ),
           const SizedBox(height: Gap.md),
+          if (lpCertFor(finish) != null) ...[lpCertFor(finish)!, const SizedBox(height: Gap.md)],
           for (final s in ['listening', 'reading'])
             if (details[s] is Map)
               ExpansionTile(

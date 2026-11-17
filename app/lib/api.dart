@@ -60,7 +60,8 @@ class ApiClient {
         // play-nomed: tells the server this is the Play build (no medicine
         // schedules from chat, no medicine suggestions). The website APK
         // sends nothing extra.
-        if (AppConfig.playStore) 'X-Assisto-Flavour': 'play',
+        // staging: the test app shows the Play feature set (AppConfig.playLike)
+        if (AppConfig.playLike) 'X-Assisto-Flavour': 'play',
         // credout: this build understands 402 out_of_credits (keeps the text,
         // opens the buy-credits sheet). Older builds get the free answer.
         'X-Assisto-Credout': '1',

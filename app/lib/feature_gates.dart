@@ -32,7 +32,7 @@ import 'config.dart';
 /// FLIP: when the organization account is approved, return `true` here (or
 /// delete the gate) and re-declare the health features in Play Console.
 bool get kMedicalFeaturesAllowed =>
-    debugMedicalFeaturesOverride ?? !AppConfig.playStore;
+    debugMedicalFeaturesOverride ?? !AppConfig.playLike; // staging = Play set
 
 /// Test-only override for [kMedicalFeaturesAllowed] (null = follow flavour).
 @visibleForTesting

@@ -52413,5 +52413,238 @@
   "sosgapOpenFull": "Who is on the way · live location · 30 s sound",
   "@sosgapOpenFull": {
     "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
+  },
+  "a11ySosSecondsLeft": "{seconds} seconds until the SOS is sent",
+  "@a11ySosSecondsLeft": {
+    "description": "TalkBack: the live SOS countdown number. seconds is already in the UI digits.",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "a11ySosTalkBackIntro": "SOS countdown. TalkBack is on, so you have {seconds} seconds. The first button is Cancel. Swipe right for Send now.",
+  "@a11ySosTalkBackIntro": {
+    "description": "Spoken once when an SOS countdown opens with TalkBack on.",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "a11yDirectionsTo": "Directions to {place}",
+  "@a11yDirectionsTo": {
+    "description": "Tooltip/TalkBack name of a directions icon next to a police station or hospital.",
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "cplTrialNoEzviz": "EZVIZ cameras are not in the free trial — with an EZVIZ camera, buy the plan directly. Every other brand gets 7 days free.",
+  "@cplTrialNoEzviz": {
+    "description": "cctvprice: owner 17 Nov 12:35 — honest trial copy, EZVIZ excluded"
+  },
+  "cplTrialEzvizYou": "You have an EZVIZ camera, so the free trial doesn't apply. Buy the plan directly — you can cancel any time in Google Play.",
+  "@cplTrialEzvizYou": {
+    "description": "cctvprice: shown when the server says trial_block = ezviz"
+  },
+  "cplPremiumTitle": "Premium AI",
+  "@cplPremiumTitle": {
+    "description": "cctvprice: Premium AI tier card title"
+  },
+  "cplPremiumBody": "Smart alerts that say in Bangla what happened, and event clips kept for {days} days. Added on top of your CCTV plan.",
+  "@cplPremiumBody": {
+    "description": "cctvprice: Premium AI card body",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "cplPremiumPrice": "{price} tk per camera per month",
+  "@cplPremiumPrice": {
+    "description": "cctvprice: Premium AI per-camera price",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplPremiumTotal": "For {cameras} cameras: {total} tk a month extra",
+  "@cplPremiumTotal": {
+    "description": "cctvprice: Premium AI total for the camera count",
+    "placeholders": {
+      "cameras": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "cplPremiumBuy": "Add Premium AI — {total} tk / month",
+  "@cplPremiumBuy": {
+    "description": "cctvprice: Premium AI buy button",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "cplPremiumActive": "Premium AI is on",
+  "@cplPremiumActive": {
+    "description": "cctvprice: Premium AI active chip"
+  },
+  "cplPremiumNeedsPlan": "Buy the CCTV plan first, then add Premium AI.",
+  "@cplPremiumNeedsPlan": {
+    "description": "cctvprice: Premium AI needs the base plan"
+  },
+  "biCctvTrialNoEzviz": "EZVIZ cameras are not in the free trial.",
+  "@biCctvTrialNoEzviz": {
+    "description": "cctvprice: buy sheet line under the trial note"
+  },
+  "stagingUpdatesViaTester": "This is the Assisto Test app. A new test build arrives every day through the App Tester app — open App Tester to update.",
+  "@stagingUpdatesViaTester": {
+    "description": "Update screen in the owner's staging test app (com.assisto.assisto.staging): updates come from Firebase App Tester, not from the in-app updater."
+  },
+  "stagingPurchasesOffTitle": "Purchases are off in the test app",
+  "@stagingPurchasesOffTitle": {
+    "description": "Checkout sheet title in the staging test app: nothing can be bought there."
+  },
+  "stagingPurchasesOffBody": "Nothing can be bought in Assisto Test and no money is ever taken. To try a paid plan here, ask the Assisto team to turn on a test plan for your account. Real purchases work in the Assisto app from Google Play.",
+  "@stagingPurchasesOffBody": {
+    "description": "Checkout sheet body in the staging test app."
+  },
+  "stagingPurchasesOffOk": "OK",
+  "@stagingPurchasesOffOk": {
+    "description": "Closes the purchases-off sheet in the staging test app."
+  },
+  "lp2gDraftBack": "Your unfinished answers are back. Carry on from where you stopped.",
+  "@lp2gDraftBack": {
+    "description": "gap-lp: toast when a mock reopens with answers saved on the phone after the app closed"
+  },
+  "lp2gSubmitTitle": "Submit this section?",
+  "@lp2gSubmitTitle": {
+    "description": "gap-lp: title of the confirm sheet before a mock section is submitted"
+  },
+  "lp2gUnanswered": "{count} questions are not answered yet.",
+  "@lp2gUnanswered": {
+    "description": "gap-lp: confirm sheet line, count = unanswered questions or tasks (already in local digits)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2gNoReturn": "In a full mock you cannot come back to this section, like the real exam.",
+  "@lp2gNoReturn": {
+    "description": "gap-lp: confirm sheet line in a full mock"
+  },
+  "lp2gSubmitNow": "Submit",
+  "@lp2gSubmitNow": {
+    "description": "gap-lp: confirm sheet button that submits the section"
+  },
+  "lp2gCert": "Practice certificate (PDF)",
+  "@lp2gCert": {
+    "description": "gap-lp: button under a full mock result that opens the Assisto Practice Certificate PDF"
+  },
+  "lp2gCertFail": "The certificate did not open. Check the internet and try again.",
+  "@lp2gCertFail": {
+    "description": "gap-lp: toast when the certificate PDF could not be downloaded or opened"
+  },
+  "lp2gSavedOffline": "No internet. Tests saved on this phone are below — you can take them now; marking needs internet.",
+  "@lp2gSavedOffline": {
+    "description": "gap-lp: banner on the IELTS page when the mock list cannot load but downloaded mocks exist"
+  },
+  "gbzChaseTapHint": "Tap a name to send that customer a reminder now. The message carries their due link and how to pay.",
+  "gbzChaseSendOne": "Send the reminder",
+  "gbzChaseSendAll": "Send reminders to these {count}",
+  "@gbzChaseSendAll": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzOpenProducts": "Open products and stock",
+  "gbzWbEdit": "Edit",
+  "gbzWbEditTitle": "Write the message your way",
+  "gbzWbEditHint": "Keep {name} and {shop} as they are — they fill in for each customer.",
+  "@gbzWbEditHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzWbSave": "Save",
+  "gbzWbReach": "In the app now: {on} of {total} — only customers who use Assisto get it here.",
+  "@gbzWbReach": {
+    "placeholders": {
+      "on": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzWbMessageOthers": "Message the others on your WhatsApp",
+  "gbzBulkStopped": "{count} left out — they said STOP.",
+  "@gbzBulkStopped": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzCrmMore": "More",
+  "gbzCrmMoreSub": "Every other CRM tool — tap one to open it.",
+  "gbzRemindPost": "Remind me to post at the best time",
+  "gbzRemindDone": "Reminder set.",
+  "gbzRemindFailed": "Could not set the reminder — please try again.",
+  "gbzBulkNotFound": "{count} could not be found — check their number.",
+  "@gbzBulkNotFound": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gapcEditTooLate": "It's too late to edit this message.",
+  "@gapcEditTooLate": {
+    "description": "gap-circle: group edit refused, outside the 15-minute window"
+  },
+  "gapcDeleteMeGroupConfirm": "This message is removed just for you; others in the group still keep it.",
+  "@gapcDeleteMeGroupConfirm": {
+    "description": "gap-circle: confirm delete-for-me in a group chat"
+  },
+  "gapcCallsClear": "Clear call history",
+  "@gapcCallsClear": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallsClearBody": "All calls are removed from your call history. The other person keeps theirs.",
+  "@gapcCallsClearBody": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallRemove": "Remove from call history",
+  "@gapcCallRemove": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallRemoveBody": "This call is removed from your call history only. The other person keeps theirs.",
+  "@gapcCallRemoveBody": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "gapcCallsRemoved": "Removed from your call history.",
+  "@gapcCallsRemoved": {
+    "description": "gap-circle: remove calls from my call history"
+  },
+  "sosgapSosButtonLine": "Emergency — alert my family",
+  "@sosgapSosButtonLine": {
+    "description": "gap-sos: line next to the SOS icon on the red SosButton (the icon already says SOS — never repeat it)"
   }
 }

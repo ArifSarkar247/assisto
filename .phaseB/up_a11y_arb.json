@@ -1,9 +1,37 @@
 {
-  "_comment": "a11y1 (accessibility sweep, app/test/a11y_guidelines_test.dart): TalkBack name for the voice-message seek strip. All keys NEW. Integrator: bin/arb_apply.py .phaseB/up_a11y_arb.json",
+  "_comment": "a11ysweep (TalkBack-safe SOS + named call/directions buttons). All keys NEW. Integrator: bin/arb_apply.py --app app .phaseB/up_a11y_arb.json",
   "en": {
-    "a11yVoiceSeek": "Voice message position. Tap to jump"
+    "a11ySosSecondsLeft": "{seconds} seconds until the SOS is sent",
+    "@a11ySosSecondsLeft": {
+      "description": "TalkBack: the live SOS countdown number. seconds is already in the UI digits.",
+      "placeholders": {
+        "seconds": {
+          "type": "String"
+        }
+      }
+    },
+    "a11ySosTalkBackIntro": "SOS countdown. TalkBack is on, so you have {seconds} seconds. The first button is Cancel. Swipe right for Send now.",
+    "@a11ySosTalkBackIntro": {
+      "description": "Spoken once when an SOS countdown opens with TalkBack on.",
+      "placeholders": {
+        "seconds": {
+          "type": "String"
+        }
+      }
+    },
+    "a11yDirectionsTo": "Directions to {place}",
+    "@a11yDirectionsTo": {
+      "description": "Tooltip/TalkBack name of a directions icon next to a police station or hospital.",
+      "placeholders": {
+        "place": {
+          "type": "String"
+        }
+      }
+    }
   },
   "bn": {
-    "a11yVoiceSeek": "ভয়েস মেসেজের অবস্থান। ট্যাপ করে যেকোনো জায়গায় যান"
+    "a11ySosSecondsLeft": "SOS যেতে আর {seconds} সেকেন্ড",
+    "a11ySosTalkBackIntro": "SOS গণনা চলছে। টকব্যাক চালু, তাই আপনি {seconds} সেকেন্ড সময় পাবেন। প্রথম বোতাম বাতিল। এখনই পাঠাতে ডানে সোয়াইপ করুন।",
+    "a11yDirectionsTo": "{place} যাওয়ার পথ"
   }
 }

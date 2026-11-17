@@ -3,12 +3,15 @@ import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../screens/business/bizagent/seller_agent_screen.dart' show baErrorText, bd;
+import '../screens/business/products_screen.dart';
+import '../screens/business/tagada_send_screen.dart';
 import '../state.dart';
 import '../theme.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/business_ui.dart';
 import '../widgets/chatnav.dart' show ChatNav;
 import '../widgets/skeleton.dart';
+import '../widgets/subs_common.dart' show fmtInt; // gap-bizai
 
 /// bizai2 — "Today's shop summary" (server: GET/POST bizai/daily). Today's
 /// sales next to last week, khata collected / given / owed, the customers to
@@ -21,7 +24,13 @@ class BizDailyScreen extends StatefulWidget {
   final Future<Map<String, dynamic>> Function()? load;
   final Future<Map<String, dynamic>> Function(bool on)? setOn;
   final int? businessId;
-  const BizDailyScreen({super.key, this.load, this.setOn, this.businessId});
+  /// gap-bizai: test seam — opens the tagada screen for these customers.
+  final void Function(Map<String, dynamic> business, List<Map<String, dynamic>> parties)?
+      openTagada;
+  /// gap-bizai: test seam — opens the shop's products.
+  final void Function(int? businessId)? openProducts;
+  const BizDailyScreen(
+      {super.key, this.load, this.setOn, this.businessId, this.openTagada, this.openProducts});
   @override
   State<BizDailyScreen> createState() => _BizDailyScreenState();
 }
@@ -65,6 +74,41 @@ class _BizDailyScreenState extends State<BizDailyScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// gap-bizai: a chase row opens THIS customer's tagada (the server fills
+  /// the phone, the due link and the pay options) — no hunting in the khata.
+  Future<void> _tagada(List<Map<String, dynamic>> chase) async {
+    final d = _d ?? const {};
+    final biz = <String, dynamic>{
+      'id': (d['business_id'] as num?)?.toInt() ?? widget.businessId ?? 0,
+      'name': '${d['shop'] ?? ''}',
+    };
+    final parties = [
+      for (final c in chase)
+        {
+          'id': (c['party_id'] as num?)?.toInt() ?? 0,
+          'name': '${c['name'] ?? ''}',
+          'balance_poisha': (c['due_poisha'] as num?)?.toInt() ?? 0,
+        }
+    ];
+    if (widget.openTagada != null) {
+      widget.openTagada!(biz, parties);
+      return;
+    }
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => TagadaSendScreen(business: biz, parties: parties)));
+    if (mounted) _get(); // a payment / reminder changes tomorrow's list
+  }
+
+  void _products() {
+    final id = (_d?['business_id'] as num?)?.toInt() ?? widget.businessId;
+    if (widget.openProducts != null) {
+      widget.openProducts!(id);
+      return;
+    }
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => ProductsScreen(businessId: id)));
   }
 
   List<Map<String, dynamic>> _rows(Object? v) =>
@@ -125,16 +169,31 @@ class _BizDailyScreenState extends State<BizDailyScreen> {
             title: t.bizai2ChaseTitle,
             icon: Icons.payments_rounded,
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              for (final c in chase) _line('${c['line'] ?? ''}', icon: Icons.person_rounded),
+              for (final c in chase)
+                // gap-bizai: each name opens that customer's reminder
+                InkWell(
+                  key: ValueKey('gbz-chase-${c['party_id']}'),
+                  borderRadius: BorderRadius.circular(Radii.sm),
+                  onTap: () => _tagada([c]),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 48),
+                    child: Row(children: [
+                      Expanded(child: _line('${c['line'] ?? ''}', icon: Icons.person_rounded)),
+                      const Icon(Icons.chevron_right_rounded, size: 20),
+                    ]),
+                  ),
+                ),
               const SizedBox(height: Gap.xs),
-              Text(t.bizai2ChaseHint),
+              Text(t.gbzChaseTapHint),
               const SizedBox(height: Gap.sm),
-              OutlinedButton.icon(
+              FilledButton.icon(
                 key: const ValueKey('bizai2-chase-open'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                onPressed: () => ChatNav.push(context, 'khata'),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: () => _tagada(chase),
                 icon: const Icon(Icons.send_rounded),
-                label: Text(t.bizai2OpenKhata),
+                label: Text(chase.length == 1
+                    ? t.gbzChaseSendOne
+                    : t.gbzChaseSendAll(fmtInt(context, chase.length))),
               ),
             ]),
           ),
@@ -148,6 +207,15 @@ class _BizDailyScreenState extends State<BizDailyScreen> {
               for (final s in stock)
                 _line('${s['line'] ?? ''}', icon: Icons.warning_amber_rounded),
               Text(t.bizai2StockHow, style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: Gap.sm),
+              // gap-bizai: from "will run out" straight to the stock list
+              OutlinedButton.icon(
+                key: const ValueKey('gbz-stock-open'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: _products,
+                icon: const Icon(Icons.inventory_2_rounded),
+                label: Text(t.gbzOpenProducts),
+              ),
             ]),
           ),
         ],

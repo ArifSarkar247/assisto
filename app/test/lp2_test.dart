@@ -53,6 +53,17 @@ Widget _app(Widget child, ApiClient api, {String lang = 'en', bool dark = false}
 
 FakeApi _api({String lang = 'en'}) => FakeApi(mode: FakeMode.data, lang: lang);
 
+/// gap-lp: Submit now asks first (answers missing / full mock): confirm it.
+Future<void> _submit(WidgetTester t) async {
+  await t.tap(find.byKey(const Key('lp2-submit')));
+  await t.pumpAndSettle();
+  final ok = find.byKey(const Key('lp2-submit-confirm'));
+  if (ok.evaluate().isNotEmpty) {
+    await t.tap(ok);
+    await t.pumpAndSettle();
+  }
+}
+
 Future<void> _tapText(WidgetTester t, String s) async {
   await t.ensureVisible(find.text(s).first);
   await t.tap(find.text(s).first);
@@ -204,8 +215,7 @@ void main() {
       await _tapText(t, 'TRUE');
       await t.enterText(find.byType(TextFormField).first, 'hyacinth');
       await t.pump();
-      await t.tap(find.byKey(const Key('lp2-submit')));
-      await t.pumpAndSettle();
+      await _submit(t);
       final mark = lp2Posts.firstWhere((p) => '${p['path']}'.endsWith('/mark'));
       expect(mark['section'], 'reading');
       expect(mark['answers'], {'1': 'TRUE', '4': 'hyacinth'});
@@ -239,17 +249,13 @@ void main() {
       await t.pump(const Duration(seconds: 1));
       expect(t.widget<Text>(find.textContaining(RegExp(r'^29:5\d$'))).data, isNot(before)); // it counts down
       expect(find.text('Exam mode: the recording plays once.'), findsOneWidget);
-      await t.tap(find.byKey(const Key('lp2-submit'))); // listening -> reading
-      await t.pumpAndSettle();
+      await _submit(t); // listening -> reading
       expect(find.textContaining(RegExp(r'^(1:00:00|59:5\d)$')), findsOneWidget);
-      await t.tap(find.byKey(const Key('lp2-submit'))); // reading -> writing
-      await t.pumpAndSettle();
+      await _submit(t); // reading -> writing
       await t.enterText(find.byKey(const Key('lp2-w1')), 'In 2005 most people took the bus; by 2025 the metro led.');
-      await t.tap(find.byKey(const Key('lp2-submit'))); // writing -> speaking
-      await t.pumpAndSettle();
+      await _submit(t); // writing -> speaking
       await t.enterText(find.byKey(const Key('lp2-s1')), 'I live in Dhaka near a busy market.');
-      await t.tap(find.byKey(const Key('lp2-submit'))); // finish
-      await t.pumpAndSettle();
+      await _submit(t); // finish
       final paths = lp2Posts.map((p) => p['path']).toList();
       expect(paths, [
         'lp/mocks/ac-001/mark',

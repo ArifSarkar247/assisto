@@ -312,7 +312,11 @@ class AssistoApp extends StatelessWidget {
             final mq = MediaQuery.of(context);
             return MediaQuery(
               data: mq.copyWith(
-                textScaler: TextScaler.linear(a.textScale),
+                // a11ysweep: the PHONE's font size counts too (Android
+                // Settings > Font size, up to 200%). The in-app slider only
+                // ever makes text bigger than the system choice, never
+                // smaller; both are capped at 2.0 (WCAG 1.4.4).
+                textScaler: effectiveTextScaler(mq.textScaler, a.textScale),
                 highContrast: mq.highContrast || a.highContrast,
                 disableAnimations: mq.disableAnimations || a.reduceMotion,
               ),

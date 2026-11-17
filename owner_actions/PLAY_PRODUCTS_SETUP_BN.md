@@ -1,3 +1,5 @@
+> ⚠️ **পুরনো নথি — ব্যবহার করবেন না (১৭ Nov):** নতুন ও সঠিক তালিকা `PLAY_MONETISATION_SETUP_BN.md`-এ। এই নথির বার্ষিক base plan ID `yearly` ভুল — সঠিক `annual`; দাম ও ক্রেডিট-প্যাকও পুরনো।
+
 # Google Play-তে কী কী বানাতে হবে — হুবহু তালিকা (পেমেন্ট E2E অডিট, ২৬ অক্টোবর)
 
 এই তালিকা কোড পড়ে বানানো (`backend/core/logic/payments_cfg.py`, `core/payments/catalog.py`,
@@ -151,3 +153,6 @@ lifeassisto.com/premium-এ, আর আসল জিনিস/সেবার (�
 8. একই ফোনে অন্য Assisto অ্যাকাউন্টে লগইন → "কেনাকাটা ফিরিয়ে আনুন" → "এটি অন্য Assisto
    অ্যাকাউন্টের" — দ্বিতীয় অ্যাকাউন্টে কিছু চালু হয় না।
 9. Play Console → Order management → একটি অর্ডার → Refund (প্ল্যানের ক্ষেত্রে "Revoke" টিকসহ) → কয়েক সেকেন্ডে অ্যাপে প্ল্যান/ক্রেডিট সরে যায়।
+
+## লাইভের পরে (AFTER-LAUNCH): সিসিটিভি Premium AI — OWNER-DECIDED ১৭ Nov ১২:৩৫
+Play ফ্রিজ বহাল — এখন কিছু নয়। Assisto লাইভ হওয়ার পরে নতুন পণ্য **`cctv_premium_ai`** (১০টি মাসিক বেস প্ল্যান `ai-c01` ৳৪০০ … `ai-c10` ৳৪,০০০, কোনো ট্রায়াল অফার নয়) — পুরো ধাপ `PLAY_TRIAL_OFFER_BN.md` §৫-এ।

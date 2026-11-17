@@ -10,7 +10,9 @@ Map<String, dynamic> cctvPlanPayload(
     int used = 0,
     Map<String, dynamic>? notice,
     List<int> addonCams = const [],
-    List<Map<String, dynamic>> cameras = const []}) {
+    List<Map<String, dynamic>> cameras = const [],
+    String trialBlock = '',
+    bool premiumOnSale = false}) {
   int m(int n) => 500 + 250 * ((n < 2 ? 2 : n) - 2);
   return {
     'on_sale': onSale,
@@ -21,6 +23,16 @@ Map<String, dynamic> cctvPlanPayload(
     'trial_days': 7,
     'trial_base_plan': 'c02-monthly',
     'trial_available': trial,
+    // cctvprice (owner 17 Nov 12:35): EZVIZ is not in the free trial
+    'trial_block': trialBlock,
+    'trial_excluded_vendors': ['ezviz'],
+    'premium_ai': {
+      'on_sale': premiumOnSale,
+      'product_id': 'cctv_premium_ai',
+      'price_per_camera': 400,
+      'clip_days': 30,
+      'plans': [for (var n = 1; n <= 10; n++) 'ai-c${n.toString().padLeft(2, '0')}'],
+    },
     'base_cameras': 2,
     'base_price': 500,
     'extra_camera_price': 250,
@@ -101,12 +113,15 @@ class FakeOffersStore implements StoreBilling, StoreOffers {
   final bought = <String>[];
   final finished = <String>[];
   Map<String, String> offerMap = Map.of(kCctvOffers);
+  Map<String, String> premiumOfferMap = const {'ai-c03': 'BDT 1,200.00'};
   List<StoreOwned> ownedList = [];
   StoreBuyResult next = const StoreBuyResult(StoreBuyStatus.purchased, purchaseToken: 'ctok');
 
   @override
   Future<Map<String, String>> offers(String productId) async =>
-      productId == 'cctv_plan' ? offerMap : const {};
+      productId == 'cctv_plan'
+          ? offerMap
+          : (productId == 'cctv_premium_ai' ? premiumOfferMap : const {});
 
   @override
   Future<StoreBuyResult> buyOffer(
