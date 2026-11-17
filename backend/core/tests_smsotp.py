@@ -663,7 +663,11 @@ class EmailOtpTests(APITestCase):
             self.assertEqual(r.status_code, known.status_code)
             self.assertEqual(r.data["message"], known.data["message"])
             self.assertEqual(set(r.data), set(known.data))
-        self.assertEqual(len(FakeSMTP.sent), 1)               # only the real one
+        # only the real one gets a code; signup-otp: the typed unknown
+        # address gets the "no account yet" note (no code)
+        self.assertEqual(len([m for m in FakeSMTP.sent
+                              if m["To"] != "nobody@example.com"]), 1)
+        self.assertLessEqual(len(FakeSMTP.sent), 2)
         self.assertTrue(nomail_user.pk)
 
     def test_signup_by_email_refused(self, _g):
