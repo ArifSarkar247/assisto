@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:assisto/api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/mess/mess_detail_screen.dart';
@@ -25,11 +26,15 @@ class _RecApi extends FakeApi {
   final posts = <MapEntry<String, Map<String, dynamic>>>[];
   bool offline = false;
   bool plainGroup = false;
+  bool mealCutoff = false; // gatefix: the server's 409 "cutoff" (race at 21:59:59)
 
   @override
   Future<Map<String, dynamic>> postJson(String path,
       [Map<String, dynamic> body = const {}]) async {
     if (offline) throw const SocketException('offline');
+    if (mealCutoff && path.endsWith('/meals')) {
+      throw ApiException('Changes for this day closed at 22:00. Ask the manager.', 409, null, 'cutoff');
+    }
     posts.add(MapEntry(path, body));
     return super.postJson(path, body);
   }
@@ -140,6 +145,28 @@ void main() {
     await _settle(tester);
     expect(find.text('Enter the amount in taka, for example 500'), findsOneWidget);
     expect(api.posts.where((e) => e.key.endsWith('/entries')), isEmpty);
+  });
+
+  // gatefix (release gate 44133650344): after the cut-off the server refuses
+  // a member's meal change with 409 "cutoff". The screen must SAY so (the
+  // server's text), never crash and never keep it as a silent offline write.
+  testWidgets('meal change refused at the cut-off: clear message, not queued', (tester) async {
+    final api = _RecApi(lang: 'en')..mealCutoff = true;
+    await tester.pumpWidget(_app(const MessDetailScreen(messId: 1), api));
+    await _settle(tester);
+    final now = DateTime.now().add(const Duration(days: 1));
+    final iso = '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-'
+        '${now.day.toString().padLeft(2, '0')}';
+    final day = find.byKey(ValueKey('mess-day-$iso'));
+    await tester.scrollUntilVisible(day, 200, scrollable: find.byType(Scrollable).last);
+    await tester.tap(day);
+    await _settle(tester);
+    await tester.tap(find.byKey(const ValueKey('meal-save')));
+    await _settle(tester);
+    expect(tester.takeException(), isNull);
+    expect(find.textContaining('closed at 22:00'), findsOneWidget);
+    expect(find.textContaining('Saved on this phone'), findsNothing);
+    expect(await MessOutbox.pending(1), 0);
   });
 
   testWidgets('offline: the write is kept on the phone, then syncs', (tester) async {

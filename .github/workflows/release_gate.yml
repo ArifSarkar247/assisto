@@ -179,7 +179,7 @@ jobs:
           - leg: circle
             kind: flows
             only: start+circle
-            ids: 01_language,02_login,03_onboarding,19_circle_ticks,18_circle_real_call
+            ids: 01_language,02_login,03_onboarding,19_circle_ticks,18_circle_real_call,18v_video_both_ways
           - leg: journey-pay
             kind: flows
             only: start+sjproof+billing
@@ -354,7 +354,7 @@ jobs:
           REALITY_FLOW_IDS: ${{ matrix.kind == 'flows' && matrix.ids || '' }}
           REALITY_TOTAL_SECONDS: "1800"
           REALITY_DRIVE_SECONDS: "1700"
-          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front ${{ matrix.leg == 'circle' && 'emulated' || 'none' }}
+          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back ${{ matrix.leg == 'circle' && 'emulated' || 'none' }} -camera-front ${{ matrix.leg == 'circle' && 'emulated' || 'none' }}
         with:
           api-level: 33
           arch: x86_64
@@ -367,7 +367,7 @@ jobs:
           ram-size: 4096M
           heap-size: 576M
           cores: 3
-          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front ${{ matrix.leg == 'circle' && 'emulated' || 'none' }}
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back ${{ matrix.leg == 'circle' && 'emulated' || 'none' }} -camera-front ${{ matrix.leg == 'circle' && 'emulated' || 'none' }}
           pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && [ "${{ matrix.kind }}" = flows ] && sed -i '/^hw.keyboard=/d' "$c" && echo 'hw.keyboard=yes' >> "$c"; done; true
           script: if [ "${{ matrix.kind }}" = np ]; then python3 tools/notifproof/np_driver.py; else bash tools/reality/run_flows.sh; fi
       - name: Stop servers
