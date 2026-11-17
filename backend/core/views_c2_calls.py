@@ -453,7 +453,7 @@ def _mark_seen(sess, side, now):
 
 def status_row(rec, side, lang="bn"):
     sess = session_of(rec)
-    return {
+    row = {
         "call_id": rec.id, "kind": rec.kind, "side": side,
         "state": rec.state,
         "phase": CS.phase(rec.state, sess.ringing_at,
@@ -470,6 +470,11 @@ def status_row(rec, side, lang="bn"):
         "connect_timeout_s": CS.CONNECT_TIMEOUT_S,
         "server_time": timezone.now().isoformat(),
     }
+    # group-calls: this call is (now) part of a group call -> the phone
+    # moves to the group call screen (only for room calls; 1:1 unchanged)
+    if getattr(rec, "room_id", None):
+        row["room_id"] = rec.room_id
+    return row
 
 
 # ---------------------------------------------------------------- real-time
