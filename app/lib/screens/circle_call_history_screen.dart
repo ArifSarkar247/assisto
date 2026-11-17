@@ -14,6 +14,7 @@ import '../crypto/identity_vault.dart';
 import 'circle_call_info_screen.dart';
 import 'circle_call_screen.dart';
 import 'circle_chat_screen.dart';
+import '../widgets/a11y_prefs.dart' show a11yMaxLines; // a11ysweep
 import 'messenger/contacts_screen.dart'; // circle2
 
 /// Connected Circle call history (M1 item 5): voice/video log with missed
@@ -248,7 +249,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
         // circle2: the group count in Bangla digits too (bn locale)
         count > 1 ? '$name (${_digits('$count')})' : name,
         key: Key('call-log-title-${call['id']}'),
-        maxLines: 1,
+        maxLines: a11yMaxLines(context, 1),
         overflow: TextOverflow.ellipsis,
         style: TextStyle(color: missed ? DsTokens.of(context).dangerInk : DsTokens.of(context).text),
       ),
@@ -272,7 +273,7 @@ class _CircleCallHistoryScreenState extends State<CircleCallHistoryScreen> {
                   ? outcome
                   : CircleRelation.labelFor(_t, relation,
                       custom: call['custom_label'] as String?),
-              maxLines: 1,
+              maxLines: a11yMaxLines(context, 1),
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: dirColor, fontSize: 12),
             ),

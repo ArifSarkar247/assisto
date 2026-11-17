@@ -17,6 +17,7 @@ import '../theme.dart';
 import '../train/dest_alarm_sound.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
+import '../widgets/sos_a11y.dart'; // a11ysweep
 import 'sos_api.dart';
 import 'sos_widgets.dart';
 
@@ -218,6 +219,17 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
     final phone = '${(d?['sender'] as Map?)?['phone'] ?? ''}';
     final em = emergencyFor('${d?['country'] ?? ''}'.isEmpty ? null : '${d?['country']}');
     final meGoing = d?['me_going'] == true;
+    // a11ysweep: the siren drowns TalkBack's voice, so with a screen reader
+    // "Silence" is the first control after the title (same button)
+    final sr = sosScreenReaderOn(context);
+    final silence = _alarm
+        ? TextButton.icon(
+            key: const ValueKey('fcs-alarm-silence'),
+            onPressed: _stopAlarm,
+            icon: const Icon(Icons.volume_off_rounded),
+            label: Text(t.fcsSilence),
+          )
+        : null;
     return Scaffold(
       key: const ValueKey('fcs-alarm'),
       backgroundColor: ds.bg,
@@ -247,6 +259,7 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
                         color: Brand.warning,
                         title: t.fcsAlarmLoadFailed),
                   ),
+                if (sr && silence != null) ...[silence, const SizedBox(height: Gap.sm)],
                 if (state == 'active') ...[
                   SosBigButton(
                     key: const ValueKey('fcs-going-btn'),
@@ -279,14 +292,9 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
                     onTap: () => _open(Uri.parse('tel:${em.primary.dial}'), 'fcsos.emergency'),
                   )),
                 ]),
-                if (_alarm) ...[
+                if (!sr && silence != null) ...[
                   const SizedBox(height: Gap.sm),
-                  TextButton.icon(
-                    key: const ValueKey('fcs-alarm-silence'),
-                    onPressed: _stopAlarm,
-                    icon: const Icon(Icons.volume_off_rounded),
-                    label: Text(t.fcsSilence),
-                  ),
+                  silence,
                 ],
                 const SizedBox(height: Gap.md),
                 _where(t, ds, d),
@@ -475,13 +483,14 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
               trailing: Wrap(children: [
                 if ('${r['phone'] ?? ''}'.trim().isNotEmpty)
                   IconButton(
-                    tooltip: t.fcsCall,
+                    // a11ysweep: "Call <place>", not a bare "Call" x N
+                    tooltip: t.fcsCallName('${(bn ? r['name'] : r['name_en']) ?? r['name'] ?? ''}'),
                     icon: const Icon(Icons.call_rounded),
                     onPressed: () => _open(Uri.parse('tel:${'${r['phone']}'.replaceAll(RegExp(r'[^0-9+]'), '')}'),
                         'fcsos.nearby.call'),
                   ),
                 IconButton(
-                  tooltip: t.fcsDirections,
+                  tooltip: t.a11yDirectionsTo('${(bn ? r['name'] : r['name_en']) ?? r['name'] ?? ''}'),
                   icon: const Icon(Icons.directions_rounded),
                   onPressed: () => _open(
                       Uri.parse('https://maps.google.com/?daddr=${r['lat']},${r['lng']}'),
@@ -517,7 +526,7 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
               title: Text('${c['name'] ?? ''}'),
               subtitle: Text(_dg('${c['phone'] ?? ''}')),
               trailing: IconButton(
-                tooltip: t.fcsCall,
+                tooltip: t.fcsCallName('${c['name'] ?? ''}'), // a11ysweep
                 icon: const Icon(Icons.call_rounded),
                 onPressed: () => _open(Uri.parse('tel:${c['phone']}'), 'fcsos.info.call'),
               ),
