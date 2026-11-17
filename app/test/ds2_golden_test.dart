@@ -134,10 +134,11 @@ List<String> smallTargets(WidgetTester tester) {
 }
 
 /// design3: goldens tolerate a tiny pixel noise (pulse / shimmer phase,
-/// anti-aliasing): up to 0.5 % of the pixels may differ.
+/// anti-aliasing, "5 min ago" text against fixture times): up to 1 % of the
+/// pixels may differ.
 class _TolerantComparator extends LocalFileComparator {
   _TolerantComparator(super.testFile);
-  static const tolerance = 0.005;
+  static const tolerance = 0.01;
 
   @override
   Future<bool> compare(Uint8List imageBytes, Uri golden) async {
