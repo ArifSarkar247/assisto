@@ -15,7 +15,7 @@ import '../../api.dart';
 import '../../city/city_offline.dart' show havM;
 import '../../city/city_widgets.dart';
 import '../../l10n/app_localizations.dart';
-import '../../maps/place_search.dart' show placeHereNow;
+import '../../maps/place_search.dart' show PlacePick, placeHereNow;
 import '../../services/action_feedback.dart' show openForUser;
 import '../../state.dart';
 import '../../theme.dart';
@@ -48,7 +48,11 @@ class CityAroundScreen extends StatefulWidget {
   @visibleForTesting
   final ({double lat, double lon})? debugHere;
   final String initial;
-  const CityAroundScreen({super.key, this.debugHere, this.initial = 'hospital'});
+
+  /// gap-city: opened from City Service -> each place gets "Go by bus /
+  /// metro" which returns it (a PlacePick) to plan the trip there.
+  final bool routeHere;
+  const CityAroundScreen({super.key, this.debugHere, this.initial = 'hospital', this.routeHere = false});
   @override
   State<CityAroundScreen> createState() => _CityAroundScreenState();
 }
@@ -68,8 +72,9 @@ class _CityAroundScreenState extends State<CityAroundScreen> {
   }
 
   Future<void> _init() async {
-    _here = widget.debugHere;
+    _here ??= widget.debugHere;
     if (_here == null) {
+      if (mounted) setState(() => _loading = true);
       final p = await placeHereNow(context);
       if (p != null) _here = (lat: p.lat, lon: p.lng);
     }
@@ -149,9 +154,18 @@ class _CityAroundScreenState extends State<CityAroundScreen> {
           if (_loading)
             const SkeletonList(count: 3)
           else if (_here == null)
-            _info(t.cityAroundNeedLocation, Icons.location_off_rounded)
+            CityRetryCard(
+                key: const ValueKey('city_around_need_location'),
+                icon: Icons.location_off_rounded,
+                text: t.cityAroundNeedLocation,
+                buttonText: t.cityTryAgain,
+                onPressed: _init)
           else if (_failed)
-            _info(t.cityAroundFailed, Icons.cloud_off_rounded)
+            CityRetryCard(
+                key: const ValueKey('city_around_failed'),
+                text: t.cityAroundFailed,
+                buttonText: t.cityTryAgain,
+                onPressed: _load)
           else if (_places.isEmpty)
             _info(t.cityAroundNone(cityAroundName(t, _type)), Icons.search_off_rounded)
           else
@@ -207,6 +221,11 @@ class _CityAroundScreenState extends State<CityAroundScreen> {
           if (dist != null) Text(cityDistance(context, dist), style: AType.bodySmall),
           const SizedBox(height: Gap.xs),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            if (widget.routeHere && lat != null && lon != null)
+              CityRouteHereButton(
+                  key: ValueKey('city_route_here_${p['id'] ?? p['name']}'),
+                  onPressed: () => Navigator.pop<PlacePick>(context,
+                      (name: '${p['name'] ?? ''}', address: '${p['address'] ?? ''}', lat: lat, lng: lon))),
             if (lat != null && lon != null)
               FilledButton.tonalIcon(
                 style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),

@@ -33,7 +33,11 @@ String mapStyleUrl(String base, {required bool night, required bool bn}) =>
     '${base}style/assisto-${night ? 'night' : 'light'}-${bn ? 'bn' : 'en'}.json';
 
 /// Rewrite the two big vector sources to the offline PMTiles files (pure).
-Map<String, dynamic> styleWithOffline(Map<String, dynamic> style, {required String baseFile, required String buildingsFile}) {
+/// gap-city (contract §5): with [assetsDir] the glyphs + sprite also come
+/// from the pack, so an offline map still draws names (Bangla PGF too) and
+/// icons — not only shapes.
+Map<String, dynamic> styleWithOffline(Map<String, dynamic> style,
+    {required String baseFile, required String buildingsFile, String assetsDir = ''}) {
   final out = jsonDecode(jsonEncode(style)) as Map<String, dynamic>;
   final src = (out['sources'] as Map?)?.cast<String, dynamic>();
   if (src == null) return out;
@@ -47,8 +51,27 @@ Map<String, dynamic> styleWithOffline(Map<String, dynamic> style, {required Stri
 
   set('assisto_base', baseFile);
   set('assisto_buildings', buildingsFile);
+  if (assetsDir.isNotEmpty) {
+    if (out['glyphs'] is String) out['glyphs'] = 'file://$assetsDir/fonts/{fontstack}/{range}.pbf';
+    final sp = out['sprite'];
+    if (sp is String && sp.contains('sprites/')) {
+      out['sprite'] = 'file://$assetsDir/${sp.substring(sp.indexOf('sprites/'))}';
+    }
+  }
   return out;
 }
+
+/// gap-city: the pack's extra files (manifest "fonts" + "sprites"), only
+/// safe relative paths under fonts/ or sprites/.
+List<String> packAssets(Map<String, dynamic> m) => [
+      for (final k in const ['fonts', 'sprites'])
+        if (m[k] is List)
+          for (final x in m[k] as List)
+            if ('$x'.isNotEmpty &&
+                !'$x'.contains('..') &&
+                RegExp(r'^(fonts|sprites)/[A-Za-z0-9 ._@/-]+$').hasMatch('$x'))
+              '$x'
+    ];
 
 bool insideBbox(List<double> b, double lat, double lon) => lon >= b[0] && lat >= b[1] && lon <= b[2] && lat <= b[3];
 
@@ -117,7 +140,7 @@ class CityMapStyle {
     if (style == null) return null;
     final pack = await offlineFiles();
     if (pack != null && (lat == null || lon == null || insideBbox(pack.bbox, lat, lon))) {
-      style = styleWithOffline(style, baseFile: pack.base, buildingsFile: pack.buildings);
+      style = styleWithOffline(style, baseFile: pack.base, buildingsFile: pack.buildings, assetsDir: pack.assets);
     }
     return jsonEncode(style);
   }
@@ -126,7 +149,7 @@ class CityMapStyle {
   static const _verKey = 'city_map_offline_v';
 
   /// The downloaded Dhaka pack, or null.
-  Future<({String base, String buildings, List<double> bbox})?> offlineFiles() async {
+  Future<({String base, String buildings, List<double> bbox, String assets})?> offlineFiles() async {
     try {
       final v = (await Settings.getString(_verKey)) ?? '';
       if (v.isEmpty) return null;
@@ -134,12 +157,14 @@ class CityMapStyle {
       final b = File('${d.path}/dhaka_base.pmtiles'), g = File('${d.path}/dhaka_buildings.pmtiles');
       if (!await b.exists()) return null;
       List<double> bbox = kDhakaBbox;
+      var assets = '';
       try {
         final m = jsonDecode(await File('${d.path}/manifest.json').readAsString()) as Map;
+        if (m['assets_ok'] == true) assets = '${d.path}/assets';
         final l = (m['bbox'] as List).map((x) => (x as num).toDouble()).toList();
         if (l.length == 4) bbox = l;
       } catch (_) {}
-      return (base: b.path, buildings: await g.exists() ? g.path : '', bbox: bbox);
+      return (base: b.path, buildings: await g.exists() ? g.path : '', bbox: bbox, assets: assets);
     } catch (_) {
       return null;
     }
@@ -203,10 +228,76 @@ class CityMapStyle {
         await part.rename(out.path);
         done += got;
       }
-      await File('${d.path}/manifest.json').writeAsString(jsonEncode(m));
+      final assetsOk = await _downloadAssets(b, d, packAssets(m));
+      await File('${d.path}/manifest.json').writeAsString(jsonEncode({...m, 'assets_ok': assetsOk}));
       await Settings.setString(_verKey, v);
       progress?.call(1);
       return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// gap-city: font ranges + sprites (small files, 6 at a time). Returns
+  /// true only when every one is on the phone (then the style points at
+  /// them); a miss keeps the online glyphs — the tiles still work offline.
+  Future<bool> _downloadAssets(String base, Directory d, List<String> paths) async {
+    if (paths.isEmpty) return false;
+    var ok = true;
+    Future<void> one(String rel) async {
+      final out = File('${d.path}/assets/$rel');
+      if (await out.exists() && await out.length() > 0) return;
+      try {
+        final r = await _http.get(Uri.parse('$base${Uri.encodeFull(rel)}')).timeout(const Duration(seconds: 20));
+        if (r.statusCode != 200) {
+          ok = false;
+          return;
+        }
+        await out.parent.create(recursive: true);
+        await out.writeAsBytes(r.bodyBytes, flush: true);
+      } catch (_) {
+        ok = false;
+      }
+    }
+
+    for (var i = 0; i < paths.length; i += 6) {
+      await Future.wait([for (final p in paths.skip(i).take(6)) one(p)]);
+    }
+    // MapLibre may ask for the font stack name percent-encoded
+    // ("Noto%20Sans%20Regular"): a link with that name finds the same files
+    try {
+      final fonts = Directory('${d.path}/assets/fonts');
+      if (await fonts.exists()) {
+        for (final e in await fonts.list().toList()) {
+          final name = e.path.split('/').last;
+          if (e is! Directory || !name.contains(' ')) continue;
+          final enc = Link('${fonts.path}/${Uri.encodeComponent(name)}');
+          if (!await enc.exists()) await enc.create(e.path);
+        }
+      }
+    } catch (_) {} // best-effort: the plain name is the usual one
+    return ok;
+  }
+
+  /// gap-city: a pack saved by an older build has tiles but no fonts /
+  /// sprites -> fetch them once (online, best-effort). True when done.
+  Future<bool> ensureAssets(ApiClient api) async {
+    try {
+      final v = (await Settings.getString(_verKey)) ?? '';
+      if (v.isEmpty) return false;
+      final d = Directory('${(await _root()).path}/offline_$v');
+      final f = File('${d.path}/manifest.json');
+      final m = (jsonDecode(await f.readAsString()) as Map).cast<String, dynamic>();
+      if (m['assets_ok'] == true) return true;
+      var assets = packAssets(m);
+      if (assets.isEmpty) {
+        final online = await offlineManifest(api);
+        if (online == null) return false;
+        assets = packAssets(online);
+      }
+      final ok = await _downloadAssets(await base(api), d, assets);
+      if (ok) await f.writeAsString(jsonEncode({...m, 'assets_ok': true}));
+      return ok;
     } catch (_) {
       return false;
     }

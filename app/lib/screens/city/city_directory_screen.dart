@@ -11,6 +11,8 @@ import 'package:url_launcher/url_launcher.dart' show LaunchMode;
 import '../../api.dart';
 import '../../city/city_api.dart';
 import '../../city/city_models.dart';
+import '../../city/city_offline.dart' show CityStore;
+import '../../maps/place_search.dart' show PlacePick;
 import '../../city/city_widgets.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/action_feedback.dart' show openForUser;
@@ -25,14 +27,22 @@ class CityDirectoryScreen extends StatefulWidget {
 
   /// 'terminals', 'ghats', 'offices' (contract §5 paths).
   final List<String> kinds;
-  const CityDirectoryScreen({super.key, this.city = 'dhaka', required this.kinds});
+
+  /// gap-city: opened from City Service -> "Go by bus / metro" on each item
+  /// returns it (a PlacePick) to plan the trip there.
+  final bool routeHere;
+
+  /// Offline copy (prod: files on the phone).
+  final CityStore? store;
+  const CityDirectoryScreen(
+      {super.key, this.city = 'dhaka', required this.kinds, this.routeHere = false, this.store});
   @override
   State<CityDirectoryScreen> createState() => _CityDirectoryScreenState();
 }
 
 class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
   final Map<String, List<CityDirItem>> _items = {};
-  bool _loading = true, _failed = false;
+  bool _loading = true, _failed = false, _offline = false;
   final _q = TextEditingController();
 
   bool get _offices => widget.kinds.contains('offices');
@@ -51,21 +61,36 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
 
   Future<void> _load() async {
     final ApiClient api = context.read<AppState>().api;
-    var failed = false;
+    final store = widget.store ?? CityStore.I;
+    var failed = false, offline = false;
     for (final k in widget.kinds) {
+      Map<String, dynamic>? r;
       try {
-        final r = await api.cityDirectory(widget.city, k);
-        _items[k] = [for (final e in (r['items'] as List? ?? const [])) CityDirItem.from(e)];
+        r = await api.cityDirectory(widget.city, k);
+        if (r['items'] is List) await store.rememberDir(widget.city, k, r);
       } catch (_) {
-        failed = true;
+        // gap-city: offline -> the last good copy on this phone
+        r = await store.rememberedDir(widget.city, k);
+        if (r == null) {
+          failed = true;
+        } else {
+          offline = true;
+        }
       }
+      if (r != null) _items[k] = [for (final e in (r['items'] as List? ?? const [])) CityDirItem.from(e)];
     }
     if (mounted) {
       setState(() {
         _failed = failed && _items.values.every((l) => l.isEmpty);
+        _offline = offline;
         _loading = false;
       });
     }
+  }
+
+  Future<void> _retry() async {
+    setState(() => _loading = true);
+    await _load();
   }
 
   bool _match(CityDirItem i, String q) {
@@ -88,8 +113,11 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
       appBar: AppBar(title: Text(_offices ? t.cityOffices : t.cityLongDistance)),
       body: _loading
           ? const SkeletonList()
-          : ListView(
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
               key: ValueKey('city_dir_${widget.kinds.join('_')}'),
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
               children: [
                 TextField(
@@ -102,7 +130,18 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
                       prefixIcon: const Icon(Icons.search_rounded),
                       labelText: _offices ? t.cityOfficesSearch : t.cityLongSearch),
                 ),
-                if (_failed) Text(t.cityLiveFailed),
+                if (_failed)
+                  CityRetryCard(
+                      key: const ValueKey('city_dir_failed'),
+                      buttonKey: const ValueKey('city_dir_retry'),
+                      text: t.cityGLoadFailed,
+                      buttonText: t.cityTryAgain,
+                      onPressed: _retry),
+                if (_offline)
+                  Padding(
+                      padding: const EdgeInsets.only(bottom: Gap.sm),
+                      child: Text(t.cityOfflineShowing,
+                          key: const ValueKey('city_dir_offline'), style: AType.bodySmall)),
                 for (final k in widget.kinds) ...[
                   if (widget.kinds.length > 1) CitySection(_kindTitle(t, k)),
                   if ((_items[k] ?? const []).isEmpty && !_failed)
@@ -112,7 +151,17 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
                     ),
                   for (final i in (_items[k] ?? const <CityDirItem>[]).where((i) => _match(i, q))) _card(t, i),
                 ],
+                // gap-city: a search that matches nothing says so
+                if (q.isNotEmpty &&
+                    _items.values.any((l) => l.isNotEmpty) &&
+                    !_items.values.any((l) => l.any((i) => _match(i, q))))
+                  DsCard(
+                    key: const ValueKey('city_dir_no_match'),
+                    padding: const EdgeInsets.all(Gap.lg),
+                    child: Text(cityD(context, t.cityGNoMatch(q))),
+                  ),
               ],
+            ),
             ),
     );
   }
@@ -159,6 +208,11 @@ class _CityDirectoryScreenState extends State<CityDirectoryScreen> {
             Text(t.cityCheckedOn(cityDate(context, i.checked)), style: AType.bodySmall),
           ],
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            if (widget.routeHere && i.lat != null && i.lon != null)
+              CityRouteHereButton(
+                  key: ValueKey('city_route_here_${i.id}'),
+                  onPressed: () => Navigator.pop<PlacePick>(
+                      context, (name: i.label(bn), address: i.address, lat: i.lat!, lng: i.lon!))),
             if (i.lat != null && i.lon != null)
               FilledButton.tonalIcon(
                 style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),

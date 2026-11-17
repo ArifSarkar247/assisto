@@ -196,6 +196,10 @@ class PlaceSearchBox extends StatefulWidget {
   /// arrival radius: a district is reached anywhere inside it).
   final ValueChanged<Map<String, dynamic>>? onRow;
 
+  /// gap-city: start with this text already searched (City Service voice ask
+  /// hands over a place name our own data did not know).
+  final String initialQuery;
+
   const PlaceSearchBox({
     super.key,
     required this.api,
@@ -214,6 +218,7 @@ class PlaceSearchBox extends StatefulWidget {
     this.onTyped,
     this.suffixIcon,
     this.onRow,
+    this.initialQuery = '',
   });
 
   @override
@@ -245,6 +250,15 @@ class _PlaceSearchBoxState extends State<PlaceSearchBox> {
     unawaited(PlaceRecents.load().then((r) {
       if (mounted) setState(() => _recent = r);
     }));
+    final q = widget.initialQuery.trim();
+    if (q.isNotEmpty) { // gap-city
+      _ctl.text = q;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _changed(q);
+        if (_legacy) unawaited(_legacySearch());
+      });
+    }
   }
 
   @override
@@ -699,7 +713,8 @@ Future<PlacePick?> showPlaceSearchSheet(BuildContext context, ApiClient api,
     List<PlacePick> saved = const [],
     bool currentLocation = true,
     Future<({double lat, double lng})?> Function()? onMap,
-    Key fieldKey = const ValueKey('j2_search_field')}) async {
+    Key fieldKey = const ValueKey('j2_search_field'),
+    String initialQuery = ''}) async {
   final m = mode ?? await placeSearchMode(api);
   final sdk = await MapsSdk.available();
   if (!context.mounted) return null;
@@ -715,7 +730,8 @@ Future<PlacePick?> showPlaceSearchSheet(BuildContext context, ApiClient api,
         saved: saved,
         currentLocation: currentLocation,
         onMap: onMap,
-        fieldKey: fieldKey),
+        fieldKey: fieldKey,
+        initialQuery: initialQuery),
   );
 }
 
@@ -727,6 +743,7 @@ class _PlaceSheet extends StatefulWidget {
   final List<PlacePick> saved;
   final Future<({double lat, double lng})?> Function()? onMap;
   final Key fieldKey;
+  final String initialQuery; // gap-city
   const _PlaceSheet(
       {required this.api,
       required this.mode,
@@ -736,7 +753,8 @@ class _PlaceSheet extends StatefulWidget {
       required this.fieldKey,
       this.lat,
       this.lng,
-      this.onMap});
+      this.onMap,
+      this.initialQuery = ''});
   @override
   State<_PlaceSheet> createState() => _PlaceSheetState();
 }
@@ -768,6 +786,7 @@ class _PlaceSheetState extends State<_PlaceSheet> {
                 saved: widget.saved,
                 onCurrent: widget.currentLocation ? () => placeHereNow(context) : null,
                 onMap: widget.onMap,
+                initialQuery: widget.initialQuery,
                 onPicked: (pick) => setState(() => _picked = pick)),
       ),
     );
