@@ -222,7 +222,7 @@ class CityOptionSummary extends StatelessWidget {
           cityD(
               context,
               [
-                option.changes == 0 ? t.cityNoChange : t.cityChanges('${option.changes}'),
+                option.changes == 0 ? t.cityNoChange : t.cityGChangesN(option.changes),
                 t.cityWalkTotal(cityDistance(context, option.walkM)),
               ].join(' · ')),
           style: AType.bodyMedium.copyWith(color: s.ds.muted)),

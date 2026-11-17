@@ -126,6 +126,8 @@ void main() {
     final en = lookupAppLocalizations(const Locale('en'));
     expect(en.cityGGetOffAtN('Agargaon', 1), 'Get off at: Agargaon (1 stop)');
     expect(en.cityGGetOffAtN('Agargaon', 3), 'Get off at: Agargaon (3 stops)');
+    expect(en.cityGChangesN(1), '1 change');
+    expect(en.cityGChangesN(2), '2 changes');
     expect(lookupAppLocalizations(const Locale('bn')).cityGGetOffAtN('আগারগাঁও', 1), contains('1 স্টপ পরে'));
   });
 

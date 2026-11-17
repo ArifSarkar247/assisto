@@ -125,6 +125,15 @@
           "type": "int"
         }
       }
+    },
+    "cityGChangesN": "{n, plural, =1{1 change} other{{n} changes}}",
+    "@cityGChangesN": {
+      "description": "gap-city: replaces cityChanges (fixes '1 change(s)')",
+      "placeholders": {
+        "n": {
+          "type": "int"
+        }
+      }
     }
   },
   "bn": {
@@ -144,6 +153,7 @@
     "cityGAtAfternoon": "বিকাল {time}",
     "cityGAtEvening": "সন্ধ্যা {time}",
     "cityGAtNight": "রাত {time}",
-    "cityGGetOffAtN": "নামবেন: {stop} ({n, plural, other{{n} স্টপ পরে}})"
+    "cityGGetOffAtN": "নামবেন: {stop} ({n, plural, other{{n} স্টপ পরে}})",
+    "cityGChangesN": "{n, plural, other{{n} বার বদল}}"
   }
 }
