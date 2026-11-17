@@ -1400,6 +1400,8 @@ Map<String, GallerySpec> gallerySpecs() {
     'cmn_consent_money': (build: (_) => const NotifConsentScreen(feature: 'money'), mode: FakeMode.data, full: true),
     'cmn_consent_call': (build: (_) => const NotifConsentScreen(feature: 'call'), mode: FakeMode.data, full: true),
     'cmn_review': (build: (_) { SharedPreferences.setMockInitialValues({'cm_consent_money_v1': 'x', 'cm_money_on': true}); NotifListenChannel.instance = FakeNotifBridge(queue: fakeMoneyQueue()); return const MoneyNotifReviewScreen(focusId: 1); }, mode: FakeMode.data, full: true),
+    // gap-callmoney: SMS + app of one payment = one card; unclear amount -> type it
+    'cmn_review_gaps': (build: (_) { SharedPreferences.setMockInitialValues({'cm_consent_money_v1': 'x', 'cm_money_on': true}); NotifListenChannel.instance = FakeNotifBridge(queue: fakeMoneyQueueGaps()); return const MoneyNotifReviewScreen(focusId: 11); }, mode: FakeMode.data, full: true),
     'cmn_review_empty': (build: (_) { SharedPreferences.setMockInitialValues({}); NotifListenChannel.instance = FakeNotifBridge(); return const MoneyNotifReviewScreen(); }, mode: FakeMode.empty, full: true),
     'cmn_callnote': (build: (_) => const Scaffold(body: CallNoteSheet(launch: NotifLaunch(kind: 'callnote', mode: 'type', source: 'sim'), offline: true)), mode: FakeMode.data, full: true),
     'shop_cameras': (build: (_) => const ShopBoxScreen(initialTab: 1), mode: FakeMode.data, full: true),

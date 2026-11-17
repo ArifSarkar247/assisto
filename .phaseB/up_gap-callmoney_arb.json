@@ -1,0 +1,26 @@
+{
+ "en": {
+  "clnTypeAmount": "Amount (taka)",
+  "@clnTypeAmount": {
+   "description": "gap-callmoney: label of the field where the user types the amount of an unclear wallet/bank message"
+  },
+  "clnUnclearAmount": "Couldn't read the amount — please type it and choose income or expense.",
+  "@clnUnclearAmount": {
+   "description": "gap-callmoney: a wallet/bank message whose amount could not be read"
+  },
+  "clnTypeName": "Type a name",
+  "@clnTypeName": {
+   "description": "gap-callmoney: after-call due entry, type the person's name when they are not in My Circle"
+  },
+  "clnNameHint": "e.g. Rahim (customer)",
+  "@clnNameHint": {
+   "description": "gap-callmoney: hint in the type-a-name field"
+  }
+ },
+ "bn": {
+  "clnTypeAmount": "টাকার পরিমাণ",
+  "clnUnclearAmount": "টাকার পরিমাণ পড়া যায়নি — লিখে দিন, তারপর আয় না খরচ বেছে নিন।",
+  "clnTypeName": "নাম লিখুন",
+  "clnNameHint": "যেমন: রহিম (কাস্টমার)"
+ }
+}

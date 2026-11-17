@@ -12,6 +12,7 @@ import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/local_counter.dart';
 import '../widgets/money_digits.dart';
+import '../widgets/num_input.dart';
 import '../widgets/rn_bits.dart' show pickCircleMember;
 import '../widgets/voice_input.dart';
 import 'callnote_drafts.dart';
@@ -423,7 +424,22 @@ class _Row {
   final MoneyNotif p;
   String? kind; // the user's choice; preselected from the parse
   bool dup;
+  /// gap-callmoney: an unclear message (no amount found) is no dead end any
+  /// more — the user types the amount (strict parser, Bangla digits too).
+  final amountCtl = TextEditingController();
   _Row(this.q, this.p, this.dup) : kind = p.type;
+
+  num? get amount {
+    if (p.amount != null) return p.amount;
+    final v = parseNumInput(amountCtl.text);
+    return v != null && v > 0 && v <= 10000000 ? v : null;
+  }
+
+  /// What gets saved: the parse, or (unclear message) the typed amount with
+  /// the post time — still parsed fields only, never the message text.
+  MoneyNotif get toSave => p.amount != null
+      ? p
+      : MoneyNotif(ok: true, wallet: p.wallet, type: kind, amount: amount, date: q.at);
 }
 
 class MoneyNotifReviewScreen extends StatefulWidget {
@@ -446,6 +462,14 @@ class _MoneyNotifReviewScreenState extends State<MoneyNotifReviewScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    for (final r in _rows ?? const <_Row>[]) {
+      r.amountCtl.dispose();
+    }
+    super.dispose();
+  }
+
   Future<void> _load() async {
     final app = context.read<AppState>();
     final s = await NotifListenService.load();
@@ -457,7 +481,15 @@ class _MoneyNotifReviewScreenState extends State<MoneyNotifReviewScreen> {
         drop.add(q.id); // not a transaction: never shown, never saved
         continue;
       }
-      final r = _Row(q, p, p.ok && await NotifListenService.isDuplicate(app, p));
+      // gap-callmoney: the SMS and the wallet-app notification of ONE payment
+      // (same TrxID) show as ONE card; same amount + minute without a TrxID is
+      // only flagged (two real payments can look alike).
+      final twin = p.ok ? rows.where((x) => x.p.ok && x.p.dedupeKey == p.dedupeKey).firstOrNull : null;
+      if (twin != null && (p.trxId ?? '').isNotEmpty) {
+        drop.add(q.id);
+        continue;
+      }
+      final r = _Row(q, p, twin != null || (p.ok && await NotifListenService.isDuplicate(app, p)));
       if (q.id == widget.focusId && widget.presetKind != null) r.kind = widget.presetKind;
       rows.add(r);
     }
@@ -477,10 +509,16 @@ class _MoneyNotifReviewScreenState extends State<MoneyNotifReviewScreen> {
     if (kind == null) return;
     setState(() => _busy.add(r.q.id));
     try {
-      final ok = await NotifListenService.saveConfirmed(app, t, r.p, kind, queueId: r.q.id);
+      final ok = await NotifListenService.saveConfirmed(app, t, r.toSave, kind, queueId: r.q.id);
       if (!mounted) return;
       if (ok) {
-        setState(() => _rows!.remove(r));
+        setState(() {
+          _rows!.remove(r);
+          // anything still listed that is the same payment is now a duplicate
+          for (final o in _rows!) {
+            if (o.p.ok && r.p.ok && o.p.dedupeKey == r.p.dedupeKey) o.dup = true;
+          }
+        });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.clnSaved)));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.clnSaveOffline)));
@@ -574,7 +612,24 @@ class _MoneyNotifReviewScreenState extends State<MoneyNotifReviewScreen> {
               style: Theme.of(context).textTheme.bodySmall),
           if (!p.ok) ...[
             const SizedBox(height: Gap.xs),
-            Text(t.clnUnclear, style: TextStyle(color: Brand.warnInk(context))),
+            Text(p.amount == null ? t.clnUnclearAmount : t.clnUnclear,
+                style: TextStyle(color: Brand.warnInk(context))),
+          ],
+          if (p.amount == null) ...[
+            const SizedBox(height: Gap.sm),
+            TextField(
+              key: ValueKey('cmn_amt_${r.q.id}'),
+              controller: r.amountCtl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              maxLength: 12,
+              buildCounter: localCounter,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: t.clnTypeAmount,
+                prefixText: '\u09F3 ',
+                border: const OutlineInputBorder(),
+              ),
+            ),
           ],
           if (r.dup) ...[
             const SizedBox(height: Gap.xs),
@@ -589,14 +644,14 @@ class _MoneyNotifReviewScreenState extends State<MoneyNotifReviewScreen> {
               avatar: Icon(Icons.south_west_rounded, color: tk.success, size: 18),
               label: Text(t.clnIncome),
               selected: r.kind == 'income',
-              onSelected: p.amount == null ? null : (_) => setState(() => r.kind = 'income'),
+              onSelected: (_) => setState(() => r.kind = 'income'),
             ),
             ChoiceChip(
               key: ValueKey('cmn_exp_${r.q.id}'),
               avatar: Icon(Icons.north_east_rounded, color: tk.warning, size: 18),
               label: Text(t.clnExpense),
               selected: r.kind == 'expense',
-              onSelected: p.amount == null ? null : (_) => setState(() => r.kind = 'expense'),
+              onSelected: (_) => setState(() => r.kind = 'expense'),
             ),
           ]),
           const SizedBox(height: Gap.sm),
@@ -605,7 +660,7 @@ class _MoneyNotifReviewScreenState extends State<MoneyNotifReviewScreen> {
               child: FilledButton(
                 key: ValueKey('cmn_save_${r.q.id}'),
                 style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                onPressed: busy || r.kind == null || p.amount == null ? null : () => _save(r),
+                onPressed: busy || r.kind == null || r.amount == null ? null : () => _save(r),
                 child: Text(t.clnSaveToKhata),
               ),
             ),
@@ -760,6 +815,39 @@ class _CallNoteSheetState extends State<CallNoteSheet> {
     });
   }
 
+  Future<void> _typeName(CallNoteDraft d) async {
+    final t = AppLocalizations.of(context);
+    final ml = MaterialLocalizations.of(context);
+    final ctl = TextEditingController(text: d.person ?? '');
+    final name = await showDialog<String>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: Text(t.clnTypeName),
+        content: TextField(
+          key: const ValueKey('cmn_name_field'),
+          controller: ctl,
+          autofocus: true,
+          maxLength: 60,
+          buildCounter: localCounter,
+          textCapitalization: TextCapitalization.words,
+          decoration: InputDecoration(hintText: t.clnNameHint),
+          onSubmitted: (v) => Navigator.pop(c, v),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: Text(ml.cancelButtonLabel)),
+          FilledButton(
+              key: const ValueKey('cmn_name_ok'),
+              onPressed: () => Navigator.pop(c, ctl.text),
+              child: Text(ml.okButtonLabel)),
+        ],
+      ),
+    );
+    // ctl is not disposed here: the dialog's exit animation still reads it
+    // for a few frames (a dispose now throws); it is garbage-collected.
+    final n = (name ?? '').trim();
+    if (n.isNotEmpty && mounted) setState(() => d.person = n);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -901,6 +989,15 @@ class _CallNoteSheetState extends State<CallNoteSheet> {
                     },
               icon: const Icon(Icons.diversity_1_rounded),
               label: Text((d.person ?? '').isEmpty ? t.clnPickPerson : d.person!),
+            ),
+            // gap-callmoney: a customer / shopkeeper is often NOT in My Circle —
+            // typing the name is always possible (no dead end).
+            TextButton.icon(
+              key: ValueKey('cmn_draft_person_type_$i'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: saved || skipped ? null : () => _typeName(d),
+              icon: const Icon(Icons.edit_rounded),
+              label: Text(t.clnTypeName),
             ),
           ],
           const SizedBox(height: Gap.sm),
