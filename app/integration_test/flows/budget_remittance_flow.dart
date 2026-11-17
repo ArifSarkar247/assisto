@@ -36,6 +36,7 @@ void registerBudgetRemittanceFlows() {
       await f.waitFor(find.text(f.t.rmtUnderstoodCheck), what: 'understood banner');
       await f.shot('form-filled');
       final save = find.byKey(const ValueKey('rmt_save'));
+      await _scrollDownTo(f, save, 'Save on the entry form'); // lazy list (run 44049525968)
       await f.tester.ensureVisible(save);
       await f.tap(save, settleSeconds: 3);
       await f.shot('saved');

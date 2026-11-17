@@ -54,7 +54,6 @@ void registerDocsVoiceSettingsFlows() {
     // demo user A only). Turn it on, keep the recovery code, then the next
     // document is sealed ON THE PHONE: the server row has no plain title.
     await f.step('turn on the end-to-end lock (warning, PIN, recovery code)', () async {
-      final mark = f.httpMark;
       final card = find.byKey(const Key('vault_e2e_card'));
       await f.waitFor(card, what: 'the end-to-end lock card (flag vault_e2e)');
       await f.tap(card, settleSeconds: 3);
@@ -72,7 +71,8 @@ void registerDocsVoiceSettingsFlows() {
       await f.waitFor(find.byKey(const Key('vault_rc_value')), seconds: 90, what: 'the one-time recovery code');
       await f.shot('recovery-code');
       await f.tap(find.widgetWithText(FilledButton, f.t.vaultRecoveryCodeSaved), settleSeconds: 3);
-      f.expectHttp('PUT', '/vault/e2e/recovery', since: mark);
+      // the e2e calls go through VaultE2EBackend's own http client (not the
+      // recorded app client), so the SERVER state below is the proof
       final api = await f.h.backend();
       await f.eventually('the server holds only the sealed recovery wrap', () async {
         final st = await api.getJson('/vault/e2e/state');

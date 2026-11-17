@@ -170,7 +170,9 @@ void registerFlagproofFlows() {
           of: find.descendant(of: picker, matching: find.byType(Wrap)), matching: find.byType(ChoiceChip));
       await f.waitFor(times, seconds: 15, what: 'free times');
       await f.tap(times.first, settleSeconds: 1);
+      // run 44049525968: the Confirm button sits below 28 time chips in a lazy list
       final confirm = find.widgetWithText(FilledButton, f.t.bkgConfirmBooking);
+      await _scrollDownTo(f, confirm, 'Confirm booking');
       await f.tester.ensureVisible(confirm);
       await f.shot('picked');
       await f.tap(confirm, settleSeconds: 4);
@@ -252,7 +254,10 @@ void registerFlagproofFlows() {
     int? rid;
     await f.step('A: urgent request (A+, Dhaka) from the Blood donor hub', () async {
       await f.openFeature(f.t.hv2TileBloodDonor, 'blood_panel');
-      await f.tap(find.byKey(const ValueKey('bp-request-fab')), settleSeconds: 3);
+      // the hub's own "Send request" button (the bottom bar one shows on other tabs)
+      final hero = find.byKey(const ValueKey('bp-hero-request'));
+      await f.tap(hero.evaluate().isNotEmpty ? hero : find.byKey(const ValueKey('bp-request-fab')),
+          settleSeconds: 3);
       await f.tap(find.byKey(const ValueKey('bp-req-g-A+')), settleSeconds: 1);
       await f.tester.enterText(find.byKey(const ValueKey('bp-req-hospital')), hospital);
       await f.tap(find.byKey(const ValueKey('bp-req-district')), settleSeconds: 2);
@@ -362,7 +367,9 @@ void registerFlagproofFlows() {
       await f.eventually('D sees "safe" (no location shared)', () async {
         final r = await d.getJson('/missing-alerts/$aboutA');
         final a = r['alert'] as Map;
-        return a['safe_said'] == true && a['state'] == 'safe' && !'$a'.contains('lat');
+        // no location in what the family sees (run 44049525968: a '$a'.contains('lat')
+        // check matched the word "relation")
+        return a['safe_said'] == true && a['state'] == 'safe' && a['lat'] == null && a['lng'] == null;
       });
       await f.shot('safe-said');
     });
