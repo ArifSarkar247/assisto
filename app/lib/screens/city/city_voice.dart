@@ -10,7 +10,7 @@ import '../../api.dart';
 import '../../city/city_api.dart';
 import '../../city/city_widgets.dart';
 import '../../l10n/app_localizations.dart';
-import '../../maps/place_search.dart' show PlacePick;
+import '../../maps/place_search.dart' show PlacePick, showPlaceSearchSheet;
 import '../../theme.dart';
 import '../../widgets/app_sheet.dart' show showAppSheet;
 import '../../widgets/local_counter.dart';
@@ -25,14 +25,14 @@ typedef CityAsk = ({PlacePick? from, PlacePick to});
   if (s.isEmpty) return null;
   // drop the question tail
   final tail = RegExp(
-              r'\s*(which bus|what bus|by bus|how (do i|to) go|how to get( there)?|\u0995\u09CB\u09A8 \u09AC\u09BE\u09B8\u09C7?|\u0995\u09BF \u09AD\u09BE\u09AC\u09C7|\u0995\u09C0\u09AD\u09BE\u09AC\u09C7|\u0995\u09BF\u09AD\u09BE\u09AC\u09C7|\u0995\u09C7\u09AE\u09A8\u09C7|\u09AF\u09BE\u09AC|\u09AF\u09BE\u09AC\u09CB|\u09AF\u09BE\u0993\u09AF\u09BC\u09BE \u09AF\u09BE\u09AF\u09BC|\u09AF\u09BE\u0993\u09AF\u09BC\u09BE\u09B0 \u0989\u09AA\u09BE\u09AF\u09BC|\u09AF\u09C7\u09A4\u09C7 \u099A\u09BE\u0987)\s*$',
+              r'\s*(which bus|what bus|by bus|how (do i|to) go|how to get( there)?|\u0995\u09CB\u09A8 \u09AC\u09BE\u09B8\u09C7?|\u0995\u09BF \u09AD\u09BE\u09AC\u09C7|\u0995\u09C0\u09AD\u09BE\u09AC\u09C7|\u0995\u09BF\u09AD\u09BE\u09AC\u09C7|\u0995\u09C7\u09AE\u09A8\u09C7|\u09AF\u09BE\u09AC|\u09AF\u09BE\u09AC\u09CB|\u09AF\u09BE\u0993\u09AF\u09BC\u09BE \u09AF\u09BE\u09AF\u09BC|\u09AF\u09BE\u0993\u09AF\u09BC\u09BE\u09B0 \u0989\u09AA\u09BE\u09AF\u09BC|\u09AF\u09C7\u09A4\u09C7 \u099A\u09BE\u0987|kon bus(e)?|ki bhabe|kibhabe|kivabe|ki vabe|kemne|kemone|jabo|jaabo|jaite chai|jete chai|jawa jay|jaoa jay|jabar upay|jawar upay)\s*$',
       caseSensitive: false);
   for (var i = 0; i < 4; i++) {
     final n = s.replaceAll(tail, '').trim();
     if (n == s) break;
     s = n;
   }
-  bool isHere(String x) => RegExp(r'^(here|my location|current location|\u098F\u0996\u09BE\u09A8|\u098F\u0996\u09BE\u09A8\u09C7|\u098F\u0996\u09BE\u09A8 \u09A5\u09C7\u0995\u09C7|\u0986\u09AE\u09BE\u09B0 \u0985\u09AC\u09B8\u09CD\u09A5\u09BE\u09A8)$',
+  bool isHere(String x) => RegExp(r'^(here|my location|current location|ekhan|ekhane|ekhan theke|amar location|\u098F\u0996\u09BE\u09A8|\u098F\u0996\u09BE\u09A8\u09C7|\u098F\u0996\u09BE\u09A8 \u09A5\u09C7\u0995\u09C7|\u0986\u09AE\u09BE\u09B0 \u0985\u09AC\u09B8\u09CD\u09A5\u09BE\u09A8)$',
           caseSensitive: false)
       .hasMatch(x.trim());
   final en = RegExp(r'^(?:go\s+)?from\s+(.+?)\s+to\s+(.+)$', caseSensitive: false).firstMatch(s);
@@ -42,7 +42,10 @@ typedef CityAsk = ({PlacePick? from, PlacePick to});
   }
   final en2 = RegExp(r'^(?:go\s+|going\s+)?to\s+(.+)$', caseSensitive: false).firstMatch(s);
   if (en2 != null) return (from: null, to: en2.group(1)!.trim());
-  final bn = RegExp(r'^(.+?)\s*(?:\u09A5\u09C7\u0995\u09C7|\u09B9\u09A4\u09C7)\s+(.+?)(?:\s+\u09AA\u09B0\u09CD\u09AF\u09A8\u09CD\u09A4)?$').firstMatch(s);
+  final bn = RegExp(r'^(.+?)\s*(?:\u09A5\u09C7\u0995\u09C7|\u09B9\u09A4\u09C7)\s+(.+?)(?:\s+\u09AA\u09B0\u09CD\u09AF\u09A8\u09CD\u09A4)?$').firstMatch(s) ??
+      // gap-city: romanized Bangla ("Farmgate theke Motijheel jabo")
+      RegExp(r'^(.+?)\s+(?:theke|thekey|hote|hoite)\s+(.+?)(?:\s+(?:porjonto|porjnto))?$', caseSensitive: false)
+          .firstMatch(s);
   if (bn != null) {
     final f = bn.group(1)!.trim(), t = bn.group(2)!.trim();
     return (from: isHere(f) ? null : f, to: t);
@@ -74,6 +77,11 @@ class _VoiceSheetState extends State<_VoiceSheet> {
   String? _msg;
   List<Map<String, dynamic>> _routes = const [];
 
+  /// gap-city: names our city data did not know -> the place the user picked
+  /// in the full place search (same search as Safe Journey).
+  final Map<String, PlacePick> _picked = {};
+  String? _missing;
+
   @override
   void dispose() {
     _voice.dispose();
@@ -82,6 +90,8 @@ class _VoiceSheetState extends State<_VoiceSheet> {
   }
 
   Future<PlacePick?> _find(String name) async {
+    final had = _picked[name];
+    if (had != null) return had;
     final r = await widget.api.citySearch(widget.city, name);
     for (final s in (r['stops'] as List? ?? const [])) {
       if (s is Map && s['lat'] is num && s['lon'] is num) {
@@ -106,6 +116,7 @@ class _VoiceSheetState extends State<_VoiceSheet> {
     setState(() {
       _busy = true;
       _msg = null;
+      _missing = null;
       _routes = const [];
     });
     try {
@@ -113,7 +124,12 @@ class _VoiceSheetState extends State<_VoiceSheet> {
       if (q.from != null) {
         from = await _find(q.from!);
         if (from == null) {
-          if (mounted) setState(() => _msg = t.cityVoiceNotFound(q.from!));
+          if (mounted) {
+            setState(() {
+              _msg = t.cityVoiceNotFound(q.from!);
+              _missing = q.from;
+            });
+          }
           return;
         }
       } else if (widget.here == null) {
@@ -123,7 +139,10 @@ class _VoiceSheetState extends State<_VoiceSheet> {
       final to = await _find(q.to);
       if (!mounted) return;
       if (to == null) {
-        setState(() => _msg = _routes.isNotEmpty ? t.cityVoiceRoutesFound : t.cityVoiceNotFound(q.to));
+        setState(() {
+          _msg = _routes.isNotEmpty ? t.cityVoiceRoutesFound : t.cityVoiceNotFound(q.to);
+          _missing = q.to;
+        });
         return;
       }
       Navigator.pop<CityAsk>(context, (from: from, to: to));
@@ -132,6 +151,16 @@ class _VoiceSheetState extends State<_VoiceSheet> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _searchAll(String name) async {
+    final h = widget.here;
+    final p = await showPlaceSearchSheet(context, widget.api,
+        lat: h?.lat, lng: h?.lon, currentLocation: false, initialQuery: name,
+        fieldKey: const ValueKey('city_voice_place_field'));
+    if (p == null || !mounted) return;
+    _picked[name] = p;
+    await _ask();
   }
 
   @override
@@ -171,6 +200,17 @@ class _VoiceSheetState extends State<_VoiceSheet> {
             ),
           ),
           if (_msg != null) ...[const SizedBox(height: Gap.sm), Text(cityD(context, _msg!))],
+          if (_missing != null && !_busy)
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.xs),
+              child: OutlinedButton.icon(
+                key: const ValueKey('city_voice_search_all'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: () => _searchAll(_missing!),
+                icon: const Icon(Icons.travel_explore_rounded),
+                label: Text(t.cityGSearchAll(_missing!)),
+              ),
+            ),
           for (final r in _routes.take(6))
             ListTile(
               contentPadding: EdgeInsets.zero,
