@@ -67,12 +67,17 @@ class MessOutbox {
   static Future<String> write(ApiClient api, int messId, String path,
       Map<String, dynamic> body) async {
     final b = {...body, 'client_id': body['client_id'] ?? newClientId()};
+    // gap-money: when the user pressed Save — sent with a QUEUED write so a
+    // meal change made offline before the cut-off still counts when it syncs
+    // later (the server checks it: before the cut-off, at most 24 h late).
+    final savedAt = DateTime.now().toUtc().toIso8601String();
     try {
       await api.messWrite(path, b).timeout(requestTimeout);
       return 'sent';
     } catch (e) {
       if (!isTransient(e)) rethrow;
-      await _mutate((ops) => ops.add({'mess': messId, 'path': path, 'body': b}));
+      await _mutate((ops) => ops.add(
+          {'mess': messId, 'path': path, 'body': {...b, 'saved_at': savedAt}}));
       return 'queued';
     }
   }

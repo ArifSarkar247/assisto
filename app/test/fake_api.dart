@@ -888,11 +888,13 @@ class FakeApi extends ApiClient {
       return {'net_worth': '0', 'assets': '0', 'receivable': '0', 'liabilities': '0', 'series': []};
     }
     return {
-      'net_worth': '23000', 'assets': '20800', 'receivable': '2000', 'liabilities': '5000',
+      // gap-money: consistent like the server — hero = assets + receivable
+      // − liabilities (20800 + 2000 − 5000), and the last point is today's
+      'net_worth': '17800', 'assets': '20800', 'receivable': '2000', 'liabilities': '5000',
       'series': [
-        {'month': '2026-08', 'net_worth': '18000', 'delta': '0'},
-        {'month': '2026-09', 'net_worth': '20500', 'delta': '2500'},
-        {'month': '2026-10', 'net_worth': '23000', 'delta': '2500'},
+        {'month': '2026-08', 'net_worth': '13300', 'delta': '0'},
+        {'month': '2026-09', 'net_worth': '15550', 'delta': '2250'},
+        {'month': '2026-10', 'net_worth': '17800', 'delta': '2250'},
       ],
     };
   }
