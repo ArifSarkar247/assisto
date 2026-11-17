@@ -60,7 +60,41 @@ def segment_index():
     return _segments()[1]
 
 
+# OSM gaps: a segment whose OSM line is far longer than the straight line
+# between its two stations follows a detour (e.g. Pabna-Tebunia: 24 km of OSM
+# line for 8 km between the stations — the track there is missing in OSM).
+# Such a segment is drawn as the straight chord and riders there are matched
+# with a wide tolerance (by progress between the two stations).
+LOWQ_SEGMENTS = {("pabna", "tebunia")}     # confirmed by the data lane
+LOWQ_RATIO = 2.5
+LOWQ_EXTRA_KM = 8.0
+
+
+def _len_m(path):
+    return sum(haversine_m(a[0], a[1], b[0], b[1]) for a, b in zip(path, path[1:]))
+
+
+@lru_cache(maxsize=4096)
+def segment_low_quality(a, b):
+    """True when the OSM line between stations a and b is not trustworthy."""
+    if (a, b) in LOWQ_SEGMENTS or (b, a) in LOWQ_SEGMENTS:
+        return True
+    by, _ = _segments()
+    seg = by.get((a, b)) or by.get((b, a))
+    st = stations()
+    sa, sb = st.get(a) or {}, st.get(b) or {}
+    if not seg or sa.get("lat") is None or sb.get("lat") is None:
+        return False
+    chord = haversine_m(sa["lat"], sa["lng"], sb["lat"], sb["lng"])
+    length = _len_m(seg)
+    return chord > 0 and length / chord >= LOWQ_RATIO and \
+        (length - chord) / 1000.0 >= LOWQ_EXTRA_KM
+
+
 def segment_path(a, b):
+    if segment_low_quality(a, b):
+        st = stations()
+        return [[st[a]["lat"], st[a]["lng"]], [st[b]["lat"], st[b]["lng"]]]
     by, _ = _segments()
     if (a, b) in by:
         return by[(a, b)]
@@ -101,24 +135,35 @@ def _build(t):
         stops.append({"st": s["station"], "km": float(s.get("km") or 0.0), "ch": None,
                       "arr": s.get("arr"), "dep": s.get("dep"),
                       "arr_day": ad, "dep_day": dd, "src": s.get("src", "official")})
-    path, ch = [], 0.0
+    path, ch, lowq = [], 0.0, []
     if stops:
         stops[0]["ch"] = 0.0
     for a, b in zip(stops, stops[1:]):
         seg = segment_path(a["st"], b["st"])
+        if segment_low_quality(a["st"], b["st"]):
+            lowq.append([a["ch"], None])
         seg = seg[1:] if path and seg else seg
         for p in seg:
             if path:
                 ch += haversine_m(path[-1][0], path[-1][1], p[0], p[1])
             path.append(p)
         b["ch"] = ch            # metres along THIS path (the engine's chainage)
+        if lowq and lowq[-1][1] is None:
+            lowq[-1][1] = ch
     first = next((s for s in stops if s["dep"]), stops[0])
     last = next((s for s in reversed(stops) if s["arr"]), stops[-1])
     return {"no": t["no"], "name_bn": t.get("name_bn", ""), "name_en": t.get("name_en", ""),
             "status": t.get("status", "running"), "off_days": t.get("off_days") or [],
             "kind": t.get("kind", ""), "dep": first["dep"], "arr": last["arr"] or last["dep"],
             "arr_day": last["arr_day"] if last["arr"] else last["dep_day"],
-            "stops": stops, "path": path, "km": stops[-1]["km"] if stops else 0.0}
+            "stops": stops, "path": path, "km": stops[-1]["km"] if stops else 0.0,
+            "lowq": [tuple(r) for r in lowq]}
+
+
+def official_time(t, code):
+    """True when the official timetable lists a time for this halt (else any
+    time shown for it is an estimate between known halts)."""
+    return any(s["st"] == code and (s.get("arr") or s.get("dep")) for s in t.get("stops") or [])
 
 
 @lru_cache(maxsize=1)
@@ -233,6 +278,7 @@ def _geo_train(t):
             "from": stops[0]["st"], "to": stops[-1]["st"], "dep": t["dep"], "arr": t["arr"],
             "arr_day": t.get("arr_day") or 0, "off_days": t["off_days"], "stops": stops,
             "path": t["path"], "km": round(stops[-1]["km"], 1), "approved": False,
+            "lowq": t.get("lowq") or [],
             "status": t["status"], "kind": t["kind"], "source": raw.get("source") or {}}
 
 

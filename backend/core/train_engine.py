@@ -392,7 +392,7 @@ def ingest(trip, points, now=None):
         if kf is not None:
             hint = kf.x + kf.v * max(0.0, p["at"] - (kf.t or p["at"]))
         seg = _seg_max(t, trip.service_date, hint if hint is not None else 0.0)
-        ok, why, ch, _off = L.check_point(p, rt, last, seg, hint)
+        ok, why, ch, _off = L.check_point(p, rt, last, seg, hint, t.get("lowq"))
         if ok:
             res["accepted"] += 1
             kf = L.step(kf, p["at"], ch, p["acc"], p["speed"])
@@ -561,6 +561,8 @@ def record_passing(t, d, sid, at, source, kind="reached", confidence=0.5):
     delay = int(round((at - sched).total_seconds() / 60.0))
     if not (-60 <= delay <= 900):
         return None
+    if not SRC.official_time(t, sid):
+        delay = None          # no official time here: keep the passing, never invent a delay
     tr = RailTrain.objects.filter(number=t["no"]).only("id").first()
     st = RailStation.objects.filter(code=sid).only("id").first()
     if tr is None or st is None:
@@ -654,8 +656,8 @@ def predicted(t, d, now=None):
                       "km": nxt[0]["km"], "eta": nxt[2].isoformat(),
                       "sched": sched[nxt[0]["id"]].isoformat(), "delay_min": nxt[1]}
                      if nxt else None),
-            "etas": [[s["id"], at.astimezone(TG.DHAKA).isoformat()[11:16], dl]
-                     for s, dl, at in rows if s["ch"] > x + 1],
+            "etas": [[s["id"], at.astimezone(TG.DHAKA).isoformat()[11:16], dl,
+                      int(SRC.official_time(t, s["id"]))] for s, dl, at in rows if s["ch"] > x + 1],
             "delay_min": nxt[1] if nxt else rows[-1][1],
             "confidence": round(L.PREDICT_CONF * (0.5 + 0.5 * cover), 2), "contributors": 0,
             "shift": {s["id"]: dl for s, dl, _ in rows},
@@ -903,13 +905,16 @@ def recompute(t, d, now=None):
                     record_passing(t, d, s["id"], now, "gps", "reached", conf)
             continue
         eta = (now + timedelta(minutes=L.eta_minutes((m - x) / 1000.0, spd))).astimezone(TG.DHAKA)
-        delay = int(round((eta - sched[s["id"]]).total_seconds() / 60.0))
+        official = SRC.official_time(t, s["id"])
+        # delay only against an OFFICIAL time — never against a time we placed
+        delay = int(round((eta - sched[s["id"]]).total_seconds() / 60.0)) if official else None
         etas.append({"id": s["id"], "eta": eta.isoformat(), "sched": sched[s["id"]].isoformat(),
-                     "delay_min": delay})
+                     "delay_min": delay, "official": official})
         if next_s is None:
             next_s = s
     lat, lng = rt.point_at(x)
-    delay = etas[0]["delay_min"] if etas else (
+    delay = next((e["delay_min"] for e in etas if e["delay_min"] is not None), None) \
+        if etas else (
         int(round((now - sched[ss[-1]["id"]]).total_seconds() / 60.0))
         if ss and sched.get(ss[-1]["id"]) else None)
 
@@ -955,7 +960,9 @@ def read(t, d, now=None):
                 "km": st["km"], "ch": st.get("ch"), "lat": st["lat"], "lng": st["lng"],
                 "speed_kmh": st["speed_kmh"], "avg_kmh": st["avg_kmh"],
                 "last": st["last"], "next": st["next"],
-                "etas": [[e["id"], e["eta"][11:16], e["delay_min"]] for e in st["etas"]],
+                # [station, ETA HH:MM, delay vs official time | null, 1 = official time]
+                "etas": [[e["id"], e["eta"][11:16], e["delay_min"], int(e.get("official", 1))]
+                         for e in st["etas"]],
                 "delay_min": st["delay_min"], "confidence": st["confidence"],
                 "contributors": st["contributors"],
                 "actual": {k: (st["passed"].get(k) or (acts.get(k) or [None])[0])
@@ -991,8 +998,8 @@ def timetable_payload(t, d, now):
             "lng": round(lng, 5) if lng is not None else None, "speed_kmh": None,
             "next": ({"id": nxt["id"], "bn": nxt["bn"], "en": nxt["en"], "km": nxt["km"],
                       "eta": sched[nxt["id"]].isoformat()} if nxt else None),
-            "etas": [[s["id"], sched[s["id"]].isoformat()[11:16], None] for s in ss
-                     if s["ch"] > ch + 1],
+            "etas": [[s["id"], sched[s["id"]].isoformat()[11:16], None,
+                      int(SRC.official_time(t, s["id"]))] for s in ss if s["ch"] > ch + 1],
             "delay_min": None, "confidence": 0.1, "contributors": 0}
 
 

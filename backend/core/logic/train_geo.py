@@ -53,6 +53,7 @@ AHEAD_SLACK_M = 2000.0
 OUTLIER_M = 2000.0
 FRESH_S = 180                 # a sharer's fix counts for live this long
 ARRIVE_M = 800.0              # within this of the end of the route = arrived
+LOWQ_TOL_M = 2500.0           # flagged OSM gap: matched by progress (train_source)
 _CELL = 0.02                  # grid cell (degrees) for the network index
 
 
@@ -290,10 +291,12 @@ def validate_fix(t, service_date, fix, prev=None, net=None):
         return False, "bad_accuracy", None, None
     tol = ON_LINE_M + min(max(acc, 0.0), 150.0)
     net = net or network()
-    if net.distance_m(lat, lng) > tol:
-        return False, "off_line", None, None
     ch, off = rt.project(lat, lng)
-    if off > tol + ROUTE_SLACK_M:
+    # train-engine: a flagged OSM gap (straight chord) is matched by progress
+    lowq = any(a <= ch <= b for a, b in t.get("lowq") or ()) and off <= LOWQ_TOL_M
+    if not lowq and net.distance_m(lat, lng) > tol:
+        return False, "off_line", None, None
+    if not lowq and off > tol + ROUTE_SLACK_M:
         return False, "off_route", ch, off
     at = fix["at"]
     dep, arr = times(t, service_date)
@@ -425,6 +428,8 @@ def line_view(t, service_date, chainage, now, delay_min=None):
     out, now_i, next_i = [], None, None
     for i, r in enumerate(rows):
         m = float(r["km"]) * 1000.0
+        official = bool(off.get(r["id"])) and any(
+            s["st"] == r["id"] and (s.get("arr") or s.get("dep")) for s in t["stops"])
         if off.get(r["id"]):
             sched = off[r["id"]]
         elif len(timed) >= 2:
@@ -444,6 +449,8 @@ def line_view(t, service_date, chainage, now, delay_min=None):
                     "km": r["km"], "stop": bool(r.get("stop")),
                     "lat": r.get("lat"), "lng": r.get("lng"),
                     "sched": sched.isoformat(), "eta": (sched + shift).isoformat(),
+                    # official time from the timetable, or placed between known halts
+                    "sched_official": official,
                     "passed": passed})
     passing = None
     if now_i is not None and chainage is not None:

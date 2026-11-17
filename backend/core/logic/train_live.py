@@ -23,6 +23,7 @@ import math
 
 # ------------------------------------------------------------ constants
 ON_ROUTE_M = 100.0            # owner order B: keep a point only within 100 m of the line
+LOWQ_TOL_M = 2500.0           # ...except on a flagged OSM gap (drawn as a straight chord)
 MAX_ACC_M = 150.0             # worse GPS than this is not a position (cell may place it)
 MAX_TRAIN_KMH = 130.0         # nothing in Bangladesh runs faster
 DEFAULT_SEG_MAX_KMH = 100.0   # section limit when the data has none
@@ -143,9 +144,15 @@ def speed_limit_kmh(seg_max):
     return min(MAX_TRAIN_KMH, SEG_MAX_FACTOR * float(seg_max))
 
 
-def check_point(p, rt, prev=None, seg_max=DEFAULT_SEG_MAX_KMH, hint=None):
+def in_ranges(ch, ranges):
+    return ch is not None and any(a <= ch <= b for a, b in ranges or ())
+
+
+def check_point(p, rt, prev=None, seg_max=DEFAULT_SEG_MAX_KMH, hint=None, lowq=None):
     """One rider point. p = {lat, lng, acc, speed (m/s)|None, heading|None,
-    mock, at (epoch s)}; prev = the trip's last ACCEPTED {ch, at, acc}.
+    mock, at (epoch s)}; prev = the trip's last ACCEPTED {ch, at, acc};
+    lowq = [(from_ch, to_ch)] flagged OSM-gap stretches (straight chord, wide
+    tolerance: accepted by progress between the two stations).
     -> (ok, reason, chainage|None, offset|None)."""
     if p.get("mock"):
         return False, "mock", None, None
@@ -156,7 +163,11 @@ def check_point(p, rt, prev=None, seg_max=DEFAULT_SEG_MAX_KMH, hint=None):
     if acc > MAX_ACC_M:
         return False, "bad_accuracy", None, None
     ch, off = rt.project(lat, lng, hint=hint)
-    if ch is None or off > ON_ROUTE_M:
+    if (ch is None or off > ON_ROUTE_M) and lowq:
+        ch2, off2 = rt.project(lat, lng, hint=hint, radius_cells=3)
+        if in_ranges(ch2, lowq) and off2 <= LOWQ_TOL_M:
+            ch, off = ch2, 0.0 if off2 <= ON_ROUTE_M else off2
+    if ch is None or (off > ON_ROUTE_M and not (in_ranges(ch, lowq) and off <= LOWQ_TOL_M)):
         return False, "off_line", ch, (None if off == math.inf else off)
     lim = speed_limit_kmh(seg_max)
     spd = p.get("speed")

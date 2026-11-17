@@ -792,3 +792,49 @@ class LoadTests(EngineBase):
         st = TE.recompute(self.t, DAY, now=_at(250))
         self.assertEqual(st["contributors"], 60)
         self.assertLess(time.monotonic() - t0, 60.0)
+
+
+class OsmGapTests(SimpleTestCase):
+    """Data lane (17 Nov): OSM misses the Pabna-Tebunia track, so its OSM line
+    is a 24 km detour for 8 km between the stations. That stretch is drawn as
+    the straight chord and riders are matched there by progress (wide
+    tolerance); everywhere else the 100 m rule stays."""
+
+    def setUp(self):
+        self.t = SRC.train("779")
+        self.rt = TE.route_index("779")
+        self.ss = {s["id"]: s for s in TE.stops(self.t)}
+
+    def _mid(self, a, b, metres):
+        c = (self.ss[a]["ch"] + self.ss[b]["ch"]) / 2.0
+        lat, lng = self.rt.point_at(c)
+        p = {"lat": lat, "lng": lng, "acc": 15, "at": 1000.0}
+        x, y = self.rt.point_at(c), self.rt.point_at(c + 30.0)
+        h = math.radians(TG.bearing_deg(x[0], x[1], y[0], y[1]) + 90.0)
+        p["lat"] += metres * math.cos(h) / 111320.0
+        p["lng"] += metres * math.sin(h) / (111320.0 * math.cos(math.radians(lat)))
+        return p, c
+
+    def test_gap_is_flagged_and_drawn_straight(self):
+        self.assertTrue(SRC.segment_low_quality("pabna", "tebunia"))
+        self.assertTrue(SRC.segment_low_quality("tebunia", "pabna"))
+        self.assertFalse(SRC.segment_low_quality("dhaka-kamalapur", "dhaka-airport"))
+        gap = self.ss["tebunia"]["ch"] - self.ss["pabna"]["ch"]
+        self.assertLess(gap, 10000)                       # chord, not the 24 km detour
+        self.assertEqual(len(self.t["lowq"]), 1)
+        self.assertAlmostEqual(self.t["lowq"][0][0], self.ss["pabna"]["ch"], delta=1)
+
+    def test_wide_tolerance_only_on_the_gap(self):
+        p, c = self._mid("pabna", "tebunia", 800)
+        ok, why, ch, _ = L.check_point(p, self.rt, lowq=self.t["lowq"])
+        self.assertTrue(ok, why)
+        self.assertAlmostEqual(ch, c, delta=900)
+        q, _ = self._mid("dhalarchar", "bandherhat", 800)
+        self.assertEqual(L.check_point(q, self.rt, lowq=self.t["lowq"])[1], "off_line")
+        # without the flag the gap point is refused like any other
+        self.assertEqual(L.check_point(p, self.rt)[1], "off_line")
+
+    def test_only_official_times_give_a_delay(self):
+        t = SRC.train(NO)
+        self.assertTrue(SRC.official_time(t, BOGURA))
+        self.assertFalse(SRC.official_time(t, "chattogram"))
