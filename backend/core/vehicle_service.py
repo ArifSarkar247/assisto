@@ -482,12 +482,73 @@ def prune(now=None):
 
 # --------------------------------------------------------------- commands
 
-def pending_for(tracker_ids):
-    """Queued commands for the connected trackers, oldest first."""
-    from .models import VehicleCommand
-    return list(VehicleCommand.objects.filter(
+# flag-vehicle: an engine cut confirmed while the vehicle was moving waits
+# ("held") until the stopped-only gate passes, at most this long.
+CUT_HOLD_MAX_MIN = 30
+# gate reasons that mean "moving / not stopped long enough yet" (worth waiting
+# for); offline / stale / no fix are never held — we cannot know the speed.
+HOLDABLE = ("moving", "few_fixes")
+
+
+def cutoff_gate(t, now=None, cfg=None):
+    """Engine cut is allowed only when the tracker is online, the latest fix is
+    fresh, the vehicle is under the crawl speed AND (veh100) the last
+    VT.STOPPED_FIXES stored fixes were ALL stopped — never while moving.
+    Checked at request, confirm, approval AND (flag-vehicle) right before the
+    command is written to the device socket."""
+    from .models import VehiclePosition
+    now = now or timezone.now()
+    cfg = cfg or vcfg()
+    online = VT.is_online(t.last_seen_at, now, cfg["online_window_s"])
+    ok, reason = VT.decide_cutoff(t.last_fix_at, t.last_speed_kmh, now,
+                                  cfg["cutoff_max_speed_kmh"], cfg["cutoff_max_fix_age_s"],
+                                  online=online)
+    if not ok:
+        return ok, reason
+    recent = [{"at": p.at, "speed_kmh": p.speed_kmh} for p in
+              VehiclePosition.objects.filter(tracker=t).order_by("-at")[:VT.STOPPED_FIXES]]
+    return VT.stopped_for(recent, now, VT.STOPPED_FIXES, cfg["cutoff_max_speed_kmh"],
+                          cfg["cutoff_max_fix_age_s"])
+
+
+def pending_for(tracker_ids, now=None):
+    """Queued commands for the connected trackers, oldest first.
+
+    flag-vehicle SAFETY: an engine cut is re-checked against the stopped-only
+    gate at the moment of sending. A queued cut whose vehicle is moving (or
+    whose fix is stale / tracker offline) is HELD — not sent — until the gate
+    passes or CUT_HOLD_MAX_MIN runs out (expire_commands). Before this a cut
+    queued while the tracker was offline could reach a car driving at speed
+    when it reconnected."""
+    from .models import VehicleCommand, VehicleTracker
+    now = now or timezone.now()
+    rows = list(VehicleCommand.objects.filter(
         tracker_id__in=list(tracker_ids), state="queued")
         .order_by("created_at").values("id", "tracker_id", "kind", "payload"))
+    if not any(r["kind"] == "engine_cut" for r in rows):
+        return rows
+    cfg = vcfg()
+    out, gate = [], {}
+    for r in rows:
+        if r["kind"] == "engine_cut":
+            tid = r["tracker_id"]
+            if tid not in gate:
+                t = VehicleTracker.objects.filter(pk=tid).first()
+                gate[tid] = cutoff_gate(t, now, cfg) if t else (False, "gone")
+            ok, reason = gate[tid]
+            if not ok:
+                p = dict(r["payload"] or {})
+                if p.get("held_reason") != reason:
+                    p["held_reason"] = reason
+                    VehicleCommand.objects.filter(pk=r["id"]).update(payload=p)
+                    cmd = VehicleCommand.objects.filter(pk=r["id"]).select_related(
+                        "tracker").first()
+                    if cmd is not None:
+                        audit(cmd.tracker, "command_held", kind=cmd.kind,
+                              command_id=cmd.id, reason=reason)
+                continue
+        out.append(r)
+    return out
 
 
 def mark_sent(cmd_id, text, server_flag, now=None):
@@ -545,6 +606,18 @@ def expire_commands(now=None):
               reason="no_reply")
         if cmd.kind != "set_interval":
             _notify_command(cmd)
+        n += 1
+    # flag-vehicle: a held engine cut never waits longer than CUT_HOLD_MAX_MIN
+    # (a cut hours later would surprise everyone) — expired + told honestly.
+    for cmd in VehicleCommand.objects.filter(
+            state="queued", kind="engine_cut",
+            created_at__lt=now - timedelta(minutes=CUT_HOLD_MAX_MIN)).select_related(
+            "tracker", "requested_by"):
+        cmd.state, cmd.done_at, cmd.fail_reason = "expired", now, "never_stopped"
+        cmd.save(update_fields=["state", "done_at", "fail_reason"])
+        audit(cmd.tracker, "command_expired", kind=cmd.kind, command_id=cmd.id,
+              reason="never_stopped")
+        _notify_command(cmd)
         n += 1
     n += VehicleCommand.objects.filter(
         state="queued", created_at__lt=now - timedelta(hours=24)).update(
@@ -666,7 +739,14 @@ def _notify_command(cmd):
     t = cmd.tracker
     name = _vehicle_name(t) or t.imei[-4:]
     cut = cmd.kind == "engine_cut"
-    if cmd.state == "acked":
+    if cmd.state == "expired" and cmd.fail_reason == "never_stopped":
+        tb = "ইঞ্জিন বন্ধের নির্দেশ পাঠানো হয়নি"
+        te = "Engine cut was not sent"
+        bb = ("%s %s মিনিটের মধ্যে থামেনি, তাই নিরাপত্তার জন্য নির্দেশটি বাতিল হয়েছে। "
+              "দরকার হলে আবার চেষ্টা করুন।" % (name, VT._bn(CUT_HOLD_MAX_MIN)))
+        be = ("%s did not stop within %d minutes, so for safety the engine cut was "
+              "cancelled. Try again if you still need it." % (name, CUT_HOLD_MAX_MIN))
+    elif cmd.state == "acked":
         tb = "ইঞ্জিন বন্ধ নিশ্চিত" if cut else "ইঞ্জিন আবার চালু করা যাবে"
         te = "Engine cut confirmed" if cut else "Engine restore confirmed"
         bb = "%s-এর ট্র্যাকার নির্দেশটি গ্রহণ করেছে।" % name

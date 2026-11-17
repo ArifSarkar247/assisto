@@ -1,0 +1,11 @@
+{% extends "owner/base.html" %}
+{% block heading %}{{ L.title }}{% endblock %}
+{% block content %}
+<p class="mut small">{{ L.intro }}</p>
+{% if rows %}
+<p class="small">{{ L.count }}: {{ n }}</p>
+<div class="card tbl"><table id="tracker-packets"><thead><tr><th>{{ L.time }}</th><th>{{ L.id }}</th><th>{{ L.proto }}</th><th>{{ L.known }}</th><th>{{ L.parsed }}</th><th>{{ L.error }}</th><th>{{ L.raw }}</th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ r.time }}</td><td><code>{{ r.id }}</code></td><td>{{ r.proto }}</td><td>{% if r.known %}{{ L.yes }}{% elif r.known is None %}—{% else %}<b>{{ L.no }}</b>{% endif %}</td><td>{{ r.parsed }}</td><td>{% if r.error %}<b>{{ r.error }}</b>{% endif %}</td><td><code class="small">{{ r.hex }}</code> ({{ r.len }} B)</td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="empty" id="tracker-packets-empty">{{ L.none }}</p>{% endif %}
+{% endblock %}

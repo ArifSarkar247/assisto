@@ -136,8 +136,14 @@ def engine_cut_on(user):
 
 
 def _cmd_json(c):
+    p = c.payload if isinstance(c.payload, dict) else {}
     return {"id": c.id, "kind": c.kind, "state": c.state,
             "fail_reason": c.fail_reason, "response": c.response,
+            # flag-vehicle: an engine cut waiting for the vehicle to stop
+            "wait_stop": bool(p.get("wait_stop")) and c.state in (
+                "awaiting_confirm", "awaiting_approval", "queued"),
+            "held_reason": p.get("held_reason") or "",
+            "hold_max_min": VS.CUT_HOLD_MAX_MIN,
             "requested_by_me": None, "created_at": _iso(c.created_at),
             "sent_at": _iso(c.sent_at), "done_at": _iso(c.done_at)}
 
@@ -552,20 +558,15 @@ def _verify_requester_pin(request):
 
 
 def _cutoff_gate(t, now, cfg):
-    """Engine cut is allowed only when the tracker is online, the latest fix is
-    fresh, the vehicle is under the crawl speed AND (veh100) the last
-    VT.STOPPED_FIXES stored fixes were ALL stopped — never while moving."""
-    from .models import VehiclePosition
-    online = VT.is_online(t.last_seen_at, now, cfg["online_window_s"])
-    ok, reason = VT.decide_cutoff(t.last_fix_at, t.last_speed_kmh, now,
-                                  cfg["cutoff_max_speed_kmh"], cfg["cutoff_max_fix_age_s"],
-                                  online=online)
-    if not ok:
-        return ok, reason
-    recent = [{"at": p.at, "speed_kmh": p.speed_kmh} for p in
-              VehiclePosition.objects.filter(tracker=t).order_by("-at")[:VT.STOPPED_FIXES]]
-    return VT.stopped_for(recent, now, VT.STOPPED_FIXES, cfg["cutoff_max_speed_kmh"],
-                          cfg["cutoff_max_fix_age_s"])
+    """The stopped-only gate (core.vehicle_service.cutoff_gate — the tracker
+    daemon runs the SAME check again right before sending)."""
+    return VS.cutoff_gate(t, now, cfg)
+
+
+def _wants_hold(request):
+    """flag-vehicle: the user chose 'send it once the vehicle has stopped'."""
+    v = (request.data or {}).get("when_stopped")
+    return v is True or str(v).lower() in ("1", "true", "yes")
 
 
 CONFIRM_WITHIN_S = 60
@@ -612,6 +613,11 @@ class TrackerCommandView(APIView):
         now = timezone.now()
         cfg = VS.vcfg()
         ok, reason = _cutoff_gate(t, now, cfg) if kind == "engine_cut" else (True, "ok")
+        hold = False
+        if not ok and reason in VS.HOLDABLE and _wants_hold(request):
+            # flag-vehicle: moving -> the user may ask us to WAIT; the cut is
+            # only written to the device once the stopped-only gate passes.
+            ok, hold = True, True
         if not ok:
             VS.audit(t, "command_denied", actor=request.user, kind=kind, reason=reason,
                      speed=t.last_speed_kmh, fix_at=t.last_fix_at)
@@ -629,6 +635,8 @@ class TrackerCommandView(APIView):
         payload = {"speed_kmh": t.last_speed_kmh,
                    "fix_age_s": int((now - t.last_fix_at).total_seconds())
                    if t.last_fix_at else None}
+        if hold:
+            payload["wait_stop"] = True
         if kind == "engine_cut":
             # veh100: a SECOND, separate confirmation (fresh token, 60 s) —
             # the gate is checked again at confirm time.
@@ -641,7 +649,8 @@ class TrackerCommandView(APIView):
             VS.audit(t, "command_requested", actor=request.user, kind=kind,
                      command_id=c.id, state=c.state)
             return R({"ok": True, "command": _cmd_json(c), "confirm_token": token,
-                      "confirm_within_s": CONFIRM_WITHIN_S}, status=202)
+                      "confirm_within_s": CONFIRM_WITHIN_S,
+                      "wait_stop": hold}, status=202)
         c = VehicleCommand.objects.create(tracker=t, kind=kind, requested_by=request.user,
                                           state="queued", payload=payload)
         VS.audit(t, "command_requested", actor=request.user, kind=kind,
@@ -683,6 +692,9 @@ class CommandConfirmView(APIView):
             return R({"reason": "feature_off", "ok": False}, status=403)
         cfg = VS.vcfg()
         ok, reason = _cutoff_gate(t, now, cfg)
+        held = bool((c.payload or {}).get("wait_stop"))
+        if not ok and held and reason in VS.HOLDABLE:
+            ok = True       # flag-vehicle: queued but HELD until stopped
         if not ok:
             c.state, c.done_at, c.fail_reason = "cancelled", now, reason[:24]
             c.save(update_fields=["state", "done_at", "fail_reason"])
@@ -698,7 +710,7 @@ class CommandConfirmView(APIView):
         c.confirm_hash = ""
         c.save(update_fields=["state", "confirm_hash"])
         VS.audit(t, "command_confirmed", actor=request.user, command_id=c.id,
-                 state=c.state)
+                 state=c.state, wait_stop=held)
         if needs_ok:
             VS.notify_approval_needed(c, approver_user)
         return R({"ok": True, "command": _cmd_json(c)}, status=201)
@@ -726,6 +738,8 @@ class CommandApproveView(APIView):
             return bad
         now = timezone.now()
         ok, reason = _cutoff_gate(t, now, VS.vcfg())
+        if not ok and (c.payload or {}).get("wait_stop") and reason in VS.HOLDABLE:
+            ok = True       # flag-vehicle: approved, still HELD until stopped
         if not ok:
             VS.audit(t, "approval_denied", actor=request.user, command_id=c.id,
                      reason=reason)
