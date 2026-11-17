@@ -14,7 +14,8 @@ import 'package:assisto/cctvguard/vendor_live_screen.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/messaging/media/video_ctl.dart';
 import 'package:assisto/phonecam/phonecam_pair_sheet.dart';
-import 'package:assisto/screens/watchman/cctv_act_screens.dart' show gcvLocalStamp;
+import 'package:assisto/screens/watchman/cctv_act_screens.dart'
+    show gcvLocalStamp, CctvClosingReportScreen;
 import 'package:assisto/screens/watchman/cctv_act_tiles.dart';
 import 'package:assisto/screens/watchman/cctv_escalate.dart';
 import 'package:assisto/screens/watchman/cctvx_actions.dart';
@@ -86,6 +87,15 @@ class _ViewersFailOnce extends FakeWatchman {
   Future<Map<String, dynamic>> viewers(int siteId) async {
     if (n++ == 0) throw StateError('offline');
     return super.viewers(siteId);
+  }
+}
+
+class _DayAct extends FakeCctvAct {
+  final dates = <String?>[];
+  @override
+  Future<Map<String, dynamic>> closingReport(int siteId, {String? date}) {
+    dates.add(date);
+    return super.closingReport(siteId, date: date);
   }
 }
 
@@ -493,5 +503,19 @@ void main() {
       await _settle(tester);
       expect(find.text('Karima'), findsOneWidget);
     });
+  });
+
+  testWidgets("R4 closing report: yesterday's report is one tap away", (tester) async {
+    _phone(tester, height: 2400);
+    final src = _DayAct();
+    await tester.pumpWidget(
+        _app(CctvClosingReportScreen(source: src, siteId: 1, owner: true)));
+    await _settle(tester);
+    expect(src.dates, [null]);
+    await tester.tap(find.text(en.gcvReportYesterday));
+    await _settle(tester);
+    final y = DateTime.now().subtract(const Duration(days: 1));
+    expect(src.dates.last,
+        '${y.year}-${y.month.toString().padLeft(2, '0')}-${y.day.toString().padLeft(2, '0')}');
   });
 }

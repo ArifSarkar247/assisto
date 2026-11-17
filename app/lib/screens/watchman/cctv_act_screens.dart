@@ -160,6 +160,15 @@ class _ClosingState extends State<CctvClosingReportScreen> {
   Map<String, dynamic>? _d;
   bool _loading = true;
   String? _error;
+  int _daysBack = 0; // gap-cctv: 0 = today, 1 = yesterday
+
+  /// The day asked for, as YYYY-MM-DD in the phone's local date (null = today).
+  String? _dayArg() {
+    if (_daysBack == 0) return null;
+    final d = DateTime.now().subtract(Duration(days: _daysBack));
+    return '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-'
+        '${d.day.toString().padLeft(2, '0')}';
+  }
 
   @override
   void initState() {
@@ -178,7 +187,7 @@ class _ClosingState extends State<CctvClosingReportScreen> {
       _error = null;
     });
     try {
-      _d = await widget.source.closingReport(widget.siteId);
+      _d = await widget.source.closingReport(widget.siteId, date: _dayArg());
     } catch (e) {
       _error = wmError(e) ?? '';
     }
@@ -223,6 +232,25 @@ class _ClosingState extends State<CctvClosingReportScreen> {
           return RefreshIndicator(
             onRefresh: _load,
             child: ListView(padding: const EdgeInsets.all(16), children: [
+              // gap-cctv: yesterday's closing report too (the server keeps the date)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: SegmentedButton<int>(
+                  key: const ValueKey('gcv-report-day'),
+                  showSelectedIcon: false,
+                  segments: [
+                    ButtonSegment(value: 0, label: Text(t.gcvReportToday)),
+                    ButtonSegment(value: 1, label: Text(t.gcvReportYesterday)),
+                  ],
+                  selected: {_daysBack},
+                  onSelectionChanged: widget.preview != null
+                      ? null
+                      : (v) {
+                          setState(() => _daysBack = v.first);
+                          _load();
+                        },
+                ),
+              ),
               DsSurface(color: ok
                     ? Theme.of(context).colorScheme.ds.primarySoft
                     : Theme.of(context).colorScheme.ds.cardHighest,

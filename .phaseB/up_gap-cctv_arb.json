@@ -64,7 +64,12 @@
   "gcvUnlinkAsk": "Unlink the smart plugs and lights? Automations stop until you link again.",
   "@gcvUnlinkAsk": {
    "description": "gap-cctv: confirm before unlinking Tuya / Smart Life"
-  }
+  },
+  "gcvReportToday": "Today",
+  "@gcvReportToday": {
+   "description": "gap-cctv: closing report day switch"
+  },
+  "gcvReportYesterday": "Yesterday"
  },
  "bn": {
   "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
@@ -92,6 +97,8 @@
   "gcvPosUrl": "ঠিকানা (URL)",
   "gcvPosKeyId": "কী আইডি",
   "gcvPosSecret": "গোপন চাবি",
-  "gcvUnlinkAsk": "স্মার্ট প্লাগ ও লাইটের সংযোগ খুলবেন? আবার যুক্ত না করা পর্যন্ত স্বয়ংক্রিয় কাজ বন্ধ থাকবে।"
+  "gcvUnlinkAsk": "স্মার্ট প্লাগ ও লাইটের সংযোগ খুলবেন? আবার যুক্ত না করা পর্যন্ত স্বয়ংক্রিয় কাজ বন্ধ থাকবে।",
+  "gcvReportToday": "আজ",
+  "gcvReportYesterday": "গতকাল"
  }
 }
