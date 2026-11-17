@@ -24,6 +24,7 @@ import summarize  # noqa: E402
 BOARD = {
     "e2e1_signup_login_otp": [52, 55],
     "e2e2_ai_chat_bn": [1],
+    "e2e2c_ai_continue": [1],   # gap-aichat
     "e2e3_circle_media": [2, 48],
     "e2e4_safe_journey_chandra": [4, 49],
     "e2e5_sos_guardian": [10, 6],
