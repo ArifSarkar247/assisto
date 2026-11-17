@@ -549,6 +549,8 @@ class ActApiTests(_X):
 
 @override_settings(MEDIA_ROOT=_MEDIA)
 class ReportAskApiTests(_X):
+    keep_closing_report = True   # gap-cctv: this class tests the report itself
+
     def test_closing_report_and_box_stats_and_push_once(self):
         from rest_framework.test import APIClient
         from core.models import ShopSite
