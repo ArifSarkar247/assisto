@@ -96,7 +96,7 @@ extension TrainSeatApi on ApiClient {
 
 /// train-app (Train Tracker V2): check-in, shared text, offline pack.
 /// Server: the engine lane (ci/train-engine-arb); contract in
-/// owner_actions/TRAIN_TRACKER_V2_BN.md "অ্যাপ".
+/// owner_actions/TRAIN_TRACKER_V2_BN.md (app section).
 extension TrainV2Api on ApiClient {
   /// body: {date, station_id, kind: reached|left, at, lat?, lng?, acc?}
   /// -> {ok, status: accepted|pending|rejected, reason?, points}

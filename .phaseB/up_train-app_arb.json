@@ -221,7 +221,7 @@
     "@tr2OffUpdateNoSize": {
       "description": "train-app (Train Tracker V2)"
     },
-    "tr2OffWeekly": "Up to date. We will offer the next update in a week.",
+    "tr2OffWeekly": "Up to date. We check for changes every week.",
     "@tr2OffWeekly": {
       "description": "train-app (Train Tracker V2)"
     },
@@ -395,7 +395,7 @@
     "tr2OffTitle": "নেট ছাড়া ব্যবহার করুন",
     "tr2OffUpdate": "হালনাগাদ করুন ({size})",
     "tr2OffUpdateNoSize": "হালনাগাদ করুন",
-    "tr2OffWeekly": "হালনাগাদ আছে। এক সপ্তাহ পর আবার হালনাগাদ দেখাব।",
+    "tr2OffWeekly": "হালনাগাদ আছে। প্রতি সপ্তাহে বদল দেখা হয়।",
     "tr2OfflineStrip": "নেট নেই — এই ফোন থেকে ট্রেন দেখানো হচ্ছে",
     "tr2Outbox": "{n}টি রিপোর্ট নেটের অপেক্ষায়",
     "tr2PasteBody": "১৬৩১৮-এর SMS উত্তর, বা ফেসবুক, টেলিগ্রাম বা হোয়াটসঅ্যাপ গ্রুপের পোস্ট এখানে পেস্ট করুন। আমরা ট্রেন, স্টেশন ও সময় খুঁজে নিই, আর অন্য তথ্যের সাথে মিলিয়ে তারপর সবার জন্য হালনাগাদ করি।",

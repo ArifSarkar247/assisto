@@ -133,7 +133,7 @@ class OffTower {
 }
 
 /// The data lane's compact bundle (train_data.offline_bundle(), plan doc
-/// "অফলাইন বান্ডেল"): `st` = [code, bn, en, lat*1e5, lng*1e5]; `tr` = [no,
+/// offline-bundle section): `st` = [code, bn, en, lat*1e5, lng*1e5]; `tr` = [no,
 /// bn, en, kind, status (2 = suspended), off-day bitmask (bit0 = Monday),
 /// [[station index, arr min or -1, dep min or -1, km*10 or -1], ...]];
 /// `tw` = [mcc, mnc, tac, cid, segment, metres, samples, lat*1e5?, lng*1e5?].

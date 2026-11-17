@@ -5,7 +5,7 @@
 /// offline (the report is queued and sent when the internet returns).
 ///
 /// Tolerant by design: Bangla or English, any order, Bangla digits, 12 h or
-/// 24 h times, "Late 0:15" / "Late 15 min" / "১৫ মিনিট দেরি".
+/// 24 h times, "Late 0:15" / "Late 15 min" / the Bangla "15 minutes late".
 class TrainSmsReply {
   final String no;
   final String? stationId, stationBn, stationEn;
@@ -38,10 +38,19 @@ class TrainSmsStation {
   const TrainSmsStation(this.id, this.bn, this.en);
 }
 
+/// Bangla digits -> ASCII, and the 3 precomposed Bangla nukta letters
+/// (U+09DC/09DD/09DF) -> letter + nukta, so typed and pasted text match.
 String trainAsciiDigits(String s) {
   final b = StringBuffer();
   for (final r in s.runes) {
-    b.writeCharCode(r >= 0x09E6 && r <= 0x09EF ? 0x30 + r - 0x09E6 : r);
+    if (r >= 0x09E6 && r <= 0x09EF) {
+      b.writeCharCode(0x30 + r - 0x09E6);
+    } else if (r == 0x09DC || r == 0x09DD || r == 0x09DF) {
+      b.writeCharCode(r == 0x09DC ? 0x09A1 : (r == 0x09DD ? 0x09A2 : 0x09AF));
+      b.writeCharCode(0x09BC);
+    } else {
+      b.writeCharCode(r);
+    }
   }
   return b.toString();
 }
@@ -60,12 +69,13 @@ TrainSmsReply? parseTrain16318(String raw,
   final clock = now ?? DateTime.now();
   final lower = text.toLowerCase();
 
-  // ---- late: "Late 0:15" | "late by 15 min" | "15 min late" | "১৫ মিনিট দেরি"
+  // ---- late: "Late 0:15" | "late by 15 min" | "15 min late" | Bangla "15 minutes late"
+  // (Bangla words are written as \u escapes: no Bangla glyphs in Dart source)
   int? late;
   final l1 = RegExp(r'late\D{0,12}(\d{1,2}):(\d{2})').firstMatch(lower);
-  final l2 = RegExp(r'late\D{0,12}(\d{1,3})\s*(min|mins|minutes|m\b|মি)').firstMatch(lower);
-  final l3 = RegExp(r'(\d{1,3})\s*(min|mins|minutes|মিনিট)\.?\s*(late|দেরি|বিলম্ব)').firstMatch(lower);
-  final l4 = RegExp(r'(দেরি|বিলম্ব)\D{0,6}(\d{1,3})').firstMatch(lower);
+  final l2 = RegExp(r'late\D{0,12}(\d{1,3})\s*(min|mins|minutes|m\b|\u09ae\u09bf)').firstMatch(lower);
+  final l3 = RegExp(r'(\d{1,3})\s*(min|mins|minutes|\u09ae\u09bf\u09a8\u09bf\u099f)\.?\s*(late|\u09a6\u09c7\u09b0\u09bf|\u09ac\u09bf\u09b2\u09ae\u09cd\u09ac)').firstMatch(lower);
+  final l4 = RegExp(r'(\u09a6\u09c7\u09b0\u09bf|\u09ac\u09bf\u09b2\u09ae\u09cd\u09ac)\D{0,6}(\d{1,3})').firstMatch(lower);
   if (l1 != null) {
     late = int.parse(l1.group(1)!) * 60 + int.parse(l1.group(2)!);
   } else if (l2 != null) {
@@ -75,7 +85,7 @@ TrainSmsReply? parseTrain16318(String raw,
   } else if (l4 != null) {
     late = int.parse(l4.group(2)!);
   }
-  if (RegExp(r'on\s*time|সময়মতো|সময়মত').hasMatch(lower)) late ??= 0;
+  if (RegExp(r'on\s*time|\u09b8\u09ae\u09af\u09bc\u09ae\u09a4\u09cb|\u09b8\u09ae\u09af\u09bc\u09ae\u09a4').hasMatch(lower)) late ??= 0;
 
   // ---- times (the first one that is not the late figure)
   DateTime? at;
@@ -96,7 +106,7 @@ TrainSmsReply? parseTrain16318(String raw,
 
   // ---- train number: "TR 701", "Train No. 701", "(701)", else a lone 3-4 digit number
   String? no;
-  final n1 = RegExp(r'(?:\btr\b|train\s*(?:no\.?|number)?|ট্রেন\s*(?:নং|নম্বর)?)\s*[:#.\-]?\s*(\d{2,4})\b')
+  final n1 = RegExp(r'(?:\btr\b|train\s*(?:no\.?|number)?|\u099f\u09cd\u09b0\u09c7\u09a8\s*(?:\u09a8\u0982|\u09a8\u09ae\u09cd\u09ac\u09b0)?)\s*[:#.\-]?\s*(\d{2,4})\b')
       .firstMatch(lower);
   if (n1 != null) no = n1.group(1);
   if (no == null) {
@@ -115,8 +125,8 @@ TrainSmsReply? parseTrain16318(String raw,
 
   // ---- what happened
   var kind = 'at';
-  if (RegExp(r'arriv|reach|\barr\b|পৌঁছ|পৌছ|এসেছে').hasMatch(lower)) kind = 'reached';
-  if (RegExp(r'depart|\bleft\b|\bdep\b|left from|passed|ছেড়ে|ছেড়েছে|ছাড়|ত্যাগ|অতিক্রম').hasMatch(lower)) {
+  if (RegExp(r'arriv|reach|\barr\b|\u09aa\u09cc\u0981\u099b|\u09aa\u09cc\u099b|\u098f\u09b8\u09c7\u099b\u09c7').hasMatch(lower)) kind = 'reached';
+  if (RegExp(r'depart|\bleft\b|\bdep\b|left from|passed|\u099b\u09c7\u09a1\u09bc\u09c7|\u099b\u09c7\u09a1\u09bc\u09c7\u099b\u09c7|\u099b\u09be\u09a1\u09bc|\u09a4\u09cd\u09af\u09be\u0997|\u0985\u09a4\u09bf\u0995\u09cd\u09b0\u09ae').hasMatch(lower)) {
     kind = 'left';
   }
 

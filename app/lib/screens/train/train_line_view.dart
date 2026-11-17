@@ -279,9 +279,7 @@ class _TrainLineViewState extends State<TrainLineView> {
 
 /// The "next station" yellow: a warm amber dot (the text next to it uses
 /// Brand.warnInk, AA on both themes).
-Color trainAmber(BuildContext context) => Theme.of(context).brightness == Brightness.dark
-    ? const Color(0xFFFFC83D)
-    : const Color(0xFFF2B000);
+Color trainAmber(BuildContext context) => Brand.nextStop(context);
 
 /// Speed + live riders next to the train icon ("62 km/h · 3 riders live").
 class _TrainFacts extends StatelessWidget {
