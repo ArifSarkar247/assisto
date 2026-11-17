@@ -41,7 +41,7 @@ from core.tests_v1_vehicle import _Setup, PIN, cut_confirmed, enable_engine_cut
 from tracker import sim
 from tracker.server import FLUSH_S
 
-PORT_DHAKA = 15041
+PORT_DHAKA = 15061
 DEV_ID = "9171234568"           # ST-901 style 10-digit device id (made up)
 HOME = sim.DHAKA_WAYPOINTS[0][1:]
 OFFICE = sim.DHAKA_WAYPOINTS[-1][1:]
@@ -116,11 +116,14 @@ class DhakaCommuteE2E(_TcpBase):
                                                              (20, False), (25, False))]
         self.assertLess(park[-1]["at"], now0)
         # burst split points (from the geometry, not hand-tuned indices)
-        i_exit = next(i for i, p in enumerate(trip) if not _inside(p, HOME))
+        # past the fence's hysteresis band (20 % of r, VT.fence_state)
+        band = 0.2 * FENCE_M + 1
+        i_exit = next(i for i, p in enumerate(trip) if not _inside(p, HOME, FENCE_M + band))
         over = [i for i, p in enumerate(trip) if p["speed_kmh"] > 60]
         self.assertGreaterEqual(len(over), 2, "trip must hold >= 2 overspeed fixes")
         i_over = over[1]
-        i_enter = next(i for i, p in enumerate(trip) if i > i_over and _inside(p, OFFICE))
+        i_enter = next(i for i, p in enumerate(trip)
+                       if i > i_over and _inside(p, OFFICE, FENCE_M - band))
         bursts = [("ignition_on", parked + ign_on),
                   ("geofence_exit", trip[:i_exit + 1]),
                   ("overspeed", trip[i_exit + 1:i_over + 1]),
@@ -427,7 +430,7 @@ class ST906FrameTests(APITestCase):
 class ST906FirstPacketTcpTests(_TcpBase):
     """A tracker switched on INDOORS (no GPS yet) must still pair, and every
     first packet is in the raw log (Owner Admin -> Tracker packets)."""
-    PORT = 15042
+    PORT = 15062
 
     def setUp(self):
         super().setUp()
