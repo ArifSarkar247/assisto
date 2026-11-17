@@ -13,7 +13,7 @@ import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import 'always_on_protection_screen.dart';
 import 'fall_detect_screen.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// sosat — "More ways to send SOS": the lock-screen SOS button, power button
 /// x5, and the EXPERIMENTAL fall detection. All three run inside the

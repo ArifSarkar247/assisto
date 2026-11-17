@@ -23,7 +23,7 @@ import '../feature_flags.dart'; // famcare: probashi tab
 import '../widgets/fam_card_section.dart';
 import '../widgets/fam_probashi_section.dart';
 import 'medicine_history_screen.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../services/action_feedback.dart'; // db1
 import '../family_alerts_api.dart'; // family100
 import '../widgets/family_push_banner.dart'; // family100

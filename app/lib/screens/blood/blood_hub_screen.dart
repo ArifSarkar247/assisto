@@ -19,7 +19,7 @@ import 'blood_threads_screen.dart';
 import 'blood_verify_screen.dart';
 import 'bp_common.dart';
 import '../../widgets/local_counter.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// blood (owner 2 Nov) — Blood donor panel hub (route `blood_panel`, flag
 /// `blood_donors`). Three tabs:

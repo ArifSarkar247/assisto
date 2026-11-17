@@ -11,7 +11,7 @@ import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/chatnav.dart';
 import '../widgets/family_push_banner.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits, notifWhen;
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// family100 — where an SOS / family-alert push lands (deep link
 /// `safety/sos`, `family/alerts`), and the family's alert history.

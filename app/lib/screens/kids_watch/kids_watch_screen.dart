@@ -21,7 +21,7 @@ import '../../widgets/where_to_buy.dart';
 import 'chip_widgets.dart';
 import 'kw_recorder.dart';
 import 'school_plan_form.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../../safe_plans/safe_plans_screen.dart' show showSafeCreditsOutSheet; // safeplans
 import '../../widgets/num_input.dart'; // savesweep
 

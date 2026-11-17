@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'ad_block_context.dart';
+import '../safety/ad_block_context.dart';
 import 'ad_rules.dart' show AdIds;
 import 'consent.dart';
 

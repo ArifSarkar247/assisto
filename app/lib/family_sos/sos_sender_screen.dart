@@ -22,7 +22,7 @@ import 'sos_recorder.dart';
 import 'sos_retry.dart'; // gap-sos
 import 'sos_sms.dart';
 import 'sos_widgets.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// fcsos — Family Care v3 SCREEN 2: the SOS SENDER.
 ///

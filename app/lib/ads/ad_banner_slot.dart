@@ -15,7 +15,7 @@ import 'admob_platform.dart';
 import 'ads_service.dart';
 import 'hero_ad.dart';
 import 'hero_binding.dart';
-import 'ad_block_context.dart' show AdBlockGate;
+import '../safety/ad_block_context.dart' show AdBlockGate;
 
 /// One loaded banner. [view] renders AdMob's own banner view.
 abstract class BannerAdHandle {

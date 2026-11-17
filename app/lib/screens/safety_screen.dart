@@ -16,7 +16,7 @@ import '../widgets/subs_common.dart' show fmtInt;
 import '../ds/ds.dart';
 import '../theme.dart';
 import 'package:assisto/widgets/app_sheet.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// Advanced family-safety hub (benchmarked vs Life360 / bSafe):
 ///   - SOS with a configurable countdown (so a mis-tap can be cancelled)

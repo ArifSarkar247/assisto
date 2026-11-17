@@ -1,4 +1,4 @@
-import '../ads/ad_block_context.dart' show AdBlockContext;
+import '../safety/ad_block_context.dart' show AdBlockContext;
 import '../api.dart';
 import '../plans_v2/buy_inside.dart' show BuyOrigin;
 import '../config.dart';

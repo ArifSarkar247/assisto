@@ -31,7 +31,7 @@ import 'recite_sheet.dart';
 import 'shikhi_widgets.dart'; // quranshikhi
 import '../l10n/quran_shikhi_text.dart'; // quranshikhi
 import 'uthmani_text.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 bool _bn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
 

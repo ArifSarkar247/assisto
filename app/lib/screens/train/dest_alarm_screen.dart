@@ -26,7 +26,7 @@ import '../../widgets/permission_reason.dart';
 import '../journey_map_pick_screen.dart';
 import '../../maps/place_search.dart'; // jsearch
 import 'trip_recorder_screen.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// train: DESTINATION ALARM (flag `dest_alarm`, owner final order 2 Nov).
 /// Pick how you travel (city bus / long bus / train / Dhaka Metro / launch),

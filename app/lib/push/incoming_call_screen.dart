@@ -14,7 +14,7 @@ import 'lock_screen_guard.dart';
 import 'push_notifier.dart';
 import 'push_payload.dart';
 import 'push_service.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// Ringing screen for a My Circle call that arrived by push (the full-screen
 /// intent or a tap on the call notification). Accept hands over to the

@@ -14,7 +14,7 @@ import '../widgets/password_field.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/sos_location.dart'; // qjourney
 import 'package:assisto/widgets/app_sheet.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// Discreet SOS flow (item 7 + 8 + 11 + 12), fully working IN-APP today.
 ///

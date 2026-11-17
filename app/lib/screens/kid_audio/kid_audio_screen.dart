@@ -12,7 +12,7 @@ import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../messenger/messenger_home_screen.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// kidaudio (owner 2 Nov PART 1 b) — Child emergency audio: the advance
 /// consent (parent sets it, the child agrees on their own phone), the

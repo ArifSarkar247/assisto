@@ -3,7 +3,7 @@ import '../theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../widgets/notif_models.dart' show notifLocalizeDigits; // launchsweep
 
 /// Fake incoming call (item 9). After a user-chosen delay, a realistic

@@ -18,7 +18,7 @@ import '../widgets/journey_ride.dart';
 import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset;
 import 'guardian_request_screen.dart';
 import 'journey_live_screen.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// Owner idea 1 — guardian-requested journeys, both sides on one screen:
 ///  * asked of me: "Baba wants to follow your trip — Chattogram, 15:00–21:00"

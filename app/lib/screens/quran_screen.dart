@@ -15,7 +15,7 @@ import '../widgets/skeleton.dart' show SkeletonList;
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/local_digits.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 bool _isBn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
 

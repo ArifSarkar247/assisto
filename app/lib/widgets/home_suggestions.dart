@@ -20,7 +20,7 @@ import '../state.dart';
 import '../theme.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding, SchedulerPhase; // svcclean
 import 'chatnav.dart';
-import '../ads/ad_block_context.dart' show AdBlockGate;
+import '../safety/ad_block_context.dart' show AdBlockGate;
 import 'home_quick_buttons.dart' show HomeQuickButtons; // svcclean
 import '../perf/disk_image.dart'; // faststart
 import '../services/action_feedback.dart'; // db1

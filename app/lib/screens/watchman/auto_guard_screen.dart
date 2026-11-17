@@ -17,7 +17,7 @@ import '../../widgets/permission_reason.dart';
 import '../shop_live_screen.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// cctvarm (owner CCTV order 3 Nov, W5) — AUTO GUARD for one place.
 ///

@@ -39,7 +39,7 @@ import 'fc_slots_register.dart';
 import 'fc_status.dart';
 import 'fc_text.dart';
 import 'fc_widget_sync.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// fcscreen — SCREEN 1 FAMILY (owner order 9 Nov 10:50, a–j). One screen
 /// replaces the 6 tabs; every old feature stays one tap away in More.

@@ -12,7 +12,7 @@ import 'ad_rules.dart';
 import 'ads_service.dart';
 import 'hero_ad.dart';
 import 'hero_binding.dart';
-import 'ad_block_context.dart' show AdBlockGate;
+import '../safety/ad_block_context.dart' show AdBlockGate;
 
 /// adcontrol (owner 10 Nov 03:45) — ONE in-page native ad card for a
 /// registered placement ([AdControl]): the Account & Finance main page,

@@ -16,7 +16,7 @@ import '../widgets/app_sheet.dart';
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'always_on_protection_screen.dart';
 import 'emergency_screen.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// sosat — EXPERIMENTAL fall detection (elders), for real now.
 ///

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:assisto/ads/ad_block_context.dart';
+import 'package:assisto/safety/ad_block_context.dart';
 import 'package:assisto/ads/ad_rules.dart';
 import 'package:assisto/ads/ads_bridge.dart';
 import 'package:assisto/ads/ads_service.dart';

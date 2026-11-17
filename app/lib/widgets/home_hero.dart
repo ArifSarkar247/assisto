@@ -4,7 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../ads/ad_block_context.dart' show AdBlockContext;
+import '../safety/ad_block_context.dart' show AdBlockContext;
 import '../ads/ads_service.dart' show AdsService;
 import '../ads/hero_ad.dart';
 import '../ads/hero_binding.dart';

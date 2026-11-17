@@ -13,7 +13,7 @@ import '../../theme.dart';
 import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// blood (owner 2 Nov) — "verified donor" badge from a donation slip photo.
 /// Seen ONLY by the Assisto team in Owner Admin; the photo is deleted as soon

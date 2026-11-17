@@ -11,7 +11,7 @@ import '../ds/ds.dart';
 import '../train/dest_alarm_sound.dart';
 import 'carecall_alarms.dart';
 import 'carecall_api.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// carecall SCREEN 2 — the receiver's incoming Care Call, full screen like a
 /// real call (also over the lock screen: MainActivity allows it for a Care

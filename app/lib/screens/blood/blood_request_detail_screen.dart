@@ -14,7 +14,7 @@ import '../../widgets/success_share.dart';
 import 'blood_thread_screen.dart';
 import 'bp_common.dart';
 import '../../widgets/local_counter.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// blood (owner 2 Nov) — one urgent request, by role.
 ///  * requester: reach (pushed / listed), the donors who said "I can donate"

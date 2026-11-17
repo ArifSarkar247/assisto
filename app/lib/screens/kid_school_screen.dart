@@ -5,7 +5,7 @@ import '../state.dart';
 import '../theme.dart';
 import '../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// KID'S SCHOOL CORNER — ADVANCED (#27, SPEC v2.1 §21).

@@ -21,7 +21,7 @@ import 'fall_detect_screen.dart'; // svcclean
 import '../services/sos_trigger_settings.dart'; // svcclean
 import 'journey_fake_call_screen.dart';
 import 'nearby_screen.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// emhub (owner order 2 Nov 17:40) — ONE Emergency hub (Bangla title from the ARB), like Safe
 /// Journey is a hub. Route `emergency_hub` (flag `emergency`).

@@ -11,7 +11,7 @@ import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'blood_thread_screen.dart';
 import 'bp_common.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// blood (owner 2 Nov) — my private blood-panel conversations (as donor and
 /// as seeker). First names + blood group only; no numbers.

@@ -11,7 +11,7 @@ import '../../theme.dart';
 import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// Test seam: replaces the server call (gallery / widget tests).
 Future<Map<String, dynamic>> Function(Map<String, String> q)? bloodBanksLoaderOverride;

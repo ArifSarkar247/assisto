@@ -19,7 +19,7 @@ import 'journey_start_screen.dart';
 import 'safe_journey/sj_during_api.dart'; // sjduring
 import 'safe_journey/sj_watch_board.dart'; // sjduring
 import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset;
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// journey100 — "Journeys I'm watching": the in-app side for a WATCHER (a
 /// push about someone's journey opens here). Real server state only

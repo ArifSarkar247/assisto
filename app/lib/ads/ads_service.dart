@@ -11,7 +11,7 @@ import '../calls/call_runtime.dart' show CallRuntime;
 import '../push/push_service.dart' show appNavigatorKey;
 import '../state.dart';
 import '../screens/offers_screens.dart' show syncPendingOfferPrefs;
-import 'ad_block_context.dart';
+import '../safety/ad_block_context.dart';
 import 'ad_placements.dart';
 import 'ad_rules.dart';
 import 'ad_telemetry.dart';

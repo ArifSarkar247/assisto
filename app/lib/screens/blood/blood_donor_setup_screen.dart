@@ -10,7 +10,7 @@ import '../../ds/ds.dart';
 import '../../widgets/app_sheet.dart';
 import 'bp_common.dart';
 import '../../widgets/local_counter.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// blood (owner 2 Nov) — become / edit a donor. The SEPARATE consent lives
 /// here (the Family card's blood group is never read): what others see, what

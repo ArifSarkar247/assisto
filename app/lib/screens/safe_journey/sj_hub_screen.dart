@@ -25,7 +25,7 @@ import '../train/train_tracker_screen.dart';
 import 'sj_child_school_screen.dart';
 import 'sj_share_screen.dart';
 import 'sj_where_now.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// The three Safe Journey cards, in order. Card 0 (Live Location) is the
 /// default. Cards 1 and 2 are owned by their own screens (agent/sjalarm) and

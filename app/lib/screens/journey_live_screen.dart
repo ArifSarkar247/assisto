@@ -33,7 +33,7 @@ import 'safe_journey/sj_during_panel.dart'; // sjduring
 import 'safe_journey/sj_danger_audio.dart' show sjRecordDangerClip; // sjproof
 import 'journey_sos_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// journey100 — the LIVE journey screen.
 ///

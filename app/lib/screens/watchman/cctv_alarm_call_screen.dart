@@ -12,7 +12,7 @@ import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifAgo;
 import 'watchman_widgets.dart' show wmEventWhat;
 import 'cctvx_inbox.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// cctvescalate C3 — the CCTV ALARM CALL page. The server rang this phone
 /// with the SAME call push My Circle calls use (native full-screen ring,

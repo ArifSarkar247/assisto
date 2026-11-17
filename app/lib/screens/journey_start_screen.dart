@@ -29,7 +29,7 @@ import 'battery_guidance_screen.dart';
 import '../train/journey_transit.dart';
 import '../widgets/journey_mode_section.dart';
 import 'train/journey_train_pick_screen.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import '../maps/address_resolver.dart'; // mapscost
 import '../maps/maps_sdk.dart'; // mapscost
 import '../maps/maps_api.dart'; // jsearch

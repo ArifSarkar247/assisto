@@ -14,7 +14,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/permission_reason.dart';
 import '../widgets/voice_sos_config.dart';
 import '../widgets/voice_sos_service.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// Hands-free Voice SOS opt-in screen (feature #79).
 ///

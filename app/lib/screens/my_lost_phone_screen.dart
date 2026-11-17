@@ -13,7 +13,7 @@ import '../theme.dart';
 import '../widgets/false_alarm_button.dart';
 import 'recovery_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import 'watched_phones_screen.dart'; // at100
 import '../antitheft_api.dart'; // at100
 import '../services/action_feedback.dart'; // db1

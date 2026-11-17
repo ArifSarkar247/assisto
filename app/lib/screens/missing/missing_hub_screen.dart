@@ -15,7 +15,7 @@ import 'ma_common.dart';
 import 'missing_detail_screen.dart';
 import 'missing_optin_screen.dart';
 import 'missing_post_screen.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// missing (owner 2 Nov) — Missing person alert hub (route `missing_alert`,
 /// flag `missing_alert`). One list, in this order:

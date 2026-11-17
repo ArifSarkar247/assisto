@@ -13,7 +13,7 @@ import '../../widgets/journey_ride.dart' show jDigits;
 import '../kids_watch/school_mode_child_screen.dart';
 import '../kids_watch/school_plan_form.dart';
 import 'sj_live_api.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 import 'kids_corner.dart'; // sjkids
 
 /// The four moments of a school day, in order: (today-key, event for the

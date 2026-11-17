@@ -21,7 +21,7 @@ import 'carecall_api.dart';
 import 'carecall_plan.dart';
 import 'carecall_ui.dart';
 import 'cc_recorder.dart';
-import 'package:assisto/ads/ad_block_context.dart' show AdBlockedState;
+import 'package:assisto/safety/ad_block_context.dart' show AdBlockedState;
 
 /// carecall SCREEN 1 — the setter's "New Care Call", built exactly as the
 /// owner's order describes: Who (first-letter avatar + name, from My Circle
