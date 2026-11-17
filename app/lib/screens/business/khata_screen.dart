@@ -28,6 +28,7 @@ import '../../services/error_kind.dart'
 import '../../services/khata_offline.dart'; // ledger100
 import 'package:path_provider/path_provider.dart' show getTemporaryDirectory;
 import 'statement_pdf.dart'; // bizbar
+import '../../widgets/a11y_prefs.dart' show a11yMaxLines; // a11ysweep
 import 'khata_backup_sheet.dart'; // bizbar
 
 /// Digital Khata (plan §2): two-sided dues — customer receivables +
@@ -866,7 +867,7 @@ class _PartyTile extends StatelessWidget {
         title: Row(children: [
           Flexible(
             child: Text((party['name'] ?? '').toString(),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
+                maxLines: a11yMaxLines(context, 1), overflow: TextOverflow.ellipsis),
           ),
           if (vip) ...[
             const SizedBox(width: Gap.xs),
@@ -1354,7 +1355,7 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.add_rounded),
                 label: Text(t.entryAddCredit,
-                    maxLines: 2, textAlign: TextAlign.center),
+                    maxLines: a11yMaxLines(context, 2), textAlign: TextAlign.center),
                 onPressed: () => _addEntry(isDue: true),
               ),
             ),
@@ -1364,7 +1365,7 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
                 icon: const Icon(Icons.payments_rounded),
                 label: Text(
                     _isCustomer ? t.entryReceivePayment : t.entryMakePayment,
-                    maxLines: 2,
+                    maxLines: a11yMaxLines(context, 2),
                     textAlign: TextAlign.center),
                 onPressed: () => _addEntry(isDue: false),
               ),

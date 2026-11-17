@@ -199,3 +199,10 @@ TextScaler effectiveTextScaler(TextScaler system, double inApp) {
   }
   return sys;
 }
+
+/// a11ysweep: lines a label may use. [normal] at normal sizes; two more once
+/// the text is over 140% (phone or in-app setting), so a name or a button
+/// label wraps instead of being cut to "Kari…" for the people who need big
+/// text most.
+int a11yMaxLines(BuildContext context, int normal) =>
+    MediaQuery.textScalerOf(context).scale(14) / 14 > 1.4 ? normal + 2 : normal;

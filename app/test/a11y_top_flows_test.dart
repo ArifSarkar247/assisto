@@ -130,7 +130,14 @@ List<String> _clippedControlLabels(WidgetTester tester) {
       w is ButtonStyleButton || w is RawChip || w is Tab || w is SegmentedButton ||
       w is NavigationDestination || w is ListTile || w is SwitchListTile ||
       w is CheckboxListTile || w is RadioListTile);
+  // an app-bar title ellipsizes by design (fixed toolbar height, every
+  // platform does it) and the full name is on the screen below it
+  final inBar = find
+      .descendant(of: find.byType(AppBar), matching: find.byType(RichText))
+      .evaluate()
+      .toSet();
   for (final e in find.descendant(of: controls, matching: find.byType(RichText)).evaluate()) {
+    if (inBar.contains(e)) continue;
     final ro = e.renderObject;
     if (ro is RenderParagraph && ro.attached && ro.hasSize && ro.didExceedMaxLines) {
       out.add('cut: "${ro.text.toPlainText().replaceAll('\n', ' ')}"');
