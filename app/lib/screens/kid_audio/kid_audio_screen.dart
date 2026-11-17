@@ -12,6 +12,8 @@ import '../../theme.dart';
 import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../messenger/messenger_home_screen.dart';
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 
 /// kidaudio (owner 2 Nov PART 1 b) — Child emergency audio: the advance
 /// consent (parent sets it, the child agrees on their own phone), the
@@ -234,11 +236,7 @@ class _KidAudioScreenState extends State<KidAudioScreen> {
 
   Widget _parentCard(AppLocalizations t, Map<String, dynamic> c) {
     final active = c['active'] == true;
-    return Card(
-      key: ValueKey('kau-parent-${c['id']}'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(key: ValueKey('kau-parent-${c['id']}'), padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text('${c['other_name'] ?? ''}', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.xs),
           Text(_stateText(t, c)),
@@ -261,19 +259,13 @@ class _KidAudioScreenState extends State<KidAudioScreen> {
               onPressed: _busy ? null : () => _act(() => _api.kauRevoke(c['id'] as int), okText: t.kauStateRevoked),
               child: Text(t.kauTurnOff),
             ),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _childCard(AppLocalizations t, Map<String, dynamic> c) {
     final id = c['id'] as int;
     final asked = c['child_ok_at'] == null && c['revoked_at'] == null && c['parent_ok_at'] != null;
-    return Card(
-      key: ValueKey('kau-child-$id'),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(key: ValueKey('kau-child-$id'), padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(t.kauAskTitle('${c['other_name'] ?? ''}'), style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.xs),
           if (asked) ...[
@@ -308,20 +300,14 @@ class _KidAudioScreenState extends State<KidAudioScreen> {
                 child: Text(t.kauTurnOff),
               ),
           ],
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _setup(AppLocalizations t) {
     final kids = _rows(_cfg, 'children');
     final watches = _rows(_cfg, 'watches').where((w) => w['child_user_id'] == _childId).toList();
     if (kids.isEmpty) {
-      return Card(
-        key: const ValueKey('kau-empty'),
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      return DsCard(key: const ValueKey('kau-empty'), padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text(t.kauEmptyBenefit, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: Gap.sm),
             _big(t.kauOpenCircle, () => Navigator.push(context,
@@ -329,14 +315,9 @@ class _KidAudioScreenState extends State<KidAudioScreen> {
                 key: const ValueKey('kau-open-circle'), icon: Icons.group_add_rounded),
             const SizedBox(height: Gap.sm),
             Text(t.kauEmptyHow, style: Theme.of(context).textTheme.bodySmall),
-          ]),
-        ),
-      );
+          ]));
     }
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(t.kauSetupTitle, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
@@ -381,9 +362,7 @@ class _KidAudioScreenState extends State<KidAudioScreen> {
           ],
           const SizedBox(height: Gap.md),
           _big(t.kauSave, _busy ? null : _saveSetup, key: const ValueKey('kau-save')),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _logList(AppLocalizations t) {
@@ -428,17 +407,20 @@ class _KidAudioScreenState extends State<KidAudioScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.kauTitle)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList()
           : _failed
-              ? Center(
-                  child: Padding(
-                  padding: const EdgeInsets.all(Gap.xl),
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Text(t.kauLoadFailed, textAlign: TextAlign.center),
-                    const SizedBox(height: Gap.md),
-                    FilledButton(onPressed: _load, child: Text(t.kauRetry)),
-                  ]),
-                ))
+              ? ListView(
+                  padding: const EdgeInsets.all(Gap.lg),
+                  children: [
+                    DsEmptyState(
+                      icon: Icons.cloud_off_rounded,
+                      danger: true,
+                      title: t.kauLoadFailed,
+                      actionLabel: t.kauRetry,
+                      onAction: _load,
+                    ),
+                  ],
+                )
               : RefreshIndicator(
                   onRefresh: _load,
                   child: ListView(
@@ -446,16 +428,11 @@ class _KidAudioScreenState extends State<KidAudioScreen> {
                     children: [
                       Text(t.kauIntro, style: text.bodyMedium),
                       const SizedBox(height: Gap.md),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(Gap.md),
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                      DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                             Text(t.kauRulesTitle, style: text.titleSmall),
                             const SizedBox(height: Gap.xs),
                             Text(t.kauRules, key: const ValueKey('kau-rules')),
-                          ]),
-                        ),
-                      ),
+                          ])),
                       if (asks.isNotEmpty) ...[
                         const SizedBox(height: Gap.lg),
                         Text(t.kauChildSection, style: text.titleMedium),

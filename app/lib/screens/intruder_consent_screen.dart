@@ -3,6 +3,7 @@ import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset; // sosat
 
 import '../l10n/app_localizations.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 
 /// at100 — the intruder-photo CONSENT screen (prominent disclosure). Shown
 /// BEFORE the camera permission prompt, every time the owner switches the
@@ -80,15 +81,9 @@ class IntruderConsentScreen extends StatelessWidget {
                   item(Icons.auto_delete_outlined, tr.at100IcKeepT, tr.at100IcKeep),
                   item(Icons.toggle_off_outlined, tr.at100IcDeleteT, tr.at100IcDelete),
                   const SizedBox(height: Gap.sm),
-                  Card(
-                    color: Brand.warning.withValues(alpha: 0.14),
-                    child: Padding(
-                      padding: const EdgeInsets.all(Gap.md),
-                      child: Text(tr.at100IcLaw,
+                  DsCard(padding: const EdgeInsets.all(Gap.md), child: Text(tr.at100IcLaw,
                           style: text.bodyMedium
-                              ?.copyWith(color: Brand.warnInk(context))),
-                    ),
-                  ),
+                              ?.copyWith(color: Brand.warnInk(context)))),
                 ],
               ),
             ),
@@ -98,16 +93,16 @@ class IntruderConsentScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  FilledButton(
-                    key: const Key('at100-ic-agree'),
-                    style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+                  DsButton(
+                    buttonKey: const Key('at100-ic-agree'),
+                    expand: true,
                     onPressed: () => Navigator.pop(context, true),
-                    child: Text(tr.at100IcAgree, textAlign: TextAlign.center),
+                    label: tr.at100IcAgree,
                   ),
                   const SizedBox(height: Gap.sm),
                   OutlinedButton(
                     key: const Key('at100-ic-no'),
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 52)),
                     onPressed: () => Navigator.pop(context, false),
                     child: Text(tr.at100IcNo),
                   ),

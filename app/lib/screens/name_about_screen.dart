@@ -7,6 +7,7 @@ import '../widgets/skeleton.dart';
 import '../widgets/nameabout_sections.dart';
 import '../widgets/nameabout_checklist.dart';
 import '../l10n/app_localizations.dart';
+import '../ds/ds.dart';
 import '../services/error_kind.dart' show honestFailText; // qa2
 
 /// Assisto — "About the Assisto name" (ADVANCED, SPEC v2.1 §21).
@@ -119,23 +120,17 @@ class _NameAboutScreenState extends State<NameAboutScreen> {
         padding: const EdgeInsets.all(Gap.lg),
         children: [
           // ---- Hero: the name ----
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(Gap.lg),
-            decoration: BoxDecoration(
-              gradient: Brand.gradient,
-              borderRadius: BorderRadius.circular(Radii.lg),
-            ),
+          DsHeroCard(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(t.nameAboutNameLabel,
-                  style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.w600)),
+                  style: AType.bodyMedium.copyWith(
+                      color: Theme.of(context).colorScheme.ds.muted, fontWeight: FontWeight.w600)),
               const SizedBox(height: Gap.xs),
               Text(name,
-                  style: AType.headlineLarge.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
+                  style: AType.headlineLarge.copyWith(color: Theme.of(context).colorScheme.ds.text, fontWeight: FontWeight.w800)),
               const SizedBox(height: Gap.sm),
               Text(t.nameAboutStatusPending,
-                  style: AType.bodyMedium.copyWith(color: Colors.white, height: 1.4)),
+                  style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.text, height: 1.4)),
             ]),
           ),
           const SizedBox(height: Gap.lg),
@@ -218,7 +213,7 @@ class _EmptyWithDisclaimer extends StatelessWidget {
         const SizedBox(height: Gap.xs),
         Text(t.nameAboutEmptyBody,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 color: Theme.of(context).colorScheme.ds.muted, height: 1.45)),
         const SizedBox(height: Gap.lg),
         Center(

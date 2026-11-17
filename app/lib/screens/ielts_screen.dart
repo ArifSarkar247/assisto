@@ -15,6 +15,7 @@ import '../widgets/local_digits.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/voice_input.dart';
 import 'ielts_engine.dart';
+import '../ds/ds.dart';
 
 /// p2lang — IELTS PRACTICE inside Language Partner (flag `language_packs`).
 ///
@@ -143,11 +144,7 @@ class _IeltsScreenState extends State<IeltsScreen> {
         child: ListView(
           padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
           children: [
-            Card(
-              color: scheme.primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.lg),
-                child: Row(children: [
+            DsCard(padding: const EdgeInsets.all(Gap.lg), child: Row(children: [
                   Icon(Icons.local_fire_department_rounded,
                       size: 40, color: scheme.onPrimaryContainer),
                   const SizedBox(width: Gap.md),
@@ -161,22 +158,18 @@ class _IeltsScreenState extends State<IeltsScreen> {
                               color: scheme.onPrimaryContainer, fontWeight: FontWeight.w700)),
                       if (st.best > 0)
                         Text(ld(context, tr.ieltsStreakBest(st.best)),
-                            style: TextStyle(color: scheme.onPrimaryContainer)),
+                            style: AType.bodyMedium.copyWith(color: scheme.onPrimaryContainer)),
                       if (st.todayDone)
                         Text(tr.ieltsTodayDone,
-                            style: TextStyle(color: scheme.onPrimaryContainer)),
+                            style: AType.bodyMedium.copyWith(color: scheme.onPrimaryContainer)),
                     ]),
                   ),
-                ]),
-              ),
-            ),
+                ])),
             const SizedBox(height: Gap.sm),
             _EstimateNote(text: ctx.estimate(context)),
             const SizedBox(height: Gap.md),
             for (final m in modules)
-              Card(
-                margin: const EdgeInsets.only(bottom: Gap.sm),
-                child: ListTile(
+              Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                   minVerticalPadding: Gap.md,
                   leading: CircleAvatar(
                     backgroundColor: scheme.secondaryContainer,
@@ -186,8 +179,7 @@ class _IeltsScreenState extends State<IeltsScreen> {
                   subtitle: Text(m.$3),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => open(m.$4),
-                ),
-              ),
+                ))),
           ],
         ),
       ),
@@ -204,11 +196,11 @@ class _EstimateNote extends StatelessWidget {
     return Semantics(
       container: true,
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(Icons.info_outline_rounded, size: 18, color: scheme.onSurfaceVariant),
+        Icon(Icons.info_outline_rounded, size: 18, color: scheme.ds.muted),
         const SizedBox(width: Gap.xs),
         Expanded(
             child: Text(text,
-                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13, height: 1.35))),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted, fontSize: 13, height: 1.35))),
       ]),
     );
   }
@@ -237,7 +229,7 @@ Widget _page(BuildContext context, String title, List<Widget> children) => Scaff
 Widget _bodyText(BuildContext context, String t) => Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
       child: Text(t,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4)),
+          style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted, height: 1.4)),
     );
 
 // ======================= pronunciation =======================
@@ -252,9 +244,7 @@ class _PronList extends StatelessWidget {
     return _page(context, tr.ieltsPron, [
       _bodyText(context, tr.ieltsPronHow),
       for (final r in rows)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
             minVerticalPadding: Gap.md,
             title: Text('${r['text']}'),
             subtitle: Text(_loc(context, r, 'tip_bn', 'tip_en'),
@@ -262,8 +252,7 @@ class _PronList extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => IeltsPronPractice(ctx: ctx, row: r))),
-          ),
-        ),
+          ))),
     ]);
   }
 }
@@ -334,16 +323,11 @@ class _IeltsPronPracticeState extends State<IeltsPronPractice> {
     final r = _result;
     final tip = _loc(context, widget.row, 'tip_bn', 'tip_en');
     return _page(context, widget.title ?? tr.ieltsPron, [
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Text('${widget.row['text']}',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(height: 1.3)),
-        ),
-      ),
+      DsCard(padding: const EdgeInsets.all(Gap.lg), child: Text('${widget.row['text']}',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(height: 1.3))),
       const SizedBox(height: Gap.sm),
       if (tip.isNotEmpty)
-        Text('${tr.ieltsTip}: $tip', style: TextStyle(height: 1.4, color: scheme.onSurface)),
+        Text('${tr.ieltsTip}: $tip', style: AType.bodyMedium.copyWith(height: 1.4, color: scheme.onSurface)),
       const SizedBox(height: Gap.lg),
       ListenableBuilder(
         listenable: _voice,
@@ -427,7 +411,7 @@ class _WordChip extends StatelessWidget {
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(_statusIcon(row.status), size: 18, color: ink),
           const SizedBox(width: Gap.xs),
-          Flexible(child: Text(label, style: TextStyle(color: ink, fontWeight: FontWeight.w600))),
+          Flexible(child: Text(label, style: AType.bodyMedium.copyWith(color: ink, fontWeight: FontWeight.w600))),
         ]),
       ),
     );
@@ -500,14 +484,11 @@ class IeltsFeedback extends StatelessWidget {
             Icon(i['ok'] == true ? Icons.check_circle_rounded : Icons.error_outline_rounded,
                 color: Brand.onTint(context, i['ok'] == true ? Brand.success : Brand.warning)),
             const SizedBox(width: Gap.sm),
-            Expanded(child: Text(ld(context, _loc(context, i, 'bn', 'en')), style: const TextStyle(height: 1.4))),
+            Expanded(child: Text(ld(context, _loc(context, i, 'bn', 'en')), style: AType.bodyMedium.copyWith(height: 1.4))),
           ]),
         ),
       if (aiMsg != null)
-        Card(
-          color: scheme.surfaceContainerHighest,
-          child: Padding(padding: const EdgeInsets.all(Gap.md), child: Text(aiMsg)),
-        ),
+        DsCard(padding: const EdgeInsets.all(Gap.md), child: Text(aiMsg)),
       // buyinside: out of credits -> the credits sheet right here (the
       // answer stays in the box; send it again after buying)
       if (state == 'credits')
@@ -526,34 +507,28 @@ class IeltsFeedback extends StatelessWidget {
           Text(ld(context, '${tr.ieltsOverall}: ${tr.ieltsBandEstimate(_band(ai['overall']))}'),
               style: Theme.of(context).textTheme.titleLarge),
         for (final c in _list(ai['criteria']))
-          Card(
-            margin: const EdgeInsets.only(top: Gap.sm),
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Padding(padding: const EdgeInsets.only(top: Gap.sm), child: DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(
                     ld(context,
                         '${_critLabel(tr, '${c['id']}')} — ${c['band'] is num ? tr.ieltsBandEstimate(_band(c['band'])) : tr.ieltsNoBandText}'),
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.xs),
-                Text(_loc(context, c, 'bn', 'en'), style: const TextStyle(height: 1.4)),
-              ]),
-            ),
-          ),
+                Text(_loc(context, c, 'bn', 'en'), style: AType.bodyMedium.copyWith(height: 1.4)),
+              ]))),
         if (_list(ai['fixes']).isNotEmpty) ...[
           const SizedBox(height: Gap.md),
-          Text(tr.ieltsFixes, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(tr.ieltsFixes, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
           for (final f in _list(ai['fixes']))
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
-              child: Text('• ${_loc(context, f, 'bn', 'en')}', style: const TextStyle(height: 1.4)),
+              child: Text('• ${_loc(context, f, 'bn', 'en')}', style: AType.bodyMedium.copyWith(height: 1.4)),
             ),
         ],
         if (charged > 0)
           Padding(
             padding: const EdgeInsets.only(top: Gap.sm),
             child: Text(ld(context, tr.ieltsAiCharged(charged)),
-                style: TextStyle(color: scheme.onSurfaceVariant)),
+                style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
           ),
       ],
       const SizedBox(height: Gap.sm),
@@ -627,9 +602,7 @@ class _SpeakingListState extends State<_SpeakingList> {
       const SizedBox(height: Gap.md),
       _bodyText(context, help),
       for (final r in rows)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
             minVerticalPadding: Gap.md,
             title: Text(_part == 'p1'
                 ? _loc(context, r, 'topic_bn', 'topic_en')
@@ -639,8 +612,7 @@ class _SpeakingListState extends State<_SpeakingList> {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => IeltsSpeakingPractice(ctx: widget.ctx, part: _part, row: r))),
-          ),
-        ),
+          ))),
     ]);
   }
 }
@@ -737,25 +709,20 @@ class _IeltsSpeakingPracticeState extends State<IeltsSpeakingPractice> {
     };
     final ctx = widget.ctx;
     return _page(context, ld(context, tr.ieltsPartN(int.parse(widget.part.substring(1)))), [
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             if (widget.part == 'p2') ...[
               Text('${r['title']}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.sm),
               Text(tr.ieltsYouShouldSay),
-              for (final b in bullets) Text('• $b', style: const TextStyle(height: 1.5)),
+              for (final b in bullets) Text('• $b', style: AType.bodyMedium.copyWith(height: 1.5)),
             ] else
               for (final q in questions)
                 Padding(
                   padding: const EdgeInsets.only(bottom: Gap.xs),
-                  child: Text('• $q', style: const TextStyle(height: 1.4)),
+                  child: Text('• $q', style: AType.bodyMedium.copyWith(height: 1.4)),
                 ),
-          ]),
-        ),
-      ),
+          ])),
       if (widget.part == 'p2') ...[
         const SizedBox(height: Gap.sm),
         OutlinedButton.icon(
@@ -823,16 +790,13 @@ class _WritingListState extends State<_WritingList> {
       const SizedBox(height: Gap.md),
       _bodyText(context, _task == 't1' ? tr.ieltsTask1Help : tr.ieltsTask2Help),
       for (final r in rows)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
             minVerticalPadding: Gap.md,
             title: Text('${r['prompt']}', maxLines: 3, overflow: TextOverflow.ellipsis),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => IeltsWritingPractice(ctx: widget.ctx, task: _task, row: r))),
-          ),
-        ),
+          ))),
     ]);
   }
 }
@@ -900,12 +864,7 @@ class _IeltsWritingPracticeState extends State<IeltsWritingPractice> {
     final n = ieltsWords(_text.text).length;
     final ctx = widget.ctx;
     return _page(context, widget.task == 't1' ? tr.ieltsTask1 : tr.ieltsTask2, [
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Text('${widget.row['prompt']}', style: const TextStyle(height: 1.45)),
-        ),
-      ),
+      DsCard(padding: const EdgeInsets.all(Gap.lg), child: Text('${widget.row['prompt']}', style: AType.bodyMedium.copyWith(height: 1.45))),
       const SizedBox(height: Gap.md),
       TextField(
         controller: _text,
@@ -917,10 +876,10 @@ class _IeltsWritingPracticeState extends State<IeltsWritingPractice> {
         decoration: InputDecoration(labelText: tr.ieltsWriteHint, border: const OutlineInputBorder()),
       ),
       Text(ld(context, tr.ieltsWordCount(n, min)),
-          style: TextStyle(
+          style: AType.bodyMedium.copyWith(
               color: n >= min
                   ? Brand.onTint(context, Brand.success)
-                  : Theme.of(context).colorScheme.onSurfaceVariant)),
+                  : Theme.of(context).colorScheme.ds.muted)),
       const SizedBox(height: Gap.md),
       _CheckButtons(busy: _busy, aiReady: ctx is _Ielts && ctx.aiReady, onCheck: _check),
       if (_result != null) ...[
@@ -943,9 +902,7 @@ class _ReadingList extends StatelessWidget {
     return _page(context, tr.ieltsReading, [
       _bodyText(context, tr.ieltsReadingOriginal),
       for (final r in rows)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
             minVerticalPadding: Gap.md,
             leading: const Icon(Icons.article_outlined),
             title: Text('${r['title']}'),
@@ -953,8 +910,7 @@ class _ReadingList extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => IeltsReadingPractice(ctx: ctx, row: r))),
-          ),
-        ),
+          ))),
     ]);
   }
 }
@@ -1011,7 +967,7 @@ class _IeltsReadingPracticeState extends State<IeltsReadingPractice> {
       for (final p in (widget.row['paragraphs'] as List? ?? const []))
         Padding(
           padding: const EdgeInsets.only(bottom: Gap.md),
-          child: Text('$p', style: const TextStyle(height: 1.5)),
+          child: Text('$p', style: AType.bodyMedium.copyWith(height: 1.5)),
         ),
       const Divider(),
       for (var i = 0; i < qs.length; i++)
@@ -1019,7 +975,7 @@ class _IeltsReadingPracticeState extends State<IeltsReadingPractice> {
           padding: const EdgeInsets.only(bottom: Gap.md),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(ld(context, '${i + 1}. ${qs[i]['text']}'),
-                style: const TextStyle(fontWeight: FontWeight.w600, height: 1.4)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600, height: 1.4)),
             const SizedBox(height: Gap.xs),
             // Full-width rows (not chips): long MCQ options wrap at 200 % font.
             for (final a in qs[i]['type'] == 'tfng'
@@ -1051,7 +1007,7 @@ class _IeltsReadingPracticeState extends State<IeltsReadingPractice> {
                     Expanded(
                       child: Text(
                           '${tr.ieltsCorrectAnswer(_answerLabel(tr, qs[i], '${g['answer']}'))}\n${_loc(context, g, 'bn', 'en')}',
-                          style: const TextStyle(height: 1.4)),
+                          style: AType.bodyMedium.copyWith(height: 1.4)),
                     ),
                   ]),
                 );
@@ -1095,9 +1051,7 @@ class _ListeningPage extends StatelessWidget {
     return _page(context, tr.ieltsListening, [
       _bodyText(context, tr.ieltsListeningBody),
       for (final l in links)
-        Card(
-          margin: const EdgeInsets.only(bottom: Gap.sm),
-          child: ListTile(
+        Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
             minVerticalPadding: Gap.md,
             leading: const Icon(Icons.open_in_new_rounded),
             title: Text('${l['org']}'),
@@ -1115,8 +1069,7 @@ class _ListeningPage extends StatelessWidget {
                 if (context.mounted) _toast(context, tr.ieltsOpenLinkFailed);
               }
             },
-          ),
-        ),
+          ))),
     ]);
   }
 }
@@ -1237,10 +1190,9 @@ class _VocabPageState extends State<_VocabPage> {
     return _page(context, tr.ieltsVocab, [
       _bodyText(context, tr.ieltsVocabHow),
       Text(ld(context, tr.ieltsVocabDue(due.length)),
-          style: const TextStyle(fontWeight: FontWeight.w600)),
+          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
       const SizedBox(height: Gap.md),
-      Card(
-        child: InkWell(
+      DsCard(padding: EdgeInsets.zero, child: InkWell(
           onTap: () => setState(() => _revealed = true),
           child: Padding(
             padding: const EdgeInsets.all(Gap.xl),
@@ -1257,13 +1209,12 @@ class _VocabPageState extends State<_VocabPage> {
                       style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: Gap.sm),
                 Text('${card['example']}', textAlign: TextAlign.center,
-                    style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4)),
+                    style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
               ] else
-                Text(tr.ieltsShowMeaning, style: TextStyle(color: scheme.primary)),
+                Text(tr.ieltsShowMeaning, style: AType.bodyMedium.copyWith(color: scheme.primary)),
             ]),
           ),
-        ),
-      ),
+        )),
       const SizedBox(height: Gap.md),
       if (_revealed)
         Row(children: [

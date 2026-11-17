@@ -11,6 +11,7 @@ import '../widgets/cv_empty.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'vehicle_tracking_screen.dart';
 import 'package:assisto/widgets/app_sheet.dart';
+import '../ds/ds.dart';
 import 'vehicle_drivers_screen.dart'; // veh100
 import '../vehicle/vehicle_api.dart'; // veh100
 import '../vehicle/veh_format.dart' show vehNumStr; // veh100
@@ -264,11 +265,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     final isBike = (data['type'] ?? 'car').toString() == 'motorcycle';
     final name = (data['name'] ?? '').toString().trim();
     final reg = (data['registration_no'] ?? '').toString().trim();
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             CircleAvatar(
               backgroundColor: scheme.primaryContainer,
@@ -284,13 +281,13 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(name.isEmpty ? tr.vehiclesUnnamed : name,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis),
                     Text(
                         '${isBike ? tr.vehiclesTypeBike : tr.vehiclesTypeCar}'
                         '${reg.isEmpty ? '' : '  ·  $reg'}',
-                        style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant),
+                        style: AType.bodySmall.copyWith(color: scheme.ds.muted),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis),
                   ]),
@@ -318,7 +315,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
             const SizedBox(height: Gap.xs),
             Text(tr.v100ServiceRulesN(
                     vehNumStr(context, (data['maintenance'] as List).length)),
-                style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
           ],
           // cctvveh: live tracking from the vehicle itself (was only a small
           // icon in the app bar)
@@ -336,9 +333,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
               ),
             ),
           ],
-        ]),
-      ),
-    );
+        ]));
   }
 
   /// Expiry badge — mirrors vault_screen: red <7 days (and expired), orange <30.
@@ -360,33 +355,25 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
       return [if (who.isNotEmpty) who, label, if (when.isNotEmpty) when].join(' · ');
     }
 
-    return Card(
-      key: const ValueKey('veh-due-banner'),
-      margin: EdgeInsets.zero,
-      color: scheme.errorContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: const ValueKey('veh-due-banner'), tone: DsTone.danger, padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.notification_important_rounded, color: scheme.onErrorContainer),
             const SizedBox(width: Gap.sm),
             Expanded(
                 child: Text(tr.v100DueTitle,
-                    style: TextStyle(
+                    style: AType.bodyMedium.copyWith(
                         fontWeight: FontWeight.w700, color: scheme.onErrorContainer))),
           ]),
           const SizedBox(height: Gap.xs),
           for (final d in _due.take(6))
             Padding(
               padding: const EdgeInsets.only(top: 2),
-              child: Text(line(d), style: TextStyle(color: scheme.onErrorContainer)),
+              child: Text(line(d), style: AType.bodyMedium.copyWith(color: scheme.onErrorContainer)),
             ),
           const SizedBox(height: Gap.xs),
           Text(tr.v100DueFoot,
               style: AType.bodySmall.copyWith(color: scheme.onErrorContainer)),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _expiryChip(String label, dynamic iso, AppLocalizations tr) {
@@ -394,7 +381,7 @@ class _MyVehiclesScreenState extends State<MyVehiclesScreen> {
     final d = iso == null ? null : DateTime.tryParse(iso.toString());
     if (d == null) {
       return _chip(
-          '$label · ${tr.vehiclesNotSet}', scheme.onSurfaceVariant);
+          '$label · ${tr.vehiclesNotSet}', scheme.ds.muted);
     }
     final days = d.difference(DateTime.now()).inDays;
     final daysStr = fmtInt(context, days.abs());
@@ -600,7 +587,7 @@ class _VehicleFormState extends State<_VehicleForm> {
                 padding: const EdgeInsets.only(top: Gap.xs),
                 child: Text(tr.v100PapersPushNote,
                     style: AType.bodySmall.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        color: Theme.of(context).colorScheme.ds.muted)),
               ),
               const SizedBox(height: Gap.lg),
               Text(tr.v100ServiceHeader, style: Theme.of(context).textTheme.titleSmall),
@@ -705,11 +692,7 @@ class _BuyingGuideTab extends StatelessWidget {
         // v1-vehicle: Assisto live tracking now works with GT06 / Teltonika
         // trackers — say so honestly and link to it.
         if (FeatureFlags.instance.isOn('vehicle_tracking')) // feature-flags
-        Card(
-          color: scheme.surfaceContainerHighest,
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.md),
-            child: Column(
+        DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
@@ -717,7 +700,7 @@ class _BuyingGuideTab extends StatelessWidget {
                     const SizedBox(width: Gap.sm),
                     Expanded(
                       child: Text(tr.vehGuideTrackingNow,
-                          style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+                          style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     ),
                   ]),
                   const SizedBox(height: Gap.xs),
@@ -729,9 +712,7 @@ class _BuyingGuideTab extends StatelessWidget {
                     icon: const Icon(Icons.gps_fixed_rounded),
                     label: Text(tr.vehTrackingTitle),
                   ),
-                ]),
-          ),
-        ),
+                ])),
         const SizedBox(height: Gap.lg),
 
         // SIM GPS vs Bluetooth tag comparison.
@@ -784,7 +765,7 @@ class _BuyingGuideTab extends StatelessWidget {
         _header(context, Icons.payments_rounded, tr.vehiclesPriceTitle),
         const SizedBox(height: Gap.sm),
         Text(tr.vehiclesPriceNote,
-            style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
         const SizedBox(height: Gap.sm),
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           FilledButton.tonalIcon(
@@ -800,7 +781,7 @@ class _BuyingGuideTab extends StatelessWidget {
         ]),
         const SizedBox(height: Gap.lg),
         Text(tr.vehiclesPriceDisclaimer,
-            style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.onSurfaceVariant)),
+            style: AType.bodySmall.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted)),
       ],
     );
   }
@@ -821,17 +802,13 @@ class _BuyingGuideTab extends StatelessWidget {
       required String title,
       required List<String> lines}) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(icon, size: 20, color: scheme.primary),
             const SizedBox(width: Gap.sm),
             Expanded(
               child: Text(title,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             ),
           ]),
           const SizedBox(height: Gap.sm),
@@ -843,15 +820,13 @@ class _BuyingGuideTab extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 3, right: Gap.sm),
                   child: Icon(Icons.chevron_right_rounded,
-                      size: 15, color: scheme.onSurfaceVariant),
+                      size: 15, color: scheme.ds.muted),
                 ),
                 Expanded(
                     child: Text(l, style: AType.bodyMedium)),
               ]),
             ),
-        ]),
-      ),
-    );
+        ]));
   }
 
   Widget _bullet(BuildContext context, String text) {

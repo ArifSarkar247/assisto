@@ -22,6 +22,7 @@ import '../widgets/permission_reason.dart';
 import '../widgets/nearby_data.dart';
 import '../widgets/nearby_category_bar.dart';
 import '../widgets/nearby_place_card.dart';
+import '../ds/ds.dart';
 
 /// Nearby — Assisto's OWN emergency list, zero Google cost (owner 3 Nov 18:50).
 ///
@@ -315,7 +316,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
               children: [
                 Text(t.nearbyReportTitle, style: AType.titleMedium),
                 const SizedBox(height: Gap.xs),
-                Text(p.nameEn, style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(p.nameEn, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: Gap.sm),
                 Text(t.nearbyReportBody),
                 const SizedBox(height: Gap.md),
@@ -619,11 +620,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       padding: withNavBarInset(
           context, const EdgeInsets.fromLTRB(Gap.md, 0, Gap.md, Gap.lg)),
       children: [
-        Card(
-          key: const ValueKey('nearby_general_panel'),
-          child: Padding(
-            padding: const EdgeInsets.all(Gap.lg),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        DsCard(key: const ValueKey('nearby_general_panel'), padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Icon(meta.icon, size: 40, color: meta.tint),
               const SizedBox(height: Gap.sm),
               Text(t.nearbyGeneralTitle,
@@ -631,7 +628,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
               const SizedBox(height: Gap.xs),
               Text(t.nearbyGeneralBody,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.ds.muted)),
+                  style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
               const SizedBox(height: Gap.md),
               FilledButton.icon(
                 key: const ValueKey('nearby_open_in_maps'),
@@ -642,9 +639,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
                 icon: const Icon(Icons.map_rounded),
                 label: Text(t.nearbyOpenInMaps),
               ),
-            ]),
-          ),
-        ),
+            ])),
         if (_sponsored.isNotEmpty) ...[
           const SizedBox(height: Gap.md),
           Text(t.nearbySponsoredHint, style: AType.titleSmall),
@@ -662,16 +657,11 @@ class _NearbyScreenState extends State<NearbyScreen> {
     final lon = (s['lon'] as num?)?.toDouble();
     final phone = '${s['phone'] ?? ''}';
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      key: ValueKey('nearby_sponsored_${s['id']}'),
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(key: ValueKey('nearby_sponsored_${s['id']}'), padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
                 child: Text('${s['name'] ?? ''}',
-                    style: const TextStyle(fontWeight: FontWeight.w700))),
+                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700))),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 2),
               decoration: BoxDecoration(
@@ -679,7 +669,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
                   borderRadius: BorderRadius.circular(Radii.pill)),
               child: Text(
                   _sponsoredLabel.isNotEmpty ? _sponsoredLabel : t.nearbySponsored,
-                  style: TextStyle(
+                  style: AType.bodyMedium.copyWith(
                       color: scheme.ds.primaryInk,
                       fontWeight: FontWeight.w700)),
             ),
@@ -712,8 +702,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
                 ),
               ),
           ]),
-        ]),
-      ),
-    );
+        ])));
   }
 }
