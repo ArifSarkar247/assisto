@@ -198,7 +198,9 @@ void main() {
         _phone(tester, height: 900);
         await tester.pumpWidget(_screen(GapFakePlayback(), lang: lang, scale: 2.0, dark: dark));
         await _settle(tester);
-        await tester.ensureVisible(find.byKey(const ValueKey('gcv-pb-hour-10')));
+        // the outer list builds lazily at 200%: drag it until the hour exists
+        await tester.dragUntilVisible(find.byKey(const ValueKey('gcv-pb-hour-10')),
+            find.byType(ListView).first, const Offset(0, -200));
         await _settle(tester);
         await tester.tap(find.byKey(const ValueKey('gcv-pb-hour-10')));
         await _settle(tester, 12);
