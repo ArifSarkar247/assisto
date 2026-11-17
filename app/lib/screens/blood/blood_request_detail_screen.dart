@@ -345,6 +345,22 @@ class _BloodRequestDetailScreenState extends State<BloodRequestDetailScreen> {
           ]),
         ),
         const SizedBox(height: Gap.md),
+        // gap-quranblood B2: spread the request outside the app (no number)
+        if (r['state'] == 'active') ...[
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: OutlinedButton.icon(
+              key: const ValueKey('bp-req-share'),
+              onPressed: () => bpShareOut(bpRequestShareText(context, r)),
+              icon: const Icon(Icons.share_rounded),
+              label: Text(mine ? t.bpShareReqMine : t.bpShareReqOther),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xxs, bottom: Gap.md),
+            child: Text(t.bpShareReqSub, style: text.bodySmall?.copyWith(color: ds.muted)),
+          ),
+        ],
         if (mine) ..._requesterPart(context, live) else ..._donorPart(context, live),
         ..._shareBlock(context),
       ],

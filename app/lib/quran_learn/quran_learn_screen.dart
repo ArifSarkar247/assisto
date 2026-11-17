@@ -31,6 +31,8 @@ import 'recite_sheet.dart';
 import 'shikhi_widgets.dart'; // quranshikhi
 import '../l10n/quran_shikhi_text.dart'; // quranshikhi
 import 'uthmani_text.dart';
+import '../quran/quran_ayah_audio.dart'; // gap-quranblood Q6
+import '../quran/quran_bilingual_api.dart';
 
 bool _bn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
 
@@ -401,8 +403,19 @@ class QuranLessonScreen extends StatefulWidget {
 
   /// quranshikhi: open with this item in focus (deep link / gallery).
   final String? initialItem;
+
+  /// gap-quranblood Q6 seams: the server API (licensed QF ayah audio) and
+  /// the audio player.
+  final QuranBilingualApi? api;
+  final QvPlayer? player;
   const QuranLessonScreen(
-      {super.key, required this.stage, required this.lesson, this.progress, this.initialItem});
+      {super.key,
+      required this.stage,
+      required this.lesson,
+      this.progress,
+      this.initialItem,
+      this.api,
+      this.player});
 
   @override
   State<QuranLessonScreen> createState() => _QuranLessonScreenState();
@@ -415,6 +428,56 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
   int _sel = 0;
 
   bool get _needsText => widget.lesson.items.any((i) => i.ref != null);
+
+  // gap-quranblood Q6: a WHOLE-ayah item plays the licensed Quran
+  // Foundation recitation streamed by our server (never quranicaudio /
+  // EveryAyah, never TTS). Letters, syllables and word ranges stay honest
+  // "no audio yet" (no licensed Qaida recording on file).
+  late final QuranAyahAudio _audio = QuranAyahAudio(
+      player: widget.player,
+      onState: (i, failed) {
+        if (!mounted) return;
+        setState(() {
+          if (i == 0) _playingId = null;
+        });
+        if (failed) showQlNoAudio(context);
+      });
+  String? _playingId;
+  bool _audioBusy = false;
+
+  // a whole ayah = no word range ("112:1 from word 4" only skips the
+  // bismillah that the Tanzil file prefixes to a sura's first ayah)
+  static bool _wholeAyah(QlItem i) => i.ref != null && i.ref!.to == null;
+
+  Future<void> _listen(QlItem i) async {
+    if (_playingId == i.id) {
+      await _audio.stop();
+      return;
+    }
+    if (!_wholeAyah(i)) {
+      await showQlNoAudio(context);
+      return;
+    }
+    setState(() => _audioBusy = true);
+    final api = widget.api ??
+        QuranBilingualApi((p) => context.read<AppState>().api.getJson(p));
+    final q = await api.qf(i.ref!.sura, i.ref!.ayah);
+    if (!mounted) return;
+    setState(() => _audioBusy = false);
+    final url = (q?['audio_url'] as String?) ?? '';
+    if (q == null || q['enabled'] == false || url.isEmpty) {
+      await showQlNoAudio(context);
+      return;
+    }
+    setState(() => _playingId = i.id);
+    await _audio.play(url, 1);
+  }
+
+  @override
+  void dispose() {
+    _audio.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -662,11 +725,13 @@ class _QuranLessonScreenState extends State<QuranLessonScreen> {
         OutlinedButton.icon(
           key: Key('ql-listen-${i.id}'),
           style: OutlinedButton.styleFrom(minimumSize: const Size(kMinTap, kMinTap)),
-          icon: Icon(qaidaAudioAvailable(i)
-              ? Icons.volume_up_rounded
-              : Icons.headset_off_rounded),
-          label: Text(t.qlListen),
-          onPressed: () => showQlNoAudio(context),
+          icon: Icon(_playingId == i.id
+              ? Icons.stop_rounded
+              : qaidaAudioAvailable(i) || _wholeAyah(i)
+                  ? Icons.volume_up_rounded
+                  : Icons.headset_off_rounded),
+          label: Text(_playingId == i.id ? t.qvStop : t.qlListen),
+          onPressed: _audioBusy ? null : () => _listen(i),
         ),
         if (canCheck)
           FilledButton.icon(

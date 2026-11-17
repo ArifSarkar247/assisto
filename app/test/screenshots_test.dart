@@ -1189,6 +1189,10 @@ Map<String, GallerySpec> gallerySpecs() {
     'quran_reader': (build: (_) { SharedPreferences.setMockInitialValues({'quran_bookmarks_v1': ['1:2']}); return QuranReaderScreen(data: realQuranData(), sura: 1); }, mode: FakeMode.data, full: true),
     'quran_reader_en': (build: (_) { SharedPreferences.setMockInitialValues({'quran_translation_v1': 'en'}); return QuranReaderScreen(data: realQuranData(), sura: 112); }, mode: FakeMode.data, full: true),
     'quran_about': (build: (_) => QuranAboutScreen(notice: realQuranData().arabicNotice), mode: FakeMode.data, full: true),
+    // gap-quranblood: para list + reader at the end of a sura (next sura)
+    'quran_juz': (build: (_) { preloadRealQuran(); return const QuranScreen(initialTab: 1); }, mode: FakeMode.data, full: true),
+    'quran_reader_end': (build: (_) => QuranReaderScreen(data: realQuranData(), sura: 112, aya: 3), mode: FakeMode.data, full: true),
+    // /gap-quranblood
     // quranread: learn to read Quran (real lessons + real Tanzil Uthmani text)
     'quran_learn': (build: (_) => QuranLearnScreen(progress: qlShotProgress()), mode: FakeMode.data, full: true),
     'quran_learn_letters': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress()), mode: FakeMode.data, full: true),

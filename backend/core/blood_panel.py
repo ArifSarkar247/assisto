@@ -333,7 +333,9 @@ def search_full(user, params, lang="bn", at=None):
     # listed with their status (only donors who left / switched off are not)
     qs = (BloodDonor.objects.filter(enabled=True, user__is_active=True,
                                     blood_group__in=groups)
-          .exclude(user=user).select_related("user"))
+          .exclude(user=user)
+          .exclude(user_id__in=blocked_me_donor_ids(user))   # gap B1
+          .select_related("user"))
     on_day = timezone.localtime(at).date()
     rows = []
     for d in qs[:5000]:
@@ -348,7 +350,22 @@ def search_full(user, params, lang="bn", at=None):
     out.sort(key=lambda r: r[0])
     cards = [r[1] for r in out]
     log_event("search", None, user, group=group, radius=radius, n=len(cards))
-    return cards[:BR.MAX_LIST], list_counts(cards), None
+    shown = cards[:BR.MAX_LIST]
+    # gap B7: "helped N people" on the cards actually shown (bounded list)
+    users = {d.id: d.user for d, _km in rows}
+    for c in shown:
+        u = users.get(c["id"])
+        c["helped"] = helped_count(u) if u is not None else 0
+    return shown, list_counts(cards), None
+
+
+def blocked_me_donor_ids(seeker):
+    """gap B1 (safety): donors who BLOCKED this person in a thread. They are
+    never listed to that person, never pushed for that person's requests,
+    and their number is never shown to that person."""
+    from .models import BloodThread
+    return set(BloodThread.objects.filter(seeker=seeker, blocked_by="donor")
+               .values_list("donor_id", flat=True))
 
 
 STATUS_ORDER = {"available": 0, "waiting": 1, "paused": 2}
@@ -456,7 +473,9 @@ def candidates(req, at):
     for d in (BloodDonor.objects
               .filter(enabled=True, available=True, user__is_active=True,
                       blood_group__in=BR.donor_groups_for(req.blood_group))
-              .exclude(user_id=req.requester_id).select_related("user")):
+              .exclude(user_id=req.requester_id)
+              .exclude(user_id__in=blocked_me_donor_ids(req.requester))   # gap B1
+              .select_related("user")):
         if not BR.is_eligible(d.last_donation, d.sex, by_day):
             continue
         ok, km = BR.within(a, BR.area_of(d.lat, d.lng, d.district), req.radius_km)
@@ -587,8 +606,11 @@ def responders(req, lang="bn"):
     from .models import BloodThread
     a = BR.area_of(req.lat, req.lng, req.district)
     out = []
+    blocked = blocked_me_donor_ids(req.requester)   # gap B1
     for row in (req.recipients.filter(response__in=("can", "donated"))
                 .select_related("user").order_by("responded_at")):
+        if row.user_id in blocked:
+            continue
         d = get_donor(row.user)
         if d is None:
             continue
@@ -919,7 +941,9 @@ def thread_json(th, user, lang="bn"):
             "unread": th.donor_unread if s == "donor" else th.seeker_unread,
             "blocked": bool(th.blocked_by), "blocked_by_me": th.blocked_by == s,
             "circle_ask": th.circle_ask,
-            "phone": (th.donor.phone or None) if (s == "seeker" and d and d.phone_public) else None}
+            # gap B1: a donor who blocked this seeker never shows the number
+            "phone": (th.donor.phone or None)
+            if (s == "seeker" and d and d.phone_public and th.blocked_by != "donor") else None}
 
 
 def mark_read(th, user):

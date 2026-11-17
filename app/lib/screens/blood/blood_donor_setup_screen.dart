@@ -251,9 +251,13 @@ class _BloodDonorSetupScreenState extends State<BloodDonorSetupScreen> {
                 key: const ValueKey('bp-phone-public'),
                 contentPadding: EdgeInsets.zero,
                 title: Text(t.bpPhonePublic),
-                subtitle: Text(t.bpPhonePublicSub),
+                subtitle: Text(t.bpPhonePublicWhoSub),
                 value: _phonePublic,
-                onChanged: (v) => setState(() => _phonePublic = v),
+                // gap-quranblood B4: ON only after a clear "who sees it" yes
+                onChanged: (v) async {
+                  if (v && await bpConfirmPhonePublic(context) != true) return;
+                  if (mounted) setState(() => _phonePublic = v);
+                },
               ),
               SwitchListTile(
                 key: const ValueKey('bp-email-public'),
