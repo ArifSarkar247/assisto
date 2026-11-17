@@ -11,7 +11,7 @@ wording ("watching", "নজর রাখছি") anywhere.
 import json
 
 THEME_COLOR = "#0A6CF0"
-COMPANY = "AXON Dynamic"
+COMPANY = "Axon Dynamics"
 EMAIL = "assistoaiagent@gmail.com"
 PLAY_ID = "com.assisto.assisto"
 
@@ -96,7 +96,7 @@ COPY = {
         "contact_h": "যোগাযোগ",
         "contact_body": "প্রশ্ন, সমস্যা বা পরামর্শ থাকলে ইমেইল করুন।",
         "contact_app": "অ্যাপের ভেতর থেকে: মেনু › সাহায্য ও মতামত।",
-        "company_line": "Assisto তৈরি করেছে AXON Dynamic, বাংলাদেশ।",
+        "company_line": "Assisto তৈরি করেছে Axon Dynamics, বাংলাদেশ।",
         "emergency": "Assisto জরুরি সেবা নয়। বিপদে ৯৯৯-এ ফোন করুন।",
         "footer_product": "অ্যাপ", "footer_company": "কোম্পানি", "footer_legal": "নীতিমালা",
         "privacy": "গোপনীয়তা নীতি", "terms": "শর্তাবলী", "refund": "রিফান্ড নীতি",
@@ -148,7 +148,7 @@ COPY = {
         "contact_h": "Contact",
         "contact_body": "Questions, problems or ideas — email us.",
         "contact_app": "Inside the app: Menu › Help & feedback.",
-        "company_line": "Assisto is made by AXON Dynamic, Bangladesh.",
+        "company_line": "Assisto is made by Axon Dynamics, Bangladesh.",
         "emergency": "Assisto is not an emergency service. In danger, call 999.",
         "footer_product": "App", "footer_company": "Company", "footer_legal": "Policies",
         "privacy": "Privacy policy", "terms": "Terms", "refund": "Refund policy",
@@ -386,7 +386,7 @@ def jsonld(lang, site, url, page):
     we have no real public rating to show."""
     org = {"@type": "Organization", "@id": site + "/#org", "name": COMPANY,
            "url": site + "/", "email": EMAIL, "logo": site + "/site/icon-512.png",
-           "address": {"@type": "PostalAddress", "addressCountry": "BD"}}
+           "address": {"@type": "PostalAddress", "streetAddress": "Cha-63/3, Uttar Badda, Badda", "addressLocality": "Dhaka", "postalCode": "1212", "addressCountry": "BD"}}
     app = {"@type": "SoftwareApplication", "name": "Assisto", "operatingSystem": "Android 8.0+",
            "applicationCategory": "LifestyleApplication", "url": site + "/",
            "inLanguage": ["bn", "en"], "publisher": {"@id": site + "/#org"},

@@ -6,6 +6,10 @@ class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
+        # publicurl: system check + a loud log when the production public
+        # base is not https / points at this server (core/public_url.py)
+        from . import public_url
+        public_url.log_at_start()
         # c1-contacts: canonical User.phone + UserPhoneHash sync.
         from . import signals_c1_phone
         signals_c1_phone.connect()

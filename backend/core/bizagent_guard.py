@@ -267,7 +267,7 @@ def owner_confirm(order, actor=None, lang="bn"):
         if locked.status != "new":
             return {"ok": False, "reason": "not_draft"}
         for it in items:
-            if not S._decrement_stock(it):
+            if not S._decrement_stock(it, order.business):
                 transaction.set_rollback(True)
                 return {"ok": False, "reason": "out_of_stock", "product": it.get("name", "")}
         locked.status = "confirmed"

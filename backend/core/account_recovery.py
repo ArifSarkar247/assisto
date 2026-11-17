@@ -53,7 +53,8 @@ def state(user):
 
 
 def base_url():
-    return (getattr(settings, "ASSISTO_BASE_URL", "") or "").rstrip("/")
+    from .public_url import public_base_url
+    return public_base_url()
 
 
 # ------------------------------------------------------------ identity rules

@@ -340,22 +340,55 @@ class ChannelsView(APIView):
         if not token:
             return _err(lang, "অ্যাক্সেস টোকেন দিন।", "Enter the access token.", status=422,
                         code="no_token")
-        ch = SellerChannel.objects.filter(kind=kind, external_id=ext).first()
-        if ch and ch.business_id != prof.id:
-            return _err(lang, "এই চ্যানেলটি অন্য একটি ব্যবসায় যুক্ত।",
-                        "This channel is connected to another business.", status=409,
-                        code="channel_taken")
-        if ch is None:
-            ch = SellerChannel(business=prof, kind=kind, external_id=ext)
-        ch.token_enc = S.enc({"token": token})
-        ch.test_mode = False
+        # bizagent-iso: PROVE the token owns this page / IG account / number
+        # BEFORE anything is saved or any existing row is revealed. A wrong id
+        # or any Graph error → 422 and no row (no squatting, no probing).
         if kind == BZ.CH_WHATSAPP:
             r = G.whatsapp_number_info(token, ext)
             name = (r.get("json") or {}).get("verified_name") or \
                 (r.get("json") or {}).get("display_phone_number") or ""
+        elif kind == BZ.CH_INSTAGRAM:
+            r = G.ig_account_info(token)
+            js = r.get("json") or {}
+            iba = js.get("instagram_business_account")
+            name = (iba.get("username") or iba.get("name") or "") if isinstance(iba, dict) \
+                else ""
+            name = name or js.get("username") or js.get("name") or ""
         else:
             r = G.page_info(token)
             name = (r.get("json") or {}).get("name") or ""
+        if not G.owned_id_matches(kind, r, ext):
+            log.warning("bizagent channel_connect refused biz=%s kind=%s reason=%s",
+                        prof.id, kind, "graph_error" if not r.get("ok") else "id_mismatch")
+            GD.audit(prof, "channel_connect_refused", actor=request.user, kind=kind,
+                     reason="graph_error" if not r.get("ok") else "id_mismatch")
+            if not r.get("ok"):
+                return _err(lang, "টোকেনটি যাচাই করা গেল না। নতুন টোকেন দিয়ে আবার চেষ্টা করুন।",
+                            "Could not verify this token. Try again with a fresh token.",
+                            status=422, code="token_invalid")
+            return _err(lang, "এই টোকেন দিয়ে এই পেজ/অ্যাকাউন্ট/নম্বরের মালিকানা প্রমাণ হয়নি। "
+                              "সঠিক আইডি ও সেই পেজের টোকেন দিন।",
+                        "This token does not own that page/account/number. Use the right ID "
+                        "and that page's own token.", status=422, code="not_owner")
+        ch = SellerChannel.objects.filter(kind=kind, external_id=ext).first()
+        if ch and ch.business_id != prof.id:
+            if ch.status == "connected" and not ch.test_mode:
+                return _err(lang, "এই চ্যানেলটি অন্য একটি ব্যবসায় যুক্ত।",
+                            "This channel is connected to another business.", status=409,
+                            code="channel_taken")
+            # an unverified (pending / error / disabled) or self-test claim on
+            # this id: the verified owner takes it over; the old claim's
+            # chats stay with that business, unlinked from the channel
+            log.warning("bizagent channel takeover kind=%s old_channel=%s new_biz=%s",
+                        kind, ch.pk, prof.id)
+            GD.audit(prof, "channel_takeover", actor=request.user, kind=kind,
+                     old_channel_id=ch.pk)
+            ch.delete()
+            ch = None
+        if ch is None:
+            ch = SellerChannel(business=prof, kind=kind, external_id=ext)
+        ch.token_enc = S.enc({"token": token})
+        ch.test_mode = False
         if r["ok"]:
             ch.status, ch.status_detail = "connected", ""
             ch.display_name = (d.get("display_name") or name or ext)[:120]
@@ -377,10 +410,6 @@ class ChannelsView(APIView):
                     sub = G.subscribe_waba(token, w)
                     if not sub["ok"]:
                         ch.status_detail = ("webhook subscribe: " + sub["error"])[:200]
-        else:
-            ch.status = "error"
-            ch.status_detail = r.get("error", "")[:200]
-            ch.display_name = (d.get("display_name") or ext)[:120]
         ch.save()
         GD.audit(prof, "channel_connect", actor=request.user, kind=kind, channel_id=ch.id,
                  status=ch.status)
@@ -403,6 +432,44 @@ class ChannelToggleView(APIView):
         return Response({"ok": True, "channel": _channel_row(ch)})
 
 
+def _unsubscribe(ch):
+    """bizagent-iso: best-effort — stop Meta sending this channel's webhooks
+    to us (DELETE /{id}/subscribed_apps). Never blocks the disconnect; the
+    result is logged by channel id only. Instagram rides on the Page's
+    subscription (connect never subscribes it), so there is nothing to undo;
+    a WABA is left subscribed while the business still has another
+    WhatsApp number connected (one WABA can hold several numbers)."""
+    from . import bizagent_graph as G
+    if ch.test_mode or not ch.token_enc:
+        return None
+    try:
+        token = (S.dec(ch.token_enc) or {}).get("token") or ""
+    except Exception:  # noqa: BLE001
+        token = ""
+    if not token:
+        return None
+    res = []
+    try:
+        if ch.kind == BZ.CH_MESSENGER:
+            res.append(G.unsubscribe_page(token, ch.external_id))
+        elif ch.kind == BZ.CH_WHATSAPP:
+            others = ch.business.seller_channels.filter(
+                kind=BZ.CH_WHATSAPP, status="connected").exclude(pk=ch.pk).exists()
+            if not others:
+                m = S.meta_app() or {}
+                for w in G.waba_ids_for_token(token, m.get("app_id"),
+                                              m.get("app_secret"))[:3]:
+                    res.append(G.unsubscribe_waba(token, w))
+    except Exception:  # noqa: BLE001 — best effort
+        log.exception("bizagent unsubscribe failed channel=%s", ch.pk)
+        return False
+    for r in res:
+        if not r.get("ok"):
+            log.warning("bizagent unsubscribe channel=%s kind=%s error=%s", ch.pk, ch.kind,
+                        (r.get("error") or "")[:80])
+    return all(r.get("ok") for r in res)
+
+
 class ChannelDeleteView(APIView):
     def post(self, request, pk):
         prof, role, a, bad = _ctx(request)
@@ -412,6 +479,7 @@ class ChannelDeleteView(APIView):
         if not ch:
             return _err(req_lang(request), "পাওয়া যায়নি।", "Not found.", status=404)
         GD.audit(prof, "channel_disconnect", actor=request.user, kind=ch.kind, channel_id=ch.id)
+        _unsubscribe(ch)
         ch.delete()
         if not prof.seller_channels.filter(status="connected").exists() and a.ai_enabled:
             a.ai_enabled = False
@@ -701,9 +769,12 @@ class OrderStatusView(APIView):
             for it in o.items or []:   # give the reserved stock back
                 if it.get("product_id"):
                     q = int(it.get("qty") or 1)
-                    Product.objects.filter(pk=it["product_id"]).update(stock=F("stock") + q)
+                    # bizagent-iso: only THIS shop's own products
+                    Product.objects.filter(pk=it["product_id"], user=prof.user).update(
+                        stock=F("stock") + q)
                     if it.get("variant"):
                         ProductVariant.objects.filter(product_id=it["product_id"],
+                                                      product__user=prof.user,
                                                       vkey=it["variant"]).update(
                             stock=F("stock") + q)
         return Response({"ok": True, "status": o.status, "sale_id": o.sale_id})

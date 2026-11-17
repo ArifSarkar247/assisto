@@ -90,10 +90,31 @@ def link_row(l):
             "created": SV._iso(l.created)}
 
 
+# imou-real (owner 17 Nov): what the customer must do in the vendor's own
+# app BEFORE typing the serial + code (a camera sits in ONE cloud account).
+# The app shows a picture guide for these ids; none for a share / login path.
+REMOVE_FIRST = {"imou": "imou_life", "ezviz": "ezviz_app", "dolynk": "dmss"}
+
+
+def _switch_on(pid, key):
+    a = CC.ADAPTERS.get(pid)
+    try:
+        from . import integrations as I
+        v = str((I.get(a.integration) if a else {}).get(key) or "").strip().lower()
+    except Exception:  # noqa: BLE001
+        v = ""
+    return v in ("on", "1", "yes", "true")
+
+
 def provider_row(pid, user=None):
     a = CC.adapter(pid)
     modes = [m for m in a.modes() if m != "device_code" or devbind_allowed(user, pid)]
+    # the no-delete path (vendor login / DMSS share) leads only when the owner
+    # flips the vendor's switch after approval AND that path really exists
+    no_delete = bool(modes) and ("oauth" in modes or pid == "dolynk_arc")
     return {"id": pid, "name": a.name, "modes": modes,
+            "before": REMOVE_FIRST.get(pid, ""), "no_delete": no_delete,
+            "lead": no_delete and _switch_on(pid, "no_delete_default"),
             "consent_bn": CONSENT_TEXT[0], "consent_en": CONSENT_TEXT[1],
             "code_label_bn": a.code_label[0], "code_label_en": a.code_label[1],
             "code_secret": bool(getattr(a, "code_secret", False)),
@@ -179,6 +200,8 @@ class ProvidersView(WMV._OwnerBase):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         links = CctvCloudLink.objects.filter(site=site).exclude(status="revoked")
         rows = [provider_row(p, request.user) for p in CC.enabled_ids()]
+        # imou-real: an approved no-delete path (switched on) comes first
+        rows.sort(key=lambda r: not r.get("lead"))
         return Response({"providers": [r for r in rows if r["modes"]],
                          "links": [link_row(l) for l in links],
                          "local_ok": True})
@@ -345,7 +368,8 @@ class OAuthStartView(WMV._OwnerBase):
 
 def _base_url(request):
     from django.conf import settings
-    base = getattr(settings, "ASSISTO_BASE_URL", "") or request.build_absolute_uri("/")[:-1]
+    from .public_url import public_base_url
+    base = public_base_url() or request.build_absolute_uri("/")[:-1]
     return base.rstrip("/")
 
 
@@ -1199,20 +1223,22 @@ def _push(u, tb, te, bb, be, data):
 
 
 # ===================================================================== DoLynk
-def dolynk_callback_token(app_id, arc=False):
-    import hashlib
-    from django.conf import settings
-    return hashlib.sha256(("dolynk-%s:%s:%s" % ("arc" if arc else "cb", app_id, settings.SECRET_KEY)
-                           ).encode()).hexdigest()[:32]
+def dolynk_callback_token(app_id, arc=False, salt=None):
+    """publicurl: sha256(key + SECRET_KEY + the rotatable salt) — see
+    core/callback_links.py (salt None = the saved one)."""
+    from . import callback_links as CL
+    slug = "dolynk_arc" if arc else "dolynk"
+    return CL.token(slug, app_id, CL.salt(slug) if salt is None else salt)
 
 
 def dolynk_callback_url(app_id, arc=False):
+    """The PUBLIC https link (publicurl: never the server's 127.0.0.1)."""
     if not app_id:
         return ""
-    from django.conf import settings
-    return "%s/api/v1/cctv/dolynk/%s/%s" % (
-        getattr(settings, "ASSISTO_BASE_URL", "").rstrip("/"), "arc" if arc else "callback",
-        dolynk_callback_token(app_id, arc))
+    from .public_url import public_url
+    from . import callback_links as CL
+    return public_url(CL.PATHS["dolynk_arc" if arc else "dolynk"]
+                      + dolynk_callback_token(app_id, arc))
 
 
 DOLYNK_LOG_PER_HOUR = 30
@@ -1288,21 +1314,26 @@ class DolynkCallbackView(APIView):
     arc = False
 
     def _cfg(self):
+        """publicurl: the saved keys even before the connector is ON (the
+        self-test proves the link before the first camera); real messages
+        still need CC.enabled (else they are ignored, never alerts)."""
         from . import integrations as I
         pid = "dolynk_arc" if self.arc else "dolynk"
-        if not CC.enabled(pid):
-            return pid, {}
         return pid, (I.get(CC.ADAPTERS[pid].integration) or {})
 
     def post(self, request, token):
-        import hmac
+        from . import callback_links as CL
         try:
             pid, cfg = self._cfg()
         except Exception:
             pid, cfg = "dolynk", {}
         ak = str(cfg.get("access_key") or "")
-        if not ak or not hmac.compare_digest(dolynk_callback_token(ak, self.arc), str(token)):
+        if not ak or not CL.token_ok(pid, cfg, token):
             return Response({"ok": False}, status=404)
+        try:
+            on = CC.enabled(pid)
+        except Exception:
+            on = False
         raw, msgs = _dolynk_body(request)
         _dolynk_log(raw, msgs, "arc" if self.arc else "iot")
         from .logic.cctv_connect import dolynk as DL, quota as Q
@@ -1316,6 +1347,12 @@ class DolynkCallbackView(APIView):
                 continue
             if not self.arc and not DL.verify_push(m, cfg.get("secret_key")):
                 out.append({"ignored": "bad_sign"})
+                continue
+            if CL.is_selftest(m):               # publicurl: proof, never an alert
+                out.append(CL.selftest_answer(pid, m))
+                continue
+            if not on:
+                out.append({"ignored": "off"})
                 continue
             out.append(dolynk_message(pid, m, now, a))
             if self.arc and m.get("id") not in (None, ""):

@@ -30,11 +30,21 @@ def env_list(key, default=""):
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-insecure-change-me")
 DEBUG = env_bool("DJANGO_DEBUG", False)
 
-# The one setting everything derives from. Example: https://assisto.asalify.com
-ASSISTO_BASE_URL = os.getenv("ASSISTO_BASE_URL", "http://127.0.0.1:8700")
+# The one setting every link that LEAVES the server derives from (vendor
+# callbacks, email / recovery / unsubscribe links): core/public_url.py.
+# publicurl: production (DEBUG off) defaults to the public https API domain;
+# the old http://127.0.0.1:8700 default sent DoLynk / Imou callbacks and email
+# links to localhost. Only a DEBUG dev box keeps the local default.
+ASSISTO_BASE_URL = os.getenv(
+    "ASSISTO_BASE_URL", "http://127.0.0.1:8700" if DEBUG else "https://api.lifeassisto.com")
+# publicurl: `manage.py check/migrate` fail when the production base is not
+# public https (core/public_url.py); test / CI / e2e settings switch it off.
+PUBLIC_URL_GUARD = env_bool("ASSISTO_PUBLIC_URL_GUARD", not DEBUG)
 
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
-CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", ASSISTO_BASE_URL)
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", ",".join(dict.fromkeys([
+    ASSISTO_BASE_URL, "http://127.0.0.1:8700", "https://api.lifeassisto.com",
+    "https://lifeassisto.com", "https://www.lifeassisto.com"])))
 
 # Feature flags
 # Latest-APK metadata file (written by publish-apk.sh); powers /api/v1/app/latest

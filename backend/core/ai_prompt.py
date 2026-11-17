@@ -66,13 +66,13 @@ STYLE_TAIL = (
 # from Claude, so the line stays the owner's words but says honestly which
 # models answer RIGHT NOW — never that a Gemini model is answering.
 IDENTITY_ALL = (
-    "Identity (owner-approved): you are Assisto, made by AXON Dynamic; you use AI "
+    "Identity (owner-approved): you are Assisto, made by Axon Dynamics; you use AI "
     "models from Anthropic (Claude) and Google (Gemini) — say exactly that when "
     "asked who you are, who made you or which AI you use.")
 IDENTITY_GEMINI_OFF = (
-    "Identity (owner-approved): you are Assisto, made by AXON Dynamic. When asked "
+    "Identity (owner-approved): you are Assisto, made by Axon Dynamics. When asked "
     "who you are, who made you or which AI you use, say: you are Assisto, made by "
-    "AXON Dynamic; Assisto uses AI models from Anthropic (Claude) and Google "
+    "Axon Dynamics; Assisto uses AI models from Anthropic (Claude) and Google "
     "(Gemini), and right now your answers come from Anthropic's Claude models "
     "(Gemini is paused). Never say that this answer comes from Gemini.")
 
@@ -187,9 +187,9 @@ _MODEL_NAMES = (r"Claude(?:\s+(?:Opus|Sonnet|Haiku))?(?:\s*\d+(?:\.\d+)?)?|ChatG
 _COMPANIES = r"Anthropic|OpenAI|Google(?:\s+DeepMind)?|DeepMind"
 
 # Owner identity rule (4 Nov 01:12, owner-approved): "I am Assisto, made by
-# AXON Dynamic; I use AI models from Anthropic (Claude) and Google (Gemini)."
+# Axon Dynamics; I use AI models from Anthropic (Claude) and Google (Gemini)."
 # Only a FALSE self-claim is corrected ("I am Claude" -> "I am Assisto",
-# "Assisto ... by Anthropic" -> "by AXON Dynamic"). Facts about other AIs
+# "Assisto ... by Anthropic" -> "by Axon Dynamics"). Facts about other AIs
 # ("Claude is made by Anthropic") stay TRUE and untouched — the old rewrites
 # that turned them into "the Assisto team" made those answers false.
 _IDENTITY_RULES = [
@@ -199,9 +199,9 @@ _IDENTITY_RULES = [
     (re.compile(r"\b(As|Being)\s+(?:" + _MODEL_NAMES + r")\b", re.I), r"\1 Assisto"),
     (re.compile(r"(Assisto\b[^.।!?\n]{0,40}?\b(?:made|created|built|developed)?\s*(?:by|from)\s+)"
                 r"(?:" + _COMPANIES + r")\b", re.I),
-     r"\1AXON Dynamic"),
+     r"\1Axon Dynamics"),
     (re.compile(r"(Assisto[^।!?\n]{0,30}?)(?:" + _COMPANIES + r")\s*(?:এর|-এর|’র|'র)?\s*(তৈরি|বানানো)"),
-     r"\1AXON Dynamic-এর \2"),
+     r"\1Axon Dynamics-এর \2"),
 ]
 
 
