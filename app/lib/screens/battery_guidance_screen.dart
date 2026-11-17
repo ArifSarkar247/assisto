@@ -258,7 +258,11 @@ class _StepCard extends StatelessWidget {
                   Text(t.oemGuideNoScreen, style: note),
                 if (!byHandOnly && open != OemOpen.none) ...[
                   const SizedBox(height: Gap.xs),
-                  DsButton.secondary(onPressed: onOpen, icon: Icons.open_in_new_rounded, label: open == OemOpen.oem ? t.open : t.oemGuideOpenAppInfo),
+                  FilledButton.tonalIcon(
+                    onPressed: onOpen,
+                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                    label: Text(open == OemOpen.oem ? t.open : t.oemGuideOpenAppInfo),
+                  ),
                 ],
                 if (result == OemOpen.details) ...[
                   const SizedBox(height: Gap.xs),
