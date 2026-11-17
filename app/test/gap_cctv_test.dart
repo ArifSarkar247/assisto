@@ -579,5 +579,7 @@ void main() {
     await _settle(tester);
     expect(find.byKey(const ValueKey('gcv-gb-forget')), findsNothing);
     expect(find.text(en.gbPairHelp), findsOneWidget);
+    // let the 5 s confirmation timer run out before the tree is disposed
+    await tester.pump(const Duration(seconds: 6));
   });
 }
