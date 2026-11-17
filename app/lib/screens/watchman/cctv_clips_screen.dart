@@ -12,6 +12,7 @@ import '../../widgets/cv_empty.dart';
 import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../widgets/skeleton.dart';
 import 'cash_guard_clip.dart';
+import 'cctv_playback_screen.dart'; // gap-cctv3
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
 
@@ -41,13 +42,17 @@ class CctvClipsScreen extends StatefulWidget {
 
   /// Tests: the clip sheet's source (else the app's API).
   final CashGuardSource? cash;
+
+  /// Tests: the recordings player's source (else the app's API).
+  final CctvPlaybackSource? playback;
   const CctvClipsScreen(
       {super.key,
       this.source,
       required this.siteId,
       this.siteName = '',
       required this.owner,
-      this.cash});
+      this.cash,
+      this.playback});
 
   @override
   State<CctvClipsScreen> createState() => _CctvClipsScreenState();
@@ -185,6 +190,27 @@ class _CctvClipsScreenState extends State<CctvClipsScreen> {
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => Navigator.of(context)
                         .push(MaterialPageRoute(builder: (_) => const CctvPlanScreen())),
+                  ),
+                ),
+              ),
+            // gap-cctv3: the camera's OWN recordings (SD card / Imou cloud)
+            for (final c in cams.where((c) => c['cloud_playback'] == true))
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: DsCard(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    key: ValueKey('gcv-clips-rec-${c['id']}'),
+                    minVerticalPadding: 12,
+                    leading: const Icon(Icons.history_rounded),
+                    title: Text(t.gcvPbEntry((c['name'] ?? '').toString())),
+                    subtitle: Text(t.gcvPbEntrySub),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => CctvPlaybackScreen(
+                            cameraId: (c['id'] as num).toInt(),
+                            cameraName: (c['name'] ?? '').toString(),
+                            source: widget.playback))),
                   ),
                 ),
               ),
