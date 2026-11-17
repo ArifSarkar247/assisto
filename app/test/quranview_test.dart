@@ -235,7 +235,8 @@ void main() {
       // Flutter 3.50 (b327 toolchain pin): select the chip through its own
       // callback — the scroll-then-tap missed the chip on the new toolchain.
       final chip = find.byKey(const Key('qv-src-mukhtasar_bn'));
-      await tester.ensureVisible(chip);
+      // the lazy list disposed the chips after scrolling down: scroll back up
+      await tester.scrollUntilVisible(chip, -250, scrollable: find.byType(Scrollable).first);
       await tester.pumpAndSettle();
       tester.widget<ChoiceChip>(chip).onSelected!(true);
       await tester.pumpAndSettle();

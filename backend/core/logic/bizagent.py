@@ -467,6 +467,164 @@ def check_numbers(reply, context, customer_text="", extra=()):
     return problems
 
 
+# ---- bizagent-guard: NON-numeric claims (colour / size / delivery time /
+# guarantee / free delivery / colour in stock) must come from the shop's data
+_COLOURS = {
+    "red": ("red", "লাল", "lal"), "blue": ("blue", "নীল", "nil", "neel"),
+    "black": ("black", "কালো", "kalo"), "white": ("white", "সাদা", "shada"),
+    "green": ("green", "সবুজ", "sobuj", "shobuj"), "yellow": ("yellow", "হলুদ", "holud"),
+    "pink": ("pink", "গোলাপি", "golapi"), "purple": ("purple", "বেগুনি", "beguni"),
+    "orange": ("orange", "কমলা", "komola"), "brown": ("brown", "বাদামি", "badami"),
+    "grey": ("grey", "gray", "ধূসর", "ছাই"), "maroon": ("maroon", "মেরুন", "meroon"),
+    "navy": ("navy",), "golden": ("golden", "সোনালি", "sonali"),
+    "silver": ("silver", "রুপালি", "rupali"), "cream": ("cream", "ক্রিম"),
+    "olive": ("olive", "অলিভ"), "sky": ("sky blue", "আকাশি", "akashi"),
+}
+_LETTER_SIZE = re.compile(r"(?<![a-z])(xxxl|xxl|xl|xs|3xl|4xl|free size|ফ্রি সাইজ)(?![a-z])")
+_NUM_WORDS = {"one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6",
+              "seven": "7", "এক": "1", "দুই": "2", "তিন": "3", "চার": "4", "পাঁচ": "5",
+              "ছয়": "6", "সাত": "7", "ek": "1", "dui": "2", "tin": "3", "char": "4",
+              "pach": "5", "panch": "5"}
+_DTIME_RE = re.compile(
+    r"(\d+)\s*(?:-|–|to|থেকে|theke)?\s*(\d+)?\s*"
+    r"(working days?|business days?|days?|din|diner|dine|দিন\S*|কর্মদিবস\S*|hours?|hrs?|"
+    r"ghonta|ঘণ্টা\S*|ঘন্টা\S*)", re.IGNORECASE)
+_REL_DAY = ("tomorrow", "same day", "same-day", "next day", "আগামীকাল", "কালকেই", "আজকেই",
+            "আজই", "ajkei", "kalkei", "agamikal", "within 24")
+_DELIVERY_WORDS = ("deliver", "delivery", "ডেলিভারি", "পৌঁছ", "pouch", "পাবেন", "paben",
+                   "পেয়ে", "পৌছ", "ship")
+_GUARANTEE = ("guarantee", "warranty", "গ্যারান্টি", "গ্যারেন্টি", "ওয়ারেন্টি", "ওয়ারেন্টি",
+              "garanti", "warrenty")
+_FREE_DEL = ("free delivery", "delivery free", "free shipping", "shipping free",
+             "ফ্রি ডেলিভারি", "ডেলিভারি ফ্রি", "ফ্রিতে ডেলিভারি", "ডেলিভারি চার্জ লাগবে না",
+             "ডেলিভারি চার্জ নেই", "delivery charge lagbe na", "delivery charge nai",
+             "no delivery charge", "free home delivery", "ফ্রি হোম ডেলিভারি")
+_AVAIL = ("in stock", "available", "স্টকে আছে", "পাওয়া যাচ্ছে", "ache", "আছে")
+_NEG = ("out of stock", "স্টক নেই", "নেই", "not available", "unavailable", "sold out", "nai",
+        "nei")
+
+
+def _num_words(text):
+    out = text
+    for w, d in _NUM_WORDS.items():
+        out = re.sub(r"(?<![\w])%s(?![\w])" % re.escape(w), d, out)
+    return out
+
+
+def _unit(u):
+    u = u.lower()
+    return "h" if u.startswith(("hour", "hr", "ghonta", "ঘণ্টা", "ঘন্টা")) else "d"
+
+
+def _dtime_claims(text):
+    out = set()
+    for m in _DTIME_RE.finditer(_num_words(norm_digits(text.lower()))):
+        nums = tuple(x for x in (m.group(1), m.group(2)) if x)
+        out.add((nums, _unit(m.group(3))))
+    return out
+
+
+def shop_corpus(context):
+    """Every word the shop itself wrote: catalog (names, descriptions,
+    categories, variant size/colour), delivery, policies, facts."""
+    parts = [context.get("facts") or ""]
+    for p in context.get("catalog") or []:
+        parts += [str(p.get(k) or "") for k in ("name", "description", "category", "sku")]
+        for v in p.get("variants") or []:
+            parts += [str(v.get("size") or ""), str(v.get("colour") or ""),
+                      str(v.get("vkey") or "")]
+    parts += [str(v) for v in (context.get("policies") or {}).values()]
+    return norm_digits(" ".join(parts)).lower()
+
+
+def _colours_in(low):
+    found = set()
+    for canon, words in _COLOURS.items():
+        for w in words:
+            if re.search(r"(?<![\w])%s(?![\w])" % re.escape(w), low):
+                found.add(canon)
+                break
+    return found
+
+
+def check_claims(reply, context):
+    """bizagent-guard: post-check NON-numeric claims in an AI draft. Returns
+    problems ({"type", "value"}); empty == OK. A claim is allowed only when
+    the shop's own data (catalog, variants, policies, delivery settings)
+    contains it — otherwise the customer gets the honest "the shop will
+    confirm" line and the seller sees the draft."""
+    low = norm_digits(reply or "").lower()
+    if not low.strip():
+        return []
+    corpus = shop_corpus(context)
+    problems = []
+    corpus_colours = _colours_in(corpus)
+    said = _colours_in(low)
+    for c in sorted(said - corpus_colours):
+        problems.append({"type": "colour_claim", "value": c})
+    # a colour said to be available while every variant of it is out of stock
+    if said and any(a in low for a in _AVAIL) and not any(n in low for n in _NEG):
+        for c in sorted(said & corpus_colours):
+            stocks = [int(v.get("stock") or 0)
+                      for p in context.get("catalog") or [] for v in p.get("variants") or []
+                      if c in _colours_in(str(v.get("colour") or "").lower() + " "
+                                          + str(v.get("vkey") or "").lower())]
+            if stocks and max(stocks) <= 0:
+                problems.append({"type": "stock_claim", "value": c})
+    for m in _LETTER_SIZE.finditer(low):
+        if not re.search(r"(?<![a-z])%s(?![a-z])" % re.escape(m.group(1)), corpus):
+            problems.append({"type": "size_claim", "value": m.group(1)})
+    known = _dtime_claims(corpus)
+    for cl in _dtime_claims(low):
+        if cl not in known:
+            problems.append({"type": "delivery_time_claim", "value": "-".join(cl[0]) + cl[1]})
+    if any(w in low for w in _REL_DAY) and any(w in low for w in _DELIVERY_WORDS) \
+            and not any(w in corpus for w in _REL_DAY):
+        problems.append({"type": "delivery_time_claim", "value": "relative_day"})
+    if any(w in low for w in _GUARANTEE) and not any(w in corpus for w in _GUARANTEE):
+        problems.append({"type": "guarantee_claim", "value": "guarantee"})
+    free_set = delivery_set(context.get("delivery"), "free_over") is not None
+    if any(w in low for w in _FREE_DEL) and not free_set and \
+            not any(w in corpus for w in ("free delivery", "ফ্রি ডেলিভারি", "ডেলিভারি ফ্রি")):
+        problems.append({"type": "free_delivery_claim", "value": "free_delivery"})
+    return problems
+
+
+# ---- bizagent-guard: bargaining-probe guard (pure). The customer cannot
+# find the minimum price by stepping their offer up: only the FIRST offer in
+# a chat may be accepted at the real minimum; later offers need the minimum
+# plus a hidden margin; after MAX_BARGAIN_OFFERS offers the owner decides.
+MAX_BARGAIN_OFFERS = 3
+BARGAIN_MARGIN_SHARE = Decimal("0.25")
+
+
+def bargain_margin(list_price, min_price):
+    lp, mp = _dec(list_price), _dec(min_price)
+    if lp is None or mp is None or mp >= lp:
+        return Decimal(0)
+    gap = lp - mp
+    m = (gap * BARGAIN_MARGIN_SHARE / 10).to_integral_value(rounding="ROUND_CEILING") * 10
+    return min(max(m, Decimal(10)), gap)
+
+
+def bargain_guard(state, offer, list_price, min_price):
+    """state = this chat's bargain memory for the product ({"n": offers so
+    far}). Returns (floor_to_use | None, new_state). None = hand the offer to
+    the owner (offer cap reached). Offers at / above the list price are never
+    counted."""
+    st = dict(state or {})
+    lp, mp, off = _dec(list_price), _dec(min_price), _dec(offer)
+    if lp is None or off is None or off >= lp:
+        return (mp, st)
+    n = int(st.get("n") or 0) + 1
+    st["n"] = n
+    if n > MAX_BARGAIN_OFFERS:
+        return (None, st)
+    if n == 1:
+        return (mp, st)
+    return (min((mp or lp) + bargain_margin(lp, mp), lp), st)
+
+
 # ---- e2e-sales: the customer's price OFFER (bargaining), digit-trick safe
 _OFFER_NUM = re.compile(r"(?<![\d.])(\d[\d,]*)(?:\.(\d+))?")
 _QTY_AFTER = re.compile(r"^\s*(?:ta|ti|টা(?!কা)|টি|pcs|pc|piece|pieces|x|পিস|জোড়া|set|"
@@ -863,6 +1021,29 @@ def delivery_charge(area, delivery, subtotal=None):
     return _dec(dl.get(key)) or Decimal(0)
 
 
+def delivery_set(delivery, key):
+    """bizagent-guard: a delivery charge the seller really set (> 0), else
+    None. 0 / blank = NOT SET — never shown as ৳0 or "free delivery"."""
+    d = _dec((delivery or {}).get(key))
+    return d if d is not None and d > 0 else None
+
+
+def delivery_unset(area, delivery, subtotal=None):
+    """True when this order's delivery charge is unknown (not set by the
+    seller and not covered by the seller's own free-delivery-over rule)."""
+    dl = delivery or {}
+    free_over = delivery_set(dl, "free_over")
+    if free_over and subtotal is not None and _dec(subtotal) is not None \
+            and _dec(subtotal) >= free_over:
+        return False
+    return delivery_set(dl, "inside_dhaka" if area == "inside" else "outside_dhaka") is None
+
+
+def delivery_confirm_line(lang):
+    return pick(lang, "ডেলিভারি চার্জ দোকান থেকে নিশ্চিত করে জানানো হবে।",
+                "The shop will confirm the delivery charge.")
+
+
 def price_order(draft, catalog, delivery):
     """{unit, qty, subtotal, delivery, total, stock_ok, product} from the REAL
     catalog row (never from the conversation)."""
@@ -885,7 +1066,8 @@ def price_order(draft, catalog, delivery):
     dc = delivery_charge(draft.get("area"), delivery, sub)
     return {"product": prod.get("name"), "unit": unit, "qty": qty, "subtotal": sub,
             "delivery": dc, "total": sub + dc, "stock": stock,
-            "stock_ok": stock >= qty}
+            "stock_ok": stock >= qty,
+            "delivery_unset": delivery_unset(draft.get("area"), delivery, sub)}
 
 
 _YES = ("yes", "yes.", "ha", "hya", "hae", "hmm ha", "ji", "jee", "ok", "okay", "confirm",
@@ -927,6 +1109,20 @@ def order_summary(lang, draft, priced):
                                 if draft.get("variant_label") else "")
     area = pick(lang, "ঢাকার ভিতরে", "inside Dhaka") if draft.get("area") == "inside" \
         else pick(lang, "ঢাকার বাইরে", "outside Dhaka")
+    if priced.get("delivery_unset"):
+        # bizagent-guard: an unset charge is never shown as ৳0
+        return pick(
+            lang,
+            f"অর্ডারের সারাংশ:\n- {item} × {priced['qty']} = ৳{_fmt_money(priced['subtotal'])}\n"
+            f"- ডেলিভারি ({area}): চার্জ দোকান থেকে নিশ্চিত করে জানানো হবে\n"
+            f"- পণ্যের মোট (ডেলিভারি চার্জ ছাড়া, ক্যাশ অন ডেলিভারি): ৳{_fmt_money(priced['subtotal'])}\n"
+            f"- নাম: {draft.get('name')}, ফোন: {draft.get('phone')}\n- ঠিকানা: {draft.get('address')}\n"
+            "সব ঠিক থাকলে \"হ্যাঁ\" লিখুন, বাতিল করতে \"না\"।",
+            f"Order summary:\n- {item} × {priced['qty']} = ৳{_fmt_money(priced['subtotal'])}\n"
+            f"- Delivery ({area}): the shop will confirm the delivery charge\n"
+            f"- Items total (without delivery, cash on delivery): ৳{_fmt_money(priced['subtotal'])}\n"
+            f"- Name: {draft.get('name')}, phone: {draft.get('phone')}\n- Address: {draft.get('address')}\n"
+            "Reply \"yes\" to confirm or \"no\" to cancel.")
     return pick(
         lang,
         f"অর্ডারের সারাংশ:\n- {item} × {priced['qty']} = ৳{_fmt_money(priced['subtotal'])}\n"
@@ -954,8 +1150,12 @@ def invoice_text(lang, order, shop_name=""):
                   f"Invoice #{order['id']}" + (f" — {shop_name}" if shop_name else ""))]
     for it in order.get("items") or []:
         lines.append(f"- {it.get('name')} × {it.get('qty')} = ৳{_fmt_money(_dec(it.get('price')) * int(it.get('qty') or 1))}")
-    lines.append(pick(lang, f"ডেলিভারি চার্জ: ৳{_fmt_money(order.get('delivery_charge'))}",
-                      f"Delivery: ৳{_fmt_money(order.get('delivery_charge'))}"))
+    if order.get("delivery_unset"):
+        lines.append(pick(lang, "ডেলিভারি চার্জ: দোকান থেকে নিশ্চিত করে জানানো হবে",
+                          "Delivery: the shop will confirm the charge"))
+    else:
+        lines.append(pick(lang, f"ডেলিভারি চার্জ: ৳{_fmt_money(order.get('delivery_charge'))}",
+                          f"Delivery: ৳{_fmt_money(order.get('delivery_charge'))}"))
     lines.append(pick(lang, f"মোট (ক্যাশ অন ডেলিভারি): ৳{_fmt_money(order.get('total'))}",
                       f"Total (cash on delivery): ৳{_fmt_money(order.get('total'))}"))
     lines.append(pick(lang, "ধন্যবাদ! পার্সেল পাঠানো হলে ট্র্যাকিং জানিয়ে দেব।",
@@ -1015,7 +1215,11 @@ def llm_task(context, lang, tone="friendly"):
         "Reply to the customer's message in %s, %s, at most 3 short sentences. "
         "Use ONLY the facts below. NEVER state a price, stock count, delivery "
         "charge or discount that is not written in the facts. Never offer a "
-        "discount. "
+        "discount. NEVER claim a colour, size, variant, stock availability, "
+        "delivery time (days/hours/tomorrow), guarantee/warranty or free delivery "
+        "unless it is written in the facts — otherwise say you will confirm with "
+        "the shop. If no delivery charge is in the facts, say the shop will confirm "
+        "the delivery charge; never say delivery is free or ৳0. "
         "Answer ONLY about this shop: its products, prices, stock, orders, delivery, "
         "payment and policies. For anything else (homework, general knowledge, news, "
         "politics, religion, health/legal advice, coding, other shops or brands) "
