@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -148,12 +149,7 @@ class Ma999Button extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    return OutlinedButton.icon(
-      key: const ValueKey('ma-999'),
-      onPressed: () => maDial999(context),
-      icon: const Icon(Icons.local_phone_rounded),
-      label: Text(t.maCall999),
-    );
+    return DsButton.secondary(buttonKey: const ValueKey('ma-999'), onPressed: () => maDial999(context), icon: Icons.local_phone_rounded, label: t.maCall999);
   }
 }
 
@@ -165,12 +161,9 @@ class MaWhoGetsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final s = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: s.surfaceContainerHigh,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(color: s.surfaceContainerHigh,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.info_outline_rounded, color: s.primary),
             const SizedBox(width: Gap.sm),
@@ -179,7 +172,6 @@ class MaWhoGetsCard extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           Text(t.maWhoGetsBody),
         ]),
-      ),
     );
   }
 }

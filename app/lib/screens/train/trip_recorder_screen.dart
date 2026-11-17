@@ -222,10 +222,9 @@ class _TripRecorderScreenState extends State<TripRecorderScreen> {
       kb = 0; // best-effort: size unknown
     }
     final name = f.uri.pathSegments.last;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.sm),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.sm),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(name, style: AType.bodyMedium),
           Text(_d('$kb KB'), style: AType.bodySmall),
           Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
@@ -249,7 +248,6 @@ class _TripRecorderScreenState extends State<TripRecorderScreen> {
             ),
           ]),
         ]),
-      ),
     );
   }
 }

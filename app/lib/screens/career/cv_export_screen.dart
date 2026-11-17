@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -317,8 +318,7 @@ class _CvExportScreenState extends State<CvExportScreen> {
                 ? StateMessage(
                     icon: Icons.cloud_off_rounded,
                     title: honestFailText(t, _failCause),
-                    action: FilledButton.tonalIcon(
-                        onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(t.retry)))
+                    action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: t.retry))
                 : AbsorbPointer(
                     absorbing: _busy,
                     child: ListView(
@@ -389,10 +389,7 @@ class _CvExportScreenState extends State<CvExportScreen> {
                               ),
                             Expanded(
                               child: Wrap(spacing: 8, runSpacing: 8, children: [
-                                OutlinedButton.icon(
-                                    onPressed: _pickPhoto,
-                                    icon: const Icon(Icons.add_a_photo_outlined),
-                                    label: Text(t.crrPhotoAdd)),
+                                DsButton.secondary(onPressed: _pickPhoto, icon: Icons.add_a_photo_outlined, label: t.crrPhotoAdd),
                                 if (_photo != null)
                                   TextButton.icon(
                                       onPressed: _removePhoto,
@@ -404,34 +401,22 @@ class _CvExportScreenState extends State<CvExportScreen> {
                         ]),
                         Align(
                           alignment: AlignmentDirectional.centerEnd,
-                          child: FilledButton.tonalIcon(
-                              onPressed: _saveDetails,
-                              icon: const Icon(Icons.save_outlined),
-                              label: Text(t.crrSaveDetails)),
+                          child: DsButton.secondary(onPressed: _saveDetails, icon: Icons.save_outlined, label: t.crrSaveDetails),
                         ),
                         const SizedBox(height: 8),
                         if (_ats != null) _atsCard(context, scheme),
                         _section(context, t.crrPdfTitle, [
                           if (_cvLang == 'en')
-                            FilledButton.icon(
-                                onPressed: _downloadPdf,
-                                icon: const Icon(Icons.picture_as_pdf_outlined),
-                                label: Text(t.crrPdfDownload)),
+                            DsButton(onPressed: _downloadPdf, icon: Icons.picture_as_pdf_outlined, label: t.crrPdfDownload),
                           const SizedBox(height: 8),
-                          OutlinedButton.icon(
-                              onPressed: _openPrint,
-                              icon: const Icon(Icons.print_outlined),
-                              label: Text(t.crrPrintPage)),
+                          DsButton.secondary(onPressed: _openPrint, icon: Icons.print_outlined, label: t.crrPrintPage),
                           const SizedBox(height: 8),
                           Text(t.crrPrintHelp, style: Theme.of(context).textTheme.bodySmall),
                         ]),
                         _section(context, t.crrAiPolish, [
                           Text(t.crrAiPolishHelp, style: Theme.of(context).textTheme.bodySmall),
                           const SizedBox(height: 8),
-                          OutlinedButton.icon(
-                              onPressed: _polish,
-                              icon: const Icon(Icons.auto_fix_high_rounded),
-                              label: Text(t.crrAiPolish)),
+                          DsButton.secondary(onPressed: _polish, icon: Icons.auto_fix_high_rounded, label: t.crrAiPolish),
                         ]),
                       ],
                     ),
@@ -459,11 +444,9 @@ class _CvExportScreenState extends State<CvExportScreen> {
     ]);
   }
 
-  Widget _section(BuildContext context, String title, List<Widget> children) => Card(
-        margin: const EdgeInsets.only(bottom: 12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
+  Widget _section(BuildContext context, String title, List<Widget> children) => Padding(padding: const EdgeInsets.only(bottom: 12), child: DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(16),
+      child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(title, style: Theme.of(context).textTheme.titleMedium),
@@ -471,6 +454,5 @@ class _CvExportScreenState extends State<CvExportScreen> {
               ...children,
             ],
           ),
-        ),
-      );
+    ));
 }
