@@ -650,7 +650,8 @@ class ImouCallbackView(APIView):
                 pass
             # imou-real: Imou documents no signature on pushes, so besides the
             # unguessable URL a message naming ANOTHER appId is refused
-            if isinstance(m, dict) and m.get("appId") and str(m.get("appId")) != app_id:
+            if isinstance(m, dict) and m.get("appId") and \
+                    str(m.get("appId")) != str((cfg or {}).get("app_id") or ""):
                 out.append({"ignored": "other_app"})
                 continue
             a = IM.parse_alarm(m)
