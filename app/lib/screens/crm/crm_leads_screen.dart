@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset;
+import '../../widgets/ladder_common.dart' show fmtInt;
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
 import 'crm_contacts_tab.dart' show CrmUsageBanner;
@@ -87,8 +89,6 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search_rounded),
               hintText: t.search,
-              isDense: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(Radii.pill)),
             ),
             onSubmitted: (v) {
               _q = v.trim();
@@ -96,34 +96,49 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
             },
           ),
         ),
-        SizedBox(
-          height: 44,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: Gap.md),
-            children: [
-              _chip(t.crmFilterHigh, _priority == 'high', () {
-                _priority = _priority == 'high' ? null : 'high';
-                _load();
-              }),
-              const SizedBox(width: Gap.xs),
-              _chip(t.crmIndRmg, _industry == 'rmg', () {
-                _industry = _industry == 'rmg' ? null : 'rmg';
-                _load();
-              }),
-              const SizedBox(width: Gap.xs),
-              _chip(t.crmIndPharma, _industry == 'pharma', () {
-                _industry = _industry == 'pharma' ? null : 'pharma';
-                _load();
-              }),
-              const SizedBox(width: Gap.xs),
-              _chip(t.crmIndRetail, _industry == 'retail', () {
-                _industry = _industry == 'retail' ? null : 'retail';
-                _load();
-              }),
-            ],
+        // one scrolling DS chip row (grows with the font); the end fades into
+        // the page so a chip at the edge reads as "scroll for more" (a plain
+        // gradient strip on top — no ShaderMask / saveLayer)
+        Stack(children: [
+        DsChipRow(
+          padding: const EdgeInsets.fromLTRB(Gap.md, Gap.xs, Gap.md, Gap.xs),
+          children: [
+            _chip(t.crmFilterHigh, _priority == 'high', () {
+              _priority = _priority == 'high' ? null : 'high';
+              _load();
+            }),
+            _chip(t.crmIndRmg, _industry == 'rmg', () {
+              _industry = _industry == 'rmg' ? null : 'rmg';
+              _load();
+            }),
+            _chip(t.crmIndPharma, _industry == 'pharma', () {
+              _industry = _industry == 'pharma' ? null : 'pharma';
+              _load();
+            }),
+            _chip(t.crmIndRetail, _industry == 'retail', () {
+              _industry = _industry == 'retail' ? null : 'retail';
+              _load();
+            }),
+            const SizedBox(width: Gap.xl),
+          ],
+        ),
+        Positioned(
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: Gap.xl,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+                  Theme.of(context).colorScheme.ds.bg.withValues(alpha: 0),
+                  Theme.of(context).colorScheme.ds.bg,
+                ]),
+              ),
+            ),
           ),
         ),
+        ]),
         Expanded(
           child: _loading
               ? const CrmStateView.loading()
@@ -139,9 +154,18 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
                           onRefresh: _load,
                           // perf2gb: lazy rows (500 leads built at once before)
                           child: ListView.builder(
-                            padding: const EdgeInsets.all(Gap.md),
-                            itemCount: _list.length,
-                            itemBuilder: (context, i) => _leadTile(t, _list[i]),
+                            // bottom room so "Add lead" never covers a card
+                            padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 96)),
+                            itemCount: _list.length + 1,
+                            // first row: what the coloured number means
+                            itemBuilder: (context, i) => i == 0
+                                ? Padding(
+                                    padding: const EdgeInsets.only(bottom: Gap.sm),
+                                    child: Text(t.d2LeadScoreHint,
+                                        style: AType.bodySmall.copyWith(
+                                            color: Theme.of(context).colorScheme.ds.muted)),
+                                  )
+                                : _leadTile(t, _list[i - 1]),
                           ),
                         ),
         ),
@@ -154,31 +178,57 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
     final sub = [
       if ((l['company'] ?? '').toString().isNotEmpty) l['company'],
       l['industry_display'],
-      if (size > 0) '$size ${t.crmHeadcount}',
+      // Bangla digits in bn (the headcount was in Latin digits)
+      if (size > 0) '${fmtInt(context, size)} ${t.crmHeadcount}',
       l['status_display'],
     ].where((e) => (e ?? '').toString().isNotEmpty).join(' · ');
-    return DsCard(
-      padding: EdgeInsets.zero,
-      child: ListTile(
-        leading: _scoreBadge((l['score'] as num?)?.toInt() ?? 0),
-        title: Row(children: [
-          Expanded(
-              child: Text(
-                  l['name']?.toString().isNotEmpty == true ? l['name'] : (l['company'] ?? t.crmLead),
-                  maxLines: 2, // long Bangla names were cut at 360 px
-                  overflow: TextOverflow.ellipsis)),
-          Icon(industryIcon(l['industry']), size: 16, color: Theme.of(context).colorScheme.ds.muted),
-          const SizedBox(width: 6),
-          Icon(sourceIcon(l['source']), size: 16, color: Theme.of(context).colorScheme.ds.muted),
-        ]),
-        subtitle: Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis),
-        trailing: _inlineActions(t, l),
+    final ds = Theme.of(context).colorScheme.ds;
+    final actions = _inlineActions(t, l);
+    // One alive DS card per lead: score + name (wraps, never "…") on top,
+    // the full company line under it, call / WhatsApp at the bottom right.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Gap.sm),
+      // long list: flat bordered rows (no per-row shadow — GPU-light)
+      child: DsSurface(
+        flat: true,
+        borderColor: ds.border,
+        padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.xs, Gap.xs),
         onTap: () async {
           await Navigator.push(context,
               MaterialPageRoute(
                   builder: (_) => CrmLeadDetailScreen(org: widget.org, leadId: (l['id'] as num).toInt())));
           _load();
         },
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: _scoreBadge((l['score'] as num?)?.toInt() ?? 0),
+            ),
+            const SizedBox(width: Gap.md),
+            Expanded(
+              child: Text(
+                  l['name']?.toString().isNotEmpty == true ? l['name'] : (l['company'] ?? t.crmLead),
+                  style: AType.bodyLarge.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
+            ),
+            const SizedBox(width: Gap.sm),
+            Icon(industryIcon(l['industry']), size: 16, color: ds.muted),
+            const SizedBox(width: 6),
+            Icon(sourceIcon(l['source']), size: 16, color: ds.muted),
+            const SizedBox(width: Gap.md),
+          ]),
+          if (sub.isNotEmpty) ...[
+            const SizedBox(height: Gap.xs),
+            Padding(
+              padding: const EdgeInsets.only(right: Gap.md),
+              child: Text(sub, style: AType.bodyMedium.copyWith(color: ds.muted)),
+            ),
+          ],
+          if (actions != null)
+            Align(alignment: AlignmentDirectional.centerEnd, child: actions)
+          else
+            const SizedBox(height: Gap.sm),
+        ]),
       ),
     );
   }
@@ -232,16 +282,21 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
         : warm
             ? AssistoTokens.of(context).onWarning
             : scheme.ds.primaryInk;
-    return Container(
+    final t = AppLocalizations.of(context);
+    // TalkBack reads "Lead score 95" (the bare number meant nothing)
+    return Semantics(
+      label: t.d2LeadScoreA11y(fmtInt(context, score)),
+      excludeSemantics: true,
+      child: Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
-      child: Text('$score',
+      child: Text(fmtInt(context, score),
           style: AType.labelMedium.copyWith(color: fg, fontWeight: FontWeight.w800)),
-    );
+    ));
   }
 
-  Widget _chip(String label, bool on, VoidCallback onTap) => FilterChip(
-        label: Text(label),
+  Widget _chip(String label, bool on, VoidCallback onTap) => DsChip(
+        label: label,
         selected: on,
         onSelected: (_) => onTap(),
       );

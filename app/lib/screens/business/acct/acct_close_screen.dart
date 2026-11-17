@@ -225,21 +225,23 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
     return ListView(
       padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
       children: [
-        DsSurface(color: lock == null ? DsTokens.of(context).cardHighest : DsTokens.of(context).primarySoft,
-          padding: const EdgeInsets.all(Gap.md),
+        // where the books stand (closed up to …) = the soft DS hero
+        DsHeroCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Row(children: [
-                Icon(lock == null ? Icons.lock_open_rounded : Icons.lock_rounded,
-                    color: lock == null ? DsTokens.of(context).muted : DsTokens.of(context).primaryInk),
-                const SizedBox(width: Gap.sm),
+                DsAvatar(
+                    child: Icon(lock == null ? Icons.lock_open_rounded : Icons.lock_rounded,
+                        size: 22,
+                        color: lock == null ? DsTokens.of(context).muted : DsTokens.of(context).primaryInk)),
+                const SizedBox(width: Gap.md),
                 Expanded(
                   child: Text(
                       lock == null
                           ? t.acuCloseNone
                           : t.acuClosedUpTo(acctDay(context, acctIso(lock))),
-                      style: AType.bodyMedium.copyWith(
+                      style: AType.titleMedium.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: lock == null ? null : DsTokens.of(context).primaryInk)),
+                          color: DsTokens.of(context).text)),
                 ),
               ]),
               if (lock != null) ...[
@@ -261,32 +263,33 @@ class _AcctCloseScreenState extends State<AcctCloseScreen> {
               ],
             ]),
         ),
-        const SizedBox(height: Gap.lg),
-        Text(t.acuCloseWhy, style: AType.bodyMedium.copyWith(height: 1.5)),
-        const SizedBox(height: Gap.lg),
+        const SizedBox(height: Gap.md),
+        Text(t.acuCloseWhy,
+            style: AType.bodyMedium.copyWith(height: 1.5, color: DsTokens.of(context).muted)),
         if (months.isEmpty)
-          Text(t.acuCloseNothing, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted, height: 1.4))
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.md),
+            child: DsCard(
+              child: Text(t.acuCloseNothing,
+                  style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted, height: 1.4)),
+            ),
+          )
         else ...[
-          Semantics(
-            header: true,
-            child: Text(t.acuClosePick,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-          ),
-          const SizedBox(height: Gap.sm),
+          DsSectionHeader(t.acuClosePick),
+          // the closable months as one DS group
+          DsGroup(margin: EdgeInsets.zero, children: [
           for (final m in months.reversed)
-            Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
-                padding: EdgeInsets.zero,
-                child: ListTile(
+                ListTile(
                 key: ValueKey('acct-close-${acctIso(m)}'),
                 minVerticalPadding: Gap.sm,
-                leading: const Icon(Icons.calendar_month_rounded),
+                leading: Icon(Icons.calendar_month_rounded, color: scheme.ds.primaryInk),
                 title: Text(fmtMonth(m, lang), style: AType.titleMedium.copyWith(fontWeight: FontWeight.w700)),
                 subtitle: Text(t.acuCloseUpTo(acctDay(context, acctIso(m)))),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 enabled: !_busy,
                 onTap: () => _close(m),
               ),
-              )),
+          ]),
         ],
         // ledger2: year-end close (income & expenses -> retained earnings)
         const SizedBox(height: Gap.xl),

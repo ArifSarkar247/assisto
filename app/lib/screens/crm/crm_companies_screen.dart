@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart';
+import '../../widgets/ladder_common.dart' show fmtInt;
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_company_widgets.dart';
 import 'crm_common.dart';
@@ -72,9 +73,6 @@ class _CrmCompaniesScreenState extends State<CrmCompaniesScreen> {
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search_rounded),
             hintText: t.crmSearchCompanies,
-            isDense: true,
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(Radii.md)),
           ),
           onChanged: (v) => setState(() => _query = v),
         ),
@@ -126,32 +124,39 @@ class _CompanyRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final ind = company['industry']?.toString();
     final size = (company['size'] as num?)?.toInt() ?? 0;
+    // one alive DS card per company: industry bubble, the name (wraps,
+    // never "…"), contacts + headcount (Bangla digits in bn) on a Wrap
     return DsCard(
-        padding: EdgeInsets.zero,
-        child: ListTile(
-        onTap: onTap,
-        leading: CircleAvatar(
-          backgroundColor: scheme.ds.primarySoft,
-          child: Icon(industryIcon(ind), color: scheme.ds.primaryInk),
+      onTap: onTap,
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.sm, Gap.md),
+      child: Row(children: [
+        DsAvatar(child: Icon(industryIcon(ind), size: 22, color: scheme.ds.primaryInk)),
+        const SizedBox(width: Gap.md),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(company['name']?.toString() ?? '—',
+                style: AType.bodyLarge.copyWith(
+                    color: scheme.ds.text, fontWeight: FontWeight.w700)),
+            const SizedBox(height: Gap.xxs),
+            Wrap(spacing: Gap.md, runSpacing: Gap.xxs, children: [
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.people_alt_rounded, size: 14, color: scheme.ds.muted),
+                const SizedBox(width: Gap.xs),
+                Text(t.crmContactCount(contactCount),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+              ]),
+              if (size > 0)
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.badge_rounded, size: 14, color: scheme.ds.muted),
+                  const SizedBox(width: Gap.xs),
+                  Text('${fmtInt(context, size)} ${t.crmHeadcount}',
+                      style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+                ]),
+            ]),
+          ]),
         ),
-        title: Text(company['name']?.toString() ?? '—',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-        subtitle: Row(children: [
-          Icon(Icons.people_alt_rounded, size: 13, color: scheme.ds.muted),
-          const SizedBox(width: 3),
-          Text(t.crmContactCount(contactCount),
-              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-          if (size > 0) ...[
-            const SizedBox(width: 10),
-            Icon(Icons.badge_rounded, size: 13, color: scheme.ds.muted),
-            const SizedBox(width: 3),
-            Text('$size', style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-          ],
-        ]),
-        trailing: const Icon(Icons.chevron_right_rounded),
-      ),
-      );
+        Icon(Icons.chevron_right_rounded, color: scheme.ds.muted),
+      ]),
+    );
   }
 }

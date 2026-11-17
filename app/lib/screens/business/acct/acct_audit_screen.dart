@@ -132,20 +132,14 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
     final scheme = Theme.of(context).colorScheme;
     if (_entries.isEmpty && _events.isEmpty) {
       return ListView(
-        padding: withNavBarInset(context, const EdgeInsets.all(Gap.xl)),
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
         children: [
-          Icon(Icons.fact_check_rounded, size: 56, color: scheme.primary),
-          const SizedBox(height: Gap.md),
-          Text(t.acuAuditEmptyTitle,
-              textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: Gap.sm),
-          Text(t.acuAuditEmptyBody,
-              textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(height: 1.4, color: DsTokens.of(context).muted)),
-          const SizedBox(height: Gap.xl),
-          SizedBox(
-            height: 52,
-            child: FilledButton(
-                onPressed: () => Navigator.of(context).pop(), child: Text(t.acuAuditEmptyCta)),
+          DsEmptyState(
+            icon: Icons.fact_check_rounded,
+            title: t.acuAuditEmptyTitle,
+            benefit: t.acuAuditEmptyBody,
+            actionLabel: t.acuAuditEmptyCta,
+            onAction: () => Navigator.of(context).pop(),
           ),
         ],
       );
@@ -155,37 +149,29 @@ class _AcctAuditScreenState extends State<AcctAuditScreen> {
       children: [
         Text(t.acuAuditIntro, style: AType.bodyMedium.copyWith(height: 1.4, color: DsTokens.of(context).muted)),
         if (_events.isNotEmpty) ...[
-          const SizedBox(height: Gap.lg),
-          Semantics(
-            header: true,
-            child: Text(t.acuAuditActions,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-          ),
-          for (final ev in _events)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(_eventIcon('${ev['action']}'), color: scheme.primary),
-              title: Text(_event(t, ev)),
-              subtitle: Text('${ev['who'] ?? ''} · ${_when(context, ev['at'])}'),
-            ),
+          DsSectionHeader(t.acuAuditActions),
+          // the owner's actions as one DS group with tinted icons
+          DsGroup(margin: EdgeInsets.zero, children: [
+            for (final ev in _events)
+              DsListRow(
+                leading: DsAvatar(
+                    size: 40,
+                    child: Icon(_eventIcon('${ev['action']}'), size: 20, color: scheme.ds.primaryInk)),
+                title: _event(t, ev),
+                subtitle: '${ev['who'] ?? ''} · ${_when(context, ev['at'])}',
+              ),
+          ]),
         ],
-        const SizedBox(height: Gap.lg),
-        Semantics(
-          header: true,
-          child: Text(t.acuAuditEntries,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-        ),
-        const SizedBox(height: Gap.sm),
+        DsSectionHeader(t.acuAuditEntries),
         for (final je in _entries) _entryCard(t, scheme, je),
         if (_more)
           Padding(
             padding: const EdgeInsets.only(top: Gap.sm),
-            child: SizedBox(
-              height: 48,
-              child: OutlinedButton(
-                onPressed: _loadingMore ? null : _next,
-                child: Text(t.acuShowMore),
-              ),
+            child: DsButton.secondary(
+              onPressed: _loadingMore ? null : _next,
+              busy: _loadingMore,
+              label: t.acuShowMore,
+              expand: true,
             ),
           ),
       ],

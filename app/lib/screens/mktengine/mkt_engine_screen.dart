@@ -6,6 +6,9 @@ import 'package:share_plus/share_plus.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../widgets/app_sheet.dart';
+import '../../theme.dart';
+import '../../ds/ds.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../widgets/local_counter.dart';
 import '../../widgets/local_digits.dart';
 import 'mkt_questionnaire.dart';
@@ -266,27 +269,33 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
     );
   }
 
+  // designv2: the DS card with the drawn illustration (off / error states)
   Widget _message(IconData icon, String title, String body, {Widget? action}) {
-    return ListView(padding: withNavBarInset(context, const EdgeInsets.all(32)), children: [
-      const SizedBox(height: 32),
-      Icon(icon, size: 56, color: Theme.of(context).colorScheme.primary),
-      const SizedBox(height: 16),
-      Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
-      const SizedBox(height: 8),
-      Text(body, textAlign: TextAlign.center),
-      if (action != null) ...[const SizedBox(height: 20), Center(child: action)],
+    final ds = DsTokens.of(context);
+    return ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
+      const SizedBox(height: Gap.xl),
+      DsCard(
+        padding: const EdgeInsets.all(Gap.xl),
+        child: Column(children: [
+          DsIllustration(icon: icon),
+          const SizedBox(height: Gap.lg),
+          Text(title,
+              textAlign: TextAlign.center,
+              style: AType.titleLarge.copyWith(color: ds.text, fontWeight: FontWeight.w700)),
+          const SizedBox(height: Gap.sm),
+          Text(body, textAlign: TextAlign.center, style: AType.bodyMedium.copyWith(color: ds.muted)),
+          if (action != null) ...[const SizedBox(height: Gap.lg), Center(child: action)],
+        ]),
+      ),
     ]);
   }
 
   Widget _body(AppLocalizations t) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return const SkeletonList();
     if (_featureOff) return _message(Icons.lock_clock_outlined, t.mktOffTitle, t.mktOffBody);
     if (_error != null) {
       return _message(Icons.cloud_off_rounded, t.mktLoadErrorTitle, _error!.isNotEmpty ? _error! : t.mktLoadErrorBody,
-          action: FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-              onPressed: _load,
-              child: Text(t.mktRetry)));
+          action: DsButton(onPressed: _load, icon: Icons.refresh_rounded, label: t.mktRetry));
     }
     final plan = _data['plan'];
     if (plan is! Map) return _welcome(t);
@@ -295,36 +304,19 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
 
   Widget _welcome(AppLocalizations t) {
     final started = mktMap(_data['answers']).isNotEmpty;
-    final cs = Theme.of(context).colorScheme;
-    Widget step(IconData i, String s) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(i, color: cs.primary),
-            const SizedBox(width: 12),
-            Expanded(child: Text(s)),
-          ]),
-        );
-    return ListView(padding: withNavBarInset(context, const EdgeInsets.fromLTRB(20, 24, 20, 32)), children: [
-      Icon(Icons.campaign_rounded, size: 56, color: cs.primary),
-      const SizedBox(height: 12),
-      Text(t.mktWelcomeTitle, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
-      const SizedBox(height: 8),
-      Text(t.mktWelcomeBody, textAlign: TextAlign.center),
-      const SizedBox(height: 20),
-      FilledButton.icon(
-        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-        onPressed: _openQuestions,
-        icon: const Icon(Icons.play_arrow_rounded),
-        label: Text(started ? t.mktContinue : t.mktStart),
+    final ds = DsTokens.of(context);
+    // DS empty state: what it gives, one big start button, the three steps
+    return ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
+      DsEmptyState(
+        icon: Icons.campaign_rounded,
+        title: t.mktWelcomeTitle,
+        benefit: t.mktWelcomeBody,
+        actionLabel: started ? t.mktContinue : t.mktStart,
+        onAction: _openQuestions,
+        howTo: [t.mktHow1, t.mktHow2, t.mktHow3],
       ),
-      const SizedBox(height: 24),
-      Text(t.mktHowTitle, style: Theme.of(context).textTheme.titleMedium),
-      const SizedBox(height: 4),
-      step(Icons.quiz_outlined, t.mktHow1),
-      step(Icons.fact_check_outlined, t.mktHow2),
-      step(Icons.send_rounded, t.mktHow3),
-      const SizedBox(height: 12),
-      Text(t.mktHonestLine, style: Theme.of(context).textTheme.bodySmall),
+      const SizedBox(height: Gap.md),
+      Text(t.mktHonestLine, style: AType.bodySmall.copyWith(color: ds.muted)),
     ]);
   }
 
@@ -345,14 +337,34 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
       child: ListView(
         padding: withNavBarInset(context, const EdgeInsets.only(bottom: 32)),
         children: [
+          // how far the owner got = the soft hero (count + progress)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: Text(t.mktApprovedCount(ld(context, approved), ld(context, items.length)),
-                style: Theme.of(context).textTheme.titleSmall),
+            padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 0),
+            child: DsHeroCard(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(t.mktApprovedCount(ld(context, approved), ld(context, items.length)),
+                    style: AType.titleMedium.copyWith(
+                        color: DsTokens.of(context).text, fontWeight: FontWeight.w700)),
+                const SizedBox(height: Gap.sm),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(Radii.pill),
+                  child: LinearProgressIndicator(
+                    value: items.isEmpty ? 0 : approved / items.length,
+                    minHeight: 8,
+                    backgroundColor: DsTokens.of(context).cardHighest,
+                    color: DsTokens.of(context).success,
+                  ),
+                ),
+              ]),
+            ),
           ),
-          Card(
-            margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.xs),
+            child: DsSurface(
+            padding: EdgeInsets.zero,
             child: ExpansionTile(
+              shape: const Border(),
+              collapsedShape: const Border(),
               leading: const Icon(Icons.insights_rounded),
               title: Text(t.mktFactsTitle),
               subtitle: Text(t.mktFactsSub),
@@ -368,21 +380,19 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
                   ),
               ],
             ),
-          ),
+          )),
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
             child: Wrap(spacing: 8, runSpacing: 8, children: [
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              DsButton.secondary(
                 onPressed: _busyId == null ? _regenerate : null,
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(t.mktRebuild),
+                icon: Icons.refresh_rounded,
+                label: t.mktRebuild,
               ),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              DsButton.secondary(
                 onPressed: _openQuestions,
-                icon: const Icon(Icons.edit_note_rounded),
-                label: Text(t.mktEditAnswers),
+                icon: Icons.edit_note_rounded,
+                label: t.mktEditAnswers,
               ),
             ]),
           ),
@@ -390,10 +400,9 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
             child: Wrap(spacing: 8, runSpacing: 8, children: [
               for (final s in _sections)
-                ChoiceChip(
-                  label: Text(_secLabel(t, s)),
+                DsChip(
+                  label: _secLabel(t, s),
                   selected: _section == s,
-                  materialTapTargetSize: MaterialTapTargetSize.padded,
                   onSelected: (_) => setState(() => _section = s),
                 ),
             ]),
@@ -423,17 +432,16 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
       _ => t.mktStatusDraft,
     };
     final statusColor = switch (status) {
-      'approved' => cs.primary,
-      'rejected' => cs.error,
-      _ => cs.onSurfaceVariant,
+      'approved' => cs.ds.successInk,
+      'rejected' => cs.ds.dangerInk,
+      _ => cs.ds.muted,
     };
     final actions = <Widget>[
       if (status != 'approved')
-        FilledButton.icon(
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+        DsButton.secondary(
           onPressed: busy ? null : () => _setStatus(it, 'approved'),
-          icon: const Icon(Icons.check_rounded),
-          label: Text(t.mktApprove),
+          icon: Icons.check_rounded,
+          label: t.mktApprove,
         )
       else
         OutlinedButton(
@@ -510,15 +518,16 @@ class _MktEngineScreenState extends State<MktEngineScreen> {
             pub['reason'] == 'page_not_connected' ? t.mktPublishNoPage : t.mktPublishPending, cs.onSurfaceVariant);
       }
     }
-    return Card(
-      margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, 0),
+      child: DsCard(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.sm, Gap.sm),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
-              Text('${it['title'] ?? ''}', style: tt.titleMedium),
+              Text('${it['title'] ?? ''}',
+                  style: tt.titleMedium?.copyWith(color: cs.ds.text, fontWeight: FontWeight.w700)),
               Text(statusText, style: tt.labelMedium?.copyWith(color: statusColor, fontWeight: FontWeight.w700)),
               if (hasEstimate)
                 Text(t.mktEstimateBadge, style: tt.labelMedium?.copyWith(color: cs.tertiary, fontWeight: FontWeight.w700)),

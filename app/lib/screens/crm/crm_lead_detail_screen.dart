@@ -158,17 +158,26 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96), children: [ // clear the FAB
-          // ---- smart profile + score ----
-          DsCard(
-            padding: const EdgeInsets.all(Gap.md),
+          // ---- smart profile + score: the soft DS hero ----
+          DsHeroCard(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  ScoreBadge((l['score'] as num?)?.toInt() ?? 0),
-                  const SizedBox(width: Gap.sm),
+                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  DsAvatar(
+                      name: '${l['name'] ?? l['company'] ?? ''}', size: 48),
+                  const SizedBox(width: Gap.md),
                   Expanded(
-                      child: Text([l['company'], l['designation'], l['industry_display']]
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(l['name']?.toString().isNotEmpty == true ? l['name'] : (l['company'] ?? t.crmLead),
+                          style: AType.titleLarge.copyWith(
+                              color: scheme.ds.text, fontWeight: FontWeight.w800)),
+                      Text([l['company'], l['designation'], l['industry_display']]
                           .where((e) => (e ?? '').toString().isNotEmpty)
-                          .join(' · '))),
+                          .join(' · '),
+                          style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
+                    ]),
+                  ),
+                  const SizedBox(width: Gap.sm),
+                  ScoreBadge((l['score'] as num?)?.toInt() ?? 0),
                 ]),
                 const SizedBox(height: Gap.sm),
                 if ((l['score_reason'] ?? '').toString().isNotEmpty)
@@ -221,21 +230,26 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
           ]),
           // ---- required modules (requirement sheet seed) ----
           if (modules.isNotEmpty) ...[
-            const SizedBox(height: Gap.md),
-            _sectionTitle(t.crmRequiredModules),
-            Wrap(spacing: Gap.xs, children: [
+            DsSectionHeader(t.crmRequiredModules),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               for (final m in moduleOptions(t))
-                if (modules.contains(m.code)) Chip(label: Text(m.label)),
+                if (modules.contains(m.code))
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+                    decoration: BoxDecoration(
+                      color: scheme.ds.primarySoft,
+                      borderRadius: BorderRadius.circular(Radii.pill),
+                    ),
+                    child: Text(m.label, style: AType.labelLarge.copyWith(color: scheme.ds.primaryInk)),
+                  ),
             ]),
           ],
           if ((l['notes'] ?? '').toString().isNotEmpty) ...[
-            const SizedBox(height: Gap.md),
-            _sectionTitle(t.crmRequirements),
-            Text(l['notes']),
+            DsSectionHeader(t.crmRequirements),
+            DsCard(child: Text(l['notes'], style: AType.bodyMedium.copyWith(color: scheme.ds.text))),
           ],
           // ---- next step / follow-up suggestion ----
-          const SizedBox(height: Gap.md),
-          _sectionTitle(t.crmNextStep),
+          DsSectionHeader(t.crmNextStep),
           DsCard(
             padding: const EdgeInsets.all(Gap.md),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -283,42 +297,38 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
           ),
           // ---- proposals ----
           const SizedBox(height: Gap.md),
-          FilledButton.tonalIcon(
+          DsButton.secondary(
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => CrmProposalScreen(org: widget.org, lead: l))),
-            icon: const Icon(Icons.description_rounded),
-            label: Text(t.crmProposals),
+            icon: Icons.description_rounded,
+            label: t.crmProposals,
+            expand: true,
           ),
           const SizedBox(height: Gap.sm),
-          OutlinedButton.icon(
+          DsButton.secondary(
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(
                     builder: (_) => CrmProposalAdvancedScreen(org: widget.org, lead: l))),
-            icon: const Icon(Icons.auto_awesome_motion_rounded),
-            label: Text(t.crmQuoteVersions),
+            icon: Icons.auto_awesome_motion_rounded,
+            label: t.crmQuoteVersions,
+            expand: true,
           ),
-          // ---- Won / Lost actions ----
+          // ---- Won / Lost actions: won is the glowing main button ----
           const SizedBox(height: Gap.sm),
-          Row(children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _markWon(t),
-                icon: const Icon(Icons.emoji_events_rounded),
-                label: Text(t.shopQaMarkWon),
-              ),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+            DsButton(
+              onPressed: () => _markWon(t),
+              icon: Icons.emoji_events_rounded,
+              label: t.shopQaMarkWon,
             ),
-            const SizedBox(width: Gap.sm),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _markLost(t),
-                icon: const Icon(Icons.cancel_rounded),
-                label: Text(t.crmMarkLost),
-              ),
+            DsButton.secondary(
+              onPressed: () => _markLost(t),
+              icon: Icons.cancel_rounded,
+              label: t.crmMarkLost,
             ),
           ]),
           // ---- timeline ----
-          const SizedBox(height: Gap.md),
-          _sectionTitle(t.crmActivityTimeline),
+          DsSectionHeader(t.crmActivityTimeline),
           if (insight.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: Gap.sm),
@@ -328,6 +338,8 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
                 Expanded(child: Text(insight, style: AType.bodyMedium.copyWith(fontStyle: FontStyle.italic, color: scheme.ds.muted))),
               ]),
             ),
+          if (acts.isNotEmpty || msgs.isNotEmpty)
+          DsGroup(margin: EdgeInsets.zero, children: [
           for (final a in acts)
             ListTile(
               dense: true,
@@ -344,8 +356,9 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
               title: Text(m['text'] ?? ''),
               subtitle: Text('${m['sentiment']}'),
             ),
+          ]),
           if (acts.isEmpty && msgs.isEmpty)
-            Padding(padding: const EdgeInsets.all(Gap.md), child: Text(t.crmNoTimeline)),
+            DsCard(child: Text(t.crmNoTimeline, style: AType.bodyMedium.copyWith(color: scheme.ds.muted))),
         ]),
       ),
     );
@@ -476,11 +489,6 @@ class _CrmLeadDetailScreenState extends State<CrmLeadDetailScreen> {
           borderRadius: BorderRadius.circular(Radii.sm),
         ),
         child: Text(moneyDigitsFor(context, '$k: $v'), style: AType.bodySmall),
-      );
-
-  Widget _sectionTitle(String s) => Padding(
-        padding: const EdgeInsets.only(bottom: Gap.xs),
-        child: Text(s, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800)),
       );
 
   IconData _kindIcon(String? k) {

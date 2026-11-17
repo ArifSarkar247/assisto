@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../services/action_feedback.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/journey_api.dart';
 import '../widgets/journey_dest_sheets.dart';
 import 'package:assisto/widgets/app_sheet.dart' show withNavBarInset;
@@ -174,9 +175,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
-    Widget h(String s) => Padding(
-        padding: const EdgeInsets.only(top: Gap.md, bottom: Gap.sm),
-        child: Text(s, style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)));
+    Widget h(String s) => DsSectionHeader(s);
     return Scaffold(
       appBar: AppBar(title: Text(widget.locationOnly ? t.sjlBtnRequest : t.gjAskTitle)),
       body: ListView(
@@ -191,15 +190,19 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
               const SizedBox(height: Gap.sm),
               Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: FilledButton.tonalIcon(
-                  icon: const Icon(Icons.person_add_alt_1_rounded),
-                  label: Text(t.truthJourneyAddFamily),
+                child: DsButton(
+                  icon: Icons.person_add_alt_1_rounded,
+                  label: t.truthJourneyAddFamily,
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => const MessengerHomeScreen(startAdd: true))),
                 ),
               ),
             ],
-            Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            // who: one DS card of people chips (Family first)
+            if (widget.people.isNotEmpty)
+            DsCard(
+              padding: const EdgeInsets.all(Gap.md),
+              child: Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
               for (final (_, rs) in sectionPeople(widget.people)) // circlea: Family first
                 for (final p in rs)
                 ChoiceChip(
@@ -211,7 +214,7 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
                     if (!_child) _school = false;
                   }),
                 ),
-            ]),
+            ])),
             if (!widget.locationOnly) ...[
             h(t.journeyDestSection),
             TextField(
@@ -321,15 +324,13 @@ class _GuardianRequestScreenState extends State<GuardianRequestScreen> {
             Text(widget.locationOnly ? t.sjlReqRules : t.gjRulesNote,
                 style: AType.bodySmall.copyWith(color: cs.ds.muted)),
             const SizedBox(height: Gap.lg),
-            FilledButton.icon(
-              key: const ValueKey('gj_send'),
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+            DsButton(
+              buttonKey: const ValueKey('gj_send'),
+              expand: true,
               onPressed: _sending ? null : _send,
-              icon: _sending
-                  ? const SizedBox(
-                      width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.send_rounded),
-              label: Text(widget.locationOnly ? t.sjlReqAsk : t.gjSend),
+              busy: _sending,
+              icon: Icons.send_rounded,
+              label: widget.locationOnly ? t.sjlReqAsk : t.gjSend,
             ),
           ]),
     );

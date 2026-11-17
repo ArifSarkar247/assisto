@@ -304,17 +304,29 @@ void main() {
     });
   });
 
-  test('part F: Meta mediation now (AppLovin deferred: size guard), no startup ContentProvider', () {
+  // applovin (16 Nov): AppLovin fits the UNCHANGED size guard (Play AAB
+  // --split-debug-info + no AppLovin native crash reporter).
+  test('part F: Meta + AppLovin mediation (max 2), no startup ContentProvider, size guard untouched', () {
     final ci = File('../.github/workflows/android.yml').readAsStringSync();
     final adapters = RegExp(r'"com\.google\.ads\.mediation:(\w+):[0-9.]+"')
         .allMatches(ci)
         .map((m) => m.group(1))
         .toSet();
-    expect(adapters, {'facebook'});
-    for (final p in ['com.facebook.ads.AudienceNetworkContentProvider']) {
+    expect(adapters, {'facebook', 'applovin'});
+    for (final p in ['com.facebook.ads.AudienceNetworkContentProvider', 'com.applovin.sdk.AppLovinInitProvider']) {
       expect(RegExp('provider android:name="${RegExp.escape(p)}"[^>]*tools:node="remove"')
           .hasMatch(ci), isTrue, reason: '$p must be removed');
     }
+    expect(ci, contains('uses-permission android:name="com.android.vending.CHECK_LICENSE" tools:node="remove"'));
+    expect(ci, contains('**/libapplovin-native-crash-reporter.so'));
+    expect(ci, contains('--split-debug-info=build/dart-symbols'));
+    expect(RegExp(r'^\s+--obfuscate', multiLine: true).hasMatch(ci), isFalse,
+        reason: 'no behaviour change (runtimeType names)');
+    // the guard itself is never raised
+    expect(ci, contains('lim = None if b is None else b * 1.05 + 1'));
+    final base = File('../tools/startspeed/size_baseline.json').readAsStringSync();
+    expect(base, contains('"arm64_download_mb": 51.24'));
+    expect(base, contains('"v7a_download_mb": 48.86'));
   });
 
   group('rewarded gate never blocks', () {

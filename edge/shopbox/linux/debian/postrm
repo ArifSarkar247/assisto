@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+if [ "$1" = "purge" ]; then
+  # the box's settings + encrypted camera passwords + waiting alerts
+  rm -rf /var/lib/assisto-guardbox /var/cache/assisto-guardbox
+  getent passwd assisto-guardbox >/dev/null && deluser --system assisto-guardbox >/dev/null 2>&1 || true
+fi
+if [ -d /run/systemd/system ]; then systemctl daemon-reload >/dev/null 2>&1 || true; fi
+exit 0

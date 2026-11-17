@@ -1,0 +1,175 @@
+name: Guard Box (Linux amd64 + arm64)
+
+# gboxlinux (owner CCTV GUARD V3 part A4): the SAME Guard Box software as the
+# Windows Shop Box, packaged for Linux mini PCs and Raspberry Pi 4/5:
+#   build   python:3.11-slim-bullseye container per CPU (native arm64 runner)
+#           -> PyInstaller bundle -> .deb + .tar.gz (systemd service, watchdog,
+#           daily auto-update timer)
+#   e2e     mediamtx RTSP fake camera -> a clean debian:bookworm-slim box
+#           container installing the .deb (arm64 through qemu) -> pairing by
+#           the owner's code -> person alert WITH a picture at a test backend,
+#           internet-down + power-cut events. Runs on main, or on an agent
+#           branch only when the commit message says [gbox-e2e] (shared runners).
+#   release ONLY from main: assets on the `guardbox-linux` release (install.sh,
+#           both .debs, tarballs, SHA256SUMS, VERSION = the auto-update channel)
+# No secrets except the default GITHUB_TOKEN (release job only).
+on:
+  push:
+    branches: ["main", "ci/gboxlinux", "ci/gboxlinux-arb", "ci/gboxfix-arb", "ci/b*"]
+    paths:
+      - "edge/shopbox/**"
+      - "tools/e2e/guardbox_*"
+      - "tools/e2e/ipcam_*"
+      - ".github/workflows/guardbox-linux.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: guardbox-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Version (package version + CI run number)
+        id: v
+        run: |
+          V=$(python3 -c "import re;print(re.search(r'__version__ = \"([^\"]+)\"', open('edge/shopbox/shopbox/__init__.py').read()).group(1))")
+          echo "version=${V}+${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+      - name: Build in python:3.11-slim-bullseye (glibc 2.31)
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE:/src" -w /src/edge/shopbox \
+            -e VERSION="${{ steps.v.outputs.version }}" -e PIP_DISABLE_PIP_VERSION_CHECK=1 \
+            python:3.11-slim-bullseye bash linux/build_linux.sh
+          sudo chown -R "$(id -u):$(id -g)" edge/shopbox
+          echo "${{ steps.v.outputs.version }}" > edge/shopbox/dist-linux/VERSION
+      - name: Bundle runs on the newest distro too (Ubuntu 24.04 host)
+        run: |
+          D=$(mktemp -d); tar -C "$D" -xzf edge/shopbox/dist-linux/assisto-guardbox-linux-${{ matrix.arch }}.tar.gz
+          SHOPBOX_HOME=$(mktemp -d) "$D/assisto-guardbox/assisto-guardbox" --self-test
+          du -sh "$D/assisto-guardbox" edge/shopbox/dist-linux/*
+      # the .deb goes to the next jobs through the Actions cache (the repo's
+      # artifact storage quota is shared by every agent and often full)
+      - uses: actions/cache/save@v4
+        with:
+          path: edge/shopbox/dist-linux
+          key: gbox-deb-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.arch }}
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: guardbox-linux-${{ matrix.arch }}
+          path: edge/shopbox/dist-linux/
+          retention-days: 14
+
+  e2e:
+    name: e2e ${{ matrix.arch }}
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[gbox-e2e]')
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      E2E_DIR: /tmp/assisto-gbox-e2e
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Backend deps + aiortc (owner-side live probe) + opencv (scene)
+        run: python -m pip install -q -r backend/requirements.txt pyyaml aiortc==1.9.0 opencv-python-headless==4.10.0.84 numpy
+      - name: qemu for the arm64 box container
+        if: matrix.arch == 'arm64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - uses: actions/cache/restore@v4
+        with:
+          path: edge/shopbox/dist-linux
+          key: gbox-deb-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.arch }}
+          fail-on-cache-miss: true
+      - name: Camera + backend + the box container
+        run: bash tools/e2e/guardbox_linux_e2e.sh ${{ matrix.arch }} edge/shopbox/dist-linux
+      - name: Proof
+        if: always()
+        run: |
+          python3 tools/e2e/guardbox_ctl.py proof > "$E2E_DIR/proof.txt" 2>&1 || true
+          {
+            echo "### Linux Guard Box E2E (${{ matrix.arch }})"
+            echo '```'
+            grep -h "GBOX_E2E\|gbox-e2e" "$E2E_DIR"/*.log "$E2E_DIR/proof.txt" 2>/dev/null | tail -30 || true
+            cat "$E2E_DIR/proof.txt" 2>/dev/null | head -60
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 -c "import json,sys;d=json.load(open('$E2E_DIR/guardbox_proof.json'));k={n['kind'] for n in d['notifications']};print(k);sys.exit(0 if d['alert_with_photo'] and {'net_back','power_back'}<=k else 1)"
+      - name: Upload evidence
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardbox-e2e-${{ matrix.arch }}
+          path: |
+            /tmp/assisto-gbox-e2e/*.log
+            /tmp/assisto-gbox-e2e/*.json
+            /tmp/assisto-gbox-e2e/*.txt
+            /tmp/assisto-gbox-e2e/media/shop/**
+          retention-days: 30
+          if-no-files-found: warn
+
+  release:
+    name: publish (main only)
+    needs: [build, e2e]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache/restore@v4
+        with:
+          path: edge/shopbox/dist-linux
+          key: gbox-deb-${{ github.run_id }}-${{ github.run_attempt }}-amd64
+          fail-on-cache-miss: true
+      - run: mkdir -p art && cp edge/shopbox/dist-linux/* art/ && rm -rf edge/shopbox/dist-linux
+      - uses: actions/cache/restore@v4
+        with:
+          path: edge/shopbox/dist-linux
+          key: gbox-deb-${{ github.run_id }}-${{ github.run_attempt }}-arm64
+          fail-on-cache-miss: true
+      - run: cp edge/shopbox/dist-linux/*arm64* art/
+      - name: Assets + checksums
+        run: |
+          mkdir rel
+          cp art/assisto-guardbox_amd64.deb art/assisto-guardbox_arm64.deb \
+             art/assisto-guardbox-linux-amd64.tar.gz art/assisto-guardbox-linux-arm64.tar.gz \
+             art/VERSION edge/shopbox/linux/install.sh rel/
+          (cd rel && sha256sum assisto-guardbox_amd64.deb assisto-guardbox_arm64.deb \
+             assisto-guardbox-linux-amd64.tar.gz assisto-guardbox-linux-arm64.tar.gz install.sh > SHA256SUMS)
+          cat rel/SHA256SUMS rel/VERSION
+      - name: Upload to the guardbox-linux release (the auto-update channel)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view guardbox-linux >/dev/null 2>&1 || gh release create guardbox-linux \
+            --title "Assisto Guard Box for Linux / Raspberry Pi" \
+            --notes "Install: curl -fsSL https://github.com/${{ github.repository }}/releases/download/guardbox-linux/install.sh | sudo sh"
+          # binaries first, SHA256SUMS + VERSION last: a box never sees a
+          # VERSION whose files are not uploaded yet
+          gh release upload guardbox-linux --clobber rel/*.deb rel/*.tar.gz rel/install.sh
+          gh release upload guardbox-linux --clobber rel/SHA256SUMS rel/VERSION

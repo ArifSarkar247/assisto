@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../l10n/app_localizations.dart';
 import '../../widgets/ladder_common.dart';
 import 'crm_common.dart';
@@ -72,15 +73,37 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
       );
     }
 
+    // Page rule: the day at a glance first — the soft hero counts what is
+    // waiting in each list (real counts), then each list as one DS group.
+    Widget stat(int n, String label, Color tint, double w) => SizedBox(
+          width: w,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            DsNumber(fmtInt(context, n), small: true, color: tint),
+            Text(label, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+          ]),
+        );
     return RefreshIndicator(
       onRefresh: _load,
-      child: ListView(padding: const EdgeInsets.all(Gap.md), children: [
+      child: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)), children: [
+        DsHeroCard(
+          // two stats per row (a fixed width put one per row on 360 dp)
+          child: LayoutBuilder(builder: (context, c) {
+            final w = (c.maxWidth - Gap.md) / 2;
+            return Wrap(spacing: Gap.md, runSpacing: Gap.md, children: [
+            if (high.isNotEmpty) stat(high.length, t.crmTodayHotLeads, scheme.ds.dangerInk, w),
+            if (fu.isNotEmpty) stat(fu.length, t.crmTodayFollowups, scheme.ds.text, w),
+            if (tasks.isNotEmpty) stat(tasks.length, t.bbCrmDueTasks, scheme.ds.text, w),
+            if (overdue.isNotEmpty) stat(overdue.length, t.crmTodayOverdueSteps, scheme.ds.dangerInk, w),
+            if (missing.isNotEmpty) stat(missing.length, t.crmTodayMissingStep, scheme.ds.text, w),
+            if (stuck.isNotEmpty) stat(stuck.length, t.crmTodayStuck, scheme.ds.text, w),
+          ]);
+          }),
+        ),
         if (high.isNotEmpty) ...[
           _header(t.crmTodayHotLeads, Icons.local_fire_department_rounded, Theme.of(context).colorScheme.error),
-          for (final l in high)
-            DsCard(
-              padding: EdgeInsets.zero,
-              child: ListTile(
+          DsGroup(margin: EdgeInsets.zero, children: [
+            for (final l in high)
+              ListTile(
                 leading: ScoreBadge((l['score'] as num).toInt()),
                 title: Text(l['name']?.toString().isNotEmpty == true
                     ? l['name']
@@ -91,14 +114,13 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
                 trailing: _inlineActions(t, l),
                 onTap: () => _openLead((l['id'] as num).toInt()),
               ),
-            ),
+          ]),
         ],
         if (fu.isNotEmpty) ...[
           _header(t.crmTodayFollowups, Icons.event_rounded, AssistoTokens.of(context).warning),
-          for (final l in fu)
-            DsCard(
-              padding: EdgeInsets.zero,
-              child: ListTile(
+          DsGroup(margin: EdgeInsets.zero, children: [
+            for (final l in fu)
+              ListTile(
                 leading: const Icon(Icons.schedule_rounded),
                 title: Text(l['name']?.toString().isNotEmpty == true
                     ? l['name']
@@ -107,14 +129,13 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
                 trailing: _inlineActions(t, l),
                 onTap: () => _openLead((l['id'] as num).toInt()),
               ),
-            ),
+          ]),
         ],
         if (tasks.isNotEmpty) ...[
           _header(t.bbCrmDueTasks, Icons.task_alt_rounded, AssistoTokens.of(context).warning),
-          for (final s in tasks)
-            DsCard(
-              padding: EdgeInsets.zero,
-              child: ListTile(
+          DsGroup(margin: EdgeInsets.zero, children: [
+            for (final s in tasks)
+              ListTile(
                 leading: const Icon(Icons.checklist_rounded),
                 title: Text('${s['subject'] ?? ''}'),
                 subtitle: Text([
@@ -124,49 +145,46 @@ class _CrmTodayScreenState extends State<CrmTodayScreen> {
                 trailing: _inlineActions(t, s),
                 onTap: _leadIdOf(s) != null ? () => _openLead(_leadIdOf(s)!) : null,
               ),
-            ),
+          ]),
         ],
         if (overdue.isNotEmpty) ...[
           _header(t.crmTodayOverdueSteps, Icons.warning_amber_rounded, Theme.of(context).colorScheme.error),
-          for (final s in overdue)
-            DsCard(
-              padding: EdgeInsets.zero,
-              child: ListTile(
+          DsGroup(margin: EdgeInsets.zero, children: [
+            for (final s in overdue)
+              ListTile(
                 leading: const Icon(Icons.flag_rounded),
                 title: Text(s['title'] ?? ''),
                 subtitle: Text('${s['next_step']} · ${t.crmDue}: ${_date(s['due'])}'),
                 trailing: _rescheduleAction(t, s),
                 onTap: _leadIdOf(s) != null ? () => _openLead(_leadIdOf(s)!) : null,
               ),
-            ),
+          ]),
         ],
         if (missing.isNotEmpty) ...[
           _header(t.crmTodayMissingStep, Icons.help_outline_rounded, scheme.ds.muted),
-          for (final s in missing)
-            DsCard(
-              padding: EdgeInsets.zero,
-              child: ListTile(
+          DsGroup(margin: EdgeInsets.zero, children: [
+            for (final s in missing)
+              ListTile(
                 leading: const Icon(Icons.remove_circle_outline_rounded),
                 title: Text(s['title'] ?? ''),
                 subtitle: Text(t.crmNoNextStep),
                 trailing: _rescheduleAction(t, s),
                 onTap: _leadIdOf(s) != null ? () => _openLead(_leadIdOf(s)!) : null,
               ),
-            ),
+          ]),
         ],
         if (stuck.isNotEmpty) ...[
           _header(t.crmTodayStuck, Icons.hourglass_bottom_rounded, AssistoTokens.of(context).warning),
-          for (final s in stuck)
-            DsCard(
-              padding: EdgeInsets.zero,
-              child: ListTile(
+          DsGroup(margin: EdgeInsets.zero, children: [
+            for (final s in stuck)
+              ListTile(
                 leading: const Icon(Icons.timelapse_rounded),
                 title: Text(s['title'] ?? ''),
                 subtitle: Text('${s['stage']} · ${fmtInt(context, (s['days'] as num?)?.toInt() ?? 0)} ${t.crmDaysStuck}'),
                 trailing: _rescheduleAction(t, s),
                 onTap: _leadIdOf(s) != null ? () => _openLead(_leadIdOf(s)!) : null,
               ),
-            ),
+          ]),
         ],
       ]),
     );

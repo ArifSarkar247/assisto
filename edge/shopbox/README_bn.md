@@ -152,3 +152,11 @@
 লগ ফাইল এখানে থাকে: `%APPDATA%\AssistoShopBox\logs\shopbox.log`
 
 সাপোর্টে এই ফাইল পাঠাতে পারেন। এতে কোনো পাসওয়ার্ড বা টোকেন থাকে না।
+
+## Raspberry Pi / লিনাক্স মিনি পিসিতে পাহারা বক্স (উইন্ডোজ লাগে না)
+১. ৬৪-বিট Raspberry Pi OS (Pi 4/5, ২ জিবি RAM-এই চলে) বা Ubuntu/Debian মিনি পিসি, ক্যামেরার একই রাউটারে।
+২. এক লাইনে ইনস্টল:
+   `curl -fsSL https://github.com/ArifSarkar247/assisto/releases/download/guardbox-linux/install.sh | sudo sh`
+৩. `sudo assisto-guardbox setup` — ক্যামেরা খুঁজে নেয়, পাসওয়ার্ড শুধু বক্সে গোপনে রাখে, শেষে মালিকের অ্যাপের "পুরনো ফোনকে ক্যামেরা বানান" কোড চায়।
+৪. অবস্থা: `assisto-guardbox status`; লগ: `sudo assisto-guardbox logs`; এখনই আপডেট: `sudo assisto-guardbox update`।
+বক্স নিজে চালু হয়, আটকে গেলে নিজে আবার চালু হয়, দিনে একবার নিজে আপডেট নেয়। বিদ্যুৎ বা ইন্টারনেট গেলে পরে মালিক "কখন থেকে কখন" বার্তা পান।

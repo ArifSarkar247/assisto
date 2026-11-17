@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../messaging/date_separators.dart' show localDigits;
 import '../../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -180,22 +181,26 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
         label: Text(tr.demandLogSignal),
       ),
       body: _rows.isEmpty
-          ? StateMessage(
-              icon: Icons.insights_rounded,
-              title: tr.demandWelcomeTitle,
-              message: tr.demandWelcomeBody,
-              action: FilledButton.icon(
-                onPressed: () => _add(),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tr.demandLogSignal),
-              ),
+          ? ListView(
+              padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+              children: [
+                DsEmptyState(
+                  icon: Icons.insights_rounded,
+                  title: tr.demandWelcomeTitle,
+                  benefit: tr.demandWelcomeBody,
+                  actionLabel: tr.demandLogSignal,
+                  onAction: () => _add(),
+                ),
+              ],
             )
           : ListView(
-              padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96),
+              padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 96)),
               children: [
-                _manualNote(context, tr),
-                const SizedBox(height: Gap.md),
+                // Page rule: the answer first (what is hot, where) as the
+                // soft hero; the "you typed these" note after it.
                 _hottestCard(context, tr, heat),
+                const SizedBox(height: Gap.md),
+                _manualNote(context, tr),
                 const SizedBox(height: Gap.md),
                 SegmentedButton<int>(
                   segments: [
@@ -210,8 +215,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
                 const SizedBox(height: Gap.md),
                 ..._bucketsFor(heat).map((b) => _bucketCard(context, tr, b)),
                 if (_bucketsFor(heat).isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(Gap.lg),
+                  DsCard(
                     child: Text(tr.demandGridNeedsBoth,
                         textAlign: TextAlign.center,
                         style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
@@ -253,8 +257,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
 
   Widget _hottestCard(BuildContext context, AppLocalizations tr, _DHeat h) {
     final scheme = Theme.of(context).colorScheme;
-    return DsCard(
-      padding: const EdgeInsets.all(Gap.lg),
+    return DsHeroCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr.demandHeatTitle,
               style: Theme.of(context)
@@ -262,7 +265,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
                   .titleMedium
                   ?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: Gap.md),
-          Row(children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(
               child: _stat(
                 context,
@@ -271,6 +274,7 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
                 Icons.local_fire_department_rounded,
               ),
             ),
+            const SizedBox(width: Gap.md),
             Expanded(
               child: _stat(
                 context,
@@ -292,17 +296,19 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
   Widget _stat(BuildContext context, String label, String value, IconData ic) {
     final scheme = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        Icon(ic, size: 15, color: scheme.primary),
+      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(ic, size: 15, color: scheme.ds.primaryInk),
         const SizedBox(width: Gap.xs),
-        Text(label,
-            style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+        Expanded(
+          child: Text(label,
+              style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+        ),
       ]),
       const SizedBox(height: Gap.xxs),
+      // the hot product / area is the headline: big, tight, wraps (never "…")
       Text(value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800)),
+          style: AType.titleLarge.copyWith(
+              color: scheme.ds.text, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
     ]);
   }
 
@@ -317,8 +323,6 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
           Row(children: [
             Expanded(
               child: Text(b.label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                   style: AType.titleSmall.copyWith(fontWeight: FontWeight.w800)),
             ),
             Container(
@@ -328,7 +332,8 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
                 borderRadius: BorderRadius.circular(Radii.pill),
               ),
               child: Text(_levelLabel(tr, b.band),
-                  style: AType.labelMedium.copyWith(fontWeight: FontWeight.w700, color: color)),
+                  style: AType.labelMedium.copyWith(
+                      fontWeight: FontWeight.w700, color: Brand.onTint(context, color))),
             ),
           ]),
           const SizedBox(height: Gap.sm),
@@ -342,11 +347,11 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
             ),
           ),
           const SizedBox(height: Gap.sm),
-          Row(children: [
+          // Wrap (not Row): the three figures flow onto a second line at
+          // 200% font; digits follow the language (Bangla digits in bn).
+          Wrap(spacing: Gap.md, runSpacing: Gap.xs, children: [
             _mini(context, tr.demandStatSignals, b.count.toString()),
-            const SizedBox(width: Gap.md),
             _mini(context, tr.demandStatHeat, b.total.toString()),
-            const SizedBox(width: Gap.md),
             _mini(context, tr.demandStatAvg, b.avg.toStringAsFixed(1)),
           ]),
         ]),
@@ -355,50 +360,48 @@ class _DemandMapScreenState extends State<DemandMapScreen> {
 
   Widget _mini(BuildContext context, String label, String value) {
     final scheme = Theme.of(context).colorScheme;
-    return Row(children: [
+    return Row(mainAxisSize: MainAxisSize.min, children: [
       Text('$label ',
           style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
-      Text(value, style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+      Text(localDigits(value, Localizations.localeOf(context).languageCode),
+          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
     ]);
   }
 
   Widget _signalsList(BuildContext context, AppLocalizations tr) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(tr.demandSignalsHeading,
-          style: Theme.of(context).textTheme.titleMedium),
-      const SizedBox(height: Gap.sm),
-      ..._rows.map((r) {
-        final sig = _DMath.normalize(r);
-        final color = _bandColor(sig.level);
-        return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(
-            padding: EdgeInsets.zero,
-            child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: color.withValues(alpha: 0.16),
-              child: Icon(Icons.trending_up_rounded, color: color, size: 20),
-            ),
-            title: Text(
-                sig.product.isEmpty ? sig.area : sig.product,
-                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-            subtitle: Text(_signalSubtitle(tr, sig)),
-            trailing: PopupMenuButton<String>(
-              onSelected: (v) {
-                if (v == 'add') {
-                  _add(product: sig.product, area: sig.area);
-                }
-                if (v == 'edit') _edit(r);
-                if (v == 'delete') _delete(r);
-              },
-              itemBuilder: (ctx) => [
-                PopupMenuItem(value: 'add', child: Text(tr.demandLogSignal)),
-                PopupMenuItem(value: 'edit', child: Text(tr.edit)),
-                PopupMenuItem(value: 'delete', child: Text(tr.delete)),
-              ],
-            ),
-            onTap: () => _edit(r),
-          ),
-          ));
-      }),
+      DsSectionHeader(tr.demandSignalsHeading),
+      DsGroup(margin: EdgeInsets.zero, children: [
+        for (final r in _rows)
+          Builder(builder: (context) {
+            final sig = _DMath.normalize(r);
+            final color = _bandColor(sig.level);
+            return DsListRow(
+              leading: DsAvatar(
+                size: 40,
+                color: color,
+                child: Icon(Icons.trending_up_rounded, color: Brand.onTint(context, color), size: 20),
+              ),
+              title: sig.product.isEmpty ? sig.area : sig.product,
+              subtitle: _signalSubtitle(tr, sig),
+              trailing: PopupMenuButton<String>(
+                onSelected: (v) {
+                  if (v == 'add') {
+                    _add(product: sig.product, area: sig.area);
+                  }
+                  if (v == 'edit') _edit(r);
+                  if (v == 'delete') _delete(r);
+                },
+                itemBuilder: (ctx) => [
+                  PopupMenuItem(value: 'add', child: Text(tr.demandLogSignal)),
+                  PopupMenuItem(value: 'edit', child: Text(tr.edit)),
+                  PopupMenuItem(value: 'delete', child: Text(tr.delete)),
+                ],
+              ),
+              onTap: () => _edit(r),
+            );
+          }),
+      ]),
     ]);
   }
 

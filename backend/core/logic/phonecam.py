@@ -24,7 +24,7 @@ LINK_BASE = "https://lifeassisto.com/pc/"
 LOW_BATTERY_PCT = 20
 HOT_C = 45.0
 WARN_REPEAT_S = 1800
-WARN_KINDS = ("unplugged", "low_battery", "hot", "dark", "cam_lost")
+WARN_KINDS = ("unplugged", "low_battery", "hot", "dark", "cam_lost", "box_cam_lost")
 
 LIVE_IDLE_S = 300
 LIVE_MAX_PER_ACCOUNT = 2
@@ -127,6 +127,9 @@ def clean_health(d):
     # cctvbox: a Guard Box phone that can no longer reach its IP camera
     if d.get("cam_lost") is True:
         out["cam_lost"] = True
+    # gboxlinux: a Linux / Raspberry Pi / Windows Guard Box lost the camera
+    if d.get("box_cam_lost") is True:
+        out["box_cam_lost"] = True
     return out
 
 
@@ -146,6 +149,8 @@ def active_conditions(h):
         out.add("dark")
     if h.get("cam_lost"):
         out.add("cam_lost")
+    if h.get("box_cam_lost"):
+        out.add("box_cam_lost")
     return out
 
 
@@ -191,6 +196,10 @@ WARN_TEXT = {
     "cam_lost": ("আইপি ক্যামেরা পাওয়া যাচ্ছে না", "IP camera not reachable",
                  "%s — পাহারাদার ফোন ২ মিনিট ধরে আইপি ক্যামেরা পাচ্ছে না। ক্যামেরার বিদ্যুৎ বা ওয়াই-ফাই দেখুন।",
                  "%s — the guard phone has not reached the IP camera for 2 minutes. Check the camera's power or Wi-Fi."),
+    # gboxlinux: the Guard Box on a Raspberry Pi / mini PC / Windows PC
+    "box_cam_lost": ("ক্যামেরার ছবি আসছে না", "Camera not sending pictures",
+                     "%s — পাহারা বক্স ২ মিনিট ধরে এই ক্যামেরার ছবি পাচ্ছে না। ক্যামেরা/ডিভিআর-এর বিদ্যুৎ ও নেটওয়ার্কের তার দেখুন।",
+                     "%s — the Guard Box has had no picture from this camera for 2 minutes. Check the camera / DVR power and network cable."),
 }
 
 

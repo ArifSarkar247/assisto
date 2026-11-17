@@ -1,3 +1,3 @@
-- New look for more business and CRM screens.
-- Website: feature pages prepared (preview), blog hidden until the first post.
-- Reliability fixes.
+- Clearer, more natural Bangla across the whole app (one word for one thing).
+- Fair ads for free users: AI answer unlock, Discover, after-call review, City "More routes".
+- New look for more screens.

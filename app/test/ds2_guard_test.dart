@@ -204,6 +204,44 @@ void main() {
             '${bad.join('\n')}');
   });
 
+  // b323 (swiftshader died on first run): no GPU-heavy effects outside the
+  // few places that need them. A blur / shader mask / saveLayer per frame
+  // kills software GPUs and the low-end Mali / PowerVR phones common in
+  // Bangladesh. Use DS surfaces (plain static BoxShadows) instead.
+  test('perf: no BackdropFilter / ImageFilter.blur / ShaderMask / saveLayer outside the allow-list', () {
+    const allow = {
+      'lib/messaging/media/media_bubble.dart', // view-once preview blur (static)
+      'lib/messaging/media/album_viewer.dart',
+      'lib/messaging/media/photo_album_view.dart',
+      'lib/screens/voice_assistant_screen.dart',
+      'lib/voice/va_onboarding_step.dart',
+    };
+    final rx = RegExp(r'\bBackdropFilter\(|ImageFilter\.blur\(|\bShaderMask\(|\.saveLayer\(');
+    final bad = <String>[];
+    for (final f in Directory('lib').listSync(recursive: true).whereType<File>()) {
+      final p = f.path.replaceAll(r'\', '/');
+      if (!p.endsWith('.dart') || allow.contains(p)) continue;
+      var n = 0;
+      for (final l in f.readAsLinesSync()) {
+        if (l.trimLeft().startsWith('//')) continue;
+        if (rx.hasMatch(l.split('//').first)) n++;
+      }
+      if (n > 0) bad.add('$p: $n');
+    }
+    expect(bad, isEmpty,
+        reason: 'GPU-heavy effect outside the allow-list (b323 swiftshader death):\n${bad.join('\n')}');
+  });
+
+  test('perf: DS surfaces draw the cheap look on lite devices', () {
+    // the lite shadow is one small static blur; glows are off in lite
+    for (final t in [DsTokens.light, DsTokens.dark]) {
+      expect(t.liteShadows.length, lessThanOrEqualTo(1));
+      for (final b in t.liteShadows) {
+        expect(b.blurRadius, lessThanOrEqualTo(8));
+      }
+    }
+  });
+
   test('contrast: V2 text roles meet WCAG AA', () {
     for (final t in [DsTokens.light, DsTokens.dark]) {
       final m = t.isDark ? 'dark' : 'light';

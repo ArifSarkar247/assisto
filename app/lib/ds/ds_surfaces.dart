@@ -72,27 +72,25 @@ class _DsSurfaceState extends State<DsSurface> {
             : (pressed ? t.pressedShadows : t.shadows);
     final r = BorderRadius.circular(widget.radius);
     Widget body = Padding(padding: widget.padding, child: widget.child);
-    if (!widget.flat) {
+    // lite: no highlight shader, no animated container, no clip layer
+    if (!widget.flat && !lite) {
       body = CustomPaint(
         foregroundPainter: _TopHighlight(t.highlight, widget.radius),
         child: body,
       );
     }
-    Widget card = AnimatedContainer(
-      duration: lite ? Duration.zero : DsMotion.press,
-      curve: DsMotion.curve,
-      transform: Matrix4.translationValues(0, pressed ? -DsMotion.lift : 0, 0),
-      decoration: BoxDecoration(
-        color: widget.gradient == null ? (widget.color ?? fill) : null,
-        gradient: widget.gradient,
-        borderRadius: r,
-        border: Border.all(color: widget.borderColor ?? border),
-        boxShadow: shadows,
-      ),
-      child: Material(
+    final deco = BoxDecoration(
+      color: widget.gradient == null ? (widget.color ?? fill) : null,
+      gradient: widget.gradient,
+      borderRadius: r,
+      border: Border.all(color: widget.borderColor ?? border),
+      boxShadow: shadows,
+    );
+    final material = Material(
         type: MaterialType.transparency,
         borderRadius: r,
-        clipBehavior: Clip.antiAlias,
+        // a clip only where ink must stay inside the corners
+        clipBehavior: interactive && !lite ? Clip.antiAlias : Clip.none,
         child: interactive
             ? InkWell(
                 borderRadius: r,
@@ -102,8 +100,16 @@ class _DsSurfaceState extends State<DsSurface> {
                 child: body,
               )
             : body,
-      ),
-    );
+      );
+    Widget card = lite
+        ? DecoratedBox(decoration: deco, child: material)
+        : AnimatedContainer(
+            duration: DsMotion.press,
+            curve: DsMotion.curve,
+            transform: Matrix4.translationValues(0, pressed ? -DsMotion.lift : 0, 0),
+            decoration: deco,
+            child: material,
+          );
     if (widget.semanticLabel != null) {
       card = Semantics(
           label: widget.semanticLabel, button: interactive, child: card);

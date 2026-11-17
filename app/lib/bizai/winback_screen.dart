@@ -8,6 +8,7 @@ import '../plans_v2/buy_inside.dart';
 import '../screens/business/bizagent/seller_agent_screen.dart' show baErrorText, bd;
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/business_ui.dart';
 import '../widgets/skeleton.dart';
@@ -167,13 +168,32 @@ class _WinbackScreenState extends State<WinbackScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-        BizCard(
-          title: t.bizaiSegmentsTitle,
-          icon: Icons.groups_rounded,
-          child: total == 0
-              ? Text(t.bizaiSegmentsEmpty)
-              : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(t.bizaiSegmentsSub(fmtInt(context, total))),
+        // Who can be won back = the soft DS hero (the big number first).
+        DsHeroCard(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              DsAvatar(
+                  child: Icon(Icons.groups_rounded,
+                      size: 22, color: DsTokens.of(context).primaryInk)),
+              const SizedBox(width: Gap.md),
+              Expanded(
+                child: Semantics(
+                  header: true,
+                  child: Text(t.bizaiSegmentsTitle,
+                      style: AType.titleMedium.copyWith(
+                          color: DsTokens.of(context).text, fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ]),
+            const SizedBox(height: Gap.md),
+            if (total == 0)
+              Text(t.bizaiSegmentsEmpty,
+                  style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted))
+            else
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  DsNumber(fmtInt(context, total)),
+                  Text(t.bizaiSegmentsSub(fmtInt(context, total)),
+                      style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted)),
                   const SizedBox(height: Gap.sm),
                   for (final s in _list(seg['segments']))
                     if (((s['count'] as num?) ?? 0) > 0)
@@ -200,6 +220,7 @@ class _WinbackScreenState extends State<WinbackScreen> {
                         ],
                       ),
                 ]),
+          ]),
         ),
         const SizedBox(height: Gap.md),
         BizCard(
@@ -213,10 +234,18 @@ class _WinbackScreenState extends State<WinbackScreen> {
                   '${t.bizaiLadderAudience(fmtInt(context, (s['audience'] as num?)?.toInt() ?? 0))}',
                   style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: Gap.xs),
-              Text(bd(context, (_drafts['${s['stage']}'] ?? '')
-                  .replaceAll('{name}', t.bizaiPhName)
-                  .replaceAll('{shop}', t.bizaiPhShop)
-                  .replaceAll('{days}', t.bizaiPhDays))),
+              // the message itself, as a soft quote
+              DsSurface(
+                flat: true,
+                color: DsTokens.of(context).cardAlt,
+                borderColor: DsTokens.of(context).border,
+                padding: const EdgeInsets.all(Gap.md),
+                child: Text(bd(context, (_drafts['${s['stage']}'] ?? '')
+                    .replaceAll('{name}', t.bizaiPhName)
+                    .replaceAll('{shop}', t.bizaiPhShop)
+                    .replaceAll('{days}', t.bizaiPhDays)),
+                    style: AType.bodyMedium.copyWith(color: DsTokens.of(context).text)),
+              ),
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: TextButton.icon(
@@ -236,21 +265,22 @@ class _WinbackScreenState extends State<WinbackScreen> {
             if (lad['plan_ok'] == false) ...[
               BizNote(text: '${lad['plan_note'] ?? ''}', icon: Icons.workspace_premium_rounded),
               const SizedBox(height: Gap.sm),
-              FilledButton.icon(
-                key: const ValueKey('bizai2-ladder-plans'),
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              DsButton(
+                buttonKey: const ValueKey('bizai2-ladder-plans'),
+                expand: true,
                 onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const BusinessPlansScreen())),
-                icon: const Icon(Icons.workspace_premium_rounded),
-                label: Text(t.bizai2SeeBusinessPlan),
+                icon: Icons.workspace_premium_rounded,
+                label: t.bizai2SeeBusinessPlan,
               ),
             ] else
-              FilledButton.icon(
-                key: const ValueKey('bizai-ladder-approve'),
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              DsButton(
+                buttonKey: const ValueKey('bizai-ladder-approve'),
+                expand: true,
+                busy: _busy,
                 onPressed: _busy ? null : () => _approve(!allOn),
-                icon: Icon(allOn ? Icons.pause_circle_rounded : Icons.check_circle_rounded),
-                label: Text(allOn ? t.bizaiLadderStop : t.bizaiLadderApprove),
+                icon: allOn ? Icons.pause_circle_rounded : Icons.check_circle_rounded,
+                label: allOn ? t.bizaiLadderStop : t.bizaiLadderApprove,
               ),
           ]),
         ),

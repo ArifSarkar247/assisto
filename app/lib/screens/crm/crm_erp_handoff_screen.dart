@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart';
+import '../../messaging/date_separators.dart' show localDigits;
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_aftersale_api.dart';
 import '../../widgets/crm_aftersale_widgets.dart';
@@ -76,43 +77,60 @@ class _CrmErpHandoffScreenState extends State<CrmErpHandoffScreen> {
     final erpLinked = (_rec['erp_state'] ?? 'needs_erp_link') == 'linked';
     final modules = (_rec['modules'] as List?) ?? [];
     final actions = _nextActions(state);
+    final ds = Theme.of(context).colorScheme.ds;
+    final total = (_rec['order_total_poisha'] as num? ?? 0);
+    // Page rule: the hand-off status + the next step first (soft hero with
+    // the action buttons inside it), then the modules; notes last.
     return ListView(padding: const EdgeInsets.all(Gap.md), children: [
-      if (!erpLinked)
-        NeedsKeyBanner(t.crmErpNotLinked, icon: Icons.link_off_rounded),
-      DsCard(
-        padding: const EdgeInsets.all(Gap.md),
+      DsHeroCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Expanded(
-                  child: Text((_rec['company'] ?? '').toString(),
-                      style: AType.titleMedium.copyWith(fontWeight: FontWeight.w800))),
-              CrmStatusPill(_stateLabel(t, state), tone: _stateTone(state)),
-            ]),
-            const SizedBox(height: Gap.sm),
-            CrmSectionHeader(t.crmErpModules, icon: Icons.widgets_rounded),
-            Wrap(spacing: Gap.xs, children: [
-              for (final m in modules)
-                Chip(label: Text(m.toString())),
-            ]),
-            const SizedBox(height: Gap.sm),
-            if ((_rec['order_total_poisha'] as num? ?? 0) > 0)
-              CrmMoneyRow(t.crmOrderTotal,
-                  bdtFromPoisha(_rec['order_total_poisha'] as num?),
-                  bold: true),
+            Wrap(
+                spacing: Gap.sm,
+                runSpacing: Gap.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text((_rec['company'] ?? '').toString(),
+                      style: AType.titleLarge.copyWith(color: ds.text, fontWeight: FontWeight.w800)),
+                  CrmStatusPill(_stateLabel(t, state), tone: _stateTone(state)),
+                ]),
+            if (total > 0) ...[
+              const SizedBox(height: Gap.sm),
+              Text(t.crmOrderTotal, style: AType.bodySmall.copyWith(color: ds.muted)),
+              DsNumber(localDigits(bdtFromPoisha(total), Localizations.localeOf(context).languageCode),
+                  small: true),
+            ],
+            if (actions.isNotEmpty) ...[
+              const SizedBox(height: Gap.md),
+              Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+                for (final a in actions)
+                  a == 'reject'
+                      ? DsButton.secondary(
+                          onPressed: () => _transition(a), label: _actionLabel(t, a))
+                      : DsButton(onPressed: () => _transition(a), label: _actionLabel(t, a)),
+              ]),
+            ],
           ]),
       ),
-      if (actions.isNotEmpty) ...[
-        const SizedBox(height: Gap.sm),
-        Wrap(spacing: Gap.xs, children: [
-          for (final a in actions)
-            FilledButton.tonal(
-                onPressed: () => _transition(a),
-                child: Text(_actionLabel(t, a))),
+      if (modules.isNotEmpty) ...[
+        DsSectionHeader(t.crmErpModules),
+        Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          for (final m in modules)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+              decoration: BoxDecoration(
+                color: ds.primarySoft,
+                borderRadius: BorderRadius.circular(Radii.pill),
+              ),
+              child: Text(m.toString(),
+                  style: AType.labelLarge.copyWith(color: ds.primaryInk)),
+            ),
         ]),
       ],
       const SizedBox(height: Gap.md),
+      if (!erpLinked)
+        NeedsKeyBanner(t.crmErpNotLinked, icon: Icons.link_off_rounded),
       Text(t.crmErpDesignOnlyNote,
-          style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
+          style: AType.bodySmall.copyWith(color: ds.muted)),
     ]);
   }
 

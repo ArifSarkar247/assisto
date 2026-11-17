@@ -395,7 +395,8 @@ class _CareCallScreenState extends State<CareCallScreen> {
                   child: FilledButton.icon(
                     onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => CircleCallScreen(
-                            member: {'id': f['edge_id'], 'name': name}, kind: 'voice', outgoing: true))),
+                            member: {'id': f['edge_id'], 'name': name}, kind: 'voice', outgoing: true,
+                            origin: 'care_call'))), // adwire: never an after-call ad
                     icon: const Icon(Icons.call_rounded),
                     label: Text(t.ccCallNow),
                   ),

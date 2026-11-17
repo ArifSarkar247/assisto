@@ -25,6 +25,17 @@ extension CityMapApi on ApiClient {
       getJson('/maps/transit?olat=${oLat.toStringAsFixed(6)}&olng=${oLon.toStringAsFixed(6)}'
           '&dlat=${dLat.toStringAsFixed(6)}&dlng=${dLon.toStringAsFixed(6)}');
 
+  /// adwire: may one Google transit request run now (key + budget)? Counts
+  /// nothing. true only on {"state": "ready"}; any error = false (silent).
+  Future<bool> mapsTransitReady() async {
+    try {
+      final r = await getJson('/maps/transit?peek=1');
+      return r['state'] == 'ready';
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// The one-tap "Which bus? What fare?" answer (no name, no free text).
   Future<Map<String, dynamic>> cityTripConfirm(
           {required String boardId,

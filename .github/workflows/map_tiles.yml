@@ -1,0 +1,379 @@
+# maptiles (owner order 10 Nov 00:35, PART A 1-2): Assisto's OWN map for all Bangladesh.
+# ALL downloading and tile building happens here on GitHub runners, never on our server.
+#   base      OSM (Geofabrik Bangladesh) -> Protomaps v4 schema via Planetiler -> bd_base.pmtiles (+ Dhaka pack)
+#   overture  Overture buildings (heights) + places -> tippecanoe -> bd_buildings / bd_places.pmtiles
+#   terrain   Copernicus DEM GLO-30 -> terrarium raster-dem -> bd_terrain.pmtiles
+#   assets    Bangla PGF glyphs (built here) + Latin glyphs, own sprites, 4 styles (validated)
+#   render    MapLibre Native screenshots (Badda, Motijheel, Mirpur, airport; light/night)
+#   publish   sha256 manifest -> public release "map-tiles" ONLY on main (deploy_fetch.sh pulls it)
+# Hand-over between jobs: a DRAFT (non-public) release map-tiles-staging-<run id>, because the
+# repo's shared artifact quota is often full (16 Nov). Branch runs end there; the lead deploys
+# from it with deploy_fetch.sh (MAPTILES_TAG=...). Older staging drafts are deleted (keep 2).
+# Licences: owner_actions/CITY_MAP_LICENSE_BN.md. App contract: owner_actions/CITY_MAP_TILES_API.md.
+# CI budget: a push to ci/maptiles runs ONLY the light `assets` job; the heavy data build runs
+# on workflow_dispatch (full=true), push to ci/maptiles-data, or monthly.
+name: map-tiles
+
+on:
+  schedule:
+    - cron: '17 4 7 * *'      # monthly, the 7th (after Geofabrik + Overture monthly releases)
+  workflow_dispatch:
+    inputs:
+      full:
+        description: 'Build all tiles (heavy, ~90 min)'
+        type: boolean
+        default: true
+      publish:
+        description: 'Upload to release map-tiles (main only)'
+        type: boolean
+        default: true
+  push:
+    branches: ['ci/maptiles', 'ci/maptiles-data']
+    paths: ['deploy/maptiles/**', '.github/workflows/map_tiles.yml']
+
+concurrency:
+  group: map-tiles-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  BASE_URL: https://api.lifeassisto.com/maps/v1/
+  PROTOMAPS_SHA: 42ffaaa4a85a41bfcb23e43cc0f5b492a5eca123
+  PGF_ZIP_URL: https://wipfli.github.io/pgf-encoding/pgf-encoding.zip
+  TIPPECANOE_TAG: '2.79.0'
+  PMTILES_VER: '1.31.2'
+  SPREET_VER: 'v0.14.0'
+  DHAKA_BBOX: '90.30,23.68,90.53,23.92'
+  STAGE_TAG: map-tiles-staging-${{ github.run_id }}
+  REUSE_BUILDINGS_TAG: ''   # clear when the Overture release changes
+  REUSE_BASE_TAG: ''        # clear for a fresh OSM build (monthly)
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Draft staging release (not public; the cleanup job removes it)
+        run: |
+          gh release create "$STAGE_TAG" --draft --target "$GITHUB_SHA" --title "map-tiles staging (draft) $GITHUB_RUN_ID" \
+            --notes "Non-public staging for map-tiles run $GITHUB_RUN_ID ($GITHUB_REF_NAME). © OpenStreetMap contributors · Overture Maps · Copernicus."
+
+  assets:
+    needs: stage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Tools
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q clang cmake libboost-dev libfreetype6-dev unzip
+          python -m pip install -q 'uharfbuzz==0.56.3'
+          curl -fsSL "https://github.com/flother/spreet/releases/download/${SPREET_VER}/spreet-x86_64-unknown-linux-musl.tar.gz" | tar -xz -C /usr/local/bin spreet
+          spreet --version
+      - name: PGF encoding (same zip as the tile build)
+        run: |
+          mkdir -p work && curl -fsSL "$PGF_ZIP_URL" -o work/pgf-encoding.zip
+          sha256sum work/pgf-encoding.zip | tee work/pgf.sha256
+          mkdir -p work/pgf && unzip -q work/pgf-encoding.zip -d work/pgf
+      - name: Glyphs (Bangla PGF built here + Latin)
+        run: bash deploy/maptiles/build_glyphs.sh work/pgf-encoding.zip dist_assets/fonts
+      - name: Bangla shaping proof (must encode Dhaka place names)
+        run: |
+          P=$(ls -d work/pgf/*/)
+          printf 'ঢাকা\nমতিঝিল\nবাড্ডা\nমিরপুর ১০\nহযরত শাহজালাল আন্তর্জাতিক বিমানবন্দর\nচট্টগ্রাম\nকারওয়ান বাজার\nশ্যামলী\n' > work/labels.txt
+          python -I deploy/maptiles/pgf_encode.py "$P/fonts/NotoSansBengali-Regular.ttf" "$P/encoding/NotoSansBengali-Regular-v1.csv" < work/labels.txt | tee work/pgf_proof.jsonl
+          python - <<'PY'
+          import json
+          rows = [json.loads(l) for l in open("work/pgf_proof.jsonl")]
+          bad = [r["label"] for r in rows if not r["pgf"]]
+          assert not bad, f"PGF could not encode: {bad}"
+          print("PGF ok for", len(rows), "labels")
+          PY
+      - name: Sprites (own icons, CC0)
+        run: |
+          python -I deploy/maptiles/make_icons.py work/icons
+          mkdir -p dist_assets/sprites/v1
+          for t in light night; do
+            spreet work/icons/$t dist_assets/sprites/v1/$t
+            spreet --retina work/icons/$t dist_assets/sprites/v1/$t@2x
+          done
+          ls -la dist_assets/sprites/v1
+      - name: Styles (light/night x bn/en) + validate
+        run: |
+          python -I deploy/maptiles/make_style.py "$BASE_URL" dist_assets/style
+          npm i -s --no-save --prefix work/npm '@maplibre/maplibre-gl-style-spec@26.4.4'
+          bad=0; for f in dist_assets/style/*.json; do work/npm/node_modules/.bin/gl-style-validate "$f" || bad=1; done; test $bad = 0
+          echo "styles valid"
+          cp owner_actions/CITY_MAP_TILES_API.md dist_assets/README_contract.md 2>/dev/null || true
+      - name: Stage assets
+        run: |
+          tar -czf assets.tar.gz dist_assets work/pgf.sha256 work/pgf_proof.jsonl
+          gh release upload "$STAGE_TAG" assets.tar.gz --clobber
+
+  base:
+    needs: stage
+    if: github.event_name == 'schedule' || github.ref == 'refs/heads/ci/maptiles-data' || (github.event_name == 'workflow_dispatch' && inputs.full)
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reuse an earlier staged base (same OSM extract day + same patches)
+        id: reuse
+        run: |
+          mkdir -p dist
+          if [ -n "${REUSE_BASE_TAG:-}" ] && STAGE_TAG="$REUSE_BASE_TAG" bash deploy/maptiles/stage_down.sh dist 'bd_base.pmtiles' 'dhaka_base.pmtiles' 'src_base.json' 'pgf_tiles.sha256'; then
+            echo "hit=1" >> "$GITHUB_OUTPUT"
+          else
+            rm -rf dist/*; echo "hit=0" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Free runner disk
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h / | tail -1
+      - uses: actions/setup-java@v4
+        if: steps.reuse.outputs.hit != '1'
+        with: { distribution: temurin, java-version: '21' }
+      - name: Protomaps basemap (pinned) + Assisto patches (name:bn, Bangla PGF, metro z11)
+        if: steps.reuse.outputs.hit != '1'
+        run: |
+          git clone -q https://github.com/protomaps/basemaps pm && git -C pm checkout -q "$PROTOMAPS_SHA"
+          bash deploy/maptiles/patch_protomaps.sh pm
+          (cd pm/tiles && mvn -q -B -DskipTests package)
+          ls pm/tiles/target/*with-deps.jar
+      - name: pmtiles CLI
+        if: steps.reuse.outputs.hit != '1'
+        run: curl -fsSL "https://github.com/protomaps/go-pmtiles/releases/download/v${PMTILES_VER}/go-pmtiles_${PMTILES_VER}_Linux_x86_64.tar.gz" | sudo tar -xz -C /usr/local/bin pmtiles
+      - name: Sources (Geofabrik Bangladesh + PGF encoding)
+        if: steps.reuse.outputs.hit != '1'
+        run: |
+          mkdir -p pm/tiles/data/sources
+          curl -fsSL --retry 6 --retry-delay 20 --retry-all-errors -D hdr.txt https://download.geofabrik.de/asia/bangladesh-latest.osm.pbf -o pm/tiles/data/sources/bangladesh.osm.pbf
+          curl -fsSL --retry 6 --retry-all-errors "$PGF_ZIP_URL" -o pm/tiles/data/sources/pgf-encoding.zip
+          sha256sum pm/tiles/data/sources/pgf-encoding.zip | tee pgf.sha256
+          LM=$(grep -i '^last-modified' hdr.txt | tail -1 | cut -d' ' -f2- | tr -d '\r')
+          python3 -c "import json,sys; json.dump({'osm':{'extract':'geofabrik asia/bangladesh','last_modified':sys.argv[1],'bytes':int(sys.argv[2])}}, open('src_base.json','w'))" "$LM" "$(stat -c %s pm/tiles/data/sources/bangladesh.osm.pbf)"
+          cat src_base.json
+      - name: Build bd_base.pmtiles (z0-15)
+        if: steps.reuse.outputs.hit != '1'
+        working-directory: pm/tiles
+        run: |
+          set -o pipefail
+          df -h . | tail -1
+          java -Xmx10g -jar target/*-with-deps.jar --area=bangladesh --bounds=88.0,20.55,92.75,26.65 \
+            --maxzoom=15 --download --force --nodemap-type=sparsearray --storage=mmap 2>&1 | grep -v DEBUG | tail -60
+          mkdir -p ../../dist && mv bangladesh.pmtiles ../../dist/bd_base.pmtiles
+      - name: Dhaka offline base + checks
+        if: steps.reuse.outputs.hit != '1'
+        run: |
+          pmtiles extract dist/bd_base.pmtiles dist/dhaka_base.pmtiles --bbox="$DHAKA_BBOX" --maxzoom=15
+          pmtiles show dist/bd_base.pmtiles | head -20
+          pmtiles verify dist/bd_base.pmtiles
+          pmtiles show dist/bd_base.pmtiles --metadata | head -c 3000 || true
+          ls -la dist
+          mv src_base.json dist/ && mv pgf.sha256 dist/pgf_tiles.sha256
+      - name: Stage outputs
+        run: bash deploy/maptiles/stage_up.sh dist/*
+
+  overture:
+    needs: stage
+    if: github.event_name == 'schedule' || github.ref == 'refs/heads/ci/maptiles-data' || (github.event_name == 'workflow_dispatch' && inputs.full)
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free runner disk
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h / | tail -1
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Tools (duckdb, uharfbuzz, tippecanoe, pmtiles)
+        run: |
+          python -m pip install -q 'duckdb==2.0.0' 'uharfbuzz==0.56.3'
+          sudo apt-get update -q && sudo apt-get install -y -q build-essential libsqlite3-dev zlib1g-dev unzip
+          git clone -q --depth 1 --branch "$TIPPECANOE_TAG" https://github.com/felt/tippecanoe tc
+          (cd tc && make -j4 -s && sudo make install -s) >/dev/null
+          tippecanoe --version
+          curl -fsSL "https://github.com/protomaps/go-pmtiles/releases/download/v${PMTILES_VER}/go-pmtiles_${PMTILES_VER}_Linux_x86_64.tar.gz" | sudo tar -xz -C /usr/local/bin pmtiles
+          curl -fsSL "$PGF_ZIP_URL" -o pgf.zip && mkdir pgf && unzip -q pgf.zip -d pgf
+      - name: Bangladesh boundary (Overture divisions)
+        run: python -I deploy/maptiles/overture_extract.py boundary ov
+      - name: Buildings -> bd_buildings.pmtiles (z14, heights)
+        run: |
+          if [ -n "${REUSE_BUILDINGS_TAG:-}" ] && mkdir -p dist old && \
+             STAGE_TAG="$REUSE_BUILDINGS_TAG" bash deploy/maptiles/stage_down.sh old 'bd_buildings.pmtiles' 'dhaka_buildings.pmtiles' 'src_overture.json'; then
+            # Same Overture release already built in an earlier staging draft: reuse it (saves ~80 runner-minutes).
+            python3 -c "import json; b=json.load(open('old/src_overture.json'))['overture']; assert b['release']==open('ov/overture_release.txt').read().strip(), 'release changed'; json.dump(b['buildings'], open('ov/buildings_stats.json','w'))"
+            mv old/*.pmtiles dist/
+            exit 0
+          fi
+          python -I deploy/maptiles/overture_extract.py buildings ov
+          ls -la ov
+          mkdir -p dist
+          tippecanoe -o dist/bd_buildings.pmtiles -l buildings -Z14 -z14 --no-feature-limit --no-tile-size-limit \
+            --no-tile-stats --force --quiet \
+            --attribution='<a href="https://overturemaps.org">Overture Maps</a> · © OpenStreetMap contributors' \
+            ov/buildings.fgb
+          pmtiles extract dist/bd_buildings.pmtiles dist/dhaka_buildings.pmtiles --bbox="$DHAKA_BBOX"
+          rm -f ov/buildings.fgb
+      - name: Places -> bd_places.pmtiles (z15, Bangla pre-shaped)
+        run: |
+          P=$(ls -d pgf/*/)
+          python -I deploy/maptiles/overture_extract.py places ov "$P/fonts/NotoSansBengali-Regular.ttf" "$P/encoding/NotoSansBengali-Regular-v1.csv"
+          tippecanoe -o dist/bd_places.pmtiles -l places -Z15 -z15 -r1 --no-feature-limit --no-tile-size-limit \
+            --no-tile-stats --force --quiet --attribution='<a href="https://overturemaps.org">Overture Maps</a>' \
+            ov/places.geojson
+          python3 -c "import json; r=open('ov/overture_release.txt').read().strip(); b=json.load(open('ov/buildings_stats.json')); p=json.load(open('ov/places_stats.json')); json.dump({'overture':{'release':r,'buildings':b,'places':p}}, open('dist/src_overture.json','w'))"
+          cat dist/src_overture.json; ls -la dist
+      - name: Stage outputs
+        run: bash deploy/maptiles/stage_up.sh dist/*
+
+  terrain:
+    needs: stage
+    if: github.event_name == 'schedule' || github.ref == 'refs/heads/ci/maptiles-data' || (github.event_name == 'workflow_dispatch' && inputs.full)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Tools (GDAL, rasterio, pmtiles)
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q gdal-bin
+          python -m pip install -q 'rasterio==1.5.2' numpy pillow
+          curl -fsSL "https://github.com/protomaps/go-pmtiles/releases/download/v${PMTILES_VER}/go-pmtiles_${PMTILES_VER}_Linux_x86_64.tar.gz" | sudo tar -xz -C /usr/local/bin pmtiles
+      - name: Copernicus DEM GLO-30 -> bd_terrain.pmtiles (z5-11, overzoomed; z12 was 497 MB)
+        run: |
+          mkdir -p dist
+          if [ -n "${REUSE_BASE_TAG:-}" ] && STAGE_TAG="$REUSE_BASE_TAG" bash deploy/maptiles/stage_down.sh dist 'bd_terrain.pmtiles' 'src_terrain.json' \
+             && pmtiles show dist/bd_terrain.pmtiles | grep -qi "max zoom: 11"; then
+            echo "reused terrain from $REUSE_BASE_TAG"; exit 0
+          fi
+          rm -rf dist/*
+          python -I deploy/maptiles/dem_tiles.py dem dem/terrain.mbtiles 5 11
+          mkdir -p dist && pmtiles convert dem/terrain.mbtiles dist/bd_terrain.pmtiles
+          pmtiles show dist/bd_terrain.pmtiles | head -15
+          ls dem/*.tif | wc -l | python3 -c "import json,sys; json.dump({'copernicus':{'product':'COP-DEM GLO-30 (AWS open data)','tiles':int(sys.stdin.read())}}, open('dist/src_terrain.json','w'))"
+      - name: Stage outputs
+        run: bash deploy/maptiles/stage_up.sh dist/*
+
+  render:
+    needs: [assets, base, overture, terrain]
+    runs-on: ubuntu-24.04   # maplibre-gl-native 6.4 binary links libicu 74
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch staged files
+        run: |
+          bash deploy/maptiles/stage_down.sh in '*.pmtiles' 'assets.tar.gz'
+          tar -xzf in/assets.tar.gz -C in
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Render (MapLibre Native, same engine as the app)
+        run: |
+          sudo apt-get update -q
+          for p in xvfb libopengl0 libegl1 libgles2 libgl1 libglx0 libglfw3 libuv1 libjpeg-turbo8 libcurl4t64 libcurl4 libwebp7 libicu74 libpng16-16t64; do
+            sudo apt-get install -y -q "$p" >/dev/null 2>&1 && echo "installed $p" || echo "skip $p"
+          done
+          mkdir -p tiles && mv in/*.pmtiles tiles/
+          npm i -s --no-save --prefix r '@maplibre/maplibre-gl-native@6.4.1' 'pmtiles@4.5.0' 'pngjs@7.0.0'
+          cp deploy/maptiles/render_shots.mjs r/
+          xvfb-run -a node r/render_shots.mjs tiles in/dist_assets map_shots
+      - name: Stage screenshots
+        if: always()
+        run: |
+          ls map_shots 2>/dev/null | head; test -d map_shots && tar -czf shots.tar.gz map_shots && gh release upload "$STAGE_TAG" shots.tar.gz --clobber
+
+  publish:
+    needs: [assets, base, overture, terrain]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free runner disk
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+      - name: Fetch staged files
+        run: |
+          bash deploy/maptiles/stage_down.sh in '*.pmtiles' 'assets.tar.gz' 'src_*.json' '*.sha256'
+          tar -xzf in/assets.tar.gz -C in
+      - name: Same PGF encoding in tiles and glyphs
+        run: |
+          a=$(cut -d' ' -f1 in/work/pgf.sha256); b=$(cut -d' ' -f1 in/pgf_tiles.sha256)
+          echo "assets $a / tiles $b"; test "$a" = "$b"
+      - name: Manifest + sizes
+        run: |
+          set -o pipefail
+          mkdir -p dist
+          mv in/*.pmtiles dist/
+          python3 -c "
+          import json,glob
+          s={}
+          for f in glob.glob('in/src_*.json'): s.update(json.load(open(f)))
+          json.dump(s, open('sources.json','w'))"
+          VER="$(date -u +%Y%m%d).${GITHUB_RUN_NUMBER}"
+          A=in/dist_assets
+          python3 deploy/maptiles/manifest.py dist "$A" "$VER" sources.json | tee sizes.json
+          tar -czf dist/map_assets.tar.gz -C "$A" style fonts sprites offline
+          (cd deploy/maptiles && python3 finalize.py ../../dist) > uploads.txt
+          cat uploads.txt
+          { echo "## Assisto map-tiles $VER"; echo '```'; cat sizes.json; du -sh dist; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          cp sizes.json dist/sizes.json
+      - name: Stage manifest (+ split parts) for the lead's deploy
+        run: |
+          cd dist
+          xargs -a ../uploads.txt -I{} sh -c 'case "{}" in *.part*|map_assets.tar.gz) gh release upload "$STAGE_TAG" "{}" --clobber;; esac'
+          gh release upload "$STAGE_TAG" sizes.json manifest.json --clobber
+      - name: Publish release assets (manifest last)
+        # Public release ONLY from main (lead 10 Nov, same rule as the Shop Box release).
+        # Branch runs end in the draft staging release (non-public).
+        if: github.ref == 'refs/heads/main' && (github.event_name != 'workflow_dispatch' || inputs.publish)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view map-tiles >/dev/null 2>&1 || gh release create map-tiles --prerelease \
+            --title "Assisto Map tiles (Bangladesh)" \
+            --notes "Self-hosted Assisto Map. © OpenStreetMap contributors (ODbL 1.0, https://www.openstreetmap.org/copyright) · Overture Maps (buildings ODbL 1.0; places CDLA-Permissive-2.0) · Copernicus DEM GLO-30 (© DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA). Fonts: Noto (SIL OFL 1.1). The OSM-derived databases in these files are offered under ODbL 1.0."
+          cd dist
+          xargs -a ../uploads.txt -I{} gh release upload map-tiles {} --clobber
+          gh release upload map-tiles sizes.json --clobber
+          gh release upload map-tiles manifest.json --clobber
+
+  cleanup:
+    # Staging drafts (~1-2 GB) never pile up (lead 16 Nov): a failed/cancelled run deletes its own
+    # draft; a successful run deletes every OTHER staging draft, so only the newest good one stays
+    # (the lead deploys from it with deploy_fetch.sh MAPTILES_TAG=<tag>).
+    needs: [stage, assets, base, overture, terrain, render, publish]
+    if: always() && needs.stage.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Delete staging drafts
+        env:
+          OK: ${{ needs.publish.result == 'success' }}
+        run: |
+          # success: mark this draft good, delete every other staging draft.
+          # failure: keep this draft (so failed jobs can be re-run), the drafts named in REUSE_*_TAG
+          # and the newest good one (marked ok.txt); delete the rest. Never more than ~3 drafts.
+          if [ "$OK" = "true" ]; then echo ok > ok.txt; gh release upload "$STAGE_TAG" ok.txt --clobber; fi
+          gh api "repos/$GH_REPO/releases?per_page=100" \
+            --jq '.[] | select(.draft and (.name|startswith("map-tiles staging"))) | "\(.id) \(.tag_name) \([.assets[].name]|index("ok.txt") != null)"' > drafts.txt
+          cat drafts.txt
+          while read -r id tag good; do
+            [ "$tag" = "$STAGE_TAG" ] && continue
+            if [ "$OK" != "true" ]; then
+              [ "$good" = "true" ] && continue
+              [ "$tag" = "${REUSE_BASE_TAG:-}" ] && continue
+              [ "$tag" = "${REUSE_BUILDINGS_TAG:-}" ] && continue
+            fi
+            echo "delete $tag"; gh api -X DELETE "repos/$GH_REPO/releases/$id"
+          done < drafts.txt

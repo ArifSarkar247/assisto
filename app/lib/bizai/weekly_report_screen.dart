@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../screens/business/bizagent/seller_agent_screen.dart' show baErrorText, bd;
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/app_sheet.dart' show withNavBarInset;
 import '../widgets/business_ui.dart';
 import '../widgets/skeleton.dart';
@@ -71,14 +72,30 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
     return RefreshIndicator(
       onRefresh: _get,
       child: ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-        BizCard(
-          title: t.bizaiWeekTitle,
-          icon: Icons.insights_rounded,
+        // This week = the soft DS hero (what happened, first); next week's
+        // plan and the posts that sold follow as alive cards.
+        DsHeroCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              DsAvatar(
+                  child: Icon(Icons.insights_rounded,
+                      size: 22, color: DsTokens.of(context).primaryInk)),
+              const SizedBox(width: Gap.md),
+              Expanded(
+                child: Semantics(
+                  header: true,
+                  child: Text(t.bizaiWeekTitle,
+                      style: AType.titleMedium.copyWith(
+                          color: DsTokens.of(context).text, fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ]),
+            const SizedBox(height: Gap.md),
             for (final l in (w['lines'] as List? ?? const []))
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.xs),
-                child: Text(bd(context, l)),
+                child: Text(bd(context, l),
+                    style: AType.bodyLarge.copyWith(color: DsTokens.of(context).text)),
               ),
           ]),
         ),
@@ -91,7 +108,8 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: Gap.xs),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Icon(Icons.check_rounded, size: 18),
+                  Icon(Icons.check_circle_rounded,
+                      size: 18, color: DsTokens.of(context).successInk),
                   const SizedBox(width: Gap.xs),
                   Expanded(child: Text(bd(context, l))),
                 ]),
@@ -103,7 +121,8 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
           title: t.bizaiPostsSoldTitle,
           icon: Icons.campaign_rounded,
           child: posts.isEmpty
-              ? Text(t.bizaiPostsSoldEmpty)
+              ? Text(t.bizaiPostsSoldEmpty,
+                  style: AType.bodyMedium.copyWith(color: DsTokens.of(context).muted))
               : Column(children: [
                   for (final p in posts)
                     ListTile(

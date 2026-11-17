@@ -519,11 +519,31 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
       SliverPadding(
         padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 0),
         sliver: SliverList.list(children: [
-          Text(t.ldgSendIntro, style: AType.bodyMedium),
-          const SizedBox(height: Gap.xs),
-          Text(t.ldgNeverAuto,
-              style: AType.bodySmall.copyWith(
-                  color: Theme.of(context).colorScheme.ds.muted)),
+          // Page rule: where the run stands first — the soft hero with the
+          // what-this-does line and the live sent / skipped / failed / waiting
+          // tally; tone and pay details after it, then one card per customer.
+          DsHeroCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(t.ldgSendIntro,
+                  style: AType.bodyMedium.copyWith(
+                      color: Theme.of(context).colorScheme.ds.text)),
+              const SizedBox(height: Gap.xs),
+              Text(t.ldgNeverAuto,
+                  style: AType.bodySmall.copyWith(
+                      color: Theme.of(context).colorScheme.ds.muted)),
+              const SizedBox(height: Gap.md),
+              Semantics(
+                liveRegion: true,
+                child: Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+                  _tally(t.ldgCountSent(_d(sent)), AssistoTokens.of(context).success),
+                  _tally(t.ldgCountSkipped(_d(skipped)), null),
+                  _tally(t.ldgCountFailed(_d(failed)),
+                      Theme.of(context).colorScheme.error),
+                  _tally(t.ldgCountWaiting(_d(waiting)), null),
+                ]),
+              ),
+            ]),
+          ),
           const SizedBox(height: Gap.md),
           _tones(t),
           const SizedBox(height: Gap.md),
@@ -534,25 +554,11 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
             const SizedBox(height: Gap.md),
           ] else
             _smsLine(t),
-          Semantics(
-            liveRegion: true,
-            child: Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-              _tally(t.ldgCountSent(_d(sent)), AssistoTokens.of(context).success),
-              _tally(t.ldgCountSkipped(_d(skipped)), null),
-              _tally(t.ldgCountFailed(_d(failed)),
-                  Theme.of(context).colorScheme.error),
-              _tally(t.ldgCountWaiting(_d(waiting)), null),
-            ]),
-          ),
-          const SizedBox(height: Gap.md),
           if (_rows.isEmpty)
-            SizedBox(
-              height: 280,
-              child: StateMessage(
-                  icon: Icons.check_circle_outline_rounded,
-                  title: t.ldgNoDueTitle,
-                  message: t.ldgNoDueBody),
-            ),
+            DsEmptyState(
+                icon: Icons.check_circle_outline_rounded,
+                title: t.ldgNoDueTitle,
+                benefit: t.ldgNoDueBody),
           if (_rows.isNotEmpty && waiting == 0)
             _note(Icons.done_all_rounded, t.ldgAllDone),
         ]),
@@ -569,27 +575,35 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
 
   Widget _note(IconData icon, String text) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
+    return DsSurface(
+      flat: true,
+      color: scheme.ds.cardAlt,
+      borderColor: scheme.ds.border,
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-          color: scheme.ds.cardHighest,
-          borderRadius: BorderRadius.circular(Radii.md)),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Icon(icon, size: 20),
+        Icon(icon, size: 20, color: scheme.ds.primaryInk),
         const SizedBox(width: Gap.sm),
-        Expanded(child: Text(text)),
+        Expanded(child: Text(text, style: AType.bodyMedium.copyWith(color: scheme.ds.text))),
       ]),
     );
   }
 
-  Widget _tally(String label, Color? c) => Chip(
-        label: Text(label,
-            style: AType.bodyMedium.copyWith(
-                fontFeatures: AFonts.tabular,
-                fontWeight: FontWeight.w600,
-                color: c)),
-        visualDensity: VisualDensity.compact,
-      );
+  /// One tally pill: token tint + AA ink (never raw status colour on white).
+  Widget _tally(String label, Color? c) {
+    final ds = Theme.of(context).colorScheme.ds;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: Gap.md, vertical: Gap.xs),
+      decoration: BoxDecoration(
+        color: c == null ? ds.cardHighest : c.withValues(alpha: ds.isDark ? 0.22 : 0.12),
+        borderRadius: BorderRadius.circular(Radii.pill),
+      ),
+      child: Text(label,
+          style: AType.bodyMedium.copyWith(
+              fontFeatures: AFonts.tabular,
+              fontWeight: FontWeight.w600,
+              color: c == null ? ds.text : Brand.onTint(context, c))),
+    );
+  }
 
   Widget _tones(AppLocalizations t) => Wrap(
         spacing: Gap.sm,
@@ -602,8 +616,8 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
             ('reminder', t.tagadaToneReminder),
             ('firm', t.tagadaToneFirm),
           ])
-            ChoiceChip(
-              label: Text(label),
+            DsChip(
+              label: label,
               selected: _preset == k,
               onSelected: _loading
                   ? null
@@ -626,8 +640,8 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   for (final m in const ['bKash', 'Nagad', 'Rocket'])
-                    ChoiceChip(
-                      label: Text(m),
+                    DsChip(
+                      label: m,
                       selected: _payMethod == m,
                       onSelected: (_) => setState(() => _payMethod = m),
                     ),
@@ -718,27 +732,37 @@ class _TagadaSendScreenState extends State<TagadaSendScreen> {
     return Padding(key: ValueKey('ldg-row-${row.partyId}'), padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(
         padding: const EdgeInsets.all(Gap.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            DsAvatar(name: name, size: 40),
+            const SizedBox(width: Gap.md),
             Expanded(
-                child: Text(name,
-                    style: Theme.of(context).textTheme.titleMedium,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis)),
-            const SizedBox(width: Gap.sm),
-            Text(amount,
-                style: AType.bodyMedium.copyWith(
-                    fontFeatures: AFonts.tabular,
-                    fontWeight: FontWeight.w700,
-                    color: AssistoTokens.of(context).success)),
+              // name and due wrap (never "…") at 200% font
+              child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  spacing: Gap.sm,
+                  runSpacing: Gap.xxs,
+                  children: [
+                    Text(name,
+                        style: AType.titleMedium.copyWith(
+                            color: scheme.ds.text, fontWeight: FontWeight.w700)),
+                    Text(amount,
+                        style: AType.titleMedium.copyWith(
+                            fontFeatures: AFonts.tabular,
+                            fontWeight: FontWeight.w800,
+                            color: scheme.ds.successInk)),
+                  ]),
+            ),
           ]),
           const SizedBox(height: Gap.sm),
+          // the exact message that will go out, as a soft quote
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(Gap.sm),
+            padding: const EdgeInsets.all(Gap.md),
             decoration: BoxDecoration(
-                color: scheme.ds.cardHighest,
+                color: scheme.ds.cardAlt,
+                border: Border.all(color: scheme.ds.border),
                 borderRadius: BorderRadius.circular(Radii.sm)),
-            child: Text(msg, style: AType.bodySmall),
+            child: Text(msg, style: AType.bodyMedium.copyWith(color: scheme.ds.text)),
           ),
           if (done) ...[
             const SizedBox(height: Gap.sm),

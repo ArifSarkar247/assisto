@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import 'package:flutter/services.dart';
 import '../../theme.dart';
+import '../../messaging/date_separators.dart' show localDigits;
 import '../../l10n/app_localizations.dart';
 import '../../widgets/crm_aftersale_api.dart';
 import '../../widgets/crm_aftersale_widgets.dart';
@@ -233,14 +234,17 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
               ? CrmStateView.error(
                   error: _error!, title: t.loadFailed, onRetry: _load)
               : _versions.isEmpty
-                  ? CrmStateView.empty(
-                      icon: Icons.history_rounded,
-                      title: t.crmNoVersions,
-                      message: t.crmNoVersionsHint)
+                  ? ListView(padding: const EdgeInsets.all(Gap.md), children: [
+                      DsEmptyState(
+                          icon: Icons.history_rounded,
+                          title: t.crmNoVersions,
+                          benefit: t.crmNoVersionsHint),
+                    ])
                   : ListView(
-                      padding: const EdgeInsets.all(Gap.md),
+                      padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
                       children: [
-                        for (final p in _versions) _versionCard(t, p),
+                        for (final p in _versions)
+                          Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: _versionCard(t, p)),
                       ]),
     );
   }
@@ -259,21 +263,24 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
     return DsCard(
       padding: const EdgeInsets.all(Gap.md),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(
-                child: Text('v${p['version']} · ${p['title'] ?? ''}',
-                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
-            CrmStatusPill(status, tone: _statusTone(status)),
+                child: Text(localDigits('v${p['version']} · ${p['title'] ?? ''}', _lang),
+                    style: AType.bodyLarge.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w800))),
+            const SizedBox(width: Gap.sm),
+            // the status in the user's language (was the raw server code)
+            CrmStatusPill(_statusLabel(t, status), tone: _statusTone(status)),
           ]),
           const SizedBox(height: Gap.xs),
-          CrmMoneyRow(t.crmTotal, bdtFromPoisha(total), bold: true),
+          // the total, big and tight (Bangla digits in bn)
+          DsNumber(localDigits(bdtFromPoisha(total), _lang), small: true),
 
           // ---- validity / expiry ----
           Padding(
             padding: const EdgeInsets.only(top: Gap.xs),
             child: Row(children: [
               Icon(Icons.event_rounded,
-                  size: 16, color: expired ? Theme.of(context).colorScheme.error : scheme.ds.muted),
+                  size: 16, color: expired ? scheme.ds.dangerInk : scheme.ds.muted),
               const SizedBox(width: Gap.xs),
               Expanded(
                 child: Text(
@@ -281,8 +288,8 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
                       ? t.crmQuoteExpired
                       : daysLeft == null
                           ? t.crmQuoteNoExpiry
-                          : t.crmQuoteDaysLeft(daysLeft.toString()),
-                  style: AType.labelMedium.copyWith(color: expired ? Theme.of(context).colorScheme.error : scheme.ds.muted,
+                          : t.crmQuoteDaysLeft(localDigits(daysLeft.toString(), _lang)),
+                  style: AType.labelMedium.copyWith(color: expired ? scheme.ds.dangerInk : scheme.ds.muted,
                       fontWeight: FontWeight.w700),
                 ),
               ),
@@ -304,8 +311,9 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
                         ? t.crmDiscountApproved
                         : t.crmDiscountNeedsApproval,
                     style: AType.labelMedium.copyWith(fontWeight: FontWeight.w700,
-                        color:
-                            discountApproved ? AssistoTokens.of(context).success : AssistoTokens.of(context).warning),
+                        color: discountApproved
+                            ? scheme.ds.successInk
+                            : Brand.onTint(context, AssistoTokens.of(context).warning)),
                   ),
                 ),
               ]),
@@ -315,43 +323,60 @@ class _CrmProposalAdvancedScreenState extends State<CrmProposalAdvancedScreen> {
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
               child: Text(t.crmToReview,
-                  style: AType.labelMedium.copyWith(color: AssistoTokens.of(context).warning,
+                  style: AType.labelMedium.copyWith(
+                      color: Brand.onTint(context, AssistoTokens.of(context).warning),
                       fontWeight: FontWeight.w700)),
             ),
 
           const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.xs, runSpacing: Gap.xs, children: [
-            OutlinedButton.icon(
-                onPressed: () => _setValidity(t, p),
-                icon: const Icon(Icons.event_rounded, size: 18),
-                label: Text(t.crmQuoteValidity)),
-            OutlinedButton.icon(
-                onPressed: () => _showPdfPreview(t, p),
-                icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
-                label: Text(t.crmBrandedPdf)),
+          // the main next step first (convert / approve), then the rest
+          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+            if (status == 'accepted' && !expired)
+              DsButton.secondary(
+                  onPressed: () => _run(() => CrmAfterSaleApi.of(context)
+                      .convertToOrder((p['id'] as num).toInt())),
+                  icon: Icons.shopping_cart_checkout_rounded,
+                  label: t.crmConvertToOrder),
             if (discountNeedsApproval && !discountApproved)
-              FilledButton.tonalIcon(
+              DsButton.secondary(
                   onPressed: () => _run(() => CrmAfterSaleApi.of(context)
                       .approveDiscount((p['id'] as num).toInt())),
-                  icon: const Icon(Icons.gavel_rounded, size: 18),
-                  label: Text(t.crmApproveDiscount)),
+                  icon: Icons.gavel_rounded,
+                  label: t.crmApproveDiscount),
+            DsButton.secondary(
+                onPressed: () => _setValidity(t, p),
+                icon: Icons.event_rounded,
+                label: t.crmQuoteValidity),
+            DsButton.secondary(
+                onPressed: () => _showPdfPreview(t, p),
+                icon: Icons.picture_as_pdf_rounded,
+                label: t.crmBrandedPdf),
             // crm100: the server hands back the customer's web page
             // (/qp/<token>); before, it was a relative JSON path (hidden).
             if (kQuoteAcceptPageWired &&
                 (status == 'sent' || status == 'viewed' || status == 'approved'))
-              OutlinedButton.icon(
+              DsButton.secondary(
                   onPressed: () => _showAcceptanceLink(t, p),
-                  icon: const Icon(Icons.link_rounded, size: 18),
-                  label: Text(t.crmAcceptanceLink)),
-            if (status == 'accepted' && !expired)
-              FilledButton.icon(
-                  onPressed: () => _run(() => CrmAfterSaleApi.of(context)
-                      .convertToOrder((p['id'] as num).toInt())),
-                  icon: const Icon(Icons.shopping_cart_checkout_rounded, size: 18),
-                  label: Text(t.crmConvertToOrder)),
+                  icon: Icons.link_rounded,
+                  label: t.crmAcceptanceLink),
           ]),
         ]),
     );
+  }
+
+  String get _lang => Localizations.localeOf(context).languageCode;
+
+  String _statusLabel(AppLocalizations t, String s) {
+    switch (s) {
+      case 'draft': return t.shopQaPropDraft;
+      case 'pending': return t.shopQaPropPending;
+      case 'approved': return t.shopQaPropApproved;
+      case 'sent': return t.shopQaPropSent;
+      case 'viewed': return t.shopQaPropViewed;
+      case 'accepted': return t.shopQaPropAccepted;
+      case 'declined': return t.shopQaPropDeclined;
+      default: return s;
+    }
   }
 
   CrmStatusTone _statusTone(String s) {

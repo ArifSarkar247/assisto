@@ -5,6 +5,7 @@ import '../../../bizagent_api.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../state.dart';
 import '../../../theme.dart';
+import '../../../ds/ds.dart';
 import '../../../widgets/business_ui.dart';
 import '../../../widgets/skeleton.dart';
 import 'seller_agent_screen.dart'
@@ -162,10 +163,12 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
           : SafeArea(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.md),
-                child: FilledButton.icon(
+                child: DsButton(
                   onPressed: _saving ? null : _save,
-                  icon: const Icon(Icons.save_rounded),
-                  label: Text(t.baSaveSettings),
+                  busy: _saving,
+                  icon: Icons.save_rounded,
+                  label: t.baSaveSettings,
+                  expand: true,
                 ),
               ),
             ),
@@ -208,8 +211,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
             minLines: 2,
             maxLines: 4,
             decoration: InputDecoration(
-                labelText: t.baReturnPolicy, hintText: t.baReturnPolicyHint,
-                border: const OutlineInputBorder()),
+                labelText: t.baReturnPolicy, hintText: t.baReturnPolicyHint),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
@@ -238,7 +240,7 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
         controller: c,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
-            labelText: label, prefixText: '৳ ', border: const OutlineInputBorder()),
+            labelText: label, prefixText: '৳ '),
       );
 
   Widget _channelsCard(AppLocalizations t) {
@@ -273,10 +275,10 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
         if (((_s['features'] as Map?) ?? const {})['own_channels'] != false)
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
           for (final k in const ['messenger', 'instagram', 'whatsapp_cloud'])
-            OutlinedButton.icon(
+            DsButton.secondary(
               onPressed: () => _connect(k),
-              icon: Icon(baChannelIcon(k), size: 18),
-              label: Text(t.baConnectX(baChannelLabel(t, k))),
+              icon: baChannelIcon(k),
+              label: t.baConnectX(baChannelLabel(t, k)),
             ),
         ]),
         const SizedBox(height: Gap.sm),
@@ -290,9 +292,17 @@ class _SellerSetupScreenState extends State<SellerSetupScreen> {
     final detail = '${c['status_detail'] ?? ''}';
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Icon(baChannelIcon('${c['kind']}')),
-      title: Text(bd(context, c['display_name'] ?? c['external_id']), maxLines: 1,
-          overflow: TextOverflow.ellipsis),
+      leading: DsAvatar(
+          size: 40,
+          color: ok ? Theme.of(context).colorScheme.ds.successInk : null,
+          child: Icon(baChannelIcon('${c['kind']}'), size: 20,
+              color: ok
+                  ? Theme.of(context).colorScheme.ds.successInk
+                  : Theme.of(context).colorScheme.ds.muted)),
+      // wraps at 200% instead of being cut with "…"
+      title: Text(bd(context, c['display_name'] ?? c['external_id']),
+          style: AType.bodyLarge.copyWith(
+              color: Theme.of(context).colorScheme.ds.text, fontWeight: FontWeight.w600)),
       subtitle: Text(bd(context,
         killed
             ? t.baChannelPausedByAssisto
@@ -572,7 +582,7 @@ class _CourierTileState extends State<_CourierTile> {
               obscureText: _secretFields.contains(e.key),
               autocorrect: false,
               decoration: InputDecoration(
-                  labelText: _fieldLabel(t, e.key), border: const OutlineInputBorder()),
+                  labelText: _fieldLabel(t, e.key)),
             ),
           ),
         Align(
@@ -666,7 +676,7 @@ class _ConnectSheetState extends State<_ConnectSheet> {
             obscureText: true,
             autocorrect: false,
             decoration: InputDecoration(
-                labelText: t.baAccessToken, border: const OutlineInputBorder()),
+                labelText: t.baAccessToken),
           ),
           if (_err != null) ...[
             const SizedBox(height: Gap.sm),

@@ -24,6 +24,22 @@ bool shouldAskCallRating(CallController c) {
   return (c.callId ?? 0) % 3 == 0;
 }
 
+/// Calls that NEVER get the after-call ad (owner ads order 10 Nov, part D):
+/// SOS / emergency calls (incl. a child's emergency listen-in) and Care Call.
+const afterCallNoAdOrigins = {'sos', 'emergency', 'kid_audio', 'care_call'};
+
+/// adwire: may the after-call review card carry the native ad? Only after a
+/// normal My Circle call that really connected for >= 10 s and ended by a
+/// hang-up — never after SOS / emergency / Care Call, never a call under
+/// 10 s, never a missed / declined / busy / failed / dropped call. (The plan
+/// and the owner's switch are checked by [AdSpotCard] / [AdControl].)
+bool afterCallAdAllowed(
+    {required String origin, Duration? talkTime, required CallEndReason endReason}) {
+  if (afterCallNoAdOrigins.contains(origin.trim().toLowerCase())) return false;
+  if (talkTime == null || talkTime.inSeconds < 10) return false;
+  return endReason == CallEndReason.hangup;
+}
+
 /// The issues offered after "Bad" (server: call_quality.ISSUES).
 const callRatingIssues = <String>[
   'choppy',

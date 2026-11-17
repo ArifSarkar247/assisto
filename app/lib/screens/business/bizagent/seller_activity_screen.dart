@@ -5,6 +5,7 @@ import '../../../bizagent_api.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../state.dart';
 import '../../../theme.dart';
+import '../../../ds/ds.dart';
 import '../../../widgets/app_sheet.dart' show withNavBarInset;
 import '../../../widgets/skeleton.dart';
 import 'seller_agent_screen.dart' show baErrorText, bd;
@@ -145,46 +146,47 @@ class _SellerActivityScreenState extends State<SellerActivityScreen> {
     final rows = _rows.where((r) => sbActionLabel(t, '${r['action']}').isNotEmpty).toList();
     if (rows.isEmpty) {
       return ListView(padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)), children: [
-        StateMessage(
+        DsEmptyState(
           icon: Icons.history_rounded,
           title: t.sbActivityEmptyTitle,
-          message: '${t.sbActivityEmptyBenefit}\n\n${t.sbActivityEmptyHow}',
-          action: FilledButton.icon(
-            onPressed: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const SellerSetupScreen())),
-            icon: const Icon(Icons.tune_rounded),
-            label: Text(t.baSetupTitle),
-          ),
+          benefit: t.sbActivityEmptyBenefit,
+          actionLabel: t.baSetupTitle,
+          onAction: () => Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => const SellerSetupScreen())),
+          howTo: [t.sbActivityEmptyHow],
         ),
       ]);
     }
-    return ListView.separated(
-      padding: withNavBarInset(context, const EdgeInsets.symmetric(vertical: Gap.sm)),
-      itemCount: rows.length + 1,
-      separatorBuilder: (_, __) => const Divider(height: 1),
-      itemBuilder: (_, i) {
-        if (i == 0) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
-            child: Text(t.sbActivityNote, style: Theme.of(context).textTheme.bodySmall),
-          );
-        }
-        final r = rows[i - 1];
-        final a = '${r['action']}';
-        final tid = (r['thread_id'] as num?)?.toInt();
-        final who = r['actor'] == true ? t.sbActByYou : t.sbActByAssistant;
-        return ListTile(
-          minVerticalPadding: Gap.sm,
-          leading: Icon(_icon(a)),
-          title: Text(sbActionLabel(t, a)),
-          subtitle: Text('$who · ${_when('${r['created_at']}')}'),
-          trailing: tid == null ? null : const Icon(Icons.chevron_right_rounded),
-          onTap: tid == null
-              ? null
-              : () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (_) => SellerChatScreen(threadId: tid))),
-        );
-      },
+    // One grouped DS card (a timeline), the note as a muted line above it.
+    return ListView(
+      padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.lg)),
+      children: [
+        Text(t.sbActivityNote,
+            style: AType.bodySmall.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
+        DsGroup(margin: const EdgeInsets.only(top: Gap.md), children: [
+          for (final r in rows)
+            Builder(builder: (context) {
+              final a = '${r['action']}';
+              final tid = (r['thread_id'] as num?)?.toInt();
+              final who = r['actor'] == true ? t.sbActByYou : t.sbActByAssistant;
+              final ds = Theme.of(context).colorScheme.ds;
+              return DsListRow(
+                leading: DsAvatar(
+                    size: 40,
+                    color: r['actor'] == true ? ds.muted : ds.primaryInk,
+                    child: Icon(_icon(a), size: 20,
+                        color: r['actor'] == true ? ds.muted : ds.primaryInk)),
+                title: sbActionLabel(t, a),
+                subtitle: '$who · ${_when('${r['created_at']}')}',
+                trailing: tid == null ? null : Icon(Icons.chevron_right_rounded, color: ds.muted),
+                onTap: tid == null
+                    ? null
+                    : () => Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (_) => SellerChatScreen(threadId: tid))),
+              );
+            }),
+        ]),
+      ],
     );
   }
 }

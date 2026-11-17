@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../api.dart';
 import '../../books_api.dart';
+import '../../ds/ds.dart';
 import '../../l10n/app_localizations.dart';
 import '../../messaging/date_separators.dart' show fmtDate, localDigits;
 import '../../services/error_kind.dart' show honestFailText;
@@ -161,33 +162,19 @@ class _BooksScreenState extends State<BooksScreen> {
   }
 
   /// Empty state: benefit line + big button + how-to (never a dead end).
-  Widget _empty(AppLocalizations t) {
-    final scheme = Theme.of(context).colorScheme;
-    return ListView(
-      padding: withNavBarInset(context, const EdgeInsets.all(Gap.xl)),
-      children: [
-        Icon(Icons.menu_book_rounded, size: 56, color: scheme.primary),
-        const SizedBox(height: Gap.lg),
-        Text(t.lgrEmptyTitle,
-            textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: Gap.sm),
-        Text(t.lgrEmptyBody,
-            textAlign: TextAlign.center,
-            style: AType.bodyMedium.copyWith(height: 1.4, color: scheme.ds.muted)),
-        const SizedBox(height: Gap.xl),
-        SizedBox(
-          height: 52,
-          child: FilledButton.icon(
-            onPressed: _syncing ? null : _sync,
-            icon: const Icon(Icons.sync_rounded),
-            label: Text(t.lgrUpdate),
+  Widget _empty(AppLocalizations t) => ListView(
+        padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
+        children: [
+          DsEmptyState(
+            icon: Icons.menu_book_rounded,
+            title: t.lgrEmptyTitle,
+            benefit: t.lgrEmptyBody,
+            actionLabel: t.lgrUpdate,
+            onAction: _syncing ? null : _sync,
+            howTo: [t.lgrEmptyHowTo],
           ),
-        ),
-        const SizedBox(height: Gap.lg),
-        Text(t.lgrEmptyHowTo, style: AType.bodyMedium.copyWith(height: 1.5, color: scheme.ds.muted)),
-      ],
-    );
-  }
+        ],
+      );
 
   // ---------------------------------------------------------------- format
   String get _lang => Localizations.localeOf(context).languageCode;
@@ -221,10 +208,9 @@ class _BooksScreenState extends State<BooksScreen> {
     if (w == null) return const [];
     final scheme = Theme.of(context).colorScheme;
     return [
-      Container(
+      DsCard(
+        tone: DsTone.danger,
         padding: const EdgeInsets.all(Gap.md),
-        decoration: BoxDecoration(
-            color: scheme.ds.dangerBg, borderRadius: BorderRadius.circular(Radii.md)),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.warning_amber_rounded, color: scheme.ds.dangerInk),
           const SizedBox(width: Gap.sm),
@@ -254,15 +240,6 @@ class _BooksScreenState extends State<BooksScreen> {
     );
   }
 
-  Widget _heading(String text) => Padding(
-        padding: const EdgeInsets.only(top: Gap.lg, bottom: Gap.xs),
-        child: Text(text,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: .2)),
-      );
-
   /// One label / amount row. Wraps (never clips) at 200% font.
   Widget _row(String label, Object? amount, {bool strong = false, bool indent = false}) {
     final base = strong
@@ -291,14 +268,41 @@ class _BooksScreenState extends State<BooksScreen> {
 
   Widget _rule() => Divider(height: Gap.md, color: Theme.of(context).colorScheme.ds.border);
 
+  /// One report section: a header, then its rows in one DS card.
+  List<Widget> _section(String title, List<Widget> rows) => [
+        DsSectionHeader(title),
+        DsCard(
+          padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows),
+        ),
+      ];
+
+  /// The headline figure of a report as the soft DS hero (big tight number).
+  Widget _hero(String label, String value, String sub, {Color? valueColor, Widget? top}) {
+    final ds = DsTokens.of(context);
+    return DsHeroCard(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        if (top != null) ...[top, const SizedBox(height: Gap.sm)],
+        Text(label, style: AType.titleSmall.copyWith(color: ds.muted)),
+        const SizedBox(height: Gap.xs),
+        DsNumber(value, color: valueColor),
+        const SizedBox(height: Gap.xs),
+        Text(sub, style: AType.bodyMedium.copyWith(color: ds.muted)),
+      ]),
+    );
+  }
+
   List<Widget> _accountRows(Object? rows) => [
         for (final r in (rows as List? ?? const []).cast<Map>())
           _row('${r['name']}', r['amount'], indent: true),
       ];
 
   // ---------------------------------------------------------------- tabs
+  // Page rule: the headline figure first (soft hero), then the report rows
+  // grouped in DS cards; the period filter sits under the hero.
   Widget _plTab(AppLocalizations t) {
     final p = _pl!;
+    final ds = DsTokens.of(context);
     final net = (p['net_profit'] as num?)?.toInt() ?? 0;
     final periods = {
       _Period.thisMonth: t.lgrPeriodThisMonth,
@@ -306,95 +310,122 @@ class _BooksScreenState extends State<BooksScreen> {
       _Period.thisYear: t.lgrPeriodThisYear,
     };
     return _list([
-      Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
-        for (final e in periods.entries)
-          ChoiceChip(
-            label: Text(e.value),
-            selected: _period == e.key,
-            onSelected: (_) {
-              setState(() => _period = e.key);
-              _load();
-            },
+      _hero(net >= 0 ? t.lgrNetProfit : t.lgrNetLoss, _money(net),
+          t.lgrPeriodRange(_day(p['from']), _day(p['to'])),
+          valueColor: net < 0 ? ds.dangerInk : ds.successInk),
+      const SizedBox(height: Gap.md),
+      // the three periods as three equal DS pills in one row: never an odd
+      // chip row; labels wrap at 200% instead of overflowing
+      IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        for (final e in periods.entries) ...[
+          if (e.key != _Period.thisMonth) const SizedBox(width: Gap.sm),
+          Expanded(
+            child: Semantics(
+              button: true,
+              selected: _period == e.key,
+              child: DsSurface(
+                flat: true,
+                radius: DsRadius.button,
+                color: _period == e.key ? ds.primarySoft : ds.card,
+                borderColor: _period == e.key ? ds.primaryInk : ds.border,
+                padding: const EdgeInsets.symmetric(horizontal: Gap.xs, vertical: Gap.md),
+                onTap: () {
+                  setState(() => _period = e.key);
+                  _load();
+                },
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48 - 2 * Gap.md),
+                  child: Center(
+                  child: Text(e.value,
+                      textAlign: TextAlign.center,
+                      style: AType.labelLarge.copyWith(
+                          color: _period == e.key ? ds.primaryInk : ds.text,
+                          fontWeight: _period == e.key ? FontWeight.w700 : FontWeight.w500)),
+                )),
+              ),
+            ),
           ),
+        ],
+      ])),
+      ..._section(t.lgrIncomeHeading, [
+        ..._accountRows(p['sales']),
+        if (((p['discounts_total'] as num?) ?? 0) != 0)
+          _row(t.lgrDiscounts, -((p['discounts_total'] as num).toInt()), indent: true),
+        _row(t.lgrNetSales, p['net_sales'], strong: true),
+        _row(t.lgrCogs, -(((p['cogs_total'] as num?) ?? 0).toInt()), indent: true),
+        _rule(),
+        _row(t.lgrGrossProfit, p['gross_profit'], strong: true),
       ]),
-      const SizedBox(height: Gap.sm),
-      Text(t.lgrPeriodRange(_day(p['from']), _day(p['to'])),
-          style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
-      _heading(t.lgrIncomeHeading),
-      ..._accountRows(p['sales']),
-      if (((p['discounts_total'] as num?) ?? 0) != 0)
-        _row(t.lgrDiscounts, -((p['discounts_total'] as num).toInt()), indent: true),
-      _row(t.lgrNetSales, p['net_sales'], strong: true),
-      _row(t.lgrCogs, -(((p['cogs_total'] as num?) ?? 0).toInt()), indent: true),
-      _rule(),
-      _row(t.lgrGrossProfit, p['gross_profit'], strong: true),
-      _heading(t.lgrOpex),
-      ..._accountRows(p['operating_expenses']),
-      if ((p['operating_expenses'] as List? ?? const []).isEmpty) _row(t.lgrOpex, 0, indent: true),
-      if ((p['other_income'] as List? ?? const []).isNotEmpty) ...[
-        _heading(t.lgrOtherIncome),
-        ..._accountRows(p['other_income']),
-      ],
-      _rule(),
-      _row(net >= 0 ? t.lgrNetProfit : t.lgrNetLoss, net, strong: true),
+      ..._section(t.lgrOpex, [
+        ..._accountRows(p['operating_expenses']),
+        if ((p['operating_expenses'] as List? ?? const []).isEmpty) _row(t.lgrOpex, 0, indent: true),
+      ]),
+      if ((p['other_income'] as List? ?? const []).isNotEmpty)
+        ..._section(t.lgrOtherIncome, _accountRows(p['other_income'])),
+      // (net profit / loss is the hero at the top — not repeated here)
     ]);
   }
 
   Widget _bsTab(AppLocalizations t) {
     final b = _bs!;
     return _list([
-      _balancedBadge(b['balanced'] == true),
-      Text(t.lgrAsOf(_day(b['as_of'])),
-          style: AType.bodyMedium.copyWith(color: Theme.of(context).colorScheme.ds.muted)),
-      _heading(t.lgrAssets),
-      ..._accountRows(b['assets']),
-      _row(t.lgrTotalAssets, b['total_assets'], strong: true),
-      _heading(t.lgrLiabilities),
-      ..._accountRows(b['liabilities']),
-      _row(t.lgrTotal, b['total_liabilities'], strong: true),
-      _heading(t.lgrEquity),
-      ..._accountRows(b['equity']),
-      _row(t.lgrProfitToDate, b['profit_to_date'], indent: true),
-      _row(t.lgrTotal, b['total_equity'], strong: true),
-      _rule(),
-      _row(t.lgrTotalLiabEq, b['total_liabilities_equity'], strong: true),
+      _hero(t.lgrTotalAssets, _money(b['total_assets']), t.lgrAsOf(_day(b['as_of'])),
+          top: _balancedBadge(b['balanced'] == true)),
+      ..._section(t.lgrAssets, [
+        ..._accountRows(b['assets']),
+        _row(t.lgrTotalAssets, b['total_assets'], strong: true),
+      ]),
+      ..._section(t.lgrLiabilities, [
+        ..._accountRows(b['liabilities']),
+        _row(t.lgrTotal, b['total_liabilities'], strong: true),
+      ]),
+      ..._section(t.lgrEquity, [
+        ..._accountRows(b['equity']),
+        _row(t.lgrProfitToDate, b['profit_to_date'], indent: true),
+        _row(t.lgrTotal, b['total_equity'], strong: true),
+      ]),
+      const SizedBox(height: Gap.md),
+      DsCard(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.lg, vertical: Gap.sm),
+        child: _row(t.lgrTotalLiabEq, b['total_liabilities_equity'], strong: true),
+      ),
     ]);
   }
 
   Widget _tbTab(AppLocalizations t) {
     final b = _tb!;
-    final scheme = Theme.of(context).colorScheme;
     return _list([
-      _balancedBadge(b['balanced'] == true),
-      Text(t.lgrAsOf(_day(b['as_of'])), style: AType.bodyMedium.copyWith(color: scheme.ds.muted)),
-      const SizedBox(height: Gap.md),
-      for (final r in (b['rows'] as List? ?? const []).cast<Map>())
-        Semantics(
-          container: true,
-          excludeSemantics: true,
-          label: '${r['code']} ${r['name']}, '
-              '${(r['debit'] as num? ?? 0) > 0 ? '${t.lgrDebit} ${_money(r['debit'])}' : '${t.lgrCredit} ${_money(r['credit'])}'}',
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 48),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: Gap.md,
-                children: [
-                  Text('${localDigits('${r['code']}', _lang)}  ${r['name']}'),
-                  Text((r['debit'] as num? ?? 0) > 0
-                      ? '${t.lgrDebitShort} ${_money(r['debit'])}'
-                      : '${t.lgrCreditShort} ${_money(r['credit'])}'),
-                ],
+      _hero(t.lgrTotalDebit, _money(b['total_debit']), t.lgrAsOf(_day(b['as_of'])),
+          top: _balancedBadge(b['balanced'] == true)),
+      ..._section(t.lgrTabTb, [
+        for (final r in (b['rows'] as List? ?? const []).cast<Map>())
+          Semantics(
+            container: true,
+            excludeSemantics: true,
+            label: '${r['code']} ${r['name']}, '
+                '${(r['debit'] as num? ?? 0) > 0 ? '${t.lgrDebit} ${_money(r['debit'])}' : '${t.lgrCredit} ${_money(r['credit'])}'}',
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: Gap.md,
+                  children: [
+                    Text('${localDigits('${r['code']}', _lang)}  ${r['name']}'),
+                    Text((r['debit'] as num? ?? 0) > 0
+                        ? '${t.lgrDebitShort} ${_money(r['debit'])}'
+                        : '${t.lgrCreditShort} ${_money(r['credit'])}'),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      _rule(),
-      _row(t.lgrTotalDebit, b['total_debit'], strong: true),
-      _row(t.lgrTotalCredit, b['total_credit'], strong: true),
+        _rule(),
+        _row(t.lgrTotalDebit, b['total_debit'], strong: true),
+        _row(t.lgrTotalCredit, b['total_credit'], strong: true),
+      ]),
     ]);
   }
 }

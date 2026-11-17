@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ds/ds.dart';
 import '../../theme.dart';
+import '../../messaging/date_separators.dart' show localDigits;
 import '../../l10n/app_localizations.dart';
 import 'crm_common.dart';
 import 'crm_advanced_api.dart';
@@ -30,11 +31,12 @@ class CrmTeamAdvancedScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.crmTeamManage),
-          bottom: TabBar(isScrollable: true, tabs: [
-            Tab(child: Text(t.crmTargets, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.crmLeaderboard, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.crmCommission, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.crmRoutingConfig, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+          // scrollable tabs size to their label: nothing cut at any font size
+          bottom: TabBar(isScrollable: true, tabAlignment: TabAlignment.start, tabs: [
+            Tab(child: Text(t.crmTargets, softWrap: false)),
+            Tab(child: Text(t.crmLeaderboard, softWrap: false)),
+            Tab(child: Text(t.crmCommission, softWrap: false)),
+            Tab(child: Text(t.crmRoutingConfig, softWrap: false)),
           ]),
         ),
         body: TabBarView(children: [
@@ -101,25 +103,35 @@ class _TargetsTabState extends State<_TargetsTab> {
       return CrmStateView.error(error: _error!, title: t.loadFailed, onRetry: _load);
     }
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _edit(null),
-        icon: const Icon(Icons.add_rounded),
-        label: Text(t.crmSetTarget),
-      ),
+      // empty: the state's own big button is the one action (no second FAB)
+      floatingActionButton: _targets.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _edit(null),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(t.crmSetTarget),
+            ),
       body: _targets.isEmpty
           ? CrmStateView.empty(
               icon: Icons.flag_rounded,
               title: t.crmNoTargets,
               message: t.crmNoTargetsHint,
-              action: FilledButton.tonalIcon(
+              action: DsButton(
                   onPressed: () => _edit(null),
-                  icon: const Icon(Icons.add_rounded),
-                  label: Text(t.crmSetTarget)))
+                  icon: Icons.add_rounded,
+                  label: t.crmSetTarget,
+                  expand: true))
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
-                padding: const EdgeInsets.all(Gap.md),
-                children: [for (final tg in _targets) _targetCard(t, tg)],
+                padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96),
+                children: [
+                  for (final tg in _targets)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: Gap.sm),
+                      child: _targetCard(t, tg),
+                    ),
+                ],
               ),
             ),
     );
@@ -134,11 +146,16 @@ class _TargetsTabState extends State<_TargetsTab> {
       padding: const EdgeInsets.all(Gap.md),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
+            DsAvatar(name: tg['member_name']?.toString() ?? t.crmWholeTeam, size: 40),
+            const SizedBox(width: Gap.md),
             Expanded(
-                child: Text(tg['member_name']?.toString() ?? t.crmWholeTeam,
-                    style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w800))),
-            Text(tg['period']?.toString() ?? '',
-                style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(tg['member_name']?.toString() ?? t.crmWholeTeam,
+                  style: AType.bodyLarge.copyWith(color: scheme.ds.text, fontWeight: FontWeight.w800)),
+              if ((tg['period'] ?? '').toString().isNotEmpty)
+                Text(localDigits(tg['period'].toString(), Localizations.localeOf(context).languageCode),
+                    style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
+            ])),
             IconButton(
                 tooltip: AppLocalizations.of(context).edit,
                 icon: const Icon(Icons.edit_rounded, size: 18),
@@ -149,15 +166,22 @@ class _TargetsTabState extends State<_TargetsTab> {
                 icon: Icons.flag_rounded)
           else ...[
             const SizedBox(height: Gap.xs),
-            Row(children: [
+            // won / target + percent: big tight numbers on a Wrap (no
+            // overflow at 200%), Bangla digits in bn
+            Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.end,
+                spacing: Gap.md,
+                runSpacing: Gap.xs,
+                children: [
               Text('${bdt(context, tg['won_amount'] as num?)} / ${bdt(context, tg['target_amount'] as num?)}',
-                  style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-              const Spacer(),
+                  style: AType.titleMedium.copyWith(
+                      color: scheme.ds.text, fontWeight: FontWeight.w800, fontFeatures: AFonts.tabular)),
               if (pct != null)
-                Text('${pct.toStringAsFixed(1)}%',
-                    style: AType.bodyMedium.copyWith(
+                Text(localDigits('${pct.toStringAsFixed(1)}%', Localizations.localeOf(context).languageCode),
+                    style: AType.titleMedium.copyWith(
                         fontWeight: FontWeight.w800,
-                        color: pct >= 100 ? AssistoTokens.of(context).success : scheme.ds.text)),
+                        color: pct >= 100 ? scheme.ds.successInk : scheme.ds.primaryInk)),
             ]),
             const SizedBox(height: Gap.xs),
             ClipRRect(
@@ -165,7 +189,8 @@ class _TargetsTabState extends State<_TargetsTab> {
               child: LinearProgressIndicator(
                 value: ((pct ?? 0) / 100).clamp(0.0, 1.0),
                 minHeight: 8,
-                color: (pct ?? 0) >= 100 ? AssistoTokens.of(context).success : scheme.primary,
+                backgroundColor: scheme.ds.cardHighest,
+                color: (pct ?? 0) >= 100 ? scheme.ds.success : scheme.ds.primary,
               ),
             ),
             if (onPace != null) ...[
@@ -175,8 +200,14 @@ class _TargetsTabState extends State<_TargetsTab> {
                     size: 16,
                     color: onPace == true ? AssistoTokens.of(context).success : AssistoTokens.of(context).warning),
                 const SizedBox(width: Gap.xs),
-                Text(onPace == true ? t.crmOnPace : t.crmBehindPace,
-                    style: AType.bodySmall.copyWith(color: onPace == true ? AssistoTokens.of(context).success : AssistoTokens.of(context).warning)),
+                Expanded(
+                  child: Text(onPace == true ? t.crmOnPace : t.crmBehindPace,
+                      style: AType.bodySmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: onPace == true
+                              ? scheme.ds.successInk
+                              : Brand.onTint(context, AssistoTokens.of(context).warning))),
+                ),
               ]),
             ],
           ],

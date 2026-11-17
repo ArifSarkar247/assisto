@@ -1149,14 +1149,18 @@ jobs:
           PY
       # ---- /p2-photo ----
       # ---- adcontrol ---- (owner order 10 Nov 03:45 part F) AdMob MEDIATION:
-      # Meta Audience Network through AdMob BIDDING (AppLovin deferred: the
-      # faststart download-size guard) — max 2 extra SDKs. Adapter pinned to
-      # the build made for play-services-ads 25.4.0 (the google_mobile_ads
-      # 9.1.0 pin). NO startup ContentProvider: Audience Network's init
-      # provider is REMOVED (the AdMob adapter initialises it from
-      # MobileAds.initialize, which Dart already runs lazily, Free users only,
-      # after consent). No new permission (INTERNET / ACCESS_NETWORK_STATE /
-      # AD_ID are already in the app). Size: +~2.5 MB (its runtime dex asset).
+      # Meta Audience Network + AppLovin through AdMob BIDDING — max 2 extra
+      # SDKs. Adapters pinned to the builds made for play-services-ads 25.4.0
+      # (the google_mobile_ads 9.1.0 pin). NO startup ContentProvider: both
+      # SDKs' init providers are REMOVED (the AdMob adapters initialise them
+      # from MobileAds.initialize, which Dart already runs lazily, Free users
+      # only, after consent). No new sensitive permission: AppLovin's
+      # CHECK_LICENSE is removed; INTERNET / ACCESS_NETWORK_STATE / AD_ID are
+      # already in the app; ACCESS_WIFI_STATE + VIBRATE are normal ones.
+      # applovin (16 Nov): AppLovin's NATIVE crash reporter .so is excluded
+      # (its System.loadLibrary is wrapped in catch-all inside the SDK) and the
+      # Play bundle is built with --split-debug-info (AAB step) — that frees
+      # the room so the faststart download-size guard stays UNCHANGED.
       # The owner turns mediation on in the AdMob console
       # (owner_actions/AD_MEDIATION_SETUP_BN.md) — until then they serve nothing.
       - name: AdMob mediation adapters (adcontrol)
@@ -1170,16 +1174,18 @@ jobs:
           deps = []
           if "com.google.ads.mediation:facebook" not in s:
               deps.append("com.google.ads.mediation:facebook:6.22.0.1")
-          # AppLovin is DEFERRED (lead 10 Nov): it breaks the faststart
-          # download-size guard on armeabi-v7a even with its native crash
-          # reporter excluded (its consumer rule keeps the whole 1.6 MB jar).
-          # Re-add com.google.ads.mediation:applovin:13.6.4.2 in a later build
-          # only when the guard has room (never by raising the guard).
+          if "com.google.ads.mediation:applovin" not in s:
+              deps.append("com.google.ads.mediation:applovin:13.6.4.2")
           if deps:
               body = "".join(('    implementation("%s")\n' if is_kts else "    implementation '%s'\n") % d
                              for d in deps)
               s += "\n\ndependencies {\n" + body + "}\n"
-              open(p, "w").write(s)
+          if "libapplovin-native-crash-reporter" not in s:
+              s += ('\nandroid {\n    packaging {\n        jniLibs {\n'
+                    + ('            excludes += setOf("**/libapplovin-native-crash-reporter.so")\n' if is_kts
+                       else "            excludes += ['**/libapplovin-native-crash-reporter.so']\n")
+                    + '        }\n    }\n}\n')
+          open(p, "w").write(s)
           print("mediation deps:", deps or "already present", "in", p)
           m = "android/app/src/main/AndroidManifest.xml"
           x = open(m).read()
@@ -1190,8 +1196,16 @@ jobs:
                   '\n        <provider android:name="com.facebook.ads.AudienceNetworkContentProvider"'
                   ' android:authorities="${applicationId}.AudienceNetworkContentProvider"'
                   ' tools:node="remove"/>\n    </application>', 1)
+          if "AppLovinInitProvider" not in x:
+              x = x.replace('</application>',
+                  '\n        <provider android:name="com.applovin.sdk.AppLovinInitProvider"'
+                  ' android:authorities="${applicationId}.applovininitprovider"'
+                  ' tools:node="remove"/>\n    </application>', 1)
+          if "com.android.vending.CHECK_LICENSE" not in x:
+              x = x.replace('</manifest>',
+                  '    <uses-permission android:name="com.android.vending.CHECK_LICENSE" tools:node="remove"/>\n</manifest>', 1)
           open(m, "w").write(x)
-          print("mediation: Meta Audience Network only; its init provider removed")
+          print("mediation: Meta + AppLovin; both init providers removed, CHECK_LICENSE removed, AppLovin native crash reporter excluded")
           PY
       # ---- /adcontrol ----
       # ---- pay1 ---- the website APK never uses Google Play Billing: drop the
@@ -1510,7 +1524,13 @@ jobs:
           # serves each phone its own ABI split; the Play universal APK (the
           # website /dl/play copy) loses ~35 MB of x86_64 code.
           echo "armeabi-v7a,arm64-v8a" > android/app/abi_filters.txt
+          # applovin (size): --split-debug-info moves the Dart stack-trace
+          # tables out of libapp.so (smaller phone download; NO behaviour
+          # change — no --obfuscate). Traces become non-symbolic; the app and
+          # server keep "pc+0x… (dart:aot/<build>)" frames (crash_scrub) and
+          # the symbols ride in the assisto-aab artifact for `flutter symbolize`.
           flutter build appbundle --release \
+            --split-debug-info=build/dart-symbols \
             --target-platform=android-arm,android-arm64 \
             --build-number=$PLAY_VC \
             --build-name=1.0.${{ github.run_number }} \
@@ -1567,6 +1587,10 @@ jobs:
           #    .aab — apksigner is for APKs). Passwords via env, never argv.
           zip -q -d "$AAB" 'META-INF/*.SF' 'META-INF/*.RSA' 'META-INF/*.EC' \
               'META-INF/*.DSA' 'META-INF/MANIFEST.MF' 2>/dev/null || true
+          # applovin: AppLovin's native crash reporter never ships
+          if unzip -l "$AAB" | grep -q 'libapplovin-native-crash-reporter'; then
+            echo "::error::AppLovin native crash reporter .so is in the AAB"; exit 1
+          fi
           # build 232 (self-hosted): no `zip` on the box -> debug signature stayed
           # and Play refused "signed with multiple certificate chains". Never again:
           if unzip -l "$AAB" | grep -qE 'META-INF/.*\.(SF|RSA|EC|DSA)$'; then
@@ -1581,6 +1605,9 @@ jobs:
           rm -f /tmp/aab.p12
           mkdir -p out
           cp "$AAB" "out/assisto-play-build${{ github.run_number }}.aab"
+          # applovin: Dart symbols of THIS bundle (flutter symbolize -d …)
+          tar -czf "out/assisto-play-build${{ github.run_number }}.dart-symbols.tgz" -C build dart-symbols \
+            || echo "::warning::no Dart symbols to keep"
           # crash-map: keep the R8 mapping of THIS bundle so the ship step uploads
           # it to Play (readable Play Vitals stack traces for every build)
           MAP=build/app/outputs/mapping/release/mapping.txt
@@ -1603,6 +1630,23 @@ jobs:
             https://github.com/google/bundletool/releases/download/1.17.2/bundletool-all-1.17.2.jar || skip "bundletool download"
           AAB=$(ls out/*.aab 2>/dev/null | head -1)
           [ -n "$AAB" ] || skip "no AAB"
+          # applovin: NO startup init ContentProvider in the Play manifest
+          # (ColorOS history) and no CHECK_LICENSE — a real finding fails.
+          if java -jar /tmp/bundletool.jar dump manifest --bundle "$AAB" | tr '\n' ' ' > /tmp/fs-manifest.xml; then
+            echo "providers in the Play manifest:"
+            grep -o '<provider[^>]*>' /tmp/fs-manifest.xml | grep -o 'android:name="[^"]*"' || true
+            for P in AppLovinInitProvider AudienceNetworkContentProvider MlKitInitProvider MobileAdsInitProvider \
+                     FirebaseInitProvider androidx.startup.InitializationProvider; do
+              if grep -o '<provider[^>]*>' /tmp/fs-manifest.xml | grep -q "$P"; then
+                echo "::error::startup ContentProvider $P is in the Play manifest"; exit 1
+              fi
+            done
+            if grep -q 'com.android.vending.CHECK_LICENSE' /tmp/fs-manifest.xml; then
+              echo "::error::CHECK_LICENSE is in the Play manifest"; exit 1
+            fi
+          else
+            echo "::warning::bundletool dump manifest failed (provider check skipped)"
+          fi
           java -jar /tmp/bundletool.jar build-apks --bundle "$AAB" --output /tmp/fs.apks --overwrite || skip "build-apks"
           echo '{"supportedAbis":["arm64-v8a"],"supportedLocales":["bn"],"screenDensity":320,"sdkVersion":33}' > /tmp/spec_arm64.json
           echo '{"supportedAbis":["armeabi-v7a"],"supportedLocales":["bn"],"screenDensity":320,"sdkVersion":28}' > /tmp/spec_v7a.json
@@ -1644,6 +1688,7 @@ jobs:
           path: |
             app/out/*.aab
             app/out/*.mapping.txt
+            app/out/*.dart-symbols.tgz
           retention-days: 30
       # ---- /l1-launch ----
 
@@ -1708,7 +1753,18 @@ jobs:
             timeout 60 adb logcat -c || true
             nohup sh -c 'adb logcat -v time > /tmp/live_logcat.txt 2>&1' >/dev/null 2>&1 &
             adb shell monkey -p com.assisto.assisto -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 || adb shell am start -n com.assisto.assisto/com.assisto.assisto.MainActivity
-            sleep 30
+            sleep 5
+            adb exec-out screencap -p > firstrun_05s.png 2>/dev/null || true
+            timeout 10 adb shell echo emu-alive-05 > emu_05.txt 2>/dev/null || true
+            sleep 10
+            adb exec-out screencap -p > firstrun_15s.png 2>/dev/null || true
+            timeout 10 adb shell echo emu-alive-15 > emu_15.txt 2>/dev/null || true
+            sleep 15
+            adb exec-out screencap -p > firstrun_30s.png 2>/dev/null || true
+            timeout 10 adb shell echo emu-alive-30 > emu_30.txt 2>/dev/null || true
+            grep -q emu-alive-05 emu_05.txt || { echo "::error::emulator stopped answering ~5 s after first launch (GPU/render death on the first-run screens)"; exit 1; }
+            grep -q emu-alive-15 emu_15.txt || { echo "::error::emulator stopped answering ~15 s after first launch"; exit 1; }
+            grep -q emu-alive-30 emu_30.txt || { echo "::error::emulator stopped answering ~30 s after first launch"; exit 1; }
             timeout 30 adb shell pidof com.assisto.assisto > pid.txt 2>/dev/null || true
             sleep 3
             cp /tmp/live_logcat.txt live_logcat.txt 2>/dev/null || true
@@ -1729,6 +1785,8 @@ jobs:
           path: |
             live_logcat.txt
             logcat.txt
+            firstrun_*.png
+            emu_*.txt
           retention-days: 2
           if-no-files-found: warn
 

@@ -11,6 +11,7 @@ import '../screens/watchman/watchman_source.dart' show wmDigits;
 import '../shop_api.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import 'live_cost.dart';
 
 /// The three server calls of a vendor live view (tests pass a fake).
@@ -289,9 +290,13 @@ class _VendorLiveScreenState extends State<VendorLiveScreen> {
     final live = _phase == _VPhase.live;
     final lang = Localizations.localeOf(context).languageCode;
     final estMb = LiveCost.mb(_secs * _kbps * 1000 / 8);
+    // the controls sit on a DS card sheet under the black video stage
     return Container(
-      color: scheme.surface,
-      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.sm, Gap.md, Gap.md),
+      decoration: BoxDecoration(
+        color: scheme.ds.card,
+        border: Border(top: BorderSide(color: scheme.ds.border)),
+      ),
+      padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, Gap.md),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         Wrap(spacing: Gap.sm, runSpacing: Gap.sm, alignment: WrapAlignment.center, children: [
           if (live)
@@ -335,18 +340,12 @@ class _VendorLiveScreenState extends State<VendorLiveScreen> {
             style: AType.bodySmall.copyWith(color: scheme.ds.muted, height: 1.35)),
         const SizedBox(height: Gap.sm),
         if (live)
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              key: const Key('vendorLiveStop'),
-              style: FilledButton.styleFrom(
-                  backgroundColor: scheme.error,
-                  foregroundColor: scheme.onError,
-                  minimumSize: const Size(48, 48)),
-              onPressed: () => _stop(),
-              icon: const Icon(Icons.stop_circle_rounded),
-              label: Text(t.shopLiveStop),
-            ),
+          DsButton.danger(
+            buttonKey: const Key('vendorLiveStop'),
+            onPressed: () => _stop(),
+            icon: Icons.stop_circle_rounded,
+            label: t.shopLiveStop,
+            expand: true,
           ),
       ]),
     );
