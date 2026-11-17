@@ -120,7 +120,7 @@ class ApiTests(APITestCase):
 
     def test_official_info_sections(self):
         p = self.client.get("/api/v1/official-info/probashi", HTTP_ACCEPT_LANGUAGE="en").json()
-        self.assertEqual(p["checked"], OI.CHECKED)
+        self.assertEqual(p["checked"], OI.CHECKED_CORNERS)
         self.assertEqual(p["helplines"][0]["dial"], "16135")
         self.assertEqual(p["remit"]["incentive_pct"], 2.5)
         self.assertEqual(p["remit"]["sdg_target_pct"], 3.0)
@@ -131,3 +131,17 @@ class ApiTests(APITestCase):
     def test_official_info_needs_login(self):
         self.client.force_authenticate(None)
         self.assertIn(self.client.get("/api/v1/official-info/probashi").status_code, (401, 403))
+
+
+class FlagproofCornersTests(SimpleTestCase):
+    """flagproof (17 Nov): the official-source check fixed three links."""
+    def test_corrected_links(self):
+        urls = OI.all_urls()
+        self.assertNotIn("https://www.amiprobashi.com", urls)
+        self.assertIn("https://employee.oep.gov.bd", urls)
+        self.assertNotIn("https://educationboard.gov.bd", urls)   # no working HTTPS
+        self.assertNotIn("https://999.gov.bd", urls)
+        p = OI.probashi_public("en")
+        self.assertEqual([h["dial"] for h in p["helplines"]], ["16135", "+8809610102030", "999"])
+        self.assertEqual(p["checked"], "2026-11-17")
+        self.assertEqual(OI.student_public("bn")["checked"], "2026-11-17")
