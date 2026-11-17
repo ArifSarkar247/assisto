@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/skeleton.dart';
 import '../../ds/ds.dart';
-import '../../theme.dart' show AType;
+import '../../theme.dart' show AType, AFonts;
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -249,7 +249,7 @@ class CctvInstallerCodeSheet extends StatelessWidget {
           code.length == 8 ? '${code.substring(0, 4)} ${code.substring(4)}' : code,
           key: const ValueKey('ctr-inst-code'),
           textAlign: TextAlign.center,
-          style: AType.bodyMedium.copyWith(fontFamily: 'monospace', fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: 2),
+          style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular /* design3: the app font (monospace is not bundled) */, fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: 2),
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
