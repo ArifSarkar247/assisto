@@ -86,6 +86,7 @@ import 'phonecam/phonecam_link.dart'; // cctvphone
 import 'carecall/carecall_screen.dart' show careCallResume; // carecall
 import 'carecall/carecall_ring_screen.dart'; // carecall
 import 'notiflisten/notif_listen_service.dart'; // callmoney
+import 'notiflisten/ai_reply_notif.dart' show AiReplyNotifService; // ai-reply-notif
 import 'bizai/my_shops_screen.dart' show ShopChatLink; // bizai
 
 /// bubbles (owner 2 Nov): the floating chat bubble's own LIGHT entrypoint
@@ -579,6 +580,11 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
       // Part 3: assist gesture / wake word while Assisto was in background.
       VaLaunch.maybeOpen(context);
       unawaited(NotifListenService.maybeOpen(context)); // callmoney
+      // ai-reply-notif: mirror the flag + refresh the scoped token (only if turned on)
+      try {
+        unawaited(AiReplyNotifService.onResume(
+            context.read<AppState>().api, AppLocalizations.of(context)));
+      } catch (_) {} // best-effort: no localizations above this context yet
       VaWake.maybeRestart(context);
     }
   }

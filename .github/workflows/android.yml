@@ -543,6 +543,18 @@ jobs:
           if 'notiflisten.AssistoNotifListener' not in s:
               s = s.replace('</application>', notif_listen + '    </application>', 1)
           # ---- /callmoney ----
+          # ---- ai-reply-notif ---- suggested replies in chat-app notifications:
+          # NO new service (the callmoney listener above is reused, behind its
+          # own AI-reply consent + per-app gate) and NO new permission. ONE
+          # non-exported receiver for the user's tap on our companion card
+          # (only our own PendingIntents reach it). Never auto-sends.
+          ai_reply_rx = (
+              '\n        <receiver android:name="com.assisto.assisto.notiflisten.AiReplyTapReceiver"'
+              ' android:exported="false"/>\n'
+          )
+          if 'notiflisten.AiReplyTapReceiver' not in s:
+              s = s.replace('</application>', ai_reply_rx + '    </application>', 1)
+          # ---- /ai-reply-notif ----
           # ---- fcelder ---- Silent Watch: ONE explicit, non-exported receiver
           # for its own AlarmManager alarms + the "I am OK" button + re-arming
           # after a reboot / app update. No service, no provider, no new

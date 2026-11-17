@@ -461,6 +461,9 @@ import 'fake_api.dart';
 import 'package:assisto/notiflisten/callmoney_screens.dart'; // callmoney
 import 'package:assisto/notiflisten/notif_listen_channel.dart'; // callmoney
 import 'callmoney_fake.dart'; // callmoney
+import 'package:assisto/notiflisten/ai_reply_notif.dart'; // ai-reply-notif
+import 'package:assisto/notiflisten/ai_reply_notif_screens.dart'; // ai-reply-notif
+import 'ai_reply_notif_fake.dart'; // ai-reply-notif
 import 'fake_kidswatch.dart'; // chipbuy2
 import 'p3guides_fake.dart' show p3gFakeEmutation; // p3guides
 import 'package:assisto/widgets/guide_data.dart' show GuideService; // p3guides
@@ -1456,6 +1459,12 @@ Map<String, GallerySpec> gallerySpecs() {
     'cmn_review': (build: (_) { SharedPreferences.setMockInitialValues({'cm_consent_money_v1': 'x', 'cm_money_on': true}); NotifListenChannel.instance = FakeNotifBridge(queue: fakeMoneyQueue()); return const MoneyNotifReviewScreen(focusId: 1); }, mode: FakeMode.data, full: true),
     'cmn_review_empty': (build: (_) { SharedPreferences.setMockInitialValues({}); NotifListenChannel.instance = FakeNotifBridge(); return const MoneyNotifReviewScreen(); }, mode: FakeMode.empty, full: true),
     'cmn_callnote': (build: (_) => const Scaffold(body: CallNoteSheet(launch: NotifLaunch(kind: 'callnote', mode: 'type', source: 'sim'), offline: true)), mode: FakeMode.data, full: true),
+    // ai-reply-notif: consent, per-app list (on / off / revoked + unlock), companion card preview
+    'arn_consent': (build: (_) => const AiReplyNotifConsentScreen(), mode: FakeMode.data, full: true),
+    'arn_settings': (build: (_) { SharedPreferences.setMockInitialValues({'arn_consent_v1': 'x', 'arn_on': true, 'arn_apps': ['mycircle', 'whatsapp']}); AiReplyNotifChannel.instance = FakeAiReplyBridge(st: const AiReplyNativeStatus(available: true, granted: true, on: true, apps: ['mycircle', 'whatsapp'], hasToken: true, noCreditCount: 2, installedPackages: {'com.whatsapp', 'com.facebook.orca', 'com.imo.android.imoim'})); return const AiReplyNotifSettingsScreen(); }, mode: FakeMode.data, full: true),
+    'arn_settings_off': (build: (_) { SharedPreferences.setMockInitialValues({}); AiReplyNotifChannel.instance = FakeAiReplyBridge(); return const AiReplyNotifSettingsScreen(); }, mode: FakeMode.data, full: true),
+    'arn_settings_revoked': (build: (_) { SharedPreferences.setMockInitialValues({'arn_consent_v1': 'x', 'arn_on': true, 'arn_apps': ['whatsapp']}); AiReplyNotifChannel.instance = FakeAiReplyBridge(st: const AiReplyNativeStatus(available: true, granted: false, apps: ['whatsapp'])); return const AiReplyNotifSettingsScreen(); }, mode: FakeMode.data, full: true),
+    'arn_companion': (build: (_) => Scaffold(body: ListView(padding: const EdgeInsets.all(16), children: const [AiReplyCompanionCard()])), mode: FakeMode.data, full: false),
     'shop_cameras': (build: (_) => const ShopBoxScreen(initialTab: 1), mode: FakeMode.data, full: true),
     'shop_alerts': (build: (_) => const ShopBoxScreen(initialTab: 2), mode: FakeMode.data, full: true),
     'shop_report': (build: (_) => const ShopBoxScreen(initialTab: 3), mode: FakeMode.data, full: true),

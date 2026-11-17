@@ -261,6 +261,9 @@ void main() {
         // ai-reply-core (owner 17 Nov): opt-in "watch an ad for AI replies" in the
         // AI reply sheet (Free only; never in an open chat, SOS or a call)
         'lib/messaging/ai_reply/ai_reply_widgets.dart',
+        // ai-reply-notif (owner 17 Nov F): Free users unlock AI replies with an opt-in ad,
+        // only on the in-app settings screen, never inside a notification
+        'lib/notiflisten/ai_reply_notif_screens.dart',
       };
       expect(rewarded.difference(allowed), isEmpty,
           reason: 'new rewarded entry point: ${rewarded.difference(allowed)}');

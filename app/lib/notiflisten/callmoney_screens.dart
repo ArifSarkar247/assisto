@@ -14,6 +14,7 @@ import '../widgets/local_counter.dart';
 import '../widgets/money_digits.dart';
 import '../widgets/rn_bits.dart' show pickCircleMember;
 import '../widgets/voice_input.dart';
+import 'ai_reply_notif.dart' show AiReplyNotifService; // ai-reply-notif
 import 'callnote_drafts.dart';
 import 'money_notif_parser.dart';
 import 'notif_listen_channel.dart';
@@ -51,6 +52,7 @@ class _CallMoneySettingsScreenState extends State<CallMoneySettingsScreen>
     with WidgetsBindingObserver {
   NotifListenStatus _st = const NotifListenStatus();
   bool _callNote = false, _money = false, _auto = false, _loaded = false;
+  bool _aiReplyOn = false; // ai-reply-notif: shares this Notification access
 
   @override
   void initState() {
@@ -73,9 +75,11 @@ class _CallMoneySettingsScreenState extends State<CallMoneySettingsScreen>
   Future<void> _refresh() async {
     final s = await NotifListenService.load();
     final st = await NotifListenService.bridge.status();
+    final ai = (await AiReplyNotifService.load()).on && AiReplyNotifService.flagOn();
     if (!mounted) return;
     setState(() {
       _st = st;
+      _aiReplyOn = ai;
       _callNote = s.callNote;
       _money = s.money;
       _auto = s.auto;
@@ -146,6 +150,7 @@ class _CallMoneySettingsScreenState extends State<CallMoneySettingsScreen>
                   _AccessCard(
                     granted: _st.granted,
                     anyOn: _callNote || _money,
+                    aiReplyOn: _aiReplyOn,
                     onOpen: () async {
                       final m = ScaffoldMessenger.of(context);
                       await NotifListenService.bridge.openAccessSettings();
@@ -281,8 +286,10 @@ class _InfoCard extends StatelessWidget {
 class _AccessCard extends StatelessWidget {
   final bool granted;
   final bool anyOn;
+  final bool aiReplyOn; // ai-reply-notif: then the help text names it too
   final VoidCallback onOpen;
-  const _AccessCard({required this.granted, required this.anyOn, required this.onOpen});
+  const _AccessCard(
+      {required this.granted, required this.anyOn, this.aiReplyOn = false, required this.onOpen});
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -301,7 +308,7 @@ class _AccessCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleSmall)),
           ]),
           const SizedBox(height: Gap.sm),
-          Text(ok ? t.clnAccessOnHelp : t.clnAccessOffHelp),
+          Text(ok ? (aiReplyOn ? t.clnAccessOnHelpAi : t.clnAccessOnHelp) : t.clnAccessOffHelp),
           const SizedBox(height: Gap.sm),
           TextButton.icon(
             key: const ValueKey('cmn_open_access'),

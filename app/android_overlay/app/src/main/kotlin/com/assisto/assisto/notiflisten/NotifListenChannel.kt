@@ -38,6 +38,14 @@ object NotifListenChannel {
         }
     }
 
+    /** ai-reply-notif: is a chat app installed? (visible through the LAUNCHER <queries> entry) */
+    private fun installed(ctx: Context, pkg: String): Boolean = try {
+        ctx.packageManager.getApplicationInfo(pkg, 0)
+        true
+    } catch (_: Throwable) {
+        false
+    }
+
     private fun openSettings(activity: Activity) {
         val detail = if (Build.VERSION.SDK_INT >= 30) Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS)
             .putExtra(Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME, component(activity).flattenToString())
@@ -96,7 +104,8 @@ object NotifListenChannel {
                         for ((k, v) in strings) if (v is String) e.putString("s_$k", v)
                         e.apply()
                         if (!mo) NotifListenCore.clearQueue(ctx)
-                        try { setComponentOn(ctx, cn || mo) } catch (_: Throwable) {}
+                        // ai-reply-notif: callmoney OFF must not stop AI reply (and the reverse)
+                        try { setComponentOn(ctx, cn || mo || AiReplyCore.masterOn(ctx)) } catch (_: Throwable) {}
                         result.success(true)
                     }
                     "takeMoneyQueue" -> {
@@ -124,6 +133,46 @@ object NotifListenChannel {
                         result.success(true)
                     }
                     "takeLaunch" -> result.success(takeLaunch(activity))
+                    // ---- ai-reply-notif ----
+                    "aiStatus" -> {
+                        val p = NotifListenCore.prefs(ctx)
+                        result.success(mapOf(
+                            "granted" to granted(ctx),
+                            "on" to AiReplyCore.masterOn(ctx),
+                            "apps" to AiReplyCore.enabledApps(ctx).toList(),
+                            "hasToken" to !p.getString("ai_token", null).isNullOrEmpty(),
+                            "noCreditN" to p.getInt("ai_nocredit_n", 0),
+                            "noCreditAt" to p.getLong("ai_nocredit_at", 0L),
+                            "installed" to AiReplyAllow.CHAT_APPS.keys.filter { installed(ctx, it) },
+                        ))
+                    }
+                    "setAiReply" -> {
+                        val p = NotifListenCore.prefs(ctx)
+                        val e = p.edit()
+                        val on = call.argument<Boolean>("on") == true
+                        val consent = call.argument<String>("consent") ?: ""
+                        e.putBoolean("ai_on", on).putBoolean("ai_flag", call.argument<Boolean>("flag") == true)
+                        if (consent.isEmpty()) e.remove("ai_consent") else e.putString("ai_consent", consent)
+                        e.putStringSet("ai_apps", (call.argument<List<Any?>>("apps") ?: emptyList())
+                            .mapNotNull { it as? String }.toSet())
+                        val token = call.argument<String>("token")
+                        if (!on || token == "") e.remove("ai_token") else if (token != null) e.putString("ai_token", token)
+                        call.argument<String>("api")?.let { if (it.isNotEmpty()) e.putString("ai_api", it) }
+                        val strings = call.argument<Map<String, Any?>>("strings") ?: emptyMap()
+                        for ((k, v) in strings) if (v is String) e.putString("ais_$k", v)
+                        e.apply()
+                        val live = AiReplyCore.masterOn(ctx)
+                        if (!live) AiReplyCore.cancelAll(ctx)
+                        try {
+                            setComponentOn(ctx, live || NotifListenCore.callNoteOn(ctx) || NotifListenCore.moneyOn(ctx))
+                        } catch (_: Throwable) {}
+                        result.success(true)
+                    }
+                    "aiClearNoCredit" -> {
+                        NotifListenCore.prefs(ctx).edit().remove("ai_nocredit_n").remove("ai_nocredit_at").apply()
+                        result.success(true)
+                    }
+                    // ---- /ai-reply-notif ----
                     else -> result.notImplemented()
                 }
             } catch (t: Throwable) {
