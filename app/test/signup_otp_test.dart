@@ -92,7 +92,14 @@ void main() {
     expect(find.text(t.signupOtpSpamHint), findsOneWidget);
     final resend = find.byKey(const Key('otp-resend'));
     expect(tester.widget<TextButton>(resend).onPressed, isNull);
-    expect(find.text(t.qa1OtpResendIn('60')), findsOneWidget);
+    // counting down from the server's 60 s (about 2 s already spun above)
+    expect(
+        find.descendant(
+            of: resend,
+            matching: find.byWidgetPredicate((w) =>
+                w is Text &&
+                ['58', '59', '60'].any((n) => w.data == t.qa1OtpResendIn(n)))),
+        findsOneWidget);
     await tester.pump(const Duration(seconds: 30));
     expect(tester.widget<TextButton>(resend).onPressed, isNull);
     await tester.pump(const Duration(seconds: 31));
