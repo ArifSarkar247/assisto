@@ -45,6 +45,10 @@ Map<String, dynamic> trainLive701({bool live = false}) {
     'chat': {'open': true, 'opens_at': now.subtract(const Duration(hours: 3)).toIso8601String(),
         'closes_at': now.add(const Duration(hours: 5)).toIso8601String()},
     'source': {'wiki_title': 'সুবর্ণ এক্সপ্রেস', 'wiki_revid': 1},
+    // train-app (V2): how fresh it is (engine contract)
+    'freshness': live
+        ? {'state': 'live', 'age_s': 25, 'updated_at': now.toIso8601String()}
+        : {'state': 'timetable', 'age_s': 0},
   };
 }
 
@@ -78,7 +82,10 @@ Map<String, dynamic> trainLine701(DateTime now, {bool live = false}) {
     final eta = now.add(Duration(minutes: ((km - atKm) * 1.1).round()));
     out.add({'id': r[0], 'bn': r[1], 'en': r[2], 'km': km, 'stop': r[4],
         'lat': 23.0 + i * 0.05, 'lng': 91.0 - i * 0.03,
-        'sched': eta.toIso8601String(), 'eta': eta.toIso8601String(), 'passed': passed});
+        'sched': eta.toIso8601String(), 'eta': eta.toIso8601String(), 'passed': passed,
+        // train-app (V2): passed stations carry the confirmed time + delay
+        if (live && passed) 'actual': eta.add(Duration(minutes: 6 + i * 2)).toIso8601String(),
+        if (live && passed) 'delay_min': 6 + i * 2});
   }
   return {'stations': out, 'now_index': nowI, 'passing': live ? null : nowI, 'next_index': nextI};
 }
@@ -127,7 +134,56 @@ Map<String, dynamic>? fakeTrainGet(String path, {required bool bn, required bool
     return {'trains': empty ? [] : [trainSummary701()]};
   }
   if (path.contains('/seat')) return trainSeat701(empty: empty); // sjtrain
+  // train-app: offline pack
+  if (path.startsWith('/train/offline/meta')) {
+    return {'version': '2026-11-17', 'size_bytes': 431000, 'updated_at': '2026-11-17T06:00:00Z'};
+  }
+  if (path.startsWith('/train/offline/pack')) return trainOfflinePackJson();
   if (path.contains('/live')) return trainLive701(live: !empty);
   if (path.contains('/chat')) return trainChatRoom(joined: !empty, bn: bn);
+  return null;
+}
+
+// ---------------------------------------------------------------- train-app
+/// train-app (V2): a tiny offline pack — 701 with made-up times and a
+/// learned tower near Cumilla (sample ids, no real data).
+Map<String, dynamic> trainOfflinePackJson() => {
+      'version': '2026-11-17',
+      'off_day_base': 1,
+      'trains': [
+        {
+          'no': '701', 'name_bn': 'সুবর্ণ এক্সপ্রেস', 'name_en': 'Subarna Express', 'off_days': [],
+          'stops': [
+            {'id': 'n1', 'bn': 'চট্টগ্রাম', 'en': 'Chattogram', 'km': 0, 'lat': 22.334, 'lng': 91.829, 'dep': '07:00'},
+            {'id': 'o3', 'bn': 'ফেনী', 'en': 'Feni', 'km': 90.0, 'arr': '08:20', 'dep': '08:22'},
+            {'id': 'o5', 'bn': 'কুমিল্লা', 'en': 'Cumilla', 'km': 154.1, 'arr': '09:15', 'dep': '09:18'},
+            {'id': 'o9', 'bn': 'ভৈরব বাজার', 'en': 'Bhairab Bazar', 'km': 234.3, 'arr': '10:25', 'dep': '10:27'},
+            {'id': 'n3', 'bn': 'ঢাকা বিমানবন্দর', 'en': 'Dhaka Airport', 'km': 303.9, 'arr': '11:40', 'dep': '11:42'},
+            {'id': 'n2', 'bn': 'কমলাপুর', 'en': 'Kamalapur', 'km': 321.2, 'lat': 23.732, 'lng': 90.426, 'arr': '12:20'},
+          ],
+        },
+      ],
+      'towers': [
+        {'k': '470-1-1234-56789', 'no': '701', 'km': 160.0, 'n': 14},
+        {'k': '470-3-77-4242', 's': 'o9', 'n': 3},
+      ],
+    };
+
+/// train-app (V2): POST stubs — check-in accepted, shared text parsed.
+Map<String, dynamic>? fakeTrainPost(String path, Map<String, dynamic> body) {
+  if (path.endsWith('/checkin')) return {'ok': true, 'status': 'accepted', 'points': 5};
+  if (path.startsWith('/train/text')) {
+    return {
+      'ok': true,
+      'parsed': {'no': '701', 'station_id': 'o5', 'station_bn': 'কুমিল্লা', 'station_en': 'Cumilla',
+          'kind': 'left', 'at': DateTime.now().toUtc().toIso8601String(), 'late_min': 18},
+      'applied': true,
+    };
+  }
+  if (RegExp(r'^/train/\d+/share$').hasMatch(path)) {
+    return {'ok': true, 'share': {'id': 41, 'status': 'active',
+        'ends_at': DateTime.now().toUtc().add(const Duration(hours: 6)).toIso8601String()}};
+  }
+  if (path.startsWith('/train/share/')) return {'ok': true, 'accepted': 1, 'rejected': 0, 'status': 'active'};
   return null;
 }

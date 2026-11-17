@@ -462,6 +462,15 @@ class MainActivity : FlutterFragmentActivity() {
             )
         } catch (e: Throwable) {
         }
+        // train-app: Train Tracker V2 ("com.assisto/train_v2") — serving cell
+        // (opt-in, while sharing), battery, the share-to-Assisto target.
+        // Handler only; nothing is read at launch.
+        try {
+            com.assisto.assisto.train.TrainV2Channel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         // cashguard: Guard Box on-device person model ("com.assisto/guardbox").
         // Handler only — the ORT session is created on the first detect()
         // from an open Guard Box screen (flag guard_box_mode), never at launch.
