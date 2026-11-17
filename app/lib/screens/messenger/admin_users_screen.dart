@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -319,8 +320,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   title: t.msgrModErrorTitle,
                   message: t.msgrModErrorBody,
                   tint: Brand.danger,
-                  action: FilledButton.tonal(
-                      onPressed: _load, child: Text(t.msgrModRetry)),
+                  action: DsButton(
+                      onPressed: _load, icon: Icons.refresh_rounded, label: t.msgrModRetry),
                 ),
               _Status.ok => visible.isEmpty
                   ? RefreshIndicator(
@@ -350,11 +351,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             return Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(top: Gap.sm),
-                                child: OutlinedButton.icon(
+                                child: DsButton.secondary(
                                   onPressed: () =>
                                       setState(() => _shown += _pageSize),
-                                  icon: const Icon(Icons.expand_more_rounded),
-                                  label: Text(t.msgrModShowMore),
+                                  icon: Icons.expand_more_rounded,
+                                  label: t.msgrModShowMore,
                                 ),
                               ),
                             );
@@ -635,17 +636,15 @@ class _UserCard extends StatelessWidget {
     final appVersion = (user['app_version'] ?? '').toString();
     final pill = _statusPill(t, status, scheme);
 
-    final card = Container(
+    // a flat bordered DS surface (long admin lists stay GPU-light);
+    // reported users keep the amber edge
+    final card = DsSurface(
+      flat: true,
       padding: const EdgeInsets.all(Gap.md),
-      decoration: BoxDecoration(
-        color: scheme.ds.card,
-        borderRadius: BorderRadius.circular(Radii.md),
-        border: Border.all(
-          color: reports > 0 && dense
-              ? Brand.warning.withValues(alpha: 0.4)
-              : scheme.ds.border,
-        ),
-      ),
+      borderColor: reports > 0 && dense
+          ? Brand.warning.withValues(alpha: 0.4)
+          : scheme.ds.border,
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -715,15 +714,7 @@ class _UserCard extends StatelessWidget {
       ),
     );
 
-    if (onTap == null) return card;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Radii.md),
-        onTap: onTap,
-        child: card,
-      ),
-    );
+    return card;
   }
 
   Widget _meta(ColorScheme scheme, IconData icon, String text) {

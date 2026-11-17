@@ -86,11 +86,12 @@ class _ChannelAdminScreenState extends State<ChannelAdminScreen>
         bottom: TabBar(
           controller: _tabs,
           isScrollable: true,
+          tabAlignment: TabAlignment.start,
           tabs: [
-            Tab(child: Text(t.channelTabPosts, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.channelTabProfile, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.channelAnalytics, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-            Tab(child: Text(t.channelTabAdmins, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+            Tab(child: Text(t.channelTabPosts, softWrap: false)),
+            Tab(child: Text(t.channelTabProfile, softWrap: false)),
+            Tab(child: Text(t.channelAnalytics, softWrap: false)),
+            Tab(child: Text(t.channelTabAdmins, softWrap: false)),
           ],
         ),
       ),
@@ -183,7 +184,8 @@ class _PostsTabState extends State<_PostsTab> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
-      floatingActionButton: widget.canPublish
+      // empty: the state's own big button is the one action (no second FAB)
+      floatingActionButton: widget.canPublish && widget.posts.isNotEmpty
           ? FloatingActionButton.extended(
               onPressed: _compose,
               icon: const Icon(Icons.edit_rounded),
@@ -195,10 +197,7 @@ class _PostsTabState extends State<_PostsTab> {
               title: t.channelNoPostsTitle,
               body: t.channelComposeFirstBody,
               action: widget.canPublish
-                  ? FilledButton.icon(
-                      onPressed: _compose,
-                      icon: const Icon(Icons.edit_rounded),
-                      label: Text(t.channelPost))
+                  ? DsButton(onPressed: _compose, icon: Icons.edit_rounded, label: t.channelPost)
                   : null,
             )
           : ListView(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../api.dart';
@@ -197,8 +198,8 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
                   title: t.msgrModErrorTitle,
                   message: t.msgrModErrorBody,
                   tint: Brand.danger,
-                  action: FilledButton.tonal(
-                      onPressed: _load, child: Text(t.msgrModRetry)),
+                  action: DsButton(
+                      onPressed: _load, icon: Icons.refresh_rounded, label: t.msgrModRetry),
                 ),
               _Status.ok => rows.isEmpty
                   ? RefreshIndicator(

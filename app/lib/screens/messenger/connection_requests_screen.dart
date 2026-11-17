@@ -161,8 +161,8 @@ class _ConnectionRequestsScreenState extends State<ConnectionRequestsScreen>
       appBar: AppBar(
         title: Text(t.msgrConnectTitle),
         bottom: TabBar(controller: _tabs, tabs: [
-          Tab(child: Text(t.msgrRequestsIncomingTab, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-          Tab(child: Text(t.msgrRequestsSentTab, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+          Tab(child: Text(t.msgrRequestsIncomingTab, softWrap: false)),
+          Tab(child: Text(t.msgrRequestsSentTab, softWrap: false)),
         ]),
       ),
       body: _loading
