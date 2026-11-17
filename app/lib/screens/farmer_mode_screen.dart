@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/farmer_engine.dart';
 import '../world/world_api.dart';
 import 'farmer/farmer_help.dart'; // p3farm: Help tab + crop calendar
@@ -537,10 +538,7 @@ class _LedgerSummaryCard extends StatelessWidget {
     final netColor = net > 0
         ? AssistoTokens.of(context).success
         : (net < 0 ? scheme.error : scheme.onSurface);
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.surfaceContainerHighest,
-      child: Padding(
+    return Padding(padding: EdgeInsets.zero, child: DsSurface(color: scheme.surfaceContainerHighest, padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -575,8 +573,7 @@ class _LedgerSummaryCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      )));
   }
 
   Widget _stat(BuildContext context, String value, String label, Color c) => Expanded(
@@ -616,9 +613,7 @@ class _RecordCard extends StatelessWidget {
     final title = name.isNotEmpty
         ? name
         : (cropKey.isNotEmpty ? farmerCropLabel(t, cropKey) : t.farmerUntitledRecord);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: InkWell(
+    return Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: InkWell(
         borderRadius: BorderRadius.circular(Radii.md),
         onTap: onTap,
         child: Padding(
@@ -668,8 +663,7 @@ class _RecordCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      )));
   }
 
   Widget _kv(String k, String v, Color c) => Column(
@@ -761,18 +755,9 @@ class _SeasonCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: season.current
+    return Padding(padding: EdgeInsets.zero, child: DsSurface(color: season.current
           ? AssistoTokens.of(context).success.withValues(alpha: 0.10)
-          : scheme.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: season.current
-            ? BorderSide(color: AssistoTokens.of(context).success, width: 2)
-            : BorderSide.none,
-      ),
-      child: Padding(
+          : scheme.surfaceContainerHighest, padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -817,8 +802,7 @@ class _SeasonCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      )));
   }
 
   Widget _line(BuildContext context, IconData icon, String label, String value) => Row(
@@ -893,10 +877,7 @@ class _LivestockSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.surfaceContainerHighest,
-      child: Padding(
+    return Padding(padding: EdgeInsets.zero, child: DsSurface(color: scheme.surfaceContainerHighest, padding: EdgeInsets.zero, child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -935,8 +916,7 @@ class _LivestockSummaryCard extends StatelessWidget {
             ],
           ],
         ),
-      ),
-    );
+      )));
   }
 }
 
@@ -955,9 +935,7 @@ class _AnimalCard extends StatelessWidget {
     final key = (animal['animal'] ?? '').toString().trim();
     final count = (animal['count'] ?? 0);
     final v = FarmerEngine.vaccinationStatus(animal['last_vaccinated'], now: now);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: InkWell(
+    return Padding(padding: EdgeInsets.zero, child: DsCard(padding: EdgeInsets.zero, child: InkWell(
         borderRadius: BorderRadius.circular(Radii.md),
         onTap: onTap,
         child: Padding(
@@ -980,8 +958,7 @@ class _AnimalCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      )));
   }
 }
 

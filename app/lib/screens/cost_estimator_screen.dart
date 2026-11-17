@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/ladder_common.dart';
 import '../widgets/local_digits.dart'; // lifebar
 import '../widgets/confirm_delete.dart'; // lifebar
@@ -423,7 +424,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
         title: Text(t.p2CeReplaceQ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.p2CeReplace)),
+          DsButton(onPressed: () => Navigator.pop(ctx, true), label: t.p2CeReplace),
         ],
       ),
     );
@@ -501,11 +502,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
           // from a BD job template (home repair, event, trip, shop, tutor)
           SizedBox(
             height: 52,
-            child: FilledButton.tonalIcon(
-              onPressed: _pickTemplate,
-              icon: const Icon(Icons.dashboard_customize_rounded),
-              label: Text(t.p2CeStartFromTemplate, textAlign: TextAlign.center),
-            ),
+            child: DsButton.secondary(onPressed: _pickTemplate, icon: Icons.dashboard_customize_rounded, label: t.p2CeStartFromTemplate),
           ),
           const SizedBox(height: Gap.lg),
         ],
@@ -531,16 +528,12 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
               onRemove: () => _removeRow(entry.value),
             )),
         const SizedBox(height: Gap.sm),
-        OutlinedButton.icon(
-          onPressed: _rows.length >= _maxComponents ? null : () => _addRow(),
-          icon: const Icon(Icons.add_rounded, size: 18),
-          label: Text(t.ceAddComponent),
-        ),
+        DsButton.secondary(onPressed: _rows.length >= _maxComponents ? null : () => _addRow(), icon: Icons.add_rounded, label: t.ceAddComponent),
         const SizedBox(height: Gap.lg),
 
         // contingency slider
         Text(t.ceContingency(fmtInt(context, _contingency)),
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700)),
         Slider(
           value: _contingency.toDouble(),
           min: 0,
@@ -580,7 +573,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
         tint: Brand.danger,
         title: t.ceLoadError,
         message: serverFailText(t, _failCause),
-        action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
+        action: DsButton(onPressed: _load, label: t.retry),
       );
     }
     if (_saved.isEmpty) {
@@ -588,11 +581,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
         icon: Icons.calculate_rounded,
         title: t.ceEmptyTitle,
         message: t.ceEmptyBody,
-        action: FilledButton.tonalIcon(
-          onPressed: () => _tabs.animateTo(0),
-          icon: const Icon(Icons.add_rounded, size: 18),
-          label: Text(t.ceTabEstimate),
-        ),
+        action: DsButton(onPressed: () => _tabs.animateTo(0), icon: Icons.add_rounded, label: t.ceTabEstimate),
       );
     }
     return RefreshIndicator(
@@ -613,9 +602,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
               .toList();
           final e =
               _estimate(lines, _toInt(row['contingency_pct']?.toString()));
-          return Card(
-            clipBehavior: Clip.antiAlias,
-            child: ListTile(
+          return DsCard(padding: EdgeInsets.zero, child: ListTile(
               title: Text((row['name'] ?? t.ceUntitled).toString(),
                   maxLines: 2, overflow: TextOverflow.ellipsis),
               subtitle: Text(
@@ -628,8 +615,7 @@ class _CostEstimatorScreenState extends State<CostEstimatorScreen>
                 tooltip: t.delete,
                 onPressed: () => _deleteSaved(row),
               ),
-            ),
-          );
+            ));
         },
       ),
     );
@@ -875,13 +861,9 @@ class _TemplateQuestionsState extends State<_TemplateQuestions> {
           ),
           const SizedBox(height: Gap.md),
         ],
-        FilledButton.icon(
-          onPressed: () => Navigator.pop(context, {
+        DsButton(onPressed: () => Navigator.pop(context, {
             for (final e in _c.entries) e.key: parseIntInput(e.value.text.trim()) ?? 0,
-          }),
-          icon: const Icon(Icons.calculate_rounded),
-          label: Text(t.p2CeBuild),
-        ),
+          }), icon: Icons.calculate_rounded, label: t.p2CeBuild),
       ]),
     );
   }
@@ -947,18 +929,10 @@ class _TotalsCard extends StatelessWidget {
         const SizedBox(height: Gap.md),
         Row(children: [
           Expanded(
-            child: FilledButton.icon(
-              onPressed: onSave,
-              icon: const Icon(Icons.bookmark_outline_rounded, size: 18),
-              label: Text(t.save),
-            ),
+            child: DsButton(onPressed: onSave, icon: Icons.bookmark_outline_rounded, label: t.save),
           ),
           const SizedBox(width: Gap.sm),
-          OutlinedButton.icon(
-            onPressed: onCopy,
-            icon: const Icon(Icons.copy_rounded, size: 18),
-            label: Text(t.copy),
-          ),
+          DsButton.secondary(onPressed: onCopy, icon: Icons.copy_rounded, label: t.copy),
         ]),
       ]),
     );
@@ -1016,7 +990,7 @@ class _AiEstimateCard extends StatelessWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(t.ceAiTitle,
-                style: const TextStyle(fontWeight: FontWeight.w700, height: 1.4)),
+                style: AType.titleSmall.copyWith(fontWeight: FontWeight.w700, height: 1.4)),
             const SizedBox(height: Gap.xxs),
             Text(t.ceAiBody,
                 style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant, height: 1.4)),

@@ -64,8 +64,7 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
                   icon: Icons.cloud_off_rounded,
                   title: t.moneyTrendsTitle,
                   message: honestFailText(t, _failCause, otherwise: t.moneySummaryOffline),
-                  action: FilledButton(
-                      onPressed: _load, child: Text(t.retry)),
+                  action: DsButton(label: t.retry, onPressed: _load),
                 )
               : _body(context, t),
     );
@@ -92,16 +91,13 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
       Text(t.moneyMonthlyFlow,
           style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
       const SizedBox(height: Gap.md),
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.lg),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              for (final m in months)
-                Expanded(child: _monthBars(context, t, m, maxVal)),
-            ],
-          ),
+      DsHeroCard(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            for (final m in months)
+              Expanded(child: _monthBars(context, t, m, maxVal)),
+          ],
         ),
       ),
       const SizedBox(height: Gap.lg),
@@ -115,9 +111,10 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
       Text(t.moneyCategoryTrends,
           style: AType.titleMedium.copyWith(fontWeight: FontWeight.bold)),
       const SizedBox(height: Gap.sm),
+      if (cats.isNotEmpty)
+        DsGroup(margin: EdgeInsets.zero, children: [
       for (final c in cats)
-        Card(
-          child: ListTile(
+        ListTile(
             title: Text('${c['category']}'),
             subtitle: Text(t.moneyVsLastMonth(tkFmt(c['previous']))),
             isThreeLine: MediaQuery.textScalerOf(context).scale(10) > 12, // qa1
@@ -128,11 +125,11 @@ class _MoneyTrendsScreenState extends State<MoneyTrendsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(tkFmt(c['current']),
-                      style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
+                      style: AType.titleSmall.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
                   deltaChip(context, dbl(c['delta'])),
                 ])),
           ),
-        ),
+        ]),
     ]);
   }
 

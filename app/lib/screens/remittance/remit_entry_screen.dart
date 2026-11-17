@@ -223,7 +223,7 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
         content: Text(t.rmtDeleteEntryBody),
         actions: [
           TextButton(onPressed: () => Navigator.pop(c, false), child: Text(t.cancel)),
-          FilledButton(style: Brand.dangerButton(), onPressed: () => Navigator.pop(c, true), child: Text(t.delete)),
+          DsButton.danger(onPressed: () => Navigator.pop(c, true), label: t.delete),
         ],
       ),
     );
@@ -261,24 +261,21 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.xxxl),
             children: [
               if (widget.draft != null) ...[
-                Card(
+                DsSurface(
                   key: const ValueKey('rmt_understood'),
                   color: DsTokens.of(context).primarySoft,
-                  margin: EdgeInsets.zero,
-                  child: Padding(
-                    padding: const EdgeInsets.all(Gap.md),
-                    child: Column(
+                  padding: const EdgeInsets.all(Gap.md),
+                  child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           widget.draft!.isEmpty ? t.rmtNotUnderstood : t.rmtUnderstoodCheck,
-                          style: TextStyle(color: DsTokens.of(context).primaryInk, fontWeight: FontWeight.w700),
+                          style: AType.titleSmall.copyWith(color: DsTokens.of(context).primaryInk, fontWeight: FontWeight.w700),
                         ),
                         if ((widget.said ?? '').isNotEmpty)
-                          Text('"${widget.said}"', style: TextStyle(color: DsTokens.of(context).primaryInk)),
+                          Text('"${widget.said}"', style: AType.bodyMedium.copyWith(color: DsTokens.of(context).primaryInk)),
                       ],
                     ),
-                  ),
                 ),
                 const SizedBox(height: Gap.md),
               ],
@@ -432,16 +429,15 @@ class _RemitEntryScreenState extends State<RemitEntryScreen> {
               if (_err != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: Gap.sm),
-                  child: Text(_err!, style: TextStyle(color: DsTokens.of(context).dangerInk)),
+                  child: Text(_err!, style: AType.bodyMedium.copyWith(color: DsTokens.of(context).dangerInk)),
                 ),
-              FilledButton.icon(
-                key: const ValueKey('rmt_save'),
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                onPressed: _busy ? null : _save,
-                icon: _busy
-                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.check_rounded),
-                label: Text(t.rmtSave),
+              DsButton(
+                buttonKey: const ValueKey('rmt_save'),
+                expand: true,
+                onPressed: _save,
+                busy: _busy,
+                icon: Icons.check_rounded,
+                label: t.rmtSave,
               ),
               if (_edit) ...[
                 const SizedBox(height: Gap.sm),
@@ -486,24 +482,23 @@ class _ConversionLine extends StatelessWidget {
           if (k > 0 && (r <= 0 || (k - calc).abs() >= 0.01)) t.rhbConvYours(rmTaka(context, k)),
           if (k > 0 && r <= 0) t.rhbConvEffective(rmNumText(context, (k / a * 10000).round() / 10000)),
         ];
-        return Container(
+        return Padding(
           key: const ValueKey('rhb_conv'),
-          margin: const EdgeInsets.only(top: Gap.sm),
+          padding: const EdgeInsets.only(top: Gap.sm),
+          child: DsSurface(
+          flat: true,
+          color: DsTokens.of(context).cardHighest,
           padding: const EdgeInsets.all(Gap.md),
-          decoration: BoxDecoration(
-            color: DsTokens.of(context).cardHighest,
-            borderRadius: BorderRadius.circular(Radii.md),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for (final l in lines)
-                Text(l, style: TextStyle(fontWeight: FontWeight.w600, color: DsTokens.of(context).text, fontFeatures: AFonts.tabular)),
+                Text(l, style: AType.bodyLarge.copyWith(fontWeight: FontWeight.w600, color: DsTokens.of(context).text, fontFeatures: AFonts.tabular)),
               const SizedBox(height: Gap.xxs),
-              Text(t.rhbConvHonest, style: TextStyle(color: DsTokens.of(context).muted)),
+              Text(t.rhbConvHonest, style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),
             ],
           ),
-        );
+        ));
       },
     );
   }

@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
+import '../widgets/skeleton.dart' show SkeletonList, StateMessage;
 import '../widgets/chat_session_actions.dart';
 import '../widgets/ladder_common.dart' show fmtInt;
 import 'ai_chat_screen.dart';
@@ -216,16 +218,12 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
       body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
-          child: FilledButton.icon(
-            key: const ValueKey('chats_new_chat'),
+          child: DsButton(
+            buttonKey: const ValueKey('chats_new_chat'),
+            expand: true,
             onPressed: _newChat,
-            icon: const Icon(Icons.add_comment_rounded, size: 20),
-            label:
-                Text(t.newChat, maxLines: 1, overflow: TextOverflow.ellipsis),
-            style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(Radii.md))),
+            icon: Icons.add_comment_rounded,
+            label: t.newChat,
           ),
         ),
         Padding(
@@ -261,21 +259,14 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
 
   Widget _body(AppLocalizations t, ColorScheme scheme) {
     if (_rows == null && !_failed) {
-      return const Center(child: CircularProgressIndicator());
+      return const SkeletonList(count: 5);
     }
     if (_failed) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.xl),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.cloud_off_rounded,
-                size: 40, color: scheme.ds.muted),
-            const SizedBox(height: Gap.md),
-            Text(honestFailText(t, _failCause, otherwise: t.aichatLoadFailed), textAlign: TextAlign.center),
-            const SizedBox(height: Gap.md),
-            FilledButton.tonal(onPressed: _load, child: Text(t.aichatRetry)),
-          ]),
-        ),
+      // design3: DS state card (illustration + one retry button)
+      return StateMessage(
+        icon: Icons.cloud_off_rounded,
+        title: honestFailText(t, _failCause, otherwise: t.aichatLoadFailed),
+        action: DsButton(onPressed: _load, label: t.aichatRetry),
       );
     }
     final q = _q.trim();
@@ -286,24 +277,11 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
         .toList();
     if (rows.isEmpty) {
       final searching = q.isNotEmpty;
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.xl),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(searching ? Icons.search_off_rounded : Icons.chat_bubble_outline_rounded,
-                size: 40, color: scheme.ds.muted),
-            const SizedBox(height: Gap.md),
-            Text(searching ? t.aichatNoSearchResults : t.aichatNoChats,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
-            if (!searching) ...[
-              const SizedBox(height: Gap.xs),
-              Text(t.aichatNoChatsBody,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: scheme.ds.muted)),
-            ],
-          ]),
-        ),
+      // the New chat button sits right above — no second button here
+      return StateMessage(
+        icon: searching ? Icons.search_off_rounded : Icons.chat_bubble_outline_rounded,
+        title: searching ? t.aichatNoSearchResults : t.aichatNoChats,
+        message: searching ? null : t.aichatNoChatsBody,
       );
     }
     final pinned = rows.where((r) => r['pinned'] == true).toList();
@@ -360,7 +338,7 @@ class _AssistoChatsScreenState extends State<AssistoChatsScreen> {
       title: Text(title.isEmpty ? t.aichatUntitled : title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.w600)),
+          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
       subtitle: Text(sub, maxLines: 1, overflow: TextOverflow.ellipsis),
       onTap: () => _open(r),
       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
