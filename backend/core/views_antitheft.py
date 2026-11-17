@@ -554,6 +554,31 @@ def _event_json(ev, viewer_is_owner=True):
     }
 
 
+# antitheft-e2e (privacy): a grab that was never sent (dropped by the owner,
+# suppressed by the rules) keeps its motion numbers but NOT where the phone
+# was — location is only for an alert that really went out.
+NO_LOCATION = {"lat": None, "lng": None, "accuracy_m": None, "fix_at": None}
+
+
+def family_sees(ev):
+    """antitheft-e2e (privacy): a trusted contact's timeline lists only what
+    actually reached them — never a held grab still waiting for "Are you
+    OK?", a grab dropped by the owner / suppressed by the rules, a silent or
+    owner-only event, or one nobody was told about."""
+    d = ev.data or {}
+    if ev.kind in at.OWNER_ONLY_KINDS or ev.kind in at.SILENT_KINDS:
+        return False
+    if ev.escalate_at is not None or not ev.alerted:
+        return False
+    if d.get("suppressed") or d.get("ignored") or d.get("silent"):
+        return False
+    if d.get("no_recipients") or not ev.recipients:
+        return False
+    if d.get("false_alarm") and d.get("confirm") in ("ok", "owner_unlock"):
+        return False
+    return True
+
+
 def _went_dark_since(phone):
     from .views_lost import _went_dark_since as wd
     return wd(phone)
@@ -899,7 +924,7 @@ class FalseAlarmView(APIView):
             d.update(false_alarm=True, confirm="ok")
             held += AntiTheftEvent.objects.filter(
                 pk=ev.pk, alerted=False).update(data=d, alerted=True,
-                                                escalate_at=None)
+                                                escalate_at=None, **NO_LOCATION)
         recent = _recent_signals(phone, now)
         was_frozen = sec.is_frozen(phone, now)
         if not recent and not was_frozen:
@@ -1057,7 +1082,7 @@ def _drop_held_grabs(phone, cleared_at, reason):
         d.update(false_alarm=True, confirm=reason)
         n += AntiTheftEvent.objects.filter(
             pk=ev.pk, alerted=False, escalate_at__isnull=False).update(
-                data=d, alerted=True, escalate_at=None)
+                data=d, alerted=True, escalate_at=None, **NO_LOCATION)
     return n
 
 
@@ -1093,7 +1118,7 @@ def escalate_grab(ev, reason, now=None):
     ev.refresh_from_db()
     d = dict(ev.data or {})
     if d.get("false_alarm"):
-        AntiTheftEvent.objects.filter(pk=ev.pk).update(alerted=True)
+        AntiTheftEvent.objects.filter(pk=ev.pk).update(alerted=True, **NO_LOCATION)
         return False
     d["confirm"] = reason
     AntiTheftEvent.objects.filter(pk=ev.pk).update(data=d)
@@ -1332,7 +1357,7 @@ class EngineIngestView(APIView):
                     d = dict(ev.data or {})
                     d["suppressed"] = why
                     AntiTheftEvent.objects.filter(pk=ev.pk).update(
-                        data=d, alerted=True)
+                        data=d, alerted=True, **NO_LOCATION)
                     new_events.pop()
                     continue
                 # "Are you OK?" on the owner's phone: held for the window,
@@ -1522,7 +1547,8 @@ class EngineTimelineView(APIView):
         if phone is None or not can_view(phone, request.user):
             raise Http404
         is_owner = phone.owner_id == request.user.id
-        evs = [_event_json(e, is_owner) for e in phone.engine_events.all()[:200]]
+        evs = [_event_json(e, is_owner) for e in phone.engine_events.all()[:200]
+               if is_owner or family_sees(e)]
         eng = _engine(phone, create=False)
         dark = _went_dark_since(phone)
         return Response({

@@ -26,9 +26,9 @@ on:
         type: boolean
         default: false
       group:
-        description: "Flows: e2e = the proof flows (+ offline proof); offline = only the offline-first proof; start+sjproof = Safe Journey V2 proof (sjproof)"
+        description: "Flows: e2e = the proof flows (+ offline proof); offline = only the offline-first proof; start+sjproof = Safe Journey V2 proof (sjproof); start+atproof = anti-theft proof (antitheft-e2e)"
         type: choice
-        options: [e2e, offline, start+sjproof]
+        options: [e2e, offline, start+sjproof, start+atproof]
         default: e2e
   schedule:
     - cron: "0 21 * * *"   # nightly, 03:00 Asia/Dhaka (after reality.yml)

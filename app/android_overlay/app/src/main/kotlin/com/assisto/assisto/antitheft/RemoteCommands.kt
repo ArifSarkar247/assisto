@@ -159,6 +159,13 @@ object RemoteCommands {
         }
     }
 
+    /** antitheft-e2e: is the "This phone is lost" notification up? (API 23+) */
+    fun lostMessageShowing(ctx: Context): Boolean = try {
+        val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+            nm?.activeNotifications?.any { it.id == LOST_NOTIF_ID } == true
+    } catch (_: Throwable) { false }
+
     fun clearLostMessage(ctx: Context) {
         try {
             (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)

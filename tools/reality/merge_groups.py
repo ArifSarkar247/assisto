@@ -31,6 +31,7 @@ FILE_GROUP = {
     "sos_journey_flow": "family", "journey_v2_flow": "family",
     "remmeter_flow": "personal", "budget_remittance_flow": "personal",
     "billing_flow": "personal", "crm100_flow": "business",
+    "antitheft_e2e_flow": "atproof",   # antitheft-e2e (opt-in, e2e.yml)
 }
 
 

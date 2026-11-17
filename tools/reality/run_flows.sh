@@ -163,6 +163,56 @@ net_mode() {  # $1 = off|on
         done
         timeout 10 adb shell "mkdir -p $DEV/acks && touch $DEV/acks/$f" >/dev/null 2>&1 || true
         echo "$(date +%T) projection $f tapped=$tapped" >> "$OUT/projection.log"
+# antitheft-e2e: generic host actions for the anti-theft E2E. The app prints
+# `REALITY_HOST <verb> <file>`; the host does it with adb and pushes the
+# command output as the ack file (the app reads it). Verbs:
+#   traces      push the labelled sensor traces (test/fixtures) to <out>/traces
+#   pin_on      set the emulator's SECURE screen lock (PIN 1379)
+#   lock_unlock screen off -> on -> unlock WITH the PIN (real USER_PRESENT)
+#   lockshot    screen off -> on, screenshot the LOCK SCREEN to shots/<file>.png,
+#               then unlock (PIN if set)
+#   pin_off     remove the PIN again (always run by the flow's cleanup)
+AT_PIN=1379
+at_unlock() {
+  timeout 10 adb shell input keyevent KEYCODE_WAKEUP >/dev/null 2>&1 || true; sleep 1
+  timeout 10 adb shell wm dismiss-keyguard >/dev/null 2>&1 || true; sleep 1
+  timeout 10 adb shell input keyevent 82 >/dev/null 2>&1 || true; sleep 1
+  if timeout 10 adb shell locksettings verify --old "$AT_PIN" 2>/dev/null | grep -qi 'verified\|success'; then
+    timeout 10 adb shell input text "$AT_PIN" >/dev/null 2>&1 || true
+    timeout 10 adb shell input keyevent KEYCODE_ENTER >/dev/null 2>&1 || true
+  fi
+  sleep 2
+}
+host_verb() {  # $1 = verb, $2 = file; prints the output for the ack
+  case "$1" in
+    traces)
+      timeout 30 adb shell "mkdir -p $DEV/traces" 2>&1
+      for t in test/fixtures/sensor_traces/fa_*.csv; do
+        timeout 30 adb push "$t" "$DEV/traces/" >/dev/null 2>&1 && echo "pushed $(basename "$t")"
+      done ;;
+    pin_on) timeout 20 adb shell locksettings set-pin "$AT_PIN" 2>&1 ;;
+    pin_off) timeout 20 adb shell locksettings clear --old "$AT_PIN" 2>&1 ;;
+    lock_unlock)
+      timeout 10 adb shell input keyevent KEYCODE_SLEEP >/dev/null 2>&1 || true; sleep 3
+      at_unlock
+      timeout 10 adb shell dumpsys window 2>/dev/null | grep -E 'mDreamingLockscreen|isKeyguardShowing|mShowingLockscreen' | head -3 ;;
+    lockshot)
+      timeout 10 adb shell input keyevent KEYCODE_SLEEP >/dev/null 2>&1 || true; sleep 3
+      timeout 10 adb shell input keyevent KEYCODE_WAKEUP >/dev/null 2>&1 || true; sleep 2
+      timeout 20 adb exec-out screencap -p > "$OUT/shots/$2.png" 2>/dev/null || true
+      [ -s "$OUT/shots/$2.png" ] && echo "shot $2.png" || echo "shot MISSING"
+      timeout 10 adb shell dumpsys notification --noredact 2>/dev/null | grep -c 'assisto_lost_message' | sed 's/^/lost_notif_records=/'
+      at_unlock ;;
+    *) echo "unknown verb $1" ;;
+  esac
+}
+( timeout 3000 tail -n +1 -F "$OUT/live_logcat.txt" 2>/dev/null \
+    | grep --line-buffered -oE 'REALITY_HOST [a-z_]+ [A-Za-z0-9_.-]+' \
+    | while read -r _ verb f; do
+        host_verb "$verb" "$f" > "$OUT/.host_$f.txt" 2>&1
+        timeout 10 adb shell "mkdir -p $DEV/acks" >/dev/null 2>&1 || true
+        timeout 20 adb push "$OUT/.host_$f.txt" "$DEV/acks/$f" >/dev/null 2>&1 || true
+        echo "$(date +%T) host $verb $f: $(tr '\n' ' ' < "$OUT/.host_$f.txt" | head -c 300)" >> "$OUT/host.log"
       done ) &
 
 echo "== settle 60 s after boot"; sleep 60

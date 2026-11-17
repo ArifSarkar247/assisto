@@ -38,6 +38,11 @@ BOARD = {
     "sjp05_impossible_early_arrival": [4], "sjp06_danger_pin_silent_red": [4],
     "sjp07_two_journeys": [4], "sjp08_child_unknown_place": [4],
     "sjp09_train_three_passengers": [4], "sjp10_offline_destination_alarm": [4],
+    # antitheft-e2e: anti-theft proof (e2e.yml group=start+atproof)
+    "at01_engine_live_sim_baseline": [11], "at02_rickshaw_walk_no_alert": [11],
+    "at03_snatch_are_you_ok_family_alerted": [11],
+    "at04_secure_unlock_cancels": [11], "at05_sensitivity_levels": [11],
+    "at06_sim_change_alert": [11], "at07_lost_mode_screen": [11],
 }
 ALLOW_SKIP = set()   # Care Call is on main since build 314: a skip is NOT green
 
@@ -52,6 +57,10 @@ def expected():
         # sjproof: the Safe Journey V2 proof run (e2e.yml input group=start+sjproof)
         files = ["app/integration_test/flows/sj_proof_flow.dart"]
         pat = r"realityFlow\(\s*'(sjp\d\d[^']*)',\s*'[^']*',\s*'([^']*)'"
+    if "atproof" in os.environ.get("REALITY_ONLY", ""):
+        # antitheft-e2e: the anti-theft proof run (e2e.yml group=start+atproof)
+        files = ["app/integration_test/flows/antitheft_e2e_flow.dart"]
+        pat = r"realityFlow\(\s*'(at\d\d[^']*)',\s*'[^']*',\s*'([^']*)'"
     out = []
     for f in files:
         p = ROOT / f
