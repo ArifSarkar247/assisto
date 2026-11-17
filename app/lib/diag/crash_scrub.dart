@@ -76,6 +76,29 @@ class CrashScrub {
       out.add('${fn.length > 80 ? fn.substring(0, 80) : fn} ($loc)');
       if (out.length >= max) break;
     }
+    if (out.isEmpty) return aotFrames(st.toString(), max: max);
+    return out;
+  }
+
+  // applovin (size): the Play bundle is built with --split-debug-info, so its
+  // Dart stack traces are NON-symbolic ("#00 abs … virt 00000000001ee2a7 …"
+  // under a "build_id: '…'" header). Keep the snapshot-relative pc of each
+  // frame + the build id as "pc+0x1ee2a7 (dart:aot/<build8>)" — the same
+  // "fn (uri)" shape the server accepts — so reports still group and can be
+  // symbolized later with the build's dart-symbols (assisto-aab artifact).
+  static final _aotFrame = RegExp(r'#\d+\s+abs\s+[0-9a-f]+\s+virt\s+([0-9a-f]+)');
+  static final _buildId = RegExp(r"build_id:\s*'([0-9a-f]+)'");
+
+  /// Frames of a non-symbolic (split-debug-info) Dart stack trace.
+  static List<String> aotFrames(String text, {int max = maxFrames}) {
+    final id = _buildId.firstMatch(text)?.group(1);
+    final tag = id == null ? 'unknown' : id.substring(0, id.length < 8 ? id.length : 8);
+    final out = <String>[];
+    for (final m in _aotFrame.allMatches(text)) {
+      final pc = m.group(1)!.replaceFirst(RegExp(r'^0+(?=.)'), '');
+      out.add('pc+0x$pc (dart:aot/$tag)');
+      if (out.length >= max) break;
+    }
     return out;
   }
 

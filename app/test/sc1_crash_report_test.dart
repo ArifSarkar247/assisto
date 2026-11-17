@@ -79,6 +79,22 @@ void main() {
       expect(CrashScrub.fingerprint('E', f), CrashScrub.fingerprint('E', moved));
     });
 
+    // applovin: Play builds use --split-debug-info (non-symbolic traces)
+    test('non-symbolic (split-debug-info) traces keep pc + build id', () {
+      final st = StackTrace.fromString(
+          '*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***\n'
+          "pid: 1, tid: 2, name 1.ui\n"
+          "build_id: 'a1b2c3d4e5f60718293a4b5c6d7e8f90'\n"
+          'isolate_dso_base: 7a00000000, vm_dso_base: 7a00000000\n'
+          '    #00 abs 0000007a001ee2a7 virt 00000000001ee2a7 _kDartIsolateSnapshotInstructions+0x1902a7\n'
+          '    #01 abs 0000007a001f0010 virt 00000000001f0010 _kDartIsolateSnapshotInstructions+0x192010\n');
+      final f = CrashScrub.frames(st);
+      expect(f, ['pc+0x1ee2a7 (dart:aot/a1b2c3d4)', 'pc+0x1f0010 (dart:aot/a1b2c3d4)']);
+      // same shape the server keeps: "fn (dart:…)"
+      expect(f.every((x) => RegExp(r'^[^()\n]{1,80} \(dart:[^()\s]+\)$').hasMatch(x)), isTrue);
+      expect(CrashScrub.fingerprint('E', f), isNot(CrashScrub.fingerprint('E', const [])));
+    });
+
     test('user hash is opaque and matches the server algorithm', () {
       final h = CrashScrub.userHash(18);
       expect(h, hasLength(16));
