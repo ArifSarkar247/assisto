@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'adaptive_button_pair.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -191,28 +192,23 @@ class _FamMembersSectionState extends State<FamMembersSection> {
         children: [
           if (widget.header != null) widget.header!,
           const SizedBox(height: Gap.md),
-          Row(children: [
-            Expanded(
-              child: SizedBox(
-                height: 48,
-                child: FilledButton.icon(
-                  key: const ValueKey('fc-pick-btn'),
-                  onPressed: _pick,
-                  icon: const Icon(Icons.group_add_rounded),
-                  label: Text(t.fcPickFromCircle, maxLines: 2, textAlign: TextAlign.center),
-                ),
-              ),
+          // design3 (2.0x): side by side, equal height, stacked at big text —
+          // the labels wrap, never cut (was a fixed 48 dp height + 2 lines)
+          AdaptiveButtonPair(
+            first: FilledButton.icon(
+              key: const ValueKey('fc-pick-btn'),
+              style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+              onPressed: _pick,
+              icon: const Icon(Icons.group_add_rounded),
+              label: Text(t.fcPickFromCircle, textAlign: TextAlign.center),
             ),
-            const SizedBox(width: Gap.sm),
-            SizedBox(
-              height: 48,
-              child: OutlinedButton(
-                key: const ValueKey('fc-hand-btn'),
-                onPressed: _addByHand,
-                child: Text(t.fcAddByHandShort),
-              ),
+            second: OutlinedButton(
+              key: const ValueKey('fc-hand-btn'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
+              onPressed: _addByHand,
+              child: Text(t.fcAddByHandShort, textAlign: TextAlign.center),
             ),
-          ]),
+          ),
           const SizedBox(height: Gap.sm),
           Text(
             _limit == null

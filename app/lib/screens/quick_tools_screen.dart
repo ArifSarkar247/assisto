@@ -309,8 +309,8 @@ class _QuickToolsScreenState extends State<QuickToolsScreen> {
             children: [
               for (final a in kQuickActions)
                 ChoiceChip(
-                  label: Text(_actionLabel(a),
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                  // design3 (2.0x): a long action name wraps inside its chip
+                  label: Text(_actionLabel(a), softWrap: true, maxLines: 3),
                   selected: _action == a,
                   onSelected: (_) => setState(() {
                     _action = a;

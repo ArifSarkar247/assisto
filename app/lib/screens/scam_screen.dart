@@ -114,12 +114,14 @@ class _ScamScreenState extends State<ScamScreen> {
         appBar: AppBar(
           title: Text(t.scamTitle),
           bottom: TabBar(
+            isScrollable: true, // design3: full labels at 2.0x, never cut
+            tabAlignment: TabAlignment.start,
             onTap: (i) {
               if (i == 1) _loadLibrary();
             },
             tabs: [
-              Tab(child: Text(t.scamTabCheck, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
-              Tab(child: Text(t.scamTabLearn, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+              Tab(child: Text(t.scamTabCheck, softWrap: false)),
+              Tab(child: Text(t.scamTabLearn, softWrap: false)),
             ],
           ),
         ),

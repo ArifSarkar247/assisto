@@ -165,8 +165,8 @@ class MsgRequestActionBar extends StatelessWidget {
                 foregroundColor: danger ? scheme.error : scheme.onSurface,
                 padding: const EdgeInsets.symmetric(vertical: Gap.sm)),
             icon: Icon(icon, size: 20),
-            label: Text(label,
-                maxLines: 1, overflow: TextOverflow.ellipsis),
+            // design3 (2.0x): the label wraps (it was cut to one line)
+            label: Text(label, textAlign: TextAlign.center),
           ),
         );
     return Material(
@@ -191,7 +191,8 @@ class MsgRequestActionBar extends StatelessWidget {
                 style: TextStyle(
                     color: scheme.onSurfaceVariant, fontSize: 12.5, height: 1.35)),
             const SizedBox(height: Gap.sm),
-            Row(children: [
+            // design3: the three actions share one height (labels may wrap)
+            IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               act(const Key('mr1-block'), Icons.block_rounded, t.circleBlock, onBlock,
                   danger: true),
               act(const Key('mr1-report'), Icons.flag_rounded, t.circleReport,
@@ -199,7 +200,7 @@ class MsgRequestActionBar extends StatelessWidget {
               // connect-flow: Decline (silent — the sender is not told)
               act(const Key('mr1-delete'), Icons.close_rounded, t.connDecline,
                   onDelete),
-            ]),
+            ])),
             const SizedBox(height: Gap.xs),
             SizedBox(
               width: double.infinity,

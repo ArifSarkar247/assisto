@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../../widgets/adaptive_button_pair.dart';
 import 'dart:io' show File;
 
 import 'package:flutter/material.dart';
@@ -1349,27 +1350,23 @@ class _PartyStatementScreenState extends State<_PartyStatementScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(Gap.md),
-          child: Row(children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.add_rounded),
-                label: Text(t.entryAddCredit,
-                    maxLines: 2, textAlign: TextAlign.center),
-                onPressed: () => _addEntry(isDue: true),
-              ),
+          // design3 (2.0x): equal height side by side, stacked at big text;
+          // labels wrap fully (maxLines 2 cut them at 2.0x)
+          child: AdaptiveButtonPair(
+            gap: Gap.md,
+            first: OutlinedButton.icon(
+              icon: const Icon(Icons.add_rounded),
+              label: Text(t.entryAddCredit, textAlign: TextAlign.center),
+              onPressed: () => _addEntry(isDue: true),
             ),
-            const SizedBox(width: Gap.md),
-            Expanded(
-              child: FilledButton.icon(
-                icon: const Icon(Icons.payments_rounded),
-                label: Text(
-                    _isCustomer ? t.entryReceivePayment : t.entryMakePayment,
-                    maxLines: 2,
-                    textAlign: TextAlign.center),
-                onPressed: () => _addEntry(isDue: false),
-              ),
+            second: FilledButton.icon(
+              icon: const Icon(Icons.payments_rounded),
+              label: Text(
+                  _isCustomer ? t.entryReceivePayment : t.entryMakePayment,
+                  textAlign: TextAlign.center),
+              onPressed: () => _addEntry(isDue: false),
             ),
-          ]),
+          ),
         ),
       ),
       body: _loading
