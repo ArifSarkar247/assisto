@@ -52301,5 +52301,63 @@
   "emailrelBouncingBanner": "Emails to your saved address are bouncing back. Please check your email address and verify it again.",
   "@emailrelBouncingBanner": {
     "description": "emailrel: banner on the sign-in email screen"
+  },
+  "gbzChaseTapHint": "Tap a name to send that customer a reminder now. The message carries their due link and how to pay.",
+  "gbzChaseSendOne": "Send the reminder",
+  "gbzChaseSendAll": "Send reminders to these {count}",
+  "@gbzChaseSendAll": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzOpenProducts": "Open products and stock",
+  "gbzWbEdit": "Edit",
+  "gbzWbEditTitle": "Write the message your way",
+  "gbzWbEditHint": "Keep {name} and {shop} as they are — they fill in for each customer.",
+  "@gbzWbEditHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzWbSave": "Save",
+  "gbzWbReach": "In the app now: {on} of {total} — only customers who use Assisto get it here.",
+  "@gbzWbReach": {
+    "placeholders": {
+      "on": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzWbMessageOthers": "Message the others on your WhatsApp",
+  "gbzBulkStopped": "{count} left out — they said STOP.",
+  "@gbzBulkStopped": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "gbzCrmMore": "More",
+  "gbzCrmMoreSub": "Every other CRM tool — tap one to open it.",
+  "gbzRemindPost": "Remind me to post at the best time",
+  "gbzRemindDone": "Reminder set.",
+  "gbzRemindFailed": "Could not set the reminder — please try again.",
+  "gbzBulkNotFound": "{count} could not be found — check their number.",
+  "@gbzBulkNotFound": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
   }
 }
