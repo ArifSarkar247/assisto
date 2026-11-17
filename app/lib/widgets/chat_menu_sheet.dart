@@ -26,6 +26,7 @@ enum ChatMenuAction {
   scheduleCall,
   newGroupCall,
   // --- divider ---
+  aiReply, // ai-reply-core: per-person AI reply modes
   summarise, // Assisto extras
   makeReminder,
   translate,
@@ -60,6 +61,7 @@ Future<ChatMenuAction?> showChatMenu(
   required bool isFavourite,
   bool? bubbleOn, // c3-msg: null = hide the row (no bubbles on this phone)
   bool locked = false, // e-gaps: flips Lock chat / Unlock chat
+  bool aiReply = false, // ai-reply-core: the `ai_reply` flag is on
 }) {
   final t = AppLocalizations.of(context);
   final rows = <_Row>[
@@ -85,6 +87,8 @@ Future<ChatMenuAction?> showChatMenu(
     // (it silently placed a 1:1 voice call) removed — dead / misleading.
     _Row(ChatMenuAction.scheduleCall, Icons.schedule_rounded, (t) => t.msgrChatScheduleCall),
     const _Row.divider(),
+    if (aiReply) // ai-reply-core
+      _Row(ChatMenuAction.aiReply, Icons.quickreply_rounded, (t) => t.aiReplyMenu),
     _Row(ChatMenuAction.summarise, Icons.auto_awesome_rounded, (t) => t.msgrChatSummarise),
     _Row(ChatMenuAction.makeReminder, Icons.alarm_add_rounded, (t) => t.msgrChatMakeReminder),
     _Row(ChatMenuAction.translate, Icons.translate_rounded, (t) => t.msgrChatTranslate),

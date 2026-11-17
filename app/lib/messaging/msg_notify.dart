@@ -24,6 +24,7 @@ import 'msg_native.dart'; // bubbles
 import 'msg_channel.dart'; // circlebub
 import 'msg_prefs.dart';
 import 'outbox.dart';
+import 'ai_reply/ai_reply.dart'; // ai-reply-core
 import '../security/secret_store.dart';
 import 'chat_lock.dart' show ChatLockStore; // e-gaps
 import 'view_once_preview.dart'; // viewonce
@@ -615,6 +616,10 @@ class MsgPushHandler {
   /// circlebub: "is this chat open in its expanded bubble?" (tests inject).
   final Future<bool> Function(String chatKey) bubbleOpen;
 
+  /// ai-reply-core: Busy / Full-auto replies while the chat is NOT open
+  /// (null = off; tests leave it null).
+  final AiAutoBackend? ai;
+
   MsgPushHandler({
     required this.backend,
     required this.identity,
@@ -623,6 +628,7 @@ class MsgPushHandler {
     Future<bool> Function()? hideContent,
     String Function()? clientMsgId,
     Future<bool> Function(String chatKey)? bubbleOpen,
+    this.ai, // ai-reply-core
   })  : e2e = e2e ?? SoftwareE2E(),
         bubbleOpen = bubbleOpen ?? BubbleOpenMark.isOpen, // circlebub
         hideContent = hideContent ?? MsgPrefs.hideContent,
@@ -676,10 +682,55 @@ class MsgPushHandler {
         return true;
       }
       await sink.show(model, t);
+      // ai-reply-core: this chat on Busy / Full auto -> the AI answers from
+      // this phone (E2E: only the phone can read it); the reply is tagged.
+      if (chat.kind == 'member' && self != null && !locked && ai != null) {
+        await _aiAutoStep(chat.id, pull, self)
+            .timeout(const Duration(seconds: 25), onTimeout: () {});
+      }
       return true;
     } catch (e) {
       if (kDebugMode) debugPrint('c3 onPush failed: $e');
       return false;
+    }
+  }
+
+  /// ai-reply-core: one Busy / Full-auto decision for the newest message
+  /// from them. Never throws; never marks the chat read.
+  Future<void> _aiAutoStep(int memberId, Map<String, dynamic> pull, IdentityKeyPair self) async {
+    try {
+      if (!await AiReplyLocal.autoOn(memberId)) return;
+      final rows = ((pull['messages'] as List?) ?? const [])
+          .whereType<Map>()
+          .map((m) => m.cast<String, dynamic>())
+          .toList();
+      final m = aiIncomingToAnswer(rows);
+      if (m == null) return;
+      final dec = e2eDecryptor(self, e2e: e2e);
+      final text = dec(m);
+      if (text == null || text.trim().isEmpty || isControlText(text)) return;
+      final r = await ai!.auto({
+        'member_id': memberId,
+        'message_id': int.tryParse('${m['id']}'),
+        'text': text,
+        'context': aiContext(rows, dec),
+      });
+      if (r['action'] != 'send') return;
+      final reply = '${r['reply'] ?? ''}'.trim();
+      final pub = '${((pull['chat'] as Map?) ?? const {})['peer_public_key'] ?? ''}';
+      if (reply.isEmpty || pub.isEmpty) return;
+      final ct = e2e.encrypt(
+          self: self,
+          recipientPublicKey: Uint8List.fromList(base64Decode(pub)),
+          plaintext: reply);
+      await backend.send('member', memberId, {
+        'content_type': 'text',
+        'client_msg_id': clientMsgId(),
+        'ai_reply_token': '${r['token'] ?? ''}',
+        ...ct.toEnvelopeFields(),
+      });
+    } catch (e) {
+      if (kDebugMode) debugPrint('ai-reply auto failed: ${e.runtimeType}');
     }
   }
 
@@ -815,6 +866,7 @@ Future<MsgPushHandler?> backgroundMsgHandler({String lang = 'bn', String? token}
       backend: HttpMsgBackend(token, lang: lang),
       identity: loadStoredIdentity,
       sink: FlnMsgSink(),
+      ai: AiReplyHttp(token, lang: lang), // ai-reply-core
     );
   } catch (_) {
     return null;

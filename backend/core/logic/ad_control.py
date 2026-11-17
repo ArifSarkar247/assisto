@@ -68,6 +68,11 @@ PLACEMENTS = (
        rule="never after SOS, emergency or Care Call calls, calls under 10 s or missed calls"),
     _p("ai_chat_unlock", "ai", REWARD, True, "rewarded", "AI চ্যাট — বিজ্ঞাপন দেখে উত্তর খুলুন", "AI chat: rewarded to unlock answers",
        rule="ads per answer = dynamic (aimoney); the open chat itself never carries an ad"),
+    # ai-reply-core (owner 17 Nov): a free user watches a rewarded ad for AI
+    # reply credits (the same SSV ticket + credit formula as ai_chat_unlock).
+    # Not a safety spot: never shown inside SOS, calls or the open chat.
+    _p("ai_reply_unlock", "ai", REWARD, True, "rewarded", "AI উত্তর — বিজ্ঞাপন দেখে উত্তর খুলুন", "AI reply: rewarded to unlock replies",
+       rule="opened from the AI reply sheet / notification state only; never in an open chat, SOS or a call"),
     _p("photo_studio", "photo", REWARD, True, "rewarded", "ফটো স্টুডিও — বিজ্ঞাপন দেখে খুলুন", "Photo Studio rewarded unlock"),
     _p("photo_after_save", "photo", MOMENT, True, "interstitial", "ফটো সেভের পর — পূর্ণ পর্দা", "Photo Studio interstitial after save"),
     _p("photo_gallery", "photo", INLINE, True, "banner", "ফটো স্টুডিও শুরুর পাতা — ব্যানার", "Photo Studio landing banner"),

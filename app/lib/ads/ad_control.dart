@@ -107,6 +107,8 @@ class AdControl {
     AdSpot('circle_list', 'circle', 'banner,native', true, 'banner'),
     AdSpot('after_call_review', 'circle', 'banner,native', true, 'native'),
     AdSpot('ai_chat_unlock', 'ai', 'rewarded', true, 'rewarded'),
+    // ai-reply-core: AI reply credits by rewarded ad (not a safety spot)
+    AdSpot('ai_reply_unlock', 'ai', 'rewarded', true, 'rewarded'),
     AdSpot('photo_studio', 'photo', 'rewarded', true, 'rewarded'),
     AdSpot('photo_after_save', 'photo', 'interstitial', true, 'interstitial'),
     AdSpot('photo_gallery', 'photo', 'banner,native', true, 'banner'),

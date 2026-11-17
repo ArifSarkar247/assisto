@@ -26,6 +26,7 @@ enum GroupMenuAction {
   scheduleCall,
   newGroupCall,
   // ── Assisto extras ──
+  aiReply, // ai-reply-core: suggest-only in groups
   summarise,
   makeReminder,
   translate,
@@ -45,6 +46,7 @@ Future<GroupMenuAction?> showGroupMenuSheet(
   required bool isFavourite,
   bool locked = false, // e-gaps
   bool? bubbleOn, // bubbles: null = hide the row (no bubbles on this phone)
+  bool aiReply = false, // ai-reply-core: the `ai_reply` flag is on
 }) {
   final t = AppLocalizations.of(context);
   return showAppSheet<GroupMenuAction>(
@@ -98,6 +100,8 @@ Future<GroupMenuAction?> showGroupMenuSheet(
                 GroupMenuAction.newGroupCall),
             const Divider(height: 1),
             // Assisto extras — AI runs only on already-decrypted messages.
+            if (aiReply) // ai-reply-core
+              _item(ctx, Icons.quickreply_rounded, t.aiReplyMenu, GroupMenuAction.aiReply),
             _item(ctx, Icons.auto_awesome_rounded, t.grpMenuSummarise,
                 GroupMenuAction.summarise),
             _item(ctx, Icons.alarm_add_rounded, t.grpMenuMakeReminder,
