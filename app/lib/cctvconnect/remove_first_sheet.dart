@@ -102,7 +102,8 @@ class CctvRemoveFirstSheet extends StatelessWidget {
                   radius: 16,
                   backgroundColor: th.colorScheme.primary,
                   child: Text(wmDigits(lang, i + 1),
-                      style: TextStyle(color: th.colorScheme.onPrimary, fontWeight: FontWeight.w700)),
+                      style: th.textTheme.labelLarge
+                          ?.copyWith(color: th.colorScheme.onPrimary, fontWeight: FontWeight.w700)),
                 ),
                 const SizedBox(width: Gap.sm),
                 Expanded(
