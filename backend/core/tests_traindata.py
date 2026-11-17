@@ -138,9 +138,9 @@ class LoadIntoDatabaseTests(TestCase):
         self.assertEqual((down.origin.name_bn, down.destination.name_bn), ("রংপুর", "ঢাকা"))
         self.assertEqual(up.name_en, "Rangpur Express")
         stops = list(up.stops.select_related("station"))
-        names = [s.station.name_bn for s in stops]
-        for st in ("বগুড়া", "গাইবান্ধা", "কাউনিয়া"):
-            self.assertIn(st, names)
+        codes = [s.station.code for s in stops]
+        for st in ("bogura", "gaibandha", "kaunia", "santahar"):
+            self.assertIn(st, codes)
         self.assertEqual(stops[0].dep_time, datetime.time(9, 10))
         self.assertEqual(stops[-1].arr_time, datetime.time(19, 0))
         self.assertGreater(stops[-1].km_from_origin, 400)

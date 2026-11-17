@@ -28,6 +28,11 @@ MUST_HAVE = {
 CROSS_BORDER = ("মৈত্রী এক্সপ্রেস", "বন্ধন এক্সপ্রেস", "মিতালী এক্সপ্রেস")
 
 
+def nuk(s):
+    """One spelling for the nukta letters (precomposed ড় ঢ় য়)."""
+    return (s or "").replace("\u09a1\u09bc", "\u09dc").replace("\u09a2\u09bc", "\u09dd").replace("\u09af\u09bc", "\u09df")
+
+
 def _read(name):
     with open(os.path.join(DATA, name), encoding="utf-8") as f:
         return json.load(f)
@@ -131,12 +136,13 @@ def check():
             problems.append("train %s is withdrawn but still in the official list" % no)
     for no, (name, a, b) in MUST_HAVE.items():
         t = have.get(no)
-        if t is None or t.name_bn != name or t.origin.name_bn != a or t.destination.name_bn != b:
+        if t is None or nuk(t.name_bn) != nuk(name) or nuk(t.origin.name_bn) != nuk(a) \
+                or nuk(t.destination.name_bn) != nuk(b):
             problems.append("%s %s %s→%s not loaded correctly" % (no, name, a, b))
         elif t.stops.count() < 2:
             problems.append("%s has no stops" % no)
     for name in CROSS_BORDER:
-        if not any(t.name_bn == name for t in have.values()):
+        if not any(nuk(t.name_bn) == nuk(name) for t in have.values()):
             problems.append("cross-border train %s missing" % name)
     return problems
 
