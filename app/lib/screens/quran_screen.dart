@@ -18,6 +18,7 @@ import '../widgets/skeleton.dart' show SkeletonList;
 import '../theme.dart';
 import '../widgets/app_sheet.dart';
 import '../widgets/local_digits.dart';
+import '../services/error_report.dart';
 
 bool _isBn(BuildContext c) => Localizations.localeOf(c).languageCode == 'bn';
 
@@ -65,7 +66,11 @@ class _QuranScreenState extends State<QuranScreen> {
         _last = last;
         _bookmarks = bm;
       });
-    } catch (e) {
+    } catch (e, st) {
+      // gap-quranblood: the emulator run showed "could not open" with no
+      // trace — say WHY in the log (and the crash-report channel).
+      debugPrint('QURAN_LOAD_FAILED $e\n$st');
+      reportNonFatal('quran_load', e, st);
       if (mounted) setState(() => _error = e);
     }
   }
