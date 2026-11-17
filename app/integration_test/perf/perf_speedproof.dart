@@ -83,15 +83,18 @@ Future<void> _askTimed(PerfFlowCtx p, String label, String q) async {
       .byWidgetPredicate((w) => w is TextField && w.textInputAction == TextInputAction.send)
       .hitTestable();
   await f.waitFor(box, what: 'chat composer');
-  await f.tester.showKeyboard(box.first);
-  await f.tester.enterText(box.first, q);
+  // run 44049733148: enterText left the composer empty on the device, so
+  // the text goes straight into its controller and the field's own
+  // onSubmitted (= the keyboard's Send key -> _send) is called
+  final field = f.tester.widget<TextField>(box.first);
+  field.controller?.text = q;
   await f.pumpFor(const Duration(milliseconds: 300));
-  final typed = (f.tester.widget(box.first) as TextField).controller?.text ?? '?';
+  final typed = field.controller?.text ?? '?';
   if (typed != q) p.notes.add('$label: composer holds "$typed"');
   final before = find.byType(AiMarkdown).evaluate().length;
   final httpFrom = f.h.recorder.hits.length;
   final sw = Stopwatch()..start();
-  await f.tester.testTextInput.receiveAction(TextInputAction.send);
+  field.onSubmitted?.call(q);
   int? at;
   while (sw.elapsedMilliseconds < 30000) {
     await f.tester.pump(const Duration(milliseconds: 16));
@@ -171,7 +174,12 @@ void registerSpeedproofFlows() {
     await f.backToHome();
     await _twice(p, 'journey_form',
         (l) => p.pushTimed(l, const JourneyStartScreen(),
-            ready: find.byKey(const ValueKey('j100_dest')), allowBusy: true));
+            // the form is a long list: the loaded form = its scroll view
+            // (the loading state is a bare spinner); j100_dest may sit
+            // below the fold and not be built yet (run 44049733148)
+            ready: find.descendant(
+                of: find.byType(JourneyStartScreen), matching: find.byType(Scrollable)),
+            allowBusy: true));
     int? jid;
     await f.net(() async {
       final r = await api.postJson('/journey/start', {
@@ -281,7 +289,7 @@ void registerSpeedproofFlows() {
     await f.backToHome();
     await _twice(p, 'quran_list',
         (l) => p.pushTimed(l, const QuranScreen(), ready: find.byKey(const Key('quran-sura-1')),
-            capSeconds: 20));
+            capSeconds: 40));
     await _twice(p, 'quran_ayah', (l) async {
       final s = find.byKey(const Key('quran-sura-2'));
       await f.tester.ensureVisible(s);

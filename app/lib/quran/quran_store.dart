@@ -12,6 +12,8 @@
 // No audio (no clearly licensed recitation verified).
 import 'dart:convert';
 import 'dart:io' show gzip;
+import 'dart:isolate' show Isolate;
+import 'dart:typed_data' show Uint8List;
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart' show rootBundle;
@@ -211,18 +213,30 @@ class QuranStore {
         throw e;
       });
 
-  static Future<String> _gz(String asset) async {
+  static Future<Uint8List> _bytes(String asset) async {
     final bd = await rootBundle.load(asset);
-    final bytes =
-        bd.buffer.asUint8List(bd.offsetInBytes, bd.lengthInBytes);
-    return utf8.decode(gzip.decode(bytes));
+    return bd.buffer.asUint8List(bd.offsetInBytes, bd.lengthInBytes);
   }
 
-  static Future<QuranData> _load() async => fromRaw(
-      await rootBundle.loadString(metaAsset),
-      await _gz(arabicAsset),
-      await _gz(englishAsset),
-      uthmaniRaw: await _gz(uthmaniAsset));
+  static String _gunzip(Uint8List b) => utf8.decode(gzip.decode(b));
+
+  /// speedproof: the three gzip texts (~3.5 MB unpacked, 18,708 lines) were
+  /// unpacked and parsed ON THE UI THREAD — the Quran page did not show its
+  /// sura list within 20 s on the 2 GB CI emulator (run 44049733148). The
+  /// bytes are read here; unpacking + parsing run in a background isolate.
+  static Future<QuranData> _load() async {
+    final meta = await rootBundle.loadString(metaAsset);
+    final ar = await _bytes(arabicAsset);
+    final en = await _bytes(englishAsset);
+    final uth = await _bytes(uthmaniAsset);
+    QuranData parse() =>
+        fromRaw(meta, _gunzip(ar), _gunzip(en), uthmaniRaw: _gunzip(uth));
+    try {
+      return await Isolate.run(parse, debugName: 'quran-parse');
+    } on UnsupportedError {
+      return parse(); // no isolates here (never on Android / iOS)
+    }
+  }
 
   /// Parse the bundled files (meta JSON + the two decompressed Tanzil texts).
   static QuranData fromRaw(String metaJson, String arabicRaw, String englishRaw,
