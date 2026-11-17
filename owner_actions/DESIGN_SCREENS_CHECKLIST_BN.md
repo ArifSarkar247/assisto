@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ১৫২ / মোট ৪২০**
+**স্ক্রিন শেষ: ১৭২ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -77,19 +77,19 @@
 ## ৬. সিসিটিভি
 
 - ✅ batch d2-5 (চলতি প্ল্যান = নরম হিরো, জীবন্ত কার্ড, DS বার্তা) — `billing/cctv_plan_screen.dart`
-- ⬜ — `bizai/cctv_accuracy_screen.dart`
+- ✅ batch d2-11 (লাইভ পরীক্ষা = হিরো) — `bizai/cctv_accuracy_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `cctvconnect/cctv_connect_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `cctvconnect/link_devices_screen.dart`
-- ⬜ — `cctvguard/vendor_live_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `cctvguard/vendor_live_screen.dart`
 - ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `phonecam/phone_camera_screen.dart`
-- ⬜ — `screens/camera/camera_preview_edit_screen.dart`
-- ⬜ — `screens/camera/camera_screen.dart`
-- ⬜ — `screens/circle_guardians_screen.dart`
-- ⬜ — `screens/guardian_request_screen.dart`
+- ✅ batch d2-11 (ক্যাপশন ঠিক, DS কার্ড) — `screens/camera/camera_preview_edit_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/camera/camera_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/circle_guardians_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/guardian_request_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/activity_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/auto_guard_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন, DS ত্রুটি/খালি অবস্থা) — `screens/watchman/cash_guard_screen.dart`
-- ⬜ — `screens/watchman/cctv_alarm_call_screen.dart`
+- ✅ batch d2-11 (লাল হিরো আগে) — `screens/watchman/cctv_alarm_call_screen.dart`
 - ✅ batch d2-5 (স্কেলেটন) — `screens/watchman/cctv_grid_screen.dart`
 - ✅ batch d2-5 (জীবন্ত কার্ড, স্কেলেটন) — `screens/watchman/cctv_recording_screen.dart`
 - ✅ batch d2-7 (জীবন্ত কার্ড, স্কেলেটন) — `screens/watchman/cctv_watch_screen.dart`
@@ -165,12 +165,12 @@
 - ⬜ — `safe_plans/safe_plans_screen.dart`
 - ✅ batch 6 (সাইন-ইন, ডিভাইস, হারালে — আলাদা কার্ড; DS ত্রুটি/স্কেলেটন) — `screens/account_security_screen.dart`
 - ⬜ — `screens/account_standing_screen.dart`
-- ⬜ — `screens/business/acct/acct_audit_screen.dart`
-- ⬜ — `screens/business/acct/acct_close_screen.dart`
-- ⬜ — `screens/business/acct/acct_entry_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/business/acct/acct_audit_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/business/acct/acct_close_screen.dart`
+- ✅ batch d2-11 (ধরন-টাইল গ্রিড) — `screens/business/acct/acct_entry_screen.dart`
 - ✅ batch d2-1 (হিসাবের ধরন জীবন্ত টাইল, টুলগুলো এক গ্রুপ কার্ডে) — `screens/business/acct/acct_home_screen.dart`
-- ⬜ — `screens/business/acct/acct_opening_screen.dart`
-- ⬜ — `screens/business/acct/acct_reports_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/business/acct/acct_opening_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/business/acct/acct_reports_screen.dart`
 - ✅ batch d2-5 (সুপারিশকৃত প্ল্যান হালকা নীল কার্ডে, AA লেখা, শিরোনাম ভাঙে না) — `screens/business/business_plans_screen.dart`
 - ⬜ — `screens/day_planner_screen.dart`
 - ⬜ — `screens/delete_account_screen.dart`
@@ -187,7 +187,7 @@
 - ⬜ — `screens/money_voice_screen.dart`
 - ⬜ — `screens/money_wrapped_screen.dart`
 - ✅ batch 6 (মোট বাকি = হিরো কার্ডে বড় সংখ্যা, DS খালি অবস্থা) — `screens/my_dues_screen.dart`
-- ⬜ — `screens/my_dues_shop_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/my_dues_shop_screen.dart`
 - ⬜ — `screens/plans_screen.dart`
 - ⬜ — `screens/probashi/probashi_plan_screen.dart`
 - ⬜ — `screens/remittance/remit_entry_screen.dart`
@@ -202,7 +202,7 @@
 
 ## ১০. মেস ও ব্যাচেলর
 
-- ⬜ — `messaging/media/video_player_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `messaging/media/video_player_screen.dart`
 
 ## ১১. মাই বিজনেস
 
@@ -293,7 +293,7 @@
 
 - ✅ batch 5 (অনুমতি বন্ধ থাকলে সেটাই সবার ওপরে, রঙিন আইকন-ব্যাজ কার্ড) — `push/push_settings_screen.dart`
 - ✅ batch 2 (গ্রুপ কার্ড) — `screens/settings_screen.dart`
-- ⬜ — `screens/vehicle_tracker_settings_screen.dart`
+- ✅ batch d2-11 (DS অংশ + কার্ড) — `screens/vehicle_tracker_settings_screen.dart`
 
 ## ১৬. বাকি সব স্ক্রিন
 
@@ -315,9 +315,9 @@
 - ⬜ — `screens/battery_guidance_screen.dart`
 - ⬜ — `screens/birthdays_screen.dart`
 - ⬜ — `screens/blog_writer_screen.dart`
-- ⬜ — `screens/booking/booking_detail_screen.dart`
-- ⬜ — `screens/booking/booking_setup_screen.dart`
-- ⬜ — `screens/booking/my_bookings_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/booking/booking_detail_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/booking/booking_setup_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/booking/my_bookings_screen.dart`
 - ⬜ — `screens/car_mode_screen.dart`
 - ⬜ — `screens/career/cv_export_screen.dart`
 - ⬜ — `screens/career/interview_role_screen.dart`
@@ -370,7 +370,7 @@
 - ⬜ — `screens/missing/missing_optin_screen.dart`
 - ⬜ — `screens/missing/missing_post_screen.dart`
 - ⬜ — `screens/missing/missing_thread_screen.dart`
-- ⬜ — `screens/mktengine/mkt_engine_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/mktengine/mkt_engine_screen.dart`
 - ⬜ — `screens/mock_interview_screen.dart`
 - ⬜ — `screens/my_lost_phone_screen.dart`
 - ⬜ — `screens/my_vehicles_screen.dart`
@@ -462,7 +462,7 @@
 - ⬜ — `screens/wake_oem_guide_screen.dart`
 - ⬜ — `screens/watch_feed_screen.dart`
 - ⬜ — `screens/watched_phones_screen.dart`
-- ⬜ — `screens/web_photo_link_screen.dart`
+- ✅ batch d2-11 (DS কার্ড ও ক্রম) — `screens/web_photo_link_screen.dart`
 - ⬜ — `screens/wedding_events_screen.dart`
 - ⬜ — `screens/wellness_tracker_screen.dart`
 - ⬜ — `screens/world/world_ask_screen.dart`
