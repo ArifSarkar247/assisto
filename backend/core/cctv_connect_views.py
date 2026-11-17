@@ -90,10 +90,31 @@ def link_row(l):
             "created": SV._iso(l.created)}
 
 
+# imou-real (owner 17 Nov): what the customer must do in the vendor's own
+# app BEFORE typing the serial + code (a camera sits in ONE cloud account).
+# The app shows a picture guide for these ids; none for a share / login path.
+REMOVE_FIRST = {"imou": "imou_life", "ezviz": "ezviz_app", "dolynk": "dmss"}
+
+
+def _switch_on(pid, key):
+    a = CC.ADAPTERS.get(pid)
+    try:
+        from . import integrations as I
+        v = str((I.get(a.integration) if a else {}).get(key) or "").strip().lower()
+    except Exception:  # noqa: BLE001
+        v = ""
+    return v in ("on", "1", "yes", "true")
+
+
 def provider_row(pid, user=None):
     a = CC.adapter(pid)
     modes = [m for m in a.modes() if m != "device_code" or devbind_allowed(user, pid)]
+    # the no-delete path (vendor login / DMSS share) leads only when the owner
+    # flips the vendor's switch after approval AND that path really exists
+    no_delete = bool(modes) and ("oauth" in modes or pid == "dolynk_arc")
     return {"id": pid, "name": a.name, "modes": modes,
+            "before": REMOVE_FIRST.get(pid, ""), "no_delete": no_delete,
+            "lead": no_delete and _switch_on(pid, "no_delete_default"),
             "consent_bn": CONSENT_TEXT[0], "consent_en": CONSENT_TEXT[1],
             "code_label_bn": a.code_label[0], "code_label_en": a.code_label[1],
             "code_secret": bool(getattr(a, "code_secret", False)),
@@ -179,6 +200,8 @@ class ProvidersView(WMV._OwnerBase):
             return _err(lang, "পাওয়া যায়নি।", "Not found.", status=404)
         links = CctvCloudLink.objects.filter(site=site).exclude(status="revoked")
         rows = [provider_row(p, request.user) for p in CC.enabled_ids()]
+        # imou-real: an approved no-delete path (switched on) comes first
+        rows.sort(key=lambda r: not r.get("lead"))
         return Response({"providers": [r for r in rows if r["modes"]],
                          "links": [link_row(l) for l in links],
                          "local_ok": True})

@@ -428,3 +428,57 @@ class VendorCheckTests(TestCase):
     def test_missing_keys(self):
         from core.management.commands import cctv_vendor_check as VC
         self.assertEqual(VC.check("hikconnect")["keys"], "missing")
+
+
+# ------------------------------------------------------------------ 8
+class CustomerPathTests(TestCase):
+    """imou-real (owner 17 Nov): the CUSTOMER app path. Serial + code stays
+    owner/admin-only until the owner's per-vendor switch; the app is told
+    what to remove first; an approved no-delete path leads only when its
+    switch is on."""
+
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        U = get_user_model()
+        self.cust = U.objects.create_user(name="Customer", phone="01710009001", password="pw")
+        self.staff = U.objects.create_user(name="Admin", phone="01710009002", password="pw")
+        self.staff.is_staff = True
+        self.staff.save()
+
+    def row(self, pid, user):
+        from core import cctv_connect_views as V
+        return V.provider_row(pid, user)
+
+    def test_imou_customer_gate_and_guide(self):
+        I.save("imou", {"app_id": "imid", "app_secret": "ims"})
+        self.assertEqual(self.row("imou", self.cust)["modes"], [])          # closed today
+        r = self.row("imou", self.staff)
+        self.assertEqual((r["modes"], r["before"], r["no_delete"], r["lead"]),
+                         (["device_code"], "imou_life", False, False))
+        I.save("imou", {"devbind_customers": "on"})
+        self.assertEqual(self.row("imou", self.cust)["modes"], ["device_code"])
+
+    def test_ezviz_now_has_a_customer_switch(self):
+        self.assertIn("devbind_customers", [f["key"] for f in I.REGISTRY["ezviz"]["fields"]])
+        I.save("ezviz", {"app_key": "ezk", "app_secret": "ezs"})
+        self.assertEqual(self.row("ezviz", self.cust)["modes"], [])
+        I.save("ezviz", {"devbind_customers": "on"})
+        r = self.row("ezviz", self.cust)
+        self.assertEqual((r["modes"], r["before"]), (["device_code"], "ezviz_app"))
+
+    def test_no_delete_path_leads_only_with_switch_and_approval(self):
+        oauth = {"app_id": "imid", "app_secret": "ims", "oauth_ak": "imak", "oauth_sk": "imsk",
+                 "oauth_h5_url": "https://open.imoulife.com/oauth/h5?project=sim"}
+        I.save("imou", dict(oauth, no_delete_default="on"))
+        r = self.row("imou", self.cust)
+        self.assertEqual((r["modes"], r["no_delete"], r["lead"]), (["oauth"], True, True))
+        I.save("imou", {"no_delete_default": "off"})
+        self.assertFalse(self.row("imou", self.cust)["lead"])
+        # switch on but NOT approved (no OAuth keys): never leads
+        from core.models import Integration
+        Integration.objects.filter(slug="imou").delete()
+        I.save("imou", {"app_id": "imid", "app_secret": "ims", "no_delete_default": "on"})
+        r = self.row("imou", self.staff)
+        self.assertEqual((r["no_delete"], r["lead"]), (False, False))
+        for slug in ("imou", "ezviz", "dolynk_arc"):
+            self.assertIn("no_delete_default", [f["key"] for f in I.REGISTRY[slug]["fields"]])

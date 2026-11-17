@@ -8,11 +8,20 @@ class FakeCctvConnect implements CctvConnectSource {
   bool noProviders;
   bool noLinks;
   String healthStatus;
+  // imou-real: the server's "remove it from the vendor app first" ids + an
+  // approved no-delete path leading (off by default: older tests unchanged)
+  bool guides;
+  bool leadImou;
   ApiException? linkError;
   final List<String> calls = [];
 
   FakeCctvConnect(
-      {this.lang = 'en', this.noProviders = false, this.noLinks = false, this.healthStatus = 'green'});
+      {this.lang = 'en',
+      this.noProviders = false,
+      this.noLinks = false,
+      this.healthStatus = 'green',
+      this.guides = false,
+      this.leadImou = false});
 
   bool get _bn => lang == 'bn';
 
@@ -27,6 +36,9 @@ class FakeCctvConnect implements CctvConnectSource {
           'code_label_en': '6-letter Verification Code on the label',
           'consent_bn': 'আমি এই ক্যামেরার মালিক এবং এটি Assisto-র অ্যাকাউন্টে যুক্ত করতে রাজি; যেকোনো সময় সরাতে পারব।',
           'consent_en': "I own this camera and agree to link it to Assisto's account; I can unlink it any time.",
+          if (guides)
+            'before': const {'imou': 'imou_life', 'ezviz': 'ezviz_app', 'dolynk': 'dmss'}[id] ?? '',
+          if (leadImou && id == 'imou') 'lead': true,
         };
     return {
       'providers': noProviders
