@@ -15,9 +15,9 @@ import 'dart:io';
 
 import 'package:assisto/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'ds2_guard_test.dart' show cutTexts;
 import 'fake_api.dart';
 import 'screenshots_test.dart' show gallerySetUpAll, galleryPump, gallerySpecs;
 
@@ -26,6 +26,47 @@ final _dir = '${Platform.environment['ASSISTO_SHOT_DIR'] ?? 'build/shots'}/xl_sw
 
 bool _frozenHome(String name) =>
     name == 'home' || name.startsWith('home_') || name.startsWith('h1_') || name.startsWith('hv2_');
+
+/// Every cut text with the kind of control it sits in. `label-cut` (a
+/// button / chip / tab / nav / tile label) and layout errors gate; plain
+/// `text-cut` (a long name or preview line that ellipsizes on purpose) and
+/// `appbar-cut` are reported only.
+List<String> _cutKinds(WidgetTester tester) {
+  final out = <String>[];
+  for (final e in find.byType(RichText).evaluate()) {
+    final r = e.renderObject;
+    if (r is! RenderParagraph || !r.didExceedMaxLines) continue;
+    var kind = 'text-cut';
+    e.visitAncestorElements((a) {
+      final w = a.widget;
+      if (w is ButtonStyleButton || w is IconButton || w is FloatingActionButton) {
+        kind = 'label-cut(button)';
+      } else if (w is Tab) {
+        kind = 'label-cut(tab)';
+      } else if (w is RawChip || w is Chip || w is ChoiceChip || w is FilterChip || w is ActionChip || w is InputChip) {
+        kind = 'label-cut(chip)';
+      } else if (w is NavigationDestination || w is BottomNavigationBar || w is NavigationBar) {
+        kind = 'label-cut(nav)';
+      } else if (w is AppBar) {
+        kind = 'appbar-cut';
+      } else if (w is Scaffold) {
+        return false;
+      } else {
+        return true;
+      }
+      return false;
+    });
+    final c = r.text.toPlainText();
+    out.add('$kind: ${c.length > 80 ? c.substring(0, 80) : c}');
+  }
+  return out;
+}
+
+bool _gates(String problem) =>
+    problem.startsWith('label-cut') ||
+    problem.startsWith('error') ||
+    problem.startsWith('exception') ||
+    problem.startsWith('latin-amount');
 
 void main() {
   if (!_on) {
@@ -60,8 +101,8 @@ void main() {
               key: GlobalKey(), textScale: 2.0);
           final ex = tester.takeException();
           if (ex != null) problems.add('exception: ${'$ex'.split('\n').first}');
-          for (final c in cutTexts(tester)) {
-            problems.add('cut: ${c.length > 80 ? c.substring(0, 80) : c}');
+          for (final c in _cutKinds(tester)) {
+            problems.add(c);
           }
           // lead 17 Nov: a Taka amount on a Bangla screen uses Bangla digits
           if (lang == 'bn') {
@@ -80,7 +121,7 @@ void main() {
           File('$_dir/${name}_$lang.txt').writeAsStringSync(problems.join('\n'));
         }
         if (!bootstrap && !known.contains(name)) {
-          expect(problems, isEmpty, reason: '$name ($lang) at 2.0x font');
+          expect(problems.where(_gates).toList(), isEmpty, reason: '$name ($lang) at 2.0x font');
         }
       });
     }
