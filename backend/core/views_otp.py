@@ -140,7 +140,9 @@ class OtpRequestView(APIView):
         neutral = purpose in ("login", "password_reset")
         try:
             out = otp.issue(canon, purpose, request=request,
-                            user=_authed(request), lang=lang, send=send)
+                            user=_authed(request), lang=lang, send=send,
+                            # signup-otp: a retried request (same id) replays
+                            request_id=(request.data or {}).get("request_id") or "")
         except otp.OtpError as e:
             if e.reason == "sms_not_configured":
                 return _sms_off(lang)
@@ -305,7 +307,9 @@ class OtpEmailRequestView(APIView):
         raw_email = str(data.get("email") or "").strip()
         raw_phone = str(data.get("phone") or data.get("identifier") or "").strip()
         neutral = purpose in ("login", "password_reset")
-        kw = {"request": request, "lang": lang}
+        kw = {"request": request, "lang": lang,
+              # signup-otp: a retried request (same id) replays its answer
+              "request_id": str(data.get("request_id") or "")}
         if purpose == "email_verify":
             if user is None:
                 return _fail("auth_required", lang, status.HTTP_401_UNAUTHORIZED)
@@ -345,7 +349,9 @@ class OtpEmailRequestView(APIView):
                 if not addr:
                     return _fail("bad_email", lang, status.HTTP_400_BAD_REQUEST)
                 acct = otp.find_user_by_verified_email(addr)
-                kw.update(email=addr)
+                # signup-otp: an unknown / unverified address gets a short
+                # "no account yet - create one" note instead of silence
+                kw.update(email=addr, notice_if_unknown=True)
             tgt = otp.verified_email(acct) if (acct is not None and acct.is_active) else ""
             kw.update(target=tgt, send=bool(tgt))
         try:
