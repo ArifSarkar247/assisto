@@ -69,11 +69,11 @@ String _status(RFlow f) {
 /// gatefix (lead, 17 Nov): ICE "connected" is not enough — prove MEDIA
 /// flows both ways. Two getStats() samples >= 6 s apart on BOTH peers (A =
 /// the app's live call, B = the second client): each side's inbound-rtp
-/// AUDIO packets and payload bytes must grow. Returns a note line; decoded
-/// video frames on the receiving side are reported (the gate's flow
-/// emulator runs with -camera-front none -noaudio, so there is no camera
-/// picture or mic signal to decode/measure — see the note).
-Future<String> _proveMediaFlows(RFlow f, String what, CallController b) async {
+/// AUDIO packets and payload bytes must grow. With [videoToB] (the video
+/// call: A's camera — the gate's circle leg runs an EMULATED front camera)
+/// B must have decoded video frames, and more of them in the second sample.
+Future<String> _proveMediaFlows(RFlow f, String what, CallController b,
+    {bool videoToB = false}) async {
   final a = CallRuntime.instance.currentCall;
   if (a == null) throw TestFailure('$what: no live call on A to read stats from');
   final a1 = await f.net(() => a.media.stats());
@@ -94,6 +94,13 @@ Future<String> _proveMediaFlows(RFlow f, String what, CallController b) async {
     return '$who audio in +${p2 - p1} pkts/+${y2 - y1} B';
   }
   final na = grew('A', a1, a2), nb = grew('B', b1, b2);
+  if (videoToB) {
+    final v1 = b1.videoFramesDecoded ?? 0, v2 = b2.videoFramesDecoded ?? 0;
+    if (v2 <= 0 || v2 <= v1) {
+      throw TestFailure('$what: B decoded no video from A\'s camera over 6 s '
+          '(framesDecoded $v1->$v2)');
+    }
+  }
   return '$what media: $na, $nb; video frames decoded A=${a2.videoFramesDecoded} '
       'B=${b2.videoFramesDecoded}';
 }
@@ -267,12 +274,12 @@ void registerCircleRealCallFlows() {
       }
       await f.tester.pump(const Duration(seconds: 2));
       await f.shot('video-connected');
-      // gatefix: the gate emulator starts with -camera-front none, so A's
-      // camera track cannot open (logcat "getUserMedia(): Failed to create
-      // new track", gate run 44091251063) and the call carries audio only —
-      // say so; never claim a camera picture CI did not have.
-      f.note('video call: ICE connected; this emulator has no camera (A falls back to audio), B audio-only');
-      f.note(await _proveMediaFlows(f, 'video', callB!));
+      // gatefix: the gate's circle leg now runs an EMULATED front camera
+      // (with -camera-front none, gate run 44091251063, A's camera track
+      // failed and the call silently carried audio only) — so B must decode
+      // A's video frames.
+      f.note('video: ICE connected; A sends the emulated camera, B audio-only');
+      f.note(await _proveMediaFlows(f, 'video', callB!, videoToB: true));
     });
 
     await f.step('A hangs up from the call screen', () async {
@@ -312,8 +319,13 @@ void registerCircleRealCallFlows() {
 
     await subB?.cancel();
     await rtB.close();
-    f.note('media CONTENT (hearing/seeing each other), TURN relay and app-closed '
-        'ring are NOT provable on one CI emulator — two-phone checklist');
-    f.needsKey('two real phones (Wi-Fi <-> mobile data) for audio/video + TURN + FCM ring');
+    // gatefix (owner 17 Nov "stronger test + phone list"): CI proved signalling,
+    // ring, connect, media packets both ways, decoded video, ended + talk
+    // time and decline. What only two REAL phones show is the owner's
+    // checklist (closed-testing build, before production) — not a downgrade.
+    f.ownerCheck('Call with Assisto CLOSED on the other phone: it rings (FCM full-screen ring)');
+    f.ownerCheck('Voice call: both people really HEAR each other');
+    f.ownerCheck('Video call: both see each other\'s real camera picture');
+    f.ownerCheck('Wi-Fi on one phone, mobile data on the other: call connects (TURN relay)');
   }, timeout: const Duration(minutes: 8));
 }

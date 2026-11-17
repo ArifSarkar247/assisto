@@ -15,7 +15,7 @@ finish() {
 APK=$(ls apk/*.apk | head -1)
 echo "apk: $APK sha256 $(sha256sum "$APK" | cut -c1-16)" | tee "$OUT/result.txt"
 sleep 30
-timeout 300 adb install -r "$APK" || fail "install failed"
+timeout 300 adb install -r "$APK" > "$OUT/install.txt" 2>&1 || fail "install failed: $(tail -2 "$OUT/install.txt" | tr '\n' ' ')"
 timeout 30 adb shell dumpsys package "$PKG" | grep -m2 -E "versionCode|versionName" | tee -a "$OUT/result.txt"
 timeout 20 adb shell pm grant "$PKG" android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 timeout 30 adb logcat -c || true
