@@ -9,6 +9,7 @@ import 'call_controller.dart';
 import 'call_log.dart';
 import 'call_net_policy.dart';
 import 'call_video.dart';
+import 'media_ext.dart'; // circle-screenshare
 
 /// gatefix: the SDP rule for an offer. A VIDEO call's offer must carry a
 /// video m-line even when this phone has no camera track (busy / failed /
@@ -40,7 +41,10 @@ class WebRtcCallMedia
         CallMedia,
         CallVideoSurface,
         AdaptiveCallMedia,
-        VideoSizeSource {
+        VideoSizeSource,
+        // circle-screenshare
+        ScreenShareMedia,
+        ScreenShareSurface {
   WebRtcCallMedia({this.cameraBlocked = false});
 
   /// gatefix: behave as if the camera cannot open (busy / failed HAL) —
@@ -204,7 +208,10 @@ class WebRtcCallMedia
     final track = tracks.first;
     _videoTrack = track;
     final sender = _videoSender;
-    if (sender != null) {
+    if (_screenTrack != null && sender != null) {
+      // circle-screenshare: the screen stays on the sender; the camera is
+      // put back by stopScreenShare
+    } else if (sender != null) {
       // used before (video -> voice -> video): same m-line, same stream id
       await sender.replaceTrack(track);
     } else {
@@ -225,7 +232,8 @@ class WebRtcCallMedia
   @override
   Future<void> stopVideo() async {
     try {
-      await _videoSender?.replaceTrack(null);
+      // circle-screenshare: never blank a shared screen from here
+      if (_screenTrack == null) await _videoSender?.replaceTrack(null);
     } catch (e) {
       callLog('webrtc_media#8', e);
     }
@@ -420,6 +428,9 @@ class WebRtcCallMedia
 
   Future<void> _capVideo(MediaPlan plan) async {
     final v = _videoSender;
+    if (v != null && _screenTrack != null) {
+      return _capScreen(v, plan); // circle-screenshare
+    }
     if (v == null || _videoTrack == null) return;
     try {
       await v.setParameters(RTCRtpParameters(
@@ -618,6 +629,7 @@ class WebRtcCallMedia
 
   @override
   Future<void> dispose() async {
+    await _releaseScreen(); // circle-screenshare
     await _releaseCamera();
     _videoSender = null;
     _audioSender = null;
@@ -656,6 +668,149 @@ class WebRtcCallMedia
       callLog('webrtc_media#6', e);
     }
   }
+
+  // ------------------------------------------- circle-screenshare (1:1)
+  // Contract agreed with gatefix (17 Nov): a video sender exists ->
+  // replaceTrack (no renegotiation); no sender (camera never opened) ->
+  // addTrack exactly like startVideo (reuses the recv-only video
+  // transceiver) and the controller renegotiates. createOffer / acceptOffer
+  // / createPeer / onTrack are not touched here.
+  MediaStream? _screen;
+  MediaStreamTrack? _screenTrack;
+
+  @override
+  bool get screenSharing => _screenTrack != null;
+
+  @override
+  Future<bool> startScreenShare(
+      {required Future<bool> Function() beforeCapture}) async {
+    if (_screenTrack != null) return false;
+    final pc = _peer;
+    bool consent;
+    try {
+      // the SYSTEM MediaProjection dialog, every time (Android 14 tokens are
+      // single-use; flutter_webrtc keeps the result for getDisplayMedia)
+      // (no activity / a refused fragment never answers: give up after 2
+      // minutes instead of a "Starting…" that never ends)
+      consent = await Helper.requestCapturePermission()
+          .timeout(const Duration(minutes: 2));
+    } on TimeoutException {
+      throw const ScreenShareFailed('consent:timeout');
+    } catch (e) {
+      final m = '$e'.toLowerCase();
+      if (m.contains('permission') || m.contains('denied')) {
+        throw const ScreenShareDenied();
+      }
+      throw ScreenShareFailed('consent:$e');
+    }
+    if (!consent) throw const ScreenShareDenied();
+    // Android 14+: the mediaProjection foreground service must run NOW —
+    // after consent, before getMediaProjection (inside getDisplayMedia).
+    if (!await beforeCapture()) throw const ScreenShareFailed('service');
+    MediaStream s;
+    try {
+      s = await navigator.mediaDevices
+          .getDisplayMedia({'video': true, 'audio': false});
+    } catch (e) {
+      final m = '$e'.toLowerCase();
+      if (m.contains('permission') || m.contains('revoked')) {
+        throw const ScreenShareDenied();
+      }
+      throw ScreenShareFailed('capture:$e');
+    }
+    final tracks = s.getVideoTracks();
+    if (tracks.isEmpty) {
+      await s.dispose();
+      throw const ScreenShareFailed('no screen track');
+    }
+    final track = tracks.first;
+    _screen = s;
+    _screenTrack = track;
+    var added = false;
+    try {
+      final sender = _videoSender;
+      if (sender != null) {
+        await sender.replaceTrack(track);
+      } else {
+        // the audio stream id: the other phone's onTrack joins it to the
+        // same remote stream (its renderer shows it)
+        final local = _local;
+        _videoSender = local != null
+            ? await pc.addTrack(track, local)
+            : await pc.addTrack(track, s);
+        added = true;
+      }
+    } catch (e) {
+      await _releaseScreen();
+      throw ScreenShareFailed('send:$e');
+    }
+    final plan = _plan;
+    if (plan != null && !added) await _capScreen(_videoSender!, plan);
+    return added;
+  }
+
+  @override
+  Future<void> stopScreenShare() async {
+    if (_screenTrack == null) return;
+    final sender = _videoSender;
+    final cam = _videoTrack;
+    _screenTrack = null; // startVideo / stopVideo / _capVideo: camera again
+    try {
+      await sender?.replaceTrack(cam);
+    } catch (e) {
+      callLog('webrtc_media#ss1', e);
+    }
+    final plan = _plan;
+    if (plan != null) await _capVideo(plan);
+    await _releaseScreen();
+  }
+
+  Future<void> _releaseScreen() async {
+    final s = _screen;
+    final t = _screenTrack;
+    _screen = null;
+    _screenTrack = null;
+    try {
+      await t?.stop();
+      for (final x in s?.getTracks() ?? const <MediaStreamTrack>[]) {
+        if (!identical(x, t)) await x.stop();
+      }
+      await s?.dispose();
+    } catch (e) {
+      callLog('webrtc_media#ss2', e);
+    }
+  }
+
+  /// Screen caps on the video sender (half resolution, 10 fps, 1 Mbit/s;
+  /// low-data: a third, 5 fps, 450 kbit/s; never above the network plan).
+  /// Applied again after every renegotiation by applyPlan.
+  Future<void> _capScreen(RTCRtpSender v, MediaPlan plan) async {
+    final caps = ScreenShareCaps.forPlan(
+        lowData: plan.opusPtimeMs != null,
+        planMaxBps: plan.videoMaxBps,
+        planMaxFps: plan.videoMaxFps,
+        planScale: plan.videoScaleDown);
+    try {
+      await v.setParameters(RTCRtpParameters(
+          // text stays sharp: lower the frame rate first, not the resolution
+          degradationPreference: RTCDegradationPreference.MAINTAIN_RESOLUTION,
+          encodings: [
+            RTCRtpEncoding(
+                active: plan.videoActive,
+                maxBitrate: caps.maxBitrate,
+                maxFramerate: caps.maxFramerate,
+                scaleResolutionDownBy: caps.scaleDown)
+          ]));
+    } catch (e) {
+      callLog('webrtc_media#ss3', e);
+    }
+  }
+
+  @override
+  Widget remoteScreenView() => _renderersReady
+      ? RTCVideoView(remoteRenderer,
+          objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain)
+      : const SizedBox.shrink();
 }
 
 /// Factory used through the deferred import.

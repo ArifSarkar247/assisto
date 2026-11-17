@@ -12,6 +12,7 @@ import 'call_native.dart';
 import 'call_pip.dart'; // callpip
 import 'call_runtime.dart';
 import 'call_video.dart';
+import 'media_ext.dart' show ScreenShareSurface; // circle-screenshare
 
 /// b1-calls + calls-a: WhatsApp-style "use Assisto during a call".
 /// Wraps the whole app (MaterialApp.builder), so it is on EVERY screen —
@@ -159,7 +160,7 @@ class CallPipLayout extends StatelessWidget {
             children: [
               Center(
                 child: remote
-                    ? s.remoteView()
+                    ? remoteVideoFor(c, s)
                     : CallAvatar(
                         name: name,
                         photoUrl: photoUrl,
@@ -320,7 +321,7 @@ class _FloatTile extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             if (remote)
-              s.remoteView()
+              remoteVideoFor(c, s)
             else
               DecoratedBox(
                 decoration: const BoxDecoration(gradient: Brand.heroDark),
@@ -489,3 +490,10 @@ class _CallMiniBarState extends State<CallMiniBar> {
     );
   }
 }
+
+/// circle-screenshare: their shared SCREEN is drawn whole (contain) in the
+/// PiP window and the floating tile too; a camera fills (cover).
+Widget remoteVideoFor(CallController c, CallVideoSurface s) =>
+    c.remoteScreen && s is ScreenShareSurface
+        ? (s as ScreenShareSurface).remoteScreenView()
+        : s.remoteView();

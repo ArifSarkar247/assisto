@@ -392,9 +392,19 @@ void main() {
           .allMatches(ci)
           .expand((m) => m.group(1)!.split('|'))
           .toSet();
-      expect(types, {'microphone', 'location'});
+      // circle-screenshare: mediaProjection is in the APK manifest only; the
+      // Play AAB step strips it until PLAY_SCREEN_SHARE is 'true' (owner
+      // files the media-projection FGS declaration first) and the bundle
+      // check fails the build if it slips in.
+      expect(types, {'microphone', 'location', 'mediaProjection'});
       final fgsPerms = requested.where((p) => p.startsWith('FOREGROUND_SERVICE_')).toSet();
-      expect(fgsPerms, {'FOREGROUND_SERVICE_MICROPHONE', 'FOREGROUND_SERVICE_LOCATION'});
+      expect(fgsPerms, {
+        'FOREGROUND_SERVICE_MICROPHONE',
+        'FOREGROUND_SERVICE_LOCATION',
+        'FOREGROUND_SERVICE_MEDIA_PROJECTION',
+      });
+      expect(ci, contains("PLAY_SCREEN_SHARE: 'false'"));
+      expect(ci, contains('media-projection FGS is in the Play bundle (declaration not filed)'));
       // the foreground-service types we DO declare (Play FGS form): mic + location
       expect(requested, containsAll(<String>[
         'FOREGROUND_SERVICE_MICROPHONE',
