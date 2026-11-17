@@ -480,6 +480,21 @@ def follow_kind(request, text, session):
     return f, free
 
 
+def follow_lang_source(text, history, follow):
+    """gap-aichat (e2e run 44056647414): a Continue / More detail tap sends
+    the BUTTON label ("Continue" in an English app), so the rest of a Bangla
+    answer came back in English. Such a turn answers in the language of the
+    user's last real question in this chat."""
+    if follow not in ("continue", "more"):
+        return text
+    for h in reversed(history or []):
+        c = str(h.get("content") or "") if h.get("role") == "user" else ""
+        if c and not c.startswith("[Summary") and not (
+                len(c) < 80 and _INCOMPLETE.search(c)):
+            return c
+    return text
+
+
 def free_chain(session):
     """How many FREE continuations in a row end this chat (newest first); a
     paid Continue or any other answer ends the chain."""
@@ -586,7 +601,7 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
     # tell family. Nothing else is answered in this turn.
     from .agentcore import crisis_guard as CG
     from . import ai_prompt as AP
-    lang = AP.reply_lang(text, lang)   # ailang: answer in the user's language
+    lang = AP.reply_lang(follow_lang_source(text, history, follow), lang)   # ailang
     crisis = CG.detect(text)
     if crisis["crisis"]:
         reply, card = CG.respond(user, crisis, lang, surface="chat")
