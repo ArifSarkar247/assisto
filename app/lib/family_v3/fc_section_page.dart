@@ -29,13 +29,17 @@ class FcSectionPage extends StatefulWidget {
   /// members as picker rows [{id: 'u<user id>', name}].
   final int? familyId;
   final List<Map<String, dynamic>> familyMembers;
+
+  /// Gallery: the ledger's first sub-tab.
+  final int debugLedgerTab;
   const FcSectionPage(
       {super.key,
       required this.section,
       required this.title,
       this.abroad = const [],
       this.familyId,
-      this.familyMembers = const []});
+      this.familyMembers = const [],
+      this.debugLedgerTab = 0});
   @override
   State<FcSectionPage> createState() => _FcSectionPageState();
 }
@@ -104,7 +108,8 @@ class _FcSectionPageState extends State<FcSectionPage> {
                 ? FamAcctSection(
                     key: ValueKey('fcg-ledger-family-$fid'),
                     members: widget.familyMembers,
-                    familyId: fid)
+                    familyId: fid,
+                    initialTab: widget.debugLedgerTab)
                 : FamAcctSection(
                     key: const ValueKey('fcg-ledger-mine'), members: _members, onAddMember: _pick),
           ),

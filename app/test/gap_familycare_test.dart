@@ -129,7 +129,11 @@ Future<void> _pump(WidgetTester t, Widget w, ApiClient api, {String lang = 'en',
 }
 
 Future<void> _scrollTo(WidgetTester t, Finder f) async {
-  await t.scrollUntilVisible(f, 300, scrollable: find.byType(Scrollable).first);
+  // the Family list (not the horizontal family switcher inside it)
+  final list = find.descendant(
+      of: find.byKey(const ValueKey('fc3-list')), matching: find.byType(Scrollable));
+  await t.scrollUntilVisible(f, 300,
+      scrollable: list.evaluate().isNotEmpty ? list.first : find.byType(Scrollable).first);
   await t.pumpAndSettle();
 }
 
@@ -266,11 +270,6 @@ void main() {
               'done_by_name': 'Rina', 'created_by': 1,
             });
       await _pump(t, const FamilyV3Screen(), api);
-      await _scrollTo(t, find.byKey(const ValueKey('fcg-task-undo-73')));
-      await t.tap(find.byKey(const ValueKey('fcg-task-undo-73')));
-      await t.pumpAndSettle();
-      expect(api.posts, contains('/family/v3/tasks/73/undo'));
-
       await _scrollTo(t, find.byKey(const ValueKey('fcg-task-delete-71')));
       await t.tap(find.byKey(const ValueKey('fcg-task-delete-71')));
       await t.pumpAndSettle();
@@ -283,6 +282,11 @@ void main() {
       await t.tap(find.byKey(const ValueKey('fcg-task-delete-ok')));
       await t.pumpAndSettle();
       expect(api.posts, contains('/family/v3/tasks/71/delete'));
+
+      await _scrollTo(t, find.byKey(const ValueKey('fcg-task-undo-73')));
+      await t.tap(find.byKey(const ValueKey('fcg-task-undo-73')));
+      await t.pumpAndSettle();
+      expect(api.posts, contains('/family/v3/tasks/73/undo'));
     });
 
     testWidgets('6 Important papers opens papers; Today bazar opens the bazar list', (t) async {

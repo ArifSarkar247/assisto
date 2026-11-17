@@ -32,7 +32,11 @@ class FamAcctSection extends StatefulWidget {
   /// (every member sees and adds; named goals instead of the monthly pool).
   /// null = my own household ledger (unchanged).
   final int? familyId;
-  const FamAcctSection({super.key, required this.members, this.onAddMember, this.familyId});
+
+  /// Gallery: which sub-tab opens first (0 expenses … 2 pool / goals).
+  final int initialTab;
+  const FamAcctSection(
+      {super.key, required this.members, this.onAddMember, this.familyId, this.initialTab = 0});
 
   @override
   State<FamAcctSection> createState() => _FamAcctSectionState();
@@ -130,6 +134,7 @@ class _FamAcctSectionState extends State<FamAcctSection> {
     }
     return DefaultTabController(
       length: 4,
+      initialIndex: widget.initialTab.clamp(0, 3),
       child: Column(children: [
         _brandHeader(),
         TabBar(isScrollable: true, tabs: [

@@ -176,6 +176,45 @@ Map<String, dynamic> fcFakeMemberPage(int uid, {bool bn = false}) {
 /// fake_api.dart hook: null = not a Family v3 path.
 Map<String, dynamic>? fakeFcGet(String path, {bool bn = false, bool empty = false}) {
   final p = path.startsWith('/') ? path.substring(1) : path;
+  // gap-familycare: the SHARED family ledger (only calls with family=<id>)
+  if (p.startsWith('family/accounting/') && p.contains('family=')) {
+    if (p.startsWith('family/accounting/expenses')) {
+      return {'expenses': [
+        {'id': 81, 'payer': 'u5', 'payer_name': bn ? 'সাকিব' : 'Sakib', 'total_poisha': 240000,
+         'category': 'groceries', 'mode': 'equal', 'note': bn ? 'মাসের বাজার' : 'Monthly bazar',
+         'date': '2026-11-15', 'shared': true, 'ai_captured': false, 'can_delete': false,
+         'shares': [
+           {'member': 'self', 'name': bn ? 'রিনা' : 'Rina', 'share_poisha': 120000},
+           {'member': 'u5', 'name': bn ? 'সাকিব' : 'Sakib', 'share_poisha': 120000},
+         ]},
+      ]};
+    }
+    if (p.startsWith('family/accounting/summary')) {
+      return {
+        'total_poisha': 240000, 'expense_count': 1, 'by_category': {},
+        'family': {'id': 10, 'name': bn ? 'আমার পরিবার' : 'My family'}, 'pool': {},
+        'members': [
+          {'member': 'self', 'name': bn ? 'রিনা' : 'Rina', 'paid_poisha': 0, 'share_poisha': 120000, 'net_poisha': -120000},
+          {'member': 'u5', 'name': bn ? 'সাকিব' : 'Sakib', 'paid_poisha': 240000, 'share_poisha': 120000, 'net_poisha': 120000},
+        ],
+        'settlements': [],
+        'goals': [
+          {'id': 5, 'name': bn ? 'ঈদের তহবিল' : 'Eid fund', 'target_poisha': 2000000,
+           'collected_poisha': 1250000, 'remaining_poisha': 750000, 'pct': 62, 'state': 'open',
+           'closed': false, 'can_close': true, 'breakdown': [
+             {'member': 'self', 'name': bn ? 'রিনা' : 'Rina', 'amount_poisha': 500000},
+             {'member': 'u5', 'name': bn ? 'সাকিব' : 'Sakib', 'amount_poisha': 750000},
+           ]},
+          {'id': 6, 'name': bn ? 'রাফির স্কুলের ফি' : "Rafi's school fees", 'target_poisha': 600000,
+           'collected_poisha': 600000, 'remaining_poisha': 0, 'pct': 100, 'state': 'met',
+           'closed': false, 'can_close': true, 'breakdown': [
+             {'member': 'u5', 'name': bn ? 'সাকিব' : 'Sakib', 'amount_poisha': 600000},
+           ]},
+        ],
+      };
+    }
+    return {};
+  }
   if (!p.startsWith('family/v3/')) return null;
   final scene = empty ? 'empty' : FcFake.scene;
   if (p == 'family/v3/families') return fcFakeFamilies(bn: bn, scene: scene);
