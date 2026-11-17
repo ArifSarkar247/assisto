@@ -56,7 +56,11 @@ jobs:
           import json, os
           allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep", "save"]
           want = [g.strip() for g in (os.environ.get("ONLY") or "").split(",") if g.strip()]
-          sel = [g for g in allg if not want or g in want] or allg
+          # gap-quranblood: groups that run ONLY when asked by name (never
+          # in the nightly "all"); an unknown name no longer falls back to all
+          extra = ["quranblood"]
+          sel = [g for g in allg + extra if g in want] if want else allg
+          sel = sel or ["start"]
           print("groups=" + json.dumps(sel))
           gpus = [g.strip() for g in (os.environ.get("GPUS") or "").split(",") if g.strip()]
           print("gpus=" + json.dumps(gpus or ["swiftshader_indirect"]))
