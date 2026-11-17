@@ -94,15 +94,18 @@ Future<String> _proveMediaFlows(RFlow f, String what, CallController b,
     return '$who audio in +${p2 - p1} pkts/+${y2 - y1} B';
   }
   final na = grew('A', a1, a2), nb = grew('B', b1, b2);
+  // gatefix: A's OUTBOUND video next to B's INBOUND, so a failure says where
+  // the picture stopped (never encoded / never sent / never decoded).
+  final vid = 'A video out: framesEncoded ${a1.videoFramesEncoded}->${a2.videoFramesEncoded}, '
+      'packetsSent ${a1.videoPacketsSent}->${a2.videoPacketsSent}; '
+      'B video in: framesDecoded ${b1.videoFramesDecoded}->${b2.videoFramesDecoded}';
   if (videoToB) {
     final v1 = b1.videoFramesDecoded ?? 0, v2 = b2.videoFramesDecoded ?? 0;
     if (v2 <= 0 || v2 <= v1) {
-      throw TestFailure('$what: B decoded no video from A\'s camera over 6 s '
-          '(framesDecoded $v1->$v2)');
+      throw TestFailure('$what: B decoded no video from A\'s camera over 6 s ($vid)');
     }
   }
-  return '$what media: $na, $nb; video frames decoded A=${a2.videoFramesDecoded} '
-      'B=${b2.videoFramesDecoded}';
+  return '$what media: $na, $nb; $vid';
 }
 
 void registerCircleRealCallFlows() {
