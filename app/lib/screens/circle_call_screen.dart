@@ -682,9 +682,19 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             ]),
           )
         : SafeArea(
-      child: Column(
+      // design3 (2.0x font): the live call scrolls when it is taller than the
+      // screen (name + notice + upgrade card + controls at big text); the
+      // spacers still centre it on a normal screen.
+      child: Column(children: [
+        _topBar(c),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, box) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: box.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
         children: [
-          _topBar(c),
           const Spacer(),
           if (!remoteVideo) ...[
             _avatar(56),
@@ -710,7 +720,13 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           if (live) _upgradeCard(c),
           if (c == null || !c.isEnded) _controls(c),
         ],
-      ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ]),
     );
     const gradient = DecoratedBox(decoration: BoxDecoration(gradient: Brand.heroDark));
     if (showSelf) {
@@ -1776,10 +1792,9 @@ class _CtlButton extends StatelessWidget {
             ),
           ),
           const SizedBox(height: Gap.xs),
+          // design3: the label wraps, never ellipsized (2.0x font)
           Text(label,
               textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
               style: AType.bodySmall.copyWith(color: CallInk.textSoft)),
         ],
       ),
