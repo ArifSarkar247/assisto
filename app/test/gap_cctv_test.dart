@@ -579,5 +579,7 @@ void main() {
     await _settle(tester);
     expect(find.byKey(const ValueKey('gcv-gb-forget')), findsNothing);
     expect(find.text(en.gbPairHelp), findsOneWidget);
+    // the best-effort key delete gives up after 5 s (no secure storage here)
+    await tester.pump(const Duration(seconds: 6));
   });
 }

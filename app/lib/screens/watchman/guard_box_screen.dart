@@ -411,13 +411,10 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
       _pairCams = const [];
       _lostLink = false;
     });
-    for (final k in [_kTok, _kCam, _kSite, _kCamName]) {
-      try {
-        await _secure.delete(key: k).timeout(const Duration(seconds: 5));
-      } catch (_) {
-        // best-effort: the pairing is already gone from this screen
-      }
-    }
+    // best-effort: the pairing is already gone from this screen
+    unawaited(Future.wait([for (final k in [_kTok, _kCam, _kSite, _kCamName]) _secure.delete(key: k)])
+        .timeout(const Duration(seconds: 5))
+        .then((_) {}, onError: (Object _) {}));
   }
 
   Widget _pairCard(AppLocalizations t) {
