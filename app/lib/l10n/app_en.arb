@@ -54465,5 +54465,90 @@
   "gcallFlip": "Flip",
   "@gcallFlip": {
     "description": "group-calls: My Circle group calls"
+  },
+  "kwgSosNowTitle": "{name} pressed SOS at {time}",
+  "@kwgSosNowTitle": {
+    "description": "gap-kidswatch: kids watch card / settings",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "kwgSosNowBody": "The watch also calls its SOS numbers: answer it. Or call the watch now: it rings and shows your call.",
+  "@kwgSosNowBody": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosNowNoSim": "The watch calls its SOS numbers: answer it. Add the watch's SIM number in Watch settings to call it back in one tap.",
+  "@kwgSosNowNoSim": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgCallWatch": "Call the watch",
+  "@kwgCallWatch": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSeeWhere": "See where",
+  "@kwgSeeWhere": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosCalls": "SOS button calls: {numbers}",
+  "@kwgSosCalls": {
+    "description": "gap-kidswatch: kids watch card / settings",
+    "placeholders": {
+      "numbers": {
+        "type": "String"
+      }
+    }
+  },
+  "kwgSosNone": "The SOS button calls nobody yet. Add a number in Watch settings.",
+  "@kwgSosNone": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSettings": "Watch settings",
+  "@kwgSettings": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSimLabel": "Watch's SIM number (optional)",
+  "@kwgSimLabel": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSimHelp": "So you and the family can call the watch in one tap. A normal call: the watch rings and shows it.",
+  "@kwgSimHelp": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosHelpDefault": "Your number is filled in, so the SOS button always calls someone. Add up to 3, separated by commas.",
+  "@kwgSosHelpDefault": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgChildAccount": "Child's own Assisto account (optional)",
+  "@kwgChildAccount": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgChildAccountHelp": "Link it so the watch SOS also reaches the child's whole family.",
+  "@kwgChildAccountHelp": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgChildNone": "Not linked",
+  "@kwgChildNone": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSaved": "Saved. The watch gets the new SOS numbers when it next connects.",
+  "@kwgSaved": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgSosNeedOne": "Add at least one SOS number.",
+  "@kwgSosNeedOne": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgBadPhone": "This doesn't look like a phone number.",
+  "@kwgBadPhone": {
+    "description": "gap-kidswatch: kids watch card / settings"
+  },
+  "kwgNoListen": "Assisto can never switch on the watch's microphone in secret. A call always rings and shows on the watch.",
+  "@kwgNoListen": {
+    "description": "gap-kidswatch: kids watch card / settings"
   }
 }
