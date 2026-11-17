@@ -50,6 +50,10 @@
   "gcvWatchDeleteAsk": "Remove this post for everyone in the group?",
   "@gcvWatchDeleteAsk": {
    "description": "gap-cctv: confirm before deleting a neighbourhood watch post"
+  },
+  "gcvPhoneGwNoScan": "This place uses an old phone as its gateway, so it cannot search the Wi-Fi for a DVR or IP cameras. Connect a brand cloud above, or add a small Guard Box (Raspberry Pi, Linux mini PC or PC) at the place:",
+  "@gcvPhoneGwNoScan": {
+   "description": "gap-cctv: brand-cloud screen on a phone-gateway place"
   }
  },
  "bn": {
@@ -73,6 +77,7 @@
   "gcvEvidencePartial": "প্যাকের একটি অংশ তৈরি করা যায়নি (সময়-ছাপ দেওয়া কপি বা PDF)। মূল ফাইল আর SHA-256 তালিকা সম্পূর্ণ আছে।",
   "gcvThanaUnavailable": "এখন কাছের থানা খোঁজা গেল না — আবার চেষ্টা করতে চাপুন। ৯৯৯ সবসময় চলে।",
   "gcvClipExpiredGone": "রাখার সময় শেষ হওয়ায় ক্লিপটি মুছে গেছে। ছবিটি আছে।",
-  "gcvWatchDeleteAsk": "গ্রুপের সবার কাছ থেকে এই পোস্টটি সরাবেন?"
+  "gcvWatchDeleteAsk": "গ্রুপের সবার কাছ থেকে এই পোস্টটি সরাবেন?",
+  "gcvPhoneGwNoScan": "এই জায়গার গেটওয়ে একটি পুরনো ফোন, তাই এটি Wi-Fi-তে DVR বা IP ক্যামেরা খুঁজতে পারে না। ওপরে ব্র্যান্ডের ক্লাউড যুক্ত করুন, অথবা জায়গায় একটি ছোট গার্ড বক্স (Raspberry Pi, লিনাক্স মিনি পিসি বা পিসি) বসান:"
  }
 }

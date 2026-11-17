@@ -16,6 +16,7 @@ import '../widgets/cv_empty.dart';
 import '../widgets/local_counter.dart';
 import 'cctv_connect_source.dart';
 import 'link_devices_screen.dart';
+import '../phonecam/phonecam_pair_sheet.dart' show GuardBoxLinuxSteps; // gap-cctv
 
 /// cctvconnect (CCTV Guard V3 A1) — "Connect your DVR / camera brand":
 /// the brand clouds the owner switched on (EZVIZ, Imou, Hik-Connect,
@@ -28,6 +29,11 @@ class CctvConnectScreen extends StatefulWidget {
 
   /// The same-Wi-Fi discovery flow (the add-camera screen). Null hides it.
   final VoidCallback? onFindOnWifi;
+
+  /// gap-cctv: false when this place's gateway is an old phone — it cannot
+  /// scan the Wi-Fi for DVRs / IP cameras, so the screen says so and shows
+  /// the Guard Box (Raspberry Pi / Linux / PC) way instead of a dead end.
+  final bool lanGateway;
   /// Opens the vendor's own consent page (tests inject a fake).
   final Future<bool> Function(Uri url)? openUrl;
 
@@ -42,6 +48,7 @@ class CctvConnectScreen extends StatefulWidget {
       this.siteName = '',
       this.source,
       this.onFindOnWifi,
+      this.lanGateway = true,
       this.openUrl});
 
   @override
@@ -286,6 +293,12 @@ class _CctvConnectScreenState extends State<CctvConnectScreen> with WidgetsBindi
             onPrimary: widget.onFindOnWifi,
             steps: [t.ccnStep1, t.ccnStep2, t.ccnStep3],
           ),
+        if (!widget.lanGateway) ...[
+          const SizedBox(height: Gap.md),
+          Text(t.gcvPhoneGwNoScan, key: const Key('ccnPhoneGwNote'), style: th.bodyMedium),
+          const SizedBox(height: Gap.sm),
+          const GuardBoxLinuxSteps(codeAbove: false),
+        ],
         const SizedBox(height: Gap.lg),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Icon(Icons.lock_rounded, size: 20),

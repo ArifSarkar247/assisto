@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:assisto/cctvconnect/cctv_connect_screen.dart';
 import 'package:assisto/cctvguard/vendor_live_screen.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/messaging/media/video_ctl.dart';
@@ -19,6 +20,7 @@ import 'package:assisto/screens/watchman/cctv_watch_screen.dart';
 import 'package:assisto/theme.dart';
 
 import 'cctvact_fakes.dart' show FakeCctvAct;
+import 'cctvconnect_fakes.dart' show FakeCctvConnect;
 import 'cctvescalate_fakes.dart' show FakeEscalate;
 import 'cctvx_fakes.dart' show FakeCctvx;
 import 'cctvteam_fakes.dart' show FakeCctvTeam;
@@ -374,6 +376,30 @@ void main() {
           CctvWatchGroupScreen(source: _DelTeam('fail'), groupId: 21, name: 'Road 3 watch')));
       await _settle(tester);
       expect(find.byKey(const ValueKey('gcv-watch-retry')), findsOneWidget);
+    });
+  });
+
+  group('G16 brand-cloud screen on a phone-gateway place is never a dead end', () {
+    testWidgets('says it cannot scan the Wi-Fi and shows the Guard Box way', (tester) async {
+      _phone(tester, height: 2000);
+      await tester.pumpWidget(_app(CctvConnectScreen(
+          siteId: 1,
+          source: FakeCctvConnect(noProviders: true, noLinks: true),
+          lanGateway: false,
+          onFindOnWifi: () {})));
+      await _settle(tester);
+      expect(find.byKey(const Key('ccnPhoneGwNote')), findsOneWidget);
+      expect(find.text(en.gcvLinuxTitle), findsOneWidget);
+    });
+
+    testWidgets('a PC / Guard Box place keeps the plain Wi-Fi search', (tester) async {
+      _phone(tester, height: 2000);
+      await tester.pumpWidget(_app(CctvConnectScreen(
+          siteId: 1,
+          source: FakeCctvConnect(noProviders: true, noLinks: true),
+          onFindOnWifi: () {})));
+      await _settle(tester);
+      expect(find.byKey(const Key('ccnPhoneGwNote')), findsNothing);
     });
   });
 }

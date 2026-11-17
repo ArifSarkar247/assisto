@@ -726,6 +726,7 @@ class _SiteCard extends StatelessWidget {
                       builder: (_) => CctvConnectScreen(
                           siteId: siteId,
                           siteName: (site['name'] ?? '').toString(),
+                          lanGateway: (site['gateway'] ?? '').toString() != 'phone', // gap-cctv
                           onFindOnWifi: onAddCamera)));
                   await onChanged();
                 },
