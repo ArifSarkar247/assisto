@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../state.dart';
 import '../../theme.dart';
+import '../../widgets/local_digits.dart';
 import '../../widgets/skeleton.dart';
 import 'package:assisto/widgets/app_sheet.dart';
 import '../../services/error_kind.dart' show honestFailText; // qa2
@@ -188,10 +190,7 @@ class _PrPressScreenState extends State<PrPressScreen>
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.prPressLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : TabBarView(controller: _tabs, children: [
                   _coverageTab(tr, scheme),
@@ -209,11 +208,7 @@ class _PrPressScreenState extends State<PrPressScreen>
         icon: Icons.newspaper_rounded,
         title: tr.prPressWelcomeTitle,
         message: tr.prPressWelcomeBody,
-        action: FilledButton.icon(
-          onPressed: () => _addOrEdit(tr, _kCoverage),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(tr.prPressAdd),
-        ),
+        action: DsButton(onPressed: () => _addOrEdit(tr, _kCoverage), icon: Icons.add_rounded, label: tr.prPressAdd),
       );
     }
     return RefreshIndicator(
@@ -232,25 +227,23 @@ class _PrPressScreenState extends State<PrPressScreen>
     );
   }
 
-  Widget _rollupCard(AppLocalizations tr, ColorScheme scheme) => Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _rollupCard(AppLocalizations tr, ColorScheme scheme) => DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+    padding: const EdgeInsets.all(Gap.md),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(tr.prPressRollup,
                 style: Theme.of(context).textTheme.titleMedium
                     ?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
-              _chip(tr.prPressSentPositive('${_countSent('positive')}'), Brand.success),
-              _chip(tr.prPressSentNeutral('${_countSent('neutral')}'), scheme.ds.muted),
-              _chip(tr.prPressSentNegative('${_countSent('negative')}'), scheme.error),
+              _chip(tr.prPressSentPositive(ld(context, _countSent('positive'))), Brand.success),
+              _chip(tr.prPressSentNeutral(ld(context, _countSent('neutral'))), scheme.ds.muted),
+              _chip(tr.prPressSentNegative(ld(context, _countSent('negative'))), scheme.error),
             ]),
             const SizedBox(height: Gap.sm),
             Text(
                 _netSentiment >= 0
-                    ? tr.prPressNetPositive('$_netSentiment')
-                    : tr.prPressNetNegative('${-_netSentiment}'),
+                    ? tr.prPressNetPositive(ld(context, _netSentiment))
+                    : tr.prPressNetNegative(ld(context, -_netSentiment)),
                 style: AType.bodyMedium.copyWith(color: _netSentiment >= 0 ? Brand.success : scheme.error, fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.sm),
             Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
@@ -259,8 +252,7 @@ class _PrPressScreenState extends State<PrPressScreen>
                   _chip('${_typeLabel(tr, t)} ${_countType(t)}', scheme.primary),
             ]),
           ]),
-        ),
-      );
+  );
 
   Widget _coverageCard(Map<String, dynamic> r, AppLocalizations tr, ColorScheme scheme) {
     final outlet = (r['outlet'] ?? '').toString();
@@ -268,11 +260,9 @@ class _PrPressScreenState extends State<PrPressScreen>
     final date = (r['date'] ?? '').toString().trim();
     final note = (r['note'] ?? '').toString().trim();
     final sent = _sentiment(r);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Text(outlet,
@@ -292,8 +282,7 @@ class _PrPressScreenState extends State<PrPressScreen>
           if (link.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),
             Text(link,
-                style: AType.bodySmall.copyWith(color: scheme.primary),
-                maxLines: 1, overflow: TextOverflow.ellipsis),
+                style: AType.bodySmall.copyWith(color: scheme.primary)),
           ],
           if (note.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
@@ -306,7 +295,6 @@ class _PrPressScreenState extends State<PrPressScreen>
             child: _rowMenu(r, tr, _kCoverage),
           ),
         ]),
-      ),
     );
   }
 
@@ -318,11 +306,7 @@ class _PrPressScreenState extends State<PrPressScreen>
         icon: Icons.mic_none_rounded,
         title: tr.prPressNoInterviewsTitle,
         message: tr.prPressNoInterviewsBody,
-        action: FilledButton.icon(
-          onPressed: () => _addOrEdit(tr, _kInterview),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(tr.prPressAdd),
-        ),
+        action: DsButton(onPressed: () => _addOrEdit(tr, _kInterview), icon: Icons.add_rounded, label: tr.prPressAdd),
       );
     }
     final now = DateTime.now();
@@ -340,7 +324,7 @@ class _PrPressScreenState extends State<PrPressScreen>
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
           if (upcoming.isNotEmpty) ...[
-            _sectionLabel(tr.prPressUpcoming('${upcoming.length}'), scheme),
+            _sectionLabel(tr.prPressUpcoming(ld(context, upcoming.length)), scheme),
             for (final r in upcoming) ...[
               _interviewCard(r, tr, scheme, false),
               const SizedBox(height: Gap.sm),
@@ -348,7 +332,7 @@ class _PrPressScreenState extends State<PrPressScreen>
           ],
           if (past.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
-            _sectionLabel(tr.prPressPast('${past.length}'), scheme),
+            _sectionLabel(tr.prPressPast(ld(context, past.length)), scheme),
             for (final r in past) ...[
               _interviewCard(r, tr, scheme, true),
               const SizedBox(height: Gap.sm),
@@ -365,11 +349,9 @@ class _PrPressScreenState extends State<PrPressScreen>
     final topic = (r['topic'] ?? '').toString().trim();
     final at = (r['at'] ?? '').toString().trim();
     final place = (r['place'] ?? '').toString().trim();
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+      padding: const EdgeInsets.all(Gap.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Expanded(
               child: Text(outlet,
@@ -390,7 +372,6 @@ class _PrPressScreenState extends State<PrPressScreen>
               _iconText(Icons.place_rounded, place, scheme),
           ]),
         ]),
-      ),
     );
   }
 
@@ -402,11 +383,7 @@ class _PrPressScreenState extends State<PrPressScreen>
         icon: Icons.sticky_note_2_rounded,
         title: tr.prPressNoPointsTitle,
         message: tr.prPressNoPointsBody,
-        action: FilledButton.icon(
-          onPressed: () => _addOrEdit(tr, _kTalkingPoint),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(tr.prPressAdd),
-        ),
+        action: DsButton(onPressed: () => _addOrEdit(tr, _kTalkingPoint), icon: Icons.add_rounded, label: tr.prPressAdd),
       );
     }
     return RefreshIndicator(
@@ -419,16 +396,13 @@ class _PrPressScreenState extends State<PrPressScreen>
           final r = list[i];
           final topic = (r['topic'] ?? '').toString().trim();
           final text = (r['note'] ?? '').toString().trim();
-          return Card(
-            margin: EdgeInsets.zero,
-            child: Padding(
-              padding: const EdgeInsets.all(Gap.md),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          return DsSurface(flat: true, borderColor: Theme.of(context).colorScheme.ds.border,
+            padding: const EdgeInsets.all(Gap.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   Expanded(
                     child: Text(topic.isEmpty ? tr.prPressTabTalkingPoints : topic,
-                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
-                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                        style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
                   ),
                   _rowMenu(r, tr, _kTalkingPoint),
                 ]),
@@ -436,7 +410,6 @@ class _PrPressScreenState extends State<PrPressScreen>
                   Text(text,
                       style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.35)),
               ]),
-            ),
           );
         },
       ),
@@ -601,7 +574,7 @@ class _PressFormState extends State<_PressForm> {
               onChanged: (_) => setState(() {}),
               textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(
-                  labelText: tr.prPressTopicField, border: const OutlineInputBorder()),
+                  labelText: tr.prPressTopicField),
             ),
             const SizedBox(height: Gap.md),
             TextField(
@@ -610,7 +583,6 @@ class _PressFormState extends State<_PressForm> {
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                   labelText: tr.prPressPointField,
-                  border: const OutlineInputBorder(),
                   alignLabelWithHint: true),
             ),
           ] else ...[
@@ -619,7 +591,7 @@ class _PressFormState extends State<_PressForm> {
               onChanged: (_) => setState(() {}),
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
-                  labelText: tr.prPressOutletField, border: const OutlineInputBorder()),
+                  labelText: tr.prPressOutletField),
             ),
             const SizedBox(height: Gap.md),
             if (isCoverage) ...[
@@ -649,37 +621,35 @@ class _PressFormState extends State<_PressForm> {
                 controller: _c['date'],
                 decoration: InputDecoration(
                     labelText: tr.prPressDateField,
-                    hintText: 'YYYY-MM-DD',
-                    border: const OutlineInputBorder()),
+                    hintText: 'YYYY-MM-DD'),
               ),
               const SizedBox(height: Gap.md),
               TextField(
                 controller: _c['link'],
                 keyboardType: TextInputType.url,
                 decoration: InputDecoration(
-                    labelText: tr.prPressLinkField, border: const OutlineInputBorder()),
+                    labelText: tr.prPressLinkField),
               ),
             ] else ...[
               TextField(
                 controller: _c['topic'],
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
-                    labelText: tr.prPressTopicField, border: const OutlineInputBorder()),
+                    labelText: tr.prPressTopicField),
               ),
               const SizedBox(height: Gap.md),
               TextField(
                 controller: _c['at'],
                 decoration: InputDecoration(
                     labelText: tr.prPressAtField,
-                    hintText: 'YYYY-MM-DD HH:MM',
-                    border: const OutlineInputBorder()),
+                    hintText: 'YYYY-MM-DD HH:MM'),
               ),
               const SizedBox(height: Gap.md),
               TextField(
                 controller: _c['place'],
                 textCapitalization: TextCapitalization.words,
                 decoration: InputDecoration(
-                    labelText: tr.prPressPlaceField, border: const OutlineInputBorder()),
+                    labelText: tr.prPressPlaceField),
               ),
             ],
             const SizedBox(height: Gap.md),
@@ -688,17 +658,13 @@ class _PressFormState extends State<_PressForm> {
               maxLines: 2,
               decoration: InputDecoration(
                   labelText: tr.prPressNoteField,
-                  border: const OutlineInputBorder(),
                   alignLabelWithHint: true),
             ),
           ],
           const SizedBox(height: Gap.lg),
           Row(children: [
             Expanded(
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(tr.cancel),
-              ),
+              child: DsButton.secondary(onPressed: () => Navigator.pop(context), label: tr.cancel),
             ),
             const SizedBox(width: Gap.md),
             Expanded(

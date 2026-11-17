@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
@@ -166,7 +167,7 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
         icon: Icons.cloud_off_rounded,
         tint: Brand.danger,
         title: t.paTasksLoadError,
-        action: FilledButton.tonal(onPressed: _load, child: Text(t.retry)),
+        action: DsButton.secondary(onPressed: _load, label: t.retry),
       );
     }
     if (_tasks.isEmpty) {
@@ -176,11 +177,7 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
         tint: Brand.blue,
         title: t.paTasksWelcomeTitle,
         message: t.paTasksWelcomeBody,
-        action: FilledButton.icon(
-          onPressed: () => _addOrEdit(),
-          icon: const Icon(Icons.add_rounded, size: 18),
-          label: Text(t.paTaskAdd),
-        ),
+        action: DsButton(onPressed: () => _addOrEdit(), icon: Icons.add_rounded, label: t.paTaskAdd),
       );
     }
 
@@ -213,25 +210,22 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
   }
 
   Widget _progressHeader(PaProgress p) {
-    return Container(
-      padding: const EdgeInsets.all(Gap.lg),
-      decoration: BoxDecoration(
-        gradient: Brand.gradient,
-        borderRadius: BorderRadius.circular(Radii.lg),
-      ),
+    // progress = the soft DS hero
+    final ds = Theme.of(context).colorScheme.ds;
+    return DsHeroCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(t.paProgressDone(p.percentDone),
-              style: AType.headlineSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
+              style: AType.headlineSmall.copyWith(color: ds.text, fontWeight: FontWeight.w800)),
           const SizedBox(height: Gap.sm),
           ClipRRect(
             borderRadius: BorderRadius.circular(Radii.pill),
             child: LinearProgressIndicator(
               value: p.total == 0 ? 0 : p.percentDone / 100.0,
               minHeight: 8,
-              backgroundColor: Colors.white24,
-              valueColor: const AlwaysStoppedAnimation(Colors.white),
+              backgroundColor: ds.primarySoft,
+              valueColor: AlwaysStoppedAnimation(ds.primary),
             ),
           ),
           const SizedBox(height: Gap.md),
@@ -252,18 +246,16 @@ class _PersonalTasksScreenState extends State<PersonalTasksScreen> {
   }
 
   Widget _stat(String text, {bool danger = false}) {
+    final ds = Theme.of(context).colorScheme.ds;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: danger
-            ? Brand.danger.withValues(alpha: 0.9)
-            : Colors.white.withValues(alpha: 0.22),
+        color: danger ? ds.dangerBg : ds.card,
         borderRadius: BorderRadius.circular(Radii.pill),
+        border: Border.all(color: danger ? ds.dangerInk.withValues(alpha: 0.4) : ds.border),
       ),
       child: Text(text,
-          style: AType.bodySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis),
+          style: AType.bodySmall.copyWith(color: danger ? ds.dangerInk : ds.text, fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -512,12 +504,11 @@ class _TaskEditorState extends State<_TaskEditor> {
               decoration: InputDecoration(
                 labelText: t.paTaskTitleLabel,
                 hintText: t.paTaskTitleHint,
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: Gap.lg),
             Text(t.paTaskPriorityLabel,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xs),
             Wrap(
               spacing: Gap.sm,
@@ -532,7 +523,7 @@ class _TaskEditorState extends State<_TaskEditor> {
             ),
             const SizedBox(height: Gap.lg),
             Text(t.paTaskStatusLabel,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: Gap.xs),
             Wrap(
               spacing: Gap.sm,
@@ -548,12 +539,7 @@ class _TaskEditorState extends State<_TaskEditor> {
             const SizedBox(height: Gap.lg),
             Row(children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.event_rounded, size: 18),
-                  label: Text(_due == null
-                      ? t.paTaskSetDue
-                      : '${_due!.year}-${_due!.month.toString().padLeft(2, '0')}-${_due!.day.toString().padLeft(2, '0')}'),
-                  onPressed: () async {
+                child: DsButton.secondary(onPressed: () async {
                     final now = DateTime.now();
                     final picked = await showDatePicker(
                       context: context,
@@ -562,8 +548,9 @@ class _TaskEditorState extends State<_TaskEditor> {
                       lastDate: DateTime(now.year + 5),
                     );
                     if (picked != null) setState(() => _due = picked);
-                  },
-                ),
+                  }, icon: Icons.event_rounded, label: _due == null
+                      ? t.paTaskSetDue
+                      : '${_due!.year}-${_due!.month.toString().padLeft(2, '0')}-${_due!.day.toString().padLeft(2, '0')}'),
               ),
               if (_due != null)
                 IconButton(
@@ -578,7 +565,6 @@ class _TaskEditorState extends State<_TaskEditor> {
               maxLines: 3,
               decoration: InputDecoration(
                 labelText: t.paTaskNoteLabel,
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: Gap.xl),

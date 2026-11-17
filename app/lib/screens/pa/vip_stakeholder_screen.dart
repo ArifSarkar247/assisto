@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -252,21 +253,14 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                   tint: scheme.error,
                   title: tr.loadFailed,
                   message: honestFailText(tr, _failCause, otherwise: tr.paVipLoadError),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(tr.retry)),
+                  action: DsButton.secondary(onPressed: _load, icon: Icons.refresh_rounded, label: tr.retry),
                 )
               : rows.isEmpty
                   ? StateMessage(
                       icon: Icons.handshake_rounded,
                       title: tr.paVipWelcomeTitle,
                       message: tr.paVipWelcomeBody,
-                      action: FilledButton.icon(
-                        onPressed: () => _open(),
-                        icon: const Icon(Icons.person_add_alt_1_rounded),
-                        label: Text(tr.paVipNew),
-                      ),
+                      action: DsButton(onPressed: () => _open(), icon: Icons.person_add_alt_1_rounded, label: tr.paVipNew),
                     )
                   : RefreshIndicator(
                       onRefresh: _load,
@@ -320,7 +314,7 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
               if (overdue > 0) tr.paVipBannerOverdue(overdue),
               if (dueSoon > 0) tr.paVipBannerDueSoon(dueSoon),
             ].join('  ·  '),
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 fontWeight: FontWeight.w600,
                 color: overdue > 0 ? scheme.error : scheme.primary),
           ),
@@ -358,8 +352,6 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                           style: Theme.of(context)
                               .textTheme
                               .titleSmall
@@ -369,8 +361,6 @@ class _VipStakeholderScreenState extends State<VipStakeholderScreen> {
                             if (org.isNotEmpty) org,
                             _tierLabel(tr, tier),
                           ].join(' · '),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                           style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
                     ]),
               ),
@@ -555,15 +545,13 @@ class _VipEditorState extends State<_VipEditor> {
             controller: _name,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
-                labelText: tr.paVipNameField,
-                border: const OutlineInputBorder()),
+                labelText: tr.paVipNameField),
           ),
           const SizedBox(height: Gap.md),
           TextField(
             controller: _org,
             decoration: InputDecoration(
-                labelText: tr.paVipOrgField,
-                border: const OutlineInputBorder()),
+                labelText: tr.paVipOrgField),
           ),
           const SizedBox(height: Gap.md),
           Text(tr.paVipTierLabel,
@@ -585,8 +573,7 @@ class _VipEditorState extends State<_VipEditor> {
                 decoration: InputDecoration(
                     labelText: tr.paVipLastTouchField,
                     helperText: tr.paVipDateHelp,
-                    helperMaxLines: 2,
-                    border: const OutlineInputBorder()),
+                    helperMaxLines: 2),
               ),
             ),
             const SizedBox(width: Gap.md),
@@ -596,8 +583,7 @@ class _VipEditorState extends State<_VipEditor> {
                 decoration: InputDecoration(
                     labelText: tr.paVipNextTouchField,
                     helperText: tr.paVipDateHelp,
-                    helperMaxLines: 2,
-                    border: const OutlineInputBorder()),
+                    helperMaxLines: 2),
               ),
             ),
           ]),
@@ -608,8 +594,7 @@ class _VipEditorState extends State<_VipEditor> {
             decoration: InputDecoration(
                 labelText: tr.paVipCadenceField,
                 helperText: tr.paVipCadenceHelp,
-                helperMaxLines: 2,
-                border: const OutlineInputBorder()),
+                helperMaxLines: 2),
           ),
           const SizedBox(height: Gap.lg),
           // ---- privacy-sensitive: notes
@@ -632,7 +617,6 @@ class _VipEditorState extends State<_VipEditor> {
               helperText: tr.paVipNotesHelp,
               helperMaxLines: 2,
               alignLabelWithHint: true,
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: Gap.md),
@@ -666,8 +650,7 @@ class _VipEditorState extends State<_VipEditor> {
                       onChanged: (v) => _log[i]['date'] = v,
                       decoration: InputDecoration(
                           isDense: true,
-                          labelText: tr.paVipLogDateField,
-                          border: const OutlineInputBorder()),
+                          labelText: tr.paVipLogDateField),
                     ),
                   ),
                   const SizedBox(width: Gap.sm),
@@ -679,8 +662,7 @@ class _VipEditorState extends State<_VipEditor> {
                       onChanged: (v) => _log[i]['note'] = v,
                       decoration: InputDecoration(
                           isDense: true,
-                          labelText: tr.paVipLogNoteField,
-                          border: const OutlineInputBorder()),
+                          labelText: tr.paVipLogNoteField),
                     ),
                   ),
                   IconButton(
@@ -715,12 +697,7 @@ class _VipEditorState extends State<_VipEditor> {
           const SizedBox(height: Gap.lg),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
-              onPressed:
-                  (problems.isEmpty && !_saving) ? () => _save(tr) : null,
-              icon: const Icon(Icons.save_rounded, size: 18),
-              label: Text(tr.save),
-            ),
+            child: DsButton(onPressed: (problems.isEmpty && !_saving) ? () => _save(tr) : null, icon: Icons.save_rounded, label: tr.save, expand: true),
           ),
           if (problems.isNotEmpty) ...[
             const SizedBox(height: Gap.xs),

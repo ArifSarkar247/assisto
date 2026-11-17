@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../ds/ds.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
@@ -101,63 +102,72 @@ class PaHubScreen extends StatelessWidget {
           (_) => const LifestyleScreen()),
     ];
 
+    // group the tools into one DS group card per section; a tool before the
+    // first header (the secretary's "Today" page) leads as the soft hero
+    void open(WidgetBuilder b) =>
+        Navigator.of(context).push(MaterialPageRoute(builder: b));
+    _PaTool? lead;
+    final sections = <(String, List<_PaTool>)>[];
+    for (final tool in tools) {
+      if (tool.build == null) {
+        sections.add((tool.label, <_PaTool>[]));
+      } else if (sections.isEmpty) {
+        lead = tool;
+      } else {
+        sections.last.$2.add(tool);
+      }
+    }
+    Widget icon(IconData i) => Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: cs.ds.primarySoft,
+            borderRadius: BorderRadius.circular(Radii.sm),
+          ),
+          child: Icon(i, color: cs.ds.primaryInk),
+        );
+    final leadTool = lead;
     return Scaffold(
       appBar: AppBar(title: Text(t.sidebarPersonalSecretary)),
-      body: ListView.separated(
+      body: ListView(
         padding: withNavBarInset(context, const EdgeInsets.all(Gap.md)),
-        itemCount: tools.length,
-        separatorBuilder: (_, __) => const SizedBox(height: Gap.sm),
-        itemBuilder: (context, i) {
-          final tool = tools[i];
-          final b = tool.build;
-          if (b == null) {
-            // lifebar: group header (22 flat tiles were hard to scan)
-            return Padding(
-              padding: EdgeInsets.only(top: i == 0 ? 0 : Gap.md, left: Gap.xs),
+        children: [
+          if (leadTool != null)
+            DsHeroCard(
+              onTap: () => open(leadTool.build!),
+              child: Row(children: [
+                icon(leadTool.icon),
+                const SizedBox(width: Gap.md),
+                Expanded(
+                  child: Text(leadTool.label,
+                      style: AType.titleLarge.copyWith(
+                          color: cs.ds.text, fontWeight: FontWeight.w800)),
+                ),
+                Icon(Icons.chevron_right_rounded, color: cs.ds.muted),
+              ]),
+            ),
+          for (final (i, sec) in sections.indexed) ...[
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                  Gap.xs, (i == 0 && leadTool == null) ? 0 : Gap.lg, Gap.xs, Gap.sm),
               child: Semantics(
                 header: true,
-                child: Text(tool.label,
+                child: Text(sec.$1,
                     style: AType.titleSmall.copyWith(
-                        color: cs.primary, fontWeight: FontWeight.w700)),
-              ),
-            );
-          }
-          return Material(
-            color: cs.ds.cardHighest,
-            borderRadius: BorderRadius.circular(Radii.md),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(Radii.md),
-              onTap: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: b)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: Gap.md, vertical: Gap.md),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: cs.ds.primarySoft,
-                        borderRadius: BorderRadius.circular(Radii.sm),
-                      ),
-                      child: Icon(tool.icon, color: cs.ds.primaryInk),
-                    ),
-                    const SizedBox(width: Gap.md),
-                    Expanded(
-                      child: Text(tool.label,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600)),
-                    ),
-                    Icon(Icons.chevron_right_rounded, color: cs.ds.muted),
-                  ],
-                ),
+                        color: cs.ds.muted, fontWeight: FontWeight.w700)),
               ),
             ),
-          );
-        },
+            DsGroup(margin: EdgeInsets.zero, children: [
+              for (final tool in sec.$2)
+                DsListRow(
+                  leading: icon(tool.icon),
+                  title: tool.label,
+                  trailing: Icon(Icons.chevron_right_rounded, color: cs.ds.muted),
+                  onTap: () => open(tool.build!),
+                ),
+            ]),
+          ],
+        ],
       ),
     );
   }
