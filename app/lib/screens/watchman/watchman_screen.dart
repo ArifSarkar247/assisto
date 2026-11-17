@@ -630,7 +630,12 @@ class _SiteCard extends StatelessWidget {
           // cctvconnect (Guard V3 B): the daily green check (hidden until a DVR reports)
           DvrHealthCard(key: ValueKey('dvr-health-$siteId'), siteId: siteId, owner: _owner),
           const Divider(height: 20),
-          Wrap(spacing: 8, runSpacing: 8, children: [
+          // design3 (flagship): the place card in two groups — WATCH first
+          // (alerts full width, then clips / activity / reports / auto guard),
+          // then the owner's CAMERAS & SETUP tools under a small header.
+          SizedBox(
+            width: double.infinity,
+            child:
             FilledButton.tonalIcon(
               style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
               icon: const Icon(Icons.notifications_rounded),
@@ -653,6 +658,9 @@ class _SiteCard extends StatelessWidget {
                 await onChanged();
               },
             ),
+          ),
+          const SizedBox(height: Gap.sm),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
             // gap-cctv D4: every clip the server still keeps, by camera + day
             if (cams.isNotEmpty)
               OutlinedButton.icon(
@@ -695,7 +703,24 @@ class _SiteCard extends StatelessWidget {
                         siteName: (site['name'] ?? '').toString(),
                         owner: _owner))),
               ),
-            if (_owner) ...[
+            // cctvarm: auto guard (owner settings / a member's own consent)
+            OutlinedButton.icon(
+              key: const ValueKey('wm-auto-guard'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              icon: const Icon(Icons.shield_moon_outlined),
+              label: Text(t.carmTitle),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => AutoGuardScreen(siteId: siteId, owner: _owner))),
+            ),
+          ]),
+          if (_owner) ...[
+            Padding(
+              padding: const EdgeInsets.only(top: Gap.md, bottom: Gap.sm),
+              child: Text(t.d3CctvSetupGroup,
+                  style: AType.titleSmall.copyWith(
+                      fontWeight: FontWeight.w700, color: DsTokens.of(context).muted)),
+            ),
+            Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                 icon: const Icon(Icons.point_of_sale_rounded),
@@ -763,17 +788,8 @@ class _SiteCard extends StatelessWidget {
                   await onChanged();
                 },
               ),
-            ],
-            // cctvarm: auto guard (owner settings / a member's own consent)
-            OutlinedButton.icon(
-              key: const ValueKey('wm-auto-guard'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-              icon: const Icon(Icons.shield_moon_outlined),
-              label: Text(t.carmTitle),
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => AutoGuardScreen(siteId: siteId, owner: _owner))),
-            ),
-          ]),
+            ]),
+          ],
           // gap-cctv: people, sharing and the notice fold into one row —
           // the place card was a wall of 15 buttons (owner-only tools).
           if (_owner)

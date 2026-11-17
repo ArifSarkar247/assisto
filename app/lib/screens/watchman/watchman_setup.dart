@@ -170,7 +170,7 @@ class _WatchmanSetupScreenState extends State<WatchmanSetupScreen> {
           ),
           _Choice(
             icon: Icons.dns_rounded,
-            title: t.wmGwShopbox,
+            title: t.d3GwShopboxTitle, // design3: matches the Pi / Linux / Windows body
             body: t.gcvGwBoxBody, // gap-cctv: Linux / Raspberry Pi / Windows
             selected: _gateway == 'shopbox',
             onTap: () => setState(() => _gateway = 'shopbox'),

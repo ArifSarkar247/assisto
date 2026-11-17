@@ -31,7 +31,7 @@ String wmGatewayLine(AppLocalizations t, BuildContext context, Map<String, dynam
 
 String wmGatewayName(AppLocalizations t, String g) => switch (g) {
       'phone' => t.wmGwPhone,
-      'shopbox' => t.wmGwShopbox,
+      'shopbox' => t.d3GwShopboxTitle, // design3
       'pc' => t.wmGwPc,
       _ => t.wmGwNone,
     };
