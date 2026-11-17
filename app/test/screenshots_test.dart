@@ -55,6 +55,7 @@ import 'aivoice_shots.dart'; // aivoice
 import 'aibar_shots.dart'; // aibar
 import 'gap_aichat_shots.dart'; // gap-aichat
 import 'callsbar_shots.dart'; // callsbar
+import 'group_call_shots.dart'; // group-calls
 import 'package:assisto/screens/language_picker_screen.dart';
 import 'package:assisto/screens/home_screen.dart';
 import 'package:assisto/screens/agent_thread_screen.dart';
@@ -1513,6 +1514,8 @@ Map<String, GallerySpec> gallerySpecs() {
     for (final e in gapAichatShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // callsbar: weak-network video call, rating, honest group call, low data
     for (final e in callsbarShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
+    // group-calls: 8-tile grid, video on mobile data, Add person, Join bar
+    for (final e in groupCallShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),
     // invite-join: Join X's circle (form / signed in / expired / offline),
     // share sheet, invited-not-joined list
     for (final e in inviteShots.entries) e.key: (build: e.value, mode: FakeMode.data, full: true),

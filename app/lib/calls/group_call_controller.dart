@@ -441,6 +441,16 @@ class GroupCallController extends ChangeNotifier {
 
   static String _codeOf(Object e) => e is GroupCallError ? e.code : '';
 
+  /// Gallery / widget previews: show [snap] as a live call (no media, no
+  /// server, no timers).
+  @visibleForTesting
+  void preview(Map<String, dynamic> snap) {
+    phase = GroupCallPhase.live;
+    kind = '${snap['kind'] ?? kind}';
+    cameraOn = kind == 'video';
+    unawaited(_apply(snap));
+  }
+
   /// Re-read the room (poll, group.state, an unknown leg's event).
   Future<void> refresh() async {
     if (isEnded || _disposed) return;
