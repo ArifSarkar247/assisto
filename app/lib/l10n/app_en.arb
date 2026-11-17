@@ -52599,5 +52599,9 @@
   },
   "@gcvPbTitle": {
     "description": "gap-cctv3: Imou recording playback screen"
+  },
+  "gcvShopBoxPlanNote": "Shop Box comes with the CCTV plan (2 cameras and up, with a free trial — prices on the CCTV plan page) or the Business plan. A camera beyond your plan uses credits — the exact number is shown when you add it.",
+  "@gcvShopBoxPlanNote": {
+    "description": "gap-cctv: Shop Box lock — which plans unlock it (same rule as the server)"
   }
 }
