@@ -95,7 +95,14 @@ class LiveView(APIView):
         t, d, err = _train_date(no, request.query_params.get("date") or TS.today().isoformat())
         if err:
             return err
-        return R(TS.live_view(t, d, request.user))
+        view = TS.live_view(t, d, request.user)
+        try:   # train-engine: additive keys (freshness, confidence, actual times ...)
+            from . import train_engine as TE
+            TE.enrich_live_view(view, t, d)
+        except Exception:   # noqa: BLE001 — the v1 view must never break
+            import logging
+            logging.getLogger(__name__).exception("train-engine enrich failed")
+        return R(view)
 
 
 class SeatView(APIView):
@@ -160,7 +167,18 @@ class ShareFixesView(APIView):
         pts = request.data.get("points")
         if not isinstance(pts, list):
             return _bad("bad_points")
-        return R(dict(TS.add_fixes(s, pts), ok=True))
+        out = dict(TS.add_fixes(s, pts), ok=True)
+        try:   # train-engine: the same points feed the anonymous live engine
+            from . import train_engine as TE
+            trip = TE.trip_for_share(s, cells_ok=any(isinstance(p, dict) and p.get("cell")
+                                                     for p in pts))
+            eng = TE.ingest(trip, pts)
+            out["engine"] = {k: eng[k] for k in ("accepted", "rejected", "placed_by_cell",
+                                                 "status")}
+        except Exception:   # noqa: BLE001 — v1 sharing must never break
+            import logging
+            logging.getLogger(__name__).exception("train-engine ingest failed")
+        return R(out)
 
 
 class ShareStopView(APIView):
