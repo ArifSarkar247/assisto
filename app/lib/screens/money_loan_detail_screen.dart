@@ -165,7 +165,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                   const SizedBox(height: Gap.md),
                   Text(t.moneyLoanBalance,
                       style: TextStyle(color: DsTokens.of(context).muted)),
-                  Text(tkFmt(_balance),
+                  Text(tkOf(context, _balance),
                       style: AType.headlineLarge.copyWith(fontFeatures: AFonts.tabular, fontWeight: FontWeight.bold)),
                   const SizedBox(height: Gap.sm),
                   ClipRRect(
@@ -176,7 +176,7 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                         color: AssistoTokens.of(context).success),
                   ),
                   const SizedBox(height: Gap.xs),
-                  Text(t.moneyLoanPaidOf(tkFmt(_paid), tkFmt(principal)),
+                  Text(t.moneyLoanPaidOf(tkOf(context, _paid), tkOf(context, principal)),
                       style: AType.bodySmall.copyWith(fontFeatures: AFonts.tabular, color: DsTokens.of(context).muted)),
                 ]),
           ),
@@ -219,9 +219,9 @@ class _MoneyLoanDetailScreenState extends State<MoneyLoanDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(tkFmt(e['amount']),
+                    Text(tkOf(context, e['amount']),
                         style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
-                    Text(t.moneyLoanBalanceLabel(tkFmt(e['balance'])),
+                    Text(t.moneyLoanBalanceLabel(tkOf(context, e['balance'])),
                         style:
                             AType.labelSmall.copyWith(fontFeatures: AFonts.tabular, color: DsTokens.of(context).muted)),
                   ])),

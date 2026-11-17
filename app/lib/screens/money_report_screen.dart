@@ -121,16 +121,16 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
       Row(children: [
         Expanded(
             child: statCard(context, t.moneyMonthIncome,
-                tkFmt(d['income']), AssistoTokens.of(context).success, Icons.south_west_rounded)),
+                tkOf(context, d['income']), AssistoTokens.of(context).success, Icons.south_west_rounded)),
         const SizedBox(width: Gap.md),
         Expanded(
             child: statCard(context, t.moneyMonthExpense,
-                tkFmt(d['expense']), DsTokens.of(context).dangerInk, Icons.north_east_rounded)),
+                tkOf(context, d['expense']), DsTokens.of(context).dangerInk, Icons.north_east_rounded)),
       ]),
       const SizedBox(height: Gap.md),
       Row(children: [
         Expanded(
-            child: statCard(context, t.moneyMonthNet, tkFmt(d['net']),
+            child: statCard(context, t.moneyMonthNet, tkOf(context, d['net']),
                 dbl(d['net']) >= 0 ? Theme.of(context).colorScheme.primary : DsTokens.of(context).dangerInk,
                 Icons.savings_rounded)),
         const SizedBox(width: Gap.md),
@@ -147,7 +147,7 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
                 color: AssistoTokens.of(context).warning),
             title: Text(t.moneyBiggestExpense),
             subtitle: Text('${biggest['category']} · ${moneyDay(context, biggest['date'])}'),
-            trailing: Text(tkFmt(biggest['amount']),
+            trailing: Text(tkOf(context, biggest['amount']),
                 style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w700)),
           ),
         ),
@@ -160,7 +160,7 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
         ListTile(
           dense: true,
           title: Text('${c['category']}'),
-          trailing: Text(tkFmt(c['amount']),
+          trailing: Text(tkOf(context, c['amount']),
               style: const TextStyle(fontFeatures: AFonts.tabular, fontWeight: FontWeight.w600)),
         ),
       if (budgets.isNotEmpty) ...[
@@ -172,7 +172,7 @@ class _MoneyReportScreenState extends State<MoneyReportScreen> {
           ListTile(
             dense: true,
             title: Text('${b['category']}'),
-            subtitle: Text('${tkFmt(b['spent'])} / ${tkFmt(b['limit'])}', style: const TextStyle(fontFeatures: AFonts.tabular)),
+            subtitle: Text('${tkOf(context, b['spent'])} / ${tkOf(context, b['limit'])}', style: const TextStyle(fontFeatures: AFonts.tabular)),
             trailing: Icon(
                 b['state'] == 'over'
                     ? Icons.error_outline_rounded
