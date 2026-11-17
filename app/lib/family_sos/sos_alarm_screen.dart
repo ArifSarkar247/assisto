@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../nearby/emergency_numbers.dart';
+import '../nearby/phone_country.dart'; // gap-sos
 import '../push/lock_screen_guard.dart';
 import '../push/push_notifier.dart';
 import '../services/action_feedback.dart';
@@ -39,7 +40,11 @@ class SosAlarmScreen extends StatefulWidget {
     this.openUri,
     this.pollEvery = const Duration(seconds: 5),
     this.autoAlarm = true,
+    this.country,
   });
+
+  /// gap-sos test seam: the country THIS phone is in (default: network/SIM).
+  final String? country;
 
   /// The push payload (delivery_id, from_name, lat, lng, alert_kind, ...).
   final Map<String, String> data;
@@ -104,6 +109,8 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
   bool _busyGoing = false;
   bool _playing = false;
   Timer? _poll;
+  String? _cc; // gap-sos: this phone's country, when the page cannot load
+  bool _ccAsked = false;
 
   int get _id => SosAlarmScreen.deliveryOf(widget.data);
   FcSosApi get _api => widget.api ?? HttpFcSosApi(context.read<AppState>().api);
@@ -121,6 +128,20 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
       _load();
     });
     _poll = Timer.periodic(widget.pollEvery, (_) => _load());
+  }
+
+  // gap-sos (P1): with no internet the page showed 112 (the generic
+  // fallback) in Bangladesh; now the phone's own country picks 999.
+  Future<void> _loadCountry() async {
+    if (widget.country != null) {
+      _cc = widget.country;
+      return;
+    }
+    try {
+      final p = await PhoneCountry.read();
+      final cc = pickEmergencyCountry(network: p.network, sim: p.sim);
+      if (mounted) setState(() => _cc = cc);
+    } catch (_) {/* best-effort: the server's country or 112 */}
   }
 
   Future<void> _startAlarm() async {
@@ -150,7 +171,15 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
         unawaited(_stopAlarm());
       }
     } catch (_) {
-      if (mounted && _d == null) setState(() => _failed = true);
+      if (mounted && _d == null) {
+        setState(() => _failed = true);
+        // gap-sos: only now (the page could not load) is this phone's own
+        // country needed for the emergency number
+        if (_cc == null && !_ccAsked) {
+          _ccAsked = true;
+          unawaited(_loadCountry());
+        }
+      }
     }
   }
 
@@ -217,7 +246,7 @@ class _SosAlarmScreenState extends State<SosAlarmScreen> {
     final fall = '${d?['kind'] ?? widget.data['alert_kind'] ?? 'sos'}' == 'fall';
     final state = '${d?['state'] ?? 'active'}';
     final phone = '${(d?['sender'] as Map?)?['phone'] ?? ''}';
-    final em = emergencyFor('${d?['country'] ?? ''}'.isEmpty ? null : '${d?['country']}');
+    final em = emergencyFor('${d?['country'] ?? ''}'.isEmpty ? _cc : '${d?['country']}');
     final meGoing = d?['me_going'] == true;
     // a11ysweep: the siren drowns TalkBack's voice, so with a screen reader
     // "Silence" is the first control after the title (same button)
