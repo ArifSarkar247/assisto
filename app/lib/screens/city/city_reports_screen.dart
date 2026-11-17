@@ -66,6 +66,7 @@ class _CityReportsScreenState extends State<CityReportsScreen> {
   Future<void> _init() async {
     _here = widget.debugHere;
     if (_here == null) {
+      if (mounted) setState(() => _loading = true);
       final p = await placeHereNow(context);
       if (p != null) _here = (lat: p.lat, lon: p.lng);
     }
@@ -163,9 +164,21 @@ class _CityReportsScreenState extends State<CityReportsScreen> {
             if (_loading)
               const SkeletonList(count: 3)
             else if (_here == null)
-              Text(t.cityAroundNeedLocation)
+              CityRetryCard(
+                  key: const ValueKey('city_live_need_location'),
+                  icon: Icons.location_off_rounded,
+                  text: t.cityAroundNeedLocation,
+                  buttonText: t.cityTryAgain,
+                  onPressed: _init)
             else if (_failed)
-              Text(t.cityLiveFailed)
+              CityRetryCard(
+                  key: const ValueKey('city_live_failed'),
+                  text: t.cityGLoadFailed,
+                  buttonText: t.cityTryAgain,
+                  onPressed: () {
+                    setState(() => _loading = true);
+                    _load();
+                  })
             else if (_reports.isEmpty)
               DsCard(
                 padding: const EdgeInsets.all(Gap.lg),

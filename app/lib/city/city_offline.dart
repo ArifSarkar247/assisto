@@ -153,6 +153,25 @@ class CityStore {
     );
   }
 
+  // ---- gap-city: last good directory answer (terminals / ghats / offices)
+  // so the guide still opens offline (it is not in the routing package) ----
+  static String _dirName(String city, String kind) =>
+      'dir_${city.replaceAll(RegExp(r'[^a-z0-9_]'), '')}_${kind.replaceAll(RegExp(r'[^a-z0-9_]'), '')}.json';
+
+  Future<void> rememberDir(String city, String kind, Map<String, dynamic> answer) =>
+      files.write(_dirName(city, kind), jsonEncode({'at': DateTime.now().toUtc().toIso8601String(), 'r': answer}));
+
+  Future<Map<String, dynamic>?> rememberedDir(String city, String kind) async {
+    final raw = await files.read(_dirName(city, kind));
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final m = _decode(raw);
+      return m['r'] is Map ? (m['r'] as Map).cast<String, dynamic>() : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   @visibleForTesting
   void debugClear() {
     _pkg.clear();

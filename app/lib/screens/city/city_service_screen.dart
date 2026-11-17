@@ -285,7 +285,32 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     _open(CityMapScreen(here: o, to: _to, plan: _plan != null && !_plan!.offline ? _plan : null, city: city, store: _store));
   }
 
-  void _open(Widget screen) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  Future<T?> _open<T>(Widget screen) => Navigator.of(context).push<T>(MaterialPageRoute(builder: (_) => screen));
+
+  /// gap-city: a guide screen (Around me, offices, terminals) hands back a
+  /// place -> it becomes the destination and the trip is planned at once.
+  Future<void> _openForDest(Widget screen) async {
+    final p = await _open<PlacePick>(screen);
+    if (p == null || !mounted) return;
+    setState(() => _to = p);
+    await _planNow();
+  }
+
+  /// gap-city: location was off / denied -> ask again (the From field stays
+  /// "Choose where you start" until one of the two works).
+  Future<void> _retryHere() async {
+    setState(() => _locating = true);
+    final p = await placeHereNow(context);
+    if (!mounted) return;
+    setState(() {
+      if (p != null) _here = (lat: p.lat, lon: p.lng);
+      _locating = false;
+    });
+    if (_here != null) {
+      await _loadWhere();
+      await _planNow();
+    }
+  }
 
   // ------------------------------------------------------------------ UI
   @override
@@ -460,6 +485,27 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
 
   List<Widget> _results(AppLocalizations t) {
     if (_to == null) return [_emptyHint(t)];
+    // gap-city: no GPS and no start chosen -> say what is missing (it used
+    // to say "Could not find the way" with a Try again that did nothing)
+    if (_origin == null && !_locating) {
+      return [
+        CityRetryCard(
+          key: const ValueKey('city_need_start'),
+          icon: Icons.location_off_rounded,
+          text: t.cityGNeedStart,
+          buttonText: t.cityGUseMyLocation,
+          buttonKey: const ValueKey('city_need_start_gps'),
+          onPressed: _retryHere,
+          extra: OutlinedButton.icon(
+            key: const ValueKey('city_need_start_pick'),
+            style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: _pickFrom,
+            icon: const Icon(Icons.trip_origin_rounded),
+            label: Text(t.cityChooseStart),
+          ),
+        )
+      ];
+    }
     if (_planning) {
       return const [Padding(padding: EdgeInsets.all(Gap.xl), child: Center(child: CircularProgressIndicator()))];
     }
@@ -675,6 +721,10 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
   Widget _exploreGrid(AppLocalizations t) {
     final city = _where?.city.isNotEmpty == true ? _where!.city : 'dhaka';
     final o = _origin;
+    // gap-city: "around me", live reports and mapping a stop are about where
+    // the phone IS — never the typed start (a jam report at the chosen From
+    // place would be filed at the wrong spot)
+    final me = _here;
     final tiles = <(Key, IconData, Color, String, String, VoidCallback)>[
       // mapapp: the City map (our map + layers; Google view switch)
       if (o != null)
@@ -683,18 +733,21 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
       (const ValueKey('city_tile_metro'), Icons.subway_rounded, Brand.success, t.cityMetroGuide,
           t.cityMetroGuideSub, () => _open(CityMetroScreen(city: city, store: _store, dest: _to))),
       (const ValueKey('city_tile_around'), Icons.near_me_rounded, Brand.info, t.cityAroundMe, t.cityAroundMeSub,
-          () => _open(CityAroundScreen(debugHere: o))),
+          () => _openForDest(CityAroundScreen(debugHere: me, routeHere: true))),
       (const ValueKey('city_tile_live'), Icons.campaign_rounded, Brand.warning, t.cityLiveReports,
-          t.cityLiveReportsSub, () => _open(CityReportsScreen(debugHere: o))),
+          t.cityLiveReportsSub, () => _open(CityReportsScreen(debugHere: me))),
       (const ValueKey('city_tile_women'), Icons.woman_rounded, Brand.danger, t.cityWomen, t.cityWomenSub,
           () => _open(CityWomenScreen(city: city))),
       (const ValueKey('city_tile_long'), Icons.directions_boat_rounded, Brand.blue, t.cityLongDistance,
-          t.cityLongDistanceSub, () => _open(CityDirectoryScreen(city: city, kinds: const ['terminals', 'ghats']))),
+          t.cityLongDistanceSub,
+          () => _openForDest(
+              CityDirectoryScreen(city: city, kinds: const ['terminals', 'ghats'], routeHere: true, store: _store))),
       (const ValueKey('city_tile_offices'), Icons.account_balance_rounded, Brand.blueDeep, t.cityOffices,
-          t.cityOfficesSub, () => _open(CityDirectoryScreen(city: city, kinds: const ['offices']))),
+          t.cityOfficesSub,
+          () => _openForDest(CityDirectoryScreen(city: city, kinds: const ['offices'], routeHere: true, store: _store))),
       // citycov: field collection
       (const ValueKey('city_tile_mapstop'), Icons.add_location_alt_rounded, Brand.success, t.cityMapStop,
-          t.cityMapStopSub, () => _open(CityFieldScreen(debugHere: o))),
+          t.cityMapStopSub, () => _open(CityFieldScreen(debugHere: me))),
     ];
     return LayoutBuilder(builder: (context, c) {
       final cols = c.maxWidth > 560 ? 3 : (MediaQuery.textScalerOf(context).scale(14) > 22 ? 1 : 2);
