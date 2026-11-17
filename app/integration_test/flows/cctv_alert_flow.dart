@@ -29,6 +29,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:assisto/api.dart';
@@ -118,13 +119,25 @@ Future<bool> _reachable() async {
 }
 
 /// The same screen in English and in Bangla (owner rule: proof in both).
-Future<void> _shotBoth(RFlow f, String name) async {
+/// [refresh]: pull the list down after the switch so the server's own words
+/// (alert title, AI label) also come in Bangla, as a Bangla user sees them.
+Future<void> _shotBoth(RFlow f, String name, {bool refresh = false}) async {
+  Future<void> pull() async {
+    if (!refresh) return;
+    final sc = find.byType(Scrollable);
+    if (sc.evaluate().isEmpty) return;
+    await f.tester.fling(sc.first, const Offset(0, 400), 1200);
+    await f.pumpFor(const Duration(seconds: 3));
+  }
+
   await f.shot('$name-en');
   await f.app.setLocale(const Locale('bn'), syncServer: false);
   await f.pumpFor(const Duration(milliseconds: 1500));
+  await pull();
   await f.shot('$name-bn');
   await f.app.setLocale(const Locale('en'), syncServer: false);
   await f.pumpFor(const Duration(milliseconds: 1200));
+  await pull();
 }
 
 void _metric(RFlow f, String line) {
@@ -240,12 +253,15 @@ Future<void> _flow(RFlow f) async {
 
     await f.step('tap the notification -> the alert card: photo, Live, Call 999', () async {
       PushService.instance.debugTap(push1);
+      // a real tap removes the notification (autoCancel); do the same
+      await f.net(() => FlutterLocalNotificationsPlugin()
+          .cancel(PushPayload.fromData(push1).notificationId));
       await f.pumpFor(const Duration(seconds: 2));
       await f.waitFor(find.byType(WatchmanAlertsScreen), seconds: 10, what: 'the alerts screen');
       await f.waitFor(_k('wm-snap-ok'), seconds: 25, what: 'the alert photo on the card');
       await f.waitFor(_k('wm-alert-live-$eventId'), seconds: 5, what: 'Live on the card');
       await f.waitFor(_k('wm-alert-999-$eventId'), seconds: 5, what: 'Call 999 on the card');
-      await _shotBoth(f, 'alert-card');
+      await _shotBoth(f, 'alert-card', refresh: true);
     });
 
     await f.step('a 2nd alarm within 30 s is MERGED (no 2nd push); a vendor re-push is ignored', () async {
