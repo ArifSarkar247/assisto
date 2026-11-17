@@ -22,7 +22,7 @@ name: website
 
 on:
   push:
-    branches: ['ci/website*', 'ci/sitev3*', 'ci/sitefix*', 'ci/seogrow*']
+    branches: ['ci/website*', 'ci/sitev3*', 'ci/sitefix*', 'ci/seogrow*', 'ci/seolive*']
   workflow_dispatch:
     inputs:
       shots_run_id:
@@ -76,9 +76,12 @@ jobs:
             (cd "$DIR" && python manage.py migrate -v0 --settings=assisto_backend.settings_webci --noinput)
             if [ $side = after ]; then
               # sitev3: v3 live in this CI-only database
-              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import AdminFlagState as A; r,_=A.objects.get_or_create(key='global'); r.state=dict(r.state or {}, website_classic=False, site_seo_growth_preview=False); r.save(); print('website v3 live (classic OFF), seogrow landing pages live')")
+              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import AdminFlagState as A; r,_=A.objects.get_or_create(key='global'); r.state=dict(r.state or {}, website_classic=False); r.save(); print('website v3 live (classic OFF)')")
               # seogrow: the landing pages exist only while their app feature is on -> turn on the ones that default OFF (CI database only)
-              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import FeatureFlag as F; [F.objects.update_or_create(key=k, defaults={'enabled_all': True, 'enabled_play': True, 'rollout_pct': 100}) for k in ('quran', 'quran_learn', 'dest_alarm')]")
+              (cd "$DIR" && python manage.py shell --settings=assisto_backend.settings_webci -c "from core.models import FeatureFlag as F; [F.objects.update_or_create(key=k, defaults={'enabled_all': True, 'enabled_play': True, 'rollout_pct': 100}) for k in ('quran', 'quran_learn', 'dest_alarm', 'blood_donors')]")
+              # seolive: the lead's post-deploy go-live step, run for real in this CI-only database
+              # (landing pages indexable, Play badge shown, fact-checked blog articles published)
+              (cd "$DIR" && python manage.py site_go_live --settings=assisto_backend.settings_webci --apply)
             fi
             (cd "$DIR" && nohup python manage.py runserver 127.0.0.1:$PORT --noreload --insecure \
                --settings=assisto_backend.settings_webci > "$RUNNER_TEMP/$side.log" 2>&1 &)
@@ -232,7 +235,7 @@ jobs:
         working-directory: backend
         run: |
           export INTEGRATIONS_FERNET_KEY=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
-          python manage.py test web.tests_site_v3 web.tests_seogrow web.tests_website web.tests_l1_launch web.tests web.tests_dl1_owner --settings=assisto_backend.settings_test --noinput
+          python manage.py test web.tests_site_v3 web.tests_seogrow web.tests_seolive web.tests_seoblog web.tests_website web.tests_l1_launch web.tests web.tests_dl1_owner --settings=assisto_backend.settings_test --noinput
       - name: server logs
         if: failure()
         run: tail -n 60 "$RUNNER_TEMP/after.log" "$RUNNER_TEMP/before.log" || true

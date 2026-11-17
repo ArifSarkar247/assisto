@@ -17,6 +17,11 @@ PUBLIC_PATHS = ["/", "/features", "/pricing", "/security", "/help", "/about",
                 "/khata-free", "/cv", "/scam", "/photo", "/festival", "/made30", "/get",
                 "/privacy", "/terms", "/refund-policy", "/delete-account"]
 
+# seolive (17 Nov): <lastmod> for every non-blog sitemap URL — the date of the
+# last real content release of the marketing / landing / legal pages. Bump it
+# when their copy changes (blog articles carry their own dates).
+SITE_LASTMOD = "2026-11-17"
+
 # Pages that must keep noindex (documented for the owner + checked by tests).
 PRIVATE_PREFIXES = ("/owner/", "/preview/", "/premium", "/pay/", "/b/", "/i/", "/ch/", "/cm/",
                     "/j/", "/r/", "/q/", "/qp/", "/kh/", "/verify/", "/d/", "/v/", "/pc/", "/e/",

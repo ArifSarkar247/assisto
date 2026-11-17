@@ -160,7 +160,7 @@ FAMILY = {
 
 ## সন্তানের জন্য
 
-- স্কুল আর বাসার মতো জায়গা চিহ্নিত করে রাখুন, যেন পৌঁছালে খবর আসে — বারবার ফোন করতে না হয়।
+- স্কুলে বা বাসায় পৌঁছে একটা ছোট মেসেজ দেওয়ার অভ্যাস করান — তাহলে বারবার ফোন করতে হয় না।
 - সন্তানকে শিখিয়ে দিন বিপদে কীভাবে SOS চাপতে হয় আর ৯৯৯-এ কল করতে হয়।
 - লোকেশন দেখাটা শাস্তি নয়, নিরাপত্তা — এভাবে বললে সন্তান নিজেই চালু রাখে।
 
@@ -206,7 +206,7 @@ Many Android phones (Xiaomi/Redmi, Realme, Oppo, Vivo, Samsung and others) stop 
 
 ## For children
 
-- Mark places such as school and home so you get a notice on arrival — no need to call again and again.
+- Agree that your child sends a short message on reaching school or home — then nobody has to call again and again.
 - Teach your child how to press SOS and how to call 999 in an emergency.
 - Present location sharing as safety, not punishment — children then keep it on themselves.
 
@@ -394,7 +394,7 @@ IELTS = {
 
 ## Assisto-তে ভাষা শেখা
 
-Assisto-র ভাষা শেখার সঙ্গীতে বাংলা↔ইংরেজি শব্দের ডেক, ফ্ল্যাশকার্ড আর কুইজ দিয়ে প্রতিদিনের শব্দ শেখা যায় — ওপরের রুটিনের "দিনে ২০টি শব্দ" অংশের জন্য কাজে লাগবে। IELTS-এর পূর্ণ অনুশীলন অংশ চালু হলে সেটাও এখানেই পাবেন।
+Assisto-র ভাষা শেখার সঙ্গীতে বাংলা অর্থ ও উদাহরণসহ ইংরেজি শব্দ আর ফ্ল্যাশকার্ড আছে; যে শব্দ ভুলে যাচ্ছেন, তা ঠিক সময়ে আবার আসে — ওপরের রুটিনের "দিনে ২০টি শব্দ" অংশের জন্য কাজে লাগবে।
 
 **পরের ধাপ:** আজই একটি পূর্ণ মক টেস্টের সময় ঠিক করুন (যেমন শুক্রবার সকাল ৯টা) আর ভুলের খাতাটা খুলে ফেলুন।
 """,
@@ -446,7 +446,7 @@ Band scores run from 0 to 9. The Overall band comes from the average of the four
 
 ## Language learning in Assisto
 
-Assisto's Language Partner has Bangla↔English word decks, flashcards and quizzes for daily vocabulary — useful for the "20 words a day" part of this routine. When its full IELTS practice section is switched on, you will find it there too.
+Assisto's Language Partner has English words with Bangla meanings and examples, as flashcards; the words you are forgetting come back at the right time — useful for the "20 words a day" part of this routine.
 
 **Next step:** fix a time for your first full mock test today (for example Friday at 9 am) and open your mistakes notebook.
 """,

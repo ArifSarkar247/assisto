@@ -177,6 +177,24 @@ def sitemap_paths():
     return ["/blog"] + ["/blog/%s" % p.slug for p in posts]
 
 
+def sitemap_lastmod():
+    """seolive: {path: date} for the sitemap — an article's last-reviewed date
+    (or its last edit), /blog = the newest of them."""
+    try:
+        posts = published()
+    except Exception:  # noqa: BLE001 — the sitemap must never break
+        return {}
+    out = {}
+    for p in posts:
+        d = p.last_reviewed or (p.updated_at or p.published_at or timezone.now()).date()
+        if p.updated_at and p.updated_at.date() > d:
+            d = p.updated_at.date()
+        out["/blog/%s" % p.slug] = d
+    if out:
+        out["/blog"] = max(out.values())
+    return out
+
+
 def feature_link(key, lang):
     """The CTA link to a feature landing page. Once seogrow's
     web.site_landing is merged, its url_for() decides (None while that app
