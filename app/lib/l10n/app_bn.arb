@@ -26358,5 +26358,11 @@
   "arnSampleMessage": "আজ মিটিংয়ে আসছ তো?",
   "arnSampleReply1": "হ্যাঁ, আসছি",
   "arnSampleReply2": "১০ মিনিট দেরি হবে",
-  "clnAccessOnHelpAi": "Android Assisto-কে নোটিফিকেশন দেখতে দেয়। কল শেষের সংকেত, অনুমোদিত টাকার প্রেরক আর AI উত্তরের জন্য চালু করা চ্যাট অ্যাপ ছাড়া Assisto বাকি সব উপেক্ষা করে।"
+  "clnAccessOnHelpAi": "Android Assisto-কে নোটিফিকেশন দেখতে দেয়। কল শেষের সংকেত, অনুমোদিত টাকার প্রেরক আর AI উত্তরের জন্য চালু করা চ্যাট অ্যাপ ছাড়া Assisto বাকি সব উপেক্ষা করে।",
+  "signupOtpSpamHint": "কোড পাননি? ইমেইলের Spam বা Promotions ফোল্ডার দেখুন — আসতে ২ মিনিট পর্যন্ত লাগতে পারে।",
+  "signupOtpEmailNeutral": "এই ইমেইল কোনো অ্যাকাউন্টে যাচাই করা থাকলে কোড আসছে।",
+  "signupOtpNewHere": "Assisto-তে নতুন? কোড লাগবে না।",
+  "signupOtpCreateAccount": "প্রোফাইল তৈরি করুন",
+  "signupOtpUsePhone": "এর বদলে ফোনে (SMS) কোড নিন",
+  "signupOtpUsePassword": "এর বদলে পাসওয়ার্ড দিয়ে ঢুকুন"
 }

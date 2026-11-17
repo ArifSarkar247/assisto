@@ -142,6 +142,17 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  /// signup-otp: the code sign-in can send a NEW person back here in
+  /// sign-up mode ("New to Assisto? Create an account").
+  Future<void> _openCodeSignIn(Route<String> route) async {
+    final why = await Navigator.of(context).push<String>(route);
+    if (!mounted || why != 'register') return;
+    setState(() {
+      _register = true;
+      _error = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -262,7 +273,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       key: const Key('login-with-sms'),
                       onPressed: _busy
                           ? null
-                          : () => Navigator.of(context).push(MaterialPageRoute(
+                          : () => _openCodeSignIn(MaterialPageRoute<String>(
                               builder: (_) =>
                                   OtpLoginScreen(backend: widget.otpBackend))),
                       icon: const Icon(Icons.sms_rounded, size: 18),
@@ -273,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       key: const Key('login-with-email-code'),
                       onPressed: _busy
                           ? null
-                          : () => Navigator.of(context).push(MaterialPageRoute(
+                          : () => _openCodeSignIn(MaterialPageRoute<String>(
                               builder: (_) => OtpLoginScreen(
                                   backend: widget.otpBackend,
                                   emailMode: true))),
