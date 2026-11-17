@@ -52322,5 +52322,13 @@
   "d2LeadScoreHint": "The coloured number is the lead score: higher means more likely to buy.",
   "@d2LeadScoreHint": {
     "description": "design2: one-line legend above the CRM leads list explaining the score badge"
+  },
+  "mv2ChargeNoteDays": "Service charges are not in the meal rate. They are split among members — equally, or by seat or room share — and someone who joins or leaves mid-month pays only for the days they were in the mess.",
+  "@mv2ChargeNoteDays": {
+    "description": "Mess V2: how service charges (Wi-Fi, khala, rent) are split; pro-rated by days present."
+  },
+  "mv2SyncedLateNote": "Saved offline before the cut-off, synced later",
+  "@mv2SyncedLateNote": {
+    "description": "Mess V2 edit history: this meal change was saved on the phone without internet before the meal cut-off and reached the server afterwards."
   }
 }
