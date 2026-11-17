@@ -67,11 +67,21 @@ class _WatchmanViewersScreenState extends State<WatchmanViewersScreen> {
       _addError = null;
     });
     try {
+      final before = {for (final v in _rows) v['user_id']};
       await widget.source.addViewer(widget.siteId, number);
       if (phone == null) _phone.clear();
       await _load();
       if (mounted && name != null && name.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t.cvvViewerAdded(name))));
+      }
+      // gap-cctv: ask the new person's role at once (family / manager /
+      // guard) instead of silently making everyone "family"
+      final fresh = _rows.where((v) => !before.contains(v['user_id'])).toList();
+      if (mounted && widget.team != null && fresh.length == 1) {
+        if (await showCctvRoleSheet(context, widget.team!,
+            siteId: widget.siteId, viewer: fresh.first)) {
+          await _load();
+        }
       }
     } catch (e) {
       _addError = wmError(e) ?? t.wmGenericError;

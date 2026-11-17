@@ -99,6 +99,24 @@ class _DayAct extends FakeCctvAct {
   }
 }
 
+class _GrowViewers extends FakeWatchman {
+  bool added = false;
+  @override
+  Future<Map<String, dynamic>> viewers(int siteId) async => {
+        'viewers': [
+          {'user_id': 7, 'name': 'Karima', 'phone': '017•••••002', 'since': '2026-10-26T09:00:00+06:00'},
+          if (added)
+            {'user_id': 8, 'name': 'Selim', 'phone': '017•••••003', 'since': '2026-11-17T09:00:00+06:00'},
+        ],
+        'max': 5,
+      };
+  @override
+  Future<Map<String, dynamic>> addViewer(int siteId, String phone) async {
+    added = true;
+    return {'ok': true};
+  }
+}
+
 /// start() waits until the test lets it answer.
 class _SlowVendorLive extends FakeVendorLive {
   final gate = Completer<void>();
@@ -517,5 +535,18 @@ void main() {
     final y = DateTime.now().subtract(const Duration(days: 1));
     expect(src.dates.last,
         '${y.year}-${y.month.toString().padLeft(2, '0')}-${y.day.toString().padLeft(2, '0')}');
+  });
+
+  testWidgets('R5 a person just added is asked their role at once', (tester) async {
+    _phone(tester, height: 2000);
+    final src = _GrowViewers();
+    await tester.pumpWidget(_app(
+        WatchmanViewersScreen(source: src, siteId: 1, team: FakeCctvTeam('data'))));
+    await _settle(tester);
+    await tester.enterText(find.byType(TextField).first, '01799999999');
+    await tester.pump();
+    await tester.tap(find.text(en.wmFamilyAdd));
+    await _settle(tester, 16);
+    expect(find.byKey(const ValueKey('ctm-role-save')), findsOneWidget);
   });
 }
