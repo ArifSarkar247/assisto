@@ -120,31 +120,10 @@ class _ItagScreenState extends State<ItagScreen> {
   }
 
   Future<String?> _askName(String initial) async {
-    final t = AppLocalizations.of(context);
-    final ctl = TextEditingController(text: initial);
     final r = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(t.itgNameTitle),
-        scrollable: true,
-        content: TextField(
-          key: const Key('itag-name'),
-          controller: ctl,
-          autofocus: true,
-          textInputAction: TextInputAction.done,
-          onSubmitted: (v) => Navigator.pop(ctx, v),
-          decoration: InputDecoration(hintText: t.itgNameHint),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(t.cancel)),
-          FilledButton(
-              key: const Key('itag-name-ok'),
-              onPressed: () => Navigator.pop(ctx, ctl.text),
-              child: Text(t.save)),
-        ],
-      ),
+      builder: (_) => _NameDialog(initial: initial),
     );
-    ctl.dispose();
     final v = r?.trim();
     return (v == null || v.isEmpty) ? null : v;
   }
@@ -386,6 +365,50 @@ class _ItagScreenState extends State<ItagScreen> {
             ),
         ]),
       ]),
+    );
+  }
+}
+
+/// The name dialog owns its text controller (disposed with the dialog,
+/// after the closing animation — never while the field is still drawn).
+class _NameDialog extends StatefulWidget {
+  const _NameDialog({required this.initial});
+  final String initial;
+
+  @override
+  State<_NameDialog> createState() => _NameDialogState();
+}
+
+class _NameDialogState extends State<_NameDialog> {
+  late final TextEditingController _ctl = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _ctl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(t.itgNameTitle),
+      scrollable: true,
+      content: TextField(
+        key: const Key('itag-name'),
+        controller: _ctl,
+        autofocus: true,
+        textInputAction: TextInputAction.done,
+        onSubmitted: (v) => Navigator.pop(context, v),
+        decoration: InputDecoration(hintText: t.itgNameHint),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(t.cancel)),
+        FilledButton(
+            key: const Key('itag-name-ok'),
+            onPressed: () => Navigator.pop(context, _ctl.text),
+            child: Text(t.save)),
+      ],
     );
   }
 }

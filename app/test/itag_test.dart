@@ -488,7 +488,9 @@ void main() {
     test('behind the server switch itag_tags (OFF), routed + in the drawer', () {
       expect(kFeatureDefaults['itag_tags'], isFalse);
       expect(kRouteFeature['itag_tags'], 'itag_tags');
-      expect(ChatNav.routes.containsKey('itag_tags'), isTrue);
+      // switch OFF: no entry anywhere, a stale link opens "not available"
+      expect(ChatNav.routes.containsKey('itag_tags'), isFalse);
+      expect(ChatNav.builderFor('itag_tags'), isNotNull);
     });
 
     test('never on child or safety screens', () {
