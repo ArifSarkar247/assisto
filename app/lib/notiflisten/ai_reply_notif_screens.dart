@@ -64,21 +64,20 @@ class _AiReplyNotifSettingsScreenState extends State<AiReplyNotifSettingsScreen>
   Future<void> _refresh() async {
     final s = await AiReplyNotifService.load();
     final st = await AiReplyNotifService.bridge.status();
-    var usedUp = false;
-    if (s.on && mounted) {
-      try {
-        final m = await context.read<AppState>().api.aiReplyNotifState();
-        usedUp = m['free_left'] is num && (m['free_left'] as num) <= 0 && m['unlock_ad_placement'] != null;
-      } catch (_) {} // offline / older server: the native counter still decides
-    }
     if (!mounted) return;
     setState(() {
       _st = st;
-      _freeUsedUp = usedUp;
       _on = s.on;
       _apps = s.apps;
       _loaded = true;
     });
+    if (!s.on) return;
+    // free user with no free replies left -> the in-app unlock card (never in a notification)
+    try {
+      final m = await context.read<AppState>().api.aiReplyNotifState();
+      final usedUp = m['free_left'] is num && (m['free_left'] as num) <= 0 && m['unlock_ad_placement'] != null;
+      if (mounted && usedUp != _freeUsedUp) setState(() => _freeUsedUp = usedUp);
+    } catch (_) {} // offline / older server: the native counter still decides
   }
 
   Future<void> _set({bool? on, List<String>? apps}) async {
