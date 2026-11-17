@@ -19,6 +19,7 @@
 // human hears/sees the other side. That needs the two-phone checklist
 // (owner_actions/PHONE_TEST_CHECKLIST.md: Wi-Fi <-> mobile data, app closed).
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -334,4 +335,148 @@ void registerCircleRealCallFlows() {
     f.ownerCheck('Video call: both see each other\'s real camera picture');
     f.ownerCheck('Wi-Fi on one phone, mobile data on the other: call connects (TURN relay)');
   }, timeout: const Duration(minutes: 8));
+
+  // ------------------------------------------------------------------------
+  // gatefix (owner P0, 18 Nov): video must flow BOTH ways in every way a
+  // video call can start. ONE emulator, TWO emulated cameras (gate circle
+  // leg: -camera-front emulated -camera-back emulated): A (this app, UI)
+  // uses the front camera, B (second client, real CallController +
+  // WebRtcCallMedia) the back one. Every case is REQUIRED: on each receiving
+  // side framesDecoded > 0 at t=3 s and growing by t=10 s. Evidence (both
+  // sides' SDP offer/answer, transceivers, video rtp stats at 3 s and 10 s)
+  // is printed to logcat as GATEFIX_EVIDENCE lines (the circle artifact).
+  realityFlow('18v_video_both_ways', 'My Circle',
+      'Video both ways: (a) both cameras, (b) caller camera off -> on, (c) voice -> video; frames decoded on each side',
+      (f) async {
+    await f.home();
+    late ApiClient apiB;
+    late PollRealtimeTransport rtB;
+    final incomingB = <Map<String, dynamic>>[];
+    CallController? callB;
+    await f.step('B (second client) signs in, real-time channel open', () async {
+      apiB = await f.net(() => f.h.backend(userB: true));
+      rtB = PollRealtimeTransport.forApi(apiB);
+      rtB.events.listen((e) {
+        if (e.topic == 'call.incoming') incomingB.add(e.payload);
+      });
+      await f.net(() => rtB.connect());
+      rtB.setFast(true);
+    });
+    Future<int> edgeToA() async {
+      final members = await f.net(() => apiB.getJson('/circle/members'));
+      return (((members['results'] ?? members['members']) as List)
+          .cast<Map>()
+          .firstWhere((m) => '${m['name']}'.contains('Rahim'))['id'] as num)
+          .toInt();
+    }
+
+    Future<WebRtcCallMedia> bCalls({required bool video, bool cameraBlocked = false}) async {
+      final media = WebRtcCallMedia(cameraBlocked: cameraBlocked, facing: 'environment');
+      final edge = await edgeToA();
+      await f.net(() async {
+        final c = CallController(
+          media: media,
+          signaling: ApiCallSignaling(apiB, rtB),
+          sounds: _Silent(),
+          video: video,
+          outgoing: true,
+          memberId: edge,
+        );
+        callB = c;
+        unawaited(c.start());
+      });
+      await f.waitFor(find.byType(IncomingCallScreen), seconds: 20, what: 'incoming call screen on A');
+      await f.tap(find.byKey(const Key('incoming-accept')), settleSeconds: 2);
+      await f.waitFor(find.byType(CircleCallScreen), what: 'call screen on A');
+      await f.eventually('B connected', () async => callB!.phase == CallPhase.connected, seconds: 40);
+      await f.eventually('A connected', () async =>
+          CallRuntime.instance.currentCall?.phase == CallPhase.connected, seconds: 20);
+      return media;
+    }
+
+    Future<void> dump(String kase, String t) async {
+      final a = CallRuntime.instance.currentCall?.media;
+      final b = callB?.media;
+      for (final side in [('A', a), ('B', b)]) {
+        final m = side.$2;
+        final ev = m is WebRtcCallMedia ? await f.net(() => m.debugEvidence()) : {'media': '${m.runtimeType}'};
+        final js = jsonEncode(ev);
+        const n = 700;
+        final parts = (js.length + n - 1) ~/ n;
+        for (var i = 0; i < parts; i++) {
+          // ignore: avoid_print
+          print('GATEFIX_EVIDENCE $kase ${side.$1} $t ${i + 1}/$parts '
+              '${js.substring(i * n, (i + 1) * n > js.length ? js.length : (i + 1) * n)}');
+        }
+      }
+    }
+
+    /// Both directions: framesDecoded > 0 at 3 s and growing by 10 s on BOTH
+    /// receiving sides; A-out / B-out encoded frames printed next to them.
+    Future<void> proveBothWays(String kase) async {
+      final a = CallRuntime.instance.currentCall;
+      if (a == null) throw TestFailure('$kase: no live call on A');
+      await f.pumpFor(const Duration(seconds: 3));
+      await dump(kase, 't3');
+      final a3 = await f.net(() => a.media.stats());
+      final b3 = await f.net(() => callB!.media.stats());
+      await f.pumpFor(const Duration(seconds: 7));
+      await dump(kase, 't10');
+      final a10 = await f.net(() => a.media.stats());
+      final b10 = await f.net(() => callB!.media.stats());
+      final line = '$kase: A out enc ${a3.videoFramesEncoded}->${a10.videoFramesEncoded} '
+          '-> B in dec ${b3.videoFramesDecoded}->${b10.videoFramesDecoded}; '
+          'B out enc ${b3.videoFramesEncoded}->${b10.videoFramesEncoded} '
+          '-> A in dec ${a3.videoFramesDecoded}->${a10.videoFramesDecoded}';
+      f.note(line);
+      bool ok(int? x3, int? x10) => (x3 ?? 0) > 0 && (x10 ?? 0) > (x3 ?? 0);
+      if (!ok(b3.videoFramesDecoded, b10.videoFramesDecoded)) {
+        throw TestFailure('A->B video not flowing. $line');
+      }
+      if (!ok(a3.videoFramesDecoded, a10.videoFramesDecoded)) {
+        throw TestFailure('B->A video not flowing. $line');
+      }
+    }
+
+    Future<void> endCall() async {
+      await f.tap(find.byKey(const Key('call-hangup')), settleSeconds: 3);
+      await f.eventually('B saw the end', () async => callB!.isEnded, seconds: 10);
+      callB?.dispose();
+      callB = null;
+      await f.backToHome();
+      await f.pumpFor(const Duration(seconds: 2));
+    }
+
+    await f.step('(a) video call, both cameras on -> frames both ways', () async {
+      await bCalls(video: true);
+      await f.shot('a-connected');
+      await proveBothWays('a');
+      await endCall();
+    });
+
+    await f.step('(b) caller camera off at start, then on mid-call -> frames both ways', () async {
+      final mb = await bCalls(video: true, cameraBlocked: true);
+      if (!mb.cameraUnavailable) throw TestFailure('(b) B camera should start unavailable');
+      mb.cameraBlocked = false;
+      await f.net(() => callB!.toggleCamera());
+      if (!callB!.cameraOn) throw TestFailure('(b) B camera did not turn on (log ${callB!.log})');
+      await f.shot('b-camera-on');
+      await proveBothWays('b');
+      await endCall();
+    });
+
+    await f.step('(c) voice call switched to video mid-call -> frames both ways', () async {
+      await bCalls(video: false);
+      await f.net(() => callB!.requestVideo());
+      final a = CallRuntime.instance.currentCall!;
+      await f.eventually('A sees the video request', () async => a.upgrade == VideoUpgrade.incoming,
+          seconds: 15);
+      await f.net(() => a.acceptVideo());
+      await f.eventually('both on video', () async => a.videoOn && callB!.videoOn, seconds: 20);
+      await f.shot('c-video');
+      await proveBothWays('c');
+      await endCall();
+    });
+    await rtB.close();
+  }, timeout: const Duration(minutes: 10));
 }

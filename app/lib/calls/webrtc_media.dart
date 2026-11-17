@@ -45,14 +45,23 @@ class WebRtcCallMedia
         // circle-screenshare
         ScreenShareMedia,
         ScreenShareSurface {
-  WebRtcCallMedia({this.cameraBlocked = false});
+  WebRtcCallMedia({this.cameraBlocked = false, this.facing = 'user'});
 
   /// gatefix: behave as if the camera cannot open (busy / failed HAL) —
   /// takes the REAL fallback below (join with the camera off,
   /// cameraUnavailable). The release gate's second client uses it: one
   /// emulator has one camera, and that is exactly the path whose video
   /// m-line was missing (gate run 44133650344).
-  final bool cameraBlocked;
+  /// Not final: the gate turns the camera "back on" mid-call (case b).
+  bool cameraBlocked;
+
+  /// gatefix: which camera this side opens ('user' = front, the app's only
+  /// value; the gate's second client uses 'environment' so ONE emulator
+  /// with two emulated cameras can run a video call with both cameras on).
+  final String facing;
+
+  Map<String, dynamic> get _videoConstraints =>
+      {..._videoConstraintsBase, 'facingMode': facing};
 
   RTCPeerConnection? _pc;
   RTCRtpSender? _audioSender;
@@ -158,7 +167,7 @@ class WebRtcCallMedia
     'autoGainControl': true,
   };
 
-  static const Map<String, dynamic> _videoConstraints = {
+  static const Map<String, dynamic> _videoConstraintsBase = {
     'facingMode': 'user',
     'width': {'ideal': 640},
     'height': {'ideal': 480},
@@ -192,6 +201,7 @@ class WebRtcCallMedia
     final pc = _peer;
     MediaStream cam;
     try {
+      if (cameraBlocked) throw StateError('camera blocked');
       cam = await navigator.mediaDevices
           .getUserMedia({'audio': false, 'video': _videoConstraints});
     } catch (e) {
@@ -626,6 +636,61 @@ class WebRtcCallMedia
       ? RTCVideoView(remoteRenderer,
           objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover)
       : const SizedBox.shrink();
+
+  /// gatefix (owner P0, video calls): the WHOLE negotiated state of this side
+  /// for the release gate's evidence — local/remote SDP, every transceiver
+  /// (mid, kind, direction, currentDirection, sender/receiver track) and the
+  /// video rtp stats. Read-only; never called by the app itself.
+  @visibleForTesting
+  Future<Map<String, dynamic>> debugEvidence() async {
+    final pc = _pc;
+    if (pc == null) return {'pc': null};
+    final out = <String, dynamic>{};
+    try {
+      out['local_sdp'] = (await pc.getLocalDescription())?.sdp;
+      out['remote_sdp'] = (await pc.getRemoteDescription())?.sdp;
+    } catch (e) {
+      out['sdp_error'] = '$e';
+    }
+    final tx = <Map<String, dynamic>>[];
+    try {
+      for (final t in await pc.getTransceivers()) {
+        String? dir, cur;
+        try {
+          dir = '${await t.getDirection()}';
+          cur = '${await t.getCurrentDirection()}';
+        } catch (_) {}
+        final st = t.sender.track, rt = t.receiver.track;
+        tx.add({
+          'mid': t.mid, 'direction': dir, 'current': cur,
+          'sender_track': st == null ? null : {'id': st.id, 'kind': st.kind, 'enabled': st.enabled},
+          'receiver_track': rt == null ? null : {'id': rt.id, 'kind': rt.kind},
+        });
+      }
+    } catch (e) {
+      out['transceivers_error'] = '$e';
+    }
+    out['transceivers'] = tx;
+    final rtp = <Map<String, dynamic>>[];
+    try {
+      for (final r in await pc.getStats()) {
+        if (r.type != 'inbound-rtp' && r.type != 'outbound-rtp') continue;
+        final v = r.values;
+        rtp.add({
+          'type': r.type, 'kind': v['kind'] ?? v['mediaType'], 'mid': v['mid'],
+          for (final k in const ['framesEncoded', 'framesSent', 'packetsSent', 'framesDecoded',
+              'framesReceived', 'packetsReceived', 'bytesReceived', 'frameWidth', 'frameHeight'])
+            if (v[k] != null) k: v[k],
+        });
+      }
+    } catch (e) {
+      out['stats_error'] = '$e';
+    }
+    out['rtp'] = rtp;
+    out['local_video_track'] = _videoTrack?.id;
+    out['has_remote_video'] = hasRemoteVideo.value;
+    return out;
+  }
 
   @override
   Future<void> dispose() async {
