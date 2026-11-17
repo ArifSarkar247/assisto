@@ -27,7 +27,9 @@ class TrainFresh {
   const TrainFresh(this.kind, [this.ageMin = 0]);
 }
 
-TrainFresh trainFreshOf(Map<String, dynamic> v) {
+/// [sinceLoadS]: seconds since this answer arrived (no internet for a
+/// while -> "live" turns into "N min ago" on its own).
+TrainFresh trainFreshOf(Map<String, dynamic> v, {int sinceLoadS = 0}) {
   final f = v['freshness'];
   final live = v['live'] is Map ? v['live'] as Map : null;
   int ageS = (live?['age_s'] as num?)?.toInt() ?? 0;
@@ -36,6 +38,7 @@ TrainFresh trainFreshOf(Map<String, dynamic> v) {
     state = '${f['state'] ?? ''}';
     ageS = (f['age_s'] as num?)?.toInt() ?? ageS;
   }
+  ageS += sinceLoadS;
   state ??= live != null ? (ageS <= 120 ? 'live' : 'stale') : 'timetable';
   if (state == 'estimate') state = 'timetable';
   if (state == 'live' && ageS > 120) state = 'stale';

@@ -309,6 +309,7 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
   /// (tower + timetable), clearly labelled.
   Map<String, dynamic>? _off;
   TrainOnboardWatch? _watch;
+  DateTime _loadedAt = DateTime.now();
 
   @override
   void initState() {
@@ -360,6 +361,7 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
   }
 
   Future<void> _loadOffline() async {
+    unawaited(TrainOutbox.I.refreshCount());
     final p = await TrainOfflineStore.I.load();
     final tr = p?.trains[widget.no];
     if (p == null || tr == null) return;
@@ -393,13 +395,19 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
         }
         _failed = false;
         _off = null;
+        _loadedAt = DateTime.now();
       });
       if (wasOff) unawaited(_syncUp());
       _startWatch(r[0]);
     } catch (_) {
       if (!mounted) return;
       if (_v == null || _off != null) await _loadOffline();
-      if (!mounted || quiet) return;
+      if (!mounted) return;
+      // quiet poll failed: repaint so the freshness chip ages ("N min ago")
+      if (quiet) {
+        setState(() {});
+        return;
+      }
       setState(() => _failed = true);
     }
   }
@@ -687,7 +695,8 @@ class _TrainLiveScreenState extends State<TrainLiveScreen> {
           if (v['runs'] == false)
             _chip(t.trOffDay, cs.ds.dangerBg, cs.ds.dangerInk, Icons.event_busy_rounded),
           // train-app: always how fresh it is (live / N min ago / predicted / timetable)
-          TrainFreshChip(fresh: trainFreshOf(v)),
+          TrainFreshChip(
+              fresh: trainFreshOf(v, sinceLoadS: DateTime.now().difference(_loadedAt).inSeconds)),
         ]),
         const SizedBox(height: Gap.sm),
         Semantics(
@@ -892,6 +901,7 @@ class _TrainOfflineSectionState extends State<TrainOfflineSection> {
 
   Future<void> _init() async {
     await TrainOfflineStore.I.load();
+    if (!mounted) return;
     try {
       final m = await context.read<AppState>().api.trainOfflineMeta();
       if (mounted) setState(() => _size = (m['size_bytes'] as num?)?.toInt());
