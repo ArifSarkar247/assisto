@@ -99,6 +99,10 @@ class FlowResult {
   final List<StepResult> steps = [];
   final List<HttpHit> http = [];
   final List<String> needsKey = [];
+  /// gatefix (owner 17 Nov "stronger test + phone list"): what only two REAL
+  /// phones can show (app-closed FCM ring, hearing/seeing each other, ...).
+  /// Listed for the owner's phone checklist; it never changes the class.
+  final List<String> ownerChecks = [];
   final Stopwatch sw = Stopwatch()..start();
   FlowResult(this.id, this.section, this.feature);
   Map<String, dynamic> toJson() => {
@@ -109,6 +113,7 @@ class FlowResult {
         'note': note,
         'error': error,
         'needs_key': needsKey,
+        'owner_checks': ownerChecks,
         'seconds': sw.elapsedMilliseconds / 1000,
         'steps': [for (final s in steps) s.toJson()],
         'http': [for (final h in http) h.toJson()],
@@ -362,6 +367,9 @@ class RFlow {
 
   void note(String n) => r.note = r.note.isEmpty ? n : '${r.note}; $n';
   void needsKey(String k) => r.needsKey.add(k);
+  /// gatefix: an owner two-phone checklist item (class unchanged — the flow is
+  /// judged on what CI proved; see FlowResult.ownerChecks).
+  void ownerCheck(String k) => r.ownerChecks.add(k);
   void skip(String why) {
     r.status = 'skip';
     r.note = why;
