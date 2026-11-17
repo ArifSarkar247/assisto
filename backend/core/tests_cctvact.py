@@ -459,6 +459,19 @@ class ActApiTests(_X):
         self.assertEqual(rows[0]["w"], 1)                 # one wrong, not two
         self.assertEqual(rows[0]["r"], {"staff": 1})      # the reason is kept
 
+    def test_gapcctv_actions_say_warning_missing_and_thana_lookup_failed(self):
+        ev = self.ingest().data["event_id"]
+        act = self.client.get("/api/v1/shop/events/%d" % ev).data["actions"]["act"]
+        self.assertIs(act["has_warn"], False)             # tile: "record first"
+        self.assertEqual(act["thana"]["state"], "no_location")
+        with mock.patch("core.nearby.search", return_value=([], "unavailable")):
+            r = self.client.put("/api/v1/shop/sites/%d/location" % self.site["id"],
+                                {"lat": 23.81, "lon": 90.41}, format="json")
+            self.assertEqual(r.status_code, 200, r.data)
+        act = self.client.get("/api/v1/shop/events/%d" % ev).data["actions"]["act"]
+        self.assertTrue(act["thana"]["has_location"])
+        self.assertEqual(act["thana"]["state"], "unavailable")   # not "none nearby"
+
     def test_live_thana_and_play_actions(self):
         from core.models import ShopGatewayTask
         ev = self.ingest().data["event_id"]

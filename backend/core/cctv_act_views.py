@@ -285,6 +285,11 @@ def act_actions(ev, role, user=None):
             cache = guard_get(site, "_thana") or {}
             out["thana"] = {"has_location": bool(loc.get("lat")),
                             "stations": cache.get("stations") or [] if loc.get("lat") else [],
+                            # gap-cctv: a failed lookup is never cached, so a
+                            # location with no cache = "could not look up"
+                            "state": ("no_location" if not loc.get("lat") else
+                                      (cache.get("state") or "ok") if cache.get("at")
+                                      else "unavailable"),
                             "emergency": "999"}
             out["play"] = play_targets(site)
             # gap-cctv: is the owner's own warning recorded? (else the tile

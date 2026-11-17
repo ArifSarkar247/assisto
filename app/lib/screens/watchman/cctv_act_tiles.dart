@@ -171,7 +171,10 @@ class _ActTilesState extends State<ActTiles> {
             'state': r['state'],
             'emergency': '999',
           });
-      if ((r['stations'] as List?)?.isEmpty ?? true) _snack(t.cv3ThanaNone);
+      if ((r['stations'] as List?)?.isEmpty ?? true) {
+        // gap-cctv: "could not look up" is not "no thana nearby"
+        _snack(r['state'] == 'unavailable' ? t.gcvThanaUnavailable : t.cv3ThanaNone);
+      }
     });
   }
 
@@ -327,7 +330,11 @@ class _ActTilesState extends State<ActTiles> {
               key: const ValueKey('cv3-thana-set'),
               icon: Icons.add_location_alt_outlined,
               label: t.cv3ThanaFind,
-              sub: thana['has_location'] == true ? t.cv3ThanaNone : t.cv3ThanaFindSub,
+              sub: thana['has_location'] != true
+                  ? t.cv3ThanaFindSub
+                  : thana['state'] == 'unavailable'
+                      ? t.gcvThanaUnavailable
+                      : t.cv3ThanaNone,
               onTap: _busy ? null : _setLocation),
         _tile(
             key: const ValueKey('cv3-wrong'),

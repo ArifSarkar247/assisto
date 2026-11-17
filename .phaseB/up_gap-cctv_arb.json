@@ -38,6 +38,10 @@
   "gcvEvidencePartial": "Part of the pack could not be made (watermarked copies or PDF). The originals and the SHA-256 list are complete.",
   "@gcvEvidencePartial": {
    "description": "gap-cctv: evidence pack built without watermark copies or PDF"
+  },
+  "gcvThanaUnavailable": "Could not look up the nearest thana right now — tap to try again. 999 always works.",
+  "@gcvThanaUnavailable": {
+   "description": "gap-cctv: thana lookup failed (not 'none nearby')"
   }
  },
  "bn": {
@@ -58,6 +62,7 @@
   "gcvWarnRecordFirst": "এখনো রেকর্ড করা হয়নি — নিজের কণ্ঠে সতর্কবার্তা রেকর্ড করতে চাপুন",
   "gcvWarnDeleteAsk": "রেকর্ড করা সতর্কবার্তাটি মুছবেন?",
   "gcvEvidenceMaking": "প্রমাণ-প্যাক তৈরি হচ্ছে… (ছবি, ক্লিপ, SHA-256 তালিকা, PDF)",
-  "gcvEvidencePartial": "প্যাকের একটি অংশ তৈরি করা যায়নি (সময়-ছাপ দেওয়া কপি বা PDF)। মূল ফাইল আর SHA-256 তালিকা সম্পূর্ণ আছে।"
+  "gcvEvidencePartial": "প্যাকের একটি অংশ তৈরি করা যায়নি (সময়-ছাপ দেওয়া কপি বা PDF)। মূল ফাইল আর SHA-256 তালিকা সম্পূর্ণ আছে।",
+  "gcvThanaUnavailable": "এখন কাছের থানা খোঁজা গেল না — আবার চেষ্টা করতে চাপুন। ৯৯৯ সবসময় চলে।"
  }
 }
