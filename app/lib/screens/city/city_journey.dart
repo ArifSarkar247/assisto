@@ -85,14 +85,42 @@ Future<void> startCityJourney(BuildContext context,
   final msg = ScaffoldMessenger.of(context);
   final nav = Navigator.of(context);
   final h = DateTime.now().hour;
+  Map<String, dynamic>? started;
   try {
-    final r = await api.journeyStart(
+    started = await api.journeyStart(
       destination: {'name': dest.name, 'lat': dest.lat, 'lng': dest.lng},
       etaIso: DateTime.now().add(Duration(minutes: option.minutes + 10)).toUtc().toIso8601String(),
       watcherIds: res.ids.toList(),
       mode: cityJourneyMode(option),
       night: h >= 20 || h < 6,
     );
+  } catch (_) {
+    started = null;
+  }
+  if (started == null) {
+    // gap-city: no internet -> the family cannot be told, but the get-off
+    // alarm runs on the phone and the trip guide (steps, which gate) works
+    if (res.alarm && stop?.lat != null && stop?.lon != null && context.mounted) {
+      final name = stop!.label(cityBn(context));
+      try {
+        await (arm ?? (int _, DestPlan p, DestAlarmTexts x) => DestAlarmController.I.start(p, x))(
+            0,
+            DestPlan(
+                mode: TransportMode.cityBus,
+                target: DestTarget(name, stop.lat!, stop.lon!),
+                setM: kCityAlarmM,
+                notifyCircleIds: const []),
+            destAlarmTexts(context, t, name));
+        msg.showSnackBar(SnackBar(content: Text(t.cityGOfflineAlarmOnly)));
+        await nav.push(MaterialPageRoute(builder: (_) => CityTripScreen(option: option)));
+        return;
+      } catch (_) {} // falls through to the honest "could not start"
+    }
+    msg.showSnackBar(SnackBar(content: Text(t.cityStartFailed)));
+    return;
+  }
+  try {
+    final r = started;
     final id = (r['id'] as num?)?.toInt() ?? 0;
     if (res.alarm && stop?.lat != null && stop?.lon != null && context.mounted) {
       final name = stop!.label(cityBn(context));

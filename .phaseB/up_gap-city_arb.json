@@ -1,17 +1,43 @@
 {
   "en": {
     "cityGRouteHere": "Go by bus / metro",
-    "@cityGRouteHere": {"description": "gap-city: button on a place (office, terminal, hospital...) that plans the trip there in City Service"},
+    "@cityGRouteHere": {
+      "description": "gap-city: button on a place (office, terminal, hospital...) that plans the trip there in City Service"
+    },
     "cityGLoadFailed": "Could not load right now. Check the internet and try again.",
-    "@cityGLoadFailed": {"description": "gap-city: a City Service list failed to load; a Try again button follows"},
+    "@cityGLoadFailed": {
+      "description": "gap-city: a City Service list failed to load; a Try again button follows"
+    },
     "cityGNoMatch": "Nothing matches \"{q}\". Try a shorter name.",
-    "@cityGNoMatch": {"description": "gap-city: search in offices / terminals found nothing", "placeholders": {"q": {"type": "String"}}},
+    "@cityGNoMatch": {
+      "description": "gap-city: search in offices / terminals found nothing",
+      "placeholders": {
+        "q": {
+          "type": "String"
+        }
+      }
+    },
     "cityGNeedStart": "Where are you starting from? Location is off, so choose your start point or turn location on.",
-    "@cityGNeedStart": {"description": "gap-city: destination chosen but no GPS and no start point"},
+    "@cityGNeedStart": {
+      "description": "gap-city: destination chosen but no GPS and no start point"
+    },
     "cityGUseMyLocation": "Use my location",
-    "@cityGUseMyLocation": {"description": "gap-city: button: ask for the phone's location again"},
+    "@cityGUseMyLocation": {
+      "description": "gap-city: button: ask for the phone's location again"
+    },
     "cityGSearchAll": "Search all places for \"{place}\"",
-    "@cityGSearchAll": {"description": "gap-city: voice ask: the name is not in our bus/metro data; open the full place search", "placeholders": {"place": {"type": "String"}}}
+    "@cityGSearchAll": {
+      "description": "gap-city: voice ask: the name is not in our bus/metro data; open the full place search",
+      "placeholders": {
+        "place": {
+          "type": "String"
+        }
+      }
+    },
+    "cityGOfflineAlarmOnly": "No internet, so your family was not told. The get-off alarm is on and the steps are below.",
+    "@cityGOfflineAlarmOnly": {
+      "description": "gap-city: Start as Safe Journey failed offline; only the on-phone get-off alarm started"
+    }
   },
   "bn": {
     "cityGRouteHere": "বাস / মেট্রোতে যাওয়ার পথ",
@@ -19,6 +45,7 @@
     "cityGNoMatch": "\"{q}\" নামে কিছু পাওয়া যায়নি। ছোট করে নাম লিখে দেখুন।",
     "cityGNeedStart": "কোথা থেকে যাবেন? লোকেশন বন্ধ আছে, তাই শুরুর জায়গা বেছে নিন বা লোকেশন চালু করুন।",
     "cityGUseMyLocation": "আমার লোকেশন ব্যবহার করুন",
-    "cityGSearchAll": "সব জায়গার মধ্যে \"{place}\" খুঁজুন"
+    "cityGSearchAll": "সব জায়গার মধ্যে \"{place}\" খুঁজুন",
+    "cityGOfflineAlarmOnly": "ইন্টারনেট নেই, তাই পরিবারকে জানানো যায়নি। নামার অ্যালার্ম চালু আছে, নিচে ধাপগুলো দেখুন।"
   }
 }

@@ -10,6 +10,7 @@
 //  * the offline map pack keeps fonts + sprites (CITY_MAP_TILES_API.md §5).
 import 'dart:io';
 
+import 'package:assisto/city/city_models.dart';
 import 'package:assisto/city/city_offline.dart';
 import 'package:assisto/city/map/city_map_style.dart';
 import 'package:assisto/l10n/app_localizations.dart';
@@ -17,10 +18,13 @@ import 'package:assisto/maps/place_search.dart' show PlacePick;
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/city/city_around_screen.dart';
 import 'package:assisto/screens/city/city_directory_screen.dart';
+import 'package:assisto/screens/city/city_journey.dart';
 import 'package:assisto/screens/city/city_service_screen.dart';
 import 'package:assisto/screens/city/city_voice.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
+import 'package:assisto/train/dest_alarm_math.dart';
+import 'package:assisto/train/dest_alarm_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,15 +32,23 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fake_api.dart';
+import 'fake_city.dart';
 
 class _GapApi extends FakeApi {
   bool offline = false;
+  bool netDown = false; // everything off (Safe Journey start too)
   _GapApi({super.mode});
 
   @override
   Future<Map<String, dynamic>> getJson(String path) async {
-    if (offline && path.startsWith('/city/')) throw const SocketException('offline');
+    if (netDown || (offline && path.startsWith('/city/'))) throw const SocketException('offline');
     return super.getJson(path);
+  }
+
+  @override
+  Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    if (netDown) throw const SocketException('offline');
+    return super.postJson(path, body);
   }
 }
 
@@ -228,6 +240,39 @@ void main() {
       expect(find.byKey(const ValueKey('city_need_start_pick')), findsOneWidget);
       // the old misleading "Could not find the way" is gone
       expect(find.text(t.cityPlanFailed), findsNothing);
+    });
+
+    testWidgets('Start as Safe Journey with no internet: the get-off alarm still starts + the trip guide opens',
+        (tester) async {
+      final api = _GapApi()..netDown = true;
+      final armed = <(int, DestPlan)>[];
+      final o = CityPlan.from(fakeCityPlan()).options[CityPick.fastest]!;
+      final t = await _pump(
+          tester,
+          Builder(
+              builder: (c) => Scaffold(
+                  body: Center(
+                      child: FilledButton(
+                          key: const ValueKey('go'),
+                          onPressed: () => startCityJourney(c,
+                              option: o,
+                              dest: (name: 'Motijheel', address: '', lat: 23.7284, lng: 90.4205),
+                              askLocation: () async {},
+                              arm: (id, p, _) async => armed.add((id, p))),
+                          child: const Text('go'))))),
+          api);
+      await tester.tap(find.byKey(const ValueKey('go')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const ValueKey('city_sj_go')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('city_sj_go')));
+      await tester.pumpAndSettle();
+      expect(armed.single.$1, 0, reason: 'no journey id offline');
+      expect(armed.single.$2.target.name, 'Motijheel');
+      expect(armed.single.$2.notifyCircleIds, isEmpty);
+      expect(find.byType(CityTripScreen), findsOneWidget);
+      expect(find.text(t.cityGOfflineAlarmOnly), findsOneWidget);
+      expect(find.text(t.cityStartFailed), findsNothing);
     });
   });
 }
