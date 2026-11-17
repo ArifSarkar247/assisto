@@ -762,7 +762,8 @@ class TowerMapTests(TestCase):
         TrainCellBin.objects.create(cell="470-1-9-8", bi=bi, bj=bj, n=1)   # too few samples
         m = TE.tower_map()
         self.assertEqual(len(m), 1)
-        mcc, mnc, tac, cid, seg, metres, n = m[0]
+        mcc, mnc, tac, cid, seg, metres, n, la, ln = m[0]
+        self.assertLess(L.haversine_m(la / 1e5, ln / 1e5, lat, lng), 1500)
         self.assertEqual((mcc, mnc, tac, cid, n), (470, 1, 9, 9, 5))
         self.assertTrue(0 <= seg < len(SRC.segment_index()))
         self.assertGreaterEqual(metres, 0)

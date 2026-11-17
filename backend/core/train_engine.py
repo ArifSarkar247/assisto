@@ -1100,7 +1100,7 @@ def _segment_indexes():
 def tower_map():
     """Learned towers for the offline bundle's `tw` (format in the plan doc,
     "অফলাইন বান্ডেল"): [mcc, mnc, tac, cid, segment index, metres into that
-    segment, samples] — the strongest bin per tower snapped to the nearest
+    segment, samples, lat x 1e5, lng x 1e5] — the strongest bin per tower snapped to the nearest
     rail segment (<= 1.5 km). Aggregate counts only, no rider, no time."""
     best = {}
     for cell, bi, bj, n in TrainCellBin.objects.values_list("cell", "bi", "bj", "n"):
@@ -1120,11 +1120,13 @@ def tower_map():
                 continue
             ch, off = ri.project(lat, lng, radius_cells=2)
             if ch is not None and off <= L.CELL_ON_ROUTE_M and (hit is None or off < hit[2]):
-                hit = (i, ch, off)
+                hit = (i, ch, off, ri)
         if hit is None:
             continue
         mcc, mnc, tac, cid = (int(x) for x in cell.split("-"))
-        out.append([mcc, mnc, tac, cid, hit[0], int(round(hit[1])), int(total)])
+        plat, plng = hit[3].point_at(hit[1])      # the learned point, snapped to the line
+        out.append([mcc, mnc, tac, cid, hit[0], int(round(hit[1])), int(total),
+                    int(round(plat * 1e5)), int(round(plng * 1e5))])
     return out
 
 
