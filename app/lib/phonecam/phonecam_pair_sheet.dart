@@ -229,7 +229,8 @@ class GuardBoxLinuxSteps extends StatelessWidget {
   /// true inside the pairing sheet (the code is just above); false elsewhere
   /// (the step says where to get the code).
   final bool codeAbove;
-  const GuardBoxLinuxSteps({super.key, this.codeAbove = true});
+  final bool initiallyExpanded; // gallery shot of the open steps
+  const GuardBoxLinuxSteps({super.key, this.codeAbove = true, this.initiallyExpanded = false});
 
   @override
   Widget build(BuildContext context) {
@@ -266,6 +267,7 @@ class GuardBoxLinuxSteps extends StatelessWidget {
       padding: EdgeInsets.zero,
       child: ExpansionTile(
         key: const Key('pcLinuxBox'),
+        initiallyExpanded: initiallyExpanded,
         leading: const Icon(Icons.developer_board_rounded),
         title: Text(t.gcvLinuxTitle),
         subtitle: Text(t.gcvLinuxSub),
