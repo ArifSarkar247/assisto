@@ -314,7 +314,8 @@ class _BooksScreenState extends State<BooksScreen> {
           t.lgrPeriodRange(_day(p['from']), _day(p['to'])),
           valueColor: net < 0 ? ds.dangerInk : ds.successInk),
       const SizedBox(height: Gap.md),
-      DsChipRow(padding: EdgeInsets.zero, children: [
+      // three period chips on a Wrap (all visible, no side scroll)
+      Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
         for (final e in periods.entries)
           DsChip(
             label: e.value,
