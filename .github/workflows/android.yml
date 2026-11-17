@@ -113,6 +113,21 @@ jobs:
           d = json.load(open("android/app/google-services.json"))
           pk = [c["client_info"]["android_client_info"]["package_name"] for c in d.get("client", [])]
           assert "com.assisto.assisto" in pk, "google-services.json has no com.assisto.assisto client"
+          # Owner 17 Nov (signup P0 follow-up): if the app ever uses Google
+          # Sign-In / Firebase Auth, the build FAILS unless google-services.json
+          # carries an Android OAuth client with a certificate fingerprint
+          # (Play app-signing + upload SHA added in Firebase, json re-downloaded).
+          import re
+          pub = open("pubspec.yaml").read()
+          if re.search(r"^\s*(google_sign_in|firebase_auth|firebase_ui_auth|credential_manager)\s*:", pub, re.M):
+              ours = [c for c in d.get("client", []) if c["client_info"]["android_client_info"]["package_name"] == "com.assisto.assisto"]
+              certs = [o for c in ours for o in (c.get("oauth_client") or []) if o.get("client_type") == 1 and (o.get("android_info") or {}).get("certificate_hash")]
+              web = [o for c in ours for o in (c.get("oauth_client") or []) if o.get("client_type") == 3]
+              assert certs, "Google Sign-In is used but google-services.json has NO Android OAuth client with a SHA fingerprint (add Play app-signing + upload SHA-1/SHA-256 in Firebase, re-download the json, update the GOOGLE_SERVICES_JSON_B64 secret)"
+              assert web, "Google Sign-In is used but google-services.json has NO web OAuth client id"
+              print("Google Sign-In config OK: android oauth clients", len(certs))
+          else:
+              print("Google Sign-In: not used by the app (no fingerprint check needed)")
           print("google-services.json OK for project", d["project_info"]["project_id"])
           PY2
           else
