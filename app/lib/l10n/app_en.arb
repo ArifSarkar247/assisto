@@ -52413,5 +52413,34 @@
   "sosgapOpenFull": "Who is on the way · live location · 30 s sound",
   "@sosgapOpenFull": {
     "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
+  },
+  "vehHoldTitle": "The vehicle is moving",
+  "@vehHoldTitle": {
+    "description": "flag-vehicle: engine cut asked while the vehicle moves"
+  },
+  "vehHoldBody": "For safety, Assisto never cuts the engine of a moving vehicle. We can send the engine cut automatically as soon as it has stopped. We wait up to {minutes} minutes, then cancel it and tell you. You can cancel it any time.",
+  "@vehHoldBody": {
+    "description": "flag-vehicle: explains the wait-until-stopped engine cut",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "vehHoldCta": "Send when stopped",
+  "@vehHoldCta": {
+    "description": "flag-vehicle: button, hold the engine cut until the vehicle stops"
+  },
+  "vehHoldQueued": "Waiting for the vehicle to stop. The engine cut goes out by itself then, and you get a notification.",
+  "@vehHoldQueued": {
+    "description": "flag-vehicle: snack after a held engine cut was confirmed"
+  },
+  "vehCmdStWaitStop": "waiting for the vehicle to stop",
+  "@vehCmdStWaitStop": {
+    "description": "flag-vehicle: command state, held until stopped"
+  },
+  "vehCmdStNeverStopped": "not sent: the vehicle did not stop",
+  "@vehCmdStNeverStopped": {
+    "description": "flag-vehicle: command state, hold expired"
   }
 }
