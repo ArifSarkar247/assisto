@@ -38,6 +38,10 @@ USERS = {
     # run removes any A<->C edge so the flow always starts from "not added".
     "c": {"name": "Reality Nadia", "phone": os.getenv("REALITY_C_PHONE", "01711000777"),
           "email": "nadia@reality.test"},
+    # group-calls: the THIRD person of the 3-way group call proof (flow
+    # 18g): in A's and B's circle (accepted both ways).
+    "d": {"name": "Reality Dipu", "phone": "01700000004",
+          "email": "dipu@reality.test"},
 }
 
 
@@ -139,6 +143,17 @@ class Command(BaseCommand):
         eb = CircleMember.objects.filter(user=users["b"], peer_user=users["a"]).first()
         circle = {"a_member_id": ea.id if ea else None, "a_state": ea.state if ea else None,
                   "b_member_id": eb.id if eb else None, "b_state": eb.state if eb else None}
+
+        # --- group-calls: D is in A's and B's circle (both ways, accepted)
+        for x, y in (("a", "d"), ("d", "a"), ("b", "d"), ("d", "b")):
+            CircleMember.objects.update_or_create(
+                user=users[x], peer_user=users[y],
+                defaults={"name": USERS[y]["name"], "phone": USERS[y]["phone"],
+                          "state": "accepted", "relation": "friend",
+                          "direction": "outgoing" if x in ("a", "b") else "incoming"})
+        self.steps.append({"step": "circle A<->D, B<->D (group call proof)",
+                           "method": "DB", "path": "circle", "status": 200,
+                           "ok": True})
 
         # --- m3-circle: A and C start NOT connected (the flow adds C)
         CircleMember.objects.filter(user=users["a"], peer_user=users["c"]).delete()
