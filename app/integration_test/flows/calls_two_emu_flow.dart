@@ -50,8 +50,12 @@ final _http = HttpClient()..connectionTimeout = const Duration(seconds: 10);
 Future<Map<String, dynamic>> _req(String method, String path, [Map<String, dynamic>? body]) async {
   final rq = await _http.openUrl(method, Uri.parse('$_ctl$path')).timeout(const Duration(seconds: 15));
   if (body != null) {
+    // calls-2emu run 44173136049: without a length HttpClient sends the body
+    // chunked and the control channel read nothing.
+    final bytes = utf8.encode(jsonEncode(body));
     rq.headers.contentType = ContentType.json;
-    rq.write(jsonEncode(body));
+    rq.contentLength = bytes.length;
+    rq.add(bytes);
   }
   final rs = await rq.close().timeout(const Duration(seconds: 20));
   final txt = await rs.transform(utf8.decoder).join();

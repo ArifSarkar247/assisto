@@ -80,6 +80,7 @@ def _rec(case, on):
 
 
 class H(BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
     def log_message(self, fmt, *a):
         _append("control_http.log", "%s %s" % (time.strftime("%H:%M:%S"), fmt % a))
 
@@ -92,9 +93,19 @@ class H(BaseHTTPRequestHandler):
         self.wfile.write(b)
 
     def _body(self):
-        n = int(self.headers.get("Content-Length") or 0)
+        raw = b""
+        if "chunked" in (self.headers.get("Transfer-Encoding") or "").lower():
+            while True:  # HTTP/1.1 chunked body (a client that sends no length)
+                size = int(self.rfile.readline().split(b";")[0].strip() or b"0", 16)
+                if size == 0:
+                    self.rfile.readline()
+                    break
+                raw += self.rfile.read(size)
+                self.rfile.readline()
+        else:
+            raw = self.rfile.read(int(self.headers.get("Content-Length") or 0))
         try:
-            return json.loads(self.rfile.read(n) or b"{}")
+            return json.loads(raw or b"{}")
         except ValueError:
             return {}
 
