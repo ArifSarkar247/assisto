@@ -81,7 +81,6 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> with WidgetsBindingObse
   bool _inFlight = false;
   bool _refreshFailed = false;
   DateTime? _loadedAt;
-  final _tasksKey = GlobalKey();
   late final ScrollController _scroll =
       ScrollController(initialScrollOffset: widget.debugScrollOffset);
 
@@ -594,16 +593,13 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> with WidgetsBindingObse
         if (x is Map) x
     ];
     return [
-      KeyedSubtree(
-        key: _tasksKey, // gap-familycare: Today's bills row scrolls here
-        child: _section(t.fc3TasksTitle,
-            key: const ValueKey('fc3-tasks'),
-            trailing: TextButton.icon(
-                key: const ValueKey('fc3-task-add'),
-                onPressed: _addTask,
-                icon: const Icon(Icons.add_rounded),
-                label: Text(t.fc3TaskAdd))),
-      ),
+      _section(t.fc3TasksTitle,
+          key: const ValueKey('fc3-tasks'),
+          trailing: TextButton.icon(
+              key: const ValueKey('fc3-task-add'),
+              onPressed: _addTask,
+              icon: const Icon(Icons.add_rounded),
+              label: Text(t.fc3TaskAdd))),
       if (tasks.isEmpty)
         Text(t.fc3TaskEmpty, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       for (final x in tasks) _taskTile(x),
@@ -795,8 +791,7 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> with WidgetsBindingObse
               : null),
       row(Icons.receipt_long_rounded,
           bills == 0 ? t.fc3TodayBillsNone : t.fc3TodayBills(fcDigits(context, bills)),
-          ink: bills > 0 ? fcInk(context, 'check') : null,
-          onTap: bills > 0 ? _showTasks : null),
+          ink: bills > 0 ? fcInk(context, 'check') : null),
       if (births.isNotEmpty) row(Icons.cake_rounded, t.fc3TodayBirthday(births.join(', '))),
       row(Icons.shopping_basket_rounded,
           bazar == 0 ? t.fc3TodayBazarNone : t.fc3TodayBazar(fcDigits(context, bazar)),
@@ -804,21 +799,6 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> with WidgetsBindingObse
     ];
   }
 
-  /// The list is lazy: step towards the tasks until they are built, then
-  /// bring the heading to the top (the Today row is below them, so up).
-  Future<void> _showTasks() async {
-    for (var i = 0; i < 12 && _tasksKey.currentContext == null && _scroll.hasClients; i++) {
-      final p = _scroll.position;
-      final next = (p.pixels - 600).clamp(p.minScrollExtent, p.maxScrollExtent);
-      if (next == p.pixels) break;
-      _scroll.jumpTo(next);
-      await WidgetsBinding.instance.endOfFrame;
-    }
-    final c = _tasksKey.currentContext;
-    if (c != null && c.mounted) {
-      await Scrollable.ensureVisible(c, duration: const Duration(milliseconds: 300), alignment: 0.05);
-    }
-  }
 
   void _openSection(FcSection s, String title) {
     // gap-familycare: the Probashi page shows the abroad members' own clocks
@@ -960,17 +940,30 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> with WidgetsBindingObse
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(children: [
-        Icon(Icons.cloud_off_rounded, color: fcInk(context, 'stale')),
-        const SizedBox(width: Gap.sm),
-        Expanded(child: Text(t.fcgStaleBanner(when))),
-        TextButton(
-          key: const ValueKey('fcg-stale-retry'),
-          onPressed: () {
-            setState(() => _loading = true);
-            _load();
-          },
-          child: Text(t.retry),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xs),
+            child: Icon(Icons.cloud_off_rounded, color: fcInk(context, 'stale')),
+          ),
+          const SizedBox(width: Gap.sm),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: Gap.xs, right: Gap.sm),
+              child: Text(t.fcgStaleBanner(when)),
+            ),
+          ),
+        ]),
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: TextButton(
+            key: const ValueKey('fcg-stale-retry'),
+            onPressed: () {
+              setState(() => _loading = true);
+              _load();
+            },
+            child: Text(t.retry),
+          ),
         ),
       ]),
     );

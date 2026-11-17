@@ -277,6 +277,9 @@ void main() {
     await _pump(t, const FamilyV3Screen(), api);
     final row = find.byKey(const ValueKey('fcr-more-rename'));
     await t.scrollUntilVisible(row, 400, scrollable: find.byType(Scrollable).first);
+    // gap-familycare: keep the row clear of the red SOS bar at the bottom
+    await t.drag(find.byType(Scrollable).first, const Offset(0, -300));
+    await t.pumpAndSettle();
     await t.tap(row);
     await t.pumpAndSettle();
     await t.enterText(find.byKey(const ValueKey('fcr-rename-field')), "Parents' home");

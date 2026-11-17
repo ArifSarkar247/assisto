@@ -207,6 +207,8 @@ void main() {
       await _pump(t, const ElderEasyHome(debugFamily: fceFamily), FakeApi(), lang: 'bn', scale: 2);
       await t.scrollUntilVisible(find.byKey(const Key('fce-talk')), 200,
           scrollable: find.byType(Scrollable).first);
+      await t.ensureVisible(find.byKey(const Key('fce-talk')));
+      await t.pumpAndSettle();
       await t.tap(find.byKey(const Key('fce-talk')));
       await t.pumpAndSettle();
       expect(t.takeException(), isNull);
