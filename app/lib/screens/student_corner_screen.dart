@@ -4,6 +4,7 @@ import '../ads/ad_placements.dart' show AdExit, AdExitPlacement;
 import '../l10n/app_localizations.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/skeleton.dart';
 import '../widgets/student_gpa_engine.dart';
 import 'package:assisto/widgets/app_sheet.dart';
@@ -112,17 +113,7 @@ class _StudentCornerScreenState extends State<StudentCornerScreen> {
     if (_error) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.studentTitle)),
-        body: StateMessage(
-          icon: Icons.cloud_off_rounded,
-          tint: scheme.error,
-          title: tr.loadFailed,
-          message: honestFailText(tr, _failCause, otherwise: tr.studentLoadError),
-          action: FilledButton.tonalIcon(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh_rounded),
-            label: Text(tr.retry),
-          ),
-        ),
+        body: ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: tr.loadFailed, benefit: honestFailText(tr, _failCause, otherwise: tr.studentLoadError), actionLabel: tr.retry, onAction: _load)]),
       );
     }
     // p3guides: with the official extras on, every tab (each has its own
@@ -132,16 +123,7 @@ class _StudentCornerScreenState extends State<StudentCornerScreen> {
     if (_empty && !extras) {
       return Scaffold(
         appBar: AppBar(title: Text(tr.studentTitle)),
-        body: StateMessage(
-          icon: Icons.school_rounded,
-          title: tr.studentWelcomeTitle,
-          message: tr.studentWelcomeBody,
-          action: FilledButton.icon(
-            onPressed: () => _addCourse(context),
-            icon: const Icon(Icons.calculate_rounded),
-            label: Text(tr.studentAddCourse),
-          ),
-        ),
+        body: ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.school_rounded, title: tr.studentWelcomeTitle, benefit: tr.studentWelcomeBody, actionLabel: tr.studentAddCourse, onAction: () => _addCourse(context))]),
       );
     }
     return DefaultTabController(
@@ -228,16 +210,7 @@ class _RoutineTab extends StatelessWidget {
         label: Text(tr.studentAddPeriod),
       ),
       body: days.isEmpty
-          ? StateMessage(
-              icon: Icons.calendar_view_week_rounded,
-              title: tr.studentRoutineEmptyTitle,
-              message: tr.studentRoutineEmptyBody,
-              action: FilledButton.tonalIcon( // lifebar
-                onPressed: () => _edit(context, null),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tr.studentAddPeriod),
-              ),
-            )
+          ? ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.calendar_view_week_rounded, title: tr.studentRoutineEmptyTitle, benefit: tr.studentRoutineEmptyBody, actionLabel: tr.studentAddPeriod, onAction: () => _edit(context, null))])
           : RefreshIndicator(
               onRefresh: onChanged,
               child: ListView(
@@ -260,9 +233,7 @@ class _RoutineTab extends StatelessWidget {
                       ]),
                     ),
                     for (final p in d.periods)
-                      Card(
-                        margin: const EdgeInsets.only(bottom: Gap.sm),
-                        child: ListTile(
+                      Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                           leading: Icon(Icons.schedule_rounded,
                               color: p.conflict ? scheme.error : scheme.primary),
                           title: Text(
@@ -280,8 +251,7 @@ class _RoutineTab extends StatelessWidget {
                             },
                           ),
                           onTap: () => _edit(context, _rawOf(p.id)),
-                        ),
-                      ),
+                        ))),
                   ],
                 ],
               ),
@@ -515,16 +485,7 @@ class _TrackerTab extends StatelessWidget {
         label: Text(tr.studentAddAssignment),
       ),
       body: board.all.isEmpty
-          ? StateMessage(
-              icon: Icons.assignment_rounded,
-              title: tr.studentTrackerEmptyTitle,
-              message: tr.studentTrackerEmptyBody,
-              action: FilledButton.tonalIcon( // lifebar
-                onPressed: () => _edit(context, null),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tr.studentAddAssignment),
-              ),
-            )
+          ? ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.assignment_rounded, title: tr.studentTrackerEmptyTitle, benefit: tr.studentTrackerEmptyBody, actionLabel: tr.studentAddAssignment, onAction: () => _edit(context, null))])
           : RefreshIndicator(
               onRefresh: onChanged,
               child: ListView(
@@ -553,21 +514,14 @@ class _TrackerTab extends StatelessWidget {
   Widget _overdueBanner(BuildContext context, int n) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      color: scheme.errorContainer,
-      margin: const EdgeInsets.only(bottom: Gap.md),
-      child: Padding(
-        padding: const EdgeInsets.all(Gap.md),
-        child: Row(children: [
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.md), child: DsCard(padding: const EdgeInsets.all(Gap.md), tone: DsTone.danger, child: Row(children: [
           Icon(Icons.warning_amber_rounded, color: scheme.onErrorContainer),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Text(ld(context, tr.studentOverdueBanner(n)),
-                style: TextStyle(color: scheme.onErrorContainer)),
+                style: AType.bodyMedium.copyWith(color: scheme.onErrorContainer)),
           ),
-        ]),
-      ),
-    );
+        ])));
   }
 
   Map<String, dynamic>? _rawOf(dynamic id) {
@@ -622,15 +576,13 @@ class _TrackerCard extends StatelessWidget {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final (label, color) = _badge(tr, scheme, status);
-    return Card(
-      margin: const EdgeInsets.only(bottom: Gap.sm),
-      child: ListTile(
+    return Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
         leading: Checkbox(value: status.done, onChanged: (_) => onToggle()),
         title: Text(
           status.title.isEmpty ? tr.studentUntitled : status.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
+          style: AType.bodyMedium.copyWith(
             decoration:
                 status.done ? TextDecoration.lineThrough : TextDecoration.none,
           ),
@@ -655,7 +607,7 @@ class _TrackerCard extends StatelessWidget {
                       : tr.studentKindAssignment,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: scheme.onSurfaceVariant),
+              style: AType.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
             ),
           ),
         ]),
@@ -665,8 +617,7 @@ class _TrackerCard extends StatelessWidget {
           onPressed: onDelete,
         ),
         onTap: onTap,
-      ),
-    );
+      )));
   }
 
   (String, Color) _badge(
@@ -846,17 +797,13 @@ class _CgpaTab extends StatelessWidget {
           padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
           children: [
             // headline CGPA card
-            Card(
-              color: scheme.primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(Gap.lg),
-                child: Column(children: [
+            DsHeroCard(padding: const EdgeInsets.all(Gap.lg), child: Column(children: [
                   Text(tr.studentCgpaLabel,
-                      style: TextStyle(color: scheme.onPrimaryContainer)),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
                   const SizedBox(height: Gap.xs),
                   Text(r.honest ? '—' : ld(context, r.cgpaDisplay),
                       style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color: scheme.onPrimaryContainer,
+                          color: scheme.ds.primaryInk,
                           fontWeight: FontWeight.w800)),
                   const SizedBox(height: Gap.xs),
                   Text(
@@ -865,28 +812,15 @@ class _CgpaTab extends StatelessWidget {
                           : ld(context, tr.studentCreditsSummary(/* (band, credits) */
                               _bandText(tr, r.classBand), _fmtNum(r.gradedCredits))),
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: scheme.onPrimaryContainer)),
-                ]),
-              ),
-            ),
+                      style: AType.bodyMedium.copyWith(color: scheme.ds.primaryInk)),
+                ])),
             const SizedBox(height: Gap.md),
             if (courses.isEmpty)
-              StateMessage(
-                icon: Icons.calculate_rounded,
-                title: tr.studentCgpaEmptyTitle,
-                message: tr.studentCgpaEmptyBody,
-                action: FilledButton.tonalIcon( // lifebar
-                  onPressed: () => onAdd(context),
-                  icon: const Icon(Icons.add_rounded),
-                  label: Text(tr.studentAddCourse),
-                ),
-              )
+              ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.calculate_rounded, title: tr.studentCgpaEmptyTitle, benefit: tr.studentCgpaEmptyBody, actionLabel: tr.studentAddCourse, onAction: () => onAdd(context))])
             else ...[
               // transparent per-course contribution
               for (final c in r.courses)
-                Card(
-                  margin: const EdgeInsets.only(bottom: Gap.sm),
-                  child: ListTile(
+                Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                     title: Text(
                         c.title.isEmpty ? tr.studentUntitled : c.title,
                         maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -912,8 +846,7 @@ class _CgpaTab extends StatelessWidget {
                         },
                       ),
                     ]),
-                  ),
-                ),
+                  ))),
               const SizedBox(height: Gap.sm),
               _formulaNote(context, r),
             ],
@@ -943,7 +876,7 @@ class _CgpaTab extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(tr.studentFormulaTitle,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.xs),
         Text(ld(context, tr.studentFormulaBody(/* (cgpa, credits, quality) */ r.cgpaDisplay,
             _fmtNum(r.gradedCredits), r.qualityPointsDisplay))),
@@ -957,7 +890,7 @@ class _CgpaTab extends StatelessWidget {
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       title: Text(tr.studentScaleTitle,
-          style: const TextStyle(fontWeight: FontWeight.w700)),
+          style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
       subtitle: Text(tr.studentScaleSubtitle,
           style: AType.bodySmall.copyWith(color: scheme.onSurfaceVariant)),
       children: [
@@ -989,7 +922,7 @@ class _CgpaTab extends StatelessWidget {
   Widget _cell(String s, {bool bold = false}) => Padding(
         padding: const EdgeInsets.all(Gap.sm),
         child: Text(s,
-            style: TextStyle(
+            style: AType.bodyMedium.copyWith(
                 fontWeight: bold ? FontWeight.w700 : FontWeight.normal)),
       );
 
@@ -1142,34 +1075,22 @@ class _GoalsTab extends StatelessWidget {
         label: Text(tr.studentAddGoal),
       ),
       body: goals.isEmpty
-          ? StateMessage(
-              icon: Icons.checklist_rtl_rounded,
-              title: tr.studentGoalsEmptyTitle,
-              message: tr.studentGoalsEmptyBody,
-              action: FilledButton.tonalIcon( // lifebar
-                onPressed: () => _add(context),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(tr.studentAddGoal),
-              ),
-            )
+          ? ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.checklist_rtl_rounded, title: tr.studentGoalsEmptyTitle, benefit: tr.studentGoalsEmptyBody, actionLabel: tr.studentAddGoal, onAction: () => _add(context))])
           : RefreshIndicator(
               onRefresh: onChanged,
               child: ListView(
                 padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
                 children: [
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(Gap.lg),
-                      child: Column(children: [
+                  DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(ld(context, tr.studentGoalProgress(p.done, p.total)),
-                                style: const TextStyle(
+                                style: AType.bodyMedium.copyWith(
                                     fontWeight: FontWeight.w700)),
                             Text(ld(context, '${p.percent}%'),
                                 style:
-                                    TextStyle(color: scheme.primary, fontWeight: FontWeight.w800, fontFeatures: AFonts.tabular)),
+                                    AType.bodyMedium.copyWith(color: scheme.primary, fontWeight: FontWeight.w800, fontFeatures: AFonts.tabular)),
                           ],
                         ),
                         const SizedBox(height: Gap.sm),
@@ -1179,14 +1100,10 @@ class _GoalsTab extends StatelessWidget {
                               value: p.total == 0 ? 0 : p.done / p.total,
                               minHeight: 8),
                         ),
-                      ]),
-                    ),
-                  ),
+                      ])),
                   const SizedBox(height: Gap.sm),
                   for (final g in goals)
-                    Card(
-                      margin: const EdgeInsets.only(bottom: Gap.sm),
-                      child: ListTile(
+                    Padding(padding: const EdgeInsets.only(bottom: Gap.sm), child: DsCard(padding: EdgeInsets.zero, child: ListTile(
                         leading: Checkbox(
                           value: g['done'] == true,
                           onChanged: (_) => _toggle(context, g),
@@ -1195,7 +1112,7 @@ class _GoalsTab extends StatelessWidget {
                           (g['title'] ?? '').toString().isEmpty
                               ? tr.studentUntitled
                               : g['title'].toString(),
-                          style: TextStyle(
+                          style: AType.bodyMedium.copyWith(
                             decoration: g['done'] == true
                                 ? TextDecoration.lineThrough
                                 : TextDecoration.none,
@@ -1211,8 +1128,7 @@ class _GoalsTab extends StatelessWidget {
                             }
                           },
                         ),
-                      ),
-                    ),
+                      ))),
                 ],
               ),
             ),

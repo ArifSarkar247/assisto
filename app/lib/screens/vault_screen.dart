@@ -508,7 +508,7 @@ class _VaultScreenState extends State<VaultScreen> {
             const SizedBox(height: 10),
             OutlinedButton.icon(
               icon: Icon(filePath == null ? Icons.attach_file_rounded : Icons.check_circle_rounded,
-                  size: 18, color: filePath == null ? null : Colors.green),
+                  size: 18, color: filePath == null ? null : Theme.of(ctx).colorScheme.ds.success),
               label: Text(filePath == null ? t.vaultAttachImage : t.vaultImageAttached),
               onPressed: () async {
                 final p = await _pickImage();
@@ -605,7 +605,7 @@ class _VaultScreenState extends State<VaultScreen> {
                 style: AType.titleLarge.copyWith(fontWeight: FontWeight.bold))),
           ]),
           const SizedBox(height: Gap.xs),
-          Text(dt.label(t), style: TextStyle(color: Colors.grey)),
+          Text(dt.label(t), style: AType.bodyMedium.copyWith(color: Theme.of(ctx).colorScheme.ds.muted)),
           if (doc['e2e'] == true)
             Padding(
               padding: const EdgeInsets.only(top: Gap.xs),
@@ -638,7 +638,7 @@ class _VaultScreenState extends State<VaultScreen> {
                 padding: const EdgeInsets.only(bottom: Gap.sm),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   SizedBox(width: 140, child: Text(_fieldLabel(t, dt, e.key),
-                      style: const TextStyle(fontWeight: FontWeight.w600))),
+                      style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
                   Expanded(child: SelectableText(e.value)),
                 ]),
               ),
@@ -881,11 +881,12 @@ class _VaultScreenState extends State<VaultScreen> {
     Color c;
     String t;
     final daysStr = fmtInt(context, days);
-    if (days < 0) { c = Colors.red; t = AppLocalizations.of(context).vaultExpired; }
-    else if (days <= 7) { c = Colors.red; t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
-    else if (days <= 30) { c = Colors.orange; t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
+    final ds = Theme.of(context).colorScheme.ds;
+    if (days < 0) { c = ds.danger; t = AppLocalizations.of(context).vaultExpired; }
+    else if (days <= 7) { c = ds.danger; t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
+    else if (days <= 30) { c = Brand.warning; t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
     else if (days <= 90) { c = Brand.warnInk(context); t = AppLocalizations.of(context).vaultExpiresInDays(daysStr); }
-    else { c = Colors.green; t = DateFormat('d MMM yyyy', Localizations.localeOf(context).languageCode).format(d); }
+    else { c = ds.success; t = DateFormat('d MMM yyyy', Localizations.localeOf(context).languageCode).format(d); }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.xxs),
       decoration: BoxDecoration(color: c.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
@@ -898,9 +899,7 @@ class _VaultScreenState extends State<VaultScreen> {
   Widget _e2eCard(AppLocalizations t) {
     final locked = _docs.where((d) => d['_e2e_locked'] == true).length;
     final on = VaultE2E.instance.unlocked;
-    return Card(
-      key: const Key('vault_e2e_card'),
-      child: ListTile(
+    return DsCard(key: const Key('vault_e2e_card'), padding: EdgeInsets.zero, child: ListTile(
         minVerticalPadding: Gap.sm,
         leading: Icon(locked > 0 ? Icons.lock_rounded : Icons.enhanced_encryption_rounded),
         title: Text(locked > 0
@@ -911,16 +910,10 @@ class _VaultScreenState extends State<VaultScreen> {
         subtitle: Text(locked > 0 ? t.vaultE2eUnlockCode : (on ? t.vaultE2eBadgeLong : t.vaultE2eWhatShort)),
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: _openE2E,
-      ),
-    );
+      ));
   }
 
-  Widget _nudge(AppLocalizations t) => Card(
-        key: const Key('vault_recovery_nudge'),
-        color: Theme.of(context).colorScheme.ds.primarySoft,
-        child: Padding(
-          padding: const EdgeInsets.all(Gap.md),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  Widget _nudge(AppLocalizations t) => DsCard(key: const Key('vault_recovery_nudge'), padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Icon(Icons.key_rounded, color: Theme.of(context).colorScheme.ds.primaryInk),
               const SizedBox(width: Gap.sm),
@@ -951,16 +944,14 @@ class _VaultScreenState extends State<VaultScreen> {
                   onPressed: () => setState(() => _nudgeDismissed = true),
                   child: Text(t.vaultNudgeLater)),
             ]),
-          ]),
-        ),
-      );
+          ]));
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     switch (_gateState) {
       case _Gate.checking:
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        return const Scaffold(body: SkeletonList(count: 4));
       case _Gate.setPin:
       case _Gate.enterPin:
         return Scaffold(
@@ -1000,47 +991,26 @@ class _VaultScreenState extends State<VaultScreen> {
       body: _loading
           ? const SkeletonList()
           : _error
-              ? StateMessage(
-                  icon: Icons.cloud_off_rounded,
-                  tint: Theme.of(context).colorScheme.error,
-                  title: t.loadFailed,
-                  message: honestFailText(t, _failCause, otherwise: t.checkInternetRetry),
-                  action: FilledButton.tonalIcon(
-                      onPressed: _load,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: Text(t.retry)))
+              ? ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.cloud_off_rounded, danger: true, title: t.loadFailed, benefit: honestFailText(t, _failCause, otherwise: t.checkInternetRetry), actionLabel: t.retry, onAction: _load)])
               : _docs.isEmpty
-                  ? StateMessage(
-                      icon: Icons.folder_open_rounded,
-                      title: t.vaultEmptyTitle,
-                      message: t.vaultEmptyMessage,
-                      action: _e2eFlag
-                          ? OutlinedButton.icon(
-                              key: const Key('vault_e2e_empty'),
-                              onPressed: _openE2E,
-                              icon: const Icon(Icons.enhanced_encryption_rounded),
-                              label: Text(t.vaultE2eTitle))
-                          : null)
+                  ? ListView(shrinkWrap: true, padding: const EdgeInsets.all(Gap.lg), children: [DsEmptyState(icon: Icons.folder_open_rounded, title: t.vaultEmptyTitle, benefit: t.vaultEmptyMessage, actionLabel: _e2eFlag ? t.vaultE2eTitle : null, onAction: _e2eFlag ? _openE2E : null, actionKey: const Key('vault_e2e_empty'))])
                   : RefreshIndicator(
                       onRefresh: _load,
                       child: ListView(
                       padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 88),
                       children: [
                         if (_offlineMode)
-                          Card(
-                            key: const Key('vault_offline_banner'),
-                            child: ListTile(
+                          DsCard(key: const Key('vault_offline_banner'), padding: EdgeInsets.zero, child: ListTile(
                               leading: const Icon(Icons.cloud_off_rounded),
                               title: Text(t.vaultOfflineBanner(fmtInt(context, _docs.length))),
                               subtitle: Text(t.vaultOfflineBannerSub),
                               trailing: TextButton(onPressed: _load, child: Text(t.retry)),
-                            ),
-                          ),
+                            )),
                         if (!_offlineMode && !_hasRecoveryCode && !_nudgeDismissed && !widget.previewUnlocked)
                           _nudge(t),
                         if (_e2eFlag && !_offlineMode) _e2eCard(t),
                         for (final doc in filtered)
-                          Card(child: ListTile(
+                          DsCard(padding: EdgeInsets.zero, child: ListTile(
                             minVerticalPadding: Gap.sm,
                             onTap: () => _openDoc(doc),
                             leading: Icon(doc['_e2e_locked'] == true
