@@ -102,7 +102,9 @@ void main() {
   group('never: timed mock, listening audio, speaking recording, book timer, certificate', () {
     test('no ad API inside the exam / audio / recording / timer code', () {
       const mock = 'lib/screens/lp2/lp_mock.dart';
-      for (final c in ['_LpMockRunnerState', '_LrSectionState', '_LpAudioState', '_WritingSectionState',
+      // lpaudio: the recorded-listening flow lives in lp_listen.dart — no ad API anywhere in it
+      expect(_adApi.hasMatch(File('lib/screens/lp2/lp_listen.dart').readAsStringSync()), isFalse);
+      for (final c in ['_LpMockRunnerState', '_LrSectionState', '_WritingSectionState',
         '_SpeakingSectionState', 'LpQuestion']) {
         expect(_adApi.hasMatch(_classSrc(mock, c)), isFalse, reason: c);
       }

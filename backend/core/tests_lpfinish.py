@@ -92,15 +92,17 @@ class SeedLiveTests(TestCase):
             self.assertEqual(r["mocks"][0]["sections"], ["listening", "reading", "writing", "speaking"])
             self.assertTrue(r["mocks"][0]["beta"])
 
-    def test_listening_section_has_phone_tts_and_no_keys(self, _f):
+    def test_listening_section_sends_no_script_and_no_keys(self, _f):
+        # lpaudio: without recorded audio the phone gets NO script lines (no phone TTS)
         r = self.c.get(V + "/lp/mocks/ielts-ac-001?section=listening")
         self.assertEqual(r.status_code, 200, r.content[:200])
         body = r.json()
         part = body["listening"]["parts"][0]
         self.assertIsNone(part["audio_url"])
-        self.assertTrue(part["tts"]["lines"])
+        self.assertNotIn("tts", part)
+        self.assertFalse(body["listening"]["audio_ready"])
         raw = r.content.decode()
-        for hidden in ('"answer"', '"explain_bn"', '"transcript"'):
+        for hidden in ('"answer"', '"explain_bn"', '"transcript"', '"turns"', '"lines"', '"intro"'):
             self.assertNotIn(hidden, raw)
         # marking the free section works and gives a practice band
         m = self.c.post(V + "/lp/mocks/ielts-ac-001/mark", {"section": "listening", "answers": {"1": "x"}},

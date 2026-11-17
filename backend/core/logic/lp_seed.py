@@ -6,14 +6,17 @@ out); `manage.py lp_seed` imports them into the DB.
   tools/lp/content/ielts/ielts-(ac|gt)-NNN.json   format assisto.lp.ielts/1 (lpfinish)
   tools/lp/content/<lang>/*.json                  stage 2/3 tracks (FORMAT.md §10-§11)
 
-No recorded audio is needed: a listening part / question keeps its script as
-TTS lines that the phone's own voice reads (never shown before marking). When
-the CI TTS job later ships mp3s, `lp_import <bundle>` replaces them with audio.
+IELTS listening (lpaudio): recorded audio made in CI (.github/workflows/lp-audio.yml)
+is attached from the audio index that `manage.py lp_audio` builds — only for parts
+whose script is unchanged (plan hash); the script itself stays on the server.
+Stage 2/3 tracks keep phone-TTS lines until their audio exists.
 """
 import copy
 import glob
 import json
 import os
+
+from . import lp_audio as AU
 
 IELTS_FORMAT = "assisto.lp.ielts/1"
 TRACK_LANGS = ("ja", "ko", "de", "zh", "fr", "ar")
@@ -29,9 +32,10 @@ def _load(path):
         return json.load(fh)
 
 
-def ielts_item(d):
+def ielts_item(d, audio_index=None):
     """One assisto.lp.ielts/1 file -> a lpcore `mock` ITEM (inline sections;
-    the importer splits them into section items)."""
+    the importer splits them into section items). `audio_index` (lpaudio) =
+    {bundle: {part: stored audio}} from `manage.py lp_audio`."""
     if d.get("format") != IELTS_FORMAT:
         raise ValueError("not an IELTS bundle: %s" % d.get("bundle_id"))
     general = d.get("module") == "general"
@@ -44,6 +48,7 @@ def ielts_item(d):
                                     for t in turns)
         p["turns"] = [{"spk": t.get("spk") or "", "text": t["text"]} for t in turns]
         p["tts_lang"] = TTS_LOCALE.get(p.get("accent"), "en-GB")
+    AU.attach(lis, d, audio_index)
     data = {"title_en": (d.get("title") or {}).get("en", ""), "title_bn": (d.get("title") or {}).get("bn", ""),
             "module": "general" if general else "academic",
             "listening": lis, "reading": copy.deepcopy(d.get("reading") or {}),
@@ -62,8 +67,9 @@ def _tts_of(script, lang):
         if lines else None
 
 
-def track_items(content_dir):
-    """Stage 2/3 syllabus, lesson and test files -> ITEMs (no audio paths)."""
+def track_items(content_dir, audio_index=None):
+    """Stage 2/3 syllabus, lesson and test files -> ITEMs; test listening
+    questions get their recorded audio when `audio_index` has it (lpaudio)."""
     items = []
     for lang in TRACK_LANGS:
         for p in sorted(glob.glob(os.path.join(content_dir, lang, "*.json"))):
@@ -97,14 +103,16 @@ def track_items(content_dir):
                             t = _tts_of(q.get("script"), lang)
                             if t:
                                 q["tts"] = t
+                AU.attach_track(data, d["bundle_id"], lang, d, audio_index)
                 items.append({"kind": "mock", "key": d["bundle_id"], "track": d["track"],
                               "level": LEVELS.get(d["track"], ""), "data": data})
     return items
 
 
-def ielts_items(content_dir):
-    return [ielts_item(_load(p)) for p in sorted(glob.glob(os.path.join(content_dir, "ielts", "ielts-*.json")))]
+def ielts_items(content_dir, audio_index=None):
+    return [ielts_item(_load(p), audio_index)
+            for p in sorted(glob.glob(os.path.join(content_dir, "ielts", "ielts-*.json")))]
 
 
-def all_items(content_dir):
-    return ielts_items(content_dir) + track_items(content_dir)
+def all_items(content_dir, audio_index=None):
+    return ielts_items(content_dir, audio_index) + track_items(content_dir, audio_index)
