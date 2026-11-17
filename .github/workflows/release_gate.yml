@@ -1,0 +1,434 @@
+name: Release gate
+
+# relgate — OWNER (17 Nov, Assisto live on Google Play): every build sent to
+# INTERNAL / CLOSED testing must pass the full e2e + smoke suites first.
+# This workflow judges ONE release build (an android.yml run) and ends with
+#   * job summary line  RELEASE_GATE=PASS <sha>  (or FAIL)
+#   * commit status     context "release-gate" = success | failure on <sha>
+# so the lead's server-side ship script can require a green gate:
+#   gh api repos/OWNER/REPO/commits/<sha>/status \
+#     -q '.statuses[] | select(.context=="release-gate") | .state'
+#
+# Legs (parallel, each on its own runner; total ~35-45 min):
+#   smoke-33 / smoke-28  the EXACT release APK of that build (android.yml
+#                        artifact assisto-apk-emu, same commit): 3 cold starts,
+#                        no crash / ANR (API 33 + older API 28)
+#   auth                 e2e proof flows: signup + login with OTP (CI fake SMS),
+#                        My Circle media message, Safe Journey UI start -> live,
+#                        SOS -> guardian, khata expense via chat (exact ৳50)
+#   circle               log in + My Circle 1:1 messages A<->B (ticks) + call ring/accept
+#   journey-pay          Safe Journey start -> live -> arrived (sjproof) + plans & credits
+#   money                money / family accounting / khata / mess saves with Bangla
+#                        digits (save sweep) + khata due exact to the poisha + mess month math
+#   sos-closed           notifproof: SOS (DND + screen off -> full-screen alarm) and
+#                        a My Circle message with the app process KILLED
+# The flow legs reuse the existing flows (app/integration_test/flows, run by
+# tools/reality/run_flows.sh; notifproof by tools/notifproof/np_driver.py) on a
+# debug TEST build of the SAME commit (a release APK cannot host the flow
+# harness) against a throw-away Django + Postgres in the runner (CI fakes for
+# SMS/e-mail OTP, push, AI). Never the live server, never the owner account.
+#
+# Trigger: automatically after every android.yml run on main; or by hand
+#   gh workflow run release_gate.yml -f run_id=<android.yml run id>
+#   gh workflow run release_gate.yml -f ref=<sha|branch>   (default: main)
+
+on:
+  workflow_run:
+    workflows: ["Build Assisto APK"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "android.yml run id to gate (wins over ref)"
+        required: false
+        default: ""
+      ref:
+        description: "commit sha or branch whose green android.yml build to gate (main = newest green main build)"
+        required: false
+        default: "main"
+  push:
+    branches: ['ci/relgate**']
+    paths:
+      - '.github/workflows/release_gate.yml'
+      - 'tools/relgate/**'
+
+concurrency:
+  # a newer main build supersedes an older gate; hand-started gates never cancel each other
+  group: relgate-${{ github.event_name == 'workflow_run' && 'main' || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  statuses: write
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      go: ${{ steps.r.outputs.go }}
+      sha: ${{ steps.r.outputs.sha }}
+      run_id: ${{ steps.r.outputs.run_id }}
+      apk_artifact: ${{ steps.r.outputs.apk_artifact }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools/relgate
+            tools/reality/summarize.py
+          sparse-checkout-cone-mode: false
+      - name: Verdict rules unit test (owner checklist never changes a class)
+        run: python3 tools/relgate/test_verdict.py -v
+      - id: r
+        name: Which release build? (+ commit status pending)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          WR_ID: ${{ github.event.workflow_run.id }}
+          WR_SHA: ${{ github.event.workflow_run.head_sha }}
+          WR_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          IN_RUN_ID: ${{ inputs.run_id }}
+          IN_REF: ${{ inputs.ref }}
+        run: bash tools/relgate/resolve.sh
+
+  # ------------------------------------------------ the exact release APK
+  smoke:
+    needs: resolve
+    if: needs.resolve.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [33, 28]
+    name: smoke-${{ matrix.api }} (release APK, 3 cold starts)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/relgate
+      - name: Release APK of that exact build (android.yml artifact)
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.resolve.outputs.apk_artifact }}
+          path: ${{ needs.resolve.outputs.apk_artifact == 'assisto-aab' && 'aab' || 'apk' }}
+          run-id: ${{ needs.resolve.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Only the release AAB survives -> universal APK (bundletool, CI throw-away key)
+        if: needs.resolve.outputs.apk_artifact == 'assisto-aab'
+        run: |
+          # the AAB is arm/arm64 only: API 33 x86_64 Google-APIs images run it through
+          # ARM translation; API 28 images have none (the install says so)
+          set -euo pipefail
+          curl -fsSL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.17.2/bundletool-all-1.17.2.jar
+          keytool -genkeypair -keystore ci.jks -storepass cigate -keypass cigate -alias ci \
+            -keyalg RSA -keysize 2048 -validity 30 -dname "CN=relgate CI" >/dev/null 2>&1
+          AAB=$(find aab -name '*.aab' | head -1); echo "aab: $AAB"
+          java -jar bundletool.jar build-apks --bundle="$AAB" --output=u.apks --mode=universal \
+            --ks=ci.jks --ks-pass=pass:cigate --ks-key-alias=ci --key-pass=pass:cigate
+          mkdir -p apk && unzip -o -q u.apks universal.apk -d apk && ls -la apk
+          echo "NOTE: universal APK built from the release AAB (re-signed with a CI key)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: 3 cold starts on API ${{ matrix.api }}
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          GATE_API: ${{ matrix.api }}
+          GATE_OUT: smoke_out
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          emulator-boot-timeout: 480
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: bash tools/relgate/cold_start.sh
+      - name: Leg summary
+        if: always()
+        run: |
+          { echo "### Release gate leg \`smoke-${{ matrix.api }}\`"; echo '```'; cat smoke_out/result.txt 2>/dev/null || echo "no result"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload evidence
+        continue-on-error: true  # ghstore: storage quota never fails a green build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relgate-smoke-${{ matrix.api }}
+          path: smoke_out/
+          retention-days: 5
+          if-no-files-found: warn
+
+  # ------------------------------------------------ main flows (same commit)
+  flows:
+    needs: resolve
+    if: needs.resolve.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - leg: auth
+            kind: flows
+            only: e2e
+            ids: e2e1_signup_login_otp,e2e3_circle_media,e2e4_safe_journey_chandra,e2e5_sos_guardian,e2e7_khata_expense_confirm
+          - leg: circle
+            kind: flows
+            only: start+circle
+            ids: 01_language,02_login,03_onboarding,19_circle_ticks,18_circle_real_call,18v_video_both_ways
+          - leg: journey-pay
+            kind: flows
+            only: start+sjproof+billing
+            ids: 01_language,02_login,03_onboarding,sjp02_normal_trip,40_billing
+          - leg: money
+            kind: flows
+            only: start+mess+business+save
+            ids: 01_language,02_login,03_onboarding,41_mess_v2,18b_ledger_entry_tagada,SV_money_txn_save,SV_money_txn_reopen,SV_famacct_expense_save,SV_famacct_expense_reopen,SV_khata_party_save,SV_khata_party_reopen,SV_mess_member_save,SV_mess_member_reopen
+          - leg: sos-closed
+            kind: np
+            only: ""
+            ids: message,sos
+    name: ${{ matrix.leg }}
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: assisto_ci
+          POSTGRES_PASSWORD: ci-reality-throwaway   # disposable container, not a secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    env:
+      GATE_SHA: ${{ needs.resolve.outputs.sha }}
+      ASSISTO_CI_PG_NAME: assisto_ci
+      ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
+      REALITY_OUT: ${{ github.workspace }}/reality_out
+      E2E_OUTBOX: ${{ github.workspace }}/reality_out/outbox.jsonl
+      NP_OUT: ${{ github.workspace }}/reality_out/notifproof
+      NP_ONLY: ${{ matrix.kind == 'np' && matrix.ids || '' }}
+      # notifproof: the backend's REAL FCM v1 code against tools/e2e/mock_fcm.py
+      E2E_REAL_FCM: ${{ matrix.kind == 'np' && '1' || '' }}
+      E2E_FCM_SA: ${{ github.workspace }}/reality_out/fcm_sa.json
+      E2E_FCM_TOKEN_URI: http://127.0.0.1:18890/token
+      E2E_FCM_SEND_URL: http://127.0.0.1:18890/v1/projects/{project_id}/messages:send
+      NP_FCM: http://127.0.0.1:18890
+    steps:
+      - name: The release build's exact commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+      - name: Gate tooling (this workflow's commit)
+        uses: actions/checkout@v4
+        with:
+          path: _gate
+          sparse-checkout: tools/relgate
+      - name: Flow-id filter (inserted in place when the build commit predates relgate)
+        run: |
+          python3 _gate/tools/relgate/overlay_filter.py
+          git log -1 --format='gating %H %s'
+      - name: Free runner disk (the emulator image needs ~8 GB)
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/share/swift "$AGENT_TOOLSDIRECTORY/PyPy" || true
+          df -h / | tail -1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Backend deps
+        run: python -m pip install -q -r backend/requirements.txt pyyaml
+      - name: Throw-away backend with CI fakes (+ mock FCM for notifproof)
+        run: |
+          mkdir -p "$REALITY_OUT"
+          if [ "${{ matrix.kind }}" = np ]; then
+            python tools/e2e/mock_fcm.py --make-sa "$E2E_FCM_SA" --port 18890
+            nohup python tools/e2e/mock_fcm.py --sa "$E2E_FCM_SA" --port 18890 \
+              --log "$REALITY_OUT/fcm_calls.jsonl" > "$REALITY_OUT/mock_fcm.log" 2>&1 &
+            echo $! > "$REALITY_OUT/fcm.pid"
+          fi
+          bash tools/e2e/backend_up.sh
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Firebase config for notifproof (secret; else a dummy)
+        if: matrix.kind == 'np'
+        working-directory: app
+        env:
+          GSJ_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+        run: |
+          mkdir -p android/app
+          if [ -n "${GSJ_B64:-}" ]; then
+            printf '%s' "$GSJ_B64" | base64 -d > android/app/google-services.json
+          else
+            echo "::warning::no GOOGLE_SERVICES_JSON_B64 - dummy Firebase config"
+            python3 - <<'PY'
+          import json
+          json.dump({"project_info": {"project_number": "100000000001", "project_id": "notifproof-dummy",
+                                      "storage_bucket": "notifproof-dummy.appspot.com"},
+                     "client": [{"client_info": {"mobilesdk_app_id": "1:100000000001:android:0000000000000001",
+                                                 "android_client_info": {"package_name": "com.assisto.assisto"}},
+                                 "oauth_client": [], "api_key": [{"current_key": "AIzaSyD-notifproof-dummy-key-000000000"}],
+                                 "services": {"appinvite_service": {"other_platform_oauth_client": []}}}],
+                     "configuration_version": "1"}, open("android/app/google-services.json", "w"))
+          PY
+          fi
+      - name: CI-only dev deps + a real build number
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os, re
+          p = "pubspec.yaml"
+          s = open(p).read()
+          if "integration_test:" not in s:
+              s = s.replace("dev_dependencies:\n  flutter_test:\n    sdk: flutter\n",
+                            "dev_dependencies:\n  flutter_test:\n    sdk: flutter\n"
+                            "  integration_test:\n    sdk: flutter\n"
+                            "  flutter_driver:\n    sdk: flutter\n", 1)
+              assert "integration_test:" in s, "dev_dependencies block not found"
+          n = 9000 + int(os.environ.get("GITHUB_RUN_NUMBER", "0"))
+          s, k = re.subn(r"(?m)^version: .*$", "version: 1.0.%d+%d" % (n, n), s, count=1)
+          assert k == 1
+          open(p, "w").write(s)
+          PY
+      - name: Replay android.yml build prep
+        run: python3 tools/reality/replay_android_steps.py
+      - name: Debug-only cleartext to the in-runner backend (Skia in the test APK)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          p = "android/app/src/debug/AndroidManifest.xml"
+          s = open(p).read()
+          if "usesCleartextTraffic" not in s:
+              meta = ('        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" '
+                      'android:value="false"/>\n')
+              s = s.replace("</manifest>",
+                  '    <application android:usesCleartextTraffic="true">\n' + meta +
+                  '    </application>\n</manifest>', 1)
+              open(p, "w").write(s)
+          PY
+      - name: Build the x86_64 debug test APK (same commit; only this leg's flows)
+        working-directory: app
+        env:
+          ONLY: ${{ matrix.only }}
+          IDS: ${{ matrix.ids }}
+        run: |
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
+          if [ "${{ matrix.kind }}" = np ]; then
+            timeout 1800 flutter build apk --debug --target-platform=android-x64 \
+              --target=integration_test/notifproof_app.dart \
+              --dart-define=REALITY_API_BASE=http://10.0.2.2:8700
+            cp build/app/outputs/flutter-apk/app-debug.apk "$RUNNER_TEMP/np-app-debug.apk"
+            echo "NP_APK=$RUNNER_TEMP/np-app-debug.apk" >> "$GITHUB_ENV"
+          else
+            timeout 1800 flutter build apk --debug --target-platform=android-x64 \
+              --target=integration_test/reality_all_test.dart \
+              --dart-define=REALITY_API_BASE=http://10.0.2.2:8700 \
+              --dart-define=REALITY_ONLY="${ONLY//+/,}" \
+              --dart-define=REALITY_FLOW_IDS="$IDS"
+            cp build/app/outputs/flutter-apk/app-debug.apk "$RUNNER_TEMP/gate-app-debug.apk"
+            echo "REALITY_APK=$RUNNER_TEMP/gate-app-debug.apk" >> "$GITHUB_ENV"
+          fi
+          (cd android && timeout 60 ./gradlew --stop) || true
+          pkill -f 'KotlinCompileDaemon' || true
+          pkill -f 'GradleDaemon' || true
+          rm -rf build/app/intermediates ~/.gradle/caches/transforms-* ~/.gradle/caches/build-cache-* || true
+          free -m; df -h / | tail -1
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run the leg on API 33
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          REALITY_ONLY: ${{ matrix.only }}
+          REALITY_FLOW_IDS: ${{ matrix.kind == 'flows' && matrix.ids || '' }}
+          REALITY_TOTAL_SECONDS: "1800"
+          REALITY_DRIVE_SECONDS: "1700"
+          REALITY_EMU_OPTS: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back ${{ matrix.leg == 'circle' && 'emulated' || 'none' }} -camera-front ${{ matrix.leg == 'circle' && 'emulated' || 'none' }}
+        with:
+          api-level: 33
+          arch: x86_64
+          # notifproof needs Google APIs (full-screen alarm path); the flows use AOSP
+          # (the google_apis image froze adb during Play-services activity, 22 Oct)
+          target: ${{ matrix.kind == 'np' && 'google_apis' || 'default' }}
+          profile: pixel_5
+          disable-animations: true
+          emulator-boot-timeout: 600
+          ram-size: 4096M
+          heap-size: 576M
+          cores: 3
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back ${{ matrix.leg == 'circle' && 'emulated' || 'none' }} -camera-front ${{ matrix.leg == 'circle' && 'emulated' || 'none' }}
+          pre-emulator-launch-script: for c in "$HOME"/.android/avd/*.avd/config.ini; do [ -f "$c" ] && [ "${{ matrix.kind }}" = flows ] && sed -i '/^hw.keyboard=/d' "$c" && echo 'hw.keyboard=yes' >> "$c"; done; true
+          script: if [ "${{ matrix.kind }}" = np ]; then python3 tools/notifproof/np_driver.py; else bash tools/reality/run_flows.sh; fi
+      - name: Stop servers
+        if: always()
+        run: |
+          kill "$(cat "$REALITY_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
+          kill "$(cat "$REALITY_OUT/fcm.pid" 2>/dev/null)" 2>/dev/null || true
+      - name: Leg verdict (every required flow must pass)
+        if: always() && matrix.kind == 'flows'
+        env:
+          REALITY_ONLY: ${{ matrix.only }}
+        run: |
+          GITHUB_STEP_SUMMARY="" python3 tools/reality/summarize.py "$REALITY_OUT" > /dev/null || true
+          python3 _gate/tools/relgate/verdict.py "$REALITY_OUT" "${{ matrix.leg }}" "${{ matrix.ids }}"
+      - name: Upload evidence
+        continue-on-error: true  # ghstore: storage quota never fails a green build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relgate-${{ matrix.leg }}
+          path: |
+            reality_out/
+            !reality_out/.recording
+            !reality_out/.attempt.log
+          retention-days: 5
+          if-no-files-found: warn
+
+  # ------------------------------------------------ one verdict + commit status
+  gate:
+    needs: [resolve, smoke, flows]
+    if: always() && needs.resolve.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: RELEASE_GATE verdict + commit status release-gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          R: ${{ github.repository }}
+          SHA: ${{ needs.resolve.outputs.sha }}
+          BUILD_RUN: ${{ needs.resolve.outputs.run_id }}
+          SMOKE: ${{ needs.smoke.result }}
+          FLOWS: ${{ needs.flows.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -uo pipefail
+          jobs=$(gh api "repos/$R/actions/runs/$GITHUB_RUN_ID/jobs?per_page=50" \
+            -q '.jobs[] | select(.name != "resolve" and .name != "gate") | "\(.name)\t\(.conclusion // .status)\t\(.started_at)\t\(.completed_at)"')
+          started=$(gh api "repos/$R/actions/runs/$GITHUB_RUN_ID" -q .run_started_at)
+          mins=$(( ( $(date +%s) - $(date -d "$started" +%s) ) / 60 ))
+          total=$(printf '%s\n' "$jobs" | grep -c . || true)
+          passed=$(printf '%s\n' "$jobs" | awk -F'\t' '$2=="success"' | grep -c . || true)
+          if [ "$SMOKE" = success ] && [ "$FLOWS" = success ]; then V=PASS; S=success; else V=FAIL; S=failure; fi
+          {
+            echo "## RELEASE_GATE=$V $SHA"
+            echo ""
+            echo "release build: android.yml run [$BUILD_RUN]($GITHUB_SERVER_URL/$R/actions/runs/$BUILD_RUN) - gate run $GITHUB_RUN_ID - ${mins} min - legs passed $passed/$total"
+            echo ""
+            echo "| leg | result |"; echo "|---|---|"
+            printf '%s\n' "$jobs" | awk -F'\t' '{printf "| %s | %s |\n", $1, ($2=="success" ? "PASS" : "**" toupper($2) "**")}'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "RELEASE_GATE=$V $SHA"
+          gh api -X POST "repos/$R/statuses/$SHA" -f state=$S -f context=release-gate \
+            -f description="$V: $passed/$total legs, ${mins} min (gate run $GITHUB_RUN_ID)" \
+            -f target_url="$RUN_URL" >/dev/null
+          [ "$V" = PASS ]

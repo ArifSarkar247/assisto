@@ -23,6 +23,15 @@ final Map<String, Widget Function(String)> fcelderShots = {
       debugFamily: fceFamily, debugName: l == 'bn' ? 'রহিমা' : 'Rahima')),
   'fce_easy_home_empty': (l) => _with(ElderEasyHome(debugFamily: const [], debugName: 'Rahima')),
   'fce_are_you_ok': (l) => _with(const AreYouOkScreen()),
+  // gap-familycare: "Talk to Assisto" now SHOWS and SAYS the answer
+  'fcg_elder_reply': (l) => _with(ElderEasyHome(
+      debugFamily: fceFamily,
+      debugName: l == 'bn' ? 'রহিমা' : 'Rahima',
+      debugReply: l == 'bn'
+          ? ('আজ কি বৃষ্টি হবে?',
+              '**সংক্ষেপে:** আজ বিকেলে ঢাকায় বৃষ্টি হতে পারে।\n\n- বাইরে গেলে ছাতা নিন\n- ওষুধ শুকনো জায়গায় রাখুন\n\nআর কিছু জানতে চাইলে আবার বলুন।')
+          : ('Will it rain today?',
+              '**In short:** rain is likely in Dhaka this afternoon.\n\n- Take an umbrella if you go out\n- Keep your medicines dry\n\nAsk me again if you want to know more.'))),
   'fce_setup_form': (l) => _with(const ElderSetupScreen(debugPeople: [
         {'user_id': 2, 'name': 'Ammu', 'relation': 'mother'},
         {'user_id': 3, 'name': 'Bina', 'relation': 'sister'},

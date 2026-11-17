@@ -11,6 +11,7 @@
 import 'flows/antitheft_snatch_flow.dart'; // at100
 import 'flows/billing_flow.dart';
 import 'flows/budget_remittance_flow.dart';
+import 'flows/city_flow.dart'; // gap-city
 import 'flows/business_flow.dart';
 import 'flows/camflows_flow.dart'; // camflows
 import 'flows/bizq_flow.dart'; // qbiz
@@ -46,6 +47,7 @@ void main() {
   if (on('home')) registerHomeFlows();
   if (on('personal')) registerPersonalFlows();
   if (on('personal')) registerRemMeterFlows(); // remmeter
+  if (on('personal') || on('city')) registerCityFlows(); // gap-city (City Service, CI sample data)
   if (on('personal')) registerBudgetRemittanceFlows(); // budrem (flag allow-listed for A by the seed)
   if (on('personal') || on('billing')) registerBillingFlows(); // billapp
   if (on('family')) registerFamilyCircleFlows();

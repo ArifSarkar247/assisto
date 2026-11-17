@@ -199,6 +199,17 @@ class SetupTests(_Base):
         self.assertIn("enrollment_token", site)
         self.assertTrue(site["gateway_state"]["never_seen"])
 
+    def test_gapcctv_active_cctv_plan_unlocks_a_shop_place(self):
+        # gap-cctv: someone who bought (or is trialing) the CCTV plan is not
+        # told "needs the Business plan"
+        with mock.patch("core.cctv_plan_service.plan_cameras", return_value=2):
+            ov = self.client.get("/api/v1/shop/watchman")
+            if ov.status_code == 200 and "can_shop" in ov.data:
+                self.assertTrue(ov.data["can_shop"])
+            r = self.client.post("/api/v1/shop/watchman/setup",
+                                 {"kind": "shop", "gateway": "shopbox"}, format="json")
+        self.assertEqual(r.status_code, 201, r.data)
+
     def test_shop_needs_business_plan_and_bad_inputs(self):
         r = self.client.post("/api/v1/shop/watchman/setup",
                              {"kind": "shop", "gateway": "shopbox"}, format="json")

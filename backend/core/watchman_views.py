@@ -95,8 +95,16 @@ def _plan(user):
 
 
 def _can_shop(user):
-    # existing gating: shop protection is a Business feature; a home is not
-    return _plan(user) in ("business",)
+    # existing gating: shop protection is a Business feature; a home is not.
+    # gap-cctv: the CCTV plan (500 Tk = 2 cameras, trial included) is the
+    # product a shop buys for its cameras — it unlocks a shop place too.
+    if _plan(user) in ("business",):
+        return True
+    try:
+        from . import cctv_plan_service as CPS
+        return CPS.plan_cameras(user) > 0
+    except Exception:
+        return False
 
 
 def _limits(user):

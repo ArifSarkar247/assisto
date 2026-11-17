@@ -222,6 +222,18 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
                 padding: const EdgeInsets.only(bottom: Gap.sm),
                 child: Text(t.payNetwork, style: AType.bodyMedium.copyWith(color: scheme.error)),
               ),
+            // gap-cctv: a failed load can be tried again here
+            if (_failed && _d == null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Gap.sm),
+                child: OutlinedButton.icon(
+                  key: const Key('bi-cctv-retry'),
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: Text(t.retry),
+                  onPressed: _busy ? null : _load,
+                ),
+              ),
             if (canBuy && _trial)
               FilledButton.icon(
                 key: const Key('bi-cctv-trial'),
@@ -264,7 +276,9 @@ class _CctvLockedSheetState extends State<CctvLockedSheet> {
             ] else
               // No Play client (website APK) / store price unknown: an honest
               // line + the plan screen (never a fake buy button).
-              Text(t.biCctvNoStore(taka),
+              // gap-cctv: Play works but the plan is not on sale yet → say
+              // "opens soon", not "bought through Google Play"
+              Text(_store && _d != null && _d!['on_sale'] != true ? t.cplSaleSoon : t.biCctvNoStore(taka),
                   key: const Key('bi-cctv-nostore'),
                   style: AType.bodyMedium.copyWith(color: scheme.ds.muted, height: 1.4)),
             if (_busy)

@@ -150,7 +150,12 @@ void registerBusinessFlows() {
     await f.step('tagada: one card for this customer with its own due', () async {
       await f.tap(find.byTooltip(f.t.tagadaSendReminder), settleSeconds: 3);
       await f.shot('tagada-send');
-      if (!await f.appears(find.byKey(ValueKey('ldg-row-$partyId')))) {
+      // gatefix: the tone / payment-info / SMS cards (bizai + design) push
+      // the per-customer cards below the fold of the lazy list ("Waiting 1"
+      // on screen, card not built) — scroll to it like a finger (44061721110)
+      final card = find.byKey(ValueKey('ldg-row-$partyId'));
+      await f.scrollToBuilt(card, seconds: 8).catchError((_) => card);
+      if (!await f.appears(card)) {
         throw TestFailure('no per-customer reminder card');
       }
       f.expectHttp('POST', '/business/khata/tagada/bulk');

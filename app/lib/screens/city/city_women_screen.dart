@@ -69,7 +69,18 @@ class _CityWomenScreenState extends State<CityWomenScreen> {
               key: const ValueKey('city_women_list'),
               padding: withNavBarInset(context, const EdgeInsets.all(Gap.lg)),
               children: [
-                if (_failed) Text(t.cityLiveFailed),
+                if (_failed)
+                  CityRetryCard(
+                      key: const ValueKey('city_women_failed'),
+                      text: t.cityGLoadFailed,
+                      buttonText: t.cityTryAgain,
+                      onPressed: () {
+                        setState(() {
+                          _loading = true;
+                          _failed = false;
+                        });
+                        _load();
+                      }),
                 _fact(t, bn, Icons.subway_rounded, t.cityWomenCoach, w?.metroCoach ?? const {},
                     const ValueKey('city_women_coach')),
                 _fact(t, bn, Icons.event_seat_rounded, t.cityWomenSeats, w?.reservedSeats ?? const {},

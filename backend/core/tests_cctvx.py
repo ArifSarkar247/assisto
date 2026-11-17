@@ -231,6 +231,17 @@ class _X(_Base):
         self.sobj = ShopSite.objects.get(pk=self.site["id"])
         self.m = APIClient()
         self.m.force_authenticate(self.mgr)
+        # gap-cctv (time-of-day flake, 17 Nov): the per-minute tick also sends
+        # the daily CLOSING REPORT from 22:15 local (cctvact default close
+        # 22:00 + 15 min), so between 16:15 and 18:00 UTC the guard tests saw
+        # one extra push. The report is not what these tests check — it has
+        # its own clock-pinned tests (tests_cctvact.ReportAskApiTests sets
+        # keep_closing_report) — so it is held still here; every asserted
+        # push stays exactly as strict, at every hour of the day.
+        if not getattr(self, "keep_closing_report", False):
+            p = mock.patch("core.cctv_act_views.run_closing", return_value=False)
+            p.start()
+            self.addCleanup(p.stop)
 
     def records(self):
         """The shop records its sales in Assisto (a sale 3 days ago)."""
@@ -252,7 +263,20 @@ class _X(_Base):
         return [" ".join(str(x) for x in a[2:6]) for a, k in self.pushes]
 
 
-class NoSaleTests(_X):
+
+class _MiddayClock:
+    """Run at 12:00 Dhaka today: tick() also sends the evening closing report
+    ('আজকের হিসাব') once the real clock passes the evening hour, which made
+    these window tests fail on CI runs after ~21:00 Dhaka (17 Nov)."""
+    def setUp(self):
+        noon = timezone.localtime(timezone.now()).replace(hour=12, minute=0, second=0, microsecond=0)
+        p = mock.patch("django.utils.timezone.now", return_value=noon)
+        p.start()
+        self.addCleanup(p.stop)
+        super().setUp()
+
+
+class NoSaleTests(_MiddayClock, _X):
     def test_no_sale_drawer_alert_after_the_window(self):
         from core.models import ShopEvent, ShopGuardTask
         self.records()
@@ -353,7 +377,52 @@ class NoSaleTests(_X):
         self.assertEqual(d["settings"]["nosale_min"], 2)
 
 
-class EscalationTests(_X):
+class GapCctvNightTickTests(_X):
+    def test_guard_pushes_are_the_same_at_22_30_dhaka(self):
+        # gap-cctv: the no-sale flow, pinned to 22:30 Asia/Dhaka (the hour the
+        # nightly CI saw an extra closing-report push): exactly one push
+        from datetime import datetime as _dt
+        from zoneinfo import ZoneInfo
+        from core.models import ShopEvent
+        self.records()
+        night = _dt(2026, 11, 17, 22, 30, tzinfo=ZoneInfo("Asia/Dhaka"))
+        with mock.patch("django.utils.timezone.now", return_value=night):
+            r = self.ingest(ref="cd" * 16)
+            self.assertEqual(r.status_code, 201, r.data)
+            from core import cctvx_views as CXV
+            CXV.tick(night + timedelta(minutes=1))
+            self.assertEqual(self.pushes, [])
+            CXV.tick(night + timedelta(minutes=4))
+        self.assertFalse(ShopEvent.objects.get(pk=r.data["event_id"]).pending)
+        self.assertEqual(len(self.pushes), 1, self.pushes)
+
+
+class GapCctvMidnightTests(_X):
+    # gap-cctv: the daily account (closing report) stays LIVE here — at 00:05
+    # Dhaka it is not due (yesterday's window was 22:15-23:59), so the guard
+    # flow still makes exactly its own push and nothing else
+    keep_closing_report = True
+
+    def test_guard_flow_at_00_05_dhaka_has_no_extra_daily_account_push(self):
+        from datetime import datetime as _dt
+        from zoneinfo import ZoneInfo
+        from core import cctv_act_views as ACTV
+        from core import cctvx_views as CXV
+        from core.models import ShopEvent
+        self.records()
+        t0 = _dt(2026, 11, 18, 0, 5, tzinfo=ZoneInfo("Asia/Dhaka"))
+        with mock.patch("django.utils.timezone.now", return_value=t0):
+            r = self.ingest(ref="ef" * 16)
+            self.assertEqual(r.status_code, 201, r.data)
+            CXV.tick(t0 + timedelta(minutes=1))
+            self.assertEqual(self.pushes, [])
+            CXV.tick(t0 + timedelta(minutes=4))
+            self.assertFalse(ACTV.run_closing(self.sobj, t0 + timedelta(minutes=5)))
+        self.assertFalse(ShopEvent.objects.get(pk=r.data["event_id"]).pending)
+        self.assertEqual(len(self.pushes), 1, self.pushes)
+
+
+class EscalationTests(_MiddayClock, _X):
     def test_chain_only_from_the_circle(self):
         bad = self.client.put("/api/v1/shop/sites/%d/guard" % self.site["id"],
                               {"escalation": [self.family.id]}, format="json")
@@ -704,6 +773,18 @@ class ShareTests(_X):
         self.assertEqual((r.data["deleted"], r.data["kept_for"]), (False, 1))
         r = self.m.post("/api/v1/shop/events/%d/clip/viewed" % ev.id, {}, format="json")
         self.assertTrue(r.data["deleted"])
+
+    def test_gapcctv_sheet_share_tile_only_while_the_server_has_the_clip(self):
+        # gap-cctv: after the owner watched (server copy deleted) the alert's
+        # Actions sheet must not offer "Share clip" — it has no bytes to send
+        ev, clip, ct, priv, pub, v = self._clip()
+        clip.status = "ready"
+        clip.save(update_fields=["status"])
+        d = self.client.get("/api/v1/shop/events/%d" % ev.id)
+        self.assertTrue(d.data["actions"]["share_clip"])
+        self.client.post("/api/v1/shop/events/%d/clip/viewed" % ev.id, {}, format="json")
+        d = self.client.get("/api/v1/shop/events/%d" % ev.id)
+        self.assertFalse(d.data["actions"]["share_clip"])
 
     def test_share_after_delete_needs_the_same_ciphertext(self):
         from django.core.files.uploadedfile import SimpleUploadedFile

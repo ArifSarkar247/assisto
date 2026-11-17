@@ -164,6 +164,16 @@ class LearnTests(SimpleTestCase):
         self.assertEqual(learn[k]["r"], {"animal": 1})
 
 
+class GapCctvLearnNoteTests(SimpleTestCase):
+    def test_no_answer_yet_invites_instead_of_thanking(self):
+        # gap-cctv: before any answer the tile must not say "Thanks"
+        for row in (None, {}, {"w": 0, "c": 0, "at": 1.0}):
+            self.assertIn("Tell us", A.learn_summary(row, 1_800_000_000, "en"))
+            self.assertNotIn("ধন্যবাদ", A.learn_summary(row, 1_800_000_000, "bn"))
+        self.assertIn("Thanks", A.learn_summary({"w": 1, "at": 1_800_000_000.0},
+                                                1_800_000_000, "en"))
+
+
 class ThanaTests(SimpleTestCase):
     def test_nearest_thana_real_rows_only(self):
         rows = [{"name": "Traffic Police Box", "lat": 23.8101, "lng": 90.4101, "phone": "999"},
@@ -417,6 +427,51 @@ class ActApiTests(_X):
         self.assertLess(ShopEvent.objects.get(pk=r.data["event_id"]).confidence, 0.9)
         self.assertEqual([k for a, k in self.pushes if k.get("data", {}).get("event_id")], [])
 
+    def test_gapcctv_live_tile_only_for_people_live_start_admits(self):
+        # gap-cctv: a manager the alert was passed to (no live permission) must
+        # not get a Live tile that ends in "Not found"
+        self.guard(escalation=[self.mgr.id])
+        ev = self.ingest().data["event_id"]
+        self.tick(minutes=1)
+        self.tick(minutes=4)
+        own = self.client.get("/api/v1/shop/events/%d" % ev).data["actions"]["act"]
+        self.assertEqual(own["live"]["path"], "webrtc")
+        d = self.m.get("/api/v1/shop/events/%d" % ev)
+        self.assertEqual((d.status_code, d.data["role"]), (200, "escalated"))
+        live = d.data["actions"]["act"]["live"]
+        self.assertIsNone(live["path"])
+        self.assertEqual(live["reason"], "owner_only")
+        # and indeed the live start refuses them
+        cam = own["live"]["camera_id"]
+        r = self.m.post("/api/v1/shop/live/start", {"camera": cam}, format="json")
+        self.assertIn(r.status_code, (403, 404))
+
+    def test_gapcctv_reason_after_card_wrong_is_kept_not_double_counted(self):
+        from core.models import ShopSite
+        ev = self.ingest().data["event_id"]
+        url = "/api/v1/shop/events/%d/mark" % ev
+        self.assertEqual(self.client.post(url, {"status": "wrong"}, format="json").status_code, 200)
+        r = self.client.post(url, {"status": "wrong", "reason": "staff"}, format="json")
+        self.assertEqual(r.status_code, 200, r.data)
+        learn = (ShopSite.objects.get(pk=self.site["id"]).guard or {}).get(A.LEARN_KEY) or {}
+        rows = list(learn.values())
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["w"], 1)                 # one wrong, not two
+        self.assertEqual(rows[0]["r"], {"staff": 1})      # the reason is kept
+
+    def test_gapcctv_actions_say_warning_missing_and_thana_lookup_failed(self):
+        ev = self.ingest().data["event_id"]
+        act = self.client.get("/api/v1/shop/events/%d" % ev).data["actions"]["act"]
+        self.assertIs(act["has_warn"], False)             # tile: "record first"
+        self.assertEqual(act["thana"]["state"], "no_location")
+        with mock.patch("core.nearby.search", return_value=([], "unavailable")):
+            r = self.client.put("/api/v1/shop/sites/%d/location" % self.site["id"],
+                                {"lat": 23.81, "lon": 90.41}, format="json")
+            self.assertEqual(r.status_code, 200, r.data)
+        act = self.client.get("/api/v1/shop/events/%d" % ev).data["actions"]["act"]
+        self.assertTrue(act["thana"]["has_location"])
+        self.assertEqual(act["thana"]["state"], "unavailable")   # not "none nearby"
+
     def test_live_thana_and_play_actions(self):
         from core.models import ShopGatewayTask
         ev = self.ingest().data["event_id"]
@@ -494,6 +549,8 @@ class ActApiTests(_X):
 
 @override_settings(MEDIA_ROOT=_MEDIA)
 class ReportAskApiTests(_X):
+    keep_closing_report = True   # gap-cctv: this class tests the report itself
+
     def test_closing_report_and_box_stats_and_push_once(self):
         from rest_framework.test import APIClient
         from core.models import ShopSite

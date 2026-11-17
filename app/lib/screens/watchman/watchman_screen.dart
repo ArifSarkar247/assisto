@@ -726,10 +726,37 @@ class _SiteCard extends StatelessWidget {
                       builder: (_) => CctvConnectScreen(
                           siteId: siteId,
                           siteName: (site['name'] ?? '').toString(),
+                          lanGateway: (site['gateway'] ?? '').toString() != 'phone', // gap-cctv
                           onFindOnWifi: onAddCamera)));
                   await onChanged();
                 },
               ),
+            ],
+            // cctvarm: auto guard (owner settings / a member's own consent)
+            OutlinedButton.icon(
+              key: const ValueKey('wm-auto-guard'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+              icon: const Icon(Icons.shield_moon_outlined),
+              label: Text(t.carmTitle),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => AutoGuardScreen(siteId: siteId, owner: _owner))),
+            ),
+          ]),
+          // gap-cctv: people, sharing and the notice fold into one row —
+          // the place card was a wall of 15 buttons (owner-only tools).
+          if (_owner)
+            Theme(
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                key: const ValueKey('wm-manage'),
+                tilePadding: EdgeInsets.zero,
+                childrenPadding: const EdgeInsets.only(bottom: 8),
+                expandedAlignment: AlignmentDirectional.centerStart,
+                leading: const Icon(Icons.manage_accounts_rounded),
+                title: Text(t.gcvManageTitle),
+                subtitle: Text(t.gcvManageSub),
+                children: [
+                  Wrap(spacing: 8, runSpacing: 8, children: [
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
                 icon: const Icon(Icons.family_restroom_rounded),
@@ -783,17 +810,10 @@ class _SiteCard extends StatelessWidget {
                   onPressed: () => Navigator.of(context)
                       .push(MaterialPageRoute(builder: (_) => const ShopBoxScreen())),
                 ),
-            ],
-            // cctvarm: auto guard (owner settings / a member's own consent)
-            OutlinedButton.icon(
-              key: const ValueKey('wm-auto-guard'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-              icon: const Icon(Icons.shield_moon_outlined),
-              label: Text(t.carmTitle),
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => AutoGuardScreen(siteId: siteId, owner: _owner))),
+                  ]),
+                ],
+              ),
             ),
-          ]),
         ]),
       ),
     );

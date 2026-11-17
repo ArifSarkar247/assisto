@@ -60,12 +60,17 @@ class _CctvRoleSheetState extends State<CctvRoleSheet> {
     _load();
   }
 
+  bool _camsFailed = false; // gap-cctv: a failed load is not "no cameras"
+
   Future<void> _load() async {
     try {
       final d = await widget.source.roles(widget.siteId);
       _cams = wmList(d['cameras']);
+      _camsFailed = false;
+      _error = null;
     } catch (e) {
       _error = wmError(e) ?? '';
+      _camsFailed = true;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -143,7 +148,20 @@ class _CctvRoleSheetState extends State<CctvRoleSheet> {
         if (pickCams) ...[
           Text(_role == 'guard' ? t.ctmGuardPick : t.ctmPickCameras,
               style: Theme.of(context).textTheme.labelLarge),
-          if (_cams.isEmpty) Text(t.cvvNoCamBenefit),
+          if (_cams.isEmpty && _camsFailed)
+            Row(children: [
+              Expanded(child: Text(t.wmLoadErrorBody)),
+              TextButton(
+                  key: const ValueKey('ctm-cams-retry'),
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: () {
+                    setState(() => _loading = true);
+                    _load();
+                  },
+                  child: Text(t.wmRetry)),
+            ])
+          else if (_cams.isEmpty)
+            Text(t.cvvNoCamBenefit),
           for (final c in _cams)
             CheckboxListTile(
               key: ValueKey('ctm-cam-${c['id']}'),

@@ -17,6 +17,8 @@ import '../../widgets/app_sheet.dart';
 import '../../widgets/permission_reason.dart';
 import '../shop_live_screen.dart';
 import 'watchman_source.dart';
+import '../../cctvx/escalate_source.dart' show EscalateSource; // gap-cctv
+import 'cctv_escalate.dart' show WarnClipSheet; // gap-cctv
 import 'watchman_widgets.dart';
 
 const kWrongReasons = ['animal', 'shadow', 'staff', 'family', 'vehicle', 'weather', 'other'];
@@ -36,10 +38,18 @@ class ActTiles extends StatefulWidget {
   final int eventId;
   final Map<String, dynamic> act;
 
+  /// gap-cctv: opens the own-voice warning recorder when none is saved yet.
+  final EscalateSource? escalate;
+
   /// Tests: the current location instead of the phone's GPS.
   final Future<(double, double)?> Function()? locate;
   const ActTiles(
-      {super.key, required this.source, required this.eventId, required this.act, this.locate});
+      {super.key,
+      required this.source,
+      required this.eventId,
+      required this.act,
+      this.locate,
+      this.escalate});
 
   @override
   State<ActTiles> createState() => _ActTilesState();
@@ -105,6 +115,17 @@ class _ActTilesState extends State<ActTiles> {
   }
 
   // ------------------------------------------------------------ box play
+  /// gap-cctv: no own-voice warning yet → record it (owner), then the tile
+  /// plays it. Older servers send no `has_warn`: treated as recorded.
+  bool get _hasWarn => _act['has_warn'] != false;
+
+  Future<void> _recordWarn() async {
+    final esc = widget.escalate;
+    if (esc == null || _siteId == 0) return;
+    final saved = await WarnClipSheet.show(context, esc, _siteId);
+    if (saved == true && mounted) setState(() => _act['has_warn'] = true);
+  }
+
   Future<void> _play(String sound) async {
     final t = AppLocalizations.of(context);
     final ok = await _confirm(sound == 'warn' ? t.cv3WarnConfirmTitle : t.cv3SirenConfirmTitle,
@@ -150,7 +171,10 @@ class _ActTilesState extends State<ActTiles> {
             'state': r['state'],
             'emergency': '999',
           });
-      if ((r['stations'] as List?)?.isEmpty ?? true) _snack(t.cv3ThanaNone);
+      if ((r['stations'] as List?)?.isEmpty ?? true) {
+        // gap-cctv: "could not look up" is not "no thana nearby"
+        _snack(r['state'] == 'unavailable' ? t.gcvThanaUnavailable : t.cv3ThanaNone);
+      }
     });
   }
 
@@ -282,8 +306,12 @@ class _ActTilesState extends State<ActTiles> {
             key: const ValueKey('cv3-box-warn'),
             icon: Icons.record_voice_over_rounded,
             label: t.cv3BoxWarn,
-            sub: t.cv3BoxWarnSub,
-            onTap: _busy ? null : () => _play('warn')),
+            sub: _hasWarn ? t.cv3BoxWarnSub : t.gcvWarnRecordFirst,
+            onTap: _busy
+                ? null
+                : _hasWarn
+                    ? () => _play('warn')
+                    : (_owner && widget.escalate != null ? _recordWarn : null)),
       ],
       if (_owner && src != null) ...[
         if (stations.isNotEmpty) ...[
@@ -302,7 +330,11 @@ class _ActTilesState extends State<ActTiles> {
               key: const ValueKey('cv3-thana-set'),
               icon: Icons.add_location_alt_outlined,
               label: t.cv3ThanaFind,
-              sub: thana['has_location'] == true ? t.cv3ThanaNone : t.cv3ThanaFindSub,
+              sub: thana['has_location'] != true
+                  ? t.cv3ThanaFindSub
+                  : thana['state'] == 'unavailable'
+                      ? t.gcvThanaUnavailable
+                      : t.cv3ThanaNone,
               onTap: _busy ? null : _setLocation),
         _tile(
             key: const ValueKey('cv3-wrong'),
@@ -326,6 +358,9 @@ class _ActTilesState extends State<ActTiles> {
     ]);
   }
 }
+
+/// gap-cctv: the same plain words on the automations screen's log.
+String cv3AutoStateLabel(AppLocalizations t, String s) => _autoState(t, s);
 
 String _autoState(AppLocalizations t, String s) => switch (s) {
       'on' => t.cv3AutoOn,

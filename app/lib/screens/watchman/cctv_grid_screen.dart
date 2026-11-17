@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../cctvguard/vendor_live_screen.dart'; // gap-cctv
 import '../../widgets/skeleton.dart';
 import '../../theme.dart' show AType;
 import '../../ds/ds.dart';
@@ -448,6 +449,16 @@ class _CctvCameraSheetState extends State<CctvCameraSheet> {
             label: Text(t.ctmOpenLive),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => ShopLiveScreen(cameraId: _id, cameraName: name))),
+          )
+        else if (_cam['vendor_live'] == true)
+          // gap-cctv: Imou / EZVIZ live through the brand cloud
+          FilledButton.icon(
+            key: const ValueKey('ctm-vendor-live'),
+            style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
+            icon: const Icon(Icons.live_tv_rounded),
+            label: Text(t.ctmOpenLive),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => VendorLiveScreen(cameraId: _id, cameraName: name))),
           )
         else
           Text(_cam['live_capable'] == true ? t.ctmLiveNotAllowed : t.ctmLiveNotCapable,

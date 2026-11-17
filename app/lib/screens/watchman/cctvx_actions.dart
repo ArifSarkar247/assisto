@@ -1,3 +1,4 @@
+import 'dart:async'; // gap-cctv: unawaited
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate'; // cctvact: watermark off the UI thread
@@ -190,7 +191,8 @@ class _AlertActionsSheetState extends State<AlertActionsSheet> {
                       ? ApiCctvActSource((widget.source as ApiCctvxSource).api)
                       : null),
               eventId: widget.eventId,
-              act: wmMap(a['act'])),
+              act: wmMap(a['act']),
+              escalate: widget.escalate ?? escalateFor(widget.source)),
         if (wmMap(a['deter']).isNotEmpty)
           DeterTiles(
               escalate: widget.escalate ?? escalateFor(widget.source),
@@ -398,8 +400,13 @@ Future<void> shareClipFlow(BuildContext context, CashGuardSource cash, CctvxSour
 /// decrypted + manifest.json with SHA-256 of every file + GD letter quoting
 /// the manifest's SHA-256 + SHA256SUMS.txt) through the system share sheet.
 /// The pack is plain media: the owner confirms first.
+/// gap-cctv: one evidence build at a time (a second tap while it builds
+/// would start a second download + PDF and race on the same folder).
+bool evidenceBuilding = false;
+
 Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int eventId,
     {String photoUrl = '', CashClip? clip}) async {
+  if (evidenceBuilding) return;
   final t = AppLocalizations.of(context);
   final lang = Localizations.localeOf(context).languageCode;
   final messenger = ScaffoldMessenger.of(context);
@@ -441,7 +448,34 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
       ],
     ),
   );
-  if (ok != true) return;
+  if (ok != true || !context.mounted) return;
+  // gap-cctv: downloads + watermark + PDF take seconds — say so, block taps
+  evidenceBuilding = true;
+  final nav = Navigator.of(context, rootNavigator: true);
+  var progressOpen = true;
+  unawaited(showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => PopScope(
+      canPop: false,
+      child: AlertDialog(
+        key: const ValueKey('gcv-evidence-progress'),
+        content: Row(children: [
+          const SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 3)),
+          const SizedBox(width: 16),
+          Expanded(child: Text(t.gcvEvidenceMaking)),
+        ]),
+      ),
+    ),
+  ).whenComplete(() => progressOpen = false));
+  void closeProgress() {
+    if (progressOpen) {
+      progressOpen = false;
+      nav.pop();
+    }
+  }
+
+  var partial = false; // a watermark / PDF step failed: say so honestly
   try {
     final ev = await source.evidence(eventId);
     final created = DateTime.tryParse((ev['created'] ?? '').toString());
@@ -469,6 +503,7 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
         photo: photo, alertAt: created, frames: clip?.frames ?? const [],
         frameTimes: clip?.times ?? const [], sdClip: sd, sdClipStart: sdStart);
     if (media.isEmpty) {
+      closeProgress();
       say(t.cxEvidenceNothing);
       return;
     }
@@ -480,6 +515,7 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
       media.addAll(await Isolate.run(() => watermarkedCopies(src, eventId, camera: cam)));
     } catch (_) {
       // best-effort: the pack is complete and verifiable without the copies
+      partial = true;
     }
     final now = DateTime.now();
     final facts = <String, Object?>{
@@ -539,6 +575,7 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
           await buildEvidencePdf(blocks)));
     } catch (_) {
       // best-effort: the ZIP is still complete and verifiable without the PDF
+      partial = true;
     }
     final zip = assembleEvidencePack(
         media: media, manifest: manifest, letter: letter, now: now, extra: extra);
@@ -547,9 +584,15 @@ Future<void> exportEvidenceFlow(BuildContext context, CctvxSource source, int ev
     dir.createSync(recursive: true);
     final f = File('${dir.path}/assisto_evidence_$eventId.zip');
     await f.writeAsBytes(zip, flush: true);
+    closeProgress();
+    if (partial) say(t.gcvEvidencePartial);
     await Share.shareXFiles([XFile(f.path, mimeType: 'application/zip')],
         text: '${t.cxEvidenceShareText(mh.substring(0, 16))}\n\n${t.cevPrivacyWarn}');
   } catch (e) {
+    closeProgress();
     say(wmError(e) ?? t.wmGenericError);
+  } finally {
+    closeProgress();
+    evidenceBuilding = false;
   }
 }

@@ -459,6 +459,10 @@ def _grid_cameras(request, site, role, scope, viewer, now):
             "still_at": SV._iso(at), "still_source": src,
             "fresh_supported": fresh_supported(c) is not None,
             "live_capable": live_capable, "live_ok": live_ok,
+            # gap-cctv: an Imou / EZVIZ camera opens live through its brand
+            # cloud (owner only, like cctv_traffic_views) — not "not possible"
+            "vendor_live": bool(role == "owner" and c.enabled and c.vendor_ref and
+                                (c.vendor or "").lower() in ("imou", "ezviz")),
             "open_alerts": open_by_cam.get(c.id, 0)})
     return out
 

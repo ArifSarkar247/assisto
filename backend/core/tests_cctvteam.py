@@ -244,6 +244,23 @@ class GuardScopeTests(_Base):
         self.assertEqual(roles[self.guard.id], "guard")
 
 
+class GapCctvVendorLiveGridTests(_Base):
+    def test_imou_camera_on_the_wall_opens_brand_cloud_live_for_the_owner_only(self):
+        from core.models import ShopCamera
+        cam = ShopCamera.objects.create(site=self.site, name="Door", vendor="imou",
+                                        kind="edge_webhook", vendor_ref="imou:SIM123:0",
+                                        last_seen=timezone.now())
+        c = APIClient()
+        c.force_authenticate(self.owner)
+        r = c.get("/api/v1/shop/grid")
+        self.assertEqual(r.status_code, 200)
+        row = [x for x in r.data["sites"][0]["cameras"] if x["id"] == cam.id][0]
+        self.assertFalse(row["live_ok"])           # no WebRTC caps
+        self.assertTrue(row["vendor_live"])        # but brand-cloud live works
+        gate = [x for x in r.data["sites"][0]["cameras"] if x["id"] == self.gate.id][0]
+        self.assertFalse(gate["vendor_live"])
+
+
 class ManagerFamilyTests(_Base):
     def test_manager_marks_family_cannot(self):
         r = self.c["manager"].post("/api/v1/shop/events/%d/mark" % self.ev_till.id,

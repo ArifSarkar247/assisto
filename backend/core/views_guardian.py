@@ -41,7 +41,8 @@ class JourneyRequestsView(APIView):
         gctx = circle_family.link_context(me)
         for m in CircleMember.objects.filter(user=me, state="accepted", blocked=False,
                                              peer_user__isnull=False).select_related("peer_user"):
-            people.append({"member_id": m.id, "name": m.name or GJ._name(me, m.peer_user),
+            people.append({"member_id": m.id, "peer_user_id": m.peer_user_id,  # gap-familycare
+                           "name": m.name or GJ._name(me, m.peer_user),
                            "relation": m.relation,
                            "child": GJ.is_child_pair(me, m.peer_user),
                            **circle_family.group_fields(m, gctx)})

@@ -333,16 +333,24 @@ class WarnClipSheet extends StatefulWidget {
 
   /// Tests / gallery: skip the network.
   final Map<String, dynamic>? preview;
-  const WarnClipSheet(
-      {super.key, required this.source, required this.siteId, this.preview});
 
-  static Future<bool?> show(BuildContext context, EscalateSource source, int siteId) =>
-      showAppSheet<bool>(
-        context: context,
-        isScrollControlled: true,
-        showDragHandle: true,
-        builder: (_) => WarnClipSheet(source: source, siteId: siteId),
-      );
+  /// gap-cctv: told on every save / delete, so a swipe-down (no "Done")
+  /// still reports what changed.
+  final ValueChanged<bool>? onResult;
+  const WarnClipSheet(
+      {super.key, required this.source, required this.siteId, this.preview, this.onResult});
+
+  static Future<bool?> show(BuildContext context, EscalateSource source, int siteId) async {
+    bool? changed;
+    final r = await showAppSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) =>
+          WarnClipSheet(source: source, siteId: siteId, onResult: (v) => changed = v),
+    );
+    return r ?? changed;
+  }
 
   @override
   State<WarnClipSheet> createState() => _WarnClipSheetState();
@@ -357,6 +365,7 @@ class _WarnClipSheetState extends State<WarnClipSheet> {
   int _secs = 0;
   Timer? _timer;
   bool? _result;
+  bool _loadFailed = false; // gap-cctv: never shown as "none recorded"
 
   @override
   void initState() {
@@ -364,12 +373,17 @@ class _WarnClipSheetState extends State<WarnClipSheet> {
     if (widget.preview != null) {
       _d = widget.preview;
     } else {
-      widget.source.warnClip(widget.siteId).then((d) {
-        if (mounted) setState(() => _d = d);
-      }, onError: (_) {
-        if (mounted) setState(() => _d = const {});
-      });
+      _load();
     }
+  }
+
+  void _load() {
+    if (_loadFailed) setState(() => _loadFailed = false);
+    widget.source.warnClip(widget.siteId).then((d) {
+      if (mounted) setState(() => _d = d);
+    }, onError: (_) {
+      if (mounted) setState(() => _loadFailed = true);
+    });
   }
 
   @override
@@ -428,6 +442,7 @@ class _WarnClipSheetState extends State<WarnClipSheet> {
       if (raw == null) throw StateError('read');
       final d = await widget.source.saveWarnClip(widget.siteId, raw);
       _result = true;
+      widget.onResult?.call(true);
       if (mounted) {
         setState(() {
           _d = d;
@@ -443,10 +458,26 @@ class _WarnClipSheetState extends State<WarnClipSheet> {
 
   Future<void> _delete() async {
     final t = AppLocalizations.of(context);
+    // gap-cctv: deleting the owner's own voice asks first
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.gcvWarnDeleteAsk),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.wmCancel)),
+          FilledButton(
+              key: const ValueKey('gcv-warn-del-yes'),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.cescWarnDelete)),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
     setState(() => _busy = true);
     try {
       final d = await widget.source.deleteWarnClip(widget.siteId);
       _result = false;
+      widget.onResult?.call(false);
       if (mounted) setState(() => _d = d);
     } catch (e) {
       if (mounted) _snack(wmError(e) ?? t.wmGenericError);
@@ -468,7 +499,19 @@ class _WarnClipSheetState extends State<WarnClipSheet> {
     return SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          child: d == null
+          child: d == null && _loadFailed
+              ? Padding(
+                  key: const ValueKey('gcv-warn-load-failed'),
+                  padding: const EdgeInsets.all(24),
+                  child: Column(children: [
+                    Text(t.wmLoadErrorBody, textAlign: TextAlign.center),
+                    const SizedBox(height: 12),
+                    FilledButton(
+                        style: FilledButton.styleFrom(minimumSize: const Size(64, 48)),
+                        onPressed: _load,
+                        child: Text(t.wmRetry)),
+                  ]))
+              : d == null
               ? const Padding(
                   padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator()))
               : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

@@ -532,3 +532,58 @@ class CitySection extends StatelessWidget {
         ]),
       );
 }
+
+// gap-city: a failed / needs-something state is never a dead end — the
+// message plus a real button (Try again, Choose start, ...).
+class CityRetryCard extends StatelessWidget {
+  final String text;
+  final IconData icon;
+  final String buttonText;
+  final VoidCallback onPressed;
+  final Key? buttonKey;
+  final Widget? extra;
+  const CityRetryCard(
+      {super.key,
+      required this.text,
+      required this.buttonText,
+      required this.onPressed,
+      this.icon = Icons.cloud_off_rounded,
+      this.buttonKey,
+      this.extra});
+  @override
+  Widget build(BuildContext context) => DsCard(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(icon),
+            const SizedBox(width: Gap.sm),
+            Expanded(child: Text(text)),
+          ]),
+          const SizedBox(height: Gap.sm),
+          Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+            FilledButton.icon(
+              key: buttonKey,
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: onPressed,
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(buttonText),
+            ),
+            if (extra != null) extra!,
+          ]),
+        ]),
+      );
+}
+
+/// gap-city: "Go by bus / metro" — plan this place in City Service (our own
+/// routes + fares) instead of leaving for another app.
+class CityRouteHereButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  const CityRouteHereButton({super.key, required this.onPressed});
+  @override
+  Widget build(BuildContext context) => FilledButton.icon(
+        style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+        onPressed: onPressed,
+        icon: const Icon(Icons.directions_bus_rounded, size: 18),
+        label: Text(AppLocalizations.of(context).cityGRouteHere),
+      );
+}

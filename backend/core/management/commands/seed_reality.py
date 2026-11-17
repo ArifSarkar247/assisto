@@ -236,6 +236,17 @@ class Command(BaseCommand):
         if d and isinstance(d, dict):
             biz["khata_party_id"] = d.get("id")
 
+        # --- gap-city: a tiny made-up Dhaka transit sample so the emulator
+        # City Service flow plans a real route (CI DB only — see the guard above)
+        try:
+            from core.city_sample import import_sample
+            got = import_sample()
+            self.steps.append({"step": "city sample (gap-city)", "method": "DB", "path": "city_dataset",
+                               "status": 200, "ok": bool(got.get("stops"))})
+        except Exception as e:  # noqa: BLE001 — recorded as a failed seed step
+            self.steps.append({"step": "city sample (gap-city): %s" % e, "method": "DB",
+                               "path": "city_dataset", "status": 500, "ok": False})
+
         # --- read-backs: the data must come back through the GET side too
         for label, path in (("notes list", "/notes/"), ("family list", "/family/"),
                             ("circle members", "/circle/members"),

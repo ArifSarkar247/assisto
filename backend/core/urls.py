@@ -1025,6 +1025,9 @@ urlpatterns[:0] = [
     path("family/accounting/pool/contribute",
          m1r.FamPoolContributeView.as_view()),
     path("family/accounting/settle", m1r.FamSettleView.as_view()),
+    # gap-familycare: named goals of a shared family ledger
+    path("family/accounting/goals", m1r.FamGoalsView.as_view()),
+    path("family/accounting/goals/<int:gid>/<str:action>", m1r.FamGoalActionView.as_view()),
     # notification centre, journey, disaster, medicine-db
     path("notif/reminders/<str:item_id>/done",
          m1r.NotifReminderDoneView.as_view()),
