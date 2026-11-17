@@ -1,0 +1,271 @@
+{
+  "en": {
+    "arnTitle": "AI reply in notifications",
+    "@arnTitle": {
+      "description": "ai-reply-notif: screen + settings tile title"
+    },
+    "arnTileSub": "Quick replies under WhatsApp, Messenger and other chat messages",
+    "@arnTileSub": {
+      "description": "ai-reply-notif: settings tile subtitle"
+    },
+    "arnBenefit": "When a chat message arrives, Assisto shows 2 short replies under it. Tap one to send it, or write your own. You never need to open the app.",
+    "@arnBenefit": {
+      "description": "ai-reply-notif: settings intro"
+    },
+    "arnOnlyYouSend": "Only your tap sends a reply. Assisto never sends anything on its own in other apps.",
+    "@arnOnlyYouSend": {
+      "description": "ai-reply-notif: safety strip"
+    },
+    "arnNotAvailable": "This phone does not support replies from notifications.",
+    "@arnNotAvailable": {
+      "description": "ai-reply-notif: native part missing"
+    },
+    "arnAccessOn": "Notification access is on",
+    "@arnAccessOn": {
+      "description": "ai-reply-notif: access card title"
+    },
+    "arnAccessOff": "Notification access is off",
+    "@arnAccessOff": {
+      "description": "ai-reply-notif: access card title"
+    },
+    "arnAccessStopped": "Stopped: notification access was turned off",
+    "@arnAccessStopped": {
+      "description": "ai-reply-notif: switched on but access revoked"
+    },
+    "arnAccessOnHelp": "Assisto reads only messages from the chat apps you turned on below. Everything else is ignored.",
+    "@arnAccessOnHelp": {
+      "description": "ai-reply-notif: access card help"
+    },
+    "arnAccessOffHelp": "Turn on the switch below, then allow Assisto on Android's Notification access page.",
+    "@arnAccessOffHelp": {
+      "description": "ai-reply-notif: access card help"
+    },
+    "arnAccessManage": "Manage access",
+    "@arnAccessManage": {
+      "description": "ai-reply-notif: button"
+    },
+    "arnAccessOpen": "Open Notification access",
+    "@arnAccessOpen": {
+      "description": "ai-reply-notif: button"
+    },
+    "arnMasterTitle": "Suggest replies",
+    "@arnMasterTitle": {
+      "description": "ai-reply-notif: master switch"
+    },
+    "arnMasterOnSub": "On for the apps you pick below",
+    "@arnMasterOnSub": {
+      "description": "ai-reply-notif: master switch subtitle"
+    },
+    "arnMasterOffSub": "Off. Nothing is read.",
+    "@arnMasterOffSub": {
+      "description": "ai-reply-notif: master switch subtitle"
+    },
+    "arnNoCredits": "Some messages got no suggestions because your free AI replies are used up. Watch a short ad to unlock more.",
+    "@arnNoCredits": {
+      "description": "ai-reply-notif: free user without credits"
+    },
+    "arnUnlockAd": "Watch an ad to unlock replies",
+    "@arnUnlockAd": {
+      "description": "ai-reply-notif: rewarded ad button"
+    },
+    "arnAppsTitle": "Which apps",
+    "@arnAppsTitle": {
+      "description": "ai-reply-notif: per-app list header"
+    },
+    "arnAppsHelp": "All apps are off until you turn them on. Banks, bKash, Nagad, SMS and OTP messages are never read.",
+    "@arnAppsHelp": {
+      "description": "ai-reply-notif: per-app list help"
+    },
+    "arnAppsPickOne": "Turn on at least one app below to get reply suggestions.",
+    "@arnAppsPickOne": {
+      "description": "ai-reply-notif: master on, no app"
+    },
+    "arnAppMyCircle": "My Circle (Assisto chat)",
+    "@arnAppMyCircle": {
+      "description": "ai-reply-notif: per-app row"
+    },
+    "arnNotInstalled": "Not installed on this phone",
+    "@arnNotInstalled": {
+      "description": "ai-reply-notif: per-app row subtitle"
+    },
+    "arnPreviewTitle": "How the reply card looks",
+    "@arnPreviewTitle": {
+      "description": "ai-reply-notif: preview section"
+    },
+    "arnPreviewNote": "Example only. Real suggestions follow the message and your language.",
+    "@arnPreviewNote": {
+      "description": "ai-reply-notif: preview footnote"
+    },
+    "arnNeverFor": "Never for SOS or emergency messages, banks, bKash, Nagad, Rocket, Upay, OTP or verification codes, payments, money talk, SMS or system notifications.",
+    "@arnNeverFor": {
+      "description": "ai-reply-notif: never list"
+    },
+    "arnTurnOff": "Turn off AI reply",
+    "@arnTurnOff": {
+      "description": "ai-reply-notif: off button"
+    },
+    "arnPrivacyFoot": "The sender's name and the last few lines go to Assisto's server and AI only to make the replies. They are not saved and never used to train AI.",
+    "@arnPrivacyFoot": {
+      "description": "ai-reply-notif: privacy footer"
+    },
+    "arnDiscTitle": "Before you turn this on",
+    "@arnDiscTitle": {
+      "description": "ai-reply-notif: consent screen title"
+    },
+    "arnDiscLead": "To suggest replies, Assisto needs Android's Notification access. Here is exactly what happens.",
+    "@arnDiscLead": {
+      "description": "ai-reply-notif: consent lead"
+    },
+    "arnDiscReadTitle": "What is read",
+    "@arnDiscReadTitle": {
+      "description": "ai-reply-notif: consent point title"
+    },
+    "arnDiscRead": "Only the sender's name and the message text from the chat apps you choose. Other apps' notifications are ignored without being read.",
+    "@arnDiscRead": {
+      "description": "ai-reply-notif: consent point"
+    },
+    "arnDiscWhereTitle": "Where it goes",
+    "@arnDiscWhereTitle": {
+      "description": "ai-reply-notif: consent point title"
+    },
+    "arnDiscWhere": "To Assisto's server and then to the AI, only to make 2 or 3 short replies.",
+    "@arnDiscWhere": {
+      "description": "ai-reply-notif: consent point"
+    },
+    "arnDiscNoStoreTitle": "Not stored",
+    "@arnDiscNoStoreTitle": {
+      "description": "ai-reply-notif: consent point title"
+    },
+    "arnDiscNoStore": "Messages are not saved, not shown to anyone, and never used to train AI.",
+    "@arnDiscNoStore": {
+      "description": "ai-reply-notif: consent point"
+    },
+    "arnDiscCostTitle": "Uses credits",
+    "@arnDiscCostTitle": {
+      "description": "ai-reply-notif: consent point title"
+    },
+    "arnDiscCost": "Each set of suggestions uses AI credits. Free users can unlock more by watching an ad in the app.",
+    "@arnDiscCost": {
+      "description": "ai-reply-notif: consent point"
+    },
+    "arnDiscOffTitle": "Easy to turn off",
+    "@arnDiscOffTitle": {
+      "description": "ai-reply-notif: consent point title"
+    },
+    "arnDiscOff": "Turn it off any time in Settings > AI reply in notifications, or remove Assisto's Notification access in Android Settings.",
+    "@arnDiscOff": {
+      "description": "ai-reply-notif: consent point"
+    },
+    "arnDiscAccessNote": "Next, Android opens its Notification access page. Find Assisto and switch it on. If you already allowed it for call notes or money, nothing new is read until you pick apps here.",
+    "@arnDiscAccessNote": {
+      "description": "ai-reply-notif: consent footnote"
+    },
+    "arnDiscAgree": "Agree and continue",
+    "@arnDiscAgree": {
+      "description": "ai-reply-notif: consent agree"
+    },
+    "arnDiscNotNow": "Not now",
+    "@arnDiscNotNow": {
+      "description": "ai-reply-notif: consent decline"
+    },
+    "arnChannel": "AI reply suggestions",
+    "@arnChannel": {
+      "description": "ai-reply-notif: Android notification channel name"
+    },
+    "arnNotifTitle": "Reply to %NAME%",
+    "@arnNotifTitle": {
+      "description": "ai-reply-notif: companion notification title; keep %NAME%"
+    },
+    "arnNotifSub": "Assisto AI · only you send",
+    "@arnNotifSub": {
+      "description": "ai-reply-notif: companion notification subtext"
+    },
+    "arnWriteMyself": "Write myself",
+    "@arnWriteMyself": {
+      "description": "ai-reply-notif: companion notification action"
+    },
+    "arnNotifSent": "Sent to %NAME%",
+    "@arnNotifSent": {
+      "description": "ai-reply-notif: after tap; keep %NAME%"
+    },
+    "arnNotifFail": "Could not send. Open the chat to reply.",
+    "@arnNotifFail": {
+      "description": "ai-reply-notif: send failed"
+    },
+    "arnSampleName": "Rahim",
+    "@arnSampleName": {
+      "description": "ai-reply-notif: made-up sample sender in the preview"
+    },
+    "arnSampleMessage": "Are you coming to the meeting today?",
+    "@arnSampleMessage": {
+      "description": "ai-reply-notif: made-up sample message"
+    },
+    "arnSampleReply1": "Yes, I'll be there",
+    "@arnSampleReply1": {
+      "description": "ai-reply-notif: sample suggestion"
+    },
+    "arnSampleReply2": "Running 10 minutes late",
+    "@arnSampleReply2": {
+      "description": "ai-reply-notif: sample suggestion"
+    },
+    "clnAccessOnHelpAi": "Android lets Assisto see notifications. Assisto ignores everything except call-ended signals, allowed money senders and the chat apps you turned on for AI reply.",
+    "@clnAccessOnHelpAi": {
+      "description": "callmoney access card help when AI reply is also on"
+    }
+  },
+  "bn": {
+    "arnTitle": "নোটিফিকেশনে AI উত্তর",
+    "arnTileSub": "WhatsApp, Messenger ও অন্য চ্যাটের মেসেজের নিচে ঝটপট উত্তর",
+    "arnBenefit": "চ্যাটে মেসেজ এলে Assisto তার নিচে ২টি ছোট উত্তর দেখায়। একটিতে চাপ দিলেই পাঠানো হবে, নয়তো নিজে লিখুন। অ্যাপ খুলতে হবে না।",
+    "arnOnlyYouSend": "শুধু আপনার চাপেই উত্তর যায়। অন্য অ্যাপে Assisto নিজে থেকে কখনো কিছু পাঠায় না।",
+    "arnNotAvailable": "এই ফোনে নোটিফিকেশন থেকে উত্তর দেওয়া যায় না।",
+    "arnAccessOn": "নোটিফিকেশন অ্যাক্সেস চালু আছে",
+    "arnAccessOff": "নোটিফিকেশন অ্যাক্সেস বন্ধ",
+    "arnAccessStopped": "থেমে গেছে: নোটিফিকেশন অ্যাক্সেস বন্ধ করা হয়েছে",
+    "arnAccessOnHelp": "নিচে যে চ্যাট অ্যাপগুলো চালু করেছেন, Assisto শুধু সেগুলোর মেসেজ পড়ে। বাকি সব উপেক্ষা করে।",
+    "arnAccessOffHelp": "নিচের সুইচ চালু করুন, তারপর Android-এর নোটিফিকেশন অ্যাক্সেস পাতায় Assisto-কে অনুমতি দিন।",
+    "arnAccessManage": "অ্যাক্সেস দেখুন",
+    "arnAccessOpen": "নোটিফিকেশন অ্যাক্সেস খুলুন",
+    "arnMasterTitle": "উত্তর সাজেস্ট করুক",
+    "arnMasterOnSub": "নিচে বেছে নেওয়া অ্যাপগুলোর জন্য চালু",
+    "arnMasterOffSub": "বন্ধ। কিছুই পড়া হয় না।",
+    "arnNoCredits": "আপনার ফ্রি AI উত্তর শেষ হয়ে যাওয়ায় কিছু মেসেজে সাজেশন আসেনি। ছোট একটি বিজ্ঞাপন দেখে আরও আনলক করুন।",
+    "arnUnlockAd": "বিজ্ঞাপন দেখে উত্তর আনলক করুন",
+    "arnAppsTitle": "কোন কোন অ্যাপ",
+    "arnAppsHelp": "আপনি চালু না করা পর্যন্ত সব অ্যাপ বন্ধ থাকে। ব্যাংক, বিকাশ, নগদ, SMS আর OTP মেসেজ কখনো পড়া হয় না।",
+    "arnAppsPickOne": "উত্তর সাজেশন পেতে নিচে অন্তত একটি অ্যাপ চালু করুন।",
+    "arnAppMyCircle": "আমার সার্কেল (Assisto চ্যাট)",
+    "arnNotInstalled": "এই ফোনে ইনস্টল নেই",
+    "arnPreviewTitle": "উত্তরের কার্ড দেখতে যেমন",
+    "arnPreviewNote": "শুধু উদাহরণ। আসল সাজেশন মেসেজ আর আপনার ভাষা অনুযায়ী হবে।",
+    "arnNeverFor": "SOS বা জরুরি মেসেজ, ব্যাংক, বিকাশ, নগদ, রকেট, উপায়, OTP বা যাচাই কোড, পেমেন্ট, টাকা-পয়সার কথা, SMS বা সিস্টেম নোটিফিকেশনে কখনো নয়।",
+    "arnTurnOff": "AI উত্তর বন্ধ করুন",
+    "arnPrivacyFoot": "পাঠানোর জনের নাম আর শেষ কয়েকটি লাইন শুধু উত্তর বানাতে Assisto-র সার্ভার ও AI-তে যায়। এগুলো সেভ হয় না, AI শেখাতেও কখনো ব্যবহার হয় না।",
+    "arnDiscTitle": "চালু করার আগে জেনে নিন",
+    "arnDiscLead": "উত্তর সাজেস্ট করতে Assisto-র Android-এর নোটিফিকেশন অ্যাক্সেস লাগবে। ঠিক কী কী হয়, নিচে দেখুন।",
+    "arnDiscReadTitle": "কী পড়া হয়",
+    "arnDiscRead": "শুধু আপনার বেছে নেওয়া চ্যাট অ্যাপগুলোর পাঠানোর জনের নাম আর মেসেজের লেখা। অন্য অ্যাপের নোটিফিকেশন না পড়েই উপেক্ষা করা হয়।",
+    "arnDiscWhereTitle": "কোথায় যায়",
+    "arnDiscWhere": "Assisto-র সার্ভারে, তারপর AI-তে — শুধু ২ বা ৩টি ছোট উত্তর বানাতে।",
+    "arnDiscNoStoreTitle": "সেভ হয় না",
+    "arnDiscNoStore": "মেসেজ সেভ হয় না, কাউকে দেখানো হয় না, AI শেখাতেও কখনো ব্যবহার হয় না।",
+    "arnDiscCostTitle": "ক্রেডিট লাগে",
+    "arnDiscCost": "প্রতিবার সাজেশনে AI ক্রেডিট খরচ হয়। ফ্রি ব্যবহারকারীরা অ্যাপে বিজ্ঞাপন দেখে আরও আনলক করতে পারেন।",
+    "arnDiscOffTitle": "সহজেই বন্ধ করা যায়",
+    "arnDiscOff": "যেকোনো সময় সেটিংস > নোটিফিকেশনে AI উত্তর থেকে বন্ধ করুন, অথবা Android সেটিংসে Assisto-র নোটিফিকেশন অ্যাক্সেস তুলে দিন।",
+    "arnDiscAccessNote": "এরপর Android তার নোটিফিকেশন অ্যাক্সেস পাতা খুলবে। Assisto খুঁজে চালু করুন। কল নোট বা টাকার হিসাবের জন্য আগেই অনুমতি দিয়ে থাকলে, এখানে অ্যাপ না বাছা পর্যন্ত নতুন কিছু পড়া হবে না।",
+    "arnDiscAgree": "রাজি, এগিয়ে যান",
+    "arnDiscNotNow": "এখন না",
+    "arnChannel": "AI উত্তর সাজেশন",
+    "arnNotifTitle": "%NAME%-কে উত্তর দিন",
+    "arnNotifSub": "Assisto AI · পাঠাবেন শুধু আপনি",
+    "arnWriteMyself": "নিজে লিখব",
+    "arnNotifSent": "%NAME%-কে পাঠানো হয়েছে",
+    "arnNotifFail": "পাঠানো গেল না। উত্তর দিতে চ্যাটটি খুলুন।",
+    "arnSampleName": "রহিম",
+    "arnSampleMessage": "আজ মিটিংয়ে আসছ তো?",
+    "arnSampleReply1": "হ্যাঁ, আসছি",
+    "arnSampleReply2": "১০ মিনিট দেরি হবে",
+    "clnAccessOnHelpAi": "Android Assisto-কে নোটিফিকেশন দেখতে দেয়। কল শেষের সংকেত, অনুমোদিত টাকার প্রেরক আর AI উত্তরের জন্য চালু করা চ্যাট অ্যাপ ছাড়া Assisto বাকি সব উপেক্ষা করে।"
+  }
+}
