@@ -849,6 +849,13 @@ class _PartyTile extends StatelessWidget {
         Text(t.ldgSyncFailed(_d(context, ops.length - pending.length)),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.error, fontWeight: FontWeight.w600)),
     ];
+    final big = a11yMaxLines(context, 1) > 1; // a11ysweep
+    final amount = Text(balanceDisplay,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontFeatures: AFonts.tabular,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.3,
+            color: color));
     return Card(
       margin: const EdgeInsets.only(bottom: Gap.md),
       child: ListTile(
@@ -874,16 +881,16 @@ class _PartyTile extends StatelessWidget {
             Icon(Icons.star_rounded, size: 14, color: AssistoTokens.of(context).warning),
           ],
         ]),
-        subtitle: sub.isEmpty
+        // a11ysweep: at large text the amount moves under the name, so the
+        // name keeps the row's width instead of being cut to "Kar…"
+        subtitle: sub.isEmpty && !big
             ? null
-            : Column(crossAxisAlignment: CrossAxisAlignment.start, children: sub),
+            : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                if (big) amount,
+                ...sub,
+              ]),
         // designv2: the amount reads first — bigger, bold, tight figures.
-        trailing: Text(balanceDisplay,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontFeatures: AFonts.tabular,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
-                color: color)),
+        trailing: big ? null : amount,
       ),
     );
   }
