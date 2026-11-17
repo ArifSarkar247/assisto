@@ -194,3 +194,77 @@ def stop_dep(t, d, code):
         if s["st"] == code and s["dep"]:
             return _at(d, s["dep"], s["dep_day"])
     return None
+
+
+# ------------------------------------------------------------ v1 (train_geo) shape
+LINE_STATION_M = 300.0        # a station this close to the path is "on the line"
+
+
+def _meta():
+    tm = _read("br_trains.json").get("_meta") or {}
+    g = _read("br_segments.geojson").get("_meta") or {}
+    src = (tm.get("timetable") or g.get("timetable") or {}).get("sources") or {}
+    eds = sorted({v.get("edition", "") for v in src.values() if v.get("edition")})
+    return {
+        "trains_source": "Bangladesh Railway official timetable (railway.gov.bd, east + west "
+                         "zones + cross-border page; editions %s)" % ", ".join(eds),
+        "geometry": "ODbL 1.0 — © OpenStreetMap contributors "
+                    "(https://www.openstreetmap.org/copyright)",
+        "osm_base": g.get("osm_rail_base") or g.get("osm_stations_base"),
+        "built": (tm.get("timetable") or {}).get("fetched") or tm.get("fetched"),
+        "approval": "Official times. Every train stays approved:false until the owner "
+                    "checks it in closed testing; positions without live data are "
+                    "labelled 'timetable estimate'.",
+        "stop_times": "Official time at every listed halt; other stations are placed by "
+                      "rail distance (estimate).",
+        "source": "official",
+    }
+
+
+def _geo_train(t):
+    """The official train in the shape core.logic.train_geo has always used.
+    Stop "km" = metres along this train's path / 1000 (positions and stops
+    agree); the official distance stays in "km_official"."""
+    raw = next((x for x in _read("br_trains.json")["trains"] if x["no"] == t["no"]), {})
+    stops = [{"st": s["st"], "km": round((s.get("ch") or 0.0) / 1000.0, 3),
+              "km_official": s["km"], "arr": s["arr"], "dep": s["dep"],
+              "arr_day": s["arr_day"], "dep_day": s["dep_day"]} for s in t["stops"]]
+    return {"no": t["no"], "name_bn": t["name_bn"], "name_en": t["name_en"],
+            "from": stops[0]["st"], "to": stops[-1]["st"], "dep": t["dep"], "arr": t["arr"],
+            "arr_day": t.get("arr_day") or 0, "off_days": t["off_days"], "stops": stops,
+            "path": t["path"], "km": round(stops[-1]["km"], 1), "approved": False,
+            "status": t["status"], "kind": t["kind"], "source": raw.get("source") or {}}
+
+
+@lru_cache(maxsize=1)
+def geo_timetable():
+    """{"_meta", "stations", "trains"} for core.logic.train_geo (v1 screens,
+    search, Safe Journey train flow, destination alarm)."""
+    trains = [_geo_train(t) for t in trains() if len(t.get("path") or []) >= 2]
+    return {"_meta": _meta(), "stations": stations(), "trains": trains}
+
+
+@lru_cache(maxsize=1024)
+def geo_line_stations(no):
+    """Every station the train passes, in order: its halts (stop=True) plus
+    the timetable stations within LINE_STATION_M of its path between them
+    (stop=False). [{id, bn, en, km, lat, lng, stop}]."""
+    from .logic.train_live import RouteIndex
+    t = next((x for x in geo_timetable()["trains"] if x["no"] == no), None)
+    if t is None:
+        return []
+    st = stations()
+    rows = {s["st"]: dict(id=s["st"], bn=st.get(s["st"], {}).get("bn", ""),
+                          en=st.get(s["st"], {}).get("en", ""), km=s["km"],
+                          lat=st.get(s["st"], {}).get("lat"), lng=st.get(s["st"], {}).get("lng"),
+                          stop=True) for s in t["stops"]}
+    ri = RouteIndex(t["path"])
+    first, last = t["stops"][0]["km"] * 1000.0, t["stops"][-1]["km"] * 1000.0
+    for code, s in st.items():
+        if code in rows or s.get("lat") is None:
+            continue
+        ch, off = ri.project(s["lat"], s["lng"])
+        if ch is not None and off <= LINE_STATION_M and first < ch < last:
+            rows[code] = dict(id=code, bn=s.get("bn", ""), en=s.get("en", ""),
+                              km=round(ch / 1000.0, 3), lat=s["lat"], lng=s["lng"], stop=False)
+    return sorted(rows.values(), key=lambda r: (r["km"], not r["stop"]))

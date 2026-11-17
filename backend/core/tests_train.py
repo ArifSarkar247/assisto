@@ -54,9 +54,11 @@ def _fix(ch, minutes, **kw):
 class DataTests(SimpleTestCase):
     def test_bundled_data_cites_sources_and_is_unapproved(self):
         tt = TG.timetable()
-        self.assertIn("CC BY-SA", tt["_meta"]["trains_source"])
+        # train-engine (17 Nov): the official Bangladesh Railway timetable now
+        self.assertIn("official", tt["_meta"]["trains_source"])
         self.assertIn("ODbL", tt["_meta"]["geometry"])
-        self.assertGreaterEqual(len(tt["trains"]), 20)
+        self.assertGreaterEqual(len(tt["trains"]), 300)
+        self.assertEqual(TG.train("771")["name_bn"], "রংপুর এক্সপ্রেস")
         self.assertTrue(all(t["approved"] is False for t in tt["trains"]))
         t = TG.train(NO)
         self.assertEqual(t["dep"], "07:00")
@@ -137,7 +139,9 @@ class FusionTests(SimpleTestCase):
         self.assertEqual(e["label"], "estimate")
         self.assertEqual(e["state"], "running")
         self.assertFalse(e["approved"])
-        self.assertAlmostEqual(e["chainage_m"], TG.route(NO).length / 2, delta=2000)
+        dep, arr = TG.times(TG.train(NO), DAY)
+        frac = 160 * 60 / (arr - dep).total_seconds()
+        self.assertAlmostEqual(e["chainage_m"], TG.route(NO).length * frac, delta=2000)
 
 
 class ChatRuleTests(SimpleTestCase):
