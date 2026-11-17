@@ -487,7 +487,10 @@ class _CityServiceScreenState extends State<CityServiceScreen> {
     if (_to == null) return [_emptyHint(t)];
     // gap-city: no GPS and no start chosen -> say what is missing (it used
     // to say "Could not find the way" with a Try again that did nothing)
-    if (_origin == null && !_locating) {
+    if (_locating && _plan == null) {
+      return const [Padding(padding: EdgeInsets.all(Gap.xl), child: Center(child: CircularProgressIndicator()))];
+    }
+    if (_origin == null) {
       return [
         CityRetryCard(
           key: const ValueKey('city_need_start'),
