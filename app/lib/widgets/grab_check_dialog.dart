@@ -53,7 +53,7 @@ class GrabCheck {
         builder: (ctx) => AlertDialog(
           icon: const Icon(Icons.back_hand_outlined),
           title: Text(tr.at2OkTitle),
-          content: SingleChildScrollView(child: Text(tr.at2OkBody)),
+          content: SingleChildScrollView(child: Text(tr.fatOkBody)),
           actions: [
             TextButton(
                 key: const Key('grab-no'),

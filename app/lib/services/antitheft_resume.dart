@@ -63,7 +63,7 @@ class AntiTheftResume {
         // grab-guard: the local "Was this you?" heads-up after a grab
         // antitheft2: "Are you OK?" (owner 27 Oct)
         'grabTitle': tr.at2OkTitle,
-        'grabBody': tr.at2OkNotifBody,
+        'grabBody': tr.fatOkNotifBody, // flag-antitheft: 15 s
       };
 
   /// True when protection is ON and the engine is (now) running.

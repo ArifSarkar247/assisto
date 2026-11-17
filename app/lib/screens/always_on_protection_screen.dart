@@ -13,6 +13,7 @@ import '../config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/antitheft_resume.dart'; // at-heartbeat
 import '../services/antitheft_service.dart';
+import '../services/antitheft_logic.dart' show SnatchSensitivity; // flag-antitheft
 import '../services/own_device_guard.dart'; // grab-guard
 import 'battery_guidance_screen.dart';
 import 'intruder_consent_screen.dart'; // at100
@@ -269,6 +270,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     String? homeWifi,
     String? wifiHash,
     bool? alertNominee,
+    String? snatchSensitivity,
   }) async {
     final tr = AppLocalizations.of(context);
     final pin = await const SecurityGuard().askPin(context, tr);
@@ -285,6 +287,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
         homeWifi: homeWifi,
         wifiHash: wifiHash,
         alertNominee: alertNominee,
+        snatchSensitivity: snatchSensitivity,
       );
       IntruderSnap.after(resp); // at100: wrong PIN -> consented photo
       if (resp['reason'] == 'no_wifi') {
@@ -298,6 +301,7 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
           await AntiTheftService.configure(cfg.cast<String, dynamic>());
         }
         await _load();
+        if (snatchSensitivity != null) _snack(tr.fatSensSaved);
       } else {
         _snack(tr.securityBadPin);
       }
@@ -496,6 +500,49 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
     return DateFormat('d MMM, h:mm a', lang).format(d.toLocal());
   }
 
+  /// flag-antitheft: the owner's grab sensitivity (PIN-gated on save).
+  Widget _sensitivityCard(AppLocalizations tr) {
+    final cur = SnatchSensitivity.clean(_state['snatch_sensitivity'] as String?);
+    Widget option(String value, String title, String body) {
+      final on = cur == value;
+      return Semantics(
+        selected: on,
+        inMutuallyExclusiveGroup: true,
+        child: ListTile(
+          minVerticalPadding: Gap.sm,
+          leading: Icon(on
+              ? Icons.radio_button_checked_rounded
+              : Icons.radio_button_unchecked_rounded),
+          title: Text(title),
+          subtitle: Text(body),
+          onTap: _busy || on
+              ? null
+              : () => _saveSettings(snatchSensitivity: value),
+        ),
+      );
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Gap.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.directions_run_rounded),
+              title: Text(tr.fatSensTitle),
+              subtitle: Text(tr.fatSensBody),
+            ),
+            option(SnatchSensitivity.low, tr.fatSensLow, tr.fatSensLowBody),
+            option(SnatchSensitivity.normal, tr.fatSensNormal,
+                tr.fatSensNormalBody),
+            option(SnatchSensitivity.high, tr.fatSensHigh, tr.fatSensHighBody),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _nightGuardCard(AppLocalizations tr) {
     final count = (_state['home_wifi_count'] as num?)?.toInt() ?? 0;
     return DsCard(padding: EdgeInsets.zero, child: Padding(
@@ -570,6 +617,8 @@ class _AlwaysOnProtectionScreenState extends State<AlwaysOnProtectionScreen>
           _locationCard(tr),
           const SizedBox(height: Gap.md),
           _nightGuardCard(tr),
+          const SizedBox(height: Gap.md),
+          _sensitivityCard(tr), // flag-antitheft
           const SizedBox(height: Gap.md),
           _timelineLink(tr),
           const SizedBox(height: Gap.md),

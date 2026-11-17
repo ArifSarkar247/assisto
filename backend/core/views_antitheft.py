@@ -422,6 +422,8 @@ def _config(phone, eng, interval=None):
         # antitheft2: grab rules the engine applies on the phone too
         "night_guard": bool(eng.night_guard),
         "home_wifi": [h for h in (eng.home_wifi or []) if at.wifi_hash_ok(h)],
+        # flag-antitheft
+        "snatch_sensitivity": _sensitivity(eng),
     }
 
 
@@ -649,6 +651,8 @@ class EngineStateView(APIView):
             "needs_trusted_contact": not trusted_contacts(phone),
             "location": self._location(phone, eng),
             "night_guard": bool(eng.night_guard),
+            "snatch_sensitivity": _sensitivity(eng),  # flag-antitheft
+            "grab_confirm_window_s": at.CONFIRM_WINDOW_S,
             # theftalerts: nominee switch + an honest count of who can get it
             "alert_nominee": bool(eng.alert_nominee),
             "nominees_saved": nominee_count(request.user)[0],
@@ -788,6 +792,14 @@ class EngineSettingsView(APIView):
             eng.alert_member_ids = ids
         # antitheft2: Night guard + the saved home Wi-Fi (hashes only)
         eng.night_guard = _bool(request.data.get("night_guard"), eng.night_guard)
+        # flag-antitheft: grab sensitivity (PIN-gated like every setting, so
+        # a thief cannot turn it down)
+        if "snatch_sensitivity" in request.data:
+            sens = at.clean_sensitivity(request.data.get("snatch_sensitivity"))
+            if sens is None:
+                return Response({"detail": "bad_sensitivity"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            eng.snatch_sensitivity = sens
         # theftalerts: also alert my nominee(s) (theft alerts only)
         eng.alert_nominee = _bool(request.data.get("alert_nominee"),
                                   eng.alert_nominee)
@@ -1027,6 +1039,43 @@ def _alert_new_events(phone, eng, new_events, now):
         AntiTheftEvent.objects.filter(pk=ev.pk).update(**upd)
 
 
+def _sensitivity(eng):
+    """flag-antitheft: the engine's grab sensitivity (default normal)."""
+    return (at.clean_sensitivity(getattr(eng, "snatch_sensitivity", None))
+            or at.SENSITIVITY_DEFAULT)
+
+
+def _drop_held_grabs(phone, cleared_at, reason):
+    """flag-antitheft: drop the held (not yet sent) grabs of [phone] that
+    happened shortly before [cleared_at]. Atomic per grab (a grab already
+    escalated is untouched). Returns how many were dropped."""
+    lo = cleared_at - timedelta(seconds=at.CONFIRM_WINDOW_S + 30)
+    n = 0
+    for ev in list(_pending_grabs(phone).filter(at__gte=lo,
+                                                at__lte=cleared_at)):
+        d = dict(ev.data or {})
+        d.update(false_alarm=True, confirm=reason)
+        n += AntiTheftEvent.objects.filter(
+            pk=ev.pk, alerted=False, escalate_at__isnull=False).update(
+                data=d, alerted=True, escalate_at=None)
+    return n
+
+
+def _grab_was_sent(phone, before):
+    """flag-antitheft: did a grab of [phone] actually reach the trusted
+    contacts shortly before [before]? (else an "it was a false alarm"
+    update would be about an alert nobody got)."""
+    lo = before - timedelta(seconds=at.CONFIRM_WINDOW_S + 120)
+    for ev in AntiTheftEvent.objects.filter(phone=phone, kind="snatch",
+                                            alerted=True, at__gte=lo,
+                                            at__lte=before):
+        d = ev.data or {}
+        if not (d.get("suppressed") or d.get("false_alarm")
+                or d.get("no_recipients")):
+            return True
+    return False
+
+
 def _pending_grabs(phone):
     return AntiTheftEvent.objects.filter(phone=phone, kind="snatch", alerted=False,
                                          escalate_at__isnull=False)
@@ -1172,6 +1221,11 @@ class EngineIngestView(APIView):
 
         new_events = []
         held = []   # antitheft2: escalate_at of grabs waiting for "Are you OK?"
+        # flag-antitheft: owner-unlock clears in THIS batch (a phone that was
+        # offline sends the grab and the unlock together, late).
+        unlock_clears = [r[0] for r in rows if r[2] == "snatch_cleared"
+                         and isinstance(r[3].get("data"), dict)
+                         and r[3]["data"].get("reason") == "owner_unlock"]
         for ev_at, cid, kind, it in rows:
             lat = at.f_or_none(it.get("lat"))
             lng = at.f_or_none(it.get("lng"))
@@ -1268,7 +1322,12 @@ class EngineIngestView(APIView):
             # for the timeline, no alert, no freeze.
             if kind == "snatch":
                 why = at.grab_suppression(ev.data, ev_at, eng.night_guard,
-                                          eng.home_wifi)
+                                          eng.home_wifi, _sensitivity(eng))
+                if not why and any(
+                        timedelta(0) < (u - ev_at)
+                        <= timedelta(seconds=at.CONFIRM_WINDOW_S)
+                        for u in unlock_clears):
+                    why = "owner_unlock"
                 if why:
                     d = dict(ev.data or {})
                     d["suppressed"] = why
@@ -1291,6 +1350,21 @@ class EngineIngestView(APIView):
                     d["confirm"] = "timeout"
                     AntiTheftEvent.objects.filter(pk=ev.pk).update(data=d)
                     ev.data = d
+            # flag-antitheft: the owner unlocked with the phone's own secure
+            # lock inside "Are you OK?" -> held grabs are dropped (never sent;
+            # the trusted contacts never hear of them). A grab that already
+            # went out keeps the usual "probably a false alarm" update.
+            if (kind == "snatch_cleared"
+                    and (ev.data or {}).get("reason") == "owner_unlock"):
+                dropped = _drop_held_grabs(phone, ev_at, "owner_unlock")
+                if dropped or not _grab_was_sent(phone, ev_at):
+                    d = dict(ev.data or {})
+                    d["silent"] = ("held_grab_dropped" if dropped
+                                   else "no_grab_was_sent")
+                    AntiTheftEvent.objects.filter(pk=ev.pk).update(
+                        data=d, alerted=True)
+                    new_events.pop()
+                    continue
             # a theft signal freezes Section-8 actions (snatch / sim_change)
             if kind in at.SIGNAL_KINDS:
                 if _legacy_arming_sim(eng, kind, ev_at, ev.data):

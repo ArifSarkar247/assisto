@@ -57,6 +57,104 @@ class SnatchContext {
 
   /// Local hour 0-23 (night quiet profile).
   final int hour;
+
+  /// flag-antitheft: the owner is using the phone (screen on + unlocked).
+  bool get inUse => screenOn && unlocked;
+}
+
+/// flag-antitheft (17 Nov: 10 live "grab" alerts on one phone, 0 answered,
+/// 0 followed by any theft sign — almost surely false): the owner's own
+/// choice of how eager the grab detector is. Mirror: SnatchPolicy.kt.
+/// Every level needs a hard grab, motion through the whole follow window
+/// (all three thirds) and a steady running RHYTHM after it (GaitRules) —
+/// a bumpy rickshaw ride, a drop, a fast walk or a bag is not enough.
+///   * low    — never while the phone is unlocked in your hand; only a
+///              phone lying still (table / bed) that is grabbed and run with.
+///   * normal — also in your hand. Recommended.
+///   * high   — 10 % lower thresholds and a looser rhythm: catches more,
+///              more false alarms (jogging with the phone in hand can fire).
+class SnatchSensitivity {
+  SnatchSensitivity._();
+  static const low = 'low';
+  static const normal = 'normal';
+  static const high = 'high';
+  static const all = [low, normal, high];
+
+  static String clean(String? s) => all.contains(s) ? s! : normal;
+
+  static double grabScale(String s) => s == high ? 0.9 : 1.0;
+  static double runScale(String s) => s == high ? 0.9 : 1.0;
+
+  /// Whether a grab while the phone is in use (in your hand) can count.
+  static bool inHandCounts(String s) => s != low;
+}
+
+/// flag-antitheft: "running away" = a steady RHYTHM in the motion after
+/// the grab. Measured as the strongest autocorrelation of the (mean-removed)
+/// acceleration magnitude at a step period of [minLagMs]..[maxLagMs]
+/// (1.5-5 steps/s). Running / a fleeing thief repeats (~0.6-0.9); a bumpy
+/// rickshaw, a bus or a drop is irregular (< 0.3). Pure; Kotlin mirror in
+/// SnatchPolicy.kt (GaitRules).
+class GaitRules {
+  GaitRules._();
+  static const minLagMs = 200;
+  static const maxLagMs = 667;
+  static const minSamples = 60;
+  static const maxSamples = 400; // 8 s at 50 Hz: bounded memory / CPU
+
+  static double minRhythm(String sensitivity) =>
+      sensitivity == SnatchSensitivity.high ? 0.35 : 0.5;
+
+  /// (rhythm 0..1, step rate Hz) of magnitudes sampled every [dtMs].
+  static ({double rhythm, double hz}) rhythm(List<double> m, double dtMs) {
+    final n = m.length;
+    if (n < minSamples || dtMs <= 0) return (rhythm: 0.0, hz: 0.0);
+    var mu = 0.0;
+    for (final x in m) {
+      mu += x;
+    }
+    mu /= n;
+    final d = [for (final x in m) x - mu];
+    var v = 0.0;
+    for (final x in d) {
+      v += x * x;
+    }
+    if (v <= 1e-9) return (rhythm: 0.0, hz: 0.0);
+    final lo = math.max(1, (minLagMs / dtMs).round());
+    final hi = math.min(n ~/ 2 - 1, (maxLagMs / dtMs).round());
+    var best = 0.0;
+    var bestLag = 0;
+    for (var lag = lo; lag <= hi; lag++) {
+      var c = 0.0;
+      for (var i = 0; i + lag < n; i++) {
+        c += d[i] * d[i + lag];
+      }
+      final r = c / v * n / (n - lag);
+      if (r > best) {
+        best = r;
+        bestLag = lag;
+      }
+    }
+    return (
+      rhythm: best,
+      hz: bestLag == 0 ? 0.0 : 1000.0 / (bestLag * dtMs)
+    );
+  }
+}
+
+/// flag-antitheft: the owner unlocking the phone with its OWN secure screen
+/// lock inside the "Are you OK?" window proves it is in the owner's hand —
+/// the held grab is dropped and the family never hears of it. A thief
+/// cannot pass a secure lock; with no secure lock an unlock proves nothing.
+class GrabCancel {
+  GrabCancel._();
+  static bool ownerUnlockCancels(
+          {required int grabAtMs,
+          required int unlockAtMs,
+          required bool deviceSecure}) =>
+      deviceSecure &&
+      unlockAtMs > grabAtMs &&
+      unlockAtMs - grabAtMs <= SnatchPolicy.confirmWindowMs;
 }
 
 /// One detection profile: how hard the grab and how sustained the run.
@@ -139,7 +237,9 @@ class SnatchPolicy {
   /// The owner gets this long to answer "Are you OK?" on his own phone;
   /// antitheft2: the grab reaches the server at once (held there) and the
   /// SERVER escalates it to the trusted contacts when this window passes.
-  static const confirmWindowMs = 60000;
+  /// flag-antitheft (owner 17 Nov): 15 s (was 60 s) — short enough that
+  /// the family hears quickly, long enough to unlock or tap "It was me".
+  static const confirmWindowMs = 15000;
 
   static bool isNight(int hour) =>
       hour >= nightStartHour || hour < nightEndHour;
@@ -150,7 +250,28 @@ class SnatchPolicy {
   /// The profile a grab NOW must meet, or null = a grab cannot count now.
   /// [restBefore]: the phone lay still for [restMs] before the jolt.
   static SnatchProfile? profileFor(SnatchContext c,
-      {required bool restBefore}) {
+      {required bool restBefore,
+      String sensitivity = SnatchSensitivity.normal}) {
+    final base = _baseProfile(c, restBefore);
+    if (base == null) return null;
+    final s = SnatchSensitivity.clean(sensitivity);
+    // flag-antitheft: "low" never counts a grab while in your hand
+    if (c.inUse && !restBefore && !SnatchSensitivity.inHandCounts(s)) {
+      return null;
+    }
+    if (s == SnatchSensitivity.normal) return base;
+    return SnatchProfile(
+      name: base.name,
+      grabThreshold: base.grabThreshold * SnatchSensitivity.grabScale(s),
+      runThreshold: base.runThreshold * SnatchSensitivity.runScale(s),
+      followWindowMs: base.followWindowMs,
+      runFraction: base.runFraction,
+      lateRunFraction: base.lateRunFraction,
+      minFollowSamples: base.minFollowSamples,
+    );
+  }
+
+  static SnatchProfile? _baseProfile(SnatchContext c, bool restBefore) {
     if (c.charging) return null;
     if (freshUnlock(c)) return null;
     // antitheft2 (owner 27 Oct): face-down and still -> a drop / toss
@@ -214,6 +335,11 @@ class FlushPolicy {
 /// follow window, allowed by [SnatchPolicy] at that moment. An ordinary
 /// pick-up, put-down, bump, in-hand use or charging never fires.
 class SnatchDetector {
+  /// flag-antitheft: the owner's sensitivity (SnatchSensitivity).
+  SnatchDetector({String sensitivity = SnatchSensitivity.normal})
+      : sensitivity = SnatchSensitivity.clean(sensitivity);
+
+  String sensitivity;
   SnatchProfile? _profile;
   int? _grabAtMs;
   int? _spikeAtMs;
@@ -221,7 +347,19 @@ class SnatchDetector {
   int? _lastActiveMs;
   int? _firstMs;
   int? _cooldownUntil;
-  int _early = 0, _earlyMoving = 0, _late = 0, _lateMoving = 0;
+  // flag-antitheft: the follow window in THIRDS (motion must last through
+  // all three), the magnitudes (running rhythm) and the grab's strength.
+  final _n = [0, 0, 0];
+  final _moving = [0, 0, 0];
+  final _buf = <double>[];
+  int _lastT = 0;
+  double _grabPeak = 0, _sum = 0;
+  bool _inUse = false;
+
+  /// What the last FIRED pattern looked like (motion numbers only — no
+  /// location, no audio): sent with the event so real precision can be
+  /// measured and the server can re-check it with the owner's setting.
+  Map<String, Object> lastFeatures = const {};
 
   /// Feed one sample. Returns true exactly once when a snatch completes.
   bool onSample(
@@ -244,22 +382,19 @@ class SnatchDetector {
       }
       final g = _grabAtMs!;
       if (tMs - g > p.followWindowMs) {
-        final total = _early + _late;
-        final fired = total >= p.minFollowSamples &&
-            _late > 0 &&
-            (_earlyMoving + _lateMoving) / total >= p.runFraction &&
-            _lateMoving / _late >= p.lateRunFraction;
+        final fired = _verdict(p);
         reset();
         if (fired) _cooldownUntil = tMs + SnatchPolicy.cooldownMs;
         return fired;
       }
-      final moving = magnitude >= p.runThreshold;
-      if (tMs - g <= p.followWindowMs ~/ 2) {
-        _early++;
-        if (moving) _earlyMoving++;
-      } else {
-        _late++;
-        if (moving) _lateMoving++;
+      final third =
+          math.min(2, math.max(0, (tMs - g) * 3 ~/ (p.followWindowMs + 1)));
+      _n[third]++;
+      if (magnitude >= p.runThreshold) _moving[third]++;
+      _sum += magnitude;
+      if (_buf.length < GaitRules.maxSamples) {
+        _buf.add(magnitude);
+        _lastT = tMs;
       }
       return false;
     }
@@ -271,31 +406,69 @@ class SnatchDetector {
     }
     final first = _spikeAtMs == null;
     final want = SnatchPolicy.profileFor(ctx,
-        restBefore: first ? restBefore : _spikeRest);
-    if (want == null || magnitude < want.grabThreshold) return false;
+        restBefore: first ? restBefore : _spikeRest, sensitivity: sensitivity);
+    if (want == null || magnitude < want.grabThreshold) {
+      if (!first && magnitude > _grabPeak) _grabPeak = magnitude;
+      return false;
+    }
     if (first) {
       _spikeAtMs = tMs;
       _spikeRest = restBefore;
+      _grabPeak = magnitude;
       return false;
     }
+    if (magnitude > _grabPeak) _grabPeak = magnitude;
+    final peak = _grabPeak;
+    reset();
     _profile = want;
     _grabAtMs = tMs;
-    _spikeAtMs = null;
-    _early = 0;
-    _earlyMoving = 0;
-    _late = 0;
-    _lateMoving = 0;
+    _grabPeak = peak;
+    _inUse = ctx.inUse;
     return false;
+  }
+
+  bool _verdict(SnatchProfile p) {
+    final total = _n[0] + _n[1] + _n[2];
+    if (total < p.minFollowSamples || _n[2] == 0) return false;
+    final moving = _moving[0] + _moving[1] + _moving[2];
+    final thirds = [
+      for (var i = 0; i < 3; i++) _n[i] == 0 ? 0.0 : _moving[i] / _n[i]
+    ];
+    final sustained = moving / total >= p.runFraction &&
+        thirds.every((f) => f >= p.lateRunFraction);
+    if (!sustained) return false;
+    final dt = _buf.length > 1 ? (_lastT - _grabAtMs!) / _buf.length : 0.0;
+    final gait = GaitRules.rhythm(_buf, dt);
+    if (gait.rhythm < GaitRules.minRhythm(sensitivity)) return false;
+    double r2(double v) => (v * 100).roundToDouble() / 100;
+    lastFeatures = {
+      'v': 3,
+      'profile': p.name,
+      'sens': sensitivity,
+      'in_use': _inUse,
+      'peak': r2(_grabPeak),
+      'moving': r2(moving / total),
+      'thirds': [for (final f in thirds) r2(f)],
+      'rhythm': r2(gait.rhythm),
+      'step_hz': r2(gait.hz),
+      'mean': r2(_sum / total),
+    };
+    return true;
   }
 
   void reset() {
     _profile = null;
     _grabAtMs = null;
     _spikeAtMs = null;
-    _early = 0;
-    _earlyMoving = 0;
-    _late = 0;
-    _lateMoving = 0;
+    for (var i = 0; i < 3; i++) {
+      _n[i] = 0;
+      _moving[i] = 0;
+    }
+    _buf.clear();
+    _lastT = 0;
+    _grabPeak = 0;
+    _sum = 0;
+    _inUse = false;
   }
 
   /// Magnitude of a 3-axis linear-acceleration reading.
