@@ -257,9 +257,11 @@ class _WatchmanScreenState extends State<WatchmanScreen> {
       child: ListView(
         padding: withNavBarInset(context, const EdgeInsets.only(bottom: 32)),
         children: [
+          // design3 (page rule): first run = the welcome hero with the ONE
+          // main action first; how it works comes after it
+          if (sites.isEmpty) _Welcome(onStart: _startSetup),
           if (_showGuide || sites.isEmpty)
             WatchmanGuideCard(onClose: sites.isEmpty ? null : _closeGuide),
-          if (sites.isEmpty) _Welcome(onStart: _startSetup),
           if (sites.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -376,20 +378,31 @@ class _Welcome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    // design3: a soft DS hero (illustration, title, short body, the one
+    // glowing button)
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(t.wmWelcomeTitle, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 6),
-        Text(t.cvvWelcomeBody),
-        const SizedBox(height: 16),
-        FilledButton.icon(
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
-          icon: const Icon(Icons.play_arrow_rounded),
-          label: Text(t.wmStartSetup),
-          onPressed: onStart,
-        ),
-      ]),
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.md, Gap.lg, Gap.sm),
+      child: DsHeroCard(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: DsIllustration(icon: Icons.videocam_rounded, size: 72),
+          ),
+          const SizedBox(height: Gap.md),
+          Text(t.wmWelcomeTitle,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: Gap.xs),
+          Text(t.cvvWelcomeBody,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: DsTokens.of(context).muted)),
+          const SizedBox(height: Gap.lg),
+          DsButton(
+            expand: true,
+            icon: Icons.play_arrow_rounded,
+            label: t.wmStartSetup,
+            onPressed: onStart,
+          ),
+        ]),
+      ),
     );
   }
 }
