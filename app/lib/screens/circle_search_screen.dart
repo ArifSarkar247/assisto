@@ -19,6 +19,8 @@ import '../p3/assisto_card.dart' show cardFallback;
 import '../widgets/circle_people_filter.dart' show peopleTextMatches;
 import '../widgets/notif_models.dart' show notifLocalizeDigits;
 import 'circle_chat_screen.dart';
+import 'circle_group_chat_screen.dart'; // gap-circle
+import '../crypto/group_decrypt.dart'; // gap-circle
 
 /// Search ACROSS all circle chats. Because the server stores ciphertext only,
 /// search is done ON-DEVICE: we pull each accepted member's messages, decrypt
@@ -44,7 +46,8 @@ class _CircleSearchHit {
   final Map<String, dynamic> member;
   final String text;
   final DateTime at;
-  const _CircleSearchHit(this.member, this.text, this.at);
+  final Map<String, dynamic>? group; // gap-circle: a group message hit
+  const _CircleSearchHit(this.member, this.text, this.at, {this.group});
 }
 
 class _CircleSearchScreenState extends State<CircleSearchScreen> {
@@ -99,12 +102,29 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
       if (_peerPub(member) == null) continue;
       todo.add(member);
     }
-    _total = todo.length;
+    // gap-circle: group messages too (opened on this phone, like 1:1)
+    final groups = <Map<String, dynamic>>[];
+    try {
+      final g = await api.getJson('/circle/groups');
+      for (final row in ((g['results'] ?? g['groups'] ?? []) as List).whereType<Map>()) {
+        final m = row.cast<String, dynamic>();
+        if (ChatLockStore.instance.isLockedSync('group:${m['id']}') && !ChatLockSession.isOpen) {
+          continue;
+        }
+        groups.add(m);
+      }
+    } catch (_) {}
+    if (!mounted) return;
+    final jobs = <Future<List<_CircleSearchHit>> Function()>[
+      for (final member in todo) () => _indexOne(api, member, me),
+      for (final g in groups) () => _indexGroup(api, g, me),
+    ];
+    _total = jobs.length;
     var next = 0;
     Future<void> worker() async {
-      while (next < todo.length) {
-        final member = todo[next++];
-        final hits = await _indexOne(api, member, me);
+      while (next < jobs.length) {
+        final job = jobs[next++];
+        final hits = await job();
         if (!mounted) return;
         setState(() {
           _index.addAll(hits);
@@ -136,6 +156,47 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
         if (text == null || text.isEmpty || isControlText(text)) continue;
         final at = DateTime.tryParse('${env['created_at'] ?? ''}')?.toLocal() ?? DateTime.now();
         out.add(_CircleSearchHit(member, text, at));
+      }
+      _cache[ck] = (DateTime.now(), out);
+    } catch (_) {}
+    return out;
+  }
+
+  /// gap-circle: newest [kPerChat] messages of one group, opened with my key
+  /// (my entry of the per-member fan-out; my own messages via any member).
+  Future<List<_CircleSearchHit>> _indexGroup(
+      ApiClient api, Map<String, dynamic> group, int? me) async {
+    final gid = group['id'];
+    final ck = 'g|${identityHashCode(api)}|$me|$gid|${widget.identity.keyId}';
+    final hit = _cache[ck];
+    if (hit != null && DateTime.now().difference(hit.$1) < kCacheFor) return hit.$2;
+    final out = <_CircleSearchHit>[];
+    try {
+      final ros = await api.getJson('/circle/groups/$gid/members');
+      final roster = ((ros['results'] ?? ros['members'] ?? []) as List)
+          .whereType<Map>()
+          .map((e) => e.cast<String, dynamic>())
+          .toList();
+      var myMid = '${group['my_member_id'] ?? ''}';
+      if (myMid.isEmpty || myMid == 'null') {
+        for (final r in roster) {
+          if (r['is_self'] == true) myMid = '${r['member_id'] ?? r['id'] ?? ''}';
+        }
+      }
+      final r = await api.getJson('/circle/groups/$gid/messages?limit=$kPerChat');
+      final raw = ((r['results'] ?? r['messages'] ?? []) as List).whereType<Map>();
+      for (final e in raw) {
+        final env = e.cast<String, dynamic>();
+        if ('${env['deleted'] ?? ''}' == 'everyone' || env['view_once'] == true) continue;
+        if ('${env['content_type'] ?? 'text'}' != 'text') continue;
+        final text = GroupDecrypt.open(env,
+            ring: [widget.identity],
+            myMemberId: myMid,
+            myUserId: me == null ? '' : '$me',
+            roster: roster);
+        if (text == null || text.isEmpty || isControlText(text)) continue;
+        final at = DateTime.tryParse('${env['created_at'] ?? ''}')?.toLocal() ?? DateTime.now();
+        out.add(_CircleSearchHit(const {}, text, at, group: group));
       }
       _cache[ck] = (DateTime.now(), out);
     } catch (_) {}
@@ -210,11 +271,17 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
                       itemBuilder: (_, i) {
                         final h = results[i];
                         // cde-chat nickname first, like the chat list
-                        final name = DecorStore.instance.peerName(
-                            'member:${h.member['id']}', '${h.member['name'] ?? ''}');
+                        final g = h.group; // gap-circle
+                        final name = g != null
+                            ? '${g['name'] ?? ''}'
+                            : DecorStore.instance.peerName(
+                                'member:${h.member['id']}', '${h.member['name'] ?? ''}');
                         return ListTile(
                           key: Key('e-msg-hit-$i'),
-                          leading: DsAvatar(name: name.isEmpty ? '?' : name),
+                          leading: g != null
+                              ? CircleAvatar(child: Icon(Icons.groups_rounded,
+                                  semanticLabel: name))
+                              : DsAvatar(name: name.isEmpty ? '?' : name),
                           title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
                           subtitle: Text(cardFallback(h.text),
                               maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -223,7 +290,9 @@ class _CircleSearchScreenState extends State<CircleSearchScreen> {
                                   DateFormat('d/M/yy').format(h.at)),
                               style: TextStyle(fontSize: 12, color: DsTokens.of(context).muted)),
                           onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            builder: (_) => CircleChatScreen(member: h.member, identity: widget.identity),
+                            builder: (_) => g != null
+                                ? CircleGroupChatScreen(group: g, identity: widget.identity)
+                                : CircleChatScreen(member: h.member, identity: widget.identity),
                           )),
                         );
                       },

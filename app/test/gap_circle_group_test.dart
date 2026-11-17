@@ -11,6 +11,7 @@ import 'package:assisto/messaging/group_msg_actions.dart';
 import 'package:assisto/messaging/outbox.dart';
 import 'package:assisto/screens/circle_call_history_screen.dart';
 import 'package:assisto/screens/circle_group_chat_screen.dart';
+import 'package:assisto/screens/circle_search_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -345,5 +346,58 @@ void main() {
       expect(find.byKey(const ValueKey('call-log-row-7')), findsNothing);
       await _dispose(tester);
     });
+  });
+
+  testWidgets('search across chats finds GROUP messages too (opened on this phone)',
+      (tester) async {
+    final api = _Api();
+    final sealed = _e2e.encrypt(
+        self: _peer, recipientPublicKey: _me.publicKey, plaintext: 'Rent is due Friday');
+    api.replies['/circle/groups'] = {
+      'results': [
+        {'id': 7, 'name': 'Family', 'my_member_id': 1},
+      ]
+    };
+    api.replies['/circle/groups/7/members'] = {
+      'results': [
+        {'member_id': 1, 'user_id': 1, 'name': 'Me', 'is_self': true, 'public_key': ''},
+        {'member_id': 2, 'user_id': 2, 'name': 'Abul', 'public_key': _peer.publicKeyB64},
+      ]
+    };
+    api.replies['/circle/groups/7/messages'] = {
+      'results': [
+        {
+          'id': 301, 'sender_id': 2, 'mine': false, 'content_type': 'text',
+          'created_at': _ago(10), 'sender_key_id': _peer.keyId,
+          'per_recipient': {
+            '1': {'ciphertext': sealed.ciphertextB64, 'nonce': sealed.nonceB64}
+          },
+        },
+        {'id': 302, 'sender_id': 2, 'content_type': 'text', 'deleted': 'everyone',
+         'created_at': _ago(9)},
+      ]
+    };
+    await tester.binding.setSurfaceSize(const Size(400, 800));
+    final app = AppState()..api = api;
+    await tester.pumpWidget(ChangeNotifierProvider<AppState>.value(
+      value: app,
+      child: MaterialApp(
+        locale: const Locale('en'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: CircleSearchScreen(members: const [], identity: _me, initialQuery: 'rent'),
+      ),
+    ));
+    await _settle(tester);
+    expect(find.byKey(const Key('e-msg-hit-0')), findsOneWidget);
+    expect(find.text('Family'), findsOneWidget);
+    expect(find.text('Rent is due Friday'), findsOneWidget);
+    expect(find.byKey(const Key('e-msg-hit-1')), findsNothing);
+    await _dispose(tester);
   });
 }
