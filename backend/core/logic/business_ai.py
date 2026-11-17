@@ -261,14 +261,29 @@ def build_context(catalog=None, delivery=None, policies=None, shop_name="",
         if p.get("description"):
             line += f" — {str(p['description'])[:80]}"
         lines.append(line)
-    if delivery:
-        inside = _to_decimal(delivery.get("inside_dhaka"))
-        outside = _to_decimal(delivery.get("outside_dhaka"))
-        if inside is not None or outside is not None:
-            lines.append(pick(
-                lang,
-                f"- ডেলিভারি: ঢাকার ভিতরে ৳{inside}, ঢাকার বাইরে ৳{outside}",
-                f"- Delivery: inside Dhaka ৳{inside}, outside Dhaka ৳{outside}"))
+    # bizagent-guard: 0 / blank = NOT SET — never written as ৳0 (the model
+    # would read it as "free delivery"); an unset side says "shop confirms"
+    dl = delivery or {}
+    inside = _to_decimal(dl.get("inside_dhaka"))
+    outside = _to_decimal(dl.get("outside_dhaka"))
+    inside = inside if inside is not None and inside > 0 else None
+    outside = outside if outside is not None and outside > 0 else None
+    unset = pick(lang, "দোকান নিশ্চিত করে জানাবে", "the shop will confirm")
+    if not dl:
+        pass
+    elif inside is None and outside is None:
+        # customer-safe wording (the no-key mock may echo the facts)
+        lines.append(pick(lang, "- ডেলিভারি চার্জ: দোকান থেকে নিশ্চিত করে জানানো হবে",
+                          "- Delivery charge: the shop will confirm"))
+    else:
+        i_txt = f"৳{inside}" if inside is not None else unset
+        o_txt = f"৳{outside}" if outside is not None else unset
+        lines.append(pick(lang, f"- ডেলিভারি: ঢাকার ভিতরে {i_txt}, ঢাকার বাইরে {o_txt}",
+                          f"- Delivery: inside Dhaka {i_txt}, outside Dhaka {o_txt}"))
+        fo = _to_decimal(dl.get("free_over"))
+        if fo is not None and fo > 0:
+            lines.append(pick(lang, f"- ৳{fo} বা তার বেশি অর্ডারে ডেলিভারি ফ্রি",
+                              f"- Free delivery on orders of ৳{fo} or more"))
     for k, v in (policies or {}).items():
         if v:
             lines.append(f"- {k}: {v}")

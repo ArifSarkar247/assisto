@@ -76,4 +76,8 @@ class LaunchLoginContractTests(APITestCase):
                                    format="json")
         self.assertEqual(known.status_code, unknown.status_code)
         self.assertEqual(set(known.data), set(unknown.data))
-        self.assertEqual(len(FakeSMTP.sent), 1)  # only the real account got mail
+        # only the real account got a code; signup-otp: the unknown address
+        # gets the "no account yet - create one" note instead (no code)
+        self.assertEqual(len(FakeSMTP.sent), 2)
+        self.assertEqual(FakeSMTP.sent[1]["To"], "nobody@example.com")
+        self.assertNotIn(CODE, FakeSMTP.sent[1].as_string())
