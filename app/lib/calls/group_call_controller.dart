@@ -80,6 +80,8 @@ abstract class GroupMedia {
 
 /// Optional: video views (the WebRTC implementation has them).
 abstract class GroupVideoSurface {
+  /// Fires when a remote video starts / stops (repaint the grid).
+  Listenable get videoChanged;
   Widget localView();
   Widget? remoteView(int legId);
   bool hasRemoteVideo(int legId);
@@ -215,6 +217,17 @@ bool mediaFlowProven(List<(DateTime, LegStats)> samples,
   return true;
 }
 
+/// The SDP rule of the 1:1 release gate (gatefix d5d081db / a878e7e6
+/// offerNeedsRecvOnlyVideo), per leg: a VIDEO call's offer must carry a
+/// video m-line even when this phone has no camera track (busy / failed /
+/// camera off from the start) — then receive-only, so the other person's
+/// camera still reaches us. A voice call gets none. Never added twice.
+bool legOfferNeedsRecvOnlyVideo(
+        {required bool videoCall,
+        required bool hasLocalVideo,
+        required bool alreadyAdded}) =>
+    videoCall && !hasLocalVideo && !alreadyAdded;
+
 /// The grid shape for [n] tiles: (columns, rows). 1 -> 1x1, 2 -> 1x2,
 /// 3-4 -> 2x2, 5-6 -> 2x3, 7-8 -> 2x4.
 (int, int) gridShape(int n) {
@@ -235,6 +248,7 @@ class GroupCallController extends ChangeNotifier {
     this.adoptCallId,
     this.sinceSeq = 0,
     this.onMobileData = false,
+    this.networkEvents,
     DateTime Function()? now,
     this.pollEvery = const Duration(seconds: 3),
     this.statsEvery = const Duration(seconds: 1),
@@ -246,7 +260,8 @@ class GroupCallController extends ChangeNotifier {
   final GroupMedia media;
   final GroupSignaling signaling;
   final int roomId;
-  final int myId;
+  /// My user id (learned from the snapshot's `is_me` when 0).
+  int myId;
   bool video;
 
   /// The group ring I answer (accepted by join).
@@ -257,7 +272,13 @@ class GroupCallController extends ChangeNotifier {
 
   /// Events at or below this seq were before this engine (stale).
   int sinceSeq;
-  final bool onMobileData;
+  /// Low-data mode: on mobile data (or the "Low-data calls" setting) video
+  /// is capped at 150 kbps per person and 5+ people start camera-off.
+  bool onMobileData;
+
+  /// 'wifi' | 'cellular' | 'other' | 'lost' (CallNative.networkChanges).
+  final Stream<String>? networkEvents;
+  StreamSubscription<String>? _netSub;
   final DateTime Function() now;
   final Duration pollEvery;
   final Duration statsEvery;
@@ -379,6 +400,7 @@ class GroupCallController extends ChangeNotifier {
     if (_disposed || isEnded) return;
     cameraOn = video && !media.cameraUnavailable;
     speakerOn = video;
+    _netSub = networkEvents?.listen(_onNetwork, onError: (_) {});
     _candSub = media.localCandidates.listen(_onLocalCandidate);
     _linkSub = media.linkStates.listen(_onLink);
     try {
@@ -476,6 +498,7 @@ class GroupCallController extends ChangeNotifier {
     for (final m in (s['members'] as List? ?? const []).whereType<Map>()) {
       final id = (m['user_id'] as num?)?.toInt();
       if (id == null) continue;
+      if (m['is_me'] == true) myId = id;
       seen.add(id);
       final t = _tiles[id] ??= GroupTile(
           userId: id, name: '${m['name'] ?? ''}', isMe: id == myId);
@@ -817,6 +840,19 @@ class GroupCallController extends ChangeNotifier {
     _notify();
   }
 
+  void _onNetwork(String kind) {
+    final mobile = kind == 'cellular';
+    if (kind == 'lost' || mobile == onMobileData) return;
+    onMobileData = mobile;
+    log.add('net $kind');
+    if (isVideo) {
+      unawaited(media
+          .setVideoKbps(mobile && videoKbps > 150 ? 150 : videoKbps)
+          .catchError((_) {}));
+    }
+    _notify();
+  }
+
   // ----------------------------------------------------------------- stats
   Future<void> _sampleStats() async {
     if (!isLive) return;
@@ -899,6 +935,8 @@ class GroupCallController extends ChangeNotifier {
     _statsTimer?.cancel();
     await _evSub?.cancel();
     _evSub = null;
+    await _netSub?.cancel();
+    _netSub = null;
     signaling.setFast(false);
     final told = tellServer
         ? signaling.leave(roomId).catchError((Object e) {

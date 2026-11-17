@@ -183,6 +183,7 @@ class AudioRouteService extends ChangeNotifier {
   /// here (checked by the CI guard together with a source scan).
   static const Map<String, AudioUse> registry = {
     'lib/calls/webrtc_media.dart': AudioUse.call,
+    'lib/calls/group_mesh_media.dart': AudioUse.call, // group-calls
     'lib/audio/webrtc_audio_fallback.dart': AudioUse.call,
     'lib/messaging/media/voice_recorder_sheet.dart': AudioUse.voiceNoteRecord,
     'lib/messaging/media/voice_player.dart': AudioUse.voiceNotePlay,
