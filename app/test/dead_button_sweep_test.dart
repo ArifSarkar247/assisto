@@ -80,6 +80,7 @@ const Map<String, String> _allowDead = {
   // stream) — an audible effect the sweep cannot see; fcelder_test proves it.
   'fce_are_you_ok|key=fce-ask-listen': 'B: speaks "Are you OK?" aloud (TTS); fcelder_test checks the spoken text',
   'fce_consent|key=fce-consent-listen': 'B: reads the consent aloud (TTS); fcelder_test checks the spoken text',
+  'fcg_elder_reply|Hear again': 'B: reads the answer aloud again (TTS); gap_familycare_test checks the spoken text', // gap-familycare
   // (A) gallery fixtures with `() {}` callbacks — not app code.
   't1_*|IconButton "tip:': 'A: t1_ticks_shots.dart header icons use onPressed: () {}',
   'mr1_last_seen_*|IconButton "tip:': 'A: mr1_shots.dart header call icons use onPressed: () {}; the real chat header wires calls',

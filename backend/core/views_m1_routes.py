@@ -73,6 +73,93 @@ def _out_member(k):
     return SELF if k == SELF else int(k)
 
 
+class _Scope:
+    """gap-familycare: WHOSE ledger a request reads/writes.
+
+    * no `family` -> the caller's own household ledger (unchanged): members
+      'self' + FamilyMember ids, rows owner=user and family=NULL.
+    * `family=<Family Care v3 id>` (caller must be an ACTIVE member) -> the
+      SHARED family ledger every member sees: members 'u<user id>' (the caller
+      is sent and accepted as 'self', so the app's pickers stay the same),
+      rows family=<id>. Private (shared=False) rows do not exist there."""
+
+    def __init__(self, user, family_id=None, role=None):
+        self.user, self.family_id, self.role = user, family_id, role
+        if family_id is None:
+            self.names = _members(user)
+            self.me = SELF
+        else:
+            from . import family_v3 as F3
+            from .models import User
+            ids = F3.member_ids(family_id)
+            labels = {}
+            try:
+                from .models import FcMembership
+                for m in FcMembership.objects.filter(family_id=family_id, state="active"):
+                    labels[m.user_id] = (m.label or "").strip()
+            except Exception:  # noqa: BLE001
+                pass
+            self.me = "u%d" % user.id
+            self.names = {}
+            for u in User.objects.filter(pk__in=ids):
+                k = "u%d" % u.id
+                self.names[k] = labels.get(u.id) or F3._name(user, u) or (u.name or "")
+            self.names[self.me] = (user.name or "").strip() or "self"
+
+    @property
+    def shared_family(self):
+        return self.family_id is not None
+
+    def key(self, v):
+        if self.family_id is None:
+            return _mkey(v)
+        if v is None:
+            return None
+        s = str(v).strip()
+        if s == SELF:
+            return self.me
+        return s if (s.startswith("u") and s[1:].isdigit()) else None
+
+    def out(self, k):
+        if self.family_id is None:
+            return _out_member(k)
+        return SELF if k == self.me else k
+
+    def rows(self):
+        if self.family_id is None:
+            return FamExpense.objects.filter(owner=self.user, family__isnull=True)
+        return FamExpense.objects.filter(family_id=self.family_id)
+
+    def create_kw(self):
+        kw = {"owner": self.user, "created_by": self.user}
+        if self.family_id is not None:
+            kw["family_id"] = self.family_id
+        return kw
+
+    def can_delete(self, row):
+        if self.family_id is None:
+            return row.owner_id == self.user.id
+        return row.created_by_id == self.user.id or self.role == "admin"
+
+
+def _scope(request, data=None):
+    """-> (_Scope, None) or (None, error Response)."""
+    raw = (data or {}).get("family") if isinstance(data, dict) else None
+    if raw in (None, ""):
+        raw = request.query_params.get("family")
+    if raw in (None, ""):
+        return _Scope(request.user), None
+    try:
+        fid = int(raw)
+    except (TypeError, ValueError):
+        return None, _bad("bad_family")
+    from . import family_v3 as F3
+    m = F3.membership(request.user, fid)
+    if m is None:
+        return None, _nf()
+    return _Scope(request.user, fid, m.role), None
+
+
 def _eng(row):
     """FamExpense -> the famacct_engine expense dict."""
     return {"payer": row.payer, "total": int(row.total_poisha),
@@ -81,19 +168,24 @@ def _eng(row):
             "category": row.category, "shared": row.shared}
 
 
-def _exp_dict(row, names):
-    return {
-        "id": row.id, "payer": _out_member(row.payer),
+def _exp_dict(row, names, sc=None):
+    out = sc.out if sc is not None else _out_member
+    d = {
+        "id": row.id, "payer": out(row.payer),
         "payer_name": names.get(row.payer, ""),
         "total_poisha": int(row.total_poisha), "category": row.category,
         "category_label": FA.BILL_CATEGORIES.get(row.category, ("", ""))[1],
         "mode": row.mode, "note": row.note, "date": row.date.isoformat(),
         "shared": row.shared, "ai_captured": row.ai_captured,
-        "shares": [{"member": _out_member(s["member"]),
+        "shares": [{"member": out(s["member"]),
                     "name": names.get(s["member"], ""),
                     "share_poisha": int(s["share"])}
                    for s in (row.shares or [])],
     }
+    if sc is not None and sc.shared_family:   # gap-familycare
+        d["can_delete"] = sc.can_delete(row)
+        d["added_by_name"] = names.get("u%d" % row.created_by_id, "") if row.created_by_id else ""
+    return d
 
 
 def _pool_block(user, month, names):
@@ -109,38 +201,149 @@ def _pool_block(user, month, names):
     return st
 
 
-def outstanding(user):
+def outstanding(user, sc=None):
     """Net balances + minimal settle-up over ALL shared expenses and recorded
     settlements (debts carry across months). Returns (net, transfers)."""
-    rows = [_eng(r) for r in FamExpense.objects.filter(owner=user, shared=True)]
+    base = sc.rows() if sc is not None else FamExpense.objects.filter(
+        owner=user, family__isnull=True)
+    rows = [_eng(r) for r in base.filter(shared=True)]
     return FA.net_balances(rows), FA.settle_up(rows)
 
 
+# ---------------------------------------------------------- goals (shared)
+MAX_OPEN_GOALS = 10
+MAX_POISHA = 100_000_000_00   # ৳10 crore: a typo guard, not a business rule
+
+
+def _goal_dict(g, sc):
+    gifts = list(g.gifts.all())
+    contribs = [{"member": "u%d" % x.member_id if x.member_id else "gone",
+                 "amount": int(x.amount_poisha)} for x in gifts]
+    st = FA.pool_status(int(g.target_poisha), contribs)
+    return {
+        "id": g.id, "name": g.name, "target_poisha": st["target"],
+        "collected_poisha": st["collected"],
+        "remaining_poisha": max(0, st["remaining"]), "pct": st["pct"],
+        "state": st["state"], "closed": g.closed_at is not None,
+        "created_by_name": sc.names.get("u%d" % g.created_by_id, "") if g.created_by_id else "",
+        "can_close": g.created_by_id == sc.user.id or sc.role == "admin",
+        "breakdown": [{"member": sc.out(b["member"]),
+                       "name": sc.names.get(b["member"], ""),
+                       "amount_poisha": b["amount"]} for b in st["breakdown"]],
+    }
+
+
+def _goals(sc):
+    from .models import FamGoal
+    return [_goal_dict(g, sc) for g in
+            FamGoal.objects.filter(family_id=sc.family_id).prefetch_related("gifts")[:40]]
+
+
+def _amount(v):
+    try:
+        a = int(v)
+    except (TypeError, ValueError):
+        return None
+    return a if 0 < a <= MAX_POISHA else None
+
+
+class FamGoalsView(APIView):
+    """gap-familycare — named family savings goals (shared family only).
+       GET  /family/accounting/goals?family=<id> -> {goals:[...]}
+       POST /family/accounting/goals {family, name, target_poisha} -> goal"""
+
+    def get(self, request):
+        sc, err = _scope(request)
+        if err:
+            return err
+        if not sc.shared_family:
+            return _bad("family_required")
+        return Response({"goals": _goals(sc)})
+
+    def post(self, request):
+        from .models import FamGoal
+        d = request.data or {}
+        sc, err = _scope(request, d)
+        if err:
+            return err
+        if not sc.shared_family:
+            return _bad("family_required")
+        name = str(d.get("name") or "").strip()[:60]
+        if not name:
+            return _bad("name_required")
+        target = _amount(d.get("target_poisha"))
+        if target is None:
+            return _bad("bad_target")
+        if FamGoal.objects.filter(family_id=sc.family_id, closed_at__isnull=True).count() \
+                >= MAX_OPEN_GOALS:
+            return _bad("goal_limit")
+        g = FamGoal.objects.create(family_id=sc.family_id, name=name,
+                                   target_poisha=target, created_by=request.user)
+        return Response(_goal_dict(g, sc), status=status.HTTP_201_CREATED)
+
+
+class FamGoalActionView(APIView):
+    """POST /family/accounting/goals/<id>/contribute {member, amount_poisha}
+       POST /family/accounting/goals/<id>/close | reopen (who made it / admin)"""
+
+    def post(self, request, gid, action):
+        from .models import FamGoal, FamGoalGift, User
+        from . import family_v3 as F3
+        g = FamGoal.objects.filter(pk=gid).first()
+        m = F3.membership(request.user, g.family_id) if g else None
+        if g is None or m is None:
+            return _nf()
+        sc = _Scope(request.user, g.family_id, m.role)
+        d = request.data or {}
+        if action == "contribute":
+            if g.closed_at is not None:
+                return _bad("goal_closed")
+            k = sc.key(d.get("member", SELF))
+            if k not in sc.names:
+                return _bad("unknown_member")
+            amt = _amount(d.get("amount_poisha"))
+            if amt is None:
+                return _bad("bad_amount")
+            FamGoalGift.objects.create(goal=g, member=User.objects.get(pk=int(k[1:])),
+                                       amount_poisha=amt, added_by=request.user)
+        elif action in ("close", "reopen"):
+            if not (g.created_by_id == request.user.id or m.role == "admin"):
+                return Response({"detail": "forbidden"}, status=status.HTTP_403_FORBIDDEN)
+            g.closed_at = timezone.now() if action == "close" else None
+            g.save(update_fields=["closed_at"])
+        else:
+            return _bad("bad_action")
+        g = FamGoal.objects.prefetch_related("gifts").get(pk=g.pk)
+        return Response(_goal_dict(g, sc))
+
+
 class FamSummaryView(APIView):
-    """GET /family/accounting/summary?month=YYYY-MM"""
+    """GET /family/accounting/summary?month=YYYY-MM[&family=<id>]"""
 
     def get(self, request):
         month = _month(request)
         if month is None:
             return _bad("bad_month")
-        names = _members(request.user)
+        sc, err = _scope(request)
+        if err:
+            return err
+        names = sc.names
         y, mo = month.split("-")
-        rows = FamExpense.objects.filter(owner=request.user, shared=True,
-                                         kind="expense", date__year=int(y),
-                                         date__month=int(mo))
+        rows = sc.rows().filter(shared=True, kind="expense", date__year=int(y),
+                                date__month=int(mo))
         summ = FA.monthly_summary([_eng(r) for r in rows],
                                   member_ids=list(names.keys()))
-        net, transfers = outstanding(request.user)
+        net, transfers = outstanding(request.user, sc)
         members = []
         for m in summ["members"]:
-            members.append({"member": _out_member(m["member"]),
+            members.append({"member": sc.out(m["member"]),
                             "name": names.get(m["member"], ""),
                             "paid_poisha": m["paid"],
                             "share_poisha": m["share_total"],
                             "net_poisha": m["net"],
                             "outstanding_poisha": int(net.get(m["member"], 0))})
         settlements = [{
-            "from": _out_member(t["from"]), "to": _out_member(t["to"]),
+            "from": sc.out(t["from"]), "to": sc.out(t["to"]),
             "amount_poisha": t["amount"],
             "message": {"bn": FA.settle_message(names.get(t["from"], ""),
                                                 names.get(t["to"], ""),
@@ -149,34 +352,45 @@ class FamSummaryView(APIView):
                                                 names.get(t["to"], ""),
                                                 t["amount"], "en")},
         } for t in transfers]
-        return Response({"month": month, "total_poisha": summ["total"],
-                         "expense_count": summ["expense_count"],
-                         "by_category": summ["by_category"],
-                         "members": members, "settlements": settlements,
-                         "pool": _pool_block(request.user, month, names)})
+        out = {"month": month, "total_poisha": summ["total"],
+               "expense_count": summ["expense_count"],
+               "by_category": summ["by_category"],
+               "members": members, "settlements": settlements}
+        if sc.shared_family:   # gap-familycare: named goals replace the pool
+            from .models import FcFamily
+            fam = FcFamily.objects.filter(pk=sc.family_id).first()
+            out.update({"family": {"id": sc.family_id, "name": fam.name if fam else ""},
+                        "goals": _goals(sc), "pool": {}})
+        else:
+            out["pool"] = _pool_block(request.user, month, names)
+        return Response(out)
 
 
 class FamExpensesView(APIView):
-    """GET  /family/accounting/expenses?month= -> {expenses:[...]}
+    """GET  /family/accounting/expenses?month=[&family=] -> {expenses:[...]}
        POST /family/accounting/expenses {payer, total_poisha, category, note,
             date, mode: equal|shares|exact, members:[..] | parts:[{member,
-            weight|amount_poisha}], shared?} -> the created expense."""
+            weight|amount_poisha}], shared?, family?} -> the created expense."""
 
     def get(self, request):
         month = _month(request)
         if month is None:
             return _bad("bad_month")
-        names = _members(request.user)
+        sc, err = _scope(request)
+        if err:
+            return err
         y, mo = month.split("-")
-        rows = FamExpense.objects.filter(owner=request.user, kind="expense",
-                                         date__year=int(y), date__month=int(mo))
+        rows = sc.rows().filter(kind="expense", date__year=int(y), date__month=int(mo))
         return Response({"month": month,
-                         "expenses": [_exp_dict(r, names) for r in rows]})
+                         "expenses": [_exp_dict(r, sc.names, sc) for r in rows]})
 
     def post(self, request):
         d = request.data or {}
-        names = _members(request.user)
-        payer = _mkey(d.get("payer", SELF))
+        sc, err = _scope(request, d)
+        if err:
+            return err
+        names = sc.names
+        payer = sc.key(d.get("payer", SELF))
         if payer not in names:
             return _bad("unknown_payer")
         mode = str(d.get("mode", "equal"))
@@ -189,7 +403,7 @@ class FamExpensesView(APIView):
         if mode == "exact":
             parts = []
             for p in d.get("parts") or []:
-                k = _mkey(p.get("member"))
+                k = sc.key(p.get("member"))
                 if k not in names:
                     return _bad("unknown_member")
                 try:
@@ -206,7 +420,7 @@ class FamExpensesView(APIView):
         elif mode == "shares":
             parts = []
             for p in d.get("parts") or []:
-                k = _mkey(p.get("member"))
+                k = sc.key(p.get("member"))
                 if k not in names:
                     return _bad("unknown_member")
                 parts.append({"member": k, "weight": int(p.get("weight", 1) or 0)})
@@ -216,7 +430,7 @@ class FamExpensesView(APIView):
         else:
             ids = []
             for m in d.get("members") or []:
-                k = _mkey(m)
+                k = sc.key(m)
                 if k not in names:
                     return _bad("unknown_member")
                 if k not in ids:
@@ -224,7 +438,7 @@ class FamExpensesView(APIView):
             if not ids:
                 return _bad("no_members")
             shares = FA.split_equal(total, ids)
-        if total <= 0:
+        if total <= 0 or (sc.shared_family and total > MAX_POISHA):
             return _bad("bad_total")
         try:
             day = _date.fromisoformat(str(d.get("date"))[:10]) if d.get("date") \
@@ -235,27 +449,35 @@ class FamExpensesView(APIView):
         if cat not in FA.BILL_CATEGORIES:
             cat = "other"
         row = FamExpense.objects.create(
-            owner=request.user, payer=payer, total_poisha=total, category=cat,
+            payer=payer, total_poisha=total, category=cat,
             mode=mode, note=str(d.get("note") or "")[:200], date=day,
             shares=[{"member": s["member"], "share": int(s["share"])}
                     for s in shares],
-            shared=bool(d.get("shared", True)),
-            ai_captured=bool(d.get("ai_captured", False)))
-        return Response(_exp_dict(row, names), status=status.HTTP_201_CREATED)
+            # a shared family ledger has no private rows (everyone sees it)
+            shared=True if sc.shared_family else bool(d.get("shared", True)),
+            ai_captured=bool(d.get("ai_captured", False)), **sc.create_kw())
+        return Response(_exp_dict(row, names, sc), status=status.HTTP_201_CREATED)
 
 
 class FamExpenseDeleteView(APIView):
-    """POST /family/accounting/expenses/delete {id} -> {ok}. Owner only."""
+    """POST /family/accounting/expenses/delete {id, family?} -> {ok}. Own
+    ledger: the owner. Shared family ledger: who added it or a family admin."""
 
     def post(self, request):
+        d = request.data or {}
         try:
-            pk = int((request.data or {}).get("id"))
+            pk = int(d.get("id"))
         except (TypeError, ValueError):
             return _bad("bad_id")
-        n, _ = FamExpense.objects.filter(owner=request.user, pk=pk,
-                                         kind="expense").delete()
-        if not n:
+        sc, err = _scope(request, d)
+        if err:
+            return err
+        row = sc.rows().filter(pk=pk, kind="expense").first()
+        if row is None:
             return _nf()
+        if not sc.can_delete(row):
+            return Response({"detail": "forbidden"}, status=status.HTTP_403_FORBIDDEN)
+        row.delete()
         return Response({"ok": True})
 
 
@@ -312,16 +534,19 @@ class FamPoolContributeView(APIView):
 
 
 class FamSettleView(APIView):
-    """POST /family/accounting/settle {from, to, amount_poisha} — record that
-    `from` paid `to`. Validated against the CURRENT outstanding: `from` must
-    owe (net < 0), `to` must be owed (net > 0) and the amount may not exceed
-    either side. Stored as a settlement row (payer=from, share to=amount), so
-    the next settle-up nets it out exactly."""
+    """POST /family/accounting/settle {from, to, amount_poisha, family?} —
+    record that `from` paid `to`. Validated against the CURRENT outstanding:
+    `from` must owe (net < 0), `to` must be owed (net > 0) and the amount may
+    not exceed either side. Stored as a settlement row (payer=from, share
+    to=amount), so the next settle-up nets it out exactly."""
 
     def post(self, request):
         d = request.data or {}
-        names = _members(request.user)
-        frm, to = _mkey(d.get("from")), _mkey(d.get("to"))
+        sc, err = _scope(request, d)
+        if err:
+            return err
+        names = sc.names
+        frm, to = sc.key(d.get("from")), sc.key(d.get("to"))
         if frm not in names or to not in names or frm == to:
             return _bad("bad_members")
         try:
@@ -330,7 +555,7 @@ class FamSettleView(APIView):
             return _bad("bad_amount")
         if amt <= 0:
             return _bad("bad_amount")
-        net, _ = outstanding(request.user)
+        net, _ = outstanding(request.user, sc)
         owes = -int(net.get(frm, 0))
         owed = int(net.get(to, 0))
         if owes <= 0 or owed <= 0:
@@ -338,13 +563,13 @@ class FamSettleView(APIView):
         if amt > min(owes, owed):
             return _bad("exceeds_outstanding", max_poisha=min(owes, owed))
         FamExpense.objects.create(
-            owner=request.user, kind="settlement", payer=frm,
+            kind="settlement", payer=frm,
             total_poisha=amt, category="other", mode="exact",
             note="settle-up", date=timezone.localdate(),
-            shares=[{"member": to, "share": amt}], shared=True)
-        net2, transfers = outstanding(request.user)
+            shares=[{"member": to, "share": amt}], shared=True, **sc.create_kw())
+        net2, transfers = outstanding(request.user, sc)
         return Response({"ok": True, "remaining": [
-            {"from": _out_member(t["from"]), "to": _out_member(t["to"]),
+            {"from": sc.out(t["from"]), "to": sc.out(t["to"]),
              "amount_poisha": t["amount"]} for t in transfers]})
 
 
