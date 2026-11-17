@@ -95,6 +95,11 @@ REGISTRY = (
     # until the owner's real-train two-phone test. Free, no ads.
     ('train_tracker', 'daily_life', 'Train tracker', 'ট্রেন ট্র্যাকার', False, ('train_tracker',)),
     ('dest_alarm', 'daily_life', 'Destination alarm', 'গন্তব্য অ্যালার্ম', False, ('dest_alarm',)),
+    # flag-itag (W7, owner approved the iTag purchase 17 Nov): Bluetooth iTag
+    # key finder — pair, ring, "left behind" while Assisto is open, tag button
+    # rings the phone, battery. All on the phone (no server data). OFF until
+    # the owner's real-tag test (owner_actions/ITAG_FIRST_TEST_BN.md).
+    ('itag_tags', 'daily_life', 'Bluetooth tag (iTag)', 'ব্লুটুথ ট্যাগ (iTag)', False, ('itag_tags',)),
     # sjalarm (owner Safe Journey order 3 Nov): OWNER-ONLY trip recorder —
     # real GPS traces for the destination-alarm CI replay. Keep OFF for all;
     # the owner / staff / allow-list see it as a preview. Owns no route.

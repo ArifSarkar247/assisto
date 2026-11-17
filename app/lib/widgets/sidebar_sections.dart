@@ -6,6 +6,7 @@ import '../screens/missing/missing_hub_screen.dart'; // missing
 import '../screens/blood/blood_hub_screen.dart'; // blood
 import '../screens/train/dest_alarm_screen.dart'; // train
 import '../screens/train/train_tracker_screen.dart'; // train
+import '../screens/itag/itag_screen.dart'; // flag-itag
 import '../screens/kid_audio/kid_audio_screen.dart'; // kidaudio
 
 import '../l10n/app_localizations.dart';
@@ -651,6 +652,12 @@ class SidebarSections {
         'insurance',
         'tracker'
       ]),
+      // flag-itag: Bluetooth iTag on keys / bag (ring it, left behind, find phone)
+      SidebarItem(Icons.key_rounded, (t) => t.itgTitle,
+          feature: 'itag_tags',
+          (_) => const ItagScreen(),
+          synonyms: ['itag', 'bluetooth tag', 'key finder', 'find my keys',
+              'airtag', 'smart tag', 'chabi', 'left behind', 'find my phone']),
       SidebarItem(Icons.celebration_rounded, (t) => t.weddingTitle,
           feature: 'wedding_events',
           (_) => const WeddingEventsScreen(),

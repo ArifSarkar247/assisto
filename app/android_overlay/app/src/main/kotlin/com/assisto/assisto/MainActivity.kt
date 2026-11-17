@@ -362,6 +362,14 @@ class MainActivity : FlutterFragmentActivity() {
             com.assisto.assisto.vehicle.ObdBtChannel.register(flutterEngine, this)
         } catch (e: Throwable) {
         }
+        // flag-itag: Bluetooth iTag key finder ("com.assisto/itag"). Handler
+        // only — the adapter is touched when the tag screen calls (lazy).
+        try {
+            com.assisto.assisto.itag.ItagChannel.register(
+                this, flutterEngine.dartExecutor.binaryMessenger
+            )
+        } catch (e: Throwable) {
+        }
         // Part 3 (a3-voice): Assisto Voice channel "com.assisto/voice". Installs
         // a handler only — TTS / camera / wake word are created on first use.
         try {
