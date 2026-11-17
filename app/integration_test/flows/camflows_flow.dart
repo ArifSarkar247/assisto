@@ -360,6 +360,34 @@ Future<void> _brandFlow(RFlow f, _Brand b) async {
     await f.back();
   });
 
+  // gap-cctv3: the camera's own recording (Imou devbind only — the OAuth
+  // project path has no record API in the simulator): Past clips -> the
+  // camera's recordings -> an hour of today -> the server's HLS answer
+  if (b.pid == 'imou' && !b.oauth) {
+    await f.step('Past clips -> camera recordings -> play an hour', () async {
+      await _tapK(f, 'wm-past-clips', settle: 4);
+      await f.waitFor(_k('gcv-clips-rec-$camId'), seconds: 20, what: 'the recordings entry');
+      await f.shot('past-clips-recordings-entry');
+      await _tapK(f, 'gcv-clips-rec-$camId', settle: 3);
+      await f.waitFor(_k('gcv-pb-timeline'), seconds: 15, what: 'the day timeline');
+      final h = DateTime.now().hour;
+      await _tapK(f, 'gcv-pb-hour-$h', settle: 6);
+      // the runner has no route to the vendor's video host: the player
+      // either plays or says honestly that it could not (never a blank)
+      await f.eventually('the player or an honest message', () async =>
+          _k('gcv-pb-player').evaluate().isNotEmpty ||
+          _k('gcv-pb-play-error').evaluate().isNotEmpty, seconds: 30);
+      if (find.text(f.t.gcvPbRecordsTitle).evaluate().isEmpty) {
+        throw TestFailure('the hour\'s recording list did not show');
+      }
+      f.note(_k('gcv-pb-player').evaluate().isNotEmpty
+          ? 'HLS player opened' : 'player could not reach the simulated video host (honest message shown)');
+      await f.shot('camera-recording-hour');
+      await f.back();
+      await f.back();
+    });
+  }
+
   await f.step('unlink -> the camera keeps its history, no cloud live, the vendor lets go', () async {
     await _tapK(f, 'wm-brand-cloud', settle: 3);
     await f.waitFor(_k('ccnRemove-$linkId'), seconds: 15, what: 'the link card');
