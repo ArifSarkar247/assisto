@@ -519,7 +519,7 @@ class _SupportCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: const Key('mood-support-card'), padding: const EdgeInsets.all(Gap.lg), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.volunteer_activism_rounded, color: scheme.ds.primaryInk),
           const SizedBox(width: Gap.md),
           Expanded(
@@ -604,7 +604,7 @@ class _BreathingCardState extends State<_BreathingCard> {
     final scheme = Theme.of(context).colorScheme;
     final inhale = (_elapsed ~/ _phase).isEven;
     final left = _total - _elapsed;
-    return DsCard(padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return DsCard(key: const Key('mood-breathing-card'), padding: const EdgeInsets.all(Gap.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(Icons.air_rounded, size: 20, color: Brand.blue),
             const SizedBox(width: Gap.sm),
