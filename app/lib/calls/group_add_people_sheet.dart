@@ -170,7 +170,8 @@ class _GroupAddPeoplePanelState extends State<GroupAddPeoplePanel> {
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                   subtitle: inCall
                       ? Text(t.gcallPickInCall,
-                          style: TextStyle(color: scheme.onSurfaceVariant))
+                          style: AType.bodyMedium
+                              .copyWith(color: scheme.onSurfaceVariant))
                       : null,
                 );
               },
