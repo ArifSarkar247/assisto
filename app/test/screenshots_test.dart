@@ -884,6 +884,8 @@ Map<String, GallerySpec> gallerySpecs() {
     // ---- o1-otp ----
     'otp_verify': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(), purpose: 'login', phone: '01712345678', title: 'Assisto'), mode: FakeMode.data, full: true),
     'otp_sms_off': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(smsEnabled: false), purpose: 'login', phone: '01712345678', title: 'Assisto'), mode: FakeMode.data, full: true),
+    // signup-otp: emailed code — Spam hint, countdown, "Create an account"
+    'otp_email_new_user': (build: (_) => OtpVerifyScreen(backend: FakeOtpBackend(smsEnabled: false, emailEnabled: true), purpose: 'login', email: 'new@example.com', emailFirst: true, title: 'Assisto', onLeave: (_) {}), mode: FakeMode.data, full: true),
     'otp_login': (build: (_) => OtpLoginScreen(backend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     'otp_reset': (build: (_) => OtpResetScreen(backend: FakeOtpBackend()), mode: FakeMode.data, full: true),
     'password_reset_sms': (build: (_) => PasswordResetScreen(otpBackend: FakeOtpBackend()), mode: FakeMode.data, full: true),

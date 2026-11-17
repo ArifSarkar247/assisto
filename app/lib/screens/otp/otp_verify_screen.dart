@@ -35,6 +35,11 @@ class OtpVerifyScreen extends StatefulWidget {
   /// trying SMS and showing the "SMS not available" card first.
   final bool emailFirst;
 
+  /// signup-otp: leave this flow for another way in — 'register' (a new
+  /// person who tapped "sign in with a code") or 'password'. The screen pops
+  /// itself first. Null = those buttons are not offered.
+  final ValueChanged<String>? onLeave;
+
   const OtpVerifyScreen({
     super.key,
     required this.backend,
@@ -44,6 +49,7 @@ class OtpVerifyScreen extends StatefulWidget {
     this.intro,
     this.email,
     this.emailFirst = false,
+    this.onLeave,
   });
 
   /// Push the step; resolves to the proof or null.
@@ -56,6 +62,7 @@ class OtpVerifyScreen extends StatefulWidget {
     String? intro,
     String? email,
     bool emailFirst = false,
+    ValueChanged<String>? onLeave,
   }) =>
       Navigator.of(context).push<String>(MaterialPageRoute(
           builder: (_) => OtpVerifyScreen(
@@ -65,7 +72,8 @@ class OtpVerifyScreen extends StatefulWidget {
               title: title,
               intro: intro,
               email: email,
-              emailFirst: emailFirst)));
+              emailFirst: emailFirst,
+              onLeave: onLeave)));
 
   @override
   State<OtpVerifyScreen> createState() => _OtpVerifyScreenState();
@@ -85,6 +93,10 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
   String _emailNote = '';
   int _resendLeft = 0;
   Timer? _timer;
+  // signup-otp: email <-> phone switching + honest "other way" offers
+  late bool _smsAvailable = !widget.emailFirst; // emailFirst = SMS is off
+  bool _emailFailed = false; // the last email send failed at the provider
+  bool _neutral = false; // the server answered "sent if the account exists"
 
   @override
   void initState() {
@@ -179,13 +191,21 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
       _emailAvailable = r.emailAvailable;
     });
     if (r.smsOff) {
-      setState(() => _phase = _Phase.smsOff);
+      setState(() {
+        _smsAvailable = false;
+        // switching back from email: keep the email code on screen
+        if (!_viaEmail) _phase = _Phase.smsOff;
+        _error = _viaEmail ? t.otpSmsOffTitle : null;
+      });
       return;
     }
     if (r.ok) {
       _code.clear();
       setState(() {
         _sent = true;
+        _viaEmail = false;
+        _neutral = false;
+        _emailFailed = false;
         _phase = _Phase.entering;
         _masked = r.phoneMasked;
       });
@@ -211,6 +231,19 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
 
   bool get _emailPurpose => otpEmailPurposes.contains(widget.purpose);
 
+  /// signup-otp: "Use phone instead" — only for a phone identity while the
+  /// SMS gateway is live, after the email way was used or failed.
+  bool get _canUsePhone =>
+      widget.phone != null &&
+      widget.phone!.isNotEmpty &&
+      _smsAvailable &&
+      (_viaEmail || _emailFailed);
+
+  void _leave(String why) {
+    Navigator.of(context).pop();
+    widget.onLeave?.call(why);
+  }
+
   /// smsotp — deliver the code by email instead (same verify step).
   Future<void> _sendEmail() async {
     final t = AppLocalizations.of(context);
@@ -228,15 +261,22 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
       setState(() {
         _viaEmail = true;
         _sent = true;
+        _emailFailed = false;
+        _neutral = r.emailMasked.isEmpty;
         _phase = _Phase.entering;
         _emailNote = r.emailMasked.isNotEmpty
             ? t.smsotpEmailSentTo(r.emailMasked)
-            : t.smsotpEmailSentNeutral;
+            : t.signupOtpEmailNeutral;
       });
       _startTimer(r.resendIn ?? 60);
       return;
     }
     setState(() {
+      // signup-otp: a provider failure -> say so and offer the other way
+      _emailFailed = const {
+        'email_send_failed', 'email_rejected', 'email_bouncing',
+        'email_daily_cap', 'email_not_configured', 'send_failed',
+      }.contains(r.reason) || r.emailOff;
       if (r.emailOff ||
           r.reason == 'email_daily_cap' ||
           r.reason == 'email_bouncing' ||
@@ -321,12 +361,33 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                             style: textTheme.bodyMedium),
                         const SizedBox(height: 6),
                       ],
-                      if (_sent && _viaEmail)
+                      if (_sent && _viaEmail) ...[
                         Text(_emailNote,
                             key: const Key('otp-email-note'),
                             textAlign: TextAlign.center,
                             style: textTheme.bodyMedium
-                                ?.copyWith(color: scheme.ds.muted))
+                                ?.copyWith(color: scheme.ds.muted)),
+                        const SizedBox(height: Gap.sm),
+                        // signup-otp: the #1 reason an email code "never came"
+                        DsSurface(
+                          key: const Key('otp-spam-hint'),
+                          color: scheme.ds.primarySoft,
+                          padding: const EdgeInsets.all(Gap.md),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.mark_email_unread_outlined,
+                                  size: 20, color: scheme.ds.primaryInk),
+                              const SizedBox(width: Gap.sm),
+                              Expanded(
+                                child: Text(t.signupOtpSpamHint,
+                                    style: AType.bodyMedium
+                                        .copyWith(color: scheme.ds.primaryInk)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]
                       else if (_sent && _masked.isNotEmpty)
                         Text(t.otpSentTo(_masked),
                             textAlign: TextAlign.center,
@@ -390,6 +451,45 @@ class _OtpVerifyScreenState extends State<OtpVerifyScreen> {
                           label: Text(t.smsotpEmailInstead,
                               textAlign: TextAlign.center),
                         ),
+                      if (_canUsePhone)
+                        TextButton.icon(
+                          key: const Key('otp-use-phone'),
+                          icon: const Icon(Icons.sms_outlined),
+                          onPressed: _busy ? null : _send,
+                          label: Text(t.signupOtpUsePhone,
+                              textAlign: TextAlign.center),
+                        ),
+                      // signup-otp: email failed and SMS is off -> password
+                      if (widget.onLeave != null &&
+                          widget.purpose == 'login' &&
+                          _emailFailed &&
+                          !_canUsePhone)
+                        TextButton.icon(
+                          key: const Key('otp-use-password'),
+                          icon: const Icon(Icons.password_rounded),
+                          onPressed: _busy ? null : () => _leave('password'),
+                          label: Text(t.signupOtpUsePassword,
+                              textAlign: TextAlign.center),
+                        ),
+                      // signup-otp (owner-found 17 Nov): a NEW person here is
+                      // waiting for a code that can never come — sign-up
+                      // needs none. Say so and take them there in one tap.
+                      if (widget.onLeave != null &&
+                          widget.purpose == 'login' &&
+                          _neutral) ...[
+                        const SizedBox(height: Gap.sm),
+                        Text(t.signupOtpNewHere,
+                            textAlign: TextAlign.center,
+                            style: textTheme.bodyMedium),
+                        const SizedBox(height: Gap.xs),
+                        OutlinedButton.icon(
+                          key: const Key('otp-create-account'),
+                          icon: const Icon(Icons.person_add_alt_1_rounded),
+                          onPressed: _busy ? null : () => _leave('register'),
+                          label: Text(t.signupOtpCreateAccount,
+                              textAlign: TextAlign.center),
+                        ),
+                      ],
                       const SizedBox(height: Gap.sm),
                       Text(t.otpNeverShare,
                           textAlign: TextAlign.center,
