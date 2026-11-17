@@ -682,19 +682,15 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
             ]),
           )
         : SafeArea(
-      // design3 (2.0x font): the live call scrolls when it is taller than the
-      // screen (name + notice + upgrade card + controls at big text); the
-      // spacers still centre it on a normal screen.
+      // design3 (2.0x font): at big text (> 1.3x) the live call scrolls when
+      // it is taller than the screen (name + notice + upgrade card + controls);
+      // at normal sizes it stays the plain column, so taps / pinch / double-tap
+      // on the empty middle still reach the video behind (cde_video_test).
       child: Column(children: [
         _topBar(c),
         Expanded(
-          child: LayoutBuilder(
-            builder: (context, box) => SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: box.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-        children: [
+          child: LayoutBuilder(builder: (context, box) {
+            final body = Column(children: [
           const Spacer(),
           if (!remoteVideo) ...[
             _avatar(56),
@@ -719,12 +715,15 @@ class _CircleCallScreenState extends State<CircleCallScreen> {
           if (live) _noticeBanner(c),
           if (live) _upgradeCard(c),
           if (c == null || !c.isEnded) _controls(c),
-        ],
-                  ),
-                ),
+            ]);
+            if (MediaQuery.textScalerOf(context).scale(14) / 14 <= 1.3) return body;
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: box.maxHeight),
+                child: IntrinsicHeight(child: body),
               ),
-            ),
-          ),
+            );
+          }),
         ),
       ]),
     );
