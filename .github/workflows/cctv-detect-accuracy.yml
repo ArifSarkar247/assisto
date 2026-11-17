@@ -123,27 +123,34 @@ jobs:
 
   vehicle_train:
     # cctvdet3 (mode=train): fine-tune YOLOX-Nano (Apache-2.0) on the Sylhet
-    # train/ folders (CC BY 4.0) -> a vehicle model that knows CNG, rickshaw,
-    # leguna ...; measured vs the stock models on Sylhet valid/ (cal) + test/
-    # (held-out) and BanglaRoad (never trained on). The model is an artifact.
+    # train/ folders (CC BY 4.0) + vehicle-free COCO train2017 pictures -> a
+    # vehicle model that knows CNG, rickshaw, leguna ...; PUBLISHED as a
+    # release asset (releases never expire) from ci/cctvdet3-arb only, never
+    # overwriting an asset with a different hash; then measured.
     if: ${{ inputs.mode == 'train' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 345
+    timeout-minutes: 330
+    permissions:
+      contents: write
+      actions: read
+    outputs:
+      sha: ${{ steps.publish.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - name: Install (CPU torch, YOLOX 0.3.0 code, Shop Box runtime)
+        timeout-minutes: 15
         run: |
           python -m pip install --upgrade pip
           pip install torch==2.3.1 torchvision==0.18.1 --index-url https://download.pytorch.org/whl/cpu
           pip install "numpy==1.26.4" loguru thop psutil tabulate tqdm "onnx==1.16.1" requests
           pip install -r edge/shopbox/requirements.txt
-          python -c "import numpy; print('numpy', numpy.__version__)"
           git clone -q --depth 1 --branch 0.3.0 https://github.com/Megvii-BaseDetection/YOLOX.git /tmp/YOLOX
           echo "PYTHONPATH=/tmp/YOLOX" >> "$GITHUB_ENV"
       - name: Weights and models (SHA-256 verified)
+        timeout-minutes: 10
         run: |
           mkdir -p /tmp/w edge/shopbox/models
           curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o /tmp/w/yolox_nano.pth \
@@ -153,37 +160,99 @@ jobs:
             https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.onnx
           echo "427cc366d34e27ff7a03e2899b5e3671425c262ea2291f88bb942bc1cc70b0f7  edge/shopbox/models/yolox_tiny.onnx" | sha256sum -c -
           cd edge/shopbox && python -m shopbox.model_fetch models/yolox_nano.onnx
+      - name: COCO annotations (CC BY 4.0) - train2017 for negatives, val2017 for the eval
+        timeout-minutes: 15
+        run: |
+          curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o /tmp/ann.zip http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+          unzip -q -j /tmp/ann.zip annotations/instances_val2017.json annotations/instances_train2017.json -d /tmp/ann
       - name: Smoke (30 iterations on 64 photos, fails fast)
+        timeout-minutes: 30
         run: |
           python tools/e2e/cctv_vehicle_train.py --weights /tmp/w/yolox_nano.pth --smoke \
-            --out /tmp/smoke.onnx --minutes 2 2>&1 | tail -20
+            --neg-ann /tmp/ann/instances_train2017.json --out /tmp/smoke.onnx --minutes 2 2>&1 | tail -20
           python -c "import onnxruntime as o; s=o.InferenceSession('/tmp/smoke.onnx'); import numpy as n; print(s.run(None,{'images':n.zeros((1,3,416,416),n.float32)})[0].shape)"
       - name: Train
+        timeout-minutes: 230
         env:
           MIN: ${{ inputs.minutes || '200' }}
         run: |
           set -o pipefail
           python tools/e2e/cctv_vehicle_train.py --weights /tmp/w/yolox_nano.pth \
+            --neg-ann /tmp/ann/instances_train2017.json --neg 1500 \
             --out assisto_vehicle_bd_nano.onnx --minutes "$MIN" 2>&1 | grep -v "CPU Mode\|^ *$" | tee train.txt
-      - name: COCO val2017 annotations (CC BY 4.0)
+      - name: Publish the model as a release asset (ci/cctvdet3-arb only, never overwritten)
+        id: publish
+        if: ${{ github.ref == 'refs/heads/ci/cctvdet3-arb' }}
+        timeout-minutes: 10
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o /tmp/ann.zip http://images.cocodataset.org/annotations/annotations_trainval2017.zip
-          unzip -q -j /tmp/ann.zip annotations/instances_val2017.json -d /tmp/ann
+          set -e
+          TAG=shopbox-vehicle-bd-1
+          A=assisto_vehicle_bd_nano.onnx
+          NEW=$(sha256sum "$A" | cut -d' ' -f1)
+          echo "sha=$NEW" >> "$GITHUB_OUTPUT"
+          sed -e "s/@SHA256@/$NEW/" -e "s/@RUN@/$GITHUB_RUN_ID/" -e "s/@COMMIT@/$GITHUB_SHA/" \
+            tools/e2e/cctv_vehicle_model_card.md > assisto_vehicle_bd_nano.md
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            if gh release view "$TAG" --json assets -q '.assets[].name' | grep -qx "$A"; then
+              gh release download "$TAG" -p "$A" -D /tmp/old
+              OLD=$(sha256sum "/tmp/old/$A" | cut -d' ' -f1)
+              if [ "$OLD" != "$NEW" ]; then
+                echo "::error::$TAG already has $A with sha256 $OLD - not overwriting with $NEW"
+                echo "sha=$OLD" >> "$GITHUB_OUTPUT"
+                exit 1
+              fi
+              echo "same model already published ($OLD)"
+            else
+              gh release upload "$TAG" "$A" assisto_vehicle_bd_nano.md
+            fi
+          else
+            gh release create "$TAG" "$A" assisto_vehicle_bd_nano.md --target "$GITHUB_SHA" --prerelease \
+              --title "Shop Box vehicle model (Bangladesh) 1" --notes-file assisto_vehicle_bd_nano.md
+          fi
+          echo "PUBLISHED $TAG/$A sha256 $NEW"
       - name: Frame-level accuracy (stock nano / tiny vs the Bangladesh model)
+        timeout-minutes: 45
         run: |
           set -o pipefail
           python tools/e2e/cctv_vehicle_frames.py --ann /tmp/ann/instances_val2017.json \
             --model nano=edge/shopbox/models/yolox_nano.onnx --model tiny=edge/shopbox/models/yolox_tiny.onnx \
             --model bd=assisto_vehicle_bd_nano.onnx --out cctv_frames.json --n 260 | tee cctv_frames.txt
-      - uses: actions/upload-artifact@v4
-        continue-on-error: true  # ghstore: storage quota never fails a green build
-        if: always()
+
+  vehicle_heldout:
+    # cctvdet3: the shipped vehicle settings with the model just published,
+    # BEFORE (stage-2 settings) vs AFTER on the HELD-OUT scenarios only (no
+    # grid: the settings were picked on calibration in CI 43967156868)
+    needs: vehicle_train
+    if: ${{ inputs.mode == 'train' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          name: cctv-vehicle-bd
-          path: |
-            assisto_vehicle_bd_nano.onnx
-            assisto_vehicle_bd_nano.onnx.sha256
-            train.txt
-            cctv_frames.json
-            cctv_frames.txt
-          retention-days: 5
+          python-version: "3.11"
+      - name: Shop Box runtime + models (SHA-256 verified)
+        timeout-minutes: 10
+        env:
+          SHA: ${{ needs.vehicle_train.outputs.sha }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r edge/shopbox/requirements.txt
+          cd edge/shopbox && python -m shopbox.model_fetch models/yolox_nano.onnx && cd ../..
+          curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o edge/shopbox/models/yolox_tiny.onnx \
+            https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.onnx
+          mkdir -p /tmp/bd
+          curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o /tmp/bd/assisto_vehicle_bd_nano.onnx \
+            "https://github.com/${{ github.repository }}/releases/download/shopbox-vehicle-bd-1/assisto_vehicle_bd_nano.onnx"
+          echo "$SHA  /tmp/bd/assisto_vehicle_bd_nano.onnx" | sha256sum -c -
+          curl -sSfL --retry 6 --retry-all-errors --retry-delay 30 -o /tmp/ann.zip http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+          unzip -q -j /tmp/ann.zip annotations/instances_val2017.json -d /tmp/ann
+      - name: Held-out, before vs after (vehicles)
+        timeout-minutes: 45
+        run: |
+          set -o pipefail
+          python tools/e2e/cctv_detect_v3.py --ann /tmp/ann/instances_val2017.json \
+            --nano edge/shopbox/models/yolox_nano.onnx --tiny edge/shopbox/models/yolox_tiny.onnx \
+            --bd /tmp/bd/assisto_vehicle_bd_nano.onnx --groups vehicles --fixed --n 30 | tee cctv_detect.txt

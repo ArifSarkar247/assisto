@@ -282,11 +282,41 @@ class Stage2IngestE2ETests(E2E._Base):
                        "opts": {"vehicles": True}},
                       {"id": "l2", "type": "entry_line", "points": [[0.2, 0], [0.2, 1]],
                        "opts": {"vehicles": True, "notify": True}},
-                      {"id": "np", "type": "no_parking", "points": LOWER, "label": "Gate front"}],
+                      {"id": "np", "type": "no_parking", "points": LOWER, "label": "Gate front"},
+                      {"id": "pk", "type": "parking", "points": LOWER, "label": "Bay 1",
+                       "opts": {"overstay_min": 30, "notify": True}}],
             "schedule": None, "sensitivity": "medium", "quiet_hours": None}}, format="json")
         self.assertEqual(z.status_code, 200, z.data)
 
     send = DetectionIngestE2ETests.send
+
+    def test_parking_is_report_only_unless_the_owner_turns_ringing_on(self):
+        # cctvdet3 (lead decision): vehicle detections are saved for the log /
+        # daily report without a ringing push until measured >= 90/90; the
+        # owner can turn ringing on per zone (opts.notify)
+        from core.models import ShopEvent
+        self.send("wrong_parking", {"zone": "np", "label": "Gate front", "cls": "car",
+                                    "seconds": 150})
+        self.assertTrue(ShopEvent.objects.filter(type="wrong_parking").exists())
+        loud = [k for k in self.shop_pushes() if not (k.get("data") or {}).get("quiet")]
+        self.assertEqual(loud, [])
+        self.send("parking_overstay", {"zone": "pk", "label": "Bay 1", "cls": "car",
+                                       "seconds": 1900, "minutes": 31})
+        self.assertTrue(ShopEvent.objects.filter(type="parking_overstay").exists())
+        loud = [k for k in self.shop_pushes() if not (k.get("data") or {}).get("quiet")]
+        self.assertTrue(loud)                  # rings (to each person of the site)
+
+    def test_report_only_rule_and_notify_option(self):
+        v2 = {"zones": [{"id": "np", "type": "no_parking", "opts": {}},
+                        {"id": "pk", "type": "parking", "opts": {"notify": True}},
+                        {"id": "g", "type": "gate", "opts": {}}]}
+        self.assertTrue(CD.report_only(v2, "wrong_parking", {"zone": "np"}))
+        self.assertTrue(CD.report_only(v2, "vehicle_in_out", {"zone": "missing"}))
+        self.assertFalse(CD.report_only(v2, "parking_overstay", {"zone": "pk"}))
+        self.assertFalse(CD.report_only(v2, "gate_person", {"zone": "g"}))
+        self.assertEqual(CD.clean_opts({"notify": True, "wrong_s": 90}, "no_parking"),
+                         {"notify": True, "wrong_s": 90})
+        self.assertNotIn("notify", CD.clean_opts({"notify": True}, "gate"))
 
     def test_vehicle_log_is_silent_unless_the_line_says_notify(self):
         from core.models import ShopEvent

@@ -27,6 +27,19 @@ VEHICLE_TYPES = (VEHICLE_IN_OUT, PARKING_OVERSTAY, WRONG_PARKING)
 
 # the zone detections (one per zone per visit / state change): stage 1 + 2
 ZONE_TYPES = (GATE_PERSON, POST_EMPTY, GATE_OPEN, CROWD) + VEHICLE_TYPES
+# cctvdet3 (lead decision, reversible): vehicle detections are a LOG + daily
+# report (saved, no ringing push) until the owner's own clips confirm >= 90/90
+# precision / recall; the owner turns ringing on per zone (opts.notify).
+# Person / gate alerts are unchanged.
+REPORT_ONLY_TYPES = VEHICLE_TYPES
+
+
+def report_only(v2, etype, signals):
+    """True when this detection is saved quietly (no ringing push)."""
+    if etype not in REPORT_ONLY_TYPES:
+        return False
+    z = find_zone(v2, _inputs(signals).get("zone"))
+    return not ((z or {}).get("opts") or {}).get("notify")
 # alert types whose box clip is the 10 s detection clip (ACG1 preview envelope)
 LONG_CLIP_TYPES = (GATE_PERSON, LOITERING, POST_EMPTY, GATE_OPEN, CAMERA_HEALTH,
                    CROWD) + VEHICLE_TYPES
@@ -64,8 +77,8 @@ MEASURED = {
     },
     "parking_overstay": {
         "n": 261,
-        "p": 0.78,
-        "r": 0.844
+        "p": 0.874,
+        "r": 0.826
     },
     "post_empty": {
         "n": 120,
@@ -74,16 +87,16 @@ MEASURED = {
     },
     "vehicle_in_out": {
         "n": 300,
-        "p": 0.656,
-        "r": 0.667
+        "p": 0.589,
+        "r": 0.608
     },
     "wrong_parking": {
-        "n": 265,
-        "p": 0.697,
-        "r": 0.964
+        "n": 180,
+        "p": 0.769,
+        "r": 0.5
     }
 }
-MEASURED_RUN = "42726621893 (stage 2); cctvdet3 HELD-OUT 43967156868: vehicles on the real Bangladeshi set, crowd / post / loitering / gate on the old set"
+MEASURED_RUN = "42726621893 (stage 2); cctvdet3 HELD-OUT 43967156868 (crowd / post / loitering / gate, old set) + 44021451977 (vehicles with the published model c0189c8f: in/out + overstay on the real Bangladeshi set, wrong parking on the old set - its real-set run timed out)"
 MEASURED_SET = 'stage 2: COCO val2017 synthetic scenarios n=30/kind; cctvdet3: same + Sylhet street photos (CC BY 4.0), calibration/held-out split'
 
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
@@ -289,6 +302,8 @@ def clean_opts(raw, ztype):
         out.pop("crowd_n", None)
         out.pop("crowd_s", None)
     if ztype in ("parking", "no_parking"):
+        if raw.get("notify") is True:
+            out["notify"] = True
         out.pop("crowd_n", None)
         out.pop("crowd_s", None)
         out.pop("dwell_s", None)

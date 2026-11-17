@@ -78,7 +78,7 @@
     "veh_present_frac": 0.0
   },
   "measured": {
-    "_run": "42726621893 (stage 2); cctvdet3 HELD-OUT 43967156868: vehicles on the real Bangladeshi set, crowd / post / loitering / gate on the old set",
+    "_run": "42726621893 (stage 2); cctvdet3 HELD-OUT 43967156868 (crowd / post / loitering / gate, old set) + 44021451977 (vehicles with the published model c0189c8f: in/out + overstay on the real Bangladeshi set, wrong parking on the old set - its real-set run timed out)",
     "_set": "stage 2: COCO val2017 synthetic scenarios n=30/kind; cctvdet3: same + Sylhet street photos (CC BY 4.0), calibration/held-out split",
     "camera_health": {
       "n": 330,
@@ -107,8 +107,8 @@
     },
     "parking_overstay": {
       "n": 261,
-      "p": 0.78,
-      "r": 0.844
+      "p": 0.874,
+      "r": 0.826
     },
     "post_empty": {
       "n": 120,
@@ -117,16 +117,16 @@
     },
     "vehicle_in_out": {
       "n": 300,
-      "p": 0.656,
-      "r": 0.667
+      "p": 0.589,
+      "r": 0.608
     },
     "wrong_parking": {
-      "n": 265,
-      "p": 0.697,
-      "r": 0.964
+      "n": 180,
+      "p": 0.769,
+      "r": 0.5
     }
   },
-  "_doc_vehicle": "cctvdet3: Shop Box vehicles. 'default' = the Bangladesh vehicle model's score (assisto_vehicle_bd, tools/e2e/cctv_vehicle_train.py); 'tiny_default' = YOLOX-Tiny's when that model is not published yet; zoom = second look on a parking zone's crop; union = + the person model's COCO vehicles; picked on CALIBRATION, reported on HELD-OUT (CI 43967156868).",
+  "_doc_vehicle": "cctvdet3: Shop Box vehicles. 'default' = the Bangladesh vehicle model's score (assisto_vehicle_bd, tools/e2e/cctv_vehicle_train.py); 'tiny_default' = YOLOX-Tiny's when that model is not published yet; zoom = second look on a parking zone's crop; union = + the person model's COCO vehicles; picked on CALIBRATION, reported on HELD-OUT (CI 43967156868); model c0189c8f (CI 44021451977, + vehicle-free negatives).",
   "vehicle": {
     "default": 0.15,
     "tiny_default": 0.35,
