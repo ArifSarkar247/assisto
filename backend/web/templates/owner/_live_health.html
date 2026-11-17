@@ -1,0 +1,14 @@
+{# livemon: read-only Live health card (last live_monitor report) #}
+<section class="card" id="live-health">
+  <h2>{{ T.lh_h }}</h2>
+  {% if live %}
+  {% if live.p0 %}<div class="flash bad" role="alert" id="live-p0"><b>{{ T.lh_p0 }}</b>: {{ live.p0_labels|join:"; " }}</div>{% else %}<p class="st-ok" id="live-ok">{{ T.lh_all_ok }}</p>{% endif %}
+  <div class="tiles">
+  {% for t in live.tiles %}<div class="tile"><span>{{ t.label }}</span><b class="{% if t.bad %}st-over{% endif %}">{{ t.v }}</b><small>{{ t.sub_label }}: {{ t.sub }}</small></div>{% endfor %}
+  </div>
+  {% if live.line %}<p class="small">{{ live.line }}</p>{% endif %}
+  {% if live.top_failing %}<h3>{{ T.lh_top_5xx }}</h3><div class="tbl"><table><tbody>{% for f in live.top_failing %}<tr><td>{{ f.method }} {{ f.path }}</td><td>{{ f.count }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+  {% if live.issues %}<h3>{{ T.lh_top_issues }}</h3><div class="tbl"><table><tbody>{% for i in live.issues %}<tr><td>{{ i.type }} {{ i.cause }}<br><small class="mut">{{ i.location }}</small></td><td>{{ i.users }}</td><td>{{ i.last_version }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+  <p class="small mut">{{ T.lh_at }}: {{ live.at|date:"j M H:i" }} · {{ T.lh_note }} · <a href="/owner/vitals">{{ T.nav_vitals }}</a></p>
+  {% else %}<p class="empty">{{ T.lh_empty }}</p>{% endif %}
+</section>

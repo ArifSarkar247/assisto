@@ -229,6 +229,9 @@ JOBS = (
     Job("city_tick", MIN, "* * * * *", via="minute_jobs"),
     # messv2: night-before bazar turn reminder (gated 20:00+, once per turn)
     Job("mess_tick", MIN, "* * * * *", via="minute_jobs"),
+    # livemon: read-only daily live health (Play vitals, crashes, 5xx, signups,
+    # payments) -> logs/live_monitor_*.{json,txt}; gated: once a day from 06:00
+    Job("live_monitor", MIN, "* * * * *", via="minute_jobs"),
     # moneybar: TCB (govt) market prices, once a day (19:40 Dhaka)
     Job("tcb_prices_fetch", DAY, "40 13 * * *", "nice -n15 ionice -c3", lock=True,
         max_s=5 * MIN),
@@ -270,6 +273,8 @@ MINUTE_JOBS = (("journey_sweep", {"quiet": True}), ("antitheft_escalate", {}),
                ("ad_money_tick", {"quiet": True}),
                # emailrel: idle = one indexed read (every 15 min, email set up)
                ("email_bounces", {"tick": True, "quiet": True}),
+               # livemon: idle = one stamp read; once a day 06:00 Dhaka
+               ("live_monitor", {"tick": True}),
                # flagprep: LAST, 20 s budget — never delays the safety jobs above
                ("agent_core_run", {"seconds": 20.0}))
 
