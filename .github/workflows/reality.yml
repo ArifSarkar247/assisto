@@ -54,7 +54,7 @@ jobs:
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep", "save"]
+          allg = ["start", "home", "personal", "family", "circle", "business", "docs", "sweep", "save", "lp"]  # gap-lp: Language Partner
           want = [g.strip() for g in (os.environ.get("ONLY") or "").split(",") if g.strip()]
           sel = [g for g in allg if not want or g in want] or allg
           print("groups=" + json.dumps(sel))
