@@ -249,6 +249,10 @@ class VendorSims:
                                     "liveToken": "lt-%s" % did}]})
         if method == "queryLocalRecords":
             return ok({"records": [{"beginTime": p.get("beginTime"), "endTime": p.get("endTime")}]})
+        if method == "createDeviceRecordHls":
+            # gap-cctv3: the recorded window as HLS (same host family as live)
+            host = STREAM[vendor] % (did, "rec-ch%s" % p.get("channelId"))
+            return ok({"url": host})
         return err("OP1000", "unknown method %s" % method)
 
     def _imou_oauth_token(self, f, headers):
