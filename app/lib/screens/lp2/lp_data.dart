@@ -314,7 +314,7 @@ class LpVocabStore {
       List<Map<String, dynamic>> cached = const [];
       try {
         cached = [for (final r in jsonDecode(p.getString(_rowsPref) ?? '[]') as List) Map<String, dynamic>.from(r as Map)];
-      } catch (_) {}
+      } catch (_) {} // best-effort: phone copy only; the server stays the truth
       return (_overlay(cached, pend), true);
     }
   }
@@ -326,7 +326,7 @@ class LpVocabStore {
       final pend = _pending(p);
       pend[cardId] = {...?pend[cardId], ...body};
       await p.setString(_pendPref, jsonEncode(pend));
-    } catch (_) {}
+    } catch (_) {} // best-effort: phone copy only; the server stays the truth
   }
 
   /// Keeps the phone copy in step after a move that did save.
@@ -338,6 +338,6 @@ class LpVocabStore {
       // a newer move reached the server: an older queued one must not undo it
       final pend = _pending(p)..remove('${row['card_id']}');
       await p.setString(_pendPref, jsonEncode(pend));
-    } catch (_) {}
+    } catch (_) {} // best-effort: phone copy only; the server stays the truth
   }
 }

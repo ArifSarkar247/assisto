@@ -54,8 +54,9 @@ class _FlakyApi extends FakeApi {
   final Set<String> failOnce;
   final bool mocksOffline, vocabOffline;
   final List<(String, int)> updates = [];
-  _FlakyApi({this.failOnce = const {}, this.mocksOffline = false, this.vocabOffline = false})
-      : super(mode: FakeMode.data, lang: 'en');
+  _FlakyApi({Set<String>? failOnce, this.mocksOffline = false, this.vocabOffline = false})
+      : failOnce = {...?failOnce}, // mutable: a const set cannot remove()
+        super(mode: FakeMode.data, lang: 'en');
 
   static String _p(String path) => path.startsWith('/') ? path.substring(1) : path;
 

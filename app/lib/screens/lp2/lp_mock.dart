@@ -455,7 +455,9 @@ class _LpMockRunnerState extends State<LpMockRunner> with WidgetsBindingObserver
   Future<void> _clearDraft() async {
     try {
       await (await SharedPreferences.getInstance()).remove(_draftKey);
-    } catch (_) {}
+    } catch (_) {
+      // best-effort: an old draft is dropped after 12 h anyway
+    }
   }
 
   /// true when unfinished answers (< 12 h old) were put back.
