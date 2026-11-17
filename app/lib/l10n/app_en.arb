@@ -53048,5 +53048,354 @@
         "type": "int"
       }
     }
+  },
+  "tr2AlarmAskBody": "While your get-off alarm runs, your phone can show everyone where this train is — without your name. Only if you say yes. It stops when the alarm ends, and you can stop it any time from the notification.",
+  "@tr2AlarmAskBody": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AlarmAskNo": "No, only the alarm",
+  "@tr2AlarmAskNo": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AlarmAskTitle": "Help other passengers?",
+  "@tr2AlarmAskTitle": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AlarmAskYes": "Yes, share the train's position",
+  "@tr2AlarmAskYes": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AskBody": "Your phone is moving along this train's line at train speed. If you are on it, one tap lets other passengers see where the train is — without your name. A notification shows while it is on, and it stops by itself at the last station.",
+  "@tr2AskBody": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AskNo": "No, I am not",
+  "@tr2AskNo": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AskTitle": "Are you on {train}?",
+  "@tr2AskTitle": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "train": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2AskYes": "Yes, I am on this train",
+  "@tr2AskYes": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2AutoStop": "Stops by itself at the last station.",
+  "@tr2AutoStop": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2BenefitAlarm": "Get-off alarm before your station",
+  "@tr2BenefitAlarm": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2BenefitFamily": "Your family can see where the train is",
+  "@tr2BenefitFamily": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2BenefitOffline": "See your own position even with no internet",
+  "@tr2BenefitOffline": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2BenefitPoints": "Reward points when your reports match (points only)",
+  "@tr2BenefitPoints": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CellOptIn": "Also send my phone's mobile tower",
+  "@tr2CellOptIn": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CellOptInSub": "Helps place the train for people with weak GPS or no internet. Only the tower number — never your calls, SMS or phone number.",
+  "@tr2CellOptInSub": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinLeft": "The train left here",
+  "@tr2CheckinLeft": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinPending": "Thank you — it counts when one more person agrees",
+  "@tr2CheckinPending": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinReached": "The train reached here",
+  "@tr2CheckinReached": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinRejected": "Not counted — your phone must be near this station",
+  "@tr2CheckinRejected": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinThanks": "Thank you — counted",
+  "@tr2CheckinThanks": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2CheckinWhy": "Counted when your phone is near this station or 2 or more people agree. Reports that match earn points.",
+  "@tr2CheckinWhy": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2DelayShort": "+{min} min",
+  "@tr2DelayShort": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2Disclaimer": "Shown from riders, check-ins and the timetable — it can be a few minutes off.",
+  "@tr2Disclaimer": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2FreshAgo": "{min} min ago",
+  "@tr2FreshAgo": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2FreshLive": "Live",
+  "@tr2FreshLive": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2FreshOfflineTt": "Offline: timetable estimate",
+  "@tr2FreshOfflineTt": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2FreshPredicted": "Predicted — not live",
+  "@tr2FreshPredicted": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2FreshTimetable": "Timetable",
+  "@tr2FreshTimetable": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2FreshTower": "Offline: mobile tower + timetable",
+  "@tr2FreshTower": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2KindAt": "at {station}",
+  "@tr2KindAt": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2KindLeft": "left {station}",
+  "@tr2KindLeft": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2KindReached": "reached {station}",
+  "@tr2KindReached": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "station": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2LineTapHint": "Tap a station: the train reached / left it, or a get-off alarm there.",
+  "@tr2LineTapHint": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2NextBadge": "Next station",
+  "@tr2NextBadge": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffBody": "Keeps every train timetable and the mobile-tower map on this phone. With no internet and no GPS you still see where your train is (estimated). Updated weekly.",
+  "@tr2OffBody": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffDownload": "Download ({size})",
+  "@tr2OffDownload": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2OffDownloadNoSize": "Download",
+  "@tr2OffDownloadNoSize": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffDownloading": "Downloading…",
+  "@tr2OffDownloading": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffFailed": "Download failed. Check the internet and try again.",
+  "@tr2OffFailed": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffReady": "On this phone: {count} trains · updated {date}",
+  "@tr2OffReady": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2OffTitle": "Use without internet",
+  "@tr2OffTitle": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffUpdate": "Update ({size})",
+  "@tr2OffUpdate": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2OffUpdateNoSize": "Update",
+  "@tr2OffUpdateNoSize": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OffWeekly": "Up to date. We check for changes every week.",
+  "@tr2OffWeekly": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2OfflineStrip": "No internet — showing the train from this phone",
+  "@tr2OfflineStrip": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2Outbox": "{n} reports wait for internet",
+  "@tr2Outbox": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2PasteBody": "Paste the 16318 SMS reply, or a post from a Facebook, Telegram or WhatsApp group. We find the train, station and time, and check it with other reports before it updates everyone.",
+  "@tr2PasteBody": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteButton": "Share a 16318 reply or group post",
+  "@tr2PasteButton": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteHint": "Paste the text here",
+  "@tr2PasteHint": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteHow": "From your SMS app send TR and the train number to 16318 (costs ৳4). Open the reply, tap Share, then Assisto — or copy it and paste here.",
+  "@tr2PasteHow": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteHowTitle": "How to get the 16318 reply",
+  "@tr2PasteHowTitle": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteNever": "Assisto never reads your SMS or any other app by itself — only the text you give here.",
+  "@tr2PasteNever": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PastePaste": "Paste",
+  "@tr2PastePaste": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteSend": "Send update",
+  "@tr2PasteSend": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PasteTitle": "Share a train update",
+  "@tr2PasteTitle": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PreviewChecked": "Checked with riders and other reports before it shows.",
+  "@tr2PreviewChecked": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PreviewNone": "No train number found yet. The server will still try when you send it.",
+  "@tr2PreviewNone": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PreviewTime": "Time: {time}",
+  "@tr2PreviewTime": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2PreviewTitle": "We understood",
+  "@tr2PreviewTitle": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2PreviewTrain": "Train {no}",
+  "@tr2PreviewTrain": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "no": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2Queued": "No internet — saved on this phone, sent when you are online",
+  "@tr2Queued": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2RiderWhy": "On this train? Share for the trip: others see where it is, you get your position offline, the get-off alarm and points.",
+  "@tr2RiderWhy": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2RidersLive": "{n} riders live",
+  "@tr2RidersLive": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2Saver": "Battery saver: one position every 60 seconds",
+  "@tr2Saver": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2Speed": "{speed} km/h",
+  "@tr2Speed": {
+    "description": "train-app (Train Tracker V2)",
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "tr2Suspended": "Suspended — not running now",
+  "@tr2Suspended": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2TextApplied": "Thank you — the train is updated for everyone",
+  "@tr2TextApplied": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2TextChecking": "Thank you — it shows once it matches other reports",
+  "@tr2TextChecking": {
+    "description": "train-app (Train Tracker V2)"
+  },
+  "tr2TextUnparsed": "We could not find a train and station in this text",
+  "@tr2TextUnparsed": {
+    "description": "train-app (Train Tracker V2)"
   }
 }
