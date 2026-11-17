@@ -1,3 +1,5 @@
+> ⚠️ **পুরনো নথি — ব্যবহার করবেন না (১৭ Nov):** নতুন ও সঠিক তালিকা `PLAY_MONETISATION_SETUP_BN.md`-এ। এই নথির বার্ষিক base plan ID `yearly` ভুল — সঠিক `annual`; দাম ও ক্রেডিট-প্যাকও পুরনো।
+
 # Google Play-তে কী কী বানাতে হবে — হুবহু তালিকা (পেমেন্ট E2E অডিট, ২৬ অক্টোবর)
 
 এই তালিকা কোড পড়ে বানানো (`backend/core/logic/payments_cfg.py`, `core/payments/catalog.py`,
