@@ -770,6 +770,11 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
             const SizedBox(height: Gap.xs),
             Text(t.journeyToward(dest), style: AType.bodyMedium),
           ],
+          // gap-safejourney: WHO is watching this trip (the names from My
+          // Circle) — reassurance the family really sees it
+          if (sjWatcherNames(_journey) case final names?)
+            Text(t.cgaSeenBy(names),
+                key: const ValueKey('gsj_seen_by'), style: AType.bodyMedium),
           if (eta != null)
             Text(
                 _share
@@ -840,6 +845,7 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
           SjDuringPanel(
             journeyId: widget.journeyId,
             poll: !_underTestPoll,
+            showDistance: _toGo(s) == null, // gap-safejourney: one km number
             onDanger: _openSos,
             onArrived: (keep) async {
               // danger PIN: the same Arrived here; the location service goes
@@ -919,4 +925,15 @@ class _JourneyLiveScreenState extends State<JourneyLiveScreen>
       ]),
     );
   }
+}
+
+
+/// gap-safejourney: "Mother, Dad" from the server's watcher_names (null when
+/// none — an older server, or nobody chosen).
+String? sjWatcherNames(Map<String, dynamic> j) {
+  final l = [
+    for (final n in (j['watcher_names'] as List? ?? const []))
+      if ('$n'.trim().isNotEmpty) '$n'.trim()
+  ];
+  return l.isEmpty ? null : l.join(', ');
 }

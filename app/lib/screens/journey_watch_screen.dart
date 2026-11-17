@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/action_feedback.dart';
 import '../services/journey_tracker.dart' show journeyMapsLink;
@@ -192,6 +193,14 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
             Text(jRideLine(t, j['ride'] as Map), style: AType.bodyMedium),
           if (j['ride'] is Map && '${(j['ride'] as Map)['driver_name'] ?? ''}'.isNotEmpty)
             Text(t.j2Driver('${(j['ride'] as Map)['driver_name']}'), style: AType.bodyMedium),
+          // gap-safejourney: the number-plate / ride photo the traveller took
+          // (was only on the web page) — live trips only, tap to enlarge
+          if (j['status'] == 'active')
+            if (sjRidePhotoUrl(j['ride_photo']) case final u?)
+              Padding(
+                padding: const EdgeInsets.only(top: Gap.xs),
+                child: SjRidePhotoThumb(url: u, label: t.j100VehiclePhoto),
+              ),
           // journeymode: where their train is (estimate, says so)
           if (j['train'] is Map && j['status'] == 'active')
             Padding(
@@ -310,3 +319,62 @@ class _JourneyWatchScreenState extends State<JourneyWatchScreen> {
 /// sjp0: does this watcher-board card carry an arrival window?
 bool _hasWindow(Map? b) =>
     b != null && '${b['window_from'] ?? ''}'.isNotEmpty && '${b['window_to'] ?? ''}'.isNotEmpty;
+
+
+/// gap-safejourney: the server's signed photo path -> a full URL (null when
+/// there is no photo).
+String? sjRidePhotoUrl(Object? raw) {
+  final s = '${raw ?? ''}'.trim();
+  if (s.isEmpty || s == 'null') return null;
+  if (s.startsWith('http')) return s;
+  return '${AppConfig.apiBase}${s.startsWith('/') ? '' : '/'}$s';
+}
+
+/// gap-safejourney: a 72 dp thumbnail of the ride photo; a tap shows it big.
+/// A broken / expired link shows a plain icon, never an error.
+class SjRidePhotoThumb extends StatelessWidget {
+  const SjRidePhotoThumb({super.key, required this.url, required this.label});
+  final String url, label;
+
+  Widget _img(BoxFit fit) => Image.network(url,
+      fit: fit,
+      semanticLabel: label,
+      errorBuilder: (c, _, __) => ColoredBox(
+          color: Theme.of(c).colorScheme.surfaceContainerHighest,
+          child: Icon(Icons.directions_car_filled_rounded,
+              color: Theme.of(c).colorScheme.onSurfaceVariant)));
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        key: const ValueKey('gsj_ride_photo'),
+        borderRadius: BorderRadius.circular(Radii.sm),
+        onTap: () => showDialog<void>(
+          context: context,
+          builder: (ctx) => Dialog(
+            key: const ValueKey('gsj_ride_photo_big'),
+            clipBehavior: Clip.antiAlias,
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Flexible(child: InteractiveViewer(child: _img(BoxFit.contain))),
+              TextButton(
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(MaterialLocalizations.of(ctx).closeButtonLabel)),
+            ]),
+          ),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(Radii.sm),
+            child: SizedBox(width: 72, height: 72, child: _img(BoxFit.cover)),
+          ),
+          const SizedBox(width: Gap.sm),
+          Flexible(child: Text(label, style: AType.bodyMedium)),
+        ]),
+      ),
+    );
+  }
+}
