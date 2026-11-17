@@ -225,8 +225,9 @@ def _event_for(request, pk):
 
 GONE = {"viewed": ("মালিক ক্লিপটি দেখেছেন, তাই মুছে ফেলা হয়েছে। ছবিটি আছে।",
                    "The owner watched this clip, so it was deleted. The photo stays."),
-        "expired": ("২৪ ঘণ্টা পেরিয়ে যাওয়ায় ক্লিপটি মুছে গেছে। ছবিটি আছে।",
-                    "The clip was deleted after 24 hours. The photo stays.")}
+        # gap-cctv: the keep time is 24 h, or the add-on's 7 / 30 days
+        "expired": ("রাখার সময় শেষ হওয়ায় ক্লিপটি মুছে গেছে। ছবিটি আছে।",
+                    "The clip's keep time ended, so it was deleted. The photo stays.")}
 
 
 def _phone_extra(request, ev, body, count=0):

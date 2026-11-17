@@ -102,6 +102,7 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
   int? _cameraId;
   String _site = '', _camName = '';
   List<Map<String, dynamic>> _pairCams = const [];
+  bool _lostLink = false; // gap-cctv: the server refused this box's token
   String _msg = '';
   bool _busy = false;
 
@@ -291,14 +292,23 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
         // best-effort: keep-screen-on / charging hint are optional helpers
       }
       _loop = Timer.periodic(const Duration(milliseconds: 500), (_) => _tick());
-      _hb = Timer.periodic(const Duration(seconds: 20), (_) {
-        dev.heartbeat(caps: const ['gateway', 'guardbox', 'clip']);
-      });
+      // gap-cctv: a refused token (camera removed / pairing revoked) is
+      // shown — never "Running" while nothing reaches the owner
+      Future<void> beat() async {
+        try {
+          final r = await dev.heartbeat(caps: const ['gateway', 'guardbox', 'clip']);
+          final lost = r.status == 401 || r.status == 403 || r.status == 404;
+          if (mounted && lost != _lostLink) setState(() => _lostLink = lost);
+        } catch (_) {
+          // offline: the heartbeat retries in 20 s
+        }
+      }
+      _hb = Timer.periodic(const Duration(seconds: 20), (_) => beat());
       _cfg = Timer.periodic(const Duration(seconds: 60), (_) async {
         final c = await dev.config();
         if (c.ok) eng.applyConfig(c.body);
       });
-      dev.heartbeat(caps: const ['gateway', 'guardbox', 'clip']);
+      unawaited(beat());
       _running = true;
     } catch (_) {
       _msg = t.wmGenericError;
@@ -351,8 +361,11 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
         const SizedBox(height: 4),
         Text(t.gbHonest, style: Theme.of(context).textTheme.bodySmall),
         _pairCard(t),
-        if (_token != null) _cameraCard(t),
-        if (_token != null && (_snapUrl != null || widget.preview != null)) _runCard(t),
+        // gap-cctv: with several cameras, pick one first (no run without it)
+        if (_token != null && !(_pairCams.length > 1 && _cameraId == null)) ...[
+          _cameraCard(t),
+          if (_snapUrl != null || widget.preview != null) _runCard(t),
+        ],
         if (_msg.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 12),
@@ -372,10 +385,62 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
           ]),
     ));
 
+  /// gap-cctv: forget this pairing (wrong place, camera removed, new code).
+  Future<void> _forget() async {
+    final t = AppLocalizations.of(context);
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.gcvGbForgetAsk),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.wmCancel)),
+          FilledButton(
+              key: const ValueKey('gcv-gb-forget-yes'),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t.gcvGbForget)),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
+    _stop(silent: true);
+    setState(() {
+      _token = null;
+      _cameraId = null;
+      _site = '';
+      _camName = '';
+      _pairCams = const [];
+      _lostLink = false;
+    });
+    for (final k in [_kTok, _kCam, _kSite, _kCamName]) {
+      try {
+        await _secure.delete(key: k).timeout(const Duration(seconds: 5));
+      } catch (_) {
+        // best-effort: the pairing is already gone from this screen
+      }
+    }
+  }
+
   Widget _pairCard(AppLocalizations t) {
     if (_token != null) {
       return _card(t.gbStepPair, [
-        WmPill(label: t.gbPairedTo(_site.isEmpty ? '-' : _site), icon: Icons.check_circle_rounded, color: wmOk()),
+        if (_lostLink)
+          WmPill(
+              key: const ValueKey('gcv-gb-lost'),
+              label: t.gcvGbLost,
+              icon: Icons.link_off_rounded,
+              color: wmWarn())
+        else
+          WmPill(label: t.gbPairedTo(_site.isEmpty ? '-' : _site), icon: Icons.check_circle_rounded, color: wmOk()),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            key: const ValueKey('gcv-gb-forget'),
+            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+            icon: const Icon(Icons.link_off_rounded),
+            label: Text(t.gcvGbForget),
+            onPressed: _busy ? null : _forget,
+          ),
+        ),
         if (_pairCams.length > 1 && _cameraId == null) ...[
           const SizedBox(height: 8),
           Text(t.gbPickCamera),
@@ -441,6 +506,7 @@ class _GuardBoxScreenState extends State<GuardBoxScreen> {
         ),
       const SizedBox(height: 8),
       DropdownButtonFormField<String>(
+        isExpanded: true, // gap-cctv: no overflow on 360 dp phones / 200% text
         initialValue: _vendor,
         decoration: InputDecoration(labelText: t.gbVendor, border: const OutlineInputBorder()),
         items: [

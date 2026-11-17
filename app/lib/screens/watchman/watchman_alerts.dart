@@ -103,6 +103,8 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
     final x = _extras();
     if (x == null) return;
     await AlertActionsSheet.show(context, x, (e['id'] as num).toInt(), cash: _cashSrc());
+    // gap-cctv: a "Wrong alert" marked in the sheet shows on the card at once
+    if (mounted) await _load();
   }
 
   @override
@@ -340,7 +342,7 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
                   onPressed: () => _openClip(e),
                 )
               else
-                Text(clipSt == 'viewed' ? t.cgClipWatchedGone : t.cgClipExpiredGone,
+                Text(clipSt == 'viewed' ? t.cgClipWatchedGone : t.gcvClipExpiredGone, // gap-cctv: not always 24 h
                     style: Theme.of(context).textTheme.bodySmall),
             ],
             const SizedBox(height: 8),

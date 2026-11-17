@@ -31,6 +31,13 @@ final Map<String, Widget Function(String)> cctvconnectShots = {
           siteId: 1,
           source: FakeCctvConnect(lang: l, noProviders: true, noLinks: true),
           onFindOnWifi: () => _wifi(ctx))),
+  // gap-cctv: a phone-gateway place — honest "cannot scan" + Guard Box way
+  'gcv_ccn_phone_gw': (l) => Builder(
+      builder: (ctx) => CctvConnectScreen(
+          siteId: 1,
+          source: FakeCctvConnect(lang: l, noProviders: true, noLinks: true),
+          lanGateway: false,
+          onFindOnWifi: () => _wifi(ctx))),
   'ccn_link_sheet': (l) => Scaffold(
         body: SafeArea(
           child: CctvLinkSheet(
