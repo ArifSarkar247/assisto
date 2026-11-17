@@ -149,7 +149,7 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
     final sub = [
       if ((l['company'] ?? '').toString().isNotEmpty) l['company'],
       l['industry_display'],
-      // Bangla digits in bn (was "600 কর্মী")
+      // Bangla digits in bn (the headcount was in Latin digits)
       if (size > 0) '${fmtInt(context, size)} ${t.crmHeadcount}',
       l['status_display'],
     ].where((e) => (e ?? '').toString().isNotEmpty).join(' · ');
