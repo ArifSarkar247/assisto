@@ -69,7 +69,13 @@
   "@gcvReportToday": {
    "description": "gap-cctv: closing report day switch"
   },
-  "gcvReportYesterday": "Yesterday"
+  "gcvReportYesterday": "Yesterday",
+  "gcvGbLost": "Not connected — the owner removed this camera or the pairing. Pair again.",
+  "@gcvGbLost": {
+   "description": "gap-cctv: Guard Box token refused by the server"
+  },
+  "gcvGbForget": "Forget this pairing",
+  "gcvGbForgetAsk": "Forget this pairing? The box stops watching until you pair it again with a new code."
  },
  "bn": {
   "gcvLinuxTitle": "এর বদলে Raspberry Pi বা লিনাক্স মিনি পিসি",
@@ -99,6 +105,9 @@
   "gcvPosSecret": "গোপন চাবি",
   "gcvUnlinkAsk": "স্মার্ট প্লাগ ও লাইটের সংযোগ খুলবেন? আবার যুক্ত না করা পর্যন্ত স্বয়ংক্রিয় কাজ বন্ধ থাকবে।",
   "gcvReportToday": "আজ",
-  "gcvReportYesterday": "গতকাল"
+  "gcvReportYesterday": "গতকাল",
+  "gcvGbLost": "সংযোগ নেই — মালিক এই ক্যামেরা বা জোড়া সরিয়েছেন। আবার জোড়া লাগান।",
+  "gcvGbForget": "এই জোড়া ভুলে যান",
+  "gcvGbForgetAsk": "এই জোড়া ভুলে যাবেন? নতুন কোড দিয়ে আবার জোড়া না লাগানো পর্যন্ত বক্স পাহারা দেবে না।"
  }
 }

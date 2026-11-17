@@ -21,6 +21,7 @@ import 'package:assisto/screens/watchman/cctv_act_tiles.dart';
 import 'package:assisto/screens/watchman/cctv_escalate.dart';
 import 'package:assisto/screens/watchman/cctvx_actions.dart';
 import 'package:assisto/screens/watchman/cctv_watch_screen.dart';
+import 'package:assisto/screens/watchman/guard_box_screen.dart';
 import 'package:assisto/screens/watchman/watchman_viewers.dart';
 import 'package:assisto/theme.dart';
 
@@ -562,5 +563,21 @@ void main() {
                 previewOffers: const {})))));
     await _settle(tester);
     expect(find.text(en.cplSaleSoon), findsOneWidget);
+  });
+
+  testWidgets('R3 Guard Box: a paired box can forget its pairing (asks first)', (tester) async {
+    _phone(tester, height: 1600);
+    await tester.pumpWidget(_app(const GuardBoxScreen(
+        force: true,
+        preview: GuardBoxPreview(site: 'Mirpur shop', camera: 'Cash counter', running: false))));
+    await _settle(tester);
+    expect(find.byKey(const ValueKey('gcv-gb-forget')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('gcv-gb-forget')));
+    await _settle(tester);
+    expect(find.text(en.gcvGbForgetAsk), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('gcv-gb-forget-yes')));
+    await _settle(tester);
+    expect(find.byKey(const ValueKey('gcv-gb-forget')), findsNothing);
+    expect(find.text(en.gbPairHelp), findsOneWidget);
   });
 }
