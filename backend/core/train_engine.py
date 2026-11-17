@@ -974,14 +974,22 @@ def enrich_live_view(view, t, d, now=None):
                 except ValueError:
                     pass
         return view
+    if r["mode"] == "reported":            # check-ins / shared text only: low confidence
+        view["reported"] = {"km": r["km"], "lat": r["lat"], "lng": r["lng"], "source": r["src"],
+                            "confidence": r["confidence"], "age_s": r["freshness"]["age_s"],
+                            "delay_min": r["delay_min"], "next": r["next"]}
     live = view.get("live")
-    if not live:
+    if not live and r["mode"] != "live":
+        live = {}
+    elif not live:
         live = {"label": "live", "chainage_m": round(r["km"] * 1000), "lat": r["lat"],
                 "lng": r["lng"], "sharers": r["contributors"], "dropped": 0,
                 "age_s": r["freshness"]["age_s"], "arrived": False}
         view["live"] = live
         view["mode"] = "live"
         view["sharers"] = r["contributors"]
+    if not live:
+        live = view.get("reported") or {}
     live.update(speed_kmh=r["speed_kmh"], confidence=r["confidence"],
                 contributors=r["contributors"], source=r["src"],
                 eta_next=(r["next"] or {}).get("eta"))
