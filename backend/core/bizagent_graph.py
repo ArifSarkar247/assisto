@@ -170,6 +170,47 @@ def page_info(page_token):
     return _get("me?fields=id,name", page_token)
 
 
+def ig_account_info(token):
+    """bizagent-iso: GET /me?fields=id,name,instagram_business_account — with a
+    Page token `id` is the Page and instagram_business_account.id the linked
+    IG account; with an Instagram-login token `id` is the IG user itself."""
+    return _get("me?fields=id,name,instagram_business_account", token)
+
+
+def _delete(path, token):
+    if not token:
+        return {"ok": False, "id": "", "status": 0, "error": "no_token"}
+    url = "%s/%s" % (base_url(), path.lstrip("/"))
+    status, js = _call("DELETE", url, {"Authorization": "Bearer " + token}, None)
+    return _result(status, js or {})
+
+
+def unsubscribe_page(page_token, page_id):
+    """bizagent-iso: DELETE /{page-id}/subscribed_apps on disconnect."""
+    return _delete("%s/subscribed_apps" % page_id, page_token)
+
+
+def unsubscribe_waba(token, waba_id):
+    """bizagent-iso: DELETE /{waba-id}/subscribed_apps on disconnect."""
+    return _delete("%s/subscribed_apps" % waba_id, token)
+
+
+def owned_id_matches(kind, info, external_id):
+    """bizagent-iso: does the Graph answer for the token prove it owns
+    `external_id`? Messenger: /me id == page id. Instagram: the Page's linked
+    instagram_business_account id (or the IG-login user id) == IG id.
+    WhatsApp: GET /{phone-number-id} answered with that same id."""
+    js = (info or {}).get("json") or {}
+    ext = str(external_id or "")
+    if not ext or not (info or {}).get("ok"):
+        return False
+    if kind == "instagram":
+        iba = js.get("instagram_business_account") or {}
+        ids = {str(js.get("id") or ""), str(iba.get("id") or "") if isinstance(iba, dict) else ""}
+        return ext in ids
+    return str(js.get("id") or "") == ext
+
+
 # ------------------------------------------------------------- WhatsApp Cloud
 def send_whatsapp_text(token, phone_number_id, to, text):
     return _post("%s/messages" % phone_number_id, token, {

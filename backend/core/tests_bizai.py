@@ -303,7 +303,9 @@ class LearningTests(ShopChatBase):
     def test_unedited_approval_learns_nothing(self):
         m = self._pending("Apnara kokhon khola thaken?", "AI draft")
         S.approve(m)
-        self.assertFalse(BizFaq.objects.exists())
+        # bizagent-iso: only the open "AI didn't know" entry may exist (the
+        # owner answers or ignores it); no FAQ is learned from an unedited OK
+        self.assertFalse(BizFaq.objects.exclude(status="unknown").exists())
 
 
 class ReportAndOutcomeTests(ShopChatBase):

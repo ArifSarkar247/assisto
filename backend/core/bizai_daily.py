@@ -129,7 +129,8 @@ def stock_forecast(business, now, days=VELOCITY_DAYS, warn=FORECAST_DAYS):
     if not sold:
         return []
     out = []
-    for v in ProductVariant.objects.filter(pk__in=list(sold)).select_related("product"):
+    for v in ProductVariant.objects.filter(pk__in=list(sold), product__user=business.user) \
+            .select_related("product"):
         q = int(sold.get(v.pk) or 0)
         if q <= 0:
             continue

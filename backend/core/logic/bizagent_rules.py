@@ -46,9 +46,10 @@ R_DELIVERY_TIME = "delivery_time"  # "koto dine pabo?" — never an invented dat
 R_LOCATION = "location"            # "dokan kothay?" — seller FAQ / booking-page address
 R_SIZE_GUIDE = "size_guide"        # size chart from the product's own description
 R_THANKS = "thanks"
+R_OFF_TOPIC = "off_topic"          # bizagent-guard: homework / politics / news … politely declined
 RULES = (R_GREETING, R_FAQ, R_DELIVERY, R_HOURS, R_ORDER_STATUS, R_PAYMENT, R_RETURNS,
          R_PRODUCT, R_SIZES, R_HUMAN_Q, R_CATALOG, R_PRIVACY, R_PIN, R_DELIVERY_TIME,
-         R_LOCATION, R_SIZE_GUIDE, R_THANKS)
+         R_LOCATION, R_SIZE_GUIDE, R_THANKS, R_OFF_TOPIC)
 # rules that only INFORM (they never start / change an order): the order flow
 # may answer one of these mid-order and then repeat what it still needs
 INFO_RULES = (R_DELIVERY, R_HOURS, R_PAYMENT, R_RETURNS, R_PRIVACY, R_PIN, R_FAQ,
@@ -481,6 +482,38 @@ def wallet_line(lang, wallets, provider):
         "Never share your PIN or OTP with anyone.")
 
 
+_OFF_TOPIC = (
+    "homework", "assignment", "essay", "paragraph likh", "রচনা", "অনুচ্ছেদ", "হোমওয়ার্ক",
+    "politics", "political", "রাজনীতি", "election", "নির্বাচন", "prime minister",
+    "প্রধানমন্ত্রী", "president", "রাষ্ট্রপতি", "latest news", "আজকের খবর",
+    "write a poem", "poem likh", "কবিতা লিখ", "write code", "python code", "code likh",
+    "solve this", "math problem", "অংক কর", "অঙ্ক কর", "weather", "আবহাওয়া",
+    "tell me a joke", "joke bolo", "কৌতুক", "cricket score", "খেলার স্কোর",
+    "translate this", "অনুবাদ কর", "capital of", "রাজধানী কী",
+)
+
+
+def is_off_topic(text, catalog=None):
+    """bizagent-guard: a message clearly about something other than this
+    shop. Never fires when the word is in the shop's own catalog (a book
+    shop selling an essay book, a shop selling a recipe book)."""
+    low = _norm(text)
+    hits = [w for w in _OFF_TOPIC if w in low]
+    if not hits:
+        return False
+    corpus = " ".join(" ".join(str(p.get(k) or "") for k in ("name", "description", "category"))
+                      for p in catalog or []).lower()
+    return not any(w in corpus for w in hits)
+
+
+def off_topic_line(lang, shop=""):
+    shop = shop or pick(lang, "আমাদের দোকান", "our shop")
+    return pick(lang, f"দুঃখিত, আমি শুধু {shop}-এর পণ্য, দাম, অর্ডার আর ডেলিভারি নিয়ে সাহায্য করতে "
+                      "পারি। কোনো পণ্য দেখতে বা অর্ডার করতে চাইলে লিখুন।",
+                f"Sorry, I can only help with {shop}'s products, prices, orders and delivery. "
+                "Tell me if you'd like to see a product or place an order.")
+
+
 def privacy_line(lang):
     return pick(lang, "দুঃখিত, অন্য কোনো গ্রাহকের নাম, নম্বর, ঠিকানা বা অর্ডারের তথ্য আমরা কাউকে দিই না — "
                       "সবার তথ্য গোপন থাকে। আপনার নিজের অর্ডারের বিষয়ে জানতে চাইলে লিখুন।",
@@ -837,6 +870,9 @@ def answer(text, ctx):
                 return {"text": card, "rule": R_PRODUCT, "product_id": p.get("id")}
     if pay and named is None:
         return pay
+    # bizagent-guard: clearly not about this shop → a polite, fixed decline
+    if named is None and p is None and is_off_topic(text, catalog):
+        return {"text": off_topic_line(lang, ctx.get("shop_name")), "rule": R_OFF_TOPIC}
     return None
 
 

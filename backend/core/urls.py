@@ -1355,6 +1355,9 @@ urlpatterns += [
     path("bizagent/faqs/learn", g1.FaqLearnView.as_view()),
     path("bizagent/faqs/<int:pk>", g1.FaqDetailView.as_view()),
     path("bizagent/faqs/<int:pk>/delete", g1.FaqDeleteView.as_view()),
+    path("bizagent/unknown", g1.UnknownListView.as_view()),                     # bizagent-iso
+    path("bizagent/unknown/<int:pk>/answer", g1.UnknownAnswerView.as_view()),
+    path("bizagent/unknown/<int:pk>/ignore", g1.UnknownIgnoreView.as_view()),
     path("bizagent/post-links", g1.PostLinksView.as_view()),
     path("bizagent/post-links/<int:pk>/delete", g1.PostLinkDeleteView.as_view()),
     path("bizagent/agent-report", g1.AgentReportView.as_view()),
