@@ -1232,12 +1232,16 @@ Map<String, GallerySpec> gallerySpecs() {
     'quran_reader': (build: (_) { SharedPreferences.setMockInitialValues({'quran_bookmarks_v1': ['1:2']}); return QuranReaderScreen(data: realQuranData(), sura: 1); }, mode: FakeMode.data, full: true),
     'quran_reader_en': (build: (_) { SharedPreferences.setMockInitialValues({'quran_translation_v1': 'en'}); return QuranReaderScreen(data: realQuranData(), sura: 112); }, mode: FakeMode.data, full: true),
     'quran_about': (build: (_) => QuranAboutScreen(notice: realQuranData().arabicNotice), mode: FakeMode.data, full: true),
+    // gap-quranblood: para list + reader at the end of a sura (next sura)
+    'quran_juz': (build: (_) { preloadRealQuran(); return const QuranScreen(initialTab: 1); }, mode: FakeMode.data, full: true),
+    'quran_reader_end': (build: (_) => QuranReaderScreen(data: realQuranData(), sura: 112, aya: 3), mode: FakeMode.data, full: true),
+    // /gap-quranblood
     // quranread: learn to read Quran (real lessons + real Tanzil Uthmani text)
     'quran_learn': (build: (_) => QuranLearnScreen(progress: qlShotProgress()), mode: FakeMode.data, full: true),
-    'quran_learn_letters': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress()), mode: FakeMode.data, full: true),
-    'quran_learn_harakat': (build: (_) => QuranLessonScreen(stage: kQlStages[1], lesson: kQlStages[1].lessons[0], progress: qlShotProgress()), mode: FakeMode.data, full: true),
-    'quran_learn_ayat': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons[1], progress: qlShotProgress()); }, mode: FakeMode.data, full: true),
-    'quran_learn_tajweed': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[8], lesson: kQlStages[8].lessons[2], progress: qlShotProgress()); }, mode: FakeMode.data, full: true),
+    'quran_learn_letters': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress(), player: QvSilentPlayer()), mode: FakeMode.data, full: true),
+    'quran_learn_harakat': (build: (_) => QuranLessonScreen(stage: kQlStages[1], lesson: kQlStages[1].lessons[0], progress: qlShotProgress(), player: QvSilentPlayer()), mode: FakeMode.data, full: true),
+    'quran_learn_ayat': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons[1], progress: qlShotProgress(), player: QvSilentPlayer()); }, mode: FakeMode.data, full: true),
+    'quran_learn_tajweed': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[8], lesson: kQlStages[8].lessons[2], progress: qlShotProgress(), player: QvSilentPlayer()); }, mode: FakeMode.data, full: true),
     // result state of "I read, check me": the text a phone engine returns when the last word is missed
     'quran_learn_check': (build: (_) { preloadRealUthmani(); return Scaffold(body: SafeArea(child: ReciteSheet(expected: realUthmani().text(kQlStages[7].lessons[1].items[0].ref!)!, initialHeard: '\u0642\u0644 \u0647\u0648 \u0627\u0644\u0644\u0647'))); }, mode: FakeMode.data, full: true),
     'quran_learn_about': (build: (_) { preloadRealUthmani(); return const QuranLearnAboutScreen(); }, mode: FakeMode.data, full: true),
@@ -1248,9 +1252,9 @@ Map<String, GallerySpec> gallerySpecs() {
     'qv_tafsir_none': (build: (_) { QuranBilingualApi.clearForTest(); return Scaffold(body: SafeArea(child: QuranTafsirBody(api: QuranBilingualApi((p) async => fakeQuranViewGet(p)!), sura: 1, aya: 1))); }, mode: FakeMode.data, full: true),
     // quranshikhi: the owner-approved letter lesson (bn + en lines, four forms,
     // makhraj, under review, streak), joining letters, a new short sura.
-    'quran_learn_letter': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress(), initialItem: 'l_ba'), mode: FakeMode.data, full: true),
-    'quran_learn_joining': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons.firstWhere((l) => l.id == 'joining'), progress: qlShotProgress()), mode: FakeMode.data, full: true),
-    'quran_learn_sura_fil': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons.firstWhere((l) => l.id == 'fil'), progress: qlShotProgress()); }, mode: FakeMode.data, full: true),
+    'quran_learn_letter': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons[0], progress: qlShotProgress(), initialItem: 'l_ba', player: QvSilentPlayer()), mode: FakeMode.data, full: true),
+    'quran_learn_joining': (build: (_) => QuranLessonScreen(stage: kQlStages[0], lesson: kQlStages[0].lessons.firstWhere((l) => l.id == 'joining'), progress: qlShotProgress(), player: QvSilentPlayer()), mode: FakeMode.data, full: true),
+    'quran_learn_sura_fil': (build: (_) { preloadRealUthmani(); return QuranLessonScreen(stage: kQlStages[7], lesson: kQlStages[7].lessons.firstWhere((l) => l.id == 'fil'), progress: qlShotProgress(), player: QvSilentPlayer()); }, mode: FakeMode.data, full: true),
     'exam': (build: (_) => const ExamResultScreen(), mode: FakeMode.data, full: true),
     'circle': (build: (_) => const CircleScreen(), mode: FakeMode.data, full: true),
     // build-61: Connected Circle chat/call/privacy + Safe Journey + referral + CRM first-run

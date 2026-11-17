@@ -120,6 +120,8 @@ const Map<String, String> _allow = {
   'qv_*|digit|CC BY 3.0': 'Tanzil licence name in the source line (CC BY 3.0 attribution)',
   'qv_*|digit|Allāh,[2]': 'Saheeh International English meaning, verbatim (QuranEnc terms)',
   'qv_*|digit|[2] Allāh is a proper name': 'Saheeh International English note, verbatim (QuranEnc terms)',
+  // gap-quranblood: the reader now shows the same verbatim English meaning inline
+  'quran_reader*|digit|Allāh,[2]': 'Saheeh International English meaning, verbatim (QuranEnc terms)',
   // quranshikhi: owner exception (9 Nov 21:55) - Quran Shikhi shows Bangla and
   // English together; the line toggle chip names each language in its own script.
   'quran_learn*|english|"English"': 'line toggle বাংলা / English, each in its own script (owner bilingual exception)',

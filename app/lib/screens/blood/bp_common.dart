@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../blood_panel_api.dart' show kBloodGroups;
 import '../../ds/ds.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme.dart';
+import '../../widgets/app_sheet.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../widgets/permission_reason.dart' show askLocationWithReason;
 
@@ -86,6 +88,58 @@ String bpStateLabel(AppLocalizations t, String state) {
     default:
       return t.bpStateRemoved;
   }
+}
+
+// gap-quranblood B2: share an open request to WhatsApp / Facebook /
+// Messenger (where most Bangladeshi blood requests travel). The text carries
+// the group, bags, hospital, area and time only — NEVER a phone number, the
+// note (it can hold medical details) or the requester's name.
+const String kBpSiteLink = 'https://lifeassisto.com';
+
+String bpRequestShareText(BuildContext context, Map<String, dynamic> r) {
+  final t = AppLocalizations.of(context);
+  final place = [
+    if ('${r['area_text'] ?? ''}'.isNotEmpty) '${r['area_text']}',
+    if ('${r['district_name'] ?? ''}'.isNotEmpty) '${r['district_name']}',
+  ].join(', ');
+  return bpD(
+      context,
+      t.bpShareReqText('${r['blood_group'] ?? ''}', '${r['units'] ?? 1}',
+          '${r['hospital'] ?? ''}', place.isEmpty ? '—' : place,
+          bpWhen(context, r['needed_by'] as String?), kBpSiteLink));
+}
+
+/// Test seam: the system share sheet.
+Future<void> Function(String text) bpShareOut = (text) => Share.share(text);
+
+/// gap-quranblood B4: making the number public needs a clear yes — who sees
+/// it is said plainly. Turning it OFF never asks.
+Future<bool?> bpConfirmPhonePublic(BuildContext context) {
+  final t = AppLocalizations.of(context);
+  return showAppSheet<bool>(
+    context: context,
+    builder: (ctx) => Padding(
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.md),
+      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(t.bpPhonePublicConfirmTitle, style: Theme.of(ctx).textTheme.titleMedium),
+        const SizedBox(height: Gap.sm),
+        Text(t.bpPhonePublicConfirmBody, key: const ValueKey('bp-phone-confirm-body')),
+        const SizedBox(height: Gap.lg),
+        ConstrainedBox(constraints: const BoxConstraints(minHeight: 52),
+          child: FilledButton(
+            key: const ValueKey('bp-phone-confirm'),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(t.bpPhonePublicConfirmOk),
+          ),
+        ),
+        TextButton(
+          key: const ValueKey('bp-phone-keep-private'),
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text(t.bpPhoneKeepPrivate),
+        ),
+      ]),
+    ),
+  );
 }
 
 /// The phone's current position, or null (no permission / off / timeout).

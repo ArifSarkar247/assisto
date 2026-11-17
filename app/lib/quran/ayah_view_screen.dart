@@ -244,7 +244,8 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
     final ref = AyaRef(widget.sura, _aya);
     return Scaffold(
       appBar: AppBar(
-        title: Text('${_s.tname} ${ld(context, '${widget.sura}:$_aya')}'),
+        title: Text('${quranSuraTitle(Localizations.localeOf(context).languageCode == 'bn', _s)} '
+            '${ld(context, '${widget.sura}:$_aya')}'),
         actions: [
           IconButton(
             key: const Key('qv-lines'),
@@ -303,8 +304,21 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
                 key: const Key('qv-next'),
                 style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
                 icon: const Icon(Icons.chevron_right_rounded),
-                label: Text(t.qvNext),
-                onPressed: _aya < _s.ayas ? () => _go(_aya + 1) : null,
+                // gap-quranblood Q5: the last verse leads to the next sura
+                label: Text(_aya < _s.ayas || widget.sura >= widget.data.suras.length
+                    ? t.qvNext
+                    : t.qvNextSura),
+                onPressed: _aya < _s.ayas
+                    ? () => _go(_aya + 1)
+                    : widget.sura < widget.data.suras.length
+                        ? () => Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (_) => AyahViewScreen(
+                                data: widget.data,
+                                sura: widget.sura + 1,
+                                aya: 1,
+                                api: widget.api,
+                                player: widget.player)))
+                        : null,
               ),
             ),
           ]),
@@ -356,7 +370,7 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
       child = _loading();
     } else {
       child = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        if (!approved) _ReviewChip(label: t.qvUnderReview),
+        if (!approved) QvReviewChip(label: t.qvUnderReview),
         if (_aya == 1 && bism.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: Gap.xs),
@@ -580,9 +594,9 @@ class _AyahViewScreenState extends State<AyahViewScreen> {
       );
 }
 
-class _ReviewChip extends StatelessWidget {
+class QvReviewChip extends StatelessWidget {
   final String label;
-  const _ReviewChip({required this.label});
+  const QvReviewChip({super.key, required this.label});
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;

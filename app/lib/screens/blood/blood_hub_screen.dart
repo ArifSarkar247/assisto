@@ -34,11 +34,14 @@ import '../../widgets/local_counter.dart';
 /// "My saved donors" (the old personal registry's donors, private).
 /// FAB: urgent blood request. App bar: messages, blood banks.
 class BloodHubScreen extends StatefulWidget {
-  const BloodHubScreen({super.key, this.initialTab = 0, this.locate});
+  const BloodHubScreen({super.key, this.initialTab = 0, this.locate, this.pickDate});
   final int initialTab;
 
   /// Test seam for the approximate location.
   final Future<({double lat, double lng})?> Function()? locate;
+
+  /// Test seam for "I donated on another day" (gap-quranblood B8).
+  final Future<DateTime?> Function(BuildContext context)? pickDate;
 
   @override
   State<BloodHubScreen> createState() => _BloodHubScreenState();
@@ -56,6 +59,7 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
 
   // search
   String _group = '';
+  bool _compatible = false; // gap-quranblood B3: every group that can give
   int _radius = 5;
   Map<String, dynamic> _counts = const {}; // finish1: total / now / soon
   String _district = '';
@@ -156,6 +160,7 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
     });
     final q = <String, String>{
       if (_group.isNotEmpty) 'group': _group,
+      if (_group.isNotEmpty && _compatible) 'compatible': '1',
       'radius': '$_radius',
       if (_here != null) ...{'lat': '${bpCoarse(_here!.lat)}', 'lng': '${bpCoarse(_here!.lng)}'},
       if (_here == null && _district.isNotEmpty) 'district': _district,
@@ -175,7 +180,9 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
         _searching = false;
         _searched = true;
         _donors = const [];
-        _searchErr = e.reason;
+        // gap-quranblood B5: a failure without a server reason is still a
+        // failure (it used to read as "no donors near you")
+        _searchErr = e.reason ?? 'error';
       });
     } catch (_) {
       if (!mounted) return;
@@ -360,6 +367,22 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
         _urgentHero(context),
         DsSectionHeader(t.bpGroupPick),
         _groupGrid(context),
+        // gap-quranblood B3: O-/O+/B- donors can also give to B+ — one chip
+        if (_group.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.xs),
+            child: DsChipRow(children: [
+              DsChip(
+                key: const ValueKey('bp-compatible'),
+                label: t.bpCompatChip(_group),
+                selected: _compatible,
+                onSelected: (_) {
+                  setState(() => _compatible = !_compatible);
+                  unawaited(_search());
+                },
+              ),
+            ]),
+          ),
         const SizedBox(height: Gap.md),
         DsCard(
           padding: const EdgeInsets.symmetric(vertical: Gap.md),
@@ -432,9 +455,20 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
             ctaKey: const ValueKey('bp-find-cta'),
             onCta: _useHere,
           ),
-        if (!_searching && _searched && _searchErr != null)
+        if (!_searching && _searched && _searchErr != null) ...[
           Text(bpReason(t, _searchErr == 'error' ? null : _searchErr),
               style: text.bodyMedium?.copyWith(color: ds.dangerInk)),
+          // gap-quranblood B5: never a dead end — one tap to try again
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: DsButton.secondary(
+              key: const ValueKey('bp-search-retry'),
+              onPressed: _search,
+              icon: Icons.refresh_rounded,
+              label: t.bpRetry,
+            ),
+          ),
+        ],
         if (!_searching && _searched && _searchErr == null && _donors.isEmpty)
           BpEmpty(
             icon: Icons.bloodtype_outlined,
@@ -869,6 +903,10 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
       ),
       const SizedBox(height: Gap.sm),
       _tile(Icons.edit_rounded, t.bpEdit, _becomeDonor, 'bp-edit'),
+      // gap-quranblood B4: the donor always sees whether the number is open
+      _tile(me['phone_public'] == true ? Icons.phone_in_talk_rounded : Icons.phone_locked_rounded,
+          me['phone_public'] == true ? t.bpMePhoneShown : t.bpMePhoneHidden, _togglePhone, 'bp-me-phone',
+          sub: me['phone_public'] == true ? t.bpMePhoneShownSub : t.bpMePhoneHiddenSub),
       _tile(me['available'] == true ? Icons.pause_circle_outline_rounded : Icons.play_circle_outline_rounded,
           me['available'] == true ? t.bpPause : t.bpResumeListing, _toggleAvailable, 'bp-pause',
           sub: me['available'] == true ? t.bpPauseSub : null),
@@ -965,10 +1003,49 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
 
   Future<void> _donatedToday() async {
     final t = AppLocalizations.of(context);
-    final yes = await _confirm(t.bpDonatedConfirmTitle, t.bpDonatedConfirmBody, t.bpDonatedToday);
-    if (yes != true || !mounted) return;
+    // gap-quranblood B8: today, or pick the real day (gave blood 3 days ago)
+    final pick = await showAppSheet<String>(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.md),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(t.bpDonatedConfirmTitle, style: Theme.of(ctx).textTheme.titleMedium),
+          const SizedBox(height: Gap.sm),
+          Text(t.bpDonatedConfirmBody),
+          const SizedBox(height: Gap.lg),
+          ConstrainedBox(constraints: const BoxConstraints(minHeight: 52),
+            child: FilledButton(
+              key: const ValueKey('bp-confirm'),
+              onPressed: () => Navigator.pop(ctx, 'today'),
+              child: Text(t.bpDonatedToday),
+            ),
+          ),
+          const SizedBox(height: Gap.xs),
+          ConstrainedBox(constraints: const BoxConstraints(minHeight: 48),
+            child: OutlinedButton(
+              key: const ValueKey('bp-donated-other'),
+              onPressed: () => Navigator.pop(ctx, 'other'),
+              child: Text(t.bpDonatedOtherDay),
+            ),
+          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(AppLocalizations.of(ctx).bpCancel)),
+        ]),
+      ),
+    );
+    if (pick == null || !mounted) return;
+    String? date;
+    if (pick == 'other') {
+      final now = DateTime.now();
+      final picker = widget.pickDate;
+      final d = picker != null
+          ? await picker(context)
+          : await showDatePicker(
+              context: context, initialDate: now, firstDate: DateTime(now.year - 1), lastDate: now);
+      if (d == null || !mounted) return;
+      date = '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+    }
     try {
-      final r = await _api.bpDonated();
+      final r = await _api.bpDonated(date);
       if (!mounted) return;
       _snack(r['ok'] == true ? t.bpDonatedThanks : bpReason(t, r['reason'] as String?));
     } catch (_) {
@@ -981,6 +1058,23 @@ class _BloodHubScreenState extends State<BloodHubScreen> with SingleTickerProvid
     final t = AppLocalizations.of(context);
     try {
       final r = await _api.bpSaveMe({'available': _me['available'] != true});
+      if (!mounted) return;
+      if (r['ok'] != true) _snack(bpReason(t, r['reason'] as String?));
+    } catch (_) {
+      if (mounted) _snack(t.bpErrGeneric);
+    }
+    unawaited(_load());
+  }
+
+  Future<void> _togglePhone() async {
+    final t = AppLocalizations.of(context);
+    final on = _me['phone_public'] != true;
+    if (on) {
+      final yes = await bpConfirmPhonePublic(context);
+      if (yes != true || !mounted) return;
+    }
+    try {
+      final r = await _api.bpSaveMe({'phone_public': on});
       if (!mounted) return;
       if (r['ok'] != true) _snack(bpReason(t, r['reason'] as String?));
     } catch (_) {
