@@ -13,7 +13,9 @@ import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/crm/crm100_api.dart';
 import 'package:assisto/screens/crm/crm_bulk_send_screen.dart';
+import 'package:assisto/screens/crm/crm_home_screen.dart';
 import 'package:assisto/screens/crm/crm_send_sheet.dart';
+import 'package:assisto/screens/mktengine/mkt_engine_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +27,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'bizai2_shots.dart' show FakeWinbackReach, fakeDaily;
 import 'fake_api.dart';
 import 'fake_crm100.dart';
+import 'mktengine_fakes.dart';
 
 class _StopApi extends FakeApi {
   _StopApi({super.lang = 'en'});
@@ -58,7 +61,8 @@ class _StopApi extends FakeApi {
           }
         ],
         'skipped': [
-          {'target': {'phone': '01712345678'}, 'name': 'Karim Mia', 'reason': 'opted_out'}
+          {'target': {'phone': '01712345678'}, 'name': 'Karim Mia', 'reason': 'opted_out'},
+          {'target': {'party': 999}, 'reason': 'not_found'},
         ],
         'opted_out': 1,
         'truncated': false,
@@ -86,7 +90,7 @@ Widget _app(Widget home, {String lang = 'en', double scale = 1.0}) => MaterialAp
     );
 
 Future<AppLocalizations> _pumpApi(WidgetTester tester, Widget screen, FakeApi api,
-    {String lang = 'en'}) async {
+    {String lang = 'en', bool settle = true}) async {
   SharedPreferences.setMockInitialValues({});
   tester.view.physicalSize = const Size(1080, 2400);
   tester.view.devicePixelRatio = 2.5;
@@ -99,7 +103,11 @@ Future<AppLocalizations> _pumpApi(WidgetTester tester, Widget screen, FakeApi ap
     ..loading = false;
   await tester.pumpWidget(
       ChangeNotifierProvider<AppState>.value(value: s, child: _app(screen, lang: lang)));
-  await tester.pumpAndSettle();
+  if (settle) {
+    await tester.pumpAndSettle();
+  } else {
+    await _settle(tester, 20);
+  }
   return AppLocalizations.of(tester.element(find.byWidget(screen)));
 }
 
@@ -149,6 +157,7 @@ void main() {
       expect(find.textContaining('Rahela Begum, new stock'), findsOneWidget);
       expect(find.textContaining('Karim Mia, new stock'), findsNothing);
       expect(find.text(t.gbzBulkStopped('1')), findsOneWidget);
+      expect(find.text(t.gbzBulkNotFound('1')), findsOneWidget);
     });
   });
 
@@ -220,6 +229,49 @@ void main() {
       final drafts = f.lastApprove!['drafts'] as Map;
       expect((drafts['wb30'] as Map)['en'], '{name}, come by {shop} this week!');
       expect(find.byKey(const ValueKey('gbz-wb-others')), findsOneWidget);
+    });
+  });
+
+  group('CRM: four daily tabs + More', () {
+    testWidgets('five tabs; every other tool opens from More with its title', (tester) async {
+      final t = await _pumpApi(tester, const CrmHomeScreen(previewOrg: 1), FakeApi(),
+          settle: false);
+      expect(find.byType(Tab), findsNWidgets(5));
+      await tester.tap(find.text(t.gbzCrmMore));
+      await _settle(tester, 20);
+      expect(find.text(t.gbzCrmMoreSub), findsOneWidget);
+      for (final l in [t.crmTabCompanies, t.crmTabReports, t.crmAutomation, t.crmAfterSale]) {
+        expect(find.text(l), findsOneWidget);
+      }
+      await tester.tap(find.text(t.crmTabReports));
+      await _settle(tester, 20);
+      expect(find.widgetWithText(AppBar, t.crmTabReports), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('Prochar: post at the best time', () {
+    testWidgets('a post has "remind me" → the server reminder, the answer shown',
+        (tester) async {
+      final ids = <String>[];
+      await _pumpApi(
+          tester,
+          MktEngineScreen(
+              source: FakeMkt('data', false),
+              remindPost: (id) async {
+                ids.add(id);
+                return {'detail': "I'll remind you today, 8 pm — the text and link are in the reminder."};
+              }),
+          FakeApi(),
+          settle: false);
+      final btn = find.byKey(const ValueKey('gbz-remind-post1'));
+      await tester.scrollUntilVisible(btn, 200, scrollable: find.byType(Scrollable).first);
+      await tester.ensureVisible(btn);
+      await _settle(tester);
+      await tester.tap(btn);
+      await _settle(tester);
+      expect(ids, ['post1']);
+      expect(find.textContaining("I'll remind you today, 8 pm"), findsOneWidget);
     });
   });
 }

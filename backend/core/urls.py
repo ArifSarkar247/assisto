@@ -1973,6 +1973,7 @@ urlpatterns += [
     path("bizai/crm/draft", bzai.CrmDraftView.as_view()),
     path("bizai/prochar", bzai.ProcharView.as_view()),
     path("bizai/prochar/tracked/<str:item_id>", bzai.ProcharTrackedView.as_view()),
+    path("bizai/prochar/remind", bzai.ProcharRemindView.as_view()),  # gap-bizai
     path("bizai/daily", bzai.BizDailyView.as_view()),   # bizai2
     path("bizai/cctv/accuracy", bzai.CctvAccuracyView.as_view()),
     path("bizai/cctv/missed", bzai.CctvMissedView.as_view()),

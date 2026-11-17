@@ -95,3 +95,47 @@ class DailyGapTests(APITestCase):
         self.assertIn("ক্যাশ ৳৫০০.০০", text)
         self.assertIn("নগদ (Nagad) ৳২০০.০০", text)
         self.assertNotIn("নগদ ৳৫০০", text)
+
+
+# ---------------------------------------------------------------- Prochar scheduler
+from core import bizai_prochar as BP  # noqa: E402
+from core import mktengine_service as MS  # noqa: E402
+from core.models import Reminder  # noqa: E402
+from core.tests_bizai import API as BAPI, ShopChatBase  # noqa: E402
+
+
+class ProcharRemindTests(ShopChatBase):
+    """gap-bizai: "schedule at the best time" — honestly, without Meta: a
+    reminder at the shop's best posting hour carrying the tracked text."""
+    def setUp(self):
+        super().setUp()
+        MS._store_plan(self.user, self.biz, {"items": [
+            {"id": "post1", "section": "content", "kind": "post", "title": "Post: Panjabi",
+             "body": "Eid Panjabi — ৳1200", "product": "Panjabi", "status": "approved"}]})
+        self.c.force_authenticate(self.user)
+
+    def test_remind_creates_one_reminder_with_the_tracked_text(self):
+        r = self.c.post(BAPI + "bizai/prochar/remind", {"item_id": "post1"}, format="json",
+                        HTTP_ACCEPT_LANGUAGE="bn")
+        self.assertEqual(r.status_code, 200, r.data)
+        self.assertEqual((r.data["basis"], r.data["hour"]), ("default", BP.DEFAULT_POST_HOUR))
+        self.assertIn("রাত ৮টা", r.data["when"])
+        rem = Reminder.objects.get(user=self.user)
+        self.assertIn(BP.post_ref(self.biz, "post1"), rem.notes)     # tracked code inside
+        self.assertIn("Eid Panjabi", rem.notes)
+        self.assertEqual(rem.link["type"], "prochar")
+        self.assertGreater(rem.due_at, timezone.now())
+        # asking again moves the same reminder — never a pile of duplicates
+        r = self.c.post(BAPI + "bizai/prochar/remind", {"item_id": "post1", "hour": 9},
+                        format="json")
+        self.assertEqual(r.data["hour"], 9)
+        self.assertEqual(Reminder.objects.filter(user=self.user).count(), 1)
+        self.assertEqual(self.c.post(BAPI + "bizai/prochar/remind", {"item_id": "nope"},
+                                     format="json").status_code, 404)
+
+    def test_hour_labels_are_plain_words(self):
+        self.assertEqual(BP.hour_label(20, "bn"), "রাত ৮টা")
+        self.assertEqual(BP.hour_label(10, "bn"), "সকাল ১০টা")
+        self.assertEqual(BP.hour_label(17, "bn"), "বিকেল ৫টা")
+        self.assertEqual(BP.hour_label(0, "en"), "12 am")
+        self.assertEqual(BP.hour_label(13, "en"), "1 pm")

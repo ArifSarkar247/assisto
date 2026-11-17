@@ -54,6 +54,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
   Object? _fail;
   bool _built = false;
   int _stopped = 0; // gap-bizai: customers left out because they said STOP
+  int _notFound = 0; // gap-bizai: targets the server could not find
 
   @override
   void didChangeDependencies() {
@@ -85,6 +86,9 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
           .timeout(const Duration(seconds: 25));
       _bulkId = '${r['bulk_id'] ?? ''}';
       _stopped = (r['opted_out'] as num?)?.toInt() ?? 0;
+      _notFound = ((r['skipped'] ?? const []) as List)
+          .where((x) => x is Map && x['reason'] == 'not_found')
+          .length;
       _cards = [
         for (final c in ((r['cards'] ?? []) as List).cast<Map<String, dynamic>>()) _Card(c)
       ];
@@ -230,6 +234,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
       return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         DsEmptyState(icon: Icons.people_outline_rounded, title: t.c100BulkNoCards),
         if (_stopped > 0) _stoppedNote(t),
+        if (_notFound > 0) _notFoundNote(t),
       ]);
     }
     final sent = _cards.where((c) => c.st == _St.sent || c.st == _St.opened).length;
@@ -251,6 +256,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
                   _tally(t.c100TallySkipped(_d(skipped)), null),
                   _tally(t.c100TallyWaiting(_d(waiting)), Theme.of(context).colorScheme.ds.primaryInk),
                   if (_stopped > 0) _stoppedNote(t),
+                  if (_notFound > 0) _notFoundNote(t),
                 ]),
               ),
             ),
@@ -269,6 +275,16 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
           const Icon(Icons.block_rounded, size: 18),
           const SizedBox(width: Gap.xs),
           Expanded(child: Text(t.gbzBulkStopped(_d(_stopped)), style: AType.bodyMedium)),
+        ]),
+      );
+
+  Widget _notFoundNote(AppLocalizations t) => Padding(
+        key: const ValueKey('gbz-bulk-notfound'),
+        padding: const EdgeInsets.only(top: Gap.xs),
+        child: Row(children: [
+          const Icon(Icons.person_off_rounded, size: 18),
+          const SizedBox(width: Gap.xs),
+          Expanded(child: Text(t.gbzBulkNotFound(_d(_notFound)), style: AType.bodyMedium)),
         ]),
       );
 
