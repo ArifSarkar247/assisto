@@ -437,6 +437,12 @@ def finish_reply(reply, text, lang, *, truncated=False, data_reply="", history=N
     from . import ai_guard
     from . import ai_tools as AT
     n_money = 0
+    cut = bool(truncated)
+    if cut:
+        # gap-aichat (e2e e2e2c_ai_continue, run 44036417926): the cut must
+        # come FIRST — the money guard appends a complete "estimate" sentence,
+        # after which end_at_sentence kept the mid-word cut ("২. সরঞ্জাম কি")
+        reply = end_at_sentence(reply)
     try:
         reply, _flags = ai_guard.clean_assistant_answer(reply, lang)
         reply, n_money = ai_guard.scrub_ungrounded_money(
@@ -447,9 +453,6 @@ def finish_reply(reply, text, lang, *, truncated=False, data_reply="", history=N
     reply, proposal = AT.extract(reply)
     reply = scrub_internal(reply)
     reply = tables_to_lists(reply)
-    cut = bool(truncated)
-    if cut:
-        reply = end_at_sentence(reply)
     if lang == "bn":
         reply = bangla_digits(reply)
     return reply, proposal, cut, n_money
