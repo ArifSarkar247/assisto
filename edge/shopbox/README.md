@@ -266,3 +266,15 @@ downloads the verified model and builds `AssistoShopBox.spec` with PyInstaller.
 The output is an onedir bundle with `AssistoShopBox.exe` (windowed) and
 `AssistoShopBoxCLI.exe` (console). CI smoke-tests the frozen build with
 `--self-test` and uploads `AssistoShopBox-windows-x64.zip`.
+
+## Models and licences (also in the app: "About & licences")
+
+* People: YOLOX-Nano by Megvii, Apache License 2.0 (https://github.com/Megvii-BaseDetection/YOLOX).
+* Vehicles (parking / no-parking / vehicle gate-line zones only): the Assisto Bangladesh vehicle
+  model, release `shopbox-vehicle-bd-1` (SHA-256 pinned in `shopbox/model_fetch.py`), built from
+  YOLOX-Nano + YOLOX 0.3.0 code (Apache License 2.0) and trained on "Multi-Class Vehicle Detection
+  Dataset for Dense and Heterogeneous Urban Traffic in Bangladesh" by Rahman A., Munim Shahriar S.,
+  Awsaf S.A., Jahan I., Ferdous J., Chowdhury M.J.U. (Leading University, Sylhet), Mendeley Data v2,
+  DOI 10.17632/tx6699m24b.2, CC BY 4.0 (photos resized and augmented; classes mapped; not endorsed by
+  the authors), plus vehicle-free COCO train2017 pictures (licensed images; annotations CC BY 4.0).
+  Until it is downloaded: YOLOX-Tiny by Megvii, Apache License 2.0.

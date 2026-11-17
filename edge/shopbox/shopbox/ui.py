@@ -97,6 +97,7 @@ class App:
         top.pack(fill="x")
         ttk.Label(top, text=t("privacy_note"), wraplength=560).pack(side="left")
         ttk.Button(top, text=t("switch_lang"), command=self.switch_lang).pack(side="right")
+        ttk.Button(top, text=t("about_btn"), command=self.show_about).pack(side="right")
 
         # --- pairing
         pf = ttk.LabelFrame(outer, text=t("sec_pair"))
@@ -185,6 +186,18 @@ class App:
         self._refresh_cams()
         self._refresh_pair()
         self._refresh_run()
+
+    def show_about(self):
+        """cctvdet3: the models this box runs and their licences / credits."""
+        from .licences import about_text
+        t = self.tr
+        w = tk.Toplevel(self.root)
+        w.title(t("about_title"))
+        txt = tk.Text(w, wrap="word", width=80, height=24)
+        txt.insert("1.0", about_text(self.cfg.language))
+        txt.configure(state="disabled")
+        txt.pack(fill="both", expand=True, padx=10, pady=10)
+        ttk.Button(w, text=t("close_btn"), command=w.destroy).pack(pady=(0, 10))
 
     def switch_lang(self):
         self.cfg.language = "en" if self.cfg.language == "bn" else "bn"
