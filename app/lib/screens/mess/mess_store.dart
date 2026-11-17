@@ -39,13 +39,6 @@ class MessOutbox {
     }
   }
 
-  static Future<void> _save(List<Map<String, dynamic>> ops) async {
-    try {
-      final p = await SharedPreferences.getInstance();
-      await p.setString(_key, jsonEncode(ops));
-    } catch (_) {}
-  }
-
   /// Number of writes still waiting for the internet (for [messId] or all).
   static Future<int> pending([int? messId]) async {
     final ops = await _load();
@@ -79,22 +72,27 @@ class MessOutbox {
       return 'sent';
     } catch (e) {
       if (!isTransient(e)) rethrow;
-      await _locked(() async {
-        final ops = await _load();
-        ops.add({'mess': messId, 'path': path, 'body': b});
-        await _save(ops);
-      });
+      await _mutate((ops) => ops.add({'mess': messId, 'path': path, 'body': b}));
       return 'queued';
     }
   }
 
-  // Every read-modify-write of the queue runs one at a time, so a write
-  // queued while a flush is sending is never overwritten by the flush's save.
-  static Future<void> _tail = Future<void>.value();
-  static Future<T> _locked<T>(Future<T> Function() fn) {
-    final run = _tail.then((_) => fn());
-    _tail = run.then((_) {}, onError: (Object _) {});
-    return run;
+  // Every read-modify-write of the queue is ATOMIC: after the one await for
+  // the prefs instance, read -> change -> write run with no await between
+  // (SharedPreferences updates its cache synchronously), so a write queued
+  // while a flush is sending is never overwritten by the flush's save.
+  // (No static Future chain: it would outlive a widget-test zone.)
+  static Future<void> _mutate(void Function(List<Map<String, dynamic>> ops) change) async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      final raw = p.getString(_key);
+      final ops = (raw == null || raw.isEmpty)
+          ? <Map<String, dynamic>>[]
+          : (jsonDecode(raw) as List).whereType<Map>()
+              .map((m) => m.cast<String, dynamic>()).toList();
+      change(ops);
+      unawaited(p.setString(_key, jsonEncode(ops)));
+    } catch (_) {}
   }
 
   static Future<({int sent, List<String> refused})>? _flushing;
@@ -108,7 +106,7 @@ class MessOutbox {
       _flushing ??= _flush(api).whenComplete(() => _flushing = null);
 
   static Future<({int sent, List<String> refused})> _flush(ApiClient api) async {
-    final ops = await _locked(_load);
+    final ops = await _load();
     if (ops.isEmpty) return (sent: 0, refused: const <String>[]);
     var sent = 0;
     final refused = <String>[];
@@ -125,11 +123,8 @@ class MessOutbox {
       done.add('${body['client_id']}');
     }
     if (done.isNotEmpty) {
-      await _locked(() async {
-        final now = await _load();
-        now.removeWhere((o) => done.contains('${(o['body'] as Map?)?['client_id']}'));
-        await _save(now);
-      });
+      await _mutate((now) => now.removeWhere(
+          (o) => done.contains('${(o['body'] as Map?)?['client_id']}')));
     }
     return (sent: sent, refused: refused);
   }
