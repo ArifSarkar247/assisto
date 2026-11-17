@@ -402,11 +402,16 @@ class ScoreBadge extends StatelessWidget {
         : warm
             ? AssistoTokens.of(context).onWarning
             : Theme.of(context).colorScheme.ds.muted;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
-      child: Text(fmtInt(context, score),
-          style: AType.labelMedium.copyWith(color: fg, fontWeight: FontWeight.w800)),
+    // design2-b12: TalkBack reads "Lead score 95", not a bare number
+    return Semantics(
+      label: AppLocalizations.of(context).d2LeadScoreA11y(fmtInt(context, score)),
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: 3),
+        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Radii.pill)),
+        child: Text(fmtInt(context, score),
+            style: AType.labelMedium.copyWith(color: fg, fontWeight: FontWeight.w800)),
+      ),
     );
   }
 }
