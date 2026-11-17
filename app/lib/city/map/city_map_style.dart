@@ -268,7 +268,7 @@ class CityMapStyle {
     try {
       final fonts = Directory('${d.path}/assets/fonts');
       if (await fonts.exists()) {
-        await for (final e in fonts.list()) {
+        for (final e in await fonts.list().toList()) {
           final name = e.path.split('/').last;
           if (e is! Directory || !name.contains(' ')) continue;
           final enc = Link('${fonts.path}/${Uri.encodeComponent(name)}');
