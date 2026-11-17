@@ -8,6 +8,7 @@ import '../../messenger_setapi.dart';
 import '../../state.dart';
 import '../../widgets/notif_models.dart' show notifLocalizeDigits;
 import '../../theme.dart';
+import '../../widgets/skeleton.dart' show SkeletonList;
 import '../../widgets/msgr_set_tiles.dart';
 
 /// Storage & data for the hub: a usage breakdown (total / media / docs / cache)
@@ -73,43 +74,46 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t.msgrSetStorage)),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SkeletonList(count: 4)
           : ListView(
               padding: const EdgeInsets.only(bottom: Gap.xxl),
               children: [
-                MsgrSetSection(t.msgrSetStorageUsageSection),
-                if (_usageAvailable) ...[
-                  MsgrSetRow(
+MsgrSetSection(t.msgrSetStorageUsageSection),
+if (_usageAvailable) ...[
+MsgrSetGroup([
+MsgrSetRow(
                     icon: Icons.sd_storage_rounded,
                     title: t.msgrSetStorageTotal,
                     value: _mb(_usage['total_bytes']),
                   ),
-                  MsgrSetRow(
+MsgrSetRow(
                     icon: Icons.photo_rounded,
                     title: t.msgrSetStorageMedia,
                     value: _mb(_usage['media_bytes']),
                   ),
-                  MsgrSetRow(
+MsgrSetRow(
                     icon: Icons.description_rounded,
                     title: t.msgrSetStorageDocs,
                     value: _mb(_usage['docs_bytes']),
                   ),
-                  MsgrSetRow(
+MsgrSetRow(
                     icon: Icons.backup_rounded,
                     title: t.msgStorageBackups,
                     value: _mb(_usage['backup_bytes']),
                   ),
-                  MsgrSetRow(
+MsgrSetRow(
                     icon: Icons.data_usage_rounded,
                     title: t.msgStorageQuota,
                     value: _mb(_usage['quota_bytes']),
                   ),
-                ] else
+]),
+] else
                   MsgrSetNote(t.msgrSetStorageUnavailable,
                       icon: Icons.info_outline_rounded),
-                // md1: My Circle chats carry E2E photos / voice / documents.
+// md1: My Circle chats carry E2E photos / voice / documents.
                 MsgrSetSection(t.md1SetAutoTitle),
-                SwitchListTile(
+MsgrSetGroup([
+SwitchListTile(
                   key: const Key('md1-auto-wifi'),
                   secondary: const Icon(Icons.wifi_rounded),
                   title: Text(t.md1SetWifi),
@@ -120,8 +124,10 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
                     await MediaPrefs.setWifiAuto(v);
                   },
                 ),
-                MsgrSetSection(t.md1SetMobileTitle),
-                for (final (k, icon, label) in [
+]),
+MsgrSetSection(t.md1SetMobileTitle),
+MsgrSetGroup([
+for (final (k, icon, label) in [
                   ('photo', Icons.photo_rounded, t.md1SetMobilePhotos),
                   ('voice', Icons.mic_none_rounded, t.md1SetMobileVoice),
                   ('document', Icons.description_rounded, t.md1SetMobileDocs),
@@ -137,8 +143,9 @@ class _MsgrSetStorageScreenState extends State<MsgrSetStorageScreen> {
                       await MediaPrefs.setMobileAuto(k, v);
                     },
                   ),
-                MsgrSetNote(t.md1SetKeepNote, icon: Icons.lock_outline_rounded),
-              ],
+]),
+MsgrSetNote(t.md1SetKeepNote, icon: Icons.lock_outline_rounded),
+],
             ),
     );
   }

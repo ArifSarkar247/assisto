@@ -8,6 +8,7 @@ import '../photo_studio/ps_controller.dart';
 import '../photo_studio/ps_web_import.dart';
 import '../state.dart';
 import '../theme.dart';
+import '../ds/ds.dart';
 import '../widgets/feature_unavailable.dart'; // launch
 import '../widgets/skeleton.dart';
 import 'photo_studio_screen.dart';
@@ -108,24 +109,38 @@ class _WebPhotoLinkScreenState extends State<WebPhotoLinkScreen> {
       appBar: AppBar(title: Text(t.psTitle)),
       body: SafeArea(
         child: switch (_phase) {
+          // opening: a soft DS hero saying what is happening, then the
+          // card-shaped skeleton (never a bare spinner)
           _Phase.waiting || _Phase.loading => Column(children: [
               Padding(
-                padding: const EdgeInsets.all(Gap.lg),
-                child: Text(t.psWebOpening,
-                    key: const Key('psWebOpening'),
-                    style: Theme.of(context).textTheme.titleMedium),
+                padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, 0),
+                child: DsHeroCard(
+                  child: Row(children: [
+                    DsAvatar(
+                        child: Icon(Icons.photo_library_rounded,
+                            size: 22, color: DsTokens.of(context).primaryInk)),
+                    const SizedBox(width: Gap.md),
+                    Expanded(
+                      child: Text(t.psWebOpening,
+                          key: const Key('psWebOpening'),
+                          style: AType.titleMedium.copyWith(
+                              color: DsTokens.of(context).text, fontWeight: FontWeight.w700)),
+                    ),
+                  ]),
+                ),
               ),
-              const Expanded(child: SkeletonList()),
+              const Expanded(child: SkeletonList(count: 3)),
             ]),
           _Phase.signIn => StateMessage(
               icon: Icons.login_rounded,
               title: t.psWebLoginTitle,
               message: t.psWebLoginBody,
-              action: FilledButton.icon(
-                key: const Key('psWebSignIn'),
+              action: DsButton(
+                buttonKey: const Key('psWebSignIn'),
                 onPressed: () => Navigator.of(context).maybePop(),
-                icon: const Icon(Icons.login_rounded),
-                label: Text(t.psWebLoginBtn),
+                icon: Icons.login_rounded,
+                label: t.psWebLoginBtn,
+                expand: true,
               ),
             ),
           _Phase.expired => StateMessage(
@@ -134,10 +149,11 @@ class _WebPhotoLinkScreenState extends State<WebPhotoLinkScreen> {
               title: t.psWebExpiredTitle,
               message: t.psWebExpiredBody,
               tint: Brand.warnInk(context),
-              action: FilledButton.icon(
+              action: DsButton(
                 onPressed: _openStudio,
-                icon: const Icon(Icons.auto_awesome_rounded),
-                label: Text(t.psWebOpenStudio),
+                icon: Icons.auto_awesome_rounded,
+                label: t.psWebOpenStudio,
+                expand: true,
               ),
             ),
           _Phase.failed => StateMessage(
@@ -146,10 +162,11 @@ class _WebPhotoLinkScreenState extends State<WebPhotoLinkScreen> {
               title: t.loadFailed,
               message: t.psWebFailed,
               tint: Brand.danger,
-              action: FilledButton.icon(
+              action: DsButton(
                 onPressed: _claim,
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(t.retry),
+                icon: Icons.refresh_rounded,
+                label: t.retry,
+                expand: true,
               ),
             ),
         },

@@ -1649,6 +1649,11 @@ void main() {
     // Real elevation shadows (flutter_test draws them as solid black outlines
     // by default, which looks like a bug in review shots). Restored below.
     debugDisableShadows = false;
+    // designv2: review shots show the FULL design look (phones with a real
+    // GPU), not the lite look emulators / tests get. Fixed pumps only; the
+    // _menu shots settle, so they stay lite (a looping pulse never settles).
+    if (!name.endsWith('_menu')) DsPerf.debugLite = false;
+    addTearDown(() => DsPerf.debugLite = null);
     final key = GlobalKey();
     await galleryPump(tester, name, lang, brightness, screen, mode,
         key: key, textScale: _textScale);

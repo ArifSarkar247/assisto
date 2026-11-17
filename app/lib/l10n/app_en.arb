@@ -52301,5 +52301,26 @@
   "emailrelBouncingBanner": "Emails to your saved address are bouncing back. Please check your email address and verify it again.",
   "@emailrelBouncingBanner": {
     "description": "emailrel: banner on the sign-in email screen"
+  },
+  "adwireMoreRoutesGoogle": "More routes (Google)",
+  "@adwireMoreRoutesGoogle": {
+    "description": "adwire: City Service results button — one Google transit request (Free users watch one short ad first)"
+  },
+  "adGateWhatRoutes": "to see more routes from Google",
+  "@adGateWhatRoutes": {
+    "description": "adwire: rewarded gate line for More routes (Google) on City Service"
+  },
+  "d2LeadScoreA11y": "Lead score {score}",
+  "@d2LeadScoreA11y": {
+    "description": "design2: TalkBack label of the coloured lead score badge in CRM leads",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "d2LeadScoreHint": "The coloured number is the lead score: higher means more likely to buy.",
+  "@d2LeadScoreHint": {
+    "description": "design2: one-line legend above the CRM leads list explaining the score badge"
   }
 }

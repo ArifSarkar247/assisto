@@ -296,9 +296,11 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     // one alive DS card per customer; picked = the selected DS look
     return Padding(
       padding: const EdgeInsets.fromLTRB(Gap.lg, 0, Gap.lg, Gap.sm),
+      // long list: flat bordered rows (no per-row shadow — GPU-light)
       child: DsSurface(
+        flat: true,
         color: picked ? scheme.ds.primarySoft : null,
-        borderColor: picked ? scheme.ds.primaryInk : null,
+        borderColor: picked ? scheme.ds.primaryInk : scheme.ds.border,
         padding: const EdgeInsets.fromLTRB(Gap.xs, Gap.sm, Gap.md, Gap.sm),
         onTap: () => _open(r),
         onLongPress: () => _togglePick(r),

@@ -7,6 +7,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../ads/ads_service.dart' show AdsService;
+import '../ads/ad_control.dart' show AdControl; // adwire
+import '../ads/ad_rules.dart' show AdKind; // adwire
 import '../ads/hero_ad.dart'
     show HeroAdBridge, HeroAdConfig, HeroAdHandle, HeroAdLook, HeroAdSize, HomeAdGuard;
 import '../ads/hero_binding.dart' show createHeroAdBridge; // discms
@@ -1075,20 +1077,30 @@ class DiscoverCardV2 extends StatelessWidget {
   }
 }
 
-/// discms: the owner's Ad control switch for the Discover native slot from
-/// `/ads/config` (`control.placements.discover_native.on`). Missing (older
-/// server, registry not deployed) = ON — the owner's default (10 Nov 03:45).
+/// adwire (owner ads order 10 Nov, part D): the Discover AdMob slot reads
+/// the placement REGISTRY key `discover_native` ([AdControl]) from
+/// `/ads/config` -> `control`, with the registry's own rules:
+///  * no `control` at all (an old server, registry not deployed) = the
+///    registry default for the key (ON, native — the owner's default);
+///  * a `control` WITHOUT a row for the key = OFF (default deny, the same as
+///    [AdControl.kindFor]);
+///  * a row = the owner's switch, and its type must be native (an owner type
+///    this slot cannot draw = no ad).
+/// Free users only — the caller checks the plan first (Premium / Plus never).
 bool discoverAdSwitchOn(Map<String, dynamic>? cfg) {
+  final spot = AdControl.spot(HomeSuggestions.adPlacement);
+  if (spot == null) return false;
   try {
     final control = cfg?['control'];
-    if (control is! Map) return true;
+    if (control is! Map) return spot.defaultOn && spot.defaultType == AdKind.native;
     final pl = control['placements'];
-    if (pl is! Map) return true;
-    final p = pl[HomeSuggestions.adPlacement];
-    if (p is! Map) return true;
-    return p['on'] != false;
+    final p = pl is Map ? pl[HomeSuggestions.adPlacement] : null;
+    if (p is! Map) return false;
+    if (p['on'] != true) return false;
+    final kind = AdControl.kindOf('${p['type'] ?? spot.defaultTypeId}');
+    return kind == AdKind.native && spot.allowed.contains(kind);
   } catch (_) {
-    return true;
+    return false;
   }
 }
 
