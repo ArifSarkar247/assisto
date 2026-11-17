@@ -373,3 +373,107 @@ class EngineCutHoldTests(_Setup, APITestCase):
             dt = (b["at"] - a["at"]).total_seconds()
             self.assertLess(VT.haversine_m(a["lat"], a["lng"], b["lat"], b["lng"]) / dt * 3.6,
                             VT.MAX_JUMP_KMH)
+
+
+# =========================================================================== ST-906 4G readiness
+
+ST906 = "9171234567"
+
+
+class ST906FrameTests(APITestCase):
+    """Frames in the ST-906 / ST-906L 4G manual format (H02 text; values made
+    up, Dhaka). The first real device must parse on day one."""
+
+    def p(self, s):
+        from tracker.protocols import h02
+        return h02.parse_frame(s.encode())
+
+    def test_4g_v1_with_cell_tail_and_ignition(self):
+        r = self.p("*HQ,%s,V1,121300,A,2345.0360,N,09022.4220,E,000.00,000,171126,"
+                   "FFFFFFFF,470,01,0,0,6#" % ST906)
+        self.assertEqual((r["kind"], r["imei"]), ("gps", ST906))
+        self.assertAlmostEqual(r["fix"]["lat"], 23.7506, places=4)
+        self.assertAlmostEqual(r["fix"]["lng"], 90.3737, places=4)
+        self.assertTrue(r["fix"]["ignition"])
+        self.assertTrue(r["fix"]["valid"])
+        r = self.p("*HQ,%s,V1,121330,A,2345.0360,N,09022.4220,E,021.60,095,171126,"
+                   "FFFFFBFF,470,01,0,0,6#" % ST906)
+        self.assertFalse(r["fix"]["ignition"])          # ACC bit 10 clear
+        self.assertAlmostEqual(r["fix"]["speed_kmh"], 40.0, delta=0.1)
+
+    def test_indoor_no_fix_is_alive_not_an_error(self):
+        for s in ("*HQ,%s,V1,121300,V,,N,,E,0.00,0,171126,FFFFFFFF,470,01,0,0#",
+                  "*HQ,%s,V1,,V,,,,,,,,#"):
+            self.assertEqual(self.p(s % ST906)["kind"], "heartbeat", s)
+        r = self.p("*HQ,%s,V1,121300,V,0000.0000,N,00000.0000,E,0.00,0,171126,FFFFFFFF#"
+                   % ST906)
+        self.assertFalse(r["fix"]["valid"])             # stored as invalid, never mapped
+
+    def test_15_digit_imei_heartbeats_and_relay_reply(self):
+        from tracker.protocols import h02
+        r = self.p("*HQ,865205030330012,V1,121300,A,2345.0360,N,09022.4220,E,0.00,0,"
+                   "171126,FFFFFFFF#")
+        self.assertEqual(r["imei"], "865205030330012")
+        for s in ("*HQ,%s,XT,1,100#", "*HQ,%s,HTBT#", "*HQ,%s,LINK,121300,20,0,90,0,0,171126#",
+                  "*HQ,%s,NBR,121300,470,1,0,0,1,2,3,4,171126,FFFFFFFF#"):
+            self.assertEqual(self.p(s % ST906)["kind"], "heartbeat", s)
+        r = self.p("*HQ,%s,V4,S20,DONE,121305,121300,A,2345.0360,N,09022.4220,E,0.00,0,"
+                   "171126,FFFFFFFF#" % ST906)
+        self.assertEqual(r["kind"], "cmd_reply")
+        self.assertTrue(r["text"].startswith("S20,DONE"))
+        self.assertTrue(h02.reply_ok(r["text"]))
+
+
+class ST906FirstPacketTcpTests(_TcpBase):
+    """A tracker switched on INDOORS (no GPS yet) must still pair, and every
+    first packet is in the raw log (Owner Admin -> Tracker packets)."""
+    PORT = 15042
+
+    def setUp(self):
+        super().setUp()
+        import os
+        import tempfile
+        self.raw = os.path.join(tempfile.mkdtemp(), "raw.jsonl")
+        os.environ["TRACKER_RAW_LOG"] = self.raw
+        self.addCleanup(os.environ.pop, "TRACKER_RAW_LOG", None)
+
+    def test_no_fix_first_frame_pairs_and_is_logged(self):
+        from tracker import rawlog
+        tid = self.pair(ST906, "Car", protocol="h02")
+        self.assertEqual(VehicleTracker.objects.get(pk=tid).state, "pending")
+
+        async def run():
+            srv = self.server()
+            await srv.start()
+            try:
+                bad = sim.H02Device("9179999999")
+                await bad.connect("127.0.0.1", self.PORT)
+                await bad.fix(23.75, 90.39, 0)
+                self.assertTrue(await bad.closed())
+                await bad.close()
+                dev = sim.H02Device(ST906)
+                await dev.connect("127.0.0.1", self.PORT)
+                dev.writer.write(("*HQ,%s,V1,121300,V,,N,,E,0.00,0,171126,FFFFFFFF,470,01,0,0#"
+                                  % ST906).encode())
+                await dev.writer.drain()
+                self.assertTrue(await self.wait(lambda: VehicleTracker.objects.get(
+                    pk=tid).state == "paired"), "indoor first frame did not pair")
+                await dev.fix(23.7506, 90.3737, 0, False)
+                self.assertTrue(await self.wait(lambda: VehiclePosition.objects.filter(
+                    tracker_id=tid).exists()))
+                dev.writer.write(b"*HQ,%s,V1,1#" % ST906.encode())   # junk frame
+                await dev.writer.drain()
+                await asyncio.sleep(0.3)
+                await dev.close()
+            finally:
+                await srv.stop()
+
+        asyncio.run(run())
+        rows = rawlog.recent(50)
+        kinds = [(r["imei"], r["known"], r["error"], r["fields"].get("kind")) for r in rows]
+        self.assertIn(("9179999999", False, "refused_unknown", "gps"),
+                      [(a, b, c[:15], d) for a, b, c, d in kinds])
+        self.assertIn((ST906, True, "", "heartbeat"), kinds)
+        self.assertIn((ST906, True, "", "gps"), kinds)
+        self.assertTrue(any(r["error"] and r["imei"] == ST906 for r in rows), kinds)
+        self.assertTrue(all(len(r["hex"]) <= 2 * 256 for r in rows))

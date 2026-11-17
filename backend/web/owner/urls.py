@@ -10,6 +10,7 @@ from . import views_pay1 as PAY1   # pay1
 from . import views_t9 as T9
 from . import views_cctvtraffic as CCTVT   # cctvguard
 from . import views_imoudev as IMOUDEV   # cctvconnect
+from . import views_trackerpkt as TRKPKT   # flag-vehicle
 from . import views_cctvpartners as CCTVP  # cctvroles
 from . import views_mapsusage as MAPSU   # mapscost
 from . import views_emailhealth as EMAILH   # emailrel
@@ -122,6 +123,7 @@ urlpatterns = [
     path("calls", T9.calls),          # t9-turnscale: Call relay (TURN)
     path("cctv-traffic", CCTVT.cctv_traffic),   # cctvguard: CCTV live traffic
     path("imou-devices", IMOUDEV.imou_devices),   # cctvconnect: owner's Imou test cameras
+    path("tracker-packets", TRKPKT.tracker_packets),   # flag-vehicle: raw tracker packets
     path("cctv-partners", CCTVP.cctv_partners),   # cctvroles: installer partners
     path("maps-usage", MAPSU.maps_usage),       # mapscost: Maps usage + caps
     path("email-health", EMAILH.email_health),  # emailrel: sent / failures / bounces / cap
