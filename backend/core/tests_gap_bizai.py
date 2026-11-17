@@ -139,3 +139,36 @@ class ProcharRemindTests(ShopChatBase):
         self.assertEqual(BP.hour_label(17, "bn"), "বিকেল ৫টা")
         self.assertEqual(BP.hour_label(0, "en"), "12 am")
         self.assertEqual(BP.hour_label(13, "en"), "1 pm")
+
+
+# ---------------------------------------------------------------- booking reminders
+from unittest import mock  # noqa: E402
+
+from core import booking_service as BS  # noqa: E402
+from core.logic import booking as BL  # noqa: E402
+from core.logic import msg_guard as MG  # noqa: E402
+from core.logic.business_selling import normalize_phone  # noqa: E402
+from core.models import Booking, NotifEvent  # noqa: E402
+from core.tests_booking_bot import _Base as _BookBase  # noqa: E402
+
+
+class BookingStopTests(_BookBase):
+    """gap-bizai: a STOP from the shop's shared list (an SMS stop link, an
+    in-app Stop) also silences booking reminders — not just the booking
+    page's own contact flag."""
+    def test_shop_wide_stop_silences_booking_reminders(self):
+        self.setup_page()
+        start = BL.granule_floor(timezone.now() + timedelta(hours=30))
+        page = BS.page_for(self.biz)
+        svc = page.business.booking_services.get()
+        with mock.patch.object(BS, "_valid_start", return_value=True):
+            b, _ = BS.create(page, svc, start, name="K", phone="+8801810000002",
+                             user=self.cust, actor="customer")
+        Booking.objects.filter(pk=b.pk).update(created_at=start - timedelta(days=3))
+        b.refresh_from_db()
+        MG.record_opt_out(self.biz.pk, normalize_phone("+8801810000002"))
+        with mock.patch.object(BL, "in_quiet_hours", return_value=False):
+            BS.send_due_reminders(now=b.start - timedelta(hours=23))
+        b.refresh_from_db()
+        self.assertEqual(b.reminded, ["24h"])          # counted, never sent
+        self.assertFalse(NotifEvent.objects.filter(user=self.cust, route="my_bookings").exists())
