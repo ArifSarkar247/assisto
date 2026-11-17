@@ -73,6 +73,7 @@ extension AntiTheftApi on ApiClient {
     String? homeWifi,
     String? wifiHash,
     bool? alertNominee, // theftalerts: theft alerts also to my nominee(s)
+    String? snatchSensitivity, // flag-antitheft: low | normal | high
   }) =>
       postJsonRaw('/security/engine/settings', {
         'pin': pin,
@@ -86,6 +87,7 @@ extension AntiTheftApi on ApiClient {
         if (homeWifi != null) 'home_wifi': homeWifi,
         if (wifiHash != null && wifiHash.isNotEmpty) 'wifi_hash': wifiHash,
         if (alertNominee != null) 'alert_nominee': alertNominee,
+        if (snatchSensitivity != null) 'snatch_sensitivity': snatchSensitivity,
       });
 
   /// GET security/engine/timeline[?phone_id] — owner or approved family only.
