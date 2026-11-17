@@ -284,7 +284,8 @@ def _delivery_events(biz, now, p, limit):
 def quote_link(q):
     try:
         from crm import shop_quote as SQ
-        return (getattr(settings, "ASSISTO_BASE_URL", "") or "").rstrip("/") + SQ.public_path(q)
+        from .public_url import public_base_url
+        return public_base_url() + SQ.public_path(q)
     except Exception:
         return ""
 
@@ -477,7 +478,8 @@ def _stop_sig(send_id):
 
 
 def _stop_base():
-    return (getattr(settings, "ASSISTO_BASE_URL", "") or "").rstrip("/") + "/api/v1/retention/u/"
+    from .public_url import public_base_url
+    return public_base_url() + "/api/v1/retention/u/"
 
 
 def stop_link(send_id):

@@ -78,7 +78,8 @@ def delete_for(user_id):
 
 
 def _status_url(request, code):
-    base = (getattr(settings, "ASSISTO_BASE_URL", "") or "").rstrip("/")
+    from .public_url import public_base_url
+    base = public_base_url()
     return "%s/api/v1/bizagent/meta/data-deletion/status?code=%s" % (base, code)
 
 

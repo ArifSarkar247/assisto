@@ -4,6 +4,12 @@ Postgres (no CREATEDB needed, no risk to the live server). All models use
 only JSONField, which SQLite supports.
 """
 from .settings import *  # noqa: F401,F403
+import os as _os  # noqa: E402
+
+# publicurl: tests keep the old local base (tests pin the public one with
+# override_settings) and never run the production public-URL guard.
+ASSISTO_BASE_URL = _os.getenv("ASSISTO_BASE_URL", "http://127.0.0.1:8700")
+PUBLIC_URL_GUARD = False
 
 DATABASES = {
     "default": {

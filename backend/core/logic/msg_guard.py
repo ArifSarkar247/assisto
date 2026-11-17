@@ -454,5 +454,6 @@ def stop_link(business_id, key):
     """Absolute stop URL (served by retention/u/<token>), '' when unknown."""
     from django.conf import settings
     tok = stop_token(business_id, key)
-    base = (getattr(settings, "ASSISTO_BASE_URL", "") or "").rstrip("/")
+    from ..public_url import public_base_url
+    base = public_base_url()
     return "%s/api/v1/retention/u/%s" % (base, tok) if (tok and base) else ""
