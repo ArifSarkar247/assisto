@@ -12,9 +12,11 @@ routes, deep links / pushes, home quick buttons and every other entry point.
 Resolution for one feature, one request:
   * on  = enabled_all AND (enabled_play when the request is the Play build)
           AND the user falls inside rollout_pct (stable hash of key:user id);
-  * an owner (superuser) / staff account or a user id on the feature's
-    allow-list ALWAYS sees it ("preview") — so the owner can test a hidden
-    feature on a real phone, Play build included.
+  * an owner (superuser) / staff account, a user id on the feature's
+    allow-list, or a global PREVIEW TESTER (preview-testers: Owner Admin →
+    Features → Preview testers) ALWAYS sees it ("preview") — so the owner
+    and his testers can test a hidden feature on a real phone, Play build
+    included.
 A missing DB row = the registry default below. Registry defaults keep TODAY's
 behaviour: everything visible today stays visible on deploy; features that
 are not visible today (code-gated showpieces, upcoming big-week features)
@@ -323,6 +325,12 @@ DOD_CHECKS = (
 N_CHECKS = len(DOD_CHECKS)
 STATUSES = ("done", "in_progress", "hidden")
 MAX_ALLOW = 200            # tester ids per feature
+# preview-testers (owner 17 Nov "nothing stays hidden from me"): ONE global
+# list of tester accounts who see EVERY off feature as a preview, exactly like
+# the owner. Stored as the allow_user_ids of a reserved FeatureFlag row (no
+# migration); the key is never in REGISTRY, so it is never a feature.
+PREVIEW_TESTERS_KEY = "_preview_testers"
+MAX_PREVIEW_TESTERS = 50
 CACHE_TTL = 30             # seconds; the saving worker drops its copy at once
 
 # truth (owner FINAL ORDER 27 Oct: "no demo or fake data anywhere, real
@@ -402,11 +410,11 @@ def default_row(key):
 
 
 # ------------------------------------------------------------------ rows
-_cache = {"at": 0.0, "rows": None}
+_cache = {"at": 0.0, "rows": None, "testers": ()}
 
 
 def invalidate():
-    _cache["at"], _cache["rows"] = 0.0, None
+    _cache["at"], _cache["rows"], _cache["testers"] = 0.0, None, ()
 
 
 def _clean_ids(v):
@@ -429,8 +437,12 @@ def rows():
         return _cache["rows"]
     from .models import FeatureFlag
     out = {k: default_row(k) for k in KEYS}
+    testers = ()
     try:
-        for f in FeatureFlag.objects.filter(key__in=KEYS):
+        for f in FeatureFlag.objects.filter(key__in=KEYS + (PREVIEW_TESTERS_KEY,)):
+            if f.key == PREVIEW_TESTERS_KEY:
+                testers = tuple(_clean_ids(f.allow_user_ids)[:MAX_PREVIEW_TESTERS])
+                continue
             out[f.key] = {"enabled_all": f.enabled_all, "enabled_play": f.enabled_play,
                           "rollout_pct": max(0, min(100, f.rollout_pct)),
                           "allow_user_ids": _clean_ids(f.allow_user_ids),
@@ -439,8 +451,14 @@ def rows():
         # DB trouble must never take features away: serve the defaults
         # (today's behaviour) and retry on the next request.
         return out
-    _cache["at"], _cache["rows"] = now, out
+    _cache["at"], _cache["rows"], _cache["testers"] = now, out, testers
     return out
+
+
+def preview_testers():
+    """User ids of the global preview testers (cached with rows())."""
+    rows()
+    return tuple(_cache.get("testers") or ())
 
 
 def ensure_seeded():
@@ -481,6 +499,17 @@ def is_privileged(user):
                 and (user.is_superuser or user.is_staff))
 
 
+def is_preview_tester(user):
+    """preview-testers: an active signed-in account on the global list."""
+    uid = getattr(user, "pk", None) if getattr(user, "is_authenticated", False) else None
+    return bool(uid and getattr(user, "is_active", True) and uid in preview_testers())
+
+
+def is_preview_user(user):
+    """Owner / staff / global preview tester: sees every off feature."""
+    return is_privileged(user) or is_preview_tester(user)
+
+
 def resolve(user=None, play=False):
     """(features {key: bool}, preview [keys visible ONLY because the user is
     the owner / staff / an allow-listed tester])."""
@@ -489,7 +518,10 @@ def resolve(user=None, play=False):
     priv = is_privileged(user)
     feats, preview = {}, []
     ready = sources_ready()
-    for k, r in rows().items():
+    all_rows = rows()
+    # preview-testers: a global tester sees every off feature, like the owner
+    priv = priv or is_preview_tester(user)
+    for k, r in all_rows.items():
         on = (r["enabled_all"] and (r["enabled_play"] or not play)
               and in_rollout(k, uid, r["rollout_pct"])
               and not source_missing(k, ready))   # truth: no source, no entry
@@ -576,3 +608,76 @@ def validate(form):
              "note": str(form.get("note", "") or "")[:2000],
              "note_bn": str(form.get("note_bn", "") or "")[:2000]}
     return clean, problems
+
+
+# ------------------------------------------------- preview-testers (owner)
+def _mask_phone(p):
+    p = str(p or "")
+    if len(p) < 7:
+        return "•••"
+    return p[:6] + "•" * (len(p) - 8) + p[-2:]
+
+
+def mask_account(user):
+    """Masked contact for the owner page: never the full phone / email."""
+    from .email_sender import mask_email
+    if getattr(user, "phone", None):
+        return _mask_phone(user.phone)
+    if getattr(user, "email", None):
+        return mask_email(user.email) or "•••"
+    return "•••"
+
+
+def find_accounts(raw):
+    """Owner text (phones / emails, comma / semicolon / new-line separated)
+    -> (active user ids in order, number of entries that matched nobody).
+    Pure lookups only; nothing is saved here."""
+    from .email_sender import normalize_email
+    from .models import User
+    from .phone import canonical_phone
+    ids, missing = [], 0
+    text = str(raw or "")
+    for sep in (";", "\n", "\r"):
+        text = text.replace(sep, ",")
+    for part in text.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        u = None
+        if "@" in part:
+            e = normalize_email(part)
+            if e:
+                u = User.objects.filter(email__iexact=e, is_active=True).first()
+        else:
+            cands = [c for c in (canonical_phone(part), part.replace(" ", "")) if c]
+            u = User.objects.filter(phone__in=cands, is_active=True).first()
+        if u is None:
+            missing += 1
+        elif u.pk not in ids:
+            ids.append(u.pk)
+    return ids, missing
+
+
+def tester_rows():
+    """[{id, masked}] of the current preview testers, for the owner page."""
+    from .models import User
+    ids = list(preview_testers())
+    by = {u.pk: u for u in User.objects.filter(pk__in=ids)}
+    return [{"id": i, "masked": mask_account(by[i]) if i in by else "—"}
+            for i in ids]
+
+
+def save_preview_testers(ids, by=None):
+    """Store the global tester list (reserved row; created on first save)."""
+    from .models import FeatureFlag
+    ids = _clean_ids(ids)[:MAX_PREVIEW_TESTERS]
+    f, _ = FeatureFlag.objects.get_or_create(
+        key=PREVIEW_TESTERS_KEY,
+        defaults={"enabled_all": False, "enabled_play": False, "rollout_pct": 0,
+                  "dod_status": "hidden", "note": "Global preview testers (not a feature)"})
+    f.allow_user_ids = ids
+    if by is not None:
+        f.updated_by = by
+    f.save()
+    invalidate()
+    return ids
