@@ -279,4 +279,27 @@ void main() {
       });
     }
   }
+
+  // gap-cctv G4: the place card was a wall of ~15 buttons; owner tools for
+  // people / sharing / notice now fold into one row (still one tap away).
+  testWidgets('gap-cctv: people and sharing tools fold into one row', (tester) async {
+    _phone(tester, height: 2600);
+    await tester.pumpWidget(_app(WatchmanScreen(source: FakeWatchman(), guide: false)));
+    await _settle(tester);
+    final manage = find.byKey(const ValueKey('wm-manage'));
+    expect(manage, findsWidgets);
+    expect(find.text(en.wmFamily), findsNothing, reason: 'folded by default');
+    expect(find.text(en.wmNotice), findsNothing);
+    // the daily-use actions stay visible
+    expect(find.text(en.wmAddCamera), findsWidgets);
+    await tester.ensureVisible(manage.first);
+    await tester.tap(manage.first);
+    await _settle(tester);
+    expect(find.text(en.wmFamily), findsOneWidget);
+    expect(find.text(en.wmNotice), findsOneWidget);
+    // a family viewer never sees owner tools
+    await tester.pumpWidget(_app(WatchmanScreen(source: FakeWatchman('viewer'), guide: false)));
+    await _settle(tester);
+    expect(find.byKey(const ValueKey('wm-manage')), findsNothing);
+  });
 }
