@@ -367,16 +367,21 @@ Future<void> _brandFlow(RFlow f, _Brand b) async {
       await f.waitFor(_k('gcv-pb-timeline'), seconds: 15, what: 'the day timeline');
       final h = DateTime.now().hour;
       await _tapK(f, 'gcv-pb-hour-$h', settle: 6);
-      // the runner has no route to the vendor's video host: the player
-      // either plays or says honestly that it could not (never a blank)
+      // the simulated Imou cloud lists the recording but (like an old
+      // firmware) gives no HLS address -> the honest "watch it in Imou Life"
+      // card; a real HLS answer opens the player instead. Never a blank.
       await f.eventually('the player or an honest message', () async =>
           _k('gcv-pb-player').evaluate().isNotEmpty ||
-          _k('gcv-pb-play-error').evaluate().isNotEmpty, seconds: 30);
+          _k('gcv-pb-play-error').evaluate().isNotEmpty ||
+          _k('gcv-pb-problem-sdkOnly').evaluate().isNotEmpty, seconds: 30);
       if (find.text(f.t.gcvPbRecordsTitle).evaluate().isEmpty) {
         throw TestFailure('the hour\'s recording list did not show');
       }
       f.note(_k('gcv-pb-player').evaluate().isNotEmpty
-          ? 'HLS player opened' : 'player could not reach the simulated video host (honest message shown)');
+          ? 'HLS player opened'
+          : _k('gcv-pb-problem-sdkOnly').evaluate().isNotEmpty
+              ? 'recording listed; no HLS from the simulated cloud (honest Imou Life message)'
+              : 'player could not reach the video host (honest message shown)');
       await f.shot('camera-recording-hour');
       await f.back();
       await f.back();
