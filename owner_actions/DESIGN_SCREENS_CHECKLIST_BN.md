@@ -5,7 +5,7 @@
 
 কেউ নতুন সেশন শুরু করলে: owner_actions/DESIGN_SYSTEM_V2_BN.md পড়ুন, তারপর এই তালিকার প্রথম ⬜ থেকে কাজ ধরুন।
 
-**স্ক্রিন শেষ: ১৭২ / মোট ৪২০**
+**স্ক্রিন শেষ: ১৮০ / মোট ৪২০**
 
 ## ১. হোম (শুধু রং)
 
@@ -146,14 +146,14 @@
 - ⬜ — `screens/messenger/messenger_settings_screen.dart`
 - ⬜ — `screens/messenger/moderation_appeal_screen.dart`
 - ⬜ — `screens/messenger/moderation_policy_screen.dart`
-- ⬜ — `screens/messenger/msgr_set_account_screen.dart`
-- ⬜ — `screens/messenger/msgr_set_calls_screen.dart`
-- ⬜ — `screens/messenger/msgr_set_change_number_screen.dart`
-- ⬜ — `screens/messenger/msgr_set_chats_screen.dart`
-- ⬜ — `screens/messenger/msgr_set_notifications_screen.dart`
-- ⬜ — `screens/messenger/msgr_set_privacy_screen.dart`
-- ⬜ — `screens/messenger/msgr_set_storage_screen.dart`
-- ⬜ — `screens/messenger/msgr_set_twostep_screen.dart`
+- ✅ batch d2-12 (প্রতিটি অংশ এক DS গ্রুপ কার্ড, আইকন-বাবল, স্কেলেটন) — `screens/messenger/msgr_set_account_screen.dart`
+- ✅ batch d2-12 (প্রতিটি অংশ এক DS গ্রুপ কার্ড, আইকন-বাবল, স্কেলেটন) — `screens/messenger/msgr_set_calls_screen.dart`
+- ✅ batch d2-12 (প্রতিটি অংশ এক DS গ্রুপ কার্ড, আইকন-বাবল, স্কেলেটন) — `screens/messenger/msgr_set_change_number_screen.dart`
+- ✅ batch d2-12 (প্রতিটি অংশ এক DS গ্রুপ কার্ড, আইকন-বাবল, স্কেলেটন) — `screens/messenger/msgr_set_chats_screen.dart`
+- ✅ batch d2-12 (প্রতিটি অংশ এক DS গ্রুপ কার্ড, আইকন-বাবল, স্কেলেটন) — `screens/messenger/msgr_set_notifications_screen.dart`
+- ✅ batch d2-12 (প্রতিটি অংশ এক DS গ্রুপ কার্ড, আইকন-বাবল, স্কেলেটন) — `screens/messenger/msgr_set_privacy_screen.dart`
+- ✅ batch d2-12 (প্রতিটি অংশ এক DS গ্রুপ কার্ড, আইকন-বাবল, স্কেলেটন) — `screens/messenger/msgr_set_storage_screen.dart`
+- ✅ batch d2-12 (প্রতিটি অংশ এক DS গ্রুপ কার্ড, আইকন-বাবল, স্কেলেটন) — `screens/messenger/msgr_set_twostep_screen.dart`
 - ⬜ — `screens/messenger/starred_messages_screen.dart`
 - ⬜ — `screens/pa/call_email_screen.dart`
 - ⬜ — `screens/train/train_chat_screen.dart`
