@@ -307,8 +307,9 @@ class SendPreviewView(CrmErrorMixin, APIView):
         if bad is not None:
             return bad
         text = _text(request)
+        stopped = SP.opted_out(scope, p)
         out = {"name": p.name, "phone": p.phone, "known": _known(p),
-               **SP.links(p, text)}
+               **SP.links(p, text, stopped=stopped)}
         if text:
             out["sms"] = SP.sms_offer(request, scope, p, text, _lang(request))
             if not _known(p):
@@ -331,6 +332,9 @@ class SendLogView(CrmErrorMixin, APIView):
         ch = request.data.get("channel")
         if ch not in ("whatsapp_link", "sms_app"):
             return _err(request, "পথ ঠিক নেই।", "Unknown channel.", status=400, code="bad_channel")
+        if SP.opted_out(scope, p):  # gap-bizai P0: never log a send to a STOP customer
+            return _err(request, "এই গ্রাহক STOP বলেছেন — পাঠানো যাবে না।",
+                        "This customer said STOP — not sent.", status=409, code="opted_out")
         row = SP.log(scope, p, ch, "opened", _text(request),
                      purpose=request.data.get("purpose") or "message",
                      lead_id=C._int(request.data.get("lead")) or None,
@@ -411,10 +415,14 @@ class SendBulkView(CrmErrorMixin, APIView):
                 skipped.append({"target": t, "reason": "duplicate"})
                 continue
             seen.add(dedupe)
+            if SP.opted_out(scope, p):  # gap-bizai P0: STOP = no card at all
+                skipped.append({"target": t, "name": p.name, "reason": "opted_out"})
+                continue
             body = SP.fill(text, p.name)
             card = {"name": p.name, "phone": p.phone, "target": t, "text": body,
                     **SP.links(p, body)}
             card["sms"] = SP.sms_offer(request, scope, p, body, lang)
             cards.append(card)
         return Response({"bulk_id": bulk_id, "cards": cards, "skipped": skipped,
+                         "opted_out": sum(1 for x in skipped if x["reason"] == "opted_out"),
                          "truncated": len(targets) > SP.MAX_BULK})

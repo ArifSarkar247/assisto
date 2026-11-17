@@ -53,6 +53,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
   bool _busy = false;
   Object? _fail;
   bool _built = false;
+  int _stopped = 0; // gap-bizai: customers left out because they said STOP
 
   @override
   void didChangeDependencies() {
@@ -83,6 +84,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
               lang: Localizations.localeOf(context).languageCode)
           .timeout(const Duration(seconds: 25));
       _bulkId = '${r['bulk_id'] ?? ''}';
+      _stopped = (r['opted_out'] as num?)?.toInt() ?? 0;
       _cards = [
         for (final c in ((r['cards'] ?? []) as List).cast<Map<String, dynamic>>()) _Card(c)
       ];
@@ -227,6 +229,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
     if (_cards.isEmpty) {
       return ListView(padding: const EdgeInsets.all(Gap.lg), children: [
         DsEmptyState(icon: Icons.people_outline_rounded, title: t.c100BulkNoCards),
+        if (_stopped > 0) _stoppedNote(t),
       ]);
     }
     final sent = _cards.where((c) => c.st == _St.sent || c.st == _St.opened).length;
@@ -247,6 +250,7 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
                   _tally(t.c100TallyDone(_d(sent)), Theme.of(context).colorScheme.ds.successInk),
                   _tally(t.c100TallySkipped(_d(skipped)), null),
                   _tally(t.c100TallyWaiting(_d(waiting)), Theme.of(context).colorScheme.ds.primaryInk),
+                  if (_stopped > 0) _stoppedNote(t),
                 ]),
               ),
             ),
@@ -256,6 +260,17 @@ class _CrmBulkSendScreenState extends State<CrmBulkSendScreen> {
       },
     );
   }
+
+  /// gap-bizai P0: who was left out because they said STOP (no card at all).
+  Widget _stoppedNote(AppLocalizations t) => Padding(
+        key: const ValueKey('gbz-bulk-stopped'),
+        padding: const EdgeInsets.only(top: Gap.xs),
+        child: Row(children: [
+          const Icon(Icons.block_rounded, size: 18),
+          const SizedBox(width: Gap.xs),
+          Expanded(child: Text(t.gbzBulkStopped(_d(_stopped)), style: AType.bodyMedium)),
+        ]),
+      );
 
   Widget _tally(String label, Color? ink) {
     final ds = Theme.of(context).colorScheme.ds;

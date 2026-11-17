@@ -256,6 +256,13 @@ class _CrmSendSheetState extends State<CrmSendSheet> {
                   bad: true),
             ],
             if (pv != null) ...[
+              // gap-bizai P0: a customer who said STOP gets no path at all
+              if (pv['opted_out'] == true)
+                _Note(
+                    key: const ValueKey('gbz-send-optedout'),
+                    icon: Icons.block_rounded,
+                    text: t.c100SmsOptedOut,
+                    bad: true),
               if (!phoneOk) _Note(icon: Icons.phone_disabled_rounded, text: t.c100NoPhone, bad: true),
               const SizedBox(height: Gap.sm),
               _Way(
@@ -338,7 +345,7 @@ class _Note extends StatelessWidget {
   final IconData icon;
   final String text;
   final bool bad;
-  const _Note({required this.icon, required this.text, this.bad = false});
+  const _Note({super.key, required this.icon, required this.text, this.bad = false});
 
   @override
   Widget build(BuildContext context) {

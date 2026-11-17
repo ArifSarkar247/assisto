@@ -1,0 +1,32 @@
+{
+  "en": {
+    "gbzChaseTapHint": "Tap a name to send that customer a reminder now. The message carries their due link and how to pay.",
+    "gbzChaseSendOne": "Send the reminder",
+    "gbzChaseSendAll": "Send reminders to these {count}",
+    "@gbzChaseSendAll": {"placeholders": {"count": {"type": "String"}}},
+    "gbzOpenProducts": "Open products and stock",
+    "gbzWbEdit": "Edit",
+    "gbzWbEditTitle": "Write the message your way",
+    "gbzWbEditHint": "Keep {name} and {shop} as they are — they fill in for each customer.",
+    "@gbzWbEditHint": {"placeholders": {"name": {"type": "String"}, "shop": {"type": "String"}}},
+    "gbzWbSave": "Save",
+    "gbzWbReach": "In the app now: {on} of {total} — only customers who use Assisto get it here.",
+    "@gbzWbReach": {"placeholders": {"on": {"type": "String"}, "total": {"type": "String"}}},
+    "gbzWbMessageOthers": "Message the others on your WhatsApp",
+    "gbzBulkStopped": "{count} left out — they said STOP.",
+    "@gbzBulkStopped": {"placeholders": {"count": {"type": "String"}}}
+  },
+  "bn": {
+    "gbzChaseTapHint": "নামে চাপুন — সেই গ্রাহককে এখনই তাগাদা পাঠান। মেসেজে তাঁর বাকি-দেখার লিংক আর পরিশোধের উপায় থাকে।",
+    "gbzChaseSendOne": "তাগাদা পাঠান",
+    "gbzChaseSendAll": "এই {count} জনকে তাগাদা পাঠান",
+    "gbzOpenProducts": "পণ্য ও স্টক খুলুন",
+    "gbzWbEdit": "নিজে লিখুন",
+    "gbzWbEditTitle": "মেসেজটা নিজের মতো লিখুন",
+    "gbzWbEditHint": "{name} আর {shop} যেমন আছে রাখুন — প্রত্যেক গ্রাহকের জন্য নিজে থেকে বসে যাবে।",
+    "gbzWbSave": "সেভ করুন",
+    "gbzWbReach": "এখন অ্যাপে পাবেন {total} জনের মধ্যে {on} জন — শুধু যাঁরা Assisto ব্যবহার করেন।",
+    "gbzWbMessageOthers": "বাকিদের নিজের WhatsApp-এ মেসেজ দিন",
+    "gbzBulkStopped": "{count} জন বাদ — তাঁরা STOP বলেছেন।"
+  }
+}
