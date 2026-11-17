@@ -181,6 +181,25 @@ class Command(BaseCommand):
                 ff.save(update_fields=["allow_user_ids", "updated_at"])
             self.steps.append({"step": f"allow-list A for {key}", "method": "DB",
                                "path": "feature_flags", "status": 200, "ok": ff is not None})
+        # gap-lp: Language Partner courses + IELTS (flag language_packs, OFF in
+        # a fresh DB) — allow-list ONLY demo user A and import Assisto's own
+        # original content (lp_seed: no Cambridge / published material).
+        ff = FeatureFlag.objects.filter(key="language_packs").first()
+        if ff is not None and users["a"].id not in (ff.allow_user_ids or []):
+            ff.allow_user_ids = list(ff.allow_user_ids or []) + [users["a"].id]
+            ff.save(update_fields=["allow_user_ids", "updated_at"])
+        self.steps.append({"step": "allow-list A for language_packs", "method": "DB",
+                           "path": "feature_flags", "status": 200, "ok": ff is not None})
+        try:
+            from django.core.management import call_command
+            call_command("lp_seed", verbosity=0)
+            lp_ok = True
+        except Exception:  # noqa: BLE001 — the other flows still run
+            lp_ok = False
+        # never fails the seed for the other flows: the lp1 flow itself shows it
+        self.steps.append({"step": "lp_seed (original IELTS mocks)", "method": "DB",
+                           "path": "lp_items", "status": 200 if lp_ok else 500, "ok": True,
+                           "note": "" if lp_ok else "lp_seed failed"})
         FF.invalidate()
 
         # --- family + emergency card

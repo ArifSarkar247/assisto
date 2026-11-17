@@ -124,7 +124,10 @@ class LpWeakPracticeView(_LpView):
         tags = (request.data or {}).get("tags") or []
         if not isinstance(tags, list) or not tags:
             return _bad("bad_tags")
-        n = max(1, min(20, int((request.data or {}).get("n") or 10)))
+        try:
+            n = max(1, min(20, int((request.data or {}).get("n") or 10)))
+        except (TypeError, ValueError):   # gap-lp: a bad "n" is a 400, never a 500
+            return _bad("bad_n")
         return R({"items": LS.weak_items(tags, n), "tags": tags[:10]})
 
 
@@ -285,8 +288,6 @@ class LpRoleplayView(_LpView):
         return self.handle(self._post, request)
 
     def _post(self, request):
-        import json
-        import re
         from . import ai
         from . import learn_views as LV
         d = request.data or {}
@@ -321,22 +322,55 @@ class LpRoleplayView(_LpView):
             return R({"ai_state": st, "reply": None, "fix": None})
         except Exception:  # noqa: BLE001
             return R({"ai_state": "busy", "reply": None, "fix": None})
+        reply, fix = role_reply(text)
+        if not reply:
+            # gap-lp: never show raw / cut JSON as the officer's line, and an
+            # unusable answer costs nothing (no free turn used, credits back)
+            charged = 0 if free else int(meta.get("charged") or 0)
+            if charged:
+                from . import billing
+                billing.credit(request.user, "adjust", charged, note="ai_refund learn.roleplay",
+                               spend_ref=meta.get("spend_ref") or None)
+            return R({"ai_state": "busy", "reply": None, "fix": None, "refunded": charged})
         if free:
             LV._use_quota(request.user)
-        reply, fix = (text or "").strip(), None
-        m = re.search(r"\{.*\}", text or "", re.S)
-        if m:
-            try:
-                j = json.loads(m.group(0))
-                reply = str(j.get("reply") or "").strip() or reply
-                f = j.get("fix")
-                if isinstance(f, dict) and f.get("wrong") and f.get("right"):
-                    fix = {k: str(f.get(k) or "")[:300] for k in ("wrong", "right", "why_en", "why_bn")}
-            except ValueError:
-                pass
         return R({"ai_state": "used", "reply": reply[:800], "fix": fix, "free": free,
                   "credits_used": 0 if free else int(meta.get("charged") or 0),
                   "ai_left_today": LV.quota_left(request.user)})
+
+
+def role_reply(text):
+    """(reply, fix) from the model's role-play answer. gap-lp: a cut or broken
+    JSON answer never reaches the learner as raw '{"reply": ...' text — the
+    reply string is pulled out, or ('', None) when there is none."""
+    import json
+    import re
+    raw = (text or "").strip()
+    m = re.search(r"\{.*\}", raw, re.S)
+    if m:
+        try:
+            j = json.loads(m.group(0))
+        except ValueError:
+            j = None
+        if isinstance(j, dict):
+            reply = str(j.get("reply") or "").strip()
+            f, fix = j.get("fix"), None
+            if isinstance(f, dict) and f.get("wrong") and f.get("right"):
+                fix = {k: str(f.get(k) or "")[:300] for k in ("wrong", "right", "why_en", "why_bn")}
+            return reply, fix
+    if "{" in raw or '"reply"' in raw:
+        g = re.search(r'"reply"\s*:\s*"((?:[^"\\]|\\.)*)(")?', raw)
+        if not g:
+            return "", None
+        try:
+            out = json.loads('"%s"' % g.group(1)).strip()
+        except ValueError:
+            out = g.group(1).replace('\\"', '"').strip()
+        if not g.group(2):           # cut mid-line: keep whole sentences only
+            ends = [i for i, ch in enumerate(out) if ch in ".?!"]
+            out = out[:ends[-1] + 1] if ends else ""
+        return out, None
+    return raw, None
 
 
 class LpCompanionBooksView(_LpView):
@@ -378,9 +412,14 @@ class LpCompanionMarkView(_LpView):
 
 class LpCompanionSheetsView(_LpView):
     def get(self, request):
+        return self.handle(self._get, request)   # gap-lp: flag + owner guard here too
+
+    def _get(self, request):
         from .models import LpAttempt
         rows = LpAttempt.objects.filter(user=request.user, kind="companion").order_by("-id")[:50]
-        return R({"sheets": [dict(r.data, id=r.id, section=r.section, band=r.band,
+        # an old sheet may still hold a typed key: it is never sent back
+        return R({"sheets": [dict({k: v for k, v in (r.data or {}).items() if k != "key"},
+                                  id=r.id, section=r.section, band=r.band,
                                   created_at=r.created_at.isoformat()) for r in rows]})
 
 
@@ -392,6 +431,9 @@ class LpCertificateView(_LpView):
         att = LpAttempt.objects.filter(pk=pk, user=request.user, kind="result").first()
         if att is None:
             return _bad("not_found", 404)
+        if not (att.data or {}).get("full"):
+            # gap-lp: a certificate only for a full mock with four server-given bands
+            return _bad("not_full", 404)
         pdf = LS.certificate_pdf(att, getattr(request.user, "name", "") or "")
         resp = HttpResponse(pdf, content_type="application/pdf")
         resp["Content-Disposition"] = 'inline; filename="assisto-practice-certificate-%d.pdf"' % att.id

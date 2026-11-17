@@ -215,6 +215,40 @@ class LpOffline {
     await File('${d.path}/${_safe(id)}.json').writeAsString(jsonEncode(copy));
   }
 
+  /// Tests: replaces [list] (widget tests have no app folder).
+  @visibleForTesting
+  static Future<List<Map<String, dynamic>>> Function()? debugList;
+
+  /// gap-lp: the mocks saved on this phone (summary rows like /lp/mocks), so
+  /// the IELTS page can still open them with no internet.
+  static Future<List<Map<String, dynamic>>> list() async {
+    if (debugList != null) return debugList!();
+    if (debugDisabled) return const [];
+    try {
+      final out = <Map<String, dynamic>>[];
+      for (final f in (await _dir()).listSync()) {
+        if (f is! File || !f.path.endsWith('.json')) continue;
+        try {
+          final m = Map<String, dynamic>.from(jsonDecode(await f.readAsString()) as Map);
+          out.add({
+            'id': m['id'],
+            'kind': m['kind'] ?? 'academic',
+            'title_en': m['title_en'] ?? '',
+            'title_bn': m['title_bn'] ?? '',
+            'beta': m['beta'] == true,
+            'sections': [for (final s in const ['listening', 'reading', 'writing', 'speaking']) if (m[s] is Map) s],
+          });
+        } catch (_) {
+          // a broken file is skipped; the others still open
+        }
+      }
+      out.sort((a, b) => '${a['id']}'.compareTo('${b['id']}'));
+      return out;
+    } catch (_) {
+      return const [];
+    }
+  }
+
   static Future<void> remove(String id) async {
     try {
       final d = await _dir();
@@ -223,5 +257,87 @@ class LpOffline {
         if (f is File && (n == '${_safe(id)}.json' || n.startsWith('${_safe(id)}_l'))) f.deleteSync();
       }
     } catch (_) {}
+  }
+}
+
+
+/// gap-lp: vocabulary progress that survives no internet. The last good list
+/// of the user's word rows is kept on the phone; a box move that could not be
+/// saved waits in a small queue (latest per word) and is sent on the next
+/// load with internet — so "it saves when you are back online" is true.
+class LpVocabStore {
+  LpVocabStore._();
+  static const _rowsPref = 'lp2_vocab_rows', _pendPref = 'lp2_vocab_pending';
+
+  static Map<String, Map<String, dynamic>> _pending(SharedPreferences p) {
+    try {
+      final m = jsonDecode(p.getString(_pendPref) ?? '{}') as Map;
+      return {for (final e in m.entries) '${e.key}': Map<String, dynamic>.from(e.value as Map)};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  static List<Map<String, dynamic>> _overlay(List<Map<String, dynamic>> rows, Map<String, Map<String, dynamic>> pend) {
+    final by = {for (final r in rows) '${r['card_id']}': r};
+    pend.forEach((card, body) => by[card] = {...?by[card], ...body});
+    return by.values.toList();
+  }
+
+  /// (rows, offline). Sends queued moves first when the server answers.
+  static Future<(List<Map<String, dynamic>>, bool)> load(ApiClient api) async {
+    final p = await SharedPreferences.getInstance();
+    final pend = _pending(p);
+    try {
+      final rows = await api.listItems(kLpVocab);
+      final by = {for (final r in rows) '${r['card_id']}': r};
+      final left = <String, Map<String, dynamic>>{};
+      for (final e in pend.entries) {
+        final old = by[e.key];
+        try {
+          if (old != null && old['id'] is int) {
+            await api.updateItem(kLpVocab, old['id'] as int, e.value);
+            by[e.key] = {...old, ...e.value};
+          } else {
+            final r = await api.createItem(kLpVocab, e.value);
+            by[e.key] = {...e.value, 'id': r['id']};
+          }
+        } catch (_) {
+          left[e.key] = e.value;
+        }
+      }
+      final out = _overlay(by.values.toList(), left);
+      await p.setString(_pendPref, jsonEncode(left));
+      await p.setString(_rowsPref, jsonEncode(out));
+      return (out, false);
+    } catch (_) {
+      List<Map<String, dynamic>> cached = const [];
+      try {
+        cached = [for (final r in jsonDecode(p.getString(_rowsPref) ?? '[]') as List) Map<String, dynamic>.from(r as Map)];
+      } catch (_) {} // best-effort: phone copy only; the server stays the truth
+      return (_overlay(cached, pend), true);
+    }
+  }
+
+  /// One box move that could not reach the server (kept for the next load).
+  static Future<void> queue(String cardId, Map<String, dynamic> body) async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      final pend = _pending(p);
+      pend[cardId] = {...?pend[cardId], ...body};
+      await p.setString(_pendPref, jsonEncode(pend));
+    } catch (_) {} // best-effort: phone copy only; the server stays the truth
+  }
+
+  /// Keeps the phone copy in step after a move that did save.
+  static Future<void> remember(Map<String, dynamic> row) async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      final rows = [for (final r in jsonDecode(p.getString(_rowsPref) ?? '[]') as List) Map<String, dynamic>.from(r as Map)];
+      await p.setString(_rowsPref, jsonEncode(_overlay(rows, {'${row['card_id']}': row})));
+      // a newer move reached the server: an older queued one must not undo it
+      final pend = _pending(p)..remove('${row['card_id']}');
+      await p.setString(_pendPref, jsonEncode(pend));
+    } catch (_) {} // best-effort: phone copy only; the server stays the truth
   }
 }
