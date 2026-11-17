@@ -1,0 +1,17 @@
+{
+ "slack_pct": 20,
+ "floor_ms": 50,
+ "run_id": "40603594625 (perf2gb 28 Oct; provisional until the first speedproof run)",
+ "provisional": true,
+ "screens": {
+  "assisto_chat": 400,
+  "circle_list": 700,
+  "chat_open": 710,
+  "start_screen": 390,
+  "live_screen": 390,
+  "family": 410,
+  "khata_500": 410,
+  "plans": 430,
+  "credits": 430
+ }
+}

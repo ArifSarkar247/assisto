@@ -95,3 +95,10 @@ LOGGING = {
         "django.server": {"handlers": ["console"], "level": "INFO"},
     },
 }
+
+# speedproof: per-request server timing + SQL count for the perf run only
+# (perf2gb.yml sets ASSISTO_CI_TIMING_LOG; core/ci_timing.py). Outermost, so
+# the time covers every other middleware too.
+CI_TIMING_LOG = os.getenv("ASSISTO_CI_TIMING_LOG", "")
+if CI_TIMING_LOG:
+    MIDDLEWARE = ["core.ci_timing.CiTimingMiddleware", *MIDDLEWARE]  # noqa: F405

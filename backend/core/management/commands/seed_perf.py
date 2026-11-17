@@ -192,5 +192,16 @@ class Command(BaseCommand):
         Message.objects.bulk_create(msgs)
         out["sales_threads"] = len(threads)
 
+        # ---------------------------------------------------- City Service
+        # speedproof: route results need a city network; the CI DB gets the
+        # small sample Dhaka network the backend tests use (made-up stops).
+        try:
+            from core import city_service as CS
+            from core.tests_city import blob as city_blob
+            CS.import_city("dhaka", city_blob(), b"", {"top50": {"pass": 1, "total": 1}})
+            out["city_dataset"] = "dhaka (test sample network)"
+        except Exception as e:  # recorded, not fatal: the route screen then shows "no data"
+            out["city_error"] = repr(e)[:200]
+
         Path(opts["out"]).write_text(json.dumps(out, indent=2))
         self.stdout.write("seed_perf: " + json.dumps(out))

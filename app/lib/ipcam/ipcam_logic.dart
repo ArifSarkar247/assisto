@@ -124,3 +124,10 @@ class OfflineQueue<T> {
     return sent;
   }
 }
+
+/// speedproof: how often a guarding phone asks "does someone want live view?"
+/// from the server's `live_poll_s` (heartbeat). 0 or less = off (only the
+/// 20 s heartbeat, as before); otherwise 2..60 s. The CI live test took
+/// 17.4 s to the first picture when only the heartbeat carried the request.
+Duration? livePollEvery(int seconds) =>
+    seconds <= 0 ? null : Duration(seconds: seconds.clamp(2, 60));

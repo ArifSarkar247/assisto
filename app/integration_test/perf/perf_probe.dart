@@ -110,6 +110,7 @@ class PerfFlowCtx {
       {Finder? ready, bool sameRoute = false, double capSeconds = 10}) async {
     final before = topRoute();
     final win = FrameWindow()..start();
+    final httpFrom = f.h.recorder.hits.length; // speedproof: the screen's API calls
     final sw = Stopwatch()..start();
     await trigger();
     int? first;
@@ -142,6 +143,12 @@ class PerfFlowCtx {
       'ready_ms': readyMs,
       'timed_out': readyMs == null,
       'frames': frames,
+      // speedproof: every request the open made (client-side ms, emulator ->
+      // runner Django) — the slow / serial / repeated calls behind a slow screen
+      'http': [
+        for (final x in f.h.recorder.hits.skip(httpFrom).take(40))
+          {'m': x.method, 'p': x.path, 's': x.status, 'ms': x.ms}
+      ],
     };
     opens[label] = r;
     return r;

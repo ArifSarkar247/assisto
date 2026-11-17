@@ -64,6 +64,19 @@ cold_starts() {  # $1 label, $2 count
   done
 }
 
+cold_route() {  # speedproof: $1 route, $2 count — app killed -> icon -> 2.5 s on home -> route
+  local cmp i
+  cmp=$(launcher)
+  for i in $(seq 1 "$2"); do
+    T=20 A shell am force-stop "$PKG" >/dev/null 2>&1 || true
+    sleep 4
+    echo "COLD_BEGIN route_$1 $i $(date +%s%3N)" >> "$OUT/cold/markers.txt"
+    T=60 A shell am start -W -n "$cmp" --es ao_open "$1@2500" > "$OUT/cold/route_$1_$i.txt" 2>&1 || true
+    sleep 9
+    echo "COLD_END route_$1 $i $(date +%s%3N)" >> "$OUT/cold/markers.txt"
+  done
+}
+
 meminfo() {  # $1 tag
   T=40 A shell dumpsys meminfo "$PKG" > "$OUT/mem/$1.txt" 2>&1 || true
 }
@@ -168,6 +181,11 @@ say "cold starts: signed in (home)"
 cold_starts home 5
 sleep 5
 meminfo cold_home_idle
+# speedproof: each top feature's screen opened in a process-cold app
+if [ -n "${PERF_COLD_ROUTES:-}" ]; then
+  say "process-cold route opens: $PERF_COLD_ROUTES"
+  for r in $PERF_COLD_ROUTES; do cold_route "$r" 2; done
+fi
 
 # ------------------------------------------------------------ 5. background battery
 say "background: 5 min, unplugged, screen off"

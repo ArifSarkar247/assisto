@@ -41,6 +41,7 @@ import '../../test/c2_calls_fakes.dart' show FakeSurface, previewController;
 import '../support/harness.dart';
 import 'perf_png.dart';
 import 'perf_probe.dart';
+import 'perf_speedproof.dart';
 
 List<Map<String, dynamic>> _rows(Map<String, dynamic> r) =>
     ((r['results'] ?? r['members'] ?? r['threads'] ?? const []) as List)
@@ -343,6 +344,9 @@ void registerPerfFlows({List<String>? only}) {
     await p.scroll('credits', downs: 2, ups: 1);
     await p.memory('after');
   });
+
+  // speedproof: every top feature's main screen, cold + warm (flows s..)
+  registerSpeedproofFlows();
 
   // ------------------------------------------------------------- end marker
   testWidgets('pzz_done', (tester) async {
