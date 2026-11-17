@@ -820,9 +820,18 @@ class _FamilyV3ScreenState extends State<FamilyV3Screen> with WidgetsBindingObse
     }
   }
 
-  void _openSection(FcSection s, String title) => Navigator.of(context)
-      .push(MaterialPageRoute(builder: (_) => FcSectionPage(section: s, title: title)))
-      .then((_) => _load());
+  void _openSection(FcSection s, String title) {
+    // gap-familycare: the Probashi page shows the abroad members' own clocks
+    final abroad = [
+      for (final m in _members)
+        if (m['me'] != true && '${m['abroad_tz'] ?? ''}'.trim().isNotEmpty)
+          {'name': _nameOf(m), 'tz': '${m['abroad_tz']}'.trim()}
+    ];
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+            builder: (_) => FcSectionPage(section: s, title: title, abroad: abroad)))
+        .then((_) => _load());
+  }
 
   List<Widget> _more() {
     final t = AppLocalizations.of(context);

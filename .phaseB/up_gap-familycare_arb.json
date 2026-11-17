@@ -30,7 +30,15 @@
         }
       }
     },
-    "fcgMembersSub": "Blood group, birthdays and medicine reminders — your own notes on this phone"
+    "fcgMembersSub": "Blood group, birthdays and medicine reminders — your own notes on this phone",
+    "fcgTimeOf": "{name}'s time",
+    "@fcgTimeOf": {
+      "placeholders": {
+        "name": {
+          "type": "String"
+        }
+      }
+    }
   },
   "bn": {
     "fceYouAsked": "আপনি জিজ্ঞেস করেছেন: {q}",
@@ -41,6 +49,7 @@
     "fcgLinePausedSub": "এটা তাঁর নিজের ইচ্ছা, বিপদের কিছু নয়। SOS তবুও সবার কাছে পৌঁছায়।",
     "fcgTaskDeleteQ": "কাজটি সবার তালিকা থেকে মুছে ফেলবেন?",
     "fcgStaleBanner": "নতুন খবর আনা যায়নি। যা দেখছেন তা {time}-এর।",
-    "fcgMembersSub": "রক্তের গ্রুপ, জন্মদিন, ওষুধের রিমাইন্ডার — এই ফোনে আপনার নিজের খাতা"
+    "fcgMembersSub": "রক্তের গ্রুপ, জন্মদিন, ওষুধের রিমাইন্ডার — এই ফোনে আপনার নিজের খাতা",
+    "fcgTimeOf": "{name}-এর সময়"
   }
 }

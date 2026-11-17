@@ -10,6 +10,8 @@
 //  6 Important papers opens the papers pane; Today's bazar row the bazar pane
 //  7 family ledger money in Bangla digits
 //  8 a paused member: "paused sharing", not "no news"
+// 13 Add member with an empty My Circle: a big "Add to My Circle", no dead end
+// 14 Probashi page on a phone in Bangladesh: THEIR clock, not "my time" twice
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,6 +24,7 @@ import 'package:assisto/eldercare/elder_easy_home.dart';
 import 'package:assisto/eldercare/silent_watch_client.dart';
 import 'package:assisto/famacct_api.dart';
 import 'package:assisto/family_v3/family_v3_screen.dart';
+import 'package:assisto/family_v3/fc_add_member.dart';
 import 'package:assisto/family_v3/fc_slots.dart';
 import 'package:assisto/family_v3/fc_slots_register.dart';
 import 'package:assisto/l10n/app_localizations.dart';
@@ -29,6 +32,7 @@ import 'package:assisto/models.dart';
 import 'package:assisto/screens/guardian_request_screen.dart';
 import 'package:assisto/state.dart';
 import 'package:assisto/theme.dart';
+import 'package:assisto/widgets/fam_probashi_section.dart';
 import 'package:assisto/widgets/money_digits.dart';
 
 import 'fake_api.dart';
@@ -130,6 +134,7 @@ void main() {
     ElderHooks.listenOverride = null;
     ElderHooks.agentOverride = null;
     setMoneyDigitsBn(false);
+    FamProbashiSection.debugMyOffsetMin = null;
   });
 
   group('1 elder Talk to Assisto', () {
@@ -307,5 +312,41 @@ void main() {
     expect(FamAcctLocal.fmtPoisha(125000), '৳১,২৫০.০০');
     setMoneyDigitsBn(false);
     expect(FamAcctLocal.fmtPoisha(125000), '৳1,250.00');
+  });
+
+  testWidgets('13 empty My Circle: Add member offers "Add to My Circle"', (t) async {
+    await _pump(t, const Scaffold(body: SafeArea(child: FcAddMemberSheet(familyId: 10, inFamily: {}))), _Api());
+    expect(find.byKey(const ValueKey('fc3-add-empty')), findsOneWidget);
+    final b = find.byKey(const ValueKey('fcg-add-to-circle'));
+    expect(b, findsOneWidget);
+    expect(t.getSize(b).height, greaterThanOrEqualTo(48));
+    expect(find.text('Add to My Circle'), findsOneWidget);
+  });
+
+  group('14 Probashi clocks', () {
+    const sakib = [{'name': 'Sakib', 'tz': 'Asia/Riyadh'}];
+    testWidgets('parents in Bangladesh see Sakib\'s time, 3 h behind', (t) async {
+      FamProbashiSection.debugMyOffsetMin = 360;
+      await _pump(t, const Scaffold(body: FamProbashiSection(abroad: sakib)), _Api());
+      expect(find.text("Sakib's time"), findsWidgets);
+      expect(find.text('Same time'), findsNothing);
+      expect(find.text('Bangladesh is 3h ahead'), findsOneWidget);
+    });
+    testWidgets('the person abroad keeps "My time"', (t) async {
+      FamProbashiSection.debugMyOffsetMin = 180;
+      await _pump(t, const Scaffold(body: FamProbashiSection()), _Api());
+      expect(find.text('My time'), findsWidgets);
+      expect(find.text('Bangladesh is 3h ahead'), findsOneWidget);
+    });
+    testWidgets('two people abroad: pick whose clock', (t) async {
+      FamProbashiSection.debugMyOffsetMin = 360;
+      await _pump(t, const Scaffold(body: FamProbashiSection(abroad: [
+        {'name': 'Sakib', 'tz': 'Asia/Riyadh'},
+        {'name': 'Mitu', 'tz': 'Europe/London'},
+      ])), _Api());
+      await t.tap(find.byKey(const ValueKey('fcg-probashi-who-1')));
+      await t.pumpAndSettle();
+      expect(find.text("Mitu's time"), findsWidgets);
+    });
   });
 }

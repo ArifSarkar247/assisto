@@ -21,7 +21,11 @@ enum FcSection { school, ledger, papers, probashi, card, members, bazar } // baz
 class FcSectionPage extends StatefulWidget {
   final FcSection section;
   final String title;
-  const FcSectionPage({super.key, required this.section, required this.title});
+
+  /// gap-familycare: members abroad [{name, tz}] for the Probashi page.
+  final List<Map<String, String>> abroad;
+  const FcSectionPage(
+      {super.key, required this.section, required this.title, this.abroad = const []});
   @override
   State<FcSectionPage> createState() => _FcSectionPageState();
 }
@@ -70,7 +74,7 @@ class _FcSectionPageState extends State<FcSectionPage> {
       case FcSection.bazar:
         return FamSharingHub(members: _members, onAddMember: _pick);
       case FcSection.probashi:
-        return const FamProbashiSection();
+        return FamProbashiSection(abroad: widget.abroad);
       case FcSection.card:
         return FamCardSection(members: _members, onAddMember: _pick);
       case FcSection.members:
