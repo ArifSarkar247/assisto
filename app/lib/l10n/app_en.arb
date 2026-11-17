@@ -52413,5 +52413,79 @@
   "sosgapOpenFull": "Who is on the way · live location · 30 s sound",
   "@sosgapOpenFull": {
     "description": "gap-sos: Emergency hub, after SOS sent: open the full SOS page (who is going, live location, sound, sent by mistake)"
-  }
+  },
+  "fceYouAsked": "You asked: {q}",
+  "@fceYouAsked": {
+    "placeholders": {
+      "q": {
+        "type": "String"
+      }
+    }
+  },
+  "fceHearAgain": "Hear again",
+  "fceTalkOffline": "Talking to Assisto needs the internet. Calls and the Danger button still work without it.",
+  "fcgNotInCircle": "This person is not in your My Circle yet, so you cannot ask for their location. Add them in My Circle first, or pick someone below.",
+  "fcgLinePaused": "{name} has paused sharing for now",
+  "@fcgLinePaused": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcgLinePausedSub": "This is their choice, not a problem. SOS still reaches everyone.",
+  "fcgTaskDeleteQ": "Delete this task for everyone?",
+  "fcgStaleBanner": "Couldn't get new news. What you see is from {time}.",
+  "@fcgStaleBanner": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fcgMembersSub": "Blood group, birthdays and medicine reminders — your own notes on this phone",
+  "fcgTimeOf": "{name}'s time",
+  "@fcgTimeOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fcgGoalsTab": "Goals",
+  "fcgGoalsEmpty": "No savings goal yet",
+  "fcgGoalsEmptySub": "Save together for Eid, a wedding, school fees or a hospital fund. Everyone in the family sees it and can add what they gave.",
+  "fcgGoalNew": "New goal",
+  "fcgGoalNameHint": "Goal name, like Eid fund",
+  "fcgGoalTarget": "How much do you want to save?",
+  "fcgGoalAdd": "Add money",
+  "fcgGoalClose": "Close goal",
+  "fcgGoalReopen": "Open again",
+  "fcgGoalCloseQ": "Close this goal? What everyone gave stays in the record.",
+  "fcgGoalReached": "Reached!",
+  "fcgGoalDone": "Closed goals",
+  "fcgGoalProgress": "{collected} of {target} · {pct}%",
+  "@fcgGoalProgress": {
+    "placeholders": {
+      "collected": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "fcgLedgerShared": "{family} — everyone sees and adds",
+  "@fcgLedgerShared": {
+    "placeholders": {
+      "family": {
+        "type": "String"
+      }
+    }
+  },
+  "fcgLedgerFamily": "Family (shared)",
+  "fcgLedgerMine": "Only mine"
 }
