@@ -353,7 +353,8 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
             if (snap.isEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text(t.wmNoSnapshot, style: Theme.of(context).textTheme.bodySmall),
+                child: Text(t.wmNoSnapshot,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: DsTokens.of(context).muted)),
               ),
             // cctvaicheck: the AI label of the photo (server words, viewer's
             // language) — never hides the alert, only helps the owner tune
@@ -417,24 +418,22 @@ class _WatchmanAlertsScreenState extends State<WatchmanAlertsScreen> {
                   onPressed: () => _actions(e),
                 ),
               ]),
-              const SizedBox(height: 8),
-              Row(children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                    icon: const Icon(Icons.thumb_up_alt_outlined),
-                    label: Text(t.wmCorrect),
-                    onPressed: _busy.contains(id) || verdict == 'correct' ? null : () => _mark(e, 'correct'),
-                  ),
+              // design3 (flagship): the right/wrong feedback is a light row
+              // under a hairline — the alert's own actions above stay the
+              // visual weight (it was three equal outlined boxes)
+              const Divider(height: Gap.lg),
+              Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
+                TextButton.icon(
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  icon: const Icon(Icons.thumb_up_alt_outlined),
+                  label: Text(t.wmCorrect),
+                  onPressed: _busy.contains(id) || verdict == 'correct' ? null : () => _mark(e, 'correct'),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-                    icon: const Icon(Icons.thumb_down_alt_outlined),
-                    label: Text(t.wmWrong),
-                    onPressed: _busy.contains(id) || verdict == 'wrong' ? null : () => _mark(e, 'wrong'),
-                  ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  icon: const Icon(Icons.thumb_down_alt_outlined),
+                  label: Text(t.wmWrong),
+                  onPressed: _busy.contains(id) || verdict == 'wrong' ? null : () => _mark(e, 'wrong'),
                 ),
               ]),
             ],

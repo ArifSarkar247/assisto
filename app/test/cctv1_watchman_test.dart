@@ -186,7 +186,7 @@ void main() {
     await _settle(tester);
     expect(find.text(en.wmSuspiciousLabel), findsNWidgets(2));
     expect(find.textContaining(en.wmSeenTimes('3')), findsOneWidget);
-    await tester.tap(find.widgetWithText(OutlinedButton, en.wmWrong).first);
+    await tester.tap(find.widgetWithText(TextButton, en.wmWrong).first); // design3: light feedback row
     await _settle(tester);
     expect(src.markedVerdict, 'wrong');
     expect(find.text(en.wmMarkedWrong), findsOneWidget);
