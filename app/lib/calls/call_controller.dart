@@ -783,6 +783,13 @@ class CallController extends ChangeNotifier {
         await _retrying<Map<String, dynamic>>(
             'accept', () => signaling.accept(id));
     if (isEnded) return;
+    // group-calls: a ring INTO a group call (the screen moves to the group
+    // call screen, which adopts this call as one leg)
+    final rid = (r['room_id'] as num?)?.toInt();
+    if (rid != null && rid != roomId) {
+      roomId = rid;
+      if (!_disposed) notifyListeners();
+    }
     final p = phaseFromServer('${r['phase'] ?? ''}');
     if (p == CallPhase.ended ||
         p == CallPhase.calling ||
@@ -1060,6 +1067,14 @@ class CallController extends ChangeNotifier {
   }
 
   void _onServerState(Map<String, dynamic> s) {
+    // group-calls: this call became (or is) part of a group call — the
+    // screen hands it over to the group call screen ([handover]).
+    final rid = (s['room_id'] as num?)?.toInt();
+    if (rid != null && rid != roomId) {
+      roomId = rid;
+      log.add('room:$rid');
+      if (!_disposed) notifyListeners();
+    }
     final p = phaseFromServer('${s['phase'] ?? ''}');
     if (p == CallPhase.ended) {
       var reason = endReasonFromServer('${s['end_reason'] ?? ''}');
@@ -1845,6 +1860,18 @@ class CallController extends ChangeNotifier {
     _setUpgrade(VideoUpgrade.none);
     await _leaveVideoMode();
     if (was) _notify(CallNotice.remoteSwitchedToVoice);
+  }
+
+  /// group-calls: the group call this call belongs to (server `room_id`).
+  int? roomId;
+
+  /// group-calls: stop THIS phone's 1:1 media WITHOUT ending the call on the
+  /// server — the same call goes on as one leg of the group call engine
+  /// (GroupCallController adopts it). No tone, no hang-up event.
+  Future<void> handover() async {
+    if (isEnded) return;
+    log.add('handover');
+    await _finish(CallEndReason.hangup, tone: false);
   }
 
   /// The red button. Before connect: caller cancels; callee hangs up.
