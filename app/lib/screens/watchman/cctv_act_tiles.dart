@@ -359,6 +359,9 @@ class _ActTilesState extends State<ActTiles> {
   }
 }
 
+/// gap-cctv: the same plain words on the automations screen's log.
+String cv3AutoStateLabel(AppLocalizations t, String s) => _autoState(t, s);
+
 String _autoState(AppLocalizations t, String s) => switch (s) {
       'on' => t.cv3AutoOn,
       'asked' => t.cv3AutoAsked,

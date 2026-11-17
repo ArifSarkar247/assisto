@@ -14,6 +14,7 @@ import 'package:assisto/cctvguard/vendor_live_screen.dart';
 import 'package:assisto/l10n/app_localizations.dart';
 import 'package:assisto/messaging/media/video_ctl.dart';
 import 'package:assisto/phonecam/phonecam_pair_sheet.dart';
+import 'package:assisto/screens/watchman/cctv_act_screens.dart' show gcvLocalStamp;
 import 'package:assisto/screens/watchman/cctv_act_tiles.dart';
 import 'package:assisto/screens/watchman/cctv_escalate.dart';
 import 'package:assisto/screens/watchman/cctvx_actions.dart';
@@ -427,5 +428,25 @@ void main() {
     expect(src.calls, contains('import:5:2'));
     expect(find.byKey(const Key('ccnGetPlan')), findsOneWidget);
     expect(find.text(en.cplEntryTitle), findsOneWidget);
+  });
+
+  group('G18 automations + POS key in the user\'s language', () {
+    test('log time is local dd/MM HH:mm in Bangla digits, never raw ISO', () {
+      final iso = DateTime.utc(2026, 11, 17, 4, 5).toIso8601String();
+      final l = DateTime.utc(2026, 11, 17, 4, 5).toLocal();
+      String two(int v) => v.toString().padLeft(2, '0');
+      expect(gcvLocalStamp('en', iso),
+          '${two(l.day)}/${two(l.month)} ${two(l.hour)}:${two(l.minute)}');
+      expect(gcvLocalStamp('bn', iso), isNot(contains('T')));
+      expect(gcvLocalStamp('bn', iso), isNot(matches(RegExp(r'[0-9]'))));
+      expect(gcvLocalStamp('en', 'soon'), 'soon');
+    });
+
+    test('device states are plain words; POS labels are Bangla in Bangla', () {
+      expect(cv3AutoStateLabel(en, 'on'), en.cv3AutoOn);
+      expect(cv3AutoStateLabel(bn, 'locked'), bn.cv3AutoLocked);
+      expect(bn.gcvPosSecret, isNot(contains('Secret')));
+      expect(bn.gcvPosKeyId, isNot(contains('Key')));
+    });
   });
 }

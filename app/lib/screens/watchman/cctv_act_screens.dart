@@ -21,6 +21,7 @@ import '../../cctvact/cctvact_source.dart';
 import '../../cctvx/cctvx_source.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/local_counter.dart';
+import 'cctv_act_tiles.dart' show cv3AutoStateLabel; // gap-cctv
 import 'cctvx_actions.dart';
 import 'watchman_source.dart';
 import 'watchman_widgets.dart';
@@ -520,9 +521,10 @@ class _SalesState extends State<CctvSalesMatchScreen> {
           content: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
             Text(t.cv3PosKeyOnce),
             const SizedBox(height: 12),
-            SelectableText('URL: ${k['url'] ?? ''}'),
-            SelectableText('Key ID: ${k['key_id'] ?? ''}'),
-            SelectableText('Secret: ${k['secret'] ?? ''}'),
+            // gap-cctv: labels in the user's language (the values stay as-is)
+            SelectableText('${t.gcvPosUrl}: ${k['url'] ?? ''}'),
+            SelectableText('${t.gcvPosKeyId}: ${k['key_id'] ?? ''}'),
+            SelectableText('${t.gcvPosSecret}: ${k['secret'] ?? ''}'),
             const SizedBox(height: 8),
             Text((k['note'] ?? '').toString(), style: Theme.of(ctx).textTheme.bodySmall),
           ]),
@@ -962,15 +964,31 @@ class _AutoState extends State<CctvAutomationsScreen> {
                 for (final l in logs.take(5))
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                        '${wmDigits(lang, (l['at'] ?? '').toString().replaceFirst('T', ' ').padRight(16).substring(0, 16))} — '
-                        '${wmList(l['ran']).map((x) => '${x['device']}: ${x['state']}').join(', ')}'),
+                    // gap-cctv: local time + plain state words (was raw ISO / 'on')
+                    child: Text('${gcvLocalStamp(lang, (l['at'] ?? '').toString())} — '
+                        '${wmList(l['ran']).map((x) => '${x['device']}: ${cv3AutoStateLabel(t, (x['state'] ?? '').toString())}').join(', ')}'),
                   ),
               ],
               const SizedBox(height: 12),
               TextButton(
                 style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                 onPressed: () async {
+                  // gap-cctv: unlinking the smart plugs / lights asks first
+                  final sure = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text(t.gcvUnlinkAsk),
+                      actions: [
+                        TextButton(
+                            onPressed: () => Navigator.pop(ctx, false), child: Text(t.wmCancel)),
+                        FilledButton(
+                            key: const ValueKey('gcv-unlink-yes'),
+                            onPressed: () => Navigator.pop(ctx, true),
+                            child: Text(t.cv3Unlink)),
+                      ],
+                    ),
+                  );
+                  if (sure != true) return;
                   try {
                     final x = await widget.source.unlink(widget.siteId);
                     if (mounted) setState(() => _d = x);
@@ -986,4 +1004,13 @@ class _AutoState extends State<CctvAutomationsScreen> {
       ),
     );
   }
+}
+
+/// gap-cctv: a server ISO time as the phone's local "dd/MM HH:mm" in the
+/// UI's digits; the raw text if it is not a time.
+String gcvLocalStamp(String lang, String iso) {
+  final d = DateTime.tryParse(iso)?.toLocal();
+  if (d == null) return wmDigits(lang, iso);
+  String two(int v) => v.toString().padLeft(2, '0');
+  return wmDigits(lang, '${two(d.day)}/${two(d.month)} ${two(d.hour)}:${two(d.minute)}');
 }
