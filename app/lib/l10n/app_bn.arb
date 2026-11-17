@@ -26116,5 +26116,11 @@
   "gcvClipsEmptyStep1": "ক্যামেরায় একটি জোন আঁকুন, তাহলে সতর্কতার সাথে ক্লিপ আসবে।",
   "gcvClipsEmptyStep2": "দেখা ক্লিপ সার্ভার থেকে মুছে যায়; ছবিটি সতর্কতায় থাকে।",
   "gcvClipsCameraUnknown": "ক্যামেরা",
-  "gcvMoreActions": "আরও কাজ"
+  "gcvMoreActions": "আরও কাজ",
+  "d3SendSmsShort": "SMS পাঠান",
+  "d3BizDaily": "প্রতিদিনের কাজ",
+  "d3BizCustomers": "ক্রেতা ও বিক্রি",
+  "d3BizMoney": "টাকা ও রিপোর্ট",
+  "d3BizStock": "মাল ও সরবরাহকারী",
+  "d3BizTeam": "কর্মী ও সেটিং"
 }
