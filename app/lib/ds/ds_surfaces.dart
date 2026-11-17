@@ -375,10 +375,14 @@ class DsGroup extends StatelessWidget {
     super.key,
     required this.children,
     this.margin = const EdgeInsets.fromLTRB(Gap.lg, Gap.sm, Gap.lg, Gap.sm),
+    this.flat = false,
   });
 
   final List<Widget> children;
   final EdgeInsetsGeometry margin;
+
+  /// design3: a flat bordered group (no shadow) for rows INSIDE another card.
+  final bool flat;
 
   @override
   Widget build(BuildContext context) {
@@ -386,6 +390,7 @@ class DsGroup extends StatelessWidget {
     return Padding(
       padding: margin,
       child: DsSurface(
+        flat: flat,
         padding: const EdgeInsets.symmetric(vertical: Gap.xs),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           for (var i = 0; i < children.length; i++) ...[

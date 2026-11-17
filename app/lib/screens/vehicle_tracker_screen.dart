@@ -409,29 +409,33 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     );
   }
 
+  // design3: stat tiles in an even grid (3 or 2 per row, 2 at big text) —
+  // the free Wrap left one tile alone on a row; values wrap, never cut.
+  Widget _statGrid(List<Widget> stats) {
+    return LayoutBuilder(builder: (context, box) {
+      final big = MediaQuery.textScalerOf(context).scale(14) / 14 > 1.3;
+      final cols = big ? (box.maxWidth < 320 ? 1 : 2) : (stats.length == 3 ? 3 : 2);
+      final w = (box.maxWidth - (cols - 1) * Gap.sm) / cols;
+      return Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+        for (final st in stats) SizedBox(width: w, child: st),
+      ]);
+    });
+  }
+
   Widget _stat(String label, String value, IconData icon, ColorScheme scheme) {
     return Container(
-      constraints: const BoxConstraints(minWidth: 96),
-      padding: const EdgeInsets.symmetric(horizontal: Gap.sm, vertical: Gap.sm),
+      padding: const EdgeInsets.all(Gap.sm),
       decoration: BoxDecoration(
         color: scheme.ds.cardHighest,
-        borderRadius: BorderRadius.circular(Radii.sm),
+        borderRadius: BorderRadius.circular(DsRadius.small),
       ),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 18, color: scheme.primary),
-        const SizedBox(width: Gap.xs),
-        Flexible(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(value,
-                style: AType.bodyMedium.copyWith(fontWeight: FontWeight.w700),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
-            Text(label,
-                style: AType.bodySmall.copyWith(color: scheme.ds.muted),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
-          ]),
-        ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(icon, size: 18, color: scheme.ds.primaryInk),
+        const SizedBox(height: Gap.xs),
+        Text(value,
+            style: AType.titleSmall.copyWith(
+                fontWeight: FontWeight.w800, fontFeatures: AFonts.tabular, letterSpacing: -0.2)),
+        Text(label, style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
       ]),
     );
   }
@@ -473,7 +477,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
                   style: AType.bodySmall.copyWith(color: scheme.ds.muted)),
             ),
           const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          _statGrid([
             _stat(tr.vehSpeed, tr.vehKmh(vehNumStr(context, speed)), Icons.speed_rounded, scheme),
             _stat(
                 tr.vehIgnition,
@@ -486,13 +490,12 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
           ]),
           if (lat != null && lng != null) ...[
             const SizedBox(height: Gap.sm),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: OutlinedButton.icon(
-                onPressed: () => _openMaps(lat, lng),
-                icon: const Icon(Icons.map_rounded),
-                label: Text(tr.vehOpenMaps),
-              ),
+            // design3: full-width secondary action (was a half-width pill)
+            DsButton.secondary(
+              expand: true,
+              onPressed: () => _openMaps(lat, lng),
+              icon: Icons.map_rounded,
+              label: tr.vehOpenMaps,
             ),
           ],
         ]));
@@ -645,7 +648,7 @@ class _VehicleTrackerScreenState extends State<VehicleTrackerScreen> {
     return DsCard(padding: const EdgeInsets.all(Gap.md), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr.vehTripsToday, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: Gap.sm),
-          Wrap(spacing: Gap.sm, runSpacing: Gap.sm, children: [
+          _statGrid([
             _stat(tr.vehDistance, tr.vehKm(vehNumStr(context, km, decimals: 1)),
                 Icons.straighten_rounded, scheme),
             _stat(tr.vehTrips, vehNumStr(context, trips.length), Icons.route_rounded, scheme),

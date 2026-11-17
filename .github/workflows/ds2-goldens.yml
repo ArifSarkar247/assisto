@@ -53,6 +53,21 @@ jobs:
           DS2_XL: '1'
           ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
         run: flutter test --no-pub test/ds2_xl_sweep_test.dart
+      - name: owner mockups (design3, MOCK_SHOTS=1)
+        if: always()
+        continue-on-error: true
+        working-directory: app
+        env:
+          MOCK_SHOTS: '1'
+          ASSISTO_SHOT_DIR: ${{ runner.temp }}/shots
+        run: flutter test --no-pub test/tracker_wizard_mock_test.dart
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: owner-mockups
+          path: ${{ runner.temp }}/shots/tracker_wizard
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -303,7 +303,7 @@ class _VehSetupViewState extends State<VehSetupView> {
           ]),
           const SizedBox(height: Gap.xs),
           SelectableText(sms,
-              style: AType.bodyMedium.copyWith(fontFamily: 'monospace')),
+              style: AType.bodyMedium.copyWith(fontFeatures: AFonts.tabular, letterSpacing: 1.2 /* design3: the app font (monospace is not bundled) */)),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             TextButton.icon(
               style: TextButton.styleFrom(minimumSize: const Size(48, 48)),

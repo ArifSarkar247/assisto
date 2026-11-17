@@ -114,8 +114,12 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
       child: ListView(
         padding: withNavBarInset(context, const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.md, 96)),
         children: [
-          _HonestCard(),
-          const SizedBox(height: Gap.md),
+          // design3 (page rule): the vehicles first; the hardware note
+          // (a long explanation) moves under them
+          if (_trackers.isEmpty) ...[
+            _HonestCard(),
+            const SizedBox(height: Gap.md),
+          ],
           if (_trackers.isEmpty)
             CvEmptyBlock(
               icon: Icons.gps_not_fixed_rounded,
@@ -130,6 +134,10 @@ class _VehicleTrackingScreenState extends State<VehicleTrackingScreen> {
           for (final t in _trackers) ...[
             _TrackerCard(t: t, onChanged: _load),
             const SizedBox(height: Gap.sm),
+          ],
+          if (_trackers.isNotEmpty) ...[
+            const SizedBox(height: Gap.sm),
+            _HonestCard(),
           ],
         ],
       ),
@@ -151,6 +159,15 @@ class _HonestCard extends StatelessWidget {
           ),
         ]));
   }
+}
+
+/// design3: a readable text ink for a status fill colour.
+Color _ink(BuildContext context, Color c) {
+  final ds = DsTokens.of(context);
+  if (c == Brand.warning) return Brand.warnInk(context);
+  if (c == Brand.success) return ds.successInk;
+  if (c == Brand.blue) return ds.primaryInk;
+  return c;
 }
 
 class _TrackerCard extends StatelessWidget {
@@ -227,7 +244,9 @@ class _TrackerCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
                   Text(status,
-                      style: AType.bodyMedium.copyWith(color: color, fontWeight: FontWeight.w600),
+                      // design3: AA ink for the status text (warning/success
+                      // fills as text were ~2.3–3:1 on the card)
+                      style: AType.bodyMedium.copyWith(color: _ink(context, color), fontWeight: FontWeight.w600),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis),
                 ]),
