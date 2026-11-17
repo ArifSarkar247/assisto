@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../family_alerts_api.dart'; // family100
 import '../family_sos/sos_retry.dart'; // gap-sos
+import '../family_sos/sos_sender_screen.dart'; // gap-sos
 import '../state.dart';
 import 'notif_models.dart' show notifLocalizeDigits;
 import '../l10n/app_localizations.dart';
@@ -73,6 +74,7 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
   bool _justHeld = false; // the release after a completed hold is not a tap
   Offset? _downAt; // gap-sos: a finger that scrolls is not a hold
   String? _smsBody;
+  int _recipients = 0; // gap-sos: for the full SOS page
   Timer? _buzz;
   late final AnimationController _hold = AnimationController(
       vsync: this,
@@ -135,6 +137,7 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
     void sentNote(Map<String, dynamic> r) {
       final n = (r['recipients'] as num?)?.toInt() ?? 0;
       if (!mounted) return;
+      setState(() => _recipients = n);
       final count = notifLocalizeDigits(context, '$n');
       m.showSnackBar(SnackBar(
           content: Text(n > 0 ? t.fa100SosSent(count) : t.fa100SosNoCircle)));
@@ -333,6 +336,23 @@ class _EmergencySosPanelState extends State<EmergencySosPanel>
           offline: _offline,
           load: widget.ladderLoad,
         ),
+        // gap-sos (P1): the hub's SOS had no "who is coming", live location,
+        // 30 s sound or "Sent by mistake" — one tap opens the same full SOS
+        // page the Family screen uses (nothing is sent again).
+        if (!_offline)
+          Padding(
+            padding: const EdgeInsets.only(top: Gap.sm),
+            child: OutlinedButton.icon(
+              key: const ValueKey('sos-open-full'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                  settings: const RouteSettings(name: SosSenderScreen.route),
+                  builder: (_) => SosSenderScreen(
+                      source: 'emergency', startSent: true, startRecipients: _recipients))),
+              icon: const Icon(Icons.groups_rounded),
+              label: Text(t.sosgapOpenFull, textAlign: TextAlign.center),
+            ),
+          ),
         if (_offline)
           ValueListenableBuilder<bool>(
             valueListenable: SosRetry.trying,

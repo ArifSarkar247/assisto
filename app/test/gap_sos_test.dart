@@ -228,6 +228,53 @@ void main() {
     });
   });
 
+  group('G10 hub SOS -> the full SOS page', () {
+    testWidgets('after a sent SOS: one tap target opens the full page', (tester) async {
+      await tester.pumpWidget(_app(EmergencySosPanel(
+        contacts: const [],
+        countdownSeconds: 0,
+        onNoContact: () {},
+        locate: () async => null,
+        ladderLoad: () async => {'stage': 'seen', 'total': 1, 'seen': 1, 'recipients': []},
+        sendSos: (la, ln) async => {'recipients': 2},
+      )));
+      await _hold(tester);
+      expect(find.byKey(const ValueKey('sos-open-full')), findsOneWidget);
+      expect(tester.getSize(find.byKey(const ValueKey('sos-open-full'))).height,
+          greaterThanOrEqualTo(48));
+      await tester.pumpWidget(const SizedBox());
+    });
+
+    testWidgets('startSent: opens on the sent page, sends nothing again, mistake works',
+        (tester) async {
+      final api = FakeFcSosApi();
+      await tester.pumpWidget(_app(
+          SosSenderScreen(
+            api: api,
+            recorder: FakeSosRecorder(allowed: false),
+            locate: () async => (23.7461, 90.3742),
+            smsContacts: const [],
+            country: 'BD',
+            openUri: (u) async {},
+            startSent: true,
+            startRecipients: 2,
+          ),
+          scroll: false));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.byKey(const ValueKey('fcs-sent')), findsOneWidget);
+      expect(api.calls.where((c) => c.startsWith('send')), isEmpty);
+      await tester.ensureVisible(find.byKey(const ValueKey('fcs-mistake')));
+      await tester.tap(find.byKey(const ValueKey('fcs-mistake')));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.byKey(const ValueKey('fcs-mistake-yes')));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(api.calls, contains('resolve:mistake'));
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 1));
+    });
+  });
+
   group('G4 alarm page without internet', () {
     testWidgets('the place from the push is shown (not "no location")', (tester) async {
       final api = _FailingEventApi();

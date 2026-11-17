@@ -59,8 +59,8 @@ void main() {
       appBar: AppBar(title: const Text('SOS')),
       body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: w));
 
-  // name -> (widget, needs the SOS hold to reach the state)
-  final specs = <String, (Widget Function(String), bool)>{
+  // name -> (widget, the key to show after the SOS hold — null = no hold)
+  final specs = <String, (Widget Function(String), String?)>{
     'gapsos_panel_offline_trying': (
       (l) => page(EmergencySosPanel(
             contacts: [
@@ -71,18 +71,31 @@ void main() {
             locate: () async => (23.7461, 90.3742),
             sendSos: (la, ln) async => throw Exception('offline'),
           )),
-      true
+      'sos-still-trying'
+    ),
+    'gapsos_panel_sent_full': (
+      (l) => page(EmergencySosPanel(
+            contacts: [
+              {'name': l == 'bn' ? 'আম্মা' : 'Mother', 'phone': '01711200002'}
+            ],
+            countdownSeconds: 0,
+            onNoContact: () {},
+            locate: () async => (23.7461, 90.3742),
+            ladderLoad: () async => {'stage': 'seen', 'total': 1, 'seen': 1, 'recipients': []},
+            sendSos: (la, ln) async => {'recipients': 2},
+          )),
+      'sos-open-full'
     ),
     'gapsos_ladder_nameless': (
       (l) => page(const SosLadderCard(contacts: [
             {'name': '', 'phone': '০১৭১১ ২০০০০২'}
           ], offline: true)),
-      false
+      null
     ),
     'gapsos_alarm_no_net': (
       (l) => SosAlarmScreen(
           data: fcsPush(l), api: _NoEventApi(l), sound: FakeAlarmSound(), autoAlarm: false),
-      false
+      null
     ),
   };
   for (final e in specs.entries) {
@@ -120,7 +133,8 @@ void main() {
             ),
           ));
           await tester.pump();
-          if (e.value.$2) {
+          final show = e.value.$2;
+          if (show != null) {
             final g = await tester.startGesture(
                 tester.getCenter(find.byKey(const ValueKey('sosat-sos-hold'))));
             await tester.pump();
@@ -129,12 +143,12 @@ void main() {
             for (var i = 0; i < 8; i++) {
               await tester.pump(const Duration(milliseconds: 100));
             }
-            // the snackbar goes away; scroll to the "still trying" row
+            // the snackbar goes away; scroll to the changed row
             await tester.pump(const Duration(seconds: 5));
             await tester.pump(const Duration(seconds: 1));
-            final trying = find.byKey(const ValueKey('sos-still-trying'));
-            expect(trying, findsOneWidget);
-            await tester.ensureVisible(trying);
+            final row = find.byKey(ValueKey(show));
+            expect(row, findsOneWidget);
+            await tester.ensureVisible(row);
           }
           for (var i = 0; i < 10; i++) {
             await tester.pump(const Duration(milliseconds: 60));

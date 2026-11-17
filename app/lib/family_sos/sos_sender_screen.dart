@@ -54,7 +54,15 @@ class SosSenderScreen extends StatefulWidget {
     this.debugPhase,
     this.debugRecipients = 0,
     this.debugRecState,
+    this.startSent = false,
+    this.startRecipients = 0,
   });
+
+  /// gap-sos: the SOS already went out from another surface (the Emergency
+  /// hub's hold button) — open straight on the SENT page (who is going, live
+  /// location, 30 s sound, "Sent by mistake"); nothing is sent again.
+  final bool startSent;
+  final int startRecipients;
 
   final String source;
   final int? familyId;
@@ -136,7 +144,10 @@ class _SosSenderScreenState extends State<SosSenderScreen> {
     }));
     unawaited(_loadSms());
     unawaited(_loadCountry());
-    if (_left <= 0) {
+    if (widget.startSent) {
+      _recipients = widget.startRecipients;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _afterSent());
+    } else if (_left <= 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _send());
     } else {
       HapticFeedback.heavyImpact();
