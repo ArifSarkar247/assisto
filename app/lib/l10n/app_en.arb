@@ -52301,5 +52301,68 @@
   "emailrelBouncingBanner": "Emails to your saved address are bouncing back. Please check your email address and verify it again.",
   "@emailrelBouncingBanner": {
     "description": "emailrel: banner on the sign-in email screen"
+  },
+  "cplTrialNoEzviz": "EZVIZ cameras are not in the free trial — with an EZVIZ camera, buy the plan directly. Every other brand gets 7 days free.",
+  "@cplTrialNoEzviz": {
+    "description": "cctvprice: owner 17 Nov 12:35 — honest trial copy, EZVIZ excluded"
+  },
+  "cplTrialEzvizYou": "You have an EZVIZ camera, so the free trial doesn't apply. Buy the plan directly — you can cancel any time in Google Play.",
+  "@cplTrialEzvizYou": {
+    "description": "cctvprice: shown when the server says trial_block = ezviz"
+  },
+  "cplPremiumTitle": "Premium AI",
+  "@cplPremiumTitle": {
+    "description": "cctvprice: Premium AI tier card title"
+  },
+  "cplPremiumBody": "Smart alerts that say in Bangla what happened, and event clips kept for {days} days. Added on top of your CCTV plan.",
+  "@cplPremiumBody": {
+    "description": "cctvprice: Premium AI card body",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "cplPremiumPrice": "{price} tk per camera per month",
+  "@cplPremiumPrice": {
+    "description": "cctvprice: Premium AI per-camera price",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cplPremiumTotal": "For {cameras} cameras: {total} tk a month extra",
+  "@cplPremiumTotal": {
+    "description": "cctvprice: Premium AI total for the camera count",
+    "placeholders": {
+      "cameras": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "cplPremiumBuy": "Add Premium AI — {total} tk / month",
+  "@cplPremiumBuy": {
+    "description": "cctvprice: Premium AI buy button",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "cplPremiumActive": "Premium AI is on",
+  "@cplPremiumActive": {
+    "description": "cctvprice: Premium AI active chip"
+  },
+  "cplPremiumNeedsPlan": "Buy the CCTV plan first, then add Premium AI.",
+  "@cplPremiumNeedsPlan": {
+    "description": "cctvprice: Premium AI needs the base plan"
+  },
+  "biCctvTrialNoEzviz": "EZVIZ cameras are not in the free trial.",
+  "@biCctvTrialNoEzviz": {
+    "description": "cctvprice: buy sheet line under the trial note"
   }
 }
