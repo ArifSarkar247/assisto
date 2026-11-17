@@ -29,6 +29,7 @@ import 'flows/invite_join_flow.dart'; // invite-join
 import 'flows/my_circle_ticks_flow.dart';
 import 'flows/onboarding_flow.dart';
 import 'flows/personal_flow.dart';
+import 'flows/quranblood_flow.dart'; // gap-quranblood
 import 'flows/remmeter_flow.dart';
 import 'flows/safe_journey_flow.dart';
 import 'flows/sos_journey_flow.dart'; // qjourney
@@ -68,6 +69,7 @@ void main() {
   if (on('docs')) registerDocsVoiceSettingsFlows();
   // savesweep: per-form fill -> Save -> reopen -> still there (group 'save')
   if (on('save')) registerSaveSweepFlows();
+  if (on('quranblood')) registerQuranBloodFlows(); // gap-quranblood
   if (on('sweep')) registerSweepFlow();
   // e2eproof: the 8 proof flows need settings_e2eproof's fakes -> opt-in only (e2e.yml)
   if (only.split(',').contains('e2e')) registerE2eProofFlows();
