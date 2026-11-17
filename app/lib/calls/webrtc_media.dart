@@ -83,6 +83,7 @@ class WebRtcCallMedia
 
   @override
   Future<void> open({required bool video}) async {
+    _videoCall = video;
     // BEFORE getUserMedia: the mic must come from the headset too, and the
     // plugin's own audio switch must be off before it would start.
     try {
@@ -154,6 +155,11 @@ class WebRtcCallMedia
 
   @override
   bool cameraUnavailable = false;
+
+  /// gatefix: this is a VIDEO call (open(video: true)), and whether the
+  /// offer already carries a receive-only video m-line (see createOffer).
+  bool _videoCall = false;
+  bool _recvVideoAdded = false;
 
   @override
   Future<void> startVideo() async {
@@ -323,6 +329,24 @@ class WebRtcCallMedia
 
   @override
   Future<Map<String, dynamic>> createOffer({bool iceRestart = false}) async {
+    // gatefix (release gate run 44115922433): flutter_webrtc on Android drops
+    // the top-level offerToReceiveVideo below (it reads only mandatory /
+    // optional), so a VIDEO call whose caller has no camera track (camera
+    // busy / failed -> cameraUnavailable, or audio-only) offered NO video
+    // m-line — only MID 0 (audio) was negotiated and the other person's
+    // camera never reached the caller. A receive-only video transceiver
+    // gives the answerer's camera its m-line (startVideo's addTrack reuses it).
+    if (_videoCall && _videoSender == null && !_recvVideoAdded) {
+      try {
+        await _peer.addTransceiver(
+          kind: RTCRtpMediaType.RTCRtpMediaTypeVideo,
+          init: RTCRtpTransceiverInit(direction: TransceiverDirection.RecvOnly),
+        );
+        _recvVideoAdded = true;
+      } catch (e) {
+        callLog('webrtc_media#16', e);
+      }
+    }
     final offer = await _peer.createOffer({
       'offerToReceiveAudio': true,
       'offerToReceiveVideo': true,
@@ -472,6 +496,7 @@ class WebRtcCallMedia
     var lost = 0, recv = 0;
     int? sent, got;
     int? aPk, aBy, vFr; // gatefix: inbound media actually received
+    int? vEnc, vOutPk; // gatefix: my outbound video (encoded frames, packets)
     // x1-calls: the standard way to find the pair in use is
     // transport.selectedCandidatePairId (Android libwebrtc has no
     // `selected` flag on candidate-pair) — so `relayed` is reported right.
@@ -505,6 +530,11 @@ class WebRtcCallMedia
         final bs = r.values['bytesSent'], br = r.values['bytesReceived'];
         if (bs is num) sent = bs.toInt();
         if (br is num) got = br.toInt();
+      } else if (r.type == 'outbound-rtp' &&
+          (v['kind'] ?? v['mediaType']) == 'video') {
+        final fe = v['framesEncoded'], ps = v['packetsSent'];
+        if (fe is num) vEnc = (vEnc ?? 0) + fe.toInt();
+        if (ps is num) vOutPk = (vOutPk ?? 0) + ps.toInt();
       } else if (r.type == 'inbound-rtp') {
         final pl = v['packetsLost'];
         final pr = v['packetsReceived'];
@@ -543,7 +573,9 @@ class WebRtcCallMedia
         bytesReceived: got,
         audioPacketsIn: aPk,
         audioBytesIn: aBy,
-        videoFramesDecoded: vFr);
+        videoFramesDecoded: vFr,
+        videoFramesEncoded: vEnc,
+        videoPacketsSent: vOutPk);
   }
 
   @override
@@ -564,6 +596,7 @@ class WebRtcCallMedia
     await _releaseCamera();
     _videoSender = null;
     _audioSender = null;
+    _recvVideoAdded = false;
     try {
       for (final t in _local?.getTracks() ?? const <MediaStreamTrack>[]) {
         await t.stop();
