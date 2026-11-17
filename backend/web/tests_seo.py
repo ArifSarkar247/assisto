@@ -104,6 +104,33 @@ class VerificationTests(Base):
         self.assertIn(VERIFY, Client().get("/cv").content.decode())      # classic base
         self.assertTrue((REPO / "googlece9fd85bfb550cfb.html").is_file())
 
+    def test_meta_domain_verification_in_server_html(self):
+        # owner 17 Nov: Meta Business domain verification, server-rendered in
+        # <head> (not injected by JS) and kept permanently
+        set_live(True)
+        tag = '<meta name="facebook-domain-verification" content="655cdrm8fbyj23oulqpx16ku6njzbi" />'
+        for path in ("/", "/cv", "/about"):
+            html = Client().get(path).content.decode()
+            self.assertIn(tag, html.split("</head>")[0], path)
+
+
+class LegalNameTests(Base):
+    def test_licensed_name_and_address_everywhere(self):
+        # owner 17 Nov (trade licence): exact legal name + address; the old
+        # name/address must appear nowhere on the public pages
+        set_live(True)
+        for path in ("/", "/about", "/privacy", "/terms", "/delete-account", "/cv"):
+            r = Client().get(path)
+            if r.status_code != 200:
+                continue
+            html = r.content.decode()
+            self.assertNotIn("AXON Dynamic", html, path)
+            self.assertNotIn("Cha-63 Uttar", html, path)
+            self.assertNotIn("Cha-63, Uttar", html, path)
+        about = Client().get("/about").content.decode()
+        self.assertIn("Axon Dynamics", about)
+        self.assertIn("Cha-63/3, Uttar Badda, Badda, Dhaka 1212, Bangladesh", Client().get("/").content.decode())
+
 
 class AboutPageTests(Base):
     def test_about_bn_and_en(self):
@@ -114,7 +141,7 @@ class AboutPageTests(Base):
             html = r.content.decode()
             self.assertIn(h1, html)
             self.assertIn('<html lang="%s"' % lang, html)
-            self.assertIn("AXON Dynamic", html)
+            self.assertIn("Axon Dynamics", html)
             self.assertNotIn("noindex", html)
         self.assertIn('href="/about"', Client().get("/").content.decode())   # footer link
 

@@ -191,6 +191,11 @@ Future<void> _brandFlow(RFlow f, _Brand b) async {
   if (!b.oauth) {
     await f.step('label serial + code + consent tick -> Connect', () async {
       await _tapK(f, 'ccnBrand-${b.pid}');
+      // imou-real: Imou / EZVIZ / DoLynk first show "remove it from the vendor app"
+      if (await f.appears(_k('ccnBeforeGo'), seconds: 3)) {
+        await f.shot('remove-first-${b.pid}');
+        await _tapK(f, 'ccnBeforeGo', settle: 2);
+      }
       await f.waitFor(_k('ccnSerial'), what: 'link sheet');
       await f.tester.enterText(_k('ccnSerial'), b.serial);
       await f.tester.enterText(_k('ccnCode'), b.code);

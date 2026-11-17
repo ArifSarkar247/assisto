@@ -4,7 +4,7 @@
 <article>
 <h1>{{ h1 }}</h1>
 <p class="lead">{{ desc }}</p>
-{% if reviewed %}<p class="meta">{{ T.reviewed }}: <time datetime="{{ reviewed_iso }}">{{ reviewed }}</time> · AXON Dynamic</p>{% endif %}
+{% if reviewed %}<p class="meta">{{ T.reviewed }}: <time datetime="{{ reviewed_iso }}">{{ reviewed }}</time> · Axon Dynamics</p>{% endif %}
 {% if cover %}<img class="cover" src="{{ cover }}" alt="{{ cover_alt }}" width="1200" height="630" loading="lazy" decoding="async">{% endif %}
 {% if heads %}<nav class="toc" aria-label="{{ T.contents }}"><b>{{ T.contents }}</b><ol>{% for id, t in heads %}<li><a href="#{{ id }}">{{ t }}</a></li>{% endfor %}</ol></nav>{% endif %}
 {{ body|safe }}

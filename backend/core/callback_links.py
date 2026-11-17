@@ -112,7 +112,9 @@ def reregister(slug):
             from .logic import imou as IM
             c = a.client()
             ok = False
-            for flags in ("alarm,deviceStatus,numberstat", "alarm,deviceStatus"):
+            # imou-real: capabilityEvent = person / motion on current models
+            for flags in (IM.CALLBACK_FLAGS + ",numberstat", IM.CALLBACK_FLAGS,
+                          "alarm,deviceStatus"):
                 try:
                     c.set_callback(cb, flags)
                     ok = True
