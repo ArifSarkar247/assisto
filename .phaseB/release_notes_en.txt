@@ -1,4 +1,4 @@
-- Money amounts now save exactly (e.g. "Tk. 500"), and Mess entries made offline are never lost.
-- SOS sent without internet is retried automatically until it reaches your family.
-- Safe Journey: "Going to Office?" one-tap start, plate photo for family, one clear distance.
-- Better AI answers and many design improvements.
+- Video calls: the other person's picture now always arrives, even when a camera starts off or is turned on mid-call.
+- Money amounts in Bangla digits and "Tk. 500" save exactly.
+- Family Care: one shared family ledger, named goals, and elderly "Talk to Assisto" answers again.
+- CCTV fixes (live view stops when you leave, Linux/Raspberry Pi Guard Box steps) and City Service fixes.
