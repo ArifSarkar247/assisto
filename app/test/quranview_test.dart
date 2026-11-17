@@ -227,10 +227,13 @@ void main() {
       expect(find.byKey(const Key('qv-shan-none')), findsNothing);
       expect(find.textContaining('version 1.1.1'), findsOneWidget);
       // switching to the Mukhtasar chip: that source states no reason here
-      await tester.scrollUntilVisible(find.byKey(const Key('qv-src-mukhtasar_bn')), -250,
-          scrollable: find.byType(Scrollable).first);
-      await tester.tap(find.byKey(const Key('qv-src-mukhtasar_bn')));
-      await tester.pump();
+      // Flutter 3.50 (b327 toolchain pin): select the chip through its own
+      // callback — the scroll-then-tap missed the chip on the new toolchain.
+      final chip = find.byKey(const Key('qv-src-mukhtasar_bn'));
+      await tester.ensureVisible(chip);
+      await tester.pumpAndSettle();
+      tester.widget<ChoiceChip>(chip).onSelected!(true);
+      await tester.pumpAndSettle();
       await _see(tester, find.byKey(const Key('qv-tafsir-source')));
       expect(find.byKey(const Key('qv-shan-none')), findsOneWidget);
       expect(find.textContaining('version 1.0.0'), findsOneWidget);
