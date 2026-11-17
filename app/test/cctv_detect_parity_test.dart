@@ -69,6 +69,7 @@ void main() {
       'crowd_keep_s': kCrowdKeepS,
       'post_weak_hits': kPostWeakHits,
       'veh_start_score': kVehStartScore,
+      'veh_present_frac': kVehPresentFrac,
     };
     expect(mine.keys.toSet(), d.keys.toSet());
     for (final e in mine.entries) {

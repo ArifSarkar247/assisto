@@ -83,6 +83,8 @@ CROWD_SCORE = 0.25           # people counted for a crowd (box score floor)
 CROWD_KEEP_S = 10.0          # a crowd survives a short dip below crowd_n
 VEH_START_SCORE = 0.0        # a parking stay / a line track counts only once one
                              # of its boxes reached this score (weak boxes keep it)
+VEH_PRESENT_FRAC = 0.0       # a parking alert needs the vehicle in this share of the
+                             # checks since it arrived (a car that left + a stray box)
 POST_WEAK_HITS = 2           # a weak-only box must be seen this often in a row
                              # to count a post as manned again
 VEHICLE_CLASSES = {1: "cycle", 2: "car", 3: "motorbike", 5: "bus", 7: "truck"}
@@ -276,7 +278,8 @@ class _ZoneState:
                  "absent_since", "absent_fired", "open_since", "open_fired",
                  "ref_day", "ref_night", "ref_at", "ref_for",
                  "crowd_since", "crowd_fired", "veh_since", "veh_last",
-                 "veh_anchor", "veh_fired", "crowd_low", "weak_hits")
+                 "veh_anchor", "veh_fired", "crowd_low", "weak_hits", "veh_seen",
+                 "veh_checks")
 
     def __init__(self):
         self.hits = 0
@@ -300,6 +303,8 @@ class _ZoneState:
         self.veh_fired = False
         self.crowd_low: Optional[float] = None   # cctvdet3: first check below crowd_n
         self.weak_hits = 0                       # cctvdet3: weak-only post checks in a row
+        self.veh_seen = 0                        # cctvdet3: checks with the vehicle ...
+        self.veh_checks = 0                      # ... of all checks since it arrived
 
 
 class ZoneRules:
@@ -450,6 +455,8 @@ class ZoneRules:
             if st.veh_last is not None and t - st.veh_last > VEH_GAP_S:
                 st.veh_anchor = st.veh_since = st.veh_last = None
                 st.veh_fired = False
+            elif st.veh_anchor is not None:
+                st.veh_checks += 1
             return None
         cs = [((float(v[0]) + float(v[2])) / 2.0, (float(v[1]) + float(v[3])) / 2.0)
               for v in vin]
@@ -463,7 +470,10 @@ class ZoneRules:
             if sc < VEH_START_SCORE:
                 return None
             st.veh_anchor, st.veh_since, st.veh_fired = cs[best], t, False
+            st.veh_seen = st.veh_checks = 0
         st.veh_last = t
+        st.veh_seen += 1
+        st.veh_checks += 1
         if not self._open_armed(z, weekday, minute):
             return None
         opts = z.get("opts") or {}
@@ -474,7 +484,8 @@ class ZoneRules:
         else:
             need = _opt_num(opts, "wrong_s", WRONG_S_DEFAULT, 30, 3600)
             etype = WRONG_PARKING
-        if t - st.veh_since >= need and not st.veh_fired:
+        if (t - st.veh_since >= need and not st.veh_fired
+                and st.veh_seen >= VEH_PRESENT_FRAC * st.veh_checks):
             st.veh_fired = True
             d = {"type": etype, "cls": cls, "seconds": int(t - st.veh_since),
                  "box": [round(float(x), 4) for x in vin[0][:4]]}

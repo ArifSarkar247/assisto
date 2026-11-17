@@ -52,6 +52,7 @@ const kCrowdScore = 0.25;
 const kCrowdKeepS = 10.0;
 const kPostWeakHits = 2;
 const kVehStartScore = 0.0;
+const kVehPresentFrac = 0.0;
 const kMovedShapeSim = 0.35;
 const kMovedShapeKeep = 0.6;
 const kVehicleClasses = {1: 'cycle', 2: 'car', 3: 'motorbike', 5: 'bus', 7: 'truck'};
@@ -287,6 +288,7 @@ class _ZoneState {
   bool crowdFired = false, vehFired = false;
   double? crowdLow; // cctvdet3: first check below crowd_n
   int weakHits = 0; // cctvdet3: weak-only post checks in a row
+  int vehSeen = 0, vehChecks = 0; // cctvdet3: checks with the vehicle / all since it arrived
   List<double>? vehAnchor;
   List<double>? refDay, refNight;
 }
@@ -400,6 +402,8 @@ class ZoneRules {
         st.vehSince = null;
         st.vehLast = null;
         st.vehFired = false;
+      } else if (st.vehAnchor != null) {
+        st.vehChecks++;
       }
       return null;
     }
@@ -419,15 +423,19 @@ class ZoneRules {
       st.vehAnchor = cs[best];
       st.vehSince = t;
       st.vehFired = false;
+      st.vehSeen = 0;
+      st.vehChecks = 0;
     }
     st.vehLast = t;
+    st.vehSeen++;
+    st.vehChecks++;
     if (!_openArmed(z, weekday, minute)) return null;
     final cls = kVehicleClasses[vin.first.length > 5 ? vin.first[5].toInt() : 2] ?? 'vehicle';
     final parking = z.type == 'parking';
     final need = parking
         ? _optNum(z.opts, 'overstay_min', kOverstayMinDefault, 5, 1440) * 60
         : _optNum(z.opts, 'wrong_s', kWrongSDefault, 30, 3600);
-    if (t - st.vehSince! >= need && !st.vehFired) {
+    if (t - st.vehSince! >= need && !st.vehFired && st.vehSeen >= kVehPresentFrac * st.vehChecks) {
       st.vehFired = true;
       return {
         'type': parking ? kDetParkingOverstay : kDetWrongParking,

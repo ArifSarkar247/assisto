@@ -93,7 +93,8 @@ class Cached:
 # ------------------------------------------------------------------ config
 BASE_RULES = {"TRACK_JUMP_CAP": 0.25, "CROSS_MARGIN": 0.0, "DWELL_KEEP_SCORE": 1.0,
               "CROWD_SCORE": 1.0, "CROWD_KEEP_S": -1.0, "POST_WEAK_HITS": 1,
-              "PRESENCE_GAP_S": 10.0, "POST_PRESENCE_SCORE": 0.25, "VEH_START_SCORE": 0.0}
+              "PRESENCE_GAP_S": 10.0, "POST_PRESENCE_SCORE": 0.25, "VEH_START_SCORE": 0.0,
+              "VEH_PRESENT_FRAC": 0.0}
 BASELINE = {"rules": dict(BASE_RULES), "veh_model": "nano", "veh_thr": 0.35, "veh_zoom": False,
             "veh_union": False}
 VEH = {}                      # name -> Cached
@@ -111,6 +112,7 @@ def apply(cfg):
     AN.VEH_ZOOM = bool(cfg["veh_zoom"])
     AN.VEH_UNION = bool(cfg.get("veh_union"))
     AN.VEH_COCO_SCORE = 0.35
+    AN.VEH_PERSON_IOU = float(cfg.get("veh_person_iou", 1.0))
     vd = VEH.get(cfg["veh_model"]) if cfg["veh_model"] != "nano" else None
 
     def analyzer(zones, det, schedule=None):
@@ -303,14 +305,18 @@ def grids():
     g = {}
     v = []
     if "bd" in VEH:
-        # cctvdet3 run 43923414622 (calibration, before it was stopped): the
-        # Bangladesh model + union at 0.15 had the best recall; precision is
-        # what is left -> the start-score hysteresis is what is searched here
-        for zoom in (False, True):
-            for start in (0.0, 0.4, 0.5, 0.6):
-                v.append({"veh_model": "bd", "veh_zoom": zoom, "veh_thr": 0.15, "veh_union": True,
-                          "rules": {"TRACK_JUMP_CAP": 0.5, "CROSS_MARGIN": 0.02,
-                                    "VEH_START_SCORE": start}})
+        # cctvdet3 runs 43923414622 + 43967156868 (calibration): the Bangladesh
+        # model + union + zoom at 0.15 had the best recall; the start score did
+        # not buy precision. Searched now: the presence share (parking after
+        # the car left), the person-overlap filter (walkers called cycles) and
+        # the line margin (a vehicle turning back near the line).
+        for frac in (0.6, 0.75, 0.85):
+            for piou in (1.0, 0.5):
+                for margin in (0.02, 0.06):
+                    v.append({"veh_model": "bd", "veh_zoom": True, "veh_thr": 0.15, "veh_union": True,
+                              "veh_person_iou": piou,
+                              "rules": {"TRACK_JUMP_CAP": 0.5, "CROSS_MARGIN": margin,
+                                        "VEH_PRESENT_FRAC": frac}})
     else:
         for model in ("nano", "tiny"):
             for zoom in (False, True):
@@ -374,8 +380,14 @@ def run_group(gname):
             print("      %s/%s: %s" % (k[0], k[1], ", ".join("%s %d/%d" % (s_, b["hit"], b["n"])
                                                          for s_, b in sorted(x["by_scenario"].items()))),
                   flush=True)
-    good = [t for t in trials if t["ok"]] or trials
-    best = max(good, key=lambda t: (t["min_r"], t["mean_r"], -good.index(t)))
+    good = [t for t in trials if t["ok"]]
+    if good:
+        best = max(good, key=lambda t: (t["min_r"], t["mean_r"], -good.index(t)))
+    else:
+        # nothing reaches P_MIN everywhere: the most balanced (worst of every
+        # precision and recall as high as possible), never recall alone
+        best = max(trials, key=lambda t: (min(min(x["p"], x["r"]) for x in t["cal"].values()),
+                                          t["mean_r"], -trials.index(t)))
     print("PICK %s %s (cal ok=%s) %.0fs" % (gname, json.dumps(best["opt"]), best["ok"], time.time() - t0),
           flush=True)
     chosen = merged(BASELINE, **best["opt"])

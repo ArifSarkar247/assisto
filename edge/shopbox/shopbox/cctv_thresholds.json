@@ -74,7 +74,8 @@
     "crowd_keep_s": 10.0,
     "post_weak_hits": 2,
     "track_coast_s": 3.0,
-    "veh_start_score": 0.0
+    "veh_start_score": 0.0,
+    "veh_present_frac": 0.0
   },
   "measured": {
     "_run": "42726621893",

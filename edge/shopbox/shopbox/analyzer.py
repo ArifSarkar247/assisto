@@ -97,6 +97,9 @@ VEH_ZOOM = bool(_VCFG.get("zoom", False))           # second look on a parking z
 VEH_ZOOM_MAX_AREA = float(_VCFG.get("zoom_max_area", 0.35))
 VEH_UNION = bool(_VCFG.get("union", False))         # + the person model's COCO vehicles
 VEH_COCO_SCORE = float(_VCFG.get("coco_score", 0.35))
+# a "vehicle" box that is mostly a person box (a walker the vehicle model,
+# which never learnt people, calls a cycle) is dropped; 1.0 = off
+VEH_PERSON_IOU = float(_VCFG.get("person_iou", 1.0))
 
 
 def _iou(a, b) -> float:
@@ -282,6 +285,10 @@ class CameraAnalyzer:
         # row; post: minutes of absence) — they take the boxes BEFORE the
         # 2-s night confirm, which would otherwise hide a still guard at a
         # post checked every 30 s and raise a false "post empty"
+        if self._frame_veh and VEH_PERSON_IOU < 1.0:
+            ppl = [d for d in dets if d.score >= thr]
+            self._frame_veh = [v for v in self._frame_veh
+                               if all(_iou(v, p) < VEH_PERSON_IOU for p in ppl)]
         self._frame_raw = [d for d in dets if d.score >= low]
         dets = [d for d in dets if d.score >= thr]
         now = self._now if self._now is not None else self.clock()
