@@ -157,7 +157,8 @@ def plan_vs_actual(plan, txns, month):
     for k in CATEGORIES:
         p = to_poisha(plan.get(k))
         a = spent.get(k, 0)
-        pct = int(round(a * 100 / p)) if p else (100 if a else 0)
+        # gap-money: integer half-up (round() is half-even on floats)
+        pct = (a * 200 + p) // (2 * p) if p > 0 else (100 if a else 0)
         if not p:
             state = "none"
         elif a > p:

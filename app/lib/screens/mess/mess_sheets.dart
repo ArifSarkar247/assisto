@@ -325,7 +325,7 @@ class _EntrySheetState extends State<_EntrySheet> {
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: Gap.sm),
         if (widget.kind == 'charge') ...[
-          Text(t.mv2ChargeNote, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
+          Text(t.mv2ChargeNoteDays, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
           const SizedBox(height: Gap.sm),
           Wrap(spacing: Gap.sm, runSpacing: Gap.xs, children: [
             for (final k in messChargeKinds)

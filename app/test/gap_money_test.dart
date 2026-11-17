@@ -58,6 +58,8 @@ void main() {
       expect(r.sent, 1);
       expect(await MessOutbox.pending(7), 0);
       expect(api.sent.single['amount'], 50000);
+      // the phone's saved-at time rides along (offline meal cut-off rule)
+      expect(DateTime.tryParse('${api.sent.single['saved_at']}'), isNotNull);
     });
 
     test('a real refusal (409 closed month) is dropped and reported', () async {

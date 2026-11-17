@@ -146,6 +146,29 @@ def can_member_edit_day(day, now_local, cutoff_hour=DEFAULT_CUTOFF_HOUR):
     return now_local.replace(tzinfo=None) < limit
 
 
+OFFLINE_GRACE_HOURS = 24        # a meal change saved offline may sync this late
+
+
+def offline_saved_ok(day, saved_local, now_local, cutoff_hour=DEFAULT_CUTOFF_HOUR,
+                     grace_hours=OFFLINE_GRACE_HOURS):
+    """gap-money: a member's meal change SAVED OFFLINE before the cut-off is
+    still accepted when the phone gets internet after it. The phone's
+    saved-at time is never trusted alone — all must hold:
+      * saved_at is before the cut-off (day before, cutoff_hour, Dhaka);
+      * saved_at is not in the future of the server clock;
+      * the sync arrives at most `grace_hours` after the cut-off (so an old
+        or forged clock can only reach back one day, never rewrite history).
+    """
+    if saved_local is None:
+        return False
+    ch = _int(cutoff_hour, 0, 23)
+    limit = _dt.datetime.combine(day - _dt.timedelta(days=1), _dt.time(ch, 0))
+    saved = saved_local.replace(tzinfo=None)
+    now = now_local.replace(tzinfo=None)
+    return (saved < limit and saved <= now
+            and now <= limit + _dt.timedelta(hours=_int(grace_hours, 0, 72)))
+
+
 # ---------------------------------------------------------------- splitting
 def split_weighted(total, weights):
     """Largest-remainder split of integer `total` by integer `weights`
@@ -168,23 +191,45 @@ def split_weighted(total, weights):
     return {ids[k]: sign * floors[k] for k in range(len(ids))}
 
 
-def charge_shares(charge, members):
+def days_present(member, start, end):
+    """Days of [start, end] the member is in the mess (left day excluded)."""
+    j = member.get("joined_on")
+    left = member.get("left_on")
+    a = max(start, j) if j else start
+    b = min(end, left - _dt.timedelta(days=1)) if left else end
+    return max(0, (b - a).days + 1)
+
+
+def charge_shares(charge, members, period=None):
     """One service charge -> {member_id: poisha}. charge: {'amount' poisha,
     'split': 'equal'|'seat', 'members': [ids] optional subset}. members:
-    [{'id','seat_share'}] who are in the mess that month."""
+    [{'id','seat_share','joined_on','left_on'}] who are in the mess that month.
+
+    gap-money: with `period` = (start, end) the bill is PRO-RATED by the days
+    each member was in the mess — someone who joins on the 21st of a 30-day
+    month pays 10/30 of an equal share (× seat share for rent). A member in
+    for the whole month weighs the same as before, so full-month messes keep
+    the exact old numbers. Largest remainder: shares still sum EXACTLY to the
+    bill."""
     subset = charge.get("members") or []
     pool = [m for m in members if not subset or m["id"] in subset]
-    if charge.get("split") == "seat":
-        w = {m["id"]: max(0, int(m.get("seat_share") or 0)) for m in pool}
-        if sum(w.values()) == 0:
-            w = {m["id"]: 1 for m in pool}
+    if period is not None:
+        days = {m["id"]: days_present(m, period[0], period[1]) for m in pool}
     else:
+        days = {m["id"]: 1 for m in pool}
+    if charge.get("split") == "seat":
+        w = {m["id"]: max(0, int(m.get("seat_share") or 0)) * days[m["id"]] for m in pool}
+        if sum(w.values()) == 0:
+            w = dict(days)
+    else:
+        w = dict(days)
+    if sum(w.values()) == 0:
         w = {m["id"]: 1 for m in pool}
     return split_weighted(int(charge.get("amount") or 0), w)
 
 
 # ---------------------------------------------------------------- month end
-def settle(members, meals, bazar, charges, deposits, carry_in=None):
+def settle(members, meals, bazar, charges, deposits, carry_in=None, period=None):
     """The month-end table.
 
     members  [{'id','name','seat_share'}]
@@ -193,6 +238,7 @@ def settle(members, meals, bazar, charges, deposits, carry_in=None):
     charges  [{'amount','kind','split','members'}]
     deposits [{'member', 'amount'}]
     carry_in {id: poisha}  (+ = credit from last month, − = still owed)
+    period   (start, end) — service bills pro-rated by days present
 
     Returns totals + per-member rows; every row's
         due = meal_cost + service − deposits − carry_in
@@ -209,7 +255,7 @@ def settle(members, meals, bazar, charges, deposits, carry_in=None):
     charges_total = 0
     for c in charges:
         charges_total += int(c.get("amount") or 0)
-        for mid, p in charge_shares(c, members).items():
+        for mid, p in charge_shares(c, members, period).items():
             service[mid] = service.get(mid, 0) + p
             k = c.get("kind") or "other"
             by_kind.setdefault(mid, {})[k] = by_kind.get(mid, {}).get(k, 0) + p
