@@ -1,0 +1,188 @@
+name: Calls two emulators
+
+# calls-2emu — OWNER (17 Nov): prove video calls with TWO app instances on TWO
+# emulators calling each other (one runner, 4 vCPU / 16 GB):
+#   emulator-5554  A = the app under test, driven by flutter drive (flows 18w_*)
+#   emulator-5556  B = the call peer (integration_test/call_peer_app.dart),
+#                      its own process, its own emulated camera
+# A and B talk through the throw-away Django (10.0.2.2:8700, CI fakes) like two
+# phones; A tells B what to do through a test-only control channel
+# (tools/calls2emu/control.py, 10.0.2.2:8710 — exists only inside the runner).
+# REQUIRED cases (video frames decoded and growing on BOTH receiving sides):
+#   18w_a  video call, both cameras on
+#   18w_b  caller camera off -> on mid-call (B as caller; then A's own button)
+#   18w_c  voice -> video switch mid-call
+#   18w_d  camera unavailable on B, then back
+# Evidence (artifact calls2emu): per case + side SDP, transceivers, in/out video
+# rtp at 3 s and 10 s (calls2emu/evidence), screen recordings of both
+# emulators per case (calls2emu/videos), logcat of both, commands log.
+# Never the live server, never the owner account.
+#
+# Trigger: push to ci/calls-2emu**; by hand: gh workflow run calls2emu.yml -f ref=<sha|branch>;
+# from the release gate: uses: ./.github/workflows/calls2emu.yml (workflow_call).
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: commit sha or branch to test
+        required: false
+        default: ""
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: false
+        default: ""
+  push:
+    branches: ['ci/calls-2emu**']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: calls2emu-${{ github.event_name == 'push' && github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  calls-2emu:
+    name: calls-2emu (two emulators)
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: assisto_ci
+          POSTGRES_PASSWORD: ci-reality-throwaway   # disposable container, not a secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    env:
+      ASSISTO_CI_PG_NAME: assisto_ci
+      ASSISTO_CI_PG_PASSWORD: ci-reality-throwaway
+      REALITY_OUT: ${{ github.workspace }}/reality_out
+      E2E_OUTBOX: ${{ github.workspace }}/reality_out/outbox.jsonl
+      C2E_IDS: 01_language,02_login,03_onboarding,18w_a,18w_b,18w_c,18w_d
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - name: Free runner disk (two emulator images + two builds)
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/share/swift "$AGENT_TOOLSDIRECTORY/PyPy" || true
+          df -h / | tail -1; nproc; free -m
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Backend deps
+        run: python -m pip install -q -r backend/requirements.txt pyyaml
+      - name: Throw-away backend with CI fakes
+        run: |
+          mkdir -p "$REALITY_OUT/calls2emu"
+          bash tools/e2e/backend_up.sh
+      - name: Control channel A <-> B (test-only, inside the runner)
+        run: |
+          nohup python3 tools/calls2emu/control.py --out "$REALITY_OUT/calls2emu" --port 8710 \
+            > "$REALITY_OUT/calls2emu/control.log" 2>&1 &
+          echo $! > "$REALITY_OUT/calls2emu/control.pid"
+          for i in $(seq 1 20); do curl -fsS -m 3 http://127.0.0.1:8710/health && exit 0; sleep 1; done
+          echo "::error::control channel did not start"; cat "$REALITY_OUT/calls2emu/control.log"; exit 1
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: CI-only dev deps + a real build number
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          import os, re
+          p = "pubspec.yaml"
+          s = open(p).read()
+          if "integration_test:" not in s:
+              s = s.replace("dev_dependencies:\n  flutter_test:\n    sdk: flutter\n",
+                            "dev_dependencies:\n  flutter_test:\n    sdk: flutter\n"
+                            "  integration_test:\n    sdk: flutter\n"
+                            "  flutter_driver:\n    sdk: flutter\n", 1)
+              assert "integration_test:" in s, "dev_dependencies block not found"
+          n = 9000 + int(os.environ.get("GITHUB_RUN_NUMBER", "0"))
+          s, k = re.subn(r"(?m)^version: .*$", "version: 1.0.%d+%d" % (n, n), s, count=1)
+          assert k == 1
+          open(p, "w").write(s)
+          PY
+      - name: Replay android.yml build prep
+        run: python3 tools/reality/replay_android_steps.py
+      - name: Debug-only cleartext to the in-runner backend (Skia in the test APK)
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          p = "android/app/src/debug/AndroidManifest.xml"
+          s = open(p).read()
+          if "usesCleartextTraffic" not in s:
+              meta = ('        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" '
+                      'android:value="false"/>\n')
+              s = s.replace("</manifest>",
+                  '    <application android:usesCleartextTraffic="true">\n' + meta +
+                  '    </application>\n</manifest>', 1)
+              open(p, "w").write(s)
+          PY
+      - name: Build the two x86_64 debug APKs (A = flows, B = call peer)
+        working-directory: app
+        run: |
+          set -eo pipefail
+          python3 "$GITHUB_WORKSPACE/tools/ci/raise_plugin_compile_sdk.py" 36
+          timeout 1800 flutter build apk --debug --target-platform=android-x64 \
+            --target=integration_test/reality_all_test.dart \
+            --dart-define=REALITY_API_BASE=http://10.0.2.2:8700 \
+            --dart-define=REALITY_ONLY=start,calls2emu \
+            --dart-define=REALITY_FLOW_IDS="$C2E_IDS"
+          cp build/app/outputs/flutter-apk/app-debug.apk "$RUNNER_TEMP/c2e-A.apk"
+          timeout 1200 flutter build apk --debug --target-platform=android-x64 \
+            --target=integration_test/call_peer_app.dart \
+            --dart-define=REALITY_API_BASE=http://10.0.2.2:8700
+          cp build/app/outputs/flutter-apk/app-debug.apk "$RUNNER_TEMP/c2e-B.apk"
+          echo "A_APK=$RUNNER_TEMP/c2e-A.apk" >> "$GITHUB_ENV"
+          echo "B_APK=$RUNNER_TEMP/c2e-B.apk" >> "$GITHUB_ENV"
+          (cd android && timeout 60 ./gradlew --stop) || true
+          pkill -f 'KotlinCompileDaemon' || true
+          pkill -f 'GradleDaemon' || true
+          rm -rf build/app/intermediates ~/.gradle/caches/transforms-* ~/.gradle/caches/build-cache-* || true
+          free -m; df -h / | tail -1
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Two emulators, two app instances, four required cases
+        timeout-minutes: 55
+        run: bash tools/calls2emu/run.sh
+      - name: Stop servers
+        if: always()
+        run: |
+          kill "$(cat "$REALITY_OUT/django.pid" 2>/dev/null)" 2>/dev/null || true
+          kill "$(cat "$REALITY_OUT/calls2emu/control.pid" 2>/dev/null)" 2>/dev/null || true
+      - name: Verdict (every case must pass; per-case frames table)
+        if: always()
+        run: |
+          GITHUB_STEP_SUMMARY="" python3 tools/reality/summarize.py "$REALITY_OUT" > /dev/null || true
+          python3 tools/calls2emu/frames_table.py "$REALITY_OUT/calls2emu" || true
+          if [ -f "$REALITY_OUT/calls2emu/boot_failed" ]; then
+            echo "::error::emulators never booted (3 attempts) - infrastructure, no case ran"
+          fi
+          python3 tools/relgate/verdict.py "$REALITY_OUT" calls-2emu "$C2E_IDS"
+      - name: Upload evidence
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calls2emu
+          path: |
+            reality_out/
+            !reality_out/.attempt.log
+          retention-days: 5
+          if-no-files-found: warn
