@@ -775,6 +775,25 @@ class ShareTests(_X):
             expires_at=timezone.now() - timedelta(minutes=1))
         self.assertEqual(self.client.get(url).data["clips"], [])
 
+    def test_gapcctv3_clips_page_marks_imou_cameras_that_can_play_recordings(self):
+        from types import SimpleNamespace
+        from core.models import ShopCamera
+        cam = ShopCamera.objects.create(site_id=self.site["id"], name="Gate", vendor="imou",
+                                        kind="edge_webhook", vendor_ref="SIMIMOU1:0")
+        url = "/api/v1/shop/watchman/clips?site=%d" % self.site["id"]
+        with mock.patch("core.cctv_connect_views.link_of_camera",
+                        return_value=(SimpleNamespace(provider="imou"), "SIMIMOU1", "0")), \
+                mock.patch("core.logic.cctv_connect.enabled", return_value=True):
+            rows = {c["id"]: c for c in self.client.get(url).data["cameras"]}
+        self.assertTrue(rows[cam.id]["cloud_playback"])
+        others = [c for i, c in rows.items() if i != cam.id]
+        self.assertTrue(others and not any(c["cloud_playback"] for c in others))
+        # not linked (or the brand cloud switched off) -> no playback entry
+        with mock.patch("core.cctv_connect_views.link_of_camera",
+                        return_value=(None, None, None)):
+            rows = {c["id"]: c for c in self.client.get(url).data["cameras"]}
+        self.assertFalse(rows[cam.id]["cloud_playback"])
+
     def test_gapcctv_sheet_share_tile_only_while_the_server_has_the_clip(self):
         # gap-cctv: after the owner watched (server copy deleted) the alert's
         # Actions sheet must not offer "Share clip" — it has no bytes to send
