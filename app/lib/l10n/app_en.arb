@@ -52322,5 +52322,76 @@
   "d2LeadScoreHint": "The coloured number is the lead score: higher means more likely to buy.",
   "@d2LeadScoreHint": {
     "description": "design2: one-line legend above the CRM leads list explaining the score badge"
+  },
+  "lp2ListenStart": "Start listening",
+  "@lp2ListenStart": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenIntro": "Like the real test: time to read the questions, the recording plays once, time to check, then the next part starts by itself.",
+  "@lp2ListenIntro": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenMinutes": "About {min} minutes of recording",
+  "@lp2ListenMinutes": {
+    "description": "lpaudio: IELTS recorded listening",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2ListenPreview": "Read questions {range}",
+  "@lp2ListenPreview": {
+    "description": "lpaudio: IELTS recorded listening",
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2ListenCheck": "Check your answers",
+  "@lp2ListenCheck": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenDone": "Listening finished. Check your answers, then tap Submit below.",
+  "@lp2ListenDone": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenPartOf": "Part {n} of {total}",
+  "@lp2ListenPartOf": {
+    "description": "lpaudio: IELTS recorded listening",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2ListenNextPart": "Next part",
+  "@lp2ListenNextPart": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenVoices": "Voices: {list}",
+  "@lp2ListenVoices": {
+    "description": "lpaudio: IELTS recorded listening",
+    "placeholders": {
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "lp2AccentGb": "British English",
+  "@lp2AccentGb": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2AccentUs": "American English",
+  "@lp2AccentUs": {
+    "description": "lpaudio: IELTS recorded listening"
+  },
+  "lp2ListenRecorded": "Recorded voices (made for Assisto, not a real person)",
+  "@lp2ListenRecorded": {
+    "description": "lpaudio: IELTS recorded listening"
   }
 }
