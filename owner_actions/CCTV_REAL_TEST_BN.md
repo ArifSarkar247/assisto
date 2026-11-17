@@ -14,7 +14,7 @@
 | Dahua DoLynk | সেভ করা | ❌ টোকেন কল ব্যর্থ (কোড RM0016) | — | DoLynk পুশ — callback লিংকও এখনো localhost | ❌ publicurl কাজ (লিংক ঠিক করা + টোকেন নতুন করা) শেষ হলে |
 | Hikvision (Hik-Connect) | চাবি নেই | — | — | — | Hik-Connect চাবি না আসা পর্যন্ত **Guard Box পথ** (অংশ ৪) |
 
-"publicurl" কাজটি অন্য এজেন্ট করছে: শেষ হলে সার্ভারের callback লিংক `https://lifeassisto.com/...` হবে; তখন আমি আবার এই চেক চালিয়ে এই ছক বদলে দেব।
+"publicurl" কাজটি অন্য এজেন্ট করছে: শেষ হলে সার্ভারের callback লিংক `https://api.lifeassisto.com/...` হবে; তখন আমি আবার এই চেক চালিয়ে এই ছক বদলে দেব।
 
 ---
 
