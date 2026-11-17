@@ -437,6 +437,12 @@ def finish_reply(reply, text, lang, *, truncated=False, data_reply="", history=N
     from . import ai_guard
     from . import ai_tools as AT
     n_money = 0
+    cut = bool(truncated)
+    if cut:
+        # gap-aichat (e2e e2e2c_ai_continue, run 44036417926): the cut must
+        # come FIRST — the money guard appends a complete "estimate" sentence,
+        # after which end_at_sentence kept the mid-word cut ("২. সরঞ্জাম কি")
+        reply = end_at_sentence(reply)
     try:
         reply, _flags = ai_guard.clean_assistant_answer(reply, lang)
         reply, n_money = ai_guard.scrub_ungrounded_money(
@@ -447,9 +453,6 @@ def finish_reply(reply, text, lang, *, truncated=False, data_reply="", history=N
     reply, proposal = AT.extract(reply)
     reply = scrub_internal(reply)
     reply = tables_to_lists(reply)
-    cut = bool(truncated)
-    if cut:
-        reply = end_at_sentence(reply)
     if lang == "bn":
         reply = bangla_digits(reply)
     return reply, proposal, cut, n_money
@@ -475,6 +478,21 @@ def follow_kind(request, text, session):
         if last is not None and (last.meta or {}).get("cut"):
             free = free_chain(session) < MAX_FREE_CONTINUES
     return f, free
+
+
+def follow_lang_source(text, history, follow):
+    """gap-aichat (e2e run 44056647414): a Continue / More detail tap sends
+    the BUTTON label ("Continue" in an English app), so the rest of a Bangla
+    answer came back in English. Such a turn answers in the language of the
+    user's last real question in this chat."""
+    if follow not in ("continue", "more"):
+        return text
+    for h in reversed(history or []):
+        c = str(h.get("content") or "") if h.get("role") == "user" else ""
+        if c and not c.startswith("[Summary") and not (
+                len(c) < 80 and _INCOMPLETE.search(c)):
+            return c
+    return text
 
 
 def free_chain(session):
@@ -583,7 +601,7 @@ def _produce_reply(user, session, text, lang, history, credout=False, mode=None,
     # tell family. Nothing else is answered in this turn.
     from .agentcore import crisis_guard as CG
     from . import ai_prompt as AP
-    lang = AP.reply_lang(text, lang)   # ailang: answer in the user's language
+    lang = AP.reply_lang(follow_lang_source(text, history, follow), lang)   # ailang
     crisis = CG.detect(text)
     if crisis["crisis"]:
         reply, card = CG.respond(user, crisis, lang, surface="chat")

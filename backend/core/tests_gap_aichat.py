@@ -233,3 +233,58 @@ class HomeContinueTests(TestCase):
         self.assertEqual(args[1], hs)                 # session reaches the engine
         self.assertTrue(kw["follow_free"])
         self.assertEqual(r.json().get("follow"), "continue")
+
+
+class CutBeforeGuardsTests(TestCase):
+    """e2e run 44036417926 (flow e2e2c_ai_continue): a cut answer with a taka
+    amount kept its mid-word end, because the money guard's note was added
+    first and end_at_sentence then saw a full sentence at the end."""
+    def test_cut_answer_with_money_ends_at_a_full_sentence(self):
+        raw = ("ছোট চায়ের দোকান শুরু করতে প্রথম মাসে মোটামুটি ৩০,০০০ টাকা লাগে।\n"
+               "১. জায়গা বাছাই: অফিস বা স্কুলের কাছে ভাড়া নিন।\n২. সরঞ্জাম কি")
+        reply, _p, cut, _n = VC.finish_reply(raw, "চায়ের দোকানের পুরো পরিকল্পনা লিখে দাও",
+                                             "bn", truncated=True)
+        self.assertTrue(cut)
+        self.assertNotIn("সরঞ্জাম কি", reply)
+        self.assertIn("ভাড়া নিন।", reply)
+
+    def test_not_cut_answer_is_untouched_by_the_cut_rule(self):
+        reply, _p, cut, _n = VC.finish_reply("Step one is done. Step two is", "q", "en")
+        self.assertFalse(cut)
+        self.assertIn("Step two is", reply)
+
+
+class FollowLanguageTests(TestCase):
+    """e2e run 44056647414: in an English app the Continue tap sends
+    "Continue" — the rest of a Bangla answer must stay Bangla."""
+    def test_continue_label_follows_the_last_real_question(self):
+        hist = [{"role": "user", "content": "চায়ের দোকানের পুরো পরিকল্পনা লিখে দাও"},
+                {"role": "assistant", "content": "১. জায়গা বাছাই।"}]
+        src = VC.follow_lang_source("Continue", hist, "continue")
+        self.assertEqual(AP.reply_lang(src, "en"), "bn")
+        self.assertEqual(AP.reply_lang(VC.follow_lang_source("More detail", hist, "more"), "en"),
+                         "bn")
+        # a normal turn keeps its own language
+        self.assertEqual(VC.follow_lang_source("What about Chittagong?", hist, ""),
+                         "What about Chittagong?")
+
+    def test_engine_answers_continue_in_bangla(self):
+        u = _u("+8801311990007")
+        hist = [{"role": "user", "content": "চায়ের দোকানের পুরো পরিকল্পনা লিখে দাও"},
+                {"role": "assistant", "content": "১. জায়গা বাছাই।"}]
+        seen = {}
+
+        def fake(*a, **kw):
+            seen.update(kw)
+            return ("২. সরঞ্জাম কিনুন।", 0.0)
+        with mock.patch.object(VC.ai, "available", return_value=True), \
+                mock.patch.object(VC.ai, "generate", side_effect=fake):
+            VC._produce_reply(u, None, "Continue", "en", hist, follow="continue",
+                              follow_free=True)
+        task = seen.get("extra_system") or seen.get("task") or ""
+        self.assertIn("ঠিক সেখান থেকে চালিয়ে যাও", task)
+
+    def test_e2e_fake_continues_in_bangla_on_an_english_tap(self):
+        from ci_e2e import fakes
+        task = VC.chat_task_text("bn", None, minor=False, tools=False, follow="continue")
+        self.assertTrue(fakes.answer_for("Continue", "", [], task).startswith("২."))
