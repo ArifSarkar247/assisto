@@ -70,13 +70,15 @@ class GapKidsWatchTests(TestCase):
     def test_no_sos_numbers_defaults_to_parent_phone_and_reaches_the_watch(self):
         r, w = self.pair()
         self.assertTrue(r.data["sos_defaulted"])
-        self.assertEqual(w.sos_numbers, ["01711500001"])
+        self.owner.refresh_from_db()      # stored normalised (e.g. +880...)
+        own = "".join(ch for ch in self.owner.phone if ch.isdigit() or ch == "+")
+        self.assertEqual(w.sos_numbers, [own])
         self.assertTrue(r.data["watch"]["sos_ready"])
         KW.on_watch_connect("8800000077", "3G")
         cmd = KidsWatchCommand.objects.get(watch=w, kind="sos_numbers")
         content, typ = WP.command_content(cmd.kind, cmd.payload)
         self.assertEqual(typ, "SOS")
-        self.assertIn(b"01711500001", content)
+        self.assertIn(own.encode(), content)
 
     def test_given_numbers_are_kept_not_defaulted(self):
         r, w = self.pair(sos_numbers=["01811000002"])
