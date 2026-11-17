@@ -107,6 +107,9 @@ class AttachTests(TestCase):
         call_command("lp_seed", stdout=io.StringIO())
 
     def setUp(self):
+        from django.core.files.storage import default_storage
+        if default_storage.exists(CMD.INDEX):          # files outlive the per-test DB rollback
+            default_storage.delete(CMD.INDEX)
         self.rel = tempfile.mkdtemp(prefix="lpaudio-rel-")
         self.addCleanup(shutil.rmtree, self.rel, True)
         self.u = User.objects.create_user(name="Listener Test", phone="+8801711009977", password="pw12345!")
