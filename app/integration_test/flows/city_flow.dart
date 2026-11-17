@@ -28,7 +28,7 @@ void registerCityFlows() {
     await f.step('Farmgate -> Motijheel: options, chips, fare', () async {
       await f.pushScreen(const CityServiceScreen(debugHere: _farmgate, debugTo: _motijheel, debugSimple: false),
           settleSeconds: 4);
-      await f.waitFor(find.byKey(const ValueKey('city_option')).last, seconds: 25, what: 'route option');
+      await f.waitFor(find.byKey(const ValueKey('city_option')), seconds: 25, what: 'route option');
       expect(find.byKey(const ValueKey('city_chip_cheapest')), findsWidgets);
       expect(find.byKey(const ValueKey('city_start_sj')), findsWidgets);
       await f.shot('city_options');
@@ -46,8 +46,9 @@ void registerCityFlows() {
       await f.waitFor(here, seconds: 20, what: 'sample office with Go by bus / metro');
       await f.shot('city_offices_route_here');
       await f.tap(here.first, settleSeconds: 4);
-      await f.waitFor(find.text('Sample Passport Office').last, what: 'office as the destination');
-      await f.waitFor(find.byKey(const ValueKey('city_option')).last, seconds: 25, what: 'route to the office');
+      // the To field may be scrolled off: look past the viewport
+      await f.waitFor(find.text('Sample Passport Office', skipOffstage: false), what: 'office as the destination');
+      await f.waitFor(find.byKey(const ValueKey('city_option')), seconds: 25, what: 'route to the office');
       await f.shot('city_routed_to_office');
     });
     await f.step('voice ask: "Farmgate theke Motijheel jabo" -> planned from our data', () async {
@@ -55,7 +56,7 @@ void registerCityFlows() {
       await f.tester.enterText(find.byKey(const ValueKey('city_voice_field')), 'Farmgate theke Motijheel jabo');
       await f.pumpFor(const Duration(milliseconds: 500));
       await f.tap(find.byKey(const ValueKey('city_voice_go')), settleSeconds: 5);
-      await f.waitFor(find.byKey(const ValueKey('city_option')).last, seconds: 25, what: 'voice route');
+      await f.waitFor(find.byKey(const ValueKey('city_option')), seconds: 25, what: 'voice route');
       expect(find.byKey(const ValueKey('city_voice_field')), findsNothing); // the sheet closed itself
       await f.shot('city_voice_planned');
     });
