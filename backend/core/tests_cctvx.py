@@ -384,6 +384,31 @@ class GapCctvNightTickTests(_X):
         self.assertEqual(len(self.pushes), 1, self.pushes)
 
 
+class GapCctvMidnightTests(_X):
+    # gap-cctv: the daily account (closing report) stays LIVE here — at 00:05
+    # Dhaka it is not due (yesterday's window was 22:15-23:59), so the guard
+    # flow still makes exactly its own push and nothing else
+    keep_closing_report = True
+
+    def test_guard_flow_at_00_05_dhaka_has_no_extra_daily_account_push(self):
+        from datetime import datetime as _dt
+        from zoneinfo import ZoneInfo
+        from core import cctv_act_views as ACTV
+        from core import cctvx_views as CXV
+        from core.models import ShopEvent
+        self.records()
+        t0 = _dt(2026, 11, 18, 0, 5, tzinfo=ZoneInfo("Asia/Dhaka"))
+        with mock.patch("django.utils.timezone.now", return_value=t0):
+            r = self.ingest(ref="ef" * 16)
+            self.assertEqual(r.status_code, 201, r.data)
+            CXV.tick(t0 + timedelta(minutes=1))
+            self.assertEqual(self.pushes, [])
+            CXV.tick(t0 + timedelta(minutes=4))
+            self.assertFalse(ACTV.run_closing(self.sobj, t0 + timedelta(minutes=5)))
+        self.assertFalse(ShopEvent.objects.get(pk=r.data["event_id"]).pending)
+        self.assertEqual(len(self.pushes), 1, self.pushes)
+
+
 class EscalationTests(_X):
     def test_chain_only_from_the_circle(self):
         bad = self.client.put("/api/v1/shop/sites/%d/guard" % self.site["id"],
@@ -749,7 +774,7 @@ class ShareTests(_X):
         self.assertEqual(r.data["premium_days"], 30)
         self.assertTrue(all(c["keep_days"] == 1 for c in r.data["cameras"]))
         self.assertTrue(r.data["upsell"])                 # owner, 24-hour cameras
-        day = ev.created.date().isoformat()
+        day = timezone.localtime(ev.created).date().isoformat()   # the shop's local (Dhaka) day
         self.assertEqual(len(self.client.get(url + "&day=" + day).data["clips"]), 1)
         self.assertEqual(len(self.client.get(url + "&day=2001-01-01").data["clips"]), 0)
         # read-only: listing clips never marks the alert as seen
