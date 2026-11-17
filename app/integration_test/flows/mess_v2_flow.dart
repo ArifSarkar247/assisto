@@ -98,6 +98,13 @@ void registerMessV2Flows() {
       await f.net(() => api.postJson('/mess/v2/$mid/edit', {'month_start_day': tomorrow.day}));
       await f.tap(find.text(f.t.mv2TabMeals));
       await f.tap(find.text(f.t.mv2TabMonth), settleSeconds: 3);
+      // gap-money (reality 44087305137): the start day was changed through
+      // the API, so the open screen still showed the old running month —
+      // pull to refresh like a user would, then find the close button.
+      final list = find.descendant(
+          of: find.byType(RefreshIndicator), matching: find.byType(Scrollable)).hitTestable().first;
+      await f.tester.fling(list, const Offset(0, 600), 1500);
+      await f.pumpFor(const Duration(seconds: 4));
       // gatefix: the per-member cards (design2) push "Close month" below the
       // fold of the lazy list — scroll to it like a finger (run 44061721110)
       final close = find.byKey(const ValueKey('mess-close-month'));

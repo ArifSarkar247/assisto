@@ -34,6 +34,9 @@ FILE_GROUP = {
 }
 
 
+OPTIN_GROUPS = {"mess"}   # keep in sync with reality.yml `optin`
+
+
 def register_groups():
     """register function -> group, read from reality_all_test.dart
     (`if (on('business')) registerCrm100Flows();`). e2eproof: before this a
@@ -86,7 +89,9 @@ def main():
             srcs.append(f"{g}: {src}")
         for f in flows:
             o = owner_of(f["id"], own)
-            if o is None or o == g:
+            # gap-money: an opt-in single-feature job (reality.yml optin, e.g.
+            # "mess") runs flows owned by a bigger group — keep its results
+            if o is None or o == g or g in OPTIN_GROUPS:
                 f.setdefault("_job", g)
                 picked[f["id"]] = f
     flows = list(picked.values())
