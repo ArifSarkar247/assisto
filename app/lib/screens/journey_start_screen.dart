@@ -115,6 +115,9 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
   // gap-safejourney: usual trips for right now, offered on this screen too
   List<JourneySuggestion> _usual = const [];
   bool _usualClosed = false;
+  // gap-safejourney: "pick at least one" turns red only after Start was
+  // pressed without anyone — not before the user has done anything
+  bool _askedWatcher = false;
   final _driverName = TextEditingController();
   final _driverPhone = TextEditingController();
   int _graceMin = 10;
@@ -214,6 +217,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
     }
     try {
       _places = await api.savedPlaces();
+      _places = sjgOrderPlaces(_places, await PlaceRecents.ranked()); // gap-safejourney
     } catch (_) {} // best-effort: no saved places offline, form still works
     try {
       final r = await api.getJson('/circle/members');
@@ -442,7 +446,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
         'lng': lng,
         'theft_safe': pick.theftSafe,
       });
-      final rows = await api.savedPlaces();
+      final rows = sjgOrderPlaces(await api.savedPlaces(), await PlaceRecents.ranked());
       if (!mounted) return;
       setState(() => _places = rows);
       _snack(t.j2SavePlaceDone);
@@ -583,6 +587,7 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
       return;
     }
     if (_selectedWatchers.isEmpty) {
+      setState(() => _askedWatcher = true);
       messenger.showSnackBar(SnackBar(content: Text(t.journeyNeedWatcher)));
       return;
     }
@@ -1296,7 +1301,9 @@ class _JourneyStartScreenState extends State<JourneyStartScreen> {
                   : t.sj2WatchCount(jDigits(context, _selectedWatchers.length)),
               key: const ValueKey('sj2_w_count'),
               style: AType.bodySmall.copyWith(
-                  color: _selectedWatchers.isEmpty ? cs.error : cs.onSurfaceVariant)),
+                  color: _selectedWatchers.isEmpty && _askedWatcher
+                      ? cs.error
+                      : cs.onSurfaceVariant)),
         ],
         Text(t.j2NoAppPeople,
             style: AType.bodySmall.copyWith(color: DsTokens.of(context).muted)),

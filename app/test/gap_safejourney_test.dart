@@ -11,6 +11,7 @@ import 'dart:convert';
 
 import 'package:assisto/api.dart';
 import 'package:assisto/l10n/app_localizations.dart';
+import 'package:assisto/maps/place_search.dart' show sjgOrderPlaces;
 import 'package:assisto/models.dart';
 import 'package:assisto/screens/journey_live_screen.dart' show sjWatcherNames;
 import 'package:assisto/screens/journey_start_screen.dart';
@@ -262,5 +263,34 @@ void main() {
         ]))));
     await _settle(tester);
     expect(find.byKey(const ValueKey('sjd_state_dist')), findsOneWidget);
+  });
+
+  test('saved-place chips: Home/Office/School pinned, others by use + time of day', () {
+    final places = [
+      {'id': 1, 'kind': 'other', 'label': 'Gym', 'name': 'Gym', 'lat': 23.70, 'lng': 90.40},
+      {'id': 2, 'kind': 'other', 'label': 'Nanu', 'name': 'Nanu', 'lat': 23.80, 'lng': 90.36},
+      {'id': 3, 'kind': 'school', 'label': 'school', 'name': 'School', 'lat': 23.75, 'lng': 90.39},
+      {'id': 4, 'kind': 'home', 'label': 'home', 'name': 'Home', 'lat': 23.78, 'lng': 90.42},
+      {'id': 5, 'kind': 'office', 'label': 'office', 'name': 'Office', 'lat': 23.79, 'lng': 90.41},
+      {'id': 6, 'kind': 'other', 'label': 'Pin-less', 'name': 'Pin-less'},
+    ];
+    // Nanu's house is visited often at this hour; the gym rarely
+    final recent = [
+      (lat: 23.8001, lng: 90.3601, rank: 9.0),
+      (lat: 23.7001, lng: 90.4001, rank: 1.0),
+    ];
+    final ids = [for (final p in sjgOrderPlaces(places, recent)) p['id']];
+    expect(ids, [4, 5, 3, 2, 1, 6]);
+    // no recents: pinned first, the rest keep their order
+    expect([for (final p in sjgOrderPlaces(places, const [])) p['id']], [4, 5, 3, 1, 2, 6]);
+  });
+
+  testWidgets('"pick at least one" is not red before Start was pressed', (tester) async {
+    final api = _Api();
+    await _open(tester, api, const JourneyStartScreen());
+    final txt = tester.widget<Text>(find.byKey(const ValueKey('sj2_w_count'), skipOffstage: false));
+    final ctx = tester.element(find.byKey(const ValueKey('sj2_w_count'), skipOffstage: false));
+    expect(txt.data, en.sj2WatchNone);
+    expect(txt.style?.color, isNot(Theme.of(ctx).colorScheme.error));
   });
 }

@@ -80,6 +80,16 @@ class PlaceRecents {
     }
   }
 
+  /// gap-safejourney: every recent place with how well it fits now (for
+  /// ordering the saved-place chips the same way).
+  static Future<List<({double lat, double lng, double rank})>> ranked({DateTime? now}) async {
+    final at = now ?? DateTime.now();
+    return [
+      for (final m in await _raw())
+        (lat: (m['lat'] as num).toDouble(), lng: (m['lng'] as num).toDouble(), rank: rank(m, at))
+    ];
+  }
+
   static PlacePick _pick(Map<String, dynamic> m) => (
         name: '${m['name'] ?? ''}',
         address: '${m['address'] ?? ''}',
@@ -762,4 +772,37 @@ class _PlaceSheetState extends State<_PlaceSheet> {
       ),
     );
   }
+}
+
+
+/// gap-safejourney (owner V2 START 3): saved-place chips — Home, Office and
+/// School stay first (pinned), the other places follow by how often you go
+/// there and this time of day (from the phone's recent places within
+/// 150 m). Stable: equal places keep the server's order. Pure (tests).
+List<Map<String, dynamic>> sjgOrderPlaces(List<Map<String, dynamic>> places,
+    List<({double lat, double lng, double rank})> recent) {
+  const pinned = ['home', 'office', 'school'];
+  double score(Map<String, dynamic> p) {
+    final lat = (p['lat'] as num?)?.toDouble(), lng = (p['lng'] as num?)?.toDouble();
+    if (lat == null || lng == null) return 0;
+    var best = 0.0;
+    for (final r in recent) {
+      if (jDistanceM(lat, lng, r.lat, r.lng) <= 150 && r.rank > best) best = r.rank;
+    }
+    return best;
+  }
+
+  final rows = [for (final (i, p) in places.indexed) (i: i, p: p, s: score(p))];
+  int pin(Map<String, dynamic> p) {
+    final k = pinned.indexOf(jPlaceKind(p));
+    return k < 0 ? pinned.length : k;
+  }
+
+  rows.sort((a, b) {
+    final c = pin(a.p).compareTo(pin(b.p));
+    if (c != 0) return c;
+    final d = b.s.compareTo(a.s);
+    return d != 0 ? d : a.i.compareTo(b.i);
+  });
+  return [for (final r in rows) r.p];
 }
