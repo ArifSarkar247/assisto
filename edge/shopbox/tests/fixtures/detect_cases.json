@@ -1863,7 +1863,30 @@
      "expect": []
     },
     {
-     "t": 90,
+     "t": 105,
+     "wd": 0,
+     "min": 600,
+     "boxes": [
+      [
+       0.32,
+       0.55,
+       0.42,
+       0.95,
+       0.8
+      ],
+      [
+       0.45,
+       0.55,
+       0.55,
+       0.95,
+       0.8
+      ]
+     ],
+     "night": false,
+     "expect": []
+    },
+    {
+     "t": 108,
      "wd": 0,
      "min": 600,
      "boxes": [
@@ -1893,7 +1916,7 @@
      "expect": []
     },
     {
-     "t": 150,
+     "t": 168,
      "wd": 0,
      "min": 600,
      "boxes": [
@@ -1928,7 +1951,8 @@
       }
      ]
     }
-   ]
+   ],
+   "_doc": "cctvdet3: a dip below crowd_n shorter than CROWD_KEEP_S (t=80) keeps the crowd; a longer one (t=80..105) ends it"
   },
   {
    "name": "weak_box_keeps_post_manned_but_never_alerts_gate",
@@ -3047,6 +3071,174 @@
        0.9,
        0.9,
        3
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "name": "vehicle_line_missed_check_and_jitter_on_the_line",
+   "_doc": "cctvdet3: a car missed for one check still counts (TRACK_JUMP_CAP within TRACK_COAST_S); a car standing ON the line (within CROSS_MARGIN) never counts",
+   "zones": [
+    {
+     "id": "l1",
+     "type": "entry_line",
+     "points": [
+      [
+       0.5,
+       0.0
+      ],
+      [
+       0.5,
+       1.0
+      ]
+     ],
+     "opts": {
+      "vehicles": true
+     }
+    }
+   ],
+   "cam_schedule": null,
+   "steps": [
+    {
+     "t": 0,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.65,
+       0.4,
+       0.85,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 1,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": []
+    },
+    {
+     "t": 2,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [
+      {
+       "type": "vehicle_in_out",
+       "zone": "l1",
+       "dir": "in",
+       "cls": "car"
+      }
+     ],
+     "vehicles": [
+      [
+       0.35,
+       0.4,
+       0.55,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 3,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.2,
+       0.4,
+       0.4,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 200,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.41,
+       0.4,
+       0.61,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 201,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.39,
+       0.4,
+       0.59,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 202,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.41,
+       0.4,
+       0.61,
+       0.6,
+       0.9,
+       2
+      ]
+     ]
+    },
+    {
+     "t": 203,
+     "wd": 0,
+     "min": 600,
+     "boxes": null,
+     "night": false,
+     "expect": [],
+     "vehicles": [
+      [
+       0.39,
+       0.4,
+       0.59,
+       0.6,
+       0.9,
+       2
       ]
      ]
     }

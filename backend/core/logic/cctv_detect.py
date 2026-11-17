@@ -44,8 +44,8 @@ MEASURED = {
     },
     "crowd": {
         "n": 240,
-        "p": 0.9873,
-        "r": 0.65
+        "p": 0.962,
+        "r": 0.842
     },
     "gate_open": {
         "n": 240,
@@ -54,37 +54,37 @@ MEASURED = {
     },
     "gate_person": {
         "n": 180,
-        "p": 0.9286,
-        "r": 0.8667
+        "p": 0.931,
+        "r": 0.9
     },
     "loitering": {
         "n": 180,
-        "p": 0.8913,
-        "r": 0.6833
+        "p": 0.889,
+        "r": 0.667
     },
     "parking_overstay": {
-        "n": 180,
-        "p": 0.9412,
-        "r": 0.2667
+        "n": 261,
+        "p": 0.78,
+        "r": 0.844
     },
     "post_empty": {
         "n": 120,
-        "p": 0.9318,
-        "r": 0.6833
+        "p": 0.941,
+        "r": 0.8
     },
     "vehicle_in_out": {
-        "n": 240,
-        "p": 1.0,
-        "r": 0.1833
+        "n": 300,
+        "p": 0.656,
+        "r": 0.667
     },
     "wrong_parking": {
-        "n": 180,
-        "p": 0.9333,
-        "r": 0.2333
+        "n": 265,
+        "p": 0.697,
+        "r": 0.964
     }
 }
-MEASURED_RUN = "42726621893"
-MEASURED_SET = 'COCO val2017 licensed images, synthetic CCTV scenarios (tools/e2e/cctv_detect_accuracy.py, n=30/kind)'
+MEASURED_RUN = "42726621893 (stage 2); cctvdet3 HELD-OUT 43967156868: vehicles on the real Bangladeshi set, crowd / post / loitering / gate on the old set"
+MEASURED_SET = 'stage 2: COCO val2017 synthetic scenarios n=30/kind; cctvdet3: same + Sylhet street photos (CC BY 4.0), calibration/held-out split'
 
 _BN = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
 
