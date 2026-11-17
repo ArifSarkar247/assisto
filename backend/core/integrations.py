@@ -452,9 +452,9 @@ REGISTRY = {
                  "unlocks_bn": "টেলিগ্রাম বট: রিমাইন্ডার/অ্যালার্ট পাঠানো, বেসিক কমান্ড (/help, /balance, /remind) — টোকেন ছাড়া নিষ্ক্রিয় (sandbox)।",
                  "unlocks_en": "Telegram bot: push reminders/alerts, basic commands (/help, /balance, /remind) — inert until a token is set (sandbox).",
                  "guide_bn": ["@BotFather → /newbot → bot token কপি করুন → পেস্ট → Save",
-                              "ওয়েবহুক: https://assisto.asalify.com/api/v1/telegram/webhook"],
+                              "ওয়েবহুক: https://api.lifeassisto.com/api/v1/telegram/webhook"],
                  "guide_en": ["@BotFather → /newbot → copy the bot token → paste → Save",
-                              "Webhook: https://assisto.asalify.com/api/v1/telegram/webhook"],
+                              "Webhook: https://api.lifeassisto.com/api/v1/telegram/webhook"],
                  "fields": [_f("bot_token", "Bot Token", "Bot Token")],
                  "test": None},
     "google_oauth": {"name": "Gmail / Google OAuth", "category": "Email",
@@ -672,10 +672,10 @@ REGISTRY = {
                   "unlocks_en": "Business mode: Facebook Page/Messenger sales assistant; inbox→CRM lead.",
                   "guide_bn": ["developers.facebook.com → App → Messenger → Page যুক্ত করুন",
                                "Page access token + Page ID + verify token কপি",
-                               "webhook: https://assisto.asalify.com/webhooks/messenger", "পেস্ট → Save"],
+                               "webhook: https://api.lifeassisto.com/api/v1/bizagent/webhook/meta", "পেস্ট → Save"],
                   "guide_en": ["developers.facebook.com → App → Messenger → add your Page",
                                "Copy Page access token + Page ID + verify token",
-                               "webhook: https://assisto.asalify.com/webhooks/messenger", "Paste → Save"],
+                               "webhook: https://api.lifeassisto.com/api/v1/bizagent/webhook/meta", "Paste → Save"],
                   "fields": [_f("page_id", "Page ID", "Page ID", secret=False),
                              _f("page_name", "Page name", "Page name", secret=False),
                              _f("access_token", "Page access token", "Page access token"),
@@ -1179,6 +1179,8 @@ def list_all(lang="bn") -> list:
             "doc": _DOC,
             # cctvconnect: brand-cloud free-quota use this month ("" = none)
             "usage": _vendor_usage(slug, lang),
+            # publicurl: the public https callback link + "Rotate" (owner only)
+            "callback_url": _callback_url(slug, cfg),
             "testable": bool(meta.get("test")),
             # smsotp: entries with a "Send test SMS / email" box
             "test_to_kind": ("email" if meta.get("test") == "test_smtp_email" else
@@ -1623,12 +1625,20 @@ IMOU_OAUTH_PENDING = ("OAuth (এক ট্যাপে গ্রাহকের
                       "(ticket 483) — when approved, fill the three OAuth fields and press Test")
 
 
+def _callback_url(slug, cfg):
+    try:
+        from . import callback_links as CL
+        return CL.url(slug, cfg) if slug in CL.CALLBACK_SLUGS else ""
+    except Exception:
+        return ""
+
+
 def _vendor_usage(slug, lang):
     if slug in ("dolynk", "dolynk_arc"):
         # the message-callback URL to paste into the DoLynk console (Message Subscription)
         try:
-            from . import cctv_connect_views as CCV
-            url = CCV.dolynk_callback_url((get(slug) or {}).get("access_key"), arc=slug == "dolynk_arc")
+            from . import callback_links as CL
+            url = CL.url(slug)                  # publicurl: the public https link
         except Exception:
             url = ""
         if not url:
@@ -1650,6 +1660,10 @@ def _vendor_usage(slug, lang):
         cfg = get(slug) or {}
         if slug == "imou" and not all(cfg.get(k) for k in ("oauth_ak", "oauth_sk", "oauth_h5_url")):
             out.append(IMOU_OAUTH_PENDING[0] if lang == "bn" else IMOU_OAUTH_PENDING[1])
+        if slug == "imou" and cfg.get("app_id"):
+            # publicurl: Assisto registers this alarm link with Imou itself
+            out.append("Imou অ্যালার্ম লিংক (Assisto নিজেই Imou-তে বসায়) নিচে দেখুন" if lang == "bn"
+                       else "Imou alarm link (Assisto sets it in Imou itself): see below")
     except Exception:
         pass
     try:

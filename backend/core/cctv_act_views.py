@@ -859,7 +859,8 @@ def _keys_for(site, kid, now_ts):
 
 def webhook_url(request=None):
     from django.conf import settings
-    base = getattr(settings, "ASSISTO_BASE_URL", "").rstrip("/")
+    from .public_url import public_base_url
+    base = public_base_url()
     return base + "/api/v1/shop/pos/webhook"
 
 

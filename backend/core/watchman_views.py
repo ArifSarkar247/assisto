@@ -41,6 +41,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .public_url import public_base_url  # publicurl
 from .i18n import req_lang, pick
 from . import shop_views as SV
 from .logic import watchman as WM
@@ -584,10 +585,13 @@ IMOU_ERRORS = {
 
 
 def imou_callback_url(app_id):
-    from .logic import imou as IM
-    tok = IM.callback_token(app_id, settings.SECRET_KEY)
+    """publicurl: the PUBLIC https link with the rotatable token
+    (core/callback_links.py)."""
+    from . import callback_links as CL
+    if not app_id:
+        return ""
     return "%s/api/v1/shop/imou/callback/%s" % (
-        getattr(settings, "ASSISTO_BASE_URL", "").rstrip("/"), tok)
+        public_base_url(), CL.token("imou", app_id, CL.salt("imou")))
 
 
 # ShopCamera.compat keys the SERVER owns (never replaced by a gateway check)
@@ -612,16 +616,20 @@ class ImouCallbackView(APIView):
         from .logic import imou as IM
         from .models import ShopCamera
         from . import integrations as I
+        from . import callback_links as CL
         cfg = I.get("imou") if imou_cloud_on() else {}
-        app_id = cfg.get("app_id") or ""
-        expect = IM.callback_token(app_id, settings.SECRET_KEY) if app_id else ""
-        if not expect or not hmac.compare_digest(expect, str(token)):
+        if not CL.token_ok("imou", cfg, token):
             return Response({"ok": False}, status=404)
         try:
             body = json.loads(request.body[:256 * 1024] or b"{}")
         except ValueError:
             return Response({"ok": True, "ignored": "bad_json"})
         msgs = body if isinstance(body, list) else [body]
+        # publicurl: the owner's self-test proves the public link, never an alert
+        if msgs and all(CL.is_selftest(m) for m in msgs[:20]):
+            return Response({"ok": True, "events": [CL.selftest_answer("imou", m)
+                                                    for m in msgs[:20]]})
+        msgs = [m for m in msgs if not CL.is_selftest(m)]
         out = []
         now = timezone.now()
         from . import cctv_alerts as CA
