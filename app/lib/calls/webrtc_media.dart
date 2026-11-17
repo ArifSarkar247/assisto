@@ -41,6 +41,15 @@ class WebRtcCallMedia
         CallVideoSurface,
         AdaptiveCallMedia,
         VideoSizeSource {
+  WebRtcCallMedia({this.cameraBlocked = false});
+
+  /// gatefix: behave as if the camera cannot open (busy / failed HAL) —
+  /// takes the REAL fallback below (join with the camera off,
+  /// cameraUnavailable). The release gate's second client uses it: one
+  /// emulator has one camera, and that is exactly the path whose video
+  /// m-line was missing (gate run 44133650344).
+  final bool cameraBlocked;
+
   RTCPeerConnection? _pc;
   RTCRtpSender? _audioSender;
   MediaPlan? _plan;
@@ -113,6 +122,7 @@ class WebRtcCallMedia
       callLog('webrtc_media#2', e);
     }
     try {
+      if (video && cameraBlocked) throw StateError('camera blocked');
       _local = await navigator.mediaDevices.getUserMedia({
         'audio': _audioConstraints,
         'video': video ? _videoConstraints : false,

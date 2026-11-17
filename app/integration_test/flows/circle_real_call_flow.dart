@@ -51,11 +51,14 @@ class _Silent implements CallSounds {
   Future<void> setProximity(bool on) async {}
 }
 
-/// B's media: real WebRTC, but audio-only capture so it never fights A for
-/// the emulator's single front camera (B still RECEIVES A's video).
+/// B's media: real WebRTC, but its camera is "blocked" so it never fights A
+/// for the emulator's single front camera. gatefix (gate run 44133650344):
+/// this used to open as a VOICE call (open(video: false)), so B's video-call
+/// offer had no video m-line at all; now B is a real VIDEO call whose camera
+/// cannot open — the app's own cameraUnavailable path — and must still
+/// RECEIVE A's video.
 class _AudioOnlyMedia extends WebRtcCallMedia {
-  @override
-  Future<void> open({required bool video}) => super.open(video: false);
+  _AudioOnlyMedia() : super(cameraBlocked: true);
 }
 
 final _timer = RegExp(r'^\d{2}:\d{2}$');
