@@ -16,6 +16,7 @@ import 'flows/camflows_flow.dart'; // camflows
 import 'flows/bizq_flow.dart'; // qbiz
 import 'flows/crm100_flow.dart'; // crm100
 import 'flows/circle_real_call_flow.dart';
+import 'flows/circle_screenshare_flow.dart'; // circle-screenshare
 import 'flows/docs_voice_settings_flow.dart';
 import 'flows/e2e_proof_flows.dart'; // e2eproof
 import 'flows/offline_first_flow.dart'; // offline1st
@@ -62,6 +63,7 @@ void main() {
   if (on('circle')) registerInviteJoinFlows(); // invite-join
   if (on('circle')) registerMyCircleTicksFlows(); // c3-msg
   if (on('circle') || on('calls')) registerCircleRealCallFlows(); // c2-calls
+  if (on('circle') || on('calls') || on('screenshare')) registerCircleScreenShareFlows(); // circle-screenshare
   if (on('business')) registerBusinessFlows();
   if (on('business')) registerCrm100Flows(); // crm100
   if (on('business')) registerBizQualityFlows(); // qbiz

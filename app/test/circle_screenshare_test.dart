@@ -452,6 +452,18 @@ void main() {
       expect(svc, contains('WebRTC_ScreenCapture'),
           reason: 'Android ending the projection is noticed');
     });
+
+    test('the emulator proof is wired (host taps Android consent)', () {
+      final sh = File('../tools/reality/run_flows.sh').readAsStringSync();
+      expect(sh, contains('REALITY_PROJECTION'));
+      expect(sh, contains('appops set \$PKG PROJECT_MEDIA allow'));
+      final all = File('integration_test/reality_all_test.dart').readAsStringSync();
+      expect(all, contains('registerCircleScreenShareFlows()'));
+      final flow = File('integration_test/flows/circle_screenshare_flow.dart')
+          .readAsStringSync();
+      expect(flow, contains('videoFramesDecoded'));
+      expect(flow, contains('videoFramesEncoded'));
+    });
   });
 
   group('call screen', () {

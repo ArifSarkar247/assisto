@@ -405,6 +405,10 @@ void main() {
       });
       expect(ci, contains("PLAY_SCREEN_SHARE: 'false'"));
       expect(ci, contains('media-projection FGS is in the Play bundle (declaration not filed)'));
+      // the AAB step itself strips both (and asserts it) while the switch is off
+      expect(play, contains('PLAY_SCREEN_SHARE: \'false\''));
+      expect(play, contains('assert \'ScreenShareService\' not in s'));
+      expect(play, contains('FOREGROUND_SERVICE_MEDIA_PROJECTION" tools:node="remove"'));
       // the foreground-service types we DO declare (Play FGS form): mic + location
       expect(requested, containsAll(<String>[
         'FOREGROUND_SERVICE_MICROPHONE',
