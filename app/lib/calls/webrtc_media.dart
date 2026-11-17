@@ -6,9 +6,21 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import '../audio/audio_route_service.dart' as ar;
 import '../audio/webrtc_audio_fallback.dart';
 import 'call_controller.dart';
+import 'call_log.dart';
 import 'call_net_policy.dart';
 import 'call_video.dart';
-import 'call_log.dart';
+
+/// gatefix: the SDP rule for an offer. A VIDEO call's offer must carry a
+/// video m-line even when this phone has no camera track (busy / failed /
+/// audio-only) — then as receive-only, so the other person's camera can still
+/// reach us. A voice call's offer gets none (a later camera switch
+/// renegotiates). Never added twice.
+@visibleForTesting
+bool offerNeedsRecvOnlyVideo(
+        {required bool videoCall,
+        required bool hasLocalVideo,
+        required bool alreadyAdded}) =>
+    videoCall && !hasLocalVideo && !alreadyAdded;
 
 /// [CallMedia] on flutter_webrtc — the ONLY call file that touches the
 /// plugin. Loaded with `deferred as` from the call screen, so no WebRTC code
@@ -336,7 +348,10 @@ class WebRtcCallMedia
     // m-line — only MID 0 (audio) was negotiated and the other person's
     // camera never reached the caller. A receive-only video transceiver
     // gives the answerer's camera its m-line (startVideo's addTrack reuses it).
-    if (_videoCall && _videoSender == null && !_recvVideoAdded) {
+    if (offerNeedsRecvOnlyVideo(
+        videoCall: _videoCall,
+        hasLocalVideo: _videoSender != null,
+        alreadyAdded: _recvVideoAdded)) {
       try {
         await _peer.addTransceiver(
           kind: RTCRtpMediaType.RTCRtpMediaTypeVideo,
