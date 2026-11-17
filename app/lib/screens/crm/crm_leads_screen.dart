@@ -159,7 +159,10 @@ class _CrmLeadsScreenState extends State<CrmLeadsScreen> {
     // the full company line under it, call / WhatsApp at the bottom right.
     return Padding(
       padding: const EdgeInsets.only(bottom: Gap.sm),
-      child: DsCard(
+      // long list: flat bordered rows (no per-row shadow — GPU-light)
+      child: DsSurface(
+        flat: true,
+        borderColor: ds.border,
         padding: const EdgeInsets.fromLTRB(Gap.md, Gap.md, Gap.xs, Gap.xs),
         onTap: () async {
           await Navigator.push(context,
