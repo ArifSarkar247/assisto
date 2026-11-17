@@ -117,6 +117,9 @@ void main() {
         } finally {
           FlutterError.onError = old;
         }
+        // drain slow fake calls (the *_loading specs) so no timer is pending
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 5));
         if (problems.isNotEmpty) {
           File('$_dir/${name}_$lang.txt').writeAsStringSync(problems.join('\n'));
         }
