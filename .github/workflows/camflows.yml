@@ -62,7 +62,7 @@ jobs:
           mkdir -p "$E2E_HLS_DIR"
           ffmpeg -hide_banner -loglevel error -f lavfi -i testsrc=size=640x360:rate=15 -t 30 \
             -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420p -g 30 \
-            -f hls -hls_time 2 -hls_list_type vod -hls_segment_filename "$E2E_HLS_DIR/seg%d.ts" \
+            -f hls -hls_time 2 -hls_playlist_type vod -hls_segment_filename "$E2E_HLS_DIR/seg%d.ts" \
             "$E2E_HLS_DIR/index.m3u8"
           ls -la "$E2E_HLS_DIR" | head
       - name: Throw-away backend with CI fakes + fake vendor clouds (seed_camflows self-check, serve :8700)
