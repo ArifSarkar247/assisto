@@ -93,3 +93,26 @@ extension TrainSeatApi on ApiClient {
         if (coachPos != null) 'coach_pos': coachPos,
       });
 }
+
+/// train-app (Train Tracker V2): check-in, shared text, offline pack.
+/// Server: the engine lane (ci/train-engine-arb); contract in
+/// owner_actions/TRAIN_TRACKER_V2_BN.md (app section).
+extension TrainV2Api on ApiClient {
+  /// body: {date, station_id, kind: reached|left, at, lat?, lng?, acc?}
+  /// -> {ok, status: accepted|pending|rejected, reason?, points}
+  Future<Map<String, dynamic>> trainCheckin(String no, Map<String, dynamic> body) =>
+      postJson('/train/$no/checkin', body);
+
+  /// ANY text the user shared / pasted (16318 reply, a group post...):
+  /// body {text, no?, date?, source: paste|share, at}
+  /// -> {ok, parsed: {...}|null, applied}
+  Future<Map<String, dynamic>> trainText(Map<String, dynamic> body) =>
+      postJson('/train/text', body);
+
+  /// -> {version, size_bytes, updated_at}
+  Future<Map<String, dynamic>> trainOfflineMeta() => getJson('/train/offline/meta');
+
+  /// The whole pack (or {not_modified: true} when [have] is current).
+  Future<Map<String, dynamic>> trainOfflinePack(String? have) => getJson(
+      '/train/offline/pack${have == null ? '' : '?have=${Uri.encodeQueryComponent(have)}'}');
+}

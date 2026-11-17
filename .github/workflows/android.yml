@@ -792,6 +792,25 @@ jobs:
           )
           if 'messaging.BubbleActivity' not in s:
               s = s.replace('</application>', bubble_activity + '    </application>', 1)
+          # ---- train-app ---- "Share to Assisto" for plain text (the user shares
+          # the 16318 SMS reply from their own SMS app; NO READ_SMS). A translucent
+          # trampoline, DISABLED here and enabled at runtime only while the Train
+          # Tracker flag is on (PackageManager.setComponentEnabledSetting).
+          train_share = (
+              '\n        <activity android:name="com.assisto.assisto.train.TrainShareActivity"'
+              ' android:exported="true" android:enabled="false"'
+              ' android:excludeFromRecents="true" android:noHistory="true"'
+              ' android:theme="@android:style/Theme.Translucent.NoTitleBar">'
+              '\n            <intent-filter>'
+              '\n                <action android:name="android.intent.action.SEND"/>'
+              '\n                <category android:name="android.intent.category.DEFAULT"/>'
+              '\n                <data android:mimeType="text/plain"/>'
+              '\n            </intent-filter>'
+              '\n        </activity>\n'
+          )
+          if 'train.TrainShareActivity' not in s:
+              s = s.replace('</application>', train_share + '    </application>', 1)
+          # ---- /train-app ----
           # ---- c2-calls ---- video calls can shrink to picture-in-picture
           # (Flutter's default MainActivity configChanges already include
           # orientation|screenSize|smallestScreenSize|screenLayout).

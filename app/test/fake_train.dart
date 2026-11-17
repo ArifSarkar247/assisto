@@ -45,6 +45,10 @@ Map<String, dynamic> trainLive701({bool live = false}) {
     'chat': {'open': true, 'opens_at': now.subtract(const Duration(hours: 3)).toIso8601String(),
         'closes_at': now.add(const Duration(hours: 5)).toIso8601String()},
     'source': {'wiki_title': 'সুবর্ণ এক্সপ্রেস', 'wiki_revid': 1},
+    // train-app (V2): how fresh it is (engine contract)
+    'freshness': live
+        ? {'state': 'live', 'age_s': 25, 'updated_at': now.toIso8601String()}
+        : {'state': 'timetable', 'age_s': 0},
   };
 }
 
@@ -78,7 +82,10 @@ Map<String, dynamic> trainLine701(DateTime now, {bool live = false}) {
     final eta = now.add(Duration(minutes: ((km - atKm) * 1.1).round()));
     out.add({'id': r[0], 'bn': r[1], 'en': r[2], 'km': km, 'stop': r[4],
         'lat': 23.0 + i * 0.05, 'lng': 91.0 - i * 0.03,
-        'sched': eta.toIso8601String(), 'eta': eta.toIso8601String(), 'passed': passed});
+        'sched': eta.toIso8601String(), 'eta': eta.toIso8601String(), 'passed': passed,
+        // train-app (V2): passed stations carry the confirmed time + delay
+        if (live && passed) 'actual': eta.add(Duration(minutes: 6 + i * 2)).toIso8601String(),
+        if (live && passed) 'delay_min': 6 + i * 2});
   }
   return {'stations': out, 'now_index': nowI, 'passing': live ? null : nowI, 'next_index': nextI};
 }
@@ -127,7 +134,62 @@ Map<String, dynamic>? fakeTrainGet(String path, {required bool bn, required bool
     return {'trains': empty ? [] : [trainSummary701()]};
   }
   if (path.contains('/seat')) return trainSeat701(empty: empty); // sjtrain
+  // train-app: offline pack
+  if (path.startsWith('/train/offline/meta')) {
+    return {'version': '2026-11-17', 'size_bytes': 431000, 'updated_at': '2026-11-17T06:00:00Z'};
+  }
+  if (path.startsWith('/train/offline/pack')) return trainOfflinePackJson();
   if (path.contains('/live')) return trainLive701(live: !empty);
   if (path.contains('/chat')) return trainChatRoom(joined: !empty, bn: bn);
+  return null;
+}
+
+// ---------------------------------------------------------------- train-app
+/// train-app (V2): a tiny offline pack in the data lane's COMPACT format
+/// (train_data.offline_bundle(): st / tr / tw) — 701 with made-up times,
+/// a suspended cross-border train (km from coordinates), and two learned
+/// towers (sample ids and points, no real data).
+Map<String, dynamic> trainOfflinePackJson() => {
+      'v': 1,
+      'ver': 'a1b2c3d4e5f6',
+      'st': [
+        ['CTG', 'চট্টগ্রাম', 'Chattogram', 2233402, 9182956],
+        ['FEN', 'ফেনী', 'Feni', 2301230, 9139760],
+        ['CML', 'কুমিল্লা', 'Cumilla', 2346070, 9118090],
+        ['BHB', 'ভৈরব বাজার', 'Bhairab Bazar', 2405250, 9097640],
+        ['APT', 'ঢাকা বিমানবন্দর', 'Dhaka Airport', 2385207, 9040838],
+        ['DHK', 'কমলাপুর', 'Kamalapur', 2373195, 9042627],
+        ['BNP', 'বেনাপোল', 'Benapole', 2304000, 8889000],
+      ],
+      'tr': [
+        ['701', 'সুবর্ণ এক্সপ্রেস', 'Subarna Express', 1, 1, 0, [
+          [0, -1, 420, 0], [1, 500, 502, 900], [2, 555, 558, 1541],
+          [3, 625, 627, 2343], [4, 700, 702, 3039], [5, 740, -1, 3212],
+        ]],
+        ['3109', 'মৈত্রী এক্সপ্রেস', 'Maitree Express', 5, 2, 0, [[5, -1, 495, 0], [6, 900, -1, -1]]],
+      ],
+      'tw': [
+        // learned 6 km after Cumilla on the way to Bhairab; one at Bhairab
+        [470, 1, 1234, 56789, 12, 640, 14, 2350426, 9116585],
+        ['470', '03', 77, 4242, 20, 0, 3, 2405250, 9097640],
+      ],
+    };
+
+/// train-app (V2): POST stubs — check-in accepted, shared text parsed.
+Map<String, dynamic>? fakeTrainPost(String path, Map<String, dynamic> body) {
+  if (path.endsWith('/checkin')) return {'ok': true, 'status': 'accepted', 'points': 5};
+  if (path.startsWith('/train/text')) {
+    return {
+      'ok': true,
+      'parsed': {'no': '701', 'station_id': 'o5', 'station_bn': 'কুমিল্লা', 'station_en': 'Cumilla',
+          'kind': 'left', 'at': DateTime.now().toUtc().toIso8601String(), 'late_min': 18},
+      'applied': true,
+    };
+  }
+  if (RegExp(r'^/train/\d+/share$').hasMatch(path)) {
+    return {'ok': true, 'share': {'id': 41, 'status': 'active',
+        'ends_at': DateTime.now().toUtc().add(const Duration(hours: 6)).toIso8601String()}};
+  }
+  if (path.startsWith('/train/share/')) return {'ok': true, 'accepted': 1, 'rejected': 0, 'status': 'active'};
   return null;
 }

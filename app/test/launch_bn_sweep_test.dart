@@ -43,6 +43,7 @@ const _launchPrefixes = <String>[
   'blood_', // blood donor list / profile / request / share
   'missing_', // missing alert
   'train_', 'dest_alarm', // train tracker + chat + destination alarm
+  'tr2_', // train-app: Train Tracker V2
   'journey_', // journey modes
   'chip_', // tracker chip
   'kid_audio', // child emergency audio

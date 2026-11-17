@@ -342,7 +342,7 @@ void main() {
       expect(find.text(l.trCall999), findsWidgets);
       expect(find.text(l.trCall131), findsWidgets);
       expect(find.text(l.trUnchecked), findsWidgets); // schedule not verified
-      // sjtrain: the station line — tap an upcoming station = alarm there
+      // sjtrain: the station line — tap an upcoming station -> alarm there
       final all = find.byKey(const ValueKey('sjt_line_toggle'));
       await t.ensureVisible(all);
       await t.tap(all);
@@ -350,6 +350,9 @@ void main() {
       final here = find.text('Dhaka Airport');
       await t.ensureVisible(here);
       await t.tap(here); // Dhaka Airport
+      await t.pumpAndSettle();
+      // train-app: a station tap opens check-in (reached / left) + alarm here
+      await t.tap(find.byKey(const ValueKey('tr2_ci_alarm')));
       await t.pumpAndSettle();
       expect(find.byType(DestAlarmScreen), findsOneWidget);
       expect(find.widgetWithText(DsSurface, 'Dhaka Airport Railway Station'), findsOneWidget);

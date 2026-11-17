@@ -27,6 +27,13 @@ class Brand {
           ? const Color(0xFFFFD666)
           : const Color(0xFF735A00); // designv2: AA 5.4 on the V2 background
 
+  /// train-app: the "next station" yellow dot on the train timeline (its
+  /// text uses [warnInk]; the dot has a warnInk ring for 3:1 on both themes).
+  static Color nextStop(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? const Color(0xFFFFC83D)
+          : const Color(0xFFF2B000);
+
   Brand._();
 
   // Core brand colours — from the new logo (cyan → blue → green on navy).

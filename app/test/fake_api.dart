@@ -2247,6 +2247,8 @@ class FakeApi extends ApiClient {
 
   @override
   Future<Map<String, dynamic>> postJson(String path, [Map<String, dynamic> body = const {}]) async {
+    final trP = fakeTrainPost(path, body); // train-app
+    if (trP != null) return trP;
     final fc3P = fakeFcPost(path, body); // fcscreen
     if (fc3P != null) return fc3P;
     final mapP = fakeCityMapPost(path, body); // mapapp

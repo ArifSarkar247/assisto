@@ -38,7 +38,7 @@ import 'package:assisto/screens/lp2/lp_vocab.dart'; // lpapp
 import 'fake_account_security.dart'; // recovery
 import 'package:assisto/screens/account_security_screen.dart'; // recovery
 import 'package:assisto/screens/account_recovery_screens.dart'; // recovery
-import 'fake_train.dart' show trainLive701; // sjalarm
+import 'fake_train.dart' show trainLive701, trainOfflinePackJson; // sjalarm, train-app
 import 'p2_shots.dart'; // p2-money
 import 'p5_shots.dart'; // p5-growth
 import 'invite_shots.dart'; // invite-join
@@ -81,6 +81,13 @@ import 'package:assisto/feature_flags.dart' show FeatureFlags; // sjlive
 import 'package:assisto/screens/train/dest_alarm_screen.dart'; // train
 import 'package:assisto/screens/train/train_chat_screen.dart'; // train
 import 'package:assisto/screens/train/train_tracker_screen.dart'; // train
+import 'package:assisto/screens/train/train_paste_screen.dart'; // train-app
+import 'package:assisto/screens/train/train_v2_widgets.dart'; // train-app
+import 'package:assisto/train/train_offline.dart'; // train-app
+import 'package:assisto/train/train_fgs.dart'; // train-app
+import 'package:assisto/train/train_share_service.dart'; // train-app
+import 'package:assisto/train/train_sms_parse.dart'; // train-app
+import 'package:assisto/train/train_v2_native.dart'; // train-app
 import 'package:assisto/screens/train/trip_recorder_screen.dart'; // sjalarm
 import 'package:assisto/screens/kids_watch/school_mode_child_screen.dart'; // kidswatch
 import 'package:assisto/screens/kids_watch/chip_widgets.dart'; // chipbuy
@@ -980,6 +987,22 @@ Map<String, GallerySpec> gallerySpecs() {
     // filled), chat closed before departure, alarm "by minutes"
     'sjt_train_seat': (build: (_) { SharedPreferences.setMockInitialValues({'sjt_seat_701': '{"coach":"ঝ","seat":"32"}'}); return const TrainLiveScreen(no: '701', date: '2026-11-03'); }, mode: FakeMode.data, full: true),
     'sjt_alarm_minutes': (build: (_) { SharedPreferences.setMockInitialValues({'dest_alarm_by_min_v1': '{"by":true,"min":10}'}); return const DestAlarmScreen(); }, mode: FakeMode.data, full: true),
+    // train-app (Train Tracker V2): owner approval set — timeline live /
+    // timetable estimate / offline tower, rider toggle + sharing, check-in,
+    // "Are you on this train?", paste a 16318 reply, Share -> Assisto,
+    // alarm "help other passengers?"
+    'tr2_timeline_live': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03')), mode: FakeMode.data, full: true),
+    'tr2_timeline_timetable': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03')), mode: FakeMode.empty, full: true),
+    'tr2_offline_tower': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), offline: true), mode: FakeMode.fail, full: true),
+    'tr2_rider_consent': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), sheet: (c) => showTrainShareConsent(c)), mode: FakeMode.data, full: true),
+    'tr2_rider_sharing': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), sharing: true), mode: FakeMode.data, full: true),
+    'tr2_ask_onboard': (build: (_) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), sheet: (c) => showTrainOnboardAsk(c, 'সুবর্ণ এক্সপ্রেস')), mode: FakeMode.data, full: true),
+    'tr2_checkin': (build: (l) => _tr2(const TrainLiveScreen(no: '701', date: '2026-11-03'), sheet: (c) => showTrainStationSheet(c, l == 'bn' ? 'কসবা' : 'Kasba', alarm: true)), mode: FakeMode.data, full: true),
+    'tr2_alarm_ask': (build: (_) => _tr2(const DestAlarmScreen(), sheet: (c) => showTrainAlarmShareAsk(c)), mode: FakeMode.data, full: true),
+    'tr2_paste_16318': (build: (l) => _tr2(TrainPasteScreen(no: '701', date: '2026-11-03', stations: _tr2Stations,
+        initialText: l == 'bn' ? 'ট্রেন ৭০১ সুবর্ণ এক্সপ্রেস কুমিল্লা ছেড়েছে ১০:২৫, ১৮ মিনিট দেরি' : 'TR 701 SUBARNA EXPRESS departed from CUMILLA at 10:25 AM. Late: 0:18')), mode: FakeMode.data, full: true),
+    'tr2_share_in': (build: (l) => _tr2(TrainPasteScreen(initialText: l == 'bn' ? 'সুবর্ণ (৭০১) এইমাত্র ভৈরব বাজার পৌঁছাল, প্রায় ১৫ মিনিট দেরি' : 'Subarna (701) just reached Bhairab Bazar, about 15 min late'), offline: true), mode: FakeMode.data, full: true),
+    'tr2_list_offline': (build: (_) => const TrainTrackerScreen(), mode: FakeMode.data, full: true),
     // sjlive (owner 3 Nov): Safe Journey three cards (Live Location default),
     // card 1's four buttons, Who is where now, real life; the four screens
     'sjl_hub': (build: (_) => const _SjFlags(child: SafeJourneyHubScreen(oem: _ShotOem())), mode: FakeMode.data, full: true),
@@ -1902,3 +1925,64 @@ class _LwFlagsState extends State<_LwFlags> {
 // viewonce: a real 1x1 PNG for the view-once viewer shot
 const _vo1Png =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+
+// ---------------------------------------------------------------- train-app
+const _tr2Stations = [
+  TrainSmsStation('o5', 'কুমিল্লা', 'Cumilla'),
+  TrainSmsStation('o9', 'ভৈরব বাজার', 'Bhairab Bazar'),
+];
+
+class _Tr2Native extends TrainNative {
+  @override
+  Future<TrainCell?> servingCell() async =>
+      const TrainCell(mcc: '470', mnc: '1', tac: 1234, cid: 56789, rat: 'lte');
+}
+
+/// train-app: gallery setup — flags on (owner-only until approved), no GPS,
+/// the offline pack on the "phone" when [offline], a running share when
+/// [sharing], and a sheet opened fully (no slide-in) when [sheet].
+Widget _tr2(Widget child,
+    {bool offline = false, bool sharing = false, Future<Object?> Function(BuildContext)? sheet}) {
+  TrainNative.disabledForTests = true;
+  TrainFgs.disabled = true;
+  trainSheetsInstant = true;
+  TrainNative.I = _Tr2Native();
+  TrainOfflineStore.I = TrainOfflineStore(dir: Directory.systemTemp);
+  if (offline) {
+    TrainOfflineStore.I.debugSet(TrainOfflinePack.fromJson(trainOfflinePackJson(), savedAt: DateTime.now()));
+  }
+  final c = TrainShareController(useService: false, persist: false, position: () async => null);
+  if (sharing) {
+    c.value = const TrainShareState(shareId: 41, trainNo: '701', status: 'active', accepted: 23, rejected: 1);
+  }
+  TrainShareController.I = c;
+  return _SjFlags(child: _Tr2Host(sheet: sheet, child: child));
+}
+
+class _Tr2Host extends StatefulWidget {
+  const _Tr2Host({required this.child, this.sheet});
+  final Widget child;
+  final Future<Object?> Function(BuildContext)? sheet;
+  @override
+  State<_Tr2Host> createState() => _Tr2HostState();
+}
+
+class _Tr2HostState extends State<_Tr2Host> {
+  final _key = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    final open = widget.sheet;
+    if (open != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final ctx = _key.currentContext;
+        if (ctx != null) open(ctx);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => KeyedSubtree(key: _key, child: widget.child);
+}
