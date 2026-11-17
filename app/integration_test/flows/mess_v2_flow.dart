@@ -13,11 +13,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:assisto/api.dart';
 import 'package:assisto/screens/mess_accounting_screen.dart';
 
 import '../support/harness.dart';
 
 final _tag = DateTime.now().millisecondsSinceEpoch % 100000;
+
+/// gatefix (gate run 44133650344, 23:30 Dhaka): the mess runs on DHAKA time
+/// on the server (meal cut-off, month days) — the emulator clock may be UTC,
+/// so every date in this flow is Dhaka's (UTC+6, no DST).
+DateTime _dhakaNow() => DateTime.now().toUtc().add(const Duration(hours: 6));
 
 String _iso(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
@@ -60,11 +66,34 @@ void registerMessV2Flows() {
       await f.shot('member_added');
     });
     await f.step('B (own account) turns off tomorrow breakfast + enters bazar 500', () async {
-      final tomorrow = DateTime.now().add(const Duration(days: 1));
+      // gatefix: a member may change a day only until the mess cut-off hour
+      // (default 22:00) the evening BEFORE. The 23:30 gate got the server's
+      // correct 409 "cutoff" for tomorrow. Before the cut-off: tomorrow; after
+      // it: PROVE the refusal (409, code cutoff) and use the day after.
+      final now = _dhakaNow();
+      final d = await f.net(() => apiB.getJson('/mess/v2/$mid'));
+      final cutoff = ((d['mess'] as Map)['cutoff_hour'] as num?)?.toInt() ?? 22;
+      var day = now.add(const Duration(days: 1));
+      if (now.hour >= cutoff) {
+        final res = await f.net(() async {
+          try {
+            await apiB.postJson('/mess/v2/$mid/meals',
+                {'date': _iso(day), 'b': 0, 'l': 1, 'd': 1, 'client_id': 'r-b-late-$_tag'});
+            return 'saved';
+          } on ApiException catch (e) {
+            return '${e.status} ${e.reason ?? ''}'.trim();
+          }
+        });
+        if (res != '409 cutoff') {
+          throw TestFailure('after the $cutoff:00 cut-off B changed tomorrow ($res), wanted 409 cutoff');
+        }
+        f.note('after the cut-off ($cutoff:00 Dhaka) the server refused tomorrow for B (409 cutoff)');
+        day = now.add(const Duration(days: 2));
+      }
       await f.net(() => apiB.postJson('/mess/v2/$mid/meals',
-          {'date': _iso(tomorrow), 'b': 0, 'l': 1, 'd': 1, 'client_id': 'r-b-meal-$_tag'}));
+          {'date': _iso(day), 'b': 0, 'l': 1, 'd': 1, 'client_id': 'r-b-meal-$_tag'}));
       await f.net(() => apiB.postJson('/mess/v2/$mid/entries', {
-            'kind': 'bazar', 'date': _iso(DateTime.now()), 'amount': 50000,
+            'kind': 'bazar', 'date': _iso(_dhakaNow()), 'amount': 50000,
             'data': {'items': 'rice, oil'}, 'client_id': 'r-b-bazar-$_tag'}));
     });
     await f.step('A enters Wi-Fi 700 (UI)', () async {
@@ -89,7 +118,7 @@ void registerMessV2Flows() {
       await f.pumpFor(const Duration(milliseconds: 1200));
     });
     await f.step('A closes the month (UI) -> math checked', () async {
-      final tomorrow = DateTime.now().add(const Duration(days: 1));
+      final tomorrow = _dhakaNow().add(const Duration(days: 1));
       if (tomorrow.day > 28) {
         f.note('month close skipped: a mess month that ends today needs start day ${tomorrow.day} (>28)');
         return;
@@ -98,11 +127,15 @@ void registerMessV2Flows() {
       await f.net(() => api.postJson('/mess/v2/$mid/edit', {'month_start_day': tomorrow.day}));
       await f.tap(find.text(f.t.mv2TabMeals));
       await f.tap(find.text(f.t.mv2TabMonth), settleSeconds: 3);
-      await f.tap(find.byKey(const ValueKey('mess-close-month')));
+      // gatefix: the per-member cards (design2) push "Close month" below the
+      // fold of the lazy list — scroll to it like a finger (run 44061721110)
+      final close = find.byKey(const ValueKey('mess-close-month'));
+      await f.scrollToBuilt(close, what: 'Close month button');
+      await f.tap(close);
       await f.tap(find.byKey(const ValueKey('mess-confirm-yes')), settleSeconds: 4);
       f.expectHttp('POST', '/mess/v2/$mid/close');
       // the closed period started on start-day of the PREVIOUS month
-      final now = DateTime.now();
+      final now = _dhakaNow();
       final prev = DateTime(now.year, now.month - 1, 1);
       final key = _iso(prev).substring(0, 7);
       final d = await f.net(() => api.getJson('/mess/v2/$mid?month=$key'));
