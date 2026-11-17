@@ -5,6 +5,8 @@ Every gap fixed here gets a test (owner_actions/gaps/money_BN.md):
   * a due reminder is never sent to someone who already paid after the close,
     and a part-payment reminds only the amount still left.
 """
+from django.test import SimpleTestCase
+
 from core.models import MessMember
 
 from .tests_messv2 import V, _Base
@@ -87,3 +89,21 @@ class MessRemindAfterPaymentTests(_Base):
         bid = MessMember.objects.get(mess_id=mid, user=self.b).id
         n = self.post("a", f"/mess/v2/{mid}/remind", {"member_id": bid}, 200).json()["sent"]
         self.assertEqual(n, 0)
+
+
+class ServerParserTests(SimpleTestCase):
+    """Money typed in any common way is read to the exact poisha."""
+
+    def test_khata_refuses_an_exponent_instead_of_guessing(self):
+        from core.logic import business_khata as K
+        self.assertEqual(K.to_poisha("1e3"), 0)           # was ৳13
+        self.assertEqual(K.to_poisha("৳১,২৫০.৫০"), 125050)
+        self.assertEqual(K.to_poisha("Tk 500"), 50000)
+
+    def test_landlord_commas_and_half_up(self):
+        from core.logic import landlord_tenant as LT
+        self.assertEqual(LT.to_poisha("1,500"), 150000)  # was 0
+        self.assertEqual(LT.to_poisha("12.345"), 1235)   # was 1234 (half-even)
+        self.assertEqual(LT.to_poisha("১২০০০.৫০"), 1200050)
+        self.assertEqual(LT.to_poisha("NaN"), 0)
+        self.assertEqual(LT.to_poisha("bad"), 0)
