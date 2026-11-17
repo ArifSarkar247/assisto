@@ -425,6 +425,9 @@ class DolynkAdapter(B.Provider):
         return self._client().token(fresh=True)
 
     def _stream_ok(self, url):
+        # host_allowed() already refuses anything but https on the vendor's
+        # domains (flag-cctv-e2e: the callers' own startswith("https://")
+        # duplicated it and blocked the CI stream seam -> live 502 in CI)
         extra = tuple(h.strip() for h in str(self.cfg.get("media_hosts") or "").split(",")
                       if h.strip().startswith("."))
         return B.host_allowed(url, self.pic_hosts + extra)
@@ -569,11 +572,11 @@ class DolynkAdapter(B.Provider):
             pick = [x for x in streams if str(x.get("streamType")) == str(want)] or streams
             for x in pick:
                 url = str(x.get("hls") or "")
-                if url.startswith("https://") and self._stream_ok(url):
+                if self._stream_ok(url):
                     cover = str(x.get("coverUrl") or "")
                     return {"url": url, "proto": "hls", "expires_s": 600,
                             "token": str(row.get("liveToken") or ""),
-                            "cover": cover if cover.startswith("https://") and self._stream_ok(cover) else ""}
+                            "cover": cover if self._stream_ok(cover) else ""}
         raise B.ConnectError("no_stream")
 
     def _records(self, c, serial, channel, start_epoch, end_epoch):
@@ -604,7 +607,7 @@ class DolynkAdapter(B.Provider):
                                             "beginTime": seg.get("beginTime"),
                                             "endTime": seg.get("endTime")}) or {}
             url = str(data.get("url") or "")
-            if url.startswith("https://") and self._stream_ok(url):
+            if self._stream_ok(url):
                 b = _epoch(seg.get("beginTime")) or float(start_epoch)
                 return {"url": url, "proto": "hls", "expires_s": 10, "token": "",
                         "seek_s": max(0, int(float(start_epoch) - b)),
@@ -646,7 +649,7 @@ class DolynkAdapter(B.Provider):
                     "expires_s": 0, "token": ""}
         urls = c.call(P["dump_url"], {"fileIds": files[:10]}) or []
         out = [str(u.get("fileUrl") or "") for u in urls if isinstance(u, dict)]
-        out = [u for u in out if u.startswith("https://") and self._stream_ok(u)]
+        out = [u for u in out if self._stream_ok(u)]
         if not out:
             raise B.ConnectError("no_stream")
         return {"url": out[0], "files": out, "proto": "mp4", "pending": False,
@@ -656,7 +659,7 @@ class DolynkAdapter(B.Provider):
         data = self._client().call(self.paths["snapshot"], {"deviceId": serial,
                                                             "channelId": str(channel or 0)}) or {}
         url = str(data.get("url") or "")
-        if url.startswith("https://") and self._stream_ok(url):
+        if self._stream_ok(url):
             # the picture is uploaded a few seconds later (FAQ Device #4)
             return {"url": url, "proto": "jpeg", "ready_after_s": 10, "expires_s": 3600, "token": ""}
         raise B.ConnectError("no_stream")
@@ -670,7 +673,7 @@ class DolynkAdapter(B.Provider):
         data = self._client().call(P["decrypt"], {"imageUrl": url, "deviceId": serial,
                                                   "isTcmDevice": False}) or {}
         u = str(data.get("url") or "")
-        return u if u.startswith("https://") and self._stream_ok(u) else ""
+        return u if self._stream_ok(u) else ""
 
     def cloud_records(self, grant, serial, channel, start_epoch, end_epoch):
         try:
@@ -689,7 +692,7 @@ class DolynkAdapter(B.Provider):
             th = str(r.get("thumbUrl") or "")
             out.append({"begin": r.get("beginTime"), "end": r.get("endTime"),
                         "size": r.get("size"), "encrypted": str(r.get("encryptMode")) == "1",
-                        "thumb": th if th.startswith("https://") and self._stream_ok(th) else ""})
+                        "thumb": th if self._stream_ok(th) else ""})
         return out
 
     def cloud(self, grant, serial, channel=0):
@@ -749,7 +752,7 @@ class DolynkAdapter(B.Provider):
             pics = [pics.strip("[]")]
         pic = ""
         for p in pics or []:
-            if isinstance(p, str) and p.startswith("https://") and self._stream_ok(p):
+            if isinstance(p, str) and self._stream_ok(p):
                 pic = p
                 break
         ch = m.get("channelId")
